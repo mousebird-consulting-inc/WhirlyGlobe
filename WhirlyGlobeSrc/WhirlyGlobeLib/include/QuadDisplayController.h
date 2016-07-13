@@ -176,17 +176,20 @@ public:
     // Never called if there are no big drawables
     virtual void adapterWakeUp() = 0;
 };
-
+    
 /** This data layer displays image data organized in a quad tree.
     It will swap data in and out as required.
  */
-class QuadDisplayController : public QuadTreeImportanceCalculator
+class QuadDisplayController : public QuadTreeImportanceCalculator, public Identifiable
 {
 public:
     QuadDisplayController(QuadDataStructure *dataStructure,QuadLoader *loader,QuadDisplayControllerAdapter *adapter);
     ~QuadDisplayController();
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
+    // We keep a registery of Quad Display Controllers so we can access them in between threads
+    static void SendWakeup(SimpleIdentity controllerID);
     
     // Called when we ready to start doing things
     void init(Scene *scene,SceneRendererES *renderer);

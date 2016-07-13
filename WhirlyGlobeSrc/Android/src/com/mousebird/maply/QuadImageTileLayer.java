@@ -229,7 +229,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 					@Override
 					public void run()
 					{
-						evalStep();
+						if (valid)
+							evalStep();
 					}
 				};
 				evalStepHandle = layerThread.addTask(evalStepRun,true);

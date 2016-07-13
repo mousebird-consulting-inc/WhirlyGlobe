@@ -20,6 +20,8 @@
 
 #include <iostream>
 #import <string>
+#import <map>
+#import <mutex>
 #import "glwrapper.h"
 #import "QuadDisplayController.h"
 #import "GlobeMath.h"
@@ -33,6 +35,11 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
+    
+// We need to call back to the quad display controller from the rendering thread at any time
+static std::mutex globalQuadMut;
+typedef std::map<SimpleIdentity,QuadDisplayController *> QuadDisplayMap;
+static QuadDisplayMap quadDisplayControllers;
         
 QuadDisplayController::QuadDisplayController(QuadDataStructure *dataStructure,QuadLoader *loader,QuadDisplayControllerAdapter *adapter)
 : adapter(adapter), dataStructure(dataStructure), loader(loader), quadtree(NULL),
@@ -45,13 +52,37 @@ QuadDisplayController::QuadDisplayController(QuadDataStructure *dataStructure,Qu
     greedyMode = true;
     meteredMode = false;
     pthread_mutex_init(&frameLoadingLock, NULL);
+    
+    {
+        std::lock_guard<std::mutex> lock(globalQuadMut);
+
+        quadDisplayControllers[this->getId()] = this;
+    }
 }
 
 QuadDisplayController::~QuadDisplayController()
 {
+    adapter = NULL;
+    {
+        std::lock_guard<std::mutex> lock(globalQuadMut);
+        
+        QuadDisplayMap::iterator it = quadDisplayControllers.find(this->getId());
+        quadDisplayControllers.erase(it);
+    }
+
     if (quadtree)
         delete quadtree;
     quadtree = NULL;
+}
+    
+void QuadDisplayController::SendWakeup(SimpleIdentity controllerID)
+{
+    std::lock_guard<std::mutex> lock(globalQuadMut);
+    QuadDisplayMap::iterator it = quadDisplayControllers.find(controllerID);
+    if (it != quadDisplayControllers.end())
+    {
+        it->second->wakeUp();
+    }
 }
     
 void QuadDisplayController::init(Scene *inScene,SceneRendererES *inRenderer)
@@ -779,7 +810,8 @@ void QuadDisplayController::poke()
 void QuadDisplayController::wakeUp()
 {
     somethingHappened = true;
-    adapter->adapterWakeUp();
+    if (adapter)
+        adapter->adapterWakeUp();
 }
 
 // Importance callback for quad tree

@@ -252,10 +252,10 @@ class BigDrawableSwap : public ChangeRequest
 {
 public:
     // Called when the big drawable has swapped (on the rendering thread)
-    typedef void (SwapCallback)(BigDrawableSwap *swap,void *data);
+    typedef void (SwapCallback)(BigDrawableSwap *swap,SimpleIdentity swapData);
 
     /// Construct with the big drawable ID and the buffer to switch to
-    BigDrawableSwap(SwapCallback *swapCallback,void *swapData)
+    BigDrawableSwap(SwapCallback *swapCallback,SimpleIdentity swapData)
     : swapCallback(swapCallback), swapData(swapData) { }
     
     void addSwap(SimpleIdentity drawId,int whichBuffer)
@@ -271,7 +271,7 @@ public:
 
 protected:
     SwapCallback *swapCallback;
-    void *swapData;
+    SimpleIdentity swapData;
     class SwapInfo
     {
     public:

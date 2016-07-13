@@ -71,6 +71,7 @@ public:
 	ViewState *lastViewState;
         std::string shaderName;
         SimpleIdentity shaderID;
+    JavaVM* jvm;
 
 	// Methods for Java quad image layer
     jmethodID startFetchJava,scheduleEvalStepJava;
@@ -98,6 +99,8 @@ public:
 	// Get Java methods for a particular instance
 	void setJavaRefs(JNIEnv *inEnv,jobject obj)
 	{
+        inEnv->GetJavaVM(&jvm);
+        
         env = inEnv;
 		javaObj = (jobject)env->NewGlobalRef(obj);
 		jclass theClass = env->GetObjectClass(javaObj);
@@ -293,6 +296,9 @@ public:
 	    // Change the images to give us start and finish
 	    if (tileLoader)
 	    	tileLoader->setCurrentImageStart(image0,image1,changes);
+        
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "image0 = %d, image1 = %d, u_interp = %f",image0,image1,t);
+
         
         changes.push_back(new SetProgramValueReq(shaderID,"u_interp",t));
 	}
@@ -591,8 +597,12 @@ public:
     // Wake the thread up
     virtual void adapterWakeUp()
     {
-    	if (maplyCurrentEnv)
-    		maplyCurrentEnv->CallVoidMethod(javaObj, scheduleEvalStepJava);
+        // Let's be careful to get the right env for this thread
+        JNIEnv *thisEnv = NULL;
+        jvm->GetEnv((void **)&thisEnv, JNI_VERSION_1_6);
+        
+        if (thisEnv)
+            thisEnv->CallVoidMethod(javaObj, scheduleEvalStepJava);
     }
 };
 

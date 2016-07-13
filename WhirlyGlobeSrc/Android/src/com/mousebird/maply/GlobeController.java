@@ -333,10 +333,20 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
 	 * @param z Height above the map in display units.
 	 */
-	public void setPositionGeo(double x,double y,double z)
+	public void setPositionGeo(final double x,final double y,final double z)
 	{
 		if (!running)
 			return;
+
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					setPositionGeo(x,y,z);
+				}
+			});
+			return;
+		}
 
 		globeView.cancelAnimation();
 		Point3d geoCoord = globeView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
@@ -360,10 +370,20 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	 * @param z Height above the map in display units.
 	 * @param howLong Time (in seconds) to animate.
 	 */
-	public void animatePositionGeo(double x,double y,double z,double howLong)
+	public void animatePositionGeo(final double x,final double y,final double z,final double howLong)
 	{
 		if (!running)
 			return;
+
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					animatePositionGeo(x,y,z,howLong);
+				}
+			});
+			return;
+		}
 
 		globeView.cancelAnimation();
 		Point3d geoCoord = globeView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));

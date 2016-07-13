@@ -505,6 +505,7 @@ public class MaplyBaseController
 		}
 	}
 
+	boolean rendererAttached = false;
     ArrayList<Runnable> postSurfaceRunnables = new ArrayList<Runnable>();
 
     /**
@@ -604,6 +605,8 @@ public class MaplyBaseController
 		// Create the working threads
 		for (int ii=0;ii<numWorkingThreads;ii++)
 			workerThreads.add(makeLayerThread(false));
+
+		rendererAttached = true;
 
 		// Call the post surface setup callbacks
 		for (Runnable run : postSurfaceRunnables)
@@ -755,8 +758,18 @@ public class MaplyBaseController
 	 * Add a single layer.  This will start processing its data on the layer thread at some
 	 * point in the near future.
 	 */
-	public void addLayer(Layer layer)
+	public void addLayer(final Layer layer)
 	{
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					addLayer(layer);
+				}
+			});
+			return;
+		}
+
 		LayerThread baseLayerThread = layerThreads.get(0);
 		baseLayerThread.addLayer(layer);
 	}
@@ -765,8 +778,18 @@ public class MaplyBaseController
 	 * Remove a single layer.  The layer will stop receiving data and be shut down shortly
 	 * after you call this.
 	 */
-	public void removeLayer(Layer layer)
+	public void removeLayer(final Layer layer)
 	{
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					removeLayer(layer);
+				}
+			});
+			return;
+		}
+
 		LayerThread baseLayerThread = layerThreads.get(0);
 		baseLayerThread.removeLayer(layer);
 	}
@@ -778,10 +801,20 @@ public class MaplyBaseController
 	 * @param run Runnable to execute.
 	 * @param mode Where to execute it.
 	 */
-	private void addTask(Runnable run,ThreadMode mode)
+	private void addTask(final Runnable run,final ThreadMode mode)
 	{
 		if (!running)
 			return;
+
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					addTask(run,mode);
+				}
+			});
+			return;
+		}
 
 		LayerThread baseLayerThread = layerThreads.get(0);
 		if (mode == ThreadMode.ThreadCurrent) {
@@ -1324,26 +1357,54 @@ public class MaplyBaseController
      * @param shader The shader to add.
      * @param sceneName The scene name to associate it with.
      */
-    public void addShaderProgram(Shader shader,String sceneName)
+    public void addShaderProgram(final Shader shader,final String sceneName)
     {
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					addShaderProgram(shader,sceneName);
+				}
+			});
+			return;
+		}
+
         scene.addShaderProgram(shader, sceneName);
     }
 
 	/**
 	 * Add an active object that will be called right before the render (on the render thread).
 	 */
-	public void addActiveObject(ActiveObject activeObject)
+	public void addActiveObject(final ActiveObject activeObject)
 	{
-		if (renderWrapper == null || renderWrapper.maplyRender == null)
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					addActiveObject(activeObject);
+				}
+			});
 			return;
+		}
+
 		renderWrapper.maplyRender.addActiveObject(activeObject);
 	}
 
 	/**
 	 * Remove an active object added earlier.
 	 */
-	public void removeActiveObject(ActiveObject activeObject)
+	public void removeActiveObject(final ActiveObject activeObject)
 	{
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					removeActiveObject(activeObject);
+				}
+			});
+			return;
+		}
+
 		renderWrapper.maplyRender.removeActiveObject(activeObject);
 	}
 
@@ -1594,7 +1655,17 @@ public class MaplyBaseController
 	 * Triangle shaders use the lights, but line shaders do not.
 	 * @param light Light to add.
      */
-	public void addLight(Light light) {
+	public void addLight(final Light light) {
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					addLight(light);
+				}
+			});
+			return;
+		}
+
 		if (this.lights == null)
 			this.lights = new ArrayList<>();
 		lights.add(light);
@@ -1605,7 +1676,17 @@ public class MaplyBaseController
 	 * Remove the given light (assuming it's active) from the list of lights.
 	 * @param light Light to remove.
      */
-	public void removeLight(Light light) {
+	public void removeLight(final Light light) {
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					removeLight(light);
+				}
+			});
+			return;
+		}
+
 		if (this.lights == null)
 			return;
 		this.lights.remove(light);
@@ -1634,6 +1715,16 @@ public class MaplyBaseController
 	 * There are a default set of lights, so you'll want to do this before adding your own.
 	 */
 	public void clearLights() {
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					clearLights();
+				}
+			});
+			return;
+		}
+
 		this.lights = new ArrayList<>();
 		this.updateLights();
 	}
@@ -1644,6 +1735,16 @@ public class MaplyBaseController
 	 * This clears out all the lights and adds in the default starting light source.
 	 */
 	public void resetLights() {
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(new Runnable() {
+				@Override
+				public void run() {
+					resetLights();
+				}
+			});
+			return;
+		}
+
 		this.clearLights();
 
 		Light light = new Light();

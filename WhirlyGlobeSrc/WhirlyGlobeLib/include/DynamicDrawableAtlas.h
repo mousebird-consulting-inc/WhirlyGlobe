@@ -86,7 +86,7 @@ public:
     /// Pass in a target and selector to pass through to the main thread.
     /// This will be called when one or more parts of the flush have done their
     ///  thing on the main thread.  Use this to wake yourself up on another thread.
-    void swap(ChangeSet &changes,BigDrawableSwap::SwapCallback *,void *swapData);
+    void swap(ChangeSet &changes,BigDrawableSwap::SwapCallback *,SimpleIdentity swapData);
     
     /// Check if we're waiting on an active drawable buffer swap
     bool waitingOnSwap();

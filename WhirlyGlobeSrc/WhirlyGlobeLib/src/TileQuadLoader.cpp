@@ -136,11 +136,9 @@ void QuadTileLoader::refreshParents()
 }
  
 // Called by the big drawable when it swaps to the new buffer
-void BigDrawableSwapCallback(BigDrawableSwap *swap,void *data)
+void BigDrawableSwapCallback(BigDrawableSwap *swap,SimpleIdentity quadControlID)
 {
-    QuadTileLoader *quadTileLoader = (QuadTileLoader *)data;
-    QuadDisplayController *control = quadTileLoader->getController();
-    control->wakeUp();
+    QuadDisplayController::SendWakeup(quadControlID);
 }
 
 // Flush out any outstanding updates saved in the changeRequests
@@ -152,7 +150,7 @@ void QuadTileLoader::flushUpdates(ChangeSet &changes)
         if (tileBuilder->drawAtlas->hasUpdates() && !tileBuilder->drawAtlas->waitingOnSwap())
         {
             tileBuilder->texAtlas->cleanup(changeRequests);
-            tileBuilder->drawAtlas->swap(changeRequests, &BigDrawableSwapCallback, this);
+            tileBuilder->drawAtlas->swap(changeRequests, &BigDrawableSwapCallback, this->getController()->getId());
         }
     }
 
