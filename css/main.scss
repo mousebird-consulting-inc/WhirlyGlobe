@@ -285,6 +285,14 @@ ul.docs-and-resources {
   }
 }
 
+.media {
+  padding: 18px;
+}
+
+.media h2::before {
+  content: '';
+}
+
 // prev / next
 // modeled after http://www.chromaticsites.com/blog/css-image-rollovers-accessible-standard-compliant-flicker-free
 //
