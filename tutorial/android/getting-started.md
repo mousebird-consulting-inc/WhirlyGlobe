@@ -1,6 +1,6 @@
 ---
 title: Before You Start
-layout: ios-tutorial
+layout: android-tutorial
 ---
 
 ### Code Blocks
@@ -13,11 +13,8 @@ Enter Precisely This Text
 
 ### Pre-Requisites
 
-You should be familiar with the Terminal in OS X.  You’ll need to type a number of commands to get started.
+You should be familiar with the Terminal.  You’ll need to type a number of commands to get started.
 
 We make use of [git](http://en.wikipedia.org/wiki/Git_(software)) and [github](http://github.com/).  A passing familiarity will help.
 
-For iOS development, you’ll need a recent version of [Xcode](http://en.wikipedia.org/wiki/Xcode).
-
-Xcode 7.3 and WhirlyGlobe­-Maply 2.4 were used to prepare this guide. If you're using a newer version of either, things might be different.
 

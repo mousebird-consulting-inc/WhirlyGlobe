@@ -20,7 +20,7 @@
                 <nav>
                   <div class="trigger">
                     <ol class="list-unstyled sidebar-headers">
-                      {% for tutorial in site.data.ios-tutorial %}
+                      {% for tutorial in site.data.android-tutorial %}
                       <li class="sidebar-header-item">{{ tutorial.section }}</li>
                       <ol class="list-unstyled sidebar-list-items">
                       {%   for file in tutorial.files %}
@@ -50,8 +50,8 @@
         <div class="row">
           <div class="col-sm-9" id="prev-next">
             {% if page.prev_next == null %}
-            {%   assign last_section = site.data.ios-tutorial.size | minus:1 %}
-            {%   for tutorial in site.data.ios-tutorial %}
+            {%   assign last_section = site.data.android-tutorial.size | minus:1 %}
+            {%   for tutorial in site.data.android-tutorial %}
             {%   assign t = forloop.index0 %}
             {%   for file in tutorial.files %}
             {%   assign last_file = forloop.length | minus:1 %}
@@ -74,7 +74,7 @@
             {%         assign next_page = 0 %}
             {%       endif %}
             {%       assign prev_section = last_section %}
-            {%       assign prev_page = site.data.ios-tutorial[last_section].files.size | minus:1 %}
+            {%       assign prev_page = site.data.android-tutorial[last_section].files.size | minus:1 %}
             {%     else %}
 
             <!-- is the current page the last page of the last tutorial section? -->
@@ -87,7 +87,7 @@
             {%         else %}
             <!--   assign prev to the last page of the previous section and next to the first page of the first section (cycle) -->
             {%           assign prev_section = t | minus:1 %}
-            {%           assign prev_page = site.data.ios-tutorial[prev_section].files.size | minus:1 %}
+            {%           assign prev_page = site.data.android-tutorial[prev_section].files.size | minus:1 %}
             {%         endif %}
             {%         assign next_section = 0 %}
             {%         assign next_page = 0 %}
@@ -104,7 +104,7 @@
             {%             assign next_page = 0 %}
             {%           endif %}
             {%           assign prev_section = t | minus:1 %}
-            {%           assign prev_page = site.data.ios-tutorial[prev_section].files.size | minus:1 %}
+            {%           assign prev_page = site.data.android-tutorial[prev_section].files.size | minus:1 %}
             {%         else %}
 
             <!-- is the current page the last in a tutorial section containing multiple pages? -->
@@ -128,14 +128,14 @@
             {%     endif %}
 
             <!-- deliver next/prev links -->
-            <a class="prev" href="{{ site.data.ios-tutorial[prev_section].files[prev_page].filename | prepend: '/tutorial/ios/' | prepend: site.baseurl }}">Previous</a><a class="next" href="{{ site.data.ios-tutorial[next_section].files[next_page].filename | prepend: '/tutorial/ios/' | prepend: site.baseurl }}">Next</a>
+            <a class="prev" href="{{ site.data.android-tutorial[prev_section].files[prev_page].filename | prepend: '/tutorial/android/' | prepend: site.baseurl }}">Previous</a><a class="next" href="{{ site.data.android-tutorial[next_section].files[next_page].filename | prepend: '/tutorial/android/' | prepend: site.baseurl }}">Next</a>
 
 
             {%   endif %}
             {%   endfor %}
             {%   endfor %}
             {% else %}
-            <a class="prev" href="{{ page.prev_next.prev | prepend: '/tutorial/ios/' | prepend: site.baseurl }}">Previous</a><a class="next" href="{{ page.prev_next.next | prepend: '/tutorial/ios/' | prepend: site.baseurl }}">Next</a>
+            <a class="prev" href="{{ page.prev_next.prev | prepend: '/tutorial/android/' | prepend: site.baseurl }}">Previous</a><a class="next" href="{{ page.prev_next.next | prepend: '/tutorial/android/' | prepend: site.baseurl }}">Next</a>
 
 
             {% endif %}

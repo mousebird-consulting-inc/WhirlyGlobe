@@ -1,0 +1,11 @@
+- section: Getting Started
+  files: 
+    - filename: getting-started.html
+    - filename: hello-earth.html
+    - filename: building-from-source.html
+
+- section: Basics of Display
+  files: 
+    - filename: globe-or-map.html
+    - filename: your-first-globe.html
+    - filename: your-first-map.html
