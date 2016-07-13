@@ -54,6 +54,7 @@ class CharRenderer
 		textFillPaint.setTextSize(fontSize);
 		int textColor = labelInfo.getTextColor();
 		textFillPaint.setColor(textColor);
+		textFillPaint.setAntiAlias(true);
 		if (labelInfo != null)
 			textFillPaint.setTypeface(labelInfo.getTypeface());
 		Paint.FontMetrics fm = textFillPaint.getFontMetrics();
@@ -74,6 +75,7 @@ class CharRenderer
 			textOutlinePaint.setStyle(Paint.Style.STROKE);
 			textOutlinePaint.setStrokeWidth(labelInfo.getOutlineSize());
 			textOutlinePaint.setColor(labelInfo.getOutlineColor());
+			textOutlinePaint.setAntiAlias(true);
 			textOutlinePaint.setTypeface(textFillPaint.getTypeface());
 		}
 
