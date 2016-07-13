@@ -17,4 +17,24 @@ You should be familiar with the Terminal.  You’ll need to type a number of com
 
 We make use of [git](http://en.wikipedia.org/wiki/Git_(software)) and [github](http://github.com/).  A passing familiarity will help.
 
+For Android development, we use [Android Studio](https://developer.android.com/studio/index.html). Android Studio comes with the Android Development Kit (required). If you are building from source, you will also need the [Native Development Kit (NDK)](https://developer.android.com/ndk/index.html).
+
+If you are using OS X, we recommend installing the NDK with [homebrew](http://brew.sh/).
+
+```sh
+brew install android-ndk
+```
+
+The NDK typically installs in the following location:
+
+```
+/usr/local/Cellar/android-ndk/
+```
+
+The tutorial uses the following versions:
+
+* Android Studio: Version 2.1.2
+* Native Development Kit: Version r10e
+
+Later versions should work fine, though you may find slight differences.
 
