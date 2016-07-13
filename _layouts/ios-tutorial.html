@@ -128,13 +128,15 @@
             {%     endif %}
 
             <!-- deliver next/prev links -->
-            <a class="prev" href="{{ site.data.tutorial[prev_section].files[prev_page].filename | prepend: '/tutorial/' | prepend: site.baseurl }}">Previous</a><a class="next" href="{{ site.data.tutorial[next_section].files[next_page].filename | prepend: '/tutorial/' | prepend: site.baseurl }}">Next</a>
+            <a class="prev" href="{{ site.data.tutorial[prev_section].files[prev_page].filename | prepend: '/tutorial/ios/' | prepend: site.baseurl }}">Previous</a><a class="next" href="{{ site.data.tutorial[next_section].files[next_page].filename | prepend: '/tutorial/ios/' | prepend: site.baseurl }}">Next</a>
+
 
             {%   endif %}
             {%   endfor %}
             {%   endfor %}
             {% else %}
-            <a class="prev" href="{{ page.prev_next.prev | prepend: '/tutorial/' | prepend: site.baseurl }}">Previous</a><a class="next" href="{{ page.prev_next.next | prepend: '/tutorial/' | prepend: site.baseurl }}">Next</a>
+            <a class="prev" href="{{ page.prev_next.prev | prepend: '/tutorial/ios/' | prepend: site.baseurl }}">Previous</a><a class="next" href="{{ page.prev_next.next | prepend: '/tutorial/ios/' | prepend: site.baseurl }}">Next</a>
+
 
             {% endif %}
 

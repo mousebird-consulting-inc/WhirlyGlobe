@@ -1,6 +1,6 @@
 ---
 title: Local Image Layer
-layout: tutorial
+layout: ios-tutorial
 ---
 
 Despite your swelling pride, the blank screen is only so satisfying. Let's add a visible layer.  We're going to use the Geography Class example from Mapbox and we'll pull it locally, from device storage.

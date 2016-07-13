@@ -1,6 +1,6 @@
 ---
 title: Spheres
-layout: tutorial
+layout: ios-tutorial
 ---
 
 You can add a variety of 3D shapes to a globe or even a map.  We'll start with a simple one, spheres.

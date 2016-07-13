@@ -1,5 +1,5 @@
 ---
 title: Arrows
-layout: tutorial
+layout: ios-tutorial
 ---
 

@@ -1,6 +1,6 @@
 ---
 title: Vector Data
-layout: tutorial
+layout: ios-tutorial
 ---
 
 HelloEarth is looking good, but it's still a bit plain. Almost all map or globe apps have some sort of overlay which adds additional information or context. Let's add some country outlines to get a taste of what's involved when adding vector data in WhirlyGlobe­-Maply.

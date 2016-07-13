@@ -1,6 +1,6 @@
 ---
 title: Screen Marker Selection
-layout: tutorial
+layout: ios-tutorial
 ---
 
 Screen marker selection works just like vector selection.  WhirlyGlobe-Maply is doing very different thing to make them happen, but on the user side it's all the same.

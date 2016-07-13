@@ -1,6 +1,6 @@
 ---
 title: Vector Selection
-layout: tutorial
+layout: ios-tutorial
 ---
 
 Displaying data is one thing, but we'd also like to touch it.  WhirlyGlobe-Maply has a wealth of interactive features.  Let's start with selection and annotations.

@@ -1,6 +1,6 @@
 ---
 title: Component Tester
-layout: tutorial
+layout: ios-tutorial
 ---
 
 The tutorials provide simple examples for much WhirlyGlobe-Maply functionality.  We can't cover everything or maybe we just don't have the time.  But odds are we have tested a given piece of functionality and there's one place to find it.

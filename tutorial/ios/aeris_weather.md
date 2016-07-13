@@ -1,6 +1,6 @@
 ---
 title: Aeris Weather Layer
-layout: tutorial
+layout: ios-tutorial
 ---
 *Tutorial by Ranen Ghosh*
 

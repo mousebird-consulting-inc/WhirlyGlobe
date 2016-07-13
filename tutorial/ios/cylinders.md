@@ -1,5 +1,5 @@
 ---
 title: Cylinders
-layout: tutorial
+layout: ios-tutorial
 ---
 

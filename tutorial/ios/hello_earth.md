@@ -1,6 +1,6 @@
 ---
 title: Hello Earth Project
-layout: tutorial
+layout: ios-tutorial
 prev_next:
   prev: getting_started.html
   next: building_from_binary.html

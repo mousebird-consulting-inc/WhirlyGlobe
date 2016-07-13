@@ -1,6 +1,6 @@
 ---
 title: Screen Markers
-layout: tutorial
+layout: ios-tutorial
 ---
 
 Screen markers are 2D markers that follow a location on the globe or map.  As the user moves, they move, but they don't get any bigger or smaller.

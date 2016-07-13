@@ -1,6 +1,6 @@
 ---
 title: NASA Image Layers
-layout: tutorial
+layout: ios-tutorial
 ---
 
 *Tutorial developed by Chris Lamb.*

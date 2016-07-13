@@ -1,6 +1,6 @@
 ---
 title: Remote ArcGIS Layers
-layout: tutorial
+layout: ios-tutorial
 ---
 
 *Tutorial developed by Chris Lamb.*

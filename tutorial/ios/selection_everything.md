@@ -1,5 +1,5 @@
 ---
 title: Everything Else
-layout: tutorial
+layout: ios-tutorial
 ---
 

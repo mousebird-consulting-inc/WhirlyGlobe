@@ -1,6 +1,6 @@
 ---
 title: Binary Distribution
-layout: tutorial
+layout: ios-tutorial
 prev_next:
   prev: hello_earth.html
   next: globe_or_map.html

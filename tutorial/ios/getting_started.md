@@ -1,6 +1,6 @@
 ---
 title: Before You Start
-layout: tutorial
+layout: ios-tutorial
 ---
 
 WhirlyGlobe-Maply is an open source toolkit for iOS and Android. You can use it to build an interactive 2D map (Maply) or a 3D globe (WhirlyGlobe).  For more information, check out the [project page]({{ site.baseurl }}/index.html).

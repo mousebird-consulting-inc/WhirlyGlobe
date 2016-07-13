@@ -1,6 +1,6 @@
 ---
 title: Screen Labels
-layout: tutorial
+layout: ios-tutorial
 ---
 
 Screen labels are 2D labels that follow a location on the globe or map.  As the user moves, they move, but don't get any bigger or smaller.  You have a lot of control over how they look and interact, but they're simple to use.

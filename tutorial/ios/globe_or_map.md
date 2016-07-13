@@ -1,6 +1,6 @@
 ---
 title: Globe Or Map
-layout: tutorial
+layout: ios-tutorial
 ---
 
 You can make a 3D globe or a 2D map equally well in WhirlyGlobe-Maply.  Hence the name.  Most of the objects are the same and, after a bit of setup, you use them almost identically.  The main difference is the UIViewController.

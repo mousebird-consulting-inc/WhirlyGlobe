@@ -1,6 +1,6 @@
 ---
 title: DigitalGlobe Maps API
-layout: tutorial
+layout: ios-tutorial
 ---
 *Tutorial by Ranen Ghosh*
 

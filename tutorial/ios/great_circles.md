@@ -1,5 +1,5 @@
 ---
 title: Great Circles
-layout: tutorial
+layout: ios-tutorial
 ---
 

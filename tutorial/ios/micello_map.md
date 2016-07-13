@@ -1,6 +1,6 @@
 ---
 title: Micello Indoor Maps
-layout: tutorial
+layout: ios-tutorial
 ---
 *Tutorial by Ranen Ghosh*
 

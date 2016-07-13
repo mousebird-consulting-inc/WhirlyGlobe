@@ -1,6 +1,6 @@
 ---
 title: CartoDB Layer
-layout: tutorial
+layout: ios-tutorial
 ---
 
 In this tutorial we're going to do something fun and complex.  We'll query buildings from a remote spatial database, hosted by <a href= "http://cartodb.com" target="_blank">CartoDB</a>.  We'll fetch them much like we do remote image maps and we'll toss them on some satellite imagery.

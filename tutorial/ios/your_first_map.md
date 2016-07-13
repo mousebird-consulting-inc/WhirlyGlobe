@@ -1,6 +1,6 @@
 ---
 title: Your First Map
-layout: tutorial
+layout: ios-tutorial
 prev_next:
   prev: globe_or_map.html
   next: local_image_layer.html

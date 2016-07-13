@@ -1,6 +1,6 @@
 ---
 title: Remote Image Layer
-layout: tutorial
+layout: ios-tutorial
 ---
 
 The Geography Class example only has a few levels of detail.  We can't zoom in very close and if we could it would take up way too much space on the device.  Thus, we need a way to look at tiled image maps sitting on a server.
