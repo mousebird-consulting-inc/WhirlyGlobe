@@ -8,7 +8,7 @@ layout: android-tutorial
 Copy your `Android-release.aar` that you built from source into your app's `libs` directory.
 
 ```
-WhirlyGlobe/WhirlyGlobeSrc/Android/build/outputs/aar
+WhirlyGlobe/WhirlyGlobeSrc/HelloEarth/app/libs
 ```
 
 Rename it to `WhirlyGlobeMaply.aar`.
