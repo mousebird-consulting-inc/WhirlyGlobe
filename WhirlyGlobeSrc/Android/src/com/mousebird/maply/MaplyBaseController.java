@@ -1088,6 +1088,7 @@ public class MaplyBaseController
 	{
 		synchronized(selectionMap)
 		{
+			Log.v("Maply", "Adding selectable object " + selObj.getClass().getSimpleName() + " #" + Long.toString(selectID));
 			compObj.addSelectID(selectID);
 			selectionMap.put(selectID,selObj);
 		}
@@ -1116,6 +1117,9 @@ public class MaplyBaseController
 			synchronized(selectionMap) {
 				for (SelectedObject selObj : objs) {
 					long selectID = selObj.getSelectID();
+
+					Log.v("Maply", "Got selectedObjects on screenLoc #" + Long.toString(selectID));
+
 					selObj.selObj = selectionMap.get(selectID);
 				}
 			}
@@ -1192,6 +1196,12 @@ public class MaplyBaseController
 				{
 					InternalLabel intLabel = new InternalLabel(label,labelInfo);
 					intLabels.add(intLabel);
+
+					// Keep track of this one for selection
+					if (label.selectable)
+					{
+						addSelectableObject(label.ident,label,compObj);
+					}
 				}
 
 				long labelId = EmptyIdentity;

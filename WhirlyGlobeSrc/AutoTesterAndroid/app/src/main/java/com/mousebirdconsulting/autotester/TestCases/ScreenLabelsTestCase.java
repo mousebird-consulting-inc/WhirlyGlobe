@@ -3,6 +3,7 @@ package com.mousebirdconsulting.autotester.TestCases;
 import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.util.Log;
 
 import com.mousebird.maply.AttrDictionary;
 import com.mousebird.maply.ComponentObject;
@@ -12,8 +13,10 @@ import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.Point3d;
 import com.mousebird.maply.ScreenLabel;
 import com.mousebird.maply.ScreenMarker;
+import com.mousebird.maply.SelectedObject;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -48,6 +51,54 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		insertLabels(baseView.getVectors(), mapVC);
 		Point2d loc = Point2d.FromDegrees(-74.075833, 4.598056);
 		mapVC.setPositionGeo(loc.getX(), loc.getY(), 3);
+
+		mapVC.gestureDelegate = new MapController.GestureDelegate() {
+			@Override
+			public void userDidSelect(MapController mapController, SelectedObject[] selectedObjects, Point2d point2d, Point2d point2d1) {
+
+				Log.v("Maply", "User did select");
+
+				if (selectedObjects == null) {
+					return;
+				}
+
+				for (SelectedObject selectedObject : selectedObjects) {
+
+					if (selectedObject.selObj != null) {
+
+						Log.v("Maply", "User selected a " + selectedObject.selObj.getClass().getSimpleName());
+
+					}
+
+				}
+
+			}
+
+			@Override
+			public void userDidTap(MapController mapController, Point2d point2d, Point2d point2d1) {
+				Log.v("Maply", "User did tap");
+			}
+
+			@Override
+			public void userDidLongPress(MapController mapController, Object o, Point2d point2d, Point2d point2d1) {
+				Log.v("Maply", "User did long press");
+			}
+
+			@Override
+			public void mapDidStartMoving(MapController mapController, boolean b) {
+
+			}
+
+			@Override
+			public void mapDidStopMoving(MapController mapController, Point3d[] point3ds, boolean b) {
+
+			}
+
+			@Override
+			public void mapDidMove(MapController mapController, Point3d[] point3ds, boolean b) {
+
+			}
+		};
 		return true;
 	}
 
@@ -94,6 +145,9 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 					label.text = labelName;
 					label.loc = object.centroid();
 					labels.add(label);
+
+					label.selectable = true;
+					label.userObject = labelName;
 
 					if (addMarkers) {
 						ScreenMarker marker = new ScreenMarker();
