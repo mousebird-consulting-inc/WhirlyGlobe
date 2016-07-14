@@ -23,11 +23,11 @@ BUILD SUCCESSFUL
 Total time: 5 mins 53.322 secs
 ```
 
-Now, when you open Android Studio, select __Import project__.
+Now, open Android Studio and select __Import project__.
 
 ![Import Project](resources/import-project.png)
 
-Now, browse to the root of the `AutoTesterAndroid` project, which is located in:
+Browse to the root of the `AutoTesterAndroid` project, which is located in:
 
 ```
 WhirlyGlobe/WhirlyGlobeSrc/AutoTesterAndroid

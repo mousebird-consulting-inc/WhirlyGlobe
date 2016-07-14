@@ -44,6 +44,30 @@ Homebrew usually places packages in `/usr/local/Cellar`. This is a good place to
 
 ![SDK Location in Android Studio](resources/android-sdk-location-in-android-studio.png)
 
+## Building an AAR
+
+The `.aar` is the binary packaging format Android uses, similar to Java's `.jar`. Through gradle, we create an AAR of WhirlyGlobe-Maply that you can copy over to your Hello Earth project. First, make sure you are in the directory:
+
+```
+WhirlyGlobe/WhirlyGlobeSrc/Android
+```
+
+Then, execute the `gradlew` build script:
+
+```
+./gradlew assemble
+```
+
+This will take several minutes. You will be compiling the entierty of WhirlyGlobe-Maply into an AAR file. In fact, there will be two AAR files--one in Debug mode and the other in Release mode.
+
+These AAR files will be located in:
+
+```
+WhirlyGlobe/WhirlyGlobeSrc/Android/build/outputs/aar
+```
+
+Unless you need to debug the underlying library, you should use the `Android-release.aar` in your Hello Earth project. Keep track of this file, you will need to copy it into your app's project.
+
 ## Example App
 
 Before starting your own "[Hello Earth](hello-earth.html)" project, there is an example app you can try out called `AutoTesterAndroid`. This is optional, but it is the quickest way to _see something work_. We have [brief instructions](auto-tester-android.html) for you to build AutoTesterAndroid.
