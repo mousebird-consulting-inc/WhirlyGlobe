@@ -7,7 +7,7 @@ Currently the only way to include WhirlyGlobe-Maply into you Android project is 
 
 The advantage of building from source is that you can modify and customize WhirlyGlobe-Maply, and your changes will immediately be compiled into your project. If you plan on modifying this toolkit, building from source is your best option.
 
-## Clone Git Repository
+### Clone Git Repository
 
 First you will want to clone the toolkit from Github.
 
@@ -31,7 +31,7 @@ git submodule update
 
 There are 13 git submodules that need to be cloned and initialized. This usually takes about a minute.
 
-## local.properties
+### local.properties
 
 Our build scripts need to know the location of your Android SDK and Android NDK. This is done by creating a `local.properties` file in the `WhirlyGlobe/WhirlyGlobeSrc/Android/` directory. My `local.properties` file is below. Replace these paths to the paths of your Android SDK and NDK respectively.
 
@@ -44,9 +44,9 @@ Homebrew usually places packages in `/usr/local/Cellar`. This is a good place to
 
 ![SDK Location in Android Studio](resources/android-sdk-location-in-android-studio.png)
 
-## Building an AAR
+### Building an AAR
 
-The `.aar` is the binary packaging format Android uses, similar to Java's `.jar`. Through gradle, we create an AAR of WhirlyGlobe-Maply that you can copy over to your Hello Earth project. First, make sure you are in the directory:
+The `.aar` is the binary package container format Android uses, an extension to Java's `.jar` container. Through gradle, we create an AAR of WhirlyGlobe-Maply that you can copy over to your Hello Earth project. First, make sure you are in the Android directory:
 
 ```
 WhirlyGlobe/WhirlyGlobeSrc/Android
@@ -68,7 +68,7 @@ WhirlyGlobe/WhirlyGlobeSrc/Android/build/outputs/aar
 
 Unless you need to debug the underlying library, you should use the `Android-release.aar` in your Hello Earth project. Keep track of this file, you will need to copy it into your app's project.
 
-## Example App
+### Example App
 
 Before starting your own "[Hello Earth](hello-earth.html)" project, there is an example app you can try out called `AutoTesterAndroid`. This is optional, but it is the quickest way to _see something work_. We have [brief instructions](auto-tester-android.html) for you to build AutoTesterAndroid.
 
