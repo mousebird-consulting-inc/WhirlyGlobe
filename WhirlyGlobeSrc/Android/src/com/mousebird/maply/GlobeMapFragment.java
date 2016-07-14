@@ -15,7 +15,7 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
     protected GlobeController globeControl;
     protected MaplyBaseController baseControl;
 
-    enum MapDisplayType {Globe, Map}
+    public enum MapDisplayType {Globe, Map}
 
     ;
     protected MapDisplayType mapDisplayType = MapDisplayType.Map;
@@ -160,11 +160,11 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
     /**
      * The user long pressed somewhere, either on a selectable object or nor
      * @param mapController The maply controller this is associated with.
-     * @param selObj The object (e.g. MaplyScreenMarker) that the user long pressed or null if there was none
+     * @param selObjs The objects (e.g. MaplyScreenMarker) that the user long pressed or null if there was none
      * @param loc The location they tapped on.  This is in radians.
      * @param screenLoc The location on the OpenGL surface.
      */
-    public void userDidLongPress(MapController mapController, Object selObj, Point2d loc, Point2d screenLoc)
+    public void userDidLongPress(MapController mapController, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc)
     {
     }
 
@@ -230,11 +230,11 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
     /**
      * The user did long press somewhere, there might be an object
      * @param globeControl The maply controller this is associated with.
-     * @param selObj The object the user selected (e.g. MaplyScreenMarker) or null if there was no object.
+     * @param selObjs The objects the user selected (e.g. MaplyScreenMarker) or null if there was no object.
      * @param loc The location they tapped on.  This is in radians.  If null, then the user tapped outside the globe.
      * @param screenLoc The location on the OpenGL surface.
      */
-    public void userDidLongPress(GlobeController globeControl, Object selObj, Point2d loc, Point2d screenLoc)
+    public void userDidLongPress(GlobeController globeControl, SelectedObject selObjs[], Point2d loc, Point2d screenLoc)
     {
     }
 

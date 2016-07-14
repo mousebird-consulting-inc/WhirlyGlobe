@@ -508,6 +508,14 @@ public class MaplyBaseController
 	boolean rendererAttached = false;
     ArrayList<Runnable> postSurfaceRunnables = new ArrayList<Runnable>();
 
+	/**
+	 * Set if the renderer is set up and running.
+	 */
+	public boolean rendererIsAttached()
+	{
+		return rendererAttached;
+	}
+
     /**
      * Add a runnable to be executed after the OpenGL surface is created.
      */
