@@ -428,11 +428,11 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		/**
 		 * The user did long press somewhere, there might be an object
 		 * @param globeControl The maply controller this is associated with.
-		 * @param selObj The object the user selected (e.g. MaplyScreenMarker) or null if there was no object.
+		 * @param selObjs The objects the user selected (e.g. MaplyScreenMarker) or null if there was no object.
 		 * @param loc The location they tapped on.  This is in radians.  If null, then the user tapped outside the globe.
          * @param screenLoc The location on the OpenGL surface.
          */
-        public void userDidLongPress(GlobeController globeControl, Object selObj, Point2d loc, Point2d screenLoc);
+        public void userDidLongPress(GlobeController globeControl, SelectedObject selObjs[], Point2d loc, Point2d screenLoc);
 
         /**
          * Called when the globe first starts moving.
@@ -506,11 +506,15 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, renderWrapper.maplyRender.frameSize, false);
 		if (loc == null)
 			return;
+		Point3d localPt = globeView.getCoordAdapter().displayToLocal(loc);
+		Point3d geoPt = null;
+		if (localPt != null)
+			geoPt = globeView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
 
 		if (gestureDelegate != null)
 		{
-			Object selObj = this.getObjectAtScreenLoc(screenLoc);
-			gestureDelegate.userDidLongPress(this, selObj, loc.toPoint2d(), screenLoc);
+			SelectedObject selObjs[] = this.getObjectsAtScreenLoc(screenLoc);
+			gestureDelegate.userDidLongPress(this, selObjs, geoPt.toPoint2d(), screenLoc);
 
 		}
 
