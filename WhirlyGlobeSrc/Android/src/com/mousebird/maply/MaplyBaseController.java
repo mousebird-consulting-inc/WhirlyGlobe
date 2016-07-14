@@ -41,7 +41,7 @@ public class MaplyBaseController
 	// This may be a GLSurfaceView or a GLTextureView
 	View baseView = null;
 	Activity activity = null;
-    OkHttpClient httpClient = new OkHttpClient();
+    private OkHttpClient httpClient;
 
 
 	public static final String kToolkitDefaultTriangleNoLightingProgram = "Default Triangle;lighting=no";
@@ -90,7 +90,12 @@ public class MaplyBaseController
     /**
      * Return an HTTP Client for use in fetching data, probably tiles.
      */
-    OkHttpClient getHttpClient() { return httpClient; }
+    OkHttpClient getHttpClient()
+	{
+		if (httpClient == null)
+			httpClient = new OkHttpClient();
+		return httpClient;
+	}
 	
 	// MapView defines how we're looking at the data
 	protected com.mousebird.maply.View view = null;
