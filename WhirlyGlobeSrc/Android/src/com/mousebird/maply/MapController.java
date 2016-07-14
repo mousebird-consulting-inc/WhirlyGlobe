@@ -476,11 +476,11 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		/**
 		 * The user long pressed somewhere, either on a selectable object or nor
 		 * @param mapController The maply controller this is associated with.
-		 * @param selObj The object (e.g. MaplyScreenMarker) that the user long pressed or null if there was none
+		 * @param selObjs The objects (e.g. MaplyScreenMarker) that the user long pressed or null if there was none
 		 * @param loc The location they tapped on.  This is in radians.
          * @param screenLoc The location on the OpenGL surface.
          */
-		public void userDidLongPress(MapController mapController, Object selObj, Point2d loc, Point2d screenLoc);
+		public void userDidLongPress(MapController mapController, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc);
 
 		/**
 		 * Called when the map first starts moving.
@@ -553,9 +553,15 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 
 		if (gestureDelegate != null)
 		{
-			Object selObj = this.getObjectAtScreenLoc(screenLoc);
-			gestureDelegate.userDidLongPress(this, selObj, loc.toPoint2d(), screenLoc);
+			Point3d localPt = mapView.getCoordAdapter().displayToLocal(loc);
+			Point3d geoPt = null;
+			if (localPt != null)
+				geoPt = mapView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
 
+//			Object selObj = this.getObjectAtScreenLoc(screenLoc);
+			SelectedObject selObjs[] = this.getObjectsAtScreenLoc(screenLoc);
+
+			gestureDelegate.userDidLongPress(this, selObjs, geoPt.toPoint2d(), screenLoc);
 		}
 
 	}

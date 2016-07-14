@@ -33,7 +33,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
         }
 
         @Override
-        public void userDidLongPress(GlobeController globeController, Object o, Point2d loc, Point2d screenLoc) {
+        public void userDidLongPress(GlobeController globeController, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc) {
             Log.i("AutoTester","User long pressed at " + loc.getX() + " " + loc.getY());
         }
 
@@ -70,7 +70,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
         }
 
         @Override
-        public void userDidLongPress(MapController mapController, Object o, Point2d loc, Point2d screenloc) {
+        public void userDidLongPress(MapController mapController, SelectedObject[] selObjs, Point2d loc, Point2d screenloc) {
             Log.i("AutoTester","User long pressed at " + loc.getX() + " " + loc.getY());
         }
 

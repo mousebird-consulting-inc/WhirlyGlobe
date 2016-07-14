@@ -337,7 +337,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 			Log.d("Maply","User is looking at bounding box: " + mbr);
 	}
 
-	public void userDidLongPress(GlobeController globeControl, Object selObj, Point2d loc, Point2d screenLoc)
+	public void userDidLongPress(GlobeController globeControl, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc)
 	{}
 
 	public void globeDidStartMoving(GlobeController globeControl, boolean userMotion)
@@ -375,6 +375,6 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		Point2d newGeo = mapControl.geoPointFromScreen(newScreenPt);
 	}
 
-	public void userDidLongPress(MapController mapController, Object selObj, Point2d loc, Point2d screenLoc)
+	public void userDidLongPress(MapController mapController, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc)
 	{}
 }
