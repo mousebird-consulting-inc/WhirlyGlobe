@@ -99,6 +99,7 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
 
     @Override
     public void onPause() {
+        super.onPause();
     }
 
     @Override
