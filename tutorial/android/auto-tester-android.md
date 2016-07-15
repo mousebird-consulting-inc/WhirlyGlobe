@@ -3,6 +3,8 @@ title: AutoTesterAndroid Example App
 layout: android-tutorial
 ---
 
+*Tutorial by Nicholas Hallahan.*
+
 AutoTesterAndroid is the [example app](https://github.com/mousebird/WhirlyGlobe/tree/develop_3_0/WhirlyGlobeSrc/AutoTesterAndroid) that demonstrates and tests many WhirlyGlobe-Maply features. This app uses both the Whirly Globe globe and Maply map.
 
 ```sh

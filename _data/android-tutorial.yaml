@@ -3,12 +3,7 @@
     - filename: getting-started.html
     - filename: building-from-source.html
     - filename: hello-earth.html
-
-- section: Basics of Display
-  files: 
-    - filename: globe-or-map.html
-    - filename: your-first-globe.html
-    - filename: your-first-map.html
+    - filename: your-first-globe-or-map.html
 
 - section: Advanced
   files:

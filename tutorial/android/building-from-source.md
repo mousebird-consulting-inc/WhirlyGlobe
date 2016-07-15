@@ -3,6 +3,8 @@ title: Building From Source
 layout: android-tutorial
 ---
 
+*Tutorial by Nicholas Hallahan.*
+
 Currently the only way to include WhirlyGlobe-Maply into you Android project is by compiling the source code. We are working on Maven builds that can be simply included in your gradle file, but for now, you need to build from source.
 
 The advantage of building from source is that you can modify and customize WhirlyGlobe-Maply, and your changes will immediately be compiled into your project. If you plan on modifying this toolkit, building from source is your best option.
@@ -58,7 +60,7 @@ Then, execute the `gradlew` build script:
 ./gradlew assemble
 ```
 
-This will take several minutes. You will be compiling the entierty of WhirlyGlobe-Maply into an AAR file. In fact, there will be two AAR files--one in Debug mode and the other in Release mode.
+This will take several minutes. You will be compiling the entirety of WhirlyGlobe-Maply into an AAR file. In fact, there will be two AAR files--one in Debug mode and the other in Release mode.
 
 These AAR files will be located in:
 
