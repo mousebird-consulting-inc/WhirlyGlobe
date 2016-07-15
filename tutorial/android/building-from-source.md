@@ -40,7 +40,7 @@ sdk.dir=/Users/njh/Library/Android/sdk
 ndk.dir=/usr/local/Cellar/android-ndk/r10e
 ```
 
-Homebrew usually places packages in `/usr/local/Cellar`. This is a good place to look to find your NDK. You can find the location of your Android SDK your Android Studio Preferences (`Android Studio > Preferences`):
+Homebrew usually places packages in `/usr/local/Cellar`. This is a good place to look to find your NDK. You can find the location of your Android SDK your Android Studio Preferences (Android Studio > Preferences):
 
 ![SDK Location in Android Studio](resources/android-sdk-location-in-android-studio.png)
 
