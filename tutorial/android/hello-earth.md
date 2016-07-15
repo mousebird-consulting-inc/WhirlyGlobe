@@ -5,6 +5,8 @@ layout: android-tutorial
 
 Now we will be building a _Hello Earth_ project. Similar to your typical _Hello World_, we will be creating a basic project in Android Studio that displays a globe and map using WhirlyGlobe-Maply.
 
+_Note: You can check out the completed [HelloEarthAndroid](https://github.com/mousebird/HelloEarthAndroid) tutorial on Github. It includes the WhirlyGlobe-Maply library and everything you need--all you have to do is run it in Android Studio._
+
 ### Start New Android Studio Project
 
 Open Android Studio and select _Start a new Android Studio project_.
