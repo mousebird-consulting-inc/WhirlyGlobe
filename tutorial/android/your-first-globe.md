@@ -11,7 +11,7 @@ Right click on the package of your `MainActivity` in the project window. Select 
 
 ![New Blank Fragment](resources/new-blank-fragment.png)
 
-Notice that we are not including layout XML. This is because the internal layout of your fragment is already done for you under the hood by the library. You can optionally include fragment factory methods and interface callbacks, however, you will need to implement those if you want the app to work. For this tutorial, leave those unchecked.
+Notice that we are not including layout XML. This is because the internal layout of your fragment is already done for you under the hood, by the library. You can optionally include fragment factory methods and interface callbacks, however, you will need to implement those if you want the app to work. For this tutorial, leave those unchecked.
 
 ![Hello Globe Fragment](resources/hello-globe-fragment.png)
 
@@ -110,3 +110,13 @@ public class HelloGlobeFragment extends GlobeMapFragment {
 ```
 
 You can download [HelloGlobeFragment.java](resources/HelloGlobeFragment.java) and place it directly in your project if you'd like. Notice that it is extending `com.mousebird.maply.GlobeMapFragment`, which is a part of the WhirlyGlobe-Maply library. 
+
+Basic Setup:
+
+* `onCreateView` sets up and returns the view from the base controller. Here is where you can do custom setup of your fragment.
+* `chooseDisplayType` is where you declare if you want a globe or a map. We choose `MapDisplayType.Globe`.
+* `controlHasStarted` is the final stage where the controller with the OpenGL Surface is ready for final setup.
+
+That's it! You can now build your app. A globe with a Stamen Watercolor base layer should appear.
+
+<img src="resources/stamen-whirly-globe.gif" alt="Hello World" style="max-width:400px; display: block; margin: auto;" />

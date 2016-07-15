@@ -55,15 +55,19 @@ allprojects {
 ```
 
 
-Next add `compile(name:'WhirlyGlobeMaply', ext:'aar')` to the end of the `dependencies` directive in `Build.gradle (Module: app)`.
+Next add the following packages to the end of the `dependencies` directive in `Build.gradle (Module: app)`.
+
+* `compile 'com.squareup.okhttp:okhttp:2.3.0'`
+* `compile(name:'WhirlyGlobeMaply', ext:'aar')`
 
 ```gradle
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:24.0.0'
-    compile 'com.android.support:design:24.0.0'
-    compile(name:'WhirlyGlobeMaply', ext:'aar')
+    compile 'com.android.support:support-v4:24.0.0'
+    compile 'com.squareup.okhttp:okhttp:2.3.0'
+    compile(name: 'WhirlyGlobeMaply', ext: 'aar')
 }
 ```
 
