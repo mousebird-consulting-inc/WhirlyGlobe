@@ -23,7 +23,7 @@ Our `HelloGlobeFragment` will be in our main activity, and it will fill all of t
 
 Open `app/src/main/res/layout/activity_hello_globe.xml`. Delete the padding in the `RelativeLayout` as well as the `TextView`. Inside of the relative layout, place a fragment element as shown below.
 
-#### activity_hello_globe.xml
+#### activity_main.xml
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -111,7 +111,7 @@ public class HelloGlobeFragment extends GlobeMapFragment {
 
 You can download [HelloGlobeFragment.java](resources/HelloGlobeFragment.java) and place it directly in your project if you'd like. Notice that it is extending `com.mousebird.maply.GlobeMapFragment`, which is a part of the WhirlyGlobe-Maply library. 
 
-Basic Setup:
+Overridden Methods:
 
 * `onCreateView` sets up and returns the view from the base controller. Here is where you can do custom setup of your fragment.
 * `chooseDisplayType` is where you declare if you want a globe or a map. We choose `MapDisplayType.Globe`.
@@ -119,4 +119,4 @@ Basic Setup:
 
 That's it! You can now build your app. A globe with a Stamen Watercolor base layer should appear.
 
-<img src="resources/stamen-whirly-globe.gif" alt="Hello World" style="max-width:400px; display: block; margin: auto;" />
+<img src="resources/stamen-whirly-globe.gif" alt="Hello Globe" style="max-width:400px; display: block; margin: auto;" />

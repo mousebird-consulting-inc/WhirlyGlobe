@@ -3,6 +3,8 @@ title: Before You Start
 layout: android-tutorial
 ---
 
+*Tutorial by Nicholas Hallahan.*
+
 ### Code Blocks
 
 There are times you’ll need to ender project settings, code, or commands in the Terminal verbatim. They will look like this.
