@@ -192,6 +192,12 @@ ul.docs-and-resources li.mousebird:before {
     font-size: 11.2px;
     color: #f2b200; }
 
+.media {
+  padding: 18px; }
+
+.media h2::before {
+  content: ''; }
+
 #prev-next {
   padding: 24px 0 24px 0;
   text-align: center; }
@@ -326,17 +332,18 @@ blockquote {
  */
 pre,
 code {
-  font-size: 15px;
+  font-size: 13px;
   border: 1px solid #e8e8e8;
   border-radius: 3px;
-  background-color: #eef; }
+  background-color: #fff;
+  color: #797979; }
 
 code {
   padding: 1px 5px; }
 
 pre {
   padding: 8px 12px;
-  overflow-x: scroll; }
+  overflow-x: auto; }
   pre > code {
     border: 0;
     padding-right: 0;
