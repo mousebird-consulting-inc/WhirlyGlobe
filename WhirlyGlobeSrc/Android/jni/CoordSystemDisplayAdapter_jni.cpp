@@ -143,3 +143,134 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_loc
     
     return NULL;
 }
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_screenPointFromGeoBatch
+(JNIEnv *env, jobject obj,jobject viewObj,int frameSizeX,int frameSizeY,jdoubleArray gxArray, jdoubleArray gyArray, jdoubleArray gzArray, jdoubleArray sxArray, jdoubleArray syArray)
+{
+    try
+    {
+        CoordSystemDisplayAdapterInfo *classInfo = CoordSystemDisplayAdapterInfo::getClassInfo();
+        CoordSystemDisplayAdapter *coordAdapter = classInfo->getObject(env,obj);
+        GlobeViewClassInfo *globeClassInfo = GlobeViewClassInfo::getClassInfo();
+        WhirlyGlobe::GlobeView *globeView = globeClassInfo->getObject(env,viewObj);
+        // Note: Fix this
+        Maply::MapView *mapView = NULL;
+        if (!coordAdapter || !globeView)
+            return false;
+        View *view = globeView;
+        
+        JavaDoubleArray geoX(env,gxArray), geoY(env,gyArray);
+        JavaDoubleArray sx(env,sxArray), sy(env,syArray);
+        
+        if (geoX.len != geoY.len || geoX.len != sx.len || geoX.len != sy.len)
+            return false;
+
+        CoordSystem *coordSys = coordAdapter->getCoordSystem();
+        Matrix4d modelMat = view->calcModelMatrix();
+        Matrix4d viewMat = globeView->calcViewMatrix();
+        Matrix4d fullMat = viewMat * modelMat;
+        Matrix4d fullNormalMat = fullMat.inverse().transpose();
+        Point2f frameSize(frameSizeX,frameSizeY);
+        
+        for (unsigned int ii=0;ii<geoX.len;ii++)
+        {
+            Point3d localPt = coordSys->geographicToLocal3d(GeoCoord(geoX.rawDouble[ii],geoY.rawDouble[ii]));
+            Point3d dispPt = coordAdapter->localToDisplay(localPt);
+            Point2f screenPt;
+            bool valid = true;
+            if (!coordAdapter->isFlat())
+            {
+                if (CheckPointAndNormFacing(dispPt,dispPt.normalized(),modelMat,fullNormalMat) < 0.0)
+                    valid = false;
+                else {
+                    screenPt = globeView->pointOnScreenFromSphere(dispPt,&fullMat,frameSize);
+                }
+            } else {
+                screenPt = mapView->pointOnScreenFromPlane(dispPt,&fullMat,frameSize);
+            }
+            if (valid)
+            {
+                sx.rawDouble[ii] = screenPt.x();  sy.rawDouble[ii] = screenPt.y();
+            } else {
+                sx.rawDouble[ii] = MAXFLOAT;  sy.rawDouble[ii] = MAXFLOAT;
+            }
+        }
+        
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystemDisplayAdapter::screenPointFromGeoBatch()");
+    }
+
+    return true;
+}
+
+/*
+ * Class:     com_mousebird_maply_CoordSystemDisplayAdapter
+ * Method:    geoPointFromScreenBatch
+ * Signature: ([D[D[D[D[D)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_geoPointFromScreenBatch
+(JNIEnv *env, jobject obj, jobject viewObj,int frameSizeX,int frameSizeY, jdoubleArray sxArray, jdoubleArray syArray, jdoubleArray gxArray, jdoubleArray gyArray)
+{
+    try
+    {
+        CoordSystemDisplayAdapterInfo *classInfo = CoordSystemDisplayAdapterInfo::getClassInfo();
+        CoordSystemDisplayAdapter *coordAdapter = classInfo->getObject(env,obj);
+        GlobeViewClassInfo *globeClassInfo = GlobeViewClassInfo::getClassInfo();
+        WhirlyGlobe::GlobeView *globeView = globeClassInfo->getObject(env,viewObj);
+        // Note: Fix this
+        Maply::MapView *mapView = NULL;
+        if (!coordAdapter || !globeView)
+            return false;
+        View *view = globeView;
+        
+        JavaDoubleArray sx(env,sxArray), sy(env,syArray);
+        JavaDoubleArray geoX(env,gxArray), geoY(env,gyArray);
+        
+        if (geoX.len != geoY.len || geoX.len != sx.len || geoX.len != sy.len)
+            return false;
+        
+        CoordSystem *coordSys = coordAdapter->getCoordSystem();
+        Matrix4d modelMat = view->calcModelMatrix();
+        Matrix4d viewMat = globeView->calcViewMatrix();
+        Matrix4d fullMat = viewMat * modelMat;
+        Point2f frameSize(frameSizeX,frameSizeY);
+        
+        for (unsigned int ii=0;ii<sx.len;ii++)
+        {
+            GeoCoord outCoord;
+            bool valid = true;
+            Point2f screenPt(sx.rawDouble[ii],sy.rawDouble[ii]);
+            Point3d hit;
+            if (!coordAdapter->isFlat())
+            {
+                if (!globeView->pointOnSphereFromScreen(screenPt,&fullMat,frameSize,&hit,true))
+                    valid = false;
+                else
+                    outCoord = coordSys->localToGeographic(coordAdapter->displayToLocal(hit));
+            } else {
+                if (!mapView->pointOnPlaneFromScreen(screenPt,&fullMat,frameSize,&hit,false))
+                    valid = false;
+                else
+                    outCoord = coordSys->localToGeographic(coordAdapter->displayToLocal(hit));
+            }
+            
+            if (valid)
+            {
+                geoX.rawDouble[ii] = outCoord.x();  geoY.rawDouble[ii] = outCoord.y();
+            } else {
+                geoX.rawDouble[ii] = MAXFLOAT;  geoY.rawDouble[ii] = MAXFLOAT;
+            }
+        }
+        
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystemDisplayAdapter::screenPointFromGeoBatch()");
+    }
+    
+    return true;
+}

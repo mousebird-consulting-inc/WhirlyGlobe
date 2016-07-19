@@ -227,7 +227,7 @@ Vector3d GlobeView::prospectiveUp(Eigen::Quaterniond &prospectiveRot)
     return Vector3d(newUp.x(),newUp.y(),newUp.z());
 }
 	
-bool GlobeView::pointOnSphereFromScreen(Point2f pt,const Eigen::Matrix4d *transform,const Point2f &frameSize,Point3d *hit,bool normalized)
+bool GlobeView::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d *transform,const Point2f &frameSize,Point3d *hit,bool normalized)
 {
 	// Back project the point from screen space into model space
 	Point3d screenPt = pointUnproject(Point2f(pt.x(),pt.y()),frameSize.x(),frameSize.y(),true);

@@ -82,6 +82,13 @@ class CoordSystemDisplayAdapter
 		return coordSys;
 	}
 
+	// Batch conversion geo to screen
+	public native boolean screenPointFromGeoBatch(View view,int frameSizeX,int frameSizeY,double[] inX,double[] inY,double[] inZ,double[] outX,double[] outY);
+
+	// Batch conversion screen to geo
+	public native boolean geoPointFromScreenBatch(View view,int frameSizeX,int frameSizeY,double[] inX,double[] inY,double[] outX,double[] outY);
+
+
 	// Cleans up C++ objects
 	public void shutdown()
 	{

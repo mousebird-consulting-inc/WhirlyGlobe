@@ -103,7 +103,7 @@ public:
         Returns true if we hit and where
         Returns false if not and the closest point on the sphere
      */
-    bool pointOnSphereFromScreen(WhirlyKit::Point2f pt,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d *hit,bool normalized);
+    bool pointOnSphereFromScreen(const WhirlyKit::Point2f &pt,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d *hit,bool normalized);
 
     /** From a world location (3D), figure out the projection to the screen
         Returns a point within the frame

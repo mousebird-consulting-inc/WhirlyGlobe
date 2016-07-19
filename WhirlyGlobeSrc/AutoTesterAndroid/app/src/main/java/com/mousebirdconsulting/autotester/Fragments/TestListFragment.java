@@ -25,6 +25,7 @@ import com.mousebirdconsulting.autotester.TestCases.CartoDBMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ClusteredMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ComplexParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ComponentObjectLeakTestCase;
+import com.mousebirdconsulting.autotester.TestCases.CoordConversionTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
@@ -121,6 +122,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new BillboardTestCase(getActivity()));
 			testCases.add(new LocalVectorTileTestCase(getActivity()));
 			testCases.add(new PagingLayerTestCase(getActivity()));
+			testCases.add(new CoordConversionTestCase(getActivity()));
 //			testCases.add(new ArealTestCase(getActivity()));
 		}
 

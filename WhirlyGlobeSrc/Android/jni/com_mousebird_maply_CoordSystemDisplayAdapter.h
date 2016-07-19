@@ -33,6 +33,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_getBou
 
 /*
  * Class:     com_mousebird_maply_CoordSystemDisplayAdapter
+ * Method:    screenPointFromGeoBatch
+ * Signature: (Lcom/mousebird/maply/View;II[D[D[D[D[D)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_screenPointFromGeoBatch
+  (JNIEnv *, jobject, jobject, jint, jint, jdoubleArray, jdoubleArray, jdoubleArray, jdoubleArray, jdoubleArray);
+
+/*
+ * Class:     com_mousebird_maply_CoordSystemDisplayAdapter
+ * Method:    geoPointFromScreenBatch
+ * Signature: (Lcom/mousebird/maply/View;II[D[D[D[D)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_geoPointFromScreenBatch
+  (JNIEnv *, jobject, jobject, jint, jint, jdoubleArray, jdoubleArray, jdoubleArray, jdoubleArray);
+
+/*
+ * Class:     com_mousebird_maply_CoordSystemDisplayAdapter
  * Method:    nativeInit
  * Signature: ()V
  */
