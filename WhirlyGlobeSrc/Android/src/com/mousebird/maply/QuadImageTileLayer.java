@@ -103,7 +103,9 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		tileSource = inTileSource;
 		ChangeSet changes = new ChangeSet();
 		initialise(coordSys,changes);
-		maplyControl.getLayerThread().addChanges(changes);
+		LayerThread layerThread = maplyControl.getLayerThread();
+		if (layerThread != null)
+			layerThread.addChanges(changes);
 		setSimultaneousFetches(8);
 		setDrawPriority(MaplyBaseController.ImageLayerDrawPriorityDefault);
 	}
