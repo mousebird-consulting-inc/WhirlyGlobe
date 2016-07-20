@@ -190,8 +190,10 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			@Override
 			public void run() {
 				valid = false;
-				for (final Layer layer : layers) {
-					layer.shutdown();
+				synchronized (layers) {
+					for (final Layer layer : layers) {
+						layer.shutdown();
+					}
 				}
 
 				layers.clear();
@@ -240,7 +242,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			@Override
 			public void run()
 			{
-				layers.add(layer);
+				synchronized (layers) {
+					layers.add(layer);
+				}
 				layer.startLayer(theLayerThread);
 			}
 		});
@@ -255,7 +259,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			public void run()
 			{
 				layer.shutdown();
-				layers.remove(layer);
+				synchronized (layers) {
+					layers.remove(layer);
+				}
 			}
 		});
 	}

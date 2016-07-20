@@ -297,7 +297,7 @@ public:
 	    if (tileLoader)
 	    	tileLoader->setCurrentImageStart(image0,image1,changes);
         
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "image0 = %d, image1 = %d, u_interp = %f",image0,image1,t);
+//        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "image0 = %d, image1 = %d, u_interp = %f",image0,image1,t);
 
         
         changes.push_back(new SetProgramValueReq(shaderID,"u_interp",t));
