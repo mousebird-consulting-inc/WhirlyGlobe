@@ -573,7 +573,10 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	// Pass the touches on to the gesture handler
 	@Override
 	public boolean onTouch(View view, MotionEvent e) {
-		return gestureHandler.onTouch(view, e);
+		if (running & gestureHandler != null)
+			return gestureHandler.onTouch(view, e);
+
+		return false;
 	}
 
     boolean isPanning = false, isZooming = false, isRotating = false, isAnimating = false;

@@ -562,7 +562,9 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	// Pass the touches on to the gesture handler
 	@Override
 	public boolean onTouch(View view, MotionEvent e) {
-		return gestureHandler.onTouch(view, e);
+		if (gestureHandler != null)
+			return gestureHandler.onTouch(view, e);
+		return false;
 	}
 
     boolean isTilting = false, isPanning = false, isZooming = false, isRotating = false, isAnimating = false;

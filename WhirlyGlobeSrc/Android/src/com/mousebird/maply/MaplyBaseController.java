@@ -350,71 +350,73 @@ public class MaplyBaseController
 	 */
 	public void shutdown()
 	{
-		renderWrapper.stopRendering();
+		startupAborted = true;
+		synchronized (this) {
+			running = false;
+			renderWrapper.stopRendering();
 
-		running = false;
-//		Choreographer.getInstance().removeFrameCallback(this);
-		ArrayList<LayerThread> layerThreadsToRemove = null;
-		synchronized (layerThreads) {
-			layerThreadsToRemove = new ArrayList<LayerThread>(layerThreads);
+			//		Choreographer.getInstance().removeFrameCallback(this);
+			ArrayList<LayerThread> layerThreadsToRemove = null;
+			synchronized (layerThreads) {
+				layerThreadsToRemove = new ArrayList<LayerThread>(layerThreads);
+			}
+			for (LayerThread layerThread : layerThreadsToRemove)
+				layerThread.shutdown();
+			layerThreads.clear();
+
+			metroThread.shutdown();
+			metroThread = null;
+
+			// Shut down the contexts
+			EGL10 egl = (EGL10) EGLContext.getEGL();
+			for (ContextInfo context : glContexts) {
+				egl.eglDestroySurface(renderWrapper.maplyRender.display, context.eglSurface);
+				egl.eglDestroyContext(renderWrapper.maplyRender.display, context.eglContext);
+			}
+			glContexts = null;
+			glContext = null;
+
+			// Clean up OpenGL ES resources
+			setEGLContext(null);
+			scene.teardownGL();
+			scene.shutdown();
+
+			renderWrapper.shutdown();
+
+			baseView = null;
+			renderWrapper = null;
+			coordAdapter.shutdown();
+			coordAdapter = null;
+			scene = null;
+			//		scene.dispose();
+			view = null;
+			//		view.dispose();
+
+			vecManager.dispose();
+			vecManager = null;
+			markerManager.dispose();
+			markerManager = null;
+			stickerManager.dispose();
+			stickerManager = null;
+			labelManager.dispose();
+			labelManager = null;
+			selectionManager.dispose();
+			selectionManager = null;
+			layoutManager.dispose();
+			layoutManager = null;
+			particleSystemManager.dispose();
+			particleSystemManager = null;
+			layoutLayer = null;
+			shapeManager = null;
+			billboardManager = null;
+
+			texManager = null;
+			layerThreads = null;
+			workerThreads = null;
+
+			activity = null;
+			tempBackground = null;
 		}
-		for (LayerThread layerThread : layerThreadsToRemove)
-			layerThread.shutdown();
-		layerThreads.clear();
-
-		metroThread.shutdown();
-		metroThread = null;
-
-		// Shut down the contexts
-		EGL10 egl = (EGL10) EGLContext.getEGL();
-		for (ContextInfo context : glContexts)
-		{
-			egl.eglDestroySurface(renderWrapper.maplyRender.display,context.eglSurface);
-			egl.eglDestroyContext(renderWrapper.maplyRender.display,context.eglContext);
-		}
-		glContexts = null;
-		glContext = null;
-
-		// Clean up OpenGL ES resources
-		setEGLContext(null);
-		scene.teardownGL();
-		scene.shutdown();
-
-		renderWrapper.shutdown();
-
-		baseView = null;
-		renderWrapper = null;
-		coordAdapter.shutdown();
-		coordAdapter = null;
-		scene = null;
-//		scene.dispose();
-		view = null;
-//		view.dispose();
-
-		vecManager.dispose();
-		vecManager = null;
-		markerManager.dispose();
-		markerManager = null;
-		stickerManager.dispose();
-		stickerManager = null;
-		labelManager.dispose();
-		labelManager = null;
-		selectionManager.dispose();
-		selectionManager = null;
-		layoutManager.dispose();
-		layoutManager = null;
-		particleSystemManager.dispose();
-		particleSystemManager = null;
-		layoutLayer = null;
-		shapeManager = null;
-		billboardManager = null;
-
-		texManager = null;
-		layerThreads = null;
-		workerThreads = null;
-
-		activity = null;
-		tempBackground = null;
 	}
 	
 	ArrayList<Runnable> surfaceTasks = new ArrayList<Runnable>();
@@ -570,83 +572,99 @@ public class MaplyBaseController
 			metroThread.requestRender();
 	}
 
+	// Set if they shut things down before the surface was attached
+	boolean startupAborted = false;
+
 	// Called by the render wrapper when the surface is created.
 	// Can't start doing anything until that happens
 	void surfaceCreated(RendererWrapper wrap)
 	{
-		synchronized (layerThreads) {
-			// Kick off the layer thread for background operations
-			for (LayerThread layerThread : layerThreads)
-				layerThread.setRenderer(renderWrapper.maplyRender);
-		}
+		synchronized (this) {
+			if (startupAborted)
+				return;
 
-		// Note: Debugging output
-		renderWrapper.maplyRender.setPerfInterval(perfInterval);
-		
-		// Kick off the layout layer
-		layoutLayer = new LayoutLayer(this,layoutManager);
-		LayerThread baseLayerThread = null;
-		synchronized (layerThreads) {
-			baseLayerThread = layerThreads.get(0);
-		}
-		baseLayerThread.addLayer(layoutLayer);
-
-		// Add a default cluster generator
-		addClusterGenerator(new BasicClusterGenerator(new int[]{Color.argb(255,255,165,0)},0,new Point2d(64,64),this,activity));
-
-		// Run any outstanding runnables
-		if (surfaceTasks != null) {
-			for (Runnable run : surfaceTasks) {
-				Handler handler = new Handler(activity.getMainLooper());
-				handler.post(run);
+			synchronized (layerThreads) {
+				// Kick off the layer thread for background operations
+				for (LayerThread layerThread : layerThreads)
+					layerThread.setRenderer(renderWrapper.maplyRender);
 			}
-			surfaceTasks = null;
+
+			// Note: Debugging output
+			renderWrapper.maplyRender.setPerfInterval(perfInterval);
+
+			// Kick off the layout layer
+			layoutLayer = new LayoutLayer(this, layoutManager);
+			LayerThread baseLayerThread = null;
+			synchronized (layerThreads) {
+				baseLayerThread = layerThreads.get(0);
+			}
+			baseLayerThread.addLayer(layoutLayer);
+
+			// Add a default cluster generator
+			addClusterGenerator(new BasicClusterGenerator(new int[]{Color.argb(255, 255, 165, 0)}, 0, new Point2d(64, 64), this, activity));
+
+			// Run any outstanding runnables
+			if (surfaceTasks != null) {
+				for (Runnable run : surfaceTasks) {
+					Handler handler = new Handler(activity.getMainLooper());
+					handler.post(run);
+				}
+				surfaceTasks = null;
+			}
+
+			if (baseView instanceof GLSurfaceView) {
+				GLSurfaceView glSurfaceView = (GLSurfaceView) baseView;
+				glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+			} else {
+				GLTextureView glTextureView = (GLTextureView) baseView;
+				glTextureView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+			}
+			metroThread = new MetroThread("Metronome Thread", this, displayRate);
+			metroThread.setRenderer(renderWrapper.maplyRender);
+
+			// Make our own context that we can use on the main thread
+			EGL10 egl = (EGL10) EGLContext.getEGL();
+			int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE};
+			glContext = new ContextInfo();
+			glContext.eglContext = egl.eglCreateContext(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, renderWrapper.maplyRender.context, attrib_list);
+			int[] surface_attrs =
+					{
+							EGL10.EGL_WIDTH, 32,
+							EGL10.EGL_HEIGHT, 32,
+							//			    EGL10.EGL_COLORSPACE, GL10.GL_RGB,
+							//			    EGL10.EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGB,
+							//			    EGL10.EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
+							//			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
+							EGL10.EGL_NONE
+					};
+			glContext.eglSurface = egl.eglCreatePbufferSurface(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, surface_attrs);
+
+			synchronized (layerThreads) {
+				for (LayerThread layerThread : layerThreads)
+					layerThread.viewUpdated(view);
+			}
+
+			setClearColor(clearColor);
+
+			// Create the working threads
+			for (int ii = 0; ii < numWorkingThreads; ii++)
+				workerThreads.add(makeLayerThread(false));
+
+			rendererAttached = true;
+
+			// Call the post surface setup callbacks
+			for (final Runnable theRunnable : postSurfaceRunnables) {
+				activity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						// If they shut things down right here, we have to check
+						if (running)
+							theRunnable.run();
+					}
+				});
+			}
+			postSurfaceRunnables.clear();
 		}
-
-		if (baseView instanceof GLSurfaceView) {
-			GLSurfaceView glSurfaceView = (GLSurfaceView) baseView;
-			glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-		} else {
-			GLTextureView glTextureView = (GLTextureView) baseView;
-			glTextureView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-		}
-    	metroThread = new MetroThread("Metronome Thread",this,displayRate);
-		metroThread.setRenderer(renderWrapper.maplyRender);
-
-        // Make our own context that we can use on the main thread
-        EGL10 egl = (EGL10) EGLContext.getEGL();
-        int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
-		glContext = new ContextInfo();
-		glContext.eglContext = egl.eglCreateContext(renderWrapper.maplyRender.display,renderWrapper.maplyRender.config,renderWrapper.maplyRender.context, attrib_list);
-        int[] surface_attrs =
-                {
-                        EGL10.EGL_WIDTH, 32,
-                        EGL10.EGL_HEIGHT, 32,
-//			    EGL10.EGL_COLORSPACE, GL10.GL_RGB,
-//			    EGL10.EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGB,
-//			    EGL10.EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
-//			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
-                        EGL10.EGL_NONE
-                };
-		glContext.eglSurface = egl.eglCreatePbufferSurface(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, surface_attrs);
-
-		synchronized (layerThreads) {
-			for (LayerThread layerThread : layerThreads)
-				layerThread.viewUpdated(view);
-		}
-
-		setClearColor(clearColor);
-
-		// Create the working threads
-		for (int ii=0;ii<numWorkingThreads;ii++)
-			workerThreads.add(makeLayerThread(false));
-
-		rendererAttached = true;
-
-		// Call the post surface setup callbacks
-		for (Runnable run : postSurfaceRunnables)
-			activity.runOnUiThread(run);
-		postSurfaceRunnables.clear();
 	}
 
     /**
@@ -1785,7 +1803,8 @@ public class MaplyBaseController
 			addPostSurfaceRunnable(new Runnable() {
 				@Override
 				public void run() {
-					resetLights();
+					if (running)
+						resetLights();
 				}
 			});
 			return;

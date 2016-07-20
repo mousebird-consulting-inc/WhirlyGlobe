@@ -135,12 +135,13 @@ Scene::~Scene()
     pthread_mutex_destroy(&generatorLock);
     pthread_mutex_destroy(&programLock);
     
-    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+    auto theChangeRuquests = changeRequests;
+    changeRequests.clear();
+    for (unsigned int ii=0;ii<theChangeRuquests.size();ii++)
     {
         // Note: Tear down change requests?
-        delete changeRequests[ii];
+        delete theChangeRuquests[ii];
     }
-    changeRequests.clear();
     
     // Note: Porting
 //    activeModels = nil;
