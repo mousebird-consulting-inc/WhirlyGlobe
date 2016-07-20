@@ -190,10 +190,12 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			@Override
 			public void run() {
 				valid = false;
+				ArrayList<Layer> layersToRemove = null;
 				synchronized (layers) {
-					for (final Layer layer : layers) {
-						layer.shutdown();
-					}
+					layersToRemove = new ArrayList<Layer>(layers);
+				}
+				for (final Layer layer : layersToRemove) {
+					layer.shutdown();
 				}
 
 				layers.clear();

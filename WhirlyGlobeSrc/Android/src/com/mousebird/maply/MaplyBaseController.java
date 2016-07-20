@@ -127,9 +127,11 @@ public class MaplyBaseController
 	 */
 	public LayerThread getLayerThread()
 	{
-		if (layerThreads.size() == 0)
-			return null;
-		return layerThreads.get(0);
+		synchronized (layerThreads) {
+			if (layerThreads.size() == 0)
+				return null;
+			return layerThreads.get(0);
+		}
 	}
 
 	private int lastLayerThreadReturned = 0;
@@ -231,7 +233,9 @@ public class MaplyBaseController
 		
 		// Create the layer thread
         LayerThread layerThread = new LayerThread("Maply Layer Thread",view,scene,true);
-		layerThreads.add(layerThread);
+		synchronized (layerThreads) {
+			layerThreads.add(layerThread);
+		}
 		
         ActivityManager activityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
         ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
@@ -307,7 +311,9 @@ public class MaplyBaseController
 		// Create the layer thread
 		LayerThread newLayerThread = new LayerThread("External Maply Layer Thread",view,scene,handlesViewUpdates);
 
-		layerThreads.add(newLayerThread);
+		synchronized (layerThreads) {
+			layerThreads.add(newLayerThread);
+		}
 
 		// Kick off the layer thread for background operations
 		newLayerThread.setRenderer(renderWrapper.maplyRender);
@@ -348,8 +354,14 @@ public class MaplyBaseController
 
 		running = false;
 //		Choreographer.getInstance().removeFrameCallback(this);
-		for (LayerThread layerThread : layerThreads)
+		ArrayList<LayerThread> layerThreadsToRemove = null;
+		synchronized (layerThreads) {
+			layerThreadsToRemove = new ArrayList<LayerThread>(layerThreads);
+		}
+		for (LayerThread layerThread : layerThreadsToRemove)
 			layerThread.shutdown();
+		layerThreads.clear();
+
 		metroThread.shutdown();
 		metroThread = null;
 
@@ -434,9 +446,11 @@ public class MaplyBaseController
 	// Are we are on one of our known layer threads?
 	boolean isOnLayerThread()
 	{
-		for (LayerThread thread : layerThreads) {
-			if (Looper.myLooper() == thread.getLooper())
-				return true;
+		synchronized (layerThreads) {
+			for (LayerThread thread : layerThreads) {
+				if (Looper.myLooper() == thread.getLooper())
+					return true;
+			}
 		}
 
 		return false;
@@ -560,16 +574,21 @@ public class MaplyBaseController
 	// Can't start doing anything until that happens
 	void surfaceCreated(RendererWrapper wrap)
 	{
-        // Kick off the layer thread for background operations
-		for (LayerThread layerThread : layerThreads)
-			layerThread.setRenderer(renderWrapper.maplyRender);
+		synchronized (layerThreads) {
+			// Kick off the layer thread for background operations
+			for (LayerThread layerThread : layerThreads)
+				layerThread.setRenderer(renderWrapper.maplyRender);
+		}
 
 		// Note: Debugging output
 		renderWrapper.maplyRender.setPerfInterval(perfInterval);
 		
 		// Kick off the layout layer
 		layoutLayer = new LayoutLayer(this,layoutManager);
-		LayerThread baseLayerThread = layerThreads.get(0);
+		LayerThread baseLayerThread = null;
+		synchronized (layerThreads) {
+			baseLayerThread = layerThreads.get(0);
+		}
 		baseLayerThread.addLayer(layoutLayer);
 
 		// Add a default cluster generator
@@ -611,8 +630,10 @@ public class MaplyBaseController
                 };
 		glContext.eglSurface = egl.eglCreatePbufferSurface(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, surface_attrs);
 
-		for (LayerThread layerThread : layerThreads)
-	        layerThread.viewUpdated(view);
+		synchronized (layerThreads) {
+			for (LayerThread layerThread : layerThreads)
+				layerThread.viewUpdated(view);
+		}
 
 		setClearColor(clearColor);
 
@@ -784,8 +805,12 @@ public class MaplyBaseController
 			return;
 		}
 
-		LayerThread baseLayerThread = layerThreads.get(0);
-		baseLayerThread.addLayer(layer);
+		synchronized (layerThreads) {
+			if (layerThreads.size() > 0) {
+				LayerThread baseLayerThread = layerThreads.get(0);
+				baseLayerThread.addLayer(layer);
+			}
+		}
 	}
 	
 	/**
@@ -804,8 +829,12 @@ public class MaplyBaseController
 			return;
 		}
 
-		LayerThread baseLayerThread = layerThreads.get(0);
-		baseLayerThread.removeLayer(layer);
+		synchronized (layerThreads) {
+			if (layerThreads.size() > 0) {
+				LayerThread baseLayerThread = layerThreads.get(0);
+				baseLayerThread.removeLayer(layer);
+			}
+		}
 	}
 	
 	/**
@@ -830,7 +859,10 @@ public class MaplyBaseController
 			return;
 		}
 
-		LayerThread baseLayerThread = layerThreads.get(0);
+		LayerThread baseLayerThread = null;
+		synchronized (layerThreads) {
+			baseLayerThread = layerThreads.get(0);
+		}
 		if (mode == ThreadMode.ThreadCurrent) {
 
 			EGL10 egl = (EGL10) EGLContext.getEGL();
