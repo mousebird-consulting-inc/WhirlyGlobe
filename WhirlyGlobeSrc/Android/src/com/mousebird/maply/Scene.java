@@ -20,6 +20,11 @@ public class Scene
 	{
 	}
 
+	// Overriden by subclass
+	public void shutdown()
+	{
+	}
+
 	/**
 	 * Associate a shader with the given scene name.  These names let us override existing shaders, as well as adding our own.
 	 * @param shader The shader to add.

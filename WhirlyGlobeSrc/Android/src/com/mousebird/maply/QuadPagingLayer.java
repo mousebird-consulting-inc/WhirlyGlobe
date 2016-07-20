@@ -173,6 +173,8 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		nativeShutdown(changes);
 		layerThread.addChanges(changes);
 		super.shutdown();
+
+		dispose();
 	}
 
 	// View state was updated (filtered through our schedule)

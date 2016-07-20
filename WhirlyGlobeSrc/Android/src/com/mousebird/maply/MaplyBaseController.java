@@ -366,6 +366,7 @@ public class MaplyBaseController
 		// Clean up OpenGL ES resources
 		setEGLContext(null);
 		scene.teardownGL();
+		scene.shutdown();
 
 		renderWrapper.shutdown();
 

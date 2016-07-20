@@ -177,6 +177,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		if (layerThread != null && layerThread.scene != null)
 			changes.process(layerThread.scene);
 		super.shutdown();
+
+		dispose();
 	}
 
 	/**

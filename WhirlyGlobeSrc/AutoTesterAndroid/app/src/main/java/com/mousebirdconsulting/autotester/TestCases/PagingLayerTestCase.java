@@ -2,6 +2,7 @@ package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.util.Log;
 
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.CoordSystem;
@@ -58,6 +59,8 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
 
     public void startFetchForTile(final QuadPagingLayer layer,final MaplyTileID tileID)
     {
+        Log.d("Maply","Paging layer: Loading tile " + tileID);
+
         // Ask for a thread that already has the setup we need to push stuff through
         LayerThread thread = layer.maplyControl.getWorkingThread();
         thread.addTask(new Runnable() {

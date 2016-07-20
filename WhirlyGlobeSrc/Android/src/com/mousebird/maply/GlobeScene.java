@@ -28,6 +28,12 @@ public class GlobeScene extends Scene
 		addChangesNative(changes);
 	}
 
+	// Clean up scene related memory
+	public void shutdown()
+	{
+		dispose();
+	}
+
 	static
 	{
 		nativeInit();

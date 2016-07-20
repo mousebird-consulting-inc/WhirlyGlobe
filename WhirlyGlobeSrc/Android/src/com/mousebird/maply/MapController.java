@@ -368,7 +368,11 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
      */
 	public Point3d getPosition()
 	{
-		return new Point3d(mapView.getLoc());
+		Point3d loc = mapView.getLoc();
+		if (loc == null)
+			return null;
+
+		return new Point3d(loc);
 	}
 	
 	/**
