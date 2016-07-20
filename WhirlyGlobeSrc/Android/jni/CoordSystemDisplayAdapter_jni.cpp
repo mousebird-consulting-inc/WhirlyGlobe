@@ -151,13 +151,12 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_sc
     {
         CoordSystemDisplayAdapterInfo *classInfo = CoordSystemDisplayAdapterInfo::getClassInfo();
         CoordSystemDisplayAdapter *coordAdapter = classInfo->getObject(env,obj);
-        GlobeViewClassInfo *globeClassInfo = GlobeViewClassInfo::getClassInfo();
-        WhirlyGlobe::GlobeView *globeView = globeClassInfo->getObject(env,viewObj);
-        // Note: Fix this
-        Maply::MapView *mapView = NULL;
-        if (!coordAdapter || !globeView)
+        ViewClassInfo *viewClassInfo = ViewClassInfo::getClassInfo();
+        View *view = viewClassInfo->getObject(env,viewObj);
+        if (!coordAdapter || !view)
             return false;
-        View *view = globeView;
+        Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(view);
+        WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(view);
         
         JavaDoubleArray geoX(env,gxArray), geoY(env,gyArray);
         JavaDoubleArray sx(env,sxArray), sy(env,syArray);
@@ -167,7 +166,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_sc
 
         CoordSystem *coordSys = coordAdapter->getCoordSystem();
         Matrix4d modelMat = view->calcModelMatrix();
-        Matrix4d viewMat = globeView->calcViewMatrix();
+        Matrix4d viewMat = view->calcViewMatrix();
         Matrix4d fullMat = viewMat * modelMat;
         Matrix4d fullNormalMat = fullMat.inverse().transpose();
         Point2f frameSize(frameSizeX,frameSizeY);
@@ -178,7 +177,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_sc
             Point3d dispPt = coordAdapter->localToDisplay(localPt);
             Point2f screenPt;
             bool valid = true;
-            if (!coordAdapter->isFlat())
+            if (globeView)
             {
                 if (CheckPointAndNormFacing(dispPt,dispPt.normalized(),modelMat,fullNormalMat) < 0.0)
                     valid = false;
@@ -186,7 +185,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_sc
                     screenPt = globeView->pointOnScreenFromSphere(dispPt,&fullMat,frameSize);
                 }
             } else {
-                screenPt = mapView->pointOnScreenFromPlane(dispPt,&fullMat,frameSize);
+                if (mapView)
+                    screenPt = mapView->pointOnScreenFromPlane(dispPt,&fullMat,frameSize);
             }
             if (valid)
             {
@@ -218,13 +218,12 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_ge
     {
         CoordSystemDisplayAdapterInfo *classInfo = CoordSystemDisplayAdapterInfo::getClassInfo();
         CoordSystemDisplayAdapter *coordAdapter = classInfo->getObject(env,obj);
-        GlobeViewClassInfo *globeClassInfo = GlobeViewClassInfo::getClassInfo();
-        WhirlyGlobe::GlobeView *globeView = globeClassInfo->getObject(env,viewObj);
-        // Note: Fix this
-        Maply::MapView *mapView = NULL;
-        if (!coordAdapter || !globeView)
+        ViewClassInfo *viewClassInfo = ViewClassInfo::getClassInfo();
+        View *view = viewClassInfo->getObject(env,viewObj);
+        if (!coordAdapter || !view)
             return false;
-        View *view = globeView;
+        Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(view);
+        WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(view);
         
         JavaDoubleArray sx(env,sxArray), sy(env,syArray);
         JavaDoubleArray geoX(env,gxArray), geoY(env,gyArray);
@@ -234,7 +233,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_ge
         
         CoordSystem *coordSys = coordAdapter->getCoordSystem();
         Matrix4d modelMat = view->calcModelMatrix();
-        Matrix4d viewMat = globeView->calcViewMatrix();
+        Matrix4d viewMat = view->calcViewMatrix();
         Matrix4d fullMat = viewMat * modelMat;
         Point2f frameSize(frameSizeX,frameSizeY);
         
@@ -244,17 +243,20 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_ge
             bool valid = true;
             Point2f screenPt(sx.rawDouble[ii],sy.rawDouble[ii]);
             Point3d hit;
-            if (!coordAdapter->isFlat())
+            if (globeView)
             {
                 if (!globeView->pointOnSphereFromScreen(screenPt,&fullMat,frameSize,&hit,true))
                     valid = false;
                 else
                     outCoord = coordSys->localToGeographic(coordAdapter->displayToLocal(hit));
             } else {
-                if (!mapView->pointOnPlaneFromScreen(screenPt,&fullMat,frameSize,&hit,false))
-                    valid = false;
-                else
-                    outCoord = coordSys->localToGeographic(coordAdapter->displayToLocal(hit));
+                if (mapView)
+                {
+                    if (!mapView->pointOnPlaneFromScreen(screenPt,&fullMat,frameSize,&hit,false))
+                        valid = false;
+                    else
+                        outCoord = coordSys->localToGeographic(coordAdapter->displayToLocal(hit));
+                }
             }
             
             if (valid)

@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
+import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Point2d;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -44,7 +45,7 @@ public class CoordConversionTestCase extends MaplyTestCase
         return true;
     }
 
-    public void userDidTap(GlobeController globeControl, Point2d loc, Point2d screenLoc)
+    protected void processTap(MaplyBaseController control, Point2d loc, Point2d screenLoc)
     {
         Log.d("Maply","User tapped at (" + loc.getX()*180/Math.PI + "," + loc.getY()*180/Math.PI + ") on screen (" + screenLoc.getX() + "," + screenLoc.getY() + ")");
 
@@ -58,7 +59,7 @@ public class CoordConversionTestCase extends MaplyTestCase
             screenX[ii] = screenLoc.getX();
             screenY[ii] = screenLoc.getY();
         }
-        globeControl.geoPointFromScreenBatch(screenX, screenY, geoX, geoY);
+        control.geoPointFromScreenBatch(screenX, screenY, geoX, geoY);
         for (int ii=0;ii<numPts;ii++)
         {
             Log.d("Maply","  GeoPt = (" + geoX[ii]*180/Math.PI + "," + geoY[ii]*180/Math.PI + ")");
@@ -70,11 +71,20 @@ public class CoordConversionTestCase extends MaplyTestCase
             geoY[ii] = loc.getY();
             screenX[ii] = 0.0;  screenY[ii] = 0.0;
         }
-        globeControl.screenPointFromGeoBatch(geoX, geoY, geoZ, screenX, screenY);
+        control.screenPointFromGeoBatch(geoX, geoY, geoZ, screenX, screenY);
         for (int ii=0;ii<numPts;ii++)
         {
             Log.d("Maply","  ScreenPt = (" + screenX[ii] + "," + screenY[ii] + ")");
         }
     }
 
+    public void userDidTap(GlobeController globeControl, Point2d loc, Point2d screenLoc)
+    {
+        processTap(globeControl,loc,screenLoc);
+    }
+
+    public void userDidTap(MapController mapControl,Point2d loc,Point2d screenLoc)
+    {
+        processTap(mapControl,loc,screenLoc);
+    }
 }

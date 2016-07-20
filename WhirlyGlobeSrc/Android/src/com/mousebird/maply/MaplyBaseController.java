@@ -740,8 +740,45 @@ public class MaplyBaseController
 		viewBounds[2] = coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ur.getX(),ur.getY(),0.0))).toPoint2d();
 		viewBounds[3] = coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ll.getX(),ur.getY(),0.0))).toPoint2d();
 	}
-	
 
+	/**
+	 * Batch version of the screenPointFromGeo method.  This version is here for users to
+	 * convert a whole group of coordinates all at once.  Doing it individually is just
+	 * too slow in Java.
+	 * @param inX Longitude in radians.
+	 * @param inY Latitude in radians.
+	 * @param inZ Z value.  Set this to zero most of the time.
+	 * @param outX X point on screen.  MAXFLOAT if this is behind the globe.
+	 * @param outY Y point on screen.  MAXFLOAT if this is behind the globe.
+	 */
+	public boolean screenPointFromGeoBatch(double[] inX,double[] inY,double[] inZ,double[] outX,double[] outY)
+	{
+		if (coordAdapter == null)
+			return false;
+		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+
+		return coordAdapter.screenPointFromGeoBatch(view,(int)frameSize.getX(),(int)frameSize.getY(),
+				inX,inY,inZ,outX,outY);
+	}
+
+	/**
+	 * Batch version of the geoPointFromScreen method.  This version is here for users to
+	 * convert a whole group of coordinates all at once.  Doing it individually is just
+	 * too slow in Java.
+	 * @param inX
+	 * @param inY
+	 * @param outX
+	 * @param outY
+	 */
+	public boolean geoPointFromScreenBatch(double[] inX,double[] inY,double[] outX,double[] outY)
+	{
+		if (coordAdapter == null)
+			return false;
+		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+
+		return coordAdapter.geoPointFromScreenBatch(view,(int)frameSize.getX(),(int)frameSize.getY(),
+				inX,inY,outX,outY);
+	}
 		
 	int perfInterval = 0;
 	/**

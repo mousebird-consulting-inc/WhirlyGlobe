@@ -159,45 +159,6 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	}
 
 	/**
-	 * Batch version of the screenPointFromGeo method.  This version is here for users to
-	 * convert a whole group of coordinates all at once.  Doing it individually is just
-	 * too slow in Java.
-	 * @param inX Longitude in radians.
-	 * @param inY Latitude in radians.
-	 * @param inZ Z value.  Set this to zero most of the time.
-	 * @param outX X point on screen.  MAXFLOAT if this is behind the globe.
-     * @param outY Y point on screen.  MAXFLOAT if this is behind the globe.
-     */
-	public boolean screenPointFromGeoBatch(double[] inX,double[] inY,double[] inZ,double[] outX,double[] outY)
-	{
-		if (coordAdapter == null)
-			return false;
-		Point2d frameSize = renderWrapper.maplyRender.frameSize;
-
-		return coordAdapter.screenPointFromGeoBatch(globeView,(int)frameSize.getX(),(int)frameSize.getY(),
-				inX,inY,inZ,outX,outY);
-	}
-
-	/**
-	 * Batch version of the geoPointFromScreen method.  This version is here for users to
-	 * convert a whole group of coordinates all at once.  Doing it individually is just
-	 * too slow in Java.
-	 * @param inX
-	 * @param inY
-	 * @param outX
-	 * @param outY
-     */
-	public boolean geoPointFromScreenBatch(double[] inX,double[] inY,double[] outX,double[] outY)
-	{
-		if (coordAdapter == null)
-			return false;
-		Point2d frameSize = renderWrapper.maplyRender.frameSize;
-
-		return coordAdapter.geoPointFromScreenBatch(globeView,(int)frameSize.getX(),(int)frameSize.getY(),
-				inX,inY,outX,outY);
-	}
-
-	/**
 	 * Set the zoom limits for the globe.
 	 * @param inMin Closest the user is allowed to zoom in.
 	 * @param inMax Farthest the user is allowed to zoom out.
