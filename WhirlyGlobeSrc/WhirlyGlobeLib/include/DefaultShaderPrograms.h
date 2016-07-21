@@ -51,6 +51,8 @@ namespace WhirlyKit
 #define kToolkitDefaultScreenSpaceMotionProgram "Default Screenspace Motion"
 /// Widened vector shader
 #define kToolkitDefaultWideVectorProgram "Default Wide Vector"
+/// Widened vector shader for globe
+#define kToolkitDefaultWideVectorGlobeProgram "Default Wide Vector Globe"
 /// Particle System shader
 #define kToolkitDefaultParticleSystemProgram "Default Part Sys (Point)"
 
