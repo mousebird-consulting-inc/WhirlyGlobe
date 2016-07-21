@@ -57,7 +57,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_dispose
         if (!inst)
             return;
 
-        delete inst;
+        // Note: Porting.  Can't delete these properly for some reason
+//        delete inst;
         classInfo->clearHandle(env, obj);
     }
     catch (...)

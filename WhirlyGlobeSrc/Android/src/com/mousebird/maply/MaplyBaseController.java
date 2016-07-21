@@ -1808,6 +1808,10 @@ public class MaplyBaseController
 			this.renderWrapper.getMaplyRender().replaceLights(theLights);
 			//this.renderWrapper.getMaplyRender().render(); // needed?
 		}
+
+		// Clean up lights
+		for (DirectionalLight light : theLights)
+			light.dispose();
 	}
 
 	/**

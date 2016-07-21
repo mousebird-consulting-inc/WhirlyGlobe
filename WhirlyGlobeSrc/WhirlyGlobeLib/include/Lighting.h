@@ -65,6 +65,7 @@ private:
     Eigen::Vector4f diffuse;
     Eigen::Vector4f specular;
     bool viewDependent;
+    char padding[3];
 };
 
 
@@ -73,6 +74,8 @@ private:
 class WhirlyKitMaterial
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     WhirlyKitMaterial();
     virtual ~WhirlyKitMaterial();
 
