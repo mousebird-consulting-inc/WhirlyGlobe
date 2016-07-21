@@ -664,6 +664,15 @@ void SetupDefaultShaders(Scene *scene)
     } else {
         scene->addProgram(kToolkitDefaultWideVectorProgram, wideVecShader);
     }
+    
+    // Widened vector shader (globe version)
+    OpenGLES2Program *wideVecGlobeShader = BuildWideVectorGlobeProgram();
+    if (!wideVecGlobeShader)
+    {
+        NSLog(@"SetupDefaultShaders: Wide Vector Globe shader didn't compile.");
+    } else {
+        scene->addProgram(kToolkitDefaultWideVectorGlobeProgram, wideVecGlobeShader);
+    }
 
     // Screen space shader
     OpenGLES2Program *screenSpaceShader = BuildScreenSpaceProgram();
