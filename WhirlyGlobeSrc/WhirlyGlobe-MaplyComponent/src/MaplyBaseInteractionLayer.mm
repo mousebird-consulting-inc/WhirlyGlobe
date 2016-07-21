@@ -1585,8 +1585,9 @@ public:
     [self resolveShader:inDesc defaultShader:nil];
     
     // If there's no shader, we'll apply the default one
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     if (!inDesc[kMaplyShader])
-        inDesc[kMaplyShader] = @(scene->getProgramIDBySceneName(kToolkitDefaultWideVectorProgram));
+        inDesc[kMaplyShader] = @(scene->getProgramIDBySceneName(coordAdapter->isFlat() ? kToolkitDefaultWideVectorProgram : kToolkitDefaultWideVectorGlobeProgram));
 
     // Look for a texture and add it
     if (inDesc[kMaplyVecTexture])

@@ -165,6 +165,7 @@ public:
         {
             InterPoint &vert = verts[vi];
             drawable->addPoint(Vector3dToVector3f(vert.org));
+            drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_n0(Vector3dToVector3f(vert.n));
             drawable->add_c0(vert.c);
@@ -184,7 +185,7 @@ public:
         {
             InterPoint &vert = verts[vi];
             drawable->addPoint(Vector3dToVector3f(vert.org));
-//            drawable->addNormal(up);
+            drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_n0(Vector3dToVector3f(vert.n));
             drawable->add_c0(vert.c);
@@ -516,7 +517,7 @@ public:
             flush();
             
 //            NSLog(@"Pts = %d, tris = %d",ptGuess,triGuess);
-            WideVectorDrawable *wideDrawable = new WideVectorDrawable("Widen Vector",ptGuess,triGuess);
+            WideVectorDrawable *wideDrawable = new WideVectorDrawable("Widen Vector",ptGuess,triGuess,!scene->getCoordAdapter()->isFlat());
             drawable = wideDrawable;
             drawable->setProgram(vecInfo.programID);
             wideDrawable->setTexRepeat(vecInfo.repeatSize);
