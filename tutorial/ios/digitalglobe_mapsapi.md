@@ -15,16 +15,16 @@ If you haven't got one here is a suitable ViewController (for [Objective-C]({{ s
 Maps API provides several beautiful and high-resolution map layers:
 
 | Name | Map ID | Description |
-| ---- | ------ | ----------- |
-| Recent Imagery | digitalglobe.nal0g75k | A "curated snapshot" of satellite imagery; the most recent imagery available. |
-| Vivid Imagery | digitalglobe.n6ngnadl | Gorgeous and seamless satellite imagery, at 50cm resolution. |
-| Street Map | digitalglobe.nako6329 | An enhanced road basemap based on OpenStreetMap. Curated by MapBox. |
-| Terrain Map | digitalglobe.nako1fhg | Terrain shading and contours with OpenStreetMap reference vectors for context. Curated by MapBox. |
-| Transparent Vectors | digitalglobe.nakolk5j | A street map with a transparent background. Based on OpenStreetMap; curated and enhanced by MapBox. |
-| Recent Imagery with Streets | digitalglobe.nal0mpda | Hybrid map combining Recent Imagery with streets |
-| Vivid Imagery with Streets | digitalglobe.n6nhclo2 | Hybrid map combining Vivid Imagery with streets |
+| ---- | ------ | -----------: |
+| Recent Imagery | nal0g75k | A "curated snapshot" of recent satellite imagery. |
+| Vivid Imagery | n6ngnadl | Seamless satellite imagery at 50cm resolution. |
+| Street Map | nako6329 | An enhanced road basemap based. |
+| Terrain Map | nako1fhg | Terrain shading and contours with roads. |
+| Transparent Vectors | nakolk5j | OpenStreetMap with a transparent background. |
+| Recent Imagery / Streets | nal0mpda | Map combining Recent Imagery with streets |
+| Vivid Imagery / Streets | n6nhclo2 | Map combining Vivid Imagery with streets |
 
-The Map ID is used to request the desired map from the map server.
+The Map ID is prefixed with *digitalglobe* and is used to request the desired map from the map server.
 
 ### Basic Map or Globe Setup
 
