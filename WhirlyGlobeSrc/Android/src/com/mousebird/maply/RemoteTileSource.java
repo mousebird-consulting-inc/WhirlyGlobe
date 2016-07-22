@@ -153,8 +153,11 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
                 if (locFile != null) {
                     cacheFile = new File(locFile);
                     if (cacheFile.exists()) {
+						BitmapFactory.Options options = new BitmapFactory.Options();
+// 		                options.inScaled = false;
+						options.inPremultiplied = false;
                         BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
-                        bm = BitmapFactory.decodeStream(aBufferedInputStream);
+                        bm = BitmapFactory.decodeStream(aBufferedInputStream,null,options);
 //                        Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
                     }
                 }
@@ -188,7 +191,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
                 rawImage = response.body().bytes();
                 BitmapFactory.Options options = new BitmapFactory.Options();
 //                options.inScaled = false;
-//                options.inPremultiplied = false;
+                options.inPremultiplied = false;
                 bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
 
                 // Save to cache

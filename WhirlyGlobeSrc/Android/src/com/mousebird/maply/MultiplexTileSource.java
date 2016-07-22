@@ -100,8 +100,14 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
                 if (locFile != null) {
                     cacheFile = new File(locFile);
                     if (cacheFile.exists()) {
+						BitmapFactory.Options options = new BitmapFactory.Options();
+						options.inScaled = false;
+						options.inDither = false;
+						options.inPreferQualityOverSpeed = true;
+						options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+						options.inPremultiplied = false;
                         BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
-                        bm = BitmapFactory.decodeStream(aBufferedInputStream);
+                        bm = BitmapFactory.decodeStream(aBufferedInputStream,null,options);
 //                        Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
                     }
                 }
