@@ -17,12 +17,10 @@ Maps API provides several beautiful and high-resolution map layers:
 | Name | Map ID | Description |
 | ---- | ------ | -----------: |
 | Recent Imagery | nal0g75k | A "curated snapshot" of recent satellite imagery. |
-| Vivid Imagery | n6ngnadl | Seamless satellite imagery at 50cm resolution. |
 | Street Map | nako6329 | An enhanced road basemap based. |
 | Terrain Map | nako1fhg | Terrain shading and contours with roads. |
 | Transparent Vectors | nakolk5j | OpenStreetMap with a transparent background. |
 | Recent Imagery / Streets | nal0mpda | Map combining Recent Imagery with streets |
-| Vivid Imagery / Streets | n6nhclo2 | Map combining Vivid Imagery with streets |
 
 The Map ID is prefixed with *digitalglobe* and is used to request the desired map from the map server.
 
@@ -97,11 +95,11 @@ else if let mapViewC = mapViewC {
 
 ### Adding Maps API layers to WhirlyGlobe
 
-Here is where we add the DigitalGlobe map layer to the map / globe.  In this example we'll use Vivid Imagery with Streets.  We create a **MaplyRemoteTileSource**, feed it to a **MaplyQuadImageTilesLayer**, and set a few attributes, and that's it.
+Here is where we add the DigitalGlobe map layer to the map / globe.  In this example we'll use Recent Imagery with Streets.  We create a **MaplyRemoteTileSource**, feed it to a **MaplyQuadImageTilesLayer**, and set a few attributes, and that's it.
 
 {% multiple_code %}
   {% highlight objc %}
-NSString *mapID = @"digitalglobe.n6nhclo2"; // Map ID for Vivid Imagery with Streets
+NSString *mapID = @"digitalglobe.nal0mpda"; // Map ID for Recent Imagery with Streets
 NSString *accessToken = @"YOUR ACCESS TOKEN GOES HERE";
 
 NSString *baseURL = [NSString stringWithFormat:@"https://api.tiles.mapbox.com/v4/%@/{z}/{x}/{y}.png?access_token=%@", mapID, accessToken];
@@ -118,7 +116,7 @@ imageLayer.importanceScale = 0.25;
   {----}
 
   {% highlight swift %}
-let mapID = "digitalglobe.n6nhclo2"
+let mapID = "digitalglobe.nal0mpda" // Map ID for Recent Imagery with Streets
 let accessToken = "YOUR ACCESS TOKEN GOES HERE"
 
 let baseURL = "https://api.tiles.mapbox.com/v4/\(mapID)/{z}/{x}/{y}.png?access_token=\(accessToken)"
@@ -133,9 +131,9 @@ theViewC!.addLayer(imageLayer)
   {% endhighlight %}
 {% endmultiple_code %}
 
-This is what the Vivid Imagery with Streets layer looks like over Anchorage, Alaska.
+This is what the Recent Imagery with Streets layer looks like over Anchorage, Alaska.
 
-![Vivid Imagery with Streets over Anchorage]({{ site.baseurl }}/images/tutorial/digitalglobe_mapsapi_1.png)
+![Recent Imagery with Streets over Anchorage]({{ site.baseurl }}/images/tutorial/digitalglobe_mapsapi_1.png)
 
 
 To view a different layer, simply substitute the desired Map ID.  Here we'll try the Terrain Map layer.
