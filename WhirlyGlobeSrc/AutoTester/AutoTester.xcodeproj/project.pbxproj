@@ -29,7 +29,7 @@
 		2BC2DCF01D2345AF0088D350 /* PagingLayerTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */; };
 		2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */; };
 		2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */; };
-		2BDEB3361C989D18003259B3 /* MapquestSatelliteTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3351C989D18003259B3 /* MapquestSatelliteTestCase.m */; };
+		2BDEB3361C989D18003259B3 /* CartoDBLightTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3351C989D18003259B3 /* CartoDBLightTestCase.m */; };
 		2BE53AF31D258FEE00B60FAD /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AF21D258FEE00B60FAD /* libWhirlyGlobeLib.a */; };
 		2BE53AF41D25901300B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AEF1D258FE800B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BEA7D711CC54A0A004A0B38 /* MapjamVectorTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BEA7D701CC54A0A004A0B38 /* MapjamVectorTestCase.swift */; };
@@ -580,8 +580,8 @@
 		2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExtrudedModelTestCase.m; sourceTree = "<group>"; };
 		2BDEB3121C9391EB003259B3 /* GreatCircleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GreatCircleTestCase.h; sourceTree = "<group>"; };
 		2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GreatCircleTestCase.m; sourceTree = "<group>"; };
-		2BDEB3341C989D18003259B3 /* MapquestSatelliteTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapquestSatelliteTestCase.h; sourceTree = "<group>"; };
-		2BDEB3351C989D18003259B3 /* MapquestSatelliteTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapquestSatelliteTestCase.m; sourceTree = "<group>"; };
+		2BDEB3341C989D18003259B3 /* CartoDBLightTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CartoDBLightTestCase.h; sourceTree = "<group>"; };
+		2BDEB3351C989D18003259B3 /* CartoDBLightTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CartoDBLightTestCase.m; sourceTree = "<group>"; };
 		2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeMaplyComponent.xcodeproj; path = "../WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.xcodeproj"; sourceTree = "<group>"; };
 		2BE53AF21D258FEE00B60FAD /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWhirlyGlobeLib.a; path = "../../../../Library/Developer/Xcode/DerivedData/AutoTester-cizypwfkufgyahcoralvsbxjvvew/Build/Products/Debug-iphonesimulator/libWhirlyGlobeLib.a"; sourceTree = "<group>"; };
 		2BEA7D701CC54A0A004A0B38 /* MapjamVectorTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapjamVectorTestCase.swift; sourceTree = "<group>"; };
@@ -1267,8 +1267,8 @@
 				D8DCCCA21BDBD0E800BA3866 /* MapBoxSatelliteTestCase.swift */,
 				D8E12ED21BDEAC5900BB7BC7 /* MapBoxVectorTestCase.h */,
 				D8E12ED31BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m */,
-				2BDEB3341C989D18003259B3 /* MapquestSatelliteTestCase.h */,
-				2BDEB3351C989D18003259B3 /* MapquestSatelliteTestCase.m */,
+				2BDEB3341C989D18003259B3 /* CartoDBLightTestCase.h */,
+				2BDEB3351C989D18003259B3 /* CartoDBLightTestCase.m */,
 				D8341A621BE299BF00411A46 /* MapzenVectorTestCase.swift */,
 				2BEA7D701CC54A0A004A0B38 /* MapjamVectorTestCase.swift */,
 				D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */,
@@ -2528,7 +2528,7 @@
 				E57E78CA1C936B8400C468C6 /* AerisWeatherTestCase.m in Sources */,
 				88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,
-				2BDEB3361C989D18003259B3 /* MapquestSatelliteTestCase.m in Sources */,
+				2BDEB3361C989D18003259B3 /* CartoDBLightTestCase.m in Sources */,
 				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,
 				D8228AA81BE786BE001D6914 /* ClusteredMarkersTestCase.swift in Sources */,
 				2BC2DCCD1D1F4CE20088D350 /* ShapefileTestCase.m in Sources */,
