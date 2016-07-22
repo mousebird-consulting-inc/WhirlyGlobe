@@ -131,11 +131,6 @@
       <td style="text-align: right">A “curated snapshot” of recent satellite imagery.</td>
     </tr>
     <tr>
-      <td>Vivid Imagery</td>
-      <td>n6ngnadl</td>
-      <td style="text-align: right">Seamless satellite imagery at 50cm resolution.</td>
-    </tr>
-    <tr>
       <td>Street Map</td>
       <td>nako6329</td>
       <td style="text-align: right">An enhanced road basemap based.</td>
@@ -154,11 +149,6 @@
       <td>Recent Imagery / Streets</td>
       <td>nal0mpda</td>
       <td style="text-align: right">Map combining Recent Imagery with streets</td>
-    </tr>
-    <tr>
-      <td>Vivid Imagery / Streets</td>
-      <td>n6nhclo2</td>
-      <td style="text-align: right">Map combining Vivid Imagery with streets</td>
     </tr>
   </tbody>
 </table>
@@ -242,12 +232,12 @@
 
 <h3 id="adding-maps-api-layers-to-whirlyglobe">Adding Maps API layers to WhirlyGlobe</h3>
 
-<p>Here is where we add the DigitalGlobe map layer to the map / globe.  In this example we’ll use Vivid Imagery with Streets.  We create a <strong>MaplyRemoteTileSource</strong>, feed it to a <strong>MaplyQuadImageTilesLayer</strong>, and set a few attributes, and that’s it.</p>
+<p>Here is where we add the DigitalGlobe map layer to the map / globe.  In this example we’ll use Recent Imagery with Streets.  We create a <strong>MaplyRemoteTileSource</strong>, feed it to a <strong>MaplyQuadImageTilesLayer</strong>, and set a few attributes, and that’s it.</p>
 
 <div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
 <ul class="multiple_code"><li data-index="0">
   
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">NSString</span> <span class="o">*</span><span class="n">mapID</span> <span class="o">=</span> <span class="s">@"digitalglobe.n6nhclo2"</span><span class="p">;</span> <span class="c1">// Map ID for Vivid Imagery with Streets
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="n">NSString</span> <span class="o">*</span><span class="n">mapID</span> <span class="o">=</span> <span class="s">@"digitalglobe.nal0mpda"</span><span class="p">;</span> <span class="c1">// Map ID for Recent Imagery with Streets
 </span><span class="n">NSString</span> <span class="o">*</span><span class="n">accessToken</span> <span class="o">=</span> <span class="s">@"YOUR ACCESS TOKEN GOES HERE"</span><span class="p">;</span>
 
 <span class="n">NSString</span> <span class="o">*</span><span class="n">baseURL</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nf">stringWithFormat</span><span class="p">:</span><span class="s">@"https://api.tiles.mapbox.com/v4/%@/{z}/{x}/{y}.png?access_token=%@"</span><span class="p">,</span> <span class="n">mapID</span><span class="p">,</span> <span class="n">accessToken</span><span class="p">];</span>
@@ -265,7 +255,7 @@
   </li><li data-index="1">
 
   
-<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">let</span> <span class="nv">mapID</span> <span class="o">=</span> <span class="s">"digitalglobe.n6nhclo2"</span>
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">let</span> <span class="nv">mapID</span> <span class="o">=</span> <span class="s">"digitalglobe.nal0mpda"</span> <span class="c1">// Map ID for Recent Imagery with Streets</span>
 <span class="k">let</span> <span class="nv">accessToken</span> <span class="o">=</span> <span class="s">"YOUR ACCESS TOKEN GOES HERE"</span>
 
 <span class="k">let</span> <span class="nv">baseURL</span> <span class="o">=</span> <span class="s">"https://api.tiles.mapbox.com/v4/</span><span class="se">\(</span><span class="n">mapID</span><span class="se">)</span><span class="s">/{z}/{x}/{y}.png?access_token=</span><span class="se">\(</span><span class="n">accessToken</span><span class="se">)</span><span class="s">"</span>
@@ -281,9 +271,9 @@
 
 </li></ul>
 
-<p>This is what the Vivid Imagery with Streets layer looks like over Anchorage, Alaska.</p>
+<p>This is what the Recent Imagery with Streets layer looks like over Anchorage, Alaska.</p>
 
-<p><img src="/WhirlyGlobe/images/tutorial/digitalglobe_mapsapi_1.png" alt="Vivid Imagery with Streets over Anchorage" /></p>
+<p><img src="/WhirlyGlobe/images/tutorial/digitalglobe_mapsapi_1.png" alt="Recent Imagery with Streets over Anchorage" /></p>
 
 <p>To view a different layer, simply substitute the desired Map ID.  Here we’ll try the Terrain Map layer.</p>
 
