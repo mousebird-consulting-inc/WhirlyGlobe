@@ -37,7 +37,7 @@
 #import "ExtrudedModelTestCase.h"
 #import "GreatCircleTestCase.h"
 #import "AerisWeatherTestCase.h"
-#import "MapquestSatelliteTestCase.h"
+#import "CartoDBLightTestCase.h"
 #import "LabelAnimationTestCase.h"
 #import "WMSTestCase.h"
 #import "FindHeightTestCase.h"
