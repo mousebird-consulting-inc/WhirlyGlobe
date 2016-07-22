@@ -11,7 +11,7 @@
 #import "MaplyRemoteTileSource.h"
 #import "WhirlyGlobeViewController.h"
 #import "CartoDBLayer.h"
-#import "MapquestSatelliteTestCase.h"
+#import "CartoDBLightTestCase.h"
 
 @implementation CartoDBTestCase
 
@@ -28,7 +28,7 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-	MapquestSatelliteTestCase *baseLayer = [[MapquestSatelliteTestCase alloc] init];
+	CartoDBLightTestCase *baseLayer = [[CartoDBLightTestCase alloc] init];
 	[baseLayer setUpWithGlobe:globeVC];
 
 	[self setupCartoDBLayer: globeVC];
@@ -40,7 +40,7 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-	MapquestSatelliteTestCase *baseLayer = [[MapquestSatelliteTestCase alloc] init];
+	CartoDBLightTestCase *baseLayer = [[CartoDBLightTestCase alloc] init];
 	[baseLayer setUpWithMap:mapVC];
 
 	[self setupCartoDBLayer: mapVC];
