@@ -67,6 +67,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_dispose
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setSelectID
+(JNIEnv *env, jobject obj, jlong newID)
+{
+    try
+    {
+        LabelClassInfo *classInfo = LabelClassInfo::getClassInfo();
+        SingleLabel *label = classInfo->getObject(env,obj);
+        if (!label)
+            return;
+        
+        label->selectID = newID;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::setSelectID()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLoc
   (JNIEnv *env, jobject obj, jobject ptObj)
 {

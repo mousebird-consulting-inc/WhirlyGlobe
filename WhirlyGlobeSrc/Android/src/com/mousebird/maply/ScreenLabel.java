@@ -32,6 +32,11 @@ package com.mousebird.maply;
 public class ScreenLabel 
 {
 	/**
+	 * Unique ID used by Maply for selection.
+	 */
+	long ident = Identifiable.genID();
+
+	/**
 	 * The location in geographic (WGS84) radians.  x is longitude, y is latitude.
 	 * The label will track this location.
 	 */

@@ -93,6 +93,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 					ScreenLabel label = new ScreenLabel();
 					label.text = labelName;
 					label.loc = object.centroid();
+					label.selectable = true;
 					labels.add(label);
 
 					if (addMarkers) {

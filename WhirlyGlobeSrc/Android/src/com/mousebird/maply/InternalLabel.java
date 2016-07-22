@@ -59,9 +59,13 @@ class InternalLabel
 		if (label.offset != null)
 			setOffset(label.offset);
 		setLayoutImportance(label.layoutImportance);
-		setSelectable(label.selectable);
+		if (label.selectable) {
+			setSelectable(true);
+			setSelectID(label.ident);
+		}
 	}
-	
+
+	public native void setSelectID(long selectID);
 	public native void setLoc(Point2d loc);
 	public native void setRotation(double rotation);
 	public native void setText(int[] codePoints,int len);

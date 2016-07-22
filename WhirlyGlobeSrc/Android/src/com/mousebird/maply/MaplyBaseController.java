@@ -1293,6 +1293,12 @@ public class MaplyBaseController
 				{
 					InternalLabel intLabel = new InternalLabel(label,labelInfo);
 					intLabels.add(intLabel);
+
+					// Keep track of this one for selection
+					if (label.selectable)
+					{
+						addSelectableObject(label.ident,label,compObj);
+					}
 				}
 
 				long labelId = EmptyIdentity;
@@ -1302,9 +1308,9 @@ public class MaplyBaseController
 				synchronized (labelManager) {
 					labelId = labelManager.addLabels(intLabels, labelInfo, changes);
 				}
-					if (labelId != EmptyIdentity)
-						compObj.addLabelID(labelId);
-		
+				if (labelId != EmptyIdentity)
+					compObj.addLabelID(labelId);
+
 				// Flush the text changes
 				if (scene != null)
 					changes.process(scene);
