@@ -122,7 +122,7 @@ DynamicTexture::~DynamicTexture()
 }
 
 // If set we'll try to clear the images when we're not using them.
-static const bool ClearImages = false;
+static const bool ClearImages = true;
 
 // Create the OpenGL texture, empty
 bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
@@ -153,7 +153,7 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
         {
             size_t size = texSize*texSize*4;
             unsigned char *zeroMem = (unsigned char *)malloc(size);
-            memset(zeroMem, 255, size);
+            memset(zeroMem, 0, size);
             glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, type, zeroMem);
             free(zeroMem);
         } else

@@ -447,20 +447,22 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		}
 
         if (layerThread != null) {
-            final ChangeSet changes = new ChangeSet();
 
 			if (prior != null) {
 				final int priorFinal[] = prior;
 				layerThread.addTask(new Runnable() {
 					@Override
 					public void run() {
+						ChangeSet changes = new ChangeSet();
+
 						setFrameLoadingPriority(priorFinal, changes);
 
-						if (layerThread.scene != null)
-							changes.process(layerThread.scene);
+						layerThread.addChanges(changes);
 					}
 				});
 			}
+			ChangeSet changes = new ChangeSet();
+
 			setCurrentImage(current, changes);
 
 			if (layerThread.scene != null)
