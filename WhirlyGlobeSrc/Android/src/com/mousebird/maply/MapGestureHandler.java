@@ -402,6 +402,9 @@ public class MapGestureHandler
 		}
 		if (!sl.isActive && event.getPointerCount() == 1) {
 			gd.onTouchEvent(event);
+			if (event.getAction() == MotionEvent.ACTION_UP) {
+				gl.isActive = false;
+			}
 			cancelRotation();
 		}
 		
@@ -420,7 +423,6 @@ public class MapGestureHandler
 
 				sl.isActive = false;
 				gl.isActive = false;
-				return true;			
 			}
 		}
 

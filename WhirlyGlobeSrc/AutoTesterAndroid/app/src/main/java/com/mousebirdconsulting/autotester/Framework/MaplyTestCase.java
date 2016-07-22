@@ -350,7 +350,9 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	{}
 
 	public void mapDidStopMoving(MapController mapControl, Point3d corners[], boolean userMotion)
-	{}
+	{
+
+	}
 
 	public void mapDidMove(MapController mapControl,Point3d corners[], boolean userMotion)
 	{

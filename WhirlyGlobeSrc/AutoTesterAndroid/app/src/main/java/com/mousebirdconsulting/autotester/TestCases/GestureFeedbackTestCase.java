@@ -87,7 +87,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
         public void mapDidMove(MapController mapControl,Point3d corners[], boolean userMotion)
         {
             updateBbox(mapControl,corners);
-            Log.i("AutoTester",String.format("Globe did move (userMotion = %b)", userMotion));
+            Log.i("AutoTester",String.format("Map did move (userMotion = %b)", userMotion));
         }
 
     };

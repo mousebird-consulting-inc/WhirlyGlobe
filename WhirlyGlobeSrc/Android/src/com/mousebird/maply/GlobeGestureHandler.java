@@ -424,8 +424,6 @@ public class GlobeGestureHandler
 
 				sl.isActive = false;
 				gl.isActive = false;
-
-				return true;
 			}
 		}
 
