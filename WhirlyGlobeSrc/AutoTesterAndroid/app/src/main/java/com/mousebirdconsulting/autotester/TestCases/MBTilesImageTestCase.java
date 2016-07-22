@@ -62,7 +62,7 @@ public class MBTilesImageTestCase extends MaplyTestCase {
         @Override
         public void globeDidStopMoving(GlobeController controller, Point3d[] corners, boolean userInitiated) {
 
-            Point3d center = controller.getPosition();
+            Point3d center = controller.getPositionGeo();
 
             Log.v(TAG, String.format("Globe did stop moving (lat: %.6f° lon: %.6f° z: %.6f)",
                     center.getY() * RAD_TO_DEG, center.getX() * RAD_TO_DEG, center.getZ()));

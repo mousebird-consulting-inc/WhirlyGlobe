@@ -364,15 +364,16 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	}
 
 	/**
-	 * Return the current position in local coordinates.
+	 * Return the position in lat/lon in radians.
+	 * Height is height above the plane, which around M_PI in size.
      */
-	public Point3d getPosition()
+	public Point3d getPositionGeo()
 	{
 		Point3d loc = mapView.getLoc();
 		if (loc == null)
 			return null;
-
-		return new Point3d(loc);
+		Point3d geoLoc = mapView.coordAdapter.coordSys.localToGeographic(loc);
+		return new Point3d(geoLoc.getX(),geoLoc.getY(),loc.getZ());
 	}
 	
 	/**

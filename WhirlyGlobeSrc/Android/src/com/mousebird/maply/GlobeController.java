@@ -355,12 +355,15 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 
 	/**
 	 * Returns the position in on the globe in terms of longitude and latitude in radians and height.
-	 * Height is
-	 * @return
+	 * Height is height above the globe.  The globe has a radius of 1.0.
      */
-	public Point3d getPosition()
+	public Point3d getPositionGeo()
 	{
-		return globeView.getLoc();
+		Point3d loc = globeView.getLoc();
+		if (loc == null)
+			return null;
+		Point3d geoLoc = globeView.coordAdapter.coordSys.localToGeographic(loc);
+		return new Point3d(geoLoc.getX(),geoLoc.getY(),loc.getZ());
 	}
 	
 	/**
