@@ -196,6 +196,9 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public Point2d screenPointFromGeo(Point2d geoCoord)
 	{
+		if (!running || mapView == null)
+			return null;
+
 		return screenPointFromGeo(mapView,geoCoord);
 	}
 	
@@ -207,6 +210,9 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public Point2d geoPointFromScreen(Point2d screenPt)
 	{
+		if (!running || mapView == null)
+			return null;
+
 		CoordSystemDisplayAdapter coordAdapter = mapView.getCoordAdapter();
 		CoordSystem coordSys = coordAdapter.getCoordSystem();
 		
@@ -229,6 +235,9 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public Mbr getCurrentViewGeo()
 	{
+		if (!running || mapView == null)
+			return null;
+
 		Mbr geoMbr = new Mbr();
 		
 		Point2d frameSize = renderWrapper.maplyRender.frameSize;
@@ -254,6 +263,9 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	
 	boolean checkCoverage(Mbr mbr,MapView theMapView,double height)
 	{
+		if (!running || mapView == null)
+			return false;
+
 		Point2d centerLoc = mbr.middle();
 		Point3d localCoord = theMapView.coordAdapter.coordSys.geographicToLocal(new Point3d(centerLoc.getX(),centerLoc.getY(),0.0));
 		theMapView.setLoc(new Point3d(localCoord.getX(),localCoord.getY(),height));
@@ -292,6 +304,9 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public double findHeightToViewBounds(Mbr mbr,Point2d pos)
 	{
+		if (!running || mapView == null)
+			return 0.0;
+
 		// We'll experiment on a copy of the map view
 		MapView newMapView = mapView.clone();
 		newMapView.setLoc(new Point3d(pos.getX(),pos.getY(),2.0));
@@ -369,6 +384,9 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
      */
 	public Point3d getPositionGeo()
 	{
+		if (!running || mapView == null)
+			return null;
+
 		Point3d loc = mapView.getLoc();
 		if (loc == null)
 			return null;
@@ -659,6 +677,9 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
      */
     public Point3d[] getVisibleCorners()
     {
+		if (!running || mapView == null)
+			return null;
+
         Point2d screenCorners[] = new Point2d[4];
         Point2d frameSize = renderWrapper.maplyRender.frameSize;
         screenCorners[0] = new Point2d(0.0, 0.0);
