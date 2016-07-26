@@ -47,19 +47,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_initialise
     }
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_dispose
 (JNIEnv *env, jobject obj)
 {
     try
     {
         DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
-        WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
+            if (!inst)
+                return;
 
-        // Note: Porting.  Can't delete these properly for some reason
-//        delete inst;
-        classInfo->clearHandle(env, obj);
+            delete inst;
+            classInfo->clearHandle(env, obj);
+        }
     }
     catch (...)
     {

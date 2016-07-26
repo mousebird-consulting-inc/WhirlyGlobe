@@ -43,17 +43,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_initialise
     }
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_dispose
 (JNIEnv *env, jobject obj)
 {
     try {
         ParticleBatchClassInfo *info = ParticleBatchClassInfo::getClassInfo();
-        ParticleBatch *batch = info->getObject(env, obj);
-        if (!batch)
-            return;
-        delete batch;
-        
-        info->clearHandle(env, obj);
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            ParticleBatch *batch = info->getObject(env, obj);
+            if (!batch)
+                return;
+            delete batch;
+            
+            info->clearHandle(env, obj);
+        }
         
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch::dispose()");

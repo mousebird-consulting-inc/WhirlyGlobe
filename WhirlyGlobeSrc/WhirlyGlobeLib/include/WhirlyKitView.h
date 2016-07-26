@@ -20,6 +20,7 @@
 
 #import <set>
 #import "WhirlyTypes.h"
+#import "WhirlyVector.h"
 #import "CoordSystem.h"
 
 // Sent when a WhirlyKit::View animation starts

@@ -46,17 +46,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardInfo_initialise
     }
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardInfo_dispose
 (JNIEnv *env, jobject obj)
 {
     try
     {
         BillboardInfoClassInfo *classInfo = BillboardInfoClassInfo::getClassInfo();
-        BillboardInfo *inst= classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        delete inst;
-        classInfo->clearHandle(env, obj);
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            BillboardInfo *inst= classInfo->getObject(env, obj);
+            if (!inst)
+                return;
+            delete inst;
+            classInfo->clearHandle(env, obj);
+        }
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BillboardInfo::dispose()");

@@ -233,17 +233,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_initialise
     }
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_dispose
   (JNIEnv *env, jobject obj)
 {
     try
     {
         LayoutManagerWrapperClassInfo *classInfo = LayoutManagerWrapperClassInfo::getClassInfo();
-        LayoutManagerWrapper *wrap = classInfo->getObject(env, obj);
-        classInfo->clearHandle(env, obj);
-        if (!wrap)
-            return;
-        delete wrap;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            LayoutManagerWrapper *wrap = classInfo->getObject(env, obj);
+            classInfo->clearHandle(env, obj);
+            if (!wrap)
+                return;
+            delete wrap;
+        }
     }
     catch (...)
     {

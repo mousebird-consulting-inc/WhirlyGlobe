@@ -46,18 +46,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
-		Texture *tex = classInfo->getObject(env,obj);
-		if (!tex)
-			return;
-		delete tex;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            Texture *tex = classInfo->getObject(env,obj);
+            if (!tex)
+                return;
+            delete tex;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

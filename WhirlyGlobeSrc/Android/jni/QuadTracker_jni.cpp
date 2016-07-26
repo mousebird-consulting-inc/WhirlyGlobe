@@ -59,17 +59,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_initialise
     }
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadTracker_dispose
 (JNIEnv *env, jobject obj)
 {
     try
     {
         QuadTrackerClassInfo *classInfo = QuadTrackerClassInfo::getClassInfo();
-        QuadTracker *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        delete inst;
-        classInfo->clearHandle(env, obj);
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            QuadTracker *inst = classInfo->getObject(env, obj);
+            if (!inst)
+                return;
+            delete inst;
+            classInfo->clearHandle(env, obj);
+        }
     }
     catch(...)
     {

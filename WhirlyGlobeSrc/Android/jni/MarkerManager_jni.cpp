@@ -52,6 +52,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_dispose
   (JNIEnv *env, jobject obj)
 {

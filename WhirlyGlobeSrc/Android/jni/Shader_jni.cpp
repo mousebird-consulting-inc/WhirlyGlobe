@@ -55,18 +55,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
-		OpenGLES2Program *inst = classInfo->getObject(env,obj);
-		if (!inst)
-			return;
-		delete inst;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            OpenGLES2Program *inst = classInfo->getObject(env,obj);
+            if (!inst)
+                return;
+            delete inst;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

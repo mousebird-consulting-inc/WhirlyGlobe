@@ -53,18 +53,23 @@ void Java_com_mousebird_maply_VectorObject_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 void Java_com_mousebird_maply_VectorObject_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-		VectorObject *inst = classInfo->getObject(env,obj);
-		if (!inst)
-			return;
-		delete inst;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            VectorObject *inst = classInfo->getObject(env,obj);
+            if (!inst)
+                return;
+            delete inst;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

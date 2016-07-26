@@ -49,6 +49,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_initia
 	}
 }
 
+static std::mutex disposeMutex;
+
 /*
  * Class:     com_mousebird_maply_CoordSystemDisplayAdapter
  * Method:    dispose
@@ -60,12 +62,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_dispos
 	try
 	{
 		CoordSystemDisplayAdapterInfo *classInfo = CoordSystemDisplayAdapterInfo::getClassInfo();
-		CoordSystemDisplayAdapter *coordAdapter = classInfo->getObject(env,obj);
-		if (!coordAdapter)
-			return;
-		delete coordAdapter;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            CoordSystemDisplayAdapter *coordAdapter = classInfo->getObject(env,obj);
+            if (!coordAdapter)
+                return;
+            delete coordAdapter;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

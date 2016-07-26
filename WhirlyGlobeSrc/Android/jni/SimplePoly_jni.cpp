@@ -107,18 +107,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__JFFFFLjav
     }
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_dispose
 (JNIEnv *env, jobject obj)
 {
     try
     {
         SimplePolyClassInfo *classInfo = SimplePolyClassInfo::getClassInfo();
-        SimplePoly *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        
-        delete inst;
-        classInfo->clearHandle(env, obj);
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            SimplePoly *inst = classInfo->getObject(env, obj);
+            if (!inst)
+                return;
+            
+            delete inst;
+            classInfo->clearHandle(env, obj);
+        }
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::dispose()");

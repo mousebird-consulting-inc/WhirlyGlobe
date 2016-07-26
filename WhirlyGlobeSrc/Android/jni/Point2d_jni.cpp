@@ -53,18 +53,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Point2d_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Point2d_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		Point2dClassInfo *classInfo = Point2dClassInfo::getClassInfo();
-		Point2d *inst = classInfo->getObject(env,obj);
-		if (!inst)
-			return;
-		delete inst;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            Point2d *inst = classInfo->getObject(env,obj);
+            if (!inst)
+                return;
+            delete inst;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

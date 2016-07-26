@@ -271,6 +271,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			if (roadStyle.twoLines)
 			{
 				VectorInfo roadInfo = new VectorInfo();
+				roadInfo.disposeAfterUse = true;
 				roadInfo.setColor(roadStyle.red/2.f,roadStyle.green/2.f,roadStyle.blue/2.f,1.f);
 				roadInfo.setDrawPriority(roadStyle.drawPriority);
 				roadInfo.setLineWidth(roadStyle.width*scale);
@@ -280,6 +281,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			
 			// Road itself
 			VectorInfo roadInfo = new VectorInfo();
+			roadInfo.disposeAfterUse = true;
 			roadInfo.setColor(roadStyle.red,roadStyle.green,roadStyle.blue,1.f);
 			roadInfo.setDrawPriority(roadStyle.drawPriority+1);
 			roadInfo.setLineWidth(roadStyle.width*scale);
@@ -331,6 +333,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			return;
 		
 		VectorInfo buildingInfo = new VectorInfo();
+		buildingInfo.disposeAfterUse = true;
 		buildingInfo.setColor(1.f,186.f/255.f,103.f/255.f,1.f);
 		buildingInfo.setFilled(true);
 		buildingInfo.setDrawPriority(601);
@@ -397,6 +400,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			if (landStyle != null)
 			{
 				VectorInfo landInfo = new VectorInfo();
+				landInfo.disposeAfterUse = true;
 				landInfo.setColor(Color.red(landStyle)/255.f, Color.green(landStyle)/255.f, Color.blue(landStyle)/255.f, Color.alpha(landStyle)/255.f);
 				landInfo.setDrawPriority(200);
 				landInfo.setFilled(true);
@@ -412,6 +416,7 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 
 		// Filled water
 		VectorInfo waterInfo = new VectorInfo();
+		waterInfo.disposeAfterUse = true;
 		waterInfo.setFilled(true);
 		waterInfo.setColor(137.f/255.f,188.f/255.f,228.f/255.f,1.f);
 		waterInfo.setDrawPriority(100);

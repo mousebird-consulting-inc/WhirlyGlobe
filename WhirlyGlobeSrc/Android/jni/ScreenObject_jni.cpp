@@ -48,17 +48,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_initialise
     }
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_dispose
 (JNIEnv *env, jobject obj)
 {
     try
     {
         ScreenObjectClassInfo *classInfo = ScreenObjectClassInfo::getClassInfo();
-        ScreenObject *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        delete inst;
-        classInfo->clearHandle(env, obj);
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            ScreenObject *inst = classInfo->getObject(env, obj);
+            if (!inst)
+                return;
+            delete inst;
+            classInfo->clearHandle(env, obj);
+        }
     }
     catch (...)
     {

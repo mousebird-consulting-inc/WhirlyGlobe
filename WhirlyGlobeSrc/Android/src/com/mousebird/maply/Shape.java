@@ -58,6 +58,9 @@ public class Shape {
      */
     public native float[] getColor();
 
+    // Overridden by subclasses
+    public void dispose() { }
+
 
     static
     {

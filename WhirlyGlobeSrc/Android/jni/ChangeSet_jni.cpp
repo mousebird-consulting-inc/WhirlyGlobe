@@ -45,23 +45,28 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
-		ChangeSet *changeSet = classInfo->getObject(env,obj);
-		if (!changeSet)
-			return;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            ChangeSet *changeSet = classInfo->getObject(env,obj);
+            if (!changeSet)
+                return;
 
-		// Be sure to delete the contents
-		for (unsigned int ii = 0;ii<changeSet->size();ii++)
-			delete changeSet->at(ii);
+            // Be sure to delete the contents
+            for (unsigned int ii = 0;ii<changeSet->size();ii++)
+                delete changeSet->at(ii);
 
-		delete changeSet;
+            delete changeSet;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

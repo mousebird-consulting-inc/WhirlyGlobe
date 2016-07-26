@@ -486,6 +486,7 @@ public class Atmosphere {
         List<Shape> shapes = new ArrayList<Shape>();
         shapes.add(sphere);
         ShapeInfo shapeInfo = new ShapeInfo();
+        shapeInfo.disposeAfterUse = true;
         shapeInfo.setZBufferRead(false);
         shapeInfo.setZBufferWrite(false);
         shapeInfo.setInsideOut(true);

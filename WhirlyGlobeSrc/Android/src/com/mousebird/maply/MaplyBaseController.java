@@ -66,6 +66,12 @@ public class MaplyBaseController
 	 * our desired frame rate.  2 means 30hz.  3 means 20hz and so forth.
 	 */
 	public int frameInterval = 2;
+
+	/**
+	 * If set, we'll explicitly call dispose on any objects that were
+	 * being kept around for selection.
+	 */
+	public boolean disposeAfterRemoval = true;
 	
 	// Set when we're not in the process of shutting down
 	boolean running = false;
@@ -374,6 +380,10 @@ public class MaplyBaseController
 				egl.eglDestroyContext(renderWrapper.maplyRender.display, context.eglContext);
 			}
 			glContexts = null;
+
+			// And the main one
+			egl.eglDestroySurface(renderWrapper.maplyRender.display, glContext.eglSurface);
+			egl.eglDestroyContext(renderWrapper.maplyRender.display, glContext.eglContext);
 			glContext = null;
 
 			// Clean up OpenGL ES resources
@@ -977,6 +987,10 @@ public class MaplyBaseController
 				// Track the vector ID for later use
 				if (vecId != EmptyIdentity)
 					compObj.addVectorID(vecId);
+
+				if (vecInfo.disposeAfterUse || disposeAfterRemoval)
+					for (VectorObject vecObj : vecs)
+						vecObj.dispose();
 			}
 		};
 		
@@ -1090,6 +1104,9 @@ public class MaplyBaseController
 				{
 					compObj.addMarkerID(markerId);
 				}
+
+				for (InternalMarker marker : intMarkers)
+					marker.dispose();
 			}
 		};
 		
@@ -1134,6 +1151,10 @@ public class MaplyBaseController
 
 						if (scene != null)
 							changes.process(scene);
+
+						if (stickerInfo.disposeAfterUse || disposeAfterRemoval)
+							for (Sticker sticker : stickers)
+								sticker.dispose();
 					}
 				};
 
@@ -1201,8 +1222,22 @@ public class MaplyBaseController
 		{
 			synchronized(selectionMap)
 			{
-				for (long selectID : compObj.selectIDs)
-					selectionMap.remove(selectID);
+				for (long selectID : compObj.selectIDs) {
+					Object selObj = selectionMap.get(selectID);
+					if (selObj != null)
+					{
+						if (this.disposeAfterRemoval)
+						{
+							// Note: We should fix this for the other object types
+							if (selObj.getClass() == VectorObject.class)
+							{
+								VectorObject vecObj = (VectorObject)selObj;
+								vecObj.dispose();
+							}
+						}
+						selectionMap.remove(selectID);
+					}
+				}
 			}
 		}
 	}
@@ -1314,6 +1349,9 @@ public class MaplyBaseController
 				// Flush the text changes
 				if (scene != null)
 					changes.process(scene);
+
+				for (InternalLabel label : intLabels)
+					label.dispose();
 			}
 		};
 		
@@ -1746,6 +1784,10 @@ public class MaplyBaseController
 					compObj.addShapeID(shapeId);
 				if (scene != null)
 					changes.process(scene);
+
+				if (shapeInfo.disposeAfterUse || disposeAfterRemoval)
+					for (Shape shape : shapes)
+						shape.dispose();
 			}
 		};
 
@@ -1913,6 +1955,11 @@ public class MaplyBaseController
 						// Flush the text changes
 						if (scene != null)
 							changes.process(scene);
+
+						if (info.disposeAfterUse || disposeAfterRemoval)
+							for (Billboard bill : bills)
+								if (!bill.getSelectable())
+									bill.dispose();
 					}
 				};
 

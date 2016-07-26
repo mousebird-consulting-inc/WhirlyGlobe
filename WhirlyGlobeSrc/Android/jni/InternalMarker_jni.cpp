@@ -49,18 +49,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
-		Marker *marker = classInfo->getObject(env,obj);
-		if (!marker)
-			return;
-		delete marker;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            Marker *marker = classInfo->getObject(env,obj);
+            if (!marker)
+                return;
+            delete marker;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

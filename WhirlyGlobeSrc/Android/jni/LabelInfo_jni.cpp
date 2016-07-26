@@ -51,19 +51,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
-		if (!info)
-			return;
-		info->clearRefs(env);
-		delete info;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+            if (!info)
+                return;
+            info->clearRefs(env);
+            delete info;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

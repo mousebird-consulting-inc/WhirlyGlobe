@@ -49,18 +49,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix4d_initialise
 
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix4d_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		Matrix4dClassInfo *classInfo = Matrix4dClassInfo::getClassInfo();
-		Matrix4d *inst = classInfo->getObject(env,obj);
-		if (!inst)
-			return;
-		delete inst;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            Matrix4d *inst = classInfo->getObject(env,obj);
+            if (!inst)
+                return;
+            delete inst;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

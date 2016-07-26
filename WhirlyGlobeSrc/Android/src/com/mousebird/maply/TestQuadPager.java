@@ -77,6 +77,7 @@ public class TestQuadPager implements QuadPagingLayer.PagingInterface
 				vecObj.addAreal(pts);
 
 				VectorInfo vecInfo = new VectorInfo();
+				vecInfo.disposeAfterUse = true;
 				vecInfo.setColor(1.f, 0.f, 0.f, 1.f);
 				vecInfo.setEnable(false);
 				ComponentObject compObj = layer.maplyControl.addVector(vecObj, vecInfo,MaplyBaseController.ThreadMode.ThreadAny);

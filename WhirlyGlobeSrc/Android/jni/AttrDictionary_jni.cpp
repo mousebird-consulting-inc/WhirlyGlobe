@@ -56,19 +56,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
-		Dictionary *dict = classInfo->getObject(env,obj);
-		if (!dict)
-			return;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            Dictionary *dict = classInfo->getObject(env,obj);
+            if (!dict)
+                return;
 		// Note: This only works because we're not copying dictionaries
 //		delete dict;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

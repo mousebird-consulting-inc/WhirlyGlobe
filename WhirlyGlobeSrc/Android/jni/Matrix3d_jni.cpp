@@ -49,18 +49,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix3d_initialise
     }
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix3d_dispose
 (JNIEnv *env, jobject obj)
 {
     try
     {
         Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo();
-        Matrix3d *inst = classInfo->getObject(env,obj);
-        if (!inst)
-            return;
-        delete inst;
-        
-        classInfo->clearHandle(env,obj);
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            Matrix3d *inst = classInfo->getObject(env,obj);
+            if (!inst)
+                return;
+            delete inst;
+            
+            classInfo->clearHandle(env,obj);
+        }
     }
     catch (...)
     {

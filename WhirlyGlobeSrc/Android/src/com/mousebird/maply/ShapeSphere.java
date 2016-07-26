@@ -98,5 +98,5 @@ public class ShapeSphere extends Shape {
     }
     private static native void nativeInit();
     native void initialise();
-    native void dispose();
+    native public void dispose();
 }

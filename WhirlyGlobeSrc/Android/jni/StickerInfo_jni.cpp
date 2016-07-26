@@ -64,18 +64,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerInfo_setColor
     }
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerInfo_dispose
 (JNIEnv *env, jobject obj)
 {
     try
     {
         SphericalChunkInfoClassInfo *classInfo = SphericalChunkInfoClassInfo::getClassInfo();
-        SphericalChunkInfo *stickerInfo = classInfo->getObject(env,obj);
-        if (!stickerInfo)
-            return;
-        delete stickerInfo;
-        
-        classInfo->clearHandle(env,obj);
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            SphericalChunkInfo *stickerInfo = classInfo->getObject(env,obj);
+            if (!stickerInfo)
+                return;
+            delete stickerInfo;
+            
+            classInfo->clearHandle(env,obj);
+        }
     }
     catch (...)
     {

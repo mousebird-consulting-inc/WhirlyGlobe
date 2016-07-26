@@ -47,6 +47,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_FakeGeocentricDisplayAdapter_ini
 	}
 }
 
+static std::mutex disposeMutex;
+
 /*
  * Class:     com_mousebird_maply_CoordSystemDisplayAdapter
  * Method:    dispose
@@ -58,12 +60,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_FakeGeocentricDisplayAdapter_dis
 	try
 	{
 		FakeGeocentricDisplayAdapterInfo *classInfo = FakeGeocentricDisplayAdapterInfo::getClassInfo();
-		FakeGeocentricDisplayAdapter *coordAdapter = classInfo->getObject(env,obj);
-		if (!coordAdapter)
-			return;
-		delete coordAdapter;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            FakeGeocentricDisplayAdapter *coordAdapter = classInfo->getObject(env,obj);
+            if (!coordAdapter)
+                return;
+            delete coordAdapter;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

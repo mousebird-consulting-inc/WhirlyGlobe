@@ -55,6 +55,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_dispose
   (JNIEnv *env, jobject obj)
 {

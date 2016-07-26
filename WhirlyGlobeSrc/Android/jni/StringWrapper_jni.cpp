@@ -68,6 +68,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StringWrapper_initialise__IILcom
 
 }
 
+static std::mutex disposeMutex;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_StringWrapper_dispose
 (JNIEnv *env, jobject obj)
@@ -75,11 +76,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StringWrapper_dispose
     try
     {
         StringWrapperClassInfo *classInfo = StringWrapperClassInfo::getClassInfo();
-        StringWrapper *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        delete inst;
-        classInfo->clearHandle(env, obj);
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            StringWrapper *inst = classInfo->getObject(env, obj);
+            if (!inst)
+                return;
+            delete inst;
+            classInfo->clearHandle(env, obj);
+        }
     }
     catch (...)
     {

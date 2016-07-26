@@ -17,14 +17,15 @@
  *  limitations under the License.
  *
  */
-#include <Eigen/Eigen>
+#import "Platform.h"
+#import "WhirlyVector.h"
 
 #define kWKOGLNumLights "u_numLights"
 
 namespace WhirlyKit {
 
 class OpenGLES2Program;
-
+    
 /** This implements a simple directional light source
 */
 class WhirlyKitDirectionalLight
@@ -60,12 +61,11 @@ public:
     bool bindToProgram(OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat) const;
 
 private:
-    Eigen::Vector3f pos;
     Eigen::Vector4f ambient;
     Eigen::Vector4f diffuse;
     Eigen::Vector4f specular;
+    Eigen::Vector3f pos;
     bool viewDependent;
-    char padding[3];
 };
 
 

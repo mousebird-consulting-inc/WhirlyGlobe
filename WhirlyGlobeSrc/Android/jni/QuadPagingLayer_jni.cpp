@@ -226,11 +226,12 @@ public:
         if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
         {
             canShortCircuitImportance = true;
-            if (!coordAdapter->isFlat())
-            {
-                canShortCircuitImportance = false;
-                return;
-            }
+            // Note: Trying out 3D
+//            if (!coordAdapter->isFlat())
+//            {
+//                canShortCircuitImportance = false;
+//                return;
+//            }
             // We happen to store tilt in the view matrix.
             // Note: Can't detect tilt reliably
 //            if (!viewState->viewMatrix.isIdentity())
@@ -239,11 +240,11 @@ public:
 //                return;
 //            }
             // The tile source coordinate system must be the same as the display's system
-            if (!coordSys->isSameAs(coordAdapter->getCoordSystem()))
-            {
-                canShortCircuitImportance = false;
-                return;
-            }
+	    //            if (!coordSys->isSameAs(coordAdapter->getCoordSystem()))
+	    //            {
+	    //                canShortCircuitImportance = false;
+	    //                return;
+	    //            }
 
             // We need to feel our way down to the appropriate level
             maxShortCircuitLevel = targetZoomLevel(viewState);
@@ -381,18 +382,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		QPLAdapterClassInfo *classInfo = QPLAdapterClassInfo::getClassInfo();
-		QuadPagingLayerAdapter *adapter = classInfo->getObject(env,obj);
-		if (!adapter)
-			return;
-		delete adapter;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            QuadPagingLayerAdapter *adapter = classInfo->getObject(env,obj);
+            if (!adapter)
+                return;
+            delete adapter;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

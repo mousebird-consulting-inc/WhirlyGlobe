@@ -212,7 +212,7 @@ void DynamicTexture::addTextureData(int startX,int startY,int width,int height,R
     }    
 }
     
-void DynamicTexture::clearTextureData(int startX,int startY,int width,int height)
+void DynamicTexture::clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData)
 {
     glBindTexture(GL_TEXTURE_2D, glId);
     
@@ -230,8 +230,13 @@ void DynamicTexture::clearTextureData(int startX,int startY,int width,int height
         // Note: Porting
         if (ClearImages)
         {
-            std::vector<unsigned char> emptyPixels(width*height*4,0);
-            glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, emptyPixels.data());
+            if (mainThreadMerge) {
+                RawDataRef clearData(new RawDataWrapper(emptyData,width*height*4,false));
+                changes.push_back(new DynamicTextureAddRegion(getId(),
+                                                        startX, startY, width, height,
+                                                        clearData));
+            } else
+                glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, emptyData);
         }
     }
     
@@ -250,13 +255,13 @@ void DynamicTexture::setRegion(const Region &region, bool enable)
         }
 }
     
-void DynamicTexture::clearRegion(const Region &clearRegion)
+void DynamicTexture::clearRegion(const Region &clearRegion,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData)
 {
     int startX = clearRegion.sx * cellSize;
     int startY = clearRegion.sy * cellSize;
     int width = (clearRegion.ex - clearRegion.sx + 1) * cellSize;
     int height = (clearRegion.ey - clearRegion.sy + 1) * cellSize;
-    clearTextureData(startX,startY,width,height);
+    clearTextureData(startX,startY,width,height,changes,mainThreadMerge,emptyData);
 }
 
 void DynamicTexture::getReleasedRegions(std::vector<DynamicTexture::Region> &toClear)
@@ -358,9 +363,27 @@ DynamicTextureAtlas::TextureRegion::TextureRegion()
 {
 }
     
+// If set, we ask the main thread to do the sub texture loads
+#if TARGET_IPHONE_SIMULATOR
+    static const bool MainThreadMerge = true;
+#else
+#ifdef __ANDROID__
+// Note: Porting
+// On some devices we're seeing a lot of texture problems when trying to merge
+    static const bool MainThreadMerge = true;
+#else
+    static const bool MainThreadMerge = false;
+#endif
+#endif
+
+    
 DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth,bool mainThreadMerge)
     : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth), pixelFudge(0.0), mainThreadMerge(mainThreadMerge)
 {
+    if (mainThreadMerge || MainThreadMerge)
+    {
+        emptyPixelBuffer.resize(texSize*texSize*4,0);
+    }
 }
     
 DynamicTextureAtlas::~DynamicTextureAtlas()
@@ -373,19 +396,6 @@ void DynamicTextureAtlas::setPixelFudgeFactor(float pixFudge)
 {
     pixelFudge = pixFudge;
 }
-    
-// If set, we ask the main thread to do the sub texture loads
-#if TARGET_IPHONE_SIMULATOR
-static const bool MainThreadMerge = true;
-#else
-#ifdef __ANDROID__
-// Note: Porting
-// On some devices we're seeing a lot of texture problems when trying to merge
-static const bool MainThreadMerge = true;
-#else
-static const bool MainThreadMerge = false;
-#endif
-#endif
     
 bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels,TextureRegion *outTexRegion)
 {
@@ -410,7 +420,7 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
             for (unsigned int ii=0;ii<dynTexVec->size();ii++)
             {
                 DynamicTexture *dynTex = dynTexVec->at(ii);
-                dynTex->clearRegion(clearRegion);
+                dynTex->clearRegion(clearRegion,changes,MainThreadMerge || mainThreadMerge,&emptyPixelBuffer[0]);
             }
     }
     

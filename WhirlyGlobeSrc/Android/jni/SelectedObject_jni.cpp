@@ -54,18 +54,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectedObject_initialise
     }
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectedObject_dispose
 (JNIEnv *env, jobject obj)
 {
     try
     {
         SelectedObjectClassInfo *classInfo = SelectedObjectClassInfo::getClassInfo();
-        SelectionManager::SelectedObject *selectedObj = classInfo->getObject(env,obj);
-        if (!selectedObj)
-            return;
-        delete selectedObj;
-        
-        classInfo->clearHandle(env,obj);
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            SelectionManager::SelectedObject *selectedObj = classInfo->getObject(env,obj);
+            if (!selectedObj)
+                return;
+            delete selectedObj;
+            
+            classInfo->clearHandle(env,obj);
+        }
     }
     catch (...)
     {

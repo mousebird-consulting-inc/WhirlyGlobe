@@ -17,7 +17,16 @@ public class BaseInfo
         setMinVis(Float.MAX_VALUE);
         setMaxVis(Float.MAX_VALUE);
         setFade(0.f);
+        disposeAfterUse = false;
     }
+
+    /**
+     * If set, the toolkit will dispose of the objects that were
+     * added after it's finished.
+     * This saves memory by removing the C++ data for things like
+     * VectorObjects.
+     */
+    public boolean disposeAfterUse = false;
 
     /**
      * Controls whether or not the geometry will be visible.  By

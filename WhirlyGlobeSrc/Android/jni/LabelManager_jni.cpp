@@ -57,6 +57,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_dispose
   (JNIEnv *env, jobject obj)
 {

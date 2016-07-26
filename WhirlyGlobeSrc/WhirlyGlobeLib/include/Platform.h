@@ -18,8 +18,13 @@
  *
  */
 
+#include <stdlib.h>
 #import <ctime>
 #import <vector>
+#ifdef __ANDROID__
+#import <jni.h>
+#include <android/log.h>
+#endif
 #import "WhirlyTypes.h"
 
 namespace WhirlyKit

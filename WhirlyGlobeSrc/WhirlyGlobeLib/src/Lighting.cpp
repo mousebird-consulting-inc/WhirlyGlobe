@@ -25,7 +25,7 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-
+    
 WhirlyKitDirectionalLight::WhirlyKitDirectionalLight()
 {
     viewDependent = true;
@@ -33,7 +33,7 @@ WhirlyKitDirectionalLight::WhirlyKitDirectionalLight()
     ambient = Eigen::Vector4f(1,1,1,1);
     diffuse = Eigen::Vector4f(1,1,1,1);
     specular = Eigen::Vector4f(0,0,0,0);
-};
+}
 
 WhirlyKitDirectionalLight::~WhirlyKitDirectionalLight()
 {

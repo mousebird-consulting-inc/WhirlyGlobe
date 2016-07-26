@@ -63,8 +63,8 @@ public:
     void addTextureData(int startX,int startY,int width,int height,RawDataRef data);
     
     /// Clear out the area given
-    void clearRegion(const Region &region);
-    void clearTextureData(int startX,int startY,int width,int height);
+    void clearRegion(const Region &region,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData);
+    void clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData);
 
     /// Set or clear a given region
     void setRegion(const Region &region,bool enable);
@@ -221,6 +221,9 @@ protected:
     GLenum format;
     float pixelFudge;
     bool mainThreadMerge;
+    
+    // On some devices we can't clear with a NULL, we have to use an actual buffer
+    std::vector<unsigned char> emptyPixelBuffer;
 
     typedef std::set<TextureRegion> TextureRegionSet;
     TextureRegionSet regions;

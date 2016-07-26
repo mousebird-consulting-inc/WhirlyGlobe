@@ -64,18 +64,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorIterator_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorIterator_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		VectorIteratorClassInfo *classInfo = VectorIteratorClassInfo::getClassInfo();
-		VectorIterator *vecIter = classInfo->getObject(env,obj);
-		if (!vecIter)
-			return;
-		delete vecIter;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            VectorIterator *vecIter = classInfo->getObject(env,obj);
+            if (!vecIter)
+                return;
+            delete vecIter;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

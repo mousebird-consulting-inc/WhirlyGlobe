@@ -76,18 +76,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Quaternion_initialise__Lcom_mous
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Quaternion_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		QuaternionClassInfo *classInfo = QuaternionClassInfo::getClassInfo();
-		Quaterniond *inst = classInfo->getObject(env,obj);
-		if (!inst)
-			return;
-		delete inst;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            Quaterniond *inst = classInfo->getObject(env,obj);
+            if (!inst)
+                return;
+            delete inst;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

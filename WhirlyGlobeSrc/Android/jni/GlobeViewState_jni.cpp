@@ -58,18 +58,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeViewState_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeViewState_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		GlobeViewStateClassInfo *classInfo = GlobeViewStateClassInfo::getClassInfo();
-		GlobeViewState *globeViewState = classInfo->getObject(env,obj);
-		if (!globeViewState)
-			return;
-		delete globeViewState;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            GlobeViewState *globeViewState = classInfo->getObject(env,obj);
+            if (!globeViewState)
+                return;
+            delete globeViewState;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

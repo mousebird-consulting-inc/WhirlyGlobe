@@ -48,18 +48,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		MapSceneClassInfo *classInfo = MapSceneClassInfo::getClassInfo();
-		Maply::MapScene *inst = classInfo->getObject(env,obj);
-		if (!inst)
-			return;
-		delete inst;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            Maply::MapScene *inst = classInfo->getObject(env,obj);
+            if (!inst)
+                return;
+            delete inst;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

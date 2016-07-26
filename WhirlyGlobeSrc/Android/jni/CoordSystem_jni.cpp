@@ -45,6 +45,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystem_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystem_dispose
   (JNIEnv *env, jobject obj)
 {
@@ -53,13 +55,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystem_dispose
 		CoordSystemClassInfo *classInfo = CoordSystemClassInfo::getClassInfo();
         if (!classInfo)
             return;
-		CoordSystem *coordSys = classInfo->getObject(env,obj);
-		if (!coordSys)
-			return;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            CoordSystem *coordSys = classInfo->getObject(env,obj);
+            if (!coordSys)
+                return;
 
-		delete coordSys;
+            delete coordSys;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{

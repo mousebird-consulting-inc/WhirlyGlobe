@@ -635,19 +635,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_initialise
 	}
 }
 
+static std::mutex disposeMutex;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
-		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
-		if (!adapter)
-			return;
-		adapter->clearJavaRefs();
-		delete adapter;
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+            if (!adapter)
+                return;
+            adapter->clearJavaRefs();
+            delete adapter;
 
-		classInfo->clearHandle(env,obj);
+            classInfo->clearHandle(env,obj);
+        }
 	}
 	catch (...)
 	{
