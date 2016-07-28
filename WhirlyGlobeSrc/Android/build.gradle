@@ -6,6 +6,7 @@ buildscript {
         classpath 'com.android.tools.build:gradle:1.5.0'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
         classpath 'com.github.dcendents:android-maven-plugin:1.2'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0"
     }
 }
 
@@ -21,6 +22,10 @@ version = '3.0'
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
+apply plugin: "com.jfrog.artifactory"
+
+apply plugin: 'maven-publish'
+
 
 android {
     compileSdkVersion 23
@@ -194,5 +199,55 @@ bintray {
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]
         publish = true
+    }
+}
+
+def artifactVersion = '3.0-SNAPSHOT'
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            artifactId "WhirlyGlobe"
+            version = artifactVersion
+            artifact "${project.buildDir}/outputs/aar/${project.name}-release.aar"
+
+            pom.withXml {
+                def root = asNode()
+                def license = root.appendNode('licenses').appendNode('license')
+                license.appendNode('name', 'The Apache Software License, Version 2.0')
+                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+                license.appendNode('distribution', 'repo')
+            }
+        }
+    }
+}
+
+
+
+artifactory {
+    contextUrl = 'http://oss.jfrog.org'
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    publish {
+        repository {
+            // The Artifactory repository key to publish to
+            repoKey = artifactVersion.endsWith('SNAPSHOT') ? 'oss-snapshot-local' : 'oss-release-local'
+            username = properties.getProperty("bintray.user") // The publisher user name
+            password = properties.getProperty("bintray.apikey") // The publisher password
+            maven = true
+        }
+        defaults {
+            publishArtifacts = true
+            publications('aar')
+            publishPom = false //Publish generated POM files to Artifactory (true by default)
+            publishIvy = false //Publish generated Ivy descriptor files to Artifactory (true by default)
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'jcenter'
+            username = properties.getProperty("bintray.user") // The publisher user name
+            password = properties.getProperty("bintray.apikey") // The publisher password
+        }
     }
 }
