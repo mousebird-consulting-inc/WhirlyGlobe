@@ -317,6 +317,12 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
   */
 - (MaplyVectorObject *__nullable)clipToGrid:(CGSize)gridSize;
 
+/**
+    @brief Clip the given (probably areal) features to the given bounding box.
+    @details This will run through the loops of the areal features and clip them against a bounding box.
+    @details The bounding box should be in the same coordinate system as the grid, probably radians.
+    @return The new areal features will be clipped along the bounding box.
+  */
 - (MaplyVectorObject *__nullable)clipToMbr:(MaplyCoordinate)ll upperRight:(MaplyCoordinate)ur;
 
 @end
