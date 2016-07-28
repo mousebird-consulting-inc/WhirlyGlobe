@@ -69,10 +69,10 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 
 		LabelInfo labelInfo = new LabelInfo();
 		labelInfo.setFontSize(38.5f);
-		labelInfo.setTextColor(Color.WHITE);
+		labelInfo.setTextColor(Color.RED);
 //		labelInfo.setBackgroundColor(Color.RED);
 		labelInfo.setTypeface(Typeface.DEFAULT);
-//		labelInfo.setLayoutImportance(1.f);
+		labelInfo.setLayoutImportance(1.f);
 		labelInfo.setLayoutPlacement(LabelInfo.LayoutLeft|LabelInfo.LayoutRight|LabelInfo.LayoutCenter);
 		labelInfo.setMinVis(0.f);
 		labelInfo.setMaxVis(2.5f);
@@ -93,8 +93,17 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 					ScreenLabel label = new ScreenLabel();
 					label.text = labelName;
 					label.loc = object.centroid();
+					label.offset = new Point2d(0, -100);
 					label.selectable = true;
 					labels.add(label);
+
+					ScreenLabel reversedLabel = new ScreenLabel();
+					reversedLabel.text = new StringBuilder(labelName).reverse().toString();
+					reversedLabel.loc = object.centroid();
+					reversedLabel.offset = new Point2d(0, 100);
+					reversedLabel.selectable = true;
+					labels.add(reversedLabel);
+
 
 					if (addMarkers) {
 						ScreenMarker marker = new ScreenMarker();
