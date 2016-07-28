@@ -71,7 +71,7 @@ public class MaplyBaseController
 	 * If set, we'll explicitly call dispose on any objects that were
 	 * being kept around for selection.
 	 */
-	public boolean disposeAfterRemoval = true;
+	public boolean disposeAfterRemoval = false;
 	
 	// Set when we're not in the process of shutting down
 	boolean running = false;
