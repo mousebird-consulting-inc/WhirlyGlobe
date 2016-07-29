@@ -95,6 +95,15 @@ public:
 @implementation WhirlyKitFrameMessage
 @end
 
+@interface WhirlyKitSceneRendererES2 ()
+
+@property (nonatomic) GLuint sampleFramebuffer;
+@property (nonatomic, readonly) GLint drawableWidth;
+@property (nonatomic, readonly) GLint drawableHeight;
+
+
+@end
+
 @implementation WhirlyKitSceneRendererES2
 {
     NSMutableArray *lights;
@@ -837,57 +846,145 @@ static const float ScreenOverlap = 0.1;
     // The user wants help with a screen snapshot
     if (_snapshotDelegate)
     {
-        // Courtesy: https://developer.apple.com/library/ios/qa/qa1704/_index.html
-        NSInteger dataLength = framebufferWidth * framebufferHeight * 4;
-        GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
+         // you should cache the Texture so it doesnt render everything everytime.
         
-        // Read pixel data from the framebuffer
-        glPixelStorei(GL_PACK_ALIGNMENT, 4);
-        glReadPixels(0, 0, framebufferWidth, framebufferHeight, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glBindFramebuffer(GL_FRAMEBUFFER, _sampleFramebuffer);
         
-        // Create a CGImage with the pixel data
-        // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
-        // otherwise, use kCGImageAlphaPremultipliedLast
-        CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
-        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-        CGImageRef iref = CGImageCreate(framebufferWidth, framebufferHeight, 8, 32, framebufferWidth * 4, colorspace, kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast,
-                                        ref, NULL, true, kCGRenderingIntentDefault);
+        GLuint dataFramebuffer;
+        glGenFramebuffers(1, &dataFramebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, dataFramebuffer);
         
-        // OpenGL ES measures data in PIXELS
-        // Create a graphics context with the target size measured in POINTS
-        NSInteger widthInPoints, heightInPoints;
-        {
-            // On iOS 4 and later, use UIGraphicsBeginImageContextWithOptions to take the scale into consideration
-            // Set the scale parameter to your OpenGL ES view's contentScaleFactor
-            // so that you get a high-resolution snapshot when its value is greater than 1.0
-            CGFloat scale = self.scale;
-            widthInPoints = framebufferWidth / scale;
-            heightInPoints = framebufferHeight / scale;
-            UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, scale);
+        
+        CVOpenGLESTextureCacheRef rawDataTextureCache;
+        CVReturn error = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, [EAGLContext currentContext], NULL, &rawDataTextureCache);
+        
+        if (error) {
+            NSAssert(NO, @"Error at CVOpenGLESTextureCacheCreate %d", error);
+        }
+
+        // This code helps you cache the texture
+        
+        CFDictionaryRef empty; // empty value for attr value.
+        CFMutableDictionaryRef attrs;
+        empty = CFDictionaryCreate(kCFAllocatorDefault, // our empty IOSurface properties dictionary
+                                   NULL,
+                                   NULL,
+                                   0,
+                                   &kCFTypeDictionaryKeyCallBacks,
+                                   &kCFTypeDictionaryValueCallBacks);
+        attrs = CFDictionaryCreateMutable(kCFAllocatorDefault,
+                                          1,
+                                          &kCFTypeDictionaryKeyCallBacks,
+                                          &kCFTypeDictionaryValueCallBacks);
+        
+        // Sets the value corresponding to a given key.
+        CFDictionarySetValue(attrs,
+                             kCVPixelBufferIOSurfacePropertiesKey,
+                             empty);
+        
+        // A reference to a Core Video pixel buffer object.
+        CVPixelBufferRef renderTarget;
+        
+        // Creates a single pixel buffer for a given size and pixel format.
+        CVPixelBufferCreate(kCFAllocatorDefault,
+                            _drawableWidth,
+                            _drawableHeight,
+                            kCVPixelFormatType_32BGRA,
+                            attrs,
+                            &renderTarget);
+        
+        CVOpenGLESTextureRef renderTexture;
+        
+        // Creates a CVOpenGLESTextureRef object from an existing CVImageBufferRef.
+        CVOpenGLESTextureCacheCreateTextureFromImage (kCFAllocatorDefault,
+                                                      rawDataTextureCache, renderTarget,
+                                                      NULL, // texture attributes
+                                                      GL_TEXTURE_2D,
+                                                      GL_RGBA, // opengl format
+                                                      _drawableWidth,
+                                                      _drawableHeight,
+                                                      GL_BGRA, // native iOS format
+                                                      GL_UNSIGNED_BYTE,
+                                                      0,
+                                                      &renderTexture);
+        CFRelease(attrs);
+        CFRelease(empty);
+        glActiveTexture(GL_TEXTURE2);
+        
+        glBindTexture(CVOpenGLESTextureGetTarget(renderTexture), CVOpenGLESTextureGetName(renderTexture));
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, CVOpenGLESTextureGetName(renderTexture), 0);
+        
+        
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER_APPLE, dataFramebuffer);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER_APPLE, _sampleFramebuffer);
+        glResolveMultisampleFramebufferAPPLE();
+        
+        glFinish();
+        
+        
+        
+        // Locks the base address of the pixel buffer.
+        CVPixelBufferLockBaseAddress(renderTarget, 0);
+        GLubyte *_rawBytesForImage = (GLubyte *)CVPixelBufferGetBaseAddress(renderTarget);
+        
+        NSUInteger paddedWidthOfImage = CVPixelBufferGetBytesPerRow(renderTarget) / 4;
+        NSUInteger paddedBytesForImage = paddedWidthOfImage * _drawableHeight * 4;
+        
+        void *copiedData = malloc(paddedBytesForImage);
+        // A Pointer to the destination array where the content is to be copied, type-casted to a pointer of type void*.
+        // This is an C++ method
+        memcpy(copiedData, _rawBytesForImage, paddedBytesForImage);
+        
+        CGDataProviderRef dataProvider = CGDataProviderCreateWithData(NULL, copiedData, paddedBytesForImage, dataProviderReleaseDataCallback);
+        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+        
+        CGImageRef cgImageFromBytes = CGImageCreate(_drawableWidth, _drawableHeight, 8, 32, CVPixelBufferGetBytesPerRow(renderTarget), colorSpace, kCGBitmapByteOrder32Little | kCGImageAlphaPremultipliedFirst, dataProvider, NULL, NO, kCGRenderingIntentDefault);
+        
+        // Unlocks the base address of the pixel buffer.
+        CVPixelBufferUnlockBaseAddress(renderTarget, 0);
+        
+        UIImage *image = [UIImage imageWithCGImage:cgImageFromBytes];
+        
+        // CGImage Release is similar to CFRelease but i prefer the one below..
+        //  CGImageRelease checks for null but doenst crash.. if null is passed in CGRelease the application crashes.
+        CGImageRelease(cgImageFromBytes);
+        CGDataProviderRelease(dataProvider);
+        CGColorSpaceRelease(colorSpace);
+        
+        
+        if (renderTexture) {
+            CFRelease(renderTexture);
+            renderTexture = NULL;
         }
         
-        CGContextRef cgcontext = UIGraphicsGetCurrentContext();
+        if (dataFramebuffer) {
+            // delete frame buffer objects. and set the value to nil
+            glDeleteFramebuffers(1, &dataFramebuffer);
+            dataFramebuffer = 0;
+        }
         
-        // UIKit coordinate system is upside down to GL/Quartz coordinate system
-        // Flip the CGImage by rendering it to the flipped bitmap context
-        // The size of the destination area is measured in POINTS
-        CGContextSetBlendMode(cgcontext, kCGBlendModeCopy);
-        CGContextDrawImage(cgcontext, CGRectMake(0.0, 0.0, widthInPoints, heightInPoints), iref);
+        if (rawDataTextureCache) {
+            // Performs internal housekeeping/recycling operations on a texture cache.
+            CVOpenGLESTextureCacheFlush(rawDataTextureCache, 0);
+            // Release the raw data texture cacehe and set the value to nil
+            CFRelease(rawDataTextureCache);
+            rawDataTextureCache = 0;
+        }
         
-        // Retrieve the UIImage from the current context
-        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-        
-        UIGraphicsEndImageContext();
-        
-        // Clean up
-        free(data);
-        CFRelease(ref);
-        CFRelease(colorspace);
-        CGImageRelease(iref);
-        
+        if (renderTarget) {
+            // Release a the pixel buffer and set the render target to nil
+            CVPixelBufferRelease(renderTarget);
+            renderTarget = 0;
+        }
+      
         [_snapshotDelegate snapshot:image];
         
         _snapshotDelegate = nil;
+
+        
     }
 
     [context presentRenderbuffer:GL_RENDERBUFFER];
@@ -920,4 +1017,13 @@ static const float ScreenOverlap = 0.1;
     renderSetup = true;
 }
 
+// Free Data
+
+void dataProviderReleaseDataCallback(void *info, const void *data, size_t size)
+{
+    free((void *) data);
+}
+
+
 @end
+
