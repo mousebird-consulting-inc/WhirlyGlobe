@@ -81,34 +81,38 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 
 		MarkerInfo markerInfo = new MarkerInfo();
 		markerInfo.setDrawPriority(labelInfo.getDrawPriority() - 1);
+		markerInfo.setColor(Color.BLUE);
 
 		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
+
+		double labelXOffset = 150;
+		double labelYOffset = 150;
 
 		for (VectorObject object : objects) {
 			AttrDictionary attrs = object.getAttributes();
 			if (attrs != null) {
 				String labelName = attrs.getString("ADMIN");
-				if (labelName != null && labelName.length() > 0) {
-					ScreenLabel label = new ScreenLabel();
-					label.text = labelName;
-					label.loc = object.centroid();
-					label.offset = new Point2d(0, -100);
-					label.selectable = true;
-					labels.add(label);
+				if (labelName != null && labelName.length() > 0 && labelName.toUpperCase().equals("FRANCE")) {
 
 					ScreenLabel reversedLabel = new ScreenLabel();
 					reversedLabel.text = new StringBuilder(labelName).reverse().toString();
 					reversedLabel.loc = object.centroid();
-					reversedLabel.offset = new Point2d(0, 100);
+					reversedLabel.offset = new Point2d(labelXOffset, labelYOffset);
 					reversedLabel.selectable = true;
 					labels.add(reversedLabel);
 
+					ScreenLabel label = new ScreenLabel();
+					label.text = labelName;
+					label.loc = object.centroid();
+					label.offset = new Point2d(- labelXOffset, - labelYOffset);
+					label.selectable = true;
+					labels.add(label);
 
-					if (addMarkers) {
+					if (addMarkers || true) {
 						ScreenMarker marker = new ScreenMarker();
 						marker.loc = label.loc;
-						marker.size = new Point2d(32.f,32.f);
+						marker.size = new Point2d(10.f,10.f);
 						markers.add(marker);
 					}
 				}
@@ -116,18 +120,18 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		}
 
 		// Toss in a few with explicit diacritics
-		labels.add(makeLabel(-74.075833, 4.4, "Bogotá",1.f));
-		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá2",1.f));
-		labels.add(makeLabel(6.0219, 47.2431, "Besançon",1.f));
-		labels.add(makeLabel(4.361, 43.838, "Nîmes",1.f));
-		labels.add(makeLabel(4.9053, 43.9425, "Morières-lès-Avignon",1.f));
-		labels.add(makeLabel(11.616667, 44.833333, "Ferrara",1.f));
-		labels.add(makeLabel(7, 49.233333, "Saarbrücken",1.f));
+//		labels.add(makeLabel(-74.075833, 4.4, "Bogotá",1.f));
+//		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá2",1.f));
+//		labels.add(makeLabel(6.0219, 47.2431, "Besançon",1.f));
+//		labels.add(makeLabel(4.361, 43.838, "Nîmes",1.f));
+//		labels.add(makeLabel(4.9053, 43.9425, "Morières-lès-Avignon",1.f));
+//		labels.add(makeLabel(11.616667, 44.833333, "Ferrara",1.f));
+//		labels.add(makeLabel(7, 49.233333, "Saarbrücken",1.f));
 
 		ComponentObject comp = baseVC.addScreenLabels(labels, labelInfo, MaplyBaseController.ThreadMode.ThreadAny);
 		if (comp != null)
 			componentObjects.add(comp);
-		if (addMarkers) {
+		if (addMarkers || true) {
 			comp = baseVC.addScreenMarkers(markers, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
 			if (comp != null)
 				componentObjects.add(comp);
