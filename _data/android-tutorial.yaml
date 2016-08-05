@@ -5,6 +5,26 @@
     - filename: hello-earth.html
     - filename: your-first-globe-or-map.html
 
+- section: Image Based Maps
+  files: 
+    - filename: local-image-layer.html
+    - filename: remote-image-layer.html
+
+- section: Overlays
+  files:
+    - filename: adding-vector-data.html
+    - filename: screen-markers.html
+    - filename: screen-labels.html
+
+- section: Shapes
+  files:
+    - filename: spheres-android.html
+
+- section: Interaction
+  files: 
+    - filename: vector-selection.html
+    - filename: screen-marker-selection.html
+
 - section: Advanced
   files:
     - filename: auto-tester-android.html
