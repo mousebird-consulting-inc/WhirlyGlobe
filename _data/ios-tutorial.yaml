@@ -39,5 +39,4 @@
     - filename: aeris_weather.html
     - filename: component_tester.html
     - filename: micello_map.html
-
-
+    - filename: digitalglobe_mapsapi.html

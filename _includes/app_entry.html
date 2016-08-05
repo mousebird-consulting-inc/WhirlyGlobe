@@ -1,7 +1,9 @@
 <hr style="margin-top: 10px; opacity: 0.4;">
 
 <div class="media">
-    <a class="media-left" href= "{{ include.link }}" target="_blank" border="0"><img src= "{{ site.baseurl }}/images/apps/{{ include.image }}" alt= "{{ include.name }}" align="left" width="64" height="64" style="margin-left:10px;margin-right:10px"></img></a>
+    <a class="media-left" href= "{{ include.link }}" target="_blank" border="0">
+        <img src= "{{ site.baseurl }}/images/apps/{{ include.image }}" alt= "{{ include.name }}" align="left" width="64" height="64" style="margin-left:10px;margin-right:10px">
+    </a>
     <div class="media-body">
         <h4 class="media-heading" style="margin-left: 0px; margin-top: -14px;">{{ include.name }}</h4>
         {{ include.body }}

@@ -27,15 +27,7 @@
 		2B2E59EB1CA07EC7008FFE4A /* natgeo.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = natgeo.jpg; path = ../locationtech/images/natgeo.jpg; sourceTree = "<group>"; };
 		2B2E59EC1CA07EC7008FFE4A /* stamensphericalmercator.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = stamensphericalmercator.jpg; path = ../locationtech/images/stamensphericalmercator.jpg; sourceTree = "<group>"; };
 		2B2E59ED1CA07EC7008FFE4A /* vectorlabelmarker.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = vectorlabelmarker.jpg; path = ../locationtech/images/vectorlabelmarker.jpg; sourceTree = "<group>"; };
-		2B47FE051CDDAA6200E46D0B /* MaplyMicelloMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyMicelloMap.h; sourceTree = "<group>"; };
-		2B47FE061CDDAA6200E46D0B /* MaplyMicelloMap.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MaplyMicelloMap.m; sourceTree = "<group>"; };
-		2B47FE071CDDAA6200E46D0B /* SimpleAnnotationViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SimpleAnnotationViewController.h; sourceTree = "<group>"; };
-		2B47FE081CDDAA6200E46D0B /* SimpleAnnotationViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SimpleAnnotationViewController.m; sourceTree = "<group>"; };
-		2B47FE091CDDAA6200E46D0B /* SimpleAnnotationViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SimpleAnnotationViewController.xib; sourceTree = "<group>"; };
-		2B47FE0A1CDDAA6200E46D0B /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		2B47FE0B1CDDAA6200E46D0B /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		2B4E068B1A152FAF00ADA318 /* _config.yml */ = {isa = PBXFileReference; lastKnownFileType = text; name = _config.yml; path = ../_config.yml; sourceTree = "<group>"; };
-		2B4E068D1A152FB500ADA318 /* tutorial.yaml */ = {isa = PBXFileReference; lastKnownFileType = text; path = tutorial.yaml; sourceTree = "<group>"; };
 		2B4E068F1A152FD700ADA318 /* app_entry.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = app_entry.html; sourceTree = "<group>"; };
 		2B4E06901A152FD700ADA318 /* footer.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = footer.html; sourceTree = "<group>"; };
 		2B4E06911A152FD700ADA318 /* head.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = head.html; sourceTree = "<group>"; };
@@ -54,18 +46,7 @@
 		2B4E06A31A152FD700ADA318 /* main.scss */ = {isa = PBXFileReference; lastKnownFileType = text; path = main.scss; sourceTree = "<group>"; };
 		2B4E06A41A152FD700ADA318 /* MyFontsWebfontsKit.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = MyFontsWebfontsKit.css; sourceTree = "<group>"; };
 		2B4E06A61A152FD700ADA318 /* bootstrap.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = bootstrap.min.js; sourceTree = "<group>"; };
-		2B4E06A81A152FD700ADA318 /* adding_vector_data.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = adding_vector_data.md; sourceTree = "<group>"; };
-		2B4E06A91A152FD700ADA318 /* building_from_binary.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = building_from_binary.md; sourceTree = "<group>"; };
-		2B4E06AA1A152FD700ADA318 /* building_from_source.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = building_from_source.md; sourceTree = "<group>"; };
-		2B4E06AB1A152FD700ADA318 /* component_tester.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = component_tester.md; sourceTree = "<group>"; };
-		2B4E06AC1A152FD700ADA318 /* getting_started.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = getting_started.md; sourceTree = "<group>"; };
-		2B4E06AD1A152FD800ADA318 /* globe_or_map.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = globe_or_map.md; sourceTree = "<group>"; };
-		2B4E06AE1A152FD800ADA318 /* hello_earth.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = hello_earth.md; sourceTree = "<group>"; };
-		2B4E06AF1A152FD800ADA318 /* local_image_layer.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = local_image_layer.md; sourceTree = "<group>"; };
-		2B4E06B01A152FD800ADA318 /* remote_image_layer.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = remote_image_layer.md; sourceTree = "<group>"; };
-		2B4E06B11A152FD800ADA318 /* vector_selection.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = vector_selection.md; sourceTree = "<group>"; };
-		2B4E06B21A152FD800ADA318 /* your_first_globe.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = your_first_globe.md; sourceTree = "<group>"; };
-		2B4E06B31A152FD800ADA318 /* your_first_map.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = your_first_map.md; sourceTree = "<group>"; };
+		2B4E06A81A152FD700ADA318 /* ios */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ios; sourceTree = "<group>"; };
 		2B4E06B71A153FB100ADA318 /* 819x205.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = 819x205.gif; sourceTree = "<group>"; };
 		2B4E06B91A153FB100ADA318 /* darksky.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = darksky.jpeg; sourceTree = "<group>"; };
 		2B4E06BA1A153FB100ADA318 /* ellawalk.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ellawalk.png; sourceTree = "<group>"; };
@@ -100,28 +81,21 @@
 		2B4E06D81A153FB100ADA318 /* WB-Paper-background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "WB-Paper-background.png"; sourceTree = "<group>"; };
 		2B4E06D91A153FB100ADA318 /* WB-WHIRLYGLOBE-LOGO.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "WB-WHIRLYGLOBE-LOGO.png"; sourceTree = "<group>"; };
 		2B4E06DA1A1541F300ADA318 /* local_image_layer_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = local_image_layer_1.png; sourceTree = "<group>"; };
-		2B4E06DC1A15429400ADA318 /* ViewController_globe_and_map.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_globe_and_map.m; sourceTree = "<group>"; };
 		2B4E06DF1A15437900ADA318 /* local_image_layer_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = local_image_layer_2.png; sourceTree = "<group>"; };
 		2B4E06E21A1549AF00ADA318 /* local_image_layer_3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = local_image_layer_3.png; sourceTree = "<group>"; };
-		2B4E06E31A15572100ADA318 /* ViewController_remote_image_layer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_remote_image_layer.m; sourceTree = "<group>"; };
 		2B4E06E41A15591D00ADA318 /* remote_image_layer_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = remote_image_layer_1.png; sourceTree = "<group>"; };
 		2B4E06E51A155B4600ADA318 /* remote_image_layer_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = remote_image_layer_2.png; sourceTree = "<group>"; };
-		2B4E06E61A155F2600ADA318 /* ViewController_adding_vector_data.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_adding_vector_data.m; sourceTree = "<group>"; };
 		2B4E06E71A15606600ADA318 /* adding_vector_data_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = adding_vector_data_1.png; sourceTree = "<group>"; };
 		2B4E06E81A15619400ADA318 /* adding_vector_data_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = adding_vector_data_2.png; sourceTree = "<group>"; };
 		2B4E08DC1A15711700ADA318 /* adding_vector_data_3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = adding_vector_data_3.png; sourceTree = "<group>"; };
 		2B4E08DD1A15711700ADA318 /* adding_vector_data_4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = adding_vector_data_4.png; sourceTree = "<group>"; };
-		2B4E08DE1A15745400ADA318 /* ViewController_vector_selection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_vector_selection.m; sourceTree = "<group>"; };
 		2B4E08DF1A157CDC00ADA318 /* vector_selection_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = vector_selection_1.png; sourceTree = "<group>"; };
 		2B4E08E01A157CDC00ADA318 /* vector_selection_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = vector_selection_2.png; sourceTree = "<group>"; };
 		2B4E08E11A157DC100ADA318 /* vector_selection_3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = vector_selection_3.png; sourceTree = "<group>"; };
-		2B4E08E21A15803E00ADA318 /* ViewController_post_vector_selection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_post_vector_selection.m; sourceTree = "<group>"; };
 		2B4E08E61A1582F000ADA318 /* component_tester_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = component_tester_1.png; sourceTree = "<group>"; };
-		2B4E08E71A15CDC600ADA318 /* building_from_cocoapod.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = building_from_cocoapod.md; sourceTree = "<group>"; };
 		2B4E091B1A15D98300ADA318 /* whirlyglobecocoapod.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = whirlyglobecocoapod.png; sourceTree = "<group>"; };
 		2B4E091C1A15D98300ADA318 /* cocoapodslogo.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = cocoapodslogo.gif; sourceTree = "<group>"; };
 		2B4E091D1A15D98300ADA318 /* cocoapods_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cocoapods_1.png; sourceTree = "<group>"; };
-		2B69FC4B1CC3009700F20B37 /* aeris_weather.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = aeris_weather.md; sourceTree = "<group>"; };
 		2B769FB71A16D9BB00C60136 /* carousel.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = carousel.html; sourceTree = "<group>"; };
 		2B769FC11A16E43800C60136 /* index.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = index.md; path = ../index.md; sourceTree = "<group>"; };
 		2B769FC31A17CD1600C60136 /* android.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = android.jpg; sourceTree = "<group>"; };
@@ -131,26 +105,14 @@
 		2B769FC71A17CD1600C60136 /* globe_lower.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = globe_lower.jpg; sourceTree = "<group>"; };
 		2B769FC81A17CD1600C60136 /* mapandglobe.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = mapandglobe.jpg; sourceTree = "<group>"; };
 		2B769FC91A17CD1600C60136 /* mtrainier.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = mtrainier.jpg; sourceTree = "<group>"; };
-		2B769FCA1A17CDA700C60136 /* screen_labels.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = screen_labels.md; sourceTree = "<group>"; };
-		2B769FCB1A17CDA700C60136 /* screen_markers.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = screen_markers.md; sourceTree = "<group>"; };
-		2B769FCC1A17CF9600C60136 /* arrows_3d.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = arrows_3d.md; sourceTree = "<group>"; };
-		2B769FCD1A17CF9600C60136 /* cylinders.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = cylinders.md; sourceTree = "<group>"; };
-		2B769FCE1A17CF9600C60136 /* spheres.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = spheres.md; sourceTree = "<group>"; };
-		2B769FCF1A17D10600C60136 /* great_circles.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = great_circles.md; sourceTree = "<group>"; };
-		2B769FD01A17D21D00C60136 /* selection_everything.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = selection_everything.md; sourceTree = "<group>"; };
-		2B769FD11A17D26A00C60136 /* screen_marker_selection.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = screen_marker_selection.md; sourceTree = "<group>"; };
 		2B76A0031A1AAF6400C60136 /* screen_labels_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screen_labels_1.png; sourceTree = "<group>"; };
-		2B76A0071A1AB1F100C60136 /* ViewController_screen_labels.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_screen_labels.m; sourceTree = "<group>"; };
 		2B76A0081A1AB20600C60136 /* screen_labels_3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screen_labels_3.png; sourceTree = "<group>"; };
 		2B76A0091A1AB20600C60136 /* screen_labels_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screen_labels_2.png; sourceTree = "<group>"; };
-		2B76A00A1A1AB31900C60136 /* ViewController_screen_markers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_screen_markers.m; sourceTree = "<group>"; };
 		2B76A00F1A1AB7F300C60136 /* screen_markers_3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screen_markers_3.png; sourceTree = "<group>"; };
 		2B76A0101A1AB7F300C60136 /* screen_markers_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screen_markers_2.png; sourceTree = "<group>"; };
 		2B76A0111A1AB7F300C60136 /* screen_markers_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screen_markers_1.png; sourceTree = "<group>"; };
-		2B76A0121A1ABB1400C60136 /* ViewController_spheres.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_spheres.m; sourceTree = "<group>"; };
 		2B76A0131A1AC0B500C60136 /* spheres_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = spheres_2.png; sourceTree = "<group>"; };
 		2B76A0141A1AC0B500C60136 /* spheres_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = spheres_1.png; sourceTree = "<group>"; };
-		2B76A0151A1AD4F900C60136 /* ViewController_screen_marker_selection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_screen_marker_selection.m; sourceTree = "<group>"; };
 		2B76A0161A1AD71500C60136 /* screen_marker_selection_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screen_marker_selection_1.png; sourceTree = "<group>"; };
 		2B76A0171A1AD71500C60136 /* screen_marker_selection_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = screen_marker_selection_2.png; sourceTree = "<group>"; };
 		2B76A0181A1B0B5D00C60136 /* big_buttons.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = big_buttons.html; sourceTree = "<group>"; };
@@ -158,19 +120,37 @@
 		2B76A01B1A1B130200C60136 /* android_robot_200.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = android_robot_200.png; sourceTree = "<group>"; };
 		2B76A01C1A1B15A700C60136 /* apple_logo_black.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = apple_logo_black.png; sourceTree = "<group>"; };
 		2B76A01D1A1B163100C60136 /* apple_logo_white.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = apple_logo_white.png; sourceTree = "<group>"; };
-		2B76A0481A1C67ED00C60136 /* cartodb_layer.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = cartodb_layer.md; sourceTree = "<group>"; };
 		2B76A0491A1D175E00C60136 /* cartodb_pluto.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cartodb_pluto.png; sourceTree = "<group>"; };
 		2B76A04A1A1D202C00C60136 /* cartodb_layer_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cartodb_layer_2.png; sourceTree = "<group>"; };
 		2B76A04B1A1D203300C60136 /* cartodb_layer_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cartodb_layer_1.png; sourceTree = "<group>"; };
-		2B76A04C1A1D2AD300C60136 /* ViewController_cartodb.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_cartodb.m; sourceTree = "<group>"; };
-		2B76A04D1A1D2AD300C60136 /* CartoDBLayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CartoDBLayer.m; sourceTree = "<group>"; };
-		2B76A04E1A1D2AD300C60136 /* CartoDBLayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CartoDBLayer.h; sourceTree = "<group>"; };
 		2B76A04F1A1D2B0B00C60136 /* cartodb_results.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cartodb_results.png; sourceTree = "<group>"; };
 		2B76A0501A1D2C7100C60136 /* globezoomnumbers.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = globezoomnumbers.gif; sourceTree = "<group>"; };
-		2B96DB6A1B7402B1005FF148 /* remote_ArcGIS_image_layers.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = remote_ArcGIS_image_layers.md; sourceTree = "<group>"; };
-		2B96DB6B1B7402B1005FF148 /* remote_NASA_image_layers.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = remote_NASA_image_layers.md; sourceTree = "<group>"; };
-		2B96DB6C1B7402BE005FF148 /* ViewController_ArcGIS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_ArcGIS.m; sourceTree = "<group>"; };
-		2B96DB6D1B7402BE005FF148 /* ViewController_NASA_GIBS.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController_NASA_GIBS.m; sourceTree = "<group>"; };
+		2B93D9481D411F4500EAD280 /* auto-tester-android.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "auto-tester-android.md"; sourceTree = "<group>"; };
+		2B93D9491D411F4500EAD280 /* building-from-source.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "building-from-source.md"; sourceTree = "<group>"; };
+		2B93D94A1D411F4500EAD280 /* getting-started.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "getting-started.md"; sourceTree = "<group>"; };
+		2B93D94B1D411F4500EAD280 /* hello-earth.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "hello-earth.md"; sourceTree = "<group>"; };
+		2B93D94D1D411F4500EAD280 /* android-sdk-location-in-android-studio.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "android-sdk-location-in-android-studio.png"; sourceTree = "<group>"; };
+		2B93D94E1D411F4500EAD280 /* android-studio-configure-new-project.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "android-studio-configure-new-project.png"; sourceTree = "<group>"; };
+		2B93D94F1D411F4500EAD280 /* empty-activity.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "empty-activity.png"; sourceTree = "<group>"; };
+		2B93D9501D411F4500EAD280 /* gradle-sync.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "gradle-sync.png"; sourceTree = "<group>"; };
+		2B93D9511D411F4500EAD280 /* hello-globe-fragment.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hello-globe-fragment.png"; sourceTree = "<group>"; };
+		2B93D9521D411F4500EAD280 /* hello-map-fragment.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hello-map-fragment.png"; sourceTree = "<group>"; };
+		2B93D9531D411F4500EAD280 /* hello-world.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "hello-world.png"; sourceTree = "<group>"; };
+		2B93D9541D411F4500EAD280 /* HelloGlobeFragment.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; path = HelloGlobeFragment.java; sourceTree = "<group>"; };
+		2B93D9551D411F4500EAD280 /* HelloMapFragment.java */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.java; path = HelloMapFragment.java; sourceTree = "<group>"; };
+		2B93D9561D411F4500EAD280 /* import-project.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "import-project.png"; sourceTree = "<group>"; };
+		2B93D9571D411F4500EAD280 /* main-activity.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "main-activity.png"; sourceTree = "<group>"; };
+		2B93D9581D411F4500EAD280 /* maply-component.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "maply-component.png"; sourceTree = "<group>"; };
+		2B93D9591D411F4500EAD280 /* minimum-sdk.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "minimum-sdk.png"; sourceTree = "<group>"; };
+		2B93D95A1D411F4500EAD280 /* new-blank-fragment.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "new-blank-fragment.png"; sourceTree = "<group>"; };
+		2B93D95B1D411F4500EAD280 /* stamen-maply.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "stamen-maply.gif"; sourceTree = "<group>"; };
+		2B93D95C1D411F4500EAD280 /* stamen-whirly-globe.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = "stamen-whirly-globe.gif"; sourceTree = "<group>"; };
+		2B93D95D1D411F4500EAD280 /* start-new-android-studio-project.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "start-new-android-studio-project.png"; sourceTree = "<group>"; };
+		2B93D95E1D411F4500EAD280 /* whirlyglobe-component.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "whirlyglobe-component.png"; sourceTree = "<group>"; };
+		2B93D95F1D411F4500EAD280 /* your-first-globe-or-map.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "your-first-globe-or-map.md"; sourceTree = "<group>"; };
+		2B93D9601D411F4C00EAD280 /* index.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = index.md; sourceTree = "<group>"; };
+		2B93D9611D411FFF00EAD280 /* android-tutorial.yaml */ = {isa = PBXFileReference; lastKnownFileType = text; path = "android-tutorial.yaml"; sourceTree = "<group>"; };
+		2B93D9621D411FFF00EAD280 /* ios-tutorial.yaml */ = {isa = PBXFileReference; lastKnownFileType = text; path = "ios-tutorial.yaml"; sourceTree = "<group>"; };
 		2B96DB6E1B7402DC005FF148 /* ArcGIS_Header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArcGIS_Header.png; sourceTree = "<group>"; };
 		2B96DB6F1B7402DC005FF148 /* ArcGISProgression.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ArcGISProgression.png; sourceTree = "<group>"; };
 		2B96DB701B7402DC005FF148 /* NASA_GIBS_Header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NASA_GIBS_Header.png; sourceTree = "<group>"; };
@@ -184,7 +164,6 @@
 		2BB766121C73A14700F01F2A /* freeflight.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = freeflight.jpeg; sourceTree = "<group>"; };
 		2BB94D8B1A2CEDCE0076B1B4 /* deforestation.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = deforestation.png; sourceTree = "<group>"; };
 		2BB94D9D1A2FBCAA0076B1B4 /* tutorial.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = tutorial.js; sourceTree = "<group>"; };
-		E519290F1CCEA2A8008794C8 /* micello_map.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = micello_map.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -216,20 +195,6 @@
 			name = images;
 			sourceTree = "<group>";
 		};
-		2B47FE041CDDAA6200E46D0B /* micello_map */ = {
-			isa = PBXGroup;
-			children = (
-				2B47FE051CDDAA6200E46D0B /* MaplyMicelloMap.h */,
-				2B47FE061CDDAA6200E46D0B /* MaplyMicelloMap.m */,
-				2B47FE071CDDAA6200E46D0B /* SimpleAnnotationViewController.h */,
-				2B47FE081CDDAA6200E46D0B /* SimpleAnnotationViewController.m */,
-				2B47FE091CDDAA6200E46D0B /* SimpleAnnotationViewController.xib */,
-				2B47FE0A1CDDAA6200E46D0B /* ViewController.h */,
-				2B47FE0B1CDDAA6200E46D0B /* ViewController.m */,
-			);
-			path = micello_map;
-			sourceTree = "<group>";
-		};
 		2B4E06841A152F8C00ADA318 = {
 			isa = PBXGroup;
 			children = (
@@ -253,7 +218,8 @@
 		2B4E068C1A152FB500ADA318 /* _data */ = {
 			isa = PBXGroup;
 			children = (
-				2B4E068D1A152FB500ADA318 /* tutorial.yaml */,
+				2B93D9611D411FFF00EAD280 /* android-tutorial.yaml */,
+				2B93D9621D411FFF00EAD280 /* ios-tutorial.yaml */,
 			);
 			name = _data;
 			path = ../_data;
@@ -339,33 +305,9 @@
 		2B4E06A71A152FD700ADA318 /* tutorial */ = {
 			isa = PBXGroup;
 			children = (
-				2B4E06DB1A15429400ADA318 /* code */,
-				2B4E06A81A152FD700ADA318 /* adding_vector_data.md */,
-				2B69FC4B1CC3009700F20B37 /* aeris_weather.md */,
-				2B4E06A91A152FD700ADA318 /* building_from_binary.md */,
-				2B4E06AA1A152FD700ADA318 /* building_from_source.md */,
-				2B4E08E71A15CDC600ADA318 /* building_from_cocoapod.md */,
-				2B4E06AB1A152FD700ADA318 /* component_tester.md */,
-				2B4E06AC1A152FD700ADA318 /* getting_started.md */,
-				2B4E06AD1A152FD800ADA318 /* globe_or_map.md */,
-				2B4E06AE1A152FD800ADA318 /* hello_earth.md */,
-				2B4E06AF1A152FD800ADA318 /* local_image_layer.md */,
-				E519290F1CCEA2A8008794C8 /* micello_map.md */,
-				2B4E06B01A152FD800ADA318 /* remote_image_layer.md */,
-				2B4E06B11A152FD800ADA318 /* vector_selection.md */,
-				2B4E06B21A152FD800ADA318 /* your_first_globe.md */,
-				2B4E06B31A152FD800ADA318 /* your_first_map.md */,
-				2B769FCA1A17CDA700C60136 /* screen_labels.md */,
-				2B769FCB1A17CDA700C60136 /* screen_markers.md */,
-				2B769FCC1A17CF9600C60136 /* arrows_3d.md */,
-				2B769FCD1A17CF9600C60136 /* cylinders.md */,
-				2B769FCE1A17CF9600C60136 /* spheres.md */,
-				2B769FCF1A17D10600C60136 /* great_circles.md */,
-				2B769FD01A17D21D00C60136 /* selection_everything.md */,
-				2B769FD11A17D26A00C60136 /* screen_marker_selection.md */,
-				2B76A0481A1C67ED00C60136 /* cartodb_layer.md */,
-				2B96DB6A1B7402B1005FF148 /* remote_ArcGIS_image_layers.md */,
-				2B96DB6B1B7402B1005FF148 /* remote_NASA_image_layers.md */,
+				2B93D9601D411F4C00EAD280 /* index.md */,
+				2B93D9471D411F4500EAD280 /* android */,
+				2B4E06A81A152FD700ADA318 /* ios */,
 			);
 			name = tutorial;
 			path = ../tutorial;
@@ -482,28 +424,6 @@
 			path = tutorial;
 			sourceTree = "<group>";
 		};
-		2B4E06DB1A15429400ADA318 /* code */ = {
-			isa = PBXGroup;
-			children = (
-				2B47FE041CDDAA6200E46D0B /* micello_map */,
-				2B96DB6C1B7402BE005FF148 /* ViewController_ArcGIS.m */,
-				2B96DB6D1B7402BE005FF148 /* ViewController_NASA_GIBS.m */,
-				2B76A04C1A1D2AD300C60136 /* ViewController_cartodb.m */,
-				2B76A04D1A1D2AD300C60136 /* CartoDBLayer.m */,
-				2B76A04E1A1D2AD300C60136 /* CartoDBLayer.h */,
-				2B76A0151A1AD4F900C60136 /* ViewController_screen_marker_selection.m */,
-				2B76A0121A1ABB1400C60136 /* ViewController_spheres.m */,
-				2B76A00A1A1AB31900C60136 /* ViewController_screen_markers.m */,
-				2B76A0071A1AB1F100C60136 /* ViewController_screen_labels.m */,
-				2B4E06E61A155F2600ADA318 /* ViewController_adding_vector_data.m */,
-				2B4E06E31A15572100ADA318 /* ViewController_remote_image_layer.m */,
-				2B4E06DC1A15429400ADA318 /* ViewController_globe_and_map.m */,
-				2B4E08DE1A15745400ADA318 /* ViewController_vector_selection.m */,
-				2B4E08E21A15803E00ADA318 /* ViewController_post_vector_selection.m */,
-			);
-			path = code;
-			sourceTree = "<group>";
-		};
 		2B769FB81A16E02500C60136 /* carousel */ = {
 			isa = PBXGroup;
 			children = (
@@ -533,6 +453,44 @@
 				2B76A01A1A1B123E00C60136 /* reference.md */,
 			);
 			name = reference;
+			sourceTree = "<group>";
+		};
+		2B93D9471D411F4500EAD280 /* android */ = {
+			isa = PBXGroup;
+			children = (
+				2B93D9481D411F4500EAD280 /* auto-tester-android.md */,
+				2B93D9491D411F4500EAD280 /* building-from-source.md */,
+				2B93D94A1D411F4500EAD280 /* getting-started.md */,
+				2B93D94B1D411F4500EAD280 /* hello-earth.md */,
+				2B93D94C1D411F4500EAD280 /* resources */,
+				2B93D95F1D411F4500EAD280 /* your-first-globe-or-map.md */,
+			);
+			path = android;
+			sourceTree = "<group>";
+		};
+		2B93D94C1D411F4500EAD280 /* resources */ = {
+			isa = PBXGroup;
+			children = (
+				2B93D94D1D411F4500EAD280 /* android-sdk-location-in-android-studio.png */,
+				2B93D94E1D411F4500EAD280 /* android-studio-configure-new-project.png */,
+				2B93D94F1D411F4500EAD280 /* empty-activity.png */,
+				2B93D9501D411F4500EAD280 /* gradle-sync.png */,
+				2B93D9511D411F4500EAD280 /* hello-globe-fragment.png */,
+				2B93D9521D411F4500EAD280 /* hello-map-fragment.png */,
+				2B93D9531D411F4500EAD280 /* hello-world.png */,
+				2B93D9541D411F4500EAD280 /* HelloGlobeFragment.java */,
+				2B93D9551D411F4500EAD280 /* HelloMapFragment.java */,
+				2B93D9561D411F4500EAD280 /* import-project.png */,
+				2B93D9571D411F4500EAD280 /* main-activity.png */,
+				2B93D9581D411F4500EAD280 /* maply-component.png */,
+				2B93D9591D411F4500EAD280 /* minimum-sdk.png */,
+				2B93D95A1D411F4500EAD280 /* new-blank-fragment.png */,
+				2B93D95B1D411F4500EAD280 /* stamen-maply.gif */,
+				2B93D95C1D411F4500EAD280 /* stamen-whirly-globe.gif */,
+				2B93D95D1D411F4500EAD280 /* start-new-android-studio-project.png */,
+				2B93D95E1D411F4500EAD280 /* whirlyglobe-component.png */,
+			);
+			path = resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
