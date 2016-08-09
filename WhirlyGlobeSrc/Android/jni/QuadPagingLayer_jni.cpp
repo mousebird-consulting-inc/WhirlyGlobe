@@ -62,8 +62,6 @@ public:
 
 	virtual ~QuadPagingLayerAdapter()
 	{
-		if (coordSys)
-			delete coordSys;
 		if (control)
 		{
 			delete control;

@@ -53,6 +53,8 @@ public:
 class QuadDataStructure
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     virtual ~QuadDataStructure() { }
     
     /// Return the coordinate system we're working in
@@ -89,6 +91,8 @@ public:
 class QuadLoader
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     QuadLoader() : control(NULL), scene(NULL) { }
     virtual ~QuadLoader() { }
     
@@ -166,6 +170,8 @@ protected:
 class QuadDisplayControllerAdapter
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     virtual ~QuadDisplayControllerAdapter() { }
     // Called right after a tile loaded
     virtual void adapterTileDidLoad(const Quadtree::Identifier &tileIdent) = 0;
@@ -183,10 +189,10 @@ public:
 class QuadDisplayController : public QuadTreeImportanceCalculator, public Identifiable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     QuadDisplayController(QuadDataStructure *dataStructure,QuadLoader *loader,QuadDisplayControllerAdapter *adapter);
     ~QuadDisplayController();
-
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     // We keep a registery of Quad Display Controllers so we can access them in between threads
     static void SendWakeup(SimpleIdentity controllerID);

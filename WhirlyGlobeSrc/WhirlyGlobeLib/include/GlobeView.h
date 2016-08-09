@@ -44,6 +44,8 @@ namespace WhirlyGlobe
 class GlobeView : public WhirlyKit::View
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     GlobeView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
     /// Copy constructor
     GlobeView(const GlobeView &that);

@@ -35,6 +35,8 @@ namespace WhirlyGlobe
 class GlobeViewState : public WhirlyKit::ViewState
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     GlobeViewState(GlobeView *globeView,WhirlyKit::SceneRendererES *renderer);
     virtual ~GlobeViewState();
 

@@ -35,6 +35,8 @@ namespace WhirlyKit
 class SubTexture : public Identifiable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     SubTexture() : texId(EmptyIdentity) { trans.setIdentity(); }
     SubTexture(SimpleIdentity subTexID) : Identifiable(subTexID) { }
     

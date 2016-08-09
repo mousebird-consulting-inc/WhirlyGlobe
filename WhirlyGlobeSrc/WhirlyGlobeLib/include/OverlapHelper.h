@@ -40,6 +40,8 @@ class LayoutObject;
 class OverlapHelper
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     OverlapHelper(const Mbr &mbr,int sizeX,int sizeY);
     
     // Try to add an object.  Might fail (kind of the whole point).
@@ -65,6 +67,8 @@ protected:
 class ClusterHelper
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     ClusterHelper(const Mbr &mbr,int sizeX, int sizeY, float resScale, const Point2d &clusterMarkerSize);
     
     // Add an object, possibly forming a group

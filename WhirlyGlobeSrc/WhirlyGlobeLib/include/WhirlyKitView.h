@@ -53,6 +53,8 @@ typedef std::set<ViewWatcher *> ViewWatcherSet;
 class View : public DelayedDeletable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     View();
     View(const View &);
     virtual ~View();

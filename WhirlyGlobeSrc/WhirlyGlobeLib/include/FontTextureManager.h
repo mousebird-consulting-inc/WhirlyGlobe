@@ -42,6 +42,8 @@ typedef std::set<WKGlyph> GlyphSet;
 class FontManager : public Identifiable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     FontManager(SimpleIdentity theId) : Identifiable(theId) { }
     FontManager();
     virtual ~FontManager();
@@ -54,6 +56,8 @@ public:
     class GlyphInfo
     {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
         GlyphInfo() : glyph(0), refCount(0) { }
         GlyphInfo(WKGlyph glyph) : glyph(glyph), refCount(0) { }
         bool operator < (const GlyphInfo &that) const

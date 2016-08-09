@@ -47,6 +47,8 @@ double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f
 class DisplaySolid : public DelayedDeletable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Create a display solid, including height.
     DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &nodeMbr,float minZ,float maxZ,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter);
     

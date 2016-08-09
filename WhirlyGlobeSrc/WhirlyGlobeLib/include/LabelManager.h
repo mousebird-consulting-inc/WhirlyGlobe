@@ -40,6 +40,8 @@ namespace WhirlyKit
 class SingleLabel
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     SingleLabel();
     virtual ~SingleLabel() { };
 

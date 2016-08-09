@@ -18,6 +18,8 @@
  *
  */
 
+#import "Platform.h"
+#import "WhirlyKitLog.h"
 #import "CoordSystem.h"
 
 using namespace Eigen;
@@ -47,6 +49,18 @@ Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3
     Point3d geoCPt = inSystem->localToGeocentric(inCoord);
     Point3d outPt = outSystem->geocentricToLocal(geoCPt);
     return outPt;
+}
+    
+DelayedDeletable::~DelayedDeletable()
+{
+}
+    
+CoordSystem::CoordSystem()
+{
+}
+    
+CoordSystem::~CoordSystem()
+{
 }
     
 GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &ll,const Point3d &ur,const Point3d &inCenter,const Point3d &inScale)

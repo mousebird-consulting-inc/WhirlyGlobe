@@ -34,6 +34,8 @@ namespace WhirlyKit
 class QuadTileOfflineImage
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Size of each of the corner pixels in meters
     Point2d cornerSizes[4];
 
@@ -59,6 +61,8 @@ class QuadTileOfflineLoader;
 class OfflineTile
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     OfflineTile();
     OfflineTile(const WhirlyKit::Quadtree::Identifier &ident);
     OfflineTile(const WhirlyKit::Quadtree::Identifier &ident,int numImages);
@@ -115,6 +119,8 @@ public:
 class QuadTileOfflineLoader : public QuadLoader, QuadTileLoaderSupport
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Set this up with an object that'll return an image per tile and a name (for debugging)
     QuadTileOfflineLoader(const std::string &name,QuadTileImageDataSource *imageSource);
     ~QuadTileOfflineLoader();

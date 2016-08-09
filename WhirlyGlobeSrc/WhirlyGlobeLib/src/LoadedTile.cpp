@@ -292,7 +292,7 @@ void TileBuilder::generateDrawables(ElevationDrawInfo *drawInfo,BasicDrawable **
     } else {
         chunk->setType(GL_TRIANGLES);
         // Generate point, texture coords, and normals
-        std::vector<Point3d> locs((sphereTessX+1)*(sphereTessY+1));
+        Point3dVector locs((sphereTessX+1)*(sphereTessY+1));
         std::vector<float> elevs;
         if (includeElev || useElevAsZ)
             elevs.resize((sphereTessX+1)*(sphereTessY+1));

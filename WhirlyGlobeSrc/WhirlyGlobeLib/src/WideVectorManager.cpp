@@ -477,7 +477,7 @@ public:
     
     double texOffset;
 
-    std::vector<Point3d> pts;
+    Point3dVector pts;
     Point3d lastUp;
     
     bool edgePointsValid;

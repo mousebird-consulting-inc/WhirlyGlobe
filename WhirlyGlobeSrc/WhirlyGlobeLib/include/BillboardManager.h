@@ -36,11 +36,13 @@ namespace WhirlyKit
 class SingleBillboardPoly
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     SingleBillboardPoly();
     ~SingleBillboardPoly(){};
 
     /// Coordinates of polygons
-    std::vector<WhirlyKit::Point2d> pts;
+    Point2dVector pts;
     /// Texture coordinates to go with polygons
     std::vector<WhirlyKit::TexCoord> texCoords;
     /// Color of geometry
@@ -58,6 +60,8 @@ to manage.
 class Billboard
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     Billboard();
     ~Billboard(){};
 
@@ -113,7 +117,7 @@ public:
     BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,BillboardInfo *billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId);
     ~BillboardDrawableBuilder();
 
-    void addBillboard(Point3d center,const std::vector<WhirlyKit::Point2d> &pts,const std::vector<WhirlyKit::TexCoord> &texCoords, const RGBAColor *inColor,const SingleVertexAttributeSet &vertAttrs);
+    void addBillboard(Point3d center,const Point2dVector &pts,const std::vector<WhirlyKit::TexCoord> &texCoords, const RGBAColor *inColor,const SingleVertexAttributeSet &vertAttrs);
 
     void flush();
 

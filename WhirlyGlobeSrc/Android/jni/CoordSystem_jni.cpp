@@ -84,6 +84,9 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_geographicToLocal
 			return NULL;
 
 		Point3d newPt = coordSys->geographicToLocal3d(GeoCoord(pt->x(),pt->y()));
+        
+//        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "CoordSystem::geographicToLocal() in = (%f,%f), out = (%f,%f,%f)",pt->x(),pt->y(),newPt.x(),newPt.y(),newPt.z());
+        
 		return MakePoint3d(env,newPt);
 	}
 	catch (...)

@@ -44,6 +44,8 @@ protected:
     BasicDrawable() { }
     
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Construct empty
     BasicDrawable(const std::string &name);
     /// Construct with some idea how big things are.
@@ -368,6 +370,8 @@ protected:
 class BasicDrawableScreenTexTweaker : public DrawableTweaker
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     BasicDrawableScreenTexTweaker(const Point3d &centerPt,const Point2d &texScale);
     
     /// Modify the active shader
@@ -457,6 +461,8 @@ protected:
 class TransformChangeRequest : public DrawableChangeRequest
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     TransformChangeRequest(SimpleIdentity drawId,const Eigen::Matrix4d *newMat);
     
     void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);

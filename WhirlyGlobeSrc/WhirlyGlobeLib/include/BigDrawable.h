@@ -35,6 +35,8 @@ class BigDrawable : public Drawable
 {
     friend class DynamicDrawableAtlas;
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Construct with a debugging name, a compatible drawable, and the total number of bytes
     BigDrawable(const std::string &name,int singleVertexSize,const std::vector<VertexAttribute> &templateAttributes ,int singleElementSize,int numVertexBytes,int numElementBytes);
     virtual ~BigDrawable();

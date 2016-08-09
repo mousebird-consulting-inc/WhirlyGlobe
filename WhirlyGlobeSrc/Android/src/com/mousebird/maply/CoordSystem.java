@@ -38,8 +38,7 @@ public class CoordSystem
 	
 	public void finalize()
 	{
-		// Note: Intentionally turning this off
-//		dispose();
+		dispose();
 	}
 		
 	/**

@@ -36,6 +36,8 @@ class ViewState;
 class Quadtree
 {
 public:   
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Construct with the spatial information, number of nodes, min importance to consider
     ///  and a delegate to calculate importance.
     Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,QuadTreeImportanceCalculator *importDelegate);
@@ -67,6 +69,8 @@ public:
     class NodeInfo
     {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+        
         NodeInfo() { phantom = false;  importance = 0; frameLoadingFlags = 0; childrenLoading = 0; childrenEval = 0; eval = false; failed = false; childCoverage = false; frameFlags = 0;}
         NodeInfo(const NodeInfo &that) : ident(that.ident), mbr(that.mbr), importance(that.importance),phantom(that.phantom),frameLoadingFlags(that.frameLoadingFlags),childrenLoading(that.childrenLoading),eval(that.eval), failed(that.failed), childrenEval(that.childrenEval), childCoverage(that.childCoverage), frameFlags(that.frameFlags), attrs(that.attrs) { }
         NodeInfo(const Identifier &ident) : ident(ident), importance(0.0), phantom(false), frameLoadingFlags(0), eval(false), failed(false), childrenLoading(0), childrenEval(0), childCoverage(false), frameFlags(0) { }

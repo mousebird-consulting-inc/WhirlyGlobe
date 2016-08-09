@@ -66,6 +66,8 @@ protected:
 class Cullable : public Identifiable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Construct recursively down to the given depth
 	Cullable(CoordSystemDisplayAdapter *coordAdapter,Mbr localMbr,int depth);
     ~Cullable();

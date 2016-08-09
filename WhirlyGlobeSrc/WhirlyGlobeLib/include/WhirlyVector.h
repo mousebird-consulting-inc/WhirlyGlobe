@@ -55,6 +55,8 @@ public:
 class GeoCoord : public Eigen::Vector2f
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
 	GeoCoord() { }
 	GeoCoord(float lon,float lat) : Eigen::Vector2f(lon,lat) { }
     /// Longitude
@@ -97,6 +99,8 @@ public:
 class Mbr
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Construct empty, which is marked as invalid
 	Mbr() : pt_ll(0.f,0.f), pt_ur(-1.f,-1.f) { }
     /// Construct with a lower left and upper right point
@@ -169,6 +173,8 @@ protected:
 class BBox
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     BBox() : pt_ll(0,0,0), pt_ur(-1,-1,-1) { }
     
     /// Add a point to the bounding box
@@ -197,6 +203,8 @@ protected:
 class GeoMbr
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Construct invalid
 	GeoMbr() : pt_ll(-1000,-1000), pt_ur(-1000,-1000) { }
     /// Construct with two coordinates to start
@@ -263,6 +271,8 @@ protected:
 class Ray3f
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     Ray3f() { }
     Ray3f(Point3f org,Point3f dir) : org(org), dir(dir) { }
     

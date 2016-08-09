@@ -31,6 +31,8 @@ namespace WhirlyKit
 class PlateCarreeCoordSystem : public CoordSystem
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Convert from the local coordinate system to lat/lon
     GeoCoord localToGeographic(Point3f);
     GeoCoord localToGeographic(Point3d);
@@ -57,6 +59,8 @@ public:
 class FlatEarthCoordSystem : public CoordSystem
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     FlatEarthCoordSystem(const GeoCoord &origin);
     
     /// Convert from the local coordinate system to lat/lon

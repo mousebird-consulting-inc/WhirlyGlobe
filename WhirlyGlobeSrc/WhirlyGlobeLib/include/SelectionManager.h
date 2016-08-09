@@ -54,6 +54,8 @@ public:
 class RectSelectable3D : public Selectable
 {
 public:    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     RectSelectable3D() : Selectable() { }
     RectSelectable3D(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
@@ -70,6 +72,8 @@ typedef std::set<WhirlyKit::RectSelectable3D> RectSelectable3DSet;
 class PolytopeSelectable : public Selectable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     PolytopeSelectable() : Selectable() { }
     PolytopeSelectable(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
@@ -86,6 +90,8 @@ typedef std::set<WhirlyKit::PolytopeSelectable> PolytopeSelectableSet;
 class MovingPolytopeSelectable : public PolytopeSelectable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     MovingPolytopeSelectable() : PolytopeSelectable() { }
     MovingPolytopeSelectable(SimpleIdentity theID) : PolytopeSelectable(theID) { }
     // Comparison operator for sorting
@@ -103,6 +109,8 @@ typedef std::set<WhirlyKit::MovingPolytopeSelectable> MovingPolytopeSelectableSe
 class LinearSelectable : public Selectable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     LinearSelectable() : Selectable() { }
     LinearSelectable(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
@@ -118,6 +126,8 @@ typedef std::set<WhirlyKit::LinearSelectable> LinearSelectableSet;
 class RectSelectable2D : public Selectable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     RectSelectable2D() : Selectable() { }
     RectSelectable2D(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
@@ -134,6 +144,8 @@ typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
 class MovingRectSelectable2D : public RectSelectable2D
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     MovingRectSelectable2D() : RectSelectable2D() { }
     MovingRectSelectable2D(SimpleIdentity theID) : RectSelectable2D(theID) { }
     
@@ -150,6 +162,8 @@ typedef std::set<WhirlyKit::MovingRectSelectable2D> MovingRectSelectable2DSet;
 class BillboardSelectable : public Selectable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     BillboardSelectable() : Selectable() { }
     BillboardSelectable(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
@@ -178,6 +192,8 @@ typedef std::set<WhirlyKit::BillboardSelectable> BillboardSelectableSet;
 class SelectionManager : public SceneManager
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Pass in the content scaling (not 1.0 if we're on retina)
     SelectionManager(Scene *scene,float viewScale);
     ~SelectionManager();
@@ -252,6 +268,8 @@ public:
     class PlacementInfo
     {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+        
         PlacementInfo(View *view,SceneRendererES *renderer);
         
         WhirlyGlobe::GlobeView *globeView;

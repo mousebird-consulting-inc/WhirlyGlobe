@@ -97,6 +97,8 @@ Point2f CalcLoopCentroid(const VectorRing &loop);
 class VectorTriangles : public VectorShape
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Creation function.  Use this instead of new.
     static VectorTrianglesRef createTriangles();
     ~VectorTriangles();
@@ -131,6 +133,8 @@ protected:
 class VectorAreal : public VectorShape
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Creation function.  Use this instead of new
     static VectorArealRef createAreal();
     ~VectorAreal();
@@ -157,6 +161,8 @@ protected:
 class VectorLinear : public VectorShape
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Creation function.  Use instead of new
     static VectorLinearRef createLinear();
     ~VectorLinear();
@@ -180,6 +186,8 @@ protected:
 class VectorPoints : public VectorShape
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Creation function.  Use instead of new
     static VectorPointsRef createPoints();
     ~VectorPoints();

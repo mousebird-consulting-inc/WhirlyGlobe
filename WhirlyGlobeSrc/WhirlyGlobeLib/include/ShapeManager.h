@@ -80,6 +80,8 @@ private:
 class WhirlyKitSphere : public WhirlyKitShape
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     WhirlyKitSphere();
     virtual ~WhirlyKitSphere();
 

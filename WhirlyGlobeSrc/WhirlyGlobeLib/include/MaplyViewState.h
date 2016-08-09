@@ -30,6 +30,8 @@ namespace Maply
 class MapViewState : public WhirlyKit::ViewState
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     MapViewState(MapView *mapView,WhirlyKit::SceneRendererES *renderer);
 
 	/// Height above globe at this view state

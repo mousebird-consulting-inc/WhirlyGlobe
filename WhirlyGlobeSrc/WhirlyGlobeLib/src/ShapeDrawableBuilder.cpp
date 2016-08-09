@@ -54,7 +54,7 @@ ShapeDrawableBuilder::~ShapeDrawableBuilder()
         delete drawables[ii];
 }
 
-void ShapeDrawableBuilder::addPoints(std::vector<Point3f> &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed)
+void ShapeDrawableBuilder::addPoints(Point3fVector &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed)
 {
     Point3f center3f(center.x(),center.y(),center.z());
 
@@ -258,7 +258,7 @@ void ShapeDrawableBuilderTri::addTriangle(Point3d p0,Point3d n0,RGBAColor c0,Poi
 }
 
 // Add a group of pre-build triangles
-void ShapeDrawableBuilderTri::addTriangles(std::vector<Point3f> &pts,std::vector<Point3f> &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris)
+void ShapeDrawableBuilderTri::addTriangles(Point3fVector &pts,Point3fVector &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris)
 {
     if (!drawable ||
         (drawable->getNumPoints()+pts.size() > MaxDrawablePoints) ||
@@ -288,7 +288,7 @@ void ShapeDrawableBuilderTri::addTriangles(std::vector<Point3f> &pts,std::vector
 }
 
 // Add a convex outline, triangulated
-void ShapeDrawableBuilderTri::addConvexOutline(std::vector<Point3f> &pts,Point3f norm,RGBAColor color,Mbr shapeMbr)
+void ShapeDrawableBuilderTri::addConvexOutline(Point3fVector &pts,Point3f norm,RGBAColor color,Mbr shapeMbr)
 {
     // It's convex, so we'll just triangulate it dumb style
     for (unsigned int ii = 2;ii<pts.size();ii++)
@@ -296,14 +296,14 @@ void ShapeDrawableBuilderTri::addConvexOutline(std::vector<Point3f> &pts,Point3f
 }
 
 // Add a convex outline, triangulated
-void ShapeDrawableBuilderTri::addConvexOutline(std::vector<Point3d> &pts,Point3d norm,RGBAColor color,Mbr shapeMbr)
+void ShapeDrawableBuilderTri::addConvexOutline(Point3dVector &pts,Point3d norm,RGBAColor color,Mbr shapeMbr)
 {
     // It's convex, so we'll just triangulate it dumb style
     for (unsigned int ii = 2;ii<pts.size();ii++)
         addTriangle(pts[0], norm, color, pts[ii-1], norm, color, pts[ii], norm, color, shapeMbr);
 }
 
-void ShapeDrawableBuilderTri::addComplexOutline(std::vector<Point3d> &pts,Point3d norm,RGBAColor color,Mbr shapeMbr)
+void ShapeDrawableBuilderTri::addComplexOutline(Point3dVector &pts,Point3d norm,RGBAColor color,Mbr shapeMbr)
 {
     Point3f norm3f(norm.x(),norm.y(),norm.z());
 
