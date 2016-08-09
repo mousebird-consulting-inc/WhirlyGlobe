@@ -39,7 +39,7 @@ SphericalChunk::SphericalChunk()
 static const float SkirtFactor = 0.95;
 
 // Helper routine for constructing the skirt around a tile
-void SphericalChunk::buildSkirt(BasicDrawable *draw,std::vector<Point3f> &pts,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo)
+void SphericalChunk::buildSkirt(BasicDrawable *draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo)
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {
@@ -143,7 +143,7 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
         dispPts[ii] = coordAdapter->localToDisplay(localSys->geographicToLocal(geoCoords[ii]));
     }
     
-    std::vector<Point3f> locs;
+    Point3fVector locs;
     std::vector<TexCoord> texCoords;
     
     Point2f texIncr;
@@ -262,7 +262,7 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
         skirtDrawable->setProgram(programID);
         
         // Bottom skirt
-        std::vector<Point3f> skirtLocs;
+        Point3fVector skirtLocs;
         std::vector<TexCoord> skirtTexCoords;
         for (unsigned int ix=0;ix<=thisSampleX;ix++)
         {

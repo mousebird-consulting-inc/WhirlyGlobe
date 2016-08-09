@@ -29,8 +29,11 @@ namespace WhirlyKit
 class Proj4CoordSystem : public CoordSystem
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Construct with a proj4 string to be passsed to proj.4 (duh)
     Proj4CoordSystem(const std::string &proj4Str);
+    ~Proj4CoordSystem();
     
     /// Convert from the local coordinate system to lat/lon
     GeoCoord localToGeographic(Point3f);

@@ -30,6 +30,8 @@ namespace Maply
 class MapScene : public WhirlyKit::Scene
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     MapScene(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
     
     /// Add a drawable

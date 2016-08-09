@@ -34,7 +34,8 @@ namespace Maply
 class FlatView : public MapView
 {
 public:
-
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     FlatView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
 
     /// Generate the model view matrix for use by OpenGL.

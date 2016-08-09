@@ -24,12 +24,14 @@ namespace WhirlyKit {
     
 class SimplePoly {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     SimplePoly();
     ~SimplePoly();
 
     SimpleIdentity texID;
     RGBAColor color;
-    std::vector<WhirlyKit::Point2d> pts;
+    Point2dVector pts;
     std::vector<TexCoord> texCoords;
 };
   
@@ -49,6 +51,8 @@ public:
 
 class ScreenObject {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     ScreenObject();
     ~ScreenObject();
 

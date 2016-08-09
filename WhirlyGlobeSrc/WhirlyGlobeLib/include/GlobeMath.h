@@ -30,6 +30,8 @@ namespace WhirlyKit
 class GeoCoordSystem : public WhirlyKit::CoordSystem
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Convert from the local coordinate system to lat/lon
     GeoCoord localToGeographic(Point3f);
     GeoCoord localToGeographic(Point3d);
@@ -68,6 +70,8 @@ public:
 class FakeGeocentricDisplayAdapter : public WhirlyKit::CoordSystemDisplayAdapter
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     FakeGeocentricDisplayAdapter() : CoordSystemDisplayAdapter(&geoCoordSys,Point3d(0,0,0)) { }
     virtual ~FakeGeocentricDisplayAdapter() { }
 
@@ -110,6 +114,8 @@ protected:
 class GeocentricDisplayAdapter : public WhirlyKit::CoordSystemDisplayAdapter
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     GeocentricDisplayAdapter() : CoordSystemDisplayAdapter(&geoCoordSys,Point3d(0,0,0)) { }
 
     /// There are no bounds in fake geocentric since it's not a flat system

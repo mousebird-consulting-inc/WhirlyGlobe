@@ -35,6 +35,8 @@ class BasicDrawableInstance;
 class BaseInfo
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     BaseInfo();
     /// Construct with a dictionary
     BaseInfo(const Dictionary &dict);

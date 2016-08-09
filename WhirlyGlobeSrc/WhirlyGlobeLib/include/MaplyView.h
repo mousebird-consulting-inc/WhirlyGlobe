@@ -41,6 +41,8 @@ namespace Maply
 class MapView : public WhirlyKit::View
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     MapView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
     /// Copy constructor
     MapView(const MapView &that);

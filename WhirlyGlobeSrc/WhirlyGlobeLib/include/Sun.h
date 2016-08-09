@@ -26,6 +26,8 @@ namespace WhirlyKit
 {
 class Sun {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     Sun();
     Sun(int year, int month, int day, int hour, int minutes, int second);
     ~Sun();

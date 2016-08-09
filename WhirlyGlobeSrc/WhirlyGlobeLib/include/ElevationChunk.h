@@ -30,6 +30,8 @@ namespace WhirlyKit
 /// Settings needed to turn elevation into drawables
 typedef struct
 {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     Mbr parentMbr;
     Mbr theMbr;
     int xDim,yDim;

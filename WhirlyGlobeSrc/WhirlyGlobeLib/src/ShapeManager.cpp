@@ -107,7 +107,7 @@ void WhirlyKitSphere::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *r
 
     // It's lame, but we'll use lat/lon coordinates to tesselate the sphere
     // Note: Replace this with something less lame
-    std::vector<Point3f> locs,norms;
+    Point3fVector locs,norms;
     locs.reserve((getSampleX()+1)*(getSampleY())+1);
     norms.reserve((getSampleX()+1)*(getSampleY()+1));
     std::vector<RGBAColor> colors;

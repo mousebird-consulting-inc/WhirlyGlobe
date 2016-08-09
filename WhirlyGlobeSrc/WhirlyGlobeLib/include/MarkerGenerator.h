@@ -49,6 +49,8 @@ public:
     class Marker : public Identifiable
     {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+        
         /// Called by the marker generator build the geometry
         void addToDrawables(WhirlyKit::RendererFrameInfo *frameInfo,DrawableMap &drawables,float minZres);
         

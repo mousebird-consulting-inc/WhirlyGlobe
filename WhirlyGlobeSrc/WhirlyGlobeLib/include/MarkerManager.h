@@ -81,6 +81,8 @@ public:
 class Marker
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     Marker();
     
     /// If set, this marker should be made selectable

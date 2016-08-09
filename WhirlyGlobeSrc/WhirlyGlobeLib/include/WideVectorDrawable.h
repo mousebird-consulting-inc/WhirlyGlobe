@@ -37,6 +37,8 @@ OpenGLES2Program *BuildWideVectorProgram();
 class WideVectorDrawable : public BasicDrawable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     WideVectorDrawable(const std::string &name,unsigned int numVert,unsigned int numTri);
     
     virtual unsigned int addPoint(const Point3f &pt);
@@ -76,10 +78,10 @@ protected:
     int tex_index;
     
 #ifdef WIDEVECDEBUG
-    std::vector<Point3f> locPts;
-    std::vector<Point3f> p1;
-    std::vector<Point2f> t0_limits;
-    std::vector<Point3f> n0;
+    Point3fVector locPts;
+    Point3fVector p1;
+    Point2fVector t0_limits;
+    Point3fVector n0;
     std::vector<float> c0;
 #endif
 };

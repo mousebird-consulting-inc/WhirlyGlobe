@@ -116,6 +116,8 @@ protected:
 class TileBuilder
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quadTree);
     ~TileBuilder();
     

@@ -48,6 +48,8 @@ namespace WhirlyKit
 class LayoutObject : public ScreenSpaceObject
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     LayoutObject();
     LayoutObject(SimpleIdentity theId);
     
@@ -78,6 +80,8 @@ public:
 class LayoutObjectEntry : public Identifiable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
 	LayoutObjectEntry(SimpleIdentity theId);
     
     // The layout objects as passed in by the original caller
@@ -122,6 +126,8 @@ public:
 	class ClusterClassParams
 	{
 	public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+        
 		SimpleIdentity motionShaderID;
 		bool selectable;
 		double markerAnimationTime;

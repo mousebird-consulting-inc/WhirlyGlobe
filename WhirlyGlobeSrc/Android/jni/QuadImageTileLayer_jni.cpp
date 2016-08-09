@@ -92,8 +92,6 @@ public:
 
 	virtual ~QuadImageLayerAdapter()
 	{
-		if (coordSys)
-			delete coordSys;
 	}
 
 	// Get Java methods for a particular instance

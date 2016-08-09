@@ -18,6 +18,7 @@
  *
  */
 
+#import "WhirlyKitLog.h"
 #import "Proj4CoordSystem.h"
 #import "GlobeMath.h"
 #import "proj_api.h"
@@ -31,6 +32,13 @@ Proj4CoordSystem::Proj4CoordSystem(const std::string &proj4Str)
     pj = pj_init_plus(proj4Str.c_str());
     pj_latlon = pj_init_plus("+proj=latlong +datum=WGS84");
     pj_geocentric = pj_init_plus("+proj=geocent +datum=WGS84");
+}
+    
+Proj4CoordSystem::~Proj4CoordSystem()
+{
+    pj_free(pj);
+    pj_free(pj_latlon);
+    pj_free(pj_geocentric);
 }
     
 bool Proj4CoordSystem::isValid()
@@ -87,7 +95,9 @@ Point3d Proj4CoordSystem::geographicToLocal3d(GeoCoord geo)
 {
     Point3d coord;
     double x = geo.x(),y = geo.y(),z = 0.0;
-    pj_transform(pj_latlon, pj, 1, 1, &x, &y, &z);
+    if (pj_transform(pj_latlon, pj, 1, 1, &x, &y, &z))
+        WHIRLYKIT_LOGV("Proj4CoordSystem::geographicToLocal3d error converting to local");
+
     coord.x() = x;  coord.y() = y;  coord.z() = z;
     
     return coord;

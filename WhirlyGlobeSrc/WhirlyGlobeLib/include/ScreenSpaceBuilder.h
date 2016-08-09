@@ -39,6 +39,8 @@ class ScreenSpaceObjectLocation;
 class ScreenSpaceBuilder
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter,float scale,float centerDist=10e2);
     virtual ~ScreenSpaceBuilder();
     
@@ -47,6 +49,8 @@ public:
     class DrawableState
     {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+        
         DrawableState();
         
         // Comparison operator for set
@@ -108,6 +112,8 @@ protected:
     class DrawableWrap
     {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+        
         DrawableWrap();
         DrawableWrap(const DrawableState &state);
         ~DrawableWrap();
@@ -155,6 +161,8 @@ protected:
 class ScreenSpaceObject : public Identifiable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     friend class LayoutManager;
     friend class ScreenSpaceBuilder;
     
@@ -225,6 +233,8 @@ protected:
 class ScreenSpaceObjectLocation
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     ScreenSpaceObjectLocation();
 
     // IDs for selected objects (one if regular, more than one for cluster)

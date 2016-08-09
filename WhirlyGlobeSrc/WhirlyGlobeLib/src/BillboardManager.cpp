@@ -88,7 +88,7 @@ BillboardDrawableBuilder::~BillboardDrawableBuilder()
     flush();
 }
 
-void BillboardDrawableBuilder::addBillboard(Point3d center, const std::vector<WhirlyKit::Point2d> &pts, const std::vector<WhirlyKit::TexCoord> &texCoords, const WhirlyKit::RGBAColor *inColor, const SingleVertexAttributeSet &vertAttrs)
+void BillboardDrawableBuilder::addBillboard(Point3d center, const Point2dVector &pts, const std::vector<WhirlyKit::TexCoord> &texCoords, const WhirlyKit::RGBAColor *inColor, const SingleVertexAttributeSet &vertAttrs)
 {
     if (pts.size() != 4)
     {

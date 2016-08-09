@@ -37,6 +37,8 @@ namespace WhirlyKit
 class ScreenSpaceGenerator : public Generator
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     ScreenSpaceGenerator(const std::string &name,Point2d margin);
     virtual ~ScreenSpaceGenerator();
     
@@ -66,6 +68,8 @@ public:
     class SimpleGeometry
     {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+        
         SimpleGeometry();
         SimpleGeometry(SimpleIdentity texID,SimpleIdentity programID,RGBAColor color,const Point2dVector &coords,const std::vector<TexCoord> &texCoords);
 
@@ -83,6 +87,8 @@ public:
     class ConvexShape : public Identifiable
     {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+        
         ConvexShape();
 
         /// Center location
@@ -111,6 +117,8 @@ public:
     /// Used to track the screen location of a single shape, by ID
     typedef struct
     {
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+        
         SimpleIdentity shapeID;
         Point2d screenLoc;
     } ProjectedPoint;

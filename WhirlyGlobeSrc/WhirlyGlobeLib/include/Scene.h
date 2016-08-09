@@ -283,6 +283,8 @@ class Scene : public DelayedDeletable
 {
 	friend class ChangeRequest;
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
 	virtual ~Scene();
     
     /// Return the coordinate system adapter we're using.

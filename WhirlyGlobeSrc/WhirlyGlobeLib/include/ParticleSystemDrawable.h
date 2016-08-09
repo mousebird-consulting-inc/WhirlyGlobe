@@ -37,6 +37,8 @@ OpenGLES2Program *BuildParticleSystemProgram();
 class ParticleSystemDrawable : public Drawable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     // A group of attribute data passed in at once
     class AttributeData
     {

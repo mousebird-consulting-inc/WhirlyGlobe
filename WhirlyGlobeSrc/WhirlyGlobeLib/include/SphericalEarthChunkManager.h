@@ -51,6 +51,7 @@ class SphericalChunk : public Identifiable
 {
     friend class SphericalChunkManager;
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     SphericalChunk();
 
@@ -88,7 +89,7 @@ public:
     CoordSystem *coordSys;
     
 protected:
-    void buildSkirt(BasicDrawable *draw,std::vector<Point3f> &pts,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo);
+    void buildSkirt(BasicDrawable *draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo);
     // Create one or more drawables to represent the chunk.
     // Only call this if you know what you're doing
     void buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDraw,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo);

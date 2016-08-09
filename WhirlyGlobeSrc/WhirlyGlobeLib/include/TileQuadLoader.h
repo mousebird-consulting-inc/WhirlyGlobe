@@ -44,6 +44,8 @@ class QuadTileImageDataSource;
 class QuadTileLoaderSupport
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     virtual ~QuadTileLoaderSupport() { }
     /// When a data source has finished its fetch for a given tile, it
     ///  calls this method to hand the data (along with key info) back to the
@@ -62,6 +64,8 @@ public:
 class QuadTileImageDataSource
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     QuadTileImageDataSource();
     virtual ~QuadTileImageDataSource();
 
@@ -89,6 +93,8 @@ public:
 class QuadTileLoader : public QuadLoader, public QuadTileLoaderSupport
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Set this up with an object that'll return an image per tile and a name (for debugging)
     QuadTileLoader(const std::string &name,QuadTileImageDataSource *imageSource,int numFrames);
     virtual ~QuadTileLoader();

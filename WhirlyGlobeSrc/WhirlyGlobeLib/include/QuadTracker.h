@@ -95,6 +95,8 @@ public:
 class QuadTracker
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /** @brief Construct with a globe view.
       */
     QuadTracker(WhirlyGlobe::GlobeView *globeView,SceneRendererES *renderer,CoordSystemDisplayAdapter *adapter);

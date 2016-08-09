@@ -13,12 +13,12 @@ import java.util.ArrayList;
  */
 public class RemoteTileInfo
 {
-	ArrayList<String> baseURLs = new ArrayList<String>();
-	String ext = null;
-	int minZoom = 0;
-	int maxZoom = 0;
-	int pixelsPerSide = 256;
-	boolean replaceURL = false;
+	public ArrayList<String> baseURLs = new ArrayList<String>();
+	public String ext = null;
+	public int minZoom = 0;
+	public int maxZoom = 0;
+	public int pixelsPerSide = 256;
+	public boolean replaceURL = false;
 
 	/**
 	 * Construct a remote tile source that fetches from a single URL.  You provide
