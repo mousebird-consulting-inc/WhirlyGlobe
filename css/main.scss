@@ -258,6 +258,10 @@ ul.docs-and-resources {
       padding-top: 0.2em;
       margin-left: 0;
     }
+    td {
+      font-family: Roboto;
+      font-size: 15px;
+    }
   }
 }.affix-bottom {
   position:        absolute;
@@ -339,6 +343,38 @@ a:active.prev, a:active.next {
 }
 .social-media-list {
   text-align: right;
+}
+
+.builds {
+  background-color: $tutorial-blue;
+
+  h2, h3, h4, h5, h6 {
+    padding-top:    1em;
+    font-family:    Museo-500;
+  }
+  p {
+    font-family:    Roboto;
+    margin-left: 0px;
+    margin-bottom: 0px;
+  }
+  th {
+    vertical-align: middle;
+    text-align: center;
+  }
+}
+.glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -webkit-animation: spin2 .7s infinite linear;
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
 }
 
 

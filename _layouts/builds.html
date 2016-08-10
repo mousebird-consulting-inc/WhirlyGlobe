@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+{% include head.html %}
+<body onload="getAPIData()">
+<div id="wrap">
+	{% include header.html %}
+	<script src="{{ site.baseurl }}/js/builds.js"></script>
+		<div class="col-sm-12 tutorial tutorial-main">
+		  <h2>Builds</h2>
+		    <div id="table">
+		      <div class="container text-center">
+		        <button class="btn btn-lg btn-warning"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
+		      </div>
+		    </div>  
+		</div>
+</div>
+{% include footer.html %}
+</body>
+</html>
