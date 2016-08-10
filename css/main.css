@@ -172,6 +172,9 @@ ul.docs-and-resources li.mousebird:before {
     .tutorial-main .well h4, .tutorial-main .well p {
       padding-top: 0.2em;
       margin-left: 0; }
+    .tutorial-main .well td {
+      font-family: Roboto;
+      font-size: 15px; }
 
 .affix-bottom {
   position: absolute; }
@@ -240,6 +243,33 @@ a:active.prev, a:active.next {
 .social-media-list {
   text-align: right; }
 
+.builds {
+  background-color: #00557e; }
+  .builds h2, .builds h3, .builds h4, .builds h5, .builds h6 {
+    padding-top: 1em;
+    font-family: Museo-500; }
+  .builds p {
+    font-family: Roboto;
+    margin-left: 0px;
+    margin-bottom: 0px; }
+  .builds th {
+    vertical-align: middle;
+    text-align: center; }
+
+.glyphicon-refresh-animate {
+  -animation: spin .7s infinite linear;
+  -webkit-animation: spin2 .7s infinite linear; }
+
+@-webkit-keyframes spin2 {
+  from {
+    -webkit-transform: rotate(0deg); }
+  to {
+    -webkit-transform: rotate(360deg); } }
+@keyframes spin {
+  from {
+    transform: scale(1) rotate(0deg); }
+  to {
+    transform: scale(1) rotate(360deg); } }
 /**
  * Reset some basic elements
  */
