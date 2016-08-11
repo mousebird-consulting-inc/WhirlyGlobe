@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B158BEF1D5D19E900103E04 /* VectorHoleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */; };
 		2B1C264F1C90FFFC00C71B0A /* VectorMBTilesTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */; };
 		2B1C26531C91037100C71B0A /* France.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C26511C9100A500C71B0A /* France.mbtiles */; };
 		2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */; };
@@ -550,6 +551,8 @@
 /* Begin PBXFileReference section */
 		180B97B59AC5F39A42ADCB62 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		1F05A4FB888D188E680287F5 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		2B158BED1D5D19E900103E04 /* VectorHoleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorHoleTestCase.h; sourceTree = "<group>"; };
+		2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorHoleTestCase.m; sourceTree = "<group>"; };
 		2B1C264D1C90FFFC00C71B0A /* VectorMBTilesTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorMBTilesTestCase.h; sourceTree = "<group>"; };
 		2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorMBTilesTestCase.m; sourceTree = "<group>"; };
 		2B1C26511C9100A500C71B0A /* France.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = France.mbtiles; path = ../../resources/vectors/France.mbtiles; sourceTree = "<group>"; };
@@ -1296,6 +1299,8 @@
 				2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */,
 				D8341A6F1BE2C8D200411A46 /* VectorsTestCase.h */,
 				D8341A701BE2C8D200411A46 /* VectorsTestCase.m */,
+				2B158BED1D5D19E900103E04 /* VectorHoleTestCase.h */,
+				2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */,
 				D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */,
 				D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */,
 				2BC2DCCB1D1F4CE20088D350 /* ShapefileTestCase.h */,
@@ -2520,6 +2525,7 @@
 				D84433E71C14A46200A52117 /* NASAGIBSTestCase.swift in Sources */,
 				2B1C264F1C90FFFC00C71B0A /* VectorMBTilesTestCase.m in Sources */,
 				E5679F4A1CB72DE800369A15 /* FindHeightTestCase.m in Sources */,
+				2B158BEF1D5D19E900103E04 /* VectorHoleTestCase.m in Sources */,
 				D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.m in Sources */,
 				D84AA59C1C1A2E9900413B76 /* ElevationLocalDatabase.m in Sources */,
 				2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */,
