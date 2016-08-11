@@ -54,6 +54,7 @@
                     wgVecObj.userObject = vecName;
                     [self.compList addObject:wgVecObj];
                     [baseVC addVectors:[NSArray arrayWithObject:wgVecObj] desc:vectorDict];
+                    [baseVC addSelectionVectors:[NSArray arrayWithObject:wgVecObj]];
                     if ([vecName isEqualToString:@"Spain"]) {
                         self.selectedCountry = wgVecObj;
                     }

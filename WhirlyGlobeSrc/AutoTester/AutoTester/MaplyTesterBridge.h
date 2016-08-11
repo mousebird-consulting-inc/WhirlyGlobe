@@ -44,5 +44,6 @@
 #import "FullAnimationTest.h"
 #import "DownloadResourceOperation.h"
 #import "PagingLayerTestCase.h"
+#import "VectorHoleTestCase.h"
 
 #endif
