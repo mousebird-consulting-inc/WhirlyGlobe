@@ -179,6 +179,20 @@ public class MaplyBaseController
 		 * system on their own (via ThreadCurrent).
 		 */
 		public int numWorkingThreads = 8;
+		/**
+		 * If set we'll override the width of the rendering surface.
+		 *
+		 * This is useful for scaling back the surface resolution
+		 * for slower devices.
+		 */
+		public int width = 0;
+		/**
+		 * If set we'll override the height of the rendering surface.
+		 *
+		 * This is useful for scaling back the surface resolution
+		 * for slower devices.
+		 */
+		public int height = 0;
 	}
 
 	// Set if we're using a TextureView rather than a SurfaceView
@@ -186,6 +200,8 @@ public class MaplyBaseController
 
 	boolean libraryLoaded = false;
 	int numWorkingThreads = 8;
+	int width = 0;
+	int height = 0;
 
 	/**
 	 * Construct the maply controller with an Activity.  We need access to a few
@@ -208,6 +224,8 @@ public class MaplyBaseController
 		if (settings != null) {
 			useTextureView = !settings.useSurfaceView;
 			numWorkingThreads = settings.numWorkingThreads;
+			width = settings.width;
+			height = settings.height;
 		}
 	}
 
@@ -252,6 +270,10 @@ public class MaplyBaseController
 			if (!useTextureView) {
 				GLSurfaceView glSurfaceView = new GLSurfaceView(activity);
 
+				if (width > 0 && height > 0) {
+					glSurfaceView.getHolder().setFixedSize(width, height);
+				}
+
 				// If the clear color has transparency, we need to set things up differently
 				if (Color.alpha(clearColor) < 255) {
 					glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
@@ -273,6 +295,10 @@ public class MaplyBaseController
 				baseView = glSurfaceView;
 			} else {
 				GLTextureView glTextureView = new GLTextureView(activity);
+
+				if (width > 0 && height > 0) {
+					glTextureView.getSurfaceTexture().setDefaultBufferSize(width,height);
+				}
 
 				// If the clear color has transparency, we need to set things up differently
 				if (Color.alpha(clearColor) < 255) {
