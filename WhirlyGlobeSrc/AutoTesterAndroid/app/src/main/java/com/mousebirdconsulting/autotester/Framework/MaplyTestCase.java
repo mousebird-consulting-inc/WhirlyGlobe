@@ -127,8 +127,10 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	{
 		GlobeController.Settings settings = new GlobeController.Settings();
 		// Note: Turn this off for testing GLTextureView
-		settings.useSurfaceView = false;
+//		settings.useSurfaceView = false;
 		settings.clearColor = clearColor;
+//		settings.width = 512;
+//		settings.height = 512;
 		GlobeController globeControl = new GlobeController(activity,settings);
 		globeControl.gestureDelegate = this;
 
@@ -141,6 +143,8 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	{
 		MapController.Settings settings = new MapController.Settings();
 		settings.clearColor = clearColor;
+//		settings.width = 100;
+//		settings.height = 100;
 		MapController mapControl = new MapController(activity,settings);
 		mapControl.gestureDelegate = this;
 
