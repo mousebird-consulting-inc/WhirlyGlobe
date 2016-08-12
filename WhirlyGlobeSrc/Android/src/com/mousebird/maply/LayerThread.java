@@ -119,8 +119,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 
 					try {
 						EGL10 egl = (EGL10) EGLContext.getEGL();
-						if (!egl.eglMakeCurrent(renderer.display, surface, surface, context))
-							Log.d("Maply", "Failed to make current context in layer thread.");
+						if (context != null && surface != null)
+							if (!egl.eglMakeCurrent(renderer.display, surface, surface, context))
+								Log.d("Maply", "Failed to make current context in layer thread.");
 					} catch (Exception e) {
 						Log.i("Maply", "Failed to make current context in layer thread.");
 					}
@@ -170,8 +171,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 				public void run() {
 					try {
 						EGL10 egl = (EGL10) EGLContext.getEGL();
-						if (!egl.eglMakeCurrent(renderer.display, surface, surface, context))
-							Log.d("Maply", "Failed to make current context in layer thread.");
+						if (context != null && surface != null)
+							if (!egl.eglMakeCurrent(renderer.display, surface, surface, context))
+								Log.d("Maply", "Failed to make current context in layer thread.");
 					} catch (Exception e) {
 						Log.i("Maply", "Failed to make current context in layer thread.");
 					}
@@ -189,6 +191,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		addTask(new Runnable() {
 			@Override
 			public void run() {
+				EGL10 egl = (EGL10) EGLContext.getEGL();
+				egl.eglMakeCurrent(renderer.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
+
 				valid = false;
 				ArrayList<Layer> layersToRemove = null;
 				synchronized (layers) {
@@ -216,12 +221,13 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		}
 
 		EGL10 egl = (EGL10) EGLContext.getEGL();
-		if (context != null)
-		{
-			egl.eglDestroySurface(renderer.display,surface);
+		if (surface != null) {
+			egl.eglDestroySurface(renderer.display, surface);
+			surface = null;
+		}
+		if (context != null) {
 			egl.eglDestroyContext(renderer.display,context);
 			context = null;
-			surface = null;
 		}
 
 		// Note: Is this blocking?

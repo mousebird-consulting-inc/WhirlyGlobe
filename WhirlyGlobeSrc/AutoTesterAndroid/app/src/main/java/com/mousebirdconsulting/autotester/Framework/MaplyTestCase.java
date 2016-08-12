@@ -4,6 +4,7 @@ package com.mousebirdconsulting.autotester.Framework;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 
@@ -151,10 +152,44 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		return mapControl;
 	}
 
+	int numRuns = 0;
+	// If set we'll run startup/shutdown tests
+	boolean multiTest = false;
 
-	// Create the test case and start it
+	// Run start/shutdown in a loop
 	public void start()
 	{
+		if (multiTest) {
+			startControl();
+
+			Handler handler = new Handler();
+			handler.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					shutdown();
+
+					Handler handler = new Handler();
+					handler.postDelayed(new Runnable() {
+						@Override
+						public void run() {
+
+							start();
+						}
+					}, 1000);
+				}
+			}, 1000);
+		} else {
+			startControl();
+		}
+	}
+
+
+	// Create the test case and start it
+	public void startControl()
+	{
+		numRuns++;
+		Log.d("Maply","Run " + numRuns + " times.");
+
 		if (ConfigOptions.getTestState(getActivity(), getTestName()) == ConfigOptions.TestState.Error || ConfigOptions.getTestState(getActivity(), getTestName()) == ConfigOptions.TestState.Downloading)
 			return;
 
@@ -197,7 +232,9 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 				success = false;
 			}
 		}
-		execute();
+
+		if (!multiTest)
+			execute();
 	}
 
 	@Override
@@ -253,6 +290,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		if (mapController != null)
 			mapController.shutdown();
 		mapController = null;
+		controller = null;
 	}
 
 	@Override

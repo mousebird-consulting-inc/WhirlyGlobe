@@ -40,6 +40,7 @@ import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ShapesTestCase;
 import com.mousebirdconsulting.autotester.TestCases.SimpleParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
+import com.mousebirdconsulting.autotester.TestCases.StartupShutdownTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.VectorsTestCase;
 
@@ -123,6 +124,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new LocalVectorTileTestCase(getActivity()));
 			testCases.add(new PagingLayerTestCase(getActivity()));
 			testCases.add(new CoordConversionTestCase(getActivity()));
+			testCases.add(new StartupShutdownTestCase(getActivity()));
 //			testCases.add(new ArealTestCase(getActivity()));
 		}
 
