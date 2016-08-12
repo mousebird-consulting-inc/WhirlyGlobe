@@ -114,7 +114,7 @@ public class GlobeGestureHandler
 			// Find the center and zoom around that
 			Point2d center = new Point2d(detector.getFocusX(),detector.getFocusY());
 			Matrix4d modelTransform = maplyControl.globeView.calcModelViewMatrix();
-			Point3d hit = maplyControl.globeView.pointOnSphereFromScreen(center, modelTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
+			Point3d hit = maplyControl.globeView.pointOnSphereFromScreen(center, modelTransform, maplyControl.getViewSize(), false);
 			Point3d localPt = globeView.coordAdapter.displayToLocal(hit);
 			if (localPt == null)
 				return false;
@@ -138,7 +138,7 @@ public class GlobeGestureHandler
 				Point3d pos = maplyControl.globeView.getLoc();
 				globeView.cancelAnimation();
 				Point3d newPos = new Point3d(pos.getX(),pos.getY(),startZ*scale);
-				if (withinBounds(globeView,maplyControl.renderWrapper.maplyRender.frameSize,newPos)) {
+				if (withinBounds(globeView,maplyControl.getViewSize(),newPos)) {
 					double newZ = newPos.getZ();
 					newZ = Math.min(newZ,zoomLimitMax);
 					newZ = Math.max(newZ,zoomLimitMin);
@@ -189,7 +189,7 @@ public class GlobeGestureHandler
 			startScreenPos = new Point2d(e.getX(),e.getY());
 			startTransform = globeControl.globeView.calcModelViewMatrix();
 			startPos = globeControl.globeView.getLoc();
-			startOnSphere = globeControl.globeView.pointOnSphereFromScreen(startScreenPos, startTransform, globeControl.renderWrapper.maplyRender.frameSize, false);
+			startOnSphere = globeControl.globeView.pointOnSphereFromScreen(startScreenPos, startTransform, globeControl.getViewSize(), false);
 			startQuat = globeControl.globeView.getRotQuat();
 			if (startOnSphere != null)
 			{
@@ -211,7 +211,7 @@ public class GlobeGestureHandler
 			Point2d newScreenPos = new Point2d(e2.getX(),e2.getY());
 			
 			// New state for pan
-			Point3d hit = globeControl.globeView.pointOnSphereFromScreen(newScreenPos, startTransform, globeControl.renderWrapper.maplyRender.frameSize, false);
+			Point3d hit = globeControl.globeView.pointOnSphereFromScreen(newScreenPos, startTransform, globeControl.getViewSize(), false);
 			if (hit != null)
 			{
 				globeView.cancelAnimation();
@@ -269,7 +269,7 @@ public class GlobeGestureHandler
 		{
 //			Log.d("Maply","Fling: (x,y) = " + velocityX + " " + velocityY);
 			
-			Point2d frameSize = globeControl.renderWrapper.maplyRender.frameSize;
+			Point2d frameSize = globeControl.getViewSize();
 			
 			// Figure out two points in model space (current and after 1s)
 			Point2d touch0 = new Point2d(e1.getX(),e1.getY());
@@ -356,7 +356,7 @@ public class GlobeGestureHandler
 		public boolean onDoubleTap(MotionEvent e) 
 		{
 			CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
-			Point2d frameSize = globeControl.renderWrapper.maplyRender.frameSize;
+			Point2d frameSize = globeControl.getViewSize();
 
 			// Figure out where they tapped
 			Point2d touch = new Point2d(e.getX(),e.getY());

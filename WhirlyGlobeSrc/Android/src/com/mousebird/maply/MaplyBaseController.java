@@ -377,6 +377,16 @@ public class MaplyBaseController
 	{
 		return baseView;
 	}
+
+	/**
+	 * Return the Android view size, rather than the frame size.
+     */
+	public Point2d getViewSize()
+	{
+		if (baseView == null)
+			return new Point2d(0,0);
+		return new Point2d(baseView.getWidth(),baseView.getHeight());
+	}
 	
 	/**
 	 * Call shutdown when you're done with the MaplyController.  It will shut down the layer
