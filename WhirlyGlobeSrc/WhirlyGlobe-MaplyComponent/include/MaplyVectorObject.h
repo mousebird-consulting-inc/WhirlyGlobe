@@ -57,7 +57,7 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
     @details All vectors should have some set of attribution.  If there's more than one vector feature here, we'll return the attributes on the first one.
     @details The attribution is returned as an NSDictionary and, though you can modify it, you probably shouldn't.
   */
-@property (nonatomic,readonly) NSMutableDictionary *__nullable attributes;
+@property (nonatomic,readonly) NSMutableDictionary *__nonnull attributes;
 
 /** @brief Parse vector data from geoJSON.
     @details Returns one object to represent the whole thing, which might include multiple different vectors.  This version uses the faster JSON parser.

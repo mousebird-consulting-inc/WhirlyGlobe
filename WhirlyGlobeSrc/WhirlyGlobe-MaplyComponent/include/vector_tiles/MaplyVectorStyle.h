@@ -105,3 +105,19 @@
 - (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController * _Nonnull)viewC;
 
 @end
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+/** @brief Use a style delegate to interpret vector data.
+ @details Run the style delegate against the given vectors.  The resulting features are added to the
+ given view controller using the thread mode specified.
+ @param vecObjs An array of MaplyVectorObject.
+ @param styleDelegate The style delegate that controls how the vectors will look.
+ @param viewC View controller to add the geometry to.
+ @param threadMode MaplyThreadCurrent will block until all the features are added.  MaplyThreadAny will do some of the work on another thread.
+ */
+NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,MaplyBaseViewController * _Nonnull viewC,MaplyThreadMode threadMode);
+#ifdef __cplusplus
+}
+#endif

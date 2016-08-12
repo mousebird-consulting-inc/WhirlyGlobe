@@ -26,6 +26,7 @@
 		2B6953651C7E601A007FC51E /* AnimatedColorRampTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
 		2B93D9671D41433500EAD280 /* WideVectorGlobeTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */; };
+		2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */; };
 		2BC2DCCD1D1F4CE20088D350 /* ShapefileTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */; };
 		2BC2DCF01D2345AF0088D350 /* PagingLayerTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */; };
 		2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */; };
@@ -575,6 +576,8 @@
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
 		2B93D9651D41433500EAD280 /* WideVectorGlobeTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorGlobeTestCase.h; sourceTree = "<group>"; };
 		2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WideVectorGlobeTestCase.m; sourceTree = "<group>"; };
+		2BBB70811D5E9079009B67A6 /* VectorStyleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorStyleTestCase.h; sourceTree = "<group>"; };
+		2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorStyleTestCase.m; sourceTree = "<group>"; };
 		2BC2DCCB1D1F4CE20088D350 /* ShapefileTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapefileTestCase.h; sourceTree = "<group>"; };
 		2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShapefileTestCase.m; sourceTree = "<group>"; };
 		2BC2DCEE1D2345AF0088D350 /* PagingLayerTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagingLayerTestCase.h; sourceTree = "<group>"; };
@@ -1309,6 +1312,8 @@
 				2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */,
 				2B93D9651D41433500EAD280 /* WideVectorGlobeTestCase.h */,
 				2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */,
+				2BBB70811D5E9079009B67A6 /* VectorStyleTestCase.h */,
+				2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2542,6 +2547,7 @@
 				E5679F4E1CB7669400369A15 /* FullAnimationTest.m in Sources */,
 				D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
+				2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */,
 				D8200C9F1BE9516300B22CF5 /* ShapesTestCase.m in Sources */,
 				2BEA7D711CC54A0A004A0B38 /* MapjamVectorTestCase.swift in Sources */,
 				D8E12ED41BDEAC5900BB7BC7 /* MapBoxVectorTestCase.m in Sources */,
