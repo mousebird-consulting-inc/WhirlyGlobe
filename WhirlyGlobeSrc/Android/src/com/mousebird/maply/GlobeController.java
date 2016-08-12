@@ -475,7 +475,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		if (gestureDelegate != null)
 		{
 			Matrix4d globeTransform = globeView.calcModelViewMatrix();
-			Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, renderWrapper.maplyRender.frameSize, false);
+			Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, getViewSize(), false);
 			if (loc == null)
 				return;
 			Point3d localPt = globeView.getCoordAdapter().displayToLocal(loc);

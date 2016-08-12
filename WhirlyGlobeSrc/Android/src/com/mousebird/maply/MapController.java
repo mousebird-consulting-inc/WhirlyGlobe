@@ -538,11 +538,13 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	public GestureDelegate gestureDelegate = null;
 	
 	// Called by the gesture handler to let us know the user tapped
+	// screenLoc is in view coordinates
 	public void processTap(Point2d screenLoc)
 	{
 		if (gestureDelegate != null) {
+
 			Matrix4d mapTransform = mapView.calcModelViewMatrix();
-			Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, renderWrapper.maplyRender.frameSize, false);
+			Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, getViewSize(), false);
 
 			Point3d localPt = mapView.getCoordAdapter().displayToLocal(loc);
 			Point3d geoPt = null;
