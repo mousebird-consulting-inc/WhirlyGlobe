@@ -217,7 +217,8 @@ public class MaplyBaseController
 	 * @param mainActivity Your main activity that we'll attach ourselves to.
 	 */
 	public MaplyBaseController(Activity mainActivity,Settings settings)
-	{		
+	{
+		System.loadLibrary("gnustl_shared");
 		System.loadLibrary("Maply");
 		libraryLoaded = true;
 		activity = mainActivity;
@@ -235,6 +236,7 @@ public class MaplyBaseController
 	{
 		if (!libraryLoaded)
 		{
+			System.loadLibrary("gnustl_shared");
 			System.loadLibrary("Maply");
 			libraryLoaded = true;
 		}
@@ -399,6 +401,21 @@ public class MaplyBaseController
 			metroThread.shutdown();
 			metroThread = null;
 
+			scene.teardownGL();
+			scene.shutdown();
+
+			//		scene.dispose();
+			//		view.dispose();
+
+			coordAdapter.shutdown();
+			vecManager.dispose();
+			markerManager.dispose();
+			stickerManager.dispose();
+			selectionManager.dispose();
+			labelManager.dispose();
+			layoutManager.dispose();
+			particleSystemManager.dispose();
+
 			// Shut down the contexts
 			EGL10 egl = (EGL10) EGLContext.getEGL();
 			for (ContextInfo context : glContexts) {
@@ -414,33 +431,20 @@ public class MaplyBaseController
 
 			// Clean up OpenGL ES resources
 			setEGLContext(null);
-			scene.teardownGL();
-			scene.shutdown();
 
 			renderWrapper.shutdown();
 
 			baseView = null;
 			renderWrapper = null;
-			coordAdapter.shutdown();
 			coordAdapter = null;
 			scene = null;
-			//		scene.dispose();
 			view = null;
-			//		view.dispose();
-
-			vecManager.dispose();
 			vecManager = null;
-			markerManager.dispose();
 			markerManager = null;
-			stickerManager.dispose();
 			stickerManager = null;
-			labelManager.dispose();
 			labelManager = null;
-			selectionManager.dispose();
 			selectionManager = null;
-			layoutManager.dispose();
 			layoutManager = null;
-			particleSystemManager.dispose();
 			particleSystemManager = null;
 			layoutLayer = null;
 			shapeManager = null;
