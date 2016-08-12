@@ -45,5 +45,6 @@
 #import "DownloadResourceOperation.h"
 #import "PagingLayerTestCase.h"
 #import "VectorHoleTestCase.h"
+#import "VectorStyleTestCase.h"
 
 #endif
