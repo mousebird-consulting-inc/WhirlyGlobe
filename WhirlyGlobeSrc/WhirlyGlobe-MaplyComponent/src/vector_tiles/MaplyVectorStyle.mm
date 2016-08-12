@@ -18,6 +18,7 @@
  *
  */
 
+#import "MapboxVectorTiles.h"
 #import "MaplyVectorStyle.h"
 #import "WhirlyGlobe.h"
 
@@ -50,3 +51,75 @@ using namespace WhirlyKit;
 }
 
 @end
+
+NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,MaplyBaseViewController * _Nonnull viewC,MaplyThreadMode threadMode)
+{
+    NSMutableArray *compObjs = [NSMutableArray array];
+    MaplyTileID fakeTileID;
+    fakeTileID.x = 0;  fakeTileID.y = 0;  fakeTileID.level = 0;
+    NSMutableDictionary *featureStyles = [[NSMutableDictionary alloc] init];
+    
+    // First we sort by the styles that each feature uses.
+    int whichLayer = 0;
+    for (MaplyVectorObject *thisVecObj in vecObjs)
+    {
+        for (MaplyVectorObject *vecObj in [thisVecObj splitVectors])
+        {
+            NSString *layer = vecObj.attributes[@"layer"];
+            if (!layer)
+                layer = vecObj.attributes[@"layer_name"];
+            if (layer && ![styleDelegate layerShouldDisplay:layer tile:fakeTileID])
+                continue;
+            
+            if (!layer)
+                layer = [NSString stringWithFormat:@"layer%d",whichLayer];
+            
+            // Need to set a geometry type
+            MapnikGeometryType geomType = GeomTypeUnknown;
+            switch ([vecObj vectorType])
+            {
+                case MaplyVectorPointType:
+                    geomType = GeomTypePoint;
+                    break;
+                case MaplyVectorLinearType:
+                case MaplyVectorLinear3dType:
+                    geomType = GeomTypeLineString;
+                    break;
+                case MaplyVectorArealType:
+                    geomType = GeomTypePolygon;
+                    break;
+                case MaplyVectorMultiType:
+                    break;
+            }
+            vecObj.attributes[@"geometry_type"] = @(geomType);
+            
+            NSArray *styles = [styleDelegate stylesForFeatureWithAttributes:vecObj.attributes onTile:fakeTileID inLayer:layer viewC:viewC];
+            if (styles.count == 0)
+                continue;
+            
+            for (NSObject<MaplyVectorStyle> *style in styles)
+            {
+                NSMutableArray *featuresForStyle = featureStyles[style.uuid];
+                if(!featuresForStyle) {
+                    featuresForStyle = [NSMutableArray new];
+                    featureStyles[style.uuid] = featuresForStyle;
+                }
+                [featuresForStyle addObject:vecObj];
+            }
+        }
+        
+        whichLayer++;
+    }
+
+    // Then we add each of those styles as a group for efficiency
+    NSArray *symbolizerKeys = [featureStyles.allKeys sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES]]];
+    for(id key in symbolizerKeys) {
+        NSObject<MaplyVectorStyle> *symbolizer = [styleDelegate styleForUUID:key viewC:viewC];
+        NSArray *features = featureStyles[key];
+        NSArray *newCompObjs = [symbolizer buildObjects:features forTile:fakeTileID viewC:viewC];
+        if (newCompObjs.count > 0)
+            [compObjs addObjectsFromArray:newCompObjs];
+    }
+
+    return compObjs;
+}
