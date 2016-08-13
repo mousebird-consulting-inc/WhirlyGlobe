@@ -166,7 +166,7 @@ public class MapGestureHandler
 				Point3d pos = maplyControl.mapView.getLoc();
 				mapView.cancelAnimation();
 				Point3d newPos = new Point3d(pos.getX(),pos.getY(),startZ*scale);
-				if (withinBounds(mapView,maplyControl.renderWrapper.maplyRender.frameSize,newPos,maplyControl.viewBounds)) {
+				if (withinBounds(mapView,maplyControl.getViewSize(),newPos,maplyControl.viewBounds)) {
 					double newZ = newPos.getZ();
 					newZ = Math.min(newZ,zoomLimitMax);
 					newZ = Math.max(newZ,zoomLimitMin);
@@ -213,7 +213,7 @@ public class MapGestureHandler
 			startScreenPos = new Point2d(e.getX(),e.getY());
 			startTransform = maplyControl.mapView.calcModelViewMatrix();
 			startLoc = maplyControl.mapView.getLoc();
-			startOnPlane = maplyControl.mapView.pointOnPlaneFromScreen(startScreenPos, startTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
+			startOnPlane = maplyControl.mapView.pointOnPlaneFromScreen(startScreenPos, startTransform, maplyControl.getViewSize(), false);
 			isActive = true;
 			return true;
 		}
@@ -228,7 +228,7 @@ public class MapGestureHandler
 			Point2d newScreenPos = new Point2d(e2.getX(),e2.getY());
 			
 			// New state for pan
-			Point3d hit = maplyControl.mapView.pointOnPlaneFromScreen(newScreenPos, startTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
+			Point3d hit = maplyControl.mapView.pointOnPlaneFromScreen(newScreenPos, startTransform, maplyControl.getViewSize(), false);
 			if (hit != null)
 			{
 				Point3d newPos = new Point3d(startOnPlane.getX()-hit.getX()+startLoc.getX(),
@@ -240,7 +240,7 @@ public class MapGestureHandler
 				Point3d locPos = newPos;
 				if (locPos == null)
 					return true;
-				if (withinBounds(mapView,maplyControl.renderWrapper.maplyRender.frameSize,locPos,maplyControl.viewBounds)) {
+				if (withinBounds(mapView,maplyControl.getViewSize(),locPos,maplyControl.viewBounds)) {
 					maplyControl.mapView.setLoc(locPos);
 				}
 				
@@ -263,8 +263,9 @@ public class MapGestureHandler
 			Matrix4d mapTransform = maplyControl.mapView.calcModelViewMatrix();
 			Point2d touch0 = new Point2d(e1.getX(),e1.getY());
 			Point2d touch1 = touch0.addTo(new Point2d(velocityX,velocityY));
-			Point3d pt0 = mapView.pointOnPlaneFromScreen(touch0, mapTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
-			Point3d pt1 = mapView.pointOnPlaneFromScreen(touch1, mapTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
+			Point2d viewSize = maplyControl.getViewSize();
+			Point3d pt0 = mapView.pointOnPlaneFromScreen(touch0, mapTransform, viewSize, false);
+			Point3d pt1 = mapView.pointOnPlaneFromScreen(touch1, mapTransform, viewSize, false);
 			
 			// That gives us a direction in map space
 			Point3d dir = pt0.subtract(pt1);
@@ -327,7 +328,7 @@ public class MapGestureHandler
 			// Figure out where they tapped
 			Point2d touch = new Point2d(e.getX(),e.getY());
 			Matrix4d mapTransform = maplyControl.mapView.calcModelViewMatrix();
-			Point3d pt = mapView.pointOnPlaneFromScreen(touch, mapTransform, maplyControl.renderWrapper.maplyRender.frameSize, false);
+			Point3d pt = mapView.pointOnPlaneFromScreen(touch, mapTransform, maplyControl.getViewSize(), false);
 			if (pt == null)
 				return false;
 			Point3d locPt = mapView.getCoordAdapter().displayToLocal(pt);

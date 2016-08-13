@@ -377,6 +377,16 @@ public class MaplyBaseController
 	{
 		return baseView;
 	}
+
+	/**
+	 * Return the Android view size, rather than the frame size.
+     */
+	public Point2d getViewSize()
+	{
+		if (baseView == null)
+			return new Point2d(0,0);
+		return new Point2d(baseView.getWidth(),baseView.getHeight());
+	}
 	
 	/**
 	 * Call shutdown when you're done with the MaplyController.  It will shut down the layer
@@ -1275,7 +1285,12 @@ public class MaplyBaseController
 	// Returns all the objects near a point
 	protected SelectedObject[] getObjectsAtScreenLoc(Point2d screenLoc)
 	{
-		SelectedObject objs[] = selectionManager.pickObjects(view, screenLoc);
+		Point2d viewSize = getViewSize();
+		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
+		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
+
+		SelectedObject objs[] = selectionManager.pickObjects(view, frameLoc);
 		if (objs != null)
 		{
 			// Remap the objects
@@ -1297,7 +1312,12 @@ public class MaplyBaseController
 	 */
 	protected Object getObjectAtScreenLoc(Point2d screenLoc)
 	{
-		long selectID = selectionManager.pickObject(view, screenLoc);
+		Point2d viewSize = getViewSize();
+		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
+		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
+
+		long selectID = selectionManager.pickObject(view, frameLoc);
 		if (selectID != EmptyIdentity)
 		{
 			// Look for the object
