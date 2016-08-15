@@ -144,8 +144,8 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	{
 		MapController.Settings settings = new MapController.Settings();
 		settings.clearColor = clearColor;
-//		settings.width = 100;
-//		settings.height = 100;
+//		settings.width = 512;
+//		settings.height = 512;
 		MapController mapControl = new MapController(activity,settings);
 		mapControl.gestureDelegate = this;
 
@@ -188,7 +188,8 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	public void startControl()
 	{
 		numRuns++;
-		Log.d("Maply","Run " + numRuns + " times.");
+		if (multiTest)
+			Log.d("Maply","Run " + numRuns + " times.");
 
 		if (ConfigOptions.getTestState(getActivity(), getTestName()) == ConfigOptions.TestState.Error || ConfigOptions.getTestState(getActivity(), getTestName()) == ConfigOptions.TestState.Downloading)
 			return;

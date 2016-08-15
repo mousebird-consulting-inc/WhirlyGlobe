@@ -34,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.HashMap;
 
@@ -51,6 +52,9 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	int maxZoom = 0;
 	int pixelsPerSide = 256;
 	OkHttpClient client = null;
+
+	// Set if we can use the premultiply option
+	boolean hasPremultiplyOption = false;
 
 	/**
 	 * Return the number of individual sources and/or frames.
@@ -105,7 +109,8 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 						options.inDither = false;
 						options.inPreferQualityOverSpeed = true;
 						options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-						options.inPremultiplied = false;
+						if (hasPremultiplyOption)
+							options.inPremultiplied = false;
                         BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
                         bm = BitmapFactory.decodeStream(aBufferedInputStream,null,options);
 //                        Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
@@ -165,7 +170,8 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 					options.inDither = false;
 					options.inPreferQualityOverSpeed = true;
 					options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-					options.inPremultiplied = false;
+					if (hasPremultiplyOption)
+						options.inPremultiplied = false;
 					bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
 
 					// Save to cache
@@ -359,6 +365,20 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	{
         controller = inController;
 		sources = inSources;
+
+		// See if the premultiplied option is available
+		try {
+			Object opts = new BitmapFactory.Options();
+			Class<?> theClass = opts.getClass();
+			Field field = theClass.getField("inPremultiplied");
+			if (field != null) {
+				hasPremultiplyOption = true;
+			}
+		}
+		catch (Exception x)
+		{
+			// Premultiply is missing
+		}
 
         client = controller.getHttpClient();
 		

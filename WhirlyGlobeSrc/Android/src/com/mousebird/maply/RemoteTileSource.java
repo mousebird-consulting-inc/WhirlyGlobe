@@ -33,6 +33,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.net.URL;
 
 /**
@@ -48,7 +49,10 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	RemoteTileInfo tileInfo = null;
 	public CoordSystem coordSys = new SphericalMercatorCoordSystem();
 	OkHttpClient client = new OkHttpClient();
-	
+
+	// Set if we can use the premultiply option
+	boolean hasPremultiplyOption = false;
+
 	/**
 	 * The tile source delegate will be called back when a tile loads
 	 * or fails to load.
@@ -84,6 +88,20 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	 */
 	public RemoteTileSource(RemoteTileInfo inTileInfo)
 	{
+		// See if the premultiplied option is available
+		try {
+			Object opts = new BitmapFactory.Options();
+			Class<?> theClass = opts.getClass();
+			Field field = theClass.getField("inPremultiplied");
+			if (field != null) {
+				hasPremultiplyOption = true;
+			}
+		}
+		catch (Exception x)
+		{
+			// Premultiply is missing
+		}
+
 		tileInfo = inTileInfo;
 	}
 
@@ -155,7 +173,8 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
                     if (cacheFile.exists()) {
 						BitmapFactory.Options options = new BitmapFactory.Options();
 // 		                options.inScaled = false;
-						options.inPremultiplied = false;
+						if (hasPremultiplyOption)
+							options.inPremultiplied = false;
                         BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
                         bm = BitmapFactory.decodeStream(aBufferedInputStream,null,options);
 //                        Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
@@ -191,7 +210,8 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
                 rawImage = response.body().bytes();
                 BitmapFactory.Options options = new BitmapFactory.Options();
 //                options.inScaled = false;
-                options.inPremultiplied = false;
+				if (hasPremultiplyOption)
+					options.inPremultiplied = false;
                 bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
 
                 // Save to cache
