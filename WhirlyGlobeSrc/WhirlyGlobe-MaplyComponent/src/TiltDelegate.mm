@@ -75,9 +75,9 @@ using namespace WhirlyGlobe;
             _pinchDelegate.gestureRecognizer.enabled = true;
         return;
     }
-    
-    // Cancel for more than one finger
-    if ([pan numberOfTouches] != 2)
+
+    // Need three fingers for tilt
+    if ([pan numberOfTouches] != 3)
     {
         self.gestureRecognizer.enabled = false;
         self.gestureRecognizer.enabled = true;
