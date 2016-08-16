@@ -2,15 +2,18 @@ package com.mousebirdconsulting.autotester;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.ActionMenuItemView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.os.Handler;
 
 import com.mousebirdconsulting.autotester.Fragments.TestListFragment;
 import com.mousebirdconsulting.autotester.Fragments.ViewTestFragment;
@@ -19,6 +22,7 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestResult;
 import com.mousebirdconsulting.autotester.NavigationDrawer.NavigationDrawer;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import butterknife.ButterKnife;
@@ -42,8 +46,19 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 
 	private ArrayList<MaplyTestResult> testResults;
 
+	Handler memHandler = new Handler();
+	private Runnable runnableCode = new Runnable() {
+		@Override
+		public void run() {
+			dumpMemory();
+			memHandler.postDelayed(runnableCode, 2000);
+		}
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		System.loadLibrary("gnustl_shared");
+
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
@@ -60,6 +75,22 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 		this.testList = new TestListFragment();
 		this.testResults = new ArrayList<>();
 		this.viewTest = new ViewTestFragment();
+
+		memHandler.post(runnableCode);
+	}
+
+	// Code courtesy: http://stackoverflow.com/questions/3238388/android-out-of-memory-exception-in-gallery/3238945#3238945
+	void dumpMemory()
+	{
+		Double allocated = new Double(Debug.getNativeHeapAllocatedSize())/new Double((1048576));
+		Double available = new Double(Debug.getNativeHeapSize())/1048576.0;
+		Double free = new Double(Debug.getNativeHeapFreeSize())/1048576.0;
+		DecimalFormat df = new DecimalFormat();
+		df.setMaximumFractionDigits(2);
+		df.setMinimumFractionDigits(2);
+
+		Log.d("maply", "heap native: allocated " + df.format(allocated) + "MB of " + df.format(available) + "MB (" + df.format(free) + "MB free)");
+		Log.d("maply", "memory: allocated: " + df.format(new Double(Runtime.getRuntime().totalMemory()/1048576)) + "MB of " + df.format(new Double(Runtime.getRuntime().maxMemory()/1048576))+ "MB (" + df.format(new Double(Runtime.getRuntime().freeMemory()/1048576)) +"MB free)");
 	}
 
 	void deleteRecursive(File fileOrDirectory) {
