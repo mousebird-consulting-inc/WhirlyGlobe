@@ -236,6 +236,10 @@ public:
     Point3d dispLoc;
     // Offset on the screen (presumably if it's been moved around during layout)
     Point2d offset;
+    // Set if we're sup
+    bool keepUpright;
+    // Rotation if there is one
+    double rotation;
     // Size of the object in screen space
     std::vector<Point2d> pts;
     // Bounding box, for quick testing
