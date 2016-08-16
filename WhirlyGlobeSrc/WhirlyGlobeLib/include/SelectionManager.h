@@ -29,6 +29,8 @@
 #import "ScreenSpaceBuilder.h"
 
 @class WhirlyKitSceneRendererES;
+@class WhirlyGlobeViewState;
+@class MaplyViewState;
 
 namespace WhirlyKit
 {
@@ -258,6 +260,10 @@ public:
         
         WhirlyGlobeView *globeView;
         MaplyView *mapView;
+        WhirlyKitViewState *viewState;
+        WhirlyGlobeViewState *globeViewState;
+        MaplyViewState *mapViewState;
+        
         double heightAboveSurface;
         Eigen::Matrix4d viewMat,modelMat,viewAndModelMat,viewAndModelInvMat,viewModelNormalMat,projMat,modelInvMat;
         std::vector<Eigen::Matrix4d> offsetMatrices;
@@ -267,6 +273,7 @@ public:
     };
 
 protected:
+    static Eigen::Matrix2d CalcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const CGPoint &objPt,const Eigen::Matrix4d &modelTrans,const Point2f &frameBufferSize);
     // Projects a world coordinate to one or more points on the screen (wrapping)
     void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts,float scale);
     // Convert rect selectables into more generic screen space objects

@@ -45,6 +45,8 @@ class ScreenLabelsTestCase: MaplyTestCase {
 				label.loc = object.center()
 				label.selectable = true
 				label.layoutImportance = 10
+                label.userObject = label.text;
+                label.rotation = Float(M_PI/2.0);
 
 				if (i % 2 == 0) {
 					// Some with text shadow
@@ -52,6 +54,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 							kMaplyFont: UIFont.boldSystemFontOfSize(24.0),
 							kMaplyShadowColor: UIColor.blackColor(),
 							kMaplyShadowSize: 2.0,
+                            kMaplySelectable: true,
 							kMaplyColor: UIColor.whiteColor()]) {
 						labelList.append(comp)
 					}
@@ -62,6 +65,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 							kMaplyFont: UIFont.boldSystemFontOfSize(24.0),
 							kMaplyTextOutlineColor: UIColor.blackColor(),
 							kMaplyTextOutlineSize: 2.0,
+                            kMaplySelectable: true,
 							kMaplyColor: UIColor.whiteColor()]) {
 						labelList.append(comp)
 					}

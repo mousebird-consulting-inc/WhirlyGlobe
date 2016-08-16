@@ -491,7 +491,7 @@ SimpleIdentity ScreenSpaceObject::getTypicalProgramID()
 }
     
 ScreenSpaceObjectLocation::ScreenSpaceObjectLocation()
-: isCluster(false), dispLoc(0,0,0), offset(0,0)
+: isCluster(false), dispLoc(0,0,0), offset(0,0), keepUpright(false), rotation(0.0)
 {
     
 }
