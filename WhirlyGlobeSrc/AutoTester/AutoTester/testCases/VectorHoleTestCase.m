@@ -30,7 +30,7 @@
     NSDictionary *vectorDict = @{
                                  kMaplyColor: [UIColor redColor],
                                  kMaplySelectable: @(true),
-                                 kMaplyFilled: @(YES),
+//                                 kMaplyFilled: @(YES),
                                  kMaplyVecWidth: @(4.0)};
     
     //Opp A (Anti-clockwise)
@@ -50,7 +50,8 @@
     
     [mainVector addHole:coordHo numCoords:5];
 
-    [mainVector subdivideToGlobe:0.001];
+//    [mainVector subdivideToGlobe:0.001];
+    mainVector = [mainVector clipToGrid:CGSizeMake(10.0/180.0*M_PI,10.0/180.0*M_PI)];
     mainVector = [mainVector tesselate];
     
     [baseVC addVectors:@[mainVector] desc:vectorDict];
