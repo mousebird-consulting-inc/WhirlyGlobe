@@ -779,7 +779,7 @@ public:
         
         // Now we'll walk along, looking for the middle
         float lenSoFar = 0.0;
-        for (unsigned int ii=0;ii<pts.size();ii++)
+        for (unsigned int ii=0;ii<pts.size()-1;ii++)
         {
             Point2f &pt0 = pts[ii],&pt1 = pts[ii+1];
             float len = (pt1-pt0).norm();
@@ -811,7 +811,7 @@ public:
         
         // Now we'll walk along, looking for the middle
         float lenSoFar = 0.0;
-        for (unsigned int ii=0;ii<pts.size();ii++)
+        for (unsigned int ii=0;ii<pts.size()-1;ii++)
         {
             Point3d &pt0 = pts[ii],&pt1 = pts[ii+1];
             float len = (pt1-pt0).norm();
