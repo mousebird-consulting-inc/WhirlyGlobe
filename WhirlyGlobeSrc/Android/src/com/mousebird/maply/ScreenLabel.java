@@ -31,6 +31,12 @@ package com.mousebird.maply;
  */
 public class ScreenLabel 
 {
+
+	/**
+	 * Unique ID used by Maply for selection.
+	 */
+	long ident = Identifiable.genID();
+
 	/**
 	 * Unique ID used by Maply for selection.
 	 */
