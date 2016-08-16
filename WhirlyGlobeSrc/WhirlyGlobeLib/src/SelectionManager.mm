@@ -28,6 +28,7 @@
 #import "SceneRendererES.h"
 #import "ScreenSpaceBuilder.h"
 #import "LayoutManager.h"
+#import "MaplyLayerViewWatcher.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -699,9 +700,16 @@ SelectionManager::PlacementInfo::PlacementInfo(WhirlyKitView *view,WhirlyKitScen
     
     // Sort out what kind of view it is
     if ([view isKindOfClass:[WhirlyGlobeView class]])
+    {
         globeView = (WhirlyGlobeView *)view;
-    else if ([view isKindOfClass:[MaplyView class]])
+        globeViewState = [[WhirlyGlobeViewState alloc] initWithView:view renderer:renderer];
+        viewState = globeViewState;
+    } else if ([view isKindOfClass:[MaplyView class]])
+    {
         mapView = (MaplyView *)view;
+        mapViewState = [[MaplyViewState alloc] initWithView:view renderer:renderer];
+        viewState = mapViewState;
+    }
     heightAboveSurface = view.heightAboveSurface;
     
     // Calculate a slightly bigger framebuffer to grab nearby features
@@ -793,6 +801,42 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
     return selObjs[0].selectIDs[0];
 }
 
+Matrix2d SelectionManager::CalcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Point2f &frameBufferSize)
+{
+    Point3d norm,right,up;
+    Matrix2d screenRotMat;
+    
+    if (globeViewState)
+    {
+        Point3d simpleUp(0,0,1);
+        norm = ssObj->dispLoc;
+        norm.normalize();
+        right = simpleUp.cross(norm);
+        up = norm.cross(right);
+        right.normalize();
+        up.normalize();
+    } else {
+        right = Point3d(1,0,0);
+        norm = Point3d(0,0,1);
+        up = Point3d(0,1,0);
+    }
+    // Note: Check if the axes made any sense.  We might be at a pole.
+    Point3d rightDir = right * sinf(ssObj->rotation);
+    Point3d upDir = up * cosf(ssObj->rotation);
+    
+    Point3d outPt = rightDir * 1.0 + upDir * 1.0 + ssObj->dispLoc;
+    CGPoint outScreenPt;
+    outScreenPt = [viewState pointOnScreenFromDisplay:outPt transform:&modelTrans frameSize:frameBufferSize];
+    screenRot = M_PI/2.0-atan2f(outScreenPt.y-objPt.y,outScreenPt.x-objPt.x);
+    // Keep the labels upright
+    if (ssObj->keepUpright)
+        if (screenRot > M_PI/2 && screenRot < 3*M_PI/2)
+            screenRot = screenRot + M_PI;
+    screenRotMat = Eigen::Rotation2Dd(screenRot);
+    
+    return screenRotMat;
+}
+
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
 // Note: Should switch to a view state, rather than a view
 void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,bool multi,std::vector<SelectedObject> &selObjs)
@@ -811,6 +855,11 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
     // And the eye vector for billboards
     Vector4d eyeVec4 = pInfo.viewAndModelInvMat * Vector4d(0,0,1,0);
     Vector3d eyeVec(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
+    Matrix4d modelTrans = pInfo.viewState.fullMatrices[0];
+
+    Point2f frameBufferSize;
+    frameBufferSize.x() = renderer.framebufferWidth;
+    frameBufferSize.y() = renderer.framebufferHeight;
 
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     
@@ -846,14 +895,32 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
             
             if (!screenObj.shapeIDs.empty())
             {
-                std::vector<Point2f> screenPts;
-                for (unsigned int kk=0;kk<screenObj.pts.size();kk++)
-                {
-                    const Point2d &screenObjPt = screenObj.pts[kk];
-                    Point2d theScreenPt = Point2d(screenObjPt.x(),-screenObjPt.y()) + projPt + Point2d(screenObj.offset.x(),-screenObj.offset.y());
-                    screenPts.push_back(Point2f(theScreenPt.x(),theScreenPt.y()));
-                }
+                Matrix2d screenRotMat;
+                float screenRot = 0.0;
+                CGPoint objPt;
+                objPt.x = projPt.x();  objPt.y = projPt.y();
+                if (screenObj.rotation != 0.0)
+                    screenRotMat = CalcScreenRot(screenRot,pInfo.viewState,pInfo.globeViewState,&screenObj,objPt,modelTrans,frameBufferSize);
 
+                std::vector<Point2f> screenPts;
+                if (screenRot == 0.0)
+                {
+                    for (unsigned int kk=0;kk<screenObj.pts.size();kk++)
+                    {
+                        const Point2d &screenObjPt = screenObj.pts[kk];
+                        Point2d theScreenPt = Point2d(screenObjPt.x(),-screenObjPt.y()) + projPt + Point2d(screenObj.offset.x(),-screenObj.offset.y());
+                        screenPts.push_back(Point2f(theScreenPt.x(),theScreenPt.y()));
+                    }
+                } else {
+                    Point2d center(objPt.x,objPt.y);
+                    for (unsigned int kk=0;kk<screenObj.pts.size();kk++)
+                    {
+                        const Point2d screenObjPt = screenRotMat * (screenObj.pts[kk] + Point2d(screenObj.offset.x(),screenObj.offset.y()));
+                        Point2d theScreenPt = Point2d(screenObjPt.x(),-screenObjPt.y()) + projPt;
+                        screenPts.push_back(Point2f(theScreenPt.x(),theScreenPt.y()));
+                    }
+                }
+                
                 // See if we fall within that polygon
                 if (PointInPolygon(touchPt, screenPts))
                 {
