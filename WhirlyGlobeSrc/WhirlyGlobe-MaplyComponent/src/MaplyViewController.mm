@@ -884,29 +884,31 @@ using namespace Maply;
     {
         [mapView setLoc:oldLoc runUpdates:false];
         return oldLoc.z();
-    }
-    
-    // Now for the binary search
-    // Note: I'd rather make a copy of the view first
-    float minRange = 1e-5;
-    do
-    {
-        float midHeight = (minHeight + maxHeight)/2.0;
-        bool midOnScreen = [self checkCoverage:mbr mapView:mapView height:midHeight];
-        
-        if (!minOnScreen && midOnScreen)
+    } else if (minOnScreen) {
+        // already fits at min zoom
+        maxHeight = minHeight;
+    } else {
+        // Now for the binary search
+        // Note: I'd rather make a copy of the view first
+        float minRange = 1e-5;
+        do
         {
-            maxHeight = midHeight;
-            maxOnScreen = YES;
-        } else if (!midOnScreen && maxOnScreen) {
-            minHeight = midHeight;
-            minOnScreen = NO;
-        } else {
-            // Not expecting this
-            break;
-        }
+            float midHeight = (minHeight + maxHeight)/2.0;
+            bool midOnScreen = [self checkCoverage:mbr mapView:mapView height:midHeight];
         
-    } while (maxHeight-minHeight > minRange);
+            if (!minOnScreen && midOnScreen)
+            {
+                maxHeight = midHeight;
+                maxOnScreen = YES;
+            } else if (!midOnScreen && maxOnScreen) {
+                minHeight = midHeight;
+                minOnScreen = NO;
+            } else {
+                // Not expecting this
+                break;
+            }
+        } while (maxHeight-minHeight > minRange);
+    }
     
     //set map back to pre-search state
     [mapView setLoc:oldLoc runUpdates:false];
