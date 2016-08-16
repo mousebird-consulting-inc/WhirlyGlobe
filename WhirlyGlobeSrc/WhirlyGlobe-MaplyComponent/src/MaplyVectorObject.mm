@@ -1408,17 +1408,14 @@ public:
         VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
         if (ar)
         {
-            for (int ii=0;ii<ar->loops.size();ii++)
+            std::vector<VectorRing> newLoops;
+            ClipLoopsToGrid(ar->loops, Point2f(0.0,0.0), Point2f(gridSize.width,gridSize.height), newLoops);
+            for (unsigned int jj=0;jj<newLoops.size();jj++)
             {
-                std::vector<VectorRing> newLoops;
-                ClipLoopToGrid(ar->loops[ii], Point2f(0.0,0.0), Point2f(gridSize.width,gridSize.height), newLoops);
-                for (unsigned int jj=0;jj<newLoops.size();jj++)
-                {
-                    VectorArealRef newAr = VectorAreal::createAreal();
-                    newAr->setAttrDict(ar->getAttrDict());
-                    newAr->loops.push_back(newLoops[jj]);
-                    newVec->_shapes.insert(newAr);
-                }
+                VectorArealRef newAr = VectorAreal::createAreal();
+                newAr->setAttrDict(ar->getAttrDict());
+                newAr->loops.push_back(newLoops[jj]);
+                newVec->_shapes.insert(newAr);
             }
         }
     }
