@@ -179,7 +179,7 @@ function getS3Data(html, testName, platform)
 		success: function(dataXML) {
 			$(dataXML).find('Contents').each(function() {
 				var key = $(this).find('Key').text();
-				if (key.toLowerCase().includes(platform)) {
+				if (key.toLowerCase().includes(platform) && ! key.toLowerCase().includes("latest")) {
 					if (key.toLowerCase().includes("nightly")) {
 						if (testName.toLowerCase().includes("nightly")) {
 							binaries.push(key);
@@ -197,4 +197,3 @@ function getS3Data(html, testName, platform)
 	binaries.sort();
 	return binaries;
 }
-
