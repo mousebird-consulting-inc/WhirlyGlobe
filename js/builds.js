@@ -147,8 +147,10 @@ function getArrayDataJob(job){
 				break;
 			case "lastBuild":
 				if (y1 != null && y1 != undefined) {
-					if (y1['building'] == "true" || y1['building'] == true) {
+					if (y1['result'] === null) {
 						data[1] = "Running...";
+						data[2] = "";
+						data[5] = "";
 					}
 					else {
 						data[1] = "Idle";
