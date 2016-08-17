@@ -105,7 +105,7 @@ function convertJobToHTMLRow(job) {
 			html = html + "<div class='modal-body tutorial tutorial-main'>";
 			for (var i = binaries.length-2; i >= 0 ; i--){
 				binaryName = binaries[i].split("/");
-				html = html + "<p><a href="+s3Url+binaryName[1]+">"+binaryName[1]+"</a></p>"
+				html = html + "<p><a href="+s3Url+binaries[i]+">"+binaryName[1]+"</a></p>"
 			}
 			html = html+"</div><div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>Close</button></div></div></div></div></td>";
 		}
@@ -179,14 +179,16 @@ function getS3Data(html, testName, platform)
 		success: function(dataXML) {
 			$(dataXML).find('Contents').each(function() {
 				var key = $(this).find('Key').text();
-				if (key.toLowerCase().includes(platform) && ! key.toLowerCase().includes("latest")) {
-					if (key.toLowerCase().includes("nightly")) {
-						if (testName.toLowerCase().includes("nightly")) {
+				if (key.toLowerCase().includes(platform) && !key.toLowerCase().includes("latest")) {
+					if (testName.toLowerCase().includes("nightly")) {
+						if (key.toLowerCase().includes("nightly")) {
 							binaries.push(key);
 						}
 					}
 					else {
-						binaries.push(key);
+						if (!key.toLowerCase().includes("nightly")) {
+							binaries.push(key);
+						}
 					}
 				}
 			});
