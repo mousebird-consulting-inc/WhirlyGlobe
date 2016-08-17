@@ -6,7 +6,7 @@ function getAPIData() {
 		var items = [];
 		$.each (json, function (x1, y1) {
 			if (x1 == "jobs") {
-				var table = "<div class='table-responsive builds text-center'><table class='table table-bordered'><thead><tr><th>Name</th><th>Status</th><th>Last Duration</th><th>Build Count</th><th>Last Result</th><th>Last Run Date</th><th>Last Binary</th><th>Others Binaries</th></tr></thead><tbody>";
+				var table = "<div class='table-responsive builds text-center'><table class='table table-bordered'><thead><tr><th>Name</th><th>Status</th><th>Last Duration</th><th>Build Count</th><th>Last Result</th><th>Last Run Date</th><th>Last Binary</th><th>Other Binaries</th></tr></thead><tbody>";
 				$.each (y1, function(x2, y2) {
 					table = table + convertJobToHTMLRow(y2);
 				});
