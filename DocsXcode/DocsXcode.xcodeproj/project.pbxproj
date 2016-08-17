@@ -164,6 +164,9 @@
 		2BB766121C73A14700F01F2A /* freeflight.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = freeflight.jpeg; sourceTree = "<group>"; };
 		2BB94D8B1A2CEDCE0076B1B4 /* deforestation.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = deforestation.png; sourceTree = "<group>"; };
 		2BB94D9D1A2FBCAA0076B1B4 /* tutorial.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = tutorial.js; sourceTree = "<group>"; };
+		2BD4F9301D64E8ED0022C258 /* builds.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = builds.md; path = ../builds/builds.md; sourceTree = "<group>"; };
+		2BD4F9311D64E9050022C258 /* builds.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = builds.js; sourceTree = "<group>"; };
+		2BD4F9321D64EB640022C258 /* builds.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = builds.html; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -206,6 +209,7 @@
 				2B4E06991A152FD700ADA318 /* _posts */,
 				2B4E069B1A152FD700ADA318 /* _sass */,
 				2B4E069F1A152FD700ADA318 /* apps */,
+				2BD4F92F1D64E8DE0022C258 /* builds */,
 				2B4E06A11A152FD700ADA318 /* css */,
 				2B4E06A51A152FD700ADA318 /* js */,
 				2B2E59DF1CA06E86008FFE4A /* locationtech */,
@@ -246,6 +250,7 @@
 				2B4E06951A152FD700ADA318 /* home.html */,
 				2B4E06961A152FD700ADA318 /* page.html */,
 				2B4E06971A152FD700ADA318 /* post.html */,
+				2BD4F9321D64EB640022C258 /* builds.html */,
 				2B4E06981A152FD700ADA318 /* tutorial.html */,
 			);
 			name = _layouts;
@@ -296,6 +301,7 @@
 			isa = PBXGroup;
 			children = (
 				2BB94D9D1A2FBCAA0076B1B4 /* tutorial.js */,
+				2BD4F9311D64E9050022C258 /* builds.js */,
 				2B4E06A61A152FD700ADA318 /* bootstrap.min.js */,
 			);
 			name = js;
@@ -491,6 +497,14 @@
 				2B93D95E1D411F4500EAD280 /* whirlyglobe-component.png */,
 			);
 			path = resources;
+			sourceTree = "<group>";
+		};
+		2BD4F92F1D64E8DE0022C258 /* builds */ = {
+			isa = PBXGroup;
+			children = (
+				2BD4F9301D64E8ED0022C258 /* builds.md */,
+			);
+			name = builds;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
