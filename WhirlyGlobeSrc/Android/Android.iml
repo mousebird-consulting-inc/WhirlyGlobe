@@ -84,6 +84,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jniLibs" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/lint" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/lint-cache" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/res" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/rs" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/symbols" />
@@ -93,11 +94,11 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" name="okio-1.3.0" level="project" />
-    <orderEntry type="library" exported="" name="org.apache.commons.io-2.4" level="project" />
     <orderEntry type="library" exported="" name="commons-io-2.4" level="project" />
     <orderEntry type="library" exported="" name="okhttp-2.3.0" level="project" />
     <orderEntry type="library" exported="" name="support-v4-23.0.0" level="project" />
+    <orderEntry type="library" exported="" name="org.apache.commons.io-2.4" level="project" />
+    <orderEntry type="library" exported="" name="okio-1.3.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-23.0.0" level="project" />
   </component>
 </module>

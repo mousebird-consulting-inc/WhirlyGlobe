@@ -33,6 +33,7 @@ import com.mousebirdconsulting.autotester.TestCases.LightingTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LocalVectorTileTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MBTilesImageTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MaplyStarModelTestCase;
+import com.mousebirdconsulting.autotester.TestCases.MarkersAndLinesTestCase;
 import com.mousebirdconsulting.autotester.TestCases.PagingLayerTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
@@ -125,6 +126,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new PagingLayerTestCase(getActivity()));
 			testCases.add(new CoordConversionTestCase(getActivity()));
 			testCases.add(new StartupShutdownTestCase(getActivity()));
+			testCases.add(new MarkersAndLinesTestCase(getActivity()));
 //			testCases.add(new ArealTestCase(getActivity()));
 		}
 
