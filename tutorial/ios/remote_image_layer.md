@@ -13,7 +13,7 @@ You'll need to have done the [Local Image Layer](local_image_tiles.html) tutoria
 
 ![Xcode ViewController.m]({{ site.baseurl }}/images/tutorial/local_image_layer_1.png)
 
-If you haven't got one here is a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_remote_image_layer.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_remote_image_layer.swift)) file to start with.  This version handles both a globe and a map and makes a nice starting point.
+If you haven't got one here is a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_remote_image_layer.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_remote_image_layer.swift)) file to start with.  This version handles both a globe and a map and makes a nice starting point.
 
 ### Remote Tile Source
 

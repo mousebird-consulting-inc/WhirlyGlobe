@@ -33,7 +33,7 @@ You'll need a sample project for this tutorial.  Go back and start with the [Hel
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/adding_vector_data_1.png)
 
-If you haven't got one here is a suitable ViewController file to start with (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_adding_vector_data.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_adding_vector_data.swift)).
+If you haven't got one here is a suitable ViewController file to start with (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ios/ViewController_adding_vector_data.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_adding_vector_data.swift)).
 
 ### CartoDBLayer
 

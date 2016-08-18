@@ -5,7 +5,7 @@ layout: ios-tutorial
 
 Screen labels are 2D labels that follow a location on the globe or map.  As the user moves, they move, but don't get any bigger or smaller.  You have a lot of control over how they look and interact, but they're simple to use.
 
-We're going to make use of country outlines from the [Vector Data](adding_vector_data.html) tutorial if you have not yet.  If you don't have a project, build one with the [Hello Earth](hello_earth.html) tutorial and you can use this ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_screen_labels.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_screen_labels.swift)).  You'll also need the source data from that tutorial.
+We're going to make use of country outlines from the [Vector Data](adding_vector_data.html) tutorial if you have not yet.  If you don't have a project, build one with the [Hello Earth](hello_earth.html) tutorial and you can use this ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_screen_labels.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_screen_labels.swift)).  You'll also need the source data from that tutorial.
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/screen_labels_1.png)
 

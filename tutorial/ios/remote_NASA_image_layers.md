@@ -13,7 +13,7 @@ You'll need to have done the [Remote Image Layer](remote_image_layer.html) tutor
 
 ![Xcode ViewController.m]({{ site.baseurl }}/images/tutorial/NASA_GIBS_Header.png)
 
-If you haven't got one here is a suitable ViewController file to start with (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_vector_selection.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_vector_selection.swift)).  This version has a remote image layer already configured and it makes a nice starting point.
+If you haven't got one here is a suitable ViewController file to start with (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_vector_selection.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_vector_selection.swift)).  This version has a remote image layer already configured and it makes a nice starting point.
 
 In this tutorial we are going to get a base layer map from the GIBS site, and then we will add an overlay layer to that globe.
 
@@ -173,4 +173,4 @@ That's it! Build and run.  You should see some sweet NASA data!
 
 ![NASA Overlay Ocean Temp Layer]({{ site.baseurl }}/images/tutorial/NASA_SeaTemp_Overlay.png)
 
-That's all there is to it.  Here's a working ViewController if you need it (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_NASA_GIBS.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_NASA_GIBS.swift)).
+That's all there is to it.  Here's a working ViewController if you need it (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_NASA_GIBS.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_NASA_GIBS.swift)).

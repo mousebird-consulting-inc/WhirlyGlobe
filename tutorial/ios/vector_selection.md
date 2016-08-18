@@ -9,7 +9,7 @@ You'll need to have done the [Vector Data](adding_vector_data.html) tutorial.  O
 
 ![Xcode ViewController.m]({{ site.baseurl }}/images/tutorial/vector_selection_1.png)
 
-If you haven't got one here is a suitable ViewController file to start with (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_vector_selection.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_vector_selection.swift)).  This version handles both a globe and a map and makes a nice starting point.
+If you haven't got one here is a suitable ViewController file to start with (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_vector_selection.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_vector_selection.swift)).  This version handles both a globe and a map and makes a nice starting point.
 
 Let's start with annotations.
 
@@ -256,4 +256,4 @@ When the toolkit notices the user selected a feature, it calls the appropriate d
 
 In this case we're looking for MaplyVectorObjects and when we see one we consult its userObject.  We happen to know that's an NSString so we figure out the center of the MaplyVectorObject and pop up an annotation with a little bit of info.
 
-That's all there is to it, but it was a lot of code.  Here's a working ViewController if you need it (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_post_vector_selection.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_post_vector_selection.swift)).
+That's all there is to it, but it was a lot of code.  Here's a working ViewController if you need it (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_post_vector_selection.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_post_vector_selection.swift)).

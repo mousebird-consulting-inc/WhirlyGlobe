@@ -23,7 +23,7 @@ You will need to have already run through the [remote image layer](remote_image_
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/aeris_weather_1.png)
 
-If you haven't got one here is a suitable ViewController file to start with (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_aeris_weather.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_aeris_weather.swift)).  This version is from the previous tutorial for a [remote image layer](remote_image_layer.html).
+If you haven't got one here is a suitable ViewController file to start with (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_aeris_weather.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_aeris_weather.swift)).  This version is from the previous tutorial for a [remote image layer](remote_image_layer.html).
 
 ## Setup the Aeris layer
 

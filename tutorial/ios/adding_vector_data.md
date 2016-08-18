@@ -9,7 +9,7 @@ This tutorial depends on at least the [local image layer](local_image_layer.html
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/adding_vector_data_1.png)
 
-If you haven't got one here is a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_adding_vector_data.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_adding_vector_data.swift)) file to start with.  This version is from the previous tutorial for a [remote image layer](remote_image_layer.html).
+If you haven't got one here is a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_adding_vector_data.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_adding_vector_data.swift)) file to start with.  This version is from the previous tutorial for a [remote image layer](remote_image_layer.html).
 
 ### Vector Data
 

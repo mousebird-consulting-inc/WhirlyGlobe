@@ -4,15 +4,11 @@
     - filename: building-from-source.html
     - filename: hello-earth.html
     - filename: your-first-globe-or-map.html
-
-- section: Image Based Maps
-  files: 
     - filename: local-image-layer.html
-    - filename: remote-image-layer.html
 
 - section: Overlays
   files:
-    - filename: adding-vector-data.html
+    - filename: vector-data.html
     - filename: screen-markers.html
     - filename: screen-labels.html
 
