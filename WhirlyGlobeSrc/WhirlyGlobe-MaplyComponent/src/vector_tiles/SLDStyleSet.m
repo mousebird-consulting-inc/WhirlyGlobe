@@ -53,7 +53,7 @@
 
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    return [elementName isEqualToString:@"Literal"];
+    return [elementName isEqualToString:@"ogc:Literal"];
 }
 
 @end
@@ -72,7 +72,7 @@
 
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    return [elementName isEqualToString:@"PropertyName"];
+    return [elementName isEqualToString:@"ogc:PropertyName"];
 }
 
 @end
@@ -111,17 +111,17 @@
         self.rightExpression = expressions[1];
         
         NSPredicateOperatorType opType;
-        if ([self.elementName isEqualToString:@"PropertyIsEqualTo"])
+        if ([self.elementName isEqualToString:@"ogc:PropertyIsEqualTo"])
             opType = NSEqualToPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"PropertyIsNotEqualTo"])
+        else if ([self.elementName isEqualToString:@"ogc:PropertyIsNotEqualTo"])
             opType = NSNotEqualToPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"PropertyIsLessThan"])
+        else if ([self.elementName isEqualToString:@"ogc:PropertyIsLessThan"])
             opType = NSLessThanPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"PropertyIsGreaterThan"])
+        else if ([self.elementName isEqualToString:@"ogc:PropertyIsGreaterThan"])
             opType = NSGreaterThanPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"PropertyIsLessThanOrEqualTo"])
+        else if ([self.elementName isEqualToString:@"ogc:PropertyIsLessThanOrEqualTo"])
             opType = NSLessThanOrEqualToPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"PropertyIsGreaterThanOrEqualTo"])
+        else if ([self.elementName isEqualToString:@"ogc:PropertyIsGreaterThanOrEqualTo"])
             opType = NSGreaterThanOrEqualToPredicateOperatorType;
         else
             return nil;
@@ -141,7 +141,7 @@
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
     static NSSet *set;
     if (!set)
-        set = [NSSet setWithArray:@[@"PropertyIsEqualTo", @"PropertyIsNotEqualTo", @"PropertyIsLessThan", @"PropertyIsGreaterThan", @"PropertyIsLessThanOrEqualTo", @"PropertyIsGreaterThanOrEqualTo"]];
+        set = [NSSet setWithArray:@[@"ogc:PropertyIsEqualTo", @"ogc:PropertyIsNotEqualTo", @"ogc:PropertyIsLessThan", @"ogc:PropertyIsGreaterThan", @"ogc:PropertyIsLessThanOrEqualTo", @"ogc:PropertyIsGreaterThanOrEqualTo"]];
     return [set containsObject:elementName];
 }
 
@@ -171,9 +171,9 @@
             [subPredicates addObject:subOperator.predicate];
         }
         
-        if ([self.elementName isEqualToString:@"And"])
+        if ([self.elementName isEqualToString:@"ogc:And"])
             self.predicate = [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
-        else if ([self.elementName isEqualToString:@"Or"])
+        else if ([self.elementName isEqualToString:@"ogc:Or"])
             self.predicate = [NSCompoundPredicate orPredicateWithSubpredicates:subPredicates];
         else
             return nil;
@@ -183,7 +183,7 @@
 
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    return ([elementName isEqualToString:@"And"] || [elementName isEqualToString:@"Or"]);
+    return ([elementName isEqualToString:@"ogc:And"] || [elementName isEqualToString:@"ogc:Or"]);
 }
 
 @end
@@ -405,7 +405,8 @@
             filter.operator = [[SLDBinaryComparisonOperator alloc] initWithElement:(DDXMLElement *)child];
             break;
         }
-        
+        else
+            NSLog(@"unmatched %@", childName);
     }
 
     return filter;
