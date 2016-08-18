@@ -263,9 +263,13 @@ ul.docs-and-resources {
       font-size: 15px;
     }
   }
-}.affix-bottom {
+}
+.affix-bottom {
   position:        absolute;
- }
+}
+.build-table {
+  min-height: 620px;
+}
 .tutorial-sidebar {
   li {
     font-family:   Roboto;

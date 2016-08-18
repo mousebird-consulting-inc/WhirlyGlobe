@@ -3,17 +3,18 @@
 {% include head.html %}
 <body onload="getAPIData()">
 <div id="wrap">
-	{% include header.html %}
-	<script src="{{ site.baseurl }}/js/builds.js"></script>
-		<div class="col-sm-12 tutorial tutorial-main">
-		  <h2>{{ page.title }}</h2>
-          {{ content }}
-		    <div id="table">
-		      <div class="container text-center">
-		        <button class="btn btn-lg btn-warning"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
-		      </div>
-		    </div>  
-		</div>
+    {% include header.html %}
+    <script src="{{ site.baseurl }}/js/builds.js"></script>
+    <div class="col-sm-12 tutorial tutorial-main build-table">
+        <h2>About the Automated Builds</h2>
+        {{ content }}
+        <h2>Available Builds and Status</h2>
+        <div id="table">
+            <div class="container text-center">
+                <button class="btn btn-lg btn-warning"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
+            </div>
+        </div>  
+    </div>
 </div>
 {% include footer.html %}
 </body>
