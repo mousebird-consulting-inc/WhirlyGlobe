@@ -2,20 +2,35 @@ var url = 'http://mousebird-home.asuscomm.com:8080/api/json?depth=2&pretty=true&
 var s3Url = "https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/";
 
 function getAPIData() {
-	$.getJSON(url,function(json) { 
-		var items = [];
-		$.each (json, function (x1, y1) {
-			if (x1 == "jobs") {
-				var table = "<div class='table-responsive builds text-center'><table class='table table-bordered'><thead><tr><th>Name</th><th>Status</th><th>Last Duration</th><th>Build Count</th><th>Last Result</th><th>Last Run Date</th><th>Last Binary</th><th>Other Binaries</th></tr></thead><tbody>";
-				$.each (y1, function(x2, y2) {
-					table = table + convertJobToHTMLRow(y2);
-				});
-				table = table +"</tbody></table></div>";
-				document.getElementById("table").innerHTML = table;
+	$.getJSON(url,function(jenkinsJSON) { 
+		jQuery.ajax({
+			type:"GET",
+			url: s3Url,
+			async: true,
+			dataType: "xml",
+			success: function(s3XML) {
+				buildUI(jenkinsJSON, s3XML);
+			},
+			error : function(error) {
+				document.getElementById("table").innerHTML = "<div class='alert alert-danger'><strong>Something bad happened...</strong> Mr. Jenkins seems to be too busy... try again later</div>";
 			}
 		});
 	}).error(function() {
 		document.getElementById("table").innerHTML = "<div class='alert alert-danger'><strong>Something bad happened...</strong> Mr. Jenkins seems to be too busy... try again later</div>";
+	});
+}
+
+function buildUI(jenkinsJSON, s3XML) {
+	var items = [];
+	$.each (jenkinsJSON, function (x1, y1) {
+		if (x1 == "jobs") {
+			var table = "<div class='table-responsive builds text-center'><table class='table table-bordered'><thead><tr><th>Name</th><th>Status</th><th>Last Duration</th><th>Build Count</th><th>Last Result</th><th>Last Run Date</th><th>Last Binary</th><th>Other Binaries</th></tr></thead><tbody>";
+			$.each (y1, function(x2, y2) {
+				table = table + convertJobToHTMLRow(y2, s3XML);
+			});
+			table = table +"</tbody></table></div>";
+			document.getElementById("table").innerHTML = table;
+		}
 	});
 }
 
@@ -59,7 +74,7 @@ function getDuration(seconds) {
     return result;
 }
 
-function convertJobToHTMLRow(job) {
+function convertJobToHTMLRow(job, s3XML) {
 	var data = getArrayDataJob(job);
 	var html = "<tr>";
 	for (var i = 0; i < data.length; i++) {
@@ -93,7 +108,7 @@ function convertJobToHTMLRow(job) {
 		}
 	}
 	var fields = data[0].split('_');
-	var binaries = getS3Data(s3Url, data[0], fields[1]);
+	var binaries = getS3Data(s3XML, data[0], fields[1]);
 	if (binaries.length > 0) {
 		var lastBinary = binaries[binaries.length-1];
 		var binaryName = lastBinary.split("/");
@@ -139,7 +154,6 @@ function getArrayDataJob(job){
 		data.push("");
 	}
 
-
 	$.each(job, function(x1, y1) {
 		switch (x1) {
 			case "name":
@@ -170,32 +184,22 @@ function getArrayDataJob(job){
 	return data;
 }
 
-function getS3Data(html, testName, platform)
+function getS3Data(dataXML, testName, platform)
 {
 	var binaries = [];
-	jQuery.ajax({
-		type:"GET",
-		url: html,
-		async: false,
-		dataType: "xml",
-		success: function(dataXML) {
-			$(dataXML).find('Contents').each(function() {
-				var key = $(this).find('Key').text();
-				if (key.toLowerCase().includes(platform) && !key.toLowerCase().includes("latest")) {
-					if (testName.toLowerCase().includes("nightly")) {
-						if (key.toLowerCase().includes("nightly")) {
-							binaries.push(key);
-						}
-					}
-					else {
-						if (!key.toLowerCase().includes("nightly")) {
-							binaries.push(key);
-						}
-					}
+	$(dataXML).find('Contents').each(function() {
+		var key = $(this).find('Key').text();
+		if (key.toLowerCase().includes(platform) && !key.toLowerCase().includes("latest")) {
+			if (testName.toLowerCase().includes("nightly")) {
+				if (key.toLowerCase().includes("nightly")) {
+					binaries.push(key);
 				}
-			});
-		},
-		error : function(error) {
+			}
+			else {
+				if (!key.toLowerCase().includes("nightly")) {
+					binaries.push(key);
+				}
+			}
 		}
 	});
 	binaries.sort();
