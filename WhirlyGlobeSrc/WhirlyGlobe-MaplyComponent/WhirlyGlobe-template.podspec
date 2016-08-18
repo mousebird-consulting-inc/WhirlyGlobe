@@ -1,25 +1,25 @@
-#
-# This is the podspec to be used for the toolkit's nightly builds.
+# ******************************************************************************
 #
 # IMPORTANT:
-# This version is not uploaded to official Cocoapods repository, so you have to
-# download this file to your local drive and then add this line in your Podfile:
 #
-#        pod 'WhirlyGlobe', podspec: 'path/to/your/local/WhirlyGlobe-Nightly.podspec'
+# This podspec is intended to be used for the toolkit's nightly build 
+# distribution. It isn't uploaded to official Cocoapods repository, so you have 
+# to use as follows:
+#
+#        pod 'WhirlyGlobe', :http => 'URL_TO_NIGHTLY_BUILD.zip'
 #
 # For more information about the nightly builds, go to:
 #    http://mousebird.github.io/WhirlyGlobe/builds/builds.html
 #
+# ******************************************************************************
 Pod::Spec.new do |s|
   s.name             = "WhirlyGlobe"
-  s.version          = "2.4.1-nightly"
+  s.version          = "2.4.1-{{BUILD_TAG}}"
   s.summary          = "WhirlyGlobe-Maply: Geospatial visualization for iOS and Android."
   s.description      = <<-DESC
-                        WhirlyGlobe-Maply is a high performance geospatial display toolkit for iOS and Android.
-                        The iOS version supports big, complex apps like Dark Sky and National Geographic World Atlas,
-                        among others.  Even so, it's easy to get started on your own project.
+                        IMPORTANT: This is an early adopter version. Use it at your own risk.
                        DESC
-  s.homepage         = "https://github.com/mousebird/WhirlyGlobe"
+  s.homepage         = "http://mousebird.github.io/WhirlyGlobe/builds/builds.html"
   s.screenshots      = "http://mousebird.github.io/WhirlyGlobe/images/carousel/home/mapandglobe.jpg", "http://mousebird.github.io/WhirlyGlobe/images/carousel/home/mtrainier.jpg"
   s.license          = 'Apache 2.0'
   s.author           = { "Steve Gifford" => "contact@mousebirdconsulting.com" }
@@ -27,8 +27,10 @@ Pod::Spec.new do |s|
 
   s.platform     = :ios, '7.0'
   s.requires_arc = true
-
-  s.source = { :http => "https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/iOS_daily_builds/WhirlyGlobe-Maply_Nightly_latest.zip" }
+  
+  s.source = {
+    :path => "./"
+  }
 
   s.frameworks = 'CoreLocation'
   s.vendored_frameworks = 'WhirlyGlobeMaplyComponent.framework'
@@ -41,3 +43,4 @@ Pod::Spec.new do |s|
   s.library = 'z', 'c++', 'xml2', 'sqlite3'
 
 end
+
