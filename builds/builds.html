@@ -72,7 +72,7 @@
 
 <body onload="getAPIData()">
 <div id="wrap">
-	<header>
+    <header>
 
   <div class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="container">
@@ -99,10 +99,10 @@
 
 </header>
 
-	<script src="/WhirlyGlobe/js/builds.js"></script>
-		<div class="col-sm-12 tutorial tutorial-main">
-		  <h2>Builds</h2>
-          <p>Building WhirlyGlobe-Maply from scratch can be a bit of work.  There are submodules and it takes a while.  The Cocoapods distribution is a bit faster, but still compiles a lot of source code.  If you just want a binary distribution we provide that for both iOS and Android.</p>
+    <script src="/WhirlyGlobe/js/builds.js"></script>
+    <div class="col-sm-12 tutorial tutorial-main build-table">
+        <h2>About the Automated Builds</h2>
+        <p>Building WhirlyGlobe-Maply from scratch can be a bit of work.  There are submodules and it takes a while.  The Cocoapods distribution is a bit faster, but still compiles a lot of source code.  If you just want a binary distribution we provide that for both iOS and Android.</p>
 
 <p>A stable build for iOS version 2.4 can be <a href="">downloaded directly</a> if that’s all you need.</p>
 
@@ -110,12 +110,28 @@
 
 <p>If you’d like a good binary build, just grab the <em>nightly</em> version.  If you’ve been sent here for a specific feature, you may want the commit builds.  Those are the ones without <em>nightly</em> in the name.</p>
 
-		    <div id="table">
-		      <div class="container text-center">
-		        <button class="btn btn-lg btn-warning"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
-		      </div>
-		    </div>  
-		</div>
+<p>To install these development versions, just follow these steps:</p>
+
+<h3 id="ios">iOS</h3>
+
+<p>Get the URL of the zip file listed bellow and use that in your <code class="highlighter-rouge">Podfile</code> as follows:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">pod <span class="s1">'WhirlyGlobe'</span>, :http <span class="o">=</span>&gt; <span class="s1">'http://url/to/binary/version.zip'</span></code></pre></figure>
+
+<p>It’s too simple to be truth, isn’t it?</p>
+
+<h3 id="android">Android</h3>
+
+<p>Just download the aar file in your local machine and include that file in the Android Studio project. This <a href="http://mousebird.github.io/WhirlyGlobe/tutorial/android/hello-earth.html">tutorial</a> gives a good explanation about that.</p>
+
+
+        <h2>Available Builds and Status</h2>
+        <div id="table">
+            <div class="container text-center">
+                <button class="btn btn-lg btn-warning"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
+            </div>
+        </div>  
+    </div>
 </div>
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>

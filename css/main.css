@@ -179,6 +179,9 @@ ul.docs-and-resources li.mousebird:before {
 .affix-bottom {
   position: absolute; }
 
+.build-table {
+  min-height: 620px; }
+
 .tutorial-sidebar li {
   font-family: Roboto; }
 .tutorial-sidebar li.sidebar-header-item {
