@@ -1376,13 +1376,14 @@ public class MaplyBaseController
 				ArrayList<InternalLabel> intLabels = new ArrayList<InternalLabel>();
 				for (ScreenLabel label : labels)
 				{
-					InternalLabel intLabel = new InternalLabel(label,labelInfo);
-					intLabels.add(intLabel);
+					if (label.text != null && label.text.length() > 0) {
+						InternalLabel intLabel = new InternalLabel(label, labelInfo);
+						intLabels.add(intLabel);
 
-					// Keep track of this one for selection
-					if (label.selectable)
-					{
-						addSelectableObject(label.ident,label,compObj);
+						// Keep track of this one for selection
+						if (label.selectable) {
+							addSelectableObject(label.ident, label, compObj);
+						}
 					}
 				}
 

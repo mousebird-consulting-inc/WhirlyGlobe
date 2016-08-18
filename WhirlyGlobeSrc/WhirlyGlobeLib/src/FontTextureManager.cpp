@@ -132,6 +132,7 @@ FontTextureManager::~FontTextureManager()
     for (DrawStringRepSet::iterator it = drawStringReps.begin();
          it != drawStringReps.end(); ++it)
         delete *it;
+    drawStringReps.clear();
     for (FontManagerSet::iterator it = fontManagers.begin();
          it != fontManagers.end(); ++it)
         delete *it;
