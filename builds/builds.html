@@ -114,11 +114,17 @@
 
 <h3 id="ios">iOS</h3>
 
-<p>Get the URL of the zip file listed bellow and use that in your <code class="highlighter-rouge">Podfile</code> as follows:</p>
+<p>Get the URL of the zip file listed below and use that in your <code class="highlighter-rouge">Podfile</code> as follows:</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">pod <span class="s1">'WhirlyGlobe'</span>, :http <span class="o">=</span>&gt; <span class="s1">'http://url/to/binary/version.zip'</span></code></pre></figure>
 
 <p>It’s too simple to be truth, isn’t it?</p>
+
+<p>Besides the urls listed below, you also have an special url always pointing to the lastest nightly build:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">pod <span class="s1">'WhirlyGlobe'</span>, :http <span class="o">=</span>&gt; <span class="s1">'https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/iOS_daily_builds/WhirlyGlobe-Maply_Nightly_latest.zip'</span></code></pre></figure>
+
+<p><em>Note: Cocoapods caches the file downloaded using the URL as cache key, so even though this file always contains the latest nighly build, you will have to clean the cache after the first dowload. For that, check the command <code class="highlighter-rouge">pod cache clean -all</code></em></p>
 
 <h3 id="android">Android</h3>
 
