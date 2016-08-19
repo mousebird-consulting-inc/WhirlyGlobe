@@ -11,7 +11,7 @@
 #import "MapnikStyleSet.h"
 #import "MapboxVectorStyleSet.h"
 #import "MapboxVectorStyleBackground.h"
-
+#import "SLDStyleSet.h"
 
 @implementation MapzenSource
 {
@@ -65,6 +65,13 @@
                             _backgroundColor = [UIColor blackColor];
                         }
                     }
+                }
+                    break;
+                case MapnikSLDStyle:
+                {
+                    SLDStyleSet *sldStyleSet = [[SLDStyleSet alloc] initWithViewC:viewC useLayerNames:NO];
+                    [sldStyleSet loadSldData:styleData];
+                    styleSet = sldStyleSet;
                 }
                     break;
             }
