@@ -46,7 +46,7 @@
 @property (nonatomic, strong) NSNumber * _Nullable minScaleDenominator;
 @property (nonatomic, strong) NSNumber * _Nullable maxScaleDenominator;
 
-@property (nonatomic, strong) NSArray * _Nullable symbolizers;
+@property (nonatomic, strong) NSMutableArray * _Nullable symbolizers;
 
 @end
 
@@ -63,6 +63,12 @@
 
 
 @interface SLDStyleSet : NSObject <MaplyVectorStyleDelegate>
+
+@property (nonatomic, assign) BOOL useLayerNames;
+@property (nonatomic, weak, nullable) MaplyBaseViewController *viewC;
+@property (nonatomic, strong, nullable) MaplyVectorStyleSettings *tileStyleSettings;
+
+- (id)initWithViewC:(MaplyBaseViewController *)viewC useLayerNames:(BOOL)useLayerNames;
 
 - (void)loadSldFile:(NSString *__nonnull)filePath;
 - (void)loadSldData:(NSData *__nonnull)sldData;

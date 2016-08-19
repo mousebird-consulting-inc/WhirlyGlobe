@@ -7,7 +7,7 @@
 //
 
 #import "SLDStyleSet.h"
-
+#import "MaplyVectorTileStyle.h"
 
 
 @implementation SLDNamedLayer
@@ -64,7 +64,7 @@
     self = [super init];
     if (self) {
         self.propertyName = [element stringValue];
-        self.expression = [NSExpression expressionForKeyPath:[NSString stringWithFormat:@"attributes.%@", self.propertyName]];
+        self.expression = [NSExpression expressionForKeyPath:self.propertyName];
         NSLog(@"SLDPropertyNameExpression %@", self.propertyName);
     }
     return self;
@@ -194,13 +194,36 @@
 
 
 
+@interface SLDStyleSet () {
+}
 
+@property (nonatomic, strong) NSMutableDictionary *symbolizers;
+
+@end
 
 
 @implementation SLDStyleSet {
-    NSMutableArray *_namedLayers;
+    NSMutableDictionary *_namedLayers;
+    NSInteger symbolizerId;
+    
 }
 
+
+
+- (id)initWithViewC:(MaplyBaseViewController *)viewC useLayerNames:(BOOL)useLayerNames {
+    self = [super init];
+    if (self) {
+        self.viewC = viewC;
+        self.useLayerNames = useLayerNames;
+        self.tileStyleSettings = [MaplyVectorStyleSettings new];
+        self.tileStyleSettings.lineScale = [UIScreen mainScreen].scale;
+        self.tileStyleSettings.dashPatternScale =  [UIScreen mainScreen].scale;
+        self.tileStyleSettings.markerScale = [UIScreen mainScreen].scale;
+        symbolizerId = 0;
+        self.symbolizers = [NSMutableDictionary dictionary];
+    }
+    return self;
+}
 
 
 - (void)loadSldFile:(NSString *__nonnull)filePath {
@@ -244,15 +267,14 @@
         return;
     }
     
-    
-    _namedLayers = [NSMutableArray array];
+    _namedLayers = [NSMutableDictionary dictionary];
     
     NSArray *namedLayerNodes = [sldNode elementsForName:@"NamedLayer"];
     if (namedLayerNodes) {
         for (DDXMLElement *namedLayerNode in namedLayerNodes) {
             SLDNamedLayer *sldNamedLayer = [self loadNamedLayerNode:namedLayerNode];
             if (sldNamedLayer)
-                [_namedLayers addObject:sldNamedLayer];
+                _namedLayers[sldNamedLayer.name] = sldNamedLayer;
         }
     }
 }
@@ -322,7 +344,7 @@
     NSLog(@"loadFeatureTypeStyleNode");
     SLDFeatureTypeStyle *featureTypeStyle = [[SLDFeatureTypeStyle alloc] init];
 
-    NSMutableArray *rules;
+    NSMutableArray *rules = [NSMutableArray array];
     NSArray *ruleNodes = [featureTypeStyleNode elementsForName:@"Rule"];
     if (ruleNodes) {
         for (DDXMLElement *ruleNode in ruleNodes) {
@@ -372,18 +394,49 @@
     DDXMLNode *maxScaleNode = [self getSingleNodeForNode:ruleNode xpath:@"MaxScaleDenominator" error:&error];
     if (maxScaleNode)
         rule.maxScaleDenominator = [nf numberFromString:[maxScaleNode stringValue]];
+
+    [self loadSymbolizersForRule:rule andRuleNode:ruleNode];
+    
+    return rule;
+}
+
+- (void)loadSymbolizersForRule:(SLDRule *)rule andRuleNode:(DDXMLElement *)ruleNode {
+    NSError *error;
+    rule.symbolizers = [NSMutableArray array];
     
     for (DDXMLNode *child in [ruleNode children]) {
         NSString *name = [child name];
-        if ([name isEqualToString:@"LineSymbolizer"]) {
+        if ([name isEqualToString:@"se:LineSymbolizer"]) {
+            DDXMLElement *strokeNode = (DDXMLElement *)[self getSingleNodeForNode:child xpath:@"se:Stroke" error:&error];
+            if (strokeNode) {
+                NSMutableDictionary *strokeParams = [NSMutableDictionary dictionary];
+                for (DDXMLElement *paramNode in [strokeNode elementsForName:@"se:SvgParameter"]) {
+                    DDXMLNode *nameNode = [paramNode attributeForName:@"name"];
+                    if (!nameNode)
+                        continue;
+                    NSString *paramName = [nameNode stringValue];
+                    strokeParams[paramName] = [paramNode stringValue];
+                }
+                
+                MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": @"LineSymbolizer", @"substyles": @[strokeParams]}
+                                                                           settings:self.tileStyleSettings
+                                                                              viewC:self.viewC];
+                
+                if (s) {
+                    s.uuid = @(symbolizerId);
+                    self.symbolizers[s.uuid] = s;
+                    symbolizerId += 1;
+                    [rule.symbolizers addObject:s];
+                }
+                
+            }
+            
         } else if ([name isEqualToString:@"PolygonSymbolizer"]) {
         } else if ([name isEqualToString:@"PointSymbolizer"]) {
         } else if ([name isEqualToString:@"TextSymbolizer"]) {
         } else if ([name isEqualToString:@"RasterSymbolizer"]) {
         }
     }
-    
-    return rule;
 }
 
 
@@ -408,6 +461,12 @@
         else
             NSLog(@"unmatched %@", childName);
     }
+    
+    //test code
+//    if (filter.operator) {
+//        NSDictionary *d = @{@"highway" : @"residential"};
+//        NSLog(@"eval: %i", [filter.operator.predicate evaluateWithObject:d]);
+//    }
 
     return filter;
 }
@@ -434,15 +493,66 @@
                                               onTile:(MaplyTileID)tileID
                                              inLayer:(NSString *__nonnull)layer
                                                viewC:(MaplyBaseViewController *__nonnull)viewC {
+    
+    if (self.useLayerNames) {
+        SLDNamedLayer *namedLayer = _namedLayers[layer];
+        if (!namedLayer)
+            return nil;
+        return [self stylesForFeatureWithAttributes:attributes onTile:tileID inNamedLayer:namedLayer viewC:viewC];
+        
+    } else {
+        for (SLDNamedLayer *namedLayer in [_namedLayers allValues]) {
+            NSArray *styles = [self stylesForFeatureWithAttributes:attributes onTile:tileID inNamedLayer:namedLayer viewC:viewC];
+            if (styles)
+                return styles;
+        }
+    }
+    
     return nil;
 }
+
+- (nullable NSArray *)stylesForFeatureWithAttributes:(NSDictionary *__nonnull)attributes
+                                              onTile:(MaplyTileID)tileID
+                                        inNamedLayer:(SLDNamedLayer *__nonnull)namedLayer
+                                               viewC:(MaplyBaseViewController *__nonnull)viewC {
+    
+    NSMutableArray *styles = [NSMutableArray array];
+    bool matched;
+    for (SLDUserStyle *userStyle in namedLayer.userStyles) {
+        for (SLDFeatureTypeStyle *featureTypeStyle in userStyle.featureTypeStyles) {
+            for (SLDRule *rule in featureTypeStyle.rules) {
+                matched = false;
+                for (SLDFilter *filter in rule.filters) {
+                    if ([filter.operator.predicate evaluateWithObject:attributes]) {
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    for (SLDFilter *filter in rule.elseFilters) {
+                        if ([filter.operator.predicate evaluateWithObject:attributes]) {
+                            matched = true;
+                            break;
+                        }
+                    }
+                }
+                if (matched)
+                    [styles addObjectsFromArray:rule.symbolizers];
+            }
+        }
+    }
+    
+    return styles;
+}
+
+
 
 - (BOOL)layerShouldDisplay:(NSString *__nonnull)layer tile:(MaplyTileID)tileID {
-    return NO;
+    return YES;
 }
 
-- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(NSString *__nonnull)uiid viewC:(MaplyBaseViewController *__nonnull)viewC {
-    return nil;
+- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(NSString *__nonnull)uuid viewC:(MaplyBaseViewController *__nonnull)viewC {
+    return self.symbolizers[uuid];
 }
 
 @end
