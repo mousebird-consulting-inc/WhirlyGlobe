@@ -530,6 +530,7 @@
 		E5679F4A1CB72DE800369A15 /* FindHeightTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F471CB72DE800369A15 /* FindHeightTestCase.m */; };
 		E5679F4E1CB7669400369A15 /* FullAnimationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F4D1CB7669400369A15 /* FullAnimationTest.m */; };
 		E57E78CA1C936B8400C468C6 /* AerisWeatherTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */; };
+ 		E5EF69F01D6B573700A2A660 /* MapzenSLDStyle.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5EF69EF1D6B573700A2A660 /* MapzenSLDStyle.sld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1114,6 +1115,7 @@
 		E5679F4D1CB7669400369A15 /* FullAnimationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FullAnimationTest.m; sourceTree = "<group>"; };
 		E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AerisWeatherTestCase.m; sourceTree = "<group>"; };
 		E57E78C91C936B8400C468C6 /* AerisWeatherTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AerisWeatherTestCase.h; sourceTree = "<group>"; };
+ 		E5EF69EF1D6B573700A2A660 /* MapzenSLDStyle.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = MapzenSLDStyle.sld; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1573,6 +1575,7 @@
 			children = (
 				88FF5C6A1BC31D6D002F15CE /* MapzenGLStyle.json */,
 				88FF5C6B1BC31D6D002F15CE /* MapzenStyles.json */,
+ 				E5EF69EF1D6B573700A2A660 /* MapzenSLDStyle.sld */,
 			);
 			name = "mapzen vectors";
 			path = "../../resources/mapzen vectors";
@@ -2041,6 +2044,7 @@
 				88FF5E551BC31D95002F15CE /* HKG.geojson in Resources */,
 				88FF5C7A1BC31D6D002F15CE /* lowres_wtb_2x1.pvrtc in Resources */,
 				88FF5E7A1BC31D95002F15CE /* LUX.geojson in Resources */,
+ 				E5EF69F01D6B573700A2A660 /* MapzenSLDStyle.sld in Resources */,
 				88FF5E4C1BC31D95002F15CE /* GNB.geojson in Resources */,
 				88FF5E8D1BC31D95002F15CE /* MRT.geojson in Resources */,
 				88FF5C761BC31D6D002F15CE /* lowres_wtb_0x1.pvrtc in Resources */,
