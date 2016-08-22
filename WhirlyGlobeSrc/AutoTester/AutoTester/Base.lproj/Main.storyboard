@@ -86,8 +86,8 @@
                                 </tableViewCellContentView>
                                 <connections>
                                     <outlet property="downloadIndicator" destination="CwU-6s-jnv" id="gIm-jY-HfR"/>
-                                    <outlet property="globeButton" destination="jl7-me-c0V" id="VQJ-W8-enI"/>
-                                    <outlet property="mapButton" destination="d18-Wn-lHX" id="wRY-bZ-QKc"/>
+                                    <outlet property="globeButton" destination="d18-Wn-lHX" id="VQJ-W8-enI"/>
+                                    <outlet property="mapButton" destination="jl7-me-c0V" id="wRY-bZ-QKc"/>
                                     <outlet property="retryButton" destination="GQQ-Be-fdD" id="BdF-O3-ILP"/>
                                     <outlet property="testName" destination="5aF-rw-GAm" id="gsg-AB-h0T"/>
                                 </connections>
