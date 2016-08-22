@@ -461,6 +461,8 @@
 		2BE53AB51D249CAF00B60FAD /* SMCalloutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53AB31D249CAF00B60FAD /* SMCalloutView.m */; };
 		2BE53AC71D249E1500B60FAD /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AC61D249E1500B60FAD /* CoreLocation.framework */; };
 		2BE53AE51D24A31B00B60FAD /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE538D41D249A6A00B60FAD /* libWhirlyGlobeLib.a */; };
+		E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */; };
+		E56DB3D81D6B1B5A007000D2 /* SLDStyleSet.m in Sources */ = {isa = PBXBuildFile; fileRef = E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -943,6 +945,8 @@
 		2BE53AC21D249DDE00B60FAD /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		2BE53AC41D249E0600B60FAD /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		2BE53AC61D249E1500B60FAD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDStyleSet.h; sourceTree = "<group>"; };
+		E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDStyleSet.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1160,6 +1164,7 @@
 				2BE537931D249A1200B60FAD /* MapnikStyleRule.h */,
 				2BE537941D249A1200B60FAD /* MapnikStyleSet.h */,
 				2BE537951D249A1200B60FAD /* vector_tile.pb.h */,
+				E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */,
 			);
 			path = vector_tiles;
 			sourceTree = "<group>";
@@ -1267,6 +1272,7 @@
 				2BE537EE1D249A1200B60FAD /* MapnikStyleRule.m */,
 				2BE537EF1D249A1200B60FAD /* MapnikStyleSet.m */,
 				2BE537F01D249A1200B60FAD /* vector_tile.pb.cpp */,
+				E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */,
 			);
 			path = vector_tiles;
 			sourceTree = "<group>";
@@ -1815,6 +1821,7 @@
 				2BE538301D249A1200B60FAD /* MaplyViewController.h in Headers */,
 				2BE5385F1D249A1200B60FAD /* MapboxVectorStyleLine.h in Headers */,
 				2BE537F91D249A1200B60FAD /* MaplyActiveObject.h in Headers */,
+				E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */,
 				2BE539541D249BEF00B60FAD /* AACoordinateTransformation.h in Headers */,
 				2BE5384E1D249A1200B60FAD /* MaplyTextureAtlas_private.h in Headers */,
 				2BE5394F1D249BEF00B60FAD /* AA2DCoordinate.h in Headers */,
@@ -2009,6 +2016,7 @@
 				2BE538C51D249A1200B60FAD /* MapnikStyle.m in Sources */,
 				2BE539B11D249BEF00B60FAD /* AAParallax.cpp in Sources */,
 				2BE538CA1D249A1200B60FAD /* WGInteractionLayer.mm in Sources */,
+				E56DB3D81D6B1B5A007000D2 /* SLDStyleSet.m in Sources */,
 				2BE538C91D249A1200B60FAD /* WGCoordinate.mm in Sources */,
 				2BE539B61D249BEF00B60FAD /* AAPlanetaryPhenomena.cpp in Sources */,
 				2BE539AE1D249BEF00B60FAD /* AANutation.cpp in Sources */,

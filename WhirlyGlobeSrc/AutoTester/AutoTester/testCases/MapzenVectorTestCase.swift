@@ -22,7 +22,8 @@ class MapzenVectorTestCase: MaplyTestCase {
 //		let baseLayer = CartoDBLightTestCase()
 //		baseLayer.setUpWithMap(mapVC)
 
-		let styleData = NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("MapzenGLStyle", ofType: "json")!)
+		//let styleData = NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("MapzenGLStyle", ofType: "json")!)
+        let styleData = NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("MapzenSLDStyle", ofType: "sld")!)
 
 		let mzSource = MapzenSource(
 			base: "http://vector.mapzen.com/osm",
@@ -30,7 +31,7 @@ class MapzenVectorTestCase: MaplyTestCase {
 			apiKey: "vector-tiles-ejNTZ28",
 			sourceType: MapzenSourcePBF,
 			styleData: styleData,
-			styleType: .MapboxGLStyle,
+			styleType: .SLDStyle,
 			viewC: mapVC)
 
 		mzSource.minZoom = Int32(0)
