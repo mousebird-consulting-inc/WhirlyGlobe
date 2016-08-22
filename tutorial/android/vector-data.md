@@ -5,7 +5,7 @@ layout: android-tutorial
 
 *Tutorial by Nicholas Hallahan.*
 
-This tutorial guides you through adding GeoJSON vector data to your map. Picking up from the previous tutorial, create a new Java file in your `helloearth` package. Name it `GeoJsonHttpTask.java`.
+This tutorial guides you through adding GeoJSON vector data to your map. Picking up from the previous tutorial, create a new Java file in your `helloearth` package. Name it `GeoJsonHttpTask.java`. You can [reference the completed [GeoJsonHttpTask.java](https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/io/theoutpost/helloearth/GeoJsonHttpTask.java) on Github.
 
 ### Create AsyncTask
 
