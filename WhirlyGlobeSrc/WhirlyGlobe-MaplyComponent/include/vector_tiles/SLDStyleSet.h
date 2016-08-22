@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MapboxVectorTiles.h"
-#import "DDXMLElementAdditions.h"
+//#import "DDXMLElementAdditions.h"
 #import "DDXML.h"
 
 
