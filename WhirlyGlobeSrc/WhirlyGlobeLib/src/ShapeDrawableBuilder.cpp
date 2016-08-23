@@ -34,6 +34,8 @@ namespace WhirlyKit
 {
 
 WhirlyKitShapeInfo::WhirlyKitShapeInfo()
+    : color(255,255,255,255), lineWidth(1.0), shapeId(EmptyIdentity), insideOut(false),
+    zBufferRead(true), zBufferWrite(true), hasCenter(false), center(0.0,0.0,0.0)
 {
 }
 

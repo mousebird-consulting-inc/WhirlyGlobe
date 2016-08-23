@@ -28,7 +28,6 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 	}
 
 	private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController) {
-
 		String cacheDirName = "stamen_watercolor";
 		File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
 		cacheDir.mkdir();
@@ -42,6 +41,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		baseLayer.setCoverPoles(true);
 		baseLayer.setHandleEdges(true);
 		return baseLayer;
+
 	}
 
 	@Override
