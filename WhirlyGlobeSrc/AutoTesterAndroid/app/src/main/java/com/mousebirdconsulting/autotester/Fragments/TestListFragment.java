@@ -21,6 +21,7 @@ import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.AtmosphereTestCase;
 import com.mousebirdconsulting.autotester.TestCases.BillboardTestCase;
+import com.mousebirdconsulting.autotester.TestCases.BoundsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CartoDBMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ClusteredMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ComplexParticleSystemTestCase;
@@ -127,6 +128,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new CoordConversionTestCase(getActivity()));
 			testCases.add(new StartupShutdownTestCase(getActivity()));
 			testCases.add(new MarkersAndLinesTestCase(getActivity()));
+			testCases.add(new BoundsTestCase(getActivity()));
 //			testCases.add(new ArealTestCase(getActivity()));
 		}
 
