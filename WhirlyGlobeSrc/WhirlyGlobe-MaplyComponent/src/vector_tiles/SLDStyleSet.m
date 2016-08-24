@@ -113,7 +113,7 @@
     }
 }
 
-/** @brief Convenience method to get asingle child node matching the xpath expression, or else return nil.
+/** @brief Convenience method to get a single child node matching the xpath expression, or else return nil.
  */
 - (DDXMLNode *)getSingleNodeForNode:(DDXMLNode *)node xpath:(NSString *)xpath error:(NSError **)error {
     NSArray *nodes = [node nodesForXPath:xpath error:error];
@@ -128,9 +128,10 @@
     
     for (NSString *prefix in prefixes) {
         NSString *xpath = [NSString stringWithFormat:@"%@:%@", prefix, childName];
-        DDXMLNode *node = [self getSingleNodeForNode:node xpath:xpath error:error];
-        if (node)
-            return node;
+        
+        DDXMLNode *childNode = [self getSingleNodeForNode:node xpath:xpath error:error];
+        if (childNode)
+            return childNode;
     }
     return nil;
 }
@@ -144,6 +145,9 @@
     SLDNamedLayer *sldNamedLayer = [[SLDNamedLayer alloc] init];
     
     NSError *error;
+    
+    //DDXMLNode *nameNode = [self getSingleNodeForNode:namedLayerNode xpath:[NSString stringWithFormat:@"%@:%@", @"se", @"Name"] error:&error];
+    //DDXMLNode *nameNode = [self getSingleNodeForNode:namedLayerNode xpath:@"se:Name" error:&error];
     
     // The prefix is "se" in v1.1.0 but "sld" in v1.0.0.
     DDXMLNode *nameNode = [self getSingleChildNodeForNode:namedLayerNode childName:@"Name" prefixes:@[@"se", @"sld"] error:&error];
@@ -277,7 +281,7 @@
     
     for (DDXMLNode *child in [ruleNode children]) {
         NSString *name = [child name];
-        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:child tileStyleSettings:self.tileStyleSettings viewC:self.viewC];
+        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator];
         
         if (symbolizers) {
             for (MaplyVectorTileStyle * symbolizer in symbolizers) {

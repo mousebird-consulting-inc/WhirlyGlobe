@@ -26,11 +26,13 @@
  @param element The XML element corresponding to a symbolizer
  @param tileStyleSettings The base MaplyVectorStyleSettings settings to apply.
  @param viewC The map or globe view controller.
+ @param minScaleDenom If non-null, the minimum map scale at which to apply any constructed symbolizer.
+ @param maxScaleDenom If non-null, the maximum map scale at which to apply any constructed symbolizer.
  @return An array of MaplyVectorTileStyle objects corresponding to the particular XML element.
  @see MaplyVectorTileStyle
  @see MaplyVectorStyleSettings
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC;
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom;
 @end
 
 /** @brief Class corresponding to the LineSymbolizer element
