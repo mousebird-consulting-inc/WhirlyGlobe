@@ -11,20 +11,38 @@
 
 @implementation SLDSymbolizer
 
+/** @brief Produces MaplyVectorTileStyle objects for an SLD Symbolizer element
+ @details Parses the XML subtree and returns an array of corresponding MaplyVectorTileStyle objects.
+ @param element The XML element corresponding to a symbolizer
+ @param tileStyleSettings The base MaplyVectorStyleSettings settings to apply.
+ @param viewC The map or globe view controller.
+ @return An array of MaplyVectorTileStyle objects corresponding to the particular XML element.
+ @see MaplyVectorTileStyle
+ @see MaplyVectorStyleSettings
+ */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
     
     NSString *name = [element name];
     if ([SLDLineSymbolizer matchesSymbolizerNamed:name])
         return [SLDLineSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC];
-    
-    
+    else if ([SLDPolygonSymbolizer matchesSymbolizerNamed:name])
+        return [SLDPolygonSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC];
+    else if ([SLDPointSymbolizer matchesSymbolizerNamed:name])
+        return [SLDPointSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC];
+    else if ([SLDTextSymbolizer matchesSymbolizerNamed:name])
+        return [SLDTextSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC];
     return nil;
 }
 
+/** @brief Returns whether this class can parse the symbolizer corresponding to the provided element name.
+    @details Each subclass matches different symbolizer elements.
+ */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
     return NO;
 }
 
+/** @brief Convenience method to get asingle child node matching the xpath expression, or else return nil.
+ */
 + (DDXMLNode *)getSingleNodeForNode:(DDXMLNode *)node xpath:(NSString *)xpath error:(NSError **)error {
     NSArray *nodes = [node nodesForXPath:xpath error:error];
     if (nodes && nodes.count == 1)
@@ -32,7 +50,21 @@
     return nil;
 }
 
+/** @brief Gets a single node for the provided element name, matching one of the provided XML prefixes.
+ */
++ (DDXMLNode *)getSingleChildNodeForNode:(DDXMLNode *)node childName:(NSString *)childName prefixes:(NSArray <NSString *> *)prefixes error:(NSError **)error {
+    
+    for (NSString *prefix in prefixes) {
+        NSString *xpath = [NSString stringWithFormat:@"%@:%@", prefix, childName];
+        DDXMLNode *node = [SLDSymbolizer getSingleNodeForNode:node xpath:xpath error:error];
+        if (node)
+            return node;
+    }
+    return nil;
+}
 
+/** @brief If the element is an ogc:Literal, return the value.
+ */
 + (NSString *)stringForLiteralInNode:(DDXMLNode *)node {
     for (DDXMLNode *child in [node children]) {
         if ([[child name] isEqualToString:@"ogc:Literal"])
@@ -41,6 +73,10 @@
     return nil;
 }
 
+/** @brief If the element is an ogc:Literal or ogc:PropertyName, return the appropriate value.
+    @details For ogc:PropertyName, the property name is placed in square brackets for later substitution, as expected by MaplyVectorTileStyle formatText:forObject: .
+    @see MaplyVectorTileStyle
+ */
 + (NSString *)stringForParameterValueTypeNode:(DDXMLNode *)node {
     if ([[node name] isEqualToString:@"ogc:PropertyName"])
         return [NSString stringWithFormat:@"[%@]", [node stringValue]];
@@ -49,7 +85,9 @@
     return nil;
 }
 
-
+/** @brief Parses a series of se:SvgParameter child nodes and returns a dictionary.
+    @details This is used to parse the style information in various elements used in symbolizers, in SLD v1.1.0.
+ */
 + (NSDictionary *)dictForSvgParametersInElement:(DDXMLElement *)element {
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     for (DDXMLElement *paramNode in [element elementsForName:@"se:SvgParameter"]) {
@@ -62,14 +100,42 @@
     return params;
 }
 
+/** @brief Parses a series of se:CssParameter child nodes and returns a dictionary.
+ @details This is used to parse the style information in various elements used in symbolizers, in SLD v1.0.0.
+ */
++ (NSDictionary *)dictForCssParametersInElement:(DDXMLElement *)element {
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    for (DDXMLElement *paramNode in [element elementsForName:@"sld:CssParameter"]) {
+        DDXMLNode *nameNode = [paramNode attributeForName:@"name"];
+        if (!nameNode)
+            continue;
+        NSString *paramName = [nameNode stringValue];
+        params[paramName] = [paramNode stringValue];
+    }
+    return params;
+}
+
+/** @brief Parses a series of se:CssParameter or se:SvgParameter child nodes and returns a dictionary.
+ @details This is used to parse the style information in various elements used in symbolizers.
+ @details This will deal with both SLD versions 1.0.0 and 1.1.0.
+ */
++ (NSDictionary *)dictForSvgCssParametersInElement:(DDXMLElement *)element {
+    NSDictionary *params = [SLDSymbolizer dictForSvgParametersInElement:element];
+    if (!params)
+        params = [SLDSymbolizer dictForCssParametersInElement:element];
+    return params;
+}
+
 @end
 
 @implementation SLDLineSymbolizer
 
+/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:
+ */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
     
     NSError *error;
-    DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:element xpath:@"se:Stroke" error:&error];
+    DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke" prefixes:@[@"se", @"sld"] error:&error];
     
     if (!strokeNode)
         return nil;
@@ -82,13 +148,22 @@
     return @[s];
 }
 
+/** @brief See comment for SLDSymbolizer matchesSymbolizerNamed:
+ */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
-    return [symbolizerName isEqualToString:@"se:LineSymbolizer"];
+    return [symbolizerName isEqualToString:@"se:LineSymbolizer"] || [symbolizerName isEqualToString:@"sld:LineSymbolizer"];
 }
 
+/** @brief Parses a stroke node and returns a corresponding MaplyVectorTileStyle object.
+ */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromStrokeNode:(DDXMLElement *)strokeNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
     
-    NSDictionary *strokeParams = [SLDSymbolizer dictForSvgParametersInElement:strokeNode];
+    NSDictionary *strokeParams = [SLDSymbolizer dictForSvgCssParametersInElement:strokeNode];
+    if (!strokeParams) {
+        NSLog(@"SLDLineSymbolizer: Stroke node without stroke parameters.");
+        return nil;
+    }
+    
     MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": @"LineSymbolizer", @"substyles": @[strokeParams]}
                                                                settings:tileStyleSettings
                                                                   viewC:viewC];
@@ -100,16 +175,19 @@
 
 @implementation SLDPolygonSymbolizer
 
+/** @brief See comment for SLDSymbolizer matchesSymbolizerNamed:
+ */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
-    return [symbolizerName isEqualToString:@"se:PolygonSymbolizer"];
+    return [symbolizerName isEqualToString:@"se:PolygonSymbolizer"] || [symbolizerName isEqualToString:@"sld:PolygonSymbolizer"];
 }
 
+/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:
+ */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
     
     NSError *error;
-    DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:element xpath:@"se:Fill" error:&error];
-    DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:element xpath:@"se:Stroke" error:&error];
-    
+    DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Fill" prefixes:@[@"se", @"sld"] error:&error];
+    DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke" prefixes:@[@"se", @"sld"] error:&error];
    
     NSMutableArray <MaplyVectorTileStyle *> *styles = [NSMutableArray array];
     if (strokeNode)
@@ -124,9 +202,15 @@
     return nil;
 }
 
+/** @brief Parses a fill node and returns a corresponding MaplyVectorTileStyle object.
+ */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromFillNode:(DDXMLElement *)fillNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
     
-    NSDictionary *fillParams = [SLDSymbolizer dictForSvgParametersInElement:fillNode];
+    NSDictionary *fillParams = [SLDSymbolizer dictForSvgCssParametersInElement:fillNode];
+    if (!fillParams) {
+        NSLog(@"SLDPolygonSymbolizer: Fill node but no fill parameters.");
+        return nil;
+    }
     MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": @"PolygonSymbolizer", @"substyles": @[fillParams]}
                                                                settings:tileStyleSettings
                                                                   viewC:viewC];
@@ -138,34 +222,46 @@
 
 @implementation SLDPointSymbolizer
 
+/** @brief See comment for SLDSymbolizer matchesSymbolizerNamed:
+ */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
-    return [symbolizerName isEqualToString:@"se:PointSymbolizer"];
+    return [symbolizerName isEqualToString:@"se:PointSymbolizer"] || [symbolizerName isEqualToString:@"sld:PointSymbolizer"];
 }
 
+/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:
+ */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
-    return nil;
+    
+    MaplyVectorTileStyle *s = [SLDPointSymbolizer maplyVectorTileStyleFromPointSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC];
+    
+    if (!s)
+        return nil;
+    
+    return @[s];
 }
 
+/** @brief Parses a PointSymbolizer node and returns a corresponding MaplyVectorTileStyle object.
+ */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromPointSymbolizerNode:(DDXMLElement *)pointSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
     
     NSError *error;
     NSMutableDictionary *pointParams = [NSMutableDictionary dictionary];
 
-    DDXMLElement *graphicNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:pointSymbolizerNode xpath:@"se:Graphic" error:&error];
+    DDXMLElement *graphicNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:pointSymbolizerNode childName:@"Graphic" prefixes:@[@"se", @"sld"] error:&error];
     
     if (!graphicNode)
         return nil;
     
     for (DDXMLNode *child in [graphicNode children]) {
-        if ([[child name] isEqualToString:@"se:ExternalGraphic"]) {
+        if ([[child name] isEqualToString:@"se:ExternalGraphic"] || [[child name] isEqualToString:@"sld:ExternalGraphic"]) {
             
             NSLog(@"Skipping MarkerSymbolizer with ExternalGraphic.");
             return nil;
             
-        } else if ([[child name] isEqualToString:@"se:Mark"]) {
+        } else if ([[child name] isEqualToString:@"se:Mark"] || [[child name] isEqualToString:@"sld:Mark"]) {
             
             // Marker shape type
-            DDXMLElement *wellKnownNameNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:child xpath:@"se:WellKnownName" error:&error];
+            DDXMLElement *wellKnownNameNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"WellKnownName" prefixes:@[@"se", @"sld"] error:&error];
             
             if (!wellKnownNameNode) {
                 NSLog(@"Skipping MarkerSymbolizer with Mark but without WellKnownName.");
@@ -194,21 +290,25 @@
             pointParams[@"image"] = image;
             
             // Fill color
-            DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:child xpath:@"se:Fill" error:&error];
-            NSDictionary *fillParams = [SLDSymbolizer dictForSvgParametersInElement:fillNode];
-            
-            if (fillParams[@"fill"])
-                pointParams[@"fill"] = fillParams[@"fill"];
+            DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Fill" prefixes:@[@"se", @"sld"] error:&error];
+            if (fillNode) {
+                NSDictionary *fillParams = [SLDSymbolizer dictForSvgCssParametersInElement:fillNode];
+                
+                if (fillParams && fillParams[@"fill"])
+                    pointParams[@"fill"] = fillParams[@"fill"];
+            }
             
             // Stroke color
-            DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:child xpath:@"se:Stroke" error:&error];
-            NSDictionary *strokeParams = [SLDSymbolizer dictForSvgParametersInElement:strokeNode];
-            
-            if (strokeParams[@"stroke"])
-                pointParams[@"stroke"] = strokeParams[@"stroke"];
+            DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Stroke" prefixes:@[@"se", @"sld"] error:&error];
+            if (strokeNode) {
+                NSDictionary *strokeParams = [SLDSymbolizer dictForSvgCssParametersInElement:strokeNode];
+                
+                if (strokeParams && strokeParams[@"stroke"])
+                    pointParams[@"stroke"] = strokeParams[@"stroke"];
+            }
 
             
-        } else if ([[child name] isEqualToString:@"se:Size"]) {
+        } else if ([[child name] isEqualToString:@"se:Size"] || [[child name] isEqualToString:@"sld:Size"]) {
             // Marker size
             NSString *size = [SLDSymbolizer stringForLiteralInNode:child];
             if (size) {
@@ -229,21 +329,33 @@
 
 @implementation SLDTextSymbolizer
 
+/** @brief See comment for SLDSymbolizer matchesSymbolizerNamed:
+ */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
-    return [symbolizerName isEqualToString:@"se:TextSymbolizer"];
+    return [symbolizerName isEqualToString:@"se:TextSymbolizer"] || [symbolizerName isEqualToString:@"sld:TextSymbolizer"];
 }
 
+/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:
+ */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
-    return nil;
+    
+    MaplyVectorTileStyle *s = [SLDTextSymbolizer maplyVectorTileStyleFromTextSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC];
+    
+    if (!s)
+        return nil;
+    
+    return @[s];
 }
 
+/** @brief Parses a TextSymbolizer node and returns a corresponding MaplyVectorTileStyle object.
+ */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromTextSymbolizerNode:(DDXMLElement *)textSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
     
     NSError *error;
     NSMutableDictionary *labelParams = [NSMutableDictionary dictionary];
     
     // Label text
-    DDXMLElement *labelNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:textSymbolizerNode xpath:@"se:Label" error:&error];
+    DDXMLElement *labelNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:textSymbolizerNode childName:@"Label" prefixes:@[@"se", @"sld"] error:&error];
     if (labelNode) {
         for (DDXMLNode *child in [labelNode children]) {
             NSString *value = [SLDSymbolizer stringForParameterValueTypeNode:child];
@@ -254,16 +366,15 @@
         }
     }
     
-    
     // Ignore specified font for now.
-    DDXMLElement *fontNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:textSymbolizerNode xpath:@"se:Font" error:&error];
+    DDXMLElement *fontNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:textSymbolizerNode childName:@"Font" prefixes:@[@"se", @"sld"] error:&error];
     
 
     // Label placement
-    DDXMLElement *labelPlacementNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:textSymbolizerNode xpath:@"se:LabelPlacement" error:&error];
+    DDXMLElement *labelPlacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:textSymbolizerNode childName:@"LabelPlacement" prefixes:@[@"se", @"sld"] error:&error];
     if (labelPlacementNode) {
-        DDXMLElement *pointPlacementNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:labelPlacementNode xpath:@"se:PointPlacement" error:&error];
-        DDXMLElement *linePlacementNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:labelPlacementNode xpath:@"se:LinePlacement" error:&error];
+        DDXMLElement *pointPlacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"PointPlacement" prefixes:@[@"se", @"sld"] error:&error];
+        DDXMLElement *linePlacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"LinePlacement" prefixes:@[@"se", @"sld"] error:&error];
         
         if (pointPlacementNode)
             labelParams[@"placement"] = @"point";
@@ -273,10 +384,10 @@
     
     
     // Label halo
-    DDXMLElement *haloNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:textSymbolizerNode xpath:@"se:Halo" error:&error];
+    DDXMLElement *haloNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:textSymbolizerNode childName:@"Halo" prefixes:@[@"se", @"sld"] error:&error];
     if (haloNode) {
-        DDXMLElement *haloRadiusNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:haloNode xpath:@"se:Radius" error:&error];
-        DDXMLElement *haloFillNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:haloNode xpath:@"se:Fill" error:&error];
+        DDXMLElement *haloRadiusNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:haloNode childName:@"Radius" prefixes:@[@"se", @"sld"] error:&error];
+        DDXMLElement *haloFillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:haloNode childName:@"Fill" prefixes:@[@"se", @"sld"] error:&error];
         
         if (haloRadiusNode) {
             NSString *haloRadius = [SLDSymbolizer stringForLiteralInNode:haloRadiusNode];
@@ -285,20 +396,20 @@
         }
         if (haloFillNode) {
             
-            NSDictionary *haloFillParams = [SLDSymbolizer dictForSvgParametersInElement:haloFillNode];
-            if (haloFillParams[@"fill"])
+            NSDictionary *haloFillParams = [SLDSymbolizer dictForSvgCssParametersInElement:haloFillNode];
+            if (haloFillParams && haloFillParams[@"fill"])
                 labelParams[@"halo-fill"] = haloFillParams[@"fill"];
         }
     }
     
     // Label fill
-    DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleNodeForNode:textSymbolizerNode xpath:@"se:Fill" error:&error];
+    DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:textSymbolizerNode childName:@"Fill" prefixes:@[@"se", @"sld"] error:&error];
     if (fillNode) {
         
-        NSDictionary *labelFillParams = [SLDSymbolizer dictForSvgParametersInElement:fillNode];
-        if (labelFillParams[@"fill"])
+        NSDictionary *labelFillParams = [SLDSymbolizer dictForSvgCssParametersInElement:fillNode];
+        if (labelFillParams && labelFillParams[@"fill"])
             labelParams[@"fill"] = labelFillParams[@"fill"];
-        if (labelFillParams[@"fill-opacity"])
+        if (labelFillParams && labelFillParams[@"fill-opacity"])
             labelParams[@"opacity"] = labelFillParams[@"fill-opacity"];
     }
 
