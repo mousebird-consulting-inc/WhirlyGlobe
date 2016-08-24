@@ -99,6 +99,11 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
         }
         env->DeleteLocalRef(liter);
         
+        if (shapeInfo->programID == EmptyIdentity)
+        {
+            shapeInfo->programID = inst->getScene()->getProgramIDBySceneName(kToolkitDefaultTriangleProgram);
+        }
+        
         SimpleIdentity shapeId = inst->addShapes(shapes, shapeInfo, *changeSet);
         return shapeId;
     }

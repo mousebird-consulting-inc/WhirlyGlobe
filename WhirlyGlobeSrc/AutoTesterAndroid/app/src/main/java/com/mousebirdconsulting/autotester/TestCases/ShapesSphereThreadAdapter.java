@@ -103,7 +103,7 @@ public class ShapesSphereThreadAdapter {
         ShapeInfo shapeInfo = new ShapeInfo();
         shapeInfo.setColor(1,0,0,0.8f);
         shapeInfo.setDrawPriority(1000000);
-        shapeInfo.setFade(1.0f);
-        componentObject =viewC.addShapes(shapes, shapeInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
+//        shapeInfo.setFade(1.0f);
+        componentObject =viewC.addShapes(shapes, shapeInfo, MaplyBaseController.ThreadMode.ThreadAny);
     }
 }
