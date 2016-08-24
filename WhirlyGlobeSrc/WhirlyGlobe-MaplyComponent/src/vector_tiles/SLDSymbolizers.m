@@ -16,21 +16,23 @@
  @param element The XML element corresponding to a symbolizer
  @param tileStyleSettings The base MaplyVectorStyleSettings settings to apply.
  @param viewC The map or globe view controller.
+ @param minScaleDenom If non-null, the minimum map scale at which to apply any constructed symbolizer.
+ @param maxScaleDenom If non-null, the maximum map scale at which to apply any constructed symbolizer.
  @return An array of MaplyVectorTileStyle objects corresponding to the particular XML element.
  @see MaplyVectorTileStyle
  @see MaplyVectorStyleSettings
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
     
     NSString *name = [element name];
     if ([SLDLineSymbolizer matchesSymbolizerNamed:name])
-        return [SLDLineSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC];
+        return [SLDLineSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
     else if ([SLDPolygonSymbolizer matchesSymbolizerNamed:name])
-        return [SLDPolygonSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC];
+        return [SLDPolygonSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
     else if ([SLDPointSymbolizer matchesSymbolizerNamed:name])
-        return [SLDPointSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC];
+        return [SLDPointSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
     else if ([SLDTextSymbolizer matchesSymbolizerNamed:name])
-        return [SLDTextSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC];
+        return [SLDTextSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
     return nil;
 }
 
@@ -41,7 +43,7 @@
     return NO;
 }
 
-/** @brief Convenience method to get asingle child node matching the xpath expression, or else return nil.
+/** @brief Convenience method to get a single child node matching the xpath expression, or else return nil.
  */
 + (DDXMLNode *)getSingleNodeForNode:(DDXMLNode *)node xpath:(NSString *)xpath error:(NSError **)error {
     NSArray *nodes = [node nodesForXPath:xpath error:error];
@@ -56,9 +58,9 @@
     
     for (NSString *prefix in prefixes) {
         NSString *xpath = [NSString stringWithFormat:@"%@:%@", prefix, childName];
-        DDXMLNode *node = [SLDSymbolizer getSingleNodeForNode:node xpath:xpath error:error];
-        if (node)
-            return node;
+        DDXMLNode *childNode = [self getSingleNodeForNode:node xpath:xpath error:error];
+        if (childNode)
+            return childNode;
     }
     return nil;
 }
@@ -88,7 +90,7 @@
 /** @brief Parses a series of se:SvgParameter child nodes and returns a dictionary.
     @details This is used to parse the style information in various elements used in symbolizers, in SLD v1.1.0.
  */
-+ (NSDictionary *)dictForSvgParametersInElement:(DDXMLElement *)element {
++ (NSMutableDictionary *)dictForSvgParametersInElement:(DDXMLElement *)element {
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     for (DDXMLElement *paramNode in [element elementsForName:@"se:SvgParameter"]) {
         DDXMLNode *nameNode = [paramNode attributeForName:@"name"];
@@ -103,7 +105,7 @@
 /** @brief Parses a series of se:CssParameter child nodes and returns a dictionary.
  @details This is used to parse the style information in various elements used in symbolizers, in SLD v1.0.0.
  */
-+ (NSDictionary *)dictForCssParametersInElement:(DDXMLElement *)element {
++ (NSMutableDictionary *)dictForCssParametersInElement:(DDXMLElement *)element {
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     for (DDXMLElement *paramNode in [element elementsForName:@"sld:CssParameter"]) {
         DDXMLNode *nameNode = [paramNode attributeForName:@"name"];
@@ -119,8 +121,8 @@
  @details This is used to parse the style information in various elements used in symbolizers.
  @details This will deal with both SLD versions 1.0.0 and 1.1.0.
  */
-+ (NSDictionary *)dictForSvgCssParametersInElement:(DDXMLElement *)element {
-    NSDictionary *params = [SLDSymbolizer dictForSvgParametersInElement:element];
++ (NSMutableDictionary *)dictForSvgCssParametersInElement:(DDXMLElement *)element {
+    NSMutableDictionary *params = [SLDSymbolizer dictForSvgParametersInElement:element];
     if (!params)
         params = [SLDSymbolizer dictForCssParametersInElement:element];
     return params;
@@ -130,9 +132,9 @@
 
 @implementation SLDLineSymbolizer
 
-/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:
+/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
     
     NSError *error;
     DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke" prefixes:@[@"se", @"sld"] error:&error];
@@ -140,7 +142,7 @@
     if (!strokeNode)
         return nil;
     
-    MaplyVectorTileStyle *s = [SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC];
+    MaplyVectorTileStyle *s = [SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
     
     if (!s)
         return nil;
@@ -156,19 +158,23 @@
 
 /** @brief Parses a stroke node and returns a corresponding MaplyVectorTileStyle object.
  */
-+ (MaplyVectorTileStyle *)maplyVectorTileStyleFromStrokeNode:(DDXMLElement *)strokeNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
++ (MaplyVectorTileStyle *)maplyVectorTileStyleFromStrokeNode:(DDXMLElement *)strokeNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
     
-    NSDictionary *strokeParams = [SLDSymbolizer dictForSvgCssParametersInElement:strokeNode];
+    NSMutableDictionary *strokeParams = [SLDSymbolizer dictForSvgCssParametersInElement:strokeNode];
     if (!strokeParams) {
         NSLog(@"SLDLineSymbolizer: Stroke node without stroke parameters.");
         return nil;
     }
     
+    if (minScaleDenom)
+        strokeParams[@"minscaledenom"] = minScaleDenom;
+    if (maxScaleDenom)
+        strokeParams[@"maxscaledenom"] = maxScaleDenom;
+    
     MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": @"LineSymbolizer", @"substyles": @[strokeParams]}
                                                                settings:tileStyleSettings
                                                                   viewC:viewC];
     return s;
-
 }
 
 @end
@@ -181,9 +187,9 @@
     return [symbolizerName isEqualToString:@"se:PolygonSymbolizer"] || [symbolizerName isEqualToString:@"sld:PolygonSymbolizer"];
 }
 
-/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:
+/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
     
     NSError *error;
     DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Fill" prefixes:@[@"se", @"sld"] error:&error];
@@ -191,10 +197,10 @@
    
     NSMutableArray <MaplyVectorTileStyle *> *styles = [NSMutableArray array];
     if (strokeNode)
-        [styles addObject:[SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC]];
+        [styles addObject:[SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom]];
     
     if (fillNode)
-        [styles addObject:[SLDPolygonSymbolizer maplyVectorTileStyleFromFillNode:fillNode tileStyleSettings:tileStyleSettings viewC:viewC]];
+        [styles addObject:[SLDPolygonSymbolizer maplyVectorTileStyleFromFillNode:fillNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom]];
 
     if (styles.count > 0)
         return styles;
@@ -204,13 +210,19 @@
 
 /** @brief Parses a fill node and returns a corresponding MaplyVectorTileStyle object.
  */
-+ (MaplyVectorTileStyle *)maplyVectorTileStyleFromFillNode:(DDXMLElement *)fillNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
++ (MaplyVectorTileStyle *)maplyVectorTileStyleFromFillNode:(DDXMLElement *)fillNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
     
-    NSDictionary *fillParams = [SLDSymbolizer dictForSvgCssParametersInElement:fillNode];
+    NSMutableDictionary *fillParams = [SLDSymbolizer dictForSvgCssParametersInElement:fillNode];
     if (!fillParams) {
         NSLog(@"SLDPolygonSymbolizer: Fill node but no fill parameters.");
         return nil;
     }
+    
+    if (minScaleDenom)
+        fillParams[@"minscaledenom"] = minScaleDenom;
+    if (maxScaleDenom)
+        fillParams[@"maxscaledenom"] = maxScaleDenom;
+    
     MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": @"PolygonSymbolizer", @"substyles": @[fillParams]}
                                                                settings:tileStyleSettings
                                                                   viewC:viewC];
@@ -228,11 +240,11 @@
     return [symbolizerName isEqualToString:@"se:PointSymbolizer"] || [symbolizerName isEqualToString:@"sld:PointSymbolizer"];
 }
 
-/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:
+/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
     
-    MaplyVectorTileStyle *s = [SLDPointSymbolizer maplyVectorTileStyleFromPointSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC];
+    MaplyVectorTileStyle *s = [SLDPointSymbolizer maplyVectorTileStyleFromPointSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
     
     if (!s)
         return nil;
@@ -242,7 +254,7 @@
 
 /** @brief Parses a PointSymbolizer node and returns a corresponding MaplyVectorTileStyle object.
  */
-+ (MaplyVectorTileStyle *)maplyVectorTileStyleFromPointSymbolizerNode:(DDXMLElement *)pointSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
++ (MaplyVectorTileStyle *)maplyVectorTileStyleFromPointSymbolizerNode:(DDXMLElement *)pointSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
     
     NSError *error;
     NSMutableDictionary *pointParams = [NSMutableDictionary dictionary];
@@ -319,6 +331,11 @@
         }
     }
     
+    if (minScaleDenom)
+        pointParams[@"minscaledenom"] = minScaleDenom;
+    if (maxScaleDenom)
+        pointParams[@"maxscaledenom"] = maxScaleDenom;
+    
     MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": @"MarkersSymbolizer", @"substyles": @[pointParams]}
                                                                settings:tileStyleSettings
                                                                   viewC:viewC];
@@ -335,11 +352,11 @@
     return [symbolizerName isEqualToString:@"se:TextSymbolizer"] || [symbolizerName isEqualToString:@"sld:TextSymbolizer"];
 }
 
-/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:
+/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
     
-    MaplyVectorTileStyle *s = [SLDTextSymbolizer maplyVectorTileStyleFromTextSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC];
+    MaplyVectorTileStyle *s = [SLDTextSymbolizer maplyVectorTileStyleFromTextSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
     
     if (!s)
         return nil;
@@ -349,7 +366,7 @@
 
 /** @brief Parses a TextSymbolizer node and returns a corresponding MaplyVectorTileStyle object.
  */
-+ (MaplyVectorTileStyle *)maplyVectorTileStyleFromTextSymbolizerNode:(DDXMLElement *)textSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC {
++ (MaplyVectorTileStyle *)maplyVectorTileStyleFromTextSymbolizerNode:(DDXMLElement *)textSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
     
     NSError *error;
     NSMutableDictionary *labelParams = [NSMutableDictionary dictionary];
@@ -413,6 +430,10 @@
             labelParams[@"opacity"] = labelFillParams[@"fill-opacity"];
     }
 
+    if (minScaleDenom)
+        labelParams[@"minscaledenom"] = minScaleDenom;
+    if (maxScaleDenom)
+        labelParams[@"maxscaledenom"] = maxScaleDenom;
     
     MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": @"TextSymbolizer", @"substyles": @[labelParams]}
                                                                settings:tileStyleSettings
