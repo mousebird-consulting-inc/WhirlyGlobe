@@ -10,7 +10,11 @@
 #import "DDXML.h"
 #import "SLDExpressions.h"
 
-
+/** @brief Base class for elements of ogc:comparisonOps or ogc:logicOps.
+ @details Elements of ogc:spatialOps are not supported.
+ @see http://schemas.opengis.net/filter/1.1.0/filter.xsd for SLD v1.1.0
+ @see http://schemas.opengis.net/filter/1.0.0/filter.xsd for SLD v1.0.0
+ */
 @interface SLDOperator : NSObject
 @property (nonatomic, strong) NSPredicate * _Nonnull predicate;
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName;
@@ -18,7 +22,10 @@
 @end
 
 
-
+/** @brief Class corresponding to the ogc:BinaryComparisonOpType elements
+ @see http://schemas.opengis.net/filter/1.1.0/expr.xsd for SLD v1.1.0
+ @see http://schemas.opengis.net/filter/1.0.0/expr.xsd for SLD v1.0.0
+ */
 @interface SLDBinaryComparisonOperator : SLDOperator
 
 @property (nonatomic, assign) BOOL matchCase;
@@ -33,6 +40,10 @@
 @end
 
 
+/** @brief Class corresponding to the ogc:Not element
+ @see http://schemas.opengis.net/filter/1.1.0/expr.xsd for SLD v1.1.0
+ @see http://schemas.opengis.net/filter/1.0.0/expr.xsd for SLD v1.0.0
+ */
 @interface SLDNotOperator : SLDOperator
 
 @property (nonatomic, strong) SLDOperator * _Nonnull subOperator;
@@ -41,12 +52,14 @@
 
 @end
 
-
+/** @brief Class corresponding to the ogc:BinaryLogicOpType elements
+ @see http://schemas.opengis.net/filter/1.1.0/expr.xsd for SLD v1.1.0
+ @see http://schemas.opengis.net/filter/1.0.0/expr.xsd for SLD v1.0.0
+ */
 @interface SLDLogicalOperator : SLDOperator
 
 @property (nonatomic, strong) NSString * _Nonnull elementName;
 @property (nonatomic, strong) NSArray<SLDOperator *> * _Nonnull subOperators;
-
 
 - (_Nullable id)initWithElement:(DDXMLElement * _Nonnull)element;
 

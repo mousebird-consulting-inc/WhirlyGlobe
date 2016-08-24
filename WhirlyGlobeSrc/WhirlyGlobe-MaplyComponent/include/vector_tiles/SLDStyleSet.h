@@ -10,7 +10,10 @@
 #import "MapboxVectorTiles.h"
 #import "DDXML.h"
 
-
+/** @brief Class corresponding to the sld:NamedLayer element
+ @see http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd for SLD v1.1.0
+ @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
+ */
 @interface SLDNamedLayer : NSObject
 
 @property (nonatomic, strong) NSString * _Nullable name;
@@ -18,8 +21,10 @@
 
 @end
 
-
-
+/** @brief Class corresponding to the sld:UserStyle element
+ @see http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd for SLD v1.1.0
+ @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
+ */
 @interface SLDUserStyle : NSObject
 
 @property (nonatomic, strong) NSString * _Nullable name;
@@ -27,16 +32,20 @@
 
 @end
 
-
-
+/** @brief Class corresponding to the se:FeatureTypeStyle element
+ @see http://schemas.opengis.net/se/1.1.0/FeatureStyle.xsd for SLD v1.1.0
+ @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
+ */
 @interface SLDFeatureTypeStyle : NSObject
 
 @property (nonatomic, strong) NSArray * _Nullable rules;
 
 @end
 
-
-
+/** @brief Class corresponding to the se:Rule element
+ @see http://schemas.opengis.net/se/1.1.0/FeatureStyle.xsd for SLD v1.1.0
+ @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
+ */
 @interface SLDRule : NSObject
 
 @property (nonatomic, strong) NSArray * _Nullable filters;
@@ -54,20 +63,34 @@
 @class SLDOperator;
 @class SLDExpression;
 
+/** @brief Class corresponding to the ogc:Filter element
+ @see http://schemas.opengis.net/filter/1.1.0/filter.xsd for SLD v1.1.0
+ @see http://schemas.opengis.net/filter/1.0.0/filter.xsd for SLD v1.0.0
+ */
 @interface SLDFilter : NSObject
 
 @property (nonatomic, strong) SLDOperator * _Nonnull operator;
 
 @end
 
-
-
+/** @brief Class corresponding to the sld:StyledLayerDescriptor element
+ @details The sld:StyledLayerDescriptor element is the root element of the Styled Layer Descriptor document.
+ @details Implements the MaplyVectorStyleDelegate protocol for matching and applying styles to vector objects.
+ @see http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd for SLD v1.1.0
+ @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
+ @see MaplyVectorStyleDelegate
+ */
 @interface SLDStyleSet : NSObject <MaplyVectorStyleDelegate>
 
 @property (nonatomic, assign) BOOL useLayerNames;
 @property (nonatomic, weak, nullable) MaplyBaseViewController *viewC;
 @property (nonatomic, strong, nullable) MaplyVectorStyleSettings *tileStyleSettings;
 
+/** @brief Constructs a SLDStyleSet object.
+ @details After constructing the SLDStyleSet object, call loadSldFile: or loadSldData: to parse the desired SLD document tree and create the corresponding symbolizers.
+ @param viewC The map or globe view controller.
+ @param useLayerNames Whether to use names of NamedLayer elements as a criteria in matching styles.
+ */
 - (id _Nullable)initWithViewC:(MaplyBaseViewController * _Nonnull)viewC useLayerNames:(BOOL)useLayerNames;
 
 - (void)loadSldFile:(NSString *__nonnull)filePath;

@@ -45,7 +45,11 @@
 }
 
 
-
+/** @brief Constructs a SLDStyleSet object.
+    @details After constructing the SLDStyleSet object, call loadSldFile: or loadSldData: to parse the desired SLD document tree and create the corresponding symbolizers.
+    @param viewC The map or globe view controller.
+    @param useLayerNames Whether to use names of NamedLayer elements as a criteria in matching styles.
+ */
 - (id)initWithViewC:(MaplyBaseViewController *)viewC useLayerNames:(BOOL)useLayerNames {
     self = [super init];
     if (self) {
@@ -109,6 +113,8 @@
     }
 }
 
+/** @brief Convenience method to get asingle child node matching the xpath expression, or else return nil.
+ */
 - (DDXMLNode *)getSingleNodeForNode:(DDXMLNode *)node xpath:(NSString *)xpath error:(NSError **)error {
     NSArray *nodes = [node nodesForXPath:xpath error:error];
     if (nodes && nodes.count == 1)
@@ -116,13 +122,32 @@
     return nil;
 }
 
+/** @brief Gets a single node for the provided element name, matching one of the provided XML prefixes.
+ */
+- (DDXMLNode *)getSingleChildNodeForNode:(DDXMLNode *)node childName:(NSString *)childName prefixes:(NSArray <NSString *> *)prefixes error:(NSError **)error {
+    
+    for (NSString *prefix in prefixes) {
+        NSString *xpath = [NSString stringWithFormat:@"%@:%@", prefix, childName];
+        DDXMLNode *node = [self getSingleNodeForNode:node xpath:xpath error:error];
+        if (node)
+            return node;
+    }
+    return nil;
+}
 
+
+/** @brief Load the NamedLayer xml element into a SLDNamedLayer object.
+    @param  namedLayerNode The DDXMLElement corresponding to the NamedLayer element in the document tree.
+ */
 - (SLDNamedLayer *)loadNamedLayerNode:(DDXMLElement *)namedLayerNode {
     
     SLDNamedLayer *sldNamedLayer = [[SLDNamedLayer alloc] init];
     
     NSError *error;
-    DDXMLNode *nameNode = [self getSingleNodeForNode:namedLayerNode xpath:@"se:Name" error:&error];
+    
+    // The prefix is "se" in v1.1.0 but "sld" in v1.0.0.
+    DDXMLNode *nameNode = [self getSingleChildNodeForNode:namedLayerNode childName:@"Name" prefixes:@[@"se", @"sld"] error:&error];
+    
     if (!nameNode) {
         NSLog(@"Error: NamedLayer is missing Name element");
         if (error)
@@ -147,11 +172,17 @@
     return sldNamedLayer;
 }
 
+/** @brief Load the UserStyle xml element into a SLDUserStyle object.
+ @param  userStyleNode The DDXMLElement corresponding to the UserStyle element in the document tree.
+ */
 - (SLDUserStyle *)loadUserStyleNode:(DDXMLElement *)userStyleNode {
     NSError *error;
     NSLog(@"loadUserStyleNode");
     SLDUserStyle *sldUserStyle = [[SLDUserStyle alloc] init];
-    DDXMLNode *nameNode = [self getSingleNodeForNode:userStyleNode xpath:@"se:Name" error:&error];
+    // The prefix is "se" in v1.1.0 but "sld" in v1.0.0.
+
+    DDXMLNode *nameNode = [self getSingleChildNodeForNode:userStyleNode childName:@"Name" prefixes:@[@"se", @"sld"] error:&error];
+    
     if (nameNode)
         sldUserStyle.name = [nameNode stringValue];
     
@@ -169,6 +200,9 @@
     return sldUserStyle;
 }
 
+/** @brief Load the FeatureTypeStyle xml element into a SLDFeatureTypeStyle object.
+ @param  featureTypeStyleNode The DDXMLElement corresponding to the FeatureTypeStyle element in the document tree.
+ */
 - (SLDFeatureTypeStyle *)loadFeatureTypeStyleNode:(DDXMLElement *)featureTypeStyleNode {
     NSError *error;
     NSLog(@"loadFeatureTypeStyleNode");
@@ -188,6 +222,9 @@
     return featureTypeStyle;
 }
 
+/** @brief Load the Rule xml element into a SLDRule object.
+ @param  ruleNode The DDXMLElement corresponding to the Rule element in the document tree.
+ */
 - (SLDRule *)loadRuleNode:(DDXMLElement *)ruleNode {
     NSError *error;
     NSLog(@"loadRuleNode");
@@ -230,6 +267,10 @@
     return rule;
 }
 
+/** @brief Loops through the Rule's symbolizers in the document tree and generates the corresponding objects.
+ @param rule The SLDRule object to own the generated symbolizer objects.
+ @param ruleNode The DDXMLElement corresponding to the Rule element in the document tree.
+ */
 - (void)loadSymbolizersForRule:(SLDRule *)rule andRuleNode:(DDXMLElement *)ruleNode {
     NSError *error;
     rule.symbolizers = [NSMutableArray array];
@@ -239,7 +280,7 @@
         NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:child tileStyleSettings:self.tileStyleSettings viewC:self.viewC];
         
         if (symbolizers) {
-                for (MaplyVectorTileStyle * symbolizer in symbolizers) {
+            for (MaplyVectorTileStyle * symbolizer in symbolizers) {
                 symbolizer.uuid = @(symbolizerId);
                 self.symbolizers[@(symbolizerId)] = symbolizer;
                 symbolizerId += 1;
@@ -252,7 +293,9 @@
     }
 }
 
-
+/** @brief Load the Filter xml element into a SLDFilter object.
+ @param  filterNode The DDXMLElement corresponding to the Filter element in the document tree.
+ */
 - (SLDFilter *)loadFilterNode:(DDXMLElement *)filterNode {
     
     NSLog(@"loadFilterNode");
