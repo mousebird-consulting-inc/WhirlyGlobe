@@ -3,12 +3,11 @@
 //  SLDTest
 //
 //  Created by Ranen Ghosh on 2016-08-12.
-//  Copyright © 2016 Ranen Ghosh. All rights reserved.
+//  Copyright © 2016 mousebird consulting. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import "MapboxVectorTiles.h"
-//#import "DDXMLElementAdditions.h"
 #import "DDXML.h"
 
 
@@ -53,10 +52,11 @@
 
 
 @class SLDOperator;
+@class SLDExpression;
 
 @interface SLDFilter : NSObject
 
-@property (nonatomic, strong) SLDOperator *operator;
+@property (nonatomic, strong) SLDOperator * _Nonnull operator;
 
 @end
 
@@ -68,75 +68,12 @@
 @property (nonatomic, weak, nullable) MaplyBaseViewController *viewC;
 @property (nonatomic, strong, nullable) MaplyVectorStyleSettings *tileStyleSettings;
 
-- (id)initWithViewC:(MaplyBaseViewController *)viewC useLayerNames:(BOOL)useLayerNames;
+- (id _Nullable)initWithViewC:(MaplyBaseViewController * _Nonnull)viewC useLayerNames:(BOOL)useLayerNames;
 
 - (void)loadSldFile:(NSString *__nonnull)filePath;
 - (void)loadSldData:(NSData *__nonnull)sldData;
-- (void)generateStyles;
 
 @end
-
-
-
-
-
-
-
-@interface SLDExpression : NSObject
-@property (nonatomic, strong) NSExpression * _Nonnull expression;
-+ (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName;
-
-@end
-
-
-
-@interface SLDPropertyNameExpression : SLDExpression
-@property (nonatomic, strong) NSString *propertyName;
-- (_Nullable id)initWithElement:(DDXMLElement *)element;
-@end
-
-
-
-@interface SLDLiteralExpression : SLDExpression
-@property (nonatomic, strong) NSString *literal;
-- (_Nullable id)initWithElement:(DDXMLElement *)element;
-@end
-
-
-
-
-@interface SLDOperator : NSObject
-@property (nonatomic, strong) NSPredicate * _Nonnull predicate;
-+ (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName;
-@end
-
-
-
-@interface SLDBinaryComparisonOperator : SLDOperator
-
-@property (nonatomic, assign) BOOL matchCase;
-@property (nonatomic, strong) NSString *elementName;
-
-@property (nonatomic, strong) SLDExpression *leftExpression;
-@property (nonatomic, strong) SLDExpression *rightExpression;
-
-
-- (_Nullable id)initWithElement:(DDXMLElement *)element;
-
-@end
-
-
-
-@interface SLDLogicalOperator : SLDOperator
-
-@property (nonatomic, strong) NSString *elementName;
-@property (nonatomic, strong) NSArray<SLDOperator *> *subOperators;
-
-
-- (_Nullable id)initWithElement:(DDXMLElement *)element;
-
-@end
-
 
 
 
