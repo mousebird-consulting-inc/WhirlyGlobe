@@ -463,6 +463,14 @@
 		2BE53AE51D24A31B00B60FAD /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE538D41D249A6A00B60FAD /* libWhirlyGlobeLib.a */; };
 		E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */; };
 		E56DB3D81D6B1B5A007000D2 /* SLDStyleSet.m in Sources */ = {isa = PBXBuildFile; fileRef = E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */; };
+		E5EB67AB1D6DD19700FB3679 /* SLDWellKnownMarkers.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EB67AA1D6DD19700FB3679 /* SLDWellKnownMarkers.m */; };
+		E5EB67AE1D6DD1C000FB3679 /* SLDWellKnownMarkers.h in Headers */ = {isa = PBXBuildFile; fileRef = E5EB67AD1D6DD1C000FB3679 /* SLDWellKnownMarkers.h */; };
+		E5EF69F61D6B931500A2A660 /* SLDExpressions.h in Headers */ = {isa = PBXBuildFile; fileRef = E5EF69F31D6B931500A2A660 /* SLDExpressions.h */; };
+		E5EF69F71D6B931500A2A660 /* SLDOperators.h in Headers */ = {isa = PBXBuildFile; fileRef = E5EF69F41D6B931500A2A660 /* SLDOperators.h */; };
+		E5EF69F81D6B931500A2A660 /* SLDSymbolizers.h in Headers */ = {isa = PBXBuildFile; fileRef = E5EF69F51D6B931500A2A660 /* SLDSymbolizers.h */; };
+		E5EF69FD1D6B938800A2A660 /* SLDExpressions.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EF69FA1D6B938800A2A660 /* SLDExpressions.m */; };
+		E5EF69FE1D6B938800A2A660 /* SLDOperators.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EF69FB1D6B938800A2A660 /* SLDOperators.m */; };
+		E5EF69FF1D6B938800A2A660 /* SLDSymbolizers.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EF69FC1D6B938800A2A660 /* SLDSymbolizers.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -947,6 +955,14 @@
 		2BE53AC61D249E1500B60FAD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDStyleSet.h; sourceTree = "<group>"; };
 		E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDStyleSet.m; sourceTree = "<group>"; };
+		E5EB67AA1D6DD19700FB3679 /* SLDWellKnownMarkers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDWellKnownMarkers.m; sourceTree = "<group>"; };
+		E5EB67AD1D6DD1C000FB3679 /* SLDWellKnownMarkers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDWellKnownMarkers.h; sourceTree = "<group>"; };
+		E5EF69F31D6B931500A2A660 /* SLDExpressions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDExpressions.h; sourceTree = "<group>"; };
+		E5EF69F41D6B931500A2A660 /* SLDOperators.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDOperators.h; sourceTree = "<group>"; };
+		E5EF69F51D6B931500A2A660 /* SLDSymbolizers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDSymbolizers.h; sourceTree = "<group>"; };
+		E5EF69FA1D6B938800A2A660 /* SLDExpressions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDExpressions.m; sourceTree = "<group>"; };
+		E5EF69FB1D6B938800A2A660 /* SLDOperators.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDOperators.m; sourceTree = "<group>"; };
+		E5EF69FC1D6B938800A2A660 /* SLDSymbolizers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDSymbolizers.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1165,6 +1181,10 @@
 				2BE537941D249A1200B60FAD /* MapnikStyleSet.h */,
 				2BE537951D249A1200B60FAD /* vector_tile.pb.h */,
 				E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */,
+				E5EF69F31D6B931500A2A660 /* SLDExpressions.h */,
+				E5EF69F41D6B931500A2A660 /* SLDOperators.h */,
+				E5EF69F51D6B931500A2A660 /* SLDSymbolizers.h */,
+				E5EB67AD1D6DD1C000FB3679 /* SLDWellKnownMarkers.h */,
 			);
 			path = vector_tiles;
 			sourceTree = "<group>";
@@ -1273,6 +1293,10 @@
 				2BE537EF1D249A1200B60FAD /* MapnikStyleSet.m */,
 				2BE537F01D249A1200B60FAD /* vector_tile.pb.cpp */,
 				E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */,
+				E5EF69FA1D6B938800A2A660 /* SLDExpressions.m */,
+				E5EF69FB1D6B938800A2A660 /* SLDOperators.m */,
+				E5EF69FC1D6B938800A2A660 /* SLDSymbolizers.m */,
+				E5EB67AA1D6DD19700FB3679 /* SLDWellKnownMarkers.m */,
 			);
 			path = vector_tiles;
 			sourceTree = "<group>";
@@ -1609,6 +1633,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5EF69F61D6B931500A2A660 /* SLDExpressions.h in Headers */,
 				2BE5395E1D249BEF00B60FAD /* AAEquationOfTime.h in Headers */,
 				2BE5397C1D249BEF00B60FAD /* AAPlanetaryPhenomena.h in Headers */,
 				2BE538271D249A1200B60FAD /* MaplyStarsModel.h in Headers */,
@@ -1726,6 +1751,7 @@
 				2BE5396B1D249BEF00B60FAD /* AAMoonIlluminatedFraction.h in Headers */,
 				2BE539FA1D249C2900B60FAD /* descriptor.h in Headers */,
 				2BE5396C1D249BEF00B60FAD /* AAMoonMaxDeclinations.h in Headers */,
+				E5EF69F71D6B931500A2A660 /* SLDOperators.h in Headers */,
 				2BE5380E1D249A1200B60FAD /* MaplyImageTile.h in Headers */,
 				2BE5397F1D249BEF00B60FAD /* AAPrecession.h in Headers */,
 				2BE538321D249A1200B60FAD /* MaplyViewTracker.h in Headers */,
@@ -1799,6 +1825,7 @@
 				2BE538371D249A1200B60FAD /* MaplyActiveObject_private.h in Headers */,
 				2BE538641D249A1200B60FAD /* MaplyVectorStyle.h in Headers */,
 				2BE538281D249A1200B60FAD /* MaplySticker.h in Headers */,
+				E5EF69F81D6B931500A2A660 /* SLDSymbolizers.h in Headers */,
 				2BE53A831D249C7E00B60FAD /* DDXMLPrivate.h in Headers */,
 				2BE538691D249A1200B60FAD /* MaplyVectorTiles.h in Headers */,
 				2BE5383A1D249A1200B60FAD /* MaplyBaseViewController_private.h in Headers */,
@@ -1857,6 +1884,7 @@
 				2BE53A6E1D249C4600B60FAD /* atomicops_internals_x86_msvc.h in Headers */,
 				2BE538021D249A1200B60FAD /* MaplyCluster.h in Headers */,
 				2BE539861D249BEF00B60FAD /* AAStellarMagnitudes.h in Headers */,
+				E5EB67AE1D6DD1C000FB3679 /* SLDWellKnownMarkers.h in Headers */,
 				2BE5395A1D249BEF00B60FAD /* AAEclipses.h in Headers */,
 				2BE539FF1D249C2900B60FAD /* descriptor_database.h in Headers */,
 				2BE539561D249BEF00B60FAD /* AADiameters.h in Headers */,
@@ -1994,6 +2022,7 @@
 				2BE5398B1D249BEF00B60FAD /* AAAberration.cpp in Sources */,
 				2BE5399D1D249BEF00B60FAD /* AAIlluminatedFraction.cpp in Sources */,
 				2BE539B91D249BEF00B60FAD /* AAPrecession.cpp in Sources */,
+				E5EF69FF1D6B938800A2A660 /* SLDSymbolizers.m in Sources */,
 				2BE539F51D249C2900B60FAD /* arena.cc in Sources */,
 				2BE53A341D249C3D00B60FAD /* coded_stream.cc in Sources */,
 				2BE5388E1D249A1200B60FAD /* MaplyMBTileSource.mm in Sources */,
@@ -2085,6 +2114,7 @@
 				2BE538CD1D249A1200B60FAD /* WhirlyGlobeViewController.mm in Sources */,
 				2BE53A371D249C3D00B60FAD /* gzip_stream.cc in Sources */,
 				2BE538831D249A1200B60FAD /* MaplyElevationSource.mm in Sources */,
+				E5EF69FD1D6B938800A2A660 /* SLDExpressions.m in Sources */,
 				2BE5389B1D249A1200B60FAD /* MaplyScreenLabel.m in Sources */,
 				2BE539911D249BEF00B60FAD /* AADynamicalTime.cpp in Sources */,
 				2BE538951D249A1200B60FAD /* MaplyQuadImageOfflineLayer.mm in Sources */,
@@ -2135,9 +2165,11 @@
 				2BE538A91D249A1200B60FAD /* MaplyUpdateLayer.mm in Sources */,
 				2BE5387C1D249A1200B60FAD /* MaplyBlankTileSource.m in Sources */,
 				2BE53A0C1D249C2900B60FAD /* message_lite.cc in Sources */,
+				E5EB67AB1D6DD19700FB3679 /* SLDWellKnownMarkers.m in Sources */,
 				2BE538C61D249A1200B60FAD /* MapnikStyleRule.m in Sources */,
 				2BE538881D249A1200B60FAD /* MaplyImageTile.mm in Sources */,
 				2BE53A021D249C2900B60FAD /* extension_set.cc in Sources */,
+				E5EF69FE1D6B938800A2A660 /* SLDOperators.m in Sources */,
 				2BE538B81D249A1200B60FAD /* MapboxVectorStyleLine.mm in Sources */,
 				2BE538CB1D249A1200B60FAD /* WGSphericalEarthWithTexGroup.mm in Sources */,
 				2BE5389A1D249A1200B60FAD /* MaplyRemoteTileSource.mm in Sources */,
