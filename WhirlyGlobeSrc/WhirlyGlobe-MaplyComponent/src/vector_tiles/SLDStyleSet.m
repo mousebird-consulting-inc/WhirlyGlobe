@@ -3,10 +3,13 @@
 //  SLDTest
 //
 //  Created by Ranen Ghosh on 2016-08-12.
-//  Copyright © 2016 Ranen Ghosh. All rights reserved.
+//  Copyright © 2016 mousebird consulting. All rights reserved.
 //
 
 #import "SLDStyleSet.h"
+#import "SLDExpressions.h"
+#import "SLDOperators.h"
+#import "SLDSymbolizers.h"
 #import "MaplyVectorTileStyle.h"
 
 
@@ -23,175 +26,8 @@
 @end
 
 @implementation SLDFilter
-@end
-
-
-
-
-
-
-@implementation SLDExpression
-+ (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    return NO;
-}
-@end
-
-
-
-
-@implementation SLDLiteralExpression
-
-- (_Nullable id)initWithElement:(DDXMLElement *)element {
-    self = [super init];
-    if (self) {
-        self.literal = [element stringValue];
-        self.expression = [NSExpression expressionForConstantValue:self.literal];
-        NSLog(@"SLDLiteralExpression %@", self.literal);
-    }
-    return self;
-}
-
-
-+ (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    return [elementName isEqualToString:@"ogc:Literal"];
-}
 
 @end
-
-@implementation SLDPropertyNameExpression
-
-- (_Nullable id)initWithElement:(DDXMLElement *)element {
-    self = [super init];
-    if (self) {
-        self.propertyName = [element stringValue];
-        self.expression = [NSExpression expressionForKeyPath:self.propertyName];
-        NSLog(@"SLDPropertyNameExpression %@", self.propertyName);
-    }
-    return self;
-}
-
-
-+ (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    return [elementName isEqualToString:@"ogc:PropertyName"];
-}
-
-@end
-
-
-
-@implementation SLDOperator
-+ (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    return NO;
-}
-@end
-
-@implementation SLDBinaryComparisonOperator
-
-- (_Nullable id)initWithElement:(DDXMLElement *)element {
-    self = [super init];
-    if (self) {
-        self.elementName = [element name];
-        DDXMLNode *matchCaseNode = [element attributeForName:@"matchCase"];
-        if (matchCaseNode)
-            self.matchCase = ([[matchCaseNode stringValue] isEqualToString:@"true"]);
-        else
-            self.matchCase = YES;
-
-        NSMutableArray<SLDExpression *> *expressions = [NSMutableArray array];
-        for (DDXMLNode *child in [element children]) {
-            NSString *childName = [child name];
-            if ([SLDPropertyNameExpression matchesElementNamed:childName])
-                [expressions addObject:[[SLDPropertyNameExpression alloc] initWithElement:(DDXMLElement *)child]];
-            else if ([SLDLiteralExpression matchesElementNamed:childName])
-                [expressions addObject:[[SLDLiteralExpression alloc] initWithElement:(DDXMLElement *)child]];
-        }
-        if (expressions.count != 2)
-            return nil;
-        self.leftExpression = expressions[0];
-        self.rightExpression = expressions[1];
-        
-        NSPredicateOperatorType opType;
-        if ([self.elementName isEqualToString:@"ogc:PropertyIsEqualTo"])
-            opType = NSEqualToPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"ogc:PropertyIsNotEqualTo"])
-            opType = NSNotEqualToPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"ogc:PropertyIsLessThan"])
-            opType = NSLessThanPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"ogc:PropertyIsGreaterThan"])
-            opType = NSGreaterThanPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"ogc:PropertyIsLessThanOrEqualTo"])
-            opType = NSLessThanOrEqualToPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"ogc:PropertyIsGreaterThanOrEqualTo"])
-            opType = NSGreaterThanOrEqualToPredicateOperatorType;
-        else
-            return nil;
-        
-        NSComparisonPredicateOptions predOptions = 0;
-        if (!self.matchCase)
-            predOptions = NSCaseInsensitivePredicateOption;
-        
-        self.predicate = [NSComparisonPredicate predicateWithLeftExpression:self.leftExpression.expression rightExpression:self.rightExpression.expression modifier:0 type:opType options:predOptions];
-        
-        
-    }
-    return self;
-}
-
-
-+ (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    static NSSet *set;
-    if (!set)
-        set = [NSSet setWithArray:@[@"ogc:PropertyIsEqualTo", @"ogc:PropertyIsNotEqualTo", @"ogc:PropertyIsLessThan", @"ogc:PropertyIsGreaterThan", @"ogc:PropertyIsLessThanOrEqualTo", @"ogc:PropertyIsGreaterThanOrEqualTo"]];
-    return [set containsObject:elementName];
-}
-
-@end
-
-
-@implementation SLDLogicalOperator
-
-
-- (_Nullable id)initWithElement:(DDXMLElement *)element {
-    self = [super init];
-    if (self) {
-        self.elementName = [element name];
-        NSMutableArray<SLDOperator *> *subOperators = [NSMutableArray array];
-        
-        for (DDXMLNode *child in [element children]) {
-            NSString *childName = [child name];
-            if ([SLDLogicalOperator matchesElementNamed:childName])
-                [subOperators addObject:[[SLDLogicalOperator alloc] initWithElement:(DDXMLElement *)child]];
-            else if ([SLDBinaryComparisonOperator matchesElementNamed:childName])
-                [subOperators addObject:[[SLDBinaryComparisonOperator alloc] initWithElement:(DDXMLElement *)child]];
-        }
-        self.subOperators = subOperators;
-        
-        NSMutableArray <NSPredicate *> *subPredicates = [NSMutableArray array];
-        for (SLDOperator *subOperator in self.subOperators) {
-            [subPredicates addObject:subOperator.predicate];
-        }
-        
-        if ([self.elementName isEqualToString:@"ogc:And"])
-            self.predicate = [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
-        else if ([self.elementName isEqualToString:@"ogc:Or"])
-            self.predicate = [NSCompoundPredicate orPredicateWithSubpredicates:subPredicates];
-        else
-            return nil;
-    }
-    return self;
-}
-
-
-+ (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    return ([elementName isEqualToString:@"ogc:And"] || [elementName isEqualToString:@"ogc:Or"]);
-}
-
-@end
-
-
-
-
-
 
 
 @interface SLDStyleSet () {
@@ -243,12 +79,6 @@
     
     return [self loadSldData:[[NSData alloc] initWithContentsOfFile:fullPath]];
 }
-
-
-
-
-
-
 
 
 
@@ -406,86 +236,43 @@
     
     for (DDXMLNode *child in [ruleNode children]) {
         NSString *name = [child name];
-        if ([name isEqualToString:@"se:LineSymbolizer"]) {
-            DDXMLElement *strokeNode = (DDXMLElement *)[self getSingleNodeForNode:child xpath:@"se:Stroke" error:&error];
-            if (strokeNode) {
-                NSMutableDictionary *strokeParams = [NSMutableDictionary dictionary];
-                for (DDXMLElement *paramNode in [strokeNode elementsForName:@"se:SvgParameter"]) {
-                    DDXMLNode *nameNode = [paramNode attributeForName:@"name"];
-                    if (!nameNode)
-                        continue;
-                    NSString *paramName = [nameNode stringValue];
-                    strokeParams[paramName] = [paramNode stringValue];
-                }
-                
-                MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": @"LineSymbolizer", @"substyles": @[strokeParams]}
-                                                                           settings:self.tileStyleSettings
-                                                                              viewC:self.viewC];
-                
-                if (s) {
-                    s.uuid = @(symbolizerId);
-                    self.symbolizers[s.uuid] = s;
-                    symbolizerId += 1;
-                    [rule.symbolizers addObject:s];
-                }
-                
+        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:child tileStyleSettings:self.tileStyleSettings viewC:self.viewC];
+        
+        if (symbolizers) {
+                for (MaplyVectorTileStyle * symbolizer in symbolizers) {
+                symbolizer.uuid = @(symbolizerId);
+                self.symbolizers[@(symbolizerId)] = symbolizer;
+                symbolizerId += 1;
+                [rule.symbolizers addObject:symbolizer];
             }
-            
-        } else if ([name isEqualToString:@"PolygonSymbolizer"]) {
-        } else if ([name isEqualToString:@"PointSymbolizer"]) {
-        } else if ([name isEqualToString:@"TextSymbolizer"]) {
-        } else if ([name isEqualToString:@"RasterSymbolizer"]) {
         }
+        
+        
+
     }
 }
 
 
-
-
 - (SLDFilter *)loadFilterNode:(DDXMLElement *)filterNode {
     
-    NSError *error;
     NSLog(@"loadFilterNode");
     SLDFilter *filter = [[SLDFilter alloc] init];
     
     for (DDXMLNode *child in [filterNode children]) {
-        NSString *childName = [child name];
-        if ([SLDLogicalOperator matchesElementNamed:childName]) {
-            filter.operator = [[SLDLogicalOperator alloc] initWithElement:(DDXMLElement *)child];
-            break;
-        }
-        else if ([SLDBinaryComparisonOperator matchesElementNamed:childName]) {
-            filter.operator = [[SLDBinaryComparisonOperator alloc] initWithElement:(DDXMLElement *)child];
+        SLDOperator *operator = [SLDOperator operatorForNode:child];
+        if (operator) {
+            filter.operator = operator;
             break;
         }
         else
-            NSLog(@"unmatched %@", childName);
+            NSLog(@"unmatched %@", [child name]);
     }
-    
-    //test code
-//    if (filter.operator) {
-//        NSDictionary *d = @{@"highway" : @"residential"};
-//        NSLog(@"eval: %i", [filter.operator.predicate evaluateWithObject:d]);
-//    }
 
     return filter;
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-- (void)generateStyles {
-    
-}
 
 #pragma mark - MaplyVectorStyleDelegate
 
@@ -536,8 +323,9 @@
                         }
                     }
                 }
-                if (matched)
+                if (matched) {
                     [styles addObjectsFromArray:rule.symbolizers];
+                }
             }
         }
     }

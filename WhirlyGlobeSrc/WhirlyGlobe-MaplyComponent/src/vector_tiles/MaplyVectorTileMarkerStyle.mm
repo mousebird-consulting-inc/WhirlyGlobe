@@ -77,12 +77,17 @@
             fileName = styleEntry[@"file"];
         if (subStyle->fillColor && !subStyle->strokeColor)
             subStyle->strokeColor = [UIColor blackColor];
+        UIImage *image;
+        if (styleEntry[@"image"])
+            image = styleEntry[@"image"];
         
         subStyle->desc = [NSMutableDictionary dictionary];
         subStyle->desc[kMaplyEnable] = @NO;
         [self resolveVisibility:styleEntry settings:settings desc:subStyle->desc];
       
-        if(!fileName || [fileName rangeOfString:@"["].location == NSNotFound)
+        if (image)
+            subStyle->markerImage = image;
+        else if (!fileName || [fileName rangeOfString:@"["].location == NSNotFound)
         {
             if(fileName && settings.iconDirectory)
             {
