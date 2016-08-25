@@ -94,7 +94,7 @@ public class ShapesSphereThreadAdapter {
         ShapeSphere newShape;
         for (int ii = 0; ii < numShapes; ii++) {
             newShape = new ShapeSphere();
-            newShape.setLoc(new Point2d(locations.get(ii).x, locations.get(ii).y));
+            newShape.setLoc(Point2d.FromDegrees(locations.get(ii).y, locations.get(ii).x));
             newShape.setRadius(0.04f);
             newShape.setSelectable(true);
             shapes.add(newShape);

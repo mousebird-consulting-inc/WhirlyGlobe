@@ -377,6 +377,29 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorObject_linearMiddle
     return 0.0;
 }
 
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_pointInside
+(JNIEnv *env, jobject obj, jobject ptObj)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
+        VectorObject *vecObj = classInfo->getObject(env,obj);
+        Point2d *pt = pt2dClassInfo->getObject(env,ptObj);
+        if (!vecObj || !pt)
+            return false;
+        
+        return vecObj->pointInside(*pt);
+
+        return false;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::pointInside()");
+    }
+    
+    return false;
+}
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_readFromFile
   (JNIEnv *env, jobject obj, jstring fileNameStr)

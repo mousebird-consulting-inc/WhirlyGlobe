@@ -209,7 +209,28 @@ bool VectorObject::linearMiddle(Point2f &middle,float &rot)
     
     return true;
 }
-
+    
+bool VectorObject::pointInside(const Point2d &pt)
+{
+    for (ShapeSet::iterator it = shapes.begin();it != shapes.end();++it)
+    {
+        VectorArealRef areal = std::dynamic_pointer_cast<VectorAreal>(*it);
+        if (areal)
+        {
+            if (areal->pointInside(GeoCoord(pt.x(),pt.y())))
+                return true;
+        } else {
+            VectorTrianglesRef tris = std::dynamic_pointer_cast<VectorTriangles>(*it);
+            if (tris)
+            {
+                if (tris->pointInside(GeoCoord(pt.x(),pt.y())))
+                    return true;
+            }
+        }
+    }
+    
+    return false;
+}
     
 bool VectorObject::fromFile(const std::string &fileName)
 {
