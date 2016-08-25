@@ -113,26 +113,16 @@
     }
 }
 
-/** @brief Convenience method to get a single child node matching the xpath expression, or else return nil.
+/** @brief Gets a single node for the provided element name.
  */
-- (DDXMLNode *)getSingleNodeForNode:(DDXMLNode *)node xpath:(NSString *)xpath error:(NSError **)error {
-    NSArray *nodes = [node nodesForXPath:xpath error:error];
-    if (nodes && nodes.count == 1)
-        return nodes[0];
-    return nil;
-}
-
-/** @brief Gets a single node for the provided element name, matching one of the provided XML prefixes.
- */
-- (DDXMLNode *)getSingleChildNodeForNode:(DDXMLNode *)node childName:(NSString *)childName prefixes:(NSArray <NSString *> *)prefixes error:(NSError **)error {
+- (DDXMLNode *)getSingleChildNodeForNode:(DDXMLNode *)node childName:(NSString *)childName {
     
-    for (NSString *prefix in prefixes) {
-        NSString *xpath = [NSString stringWithFormat:@"%@:%@", prefix, childName];
-        
-        DDXMLNode *childNode = [self getSingleNodeForNode:node xpath:xpath error:error];
-        if (childNode)
-            return childNode;
-    }
+    if (node.kind != DDXMLElementKind)
+        return nil;
+    DDXMLElement *element = (DDXMLElement *)node;
+    NSArray *matches = [element elementsForName:childName];
+    if (matches && matches.count == 1)
+        return matches[0];
     return nil;
 }
 
@@ -150,7 +140,7 @@
     //DDXMLNode *nameNode = [self getSingleNodeForNode:namedLayerNode xpath:@"se:Name" error:&error];
     
     // The prefix is "se" in v1.1.0 but "sld" in v1.0.0.
-    DDXMLNode *nameNode = [self getSingleChildNodeForNode:namedLayerNode childName:@"Name" prefixes:@[@"se", @"sld"] error:&error];
+    DDXMLNode *nameNode = [self getSingleChildNodeForNode:namedLayerNode childName:@"Name"];
     
     if (!nameNode) {
         NSLog(@"Error: NamedLayer is missing Name element");
@@ -185,7 +175,7 @@
     SLDUserStyle *sldUserStyle = [[SLDUserStyle alloc] init];
     // The prefix is "se" in v1.1.0 but "sld" in v1.0.0.
 
-    DDXMLNode *nameNode = [self getSingleChildNodeForNode:userStyleNode childName:@"Name" prefixes:@[@"se", @"sld"] error:&error];
+    DDXMLNode *nameNode = [self getSingleChildNodeForNode:userStyleNode childName:@"Name"];
     
     if (nameNode)
         sldUserStyle.name = [nameNode stringValue];
@@ -259,10 +249,13 @@
     
     NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
     
-    DDXMLNode *minScaleNode = [self getSingleNodeForNode:ruleNode xpath:@"MinScaleDenominator" error:&error];
+//    DDXMLNode *minScaleNode = [self getSingleNodeForNode:ruleNode xpath:@"MinScaleDenominator" error:&error];
+    DDXMLNode *minScaleNode = [self getSingleChildNodeForNode:ruleNode childName:@"MinScaleDenominator"];
     if (minScaleNode)
         rule.minScaleDenominator = [nf numberFromString:[minScaleNode stringValue]];
-    DDXMLNode *maxScaleNode = [self getSingleNodeForNode:ruleNode xpath:@"MaxScaleDenominator" error:&error];
+//    DDXMLNode *maxScaleNode = [self getSingleNodeForNode:ruleNode xpath:@"MaxScaleDenominator" error:&error];
+    DDXMLNode *maxScaleNode = [self getSingleChildNodeForNode:ruleNode childName:@"MaxScaleDenominator"];
+
     if (maxScaleNode)
         rule.maxScaleDenominator = [nf numberFromString:[maxScaleNode stringValue]];
 
