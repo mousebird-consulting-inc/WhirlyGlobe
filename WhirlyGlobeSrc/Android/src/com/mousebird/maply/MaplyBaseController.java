@@ -1914,6 +1914,12 @@ public class MaplyBaseController
 				if (scene != null)
 					changes.process(scene);
 
+				for (Shape shape : shapes)
+					if (shape.isSelectable())
+					{
+						addSelectableObject(shape.getSelectID(), shape, compObj);
+					}
+
 				if (shapeInfo.disposeAfterUse || disposeAfterRemoval)
 					for (Shape shape : shapes)
 						shape.dispose();
