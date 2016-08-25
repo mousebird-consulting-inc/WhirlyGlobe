@@ -43,7 +43,8 @@
 
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    return [elementName isEqualToString:@"ogc:Literal"];
+    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
+    return [stripped isEqualToString:@"Literal"];
 }
 
 @end
@@ -62,7 +63,8 @@
 
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    return [elementName isEqualToString:@"ogc:PropertyName"];
+    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
+    return [stripped isEqualToString:@"PropertyName"];
 }
 
 @end
@@ -73,7 +75,7 @@
 - (_Nullable id)initWithElement:(DDXMLElement *)element {
     self = [super init];
     if (self) {
-        self.elementName = [element name];
+        self.elementName = [[[element name] componentsSeparatedByString:@":"] lastObject];;
         
         NSMutableArray<SLDExpression *> *expressions = [NSMutableArray array];
         for (DDXMLNode *child in [element children]) {
@@ -89,13 +91,13 @@
         NSString *funcExpression;
         
         
-        if ([self.elementName isEqualToString:@"ogc:Add"])
+        if ([self.elementName isEqualToString:@"Add"])
             funcExpression = @"add:to:";
-        else if ([self.elementName isEqualToString:@"ogc:Sub"])
+        else if ([self.elementName isEqualToString:@"Sub"])
             funcExpression = @"from:subtract:";
-        else if ([self.elementName isEqualToString:@"ogc:Mul"])
+        else if ([self.elementName isEqualToString:@"Mul"])
             funcExpression = @"multiply:by:";
-        else if ([self.elementName isEqualToString:@"ogc:Div"])
+        else if ([self.elementName isEqualToString:@"Div"])
             funcExpression = @"divide:by:";
         else
             return nil;
@@ -111,10 +113,11 @@
 }
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
+    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
     static NSSet *set;
     if (!set)
-        set = [NSSet setWithArray:@[@"ogc:Add", @"ogc:Sub", @"ogc:Mul", @"ogc:Div"]];
-    return [set containsObject:elementName];
+        set = [NSSet setWithArray:@[@"Add", @"Sub", @"Mul", @"Div"]];
+    return [set containsObject:stripped];
 }
 
 @end
