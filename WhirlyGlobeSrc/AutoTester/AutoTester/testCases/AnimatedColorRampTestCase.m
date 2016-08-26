@@ -7,7 +7,7 @@
 //
 
 #import "AnimatedColorRampTestCase.h"
-#import "GeographyClassTestCase.h"
+#import "CartoDBLightTestCase.h"
 #import <WhirlyGlobeComponent.h>
 
 // Note: Rather than copying the shader code in here, we should have a way to look it up
@@ -47,7 +47,7 @@ static NSString *fragmentShaderTriMultiTexRamp =
 "  float baseVal0 = texture2D(s_baseMap0, v_texCoord).a;\n"
 "  float baseVal1 = texture2D(s_baseMap1, v_texCoord).a;\n"
 "  float index = mix(baseVal0,baseVal1,u_interp);\n"
-"  gl_FragColor = texture2D(s_colorRamp,vec2(index,0.5));\n"
+"  gl_FragColor = texture2D(s_colorRamp,vec2(index,0.5)) * v_color;\n"
 "}\n"
 ;
 
@@ -81,7 +81,7 @@ static NSString *fragmentShaderTriMultiTexCubicRamp =
 "  float baseVal0 = texture2D(s_baseMap0, v_texCoord).a;\n"
 "  float baseVal1 = texture2D(s_baseMap1, v_texCoord).a;\n"
 "  float index = mix(baseVal0,baseVal1,u_interp);\n"
-"  gl_FragColor = texture2D(s_colorRamp,vec2(index,0.5));\n"
+"  gl_FragColor = texture2D(s_colorRamp,vec2(index,0.5)) * v_color;\n"
 "}\n"
 ;
 
@@ -127,13 +127,14 @@ static NSString *fragmentShaderTriMultiTexCubicRamp =
     precipLayer.handleEdges = false;
     precipLayer.coverPoles = false;
     precipLayer.shaderProgramName = shader.name;
+    precipLayer.color = [UIColor colorWithWhite:0.5 alpha:0.5];
 
     [viewC addLayer:precipLayer];
 }
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    GeographyClassTestCase *baseView = [[GeographyClassTestCase alloc]init];
+    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc]init];
     [baseView setUpWithGlobe:globeVC];
     [self setupWeatherLayer:globeVC];
 }
@@ -141,7 +142,7 @@ static NSString *fragmentShaderTriMultiTexCubicRamp =
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    GeographyClassTestCase *baseView = [[GeographyClassTestCase alloc]init];
+    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc]init];
     [baseView setUpWithMap:mapVC];
     [self setupWeatherLayer:mapVC];
 }
