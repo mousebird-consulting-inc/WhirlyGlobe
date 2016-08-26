@@ -93,6 +93,8 @@
         NSString *paramName = [nameNode stringValue];
         params[paramName] = [paramNode stringValue];
     }
+    if (params.count == 0)
+        return nil;
     return params;
 }
 
@@ -108,6 +110,8 @@
         NSString *paramName = [nameNode stringValue];
         params[paramName] = [paramNode stringValue];
     }
+    if (params.count == 0)
+        return nil;
     return params;
 }
 
