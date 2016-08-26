@@ -139,7 +139,6 @@
     //DDXMLNode *nameNode = [self getSingleNodeForNode:namedLayerNode xpath:[NSString stringWithFormat:@"%@:%@", @"se", @"Name"] error:&error];
     //DDXMLNode *nameNode = [self getSingleNodeForNode:namedLayerNode xpath:@"se:Name" error:&error];
     
-    // The prefix is "se" in v1.1.0 but "sld" in v1.0.0.
     DDXMLNode *nameNode = [self getSingleChildNodeForNode:namedLayerNode childName:@"Name"];
     
     if (!nameNode) {
@@ -173,7 +172,6 @@
     NSError *error;
     NSLog(@"loadUserStyleNode");
     SLDUserStyle *sldUserStyle = [[SLDUserStyle alloc] init];
-    // The prefix is "se" in v1.1.0 but "sld" in v1.0.0.
 
     DDXMLNode *nameNode = [self getSingleChildNodeForNode:userStyleNode childName:@"Name"];
     
@@ -249,13 +247,11 @@
     
     NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
     
-//    DDXMLNode *minScaleNode = [self getSingleNodeForNode:ruleNode xpath:@"MinScaleDenominator" error:&error];
     DDXMLNode *minScaleNode = [self getSingleChildNodeForNode:ruleNode childName:@"MinScaleDenominator"];
     if (minScaleNode)
         rule.minScaleDenominator = [nf numberFromString:[minScaleNode stringValue]];
-//    DDXMLNode *maxScaleNode = [self getSingleNodeForNode:ruleNode xpath:@"MaxScaleDenominator" error:&error];
-    DDXMLNode *maxScaleNode = [self getSingleChildNodeForNode:ruleNode childName:@"MaxScaleDenominator"];
 
+    DDXMLNode *maxScaleNode = [self getSingleChildNodeForNode:ruleNode childName:@"MaxScaleDenominator"];
     if (maxScaleNode)
         rule.maxScaleDenominator = [nf numberFromString:[maxScaleNode stringValue]];
 
@@ -321,6 +317,7 @@
                                              inLayer:(NSString *__nonnull)layer
                                                viewC:(MaplyBaseViewController *__nonnull)viewC {
     
+    
     if (self.useLayerNames) {
         SLDNamedLayer *namedLayer = _namedLayers[layer];
         if (!namedLayer)
@@ -330,7 +327,7 @@
     } else {
         for (SLDNamedLayer *namedLayer in [_namedLayers allValues]) {
             NSArray *styles = [self stylesForFeatureWithAttributes:attributes onTile:tileID inNamedLayer:namedLayer viewC:viewC];
-            if (styles)
+            if (styles && styles.count > 0)
                 return styles;
         }
     }
