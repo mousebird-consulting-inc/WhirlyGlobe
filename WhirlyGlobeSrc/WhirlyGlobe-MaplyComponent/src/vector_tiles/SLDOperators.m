@@ -31,7 +31,7 @@
 - (_Nullable id)initWithElement:(DDXMLElement *)element {
     self = [super init];
     if (self) {
-        self.elementName = [element name];
+        self.elementName = [[[element name] componentsSeparatedByString:@":"] lastObject];
         DDXMLNode *matchCaseNode = [element attributeForName:@"matchCase"];
         if (matchCaseNode)
             self.matchCase = ([[matchCaseNode stringValue] isEqualToString:@"true"]);
@@ -50,17 +50,17 @@
         self.rightExpression = expressions[1];
         
         NSPredicateOperatorType opType;
-        if ([self.elementName isEqualToString:@"ogc:PropertyIsEqualTo"])
+        if ([self.elementName isEqualToString:@"PropertyIsEqualTo"])
             opType = NSEqualToPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"ogc:PropertyIsNotEqualTo"])
+        else if ([self.elementName isEqualToString:@"PropertyIsNotEqualTo"])
             opType = NSNotEqualToPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"ogc:PropertyIsLessThan"])
+        else if ([self.elementName isEqualToString:@"PropertyIsLessThan"])
             opType = NSLessThanPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"ogc:PropertyIsGreaterThan"])
+        else if ([self.elementName isEqualToString:@"PropertyIsGreaterThan"])
             opType = NSGreaterThanPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"ogc:PropertyIsLessThanOrEqualTo"])
+        else if ([self.elementName isEqualToString:@"PropertyIsLessThanOrEqualTo"])
             opType = NSLessThanOrEqualToPredicateOperatorType;
-        else if ([self.elementName isEqualToString:@"ogc:PropertyIsGreaterThanOrEqualTo"])
+        else if ([self.elementName isEqualToString:@"PropertyIsGreaterThanOrEqualTo"])
             opType = NSGreaterThanOrEqualToPredicateOperatorType;
         else
             return nil;
@@ -78,10 +78,11 @@
 
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
+    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
     static NSSet *set;
     if (!set)
-        set = [NSSet setWithArray:@[@"ogc:PropertyIsEqualTo", @"ogc:PropertyIsNotEqualTo", @"ogc:PropertyIsLessThan", @"ogc:PropertyIsGreaterThan", @"ogc:PropertyIsLessThanOrEqualTo", @"ogc:PropertyIsGreaterThanOrEqualTo"]];
-    return [set containsObject:elementName];
+        set = [NSSet setWithArray:@[@"PropertyIsEqualTo", @"PropertyIsNotEqualTo", @"PropertyIsLessThan", @"PropertyIsGreaterThan", @"PropertyIsLessThanOrEqualTo", @"PropertyIsGreaterThanOrEqualTo"]];
+    return [set containsObject:stripped];
 }
 
 @end
@@ -112,7 +113,8 @@
 }
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    return [elementName isEqualToString:@"ogc:Not"];
+    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
+    return [stripped isEqualToString:@"Not"];
 }
 
 @end
@@ -124,7 +126,7 @@
 - (_Nullable id)initWithElement:(DDXMLElement *)element {
     self = [super init];
     if (self) {
-        self.elementName = [element name];
+        self.elementName = [[[element name] componentsSeparatedByString:@":"] lastObject];
         NSMutableArray<SLDOperator *> *subOperators = [NSMutableArray array];
         
         for (DDXMLNode *child in [element children]) {
@@ -139,9 +141,9 @@
             [subPredicates addObject:subOperator.predicate];
         }
         
-        if ([self.elementName isEqualToString:@"ogc:And"])
+        if ([self.elementName isEqualToString:@"And"])
             self.predicate = [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
-        else if ([self.elementName isEqualToString:@"ogc:Or"])
+        else if ([self.elementName isEqualToString:@"Or"])
             self.predicate = [NSCompoundPredicate orPredicateWithSubpredicates:subPredicates];
         else
             return nil;
@@ -151,7 +153,8 @@
 
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    return ([elementName isEqualToString:@"ogc:And"] || [elementName isEqualToString:@"ogc:Or"]);
+    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
+    return ([stripped isEqualToString:@"And"] || [stripped isEqualToString:@"Or"]);
 }
 
 @end
