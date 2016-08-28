@@ -79,3 +79,41 @@ public void userDidSelect(MapController mapControl, SelectedObject[] selObjs, Po
 ```
 
 ![Vector Selection](resources/vector-selection.png)
+
+### Draw Vector as Selected
+
+Now that we can programatically get a vector object that has been selected, we might want to redraw that vector on the map in a way that indicates that it has been selected. To do this, we take the selected vector object and re-add it to our map controller with a different color and higher draw priority.
+
+Create the [following method](https://github.com/mousebird/AndroidTutorialProject/blob/edd635806ffe7f62039fb40f3fdef3c8c5d1becd/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L299-L308) in `HelloMapFragment`:
+
+```java
+public void drawVectorObjectAsSelected(VectorObject vectorObject) {
+    if (selectedComponentObject != null) {
+        mapControl.removeObject(selectedComponentObject, MaplyBaseController.ThreadMode.ThreadAny);
+    }
+    VectorInfo vectorInfo = new VectorInfo();
+    vectorInfo.setColor(Color.argb(255,255,140,0)); // Gold
+    vectorInfo.setLineWidth(10.f);
+    vectorInfo.setDrawPriority(Integer.MAX_VALUE); // Make sure it draws on top of unselected vector
+    selectedComponentObject = mapControl.addVector(vectorObject, vectorInfo, MaplyBaseController.ThreadMode.ThreadAny);
+}
+```
+
+This method is to be called in `userDidSelect` when we are [handling](https://github.com/mousebird/AndroidTutorialProject/blob/edd635806ffe7f62039fb40f3fdef3c8c5d1becd/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L286) a selected `VectorObject`.
+
+```java
+// GeoJSON
+if (obj.selObj instanceof VectorObject) {
+    VectorObject vectorObject = (VectorObject) obj.selObj;
+    AttrDictionary attributes = vectorObject.getAttributes();
+    String adminName = attributes.getString("ADMIN");
+    msg += "\nVector Object: " + adminName;
+    drawVectorObjectAsSelected(vectorObject);
+}
+```
+
+Lastly, make sure you have a class member `ComponentObject selectedComponentObject;`. Whenever a selection is made, we check to see if there was a previous selection and remove it from the map controller.
+
+Now, when a user taps on Russia, it should have a golden border instead of red.
+
+![Golden Russia](resources/golden-russia.png)

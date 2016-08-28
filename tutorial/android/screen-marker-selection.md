@@ -106,4 +106,42 @@ public void userDidSelect(MapController mapControl, SelectedObject[] selObjs,
 
 Notice that when you tap on a marker, two geographic features are selected. That is because the marker is on top of the Russia GeoJSON polygon. When a user taps on a map or globe, all of the features that intersect with the tap are selected. You are then given an array of the selected objects from what you can do as you choose.
 
+### Draw Marker as Selected
+
+We might want to draw a new icon for a marker to show that it has been selected. Though _slightly_ contrived, we're going to replace the city icon with the app's launcher icon. You can use this technique to replace your icons with something else when selected.
+
+Create the [following method](https://github.com/mousebird/AndroidTutorialProject/blob/18e6c25f8282ab0d0cb0910dacb8f5daba62fc66/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L312-L324) in `HelloMapFragment`:
+
+```java
+public void drawScreenMarkerAsSelected(ScreenMarker screenMarker) {
+    if (selectedMarkerComponent != null) {
+        mapControl.removeObject(selectedMarkerComponent, MaplyBaseController.ThreadMode.ThreadAny);
+    }
+    MarkerInfo markerInfo = new MarkerInfo();
+    markerInfo.setDrawPriority(Integer.MAX_VALUE);
+    Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.maply_ic_launcher);
+    Point2d markerSize = new Point2d(200, 200);
+    screenMarker.image = icon;
+    screenMarker.size = markerSize;
+    screenMarker.selectable = true;
+    selectedMarkerComponent= mapControl.addScreenMarker(screenMarker, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
+}
+```
+
+This method is to be called in `userDidSelect` when we are [handling](https://github.com/mousebird/AndroidTutorialProject/blob/18e6c25f8282ab0d0cb0910dacb8f5daba62fc66/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L294) a selected `ScreenMarker`. 
+
+```java
+// Screen Marker
+else if (obj.selObj instanceof ScreenMarker) {
+    ScreenMarker screenMarker = (ScreenMarker) obj.selObj;
+    MarkerProperties properties = (MarkerProperties) screenMarker.userObject;
+    msg += "\nScreen Marker: " + properties.city + ", " + properties.subject;
+    drawScreenMarkerAsSelected(screenMarker);
+}
+```
+
+We also need to have a class member `ComponentObject selectedMarkerComponent;` to keep track of previously selected markers.
+
+![Moscow Android](resources/selected-moscow-android.png)
+
 That's it, you now have the tools you need to select and get notified of selected screen markers in WhirlyGlobe--Maply!
