@@ -31,7 +31,8 @@ The super class of `HelloMapFragment` is `GlobeMapFragment`. One of the methods 
 
 ```java
 @Override
-public void userDidSelect(MapController mapControl, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc) {
+public void userDidSelect(MapController mapControl, SelectedObject[] selObjs, 
+                          Point2d loc, Point2d screenLoc) {
 
 }
 ```
@@ -40,7 +41,7 @@ This method will be called whenver a vector object is selected.
 
 ### Set Fragment as Gesture Delegate
 
-Your map controller needs to know that your `HelloMapFragment` should be notified as the gesture delegate whenever a selection occurs. In the [`controlHasStarted` method](https://github.com/mousebird/AndroidTutorialProject/blob/3318085f5192b6cf28a7294968a480006817804a/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L122), set:
+Your map controller needs to know that your `HelloMapFragment` should be notified as the gesture delegate whenever a selection occurs. In the [`controlHasStarted`](https://github.com/mousebird/AndroidTutorialProject/blob/3318085f5192b6cf28a7294968a480006817804a/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L122) method, set:
 
 ```java
 @Override
