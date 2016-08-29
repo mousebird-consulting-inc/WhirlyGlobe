@@ -13,7 +13,7 @@ WhirlyGlobe-Maply is an open source toolkit, part of the vibrant FOSS4G communit
 
 [ESRI's ArcGIS platform](http://www.esri.com/) has a huge number of freely available data sets, as well as the ability to generate your own with ESIR tools.  Here are a few examples of what we're going to build today.
 
-![Header pic]({{ site.baseurl }}/images/tutorial/ArcGIS_Header.png)
+![Header pic]({{ site.baseurl }}/images/tutorial/ArcGIS_Header.jpg)
 
 You’ll need a sample project for this tutorial. Go back and start with the [Hello Earth](http://mousebird.github.io/WhirlyGlobe/tutorial/hello_earth.html) tutorial and work thru the [CartoDB Tutorial](remote_image_layer.html).  We’ll want the vector tiling logic from that one, but if you'd rather just get started with those files, you can download them here;
 

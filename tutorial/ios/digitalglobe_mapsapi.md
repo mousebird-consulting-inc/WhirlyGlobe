@@ -133,7 +133,7 @@ theViewC!.addLayer(imageLayer)
 
 This is what the Recent Imagery with Streets layer looks like over Anchorage, Alaska.
 
-![Recent Imagery with Streets over Anchorage]({{ site.baseurl }}/images/tutorial/digitalglobe_mapsapi_1.png)
+![Recent Imagery with Streets over Anchorage]({{ site.baseurl }}/images/tutorial/digitalglobe_mapsapi_1.jpg)
 
 
 To view a different layer, simply substitute the desired Map ID.  Here we'll try the Terrain Map layer.
@@ -152,7 +152,7 @@ let mapID = "digitalglobe.nako1fhg"
 
 Here's the terrain over Grand Teton National Park in Wyoming.
 
-![Grand Teton National Park in the Terrain Map layer]({{ site.baseurl }}/images/tutorial/digitalglobe_mapsapi_2.png)
+![Grand Teton National Park in the Terrain Map layer]({{ site.baseurl }}/images/tutorial/digitalglobe_mapsapi_2.jpg)
 
 ### The Transparent Vectors Layer
 
@@ -236,7 +236,7 @@ else if let mapViewC = mapViewC {
 
 The result shows the ground elevation along every street in San Francisco.
 
-![]({{ site.baseurl }}/images/tutorial/digitalglobe_mapsapi_3.png)
+![]({{ site.baseurl }}/images/tutorial/digitalglobe_mapsapi_3.jpg)
 
 
 
