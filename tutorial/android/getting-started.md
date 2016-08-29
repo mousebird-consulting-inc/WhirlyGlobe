@@ -7,7 +7,7 @@ layout: android-tutorial
 
 ### Code Blocks
 
-There are times you’ll need to ender project settings, code, or commands in the Terminal verbatim. They will look like this.
+There are times you’ll need to enter project settings, code, or commands in the Terminal verbatim. They will look like this.
 
 {% highlight bash %}
 Enter Precisely This Text

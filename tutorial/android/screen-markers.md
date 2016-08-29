@@ -7,7 +7,7 @@ layout: android-tutorial
 
 A basic feature found in almost every mapping toolkit is the marker. Screen markers are 2D markers that follow a location on the globe or map. As the user moves, they move, but they don’t get any bigger or smaller.
 
-In our last tutorial, we the border of Russia as a GeoJSON feature on the map. Now we are going to add the [top five most populous cities in Russia](https://en.wikipedia.org/wiki/List_of_cities_and_towns_in_Russia_by_population).
+In our last tutorial, we added the border of Russia as a GeoJSON feature on the map. Now we are going to add the [top five most populous cities in Russia](https://en.wikipedia.org/wiki/List_of_cities_and_towns_in_Russia_by_population).
 
 ### Import Icon as Image Asset
 
@@ -21,7 +21,7 @@ The options to select are a bit counter-intuitive. Select in the top dropdown __
 
 ![Configure Image Asset](resources/configure-image-asset.png)
 
-### First Marker
+### First Screen Marker
 
 In your [HelloMapFragment.java](https://github.com/mousebird/AndroidTutorialProject/blob/8156d82acd42ec2c238fbe06c5658bd4cc796f5b/app/src/main/java/io/theoutpost/helloearth/HelloMapFragment.java#L115), we are going to insert our markers right after we add our GeoJSON to the map. Create a new method called `insertMarkers`.
 
@@ -52,7 +52,7 @@ private void insertMarkers() {
 }
 ```
 
-`MarkerInfo` is an options object used to configure special options for a marker, such as clustering and zoom restrictions. You specify the marker size with a `Point2d` object, and this dictates the (x, y) dimensions of the icon. In our example we gave it the exact width and height of the image supplied. However, you can change these parameters as you see fit, and the toolkit will scale the icon accordingly.
+`MarkerInfo` is an options object used to configure special options for a marker, such as clustering and zoom restrictions. You specify the marker size with a `Point2d` object, then this dictates the (x, y) dimensions of the icon. In our example we gave it the exact width and height of the image supplied. However, you can change these parameters as you see fit, and the toolkit will scale the icon accordingly.
 
 The basic properties of the object are set by assigning values to public members of the `ScreenMarker` object. Here we are setting the location, image, and marker size.
 
@@ -119,7 +119,7 @@ Here we are adding all of our markers to an `ArrayList`. Then, we add this list 
 
 You might notice that the icon for Нижний Новгород is upside down. This is because we adjusted the `rotation` property of `ScreenMarker nizhnyNovgorod`. You can rotate a marker 360°. The parameter is in radians, so you can assign any value between 0 and 2π.
 
-Lastly, `addScreenMarkers` returns a `ComponentObject` that you can keep track of. This object is your handle to the marker, vector, or other "component" object that you have added to your map controller. You can then later remove, enable, or disable your object in the controller.
+Lastly, `addScreenMarkers` returns a `ComponentObject` that you can keep track of. This object is your handle to the marker, vector, or other *component* object that you have added to your map controller. You can then later remove, enable, or disable your object in the controller.
 
 ```java
 mapControl.removeObject(markersComponentObject, MaplyBaseController.ThreadMode.ThreadAny);
