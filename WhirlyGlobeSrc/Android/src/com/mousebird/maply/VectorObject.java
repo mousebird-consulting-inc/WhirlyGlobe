@@ -53,7 +53,7 @@ public class VectorObject implements Iterable<VectorObject>
 
 	/**
 	 * Turn this on if you want the vector object to be selectable.
-	 * 
+	 *
 	 */
 	public boolean selectable = false;
 
