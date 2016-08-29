@@ -102,7 +102,7 @@ public void userDidSelect(MapController mapControl, SelectedObject[] selObjs,
 }
 ```
 
-![Marker Selection](resources/marker-selection.png)
+![Marker Selection](resources/marker-selection.jpg)
 
 Notice that when you tap on a marker, two geographic features are selected. That is because the marker is on top of the Russia GeoJSON polygon. When a user taps on a map or globe, all of the features that intersect with the tap are selected. You are then given an array of the selected objects from what you can do as you choose.
 
@@ -142,6 +142,6 @@ else if (obj.selObj instanceof ScreenMarker) {
 
 We also need to have a class member `ComponentObject selectedMarkerComponent;` to keep track of previously selected markers.
 
-![Moscow Android](resources/selected-moscow-android.png)
+![Moscow Android](resources/selected-moscow-android.jpg)
 
 That's it, you now have the tools you need to select and get notified of selected screen markers in WhirlyGlobe--Maply!

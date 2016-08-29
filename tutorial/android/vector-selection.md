@@ -78,7 +78,7 @@ public void userDidSelect(MapController mapControl, SelectedObject[] selObjs, Po
 }
 ```
 
-![Vector Selection](resources/vector-selection.png)
+![Vector Selection](resources/vector-selection.jpg)
 
 ### Draw Vector as Selected
 
@@ -116,4 +116,4 @@ Lastly, make sure you have a class member `ComponentObject selectedComponentObje
 
 Now, when a user taps on Russia, it should have a golden border instead of red.
 
-![Golden Russia](resources/golden-russia.png)
+![Golden Russia](resources/golden-russia.jpg)

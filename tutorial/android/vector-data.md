@@ -105,4 +105,4 @@ The `if` statement checks if we were able to create a vector object from the JSO
 
 That's it! You now should see the red outline of Russia on the map from GeoJSON fetched via HTTP.
 
-![Russia GeoJSON](resources/russia-geojson.png)
+![Russia GeoJSON](resources/russia-geojson.jpg)

@@ -58,7 +58,7 @@ The basic properties of the object are set by assigning values to public members
 
 Finally, you can add an individual marker to your map controller with the `addScreenMarker` method.
 
-![Marker for Moscow](resources/moscow.png)
+![Marker for Moscow](resources/moscow.jpg)
 
 ### Add More Markers
 
@@ -115,7 +115,7 @@ private void insertMarkers() {
 
 Here we are adding all of our markers to an `ArrayList`. Then, we add this list to the map with `addScreenMarkers` instead of `addScreenMarker`.
 
-![5 Cities](resources/5cities.png)
+![5 Cities](resources/5cities.jpg)
 
 You might notice that the icon for Нижний Новгород is upside down. This is because we adjusted the `rotation` property of `ScreenMarker nizhnyNovgorod`. You can rotate a marker 360°. The parameter is in radians, so you can assign any value between 0 and 2π.
 

@@ -93,7 +93,7 @@ private void insertSpheres() {
 
 Here you will see that these spheres are placed on the globe and extrude above the surface of the globe.
 
-<img src="resources/spheres.png" alt="Android File Transfer" style="max-width:400px;display:block;margin:auto;">
+<img src="resources/spheres.jpg" alt="Android File Transfer" style="max-width:400px;display:block;margin:auto;">
 
 ### A few things to make note of...
 

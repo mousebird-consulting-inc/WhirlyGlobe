@@ -126,4 +126,4 @@ QuadImageTileLayer baseLayer = new QuadImageTileLayer(mapControl, coordSystem, l
 
 That's it! Now you can see a local tile source being drawn on your map.
 
-<img src="resources/mbtiles.png" alt="MBTiles" style="max-width:375px; display: block; margin: auto;" />
+<img src="resources/mbtiles.jpg" alt="MBTiles" style="max-width:375px; display: block; margin: auto;" />

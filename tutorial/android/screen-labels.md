@@ -72,7 +72,7 @@ Notice there is a `LabelInfo` options object that defines how the text is going 
 
 Then, we create each label, set their properties, and add them to the map controller.
 
-![Labels](resources/labels.png)
+![Labels](resources/labels.jpg)
 
 ### Layout Engine
 

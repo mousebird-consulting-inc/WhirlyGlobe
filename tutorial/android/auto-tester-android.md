@@ -39,4 +39,4 @@ That's it! You should be able to build the project normally in Android Studio.
 
 | WhirlyGlobe Component | Maply Component |
 | -- | -- |
-| ![](resources/whirlyglobe-component.png) | ![](resources/maply-component.png)|
+| ![](resources/whirlyglobe-component.jpg) | ![](resources/maply-component.jpg)|
