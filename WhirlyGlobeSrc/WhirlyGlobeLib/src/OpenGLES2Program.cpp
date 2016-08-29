@@ -22,6 +22,7 @@
 #import "OpenGLES2Program.h"
 #import "Lighting.h"
 #import "GLUtils.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -213,7 +214,7 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
             GLchar *logStr = (GLchar *)malloc(len);
             glGetShaderInfoLog(*shaderId, len, &len, logStr);
             fprintf(stderr,"Shader compile error: %s",logStr);
-//            NSLog(@"Compile error for %s shader %s:\n%s",shaderTypeStr,name.c_str(),logStr);
+            WHIRLYKIT_LOGE("Compile error for %s shader %s:\n%s",shaderTypeStr,name.c_str(),logStr);
             free(logStr);
         }
         
@@ -257,8 +258,7 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         {
             GLchar *logStr = (GLchar *)malloc(len);
             glGetProgramInfoLog(program, len, &len, logStr);
-            // Note: Porting
-//            NSLog(@"Link error for shader program %s:\n%s",name.c_str(),logStr);
+            WHIRLYKIT_LOGE("Link error for shader program %s:\n%s",name.c_str(),logStr);
             free(logStr);
         }
         cleanUp();
@@ -304,11 +304,15 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         attr->name = thingName;
         attrs.insert(attr);
     }
+    
+//    WHIRLYKIT_LOGE("Successfully created shader %s",name.c_str());
 }
     
 // Clean up oustanding OpenGL resources
 void OpenGLES2Program::cleanUp()
 {
+    WHIRLYKIT_LOGE("Failed to create shader %s",name.c_str());
+    
     if (program)
     {
         glDeleteProgram(program);
