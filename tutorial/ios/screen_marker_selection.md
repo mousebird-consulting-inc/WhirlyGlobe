@@ -5,7 +5,7 @@ layout: ios-tutorial
 
 Screen marker selection works just like vector selection.  WhirlyGlobe-Maply is doing very different thing to make them happen, but on the user side it's all the same.
 
-We'll need an XCode project here, so if you haven't done the [Screen Markers](screen_markers.html) tutorial go do that.  If you haven't got one yet, here's a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_screen_marker_selection.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_screen_marker_selection.swift))
+We'll need an XCode project here, so if you haven't done the [Screen Markers](screen_markers.html) tutorial go do that.  If you haven't got one yet, here's a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_screen_marker_selection.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_screen_marker_selection.swift))
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/screen_marker_selection_1.png)
 

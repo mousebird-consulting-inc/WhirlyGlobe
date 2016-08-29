@@ -4,6 +4,22 @@
     - filename: building-from-source.html
     - filename: hello-earth.html
     - filename: your-first-globe-or-map.html
+    - filename: local-image-layer.html
+
+- section: Overlays
+  files:
+    - filename: vector-data.html
+    - filename: screen-markers.html
+    - filename: screen-labels.html
+
+- section: Shapes
+  files:
+    - filename: spheres-android.html
+
+- section: Interaction
+  files: 
+    - filename: vector-selection.html
+    - filename: screen-marker-selection.html
 
 - section: Advanced
   files:

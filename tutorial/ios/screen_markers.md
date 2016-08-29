@@ -5,7 +5,7 @@ layout: ios-tutorial
 
 Screen markers are 2D markers that follow a location on the globe or map.  As the user moves, they move, but they don't get any bigger or smaller.
 
-We'll need an XCode project here, so if you haven't done the [Hello Earth](hello_earth.html) tutorial go do that.  If you haven't got one yet, here's a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_screen_markers.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_screen_markers.swift)).
+We'll need an XCode project here, so if you haven't done the [Hello Earth](hello_earth.html) tutorial go do that.  If you haven't got one yet, here's a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_screen_markers.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_screen_markers.swift)).
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/screen_markers_1.png)
 

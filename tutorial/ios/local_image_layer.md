@@ -11,7 +11,7 @@ You'll need to have done the [globe](your_first_globe.html) or [map](your_first_
 
 ![Xcode ViewController.m]({{ site.baseurl }}/images/tutorial/local_image_layer_1.png)
 
-If you haven't got one here is a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_globe_and_map.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_globe_and_map.swift)) file to start with.  This version handles both a globe and a map and makes a nice starting point.
+If you haven't got one here is a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_globe_and_map.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_globe_and_map.swift)) file to start with.  This version handles both a globe and a map and makes a nice starting point.
                                            
 ### Geography Class MBTiles
 

@@ -17,9 +17,9 @@ WhirlyGlobe-Maply is an open source toolkit, part of the vibrant FOSS4G communit
 
 You’ll need a sample project for this tutorial. Go back and start with the [Hello Earth](http://mousebird.github.io/WhirlyGlobe/tutorial/hello_earth.html) tutorial and work thru the [CartoDB Tutorial](remote_image_layer.html).  We’ll want the vector tiling logic from that one, but if you'd rather just get started with those files, you can download them here;
 
-- [ViewController.m]({{ site.baseurl }}/tutorial/code/ViewController_cartodb.m) Your main view controller.
-- [CartoDBLayer.h]({{ site.baseurl }}/tutorial/code/CartoDBLayer.h) CartoDBLayer header.
-- [CartoDBLayer.m]({{ site.baseurl }}/tutorial/code/CartoDBLayer.m) CartoDBLayer implementation.
+- [ViewController.m]({{ site.baseurl }}/tutorial/ios/code/ViewController_cartodb.m) Your main view controller.
+- [CartoDBLayer.h]({{ site.baseurl }}/tutorial/ios/code/CartoDBLayer.h) CartoDBLayer header.
+- [CartoDBLayer.m]({{ site.baseurl }}/tutorial/ios/code/CartoDBLayer.m) CartoDBLayer implementation.
 
 
 ### Hello Earth
@@ -118,9 +118,9 @@ Very pretty.
 
 Here are the various completed files for your programming pleasure;
 
-- [ViewController.m]({{ site.baseurl }}/tutorial/code/ViewController_ArcGIS.m)
-- [ArcGISLayer.h]({{ site.baseurl }}/tutorial/code/ArcGISLayer.m)
-- [ArcGISLayer.m]({{ site.baseurl }}/tutorial/code/ArcGISLayer.m)
+- [ViewController.m]({{ site.baseurl }}/tutorial/ios/code/ViewController_ArcGIS.m)
+- [ArcGISLayer.h]({{ site.baseurl }}/tutorial/ios/code/ArcGISLayer.m)
+- [ArcGISLayer.m]({{ site.baseurl }}/tutorial/ios/code/ArcGISLayer.m)
 
 
 

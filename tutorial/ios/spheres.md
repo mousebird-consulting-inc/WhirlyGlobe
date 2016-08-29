@@ -5,7 +5,7 @@ layout: ios-tutorial
 
 You can add a variety of 3D shapes to a globe or even a map.  We'll start with a simple one, spheres.
 
-We'll need an XCode project here, so if you haven't done the [Hello Earth](hello_earth.html) tutorial go do that.  If you haven't got one yet, here's a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/code/ViewController_spheres.m) or [Swift]({{ site.baseurl }}/tutorial/code/ViewController_spheres.swift)).
+We'll need an XCode project here, so if you haven't done the [Hello Earth](hello_earth.html) tutorial go do that.  If you haven't got one yet, here's a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_spheres.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_spheres.swift)).
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/spheres_2.png)
 
