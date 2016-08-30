@@ -5,9 +5,7 @@ layout: android-tutorial
 
 *Tutorial by Nicholas Hallahan.*
 
-Currently the only way to include WhirlyGlobe-Maply into you Android project is by compiling the source code. We are working on Maven builds that can be simply included in your gradle file, but for now, you need to build from source.
-
-The advantage of building from source is that you can modify and customize WhirlyGlobe-Maply, and your changes will immediately be compiled into your project. If you plan on modifying this toolkit, building from source is your best option.
+Building the toolkit from source you'll be able to modify and customize WhirlyGlobe-Maply, and your changes will immediately be compiled into your project. If you plan on modifying this toolkit, building from source is your best option.
 
 ### Clone Git Repository
 
@@ -70,9 +68,53 @@ WhirlyGlobe/WhirlyGlobeSrc/Android/build/outputs/aar
 
 Unless you need to debug the underlying library, you should use the `Android-release.aar` in your Hello Earth project. Keep track of this file, you will need to copy it into your app's project.
 
+### Copy and Include AAR
+
+Copy your `Android-release.aar` that you built into your app's `libs` directory.
+
+```
+WhirlyGlobe/WhirlyGlobeSrc/HelloEarth/app/libs
+```
+
+Rename it to `WhirlyGlobeMaply.aar`.
+
+Add the following `flatDir` directive to your `Build.gradle (Project: HelloEarth)` file inside of the `allprojects > repositories` directive.
+
+```gradle
+allprojects {
+    repositories {
+        jcenter()
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+```
+
+
+Next add the following packages to the end of the `dependencies` directive in `Build.gradle (Module: app)`.
+
+* `compile 'com.squareup.okhttp:okhttp:2.3.0'`
+* `compile(name:'WhirlyGlobeMaply', ext:'aar')`
+
+```gradle
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:24.0.0'
+    compile 'com.android.support:support-v4:24.0.0'
+    compile 'com.squareup.okhttp:okhttp:2.3.0'
+    compile(name: 'WhirlyGlobeMaply', ext: 'aar')
+}
+```
+
+Android Studio will ask you to sync Gradle. If all goes well, it will sync without complaint.
+
+![Gradle Sync](resources/gradle-sync.png)
+
 ### Example App
 
-Before starting your own "[Hello Earth](hello-earth.html)" project, there is an example app you can try out called `AutoTesterAndroid`. This is optional, but it is the quickest way to _see something work_. We have [brief instructions](auto-tester-android.html) for you to build AutoTesterAndroid.
+Besides this "[Hello Earth](hello-earth.html)" project, there is an example app you can try out called `AutoTesterAndroid`. This is optional, but it is the quickest way to _see something work_. We have [brief instructions](auto-tester-android.html) for you to build AutoTesterAndroid.
 
 
 

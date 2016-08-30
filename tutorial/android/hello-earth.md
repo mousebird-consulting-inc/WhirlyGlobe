@@ -33,55 +33,14 @@ We're going to just have one activity in this app, so keep the default name as `
 
 Select __Finish__.
 
-### Copy and Include AAR
+### WhirlyGlobe-Maply Distributions
 
-Earlier you built the WhirlyGlobe-Maply library from source. We are including that compiled `.aar` of the library in our _HelloEarth_ project.
+At this point, you have started a new standard project, but you need to add WhirlyGlobe-Maply library as a dependency. 
 
-Copy your `Android-release.aar` that you built into your app's `libs` directory.
+We distribute the WhirlyGlobe-Maply library in three ways. Any one of them is fine.  Pick the one you are most familiar with.  Don’t care?  Try the repository.
 
-```
-WhirlyGlobe/WhirlyGlobeSrc/HelloEarth/app/libs
-```
+* [Building from Repository](building-from-repository.html) - The self contained binary distribution. This is the stable version.
+* [Building from Source](building-from-source.html) - Use the source the code to build your own binary.
+* [Building from Nightly version](building-from-nightly.html) - Use the unstable version with the latest and the greatest improvements.
 
-Rename it to `WhirlyGlobeMaply.aar`.
-
-Add the following `flatDir` directive to your `Build.gradle (Project: HelloEarth)` file inside of the `allprojects > repositories` directive.
-
-```gradle
-allprojects {
-    repositories {
-        jcenter()
-        flatDir {
-            dirs 'libs'
-        }
-    }
-}
-```
-
-
-Next add the following packages to the end of the `dependencies` directive in `Build.gradle (Module: app)`.
-
-* `compile 'com.squareup.okhttp:okhttp:2.3.0'`
-* `compile(name:'WhirlyGlobeMaply', ext:'aar')`
-
-```gradle
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:24.0.0'
-    compile 'com.android.support:support-v4:24.0.0'
-    compile 'com.squareup.okhttp:okhttp:2.3.0'
-    compile(name: 'WhirlyGlobeMaply', ext: 'aar')
-}
-```
-
-Android Studio will ask you to sync Gradle. If all goes well, it will sync without complaint.
-
-![Gradle Sync](resources/gradle-sync.png)
-
-At this point, you have started a new project and setup the WhirlyGlobe-Maply library as a Gradle dependency. You are now ready to setup your fragments and see a map!
-
-Go ahead and build your project. You should see a boilerplate __Hello World!__ text view in a basic activity.
-
-<img src="resources/hello-world.png" alt="Hello World" style="max-width:300px; display: block; margin: auto;" />
-
+It’s like a pick your own adventure book, but boring.  So just like a pick your own adventure book.

@@ -34,6 +34,6 @@ _Note: Cocoapods caches the file downloaded using the URL as cache key, so even 
 
 ### Android
 
-Just download the aar file in your local machine and include that file in the Android Studio project. This [tutorial](http://mousebird.github.io/WhirlyGlobe/tutorial/android/hello-earth.html) gives a good explanation about that.
+Just download the aar file in your local machine and include that file in the Android Studio project. This [tutorial](/WhirlyGlobe/tutorial/android/building-from-nightly.html) gives a good explanation about that.
 
 

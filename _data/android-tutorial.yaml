@@ -1,8 +1,10 @@
 - section: Getting Started
   files: 
     - filename: getting-started.html
-    - filename: building-from-source.html
     - filename: hello-earth.html
+    - filename: building-from-repository.html
+    - filename: building-from-nightly.html
+    - filename: building-from-source.html
     - filename: your-first-globe-or-map.html
     - filename: local-image-layer.html
 
