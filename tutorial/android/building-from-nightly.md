@@ -15,7 +15,7 @@ Just go to the [Automated Builds](/WhirlyGlobe/builds/builds.html) page and choo
 
 You have two flavours:
 
-  - _Nightly builds_: surprisngly, this is the version built every night (it's night for us, anyway). Use this version if you're sure that one specific change was included in that or previous days.
+  - _Nightly builds_: surprisingly, this is the version built every night (it's night for us, anyway). Use this version if you're sure that one specific change was included in that or previous days.
   - _Commit or Push builds_: this happens when someone pushes a change to one of the development branches. Use this version if you know the build number that includes your desired change or we pointed you here directly.
 
 Once you've chosen the right version, just download the `.aar` file from the [builds table](/WhirlyGlobe/builds/builds.html).
