@@ -17,7 +17,7 @@ allprojects {
 }
 
 group = 'com.mousebirdconsulting.maply'
-version = '3.0'
+version = '0.7'
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
@@ -202,7 +202,7 @@ bintray {
     }
 }
 
-def artifactVersion = '3.0-SNAPSHOT'
+def artifactVersion = '0.7'
 
 publishing {
     publications {
@@ -230,10 +230,9 @@ artifactory {
     properties.load(project.rootProject.file('local.properties').newDataInputStream())
     publish {
         repository {
-            // The Artifactory repository key to publish to
             repoKey = artifactVersion.endsWith('SNAPSHOT') ? 'oss-snapshot-local' : 'oss-release-local'
-            username = properties.getProperty("bintray.user") // The publisher user name
-            password = properties.getProperty("bintray.apikey") // The publisher password
+            username = properties.getProperty("bintray.user")
+            password = properties.getProperty("bintray.apikey")
             maven = true
         }
         defaults {
@@ -246,8 +245,8 @@ artifactory {
     resolve {
         repository {
             repoKey = 'jcenter'
-            username = properties.getProperty("bintray.user") // The publisher user name
-            password = properties.getProperty("bintray.apikey") // The publisher password
+            username = properties.getProperty("bintray.user")
+            password = properties.getProperty("bintray.apikey")
         }
     }
 }

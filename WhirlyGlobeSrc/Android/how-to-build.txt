@@ -26,14 +26,16 @@ Maply artifacts are deployed both to JCenter and Bintray (https://dl.bintray.com
 	repositories {
 		jcenter()
 	}
-    
-optionally...
-    
-	repositories {
-		maven {
-        	url https://dl.bintray.com/mousebirdconsulting/WhirlyGlobe/
-        }
-		jcenter()
+
+If you get an error like "Failed to resolve: com.mousebirdconsulting.maply:Android:xx" try adding the bintray repository:
+
+	allprojects {
+		repositories {
+			jcenter()
+			maven {
+				url "https://dl.bintray.com/mousebirdconsulting/WhirlyGlobe/"
+			}
+		}
 	}
 
 Thoubleshooting
