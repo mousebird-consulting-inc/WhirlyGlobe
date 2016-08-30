@@ -33,6 +33,8 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		cacheDir.mkdir();
 		RemoteTileSource remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://tile.stamen.com/watercolor/", "png", 0, 18));
 		remoteTileSource.setCacheDir(cacheDir);
+		// Note: Turn this on to get more information from the tile source
+//		remoteTileSource.debugOutput = true;
 		SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
 		QuadImageTileLayer baseLayer = new QuadImageTileLayer(baseController, coordSystem, remoteTileSource);
 		baseLayer.setImageDepth(1);

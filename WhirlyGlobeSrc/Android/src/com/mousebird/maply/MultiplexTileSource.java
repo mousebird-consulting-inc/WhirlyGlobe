@@ -57,6 +57,11 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	boolean hasPremultiplyOption = false;
 
 	/**
+	 * Set this if you'd like full debugging output while loading
+	 */
+	public boolean debugOutput = false;
+
+	/**
 	 * Return the number of individual sources and/or frames.
      */
 	public int getDepth() {
@@ -113,7 +118,8 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 							options.inPremultiplied = false;
                         BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
                         bm = BitmapFactory.decodeStream(aBufferedInputStream,null,options);
-//                        Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+						if (debugOutput)
+	                        Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
                     }
                 }
 
@@ -181,12 +187,15 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 						fOut.write(rawImage);
 						fOut.close();
 					}
-//					Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+					if (debugOutput)
+						Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 				} catch (Exception e) {
-//					Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
+					if (debugOutput)
+						Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
 				}
 			} else {
-//				Log.d("Maply", "Fetch failed for remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+				if (debugOutput)
+					Log.d("Maply", "Fetch failed for remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
 			}
 
 			boolean reportThisTile = false;
@@ -452,8 +461,9 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 
 	@Override
 	public void startFetchForTile(QuadImageTileLayerInterface layer, MaplyTileID tileID, int frame)
-	{		
-//		Log.d("Maply","Multiplex Load: " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
+	{
+		if (debugOutput)
+			Log.d("Maply","Multiplex Load: " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
 		
 		// Form the tile URL
 		int maxY = 1<<tileID.level;
