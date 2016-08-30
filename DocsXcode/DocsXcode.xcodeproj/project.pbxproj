@@ -132,6 +132,8 @@
 		2B7AD8641D74A24500342477 /* spheres-android.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "spheres-android.md"; sourceTree = "<group>"; };
 		2B7AD8651D74A24500342477 /* vector-data.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "vector-data.md"; sourceTree = "<group>"; };
 		2B7AD8661D74A24500342477 /* vector-selection.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "vector-selection.md"; sourceTree = "<group>"; };
+		2B7AD8671D75FB1E00342477 /* building-from-nightly.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "building-from-nightly.md"; sourceTree = "<group>"; };
+		2B7AD8681D75FB1E00342477 /* building-from-repository.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "building-from-repository.md"; sourceTree = "<group>"; };
 		2B93D9481D411F4500EAD280 /* auto-tester-android.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "auto-tester-android.md"; sourceTree = "<group>"; };
 		2B93D9491D411F4500EAD280 /* building-from-source.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "building-from-source.md"; sourceTree = "<group>"; };
 		2B93D94A1D411F4500EAD280 /* getting-started.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "getting-started.md"; sourceTree = "<group>"; };
@@ -471,6 +473,8 @@
 		2B93D9471D411F4500EAD280 /* android */ = {
 			isa = PBXGroup;
 			children = (
+				2B7AD8671D75FB1E00342477 /* building-from-nightly.md */,
+				2B7AD8681D75FB1E00342477 /* building-from-repository.md */,
 				2B7AD8601D74A24500342477 /* local-image-layer.md */,
 				2B7AD8611D74A24500342477 /* screen-labels.md */,
 				2B7AD8621D74A24500342477 /* screen-marker-selection.md */,

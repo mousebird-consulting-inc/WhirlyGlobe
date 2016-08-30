@@ -5,6 +5,9 @@
     - filename: building-from-repository.html
     - filename: building-from-nightly.html
     - filename: building-from-source.html
+
+- section: Basics of Display
+  files:
     - filename: your-first-globe-or-map.html
     - filename: local-image-layer.html
 

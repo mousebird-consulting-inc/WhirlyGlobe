@@ -1,6 +1,9 @@
 ---
 title: Building From Source
 layout: android-tutorial
+prev_next:
+    prev: hello-earth.html
+    next: your-first-globe-or-map.html
 ---
 
 *Tutorial by Nicholas Hallahan.*

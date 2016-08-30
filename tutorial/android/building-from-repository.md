@@ -1,18 +1,18 @@
 ---
 title: Building From Repository
 layout: android-tutorial
+prev_next:
+    prev: hello-earth.html
+    next: your-first-globe-or-map.html
 ---
 
-Probably you ever heard about the beloved and hated Maven (last named Central). That's a repository. It's a place where most of the compiled Java libraries live.
-After Maven, several other repositories have been founded, like JCenter and Bintray. Maven tradition comes from old Java times, meanwhile JCenter is more about Android (actually it's a superset of Maven) and Bintray is the company behind JCenter (well, sort of, I think)
+Probably the simplest way to build your WhirlyGlobe-Maply app on Android is to use a central repository.  A repo is where you are probably getting the rest of your libraries, including ones provided by Google and it's a place where most *compiled* Android libraries live.
 
-The preferred way to download and use third-party library in a typical Android project is using a repository like JCenter. 
-
-So you can expect our library to be a good citizen and live in those lands too.
+Popular repositories include Maven, JCenter, and Bintray.  We're somewhat confused by their relationships with each other, but we do publish our library out there.
 
 ### Check the repository
 
-The best part of using JCenter is that it's included by default in every Android project. If you open the `YOUR_PROJECT_HOME/build.gradle` file, you'll see:
+JCenter is an easy repository to use because it's included by default in every Android project. If you open the `YOUR_PROJECT_HOME/build.gradle` file, you'll see:
 
 ```gradle
 allprojects {
@@ -24,7 +24,7 @@ allprojects {
 
 ### Add the dependency
 
-Once the repository is configured, you just need to add the dependency. In `YOUR_PROJECT_HOME/app/build.gradle` file, you need to add one line:
+Once the repository is configured, you just need to add the dependency. In `YOUR_PROJECT_HOME/app/build.gradle` file, you need to add this line:
 
 ```gradle
 dependencies {
@@ -70,7 +70,7 @@ allprojects {
 }
 ```
 
-This way you'll make sure the dependency will be found either in JCenter or in our own repository (inside Bintray too)
+This way you'll make sure the dependency will be found either in JCenter or in our own repository (inside Bintray too).
 
 
 

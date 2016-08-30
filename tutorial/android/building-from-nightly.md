@@ -1,21 +1,22 @@
 ---
 title: Building From Nightly
 layout: android-tutorial
+prev_next:
+    prev: hello-earth.html
+    next: your-first-globe-or-map.html
 ---
 
-If you're up-to-date in the latest and the greatest improvements of the toolkit, you probably want to try them in your app.
-
-For that you can [build the toolkit from the source](building-from-source.html), which is great because you can even add your own modifications (but be aware your modifications will probably be lost, at some point), or you can use any of our [nightly versions](/WhirlyGlobe/builds/builds.html).
+If you want the latest and greatest improvements to WhirlyGlobe-Maply you can use nightly or feature based builds.  Take a look at the [nightly versions](/WhirlyGlobe/builds/builds.html) page.  From there you can get feature branch builds or just a nightly build.  We'll show you how to use them here.
 
 
 ### Pick the version you need
 
 Just go to the [Automated Builds](/WhirlyGlobe/builds/builds.html) page and choose the version you want to use.
 
-You have to flavours:
+You have two flavours:
 
-  - _Nightly builds_: unexpectedly, they are version built every night (well, it depends which timezone you live in). Use this set of versions if you're sure that one specific change was included in that or previous days.
-  - _Commit or Push builds_: this happens when someone push a change to one of the development branches. Use this version if you know the build number that includes your desired change.
+  - _Nightly builds_: surprisngly, this is the version built every night (it's night for us, anyway). Use this version if you're sure that one specific change was included in that or previous days.
+  - _Commit or Push builds_: this happens when someone pushes a change to one of the development branches. Use this version if you know the build number that includes your desired change or we pointed you here directly.
 
 Once you've chosen the right version, just download the `.aar` file from the [builds table](/WhirlyGlobe/builds/builds.html).
 
