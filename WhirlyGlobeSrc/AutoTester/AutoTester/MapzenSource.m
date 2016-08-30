@@ -9,8 +9,6 @@
 #import "MapzenSource.h"
 #import "MapboxVectorTiles.h"
 #import "MapnikStyleSet.h"
-#import "MapboxVectorStyleSet.h"
-#import "MapboxVectorStyleBackground.h"
 #import "SLDStyleSet.h"
 
 @implementation MapzenSource
@@ -50,21 +48,6 @@
                     [mapnikStyleSet loadXmlData:styleData];
                     [mapnikStyleSet generateStyles];
                     styleSet = mapnikStyleSet;
-                }
-                    break;
-                case MapnikMapboxGLStyle:
-                {
-                    MaplyMapboxVectorStyleSet *mapboxStyleSet = [[MaplyMapboxVectorStyleSet alloc] initWithJSON:styleData viewC:viewC];
-                    styleSet = mapboxStyleSet;
-                    
-                    for (MapboxVectorLayerBackground *backLayer in mapboxStyleSet.layers)
-                    {
-                        if ([backLayer isKindOfClass:[MapboxVectorLayerBackground class]])
-                        {
-//                            _backgroundColor = [backLayer.paint.color maxColorWithStyleSet:mapboxStyleSet];
-                            _backgroundColor = [UIColor blackColor];
-                        }
-                    }
                 }
                     break;
                 case MapnikSLDStyle:

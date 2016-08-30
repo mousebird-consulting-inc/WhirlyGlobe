@@ -83,7 +83,6 @@ typedef NS_ENUM(NSInteger, MapnikCommandType) {
 /// @brief The various types of style that will work with Mapnik vector tiles
 typedef NS_ENUM(NSInteger, MapnikStyleType) {
 	MapnikXMLStyle,
-	MapnikMapboxGLStyle,
     MapnikSLDStyle
 };
 
