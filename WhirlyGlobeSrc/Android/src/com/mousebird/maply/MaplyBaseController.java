@@ -398,6 +398,10 @@ public class MaplyBaseController
 		startupAborted = true;
 		synchronized (this) {
 			running = false;
+
+			// This will make sure we have a valid context
+			setEGLContext(glContext);
+
 			renderWrapper.stopRendering();
 
 			//		Choreographer.getInstance().removeFrameCallback(this);
@@ -411,6 +415,7 @@ public class MaplyBaseController
 
 			metroThread.shutdown();
 			metroThread = null;
+
 
 			scene.teardownGL();
 			scene.shutdown();
@@ -640,7 +645,7 @@ public class MaplyBaseController
 					layerThread.setRenderer(renderWrapper.maplyRender);
 			}
 
-			// Note: Debugging output
+			// Debugging output
 			renderWrapper.maplyRender.setPerfInterval(perfInterval);
 
 			// Kick off the layout layer
@@ -726,16 +731,18 @@ public class MaplyBaseController
 		if (cInfo == null)
 			cInfo = glContext;
 
+		EGL10 egl = (EGL10) EGLContext.getEGL();
         if (cInfo != null)
         {
-            EGL10 egl = (EGL10) EGLContext.getEGL();
             if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
                 Log.d("Maply", "Failed to make current context.");
                 return false;
             }
 
             return true;
-        }
+        } else {
+			egl.eglMakeCurrent(renderWrapper.maplyRender.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
+		}
 
         return false;
     }
