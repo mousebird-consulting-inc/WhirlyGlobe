@@ -135,59 +135,19 @@
 
 <p>Select <strong>Finish</strong>.</p>
 
-<h3 id="copy-and-include-aar">Copy and Include AAR</h3>
+<h3 id="whirlyglobe-maply-distributions">WhirlyGlobe-Maply Distributions</h3>
 
-<p>Earlier you built the WhirlyGlobe-Maply library from source. We are including that compiled <code class="highlighter-rouge">.aar</code> of the library in our <em>HelloEarth</em> project.</p>
+<p>At this point, you have started a new standard project, but you need to add WhirlyGlobe-Maply library as a dependency.</p>
 
-<p>Copy your <code class="highlighter-rouge">Android-release.aar</code> that you built into your app’s <code class="highlighter-rouge">libs</code> directory.</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>WhirlyGlobe/WhirlyGlobeSrc/HelloEarth/app/libs
-</code></pre>
-</div>
-
-<p>Rename it to <code class="highlighter-rouge">WhirlyGlobeMaply.aar</code>.</p>
-
-<p>Add the following <code class="highlighter-rouge">flatDir</code> directive to your <code class="highlighter-rouge">Build.gradle (Project: HelloEarth)</code> file inside of the <code class="highlighter-rouge">allprojects &gt; repositories</code> directive.</p>
-
-<div class="language-gradle highlighter-rouge"><pre class="highlight"><code><span class="k">allprojects</span> <span class="o">{</span>
-    <span class="k">repositories</span> <span class="o">{</span>
-        <span class="n">jcenter</span><span class="o">()</span>
-        <span class="n">flatDir</span> <span class="o">{</span>
-            <span class="n">dirs</span> <span class="s1">'libs'</span>
-        <span class="o">}</span>
-    <span class="o">}</span>
-<span class="o">}</span>
-</code></pre>
-</div>
-
-<p>Next add the following packages to the end of the <code class="highlighter-rouge">dependencies</code> directive in <code class="highlighter-rouge">Build.gradle (Module: app)</code>.</p>
+<p>We distribute the WhirlyGlobe-Maply library in three ways. Any one of them is fine.  Pick the one you are most familiar with.  Don’t care?  Try the repository.</p>
 
 <ul>
-  <li><code class="highlighter-rouge">compile 'com.squareup.okhttp:okhttp:2.3.0'</code></li>
-  <li><code class="highlighter-rouge">compile(name:'WhirlyGlobeMaply', ext:'aar')</code></li>
+  <li><a href="building-from-repository.html">Building from Repository</a> - The self contained binary distribution. This is the stable version.</li>
+  <li><a href="building-from-source.html">Building from Source</a> - Use the source the code to build your own binary.</li>
+  <li><a href="building-from-nightly.html">Building from Nightly version</a> - Use the unstable version with the latest and the greatest improvements.</li>
 </ul>
 
-<div class="language-gradle highlighter-rouge"><pre class="highlight"><code><span class="k">dependencies</span> <span class="o">{</span>
-    <span class="n">compile</span> <span class="nf">fileTree</span><span class="o">(</span><span class="nl">dir:</span> <span class="s1">'libs'</span><span class="o">,</span> <span class="nl">include:</span> <span class="o">[</span><span class="s1">'*.jar'</span><span class="o">])</span>
-    <span class="n">testCompile</span> <span class="s1">'junit:junit:4.12'</span>
-    <span class="n">compile</span> <span class="s1">'com.android.support:appcompat-v7:24.0.0'</span>
-    <span class="n">compile</span> <span class="s1">'com.android.support:support-v4:24.0.0'</span>
-    <span class="n">compile</span> <span class="s1">'com.squareup.okhttp:okhttp:2.3.0'</span>
-    <span class="n">compile</span><span class="o">(</span><span class="nl">name:</span> <span class="s1">'WhirlyGlobeMaply'</span><span class="o">,</span> <span class="nl">ext:</span> <span class="s1">'aar'</span><span class="o">)</span>
-<span class="o">}</span>
-</code></pre>
-</div>
-
-<p>Android Studio will ask you to sync Gradle. If all goes well, it will sync without complaint.</p>
-
-<p><img src="resources/gradle-sync.png" alt="Gradle Sync" /></p>
-
-<p>At this point, you have started a new project and setup the WhirlyGlobe-Maply library as a Gradle dependency. You are now ready to setup your fragments and see a map!</p>
-
-<p>Go ahead and build your project. You should see a boilerplate <strong>Hello World!</strong> text view in a basic activity.</p>
-
-<p><img src="resources/hello-world.png" alt="Hello World" style="max-width:300px; display: block; margin: auto;" /></p>
-
+<p>It’s like a pick your own adventure book, but boring.  So just like a pick your own adventure book.</p>
 
 
           </div>
@@ -377,153 +337,6 @@
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-source.html">Building From Source</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -573,6 +386,158 @@
                       
                       
                       <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/android/hello-earth.html">Hello Earth Project</a></li>
+                      
+                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
+                      
+                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Building From Nightly</a></li>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-source.html">Building From Source</a></li>
+                      
                       
                       
                       
@@ -2088,12 +2053,6 @@
 
             
             
-            
-            
-            
-
-            
-            
 
             <!-- what follows is kinda horrifying -->
             <!-- is the current page the first page of the first tutorial section? -->
@@ -2116,7 +2075,7 @@
             
 
             <!-- deliver next/prev links -->
-            <a class="prev" href="/WhirlyGlobe/tutorial/android/building-from-source.html">Previous</a><a class="next" href="/WhirlyGlobe/tutorial/android/your-first-globe-or-map.html">Next</a>
+            <a class="prev" href="/WhirlyGlobe/tutorial/android/getting-started.html">Previous</a><a class="next" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Next</a>
 
 
             

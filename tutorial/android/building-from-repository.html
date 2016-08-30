@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width initial-scale=1" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-  <title>Before You Start</title>
+  <title>Building From Repository</title>
   <meta name="description" content="A high performance map and globe toolkit for iOS and Android.
 ">
 
@@ -20,7 +20,7 @@
   <![endif]-->
 
   <link rel="stylesheet" href="/WhirlyGlobe/css/main.css">
-  <link rel="canonical" href="http://mousebird.github.io//WhirlyGlobe/tutorial/android/getting-started.html">
+  <link rel="canonical" href="http://mousebird.github.io//WhirlyGlobe/tutorial/android/building-from-repository.html">
 
   <!-- Fontwork -->
   <link rel="stylesheet" type="text/css" href="/WhirlyGlobe/css/MyFontsWebfontsKit.css">
@@ -104,43 +104,73 @@
         <div class="row">
           <div class="col-sm-9 tutorial tutorial-main">
 
-            <h2>Before You Start</h2>
-            <p><em>Tutorial by Nicholas Hallahan.</em></p>
+            <h2>Building From Repository</h2>
+            <p>Probably you ever heard about the beloved and hated Maven (last named Central). That’s a repository. It’s a place where most of the compiled Java libraries live.
+After Maven, several other repositories have been founded, like JCenter and Bintray. Maven tradition comes from old Java times, meanwhile JCenter is more about Android (actually it’s a superset of Maven) and Bintray is the company behind JCenter (well, sort of, I think)</p>
 
-<h3 id="code-blocks">Code Blocks</h3>
+<p>The preferred way to download and use third-party library in a typical Android project is using a repository like JCenter.</p>
 
-<p>There are times you’ll need to enter project settings, code, or commands in the Terminal verbatim. They will look like this.</p>
+<p>So you can expect our library to be a good citizen and live in those lands too.</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Enter Precisely This Text</code></pre></figure>
+<h3 id="check-the-repository">Check the repository</h3>
 
-<h3 id="pre-requisites">Pre-Requisites</h3>
+<p>The best part of using JCenter is that it’s included by default in every Android project. If you open the <code class="highlighter-rouge">YOUR_PROJECT_HOME/build.gradle</code> file, you’ll see:</p>
 
-<p>You should be familiar with the Terminal.  You’ll need to type a number of commands to get started.</p>
-
-<p>We make use of <a href="http://en.wikipedia.org/wiki/Git_(software)">git</a> and <a href="http://github.com/">github</a>.  A passing familiarity will help.</p>
-
-<p>For Android development, we use <a href="https://developer.android.com/studio/index.html">Android Studio</a>. Android Studio comes with the Android Development Kit (required). If you are building from source, you will also need the <a href="https://developer.android.com/ndk/index.html">Native Development Kit (NDK)</a>.</p>
-
-<p>If you are using OS X, we recommend installing the NDK with <a href="http://brew.sh/">homebrew</a>.</p>
-
-<div class="language-sh highlighter-rouge"><pre class="highlight"><code>brew install android-ndk
+<div class="language-gradle highlighter-rouge"><pre class="highlight"><code><span class="k">allprojects</span> <span class="o">{</span>
+    <span class="k">repositories</span> <span class="o">{</span>
+        <span class="n">jcenter</span><span class="o">()</span>
+    <span class="o">}</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
-<p>The NDK typically installs in the following location:</p>
+<h3 id="add-the-dependency">Add the dependency</h3>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>/usr/local/Cellar/android-ndk/
+<p>Once the repository is configured, you just need to add the dependency. In <code class="highlighter-rouge">YOUR_PROJECT_HOME/app/build.gradle</code> file, you need to add one line:</p>
+
+<div class="language-gradle highlighter-rouge"><pre class="highlight"><code><span class="k">dependencies</span> <span class="o">{</span>
+    <span class="n">compile</span> <span class="nf">fileTree</span><span class="o">(</span><span class="nl">dir:</span> <span class="s1">'libs'</span><span class="o">,</span> <span class="nl">include:</span> <span class="o">[</span><span class="s1">'*.jar'</span><span class="o">])</span>
+    <span class="n">compile</span> <span class="s1">'com.android.support:appcompat-v7:23.4.0'</span>
+    
+    <span class="c1">// other libraries will appear here</span>
+
+    <span class="n">compile</span> <span class="s1">'com.mousebirdconsulting.maply:Android:0.7'</span>
+<span class="o">}</span>
 </code></pre>
 </div>
 
-<p>The tutorial uses the following versions:</p>
+<p>The trailing <code class="highlighter-rouge">0.7</code> is the version to use. You can replace that with future version numbers.</p>
 
-<ul>
-  <li>Android Studio: Version 2.1.2</li>
-  <li>Native Development Kit: Version r10e</li>
-</ul>
+<h3 id="downloading-and-compiling">Downloading and compiling</h3>
 
-<p>Later versions should work fine, though you may find slight differences.</p>
+<p>If everything is in place, you just need to clean and compile the project (Build &gt; Clean) and check the Gradle Console panel to make sure the library was downloaded and included in the build.</p>
+
+<p>It may happen that the specified version is not included in JCenter yet (it happens when the version is quite new, because JCenter needs some time to get synchronized). If you get this error:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Could not find com.mousebirdconsulting.maply:Android:0.7.
+</code></pre>
+</div>
+
+<p>or maybe this one</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Failed to resolve: com.mousebirdconsulting.maply:Android:0.7
+</code></pre>
+</div>
+
+<p>then add the following “maven” section to your <code class="highlighter-rouge">YOUR_PROJECT_HOME/build.gradle</code> file</p>
+
+<div class="language-gradle highlighter-rouge"><pre class="highlight"><code><span class="k">allprojects</span> <span class="o">{</span>
+    <span class="k">repositories</span> <span class="o">{</span>
+        <span class="n">jcenter</span><span class="o">()</span>
+        <span class="n">maven</span> <span class="o">{</span>
+            <span class="n">url</span> <span class="s2">"https://dl.bintray.com/mousebirdconsulting/WhirlyGlobe/"</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>This way you’ll make sure the dependency will be found either in JCenter or in our own repository (inside Bintray too)</p>
 
 
 
@@ -208,7 +238,13 @@
                       
                       
                       
-                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/android/getting-started.html">Before You Start</a></li>
+                      
+                      
+                      
+                      
+                      
+                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/getting-started.html">Before You Start</a></li>
                       
                       
                       
@@ -382,11 +418,295 @@
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/hello-earth.html">Hello Earth Project</a></li>
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
                       
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Building From Nightly</a></li>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
                       
                       
                       
@@ -763,7 +1083,59 @@
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/your-first-globe-or-map.html">Your First Globe or Map</a></li>
+                      
+                      
+                      
+                      
+                      
+                      
                       
                       
                       
@@ -1065,6 +1437,12 @@
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/vector-data.html">Vector Data</a></li>
                       
                       
@@ -1191,7 +1569,19 @@
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/screen-markers.html">Screen Markers</a></li>
+                      
+                      
+                      
+                      
+                      
+                      
                       
                       
                       
@@ -1517,6 +1907,12 @@
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/spheres-android.html">Spheres</a></li>
                       
                       
@@ -1690,7 +2086,19 @@
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/vector-selection.html">Vector Selection</a></li>
+                      
+                      
+                      
+                      
+                      
+                      
                       
                       
                       
@@ -2018,6 +2426,12 @@
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       </ol>
                       
                     </ol>
@@ -2042,22 +2456,41 @@
 
             
             
+            
+            
+            
+
+            
+            
+            
+            
+            
+
+            
+            
 
             <!-- what follows is kinda horrifying -->
             <!-- is the current page the first page of the first tutorial section? -->
             
-            <!-- does this tutorial section have more than one page? -->
+
+            <!-- is the current page the last page of the last tutorial section? -->
             
-            <!--   assign prev to the last page of the last section (cycle) and next to the next page in the same section -->
+
+            <!-- is the current page the first in a tutorial section? -->
             
+
+            <!-- is the current page the last in a tutorial section containing multiple pages? -->
             
+
+            <!-- is the current page neither the first or last in a tutorial section -->
             
+
             
             
             
 
             <!-- deliver next/prev links -->
-            <a class="prev" href="/WhirlyGlobe/tutorial/android/auto-tester-android.html">Previous</a><a class="next" href="/WhirlyGlobe/tutorial/android/hello-earth.html">Next</a>
+            <a class="prev" href="/WhirlyGlobe/tutorial/android/hello-earth.html">Previous</a><a class="next" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Next</a>
 
 
             

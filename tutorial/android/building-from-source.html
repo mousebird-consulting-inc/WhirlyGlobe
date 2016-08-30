@@ -107,9 +107,7 @@
             <h2>Building From Source</h2>
             <p><em>Tutorial by Nicholas Hallahan.</em></p>
 
-<p>Currently the only way to include WhirlyGlobe-Maply into you Android project is by compiling the source code. We are working on Maven builds that can be simply included in your gradle file, but for now, you need to build from source.</p>
-
-<p>The advantage of building from source is that you can modify and customize WhirlyGlobe-Maply, and your changes will immediately be compiled into your project. If you plan on modifying this toolkit, building from source is your best option.</p>
+<p>Building the toolkit from source you’ll be able to modify and customize WhirlyGlobe-Maply, and your changes will immediately be compiled into your project. If you plan on modifying this toolkit, building from source is your best option.</p>
 
 <h3 id="clone-git-repository">Clone Git Repository</h3>
 
@@ -172,9 +170,54 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
 
 <p>Unless you need to debug the underlying library, you should use the <code class="highlighter-rouge">Android-release.aar</code> in your Hello Earth project. Keep track of this file, you will need to copy it into your app’s project.</p>
 
+<h3 id="copy-and-include-aar">Copy and Include AAR</h3>
+
+<p>Copy your <code class="highlighter-rouge">Android-release.aar</code> that you built into your app’s <code class="highlighter-rouge">libs</code> directory.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>WhirlyGlobe/WhirlyGlobeSrc/HelloEarth/app/libs
+</code></pre>
+</div>
+
+<p>Rename it to <code class="highlighter-rouge">WhirlyGlobeMaply.aar</code>.</p>
+
+<p>Add the following <code class="highlighter-rouge">flatDir</code> directive to your <code class="highlighter-rouge">Build.gradle (Project: HelloEarth)</code> file inside of the <code class="highlighter-rouge">allprojects &gt; repositories</code> directive.</p>
+
+<div class="language-gradle highlighter-rouge"><pre class="highlight"><code><span class="k">allprojects</span> <span class="o">{</span>
+    <span class="k">repositories</span> <span class="o">{</span>
+        <span class="n">jcenter</span><span class="o">()</span>
+        <span class="n">flatDir</span> <span class="o">{</span>
+            <span class="n">dirs</span> <span class="s1">'libs'</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Next add the following packages to the end of the <code class="highlighter-rouge">dependencies</code> directive in <code class="highlighter-rouge">Build.gradle (Module: app)</code>.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">compile 'com.squareup.okhttp:okhttp:2.3.0'</code></li>
+  <li><code class="highlighter-rouge">compile(name:'WhirlyGlobeMaply', ext:'aar')</code></li>
+</ul>
+
+<div class="language-gradle highlighter-rouge"><pre class="highlight"><code><span class="k">dependencies</span> <span class="o">{</span>
+    <span class="n">compile</span> <span class="nf">fileTree</span><span class="o">(</span><span class="nl">dir:</span> <span class="s1">'libs'</span><span class="o">,</span> <span class="nl">include:</span> <span class="o">[</span><span class="s1">'*.jar'</span><span class="o">])</span>
+    <span class="n">testCompile</span> <span class="s1">'junit:junit:4.12'</span>
+    <span class="n">compile</span> <span class="s1">'com.android.support:appcompat-v7:24.0.0'</span>
+    <span class="n">compile</span> <span class="s1">'com.android.support:support-v4:24.0.0'</span>
+    <span class="n">compile</span> <span class="s1">'com.squareup.okhttp:okhttp:2.3.0'</span>
+    <span class="n">compile</span><span class="o">(</span><span class="nl">name:</span> <span class="s1">'WhirlyGlobeMaply'</span><span class="o">,</span> <span class="nl">ext:</span> <span class="s1">'aar'</span><span class="o">)</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Android Studio will ask you to sync Gradle. If all goes well, it will sync without complaint.</p>
+
+<p><img src="resources/gradle-sync.png" alt="Gradle Sync" /></p>
+
 <h3 id="example-app">Example App</h3>
 
-<p>Before starting your own “<a href="hello-earth.html">Hello Earth</a>” project, there is an example app you can try out called <code class="highlighter-rouge">AutoTesterAndroid</code>. This is optional, but it is the quickest way to <em>see something work</em>. We have <a href="auto-tester-android.html">brief instructions</a> for you to build AutoTesterAndroid.</p>
+<p>Besides this “<a href="hello-earth.html">Hello Earth</a>” project, there is an example app you can try out called <code class="highlighter-rouge">AutoTesterAndroid</code>. This is optional, but it is the quickest way to <em>see something work</em>. We have <a href="auto-tester-android.html">brief instructions</a> for you to build AutoTesterAndroid.</p>
 
 
 
@@ -365,153 +408,6 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
                       
                       
                       
-                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-source.html">Building From Source</a></li>
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
                       
                       
                       
@@ -561,6 +457,159 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/hello-earth.html">Hello Earth Project</a></li>
+                      
+                      
+                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-repository.html">Building From Repository</a></li>
+                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Building From Nightly</a></li>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/android/building-from-source.html">Building From Source</a></li>
+                      
+                      
                       
                       
                       
@@ -2098,15 +2147,9 @@ ndk.dir=/usr/local/Cellar/android-ndk/r10e
             
 
             <!-- deliver next/prev links -->
-            <a class="prev" href="/WhirlyGlobe/tutorial/android/getting-started.html">Previous</a><a class="next" href="/WhirlyGlobe/tutorial/android/hello-earth.html">Next</a>
+            <a class="prev" href="/WhirlyGlobe/tutorial/android/building-from-nightly.html">Previous</a><a class="next" href="/WhirlyGlobe/tutorial/android/your-first-globe-or-map.html">Next</a>
 
 
-            
-            
-            
-            
-
-            
             
             
             
