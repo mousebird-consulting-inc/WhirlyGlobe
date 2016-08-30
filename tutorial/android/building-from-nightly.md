@@ -3,9 +3,9 @@ title: Building From Nightly
 layout: android-tutorial
 ---
 
-If you're up-to-date in the latest and the greatest improvements of the toolkit, probably you want to try them in your app.
+If you're up-to-date in the latest and the greatest improvements of the toolkit, you probably want to try them in your app.
 
-For that you can [Building the toolkit from Source](building-from-source.html), which is great because you can even add your own modifications (but be awere this modifications will probably be lost), or you can use any of our [nightly versions](/WhirlyGlobe/builds/builds.html).
+For that you can [build the toolkit from the source](building-from-source.html), which is great because you can even add your own modifications (but be aware your modifications will probably be lost, at some point), or you can use any of our [nightly versions](/WhirlyGlobe/builds/builds.html).
 
 
 ### Pick the version you need
@@ -17,7 +17,7 @@ You have to flavours:
   - _Nightly builds_: unexpectedly, they are version built every night (well, it depends which timezone you live in). Use this set of versions if you're sure that one specific change was included in that or previous days.
   - _Commit or Push builds_: this happens when someone push a change to one of the development branches. Use this version if you know the build number that includes your desired change.
 
-Once you've chosen the right version, just get download the `.aar` file from the [builds table](/WhirlyGlobe/builds/builds.html).
+Once you've chosen the right version, just download the `.aar` file from the [builds table](/WhirlyGlobe/builds/builds.html).
 
 
 ### Copy and Include AAR
