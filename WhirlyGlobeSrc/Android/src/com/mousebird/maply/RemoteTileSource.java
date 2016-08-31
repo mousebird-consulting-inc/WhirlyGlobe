@@ -198,6 +198,8 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
                 call = client.newCall(request);
                 call.enqueue(this);
             } catch (Exception e) {
+				if (debugOutput)
+					Log.e("Maply","Exception while trying to fetch the tile: " + e.toString());
             }
         }
 
