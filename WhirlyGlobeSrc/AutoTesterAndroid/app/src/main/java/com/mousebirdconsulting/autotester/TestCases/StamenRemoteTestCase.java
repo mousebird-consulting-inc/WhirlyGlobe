@@ -29,7 +29,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 	}
 
 	private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) {
-		String cacheDirName = "stamen_watercolor2";
+		String cacheDirName = "stamen_watercolor3";
 		File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
 		cacheDir.mkdir();
 		RemoteTileSource remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://tile.stamen.com/watercolor/", "png", 0, 18));

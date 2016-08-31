@@ -182,8 +182,12 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 							options.inPremultiplied = false;
                         BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
                         bm = BitmapFactory.decodeStream(aBufferedInputStream,null,options);
-						if (debugOutput)
-	                        Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " Bitmap = (" + bm.getWidth() + "," + bm.getHeight() + ")");
+						if (debugOutput) {
+							if (bm != null)
+								Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " Bitmap = (" + bm.getWidth() + "," + bm.getHeight() + ")");
+							else
+								Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " Bitmap = is null");
+						}
                     }
                 }
 
@@ -223,19 +227,25 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
                 bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
 
                 // Save to cache
-                if (cacheFile != null && rawImage != null) {
+                if (cacheFile != null && rawImage != null && bm != null) {
                     OutputStream fOut;
                     fOut = new FileOutputStream(cacheFile);
                     fOut.write(rawImage);
                     fOut.close();
                 }
 
-				if (debugOutput)
-	                Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+				if (debugOutput) {
+					if (bm != null)
+						Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " Bitmap = (" + bm.getWidth() + "," + bm.getHeight() + ")");
+					else {
+						Log.d("Maply", "Fetched remote tile " +  + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " but did not decode. length = " + rawImage.length);
+						Log.e("Maply", "Response for failed image decode: " + response.toString());
+					}
+				}
             }
             catch (Exception e)
             {
-                Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " Bitmap = (" + bm.getWidth() + "," + bm.getHeight() + ")");
+				Log.e("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " because: " + e.toString());
             }
 
             reportTile();

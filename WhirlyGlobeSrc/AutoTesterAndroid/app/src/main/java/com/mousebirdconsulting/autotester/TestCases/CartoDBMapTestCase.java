@@ -29,7 +29,7 @@ public class CartoDBMapTestCase extends MaplyTestCase {
 	}
 
 	private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) throws Exception {
-		String cacheDirName = "cartodb_light2";
+		String cacheDirName = "cartodb_light3";
 		File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
 		cacheDir.mkdir();
 		RemoteTileSource remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://light_all.basemaps.cartocdn.com/light_all/", "png", 0, 22));
