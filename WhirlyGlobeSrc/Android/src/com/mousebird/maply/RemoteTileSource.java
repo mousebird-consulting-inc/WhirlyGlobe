@@ -54,6 +54,11 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	boolean hasPremultiplyOption = false;
 
 	/**
+	 * Set this if you'd like full debugging output while loading
+	 */
+	public boolean debugOutput = false;
+
+	/**
 	 * The tile source delegate will be called back when a tile loads
 	 * or fails to load.
 	 * <p>
@@ -177,7 +182,8 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 							options.inPremultiplied = false;
                         BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
                         bm = BitmapFactory.decodeStream(aBufferedInputStream,null,options);
-//                        Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+						if (debugOutput)
+	                        Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " Bitmap = (" + bm.getWidth() + "," + bm.getHeight() + ")");
                     }
                 }
 
@@ -222,11 +228,12 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
                     fOut.close();
                 }
 
-//                Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+				if (debugOutput)
+	                Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
             }
             catch (Exception e)
             {
-                Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+                Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " Bitmap = (" + bm.getWidth() + "," + bm.getHeight() + ")");
             }
 
             reportTile();
@@ -266,8 +273,9 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	@Override
 	public void startFetchForTile(QuadImageTileLayerInterface layer, MaplyTileID tileID, int frame)
 	{
-//		Log.d("Maply","Starting fetch for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
-		
+		if (debugOutput)
+			Log.d("Maply","Starting fetch for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+
 		// Form the tile URL
 		int maxY = 1<<tileID.level;
 		int remoteY = maxY - tileID.y - 1;

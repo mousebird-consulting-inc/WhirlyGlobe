@@ -45,7 +45,18 @@ public class VectorObject implements Iterable<VectorObject>
 	{
 		initialise();
 	}
-	
+
+	/**
+	 * Unique ID used by Maply for selection.
+	 */
+	long ident = Identifiable.genID();
+
+	/**
+	 * Turn this on if you want the vector object to be selectable.
+	 *
+	 */
+	public boolean selectable = false;
+
 	/**
 	 * Return attributes for the feature.  If there are multiple features, we get the first one.
 	 */
@@ -109,6 +120,12 @@ public class VectorObject implements Iterable<VectorObject>
 	 * @return Orientation along the long at that point
 	 */
 	public native double linearMiddle(Point2d middle);
+
+	/**
+	 * Return true if the given point (in geo radians) is inside the vector feature.
+	 * Only makes sense with areals.
+     */
+	public native boolean pointInside(Point2d pt);
 	
 	/**
 	 * Load vector objects from a GeoJSON string.

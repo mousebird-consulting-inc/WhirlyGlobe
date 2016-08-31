@@ -42,10 +42,12 @@ public class VectorsTestCase extends MaplyTestCase {
 		for (String path : paths) {
 			InputStream stream = assetMgr.open("country_json_50m/" + path);
 			try {
-				VectorObject object = new VectorObject();
+				VectorObject vecObject = new VectorObject();
+				// Note: Nudging the build server to see if it sees this now
+				vecObject.selectable = true;
 				String json = IOUtils.toString(stream, Charset.defaultCharset());
-				if (object.fromGeoJSON(json)) {
-					vectors.add(object);
+				if (vecObject.fromGeoJSON(json)) {
+					vectors.add(vecObject);
 				}
 			} finally {
 				try {

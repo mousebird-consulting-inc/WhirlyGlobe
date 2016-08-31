@@ -116,6 +116,9 @@ public:
     // Return the given triangle as a VectorRing
     void getTriangle(int which,VectorRing &ring);
     
+    /// True if the given point is within one of the triangles
+    bool pointInside(GeoCoord coord);
+    
     // Bounding box in 2D
 	GeoMbr geoMbr;
 

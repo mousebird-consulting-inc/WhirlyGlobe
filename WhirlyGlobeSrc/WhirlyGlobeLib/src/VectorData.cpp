@@ -239,6 +239,23 @@ GeoMbr VectorTriangles::calcGeoMbr()
     return geoMbr;
 }
     
+bool VectorTriangles::pointInside(GeoCoord coord)
+{
+    if (geoMbr.inside(coord))
+    {
+        // Note: Could be made much faster
+        for (unsigned int ti=0;ti<tris.size();ti++)
+        {
+            VectorRing ring;
+            getTriangle(ti, ring);
+            if (PointInPolygon(coord, ring))
+                return true;
+        }
+    }
+    
+    return false;
+}
+
 void VectorTriangles::getTriangle(int which,VectorRing &ring)
 {
     if (which < 0 || which >= tris.size())

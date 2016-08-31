@@ -192,7 +192,6 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			@Override
 			public void run() {
 				EGL10 egl = (EGL10) EGLContext.getEGL();
-				egl.eglMakeCurrent(renderer.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
 
 				valid = false;
 				ArrayList<Layer> layersToRemove = null;
@@ -202,6 +201,8 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 				for (final Layer layer : layersToRemove) {
 					layer.shutdown();
 				}
+
+				egl.eglMakeCurrent(renderer.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
 
 				layers.clear();
 				endLock.release();

@@ -101,6 +101,17 @@ public class ComponentObject
 		vectorIDs.add(id);
 	}
 
+	ArrayList<VectorObject> vecObjs = null;
+
+	// Add a vector for selection
+	void addVector(VectorObject vecObj)
+	{
+		if (vecObjs == null)
+			vecObjs = new ArrayList<>();
+
+		vecObjs.add(vecObj);
+	}
+
 	long[] getVectorIDs()
 	{
 		if (vectorIDs == null)

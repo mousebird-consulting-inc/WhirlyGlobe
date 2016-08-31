@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
@@ -397,6 +398,10 @@ public class MaplyBaseController
 		startupAborted = true;
 		synchronized (this) {
 			running = false;
+
+			// This will make sure we have a valid context
+			setEGLContext(glContext);
+
 			renderWrapper.stopRendering();
 
 			//		Choreographer.getInstance().removeFrameCallback(this);
@@ -410,6 +415,7 @@ public class MaplyBaseController
 
 			metroThread.shutdown();
 			metroThread = null;
+
 
 			scene.teardownGL();
 			scene.shutdown();
@@ -639,7 +645,7 @@ public class MaplyBaseController
 					layerThread.setRenderer(renderWrapper.maplyRender);
 			}
 
-			// Note: Debugging output
+			// Debugging output
 			renderWrapper.maplyRender.setPerfInterval(perfInterval);
 
 			// Kick off the layout layer
@@ -725,16 +731,18 @@ public class MaplyBaseController
 		if (cInfo == null)
 			cInfo = glContext;
 
+		EGL10 egl = (EGL10) EGLContext.getEGL();
         if (cInfo != null)
         {
-            EGL10 egl = (EGL10) EGLContext.getEGL();
             if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
                 Log.d("Maply", "Failed to make current context.");
                 return false;
             }
 
             return true;
-        }
+        } else {
+			egl.eglMakeCurrent(renderWrapper.maplyRender.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
+		}
 
         return false;
     }
@@ -993,6 +1001,29 @@ public class MaplyBaseController
 			baseLayerThread.addTask(run,true);
 	}
 
+	protected ArrayList<ComponentObject> componentObjects = new ArrayList<ComponentObject>();
+
+	// Add and track a new component object
+	protected ComponentObject addComponentObj()
+	{
+		synchronized (componentObjects)
+		{
+			ComponentObject compObj = new ComponentObject();
+			componentObjects.add(compObj);
+
+			return compObj;
+		}
+	}
+
+	// Remove an existing component object
+	protected void removeComponentObj(ComponentObject compObj)
+	{
+		synchronized (componentObjects)
+		{
+			componentObjects.remove(compObj);
+		}
+	}
+
 	/**
 	 * Add vectors to the MaplyController to display.  Vectors are linear or areal
 	 * features with line width, filled style, color and so forth defined by the
@@ -1009,7 +1040,7 @@ public class MaplyBaseController
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = new ComponentObject();
+		final ComponentObject compObj = addComponentObj();
 		
 		// Do the actual work on the layer thread
 		Runnable run =
@@ -1028,9 +1059,17 @@ public class MaplyBaseController
 				if (vecId != EmptyIdentity)
 					compObj.addVectorID(vecId);
 
+				for (VectorObject vecObj : vecs)
+				{
+					// Keep track of this one for selection
+					if (vecObj.selectable)
+						compObj.addVector(vecObj);
+				}
+
 				if (vecInfo.disposeAfterUse || disposeAfterRemoval)
 					for (VectorObject vecObj : vecs)
-						vecObj.dispose();
+						if (!vecObj.selectable)
+							vecObj.dispose();
 			}
 		};
 		
@@ -1095,7 +1134,7 @@ public class MaplyBaseController
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = new ComponentObject();
+		final ComponentObject compObj = addComponentObj();
 
 		// Do the actual work on the layer thread
 		Runnable run =
@@ -1169,7 +1208,7 @@ public class MaplyBaseController
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = new ComponentObject();
+		final ComponentObject compObj = addComponentObj();
 
 		// Do the actual work on the layer thread
 		Runnable run =
@@ -1216,7 +1255,7 @@ public class MaplyBaseController
 		if (!running || stickerObj == null)
 			return null;
 
-		final ComponentObject compObj = new ComponentObject();
+		final ComponentObject compObj = addComponentObj();
 
 		// Do the actual work on the layer thread
 		Runnable run =
@@ -1282,6 +1321,18 @@ public class MaplyBaseController
 		}
 	}
 
+	// Filled in by the subclass
+	public Point2d geoPointFromScreen(Point2d screenPt)
+	{
+		return null;
+	}
+
+	// Filled in by the subclass
+	public Point2d screenPointFromGeo(Point2d geoCoord)
+	{
+		return null;
+	}
+
 	// Returns all the objects near a point
 	protected SelectedObject[] getObjectsAtScreenLoc(Point2d screenLoc)
 	{
@@ -1290,19 +1341,51 @@ public class MaplyBaseController
 		Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
 		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
-		SelectedObject objs[] = selectionManager.pickObjects(view, frameLoc);
-		if (objs != null)
+		// Ask the selection manager
+		SelectedObject selManObjs[] = selectionManager.pickObjects(view, frameLoc);
+		if (selManObjs != null)
 		{
 			// Remap the objects
 			synchronized(selectionMap) {
-				for (SelectedObject selObj : objs) {
+				for (SelectedObject selObj : selManObjs) {
 					long selectID = selObj.getSelectID();
 					selObj.selObj = selectionMap.get(selectID);
 				}
 			}
 		}
 
-		return objs;
+		Point2d geoPt = geoPointFromScreen(screenLoc);
+		if (geoPt == null)
+			return null;
+
+		// Also check any vectors that were selectable
+		ComponentObject[] theCompObjs;
+		ArrayList<SelectedObject> vecSelObjs = new ArrayList<SelectedObject>();
+		synchronized (componentObjects)
+		{
+			theCompObjs = componentObjects.toArray(new ComponentObject[componentObjects.size()]);
+		}
+		for (ComponentObject compObj: theCompObjs)
+		{
+			if (compObj.vecObjs != null)
+				for (VectorObject vecObj : compObj.vecObjs)
+					if (vecObj.pointInside(geoPt))
+					{
+						// Note: Are the rest of the defaults useful?
+						SelectedObject selObj = new SelectedObject();
+						selObj.selObj = vecObj;
+						vecSelObjs.add(selObj);
+					}
+		}
+
+		if (vecSelObjs.size() == 0)
+			return selManObjs;
+		{
+			if (selManObjs != null)
+				for (SelectedObject selObj : selManObjs)
+					vecSelObjs.add(selObj);
+			return vecSelObjs.toArray(new SelectedObject[vecSelObjs.size()]);
+		}
 	}
 
 	/**
@@ -1361,7 +1444,7 @@ public class MaplyBaseController
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = new ComponentObject();
+		final ComponentObject compObj = addComponentObj();
 
 		// Do the actual work on the layer thread
 		Runnable run =
@@ -1748,6 +1831,8 @@ public class MaplyBaseController
 				{
 					compObj.clear(control, changes);
 					removeSelectableObjects(compObj);
+
+					removeComponentObj(compObj);
 				}
 				if (scene != null)
 					changes.process(scene);
@@ -1771,7 +1856,7 @@ public class MaplyBaseController
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = new ComponentObject();
+		final ComponentObject compObj = addComponentObj();
 		final ChangeSet changes = new ChangeSet();
 
 		for (Bitmap image : particleSystem.getTextures()) {
@@ -1825,7 +1910,7 @@ public class MaplyBaseController
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = new ComponentObject();
+		final ComponentObject compObj = addComponentObj();
 		final ChangeSet changes = new ChangeSet();
 		Runnable run = new Runnable() {
 			@Override
@@ -1835,6 +1920,12 @@ public class MaplyBaseController
 					compObj.addShapeID(shapeId);
 				if (scene != null)
 					changes.process(scene);
+
+				for (Shape shape : shapes)
+					if (shape.isSelectable())
+					{
+						addSelectableObject(shape.getSelectID(), shape, compObj);
+					}
 
 				if (shapeInfo.disposeAfterUse || disposeAfterRemoval)
 					for (Shape shape : shapes)
@@ -1964,7 +2055,7 @@ public class MaplyBaseController
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = new ComponentObject();
+		final ComponentObject compObj = addComponentObj();
 
 		// Do the actual work on the layer thread
 		Runnable run =

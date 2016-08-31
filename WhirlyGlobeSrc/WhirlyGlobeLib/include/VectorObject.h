@@ -54,6 +54,9 @@ public:
     
     /// @brief Find the middle of a linear feature and return a rotation along that feature
     bool linearMiddle(Point2f &mid,float &rot);
+    
+    /// @brief Point inside polygon test
+    bool pointInside(const Point2d &pt);
 
     /// @brief Read from a file
     bool fromFile(const std::string &fileName);

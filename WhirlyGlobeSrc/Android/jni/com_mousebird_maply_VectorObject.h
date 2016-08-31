@@ -73,6 +73,14 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorObject_linearMiddle
 
 /*
  * Class:     com_mousebird_maply_VectorObject
+ * Method:    pointInside
+ * Signature: (Lcom/mousebird/maply/Point2d;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_pointInside
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
  * Method:    fromGeoJSON
  * Signature: (Ljava/lang/String;)Z
  */
