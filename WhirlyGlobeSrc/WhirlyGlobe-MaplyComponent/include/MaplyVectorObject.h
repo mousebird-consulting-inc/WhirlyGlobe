@@ -279,6 +279,11 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
   */
 - (bool)boundingBoxLL:(MaplyCoordinate *__nonnull)ll ur:(MaplyCoordinate *__nonnull)ur;
 
+/** @brief Calculate the area of the outer loops.
+    @details This returns the area of the outer loops of any areal features in the VectorObject.
+  */
+- (double)areaOfOuterLoops;
+
 /** @brief Convert a feature to an NSArray of NSArrays of CLLocation points.
     @details This is intended for areal features.  It will convert those coordinates to CLLocation values and return them.  Obviously this is intended for things that need CLLocation values.
     @return Returns an NSArray of NSArray's which then contain CLLocation points.
