@@ -97,7 +97,7 @@
     }
     
     DDXMLElement *sldNode = [doc rootElement];
-    if (![[[[sldNode name] componentsSeparatedByString:@":"] lastObject] isEqualToString:@"StyledLayerDescriptor"]) {
+    if (![[sldNode localName] isEqualToString:@"StyledLayerDescriptor"]) {
         NSLog(@"Error getting unique StyledLayerDescriptor node.");
         return;
     }
@@ -150,7 +150,7 @@
     }
     
     sldNamedLayer.name = [nameNode stringValue];
-    NSLog(@"layer %@ %@", [nameNode name], [nameNode stringValue]);
+    NSLog(@"layer %@ %@", [nameNode localName], [nameNode stringValue]);
     
     
     NSMutableArray *userStyles = [NSMutableArray array];
@@ -270,7 +270,7 @@
     rule.symbolizers = [NSMutableArray array];
     
     for (DDXMLNode *child in [ruleNode children]) {
-        NSString *name = [child name];
+        NSString *name = [child localName];
         NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator];
         
         if (symbolizers) {
@@ -302,7 +302,7 @@
             break;
         }
         else
-            NSLog(@"unmatched %@", [child name]);
+            NSLog(@"unmatched %@", [child localName]);
     }
 
     return filter;
