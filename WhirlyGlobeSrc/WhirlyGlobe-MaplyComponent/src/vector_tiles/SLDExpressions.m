@@ -15,7 +15,7 @@
 
 + (SLDExpression *)expressionForNode:(DDXMLNode *)node {
     
-    NSString *name = [node name];
+    NSString *name = [node localName];
     if ([SLDPropertyNameExpression matchesElementNamed:name])
         return [[SLDPropertyNameExpression alloc] initWithElement:(DDXMLElement *)node];
     else if ([SLDLiteralExpression matchesElementNamed:name])
@@ -43,8 +43,7 @@
 
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
-    return [stripped isEqualToString:@"Literal"];
+    return [elementName isEqualToString:@"Literal"];
 }
 
 @end
@@ -63,8 +62,7 @@
 
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
-    return [stripped isEqualToString:@"PropertyName"];
+    return [elementName isEqualToString:@"PropertyName"];
 }
 
 @end
@@ -75,7 +73,7 @@
 - (_Nullable id)initWithElement:(DDXMLElement *)element {
     self = [super init];
     if (self) {
-        self.elementName = [[[element name] componentsSeparatedByString:@":"] lastObject];;
+        self.elementName = [element localName];
         
         NSMutableArray<SLDExpression *> *expressions = [NSMutableArray array];
         for (DDXMLNode *child in [element children]) {
@@ -113,11 +111,10 @@
 }
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
     static NSSet *set;
     if (!set)
         set = [NSSet setWithArray:@[@"Add", @"Sub", @"Mul", @"Div"]];
-    return [set containsObject:stripped];
+    return [set containsObject:elementName];
 }
 
 @end

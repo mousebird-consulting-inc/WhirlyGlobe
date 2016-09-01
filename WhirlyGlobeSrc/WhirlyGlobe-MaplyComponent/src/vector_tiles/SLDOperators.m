@@ -15,7 +15,7 @@
 }
 
 + (SLDOperator *)operatorForNode:(DDXMLNode *)node {
-    NSString *name = [node name];
+    NSString *name = [node localName];
     if ([SLDLogicalOperator matchesElementNamed:name])
         return [[SLDLogicalOperator alloc] initWithElement:(DDXMLElement *)node];
     else if ([SLDBinaryComparisonOperator matchesElementNamed:name])
@@ -37,7 +37,7 @@
 - (_Nullable id)initWithElement:(DDXMLElement *)element {
     self = [super init];
     if (self) {
-        self.elementName = [[[element name] componentsSeparatedByString:@":"] lastObject];
+        self.elementName = [element localName];
         DDXMLNode *matchCaseNode = [element attributeForName:@"matchCase"];
         if (matchCaseNode)
             self.matchCase = ([[matchCaseNode stringValue] isEqualToString:@"true"]);
@@ -84,11 +84,10 @@
 
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
     static NSSet *set;
     if (!set)
         set = [NSSet setWithArray:@[@"PropertyIsEqualTo", @"PropertyIsNotEqualTo", @"PropertyIsLessThan", @"PropertyIsGreaterThan", @"PropertyIsLessThanOrEqualTo", @"PropertyIsGreaterThanOrEqualTo"]];
-    return [set containsObject:stripped];
+    return [set containsObject:elementName];
 }
 
 @end
@@ -117,8 +116,7 @@
 }
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
-    return [stripped isEqualToString:@"PropertyIsNull"];
+    return [elementName isEqualToString:@"PropertyIsNull"];
 }
 
 @end
@@ -243,8 +241,7 @@
 
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
-    return [stripped isEqualToString:@"PropertyIsLike"];
+    return [elementName isEqualToString:@"PropertyIsLike"];
 }
 
 @end
@@ -257,7 +254,7 @@
     if (self) {
         
         for (DDXMLNode *child in [element children]) {
-            NSString *childName = [[[child name] componentsSeparatedByString:@":"] lastObject];
+            NSString *childName = [child localName];
             SLDExpression *expression = [SLDExpression expressionForNode:child];
             if (!self.subExpression && expression)
                 self.subExpression = expression;
@@ -303,8 +300,7 @@
 
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
-    return [stripped isEqualToString:@"PropertyIsBetween"];
+    return [elementName isEqualToString:@"PropertyIsBetween"];
 }
 
 @end
@@ -337,8 +333,7 @@
 }
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
-    return [stripped isEqualToString:@"Not"];
+    return [elementName isEqualToString:@"Not"];
 }
 
 @end
@@ -350,7 +345,7 @@
 - (_Nullable id)initWithElement:(DDXMLElement *)element {
     self = [super init];
     if (self) {
-        self.elementName = [[[element name] componentsSeparatedByString:@":"] lastObject];
+        self.elementName = [element localName];
         NSMutableArray<SLDOperator *> *subOperators = [NSMutableArray array];
         
         for (DDXMLNode *child in [element children]) {
@@ -377,8 +372,7 @@
 
 
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
-    NSString *stripped = [[elementName componentsSeparatedByString:@":"] lastObject];
-    return ([stripped isEqualToString:@"And"] || [stripped isEqualToString:@"Or"]);
+    return ([elementName isEqualToString:@"And"] || [elementName isEqualToString:@"Or"]);
 }
 
 @end
