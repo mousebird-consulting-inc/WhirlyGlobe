@@ -40,6 +40,40 @@
 @end
 
 
+@interface SLDIsNullOperator : SLDOperator
+
+@property (nonatomic, strong) SLDExpression * _Nonnull subExpression;
+
+- (_Nullable id)initWithElement:(DDXMLElement * _Nonnull)element;
+
+@end
+
+
+@interface SLDIsLikeOperator : SLDOperator
+
+@property (nonatomic, strong) NSString *wildCardStr;
+@property (nonatomic, strong) NSString *singleCharStr;
+@property (nonatomic, strong) NSString *escapeCharStr;
+@property (nonatomic, assign) BOOL matchCase;
+@property (nonatomic, strong) SLDPropertyNameExpression * _Nonnull propertyExpression;
+@property (nonatomic, strong) SLDLiteralExpression * _Nonnull literalExpression;
+
+- (_Nullable id)initWithElement:(DDXMLElement * _Nonnull)element;
+
+@end
+
+@interface SLDIsBetweenOperator : SLDOperator
+
+@property (nonatomic, strong) SLDExpression * _Nonnull subExpression;
+@property (nonatomic, strong) SLDExpression * _Nonnull lowerBoundaryExpression;
+@property (nonatomic, strong) SLDExpression * _Nonnull upperBoundaryExpression;
+
+- (_Nullable id)initWithElement:(DDXMLElement * _Nonnull)element;
+
+@end
+
+
+
 /** @brief Class corresponding to the ogc:Not element
  @see http://schemas.opengis.net/filter/1.1.0/expr.xsd for SLD v1.1.0
  @see http://schemas.opengis.net/filter/1.0.0/expr.xsd for SLD v1.0.0
