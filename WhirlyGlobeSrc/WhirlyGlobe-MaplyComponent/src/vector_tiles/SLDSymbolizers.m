@@ -126,6 +126,64 @@
     return params;
 }
 
+
+
+
+
+
+
+
++ (UIImage *)imageForHref:(NSString *)href format:(NSString *)format {
+    
+    
+    static NSMutableDictionary *images;
+    if (!images)
+        images = [NSMutableDictionary dictionary];
+    
+    UIImage *image = images[href];
+    if (image)
+        return image;
+    
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_group_enter(group);
+    
+    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: defaultConfigObject];
+    NSURL * url = [NSURL URLWithString:href];
+    
+    __block NSData *imageData;
+    
+    NSURLSessionDataTask * dataTask = [defaultSession dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        
+        imageData = data;
+        
+        dispatch_group_leave(group);
+    }];
+    
+    [dataTask resume];
+    
+    long status = dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW,NSEC_PER_SEC * 5));
+    if (status != 0) {
+        // timed out
+        [dataTask cancel];
+        NSLog(@"SLDSymbolizer imageForHref timed out.");
+        return nil;
+    }
+    
+    if (imageData)
+        image = [UIImage imageWithData:imageData];
+    if (image)
+        images[href] = image;
+    return image;
+}
+
+
+
+
+
+
+
+
 @end
 
 @implementation SLDLineSymbolizer
@@ -202,16 +260,22 @@
     DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke"];
    
     NSMutableArray <MaplyVectorTileStyle *> *styles = [NSMutableArray array];
-    if (strokeNode)
-        [styles addObject:[SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom]];
+    if (strokeNode) {
+        MaplyVectorTileStyle *style = [SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
+        if (style)
+            [styles addObject:style];
+    }
     
-    if (fillNode)
-        [styles addObject:[SLDPolygonSymbolizer maplyVectorTileStyleFromFillNode:fillNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom]];
+    if (fillNode) {
+        MaplyVectorTileStyle *style = [SLDPolygonSymbolizer maplyVectorTileStyleFromFillNode:fillNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
+        if (style)
+            [styles addObject:style];
+    }
+    
+    NSLog(@"SLDPolygonSymbolizer flag 2");
 
     if (styles.count > 0)
         return styles;
-    
-    NSLog(@"SLDPolygonSymbolizer flag 2");
 
     return nil;
 }
@@ -275,10 +339,65 @@
     
     for (DDXMLNode *child in [graphicNode children]) {
         NSString *strippedChildName = [[[child name] componentsSeparatedByString:@":"] lastObject];
+        
         if ([strippedChildName isEqualToString:@"ExternalGraphic"]) {
+        
+            DDXMLElement *onlineResourceNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"OnlineResource"];
+            DDXMLElement *inlineContentNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"InlineContent"];
+            DDXMLElement *formatNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Format"];
             
-            NSLog(@"Skipping MarkerSymbolizer with ExternalGraphic.");
-            return nil;
+            NSString *format = [formatNode stringValue];
+            
+            if (![format isEqualToString:@"image/png"] && ![format isEqualToString:@"image/gif"]) {
+                NSLog(@"SLDPointSymbolizer: Skipping unsupported graphic format.");
+                return nil;
+            }
+            
+            if (onlineResourceNode) {
+                
+                DDXMLNode *hrefNode = [onlineResourceNode attributeForName:@"href"];
+                DDXMLNode *typeNode = [onlineResourceNode attributeForName:@"type"];
+                if (!hrefNode || (typeNode && ![[typeNode stringValue] isEqualToString:@"simple"])) {
+                    NSLog(@"SLDPointSymbolizer: Skipping unsupported graphic.");
+                    return nil;
+                }
+                
+                pointParams[@"image"] = [SLDSymbolizer imageForHref:[hrefNode stringValue] format:format];
+                
+            } else if (inlineContentNode) {
+                
+                DDXMLNode *encodingNode = [onlineResourceNode attributeForName:@"encoding"];
+                if (!encodingNode || ![[encodingNode stringValue] isEqualToString:@"base64"]) {
+                    NSLog(@"SLDPointSymbolizer: Unsupported InlineContent encoding.");
+                    return nil;
+                }
+                NSString *contents;
+                for (DDXMLNode *child2 in [inlineContentNode children]) {
+                    if ([child2 kind] == DDXMLTextKind) {
+                        contents =[child2 XMLString];
+                        break;
+                    }
+                }
+                
+                if (!contents) {
+                    NSLog(@"SLDPointSymbolizer: Failed to read InlineContent.");
+                    return nil;
+                }
+                
+                NSData *imageData = [[NSData alloc] initWithBase64EncodedString:contents options:0];
+                UIImage *img = [UIImage imageWithData:imageData];
+                if (!img) {
+                    NSLog(@"SLDPointSymbolizer: Failed to create image with InlineContent data.");
+                    return nil;
+                }
+                
+                pointParams[@"image"] = img;
+                
+            } else {
+                NSLog(@"SLDPointSymbolizer: Unexpected ExternalGraphic structure.");
+                return nil;
+            }
+            
             
         } else if ([strippedChildName isEqualToString:@"Mark"]) {
             
