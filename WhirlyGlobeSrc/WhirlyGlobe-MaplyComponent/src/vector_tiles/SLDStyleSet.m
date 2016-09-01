@@ -59,6 +59,7 @@
         self.tileStyleSettings.lineScale = [UIScreen mainScreen].scale;
         self.tileStyleSettings.dashPatternScale =  [UIScreen mainScreen].scale;
         self.tileStyleSettings.markerScale = [UIScreen mainScreen].scale;
+        self.tileStyleSettings.useWideVectors = true;
         symbolizerId = 0;
         self.symbolizers = [NSMutableDictionary dictionary];
     }
@@ -96,7 +97,7 @@
     }
     
     DDXMLElement *sldNode = [doc rootElement];
-    if (![[sldNode name] isEqualToString:@"StyledLayerDescriptor"]) {
+    if (![[[[sldNode name] componentsSeparatedByString:@":"] lastObject] isEqualToString:@"StyledLayerDescriptor"]) {
         NSLog(@"Error getting unique StyledLayerDescriptor node.");
         return;
     }
@@ -316,6 +317,14 @@
                                               onTile:(MaplyTileID)tileID
                                              inLayer:(NSString *__nonnull)layer
                                                viewC:(MaplyBaseViewController *__nonnull)viewC {
+    
+    static NSMutableSet *set;
+    if (!set)
+        set = [NSMutableSet set];
+    if (![set containsObject:layer]) {
+        [set addObject:layer];
+        NSLog(@"Layer: %@", layer);
+    }
     
     
     if (self.useLayerNames) {
