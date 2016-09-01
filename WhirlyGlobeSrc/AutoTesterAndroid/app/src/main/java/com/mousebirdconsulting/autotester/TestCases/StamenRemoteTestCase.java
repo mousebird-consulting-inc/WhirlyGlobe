@@ -9,6 +9,7 @@ import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.RemoteTileInfo;
 import com.mousebird.maply.RemoteTileSource;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
+import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 import java.io.File;
@@ -27,8 +28,8 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		//this.remoteResources.add("https://manuals.info.apple.com/en_US/macbook_retina_12_inch_early2016_essentials.pdf");
 	}
 
-	private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController) {
-		String cacheDirName = "stamen_watercolor";
+	private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) {
+		String cacheDirName = "stamen_watercolor3";
 		File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
 		cacheDir.mkdir();
 		RemoteTileSource remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://tile.stamen.com/watercolor/", "png", 0, 18));
@@ -37,18 +38,24 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 //		remoteTileSource.debugOutput = true;
 		SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
 		QuadImageTileLayer baseLayer = new QuadImageTileLayer(baseController, coordSystem, remoteTileSource);
-		baseLayer.setImageDepth(1);
-		baseLayer.setSingleLevelLoading(false);
-		baseLayer.setUseTargetZoomLevel(false);
-		baseLayer.setCoverPoles(true);
-		baseLayer.setHandleEdges(true);
+		if (testType == ConfigOptions.TestType.MapTest)
+		{
+//			baseLayer.setSingleLevelLoading(true);
+//			baseLayer.setUseTargetZoomLevel(true);
+//			baseLayer.setMultiLevelLoads(new int[]{-3});
+			baseLayer.setCoverPoles(false);
+			baseLayer.setHandleEdges(false);
+		} else {
+			baseLayer.setCoverPoles(true);
+			baseLayer.setHandleEdges(true);
+		}
 		return baseLayer;
 
 	}
 
 	@Override
 	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-		globeVC.addLayer(setupImageLayer(globeVC));
+		globeVC.addLayer(setupImageLayer(ConfigOptions.TestType.GlobeTest,globeVC));
 		globeVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
 //		globeVC.setZoomLimits(0.0,1.0);
 		return true;
@@ -57,7 +64,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 	@Override
 	public boolean setUpWithMap(MapController mapVC)
 	{
-		mapVC.addLayer(setupImageLayer(mapVC));
+		mapVC.addLayer(setupImageLayer(ConfigOptions.TestType.MapTest,mapVC));
 		mapVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
 		mapVC.setAllowRotateGesture(true);
 //		mapVC.setZoomLimits(0.0,1.0);

@@ -29,7 +29,7 @@ public class CartoDBMapTestCase extends MaplyTestCase {
 	}
 
 	private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) throws Exception {
-		String cacheDirName = "cartodb_light";
+		String cacheDirName = "cartodb_light3";
 		File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
 		cacheDir.mkdir();
 		RemoteTileSource remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://light_all.basemaps.cartocdn.com/light_all/", "png", 0, 22));
@@ -38,7 +38,6 @@ public class CartoDBMapTestCase extends MaplyTestCase {
 		remoteTileSource.setCacheDir(cacheDir);
 		SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
 		QuadImageTileLayer baseLayer = new QuadImageTileLayer(baseController, coordSystem, remoteTileSource);
-
 		if (testType == ConfigOptions.TestType.MapTest)
 		{
 //			baseLayer.setSingleLevelLoading(true);

@@ -1,7 +1,5 @@
 package com.mousebird.maply;
 
-import android.util.Log;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -131,10 +129,12 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
                             VectorStyle style = vecStyleFactory.styleForUUID(uuid,layer.maplyControl);
 
                             // This makes the objects
-                            ComponentObject[] compObjs = style.buildObjects(vecObjs,tileID,layer.maplyControl);
-                            if (compObjs != null)
-                                for (int ii=0;ii<compObjs.length;ii++)
-                                    tileCompObjs.add(compObjs[ii]);
+                            if (style != null) {
+                                ComponentObject[] compObjs = style.buildObjects(vecObjs, tileID, layer.maplyControl);
+                                if (compObjs != null)
+                                    for (int ii = 0; ii < compObjs.length; ii++)
+                                        tileCompObjs.add(compObjs[ii]);
+                            }
                         }
                     }
 
