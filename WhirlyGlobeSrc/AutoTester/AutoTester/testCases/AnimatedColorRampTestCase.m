@@ -86,6 +86,9 @@ static NSString *fragmentShaderTriMultiTexCubicRamp =
 ;
 
 @implementation AnimatedColorRampTestCase
+{
+    MaplyBaseViewController * __weak baseVC;
+}
 
 - (instancetype)init
 {
@@ -98,8 +101,32 @@ static NSString *fragmentShaderTriMultiTexCubicRamp =
     return self;
 }
 
+// Dump frame loading output periodically
+- (void)dumpOutput:(MaplyQuadImageTilesLayer *)layer
+{
+    if (!baseVC)
+        return;
+    
+    NSArray *states = layer.loadedFrames;
+    NSMutableString *str = [NSMutableString stringWithFormat:@"frames = "];
+    for (MaplyFrameStatus *status in states)
+    {
+        [str appendFormat:@"%2d",status.numTilesLoaded];
+        if (status.fullyLoaded)
+            [str appendString:(status.currentFrame ? @"L" : @"l")];
+        else
+            [str appendString:(status.currentFrame ? @"U" : @"u")];
+        [str appendString:@" "];
+    }
+    [str appendFormat:@"  outstanding = %d",[MaplyMultiplexTileSource numOutstandingConnections]];
+    NSLog(@"%@",str);
+    
+    [self performSelector:@selector(dumpOutput:) withObject:layer afterDelay:2.0];
+}
+
 - (void)setupWeatherLayer:(MaplyBaseViewController *)viewC
 {
+    baseVC = viewC;
     UIImage *colorRamp = [UIImage imageNamed:@"colorramp.png"];
     MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Color Ramp Test Shader" vertex:vertexShaderNoLightTri fragment:fragmentShaderTriMultiTexRamp viewC:viewC];
     [viewC addShaderProgram:shader sceneName:@"Color Ramp Test Shader"];
@@ -127,6 +154,9 @@ static NSString *fragmentShaderTriMultiTexCubicRamp =
     precipLayer.handleEdges = false;
     precipLayer.coverPoles = false;
     precipLayer.shaderProgramName = shader.name;
+    
+    [MaplyMultiplexTileSource setTrackConnections:true];
+    [self performSelector:@selector(dumpOutput:) withObject:precipLayer afterDelay:2.0];
 
     [viewC addLayer:precipLayer];
 }
