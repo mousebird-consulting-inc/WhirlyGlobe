@@ -229,6 +229,16 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
     }
 
     /**
+     * The user tapped outside the globe.
+     *
+     * @param globeControl The maply controller this is associated with.
+     * @param screenLoc The location on the OpenGL surface.
+     */
+    public void userDidTapOutside(GlobeController globeControl,Point2d screenLoc)
+    {
+    }
+
+    /**
      * The user did long press somewhere, there might be an object
      * @param globeControl The maply controller this is associated with.
      * @param selObjs The objects the user selected (e.g. MaplyScreenMarker) or null if there was no object.
