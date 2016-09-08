@@ -27,6 +27,7 @@
 #import "GlobeMath.h"
 #import "FlatMath.h"
 #import "VectorData.h"
+#import "WhirlyKitLog.h"
 
 // Turn on output logging
 //#define LOGLOADING

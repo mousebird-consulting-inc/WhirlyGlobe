@@ -1238,7 +1238,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeShutdow
 		if (!adapter || !changes)
 			return;
 //        adapter->env = env;
-		adapter->control->shutdown(*changes);
+        adapter->shutdownLayer(*changes);
 	}
 	catch (...)
 	{

@@ -831,7 +831,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_nativeShut
         if (!adapter || !changes)
             return;
         
-        adapter->control->shutdown(*changes);
+        adapter->shutdownLayer(*changes);
     }
     catch (...)
     {
