@@ -7,7 +7,7 @@
 //
 
 #import "AnimatedColorRampTestCase.h"
-#import "CartoDBLightTestCase.h"
+#import "GeographyClassTestCase.h"
 #import <WhirlyGlobeComponent.h>
 
 // Note: Rather than copying the shader code in here, we should have a way to look it up
@@ -47,7 +47,7 @@ static NSString *fragmentShaderTriMultiTexRamp =
 "  float baseVal0 = texture2D(s_baseMap0, v_texCoord).a;\n"
 "  float baseVal1 = texture2D(s_baseMap1, v_texCoord).a;\n"
 "  float index = mix(baseVal0,baseVal1,u_interp);\n"
-"  gl_FragColor = texture2D(s_colorRamp,vec2(index,0.5)) * v_color;\n"
+"  gl_FragColor = texture2D(s_colorRamp,vec2(index,0.5));\n"
 "}\n"
 ;
 
@@ -81,11 +81,14 @@ static NSString *fragmentShaderTriMultiTexCubicRamp =
 "  float baseVal0 = texture2D(s_baseMap0, v_texCoord).a;\n"
 "  float baseVal1 = texture2D(s_baseMap1, v_texCoord).a;\n"
 "  float index = mix(baseVal0,baseVal1,u_interp);\n"
-"  gl_FragColor = texture2D(s_colorRamp,vec2(index,0.5)) * v_color;\n"
+"  gl_FragColor = texture2D(s_colorRamp,vec2(index,0.5));\n"
 "}\n"
 ;
 
 @implementation AnimatedColorRampTestCase
+{
+    MaplyBaseViewController * __weak baseVC;
+}
 
 - (instancetype)init
 {
@@ -98,8 +101,32 @@ static NSString *fragmentShaderTriMultiTexCubicRamp =
     return self;
 }
 
+// Dump frame loading output periodically
+- (void)dumpOutput:(MaplyQuadImageTilesLayer *)layer
+{
+    if (!baseVC)
+        return;
+    
+    NSArray *states = layer.loadedFrames;
+    NSMutableString *str = [NSMutableString stringWithFormat:@"frames = "];
+    for (MaplyFrameStatus *status in states)
+    {
+        [str appendFormat:@"%2d",status.numTilesLoaded];
+        if (status.fullyLoaded)
+            [str appendString:(status.currentFrame ? @"L" : @"l")];
+        else
+            [str appendString:(status.currentFrame ? @"U" : @"u")];
+        [str appendString:@" "];
+    }
+    [str appendFormat:@"  outstanding = %d",[MaplyMultiplexTileSource numOutstandingConnections]];
+    NSLog(@"%@",str);
+    
+    [self performSelector:@selector(dumpOutput:) withObject:layer afterDelay:2.0];
+}
+
 - (void)setupWeatherLayer:(MaplyBaseViewController *)viewC
 {
+    baseVC = viewC;
     UIImage *colorRamp = [UIImage imageNamed:@"colorramp.png"];
     MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Color Ramp Test Shader" vertex:vertexShaderNoLightTri fragment:fragmentShaderTriMultiTexRamp viewC:viewC];
     [viewC addShaderProgram:shader sceneName:@"Color Ramp Test Shader"];
@@ -127,14 +154,16 @@ static NSString *fragmentShaderTriMultiTexCubicRamp =
     precipLayer.handleEdges = false;
     precipLayer.coverPoles = false;
     precipLayer.shaderProgramName = shader.name;
-    precipLayer.color = [UIColor colorWithWhite:0.5 alpha:0.5];
+    
+    [MaplyMultiplexTileSource setTrackConnections:true];
+    [self performSelector:@selector(dumpOutput:) withObject:precipLayer afterDelay:2.0];
 
     [viewC addLayer:precipLayer];
 }
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc]init];
+    GeographyClassTestCase *baseView = [[GeographyClassTestCase alloc]init];
     [baseView setUpWithGlobe:globeVC];
     [self setupWeatherLayer:globeVC];
 }
@@ -142,7 +171,7 @@ static NSString *fragmentShaderTriMultiTexCubicRamp =
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc]init];
+    GeographyClassTestCase *baseView = [[GeographyClassTestCase alloc]init];
     [baseView setUpWithMap:mapVC];
     [self setupWeatherLayer:mapVC];
 }
