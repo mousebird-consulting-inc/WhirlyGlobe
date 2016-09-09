@@ -18,6 +18,7 @@
  *
  */
 
+#import <UIKit/UIKit.h>
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "VectorData.h"
