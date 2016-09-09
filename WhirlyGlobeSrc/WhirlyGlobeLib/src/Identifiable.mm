@@ -18,6 +18,7 @@
  *
  */
 
+#import <UIKit/UIKit.h>
 #import "Identifiable.h"
 #include <pthread.h>
 
