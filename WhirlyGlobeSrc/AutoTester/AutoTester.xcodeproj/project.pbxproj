@@ -10,6 +10,7 @@
 		2B158BEF1D5D19E900103E04 /* VectorHoleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */; };
 		2B1C264F1C90FFFC00C71B0A /* VectorMBTilesTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */; };
 		2B1C26531C91037100C71B0A /* France.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C26511C9100A500C71B0A /* France.mbtiles */; };
+		2B2A417E1D83454900098E12 /* ActiveObjectTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */; };
 		2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */; };
 		2B4BA6CE1C83A22000DC1562 /* leftbend.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C21C83A22000DC1562 /* leftbend.geojson */; };
 		2B4BA6CF1C83A22000DC1562 /* leftv.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C31C83A22000DC1562 /* leftv.geojson */; };
@@ -551,6 +552,8 @@
 		2B1C264D1C90FFFC00C71B0A /* VectorMBTilesTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorMBTilesTestCase.h; sourceTree = "<group>"; };
 		2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorMBTilesTestCase.m; sourceTree = "<group>"; };
 		2B1C26511C9100A500C71B0A /* France.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = France.mbtiles; path = ../../resources/vectors/France.mbtiles; sourceTree = "<group>"; };
+		2B2A417C1D83454900098E12 /* ActiveObjectTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActiveObjectTestCase.h; sourceTree = "<group>"; };
+		2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActiveObjectTestCase.m; sourceTree = "<group>"; };
 		2B392B6F1C5AC59D001EE40B /* RunwayBuilderTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RunwayBuilderTestCase.h; sourceTree = "<group>"; };
 		2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RunwayBuilderTestCase.m; sourceTree = "<group>"; };
 		2B4BA6C21C83A22000DC1562 /* leftbend.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = leftbend.geojson; path = ../WhirlyGlobeComponentTester/resources/leftbend.geojson; sourceTree = "<group>"; };
@@ -1293,6 +1296,8 @@
 				2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */,
 				2BBB70811D5E9079009B67A6 /* VectorStyleTestCase.h */,
 				2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */,
+				2B2A417C1D83454900098E12 /* ActiveObjectTestCase.h */,
+				2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2472,6 +2477,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B2A417E1D83454900098E12 /* ActiveObjectTestCase.m in Sources */,
 				E5679F481CB72DE800369A15 /* LabelAnimationTestCase.m in Sources */,
 				2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */,
 				D8228A921BE77816001D6914 /* MovingScreenLabelsTestCase.swift in Sources */,

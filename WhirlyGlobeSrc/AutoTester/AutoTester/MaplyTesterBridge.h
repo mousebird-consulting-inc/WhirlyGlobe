@@ -43,5 +43,6 @@
 #import "PagingLayerTestCase.h"
 #import "VectorHoleTestCase.h"
 #import "VectorStyleTestCase.h"
+#import "ActiveObjectTestCase.h"
 
 #endif
