@@ -18,6 +18,7 @@
  *
  */
 
+#import <UIKit/UIKit.h>
 #import <math.h>
 #import "VectorData.h"
 #import "GlobeMath.h"
