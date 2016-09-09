@@ -427,6 +427,13 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		 */
         public void userDidTap(GlobeController globeControl,Point2d loc,Point2d screenLoc);
 
+		/**
+		 * The user tapped outside of the globe.
+		 *
+		 * @param globeControl The maply controller this is associated with.
+		 * @param screenLoc The location on the OpenGL surface.
+         */
+		public void userDidTapOutside(GlobeController globeControl,Point2d screenLoc);
 
 		/**
 		 * The user did long press somewhere, there might be an object
@@ -476,8 +483,10 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		{
 			Matrix4d globeTransform = globeView.calcModelViewMatrix();
 			Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, getViewSize(), false);
-			if (loc == null)
+			if (loc == null) {
+				gestureDelegate.userDidTapOutside(this, screenLoc);
 				return;
+			}
 			Point3d localPt = globeView.getCoordAdapter().displayToLocal(loc);
 			Point3d geoPt = null;
 			if (localPt != null)

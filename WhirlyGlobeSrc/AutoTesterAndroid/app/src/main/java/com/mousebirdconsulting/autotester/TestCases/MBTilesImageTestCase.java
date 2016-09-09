@@ -50,6 +50,12 @@ public class MBTilesImageTestCase extends MaplyTestCase {
         }
 
         @Override
+        public void userDidTapOutside(GlobeController globeControl,Point2d screenLoc)
+        {
+            Log.d("Maply","User tapped outside globe.");
+        }
+
+        @Override
         public void userDidLongPress(GlobeController globeController, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc) {
             // Intentionally blank
         }

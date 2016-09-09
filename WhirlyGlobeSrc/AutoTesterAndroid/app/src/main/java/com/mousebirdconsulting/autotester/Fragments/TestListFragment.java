@@ -30,6 +30,7 @@ import com.mousebirdconsulting.autotester.TestCases.CoordConversionTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
+import com.mousebirdconsulting.autotester.TestCases.LayerShutdownTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LightingTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LocalVectorTileTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MBTilesImageTestCase;
@@ -129,6 +130,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new StartupShutdownTestCase(getActivity()));
 			testCases.add(new MarkersAndLinesTestCase(getActivity()));
 			testCases.add(new BoundsTestCase(getActivity()));
+			testCases.add(new LayerShutdownTestCase(getActivity()));
 //			testCases.add(new ArealTestCase(getActivity()));
 		}
 

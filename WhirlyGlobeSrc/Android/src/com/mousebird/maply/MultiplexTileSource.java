@@ -180,8 +180,17 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 						options.inPremultiplied = false;
 					bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
 
+					// Let's try it with the default options
+					if (bm == null)
+					{
+						bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, null);
+						if (bm != null)
+							if (debugOutput)
+								Log.d("Maply","Image decode succeeded second time.");
+					}
+
 					// Save to cache
-					if (cacheFile != null && rawImage != null) {
+					if (cacheFile != null && rawImage != null && bm != null) {
 						OutputStream fOut;
 						fOut = new FileOutputStream(cacheFile);
 						fOut.write(rawImage);

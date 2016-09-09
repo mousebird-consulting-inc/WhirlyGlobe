@@ -377,6 +377,11 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 			Log.d("Maply","User is looking at bounding box: " + mbr);
 	}
 
+	public void userDidTapOutside(GlobeController globeControl,Point2d screenLoc)
+	{
+		Log.d("Maply","User tapped outside globe.");
+	}
+
 	public void userDidLongPress(GlobeController globeControl, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc)
 	{}
 
