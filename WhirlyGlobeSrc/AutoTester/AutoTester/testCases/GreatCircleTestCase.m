@@ -35,14 +35,25 @@
 //                              kMaplySubdivEpsilon: @(0.001)
                               };
     
-    MaplyCoordinate x = MaplyCoordinateMakeWithDegrees(2.548, 49.010);
-    MaplyCoordinate y = MaplyCoordinateMakeWithDegrees(151.177, -33.946);
-    MaplyCoordinate z[] = { x, y };
-    MaplyVectorObject *v = [[MaplyVectorObject alloc] initWithLineString:z numCoords:2 attributes:nil];
+    MaplyVectorObject *v0,*v1;
+    {
+        MaplyCoordinate x = MaplyCoordinateMakeWithDegrees(2.548, 49.010);
+        MaplyCoordinate y = MaplyCoordinateMakeWithDegrees(151.177, -33.946);
+        MaplyCoordinate z[] = { x, y };
+        v0 = [[MaplyVectorObject alloc] initWithLineString:z numCoords:2 attributes:nil];
+        [v0 subdivideToGlobeGreatCircle:0.001];
+    }
+
+    {
+        MaplyCoordinate x = MaplyCoordinateMakeWithDegrees(150.0, 0.0);
+        MaplyCoordinate y = MaplyCoordinateMakeWithDegrees(-150, 0.0);
+        MaplyCoordinate z[] = { x, y };
+        v1 = [[MaplyVectorObject alloc] initWithLineString:z numCoords:2 attributes:nil];
+        [v1 subdivideToGlobeGreatCircle:0.001];
+    }
+
     
-    [v subdivideToGlobeGreatCircle:0.001];
-    
-    return [viewC addWideVectors:@[ v ] desc:vecDesc];
+    return [viewC addWideVectors:@[ v0, v1 ] desc:vecDesc];
 }
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
