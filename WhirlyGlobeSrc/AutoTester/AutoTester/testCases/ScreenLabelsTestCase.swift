@@ -21,6 +21,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 	}
 
 	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
+        globeVC.keepNorthUp = true
 		let vectorTestCase = VectorsTestCase()
 		vectorTestCase.setUpWithGlobe(globeVC)
 		insertLabels(vectorTestCase.compList! as! [MaplyVectorObject], theViewC: globeVC)
@@ -38,7 +39,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 		
 		for i in 0..<arrayComp.count {
 			let object = arrayComp[i]
-			if object.userObject?.description.characters.count > 0{
+			if object.userObject?.description.characters.count > 0 {
 				let label = MaplyScreenLabel()
 
 				label.text = object.userObject?.description
@@ -46,7 +47,9 @@ class ScreenLabelsTestCase: MaplyTestCase {
 				label.selectable = true
 				label.layoutImportance = 10
                 label.userObject = label.text;
-                label.rotation = Float(M_PI/2.0);
+                label.layoutPlacement = kMaplyLayoutRight;
+//                label.rotation = Float(M_PI/2.0);
+//                label.offset = CGPointMake(0.0,100.0);
 
 				if (i % 2 == 0) {
 					// Some with text shadow
