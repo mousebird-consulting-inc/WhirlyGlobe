@@ -14,8 +14,15 @@
   */
 @interface MaplyColorRampGenerator : NSObject
 
+// If set we'll stretch the colors out to the whole image
+// On by default.
+@property (nonatomic,assign) bool stretch;
+
 /// Add a color as a hex value.
 - (void)addHexColor:(int)hexColor;
+
+/// This color has an alpha too
+- (void)addHexColorWithAlpha:(int)hexColor;
 
 /// Add a color as a UIColor
 - (void)addColor:(UIColor *)color;
