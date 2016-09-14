@@ -113,7 +113,7 @@ bool ScreenSpaceBuilder::DrawableWrap::operator < (const DrawableWrap &that) con
     return state < that.state;
 }
 
-Point3d ScreenSpaceBuilder::DrawableWrap::calcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3d &worldLoc,float rot)
+Point3d ScreenSpaceBuilder::CalcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3d &worldLoc,float rot)
 {
     // Switch from counter-clockwise to clockwise
     rot = 2*M_PI-rot;
@@ -153,7 +153,7 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     if (vertAttrs && !vertAttrs->empty())
         draw->addVertexAttributes(*vertAttrs);
     if (state.rotation)
-        draw->addRot(calcRotationVec(coordAdapter,worldLoc,rot));
+        draw->addRot(ScreenSpaceBuilder::CalcRotationVec(coordAdapter,worldLoc,rot));
 }
 
 void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
