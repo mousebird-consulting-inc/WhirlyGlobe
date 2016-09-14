@@ -432,6 +432,9 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
             dynTexVec->push_back(dynTex);
             dynTex->createInGL(memManager);
         }
+        // Unfortunately, we have to flush here or run the risk of no one else seeing our texture
+//        glFlush();
+
 //        NSLog(@"Added dynamic texture %ld (%ld)",dynTex->getId(),textures.size());
         textures.insert(dynTexVec);
         DynamicTexture::Region thisRegion;
