@@ -3,7 +3,6 @@ package com.mousebird.maply;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.pm.ComponentInfo;
 import android.content.pm.ConfigurationInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -15,8 +14,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.squareup.okhttp.OkHttpClient;
@@ -44,7 +41,6 @@ public class MaplyBaseController
 {
 	// This may be a GLSurfaceView or a GLTextureView
 	View baseView = null;
-	View rootView = null;
 	Activity activity = null;
     private OkHttpClient httpClient;
 
@@ -122,7 +118,6 @@ public class MaplyBaseController
 	LayoutLayer layoutLayer = null;
 	ShapeManager shapeManager = null;
 	BillboardManager billboardManager = null;
-	AnnotationManager annotationManager = null;
 	
 	// Manage bitmaps and their conversion to textures
 	TextureManager texManager = new TextureManager();
@@ -257,9 +252,6 @@ public class MaplyBaseController
 		particleSystemManager = new ParticleSystemManager(scene);
 		shapeManager = new ShapeManager(scene);
 		billboardManager = new BillboardManager(scene);
-		annotationManager = new AnnotationManager(activity, this);
-
-		addActiveObject(annotationManager);
 
 		// Now for the object that kicks off the rendering
 		renderWrapper = new RendererWrapper(this);
@@ -302,7 +294,7 @@ public class MaplyBaseController
 					glSurfaceView.setBackground(tempBackground);
 				glSurfaceView.setEGLContextClientVersion(2);
 				glSurfaceView.setRenderer(renderWrapper);
-				glSurfaceView.setZOrderMediaOverlay(true);
+
 				baseView = glSurfaceView;
 			} else {
 				GLTextureView glTextureView = new GLTextureView(activity);
@@ -330,16 +322,9 @@ public class MaplyBaseController
 					glTextureView.setBackground(tempBackground);
 				glTextureView.setEGLContextClientVersion(2);
 				glTextureView.setRenderer(renderWrapper);
+
 				baseView = glTextureView;
 			}
-
-			FrameLayout inRootView = new FrameLayout(activity);
-			inRootView.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT));
-			inRootView.setBackgroundColor(Color.TRANSPARENT);
-			inRootView.addView(baseView);
-			rootView = inRootView;
-
-
         } else {
         	Toast.makeText(activity,  "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
         	return;
@@ -391,7 +376,7 @@ public class MaplyBaseController
 	 */
 	public View getContentView()
 	{
-		return rootView;
+		return baseView;
 	}
 
 	/**
@@ -480,7 +465,6 @@ public class MaplyBaseController
 			layoutLayer = null;
 			shapeManager = null;
 			billboardManager = null;
-			annotationManager = null;
 
 			texManager = null;
 			layerThreads = null;
@@ -779,7 +763,7 @@ public class MaplyBaseController
 			run.run();
 	}
 			
-	int clearColor = Color.TRANSPARENT;
+	int clearColor = Color.BLACK;
 
 	/**
 	 * Set the color for the OpenGL ES background.
@@ -2125,37 +2109,5 @@ public class MaplyBaseController
 		addTask(run, threadMode);
 
 		return compObj;
-	}
-
-	public boolean addAnnotation(Annotation annotation) {
-		if (!running || annotationManager == null)
-			return false;
-
-		return annotationManager.addAnnotation(annotation);
-	}
-
-	public boolean removeAnnotation(final Annotation annotation) {
-		if (!running || annotationManager == null)
-			return false;
-
-		activity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				((FrameLayout)rootView).removeView(annotation.getLayout());
-				annotationManager.removeAnnotation(annotation);
-			}
-		});
-		return true;
-	}
-
-	public boolean showAnnotation(Annotation annotation) {
-		return false;
-	}
-
-	public void setAnnotationVisible (boolean visible, Annotation annotation) {
-		if (!running || annotationManager == null)
-			return;
-
-		 annotationManager.setVisible(visible, annotation);
 	}
 }

@@ -26,11 +26,7 @@ import android.opengl.GLSurfaceView;
 import android.view.Choreographer;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -713,29 +709,4 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
         return retCorners;
     }
 
-	public boolean showAnnotation(Annotation annotation) {
-		if (!running || mapView == null) {
-			return false;
-		}
-
-		final FrameLayout inView = annotation.getLayout();
-		final FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(50,50);
-
-		MapView newMapView = mapView.clone();
-		newMapView.setLoc(getPositionGeo());
-
-		Point2d screenPT = screenPointFromGeo(newMapView, annotation.getLoc());
-		params.leftMargin = ((int) screenPT.getX());
-		params.topMargin = ((int) screenPT.getY());
-
-		activity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				((FrameLayout)rootView).removeView(inView);
-				((FrameLayout)rootView).addView(inView, params);
-			}
-		});
-
-		return true;
-	}
 }
