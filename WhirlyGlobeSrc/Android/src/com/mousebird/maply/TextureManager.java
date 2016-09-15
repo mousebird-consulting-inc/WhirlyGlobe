@@ -87,9 +87,9 @@ class TextureManager
 			// After we call addTexture it's no longer ours to play with
 			changes.addTexture(texture, scene);
 			textures.add(testWrapper);
+
+			return testWrapper.texID;
 		}
-				
-		return testWrapper.texID;
 	}
 	
 	/**
