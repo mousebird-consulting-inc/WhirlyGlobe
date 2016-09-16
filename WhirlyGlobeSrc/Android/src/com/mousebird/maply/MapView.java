@@ -76,13 +76,17 @@ public class MapView extends View
 	// Set the animation delegate.  Called every frame.
 	void setAnimationDelegate(AnimationDelegate delegate)
 	{
-		animationDelegate = delegate;
+		synchronized (this) {
+			animationDelegate = delegate;
+		}
 	}
 	
 	// Clear the animation delegate
 	@Override public void cancelAnimation() 
 	{
-		animationDelegate = null;
+		synchronized (this) {
+			animationDelegate = null;
+		}
 
 		control.activity.runOnUiThread(
 				new Runnable() {
@@ -97,19 +101,27 @@ public class MapView extends View
 	// Called on the rendering thread right before we render
 	@Override public void animate() 
 	{
-		if (animationDelegate != null)
-		{
-			animationDelegate.updateView(this);
-			// Note: This is probably the wrong thread
-			runViewUpdates();
+		boolean doRunViewUpdates = false;
+
+		synchronized (this) {
+			if (animationDelegate != null) {
+				animationDelegate.updateView(this);
+				doRunViewUpdates = true;
+			}
 		}
+
+		// Note: This is probably the wrong thread
+		if (doRunViewUpdates)
+			runViewUpdates();
 	}
 
 	// True if animation is in progress
 	public boolean isAnimating()
 	{
-		if (animationDelegate != null)
-			return true;
+		synchronized (this) {
+			if (animationDelegate != null)
+				return true;
+		}
 
 		return false;
 	}

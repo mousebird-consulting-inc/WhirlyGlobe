@@ -68,27 +68,28 @@ class TextureManager
 	 */
 	long addTexture(Bitmap theBitmap, Scene scene, ChangeSet changes)
 	{
-		// Find an existing one
-		TextureWrapper testWrapper = new TextureWrapper(theBitmap);
-		if (textures.contains(testWrapper))
-		{
-			TextureWrapper existingBitmap = textures.floor(testWrapper);
-			existingBitmap.refs++;
-			return existingBitmap.texID;
+		synchronized (this) {
+			// Find an existing one
+			TextureWrapper testWrapper = new TextureWrapper(theBitmap);
+			if (textures.contains(testWrapper)) {
+				TextureWrapper existingBitmap = textures.floor(testWrapper);
+				existingBitmap.refs++;
+				return existingBitmap.texID;
+			}
+
+			// Need to create it
+			Texture texture = new Texture();
+			if (!texture.setBitmap(theBitmap))
+				return MaplyBaseController.EmptyIdentity;
+			testWrapper.refs = 1;
+			testWrapper.texID = texture.getID();
+
+			// After we call addTexture it's no longer ours to play with
+			changes.addTexture(texture, scene);
+			textures.add(testWrapper);
+
+			return testWrapper.texID;
 		}
-		
-		// Need to create it
-		Texture texture = new Texture();
-		if (!texture.setBitmap(theBitmap))
-			return MaplyBaseController.EmptyIdentity;
-		testWrapper.refs = 1;
-		testWrapper.texID = texture.getID();
-		
-		// After we call addTexture it's no longer ours to play with
-		changes.addTexture(texture,scene);
-		textures.add(testWrapper);
-				
-		return testWrapper.texID;
 	}
 	
 	/**
@@ -97,19 +98,18 @@ class TextureManager
 	 */
 	void removeTexture(long texID, ChangeSet changes)
 	{
-		for (TextureWrapper texWrap: textures)
-		{
-			if (texWrap.texID == texID)
-			{
-				texWrap.refs--;
-				// Remove the texture
-				if (texWrap.refs <= 0)
-				{
-					changes.removeTexture(texWrap.texID);
-					textures.remove(texWrap);
+		synchronized (this) {
+			for (TextureWrapper texWrap : textures) {
+				if (texWrap.texID == texID) {
+					texWrap.refs--;
+					// Remove the texture
+					if (texWrap.refs <= 0) {
+						changes.removeTexture(texWrap.texID);
+						textures.remove(texWrap);
+					}
+
+					return;
 				}
-				
-				return;
 			}
 		}
 	}

@@ -741,7 +741,8 @@ public class MaplyBaseController
 
             return true;
         } else {
-			egl.eglMakeCurrent(renderWrapper.maplyRender.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
+			if (renderWrapper != null && renderWrapper.maplyRender != null && renderWrapper.maplyRender.display != null)
+				egl.eglMakeCurrent(renderWrapper.maplyRender.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
 		}
 
         return false;
