@@ -99,7 +99,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 			center = new Point3d(0,0,0);
 		GeneralDisplayAdapter genCoordAdapter = new GeneralDisplayAdapter(coordSys,coordSys.ll,coordSys.ur,center,new Point3d(scaleFactor,scaleFactor,1.0));
 
-		setupTheRest(genCoordAdapter);
+		setupTheRest(genCoordAdapter,clearColor);
 
 		// Set up the bounds
 		Point3d ll = new Point3d(),ur = new Point3d();
@@ -116,12 +116,12 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	{
 		super(mainActivity,null);
 
-		Init(mainActivity, Color.TRANSPARENT);
+		Init(mainActivity, Color.BLACK);
 	}
 
 	protected void Init(Activity mainActivity,int clearColor)
 	{
-		setupTheRest(new CoordSystemDisplayAdapter(new SphericalMercatorCoordSystem()));
+		setupTheRest(new CoordSystemDisplayAdapter(new SphericalMercatorCoordSystem()),clearColor);
 
 		// Set up the bounds
 		Point3d ll = new Point3d(),ur = new Point3d();
@@ -132,7 +132,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		setViewExtents(new Point2d(ll.getX(),ll.getY()),new Point2d(ur.getX(),ur.getY()));
 	}
 
-	protected void setupTheRest(CoordSystemDisplayAdapter inCoordAdapter)
+	protected void setupTheRest(CoordSystemDisplayAdapter inCoordAdapter,int clearColor)
 	{
 		coordAdapter = inCoordAdapter;
 
@@ -141,6 +141,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		scene = mapScene;
 		mapView = new MapView(this,coordAdapter);
 		view = mapView;
+		super.setClearColor(clearColor);
 
 		super.Init();
 
