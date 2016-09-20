@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-
+/*
 		let path = Bundle.main.path(forResource: "Info", ofType: "plist")
 		if let path = path {
 			let dictionary = NSDictionary.init(contentsOfFile: path)
@@ -27,12 +27,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 				}
 			}
 		}
-
+ */
 		return true
 	}
 
 	func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any]) -> Bool {
-
+/*
 		if let authResult = Dropbox.handleRedirectURL(url) {
 			switch authResult {
 			case .success(let token):
@@ -41,6 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 				print("Error \(error): \(description)")
 			}
 		}
+*/
 		return false
 	}
 
