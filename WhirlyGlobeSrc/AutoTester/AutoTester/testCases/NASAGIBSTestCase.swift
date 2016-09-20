@@ -15,24 +15,24 @@ class NASAGIBSTestCase: MaplyTestCase {
 		
 		self.name = "NASA GIBS"
 		self.captureDelay = 4
-		self.implementations = [.Globe, .Map]
+		self.implementations = [.globe, .map]
 	}
 	
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
+	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
 		setupBaseLayer(globeVC)
 		setupOverlaysLayer(globeVC)
-		globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1)
+		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1)
 	}
 	
-	override func setUpWithMap(mapVC: MaplyViewController) {
+	override func setUpWithMap(_ mapVC: MaplyViewController) {
 		setupBaseLayer(mapVC)
 		setupOverlaysLayer(mapVC)
 		mapVC.height = 0.5
-		mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1)
+		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1)
 	}
 	
-	func setupBaseLayer (baseLayer: MaplyBaseViewController) {
-		let baseCacheDir = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.CachesDirectory, NSSearchPathDomainMask.UserDomainMask, true)
+	func setupBaseLayer (_ baseLayer: MaplyBaseViewController) {
+		let baseCacheDir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.cachesDirectory, FileManager.SearchPathDomainMask.userDomainMask, true)
 		let nasaTilescacheDir = "\(baseCacheDir)/nasatiles/"
 		let maxZoom = Int32(9)
 		let tileSource = MaplyRemoteTileSource(baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/", ext: "jpg", minZoom: 0, maxZoom: maxZoom)
@@ -52,11 +52,11 @@ class NASAGIBSTestCase: MaplyTestCase {
 		layer?.drawPriority = 0
 		layer?.singleLevelLoading = false
 		
-		baseLayer.addLayer(layer!)
+		baseLayer.add(layer!)
 	}
 	
-	func setupOverlaysLayer (baseLayer: MaplyBaseViewController) {
-		let cacheDir = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.CachesDirectory, NSSearchPathDomainMask.UserDomainMask, true)
+	func setupOverlaysLayer (_ baseLayer: MaplyBaseViewController) {
+		let cacheDir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.cachesDirectory, FileManager.SearchPathDomainMask.userDomainMask, true)
         let tileInfo = MaplyRemoteTileInfo(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/Sea_Surface_Temp_Blended/default/2015-06-25/GoogleMapsCompatible_Level7/{z}/{y}/{x}", ext: "png", minZoom: 0, maxZoom: 7)
         let tileSource = MaplyRemoteTileSource(info: tileInfo)
 		tileSource?.cacheDir = "\(cacheDir)/sea_temperature"
@@ -65,7 +65,7 @@ class NASAGIBSTestCase: MaplyTestCase {
 		temperatureLayer?.coverPoles = false
 		temperatureLayer?.handleEdges = false
 		
-		baseLayer.addLayer(temperatureLayer!)
+		baseLayer.add(temperatureLayer!)
 	}
 
 }

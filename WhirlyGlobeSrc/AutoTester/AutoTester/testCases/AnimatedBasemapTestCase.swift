@@ -11,7 +11,7 @@ import UIKit
 class AnimatedBasemapTestCase: MaplyTestCase {
 
 	let geographyClass = GeographyClassTestCase()
-	let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
+	let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
 	var tileSources = [MaplyRemoteTileInfo]()
 
 	override init() {
@@ -19,7 +19,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
 
 		self.name = "Animated basemap"
 		self.captureDelay = 2
-		self.implementations = [.Globe, .Map]
+		self.implementations = [.globe, .map]
 	}
 
 	// Collect up the various precipitation sources
@@ -35,13 +35,13 @@ class AnimatedBasemapTestCase: MaplyTestCase {
 		}
 	}
 
-	func createLayer(baseView: MaplyBaseViewController) -> (MaplyQuadImageTilesLayer) {
+	func createLayer(_ baseView: MaplyBaseViewController) -> (MaplyQuadImageTilesLayer) {
 		let precipTileSource = MaplyMultiplexTileSource(sources: tileSources)
 		// Create a precipitation layer that animates
 		let precipLayer = MaplyQuadImageTilesLayer(tileSource: precipTileSource!)
 		precipLayer?.imageDepth = UInt32(tileSources.count)
 		precipLayer?.animationPeriod = 1.0
-		precipLayer?.imageFormat = MaplyQuadImageFormat.ImageUByteRed
+		precipLayer?.imageFormat = MaplyQuadImageFormat.imageUByteRed
 		precipLayer?.numSimultaneousFetches = 4
 		precipLayer?.handleEdges = false
 		precipLayer?.coverPoles = false
@@ -49,16 +49,16 @@ class AnimatedBasemapTestCase: MaplyTestCase {
 		precipLayer?.fade = 0.5
 		return precipLayer!
 	}
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
+	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
 		geographyClass.setUpWithGlobe(globeVC)
 		buildTileSources()
-		globeVC.addLayer(createLayer(globeVC))
+		globeVC.add(createLayer(globeVC))
 	}
 
-	override func setUpWithMap(mapVC: MaplyViewController) {
+	override func setUpWithMap(_ mapVC: MaplyViewController) {
 		geographyClass.setUpWithMap(mapVC)
 		buildTileSources()
-		mapVC.addLayer(createLayer(mapVC))
+		mapVC.add(createLayer(mapVC))
 	}
 
 }

@@ -14,21 +14,21 @@ class ParticleTestCase: MaplyTestCase {
 		
 		self.name = "Wind Particle Test"
 		self.captureDelay = 5
-		self.implementations = [.Globe]
+		self.implementations = [.globe]
 	}
 	
-	private func setUpOverlay (baseView: MaplyBaseViewController) {
-		let partDelegate = ParticleTileDelegate(URL: "http://tilesets.s3-website-us-east-1.amazonaws.com/wind_test/{dir}_tiles/{z}/{x}/{y}.png", minZoom: Int32(2), maxZoom: Int32(5), viewC: baseView)
-		let layer = MaplyQuadPagingLayer(coordSystem: partDelegate.coordSys, delegate: partDelegate)
+	fileprivate func setUpOverlay (_ baseView: MaplyBaseViewController) {
+		let partDelegate = ParticleTileDelegate(url: "http://tilesets.s3-website-us-east-1.amazonaws.com/wind_test/{dir}_tiles/{z}/{x}/{y}.png", minZoom: Int32(2), maxZoom: Int32(5), viewC: baseView)
+		let layer = MaplyQuadPagingLayer(coordSystem: (partDelegate?.coordSys)!, delegate: partDelegate!)
 		layer?.flipY = false;
-		baseView.addLayer(layer!)
+		baseView.add(layer!)
 	}
 	
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
+	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
 		let baseLayer = CartoDBLightTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
 		setUpOverlay(globeVC)
-		globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) , time: 1.0)
+		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) , time: 1.0)
 	}
 
 }

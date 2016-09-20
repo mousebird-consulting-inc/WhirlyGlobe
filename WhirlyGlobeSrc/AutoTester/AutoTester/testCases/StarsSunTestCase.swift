@@ -10,37 +10,37 @@ import UIKit
 
 class StarsSunTestCase: MaplyTestCase {
 
-	let renderDate: NSDate
+	let renderDate: Date
 	
 	override init() {
-		self.renderDate = NSDate()
+		self.renderDate = Date()
 
 		super.init()
 
 		self.name = "Stars/Sun"
 		self.captureDelay = 10
-		self.implementations = [.Map]
+		self.implementations = [.map]
 	}
 	
-	func addStars(globeVC: WhirlyGlobeViewController) {
-		if let fileName = NSBundle.mainBundle().pathForResource("starcatalog_orig",
+	func addStars(_ globeVC: WhirlyGlobeViewController) {
+		if let fileName = Bundle.main.path(forResource: "starcatalog_orig",
 				ofType: "txt") {
 			let stars = MaplyStarsModel(fileName: fileName)
 			stars?.setImage(UIImage(named: "star_background")!)
-			stars?.addToViewC(globeVC, date: renderDate, desc: nil, mode: MaplyThreadMode.Current)
+			stars?.add(toViewC: globeVC, date: renderDate, desc: nil, mode: MaplyThreadMode.current)
 		}
 	}
     
     var atmosObj = MaplyAtmosphere()
 	
-	func addSun(globeVC: WhirlyGlobeViewController) {
-		globeVC.clearColor = UIColor.blackColor()
+	func addSun(_ globeVC: WhirlyGlobeViewController) {
+		globeVC.clearColor = UIColor.black
 
 		let sun = MaplySun(date: renderDate)
 		let sunLight = sun.makeLight()
 		
 		globeVC.clearLights()
-		globeVC.addLight(sunLight)
+		globeVC.add(sunLight)
 		
 		let bill = MaplyBillboard()
 		let centerGeo = sun.asPosition()
@@ -51,14 +51,14 @@ class StarsSunTestCase: MaplyTestCase {
 		
 		let globeImage = UIImage(named: "SunImage")
 		
-		bill.screenObj?.addImage(globeImage, color: UIColor.whiteColor(), size: CGSizeMake(0.9, 0.9))
+		bill.screenObj?.addImage(globeImage, color: UIColor.white, size: CGSize(width: 0.9, height: 0.9))
 		
 		globeVC.addBillboards([bill],
 			desc: [
 				kMaplyBillboardOrient: kMaplyBillboardOrientEye,
-				kMaplyDrawPriority: NSNumber(int: kMaplySunDrawPriorityDefault)
+				kMaplyDrawPriority: NSNumber(value: kMaplySunDrawPriorityDefault as Int32)
 			],
-			mode: MaplyThreadMode.Any)
+			mode: MaplyThreadMode.any)
 		
 		//Position for the moon
 		
@@ -74,13 +74,13 @@ class StarsSunTestCase: MaplyTestCase {
 		let moonImage = UIImage(named: "moon")
 		billMoon.screenObj?.addImage(moonImage,
 			color: UIColor(white: CGFloat(moon.illuminatedFraction), alpha: 1.0),
-			size: CGSizeMake(0.75, 0.75))
+			size: CGSize(width: 0.75, height: 0.75))
 		globeVC.addBillboards([billMoon],
 			desc: [
 				kMaplyBillboardOrient: kMaplyBillboardOrientEye,
-				kMaplyDrawPriority: NSNumber(int: kMaplyMoonDrawPriorityDefault)
+				kMaplyDrawPriority: NSNumber(value: kMaplyMoonDrawPriorityDefault as Int32)
 			],
-			mode: MaplyThreadMode.Any)
+			mode: MaplyThreadMode.any)
 		
 		// And some atmosphere, because the iDevice fill rate is just too fast
 		atmosObj = MaplyAtmosphere.init(viewC: globeVC)!
@@ -92,8 +92,8 @@ class StarsSunTestCase: MaplyTestCase {
 	}
 	
 	
-	func turnOnNightDay (globeVC: WhirlyGlobeViewController, atmosObj : MaplyAtmosphere?) {
-		let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
+	func turnOnNightDay (_ globeVC: WhirlyGlobeViewController, atmosObj : MaplyAtmosphere?) {
+		let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
 		let tileSource1 = MaplyRemoteTileInfo(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/MODIS_Terra_CorrectedReflectance_TrueColor/default/2015-05-07/GoogleMapsCompatible_Level9/{z}/{y}/{x}", ext: "jpg", minZoom: Int32(1), maxZoom: Int32(8))
 		let tileSource2 = MaplyRemoteTileInfo(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/2015-05-07/GoogleMapsCompatible_Level8/{z}/{y}/{x}", ext: "jpg", minZoom: Int32(1), maxZoom: Int32(8))
 		tileSource1.cacheDir = "\(cacheDir)/daytexture-2015-05-07/"
@@ -115,11 +115,11 @@ class StarsSunTestCase: MaplyTestCase {
 		layer?.setTesselationValues([(-1) : 10, 0 : 20, 1 : 16])
         // The ground shader is overkill here
 //		layer?.shaderProgramName = atmosObj?.groundShader!.name
-		globeVC.addLayer(layer!)
+		globeVC.add(layer!)
 		layer?.drawPriority = kMaplyImageLayerDrawPriorityDefault
 	}
 	
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
+	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
 //		let baseLayer  = GeographyClassTestCase()
 //		baseLayer.setUpWithGlobe(globeVC)
 		addStars(globeVC)
