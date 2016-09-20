@@ -15,11 +15,11 @@ class StamenWatercolorRemote: MaplyTestCase {
 
 		self.name = "Stamen Watercolor Remote"
 		self.captureDelay = 4
-		self.implementations = [.Globe, .Map]
+		self.implementations = [.globe, .map]
 	}
 	
-	func setupLayer(baseVC: MaplyBaseViewController) -> MaplyQuadImageTilesLayer {
-		let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
+	func setupLayer(_ baseVC: MaplyBaseViewController) -> MaplyQuadImageTilesLayer {
+		let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
 		
 		let thisCacheDir = "\(cacheDir)/stamentiles/"
 		let maxZoom = Int32(16)
@@ -36,19 +36,19 @@ class StamenWatercolorRemote: MaplyTestCase {
 		return layer!;
 	}
 
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
+	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
 		let layer = setupLayer(globeVC)
 		
 		globeVC.keepNorthUp = true
-		globeVC.addLayer(layer)
-		globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
+		globeVC.add(layer)
+		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
 	}
 
-	override func setUpWithMap(mapVC: MaplyViewController) {
+	override func setUpWithMap(_ mapVC: MaplyViewController) {
 		let layer = setupLayer(mapVC)
 
-		mapVC.addLayer(layer)
-		mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
+		mapVC.add(layer)
+		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
 		mapVC.setZoomLimitsMin(0.01, max: 4.0)
 	}
 	
