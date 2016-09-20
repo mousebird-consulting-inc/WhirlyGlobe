@@ -45,7 +45,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 	@IBOutlet weak var tableView: UITableView?
 	
 	var values = [DropboxSection]()
-	private var processLogin = false
+	fileprivate var processLogin = false
 	
 	var results = [MaplyTestResult]()
 	var titles = [String]()
@@ -53,7 +53,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 	
 	
 	func loadValues() {
-		values.removeAll(keepCapacity: true)
+		values.removeAll(keepingCapacity: true)
 		let isLogin = (Dropbox.authorizedClient != nil)
 
 		let loginSection = DropboxSection(
@@ -68,11 +68,11 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		values.append(actionSection)
 	}
 
-	func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+	func numberOfSections(in tableView: UITableView) -> Int {
 		return values.count
 	}
 	
-	func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+	func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
 		if section >= values.count {
 			return nil
 		}
@@ -80,7 +80,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		return self.values[section].section.rawValue
 	}
 	
-	func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+	func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 		if section >= values.count {
 			return 0
 		}
@@ -88,30 +88,30 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		return values[section].rows.count
 	}
 	
-	func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+	func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 		
-		let section = values [indexPath.section]
-		let key = section.rows[indexPath.row]
-		let cell = UITableViewCell(style: .Default, reuseIdentifier: "cell")
+		let section = values [(indexPath as NSIndexPath).section]
+		let key = section.rows[(indexPath as NSIndexPath).row]
+		let cell = UITableViewCell(style: .default, reuseIdentifier: "cell")
 		cell.textLabel?.text = key.rawValue
 
 		return cell
 	}
 
-	func tableView(tableView: UITableView,
-			didSelectRowAtIndexPath indexPath: NSIndexPath) {
+	func tableView(_ tableView: UITableView,
+			didSelectRowAt indexPath: IndexPath) {
 			
-		if indexPath.section >= values.count {
+		if (indexPath as NSIndexPath).section >= values.count {
 			return
 		}
 
-		let section = values[indexPath.section]
+		let section = values[(indexPath as NSIndexPath).section]
 
-		if indexPath.row >= section.rows.count {
+		if (indexPath as NSIndexPath).row >= section.rows.count {
 			return
 		}
 
-		switch section.rows[indexPath.row] {
+		switch section.rows[(indexPath as NSIndexPath).row] {
 			case .LoginUser:
 				processLogin = true
 				Dropbox.authorizeFromController(self)
@@ -123,7 +123,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 				uploadToDropbox()
 		}
 
-		tableView.deselectRowAtIndexPath(indexPath, animated: false)
+		tableView.deselectRow(at: indexPath, animated: false)
 	}
 
 	override func viewDidLoad() {
@@ -133,13 +133,13 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		self.loadValues()
 	}
 	
-	override func viewWillAppear(animated: Bool) {
+	override func viewWillAppear(_ animated: Bool) {
 		if processLogin {
 			// Quick & dirty hack. Instead of add delay, we should
 			// wait for dropbox notification
 			let delay = 2 * Double(NSEC_PER_SEC)
-			let time = dispatch_time(DISPATCH_TIME_NOW, Int64(delay))
-			dispatch_after(time, dispatch_get_main_queue()) {
+			let time = DispatchTime.now() + Double(Int64(delay)) / Double(NSEC_PER_SEC)
+			DispatchQueue.main.asyncAfter(deadline: time) {
 				if Dropbox.authorizedClient != nil {
 					self.loadValues()
 				}
@@ -149,7 +149,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		}
 	}
 	
-	func resizeImage(image: UIImage) -> (NSData?) {
+	func resizeImage(_ image: UIImage) -> (Data?) {
 		var actualHeight = image.size.height
 		var actualWidth = image.size.width
 
@@ -178,26 +178,26 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 			}
 		}
 
-		let rect = CGRectMake(0.0, 0.0, actualWidth, actualHeight)
+		let rect = CGRect(x: 0.0, y: 0.0, width: actualWidth, height: actualHeight)
 		UIGraphicsBeginImageContext(rect.size)
-		image.drawInRect(rect)
+		image.draw(in: rect)
 		let img = UIGraphicsGetImageFromCurrentImageContext()
-		let imageData = UIImageJPEGRepresentation(img, compressionQuality)
+		let imageData = UIImageJPEGRepresentation(img!, compressionQuality)
 		UIGraphicsEndImageContext()
 
 		return imageData
 	}
 
 	func uploadToDropbox () {
-		if let client = Dropbox.authorizedClient {
-			let hud = MBProgressHUD.showHUDAddedTo(self.view, animated:true)
-			hud.mode = MBProgressHUDMode.Indeterminate
-			hud.labelText = "Starting..."
+        if let client = Dropbox.authorizedClient {
+			let hud = MBProgressHUD.showAdded(to: self.view, animated:true)
+			hud?.mode = MBProgressHUDMode.indeterminate
+			hud?.labelText = "Starting..."
 
-			let date = NSDate()
-			let dateFormatter = NSDateFormatter()
+			let date = Date()
+			let dateFormatter = DateFormatter()
 			dateFormatter.dateFormat = "yyy-MM-dd HH-mm"
-			self.folder = dateFormatter.stringFromDate(date) as String
+			self.folder = dateFormatter.string(from: date) as String
 
 			self.createFolder(client, hud: hud) {
 				self.uploadImages(client, hud: hud) {
@@ -226,9 +226,9 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		}
 	}
 	
-	func createFolder(client: DropboxClient,
+	func createFolder(_ client: DropboxClient,
 			hud: MBProgressHUD,
-			continuation: () -> ()) {
+			continuation: @escaping () -> ()) {
 
 		hud.labelText = "Creating folders..."
 
@@ -244,11 +244,11 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		}
 	}
 	
-	func uploadImages(client: DropboxClient,
+	func uploadImages(_ client: DropboxClient,
 			hud: MBProgressHUD,
-			continuation: () -> ()) {
+			continuation: @escaping () -> ()) {
 
-		func checkFinished(inout uploads: Int) {
+		func checkFinished(_ uploads: inout Int) {
 			uploads -= 1
 			if uploads == 0 {
 				continuation()
@@ -258,14 +258,14 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		hud.labelText = "Uploading images"
 		var uploads = self.results.count
 
-		for (i,result) in self.results.enumerate() {
+		for (i,result) in self.results.enumerated() {
 			let title = titles[i]
 			if let actualImage = result.actualImageFile,
-					data = NSData(contentsOfFile: actualImage),
-					image = UIImage(data: data),
-					imageToUpload = self.resizeImage(image) {
+					let data = try? Data(contentsOf: URL(fileURLWithPath: actualImage)),
+					let image = UIImage(data: data),
+					let imageToUpload = self.resizeImage(image) {
 
-				let imageName = title.stringByReplacingOccurrencesOfString(" ", withString: "")
+				let imageName = title.replacingOccurrences(of: " ", with: "")
 
 				client.files.upload(
 					path: "/\(self.folder!)/images/\(imageName)-actual.jpg",
@@ -286,9 +286,9 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		}
 	}
 
-	func checkBaselines(client: DropboxClient,
+	func checkBaselines(_ client: DropboxClient,
 			hud: MBProgressHUD,
-			continuation: [MaplyTestResult] -> ()) {
+			continuation: @escaping ([MaplyTestResult]) -> ()) {
 
 		hud.labelText = "Checking baselines..."
 		client.files.listFolder(
@@ -297,9 +297,9 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 					// baselines exists
 					var testResults = self.results
 					for file in response.entries {
-						for (i,result) in testResults.enumerate() {
+						for (i,result) in testResults.enumerated() {
 							if file.name == self.baselineFilename(result) {
-								testResults.removeAtIndex(i)
+								testResults.remove(at: i)
 								break
 							}
 						}
@@ -322,12 +322,12 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		}
 	}
 
-	func uploadBaselines(client: DropboxClient,
+	func uploadBaselines(_ client: DropboxClient,
 			hud: MBProgressHUD,
 			missingBaselines: [MaplyTestResult],
-			continuation: () -> ()) {
+			continuation: @escaping () -> ()) {
 
-		func checkFinished(inout uploads: Int) {
+		func checkFinished(_ uploads: inout Int) {
 			uploads -= 1
 			if uploads == 0 {
 				continuation()
@@ -343,9 +343,9 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		var uploads = missingBaselines.count
 
 		for result in missingBaselines {
-			if let data = NSData(contentsOfFile: result.baselineImageFile),
-				image = UIImage(data: data),
-				imageToUpload = self.resizeImage(image) {
+			if let data = try? Data(contentsOf: URL(fileURLWithPath: result.baselineImageFile)),
+				let image = UIImage(data: data),
+				let imageToUpload = self.resizeImage(image) {
 			
 				let imageName = baselineFilename(result)
 
@@ -368,20 +368,20 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		}
 	}
 
-	func createHTMLTestResult(client: DropboxClient,
+	func createHTMLTestResult(_ client: DropboxClient,
 			hud: MBProgressHUD,
 			continuation: (String) -> ()) {
 
 		hud.labelText = "Creating html file"
 
-		let device = UIDevice.currentDevice()
+		let device = UIDevice.current
 
 		var html = "<!DOCTYPE html><html<head><meta charset=\"UTF-8\"><meta name=\"description\" content=\"Execution results of tests\"><link type=\"text/css\" rel=\"stylesheet\" href=\"css/styles.css\"><Title>\(self.folder!)</Title></head><body><h1>Tests Results - \(self.folder!)</h1><div id=\"info\"><h2>Device Info</h2><h3>System Name: \(device.systemName)</h3><h3>System Version: \(device.systemVersion)</h3><h3>Model: \(device.model)</h3><h3>Localized Model: \(device.localizedModel)</h3>"
 
-		for (i,result) in self.results.enumerate() {
-			let title = self.titles[i].stringByReplacingOccurrencesOfString(" ", withString: "")
+		for (i,result) in self.results.enumerated() {
+			let title = self.titles[i].replacingOccurrences(of: " ", with: "")
 
-			html += "<div id=\"tests\"><h2>\(result.testName) - \(result.testName.containsString("-Globe-") ? "Globe" : "Map")</h2><div id=\"expected\"><h3>Expected</h3><img src=\"../baselines/\(baselineFilename(result))\"></div><div id=\"actual\"><h3>Actual</h3><img src=\"images/\(title)-actual.jpg\"></div></div>"
+			html += "<div id=\"tests\"><h2>\(result.testName) - \(result.testName.contains("-Globe-") ? "Globe" : "Map")</h2><div id=\"expected\"><h3>Expected</h3><img src=\"../baselines/\(baselineFilename(result))\"></div><div id=\"actual\"><h3>Actual</h3><img src=\"images/\(title)-actual.jpg\"></div></div>"
 		}
 
 		html += "</body></html>"
@@ -389,12 +389,12 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		continuation(html)
 	}
 
-	func uploadHTMLTestResult(client: DropboxClient,
+	func uploadHTMLTestResult(_ client: DropboxClient,
 			hud: MBProgressHUD,
 			html: String,
-			continuation: () -> ()) {
+			continuation: @escaping () -> ()) {
 
-		let data = html.dataUsingEncoding(NSUTF8StringEncoding)
+		let data = html.data(using: String.Encoding.utf8)
 
 		client.files.upload(
 			path: "/\(self.folder!)/index.html",
@@ -410,13 +410,13 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		}
 	}
 
-	func uploadCSSFile(client: DropboxClient,
+	func uploadCSSFile(_ client: DropboxClient,
 			hud: MBProgressHUD,
-			continuation: () -> ()) {
+			continuation: @escaping () -> ()) {
 		hud.labelText = "Uploading CSS File"
 
-		if let path = NSBundle.mainBundle().pathForResource("styles", ofType: "css"),
-				data = NSData(contentsOfFile: path) {
+		if let path = Bundle.main.path(forResource: "styles", ofType: "css"),
+				let data = try? Data(contentsOf: URL(fileURLWithPath: path)) {
 			client.files.upload(
 				path: "/\(self.folder!)/css/styles.css",
 				body: data).response { response, error in
@@ -435,31 +435,31 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		}
 	}
 
-	func updateHTMLTestList(client: DropboxClient,
+	func updateHTMLTestList(_ client: DropboxClient,
 			hud: MBProgressHUD,
-			continuation: (String?) -> ()) {
+			continuation: @escaping (String?) -> ()) {
 
 		hud.labelText = "Updating HTML List"
 
 		client.files.download(path: "/index.html", destination: {
 			temporaryURL, response in
-			let fileManager = NSFileManager.defaultManager()
-			let directoryURL = fileManager.URLsForDirectory(.DocumentDirectory, inDomains: .UserDomainMask)[0]
+			let fileManager = FileManager.default
+			let directoryURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
 			// generate a unique name for this file in case we've seen it before
-			let pathComponent = "\(NSUUID().UUIDString)-\(response.suggestedFilename!)"
-			return directoryURL.URLByAppendingPathComponent(pathComponent)
+			let pathComponent = "\(UUID().uuidString)-\(response.suggestedFilename!)"
+			return directoryURL.appendingPathComponent(pathComponent)
 		}
 		).response { response, error in
 			var tableHTML = ""
 			if let (_, url) = response {
 				// index.html exists
 				do {
-					let text = try String(contentsOfURL: url, encoding: NSUTF8StringEncoding)
-					let compHTML = text.componentsSeparatedByString("<table>")
-					let compTable = compHTML.last?.componentsSeparatedByString("</table>")
-					let compTests = compTable?.first?.stringByReplacingOccurrencesOfString("<tr><th><strong>Test Name</strong></th><th><strong>Test Count</strong></th></tr>", withString: "")
+					let text = try String(contentsOf: url, encoding: String.Encoding.utf8)
+					let compHTML = text.components(separatedBy: "<table>")
+					let compTable = compHTML.last?.components(separatedBy: "</table>")
+					let compTests = compTable?.first?.replacingOccurrences(of: "<tr><th><strong>Test Name</strong></th><th><strong>Test Count</strong></th></tr>", with: "")
 					let name = self.folder!
-					tableHTML = "<tr><td><a href=\"\(name.stringByReplacingOccurrencesOfString(" ", withString: "%20"))/index.html\">\(name)</a></td><td>\(self.results.count)</td>\(compTests!)"
+					tableHTML = "<tr><td><a href=\"\(name.replacingOccurrences(of: " ", with: "%20"))/index.html\">\(name)</a></td><td>\(self.results.count)</td>\(compTests!)"
 				}
 				catch let error {
 					print("Error updating HTML TEST LIST file: \(error)")
@@ -468,24 +468,24 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 			}
 			else {
 				let name = self.folder!
-				tableHTML = "<tr><td><a href=\"\(name.stringByReplacingOccurrencesOfString(" ", withString: "%20"))/index.html\">\(name)</a></td><td>\(self.results.count)</td>"
+				tableHTML = "<tr><td><a href=\"\(name.replacingOccurrences(of: " ", with: "%20"))/index.html\">\(name)</a></td><td>\(self.results.count)</td>"
 			}
 
 			continuation(tableHTML)
 		}
 	}
 
-	func uploadHTMLIndexList(client: DropboxClient,
+	func uploadHTMLIndexList(_ client: DropboxClient,
 			tableRow: String,
-			continuation: () -> ()) {
+			continuation: @escaping () -> ()) {
 
 		let htmlString = "<!DOCTYPE html><html><head><title>Execution list result</title> <style type=\"text/css\"> body{background: #ffffff; background: -moz-linear-gradient(left, #ffffff 0%, #f6f6f6 47%, #ededed 100%); background: -webkit-gradient(left top, right top, color-stop(0%, #ffffff), color-stop(47%, #f6f6f6), color-stop(100%, #ededed)); background: -webkit-linear-gradient(left, #ffffff 0%, #f6f6f6 47%, #ededed 100%); background: -o-linear-gradient(left, #ffffff 0%, #f6f6f6 47%, #ededed 100%); background: -ms-linear-gradient(left, #ffffff 0%, #f6f6f6 47%, #ededed 100%); background: linear-gradient(to right, #ffffff 0%, #f6f6f6 47%, #ededed 100%); filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#ededed',GradientType=1 );} h1{ color: #0C90E2; text-align: center; } strong{ color: #DEE20C; text-align: center; } table{ margin: auto; width: 90%; border:1px solid #73AD21; padding: 10px; overflow: hidden; margin-bottom: 10px;}</style></head><body><h1>Test List</h1><table><tr><th><strong>Test Name</strong></th><th><strong>Test Count</strong></th></tr>\(tableRow)</table></body></html>"
 
-		if let data = htmlString.dataUsingEncoding(NSUTF8StringEncoding) {
+		if let data = htmlString.data(using: String.Encoding.utf8) {
 			client.files.upload(path: "/index.html",
-				mode: .Overwrite,
+				mode: .overwrite,
 				autorename: false,
-				clientModified: NSDate(),
+				clientModified: Date(),
 				mute: true,
 				body: data).response { response, error in
 					if let error = error {
@@ -503,7 +503,7 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		}
 	}
 
-	func baselineFilename(testResult: MaplyTestResult) -> String {
+	func baselineFilename(_ testResult: MaplyTestResult) -> String {
 		return testResult.baselineImageFile
 			.characters
 			.split {
