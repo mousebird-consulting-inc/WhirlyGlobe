@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import SwiftyDropbox
 
 
 class ResultsViewController: UITableViewController, UIPopoverControllerDelegate {

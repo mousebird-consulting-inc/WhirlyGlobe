@@ -51,11 +51,13 @@ class StamenWatercolorRemote: MaplyTestCase {
 		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
 		mapVC.setZoomLimitsMin(0.01, max: 4.0)
 	}
-	
-	override func remoteResources() -> [AnyObject]? {
-		return nil;
+
 /*
+   override func remoteResources() -> [AnyObject]? {
+		return nil;
+
 		return ["https://manuals.info.apple.com/en_US/macbook_retina_12_inch_early2016_essentials.pdf"]
-*/
+
 	}
+*/
 }
