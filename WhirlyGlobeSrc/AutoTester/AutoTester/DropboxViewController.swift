@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import SwiftyDropbox
+//import SwiftyDropbox
 import MBProgressHUD
 
 class DropboxSection {
@@ -51,10 +51,9 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 	var titles = [String]()
 	var folder : String?
 	
-	
 	func loadValues() {
 		values.removeAll(keepingCapacity: true)
-		let isLogin = (Dropbox.authorizedClient != nil)
+		let isLogin = false //(Dropbox.authorizedClient != nil)
 
 		let loginSection = DropboxSection(
 			section: .Login,
@@ -114,18 +113,18 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 		switch section.rows[(indexPath as NSIndexPath).row] {
 			case .LoginUser:
 				processLogin = true
-				Dropbox.authorizeFromController(self)
+//				Dropbox.authorizeFromController(self)
 			case .LogoutUser:
-				Dropbox.unlinkClient()
+//				Dropbox.unlinkClient()
 				self.loadValues()
 				tableView.reloadData()
-			case .Upload:
-				uploadToDropbox()
+			case .Upload: ()
+//				uploadToDropbox()
 		}
 
 		tableView.deselectRow(at: indexPath, animated: false)
 	}
-
+/*
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
@@ -512,5 +511,5 @@ class DropboxViewController: UIViewController, UITableViewDataSource, UITableVie
 			.map(String.init)
 			.last!
 	}
-
+*/
 }
