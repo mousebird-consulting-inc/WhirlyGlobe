@@ -1703,7 +1703,9 @@ public class MaplyBaseController
 
 		if (compObjs == null || compObjs.size() == 0)
 			return;
-		
+
+		final ComponentObject[] localCompObjs = compObjs.toArray(new ComponentObject[compObjs.size()]);
+
 		final MaplyBaseController control = this;
 		Runnable run = new Runnable()
 		{		
@@ -1711,7 +1713,7 @@ public class MaplyBaseController
 			public void run()
 			{
 				ChangeSet changes = new ChangeSet();
-				for (ComponentObject compObj : compObjs)
+				for (ComponentObject compObj : localCompObjs)
 					if (compObj != null)
 						compObj.enable(control, false, changes);
 				if (scene != null)
@@ -1753,6 +1755,8 @@ public class MaplyBaseController
 
 		if (compObjs == null || compObjs.size() == 0)
 			return;
+
+		final ComponentObject[] localCompObjs = compObjs.toArray(new ComponentObject[compObjs.size()]);
 		
 		final MaplyBaseController control = this;
 		Runnable run = 
@@ -1762,7 +1766,7 @@ public class MaplyBaseController
 			public void run()
 			{
 				ChangeSet changes = new ChangeSet();
-				for (ComponentObject compObj : compObjs)
+				for (ComponentObject compObj : localCompObjs)
 					if (compObj != null)
 						compObj.enable(control, true, changes);
 				if (scene != null)
