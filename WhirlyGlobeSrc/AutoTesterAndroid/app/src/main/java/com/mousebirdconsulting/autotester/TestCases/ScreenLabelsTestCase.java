@@ -115,6 +115,14 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		labels.add(makeLabel(11.616667, 44.833333, "Ferrara",1.f));
 		labels.add(makeLabel(7, 49.233333, "Saarbrücken",1.f));
 
+		labels.add(makeLabel(4.361, 43.838, "Nîmes",Float.MAX_VALUE));
+
+		int i = 0;
+		for (double o = 0.0; o < 0.5; o += 0.05) {
+
+			labels.add(makeLabel(4.361 + o, 43.838 + o, "Nîmes " + ++i, Float.MAX_VALUE));
+		}
+
 		ComponentObject comp = baseVC.addScreenLabels(labels, labelInfo, MaplyBaseController.ThreadMode.ThreadAny);
 		if (comp != null)
 			componentObjects.add(comp);
