@@ -202,6 +202,17 @@ function getS3Data(dataXML, testName, platform)
 			}
 		}
 	});
-	binaries.sort();
+	binaries.sort(function(a, b) {
+		function getOrdinal(str) {
+			var lastPoint = str.lastIndexOf(".");
+			var index = lastPoint - 1;
+			while (str.charAt(index) != '-' && str.charAt(index) != '_') {
+				index--;
+			}
+			return str.substring(index + 1, lastPoint);
+		}
+		
+		return getOrdinal(a) - getOrdinal(b);
+	});
 	return binaries;
 }
