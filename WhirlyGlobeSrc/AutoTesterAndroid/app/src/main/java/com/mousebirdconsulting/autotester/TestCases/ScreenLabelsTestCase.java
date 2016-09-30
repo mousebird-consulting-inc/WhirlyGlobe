@@ -94,6 +94,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 					label.text = labelName;
 					label.loc = object.centroid();
 					label.selectable = true;
+					label.layoutImportance = 1.f;
 					labels.add(label);
 
 					if (addMarkers) {
@@ -107,16 +108,17 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		}
 
 		// Toss in a few with explicit diacritics
-		labels.add(makeLabel(-74.075833, 4.4, "Bogotá",1.f));
-		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá2",1.f));
-		labels.add(makeLabel(6.0219, 47.2431, "Besançon",1.f));
-		labels.add(makeLabel(4.361, 43.838, "Nîmes",1.f));
-		labels.add(makeLabel(4.9053, 43.9425, "Morières-lès-Avignon",1.f));
-		labels.add(makeLabel(11.616667, 44.833333, "Ferrara",1.f));
-		labels.add(makeLabel(7, 49.233333, "Saarbrücken",1.f));
+		labels.add(makeLabel(-74.075833, 4.4, "Bogotá", 2.f));
+		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá2", 2.f));
+		labels.add(makeLabel(6.0219, 47.2431, "Besançon", 2.f));
+		labels.add(makeLabel(4.361, 43.838, "Nîmes", 2.f));
+		labels.add(makeLabel(4.9053, 43.9425, "Morières-lès-Avignon", 2.f));
+		labels.add(makeLabel(11.616667, 44.833333, "Ferrara", 2.f));
+		labels.add(makeLabel(7, 49.233333, "Saarbrücken", 2.f));
 
-		labels.add(makeLabel(4.361, 43.838, "Nîmes",Float.MAX_VALUE));
+		labels.add(makeLabel(4.361, 43.838, "Nîmes", Float.MAX_VALUE));
 
+		// Test the layout engine very explicitly
 		int i = 0;
 		for (double o = 0.0; o < 0.5; o += 0.05) {
 

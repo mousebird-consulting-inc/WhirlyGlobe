@@ -148,8 +148,10 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                     layoutImportance = label->desc.getDouble("layoutImportance",layoutImportance);
                 if (layoutImportance == 0.0)
                     layoutImportance = labelInfo->layoutImportance;
-                if (layoutImportance != 0.0)
+                if (layoutImportance != 0.0 && layoutImportance != MAXFLOAT)
                     layoutEngine = true;
+                else
+                    layoutEngine = false;
 
                 if (layoutEngine)
                 {
@@ -246,7 +248,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                 }
                 
                 // If it's being passed to the layout engine, do that as well
-                if (layoutEngine || layoutImportance != 0.0)
+                if (layoutEngine)
                 {
                     int layoutPlacement = labelInfo->layoutPlacement;
                     if (label->desc.hasField("layoutPlacement"))
