@@ -612,6 +612,10 @@ using namespace Maply;
         [pinchDelegate setBounds:bounds];
     if (doubleTapDelegate)
         [doubleTapDelegate setBounds:bounds];
+    if (twoFingerTapDelegate)
+        [twoFingerTapDelegate setBounds:bounds];
+    if (doubleTapDragDelegate)
+        [doubleTapDragDelegate setBounds:bounds];
 }
 
 // Internal animation handler
@@ -863,14 +867,16 @@ using namespace Maply;
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos
 {
-    Point3d oldLoc = mapView.loc;
+    MaplyView *tempMapView = [[MaplyView alloc] initWithView:mapView];
+
+    Point3d oldLoc = tempMapView.loc;
     Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
-    [mapView setLoc:newLoc runUpdates:false];
+    [tempMapView setLoc:newLoc runUpdates:false];
     
     Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
     
-    float minHeight = mapView.minHeightAboveSurface;
-    float maxHeight = mapView.maxHeightAboveSurface;
+    float minHeight = tempMapView.minHeightAboveSurface;
+    float maxHeight = tempMapView.maxHeightAboveSurface;
     if (pinchDelegate)
     {
         minHeight = std::max(minHeight,pinchDelegate.minZoom);
@@ -878,11 +884,11 @@ using namespace Maply;
     }
     
     // Check that we can at least see it
-    bool minOnScreen = [self checkCoverage:mbr mapView:mapView height:minHeight];
-    bool maxOnScreen = [self checkCoverage:mbr mapView:mapView height:maxHeight];
+    bool minOnScreen = [self checkCoverage:mbr mapView:tempMapView height:minHeight];
+    bool maxOnScreen = [self checkCoverage:mbr mapView:tempMapView height:maxHeight];
     if (!minOnScreen && !maxOnScreen)
     {
-        [mapView setLoc:oldLoc runUpdates:false];
+        [tempMapView setLoc:oldLoc runUpdates:false];
         return oldLoc.z();
     } else if (minOnScreen) {
         // already fits at min zoom
@@ -894,7 +900,7 @@ using namespace Maply;
         do
         {
             float midHeight = (minHeight + maxHeight)/2.0;
-            bool midOnScreen = [self checkCoverage:mbr mapView:mapView height:midHeight];
+            bool midOnScreen = [self checkCoverage:mbr mapView:tempMapView height:midHeight];
         
             if (!minOnScreen && midOnScreen)
             {
@@ -910,9 +916,6 @@ using namespace Maply;
         } while (maxHeight-minHeight > minRange);
     }
     
-    //set map back to pre-search state
-    [mapView setLoc:oldLoc runUpdates:false];
-
     return maxHeight;
 }
 
