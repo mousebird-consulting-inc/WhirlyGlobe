@@ -169,12 +169,21 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	// Called when the layer shuts down.  Won't be run again.
 	public void shutdown()
 	{
-		valid = false;
-		cancelEvalStep();
-		ChangeSet changes = new ChangeSet();
-		nativeShutdown(changes);
-		layerThread.addChanges(changes);
-		super.shutdown();
+		synchronized(loadedTiles) {
+			valid = false;
+			cancelEvalStep();
+
+			// Remove the contents of all the tiles
+			// Note: This is being done on the current thread.  Do we want that?
+			for (LoadedTile tile : loadedTiles.values())
+				tile.clear(maplyControl);
+			loadedTiles.clear();
+
+			ChangeSet changes = new ChangeSet();
+			nativeShutdown(changes);
+			layerThread.addChanges(changes);
+			super.shutdown();
+		}
 
 		dispose();
 	}
@@ -399,6 +408,8 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	{
 		synchronized(loadedTiles)
 		{
+			if (!valid)
+				return null;
 			return loadedTiles.get(tileID);
 		}
 	}
@@ -406,11 +417,11 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	// Add a loaded tile.  We're assuming it's not already there
 	void addLoadedTile(LoadedTile tile)
 	{
-		if (!valid)
-			return;
-
 		synchronized(loadedTiles)
 		{
+			if (!valid)
+				return;
+
 			loadedTiles.put(tile.ident, tile);
 		}
 	}
@@ -418,11 +429,11 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	// Remove a loaded tile
 	void removeLoadedTile(MaplyTileID tileID)
 	{
-		if (!valid)
-			return;
-
 		synchronized(loadedTiles)
 		{
+			if (!valid)
+				return;
+
 			loadedTiles.remove(tileID);
 		}
 	}
@@ -650,6 +661,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		// Ask the tiles to sort themselves out
 		synchronized(loadedTiles)
 		{
+			if (!valid)
+				return;
+
 			LoadedTile found = loadedTiles.get(topTile);
 			if (found != null)
 				evaluate(found,true,toEnable,toDisable);

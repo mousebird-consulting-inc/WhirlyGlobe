@@ -7,6 +7,7 @@ import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.QuadImageTileLayer;
+import com.mousebird.maply.QuadPagingLayer;
 import com.mousebird.maply.RemoteTileInfo;
 import com.mousebird.maply.RemoteTileSource;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
@@ -28,6 +29,7 @@ public class LayerShutdownTestCase extends MaplyTestCase  {
     }
 
     QuadImageTileLayer stamenLayer = null;
+    QuadPagingLayer vectorLayer = null;
 
     private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) {
         String cacheDirName = "stamen_watercolor3";
@@ -54,6 +56,25 @@ public class LayerShutdownTestCase extends MaplyTestCase  {
         return baseLayer;
     }
 
+    private QuadPagingLayer setupVectorLayer(ConfigOptions.TestType testType, MaplyBaseController baseController)
+    {
+        QuadPagingLayer layer = null;
+
+        PagingLayerTestCase pagingLayerTestCase = new PagingLayerTestCase(activity);
+        try
+        {
+            layer = pagingLayerTestCase.setupPagingLayer(baseController, ConfigOptions.TestType.GlobeTest);
+            baseController.addLayer(layer);
+        }
+        catch (Exception exc)
+        {
+        }
+
+        return layer;
+    }
+
+    static int ShutDownDelay = 4000;
+
     public void cycleLayer(final ConfigOptions.TestType testType,final MaplyBaseController baseVC)
     {
         final Handler handler = new Handler();
@@ -62,14 +83,17 @@ public class LayerShutdownTestCase extends MaplyTestCase  {
             public void run() {
                 if (stamenLayer != null) {
                     baseVC.removeLayer(stamenLayer);
+                    baseVC.removeLayer(vectorLayer);
                     stamenLayer = null;
                 }
                 stamenLayer = setupImageLayer(testType,baseVC);
+                vectorLayer = setupVectorLayer(testType,baseVC);
                 baseVC.addLayer(stamenLayer);
+                baseVC.addLayer(vectorLayer);
 
                 cycleLayer(testType,baseVC);
             }
-        }, 2000);
+        }, ShutDownDelay);
     }
 
     @Override
