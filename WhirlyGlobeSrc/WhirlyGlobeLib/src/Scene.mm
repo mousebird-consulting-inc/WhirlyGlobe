@@ -48,9 +48,15 @@ Scene::Scene()
     
 void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
 {
+    pthread_mutex_init(&coordAdapterLock,NULL);
+    pthread_mutex_init(&changeRequestLock,NULL);
+    pthread_mutex_init(&subTexLock, NULL);
+    pthread_mutex_init(&textureLock,NULL);
+    pthread_mutex_init(&generatorLock,NULL);
+    pthread_mutex_init(&programLock,NULL);
+
     ssGen = NULL;
     
-    pthread_mutex_init(&coordAdapterLock,NULL);
     coordAdapter = adapter;
     cullTree = new CullTree(adapter,localMbr,depth);
     
@@ -92,12 +98,6 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
     
     activeModels = [NSMutableArray array];
-    
-    pthread_mutex_init(&changeRequestLock,NULL);        
-    pthread_mutex_init(&subTexLock, NULL);
-    pthread_mutex_init(&textureLock,NULL);
-    pthread_mutex_init(&generatorLock,NULL);
-    pthread_mutex_init(&programLock,NULL);
 }
 
 Scene::~Scene()
