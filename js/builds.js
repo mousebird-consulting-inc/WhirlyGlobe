@@ -204,12 +204,14 @@ function getS3Data(dataXML, testName, platform)
 	});
 	binaries.sort(function(a, b) {
 		function getOrdinal(str) {
-			var lastPoint = str.lastIndexOf(".");
-			var index = lastPoint - 1;
-			while (str.charAt(index) != '-' && str.charAt(index) != '_') {
-				index--;
+			var rawElements = str.split("/");
+			var elements = rawElements[1].split("_");
+			if (str.toLowerCase().includes("nightly")){
+				return parseInt(elements[2]);
 			}
-			return str.substring(index + 1, lastPoint);
+			else {
+				return parseInt(elements[1].split(".")[0]);
+			}
 		}
 		
 		return getOrdinal(a) - getOrdinal(b);
