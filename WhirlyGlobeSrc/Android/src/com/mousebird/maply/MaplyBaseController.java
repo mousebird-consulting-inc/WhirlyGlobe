@@ -44,7 +44,6 @@ public class MaplyBaseController
 	Activity activity = null;
     private OkHttpClient httpClient;
 
-
 	public static final String kToolkitDefaultTriangleNoLightingProgram = "Default Triangle;lighting=no";
 
 	// When adding features we can run on the current thread or delay the work till layter
@@ -730,6 +729,10 @@ public class MaplyBaseController
     {
 		if (cInfo == null)
 			cInfo = glContext;
+
+		// This does seem to happen
+		if (renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.display == null)
+			return false;
 
 		EGL10 egl = (EGL10) EGLContext.getEGL();
         if (cInfo != null)
