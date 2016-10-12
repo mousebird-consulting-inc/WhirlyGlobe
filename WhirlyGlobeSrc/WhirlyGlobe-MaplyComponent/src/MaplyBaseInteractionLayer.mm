@@ -463,7 +463,9 @@ public:
         maplyTex.texID = subTex.getId();
         maplyTex.isSubTex = true;
         maplyTex.interactLayer = self;
+        pthread_mutex_lock(&imageLock);
         imageTextures.push_back(maplyTex);
+        pthread_mutex_unlock(&imageLock);
     }
     delete tex;
 
