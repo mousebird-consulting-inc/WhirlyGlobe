@@ -197,7 +197,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public Point2d screenPointFromGeo(Point2d geoCoord)
 	{
-		if (!running || mapView == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return null;
 
 		return screenPointFromGeo(mapView,geoCoord);
@@ -211,7 +211,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public Point2d geoPointFromScreen(Point2d screenPt)
 	{
-		if (!running || mapView == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return null;
 
 		CoordSystemDisplayAdapter coordAdapter = mapView.getCoordAdapter();
@@ -236,7 +236,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public Mbr getCurrentViewGeo()
 	{
-		if (!running || mapView == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return null;
 
 		Mbr geoMbr = new Mbr();
@@ -264,7 +264,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	
 	boolean checkCoverage(Mbr mbr,MapView theMapView,double height)
 	{
-		if (!running || mapView == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return false;
 
 		Point2d centerLoc = mbr.middle();
@@ -305,7 +305,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public double findHeightToViewBounds(Mbr mbr,Point2d pos)
 	{
-		if (!running || mapView == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return 0.0;
 
 		// We'll experiment on a copy of the map view
@@ -361,7 +361,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public void setPositionGeo(final double x,final double y,final double z)
 	{
-		if (!running)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return;
 
 		if (!rendererAttached) {
@@ -385,7 +385,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
      */
 	public Point3d getPositionGeo()
 	{
-		if (!running || mapView == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return null;
 
 		Point3d loc = mapView.getLoc();
@@ -404,7 +404,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 	 */
 	public void animatePositionGeo(final double x,final double y,final double z,final double howLong)
 	{
-		if (!running)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return;
 
 		if (!rendererAttached) {
@@ -427,7 +427,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
      */
 	public void setHeading(final double heading)
 	{
-		if (!running)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return;
 
 		if (!rendererAttached) {
@@ -449,7 +449,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
      */
 	public double getHeading()
 	{
-		if (!running)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return 0.0;
 
 		return mapView.getRot();
