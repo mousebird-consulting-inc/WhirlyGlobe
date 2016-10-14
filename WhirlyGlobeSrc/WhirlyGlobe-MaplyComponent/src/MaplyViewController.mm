@@ -836,10 +836,15 @@ using namespace Maply;
 
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
 {
-    Point3d pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
+    return [self screenPointFromGeo:geoCoord mapView:mapView];
+}
+
+- (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord mapView:(MaplyView *)theView
+{
+    Point3d pt = theView.coordAdapter->localToDisplay(theView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
     
-    Eigen::Matrix4d modelTrans = [visualView calcFullMatrix];
-    return [mapView pointOnScreenFromPlane:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+    Eigen::Matrix4d modelTrans = [theView calcFullMatrix];
+    return [theView pointOnScreenFromPlane:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
 }
 
 // See if the given bounding box is all on sreen
@@ -847,7 +852,7 @@ using namespace Maply;
 {
     Point3d loc = mapView.loc;
     Point3d testLoc = Point3d(loc.x(),loc.y(),height);
-    [mapView setLoc:testLoc runUpdates:false];
+    [theView setLoc:testLoc runUpdates:false];
     
     CGRect frame = self.view.frame;
     
@@ -859,8 +864,8 @@ using namespace Maply;
     lr.x = mbr.lr().x();
     lr.y = mbr.lr().y();
     
-    CGPoint ulScreen = [self screenPointFromGeo:ul];
-    CGPoint lrScreen = [self screenPointFromGeo:lr];
+    CGPoint ulScreen = [self screenPointFromGeo:ul mapView:theView];
+    CGPoint lrScreen = [self screenPointFromGeo:lr mapView:theView];
     
     return std::abs(lrScreen.x - ulScreen.x) < frame.size.width && std::abs(lrScreen.y - ulScreen.y) < frame.size.height;
 }
