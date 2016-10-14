@@ -25,6 +25,18 @@ using namespace WhirlyKit;
 
 @implementation MaplyView
 
+- (id)initWithView:(MaplyView *)inMapView
+{
+    if (![self isKindOfClass:[MaplyView class]])
+        return nil;
+    
+    self = [super initWithView:inMapView];
+    _loc = inMapView.loc;
+    _rotAngle = inMapView.rotAngle;
+    
+    return self;
+}
+
 - (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)inCoordAdapter
 {
     if (self = [super init])
