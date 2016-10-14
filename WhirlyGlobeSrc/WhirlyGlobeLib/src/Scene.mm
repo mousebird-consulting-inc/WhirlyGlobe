@@ -54,6 +54,7 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     pthread_mutex_init(&textureLock,NULL);
     pthread_mutex_init(&generatorLock,NULL);
     pthread_mutex_init(&programLock,NULL);
+    pthread_mutex_init(&managerLock,NULL);
 
     ssGen = NULL;
     
@@ -66,7 +67,6 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 
     dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
 
-    pthread_mutex_init(&managerLock,NULL);
     // Selection manager is used for object selection from any thread
     addManager(kWKSelectionManager,new SelectionManager(this,[UIScreen mainScreen].scale));
     // Intersection handling
