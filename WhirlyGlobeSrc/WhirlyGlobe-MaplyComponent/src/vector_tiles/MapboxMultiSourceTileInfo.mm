@@ -20,7 +20,6 @@
 
 #import "MapboxMultiSourceTileInfo.h"
 #import "MapnikStyleSet.h"
-#import "MapboxVectorStyleSet.h"
 #import <set>
 #import <map>
 #import <vector>
@@ -127,11 +126,11 @@ public:
             styleSet = mapnikStyleSet;
         }
             break;
-        case MapnikMapboxGLStyle:
-        {
-            MaplyMapboxVectorStyleSet *mapboxStyleSet = [[MaplyMapboxVectorStyleSet alloc] initWithJSON:styleData viewC:viewC];
-            styleSet = mapboxStyleSet;
-        }
+//        case MapnikMapboxGLStyle:
+//        {
+//            MaplyMapboxVectorStyleSet *mapboxStyleSet = [[MaplyMapboxVectorStyleSet alloc] initWithJSON:styleData viewC:viewC];
+//            styleSet = mapboxStyleSet;
+//        }
             break;
     }
     
