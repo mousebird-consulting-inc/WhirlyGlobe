@@ -393,6 +393,27 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
 
 - (bool)isOnScreenForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
 {
+    if (!viewState.coordAdapter->isFlat())
+    {
+        // If the viewer is inside the bounds, the node is maximimally important (duh)
+        if ([self isInside:viewState.eyePos])
+            return MAXFLOAT;
+        
+        // Make sure that we're pointed toward the eye, even a bit
+        if (!_surfNormals.empty())
+        {
+            bool isFacing = false;
+            for (unsigned int ii=0;ii<_surfNormals.size();ii++)
+            {
+                const Vector3d &surfNorm = _surfNormals[ii];
+                if ((isFacing |= (surfNorm.dot(viewState.eyePos) >= 0.0)))
+                    break;
+            }
+            if (!isFacing)
+                return false;
+        }
+    }
+    
     for (unsigned int offi=0;offi<viewState.viewMatrices.size();offi++)
     {
         for (unsigned int ii=0;ii<_polys.size();ii++)

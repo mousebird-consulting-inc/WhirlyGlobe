@@ -166,6 +166,15 @@ using namespace WhirlyKit;
     return _pixelsPerTile;
 }
 
+- (MaplyBoundingBox)getBounds
+{
+    MaplyBoundingBox bbox;
+    bbox.ll = MaplyCoordinateMake(_geoMbr.ll().x(),_geoMbr.ll().y());
+    bbox.ur = MaplyCoordinateMake(_geoMbr.ur().x(),_geoMbr.ur().y());
+    
+    return bbox;
+}
+
 - (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
 {
     return true;

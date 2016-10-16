@@ -289,43 +289,45 @@ bool LayoutManager::calcScreenPt(CGPoint &objPt,LayoutObjectEntry *layoutObj,Whi
     
     return isInside;
 }
-    
-Matrix2d LayoutManager::CalcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Point2f &frameBufferSize)
+
+Matrix2d LayoutManager::calcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
 {
-    Point3d norm,right,up;
-    Matrix2d screenRotMat;
+    // Switch from counter-clockwise to clockwise
+    double rot = 2*M_PI-ssObj->rotation;
     
-    if (globeViewState)
+    Point3d upVec,northVec,eastVec;
+    if (!globeViewState)
     {
-        Point3d simpleUp(0,0,1);
-        norm = ssObj->worldLoc;
-        norm.normalize();
-        right = simpleUp.cross(norm);
-        up = norm.cross(right);
-        right.normalize();
-        up.normalize();
+        upVec = Point3d(0,0,1);
+        northVec = Point3d(0,1,0);
+        eastVec = Point3d(1,0,0);
     } else {
-        right = Point3d(1,0,0);
-        norm = Point3d(0,0,1);
-        up = Point3d(0,1,0);
+        Point3d worldLoc = ssObj->getWorldLoc();
+        upVec = worldLoc.normalized();
+        // Vector pointing north
+        northVec = Point3d(-worldLoc.x(),-worldLoc.y(),1.0-worldLoc.z());
+        eastVec = northVec.cross(upVec);
+        northVec = upVec.cross(eastVec);
     }
-    // Note: Check if the axes made any sense.  We might be at a pole.
-    Point3d rightDir = right * sinf(ssObj->rotation);
-    Point3d upDir = up * cosf(ssObj->rotation);
     
-    Point3d outPt = rightDir * 1.0 + upDir * 1.0 + ssObj->worldLoc;
-    CGPoint outScreenPt;
-    outScreenPt = [viewState pointOnScreenFromDisplay:outPt transform:&modelTrans frameSize:frameBufferSize];
-    screenRot = M_PI/2.0-atan2f(objPt.y-outScreenPt.y,outScreenPt.x-objPt.x);
+    // This vector represents the rotation in world space
+    Point3d rotVec = eastVec * sin(rot) + northVec * cos(rot);
+    
+    // Project down into screen space
+    Vector4d projRot = normalMat * Vector4d(rotVec.x(),rotVec.y(),rotVec.z(),0.0);
+    
+    // Use the resulting x & y
+    screenRot = atan2(projRot.y(),projRot.x())-M_PI/2.0;
     // Keep the labels upright
     if (ssObj->keepUpright)
         if (screenRot > M_PI/2 && screenRot < 3*M_PI/2)
             screenRot = screenRot + M_PI;
-            screenRotMat = Eigen::Rotation2Dd(screenRot);
+    Matrix2d screenRotMat;
+    screenRotMat = Eigen::Rotation2Dd(screenRot);
     
     return screenRotMat;
 }
-    
+
 // Do the actual layout logic.  We'll modify the offset and on value in place.
 bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams)
 {
@@ -349,6 +351,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
     Matrix4d modelTrans = viewState.fullMatrices[0];
     Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState.fullMatrices[0]);
     Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState.fullNormalMatrices[0]);
+    Matrix4d normalMat = viewState.fullMatrices[0].inverse().transpose();
     
     // Turn everything off and sort by importance
     for (LayoutEntrySet::iterator it = layoutObjects.begin();
@@ -459,7 +462,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
                     float screenRot = 0.0;
                     Matrix2d screenRotMat;
                     if (entry->obj.rotation != 0.0)
-                        screenRotMat = CalcScreenRot(screenRot,viewState,globeViewState,&entry->obj,objPt,modelTrans,frameBufferSize);
+                        screenRotMat = calcScreenRot(screenRot,viewState,globeViewState,&entry->obj,objPt,modelTrans,normalMat,frameBufferSize);
                     
                     // Rotate the rectangle
                     std::vector<Point2d> objPts(4);
@@ -592,7 +595,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
             
             // Deal with the rotation
             if (layoutObj->obj.rotation != 0.0)
-                screenRotMat = CalcScreenRot(screenRot,viewState,globeViewState,&layoutObj->obj,objPt,modelTrans,frameBufferSize);
+                screenRotMat = calcScreenRot(screenRot,viewState,globeViewState,&layoutObj->obj,objPt,modelTrans,normalMat,frameBufferSize);
             
             // Now for the overlap checks
             if (isActive)

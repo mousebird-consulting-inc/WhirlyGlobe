@@ -15,13 +15,10 @@
 #import "MaplyTestResult.h"
 #import "GeographyClassTestCase.h"
 #import "CesiumElevationTestCase.h"
-#import "MapBoxVectorTestCase.h"
-#import "MapboxVectorTiles.h"
 #import "VectorsTestCase.h"
 #import "ShapefileTestCase.h"
 #import "ScreenMarkersTestCase.h"
 #import "MapzenSource.h"
-#import "MapjamSource.h"
 #import "LabelsTestCase.h"
 #import "MegaMarkersTestCase.h"
 #import "WideVectorsTestCase.h"
@@ -46,5 +43,6 @@
 #import "PagingLayerTestCase.h"
 #import "VectorHoleTestCase.h"
 #import "VectorStyleTestCase.h"
+#import "ActiveObjectTestCase.h"
 
 #endif

@@ -48,9 +48,16 @@ Scene::Scene()
     
 void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
 {
+    pthread_mutex_init(&coordAdapterLock,NULL);
+    pthread_mutex_init(&changeRequestLock,NULL);
+    pthread_mutex_init(&subTexLock, NULL);
+    pthread_mutex_init(&textureLock,NULL);
+    pthread_mutex_init(&generatorLock,NULL);
+    pthread_mutex_init(&programLock,NULL);
+    pthread_mutex_init(&managerLock,NULL);
+
     ssGen = NULL;
     
-    pthread_mutex_init(&coordAdapterLock,NULL);
     coordAdapter = adapter;
     cullTree = new CullTree(adapter,localMbr,depth);
     
@@ -60,7 +67,6 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 
     dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
 
-    pthread_mutex_init(&managerLock,NULL);
     // Selection manager is used for object selection from any thread
     addManager(kWKSelectionManager,new SelectionManager(this,[UIScreen mainScreen].scale));
     // Intersection handling
@@ -92,12 +98,6 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
     
     activeModels = [NSMutableArray array];
-    
-    pthread_mutex_init(&changeRequestLock,NULL);        
-    pthread_mutex_init(&subTexLock, NULL);
-    pthread_mutex_init(&textureLock,NULL);
-    pthread_mutex_init(&generatorLock,NULL);
-    pthread_mutex_init(&programLock,NULL);
 }
 
 Scene::~Scene()

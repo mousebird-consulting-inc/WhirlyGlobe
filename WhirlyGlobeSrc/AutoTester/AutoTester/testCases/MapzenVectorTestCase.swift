@@ -15,15 +15,13 @@ class MapzenVectorTestCase: MaplyTestCase {
 
 		self.name = "Mapzen Vectors"
 		self.captureDelay = 5
-		self.implementations = [ .Map]
+		self.implementations = [ .Map, .Globe]
 	}
-
-	override func setUpWithMap(mapVC: MaplyViewController) {
-//		let baseLayer = CartoDBLightTestCase()
-//		baseLayer.setUpWithMap(mapVC)
-
-		//let styleData = NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("MapzenGLStyle", ofType: "json")!)
-
+    
+    func setupMapzenLayer(baseVC: MaplyBaseViewController)
+    {
+        //let styleData = NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("MapzenGLStyle", ofType: "json")!)
+        
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(1 * Double(NSEC_PER_SEC))), dispatch_get_main_queue(), {
             
@@ -36,7 +34,7 @@ class MapzenVectorTestCase: MaplyTestCase {
                 sourceType: MapzenSourcePBF,
                 styleData: styleData,
                 styleType: .SLDStyle,
-                viewC: mapVC)
+                viewC: baseVC)
             
             mzSource.minZoom = Int32(0)
             mzSource.maxZoom = Int32(24)
@@ -50,10 +48,27 @@ class MapzenVectorTestCase: MaplyTestCase {
             pageLayer?.importance = 512*512
             pageLayer?.useTargetZoomLevel = true
             pageLayer?.singleLevelLoading = true
-            mapVC.addLayer(pageLayer!)
-            mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.290,37.7793), height: 0.0005, time: 0.1)
+            baseVC.addLayer(pageLayer!)
             
-            });
+        });
+    }
+    
+    override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
+        let baseLayer = CartoDBLightTestCase()
+        baseLayer.setUpWithGlobe(globeVC)
+
+        setupMapzenLayer(globeVC)
+
+        globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.290,37.7793), height: 0.0005, heading: 0.0, time: 0.1)
+    }
+
+	override func setUpWithMap(mapVC: MaplyViewController) {
+		let baseLayer = CartoDBLightTestCase()
+		baseLayer.setUpWithMap(mapVC)
+        
+        setupMapzenLayer(mapVC)
+        
+        mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.290,37.7793), height: 0.0005, time: 0.1)
 	}
 
 }

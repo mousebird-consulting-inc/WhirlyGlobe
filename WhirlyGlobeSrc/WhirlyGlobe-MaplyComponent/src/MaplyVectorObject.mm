@@ -1164,6 +1164,22 @@ public:
 	return bounds;
 }
 
+- (double)areaOfOuterLoops
+{
+    // Find the loop with the largest area
+    double area = 0.0;
+    for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
+    {
+        VectorArealRef areal = std::dynamic_pointer_cast<VectorAreal>(*it);
+        if (areal && areal->loops.size() > 0)
+        {
+            area = CalcLoopArea(areal->loops[0]);
+        }
+    }
+    
+    return area;
+}
+
 
 - (bool)boundingBoxLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
