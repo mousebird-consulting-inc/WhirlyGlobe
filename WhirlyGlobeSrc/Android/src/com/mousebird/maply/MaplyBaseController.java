@@ -598,7 +598,7 @@ public class MaplyBaseController
      */
     public void addPostSurfaceRunnable(Runnable run)
     {
-        if (layoutLayer != null)
+        if (rendererAttached)
             activity.runOnUiThread(run);
         else
             postSurfaceRunnables.add(run);
