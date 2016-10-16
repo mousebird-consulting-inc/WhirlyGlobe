@@ -15,6 +15,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		StamenWatercolorRemote(),
 		NASAGIBSTestCase(),
 		CartoDBLightTestCase(),
+		ImageSingleLevelTestCase(),
 
 		AnimatedBasemapTestCase(),
 		ScreenLabelsTestCase(),
@@ -35,7 +36,6 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 		PagingLayerTestCase(),
 		MapzenVectorTestCase(),
-		MapjamVectorTestCase(),
 		VectorMBTilesTestCase(),
 
 		StarsSunTestCase(),
@@ -61,7 +61,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		LabelAnimationTestCase(),
 		WMSTestCase(),
 		FindHeightTestCase(),
-		FullAnimationTest()
+		FullAnimationTest(),
+		ActiveObjectTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!

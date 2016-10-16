@@ -801,37 +801,38 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
     return selObjs[0].selectIDs[0];
 }
 
-Matrix2d SelectionManager::CalcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Point2f &frameBufferSize)
+Matrix2d SelectionManager::calcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
 {
-    Point3d norm,right,up;
-    Matrix2d screenRotMat;
+    // Switch from counter-clockwise to clockwise
+    double rot = 2*M_PI-ssObj->rotation;
     
-    if (globeViewState)
+    Point3d upVec,northVec,eastVec;
+    if (!globeViewState)
     {
-        Point3d simpleUp(0,0,1);
-        norm = ssObj->dispLoc;
-        norm.normalize();
-        right = simpleUp.cross(norm);
-        up = norm.cross(right);
-        right.normalize();
-        up.normalize();
+        upVec = Point3d(0,0,1);
+        northVec = Point3d(0,1,0);
+        eastVec = Point3d(1,0,0);
     } else {
-        right = Point3d(1,0,0);
-        norm = Point3d(0,0,1);
-        up = Point3d(0,1,0);
+        upVec = ssObj->dispLoc.normalized();
+        // Vector pointing north
+        northVec = Point3d(-ssObj->dispLoc.x(),-ssObj->dispLoc.y(),1.0-ssObj->dispLoc.z());
+        eastVec = northVec.cross(upVec);
+        northVec = upVec.cross(eastVec);
     }
-    // Note: Check if the axes made any sense.  We might be at a pole.
-    Point3d rightDir = right * sinf(ssObj->rotation);
-    Point3d upDir = up * cosf(ssObj->rotation);
     
-    Point3d outPt = rightDir * 1.0 + upDir * 1.0 + ssObj->dispLoc;
-    CGPoint outScreenPt;
-    outScreenPt = [viewState pointOnScreenFromDisplay:outPt transform:&modelTrans frameSize:frameBufferSize];
-    screenRot = M_PI/2.0-atan2f(outScreenPt.y-objPt.y,outScreenPt.x-objPt.x);
+    // This vector represents the rotation in world space
+    Point3d rotVec = eastVec * sin(rot) + northVec * cos(rot);
+    
+    // Project down into screen space
+    Vector4d projRot = normalMat * Vector4d(rotVec.x(),rotVec.y(),rotVec.z(),0.0);
+    
+    // Use the resulting x & y
+    screenRot = atan2(projRot.y(),projRot.x())-M_PI/2.0;
     // Keep the labels upright
     if (ssObj->keepUpright)
         if (screenRot > M_PI/2 && screenRot < 3*M_PI/2)
             screenRot = screenRot + M_PI;
+    Matrix2d screenRotMat;
     screenRotMat = Eigen::Rotation2Dd(screenRot);
     
     return screenRotMat;
@@ -856,6 +857,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
     Vector4d eyeVec4 = pInfo.viewAndModelInvMat * Vector4d(0,0,1,0);
     Vector3d eyeVec(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
     Matrix4d modelTrans = pInfo.viewState.fullMatrices[0];
+    Matrix4d normalMat = pInfo.viewState.fullMatrices[0].inverse().transpose();
 
     Point2f frameBufferSize;
     frameBufferSize.x() = renderer.framebufferWidth;
@@ -900,7 +902,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
                 CGPoint objPt;
                 objPt.x = projPt.x();  objPt.y = projPt.y();
                 if (screenObj.rotation != 0.0)
-                    screenRotMat = CalcScreenRot(screenRot,pInfo.viewState,pInfo.globeViewState,&screenObj,objPt,modelTrans,frameBufferSize);
+                    screenRotMat = calcScreenRot(screenRot,pInfo.viewState,pInfo.globeViewState,&screenObj,objPt,modelTrans,normalMat,frameBufferSize);
 
                 std::vector<Point2f> screenPts;
                 if (screenRot == 0.0)

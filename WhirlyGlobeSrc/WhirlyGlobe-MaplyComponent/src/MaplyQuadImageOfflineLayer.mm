@@ -21,6 +21,7 @@
 #import "MaplyQuadImageOfflineLayer.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyViewControllerLayer_private.h"
+#import "MaplyBaseViewController_private.h"
 #import "QuadDisplayLayer.h"
 #import "MaplyActiveObject.h"
 #import "MaplyActiveObject_private.h"
@@ -572,7 +573,7 @@ using namespace WhirlyKit;
         // Note: Does the lack of interact layer break things?
         MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
         maplyTex.texID = inImage.texture;
-        maplyTex.interactLayer = NULL;
+        maplyTex.interactLayer = _viewC->interactLayer;
         
         offlineImage.tex = maplyTex;
         offlineImage.centerSize = inImage.centerSize;

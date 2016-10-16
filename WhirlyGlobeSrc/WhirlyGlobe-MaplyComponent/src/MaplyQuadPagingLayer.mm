@@ -433,11 +433,21 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         return minZoom;
     
     int zoomLevel = 0;
-    WhirlyKit::Point2f center = Point2f(lastViewState.eyePos.x(),lastViewState.eyePos.y());
+    
+    // Start with the center (where we're looking) in model coordinates
+    WhirlyKit::Point3d centerInModel = lastViewState.eyePos;
     // The coordinate adapter might have its own center
     Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
-    center.x() += adaptCenter.x();
-    center.y() += adaptCenter.y();
+    centerInModel += adaptCenter;
+    if (!scene->getCoordAdapter()->isFlat())
+        centerInModel.normalize();
+    
+    // Convert from model coordinates to the coord adapters local coordinates
+    Point3d localPt = scene->getCoordAdapter()->displayToLocal(centerInModel);
+    
+    // Now convert into our coordinate system
+    Point3d ourCenter = CoordSystemConvert3d(scene->getCoordAdapter()->getCoordSystem(), self.coordSystem, localPt);
+    Point2f ourCenter2d(ourCenter.x(),ourCenter.y());
 
     while (zoomLevel <= maxZoom)
     {
@@ -446,8 +456,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         // Make an MBR right in the middle of where we're looking
         Mbr mbr = quadLayer.quadtree->generateMbrForNode(ident);
         Point2f span = mbr.ur()-mbr.ll();
-        mbr.ll() = center - span/2.0;
-        mbr.ur() = center + span/2.0;
+        mbr.ll() = ourCenter2d - span/2.0;
+        mbr.ur() = ourCenter2d + span/2.0;
         float import = ScreenImportance(lastViewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), lastViewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
         if (import <= quadLayer.minImportance)
         {
@@ -456,6 +466,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         }
         zoomLevel++;
     }
+    
+//    NSLog(@"Selected level %d",zoomLevel);
     
     return std::min(zoomLevel,maxZoom);
 }
@@ -474,41 +486,24 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     }
     
     CoordSystemDisplayAdapter *coordAdapter = viewState.coordAdapter;
-    Point3d center = coordAdapter->getCenter();
-    if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
+    canShortCircuitImportance = true;
+
+    // We happen to store tilt in the view matrix.
+    // Note: Fix this.  This won't detect tilt
+    //        Eigen::Matrix4d &viewMat = viewState.viewMatrices[0];
+    //        if (!viewMat.isIdentity())
+    //        {
+    //            canShortCircuitImportance = false;
+    //            return;
+    //        }
+    
+    // We need to feel our way down to the appropriate level
+    maxShortCircuitLevel = [self targetZoomLevel];
+    if (_singleLevelLoading)
     {
-        canShortCircuitImportance = true;
-        if (!coordAdapter->isFlat())
-        {
-            canShortCircuitImportance = false;
-            return;
-        }
-        // We happen to store tilt in the view matrix.
-        // Note: Fix this.  This won't detect tilt
-        //        Eigen::Matrix4d &viewMat = viewState.viewMatrices[0];
-        //        if (!viewMat.isIdentity())
-        //        {
-        //            canShortCircuitImportance = false;
-        //            return;
-        //        }
-        // The tile source coordinate system must be the same as the display's system
-        if (!coordSys->coordSystem->isSameAs(coordAdapter->getCoordSystem()))
-        {
-            canShortCircuitImportance = false;
-            return;
-        }
-        
-        // We need to feel our way down to the appropriate level
-        maxShortCircuitLevel = [self targetZoomLevel];
-        if (_singleLevelLoading)
-        {
-            std::set<int> targetLevels;
-            targetLevels.insert(maxShortCircuitLevel);
-            quadLayer.targetLevels = targetLevels;
-        }
-    } else {
-        // Note: Can't short circuit in this case.  Something wrong with the math
-        canShortCircuitImportance = false;
+        std::set<int> targetLevels;
+        targetLevels.insert(maxShortCircuitLevel);
+        quadLayer.targetLevels = targetLevels;
     }
 }
 
@@ -543,9 +538,20 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     {
         if (TileIsOnScreen(viewState, frameSize, coordSys->coordSystem, scene->getCoordAdapter(), (_singleLevelLoading ? mbr : testMbr), ident, attrs))
         {
+            // Generate a simple importance for anything at this level
             import = 1.0/(ident.level+10);
             if (ident.level <= maxShortCircuitLevel)
+            {
                 import += 1.0;
+                
+                if (!scene->getCoordAdapter()->isFlat())
+                {
+                    // Nudge it by the screen importance so the bigger ones are loaded first
+                    double screenImport = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), testMbr, ident, attrs);
+                    
+                    import += screenImport / 1e10;
+                }
+            }
         }
         import *= self.importance;
     } else {

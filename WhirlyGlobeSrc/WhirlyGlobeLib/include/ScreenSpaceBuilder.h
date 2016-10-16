@@ -105,6 +105,9 @@ public:
     /// Build drawables and add them to the change list
     void flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs);
     
+    /// Calculate the rotation vector for a rotation
+    static Point3d CalcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3d &worldLoc,float rot);
+    
 protected:
     // Wrapper used to track
     class DrawableWrap
@@ -125,7 +128,6 @@ protected:
         ScreenSpaceDrawable *draw;
         
     protected:
-        Point3d calcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3d &worldLoc,float rot);
     };
 
     // Comparitor for drawable wrapper set
@@ -156,6 +158,7 @@ class ScreenSpaceObject : public Identifiable
 {
 public:
     friend class LayoutManager;
+    friend class SelectionManager;
     friend ScreenSpaceBuilder;
     
     ScreenSpaceObject();
