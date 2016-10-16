@@ -112,12 +112,6 @@
 		2BE5385A1D249A1200B60FAD /* WGViewControllerLayer_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE5377F1D249A1200B60FAD /* WGViewControllerLayer_private.h */; };
 		2BE5385B1D249A1200B60FAD /* WhirlyGlobeViewController_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537801D249A1200B60FAD /* WhirlyGlobeViewController_private.h */; };
 		2BE5385C1D249A1200B60FAD /* MapboxMultiSourceTileInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537821D249A1200B60FAD /* MapboxMultiSourceTileInfo.h */; };
-		2BE5385D1D249A1200B60FAD /* MapboxVectorStyleBackground.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537831D249A1200B60FAD /* MapboxVectorStyleBackground.h */; };
-		2BE5385E1D249A1200B60FAD /* MapboxVectorStyleFill.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537841D249A1200B60FAD /* MapboxVectorStyleFill.h */; };
-		2BE5385F1D249A1200B60FAD /* MapboxVectorStyleLine.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537851D249A1200B60FAD /* MapboxVectorStyleLine.h */; };
-		2BE538601D249A1200B60FAD /* MapboxVectorStyleRaster.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537861D249A1200B60FAD /* MapboxVectorStyleRaster.h */; };
-		2BE538611D249A1200B60FAD /* MapboxVectorStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537871D249A1200B60FAD /* MapboxVectorStyleSet.h */; };
-		2BE538621D249A1200B60FAD /* MapboxVectorStyleSymbol.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537881D249A1200B60FAD /* MapboxVectorStyleSymbol.h */; };
 		2BE538631D249A1200B60FAD /* MapboxVectorTiles.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537891D249A1200B60FAD /* MapboxVectorTiles.h */; };
 		2BE538641D249A1200B60FAD /* MaplyVectorStyle.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE5378A1D249A1200B60FAD /* MaplyVectorStyle.h */; };
 		2BE538651D249A1200B60FAD /* MaplyVectorStyleSimple.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE5378B1D249A1200B60FAD /* MaplyVectorStyleSimple.h */; };
@@ -201,12 +195,6 @@
 		2BE538B31D249A1200B60FAD /* PinchDelegateFixed.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537DA1D249A1200B60FAD /* PinchDelegateFixed.mm */; };
 		2BE538B41D249A1200B60FAD /* TiltDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537DB1D249A1200B60FAD /* TiltDelegate.mm */; };
 		2BE538B51D249A1200B60FAD /* MapboxMultiSourceTileInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537DD1D249A1200B60FAD /* MapboxMultiSourceTileInfo.mm */; };
-		2BE538B61D249A1200B60FAD /* MapboxVectorStyleBackground.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537DE1D249A1200B60FAD /* MapboxVectorStyleBackground.mm */; };
-		2BE538B71D249A1200B60FAD /* MapboxVectorStyleFill.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537DF1D249A1200B60FAD /* MapboxVectorStyleFill.mm */; };
-		2BE538B81D249A1200B60FAD /* MapboxVectorStyleLine.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537E01D249A1200B60FAD /* MapboxVectorStyleLine.mm */; };
-		2BE538B91D249A1200B60FAD /* MapboxVectorStyleRaster.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537E11D249A1200B60FAD /* MapboxVectorStyleRaster.mm */; };
-		2BE538BA1D249A1200B60FAD /* MapboxVectorStyleSet.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537E21D249A1200B60FAD /* MapboxVectorStyleSet.mm */; };
-		2BE538BB1D249A1200B60FAD /* MapboxVectorStyleSymbol.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537E31D249A1200B60FAD /* MapboxVectorStyleSymbol.mm */; };
 		2BE538BC1D249A1200B60FAD /* MapboxVectorTiles.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537E41D249A1200B60FAD /* MapboxVectorTiles.mm */; };
 		2BE538BD1D249A1200B60FAD /* MaplyVectorStyle.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537E51D249A1200B60FAD /* MaplyVectorStyle.mm */; };
 		2BE538BE1D249A1200B60FAD /* MaplyVectorStyleSimple.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537E61D249A1200B60FAD /* MaplyVectorStyleSimple.m */; };
@@ -599,12 +587,6 @@
 		2BE5377F1D249A1200B60FAD /* WGViewControllerLayer_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WGViewControllerLayer_private.h; sourceTree = "<group>"; };
 		2BE537801D249A1200B60FAD /* WhirlyGlobeViewController_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeViewController_private.h; sourceTree = "<group>"; };
 		2BE537821D249A1200B60FAD /* MapboxMultiSourceTileInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxMultiSourceTileInfo.h; sourceTree = "<group>"; };
-		2BE537831D249A1200B60FAD /* MapboxVectorStyleBackground.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleBackground.h; sourceTree = "<group>"; };
-		2BE537841D249A1200B60FAD /* MapboxVectorStyleFill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleFill.h; sourceTree = "<group>"; };
-		2BE537851D249A1200B60FAD /* MapboxVectorStyleLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleLine.h; sourceTree = "<group>"; };
-		2BE537861D249A1200B60FAD /* MapboxVectorStyleRaster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleRaster.h; sourceTree = "<group>"; };
-		2BE537871D249A1200B60FAD /* MapboxVectorStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleSet.h; sourceTree = "<group>"; };
-		2BE537881D249A1200B60FAD /* MapboxVectorStyleSymbol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleSymbol.h; sourceTree = "<group>"; };
 		2BE537891D249A1200B60FAD /* MapboxVectorTiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorTiles.h; sourceTree = "<group>"; };
 		2BE5378A1D249A1200B60FAD /* MaplyVectorStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyVectorStyle.h; sourceTree = "<group>"; };
 		2BE5378B1D249A1200B60FAD /* MaplyVectorStyleSimple.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyVectorStyleSimple.h; sourceTree = "<group>"; };
@@ -688,12 +670,6 @@
 		2BE537DA1D249A1200B60FAD /* PinchDelegateFixed.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PinchDelegateFixed.mm; sourceTree = "<group>"; };
 		2BE537DB1D249A1200B60FAD /* TiltDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TiltDelegate.mm; sourceTree = "<group>"; };
 		2BE537DD1D249A1200B60FAD /* MapboxMultiSourceTileInfo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxMultiSourceTileInfo.mm; sourceTree = "<group>"; };
-		2BE537DE1D249A1200B60FAD /* MapboxVectorStyleBackground.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorStyleBackground.mm; sourceTree = "<group>"; };
-		2BE537DF1D249A1200B60FAD /* MapboxVectorStyleFill.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorStyleFill.mm; sourceTree = "<group>"; };
-		2BE537E01D249A1200B60FAD /* MapboxVectorStyleLine.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorStyleLine.mm; sourceTree = "<group>"; };
-		2BE537E11D249A1200B60FAD /* MapboxVectorStyleRaster.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorStyleRaster.mm; sourceTree = "<group>"; };
-		2BE537E21D249A1200B60FAD /* MapboxVectorStyleSet.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorStyleSet.mm; sourceTree = "<group>"; };
-		2BE537E31D249A1200B60FAD /* MapboxVectorStyleSymbol.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorStyleSymbol.mm; sourceTree = "<group>"; };
 		2BE537E41D249A1200B60FAD /* MapboxVectorTiles.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorTiles.mm; sourceTree = "<group>"; };
 		2BE537E51D249A1200B60FAD /* MaplyVectorStyle.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyVectorStyle.mm; sourceTree = "<group>"; };
 		2BE537E61D249A1200B60FAD /* MaplyVectorStyleSimple.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaplyVectorStyleSimple.m; sourceTree = "<group>"; };
@@ -1161,12 +1137,6 @@
 			isa = PBXGroup;
 			children = (
 				2BE537821D249A1200B60FAD /* MapboxMultiSourceTileInfo.h */,
-				2BE537831D249A1200B60FAD /* MapboxVectorStyleBackground.h */,
-				2BE537841D249A1200B60FAD /* MapboxVectorStyleFill.h */,
-				2BE537851D249A1200B60FAD /* MapboxVectorStyleLine.h */,
-				2BE537861D249A1200B60FAD /* MapboxVectorStyleRaster.h */,
-				2BE537871D249A1200B60FAD /* MapboxVectorStyleSet.h */,
-				2BE537881D249A1200B60FAD /* MapboxVectorStyleSymbol.h */,
 				2BE537891D249A1200B60FAD /* MapboxVectorTiles.h */,
 				2BE5378A1D249A1200B60FAD /* MaplyVectorStyle.h */,
 				2BE5378B1D249A1200B60FAD /* MaplyVectorStyleSimple.h */,
@@ -1273,12 +1243,6 @@
 			isa = PBXGroup;
 			children = (
 				2BE537DD1D249A1200B60FAD /* MapboxMultiSourceTileInfo.mm */,
-				2BE537DE1D249A1200B60FAD /* MapboxVectorStyleBackground.mm */,
-				2BE537DF1D249A1200B60FAD /* MapboxVectorStyleFill.mm */,
-				2BE537E01D249A1200B60FAD /* MapboxVectorStyleLine.mm */,
-				2BE537E11D249A1200B60FAD /* MapboxVectorStyleRaster.mm */,
-				2BE537E21D249A1200B60FAD /* MapboxVectorStyleSet.mm */,
-				2BE537E31D249A1200B60FAD /* MapboxVectorStyleSymbol.mm */,
 				2BE537E41D249A1200B60FAD /* MapboxVectorTiles.mm */,
 				2BE537E51D249A1200B60FAD /* MaplyVectorStyle.mm */,
 				2BE537E61D249A1200B60FAD /* MaplyVectorStyleSimple.m */,
@@ -1653,7 +1617,6 @@
 				2BE53A121D249C2900B60FAD /* repeated_field.h in Headers */,
 				2BE5380C1D249A1200B60FAD /* MaplyGeomModel.h in Headers */,
 				2BE539551D249BEF00B60FAD /* AADate.h in Headers */,
-				2BE538621D249A1200B60FAD /* MapboxVectorStyleSymbol.h in Headers */,
 				2BE539681D249BEF00B60FAD /* AAMars.h in Headers */,
 				2BE53AAE1D249C9F00B60FAD /* FMDB.h in Headers */,
 				2BE53A361D249C3D00B60FAD /* coded_stream_inl.h in Headers */,
@@ -1661,7 +1624,6 @@
 				2BE539641D249BEF00B60FAD /* AAInterpolate.h in Headers */,
 				2BE53A641D249C4600B60FAD /* atomicops.h in Headers */,
 				2BE5380F1D249A1200B60FAD /* MaplyLabel.h in Headers */,
-				2BE538611D249A1200B60FAD /* MapboxVectorStyleSet.h in Headers */,
 				2BE538291D249A1200B60FAD /* MaplySun.h in Headers */,
 				2BE539811D249BEF00B60FAD /* AARiseTransitSet.h in Headers */,
 				2BE5395B1D249BEF00B60FAD /* AAEclipticalElements.h in Headers */,
@@ -1780,7 +1742,6 @@
 				2BE537FC1D249A1200B60FAD /* MaplyAnnotation.h in Headers */,
 				2BE537FD1D249A1200B60FAD /* MaplyAtmosphere.h in Headers */,
 				2BE539871D249BEF00B60FAD /* AASun.h in Headers */,
-				2BE538601D249A1200B60FAD /* MapboxVectorStyleRaster.h in Headers */,
 				2BE53A1D1D249C2900B60FAD /* wire_format_lite_inl.h in Headers */,
 				2BE5381C1D249A1200B60FAD /* MaplyQuadPagingLayer.h in Headers */,
 				2BE538201D249A1200B60FAD /* MaplyScreenLabel.h in Headers */,
@@ -1808,9 +1769,7 @@
 				2BE539711D249BEF00B60FAD /* AANearParabolic.h in Headers */,
 				2BE5382E1D249A1200B60FAD /* MaplyVectorObject.h in Headers */,
 				2BE5386D1D249A1200B60FAD /* MapnikStyleRule.h in Headers */,
-				2BE5385D1D249A1200B60FAD /* MapboxVectorStyleBackground.h in Headers */,
 				2BE5383D1D249A1200B60FAD /* MaplyElevationSource_private.h in Headers */,
-				2BE5385E1D249A1200B60FAD /* MapboxVectorStyleFill.h in Headers */,
 				2BE53A741D249C4700B60FAD /* stl_util.h in Headers */,
 				2BE537F71D249A1200B60FAD /* Maply3DTouchPreviewDatasource.h in Headers */,
 				2BE538351D249A1200B60FAD /* NSDictionary+StyleRules.h in Headers */,
@@ -1846,7 +1805,6 @@
 				2BE53A931D249C9000B60FAD /* DDXML.h in Headers */,
 				2BE538541D249A1200B60FAD /* PanDelegateFixed.h in Headers */,
 				2BE538301D249A1200B60FAD /* MaplyViewController.h in Headers */,
-				2BE5385F1D249A1200B60FAD /* MapboxVectorStyleLine.h in Headers */,
 				2BE537F91D249A1200B60FAD /* MaplyActiveObject.h in Headers */,
 				E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */,
 				2BE539541D249BEF00B60FAD /* AACoordinateTransformation.h in Headers */,
@@ -2097,7 +2055,6 @@
 				2BE538AC1D249A1200B60FAD /* MaplyViewController.mm in Sources */,
 				2BE538911D249A1200B60FAD /* MaplyPagingElevationTestTileSource.mm in Sources */,
 				2BE538921D249A1200B60FAD /* MaplyPagingVectorTestTileSource.mm in Sources */,
-				2BE538BA1D249A1200B60FAD /* MapboxVectorStyleSet.mm in Sources */,
 				2BE538C21D249A1200B60FAD /* MaplyVectorTiles.mm in Sources */,
 				2BE539FB1D249C2900B60FAD /* descriptor.pb.cc in Sources */,
 				2BE5387E1D249A1200B60FAD /* MaplyColorRampGenerator.m in Sources */,
@@ -2122,7 +2079,6 @@
 				2BE539B01D249BEF00B60FAD /* AAParallactic.cpp in Sources */,
 				2BE53A0F1D249C2900B60FAD /* reflection_ops.cc in Sources */,
 				2BE53A3A1D249C3D00B60FAD /* printer.cc in Sources */,
-				2BE538B61D249A1200B60FAD /* MapboxVectorStyleBackground.mm in Sources */,
 				2BE538BE1D249A1200B60FAD /* MaplyVectorStyleSimple.m in Sources */,
 				2BE538AE1D249A1200B60FAD /* MaplyViewTracker.m in Sources */,
 				2BE53A871D249C8300B60FAD /* NSString+DDXML.m in Sources */,
@@ -2170,7 +2126,6 @@
 				2BE538881D249A1200B60FAD /* MaplyImageTile.mm in Sources */,
 				2BE53A021D249C2900B60FAD /* extension_set.cc in Sources */,
 				E5EF69FE1D6B938800A2A660 /* SLDOperators.m in Sources */,
-				2BE538B81D249A1200B60FAD /* MapboxVectorStyleLine.mm in Sources */,
 				2BE538CB1D249A1200B60FAD /* WGSphericalEarthWithTexGroup.mm in Sources */,
 				2BE5389A1D249A1200B60FAD /* MaplyRemoteTileSource.mm in Sources */,
 				2BE539A21D249BEF00B60FAD /* AAMars.cpp in Sources */,
@@ -2184,7 +2139,6 @@
 				2BE539A91D249BEF00B60FAD /* AAMoonPhases.cpp in Sources */,
 				2BE538811D249A1200B60FAD /* MaplyCoordinateSystem.mm in Sources */,
 				2BE539C21D249BEF00B60FAD /* AAUranus.cpp in Sources */,
-				2BE538B71D249A1200B60FAD /* MapboxVectorStyleFill.mm in Sources */,
 				2BE53A001D249C2900B60FAD /* dynamic_message.cc in Sources */,
 				2BE53A781D249C4700B60FAD /* strutil.cc in Sources */,
 				2BE539991D249BEF00B60FAD /* AAEquinoxesAndSolstices.cpp in Sources */,
@@ -2196,13 +2150,11 @@
 				2BE538C71D249A1200B60FAD /* MapnikStyleSet.m in Sources */,
 				2BE539941D249BEF00B60FAD /* AAEclipses.cpp in Sources */,
 				2BE53A3C1D249C3D00B60FAD /* tokenizer.cc in Sources */,
-				2BE538B91D249A1200B60FAD /* MapboxVectorStyleRaster.mm in Sources */,
 				2BE5388F1D249A1200B60FAD /* MaplyMoon.mm in Sources */,
 				2BE539F71D249C2900B60FAD /* arenastring.cc in Sources */,
 				2BE538981D249A1200B60FAD /* MaplyQuadTracker.mm in Sources */,
 				2BE53A0A1D249C2900B60FAD /* message.cc in Sources */,
 				2BE53A331D249C3D00B60FAD /* strtod.cc in Sources */,
-				2BE538BB1D249A1200B60FAD /* MapboxVectorStyleSymbol.mm in Sources */,
 				2BE5387B1D249A1200B60FAD /* MaplyBillboard.mm in Sources */,
 				2BE538AB1D249A1200B60FAD /* MaplyVertexAttribute.mm in Sources */,
 				2BE5387D1D249A1200B60FAD /* MaplyCluster.mm in Sources */,

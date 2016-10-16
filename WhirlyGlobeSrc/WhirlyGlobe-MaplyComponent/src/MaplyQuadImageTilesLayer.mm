@@ -638,12 +638,21 @@ using namespace WhirlyKit;
         return minZoom;
     
     int zoomLevel = 0;
-    WhirlyKit::Point3d center3d = scene->getCoordAdapter()->displayToLocal(Point3d(lastViewState.eyePos.x(),lastViewState.eyePos.y(),0.0));
-    Point2f center(center3d.x(),center3d.y());
+    // Start with the center (where we're looking) in model coordinates
+    WhirlyKit::Point3d centerInModel = lastViewState.eyePos;
     // The coordinate adapter might have its own center
     Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
-    center.x() += adaptCenter.x();
-    center.y() += adaptCenter.y();
+    centerInModel += adaptCenter;
+    if (!scene->getCoordAdapter()->isFlat())
+        centerInModel.normalize();
+    
+    // Convert from model coordinates to the coord adapters local coordinates
+    Point3d localPt = scene->getCoordAdapter()->displayToLocal(centerInModel);
+    
+    // Now convert into our coordinate system
+    Point3d ourCenter = CoordSystemConvert3d(scene->getCoordAdapter()->getCoordSystem(), self.coordSystem, localPt);
+    Point2f ourCenter2d(ourCenter.x(),ourCenter.y());
+
     while (zoomLevel <= maxZoom)
     {
         WhirlyKit::Quadtree::Identifier ident;
@@ -651,8 +660,8 @@ using namespace WhirlyKit;
         // Make an MBR right in the middle of where we're looking
         Mbr mbr = quadLayer.quadtree->generateMbrForNode(ident);
         Point2f span = mbr.ur()-mbr.ll();
-        mbr.ll() = center - span/2.0;
-        mbr.ur() = center + span/2.0;
+        mbr.ll() = ourCenter2d - span/2.0;
+        mbr.ur() = ourCenter2d + span/2.0;
         float import = ScreenImportance(lastViewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), lastViewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
         import *= _importanceScale;
         if (import <= quadLayer.minImportance)
@@ -681,52 +690,34 @@ using namespace WhirlyKit;
     }
     
     CoordSystemDisplayAdapter *coordAdapter = viewState.coordAdapter;
-    Point3d center = coordAdapter->getCenter();
-    if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
-    {
-        canShortCircuitImportance = true;
-        if (!coordAdapter->isFlat())
-        {
-            canShortCircuitImportance = false;
-            return;
-        }
-        // We happen to store tilt in the view matrix.
-        // Note: Fix this.  This won't detect tilt
+
+    // We happen to store tilt in the view matrix.
+    // Note: Fix this.  This won't detect tilt
 //        Eigen::Matrix4d &viewMat = viewState.viewMatrices[0];
 //        if (!viewMat.isIdentity())
 //        {
 //            canShortCircuitImportance = false;
 //            return;
 //        }
-        // The tile source coordinate system must be the same as the display's system
-        if (!coordSys->coordSystem->isSameAs(coordAdapter->getCoordSystem()))
+    
+    // We need to feel our way down to the appropriate level
+    maxShortCircuitLevel = [self targetZoomLevel];
+    if (_singleLevelLoading)
+    {
+        std::set<int> targetLevels;
+        targetLevels.insert(maxShortCircuitLevel);
+        for (NSNumber *level in _multiLevelLoads)
         {
-            canShortCircuitImportance = false;
-            return;
-        }
-        
-        // We need to feel our way down to the appropriate level
-        maxShortCircuitLevel = [self targetZoomLevel];
-        if (_singleLevelLoading)
-        {
-            std::set<int> targetLevels;
-            targetLevels.insert(maxShortCircuitLevel);
-            for (NSNumber *level in _multiLevelLoads)
+            if ([level isKindOfClass:[NSNumber class]])
             {
-                if ([level isKindOfClass:[NSNumber class]])
-                {
-                    int whichLevel = [level integerValue];
-                    if (whichLevel < 0)
-                        whichLevel = maxShortCircuitLevel+whichLevel;
-                    if (whichLevel >= 0 && whichLevel < maxShortCircuitLevel)
-                        targetLevels.insert(whichLevel);
-                }
+                int whichLevel = [level integerValue];
+                if (whichLevel < 0)
+                    whichLevel = maxShortCircuitLevel+whichLevel;
+                if (whichLevel >= 0 && whichLevel < maxShortCircuitLevel)
+                    targetLevels.insert(whichLevel);
             }
-            quadLayer.targetLevels = targetLevels;
         }
-    } else {
-        // Note: Can't short circuit in this case.  Something wrong with the math
-        canShortCircuitImportance = false;
+        quadLayer.targetLevels = targetLevels;
     }
 }
 
@@ -794,7 +785,17 @@ using namespace WhirlyKit;
         {
             import = 1.0/(ident.level+10);
             if (ident.level <= maxShortCircuitLevel)
+            {
                 import += 1.0;
+                
+                if (!scene->getCoordAdapter()->isFlat())
+                {
+                    // Nudge it by the screen importance so the bigger ones are loaded first
+                    double screenImport = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+                    
+                    import += screenImport / 1e10;
+                }
+            }
         }
     } else {
         if (elevDelegate)

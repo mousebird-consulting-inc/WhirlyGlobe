@@ -28,21 +28,44 @@
     NSDictionary *vecDesc = @{
                               kMaplyColor: [UIColor redColor],
                               kMaplyEnable: @(YES),
-                              kMaplyVecWidth: @(10.0),
-                              kMaplyVecHeight: @(0.0),
+                              kMaplyVecWidth: @(6.0),
+//                              kMaplyVecHeight: @(0.0),
                               kMaplyDrawPriority: @(10000),
 //                              kMaplySubdivType: kMaplySubdivGreatCircle,
 //                              kMaplySubdivEpsilon: @(0.001)
                               };
     
-    MaplyCoordinate x = MaplyCoordinateMakeWithDegrees(2.548, 49.010);
-    MaplyCoordinate y = MaplyCoordinateMakeWithDegrees(151.177, -33.946);
-    MaplyCoordinate z[] = { x, y };
-    MaplyVectorObject *v = [[MaplyVectorObject alloc] initWithLineString:z numCoords:2 attributes:nil];
+    MaplyVectorObject *v0,*v1,*v2;
+    {
+        MaplyCoordinate x = MaplyCoordinateMakeWithDegrees(2.548, 49.010);
+        MaplyCoordinate y = MaplyCoordinateMakeWithDegrees(151.177, -33.946);
+        MaplyCoordinate z[] = { x, y };
+        v0 = [[MaplyVectorObject alloc] initWithLineString:z numCoords:2 attributes:nil];
+        [v0 subdivideToGlobeGreatCircle:0.001];
+    }
+
+    {
+        MaplyCoordinate x = MaplyCoordinateMakeWithDegrees(150.0, 0.0);
+        MaplyCoordinate y = MaplyCoordinateMakeWithDegrees(-150, 0.0);
+        MaplyCoordinate z[] = { x, y };
+        v1 = [[MaplyVectorObject alloc] initWithLineString:z numCoords:2 attributes:nil];
+        [v1 subdivideToGlobeGreatCircle:0.001];
+    }
+
+    {
+//        MaplyCoordinate x = MaplyCoordinateMakeWithDegrees(160.0, -25.0);
+//        MaplyCoordinate y = MaplyCoordinateMakeWithDegrees(180., -24.0);
+        MaplyCoordinate x = MaplyCoordinateMake(2.98844504, -0.773229361);
+        MaplyCoordinate y = MaplyCoordinateMake(-3.07975984, -0.764628767);
+        MaplyCoordinate z[] = { x, y };
+        v2 = [[MaplyVectorObject alloc] initWithLineString:z numCoords:2 attributes:nil];
+        [v2 subdivideToGlobeGreatCircle:0.0001];
+    }
+
     
-    [v subdivideToGlobeGreatCircle:0.001];
-    
-    return [viewC addWideVectors:@[ v ] desc:vecDesc];
+//    return [viewC addWideVectors:@[ v0, v1, v2 ] desc:vecDesc];
+//    return [viewC addWideVectors:@[ v2 ] desc:vecDesc];
+    return [viewC addVectors:@[ v0, v1, v2 ] desc:vecDesc];
 }
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC

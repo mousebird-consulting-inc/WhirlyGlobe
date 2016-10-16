@@ -57,11 +57,17 @@ using namespace WhirlyKit;
     if ([self.mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
     {
         double newZ = curLoc.z() - (curLoc.z() - self.minZoom)/2.0;
+        
         if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
         {
-            Point3f newLoc(hit.x(),hit.y(),newZ);
-            animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView translate:newLoc howLong:_animTime];
-            self.mapView.delegate = animation;
+            Point3d newLoc(hit.x(),hit.y(),newZ);
+            Point3f newLoc3f(newLoc.x(),newLoc.y(),newLoc.z());
+            // Check if we're still within bounds
+            if ([self withinBounds:newLoc view:glView renderer:sceneRenderer])
+            {
+                animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView translate:newLoc3f howLong:_animTime];
+                self.mapView.delegate = animation;
+            }
         }
     } else {
         // Not expecting this case
