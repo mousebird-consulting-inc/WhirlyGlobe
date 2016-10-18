@@ -50,7 +50,7 @@
 /// Stop animating.  It can be restarted or destroyed after this.
 - (void) stopAnimation;
 /// Destroy the display link.  Cannot be restarted.
-- (void) shutdown;
+- (void) teardown;
 
 /// Draw into the actual view
 - (void) drawView:(id)sender;
