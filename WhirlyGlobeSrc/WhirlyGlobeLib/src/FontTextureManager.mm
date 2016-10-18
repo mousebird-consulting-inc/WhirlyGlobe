@@ -237,7 +237,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     
     if (texAtlas)
     {
-        texAtlas->shutdown(changes);
+        texAtlas->teardown(changes);
         delete texAtlas;
         texAtlas = NULL;
     }
