@@ -55,7 +55,7 @@ using namespace WhirlyKit;
     [self performSelector:@selector(cleanup) withObject:nil afterDelay:kWKParticleSystemCleanupPeriod];
 }
 
-- (void)shutdown
+- (void)teardown
 {
     scene = NULL;
 }
