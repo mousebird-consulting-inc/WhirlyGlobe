@@ -301,7 +301,7 @@ void Scene::removeActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
     if ([activeModels containsObject:activeModel])
     {
         [activeModels removeObject:activeModel];
-        [activeModel shutdown];
+        [activeModel teardown];
     }
 }
     
