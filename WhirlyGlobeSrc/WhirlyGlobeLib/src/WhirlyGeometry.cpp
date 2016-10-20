@@ -66,6 +66,28 @@ bool IntersectUnitSphere(Point3d org,Vector3d dir,Point3d &hit,double *retT)
     hit = org + dir * t;
     return true;
 }
+
+bool IntersectSphereRadius(Point3d org,Vector3d dir,double radius,Point3d &hit,double *retT)
+{
+    double a = dir.dot(dir);
+    double b = 2.0f * org.dot(dir);
+    double c = org.dot(org) - radius*radius;
+    
+    double sq = b*b - 4.0f * a * c;
+    if (sq < 0.0)
+        return false;
+    
+    double rt = sqrt(sq);
+    double ta = (-b + rt) / (2.0f * a);
+    double tb = (-b - rt) / (2.0f * a);
+    
+    double t = std::min(ta,tb);
+    if (retT)
+        *retT = t;
+    
+    hit = org + dir * t;
+    return true;
+}
     
 // Point in poly routine
 // Courtesy: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
@@ -274,13 +296,7 @@ void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Po
         screenPoly.push_back(screenPt);
     }    
 }
-    
-// Note: Maybe finish implementing this
-bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2)
-{
-    return false;
-}
-    
+        
 // Inspired by: http://geomalgorithms.com/a01-_area.html
 double PolygonArea(const Point3dVector &poly,const Point3d &norm)
 {
@@ -344,4 +360,112 @@ void BarycentricCoords(const Point2d &p,const Point2d &a,const Point2d &b,const 
     u = 1.0f - v - w;
 }	
 
+bool BoundingBoxRayIntersect(const Point3d &org,const Point3d &dir,const BBox &bbox, double *minT, double *maxT, Point3d *minPt, Point3d *maxPt)
+{
+    double ts[6];
+    if (dir.x() >= 0.0)
+    {
+        ts[0] = (bbox.ll().x() - org.x()) / dir.x();
+        ts[1] = (bbox.ur().x() - org.x()) / dir.x();
+    } else {
+        ts[0] = (bbox.ur().x() - org.x()) / dir.x();
+        ts[1] = (bbox.ll().x() - org.x()) / dir.x();
+    }
+    if (dir.y() >= 0.0)
+    {
+        ts[2] = (bbox.ll().y() - org.y()) / dir.y();
+        ts[3] = (bbox.ur().y() - org.y()) / dir.y();
+    } else {
+        ts[2] = (bbox.ur().y() - org.y()) / dir.y();
+        ts[3] = (bbox.ll().y() - org.y()) / dir.y();
+    }
+    if (dir.z() >= 0.0)
+    {
+        ts[4] = (bbox.ll().z() - org.z()) / dir.z();
+        ts[5] = (bbox.ur().z() - org.z()) / dir.z();
+    } else {
+        ts[4] = (bbox.ur().z() - org.z()) / dir.z();
+        ts[5] = (bbox.ll().z() - org.z()) / dir.z();
+    }
+    
+    // Look for a valid intersection
+    double tMin = std::numeric_limits<double>::max();
+    double tMax = 0.0;
+    for (int ii=0;ii<6;ii++)
+    {
+        if (ts[ii] > 0.0)
+            tMin = std::min(ts[ii],tMin);
+        if (ts[ii] > 0.0)
+            tMax = std::max(ts[ii],tMax);
+    }
+    
+    bool ret = false;
+    if (tMin < std::numeric_limits<double>::max())
+    {
+        if (minT)
+            *minT = tMin;
+        if (minPt)
+        {
+            *minPt = org + dir * tMin;
+            ret = true;
+        }
+    }
+    if (tMax > 0.0)
+    {
+        if (maxT)
+            *maxT = tMax;
+        if (maxPt)
+        {
+            *maxPt = org + dir * tMax;
+            ret = true;
+        }
+    }
+    
+    return ret;
+}
+    
+static const double IntersectEPS = 1e-20;
+    
+// Courtesy: https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
+bool TriangleRayIntersection(const Point3d &org,const Point3d &dir,const Point3d pts[3], double *outT, Point3d *iPt)
+{
+    // Vectors for edges
+    Point3d e1 = pts[1] - pts[0];
+    Point3d e2 = pts[2] - pts[0];
+    // Start on determinant
+    Point3d P = dir.cross(e2);
+    // Ray lies in plane of triangle
+    double det = e1.dot(P);
+    if (det > -IntersectEPS && det < IntersectEPS)
+        return false;
+    double inv_det = 1.0 / det;
+
+    // Calculate u parameter and test bounds
+    Point3d T = org - pts[0];
+    double u = T.dot(P) * inv_det;
+    if (u < 0.0 || u > 1.0)
+        return false;
+
+    // Prepare to test v param
+    Point3d Q = T.cross(e1);
+
+    // CAlculate V param and test bound
+    double v = dir.dot(Q) * inv_det;
+    if (v < 0.0 || u + v > 1.0)
+        return false;
+    
+    double t = e2.dot(Q) * inv_det;
+    
+    if ( t > IntersectEPS)
+    {
+        if (outT)
+            *outT = t;
+        if (iPt)
+            *iPt = org + dir * t;
+        return true;
+    }
+    
+    return false;
+}
+	
 }

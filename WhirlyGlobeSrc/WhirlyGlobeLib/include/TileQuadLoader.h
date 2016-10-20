@@ -134,6 +134,9 @@ public:
     /// If you're passing in elevation (even some of the time), set this to the maximum
     ///  sampling you're going to pass in.  If you don't set ths, you may lose tiles.
     void setTesselationSize(int x,int y);
+    
+    /// Set the sampling sizes per level
+    void setTesselationSizePerLevel(const std::vector<int> &tessSizes);
 
     /// By default we're on, but we can be turned off
     /// This results in changes to the scene
@@ -210,6 +213,12 @@ public:
     void setCoverPoles(bool inVal) { coverPoles = inVal; }
     bool getCoverPoles() { return coverPoles; }
     
+    /// If set, we'll use this color for the north pole
+    void setNorthPoleColor(const RGBAColor &color) { hasNorthPoleColor = true;  northPoleColor = color; }
+    
+    /// If set, we'll use this color for the south pole
+    void setSouthPoleColor(const RGBAColor &color) { hasSouthPoleColor = true;  southPoleColor = color; }
+    
     /// The data type of GL textures we'll be creating.  RGBA by default.
     void setImageType(TileImageType inType) { imageType = inType; }
     TileImageType getImageType() { return imageType; }
@@ -238,7 +247,7 @@ public:
     ///  and split the difference between bogus and ugly.
     void setBorderPixelFudge(float fudge) { texAtlasPixelFudge = fudge; }
     float getBorderPixelFudge() { return texAtlasPixelFudge; }
-    
+        
 protected:
     void clear();
     void refreshParents();
@@ -275,6 +284,10 @@ protected:
     
     bool ignoreEdgeMatching;
     bool coverPoles;
+    bool hasNorthPoleColor,hasSouthPoleColor;
+    RGBAColor northPoleColor,southPoleColor;
+    
+    const std::vector<int> tessSizes;
     
     TileImageType imageType;
     bool useDynamicAtlas;

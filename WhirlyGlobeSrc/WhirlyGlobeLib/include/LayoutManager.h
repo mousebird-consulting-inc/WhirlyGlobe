@@ -32,14 +32,18 @@
 namespace WhirlyKit
 {
 
+/// Don't modify it at all
+#define WhirlyKitLayoutPlacementNone (1<<0)
+/// Okay to center
+#define WhirlyKitLayoutPlacementCenter (1<<1)
 /// Okay to place to the right of a point
-#define WhirlyKitLayoutPlacementRight  (1<<0)
+#define WhirlyKitLayoutPlacementRight  (1<<2)
 /// Okay to place it to the left of a point
-#define WhirlyKitLayoutPlacementLeft   (1<<1)
+#define WhirlyKitLayoutPlacementLeft   (1<<3)
 /// Okay to place on top of a point
-#define WhirlyKitLayoutPlacementAbove  (1<<2)
+#define WhirlyKitLayoutPlacementAbove  (1<<4)
 /// Okay to place below a point
-#define WhirlyKitLayoutPlacementBelow  (1<<3)
+#define WhirlyKitLayoutPlacementBelow  (1<<5)
 
 /** This represents an object in the screen space generator to be laid out
  by the layout engine.  We'll manipulate its offset and enable/disable it
@@ -197,7 +201,7 @@ public:
 protected:
 	bool calcScreenPt(Point2f &objPt, LayoutObjectEntry *layoutObj, WhirlyKit::ViewState *viewState, const Mbr &screenMbr, const Point2f &frameBufferSize);
 
-	Eigen::Matrix2d calcScreenRot(float &screenRot, WhirlyKit::ViewState *viewState, WhirlyKit::ViewState *globeViewState ,LayoutObjectEntry *layoutObj, const Point2f &objPt, const Eigen::Matrix4d &modelTrans, const Point2f &frameBufferSize);
+    Eigen::Matrix2d calcScreenRot(float &screenRot, WhirlyKit::ViewState *viewState, WhirlyGlobe::GlobeViewState *globeViewState ,ScreenSpaceObject *ssObj, const Point2d &objPt, const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat, const Point2f &frameBufferSize);
 
 	bool runLayoutRules(WhirlyKit::ViewState *viewState, std::vector<ClusterEntry> &clusterEntries, std::vector<ClusterGenerator::ClusterClassParams> &clusterParams);
 

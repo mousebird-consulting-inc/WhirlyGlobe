@@ -119,6 +119,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
 
         Point2d iconOff(0,0);
         ScreenSpaceObject *screenShape = NULL;
+        ScreenSpaceObject *backScreenShape = NULL;
         LayoutObject *layoutObject = NULL;
         if (drawStr)
         {
@@ -164,7 +165,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                 if (layoutEngine)
                     justifyOff = Point2d(0,0);
                 
-                screenShape->setDrawPriority(labelInfo->drawPriority);
+                screenShape->setDrawPriority(labelInfo->drawPriority+1);
                 screenShape->setVisibility(labelInfo->minVis, labelInfo->maxVis);
                 screenShape->setKeepUpright(label->keepUpright);
                 if (label->rotation != 0.0)
@@ -191,18 +192,19 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                     ScreenSpaceObject::ConvexGeometry smGeom;
                     smGeom.progID = labelInfo->programID;
                     Point2d ll = Point2d(drawStr->mbr.ll().x(),drawStr->mbr.ll().y())+iconOff+Point2d(-backBorder,-backBorder), ur = Point2d(drawStr->mbr.ur().x(),drawStr->mbr.ur().y())+iconOff+Point2d(backBorder,0.0);
-                    smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),ll.y()-label->screenOffset.y())+justifyOff);
+                    smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),ll.y()-label->screenOffset.y())+iconOff+justifyOff);
                     smGeom.texCoords.push_back(TexCoord(0,1));
                     
-                    smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),ll.y()-label->screenOffset.y())+justifyOff);
+                    smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),ll.y()-label->screenOffset.y())+iconOff+justifyOff);
                     smGeom.texCoords.push_back(TexCoord(0,0));
 
-                    smGeom.coords.push_back(Point2d(ur.x()+label->screenOffset.x(),ur.y()-label->screenOffset.y())+justifyOff);
+                    smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),ur.y()-label->screenOffset.y())+iconOff+justifyOff);
                     smGeom.texCoords.push_back(TexCoord(1,0));
 
-                    smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),ur.y()-label->screenOffset.y())+justifyOff);
+                    smGeom.coords.push_back(Point2d(ll.x()+label->screenOffset.x(),ur.y()-label->screenOffset.y())+iconOff+justifyOff);
                     smGeom.texCoords.push_back(TexCoord(1,1));
                     
+                    smGeom.drawPriority = labelInfo->drawPriority;
                     smGeom.color = backColor;
                     // Note: This would be a great place for a texture
                     screenShape->addGeometry(smGeom);
@@ -228,16 +230,16 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                         // Note: Ignoring the desired size in favor of the font size
                         ScreenSpaceObject::ConvexGeometry smGeom;
                         smGeom.progID = labelInfo->programID;
-                        smGeom.coords.push_back(Point2d(poly.pts[1].x()+label->screenOffset.x(),poly.pts[0].y()-label->screenOffset.y()) + soff + iconOff + justifyOff);
+                        smGeom.coords.push_back(Point2d(poly.pts[1].x()+label->screenOffset.x(),poly.pts[0].y()+label->screenOffset.y()) + soff + iconOff + justifyOff);
                         smGeom.texCoords.push_back(TexCoord(poly.texCoords[1].u(),poly.texCoords[0].v()));
                         
-                        smGeom.coords.push_back(Point2d(poly.pts[1].x()+label->screenOffset.x(),poly.pts[1].y()-label->screenOffset.y()) + soff + iconOff + justifyOff);
+                        smGeom.coords.push_back(Point2d(poly.pts[1].x()+label->screenOffset.x(),poly.pts[1].y()+label->screenOffset.y()) + soff + iconOff + justifyOff);
                         smGeom.texCoords.push_back(TexCoord(poly.texCoords[1].u(),poly.texCoords[1].v()));
                         
-                        smGeom.coords.push_back(Point2d(poly.pts[0].x()+label->screenOffset.x(),poly.pts[1].y()-label->screenOffset.y()) + soff + iconOff + justifyOff);
+                        smGeom.coords.push_back(Point2d(poly.pts[0].x()+label->screenOffset.x(),poly.pts[1].y()+label->screenOffset.y()) + soff + iconOff + justifyOff);
                         smGeom.texCoords.push_back(TexCoord(poly.texCoords[0].u(),poly.texCoords[1].y()));
                         
-                        smGeom.coords.push_back(Point2d(poly.pts[0].x()+label->screenOffset.x(),poly.pts[0].y()-label->screenOffset.y()) + soff + iconOff + justifyOff);
+                        smGeom.coords.push_back(Point2d(poly.pts[0].x()+label->screenOffset.x(),poly.pts[0].y()+label->screenOffset.y()) + soff + iconOff + justifyOff);
                         smGeom.texCoords.push_back(TexCoord(poly.texCoords[0].u(),poly.texCoords[0].v()));
                         
                         smGeom.texIDs.push_back(poly.subTex.texId);
@@ -256,7 +258,6 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                     
                     // Put together the layout info
 //                    layoutObject->hint = label->text;
-                    drawStr->mbr.asPoints(layoutObject->layoutPts);
                     layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ll().x()+label->screenOffset.x(),drawStr->mbr.ll().y()+label->screenOffset.y())+iconOff+justifyOff);
                     layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ur().x()+label->screenOffset.x(),drawStr->mbr.ll().y()+label->screenOffset.y())+iconOff+justifyOff);
                     layoutObject->layoutPts.push_back(Point2d(drawStr->mbr.ur().x()+label->screenOffset.x(),drawStr->mbr.ur().y()+label->screenOffset.y())+iconOff+justifyOff);

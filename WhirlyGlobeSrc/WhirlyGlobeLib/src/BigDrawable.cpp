@@ -213,6 +213,7 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
     OpenGLES2Program *prog = frameInfo->program;
     
     // GL Texture IDs
+    bool anyTextures = false;
     std::vector<GLuint> glTexIDs;
     for (unsigned int ii=0;ii<texInfo.size();ii++)
     {
@@ -223,6 +224,7 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
             glTexID = scene->getGLTexture(thisTexInfo.texId);
 //            if (!glTexID)
 //                NSLog(@"Missing texture");
+            anyTextures = true;
         }
         glTexIDs.push_back(glTexID);
     }
@@ -275,7 +277,7 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
     prog->setUniform("u_fade", theFade);
     
     // Let the shaders know if we even have a texture
-    prog->setUniform("u_hasTexture", !glTexIDs.empty());
+    prog->setUniform("u_hasTexture", anyTextures);
 
     // The program itself may have some textures to bind
     bool hasTexture[WhirlyKitMaxTextures];

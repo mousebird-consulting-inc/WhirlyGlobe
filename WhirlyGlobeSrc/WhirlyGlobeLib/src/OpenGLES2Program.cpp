@@ -193,6 +193,37 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Matrix4f 
     
     return true;
 }
+    
+bool OpenGLES2Program::setUniform(const SingleVertexAttribute &attr)
+{
+    bool ret = false;
+    
+    switch (attr.type)
+    {
+        case BDFloat4Type:
+            ret = setUniform(attr.name, Vector4f(attr.data.vec4[0],attr.data.vec4[1],attr.data.vec4[2],attr.data.vec4[3]));
+            break;
+        case BDFloat3Type:
+            ret = setUniform(attr.name, Vector3f(attr.data.vec3[0],attr.data.vec3[1],attr.data.vec3[2]));
+            break;
+        case BDChar4Type:
+            ret = setUniform(attr.name, Vector4f(attr.data.color[0],attr.data.color[1],attr.data.color[2],attr.data.color[3]));
+            break;
+        case BDFloat2Type:
+            ret = setUniform(attr.name, Vector2f(attr.data.vec2[0],attr.data.vec2[1]));
+            break;
+        case BDFloatType:
+            ret = setUniform(attr.name, attr.data.floatVal);
+            break;
+        case BDIntType:
+            ret = setUniform(attr.name, attr.data.intVal);
+            break;
+        default:
+            break;
+    }
+    
+    return ret;
+}
 
 // Helper routine to compile a shader and check return
 bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *shaderId,GLenum shaderType,const std::string &shaderStr)

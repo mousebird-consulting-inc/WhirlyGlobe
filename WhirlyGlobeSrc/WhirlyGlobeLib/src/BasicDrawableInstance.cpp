@@ -113,6 +113,11 @@ const Eigen::Matrix4d *BasicDrawableInstance::getMatrix() const
 {
     return basicDraw->getMatrix();
 }
+    
+void BasicDrawableInstance::setUniforms(const SingleVertexAttributeSet &newUniforms)
+{
+    uniforms = newUniforms;
+}
 
 void BasicDrawableInstance::addInstances(const std::vector<SingleInstance> &insts)
 {

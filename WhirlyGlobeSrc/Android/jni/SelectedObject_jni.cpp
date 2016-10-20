@@ -88,7 +88,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectedObject_getSelectID
         if (!selectedObj)
             return 0;
         
-        return selectedObj->selectID;
+        return selectedObj->selectIDs[0];
     }
     catch (...)
     {

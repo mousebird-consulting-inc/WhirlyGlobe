@@ -38,7 +38,7 @@ public:
     /// Constructor for sorting
     DynamicTexture(SimpleIdentity myId) : TextureBase(myId), layoutGrid(NULL) { }
     /// Construct with a name, square texture size, cell size (in texels), and the memory format
-    DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum format);
+    DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum format,bool clearTextures);
     ~DynamicTexture();
     
     /// Represents a region in the texture
@@ -112,6 +112,9 @@ protected:
     
     /// Number of active regions (as far as the texture is concerned)
     int numRegions;
+
+    /// If set, overwrite texture data with empty pixels
+    bool clearTextures;
 };
 
 typedef std::vector<DynamicTexture *> DynamicTextureVec;
@@ -221,6 +224,10 @@ protected:
     GLenum format;
     float pixelFudge;
     bool mainThreadMerge;
+
+        /// If set, overwrite texture data with empty pixels
+    bool clearTextures;
+    
     
     // On some devices we can't clear with a NULL, we have to use an actual buffer
     std::vector<unsigned char> emptyPixelBuffer;

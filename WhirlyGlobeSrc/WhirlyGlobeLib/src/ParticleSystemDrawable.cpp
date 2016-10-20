@@ -257,12 +257,12 @@ void ParticleSystemDrawable::updateChunks()
         int start = 0;
         do {
             // Skip empty batches at the beginning
-            for (;!batches[start].active && start < batches.size();start++);
+            for (;start < batches.size() && !batches[start].active;start++);
 
             int end = start;
             if (start < batches.size())
             {
-                for (;batches[end].active && end < batches.size();end++);
+                for (;end < batches.size() && batches[end].active;end++);
                 if (start != end)
                 {
                     BufferChunk chunk;
@@ -410,7 +410,7 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
                 //if (context.API < kEAGLRenderingAPIOpenGLES3)
                   //  glVertexAttribDivisorEXT(thisAttr->index, divisor);
                 //else
-		        if (divisor != 0)
+		if (divisor != 0)
                     glVertexAttribDivisor(thisAttr->index, divisor);
                 CheckGLError("ParticleSystemDrawable::draw() glVertexAttribDivisor");
                 glEnableVertexAttribArray(thisAttr->index);

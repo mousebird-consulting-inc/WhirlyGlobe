@@ -30,6 +30,9 @@ namespace WhirlyKit
 bool IntersectUnitSphere(Point3f org,Eigen::Vector3f dir,Point3f &hit);
 bool IntersectUnitSphere(Point3d org,Eigen::Vector3d dir,Point3d &hit,double *t=NULL);
 
+/// Intersect with a sphere of a given radius
+bool IntersectSphereRadius(Point3d org,Eigen::Vector3d dir,double radius,Point3d &hit,double *retT);
+
 /// Returns true if the given point is inside the close polygon
 ///  defined by ring.  Standard winding-ish test.
 bool PointInPolygon(Point2f pt,const Point2fVector &ring);
@@ -58,10 +61,6 @@ void ClipHomogeneousPolygon(const Vector4dVector &pts,Vector4dVector &outPts);
 /// Project and clip a given polygon to screen space.  Clips in homogeneous coordinates.
 void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Point2f frameSize,Point3dVector &poly,Point2fVector &screenPoly);
     
-/// Look for a ray/rectangular solid intersection.
-/// Return true if we found one and the distance^2 from the ray origin to the intersection
-bool RectSolidRayIntersect(const Ray3f &ray,const Point3f *pts,float &dist2);
-    
 /// Return the area of the 3D polygon
 float PolygonArea(const Point3fVector &poly,const Point3f &norm);
 
@@ -70,5 +69,14 @@ double PolygonArea(const Point3dVector &poly,const Point3d &norm);
     
 /// Return the Barycentric coordinates for the given point within the given triangle
 void BarycentricCoords(const Point2d &p,const Point2d &a,const Point2d &b,const Point2d &c,double &u,double &v,double &w);
+
+/// Look for a ray/bounding box intersection
+bool BoundingBoxRayIntersect(const Point3d &org,const Point3d &dir,const BBox &bbox, double *minT, double *maxT, Point3d *minPt, Point3d *maxPt);
+
+/// Look for a ray/polygon intersection
+//bool PolygonRayIntersect(const Point3d &org,const Point3d &dir,const std::vector<Point3d> &poly,Point3d *iPt);
+
+/// Look for a ray/triangle intersection
+bool TriangleRayIntersection(const Point3d &org,const Point3d &dir,const Point3d pts[3], double *outT, Point3d *iPt);
     
 }

@@ -88,6 +88,9 @@ public:
     /// Return the nominal height above the surface of the data
     virtual double heightAboveSurface();
     
+    /// Calculate where the eye is in model coordinates
+    Eigen::Vector3d eyePos();
+    
     /// Put together one or more offset matrices to express wrapping
     virtual void getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize);
 

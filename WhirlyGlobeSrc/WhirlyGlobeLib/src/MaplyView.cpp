@@ -274,4 +274,12 @@ Point2f MapView::pointOnScreenFromPlane(const Point3d &inWorldLoc,const Eigen::M
     return retPt;    
 }
 
+Eigen::Vector3d MapView::eyePos()
+{
+    Eigen::Matrix4d modelMat = calcModelMatrix().inverse();
+    
+    Vector4d newUp = modelMat * Vector4d(0,0,1,1);
+    return Vector3d(newUp.x(),newUp.y(),newUp.z());
+}
+
 }

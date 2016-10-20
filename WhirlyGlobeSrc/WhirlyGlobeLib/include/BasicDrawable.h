@@ -266,6 +266,9 @@ public:
     /// Return the active transform matrix, if we have one
     virtual const Eigen::Matrix4d *getMatrix() const;
     
+    /// Set the uniforms to be applied to the
+    virtual void setUniforms(const SingleVertexAttributeSet &uniforms);    
+
     /// Run the texture and texture coordinates based on a SubTexture
     virtual void applySubTexture(int which,SubTexture subTex,int startingAt=0);
     
@@ -339,6 +342,8 @@ public:
     bool hasMatrix;
     // If the drawable has a matrix, we'll transform by that before drawing
     Eigen::Matrix4d mat;
+    // Uniforms to apply to shader
+    SingleVertexAttributeSet uniforms;
     
     // Size for a single vertex w/ all its data.  Used by shared buffer
     int vertexSize;

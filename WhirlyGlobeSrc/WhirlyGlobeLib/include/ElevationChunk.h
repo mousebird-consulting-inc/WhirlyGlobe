@@ -55,6 +55,7 @@ typedef struct
     SimpleIdentity programId;
     bool includeElev,useElevAsZ;
     bool lineMode;
+    int samplingX,samplingY;
 } ElevationDrawInfo;
     
 }

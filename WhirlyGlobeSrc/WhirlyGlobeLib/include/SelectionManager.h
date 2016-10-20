@@ -26,6 +26,8 @@
 #import "WhirlyKitView.h"
 #import "MaplyView.h"
 #import "Scene.h"
+#import "ViewState.h"
+#import "GlobeViewState.h"
 #import "ScreenSpaceBuilder.h"
 
 namespace WhirlyKit
@@ -203,8 +205,9 @@ public:
     {
     public:
         SelectedObject() { }
-        SelectedObject(SimpleIdentity selectID,double distIn3D,double screenDist) : selectID(selectID), distIn3D(distIn3D), screenDist(screenDist) { }
-        SimpleIdentity selectID;    // What we selected
+        SelectedObject(SimpleIdentity selectID,double distIn3D,double screenDist) : distIn3D(distIn3D), screenDist(screenDist) { }
+        SelectedObject(const std::vector<SimpleIdentity> &selectIDs,double distIn3D,double screenDist) : selectIDs(selectIDs), distIn3D(distIn3D), screenDist(screenDist) { }
+        std::vector<SimpleIdentity> selectIDs;    // What we selected.  If it was a cluster, could be more than one
         double distIn3D;            // 3D distance from eye
         double screenDist;          // 2D distance in screen space
         bool isCluster;             // Set if this is a cluster
@@ -272,6 +275,7 @@ public:
         
         PlacementInfo(View *view,SceneRendererES *renderer);
         
+        WhirlyKit::ViewState *viewState;
         WhirlyGlobe::GlobeView *globeView;
         Maply::MapView *mapView;
         double heightAboveSurface;
@@ -283,6 +287,7 @@ public:
     };
 
 protected:
+    static Eigen::Matrix2d calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const Point2d &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
     // Projects a world coordinate to one or more points on the screen (wrapping)
     void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,Point2dVector &screenPts,float scale);
     // Convert rect selectables into more generic screen space objects

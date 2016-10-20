@@ -32,8 +32,8 @@ DynamicTexture::Region::Region()
 {
 }
  
-DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum inFormat)
-    : TextureBase(name), texSize(texSize), cellSize(cellSize), numCell(0), numRegions(0), compressed(false), layoutGrid(NULL)
+DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum inFormat,bool clearTextures)
+    : TextureBase(name), texSize(texSize), cellSize(cellSize), numCell(0), numRegions(0), compressed(false), layoutGrid(NULL), clearTextures(clearTextures)
 {
     if (texSize <= 0 || cellSize <= 0)
         return;
@@ -214,6 +214,9 @@ void DynamicTexture::addTextureData(int startX,int startY,int width,int height,R
     
 void DynamicTexture::clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData)
 {
+    if (!clearTextures)
+        return;
+
     glBindTexture(GL_TEXTURE_2D, glId);
     
     if (compressed)
@@ -378,7 +381,7 @@ DynamicTextureAtlas::TextureRegion::TextureRegion()
 
     
 DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth,bool mainThreadMerge)
-    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth), pixelFudge(0.0), mainThreadMerge(mainThreadMerge)
+    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth),  pixelFudge(0.0), mainThreadMerge(mainThreadMerge), clearTextures(imageDepth>1)
 {
     if (mainThreadMerge || MainThreadMerge)
     {
@@ -452,10 +455,13 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
         dynTexVec = new std::vector<DynamicTexture *>();
         for (unsigned int ii=0;ii<imageDepth;ii++)
         {
-            DynamicTexture *dynTex = new DynamicTexture("Dynamic Texture Atlas",texSize,cellSize,format);
+            DynamicTexture *dynTex = new DynamicTexture("Dynamic Texture Atlas",texSize,cellSize,format,clearTextures);
             dynTexVec->push_back(dynTex);
             dynTex->createInGL(memManager);
         }
+        // Unfortunately, we have to flush here or run the risk of no one else seeing our texture
+//        glFlush();
+        
 //        NSLog(@"Added dynamic texture %ld (%ld)",dynTex->getId(),textures.size());
         textures.insert(dynTexVec);
         DynamicTexture::Region thisRegion;

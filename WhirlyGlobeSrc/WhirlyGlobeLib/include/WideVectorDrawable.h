@@ -25,10 +25,12 @@ namespace WhirlyKit
     
 // Shader name
 #define kWideVectorShaderName "Wide Vector Shader"
+#define kWideVectorGlobeShaderName "Wide Vector Shader Globe"
     
 /// Construct and return the Billboard shader program
 OpenGLES2Program *BuildWideVectorProgram();
-    
+OpenGLES2Program *BuildWideVectorGlobeProgram();
+
 // Used to debug the wide vectors
 //#define WIDEVECDEBUG 1
 
@@ -39,7 +41,7 @@ class WideVectorDrawable : public BasicDrawable
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    WideVectorDrawable(const std::string &name,unsigned int numVert,unsigned int numTri);
+    WideVectorDrawable(const std::string &name,unsigned int numVert,unsigned int numTri,bool globeMode);
     
     virtual unsigned int addPoint(const Point3f &pt);
     // Next point, for calculating p1 - p0
@@ -50,6 +52,9 @@ public:
     void add_n0(const Point3f &vec);
     // Complex constant we multiply by width for t
     void add_c0(float c);
+    // Optional normal
+    void addNormal(const Point3f &norm);
+    void addNormal(const Point3d &norm);
     
     /// How often the texture repeats
     void setTexRepeat(float inTexRepeat) { texRepeat = inTexRepeat; }
@@ -67,6 +72,7 @@ public:
     virtual void setupStandardAttributes(int numReserve=0);
 
 protected:
+    bool globeMode;
     bool realWidthSet;
     double realWidth;
     bool snapTex;

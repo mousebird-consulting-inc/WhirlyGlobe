@@ -256,6 +256,8 @@
 		2B3B31FD1CF623DD00F52374 /* type_traits.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31DF1CF623DD00F52374 /* type_traits.h */; };
 		2B3B32001CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser_DataReturn.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31FE1CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser_DataReturn.h */; };
 		2B3B32011CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3B31FF1CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser.h */; };
+		2B3C1D241DB824A90078D00D /* IntersectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B3C1D231DB824A90078D00D /* IntersectionManager.h */; };
+		2B3C1D261DB824B80078D00D /* IntersectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3C1D251DB824B80078D00D /* IntersectionManager.cpp */; };
 		2B4B19631BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */; };
 		2B4B19641BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B192C1BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h */; };
 		2B4B19651BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B192D1BA38AD90091A743 /* com_mousebird_maply_ChangeSet.h */; };
@@ -974,6 +976,8 @@
 		2B3B31FE1CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser_DataReturn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_MapboxVectorTileParser_DataReturn.h; path = ../Android/jni/com_mousebird_maply_MapboxVectorTileParser_DataReturn.h; sourceTree = "<group>"; };
 		2B3B31FF1CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_MapboxVectorTileParser.h; path = ../Android/jni/com_mousebird_maply_MapboxVectorTileParser.h; sourceTree = "<group>"; };
 		2B3B32021CF6593900F52374 /* MapboxVectorTileParser_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MapboxVectorTileParser_jni.cpp; path = ../Android/jni/MapboxVectorTileParser_jni.cpp; sourceTree = "<group>"; };
+		2B3C1D231DB824A90078D00D /* IntersectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntersectionManager.h; sourceTree = "<group>"; };
+		2B3C1D251DB824B80078D00D /* IntersectionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IntersectionManager.cpp; sourceTree = "<group>"; };
 		2B3C82791333ED300029DEF2 /* WhirlyGlobeLib-iphonesimulator-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobeLib-iphonesimulator-Prefix.pch"; sourceTree = "<group>"; };
 		2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_AngleAxis.h; path = ../Android/jni/com_mousebird_maply_AngleAxis.h; sourceTree = "<group>"; };
 		2B4B192C1BA38AD90091A743 /* com_mousebird_maply_AttrDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_AttrDictionary.h; path = ../Android/jni/com_mousebird_maply_AttrDictionary.h; sourceTree = "<group>"; };
@@ -2289,6 +2293,7 @@
 		2BC53FA412DE217E00778431 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B3C1D231DB824A90078D00D /* IntersectionManager.h */,
 				8F6F0A641D041753009B2F25 /* OverlapHelper.h */,
 				2B14BFCC1B83FD4500CE29A4 /* BaseInfo.h */,
 				2B14BFC41B83F3F500CE29A4 /* BasicDrawable.h */,
@@ -2380,6 +2385,7 @@
 		2BC53FA512DE218300778431 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2B3C1D251DB824B80078D00D /* IntersectionManager.cpp */,
 				2B14BFCE1B83FE1A00CE29A4 /* BaseInfo.cpp */,
 				2B14BFC61B83F3FF00CE29A4 /* BasicDrawable.cpp */,
 				2B14BFD61B852C5E00CE29A4 /* BasicDrawableInstance.cpp */,
@@ -2986,6 +2992,7 @@
 				883C07991CC055740042B20C /* AAPhysicalMoon.h in Headers */,
 				2B4B196E1BA38AD90091A743 /* com_mousebird_maply_Identifiable.h in Headers */,
 				883C07AF1CC055740042B20C /* AASidereal.h in Headers */,
+				2B3C1D241DB824A90078D00D /* IntersectionManager.h in Headers */,
 				2B3B31F01CF623DD00F52374 /* once.h in Headers */,
 				2BFC7E591D147E340040E2A3 /* com_mousebird_maply_SelectedObject.h in Headers */,
 				2B3B311A1CF622AA00F52374 /* coded_stream.h in Headers */,
@@ -3184,6 +3191,7 @@
 				2B35674318D762A700EF8DB1 /* BigDrawable.cpp in Sources */,
 				2B7EF46516025D8C00D4079F /* pj_gauss.c in Sources */,
 				2B35676718D762A700EF8DB1 /* SelectionManager.cpp in Sources */,
+				2B3C1D261DB824B80078D00D /* IntersectionManager.cpp in Sources */,
 				2B35674F18D762A700EF8DB1 /* GlobeView.cpp in Sources */,
 				883C07481CC055740042B20C /* AAAngularSeparation.cpp in Sources */,
 				2B7EF46616025D8C00D4079F /* pj_geocent.c in Sources */,

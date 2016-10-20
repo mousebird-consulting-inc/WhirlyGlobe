@@ -45,6 +45,8 @@ QuadTileLoader::QuadTileLoader(const std::string &name,QuadTileImageDataSource *
     programId(EmptyIdentity), includeElev(false), useElevAsZ(true),
     numImages(numFrames), activeTextures(-1), color(255,255,255,255), hasAlpha(false),
     ignoreEdgeMatching(false), coverPoles(false),
+    hasNorthPoleColor(false), hasSouthPoleColor(false),
+    northPoleColor(255,255,255,255), southPoleColor(255,255,255,255),
     imageType(WKTileIntRGBA), useDynamicAtlas(true), tileScale(WKTileScaleNone), fixedTileSize(256), textureAtlasSize(2048), borderTexel(1),
     tileBuilder(NULL), doingUpdate(false), defaultTessX(10), defaultTessY(10),
     currentImage0(0), currentImage1(0), texAtlasPixelFudge(0.0), useTileCenters(true)
@@ -151,6 +153,11 @@ void QuadTileLoader::flushUpdates(ChangeSet &changes)
         {
             tileBuilder->texAtlas->cleanup(changeRequests);
             tileBuilder->drawAtlas->swap(changeRequests, &BigDrawableSwapCallback, this->getController()->getId());
+        }
+        if (tileBuilder->poleDrawAtlas && tileBuilder->poleDrawAtlas->hasUpdates() && !tileBuilder->poleDrawAtlas->waitingOnSwap())
+        {
+            tileBuilder->drawAtlas->swap(changeRequests, &BigDrawableSwapCallback, this->getController()->getId());
+            tileBuilder->poleDrawAtlas->clearUpdateFlag();
         }
     }
 
@@ -339,6 +346,8 @@ void QuadTileLoader::setEnable(bool newEnable,ChangeSet &changes)
             tileBuilder->enabled = enable;
             if (tileBuilder->drawAtlas)
                 tileBuilder->drawAtlas->setEnableAllDrawables(enable, changes);
+            if (tileBuilder->poleDrawAtlas)
+                tileBuilder->poleDrawAtlas->setEnableAllDrawables(enable, changes);
         }
     } else {
         // We'll look through the tiles and change them all accordingly
@@ -446,6 +455,14 @@ void QuadTileLoader::loadTile(const Quadtree::NodeInfo &tileInfo,int frame)
         theTile->nodeInfo = tileInfo;
         theTile->isLoading = true;
         theTile->calculateSize(control->getQuadtree(), control->getScene()->getCoordAdapter(), control->getCoordSys());
+
+        theTile->samplingX = defaultTessX;
+        theTile->samplingY = defaultTessY;
+        if (tileInfo.ident.level < tessSizes.size())
+        {
+            theTile->samplingX = tessSizes[tileInfo.ident.level];
+            theTile->samplingY = tessSizes[tileInfo.ident.level];
+        }
 
         pthread_mutex_lock(&tileLock);
         tileSet.insert(theTile);
@@ -713,6 +730,16 @@ void QuadTileLoader::loadedImages(QuadTileImageDataSource *dataSource,const std:
         tileBuilder->useElevAsZ = useElevAsZ;
         tileBuilder->ignoreEdgeMatching = ignoreEdgeMatching;
         tileBuilder->coverPoles = coverPoles;
+        if (hasNorthPoleColor)
+        {
+            tileBuilder->useNorthPoleColor = true;
+            tileBuilder->northPoleColor = northPoleColor;
+        }
+        if (hasSouthPoleColor)
+        {
+            tileBuilder->useSouthPoleColor = true;
+            tileBuilder->southPoleColor = southPoleColor;
+        }
         tileBuilder->useTileCenters = useTileCenters;
         tileBuilder->glFormat = glEnumFromOurFormat(imageType);
         tileBuilder->singleByteSource = singleByteSourceFromOurFormat(imageType);
@@ -805,7 +832,11 @@ void QuadTileLoader::loadedImages(QuadTileImageDataSource *dataSource,const std:
 //        }
         tileBuilder->initAtlases(imageType,numImages,textureAtlasSize,estTexX,estTexY);
         if (!enable)
+        {
             tileBuilder->drawAtlas->setEnableAllDrawables(false, changes);
+            if (tileBuilder->poleDrawAtlas)
+                tileBuilder->poleDrawAtlas->setEnableAllDrawables(false, changes);
+        }
         
         createdAtlases = true;
     }
@@ -837,6 +868,9 @@ void QuadTileLoader::loadedImages(QuadTileImageDataSource *dataSource,const std:
     if (loadingSuccess)
         control->tileDidLoad(tile->nodeInfo.ident,frame);
     else {
+        // Clear out the visuals for this tile
+        if (tile->isInitialized)
+            tile->clearContents(tileBuilder, changeRequests);
         // Shouldn't have a visual representation, so just lose it
         control->tileDidNotLoad(tile->nodeInfo.ident,frame);
         tileSet.erase(it);
@@ -884,6 +918,8 @@ void QuadTileLoader::loadedImages(QuadTileImageDataSource *dataSource,const std:
 //                tileBuilder->fade = _fade;
 //                if (tileBuilder->drawAtlas)
 //                    tileBuilder->drawAtlas->setFadeAllDrawables(_fade, theChanges);
+//    if (tileBuilder->poleDrawAtlas)
+//        tileBuilder->poleDrawAtlas->setFadeAllDrawables(_fade, theChanges);
 //                    }
 //        } else {
 //            // We'll look through the tiles and change them all accordingly
@@ -935,8 +971,10 @@ void QuadTileLoader::loadedImages(QuadTileImageDataSource *dataSource,const std:
 //                if (tileBuilder->drawAtlas)
 //                    tileBuilder->drawAtlas->setDrawPriorityAllDrawables(_drawPriority, theChanges);
 //                    }
+//    if (tileBuilder->poleDrawAtlas)
+//        tileBuilder->poleDrawAtlas->setDrawPriorityAllDrawables(_drawPriority, theChanges);
 //        }
-//        
+//
 //        [_quadLayer.layerThread addChangeRequests:theChanges];
 //    }
 //    
@@ -1016,6 +1054,8 @@ void QuadTileLoader::loadedImages(QuadTileImageDataSource *dataSource,const std:
 //                if (tileBuilder->drawAtlas)
 //                    tileBuilder->drawAtlas->setProgramIDAllDrawables(_programId, theChanges);
 //                    }
+//    if (tileBuilder->poleDrawAtlas)
+//        tileBuilder->poleDrawAtlas->setProgramIDAllDrawables(_programId, theChanges);
 //        }
 //        [_quadLayer.layerThread addChangeRequests:theChanges];
 //    }

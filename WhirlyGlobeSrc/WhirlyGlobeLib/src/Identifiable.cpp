@@ -18,21 +18,29 @@
  *
  */
 
+#import <mutex>
 #import "Identifiable.h"
 
 namespace WhirlyKit
 {
 	
 static unsigned long curId = 0;
+static std::mutex identMutex;
 
 Identifiable::Identifiable()
 { 
-	myId = ++curId; 
+    identMutex.lock();
+    myId = ++curId; 
+    identMutex.unlock();
 }
 	
 SimpleIdentity Identifiable::genId()
 {
-	return ++curId;
+    identMutex.lock();
+    SimpleIdentity newID = ++curId;
+    identMutex.unlock();
+    
+    return newID;
 }
 
 }

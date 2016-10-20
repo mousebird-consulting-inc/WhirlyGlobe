@@ -28,8 +28,8 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-WideVectorDrawable::WideVectorDrawable(const std::string &inName,unsigned int numVert,unsigned int numTri)
- : BasicDrawable(), texRepeat(1.0), edgeSize(1.0), realWidthSet(false)
+WideVectorDrawable::WideVectorDrawable(const std::string &inName,unsigned int numVert,unsigned int numTri,bool globeMode)
+ : BasicDrawable(), texRepeat(1.0), edgeSize(1.0), realWidthSet(false), globeMode(globeMode)
 {
     name = inName;
     basicDrawableInit();
@@ -37,6 +37,8 @@ WideVectorDrawable::WideVectorDrawable(const std::string &inName,unsigned int nu
     points.reserve(numVert);
     tris.reserve(numTri);
     lineWidth = 10.0/1024.0;
+    if (globeMode)
+        normalEntry = addAttribute(BDFloat3Type, "a_normal",numVert);
     p1_index = addAttribute(BDFloat3Type, "a_p1",numVert);
     tex_index = addAttribute(BDFloat4Type, "a_texinfo",numVert);
     n0_index = addAttribute(BDFloat3Type, "a_n0",numVert);
@@ -56,6 +58,22 @@ unsigned int WideVectorDrawable::addPoint(const Point3f &pt)
     return BasicDrawable::addPoint(pt);
 }
     
+void WideVectorDrawable::addNormal(const Point3f &norm)
+{
+    if (globeMode)
+    {
+        BasicDrawable::addNormal(norm);
+    }
+}
+
+void WideVectorDrawable::addNormal(const Point3d &norm)
+{
+    if (globeMode)
+    {
+        BasicDrawable::addNormal(norm);
+    }
+}
+
 void WideVectorDrawable::add_p1(const Point3f &pt)
 {
     addAttributeValue(p1_index, pt);
@@ -156,6 +174,8 @@ void WideVectorDrawable::draw(RendererFrameInfo *frameInfo, Scene *scene)
 
 static const char *vertexShaderTri =
 "uniform mat4  u_mvpMatrix;\n"
+"uniform mat4  u_mvMatrix;"
+"uniform mat4  u_mvNormalMatrix;"
 "uniform float u_fade;\n"
 "uniform float u_w2;\n"
 "uniform float u_real_w2;\n"
@@ -163,6 +183,7 @@ static const char *vertexShaderTri =
 "uniform vec4 u_color;\n"
 "\n"
 "attribute vec3 a_position;\n"
+"attribute vec3 a_normal;\n"
 "attribute vec4 a_texinfo;\n"
 //"attribute vec4 a_color;\n"
 "attribute vec3 a_p1;\n"
@@ -187,6 +208,47 @@ static const char *vertexShaderTri =
 "}\n"
 ;
 
+static const char *vertexGlobeShaderTri =
+"uniform mat4  u_mvpMatrix;\n"
+"uniform mat4  u_mvMatrix;"
+"uniform mat4  u_mvNormalMatrix;"
+"uniform float u_fade;\n"
+"uniform float u_w2;\n"
+"uniform float u_real_w2;\n"
+"uniform float u_texScale;\n"
+"uniform vec4 u_color;\n"
+"\n"
+"attribute vec3 a_position;\n"
+"attribute vec3 a_normal;\n"
+"attribute vec4 a_texinfo;\n"
+//"attribute vec4 a_color;\n"
+"attribute vec3 a_p1;\n"
+"attribute vec3 a_n0;\n"
+"attribute float a_c0;\n"
+"\n"
+"varying vec2 v_texCoord;\n"
+//"varying vec4 v_color;\n"
+"varying float      v_dot;\n"
+"\n"
+"void main()\n"
+"{\n"
+//"   v_color = a_color;\n"
+//  Position along the line
+"   float t0 = a_c0 * u_real_w2;\n"
+"   t0 = clamp(t0,0.0,1.0);\n"
+"   vec3 realPos = (a_p1 - a_position) * t0 + a_n0 * u_real_w2 + a_position;\n"
+"   vec4 pt = u_mvMatrix * vec4(a_position,1.0);\n"
+"   pt /= pt.w;\n"
+"   vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);\n"
+"   v_dot = dot(-pt.xyz,testNorm.xyz);\n"
+"   float texPos = ((a_texinfo.z - a_texinfo.y) * t0 + a_texinfo.y + a_texinfo.w * u_real_w2) * u_texScale;\n"
+"   v_texCoord = vec2(a_texinfo.x, texPos);\n"
+"   vec4 screenPos = u_mvpMatrix * vec4(realPos,1.0);\n"
+"   screenPos /= screenPos.w;\n"
+"   gl_Position = vec4(screenPos.xy,0,1.0);\n"
+"}\n"
+;
+
 static const char *fragmentShaderTriAlias =
 "precision mediump float;\n"
 "\n"
@@ -197,7 +259,6 @@ static const char *fragmentShaderTriAlias =
 "uniform vec4 u_color;\n"
 "\n"
 "varying vec2      v_texCoord;\n"
-//"varying vec4      v_color;\n"
 "\n"
 "void main()\n"
 "{\n"
@@ -209,6 +270,32 @@ static const char *fragmentShaderTriAlias =
 "  if (across > u_w2-u_edge)\n"
 "    alpha = (u_w2-across)/u_edge;\n"
 "  gl_FragColor = u_color * alpha * patternVal;\n"
+"}\n"
+;
+
+static const char *fragmentGlobeShaderTriAlias =
+"precision mediump float;\n"
+"\n"
+"uniform sampler2D s_baseMap0;\n"
+"uniform bool  u_hasTexture;\n"
+"uniform float u_w2;\n"
+"uniform float u_edge;\n"
+"uniform vec4 u_color;\n"
+"\n"
+"varying vec2      v_texCoord;\n"
+"varying float      v_dot;\n"
+//"varying vec4      v_color;\n"
+"\n"
+"void main()\n"
+"{\n"
+"  float patternVal = u_hasTexture ? texture2D(s_baseMap0, vec2(0.5,v_texCoord.y)).a : 1.0;\n"
+"  float alpha = 1.0;\n"
+"  float across = v_texCoord.x * u_w2;\n"
+"  if (across < u_edge)\n"
+"    alpha = across/u_edge;\n"
+"  if (across > u_w2-u_edge)\n"
+"    alpha = (u_w2-across)/u_edge;\n"
+"  gl_FragColor = (v_dot > 0.0 ? u_color * alpha * patternVal : vec4(0.0,0.0,0.0,0.0));\n"
 "}\n"
 ;
 
@@ -234,6 +321,28 @@ WhirlyKit::OpenGLES2Program *BuildWideVectorProgram()
     return shader;
 }
     
+WhirlyKit::OpenGLES2Program *BuildWideVectorGlobeProgram()
+{
+    OpenGLES2Program *shader = new OpenGLES2Program(kWideVectorGlobeShaderName,vertexGlobeShaderTri,fragmentGlobeShaderTriAlias);
+    if (!shader->isValid())
+    {
+        delete shader;
+        shader = NULL;
+    }
+    
+    // Set some reasonable defaults
+    if (shader)
+    {
+        glUseProgram(shader->getProgram());
+        
+        shader->setUniform("u_length", 10.f/1024);
+        shader->setUniform("u_texScale", 1.f);
+    }
+    
+    
+    return shader;
+}
+
     
     
 }
