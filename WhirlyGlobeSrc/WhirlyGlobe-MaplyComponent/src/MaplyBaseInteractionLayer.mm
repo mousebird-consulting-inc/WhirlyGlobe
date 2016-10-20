@@ -184,7 +184,7 @@ typedef std::map<int,NSObject <MaplyClusterGenerator> *> ClusterGenMap;
 class OurClusterGenerator : public ClusterGenerator
 {
 public:
-    MaplyBaseInteractionLayer *layer;
+    MaplyBaseInteractionLayer * __weak layer;
     
     // Called right before we start generating layout objects
     void startLayoutObjects()

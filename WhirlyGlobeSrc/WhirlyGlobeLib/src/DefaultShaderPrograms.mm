@@ -588,7 +588,7 @@ void SetupDefaultShaders(Scene *scene)
         scene->addProgram(kToolkitDefaultTriangleNoLightingProgram, triShaderNoLight);
     }
 
-    // Triangle shader the model instancing
+    // Triangle shader for model instancing
     OpenGLES2Program *triShaderModel = new OpenGLES2Program("Triangle shader for models with lighting and motion",vertexShaderModelTri,fragmentShaderTri);
     if (!triShaderModel->isValid())
     {
@@ -618,7 +618,7 @@ void SetupDefaultShaders(Scene *scene)
         scene->addProgram(kToolkitDefaultTriangleMultiTex, triShaderMultiTex);
     }
 
-    // Triangle shader that handles multiple textures
+    // Triangle shader with ramp texture
     OpenGLES2Program *triShaderMultiTexRamp = new OpenGLES2Program("Triangle ramp shader with multitex and lighting",vertexShaderTriMultiTex,fragmentShaderTriMultiTexRamp);
     if (!triShaderMultiTexRamp->isValid())
     {
