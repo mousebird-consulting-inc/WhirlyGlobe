@@ -588,6 +588,11 @@ void DynamicTextureAtlas::cleanup(ChangeSet *changes)
             //                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
         }
     }
+    
+    // Clean up anything we might have left over
+    for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); ++it)
+        delete *it;
+    
     textures.clear();
 }
     
