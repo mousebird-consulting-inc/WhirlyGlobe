@@ -144,6 +144,7 @@ using namespace WhirlyGlobe;
     
     globeScene = NULL;
     globeView = nil;
+    globeInteractLayer = nil;
     
     pinchDelegate = nil;
     panDelegate = nil;
