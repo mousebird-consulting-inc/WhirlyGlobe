@@ -13,7 +13,7 @@
 
 @interface Maply3dTouchPreviewDelegate () {
     MaplyBaseViewController * _Nonnull viewC;
-    MaplyBaseInteractionLayer * interactLayer;
+    MaplyBaseInteractionLayer * __weak interactLayer;
 }
 
 
