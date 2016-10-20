@@ -363,8 +363,7 @@ DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,
     
 DynamicTextureAtlas::~DynamicTextureAtlas()
 {
-    // It's up to the scene to actually delete the textures
-    textures.clear();
+    cleanup(NULL);
 }
     
 // If set, we ask the main thread to do the sub texture loads
@@ -570,7 +569,7 @@ bool DynamicTextureAtlas::empty()
     return textures.empty();
 }
     
-void DynamicTextureAtlas::cleanup(ChangeSet &changes)
+void DynamicTextureAtlas::cleanup(ChangeSet *changes)
 {
     DynamicTextureSet::iterator itNext;
     for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); it = itNext)
@@ -581,13 +580,15 @@ void DynamicTextureAtlas::cleanup(ChangeSet &changes)
         DynamicTexture *tex = texVec->at(0);
         if (tex->getNumRegions() == 0)
         {
-            for (unsigned int ii=0;ii<texVec->size();ii++)
-                changes.push_back(new RemTextureReq(texVec->at(ii)->getId()));
+            if (changes)
+                for (unsigned int ii=0;ii<texVec->size();ii++)
+                    changes->push_back(new RemTextureReq(texVec->at(ii)->getId()));
             delete texVec;
             textures.erase(it);
             //                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
         }
     }
+    textures.clear();
 }
     
 void DynamicTextureAtlas::getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which)
