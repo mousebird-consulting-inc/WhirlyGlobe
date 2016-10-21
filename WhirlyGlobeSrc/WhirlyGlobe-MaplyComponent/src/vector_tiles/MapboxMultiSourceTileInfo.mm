@@ -131,6 +131,7 @@ public:
 //            MaplyMapboxVectorStyleSet *mapboxStyleSet = [[MaplyMapboxVectorStyleSet alloc] initWithJSON:styleData viewC:viewC];
 //            styleSet = mapboxStyleSet;
 //        }
+        default:
             break;
     }
     
