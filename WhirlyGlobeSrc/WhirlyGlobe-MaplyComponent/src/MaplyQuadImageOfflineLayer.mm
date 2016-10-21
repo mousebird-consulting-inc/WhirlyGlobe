@@ -55,7 +55,8 @@ using namespace WhirlyKit;
     int maxShortCircuitLevel;
     std::vector<int> framePriorities;
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
 - (instancetype)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
 {
     self = [super init];
@@ -585,6 +586,7 @@ using namespace WhirlyKit;
         [_delegate offlineLayer:self image:offlineImage];
     }
 }
+#pragma clang diagnostic pop
 
 
 @end
