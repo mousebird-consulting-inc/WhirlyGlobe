@@ -937,7 +937,7 @@ public:
     
     // Ask for a cluster image
     MaplyClusterInfo *clusterInfo = [[MaplyClusterInfo alloc] init];
-    clusterInfo.numObjects = layoutObjects.size();
+    clusterInfo.numObjects = (int)layoutObjects.size();
     MaplyClusterGroup *group = [clusterGen makeClusterGroup:clusterInfo];
 
     // Geometry for the new cluster object
@@ -999,7 +999,7 @@ public:
     NSObject <MaplyClusterGenerator> *clusterGen = nil;
     @synchronized(self)
     {
-        clusterGen = clusterGens[clusterID];
+        clusterGen = clusterGens[(int)clusterID];
     }
 
     // Ask for the shader for moving objects
