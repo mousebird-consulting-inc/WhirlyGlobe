@@ -269,11 +269,9 @@
  @param ruleNode The DDXMLElement corresponding to the Rule element in the document tree.
  */
 - (void)loadSymbolizersForRule:(SLDRule *)rule andRuleNode:(DDXMLElement *)ruleNode {
-    NSError *error;
     rule.symbolizers = [NSMutableArray array];
     
     for (DDXMLNode *child in [ruleNode children]) {
-        NSString *name = [child name];
         NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:(DDXMLElement* _Nonnull)child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator];
         
         if (symbolizers) {
