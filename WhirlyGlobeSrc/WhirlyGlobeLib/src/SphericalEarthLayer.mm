@@ -79,7 +79,7 @@ using namespace WhirlyGlobe;
 	[self performSelector:@selector(startProcess:) withObject:nil];
 }
 
-- (void)cleanup
+- (void)teardown
 {
     ChangeSet changeRequests;
     
