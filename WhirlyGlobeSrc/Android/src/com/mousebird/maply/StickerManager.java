@@ -1,7 +1,7 @@
 package com.mousebird.maply;
 
 /**
- * The sticker managers interfaces to the Maply C++/JNI side of things
+ * The sticker manager interfaces to the Maply C++/JNI side of things
  * and is invisible to the toolkit users.
  */
 public class StickerManager

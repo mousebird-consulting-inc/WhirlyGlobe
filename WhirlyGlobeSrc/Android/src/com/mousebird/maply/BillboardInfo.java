@@ -21,7 +21,7 @@ package com.mousebird.maply;
 
 
 /**
- * Used to pass parameters around between threads
+ * Parameters used to control billboard display.
  */
 public class BillboardInfo extends BaseInfo {
 
