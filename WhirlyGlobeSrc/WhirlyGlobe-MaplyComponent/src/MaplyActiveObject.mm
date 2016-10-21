@@ -47,7 +47,7 @@
     
 }
 
-- (void)teardown
+- (void)cleanup
 {
     
 }
