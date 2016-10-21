@@ -28,6 +28,6 @@
 - (WhirlyKit::SimpleIdentity)getShaderID;
 
 /// Called by the view controller to clear out the shader program
-- (void)cleanup;
+- (void)teardown;
 
 @end

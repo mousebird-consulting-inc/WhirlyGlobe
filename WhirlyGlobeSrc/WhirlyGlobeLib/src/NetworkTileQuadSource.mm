@@ -44,7 +44,7 @@ using namespace WhirlyKit;
     coordSys = nil;
 }
 
-- (void)cleanup
+- (void)teardown
 {
     // Nothing much to do here
 }
@@ -116,7 +116,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (void)cleanup
+- (void)teardown
 {
     // Nothing much to do here
 }
@@ -256,7 +256,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (void)cleanup
+- (void)teardown
 {
     // Nothing much to do here
 }
