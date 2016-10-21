@@ -689,8 +689,6 @@ using namespace WhirlyKit;
         return;
     }
     
-    CoordSystemDisplayAdapter *coordAdapter = viewState.coordAdapter;
-
     // We happen to store tilt in the view matrix.
     // Note: Fix this.  This won't detect tilt
 //        Eigen::Matrix4d &viewMat = viewState.viewMatrices[0];
