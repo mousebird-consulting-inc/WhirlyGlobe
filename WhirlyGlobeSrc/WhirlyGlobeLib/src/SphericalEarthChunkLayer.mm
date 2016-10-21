@@ -73,7 +73,7 @@ using namespace WhirlyKit;
     chunkManager->setScene(inScene);
 }
 
-- (void)teardown
+- (void)cleanup
 {
     if (chunkManager)
     {
@@ -85,7 +85,7 @@ using namespace WhirlyKit;
     
     if (drawAtlas)
     {
-        drawAtlas->teardown(changes);
+        drawAtlas->cleanup(changes);
         delete drawAtlas;
     }
     drawAtlas = NULL;

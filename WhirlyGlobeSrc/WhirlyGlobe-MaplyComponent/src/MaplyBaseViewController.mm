@@ -64,12 +64,12 @@ using namespace WhirlyKit;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
 
     [glView stopAnimation];
-    [glView teardown];
+    [glView cleanup];
     
     EAGLContext *oldContext = [EAGLContext currentContext];
     [sceneRenderer useContext];
     for (MaplyShader *shader in shaders)
-        [shader teardown];
+        [shader cleanup];
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
     sceneRenderer.scene = nil;
@@ -121,7 +121,7 @@ using namespace WhirlyKit;
 - (void) dealloc
 {
     if (scene)
-        [self teardown];
+        [self cleanup];
 }
 
 - (WhirlyKitView *) loadSetup_view
@@ -296,12 +296,12 @@ using namespace WhirlyKit;
     [glView stopAnimation];
 }
 
-- (void)teardown
+- (void)cleanup
 {
     [interactLayer lockingShutdown];
     
     if (glView)
-        [glView teardown];
+        [glView cleanup];
     
     [self clear];
 }
