@@ -202,7 +202,7 @@ public:
     bool empty();
     
     /// Look for any textures that should be cleaned up
-    void cleanup(ChangeSet *changes);
+    void cleanup(ChangeSet &changes);
 
     /// Clear out the active dynamic textures.  Caller deals with the
     ///  change requests.
