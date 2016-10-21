@@ -58,9 +58,9 @@ using namespace WhirlyGlobe;
 
 /// Called by the layer thread to shut a layer down.
 /// Clean all your stuff out of the scenegraph and so forth.
-- (void)cleanup
+- (void)teardown
 {
-    [super cleanup];
+    [super teardown];
 }
 
 - (void)setAutoRotateInterval:(float)inAutoRotateInterval degrees:(float)inAutoRotateDegrees

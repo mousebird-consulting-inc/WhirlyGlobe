@@ -39,6 +39,6 @@
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 /// Called in the layer thread
-- (void)cleanup;
+- (void)teardown;
 
 @end

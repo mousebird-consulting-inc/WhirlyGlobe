@@ -56,7 +56,7 @@
 /** @brief Called when the update layer is shutting down.
     @details Clean up your own data here.
   */
-- (void)cleanup:(MaplyUpdateLayer *__nonnull)layer;
+- (void)teardown:(MaplyUpdateLayer *__nonnull)layer;
 
 @end
 
