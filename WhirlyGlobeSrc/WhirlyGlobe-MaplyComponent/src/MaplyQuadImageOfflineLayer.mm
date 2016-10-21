@@ -338,7 +338,7 @@ using namespace WhirlyKit;
             {
                 if ([level isKindOfClass:[NSNumber class]])
                 {
-                    int whichLevel = [level integerValue];
+                    int whichLevel = (int)[level integerValue];
                     if (whichLevel < 0)
                         whichLevel = maxShortCircuitLevel+whichLevel;
                     if (whichLevel >= 0 && whichLevel < maxShortCircuitLevel)
