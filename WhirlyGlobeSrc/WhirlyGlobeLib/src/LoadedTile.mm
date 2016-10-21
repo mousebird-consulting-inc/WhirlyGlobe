@@ -359,14 +359,14 @@ void TileBuilder::clearAtlases(ChangeSet &theChangeRequests)
     
     if (drawAtlas)
     {
-        drawAtlas->cleanup(theChangeRequests);
+        drawAtlas->teardown(theChangeRequests);
         delete drawAtlas;
         drawAtlas = NULL;
     }
 
     if (poleDrawAtlas)
     {
-        poleDrawAtlas->cleanup(theChangeRequests);
+        poleDrawAtlas->teardown(theChangeRequests);
         delete poleDrawAtlas;
         poleDrawAtlas = NULL;
     }

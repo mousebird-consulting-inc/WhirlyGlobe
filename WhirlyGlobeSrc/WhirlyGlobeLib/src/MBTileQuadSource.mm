@@ -114,7 +114,7 @@ using namespace WhirlyKit;
         sqlite3_close(_sqlDb);        
 }
 
-- (void)cleanup
+- (void)teardown
 {
     // Nothing much to do here
 }

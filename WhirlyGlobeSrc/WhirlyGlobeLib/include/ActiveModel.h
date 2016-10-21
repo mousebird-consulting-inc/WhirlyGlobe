@@ -43,6 +43,6 @@
 - (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo;
 
 /// Time to clean up your toys
-- (void)cleanup;
+- (void)teardown;
     
 @end
