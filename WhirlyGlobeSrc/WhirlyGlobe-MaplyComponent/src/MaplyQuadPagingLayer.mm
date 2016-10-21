@@ -485,7 +485,6 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         return;
     }
     
-    CoordSystemDisplayAdapter *coordAdapter = viewState.coordAdapter;
     canShortCircuitImportance = true;
 
     // We happen to store tilt in the view matrix.
