@@ -96,7 +96,7 @@ public:
     void addSwapChanges(const ChangeSet &swapChanges);
     
     /// Remove anything associated with the drawable atlas
-    void teardown(ChangeSet &changes);
+    void cleanup(ChangeSet &changes);
     
     /// Print some status info to the log
     void log();

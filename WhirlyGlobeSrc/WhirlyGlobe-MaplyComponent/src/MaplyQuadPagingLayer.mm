@@ -583,7 +583,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
-- (void)teardown
+- (void)cleanup
 {
     super.layerThread = nil;
     quadLayer = nil;

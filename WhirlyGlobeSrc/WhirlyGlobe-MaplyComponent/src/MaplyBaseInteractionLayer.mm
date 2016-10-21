@@ -279,7 +279,7 @@ public:
     }
 }
 
-- (void)teardown
+- (void)cleanup
 {
     layerThread = nil;
     scene = NULL;
@@ -304,7 +304,7 @@ public:
     while (numActiveWorkers > 0)
         pthread_cond_wait(&workWait, &workLock);
 
-    [self teardown];
+    [self cleanup];
     
     pthread_mutex_unlock(&workLock);
 }

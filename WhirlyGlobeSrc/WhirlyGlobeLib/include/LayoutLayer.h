@@ -44,7 +44,7 @@
 - (void)startWithThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;
 
 /// Called in the layer thread
-- (void)teardown;
+- (void)cleanup;
 
 /// Add a whole bunch of objects to track with the layout engine.
 - (void)addLayoutObjects:(const std::vector<WhirlyKit::LayoutObject> &)layoutObjects;
