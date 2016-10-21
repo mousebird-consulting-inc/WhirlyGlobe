@@ -52,7 +52,7 @@
 @property (nonatomic,assign) int maxZoom;
 
 /// Called by the layer to shut things down
-- (void)teardown;
+- (void)cleanup;
 
 @end
 

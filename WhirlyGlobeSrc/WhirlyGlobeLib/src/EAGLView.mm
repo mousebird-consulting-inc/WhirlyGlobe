@@ -124,7 +124,7 @@
     }
 }
 
-- (void) teardown
+- (void) cleanup
 {
     if (_animating)
     {
