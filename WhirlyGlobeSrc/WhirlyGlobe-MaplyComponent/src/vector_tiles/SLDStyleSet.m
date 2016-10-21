@@ -170,7 +170,6 @@
  @param  userStyleNode The DDXMLElement corresponding to the UserStyle element in the document tree.
  */
 - (SLDUserStyle *)loadUserStyleNode:(DDXMLElement *)userStyleNode {
-    NSError *error;
     NSLog(@"loadUserStyleNode");
     SLDUserStyle *sldUserStyle = [[SLDUserStyle alloc] init];
     // The prefix is "se" in v1.1.0 but "sld" in v1.0.0.
@@ -198,7 +197,6 @@
  @param  featureTypeStyleNode The DDXMLElement corresponding to the FeatureTypeStyle element in the document tree.
  */
 - (SLDFeatureTypeStyle *)loadFeatureTypeStyleNode:(DDXMLElement *)featureTypeStyleNode {
-    NSError *error;
     NSLog(@"loadFeatureTypeStyleNode");
     SLDFeatureTypeStyle *featureTypeStyle = [[SLDFeatureTypeStyle alloc] init];
 
@@ -220,7 +218,6 @@
  @param  ruleNode The DDXMLElement corresponding to the Rule element in the document tree.
  */
 - (SLDRule *)loadRuleNode:(DDXMLElement *)ruleNode {
-    NSError *error;
     NSLog(@"loadRuleNode");
     SLDRule *rule = [[SLDRule alloc] init];
     
