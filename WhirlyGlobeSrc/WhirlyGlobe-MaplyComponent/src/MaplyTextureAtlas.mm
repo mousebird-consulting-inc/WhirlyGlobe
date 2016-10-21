@@ -139,7 +139,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
             entry.atlas->removeTexture(entry.subTex, changes);
             
             // May need to remove the texture atlas
-            entry.atlas->cleanup(&changes);
+            entry.atlas->cleanup(changes);
             if (entry.atlas->empty())
             {
                 entry.atlas->shutdown(changes);
@@ -160,7 +160,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
              it != atlases.end(); ++it)
         {
             DynamicTextureAtlas *atlas = *it;
-            atlas->cleanup(&changes);
+            atlas->cleanup(changes);
             delete atlas;
         }
         

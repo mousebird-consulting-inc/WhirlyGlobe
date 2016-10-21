@@ -363,7 +363,11 @@ DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,
     
 DynamicTextureAtlas::~DynamicTextureAtlas()
 {
-    cleanup(NULL);
+    // Clean up anything we might have left over
+    for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); ++it)
+        delete *it;
+
+    textures.clear();
 }
     
 // If set, we ask the main thread to do the sub texture loads
@@ -569,7 +573,7 @@ bool DynamicTextureAtlas::empty()
     return textures.empty();
 }
     
-void DynamicTextureAtlas::cleanup(ChangeSet *changes)
+void DynamicTextureAtlas::cleanup(ChangeSet &changes)
 {
     DynamicTextureSet::iterator itNext;
     for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); it = itNext)
@@ -580,20 +584,13 @@ void DynamicTextureAtlas::cleanup(ChangeSet *changes)
         DynamicTexture *tex = texVec->at(0);
         if (tex->getNumRegions() == 0)
         {
-            if (changes)
-                for (unsigned int ii=0;ii<texVec->size();ii++)
-                    changes->push_back(new RemTextureReq(texVec->at(ii)->getId()));
+            for (unsigned int ii=0;ii<texVec->size();ii++)
+                changes.push_back(new RemTextureReq(texVec->at(ii)->getId()));
             delete texVec;
             textures.erase(it);
             //                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
         }
     }
-    
-    // Clean up anything we might have left over
-    for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); ++it)
-        delete *it;
-    
-    textures.clear();
 }
     
 void DynamicTextureAtlas::getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which)
