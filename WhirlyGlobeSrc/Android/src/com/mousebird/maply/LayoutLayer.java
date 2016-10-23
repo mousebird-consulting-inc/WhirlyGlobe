@@ -49,6 +49,8 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 	public void shutdown()
 	{
 		cancelUpdate();
+
+		layoutManager.clearClusterGenerators();
 	}
 	
 	ViewState viewState = null;

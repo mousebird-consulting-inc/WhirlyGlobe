@@ -53,6 +53,11 @@ public:
             endClusterGroupJava = env->GetMethodID(theClass, "endClusterGroup", "()V");
             env->DeleteLocalRef(theClass);
         }
+        
+        void clear(JNIEnv *env)
+        {
+            env->DeleteGlobalRef(clusterObj);
+        }
 
         int clusterID;
         Point2d layoutSize;
@@ -93,6 +98,13 @@ public:
         clusterInfo.selectable = selectable;
         
         clusterGens.insert(clusterInfo);
+    }
+    
+    void clearClusterGenerators()
+    {
+        for (auto &ci : clusterGens)
+            ci.clear();
+        clusterGens.clear();
     }
 
     /** ClusterGenerator virtual methods.
@@ -333,5 +345,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_addClusterGenerato
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LayoutManager::addClusterGenerator()");
     }
+}
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_clearClusterGenerators
+(JNIEnv *, jobject)
+{
+    try
+    {
+        LayoutManagerWrapperClassInfo *classInfo = LayoutManagerWrapperClassInfo::getClassInfo();
+        LayoutManagerWrapper *wrap = classInfo->getObject(env, obj);
+        if (!wrap)
+            return;
+        wrap->setEnv(env);
+
+        wrap->clearClusterGenerators();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LayoutManager::addClusterGenerator()");
+    }
 }
