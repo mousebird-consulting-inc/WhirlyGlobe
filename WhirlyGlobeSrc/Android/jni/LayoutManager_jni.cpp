@@ -54,7 +54,7 @@ public:
             env->DeleteLocalRef(theClass);
         }
         
-        void clear(JNIEnv *env)
+        void clear(JNIEnv *env) const
         {
             env->DeleteGlobalRef(clusterObj);
         }
@@ -103,7 +103,7 @@ public:
     void clearClusterGenerators()
     {
         for (auto &ci : clusterGens)
-            ci.clear();
+            ci.clear(env);
         clusterGens.clear();
     }
 
@@ -348,7 +348,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_addClusterGenerato
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_clearClusterGenerators
-(JNIEnv *, jobject)
+(JNIEnv *env, jobject obj)
 {
     try
     {

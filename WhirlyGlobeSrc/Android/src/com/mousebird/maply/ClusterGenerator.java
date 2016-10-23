@@ -20,6 +20,8 @@
 package com.mousebird.maply;
 
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 /**
@@ -31,7 +33,7 @@ public class ClusterGenerator
 {
     public MaplyBaseController baseController = null;
     ArrayList<MaplyTexture> oldTextures,currentTextures;
-
+    
     /**
      * Called at the start of clustering.
      * <p>
