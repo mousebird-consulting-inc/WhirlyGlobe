@@ -99,6 +99,12 @@ public class BasicClusterGenerator extends ClusterGenerator {
         this.viewC = viewC;
     }
 
+    public void shutdown()
+    {
+        viewC = null;
+        activity = null;
+    }
+
     @Override
     public void startClusterGroup() {
         super.startClusterGroup();
