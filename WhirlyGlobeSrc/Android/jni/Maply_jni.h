@@ -453,6 +453,7 @@ typedef JavaClassInfo<WhirlyKit::WhirlyKitShapeInfo> ShapeInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitShape> ShapeClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitSphere> ShapeSphereClassInfo;
 typedef JavaClassInfo<WhirlyKit::ShapeManager> ShapeManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::GeometryManager> GeometryManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitDirectionalLight> DirectionalLightClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitMaterial> MaterialClassInfo;

@@ -1,7 +1,5 @@
 package com.mousebird.maply;
 
-import android.renderscript.Matrix4f;
-
 /**
  * Rather than add a single 3D point we assume you want to add a lot of them all at once.  This object lets you do that and lets you assign the various data values to input attributes in your custom shader.
  * All the cool kids have custom shaders.
@@ -10,8 +8,7 @@ public class Points
 {
     public Points()
     {
-        mat = new Matrix4f();
-        mat.loadIdentity();
+        mat = new Matrix4d();
     }
 
     GeometryRawPoints rawPoints = new GeometryRawPoints();

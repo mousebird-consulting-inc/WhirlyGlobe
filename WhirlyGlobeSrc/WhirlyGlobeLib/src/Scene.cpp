@@ -39,7 +39,7 @@
 #import "ParticleSystemManager.h"
 #import "BillboardManager.h"
 #import "WideVectorManager.h"
-//#import "GeometryManager.h"
+#import "GeometryManager.h"
 
 namespace WhirlyKit
 {
@@ -91,6 +91,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 #ifndef MAPLYMINIMAL
     // Chunk manager handles geographic chunks that cover a large chunk of the globe
     addManager(kWKSphericalChunkManager, new SphericalChunkManager());
+    // Geometry manager
+    addManager(kWKGeometryManager, new GeometryManager());
 //    // Loft manager handles lofted polygon geometry
 //    addManager(kWKLoftedPolyManager, new LoftManager());
     // Particle system manager

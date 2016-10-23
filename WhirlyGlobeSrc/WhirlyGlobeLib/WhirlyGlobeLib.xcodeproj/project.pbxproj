@@ -486,6 +486,16 @@
 		2B923FD21BFD04AE00C879DB /* com_mousebird_maply_StickerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B923FD11BFD04AE00C879DB /* com_mousebird_maply_StickerManager.h */; };
 		2B969E5C1DBAA3BE00DF2C32 /* GeometryManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B969E5B1DBAA3BE00DF2C32 /* GeometryManager.h */; };
 		2B969E5E1DBAA3CD00DF2C32 /* GeometryManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B969E5D1DBAA3CD00DF2C32 /* GeometryManager.cpp */; };
+		2B969E651DBAD60400DF2C32 /* com_mousebird_maply_GeometryRaw_GeometryType.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B969E5F1DBAD60400DF2C32 /* com_mousebird_maply_GeometryRaw_GeometryType.h */; };
+		2B969E661DBAD60400DF2C32 /* com_mousebird_maply_GeometryRaw.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B969E601DBAD60400DF2C32 /* com_mousebird_maply_GeometryRaw.h */; };
+		2B969E671DBAD60400DF2C32 /* com_mousebird_maply_GeometryRawPoints_Type.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B969E611DBAD60400DF2C32 /* com_mousebird_maply_GeometryRawPoints_Type.h */; };
+		2B969E681DBAD60400DF2C32 /* com_mousebird_maply_GeometryRawPoints.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B969E621DBAD60400DF2C32 /* com_mousebird_maply_GeometryRawPoints.h */; };
+		2B969E691DBAD60400DF2C32 /* com_mousebird_maply_GeometryManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B969E631DBAD60400DF2C32 /* com_mousebird_maply_GeometryManager.h */; };
+		2B969E6A1DBAD60400DF2C32 /* com_mousebird_maply_GeometryInstance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B969E641DBAD60400DF2C32 /* com_mousebird_maply_GeometryInstance.h */; };
+		2B969E6F1DBAD67400DF2C32 /* GeometryRawPoints_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B969E6B1DBAD67400DF2C32 /* GeometryRawPoints_jni.cpp */; };
+		2B969E701DBAD67400DF2C32 /* GeometryInstance_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B969E6C1DBAD67400DF2C32 /* GeometryInstance_jni.cpp */; };
+		2B969E711DBAD67400DF2C32 /* GeometryRaw_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B969E6D1DBAD67400DF2C32 /* GeometryRaw_jni.cpp */; };
+		2B969E721DBAD67400DF2C32 /* GeometryManager_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B969E6E1DBAD67400DF2C32 /* GeometryManager_jni.cpp */; };
 		2BA2325617984F510063CC84 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2322F17984F510063CC84 /* glues.h */; };
 		2BA2325717984F510063CC84 /* glues_error.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2323017984F510063CC84 /* glues_error.c */; };
 		2BA2325817984F510063CC84 /* glues_error.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2323117984F510063CC84 /* glues_error.h */; };
@@ -1265,6 +1275,16 @@
 		2B951DF012F0AC50005003AE /* safileio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = safileio.c; sourceTree = "<group>"; };
 		2B969E5B1DBAA3BE00DF2C32 /* GeometryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeometryManager.h; sourceTree = "<group>"; };
 		2B969E5D1DBAA3CD00DF2C32 /* GeometryManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeometryManager.cpp; sourceTree = "<group>"; };
+		2B969E5F1DBAD60400DF2C32 /* com_mousebird_maply_GeometryRaw_GeometryType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_GeometryRaw_GeometryType.h; path = ../Android/jni/com_mousebird_maply_GeometryRaw_GeometryType.h; sourceTree = "<group>"; };
+		2B969E601DBAD60400DF2C32 /* com_mousebird_maply_GeometryRaw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_GeometryRaw.h; path = ../Android/jni/com_mousebird_maply_GeometryRaw.h; sourceTree = "<group>"; };
+		2B969E611DBAD60400DF2C32 /* com_mousebird_maply_GeometryRawPoints_Type.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_GeometryRawPoints_Type.h; path = ../Android/jni/com_mousebird_maply_GeometryRawPoints_Type.h; sourceTree = "<group>"; };
+		2B969E621DBAD60400DF2C32 /* com_mousebird_maply_GeometryRawPoints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_GeometryRawPoints.h; path = ../Android/jni/com_mousebird_maply_GeometryRawPoints.h; sourceTree = "<group>"; };
+		2B969E631DBAD60400DF2C32 /* com_mousebird_maply_GeometryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_GeometryManager.h; path = ../Android/jni/com_mousebird_maply_GeometryManager.h; sourceTree = "<group>"; };
+		2B969E641DBAD60400DF2C32 /* com_mousebird_maply_GeometryInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_GeometryInstance.h; path = ../Android/jni/com_mousebird_maply_GeometryInstance.h; sourceTree = "<group>"; };
+		2B969E6B1DBAD67400DF2C32 /* GeometryRawPoints_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeometryRawPoints_jni.cpp; path = ../Android/jni/GeometryRawPoints_jni.cpp; sourceTree = "<group>"; };
+		2B969E6C1DBAD67400DF2C32 /* GeometryInstance_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeometryInstance_jni.cpp; path = ../Android/jni/GeometryInstance_jni.cpp; sourceTree = "<group>"; };
+		2B969E6D1DBAD67400DF2C32 /* GeometryRaw_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeometryRaw_jni.cpp; path = ../Android/jni/GeometryRaw_jni.cpp; sourceTree = "<group>"; };
+		2B969E6E1DBAD67400DF2C32 /* GeometryManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeometryManager_jni.cpp; path = ../Android/jni/GeometryManager_jni.cpp; sourceTree = "<group>"; };
 		2BA2322F17984F510063CC84 /* glues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues.h; path = "../../third-party/glues/source/glues.h"; sourceTree = "<group>"; };
 		2BA2323017984F510063CC84 /* glues_error.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glues_error.c; path = "../../third-party/glues/source/glues_error.c"; sourceTree = "<group>"; };
 		2BA2323117984F510063CC84 /* glues_error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues_error.h; path = "../../third-party/glues/source/glues_error.h"; sourceTree = "<group>"; };
@@ -1863,6 +1883,12 @@
 		2B4B19291BA38A940091A743 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B969E5F1DBAD60400DF2C32 /* com_mousebird_maply_GeometryRaw_GeometryType.h */,
+				2B969E601DBAD60400DF2C32 /* com_mousebird_maply_GeometryRaw.h */,
+				2B969E611DBAD60400DF2C32 /* com_mousebird_maply_GeometryRawPoints_Type.h */,
+				2B969E621DBAD60400DF2C32 /* com_mousebird_maply_GeometryRawPoints.h */,
+				2B969E631DBAD60400DF2C32 /* com_mousebird_maply_GeometryManager.h */,
+				2B969E641DBAD60400DF2C32 /* com_mousebird_maply_GeometryInstance.h */,
 				2B3B31FE1CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser_DataReturn.h */,
 				2B3B31FF1CF6591B00F52374 /* com_mousebird_maply_MapboxVectorTileParser.h */,
 				2B4B192B1BA38AD90091A743 /* com_mousebird_maply_AngleAxis.h */,
@@ -1960,6 +1986,10 @@
 		2B4B192A1BA38A9A0091A743 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2B969E6B1DBAD67400DF2C32 /* GeometryRawPoints_jni.cpp */,
+				2B969E6C1DBAD67400DF2C32 /* GeometryInstance_jni.cpp */,
+				2B969E6D1DBAD67400DF2C32 /* GeometryRaw_jni.cpp */,
+				2B969E6E1DBAD67400DF2C32 /* GeometryManager_jni.cpp */,
 				2B4B199B1BA38AFB0091A743 /* AngleAxis_jni.cpp */,
 				2B4B199C1BA38AFB0091A743 /* AttrDictionary_jni.cpp */,
 				2B923FB71BFA9B5E00C879DB /* BaseInfo_jni.cpp */,
@@ -2738,6 +2768,7 @@
 				2B923FCA1BFBDED200C879DB /* com_mousebird_maply_BaseInfo.h in Headers */,
 				8817DA031C92F3070034E3EA /* com_mousebird_maply_ShapeInfo.h in Headers */,
 				2B4B19791BA38AD90091A743 /* com_mousebird_maply_MapViewState.h in Headers */,
+				2B969E681DBAD60400DF2C32 /* com_mousebird_maply_GeometryRawPoints.h in Headers */,
 				883C07651CC055740042B20C /* AAFK5.h in Headers */,
 				2B009CF8186102E4001E2EE8 /* Strings_Defs.h in Headers */,
 				2BB766091C6FFF9B00F01F2A /* com_mousebird_maply_Proj4CoordSystem.h in Headers */,
@@ -2750,6 +2781,7 @@
 				883C07471CC055740042B20C /* AAAberration.h in Headers */,
 				2BA2325617984F510063CC84 /* glues.h in Headers */,
 				883C076F1CC055740042B20C /* AAJewishCalendar.h in Headers */,
+				2B969E6A1DBAD60400DF2C32 /* com_mousebird_maply_GeometryInstance.h in Headers */,
 				2B4B19751BA38AD90091A743 /* com_mousebird_maply_MapScene.h in Headers */,
 				2B3B30FE1CF6227F00F52374 /* wire_format_lite.h in Headers */,
 				88AEB1571CC0466800BD63C2 /* Moon.h in Headers */,
@@ -2769,6 +2801,7 @@
 				2B4B19691BA38AD90091A743 /* com_mousebird_maply_GeoCoordSystem.h in Headers */,
 				2B3B30E81CF6227F00F52374 /* generated_message_reflection.h in Headers */,
 				2B009CF2186102E4001E2EE8 /* JSONAllocator.h in Headers */,
+				2B969E691DBAD60400DF2C32 /* com_mousebird_maply_GeometryManager.h in Headers */,
 				2BDC89CB191C2ADE00DFECF0 /* SceneRendererES3.h in Headers */,
 				2B3B30F11CF6227F00F52374 /* package_info.h in Headers */,
 				2B35682418D762BF00EF8DB1 /* MarkerManager.h in Headers */,
@@ -2807,6 +2840,7 @@
 				2B3B30DE1CF6227F00F52374 /* descriptor.h in Headers */,
 				2B4B197F1BA38AD90091A743 /* com_mousebird_maply_Point3d.h in Headers */,
 				2B3B31FC1CF623DD00F52374 /* template_util.h in Headers */,
+				2B969E651DBAD60400DF2C32 /* com_mousebird_maply_GeometryRaw_GeometryType.h in Headers */,
 				2B4B197B1BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h in Headers */,
 				2B14BFC51B83F3F500CE29A4 /* BasicDrawable.h in Headers */,
 				2B923FCB1BFBDED200C879DB /* com_mousebird_maply_QuadImageTileLayer_FrameStatus.h in Headers */,
@@ -2973,7 +3007,9 @@
 				2B009CF4186102E4001E2EE8 /* JSONChildren.h in Headers */,
 				883C07AD1CC055740042B20C /* AASaturnRings.h in Headers */,
 				2B35683118D762BF00EF8DB1 /* ShapeReader.h in Headers */,
+				2B969E671DBAD60400DF2C32 /* com_mousebird_maply_GeometryRawPoints_Type.h in Headers */,
 				2B14BFCD1B83FD4500CE29A4 /* BaseInfo.h in Headers */,
+				2B969E661DBAD60400DF2C32 /* com_mousebird_maply_GeometryRaw.h in Headers */,
 				2B4B196C1BA38AD90091A743 /* com_mousebird_maply_GlobeView.h in Headers */,
 				2B35682E18D762BF00EF8DB1 /* ScreenImportance.h in Headers */,
 				883C07871CC055740042B20C /* AANearParabolic.h in Headers */,
@@ -3080,6 +3116,7 @@
 				2B7EF42816025D8C00D4079F /* bchgen.c in Sources */,
 				2B35676C18D762A700EF8DB1 /* TextureAtlas.cpp in Sources */,
 				2B7EF42916025D8C00D4079F /* biveval.c in Sources */,
+				2B969E711DBAD67400DF2C32 /* GeometryRaw_jni.cpp in Sources */,
 				883C07AE1CC055740042B20C /* AASidereal.cpp in Sources */,
 				2B3B31F41CF623DD00F52374 /* stringpiece.cc in Sources */,
 				2B35676118D762A700EF8DB1 /* RawData.cpp in Sources */,
@@ -3140,6 +3177,7 @@
 				2B7EF45116025D8C00D4079F /* pj_ctx.c in Sources */,
 				2B3B311D1CF622AA00F52374 /* gzip_stream.cc in Sources */,
 				883C07661CC055740042B20C /* AAGalileanMoons.cpp in Sources */,
+				2B969E721DBAD67400DF2C32 /* GeometryManager_jni.cpp in Sources */,
 				2B35676F18D762A700EF8DB1 /* VectorManager.cpp in Sources */,
 				2B35677418D762A700EF8DB1 /* WhirlyVector.cpp in Sources */,
 				883C07761CC055740042B20C /* AAMercury.cpp in Sources */,
@@ -3205,6 +3243,7 @@
 				883C07641CC055740042B20C /* AAFK5.cpp in Sources */,
 				2B35675C18D762A700EF8DB1 /* OpenGLES2Program.cpp in Sources */,
 				2B7EF46716025D8C00D4079F /* PJ_geos.c in Sources */,
+				2B969E701DBAD67400DF2C32 /* GeometryInstance_jni.cpp in Sources */,
 				883C078E1CC055740042B20C /* AAParabolic.cpp in Sources */,
 				2B3B312A1CF622AA00F52374 /* zero_copy_stream_impl.cc in Sources */,
 				2B3B30D71CF6227F00F52374 /* arena.cc in Sources */,
@@ -3371,6 +3410,7 @@
 				88D57FF11CA1ED3F00A203F8 /* p_series.c in Sources */,
 				2B76C5DD1C10C48A0081F395 /* TileQuadOfflineRenderer.cpp in Sources */,
 				2B3B30F61CF6227F00F52374 /* service.cc in Sources */,
+				2B969E6F1DBAD67400DF2C32 /* GeometryRawPoints_jni.cpp in Sources */,
 				883C076E1CC055740042B20C /* AAJewishCalendar.cpp in Sources */,
 				2B7EF4B516025D8C00D4079F /* pj_tsfn.c in Sources */,
 				2B7EF4B616025D8C00D4079F /* pj_units.c in Sources */,
