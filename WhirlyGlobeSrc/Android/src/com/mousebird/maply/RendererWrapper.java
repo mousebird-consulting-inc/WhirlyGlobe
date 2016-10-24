@@ -21,8 +21,7 @@
 package com.mousebird.maply;
 
 import android.opengl.GLSurfaceView;
-import android.opengl.GLSurfaceView.Renderer;
-import android.util.Log;
+import android.os.Build;
 
 import java.util.concurrent.Semaphore;
 
@@ -114,7 +113,7 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 					new Runnable() {
 						@Override
 						public void run() {
-							if (maplyControl != null)
+							if (maplyControl != null && Build.VERSION.SDK_INT > 16 && Build.VERSION.SDK_INT < 24)
 								maplyControl.getContentView().setBackground(null);
 						}
 					}

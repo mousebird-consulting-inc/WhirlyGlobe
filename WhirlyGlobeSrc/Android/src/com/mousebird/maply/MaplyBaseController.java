@@ -317,7 +317,7 @@ public class MaplyBaseController
 				tempBackground = new ColorDrawable();
 				// This eliminates the black flash, but only if the clearColor is set right
 				tempBackground.setColor(clearColor);
-				if (Build.VERSION.SDK_INT > 16)
+				if (Build.VERSION.SDK_INT > 16 && Build.VERSION.SDK_INT < 24)
 					glTextureView.setBackground(tempBackground);
 				glTextureView.setEGLContextClientVersion(2);
 				glTextureView.setRenderer(renderWrapper);
