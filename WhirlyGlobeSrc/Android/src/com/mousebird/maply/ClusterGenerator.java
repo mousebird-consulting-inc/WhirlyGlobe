@@ -33,7 +33,7 @@ public class ClusterGenerator
 {
     public MaplyBaseController baseController = null;
     ArrayList<MaplyTexture> oldTextures,currentTextures;
-    
+
     /**
      * Called at the start of clustering.
      * <p>
