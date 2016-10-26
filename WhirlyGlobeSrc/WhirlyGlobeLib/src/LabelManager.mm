@@ -216,6 +216,10 @@ LabelManager::LabelManager()
     
 LabelManager::~LabelManager()
 {
+    for (LabelSceneRepSet::iterator it = labelReps.begin();
+         it != labelReps.end(); ++it)
+        delete *it;
+    labelReps.clear();
     pthread_mutex_destroy(&labelLock);
 }
     
