@@ -252,7 +252,9 @@ void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,VectorRing3
 //        return;
     
     Point3d midP = (p0+p1)/2.0;
-    Point3d midOnSphere = midP.normalized() * (1.0 + surfOffset);
+    Point3d midOnSphere = midP;
+    if (adapter && !adapter->isFlat())
+        midP.normalized() * (1.0 + surfOffset);
     float dist2 = (midOnSphere - midP).squaredNorm();
     if (dist2 > eps*eps || minPts > 0)
     {
@@ -279,9 +281,11 @@ void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,VectorRing3d &outPts,bool
         const Point2f &p0 = inPts[ii];
         const Point2f &p1 = inPts[(ii+1)%inPts.size()];
         Point3d dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
-        dp0 = dp0.normalized() * (1.0 + surfOffset);
+        if (adapter && !adapter->isFlat())
+            dp0 = dp0.normalized() * (1.0 + surfOffset);
         Point3d dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p1.x(),p1.y())));
-        dp1 = dp1.normalized() * (1.0 + surfOffset);
+        if (adapter && !adapter->isFlat())
+            dp1 = dp1.normalized() * (1.0 + surfOffset);
         outPts.push_back(dp0);
         subdivideToSurfaceRecurseGC(dp0,dp1,outPts,adapter,eps,surfOffset,minPts);
     }    
