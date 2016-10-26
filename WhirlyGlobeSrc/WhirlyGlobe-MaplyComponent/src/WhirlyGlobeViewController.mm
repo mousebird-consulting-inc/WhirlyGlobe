@@ -144,6 +144,7 @@ using namespace WhirlyGlobe;
     
     globeScene = NULL;
     globeView = nil;
+    globeInteractLayer = nil;
     
     pinchDelegate = nil;
     panDelegate = nil;
@@ -1214,7 +1215,7 @@ using namespace WhirlyGlobe;
 // See if the given bounding box is all on sreen
 - (bool)checkCoverage:(Mbr &)mbr globeView:(WhirlyGlobeView *)theView height:(float)height
 {
-    [globeView setHeightAboveGlobe:height updateWatchers:false];
+    [theView setHeightAboveGlobe:height updateWatchers:false];
 
     std::vector<Point2f> pts;
     mbr.asPoints(pts);
@@ -1224,7 +1225,7 @@ using namespace WhirlyGlobe;
         Point2f pt = pts[ii];
         MaplyCoordinate geoCoord;
         geoCoord.x = pt.x();  geoCoord.y = pt.y();
-        CGPoint screenPt = [self pointOnScreenFromGeo:geoCoord];
+        CGPoint screenPt = [self pointOnScreenFromGeo:geoCoord globeView:theView];
         if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > frame.size.width || screenPt.y > frame.size.height)
             return false;
     }
@@ -1234,7 +1235,7 @@ using namespace WhirlyGlobe;
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos
 {
-    WhirlyGlobeView *tempGlobe = [[WhirlyGlobeView alloc] initWithGlobeView:globeView];
+    WhirlyGlobeView *tempGlobe = [[WhirlyGlobeView alloc] initWithView:globeView];
     
     float oldHeight = globeView.heightAboveGlobe;
     Eigen::Quaterniond newRotQuat = [tempGlobe makeRotationToGeoCoord:GeoCoord(pos.x,pos.y) keepNorthUp:YES];
@@ -1289,10 +1290,15 @@ using namespace WhirlyGlobe;
 
 - (CGPoint)pointOnScreenFromGeo:(MaplyCoordinate)geoCoord
 {
-    Point3d pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
+    return [self pointOnScreenFromGeo:geoCoord globeView:globeView];
+}
+
+- (CGPoint)pointOnScreenFromGeo:(MaplyCoordinate)geoCoord globeView:(WhirlyGlobeView *)theView
+{
+    Point3d pt = theView.coordAdapter->localToDisplay(theView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
     
-    Eigen::Matrix4d modelTrans = [visualView calcFullMatrix];
-    return [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+    Eigen::Matrix4d modelTrans = [theView calcFullMatrix];
+    return [theView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
 }
 
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
@@ -1931,7 +1937,7 @@ static const float FullExtentEps = 1e-5;
         bbox->ur.x = mbr.ur().x();  bbox->ur.y = mbr.ur().y();
     }
     
-    return mbrs.size();
+    return (int)mbrs.size();
 }
 
 @end

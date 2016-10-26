@@ -45,7 +45,7 @@
 
 /// Called by the layer thread to shut a layer down.
 /// Clean all your stuff out of the scenegraph and so forth.
-- (void)shutdown;
+- (void)teardown;
 
 @optional
 

@@ -41,9 +41,9 @@
     style = stylesByLayerName[layer];
     if (style)
         return @[style];
-    int layer_order = [attributes[@"layer_order"] integerValue];
+    int layer_order = (int)[attributes[@"layer_order"] integerValue];
     
-    int geomType = [attributes[@"geometry_type"] integerValue];
+    int geomType = (int)[attributes[@"geometry_type"] integerValue];
     switch (geomType)
     {
         case GeomTypePoint:

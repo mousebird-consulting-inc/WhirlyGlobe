@@ -60,8 +60,11 @@ using namespace Eigen;
 	return self;
 }
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView
+- (id)initWithView:(WhirlyGlobeView *)inGlobeView
 {
+    if (![inGlobeView isKindOfClass:[WhirlyGlobeView class]])
+        return nil;
+    
     self = [super initWithView:inGlobeView];
     super.coordAdapter = &fakeGeoC;
     absoluteMinHeight = inGlobeView->absoluteMinHeight;

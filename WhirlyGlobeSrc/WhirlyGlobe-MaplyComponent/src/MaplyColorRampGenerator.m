@@ -60,9 +60,9 @@
     int aIdx = floor(pos);
     int bIdx = ceil(pos);
     if (bIdx >= [colors count])
-        bIdx = [colors count]-1;
+        bIdx = (int)[colors count]-1;
     if (aIdx >= [colors count])
-        aIdx = [colors count]-1;
+        aIdx = (int)[colors count]-1;
     float t = pos-aIdx;
     
     UIColor *a = [colors objectAtIndex:aIdx];

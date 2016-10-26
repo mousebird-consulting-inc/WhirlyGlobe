@@ -24,14 +24,14 @@ class ScreenLabelsTestCase: MaplyTestCase {
         globeVC.keepNorthUp = true
 		let vectorTestCase = VectorsTestCase()
 		vectorTestCase.setUpWithGlobe(globeVC)
-		insertLabels(vectorTestCase.compList! as! [MaplyVectorObject], theViewC: globeVC)
+		insertLabels(vectorTestCase.compList! as NSArray as! [MaplyVectorObject], theViewC: globeVC)
 		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
 		let vectorTestCase = VectorsTestCase()
 		vectorTestCase.setUpWithMap(mapVC)
-		insertLabels(vectorTestCase.compList! as! [MaplyVectorObject], theViewC: mapVC)
+		insertLabels(vectorTestCase.compList! as NSArray as! [MaplyVectorObject], theViewC: mapVC)
 		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 

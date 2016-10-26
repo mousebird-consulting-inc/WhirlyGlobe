@@ -30,7 +30,6 @@
 
 - (void)overlayShapefile
 {
-    NSString *fileName = [[NSBundle mainBundle] pathForResource:@"ne_10m_roads" ofType:@"shp"];
     MaplyVectorDatabase *vecDb = [[MaplyVectorDatabase alloc] initWithShape:@"ne_10m_roads"];
     MaplyVectorObject *vecObj = [vecDb fetchAllVectors];
     
@@ -43,7 +42,10 @@
     baseCase = [[GeographyClassTestCase alloc]init];
     [baseCase setUpWithGlobe:globeVC];
     
-    [self overlayShapefile];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+                   ^{
+                       [self overlayShapefile];
+                   });
 }
 
 
@@ -53,7 +55,10 @@
     baseCase = [[GeographyClassTestCase alloc]init];
     [baseCase setUpWithMap:mapVC];
 
-    [self overlayShapefile];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+                   ^{
+                       [self overlayShapefile];
+                   });
 }
 
 - (void) tearDownWithMap:(MaplyViewController *)mapVC {
