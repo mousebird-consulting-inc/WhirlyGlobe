@@ -69,7 +69,6 @@ using namespace Eigen;
                 SingleVertexAttribute valAttr;
                 valAttr.name = [key cStringUsingEncoding:NSASCIIStringEncoding];
                 
-                NSNumber *num = val;
                 valAttr.type = BDFloatType;
                 valAttr.data.floatVal = [val floatValue];
                 

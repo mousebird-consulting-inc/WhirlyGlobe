@@ -9,8 +9,10 @@
 #import "MaplyTestCase.h"
 #import "GeographyClassTestCase.h"
 
+@class MaplyVectorObject;
+
 @interface VectorsTestCase : MaplyTestCase
 
-@property (nonatomic, strong) NSMutableArray * compList;
+@property (nonatomic, strong) NSMutableArray<MaplyVectorObject*> *compList;
 @property (nonatomic) GeographyClassTestCase *baseView;
 @end
