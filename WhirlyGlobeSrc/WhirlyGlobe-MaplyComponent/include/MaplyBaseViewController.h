@@ -604,7 +604,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
     @details Adds a group of points all at once.  We're assuming you want to draw a lot of points, so you have to group them together into a MaplyPoints.
 
     @param points The points to add to the scene.
-    @param desc The desciption dictionary which controls how the lofted polys will look.  It takes the following entries.
+    @param desc The desciption dictionary which controls how the points will look.  It takes the following entries.
     @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.
  
  |Key|Type|Description|
