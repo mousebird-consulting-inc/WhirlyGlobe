@@ -42,6 +42,7 @@
 			label.text = object.userObject;
 			label.userObject = object.userObject;
 		}
+        
 		if (i % 2 == 0) {
 			[theView addLabels:@[label]
 						  desc:@{
