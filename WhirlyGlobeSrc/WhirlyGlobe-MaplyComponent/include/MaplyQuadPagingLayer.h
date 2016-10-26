@@ -97,7 +97,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
 
 /** @brief Control how tiles are indexed, either from the lower left or the upper left.
  @details If set, we'll use the OSM approach (also Google Maps) to y indexing.  This is off by default.
- @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you're tile source looks odd, try setting this to false.
+ @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if youre tile source looks odd, try setting this to false.
  @details Default value is false.
  */
 @property (nonatomic) bool flipY;
