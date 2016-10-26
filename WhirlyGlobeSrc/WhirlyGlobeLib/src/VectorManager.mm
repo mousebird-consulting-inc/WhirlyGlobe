@@ -143,7 +143,7 @@ public:
         for (const auto &pt : inPts)
             pts.push_back(Point2f(pt.x(),pt.y()));
         
-        addPoints(pts,close,attrs);
+        addPoints(pts,closed,attrs);
     }
     
     void addPoints(VectorRing &pts,bool closed,NSDictionary *attrs)

@@ -2287,7 +2287,6 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
-					"../../third-party/boost/",
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
 					"../../third-party/KissXML/KissXML/",
@@ -2301,8 +2300,6 @@
 					"../../third-party/KissXML/KissXML/Categories/",
 					"../../third-party/KissXML/KissXML/Private",
 					"../../third-party/fmdb/src/fmdb/",
-					"../../third-party/AFNetworking/AFNetworking/",
-					"../../third-party/AFNetworking/UIKit+AFNetworking/",
 					"\"$(SDKROOT)/usr/include/libxml2\"",
 					../local_libs/aaplus,
 				);
@@ -2331,7 +2328,6 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
-					"../../third-party/boost/",
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
 					"../../third-party/KissXML/KissXML/",
@@ -2345,8 +2341,6 @@
 					"../../third-party/KissXML/KissXML/Categories/",
 					"../../third-party/KissXML/KissXML/Private",
 					"../../third-party/fmdb/src/fmdb/",
-					"../../third-party/AFNetworking/AFNetworking/",
-					"../../third-party/AFNetworking/UIKit+AFNetworking/",
 					"\"$(SDKROOT)/usr/include/libxml2\"",
 					../local_libs/aaplus,
 				);

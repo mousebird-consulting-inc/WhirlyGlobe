@@ -128,7 +128,7 @@ public:
     // Number of active fetches
     int numFetches()
     {
-        return fetches.size();
+        return (int)fetches.size();
     }
     
     MaplyTileID tileID;

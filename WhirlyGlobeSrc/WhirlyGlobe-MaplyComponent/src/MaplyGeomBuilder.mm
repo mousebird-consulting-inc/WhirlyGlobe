@@ -176,7 +176,7 @@ using namespace WhirlyKit;
         if (texID == -1)
         {
             textures.push_back(state.texture);
-            texID = textures.size()-1;
+            texID = (int)textures.size()-1;
         }
 
     }
@@ -198,7 +198,7 @@ using namespace WhirlyKit;
     GeometryRaw *geom = [self findMatchingGeom:state hasNorms:(norms != NULL) hasTexCoords:(tex != NULL) hasColors:NULL];
     
     // Add the points
-    int basePt = geom->pts.size();
+    int basePt = (int)geom->pts.size();
     geom->pts.reserve(geom->pts.size()+numPts);
     geom->colors.reserve(geom->colors.size()+numPts);
     if (tex)
@@ -254,7 +254,7 @@ using namespace WhirlyKit;
     {
         GeometryRaw *geom = [self findMatchingGeom:state hasNorms:false hasTexCoords:false hasColors:false];
 
-        int basePt = geom->pts.size();
+        int basePt = (int)geom->pts.size();
         geom->pts.reserve(geom->pts.size()+curPts.size());
         if (state.color)
         {
@@ -363,7 +363,7 @@ using namespace WhirlyKit;
         dest->norms.reserve(dest->norms.size()+geom.norms.size());
         dest->texCoords.reserve(dest->texCoords.size()+geom.texCoords.size());
         dest->colors.reserve(dest->colors.size()+geom.colors.size());
-        int basePt = dest->pts.size();
+        int basePt = (int)dest->pts.size();
         for (int ii=0;ii<geom.pts.size();ii++)
         {
             // Vertex
@@ -507,7 +507,7 @@ using namespace WhirlyKit;
         {
             std::map<int,SimpleIdentity>::iterator it = texMap.find(thisGeom.texId);
             if (it != texMap.end())
-                thisGeom.texId = texMap[thisGeom.texId];
+                thisGeom.texId = (int)texMap[thisGeom.texId];
         }
         
         model->rawGeom.push_back(thisGeom);
