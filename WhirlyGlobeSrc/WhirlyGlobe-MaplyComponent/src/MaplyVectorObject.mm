@@ -223,7 +223,7 @@ public:
 		coords[i / 2] = MaplyCoordinateMakeWithDegrees(x, y);
 	}
 
-	self = [self initWithLineString:coords numCoords:[inCoords count]/2 attributes:attr];
+	self = [self initWithLineString:coords numCoords:(int)[inCoords count]/2 attributes:attr];
 
 	free(coords);
 

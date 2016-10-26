@@ -177,7 +177,7 @@ public:
 
     /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
     DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1);
-    ~DynamicTextureAtlas();
+    virtual ~DynamicTextureAtlas();
 
     /// Try to add the texture to one of our dynamic textures, or create one.
     bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *texRegion=NULL);
@@ -206,7 +206,7 @@ public:
 
     /// Clear out the active dynamic textures.  Caller deals with the
     ///  change requests.
-    void shutdown(ChangeSet &changes);
+    void teardown(ChangeSet &changes);
     
         /// Print out some utilization info
     void log();

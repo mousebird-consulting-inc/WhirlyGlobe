@@ -129,7 +129,7 @@ using namespace WhirlyKit;
     {
         // If we're done, we won't bother shutting down things nicely
         if (![self isCancelled])
-            [layer shutdown];
+            [layer teardown];
         [layers removeObject:layer];
     }
 }
@@ -293,7 +293,7 @@ using namespace WhirlyKit;
         if (!_mainLayerThread)
         {
             for (NSObject<WhirlyKitLayer> *layer in layers)
-                [layer shutdown];
+                [layer teardown];
             
             [self runAddChangeRequests];
         }

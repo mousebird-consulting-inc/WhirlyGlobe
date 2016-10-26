@@ -184,7 +184,7 @@ typedef std::map<int,NSObject <MaplyClusterGenerator> *> ClusterGenMap;
 class OurClusterGenerator : public ClusterGenerator
 {
 public:
-    MaplyBaseInteractionLayer *layer;
+    MaplyBaseInteractionLayer * __weak layer;
     
     // Called right before we start generating layout objects
     void startLayoutObjects()
@@ -279,7 +279,7 @@ public:
     }
 }
 
-- (void)shutdown
+- (void)teardown
 {
     layerThread = nil;
     scene = NULL;
@@ -304,7 +304,7 @@ public:
     while (numActiveWorkers > 0)
         pthread_cond_wait(&workWait, &workLock);
 
-    [self shutdown];
+    [self teardown];
     
     pthread_mutex_unlock(&workLock);
 }
@@ -463,7 +463,9 @@ public:
         maplyTex.texID = subTex.getId();
         maplyTex.isSubTex = true;
         maplyTex.interactLayer = self;
+        pthread_mutex_lock(&imageLock);
         imageTextures.push_back(maplyTex);
+        pthread_mutex_unlock(&imageLock);
     }
     delete tex;
 
@@ -935,7 +937,7 @@ public:
     
     // Ask for a cluster image
     MaplyClusterInfo *clusterInfo = [[MaplyClusterInfo alloc] init];
-    clusterInfo.numObjects = layoutObjects.size();
+    clusterInfo.numObjects = (int)layoutObjects.size();
     MaplyClusterGroup *group = [clusterGen makeClusterGroup:clusterInfo];
 
     // Geometry for the new cluster object
@@ -997,7 +999,7 @@ public:
     NSObject <MaplyClusterGenerator> *clusterGen = nil;
     @synchronized(self)
     {
-        clusterGen = clusterGens[clusterID];
+        clusterGen = clusterGens[(int)clusterID];
     }
 
     // Ask for the shader for moving objects

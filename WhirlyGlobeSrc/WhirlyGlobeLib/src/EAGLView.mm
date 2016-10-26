@@ -124,7 +124,7 @@
     }
 }
 
-- (void) shutdown
+- (void) teardown
 {
     if (_animating)
     {

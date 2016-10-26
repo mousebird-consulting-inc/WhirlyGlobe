@@ -44,7 +44,7 @@
         if (![num isKindOfClass:[NSNumber class]])
             return;
         
-        elements.push_back([num integerValue]);
+        elements.push_back((int)[num integerValue]);
     }
 }
 

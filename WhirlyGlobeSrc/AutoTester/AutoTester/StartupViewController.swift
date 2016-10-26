@@ -15,6 +15,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		StamenWatercolorRemote(),
 		NASAGIBSTestCase(),
 		CartoDBLightTestCase(),
+		ImageSingleLevelTestCase(),
 
 		AnimatedBasemapTestCase(),
 		ScreenLabelsTestCase(),
@@ -455,7 +456,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	}
 
 	fileprivate dynamic func editDone() {
-		self.navigationController?.popToViewController(self, animated: true)
+		self.navigationController!.popToViewController(self, animated: true)
 		changeSettings()
 
 		if ConfigSection.Row.MultipleMode.load() {
