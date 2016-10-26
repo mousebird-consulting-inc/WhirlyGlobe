@@ -78,7 +78,7 @@ using namespace Eigen;
     {
         if (geom.texId >= 0 && geom.texId < texFileMap.size())
         {
-            geom.texId = texFileMap[geom.texId];
+            geom.texId = (int)texFileMap[geom.texId];
         }
         outRawGeom.push_back(geom);
     }
@@ -155,12 +155,12 @@ using namespace Eigen;
                 {
                     stringGeom[rect.subTex.texId] = GeometryRaw();
                     geom = &stringGeom[rect.subTex.texId];
-                    geom->texId = rect.subTex.texId;
+                    geom->texId = (int)rect.subTex.texId;
                 } else
                     geom = &stringGeom[rect.subTex.texId];
 
                 // Convert and transform the points
-                int basePt = geom->pts.size();
+                int basePt = (int)geom->pts.size();
                 geom->pts.reserve(geom->pts.size()+4);
                 Point2d pts[4];
                 pts[0] = Point2d(rect.pts[0].x(),rect.pts[0].y());

@@ -299,7 +299,6 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 	return bounds;
 }
 
-
 - (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
     if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
@@ -331,6 +330,10 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 	return bounds;
 }
+
+//- (void)boundingBoxForTile:(MaplyTileID)tileID ll:(MaplyCoordinate3dD * __nonnull)ll ur:(MaplyCoordinate3dD * __nonnull)ur
+//{
+//}
 
 - (void)geoBoundsForTileD:(MaplyTileID)tileID ll:(MaplyCoordinateD *)ll ur:(MaplyCoordinateD *)ur
 {
@@ -485,7 +488,6 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         return;
     }
     
-    CoordSystemDisplayAdapter *coordAdapter = viewState.coordAdapter;
     canShortCircuitImportance = true;
 
     // We happen to store tilt in the view matrix.
@@ -583,7 +585,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
-- (void)shutdown
+- (void)teardown
 {
     super.layerThread = nil;
     quadLayer = nil;
@@ -601,6 +603,11 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     return -1;
 }
 
+- (void)setSingleLevelLoading:(bool)singleLevelLoading
+{
+    _singleLevelLoading = singleLevelLoading;
+    _useTargetZoomLevel = singleLevelLoading;
+}
 
 - (void)setQuadLayer:(WhirlyKitQuadDisplayLayer *)layer
 {

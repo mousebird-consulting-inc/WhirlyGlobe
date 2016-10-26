@@ -119,7 +119,7 @@ using namespace WhirlyKit;
     if (layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
     
-    [delegate shutdown:self];
+    [delegate teardown:self];
 }
 
 @end

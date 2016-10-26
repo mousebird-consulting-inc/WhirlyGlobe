@@ -170,7 +170,6 @@
  @param  userStyleNode The DDXMLElement corresponding to the UserStyle element in the document tree.
  */
 - (SLDUserStyle *)loadUserStyleNode:(DDXMLElement *)userStyleNode {
-    NSError *error;
     NSLog(@"loadUserStyleNode");
     SLDUserStyle *sldUserStyle = [[SLDUserStyle alloc] init];
     // The prefix is "se" in v1.1.0 but "sld" in v1.0.0.
@@ -198,7 +197,6 @@
  @param  featureTypeStyleNode The DDXMLElement corresponding to the FeatureTypeStyle element in the document tree.
  */
 - (SLDFeatureTypeStyle *)loadFeatureTypeStyleNode:(DDXMLElement *)featureTypeStyleNode {
-    NSError *error;
     NSLog(@"loadFeatureTypeStyleNode");
     SLDFeatureTypeStyle *featureTypeStyle = [[SLDFeatureTypeStyle alloc] init];
 
@@ -220,7 +218,6 @@
  @param  ruleNode The DDXMLElement corresponding to the Rule element in the document tree.
  */
 - (SLDRule *)loadRuleNode:(DDXMLElement *)ruleNode {
-    NSError *error;
     NSLog(@"loadRuleNode");
     SLDRule *rule = [[SLDRule alloc] init];
     
@@ -269,12 +266,10 @@
  @param ruleNode The DDXMLElement corresponding to the Rule element in the document tree.
  */
 - (void)loadSymbolizersForRule:(SLDRule *)rule andRuleNode:(DDXMLElement *)ruleNode {
-    NSError *error;
     rule.symbolizers = [NSMutableArray array];
     
     for (DDXMLNode *child in [ruleNode children]) {
-        NSString *name = [child name];
-        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator];
+        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:(DDXMLElement* _Nonnull)child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator];
         
         if (symbolizers) {
             for (MaplyVectorTileStyle * symbolizer in symbolizers) {

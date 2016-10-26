@@ -59,6 +59,11 @@
  */
 @property (nonatomic) int minZoom;
 
+/** @brief Returns the bounding box of the MBTiles file.
+    @details This returns the bounding box of the MBTiles file in degrees.  Keep in mind that bounding boxes aren't required to be accurage.  This just reports what was in the file.
+  */
+- (MaplyBoundingBox)getBounds;
+
 /** @brief The coordinate system for the MBTiles file.
     @details The coordinate system for an MBTiles file
      is always web mercator with the web extents.  This is
