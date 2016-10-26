@@ -27,7 +27,7 @@
 
 - (void) overlayVectors: (MaplyBaseViewController*) baseVC
 {
-    NSDictionary *vectorDict = @{
+    NSDictionary *vectorDict = @{kMaplyShader: kMaplyShaderDefaultLine,
                                  kMaplyColor: [UIColor redColor],
                                  kMaplySelectable: @(true),
                                  kMaplyFilled: @(YES),
