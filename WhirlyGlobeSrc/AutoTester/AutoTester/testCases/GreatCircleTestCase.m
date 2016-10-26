@@ -7,7 +7,7 @@
 //
 
 #import "GreatCircleTestCase.h"
-#import "AutoTester-swift.h"
+#import "AutoTester-Swift.h"
 
 @implementation GreatCircleTestCase
 
@@ -16,7 +16,7 @@
     if (self = [super init]) {
         self.name = @"Great Circles";
         self.captureDelay = 20;
-        self.implementations = MaplyTestCaseOptionGlobe;
+        self.implementations = MaplyTestCaseOptionGlobe | MaplyTestCaseOptionMap;
 
     }
     
@@ -59,13 +59,13 @@
         MaplyCoordinate y = MaplyCoordinateMake(-3.07975984, -0.764628767);
         MaplyCoordinate z[] = { x, y };
         v2 = [[MaplyVectorObject alloc] initWithLineString:z numCoords:2 attributes:nil];
-        [v2 subdivideToGlobeGreatCircle:0.0001];
+        [v2 subdivideToFlatGreatCircle:0.0001];
     }
 
     
 //    return [viewC addWideVectors:@[ v0, v1, v2 ] desc:vecDesc];
-//    return [viewC addWideVectors:@[ v2 ] desc:vecDesc];
-    return [viewC addVectors:@[ v0, v1, v2 ] desc:vecDesc];
+    return [viewC addWideVectors:@[ v2 ] desc:vecDesc];
+//    return [viewC addVectors:@[ v0, v1, v2 ] desc:vecDesc];
 }
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
@@ -76,6 +76,16 @@
     [self addLongRoute:globeVC];
     
     [globeVC setPosition:MaplyCoordinateMakeWithDegrees(2.548,49.010) height:1.0];
+}
+
+- (void)setUpWithMap:(MaplyViewController *)mapVC
+{
+    StamenWatercolorRemote *baseView = [[StamenWatercolorRemote alloc] init];
+    [baseView setUpWithMap:mapVC];
+    
+    [self addLongRoute:mapVC];
+    
+    [mapVC setPosition:MaplyCoordinateMakeWithDegrees(2.548,49.010) height:1.0];
 }
 
 @end
