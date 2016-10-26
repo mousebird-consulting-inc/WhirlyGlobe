@@ -132,7 +132,6 @@
     
     NSLog(@"SLDLineSymbolizer flag 1");
     
-    NSError *error;
     DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke"];
     
     if (!strokeNode)
@@ -193,7 +192,6 @@
     
     NSLog(@"SLDPolygonSymbolizer flag 1");
     
-    NSError *error;
     DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Fill"];
     DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke"];
    
@@ -261,7 +259,6 @@
  */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromPointSymbolizerNode:(DDXMLElement *)pointSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
     
-    NSError *error;
     NSMutableDictionary *pointParams = [NSMutableDictionary dictionary];
 
     DDXMLElement *graphicNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:pointSymbolizerNode childName:@"Graphic"];
@@ -375,7 +372,6 @@
  */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromTextSymbolizerNode:(DDXMLElement *)textSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
     
-    NSError *error;
     NSMutableDictionary *labelParams = [NSMutableDictionary dictionary];
     
     // Label text
@@ -389,10 +385,6 @@
             }
         }
     }
-    
-    // Ignore specified font for now.
-    DDXMLElement *fontNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:textSymbolizerNode childName:@"Font"];
-    
 
     // Label placement
     DDXMLElement *labelPlacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:textSymbolizerNode childName:@"LabelPlacement"];
