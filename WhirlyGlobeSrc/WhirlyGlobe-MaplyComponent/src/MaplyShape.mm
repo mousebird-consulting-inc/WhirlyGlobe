@@ -44,7 +44,7 @@ using namespace WhirlyKit;
     newCircle.loc.lat() = _center.y;
     newCircle.radius = _radius;
     newCircle.height = _height;
-    newCircle.sampleX = [desc[kMaplySampleX] integerValue];
+    newCircle.sampleX = (int)[desc[kMaplySampleX] integerValue];
     if (self.color)
     {
         newCircle.useColor = true;
@@ -90,7 +90,7 @@ using namespace WhirlyKit;
     newCyl.baseHeight = _baseHeight;
     newCyl.radius = _radius;
     newCyl.height = _height;
-    newCyl.sampleX = [desc[kMaplySampleX] integerValue];
+    newCyl.sampleX = (int)[desc[kMaplySampleX] integerValue];
     if (self.color)
     {
         newCyl.useColor = true;
@@ -186,7 +186,7 @@ using namespace WhirlyKit;
 		doubleCoords[i] = [inCoords[i] doubleValue];
 	}
 
-	self = [self initWithOutline:doubleCoords numCoordPairs:[inCoords count]];
+	self = [self initWithOutline:doubleCoords numCoordPairs:(int)[inCoords count]];
 
 	free(doubleCoords);
 

@@ -248,9 +248,11 @@ using namespace WhirlyKit;
             if (tileData)
             {
 				MaplyElevationChunk *elevChunk = [self decodeElevationData:tileData];
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
                 if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyElevReturn:forTile:)])
                 {
+
                     elevChunk = [_delegate remoteTileElevationSource:self modifyElevReturn:elevChunk forTile:tileID];
                 }
 
@@ -455,5 +457,6 @@ using namespace WhirlyKit;
     
     return self;
 }
+#pragma clang diagnostic pop
 
 @end
