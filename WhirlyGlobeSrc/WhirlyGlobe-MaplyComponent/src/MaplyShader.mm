@@ -242,7 +242,7 @@ using namespace WhirlyKit;
 }
 
 // We're assuming the view controller has set the proper context
-- (void)shutdown
+- (void)teardown
 {
     if (_program)
     {
