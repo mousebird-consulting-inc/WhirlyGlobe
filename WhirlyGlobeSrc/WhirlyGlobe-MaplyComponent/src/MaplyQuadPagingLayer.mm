@@ -601,6 +601,11 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     return -1;
 }
 
+- (void)setSingleLevelLoading:(bool)singleLevelLoading
+{
+    _singleLevelLoading = singleLevelLoading;
+    _useTargetZoomLevel = singleLevelLoading;
+}
 
 - (void)setQuadLayer:(WhirlyKitQuadDisplayLayer *)layer
 {
