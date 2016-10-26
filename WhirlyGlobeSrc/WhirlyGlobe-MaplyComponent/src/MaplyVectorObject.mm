@@ -1345,10 +1345,9 @@ public:
     }
 }
 
-- (void)subdivideToGlobeGreatCircle:(float)epsilon
+- (void)subdivideToInternal:(float)epsilon adapter:(WhirlyKit::CoordSystemDisplayAdapter *)adapter
 {
-    FakeGeocentricDisplayAdapter adapter;
-    CoordSystem *coordSys = adapter.getCoordSystem();
+    CoordSystem *coordSys = adapter->getCoordSystem();
     
     for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
     {
@@ -1356,21 +1355,21 @@ public:
         if (lin)
         {
             VectorRing3d outPts;
-            SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, &adapter, epsilon);
+            SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, adapter, epsilon);
             VectorRing outPts2D;
             outPts2D.resize(outPts.size());
             for (unsigned int ii=0;ii<outPts.size();ii++)
-                outPts2D[ii] = coordSys->localToGeographic(adapter.displayToLocal(outPts[ii]));
+                outPts2D[ii] = coordSys->localToGeographic(adapter->displayToLocal(outPts[ii]));
             lin->pts = outPts2D;
         } else {
             VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
             if (lin3d)
             {
                 VectorRing3d outPts;
-                SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, &adapter, epsilon);
+                SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, adapter, epsilon);
                 for (unsigned int ii=0;ii<outPts.size();ii++)
                 {
-                    Point3d locPt = adapter.displayToLocal(outPts[ii]);
+                    Point3d locPt = adapter->displayToLocal(outPts[ii]);
                     GeoCoord outPt = coordSys->localToGeographic(locPt);
                     outPts[ii] = Point3d(outPt.x(),outPt.y(),0.0);
                 }
@@ -1382,17 +1381,32 @@ public:
                     for (unsigned int ii=0;ii<ar->loops.size();ii++)
                     {
                         VectorRing3d outPts;
-                        SubdivideEdgesToSurfaceGC(ar->loops[ii], outPts, true, &adapter, epsilon);
+                        SubdivideEdgesToSurfaceGC(ar->loops[ii], outPts, true, adapter, epsilon);
                         VectorRing outPts2D;
                         outPts2D.resize(outPts.size());
                         for (unsigned int ii=0;ii<outPts.size();ii++)
-                            outPts2D[ii] = coordSys->localToGeographic(adapter.displayToLocal(outPts[ii]));
+                            outPts2D[ii] = coordSys->localToGeographic(adapter->displayToLocal(outPts[ii]));
                         ar->loops[ii] = outPts2D;
                     }
                 }
             }
         }
-    }    
+    }
+}
+
+- (void)subdivideToFlatGreatCircle:(float)epsilon
+{
+    // Note: Should let the user pass this in
+    SphericalMercatorDisplayAdapter adapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
+    
+    [self subdivideToInternal:epsilon adapter:&adapter];
+}
+
+- (void)subdivideToGlobeGreatCircle:(float)epsilon
+{
+    FakeGeocentricDisplayAdapter adapter;
+    
+    [self subdivideToInternal:epsilon adapter:&adapter];
 }
 
 - (MaplyVectorObject *) tesselate
