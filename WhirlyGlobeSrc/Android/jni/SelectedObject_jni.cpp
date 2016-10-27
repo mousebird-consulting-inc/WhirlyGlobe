@@ -86,8 +86,10 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectedObject_getSelectID
         SelectedObjectClassInfo *classInfo = SelectedObjectClassInfo::getClassInfo();
         SelectionManager::SelectedObject *selectedObj = classInfo->getObject(env,obj);
         if (!selectedObj)
-            return 0;
+            return EmptyIdentity;
         
+        if (selectedObj->selectIDs.empty())
+            return EmptyIdentity;
         return selectedObj->selectIDs[0];
     }
     catch (...)
