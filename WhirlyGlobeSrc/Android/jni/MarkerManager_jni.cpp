@@ -131,15 +131,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_removeMarkers
 		if (!markerManager || !changeSet)
 			return;
 
-		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
-		int idCount = env->GetArrayLength(idArrayObj);
-		if (idCount == 0)
-			return;
-
-		SimpleIDSet idSet;
-		for (int ii=0;ii<idCount;ii++)
-			idSet.insert(ids[ii]);
-		env->ReleaseLongArrayElements(idArrayObj,ids, 0);
+        SimpleIDSet idSet;
+        ConvertLongArrayToSet(env,idArrayObj,idSet);
 
 		markerManager->removeMarkers(idSet,*changeSet);
 	}
@@ -160,14 +153,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_enableMarkers
 		if (!markerManager || !changeSet)
 			return;
 
-		int idCount = env->GetArrayLength(idArrayObj);
-		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
-		if (idCount == 0)
-			return;
-
-		SimpleIDSet idSet;
-		for (int ii=0;ii<idCount;ii++)
-			idSet.insert(ids[ii]);
+        SimpleIDSet idSet;
+        ConvertLongArrayToSet(env,idArrayObj,idSet);
 
 //		if (enable)
 //			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Enabling marker: %d",(int)ids[0]);

@@ -21,51 +21,35 @@
 #import "GeometryManager.h"
 #import "SelectionManager.h"
 #import "BaseInfo.h"
-#import "NSDictionary+Stuff.h"
-#import "UIColor+Stuff.h"
 #import "BasicDrawableInstance.h"
+#import "SharedAttributes.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
-typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} GeometryBoundingBox;
-
-// Used to pass geometry around internally
-@interface WhirlyKitGeomInfo : WhirlyKitBaseInfo
-@property (nonatomic) UIColor *color;
-@property (nonatomic,assign) int boundingBox;
-@property (nonatomic) float pointSize;
-@property (nonatomic) bool zBufferRead;
-@property (nonatomic) bool zBufferWrite;
-- (id)initWithDesc:(NSDictionary *)desc;
-@end
-
-@implementation WhirlyKitGeomInfo
-
-- (id)initWithDesc:(NSDictionary *)desc
-{
-    self = [super initWithDesc:desc];
-    if (!self)
-        return nil;
-    
-    [self parseDict:desc];
-    
-    return self;
-}
-
-- (void)parseDict:(NSDictionary *)dict
-{
-    _color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    _boundingBox = [dict enumForKey:@"boundingbox" values:@[@"single",@"triangle",@"none"] default:GeometryBBoxSingle];
-    _pointSize = [dict floatForKey:@"pointSize" default:4.0];
-    _zBufferRead = [dict floatForKey:@"zbufferread" default:true];
-    _zBufferWrite = [dict floatForKey:@"zbufferwrite" default:true];
-}
-
-@end
-
 namespace WhirlyKit
 {
+
+GeometryInfo::GeometryInfo()
+: color(255,255,255,255), boundingBox(GeometryBBoxSingle), pointSize(4.0), zBufferRead(true), zBufferWrite(true)
+{
+}
+
+GeometryInfo::GeometryInfo(const Dictionary &dict)
+: BaseInfo(dict), color(255,255,255,255), boundingBox(GeometryBBoxSingle), pointSize(4.0), zBufferRead(true), zBufferWrite(true)
+{
+    color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
+    std::string boundsStr = dict.getString(MaplyGeomBoundingBox, MaplyGeomBoundingBoxSingle);
+    if (!boundsStr.compare(MaplyGeomBoundingBoxSingle))
+        boundingBox = GeometryBBoxSingle;
+    else if (!boundsStr.compare(MaplyGeomBoundingBoxTriangle))
+        boundingBox = GeometryBBoxTriangle;
+    else if (!boundsStr.compare(MaplyGeomBoundingBoxNone))
+        boundingBox = GeometryBBoxNone;
+    pointSize = dict.getFloat(MaplyGeomPointSize,4.0);
+    zBufferRead = dict.getBool(MaplyZBufferRead,true);
+    zBufferWrite = dict.getBool(MaplyZBufferWrite,true);
+}
 
 void GeomSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &changes)
 {
@@ -564,7 +548,7 @@ GeometryManager::~GeometryManager()
     sceneReps.clear();
 }
     
-SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes)
+SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<GeometryInstance *> &instances,NSDictionary *desc,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     GeomSceneRep *sceneRep = new GeomSceneRep();
@@ -659,9 +643,9 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw> &geom,const
     
     return geomID;
 }
-    
+        
 /// Add geometry we're planning to reuse (as a model, for example)
-SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &geom,ChangeSet &changes)
+SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom,ChangeSet &changes)
 {
     GeomSceneRep *sceneRep = new GeomSceneRep();
     
@@ -669,7 +653,7 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &geom,C
     std::vector<std::vector<GeometryRaw *>> sortedGeom;
     for (unsigned int ii=0;ii<geom.size();ii++)
     {
-        GeometryRaw *raw = &geom[ii];
+        GeometryRaw *raw = geom[ii];
         
         raw->calcBounds(sceneRep->ll, sceneRep->ur);
         
@@ -727,9 +711,18 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &geom,C
     
     return geomID;
 }
+    
+SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &inGeom,ChangeSet &changes)
+{
+    std::vector<GeometryRaw *> geoms(inGeom.size());
+    for (GeometryRaw *rawGeom : inGeom)
+        geoms.push_back(rawGeom);
+    
+    return addBaseGeometry(geoms, changes);
+}
 
 /// Add instances that reuse base geometry
-SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes)
+SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,WhirlyKitGeomInfo &geomInfo,ChangeSet &changes)
 {
     pthread_mutex_lock(&geomLock);
     NSTimeInterval startTime = CFAbsoluteTimeGetCurrent();
@@ -749,7 +742,6 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     GeomSceneRep *sceneRep = new GeomSceneRep();
-    WhirlyKitGeomInfo *geomInfo = [[WhirlyKitGeomInfo alloc] initWithDesc:desc];
     
     // Check for moving models
     bool hasMotion = false;
@@ -822,12 +814,10 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     return geomID;
 }
     
-SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,NSDictionary *desc,ChangeSet &changes)
+SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,WhirlyKitGeomInfo &geomInfo,ChangeSet &changes)
 {
     GeomSceneRep *sceneRep = new GeomSceneRep();
-    
-    WhirlyKitGeomInfo *geomInfo = [[WhirlyKitGeomInfo alloc] initWithDesc:desc];
-    
+        
     // Calculate the bounding box for the whole thing
     Point3d ll,ur;
 

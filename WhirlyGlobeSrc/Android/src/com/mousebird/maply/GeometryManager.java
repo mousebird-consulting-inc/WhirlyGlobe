@@ -15,13 +15,13 @@ public class GeometryManager
     public void finalize() { dispose(); }
 
     // Add a group of geometry and instances
-    public native long addGeometry(GeometryRaw[] geom,GeometryInstance[] inst,GeometryInfo info,ChangeSet changes);
+//    public native long addGeometry(GeometryRaw[] geom,GeometryInstance[] inst,GeometryInfo info,ChangeSet changes);
 
     // Add a group of geometry as a model for instancing later
-    public native long addBaseGeometry(GeometryRaw[] geom,ChangeSet changes);
+//    public native long addBaseGeometry(GeometryRaw[] geom,ChangeSet changes);
 
     // Add one or more instances of previously defined geometry
-    public native long addGeometryInstances(long baseGeomID,GeometryInstance[] inst,GeometryInfo info,ChangeSet changes);
+//    public native long addGeometryInstances(long baseGeomID,GeometryInstance[] inst,GeometryInfo info,ChangeSet changes);
 
     // Add a group of geometry points.  Points are special
     public native long addGeometryPoints(GeometryRawPoints points,Matrix4d mat,GeometryInfo info,ChangeSet changes);

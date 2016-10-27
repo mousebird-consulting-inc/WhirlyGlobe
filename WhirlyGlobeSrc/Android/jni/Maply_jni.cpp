@@ -92,6 +92,20 @@ void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 	env->ReleaseIntArrayElements(intArray,ints, 0);
 }
 
+void ConvertLongArrayToSet(JNIEnv *env,jlongArray &idArrayObj,std::vector<SimpleIdentity> &idSet)
+{
+    int idCount = env->GetArrayLength(idArrayObj);
+    long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
+    if (idCount == 0)
+        return;
+    
+    SimpleIDSet idSet;
+    for (int ii=0;ii<idCount;ii++)
+        idSet.insert(ids[ii]);
+
+    env->ReleaseLongArrayElements(idArrayObj,ids, 0);
+}
+
 JavaString::JavaString(JNIEnv *env,jstring &str)
 : str(str), env(env)
 {

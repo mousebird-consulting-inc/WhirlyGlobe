@@ -20,14 +20,30 @@
 
 #import <math.h>
 #import "WhirlyVector.h"
-#import "TextureGroup.h"
 #import "Scene.h"
 #import "SelectionManager.h"
-
-@class WhirlyKitGeomInfo;
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
+    
+    typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} GeometryBoundingBox;
+    
+// Used to pass geometry around internally
+class GeometryInfo : public BaseInfo
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
+    GeometryInfo();
+    GeometryInfo(const Dictionary &dict);
+
+    RGBAColor color;
+    int boundingBox;
+    float pointSize;
+    bool zBufferRead;
+    bool zBufferWrite;
+};
     
 /** The geometry scene representation keeps track of drawables and other
  resources we've created to represent generic geometry passed in by the
@@ -97,7 +113,7 @@ public:
     void calcBounds(Point3d &ll,Point3d &ur);
     
     // Build geometry into a drawable, using the given transform
-    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,WhirlyKitGeomInfo *geomInfo);
+    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,GeometryInfo *geomInfo);
 
 public:
     /// What sort of geometry this is
@@ -256,7 +272,7 @@ public:
     int findAttribute(const std::string &name) const;
     
 public:
-    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,WhirlyKitGeomInfo *geomInfo) const;
+    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,GeometryInfo *geomInfo) const;
     
     std::vector<WhirlyKit::GeomPointAttrData *> attrData;
 };
@@ -273,16 +289,16 @@ public:
     virtual ~GeometryManager();
     
     /// Add raw geometry at the given location
-    SimpleIdentity addGeometry(std::vector<GeometryRaw> &geom,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes);
+    SimpleIdentity addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<GeometryInstance *> &instances,WhirlyKitGeomInfo &geomInfo,ChangeSet &changes);
     
     /// Add geometry we're planning to reuse (as a model, for example)
-    SimpleIdentity addBaseGeometry(std::vector<GeometryRaw> &geom,ChangeSet &changes);
+    SimpleIdentity addBaseGeometry(std::vector<GeometryRaw *> &geom,ChangeSet &changes);
     
     /// Add instances that reuse base geometry
-    SimpleIdentity addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes);
+    SimpleIdentity addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance *> &instances,WhirlyKitGeomInfo &geomInfo,ChangeSet &changes);
     
     /// Add raw geometry points.
-    SimpleIdentity addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,NSDictionary *desc,ChangeSet &changes);
+    SimpleIdentity addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,WhirlyKitGeomInfo &geomInfo,ChangeSet &changes);
 
     /// Enable/disable active billboards
     void enableGeometry(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);

@@ -473,5 +473,6 @@ extern JNIEnv *maplyCurrentEnv;
 
 // Convert a Java int array into a std::vector of ints
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec);
+void ConvertLongArrayToSet(JNIEnv *env,jlongArray &longArray,std::vector<SimpleIdentity> &intVec);
 
 #endif /* Maply_JNI_h_ */

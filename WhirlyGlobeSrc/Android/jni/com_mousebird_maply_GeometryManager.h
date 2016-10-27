@@ -9,30 +9,6 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_GeometryManager
- * Method:    addGeometry
- * Signature: ([Lcom/mousebird/maply/GeometryRaw;[Lcom/mousebird/maply/GeometryInstance;Lcom/mousebird/maply/GeometryInfo;Lcom/mousebird/maply/ChangeSet;)J
- */
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
-  (JNIEnv *, jobject, jobjectArray, jobjectArray, jobject, jobject);
-
-/*
- * Class:     com_mousebird_maply_GeometryManager
- * Method:    addBaseGeometry
- * Signature: ([Lcom/mousebird/maply/GeometryRaw;Lcom/mousebird/maply/ChangeSet;)J
- */
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addBaseGeometry
-  (JNIEnv *, jobject, jobjectArray, jobject);
-
-/*
- * Class:     com_mousebird_maply_GeometryManager
- * Method:    addGeometryInstances
- * Signature: (J[Lcom/mousebird/maply/GeometryInstance;Lcom/mousebird/maply/GeometryInfo;Lcom/mousebird/maply/ChangeSet;)J
- */
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInstances
-  (JNIEnv *, jobject, jlong, jobjectArray, jobject, jobject);
-
-/*
- * Class:     com_mousebird_maply_GeometryManager
  * Method:    addGeometryPoints
  * Signature: (Lcom/mousebird/maply/GeometryRawPoints;Lcom/mousebird/maply/Matrix4d;Lcom/mousebird/maply/GeometryInfo;Lcom/mousebird/maply/ChangeSet;)J
  */

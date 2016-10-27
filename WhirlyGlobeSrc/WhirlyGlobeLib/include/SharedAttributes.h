@@ -215,6 +215,17 @@
 #define MaplyVecHeight WKString("height")
 #define MaplyVecMinSample WKString("minSample")
 
+/// These are used by the geometry objects
+#define MaplyGeomBoundingBox WKString("boundingbox")
+#define MaplyGeomPointSize WKString("pointSize");
+
+/// Single bounding box for the whole model
+#define MaplyGeomBoundingBoxSingle WKString("single");
+/// Interesection testing at triangle level
+#define MaplyGeomBoundingBoxTriangle WKString("triangle");
+/// No bounding box for geometry
+#define MaplyGeomBoundingBoxNone WKString("none");
+
 /// These are the various shader programs we set up by default
 #define MaplyShaderDefaultTri WKString("Default Triangle;lighting=yes")
 #define MaplyShaderDefaultTriNoLighting WKString("Default Triangle;lighting=no")
