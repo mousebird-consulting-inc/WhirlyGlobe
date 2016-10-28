@@ -93,8 +93,8 @@
  */
 - (id _Nullable)initWithViewC:(MaplyBaseViewController * _Nonnull)viewC useLayerNames:(BOOL)useLayerNames;
 
-- (void)loadSldFile:(NSString *__nonnull)filePath;
-- (void)loadSldData:(NSData *__nonnull)sldData;
+- (void)loadSldURL:(NSURL *__nullable)url;
+- (void)loadSldData:(NSData *__nonnull)sldData baseURL:(NSURL *)baseURL;
 
 @end
 

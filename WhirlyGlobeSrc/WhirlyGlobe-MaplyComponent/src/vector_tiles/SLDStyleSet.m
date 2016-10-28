@@ -41,6 +41,7 @@
 @implementation SLDStyleSet {
     NSMutableDictionary *_namedLayers;
     NSInteger symbolizerId;
+    NSURL *_baseURL;
     
 }
 
@@ -67,27 +68,22 @@
 }
 
 
-- (void)loadSldFile:(NSString *__nonnull)filePath {
-    // Let's find it
-    NSString *fullPath = nil;
-    if ([[NSFileManager defaultManager] fileExistsAtPath:filePath])
-        fullPath = filePath;
-    if (!fullPath)
-    {
-        NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-        fullPath = [NSString stringWithFormat:@"%@/%@",docDir,filePath];
-        if (![[NSFileManager defaultManager] fileExistsAtPath:fullPath])
-            fullPath = nil;
+- (void)loadSldURL:(NSURL *__nullable)url {
+    if (!url)
+        url = [[NSBundle mainBundle] URLForResource:@"default" withExtension:@"sld"];
+    NSURL *baseURL = [url URLByDeletingLastPathComponent];
+    if ([url isFileURL]) {
+        [self loadSldData:[NSData dataWithContentsOfURL:url] baseURL:baseURL];
+    } else {
+        // network URL
+        NSLog(@"Network SLD URLs not yet implemented.");
     }
-    if (!fullPath)
-        fullPath = [[NSBundle mainBundle] pathForResource:filePath ofType:@"sld"];
-    
-    return [self loadSldData:[[NSData alloc] initWithContentsOfFile:fullPath]];
 }
 
-
-
-- (void)loadSldData:(NSData *__nonnull)sldData {
+- (void)loadSldData:(NSData *__nonnull)sldData baseURL:(NSURL *)baseURL {
+    
+    _baseURL = baseURL;
+ 
     NSError *error;
     DDXMLDocument *doc = [[DDXMLDocument alloc] initWithData:sldData options:0 error:&error];
     if (error) {
@@ -112,6 +108,7 @@
                 _namedLayers[sldNamedLayer.name] = sldNamedLayer;
         }
     }
+
 }
 
 /** @brief Gets a single node for the provided element name.
@@ -271,7 +268,7 @@
     
     for (DDXMLNode *child in [ruleNode children]) {
         NSString *name = [child localName];
-        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator];
+        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator baseURL:_baseURL];
         
         if (symbolizers) {
             for (MaplyVectorTileStyle * symbolizer in symbolizers) {
@@ -317,14 +314,6 @@
                                               onTile:(MaplyTileID)tileID
                                              inLayer:(NSString *__nonnull)layer
                                                viewC:(MaplyBaseViewController *__nonnull)viewC {
-    
-    static NSMutableSet *set;
-    if (!set)
-        set = [NSMutableSet set];
-    if (![set containsObject:layer]) {
-        [set addObject:layer];
-        NSLog(@"Layer: %@", layer);
-    }
     
     
     if (self.useLayerNames) {
