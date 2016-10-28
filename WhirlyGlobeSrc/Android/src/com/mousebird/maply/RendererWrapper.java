@@ -57,13 +57,26 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config)
-	{		
-		maplyRender = new MaplyRenderer();
-  		maplyRender.setScene(scene);
-		maplyRender.setView(view);
-		maplyRender.setConfig(config);
-		renderThread = Thread.currentThread();
-		maplyControl.surfaceCreated(this);
+	{
+		try {
+			renderLock.acquire();
+		}
+		catch (Exception e)
+		{
+			return;
+		}
+
+		// If the app shuts down the rendering right as the thread starts up, this can happen
+		if (valid) {
+			maplyRender = new MaplyRenderer();
+			maplyRender.setScene(scene);
+			maplyRender.setView(view);
+			maplyRender.setConfig(config);
+			renderThread = Thread.currentThread();
+			maplyControl.surfaceCreated(this);
+		}
+
+		renderLock.release();
 	}
 
 	public void shutdown()
