@@ -18,6 +18,7 @@
  *
  */
 
+#import "WhirlyKitLog.h"
 #import "MaplyScene.h"
 
 using namespace WhirlyKit;
