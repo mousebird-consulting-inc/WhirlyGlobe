@@ -113,8 +113,9 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 					new Runnable() {
 						@Override
 						public void run() {
-							if (maplyControl != null && Build.VERSION.SDK_INT > 16 && Build.VERSION.SDK_INT < 24)
-								maplyControl.getContentView().setBackground(null);
+							if (maplyControl != null && Build.VERSION.SDK_INT > 16)
+								if (!maplyControl.usesTextureView() || Build.VERSION.SDK_INT < 24)
+									maplyControl.getContentView().setBackground(null);
 						}
 					}
 			);

@@ -198,6 +198,14 @@ public class MaplyBaseController
 	// Set if we're using a TextureView rather than a SurfaceView
 	boolean useTextureView = false;
 
+	/**
+	 * Returns true if we set up a TextureView rather than a SurfaceView.
+     */
+	public boolean usesTextureView()
+	{
+		return useTextureView;
+	}
+
 	boolean libraryLoaded = false;
 	int numWorkingThreads = 8;
 	int width = 0;
