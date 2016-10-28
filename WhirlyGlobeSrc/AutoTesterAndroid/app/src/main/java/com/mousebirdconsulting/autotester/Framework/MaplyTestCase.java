@@ -155,6 +155,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	int numRuns = 0;
 	// If set we'll run startup/shutdown tests
 	boolean multiTest = false;
+	long runDelay = 2000;
 
 	// Run start/shutdown in a loop
 	public void start()
@@ -175,9 +176,9 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 
 							start();
 						}
-					}, 1000);
+					}, runDelay);
 				}
-			}, 1000);
+			}, runDelay);
 		} else {
 			startControl();
 		}
