@@ -200,6 +200,9 @@ void OpenGLMemManager::unlock()
     pthread_mutex_unlock(&idLock);
 }
 
+ChangeRequest::~ChangeRequest()
+{
+}
 		
 Drawable::Drawable(const std::string &name)
     : name(name)
