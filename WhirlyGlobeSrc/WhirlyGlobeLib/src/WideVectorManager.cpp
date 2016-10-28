@@ -165,7 +165,7 @@ public:
         {
             InterPoint &vert = verts[vi];
             drawable->addPoint(Vector3dToVector3f(vert.org));
-//            drawable->addNormal(up);
+            drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_n0(Vector3dToVector3f(vert.n));
             drawable->add_c0(vert.c);
@@ -185,7 +185,7 @@ public:
         {
             InterPoint &vert = verts[vi];
             drawable->addPoint(Vector3dToVector3f(vert.org));
-//            drawable->addNormal(up);
+            drawable->addNormal(up);
             drawable->add_p1(Vector3dToVector3f(vert.dest));
             drawable->add_n0(Vector3dToVector3f(vert.n));
             drawable->add_c0(vert.c);
@@ -505,7 +505,7 @@ public:
     }
     
     // Build or return a suitable drawable (depending on the mode)
-    BasicDrawable *getDrawable(int ptCount,int triCount)
+    BasicDrawable *getDrawable(int ptCount,int triCount,int ptCountAllocate,int triCountAllocate)
     {
         int ptGuess = std::min(std::max(ptCount,0),(int)MaxDrawablePoints);
         int triGuess = std::min(std::max(triCount,0),(int)MaxDrawableTriangles);
@@ -517,7 +517,9 @@ public:
             flush();
             
 //            NSLog(@"Pts = %d, tris = %d",ptGuess,triGuess);
-            WideVectorDrawable *wideDrawable = new WideVectorDrawable("Widen Vector",ptGuess,triGuess);
+            int ptAlloc = std::min(std::max(ptCountAllocate,0),(int)MaxDrawablePoints);
+            int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
+            WideVectorDrawable *wideDrawable = new WideVectorDrawable("Widen Vector",ptAlloc,triAlloc,!scene->getCoordAdapter()->isFlat());
             drawable = wideDrawable;
             drawable->setProgram(vecInfo->programID);
             wideDrawable->setTexRepeat(vecInfo->repeatSize);
@@ -587,19 +589,23 @@ public:
             if (validLastPt && geoA == lastPt)
                 continue;
 
-            Point3d dispPa = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y())));
+            Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y()));
+            Point3d dispPa = coordAdapter->localToDisplay(localPa);
+            Point3d thisUp = up;
+            if (!coordAdapter->isFlat())
+                thisUp = coordAdapter->normalForLocal(localPa);
             
             // Get a drawable ready
             int triCount = 2+3;
             int ptCount = triCount*3;
-            BasicDrawable *thisDrawable = getDrawable(std::max(totalPtCount,ptCount),std::max(totalTriCount,triCount));
+            BasicDrawable *thisDrawable = getDrawable(ptCount,triCount,totalPtCount,totalTriCount);
             totalTriCount -= triCount;
             totalPtCount -= ptCount;
             drawMbr.addPoint(geoA);
             
             bool doSegment = !closed || (ii > 0);
             bool doJunction = !closed || (ii >= 0);
-            vecBuilder.addPoint(dispPa,up,thisDrawable,closed,doSegment,doJunction);
+            vecBuilder.addPoint(dispPa,thisUp,thisDrawable,closed,doSegment,doJunction);
             
 //            NSLog(@"Pt = (%f,%f), doSegment = %d, doJunction = %d",geoA.x(),geoA.y(),(int)doSegment,(int)doJunction);
             
@@ -632,7 +638,7 @@ public:
             // Get a drawable ready
             int ptCount = 5;
             int triCount = 4;
-            BasicDrawable *thisDrawable = getDrawable(ptCount,triCount);
+            BasicDrawable *thisDrawable = getDrawable(ptCount,triCount,ptCount,triCount);
             drawMbr.addPoint(geoA);
 
             vecBuilder.addPoint(dispPa,up,thisDrawable,false,true,true);
@@ -736,7 +742,6 @@ SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,const WideVectorIn
     WideVectorDrawableBuilder builder(scene,&vecInfo);
     
     // Calculate a center for this geometry
-    // Note: Porting
     GeoMbr geoMbr;
     for (ShapeSet::iterator it = shapes->begin(); it != shapes->end(); ++it)
     {

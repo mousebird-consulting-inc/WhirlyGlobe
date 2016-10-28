@@ -594,6 +594,11 @@ void BasicDrawable::setMatrix(const Eigen::Matrix4d *inMat)
 const Eigen::Matrix4d *BasicDrawable::getMatrix() const
 { if (hasMatrix) return &mat;  return NULL; }
 
+void BasicDrawable::setUniforms(const SingleVertexAttributeSet &newUniforms)
+{
+    uniforms = newUniforms;
+}
+
 // Size of a single vertex in an interleaved buffer
 // Note: We're resetting the buffers for no good reason
 GLuint BasicDrawable::singleVertexSize()
@@ -1153,6 +1158,10 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
     prog->setUniform("u_mvpNormalMatrix", frameInfo->mvpNormalMat);
     prog->setUniform("u_pMatrix", frameInfo->projMat);
     
+    // Any uniforms we may want to apply to the shader
+    for (auto const &attr : uniforms)
+        prog->setUniform(attr);
+
     // Fill the a_singleMatrix attribute with default values
     const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
     if (matAttr)

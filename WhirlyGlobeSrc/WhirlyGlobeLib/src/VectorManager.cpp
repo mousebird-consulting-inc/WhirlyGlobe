@@ -100,6 +100,16 @@ public:
         center = newCenter;
         geoCenter = inGeoCenter;
     }
+    
+    void addPoints(VectorRing3d &inPts,bool closed,Dictionary *attrs)
+    {
+        VectorRing pts;
+        pts.reserve(pts.size());
+        for (const auto &pt : inPts)
+            pts.push_back(Point2f(pt.x(),pt.y()));
+        
+        addPoints(pts,closed,attrs);
+    }
 
     void addPoints(VectorRing &pts,bool closed,Dictionary *attrs)
     {
@@ -250,6 +260,27 @@ public:
     // This version converts a ring into a mesh (chopping, tesselating, etc...)
     void addPoints(VectorRing &ring,Dictionary *attrs)
     {
+        // Grid subdivision is done here
+        std::vector<VectorRing> inRings;
+        if (vecInfo->subdivEps > 0.0 && vecInfo->gridSubdiv)
+            ClipLoopToGrid(ring, Point2f(0.0,0.0), Point2f(vecInfo->subdivEps,vecInfo->subdivEps), inRings);
+        else
+            inRings.push_back(ring);
+        VectorTrianglesRef mesh(VectorTriangles::createTriangles());
+        for (unsigned int ii=0;ii<inRings.size();ii++)
+            TesselateRing(inRings[ii],mesh);
+        
+        addPoints(mesh, attrs);
+    }
+
+    // This version converts a ring into a mesh (chopping, tesselating, etc...)
+    void addPoints(VectorRing3d &inRing,Dictionary *attrs)
+    {
+        VectorRing ring;
+        ring.reserve(inRing.size());
+        for (const auto &pt : inRing)
+            ring.push_back(Point2f(pt.x(),pt.y()));
+        
         // Grid subdivision is done here
         std::vector<VectorRing> inRings;
         if (vecInfo->subdivEps > 0.0 && vecInfo->gridSubdiv)
@@ -592,26 +623,44 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
                         drawBuild.addPoints(theLinear->pts,false,theLinear->getAttrDict());
                 }
             } else {
-                VectorTrianglesRef theMesh = std::dynamic_pointer_cast<VectorTriangles>(*it);
-                if (theMesh.get())
+                VectorLinear3dRef theLinear3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+                if (theLinear3d.get())
                 {
                     if (vecInfo.filled)
-                        drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
-                    else {
-                        for (unsigned int ti=0;ti<theMesh->tris.size();ti++)
+                    {
+                        // Triangulate the outside
+                        drawBuildTri.addPoints(theLinear3d->pts,theLinear3d->getAttrDict());
+                    } else {
+                        if (vecInfo.sample > 0.0)
                         {
-                            VectorRing ring;
-                            theMesh->getTriangle(ti, ring);
-                            drawBuild.addPoints(ring,true,theMesh->getAttrDict());
-                        }
+                            VectorRing3d newPts;
+                            SubdivideEdges(theLinear3d->pts, newPts, false, vecInfo.sample);
+                            drawBuild.addPoints(newPts,false,theLinear3d->getAttrDict());
+                        } else
+                            drawBuild.addPoints(theLinear3d->pts,false,theLinear3d->getAttrDict());
                     }
                 } else {
-                    // Note: Points are.. pointless
-                    //                    VectorPointsRef thePoints = std::dynamic_pointer_cast<VectorPoints>(*it);
-                    //                    if (thePoints.get())
-                    //                    {
-                    //                        drawBuild.addPoints(thePoints->pts,false);
-                    //                    }
+                    VectorTrianglesRef theMesh = std::dynamic_pointer_cast<VectorTriangles>(*it);
+                    if (theMesh.get())
+                    {
+                        if (vecInfo.filled)
+                            drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
+                        else {
+                            for (unsigned int ti=0;ti<theMesh->tris.size();ti++)
+                            {
+                                VectorRing ring;
+                                theMesh->getTriangle(ti, ring);
+                                drawBuild.addPoints(ring,true,theMesh->getAttrDict());
+                            }
+                        }
+                    } else {
+                        // Note: Points are.. pointless
+                        //                    VectorPointsRef thePoints = std::dynamic_pointer_cast<VectorPoints>(*it);
+                        //                    if (thePoints.get())
+                        //                    {
+                        //                        drawBuild.addPoints(thePoints->pts,false);
+                        //                    }
+                    }
                 }
             }
         }

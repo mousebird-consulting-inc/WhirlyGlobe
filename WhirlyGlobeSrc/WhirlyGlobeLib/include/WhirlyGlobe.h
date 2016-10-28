@@ -57,6 +57,7 @@
 #import "MarkerManager.h"
 //#import "LoftLayer.h"
 #import "SelectionManager.h"
+#import "IntersectionManager.h"
 #import "TextureAtlas.h"
 //#import "LayerThread.h"
 //#import "BigDrawable.h"

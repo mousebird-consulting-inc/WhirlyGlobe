@@ -24,6 +24,7 @@
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "Dictionary.h"
+#import "Drawable.h"
 
 namespace WhirlyKit
 {
@@ -61,6 +62,8 @@ public:
     TimeInterval fadeOutTime;
     TimeInterval startEnable,endEnable;
     SimpleIdentity programID;
+    
+    SingleVertexAttributeSet uniforms;
 };
 
 }

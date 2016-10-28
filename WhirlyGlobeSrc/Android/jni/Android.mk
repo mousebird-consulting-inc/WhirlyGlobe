@@ -105,7 +105,7 @@ MAPLY_CORE_SRC_FILES := BaseInfo.cpp BasicDrawable.cpp BasicDrawableInstance.cpp
 					CoordSystem.cpp Cullable.cpp DefaultShaderPrograms.cpp Dictionary.cpp Drawable.cpp DynamicDrawableAtlas.cpp \
                     DynamicTextureAtlas.cpp FlatMath.cpp FontTextureManager.cpp \
 					GLUtils.cpp Generator.cpp GlobeMath.cpp GlobeScene.cpp GlobeView.cpp GlobeViewState.cpp GridClipper.cpp \
-					Identifiable.cpp LabelManager.cpp LabelRenderer.cpp LayoutManager.cpp LoadedTile.cpp Lighting.cpp \
+					Identifiable.cpp IntersectionManager.cpp LabelManager.cpp LabelRenderer.cpp LayoutManager.cpp LoadedTile.cpp Lighting.cpp \
 					MapboxVectorTileParser.cpp MaplyFlatView.cpp MaplyScene.cpp MaplyView.cpp MaplyViewState.cpp MarkerManager.cpp Moon.cpp \
 					OpenGLES2Program.cpp OverlapHelper.cpp \
 					ParticleSystemManager.cpp ParticleSystemDrawable.cpp PerformanceTimer.cpp Proj4CoordSystem.cpp \

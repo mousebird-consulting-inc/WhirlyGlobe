@@ -198,6 +198,14 @@ public class MaplyBaseController
 	// Set if we're using a TextureView rather than a SurfaceView
 	boolean useTextureView = false;
 
+	/**
+	 * Returns true if we set up a TextureView rather than a SurfaceView.
+     */
+	public boolean usesTextureView()
+	{
+		return useTextureView;
+	}
+
 	boolean libraryLoaded = false;
 	int numWorkingThreads = 8;
 	int width = 0;
@@ -317,7 +325,7 @@ public class MaplyBaseController
 				tempBackground = new ColorDrawable();
 				// This eliminates the black flash, but only if the clearColor is set right
 				tempBackground.setColor(clearColor);
-				if (Build.VERSION.SDK_INT > 16)
+				if (Build.VERSION.SDK_INT > 16 && Build.VERSION.SDK_INT < 24)
 					glTextureView.setBackground(tempBackground);
 				glTextureView.setEGLContextClientVersion(2);
 				glTextureView.setRenderer(renderWrapper);

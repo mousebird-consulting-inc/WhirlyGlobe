@@ -782,7 +782,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,View *
     
     if (selObjs.empty())
         return EmptyIdentity;
-    return selObjs[0].selectID;
+    return selObjs[0].selectIDs[0];
 }
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance

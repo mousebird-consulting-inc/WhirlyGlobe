@@ -170,11 +170,22 @@ void GeoMbr::addGeoCoord(GeoCoord coord)
 	pt_ur.x() = std::max(pt_ur.x(),coord.x());
 	pt_ur.y() = std::max(pt_ur.y(),coord.y());
 }
+
+void GeoMbr::addGeoCoord(const Point3d &coord)
+{
+    addGeoCoord(GeoCoord(coord.x(),coord.y()));
+}
 	
-void GeoMbr::addGeoCoords(const std::vector<GeoCoord> &coords)
+void GeoMbr::addGeoCoords(const GeoCoordVector &coords)
 {
 	for (unsigned int ii=0;ii<coords.size();ii++)
 		addGeoCoord(coords[ii]);
+}
+
+void GeoMbr::addGeoCoords(const Point3dVector &coords)
+{
+    for (const Point3d &coord: coords)
+        addGeoCoord(coord);
 }
 
 void GeoMbr::addGeoCoords(const Point2fVector &coords)

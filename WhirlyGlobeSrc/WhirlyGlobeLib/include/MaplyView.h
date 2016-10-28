@@ -117,6 +117,9 @@ public:
     /// Turn a wrapped coordinate (e.g. may be outside -M_PI,M_PI) back into a real world coordinate
     WhirlyKit::Point2f unwrapCoordinate(const WhirlyKit::Point2f &pt);
     
+    /// Eye position in model coordinates
+    Eigen::Vector3d eyePos();
+    
 protected:
     /// Viewer location
     WhirlyKit::Point3d loc;

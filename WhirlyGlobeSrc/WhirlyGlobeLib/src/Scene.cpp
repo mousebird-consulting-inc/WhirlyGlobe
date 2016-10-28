@@ -27,6 +27,7 @@
 //#import "ViewPlacementGenerator.h"
 #import "FontTextureManager.h"
 #import "SelectionManager.h"
+#import "IntersectionManager.h"
 #import "LayoutManager.h"
 #import "ShapeManager.h"
 #import "MarkerManager.h"
@@ -37,6 +38,8 @@
 //#import "LoftManager.h"
 #import "ParticleSystemManager.h"
 #import "BillboardManager.h"
+#import "WideVectorManager.h"
+//#import "GeometryManager.h"
 
 namespace WhirlyKit
 {
@@ -49,14 +52,16 @@ Scene::Scene()
 void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
 {
     pthread_mutex_init(&coordAdapterLock,NULL);
-    coordAdapter = adapter;
-    cullTree = new CullTree(adapter,localMbr,depth);
-
     pthread_mutex_init(&changeRequestLock,NULL);
     pthread_mutex_init(&subTexLock, NULL);
     pthread_mutex_init(&textureLock,NULL);
     pthread_mutex_init(&generatorLock,NULL);
     pthread_mutex_init(&programLock,NULL);
+    pthread_mutex_init(&managerLock,NULL);
+
+    coordAdapter = adapter;
+    cullTree = new CullTree(adapter,localMbr,depth);
+
     
     // Note: Porting.  This won't work.  Need to instantiate a platform version
 //    fontTextureManager = new FontTextureManager(this);
@@ -67,9 +72,10 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 //
 //    dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
 
-    pthread_mutex_init(&managerLock,NULL);
     // Selection manager is used for object selection from any thread
     addManager(kWKSelectionManager,new SelectionManager(this,DeviceScreenScale()));
+    // Intersection handling
+    addManager(kWKIntersectionManager, new IntersectionManager(this));
     // Layout manager handles text and icon layout
     addManager(kWKLayoutManager, new LayoutManager());
     // Shape manager handles circles, spheres and such
@@ -128,27 +134,26 @@ Scene::~Scene()
     // Note: Porting
 //    fontTexManager = nil;
     
+    pthread_mutex_lock(&changeRequestLock);
+    auto theChangeRequests = changeRequests;
+    changeRequests.clear();
+    pthread_mutex_unlock(&changeRequestLock);
+
+    for (unsigned int ii=0;ii<theChangeRequests.size();ii++)
+        delete theChangeRequests[ii];
+    
     pthread_mutex_destroy(&managerLock);
     pthread_mutex_destroy(&changeRequestLock);
     pthread_mutex_destroy(&subTexLock);
     pthread_mutex_destroy(&textureLock);
     pthread_mutex_destroy(&generatorLock);
     pthread_mutex_destroy(&programLock);
-    
-    auto theChangeRuquests = changeRequests;
-    changeRequests.clear();
-    for (unsigned int ii=0;ii<theChangeRuquests.size();ii++)
-    {
-        // Note: Tear down change requests?
-        delete theChangeRuquests[ii];
-    }
-    
+
     // Note: Porting
 //    activeModels = nil;
     
     subTextureMap.clear();
 
-    // Note: Should be clearing program out of context somewhere
     for (OpenGLES2ProgramSet::iterator it = glPrograms.begin();
          it != glPrograms.end(); ++it)
         delete *it;
@@ -623,6 +628,13 @@ void Scene::removeProgram(SimpleIdentity progId)
     pthread_mutex_unlock(&programLock);
 }
     
+AddTextureReq::~AddTextureReq()
+{
+    if (tex)
+        delete tex;
+    tex = NULL;
+}
+    
 void AddTextureReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
     if (!tex->getGLId())
@@ -691,6 +703,7 @@ void RemDrawableReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,W
     DrawableRefSet::iterator it = scene->drawables.find(DrawableRef(dumbDraw));
     if (it != scene->drawables.end())
     {
+        renderer->removeContinuousRenderRequest((*it)->getId());
         // Teardown OpenGL foo
         (*it)->teardownGL(scene->getMemManager());
 

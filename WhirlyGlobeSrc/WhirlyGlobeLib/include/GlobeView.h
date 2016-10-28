@@ -82,6 +82,9 @@ public:
     
     /// Set the tilt
     void setTilt(double tilt);
+    
+    /// Set the far clipping plane
+    void setFarClippingPlane(double farClip);
 
     /// Calculate the z offset to make the earth appear where we want it
     double calcEarthZOffset();
@@ -107,6 +110,12 @@ public:
      */
     bool pointOnSphereFromScreen(const WhirlyKit::Point2f &pt,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d *hit,bool normalized);
 
+    /** Given a location on the screen and the screen size, figure out where we touched the sphere
+     Returns true if we hit and where
+     Returns false if not and the closest point on the sphere
+     */
+    bool pointOnSphereFromScreen(const WhirlyKit::Point2f &pt,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d *hit,bool normalized,double radius);
+
     /** From a world location (3D), figure out the projection to the screen
         Returns a point within the frame
       */
@@ -116,6 +125,9 @@ public:
         and return it.  Doesn't actually do anything yet.
      */
     Eigen::Quaterniond makeRotationToGeoCoord(const WhirlyKit::GeoCoord &worldLoc,bool northUp);
+
+    // Construct a rotation to given location and heading
+    Eigen::Quaterniond makeRotationToGeoCoord(const WhirlyKit::Point2d &worldCoord,bool northUp);
 
     // Construct a rotation to given location and heading
     Eigen::Quaterniond makeRotationToGeoCoord(const WhirlyKit::GeoCoord &worldCoord,double heading);

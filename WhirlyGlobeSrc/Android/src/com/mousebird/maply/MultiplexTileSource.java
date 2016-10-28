@@ -242,7 +242,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 					boolean removeTile = false;
 
                     // Let the layer and delegate know what happened with it
-                    if (tileSuccess) {
+                    if (tileSuccess && (singleFetch || tile != null)) {
 						MaplyImageTile imageTile = null;
 						if (singleFetch) {
 							imageTile = new MaplyImageTile(bm);

@@ -289,6 +289,11 @@ bool DynamicDrawableAtlas::hasUpdates()
     return false;
 }
     
+void DynamicDrawableAtlas::clearUpdateFlag()
+{
+    hasChanges = false;
+}
+
 void DynamicDrawableAtlas::swap(ChangeSet &changes,BigDrawableSwap::SwapCallback *swapCB, SimpleIdentity swapData)
 {
     BigDrawableSwap *swapRequest = new BigDrawableSwap(swapCB,swapData);

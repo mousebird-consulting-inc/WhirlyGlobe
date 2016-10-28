@@ -150,7 +150,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
 	{
 	  inst->setTexture(name.cStr,tex->getGLId());
 	} else {
-          __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Missing texture or GL ID in Shader::addTextureNative(), texID = %d, numTextures = %d",(int)texID,scene->textures.size());
+          __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Missing texture or GL ID in Shader::addTextureNative(), texID = %d, numTextures = %d",(int)texID,(int)scene->textures.size());
 	  if (tex)
 	    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Missing GL ID in Shader::addTextureNative()");	    
 	}

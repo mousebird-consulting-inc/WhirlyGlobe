@@ -66,6 +66,9 @@ class LayoutManager
 
 	// Adds a cluster generator to be used during layout
 	public native void addClusterGenerator(ClusterGenerator generator, int clusterGroupID,boolean selectable,double sizeX,double sizeY);
+
+	// Get rid of cluster generators
+	public native void clearClusterGenerators();
 	
 	static
 	{

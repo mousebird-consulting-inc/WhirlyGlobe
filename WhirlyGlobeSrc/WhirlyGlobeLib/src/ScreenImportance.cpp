@@ -226,13 +226,13 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
         topCorners.push_back(Point3d(dispPt1.x(),dispPt1.y(),dispPt1.z()));
     }
     
-    // Now let's go ahead and form the polygons for the planes
-    // First the ones around the outside
     // If we've got a flat coord adapter and no height, one poly will do
     if (coordAdapter->isFlat() && minZ == maxZ)
     {
         polys.push_back(topCorners);
     } else {
+        // Now let's go ahead and form the polygons for the planes
+        // First the ones around the outside
       polys.reserve(planeMbrPts.size()+2);
       for (unsigned int ii=0;ii<planeMbrPts.size();ii++)
       {
@@ -390,11 +390,35 @@ double DisplaySolid::importanceForViewState(ViewState *viewState,const Point2f &
         totalImport += import;
     }
     
-    return totalImport/2.0;
+    // The flat map case is optimized to only evaluate one poly, since there's no curvature
+    double scaleFactor = (polys.size() > 1 ? 0.5 : 1.0);
+    
+    return totalImport*scaleFactor;
 }
 
 bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &frameSize)
 {
+    if (!viewState->coordAdapter->isFlat())
+    {
+        // If the viewer is inside the bounds, the node is maximimally important (duh)
+        if (isInside(viewState->eyePos))
+            return MAXFLOAT;
+        
+        // Make sure that we're pointed toward the eye, even a bit
+        if (!surfNormals.empty())
+        {
+            bool isFacing = false;
+            for (unsigned int ii=0;ii<surfNormals.size();ii++)
+            {
+                const Vector3d &surfNorm = surfNormals[ii];
+                if ((isFacing |= (surfNorm.dot(viewState->eyePos) >= 0.0)))
+                    break;
+            }
+            if (!isFacing)
+                return false;
+        }
+    }
+    
     for (unsigned int offi=0;offi<viewState->viewMatrices.size();offi++)
     {
         for (unsigned int ii=0;ii<polys.size();ii++)

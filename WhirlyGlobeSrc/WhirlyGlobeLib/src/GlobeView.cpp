@@ -73,6 +73,11 @@ GlobeView::GlobeView(const GlobeView &that)
 GlobeView::~GlobeView()
 {
 }
+    
+void GlobeView::setFarClippingPlane(double newFarPlane)
+{
+    farPlane = newFarPlane;
+}
 
 void GlobeView::setRotQuat(Eigen::Quaterniond newRotQuat)
 {
@@ -82,6 +87,14 @@ void GlobeView::setRotQuat(Eigen::Quaterniond newRotQuat)
 // Set the new rotation, but also keep track of when we did it
 void GlobeView::setRotQuat(Eigen::Quaterniond newRotQuat,bool updateWatchers)
 {
+    double w, x, y, z;
+    w = newRotQuat.coeffs().w();
+    x = newRotQuat.coeffs().x();
+    y = newRotQuat.coeffs().y();
+    z = newRotQuat.coeffs().z();
+    if (isnan(w) || isnan(x) || isnan(y) || isnan(z))
+        return;
+    
     lastChangedTime = TimeGetCurrent();
     rotQuat = newRotQuat;
     if (updateWatchers)
@@ -90,6 +103,9 @@ void GlobeView::setRotQuat(Eigen::Quaterniond newRotQuat,bool updateWatchers)
 
 void GlobeView::setTilt(double newTilt)
 {
+    if (isnan(newTilt))
+        return;
+
     tilt = newTilt;
 }
 	
@@ -136,7 +152,10 @@ void GlobeView::setHeightAboveGlobe(double newH,bool updateWatchers)
 
 void GlobeView::setHeightAboveGlobeNoLimits(double newH,bool updateWatchers)
 {
-	heightAboveGlobe = newH;
+    if (isnan(newH))
+        return;
+
+    heightAboveGlobe = newH;
     
     // If we get down below the inflection point we'll start messing
     //  with the field of view.  Not ideal, but simple.
@@ -164,7 +183,10 @@ void GlobeView::setHeightAboveGlobeNoLimits(double newH,bool updateWatchers)
 // Also keep track of when we did it
 void GlobeView::privateSetHeightAboveGlobe(double newH,bool updateWatchers)
 {
-	double minH = minHeightAboveGlobe();
+    if (isnan(newH))
+        return;
+
+    double minH = minHeightAboveGlobe();
 	heightAboveGlobe = std::max(newH,minH);
     
 	double maxH = maxHeightAboveGlobe();
@@ -225,6 +247,47 @@ Vector3d GlobeView::prospectiveUp(Eigen::Quaterniond &prospectiveRot)
     Eigen::Matrix4d modelMat = rot.inverse().matrix();
     Vector4d newUp = modelMat *Vector4d(0,0,1,0);
     return Vector3d(newUp.x(),newUp.y(),newUp.z());
+}
+    
+bool GlobeView::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d *transform,const Point2f &frameSize,Point3d *hit,bool normalized,double radius)
+{
+    // Back project the point from screen space into model space
+    Point3d screenPt = pointUnproject(Point2f(pt.x(),pt.y()),frameSize.x(),frameSize.y(),true);
+    
+    // Run the screen point and the eye point (origin) back through
+    //  the model matrix to get a direction and origin in model space
+    Eigen::Matrix4d modelTrans = *transform;
+    Matrix4d invModelMat = modelTrans.inverse();
+    Point3d eyePt(0,0,0);
+    Vector4d modelEye = invModelMat * Vector4d(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
+    Vector4d modelScreenPt = invModelMat * Vector4d(screenPt.x(),screenPt.y(),screenPt.z(),1.0);
+    
+    // Now intersect that with a unit sphere to see where we hit
+    Vector4d dir4 = modelScreenPt - modelEye;
+    Vector3d dir(dir4.x(),dir4.y(),dir4.z());
+    double t;
+    if (IntersectSphereRadius(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, radius, *hit, &t) && t > 0.0)
+        return true;
+    
+    // We need the closest pass, if that didn't work out
+    if (normalized)
+    {
+        Vector3d orgDir(-modelEye.x(),-modelEye.y(),-modelEye.z());
+        orgDir.normalize();
+        dir.normalize();
+        Vector3d tmpDir = orgDir.cross(dir);
+        Vector3d resVec = dir.cross(tmpDir);
+        *hit = -resVec.normalized();
+    } else {
+        double len2 = dir.squaredNorm();
+        double top = dir.dot(Vector3d(modelScreenPt.x(),modelScreenPt.y(),modelScreenPt.z()));
+        double t = 0.0;
+        if (len2 > 0.0)
+            t = top/len2;
+            *hit = Vector3d(modelEye.x(),modelEye.y(),modelEye.z()) + dir*t;
+            }
+    
+    return false;    
 }
 	
 bool GlobeView::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d *transform,const Point2f &frameSize,Point3d *hit,bool normalized)
@@ -342,9 +405,9 @@ float GlobeView::calcZbufferRes()
 
 // Construct a rotation to the given location
 //  and return it.  Doesn't actually do anything yet.
-Eigen::Quaterniond GlobeView::makeRotationToGeoCoord(const WhirlyKit::GeoCoord &worldCoord,bool northUp)
+Eigen::Quaterniond GlobeView::makeRotationToGeoCoord(const WhirlyKit::Point2d &worldCoord,bool northUp)
 {
-    Point3d worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(worldCoord));
+    Point3d worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(worldCoord));
     
     // Let's rotate to where they tapped over a 1sec period
     Vector3d curUp = currentUp();
@@ -375,6 +438,12 @@ Eigen::Quaterniond GlobeView::makeRotationToGeoCoord(const WhirlyKit::GeoCoord &
     }
     
     return newRotQuat;
+}
+    
+Eigen::Quaterniond GlobeView::makeRotationToGeoCoord(const WhirlyKit::GeoCoord &worldCoord,bool northUp)
+{
+    Point2d coord(worldCoord.x(),worldCoord.y());
+    return makeRotationToGeoCoord(coord, northUp);
 }
 
 Eigen::Vector3d GlobeView::eyePos()

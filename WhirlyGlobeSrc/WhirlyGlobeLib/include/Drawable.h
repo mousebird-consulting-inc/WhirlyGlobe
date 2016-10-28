@@ -110,7 +110,7 @@ class ChangeRequest
 {
 public:
 	ChangeRequest() { }
-	virtual ~ChangeRequest() { }
+    virtual ~ChangeRequest();
 		
     /// Return true if this change requires a GL Flush in the thread it was executed in
     virtual bool needsFlush() { return false; }

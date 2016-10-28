@@ -142,6 +142,11 @@ double View::heightAboveSurface()
     return 0.0;
 }
 
+Eigen::Vector3d View::eyePos()
+{
+    return Eigen::Vector3d(0,0,0);
+}
+
 Point3d View::pointUnproject(Point2f screenPt,unsigned int frameWidth,unsigned int frameHeight,bool clip)
 {
 	Point2d ll,ur;

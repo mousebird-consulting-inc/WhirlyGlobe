@@ -107,6 +107,10 @@ public:
     /// Build drawables and add them to the change list
     void flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs);
     
+    /// Calculate the rotation vector for a rotation
+    static Point3d CalcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3d &worldLoc,float rot);
+    
+
 protected:
     // Wrapper used to track
     class DrawableWrap
@@ -121,8 +125,7 @@ protected:
         // Comparison operator for set
         bool operator < (const DrawableWrap &that) const;
         
-        void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs);
-        void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3f &worldLoc,const Point3f &dir,float rot,const Point2f &vert,const TexCoord &texCoord,const RGBAColor &color,const SingleVertexAttributeSet *vertAttrs);
+        void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3d &worldLoc,const Point3f *dir,float rot,const Point2d &inVert,const TexCoord *texCoord,const RGBAColor *color,const SingleVertexAttributeSet *vertAttrs);
         void addTri(int v0,int v1,int v2);
         
         Point3d center;
@@ -130,7 +133,6 @@ protected:
         ScreenSpaceDrawable *draw;
         
     protected:
-        Point3f calcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3f &worldLoc,float rot);        
     };
 
     // Comparitor for drawable wrapper set
@@ -164,6 +166,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     friend class LayoutManager;
+    friend class SelectionManager;
     friend class ScreenSpaceBuilder;
     
     ScreenSpaceObject();
@@ -182,6 +185,8 @@ public:
         SimpleIdentity progID;
         /// Color for the geometry
         RGBAColor color;
+        /// Draw priority
+        int drawPriority;
         /// Vertex attributes applied to this piece of geometry
         SingleVertexAttributeSet vertexAttrs;
         
@@ -245,6 +250,10 @@ public:
     Point3d dispLoc;
     // Offset on the screen (presumably if it's been moved around during layout)
     Point2d offset;
+    // Set if we're sup
+    bool keepUpright;
+    // Rotation if there is one
+    double rotation;
     // Size of the object in screen space
     Point2dVector pts;
     // Bounding box, for quick testing

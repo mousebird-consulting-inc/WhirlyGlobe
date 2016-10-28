@@ -41,6 +41,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_addClusterGenerato
 
 /*
  * Class:     com_mousebird_maply_LayoutManager
+ * Method:    clearClusterGenerators
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_clearClusterGenerators
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LayoutManager
  * Method:    nativeInit
  * Signature: ()V
  */

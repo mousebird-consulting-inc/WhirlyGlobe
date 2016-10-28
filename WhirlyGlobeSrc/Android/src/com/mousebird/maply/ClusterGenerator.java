@@ -20,6 +20,8 @@
 package com.mousebird.maply;
 
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 /**

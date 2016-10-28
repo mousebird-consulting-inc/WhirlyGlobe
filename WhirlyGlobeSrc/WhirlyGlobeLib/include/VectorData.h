@@ -53,6 +53,7 @@ protected:
 
 class VectorAreal;
 class VectorLinear;
+class VectorLinear3d;
 class VectorPoints;
 class VectorTriangles;
 
@@ -62,6 +63,8 @@ typedef std::shared_ptr<VectorShape> VectorShapeRef;
 typedef std::shared_ptr<VectorAreal> VectorArealRef;
 /// Reference counted Linear
 typedef std::shared_ptr<VectorLinear> VectorLinearRef;
+/// Reference counted Linear3d
+typedef std::shared_ptr<VectorLinear3d> VectorLinear3dRef;
 /// Reference counted Points
 typedef std::shared_ptr<VectorPoints> VectorPointsRef;
 /// Reference counted triangle mesh
@@ -83,7 +86,7 @@ struct VectorShapeRefCmp
   
 /// We pass the shape set around when returing a group of shapes.
 /// It's a set of reference counted shapes.  You have to dynamic
-///  cast to get the specfic type.  Don't forget to use the boost dynamic cast
+///  cast to get the specfic type.  Don't forget to use the std dynamic cast
 typedef std::set<VectorShapeRef,VectorShapeRefCmp> ShapeSet;
     
 /// Calculate area of a loop
@@ -92,6 +95,10 @@ float CalcLoopArea(const VectorRing &);
 double CalcLoopArea(const Point2dVector &);
 /// Calculate the centroid of a loop
 Point2f CalcLoopCentroid(const VectorRing &loop);
+/// Calculate the centroid of a bunch of points
+Point2d CalcLoopCentroid(const std::vector<Point2d> &loop);
+/// Calculate the center of mass of the points
+Point2d CalcCenterOfMass(const std::vector<Point2d> &loop);
     
 /// Collection of triangles forming a mesh
 class VectorTriangles : public VectorShape
@@ -130,6 +137,9 @@ public:
 protected:
     VectorTriangles();
 };
+
+/// Look for a triangle/ray intersection in the mesh
+bool VectorTrianglesRayIntersect(const Point3d &org,const Point3d &dir,const VectorTriangles &mesh,double *outT,Point3d *iPt);
 
 /// Areal feature is a list of loops.  The first is an outer loop
 ///  and all the rest are inner loops
@@ -183,6 +193,27 @@ protected:
     VectorLinear();
 };
 
+/// Linear feature is just a list of points that form
+///  a set of edges.  This version has z as well.
+class VectorLinear3d : public VectorShape
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+    /// Creation function.  Use instead of new
+    static VectorLinear3dRef createLinear();
+    ~VectorLinear3d();
+    
+    virtual GeoMbr calcGeoMbr();
+    void initGeoMbr();
+        
+    GeoMbr geoMbr;
+    VectorRing3d pts;
+    
+protected:
+    VectorLinear3d();
+};
+
 /// The Points feature is a list of points that share attributes
 ///  and are otherwise unrelated.  In most cases you'll get one
 ///  point, but be prepared for multiple.
@@ -216,15 +247,17 @@ Point2d CalcCenterOfMass(const Point2dVector &loop);
 /// Break any edge longer than the given length.
 /// Returns true if it broke anything
 void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float maxLen);
+void SubdivideEdges(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,float maxLen);
 
 /// Break any edge that deviates by the given epsilon from the surface described in
 /// the display adapter;
 void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps);
+void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps);
 
 /// Break any edge that deviates by the given epsilon from the surface described in
 ///  the display adapter.  But rather than using lat lon values, we'll output in
 ///  display coordinates and build points along the great circle.
-void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3fVector &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float sphereOffset = 0.0,int minPts = 0);
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float sphereOffset = 0.0,int minPts = 0);
 
 /** Base class for loading a vector data file.
     Fill this into hand data over to whomever wants it.

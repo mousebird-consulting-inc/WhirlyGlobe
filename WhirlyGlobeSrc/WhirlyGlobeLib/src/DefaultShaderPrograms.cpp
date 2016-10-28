@@ -24,6 +24,7 @@
 #import "ParticleSystemDrawable.h"
 #import "WideVectorDrawable.h"
 #import "GlobeScene.h"
+#import "Drawable.h"
 
 namespace WhirlyKit
 {
@@ -108,6 +109,24 @@ static const char *fragmentShaderTri =
 "}                                                   \n"
 ;
 
+static const char *fragmentShaderRampTri =
+"precision mediump float;\n"
+"\n"
+"uniform sampler2D s_baseMap0;\n"
+"uniform sampler2D s_colorRamp;\n"
+"uniform bool  u_hasTexture;\n"
+"\n"
+"varying vec2      v_texCoord;\n"
+"varying vec4      v_color;\n"
+"\n"
+"void main()\n"
+"{\n"
+"  float index = texture2D(s_baseMap0, v_texCoord).a;\n"
+"  vec4 baseColor = texture2D(s_colorRamp,vec2(0.5,index));\n"
+"  gl_FragColor = v_color * baseColor;\n"
+"}\n"
+;
+
 static const char *vertexShaderModelTri =
 "struct directional_light {"
 "  vec3 direction;"
@@ -135,6 +154,8 @@ static const char *vertexShaderModelTri =
 "attribute vec3 a_position;"
 "attribute vec2 a_texCoord0;"
 "attribute vec4 a_color;"
+"attribute vec4 a_instanceColor;"
+"attribute float a_useInstanceColor;"
 "attribute vec3 a_normal;"
 "attribute mat4 a_singleMatrix;"
 "attribute vec3 a_modelCenter;"
@@ -147,6 +168,7 @@ static const char *vertexShaderModelTri =
 "{"
 "   v_texCoord = a_texCoord0;"
 "   v_color = vec4(0.0,0.0,0.0,0.0);"
+"   vec4 inColor = a_useInstanceColor > 0.0 ? a_instanceColor : a_color;"
 "   if (u_numLights > 0)"
 "   {"
 "     vec4 ambient = vec4(0.0,0.0,0.0,0.0);"
@@ -164,9 +186,9 @@ static const char *vertexShaderModelTri =
 "        ambient += light[ii].ambient;"
 "        diffuse += ndotl * light[ii].diffuse;"
 "     }"
-"     v_color = vec4(ambient.xyz * material.ambient.xyz * a_color.xyz + diffuse.xyz * a_color.xyz,a_color.a) * u_fade;"
+"     v_color = vec4(ambient.xyz * material.ambient.xyz * inColor.xyz + diffuse.xyz * inColor.xyz,inColor.a) * u_fade;"
 "   } else {"
-"     v_color = a_color * u_fade;"
+"     v_color = inColor * u_fade;"
 "   }"
 "   vec3 center = a_modelDir * u_time + a_modelCenter;"
 "   vec3 vertPos = (a_singleMatrix *vec4(a_position,1.0)).xyz + center;"
@@ -257,6 +279,27 @@ static const char *fragmentShaderTriMultiTex =
 "  vec4 baseColor1 = texture2D(s_baseMap1, v_texCoord1);"
 "  gl_FragColor = v_color * mix(baseColor0,baseColor1,u_interp);"
 "}"
+;
+
+static const char *fragmentShaderTriMultiTexRamp =
+"precision mediump float;\n"
+"\n"
+"uniform sampler2D s_baseMap0;\n"
+"uniform sampler2D s_baseMap1;\n"
+"uniform sampler2D s_colorRamp;\n"
+"uniform float u_interp;\n"
+"\n"
+"varying vec2      v_texCoord0;\n"
+"varying vec2      v_texCoord1;\n"
+"varying vec4      v_color;\n"
+"\n"
+"void main()\n"
+"{\n"
+"  float baseVal0 = texture2D(s_baseMap0, v_texCoord0).a;\n"
+"  float baseVal1 = texture2D(s_baseMap1, v_texCoord1).a;\n"
+"  float index = mix(baseVal0,baseVal1,u_interp);\n"
+"  gl_FragColor = v_color * texture2D(s_colorRamp,vec2(0.5,index));\n"
+"}\n"
 ;
 
 static const char *vertexShaderScreenTexTri =
@@ -576,6 +619,18 @@ void SetupDefaultShaders(Scene *scene)
     } else {
         scene->addProgram(kToolkitDefaultTriangleMultiTex, triShaderMultiTex);
     }
+    
+    // Triangle shader with ramp texture
+    OpenGLES2Program *triShaderMultiTexRamp = new OpenGLES2Program("Triangle ramp shader with multitex and lighting",vertexShaderTriMultiTex,fragmentShaderTriMultiTexRamp);
+    if (!triShaderMultiTexRamp->isValid())
+    {
+        fprintf(stderr,"SetupDefaultShaders: Triangle ramp shader with multi texture support didn't compile.\n");
+        delete triShaderMultiTexRamp;
+    } else {
+        scene->addProgram(kToolkitDefaultTriangleMultiTexRamp, triShaderMultiTexRamp);
+    }
+
+    
     // Triangle shader that does night/day shading with multiple textures
     OpenGLES2Program *triShaderNightDay = new OpenGLES2Program("Triangle shader with multitex, lighting, and night/day support",vertexShaderTriNightDay,fragmentShaderTriNightDay);
     if (!triShaderNightDay->isValid())
@@ -614,6 +669,15 @@ void SetupDefaultShaders(Scene *scene)
     } else {
         scene->addProgram(kToolkitDefaultWideVectorProgram, wideVecShader);
     }
+    
+    // Widened vector shader (globe version)
+    OpenGLES2Program *wideVecGlobeShader = BuildWideVectorGlobeProgram();
+    if (!wideVecGlobeShader)
+    {
+        fprintf(stderr,"SetupDefaultShaders: Wide Vector Globe shader didn't compile.");
+    } else {
+        scene->addProgram(kToolkitDefaultWideVectorGlobeProgram, wideVecGlobeShader);
+    }    
     
     if (dynamic_cast<WhirlyGlobe::GlobeScene *>(scene))
     {

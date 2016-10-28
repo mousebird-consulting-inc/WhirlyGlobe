@@ -60,6 +60,45 @@ BaseInfo::BaseInfo(const Dictionary &dict)
     endEnable = dict.getDouble("enableend",0.0);
     SimpleIdentity shaderID = dict.getInt("shader",EmptyIdentity);
     programID = dict.getInt("program",shaderID);
+
+    // Note: Porting
+    // Uniforms to be passed to shader
+#if 0
+    // Note: Should add the rest of the types
+    NSDictionary *uniformDict = desc[@"shaderuniforms"];
+    if (uniformDict)
+    {
+        for (NSString *key in uniformDict.allKeys)
+        {
+            id val = uniformDict[key];
+            if ([val isKindOfClass:[NSNumber class]])
+            {
+                SingleVertexAttribute valAttr;
+                valAttr.name = [key cStringUsingEncoding:NSASCIIStringEncoding];
+                
+                NSNumber *num = val;
+                valAttr.type = BDFloatType;
+                valAttr.data.floatVal = [val floatValue];
+                
+                _uniforms.insert(valAttr);
+            } else if ([val isKindOfClass:[UIColor class]])
+            {
+                SingleVertexAttribute valAttr;
+                valAttr.name = [key cStringUsingEncoding:NSASCIIStringEncoding];
+                
+                UIColor *col = val;
+                valAttr.type = BDChar4Type;
+                RGBAColor color = [col asRGBAColor];
+                valAttr.data.color[0] = color.r;
+                valAttr.data.color[1] = color.g;
+                valAttr.data.color[2] = color.b;
+                valAttr.data.color[3] = color.a;
+                
+                _uniforms.insert(valAttr);
+            }
+        }        
+    }
+#endif
 }
 
 void BaseInfo::setupBasicDrawable(BasicDrawable *drawable) const
@@ -70,6 +109,7 @@ void BaseInfo::setupBasicDrawable(BasicDrawable *drawable) const
     drawable->setVisibleRange(minVis,maxVis);
     drawable->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
     drawable->setProgram(programID);
+    drawable->setUniforms(uniforms);
 }
 
 //void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstance *drawable)
@@ -79,6 +119,7 @@ void BaseInfo::setupBasicDrawable(BasicDrawable *drawable) const
 //    drawInst->setDrawPriority(_drawPriority);
 //    drawInst->setVisibleRange(_minVis,_maxVis);
 //    drawInst->setViewerVisibility(_minViewerDist,_maxViewerDist,_viewerCenter);
+//        drawInst->setUniforms(_uniforms);
 //}
     
 }

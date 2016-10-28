@@ -134,14 +134,14 @@ public:
     void buildSkirt(BasicDrawable *draw,Point3dVector &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev,const Point3d &theCenter);
     
         // Generate drawables for a no-elevation tile
-    void generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw);
+    void generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,BasicDrawable **poleDraw);
 
     // Build a given tile
     // Note: Porting
 //    bool buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
 //                   Point2f texScale,Point2f texOffset,std::vector<WhirlyKitLoadedImage *> *loadImages,WhirlyKitElevationChunk *elevData);
-    bool buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,std::vector<Texture *> *texs,
-                   Point2f texScale,Point2f texOffset,std::vector<LoadedImage *> *loadImages,const Point3d &theCenter,Quadtree::NodeInfo *parentNodeInfo);
+    bool buildTile(Quadtree::NodeInfo *nodeInfo,BasicDrawable **draw,BasicDrawable **skirtDraw,BasicDrawable **poleDraw,std::vector<Texture *> *texs,
+                   Point2f texScale,Point2f texOffset,int samplingX,int samplingY,std::vector<LoadedImage *> *loadImages,const Point3d &theCenter,Quadtree::NodeInfo *parentNodeInfo);
     
     // Build the texture for a tile
     Texture *buildTexture(LoadedImage *loadImage);
@@ -190,6 +190,11 @@ public:
     // Set if we want pole geometry
     bool coverPoles;
     
+    // Color overrides for poles, if present
+    bool useNorthPoleColor,useSouthPoleColor;
+    RGBAColor northPoleColor,southPoleColor;
+    
+
     // Set if we'll use tile centers when generating drawables
     bool useTileCenters;
     
@@ -217,7 +222,7 @@ public:
     int texelBinSize;
         
     // Drawable atlas to match the texture atlas
-    DynamicDrawableAtlas *drawAtlas;
+    DynamicDrawableAtlas *drawAtlas,*poleDrawAtlas;
     
     // Number of border texels we need in an image
     int borderTexel;
@@ -300,6 +305,8 @@ public:
     WhirlyKit::SimpleIdentity drawId;
     // Optional ID for the skirts
     WhirlyKit::SimpleIdentity skirtDrawId;
+    // Optional ID for the poles
+    WhirlyKit::SimpleIdentity poleDrawId;
     // Texture IDs for the parent tile
     std::vector<WhirlyKit::SimpleIdentity> texIds;
     /// If set, these are subsets of a larger dynamic texture
@@ -313,10 +320,13 @@ public:
     double tileSize;
     /// Where the textures live in the dynamic texture(s)
     DynamicTextureAtlas::TextureRegion texRegion;
+    /// Sampling for surface in X,Y if we're not doing elevation tiles
+    int samplingX,samplingY;
     
     // IDs for the various fake child geometry
     WhirlyKit::SimpleIdentity childDrawIds[4];
     WhirlyKit::SimpleIdentity childSkirtDrawIds[4];
+    WhirlyKit::SimpleIdentity childPoleDrawIds[4];
 };
 
 /// This is a comparison operator for sorting loaded tile pointers by
