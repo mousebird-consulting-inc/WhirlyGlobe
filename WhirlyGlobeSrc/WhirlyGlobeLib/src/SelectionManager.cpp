@@ -854,7 +854,8 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                         SelectedObject selObj(shapeID,0.0,0.0);
                         selObj.isCluster = screenObj.isCluster;
                         selObjs.push_back(selObj);
-                    }                    break;
+                    }
+                    break;
                 }
                 
                 // Now for a proximity check around the edges
