@@ -33,75 +33,6 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-// We use this to avoid overlapping labels
-class OverlapManager
-{
-public:
-    OverlapManager(const Mbr &mbr,int sizeX,int sizeY)
-    : mbr(mbr), sizeX(sizeX), sizeY(sizeY)
-    {
-        grid.resize(sizeX*sizeY);
-        cellSize = Point2f((mbr.ur().x()-mbr.ll().x())/sizeX,(mbr.ur().y()-mbr.ll().y())/sizeY);
-    }
-    
-    // Try to add an object.  Might fail (kind of the whole point).
-    bool addObject(const Point2dVector &pts)
-    {
-        Mbr objMbr;
-        for (unsigned int ii=0;ii<pts.size();ii++)
-            objMbr.addPoint(pts[ii]);
-        int sx = floorf((objMbr.ll().x()-mbr.ll().x())/cellSize.x());
-        if (sx < 0) sx = 0;
-        int sy = floorf((objMbr.ll().y()-mbr.ll().y())/cellSize.y());
-        if (sy < 0) sy = 0;
-        int ex = ceilf((objMbr.ur().x()-mbr.ll().x())/cellSize.x());
-        if (ex >= sizeX)  ex = sizeX-1;
-        int ey = ceilf((objMbr.ur().y()-mbr.ll().y())/cellSize.y());
-        if (ey >= sizeY)  ey = sizeY-1;
-        for (int ix=sx;ix<=ex;ix++)
-            for (int iy=sy;iy<=ey;iy++)
-            {
-                std::vector<int> &objList = grid[iy*sizeX + ix];
-                for (unsigned int ii=0;ii<objList.size();ii++)
-                {
-                    BoundedObject &testObj = objects[objList[ii]];
-                    // Note: This will result in testing the same thing multiple times
-                    if (ConvexPolyIntersect(testObj.pts,pts))
-                        return false;
-                }
-            }
-        
-        // Okay, so it doesn't overlap.  Let's add it where needed.
-        objects.resize(objects.size()+1);
-        int newId = (int)(objects.size()-1);
-        BoundedObject &newObj = objects[newId];
-        newObj.pts = pts;
-        for (int ix=sx;ix<=ex;ix++)
-            for (int iy=sy;iy<=ey;iy++)
-            {
-                std::vector<int> &objList = grid[iy*sizeX + ix];
-                objList.push_back(newId);
-            }
-        
-        return true;
-    }
-    
-protected:
-    // Object and its bounds
-    class BoundedObject
-    {
-    public:
-        ~BoundedObject() { }
-        Point2dVector pts;
-    };
-    
-    Mbr mbr;
-    std::vector<BoundedObject> objects;
-    int sizeX,sizeY;
-    Point2f cellSize;
-    std::vector<std::vector<int> > grid;
-};
-
 // Default constructor for layout object
 LayoutObject::LayoutObject()
     : ScreenSpaceObject(),
@@ -557,10 +488,9 @@ bool LayoutManager::runLayoutRules(ViewState *viewState, std::vector<ClusterEntr
 						Point2d center(objPt.x(), objPt.y());
 						for (unsigned int ii=0;ii<4;ii++)
 						{
-							Point2d &thisObjPt = objPts[ii];
-							thisObjPt = entry->obj.layoutPts[ii];
-							thisObjPt = screenRotMat * thisObjPt;
-							thisObjPt = Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale)+center;
+                            Point2d thisObjPt = entry->obj.layoutPts[ii];
+                            Point2d offPt = screenRotMat * Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale);
+                            objPts[ii] = Point2d(offPt.x(),-offPt.y()) + center;
 						}
 					}
 					clusterHelper.addObject(entry,objPts);
@@ -743,8 +673,8 @@ bool LayoutManager::runLayoutRules(ViewState *viewState, std::vector<ClusterEntr
                             for (unsigned int oi=0;oi<4;oi++)
                             {
                                 Point2d &thisObjPt = objPts[oi];
-                                thisObjPt = screenRotMat * thisObjPt;
-                                thisObjPt = Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale)+center;
+                                Point2d offPt = screenRotMat * Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale);
+                                thisObjPt = Point2d(offPt.x(),-offPt.y()) + center;
                             }
                         }
                         
@@ -769,15 +699,15 @@ bool LayoutManager::runLayoutRules(ViewState *viewState, std::vector<ClusterEntr
         
         // See if we've changed any of the state
         layoutObj->changed = (layoutObj->currentEnable != isActive);
-        if (!layoutObj->changed && layoutObj->newEnable &&
-            (layoutObj->offset.x() != objOffset.x() || layoutObj->offset.y() != objOffset.y()))
+        if (!layoutObj->changed && (layoutObj->newEnable ||
+            (layoutObj->offset.x() != objOffset.x() || layoutObj->offset.y() != -objOffset.y())))
         {
             layoutObj->changed = true;
         }
         hadChanges |= layoutObj->changed;
         layoutObj->newEnable = isActive;
 		layoutObj->newCluster = -1;
-        layoutObj->offset = objOffset;
+        layoutObj->offset = Point2d(objOffset.x(),-objOffset.y());
     }
     
 //    NSLog(@"----Finished layout----");

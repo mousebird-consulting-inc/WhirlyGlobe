@@ -68,14 +68,14 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	private void insertLabels(ArrayList<VectorObject> objects, MaplyBaseController baseVC) {
 
 		LabelInfo labelInfo = new LabelInfo();
-		labelInfo.setFontSize(38.5f);
+		labelInfo.setFontSize(128.f);
 		labelInfo.setTextColor(Color.WHITE);
 //		labelInfo.setBackgroundColor(Color.RED);
 		labelInfo.setTypeface(Typeface.DEFAULT);
 //		labelInfo.setLayoutImportance(1.f);
 		labelInfo.setLayoutPlacement(LabelInfo.LayoutLeft|LabelInfo.LayoutRight|LabelInfo.LayoutCenter);
-		labelInfo.setMinVis(0.f);
-		labelInfo.setMaxVis(2.5f);
+//		labelInfo.setMinVis(0.f);
+//		labelInfo.setMaxVis(2.5f);
 		labelInfo.setOutlineColor(Color.BLACK);
 		labelInfo.setOutlineSize(1.f);
 
@@ -95,6 +95,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 					label.loc = object.centroid();
 					label.selectable = true;
 					label.layoutImportance = 1.f;
+					label.rotation = Math.PI/4.0;
 					labels.add(label);
 
 					if (addMarkers) {
@@ -116,14 +117,14 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		labels.add(makeLabel(11.616667, 44.833333, "Ferrara", 2.f));
 		labels.add(makeLabel(7, 49.233333, "Saarbrücken", 2.f));
 
-		labels.add(makeLabel(4.361, 43.838, "Nîmes", Float.MAX_VALUE));
+//		labels.add(makeLabel(4.361, 43.838, "Nîmes", Float.MAX_VALUE));
 
 		// Test the layout engine very explicitly
-		int i = 0;
-		for (double o = 0.0; o < 0.5; o += 0.05) {
-
-			labels.add(makeLabel(4.361 + o, 43.838 + o, "Nîmes " + ++i, Float.MAX_VALUE));
-		}
+//		int i = 0;
+//		for (double o = 0.0; o < 0.5; o += 0.05) {
+//
+//			labels.add(makeLabel(4.361 + o, 43.838 + o, "Nîmes " + ++i, Float.MAX_VALUE));
+//		}
 
 		ComponentObject comp = baseVC.addScreenLabels(labels, labelInfo, MaplyBaseController.ThreadMode.ThreadAny);
 		if (comp != null)
