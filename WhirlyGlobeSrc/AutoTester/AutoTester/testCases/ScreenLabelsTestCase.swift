@@ -41,7 +41,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 			let object = arrayComp[i]
             let str = object.userObject as? String
             if str != nil {
-//            if str != nil && (str == "Greenland" || str == "Saint Pierre and Miquelon") {
+//            if str != nil && (str == "New Caledonia" || str == "Wallis and Futuna") {
 				let label = MaplyScreenLabel()
 
 				label.text = str
@@ -49,8 +49,8 @@ class ScreenLabelsTestCase: MaplyTestCase {
 				label.selectable = true
 				label.layoutImportance = 10
                 label.userObject = label.text;
-                label.layoutPlacement = kMaplyLayoutRight;
-                label.rotation = Float(M_PI/2.0);
+                label.layoutPlacement = kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow;
+//                                                    label.rotation = Float(M_PI/2.0);
 //                label.offset = CGPoint(0.0,100.0);
 
 				if (i % 2 == 0) {
@@ -58,7 +58,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 					if let comp = theViewC.addScreenLabels([label], desc: [
 							kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
 							kMaplyShadowColor: UIColor.black,
-							kMaplyShadowSize: 2.0,
+							kMaplyShadowSize: 1.0,
                             kMaplySelectable: true,
 							kMaplyColor: UIColor.white]) {
 						labelList.append(comp)
