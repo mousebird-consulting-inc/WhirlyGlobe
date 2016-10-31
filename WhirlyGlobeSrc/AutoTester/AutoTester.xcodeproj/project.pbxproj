@@ -2663,7 +2663,7 @@
 			baseConfigurationReference = 726309C36257E6205E08B947 /* Pods-AutoTester.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Stephen Gifford (G7S7JV2SU3)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = BFXSGS6V8N;
 				HEADER_SEARCH_PATHS = (
@@ -2689,7 +2689,7 @@
 			baseConfigurationReference = 50758EC5237C3DF35AB67BE9 /* Pods-AutoTester.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Stephen Gifford (G7S7JV2SU3)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = BFXSGS6V8N;
 				HEADER_SEARCH_PATHS = (
