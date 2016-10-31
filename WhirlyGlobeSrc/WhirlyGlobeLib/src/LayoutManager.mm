@@ -665,7 +665,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
                             }
                         }
                         
-//                        NSLog(@"Center pt = (%f,%f)",objPt.x,objPt.y);
+//                        NSLog(@"Center pt = (%f,%f), orient = %d",objPt.x,objPt.y,orient);
 //                        NSLog(@"Layout Pts");
 //                        for (unsigned int xx=0;xx<objPts.size();xx++)
 //                            NSLog(@"  (%f,%f)\n",objPts[xx].x(),objPts[xx].y());
@@ -691,15 +691,15 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
         
         // See if we've changed any of the state
         layoutObj->changed = (layoutObj->currentEnable != isActive);
-        if (!layoutObj->changed && layoutObj->newEnable &&
-            (layoutObj->offset.x() != objOffset.x() || layoutObj->offset.y() != objOffset.y()))
+        if (!layoutObj->changed && (layoutObj->newEnable ||
+            (layoutObj->offset.x() != objOffset.x() || layoutObj->offset.y() != -objOffset.y())))
         {
             layoutObj->changed = true;
         }
         hadChanges |= layoutObj->changed;
         layoutObj->newEnable = isActive;
         layoutObj->newCluster = -1;
-        layoutObj->offset = objOffset;
+        layoutObj->offset = Point2d(objOffset.x(),-objOffset.y());
     }
     
 //    NSLog(@"----Finished layout----");
