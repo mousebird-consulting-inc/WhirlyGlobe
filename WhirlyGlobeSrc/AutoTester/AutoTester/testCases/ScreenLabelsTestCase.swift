@@ -39,17 +39,19 @@ class ScreenLabelsTestCase: MaplyTestCase {
 		
 		for i in 0..<arrayComp.count {
 			let object = arrayComp[i]
-			if (object.userObject as AnyObject).description.characters.count > 0 {
+            let str = object.userObject as? String
+            if str != nil {
+//            if str != nil && (str == "Greenland" || str == "Saint Pierre and Miquelon") {
 				let label = MaplyScreenLabel()
 
-				label.text = (object.userObject as AnyObject).description
+				label.text = str
 				label.loc = object.center()
 				label.selectable = true
 				label.layoutImportance = 10
                 label.userObject = label.text;
                 label.layoutPlacement = kMaplyLayoutRight;
-//                label.rotation = Float(M_PI/2.0);
-//                label.offset = CGPointMake(0.0,100.0);
+                label.rotation = Float(M_PI/2.0);
+//                label.offset = CGPoint(0.0,100.0);
 
 				if (i % 2 == 0) {
 					// Some with text shadow
