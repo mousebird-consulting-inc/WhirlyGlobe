@@ -122,8 +122,7 @@ using namespace WhirlyGlobe;
     NSMutableArray *retSelectArr = [self selectMultipleLabelsAndMarkersForScreenPoint:msg.touchLoc];
     
     // Next, try the vectors
-    // Note: This means we'll never get both vectors and other objects
-    NSArray *vecObjs = [self findVectorsInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y()) inView:(MaplyBaseViewController*)self.viewController multi:false];
+    NSArray *vecObjs = [self findVectorsInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y()) inView:(MaplyBaseViewController*)self.viewController multi:true];
     for (MaplyVectorObject *vecObj in vecObjs)
     {
         MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
