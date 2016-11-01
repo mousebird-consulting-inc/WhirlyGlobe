@@ -228,6 +228,9 @@ public:
     self = [super init];
     if (!self)
         return nil;
+    
+//    NSLog(@"Creating interactLayer %lx",(long)self);
+    
     visualView = inVisualView;
     pthread_mutex_init(&selectLock, NULL);
     pthread_mutex_init(&imageLock, NULL);
@@ -242,6 +245,8 @@ public:
 
 - (void)dealloc
 {
+//    NSLog(@"Deallocing interactLayer %lx",(long)self);
+
     pthread_mutex_destroy(&selectLock);
     pthread_mutex_destroy(&imageLock);
     pthread_mutex_destroy(&changeLock);
@@ -298,7 +303,9 @@ public:
         [self performSelector:@selector(lockingShutdown) onThread:layerThread withObject:nil waitUntilDone:NO];
         return;
     }
-    
+
+//    NSLog(@"Shutting down interactLayer %lx",(long)self);
+
     pthread_mutex_lock(&workLock);
     isShuttingDown = true;
     while (numActiveWorkers > 0)
@@ -536,7 +543,7 @@ public:
             changes.push_back(new RemTextureReq(tex.texID));
     }
 
-    [self flushChanges:changes mode:MaplyThreadCurrent];
+    [self flushChanges:changes mode:MaplyThreadAny];
 }
 
 - (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
