@@ -62,7 +62,9 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		WMSTestCase(),
 		FindHeightTestCase(),
 		FullAnimationTest(),
-		ActiveObjectTestCase()
+		ActiveObjectTestCase(),
+
+		Issue721TestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
