@@ -19,15 +19,15 @@ class FullScreenViewController : UIViewController {
 
 	override func viewDidLoad() {
 		// disable swipe back gesture
-		self.navigationController?.interactivePopGestureRecognizer?.enabled = false
+		self.navigationController?.interactivePopGestureRecognizer?.isEnabled = false
 	}
 
-	override func viewWillAppear(animated: Bool) {
+	override func viewWillAppear(_ animated: Bool) {
 		actualImageView.image = actualImageResult
 		baselineImageView.image = baselineImageResult
 	}
 
-	@IBAction func sliderChanged(sender: AnyObject) {
+	@IBAction func sliderChanged(_ sender: AnyObject) {
 		let slider = sender as! UISlider
 
 		actualImageView.alpha = CGFloat(slider.value)

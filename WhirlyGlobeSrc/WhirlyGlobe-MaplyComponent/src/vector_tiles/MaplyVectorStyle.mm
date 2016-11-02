@@ -90,6 +90,8 @@ NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject
                     break;
                 case MaplyVectorMultiType:
                     break;
+                default:
+                    break;
             }
             vecObj.attributes[@"geometry_type"] = @(geomType);
             

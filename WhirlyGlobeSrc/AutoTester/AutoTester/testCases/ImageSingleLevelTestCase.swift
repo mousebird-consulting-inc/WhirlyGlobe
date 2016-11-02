@@ -15,7 +15,7 @@ class ImageSingleLevelTestCase: MaplyTestCase {
         
         self.name = "Image Single Level Test Case"
         self.captureDelay = 4
-        self.implementations = [.Globe, .Map]
+        self.implementations = [.globe, .map]
     }
     
     func setupLayer(baseVC: MaplyBaseViewController) -> MaplyQuadImageTilesLayer {
@@ -35,32 +35,30 @@ class ImageSingleLevelTestCase: MaplyTestCase {
         return layer!;
     }
     
-    override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
+    override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
         let baseLayer = StamenWatercolorRemote()
         baseLayer.setUpWithGlobe(globeVC)
         
-        let layer = setupLayer(globeVC)
-        globeVC.addLayer(layer)
+        globeVC.add(setupLayer(baseVC: globeVC))
         
         globeVC.keepNorthUp = true
-        globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
+        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
     }
     
-    override func setUpWithMap(mapVC: MaplyViewController) {
+    override func setUpWithMap(_ mapVC: MaplyViewController) {
         let baseLayer = StamenWatercolorRemote()
         baseLayer.setUpWithMap(mapVC)
 
-        let layer = setupLayer(mapVC)
-        mapVC.addLayer(layer)
+        mapVC.add(setupLayer(baseVC: mapVC))
         
-        mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
+        mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
         mapVC.setZoomLimitsMin(0.01, max: 4.0)
     }
     
-    override func remoteResources() -> [AnyObject]? {
-        return nil;
+//    override func remoteResources() -> [AnyObject]? {
+//        return nil;
         /*
          return ["https://manuals.info.apple.com/en_US/macbook_retina_12_inch_early2016_essentials.pdf"]
          */
-    }
+//    }
 }

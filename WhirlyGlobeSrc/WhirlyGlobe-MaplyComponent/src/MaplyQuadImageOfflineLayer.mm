@@ -55,7 +55,8 @@ using namespace WhirlyKit;
     int maxShortCircuitLevel;
     std::vector<int> framePriorities;
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
 - (instancetype)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
 {
     self = [super init];
@@ -338,7 +339,7 @@ using namespace WhirlyKit;
             {
                 if ([level isKindOfClass:[NSNumber class]])
                 {
-                    int whichLevel = [level integerValue];
+                    int whichLevel = (int)[level integerValue];
                     if (whichLevel < 0)
                         whichLevel = maxShortCircuitLevel+whichLevel;
                     if (whichLevel >= 0 && whichLevel < maxShortCircuitLevel)
@@ -543,7 +544,7 @@ using namespace WhirlyKit;
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
-- (void)shutdown
+- (void)teardown
 {
     super.layerThread = nil;
 }
@@ -585,6 +586,7 @@ using namespace WhirlyKit;
         [_delegate offlineLayer:self image:offlineImage];
     }
 }
+#pragma clang diagnostic pop
 
 
 @end

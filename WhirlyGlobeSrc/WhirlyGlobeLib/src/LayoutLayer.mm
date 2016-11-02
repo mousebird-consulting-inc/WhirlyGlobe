@@ -68,7 +68,7 @@ namespace WhirlyKit
     [self checkUpdate];
 }
 
-- (void)shutdown
+- (void)teardown
 {
     scene = NULL;
     if (layerThread.viewWatcher)
