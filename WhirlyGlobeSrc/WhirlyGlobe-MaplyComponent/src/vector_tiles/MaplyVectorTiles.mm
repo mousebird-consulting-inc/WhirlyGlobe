@@ -119,6 +119,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
                             });
                     }
                 }];
+				[task resume];
             }
         } else {
             NSLog(@"Failed to reach JSON vector tile spec at: %@",jsonURL);

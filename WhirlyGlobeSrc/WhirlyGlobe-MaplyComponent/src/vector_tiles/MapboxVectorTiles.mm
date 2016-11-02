@@ -432,6 +432,8 @@ static double MAX_EXTENT = 20037508.342789244;
 //                styleSet = mapboxStyleSet;
 //            }
             break;
+            default:
+                break;
         }
         
         MapboxVectorTiles *vecTiles = [[MapboxVectorTiles alloc] initWithTileSource:tileSource style:styleSet viewC:viewC];

@@ -131,7 +131,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         textStr = [NSString stringWithFormat:@"%d: (%d,%d); %d",tileID.level,tileID.x,tileID.y,frame];
     [[UIColor whiteColor] setStroke];
     [[UIColor whiteColor] setFill];
-    [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withFont:[UIFont systemFontOfSize:24.0]];
+    [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:24.0]}];
     
     // Grab the image and shut things down
     UIImage *retImage = UIGraphicsGetImageFromCurrentImageContext();

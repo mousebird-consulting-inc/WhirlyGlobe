@@ -284,7 +284,6 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
         }
         Point2d iconOff(0,0);
         ScreenSpaceObject *screenShape = NULL;
-        ScreenSpaceObject *backScreenShape = NULL;
         LayoutObject *layoutObject = NULL;
         if (attrStr && strLen > 0)
         {
