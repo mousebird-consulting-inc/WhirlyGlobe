@@ -85,7 +85,7 @@
 @interface MaplyPlateCarree : MaplyCoordinateSystem
 
 /// @brief Initialize with Plate Carree covering the whole globe.
-- (nullable instancetype)init;
+- (nonnull instancetype)init;
 
 /// @brief Initialize with Plate Carree covering the whole globe.
 - (nullable instancetype)initFullCoverage;

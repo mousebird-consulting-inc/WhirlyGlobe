@@ -63,9 +63,9 @@ using namespace WhirlyGlobe;
 
 /// Called by the layer thread to shut a layer down.
 /// Clean all your stuff out of the scenegraph and so forth.
-- (void)shutdown
+- (void)teardown
 {
-    [super shutdown];
+    [super teardown];
 }
 
 // Do the logic for a selection
@@ -77,7 +77,7 @@ using namespace WhirlyGlobe;
     if(!selObj) {
         // Next, try the vectors
         // Note: Ignoring everything but the first return
-        NSArray *vecObjs = [self findVectorsInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y()) inView:(MaplyBaseViewController*)self.viewController multi:false];
+        NSArray *vecObjs = [self findVectorsInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y()) inView:(MaplyBaseViewController*)self.viewController multi:true];
         if ([vecObjs count] > 0)
             selObj = [vecObjs objectAtIndex:0];
     }

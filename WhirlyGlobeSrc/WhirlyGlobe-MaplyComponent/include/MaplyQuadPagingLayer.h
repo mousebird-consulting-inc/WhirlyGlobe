@@ -265,7 +265,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
 /** @brief Generate a 3D bounding box for the given tile.
     @details Generate a bounding box for the tile in its native coordinate system.  It may also call out to the delegate for accurate Z values.
   */
-- (void)boundingBoxForTile:(MaplyTileID)tileID ll:(MaplyCoordinate3dD * __nonnull)ll ur:(MaplyCoordinate3dD * __nonnull)ur;
+// - (void)boundingBoxForTile:(MaplyTileID)tileID ll:(MaplyCoordinate3dD * __nonnull)ll ur:(MaplyCoordinate3dD * __nonnull)ur;
 
 
 - (nullable NSObject<MaplyPagingDelegate> *)pagingDelegate;

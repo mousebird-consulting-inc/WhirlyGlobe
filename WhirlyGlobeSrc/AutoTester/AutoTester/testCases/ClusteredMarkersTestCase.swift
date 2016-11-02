@@ -15,25 +15,25 @@ class ClusteredMarkersTestCase: MaplyTestCase {
 
 		self.name = "Clustered Markers"
 		self.captureDelay = 3
-		self.implementations = [.Globe, .Map]
+		self.implementations = [.globe, .map]
 	}
 
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
+	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
 		insertClusteredMarkers(baseLayer.compList!, theBaseView: globeVC)
-		globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
+		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 	
-	override func setUpWithMap(mapVC: MaplyViewController) {
+	override func setUpWithMap(_ mapVC: MaplyViewController) {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithMap(mapVC)
 		insertClusteredMarkers(baseLayer.compList!, theBaseView: mapVC)
-		mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
+		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 
-	func insertClusteredMarkers(compB : NSArray, theBaseView: MaplyBaseViewController) {
-		let size = CGSizeMake(32, 32)
+	func insertClusteredMarkers(_ compB : NSArray, theBaseView: MaplyBaseViewController) {
+		let size = CGSize(width: 32, height: 32)
 		let image = UIImage (named: "alcohol-shop-24@2x")
 		var markers = [MaplyScreenMarker]()
 		for object in compB {
@@ -41,10 +41,10 @@ class ClusteredMarkersTestCase: MaplyTestCase {
 			marker.image = image
 			marker.loc = (object as! MaplyVectorObject).center()
 			marker.size = size
-			marker.userObject = object.userObject
+			marker.userObject = (object as AnyObject).userObject
 			markers.append(marker)
 		}
-		theBaseView.addScreenMarkers(markers, desc: [kMaplyClusterGroup: 0], mode: MaplyThreadMode.Current)
+		theBaseView.addScreenMarkers(markers, desc: [kMaplyClusterGroup: 0], mode: MaplyThreadMode.current)
 	}
 
 }
