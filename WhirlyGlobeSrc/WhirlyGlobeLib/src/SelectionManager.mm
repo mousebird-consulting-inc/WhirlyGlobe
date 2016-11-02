@@ -702,12 +702,12 @@ SelectionManager::PlacementInfo::PlacementInfo(WhirlyKitView *view,WhirlyKitScen
     if ([view isKindOfClass:[WhirlyGlobeView class]])
     {
         globeView = (WhirlyGlobeView *)view;
-        globeViewState = [[WhirlyGlobeViewState alloc] initWithView:view renderer:renderer];
+        globeViewState = [[WhirlyGlobeViewState alloc] initWithView:globeView renderer:renderer];
         viewState = globeViewState;
     } else if ([view isKindOfClass:[MaplyView class]])
     {
         mapView = (MaplyView *)view;
-        mapViewState = [[MaplyViewState alloc] initWithView:view renderer:renderer];
+        mapViewState = [[MaplyViewState alloc] initWithView:mapView renderer:renderer];
         viewState = mapViewState;
     }
     heightAboveSurface = view.heightAboveSurface;
