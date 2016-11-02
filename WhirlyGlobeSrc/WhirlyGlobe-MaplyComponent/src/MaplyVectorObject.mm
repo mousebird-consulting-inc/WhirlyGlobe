@@ -1345,7 +1345,7 @@ public:
     }
 }
 
-- (void)subdivideToInternal:(float)epsilon adapter:(WhirlyKit::CoordSystemDisplayAdapter *)adapter
+- (void)subdivideToInternal:(float)epsilon adapter:(WhirlyKit::CoordSystemDisplayAdapter *)adapter edgeMode:(bool)edgeMode
 {
     CoordSystem *coordSys = adapter->getCoordSystem();
     
@@ -1360,7 +1360,34 @@ public:
             outPts2D.resize(outPts.size());
             for (unsigned int ii=0;ii<outPts.size();ii++)
                 outPts2D[ii] = coordSys->localToGeographic(adapter->displayToLocal(outPts[ii]));
-            lin->pts = outPts2D;
+            if (lin->pts.size() > 0)
+            {
+                outPts2D.front() = lin->pts.front();
+                outPts2D.back() = lin->pts.back();
+            }
+            
+            if (edgeMode && outPts.size() > 1)
+            {
+                // See if they cross the edge of a wraparound coordinate system
+                // Note: Only works for spherical mercator, most likely
+                VectorRing offsetPts2D(outPts2D.size());
+                double xOff = 0.0;
+                for (unsigned int ii=0;ii<outPts2D.size()-1;ii++)
+                {
+                    offsetPts2D[ii] = Point2f(outPts2D[ii].x()+xOff,outPts2D[ii].y());
+                    if (std::abs(outPts2D[ii].x() - outPts2D[ii+1].x()) > 1.1*M_PI)
+                    {
+                        if (outPts2D[ii].x() < 0.0)
+                            xOff -= 2*M_PI;
+                        else
+                            xOff += 2*M_PI;
+                    }
+                }
+                offsetPts2D.back() = outPts2D.back() + Point2f(xOff,0.0);
+                
+                lin->pts = offsetPts2D;
+            } else
+                lin->pts = outPts2D;
         } else {
             VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
             if (lin3d)
@@ -1396,17 +1423,16 @@ public:
 
 - (void)subdivideToFlatGreatCircle:(float)epsilon
 {
-    // Note: Should let the user pass this in
-    SphericalMercatorDisplayAdapter adapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0));
+    FakeGeocentricDisplayAdapter adapter;
     
-    [self subdivideToInternal:epsilon adapter:&adapter];
+    [self subdivideToInternal:epsilon adapter:&adapter edgeMode:true];
 }
 
 - (void)subdivideToGlobeGreatCircle:(float)epsilon
 {
     FakeGeocentricDisplayAdapter adapter;
     
-    [self subdivideToInternal:epsilon adapter:&adapter];
+    [self subdivideToInternal:epsilon adapter:&adapter edgeMode:false];
 }
 
 - (MaplyVectorObject *) tesselate

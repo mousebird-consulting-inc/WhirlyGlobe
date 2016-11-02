@@ -254,14 +254,15 @@ void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,VectorRing3
     Point3d midP = (p0+p1)/2.0;
     Point3d midOnSphere = midP;
     if (adapter && !adapter->isFlat())
-        midP.normalized() * (1.0 + surfOffset);
+        midOnSphere = midP.normalized() * (1.0 + surfOffset);
     float dist2 = (midOnSphere - midP).squaredNorm();
     if (dist2 > eps*eps || minPts > 0)
     {
         subdivideToSurfaceRecurseGC(p0, midOnSphere, outPts, adapter, eps, surfOffset,minPts/2);
         subdivideToSurfaceRecurseGC(midOnSphere, p1, outPts, adapter, eps, surfOffset,minPts/2);
     }
-    outPts.push_back(p1);
+    if (outPts.empty() || outPts.back() != p1)
+        outPts.push_back(p1);
 }
 
 void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
