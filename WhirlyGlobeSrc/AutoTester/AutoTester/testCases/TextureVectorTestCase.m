@@ -32,6 +32,8 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
 
 - (void) overlayCountries: (MaplyBaseViewController*) baseVC
 {
+    NSMutableArray *tessObjs = [NSMutableArray array];
+    
     NSArray * paths = [[NSBundle mainBundle] pathsForResourcesOfType:@"geojson" inDirectory:nil];
     // Work through the individual GeoJSON files
     for (NSString* fileName  in paths) {
@@ -58,29 +60,33 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
                         thisClipGridLon *= 4.0;
                     else if (ABS(center.y) > 45.0/180.0 * M_PI)
                         thisClipGridLon *= 2.0;
-
+                    
                     // We clip the vector to a grid and then tesselate the results
                     // This forms the vector closer to the globe, make it look nicer
                     MaplyVectorObject *tessObj = [[vecObj clipToGrid:CGSizeMake(thisClipGridLon, ClipGridSize)] tesselate];
-                    [baseVC addVectors:@[tessObj] desc:
-                     @{
-                       kMaplyFilled: @(YES),
-                       // We'll apply this texture when filled
-                       kMaplyVecTexture: dotsTexture,
-                       // The texture is applied with a tanget plane from the center
-                       kMaplyVecTextureProjection: kMaplyProjectionTangentPlane,
-                       // The texture coordinates will be scaled like so
-                       kMaplyVecTexScaleX: @(6.0),
-                       kMaplyVecTexScaleY: @(6.0),
-                       kMaplyColor: [UIColor whiteColor]
-                       }];
-                    
-                    // Turn this on to see the tessellation over the top.  Good for debugging
-//                    [baseVC addVectors:@[tessObj] desc:@{kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+1000)} mode:MaplyThreadCurrent];
+                    if (tessObj)
+                        [tessObjs addObject:tessObj];
                 }
             }
         }
     }
+    
+    // Add all the vectors at once to be more efficient
+    [baseVC addVectors:tessObjs desc:
+     @{
+       kMaplyFilled: @(YES),
+       // We'll apply this texture when filled
+       kMaplyVecTexture: dotsTexture,
+       // The texture is applied with a tanget plane from the center
+       kMaplyVecTextureProjection: kMaplyProjectionTangentPlane,
+       // The texture coordinates will be scaled like so
+       kMaplyVecTexScaleX: @(6.0),
+       kMaplyVecTexScaleY: @(6.0),
+       kMaplyColor: [UIColor whiteColor]
+       }];
+    
+    // Turn this on to see the tessellation over the top.  Good for debugging
+    //                    [baseVC addVectors:tessObjs desc:@{kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+1000)} mode:MaplyThreadCurrent];
 }
 
 - (void)setupTexture:(MaplyBaseViewController *)viewC
