@@ -64,6 +64,8 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
                     // We clip the vector to a grid and then tesselate the results
                     // This forms the vector closer to the globe, make it look nicer
                     MaplyVectorObject *tessObj = [[vecObj clipToGrid:CGSizeMake(thisClipGridLon, ClipGridSize)] tesselate];
+                    
+                    // Don't add them yet, it's more efficient later
                     if (tessObj)
                         [tessObjs addObject:tessObj];
                 }
@@ -71,7 +73,11 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
         }
     }
     
+    // Note: At this point you could cache the country vectors on disk and read them back in
+    //       You might want this to speed things up
+    
     // Add all the vectors at once to be more efficient
+    // The geometry gets grouped together, which is nice and fast
     [baseVC addVectors:tessObjs desc:
      @{
        kMaplyFilled: @(YES),
