@@ -29,6 +29,8 @@
 		2B91A22E1DC14B7500B72527 /* ImageSingleLevelTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */; };
 		2B93D9671D41433500EAD280 /* WideVectorGlobeTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */; };
 		2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */; };
+		2BC0FB781DCAA18A004125F1 /* TextureVectorTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC0FB771DCAA18A004125F1 /* TextureVectorTestCase.m */; };
+		2BC0FB7A1DCAA574004125F1 /* dots.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB791DCAA574004125F1 /* dots.png */; };
 		2BC2DCCD1D1F4CE20088D350 /* ShapefileTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */; };
 		2BC2DCF01D2345AF0088D350 /* PagingLayerTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */; };
 		2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */; };
@@ -577,6 +579,9 @@
 		2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WideVectorGlobeTestCase.m; sourceTree = "<group>"; };
 		2BBB70811D5E9079009B67A6 /* VectorStyleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorStyleTestCase.h; sourceTree = "<group>"; };
 		2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorStyleTestCase.m; sourceTree = "<group>"; };
+		2BC0FB761DCAA18A004125F1 /* TextureVectorTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureVectorTestCase.h; sourceTree = "<group>"; };
+		2BC0FB771DCAA18A004125F1 /* TextureVectorTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureVectorTestCase.m; sourceTree = "<group>"; };
+		2BC0FB791DCAA574004125F1 /* dots.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dots.png; path = ../../resources/textures/dots.png; sourceTree = "<group>"; };
 		2BC2DCCB1D1F4CE20088D350 /* ShapefileTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapefileTestCase.h; sourceTree = "<group>"; };
 		2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShapefileTestCase.m; sourceTree = "<group>"; };
 		2BC2DCEE1D2345AF0088D350 /* PagingLayerTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagingLayerTestCase.h; sourceTree = "<group>"; };
@@ -1291,6 +1296,8 @@
 				2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */,
 				D8341A6F1BE2C8D200411A46 /* VectorsTestCase.h */,
 				D8341A701BE2C8D200411A46 /* VectorsTestCase.m */,
+				2BC0FB761DCAA18A004125F1 /* TextureVectorTestCase.h */,
+				2BC0FB771DCAA18A004125F1 /* TextureVectorTestCase.m */,
 				2B158BED1D5D19E900103E04 /* VectorHoleTestCase.h */,
 				2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */,
 				D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */,
@@ -1375,6 +1382,7 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2BC0FB791DCAA574004125F1 /* dots.png */,
 				8F4D91D81CDFA7C000F68045 /* Icons */,
 				2B1C26511C9100A500C71B0A /* France.mbtiles */,
 				2B6953671C7E67DD007FC51E /* colorramp.png */,
@@ -2160,6 +2168,7 @@
 				88FF5EEF1BC31D95002F15CE /* tl_2013_06075_roads.mbr in Resources */,
 				88FF5CA11BC31D6D002F15CE /* embassy-24@2x.png in Resources */,
 				883DF73F1C1CE164000756E9 /* StickersTestCase-globe.png in Resources */,
+				2BC0FB7A1DCAA574004125F1 /* dots.png in Resources */,
 				88FF5E621BC31D95002F15CE /* ISL.geojson in Resources */,
 				88FF5E391BC31D95002F15CE /* ESH.geojson in Resources */,
 				88FF5CCE1BC31D6D002F15CE /* religious-muslim-24@2x.png in Resources */,
@@ -2545,6 +2554,7 @@
 				2B93D9671D41433500EAD280 /* WideVectorGlobeTestCase.m in Sources */,
 				D8200C981BE93E6E00B22CF5 /* StarsSunTestCase.swift in Sources */,
 				8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */,
+				2BC0FB781DCAA18A004125F1 /* TextureVectorTestCase.m in Sources */,
 				D8341A631BE299BF00411A46 /* MapzenVectorTestCase.swift in Sources */,
 				D8F2FE291BE7C2000058A310 /* MarkersTestCase.swift in Sources */,
 				D8F2FE231BE7B1B40058A310 /* MapzenSource.m in Sources */,
