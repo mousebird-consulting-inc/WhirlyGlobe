@@ -67,14 +67,14 @@ using namespace WhirlyGlobe;
     [_dataSource start];
 }
 
-- (void)shutdown
+- (void)teardown
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
     if (layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
     
-    [_dataSource shutdown];
+    [_dataSource teardown];
 }
 
 - (void)viewUpdate:(WhirlyGlobeViewState *)inViewState

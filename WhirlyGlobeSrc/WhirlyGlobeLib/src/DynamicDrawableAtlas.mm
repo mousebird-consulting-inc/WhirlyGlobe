@@ -350,7 +350,7 @@ void DynamicDrawableAtlas::addSwapChanges(const ChangeSet &inSwapChanges)
     swapChanges.insert(swapChanges.end(), inSwapChanges.begin(), inSwapChanges.end());
 }
     
-void DynamicDrawableAtlas::shutdown(ChangeSet &changes)
+void DynamicDrawableAtlas::teardown(ChangeSet &changes)
 {
     hasChanges = true;
 

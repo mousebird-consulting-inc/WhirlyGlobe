@@ -15,10 +15,10 @@ class StickersTestCase: MaplyTestCase {
 		
 		self.name = "Stickers"
 		self.captureDelay = 4
-		self.implementations = [.Globe, .Map]
+		self.implementations = [.globe, .map]
 	}
 
-	func addStickers (arrayComp: NSArray , baseViewC: MaplyBaseViewController) {
+	func addStickers (_ arrayComp: NSArray , baseViewC: MaplyBaseViewController) {
 		let startImage = UIImage(named: "Smiley_Face_Avatar_by_PixelTwist")
 		var stickers = [MaplySticker]()
 		for object in arrayComp {
@@ -32,13 +32,13 @@ class StickersTestCase: MaplyTestCase {
 		baseViewC.addStickers(stickers, desc: [kMaplyFade: (1.0)])
 	}
 	
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
+	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
 		addStickers(baseLayer.compList, baseViewC: globeVC)
 	}
 	
-	override func setUpWithMap(mapVC: MaplyViewController) {
+	override func setUpWithMap(_ mapVC: MaplyViewController) {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithMap(mapVC)
 		addStickers(baseLayer.compList, baseViewC: mapVC)

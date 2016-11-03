@@ -144,6 +144,7 @@ using namespace WhirlyGlobe;
     
     globeScene = NULL;
     globeView = nil;
+    globeInteractLayer = nil;
     
     pinchDelegate = nil;
     panDelegate = nil;
@@ -1936,7 +1937,7 @@ static const float FullExtentEps = 1e-5;
         bbox->ur.x = mbr.ur().x();  bbox->ur.y = mbr.ur().y();
     }
     
-    return mbrs.size();
+    return (int)mbrs.size();
 }
 
 @end

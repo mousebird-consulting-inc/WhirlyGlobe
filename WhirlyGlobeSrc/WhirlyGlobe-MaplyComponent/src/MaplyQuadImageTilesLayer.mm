@@ -689,8 +689,6 @@ using namespace WhirlyKit;
         return;
     }
     
-    CoordSystemDisplayAdapter *coordAdapter = viewState.coordAdapter;
-
     // We happen to store tilt in the view matrix.
     // Note: Fix this.  This won't detect tilt
 //        Eigen::Matrix4d &viewMat = viewState.viewMatrices[0];
@@ -710,7 +708,7 @@ using namespace WhirlyKit;
         {
             if ([level isKindOfClass:[NSNumber class]])
             {
-                int whichLevel = [level integerValue];
+                int whichLevel = (int)[level integerValue];
                 if (whichLevel < 0)
                     whichLevel = maxShortCircuitLevel+whichLevel;
                 if (whichLevel >= 0 && whichLevel < maxShortCircuitLevel)
@@ -813,7 +811,7 @@ using namespace WhirlyKit;
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
-- (void)shutdown
+- (void)teardown
 {
     super.layerThread = nil;
 }

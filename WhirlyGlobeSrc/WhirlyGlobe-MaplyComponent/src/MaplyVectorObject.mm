@@ -223,7 +223,7 @@ public:
 		coords[i / 2] = MaplyCoordinateMakeWithDegrees(x, y);
 	}
 
-	self = [self initWithLineString:coords numCoords:[inCoords count]/2 attributes:attr];
+	self = [self initWithLineString:coords numCoords:(int)[inCoords count]/2 attributes:attr];
 
 	free(coords);
 
@@ -499,42 +499,42 @@ public:
         if (points)
         {
             VectorPointsRef newPts = VectorPoints::createPoints();
-            [newPts->getAttrDict() addEntriesFromDictionary:points->getAttrDict()];
             newPts->pts = points->pts;
+            newPts->setAttrDict([NSMutableDictionary dictionaryWithDictionary:points->getAttrDict()]);
             newVecObj.shapes.insert(newPts);
         } else {
             VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
             if (lin)
             {
                 VectorLinearRef newLin = VectorLinear::createLinear();
-                [newLin->getAttrDict() addEntriesFromDictionary:lin->getAttrDict()];
                 newLin->pts = lin->pts;
+                newLin->setAttrDict([NSMutableDictionary dictionaryWithDictionary:lin->getAttrDict()]);
                 newVecObj.shapes.insert(newLin);
             } else {
                 VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
                 if (lin3d)
                 {
                     VectorLinear3dRef newLin3d = VectorLinear3d::createLinear();
-                    [newLin3d->getAttrDict() addEntriesFromDictionary:newLin3d->getAttrDict()];
                     newLin3d->pts = lin3d->pts;
+                    newLin3d->setAttrDict([NSMutableDictionary dictionaryWithDictionary:lin3d->getAttrDict()]);
                     newVecObj.shapes.insert(newLin3d);
                 } else {
                     VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
                     if (ar)
                     {
                         VectorArealRef newAr = VectorAreal::createAreal();
-                        [newAr->getAttrDict() addEntriesFromDictionary:ar->getAttrDict()];
                         newAr->loops = ar->loops;
+                        newAr->setAttrDict([NSMutableDictionary dictionaryWithDictionary:ar->getAttrDict()]);
                         newVecObj.shapes.insert(newAr);
                     } else {
                         VectorTrianglesRef tri = std::dynamic_pointer_cast<VectorTriangles>(*it);
                         if (tri)
                         {
                             VectorTrianglesRef newTri = VectorTriangles::createTriangles();
-                            [newTri->getAttrDict() addEntriesFromDictionary:tri->getAttrDict()];
                             newTri->geoMbr = tri->geoMbr;
                             newTri->pts = tri->pts;
                             newTri->tris = tri->tris;
+                            newTri->setAttrDict([NSMutableDictionary dictionaryWithDictionary:tri->getAttrDict()]);
                             newVecObj.shapes.insert(newTri);
                         }
                     }
@@ -1345,10 +1345,9 @@ public:
     }
 }
 
-- (void)subdivideToGlobeGreatCircle:(float)epsilon
+- (void)subdivideToInternal:(float)epsilon adapter:(WhirlyKit::CoordSystemDisplayAdapter *)adapter edgeMode:(bool)edgeMode
 {
-    FakeGeocentricDisplayAdapter adapter;
-    CoordSystem *coordSys = adapter.getCoordSystem();
+    CoordSystem *coordSys = adapter->getCoordSystem();
     
     for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
     {
@@ -1356,21 +1355,48 @@ public:
         if (lin)
         {
             VectorRing3d outPts;
-            SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, &adapter, epsilon);
+            SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, adapter, epsilon);
             VectorRing outPts2D;
             outPts2D.resize(outPts.size());
             for (unsigned int ii=0;ii<outPts.size();ii++)
-                outPts2D[ii] = coordSys->localToGeographic(adapter.displayToLocal(outPts[ii]));
-            lin->pts = outPts2D;
+                outPts2D[ii] = coordSys->localToGeographic(adapter->displayToLocal(outPts[ii]));
+            if (lin->pts.size() > 0)
+            {
+                outPts2D.front() = lin->pts.front();
+                outPts2D.back() = lin->pts.back();
+            }
+            
+            if (edgeMode && outPts.size() > 1)
+            {
+                // See if they cross the edge of a wraparound coordinate system
+                // Note: Only works for spherical mercator, most likely
+                VectorRing offsetPts2D(outPts2D.size());
+                double xOff = 0.0;
+                for (unsigned int ii=0;ii<outPts2D.size()-1;ii++)
+                {
+                    offsetPts2D[ii] = Point2f(outPts2D[ii].x()+xOff,outPts2D[ii].y());
+                    if (std::abs(outPts2D[ii].x() - outPts2D[ii+1].x()) > 1.1*M_PI)
+                    {
+                        if (outPts2D[ii].x() < 0.0)
+                            xOff -= 2*M_PI;
+                        else
+                            xOff += 2*M_PI;
+                    }
+                }
+                offsetPts2D.back() = outPts2D.back() + Point2f(xOff,0.0);
+                
+                lin->pts = offsetPts2D;
+            } else
+                lin->pts = outPts2D;
         } else {
             VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
             if (lin3d)
             {
                 VectorRing3d outPts;
-                SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, &adapter, epsilon);
+                SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, adapter, epsilon);
                 for (unsigned int ii=0;ii<outPts.size();ii++)
                 {
-                    Point3d locPt = adapter.displayToLocal(outPts[ii]);
+                    Point3d locPt = adapter->displayToLocal(outPts[ii]);
                     GeoCoord outPt = coordSys->localToGeographic(locPt);
                     outPts[ii] = Point3d(outPt.x(),outPt.y(),0.0);
                 }
@@ -1382,17 +1408,31 @@ public:
                     for (unsigned int ii=0;ii<ar->loops.size();ii++)
                     {
                         VectorRing3d outPts;
-                        SubdivideEdgesToSurfaceGC(ar->loops[ii], outPts, true, &adapter, epsilon);
+                        SubdivideEdgesToSurfaceGC(ar->loops[ii], outPts, true, adapter, epsilon);
                         VectorRing outPts2D;
                         outPts2D.resize(outPts.size());
                         for (unsigned int ii=0;ii<outPts.size();ii++)
-                            outPts2D[ii] = coordSys->localToGeographic(adapter.displayToLocal(outPts[ii]));
+                            outPts2D[ii] = coordSys->localToGeographic(adapter->displayToLocal(outPts[ii]));
                         ar->loops[ii] = outPts2D;
                     }
                 }
             }
         }
-    }    
+    }
+}
+
+- (void)subdivideToFlatGreatCircle:(float)epsilon
+{
+    FakeGeocentricDisplayAdapter adapter;
+    
+    [self subdivideToInternal:epsilon adapter:&adapter edgeMode:true];
+}
+
+- (void)subdivideToGlobeGreatCircle:(float)epsilon
+{
+    FakeGeocentricDisplayAdapter adapter;
+    
+    [self subdivideToInternal:epsilon adapter:&adapter edgeMode:false];
 }
 
 - (MaplyVectorObject *) tesselate

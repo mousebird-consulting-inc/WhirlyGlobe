@@ -41,7 +41,7 @@
 - (void)viewerDidUpdate:(WhirlyGlobeViewState *)viewState scene:(WhirlyKit::Scene *)scene;
 
 /// Called when the layer needs to shutdown.  Clean up your objects.
-- (void)shutdown;
+- (void)teardown;
 
 @end
 

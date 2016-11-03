@@ -34,21 +34,21 @@ class ModelsTestCase: MaplyTestCase {
 		
 		self.name = "Models"
 		self.captureDelay = 4
-		self.implementations = [.Globe]
+		self.implementations = [.globe]
 	}
 
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
+	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
 
-		let fullPath = NSBundle.mainBundle().pathForResource("cessna", ofType: "obj")
+		let fullPath = Bundle.main.path(forResource: "cessna", ofType: "obj")
 		if let fullPath = fullPath {
 			let model = MaplyGeomModel(obj: fullPath)
 			if let model = model {
 				var modelInstances = [MaplyMovingGeomModelInstance]()
 				let scaletMat = MaplyMatrix(scale: 1000.0/6371000.0)
 				let rotMat = MaplyMatrix(angle: M_PI/2.0, axisX: 1.0, axisY: 0.0, axisZ: 0.0)
-				let localMat = rotMat.multiplyWith(scaletMat)
+				let localMat = rotMat.multiply(with: scaletMat)
 				for loc in locations {
 					let mInst = MaplyMovingGeomModelInstance()
 					mInst.model = model
@@ -61,8 +61,8 @@ class ModelsTestCase: MaplyTestCase {
 					modelInstances.append(mInst)
 
 				}
-				globeVC.addModelInstances(modelInstances, desc: [:], mode: MaplyThreadMode.Current)
-				globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(-94.58, 39.1) ,time: 1.0)
+				globeVC.addModelInstances(modelInstances, desc: [:], mode: MaplyThreadMode.current)
+				globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-94.58, 39.1) ,time: 1.0)
 				globeVC.height = 0.1
 			}
 		}
