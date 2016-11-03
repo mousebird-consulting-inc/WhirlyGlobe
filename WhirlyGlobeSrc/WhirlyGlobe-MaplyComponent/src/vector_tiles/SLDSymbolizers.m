@@ -8,6 +8,7 @@
 
 #import "SLDSymbolizers.h"
 #import "SLDWellKnownMarkers.h"
+#import "MaplyVectorTiles.h"
 
 @implementation SLDSymbolizer
 
@@ -235,20 +236,16 @@
  */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
-    NSLog(@"SLDLineSymbolizer flag 1");
-    
     NSError *error;
     DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke"];
     
     if (!strokeNode)
         return nil;
     
-    MaplyVectorTileStyle *s = [SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom baseURL:baseURL];
+    MaplyVectorTileStyle *s = [SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:0 baseURL:baseURL];
     
     if (!s)
         return nil;
-    
-    NSLog(@"SLDLineSymbolizer flag 2");
     
     return @[s];
 }
@@ -261,13 +258,15 @@
 
 /** @brief Parses a stroke node and returns a corresponding MaplyVectorTileStyle object.
  */
-+ (MaplyVectorTileStyle *)maplyVectorTileStyleFromStrokeNode:(DDXMLElement *)strokeNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
++ (MaplyVectorTileStyle *)maplyVectorTileStyleFromStrokeNode:(DDXMLElement *)strokeNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
     
     NSMutableDictionary *strokeParams = [SLDSymbolizer dictForSvgCssParametersInElement:strokeNode];
     if (!strokeParams) {
         NSLog(@"SLDLineSymbolizer: Stroke node without stroke parameters.");
         return nil;
     }
+    
+    strokeParams[@"drawpriority"] = @(relativeDrawPriority);
     
     if (minScaleDenom)
         strokeParams[@"minscaledenom"] = minScaleDenom;
@@ -294,15 +293,13 @@
  */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
-    NSLog(@"SLDPolygonSymbolizer flag 1");
-    
     NSError *error;
     DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Fill"];
     DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke"];
    
     NSMutableArray <MaplyVectorTileStyle *> *styles = [NSMutableArray array];
     if (strokeNode) {
-        MaplyVectorTileStyle *style = [SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom baseURL:baseURL];
+        MaplyVectorTileStyle *style = [SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:1 baseURL:baseURL];
         if (style)
             [styles addObject:style];
     }
@@ -313,8 +310,6 @@
             [styles addObject:style];
     }
     
-    NSLog(@"SLDPolygonSymbolizer flag 2");
-
     if (styles.count > 0)
         return styles;
 
@@ -369,6 +364,10 @@
  */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromPointSymbolizerNode:(DDXMLElement *)pointSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
+    static NSMutableSet *wknFillSet;
+    if (!wknFillSet)
+        wknFillSet = [NSMutableSet set];
+    
     NSError *error;
     NSMutableDictionary *pointParams = [NSMutableDictionary dictionary];
 
@@ -376,6 +375,8 @@
     
     if (!graphicNode)
         return nil;
+    
+    NSString *wellKnownName;
     
     for (DDXMLNode *child in [graphicNode children]) {
         NSString *childName = [child localName];
@@ -414,26 +415,8 @@
             
             if (wellKnownNameNode) {
             
-                NSString *wellKnownName = [wellKnownNameNode stringValue];
+                wellKnownName = [wellKnownNameNode stringValue];
                 
-                UIImage *image;
-                if ([wellKnownName isEqualToString:@"square"])
-                    image = [SLDWellKnownMarkers squareImage];
-                else if ([wellKnownName isEqualToString:@"circle"])
-                    image = [SLDWellKnownMarkers circleImage];
-                else if ([wellKnownName isEqualToString:@"triangle"])
-                    image = [SLDWellKnownMarkers triangleImage];
-                else if ([wellKnownName isEqualToString:@"star"])
-                    image = [SLDWellKnownMarkers starImage];
-                else if ([wellKnownName isEqualToString:@"cross"])
-                    image = [SLDWellKnownMarkers crossImage];
-                else if ([wellKnownName isEqualToString:@"x"])
-                    image = [SLDWellKnownMarkers xImage];
-                else {
-                    NSLog(@"Skipping MarkerSymbolizer with unrecognized WellKnownName for Mark.");
-                    return nil;
-                }
-                pointParams[@"image"] = image;
                 
             } else {
                 
@@ -479,11 +462,53 @@
         } else if ([childName isEqualToString:@"Size"]) {
             // Marker size
             NSString *size = [SLDSymbolizer stringForLiteralInNode:child];
+            if (!size) {
+                size = [child stringValue];
+            }
             if (size) {
                 pointParams[@"width"] = size;
                 pointParams[@"height"] = size;
             }
         }
+    }
+    
+    if (wellKnownName) {
+        
+        UIColor *strokeColor, *fillColor;
+        int imgWidth, imgHeight;
+        
+        if (pointParams[@"stroke"])
+            strokeColor = [MaplyVectorTiles ParseColor:pointParams[@"stroke"] alpha:1.0];
+        else
+            strokeColor = [UIColor darkGrayColor];
+        
+        if (pointParams[@"fill"]) {
+            
+            fillColor = [MaplyVectorTiles ParseColor:pointParams[@"fill"] alpha:1.0];
+            if (![wknFillSet containsObject:pointParams[@"fill"]]) {
+                [wknFillSet addObject:pointParams[@"fill"]];
+                
+            }
+        }
+        else
+            fillColor = [UIColor whiteColor];
+        
+        
+        if (pointParams[@"width"] && pointParams[@"height"]) {
+            imgWidth = [pointParams[@"width"] intValue];
+            if (imgWidth < 8)
+                imgWidth = 8;
+            imgHeight = [pointParams[@"height"] intValue];
+            if (imgHeight < 8)
+                imgHeight = 8;
+        }
+        
+        UIImage *image = [SLDWellKnownMarkers imageWithName:wellKnownName strokeColor:strokeColor fillColor:fillColor size:MIN(imgWidth, imgHeight)];
+        if (!image)
+            return nil;
+
+        pointParams[@"image"] = image;
+
     }
     
     if (minScaleDenom)
