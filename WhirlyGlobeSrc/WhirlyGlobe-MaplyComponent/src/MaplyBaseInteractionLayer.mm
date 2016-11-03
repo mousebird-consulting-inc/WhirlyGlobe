@@ -184,7 +184,7 @@ typedef std::map<int,NSObject <MaplyClusterGenerator> *> ClusterGenMap;
 class OurClusterGenerator : public ClusterGenerator
 {
 public:
-    MaplyBaseInteractionLayer *layer;
+    MaplyBaseInteractionLayer * __weak layer;
     
     // Called right before we start generating layout objects
     void startLayoutObjects()
@@ -228,6 +228,9 @@ public:
     self = [super init];
     if (!self)
         return nil;
+    
+//    NSLog(@"Creating interactLayer %lx",(long)self);
+    
     visualView = inVisualView;
     pthread_mutex_init(&selectLock, NULL);
     pthread_mutex_init(&imageLock, NULL);
@@ -242,6 +245,8 @@ public:
 
 - (void)dealloc
 {
+//    NSLog(@"Deallocing interactLayer %lx",(long)self);
+
     pthread_mutex_destroy(&selectLock);
     pthread_mutex_destroy(&imageLock);
     pthread_mutex_destroy(&changeLock);
@@ -279,7 +284,7 @@ public:
     }
 }
 
-- (void)shutdown
+- (void)teardown
 {
     layerThread = nil;
     scene = NULL;
@@ -298,13 +303,15 @@ public:
         [self performSelector:@selector(lockingShutdown) onThread:layerThread withObject:nil waitUntilDone:NO];
         return;
     }
-    
+
+//    NSLog(@"Shutting down interactLayer %lx",(long)self);
+
     pthread_mutex_lock(&workLock);
     isShuttingDown = true;
     while (numActiveWorkers > 0)
         pthread_cond_wait(&workWait, &workLock);
 
-    [self shutdown];
+    [self teardown];
     
     pthread_mutex_unlock(&workLock);
 }
@@ -536,7 +543,7 @@ public:
             changes.push_back(new RemTextureReq(tex.texID));
     }
 
-    [self flushChanges:changes mode:MaplyThreadCurrent];
+    [self flushChanges:changes mode:MaplyThreadAny];
 }
 
 - (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
@@ -937,7 +944,7 @@ public:
     
     // Ask for a cluster image
     MaplyClusterInfo *clusterInfo = [[MaplyClusterInfo alloc] init];
-    clusterInfo.numObjects = layoutObjects.size();
+    clusterInfo.numObjects = (int)layoutObjects.size();
     MaplyClusterGroup *group = [clusterGen makeClusterGroup:clusterInfo];
 
     // Geometry for the new cluster object
@@ -999,7 +1006,7 @@ public:
     NSObject <MaplyClusterGenerator> *clusterGen = nil;
     @synchronized(self)
     {
-        clusterGen = clusterGens[clusterID];
+        clusterGen = clusterGens[(int)clusterID];
     }
 
     // Ask for the shader for moving objects

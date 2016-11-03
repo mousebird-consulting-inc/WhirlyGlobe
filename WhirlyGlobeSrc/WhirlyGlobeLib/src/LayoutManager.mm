@@ -474,10 +474,9 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
                         Point2d center(objPt.x,objPt.y);
                         for (unsigned int ii=0;ii<4;ii++)
                         {
-                            Point2d &thisObjPt = objPts[ii];
-                            thisObjPt = entry->obj.layoutPts[ii];
-                            thisObjPt = screenRotMat * thisObjPt;
-                            thisObjPt = Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale)+center;
+                            Point2d thisObjPt = entry->obj.layoutPts[ii];
+                            Point2d offPt = screenRotMat * Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale);
+                            objPts[ii] = Point2d(offPt.x(),-offPt.y()) + center;
                         }
                     }
 
@@ -625,15 +624,15 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
                                 break;
                             // Center
                             case 1:
-                                objOffset = Point2d(-layoutSpan.x()/2.0,-layoutSpan.y()/2.0);
+                                objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y()/2.0);
                                 break;
                             // Right
                             case 2:
-                                objOffset = Point2d(0.0,-layoutSpan.y()/2.0);
+                                objOffset = Point2d(0.0,layoutSpan.y()/2.0);
                                 break;
                             // Left
                             case 3:
-                                objOffset = Point2d(-(layoutSpan.x()),-layoutSpan.y()/2.0);
+                                objOffset = Point2d(-(layoutSpan.x()),layoutSpan.y()/2.0);
                                 break;
                             // Above
                             case 4:
@@ -641,12 +640,12 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
                                 break;
                             // Below
                             case 5:
-                                objOffset = Point2d(-layoutSpan.x()/2.0,-layoutSpan.y());
+                                objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y());
                                 break;
                         }
                         
                         // Rotate the rectangle
-                        if (screenRot == 0.0)
+                        if (screenRot == 0.0) 
                         {
                             objPts[0] = Point2d(objPt.x,objPt.y) + (objOffset + layoutOrg)*resScale;
                             objPts[1] = objPts[0] + Point2d(layoutSpan.x()*resScale,0.0);
@@ -654,17 +653,22 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
                             objPts[3] = objPts[0] + Point2d(0.0,layoutSpan.y()*resScale);
                         } else {
                             Point2d center(objPt.x,objPt.y);
-                            objPts[0] = objOffset + layoutOrg;
-                            objPts[1] = objOffset + layoutOrg + Point2d(layoutSpan.x(),0.0);
-                            objPts[2] = objOffset + layoutOrg + Point2d(layoutSpan.x(),layoutSpan.y());
-                            objPts[3] = objOffset + layoutOrg + Point2d(0.0,layoutSpan.y());
+                            objPts[0] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg;
+                            objPts[1] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),0.0);
+                            objPts[2] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),layoutSpan.y());
+                            objPts[3] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(0.0,layoutSpan.y());
                             for (unsigned int oi=0;oi<4;oi++)
                             {
                                 Point2d &thisObjPt = objPts[oi];
-                                thisObjPt = screenRotMat * thisObjPt;
-                                thisObjPt = Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale)+center;
+                                Point2d offPt = screenRotMat * Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale);
+                                thisObjPt = Point2d(offPt.x(),-offPt.y()) + center;
                             }
                         }
+                        
+//                        NSLog(@"Center pt = (%f,%f), orient = %d",objPt.x,objPt.y,orient);
+//                        NSLog(@"Layout Pts");
+//                        for (unsigned int xx=0;xx<objPts.size();xx++)
+//                           NSLog(@"  (%f,%f)\n",objPts[xx].x(),objPts[xx].y());
                         
                         // Now try it
                         if (overlapMan.addObject(objPts))
@@ -687,15 +691,15 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
         
         // See if we've changed any of the state
         layoutObj->changed = (layoutObj->currentEnable != isActive);
-        if (!layoutObj->changed && layoutObj->newEnable &&
-            (layoutObj->offset.x() != objOffset.x() || layoutObj->offset.y() != objOffset.y()))
+        if (!layoutObj->changed && (layoutObj->newEnable ||
+            (layoutObj->offset.x() != objOffset.x() || layoutObj->offset.y() != -objOffset.y())))
         {
             layoutObj->changed = true;
         }
         hadChanges |= layoutObj->changed;
         layoutObj->newEnable = isActive;
         layoutObj->newCluster = -1;
-        layoutObj->offset = objOffset;
+        layoutObj->offset = Point2d(objOffset.x(),-objOffset.y());
     }
     
 //    NSLog(@"----Finished layout----");

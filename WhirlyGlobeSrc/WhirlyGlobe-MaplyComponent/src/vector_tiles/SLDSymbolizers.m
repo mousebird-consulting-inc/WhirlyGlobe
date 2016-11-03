@@ -236,7 +236,6 @@
  */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
-    NSError *error;
     DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke"];
     
     if (!strokeNode)
@@ -293,7 +292,6 @@
  */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
-    NSError *error;
     DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Fill"];
     DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke"];
    
@@ -368,7 +366,6 @@
     if (!wknFillSet)
         wknFillSet = [NSMutableSet set];
     
-    NSError *error;
     NSMutableDictionary *pointParams = [NSMutableDictionary dictionary];
 
     DDXMLElement *graphicNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:pointSymbolizerNode childName:@"Graphic"];
@@ -548,7 +545,6 @@
  */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromTextSymbolizerNode:(DDXMLElement *)textSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
-    NSError *error;
     NSMutableDictionary *labelParams = [NSMutableDictionary dictionary];
     
     // Label text
@@ -562,10 +558,6 @@
             }
         }
     }
-    
-    // Ignore specified font for now.
-    DDXMLElement *fontNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:textSymbolizerNode childName:@"Font"];
-    
 
     // Label placement
     DDXMLElement *labelPlacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:textSymbolizerNode childName:@"LabelPlacement"];
