@@ -31,7 +31,7 @@
 |init| The init method is up to you.  There's no specific signature you'll need, but do pass in all the information you'll want to run quickly in updateForFrame.|
 |(bool)hasUpdate| Returns true if there's an update to be processed. |
 |(void)updateForFrame:(id)frameInfo | This is where you do your work.  Remove the objects that need to be removed, add the objects that need to be added and be sure to use the MaplyThreadCurrent mode to make the changes happen immediately.|
-|shutdown| This method is called when the active object is to be removed.  Clean up all your visible objects.|
+|teardown| This method is called when the active object is to be removed.  Clean up all your visible objects.|
  
     @details Active Objects are run on the main thread and you're probably going to be asking the view controller to add and remove objects on the main thread.  As such, this can be slow.  Be sure to precalculate whatever you might need to make this run faster.  Also consider implementing your changes another way.  If it can be done on another thread, do it on another thread.
  

@@ -64,12 +64,12 @@ using namespace WhirlyKit;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
 
     [glView stopAnimation];
-    [glView shutdown];
+    [glView teardown];
     
     EAGLContext *oldContext = [EAGLContext currentContext];
     [sceneRenderer useContext];
     for (MaplyShader *shader in shaders)
-        [shader shutdown];
+        [shader teardown];
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
     sceneRenderer.scene = nil;
@@ -121,7 +121,7 @@ using namespace WhirlyKit;
 - (void) dealloc
 {
     if (scene)
-        [self shutdown];
+        [self teardown];
 }
 
 - (WhirlyKitView *) loadSetup_view
@@ -296,12 +296,12 @@ using namespace WhirlyKit;
     [glView stopAnimation];
 }
 
-- (void)shutdown
+- (void)teardown
 {
     [interactLayer lockingShutdown];
     
     if (glView)
-        [glView shutdown];
+        [glView teardown];
     
     [self clear];
 }
@@ -835,7 +835,7 @@ static const float PerfOutputDelay = 15.0;
     
     // Hook it into the renderer
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
-    vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
+    vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),Point2d(viewTrack.offset.x,viewTrack.offset.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
     sceneRenderer.triggerDraw = true;
     
     // And add it to the view hierarchy
@@ -848,7 +848,7 @@ static const float PerfOutputDelay = 15.0;
 {
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
 
-    vpGen->moveView(GeoCoord(newPos.x,newPos.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
+    vpGen->moveView(GeoCoord(newPos.x,newPos.y),Point2d(0,0),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
     sceneRenderer.triggerDraw = true;
 }
 
@@ -916,10 +916,10 @@ static const float PerfOutputDelay = 15.0;
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
     if (alreadyHere)
     {
-        vpGen->moveView(GeoCoord(coord.x,coord.y),annotate.calloutView,annotate.minVis,annotate.maxVis);
+        vpGen->moveView(GeoCoord(coord.x,coord.y),Point2d(0,0),annotate.calloutView,annotate.minVis,annotate.maxVis);
     } else
     {
-        vpGen->addView(GeoCoord(coord.x,coord.y),annotate.calloutView,annotate.minVis,annotate.maxVis);
+        vpGen->addView(GeoCoord(coord.x,coord.y),Point2d(0,0),annotate.calloutView,annotate.minVis,annotate.maxVis);
     }
     sceneRenderer.triggerDraw = true;
 }

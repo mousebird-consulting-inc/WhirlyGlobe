@@ -390,7 +390,7 @@ void Tile_Value::SerializeWithCachedSizes(
       8, 536870912, output);
 
   output->WriteRaw(unknown_fields().data(),
-                   unknown_fields().size());
+                   (int) unknown_fields().size());
   // @@protoc_insertion_point(serialize_end:vector_tile.Tile.Value)
 }
 
@@ -772,7 +772,7 @@ void Tile_Feature::SerializeWithCachedSizes(
   }
 
   output->WriteRaw(unknown_fields().data(),
-                   unknown_fields().size());
+                   (int) unknown_fields().size());
   // @@protoc_insertion_point(serialize_end:vector_tile.Tile.Feature)
 }
 
@@ -1162,7 +1162,7 @@ void Tile_Layer::SerializeWithCachedSizes(
       16, 536870912, output);
 
   output->WriteRaw(unknown_fields().data(),
-                   unknown_fields().size());
+                   (int) unknown_fields().size());
   // @@protoc_insertion_point(serialize_end:vector_tile.Tile.Layer)
 }
 
@@ -1451,7 +1451,7 @@ void Tile::SerializeWithCachedSizes(
       16, 8192, output);
 
   output->WriteRaw(unknown_fields().data(),
-                   unknown_fields().size());
+                   (int) unknown_fields().size());
   // @@protoc_insertion_point(serialize_end:vector_tile.Tile)
 }
 

@@ -209,7 +209,7 @@ using namespace WhirlyKit;
 //    [self performSelector:@selector(dumpInfo) withObject:nil afterDelay:15.0];
 }
 
-- (void)shutdown
+- (void)teardown
 {
     [_renderer removeFrameObserver:self];
     [_loader quadDisplayLayerEndUpdates:self];
@@ -221,7 +221,7 @@ using namespace WhirlyKit;
         [(WhirlyGlobeLayerViewWatcher *)_layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
     }
     
-    [_dataStructure shutdown];
+    [_dataStructure teardown];
     _dataStructure = nil;
     [_loader shutdownLayer:self scene:_scene];
     _loader = nil;
@@ -274,7 +274,7 @@ using namespace WhirlyKit;
     
     if (!_scene)
     {
-        NSLog(@"GlobeQuadDisplayLayer: Called viewUpdate: after being shutdown.");
+        NSLog(@"GlobeQuadDisplayLayer: Called viewUpdate: after being teardown.");
         return;
     }
     

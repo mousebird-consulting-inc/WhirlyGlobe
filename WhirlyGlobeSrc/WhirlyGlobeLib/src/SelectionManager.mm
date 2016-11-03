@@ -702,12 +702,12 @@ SelectionManager::PlacementInfo::PlacementInfo(WhirlyKitView *view,WhirlyKitScen
     if ([view isKindOfClass:[WhirlyGlobeView class]])
     {
         globeView = (WhirlyGlobeView *)view;
-        globeViewState = [[WhirlyGlobeViewState alloc] initWithView:view renderer:renderer];
+        globeViewState = [[WhirlyGlobeViewState alloc] initWithView:globeView renderer:renderer];
         viewState = globeViewState;
     } else if ([view isKindOfClass:[MaplyView class]])
     {
         mapView = (MaplyView *)view;
-        mapViewState = [[MaplyViewState alloc] initWithView:view renderer:renderer];
+        mapViewState = [[MaplyViewState alloc] initWithView:mapView renderer:renderer];
         viewState = mapViewState;
     }
     heightAboveSurface = view.heightAboveSurface;
@@ -922,6 +922,16 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
                         screenPts.push_back(Point2f(theScreenPt.x(),theScreenPt.y()));
                     }
                 }
+                
+                // Note: Debugging
+//                {
+//                    NSMutableString *str = [NSMutableString string];
+//                    [str appendFormat:@"Selectable object %d pts: ",screenPts.size()];
+//                    for (auto pt : screenPts)
+//                        [str appendFormat:@" [%d,%d]",(int)(pt.x()),(int)(pt.y())];
+//                    NSLog(@"%@",str);
+//                }
+
                 
                 // See if we fall within that polygon
                 if (PointInPolygon(touchPt, screenPts))

@@ -18,10 +18,10 @@ class MovingScreenLabelsTestCase: MaplyTestCase {
 		self.implementations = []
 	}
 
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
+	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
 	}
 
-	override func setUpWithMap(mapVC: MaplyViewController) {
+	override func setUpWithMap(_ mapVC: MaplyViewController) {
 	}
 
 }
