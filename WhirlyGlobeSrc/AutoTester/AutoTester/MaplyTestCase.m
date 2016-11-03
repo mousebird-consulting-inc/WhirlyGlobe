@@ -109,6 +109,7 @@
 {
 	// create and prepare the controller
 	self.mapViewController = [[MaplyViewController alloc] initWithMapType:MaplyMapTypeFlat];
+    self.mapViewController.viewWrap = true;
     self.baseViewController = self.mapViewController;
 	
 	MaplyCoordinateSystem *coordSys = [self customCoordSystem];
@@ -364,6 +365,7 @@
         } else if ([selectedObj isKindOfClass:[MaplyVectorObject class]])
         {
             MaplyVectorObject *vecObj = (MaplyVectorObject *)selectedObj;
+            loc = [vecObj centroid];
             title = (NSString *)vecObj.userObject;
             subTitle = @"Vector";
         } else if ([selectedObj isKindOfClass:[MaplyShapeSphere class]])

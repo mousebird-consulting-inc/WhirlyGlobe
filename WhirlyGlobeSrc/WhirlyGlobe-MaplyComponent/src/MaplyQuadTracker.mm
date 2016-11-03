@@ -92,7 +92,7 @@ public:
 
 - (int)numTiles
 {
-    return tiles.size();
+    return (int)tiles.size();
 }
 
 - (void)tiles:(MaplyQuadTrackerPointReturn *)tilesInfo forPoints:(int)numPts
