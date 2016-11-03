@@ -924,13 +924,13 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
                 }
                 
                 // Note: Debugging
-                {
-                    NSMutableString *str = [NSMutableString string];
-                    [str appendFormat:@"Selectable object %d pts: ",screenPts.size()];
-                    for (auto pt : screenPts)
-                        [str appendFormat:@" [%d,%d]",(int)(pt.x()),(int)(pt.y())];
-                    NSLog(@"%@",str);
-                }
+//                {
+//                    NSMutableString *str = [NSMutableString string];
+//                    [str appendFormat:@"Selectable object %d pts: ",screenPts.size()];
+//                    for (auto pt : screenPts)
+//                        [str appendFormat:@" [%d,%d]",(int)(pt.x()),(int)(pt.y())];
+//                    NSLog(@"%@",str);
+//                }
 
                 
                 // See if we fall within that polygon
