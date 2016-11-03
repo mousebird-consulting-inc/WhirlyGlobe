@@ -344,6 +344,8 @@
         for (SLDFeatureTypeStyle *featureTypeStyle in userStyle.featureTypeStyles) {
             for (SLDRule *rule in featureTypeStyle.rules) {
                 matched = false;
+                if (rule.filters.count == 0 && rule.elseFilters.count == 0)
+                    matched = true;
                 for (SLDFilter *filter in rule.filters) {
                     if ([filter.operator.predicate evaluateWithObject:attributes]) {
                         matched = true;
