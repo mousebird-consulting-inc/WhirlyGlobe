@@ -499,42 +499,42 @@ public:
         if (points)
         {
             VectorPointsRef newPts = VectorPoints::createPoints();
-            [newPts->getAttrDict() addEntriesFromDictionary:points->getAttrDict()];
             newPts->pts = points->pts;
+            newPts->setAttrDict([NSMutableDictionary dictionaryWithDictionary:points->getAttrDict()]);
             newVecObj.shapes.insert(newPts);
         } else {
             VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
             if (lin)
             {
                 VectorLinearRef newLin = VectorLinear::createLinear();
-                [newLin->getAttrDict() addEntriesFromDictionary:lin->getAttrDict()];
                 newLin->pts = lin->pts;
+                newLin->setAttrDict([NSMutableDictionary dictionaryWithDictionary:lin->getAttrDict()]);
                 newVecObj.shapes.insert(newLin);
             } else {
                 VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
                 if (lin3d)
                 {
                     VectorLinear3dRef newLin3d = VectorLinear3d::createLinear();
-                    [newLin3d->getAttrDict() addEntriesFromDictionary:newLin3d->getAttrDict()];
                     newLin3d->pts = lin3d->pts;
+                    newLin3d->setAttrDict([NSMutableDictionary dictionaryWithDictionary:lin3d->getAttrDict()]);
                     newVecObj.shapes.insert(newLin3d);
                 } else {
                     VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
                     if (ar)
                     {
                         VectorArealRef newAr = VectorAreal::createAreal();
-                        [newAr->getAttrDict() addEntriesFromDictionary:ar->getAttrDict()];
                         newAr->loops = ar->loops;
+                        newAr->setAttrDict([NSMutableDictionary dictionaryWithDictionary:ar->getAttrDict()]);
                         newVecObj.shapes.insert(newAr);
                     } else {
                         VectorTrianglesRef tri = std::dynamic_pointer_cast<VectorTriangles>(*it);
                         if (tri)
                         {
                             VectorTrianglesRef newTri = VectorTriangles::createTriangles();
-                            [newTri->getAttrDict() addEntriesFromDictionary:tri->getAttrDict()];
                             newTri->geoMbr = tri->geoMbr;
                             newTri->pts = tri->pts;
                             newTri->tris = tri->tris;
+                            newTri->setAttrDict([NSMutableDictionary dictionaryWithDictionary:tri->getAttrDict()]);
                             newVecObj.shapes.insert(newTri);
                         }
                     }
