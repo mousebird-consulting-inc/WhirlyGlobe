@@ -49,8 +49,8 @@ public:
     {
     public:
         ViewInstance() { }
-        ViewInstance(UIView *view) : view(view) { }
-        ViewInstance(WhirlyKit::GeoCoord loc,UIView *view) : loc(loc), view(view), active(true) { offset.x() = view.frame.origin.x;  offset.y() = view.frame.origin.y; }
+        ViewInstance(UIView *view) : view(view),offset2(0,0) { }
+        ViewInstance(WhirlyKit::GeoCoord loc,UIView *view) : loc(loc), offset2(0,0), view(view), active(true) { offset.x() = view.frame.origin.x;  offset.y() = view.frame.origin.y; }
         ~ViewInstance() { }
         
         /// Sort by UIView
@@ -62,6 +62,8 @@ public:
         WhirlyKit::GeoCoord loc;
         /// An offset taken from the view origin when it's passed to us
         Point2d offset;
+        /// An additional offset the user can pass in
+        Point2d offset2;
         /// The view we're going to move around
         UIView *view;
         /// Minimum visibility above globe
@@ -72,10 +74,10 @@ public:
     
     /// Add a view to be tracked.
     /// You should call this from the main thread.
-    void addView(GeoCoord loc,UIView *view,float minVis,float maxVis);
+    void addView(GeoCoord loc,const WhirlyKit::Point2d &offset,UIView *view,float minVis,float maxVis);
 
     /// Move an existing tracked view to a new location
-    void moveView(GeoCoord loc,UIView *view,float minVis,float maxVis);
+    void moveView(GeoCoord loc,const WhirlyKit::Point2d &offset,UIView *view,float minVis,float maxVis);
     
     /// Stop moving a view around (but keep it)
     void freezeView(UIView *view);
