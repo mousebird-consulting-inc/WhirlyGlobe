@@ -37,8 +37,6 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
     NSArray * paths = [[NSBundle mainBundle] pathsForResourcesOfType:@"geojson" inDirectory:nil];
     // Work through the individual GeoJSON files
     for (NSString* fileName  in paths) {
-//        if (![fileName containsString:@"CAN"])
-//            continue;
         NSData *jsonData = [NSData dataWithContentsOfFile:fileName];
         if (jsonData) {
             MaplyVectorObject *countryVec = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
@@ -52,7 +50,7 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
                     MaplyCoordinate center = [vecObj centroid];
                     vecObj.attributes[kMaplyVecCenterX] = @(center.x);
                     vecObj.attributes[kMaplyVecCenterY] = @(center.y);
-                    
+                     
                     // We adjust the grid clipping size based on the latitude
                     // This helps a lot near the poles.  Otherwise we're way oversampling
                     float thisClipGridLon = ClipGridSize;
