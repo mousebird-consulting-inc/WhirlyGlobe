@@ -73,6 +73,8 @@
         url = [[NSBundle mainBundle] URLForResource:@"default" withExtension:@"sld"];
     NSURL *baseURL = [url URLByDeletingLastPathComponent];
     if ([url isFileURL]) {
+        if (![[NSFileManager defaultManager] fileExistsAtPath:[url path]])
+            url = [[NSBundle mainBundle] URLForResource:@"default" withExtension:@"sld"];
         [self loadSldData:[NSData dataWithContentsOfURL:url] baseURL:baseURL];
     } else {
         // network URL
