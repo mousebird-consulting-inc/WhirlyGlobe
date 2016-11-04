@@ -98,8 +98,8 @@ public:
         }
         if (it != fetches.end())
         {
-            fetches.erase(it);
             [it->task cancel];
+            fetches.erase(it);
         }
         
         tileData[which] = nil;
