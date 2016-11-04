@@ -877,7 +877,7 @@ public:
         
         // Now we'll walk along, looking for the middle
         float lenSoFar = 0.0;
-        for (unsigned int ii=0;ii<pts.size();ii++)
+        for (unsigned int ii=0;ii<pts.size()-1;ii++)
         {
             Point3d pt0 = coordSys->geographicToLocal3d(GeoCoord(pts[ii].x(),pts[ii].y()));
             Point3d pt1 = coordSys->geographicToLocal3d(GeoCoord(pts[ii+1].x(),pts[ii+1].y()));
@@ -937,7 +937,7 @@ public:
         
         // Now we'll walk along, looking for the middle
         float lenSoFar = 0.0;
-        for (unsigned int ii=0;ii<pts.size();ii++)
+        for (unsigned int ii=0;ii<pts.size()-1;ii++)
         {
             GeoCoord geo0(pts[ii].x(),pts[ii].y());
             GeoCoord geo1(pts[ii+1].x(),pts[ii+1].y());
