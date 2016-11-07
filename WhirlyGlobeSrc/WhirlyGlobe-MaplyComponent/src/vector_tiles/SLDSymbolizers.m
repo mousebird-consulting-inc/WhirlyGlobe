@@ -19,6 +19,7 @@
  @param viewC The map or globe view controller.
  @param minScaleDenom If non-null, the minimum map scale at which to apply any constructed symbolizer.
  @param maxScaleDenom If non-null, the maximum map scale at which to apply any constructed symbolizer.
+ @param baseURL The base URL from which external resources (e.g. images) will be located.
  @return An array of MaplyVectorTileStyle objects corresponding to the particular XML element.
  @see MaplyVectorTileStyle
  @see MaplyVectorStyleSettings
@@ -134,12 +135,6 @@
         params = [SLDSymbolizer dictForCssParametersInElement:element];
     return params;
 }
-
-
-
-
-
-
 
 
 + (UIImage *)imageForHref:(NSString *)href baseURL:(NSURL *)baseURL {
@@ -362,10 +357,6 @@
  */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromPointSymbolizerNode:(DDXMLElement *)pointSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
-    static NSMutableSet *wknFillSet;
-    if (!wknFillSet)
-        wknFillSet = [NSMutableSet set];
-    
     NSMutableDictionary *pointParams = [NSMutableDictionary dictionary];
 
     DDXMLElement *graphicNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:pointSymbolizerNode childName:@"Graphic"];
@@ -411,10 +402,8 @@
             DDXMLElement *formatNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Format"];
             
             if (wellKnownNameNode) {
-            
+                // Note the WellKnownName to handle below.
                 wellKnownName = [wellKnownNameNode stringValue];
-                
-                
             } else {
                 
                 NSString *format = (formatNode ? [formatNode stringValue] : nil);
@@ -432,7 +421,7 @@
                     if (image)
                         pointParams[@"image"] = image;
                 } else {
-                    NSLog(@"SLDPointSymbolizer: Unexpected Makr structure.");
+                    NSLog(@"SLDPointSymbolizer: Unexpected Mark structure.");
                     return nil;
                 }
             }
@@ -474,22 +463,16 @@
         UIColor *strokeColor, *fillColor;
         int imgWidth, imgHeight;
         
+        // Transform relevant drawing parameters.
         if (pointParams[@"stroke"])
             strokeColor = [MaplyVectorTiles ParseColor:pointParams[@"stroke"] alpha:1.0];
         else
             strokeColor = [UIColor darkGrayColor];
         
-        if (pointParams[@"fill"]) {
-            
+        if (pointParams[@"fill"])
             fillColor = [MaplyVectorTiles ParseColor:pointParams[@"fill"] alpha:1.0];
-            if (![wknFillSet containsObject:pointParams[@"fill"]]) {
-                [wknFillSet addObject:pointParams[@"fill"]];
-                
-            }
-        }
         else
             fillColor = [UIColor whiteColor];
-        
         
         if (pointParams[@"width"] && pointParams[@"height"]) {
             imgWidth = [pointParams[@"width"] intValue];
@@ -500,12 +483,12 @@
                 imgHeight = 8;
         }
         
+        // Draw marker image.
         UIImage *image = [SLDWellKnownMarkers imageWithName:wellKnownName strokeColor:strokeColor fillColor:fillColor size:MIN(imgWidth, imgHeight)];
         if (!image)
             return nil;
 
         pointParams[@"image"] = image;
-
     }
     
     if (minScaleDenom)
