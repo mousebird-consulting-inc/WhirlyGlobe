@@ -157,8 +157,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_addTexture
         // We take control of the Texture * as soon as it goes into the change set
         TextureClassInfo::getClassInfo()->clearHandle(env,texObj);
 
-        // Add it to the scene now so we can use it immediately
-        scene->addTexture(texture);
 		changeSet->push_back(new AddTextureReq(texture));
 	}
 	catch (...)

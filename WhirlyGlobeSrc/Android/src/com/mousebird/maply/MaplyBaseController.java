@@ -134,6 +134,8 @@ public class MaplyBaseController
 	 */
 	public LayerThread getLayerThread()
 	{
+		if (layerThreads == null)
+			return null;
 		synchronized (layerThreads) {
 			if (layerThreads.size() == 0)
 				return null;
@@ -198,6 +200,14 @@ public class MaplyBaseController
 
 	// Set if we're using a TextureView rather than a SurfaceView
 	boolean useTextureView = false;
+
+	/**
+	 * Returns true if we set up a TextureView rather than a SurfaceView.
+     */
+	public boolean usesTextureView()
+	{
+		return useTextureView;
+	}
 
 	boolean libraryLoaded = false;
 	int numWorkingThreads = 8;
@@ -412,7 +422,9 @@ public class MaplyBaseController
 			}
 			for (LayerThread layerThread : layerThreadsToRemove)
 				layerThread.shutdown();
-			layerThreads.clear();
+			synchronized (layerThreads) {
+				layerThreads.clear();
+			}
 
 			metroThread.shutdown();
 			metroThread = null;
@@ -468,7 +480,8 @@ public class MaplyBaseController
 			billboardManager = null;
 
 			texManager = null;
-			layerThreads = null;
+			// Using this as a synch object, so not a great idea
+//			layerThreads = null;
 			workerThreads = null;
 
 			activity = null;

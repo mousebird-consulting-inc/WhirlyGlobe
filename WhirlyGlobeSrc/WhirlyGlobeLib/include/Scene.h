@@ -64,7 +64,7 @@ public:
     /// You are not responsible for deleting the texture after this.
 	AddTextureReq(TextureBase *tex) : tex(tex) { }
     /// If the texture hasn't been added to the renderer, clean it up.
-	~AddTextureReq() { if (tex) delete tex; tex = NULL; }
+    ~AddTextureReq();
 
     /// Texture creation generally wants a flush
     virtual bool needsFlush() { return true; }

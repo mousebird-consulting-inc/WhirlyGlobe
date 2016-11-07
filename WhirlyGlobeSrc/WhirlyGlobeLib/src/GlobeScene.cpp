@@ -18,6 +18,7 @@
  *
  */
 
+#import "WhirlyKitLog.h"
 #import "GlobeScene.h"
 #import "GlobeView.h"
 #import "GlobeMath.h"

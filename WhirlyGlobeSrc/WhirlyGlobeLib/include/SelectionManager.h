@@ -205,7 +205,7 @@ public:
     {
     public:
         SelectedObject() { }
-        SelectedObject(SimpleIdentity selectID,double distIn3D,double screenDist) : distIn3D(distIn3D), screenDist(screenDist) { }
+        SelectedObject(SimpleIdentity selectID,double distIn3D,double screenDist) : distIn3D(distIn3D), screenDist(screenDist) { selectIDs.push_back(selectID); }
         SelectedObject(const std::vector<SimpleIdentity> &selectIDs,double distIn3D,double screenDist) : selectIDs(selectIDs), distIn3D(distIn3D), screenDist(screenDist) { }
         std::vector<SimpleIdentity> selectIDs;    // What we selected.  If it was a cluster, could be more than one
         double distIn3D;            // 3D distance from eye
