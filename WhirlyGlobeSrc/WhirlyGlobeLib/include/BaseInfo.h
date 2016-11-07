@@ -46,8 +46,7 @@ public:
     void setupBasicDrawable(BasicDrawable *drawable) const;
 
     /// Set the various parameters on a basic drawable instance
-    // Note: Porting
-//    void setupBasicDrawableInstance(BasicDrawableInstance *drawable);
+    void setupBasicDrawableInstance(BasicDrawableInstance *drawable);
     
     double minVis,maxVis;
     double minVisBand,maxVisBand;

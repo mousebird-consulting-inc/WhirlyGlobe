@@ -38,6 +38,7 @@ public:
     GeometryInfo();
     GeometryInfo(const Dictionary &dict);
 
+    bool colorOverride;
     RGBAColor color;
     int boundingBox;
     float pointSize;
@@ -52,6 +53,8 @@ public:
 class GeomSceneRep : public Identifiable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     GeomSceneRep() : fade(0.0) { }
     GeomSceneRep(SimpleIdentity theID) : Identifiable(theID) { }
     
@@ -136,6 +139,8 @@ public:
 class GeometryInstance : public Identifiable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     GeometryInstance() : mat(mat.Identity()), colorOverride(false), selectable(false), duration(0.0) { }
     
     // Center for the instance
@@ -143,7 +148,7 @@ public:
     // End center for the instance
     Point3d endCenter;
     // Duration for the animation
-    NSTimeInterval duration;
+    TimeInterval duration;
     // Rotation etc... for the instance
     Eigen::Matrix4d mat;
     // Set if we're forcing the colors in an instance
@@ -160,6 +165,8 @@ typedef enum {GeomRawIntType,GeomRawFloatType,GeomRawFloat2Type,GeomRawFloat3Typ
 class GeomPointAttrData
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     GeomPointAttrData(GeomRawDataType dataType) : dataType(dataType) { }
     std::string name;
     GeomRawDataType dataType;
@@ -289,16 +296,17 @@ public:
     virtual ~GeometryManager();
     
     /// Add raw geometry at the given location
-    SimpleIdentity addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<GeometryInstance *> &instances,WhirlyKitGeomInfo &geomInfo,ChangeSet &changes);
+    SimpleIdentity addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<GeometryInstance *> &instances,GeometryInfo &geomInfo,ChangeSet &changes);
     
     /// Add geometry we're planning to reuse (as a model, for example)
     SimpleIdentity addBaseGeometry(std::vector<GeometryRaw *> &geom,ChangeSet &changes);
+    SimpleIdentity addBaseGeometry(std::vector<GeometryRaw> &inGeom,ChangeSet &changes);
     
     /// Add instances that reuse base geometry
-    SimpleIdentity addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance *> &instances,WhirlyKitGeomInfo &geomInfo,ChangeSet &changes);
+    SimpleIdentity addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance *> &instances,GeometryInfo &geomInfo,ChangeSet &changes);
     
     /// Add raw geometry points.
-    SimpleIdentity addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,WhirlyKitGeomInfo &geomInfo,ChangeSet &changes);
+    SimpleIdentity addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,GeometryInfo &geomInfo,ChangeSet &changes);
 
     /// Enable/disable active billboards
     void enableGeometry(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);
@@ -307,7 +315,6 @@ public:
     void removeGeometry(SimpleIDSet &billIDs,ChangeSet &changes);
     
 protected:
-    NSObject *canary;
     pthread_mutex_t geomLock;
     GeomSceneRepSet sceneReps;
 };

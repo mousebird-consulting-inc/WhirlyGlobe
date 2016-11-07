@@ -112,14 +112,14 @@ void BaseInfo::setupBasicDrawable(BasicDrawable *drawable) const
     drawable->setUniforms(uniforms);
 }
 
-//void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstance *drawable)
-//{
-//    drawInst->setEnable(_enable);
-//    drawInst->setEnableTimeRange(_startEnable, _endEnable);
-//    drawInst->setDrawPriority(_drawPriority);
-//    drawInst->setVisibleRange(_minVis,_maxVis);
-//    drawInst->setViewerVisibility(_minViewerDist,_maxViewerDist,_viewerCenter);
-//        drawInst->setUniforms(_uniforms);
-//}
+void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstance *drawInst)
+{
+    drawInst->setEnable(enable);
+    drawInst->setEnableTimeRange(startEnable, endEnable);
+    drawInst->setDrawPriority(drawPriority);
+    drawInst->setVisibleRange(minVis,maxVis);
+    drawInst->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
+    drawInst->setUniforms(uniforms);
+}
     
 }

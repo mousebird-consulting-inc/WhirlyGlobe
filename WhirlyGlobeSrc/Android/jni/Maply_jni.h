@@ -454,6 +454,8 @@ typedef JavaClassInfo<WhirlyKit::WhirlyKitShape> ShapeClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitSphere> ShapeSphereClassInfo;
 typedef JavaClassInfo<WhirlyKit::ShapeManager> ShapeManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryManager> GeometryManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::GeometryInfo> GeometryInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::GeometryRawPoints> GeometryRawPointsClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitDirectionalLight> DirectionalLightClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitMaterial> MaterialClassInfo;
@@ -473,6 +475,6 @@ extern JNIEnv *maplyCurrentEnv;
 
 // Convert a Java int array into a std::vector of ints
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec);
-void ConvertLongArrayToSet(JNIEnv *env,jlongArray &longArray,std::vector<SimpleIdentity> &intVec);
+void ConvertLongArrayToSet(JNIEnv *env,jlongArray &longArray,std::set<WhirlyKit::SimpleIdentity> &intSet);
 
 #endif /* Maply_JNI_h_ */

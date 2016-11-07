@@ -160,7 +160,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_enableMarkers
 //			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Enabling marker: %d",(int)ids[0]);
 //		else
 //			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Disabling marker: %d",(int)ids[0]);
-		env->ReleaseLongArrayElements(idArrayObj,ids, 0);
 
 		markerManager->enableMarkers(idSet,enable,*changeSet);
 	}

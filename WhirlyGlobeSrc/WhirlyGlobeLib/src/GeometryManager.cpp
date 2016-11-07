@@ -36,9 +36,14 @@ GeometryInfo::GeometryInfo()
 }
 
 GeometryInfo::GeometryInfo(const Dictionary &dict)
-: BaseInfo(dict), color(255,255,255,255), boundingBox(GeometryBBoxSingle), pointSize(4.0), zBufferRead(true), zBufferWrite(true)
+: BaseInfo(dict), color(255,255,255,255), colorOverride(false), boundingBox(GeometryBBoxSingle), pointSize(4.0), zBufferRead(true), zBufferWrite(true)
 {
-    color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
+    if (dict.hasField("color"))
+        colorOverride = true;
+    else {
+        colorOverride = false;
+        color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
+    }
     std::string boundsStr = dict.getString(MaplyGeomBoundingBox, MaplyGeomBoundingBoxSingle);
     if (!boundsStr.compare(MaplyGeomBoundingBoxSingle))
         boundingBox = GeometryBBoxSingle;
@@ -46,7 +51,7 @@ GeometryInfo::GeometryInfo(const Dictionary &dict)
         boundingBox = GeometryBBoxTriangle;
     else if (!boundsStr.compare(MaplyGeomBoundingBoxNone))
         boundingBox = GeometryBBoxNone;
-    pointSize = dict.getFloat(MaplyGeomPointSize,4.0);
+    pointSize = dict.getDouble(MaplyGeomPointSize,4.0);
     zBufferRead = dict.getBool(MaplyZBufferRead,true);
     zBufferWrite = dict.getBool(MaplyZBufferWrite,true);
 }
@@ -159,7 +164,7 @@ void GeometryRaw::calcBounds(Point3d &ll,Point3d &ur)
     }
 }
 
-void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,WhirlyKitGeomInfo *geomInfo)
+void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,GeometryInfo *geomInfo)
 {
     if (!isValid())
         return;
@@ -173,7 +178,7 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen
         {
             draw = new BasicDrawable("Raw Geometry");
             if (geomInfo)
-                [geomInfo setupBasicDrawable:draw];
+                geomInfo->setupBasicDrawable(draw);
             if (colorOverride)
                 draw->setColor(*colorOverride);
             draw->setType(GL_TRIANGLES);
@@ -397,7 +402,7 @@ bool GeometryRawPoints::valid() const
     return hasPosition;
 }
     
-void GeometryRawPoints::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,WhirlyKitGeomInfo *geomInfo) const
+void GeometryRawPoints::buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,GeometryInfo *geomInfo) const
 {
     if (!valid())
         return;
@@ -418,7 +423,7 @@ void GeometryRawPoints::buildDrawables(std::vector<BasicDrawable *> &draws,const
         {
             draw = new BasicDrawable("Raw Geometry");
             if (geomInfo) {
-                [geomInfo setupBasicDrawable:draw];
+                geomInfo->setupBasicDrawable(draw);
             }
             if (!mat.isIdentity())
                 draw->setMatrix(&mat);
@@ -548,13 +553,11 @@ GeometryManager::~GeometryManager()
     sceneReps.clear();
 }
     
-SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<GeometryInstance *> &instances,NSDictionary *desc,ChangeSet &changes)
+SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<GeometryInstance *> &instances,GeometryInfo &geomInfo,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     GeomSceneRep *sceneRep = new GeomSceneRep();
     
-    WhirlyKitGeomInfo *geomInfo = [[WhirlyKitGeomInfo alloc] initWithDesc:desc];
-
     // Calculate the bounding box for the whole thing
     Point3d ll,ur;
 
@@ -562,7 +565,7 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,con
     std::vector<std::vector<GeometryRaw *>> sortedGeom;
     for (unsigned int ii=0;ii<geom.size();ii++)
     {
-        GeometryRaw *raw = &geom[ii];
+        GeometryRaw *raw = geom[ii];
         
         raw->calcBounds(ll, ur);
         
@@ -588,12 +591,12 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,con
     // Work through the model instances
     for (unsigned int ii=0;ii<instances.size();ii++)
     {
-        const GeometryInstance &inst = instances[ii];
-        Vector4d center = inst.mat * Vector4d(0,0,0,1);
+        const GeometryInstance *inst = instances[ii];
+        Vector4d center = inst->mat * Vector4d(0,0,0,1);
         center.x() /= center.w();  center.y() /= center.w();  center.z() /= center.w();
         Eigen::Affine3d transBack(Eigen::Translation3d(-center.x(),-center.y(),-center.z()));
         Matrix4d transBackMat = transBack.matrix();
-        Matrix4d instMat = transBackMat * inst.mat;
+        Matrix4d instMat = transBackMat * inst->mat;
         
         // Convert the sorted lists of geometry into drawables
         for (unsigned int jj=0;jj<sortedGeom.size();jj++)
@@ -603,7 +606,7 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,con
             {
                 std::vector<BasicDrawable *> draws;
                 GeometryRaw *raw = sg[kk];
-                raw->buildDrawables(draws,instMat,(inst.colorOverride ? &inst.color : NULL),geomInfo);
+                raw->buildDrawables(draws,instMat,(inst->colorOverride ? &inst->color : NULL),&geomInfo);
                 
                 // Set the various parameters and store the drawables created
                 for (unsigned int ll=0;ll<draws.size();ll++)
@@ -628,10 +631,10 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,con
         // Note: Not sharing drawables between instances
         
         // Add a selection box for each instance
-        if (inst.selectable)
+        if (inst->selectable)
         {
-            selectManager->addPolytopeFromBox(inst.getId(), ll, ur, inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
-            sceneRep->selectIDs.insert(inst.getId());
+            selectManager->addPolytopeFromBox(inst->getId(), ll, ur, inst->mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
+            sceneRep->selectIDs.insert(inst->getId());
         }
     }
     
@@ -687,7 +690,7 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom
         {
             std::vector<BasicDrawable *> draws;
             GeometryRaw *raw = sg[kk];
-            raw->buildDrawables(draws,instMat,NULL,nil);
+            raw->buildDrawables(draws,instMat,NULL,NULL);
             
             // Set the various parameters and store the drawables created
             for (unsigned int ll=0;ll<draws.size();ll++)
@@ -715,17 +718,17 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom
 SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &inGeom,ChangeSet &changes)
 {
     std::vector<GeometryRaw *> geoms(inGeom.size());
-    for (GeometryRaw *rawGeom : inGeom)
-        geoms.push_back(rawGeom);
+    for (GeometryRaw &rawGeom : inGeom)
+        geoms.push_back(&rawGeom);
     
     return addBaseGeometry(geoms, changes);
 }
 
 /// Add instances that reuse base geometry
-SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,WhirlyKitGeomInfo &geomInfo,ChangeSet &changes)
+SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance *> &instances,GeometryInfo &geomInfo,ChangeSet &changes)
 {
     pthread_mutex_lock(&geomLock);
-    NSTimeInterval startTime = CFAbsoluteTimeGetCurrent();
+    TimeInterval startTime = TimeGetCurrent();
 
     // Look for the scene rep we're basing this on
     GeomSceneRep *baseSceneRep = NULL;
@@ -745,43 +748,43 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     
     // Check for moving models
     bool hasMotion = false;
-    for (const GeometryInstance &inst : instances)
-        if (inst.duration > 0.0)
+    for (const GeometryInstance *inst : instances)
+        if (inst->duration > 0.0)
             hasMotion = true;
     
     // Work through the model instances
     std::vector<BasicDrawableInstance::SingleInstance> singleInsts;
     for (unsigned int ii=0;ii<instances.size();ii++)
     {
-        const GeometryInstance &inst = instances[ii];
+        const GeometryInstance *inst = instances[ii];
         BasicDrawableInstance::SingleInstance singleInst;
-        if (desc && desc[@"color"])
+        if (geomInfo.colorOverride)
         {
             singleInst.colorOverride = true;
-            singleInst.color = [geomInfo.color asRGBAColor];
+            singleInst.color = geomInfo.color;
         }
-        if (inst.colorOverride)
+        if (inst->colorOverride)
         {
             singleInst.colorOverride = true;
-            singleInst.color = inst.color;
+            singleInst.color = inst->color;
         }
-        singleInst.center = inst.center;
-        singleInst.mat = inst.mat;
+        singleInst.center = inst->center;
+        singleInst.mat = inst->mat;
         if (hasMotion)
         {
-            singleInst.endCenter = inst.endCenter;
-            singleInst.duration = inst.duration;
+            singleInst.endCenter = inst->endCenter;
+            singleInst.duration = inst->duration;
         }
         singleInsts.push_back(singleInst);
         
         // Add a selection box for each instance
-        if (inst.selectable)
+        if (inst->selectable)
         {
             if (hasMotion)
-                selectManager->addMovingPolytopeFromBox(inst.getId(), baseSceneRep->ll, baseSceneRep->ur, inst.center, inst.endCenter, startTime, inst.duration, inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
+                selectManager->addMovingPolytopeFromBox(inst->getId(), baseSceneRep->ll, baseSceneRep->ur, inst->center, inst->endCenter, startTime, inst->duration, inst->mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
             else
-                selectManager->addPolytopeFromBox(inst.getId(), baseSceneRep->ll, baseSceneRep->ur, inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
-            sceneRep->selectIDs.insert(inst.getId());
+                selectManager->addPolytopeFromBox(inst->getId(), baseSceneRep->ll, baseSceneRep->ur, inst->mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
+            sceneRep->selectIDs.insert(inst->getId());
         }
     }
 
@@ -789,7 +792,7 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     for (SimpleIdentity baseDrawID : baseSceneRep->drawIDs)
     {
         BasicDrawableInstance *drawInst = new BasicDrawableInstance("GeometryManager",baseDrawID,BasicDrawableInstance::LocalStyle);
-        [geomInfo setupBasicDrawableInstance:drawInst];
+        geomInfo.setupBasicDrawableInstance(drawInst);
         //                    draw->setColor([geomInfo.color asRGBAColor]);
         drawInst->setRequestZBuffer(true);
         drawInst->setWriteZBuffer(true);
@@ -814,7 +817,7 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     return geomID;
 }
     
-SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,WhirlyKitGeomInfo &geomInfo,ChangeSet &changes)
+SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,GeometryInfo &geomInfo,ChangeSet &changes)
 {
     GeomSceneRep *sceneRep = new GeomSceneRep();
         
@@ -822,7 +825,7 @@ SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomP
     Point3d ll,ur;
 
     std::vector<BasicDrawable *> draws;
-    geomPoints.buildDrawables(draws,mat,geomInfo);
+    geomPoints.buildDrawables(draws,mat,&geomInfo);
     
     // Set the various parameters and store the drawables created
     for (unsigned int ll=0;ll<draws.size();ll++)
@@ -830,7 +833,7 @@ SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomP
         BasicDrawable *draw = draws[ll];
         draw->setType(GL_POINTS);
         draw->setOnOff(geomInfo.enable);
-        draw->setColor([geomInfo.color asRGBAColor]);
+        draw->setColor(geomInfo.color);
         draw->setVisibleRange(geomInfo.minVis, geomInfo.maxVis);
         draw->setDrawPriority(geomInfo.drawPriority);
         draw->setRequestZBuffer(geomInfo.zBufferRead);
@@ -877,7 +880,7 @@ void GeometryManager::removeGeometry(SimpleIDSet &geomIDs,ChangeSet &changes)
 
     pthread_mutex_lock(&geomLock);
     
-    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+    TimeInterval curTime = TimeGetCurrent();
     for (SimpleIDSet::iterator git = geomIDs.begin(); git != geomIDs.end(); ++git)
     {
         GeomSceneRep dummyRep(*git);
@@ -887,35 +890,33 @@ void GeometryManager::removeGeometry(SimpleIDSet &geomIDs,ChangeSet &changes)
         {
             GeomSceneRep *sceneRep = *it;
             
-            if (sceneRep->fade > 0.0)
-            {
-                for (SimpleIDSet::iterator it = sceneRep->drawIDs.begin();
-                     it != sceneRep->drawIDs.end(); ++it)
-                    changes.push_back(new FadeChangeRequest(*it, curTime, curTime+sceneRep->fade));
+//            if (sceneRep->fade > 0.0)
+//            {
+//                for (SimpleIDSet::iterator it = sceneRep->drawIDs.begin();
+//                     it != sceneRep->drawIDs.end(); ++it)
+//                    changes.push_back(new FadeChangeRequest(*it, curTime, curTime+sceneRep->fade));
                 
-                __block NSObject * __weak thisCanary = canary;
-
                 // Spawn off the deletion for later
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
-                               scene->getDispatchQueue(),
-                               ^{
-                                   if (thisCanary)
-                                   {
-                                       SimpleIDSet theIDs;
-                                       theIDs.insert(sceneRep->getId());
-                                       ChangeSet delChanges;
-                                       removeGeometry(theIDs, delChanges);
-                                       scene->addChangeRequests(delChanges);
-                                   }
-                               }
-                               );
+//                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
+//                               scene->getDispatchQueue(),
+//                               ^{
+//                                   if (thisCanary)
+//                                   {
+//                                       SimpleIDSet theIDs;
+//                                       theIDs.insert(sceneRep->getId());
+//                                       ChangeSet delChanges;
+//                                       removeGeometry(theIDs, delChanges);
+//                                       scene->addChangeRequests(delChanges);
+//                                   }
+//                               }
+//                               );
                 
-                sceneRep->fade = 0.0;
-            } else {
+//                sceneRep->fade = 0.0;
+//            } else {
                 sceneRep->clearContents(selectManager,changes);
                 sceneReps.erase(it);
                 delete sceneRep;
-            }
+//            }
         }
     }
 

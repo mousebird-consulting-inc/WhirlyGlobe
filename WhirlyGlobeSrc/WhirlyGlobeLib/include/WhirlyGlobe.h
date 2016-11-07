@@ -87,6 +87,7 @@
 //#import "SphericalEarthQuadLayer.h"
 //#import "UpdateDisplayLayer.h"
 //#import "GeometryLayer.h"
+#import "GeometryManager.h"
 //#import "ViewPlacementGenerator.h"
 //#import "ActiveModel.h"
 #import "MaplyScene.h"

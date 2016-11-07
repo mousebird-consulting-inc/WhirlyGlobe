@@ -81,6 +81,9 @@ template<> SimplePolyClassInfo *SimplePolyClassInfo::classInfoObj = NULL;
 template<> StringWrapperClassInfo *StringWrapperClassInfo::classInfoObj = NULL;
 template<> MapboxVectorTileParserClassInfo *MapboxVectorTileParserClassInfo::classInfoObj = NULL;
 template<> SelectedObjectClassInfo *SelectedObjectClassInfo::classInfoObj = NULL;
+template<> GeometryManagerClassInfo *GeometryManagerClassInfo::classInfoObj = NULL;
+template<> GeometryInfoClassInfo *GeometryInfoClassInfo::classInfoObj = NULL;
+template<> GeometryRawPointsClassInfo *GeometryRawPointsClassInfo::classInfoObj = NULL;
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {
@@ -92,16 +95,15 @@ void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 	env->ReleaseIntArrayElements(intArray,ints, 0);
 }
 
-void ConvertLongArrayToSet(JNIEnv *env,jlongArray &idArrayObj,std::vector<SimpleIdentity> &idSet)
+void ConvertLongArrayToSet(JNIEnv *env,jlongArray &idArrayObj,std::set<WhirlyKit::SimpleIdentity> &intSet)
 {
     int idCount = env->GetArrayLength(idArrayObj);
     long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
     if (idCount == 0)
         return;
     
-    SimpleIDSet idSet;
     for (int ii=0;ii<idCount;ii++)
-        idSet.insert(ids[ii]);
+        intSet.insert((WhirlyKit::SimpleIdentity)ids[ii]);
 
     env->ReleaseLongArrayElements(idArrayObj,ids, 0);
 }

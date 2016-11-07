@@ -19,10 +19,11 @@
  */
 #import <jni.h>
 #import "Maply_jni.h"
-#import "WhirlyGlobe.h"
 #import "com_mousebird_maply_GeometryManager.h"
+#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+using namespace Maply;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_nativeInit
 (JNIEnv *env, jclass cls)
@@ -70,7 +71,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
     try
     {
         GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
-        GeometryManager *geomManager = classInfo->getInfo(env, obj);
+        GeometryManager *geomManager = classInfo->getObject(env, obj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!geomManager || !changeSet)
         {
@@ -102,7 +103,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addBaseGeometry
     try
     {
         GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
-        GeometryManager *geomManager = classInfo->getInfo(env, obj);
+        GeometryManager *geomManager = classInfo->getObject(env, obj);
     }
     catch (...)
     {
@@ -116,7 +117,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInst
     try
     {
         GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
-        GeometryManager *geomManager = classInfo->getInfo(env, obj);
+        GeometryManager *geomManager = classInfo->getObject(env, obj);
     }
     catch (...)
     {
@@ -131,11 +132,11 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryPoin
     try
     {
         GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
-        GeometryManager *geomManager = classInfo->getInfo(env, obj);
+        GeometryManager *geomManager = classInfo->getObject(env, obj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        GeometryRawPoints *rawPoints = GeometryRawPoints::getClassInfo()->getObject(env,pointsObj);
-        Matrix4d *mat = Matrix4d::getClassInfo()->getObject(env,matObj);
-        GeometryInfo *geomInfo = GeometryInfo::getClassInfo()->getObject(env,geomInfoObj);
+        GeometryRawPoints *rawPoints = GeometryRawPointsClassInfo::getClassInfo()->getObject(env,pointsObj);
+        Matrix4d *mat = Matrix4dClassInfo::getClassInfo()->getObject(env,matObj);
+        GeometryInfo *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
         
         if (!geomManager || !rawPoints || !mat || !changeSet)
         {
@@ -157,11 +158,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_enableGeometry
     try
     {
         GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
-        GeometryManager *geomManager = classInfo->getInfo(env, obj);
+        GeometryManager *geomManager = classInfo->getObject(env, obj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         
         SimpleIDSet idSet;
-        ConvertLongArrayToSet(env,idArrayObj,idSet);
+        ConvertLongArrayToSet(env,geomIDs,idSet);
 
         geomManager->enableGeometry(idSet,enable,*changeSet);
     }
@@ -177,13 +178,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_removeGeometry
     try
     {
         GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
-        GeometryManager *geomManager = classInfo->getInfo(env, obj);
+        GeometryManager *geomManager = classInfo->getObject(env, obj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         
         SimpleIDSet idSet;
-        ConvertLongArrayToSet(env,idArrayObj,idSet);
+        ConvertLongArrayToSet(env,geomIDs,idSet);
         
-        geomManager->removeGeomtry(idSet,*changeSet);
+        geomManager->removeGeometry(idSet,*changeSet);
     }
     catch (...)
     {
