@@ -36,7 +36,6 @@
     if (self) {
         self.literal = [element stringValue];
         self.expression = [NSExpression expressionForConstantValue:self.literal];
-        NSLog(@"SLDLiteralExpression %@", self.literal);
     }
     return self;
 }
@@ -55,7 +54,6 @@
     if (self) {
         self.propertyName = [element stringValue];
         self.expression = [NSExpression expressionForKeyPath:self.propertyName];
-        NSLog(@"SLDPropertyNameExpression %@", self.propertyName);
     }
     return self;
 }
