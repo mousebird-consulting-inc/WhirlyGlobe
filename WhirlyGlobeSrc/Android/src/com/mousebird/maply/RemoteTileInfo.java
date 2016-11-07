@@ -66,11 +66,17 @@ public class RemoteTileInfo
 			for (int ii=0;ii<tileSources.length();ii++)
 			{
 				String tileURL = tileSources.getString(ii);
+				if (tileURL.contains("{x}") || tileURL.contains("{y}"))
+					replaceURL = true;
 				baseURLs.add(tileURL);
 			}
+			replaceURL = true;
 			minZoom = json.getInt("minzoom");
 			maxZoom = json.getInt("maxzoom");
-			ext = "png";
+			if (replaceURL)
+				ext = null;
+			else
+				ext = "png";
 		}
 		catch (JSONException e)
 		{

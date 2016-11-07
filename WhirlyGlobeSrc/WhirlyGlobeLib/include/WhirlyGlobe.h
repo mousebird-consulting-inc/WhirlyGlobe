@@ -111,6 +111,8 @@
 #import "BillboardManager.h"
 #import "BillboardDrawable.h"
 #import "ScreenObject.h"
+#ifndef MAPLYMINIMAL
 #import "MapboxVectorTileParser.h"
+#endif
 #import "OverlapHelper.h"
 

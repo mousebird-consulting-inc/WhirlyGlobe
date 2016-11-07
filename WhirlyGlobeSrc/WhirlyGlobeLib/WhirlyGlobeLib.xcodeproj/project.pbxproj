@@ -541,7 +541,6 @@
 		2BDC8A72192C090400DFECF0 /* LabelManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC8A70192C090400DFECF0 /* LabelManager.cpp */; };
 		2BDC8A73192C090400DFECF0 /* LabelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC8A71192C090400DFECF0 /* LabelRenderer.cpp */; };
 		2BFC7E591D147E340040E2A3 /* com_mousebird_maply_SelectedObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BFC7E581D147E340040E2A3 /* com_mousebird_maply_SelectedObject.h */; };
-		2BFC7E5B1D147E740040E2A3 /* SelectedObject_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E5A1D147E740040E2A3 /* SelectedObject_jni.cpp */; };
 		8817DA021C92F3070034E3EA /* com_mousebird_maply_ShapeSphere.h in Headers */ = {isa = PBXBuildFile; fileRef = 8817D9FD1C92F3070034E3EA /* com_mousebird_maply_ShapeSphere.h */; };
 		8817DA031C92F3070034E3EA /* com_mousebird_maply_ShapeInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 8817D9FE1C92F3070034E3EA /* com_mousebird_maply_ShapeInfo.h */; };
 		8817DA041C92F3070034E3EA /* com_mousebird_maply_ShapeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 8817D9FF1C92F3070034E3EA /* com_mousebird_maply_ShapeManager.h */; };
@@ -3263,7 +3262,6 @@
 				2B7EF48716025D8C00D4079F /* PJ_mbt_fps.c in Sources */,
 				2B7EF48816025D8C00D4079F /* PJ_mbtfpp.c in Sources */,
 				2B7EF48916025D8C00D4079F /* PJ_mbtfpq.c in Sources */,
-				2BFC7E5B1D147E740040E2A3 /* SelectedObject_jni.cpp in Sources */,
 				2B3836AB18625C9200467ABD /* glwrapper.cpp in Sources */,
 				2B7EF48A16025D8C00D4079F /* PJ_merc.c in Sources */,
 				2B35675318D762A700EF8DB1 /* Identifiable.cpp in Sources */,
