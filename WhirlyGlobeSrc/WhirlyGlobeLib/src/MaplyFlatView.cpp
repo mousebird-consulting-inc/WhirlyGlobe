@@ -102,9 +102,10 @@ Point2d FlatView::screenSizeInDisplayCoords(Point2f &frameSize)
 void FlatView::setWindow(const WhirlyKit::Point2d &inLL,const WhirlyKit::Point2d &inUR)
 {
     Point3d scale = coordAdapter->getScale();
+    Point3d center = coordAdapter->getCenter();
     
-    ll = Point2d(inLL.x()*scale.x(),inLL.y()*scale.y());
-    ur = Point2d(inUR.x()*scale.x(),inUR.y()*scale.y());
+    ll = Point2d((inLL.x()-center.x())*scale.x(),(inLL.y()-center.y())*scale.y());
+    ur = Point2d((inUR.x()-center.x())*scale.x(),(inUR.y()-center.y())*scale.y());
 
     runViewUpdates();
 }
