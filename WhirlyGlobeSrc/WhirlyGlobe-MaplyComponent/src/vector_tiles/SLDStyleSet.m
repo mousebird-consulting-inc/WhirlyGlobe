@@ -47,7 +47,7 @@
 
 
 /** @brief Constructs a SLDStyleSet object.
-    @details After constructing the SLDStyleSet object, call loadSldFile: or loadSldData: to parse the desired SLD document tree and create the corresponding symbolizers.
+    @details After constructing the SLDStyleSet object, call loadSldURL: or loadSldData:baseURL: to parse the desired SLD document tree and create the corresponding symbolizers.
     @param viewC The map or globe view controller.
     @param useLayerNames Whether to use names of NamedLayer elements as a criteria in matching styles.
  */
@@ -67,7 +67,10 @@
     return self;
 }
 
-
+/** @brief Load SLD document from the specified URL
+    @details Currently only file URLs are supported.
+    @param url The URL from which to load the SLD document.
+ */
 - (void)loadSldURL:(NSURL *__nullable)url {
     if (!url)
         url = [[NSBundle mainBundle] URLForResource:@"default" withExtension:@"sld"];
@@ -82,7 +85,12 @@
     }
 }
 
-- (void)loadSldData:(NSData *__nonnull)sldData baseURL:(NSURL *)baseURL {
+/** @brief Load SLD document from data
+    @details Load an SLD document from data.
+    @param sldData The SLD document
+    @param baseURL The base URL from which any external references (e.g. images) will be located.
+ */
+- (void)loadSldData:(NSData *__nonnull)sldData baseURL:(NSURL *__nonnull)baseURL {
     
     _baseURL = baseURL;
  
@@ -136,9 +144,6 @@
     
     NSError *error;
     
-    //DDXMLNode *nameNode = [self getSingleNodeForNode:namedLayerNode xpath:[NSString stringWithFormat:@"%@:%@", @"se", @"Name"] error:&error];
-    //DDXMLNode *nameNode = [self getSingleNodeForNode:namedLayerNode xpath:@"se:Name" error:&error];
-    
     DDXMLNode *nameNode = [self getSingleChildNodeForNode:namedLayerNode childName:@"Name"];
     
     if (!nameNode) {
@@ -149,8 +154,6 @@
     }
     
     sldNamedLayer.name = [nameNode stringValue];
-    NSLog(@"layer %@ %@", [nameNode localName], [nameNode stringValue]);
-    
     
     NSMutableArray *userStyles = [NSMutableArray array];
     NSArray *userStyleNodes = [namedLayerNode elementsForName:@"UserStyle"];
@@ -170,7 +173,6 @@
  */
 - (SLDUserStyle *)loadUserStyleNode:(DDXMLElement *)userStyleNode {
     NSError *error;
-    NSLog(@"loadUserStyleNode");
     SLDUserStyle *sldUserStyle = [[SLDUserStyle alloc] init];
 
     DDXMLNode *nameNode = [self getSingleChildNodeForNode:userStyleNode childName:@"Name"];
@@ -197,7 +199,6 @@
  */
 - (SLDFeatureTypeStyle *)loadFeatureTypeStyleNode:(DDXMLElement *)featureTypeStyleNode {
     NSError *error;
-    NSLog(@"loadFeatureTypeStyleNode");
     SLDFeatureTypeStyle *featureTypeStyle = [[SLDFeatureTypeStyle alloc] init];
 
     NSMutableArray *rules = [NSMutableArray array];
@@ -219,7 +220,6 @@
  */
 - (SLDRule *)loadRuleNode:(DDXMLElement *)ruleNode {
     NSError *error;
-    NSLog(@"loadRuleNode");
     SLDRule *rule = [[SLDRule alloc] init];
     
     
@@ -291,7 +291,6 @@
  */
 - (SLDFilter *)loadFilterNode:(DDXMLElement *)filterNode {
     
-    NSLog(@"loadFilterNode");
     SLDFilter *filter = [[SLDFilter alloc] init];
     
     for (DDXMLNode *child in [filterNode children]) {
@@ -301,7 +300,7 @@
             break;
         }
         else
-            NSLog(@"unmatched %@", [child localName]);
+            NSLog(@"SLDFilter; Unmatched operator: %@", [child localName]);
     }
 
     return filter;
@@ -325,6 +324,8 @@
         return [self stylesForFeatureWithAttributes:attributes onTile:tileID inNamedLayer:namedLayer viewC:viewC];
         
     } else {
+        // If we're not using layer names for matching, check all layers for
+        // matching styles.
         for (SLDNamedLayer *namedLayer in [_namedLayers allValues]) {
             NSArray *styles = [self stylesForFeatureWithAttributes:attributes onTile:tileID inNamedLayer:namedLayer viewC:viewC];
             if (styles && styles.count > 0)
