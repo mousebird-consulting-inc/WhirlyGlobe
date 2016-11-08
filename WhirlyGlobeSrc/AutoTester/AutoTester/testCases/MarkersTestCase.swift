@@ -28,7 +28,7 @@ class MarkersTestCase: MaplyTestCase {
 			marker.image = startImage
 			marker.loc = (object as! MaplyVectorObject).center()
 			marker.size = size
-			marker.userObject = (object as AnyObject).userObject
+			marker.userObject = (object as AnyObject).userObject!
 			markers.append(marker)
 		}
 		theViewC.addMarkers(markers, desc: nil)
