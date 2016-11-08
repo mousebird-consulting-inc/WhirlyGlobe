@@ -44,6 +44,7 @@ typedef enum {
     TextSymbolizerPlacement placement;
     TextSymbolizerTextTransform textTransform;
     NSString *textField;
+    float layoutImportance;
 }
 
 @end
@@ -152,6 +153,12 @@ typedef enum {
         else
             subStyle->textField = @"[name]";
         
+        if(styleEntry[@"layout-importance"])
+            subStyle->layoutImportance = [styleEntry[@"layout-importance"] floatValue];
+        else
+            // Make bigger text slightly more important
+            subStyle->layoutImportance = 1.0 + subStyle->textSize/1000;
+            
         [subStyles addObject:subStyle];
     }
     
@@ -226,8 +233,7 @@ typedef enum {
                 if(label)
                 {
                     label.offset = CGPointMake(subStyle->dx, subStyle->dy);
-                    // Make bigger text slightly more important
-                    label.layoutImportance = 1.0 + subStyle->textSize/1000;
+                    label.layoutImportance = subStyle->layoutImportance;
                     label.selectable = false;
                     [labels addObject:label];
                 }

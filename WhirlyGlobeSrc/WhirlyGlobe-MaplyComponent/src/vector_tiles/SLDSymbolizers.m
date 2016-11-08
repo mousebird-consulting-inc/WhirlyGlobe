@@ -8,6 +8,7 @@
 
 #import "SLDSymbolizers.h"
 #import "SLDWellKnownMarkers.h"
+#import "MaplyVectorTiles.h"
 
 @implementation SLDSymbolizer
 
@@ -18,21 +19,22 @@
  @param viewC The map or globe view controller.
  @param minScaleDenom If non-null, the minimum map scale at which to apply any constructed symbolizer.
  @param maxScaleDenom If non-null, the maximum map scale at which to apply any constructed symbolizer.
+ @param baseURL The base URL from which external resources (e.g. images) will be located.
  @return An array of MaplyVectorTileStyle objects corresponding to the particular XML element.
  @see MaplyVectorTileStyle
  @see MaplyVectorStyleSettings
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
-    NSString *name = [element name];
+    NSString *name = [element localName];
     if ([SLDLineSymbolizer matchesSymbolizerNamed:name])
-        return [SLDLineSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
+        return [SLDLineSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom baseURL:baseURL];
     else if ([SLDPolygonSymbolizer matchesSymbolizerNamed:name])
-        return [SLDPolygonSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
+        return [SLDPolygonSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom baseURL:baseURL];
     else if ([SLDPointSymbolizer matchesSymbolizerNamed:name])
-        return [SLDPointSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
+        return [SLDPointSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom baseURL:baseURL];
     else if ([SLDTextSymbolizer matchesSymbolizerNamed:name])
-        return [SLDTextSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
+        return [SLDTextSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom baseURL:baseURL];
     return nil;
 }
 
@@ -61,9 +63,18 @@
  */
 + (NSString *)stringForLiteralInNode:(DDXMLNode *)node {
     for (DDXMLNode *child in [node children]) {
-        NSString *stripped = [[[child name] componentsSeparatedByString:@":"] lastObject];
-        if ([stripped isEqualToString:@"Literal"])
+        if ([[child localName] isEqualToString:@"Literal"])
             return [child stringValue];
+    }
+    return nil;
+}
+
+/** @brief Get the attribute by local name (ignoring prefix)
+ */
++ (DDXMLNode *)getAttributeForElement:(DDXMLElement *)element attributeName:(NSString *)attributeName {
+    for (DDXMLNode *child in [element attributes]) {
+        if ([[child localName] isEqualToString:attributeName])
+            return child;
     }
     return nil;
 }
@@ -73,10 +84,9 @@
     @see MaplyVectorTileStyle
  */
 + (NSString *)stringForParameterValueTypeNode:(DDXMLNode *)node {
-    NSString *stripped = [[[node name] componentsSeparatedByString:@":"] lastObject];
-    if ([stripped isEqualToString:@"PropertyName"])
+    if ([[node localName] isEqualToString:@"PropertyName"])
         return [NSString stringWithFormat:@"[%@]", [node stringValue]];
-    else if ([stripped isEqualToString:@"Literal"])
+    else if ([[node localName] isEqualToString:@"Literal"])
         return [node stringValue];
     return nil;
 }
@@ -87,12 +97,14 @@
 + (NSMutableDictionary *)dictForSvgParametersInElement:(DDXMLElement *)element {
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     for (DDXMLElement *paramNode in [element elementsForName:@"SvgParameter"]) {
-        DDXMLNode *nameNode = [paramNode attributeForName:@"name"];
+        DDXMLNode *nameNode = [SLDSymbolizer getAttributeForElement:paramNode attributeName:@"name"];
         if (!nameNode)
             continue;
         NSString *paramName = [nameNode stringValue];
         params[paramName] = [paramNode stringValue];
     }
+    if (params.count == 0)
+        return nil;
     return params;
 }
 
@@ -102,12 +114,14 @@
 + (NSMutableDictionary *)dictForCssParametersInElement:(DDXMLElement *)element {
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
     for (DDXMLElement *paramNode in [element elementsForName:@"CssParameter"]) {
-        DDXMLNode *nameNode = [paramNode attributeForName:@"name"];
+        DDXMLNode *nameNode = [SLDSymbolizer getAttributeForElement:paramNode attributeName:@"name"];
         if (!nameNode)
             continue;
         NSString *paramName = [nameNode stringValue];
         params[paramName] = [paramNode stringValue];
     }
+    if (params.count == 0)
+        return nil;
     return params;
 }
 
@@ -122,27 +136,110 @@
     return params;
 }
 
+
++ (UIImage *)imageForHref:(NSString *)href baseURL:(NSURL *)baseURL {
+    
+    static NSMutableDictionary *images;
+    if (!images)
+        images = [NSMutableDictionary dictionary];
+    
+    UIImage *image = images[href];
+    if (image)
+        return image;
+    
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_group_enter(group);
+    
+    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: defaultConfigObject];
+    NSURL * url = [NSURL URLWithString:href relativeToURL:baseURL];
+    
+    __block NSData *imageData;
+    
+    NSURLSessionDataTask * dataTask = [defaultSession dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        
+        imageData = data;
+        
+        dispatch_group_leave(group);
+    }];
+    
+    [dataTask resume];
+    
+    long status = dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW,NSEC_PER_SEC * 5));
+    if (status != 0) {
+        // timed out
+        [dataTask cancel];
+        NSLog(@"SLDSymbolizer imageForHref timed out.");
+        return nil;
+    }
+    
+    if (imageData)
+        image = [UIImage imageWithData:imageData];
+    if (image)
+        images[href] = image;
+    return image;
+}
+
+
++ (UIImage *)imageForOnlineResourceNode:(DDXMLElement *)onlineResourceNode baseURL:(NSURL *)baseURL {
+    DDXMLNode *hrefNode = [SLDSymbolizer getAttributeForElement:onlineResourceNode attributeName:@"href"];
+    DDXMLNode *typeNode = [SLDSymbolizer getAttributeForElement:onlineResourceNode attributeName:@"type"];
+    if (!hrefNode || (typeNode && ![[typeNode stringValue] isEqualToString:@"simple"])) {
+        NSLog(@"SLDSymbolizer: Skipping unsupported graphic.");
+        return nil;
+    }
+    
+    return [SLDSymbolizer imageForHref:[hrefNode stringValue] baseURL:baseURL];
+}
+
++ (UIImage *)imageForInlineContentNode:(DDXMLElement *)inlineContentNode {
+    DDXMLNode *encodingNode = [SLDSymbolizer getAttributeForElement:inlineContentNode attributeName:@"encoding"];
+    if (!encodingNode || ![[encodingNode stringValue] isEqualToString:@"base64"]) {
+        NSLog(@"SLDSymbolizer: Unsupported InlineContent encoding.");
+        return nil;
+    }
+    NSString *contents;
+    for (DDXMLNode *child2 in [inlineContentNode children]) {
+        if ([child2 kind] == DDXMLTextKind) {
+            contents =[child2 XMLString];
+            break;
+        }
+    }
+    
+    if (!contents) {
+        NSLog(@"SLDSymbolizer: Failed to read InlineContent.");
+        return nil;
+    }
+    
+    NSData *imageData = [[NSData alloc] initWithBase64EncodedString:contents options:0];
+    UIImage *img = [UIImage imageWithData:imageData];
+    if (!img) {
+        NSLog(@"SLDSymbolizer: Failed to create image with InlineContent data.");
+        return nil;
+    }
+    
+    return img;
+}
+
+
+
 @end
 
 @implementation SLDLineSymbolizer
 
 /** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
-    
-    NSLog(@"SLDLineSymbolizer flag 1");
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
     DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke"];
     
     if (!strokeNode)
         return nil;
     
-    MaplyVectorTileStyle *s = [SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
+    MaplyVectorTileStyle *s = [SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:0 baseURL:baseURL];
     
     if (!s)
         return nil;
-    
-    NSLog(@"SLDLineSymbolizer flag 2");
     
     return @[s];
 }
@@ -150,19 +247,20 @@
 /** @brief See comment for SLDSymbolizer matchesSymbolizerNamed:
  */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
-    NSString *stripped = [[symbolizerName componentsSeparatedByString:@":"] lastObject];
-    return [stripped isEqualToString:@"LineSymbolizer"];
+    return [symbolizerName isEqualToString:@"LineSymbolizer"];
 }
 
 /** @brief Parses a stroke node and returns a corresponding MaplyVectorTileStyle object.
  */
-+ (MaplyVectorTileStyle *)maplyVectorTileStyleFromStrokeNode:(DDXMLElement *)strokeNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
++ (MaplyVectorTileStyle *)maplyVectorTileStyleFromStrokeNode:(DDXMLElement *)strokeNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
     
     NSMutableDictionary *strokeParams = [SLDSymbolizer dictForSvgCssParametersInElement:strokeNode];
     if (!strokeParams) {
         NSLog(@"SLDLineSymbolizer: Stroke node without stroke parameters.");
         return nil;
     }
+    
+    strokeParams[@"drawpriority"] = @(relativeDrawPriority);
     
     if (minScaleDenom)
         strokeParams[@"minscaledenom"] = minScaleDenom;
@@ -182,37 +280,38 @@
 /** @brief See comment for SLDSymbolizer matchesSymbolizerNamed:
  */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
-    NSString *stripped = [[symbolizerName componentsSeparatedByString:@":"] lastObject];
-    return [stripped isEqualToString:@"PolygonSymbolizer"];
+    return [symbolizerName isEqualToString:@"PolygonSymbolizer"];
 }
 
 /** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
-    
-    NSLog(@"SLDPolygonSymbolizer flag 1");
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
     DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Fill"];
     DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke"];
    
     NSMutableArray <MaplyVectorTileStyle *> *styles = [NSMutableArray array];
-    if (strokeNode)
-        [styles addObject:[SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom]];
+    if (strokeNode) {
+        MaplyVectorTileStyle *style = [SLDLineSymbolizer maplyVectorTileStyleFromStrokeNode:strokeNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:1 baseURL:baseURL];
+        if (style)
+            [styles addObject:style];
+    }
     
-    if (fillNode)
-        [styles addObject:[SLDPolygonSymbolizer maplyVectorTileStyleFromFillNode:fillNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom]];
-
+    if (fillNode) {
+        MaplyVectorTileStyle *style = [SLDPolygonSymbolizer maplyVectorTileStyleFromFillNode:fillNode tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom baseURL:baseURL];
+        if (style)
+            [styles addObject:style];
+    }
+    
     if (styles.count > 0)
         return styles;
-    
-    NSLog(@"SLDPolygonSymbolizer flag 2");
 
     return nil;
 }
 
 /** @brief Parses a fill node and returns a corresponding MaplyVectorTileStyle object.
  */
-+ (MaplyVectorTileStyle *)maplyVectorTileStyleFromFillNode:(DDXMLElement *)fillNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
++ (MaplyVectorTileStyle *)maplyVectorTileStyleFromFillNode:(DDXMLElement *)fillNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
     NSMutableDictionary *fillParams = [SLDSymbolizer dictForSvgCssParametersInElement:fillNode];
     if (!fillParams) {
@@ -239,15 +338,14 @@
 /** @brief See comment for SLDSymbolizer matchesSymbolizerNamed:
  */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
-    NSString *stripped = [[symbolizerName componentsSeparatedByString:@":"] lastObject];
-    return [stripped isEqualToString:@"PointSymbolizer"];
+    return [symbolizerName isEqualToString:@"PointSymbolizer"];
 }
 
 /** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
-    MaplyVectorTileStyle *s = [SLDPointSymbolizer maplyVectorTileStyleFromPointSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
+    MaplyVectorTileStyle *s = [SLDPointSymbolizer maplyVectorTileStyleFromPointSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom baseURL:baseURL];
     
     if (!s)
         return nil;
@@ -257,7 +355,7 @@
 
 /** @brief Parses a PointSymbolizer node and returns a corresponding MaplyVectorTileStyle object.
  */
-+ (MaplyVectorTileStyle *)maplyVectorTileStyleFromPointSymbolizerNode:(DDXMLElement *)pointSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
++ (MaplyVectorTileStyle *)maplyVectorTileStyleFromPointSymbolizerNode:(DDXMLElement *)pointSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
     NSMutableDictionary *pointParams = [NSMutableDictionary dictionary];
 
@@ -266,43 +364,67 @@
     if (!graphicNode)
         return nil;
     
+    NSString *wellKnownName;
+    
     for (DDXMLNode *child in [graphicNode children]) {
-        NSString *strippedChildName = [[[child name] componentsSeparatedByString:@":"] lastObject];
-        if ([strippedChildName isEqualToString:@"ExternalGraphic"]) {
+        NSString *childName = [child localName];
+        
+        if ([childName isEqualToString:@"ExternalGraphic"]) {
+        
+            DDXMLElement *onlineResourceNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"OnlineResource"];
+            DDXMLElement *inlineContentNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"InlineContent"];
+            DDXMLElement *formatNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Format"];
             
-            NSLog(@"Skipping MarkerSymbolizer with ExternalGraphic.");
-            return nil;
+            NSString *format = (formatNode ? [formatNode stringValue] : nil);
+            if (!format || (![format isEqualToString:@"image/png"] && ![format isEqualToString:@"image/gif"])) {
+                NSLog(@"SLDPointSymbolizer: Skipping unsupported graphic format.");
+                return nil;
+            }
             
-        } else if ([strippedChildName isEqualToString:@"Mark"]) {
+            if (onlineResourceNode) {
+                UIImage *image = [SLDSymbolizer imageForOnlineResourceNode:onlineResourceNode baseURL:baseURL];
+                if (image)
+                    pointParams[@"image"] = image;
+            } else if (inlineContentNode) {
+                UIImage *image = [SLDSymbolizer imageForInlineContentNode:inlineContentNode];
+                if (image)
+                    pointParams[@"image"] = image;
+            } else {
+                NSLog(@"SLDPointSymbolizer: Unexpected ExternalGraphic structure.");
+                return nil;
+            }
             
-            // Marker shape type
+        } else if ([childName isEqualToString:@"Mark"]) {
+            
             DDXMLElement *wellKnownNameNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"WellKnownName"];
+            DDXMLElement *onlineResourceNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"OnlineResource"];
+            DDXMLElement *inlineContentNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"InlineContent"];
+            DDXMLElement *formatNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Format"];
             
-            if (!wellKnownNameNode) {
-                NSLog(@"Skipping MarkerSymbolizer with Mark but without WellKnownName.");
-                return nil;
+            if (wellKnownNameNode) {
+                // Note the WellKnownName to handle below.
+                wellKnownName = [wellKnownNameNode stringValue];
+            } else {
+                
+                NSString *format = (formatNode ? [formatNode stringValue] : nil);
+                if (!format || (![format isEqualToString:@"image/png"] && ![format isEqualToString:@"image/gif"])) {
+                    NSLog(@"SLDPointSymbolizer: Skipping unsupported graphic format.");
+                    return nil;
+                }
+                
+                if (onlineResourceNode) {
+                    UIImage *image = [SLDSymbolizer imageForOnlineResourceNode:onlineResourceNode baseURL:baseURL];
+                    if (image)
+                        pointParams[@"image"] = image;
+                } else if (inlineContentNode) {
+                    UIImage *image = [SLDSymbolizer imageForInlineContentNode:inlineContentNode];
+                    if (image)
+                        pointParams[@"image"] = image;
+                } else {
+                    NSLog(@"SLDPointSymbolizer: Unexpected Mark structure.");
+                    return nil;
+                }
             }
-            
-            NSString *wellKnownName = [wellKnownNameNode stringValue];
-            
-            UIImage *image;
-            if ([wellKnownName isEqualToString:@"square"])
-                image = [SLDWellKnownMarkers squareImage];
-            else if ([wellKnownName isEqualToString:@"circle"])
-                image = [SLDWellKnownMarkers circleImage];
-            else if ([wellKnownName isEqualToString:@"triangle"])
-                image = [SLDWellKnownMarkers triangleImage];
-            else if ([wellKnownName isEqualToString:@"star"])
-                image = [SLDWellKnownMarkers starImage];
-            else if ([wellKnownName isEqualToString:@"cross"])
-                image = [SLDWellKnownMarkers crossImage];
-            else if ([wellKnownName isEqualToString:@"x"])
-                image = [SLDWellKnownMarkers xImage];
-            else {
-                NSLog(@"Skipping MarkerSymbolizer with unrecognized WellKnownName for Mark.");
-                return nil;
-            }
-            pointParams[@"image"] = image;
             
             // Fill color
             DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Fill"];
@@ -323,15 +445,50 @@
             }
 
             
-        } else if ([strippedChildName isEqualToString:@"Size"]) {
+        } else if ([childName isEqualToString:@"Size"]) {
             // Marker size
             NSString *size = [SLDSymbolizer stringForLiteralInNode:child];
+            if (!size) {
+                size = [child stringValue];
+            }
             if (size) {
                 pointParams[@"width"] = size;
                 pointParams[@"height"] = size;
             }
-            
         }
+    }
+    
+    if (wellKnownName) {
+        
+        UIColor *strokeColor, *fillColor;
+        int imgWidth, imgHeight;
+        
+        // Transform relevant drawing parameters.
+        if (pointParams[@"stroke"])
+            strokeColor = [MaplyVectorTiles ParseColor:pointParams[@"stroke"] alpha:1.0];
+        else
+            strokeColor = [UIColor darkGrayColor];
+        
+        if (pointParams[@"fill"])
+            fillColor = [MaplyVectorTiles ParseColor:pointParams[@"fill"] alpha:1.0];
+        else
+            fillColor = [UIColor whiteColor];
+        
+        if (pointParams[@"width"] && pointParams[@"height"]) {
+            imgWidth = [pointParams[@"width"] intValue];
+            if (imgWidth < 8)
+                imgWidth = 8;
+            imgHeight = [pointParams[@"height"] intValue];
+            if (imgHeight < 8)
+                imgHeight = 8;
+        }
+        
+        // Draw marker image.
+        UIImage *image = [SLDWellKnownMarkers imageWithName:wellKnownName strokeColor:strokeColor fillColor:fillColor size:MIN(imgWidth, imgHeight)];
+        if (!image)
+            return nil;
+
+        pointParams[@"image"] = image;
     }
     
     if (minScaleDenom)
@@ -352,15 +509,14 @@
 /** @brief See comment for SLDSymbolizer matchesSymbolizerNamed:
  */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
-    NSString *stripped = [[symbolizerName componentsSeparatedByString:@":"] lastObject];
-    return [stripped isEqualToString:@"TextSymbolizer"];
+    return [symbolizerName isEqualToString:@"TextSymbolizer"];
 }
 
 /** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
-    MaplyVectorTileStyle *s = [SLDTextSymbolizer maplyVectorTileStyleFromTextSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom];
+    MaplyVectorTileStyle *s = [SLDTextSymbolizer maplyVectorTileStyleFromTextSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom baseURL:baseURL];
     
     if (!s)
         return nil;
@@ -370,7 +526,7 @@
 
 /** @brief Parses a TextSymbolizer node and returns a corresponding MaplyVectorTileStyle object.
  */
-+ (MaplyVectorTileStyle *)maplyVectorTileStyleFromTextSymbolizerNode:(DDXMLElement *)textSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom {
++ (MaplyVectorTileStyle *)maplyVectorTileStyleFromTextSymbolizerNode:(DDXMLElement *)textSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL {
     
     NSMutableDictionary *labelParams = [NSMutableDictionary dictionary];
     
@@ -433,6 +589,8 @@
         labelParams[@"minscaledenom"] = minScaleDenom;
     if (maxScaleDenom)
         labelParams[@"maxscaledenom"] = maxScaleDenom;
+    
+    labelParams[@"dx"] = @(25);
     
     MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": @"TextSymbolizer", @"substyles": @[labelParams]}
                                                                settings:tileStyleSettings
