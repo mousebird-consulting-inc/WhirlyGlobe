@@ -18,58 +18,58 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_GeometryRawPoints_valid
 /*
  * Class:     com_mousebird_maply_GeometryRawPoints
  * Method:    addIntValues
- * Signature: (Ljava/lang/String;[II)V
+ * Signature: (Ljava/lang/String;[I)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addIntValues
-  (JNIEnv *, jobject, jstring, jintArray, jint);
+  (JNIEnv *, jobject, jstring, jintArray);
 
 /*
  * Class:     com_mousebird_maply_GeometryRawPoints
  * Method:    addFloatValues
- * Signature: (Ljava/lang/String;[FI)V
+ * Signature: (Ljava/lang/String;[F)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addFloatValues
-  (JNIEnv *, jobject, jstring, jfloatArray, jint);
+  (JNIEnv *, jobject, jstring, jfloatArray);
 
 /*
  * Class:     com_mousebird_maply_GeometryRawPoints
  * Method:    addPoint2fValues
- * Signature: (Ljava/lang/String;[FI)V
+ * Signature: (Ljava/lang/String;[F)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint2fValues
-  (JNIEnv *, jobject, jstring, jfloatArray, jint);
+  (JNIEnv *, jobject, jstring, jfloatArray);
 
 /*
  * Class:     com_mousebird_maply_GeometryRawPoints
  * Method:    addPoint3fValues
- * Signature: (Ljava/lang/String;[FI)V
+ * Signature: (Ljava/lang/String;[F)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint3fValues
-  (JNIEnv *, jobject, jstring, jfloatArray, jint);
+  (JNIEnv *, jobject, jstring, jfloatArray);
 
 /*
  * Class:     com_mousebird_maply_GeometryRawPoints
  * Method:    addPoint3dValues
- * Signature: (Ljava/lang/String;[DI)V
+ * Signature: (Ljava/lang/String;[D)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint3dValues
-  (JNIEnv *, jobject, jstring, jdoubleArray, jint);
+  (JNIEnv *, jobject, jstring, jdoubleArray);
 
 /*
  * Class:     com_mousebird_maply_GeometryRawPoints
  * Method:    addPoint4fValues
- * Signature: (Ljava/lang/String;[FI)V
+ * Signature: (Ljava/lang/String;[F)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint4fValues
-  (JNIEnv *, jobject, jstring, jfloatArray, jint);
+  (JNIEnv *, jobject, jstring, jfloatArray);
 
 /*
  * Class:     com_mousebird_maply_GeometryRawPoints
  * Method:    addAttribute
- * Signature: (Ljava/lang/String;Lcom/mousebird/maply/GeometryRawPoints/Type;)I
+ * Signature: (Ljava/lang/String;I)I
  */
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_GeometryRawPoints_addAttribute
-  (JNIEnv *, jobject, jstring, jobject);
+  (JNIEnv *, jobject, jstring, jint);
 
 /*
  * Class:     com_mousebird_maply_GeometryRawPoints

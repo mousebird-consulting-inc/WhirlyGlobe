@@ -455,6 +455,7 @@ typedef JavaClassInfo<WhirlyKit::WhirlyKitSphere> ShapeSphereClassInfo;
 typedef JavaClassInfo<WhirlyKit::ShapeManager> ShapeManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryManager> GeometryManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryInfo> GeometryInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::GeometryRaw> GeometryRawClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryRawPoints> GeometryRawPointsClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitDirectionalLight> DirectionalLightClassInfo;
@@ -475,6 +476,17 @@ extern JNIEnv *maplyCurrentEnv;
 
 // Convert a Java int array into a std::vector of ints
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec);
+// Convert a Java float array into a std::vector of floats
+void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &floatVec);
+// Convert a Java float array into a std::vector of Point2f
+void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::Vector2f> &ptVec);
+// Convert a Java float array into a std::vector of Point3f
+void ConvertFloat3fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::Vector3f> &ptVec);
+// Convert a Java float array into a std::vector of Point3d
+void ConvertFloat3dArray(JNIEnv *env,jdoubleArray &floatArray,std::vector<Eigen::Vector3d> &ptVec);
+// Convert a Java float array into a std::vector of Point4f
+void ConvertFloat4fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::Vector4f> &ptVec);
+// Convert a Java long long array into a set of SimpleIdentity values
 void ConvertLongArrayToSet(JNIEnv *env,jlongArray &longArray,std::set<WhirlyKit::SimpleIdentity> &intSet);
 
 #endif /* Maply_JNI_h_ */

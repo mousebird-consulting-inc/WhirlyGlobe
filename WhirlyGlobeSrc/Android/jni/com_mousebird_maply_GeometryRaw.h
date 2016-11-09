@@ -18,10 +18,10 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_GeometryRaw_valid
 /*
  * Class:     com_mousebird_maply_GeometryRaw
  * Method:    setType
- * Signature: (Lcom/mousebird/maply/GeometryRaw/GeometryType;)V
+ * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_setType
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jint);
 
 /*
  * Class:     com_mousebird_maply_GeometryRaw
@@ -34,42 +34,42 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_setTextureNative
 /*
  * Class:     com_mousebird_maply_GeometryRaw
  * Method:    addPoints
- * Signature: ([DI)V
+ * Signature: ([D)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_addPoints
-  (JNIEnv *, jobject, jdoubleArray, jint);
+  (JNIEnv *, jobject, jdoubleArray);
 
 /*
  * Class:     com_mousebird_maply_GeometryRaw
  * Method:    addNorms
- * Signature: ([DI)V
+ * Signature: ([D)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_addNorms
-  (JNIEnv *, jobject, jdoubleArray, jint);
+  (JNIEnv *, jobject, jdoubleArray);
 
 /*
  * Class:     com_mousebird_maply_GeometryRaw
  * Method:    addTexCoords
- * Signature: ([FI)V
+ * Signature: ([F)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_addTexCoords
-  (JNIEnv *, jobject, jfloatArray, jint);
+  (JNIEnv *, jobject, jfloatArray);
 
 /*
  * Class:     com_mousebird_maply_GeometryRaw
  * Method:    addColors
- * Signature: ([II)V
+ * Signature: ([I)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_addColors
-  (JNIEnv *, jobject, jintArray, jint);
+  (JNIEnv *, jobject, jintArray);
 
 /*
  * Class:     com_mousebird_maply_GeometryRaw
  * Method:    addTriangles
- * Signature: ([II)V
+ * Signature: ([I)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_addTriangles
-  (JNIEnv *, jobject, jintArray, jint);
+  (JNIEnv *, jobject, jintArray);
 
 /*
  * Class:     com_mousebird_maply_GeometryRaw

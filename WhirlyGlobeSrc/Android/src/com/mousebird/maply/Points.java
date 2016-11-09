@@ -22,66 +22,60 @@ public class Points
      * Add an array of integer values.
      * @param name Name of attribute in shader
      * @param intVals Integer values
-     * @param numVals Number of values
      */
-    public void addIntValues(String name,int[] intVals,int numVals)
+    public void addIntValues(String name,int[] intVals)
     {
-        rawPoints.addIntValues(name,intVals,numVals);
+        rawPoints.addIntValues(name,intVals);
     }
 
     /**
      * Add an array of floating values.
      * @param name Name of attribute in shader
      * @param floatVals Floating point values
-     * @param numVals Number of values
      */
-    public void addFloatValues(String name,float[] floatVals,int numVals)
+    public void addFloatValues(String name,float[] floatVals)
     {
-        rawPoints.addFloatValues(name,floatVals,numVals);
+        rawPoints.addFloatValues(name,floatVals);
     }
 
     /**
      * Add an array of 2 floating point values.
      * @param name Name of attribute in shader
      * @param pt2fVals 2*numPts floating point values
-     * @param numPts Number of points
      */
-    public void addPoint2fValues(String name,float[] pt2fVals,int numPts)
+    public void addPoint2fValues(String name,float[] pt2fVals)
     {
-        rawPoints.addPoint2fValues(name,pt2fVals,numPts);
+        rawPoints.addPoint2fValues(name,pt2fVals);
     }
 
     /**
      * Add an array of 3 floating point values
      * @param name Name of attribute in shader
      * @param pt3fVals 3*numPts floating point values
-     * @param numPts Number of points
      */
-    public void addPoint3fValues(String name,float[] pt3fVals,int numPts)
+    public void addPoint3fValues(String name,float[] pt3fVals)
     {
-        rawPoints.addPoint3fValues(name,pt3fVals,numPts);
+        rawPoints.addPoint3fValues(name,pt3fVals);
     }
 
     /**
      * Add an array of 3 double values
      * @param name Name of attribute in shader
      * @param pt3dVals 3*numPts double values
-     * @param numPts Number of points
      */
-    public void addPoint3dValues(String name,double[] pt3dVals,int numPts)
+    public void addPoint3dValues(String name,double[] pt3dVals)
     {
-        rawPoints.addPoint3dValues(name,pt3dVals,numPts);
+        rawPoints.addPoint3dValues(name,pt3dVals);
     }
 
     /**
      * Add an array of 4 floating point values
      * @param name Name of attribute in shader
      * @param pt4fVals 4*numPts floating values
-     * @param numPts Number of points
      */
-    public void addPoint4fValues(String name,float[] pt4fVals,int numPts)
+    public void addPoint4fValues(String name,float[] pt4fVals)
     {
-        rawPoints.addPoint4fValues(name,pt4fVals,numPts);
+        rawPoints.addPoint4fValues(name,pt4fVals);
     }
 
     /**
@@ -91,6 +85,6 @@ public class Points
      */
     public void addAttribute(String name,GeometryRawPoints.Type type)
     {
-        rawPoints.addAttribute(name,type);
+        rawPoints.addAttribute(name,type.ordinal());
     }
 }

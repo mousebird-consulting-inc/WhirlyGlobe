@@ -18,7 +18,7 @@ public class GeometryRaw
     /**
      * Set the geometry type.  Can be lines or triangles.
      */
-    public native void setType(GeometryType type);
+    public native void setType(int type);
 
     /**
      * Apply a texture to the geometry.
@@ -34,35 +34,35 @@ public class GeometryRaw
      * @param pts Points are organized as X,Y,Z in order.
      * @param numPts Number of points
      */
-    public native void addPoints(double[] pts,int numPts);
+    public native void addPoints(double[] pts);
 
     /**
      * Add a group of normals at once.
      * @param norms Norms are organized as X,Y,Z in order.
      * @param numNorms Number of normals
      */
-    public native void addNorms(double[] norms,int numNorms);
+    public native void addNorms(double[] norms);
 
     /**
      * Add a group of texture coordinates.
      * @param texCoords Texture coordinates are organized as u,v.
      * @param numTexCoords Number of texture coordinates.
      */
-    public native void addTexCoords(float[] texCoords,int numTexCoords);
+    public native void addTexCoords(float[] texCoords);
 
     /**
      * Add a group of colors.
      * @param colors Individual colors as 32 bit values.
      * @param numColors Number of colors.
      */
-    public native void addColors(int[] colors,int numColors);
+    public native void addColors(int[] colors);
 
     /**
      * Add a group of triangles.  Indices refer to vertices in order.
      * @param tris Triangles are organized as three vertices per triangle.
      * @param numTris Number of triangles.
      */
-    public native void addTriangles(int[] tris,int numTris);
+    public native void addTriangles(int[] tris);
 
     public void finalize() {
         dispose();

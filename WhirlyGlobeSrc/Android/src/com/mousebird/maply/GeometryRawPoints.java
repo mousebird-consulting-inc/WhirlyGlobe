@@ -15,14 +15,14 @@ public class GeometryRawPoints
      */
     public native boolean valid();
 
-    public native void addIntValues(String name,int[] intVals,int numVals);
-    public native void addFloatValues(String name,float[] floatVals,int numVals);
-    public native void addPoint2fValues(String name,float[] pt2fVals,int numPts);
-    public native void addPoint3fValues(String name,float[] pt3fVals,int numPts);
-    public native void addPoint3dValues(String name,double[] pt3dVals,int numPts);
-    public native void addPoint4fValues(String name,float[] pt4fVals,int numPts);
+    public native void addIntValues(String name,int[] intVals);
+    public native void addFloatValues(String name,float[] floatVals);
+    public native void addPoint2fValues(String name,float[] pt2fVals);
+    public native void addPoint3fValues(String name,float[] pt3fVals);
+    public native void addPoint3dValues(String name,double[] pt3dVals);
+    public native void addPoint4fValues(String name,float[] pt4fVals);
 
-    public native int addAttribute(String name,Type type);
+    public native int addAttribute(String name,int type);
 
     public void finalize() {
         dispose();
