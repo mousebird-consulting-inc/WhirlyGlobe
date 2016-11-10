@@ -85,6 +85,6 @@ public class Points
      */
     public void addAttribute(String name,GeometryRawPoints.Type type)
     {
-        rawPoints.addAttribute(name,type.ordinal());
+        rawPoints.addAttribute(name,type);
     }
 }

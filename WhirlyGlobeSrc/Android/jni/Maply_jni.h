@@ -457,6 +457,7 @@ typedef JavaClassInfo<WhirlyKit::GeometryManager> GeometryManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryInfo> GeometryInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryRaw> GeometryRawClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryRawPoints> GeometryRawPointsClassInfo;
+typedef JavaClassInfo<WhirlyKit::GeometryInstance> GeometryInstanceClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitDirectionalLight> DirectionalLightClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitMaterial> MaterialClassInfo;

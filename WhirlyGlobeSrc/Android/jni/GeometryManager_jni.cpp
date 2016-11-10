@@ -64,32 +64,47 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_dispose
     }
 }
 
-#if 0
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
-(JNIEnv *env, jobject obj, jobjectArray rawGeomArr, jobjectArray modelInstArr, jobject geomInfo, jobject changeObj)
+(JNIEnv *env, jobject obj, jobjectArray rawGeomArr, jobjectArray modelInstArr, jobject geomInfoObj, jobject changeSetObj)
 {
     try
     {
-        GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
-        GeometryManager *geomManager = classInfo->getObject(env, obj);
+        GeometryManager *geomManager = GeometryManagerClassInfo::getClassInfo()->getObject(env, obj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!geomManager || !changeSet)
+        GeometryInfo *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
+        if (!geomManager || !changeSet || !geomInfo)
         {
             __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in GeometryManager::addGeometry()");
             return EmptyIdentity;
         }
         
-        std::vector<GeometryRaw *>
+        // Unwrap the raw geometry objects
+        std::vector<GeometryRaw *> geoms;
         int geomCount = env->GetArrayLength(rawGeomArr);
-        for (unsigned int ii=0;ii<attrCount;ii++)
+        GeometryRawClassInfo *rawGeomClassInfo = GeometryRawClassInfo::getClassInfo();
+        for (unsigned int ii=0;ii<geomCount;ii++)
         {
-            jobject vertAttrObj = env->GetObjectArrayElement(vertAttrArray,ii);
-            SingleVertexAttribute *vertAttr = vertClassInfo->getObject(env,vertAttrObj);
-            marker->vertexAttrs.insert(*vertAttr);
-            env->DeleteLocalRef(vertAttrObj);
+            jobject geomRawObj = env->GetObjectArrayElement(rawGeomArr,ii);
+            GeometryRaw *geomRaw = rawGeomClassInfo->getObject(env,geomRawObj);
+            if (geomRaw)
+                geoms.push_back(geomRaw);
+            env->DeleteLocalRef(geomRawObj);
         }
         
+        // Unwrap the instances
+        std::vector<GeometryInstance *> geomInsts;
+        int geomInstCount = env->GetArrayLength(modelInstArr);
+        GeometryInstanceClassInfo *geomInfoClassInfo = GeometryInstanceClassInfo::getClassInfo();
+        for (unsigned int ii=0;ii<geomInstCount;ii++)
+        {
+            jobject geomInstObj = env->GetObjectArrayElement(modelInstArr,ii);
+            GeometryInstance *geomInst = geomInfoClassInfo->getObject(env,geomInstObj);
+            if (geomInst)
+                geomInsts.push_back(geomInst);
+            env->DeleteLocalRef(geomInstObj);
+        }
         
+        return geomManager->addGeometry(geoms,geomInsts,*geomInfo,*changeSet);
     }
     catch (...)
     {
@@ -98,12 +113,32 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addBaseGeometry
-(JNIEnv *env, jobject obj, jobjectArray geomAttr, jobject changeObj)
+(JNIEnv *env, jobject obj, jobjectArray rawGeomArr, jobject changeSetObj)
 {
     try
     {
-        GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
-        GeometryManager *geomManager = classInfo->getObject(env, obj);
+        GeometryManager *geomManager = GeometryManagerClassInfo::getClassInfo()->getObject(env, obj);
+        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        if (!geomManager || !changeSet)
+        {
+            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in GeometryManager::addBaseGeometry()");
+            return EmptyIdentity;
+        }
+        
+        // Unwrap the raw geometry objects
+        std::vector<GeometryRaw *> geoms;
+        int geomCount = env->GetArrayLength(rawGeomArr);
+        GeometryRawClassInfo *rawGeomClassInfo = GeometryRawClassInfo::getClassInfo();
+        for (unsigned int ii=0;ii<geomCount;ii++)
+        {
+            jobject geomRawObj = env->GetObjectArrayElement(rawGeomArr,ii);
+            GeometryRaw *geomRaw = rawGeomClassInfo->getObject(env,geomRawObj);
+            if (geomRaw)
+                geoms.push_back(geomRaw);
+            env->DeleteLocalRef(geomRawObj);
+        }
+        
+        return geomManager->addBaseGeometry(geoms,*changeSet);
     }
     catch (...)
     {
@@ -112,19 +147,39 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addBaseGeometry
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInstances
-(JNIEnv *env, jobject obj, jlong baseGeomID, jobjectArray geomInstArr, jobject geomInfo, jobject changeObj)
+(JNIEnv *env, jobject obj, jlong baseGeomID, jobjectArray modelInstArr, jobject geomInfoObj, jobject changeSetObj)
 {
     try
     {
-        GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
-        GeometryManager *geomManager = classInfo->getObject(env, obj);
+        GeometryManager *geomManager = GeometryManagerClassInfo::getClassInfo()->getObject(env, obj);
+        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        GeometryInfo *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
+        if (!geomManager || !changeSet || !geomInfo)
+        {
+            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in GeometryManager::addGeometryInstances()");
+            return EmptyIdentity;
+        }
+        
+        // Unwrap the instances
+        std::vector<GeometryInstance *> geomInsts;
+        int geomInstCount = env->GetArrayLength(modelInstArr);
+        GeometryInstanceClassInfo *geomInfoClassInfo = GeometryInstanceClassInfo::getClassInfo();
+        for (unsigned int ii=0;ii<geomInstCount;ii++)
+        {
+            jobject geomInstObj = env->GetObjectArrayElement(modelInstArr,ii);
+            GeometryInstance *geomInst = geomInfoClassInfo->getObject(env,geomInstObj);
+            if (geomInst)
+                geomInsts.push_back(geomInst);
+            env->DeleteLocalRef(geomInstObj);
+        }
+        
+        return geomManager->addGeometryInstances(baseGeomID,geomInsts,*geomInfo,*changeSet);
     }
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryManager::addGeometryInstances()");
     }
 }
-#endif
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryPoints
 (JNIEnv *env, jobject obj, jobject pointsObj, jobject matObj, jobject geomInfoObj, jobject changeSetObj)

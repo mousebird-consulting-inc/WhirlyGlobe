@@ -65,10 +65,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint4fValu
 
 /*
  * Class:     com_mousebird_maply_GeometryRawPoints
- * Method:    addAttribute
+ * Method:    addAttributeNative
  * Signature: (Ljava/lang/String;I)I
  */
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_GeometryRawPoints_addAttribute
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_GeometryRawPoints_addAttributeNative
   (JNIEnv *, jobject, jstring, jint);
 
 /*

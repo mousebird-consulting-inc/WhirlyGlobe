@@ -82,7 +82,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_GeometryRaw_valid
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_setType
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_setTypeNative
 (JNIEnv *env, jobject obj, jint type)
 {
     try
@@ -92,7 +92,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_setType
         if (!rawGeom)
             return;
         
-        rawGeom->type = type;
+        rawGeom->type = (WhirlyKitGeometryRawType)type;
     }
     catch (...)
     {
@@ -164,7 +164,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_addTexCoords
         if (!rawGeom)
             return;
 
-        ConvertFloat2fArray(env,floatArray,rawGeom->texCoords);
+        std::vector<Eigen::Vector2f> coords;
+        ConvertFloat2fArray(env,floatArray,coords);
+        rawGeom->texCoords.reserve(coords.size());
+        for (auto coord : coords)
+            rawGeom->texCoords.push_back(TexCoord(coord.x(),coord.y()));
     }
     catch (...)
     {
@@ -186,7 +190,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_addColors
         ConvertIntArray(env,intArray,intVec);
         rawGeom->colors.reserve(intVec.size());
         for (unsigned int ii=0;ii<intVec.size();ii++)
-            colors[ii].push_back(intVec[ii]);
+        {
+            const int &iVal = intVec[ii];
+            RGBAColor color((iVal >> 16) & 0xff,(iVal >> 8) & 0xff,(iVal) & 0xff,(iVal >> 24) & 0xff);
+            rawGeom->colors.push_back(color);
+        }
     }
     catch (...)
     {
@@ -206,9 +214,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_addTriangles
         
         std::vector<int> intVec;
         ConvertIntArray(env,intArray,intVec);
-        rawGeom->tris.resize(intVec.size()/3);
-        for (unsigned int ii=0;ii<tris.size();ii++)
-            rawGeom->tris[ii] = RawTriangle(intVec[3*ii+0],intVec[3*ii+1],intVec[3*ii+2]);
+        rawGeom->triangles.resize(intVec.size()/3);
+        for (unsigned int ii=0;ii<rawGeom->triangles.size();ii++)
+            rawGeom->triangles[ii] = GeometryRaw::RawTriangle(intVec[3*ii+0],intVec[3*ii+1],intVec[3*ii+2]);
     }
     catch (...)
     {

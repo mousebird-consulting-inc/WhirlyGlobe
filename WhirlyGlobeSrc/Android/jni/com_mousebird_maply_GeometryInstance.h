@@ -42,10 +42,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryInstance_setMatrix
 /*
  * Class:     com_mousebird_maply_GeometryInstance
  * Method:    setColor
- * Signature: (I)V
+ * Signature: (FFFF)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryInstance_setColor
-  (JNIEnv *, jobject, jint);
+  (JNIEnv *, jobject, jfloat, jfloat, jfloat, jfloat);
 
 /*
  * Class:     com_mousebird_maply_GeometryInstance

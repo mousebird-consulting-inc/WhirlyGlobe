@@ -1,5 +1,7 @@
 package com.mousebird.maply;
 
+import android.graphics.Color;
+
 /**
  * Parameters used for Geometry display.  Typically passed to an add call.
  */
@@ -16,6 +18,14 @@ public class GeometryInfo extends BaseInfo
      * @param a Alpha component.
      */
     public native void setColor(float r,float g,float b,float a);
+
+    /**
+     * Set the color used by the geometry.
+     */
+    public void setColor(int color)
+    {
+        setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+    }
 
     /**
      * Set the point size when using points.

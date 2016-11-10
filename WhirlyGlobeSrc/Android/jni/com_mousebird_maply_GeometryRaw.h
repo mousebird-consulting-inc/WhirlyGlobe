@@ -17,10 +17,10 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_GeometryRaw_valid
 
 /*
  * Class:     com_mousebird_maply_GeometryRaw
- * Method:    setType
+ * Method:    setTypeNative
  * Signature: (I)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_setType
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_setTypeNative
   (JNIEnv *, jobject, jint);
 
 /*

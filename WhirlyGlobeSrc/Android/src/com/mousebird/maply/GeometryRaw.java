@@ -15,10 +15,15 @@ public class GeometryRaw
      */
     public native boolean valid();
 
+    public native void setTypeNative(int type);
+
     /**
      * Set the geometry type.  Can be lines or triangles.
      */
-    public native void setType(int type);
+    public void setType(GeometryType type)
+    {
+        setTypeNative(type.ordinal());
+    }
 
     /**
      * Apply a texture to the geometry.
