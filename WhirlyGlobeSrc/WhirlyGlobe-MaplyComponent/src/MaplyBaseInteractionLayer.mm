@@ -1041,9 +1041,15 @@ public:
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
 
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyMarkerDrawPriorityDefault) toDict:inDesc];
+
+    // Note: This assumes everything has images
+    bool hasMultiTex = false;
+    for (MaplyMarker *marker in markers)
+        if (marker.images)
+            hasMultiTex = true;
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    [self resolveShader:inDesc defaultShader:(hasMultiTex ? kMaplyShaderDefaultTriMultiTex : nil)];
     
     // Convert to WG markers
     NSMutableArray *wgMarkers = [NSMutableArray array];
@@ -1051,17 +1057,36 @@ public:
     {
         WhirlyKitMarker *wgMarker = [[WhirlyKitMarker alloc] init];
         wgMarker.loc = GeoCoord(marker.loc.x,marker.loc.y);
-        MaplyTexture *tex = nil;
-        if ([marker.image isKindOfClass:[UIImage class]])
+
+        std::vector<MaplyTexture *> texs;
+        if (marker.image)
         {
-            tex = [self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode];
-        } else if ([marker.image isKindOfClass:[MaplyTexture class]])
+            if ([marker.image isKindOfClass:[UIImage class]])
+            {
+                texs.push_back([self addImage:marker.image imageFormat:MaplyImageIntRGBA mode:threadMode]);
+            } else if ([marker.image isKindOfClass:[MaplyTexture class]])
+            {
+                texs.push_back((MaplyTexture *)marker.image);
+            }
+        } else if (marker.images)
         {
-            tex = (MaplyTexture *)marker.image;
+            for (id image in marker.images)
+            {
+                if ([image isKindOfClass:[UIImage class]])
+                    texs.push_back([self addImage:image imageFormat:MaplyImageIntRGBA wrapFlags:0 interpType:GL_LINEAR mode:threadMode]);
+                else if ([image isKindOfClass:[MaplyTexture class]])
+                    texs.push_back((MaplyTexture *)image);
+            }
         }
-        compObj.textures.insert(tex);
-        if (tex)
-            wgMarker.texIDs.push_back(tex.texID);
+        if (texs.size() > 1)
+            wgMarker.period = marker.period;
+        compObj.textures.insert(texs.begin(),texs.end());
+        if (!texs.empty())
+        {
+            for (unsigned int ii=0;ii<texs.size();ii++)
+                wgMarker.texIDs.push_back(texs[ii].texID);
+        }
+
         wgMarker.width = marker.size.width;
         wgMarker.height = marker.size.height;
         if (marker.selectable)

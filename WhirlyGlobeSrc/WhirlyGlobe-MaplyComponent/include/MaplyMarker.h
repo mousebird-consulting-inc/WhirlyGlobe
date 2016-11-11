@@ -43,6 +43,16 @@
   */
 @property (nonatomic,strong) id __nullable image;
 
+/** @brief Images or MaplyTextures to use for the marker.
+    @details If set we'll animate these images one after the other over the duration.
+  */
+@property (nonatomic,strong) NSArray * __nullable images;
+
+/** @brief The time we'll take to cycle through all the images for the marker.
+    @details If images are passed in, this is the time it will take to cycle through them all.  By default this is 5s.
+ */
+@property (nonatomic) double period;
+
 /** @brief Marker selectability.  On by default
     @details If set, this marker can be selected by the user.  If not set, this marker will never appear in selection results.
  */
