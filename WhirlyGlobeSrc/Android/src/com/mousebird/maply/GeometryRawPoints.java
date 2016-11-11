@@ -5,7 +5,7 @@ package com.mousebird.maply;
  */
 public class GeometryRawPoints
 {
-    GeometryRawPoints() { initialise(); }
+    public GeometryRawPoints() { initialise(); }
 
     public enum Type {IntType,FloatType,Float2Type,Float3Type,Float4Type,Double2Type,Double3Type};
 

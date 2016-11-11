@@ -124,7 +124,7 @@ MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp AngleAxis_jni.cpp \
 					ChangeSet_jni.cpp CoordSystem_jni.cpp CoordSystemDisplayAdapter_jni.cpp DirectionalLight_jni.cpp \
 					FontTextureManagerAndroid.cpp FakeGeocentricDisplayAdapter_jni.cpp \
 					GeneralDisplayAdapter_jni.cpp GeometryManager_jni.cpp GeometryRaw_jni.cpp GeometryRawPoints_jni.cpp GeometryInstance_jni.cpp \
-                    GlobeViewState_jni.cpp GlobeScene_jni.cpp GlobeView_jni.cpp \
+                    			GeometryInfo_jni.cpp GlobeViewState_jni.cpp GlobeScene_jni.cpp GlobeView_jni.cpp \
 					GeoCoordSystem_jni.cpp Identifiable_jni.cpp ImageWrapper.cpp InternalLabel_jni.cpp InternalMarker_jni.cpp \
 					LabelInfoAndroid.cpp LabelInfo_jni.cpp LabelManager_jni.cpp LayoutManager_jni.cpp \
 					MapboxVectorTileParser_jni.cpp MaplyRenderer_jni.cpp MapScene_jni.cpp MapView_jni.cpp Matrix3d_jni.cpp Matrix4d_jni.cpp \

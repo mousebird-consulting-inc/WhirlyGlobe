@@ -5,7 +5,7 @@ package com.mousebird.maply;
  */
 public class GeometryRaw
 {
-    GeometryRaw() { initialise(); }
+    public GeometryRaw() { initialise(); }
 
     public enum GeometryType {None,Lines,Triangles};
 

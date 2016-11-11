@@ -1301,7 +1301,74 @@ public class MaplyBaseController
 		return compObj;
 	}
 
-	Map<Long, Object> selectionMap = new HashMap<Long, Object>();
+	/**
+	 * Add the geometry points.  These are raw points that get fed to a shader.
+
+	 * @param ptList The points to add.
+	 * @param geomInfo Parameters to set things up with.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return This represents the geometry points for later modifictation or deletion.
+     */
+	public ComponentObject addPointList(final List<Points> ptList,final GeometryInfo geomInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = addComponentObj();
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+						// Stickers are added one at a time for some reason
+						for (Points pts: ptList) {
+							Matrix4d mat = pts.mat != null ? pts.mat : new Matrix4d();
+							long geomID = geomManager.addGeometryPoints(pts.rawPoints,pts.mat,geomInfo,changes);
+
+							if (geomID != EmptyIdentity) {
+								compObj.addGeometryID(geomID);
+							}
+						}
+
+						if (scene != null)
+							changes.process(scene);
+
+						if (geomInfo.disposeAfterUse || disposeAfterRemoval)
+							for (Points pts: ptList)
+								pts.rawPoints.dispose();
+					}
+				};
+
+		addTask(run, mode);
+
+		return compObj;
+	}
+
+	/**
+	 * Add the geometry points.  These are raw points that get fed to a shader.
+
+	 * @param pts The points to add.
+	 * @param geomInfo Parameters to set things up with.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @return This represents the geometry points for later modifictation or deletion.
+	 */
+	public ComponentObject addPoints(Points pts,final GeometryInfo geomInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		List<Points> ptList = new ArrayList<Points>();
+		ptList.add(pts);
+
+		return addPointList(ptList,geomInfo,mode);
+	}
+
+		Map<Long, Object> selectionMap = new HashMap<Long, Object>();
 	
 	// Add selectable objects to the list
 	private void addSelectableObject(long selectID,Object selObj,ComponentObject compObj)

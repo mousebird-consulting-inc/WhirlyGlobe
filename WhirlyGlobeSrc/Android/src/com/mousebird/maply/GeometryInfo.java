@@ -32,6 +32,16 @@ public class GeometryInfo extends BaseInfo
      */
     public native void setPointSize(float pointSize);
 
+    /**
+     * If set, the geometry will pay attention to the Z buffer.
+     */
+    public native void setZBufferRead(boolean newVal);
+
+    /**
+     * If set, we'll write the geometry out to the Z buffer as well as drawing it.
+     */
+    public native void setZBufferWrite(boolean newVal);
+
     public void finalize() {
         dispose();
     }

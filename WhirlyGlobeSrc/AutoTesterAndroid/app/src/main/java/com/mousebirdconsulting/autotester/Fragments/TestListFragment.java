@@ -29,6 +29,7 @@ import com.mousebirdconsulting.autotester.TestCases.ComponentObjectLeakTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CoordConversionTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
+import com.mousebirdconsulting.autotester.TestCases.GeomPointsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LayerShutdownTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LightingTestCase;
@@ -131,6 +132,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new MarkersAndLinesTestCase(getActivity()));
 			testCases.add(new BoundsTestCase(getActivity()));
 			testCases.add(new LayerShutdownTestCase(getActivity()));
+			testCases.add(new GeomPointsTestCase(getActivity()));
 //			testCases.add(new ArealTestCase(getActivity()));
 		}
 

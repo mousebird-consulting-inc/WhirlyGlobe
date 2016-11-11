@@ -531,6 +531,8 @@
 		2BA2327817984F510063CC84 /* tessmono.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BA2325417984F510063CC84 /* tessmono.c */; };
 		2BA2327917984F510063CC84 /* tessmono.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2325517984F510063CC84 /* tessmono.h */; };
 		2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BA2327A179859F30063CC84 /* SDL_opengles.h */; };
+		2BAA43D51DD54A0C00FF9027 /* com_mousebird_maply_GeometryInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BAA43D41DD54A0C00FF9027 /* com_mousebird_maply_GeometryInfo.h */; };
+		2BAA43D71DD54A4100FF9027 /* GeometryInfo_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BAA43D61DD54A4100FF9027 /* GeometryInfo_jni.cpp */; };
 		2BB766021C6FE65B00F01F2A /* Proj4CoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB766011C6FE65B00F01F2A /* Proj4CoordSystem.h */; };
 		2BB766041C6FE6DC00F01F2A /* Proj4CoordSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB766031C6FE6DC00F01F2A /* Proj4CoordSystem.cpp */; };
 		2BB766061C6FFF7E00F01F2A /* com_mousebird_maply_GeneralDisplayAdapter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB766051C6FFF7E00F01F2A /* com_mousebird_maply_GeneralDisplayAdapter.h */; };
@@ -1321,6 +1323,8 @@
 		2BA2325417984F510063CC84 /* tessmono.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tessmono.c; sourceTree = "<group>"; };
 		2BA2325517984F510063CC84 /* tessmono.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tessmono.h; sourceTree = "<group>"; };
 		2BA2327A179859F30063CC84 /* SDL_opengles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDL_opengles.h; path = "../../third-party/glues/include/SDL/SDL_opengles.h"; sourceTree = "<group>"; };
+		2BAA43D41DD54A0C00FF9027 /* com_mousebird_maply_GeometryInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_GeometryInfo.h; path = ../Android/jni/com_mousebird_maply_GeometryInfo.h; sourceTree = "<group>"; };
+		2BAA43D61DD54A4100FF9027 /* GeometryInfo_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeometryInfo_jni.cpp; path = ../Android/jni/GeometryInfo_jni.cpp; sourceTree = "<group>"; };
 		2BB766011C6FE65B00F01F2A /* Proj4CoordSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Proj4CoordSystem.h; sourceTree = "<group>"; };
 		2BB766031C6FE6DC00F01F2A /* Proj4CoordSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Proj4CoordSystem.cpp; sourceTree = "<group>"; };
 		2BB766051C6FFF7E00F01F2A /* com_mousebird_maply_GeneralDisplayAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_GeneralDisplayAdapter.h; path = ../Android/jni/com_mousebird_maply_GeneralDisplayAdapter.h; sourceTree = "<group>"; };
@@ -1882,6 +1886,7 @@
 		2B4B19291BA38A940091A743 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2BAA43D41DD54A0C00FF9027 /* com_mousebird_maply_GeometryInfo.h */,
 				2B969E5F1DBAD60400DF2C32 /* com_mousebird_maply_GeometryRaw_GeometryType.h */,
 				2B969E601DBAD60400DF2C32 /* com_mousebird_maply_GeometryRaw.h */,
 				2B969E611DBAD60400DF2C32 /* com_mousebird_maply_GeometryRawPoints_Type.h */,
@@ -1985,6 +1990,7 @@
 		2B4B192A1BA38A9A0091A743 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2BAA43D61DD54A4100FF9027 /* GeometryInfo_jni.cpp */,
 				2B969E6B1DBAD67400DF2C32 /* GeometryRawPoints_jni.cpp */,
 				2B969E6C1DBAD67400DF2C32 /* GeometryInstance_jni.cpp */,
 				2B969E6D1DBAD67400DF2C32 /* GeometryRaw_jni.cpp */,
@@ -2997,6 +3003,7 @@
 				2BA2327717984F510063CC84 /* tess.h in Headers */,
 				883C079B1CC055740042B20C /* AAPhysicalSun.h in Headers */,
 				2B3B30F01CF6227F00F52374 /* message.h in Headers */,
+				2BAA43D51DD54A0C00FF9027 /* com_mousebird_maply_GeometryInfo.h in Headers */,
 				2BA2327917984F510063CC84 /* tessmono.h in Headers */,
 				2B3567EA18D762BF00EF8DB1 /* GridClipper.h in Headers */,
 				883C07511CC055740042B20C /* AADiameters.h in Headers */,
@@ -3339,6 +3346,7 @@
 				2B7EF49516025D8C00D4079F /* PJ_nsper.c in Sources */,
 				2B7EF49616025D8C00D4079F /* PJ_nzmg.c in Sources */,
 				2B7EF49716025D8C00D4079F /* PJ_ob_tran.c in Sources */,
+				2BAA43D71DD54A4100FF9027 /* GeometryInfo_jni.cpp in Sources */,
 				2B009D03186102E4001E2EE8 /* JSONNode_Mutex.cpp in Sources */,
 				2B7EF49816025D8C00D4079F /* PJ_ocea.c in Sources */,
 				2B7EF49916025D8C00D4079F /* PJ_oea.c in Sources */,

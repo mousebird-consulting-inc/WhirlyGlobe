@@ -19,6 +19,14 @@ public class Points
     public Matrix4d mat = null;
 
     /**
+     * If the matrix is set the points will be transformed by this matrix first.
+     */
+    public void setMatrix(Matrix4d inMat)
+    {
+        mat = inMat;
+    }
+
+    /**
      * Add an array of integer values.
      * @param name Name of attribute in shader
      * @param intVals Integer values

@@ -56,9 +56,21 @@ public class Matrix4d
 	 * Transpose and return the matrix.
      */
 	public native Matrix4d transpose();
+
+	/**
+	 * Set up a translation matrix.
+     */
+	public native static Matrix4d translate(double x, double y, double z);
+
+	/**
+	 * Set up a scale matrix.
+     */
+	public native static Matrix4d scale(double x, double y, double z);
+
 	/**
 	 * Multiply the vector by this matrix and return the result.
 	 */
 	public native Point4d multiply(Point4d vec);
+
 	private long nativeHandle;
 }
