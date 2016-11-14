@@ -1263,10 +1263,16 @@ public class MaplyBaseController
 							InternalMarker intMarker = new InternalMarker(marker,markerInfo);
 							// Map the bitmap to a texture ID
 							long texID = EmptyIdentity;
-							if (marker.image != null)
+							if (marker.image != null) {
 								texID = texManager.addTexture(marker.image, scene, changes);
-							if (texID != EmptyIdentity)
-								intMarker.addTexID(texID);
+								if (texID != EmptyIdentity)
+									intMarker.addTexID(texID);
+							} else if (marker.images != null)
+							{
+								for (MaplyTexture tex : marker.images) {
+									intMarker.addTexID(tex.texID);
+								}
+							}
 
 							intMarkers.add(intMarker);
 

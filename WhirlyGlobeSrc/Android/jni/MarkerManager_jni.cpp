@@ -86,11 +86,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 		JavaListInfo *listClassInfo = JavaListInfo::getClassInfo(env);
 		jobject iterObj = listClassInfo->getIter(env,markerObjList);
 
+        bool hasMultiTex = false;
 		MarkerClassInfo *markerClassInfo = MarkerClassInfo::getClassInfo();
 		while (listClassInfo->hasNext(env,markerObjList,iterObj))
 		{
 			jobject javaMarkerObj = listClassInfo->getNext(env,markerObjList,iterObj);
 			Marker *marker = markerClassInfo->getObject(env,javaMarkerObj);
+            if (marker->texIDs.size() > 1)
+                hasMultiTex = true;
 
 			markers.push_back(marker);
 			env->DeleteLocalRef(javaMarkerObj);
@@ -101,7 +104,10 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 		// Resolve the program ID
 		if (markerInfo->programID == EmptyIdentity)
         {
-            markerInfo->programID = markerManager->getScene()->getProgramIDBySceneName(kToolkitDefaultTriangleNoLightingProgram);
+            if (hasMultiTex)
+                markerInfo->programID = markerManager->getScene()->getProgramIDBySceneName(kToolkitDefaultTriangleMultiTex);
+            else
+                markerInfo->programID = markerManager->getScene()->getProgramIDBySceneName(kToolkitDefaultTriangleNoLightingProgram);
         }
         
 		// Note: Porting

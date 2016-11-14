@@ -71,6 +71,7 @@ class InternalMarker
 		setWidth(marker.size.getX());
 		setHeight(marker.size.getY());
 		setSelectable(marker.selectable);
+		setPeriod(marker.period);
 		if (marker.selectable)
 			setSelectID(marker.ident);
 	}
@@ -93,6 +94,7 @@ class InternalMarker
 	public native void setLayoutImportance(double layoutImp);
 	public native void setVertexAttributes(Object vertAttrs[]);
 	public native void setClusterGroup(int clusterGroup);
+	public native void setPeriod(double period);
 	
 	static
 	{
