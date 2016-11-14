@@ -157,7 +157,7 @@ void FontTextureManager::clear(ChangeSet &changes)
     
     if (texAtlas)
     {
-        texAtlas->shutdown(changes);
+        texAtlas->teardown(changes);
         delete texAtlas;
         texAtlas = NULL;
     }

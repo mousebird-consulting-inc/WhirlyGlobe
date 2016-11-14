@@ -106,7 +106,7 @@ MarkerManager::~MarkerManager()
     pthread_mutex_destroy(&markerLock);
 }
 
-typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
+typedef std::map<SimpleIDSet,BasicDrawable *> DrawableMap;
 
 SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,const MarkerInfo &markerInfo,ChangeSet &changes)
 {
@@ -290,8 +290,12 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             pts[3] = Vector3dToVector3f(ll + 2 * height2 * vert);
 
             // We're sorting the static drawables by texture, so look for that
-            SimpleIdentity subTexID = (subTexs.empty() ? EmptyIdentity : subTexs[0].texId);
-            DrawableMap::iterator it = drawables.find(subTexID);
+            SimpleIDSet texIDs;
+            for (const auto &subTex : subTexs)
+                texIDs.insert(subTex.texId);
+            if (texIDs.empty())
+                texIDs.insert(EmptyIdentity);
+            DrawableMap::iterator it = drawables.find(texIDs);
             BasicDrawable *draw = NULL;
             if (it != drawables.end())
                 draw = it->second;
@@ -300,11 +304,21 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                     draw->setType(GL_TRIANGLES);
                     markerInfo.setupBasicDrawable(draw);
                     draw->setColor(markerInfo.color);
-                    draw->setTexId(0,subTexID);
+                    draw->setTexId(0,*(texIDs.begin()));
                     if (markerInfo.programID != EmptyIdentity)
                        draw->setProgram(markerInfo.programID);
-                    drawables[subTexID] = draw;
+                    drawables[texIDs] = draw;
                     markerRep->drawIDs.insert(draw->getId());
+
+                // If we've got more than one texture ID and a period, we need a tweaker
+                if (texIDs.size() > 1 && marker->period != 0.0)
+                {
+                    TimeInterval now = TimeGetCurrent();
+                    std::vector<SimpleIdentity> texIDVec;
+                    std::copy(texIDs.begin(), texIDs.end(), std::back_inserter(texIDVec));
+                    BasicDrawableTexTweaker *tweak = new BasicDrawableTexTweaker(texIDVec,now,marker->period);
+                    draw->addTweaker(DrawableTweakerRef(tweak));
+                }
                 }
             
             // Toss the geometry into the drawable
@@ -314,7 +328,8 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                 Point3f &pt = pts[ii];
                 draw->addPoint(pt);
                 draw->addNormal(Vector3dToVector3f(norm));
-                draw->addTexCoord(0,texCoord[ii]);
+                for (unsigned int jj=0;jj<texIDs.size();jj++)
+                    draw->addTexCoord(jj,texCoord[ii]);
                 Mbr localMbr = draw->getLocalMbr();
                 Point3f localLoc = coordAdapter->getCoordSystem()->geographicToLocal(marker->loc);
                 localMbr.addPoint(Point2f(localLoc.x(),localLoc.y()));

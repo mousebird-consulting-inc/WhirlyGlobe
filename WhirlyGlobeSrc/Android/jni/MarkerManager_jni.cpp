@@ -97,11 +97,11 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 		}
 		env->DeleteLocalRef(iterObj);
 
+        markerInfo->screenObject = false;
 		// Resolve the program ID
 		if (markerInfo->programID == EmptyIdentity)
         {
-            // Note: Doesn't handle motion
-            markerInfo->programID = markerManager->getScene()->getProgramIDBySceneName(kToolkitDefaultScreenSpaceProgram);
+            markerInfo->programID = markerManager->getScene()->getProgramIDBySceneName(kToolkitDefaultTriangleNoLightingProgram);
         }
         
 		// Note: Porting
@@ -116,6 +116,60 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerManager::addMarkers()");
 	}
+    
+    return EmptyIdentity;
+}
+
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
+(JNIEnv *env, jobject obj, jobject markerObjList, jobject markerInfoObj, jobject changeSetObj)
+{
+    try
+    {
+        MarkerManagerClassInfo *classInfo = MarkerManagerClassInfo::getClassInfo();
+        MarkerManager *markerManager = classInfo->getObject(env,obj);
+        MarkerInfo *markerInfo = MarkerInfoClassInfo::getClassInfo()->getObject(env,markerInfoObj);
+        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        if (!markerManager || !markerInfo || !changeSet)
+        {
+            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in MarkerManager::addScreenMarkers()");
+            return EmptyIdentity;
+        }
+        
+        std::vector<Marker *> markers;
+        JavaListInfo *listClassInfo = JavaListInfo::getClassInfo(env);
+        jobject iterObj = listClassInfo->getIter(env,markerObjList);
+        
+        MarkerClassInfo *markerClassInfo = MarkerClassInfo::getClassInfo();
+        while (listClassInfo->hasNext(env,markerObjList,iterObj))
+        {
+            jobject javaMarkerObj = listClassInfo->getNext(env,markerObjList,iterObj);
+            Marker *marker = markerClassInfo->getObject(env,javaMarkerObj);
+            
+            markers.push_back(marker);
+            env->DeleteLocalRef(javaMarkerObj);
+        }
+        env->DeleteLocalRef(iterObj);
+        
+        markerInfo->screenObject = true;
+        // Resolve the program ID
+        if (markerInfo->programID == EmptyIdentity)
+        {
+            // Note: Doesn't handle motion
+            markerInfo->programID = markerManager->getScene()->getProgramIDBySceneName(kToolkitDefaultScreenSpaceProgram);
+        }
+        
+        // Note: Porting
+        // Note: Shouldn't have to set this
+        markerInfo->markerId = Identifiable::genId();
+        
+        SimpleIdentity markerId = markerManager->addMarkers(markers,*markerInfo,*changeSet);
+        
+        return markerId;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MarkerManager::addMarkers()");
+    }
     
     return EmptyIdentity;
 }

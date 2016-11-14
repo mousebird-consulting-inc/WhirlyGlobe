@@ -321,7 +321,7 @@ void Scene::addManager(const char *name,SceneManager *manager)
 //    if ([activeModels containsObject:activeModel])
 //    {
 //        [activeModels removeObject:activeModel];
-//        [activeModel shutdown];
+//        [activeModel teardown];
 //    }
 //}
     

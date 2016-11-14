@@ -42,7 +42,7 @@ class InternalMarker
 	InternalMarker(ScreenMarker marker,MarkerInfo info)
 	{
 		initialise();
-		
+
 		setLoc(marker.loc);
 		setColor(Color.red(marker.color)/255.f,Color.green(marker.color)/255.f,Color.blue(marker.color)/255.f,Color.alpha(marker.color)/255.f);
 		if (marker.rotation != 0.0)
@@ -55,6 +55,22 @@ class InternalMarker
 			setOffset(0,0);
 		else
 			setOffset(marker.offset.getX(),marker.offset.getY());
+		if (marker.selectable)
+			setSelectID(marker.ident);
+	}
+
+	/**
+	 * Construct with a 3D marker.
+     */
+	InternalMarker(Marker marker,MarkerInfo info)
+	{
+		initialise();
+
+		setLoc(marker.loc);
+		setColor(Color.red(marker.color)/255.f,Color.green(marker.color)/255.f,Color.blue(marker.color)/255.f,Color.alpha(marker.color)/255.f);
+		setWidth(marker.size.getX());
+		setHeight(marker.size.getY());
+		setSelectable(marker.selectable);
 		if (marker.selectable)
 			setSelectID(marker.ident);
 	}

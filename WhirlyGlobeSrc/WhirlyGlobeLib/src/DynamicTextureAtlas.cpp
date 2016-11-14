@@ -641,7 +641,7 @@ SimpleIdentity DynamicTextureAtlas::getTextureIDForFrame(SimpleIdentity baseTexI
     return EmptyIdentity;
 }
     
-void DynamicTextureAtlas::shutdown(ChangeSet &changes)
+void DynamicTextureAtlas::teardown(ChangeSet &changes)
 {
     for (DynamicTextureSet::iterator it = textures.begin(); it != textures.end(); ++it)
     {

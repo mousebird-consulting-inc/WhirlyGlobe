@@ -336,7 +336,7 @@ void DynamicDrawableAtlas::addSwapChanges(const ChangeSet &inSwapChanges)
     swapChanges.insert(swapChanges.end(), inSwapChanges.begin(), inSwapChanges.end());
 }
     
-void DynamicDrawableAtlas::shutdown(ChangeSet &changes)
+void DynamicDrawableAtlas::teardown(ChangeSet &changes)
 {
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
         changes.push_back(new RemDrawableReq(it->bigDraw->getId()));

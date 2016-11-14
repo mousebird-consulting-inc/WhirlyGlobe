@@ -1192,7 +1192,7 @@ public class MaplyBaseController
 				}
 
 				// Add the markers and flush the changes
-				long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
+				long markerId = markerManager.addScreenMarkers(intMarkers, markerInfo, changes);
 				if (scene != null)
 					changes.process(scene);
 
@@ -1211,6 +1211,91 @@ public class MaplyBaseController
 		return compObj;
 	}
 
+	/**
+	 * Add a single screen marker.  See addMarkers() for details.
+	 */
+	public ComponentObject addMarker(final Marker marker,final MarkerInfo markerInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		ArrayList<Marker> markers = new ArrayList<Marker>();
+		markers.add(marker);
+		return addMarkers(markers,markerInfo,mode);
+	}
+
+	/**
+	 * Add screen markers to the visual display.  Screen markers are 2D markers that sit
+	 * on top of the screen display, rather than interacting with the geometry.  Their
+	 * visual look is defined by the MarkerInfo class.
+	 *
+	 * @param markers The markers to add to the display
+	 * @param markerInfo How the markers should look.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @return This represents the screen markers for later modification or deletion.
+	 */
+	public ComponentObject addMarkers(final List<Marker> markers,final MarkerInfo markerInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = addComponentObj();
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+						// Convert to the internal representation of the engine
+						ArrayList<InternalMarker> intMarkers = new ArrayList<InternalMarker>();
+						for (Marker marker : markers)
+						{
+							if (marker.loc == null)
+							{
+								Log.d("Maply","Missing location for marker.  Skipping.");
+								return;
+							}
+
+							InternalMarker intMarker = new InternalMarker(marker,markerInfo);
+							// Map the bitmap to a texture ID
+							long texID = EmptyIdentity;
+							if (marker.image != null)
+								texID = texManager.addTexture(marker.image, scene, changes);
+							if (texID != EmptyIdentity)
+								intMarker.addTexID(texID);
+
+							intMarkers.add(intMarker);
+
+							// Keep track of this one for selection
+							if (marker.selectable)
+							{
+								addSelectableObject(marker.ident,marker,compObj);
+							}
+						}
+
+						// Add the markers and flush the changes
+						long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
+						if (scene != null)
+							changes.process(scene);
+
+						if (markerId != EmptyIdentity)
+						{
+							compObj.addMarkerID(markerId);
+						}
+
+						for (InternalMarker marker : intMarkers)
+							marker.dispose();
+					}
+				};
+
+		addTask(run, mode);
+
+		return compObj;
+	}
 	/**
 	 * Add stickers on top of the globe or map.  Stickers are 2D objects that drape over a defined
 	 * area.
