@@ -9,7 +9,7 @@ LOCAL_EXPORT_C_INCLUDES = $(BASE_DIR)/WhirlyGlobeSrc/WhirlyGlobeLib/include/
 
 LOCAL_CPP_EXTENSION := .cxx .cpp .cc
 
-THIRD_PARTY := $(BASE_DIR)third-party/
+THIRD_PARTY := $(BASE_DIR)/third-party/
 THIRD_PARTY_INC := ../../third-party/
 PROTOBUF_DIR := ../../../third-party/protobuf/src/google/protobuf/
 LOCAL_C_INCLUDES += $(INCLUDE_DIR)
