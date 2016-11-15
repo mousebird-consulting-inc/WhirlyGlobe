@@ -91,6 +91,75 @@ typedef enum {
             UIFont *thisFont = [UIFont fontWithName:[faceName stringByReplacingOccurrencesOfString:@" " withString:@"-"] size:subStyle->textSize];
             if (thisFont)
                 font = thisFont;
+            
+        } else if (styleEntry[@"font-family"] || styleEntry[@"font-style"] || styleEntry[@"font-weight"] || styleEntry[@"font-size"]) {
+            
+            NSString *fontFamily = styleEntry[@"font-family"];
+            NSString *fontStyle = styleEntry[@"font-style"];
+            NSString *fontWeight= styleEntry[@"font-weight"];
+            NSString *fontSize = styleEntry[@"font-size"];
+            
+            bool italic = false;
+            bool bold = false;
+            
+            if (!fontFamily)
+                fontFamily = [font familyName];
+            
+            if (fontStyle && ([fontStyle isEqualToString:@"italic"] || [fontStyle isEqualToString:@"oblique"]))
+                italic = true;
+            
+            if (fontWeight && !([fontWeight isEqualToString:@"normal"] || [fontWeight isEqualToString:@"lighter"]))
+                bold = true;
+            
+            if (fontSize) {
+                
+                fontSize = [fontSize stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+                
+                if ([fontSize isEqualToString:@"xx-small"])
+                    subStyle->textSize = 8.0;
+                else if ([fontSize isEqualToString:@"x-small"])
+                    subStyle->textSize = 10.0;
+                else if ([fontSize isEqualToString:@"small"])
+                    subStyle->textSize = 11.0;
+                else if ([fontSize isEqualToString:@"medium"])
+                    subStyle->textSize = 12.0;
+                else if ([fontSize isEqualToString:@"large"])
+                    subStyle->textSize = 18.0;
+                else if ([fontSize isEqualToString:@"x-large"])
+                    subStyle->textSize = 24.0;
+                else if ([fontSize isEqualToString:@"xx-large"])
+                    subStyle->textSize = 36.0;
+                else {
+                    
+                    NSString *numericalFontSize = fontSize;
+                    if ([fontSize hasSuffix:@"px"] || [fontSize hasSuffix:@"em"])
+                        numericalFontSize = [fontSize substringToIndex:fontSize.length-2];
+                    else if ([fontSize hasSuffix:@"%"])
+                        numericalFontSize = [fontSize substringToIndex:fontSize.length-1];
+                    
+                    NSNumberFormatter* numberFormatter = [[NSNumberFormatter alloc] init];
+                    [numberFormatter setNumberStyle:NSNumberFormatterDecimalStyle];
+                    
+                    NSNumber *nFontSize = [numberFormatter numberFromString:numericalFontSize];
+                    
+                    if (nFontSize) {
+                        if ([fontSize hasSuffix:@"px"])
+                            subStyle->textSize = [nFontSize floatValue];
+                        else if ([fontSize hasSuffix:@"em"])
+                            subStyle->textSize = [nFontSize floatValue] * 12.0;
+                        else if ([fontSize hasSuffix:@"%"])
+                            subStyle->textSize = [nFontSize floatValue] / 100.0 * 12.0;
+                        else
+                            subStyle->textSize = [nFontSize floatValue];
+                    }
+                    
+                }
+            }
+            UIFontDescriptor *fontDescriptor = [UIFontDescriptor fontDescriptorWithFontAttributes:@{@"NSFontFamilyAttribute" : fontFamily, @"NSFontFaceAttribute" : (bold && italic ? @"Bold Italic" : (bold ? @"Bold" : (italic ? @"Italic" : @"Regular")))}];
+            
+            UIFont *testFont = [UIFont fontWithDescriptor:fontDescriptor size:subStyle->textSize];
+            if (testFont)
+                font = testFont;
         }
         
         UIColor *outlineColor = nil;
