@@ -256,21 +256,27 @@ public:
     
     // Add an integer to the list of attributes
     void addValue(int idx,int val);
+    void addValues(int idx,const std::vector<int> &vals);
     
     // Add a single float to a list of attributes
     void addValue(int idx,float val);
+    void addValues(int idx,const std::vector<float> &vals);
     
     // Add two floats to a list of attributes
     void addPoint(int idx,const Point2f &pt);
+    void addPoints(int idx,const std::vector<Point2f> &pts);
     
     // Add three floats to a list of attributes
     void addPoint(int idx,const Point3f &pt);
+    void addPoints(int idx,const std::vector<Point3f> &pts);
     
     // Add three doubles to a list of attributes
     void addPoint(int idx,const Point3d &pt);
+    void addPoints(int idx,const std::vector<Point3d> &pts);
     
     // Add four floats to a list of attributes
     void addPoint(int idx,const Eigen::Vector4f &pt);
+    void addPoints(int idx,const std::vector<Eigen::Vector4f> &pts);
     
     // Add an attribute type to the point geometry
     int addAttribute(const std::string &name,GeomRawDataType dataType);

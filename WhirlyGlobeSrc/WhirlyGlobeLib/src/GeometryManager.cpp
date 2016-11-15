@@ -235,7 +235,18 @@ void GeometryRawPoints::addValue(int idx,int val)
     if (intAttrs)
         intAttrs->vals.push_back(val);
 }
+
+void GeometryRawPoints::addValues(int idx,const std::vector<int> &vals)
+{
+    if (idx >= attrData.size())
+        return;
     
+    GeomPointAttrData *attrs = attrData[idx];
+    GeomPointAttrDataInt *intAttrs = dynamic_cast<GeomPointAttrDataInt *> (attrs);
+    if (intAttrs)
+        intAttrs->vals = vals;
+}
+
 void GeometryRawPoints::addValue(int idx,float val)
 {
     if (idx >= attrData.size())
@@ -246,7 +257,18 @@ void GeometryRawPoints::addValue(int idx,float val)
     if (fAttrs)
         fAttrs->vals.push_back(val);
 }
+
+void GeometryRawPoints::addValues(int idx,const std::vector<float> &vals)
+{
+    if (idx >= attrData.size())
+        return;
     
+    GeomPointAttrData *attrs = attrData[idx];
+    GeomPointAttrDataFloat *fAttrs = dynamic_cast<GeomPointAttrDataFloat *> (attrs);
+    if (fAttrs)
+        fAttrs->vals = vals;
+}
+
 void GeometryRawPoints::addPoint(int idx,const Point2f &pt)
 {
     if (idx >= attrData.size())
@@ -256,6 +278,17 @@ void GeometryRawPoints::addPoint(int idx,const Point2f &pt)
     GeomPointAttrDataPoint2f *f2Attrs = dynamic_cast<GeomPointAttrDataPoint2f *> (attrs);
     if (f2Attrs)
         f2Attrs->vals.push_back(pt);
+}
+
+void GeometryRawPoints::addPoints(int idx,const std::vector<Point2f> &pts)
+{
+    if (idx >= attrData.size())
+        return;
+    
+    GeomPointAttrData *attrs = attrData[idx];
+    GeomPointAttrDataPoint2f *f2Attrs = dynamic_cast<GeomPointAttrDataPoint2f *> (attrs);
+    if (f2Attrs)
+        f2Attrs->vals = pts;
 }
     
 void GeometryRawPoints::addPoint(int idx,const Point3f &pt)
@@ -267,6 +300,17 @@ void GeometryRawPoints::addPoint(int idx,const Point3f &pt)
     GeomPointAttrDataPoint3f *f3Attrs = dynamic_cast<GeomPointAttrDataPoint3f *> (attrs);
     if (f3Attrs)
         f3Attrs->vals.push_back(pt);
+}
+
+void GeometryRawPoints::addPoints(int idx,const std::vector<Point3f> &pts)
+{
+    if (idx >= attrData.size())
+        return;
+    
+    GeomPointAttrData *attrs = attrData[idx];
+    GeomPointAttrDataPoint3f *f3Attrs = dynamic_cast<GeomPointAttrDataPoint3f *> (attrs);
+    if (f3Attrs)
+        f3Attrs->vals = pts;
 }
     
 void GeometryRawPoints::addPoint(int idx,const Point3d &pt)
@@ -284,6 +328,26 @@ void GeometryRawPoints::addPoint(int idx,const Point3d &pt)
             f3Attrs->vals.push_back(Point3f(pt.x(),pt.y(),pt.z()));
     }
 }
+
+void GeometryRawPoints::addPoints(int idx,const std::vector<Point3d> &pts)
+{
+    if (idx >= attrData.size())
+        return;
+    
+    GeomPointAttrData *attrs = attrData[idx];
+    GeomPointAttrDataPoint3d *d3Attrs = dynamic_cast<GeomPointAttrDataPoint3d *> (attrs);
+    if (d3Attrs)
+        d3Attrs->vals = pts;
+    else {
+        GeomPointAttrDataPoint3f *f3Attrs = dynamic_cast<GeomPointAttrDataPoint3f *>(attrs);
+        if (f3Attrs)
+            for (unsigned int ii=0;ii<pts.size();ii++)
+            {
+                const Point3d &pt = pts[ii];
+                f3Attrs->vals.push_back(Point3f(pt.x(),pt.y(),pt.z()));
+            }
+    }
+}
     
 void GeometryRawPoints::addPoint(int idx,const Eigen::Vector4f &pt)
 {
@@ -294,6 +358,17 @@ void GeometryRawPoints::addPoint(int idx,const Eigen::Vector4f &pt)
     GeomPointAttrDataPoint4f *f4Attrs = dynamic_cast<GeomPointAttrDataPoint4f *> (attrs);
     if (f4Attrs)
         f4Attrs->vals.push_back(pt);
+}
+
+void GeometryRawPoints::addPoints(int idx,const std::vector<Eigen::Vector4f> &pts)
+{
+    if (idx >= attrData.size())
+        return;
+    
+    GeomPointAttrData *attrs = attrData[idx];
+    GeomPointAttrDataPoint4f *f4Attrs = dynamic_cast<GeomPointAttrDataPoint4f *> (attrs);
+    if (f4Attrs)
+        f4Attrs->vals = pts;
 }
 
 int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType dataType)
@@ -838,6 +913,17 @@ SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomP
         draw->setDrawPriority(geomInfo.drawPriority);
         draw->setRequestZBuffer(geomInfo.zBufferRead);
         draw->setRequestZBuffer(geomInfo.zBufferWrite);
+        if (geomInfo.programID != EmptyIdentity)
+            draw->setProgram(geomInfo.programID);
+        
+        // Set the point size, at least default
+        SingleVertexAttributeSet uniforms;
+        SingleVertexAttribute pointAttr;
+        pointAttr.name = "u_pointSize";
+        pointAttr.type = BDFloatType;
+        pointAttr.data.floatVal = geomInfo.pointSize;
+        uniforms.insert(pointAttr);
+        draw->setUniforms(uniforms);
 //        Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
 //        Matrix4d transMat = trans.matrix();
 //        draw->setMatrix(&transMat);

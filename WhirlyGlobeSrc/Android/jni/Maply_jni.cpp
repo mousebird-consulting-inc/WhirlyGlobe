@@ -130,7 +130,7 @@ void ConvertFloat3fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::
 void ConvertFloat3dArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<Eigen::Vector3d> &ptVec)
 {
     double *doubles = env->GetDoubleArrayElements(doubleArray, NULL);
-    int len = env->GetArrayLength(doubleArray)/4;
+    int len = env->GetArrayLength(doubleArray)/34;
     ptVec.resize(len);
     for (int ii=0;ii<len;ii++)
         ptVec[ii] = Eigen::Vector3d(doubles[3*ii],doubles[3*ii+1],doubles[3*ii+2]);
@@ -140,7 +140,7 @@ void ConvertFloat3dArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<Eigen
 void ConvertFloat4fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::Vector4f> &ptVec)
 {
     float *floats = env->GetFloatArrayElements(floatArray, NULL);
-    int len = env->GetArrayLength(floatArray)/3;
+    int len = env->GetArrayLength(floatArray)/4;
     ptVec.resize(len);
     for (int ii=0;ii<len;ii++)
         ptVec[ii] = Eigen::Vector4f(floats[4*ii],floats[4*ii+1],floats[4*ii+2],floats[4*ii+3]);

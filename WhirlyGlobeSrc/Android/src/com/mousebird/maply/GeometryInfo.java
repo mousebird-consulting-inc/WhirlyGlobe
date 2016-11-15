@@ -7,7 +7,14 @@ import android.graphics.Color;
  */
 public class GeometryInfo extends BaseInfo
 {
-    public GeometryInfo() { initialise(); }
+    public GeometryInfo()
+    {
+        initialise();
+        setColor(Color.RED);
+        setPointSize(4.f);
+        setZBufferRead(true);
+        setZBufferWrite(true);
+    }
 
     /**
      * Set the color used by the geometry.  Color values range from 0 to 1.0.
@@ -52,5 +59,4 @@ public class GeometryInfo extends BaseInfo
     private static native void nativeInit();
     native void initialise();
     native void dispose();
-    private long nativeHandle;
 }

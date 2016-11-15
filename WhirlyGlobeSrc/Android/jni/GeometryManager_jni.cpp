@@ -198,7 +198,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryPoin
             __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in GeometryManager::addGeometry()");
             return EmptyIdentity;
         }
-        
+
         return geomManager->addGeometryPoints(*rawPoints,*mat,*geomInfo,*changeSet);
     }
     catch (...)

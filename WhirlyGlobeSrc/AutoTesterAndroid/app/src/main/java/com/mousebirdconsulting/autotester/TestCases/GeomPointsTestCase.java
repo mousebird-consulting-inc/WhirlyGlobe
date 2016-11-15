@@ -25,18 +25,17 @@ public class GeomPointsTestCase extends MaplyTestCase {
 
     String vertProg =
             "uniform mat4  u_mvpMatrix;\n" +
-            "uniform float     u_pointsize;\n" +
+            "uniform float u_pointSize;\n" +
             "\n" +
             "attribute vec3 a_position;\n" +
             "attribute vec4 a_color;\n" +
-            "attribute float a_size;\n" +
             "\n" +
             "varying vec4 v_color;\n" +
             "\n" +
             "void main()\n" +
             "{\n" +
             "   v_color = a_color;\n" +
-            "   gl_PointSize = u_pointsize;\n" +
+            "   gl_PointSize = u_pointSize;\n" +
             "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);\n" +
             "}\n";
 
@@ -53,6 +52,7 @@ public class GeomPointsTestCase extends MaplyTestCase {
     Shader makePointShader(MaplyBaseController control)
     {
         Shader shader = new Shader("Point Shader",vertProg,fragProg,control);
+        control.addShaderProgram(shader,"Point Shader");
 
         return shader;
     }
@@ -71,20 +71,28 @@ public class GeomPointsTestCase extends MaplyTestCase {
 
         // The actual points is a collection of arrays
         Points pts = new Points();
-        pts.addAttribute("a_elev", GeometryRawPoints.Type.Float3Type);
+        pts.addAttribute("a_position", GeometryRawPoints.Type.Float3Type);
+        pts.addAttribute("a_color", GeometryRawPoints.Type.Float4Type);
         pts.setMatrix(mat);
 
         float ptArray[] = new float[NumPoints*3];
+        float colorArray[] = new float[NumPoints*4];
         for (int ii=0;ii<NumPoints;ii++)
         {
-            ptArray[3*ii+0] = (float)Math.random()*10000;
-            ptArray[3*ii+1] = (float)Math.random()*10000;
-            ptArray[3*ii+2] = (float)Math.random()*10000;
+            ptArray[3*ii+0] = (float)Math.random()*10000 / 6371000;
+            ptArray[3*ii+1] = (float)Math.random()*10000 / 6371000;
+            ptArray[3*ii+2] = (float)Math.random()*10000 / 6371000;
+            colorArray[4*ii+0] = (float)Math.random()*0.5f+0.5f;
+            colorArray[4*ii+1] = (float)Math.random()*0.5f+0.5f;
+            colorArray[4*ii+2] = (float)Math.random()*0.5f+0.5f;
+            colorArray[4*ii+3] = 1.f;
         }
-        pts.addPoint3fValues("a_elev",ptArray);
+        pts.addPoint3fValues("a_position",ptArray);
+        pts.addPoint4fValues("a_color",colorArray);
 
         GeometryInfo geomInfo = new GeometryInfo();
         geomInfo.setColor(Color.RED);
+        geomInfo.setPointSize(15.f);
         geomInfo.setDrawPriority(10000000);
         geomInfo.setZBufferRead(true);
         geomInfo.setZBufferWrite(true);
@@ -98,6 +106,9 @@ public class GeomPointsTestCase extends MaplyTestCase {
         CartoDBMapTestCase baseTestCase = new CartoDBMapTestCase(this.getActivity());
         baseTestCase.setUpWithGlobe(globeVC);
         addPoints(globeVC);
+
+        Point2d geoPt = Point2d.FromDegrees(-122.416667, 37.783333);
+        globeVC.animatePositionGeo(geoPt.getX(),geoPt.getY(),0.01,1.0);
 
         return true;
     }

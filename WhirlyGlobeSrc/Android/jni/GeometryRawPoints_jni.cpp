@@ -97,7 +97,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addIntValues
         std::vector<int> intVec;
         ConvertIntArray(env,intArray,intVec);
         
-        rawGeom->addAttribute(name.cStr,GeomRawIntType);
+        rawGeom->addValues(attrId,intVec);
     }
     catch (...)
     {
@@ -123,7 +123,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addFloatValues
         std::vector<float> floatVec;
         ConvertFloatArray(env,floatArray,floatVec);
         
-        rawGeom->addAttribute(name.cStr,GeomRawFloatType);
+        rawGeom->addValues(attrId,floatVec);
     }
     catch (...)
     {
@@ -149,7 +149,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint2fValu
         std::vector<Eigen::Vector2f> ptVec;
         ConvertFloat2fArray(env,floatArray,ptVec);
         
-        rawGeom->addAttribute(name.cStr,GeomRawFloat2Type);
+        rawGeom->addPoints(attrId,ptVec);
     }
     catch (...)
     {
@@ -175,7 +175,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint3fValu
         std::vector<Eigen::Vector3f> ptVec;
         ConvertFloat3fArray(env,floatArray,ptVec);
         
-        rawGeom->addAttribute(name.cStr,GeomRawFloat3Type);
+        rawGeom->addPoints(attrId,ptVec);
     }
     catch (...)
     {
@@ -201,7 +201,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint3dValu
         std::vector<Eigen::Vector3d> ptVec;
         ConvertFloat3dArray(env,doubleArray,ptVec);
         
-        rawGeom->addAttribute(name.cStr,GeomRawDouble3Type);
+        rawGeom->addPoints(attrId,ptVec);
     }
     catch (...)
     {
@@ -227,7 +227,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint4fValu
         std::vector<Eigen::Vector4f> ptVec;
         ConvertFloat4fArray(env,floatArray,ptVec);
         
-        rawGeom->addAttribute(name.cStr,GeomRawFloat4Type);
+        rawGeom->addPoints(attrId,ptVec);
     }
     catch (...)
     {
