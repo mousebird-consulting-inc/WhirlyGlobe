@@ -171,21 +171,21 @@ void TileBuilder::clearAtlases(ChangeSet &theChangeRequests)
     
     if (texAtlas)
     {
-        texAtlas->shutdown(theChangeRequests);
+        texAtlas->teardown(theChangeRequests);
         delete texAtlas;
         texAtlas = NULL;
     }
     
     if (drawAtlas)
     {
-        drawAtlas->shutdown(theChangeRequests);
+        drawAtlas->teardown(theChangeRequests);
         delete drawAtlas;
         drawAtlas = NULL;
     }
 
     if (poleDrawAtlas)
     {
-        poleDrawAtlas->shutdown(theChangeRequests);
+        poleDrawAtlas->teardown(theChangeRequests);
         delete poleDrawAtlas;
         poleDrawAtlas = NULL;
     }

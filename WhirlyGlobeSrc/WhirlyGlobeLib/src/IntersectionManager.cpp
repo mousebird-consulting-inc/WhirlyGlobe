@@ -53,9 +53,6 @@ bool IntersectionManager::findIntersection(SceneRendererES *renderer,View *view,
     Vector4d modelEye = invFullMat * Vector4d(0.0,0.0,0.0,1.0);
     Vector4d modelScreenPt = invFullMat * Vector4d(tapPt.x(),tapPt.y(),tapPt.z(),1.0);
     
-    double eyeLen = modelEye.norm();
-    double screenLen = modelScreenPt.norm();
-    
     Vector4d dir4 = modelScreenPt - modelEye;
     Vector3d org(modelEye.x(),modelEye.y(),modelEye.z());
     Vector3d dir(dir4.x(),dir4.y(),dir4.z());

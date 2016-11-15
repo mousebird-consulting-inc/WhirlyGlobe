@@ -50,6 +50,8 @@ public:
     class Intersectable
     {
     public:
+        virtual ~Intersectable();
+
         // Ray is in display coordinates
         virtual bool findClosestIntersection(SceneRendererES *renderer,View *theView,const Point2f &frameSize,const Point2f &touchPt,const Point3d &org,const Point3d &dir,Point3d &iPt,double &dist) = 0;
     };

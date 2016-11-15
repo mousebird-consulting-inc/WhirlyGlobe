@@ -113,6 +113,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setClusterGroup
 
 /*
  * Class:     com_mousebird_maply_InternalMarker
+ * Method:    setPeriod
+ * Signature: (D)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setPeriod
+  (JNIEnv *, jobject, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_InternalMarker
  * Method:    nativeInit
  * Signature: ()V
  */
