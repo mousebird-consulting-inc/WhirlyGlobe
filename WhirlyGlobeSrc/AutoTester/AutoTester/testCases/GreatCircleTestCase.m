@@ -130,6 +130,56 @@
                                                            }]];
     }
 
+    if (true) {
+        MaplyCoordinate a = MaplyCoordinateMakeWithDegrees(-175.0,-33.092222);
+        MaplyCoordinate c = MaplyCoordinateMakeWithDegrees(177.944183,-34.845333);
+        MaplyCoordinate z[] = {a, c };
+        MaplyVectorObject *v2 = [[MaplyVectorObject alloc] initWithLineString:z numCoords:2 attributes:nil];
+        if (isGlobe)
+            [v2 subdivideToGlobeGreatCircle:0.0001];
+        else
+            [v2 subdivideToFlatGreatCircle:0.0001];
+        
+        [compObjs addObject:[viewC addVectors:@[v2] desc:@{
+                                                           kMaplyColor: [UIColor brownColor],
+                                                           kMaplyEnable: @(YES),
+                                                           kMaplyVecWidth: @(6.0),
+                                                           }]];
+    }
+
+    if (true) {
+        MaplyCoordinate a = MaplyCoordinateMakeWithDegrees(177.747519,-34.672406);
+        MaplyCoordinate c = MaplyCoordinateMakeWithDegrees(-175.0,-31.833547);
+        MaplyCoordinate z[] = {a, c };
+        MaplyVectorObject *v2 = [[MaplyVectorObject alloc] initWithLineString:z numCoords:2 attributes:nil];
+        if (isGlobe)
+            [v2 subdivideToGlobeGreatCircle:0.0001];
+        else
+            [v2 subdivideToFlatGreatCircle:0.0001];
+        
+        [compObjs addObject:[viewC addVectors:@[v2] desc:@{
+                                                           kMaplyColor: [UIColor brownColor],
+                                                           kMaplyEnable: @(YES),
+                                                           kMaplyVecWidth: @(6.0),
+                                                           }]];
+    }
+
+    if (true) {
+        MaplyCoordinate a = MaplyCoordinateMakeWithDegrees(-175.0,-31.833547);
+        MaplyCoordinate c = MaplyCoordinateMakeWithDegrees(178.394161,-35.357856);
+        MaplyCoordinate z[] = {a, c };
+        MaplyVectorObject *v2 = [[MaplyVectorObject alloc] initWithLineString:z numCoords:2 attributes:nil];
+        if (isGlobe)
+            [v2 subdivideToGlobeGreatCircle:0.0001];
+        else
+            [v2 subdivideToFlatGreatCircle:0.0001];
+        
+        [compObjs addObject:[viewC addVectors:@[v2] desc:@{
+                                                           kMaplyColor: [UIColor brownColor],
+                                                           kMaplyEnable: @(YES),
+                                                           kMaplyVecWidth: @(6.0),
+                                                           }]];
+    }
 
     // Line to see where the division is
     if (true) {
