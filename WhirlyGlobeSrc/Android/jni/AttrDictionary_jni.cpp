@@ -231,3 +231,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setDouble
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setDouble()");
     }
 }
+
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_AttrDictionary_toString
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+        Dictionary *dict = classInfo->getObject(env,obj);
+        if (!dict)
+            return NULL;
+
+        std::string str = dict->toString();
+        return env->NewStringUTF(str.c_str());
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setDouble()");
+    }
+}

@@ -72,7 +72,10 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             for (VectorObject point : vecObjs)
             {
                 // Note: Do we need to split here
-                String name = point.getAttributes().getString("name");
+                AttrDictionary dict = point.getAttributes();
+                String name = dict.getString("name");
+                if (name == null)
+                    name = dict.getString("value");
                 Point2d pt = point.centroid();
                 if (pt != null)
                 {
