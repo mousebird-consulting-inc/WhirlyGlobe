@@ -86,6 +86,9 @@ public:
     // Write data to a raw data buffer
     void asRawData(MutableRawData *rawData);
     
+    // Convert to a string for debugging
+    std::string toString() const;
+    
 protected:
     class Value
     {
