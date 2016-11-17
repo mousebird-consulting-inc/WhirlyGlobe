@@ -412,6 +412,18 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, renderWrapper.maplyRender, newQuat, z, howLong));
 		}
 	}
+
+	/**
+	 * This turns on an auto-rotate mode.  The globe will start rotating after a
+	 * delay by the given number of degrees per second.  Very pleasant.
+	 * @param autoRotateInterval Wait this number of seconds after user interaction to auto rotate.
+	 * @param autoRotateDegrees Rotate this number of degrees (not radians) per second.
+     */
+	public void setAutoRotate(float autoRotateInterval,float autoRotateDegrees)
+	{
+		if (gestureHandler != null)
+			gestureHandler.setAutoRotate(autoRotateInterval,autoRotateDegrees);
+	}
 	
 	// Gesture handler
 	GlobeGestureHandler gestureHandler = null;

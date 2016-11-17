@@ -24,6 +24,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.os.Handler;
 
 /**
  * Implements the various gestures we need and handles conflict between them.
@@ -54,7 +55,8 @@ public class GlobeGestureHandler
 		sgd = new ScaleGestureDetector(view.getContext(),sl);
 		gl = new GestureListener(globeControl);
 		gd = new GestureDetector(view.getContext(),gl);
-		sl.gl = gl;		
+		sl.gl = gl;
+		updateTouchedTime();
 	}
 
 	public void shutdown()
@@ -68,6 +70,58 @@ public class GlobeGestureHandler
 			gl.globeControl = null;
 		gl = null;
 		view = null;
+	}
+
+	double lastTouchedTime = 0.0;
+	Handler autoRotateHandler = null;
+	Runnable autoRunRunnable = null;
+	GlobeAnimateMomentum rotateAnimation = null;
+	// Check every 1/5 of a second
+	final int AutoRotateCheckPeriod = 200;
+
+	void updateTouchedTime()
+	{
+		lastTouchedTime = System.currentTimeMillis() / 1000.0;
+		if (rotateAnimation != null) {
+			globeView.cancelAnimation();
+			rotateAnimation = null;
+		}
+	}
+
+	public void setAutoRotate(final float autoRotateInterval, final float autoRotateDegrees)
+	{
+		if (autoRotateHandler != null) {
+			autoRotateHandler.removeCallbacks(autoRunRunnable);
+			autoRunRunnable = null;
+			autoRotateHandler = null;
+		}
+
+		if (autoRotateInterval < 0.0 || autoRotateDegrees == 0.0)
+			return;
+
+		autoRunRunnable = new Runnable() {
+			@Override
+			public void run() {
+				if (globeControl == null || globeControl.renderWrapper == null || globeControl.renderWrapper.maplyRender == null)
+					return;
+
+				double currentTime = System.currentTimeMillis() / 1000.0;
+				if (currentTime - lastTouchedTime > autoRotateInterval && rotateAnimation == null)
+				{
+					double anglePerSec = autoRotateDegrees / 180.0 * Math.PI;
+					// GlobeView inGlobeView,MaplyRenderer inRender,double inVelocity,double inAcceleration,Point3d inAxis,boolean inNorthUp
+					Point3d north = new Point3d(0,0,1);
+					rotateAnimation = new GlobeAnimateMomentum(globeView,globeControl.renderWrapper.maplyRender,anglePerSec,0.0,north,false);
+					globeView.setAnimationDelegate(rotateAnimation);
+				}
+				autoRotateHandler = new Handler();
+				autoRotateHandler.postDelayed(autoRunRunnable,AutoRotateCheckPeriod);
+			}
+		};
+
+		// Check every 1/5 of a second
+		autoRotateHandler = new Handler();
+		autoRotateHandler.postDelayed(autoRunRunnable,AutoRotateCheckPeriod);
 	}
 
 	public void setZoomLimits(double inMin,double inMax)
@@ -124,6 +178,7 @@ public class GlobeGestureHandler
 			if (gl != null)
 				gl.isActive = false;
 			isActive = true;
+			updateTouchedTime();
 
 			return true;
 		}
@@ -147,7 +202,8 @@ public class GlobeGestureHandler
 //				Log.d("Maply","Zoom: " + maplyControl.mapView.getLoc().getZ() + " Scale: " + scale);
 				return true;
 			}
-			
+
+			updateTouchedTime();
 			isActive = false;
 			return false;
 		}
@@ -157,6 +213,7 @@ public class GlobeGestureHandler
 		{
 //			Log.d("Maply","Ending scale");
 			isActive = false;
+			updateTouchedTime();
 		}
 	}
 	
@@ -197,6 +254,7 @@ public class GlobeGestureHandler
 			} else
 				isActive = false;
 
+			updateTouchedTime();
 			return true;
 		}
 
@@ -245,6 +303,7 @@ public class GlobeGestureHandler
 //				Log.d("Maply","New globe rotation");
 			}
 
+			updateTouchedTime();
 			return true;
 		}
 		
@@ -310,7 +369,8 @@ public class GlobeGestureHandler
 					globeView.setAnimationDelegate(new GlobeAnimateMomentum(globeView,globeControl.renderWrapper.maplyRender,angVel,accel,rotAxis,globeView.northUp));
 				}
 			}
-					
+
+			updateTouchedTime();
 			isActive = false;
 
 			return true;
@@ -322,6 +382,8 @@ public class GlobeGestureHandler
 //			Log.d("Maply","Long Press");
 			if (e.getPointerCount() == 1)
 				globeControl.processLongPress(new Point2d(e.getX(),e.getY()));
+
+			updateTouchedTime();
 		}
 
 		@Override
@@ -334,6 +396,7 @@ public class GlobeGestureHandler
 		@Override
 		public boolean onSingleTapUp(MotionEvent e)
 		{
+			updateTouchedTime();
 			return true;
 		}
 
@@ -341,6 +404,7 @@ public class GlobeGestureHandler
 		public boolean onDoubleTapEvent(MotionEvent e) 
 		{
 //			Log.d("Maply","Double tap update");
+			updateTouchedTime();
 			return false;
 		}
 
@@ -348,6 +412,7 @@ public class GlobeGestureHandler
 		public boolean onSingleTapConfirmed(MotionEvent e) 
 		{
 			globeControl.processTap(new Point2d(e.getX(),e.getY()));
+			updateTouchedTime();
 			return true;
 		}
 
@@ -383,7 +448,8 @@ public class GlobeGestureHandler
 				// Now kick off the animation
 				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender, newQuat, newHeight, 0.5));
 			}
-			
+
+			updateTouchedTime();
 			isActive = false;
 			
 			return true;
@@ -438,6 +504,7 @@ public class GlobeGestureHandler
         if (slWasActive && !sl.isActive)
             globeControl.zoomDidEnd(true);
 
+		updateTouchedTime();
 		return true;
 	}      
 }
