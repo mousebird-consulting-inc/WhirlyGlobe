@@ -662,6 +662,33 @@ using namespace WhirlyKit;
         Point2f span = mbr.ur()-mbr.ll();
         mbr.ll() = ourCenter2d - span/2.0;
         mbr.ur() = ourCenter2d + span/2.0;
+        // If that MBR is pushing the north or south boundaries, let's adjust it
+        Mbr quadTreeMbr = quadLayer.quadtree->getMbr();
+        if (mbr.ur().y() > quadTreeMbr.ur().y())
+        {
+            double dy = mbr.ur().y() - quadTreeMbr.ur().y();
+            mbr.ur().y() -= dy;
+            mbr.ll().y() -= dy;
+        } else
+            if (mbr.ll().y() < quadTreeMbr.ll().y())
+            {
+                double dy = quadTreeMbr.ll().y() - mbr.ll().y();
+                mbr.ur().y() += dy;
+                mbr.ll().y() += dy;
+            }
+        // Also the east and west boundaries
+        if (mbr.ur().x() > quadTreeMbr.ur().x())
+        {
+            double dx = mbr.ur().x() - quadTreeMbr.ur().x();
+            mbr.ur().x() -= dx;
+            mbr.ll().x() -= dx;
+        } else
+            if (mbr.ll().x() < quadTreeMbr.ll().x())
+            {
+                double dx = quadTreeMbr.ll().x() - mbr.ll().x();
+                mbr.ur().x() += dx;
+                mbr.ll().x() += dx;
+            }
         float import = ScreenImportance(lastViewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), lastViewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
         import *= _importanceScale;
         if (import <= quadLayer.minImportance)
