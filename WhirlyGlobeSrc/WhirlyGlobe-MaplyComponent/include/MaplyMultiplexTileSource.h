@@ -26,7 +26,7 @@
     @details The Multiplex Tile source takes a bunch of other tiles source
     objects and switches between them.  Strictly speaking, it doesn't
     multiplex.  The quad image layer asks for all of its images at
-    once for a given tile.  I just like the work 'multiplex'.
+    once for a given tile.  I just like the word 'multiplex'.
     Multiplex. Multiplex.  So futuristic in a 1970's way.  Multiplex.
     @details Anyway, this is useful for animating between different tile
     sources.
