@@ -744,6 +744,7 @@ using namespace WhirlyKit;
         }
         quadLayer.targetLevels = targetLevels;
     }
+    canShortCircuitImportance = true;
 }
 
 /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
