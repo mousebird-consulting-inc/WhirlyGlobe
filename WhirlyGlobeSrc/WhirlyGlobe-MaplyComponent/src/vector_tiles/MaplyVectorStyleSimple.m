@@ -115,10 +115,20 @@
 
 - (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController * _Nonnull)viewC
 {
-    MaplyComponentObject *compObj = [super.viewC addVectors:vecObjs desc:@{kMaplyColor: _color,
+    NSMutableArray *tessObjs = [NSMutableArray array];
+    for (MaplyVectorObject *vecObj in vecObjs)
+    {
+        MaplyVectorObject *tessObj = [vecObj tesselate];
+        if (tessObj)
+            [tessObjs addObject:tessObj];
+    }
+    
+    MaplyComponentObject *compObj = [super.viewC addVectors:tessObjs desc:@{kMaplyColor: _color,
                                                                            kMaplyFilled: @(YES),
                                                                            kMaplyDrawPriority: @(self.drawPriority)
                                                                            } mode:MaplyThreadCurrent];
+    if (!compObj)
+        return nil;
     
     return @[compObj];
 }
@@ -162,6 +172,9 @@
                                                                               kMaplyFont: _font}
                                                            mode:MaplyThreadCurrent];
     
+    if (!compObj)
+        return nil;
+    
     return @[compObj];
 }
 
@@ -187,7 +200,10 @@
                                                                            kMaplyFilled: @(NO),
                                                                            kMaplyVecWidth: @(4.0)
                                                                            } mode:MaplyThreadCurrent];
-    
+
+    if (!compObj)
+        return nil;
+
     return @[compObj];
 }
 
