@@ -60,9 +60,11 @@ public class GlobeMapFragment extends android.support.v4.app.Fragment implements
 
         if (mapDisplayType == MapDisplayType.Map) {
             mapControl = new MapController(getActivity(), mapSettings);
+            mapControl.gestureDelegate = this;
             baseControl = mapControl;
         } else {
             globeControl = new GlobeController(getActivity(), globeSettings);
+            globeControl.gestureDelegate = this;
             baseControl = globeControl;
         }
 
