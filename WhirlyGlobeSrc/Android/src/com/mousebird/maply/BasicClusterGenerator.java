@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.text.TextPaint;
 
 import java.awt.font.TextAttribute;
@@ -67,11 +68,13 @@ public class BasicClusterGenerator extends ClusterGenerator {
 //    private Shader motionShader;
 
     private int[] colors;
+    private Bitmap bitmap;
     private Point2d size;
 
     //TODO Font still not supported
     private TextAttribute font;
     private float scale;
+    private float textSize = 0.f;
     private HashMap<Integer, MaplyTexture> texByNumber;
     private MaplyBaseController viewC;
     private boolean correct = false;
@@ -90,6 +93,21 @@ public class BasicClusterGenerator extends ClusterGenerator {
 
         this.colors = colors;
         this.size = markerSize;
+        this.clusterNumber = clusterNumber;
+        this.scale = 1;
+        this.activity = activity;
+        this.clusterLayoutSize = markerSize;
+        this.selectable = true;
+        this.markerAnimationTime = 0.2;
+        this.viewC = viewC;
+    }
+
+    public BasicClusterGenerator(Bitmap bitmap,int clusterNumber, Point2d markerSize,float textSize, MaplyBaseController viewC, Activity activity)
+    {
+        correct = true;
+        this.bitmap = bitmap;
+        this.size = markerSize;
+        this.textSize = textSize;
         this.clusterNumber = clusterNumber;
         this.scale = 1;
         this.activity = activity;
@@ -128,8 +146,11 @@ public class BasicClusterGenerator extends ClusterGenerator {
 
             //Configure Background
             Paint background = new Paint();
-            background.setColor(this.colors[0]);
-            background.setStyle(Paint.Style.FILL);
+            if (this.colors != null) {
+                background.setColor(this.colors[0]);
+                background.setStyle(Paint.Style.FILL);
+            }
+
             //Configure Stroke
             Paint stroke = new Paint();
             stroke.setColor(Color.WHITE);
@@ -137,17 +158,25 @@ public class BasicClusterGenerator extends ClusterGenerator {
             //Configure Text
             TextPaint text = new TextPaint();
             text.setColor(Color.WHITE);
-            text.setTextSize((float) (size.getX()/2));
+            if (textSize != 0.0)
+                text.setTextSize(textSize);
+            else
+                text.setTextSize((float) (size.getX()/2));
             text.setTextAlign(Paint.Align.CENTER);
 
-            // Compute Circle Position
-            float x = (c.getWidth() / 2);
-            float y = (c.getHeight()/2);
-            float radius = c.getWidth()/2;
+            if (this.colors != null) {
+                // Compute Circle Position
+                float x = (c.getWidth() / 2);
+                float y = (c.getHeight() / 2);
+                float radius = c.getWidth() / 2;
 
-            //Draw Circle and Stroke
-            c.drawCircle(x, y, radius, background);
-            c.drawCircle(x,y,radius,stroke);
+                //Draw Circle and Stroke
+                c.drawCircle(x, y, radius, background);
+                c.drawCircle(x, y, radius, stroke);
+            } else {
+                c.drawBitmap(this.bitmap,new Rect(0,0,this.bitmap.getWidth(),this.bitmap.getHeight()),
+                        new Rect(0,0,(int)this.size.getX(),(int)this.size.getY()),stroke);
+            }
 
             // Compute Text Position
             int xPos = (c.getWidth() / 2);
