@@ -270,6 +270,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     quadLayer.maxTiles = _maxTiles;
     
     [super.layerThread addLayer:quadLayer];
+    _valid = true;
     
     return true;
 }
@@ -1094,6 +1095,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
 {
+    _valid = false;
     [self clearContents];
 }
 

@@ -619,6 +619,10 @@ static double MAX_EXTENT = 20037508.342789244;
                     }
                 }
                 
+                // If the app shuts down the layer while we're working
+                if (!layer.valid)
+                    break;
+                    
                 MaplyVectorTileData *retData = [_tileParser buildObjects:tileData tile:tileID bounds:bbox];
                 if (!retData)
                 {
