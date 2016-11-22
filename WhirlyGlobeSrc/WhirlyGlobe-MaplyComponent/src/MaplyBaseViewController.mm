@@ -1174,6 +1174,12 @@ static const float PerfOutputDelay = 15.0;
 
 - (bool)addLayer:(MaplyViewControllerLayer *)newLayer
 {
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        [self performSelector:@selector(addLayer:) withObject:newLayer];
+        return true;
+    }
+
     if (newLayer && ![userLayers containsObject:newLayer])
     {
         WhirlyKitLayerThread *layerThread = baseLayerThread;
@@ -1201,6 +1207,12 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)removeLayer:(MaplyViewControllerLayer *)layer
 {
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        [self performSelector:@selector(removeLayer:) withObject:layer];
+        return;
+    }
+    
     bool found = false;
     MaplyViewControllerLayer *theLayer = nil;
     for (theLayer in userLayers)
@@ -1240,12 +1252,24 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)removeLayers:(NSArray *)layers
 {
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        [self performSelector:@selector(removeLayers:) withObject:layers];
+        return;
+    }
+
     for (MaplyViewControllerLayer *layer in layers)
         [self removeLayer:layer];
 }
 
 - (void)removeAllLayers
 {
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        [self performSelector:@selector(removeAllLayers) withObject:nil];
+        return;
+    }
+
     NSArray *allLayers = [NSArray arrayWithArray:userLayers];
     
     for (MaplyViewControllerLayer *theLayer in allLayers)
