@@ -250,6 +250,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_unlock(&tileSetLock);
     
     pthread_mutex_destroy(&tileSetLock);
+    tileSource = nil;
 }
 
 - (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)inViewC
@@ -290,7 +291,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
 {
-	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter() || !_valid)
 		return kMaplyNullBoundingBox;
 
 	MaplyBoundingBox bounds;
@@ -302,7 +303,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
-    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter() || !_valid)
         return;
     
     Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
@@ -338,7 +339,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)geoBoundsForTileD:(MaplyTileID)tileID ll:(MaplyCoordinateD *)ll ur:(MaplyCoordinateD *)ur
 {
-    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter() || !_valid)
         return;
     
     Point2d mbrLL,mbrUR;
@@ -433,7 +434,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (int)targetZoomLevel
 {
-    if (!lastViewState || !_renderer || !scene)
+    if (!lastViewState || !_renderer || !scene || !_valid)
         return minZoom;
     
     int zoomLevel = 0;
