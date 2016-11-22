@@ -148,6 +148,7 @@ using namespace WhirlyKit;
     {
         if (_sqlDb)
             sqlite3_close(_sqlDb);
+        _sqlDb = nil;
     }
 }
 
