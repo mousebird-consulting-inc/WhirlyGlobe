@@ -35,7 +35,7 @@ public class PlateCarreeCoordSystem extends CoordSystem
 	/**
 	 * Construct the coordinate system to cover the whole world.
 	 */
-	PlateCarreeCoordSystem()
+	public PlateCarreeCoordSystem()
 	{
 		initialise();
 		// Initialize to cover the whole world
