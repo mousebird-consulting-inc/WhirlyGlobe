@@ -52,7 +52,7 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
                         MaplyCoordinate center = [vecObj centroid];
                         vecObj.attributes[kMaplyVecCenterX] = @(center.x);
                         vecObj.attributes[kMaplyVecCenterY] = @(center.y);
-                        
+                     
                         // We adjust the grid clipping size based on the latitude
                         // This helps a lot near the poles.  Otherwise we're way oversampling
                         float thisClipGridLon = ClipGridSize;
@@ -95,7 +95,7 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
        }];
     
     // Turn this on to see the tessellation over the top.  Good for debugging
-    //                    [baseVC addVectors:tessObjs desc:@{kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+1000)} mode:MaplyThreadCurrent];
+    //                   [baseVC addVectors:tessObjs desc:@{kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+1000)} mode:MaplyThreadCurrent];
 }
 
 - (void)setupTexture:(MaplyBaseViewController *)viewC
