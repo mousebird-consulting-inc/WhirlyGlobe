@@ -28,6 +28,7 @@
 #import "NSString+DDXML.h"
 #import "Maply3dTouchPreviewDelegate.h"
 
+
 using namespace Eigen;
 using namespace WhirlyKit;
 
@@ -50,6 +51,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyBaseViewController
 {
+    MaplyLocationTracker *_locationTracker;
 }
 
 - (void) clear
@@ -1398,5 +1400,20 @@ static const float PerfOutputDelay = 15.0;
 - (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *__nullable)other {
     // Implement in derived class.
 }
+
+
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate {
+    if (_locationTracker)
+        [self stopLocationTracking];
+    _locationTracker = [[MaplyLocationTracker alloc] initWithViewC:self Delegate:delegate];
+}
+
+- (void)stopLocationTracking {
+    if (!_locationTracker)
+        return;
+    [_locationTracker teardown];
+    _locationTracker = nil;
+}
+
 
 @end
