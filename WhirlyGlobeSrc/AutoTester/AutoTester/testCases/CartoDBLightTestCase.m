@@ -48,11 +48,14 @@
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
     [self setupBaseLayer:mapVC];
+    mapVC.height = 0.7;
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(8.4666749, 47.3774337) time:1.0];
 }
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
     [self setupBaseLayer:globeVC];
+    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(8.4666749, 47.3774337) time:1.0];
 }
 
 @end
