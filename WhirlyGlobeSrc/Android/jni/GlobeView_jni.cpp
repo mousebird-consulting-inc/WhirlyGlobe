@@ -175,6 +175,46 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_minHeightAboveSurfa
     return 0.0;
 }
 
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_getTilt
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        GlobeViewClassInfo *classInfo = GlobeViewClassInfo::getClassInfo();
+        WhirlyGlobe::GlobeView *view = classInfo->getObject(env,obj);
+        if (!view)
+            return 0.0;
+        
+        return view->getTilt();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::getTilt()");
+    }
+    
+    return 0.0;
+}
+
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setTilt
+(JNIEnv *env, jobject obj, jdouble newTilt)
+{
+    try
+    {
+        GlobeViewClassInfo *classInfo = GlobeViewClassInfo::getClassInfo();
+        WhirlyGlobe::GlobeView *view = classInfo->getObject(env,obj);
+        if (!view)
+            return;
+        
+        view->setTilt(newTilt);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::setTilt()");
+    }
+}
+
+
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_maxHeightAboveSurface
   (JNIEnv *env, jobject obj)
 {

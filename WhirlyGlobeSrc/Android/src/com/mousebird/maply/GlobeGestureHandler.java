@@ -20,11 +20,11 @@
 
 package com.mousebird.maply;
 
+import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.os.Handler;
 
 /**
  * Implements the various gestures we need and handles conflict between them.
@@ -38,7 +38,10 @@ public class GlobeGestureHandler
 {
 	GlobeController globeControl = null;
 	GlobeView globeView = null;
-	
+
+	public boolean allowRotate = false;
+	public boolean allowTilt = false;
+
 	ScaleGestureDetector sgd = null;
 	ScaleListener sl = null;
 	GestureDetector gd = null;
@@ -46,6 +49,7 @@ public class GlobeGestureHandler
 	View view = null;
 	double zoomLimitMin = 0.0;
 	double zoomLimitMax = 1000.0;
+	double startRot = Double.MAX_VALUE;
 	public GlobeGestureHandler(GlobeController inControl,View inView)
 	{
 		globeControl = inControl;
@@ -455,22 +459,119 @@ public class GlobeGestureHandler
 			return true;
 		}		
 	}
-	
+
+	Point3d startRotAxis = null;
+	Quaternion startRotQuat = null;
+
+	// Update rotation when there are two fingers working
+	void handleRotation(MotionEvent event)
+	{
+		if (allowRotate)
+		{
+			MotionEvent.PointerCoords p0 = new MotionEvent.PointerCoords();
+			MotionEvent.PointerCoords p1 = new MotionEvent.PointerCoords();
+			event.getPointerCoords(0,p0);
+			event.getPointerCoords(1,p1);
+			double cX = (p0.x+p1.x)/2.0;
+			double cY = (p0.y+p1.y)/2.0;
+			double dx = p0.x-cX;
+			double dy = p0.y-cY;
+
+			// Calculate a starting rotation
+			if (startRot == Double.MAX_VALUE)
+			{
+				startRot = Math.atan2(dy, dx);
+				Point2d center = new Point2d(event.getX(),event.getY());
+				Matrix4d modelTransform = globeView.calcModelViewMatrix();
+				startRotAxis = globeView.pointOnSphereFromScreen(center, modelTransform, globeControl.getViewSize(), false);
+				startRotQuat = globeView.getRotQuat();
+			} else {
+				if (startRotAxis != null) {
+					// Update an existing rotation
+					double curRot = Math.atan2(dy, dx);
+					double diffRot = curRot - startRot;
+					AngleAxis rotQuat = new AngleAxis(-diffRot, startRotAxis);
+					Quaternion newRotQuat = startRotQuat.multiply(rotQuat);
+					globeView.setRotQuat(newRotQuat);
+				}
+			}
+		}
+	}
+
+	// Cancel an outstanding rotation
+	void cancelRotation()
+	{
+		startRot = Double.MAX_VALUE;
+		startRotAxis = null;
+		startRotQuat = null;
+	}
+
+	double startTilt = 0.0;
+	double startTiltY = Double.MAX_VALUE;
+
+	void handleTilt(MotionEvent event)
+	{
+		if (startTiltY == Double.MAX_VALUE)
+		{
+			startTilt = globeView.getTilt();
+			startTiltY = event.getY();
+		} else {
+			double scale = (event.getY()-startTiltY)/globeControl.getViewSize().getX();
+			double move = scale * Math.PI/4;
+
+			// This tilt plants the horizon right in the middle
+			double maxTilt = Math.PI/2.0;
+
+			// Note: Porting
+//			if (_tiltCalcDelegate)
+//				maxTilt = [_tiltCalcDelegate maxTilt];
+//			else
+//			maxTilt = asin(1.0/(1.0+view.heightAboveGlobe));
+
+			double newTilt = move + startTilt;
+			globeView.setTilt(Math.min(Math.max(0.0,newTilt),maxTilt));
+
+			// Note: Porting
+//			if (_tiltCalcDelegate)
+//			[_tiltCalcDelegate setTilt:view.tilt];
+
+		}
+	}
+
+	void cancelTilt()
+	{
+		startTiltY = Double.MAX_VALUE;
+	}
+
 	// Where we receive events from the gl view
 	public boolean onTouch(View v, MotionEvent event) {
 		boolean slWasActive = sl.isActive;
 		boolean glWasActive = gl.isActive;
+		boolean rotWasActive = startRot != Double.MAX_VALUE;
+		boolean tiltWasActive = startTilt != Double.MAX_VALUE;
 
 		// If they're using two fingers, cancel any outstanding pan
-		if (event.getPointerCount() == 2) {
+		if (event.getPointerCount() >= 2) {
 			gl.isActive = false;
 		}
 
-		// Try for a pinch or another gesture
-		if (sl.isActive || event.getPointerCount() == 2) {
-			sgd.onTouchEvent(event);
+		if (allowTilt) {
+			if (event.getPointerCount() == 3) {
+				handleTilt(event);
+			} else {
+				cancelTilt();
+			}
 		}
-		if (!sl.isActive || gl.isActive) {
+
+		if (allowRotate) {
+			if (event.getPointerCount() == 2) {
+				sgd.onTouchEvent(event);
+				handleRotation(event);
+			} else {
+				cancelRotation();
+			}
+		}
+		if (!sl.isActive && event.getPointerCount() == 1) {
 			gd.onTouchEvent(event);
 			if (event.getAction() == MotionEvent.ACTION_UP) {
 				gl.isActive = false;
@@ -503,6 +604,26 @@ public class GlobeGestureHandler
             globeControl.zoomDidStart(true);
         if (slWasActive && !sl.isActive)
             globeControl.zoomDidEnd(true);
+
+		if (!rotWasActive && startRot != Double.MAX_VALUE)
+		{
+			this.globeControl.rotateDidStart(true);
+		}
+
+		if (rotWasActive && startRot == Double.MAX_VALUE)
+		{
+			this.globeControl.rotateDidEnd(true);
+		}
+
+		if (!tiltWasActive && startTilt != Double.MAX_VALUE)
+		{
+			this.globeControl.tiltDidStart(true);
+		}
+
+		if (tiltWasActive && startTilt == Double.MAX_VALUE)
+		{
+			this.globeControl.tiltDidEnd(true);
+		}
 
 		updateTouchedTime();
 		return true;

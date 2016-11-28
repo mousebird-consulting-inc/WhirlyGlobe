@@ -147,7 +147,19 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
      */
 	public void setKeepNorthUp(boolean newVal)
 	{
-		globeView.northUp = newVal;
+		if (globeView != null)
+			globeView.northUp = newVal;
+		if (gestureHandler != null)
+			gestureHandler.allowRotate = !newVal;
+	}
+
+	/**
+	 * Call this to allow the user to tilt with three fingers.
+     */
+	public void setAllowTilt(boolean allowTilt)
+	{
+		if (gestureHandler != null)
+			gestureHandler.allowTilt = allowTilt;
 	}
 
 	/**
