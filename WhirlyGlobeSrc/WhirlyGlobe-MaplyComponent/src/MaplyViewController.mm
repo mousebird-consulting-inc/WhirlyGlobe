@@ -150,6 +150,7 @@ using namespace Maply;
     mapScene = NULL;
     mapView = nil;
     flatView = nil;
+    glView = nil;
 
     mapInteractLayer = nil;
     
