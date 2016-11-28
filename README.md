@@ -68,6 +68,10 @@ Configuration file: /Users/erictheise/Projects/erictheise/WhirlyGlobe/_config.ym
 
 This'll start a [local server running on port 4000](http://localhost:4000/tutorial/getting_started.html).
 
+### Addendum
+
+If all that fails try:  bundle exec jekyll build
+
 ### Adding/Deleting Pages
 
 The tutorial sidebar yields a linear navigation through the tutorial pages. The "prev/next" arrows will also rely on
