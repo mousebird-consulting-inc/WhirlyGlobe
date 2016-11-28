@@ -153,6 +153,56 @@ public class GlobeView extends View
 		Point4d pos = mat.inverse().multiply(new Point4d(0,0,0,1));
 		return new Point3d(pos.getX(),pos.getY(),pos.getZ());
 	}
+
+	double getHeading()
+	{
+		double retHeading = 0.0;
+
+		// Figure out where the north pole went
+        Point3d northPole = getRotQuat().multiply(new Point3d(0,0,1)).normalized();
+		if (northPole.getY() != 0.0)
+			retHeading = Math.atan2(-northPole.getX(),northPole.getY());
+
+		return retHeading;
+	}
+
+	void setHeading(double heading)
+    {
+        if (Double.isNaN(heading))
+        {
+            return;
+        }
+
+        // Undo the current heading
+        Point3d localPt = currentUp();
+        Point3d northPole = getRotQuat().multiply(new Point3d(0,0,1)).normalized();
+        Quaternion posQuat = getRotQuat();
+        if (northPole.getY() != 0.0)
+        {
+            // Then rotate it back on to the YZ axis
+            // This will keep it upward
+            double ang = Math.atan(northPole.getX()/northPole.getY());
+            // However, the pole might be down now
+            // If so, rotate it back up
+            if (northPole.getY() < 0.0)
+                ang += Math.PI;
+            AngleAxis upRot = new AngleAxis(ang,localPt);
+            posQuat = posQuat.multiply(upRot);
+        }
+
+        AngleAxis rot = new AngleAxis(heading,localPt);
+        Quaternion newRotQuat = posQuat.multiply(rot);
+
+        setRotQuat(newRotQuat);
+    }
+
+    Point3d currentUp()
+    {
+        Matrix4d modelMat = calcModelViewMatrix().inverse();
+
+        Point4d newUp = modelMat.multiply(new Point4d(0,0,1,0));
+        return new Point3d(newUp.getX(),newUp.getY(),newUp.getZ());
+    }
 		
 	// Calculate the point on the view plane given the screen location
 	native Point3d pointOnSphereFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);
@@ -170,6 +220,10 @@ public class GlobeView extends View
 	public native Point3d getLoc();
 	// Get just the height
 	public native double getHeight();
+	// Return the current tilt
+	public native double getTilt();
+	// Set the tilt directly
+	public native void setTilt(double tilt);
     // Set just the height, rather than the whole location
 	public native void setHeight(double z);
 	// Calculate a rotation to the given (absolute) geographic location

@@ -28,6 +28,9 @@ import android.view.View;
 
 import java.util.List;
 
+import static android.R.attr.x;
+import static android.R.attr.y;
+
 /**
  * The GlobeController is the main object in the Maply library when using a 3D globe.  
  * Toolkit users add and remove their geometry through here.
@@ -344,6 +347,90 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	}
 
 	/**
+	 * This encapulates the entire view state.  You can replicate all visual parameters with
+	 * set set of values.
+	 */
+	public class ViewState
+	{
+		/**
+		 * Heading from due north.  A value of MAX_VALUE means don't set it.
+		 */
+		public double heading = Double.MAX_VALUE;
+
+		/**
+		 * Height above the globe.  A value of MAX_VALUE means don't set it.
+		 */
+		public double height = Double.MAX_VALUE;
+
+		/**
+		 * Tilt as used in the view controller.
+		 * A value of MAX_VALUE means don't set it.
+		 */
+		public double tilt = Double.MAX_VALUE;
+
+		/**
+		 * Position to move to on the globe.
+		 * If null we won't set that value.
+		 */
+		public Point2d pos = null;
+
+		// Note: Porting
+		/// @brief If set, this is a point on the screen where pos should be.
+		/// @details By default this is (-1,-1) meaning the screen position is just the middle.  Otherwise, this is where the position should wind up on the screen, if it can.
+//		@property (nonatomic) CGPoint screenPos;
+	}
+
+	/**
+	 * Set all the view parameters at once.
+     */
+	public void setViewState(ViewState viewState)
+	{
+		if (!isCompletelySetup())
+			return;
+
+		globeView.cancelAnimation();
+
+
+		Point3d newPos = globeView.getLoc();
+		if (viewState.pos != null) {
+			Point3d localCoord = globeView.coordAdapter.coordSys.geographicToLocal(new Point3d(viewState.pos.getX(), viewState.pos.getY(), 0.0));
+			newPos = localCoord;
+		}
+
+		double newHeight = globeView.getHeight();
+		if (viewState.height != Double.MAX_VALUE)
+			newHeight = viewState.height;
+
+		if (viewState.pos != null)
+			globeView.setLoc(new Point3d(newPos.getX(),newPos.getY(),newHeight));
+
+		if (viewState.tilt != Double.MAX_VALUE)
+			globeView.setTilt(viewState.tilt);
+
+		if (viewState.height != Double.MAX_VALUE && !getKeepNorthUp())
+			globeView.setHeading(viewState.heading);
+	}
+
+	/**
+	 * Return a simple description of the view state parameters.
+     */
+	public ViewState getViewState()
+	{
+		Point3d loc = globeView.getLoc();
+		if (loc == null)
+			return null;
+		Point3d geoLoc = globeView.coordAdapter.coordSys.localToGeographic(loc);
+
+		ViewState viewState = new ViewState();
+		viewState.pos = new Point2d(geoLoc.getX(),geoLoc.getY());
+		viewState.height = geoLoc.getZ();
+		viewState.heading = globeView.getHeading();
+		viewState.tilt = globeView.getTilt();
+
+		return viewState;
+	}
+
+	/**
 	 * Set the current view position.
 	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
 	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
@@ -375,11 +462,21 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
      */
 	public Point3d getPositionGeo()
 	{
+		if (!isCompletelySetup())
+			return null;
+
 		Point3d loc = globeView.getLoc();
 		if (loc == null)
 			return null;
 		Point3d geoLoc = globeView.coordAdapter.coordSys.localToGeographic(loc);
 		return new Point3d(geoLoc.getX(),geoLoc.getY(),loc.getZ());
+	}
+
+	// If true, we're all set up to run calculations
+	protected boolean isCompletelySetup()
+	{
+		return running && globeView != null && renderWrapper != null &&
+				renderWrapper.maplyRender != null && renderWrapper.maplyRender.frameSize != null;
 	}
 	
 	/**
@@ -391,7 +488,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	 */
 	public void animatePositionGeo(final double x,final double y,final double z,final double howLong)
 	{
-		if (!running)
+		if (!isCompletelySetup())
 			return;
 
 		if (!rendererAttached) {
@@ -413,6 +510,14 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		}
 	}
 
+	public void setHeading(final double heading)
+	{
+		if (!isCompletelySetup())
+			return;
+
+		globeView.cancelAnimation();
+	}
+
 	/**
 	 * This turns on an auto-rotate mode.  The globe will start rotating after a
 	 * delay by the given number of degrees per second.  Very pleasant.
@@ -421,6 +526,9 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
      */
 	public void setAutoRotate(float autoRotateInterval,float autoRotateDegrees)
 	{
+		if (!isCompletelySetup())
+			return;
+
 		if (gestureHandler != null)
 			gestureHandler.setAutoRotate(autoRotateInterval,autoRotateDegrees);
 	}
@@ -507,6 +615,9 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	// Called by the gesture handler to let us know the user tapped
 	public void processTap(Point2d screenLoc)
 	{
+		if (!isCompletelySetup())
+			return;
+
 		if (gestureDelegate != null)
 		{
 			Matrix4d globeTransform = globeView.calcModelViewMatrix();
@@ -542,6 +653,9 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
      */
     public void processLongPress(Point2d screenLoc)
 	{
+		if (!isCompletelySetup())
+			return;
+
 		Matrix4d globeTransform = globeView.calcModelViewMatrix();
 		Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, renderWrapper.maplyRender.frameSize, false);
 		if (loc == null)
@@ -586,7 +700,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
      */
     public void handleStartMoving(boolean userMotion)
     {
-		if (renderWrapper == null || renderWrapper.maplyRender == null)
+		if (!isCompletelySetup())
 			return;
 
         if (!isPanning && !isRotating && !isZooming && !isAnimating && !isTilting)
@@ -606,7 +720,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	 */
 	public void handleStopMoving(boolean userMotion)
 	{
-		if (renderWrapper == null || renderWrapper.maplyRender == null)
+		if (!isCompletelySetup())
 			return;
 
 		if (isPanning || isRotating || isZooming || isAnimating || isTilting)
@@ -649,6 +763,9 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
      */
     public Point3d[] getVisibleCorners()
     {
+		if (!isCompletelySetup())
+			return null;
+
         Point2d screenCorners[] = new Point2d[4];
         Point2d frameSize = renderWrapper.maplyRender.frameSize;
         screenCorners[0] = new Point2d(0.0, 0.0);
