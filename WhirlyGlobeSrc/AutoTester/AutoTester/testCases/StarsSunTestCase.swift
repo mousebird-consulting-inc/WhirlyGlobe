@@ -19,7 +19,7 @@ class StarsSunTestCase: MaplyTestCase {
 
 		self.name = "Stars/Sun"
 		self.captureDelay = 10
-		self.implementations = [.map]
+		self.implementations = [.globe]
 	}
 	
 	func addStars(_ globeVC: WhirlyGlobeViewController) {
