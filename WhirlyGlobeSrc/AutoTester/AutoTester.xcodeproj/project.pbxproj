@@ -494,7 +494,6 @@
 		8F981DB91DE3577C00717DF1 /* ne_10m_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */; };
 		8F981DBB1DE3577C00717DF1 /* ne_10m_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */; };
 		8F981DBC1DE3577C00717DF1 /* ne_10m_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */; };
-		8F981DBD1DE3577C00717DF1 /* ne_10m_roads.VERSION.txt in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB71DE3577C00717DF1 /* ne_10m_roads.VERSION.txt */; };
 		8FC34D0E1CE7218E00BEB7C4 /* DownloadResourceOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FC34D0D1CE7218E00BEB7C4 /* DownloadResourceOperation.m */; };
 		8FE129191CDFB3B8004744FC /* TestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FE129181CDFB3B8004744FC /* TestCell.swift */; };
 		D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */; };
@@ -1066,7 +1065,6 @@
 		8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ne_10m_roads.prj; path = ../../resources/vectors/ne_10m_roads/ne_10m_roads.prj; sourceTree = "<group>"; };
 		8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shp; path = ../../resources/vectors/ne_10m_roads/ne_10m_roads.shp; sourceTree = "<group>"; };
 		8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shx; path = ../../resources/vectors/ne_10m_roads/ne_10m_roads.shx; sourceTree = "<group>"; };
-		8F981DB71DE3577C00717DF1 /* ne_10m_roads.VERSION.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ne_10m_roads.VERSION.txt; path = ../../resources/vectors/ne_10m_roads/ne_10m_roads.VERSION.txt; sourceTree = "<group>"; };
 		8FC34D0C1CE7218E00BEB7C4 /* DownloadResourceOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadResourceOperation.h; sourceTree = "<group>"; };
 		8FC34D0D1CE7218E00BEB7C4 /* DownloadResourceOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadResourceOperation.m; sourceTree = "<group>"; };
 		8FE129181CDFB3B8004744FC /* TestCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCell.swift; sourceTree = "<group>"; };
@@ -1399,7 +1397,6 @@
 				8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */,
 				8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */,
 				8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */,
-				8F981DB71DE3577C00717DF1 /* ne_10m_roads.VERSION.txt */,
 				2BC0FB791DCAA574004125F1 /* dots.png */,
 				8F4D91D81CDFA7C000F68045 /* Icons */,
 				2B1C26511C9100A500C71B0A /* France.mbtiles */,
@@ -2086,7 +2083,6 @@
 				88FF5E471BC31D95002F15CE /* GHA.geojson in Resources */,
 				88FF5E081BC31D95002F15CE /* BEN.geojson in Resources */,
 				88FF5DFC1BC31D95002F15CE /* ARE.geojson in Resources */,
-				8F981DBD1DE3577C00717DF1 /* ne_10m_roads.VERSION.txt in Resources */,
 				88FF5E4B1BC31D95002F15CE /* GMB.geojson in Resources */,
 				88FF5EA21BC31D95002F15CE /* PAN.geojson in Resources */,
 				88FF5CE71BC31D6D002F15CE /* waste-basket-24@2x.png in Resources */,
