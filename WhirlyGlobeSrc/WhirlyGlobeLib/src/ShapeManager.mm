@@ -29,9 +29,12 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
+NSString* const kWhirlyKitShapeSampleX = @"shapesamplex";
+
+
 namespace WhirlyKit
 {
-    
+
 ShapeSceneRep::ShapeSceneRep()
 {
 }
@@ -94,18 +97,25 @@ void ShapeSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &cha
 @end
 
 // Number of samples for a circle.
-// Note: Make this a parameter
 static int DefaultCircleSamples = 10;
 
 static const float sqrt2 = 1.4142135623;
 
 @implementation WhirlyKitCircle
 
-- (id)init
+- (instancetype) init
+{
+	self = [super init];
+	_sampleX = DefaultCircleSamples;
+
+	return self;
+}
+
+- (instancetype)initWithDesc:(NSDictionary *)desc
 {
     self = [super init];
-    _sampleX = DefaultCircleSamples;
-    
+    _sampleX = [desc[kWhirlyKitShapeSampleX] intValue];
+
     return self;
 }
 
@@ -301,12 +311,20 @@ static const float sqrt2 = 1.4142135623;
 
 @implementation WhirlyKitCylinder
 
-- (id)init
+- (instancetype) init
 {
     self = [super init];
     _sampleX = DefaultCircleSamples;
     
     return self;
+}
+
+- (instancetype)initWithDesc:(NSDictionary *)desc
+{
+	self = [super init];
+	_sampleX = [desc[kWhirlyKitShapeSampleX] intValue];
+
+	return self;
 }
 
 - (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter shapeInfo:(WhirlyKitShapeInfo *)shapeInfo
