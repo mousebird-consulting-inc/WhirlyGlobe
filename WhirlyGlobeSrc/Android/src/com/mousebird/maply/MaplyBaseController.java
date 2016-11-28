@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
@@ -43,6 +42,15 @@ public class MaplyBaseController
 	View baseView = null;
 	Activity activity = null;
     private OkHttpClient httpClient;
+
+
+	/**
+	 * Listener to receive the screenshot in an asynchronous way.
+	*/
+	public interface ScreenshotListener {
+		public void onScreenshotResult(Bitmap screenshot);
+	}
+
 
 	public static final String kToolkitDefaultTriangleNoLightingProgram = "Default Triangle;lighting=no";
 
@@ -92,6 +100,23 @@ public class MaplyBaseController
     {
         return scene;
     }
+
+	public void takeScreenshot(ScreenshotListener listener)
+	{
+		if (baseView instanceof GLTextureView) {
+			GLTextureView textureView = (GLTextureView) baseView;
+
+			listener.onScreenshotResult(textureView.getBitmap());
+		} else {
+			GLSurfaceView surfaceView = null;
+
+			if (baseView instanceof GLSurfaceView) {
+				surfaceView = (GLSurfaceView) baseView;
+			}
+
+			this.renderWrapper.takeScreenshot(listener, surfaceView);
+		}
+	}
 
     /**
      * Return an HTTP Client for use in fetching data, probably tiles.

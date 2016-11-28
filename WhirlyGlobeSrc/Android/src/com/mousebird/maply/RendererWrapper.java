@@ -20,13 +20,16 @@
 
 package com.mousebird.maply;
 
+import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 
+import java.nio.IntBuffer;
 import java.util.concurrent.Semaphore;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+
 
 /**
  * This is an internal class used to talk to the OpenGL ES surface.
@@ -40,7 +43,12 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 	public View view = null;
 	public MaplyBaseController maplyControl = null;
 	public Thread renderThread = null;
-	
+
+	private boolean doScreenshot = false;
+	public MaplyBaseController.ScreenshotListener screenshotListener;
+
+
+
 	public RendererWrapper(MaplyBaseController inMapControl)
 	{
 		maplyControl = inMapControl;
@@ -145,7 +153,48 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 		if (valid)
 			maplyRender.doRender();
 
+		if (doScreenshot) {
+			Bitmap screenshot = getPixels(0,0, (int)maplyControl.getViewSize().getX(), (int)maplyControl.getViewSize().getY(), gl);
+
+			screenshotListener.onScreenshotResult(screenshot);
+
+			screenshotListener = null;
+			doScreenshot = false;
+		}
+
 		renderLock.release();
+	}
+
+	private Bitmap getPixels(int x, int y, int w, int h, GL10 gl)
+	{
+		int b[] = new int[w*(y+h)];
+		int bt[] = new int[w*h];
+		IntBuffer ib = IntBuffer.wrap(b);
+		ib.position(0);
+		gl.glReadPixels(x, 0, w, y+h, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, ib);
+
+		for (int i=0, k=0; i<h; i++, k++) {
+			// remember, that OpenGL bitmap is incompatible with Android bitmap
+			// and so, some correction need.
+			for (int j=0; j<w; j++) {
+				int pix = b[i*w+j];
+				int pb = (pix>>16) & 0xff;
+				int pr = (pix<<16) & 0x00ff0000;
+				int pix1 = (pix & 0xff00ff00) | pr | pb;
+				bt[(h-k-1)*w+j] = pix1;
+			}
+		}
+
+		return Bitmap.createBitmap(bt, w, h, Bitmap.Config.ARGB_8888);
+	}
+
+	public void takeScreenshot(MaplyBaseController.ScreenshotListener listener, GLSurfaceView surfaceView) {
+		this.screenshotListener = listener;
+		this.doScreenshot = true;
+
+		if (surfaceView != null) {
+			surfaceView.requestRender();
+		}
 	}
 
 	/**
