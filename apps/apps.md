@@ -13,7 +13,9 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="ClimEarth" image="climearth.jpeg" body="CLIMEARTH is a mobile application designed and produced by CMCC, the Euro-Mediterranean Center on climate Change to show important climate related data sets." link="https://itunes.apple.com/us/app/climearth/id1038089675?mt=8" %}
 
-{% include app_entry.html name="Dark Sky" image="darksky.jpeg" body="Dark Sky is one of the Apple app store's favorite weather apps.  Not only will it tell when it's going to rain it'll show you beautiful animated weather and temperature data." link="https://itunes.apple.com/us/app/dark-sky-weather-radar-hyperlocal/id517329357?mt=8" %}
+{% include app_entry.html name="Dark Sky (iOS)" image="darksky.jpeg" body="Dark Sky is one of the Apple app store's favorite weather apps.  Not only will it tell when it's going to rain it'll show you beautiful animated weather and temperature data." link="https://itunes.apple.com/us/app/dark-sky-weather-radar-hyperlocal/id517329357?mt=8" %}
+
+{% include app_entry.html name="Dark Sky (Android)" image="darksky.jpeg" body="Dark Sky is also available for Android devices." link="https://play.google.com/store/apps/details?id=net.darksky.darksky&hl=en" %}
 
 {% include app_entry.html name="Deforestation Visualization" image="deforestation.png" body="A visualization by José Manuel Navarro made for Vizzuality. It shows deforestation in Indonesia over time.  Colored vectors are used to denote intensity." link="https://www.youtube.com/watch?v=-eiiL19stw0" %}
 
@@ -37,7 +39,11 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="InterAtlas" image="interatlas.jpeg" body="Inter Atlas has the distinction of being the first WhirlyGlobe app.  It's a neat little geography tool hooked up to wikipedia." link="https://itunes.apple.com/us/app/interatlas/id501997258?mt=8" %}
 
-{% include app_entry.html name="Mapbox Earth" image="mapboxearth.png" body="Mapbox Earth is a neat little browser for Mapbox's excellent satellite imagery data sets." link="https://itunes.apple.com/us/app/mapbox-earth/id643883241?mt=8" %}
+{% include app_entry.html name="Mapbox Earth" image="mapboxearth.png" body="Mapbox Earth is a neat little browser for Mapbox's excellent satellite imagery data sets." link="https://itunes.apple.com/us/app/met-office-weather/id1068146838?mt=8" %}
+
+{% include app_entry.html name="Met Office Weather (iOS)" image="metoffice.jpg" body="The official weather app from the UK's weather service.  It provides a variety of warnings, precipiation display, and other information." link="https://itunes.apple.com/us/app/mapbox-earth/id643883241?mt=8" %}
+
+{% include app_entry.html name="Met Office Weather (Android)" image="metoffice.jpg" body="The official Met Office app is also available for Android." link="https://play.google.com/store/apps/details?id=uk.gov.metoffice.weather.android&hl=en" %}
 
 {% include app_entry.html name="Miizee" image="miizee.png" body="Use Miizee to broadcast HD quality live events on-the-go from any location to any screen using only your Facebook account to connect with the world." link="https://itunes.apple.com/us/app/miizee/id995816207?mt=8" %}
 
@@ -55,13 +61,17 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="SmartPlates & Charts" image="smartplates.png" body="An aviation display app for FAA sectionals, charts, and other data." link="https://itunes.apple.com/us/app/smartplates-charts-geo-referenced/id819750299?mt=8" %}
 
+{% include app_entry.html name="Sport At Maps" image="sportatmaps.jpg" body="This app displays historical sporting information around the world." link="http://vadim.software/app/sport-at-maps/" %}
+
 {% include app_entry.html name="Stratalogica" image="stratalogica.jpeg" body="Stratalogica is a big, gorgeous interactive globe for students of all ages.  You can browse existing content or make your own with an on-globe editor." link="https://itunes.apple.com/us/app/stratalogica/id588832342?mt=8" %}
 
 {% include app_entry.html name="Symantec Protection Center Mobile" image="symantec.png" body="The Protection Center Mobile app from Symantex shows global network threats around the world." link="https://itunes.apple.com/us/app/symantec-protection-center/id565104340?mt=8" %}
 
 {% include app_entry.html name="Tremor Tracker" image="tremortracker.png" body="Tremor Tracker lets you see recent earthquakes around the globe." link="https://itunes.apple.com/us/app/tremor-tracker/id534094613?mt=8" %}
 
-{% include app_entry.html name="wetter.com" image="wetterdotcom.jpeg" body="A very popular weather app that covers Germany." link="https://itunes.apple.com/app/apple-store/id1020581825?mt=8" %}
+{% include app_entry.html name="wetter.com (iOS)" image="wetterdotcom.jpeg" body="One of Germany's most popular weather apps.  It displays some of the smoothest, most beautiful precipication data available." link="https://itunes.apple.com/app/apple-store/id1020581825?mt=8" %}
+
+{% include app_entry.html name="wetter.com (Android)" image="wetterdotcom.jpeg" body="One of Germany's most popular weather apps is also available on Android." link="https://play.google.com/store/apps/details?id=com.wetter.androidclient" %}
 
 {% include app_entry.html name="WhirlyViz" image="whirlyviz.jpeg" body="WhirlyViz is a data visualization engine for iPad and iPhone.  It uses Javascript modules to let users play with big, complex data sets." link="https://itunes.apple.com/us/app/whirlyviz/id752701884?mt=8" %}
 
