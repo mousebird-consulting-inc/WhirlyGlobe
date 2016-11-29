@@ -30,6 +30,90 @@
 @class MaplyViewControllerLayer;
 @class MaplyViewController;
 
+
+/** @brief Animation State used by the MaplyViewControllerAnimationDelegate.
+ @details You fill out one of these when you're implementing the animation delegate.  Return it and the view controller will set the respective values to match.
+ */
+@interface MaplyViewControllerAnimationState : NSObject
+
+/// @brief Heading is calculated from due north
+/// @details If not set or set to MAXFLOAT, this is ignored
+@property (nonatomic) double heading;
+
+/// @brief Height above the map
+@property (nonatomic) double height;
+
+/// @brief Position to move to on the map
+@property (nonatomic) MaplyCoordinateD pos;
+
+/// @brief If set, this is a point on the screen where pos should be.
+/// @details By default this is (-1,-1) meaning the screen position is just the middle.  Otherwise, this is where the position should wind up on the screen, if it can.
+@property (nonatomic) CGPoint screenPos;
+
+/** @brief Interpolate a new state between the given states A and B.
+ @details This does a simple interpolation (lat/lon, not great circle) between the two animation states.
+ */
++ (nonnull MaplyViewControllerAnimationState *)Interpolate:(double)t from:(MaplyViewControllerAnimationState *__nonnull)stateA to:(MaplyViewControllerAnimationState *__nonnull)stateB;
+
+@end
+
+/** @brief An animation delegate that can be set on a MaplyViewController to control the view over time.
+ @details Filling out these methods will get you animation callbacks at the proper time to control position, heading and height on a frame basis.
+ @details You pass the resulting object in to
+ */
+@protocol MaplyViewControllerAnimationDelegate <NSObject>
+
+/** @brief This method is called when the animation starts.
+ @details At the animation start we collect up the various parameters of the current visual view state and pas them in via the startState.  You probably want to keep track of this for later.
+ @param viewC The view controller doing the animation.
+ @param startState The starting point for the visual view animation.  Cache this somewhere for your own interpolation.
+ @param startTime When the animation starts (e.g. now)
+ @param endTime When the animation ends.  This is an absolute value.
+ */
+- (void)mapViewController:(MaplyViewController *__nonnull)viewC startState:(MaplyViewControllerAnimationState *__nonnull)startState startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime;
+
+/** @brief This method is called at the beginning of every frame draw to position the viewer.
+ @details This is the method that does all the work.  You need to fill out the returned MaplyViewControllerAnimationState according to whatever interpolation your'e doing based on the currentTime.
+ @param viewC The view controller doing the animation.
+ @param currentTime The time for this frame.  Use this rather than calculating the time yourself.
+ @return The MaplyViewControllerAnimationState expressing where you want the viewer to be and where they are looking.
+ */
+- (nonnull MaplyViewControllerAnimationState *)mapViewController:(MaplyViewController *__nonnull)viewC stateForTime:(NSTimeInterval)currentTime;
+
+@optional
+
+/** @brief This method is called at the end of the animation.
+ @details The map view controller calls this method when the animation is finished.  Do your cleanup here if need be.
+ @param viewC The map view controller.
+ */
+- (void)mapViewControllerDidFinishAnimation:(MaplyViewController *__nonnull)viewC;
+
+@end
+
+/** @brief A simple animation delegate for moving the map around.
+ @details The animation delegate support provides a lot of flexibility.  This version just provides all the standard fields and interpolates from beginning to end.
+ */
+@interface MaplyViewControllerSimpleAnimationDelegate : NSObject <MaplyViewControllerAnimationDelegate>
+
+/// @brief Initialize with an animation state to copy
+- (nonnull instancetype)initWithState:(MaplyViewControllerAnimationState *__nonnull)endState;
+
+/// @brief Location at the end of the animation
+@property (nonatomic) MaplyCoordinateD loc;
+
+/// @brief Heading at the end of the animation
+@property (nonatomic) double heading;
+
+/// @brief Height at the end of the animation
+@property (nonatomic) double height;
+
+@end
+
+
+
+
+
+
 /** @brief A protocol to fill out for selection and tap messages from the MaplyViewController.
     @details Fill out the protocol when you want to get back selection and tap messages.  All the methods are optional.
   */
@@ -260,6 +344,22 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
  */
 - (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(NSTimeInterval)howLong;
 
+/** @brief Animate to the given position, heading and height over time.
+ @param newPos A coordinate in geographic (lon/lat radians)
+ @param newHeight New height to animate to.
+ @param newHeading New heading to finish on.
+ @param howLong A time interval in seconds.
+ */
+- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong;
+
+/** @brief Animate to the given position, heading and height over time.
+ @param newPos A coordinate in geographic (lon/lat radians) (double precision)
+ @param newHeight New height to animate to. (double)
+ @param newHeading New heading to finish on. (double)
+ @param howLong A time interval in seconds.
+ */
+- (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(NSTimeInterval)howLong;
+
 /** @brief Set the center of the screen to the given position immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.
   */
@@ -286,6 +386,17 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
     @param height The current view point's height above the map.
   */
 - (void)getPosition:(MaplyCoordinate *__nonnull)pos height:(float *__nonnull)height;
+
+
+/** @brief Set the viewing state all at once
+ @details This sets the position, height, screen position and heading all at once.
+ */
+- (void)setViewState:(MaplyViewControllerAnimationState *__nonnull)viewState;
+
+/** @brief Make a MaplyViewControllerAnimationState object from the current view state.
+ @details This returns the current view parameters in a single MaplyViewControllerAnimationState.
+ */
+- (nullable MaplyViewControllerAnimationState *)getViewState;
 
 /** @brief Return the closest a viewer is allowed to get to the map surface.
  @return FLT_MIN if there's no pitchDelegate set

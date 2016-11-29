@@ -39,7 +39,7 @@
 @interface MaplyLocationTracker : NSObject <CLLocationManagerDelegate>
 
 
-- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *)viewC Delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate;
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC Delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate;
 
 - (void) teardown;
 

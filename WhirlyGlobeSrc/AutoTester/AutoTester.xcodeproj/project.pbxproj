@@ -529,6 +529,7 @@
 		E5D2D66A1DE6C25A00E02305 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D6691DE6C25A00E02305 /* libxml2.tbd */; };
 		E5D2D66C1DE6C26000E02305 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D66B1DE6C26000E02305 /* libz.tbd */; };
 		E5D2D66E1DE6C26A00E02305 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D66D1DE6C26A00E02305 /* libc++.tbd */; };
+		E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D2D6741DEDEABF00E02305 /* AnimationDelegateTestCase.swift */; };
 		E5EF69F01D6B573700A2A660 /* MapzenSLDStyle.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5EF69EF1D6B573700A2A660 /* MapzenSLDStyle.sld */; };
 /* End PBXBuildFile section */
 
@@ -1114,6 +1115,7 @@
 		E5D2D6691DE6C25A00E02305 /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		E5D2D66B1DE6C26000E02305 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		E5D2D66D1DE6C26A00E02305 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		E5D2D6741DEDEABF00E02305 /* AnimationDelegateTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimationDelegateTestCase.swift; sourceTree = "<group>"; };
 		E5EF69EF1D6B573700A2A660 /* MapzenSLDStyle.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = MapzenSLDStyle.sld; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1315,6 +1317,7 @@
 				8820852A1DC81051008F8E76 /* Issue721TestCase.swift */,
 				2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */,
 				E5D2D65E1DE65CE400E02305 /* LocationTrackingTestCase.swift */,
+				E5D2D6741DEDEABF00E02305 /* AnimationDelegateTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2516,6 +2519,7 @@
 				D8D3E0681C4EDA1800F0D006 /* ParticleTestCase.swift in Sources */,
 				D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */,
 				8895D8B01CA4ABA9004387FB /* ParticleTest.m in Sources */,
+				E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */,
 				D880112F1BFD16A900606EC6 /* DropboxViewController.swift in Sources */,
 				D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */,
 				D84433EE1C14E4FE00A52117 /* CartoDBLayer.m in Sources */,
