@@ -30,7 +30,95 @@ using namespace WhirlyKit;
 using namespace WhirlyGlobe;
 using namespace Maply;
 
-@interface MaplyViewController () <MaplyInteractionLayerDelegate>
+
+@implementation MaplyViewControllerAnimationState
+
+- (instancetype)init
+{
+    self = [super init];
+    _heading = DBL_MAX;
+    _height = 1.0;
+    _pos.x = _pos.y = 0.0;
+    _screenPos = {-1,-1};
+    
+    return self;
+}
+
++ (MaplyViewControllerAnimationState *)Interpolate:(double)t from:(MaplyViewControllerAnimationState *)stateA to:(MaplyViewControllerAnimationState *)stateB
+{
+    MaplyViewControllerAnimationState *newState = [[MaplyViewControllerAnimationState alloc] init];
+    
+    newState.heading = (stateB.heading-stateA.heading)*t + stateA.heading;
+    newState.height = (stateB.height-stateA.height)*t + stateA.height;
+    newState.pos = MaplyCoordinateDMake((stateB.pos.x-stateA.pos.x)*t + stateA.pos.x,(stateB.pos.y-stateA.pos.y)*t + stateA.pos.y);
+    if (stateA.screenPos.x >= 0.0 && stateA.screenPos.y >= 0.0 &&
+        stateB.screenPos.x >= 0.0 && stateB.screenPos.y >= 0.0)
+    {
+        newState.screenPos = CGPointMake((stateB.screenPos.x - stateA.screenPos.x)*t + stateA.screenPos.x,(stateB.screenPos.y - stateA.screenPos.y)*t + stateA.screenPos.y);
+    } else
+        newState.screenPos = stateB.screenPos;
+    
+    return newState;
+}
+
+
+@end
+
+
+@implementation MaplyViewControllerSimpleAnimationDelegate
+{
+    MaplyViewControllerAnimationState *startState;
+    MaplyViewControllerAnimationState *endState;
+    NSTimeInterval startTime,endTime;
+}
+
+- (instancetype)initWithState:(MaplyViewControllerAnimationState *)inEndState
+{
+    self = [super init];
+    endState = inEndState;
+    
+    return self;
+}
+
+- (void)mapViewController:(MaplyViewController *__nonnull)viewC startState:(MaplyViewControllerAnimationState *__nonnull)inStartState startTime:(NSTimeInterval)inStartTime endTime:(NSTimeInterval)inEndTime
+{
+    startState = inStartState;
+    if (!endState)
+    {
+        endState = [[MaplyViewControllerAnimationState alloc] init];
+        endState.heading = _heading;
+        endState.height = _height;
+        endState.pos = _loc;
+    }
+    startTime = inStartTime;
+    endTime = inEndTime;
+}
+
+- (nonnull MaplyViewControllerAnimationState *)mapViewController:(MaplyViewController *__nonnull)viewC stateForTime:(NSTimeInterval)currentTime
+{
+    MaplyViewControllerAnimationState *state = [[MaplyViewControllerAnimationState alloc] init];
+    double t = (currentTime-startTime)/(endTime-startTime);
+    if (t < 0.0)  t = 0.0;
+    if (t > 1.0)  t = 1.0;
+    state.heading = (endState.heading - startState.heading)*t + startState.heading;
+    state.height = (endState.height - startState.height)*t + startState.height;
+    MaplyCoordinateD pos;
+    pos.x = (endState.pos.x - startState.pos.x)*t + startState.pos.x;
+    pos.y = (endState.pos.y - startState.pos.y)*t + startState.pos.y;
+    state.pos = pos;
+    
+    return state;
+}
+
+- (void)mapViewControllerDidFinishAnimation:(MaplyViewController *__nonnull)viewC
+{
+}
+
+@end
+
+
+
+@interface MaplyViewController () <MaplyInteractionLayerDelegate, MaplyAnimationDelegate>
 @end
 
 @implementation MaplyViewController
@@ -696,6 +784,46 @@ using namespace Maply;
     [self animateToPoint:loc time:howLong];
 }
 
+- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong
+{
+    if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
+    {
+        NSLog(@"MaplyViewController: Invalid location passed to animationToPosition:");
+        return false;
+    }
+    
+    [mapView cancelAnimation];
+    
+    MaplyViewControllerSimpleAnimationDelegate *anim = [[MaplyViewControllerSimpleAnimationDelegate alloc] init];
+    anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
+    anim.heading = newHeading;
+    anim.height = newHeight;
+    
+    [self animateWithDelegate:anim time:howLong];
+    
+    return true;
+}
+
+- (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(NSTimeInterval)howLong
+{
+    if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
+    {
+        NSLog(@"MaplyViewController: Invalid location passed to animationToPosition:");
+        return false;
+    }
+    
+    [mapView cancelAnimation];
+    
+    MaplyViewControllerSimpleAnimationDelegate *anim = [[MaplyViewControllerSimpleAnimationDelegate alloc] init];
+    anim.loc = newPos;
+    anim.heading = newHeading;
+    anim.height = newHeight;
+    
+    [self animateWithDelegate:anim time:howLong];
+    
+    return true;
+}
+
 // Only used for a flat view
 - (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(NSTimeInterval)howLong
 {
@@ -766,6 +894,100 @@ using namespace Maply;
     GeoCoord geoCoord = mapView.coordAdapter->getCoordSystem()->localToGeographic(mapView.coordAdapter->displayToLocal(loc));
     pos->x = geoCoord.x();  pos->y = geoCoord.y();
     *height = loc.z();
+}
+
+
+- (void)setViewState:(MaplyViewControllerAnimationState *)animState
+{
+    [mapView cancelAnimation];
+    [self setViewStateInternal:animState];
+}
+
+- (void)setViewStateInternal:(MaplyViewControllerAnimationState *)animState
+{
+    
+    Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(animState.pos.x, animState.pos.y)));
+    loc.z() = animState.height;
+
+    if (animState.screenPos.x >= 0.0 && animState.screenPos.y >= 0.0)
+    {
+        Eigen::Matrix4d modelTrans = [mapView calcFullMatrix];
+        Point3d hit;
+        if ([mapView pointOnPlaneFromScreen:animState.screenPos transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
+        {
+            Point3f diffLoc(hit.x()-mapView.loc.x(),hit.y()-mapView.loc.y(),0.0);
+            loc.x() -= diffLoc.x();
+            loc.y() -= diffLoc.y();
+
+        }
+    }
+    Point3d loc3d = loc.cast<double>();
+    [mapView setLoc:loc3d runUpdates:false];
+    [mapView setRotAngle:-animState.heading];
+}
+
+- (MaplyViewControllerAnimationState *)getViewState {
+    MaplyViewControllerAnimationState *state = [[MaplyViewControllerAnimationState alloc] init];
+    state.heading = -mapView.rotAngle;
+    MaplyCoordinate pos;
+    float height;
+    [self getPosition:&pos height:&height];
+    state.pos = MaplyCoordinateDMakeWithMaplyCoordinate(pos);
+    return state;
+}
+
+- (void)applyConstraintsToViewState:(MaplyViewControllerAnimationState *)viewState
+{
+    if (pinchDelegate)
+    {
+        if (viewState.height < pinchDelegate.minZoom)
+            viewState.height = pinchDelegate.minZoom;
+        if (viewState.height > pinchDelegate.maxZoom)
+            viewState.height = pinchDelegate.maxZoom;
+    }
+}
+
+
+- (void)animateWithDelegate:(NSObject<MaplyViewControllerAnimationDelegate> *)inAnimationDelegate time:(NSTimeInterval)howLong
+{
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    animationDelegate = inAnimationDelegate;
+    animationDelegateEnd = now+howLong;
+    
+    MaplyViewControllerAnimationState *stateStart = [self getViewState];
+    
+    // Tell the delegate what we're up to
+    [animationDelegate mapViewController:self startState:stateStart startTime:now endTime:animationDelegateEnd];
+    
+    mapView.delegate = self;
+
+}
+
+// Called every frame from within the map view
+- (void)updateView:(MaplyView *)mapView {
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    if (!animationDelegate)
+    {
+        [mapView cancelAnimation];
+        return;
+    }
+    
+    bool lastOne = false;
+    if (now > animationDelegateEnd)
+        lastOne = true;
+
+    // Ask the delegate where we're supposed to be
+    MaplyViewControllerAnimationState *animState = [animationDelegate mapViewController:self stateForTime:now];
+    
+    [self setViewStateInternal:animState];
+    
+    if (lastOne)
+    {
+        [mapView cancelAnimation];
+        if ([animationDelegate respondsToSelector:@selector(mapViewControllerDidFinishAnimation:)])
+            [animationDelegate mapViewControllerDidFinishAnimation:self];
+        animationDelegate = nil;
+    }
 }
 
 - (void)setHeading:(float)heading
