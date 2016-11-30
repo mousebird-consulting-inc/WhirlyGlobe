@@ -93,6 +93,8 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleBatch_getBatchSize
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch::getBatchSize");
     }
+    
+    return 0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_addAttributeValues___3F
@@ -146,4 +148,6 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleBatch_getAttributesValue
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch::getAttributesValueSize");
     }
+    
+    return -1;
 }

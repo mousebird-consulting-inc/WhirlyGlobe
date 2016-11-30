@@ -126,7 +126,7 @@ MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp AngleAxis_jni.cpp \
 					GeneralDisplayAdapter_jni.cpp GeometryManager_jni.cpp GeometryRaw_jni.cpp GeometryRawPoints_jni.cpp GeometryInstance_jni.cpp \
                     			GeometryInfo_jni.cpp GlobeViewState_jni.cpp GlobeScene_jni.cpp GlobeView_jni.cpp \
 					GeoCoordSystem_jni.cpp Identifiable_jni.cpp ImageWrapper.cpp InternalLabel_jni.cpp InternalMarker_jni.cpp \
-					LabelInfoAndroid.cpp LabelInfo_jni.cpp LabelManager_jni.cpp LayoutManager_jni.cpp \
+					LabelInfoAndroid.cpp LabelInfo_jni.cpp LabelManager_jni.cpp LayoutManager_jni.cpp LAZQuadReader_jni.cpp \
 					MapboxVectorTileParser_jni.cpp MaplyRenderer_jni.cpp MapScene_jni.cpp MapView_jni.cpp Matrix3d_jni.cpp Matrix4d_jni.cpp \
 					MarkerInfo_jni.cpp MarkerManager_jni.cpp MapViewState_jni.cpp Moon_jni.cpp Material_jni.cpp \
 					Point2d_jni.cpp Point3d_jni.cpp Point4d_jni.cpp ParticleBatch_jni.cpp ParticleSystem_jni.cpp ParticleSystemManager_jni.cpp \

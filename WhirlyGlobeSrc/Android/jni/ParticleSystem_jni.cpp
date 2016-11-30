@@ -79,6 +79,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ParticleSystem_getIdent
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getIdent()");
     }
+    
+    return EmptyIdentity;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setName
@@ -216,6 +218,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_ParticleSystem_getBasetime
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getBasetime()");
     }
+    
+    return 0.0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addParticleSystemAttributeNative
@@ -315,6 +319,8 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleSystem_getBatchSize
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getBatchSize()");
     }
+    
+    return 0;
 }
 
 JNIEXPORT jintArray JNICALL Java_com_mousebird_maply_ParticleSystem_getAttributesTypes
@@ -339,6 +345,8 @@ JNIEXPORT jintArray JNICALL Java_com_mousebird_maply_ParticleSystem_getAttribute
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getAttributesTypes()");
     }
+    
+    return NULL;
 }
 
 JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_ParticleSystem_getAttributesNames
@@ -364,4 +372,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_ParticleSystem_getAttrib
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getAttributesNames()");
     }
+    
+    return NULL;
 }

@@ -90,6 +90,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SelectionManager::pickObject()");
 	}
+    
+    return EmptyIdentity;
 }
 
 JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObjects
@@ -128,4 +130,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObj
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SelectionManager::pickObjects()");
     }
+    
+    return NULL;
 }

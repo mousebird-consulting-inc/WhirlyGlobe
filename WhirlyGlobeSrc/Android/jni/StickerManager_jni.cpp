@@ -96,6 +96,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addSticker
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunkManager::addSticker()");
     }
+    
+    return EmptyIdentity;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_removeStickers
@@ -166,4 +168,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyChunkTe
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunkManager::modifyChunkTextures()");
     }
+    
+    return false;
 }

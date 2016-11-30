@@ -107,6 +107,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Material_getAmbient
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Material::getAmbient()");
     }
+    
+    return NULL;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_setDiffuse
@@ -144,6 +146,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Material_getDifusse
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Material::getDiffuse()");
     }
+    
+    return NULL;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_setSpecular
@@ -181,6 +185,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Material_getSpecular
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Material::getSpecular()");
     }
+    
+    return NULL;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_setSpecularExponent
@@ -209,7 +215,7 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_Material_getSpecularExponent
         MaterialClassInfo *classInfo = MaterialClassInfo::getClassInfo();
         WhirlyKitMaterial *inst = classInfo->getObject(env, obj);
         if (!inst)
-            return -1;
+            return 0.0;
         
         return inst->getSpecularExponent();
     }
@@ -217,6 +223,8 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_Material_getSpecularExponent
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Material::getSpecularExponent()");
     }
+    
+    return 0.0;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Material_bindToProgram
@@ -236,4 +244,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Material_bindToProgram
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Material::bindToProgram()");
     }
+    
+    return false;
 }
