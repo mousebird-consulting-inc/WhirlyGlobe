@@ -1,12 +1,10 @@
 package com.mousebird.maply;
 
-import com.mousebird.maply.CoordSystem;
-import com.mousebird.maply.GlobeController;
-import com.mousebird.maply.MaplyTileID;
-import com.mousebird.maply.Point2d;
-import com.mousebird.maply.Point3d;
-import com.mousebird.maply.QuadPagingLayer;
-import com.mousebird.maply.Shader;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * The LAZ Quad Reader will page a Lidar (LAZ or LAS) database organized
@@ -15,6 +13,10 @@ import com.mousebird.maply.Shader;
 public class LAZQuadReader implements QuadPagingLayer.PagingInterface
 {
     GlobeController globeController;
+    SQLiteDatabase tileDB;
+    int minPoints,maxPoints;
+    CoordSystem coordSys;
+    String srs;
 
     /**
      * Settings used to override what's in the database.
@@ -24,6 +26,7 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
         public CoordSystem coordSystem;
         double zOffset = 0.0;
         public int colorScale = 1<<16-1;
+        public float pointSize = 0.f;
     }
 
     private LAZQuadReader()
@@ -33,7 +36,8 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
     /**
      *
      */
-    public LAZQuadReader(String fileName, Shader shader, Settings settings, GlobeController inController)
+    public LAZQuadReader(File sqliteDB, Shader shader, Settings settings, GlobeController inController)
+    throws FileNotFoundException
     {
         initialise();
 
@@ -44,7 +48,69 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
         setColorScale(255);
 
         // Open the SQLite database
+        tileDB = SQLiteDatabase.openDatabase(sqliteDB.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
+        if (tileDB == null)
+            throw new FileNotFoundException("SQLite database not found: " + sqliteDB);
 
+        // Read the metadata
+        Cursor c = tileDB.rawQuery("SELECT minx,miny,minz,maxx,maxy,maxz,minlevel,maxlevel,minpoints,maxpoints,srs FROM manifest", null);
+        if (c.getCount() > 0)
+        {
+            c.moveToFirst();
+
+            double minX = c.getDouble(c.getColumnIndexOrThrow("minx"));
+            double minY = c.getDouble(c.getColumnIndexOrThrow("miny"));
+            double minZ = c.getDouble(c.getColumnIndexOrThrow("minz"));
+            double maxX = c.getDouble(c.getColumnIndexOrThrow("maxx"));
+            double maxY = c.getDouble(c.getColumnIndexOrThrow("maxy"));
+            double maxZ = c.getDouble(c.getColumnIndexOrThrow("maxz"));
+            setBounds(minX,minY,minZ,maxX,maxY,maxZ);
+
+            int minLevel = c.getInt(c.getColumnIndexOrThrow("minlevel"));
+            int maxLevel = c.getInt(c.getColumnIndexOrThrow("maxlevel"));
+            setZoomLevels(minLevel,maxLevel);
+
+            minPoints = c.getInt(c.getColumnIndexOrThrow("minpoints"));
+            maxPoints = c.getInt(c.getColumnIndexOrThrow("maxpoints"));
+
+            srs = c.getString(c.getColumnIndexOrThrow("srs"));
+
+            int pointType = 0;
+            if (c.getColumnIndex("pointtype") >= 0)
+                pointType = c.getInt(c.getColumnIndex("pointtype"));
+            setPointType(pointType);
+            if (c.getColumnIndex("maxcolor") >= 0) {
+                int maxColor = c.getInt(c.getColumnIndex("maxcolor"));
+                if (maxColor > 300)
+                    setColorScale(1<<16-1);
+            }
+
+            if (settings != null && settings.coordSystem != null)
+                setCoordSystem(settings.coordSystem);
+            else {
+                Proj4CoordSystem coordSys = new Proj4CoordSystem(srs);
+                Mbr mbr = new Mbr(new Point2d(getLL().getX(),getLL().getY()),new Point2d(getUR().getX(), getUR().getY()));
+                coordSys.setBounds(mbr);
+                setCoordSystem(coordSys);
+            }
+
+            if (settings != null && settings.pointSize > 0.0)
+                setPointSize(settings.pointSize);
+
+            if (settings != null && settings.zOffset > 0.0)
+                setZOffset(settings.zOffset);
+
+            if (settings != null && settings.colorScale != 0)
+                setColorScale(settings.colorScale);
+
+            // Note: Intersection handler
+        }
+    }
+
+    private void setCoordSystem(CoordSystem inCoordSys)
+    {
+        coordSys = inCoordSys;
+        setCoordSystemNative(coordSys);
     }
 
     /**
@@ -90,6 +156,11 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
 
     public native void setColorScale(int colorScale);
     public native int getColorScale();
+
+    public native void setPointType(int pointType);
+    public native int getPointType();
+
+    public native void setCoordSystemNative(CoordSystem coordSys);
 
     //
     // Paging Interface methods

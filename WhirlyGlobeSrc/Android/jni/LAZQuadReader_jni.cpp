@@ -30,6 +30,7 @@ class LAZQuadReader
 {
 public:
     LAZQuadReader()
+    : coordSys(NULL)
     {        
     }
     
@@ -39,6 +40,8 @@ public:
     int minTilePoints,maxTilePoints;
     float pointSize;
     int colorScale;
+    int pointType;
+    CoordSystem *coordSys;
 };
 
 typedef JavaClassInfo<LAZQuadReader> LAZQuadReaderClassInfo;
@@ -372,4 +375,61 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LAZQuadReader_getColorScale
     }
     
     return 0;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_setPointType
+(JNIEnv *env, jobject obj, jint pointType)
+{
+    try
+    {
+        LAZQuadReaderClassInfo *classInfo = LAZQuadReaderClassInfo::getClassInfo();
+        LAZQuadReader *lazReader = classInfo->getObject(env,obj);
+        if (!lazReader)
+            return;
+        
+        lazReader->pointType = pointType;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LAZQuadReader::setPointType()");
+    }
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LAZQuadReader_getPointType
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        LAZQuadReaderClassInfo *classInfo = LAZQuadReaderClassInfo::getClassInfo();
+        LAZQuadReader *lazReader = classInfo->getObject(env,obj);
+        if (!lazReader)
+            return 0;
+        
+        return lazReader->pointType;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LAZQuadReader::getPointType()");
+    }
+    
+    return 0;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_setCoordSystemNative
+(JNIEnv *env, jobject obj, jobject coordSysObj)
+{
+    try
+    {
+        LAZQuadReaderClassInfo *classInfo = LAZQuadReaderClassInfo::getClassInfo();
+        LAZQuadReader *lazReader = classInfo->getObject(env,obj);
+        CoordSystem *coordSys = CoordSystemClassInfo::getClassInfo()->getObject(env,coordSysObj);
+        if (!lazReader || !coordSys)
+            return;
+
+        lazReader->coordSys = coordSys;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LAZQuadReader::setCoordSystemNative()");
+    }
 }

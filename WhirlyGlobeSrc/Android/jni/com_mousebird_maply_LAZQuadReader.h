@@ -129,6 +129,30 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LAZQuadReader_getColorScale
 
 /*
  * Class:     com_mousebird_maply_LAZQuadReader
+ * Method:    setPointType
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_setPointType
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_LAZQuadReader
+ * Method:    getPointType
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LAZQuadReader_getPointType
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LAZQuadReader
+ * Method:    setCoordSystemNative
+ * Signature: (Lcom/mousebird/maply/CoordSystem;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_setCoordSystemNative
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LAZQuadReader
  * Method:    nativeInit
  * Signature: ()V
  */
