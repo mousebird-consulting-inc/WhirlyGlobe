@@ -18,6 +18,7 @@
  *
  */
 #import <jni.h>
+#import "laszip/laszip_api.h"
 #import "Maply_jni.h"
 #import "Maply_utils_jni.h"
 #import "com_mousebird_maply_LAZQuadReader.h"
@@ -431,5 +432,104 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_setCoordSystemNati
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LAZQuadReader::setCoordSystemNative()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_processTileNative
+(JNIEnv *env, jobject coordAdaptObj, jobject lazObj, jbyteArray data, jobject pointsObj, jobject tileCenterObj)
+{
+    try
+    {
+        CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env,coordAdaptObj);
+        LAZQuadReader *lazReader = LAZQuadReaderClassInfo::getClassInfo()->getObject(env,lazObj);
+        GeometryRawPoints *points = GeometryRawPointsClassInfo::getClassInfo()->getObject(env,pointsObj);
+        Point3d *tileCenterDisp = Point3dClassInfo::getClassInfo()->getObject(env,tileCenterObj);
+        if (!coordAdapter || !lazReader || !points || !tileCenterDisp)
+            return;
+
+        std::stringstream tileStream;
+        jbyte *bytes = env->GetByteArrayElements(data,NULL);
+        tileStream.write(reinterpret_cast<const char *>(bytes),env->GetArrayLength(data));
+        
+        laszip_POINTER thisReader = NULL;
+        laszip_BOOL is_compressed;
+        laszip_create(&thisReader);
+        laszip_open_stream_reader(thisReader,&tileStream,&is_compressed);
+        laszip_header_struct *header;
+        laszip_get_header_pointer(thisReader,&header);
+        bool hasColors = header->point_data_format > 1;
+        int count = header->number_of_point_records;
+
+        int vertIdx = points->addAttribute("a_position",GeomRawFloat3Type);
+        int elevIdx = points->addAttribute("a_elev",GeomRawFloatType);
+        int colorIdx = hasColors ? points->addAttribute("a_color",GeomRawFloat4Type) : -1;
+
+        // Center the coordinates around the tile center
+        Point3d locTileCenter((header->min_x+header->max_x)/2.0,(header->min_y+header->max_y)/2.0,0.0);
+        Point3d loc3d = CoordSystemConvert3d(lazReader->coordSys, coordAdapter->getCoordSystem(), locTileCenter);
+        *tileCenterDisp = coordAdapter->localToDisplay(loc3d);
+        
+        // We generate a triangle mesh underneath a given tile to provide something to grab
+//        MeshBuilder meshBuilder(10,10,Point2d(header->min_x,header->min_y),Point2d(header->max_x,header->max_y),self.coordSys);
+        
+        long long which = 0;
+        double minZ=MAXFLOAT,maxZ=-MAXFLOAT;
+        int pointStart = 0;
+        while (which < count)
+        {
+            // Get the point and convert to geocentric
+            laszip_seek_point(thisReader,(which+pointStart));
+            laszip_read_point(thisReader);
+            laszip_point_struct *p;
+            laszip_get_point_pointer(thisReader, &p);
+            //                double x,y,z;
+            //                x = p.GetX(), y = p.GetY(); z = p.GetZ();
+            //                trans->TransformEx(1, &x, &y, &z);
+            Point3d coord;
+            coord.x() = p->X * header->x_scale_factor + header->x_offset;
+            coord.y() = p->Y * header->y_scale_factor + header->y_offset;
+            coord.z() = p->Z * header->z_scale_factor + header->z_offset;
+            coord.z() += lazReader->zOffset;
+            
+            minZ = std::min(coord.z(),minZ);
+            maxZ = std::max(coord.z(),maxZ);
+            
+            Point3d loc3d = CoordSystemConvert3d(lazReader->coordSys, coordAdapter->getCoordSystem(), coord);
+            Point3d dispCoord = coordAdapter->localToDisplay(loc3d);
+            Point3d dispCoordCenter = dispCoord - *tileCenterDisp;
+            
+            float red = 1.0,green = 1.0, blue = 1.0;
+            if (hasColors)
+            {
+                red = p->rgb[0] / lazReader->colorScale;
+                green = p->rgb[1] / lazReader->colorScale;
+                blue = p->rgb[2] / lazReader->colorScale;
+            }
+            
+            points->addPoint(vertIdx,dispCoordCenter);
+            if (hasColors)
+                points->addPoint(colorIdx,Vector4f(red,green,blue,1.0));
+            points->addValue(elevIdx,(float)coord.z());
+            
+//            meshBuilder.addPoint(Point3d(coord.x,coord.y,coord.z));
+            
+            which++;
+        }
+        
+        // Keep track of tile size
+        if (minZ == maxZ)
+            maxZ += 1.0;
+//        @synchronized (self) {
+//            TileBoundsInfo tileInfo(tileID);
+//            tileInfo.mesh = meshBuilder.makeMesh(layer.viewC);
+//            tileInfo.minZ = minZ;  tileInfo.maxZ = maxZ;
+//            tileSizes.insert(tileInfo);
+//        }
+        
+        env->ReleaseByteArrayElements(data,bytes, 0);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LAZQuadReader::processTileNative()");
     }
 }

@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import static android.R.attr.data;
+
 /**
  * The LAZ Quad Reader will page a Lidar (LAZ or LAS) database organized
  into tiles in a sqlite database.
@@ -176,10 +178,45 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
         return getMaxZoom();
     }
 
-    public void startFetchForTile(QuadPagingLayer layer,MaplyTileID tileID)
+    public void startFetchForTile(final QuadPagingLayer layer,final MaplyTileID tileID)
     {
+        LayerThread layerThread = globeController.getWorkingThread();
+        layerThread.addTask(new Runnable() {
+            @Override
+            public void run() {
+                // Put together the precalculated quad index.  This is faster
+                //  than x,y,level
+                int quadIdx = 0;
+                for (int iq=0;iq<tileID.level;iq++)
+                    quadIdx += (1<<iq)*(1<<iq);
+                quadIdx += tileID.y*(1<<tileID.level)+tileID.x;
 
+                synchronized (tileDB)
+                {
+                    Cursor c = tileDB.rawQuery("SELECT data FROM lidartiles WHERE quadindex=" + quadIdx + ";", null);
+                    if (c.getCount() > 0)
+                    {
+                        c.moveToFirst();
+
+                        byte[] data = c.getBlob(c.getColumnIndexOrThrow("data"));
+                        if (data != null)
+                        {
+                            Points points = new Points();
+
+                            Point3d tileCenter = new Point3d(0,0,0);
+                            processTileNative(globeController.coordAdapter, data,points,tileCenter);
+
+//                            MaplyCoordinate3dD tileCenterDisp = [layer.viewC displayCoordD:tileCenter fromSystem:_coordSys];
+//                            points.transform = [[MaplyMatrix alloc] initWithTranslateX:tileCenterDisp.x y:tileCenterDisp.y z:tileCenterDisp.z];
+
+                        }
+                    }
+                }
+            }
+        });
     }
+
+    private native void processTileNative(CoordSystemDisplayAdapter coordAdapter, byte[] data, Points points, Point3d tileCenter);
 
     public void tileDidUnload(MaplyTileID tileID)
     {

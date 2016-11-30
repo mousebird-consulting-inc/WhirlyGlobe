@@ -153,6 +153,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_setCoordSystemNati
 
 /*
  * Class:     com_mousebird_maply_LAZQuadReader
+ * Method:    processTileNative
+ * Signature: (Lcom/mousebird/maply/CoordSystemDisplayAdapter;[BLcom/mousebird/maply/Points;Lcom/mousebird/maply/Point3d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_processTileNative
+  (JNIEnv *, jobject, jobject, jbyteArray, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LAZQuadReader
  * Method:    nativeInit
  * Signature: ()V
  */
