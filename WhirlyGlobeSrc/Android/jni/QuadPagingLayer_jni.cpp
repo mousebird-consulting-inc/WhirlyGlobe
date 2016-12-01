@@ -45,13 +45,15 @@ public:
 	bool singleLevelLoading;
 	bool canShortCircuitImportance;
 	int maxShortCircuitLevel;
+    double minTileHeight,maxTileHeight;
+    int maxTiles;
 
 	// Methods for Java quad layer
 	jmethodID tileLoadJava,tileUnloadJava;
 
 	QuadPagingLayerAdapter(CoordSystem *coordSys,jobject delegateObj)
 		: env(NULL), javaObj(NULL), renderer(NULL), coordSys(coordSys), delegateObj(delegateObj), QuadLoader(),
-		  numFetches(0), simultaneousFetches(1)
+		  numFetches(0), simultaneousFetches(1), minTileHeight(0.0), maxTileHeight(0.0), maxTiles(256)
 	{
 		useTargetZoomLevel = true;
         canShortCircuitImportance = false;
@@ -81,7 +83,7 @@ public:
 
 		// Set up the display controller
 		control = new QuadDisplayController(this,this,this);
-		control->setMaxTiles(256);
+		control->setMaxTiles(maxTiles);
 		control->setMeteredMode(false);
 		control->init(scene,renderer);
 
@@ -190,13 +192,9 @@ public:
         } else {
             Point3d ll,ur;
             ll.x() = testMbr.ll().x();  ll.y() = testMbr.ll().y();
-            ll.z() = 0.0;
-            // ll.z = _minTileHeight;
+            ll.z() = minTileHeight;
             ur.x() = testMbr.ur().x();  ur.y() = testMbr.ur().y();
-            ur.z() = 0.0;
-            // ur.z = _maxTileHeight;
-            // Note: Porting
-            //       Need this for 3D tiles
+            ur.z() = maxTileHeight;
 //
 //            if (hasBoundingBox)
 //                [tileSource getBoundingBox:testTileID ll:&ll ur:&ur];
@@ -591,6 +589,60 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_boundsForTileNat
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::boundsForTileNative()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setMaxTiles
+(JNIEnv *env, jobject obj, jint maxTiles)
+{
+    try
+    {
+        QuadPagingLayerAdapter *adapter = QPLAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return;
+        
+        if (adapter->getController())
+            adapter->getController()->setMaxTiles(maxTiles);
+        adapter->maxTiles = maxTiles;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::setMaxTiles()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setTileHeightRange
+(JNIEnv *env, jobject obj, jdouble minZ, jdouble maxZ)
+{
+    try
+    {
+        QuadPagingLayerAdapter *adapter = QPLAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return;
+        
+        adapter->minTileHeight = minZ;
+        adapter->maxTileHeight = maxZ;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::setTileHeightRange()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setUseParentTileBounds
+(JNIEnv *env, jobject obj, jboolean useParentTileBounds)
+{
+    try
+    {
+        QuadPagingLayerAdapter *adapter = QPLAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return;
+        
+        adapter->useParentTileBounds = useParentTileBounds;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::setUseParentTileBounds()");
     }
 }
 

@@ -436,7 +436,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_setCoordSystemNati
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_processTileNative
-(JNIEnv *env, jobject coordAdaptObj, jobject lazObj, jbyteArray data, jobject pointsObj, jobject tileCenterObj)
+(JNIEnv *env, jobject lazObj, jobject coordAdaptObj, jbyteArray data, jobject pointsObj, jobject tileCenterObj)
 {
     try
     {
@@ -461,8 +461,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_processTileNative
         int count = header->number_of_point_records;
 
         int vertIdx = points->addAttribute("a_position",GeomRawFloat3Type);
-        int elevIdx = points->addAttribute("a_elev",GeomRawFloatType);
-        int colorIdx = hasColors ? points->addAttribute("a_color",GeomRawFloat4Type) : -1;
+//        int elevIdx = points->addAttribute("a_elev",GeomRawFloatType);
+//        int colorIdx = hasColors ? points->addAttribute("a_color",GeomRawFloat4Type) : -1;
 
         // Center the coordinates around the tile center
         Point3d locTileCenter((header->min_x+header->max_x)/2.0,(header->min_y+header->max_y)/2.0,0.0);
@@ -497,7 +497,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_processTileNative
             Point3d loc3d = CoordSystemConvert3d(lazReader->coordSys, coordAdapter->getCoordSystem(), coord);
             Point3d dispCoord = coordAdapter->localToDisplay(loc3d);
             Point3d dispCoordCenter = dispCoord - *tileCenterDisp;
-            
+
+//            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "LIDAR Point: (%f,%f,%f)",dispCoordCenter.x(),dispCoordCenter.y(),dispCoordCenter.z());
+
             float red = 1.0,green = 1.0, blue = 1.0;
             if (hasColors)
             {
@@ -507,9 +509,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_processTileNative
             }
             
             points->addPoint(vertIdx,dispCoordCenter);
-            if (hasColors)
-                points->addPoint(colorIdx,Vector4f(red,green,blue,1.0));
-            points->addValue(elevIdx,(float)coord.z());
+//            if (hasColors)
+//                points->addPoint(colorIdx,Vector4f(red,green,blue,1.0));
+//            points->addValue(elevIdx,(float)coord.z());
             
 //            meshBuilder.addPoint(Point3d(coord.x,coord.y,coord.z));
             

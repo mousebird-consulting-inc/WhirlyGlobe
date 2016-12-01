@@ -16,14 +16,15 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
 {
     GlobeController globeController;
     SQLiteDatabase tileDB;
-    int minPoints,maxPoints;
-    CoordSystem coordSys;
+    public int minPoints,maxPoints;
+    public CoordSystem coordSys;
     String srs;
+    public Shader shader;
 
     /**
      * Settings used to override what's in the database.
      */
-    public class Settings
+    static public class Settings
     {
         public CoordSystem coordSystem;
         double zOffset = 0.0;
@@ -38,7 +39,7 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
     /**
      *
      */
-    public LAZQuadReader(File sqliteDB, Shader shader, Settings settings, GlobeController inController)
+    public LAZQuadReader(File sqliteDB, Settings settings, GlobeController inController)
     throws FileNotFoundException
     {
         initialise();
@@ -55,7 +56,7 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
             throw new FileNotFoundException("SQLite database not found: " + sqliteDB);
 
         // Read the metadata
-        Cursor c = tileDB.rawQuery("SELECT minx,miny,minz,maxx,maxy,maxz,minlevel,maxlevel,minpoints,maxpoints,srs FROM manifest", null);
+        Cursor c = tileDB.rawQuery("SELECT * FROM manifest", null);
         if (c.getCount() > 0)
         {
             c.moveToFirst();
@@ -107,6 +108,11 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
 
             // Note: Intersection handler
         }
+    }
+
+    public boolean hasColor()
+    {
+        return getPointType() > 1;
     }
 
     private void setCoordSystem(CoordSystem inCoordSys)
@@ -204,11 +210,18 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
                             Points points = new Points();
 
                             Point3d tileCenter = new Point3d(0,0,0);
-                            processTileNative(globeController.coordAdapter, data,points,tileCenter);
+                            processTileNative(globeController.coordAdapter, data, points.rawPoints, tileCenter);
 
-//                            MaplyCoordinate3dD tileCenterDisp = [layer.viewC displayCoordD:tileCenter fromSystem:_coordSys];
-//                            points.transform = [[MaplyMatrix alloc] initWithTranslateX:tileCenterDisp.x y:tileCenterDisp.y z:tileCenterDisp.z];
+                            Matrix4d mat = Matrix4d.translate(tileCenter.getX(),tileCenter.getY(),tileCenter.getZ());
+                            points.setMatrix(mat);
 
+                            GeometryInfo geomInfo = new GeometryInfo();
+                            geomInfo.setPointSize(getPointSize());
+                            geomInfo.setZBufferWrite(true);
+                            geomInfo.setZBufferRead(true);
+                            geomInfo.setShader(shader);
+                            geomInfo.setDrawPriority(10000000);
+                            globeController.addPoints(points,geomInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
                         }
                     }
                 }
@@ -216,7 +229,7 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
         });
     }
 
-    private native void processTileNative(CoordSystemDisplayAdapter coordAdapter, byte[] data, Points points, Point3d tileCenter);
+    private native void processTileNative(CoordSystemDisplayAdapter coordAdapter, byte[] data, GeometryRawPoints points, Point3d tileCenter);
 
     public void tileDidUnload(MaplyTileID tileID)
     {
