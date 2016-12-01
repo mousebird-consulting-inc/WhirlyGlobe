@@ -462,7 +462,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_processTileNative
 
         int vertIdx = points->addAttribute("a_position",GeomRawFloat3Type);
 //        int elevIdx = points->addAttribute("a_elev",GeomRawFloatType);
-//        int colorIdx = hasColors ? points->addAttribute("a_color",GeomRawFloat4Type) : -1;
+        int colorIdx = hasColors ? points->addAttribute("a_color",GeomRawFloat4Type) : -1;
 
         // Center the coordinates around the tile center
         Point3d locTileCenter((header->min_x+header->max_x)/2.0,(header->min_y+header->max_y)/2.0,0.0);
@@ -503,14 +503,17 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_processTileNative
             float red = 1.0,green = 1.0, blue = 1.0;
             if (hasColors)
             {
-                red = p->rgb[0] / lazReader->colorScale;
-                green = p->rgb[1] / lazReader->colorScale;
-                blue = p->rgb[2] / lazReader->colorScale;
+                red = p->rgb[0] / (float)lazReader->colorScale;
+                green = p->rgb[1] / (float)lazReader->colorScale;
+                blue = p->rgb[2] / (float)lazReader->colorScale;
             }
             
             points->addPoint(vertIdx,dispCoordCenter);
-//            if (hasColors)
-//                points->addPoint(colorIdx,Vector4f(red,green,blue,1.0));
+            if (hasColors)
+            {
+//              __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "LIDAR color: (%f,%f,%f), (%d,%d,%d), (%d)",red,green,blue,p->rgb[0],p->rgb[1],p->rgb[2],lazReader->colorScale);
+                points->addPoint(colorIdx,Vector4f(red,green,blue,1.0));
+            }
 //            points->addValue(elevIdx,(float)coord.z());
             
 //            meshBuilder.addPoint(Point3d(coord.x,coord.y,coord.z));

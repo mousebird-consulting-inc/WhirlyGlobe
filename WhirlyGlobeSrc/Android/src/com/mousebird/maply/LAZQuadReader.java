@@ -27,7 +27,7 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
     static public class Settings
     {
         public CoordSystem coordSystem;
-        double zOffset = 0.0;
+        public double zOffset = 0.0;
         public int colorScale = 1<<16-1;
         public float pointSize = 0.f;
     }
