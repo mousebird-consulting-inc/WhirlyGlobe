@@ -75,6 +75,7 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
 
             minPoints = c.getInt(c.getColumnIndexOrThrow("minpoints"));
             maxPoints = c.getInt(c.getColumnIndexOrThrow("maxpoints"));
+            setTilePoints(minPoints,maxPoints);
 
             srs = c.getString(c.getColumnIndexOrThrow("srs"));
 
@@ -225,6 +226,8 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
                         }
                     }
                 }
+
+                layer.tileDidLoad(tileID);
             }
         });
     }
