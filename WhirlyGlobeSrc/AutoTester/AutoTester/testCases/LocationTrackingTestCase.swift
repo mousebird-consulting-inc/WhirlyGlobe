@@ -10,6 +10,8 @@ import UIKit
 
 class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
 
+    var segCtrl: UISegmentedControl?
+    
     override init() {
         super.init()
         
@@ -19,7 +21,19 @@ class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
     }
     
     func setupLocationTracking(baseVC: MaplyBaseViewController) {
-        baseVC.startLocationTracking(with: self, useHeading: true, useCourse: true, lockType: MaplyLocationLockHeadingUp)
+        baseVC.startLocationTracking(with: self, useHeading: true, useCourse: true, lockType: MaplyLocationLockNone)
+        
+        segCtrl = UISegmentedControl(items: ["No Lock", "North Up", "Heading Up", "Heading Up Forward"])
+        segCtrl?.selectedSegmentIndex = 0
+        segCtrl?.frame = CGRect(x: 20, y: 90, width: 640, height: 40)
+        segCtrl?.addTarget(self, action: #selector(onSegChange), for: .valueChanged)
+        
+        let font = UIFont.boldSystemFont(ofSize: 16)
+        segCtrl?.setTitleTextAttributes([NSFontAttributeName: font], for: UIControlState.normal)
+        
+        segCtrl?.tintColor = UIColor.white
+        baseVC.view.addSubview(segCtrl!)
+        
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
@@ -43,6 +57,18 @@ class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         mapVC.setZoomLimitsMin(0.0005, max: 4.0)
     }
     
+    func onSegChange() {
+        if (segCtrl?.selectedSegmentIndex == 0) {
+            baseViewController?.changeLocationTrackingLockType(MaplyLocationLockNone)
+        } else if (segCtrl?.selectedSegmentIndex == 1) {
+            baseViewController?.changeLocationTrackingLockType(MaplyLocationLockNorthUp)
+        } else if (segCtrl?.selectedSegmentIndex == 2) {
+            baseViewController?.changeLocationTrackingLockType(MaplyLocationLockHeadingUp)
+        } else {
+            baseViewController?.changeLocationTrackingLockType(MaplyLocationLockHeadingUpOffset)
+        }
+    }
+    
     func locationManager(_ manager: CLLocationManager!, didFailWithError error: Error!) {
         print("Location Manager Error", error)
     }
@@ -50,5 +76,4 @@ class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
     func locationManager(_ manager: CLLocationManager!, didChange status: CLAuthorizationStatus) {
         print("Location Manager status change", status);
     }
-    
 }
