@@ -96,7 +96,15 @@ using namespace WhirlyGlobe;
     double t = (currentTime-startTime)/(endTime-startTime);
     if (t < 0.0)  t = 0.0;
     if (t > 1.0)  t = 1.0;
-    state.heading = (endState.heading - startState.heading)*t + startState.heading;
+    
+    float dHeading = endState.heading - startState.heading;
+    if (ABS(dHeading) <= M_PI)
+        state.heading = (dHeading)*t + startState.heading;
+    else if (dHeading > 0)
+        state.heading = (dHeading - 2.0*M_PI)*t + startState.heading;
+    else
+        state.heading = (dHeading + 2.0*M_PI)*t + startState.heading;
+    
     state.height = (endState.height - startState.height)*t + startState.height;
     state.tilt = (endState.tilt - startState.tilt)*t + startState.tilt;
     MaplyCoordinateD pos;
@@ -778,6 +786,8 @@ using namespace WhirlyGlobe;
     anim.height = newHeight;
     anim.tilt = [self tilt];
     
+    NSLog(@"animateToPosition; final heading: %f", newHeading);
+    
     [self animateWithDelegate:anim time:howLong];
     
     return true;
@@ -1438,6 +1448,8 @@ using namespace WhirlyGlobe;
     animationDelegateEnd = now+howLong;
 
     WhirlyGlobeViewControllerAnimationState *stateStart = [self getViewState];
+    
+    stateStart.heading = fmod(stateStart.heading + 2.0*M_PI, 2.0*M_PI);
     
     // Tell the delegate what we're up to
     [animationDelegate globeViewController:self startState:stateStart startTime:now endTime:animationDelegateEnd];
