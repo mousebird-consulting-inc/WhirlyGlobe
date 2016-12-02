@@ -100,7 +100,15 @@ using namespace Maply;
     double t = (currentTime-startTime)/(endTime-startTime);
     if (t < 0.0)  t = 0.0;
     if (t > 1.0)  t = 1.0;
-    state.heading = (endState.heading - startState.heading)*t + startState.heading;
+    
+    float dHeading = endState.heading - startState.heading;
+    if (ABS(dHeading) <= M_PI)
+        state.heading = (dHeading)*t + startState.heading;
+    else if (dHeading > 0)
+        state.heading = (dHeading - 2.0*M_PI)*t + startState.heading;
+    else
+        state.heading = (dHeading + 2.0*M_PI)*t + startState.heading;
+    
     state.height = (endState.height - startState.height)*t + startState.height;
     MaplyCoordinateD pos;
     pos.x = (endState.pos.x - startState.pos.x)*t + startState.pos.x;
@@ -798,7 +806,7 @@ using namespace Maply;
     anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
     anim.heading = newHeading;
     anim.height = newHeight;
-    
+    NSLog(@"animateToPosition; newHeight: %f", newHeight);
     [self animateWithDelegate:anim time:howLong];
     
     return true;
@@ -933,6 +941,7 @@ using namespace Maply;
     float height;
     [self getPosition:&pos height:&height];
     state.pos = MaplyCoordinateDMakeWithMaplyCoordinate(pos);
+    state.height = height;
     return state;
 }
 
@@ -955,7 +964,6 @@ using namespace Maply;
     animationDelegateEnd = now+howLong;
     
     MaplyViewControllerAnimationState *stateStart = [self getViewState];
-    
     // Tell the delegate what we're up to
     [animationDelegate mapViewController:self startState:stateStart startTime:now endTime:animationDelegateEnd];
     
