@@ -786,8 +786,6 @@ using namespace WhirlyGlobe;
     anim.height = newHeight;
     anim.tilt = [self tilt];
     
-    NSLog(@"animateToPosition; final heading: %f", newHeading);
-    
     [self animateWithDelegate:anim time:howLong];
     
     return true;
