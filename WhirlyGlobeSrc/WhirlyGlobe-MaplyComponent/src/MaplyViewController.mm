@@ -806,7 +806,6 @@ using namespace Maply;
     anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
     anim.heading = newHeading;
     anim.height = newHeight;
-    NSLog(@"animateToPosition; newHeight: %f", newHeight);
     [self animateWithDelegate:anim time:howLong];
     
     return true;
