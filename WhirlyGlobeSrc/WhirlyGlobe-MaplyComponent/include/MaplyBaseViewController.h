@@ -949,7 +949,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  */
 - (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *__nullable)other;
 
-- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate;
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse lockType:(MaplyLocationLockType)lockType;
 
 - (void)stopLocationTracking;
 

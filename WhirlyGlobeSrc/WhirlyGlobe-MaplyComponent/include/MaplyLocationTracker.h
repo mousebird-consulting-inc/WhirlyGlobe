@@ -25,6 +25,8 @@
 
 @class MaplyBaseViewController;
 
+typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLockHeadingUp, MaplyLocationLockHeadingUpOffset} MaplyLocationLockType;
+
 @protocol MaplyLocationTrackerDelegate
 
 - (void) locationManager:(CLLocationManager * __nonnull)manager didFailWithError:(NSError * __nonnull)error;
@@ -39,7 +41,7 @@
 @interface MaplyLocationTracker : NSObject <CLLocationManagerDelegate>
 
 
-- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC Delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate;
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC Delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse lockType:(MaplyLocationLockType)lockType;
 
 - (void) teardown;
 

@@ -19,12 +19,13 @@ class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
     }
     
     func setupLocationTracking(baseVC: MaplyBaseViewController) {
-        baseVC.startLocationTracking(with: self)
+        baseVC.startLocationTracking(with: self, useHeading: true, useCourse: true, lockType: MaplyLocationLockHeadingUp)
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
         let baseLayer = StamenWatercolorRemote()
         baseLayer.setUpWithGlobe(globeVC)
+        globeVC.keepNorthUp = false
         
         setupLocationTracking(baseVC: globeVC)
         
@@ -38,7 +39,8 @@ class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         setupLocationTracking(baseVC: mapVC)
         
         mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
-        mapVC.setZoomLimitsMin(0.01, max: 4.0)
+        //mapVC.setZoomLimitsMin(0.01, max: 4.0)
+        mapVC.setZoomLimitsMin(0.0005, max: 4.0)
     }
     
     func locationManager(_ manager: CLLocationManager!, didFailWithError error: Error!) {
