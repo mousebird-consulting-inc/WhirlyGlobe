@@ -319,7 +319,7 @@ public:
             control->setTargetLevels(targetLevels);
         }
 
-    		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Short circuiting to level %d",maxShortCircuitLevel);
+//    		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Short circuiting to level %d",maxShortCircuitLevel);
     }
 
     /** QuadLoader Calls **/

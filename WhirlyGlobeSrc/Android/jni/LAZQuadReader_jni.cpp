@@ -461,7 +461,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_processTileNative
         int count = header->number_of_point_records;
 
         int vertIdx = points->addAttribute("a_position",GeomRawFloat3Type);
-//        int elevIdx = points->addAttribute("a_elev",GeomRawFloatType);
+        int elevIdx = points->addAttribute("a_elev",GeomRawFloatType);
         int colorIdx = hasColors ? points->addAttribute("a_color",GeomRawFloat4Type) : -1;
 
         // Center the coordinates around the tile center
@@ -514,7 +514,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LAZQuadReader_processTileNative
 //              __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "LIDAR color: (%f,%f,%f), (%d,%d,%d), (%d)",red,green,blue,p->rgb[0],p->rgb[1],p->rgb[2],lazReader->colorScale);
                 points->addPoint(colorIdx,Vector4f(red,green,blue,1.0));
             }
-//            points->addValue(elevIdx,(float)coord.z());
+            points->addValue(elevIdx,(float)coord.z());
             
 //            meshBuilder.addPoint(Point3d(coord.x,coord.y,coord.z));
             

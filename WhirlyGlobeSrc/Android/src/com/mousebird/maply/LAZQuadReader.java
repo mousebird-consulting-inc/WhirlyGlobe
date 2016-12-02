@@ -19,7 +19,7 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
     public int minPoints,maxPoints;
     public CoordSystem coordSys;
     String srs;
-    public Shader shader;
+    protected Shader shader;
 
     /**
      * Settings used to override what's in the database.
@@ -51,7 +51,7 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
         setColorScale(255);
 
         // Open the SQLite database
-        tileDB = SQLiteDatabase.openDatabase(sqliteDB.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
+        tileDB = SQLiteDatabase.openDatabase(sqliteDB.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
         if (tileDB == null)
             throw new FileNotFoundException("SQLite database not found: " + sqliteDB);
 
@@ -170,6 +170,16 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
     public native int getPointType();
 
     public native void setCoordSystemNative(CoordSystem coordSys);
+
+    public void setShader(Shader inShader)
+    {
+        shader = inShader;
+
+        // Note: These should properly be geomInfo uniforms
+        shader.setUniform("u_zmin",getLL().getZ());
+        shader.setUniform("u_zmax",getUR().getZ());
+//        shader.setUniform("u_pointSize",getPointSize());
+    }
 
     //
     // Paging Interface methods
