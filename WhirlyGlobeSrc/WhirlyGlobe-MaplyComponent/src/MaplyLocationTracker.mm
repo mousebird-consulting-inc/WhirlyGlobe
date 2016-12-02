@@ -88,6 +88,9 @@
     _delegate = nil;
 }
 
+- (void) changeLockType:(MaplyLocationLockType)lockType {
+    _lockType = lockType;
+}
 
 - (void) setupMarkerImages {
     int size = LOC_TRACKER_POS_MARKER_SIZE*2;
