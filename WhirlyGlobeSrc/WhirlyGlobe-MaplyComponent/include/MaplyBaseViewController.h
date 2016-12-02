@@ -951,6 +951,8 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
 
 - (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse lockType:(MaplyLocationLockType)lockType;
 
+- (void)changeLocationTrackingLockType:(MaplyLocationLockType)lockType;
+
 - (void)stopLocationTracking;
 
 @end
