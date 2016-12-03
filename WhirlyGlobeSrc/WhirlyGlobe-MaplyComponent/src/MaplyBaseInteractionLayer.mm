@@ -289,6 +289,12 @@ public:
     layerThread = nil;
     scene = NULL;
     imageTextures.clear();
+    [userObjects removeAllObjects];
+    userObjects = nil;
+    atlasGroup = nil;
+    glSetupInfo = nil;
+    ourClusterGen.layer = nil;
+    clusterGens.clear();
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
