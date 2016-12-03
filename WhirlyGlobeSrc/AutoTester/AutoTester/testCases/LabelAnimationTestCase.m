@@ -50,6 +50,7 @@
 {
     CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
+    globeVC.height = 0.25;
     [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
 }
@@ -64,6 +65,7 @@
 {
     CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
+    mapVC.height = 0.25;
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
 }
@@ -88,7 +90,12 @@
         [_trafficLabels removeObjectForKey:key];
     }
     
-    NSDictionary *labelsDesc = @{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(0.3), kMaplyJustify : @"left", kMaplyDrawPriority: @(50)};
+    NSDictionary *labelsDesc = @{kMaplyMinVis: @(0.0),
+                                 kMaplyMaxVis: @(1.0),
+                                 kMaplyFade: @(0.3),
+                                 kMaplyTextColor: [UIColor redColor],
+                                 kMaplyJustify : @"left",
+                                 kMaplyDrawPriority: @(50)};
     MaplyScreenLabel *label;
     for (int i=0; i<50; i++) {
         label = [[MaplyScreenLabel alloc] init];
@@ -101,7 +108,7 @@
         label.text = @"ABCDE";
         label.layoutPlacement = kMaplyLayoutRight;
         label.userObject = nil;
-        label.color = [UIColor whiteColor];
+        label.color = [UIColor redColor];
         
         
         trafficLabelCompObj = [_baseVC addScreenLabels:[NSArray arrayWithObjects:label, nil] desc:labelsDesc];
