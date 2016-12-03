@@ -204,6 +204,7 @@
 {
     StamenWatercolorRemote *baseView = [[StamenWatercolorRemote alloc] init];
     [baseView setUpWithGlobe:globeVC];
+    globeVC.keepNorthUp = false;
     
     [self addLongRoute:globeVC globe:true];
     

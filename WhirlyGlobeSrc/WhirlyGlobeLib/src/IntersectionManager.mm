@@ -12,6 +12,10 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
+    
+IntersectionManager::Intersectable::~Intersectable()
+{
+}
 
 IntersectionManager::IntersectionManager(Scene *scene)
 : scene(scene)

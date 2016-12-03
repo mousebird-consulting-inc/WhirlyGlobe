@@ -13,10 +13,15 @@
 @end
 
 @implementation SimpleActiveObject
+{
+    MaplyComponentObject *compObj;
+    MaplyTexture *tex;
+}
 
-- (nonnull instancetype)initWithViewController:(MaplyBaseViewController *__nonnull)viewC
+- (nonnull instancetype)initWithViewController:(MaplyBaseViewController *__nonnull)viewC image:(MaplyTexture *)inTex
 {
     self = [super initWithViewController:viewC];
+    tex = inTex;
     
     return self;
 }
@@ -28,7 +33,20 @@
 
 - (void)updateForFrame:(id)frameInfo
 {
-    // Do your per frame updates here
+    // Delete it
+    if (compObj)
+    {
+        [self.viewC removeObjects:@[compObj] mode:MaplyThreadCurrent];
+        compObj = nil;
+    }
+    
+    MaplyCoordinate coord = MaplyCoordinateMakeWithDegrees(0.0 + drand48(), 0.0 + drand48());
+    MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+    marker.loc = coord;
+    marker.image = tex;
+    marker.size = CGSizeMake(64,64);
+    marker.layoutImportance = MAXFLOAT;
+    compObj = [self.viewC addScreenMarkers:@[marker] desc:@{kMaplyFade: @(NO)} mode:MaplyThreadCurrent];
 }
 
 @end
@@ -51,7 +69,9 @@
 
 - (void)setupActiveObject:(MaplyBaseViewController *)viewC
 {
-    activeObject = [[SimpleActiveObject alloc] initWithViewController:viewC];
+    MaplyTexture *tex = [viewC addTexture:[UIImage imageNamed:@"beer-24@2x.png"] desc:nil mode:MaplyThreadCurrent];
+    
+    activeObject = [[SimpleActiveObject alloc] initWithViewController:viewC image:tex];
     
     [viewC addActiveObject:activeObject];
 }
