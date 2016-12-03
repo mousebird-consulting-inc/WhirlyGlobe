@@ -19,9 +19,9 @@
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.name = @"Full Animation";
+        self.name = @"Animating Position";
         self.captureDelay = 2;
-		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
+		self.implementations = MaplyTestCaseImplementationGlobe;
     }
     return self;
 }
@@ -37,8 +37,10 @@
     CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
-//    [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
     
+//    [globeVC setPosition:MaplyCoordinateMakeWithDegrees(0.0, 0.0)];
+//    globeVC.heading = 0.0;
+    globeVC.height = 0.5;
     [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222) height:0.1 heading:45.0/180.0*M_PI time:10.0];
 }
 
@@ -47,22 +49,6 @@
     [self teardownWithBaseVC:(MaplyBaseViewController *)globeVC];
     
 }
-
-- (void)setUpWithMap:(MaplyViewController *)mapVC
-{
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
-    [baseView setUpWithMap:mapVC];
-    [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
-    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];
-    
-    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222) height:0.1  time:10.0];
-}
-
-- (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC
-{
-    [self teardownWithBaseVC:(MaplyBaseViewController *)mapVC];
-}
-
 
 @end
 
