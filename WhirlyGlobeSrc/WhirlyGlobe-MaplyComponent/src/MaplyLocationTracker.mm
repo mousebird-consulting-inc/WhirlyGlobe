@@ -76,7 +76,6 @@
             [self setSimPositions];
             _simUpdateTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(simUpdateTimeout) userInfo:nil repeats:YES];
         }
-            
         
     }
     return self;
@@ -105,11 +104,11 @@
         [_markerImgsDirectional addObject:[self radialGradientMarkerWithSize:size color0:[UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0] color1:[UIColor colorWithRed:0.0 green:0.75 blue:1.0 alpha:1.0] gradLocation:(0.0 + (float)(8-ABS(8-i))/8.0) radius:(float)(size-32-ABS(8-i))/2.0 directional:true]];
     }
     
-    _markerDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(0.0), kMaplyDrawPriority:@(kMaplyVectorDrawPriorityDefault), kMaplyEnableEnd: @(MAXFLOAT)}];
+    _markerDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(0.0), kMaplyDrawPriority:@(kMaplyVectorDrawPriorityDefault+1), kMaplyEnableEnd: @(MAXFLOAT)}];
     
-    _movingMarkerDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(0.0), kMaplyDrawPriority:@(kMaplyVectorDrawPriorityDefault), kMaplyEnableStart:@(0.0)}];
+    _movingMarkerDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(0.0), kMaplyDrawPriority:@(kMaplyVectorDrawPriorityDefault+1), kMaplyEnableStart:@(0.0)}];
     
-    _shapeCircleDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(0.0), kMaplyDrawPriority:@(kMaplyVectorDrawPriorityDefault), kMaplyColor: [UIColor grayColor], kMaplySampleX:@(100), kMaplySampleY:@(100)}];
+    _shapeCircleDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyColor : [UIColor colorWithRed:0.06 green:0.06 blue:0.1 alpha:0.2], kMaplyFade: @(0.0), kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault), kMaplySampleX: @(100)}];
     
 }
 
@@ -249,7 +248,6 @@
     
     MaplyShapeCircle *shapeCircle = [[MaplyShapeCircle alloc] init];
     shapeCircle.center = coord;
-    shapeCircle.color = [UIColor grayColor];
     
     MaplyCoordinate coord1 = [self coordOfPointAtTrueCourse:0.0 andDistanceMeters:horizontalAccuracy fromCoord:coord];
     MaplyCoordinate coord2 = [self coordOfPointAtTrueCourse:90.0 andDistanceMeters:horizontalAccuracy fromCoord:coord];
@@ -261,6 +259,8 @@
     float d1 = sqrtf(powf(dispPt1.x-dispPt0.x, 2.0) + powf(dispPt1.y-dispPt0.y, 2.0));
     float d2 = sqrtf(powf(dispPt2.x-dispPt0.x, 2.0) + powf(dispPt2.y-dispPt0.y, 2.0));
     shapeCircle.radius = (d1 + d2) / 2.0;
+    shapeCircle.height = 0.00001;
+    
     return shapeCircle;
 }
 
@@ -290,11 +290,10 @@
     if (location.horizontalAccuracy < 0)
         return;
     
-    // FIXME: uncomment this once shapes are working
-    //    MaplyShapeCircle *shapeCircle = [self shapeCircleForCoord:endLoc AndHorizontalAccuracy:location.horizontalAccuracy];
-    //    if (shapeCircle) {
-    //        _shapeCircleObj = [_theViewC addShapes:@[shapeCircle] desc:_shapeCircleDesc];
-    //    }
+    MaplyShapeCircle *shapeCircle = [self shapeCircleForCoord:endLoc AndHorizontalAccuracy:location.horizontalAccuracy];
+    if (shapeCircle) {
+        _shapeCircleObj = [_theViewC addShapes:@[shapeCircle] desc:_shapeCircleDesc];
+    }
     
     NSNumber *orientation;
     if (_useHeading && _latestHeading)
@@ -426,7 +425,7 @@
     NSNumber *hdgDeg = positions[2];
     
     _latestHeading = hdgDeg;
-    CLLocation *location = [[CLLocation alloc] initWithCoordinate:(CLLocationCoordinate2D){latDeg.floatValue, lonDeg.floatValue} altitude:10000.0 horizontalAccuracy:100 verticalAccuracy:15 course:hdgDeg.floatValue speed:0 timestamp:[NSDate date]];
+    CLLocation *location = [[CLLocation alloc] initWithCoordinate:(CLLocationCoordinate2D){latDeg.floatValue, lonDeg.floatValue} altitude:10000.0 horizontalAccuracy:250 verticalAccuracy:15 course:hdgDeg.floatValue speed:0 timestamp:[NSDate date]];
     [self updateLocation:location];
     
 }
