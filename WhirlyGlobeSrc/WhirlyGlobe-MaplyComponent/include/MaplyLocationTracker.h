@@ -40,10 +40,19 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
  */
 @interface MaplyLocationTracker : NSObject <CLLocationManagerDelegate>
 
+/** @brief MaplyLocationTracker constructor
+ @param viewC The globe or map view controller
+ @param delegate The MaplyLocationTrackerDelegate for receiving location event callbacks
+ @param useHeading Use location services heading information (requires physical magnetometer)
+ @param useCourse Use location services course information as fallback if heading unavailable
+ */
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC Delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse;
 
-- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC Delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse lockType:(MaplyLocationLockType)lockType;
-
-- (void) changeLockType:(MaplyLocationLockType)lockType;
+/** @brief Change lock type
+ @param lockType The MaplyLocationLockType value for lock behavior
+ @param forwardTrackOffset The vertical offset if using MaplyLocationLockHeadingUpOffset (positive values are below the view center)
+ */
+- (void) changeLockType:(MaplyLocationLockType)lockType forwardTrackOffset:(int)forwardTrackOffset;
 
 - (void) teardown;
 

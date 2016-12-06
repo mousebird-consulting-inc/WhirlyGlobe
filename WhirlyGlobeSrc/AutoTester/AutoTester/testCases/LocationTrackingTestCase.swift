@@ -21,18 +21,18 @@ class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
     }
     
     func setupLocationTracking(baseVC: MaplyBaseViewController) {
-        baseVC.startLocationTracking(with: self, useHeading: true, useCourse: true, lockType: MaplyLocationLockNone)
+        baseVC.startLocationTracking(with: self, useHeading: true, useCourse: true)
         
         segCtrl = UISegmentedControl(items: ["No Lock", "North Up", "Heading Up", "Heading Up Forward"])
         segCtrl?.selectedSegmentIndex = 0
-        segCtrl?.frame = CGRect(x: 20, y: 90, width: 640, height: 40)
+        segCtrl?.frame = CGRect(x: 0, y: 0, width: 560, height: 40)
         segCtrl?.addTarget(self, action: #selector(onSegChange), for: .valueChanged)
         
-        let font = UIFont.boldSystemFont(ofSize: 16)
-        segCtrl?.setTitleTextAttributes([NSFontAttributeName: font], for: UIControlState.normal)
-        
-        segCtrl?.tintColor = UIColor.white
-        baseVC.view.addSubview(segCtrl!)
+        let bgView = UIView(frame: CGRect(x: 20, y: 90, width: 560, height: 40))
+        bgView.backgroundColor = UIColor.white
+        bgView.layer.cornerRadius = 5
+        baseVC.view.addSubview(bgView)
+        bgView.addSubview(segCtrl!)
         
     }
     
@@ -65,7 +65,7 @@ class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         } else if (segCtrl?.selectedSegmentIndex == 2) {
             baseViewController?.changeLocationTrackingLockType(MaplyLocationLockHeadingUp)
         } else {
-            baseViewController?.changeLocationTrackingLockType(MaplyLocationLockHeadingUpOffset)
+            baseViewController?.changeLocationTrackingLockType(MaplyLocationLockHeadingUpOffset, forwardTrackOffset: 150)
         }
     }
     
