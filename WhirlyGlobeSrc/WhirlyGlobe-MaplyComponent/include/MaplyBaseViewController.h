@@ -949,10 +949,26 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  */
 - (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *__nullable)other;
 
-- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse lockType:(MaplyLocationLockType)lockType;
+/** @brief Start location tracking
+    @param delegate The MaplyLocationTrackerDelegate for receiving location event callbacks
+    @param useHeading Use location services heading information (requires physical magnetometer)
+    @param useCourse Use location services course information as fallback if heading unavailable
+ */
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse;
 
+/** @brief Change lock type for location tracking
+    @param lockType The MaplyLocationLockType value for lock behavior
+ */
 - (void)changeLocationTrackingLockType:(MaplyLocationLockType)lockType;
 
+/** @brief Change lock type for location tracking
+    @param lockType The MaplyLocationLockType value for lock behavior
+    @param forwardTrackOffset The vertical offset if using MaplyLocationLockHeadingUpOffset (positive values are below the view center)
+ */
+- (void)changeLocationTrackingLockType:(MaplyLocationLockType)lockType forwardTrackOffset:(int)forwardTrackOffset;
+
+/** @brief Stop location tracking
+ */
 - (void)stopLocationTracking;
 
 @end

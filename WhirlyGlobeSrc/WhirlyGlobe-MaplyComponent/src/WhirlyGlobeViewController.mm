@@ -822,37 +822,38 @@ using namespace WhirlyGlobe;
     
     [globeView cancelAnimation];
 
+    // save current view state
     WhirlyGlobeViewControllerAnimationState *curState = [self getViewState];
 
+    // temporarily change view state, without propagating updates, to find offset coordinate
     WhirlyGlobeViewControllerAnimationState *nextState = [[WhirlyGlobeViewControllerAnimationState alloc] init];
     nextState.heading = newHeading;
     nextState.tilt = self.tilt;
     nextState.pos = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
     nextState.height = newHeight;
-    
     [self setViewStateInternal:nextState updateWatchers:false];
     
-    // Figure out where that point lands on the globe
+    // find offset coordinate
     MaplyCoordinate geoCoord;
-    CGPoint invPoint = CGPointMake(self.view.frame.size.width/2, self.view.frame.size.height/2+loc.y);
+    CGPoint invPoint = CGPointMake(self.view.frame.size.width/2+loc.x, self.view.frame.size.height/2+loc.y);
     if (![self geoPointFromScreen:invPoint geoCoord:&geoCoord])
     {
         [self setViewStateInternal:curState updateWatchers:false];
         return false;
     }
     
+    // restore current view state
     [self setViewStateInternal:curState updateWatchers:false];
     
+    // animate to offset coordinate
     WhirlyGlobeViewControllerSimpleAnimationDelegate *anim = [[WhirlyGlobeViewControllerSimpleAnimationDelegate alloc] init];
     anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(geoCoord);
     anim.heading = newHeading;
     anim.height = newHeight;
     anim.tilt = [self tilt];
-    
     [self animateWithDelegate:anim time:howLong];
     
     return true;
-    
 }
 
 // External facing set position

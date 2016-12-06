@@ -840,23 +840,25 @@ using namespace Maply;
     }
     
     [mapView cancelAnimation];
-    
+
+    // save current view state
     MaplyViewControllerAnimationState *curState = [self getViewState];
     
+    // temporarily change view state, without propagating updates, to find offset coordinate
     MaplyViewControllerAnimationState *nextState = [[MaplyViewControllerAnimationState alloc] init];
     nextState.heading = newHeading;
     nextState.pos = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
     nextState.height = newHeight;
-
     [self setViewStateInternal:nextState runViewUpdates:false];
     
-    // FIXME: continue here
-    CGPoint invPoint = CGPointMake(self.view.frame.size.width/2, self.view.frame.size.height/2+loc.y);
+    // find offset coordinate
+    CGPoint invPoint = CGPointMake(self.view.frame.size.width/2+loc.x, self.view.frame.size.height/2+loc.y);
     MaplyCoordinate geoCoord = [self geoFromScreenPoint:invPoint];
     
-    
+    // restore current view state
     [self setViewStateInternal:curState runViewUpdates:false];
     
+    // animate to offset coordinate
     MaplyViewControllerSimpleAnimationDelegate *anim = [[MaplyViewControllerSimpleAnimationDelegate alloc] init];
     anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(geoCoord);
     anim.heading = newHeading;
