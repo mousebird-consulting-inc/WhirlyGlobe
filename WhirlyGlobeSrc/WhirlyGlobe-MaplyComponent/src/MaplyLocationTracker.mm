@@ -103,8 +103,8 @@
     _markerImgs = [NSMutableArray array];
     _markerImgsDirectional = [NSMutableArray array];
     for (int i=0; i<16; i++) {
-        [_markerImgs addObject:[self radialGradientMarkerWithSize:size color0:[UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0] color1:[UIColor colorWithRed:0.0 green:0.75 blue:1.0 alpha:1.0] gradLocation:(0.0 + (float)(8-ABS(8-i))/8.0) radius:(float)(size-32-ABS(8-i))/2.0 directional:false]];
-        [_markerImgsDirectional addObject:[self radialGradientMarkerWithSize:size color0:[UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0] color1:[UIColor colorWithRed:0.0 green:0.75 blue:1.0 alpha:1.0] gradLocation:(0.0 + (float)(8-ABS(8-i))/8.0) radius:(float)(size-32-ABS(8-i))/2.0 directional:true]];
+        [_markerImgs addObject:[self radialGradientMarkerWithSize:size color0:color0 color1:color1 gradLocation:(0.0 + (float)(8-ABS(8-i))/8.0) radius:(float)(size-32-ABS(8-i))/2.0 directional:false]];
+        [_markerImgsDirectional addObject:[self radialGradientMarkerWithSize:size color0:color0 color1:color1 gradLocation:(0.0 + (float)(8-ABS(8-i))/8.0) radius:(float)(size-32-ABS(8-i))/2.0 directional:true]];
     }
     
     _markerDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(0.0), kMaplyDrawPriority:@(kMaplyVectorDrawPriorityDefault+1), kMaplyEnableEnd: @(MAXFLOAT)}];
