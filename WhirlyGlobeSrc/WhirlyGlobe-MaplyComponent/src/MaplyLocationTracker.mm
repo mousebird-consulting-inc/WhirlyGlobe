@@ -52,9 +52,10 @@
     
     bool _useHeading, _useCourse;
     MaplyLocationLockType _lockType;
+    int _forwardTrackOffset;
 }
 
-- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC Delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse lockType:(MaplyLocationLockType)lockType {
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC Delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse {
     
     self = [super init];
     if (self) {
@@ -67,7 +68,8 @@
         _delegate = delegate;
         _useHeading = useHeading;
         _useCourse = useCourse;
-        _lockType = lockType;
+        _lockType = MaplyLocationLockNone;
+        _forwardTrackOffset = 0;
         
         [self setupMarkerImages];
         if (!MAPLYLOCATIONTRACKER_SIMUPDATES)
@@ -87,8 +89,9 @@
     _delegate = nil;
 }
 
-- (void) changeLockType:(MaplyLocationLockType)lockType {
+- (void) changeLockType:(MaplyLocationLockType)lockType forwardTrackOffset:(int)forwardTrackOffset {
     _lockType = lockType;
+    _forwardTrackOffset = forwardTrackOffset;
 }
 
 - (void) setupMarkerImages {
@@ -365,9 +368,9 @@
             break;
         case MaplyLocationLockHeadingUpOffset:
             if (globeVC)
-                [globeVC animateToPosition:location onScreen:CGPointMake(0, -150) height:[globeVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
+                [globeVC animateToPosition:location onScreen:CGPointMake(0, -_forwardTrackOffset) height:[globeVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
             else if (mapVC)
-                [mapVC animateToPosition:location onScreen:CGPointMake(0, -150) height:[mapVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
+                [mapVC animateToPosition:location onScreen:CGPointMake(0, -_forwardTrackOffset) height:[mapVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
             break;
         default:
             break;

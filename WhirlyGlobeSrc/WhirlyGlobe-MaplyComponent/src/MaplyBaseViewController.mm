@@ -1402,17 +1402,20 @@ static const float PerfOutputDelay = 15.0;
 }
 
 
-- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse lockType:(MaplyLocationLockType)lockType {
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse {
     if (_locationTracker)
         [self stopLocationTracking];
-    _locationTracker = [[MaplyLocationTracker alloc] initWithViewC:self Delegate:delegate useHeading:useHeading useCourse:useCourse lockType:lockType];
+    _locationTracker = [[MaplyLocationTracker alloc] initWithViewC:self Delegate:delegate useHeading:useHeading useCourse:useCourse];
 }
 
 - (void)changeLocationTrackingLockType:(MaplyLocationLockType)lockType {
+    [self changeLocationTrackingLockType:lockType forwardTrackOffset:0];
+}
+
+- (void)changeLocationTrackingLockType:(MaplyLocationLockType)lockType forwardTrackOffset:(int)forwardTrackOffset {
     if (!_locationTracker)
         return;
-    [_locationTracker changeLockType:lockType];
-    
+    [_locationTracker changeLockType:lockType forwardTrackOffset:forwardTrackOffset];
 }
 
 - (void)stopLocationTracking {
