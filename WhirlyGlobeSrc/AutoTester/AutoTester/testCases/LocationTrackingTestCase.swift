@@ -40,7 +40,7 @@ class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         
         setupLocationTracking(baseVC: globeVC)
         
-        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
+        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(2.3508, 48.8567), height: 0.5, heading: 0.0, time: 0.5)
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
@@ -49,7 +49,7 @@ class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         
         setupLocationTracking(baseVC: mapVC)
         
-        mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
+        mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(2.3508, 48.8567), height: 0.5, time: 1.0)
         mapVC.setZoomLimitsMin(0.0005, max: 4.0)
     }
     
