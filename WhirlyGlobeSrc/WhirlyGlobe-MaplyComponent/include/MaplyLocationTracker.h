@@ -27,6 +27,9 @@
 
 typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLockHeadingUp, MaplyLocationLockHeadingUpOffset} MaplyLocationLockType;
 
+/* @brief Implement the MaplyLocationTrackerDelegate protocol to receive location services callbacks.
+   @details This is to handle problems / failures further up the line.
+*/
 @protocol MaplyLocationTrackerDelegate
 
 - (void) locationManager:(CLLocationManager * __nonnull)manager didFailWithError:(NSError * __nonnull)error;
@@ -54,6 +57,8 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
  */
 - (void) changeLockType:(MaplyLocationLockType)lockType forwardTrackOffset:(int)forwardTrackOffset;
 
+/** @brief Stop the MaplyLocationTracker behavior and shut it down.
+ */
 - (void) teardown;
 
 @end
