@@ -495,6 +495,8 @@ public class GlobeGestureHandler
 					globeView.setRotQuat(newRotQuat);
 				}
 			}
+
+			possibleZoomOut = false;
 		}
 	}
 
@@ -540,8 +542,11 @@ public class GlobeGestureHandler
 
 	void cancelTilt()
 	{
+		startTilt = Double.MAX_VALUE;
 		startTiltY = Double.MAX_VALUE;
 	}
+
+	boolean possibleZoomOut = false;
 
 	// Where we receive events from the gl view
 	public boolean onTouch(View v, MotionEvent event) {
@@ -558,6 +563,9 @@ public class GlobeGestureHandler
 		if (allowTilt) {
 			if (event.getPointerCount() == 3) {
 				handleTilt(event);
+				gl.isActive = false;
+				sl.isActive = false;
+				possibleZoomOut = false;
 			} else {
 				cancelTilt();
 			}
@@ -578,9 +586,13 @@ public class GlobeGestureHandler
 			}
 		}
 
-		if (!sl.isActive && !gl.isActive && !slWasActive)
+		if (!sl.isActive && !gl.isActive && !slWasActive && !tiltWasActive)
 		{
-			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP))
+			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN))
+			{
+				possibleZoomOut = true;
+			}
+			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) && possibleZoomOut)
 			{
 				double newHeight = globeView.getHeight()*2.0;
 				newHeight = Math.min(newHeight,zoomLimitMax);
@@ -591,6 +603,7 @@ public class GlobeGestureHandler
 
 				sl.isActive = false;
 				gl.isActive = false;
+				possibleZoomOut = false;
 			}
 		}
 

@@ -106,6 +106,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_DirectionalLight_getPos
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in DirectionalLight::getPos()");
     }
+    
+    return NULL;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_setViewDependent
@@ -142,6 +144,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_DirectionalLight_getViewDepe
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in DirectionalLight::getViewDependent()");
     }
+    
+    return false;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_setAmbient
@@ -179,6 +183,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_DirectionalLight_getAmbient
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in DirectionalLight::getAmbient()");
     }
+    
+    return NULL;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_setDiffuse
@@ -216,6 +222,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_DirectionalLight_getDifusse
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in DirectionalLight::getDiffuse()");
     }
+
+    return NULL;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_setSpecular
@@ -253,4 +261,6 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_DirectionalLight_getSpecular
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in DirectionalLight::getSpecular()");
     }
+
+    return NULL;
 }

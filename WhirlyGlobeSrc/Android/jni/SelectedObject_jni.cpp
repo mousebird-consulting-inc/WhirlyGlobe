@@ -96,6 +96,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectedObject_getSelectID
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SelectedObject::getSelectID()");
     }
+    
+    return EmptyIdentity;
 }
 
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_SelectedObject_getDistIn3d
@@ -114,6 +116,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_SelectedObject_getDistIn3d
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SelectedObject::getDistIn3d()");
     }
+    
+    return 0.0;
 }
 
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_SelectedObject_getScreenDist
@@ -132,6 +136,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_SelectedObject_getScreenDist
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SelectedObject::getScreenDist()");
     }
+    
+    return 0.0;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SelectedObject_isPartOfCluster
@@ -150,4 +156,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SelectedObject_isPartOfClust
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SelectedObject::isPartOfCluster()");
     }
+    
+    return false;
 }

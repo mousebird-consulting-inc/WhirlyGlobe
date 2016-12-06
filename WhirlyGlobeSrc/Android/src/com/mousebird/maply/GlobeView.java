@@ -232,6 +232,8 @@ public class GlobeView extends View
 	public native Point3d prospectiveUp(Quaternion rot);
 	// Project a point from the screen to model space
 	public native Point3d pointUnproject(Point2d touch,Point2d frameSize,boolean normalized);
+	// If set, we can zoom closer to the globe
+	public native void setContinuousZoom(boolean continuousZoom);
 	
 	static
 	{

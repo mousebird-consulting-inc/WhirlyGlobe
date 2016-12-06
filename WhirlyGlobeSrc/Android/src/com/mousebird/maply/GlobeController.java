@@ -87,6 +87,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		globeView = new GlobeView(this,coordAdapter);
 		view = globeView;
 		globeView.northUp = true;
+		globeView.setContinuousZoom(true);
 		super.setClearColor(clearColor);
 
 		super.Init();

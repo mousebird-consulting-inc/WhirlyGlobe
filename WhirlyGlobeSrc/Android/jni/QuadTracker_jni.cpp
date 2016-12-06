@@ -166,4 +166,6 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadTracker_getMinLevel
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadTracker::getMinLevel()");
     }
+    
+    return -1;
 }

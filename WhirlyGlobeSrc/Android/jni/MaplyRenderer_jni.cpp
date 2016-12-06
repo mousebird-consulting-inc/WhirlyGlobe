@@ -238,6 +238,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MaplyRenderer_hasChanges
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MaplyRenderer::hasChanges()");
     }
+    
+    return false;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_render

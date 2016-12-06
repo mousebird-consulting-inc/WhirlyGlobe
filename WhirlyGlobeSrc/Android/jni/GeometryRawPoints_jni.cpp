@@ -77,6 +77,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_GeometryRawPoints_valid
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryRawPoints::valid()");
     }
+    
+    return false;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addIntValues
@@ -253,4 +255,6 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_GeometryRawPoints_addAttributeNa
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryRawPoints::addAttribute()");
     }
+    
+    return -1;
 }

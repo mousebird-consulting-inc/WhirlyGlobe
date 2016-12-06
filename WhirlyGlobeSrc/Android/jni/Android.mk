@@ -12,6 +12,7 @@ LOCAL_CPP_EXTENSION := .cxx .cpp .cc
 THIRD_PARTY := $(BASE_DIR)/third-party/
 THIRD_PARTY_INC := ../../third-party/
 PROTOBUF_DIR := ../../../third-party/protobuf/src/google/protobuf/
+LASZIP_DIR := ../../../third-party/laszip/src/
 LOCAL_C_INCLUDES += $(INCLUDE_DIR)
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/eigen/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/boost/
@@ -23,12 +24,20 @@ LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/glues/include/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/glues/source/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/glues/source/include/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/protobuf/src/
+LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/laszip/include/
+LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/laszip/include/laszip/
+LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/laszip/src/
 LOCAL_C_INCLUDES += $(PROTOBUF_DIR)/stubs/
 LOCAL_C_INCLUDES += $(PROTOBUF_DIR)/io/
 LOCAL_C_INCLUDES += jni/
 LOCAL_C_INCLUDES += ../../WhirlyGlobeSrc/local_libs/aaplus/
 
 LOCAL_MODULE    := Maply
+
+LASZIP_SRC_FILES := arithmeticdecoder.cpp arithmeticencoder.cpp arithmeticmodel.cpp integercompressor.cpp lasindex.cpp \
+        lasinterval.cpp lasquadtree.cpp lasreaditemcompressed_v1.cpp lasreaditemcompressed_v2.cpp lasreadpoint.cpp lasunzipper.cpp \
+        laswriteitemcompressed_v1.cpp laswriteitemcompressed_v2.cpp laswritepoint.cpp laszip.cpp laszip_dll.cpp laszipper.cpp
+LOCAL_SRC_FILES += $(LASZIP_SRC_FILES:%=$(LASZIP_DIR)/%)
 
 GOOGLE_PROTO_FILES := any.cc arena.cc arenastring.cc descriptor_database.cc descriptor.cc descriptor.pb.cc dynamic_message.cc extension_set_heavy.cc \
             extension_set.cc generated_message_reflection.cc generated_message_util.cc map_field.cc message_lite.cc message.cc \
@@ -126,7 +135,7 @@ MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp AngleAxis_jni.cpp \
 					GeneralDisplayAdapter_jni.cpp GeometryManager_jni.cpp GeometryRaw_jni.cpp GeometryRawPoints_jni.cpp GeometryInstance_jni.cpp \
                     			GeometryInfo_jni.cpp GlobeViewState_jni.cpp GlobeScene_jni.cpp GlobeView_jni.cpp \
 					GeoCoordSystem_jni.cpp Identifiable_jni.cpp ImageWrapper.cpp InternalLabel_jni.cpp InternalMarker_jni.cpp \
-					LabelInfoAndroid.cpp LabelInfo_jni.cpp LabelManager_jni.cpp LayoutManager_jni.cpp \
+					LabelInfoAndroid.cpp LabelInfo_jni.cpp LabelManager_jni.cpp LayoutManager_jni.cpp LAZQuadReader_jni.cpp \
 					MapboxVectorTileParser_jni.cpp MaplyRenderer_jni.cpp MapScene_jni.cpp MapView_jni.cpp Matrix3d_jni.cpp Matrix4d_jni.cpp \
 					MarkerInfo_jni.cpp MarkerManager_jni.cpp MapViewState_jni.cpp Moon_jni.cpp Material_jni.cpp \
 					Point2d_jni.cpp Point3d_jni.cpp Point4d_jni.cpp ParticleBatch_jni.cpp ParticleSystem_jni.cpp ParticleSystemManager_jni.cpp \

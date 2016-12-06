@@ -110,6 +110,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryManager::addGeometry()");
     }
+    
+    return EmptyIdentity;
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addBaseGeometry
@@ -144,6 +146,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addBaseGeometry
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryManager::addBaseGeometry()");
     }
+    
+    return EmptyIdentity;
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInstances
@@ -179,6 +183,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInst
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryManager::addGeometryInstances()");
     }
+    
+    return EmptyIdentity;
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryPoints
@@ -205,6 +211,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryPoin
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryManager::addGeometryPoints()");
     }
+    
+    return EmptyIdentity;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_enableGeometry

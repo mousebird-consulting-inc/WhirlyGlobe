@@ -121,6 +121,14 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointUnproject
 
 /*
  * Class:     com_mousebird_maply_GlobeView
+ * Method:    setContinuousZoom
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setContinuousZoom
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_GlobeView
  * Method:    nativeInit
  * Signature: ()V
  */

@@ -331,6 +331,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setHeight
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setContinuousZoom
+(JNIEnv *env, jobject obj, jboolean newVal)
+{
+    try
+    {
+        GlobeViewClassInfo *classInfo = GlobeViewClassInfo::getClassInfo();
+        WhirlyGlobe::GlobeView *view = classInfo->getObject(env,obj);
+        if (!view)
+            return;
+        
+        view->continuousZoom = newVal;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeView::setHeight()");
+    }
+}
+
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_makeRotationToGeoCoord
   (JNIEnv *env, jobject obj, jdouble x, jdouble y, jboolean northUp)
 {

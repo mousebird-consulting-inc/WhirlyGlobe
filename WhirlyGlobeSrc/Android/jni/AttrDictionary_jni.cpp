@@ -249,4 +249,6 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_AttrDictionary_toString
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setDouble()");
     }
+    
+    return NULL;
 }
