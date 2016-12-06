@@ -812,6 +812,49 @@ using namespace WhirlyGlobe;
     return true;
 }
 
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong {
+    
+    if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
+    {
+        NSLog(@"WhirlyGlobeViewController: Invalid location passed to animationToPosition:");
+        return false;
+    }
+    
+    [globeView cancelAnimation];
+
+    WhirlyGlobeViewControllerAnimationState *curState = [self getViewState];
+
+    WhirlyGlobeViewControllerAnimationState *nextState = [[WhirlyGlobeViewControllerAnimationState alloc] init];
+    nextState.heading = newHeading;
+    nextState.tilt = self.tilt;
+    nextState.pos = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
+    nextState.height = newHeight;
+    
+    [self setViewStateInternal:nextState updateWatchers:false];
+    
+    // Figure out where that point lands on the globe
+    MaplyCoordinate geoCoord;
+    CGPoint invPoint = CGPointMake(self.view.frame.size.width/2, self.view.frame.size.height/2+loc.y);
+    if (![self geoPointFromScreen:invPoint geoCoord:&geoCoord])
+    {
+        [self setViewStateInternal:curState updateWatchers:false];
+        return false;
+    }
+    
+    [self setViewStateInternal:curState updateWatchers:false];
+    
+    WhirlyGlobeViewControllerSimpleAnimationDelegate *anim = [[WhirlyGlobeViewControllerSimpleAnimationDelegate alloc] init];
+    anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(geoCoord);
+    anim.heading = newHeading;
+    anim.height = newHeight;
+    anim.tilt = [self tilt];
+    
+    [self animateWithDelegate:anim time:howLong];
+    
+    return true;
+    
+}
+
 // External facing set position
 - (void)setPosition:(WGCoordinate)newPos
 {
@@ -1457,12 +1500,21 @@ using namespace WhirlyGlobe;
 
 - (void)setViewState:(WhirlyGlobeViewControllerAnimationState *)animState
 {
+    [self setViewState:animState updateWatchers:true];
+}
+
+- (void)setViewState:(WhirlyGlobeViewControllerAnimationState *)animState updateWatchers:(bool)updateWatchers
+{
     [globeView cancelAnimation];
-    [self setViewStateInternal:animState];
+    [self setViewStateInternal:animState updateWatchers:updateWatchers];
 }
 
 - (void)setViewStateInternal:(WhirlyGlobeViewControllerAnimationState *)animState
 {
+    [self setViewStateInternal:animState updateWatchers:true];
+}
+
+- (void)setViewStateInternal:(WhirlyGlobeViewControllerAnimationState *)animState updateWatchers:(bool)updateWatchers {
     Vector3d startLoc(0,0,1);
     
     if (animState.screenPos.x >= 0.0 && animState.screenPos.y >= 0.0)
@@ -1517,7 +1569,7 @@ using namespace WhirlyGlobe;
     else
         globeView.tilt = animState.tilt;
     
-    globeView.rotQuat = finalQuat;
+    [globeView setRotQuat:finalQuat updateWatchers:updateWatchers];
 }
 
 - (WhirlyGlobeViewControllerAnimationState *)getViewState
