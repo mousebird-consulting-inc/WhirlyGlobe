@@ -364,6 +364,10 @@
                 [mapVC animateToPosition:location height:[mapVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
             break;
         case MaplyLocationLockHeadingUpOffset:
+            if (globeVC)
+                [globeVC animateToPosition:location onScreen:CGPointMake(0, -150) height:[globeVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
+            else if (mapVC)
+                [mapVC animateToPosition:location onScreen:CGPointMake(0, -150) height:[mapVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
             break;
         default:
             break;

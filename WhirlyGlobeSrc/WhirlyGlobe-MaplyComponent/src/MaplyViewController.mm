@@ -832,6 +832,40 @@ using namespace Maply;
     return true;
 }
 
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong {
+    if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
+    {
+        NSLog(@"MaplyViewController: Invalid location passed to animationToPosition:");
+        return false;
+    }
+    
+    [mapView cancelAnimation];
+    
+    MaplyViewControllerAnimationState *curState = [self getViewState];
+    
+    MaplyViewControllerAnimationState *nextState = [[MaplyViewControllerAnimationState alloc] init];
+    nextState.heading = newHeading;
+    nextState.pos = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
+    nextState.height = newHeight;
+
+    [self setViewStateInternal:nextState runViewUpdates:false];
+    
+    // FIXME: continue here
+    CGPoint invPoint = CGPointMake(self.view.frame.size.width/2, self.view.frame.size.height/2+loc.y);
+    MaplyCoordinate geoCoord = [self geoFromScreenPoint:invPoint];
+    
+    
+    [self setViewStateInternal:curState runViewUpdates:false];
+    
+    MaplyViewControllerSimpleAnimationDelegate *anim = [[MaplyViewControllerSimpleAnimationDelegate alloc] init];
+    anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(geoCoord);
+    anim.heading = newHeading;
+    anim.height = newHeight;
+    [self animateWithDelegate:anim time:howLong];
+    
+    return true;
+}
+
 // Only used for a flat view
 - (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(NSTimeInterval)howLong
 {
@@ -904,14 +938,23 @@ using namespace Maply;
     *height = loc.z();
 }
 
-
 - (void)setViewState:(MaplyViewControllerAnimationState *)animState
 {
+    [self setViewState:animState runViewUpdates:true];
+}
+
+- (void)setViewState:(MaplyViewControllerAnimationState *)animState runViewUpdates:(bool)runViewUpdates
+{
     [mapView cancelAnimation];
-    [self setViewStateInternal:animState];
+    [self setViewStateInternal:animState runViewUpdates:runViewUpdates];
 }
 
 - (void)setViewStateInternal:(MaplyViewControllerAnimationState *)animState
+{
+    [self setViewStateInternal:animState runViewUpdates:true];
+}
+
+- (void)setViewStateInternal:(MaplyViewControllerAnimationState *)animState runViewUpdates:(bool)runViewUpdates
 {
     
     Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(animState.pos.x, animState.pos.y)));
@@ -931,7 +974,7 @@ using namespace Maply;
     }
     Point3d loc3d = loc.cast<double>();
     [mapView setLoc:loc3d runUpdates:false];
-    [mapView setRotAngle:-animState.heading];
+    [mapView setRotAngle:-animState.heading runViewUpdates:runViewUpdates];
 }
 
 - (MaplyViewControllerAnimationState *)getViewState {

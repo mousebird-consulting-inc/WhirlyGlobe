@@ -360,6 +360,16 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
  */
 - (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(NSTimeInterval)howLong;
 
+/** @brief Animate to the given position, screen position, heading and height over time.
+ @details If it's impossible to move newPos to loc, then nothing happens.
+ @param newPos A coordinate in geographic (lon/lat radians)
+ @param loc The location on the screen where we'd like it to go.
+ @param newHeight New height to animate to.
+ @param newHeading New heading to finish on.
+ @param howLong A time interval in seconds.
+ */
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong;
+
 /** @brief Set the center of the screen to the given position immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.
   */
