@@ -52,6 +52,7 @@
                 {
                     NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
                     wgVecObj.userObject = vecName;
+                    wgVecObj.selectable = true;
                     [self.compList addObject:wgVecObj];
                     [baseVC addVectors:[NSArray arrayWithObject:wgVecObj] desc:vectorDict];
                     [baseVC addSelectionVectors:[NSArray arrayWithObject:wgVecObj]];
