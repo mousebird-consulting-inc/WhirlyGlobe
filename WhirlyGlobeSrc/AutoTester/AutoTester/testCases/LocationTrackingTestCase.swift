@@ -25,15 +25,12 @@ class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         
         segCtrl = UISegmentedControl(items: ["No Lock", "North Up", "Heading Up", "Heading Up Forward"])
         segCtrl?.selectedSegmentIndex = 0
-        segCtrl?.frame = CGRect(x: 0, y: 0, width: 560, height: 40)
+        segCtrl?.frame = CGRect(x: 20, y: 90, width: 560, height: 40)
         segCtrl?.addTarget(self, action: #selector(onSegChange), for: .valueChanged)
-        
-        let bgView = UIView(frame: CGRect(x: 20, y: 90, width: 560, height: 40))
-        bgView.backgroundColor = UIColor.white
-        bgView.layer.cornerRadius = 5
-        baseVC.view.addSubview(bgView)
-        bgView.addSubview(segCtrl!)
-        
+        segCtrl?.backgroundColor = UIColor.white;
+        segCtrl?.layer.cornerRadius = 4
+        segCtrl?.clipsToBounds = true
+        baseVC.view.addSubview(segCtrl!)
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
@@ -53,7 +50,6 @@ class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         setupLocationTracking(baseVC: mapVC)
         
         mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
-        //mapVC.setZoomLimitsMin(0.01, max: 4.0)
         mapVC.setZoomLimitsMin(0.0005, max: 4.0)
     }
     
@@ -69,11 +65,11 @@ class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         }
     }
     
-    func locationManager(_ manager: CLLocationManager!, didFailWithError error: Error!) {
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Location Manager Error", error)
     }
     
-    func locationManager(_ manager: CLLocationManager!, didChange status: CLAuthorizationStatus) {
+    func locationManager(_ manager: CLLocationManager, didChange status: CLAuthorizationStatus) {
         print("Location Manager status change", status);
     }
 }
