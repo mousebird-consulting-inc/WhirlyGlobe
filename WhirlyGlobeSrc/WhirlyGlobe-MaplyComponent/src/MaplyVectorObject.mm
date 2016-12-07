@@ -1421,6 +1421,7 @@ public:
     }
 }
 
+// For some reason this is not appearing in the build
 - (void)subdivideToFlatGreatCircle:(float)epsilon
 {
     FakeGeocentricDisplayAdapter adapter;
