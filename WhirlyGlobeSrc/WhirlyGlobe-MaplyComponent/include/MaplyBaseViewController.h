@@ -954,7 +954,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
     @param useHeading Use location services heading information (requires physical magnetometer)
     @param useCourse Use location services course information as fallback if heading unavailable
  */
-- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse;
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate;
 
 /** @brief Change lock type for location tracking
     @param lockType The MaplyLocationLockType value for lock behavior
