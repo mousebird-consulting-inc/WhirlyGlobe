@@ -1,5 +1,5 @@
 //
-//  LocationTrackingTestCase.swift
+//  LocationTrackingSimTestCase.swift
 //  AutoTester
 //
 //  Created by Ranen Ghosh on 2016-11-23.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
+class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
 
     var segCtrl: UISegmentedControl?
     var simPointIndex: Int?
@@ -17,7 +17,7 @@ class LocationTrackingTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
     override init() {
         super.init()
         
-        self.name = "Location Tracking Test Case"
+        self.name = "Location Tracking Simulated Test Case"
         self.captureDelay = 4
         self.implementations = [.globe, .map]
     }
