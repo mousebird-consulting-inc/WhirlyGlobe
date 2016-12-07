@@ -66,7 +66,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		FullAnimationTest(),
 		ActiveObjectTestCase(),
 		AnimationDelegateTestCase(),
-		LocationTrackingTestCase(),
+		LocationTrackingSimTestCase(),
+		LocationTrackingRealTestCase(),
 
 		Issue721TestCase()
 	]
