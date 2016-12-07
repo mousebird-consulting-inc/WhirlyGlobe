@@ -20,10 +20,18 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
+#import "MaplyCoordinate.h"
 
 #define LOC_TRACKER_POS_MARKER_SIZE 32
 
 @class MaplyBaseViewController;
+
+typedef struct
+{
+    float lonDeg;
+    float latDeg;
+    float headingDeg;
+} MaplyLocationTrackerSimulationPoint;
 
 typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLockHeadingUp, MaplyLocationLockHeadingUpOffset} MaplyLocationLockType;
 
@@ -35,6 +43,10 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
 - (void) locationManager:(CLLocationManager * __nonnull)manager didFailWithError:(NSError * __nonnull)error;
 
 - (void) locationManager:(CLLocationManager * __nonnull)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status;
+
+@optional
+
+- (MaplyLocationTrackerSimulationPoint)getSimulationPoint;
 
 @end
 
@@ -49,7 +61,7 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
  @param useHeading Use location services heading information (requires physical magnetometer)
  @param useCourse Use location services course information as fallback if heading unavailable
  */
-- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC Delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse;
+- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC Delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate;
 
 /** @brief Change lock type
  @param lockType The MaplyLocationLockType value for lock behavior
