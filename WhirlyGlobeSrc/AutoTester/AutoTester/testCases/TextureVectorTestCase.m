@@ -19,7 +19,7 @@
     if (self = [super init]) {
         self.name = @"Textured Vectors";
         self.captureDelay = 5;
-        self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
+        self.implementations = MaplyTestCaseImplementationGlobe;
     }
     
     return self;
@@ -42,17 +42,18 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
             MaplyVectorObject *countryVec = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];
             if (countryVec)
             {
+                MaplyVectorObject *tessObj;
                 // We want each individual loop so we can center them properly
                 for (MaplyVectorObject *thisVecObj in [countryVec splitVectors])
                 {
+                    MaplyVectorObject *vecObj = [thisVecObj deepCopy2];
+                    // This will the center of the texture application
+                    MaplyCoordinate center = [vecObj centroid];
+                    vecObj.attributes[kMaplyVecCenterX] = @(center.x);
+                    vecObj.attributes[kMaplyVecCenterY] = @(center.y);
+
                     if (globeMode)
                     {
-                        MaplyVectorObject *vecObj = [thisVecObj deepCopy2];
-                        // This will the center of the texture application
-                        MaplyCoordinate center = [vecObj centroid];
-                        vecObj.attributes[kMaplyVecCenterX] = @(center.x);
-                        vecObj.attributes[kMaplyVecCenterY] = @(center.y);
-                     
                         // We adjust the grid clipping size based on the latitude
                         // This helps a lot near the poles.  Otherwise we're way oversampling
                         float thisClipGridLon = ClipGridSize;
@@ -63,14 +64,14 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
                         
                         // We clip the vector to a grid and then tesselate the results
                         // This forms the vector closer to the globe, make it look nicer
-                        MaplyVectorObject *tessObj = [[vecObj clipToGrid:CGSizeMake(thisClipGridLon, ClipGridSize)] tesselate];
-                        
-                        // Don't add them yet, it's more efficient later
-                        if (tessObj)
-                            [tessObjs addObject:tessObj];
+                        tessObj = [[vecObj clipToGrid:CGSizeMake(thisClipGridLon, ClipGridSize)] tesselate];
                     } else {
-                        [tessObjs addObject:thisVecObj];
+                        tessObj = [vecObj tesselate];
                     }
+
+                    // Don't add them yet, it's more efficient later
+                    if (tessObj)
+                        [tessObjs addObject:tessObj];
                 }
             }
         }
