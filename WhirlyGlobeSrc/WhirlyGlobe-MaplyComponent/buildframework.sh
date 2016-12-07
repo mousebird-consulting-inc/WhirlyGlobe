@@ -47,6 +47,7 @@ ln -s Versions/Current/lib${FRAMEWORK_NAME}.a $FRAMEWORK_DIR/${FRAMEWORK_NAME}
 # combine lib files for various platforms into one
 echo "Framework: Creating library..."
 # lipo -create build/Debug-iphoneos/libWhirlyGlobeLib.a build/Debug-iphonesimulator/libWhirlyGlobeLib.a -output "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
+echo "  Linking libraries in $BUILT_PRODUCTS_IPHONEOS and $BUILT_PRODUCTS_SIMULATOR"
 lipo -create $BUILT_PRODUCTS_IPHONEOS/WhirlyGlobeMaplyComponent.framework/WhirlyGlobeMaplyComponent $BUILT_PRODUCTS_SIMULATOR/WhirlyGlobeMaplyComponent.framework/WhirlyGlobeMaplyComponent -output "$FRAMEWORK_DIR/Versions/Current/lib${FRAMEWORK_NAME}.a"
 
 # lipo -create "${PROJECT_DIR}/build/${BUILD_STYLE}-iphoneos/lib${PROJECT_NAME}.a" "${PROJECT_DIR}/build/${BUILD_STYLE}-iphonesimulator/lib${PROJECT_NAME}.a" -o "$FRAMEWORK_DIR/Versions/Current/$FRAMEWORK_NAME"
