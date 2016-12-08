@@ -37,3 +37,6 @@
 [submodule "third-party/protobuf"]
 	path = third-party/protobuf
 	url = https://github.com/mousebird/protobuf.git
+[submodule "third-party/laszip"]
+	path = third-party/laszip
+	url = https://github.com/mousebird/LASzip

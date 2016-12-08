@@ -57,6 +57,30 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_nativeSetSingleL
 
 /*
  * Class:     com_mousebird_maply_QuadPagingLayer
+ * Method:    setMaxTiles
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setMaxTiles
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadPagingLayer
+ * Method:    setTileHeightRange
+ * Signature: (DD)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setTileHeightRange
+  (JNIEnv *, jobject, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_QuadPagingLayer
+ * Method:    setUseParentTileBounds
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setUseParentTileBounds
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_QuadPagingLayer
  * Method:    setImportance
  * Signature: (D)V
  */

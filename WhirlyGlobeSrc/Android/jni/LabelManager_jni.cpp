@@ -127,6 +127,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelManager::addLabels()");
 	}
+    
+    return EmptyIdentity;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_removeLabels

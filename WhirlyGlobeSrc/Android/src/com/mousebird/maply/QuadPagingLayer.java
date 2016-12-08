@@ -691,6 +691,23 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 	public native void setUseTargetZoomLevel(boolean newVal);
 	
 	public native void nativeSetSingleLevelLoading(boolean newVal);
+
+	/**
+	 * Set the maximum number of tiles we'll try to load at once.
+     */
+	public native void setMaxTiles(int numTiles);
+
+	/**
+	 * Set the height range for tiles that may be loaded.
+	 * This is for the whole database.  There's another way to specify it per tile.
+     */
+	public native void setTileHeightRange(double minZ,double maxZ);
+
+	/**
+	 * If set we'll use the parent tile bounds for loading.  This is useful when
+	 * tiles are not additive.  That is, if higher res geometyr replaces lower res.
+     */
+	public native void setUseParentTileBounds(boolean parentBounds);
 	
 	/**
 	 * This is the number of pixels we'll want a tile to be before we load it.

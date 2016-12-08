@@ -115,6 +115,8 @@ JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_ShapeInfo_getColor
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::getColor()");
     }
+    
+    return NULL;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setLineWidth
@@ -143,13 +145,15 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_ShapeInfo_getLineWidth
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
         WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
         if (!inst)
-            return -1;
+            return 0.0;
         return inst->getLineWidth();
     }
     catch(...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::getLineWidth()");
     }
+    
+    return 0.0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setInsideOut
@@ -184,6 +188,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ShapeInfo_getInsideOut
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::getInsideOut()");
     }
+    
+    return false;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setZBufferRead
@@ -218,6 +224,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ShapeInfo_getZBufferRead
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::getZBufferRead()");
     }
+    
+    return false;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setZBufferWrite
@@ -254,6 +262,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ShapeInfo_getZBufferWrite
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::getZBufferWrite()");
     }
 
+    return false;
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ShapeInfo_getCenter
@@ -274,6 +283,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ShapeInfo_getCenter
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::getCenter()");
     }
+    
+    return NULL;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setCenter

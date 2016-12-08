@@ -46,6 +46,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shape_isSelectable
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::isSelectable()");
     }
+    
+    return false;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setSelectable
@@ -94,6 +96,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shape_getSelectID
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::getSelectID()");
     }
+    
+    return -1;
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shape_getUseColor
@@ -110,6 +114,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shape_getUseColor
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::getUseColor()");
     }
+    
+    return false;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setUseColor
@@ -170,5 +176,7 @@ JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_Shape_getColor
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::getColor()");
     }
+    
+    return NULL;
 }
 

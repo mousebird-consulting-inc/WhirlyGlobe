@@ -73,6 +73,22 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_getHeight
 
 /*
  * Class:     com_mousebird_maply_GlobeView
+ * Method:    getTilt
+ * Signature: ()D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_getTilt
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_GlobeView
+ * Method:    setTilt
+ * Signature: (D)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setTilt
+  (JNIEnv *, jobject, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_GlobeView
  * Method:    setHeight
  * Signature: (D)V
  */
@@ -102,6 +118,14 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_prospectiveUp
  */
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointUnproject
   (JNIEnv *, jobject, jobject, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_GlobeView
+ * Method:    setContinuousZoom
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setContinuousZoom
+  (JNIEnv *, jobject, jboolean);
 
 /*
  * Class:     com_mousebird_maply_GlobeView
