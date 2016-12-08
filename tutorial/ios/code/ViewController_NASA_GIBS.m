@@ -73,24 +73,24 @@ const bool DoOverlay = true;
         NSString *baseCacheDir =
         [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
          objectAtIndex:0];
-        NSString *aerialTilesCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",
+        NSString *tilesCacheDir = [NSString stringWithFormat:@"%@/tiles/",
                                          baseCacheDir];
 
         
 // A set of various base layers to select from. Remember to adjust the maxZoom factor appropriately
-        // http://otile1.mqcdn.com/tiles/1.0.0/sat/
+        // http://tile.stamen.com/terrain/
         // http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/2015-05-07/GoogleMapsCompatible_Level8/{z}/{y}/{x} - jpg
         // http://map1.vis.earthdata.nasa.gov/wmts-webmerc/MODIS_Terra_CorrectedReflectance_TrueColor/default/2015-06-07/GoogleMapsCompatible_Level9/{z}/{y}/{x}  - jpg
         
         int maxZoom = 18;
         
-        // MapQuest Open Aerial Tiles, Courtesy Of Mapquest
-        // Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
+        // Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.
+        // Data by OpenStreetMap under the Open Data Commons Open Database License.
         MaplyRemoteTileSource *tileSource =
         [[MaplyRemoteTileSource alloc]
-         initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/sat/"
+         initWithBaseURL:@"http://tile.stamen.com/terrain/"
          ext:@"jpg" minZoom:0 maxZoom:maxZoom];
-        tileSource.cacheDir = aerialTilesCacheDir;
+        tileSource.cacheDir = tilesCacheDir;
         layer = [[MaplyQuadImageTilesLayer alloc]
                  initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
     }

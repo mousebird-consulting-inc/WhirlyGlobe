@@ -7,7 +7,7 @@ The tutorials provide simple examples for much WhirlyGlobe-Maply functionality. 
 
 I give you: The WhirlyGlobe-Maply Component Tester!
 
-![MapQuest Open Satellite]({{ site.baseurl }}/images/tutorial/component_tester_1.png)
+![Component Tester]({{ site.baseurl }}/images/tutorial/component_tester_1.png)
 
 Turning on every single feature in the app is... colorful.
 

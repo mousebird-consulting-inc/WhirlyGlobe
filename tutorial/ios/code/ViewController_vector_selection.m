@@ -66,17 +66,17 @@ const bool DoGlobe = true;
         NSString *baseCacheDir =
         [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
          objectAtIndex:0];
-        NSString *aerialTilesCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",
+        NSString *tilesCacheDir = [NSString stringWithFormat:@"%@/tiles/",
                                          baseCacheDir];
         int maxZoom = 18;
         
-        // MapQuest Open Aerial Tiles, Courtesy Of Mapquest
-        // Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
+        // Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.
+        // Data by OpenStreetMap under the Open Data Commons Open Database License.
         MaplyRemoteTileSource *tileSource =
         [[MaplyRemoteTileSource alloc]
-         initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/sat/"
+         initWithBaseURL:@"http://tile.stamen.com/terrain/"
          ext:@"png" minZoom:0 maxZoom:maxZoom];
-        tileSource.cacheDir = aerialTilesCacheDir;
+        tileSource.cacheDir = tilesCacheDir;
         layer = [[MaplyQuadImageTilesLayer alloc]
                  initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
     }

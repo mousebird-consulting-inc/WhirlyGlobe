@@ -77,7 +77,7 @@ const bool DoGlobe = true;
         NSString *baseCacheDir =
         [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)
          objectAtIndex:0];
-        NSString *aerialTilesCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",
+        NSString *tilesCacheDir = [NSString stringWithFormat:@"%@/tiles/",
                                          baseCacheDir];
         int maxZoom = 17;
         
@@ -86,14 +86,14 @@ const bool DoGlobe = true;
         // http://services.arcgisonline.com/arcgis/rest/services/World_Physical_Map/MapServer
         // http://services.arcgisonline.com/arcgis/rest/services/Ocean_Basemap/MapServer
         
-    // MapQuest Open Aerial Tiles, Courtesy Of Mapquest
-        // http://otile1.mqcdn.com/tiles/1.0.0/sat/
+    // Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.
+        // http://tile.stamen.com/terrain/
         
         MaplyRemoteTileSource *tileSource =
         [[MaplyRemoteTileSource alloc]
          initWithBaseURL:@"http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}"
          ext:@"png" minZoom:0 maxZoom:maxZoom];
-        tileSource.cacheDir = aerialTilesCacheDir;
+        tileSource.cacheDir = tilesCacheDir;
         layer = [[MaplyQuadImageTilesLayer alloc]
                  initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
     }

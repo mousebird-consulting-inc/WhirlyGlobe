@@ -49,20 +49,20 @@ MaplyViewControllerDelegate {
 		else {
 			// Because this is a remote tile set, we'll want a cache directory
 			let baseCacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
-			let aerialTilesCacheDir = "\(baseCacheDir)/osmtiles/"
+			let tilesCacheDir = "\(baseCacheDir)/tiles/"
 
 			// A set of various base layers to select from. Remember to adjust the maxZoom factor appropriately
-			// http://otile1.mqcdn.com/tiles/1.0.0/sat/
+			// http://tile.stamen.com/terrain/
 			// http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/2015-05-07/GoogleMapsCompatible_Level8/{z}/{y}/{x} - jpg
 			// http://map1.vis.earthdata.nasa.gov/wmts-webmerc/MODIS_Terra_CorrectedReflectance_TrueColor/default/2015-06-07/GoogleMapsCompatible_Level9/{z}/{y}/{x}  - jpg
 
 			let maxZoom = Int32(18)
 
-			// MapQuest Open Aerial Tiles, Courtesy Of Mapquest
-			// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
+			// Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.
+			// Data by OpenStreetMap under the Open Data Commons Open Database License.
 
 			guard let tileSource = MaplyRemoteTileSource(
-				baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
+				baseURL: "http://tile.stamen.com/terrain/",
 				ext: "jpg",
 				minZoom: 0,
 				maxZoom: maxZoom)
@@ -70,7 +70,7 @@ MaplyViewControllerDelegate {
 				print("Can't create the remote tile source")
 				return
 			}
-			tileSource.cacheDir = aerialTilesCacheDir
+			tileSource.cacheDir = tilesCacheDir
 			layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
 		}
 

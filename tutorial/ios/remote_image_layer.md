@@ -5,9 +5,9 @@ layout: ios-tutorial
 
 The Geography Class example only has a few levels of detail.  We can't zoom in very close and if we could it would take up way too much space on the device.  Thus, we need a way to look at tiled image maps sitting on a server.
 
-![MapQuest Open Satellite]({{ site.baseurl }}/images/tutorial/remote_image_layer_1.png)
+![Stamen Terrain]({{ site.baseurl }}/images/tutorial/remote_image_layer_1.png)
 
-Let's add a remote tile source, and take a closer look at the Earth. We'll use the MapQuest Open Aerial tile set. If you end up wanting to use these tiles in an app that you distribute, check out the [requirements](http://developer.mapquest.com/web/products/open/map).
+Let's add a remote tile source, and take a closer look at the Earth. We'll use the Stamen Terrain tile set. If you end up wanting to use these tiles in an app that you distribute, check out the [requirements](http://maps.stamen.com/#terrain). (Full attribution: Map tiles by [Stamen Design](http://stamen.com/), under [CC BY 3.0](http://creativecommons.org/licenses/by/3.0). Data by [OpenStreetMap](http://openstreetmap.org/), under [ODbL](http://www.openstreetmap.org/copyright).)
 
 You'll need to have done the [Local Image Layer](local_image_tiles.html) tutorial.  Open your HelloEarth project and get ready.
 
@@ -64,17 +64,17 @@ if (useLocalTiles)
   NSString *baseCacheDir = 
     [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) 
             objectAtIndex:0];
-  NSString *aerialTilesCacheDir = [NSString stringWithFormat:@"%@/osmtiles/",
+  NSString *tilesCacheDir = [NSString stringWithFormat:@"%@/stamentiles/",
                                                 baseCacheDir];
   int maxZoom = 18;
 
-  // MapQuest Open Aerial Tiles, Courtesy Of Mapquest
-  // Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
+  // Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.
+  // Data by OpenStreetMap under the Open Data Commons Open Database License.
   MaplyRemoteTileSource *tileSource = 
     [[MaplyRemoteTileSource alloc] 
-            initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/sat/" 
+            initWithBaseURL:@"http://tile.stamen.com/terrain/" 
             ext:@"png" minZoom:0 maxZoom:maxZoom];
-  tileSource.cacheDir = aerialTilesCacheDir;
+  tileSource.cacheDir = tilesCacheDir;
   layer = [[MaplyQuadImageTilesLayer alloc] 
             initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
 }
@@ -98,20 +98,20 @@ if useLocalTiles {
 else {
     // Because this is a remote tile set, we'll want a cache directory
     let baseCacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
-    let aerialTilesCacheDir = "\(baseCacheDir)/osmtiles/"
+    let tilesCacheDir = "\(baseCacheDir)/stamentiles/"
     let maxZoom = Int32(18)
 
-    // MapQuest Open Aerial Tiles, Courtesy Of Mapquest
-    // Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
+    // Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.
+    // Data by OpenStreetMap under the Open Data Commons Open Database License.
     guard let tileSource = MaplyRemoteTileSource(
-            baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
+            baseURL: "http://tile.stamen.com/terrain/",
             ext: "png",
             minZoom: 0, 
             maxZoom: maxZoom) else {
         // can't create remote tile source
         return
     }
-    tileSource.cacheDir = aerialTilesCacheDir
+    tileSource.cacheDir = tilesCacheDir
     layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
 }
   {% endhighlight %}
@@ -132,7 +132,7 @@ And finally, if you're running iOS 9 or later, you'll need to configure the app 
 
 Give it a try.  It's even more fun on a device. You can zoom in to your heart's content, provided your heart doesn't desire sub­meter resolution.
 
-![MapQuest Areal in Simulator]({{ site.baseurl }}/images/tutorial/remote_image_layer_2.png)
+![Stamen Terrain in Simulator]({{ site.baseurl }}/images/tutorial/remote_image_layer_2.png)
 
 All that with just a few lines of code.  WhirlyGlobe-Maply is doing a lot of work behind the scenes.  As you move around it pulls in new data, caches it to the local device, displays it, gets rid of the old data and so forth.  But setting all this up is easy.
 

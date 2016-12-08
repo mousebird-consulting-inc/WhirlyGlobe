@@ -40,21 +40,21 @@ Open ViewController. Now let's find where to add the image layer URL.  Scroll do
 
 {% multiple_code %}
   {% highlight objc %}
-// MapQuest Open Aerial Tiles, Courtesy Of Mapquest
-// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
+// Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.
+// Data by OpenStreetMap under the Open Data Commons Open Database License.
 MaplyRemoteTileSource *tileSource =
 [[MaplyRemoteTileSource alloc]
-    initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/sat/"
+    initWithBaseURL:@"http://tile.stamen.com/terrain/"
     ext:@"png" minZoom:0 maxZoom:maxZoom];
   {% endhighlight %}
 
   {----}
 
   {% highlight swift %}
-// MapQuest Open Aerial Tiles, Courtesy Of Mapquest
-// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
+// Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.
+// Data by OpenStreetMap under the Open Data Commons Open Database License.
 let tileSource = MaplyRemoteTileSource(
-                    baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/",
+                    baseURL: "http://tile.stamen.com/terrain/",
                     ext: "png",
                     minZoom: 0, maxZoom: maxZoom)
   {% endhighlight %}

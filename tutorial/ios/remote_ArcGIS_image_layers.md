@@ -37,7 +37,7 @@ First up, gather the files list above, build them and you should see something l
 So first thing we're going to load up one of ArcGIS's base maps, the beautiful & revered [National Geographic World Map](http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer).  All we have to do change the URL reference in the existing code & the new map should appear, as if by magic.  Find the following code in viewDidLoad, and replace the URL string in the MaplyRemoteTileSource designated initializer with the URL of the ArcGIS webpage below;
 
 {% highlight objc %}
-// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
+// Data by OpenStreetMap under the Open Data Commons Open Database License.
 MaplyRemoteTileSource *tileSource =  [[MaplyRemoteTileSource alloc]
 initWithBaseURL:@"http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServ/tile/{z}/{y}/{x}"
 ext:@"png" minZoom:0 maxZoom:maxZoom];
