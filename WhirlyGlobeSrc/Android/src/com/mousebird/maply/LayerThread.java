@@ -262,6 +262,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	// Remove a layer.  Do this on the layer thread
 	public void removeLayer(final Layer layer)
 	{
+		if (layer == null)
+			return;
+
 		addTask(new Runnable()
 		{
 			@Override

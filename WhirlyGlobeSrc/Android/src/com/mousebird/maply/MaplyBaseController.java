@@ -855,7 +855,7 @@ public class MaplyBaseController
 	 */
 	public boolean screenPointFromGeoBatch(double[] inX,double[] inY,double[] inZ,double[] outX,double[] outY)
 	{
-		if (coordAdapter == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return false;
 		Point2d frameSize = renderWrapper.maplyRender.frameSize;
 
@@ -874,7 +874,7 @@ public class MaplyBaseController
 	 */
 	public boolean geoPointFromScreenBatch(double[] inX,double[] inY,double[] outX,double[] outY)
 	{
-		if (coordAdapter == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return false;
 		Point2d frameSize = renderWrapper.maplyRender.frameSize;
 
@@ -903,7 +903,7 @@ public class MaplyBaseController
 	 */
 	public double heightForMapScale(double scale)
 	{
-		if (view == null || renderWrapper == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return 0.0;
 
 		return view.heightForMapScale(scale,renderWrapper.maplyRender.frameSize.getX(),renderWrapper.maplyRender.frameSize.getY());
@@ -917,7 +917,7 @@ public class MaplyBaseController
 	 */
 	public double currentMapZoom(Point2d geoCoord)
 	{
-		if (view == null || renderWrapper == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return 0.0;
 
 		return view.currentMapZoom(renderWrapper.maplyRender.frameSize.getX(),renderWrapper.maplyRender.frameSize.getY(),geoCoord.getY());
@@ -930,7 +930,7 @@ public class MaplyBaseController
 	 */
 	public double currentMapScale()
 	{
-		if (view == null || renderWrapper == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return 0.0;
 
 		return view.currentMapScale(renderWrapper.maplyRender.frameSize.getX(),renderWrapper.maplyRender.frameSize.getY());
