@@ -25,6 +25,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.util.Log;
 
 /**
  * Implements the various gestures we need and handles conflict between them.
@@ -204,6 +205,8 @@ public class GlobeGestureHandler
 					maplyControl.globeView.setLoc(new Point3d(newPos.getX(),newPos.getY(),newZ));
 				}
 //				Log.d("Maply","Zoom: " + maplyControl.mapView.getLoc().getZ() + " Scale: " + scale);
+				if (Math.abs(startDist - curDist) > 10)
+					possibleZoomOut = false;
 				return true;
 			}
 
@@ -493,10 +496,14 @@ public class GlobeGestureHandler
 					AngleAxis rotQuat = new AngleAxis(-diffRot, startRotAxis);
 					Quaternion newRotQuat = startRotQuat.multiply(rotQuat);
 					globeView.setRotQuat(newRotQuat);
+
+					// Only if the user moved more than 3 degrees, otherwise we might still be zooming
+					if (Math.abs(diffRot) > 3.0*Math.PI/180.0) {
+						possibleZoomOut = false;
+//						Log.d("Maply","Event: Canceling possible zoom out.");
+					}
 				}
 			}
-
-			possibleZoomOut = false;
 		}
 	}
 
@@ -506,9 +513,10 @@ public class GlobeGestureHandler
 		startRot = Double.MAX_VALUE;
 		startRotAxis = null;
 		startRotQuat = null;
+		sl.isActive = false;
 	}
 
-	double startTilt = 0.0;
+	double startTilt = Double.MAX_VALUE;
 	double startTiltY = Double.MAX_VALUE;
 
 	void handleTilt(MotionEvent event)
@@ -571,9 +579,12 @@ public class GlobeGestureHandler
 			}
 		}
 
+//		Log.d("Maply","Event = " + event);
+
+		sgd.onTouchEvent(event);
+
 		if (allowRotate) {
-			if (event.getPointerCount() == 2) {
-				sgd.onTouchEvent(event);
+			if (event.getPointerCount() == 2 && event.getActionMasked() == MotionEvent.ACTION_MOVE || event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
 				handleRotation(event);
 			} else {
 				cancelRotation();
@@ -590,21 +601,22 @@ public class GlobeGestureHandler
 		{
 			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN))
 			{
+//				Log.d("Maply", "Event: Starting possible zoom out");
 				possibleZoomOut = true;
 			}
-			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) && possibleZoomOut)
-			{
-				double newHeight = globeView.getHeight()*2.0;
-				newHeight = Math.min(newHeight,zoomLimitMax);
-				newHeight = Math.max(newHeight,zoomLimitMin);
+		}
+		if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP && possibleZoomOut)
+		{
+			double newHeight = globeView.getHeight()*2.0;
+			newHeight = Math.min(newHeight,zoomLimitMax);
+			newHeight = Math.max(newHeight,zoomLimitMin);
 
-				// Now kick off the animation
-				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender, globeView.getRotQuat(), newHeight, 0.5));
+			// Now kick off the animation
+			globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender, globeView.getRotQuat(), newHeight, 0.5));
 
-				sl.isActive = false;
-				gl.isActive = false;
-				possibleZoomOut = false;
-			}
+			sl.isActive = false;
+			gl.isActive = false;
+			possibleZoomOut = false;
 		}
 
 		if (!glWasActive && gl.isActive)
