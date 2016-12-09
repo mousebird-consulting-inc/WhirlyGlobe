@@ -105,6 +105,9 @@ public class GeomPointsTestCase extends MaplyTestCase {
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
         CartoDBMapTestCase baseTestCase = new CartoDBMapTestCase(this.getActivity());
         baseTestCase.setUpWithGlobe(globeVC);
+        globeVC.setAllowTilt(true);
+        globeVC.setKeepNorthUp(false);
+
         addPoints(globeVC);
 
         Point2d geoPt = Point2d.FromDegrees(-122.416667, 37.783333);
