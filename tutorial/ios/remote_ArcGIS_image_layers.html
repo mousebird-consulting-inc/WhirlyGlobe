@@ -139,7 +139,7 @@
 <h3 id="arcgis-base-map---national-geographic-world-map">ArcGIS Base Map - National Geographic World Map</h3>
 <p>So first thing we’re going to load up one of ArcGIS’s base maps, the beautiful &amp; revered <a href="http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer">National Geographic World Map</a>.  All we have to do change the URL reference in the existing code &amp; the new map should appear, as if by magic.  Find the following code in viewDidLoad, and replace the URL string in the MaplyRemoteTileSource designated initializer with the URL of the ArcGIS webpage below;</p>
 
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// Data by OpenStreetMap under the Open Data Commons Open Database License.
 </span><span class="n">MaplyRemoteTileSource</span> <span class="o">*</span><span class="n">tileSource</span> <span class="o">=</span>  <span class="p">[[</span><span class="n">MaplyRemoteTileSource</span> <span class="nf">alloc</span><span class="p">]</span>
 <span class="nf">initWithBaseURL</span><span class="p">:</span><span class="s">@"http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServ/tile/{z}/{y}/{x}"</span>
 <span class="nf">ext</span><span class="p">:</span><span class="s">@"png"</span> <span class="n">minZoom</span><span class="o">:</span><span class="mi">0</span> <span class="n">maxZoom</span><span class="o">:</span><span class="n">maxZoom</span><span class="p">];</span></code></pre></figure>
@@ -465,6 +465,9 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/hello_earth.html">Hello Earth Project</a></li>
                       
                       
@@ -588,7 +591,13 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_source.html">Source Distribution</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -903,7 +912,13 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_cocoapod.html">Cocoapods</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1343,7 +1358,16 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/your_first_globe.html">Your First Globe</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1777,7 +1801,16 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_image_layer.html">Remote Image Layer</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2277,7 +2310,16 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_markers.html">Screen Markers</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2609,6 +2651,9 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/spheres.html">Spheres</a></li>
                       
                       
@@ -2788,7 +2833,13 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/vector_selection.html">Vector Selection</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -3135,7 +3186,13 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/aeris_weather.html">Aeris Weather Layer</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -3534,6 +3591,12 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/micello_map.html">Micello Indoor Maps</a></li>
                       
                       
@@ -3655,6 +3718,9 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/digitalglobe_mapsapi.html">DigitalGlobe Maps API</a></li>
+                      
+                      
+                      
                       
                       
                       

@@ -26,8 +26,8 @@
     
     // Add OpenStreetMap basemap
     NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
-    MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://otile1.mqcdn.com/tiles/1.0.0/osm/" ext:@"png" minZoom:0 maxZoom:18];
-    tileSource.cacheDir = [NSString stringWithFormat:@"%@/osmtiles/",cacheDir];
+    MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://tile.stamen.com/terrain/" ext:@"png" minZoom:0 maxZoom:18];
+    tileSource.cacheDir = [NSString stringWithFormat:@"%@/tiles/",cacheDir];
     MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
     layer.drawPriority = 100;
     layer.handleEdges = true;

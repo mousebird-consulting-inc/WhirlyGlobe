@@ -107,9 +107,9 @@
             <h2>Remote Image Layer</h2>
             <p>The Geography Class example only has a few levels of detail.  We can’t zoom in very close and if we could it would take up way too much space on the device.  Thus, we need a way to look at tiled image maps sitting on a server.</p>
 
-<p><img src="/WhirlyGlobe/images/tutorial/remote_image_layer_1.png" alt="MapQuest Open Satellite" /></p>
+<p><img src="/WhirlyGlobe/images/tutorial/remote_image_layer_1.png" alt="Stamen Terrain" /></p>
 
-<p>Let’s add a remote tile source, and take a closer look at the Earth. We’ll use the MapQuest Open Aerial tile set. If you end up wanting to use these tiles in an app that you distribute, check out the <a href="http://developer.mapquest.com/web/products/open/map">requirements</a>.</p>
+<p>Let’s add a remote tile source, and take a closer look at the Earth. We’ll use the Stamen Terrain tile set. If you end up wanting to use these tiles in an app that you distribute, check out the <a href="http://maps.stamen.com/#terrain">requirements</a>. (Full attribution: Map tiles by <a href="http://stamen.com/">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org/">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.)</p>
 
 <p>You’ll need to have done the <a href="local_image_tiles.html">Local Image Layer</a> tutorial.  Open your HelloEarth project and get ready.</p>
 
@@ -169,17 +169,17 @@
 </span>  <span class="n">NSString</span> <span class="o">*</span><span class="n">baseCacheDir</span> <span class="o">=</span> 
     <span class="p">[</span><span class="n">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="n">NSCachesDirectory</span><span class="p">,</span> <span class="n">NSUserDomainMask</span><span class="p">,</span> <span class="nb">YES</span><span class="p">)</span> 
             <span class="nf">objectAtIndex</span><span class="p">:</span><span class="mi">0</span><span class="p">];</span>
-  <span class="n">NSString</span> <span class="o">*</span><span class="n">aerialTilesCacheDir</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nf">stringWithFormat</span><span class="p">:</span><span class="s">@"%@/osmtiles/"</span><span class="p">,</span>
+  <span class="n">NSString</span> <span class="o">*</span><span class="n">tilesCacheDir</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nf">stringWithFormat</span><span class="p">:</span><span class="s">@"%@/stamentiles/"</span><span class="p">,</span>
                                                 <span class="n">baseCacheDir</span><span class="p">];</span>
   <span class="kt">int</span> <span class="n">maxZoom</span> <span class="o">=</span> <span class="mi">18</span><span class="p">;</span>
 
-  <span class="c1">// MapQuest Open Aerial Tiles, Courtesy Of Mapquest
-</span>  <span class="c1">// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency
+  <span class="c1">// Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.
+</span>  <span class="c1">// Data by OpenStreetMap under the Open Data Commons Open Database License.
 </span>  <span class="n">MaplyRemoteTileSource</span> <span class="o">*</span><span class="n">tileSource</span> <span class="o">=</span> 
     <span class="p">[[</span><span class="n">MaplyRemoteTileSource</span> <span class="nf">alloc</span><span class="p">]</span> 
-            <span class="nf">initWithBaseURL</span><span class="p">:</span><span class="s">@"http://otile1.mqcdn.com/tiles/1.0.0/sat/"</span> 
+            <span class="nf">initWithBaseURL</span><span class="p">:</span><span class="s">@"http://tile.stamen.com/terrain/"</span> 
             <span class="nf">ext</span><span class="p">:</span><span class="s">@"png"</span> <span class="n">minZoom</span><span class="o">:</span><span class="mi">0</span> <span class="n">maxZoom</span><span class="o">:</span><span class="n">maxZoom</span><span class="p">];</span>
-  <span class="n">tileSource</span><span class="p">.</span><span class="n">cacheDir</span> <span class="o">=</span> <span class="n">aerialTilesCacheDir</span><span class="p">;</span>
+  <span class="n">tileSource</span><span class="p">.</span><span class="n">cacheDir</span> <span class="o">=</span> <span class="n">tilesCacheDir</span><span class="p">;</span>
   <span class="n">layer</span> <span class="o">=</span> <span class="p">[[</span><span class="n">MaplyQuadImageTilesLayer</span> <span class="nf">alloc</span><span class="p">]</span> 
             <span class="nf">initWithCoordSystem</span><span class="p">:</span><span class="n">tileSource</span><span class="p">.</span><span class="n">coordSys</span> <span class="nf">tileSource</span><span class="p">:</span><span class="n">tileSource</span><span class="p">];</span>
 <span class="p">}</span>
@@ -204,20 +204,20 @@
 <span class="k">else</span> <span class="p">{</span>
     <span class="c1">// Because this is a remote tile set, we'll want a cache directory</span>
     <span class="k">let</span> <span class="nv">baseCacheDir</span> <span class="o">=</span> <span class="kt">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="o">.</span><span class="kt">CachesDirectory</span><span class="p">,</span> <span class="o">.</span><span class="kt">UserDomainMask</span><span class="p">,</span> <span class="kc">true</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">let</span> <span class="nv">aerialTilesCacheDir</span> <span class="o">=</span> <span class="s">"</span><span class="se">\(</span><span class="n">baseCacheDir</span><span class="se">)</span><span class="s">/osmtiles/"</span>
+    <span class="k">let</span> <span class="nv">tilesCacheDir</span> <span class="o">=</span> <span class="s">"</span><span class="se">\(</span><span class="n">baseCacheDir</span><span class="se">)</span><span class="s">/stamentiles/"</span>
     <span class="k">let</span> <span class="nv">maxZoom</span> <span class="o">=</span> <span class="kt">Int32</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>
 
-    <span class="c1">// MapQuest Open Aerial Tiles, Courtesy Of Mapquest</span>
-    <span class="c1">// Portions Courtesy NASA/JPL­Caltech and U.S. Depart. of Agriculture, Farm Service Agency</span>
+    <span class="c1">// Stamen Terrain Tiles, courtesy of Stamen Design under the Creative Commons Attribution License.</span>
+    <span class="c1">// Data by OpenStreetMap under the Open Data Commons Open Database License.</span>
     <span class="k">guard</span> <span class="k">let</span> <span class="nv">tileSource</span> <span class="o">=</span> <span class="kt">MaplyRemoteTileSource</span><span class="p">(</span>
-            <span class="nv">baseURL</span><span class="p">:</span> <span class="s">"http://otile1.mqcdn.com/tiles/1.0.0/sat/"</span><span class="p">,</span>
+            <span class="nv">baseURL</span><span class="p">:</span> <span class="s">"http://tile.stamen.com/terrain/"</span><span class="p">,</span>
             <span class="nv">ext</span><span class="p">:</span> <span class="s">"png"</span><span class="p">,</span>
             <span class="nv">minZoom</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> 
             <span class="nv">maxZoom</span><span class="p">:</span> <span class="n">maxZoom</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
         <span class="c1">// can't create remote tile source</span>
         <span class="k">return</span>
     <span class="p">}</span>
-    <span class="n">tileSource</span><span class="o">.</span><span class="n">cacheDir</span> <span class="o">=</span> <span class="n">aerialTilesCacheDir</span>
+    <span class="n">tileSource</span><span class="o">.</span><span class="n">cacheDir</span> <span class="o">=</span> <span class="n">tilesCacheDir</span>
     <span class="n">layer</span> <span class="o">=</span> <span class="kt">MaplyQuadImageTilesLayer</span><span class="p">(</span><span class="nv">tileSource</span><span class="p">:</span> <span class="n">tileSource</span><span class="p">)</span><span class="o">!</span>
 <span class="p">}</span>
   </code></pre></figure>
@@ -238,7 +238,7 @@
 
 <p>Give it a try.  It’s even more fun on a device. You can zoom in to your heart’s content, provided your heart doesn’t desire sub­meter resolution.</p>
 
-<p><img src="/WhirlyGlobe/images/tutorial/remote_image_layer_2.png" alt="MapQuest Areal in Simulator" /></p>
+<p><img src="/WhirlyGlobe/images/tutorial/remote_image_layer_2.png" alt="Stamen Terrain in Simulator" /></p>
 
 <p>All that with just a few lines of code.  WhirlyGlobe-Maply is doing a lot of work behind the scenes.  As you move around it pulls in new data, caches it to the local device, displays it, gets rid of the old data and so forth.  But setting all this up is easy.</p>
 
@@ -319,6 +319,9 @@
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/getting_started.html">Before You Start</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -612,7 +615,13 @@
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_source.html">Source Distribution</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -927,7 +936,13 @@
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_cocoapod.html">Cocoapods</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1367,7 +1382,16 @@
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/your_first_globe.html">Your First Globe</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1801,7 +1825,16 @@
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_image_layer.html">Remote Image Layer</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2301,7 +2334,16 @@
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_markers.html">Screen Markers</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2633,6 +2675,9 @@
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/spheres.html">Spheres</a></li>
                       
                       
@@ -2812,7 +2857,13 @@
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/vector_selection.html">Vector Selection</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -3159,7 +3210,13 @@
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/aeris_weather.html">Aeris Weather Layer</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -3558,6 +3615,12 @@
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/micello_map.html">Micello Indoor Maps</a></li>
                       
                       
@@ -3679,6 +3742,9 @@
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/digitalglobe_mapsapi.html">DigitalGlobe Maps API</a></li>
+                      
+                      
+                      
                       
                       
                       
