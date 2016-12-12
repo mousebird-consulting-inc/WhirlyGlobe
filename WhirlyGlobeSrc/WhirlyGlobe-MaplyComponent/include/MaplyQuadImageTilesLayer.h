@@ -276,7 +276,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 
 /** @brief Only load a single level at a time.
     @details When set, we'll only load one level of tiles at once.  This is very efficient for memory and fast for loading, but you'll see flashing as you move between levels.
-    @details This mode only works with flat maps and is off by default.
+    @details Off by default.
   */
 @property (nonatomic) bool singleLevelLoading;
 

@@ -132,7 +132,7 @@ using namespace WhirlyKit;
     _maxVis = DrawVisibleInvalid;
     canShortCircuitImportance = false;
     maxShortCircuitLevel = -1;
-    _useTargetZoomLevel = true;
+    _useTargetZoomLevel = false;
     _singleLevelLoading = false;
     _viewUpdatePeriod = 0.1;
     _enable = true;
@@ -479,6 +479,12 @@ using namespace WhirlyKit;
 {
     if (quadLayer)
         [quadLayer reset];
+}
+
+- (void)setSingleLevelLoading:(bool)newVal
+{
+    _useTargetZoomLevel = newVal;
+    _singleLevelLoading = newVal;
 }
 
 - (void)setAnimationPeriod:(float)animationPeriod
