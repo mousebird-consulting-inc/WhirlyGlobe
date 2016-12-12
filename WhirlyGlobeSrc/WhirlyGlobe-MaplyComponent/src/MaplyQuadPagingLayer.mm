@@ -227,7 +227,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     _maxTiles = 256;
     canShortCircuitImportance = false;
     maxShortCircuitLevel = -1;
-    _useTargetZoomLevel = true;
+    _useTargetZoomLevel = false;
     _singleLevelLoading = false;
     _groupChildrenWithParent = true;
     hasUnload = [tileSource respondsToSelector:@selector(tileDidUnload:)];
