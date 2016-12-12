@@ -205,8 +205,14 @@ using namespace WhirlyKit;
 
 - (void)setRotAngle:(double)newRotAngle
 {
+    [self setRotAngle:newRotAngle runViewUpdates:true];
+}
+
+- (void)setRotAngle:(double)newRotAngle runViewUpdates:(bool)runViewUpdates
+{
     _rotAngle = newRotAngle;
-    [self runViewUpdates];
+    if (runViewUpdates)
+        [self runViewUpdates];
 }
 
 - (Eigen::Matrix4d)calcFullMatrix
