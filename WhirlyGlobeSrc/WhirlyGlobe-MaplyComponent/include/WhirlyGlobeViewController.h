@@ -361,6 +361,15 @@
  */
 - (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(NSTimeInterval)howLong;
 
+/** @brief Animate to the given position, screen position, heading and height over time.
+    @details If it's impossible to move newPos to loc, then nothing happens. 
+    @param newPos A coordinate in geographic (lon/lat radians)
+    @param loc The location on the screen where we'd like it to go.
+    @param newHeight New height to animate to.
+    @param newHeading New heading to finish on.
+    @param howLong A time interval in seconds.
+ */
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong;
 
 /** @brief Animate with a delegate over time.
     @details Fill in the WhirlyGlobeViewControllerAnimationDelegate and you can control the visual view on a frame by frame basis.  You'll get called back at the appropriate time on the main thread over the time period.

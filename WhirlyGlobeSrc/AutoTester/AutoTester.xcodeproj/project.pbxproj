@@ -37,7 +37,6 @@
 		2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */; };
 		2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */; };
 		2BDEB3361C989D18003259B3 /* CartoDBLightTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3351C989D18003259B3 /* CartoDBLightTestCase.m */; };
-		2BE53AF31D258FEE00B60FAD /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AF21D258FEE00B60FAD /* libWhirlyGlobeLib.a */; };
 		2BE53AF41D25901300B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AEF1D258FE800B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
 		8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
@@ -95,10 +94,6 @@
 		88E4B8CC1B83B6AB0050D21B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CB1B83B6AB0050D21B /* Images.xcassets */; };
 		88E4B8CF1B83B6AB0050D21B /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */; };
 		88E4B8ED1B83B9610050D21B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8EC1B83B9610050D21B /* CoreLocation.framework */; };
-		88E4B8EF1B83B96A0050D21B /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8EE1B83B96A0050D21B /* libc++.dylib */; };
-		88E4B8F11B83B9760050D21B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8F01B83B9750050D21B /* libz.dylib */; };
-		88E4B8F31B83B97D0050D21B /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8F21B83B97D0050D21B /* libxml2.dylib */; };
-		88E4B8F51B83B9850050D21B /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8F41B83B9850050D21B /* libsqlite3.dylib */; };
 		88FF5BE61BC31D53002F15CE /* cube.obj in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE01BC31D53002F15CE /* cube.obj */; };
 		88FF5BE71BC31D53002F15CE /* map_pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE11BC31D53002F15CE /* map_pin.png */; };
 		88FF5BE81BC31D53002F15CE /* Smiley_Face_Avatar_by_PixelTwist.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE21BC31D53002F15CE /* Smiley_Face_Avatar_by_PixelTwist.png */; };
@@ -533,6 +528,13 @@
 		E5679F4A1CB72DE800369A15 /* FindHeightTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F471CB72DE800369A15 /* FindHeightTestCase.m */; };
 		E5679F4E1CB7669400369A15 /* FullAnimationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F4D1CB7669400369A15 /* FullAnimationTest.m */; };
 		E57E78CA1C936B8400C468C6 /* AerisWeatherTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */; };
+		E5CC4E201DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CC4E1F1DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift */; };
+		E5D2D65F1DE65CE400E02305 /* LocationTrackingSimTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D2D65E1DE65CE400E02305 /* LocationTrackingSimTestCase.swift */; };
+		E5D2D6681DE6C25300E02305 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D6671DE6C25300E02305 /* libsqlite3.tbd */; };
+		E5D2D66A1DE6C25A00E02305 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D6691DE6C25A00E02305 /* libxml2.tbd */; };
+		E5D2D66C1DE6C26000E02305 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D66B1DE6C26000E02305 /* libz.tbd */; };
+		E5D2D66E1DE6C26A00E02305 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D66D1DE6C26A00E02305 /* libc++.tbd */; };
+		E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D2D6741DEDEABF00E02305 /* AnimationDelegateTestCase.swift */; };
 		E5EF69F01D6B573700A2A660 /* MapzenSLDStyle.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5EF69EF1D6B573700A2A660 /* MapzenSLDStyle.sld */; };
 /* End PBXBuildFile section */
 
@@ -599,7 +601,6 @@
 		2BDEB3341C989D18003259B3 /* CartoDBLightTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CartoDBLightTestCase.h; sourceTree = "<group>"; };
 		2BDEB3351C989D18003259B3 /* CartoDBLightTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CartoDBLightTestCase.m; sourceTree = "<group>"; };
 		2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeMaplyComponent.xcodeproj; path = "../WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.xcodeproj"; sourceTree = "<group>"; };
-		2BE53AF21D258FEE00B60FAD /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWhirlyGlobeLib.a; path = "../../../../Library/Developer/Xcode/DerivedData/AutoTester-cizypwfkufgyahcoralvsbxjvvew/Build/Products/Debug-iphonesimulator/libWhirlyGlobeLib.a"; sourceTree = "<group>"; };
 		2BFC7E4F1D132DCB0040E2A3 /* ScreenMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenMarkersTestCase.h; sourceTree = "<group>"; };
 		2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenMarkersTestCase.m; sourceTree = "<group>"; };
 		50758EC5237C3DF35AB67BE9 /* Pods-AutoTester.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AutoTester.release.xcconfig"; path = "Pods/Target Support Files/Pods-AutoTester/Pods-AutoTester.release.xcconfig"; sourceTree = "<group>"; };
@@ -666,10 +667,6 @@
 		88E4B8CB1B83B6AB0050D21B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		88E4B8CE1B83B6AB0050D21B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		88E4B8EC1B83B9610050D21B /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		88E4B8EE1B83B96A0050D21B /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
-		88E4B8F01B83B9750050D21B /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
-		88E4B8F21B83B97D0050D21B /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
-		88E4B8F41B83B9850050D21B /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		88FF5BE01BC31D53002F15CE /* cube.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cube.obj; path = ../../WhirlyGlobeSrc/WhirlyGlobeComponentTester/resources/cube.obj; sourceTree = "<group>"; };
 		88FF5BE11BC31D53002F15CE /* map_pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map_pin.png; path = ../WhirlyGlobeComponentTester/resources/map_pin.png; sourceTree = "<group>"; };
 		88FF5BE21BC31D53002F15CE /* Smiley_Face_Avatar_by_PixelTwist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Smiley_Face_Avatar_by_PixelTwist.png; path = ../WhirlyGlobeComponentTester/resources/Smiley_Face_Avatar_by_PixelTwist.png; sourceTree = "<group>"; };
@@ -1122,6 +1119,13 @@
 		E5679F4D1CB7669400369A15 /* FullAnimationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FullAnimationTest.m; sourceTree = "<group>"; };
 		E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AerisWeatherTestCase.m; sourceTree = "<group>"; };
 		E57E78C91C936B8400C468C6 /* AerisWeatherTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AerisWeatherTestCase.h; sourceTree = "<group>"; };
+		E5CC4E1F1DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationTrackingRealTestCase.swift; sourceTree = "<group>"; };
+		E5D2D65E1DE65CE400E02305 /* LocationTrackingSimTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationTrackingSimTestCase.swift; sourceTree = "<group>"; };
+		E5D2D6671DE6C25300E02305 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		E5D2D6691DE6C25A00E02305 /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
+		E5D2D66B1DE6C26000E02305 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		E5D2D66D1DE6C26A00E02305 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		E5D2D6741DEDEABF00E02305 /* AnimationDelegateTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimationDelegateTestCase.swift; sourceTree = "<group>"; };
 		E5EF69EF1D6B573700A2A660 /* MapzenSLDStyle.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = MapzenSLDStyle.sld; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1130,12 +1134,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5D2D66E1DE6C26A00E02305 /* libc++.tbd in Frameworks */,
+				E5D2D66C1DE6C26000E02305 /* libz.tbd in Frameworks */,
+				E5D2D66A1DE6C25A00E02305 /* libxml2.tbd in Frameworks */,
+				E5D2D6681DE6C25300E02305 /* libsqlite3.tbd in Frameworks */,
 				2BE53AF41D25901300B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */,
-				2BE53AF31D258FEE00B60FAD /* libWhirlyGlobeLib.a in Frameworks */,
-				88E4B8F51B83B9850050D21B /* libsqlite3.dylib in Frameworks */,
-				88E4B8F31B83B97D0050D21B /* libxml2.dylib in Frameworks */,
-				88E4B8F11B83B9760050D21B /* libz.dylib in Frameworks */,
-				88E4B8EF1B83B96A0050D21B /* libc++.dylib in Frameworks */,
 				88E4B8ED1B83B9610050D21B /* CoreLocation.framework in Frameworks */,
 				DD3B9467B8D80BF7EBF57472 /* Pods_AutoTester.framework in Frameworks */,
 			);
@@ -1175,7 +1178,10 @@
 		3651D5D283D23F0C2EFDE845 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2BE53AF21D258FEE00B60FAD /* libWhirlyGlobeLib.a */,
+				E5D2D66D1DE6C26A00E02305 /* libc++.tbd */,
+				E5D2D66B1DE6C26000E02305 /* libz.tbd */,
+				E5D2D6691DE6C25A00E02305 /* libxml2.tbd */,
+				E5D2D6671DE6C25300E02305 /* libsqlite3.tbd */,
 				2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */,
 				1F05A4FB888D188E680287F5 /* Pods.framework */,
 				B0F0DA1CE80D1854F94B969E /* Pods_AutoTester.framework */,
@@ -1187,10 +1193,6 @@
 			isa = PBXGroup;
 			children = (
 				88E4B8EC1B83B9610050D21B /* CoreLocation.framework */,
-				88E4B8F41B83B9850050D21B /* libsqlite3.dylib */,
-				88E4B8F21B83B97D0050D21B /* libxml2.dylib */,
-				88E4B8F01B83B9750050D21B /* libz.dylib */,
-				88E4B8EE1B83B96A0050D21B /* libc++.dylib */,
 			);
 			name = Fameworks;
 			sourceTree = "<group>";
@@ -1324,6 +1326,9 @@
 				2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */,
 				8820852A1DC81051008F8E76 /* Issue721TestCase.swift */,
 				2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */,
+				E5D2D65E1DE65CE400E02305 /* LocationTrackingSimTestCase.swift */,
+				E5D2D6741DEDEABF00E02305 /* AnimationDelegateTestCase.swift */,
+				E5CC4E1F1DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2533,6 +2538,7 @@
 				D8D3E0681C4EDA1800F0D006 /* ParticleTestCase.swift in Sources */,
 				D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */,
 				8895D8B01CA4ABA9004387FB /* ParticleTest.m in Sources */,
+				E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */,
 				D880112F1BFD16A900606EC6 /* DropboxViewController.swift in Sources */,
 				D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */,
 				D84433EE1C14E4FE00A52117 /* CartoDBLayer.m in Sources */,
@@ -2566,6 +2572,8 @@
 				2BC2DCCD1D1F4CE20088D350 /* ShapefileTestCase.m in Sources */,
 				D8F2FE271BE7BD630058A310 /* LabelsTestCase.m in Sources */,
 				E5679F4E1CB7669400369A15 /* FullAnimationTest.m in Sources */,
+				E5D2D65F1DE65CE400E02305 /* LocationTrackingSimTestCase.swift in Sources */,
+				E5CC4E201DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift in Sources */,
 				D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
 				2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */,
