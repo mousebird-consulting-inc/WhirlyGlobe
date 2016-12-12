@@ -607,12 +607,10 @@ static double MAX_EXTENT = 20037508.342789244;
             NSData *tileData = [tileSource imageForTile:flippedYTile];
             
             if(tileData.length) {
-                if([tileData isCompressed]) {
-                    tileData = [tileData uncompressGZip];
-                    if(!tileData.length) {
-                        NSLog(@"Error: tile data was nil after decompression");
-                        continue;
-                    }
+                tileData = [tileData uncompressGZip];
+                if(!tileData.length) {
+                    NSLog(@"Error: tile data was nil after decompression");
+                    continue;
                 }
                 
                 MaplyVectorTileData *retData = [_tileParser buildObjects:tileData tile:tileID bounds:bbox];

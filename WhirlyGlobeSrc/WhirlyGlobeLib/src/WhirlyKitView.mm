@@ -39,7 +39,7 @@ using namespace Eigen;
         _fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
 		_nearPlane = 0.001;
 		_imagePlaneSize = _nearPlane * tanf(_fieldOfView / 2.0);
-		_farPlane = 10.0;
+		_farPlane = 5.0;
         _lastChangedTime = CFAbsoluteTimeGetCurrent();
         _continuousZoom = false;
     }

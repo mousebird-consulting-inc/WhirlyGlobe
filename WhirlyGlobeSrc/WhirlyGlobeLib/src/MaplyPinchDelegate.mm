@@ -105,8 +105,8 @@ using namespace WhirlyKit;
                 [self.mapView setLoc:newLoc runUpdates:YES];
 
                 //Check if we've gone out of bounds, undo changes if needed
-                if (![self withinBounds:self.mapView.loc view:glView renderer:sceneRenderer])
-                    [self.mapView setLoc:curLoc];
+//                if (![self withinBounds:self.mapView.loc view:glView renderer:sceneRenderer])
+//                    [self.mapView setLoc:curLoc];
             }
         }
 			break;
