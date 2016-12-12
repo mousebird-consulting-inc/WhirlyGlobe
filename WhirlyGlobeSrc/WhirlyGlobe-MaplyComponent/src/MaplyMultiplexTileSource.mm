@@ -292,15 +292,26 @@ static bool trackConnections = false;
     return nil;
 }
 
+- (NSData *) remoteTileSource:(id)tileSource modifyTileReturn:(NSData *)tileData forTile:(MaplyTileID)tileID
+{
+    return tileData;
+}
+
 // Got tile data back, figure out what to do with it
 - (void)gotTile:(MaplyTileID)tileID which:(int)which data:(id)originalTileData layer:(MaplyQuadImageTilesLayer *)layer fromCache:(bool)wasFromCache
 {
 //    NSLog(@"Got tile: %d: (%d,%d), %d",tileID.level,tileID.x,tileID.y,which);
     
     id tileData = originalTileData;
+
+    // We can override the data either in a subclass or in the delegate
     if (originalTileData)
+    {
         if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyTileReturn:forTile:)])
             tileData = [_delegate remoteTileSource:self modifyTileReturn:tileData forTile:tileID];
+        else
+            tileData = [self remoteTileSource:self modifyTileReturn:tileData forTile:tileID];
+    }
 
     // Look for it in the bit list
     bool done = false;
