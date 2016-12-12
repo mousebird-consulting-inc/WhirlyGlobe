@@ -153,20 +153,13 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
         File cacheFile = null;
         boolean isCanceled = false;
 		
-		ConnectionTask(QuadImageTileLayerInterface inLayer,RemoteTileSource inTileSource, MaplyTileID inTileID,String inURL,String inFile)
+		ConnectionTask(QuadImageTileLayerInterface inLayer,RemoteTileSource inTileSource, MaplyTileID inTileID,URL inURL,String inFile)
 		{
 			tileSource = inTileSource;
 			layer = inLayer;
 			tileID = inTileID;
 			locFile = inFile;
-			try
-			{
-				url = new URL(inURL);
-			}
-			catch (IOException e)
-			{
-				
-			}
+			url = inURL;
 		}
 
         // Either fetch the tile from the local cache or fetch it remotely
@@ -197,7 +190,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
                 }
 
                 // Load the data from that URL
-                Request request = new Request.Builder().url(url).build();
+				Request request = tileInfo.buildRequest(url);
 
                 call = client.newCall(request);
                 call.enqueue(this);
@@ -300,7 +293,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 		// Form the tile URL
 		int maxY = 1<<tileID.level;
 		int remoteY = maxY - tileID.y - 1;
-		final String tileURL = tileInfo.buildURL(tileID.x,remoteY,tileID.level);
+		final URL tileURL = tileInfo.buildURL(tileID.x,remoteY,tileID.level);
 		
 		String cacheFile = null;
 		if (cacheDir != null)

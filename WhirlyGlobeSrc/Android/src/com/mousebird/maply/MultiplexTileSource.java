@@ -89,17 +89,13 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
         boolean isCanceled = false;
 		public boolean singleFetch = false;
 
-        ConnectionTask(QuadImageTileLayerInterface inLayer, MultiplexTileSource inTileSource, MaplyTileID inTileID, int inFrame, String inURL, String inFile) {
+        ConnectionTask(QuadImageTileLayerInterface inLayer, MultiplexTileSource inTileSource, MaplyTileID inTileID, int inFrame, URL inURL, String inFile) {
             tileSource = inTileSource;
             layer = inLayer;
             tileID = inTileID;
             locFile = inFile;
             frame = inFrame;
-            try {
-                url = new URL(inURL);
-            } catch (IOException e) {
-
-            }
+			url = inURL;
         }
 
         // Either fetch the tile from the local cache or fetch it remotely
@@ -505,7 +501,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 				{
 					String cacheFile = null;
 					RemoteTileInfo tileInfo = sources[which];
-					final String tileURL = tileInfo.buildURL(tileID.x,remoteY,tileID.level);
+					final URL tileURL = tileInfo.buildURL(tileID.x,remoteY,tileID.level);
 					if (cacheDir != null) {
 						cacheFile = cacheDir.getAbsolutePath() + tileInfo.buildCacheName(tileID.x, tileID.y, tileID.level, which);
 					}

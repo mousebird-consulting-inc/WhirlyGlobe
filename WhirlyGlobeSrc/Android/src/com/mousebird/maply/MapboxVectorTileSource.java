@@ -201,7 +201,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
             // Form the tile URL
             int maxY = 1<<tileID.level;
             int remoteY = maxY - tileID.y - 1;
-            final String tileURL = tileInfo.buildURL(tileID.x,remoteY,tileID.level);
+            final URL tileURL = tileInfo.buildURL(tileID.x,remoteY,tileID.level);
 
             String cacheFile = null;
             if (cacheDir != null)
@@ -247,20 +247,13 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
         File cacheFile = null;
         boolean isCanceled = false;
 
-        ConnectionTask(QuadPagingLayer inLayer,MapboxVectorTileSource inTileSource, MaplyTileID inTileID,String inURL,String inFile)
+        ConnectionTask(QuadPagingLayer inLayer,MapboxVectorTileSource inTileSource, MaplyTileID inTileID,URL inURL,String inFile)
         {
             layer = inLayer;
             tileSource = inTileSource;
             tileID = inTileID;
             locFile = inFile;
-            try
-            {
-                url = new URL(inURL);
-            }
-            catch (IOException e)
-            {
-
-            }
+            url = inURL;
         }
 
         // Either fetch the tile from the local cache or fetch it remotely
