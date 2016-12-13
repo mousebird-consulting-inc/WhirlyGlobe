@@ -45,13 +45,15 @@ public:
 	bool singleLevelLoading;
 	bool canShortCircuitImportance;
 	int maxShortCircuitLevel;
+    double minTileHeight,maxTileHeight;
+    int maxTiles;
 
 	// Methods for Java quad layer
 	jmethodID tileLoadJava,tileUnloadJava;
 
 	QuadPagingLayerAdapter(CoordSystem *coordSys,jobject delegateObj)
 		: env(NULL), javaObj(NULL), renderer(NULL), coordSys(coordSys), delegateObj(delegateObj), QuadLoader(),
-		  numFetches(0), simultaneousFetches(1)
+		  numFetches(0), simultaneousFetches(1), minTileHeight(0.0), maxTileHeight(0.0), maxTiles(256)
 	{
 		useTargetZoomLevel = true;
         canShortCircuitImportance = false;
@@ -81,7 +83,7 @@ public:
 
 		// Set up the display controller
 		control = new QuadDisplayController(this,this,this);
-		control->setMaxTiles(256);
+		control->setMaxTiles(maxTiles);
 		control->setMeteredMode(false);
 		control->init(scene,renderer);
 
@@ -139,36 +141,81 @@ public:
     virtual void shutdown()
     {
     }
+    
+    bool useParentTileBounds = true;
 
     /// Return an importance value for the given tile
     virtual double importanceForTile(const Quadtree::Identifier &ident,const Mbr &mbr,ViewState *viewState,const Point2f &frameSize,Dictionary *attrs)
     {
         if (ident.level <= 1)
             return MAXFLOAT;
-
-        double import = 0;
-		// For a child tile, we're taking the size of our parent so all the children load at once
-		WhirlyKit::Quadtree::Identifier parentIdent;
-		parentIdent.x = ident.x / 2;
-		parentIdent.y = ident.y / 2;
-		parentIdent.level = ident.level - 1;
-
-		Mbr parentMbr = control->getQuadtree()->generateMbrForNode(parentIdent);
-
-		if (canShortCircuitImportance && maxShortCircuitLevel != -1)
+        
+        // We may use the parent bounding box for testing
+        // This will force all four children in at once.
+        WhirlyKit::Quadtree::Identifier testTileID;
+        if (useParentTileBounds)
         {
-            if (TileIsOnScreen(viewState, frameSize, coordSys, scene->getCoordAdapter(), (singleLevelLoading ? mbr : parentMbr), ident, attrs))
+            // For a child tile, we're taking the size of our parent so all the children load at once
+            WhirlyKit::Quadtree::Identifier parentIdent;
+            parentIdent.x = ident.x / 2;
+            parentIdent.y = ident.y / 2;
+            parentIdent.level = ident.level - 1;
+            
+            testTileID = parentIdent;
+        } else {
+            testTileID = ident;
+        }
+        
+        Mbr testMbr = control->getQuadtree()->generateMbrForNode(testTileID);
+        
+        double import = 0.0;
+        if (canShortCircuitImportance && maxShortCircuitLevel != -1)
+        {
+            if (TileIsOnScreen(viewState, frameSize, coordSys, scene->getCoordAdapter(), (singleLevelLoading ? mbr : testMbr), ident, attrs))
             {
+                // Generate a simple importance for anything at this level
                 import = 1.0/(ident.level+10);
                 if (ident.level <= maxShortCircuitLevel)
-                	import += 1.0;
+                {
+                    import += 1.0;
+                    
+                    if (!scene->getCoordAdapter()->isFlat())
+                    {
+                        // Nudge it by the screen importance so the bigger ones are loaded first
+                        double screenImport = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), testMbr, ident, attrs);
+                        
+                        import += screenImport / 1e10;
+                    }
+                }
             }
+            import *= control->getMinImportance();
         } else {
-			// This is how much screen real estate we're covering for this tile
-			import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), parentMbr, ident, attrs) / 4;
+            Point3d ll,ur;
+            ll.x() = testMbr.ll().x();  ll.y() = testMbr.ll().y();
+            ll.z() = minTileHeight;
+            ur.x() = testMbr.ur().x();  ur.y() = testMbr.ur().y();
+            ur.z() = maxTileHeight;
+//
+//            if (hasBoundingBox)
+//                [tileSource getBoundingBox:testTileID ll:&ll ur:&ur];
+            
+            // This is how much screen real estate we're covering for this tile
+            double div = 1.0;
+            if (useParentTileBounds)
+                div = 4.0;
+            
+            if (ll.z() != ur.z())
+                import = ScreenImportance(viewState, frameSize, 1, coordSys, scene->getCoordAdapter(), testMbr, ll.z(), ur.z(), ident, attrs) / div;
+            else
+                import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), testMbr, ident, attrs) / div;
         }
-//		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "tile %d: (%d,%d) import = %f",ident.level,ident.x,ident.y,import);
-
+        
+        // Just the importance of this tile.
+        //    float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+        
+        //    if (import != 0.0)
+        //        NSLog(@"tile %d: (%d,%d) = %f",ident.level,ident.x,ident.y,import);
+        
         return import;
     }
 
@@ -178,24 +225,59 @@ public:
         if (!viewState)
             return minZoom;
         Point2f frameSize = renderer->getFramebufferSize();
-
         int zoomLevel = 0;
-        WhirlyKit::Point2f center = Point2f(viewState->eyePos.x(),viewState->eyePos.y());
-
+        
+        // Start with the center (where we're looking) in model coordinates
+        WhirlyKit::Point3d centerInModel = viewState->eyePos;
         // The coordinate adapter might have its own center
         Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
-        center.x() += adaptCenter.x();
-        center.y() += adaptCenter.y();
+        centerInModel += adaptCenter;
+        if (!scene->getCoordAdapter()->isFlat())
+            centerInModel.normalize();
+        
+        // Convert from model coordinates to the coord adapters local coordinates
+        Point3d localPt = scene->getCoordAdapter()->displayToLocal(centerInModel);
+        
+        // Now convert into our coordinate system
+        Point3d ourCenter = CoordSystemConvert3d(scene->getCoordAdapter()->getCoordSystem(), coordSys, localPt);
+        Point2f ourCenter2d(ourCenter.x(),ourCenter.y());
 
         while (zoomLevel <= maxZoom)
         {
             WhirlyKit::Quadtree::Identifier ident;
             ident.x = 0;  ident.y = 0;  ident.level = zoomLevel;
             // Make an MBR right in the middle of where we're looking
-            Mbr mbr = getController()->getQuadtree()->generateMbrForNode(ident);
+            Mbr mbr = control->getQuadtree()->generateMbrForNode(ident);
             Point2f span = mbr.ur()-mbr.ll();
-            mbr.ll() = center - span/2.0;
-            mbr.ur() = center + span/2.0;
+            mbr.ll() = ourCenter2d - span/2.0;
+            mbr.ur() = ourCenter2d + span/2.0;
+            // If that MBR is pushing the north or south boundaries, let's adjust it
+            Mbr quadTreeMbr = control->getQuadtree()->getMbr();
+            if (mbr.ur().y() > quadTreeMbr.ur().y())
+            {
+                double dy = mbr.ur().y() - quadTreeMbr.ur().y();
+                mbr.ur().y() -= dy;
+                mbr.ll().y() -= dy;
+            } else
+                if (mbr.ll().y() < quadTreeMbr.ll().y())
+                {
+                    double dy = quadTreeMbr.ll().y() - mbr.ll().y();
+                    mbr.ur().y() += dy;
+                    mbr.ll().y() += dy;
+                }
+            // Also the east and west boundaries
+            if (mbr.ur().x() > quadTreeMbr.ur().x())
+            {
+                double dx = mbr.ur().x() - quadTreeMbr.ur().x();
+                mbr.ur().x() -= dx;
+                mbr.ll().x() -= dx;
+            } else
+                if (mbr.ll().x() < quadTreeMbr.ll().x())
+                {
+                    double dx = quadTreeMbr.ll().x() - mbr.ll().x();
+                    mbr.ur().x() += dx;
+                    mbr.ll().x() += dx;
+                }
             Dictionary attrs;
             float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), mbr, ident, &attrs);
             if (import <= shortCircuitImportance)
@@ -219,17 +301,7 @@ public:
     		return;
     	}
 
-        CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-        Point3d center = coordAdapter->getCenter();
-        if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
-        {
-            canShortCircuitImportance = true;
-            // Note: Trying out 3D
-//            if (!coordAdapter->isFlat())
-//            {
-//                canShortCircuitImportance = false;
-//                return;
-//            }
+        canShortCircuitImportance = true;
             // We happen to store tilt in the view matrix.
             // Note: Can't detect tilt reliably
 //            if (!viewState->viewMatrix.isIdentity())
@@ -237,28 +309,17 @@ public:
 //                canShortCircuitImportance = false;
 //                return;
 //            }
-            // The tile source coordinate system must be the same as the display's system
-	    //            if (!coordSys->isSameAs(coordAdapter->getCoordSystem()))
-	    //            {
-	    //                canShortCircuitImportance = false;
-	    //                return;
-	    //            }
 
             // We need to feel our way down to the appropriate level
-            maxShortCircuitLevel = targetZoomLevel(viewState);
-            if (singleLevelLoading)
-            {
-            	std::set<int> targetLevels;
-            	targetLevels.insert(maxShortCircuitLevel);
-            	control->setTargetLevels(targetLevels);
-            }
+        maxShortCircuitLevel = targetZoomLevel(viewState);
+        if (singleLevelLoading)
+        {
+            std::set<int> targetLevels;
+            targetLevels.insert(maxShortCircuitLevel);
+            control->setTargetLevels(targetLevels);
+        }
 
 //    		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Short circuiting to level %d",maxShortCircuitLevel);
-
-        } else {
-            // Note: Can't short circuit in this case.  Something wrong with the math
-            canShortCircuitImportance = false;
-        }
     }
 
     /** QuadLoader Calls **/
@@ -448,6 +509,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_nativeSetSingleL
 		if (!adapter)
 			return;
 		adapter->singleLevelLoading = newVal;
+        adapter->useParentTileBounds = false;
 	}
 	catch (...)
 	{
@@ -527,6 +589,60 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_boundsForTileNat
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::boundsForTileNative()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setMaxTiles
+(JNIEnv *env, jobject obj, jint maxTiles)
+{
+    try
+    {
+        QuadPagingLayerAdapter *adapter = QPLAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return;
+        
+        if (adapter->getController())
+            adapter->getController()->setMaxTiles(maxTiles);
+        adapter->maxTiles = maxTiles;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::setMaxTiles()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setTileHeightRange
+(JNIEnv *env, jobject obj, jdouble minZ, jdouble maxZ)
+{
+    try
+    {
+        QuadPagingLayerAdapter *adapter = QPLAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return;
+        
+        adapter->minTileHeight = minZ;
+        adapter->maxTileHeight = maxZ;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::setTileHeightRange()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadPagingLayer_setUseParentTileBounds
+(JNIEnv *env, jobject obj, jboolean useParentTileBounds)
+{
+    try
+    {
+        QuadPagingLayerAdapter *adapter = QPLAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        if (!adapter)
+            return;
+        
+        adapter->useParentTileBounds = useParentTileBounds;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::setUseParentTileBounds()");
     }
 }
 

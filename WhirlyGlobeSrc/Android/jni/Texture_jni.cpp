@@ -123,4 +123,6 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Texture_getID
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Texture::getID()");
 	}
+    
+    return EmptyIdentity;
 }

@@ -163,7 +163,27 @@ public class ComponentObject
 
 		return retIDs;
 	}
-	
+
+	void addGeometryID(long id)
+	{
+		if (geometryIDs == null)
+			geometryIDs = new ArrayList<Long>();
+		geometryIDs.add(id);
+	}
+
+	long[] getGeometryIDs()
+	{
+		if (geometryIDs == null)
+			return null;
+		long[] retIDs = new long[geometryIDs.size()];
+		int which = 0;
+		for (Long id : geometryIDs) {
+			retIDs[which++] = id;
+		}
+
+		return retIDs;
+	}
+
 	// Enable/disable anything the component object is holding
 	void enable(MaplyBaseController control,boolean enable,ChangeSet changes)
 	{	
@@ -180,6 +200,8 @@ public class ComponentObject
 				control.particleSystemManager.enableParticleSystem(id, enable, changes);
 			}
 		}
+		if (geometryIDs != null && geometryIDs.size() > 0)
+			control.geomManager.enableGeometry(convertIDs(geometryIDs), enable, changes);
 		if (shapeID != null && shapeID.size() > 0) {
 			control.shapeManager.enableShapes(convertIDs(shapeID), enable, changes);
 		}
@@ -218,6 +240,11 @@ public class ComponentObject
 			}
 			particleSystemIDs.clear();
 		}
+		if (geometryIDs != null && geometryIDs.size() > 0)
+		{
+			control.geomManager.removeGeometry(convertIDs(labelIDs), changes);
+			labelIDs.clear();
+		}
 		if (texIDs != null && texIDs.size() > 0) {
 			for (long texID : texIDs)
 				control.texManager.removeTexture(texID, changes);
@@ -247,6 +274,7 @@ public class ComponentObject
 	private ArrayList<Long> vectorIDs = null;
 	private ArrayList<Long> labelIDs = null;
 	private ArrayList<Long> particleSystemIDs = null;
+	private ArrayList<Long> geometryIDs = null;
 	private ArrayList<Long> shapeID = null;
 	private ArrayList<Long> billIDs = null;
 

@@ -111,6 +111,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeManager::addShapes()");
     }
+    
+    return EmptyIdentity;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_removeShapes

@@ -107,6 +107,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ShapeSphere_getLoc
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::getLoc()");
     }
+    
+    return NULL;
 }
 
 JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_ShapeSphere_getHeight
@@ -124,6 +126,8 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_ShapeSphere_getHeight
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::getHeight()");
     }
+    
+    return -1;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_setHeight
@@ -158,6 +162,8 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_ShapeSphere_getRadius
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::getRadius()");
     }
+    
+    return -1;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_setRadius
@@ -209,6 +215,8 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_ShapeSphere_getSampleX
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::getSampleX()");
     }
+    
+    return -1;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_setSampleY
@@ -243,4 +251,6 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_ShapeSphere_getSampleY
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::getSampleY()");
     }
+    
+    return -1;
 }

@@ -97,6 +97,8 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_BaseInfo_getDrawPriority
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::getDrawPriority()");
     }
+    
+    return 0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setMinVis
@@ -131,6 +133,8 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getMinVis
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::getMinVis()");
     }
+
+    return 0.0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setMaxVis
@@ -165,6 +169,8 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getMaxVis
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::getMaxVis()");
     }
+    
+    return 0.0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFade
@@ -199,6 +205,8 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getFade
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::getFade()");
     }
+    
+    return 0.0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShader

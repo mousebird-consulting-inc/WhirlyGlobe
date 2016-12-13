@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
@@ -43,6 +42,15 @@ public class MaplyBaseController
 	View baseView = null;
 	Activity activity = null;
     private OkHttpClient httpClient;
+
+
+	/**
+	 * Listener to receive the screenshot in an asynchronous way.
+	*/
+	public interface ScreenshotListener {
+		public void onScreenshotResult(Bitmap screenshot);
+	}
+
 
 	public static final String kToolkitDefaultTriangleNoLightingProgram = "Default Triangle;lighting=no";
 
@@ -93,6 +101,23 @@ public class MaplyBaseController
         return scene;
     }
 
+	public void takeScreenshot(ScreenshotListener listener)
+	{
+		if (baseView instanceof GLTextureView) {
+			GLTextureView textureView = (GLTextureView) baseView;
+
+			listener.onScreenshotResult(textureView.getBitmap());
+		} else {
+			GLSurfaceView surfaceView = null;
+
+			if (baseView instanceof GLSurfaceView) {
+				surfaceView = (GLSurfaceView) baseView;
+			}
+
+			this.renderWrapper.takeScreenshot(listener, surfaceView);
+		}
+	}
+
     /**
      * Return an HTTP Client for use in fetching data, probably tiles.
      */
@@ -117,7 +142,8 @@ public class MaplyBaseController
 	LayoutLayer layoutLayer = null;
 	ShapeManager shapeManager = null;
 	BillboardManager billboardManager = null;
-	
+	GeometryManager geomManager = null;
+
 	// Manage bitmaps and their conversion to textures
 	TextureManager texManager = new TextureManager();
 	
@@ -133,6 +159,8 @@ public class MaplyBaseController
 	 */
 	public LayerThread getLayerThread()
 	{
+		if (layerThreads == null)
+			return null;
 		synchronized (layerThreads) {
 			if (layerThreads.size() == 0)
 				return null;
@@ -259,6 +287,7 @@ public class MaplyBaseController
 		particleSystemManager = new ParticleSystemManager(scene);
 		shapeManager = new ShapeManager(scene);
 		billboardManager = new BillboardManager(scene);
+		geomManager = new GeometryManager(scene);
 
 		// Now for the object that kicks off the rendering
 		renderWrapper = new RendererWrapper(this);
@@ -418,7 +447,9 @@ public class MaplyBaseController
 			}
 			for (LayerThread layerThread : layerThreadsToRemove)
 				layerThread.shutdown();
-			layerThreads.clear();
+			synchronized (layerThreads) {
+				layerThreads.clear();
+			}
 
 			metroThread.shutdown();
 			metroThread = null;
@@ -474,7 +505,8 @@ public class MaplyBaseController
 			billboardManager = null;
 
 			texManager = null;
-			layerThreads = null;
+			// Using this as a synch object, so not a great idea
+//			layerThreads = null;
 			workerThreads = null;
 
 			activity = null;
@@ -823,7 +855,7 @@ public class MaplyBaseController
 	 */
 	public boolean screenPointFromGeoBatch(double[] inX,double[] inY,double[] inZ,double[] outX,double[] outY)
 	{
-		if (coordAdapter == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return false;
 		Point2d frameSize = renderWrapper.maplyRender.frameSize;
 
@@ -842,7 +874,7 @@ public class MaplyBaseController
 	 */
 	public boolean geoPointFromScreenBatch(double[] inX,double[] inY,double[] outX,double[] outY)
 	{
-		if (coordAdapter == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return false;
 		Point2d frameSize = renderWrapper.maplyRender.frameSize;
 
@@ -871,7 +903,7 @@ public class MaplyBaseController
 	 */
 	public double heightForMapScale(double scale)
 	{
-		if (view == null || renderWrapper == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return 0.0;
 
 		return view.heightForMapScale(scale,renderWrapper.maplyRender.frameSize.getX(),renderWrapper.maplyRender.frameSize.getY());
@@ -885,7 +917,7 @@ public class MaplyBaseController
 	 */
 	public double currentMapZoom(Point2d geoCoord)
 	{
-		if (view == null || renderWrapper == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return 0.0;
 
 		return view.currentMapZoom(renderWrapper.maplyRender.frameSize.getX(),renderWrapper.maplyRender.frameSize.getY(),geoCoord.getY());
@@ -898,7 +930,7 @@ public class MaplyBaseController
 	 */
 	public double currentMapScale()
 	{
-		if (view == null || renderWrapper == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
 			return 0.0;
 
 		return view.currentMapScale(renderWrapper.maplyRender.frameSize.getX(),renderWrapper.maplyRender.frameSize.getY());
@@ -1187,7 +1219,7 @@ public class MaplyBaseController
 				}
 
 				// Add the markers and flush the changes
-				long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
+				long markerId = markerManager.addScreenMarkers(intMarkers, markerInfo, changes);
 				if (scene != null)
 					changes.process(scene);
 
@@ -1206,6 +1238,97 @@ public class MaplyBaseController
 		return compObj;
 	}
 
+	/**
+	 * Add a single screen marker.  See addMarkers() for details.
+	 */
+	public ComponentObject addMarker(final Marker marker,final MarkerInfo markerInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		ArrayList<Marker> markers = new ArrayList<Marker>();
+		markers.add(marker);
+		return addMarkers(markers,markerInfo,mode);
+	}
+
+	/**
+	 * Add screen markers to the visual display.  Screen markers are 2D markers that sit
+	 * on top of the screen display, rather than interacting with the geometry.  Their
+	 * visual look is defined by the MarkerInfo class.
+	 *
+	 * @param markers The markers to add to the display
+	 * @param markerInfo How the markers should look.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @return This represents the screen markers for later modification or deletion.
+	 */
+	public ComponentObject addMarkers(final List<Marker> markers,final MarkerInfo markerInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = addComponentObj();
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+						// Convert to the internal representation of the engine
+						ArrayList<InternalMarker> intMarkers = new ArrayList<InternalMarker>();
+						for (Marker marker : markers)
+						{
+							if (marker.loc == null)
+							{
+								Log.d("Maply","Missing location for marker.  Skipping.");
+								return;
+							}
+
+							InternalMarker intMarker = new InternalMarker(marker,markerInfo);
+							// Map the bitmap to a texture ID
+							long texID = EmptyIdentity;
+							if (marker.image != null) {
+								texID = texManager.addTexture(marker.image, scene, changes);
+								if (texID != EmptyIdentity)
+									intMarker.addTexID(texID);
+							} else if (marker.images != null)
+							{
+								for (MaplyTexture tex : marker.images) {
+									intMarker.addTexID(tex.texID);
+								}
+							}
+
+							intMarkers.add(intMarker);
+
+							// Keep track of this one for selection
+							if (marker.selectable)
+							{
+								addSelectableObject(marker.ident,marker,compObj);
+							}
+						}
+
+						// Add the markers and flush the changes
+						long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
+						if (scene != null)
+							changes.process(scene);
+
+						if (markerId != EmptyIdentity)
+						{
+							compObj.addMarkerID(markerId);
+						}
+
+						for (InternalMarker marker : intMarkers)
+							marker.dispose();
+					}
+				};
+
+		addTask(run, mode);
+
+		return compObj;
+	}
 	/**
 	 * Add stickers on top of the globe or map.  Stickers are 2D objects that drape over a defined
 	 * area.
@@ -1294,7 +1417,74 @@ public class MaplyBaseController
 		return compObj;
 	}
 
-	Map<Long, Object> selectionMap = new HashMap<Long, Object>();
+	/**
+	 * Add the geometry points.  These are raw points that get fed to a shader.
+
+	 * @param ptList The points to add.
+	 * @param geomInfo Parameters to set things up with.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return This represents the geometry points for later modifictation or deletion.
+     */
+	public ComponentObject addPointList(final List<Points> ptList,final GeometryInfo geomInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = addComponentObj();
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+						// Stickers are added one at a time for some reason
+						for (Points pts: ptList) {
+							Matrix4d mat = pts.mat != null ? pts.mat : new Matrix4d();
+							long geomID = geomManager.addGeometryPoints(pts.rawPoints,pts.mat,geomInfo,changes);
+
+							if (geomID != EmptyIdentity) {
+								compObj.addGeometryID(geomID);
+							}
+						}
+
+						if (scene != null)
+							changes.process(scene);
+
+						if (geomInfo.disposeAfterUse || disposeAfterRemoval)
+							for (Points pts: ptList)
+								pts.rawPoints.dispose();
+					}
+				};
+
+		addTask(run, mode);
+
+		return compObj;
+	}
+
+	/**
+	 * Add the geometry points.  These are raw points that get fed to a shader.
+
+	 * @param pts The points to add.
+	 * @param geomInfo Parameters to set things up with.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @return This represents the geometry points for later modifictation or deletion.
+	 */
+	public ComponentObject addPoints(Points pts,final GeometryInfo geomInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		List<Points> ptList = new ArrayList<Points>();
+		ptList.add(pts);
+
+		return addPointList(ptList,geomInfo,mode);
+	}
+
+		Map<Long, Object> selectionMap = new HashMap<Long, Object>();
 	
 	// Add selectable objects to the list
 	private void addSelectableObject(long selectID,Object selObj,ComponentObject compObj)
@@ -1867,7 +2057,11 @@ public class MaplyBaseController
                         || Build.MODEL.contains("Android SDK built for x86"));
     }
 
-
+	/**
+	 * This adds a particle system to the scene, but does not kick off any particles.
+	 * @param particleSystem The particle system to start.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+     */
 	public ComponentObject addParticleSystem(final ParticleSystem particleSystem, ThreadMode mode) {
 		if (!running)
 			return null;
@@ -1897,6 +2091,12 @@ public class MaplyBaseController
 		return compObj;
 	}
 
+	/**
+	 * Particles are short term objects, typically very small.  We create them in large groups for efficience.
+	 * You'll need to fill out the MaplyParticleSystem initially and then the MaplyParticleBatch to create them.
+	 * @param particleBatch The batch of particles to add to an active particle system.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+     */
 	public void addParticleBatch(final ParticleBatch particleBatch, ThreadMode mode) {
 		if (!running)
 			return;
@@ -1915,6 +2115,10 @@ public class MaplyBaseController
 		}
 	}
 
+	/**
+	 * When the layout system clusters a bunch of markers or labels together, it needs new images to represent the cluster.
+	 * You can provide a custom image for each group of markers by filling in one of these generates and passing it in.
+     */
 	public void addClusterGenerator(ClusterGenerator generator) {
 		if (this.layoutLayer != null) {
 			generator.baseController = this;
@@ -1922,6 +2126,12 @@ public class MaplyBaseController
 		}
 	}
 
+	/**
+	 * This method will add the given MaplyShape derived objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
+	 * @param shapes An array of Shape derived objects
+	 * @param shapeInfo Info controlling how the shapes look
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+     */
 	public ComponentObject addShapes(final List<Shape> shapes, final ShapeInfo shapeInfo, ThreadMode mode) {
 		if (!running)
 			return null;
@@ -1946,6 +2156,43 @@ public class MaplyBaseController
 				if (shapeInfo.disposeAfterUse || disposeAfterRemoval)
 					for (Shape shape : shapes)
 						shape.dispose();
+			}
+		};
+
+		addTask(run, mode);
+		return compObj;
+	}
+
+	/**
+	 * Adds a group of points all at once.  We're assuming you want to draw a lot of points, so you have to group them together into a MaplyPoints.
+	 * @param inPoints The points to add to the scene
+	 * @param geomInfo Controls how the points look
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+     */
+	public ComponentObject addPoints(final List<Points> inPoints,final GeometryInfo geomInfo, final ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final Points[] points = inPoints.toArray(new Points[inPoints.size()]);
+
+		final ComponentObject compObj = addComponentObj();
+		final ChangeSet changes = new ChangeSet();
+		Runnable run = new Runnable() {
+			@Override
+			public void run() {
+				for (Points pts : points) {
+					long geomId = geomManager.addGeometryPoints(pts.rawPoints, pts.mat, geomInfo, changes);
+					if (geomId != EmptyIdentity)
+						compObj.addGeometryID(geomId);
+				}
+
+				if (geomInfo.disposeAfterUse || disposeAfterRemoval)
+					for (Points pts : points)
+						pts.rawPoints.dispose();
+
+				if (scene != null)
+					changes.process(scene);
 			}
 		};
 

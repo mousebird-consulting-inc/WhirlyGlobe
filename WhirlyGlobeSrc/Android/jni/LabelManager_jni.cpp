@@ -127,6 +127,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelManager::addLabels()");
 	}
+    
+    return EmptyIdentity;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_removeLabels
@@ -145,15 +147,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_removeLabels
         FontTextureManagerAndroid *fontTexManager = (FontTextureManagerAndroid *)labelManager->getScene()->getFontTextureManager();
         fontTexManager->setEnv(env);
 
-		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
-		int idCount = env->GetArrayLength(idArrayObj);
-		if (idCount == 0)
-			return;
-
-		SimpleIDSet idSet;
-		for (int ii=0;ii<idCount;ii++)
-			idSet.insert(ids[ii]);
-		env->ReleaseLongArrayElements(idArrayObj,ids, 0);
+        SimpleIDSet idSet;
+        ConvertLongArrayToSet(env,idArrayObj,idSet);
 
 		labelManager->removeLabels(idSet,*changeSet);
 	}
@@ -174,16 +169,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_enableLabels
 		if (!labelManager || !changeSet)
 			return;
 
-		int idCount = env->GetArrayLength(idArrayObj);
-		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
-		if (idCount == 0)
-			return;
-
-		SimpleIDSet idSet;
-		for (int ii=0;ii<idCount;ii++)
-			idSet.insert(ids[ii]);
-
-		env->ReleaseLongArrayElements(idArrayObj,ids, 0);
+        SimpleIDSet idSet;
+        ConvertLongArrayToSet(env,idArrayObj,idSet);
 
 		labelManager->enableLabels(idSet,enable,*changeSet);
 	}

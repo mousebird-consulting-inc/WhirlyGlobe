@@ -78,6 +78,9 @@ public class AttrDictionary
 	 * @param attrVal Double value to set.
      */
 	public native void setDouble(String attrName,double attrVal);
+
+	// Convert to a string for debugging
+	public native String toString();
 	
 	static
 	{

@@ -81,6 +81,11 @@ template<> SimplePolyClassInfo *SimplePolyClassInfo::classInfoObj = NULL;
 template<> StringWrapperClassInfo *StringWrapperClassInfo::classInfoObj = NULL;
 template<> MapboxVectorTileParserClassInfo *MapboxVectorTileParserClassInfo::classInfoObj = NULL;
 template<> SelectedObjectClassInfo *SelectedObjectClassInfo::classInfoObj = NULL;
+template<> GeometryManagerClassInfo *GeometryManagerClassInfo::classInfoObj = NULL;
+template<> GeometryInfoClassInfo *GeometryInfoClassInfo::classInfoObj = NULL;
+template<> GeometryRawPointsClassInfo *GeometryRawPointsClassInfo::classInfoObj = NULL;
+template<> GeometryRawClassInfo *GeometryRawClassInfo::classInfoObj = NULL;
+template<> GeometryInstanceClassInfo *GeometryInstanceClassInfo::classInfoObj = NULL;
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {
@@ -89,7 +94,71 @@ void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 	intVec.resize(len);
 	for (int ii=0;ii<len;ii++)
 		intVec[ii] = ints[ii];
-	env->ReleaseIntArrayElements(intArray,ints, 0);
+	env->ReleaseIntArrayElements(intArray,ints,0);
+}
+
+void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &floatVec)
+{
+    float *floats = env->GetFloatArrayElements(floatArray, NULL);
+    int len = env->GetArrayLength(floatArray);
+    floatVec.resize(len);
+    for (int ii=0;ii<len;ii++)
+        floatVec[ii] = floats[ii];
+    env->ReleaseFloatArrayElements(floatArray,floats,0);
+}
+
+void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::Vector2f> &ptVec)
+{
+    float *floats = env->GetFloatArrayElements(floatArray, NULL);
+    int len = env->GetArrayLength(floatArray)/2;
+    ptVec.resize(len);
+    for (int ii=0;ii<len;ii++)
+        ptVec[ii] = Eigen::Vector2f(floats[2*ii],floats[2*ii+1]);
+    env->ReleaseFloatArrayElements(floatArray,floats,0);
+}
+
+void ConvertFloat3fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::Vector3f> &ptVec)
+{
+    float *floats = env->GetFloatArrayElements(floatArray, NULL);
+    int len = env->GetArrayLength(floatArray)/3;
+    ptVec.resize(len);
+    for (int ii=0;ii<len;ii++)
+        ptVec[ii] = Eigen::Vector3f(floats[3*ii],floats[3*ii+1],floats[3*ii+2]);
+    env->ReleaseFloatArrayElements(floatArray,floats,0);
+}
+
+void ConvertFloat3dArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<Eigen::Vector3d> &ptVec)
+{
+    double *doubles = env->GetDoubleArrayElements(doubleArray, NULL);
+    int len = env->GetArrayLength(doubleArray)/34;
+    ptVec.resize(len);
+    for (int ii=0;ii<len;ii++)
+        ptVec[ii] = Eigen::Vector3d(doubles[3*ii],doubles[3*ii+1],doubles[3*ii+2]);
+    env->ReleaseDoubleArrayElements(doubleArray,doubles,0);
+}
+
+void ConvertFloat4fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::Vector4f> &ptVec)
+{
+    float *floats = env->GetFloatArrayElements(floatArray, NULL);
+    int len = env->GetArrayLength(floatArray)/4;
+    ptVec.resize(len);
+    for (int ii=0;ii<len;ii++)
+        ptVec[ii] = Eigen::Vector4f(floats[4*ii],floats[4*ii+1],floats[4*ii+2],floats[4*ii+3]);
+    env->ReleaseFloatArrayElements(floatArray,floats,0);
+}
+
+
+void ConvertLongArrayToSet(JNIEnv *env,jlongArray &idArrayObj,std::set<WhirlyKit::SimpleIdentity> &intSet)
+{
+    int idCount = env->GetArrayLength(idArrayObj);
+    long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
+    if (idCount == 0)
+        return;
+    
+    for (int ii=0;ii<idCount;ii++)
+        intSet.insert((WhirlyKit::SimpleIdentity)ids[ii]);
+
+    env->ReleaseLongArrayElements(idArrayObj,ids, 0);
 }
 
 JavaString::JavaString(JNIEnv *env,jstring &str)

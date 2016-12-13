@@ -1418,9 +1418,14 @@ void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *fr
     double t = fmod(frame->currentTime-startTime,period)/period;
     int base = floor(t * texIDs.size());
     int next = (base+1)%texIDs.size();
+    double interp = t*texIDs.size()-base;
     
     basicDraw->setTexId(0, texIDs[base]);
     basicDraw->setTexId(1, texIDs[next]);
+    
+    // Interpolation as well
+    if (frame->program)
+        frame->program->setUniform("u_interp", (float)interp);
     
     // This forces a redraw every frame
     // Note: There has to be a better way

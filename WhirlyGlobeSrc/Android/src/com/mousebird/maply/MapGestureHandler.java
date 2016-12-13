@@ -24,7 +24,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.util.Log;
 
 /**
  * Implements the various gestures we need and handles conflict between them.
@@ -88,7 +87,7 @@ public class MapGestureHandler
 	 * Check that a given position will be within the given bounds.
 	 * This is used by the various gestures for bounds checking.
 	 * 
-	 * @param newPos Position we're to check.
+	 * @param newLocalPos Position we're to check.
 	 * @param bounds Bounding box, probably from the maplyControl.
 	 * @return true if the new point is within the valid area.
 	 */

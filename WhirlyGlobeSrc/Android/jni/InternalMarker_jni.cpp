@@ -275,6 +275,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLayoutImportan
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setPeriod
+(JNIEnv *env, jobject obj, jdouble period)
+{
+    try
+    {
+        MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+        Marker *marker = classInfo->getObject(env,obj);
+        if (!marker)
+            return;
+        
+        marker->period = period;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setPeriod()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setVertexAttributes
 (JNIEnv *env, jobject obj, jobjectArray vertAttrArray)
 {

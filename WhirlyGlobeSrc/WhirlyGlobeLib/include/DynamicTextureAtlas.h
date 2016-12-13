@@ -212,7 +212,7 @@ public:
 
     /// Clear out the active dynamic textures.  Caller deals with the
     ///  change requests.
-    void shutdown(ChangeSet &changes);
+    void teardown(ChangeSet &changes);
     
         /// Print out some utilization info
     void log();

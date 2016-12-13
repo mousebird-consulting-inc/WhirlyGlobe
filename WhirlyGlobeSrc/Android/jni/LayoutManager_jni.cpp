@@ -72,17 +72,23 @@ public:
     typedef std::set<ClusterInfo> ClusterInfoSet;
 
     LayoutManagerWrapper(Scene *scene,LayoutManager *layoutManager)
-        : layoutManager(layoutManager), env(NULL)
+        : layoutManager(layoutManager), env(NULL), motionShaderID(EmptyIdentity)
     {
-        OpenGLES2Program *program = scene->getProgramBySceneName(kToolkitDefaultScreenSpaceMotionProgram);
-        if (program)
-            motionShaderID = program->getId();
-
         layoutManager->addClusterGenerator(this);
     }
 
     ~LayoutManagerWrapper() {
         // Note: Should clean up Java refs
+    }
+    
+    void updateShader()
+    {
+        if (motionShaderID == EmptyIdentity)
+        {
+            OpenGLES2Program *program = layoutManager->getScene()->getProgramBySceneName(kToolkitDefaultScreenSpaceMotionProgram);
+            if (program)
+                motionShaderID = program->getId();
+        }
     }
     
     void setEnv(JNIEnv *inEnv)
@@ -298,6 +304,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_updateLayout
         if (!wrap || !viewState || !changeSet)
             return;
         wrap->setEnv(env);
+        wrap->updateShader();
 
         wrap->layoutManager->updateLayout(viewState,*changeSet);
     }

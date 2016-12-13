@@ -87,6 +87,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Sun_getDirection
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Sun::dispose()");
     }
+    
+    return NULL;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sun_setTime
@@ -128,4 +130,6 @@ JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_Sun_asPosition
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Sun::asPosition()");
     }
+    
+    return NULL;
 }

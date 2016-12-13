@@ -95,6 +95,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point4d_getX
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point4d::getX()");
 	}
+    
+    return 0.0;
 }
 
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point4d_getY
@@ -113,6 +115,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point4d_getY
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point4d::getY()");
 	}
+    
+    return 0.0;
 }
 
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point4d_getZ
@@ -131,6 +135,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point4d_getZ
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point4d::getZ()");
 	}
+    
+    return 0.0;
 }
 
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point4d_getW
@@ -149,6 +155,8 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point4d_getW
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point4d::getW()");
 	}
+    
+    return 0.0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Point4d_setValue

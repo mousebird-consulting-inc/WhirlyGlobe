@@ -404,22 +404,57 @@ public:
         Point2f frameSize = renderer->getFramebufferSize();
 
         int zoomLevel = 0;
-        WhirlyKit::Point3d center3d = scene->getCoordAdapter()->displayToLocal(Point3d(viewState->eyePos.x(),viewState->eyePos.y(),0.0));
-        Point2f center(center3d.x(),center3d.y());
+        // Start with the center (where we're looking) in model coordinates
+        WhirlyKit::Point3d centerInModel = viewState->eyePos;
         // The coordinate adapter might have its own center
         Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
-        center.x() += adaptCenter.x();
-        center.y() += adaptCenter.y();
+        centerInModel += adaptCenter;
+        if (!scene->getCoordAdapter()->isFlat())
+            centerInModel.normalize();
+        
+        // Convert from model coordinates to the coord adapters local coordinates
+        Point3d localPt = scene->getCoordAdapter()->displayToLocal(centerInModel);
+        
+        // Now convert into our coordinate system
+        Point3d ourCenter = CoordSystemConvert3d(scene->getCoordAdapter()->getCoordSystem(), coordSys, localPt);
+        Point2f ourCenter2d(ourCenter.x(),ourCenter.y());
 
-        while (zoomLevel < maxZoom)
+        while (zoomLevel <= maxZoom)
         {
             WhirlyKit::Quadtree::Identifier ident;
             ident.x = 0;  ident.y = 0;  ident.level = zoomLevel;
             // Make an MBR right in the middle of where we're looking
             Mbr mbr = control->getQuadtree()->generateMbrForNode(ident);
             Point2f span = mbr.ur()-mbr.ll();
-            mbr.ll() = center - span/2.0;
-            mbr.ur() = center + span/2.0;
+            mbr.ll() = ourCenter2d - span/2.0;
+            mbr.ur() = ourCenter2d + span/2.0;
+            // If that MBR is pushing the north or south boundaries, let's adjust it
+            Mbr quadTreeMbr = control->getQuadtree()->getMbr();
+            if (mbr.ur().y() > quadTreeMbr.ur().y())
+            {
+                double dy = mbr.ur().y() - quadTreeMbr.ur().y();
+                mbr.ur().y() -= dy;
+                mbr.ll().y() -= dy;
+            } else
+                if (mbr.ll().y() < quadTreeMbr.ll().y())
+                {
+                    double dy = quadTreeMbr.ll().y() - mbr.ll().y();
+                    mbr.ur().y() += dy;
+                    mbr.ll().y() += dy;
+                }
+            // Also the east and west boundaries
+            if (mbr.ur().x() > quadTreeMbr.ur().x())
+            {
+                double dx = mbr.ur().x() - quadTreeMbr.ur().x();
+                mbr.ur().x() -= dx;
+                mbr.ll().x() -= dx;
+            } else
+                if (mbr.ll().x() < quadTreeMbr.ll().x())
+                {
+                    double dx = quadTreeMbr.ll().x() - mbr.ll().x();
+                    mbr.ur().x() += dx;
+                    mbr.ll().x() += dx;
+                }
             Dictionary attrs;
             float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), mbr, ident, &attrs);
             if (import <= shortCircuitImportance)
@@ -430,7 +465,7 @@ public:
             zoomLevel++;
         }
 
-        return zoomLevel;
+        return std::min(zoomLevel,maxZoom);
     }
 
     /// Called when the view state changes.  If you're caching info, do it here.
@@ -448,51 +483,23 @@ public:
     	}
 
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-        Point3d center = coordAdapter->getCenter();
-        if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
+        // We need to feel our way down to the appropriate level
+        maxShortCircuitLevel = targetZoomLevel(viewState);
+        if (singleLevelLoading)
         {
             canShortCircuitImportance = true;
-            if (!coordAdapter->isFlat())
+            std::set<int> targetLevels;
+            targetLevels.insert(maxShortCircuitLevel);
+            for (int whichLevel : levelLoads)
             {
-                canShortCircuitImportance = false;
-                return;
+                if (whichLevel < 0)
+                    whichLevel = maxShortCircuitLevel+whichLevel;
+                if (whichLevel >= 0 && whichLevel < maxShortCircuitLevel)
+                    targetLevels.insert(whichLevel);
             }
-            // We happen to store tilt in the view matrix.
-            // Note: Porting
-//            if (!viewState->viewMatrix.isIdentity())
-//            {
-//                canShortCircuitImportance = false;
-//                return;
-//            }
-            // The tile source coordinate system must be the same as the display's system
-            if (!coordSys->isSameAs(coordAdapter->getCoordSystem()))
-            {
-                canShortCircuitImportance = false;
-                return;
-            }
-
-            // We need to feel our way down to the appropriate level
-            maxShortCircuitLevel = targetZoomLevel(viewState);
-            if (singleLevelLoading)
-            {
-            	std::set<int> targetLevels;
-            	targetLevels.insert(maxShortCircuitLevel);
-                for (int whichLevel : levelLoads)
-                {
-					if (whichLevel < 0)
-						whichLevel = maxShortCircuitLevel+whichLevel;
-					if (whichLevel >= 0 && whichLevel < maxShortCircuitLevel)
-						targetLevels.insert(whichLevel);
-                }
-            	control->setTargetLevels(targetLevels);
-            }
-
-//    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
-
-        } else {
-            // Note: Can't short circuit in this case.  Something wrong with the math
-            canShortCircuitImportance = false;
+            control->setTargetLevels(targetLevels);
         }
+//    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
     }
 
     /// QuadDataStructure shutdown

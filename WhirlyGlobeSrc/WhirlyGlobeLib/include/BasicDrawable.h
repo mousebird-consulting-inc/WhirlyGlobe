@@ -266,7 +266,7 @@ public:
     /// Return the active transform matrix, if we have one
     virtual const Eigen::Matrix4d *getMatrix() const;
     
-    /// Set the uniforms to be applied to the
+    /// Set the uniforms to be applied to the geometry
     virtual void setUniforms(const SingleVertexAttributeSet &uniforms);    
 
     /// Run the texture and texture coordinates based on a SubTexture

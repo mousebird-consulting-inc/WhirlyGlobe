@@ -333,4 +333,17 @@ void Dictionary::setObject(const std::string &name, DelayedDeletableRef obj)
     fields[name] = oVal;
 }
     
+std::string Dictionary::toString() const
+{
+    std::string str;
+    for (const auto it : fields)
+    {
+        std::string valStr;
+        it.second->asString(valStr);
+        str += it.first + ":" + valStr + "\n";
+    }
+    
+    return str;
+}
+    
 }

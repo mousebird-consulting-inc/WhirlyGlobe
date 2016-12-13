@@ -87,6 +87,7 @@
 //#import "SphericalEarthQuadLayer.h"
 //#import "UpdateDisplayLayer.h"
 //#import "GeometryLayer.h"
+#import "GeometryManager.h"
 //#import "ViewPlacementGenerator.h"
 //#import "ActiveModel.h"
 #import "MaplyScene.h"
@@ -111,6 +112,8 @@
 #import "BillboardManager.h"
 #import "BillboardDrawable.h"
 #import "ScreenObject.h"
+#ifndef MAPLYMINIMAL
 #import "MapboxVectorTileParser.h"
+#endif
 #import "OverlapHelper.h"
 

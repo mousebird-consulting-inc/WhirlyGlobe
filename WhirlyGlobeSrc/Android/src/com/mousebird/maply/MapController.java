@@ -171,7 +171,8 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 		Choreographer c = Choreographer.getInstance();
 		if (c != null)
 			c.removeFrameCallback(this);
-		mapView.cancelAnimation();
+		if (mapView != null)
+			mapView.cancelAnimation();
 		super.shutdown();
 		mapView = null;
 		mapScene = null;

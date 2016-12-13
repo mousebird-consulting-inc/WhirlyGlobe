@@ -20,10 +20,12 @@
 
 package com.mousebird.maply;
 
+import android.os.Handler;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.util.Log;
 
 /**
  * Implements the various gestures we need and handles conflict between them.
@@ -37,7 +39,10 @@ public class GlobeGestureHandler
 {
 	GlobeController globeControl = null;
 	GlobeView globeView = null;
-	
+
+	public boolean allowRotate = false;
+	public boolean allowTilt = false;
+
 	ScaleGestureDetector sgd = null;
 	ScaleListener sl = null;
 	GestureDetector gd = null;
@@ -45,6 +50,7 @@ public class GlobeGestureHandler
 	View view = null;
 	double zoomLimitMin = 0.0;
 	double zoomLimitMax = 1000.0;
+	double startRot = Double.MAX_VALUE;
 	public GlobeGestureHandler(GlobeController inControl,View inView)
 	{
 		globeControl = inControl;
@@ -54,7 +60,8 @@ public class GlobeGestureHandler
 		sgd = new ScaleGestureDetector(view.getContext(),sl);
 		gl = new GestureListener(globeControl);
 		gd = new GestureDetector(view.getContext(),gl);
-		sl.gl = gl;		
+		sl.gl = gl;
+		updateTouchedTime();
 	}
 
 	public void shutdown()
@@ -68,6 +75,58 @@ public class GlobeGestureHandler
 			gl.globeControl = null;
 		gl = null;
 		view = null;
+	}
+
+	double lastTouchedTime = 0.0;
+	Handler autoRotateHandler = null;
+	Runnable autoRunRunnable = null;
+	GlobeAnimateMomentum rotateAnimation = null;
+	// Check every 1/5 of a second
+	final int AutoRotateCheckPeriod = 200;
+
+	void updateTouchedTime()
+	{
+		lastTouchedTime = System.currentTimeMillis() / 1000.0;
+		if (rotateAnimation != null) {
+			globeView.cancelAnimation();
+			rotateAnimation = null;
+		}
+	}
+
+	public void setAutoRotate(final float autoRotateInterval, final float autoRotateDegrees)
+	{
+		if (autoRotateHandler != null) {
+			autoRotateHandler.removeCallbacks(autoRunRunnable);
+			autoRunRunnable = null;
+			autoRotateHandler = null;
+		}
+
+		if (autoRotateInterval < 0.0 || autoRotateDegrees == 0.0)
+			return;
+
+		autoRunRunnable = new Runnable() {
+			@Override
+			public void run() {
+				if (globeControl == null || globeControl.renderWrapper == null || globeControl.renderWrapper.maplyRender == null)
+					return;
+
+				double currentTime = System.currentTimeMillis() / 1000.0;
+				if (currentTime - lastTouchedTime > autoRotateInterval && rotateAnimation == null)
+				{
+					double anglePerSec = autoRotateDegrees / 180.0 * Math.PI;
+					// GlobeView inGlobeView,MaplyRenderer inRender,double inVelocity,double inAcceleration,Point3d inAxis,boolean inNorthUp
+					Point3d north = new Point3d(0,0,1);
+					rotateAnimation = new GlobeAnimateMomentum(globeView,globeControl.renderWrapper.maplyRender,anglePerSec,0.0,north,false);
+					globeView.setAnimationDelegate(rotateAnimation);
+				}
+				autoRotateHandler = new Handler();
+				autoRotateHandler.postDelayed(autoRunRunnable,AutoRotateCheckPeriod);
+			}
+		};
+
+		// Check every 1/5 of a second
+		autoRotateHandler = new Handler();
+		autoRotateHandler.postDelayed(autoRunRunnable,AutoRotateCheckPeriod);
 	}
 
 	public void setZoomLimits(double inMin,double inMax)
@@ -124,6 +183,7 @@ public class GlobeGestureHandler
 			if (gl != null)
 				gl.isActive = false;
 			isActive = true;
+			updateTouchedTime();
 
 			return true;
 		}
@@ -145,9 +205,12 @@ public class GlobeGestureHandler
 					maplyControl.globeView.setLoc(new Point3d(newPos.getX(),newPos.getY(),newZ));
 				}
 //				Log.d("Maply","Zoom: " + maplyControl.mapView.getLoc().getZ() + " Scale: " + scale);
+				if (Math.abs(startDist - curDist) > 10)
+					possibleZoomOut = false;
 				return true;
 			}
-			
+
+			updateTouchedTime();
 			isActive = false;
 			return false;
 		}
@@ -157,6 +220,7 @@ public class GlobeGestureHandler
 		{
 //			Log.d("Maply","Ending scale");
 			isActive = false;
+			updateTouchedTime();
 		}
 	}
 	
@@ -197,6 +261,7 @@ public class GlobeGestureHandler
 			} else
 				isActive = false;
 
+			updateTouchedTime();
 			return true;
 		}
 
@@ -245,6 +310,7 @@ public class GlobeGestureHandler
 //				Log.d("Maply","New globe rotation");
 			}
 
+			updateTouchedTime();
 			return true;
 		}
 		
@@ -310,7 +376,8 @@ public class GlobeGestureHandler
 					globeView.setAnimationDelegate(new GlobeAnimateMomentum(globeView,globeControl.renderWrapper.maplyRender,angVel,accel,rotAxis,globeView.northUp));
 				}
 			}
-					
+
+			updateTouchedTime();
 			isActive = false;
 
 			return true;
@@ -322,6 +389,8 @@ public class GlobeGestureHandler
 //			Log.d("Maply","Long Press");
 			if (e.getPointerCount() == 1)
 				globeControl.processLongPress(new Point2d(e.getX(),e.getY()));
+
+			updateTouchedTime();
 		}
 
 		@Override
@@ -334,6 +403,7 @@ public class GlobeGestureHandler
 		@Override
 		public boolean onSingleTapUp(MotionEvent e)
 		{
+			updateTouchedTime();
 			return true;
 		}
 
@@ -341,6 +411,7 @@ public class GlobeGestureHandler
 		public boolean onDoubleTapEvent(MotionEvent e) 
 		{
 //			Log.d("Maply","Double tap update");
+			updateTouchedTime();
 			return false;
 		}
 
@@ -348,6 +419,7 @@ public class GlobeGestureHandler
 		public boolean onSingleTapConfirmed(MotionEvent e) 
 		{
 			globeControl.processTap(new Point2d(e.getX(),e.getY()));
+			updateTouchedTime();
 			return true;
 		}
 
@@ -383,48 +455,168 @@ public class GlobeGestureHandler
 				// Now kick off the animation
 				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender, newQuat, newHeight, 0.5));
 			}
-			
+
+			updateTouchedTime();
 			isActive = false;
 			
 			return true;
 		}		
 	}
-	
+
+	Point3d startRotAxis = null;
+	Quaternion startRotQuat = null;
+
+	// Update rotation when there are two fingers working
+	void handleRotation(MotionEvent event)
+	{
+		if (allowRotate)
+		{
+			MotionEvent.PointerCoords p0 = new MotionEvent.PointerCoords();
+			MotionEvent.PointerCoords p1 = new MotionEvent.PointerCoords();
+			event.getPointerCoords(0,p0);
+			event.getPointerCoords(1,p1);
+			double cX = (p0.x+p1.x)/2.0;
+			double cY = (p0.y+p1.y)/2.0;
+			double dx = p0.x-cX;
+			double dy = p0.y-cY;
+
+			// Calculate a starting rotation
+			if (startRot == Double.MAX_VALUE)
+			{
+				startRot = Math.atan2(dy, dx);
+				Point2d center = new Point2d(event.getX(),event.getY());
+				Matrix4d modelTransform = globeView.calcModelViewMatrix();
+				startRotAxis = globeView.pointOnSphereFromScreen(center, modelTransform, globeControl.getViewSize(), false);
+				startRotQuat = globeView.getRotQuat();
+			} else {
+				if (startRotAxis != null) {
+					// Update an existing rotation
+					double curRot = Math.atan2(dy, dx);
+					double diffRot = curRot - startRot;
+					AngleAxis rotQuat = new AngleAxis(-diffRot, startRotAxis);
+					Quaternion newRotQuat = startRotQuat.multiply(rotQuat);
+					globeView.setRotQuat(newRotQuat);
+
+					// Only if the user moved more than 3 degrees, otherwise we might still be zooming
+					if (Math.abs(diffRot) > 3.0*Math.PI/180.0) {
+						possibleZoomOut = false;
+//						Log.d("Maply","Event: Canceling possible zoom out.");
+					}
+				}
+			}
+		}
+	}
+
+	// Cancel an outstanding rotation
+	void cancelRotation()
+	{
+		startRot = Double.MAX_VALUE;
+		startRotAxis = null;
+		startRotQuat = null;
+		sl.isActive = false;
+	}
+
+	double startTilt = Double.MAX_VALUE;
+	double startTiltY = Double.MAX_VALUE;
+
+	void handleTilt(MotionEvent event)
+	{
+		if (startTiltY == Double.MAX_VALUE)
+		{
+			startTilt = globeView.getTilt();
+			startTiltY = event.getY();
+		} else {
+			double scale = (event.getY()-startTiltY)/globeControl.getViewSize().getX();
+			double move = scale * Math.PI/4;
+
+			// This tilt plants the horizon right in the middle
+			double maxTilt = Math.PI/2.0;
+
+			// Note: Porting
+//			if (_tiltCalcDelegate)
+//				maxTilt = [_tiltCalcDelegate maxTilt];
+//			else
+//			maxTilt = asin(1.0/(1.0+view.heightAboveGlobe));
+
+			double newTilt = move + startTilt;
+			globeView.setTilt(Math.min(Math.max(0.0,newTilt),maxTilt));
+
+			// Note: Porting
+//			if (_tiltCalcDelegate)
+//			[_tiltCalcDelegate setTilt:view.tilt];
+
+		}
+	}
+
+	void cancelTilt()
+	{
+		startTilt = Double.MAX_VALUE;
+		startTiltY = Double.MAX_VALUE;
+	}
+
+	boolean possibleZoomOut = false;
+
 	// Where we receive events from the gl view
 	public boolean onTouch(View v, MotionEvent event) {
 		boolean slWasActive = sl.isActive;
 		boolean glWasActive = gl.isActive;
+		boolean rotWasActive = startRot != Double.MAX_VALUE;
+		boolean tiltWasActive = startTilt != Double.MAX_VALUE;
 
 		// If they're using two fingers, cancel any outstanding pan
-		if (event.getPointerCount() == 2) {
+		if (event.getPointerCount() >= 2) {
 			gl.isActive = false;
 		}
 
-		// Try for a pinch or another gesture
-		if (sl.isActive || event.getPointerCount() == 2) {
-			sgd.onTouchEvent(event);
+		if (allowTilt) {
+			if (event.getPointerCount() == 3) {
+				handleTilt(event);
+				gl.isActive = false;
+				sl.isActive = false;
+				possibleZoomOut = false;
+			} else {
+				cancelTilt();
+			}
 		}
-		if (!sl.isActive || gl.isActive) {
+
+//		Log.d("Maply","Event = " + event);
+
+		sgd.onTouchEvent(event);
+
+		if (allowRotate) {
+			if (event.getPointerCount() == 2 && event.getActionMasked() == MotionEvent.ACTION_MOVE || event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
+				handleRotation(event);
+			} else {
+				cancelRotation();
+			}
+		}
+		if (!sl.isActive && event.getPointerCount() == 1) {
 			gd.onTouchEvent(event);
 			if (event.getAction() == MotionEvent.ACTION_UP) {
 				gl.isActive = false;
 			}
 		}
 
-		if (!sl.isActive && !gl.isActive && !slWasActive)
+		if (!sl.isActive && !gl.isActive && !slWasActive && !tiltWasActive)
 		{
-			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP))
+			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN))
 			{
-				double newHeight = globeView.getHeight()*2.0;
-				newHeight = Math.min(newHeight,zoomLimitMax);
-				newHeight = Math.max(newHeight,zoomLimitMin);
-
-				// Now kick off the animation
-				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender, globeView.getRotQuat(), newHeight, 0.5));
-
-				sl.isActive = false;
-				gl.isActive = false;
+//				Log.d("Maply", "Event: Starting possible zoom out");
+				possibleZoomOut = true;
 			}
+		}
+		if (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP && possibleZoomOut)
+		{
+			double newHeight = globeView.getHeight()*2.0;
+			newHeight = Math.min(newHeight,zoomLimitMax);
+			newHeight = Math.max(newHeight,zoomLimitMin);
+
+			// Now kick off the animation
+			globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender, globeView.getRotQuat(), newHeight, 0.5));
+
+			sl.isActive = false;
+			gl.isActive = false;
+			possibleZoomOut = false;
 		}
 
 		if (!glWasActive && gl.isActive)
@@ -438,6 +630,27 @@ public class GlobeGestureHandler
         if (slWasActive && !sl.isActive)
             globeControl.zoomDidEnd(true);
 
+		if (!rotWasActive && startRot != Double.MAX_VALUE)
+		{
+			this.globeControl.rotateDidStart(true);
+		}
+
+		if (rotWasActive && startRot == Double.MAX_VALUE)
+		{
+			this.globeControl.rotateDidEnd(true);
+		}
+
+		if (!tiltWasActive && startTilt != Double.MAX_VALUE)
+		{
+			this.globeControl.tiltDidStart(true);
+		}
+
+		if (tiltWasActive && startTilt == Double.MAX_VALUE)
+		{
+			this.globeControl.tiltDidEnd(true);
+		}
+
+		updateTouchedTime();
 		return true;
 	}      
 }

@@ -1,6 +1,5 @@
 package com.mousebird.maply;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -10,7 +9,7 @@ import android.view.ViewGroup;
  * You subclass this and fill in the various stubs to implement your own
  * map or globe.
  */
-public class GlobeMapFragment extends Fragment implements MapController.GestureDelegate, GlobeController.GestureDelegate {
+public class GlobeMapFragment extends android.support.v4.app.Fragment implements MapController.GestureDelegate, GlobeController.GestureDelegate {
     protected MapController mapControl;
     protected GlobeController globeControl;
     protected MaplyBaseController baseControl;
@@ -61,9 +60,11 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
 
         if (mapDisplayType == MapDisplayType.Map) {
             mapControl = new MapController(getActivity(), mapSettings);
+            mapControl.gestureDelegate = this;
             baseControl = mapControl;
         } else {
             globeControl = new GlobeController(getActivity(), globeSettings);
+            globeControl.gestureDelegate = this;
             baseControl = globeControl;
         }
 

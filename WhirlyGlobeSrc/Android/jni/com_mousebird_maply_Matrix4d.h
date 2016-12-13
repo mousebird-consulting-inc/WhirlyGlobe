@@ -49,6 +49,22 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_transpose
 
 /*
  * Class:     com_mousebird_maply_Matrix4d
+ * Method:    translate
+ * Signature: (DDD)Lcom/mousebird/maply/Matrix4d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_translate
+  (JNIEnv *, jclass, jdouble, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_Matrix4d
+ * Method:    scale
+ * Signature: (DDD)Lcom/mousebird/maply/Matrix4d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_scale
+  (JNIEnv *, jclass, jdouble, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_Matrix4d
  * Method:    multiply
  * Signature: (Lcom/mousebird/maply/Point4d;)Lcom/mousebird/maply/Point4d;
  */

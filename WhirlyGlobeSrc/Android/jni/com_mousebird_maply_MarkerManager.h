@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_MarkerManager
+ * Method:    addScreenMarkers
+ * Signature: (Ljava/util/List;Lcom/mousebird/maply/MarkerInfo;Lcom/mousebird/maply/ChangeSet;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
+  (JNIEnv *, jobject, jobject, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_MarkerManager
  * Method:    addMarkers
  * Signature: (Ljava/util/List;Lcom/mousebird/maply/MarkerInfo;Lcom/mousebird/maply/ChangeSet;)J
  */

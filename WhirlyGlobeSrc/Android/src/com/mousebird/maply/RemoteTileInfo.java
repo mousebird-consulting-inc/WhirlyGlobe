@@ -1,9 +1,12 @@
 package com.mousebird.maply;
 
+import com.squareup.okhttp.Request;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -45,7 +48,7 @@ public class RemoteTileInfo
 	/**
 	 * We'll use the time key when caching local files.
 	 * This avoids a naming problem with x_y_level that might occur if you're doing time based data sources.
-	 * @param timeKey
+	 * @param inTimeKey
      */
 	public void setTimeKey(String inTimeKey)
 	{
@@ -66,11 +69,17 @@ public class RemoteTileInfo
 			for (int ii=0;ii<tileSources.length();ii++)
 			{
 				String tileURL = tileSources.getString(ii);
+				if (tileURL.contains("{x}") || tileURL.contains("{y}"))
+					replaceURL = true;
 				baseURLs.add(tileURL);
 			}
+			replaceURL = true;
 			minZoom = json.getInt("minzoom");
 			maxZoom = json.getInt("maxzoom");
-			ext = "png";
+			if (replaceURL)
+				ext = null;
+			else
+				ext = "png";
 		}
 		catch (JSONException e)
 		{
@@ -79,9 +88,11 @@ public class RemoteTileInfo
 	}
 
 	/**
-	 * Construct a URL for a given tile
+	 * Construct a URL for a given tile.
+	 * If you'd like to override this you can construct your own URL.
+	 * If you need to mess with Request parameters look for buildRequest().
 	 */
-	public String buildURL(int x,int y,int level)
+	public URL buildURL(int x,int y,int level)
 	{
 		String url = null;
 		if (replaceURL)
@@ -91,7 +102,24 @@ public class RemoteTileInfo
 		if (url !=null && ext != null)
 			url = url + "." + ext;
 
-		return url;
+		URL retURL = null;
+		try {
+			retURL = new URL(url);
+		}
+		catch (Exception e)
+		{
+		}
+
+		return retURL;
+	}
+
+	/**
+	 * Construct the actual Request from the URL.
+	 * If you need to mess with the HTTP request headers, override this method.
+     */
+	public Request buildRequest(URL url)
+	{
+		return new Request.Builder().url(url).build();
 	}
 
 	/**

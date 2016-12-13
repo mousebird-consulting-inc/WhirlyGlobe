@@ -142,9 +142,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VertexAttribute_setVec3
         if (!inst)
             return;
         inst->type = BDFloat3Type;
-        inst->data.vec2[0] = x;
-        inst->data.vec2[1] = y;
-        inst->data.vec2[2] = z;
+        inst->data.vec3[0] = x;
+        inst->data.vec3[1] = y;
+        inst->data.vec3[2] = z;
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VertexAttribute::setVec3()");
     }

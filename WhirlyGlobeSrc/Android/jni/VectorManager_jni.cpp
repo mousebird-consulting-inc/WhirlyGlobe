@@ -172,15 +172,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_removeVectors
 		if (!wrap || !changeSet)
 			return;
 
-		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
-		int idCount = env->GetArrayLength(idArrayObj);
-		if (idCount == 0)
-			return;
-
-		SimpleIDSet idSet;
-		for (int ii=0;ii<idCount;ii++)
-			idSet.insert(ids[ii]);
-		env->ReleaseLongArrayElements(idArrayObj,ids, 0);
+        SimpleIDSet idSet;
+        ConvertLongArrayToSet(env,idArrayObj,idSet);
 
 		wrap->vecManager->removeVectors(idSet,*changeSet);
 	}
@@ -201,15 +194,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_enableVectors
 		if (!wrap || !changeSet)
 			return;
 
-		long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
-		int idCount = env->GetArrayLength(idArrayObj);
-		if (idCount == 0)
-			return;
-
-		SimpleIDSet idSet;
-		for (int ii=0;ii<idCount;ii++)
-			idSet.insert(ids[ii]);
-		env->ReleaseLongArrayElements(idArrayObj,ids, 0);
+        SimpleIDSet idSet;
+        ConvertLongArrayToSet(env,idArrayObj,idSet);
 
 		wrap->vecManager->enableVectors(idSet,enable,*changeSet);
 	}

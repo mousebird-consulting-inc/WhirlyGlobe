@@ -36,7 +36,7 @@ public class LabelInfo extends BaseInfo
 	/**
 	 * Default priority for labels.  Screen labels add a big offset to this.
 	 */
-	static int LabelPriorityDefault = 60000;
+	public static int LabelPriorityDefault = 60000;
 
 	public LabelInfo()
 	{

@@ -109,7 +109,7 @@ static const char *fragmentShaderTri =
 "}                                                   \n"
 ;
 
-static const char *fragmentShaderRampTri =
+/*static const char *fragmentShaderRampTri =
 "precision mediump float;\n"
 "\n"
 "uniform sampler2D s_baseMap0;\n"
@@ -125,7 +125,7 @@ static const char *fragmentShaderRampTri =
 "  vec4 baseColor = texture2D(s_colorRamp,vec2(0.5,index));\n"
 "  gl_FragColor = v_color * baseColor;\n"
 "}\n"
-;
+;*/
 
 static const char *vertexShaderModelTri =
 "struct directional_light {"
