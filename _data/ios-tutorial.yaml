@@ -32,6 +32,7 @@
   files: 
     - filename: vector_selection.html
     - filename: screen_marker_selection.html
+    - filename: location_tracking.html
 
 - section: Advanced
   files:

@@ -10,7 +10,7 @@ This tutorial will show you how to track your location on the globe or map.  The
 
 You will need to have already run through the [remote image layer](remote_image_layer.html) tutorial.  Let's get started by opening your HelloEarth project.
 
-![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/location_tracking_1.png)
+![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/location_tracking_1.jpg)
 
 If you haven't got one here is a suitable ViewController file to start with (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_location_tracking.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_location_tracking.swift)).  This version is from the previous tutorial for a [remote image layer](remote_image_layer.html).
 
@@ -18,7 +18,7 @@ If you haven't got one here is a suitable ViewController file to start with (for
 
 In order for your app to get permission to access location services, you have to ask. In XCode, go into the settings for your project, and go to the Info tab.  Under Custom iOS Target Properties, add an entry for "Privacy - Location When In Use..." The message you enter here will be displayed when the user's prompted for location permission.
 
-![Requesting location permission]({{ site.baseurl }}/images/tutorial/location_tracking_2.png)
+![Requesting location permission]({{ site.baseurl }}/images/tutorial/location_tracking_2.jpg)
 
 ## Tracking location
 
@@ -68,7 +68,7 @@ Now, call the method startLocationTrackingWithDelegate:useHeading:useCourse:simu
 
 If you now run your app, you will see your current location marked on the map or globe. If heading or course are available, they will be indicated by an arrow on the marker.
 
-![Start tracking location]({{ site.baseurl }}/images/tutorial/location_tracking_3.png)
+![Start tracking location]({{ site.baseurl }}/images/tutorial/location_tracking_3.jpg)
 
 The first argument is the delegate, which in our case is the view controller class.  The useHeading argument is true if heading should be used when available.  The useCourse argument is true if course, when available, should be used as a fallback if heading is unavailable.  Leave the last argument false for now.
 
@@ -86,7 +86,7 @@ Now, let's keep the screen locked on the current location:
 
 In this example, as you travel the map will stay centered on your position.
 
-![Locking on]({{ site.baseurl }}/images/tutorial/location_tracking_4.png)
+![Locking on]({{ site.baseurl }}/images/tutorial/location_tracking_4.jpg)
 
 ### Lock modes
 
@@ -114,7 +114,7 @@ To use the *MaplyLocationLockHeadingUpOffset* locking mode, call the changeLocat
 
 The offset amount is the number of pixels below or above the center at which to fix the user's position.  A positive value is below.
 
-![Heading up offset mode ]({{ site.baseurl }}/images/tutorial/location_tracking_5.png)
+![Heading up offset mode ]({{ site.baseurl }}/images/tutorial/location_tracking_5.jpg)
 
 ## Simulating locations with headings
 
@@ -174,7 +174,7 @@ Now change your startLocationTracking... method call so that *simulate* is set t
 
 The result in this example is a track moving eastward over the Canada-U.S. border.
 
-![Simulating an eastward track]({{ site.baseurl }}/images/tutorial/location_tracking_6.png)
+![Simulating an eastward track]({{ site.baseurl }}/images/tutorial/location_tracking_6.jpg)
 
 ## Stop tracking location
 
