@@ -751,6 +751,8 @@ using namespace WhirlyKit;
         quadLayer.targetLevels = targetLevels;
     }
     canShortCircuitImportance = true;
+    
+//    NSLog(@"Short circuiting to level %d",maxShortCircuitLevel);
 }
 
 /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
@@ -839,7 +841,8 @@ using namespace WhirlyKit;
         import *= _importanceScale;
     }
 
-//    NSLog(@"Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
+//    if (import > 0.0)
+//        NSLog(@"Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
     return import;
 }
