@@ -236,6 +236,11 @@
  */
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox;
 
+/** @brief Assign a user object here to get it passed back to you.
+    @details Optional property used by developers.
+  */
+@property (nonatomic,strong) id _Nullable userObject;
+
 @end
 
 @class MaplyRemoteTileSource;
