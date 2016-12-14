@@ -292,7 +292,7 @@ static bool trackConnections = false;
     return nil;
 }
 
-- (NSData *) remoteTileSource:(id)tileSource modifyTileReturn:(NSData *)tileData forTile:(MaplyTileID)tileID
+- (NSData *) remoteTileInfo:(id)tileSource modifyTileReturn:(NSData *)tileData forTile:(MaplyTileID)tileID frame:(int)frame
 {
     return tileData;
 }
@@ -307,10 +307,11 @@ static bool trackConnections = false;
     // We can override the data either in a subclass or in the delegate
     if (originalTileData)
     {
-        if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyTileReturn:forTile:)])
-            tileData = [_delegate remoteTileSource:self modifyTileReturn:tileData forTile:tileID];
+        id tileInfo = _tileSources[(which > -1 ? which : 0)];
+        if ([_delegate respondsToSelector:@selector(remoteTileInfo:modifyTileReturn:forTile:frame:)])
+            tileData = [_delegate remoteTileInfo:tileInfo modifyTileReturn:tileData forTile:tileID frame:which];
         else
-            tileData = [self remoteTileSource:self modifyTileReturn:tileData forTile:tileID];
+            tileData = [self remoteTileInfo:tileInfo modifyTileReturn:tileData forTile:tileID frame:which];
     }
 
     // Look for it in the bit list
@@ -376,12 +377,13 @@ static bool trackConnections = false;
                 [allData addObject:theTile.tileData[ii]];
  
         NSError *marshalError = [self marshalDataArray:allData];
+        id tileInfo = _tileSources[(which > -1 ? which : 0)];
         if (!marshalError)
         {
+
             // Let the delegate know we loaded successfully
-            // Note: Not passing in frame
-            if (_delegate && [_delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
-                [_delegate remoteTileSource:self tileDidLoad:tileID];
+            if (_delegate && [_delegate respondsToSelector:@selector(remoteTileInfo:tileDidLoad:frame:)])
+                [_delegate remoteTileInfo:tileInfo tileDidLoad:tileID frame:which];
         
             if (singleFetch)
                 [layer loadedImages:allData forTile:tileID frame:which];
@@ -390,8 +392,8 @@ static bool trackConnections = false;
         } else {
             // Last minute failure!
             [layer loadError:marshalError forTile:tileID frame:which];
-            if (_delegate && [_delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
-                [_delegate remoteTileSource:self tileDidNotLoad:tileID error:marshalError];
+            if (_delegate && [_delegate respondsToSelector:@selector(remoteTileInfo:tileDidNotLoad:frame:error:)])
+                [_delegate remoteTileInfo:tileInfo tileDidNotLoad:tileID frame:which error:marshalError];
         }
     }
 }
@@ -405,8 +407,11 @@ static bool trackConnections = false;
     
     // Unsucessful load
     [layer loadError:error forTile:tileID frame:frame];
-    if (_delegate && [_delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
-        [_delegate remoteTileSource:self tileDidNotLoad:tileID error:error];
+    if (_delegate && [_delegate respondsToSelector:@selector(remoteTileInfo:tileDidNotLoad:frame:error:)])
+    {
+        id tileInfo = _tileSources[(frame > -1 ? frame : 0)];
+        [_delegate remoteTileInfo:tileInfo tileDidNotLoad:tileID frame:frame error:error];
+    }
 }
 
 - (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID
