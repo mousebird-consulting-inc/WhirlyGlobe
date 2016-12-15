@@ -509,7 +509,7 @@ void SphericalChunkManager::processRequests(ChangeSet &changes)
     while (!theRequests.empty())
     {
         ChunkRequest request = theRequests.front();
-        requests.pop();
+        theRequests.pop();
         processChunkRequest(request,changes);
     }    
 }
