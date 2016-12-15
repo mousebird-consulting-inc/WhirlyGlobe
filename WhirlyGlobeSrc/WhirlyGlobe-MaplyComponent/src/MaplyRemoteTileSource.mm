@@ -39,7 +39,6 @@ static bool trackConnections = false;
     bool cacheInit;
     int _minZoom,_maxZoom;
     int _pixelsPerSide;
-    bool replaceURL;
     std::vector<Mbr> mbrs;
 }
 
@@ -56,7 +55,7 @@ static bool trackConnections = false;
     _pixelsPerSide = 256;
     _timeOut = 0.0;
     _coordSys = [[MaplySphericalMercator alloc] initWebStandard];
-    replaceURL = [baseURL containsString:@"{y}"] && [baseURL containsString:@"{x}"]; // && [baseURL containsString:@"{z}"];
+    _replaceURL = [baseURL containsString:@"{y}"] && [baseURL containsString:@"{x}"]; // && [baseURL containsString:@"{z}"];
     
     return self;
 }
@@ -244,7 +243,7 @@ static bool trackConnections = false;
         if (_timeOut != 0.0)
             [urlReq setTimeoutInterval:_timeOut];
     } else {
-        if (replaceURL)
+        if (_replaceURL)
         {
             // Fetch the traditional way
             NSString *fullURLStr = [[[_baseURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]

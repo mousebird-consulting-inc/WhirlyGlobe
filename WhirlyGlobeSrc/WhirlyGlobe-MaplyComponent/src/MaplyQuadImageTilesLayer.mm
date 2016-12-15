@@ -1040,12 +1040,12 @@ using namespace WhirlyKit;
     }
 }
 
-- (void)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID
+- (bool)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID
 {
-    [self loadedImages:tileReturn forTile:tileID frame:-1];
+    return [self loadedImages:tileReturn forTile:tileID frame:-1];
 }
 
-- (void)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID frame:(int)frame
+- (bool)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID frame:(int)frame
 {
     int borderTexel = tileLoader.borderTexel;
 
@@ -1090,7 +1090,7 @@ using namespace WhirlyKit;
                     [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
             }
             
-            return;
+            return false;
         }
     }
     
@@ -1106,6 +1106,8 @@ using namespace WhirlyKit;
         else
             [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
     }
+    
+    return loadTile != nil;
 }
 
 - (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID
