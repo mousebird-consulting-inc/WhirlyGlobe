@@ -90,7 +90,7 @@ using namespace WhirlyKit;
     newCyl.baseHeight = _baseHeight;
     newCyl.radius = _radius;
     newCyl.height = _height;
-    newCyl.sampleX = (int)[desc[kMaplySampleX] integerValue];
+    newCyl.sampleX = (int)[desc[kMaplyShapeSampleX] integerValue];
     if (self.color)
     {
         newCyl.useColor = true;
