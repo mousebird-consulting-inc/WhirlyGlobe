@@ -378,20 +378,25 @@ static bool trackConnections = false;
  
         NSError *marshalError = [self marshalDataArray:allData];
         id tileInfo = _tileSources[(which > -1 ? which : 0)];
+        bool convertSuccess = true;
         if (!marshalError)
         {
-
-            // Let the delegate know we loaded successfully
-            if (_delegate && [_delegate respondsToSelector:@selector(remoteTileInfo:tileDidLoad:frame:)])
-                [_delegate remoteTileInfo:tileInfo tileDidLoad:tileID frame:which];
-        
             if (singleFetch)
-                [layer loadedImages:allData forTile:tileID frame:which];
+                convertSuccess = [layer loadedImages:allData forTile:tileID frame:which];
             else
-                [layer loadedImages:allData forTile:tileID];
+                convertSuccess = [layer loadedImages:allData forTile:tileID];
         } else {
             // Last minute failure!
             [layer loadError:marshalError forTile:tileID frame:which];
+        }
+
+        // Even more last minute load error
+        if (convertSuccess && !marshalError)
+        {
+            // Let the delegate know we loaded successfully
+            if (_delegate && [_delegate respondsToSelector:@selector(remoteTileInfo:tileDidLoad:frame:)])
+                [_delegate remoteTileInfo:tileInfo tileDidLoad:tileID frame:which];
+        } else {
             if (_delegate && [_delegate respondsToSelector:@selector(remoteTileInfo:tileDidNotLoad:frame:error:)])
                 [_delegate remoteTileInfo:tileInfo tileDidNotLoad:tileID frame:which error:marshalError];
         }
