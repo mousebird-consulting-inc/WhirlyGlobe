@@ -181,7 +181,7 @@ static const float EarthRadius = 6371000;
 	[self addShapeCylinders:locations len:NumLocations stride:4 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)} baseViewC:(MaplyBaseViewController*)globeVC];
 	[self addGreatCircles:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)} baseViewC:(MaplyBaseViewController*)globeVC];
 	[self addShapeSpheres:locations len:NumLocations stride:4 offset:1 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000)} baseViewC:(MaplyBaseViewController *)globeVC];
-    [self addShapesCircles:locations len:NumLocations stride:4 offset:3 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:1.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000), kMaplySampleX: @(100)} baseViewC:(MaplyBaseViewController *)globeVC];
+    [self addShapesCircles:locations len:NumLocations stride:4 offset:3 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:1.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyDrawPriority: @(1000), kMaplyShapeSampleX: @(100)} baseViewC:(MaplyBaseViewController *)globeVC];
 }
 
 

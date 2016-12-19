@@ -44,7 +44,10 @@ using namespace WhirlyKit;
     newCircle.loc.lat() = _center.y;
     newCircle.radius = _radius;
     newCircle.height = _height;
-    newCircle.sampleX = (int)[desc[kMaplySampleX] integerValue];
+    if (desc[kMaplyShapeSampleX] != nil)
+        newCircle.sampleX = (int)[desc[kMaplyShapeSampleX] integerValue];
+    else if (desc[kMaplySampleX] != nil)
+        newCircle.sampleX = (int)[desc[kMaplySampleX] integerValue];
     if (self.color)
     {
         newCircle.useColor = true;
