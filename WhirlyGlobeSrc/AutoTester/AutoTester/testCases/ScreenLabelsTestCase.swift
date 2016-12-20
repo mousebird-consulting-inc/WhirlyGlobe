@@ -11,68 +11,82 @@ import UIKit
 class ScreenLabelsTestCase: MaplyTestCase {
 
 	var labelList = [MaplyComponentObject]()
+    var markerList = [MaplyComponentObject]()
 
 	override init() {
 		super.init()
 		
 		self.name = "Screen Labels"
 		self.captureDelay = 3
-		self.implementations = [.Globe, .Map]
+		self.implementations = [.globe, .map]
 	}
 
-	override func setUpWithGlobe(globeVC: WhirlyGlobeViewController) {
+	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
         globeVC.keepNorthUp = true
 		let vectorTestCase = VectorsTestCase()
 		vectorTestCase.setUpWithGlobe(globeVC)
-		insertLabels(vectorTestCase.compList! as! [MaplyVectorObject], theViewC: globeVC)
-		globeVC.animateToPosition(MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
+		insertLabels(vectorTestCase.compList! as NSArray as! [MaplyVectorObject], theViewC: globeVC)
+		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 
-	override func setUpWithMap(mapVC: MaplyViewController) {
+	override func setUpWithMap(_ mapVC: MaplyViewController) {
 		let vectorTestCase = VectorsTestCase()
 		vectorTestCase.setUpWithMap(mapVC)
-		insertLabels(vectorTestCase.compList! as! [MaplyVectorObject], theViewC: mapVC)
-		mapVC.animateToPosition(MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
+		insertLabels(vectorTestCase.compList! as NSArray as! [MaplyVectorObject], theViewC: mapVC)
+		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 
-	private func insertLabels(arrayComp: [MaplyVectorObject], theViewC: MaplyBaseViewController) {
+	fileprivate func insertLabels(_ arrayComp: [MaplyVectorObject], theViewC: MaplyBaseViewController) {
 		
 		for i in 0..<arrayComp.count {
 			let object = arrayComp[i]
-			if object.userObject?.description.characters.count > 0 {
+            let str = object.userObject as? String
+            if str != nil {
 				let label = MaplyScreenLabel()
 
-				label.text = object.userObject?.description
+				label.text = str
 				label.loc = object.center()
 				label.selectable = true
 				label.layoutImportance = 10
                 label.userObject = label.text;
-                label.layoutPlacement = kMaplyLayoutRight;
-//                label.rotation = Float(M_PI/2.0);
-//                label.offset = CGPointMake(0.0,100.0);
+                label.layoutPlacement = kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow
+//                label.rotation = Float(M_PI/2.0)
+//                label.offset = CGPoint(x: 100.0, y: 0.0)
 
 				if (i % 2 == 0) {
 					// Some with text shadow
 					if let comp = theViewC.addScreenLabels([label], desc: [
-							kMaplyFont: UIFont.boldSystemFontOfSize(24.0),
-							kMaplyShadowColor: UIColor.blackColor(),
-							kMaplyShadowSize: 2.0,
+							kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
+							kMaplyShadowColor: UIColor.black,
+							kMaplyShadowSize: 1.0,
                             kMaplySelectable: true,
-							kMaplyColor: UIColor.whiteColor()]) {
+							kMaplyColor: UIColor.white]) {
 						labelList.append(comp)
 					}
 				}
 				else {
 					//Some with text outline
 					if let comp = theViewC.addScreenLabels([label], desc: [
-							kMaplyFont: UIFont.boldSystemFontOfSize(24.0),
-							kMaplyTextOutlineColor: UIColor.blackColor(),
+							kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
+							kMaplyTextOutlineColor: UIColor.black,
 							kMaplyTextOutlineSize: 2.0,
                             kMaplySelectable: true,
-							kMaplyColor: UIColor.whiteColor()]) {
+							kMaplyColor: UIColor.white]) {
 						labelList.append(comp)
 					}
 				}
+                
+#if false
+                // Marker for reference
+                let marker = MaplyScreenMarker()
+                marker.loc = object.center()
+                marker.layoutImportance = MAXFLOAT
+                marker.size = CGSize(width: 4.0, height: 4.0)
+                if let comp = theViewC.addScreenMarkers([marker], desc: [kMaplyDrawPriority: 10000000])
+                {
+                    markerList.append(comp)
+                }
+#endif
 			}
 		}
 	}

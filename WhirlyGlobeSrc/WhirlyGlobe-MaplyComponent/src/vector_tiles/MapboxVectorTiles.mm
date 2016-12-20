@@ -62,6 +62,12 @@ static double MAX_EXTENT = 20037508.342789244;
     return self;
 }
 
+- (void)dealloc
+{
+    _styleDelegate = nil;
+    _viewC = nil;
+}
+
 - (MaplyVectorTileData *)buildObjects:(NSData *)tileData tile:(MaplyTileID)tileID bounds:(MaplyBoundingBox)bbox
 {
     //calulate tile bounds and coordinate shift
@@ -432,6 +438,8 @@ static double MAX_EXTENT = 20037508.342789244;
 //                styleSet = mapboxStyleSet;
 //            }
             break;
+            default:
+                break;
         }
         
         MapboxVectorTiles *vecTiles = [[MapboxVectorTiles alloc] initWithTileSource:tileSource style:styleSet viewC:viewC];
@@ -565,6 +573,11 @@ static double MAX_EXTENT = 20037508.342789244;
     return self;
 }
 
+- (void)dealloc
+{
+    _tileSources = nil;
+}
+
 - (void)setAccessToken:(NSString *)accessToken
 {
     _accessToken = accessToken;
@@ -582,6 +595,7 @@ static double MAX_EXTENT = 20037508.342789244;
 
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer
 {
+    
     //  NSLog(@"%@ startFetchForTile: %d/%d/%d", NSStringFromClass([self class]), tileID.level,tileID.x,tileID.y);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
     ^{
@@ -617,6 +631,10 @@ static double MAX_EXTENT = 20037508.342789244;
                     }
                 }
                 
+                // If the app shuts down the layer while we're working
+                if (!layer.valid)
+                    break;
+                    
                 MaplyVectorTileData *retData = [_tileParser buildObjects:tileData tile:tileID bounds:bbox];
                 if (!retData)
                 {

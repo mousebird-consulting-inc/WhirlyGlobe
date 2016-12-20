@@ -36,6 +36,11 @@
   */
 @property (nonatomic,assign) MaplyCoordinate loc;
 
+/** @brief An offset in screen space for the view tracker.
+    @details This offset is added to the location after it's projected into screen space.
+ */
+@property (nonatomic, assign) CGPoint offset;
+
 /** @brief The lowest height at which we'll see the view tracker.
     @details This value is in display coordinates.
   */

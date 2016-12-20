@@ -143,7 +143,7 @@ public:
         for (const auto &pt : inPts)
             pts.push_back(Point2f(pt.x(),pt.y()));
         
-        addPoints(pts,close,attrs);
+        addPoints(pts,closed,attrs);
     }
     
     void addPoints(VectorRing &pts,bool closed,NSDictionary *attrs)
@@ -419,8 +419,8 @@ public:
                             Point3d dispPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD))-center;
                             Point3d dir = dispPt - planeOrg;
                             Point3d comp(dir.dot(planeX),dir.dot(planeY),dir.dot(planeUp));
-                            texCoord.x() = comp.x();
-                            texCoord.y() = comp.y();
+                            texCoord.x() = comp.x() * vecInfo->texScale.x();
+                            texCoord.y() = comp.y() * vecInfo->texScale.y();
                         }
                             break;
                         case TextureProjectionNone:

@@ -54,6 +54,7 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     pthread_mutex_init(&textureLock,NULL);
     pthread_mutex_init(&generatorLock,NULL);
     pthread_mutex_init(&programLock,NULL);
+    pthread_mutex_init(&managerLock,NULL);
 
     ssGen = NULL;
     
@@ -66,7 +67,6 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 
     dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
 
-    pthread_mutex_init(&managerLock,NULL);
     // Selection manager is used for object selection from any thread
     addManager(kWKSelectionManager,new SelectionManager(this,[UIScreen mainScreen].scale));
     // Intersection handling
@@ -128,12 +128,13 @@ Scene::~Scene()
     pthread_mutex_destroy(&generatorLock);
     pthread_mutex_destroy(&programLock);
     
-    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+    auto theChangeRuquests = changeRequests;
+    changeRequests.clear();
+    for (unsigned int ii=0;ii<theChangeRuquests.size();ii++)
     {
         // Note: Tear down change requests?
-        delete changeRequests[ii];
+        delete theChangeRuquests[ii];
     }
-    changeRequests.clear();
     
     activeModels = nil;
     
@@ -301,7 +302,7 @@ void Scene::removeActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
     if ([activeModels containsObject:activeModel])
     {
         [activeModels removeObject:activeModel];
-        [activeModel shutdown];
+        [activeModel teardown];
     }
 }
     
@@ -585,6 +586,13 @@ void Scene::removeProgram(SimpleIdentity progId)
     pthread_mutex_unlock(&programLock);
 }
     
+AddTextureReq::~AddTextureReq()
+{
+    if (tex)
+        delete tex;
+    tex = NULL;
+}
+    
 void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     if (!tex->getGLId())
@@ -595,6 +603,7 @@ void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whir
 
 void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
+    pthread_mutex_lock(&scene->textureLock);
     TextureBase dumbTex(texture);
     Scene::TextureSet::iterator it = scene->textures.find(&dumbTex);
     if (it != scene->textures.end())
@@ -604,6 +613,14 @@ void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whir
         scene->textures.erase(it);
         delete tex;
     }
+    pthread_mutex_unlock(&scene->textureLock);
+}
+
+AddDrawableReq::~AddDrawableReq()
+{
+    if (drawable)
+        delete drawable;
+    drawable = NULL;
 }
 
 void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)

@@ -87,14 +87,14 @@
 @property (nonatomic, strong, nullable) MaplyVectorStyleSettings *tileStyleSettings;
 
 /** @brief Constructs a SLDStyleSet object.
- @details After constructing the SLDStyleSet object, call loadSldFile: or loadSldData: to parse the desired SLD document tree and create the corresponding symbolizers.
+ @details After constructing the SLDStyleSet object, call loadSldURL: or loadSldData:baseURL: to parse the desired SLD document tree and create the corresponding symbolizers.
  @param viewC The map or globe view controller.
  @param useLayerNames Whether to use names of NamedLayer elements as a criteria in matching styles.
  */
 - (id _Nullable)initWithViewC:(MaplyBaseViewController * _Nonnull)viewC useLayerNames:(BOOL)useLayerNames;
 
-- (void)loadSldFile:(NSString *__nonnull)filePath;
-- (void)loadSldData:(NSData *__nonnull)sldData;
+- (void)loadSldURL:(NSURL *__nullable)url;
+- (void)loadSldData:(NSData *__nonnull)sldData baseURL:(NSURL *__nonnull)baseURL;
 
 @end
 

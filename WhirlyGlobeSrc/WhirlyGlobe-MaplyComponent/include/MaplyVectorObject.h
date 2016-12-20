@@ -311,6 +311,11 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
   */
 - (void)subdivideToGlobeGreatCircle:(float)epsilon;
 
+/** @brief Subdivide the edges in this feature to a given tolerance, using great circle math.
+ @details This version samples a great circle to display on a flat map.
+ */
+- (void)subdivideToFlatGreatCircle:(float)epsilon;
+
 /** @brief Tesselate the areal geometry in this vector object and return triangles.
     @details This will attempt to tesselate the areals (with holes) and turn them into triangles.  No attribution will be assigned to the new triangles, so be aware.  The tesselator is the GLU based one and does a decent job.  Odds are if there's something wrong it's in the input data.
   */

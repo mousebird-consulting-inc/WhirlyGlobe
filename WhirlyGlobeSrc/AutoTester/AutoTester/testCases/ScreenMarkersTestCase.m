@@ -57,7 +57,7 @@
     self.markersObj = [theView addScreenMarkers:markers desc:nil];
     
     // Disable them slightly later
-    [self performSelector:@selector(disableObjects) withObject:nil afterDelay:10.0];
+//    [self performSelector:@selector(disableObjects) withObject:nil afterDelay:10.0];
 }
 
 // Test disable and selection

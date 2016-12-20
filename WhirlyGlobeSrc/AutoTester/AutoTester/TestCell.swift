@@ -20,33 +20,33 @@ class TestCell: UITableViewCell {
 	var mapTestExecution: (() -> ())?
 	var retryDownloadResources: (() -> ())?
 	var rowPosition : Int?
-	var implementations: MaplyTestCaseImplementations = [.Globe, .Map]
+	var implementations: MaplyTestCaseImplementations = [.globe, .map]
 
-	var state: MaplyTestCaseState  = .Error {
+	var state: MaplyTestCaseState  = .error {
 		didSet {
 			switch state {
-			case MaplyTestCaseState.Downloading:
-				downloadIndicator.hidden = false;
+			case MaplyTestCaseState():
+				downloadIndicator.isHidden = false;
 				downloadIndicator.startAnimating()
-				globeButton.hidden = true
-				mapButton.hidden = true
-				retryButton.hidden = true;
-				accessoryType = .None
+				globeButton.isHidden = true
+				mapButton.isHidden = true
+				retryButton.isHidden = true;
+				accessoryType = .none
 				break
-			case MaplyTestCaseState.Error:
-				downloadIndicator.hidden = true;
+			case MaplyTestCaseState.error:
+				downloadIndicator.isHidden = true;
 				downloadIndicator.stopAnimating()
-				globeButton.hidden = true
-				retryButton.hidden = false;
-				mapButton.hidden = true
-				accessoryType = .None
-				backgroundColor = UIColor.redColor()
+				globeButton.isHidden = true
+				retryButton.isHidden = false;
+				mapButton.isHidden = true
+				accessoryType = .none
+				backgroundColor = UIColor.red
 				break
 			default:
 				downloadIndicator.stopAnimating()
-				downloadIndicator.hidden = true;
-				retryButton.hidden = true;
-				backgroundColor = UIColor.whiteColor()
+				downloadIndicator.isHidden = true;
+				retryButton.isHidden = true;
+				backgroundColor = UIColor.white
 			}
 		}
 	}
@@ -54,22 +54,22 @@ class TestCell: UITableViewCell {
 	var interactive: Bool = false {
 		didSet {
 			if interactive  {
-				globeButton.hidden = !implementations.contains(.Globe)
-				mapButton.hidden = !implementations.contains(.Map);
+				globeButton.isHidden = !implementations.contains(.globe)
+				mapButton.isHidden = !implementations.contains(.map);
 			}
 			else{
-				globeButton.hidden = true
-				mapButton.hidden = true
+				globeButton.isHidden = true
+				mapButton.isHidden = true
 			}
-			accessoryType = .None
+			accessoryType = .none
 
 			switch state {
-			case MaplyTestCaseState.Running:
-				accessoryType = .DisclosureIndicator
-			case MaplyTestCaseState.Selected:
-				accessoryType = .Checkmark
+			case MaplyTestCaseState.running:
+				accessoryType = .disclosureIndicator
+			case MaplyTestCaseState.selected:
+				accessoryType = .checkmark
 			default:
-				accessoryType = .None
+				accessoryType = .none
 			}
 		}
 	}
@@ -78,15 +78,15 @@ class TestCell: UITableViewCell {
 		super.init(coder: aDecoder)
 	}
 
-	@IBAction func runGlobeInteractiveTest(sender: AnyObject) {
+	@IBAction func runGlobeInteractiveTest(_ sender: AnyObject) {
 		globeTestExecution?()
 	}
 	
-	@IBAction func runMapInteractiveTest(sender: AnyObject) {
+	@IBAction func runMapInteractiveTest(_ sender: AnyObject) {
 		mapTestExecution?()
 	}
 
-	@IBAction func retryAction(sender: AnyObject) {
+	@IBAction func retryAction(_ sender: AnyObject) {
 		retryDownloadResources?()
 	}
 
