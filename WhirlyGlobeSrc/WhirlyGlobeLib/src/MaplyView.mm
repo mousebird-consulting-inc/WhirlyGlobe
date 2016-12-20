@@ -25,6 +25,18 @@ using namespace WhirlyKit;
 
 @implementation MaplyView
 
+- (id)initWithView:(MaplyView *)inMapView
+{
+    if (![self isKindOfClass:[MaplyView class]])
+        return nil;
+    
+    self = [super initWithView:inMapView];
+    _loc = inMapView.loc;
+    _rotAngle = inMapView.rotAngle;
+    
+    return self;
+}
+
 - (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)inCoordAdapter
 {
     if (self = [super init])
@@ -193,8 +205,14 @@ using namespace WhirlyKit;
 
 - (void)setRotAngle:(double)newRotAngle
 {
+    [self setRotAngle:newRotAngle runViewUpdates:true];
+}
+
+- (void)setRotAngle:(double)newRotAngle runViewUpdates:(bool)runViewUpdates
+{
     _rotAngle = newRotAngle;
-    [self runViewUpdates];
+    if (runViewUpdates)
+        [self runViewUpdates];
 }
 
 - (Eigen::Matrix4d)calcFullMatrix

@@ -60,6 +60,11 @@
 
     /// Current view animation (kept around so it's not released)
     NSObject *curAnimation;
+    
+    // Used for the outside animation interface
+    NSObject<MaplyViewControllerAnimationDelegate> *animationDelegate;
+    NSTimeInterval animationDelegateEnd;
+
 }
 
 - (void)setupFlatView;

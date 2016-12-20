@@ -15,10 +15,10 @@ class BNGCustomMapTestCase: MaplyTestCase {
 		super.init()
 		self.name = "British National Grid (custom map)"
 		self.captureDelay = 20
-		self.implementations = [.Map]
+		self.implementations = [.map]
 	}
 	
-	override func setUpWithMap(mapVC: MaplyViewController) {
+	override func setUpWithMap(_ mapVC: MaplyViewController) {
 		StamenWatercolorRemote().setUpWithMap(mapVC)
 		createBritishNationalOverlayLocal(mapVC, maplyMap: true)
 		mapVC.setPosition(MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height: 0.3)
@@ -29,8 +29,8 @@ class BNGCustomMapTestCase: MaplyTestCase {
 		return self.buildBritishNationalGrid(true)
 	}
 	
-	func buildBritishNationalGrid(display: Bool) -> (MaplyCoordinateSystem){
-		let gsb = NSBundle.mainBundle().pathForResource("OSTN02_NTv2", ofType: "gsb")
+	func buildBritishNationalGrid(_ display: Bool) -> (MaplyCoordinateSystem){
+		let gsb = Bundle.main.path(forResource: "OSTN02_NTv2", ofType: "gsb")
 		let proj4Str = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=\(gsb!) +units=m +no_defs"
 		let coordSys = MaplyProj4CoordSystem(string: proj4Str)
 		var bbox = MaplyBoundingBox()
@@ -52,7 +52,7 @@ class BNGCustomMapTestCase: MaplyTestCase {
 		return coordSys
 	}
 	
-	func createBritishNationalOverlayLocal(baseView: MaplyBaseViewController, maplyMap: Bool) {
+	func createBritishNationalOverlayLocal(_ baseView: MaplyBaseViewController, maplyMap: Bool) {
 		let bngCoordSys = buildBritishNationalGrid(false)
 		let tileSource = MaplyAnimationTestTileSource(
 			coordSys: bngCoordSys,
@@ -73,7 +73,7 @@ class BNGCustomMapTestCase: MaplyTestCase {
 			layer?.singleLevelLoading = true
 			layer?.multiLevelLoads = [-2]
 		}
-		baseView.addLayer(layer!)
+		baseView.add(layer!)
 		layer?.importanceScale = 4.0
 		layer?.drawPriority = 10000
 	}

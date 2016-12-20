@@ -29,6 +29,7 @@
         return nil;
     
     _selectable = true;
+    _period = 5.0;
     
     return self;
 }

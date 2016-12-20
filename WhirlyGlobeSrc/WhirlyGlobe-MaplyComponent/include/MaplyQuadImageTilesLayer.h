@@ -276,7 +276,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 
 /** @brief Only load a single level at a time.
     @details When set, we'll only load one level of tiles at once.  This is very efficient for memory and fast for loading, but you'll see flashing as you move between levels.
-    @details This mode only works with flat maps and is off by default.
+    @details Off by default.
   */
 @property (nonatomic) bool singleLevelLoading;
 
@@ -313,7 +313,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
     @param images Either one of UIImage or MaplyPlaceholderImage.
     @param tileID The tile we've loaded.
  */
-- (void)loadedImages:(id __nonnull)images forTile:(MaplyTileID)tileID;
+- (bool)loadedImages:(id __nonnull)images forTile:(MaplyTileID)tileID;
 
 /** @brief Pass back the loaded image(s) for a given tile.
     @details If the tile source implements startFetchForTile: then we'll expect it to do the asynchronous loading.  When it's done loading an image, it calls this.
@@ -322,7 +322,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
     @param tileID The tile we've loaded.
     @param frame If we're loading an animation frame by frame, this is the frame ID.
   */
-- (void)loadedImages:(id __nonnull)images forTile:(MaplyTileID)tileID frame:(int)frame;
+- (bool)loadedImages:(id __nonnull)images forTile:(MaplyTileID)tileID frame:(int)frame;
 
 - (void)loadedElevation:(MaplyElevationChunk *__nonnull)elevChunk forTile:(MaplyTileID)tileID;
 - (void)loadedElevation:(MaplyElevationChunk *__nonnull)elevChunk forTile:(MaplyTileID)tileID frame:(int)frame;

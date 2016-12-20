@@ -37,6 +37,7 @@
 #import "MaplyPoints.h"
 #import "MaplyCluster.h"
 #import "Maply3DTouchPreviewDatasource.h"
+#import "MaplyLocationTracker.h"
 
 /** @brief When selecting multiple objects, one or more of these is returned.
     @details When you implement one of the selection delegates that takes multiple objects, you'll get an NSArray of these things.
@@ -57,6 +58,9 @@
 @property bool cluster;
 
 @end
+
+
+@protocol MaplyLocationTrackerDelegate;
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
 ///  then be on the main thread and use MaplyThreadCurrent.  Any is the default. 
@@ -604,7 +608,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
     @details Adds a group of points all at once.  We're assuming you want to draw a lot of points, so you have to group them together into a MaplyPoints.
 
     @param points The points to add to the scene.
-    @param desc The desciption dictionary which controls how the lofted polys will look.  It takes the following entries.
+    @param desc The desciption dictionary which controls how the points will look.  It takes the following entries.
     @param threadMode For MaplyThreadAny we'll do the add on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the add.  MaplyThreadAny is preferred.
  
  |Key|Type|Description|
@@ -861,7 +865,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
 /** @brief This shuts down the rendering and it cannot be restarted.
     @details There are times we need to explicitly shut down the rendering rather than wait for an unload or release.  This will do that.
   */
-- (void)shutdown;
+- (void)teardown;
 
 /** @brief Add a compiled shader.  We'll refer to it by the scene name.
     @details Once you've create a MaplyShader, you'll need to add it to the scene to use it.
@@ -944,5 +948,27 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
 /** @brief See derived class method.
  */
 - (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *__nullable)other;
+
+/** @brief Start location tracking
+    @param delegate The MaplyLocationTrackerDelegate for receiving location event callbacks
+    @param useHeading Use location services heading information (requires physical magnetometer)
+    @param useCourse Use location services course information as fallback if heading unavailable
+ */
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate;
+
+/** @brief Change lock type for location tracking
+    @param lockType The MaplyLocationLockType value for lock behavior
+ */
+- (void)changeLocationTrackingLockType:(MaplyLocationLockType)lockType;
+
+/** @brief Change lock type for location tracking
+    @param lockType The MaplyLocationLockType value for lock behavior
+    @param forwardTrackOffset The vertical offset if using MaplyLocationLockHeadingUpOffset (positive values are below the view center)
+ */
+- (void)changeLocationTrackingLockType:(MaplyLocationLockType)lockType forwardTrackOffset:(int)forwardTrackOffset;
+
+/** @brief Stop location tracking
+ */
+- (void)stopLocationTracking;
 
 @end
