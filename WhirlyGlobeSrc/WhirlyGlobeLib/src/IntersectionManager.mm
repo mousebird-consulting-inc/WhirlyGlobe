@@ -12,6 +12,10 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
+    
+IntersectionManager::Intersectable::~Intersectable()
+{
+}
 
 IntersectionManager::IntersectionManager(Scene *scene)
 : scene(scene)
@@ -52,9 +56,6 @@ bool IntersectionManager::findIntersection(WhirlyKitSceneRendererES *renderer,Wh
     Point3d eyePt(0,0,0);
     Vector4d modelEye = invFullMat * Vector4d(0.0,0.0,0.0,1.0);
     Vector4d modelScreenPt = invFullMat * Vector4d(tapPt.x(),tapPt.y(),tapPt.z(),1.0);
-    
-    double eyeLen = modelEye.norm();
-    double screenLen = modelScreenPt.norm();
     
     Vector4d dir4 = modelScreenPt - modelEye;
     Vector3d org(modelEye.x(),modelEye.y(),modelEye.z());

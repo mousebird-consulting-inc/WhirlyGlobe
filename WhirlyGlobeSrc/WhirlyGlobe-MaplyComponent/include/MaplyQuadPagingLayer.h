@@ -97,7 +97,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
 
 /** @brief Control how tiles are indexed, either from the lower left or the upper left.
  @details If set, we'll use the OSM approach (also Google Maps) to y indexing.  This is off by default.
- @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you're tile source looks odd, try setting this to false.
+ @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if youre tile source looks odd, try setting this to false.
  @details Default value is false.
  */
 @property (nonatomic) bool flipY;
@@ -262,10 +262,14 @@ typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
   */
 - (void)reload:(MaplyBoundingBox)bounds;
 
+/** @brief True if the layer is active.  False if it's been shut down.
+  */
+@property (readonly) bool valid;
+
 /** @brief Generate a 3D bounding box for the given tile.
     @details Generate a bounding box for the tile in its native coordinate system.  It may also call out to the delegate for accurate Z values.
   */
-- (void)boundingBoxForTile:(MaplyTileID)tileID ll:(MaplyCoordinate3dD * __nonnull)ll ur:(MaplyCoordinate3dD * __nonnull)ur;
+// - (void)boundingBoxForTile:(MaplyTileID)tileID ll:(MaplyCoordinate3dD * __nonnull)ll ur:(MaplyCoordinate3dD * __nonnull)ur;
 
 
 - (nullable NSObject<MaplyPagingDelegate> *)pagingDelegate;

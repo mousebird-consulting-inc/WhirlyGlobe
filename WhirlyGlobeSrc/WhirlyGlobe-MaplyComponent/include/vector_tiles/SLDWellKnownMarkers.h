@@ -16,11 +16,6 @@
 */
 @interface SLDWellKnownMarkers : NSObject
 
-+ (UIImage *)circleImage;
-+ (UIImage *)squareImage;
-+ (UIImage *)triangleImage;
-+ (UIImage *)starImage;
-+ (UIImage *)crossImage;
-+ (UIImage *)xImage;
++ (UIImage *)imageWithName:(NSString *)wellKnownName strokeColor:(UIColor *)strokeColor fillColor:(UIColor *)fillColor size:(int)size;
 
 @end

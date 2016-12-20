@@ -28,11 +28,12 @@
  @param viewC The map or globe view controller.
  @param minScaleDenom If non-null, the minimum map scale at which to apply any constructed symbolizer.
  @param maxScaleDenom If non-null, the maximum map scale at which to apply any constructed symbolizer.
+ @param baseURL The base URL from which external resources (e.g. images) will be located.
  @return An array of MaplyVectorTileStyle objects corresponding to the particular XML element.
  @see MaplyVectorTileStyle
  @see MaplyVectorStyleSettings
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom;
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom baseURL:(NSURL *)baseURL;
 @end
 
 /** @brief Class corresponding to the LineSymbolizer element

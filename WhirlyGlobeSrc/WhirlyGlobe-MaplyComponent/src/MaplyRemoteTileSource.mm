@@ -39,7 +39,6 @@ static bool trackConnections = false;
     bool cacheInit;
     int _minZoom,_maxZoom;
     int _pixelsPerSide;
-    bool replaceURL;
     std::vector<Mbr> mbrs;
 }
 
@@ -56,7 +55,7 @@ static bool trackConnections = false;
     _pixelsPerSide = 256;
     _timeOut = 0.0;
     _coordSys = [[MaplySphericalMercator alloc] initWebStandard];
-    replaceURL = [baseURL containsString:@"{y}"] && [baseURL containsString:@"{x}"]; // && [baseURL containsString:@"{z}"];
+    _replaceURL = [baseURL containsString:@"{y}"] && [baseURL containsString:@"{x}"]; // && [baseURL containsString:@"{z}"];
     
     return self;
 }
@@ -244,20 +243,20 @@ static bool trackConnections = false;
         if (_timeOut != 0.0)
             [urlReq setTimeoutInterval:_timeOut];
     } else {
-        if (replaceURL)
+        if (_replaceURL)
         {
             // Fetch the traditional way
             NSString *fullURLStr = [[[_baseURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
                                      stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
                                     stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
             if (_ext)
-                fullURLStr = [NSString stringWithFormat:@"%@.%@",fullURLStr,_ext];
+                fullURLStr = [NSString stringWithFormat:@"%@.%@",fullURLStr,(_ext ? _ext : @"unk")];
             urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
             if (_timeOut != 0.0)
                 [urlReq setTimeoutInterval:_timeOut];
         } else {
             // Fetch the traditional way
-            NSMutableString *fullURLStr = [NSMutableString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,_ext];
+            NSMutableString *fullURLStr = [NSMutableString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,tileID.level,tileID.x,y,(_ext ? _ext : @"unk")];
             if (_queryStr)
                 [fullURLStr appendFormat:@"?%@",_queryStr];
             urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];

@@ -30,40 +30,40 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
     
-MarkerSceneRep::MarkerSceneRep()
+    MarkerSceneRep::MarkerSceneRep()
     : useLayout(false)
-{
-}
+    {
+    }
     
-void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,bool enable,ChangeSet &changes)
-{
-    for (SimpleIDSet::iterator idIt = drawIDs.begin();
-         idIt != drawIDs.end(); ++idIt)
-        changes.push_back(new OnOffChangeRequest(*idIt,enable));
-    
-    if (selectManager && !selectIDs.empty())
-        selectManager->enableSelectables(selectIDs, enable);
-    
-    if (layoutManager)
-        layoutManager->enableLayoutObjects(screenShapeIDs, enable);
-}
-    
-void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,ChangeSet &changes)
-{
-    // Just delete everything
-    for (SimpleIDSet::iterator idIt = drawIDs.begin();
-         idIt != drawIDs.end(); ++idIt)
-        changes.push_back(new RemDrawableReq(*idIt));
-    drawIDs.clear();
+    void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,bool enable,ChangeSet &changes)
+    {
+        for (SimpleIDSet::iterator idIt = drawIDs.begin();
+             idIt != drawIDs.end(); ++idIt)
+            changes.push_back(new OnOffChangeRequest(*idIt,enable));
         
-    if (selectManager && !selectIDs.empty())
-        selectManager->removeSelectables(selectIDs);
+        if (selectManager && !selectIDs.empty())
+            selectManager->enableSelectables(selectIDs, enable);
+        
+        if (layoutManager)
+            layoutManager->enableLayoutObjects(screenShapeIDs, enable);
+    }
     
-    if (layoutManager && useLayout)
-        layoutManager->removeLayoutObjects(screenShapeIDs);
-
-    screenShapeIDs.clear();
-}
+    void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,ChangeSet &changes)
+    {
+        // Just delete everything
+        for (SimpleIDSet::iterator idIt = drawIDs.begin();
+             idIt != drawIDs.end(); ++idIt)
+            changes.push_back(new RemDrawableReq(*idIt));
+        drawIDs.clear();
+        
+        if (selectManager && !selectIDs.empty())
+            selectManager->removeSelectables(selectIDs);
+        
+        if (layoutManager && useLayout)
+            layoutManager->removeLayoutObjects(screenShapeIDs);
+        
+        screenShapeIDs.clear();
+    }
     
 }
 
@@ -135,12 +135,12 @@ MarkerManager::~MarkerManager()
     pthread_mutex_destroy(&markerLock);
 }
 
-typedef std::map<SimpleIdentity,BasicDrawable *> DrawableMap;
+typedef std::map<SimpleIDSet,BasicDrawable *> DrawableMap;
 
 SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,ChangeSet &changes)
 {
     WhirlyKitMarkerInfo *markerInfo = [[WhirlyKitMarkerInfo alloc] initWithMarkers:markers desc:desc];
-
+    
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
@@ -198,7 +198,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             pts[1] = Point3f(width2+marker.offset.x(),-height2+marker.offset.y(),0.0);
             pts[2] = Point3f(width2+marker.offset.x(),height2+marker.offset.y(),0.0);
             pts[3] = Point3f(-width2+marker.offset.x(),height2+marker.offset.y(),0.0);
-
+            
             ScreenSpaceObject *shape = NULL;
             LayoutObject *layoutObj = NULL;
             if (layoutManager && marker.layoutImportance != MAXFLOAT)
@@ -298,7 +298,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                     if (!markerInfo.enable)
                         selectManager->enableSelectable(marker.selectID, false);
                 }
-
+                
                 screenShapes.push_back(shape);
             }
         } else {
@@ -319,24 +319,38 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             pts[1] = Vector3dToVector3f(ll + 2 * width2 * horiz);
             pts[2] = Vector3dToVector3f(ll + 2 * width2 * horiz + 2 * height2 * vert);
             pts[3] = Vector3dToVector3f(ll + 2 * height2 * vert);
-
+            
             // We're sorting the static drawables by texture, so look for that
-            SimpleIdentity subTexID = (subTexs.empty() ? EmptyIdentity : subTexs[0].texId);
-            DrawableMap::iterator it = drawables.find(subTexID);
+            SimpleIDSet texIDs;
+            for (const auto &subTex : subTexs)
+                texIDs.insert(subTex.texId);
+            if (texIDs.empty())
+                texIDs.insert(EmptyIdentity);
+            DrawableMap::iterator it = drawables.find(texIDs);
             BasicDrawable *draw = NULL;
             if (it != drawables.end())
                 draw = it->second;
-                else {
-                    draw = new BasicDrawable("Marker Layer");
-                    draw->setType(GL_TRIANGLES);
-                    [markerInfo setupBasicDrawable:draw];
-                    draw->setColor([markerInfo.color asRGBAColor]);
-                    draw->setTexId(0,subTexID);
-                    if (markerInfo.programID != EmptyIdentity)
-                        draw->setProgram(markerInfo.programID);
-                    drawables[subTexID] = draw;
-                    markerRep->drawIDs.insert(draw->getId());
+            else {
+                draw = new BasicDrawable("Marker Layer");
+                draw->setType(GL_TRIANGLES);
+                [markerInfo setupBasicDrawable:draw];
+                draw->setColor([markerInfo.color asRGBAColor]);
+                draw->setTexId(0,*(texIDs.begin()));
+                if (markerInfo.programID != EmptyIdentity)
+                    draw->setProgram(markerInfo.programID);
+                drawables[texIDs] = draw;
+                markerRep->drawIDs.insert(draw->getId());
+
+                // If we've got more than one texture ID and a period, we need a tweaker
+                if (texIDs.size() > 1 && marker.period != 0.0)
+                {
+                    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+                    std::vector<SimpleIdentity> texIDVec;
+                    std::copy(texIDs.begin(), texIDs.end(), std::back_inserter(texIDVec));
+                    BasicDrawableTexTweaker *tweak = new BasicDrawableTexTweaker(texIDVec,now,marker.period);
+                    draw->addTweaker(DrawableTweakerRef(tweak));
                 }
+            }
             
             // Toss the geometry into the drawable
             int vOff = draw->getNumPoints();
@@ -345,7 +359,8 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
                 Point3f &pt = pts[ii];
                 draw->addPoint(pt);
                 draw->addNormal(Vector3dToVector3f(norm));
-                draw->addTexCoord(0,texCoord[ii]);
+                for (unsigned int jj=0;jj<texIDs.size();jj++)
+                    draw->addTexCoord(jj,texCoord[ii]);
                 Mbr localMbr = draw->getLocalMbr();
                 Point3f localLoc = coordAdapter->getCoordSystem()->geographicToLocal(marker.loc);
                 localMbr.addPoint(Point2f(localLoc.x(),localLoc.y()));
@@ -354,7 +369,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             
             draw->addTriangle(BasicDrawable::Triangle(0+vOff,1+vOff,2+vOff));
             draw->addTriangle(BasicDrawable::Triangle(2+vOff,3+vOff,0+vOff));
-
+            
             if (selectManager)
             {
                 selectManager->addSelectableRect(marker.selectID,pts,markerInfo.minVis,markerInfo.maxVis,markerInfo.enable);
@@ -362,7 +377,7 @@ SimpleIdentity MarkerManager::addMarkers(NSArray *markers,NSDictionary *desc,Cha
             }
         }
     }
-
+    
     // Flush out any drawables for the static geometry
     for (DrawableMap::iterator it = drawables.begin();
          it != drawables.end(); ++it)
@@ -405,7 +420,7 @@ void MarkerManager::enableMarkers(SimpleIDSet &markerIDs,bool enable,ChangeSet &
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-
+    
     pthread_mutex_lock(&markerLock);
     
     for (SimpleIDSet::iterator mit = markerIDs.begin();mit != markerIDs.end(); ++mit)
@@ -427,7 +442,7 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-
+    
     pthread_mutex_lock(&markerLock);
     
     for (SimpleIDSet::iterator mit = markerIDs.begin();mit != markerIDs.end(); ++mit)
@@ -462,7 +477,7 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
                                    }
                                }
                                );
-
+                
                 markerRep->fadeOut = 0.0;
             } else {
                 markerRep->clearContents(selectManager, layoutManager, generatorId, screenGenId, changes);
@@ -479,6 +494,6 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
 void MarkerManager::setScene(Scene *inScene)
 {
     SceneManager::setScene(inScene);
-
+    
     screenGenId = scene->getScreenSpaceGeneratorID();
 }

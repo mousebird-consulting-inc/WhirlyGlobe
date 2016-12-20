@@ -53,7 +53,7 @@
                 case MapnikSLDStyle:
                 {
                     SLDStyleSet *sldStyleSet = [[SLDStyleSet alloc] initWithViewC:viewC useLayerNames:NO];
-                    [sldStyleSet loadSldData:styleData];
+                    [sldStyleSet loadSldData:styleData baseURL:[NSURL URLWithString:baseURL]];
                     styleSet = sldStyleSet;
                 }
                     break;
