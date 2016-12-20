@@ -23,6 +23,7 @@
 #import "Lighting.h"
 #import "GLUtils.h"
 #import "WhirlyKitLog.h"
+#import "Scene.h"
 
 using namespace Eigen;
 
@@ -441,6 +442,20 @@ int OpenGLES2Program::bindTextures()
     
     return numTextures;
 }
+    
+ShaderAddTextureReq::ShaderAddTextureReq(SimpleIdentity shaderID,const std::string &name,SimpleIdentity texID)
+: shaderID(shaderID), name(name), texID(texID)
+{
+}
 
+void ShaderAddTextureReq::execute(Scene *scene, SceneRendererES *renderer, View *view)
+{
+    OpenGLES2Program *prog = scene->getProgram(shaderID);
+    TextureBase *tex = scene->getTexture(texID);
+    if (prog && tex)
+    {
+        prog->setTexture(name,tex->getGLId());
+    }
+}
 
 }

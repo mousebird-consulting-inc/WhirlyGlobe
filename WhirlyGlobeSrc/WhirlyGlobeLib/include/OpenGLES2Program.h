@@ -175,4 +175,18 @@ protected:
     std::set<OpenGLESAttribute *,AttributeNameSortStruct> attrs;
 };
     
+/// Set a texture ID by name in a Shader (Program)
+class ShaderAddTextureReq : public ChangeRequest
+{
+public:
+    ShaderAddTextureReq(SimpleIdentity shaderID,const std::string &name,SimpleIdentity texID);
+    
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+
+protected:
+    SimpleIdentity shaderID;
+    std::string name;
+    SimpleIdentity texID;
+};
+    
 }

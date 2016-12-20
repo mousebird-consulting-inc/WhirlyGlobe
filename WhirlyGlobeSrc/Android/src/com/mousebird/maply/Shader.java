@@ -85,20 +85,17 @@ public class Shader
 	 */
 	public void addTexture(String name,MaplyTexture texture)
 	{
-		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
+		ChangeSet changes = new ChangeSet();
 
 		textures.add(texture);
-
-		control.requestRender();
+		addTextureNative(changes,name,texture.texID);
 
 //        Log.d("Maply","addTexture texID " + texture.texID);
 
-		addTextureNative(control.getScene(),name,texture.texID);
-
-		control.clearTempContext(context);
+		changes.process(control.getScene());
 	}
 
-	native void addTextureNative(Scene scene,String name,long texID);
+	native void addTextureNative(ChangeSet changes,String name,long texID);
 	
 	/** Set a float uniform in the shader with the given name.
 	 * <p>

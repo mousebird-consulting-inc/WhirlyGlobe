@@ -41,6 +41,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setCoordSys
 
 /*
  * Class:     com_mousebird_maply_Sticker
+ * Method:    setSampling
+ * Signature: (II)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setSampling
+  (JNIEnv *, jobject, jint, jint);
+
+/*
+ * Class:     com_mousebird_maply_Sticker
+ * Method:    setEpsilon
+ * Signature: (DIIII)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setEpsilon
+  (JNIEnv *, jobject, jdouble, jint, jint, jint, jint);
+
+/*
+ * Class:     com_mousebird_maply_Sticker
  * Method:    setImageFormatNative
  * Signature: (I)V
  */

@@ -63,6 +63,22 @@ public class Sticker
     public native void setCoordSys(CoordSystem coordSys);
 
     /**
+     * Set the sampling in X and Y for the sticker.
+     */
+    public native void setSampling(int sampleX,int sampleY);
+
+    /**
+     * If not doing static sampling, break it down until its no farther than this from the globe.
+     * The min and max values control the sampling.
+     * @param eps Epsilon value
+     * @param minSampleX Minimum samples in X
+     * @param minSampleY Minimum samples in Y
+     * @param maxSampleX Maximum samples in X
+     * @param maxSampleY Maximum samples in Y
+     */
+    public native void setEpsilon(double eps,int minSampleX,int minSampleY,int maxSampleX,int maxSampleY);
+
+    /**
      * Set the destination image format for images passed in.
      * The images will be converted to this format.
      */
