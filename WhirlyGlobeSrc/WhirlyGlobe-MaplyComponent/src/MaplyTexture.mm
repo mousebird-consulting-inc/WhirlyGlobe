@@ -41,6 +41,7 @@ using namespace WhirlyKit;
 {
     if (_texID != EmptyIdentity)
     {
+//        NSLog(@"Clearing texture %lx, for interactLayer %lx",(long)self,(long)_interactLayer);
         if (_interactLayer)
             [_interactLayer clearTexture:self];
     }

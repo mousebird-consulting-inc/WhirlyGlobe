@@ -50,6 +50,7 @@ using namespace Eigen;
 - (id)initWithView:(WhirlyKitView *)inView
 {
     self = [super init];
+    _coordAdapter = inView->_coordAdapter;
     _fieldOfView = inView->_fieldOfView;
     _nearPlane = inView->_nearPlane;
     _imagePlaneSize = inView->_imagePlaneSize;

@@ -21,12 +21,14 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		ScreenLabelsTestCase(),
 		ScreenMarkersTestCase(),
 		MarkersTestCase(),
+		AnimatedMarkersTestCase(),
 		VectorsTestCase(),
 		VectorStyleTestCase(),
 		VectorHoleTestCase(),
 		ShapefileTestCase(),
 		WideVectorsTestCase(),
 		WideVectorGlobeTestCase(),
+		TextureVectorTestCase(),
 		
 		ClusteredMarkersTestCase(),
 		MegaMarkersTestCase(),
@@ -62,52 +64,57 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		WMSTestCase(),
 		FindHeightTestCase(),
 		FullAnimationTest(),
-		ActiveObjectTestCase()
+		ActiveObjectTestCase(),
+		AnimationDelegateTestCase(),
+		LocationTrackingSimTestCase(),
+		LocationTrackingRealTestCase(),
+
+		Issue721TestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
 
-	private var results = [String:MaplyTestResult]()
-	private var queue = NSOperationQueue()
+	fileprivate var results = [String:MaplyTestResult]()
+	fileprivate var queue = OperationQueue()
 
-	private var testView: UIView?
-	private var testViewBlack: UIView?
+	fileprivate var testView: UIView?
+	fileprivate var testViewBlack: UIView?
 
-	private var configViewC: ConfigViewController?
-	private var popControl: UIPopoverController?
+	fileprivate var configViewC: ConfigViewController?
+	fileprivate var popControl: UIPopoverController?
 
-	private var timer = NSTimer()
-	private var seconds = 0
-	private var cancelled = false
+	fileprivate var timer = Timer()
+	fileprivate var seconds = 0
+	fileprivate var cancelled = false
 
-	private var lastInteractiveTestSelected: MaplyTestCase?
+	fileprivate var lastInteractiveTestSelected: MaplyTestCase?
 
-	override func viewWillAppear(animated: Bool) {
-		let caches = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as NSString
-		let dir = caches.stringByAppendingPathComponent("results")
+	override func viewWillAppear(_ animated: Bool) {
+		let caches = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as NSString
+		let dir = caches.appendingPathComponent("results")
 
-		if NSFileManager.defaultManager().fileExistsAtPath(dir) {
-			try! NSFileManager.defaultManager().removeItemAtPath(dir)
+		if FileManager.default.fileExists(atPath: dir) {
+			try! FileManager.default.removeItem(atPath: dir)
 		}
 
-		try! NSFileManager.defaultManager().createDirectoryAtPath(dir,
+		try! FileManager.default.createDirectory(atPath: dir,
 			withIntermediateDirectories: true,
 			attributes: nil)
 
-		results.removeAll(keepCapacity: true)
+		results.removeAll(keepingCapacity: true)
 	}
 
 	override func viewDidLoad() {
-		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: #selector(StartupViewController.showConfig))
+		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(StartupViewController.showConfig))
 
 		if ConfigSection.Row.MultipleMode.load() {
-			self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: #selector(StartupViewController.runTests))
+			self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(StartupViewController.runTests))
 		}
 
-		let rect = UIScreen.mainScreen().applicationFrame
-		testViewBlack = UIView(frame: CGRectMake(0, 0, rect.width, rect.height))
-		testViewBlack?.backgroundColor = UIColor.blackColor()
-		testViewBlack?.hidden = true
+		let rect = UIScreen.main.applicationFrame
+		testViewBlack = UIView(frame: CGRect(x: 0, y: 0, width: rect.width, height: rect.height))
+		testViewBlack?.backgroundColor = UIColor.black
+		testViewBlack?.isHidden = true
 
 		self.view.addSubview(testViewBlack!)
 
@@ -117,63 +124,63 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		tests.forEach(self.downloadTestResources)
 	}
 
-	func downloadTestResources(test: MaplyTestCase) {
+	func downloadTestResources(_ test: MaplyTestCase) {
 		if let remoteResources = test.remoteResources() as? [String] {
 			test.pendingDownload = remoteResources.count
 			remoteResources.forEach {
-				test.state = MaplyTestCaseState.Downloading
+				test.state = MaplyTestCaseState()
 				let newOp = DownloadResourceOperation(
-					url: NSURL(string: $0),
+					url: URL(string: $0),
 					test: test)
-				queue.addOperation(newOp)
+				queue.addOperation(newOp!)
 			}
 		}
 	}
 
 	override func tableView(
-		tableView: UITableView,
+		_ tableView: UITableView,
 		numberOfRowsInSection section: Int) -> Int {
 
 		return tests.count
 	}
 
-	func changeTestCellState (cell: TestCell, row : NSIndexPath) {
-		cell.state = tests[row.row].state
+	func changeTestCellState (_ cell: TestCell, row : IndexPath) {
+		cell.state = tests[(row as NSIndexPath).row].state
 
-		if cell.state != .Downloading && cell.state != .Error {
+		if cell.state != MaplyTestCaseState() && cell.state != .error {
 			cell.interactive = ConfigSection.Row.InteractiveMode.load()
 
 			if cell.interactive {
 				cell.globeTestExecution = {
-					NSUserDefaults.standardUserDefaults().setInteger(row.row, forKey: "scrollPos")
-					self.runInteractiveTest(self.tests[row.row], type: .RunGlobe)
+					UserDefaults.standard.set((row as NSIndexPath).row, forKey: "scrollPos")
+					self.runInteractiveTest(self.tests[(row as NSIndexPath).row], type: .RunGlobe)
 				}
 
 				cell.mapTestExecution = {
-					NSUserDefaults.standardUserDefaults().setInteger(row.row, forKey: "scrollPos")
-					self.runInteractiveTest(self.tests[row.row], type: .RunMap)
+					UserDefaults.standard.set((row as NSIndexPath).row, forKey: "scrollPos")
+					self.runInteractiveTest(self.tests[(row as NSIndexPath).row], type: .RunMap)
 				}
 			}
 		}
 	}
 
 	override func tableView(
-		tableView: UITableView,
-		cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+		_ tableView: UITableView,
+		cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
-		let cell = tableView.dequeueReusableCellWithIdentifier("cell",
-			forIndexPath: indexPath) as! TestCell
+		let cell = tableView.dequeueReusableCell(withIdentifier: "cell",
+			for: indexPath) as! TestCell
 
-		cell.testName.text = tests[indexPath.row].name
-		cell.selectionStyle = .None
-		cell.implementations = tests[indexPath.row].implementations
+		cell.testName.text = tests[(indexPath as NSIndexPath).row].name
+		cell.selectionStyle = .none
+		cell.implementations = tests[(indexPath as NSIndexPath).row].implementations
 
-		tests[indexPath.row].updateProgress = { enableIndicator in
-			dispatch_async(dispatch_get_main_queue(), {
+		tests[(indexPath as NSIndexPath).row].updateProgress = { enableIndicator in
+			DispatchQueue.main.async(execute: {
 				if enableIndicator {
 //					cell.globeButton.hidden = true;
 //					cell.mapButton.hidden = true;
-					cell.accessoryType = .None;
+					cell.accessoryType = .none;
 				}
 				else {
 					self.changeTestCellState(cell, row: indexPath)
@@ -182,19 +189,19 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 			})
 		}
 		cell.retryDownloadResources = {
-			cell.downloadIndicator.hidden = false;
+			cell.downloadIndicator.isHidden = false;
 			cell.downloadIndicator.startAnimating()
 //			cell.globeButton.hidden = true
 //			cell.mapButton.hidden = true
-			cell.retryButton.hidden = true;
-			cell.accessoryType = .None
-			self.downloadTestResources(self.tests[indexPath.row])
+			cell.retryButton.isHidden = true;
+			cell.accessoryType = .none
+			self.downloadTestResources(self.tests[(indexPath as NSIndexPath).row])
 		}
 		changeTestCellState(cell, row: indexPath)
 		return cell
 	}
 
-	override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+	override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 
 		let interactiveMode = ConfigSection.Row.InteractiveMode.load()
 		let singleMode = ConfigSection.Row.SingleMode.load()
@@ -202,36 +209,36 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 		if !interactiveMode {
 			if singleMode {
-				if self.tests[indexPath.row].state != .Error
-					&& self.tests[indexPath.row].state != .Downloading
-					&& self.tests[indexPath.row].state != .Running {
+				if self.tests[(indexPath as NSIndexPath).row].state != .error
+					&& self.tests[(indexPath as NSIndexPath).row].state != MaplyTestCaseState()
+					&& self.tests[(indexPath as NSIndexPath).row].state != .running {
 
-					runTest(self.tests[indexPath.row])
+					runTest(self.tests[(indexPath as NSIndexPath).row])
 				}
 			}
 			else if normalMode {
-				switch tests[indexPath.row].state {
-				case MaplyTestCaseState.Selected:
-					tests[indexPath.row].state = .Ready
+				switch tests[(indexPath as NSIndexPath).row].state {
+				case MaplyTestCaseState.selected:
+					tests[(indexPath as NSIndexPath).row].state = .ready
 					break
-				case MaplyTestCaseState.Ready:
-					tests[indexPath.row].state = .Selected
+				case MaplyTestCaseState.ready:
+					tests[(indexPath as NSIndexPath).row].state = .selected
 					break;
 				default:
 					break;
 				}
-				let cell = tableView.cellForRowAtIndexPath(indexPath)
-				cell?.accessoryType = tests[indexPath.row].state == .Selected
-					? .Checkmark
-					: .None
+				let cell = tableView.cellForRow(at: indexPath)
+				cell?.accessoryType = tests[(indexPath as NSIndexPath).row].state == .selected
+					? .checkmark
+					: .none
 			}
 		}
 	}
 
-	override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-		let destination = segue.destinationViewController as! ResultsViewController
+	override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+		let destination = segue.destination as! ResultsViewController
 
-		let sortedKeys = self.results.keys.sort { $0 < $1 }
+		let sortedKeys = self.results.keys.sorted { $0 < $1 }
 
 		destination.titles = sortedKeys
 		destination.results = [MaplyTestResult]()
@@ -240,48 +247,48 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 	}
 
-	private dynamic func showConfig() {
-		if UI_USER_INTERFACE_IDIOM() == .Pad {
+	fileprivate dynamic func showConfig() {
+		if UI_USER_INTERFACE_IDIOM() == .pad {
 			popControl = UIPopoverController(contentViewController: configViewC!)
 			popControl?.delegate = self
-			popControl?.setPopoverContentSize(CGSizeMake(400, 4.0/5.0*self.view.bounds.size.height), animated: true)
-			popControl?.presentPopoverFromRect(CGRectMake(0, 0, 10, 10), inView: self.navigationController!.view, permittedArrowDirections: .Up, animated: true)
+			popControl?.setContentSize(CGSize(width: 400, height: 4.0/5.0*self.view.bounds.size.height), animated: true)
+			popControl?.present(from: CGRect(x: 0, y: 0, width: 10, height: 10), in: self.navigationController!.view, permittedArrowDirections: .up, animated: true)
 		}
 		else {
 			configViewC!.navigationItem.hidesBackButton = true
-			configViewC!.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Done, target: self, action: #selector(StartupViewController.editDone))
+			configViewC!.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(StartupViewController.editDone))
 			self.navigationController?.pushViewController(configViewC!, animated: true)
 		}
 	}
 
-	private func prepareTestView () {
+	fileprivate func prepareTestView () {
 		testViewBlack?.frame = CGRect(
-			origin: CGPointZero,
-			size: UIScreen.mainScreen().applicationFrame.size)
-		let visibleRect = self.view.convertRect(tableView.bounds, toView: self.testViewBlack)
+			origin: CGPoint.zero,
+			size: UIScreen.main.applicationFrame.size)
+		let visibleRect = self.view.convert(tableView.bounds, to: self.testViewBlack)
 		self.testViewBlack?.frame = visibleRect
 
 
-		let testView = UIView(frame: CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height))
-		testView.backgroundColor = UIColor.redColor()
+		let testView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.size.width, height: self.view.frame.size.height))
+		testView.backgroundColor = UIColor.red
 		
-		testView.center = CGPointMake(self.testViewBlack!.frame.size.width  / 2,
-									  self.testViewBlack!.frame.size.height / 2)
+		testView.center = CGPoint(x: self.testViewBlack!.frame.size.width  / 2,
+									  y: self.testViewBlack!.frame.size.height / 2)
 		self.testView = testView
 		self.testViewBlack?.addSubview(testView)
-		tableView.scrollEnabled = false;
-		testView.hidden = false;
-		self.testViewBlack?.hidden = false
+		tableView.isScrollEnabled = false;
+		testView.isHidden = false;
+		self.testViewBlack?.isHidden = false
 	}
 		
-	private func runInteractiveTest( test: MaplyTestCase, type : ConfigSection.Row) {
-		if test.state != MaplyTestCaseState.Downloading
-			&& test.state != MaplyTestCaseState.Error
-			&& test.state != MaplyTestCaseState.Running {
+	fileprivate func runInteractiveTest( _ test: MaplyTestCase, type : ConfigSection.Row) {
+		if test.state != MaplyTestCaseState()
+			&& test.state != MaplyTestCaseState.error
+			&& test.state != MaplyTestCaseState.running {
 
 			lastInteractiveTestSelected = test
 			self.navigationItem.leftBarButtonItem = UIBarButtonItem(
-				barButtonSystemItem: .Done,
+				barButtonSystemItem: .done,
 				target: self,
 				action: #selector(StartupViewController.stopInteractiveTest))
 			
@@ -291,10 +298,10 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 			test.options = []
 			
 			if (type == .RunMap) {
-				test.options.insert(.Map)
+				test.options.insert(.map)
 			}
 			else  if (type == .RunGlobe) {
-				test.options.insert(.Globe)
+				test.options.insert(.globe)
 			}
 			test.testView = self.testView
 			test.start()
@@ -302,26 +309,26 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	}
 
 	func stopInteractiveTest() {
-		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Edit, target: self, action: #selector(StartupViewController.showConfig))
-		self.testViewBlack?.hidden = true
-		tableView.scrollEnabled = true
+		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(StartupViewController.showConfig))
+		self.testViewBlack?.isHidden = true
+		tableView.isScrollEnabled = true
 
 		if let last = self.lastInteractiveTestSelected {
-			last.state = .Ready
+			last.state = .ready
 			last.interactive = false
 			if let globe = last.globeViewController {
-				last.tearDownWithGlobe(globe)
+				last.tearDown(withGlobe: globe)
 				last.removeGlobeController()
 			}
 			if let map = last.mapViewController {
-				last.tearDownWithMap(map)
+				last.tearDown(withMap: map)
 				last.removeMapController()
 			}
 		}
 	}
 	
 	func runTests() {
-		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Stop, target: self, action: #selector(StartupViewController.stopTests))
+		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(StartupViewController.stopTests))
 		
 		self.title = "Running tests..."
 		
@@ -336,18 +343,18 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	func stopTests() {
 	}
 
-	private func startTests(tests: [MaplyTestCase]) {
+	fileprivate func startTests(_ tests: [MaplyTestCase]) {
 		if let head = tests.first {
 			let tail = Array(tests.dropFirst())
 			
-			if (head.state == .Selected) {
+			if (head.state == .selected) {
 				head.options = []
 				if configViewC!.valueForSection(.Options, row: .RunGlobe) {
-					head.options.insert(.Globe)
+					head.options.insert(.globe)
 				}
 				
 				if configViewC!.valueForSection(.Options, row: .RunMap) {
-					head.options.insert(.Map)
+					head.options.insert(.map)
 				}
 				
 				head.resultBlock = { test in
@@ -370,7 +377,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 				if configViewC!.valueForSection(.Options, row: .ViewTest){
 					self.seconds = head.captureDelay
 					self.title = "\(head.name) (\(self.seconds))"
-					self.timer = NSTimer.scheduledTimerWithTimeInterval(1,
+					self.timer = Timer.scheduledTimer(timeInterval: 1,
 						target: self,
 						selector: #selector(StartupViewController.updateTitle(_:)),
 						userInfo: head.name,
@@ -391,7 +398,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 	}
 		
-	private func runTest(test: MaplyTestCase) {
+	fileprivate func runTest(_ test: MaplyTestCase) {
 		self.title = "Running test..."
 
 		self.prepareTestView()
@@ -400,11 +407,11 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 		test.options = []
 		if configViewC!.valueForSection(.Options, row: .RunGlobe) {
-			test.options.insert(.Globe)
+			test.options.insert(.globe)
 		}
 
 		if configViewC!.valueForSection(.Options, row: .RunMap) {
-			test.options.insert(.Map)
+			test.options.insert(.map)
 		}
 
 		test.resultBlock = { test in
@@ -421,7 +428,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		if configViewC!.valueForSection(.Options, row: .ViewTest) {
 			self.seconds = test.captureDelay
 			self.title = "\(test.name) (\(self.seconds))"
-			self.timer = NSTimer.scheduledTimerWithTimeInterval(1,
+			self.timer = Timer.scheduledTimer(timeInterval: 1,
 				target: self,
 				selector: #selector(StartupViewController.updateTitle(_:)),
 				userInfo: test.name,
@@ -432,7 +439,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		test.start()
 	}
 
-	func updateTitle(timer: NSTimer) {
+	func updateTitle(_ timer: Timer) {
 		self.seconds -= 1
 		self.title = "\(timer.userInfo!) (\(self.seconds))"
 		if self.seconds == 0 {
@@ -440,27 +447,27 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 	}
 
-	private func finishTests() {
-		self.testViewBlack?.hidden = true
+	fileprivate func finishTests() {
+		self.testViewBlack?.isHidden = true
 		tableView.reloadData()
 
 		if ConfigSection.Row.MultipleMode.load() {
-			self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: #selector(StartupViewController.runTests))
+			self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(StartupViewController.runTests))
 		}
 
 		self.title = "Tests"
-		tableView.scrollEnabled = true
+		tableView.isScrollEnabled = true
 		if !cancelled {
-			self.performSegueWithIdentifier("results", sender: self)
+			self.performSegue(withIdentifier: "results", sender: self)
 		}
 	}
 
-	private dynamic func editDone() {
-		self.navigationController?.popToViewController(self, animated: true)
+	fileprivate dynamic func editDone() {
+		self.navigationController!.popToViewController(self, animated: true)
 		changeSettings()
 
 		if ConfigSection.Row.MultipleMode.load() {
-			self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Play, target: self, action: #selector(StartupViewController.runTests))
+			self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(StartupViewController.runTests))
 		}
 		else {
 			self.navigationItem.rightBarButtonItem = nil
@@ -468,7 +475,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		testsTable.reloadData()
 	}
 
-	func popoverControllerDidDismissPopover(popoverController: UIPopoverController) {
+	func popoverControllerDidDismissPopover(_ popoverController: UIPopoverController) {
 		changeSettings()
 	}
 
@@ -487,9 +494,9 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 		if let select = select {
 			tests.filter {
-				$0.state != .Error && $0.state != .Downloading
+				$0.state != .error && $0.state != MaplyTestCaseState()
 			}.forEach {
-				$0.state = select ? .Selected : .Ready
+				$0.state = select ? .selected : .ready
 			}
 			tableView.reloadData()
 			configViewC!.selectAll(.Actions, select: false)

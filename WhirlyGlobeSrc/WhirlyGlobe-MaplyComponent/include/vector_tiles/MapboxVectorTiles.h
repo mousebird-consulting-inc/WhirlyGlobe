@@ -69,7 +69,7 @@ typedef NS_ENUM(NSInteger, MapnikCommandType) {
 @property (nonatomic, strong, nonnull) NSObject<MaplyVectorStyleDelegate> *styleDelegate;
 
 /// @brief Maply view controller we're adding this data to
-@property (nonatomic, weak, nullable) MaplyBaseViewController *viewC;
+@property (nonatomic, weak, nullable) MaplyBaseViewController * __weak viewC;
 
 @property (nonatomic, assign) BOOL debugLabel;
 @property (nonatomic, assign) BOOL debugOutline;

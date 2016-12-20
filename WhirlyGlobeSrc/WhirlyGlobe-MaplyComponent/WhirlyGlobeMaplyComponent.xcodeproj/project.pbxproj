@@ -451,6 +451,8 @@
 		2BE53AE51D24A31B00B60FAD /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE538D41D249A6A00B60FAD /* libWhirlyGlobeLib.a */; };
 		E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */; };
 		E56DB3D81D6B1B5A007000D2 /* SLDStyleSet.m in Sources */ = {isa = PBXBuildFile; fileRef = E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */; };
+		E5D2D6631DE67B1400E02305 /* MaplyLocationTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = E5D2D6621DE67B1400E02305 /* MaplyLocationTracker.h */; };
+		E5D2D6661DE67CF600E02305 /* MaplyLocationTracker.mm in Sources */ = {isa = PBXBuildFile; fileRef = E5D2D6651DE67CF600E02305 /* MaplyLocationTracker.mm */; };
 		E5EB67AB1D6DD19700FB3679 /* SLDWellKnownMarkers.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EB67AA1D6DD19700FB3679 /* SLDWellKnownMarkers.m */; };
 		E5EB67AE1D6DD1C000FB3679 /* SLDWellKnownMarkers.h in Headers */ = {isa = PBXBuildFile; fileRef = E5EB67AD1D6DD1C000FB3679 /* SLDWellKnownMarkers.h */; };
 		E5EF69F61D6B931500A2A660 /* SLDExpressions.h in Headers */ = {isa = PBXBuildFile; fileRef = E5EF69F31D6B931500A2A660 /* SLDExpressions.h */; };
@@ -931,6 +933,8 @@
 		2BE53AC61D249E1500B60FAD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDStyleSet.h; sourceTree = "<group>"; };
 		E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDStyleSet.m; sourceTree = "<group>"; };
+		E5D2D6621DE67B1400E02305 /* MaplyLocationTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyLocationTracker.h; sourceTree = "<group>"; };
+		E5D2D6651DE67CF600E02305 /* MaplyLocationTracker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyLocationTracker.mm; sourceTree = "<group>"; };
 		E5EB67AA1D6DD19700FB3679 /* SLDWellKnownMarkers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDWellKnownMarkers.m; sourceTree = "<group>"; };
 		E5EB67AD1D6DD1C000FB3679 /* SLDWellKnownMarkers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDWellKnownMarkers.h; sourceTree = "<group>"; };
 		E5EF69F31D6B931500A2A660 /* SLDExpressions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDExpressions.h; sourceTree = "<group>"; };
@@ -1041,6 +1045,7 @@
 				2BE537321D249A1200B60FAD /* MaplyImageTile.h */,
 				2BE537331D249A1200B60FAD /* MaplyLabel.h */,
 				2BE537341D249A1200B60FAD /* MaplyLight.h */,
+				E5D2D6621DE67B1400E02305 /* MaplyLocationTracker.h */,
 				2BE537351D249A1200B60FAD /* MaplyMarker.h */,
 				2BE537361D249A1200B60FAD /* MaplyMatrix.h */,
 				2BE537371D249A1200B60FAD /* MaplyMBTileSource.h */,
@@ -1187,6 +1192,7 @@
 				2BE537B01D249A1200B60FAD /* MaplyInteractionLayer.mm */,
 				2BE537B11D249A1200B60FAD /* MaplyLabel.m */,
 				2BE537B21D249A1200B60FAD /* MaplyLight.m */,
+				E5D2D6651DE67CF600E02305 /* MaplyLocationTracker.mm */,
 				2BE537B31D249A1200B60FAD /* MaplyMarker.m */,
 				2BE537B41D249A1200B60FAD /* MaplyMatrix.mm */,
 				2BE537B51D249A1200B60FAD /* MaplyMBTileSource.mm */,
@@ -1671,6 +1677,7 @@
 				2BE5386B1D249A1200B60FAD /* MaplyVectorTileTextStyle.h in Headers */,
 				2BE539691D249BEF00B60FAD /* AAMercury.h in Headers */,
 				2BE538591D249A1200B60FAD /* WGSphericalEarthWithTexGroup_private.h in Headers */,
+				E5D2D6631DE67B1400E02305 /* MaplyLocationTracker.h in Headers */,
 				2BE538521D249A1200B60FAD /* MaplyViewController_private.h in Headers */,
 				2BE538231D249A1200B60FAD /* MaplyShader.h in Headers */,
 				2BE53A411D249C3D00B60FAD /* zero_copy_stream_impl.h in Headers */,
@@ -2094,6 +2101,7 @@
 				2BE5398F1D249BEF00B60FAD /* AADate.cpp in Sources */,
 				2BE538801D249A1200B60FAD /* MaplyCoordinate.mm in Sources */,
 				2BE5399C1D249BEF00B60FAD /* AAGlobe.cpp in Sources */,
+				E5D2D6661DE67CF600E02305 /* MaplyLocationTracker.mm in Sources */,
 				2BE538961D249A1200B60FAD /* MaplyQuadImageTilesLayer.mm in Sources */,
 				2BE538851D249A1200B60FAD /* MaplyGeomBuilder.mm in Sources */,
 				2BE538BC1D249A1200B60FAD /* MapboxVectorTiles.mm in Sources */,
@@ -2287,7 +2295,6 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
-					"../../third-party/boost/",
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
 					"../../third-party/KissXML/KissXML/",
@@ -2301,8 +2308,6 @@
 					"../../third-party/KissXML/KissXML/Categories/",
 					"../../third-party/KissXML/KissXML/Private",
 					"../../third-party/fmdb/src/fmdb/",
-					"../../third-party/AFNetworking/AFNetworking/",
-					"../../third-party/AFNetworking/UIKit+AFNetworking/",
 					"\"$(SDKROOT)/usr/include/libxml2\"",
 					../local_libs/aaplus,
 				);
@@ -2311,7 +2316,15 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACH_O_TYPE = staticlib;
-				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
+				OTHER_CFLAGS = (
+					"-DEIGEN_MPL2_ONLY",
+					"-fembed-bitcode",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fembed-bitcode",
+				);
+				OTHER_LDFLAGS = "-fembed-bitcode";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.WhirlyGlobeMaplyComponent;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2331,7 +2344,6 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
-					"../../third-party/boost/",
 					"../../third-party/eigen/",
 					"../../third-party/proj-4/src/",
 					"../../third-party/KissXML/KissXML/",
@@ -2345,8 +2357,6 @@
 					"../../third-party/KissXML/KissXML/Categories/",
 					"../../third-party/KissXML/KissXML/Private",
 					"../../third-party/fmdb/src/fmdb/",
-					"../../third-party/AFNetworking/AFNetworking/",
-					"../../third-party/AFNetworking/UIKit+AFNetworking/",
 					"\"$(SDKROOT)/usr/include/libxml2\"",
 					../local_libs/aaplus,
 				);
@@ -2355,7 +2365,15 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACH_O_TYPE = staticlib;
-				OTHER_CFLAGS = "-DEIGEN_MPL2_ONLY";
+				OTHER_CFLAGS = (
+					"-DEIGEN_MPL2_ONLY",
+					"-fembed-bitcode",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-fembed-bitcode",
+				);
+				OTHER_LDFLAGS = "-fembed-bitcode";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.WhirlyGlobeMaplyComponent;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

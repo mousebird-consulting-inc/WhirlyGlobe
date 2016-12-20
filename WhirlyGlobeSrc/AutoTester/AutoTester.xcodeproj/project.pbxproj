@@ -10,7 +10,6 @@
 		2B158BEF1D5D19E900103E04 /* VectorHoleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */; };
 		2B1C264F1C90FFFC00C71B0A /* VectorMBTilesTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */; };
 		2B1C26531C91037100C71B0A /* France.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C26511C9100A500C71B0A /* France.mbtiles */; };
-		2B28593B1DA6C80600687246 /* ImageSingleLevelTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B28593A1DA6C80600687246 /* ImageSingleLevelTestCase.swift */; };
 		2B2A417E1D83454900098E12 /* ActiveObjectTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */; };
 		2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */; };
 		2B4BA6CE1C83A22000DC1562 /* leftbend.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C21C83A22000DC1562 /* leftbend.geojson */; };
@@ -27,16 +26,20 @@
 		2B4BA6D91C83A22000DC1562 /* uturn.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CD1C83A22000DC1562 /* uturn.geojson */; };
 		2B6953651C7E601A007FC51E /* AnimatedColorRampTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
+		2B91A22E1DC14B7500B72527 /* ImageSingleLevelTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */; };
 		2B93D9671D41433500EAD280 /* WideVectorGlobeTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */; };
 		2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */; };
+		2BC0FB781DCAA18A004125F1 /* TextureVectorTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC0FB771DCAA18A004125F1 /* TextureVectorTestCase.m */; };
+		2BC0FB7A1DCAA574004125F1 /* dots.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB791DCAA574004125F1 /* dots.png */; };
 		2BC2DCCD1D1F4CE20088D350 /* ShapefileTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */; };
 		2BC2DCF01D2345AF0088D350 /* PagingLayerTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */; };
+		2BD358F31DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */; };
 		2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */; };
 		2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */; };
 		2BDEB3361C989D18003259B3 /* CartoDBLightTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3351C989D18003259B3 /* CartoDBLightTestCase.m */; };
-		2BE53AF31D258FEE00B60FAD /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AF21D258FEE00B60FAD /* libWhirlyGlobeLib.a */; };
 		2BE53AF41D25901300B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AEF1D258FE800B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
+		8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
 		88231C791BA784BC00A95F2B /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88231C781BA784BC00A95F2B /* ConfigViewController.xib */; };
 		883DF71B1C1CE164000756E9 /* AnimatedBasemapTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F11C1CE164000756E9 /* AnimatedBasemapTestCase-globe.png */; };
 		883DF71C1C1CE164000756E9 /* AnimatedBasemapTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F21C1CE164000756E9 /* AnimatedBasemapTestCase-map.png */; };
@@ -91,10 +94,6 @@
 		88E4B8CC1B83B6AB0050D21B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CB1B83B6AB0050D21B /* Images.xcassets */; };
 		88E4B8CF1B83B6AB0050D21B /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */; };
 		88E4B8ED1B83B9610050D21B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8EC1B83B9610050D21B /* CoreLocation.framework */; };
-		88E4B8EF1B83B96A0050D21B /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8EE1B83B96A0050D21B /* libc++.dylib */; };
-		88E4B8F11B83B9760050D21B /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8F01B83B9750050D21B /* libz.dylib */; };
-		88E4B8F31B83B97D0050D21B /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8F21B83B97D0050D21B /* libxml2.dylib */; };
-		88E4B8F51B83B9850050D21B /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8F41B83B9850050D21B /* libsqlite3.dylib */; };
 		88FF5BE61BC31D53002F15CE /* cube.obj in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE01BC31D53002F15CE /* cube.obj */; };
 		88FF5BE71BC31D53002F15CE /* map_pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE11BC31D53002F15CE /* map_pin.png */; };
 		88FF5BE81BC31D53002F15CE /* Smiley_Face_Avatar_by_PixelTwist.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE21BC31D53002F15CE /* Smiley_Face_Avatar_by_PixelTwist.png */; };
@@ -486,6 +485,10 @@
 		88FF5EF31BC31D95002F15CE /* tl_2013_06075_roads.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */; };
 		8F4D91DC1CDFA7DE00F68045 /* globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F4D91DA1CDFA7DE00F68045 /* globe.png */; };
 		8F4D91DD1CDFA7DE00F68045 /* map.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F4D91DB1CDFA7DE00F68045 /* map.png */; };
+		8F981DB81DE3577C00717DF1 /* ne_10m_roads.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB21DE3577C00717DF1 /* ne_10m_roads.dbf */; };
+		8F981DB91DE3577C00717DF1 /* ne_10m_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */; };
+		8F981DBB1DE3577C00717DF1 /* ne_10m_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */; };
+		8F981DBC1DE3577C00717DF1 /* ne_10m_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */; };
 		8FC34D0E1CE7218E00BEB7C4 /* DownloadResourceOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FC34D0D1CE7218E00BEB7C4 /* DownloadResourceOperation.m */; };
 		8FE129191CDFB3B8004744FC /* TestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FE129181CDFB3B8004744FC /* TestCell.swift */; };
 		D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */; };
@@ -519,12 +522,19 @@
 		D8F2FE291BE7C2000058A310 /* MarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */; };
 		D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */; };
 		D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */; };
-		E4E4F5E62664B2073B80A052 /* Pods.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F05A4FB888D188E680287F5 /* Pods.framework */; };
+		DD3B9467B8D80BF7EBF57472 /* Pods_AutoTester.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0F0DA1CE80D1854F94B969E /* Pods_AutoTester.framework */; };
 		E5679F481CB72DE800369A15 /* LabelAnimationTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F431CB72DE800369A15 /* LabelAnimationTestCase.m */; };
 		E5679F491CB72DE800369A15 /* WMSTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F451CB72DE800369A15 /* WMSTestCase.m */; };
 		E5679F4A1CB72DE800369A15 /* FindHeightTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F471CB72DE800369A15 /* FindHeightTestCase.m */; };
 		E5679F4E1CB7669400369A15 /* FullAnimationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F4D1CB7669400369A15 /* FullAnimationTest.m */; };
 		E57E78CA1C936B8400C468C6 /* AerisWeatherTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */; };
+		E5CC4E201DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CC4E1F1DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift */; };
+		E5D2D65F1DE65CE400E02305 /* LocationTrackingSimTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D2D65E1DE65CE400E02305 /* LocationTrackingSimTestCase.swift */; };
+		E5D2D6681DE6C25300E02305 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D6671DE6C25300E02305 /* libsqlite3.tbd */; };
+		E5D2D66A1DE6C25A00E02305 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D6691DE6C25A00E02305 /* libxml2.tbd */; };
+		E5D2D66C1DE6C26000E02305 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D66B1DE6C26000E02305 /* libz.tbd */; };
+		E5D2D66E1DE6C26A00E02305 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D66D1DE6C26A00E02305 /* libc++.tbd */; };
+		E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D2D6741DEDEABF00E02305 /* AnimationDelegateTestCase.swift */; };
 		E5EF69F01D6B573700A2A660 /* MapzenSLDStyle.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5EF69EF1D6B573700A2A660 /* MapzenSLDStyle.sld */; };
 /* End PBXBuildFile section */
 
@@ -546,14 +556,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		180B97B59AC5F39A42ADCB62 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		1F05A4FB888D188E680287F5 /* Pods.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2B158BED1D5D19E900103E04 /* VectorHoleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorHoleTestCase.h; sourceTree = "<group>"; };
 		2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorHoleTestCase.m; sourceTree = "<group>"; };
 		2B1C264D1C90FFFC00C71B0A /* VectorMBTilesTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorMBTilesTestCase.h; sourceTree = "<group>"; };
 		2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorMBTilesTestCase.m; sourceTree = "<group>"; };
 		2B1C26511C9100A500C71B0A /* France.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = France.mbtiles; path = ../../resources/vectors/France.mbtiles; sourceTree = "<group>"; };
-		2B28593A1DA6C80600687246 /* ImageSingleLevelTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageSingleLevelTestCase.swift; sourceTree = "<group>"; };
 		2B2A417C1D83454900098E12 /* ActiveObjectTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActiveObjectTestCase.h; sourceTree = "<group>"; };
 		2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActiveObjectTestCase.m; sourceTree = "<group>"; };
 		2B392B6F1C5AC59D001EE40B /* RunwayBuilderTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RunwayBuilderTestCase.h; sourceTree = "<group>"; };
@@ -573,14 +581,19 @@
 		2B6953631C7E601A007FC51E /* AnimatedColorRampTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedColorRampTestCase.h; sourceTree = "<group>"; };
 		2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimatedColorRampTestCase.m; sourceTree = "<group>"; };
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
+		2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageSingleLevelTestCase.swift; sourceTree = "<group>"; };
 		2B93D9651D41433500EAD280 /* WideVectorGlobeTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorGlobeTestCase.h; sourceTree = "<group>"; };
 		2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WideVectorGlobeTestCase.m; sourceTree = "<group>"; };
 		2BBB70811D5E9079009B67A6 /* VectorStyleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorStyleTestCase.h; sourceTree = "<group>"; };
 		2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorStyleTestCase.m; sourceTree = "<group>"; };
+		2BC0FB761DCAA18A004125F1 /* TextureVectorTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureVectorTestCase.h; sourceTree = "<group>"; };
+		2BC0FB771DCAA18A004125F1 /* TextureVectorTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureVectorTestCase.m; sourceTree = "<group>"; };
+		2BC0FB791DCAA574004125F1 /* dots.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dots.png; path = ../../resources/textures/dots.png; sourceTree = "<group>"; };
 		2BC2DCCB1D1F4CE20088D350 /* ShapefileTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapefileTestCase.h; sourceTree = "<group>"; };
 		2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShapefileTestCase.m; sourceTree = "<group>"; };
 		2BC2DCEE1D2345AF0088D350 /* PagingLayerTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagingLayerTestCase.h; sourceTree = "<group>"; };
 		2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PagingLayerTestCase.m; sourceTree = "<group>"; };
+		2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatedMarkersTestCase.swift; sourceTree = "<group>"; };
 		2BDEB3001C924842003259B3 /* ExtrudedModelTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtrudedModelTestCase.h; sourceTree = "<group>"; };
 		2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExtrudedModelTestCase.m; sourceTree = "<group>"; };
 		2BDEB3121C9391EB003259B3 /* GreatCircleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GreatCircleTestCase.h; sourceTree = "<group>"; };
@@ -588,11 +601,12 @@
 		2BDEB3341C989D18003259B3 /* CartoDBLightTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CartoDBLightTestCase.h; sourceTree = "<group>"; };
 		2BDEB3351C989D18003259B3 /* CartoDBLightTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CartoDBLightTestCase.m; sourceTree = "<group>"; };
 		2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeMaplyComponent.xcodeproj; path = "../WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.xcodeproj"; sourceTree = "<group>"; };
-		2BE53AF21D258FEE00B60FAD /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWhirlyGlobeLib.a; path = "../../../../Library/Developer/Xcode/DerivedData/AutoTester-cizypwfkufgyahcoralvsbxjvvew/Build/Products/Debug-iphonesimulator/libWhirlyGlobeLib.a"; sourceTree = "<group>"; };
 		2BFC7E4F1D132DCB0040E2A3 /* ScreenMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenMarkersTestCase.h; sourceTree = "<group>"; };
 		2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenMarkersTestCase.m; sourceTree = "<group>"; };
-		7DCA6760F1FB2455FF49EA9D /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		50758EC5237C3DF35AB67BE9 /* Pods-AutoTester.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AutoTester.release.xcconfig"; path = "Pods/Target Support Files/Pods-AutoTester/Pods-AutoTester.release.xcconfig"; sourceTree = "<group>"; };
+		726309C36257E6205E08B947 /* Pods-AutoTester.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AutoTester.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AutoTester/Pods-AutoTester.debug.xcconfig"; sourceTree = "<group>"; };
 		8810B2D11BA9D45F00446CE3 /* MaplyTesterBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyTesterBridge.h; sourceTree = "<group>"; };
+		8820852A1DC81051008F8E76 /* Issue721TestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Issue721TestCase.swift; sourceTree = "<group>"; };
 		88231C781BA784BC00A95F2B /* ConfigViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConfigViewController.xib; sourceTree = "<group>"; };
 		883DF6F11C1CE164000756E9 /* AnimatedBasemapTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AnimatedBasemapTestCase-globe.png"; sourceTree = "<group>"; };
 		883DF6F21C1CE164000756E9 /* AnimatedBasemapTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AnimatedBasemapTestCase-map.png"; sourceTree = "<group>"; };
@@ -653,10 +667,6 @@
 		88E4B8CB1B83B6AB0050D21B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		88E4B8CE1B83B6AB0050D21B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		88E4B8EC1B83B9610050D21B /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		88E4B8EE1B83B96A0050D21B /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
-		88E4B8F01B83B9750050D21B /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
-		88E4B8F21B83B97D0050D21B /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
-		88E4B8F41B83B9850050D21B /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		88FF5BE01BC31D53002F15CE /* cube.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cube.obj; path = ../../WhirlyGlobeSrc/WhirlyGlobeComponentTester/resources/cube.obj; sourceTree = "<group>"; };
 		88FF5BE11BC31D53002F15CE /* map_pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map_pin.png; path = ../WhirlyGlobeComponentTester/resources/map_pin.png; sourceTree = "<group>"; };
 		88FF5BE21BC31D53002F15CE /* Smiley_Face_Avatar_by_PixelTwist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Smiley_Face_Avatar_by_PixelTwist.png; path = ../WhirlyGlobeComponentTester/resources/Smiley_Face_Avatar_by_PixelTwist.png; sourceTree = "<group>"; };
@@ -1048,9 +1058,14 @@
 		88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.sqlite; sourceTree = "<group>"; };
 		8F4D91DA1CDFA7DE00F68045 /* globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = globe.png; path = AutoTester/icons/globe.png; sourceTree = "<group>"; };
 		8F4D91DB1CDFA7DE00F68045 /* map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map.png; path = AutoTester/icons/map.png; sourceTree = "<group>"; };
+		8F981DB21DE3577C00717DF1 /* ne_10m_roads.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.dbf; path = ../../resources/vectors/ne_10m_roads/ne_10m_roads.dbf; sourceTree = "<group>"; };
+		8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ne_10m_roads.prj; path = ../../resources/vectors/ne_10m_roads/ne_10m_roads.prj; sourceTree = "<group>"; };
+		8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shp; path = ../../resources/vectors/ne_10m_roads/ne_10m_roads.shp; sourceTree = "<group>"; };
+		8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shx; path = ../../resources/vectors/ne_10m_roads/ne_10m_roads.shx; sourceTree = "<group>"; };
 		8FC34D0C1CE7218E00BEB7C4 /* DownloadResourceOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadResourceOperation.h; sourceTree = "<group>"; };
 		8FC34D0D1CE7218E00BEB7C4 /* DownloadResourceOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadResourceOperation.m; sourceTree = "<group>"; };
 		8FE129181CDFB3B8004744FC /* TestCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCell.swift; sourceTree = "<group>"; };
+		B0F0DA1CE80D1854F94B969E /* Pods_AutoTester.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AutoTester.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorsTestCase.h; sourceTree = "<group>"; };
 		D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WideVectorsTestCase.m; sourceTree = "<group>"; };
 		D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StarsSunTestCase.swift; sourceTree = "<group>"; };
@@ -1104,6 +1119,13 @@
 		E5679F4D1CB7669400369A15 /* FullAnimationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FullAnimationTest.m; sourceTree = "<group>"; };
 		E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AerisWeatherTestCase.m; sourceTree = "<group>"; };
 		E57E78C91C936B8400C468C6 /* AerisWeatherTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AerisWeatherTestCase.h; sourceTree = "<group>"; };
+		E5CC4E1F1DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationTrackingRealTestCase.swift; sourceTree = "<group>"; };
+		E5D2D65E1DE65CE400E02305 /* LocationTrackingSimTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationTrackingSimTestCase.swift; sourceTree = "<group>"; };
+		E5D2D6671DE6C25300E02305 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		E5D2D6691DE6C25A00E02305 /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
+		E5D2D66B1DE6C26000E02305 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		E5D2D66D1DE6C26A00E02305 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		E5D2D6741DEDEABF00E02305 /* AnimationDelegateTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimationDelegateTestCase.swift; sourceTree = "<group>"; };
 		E5EF69EF1D6B573700A2A660 /* MapzenSLDStyle.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = MapzenSLDStyle.sld; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1112,14 +1134,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5D2D66E1DE6C26A00E02305 /* libc++.tbd in Frameworks */,
+				E5D2D66C1DE6C26000E02305 /* libz.tbd in Frameworks */,
+				E5D2D66A1DE6C25A00E02305 /* libxml2.tbd in Frameworks */,
+				E5D2D6681DE6C25300E02305 /* libsqlite3.tbd in Frameworks */,
 				2BE53AF41D25901300B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */,
-				2BE53AF31D258FEE00B60FAD /* libWhirlyGlobeLib.a in Frameworks */,
-				88E4B8F51B83B9850050D21B /* libsqlite3.dylib in Frameworks */,
-				88E4B8F31B83B97D0050D21B /* libxml2.dylib in Frameworks */,
-				88E4B8F11B83B9760050D21B /* libz.dylib in Frameworks */,
-				88E4B8EF1B83B96A0050D21B /* libc++.dylib in Frameworks */,
 				88E4B8ED1B83B9610050D21B /* CoreLocation.framework in Frameworks */,
-				E4E4F5E62664B2073B80A052 /* Pods.framework in Frameworks */,
+				DD3B9467B8D80BF7EBF57472 /* Pods_AutoTester.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1157,9 +1178,13 @@
 		3651D5D283D23F0C2EFDE845 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				2BE53AF21D258FEE00B60FAD /* libWhirlyGlobeLib.a */,
+				E5D2D66D1DE6C26A00E02305 /* libc++.tbd */,
+				E5D2D66B1DE6C26000E02305 /* libz.tbd */,
+				E5D2D6691DE6C25A00E02305 /* libxml2.tbd */,
+				E5D2D6671DE6C25300E02305 /* libsqlite3.tbd */,
 				2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */,
 				1F05A4FB888D188E680287F5 /* Pods.framework */,
+				B0F0DA1CE80D1854F94B969E /* Pods_AutoTester.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1168,10 +1193,6 @@
 			isa = PBXGroup;
 			children = (
 				88E4B8EC1B83B9610050D21B /* CoreLocation.framework */,
-				88E4B8F41B83B9850050D21B /* libsqlite3.dylib */,
-				88E4B8F21B83B97D0050D21B /* libxml2.dylib */,
-				88E4B8F01B83B9750050D21B /* libz.dylib */,
-				88E4B8EE1B83B96A0050D21B /* libc++.dylib */,
 			);
 			name = Fameworks;
 			sourceTree = "<group>";
@@ -1226,6 +1247,7 @@
 		88BF115A1BCDA9530002205E /* testCases */ = {
 			isa = PBXGroup;
 			children = (
+				2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */,
 				E5679F4C1CB7669400369A15 /* FullAnimationTest.h */,
 				E5679F4D1CB7669400369A15 /* FullAnimationTest.m */,
 				E5679F421CB72DE800369A15 /* LabelAnimationTestCase.h */,
@@ -1286,6 +1308,8 @@
 				2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */,
 				D8341A6F1BE2C8D200411A46 /* VectorsTestCase.h */,
 				D8341A701BE2C8D200411A46 /* VectorsTestCase.m */,
+				2BC0FB761DCAA18A004125F1 /* TextureVectorTestCase.h */,
+				2BC0FB771DCAA18A004125F1 /* TextureVectorTestCase.m */,
 				2B158BED1D5D19E900103E04 /* VectorHoleTestCase.h */,
 				2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */,
 				D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */,
@@ -1300,7 +1324,11 @@
 				2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */,
 				2B2A417C1D83454900098E12 /* ActiveObjectTestCase.h */,
 				2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */,
-				2B28593A1DA6C80600687246 /* ImageSingleLevelTestCase.swift */,
+				8820852A1DC81051008F8E76 /* Issue721TestCase.swift */,
+				2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */,
+				E5D2D65E1DE65CE400E02305 /* LocationTrackingSimTestCase.swift */,
+				E5D2D6741DEDEABF00E02305 /* AnimationDelegateTestCase.swift */,
+				E5CC4E1F1DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -1312,8 +1340,8 @@
 				886FCCBC1BA73B1400494BB0 /* Fameworks */,
 				88E4B8C01B83B6AB0050D21B /* Products */,
 				88FF5BDF1BC31D3C002F15CE /* Resources */,
-				ED1A80793ACB9856E5E252F3 /* Pods */,
 				3651D5D283D23F0C2EFDE845 /* Frameworks */,
+				D74E325D5843D7D84B9E3A09 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1370,6 +1398,11 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				8F981DB21DE3577C00717DF1 /* ne_10m_roads.dbf */,
+				8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */,
+				8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */,
+				8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */,
+				2BC0FB791DCAA574004125F1 /* dots.png */,
 				8F4D91D81CDFA7C000F68045 /* Icons */,
 				2B1C26511C9100A500C71B0A /* France.mbtiles */,
 				2B6953671C7E67DD007FC51E /* colorramp.png */,
@@ -1869,21 +1902,21 @@
 			name = Icons;
 			sourceTree = "<group>";
 		};
+		D74E325D5843D7D84B9E3A09 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				726309C36257E6205E08B947 /* Pods-AutoTester.debug.xcconfig */,
+				50758EC5237C3DF35AB67BE9 /* Pods-AutoTester.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		D8F53BD61C0275A1004854D6 /* Dropbox Files */ = {
 			isa = PBXGroup;
 			children = (
 				D882B8351C07BA2500649BE9 /* styles.css */,
 			);
 			name = "Dropbox Files";
-			sourceTree = "<group>";
-		};
-		ED1A80793ACB9856E5E252F3 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				7DCA6760F1FB2455FF49EA9D /* Pods.debug.xcconfig */,
-				180B97B59AC5F39A42ADCB62 /* Pods.release.xcconfig */,
-			);
-			name = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1893,12 +1926,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 88E4B8DE1B83B6AC0050D21B /* Build configuration list for PBXNativeTarget "AutoTester" */;
 			buildPhases = (
-				ADC61F124E492D4613138F26 /* Check Pods Manifest.lock */,
+				D7529E79898E1F28CCC7DF93 /* [CP] Check Pods Manifest.lock */,
 				88E4B8BB1B83B6AB0050D21B /* Sources */,
 				88E4B8BC1B83B6AB0050D21B /* Frameworks */,
 				88E4B8BD1B83B6AB0050D21B /* Resources */,
-				21F13676DE1F2CD1C1B0667E /* Embed Pods Frameworks */,
-				803644A848B6CAC59D7A2DDA /* Copy Pods Resources */,
+				674A015CA5DB481B7AD3584C /* [CP] Embed Pods Frameworks */,
+				DA2650C3F3FEDD93FE6A8CBD /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1923,7 +1956,7 @@
 						CreatedOnToolsVersion = 6.4;
 						DevelopmentTeam = BFXSGS6V8N;
 						LastSwiftMigration = 0800;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -1974,6 +2007,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				88FF5E521BC31D95002F15CE /* GUF.geojson in Resources */,
+				8F981DB91DE3577C00717DF1 /* ne_10m_roads.prj in Resources */,
 				88FF5E211BC31D95002F15CE /* CIV.geojson in Resources */,
 				88FF5CEC1BC31D6D002F15CE /* MapzenGLStyle.json in Resources */,
 				88FF5CCD1BC31D6D002F15CE /* religious-jewish-24@2x.png in Resources */,
@@ -2014,6 +2048,7 @@
 				88FF5E721BC31D95002F15CE /* LBN.geojson in Resources */,
 				88FF5E431BC31D95002F15CE /* GAB.geojson in Resources */,
 				88FF5E781BC31D95002F15CE /* LSO.geojson in Resources */,
+				8F981DBB1DE3577C00717DF1 /* ne_10m_roads.shp in Resources */,
 				88FF5EC21BC31D95002F15CE /* SSD.geojson in Resources */,
 				88FF5E6F1BC31D95002F15CE /* KOR.geojson in Resources */,
 				88FF5E341BC31D95002F15CE /* DOM.geojson in Resources */,
@@ -2137,6 +2172,7 @@
 				88FF5ECA1BC31D95002F15CE /* SYC.geojson in Resources */,
 				883DF7381C1CE164000756E9 /* ScreenLabelsTestCase-map.png in Resources */,
 				2B4BA6D01C83A22000DC1562 /* mowing-lawn.geojson in Resources */,
+				8F981DBC1DE3577C00717DF1 /* ne_10m_roads.shx in Resources */,
 				88FF5EE81BC31D95002F15CE /* WLF.geojson in Resources */,
 				2B4BA6D21C83A22000DC1562 /* rightv.geojson in Resources */,
 				88FF5EB51BC31D95002F15CE /* SDN.geojson in Resources */,
@@ -2155,6 +2191,7 @@
 				88FF5EEF1BC31D95002F15CE /* tl_2013_06075_roads.mbr in Resources */,
 				88FF5CA11BC31D6D002F15CE /* embassy-24@2x.png in Resources */,
 				883DF73F1C1CE164000756E9 /* StickersTestCase-globe.png in Resources */,
+				2BC0FB7A1DCAA574004125F1 /* dots.png in Resources */,
 				88FF5E621BC31D95002F15CE /* ISL.geojson in Resources */,
 				88FF5E391BC31D95002F15CE /* ESH.geojson in Resources */,
 				88FF5CCE1BC31D6D002F15CE /* religious-muslim-24@2x.png in Resources */,
@@ -2208,6 +2245,7 @@
 				88FF5ED41BC31D95002F15CE /* TON.geojson in Resources */,
 				88FF5CA71BC31D6D002F15CE /* fuel-24@2x.png in Resources */,
 				88FF5ED11BC31D95002F15CE /* TKL.geojson in Resources */,
+				8F981DB81DE3577C00717DF1 /* ne_10m_roads.dbf in Resources */,
 				88FF5DF81BC31D95002F15CE /* AIA.geojson in Resources */,
 				88FF5E761BC31D95002F15CE /* LIE.geojson in Resources */,
 				88FF5C9B1BC31D6D002F15CE /* cricket-24@2x.png in Resources */,
@@ -2431,49 +2469,49 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		21F13676DE1F2CD1C1B0667E /* Embed Pods Frameworks */ = {
+		674A015CA5DB481B7AD3584C /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AutoTester/Pods-AutoTester-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		803644A848B6CAC59D7A2DDA /* Copy Pods Resources */ = {
+		D7529E79898E1F28CCC7DF93 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		ADC61F124E492D4613138F26 /* Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Check Pods Manifest.lock";
+			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		DA2650C3F3FEDD93FE6A8CBD /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AutoTester/Pods-AutoTester-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -2493,12 +2531,14 @@
 				D8228AA61BE785E1001D6914 /* MovingScreenMarkers.m in Sources */,
 				8FC34D0E1CE7218E00BEB7C4 /* DownloadResourceOperation.m in Sources */,
 				D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */,
+				2B91A22E1DC14B7500B72527 /* ImageSingleLevelTestCase.swift in Sources */,
 				88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */,
 				88BF11591BCDA3960002205E /* ResultCell.swift in Sources */,
 				D84433EB1C14E4E700A52117 /* CartoDBTestCase.m in Sources */,
 				D8D3E0681C4EDA1800F0D006 /* ParticleTestCase.swift in Sources */,
 				D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */,
 				8895D8B01CA4ABA9004387FB /* ParticleTest.m in Sources */,
+				E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */,
 				D880112F1BFD16A900606EC6 /* DropboxViewController.swift in Sources */,
 				D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */,
 				D84433EE1C14E4FE00A52117 /* CartoDBLayer.m in Sources */,
@@ -2508,6 +2548,7 @@
 				88BF11571BCDA1BB0002205E /* ResultsViewController.swift in Sources */,
 				8FE129191CDFB3B8004744FC /* TestCell.swift in Sources */,
 				D84AA5991C1A2B9800413B76 /* BNGTestCase.swift in Sources */,
+				2BD358F31DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift in Sources */,
 				D8DCCC9F1BDB89A900BA3866 /* FullScreenViewController.swift in Sources */,
 				2BC2DCF01D2345AF0088D350 /* PagingLayerTestCase.m in Sources */,
 				88BF115F1BCDA9730002205E /* StamenWatercolorRemote.swift in Sources */,
@@ -2526,12 +2567,13 @@
 				88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,
 				2BDEB3361C989D18003259B3 /* CartoDBLightTestCase.m in Sources */,
-				2B28593B1DA6C80600687246 /* ImageSingleLevelTestCase.swift in Sources */,
 				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,
 				D8228AA81BE786BE001D6914 /* ClusteredMarkersTestCase.swift in Sources */,
 				2BC2DCCD1D1F4CE20088D350 /* ShapefileTestCase.m in Sources */,
 				D8F2FE271BE7BD630058A310 /* LabelsTestCase.m in Sources */,
 				E5679F4E1CB7669400369A15 /* FullAnimationTest.m in Sources */,
+				E5D2D65F1DE65CE400E02305 /* LocationTrackingSimTestCase.swift in Sources */,
+				E5CC4E201DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift in Sources */,
 				D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
 				2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */,
@@ -2539,6 +2581,8 @@
 				E5679F491CB72DE800369A15 /* WMSTestCase.m in Sources */,
 				2B93D9671D41433500EAD280 /* WideVectorGlobeTestCase.m in Sources */,
 				D8200C981BE93E6E00B22CF5 /* StarsSunTestCase.swift in Sources */,
+				8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */,
+				2BC0FB781DCAA18A004125F1 /* TextureVectorTestCase.m in Sources */,
 				D8341A631BE299BF00411A46 /* MapzenVectorTestCase.swift in Sources */,
 				D8F2FE291BE7C2000058A310 /* MarkersTestCase.swift in Sources */,
 				D8F2FE231BE7B1B40058A310 /* MapzenSource.m in Sources */,
@@ -2586,7 +2630,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Stephen Gifford (G7S7JV2SU3)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2658,11 +2702,10 @@
 		};
 		88E4B8DF1B83B6AC0050D21B /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7DCA6760F1FB2455FF49EA9D /* Pods.debug.xcconfig */;
+			baseConfigurationReference = 726309C36257E6205E08B947 /* Pods-AutoTester.debug.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Stephen Gifford (G7S7JV2SU3)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = BFXSGS6V8N;
 				HEADER_SEARCH_PATHS = (
@@ -2680,18 +2723,17 @@
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/AutoTester/MaplyTesterBridge.h";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
 		88E4B8E01B83B6AC0050D21B /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 180B97B59AC5F39A42ADCB62 /* Pods.release.xcconfig */;
+			baseConfigurationReference = 50758EC5237C3DF35AB67BE9 /* Pods-AutoTester.release.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Stephen Gifford (G7S7JV2SU3)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = BFXSGS6V8N;
 				HEADER_SEARCH_PATHS = (
@@ -2707,7 +2749,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.mousebird.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = AutoTester;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/AutoTester/MaplyTesterBridge.h";
-				SWIFT_VERSION = 2.3;
+				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
