@@ -714,13 +714,13 @@ void WideVectorSceneRep::enableContents(bool enable,ChangeSet &changes)
         changes.push_back(new OnOffChangeRequest(*it,enable));
 }
 
-void WideVectorSceneRep::clearContents(ChangeSet &changes)
+void WideVectorSceneRep::clearContents(ChangeSet &changes,TimeInterval when)
 {
     SimpleIDSet allIDs = drawIDs;
     allIDs.insert(instIDs.begin(),instIDs.end());
     for (SimpleIDSet::iterator it = allIDs.begin();
          it != allIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it));
+        changes.push_back(new RemDrawableReq(*it,when));
 }
 
 WideVectorManager::WideVectorManager()
@@ -867,47 +867,30 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
     pthread_mutex_lock(&vecLock);
     
+    TimeInterval curTime = TimeGetCurrent();
     for (SimpleIDSet::iterator vit = vecIDs.begin();vit != vecIDs.end();++vit)
     {
         WideVectorSceneRep dummyRep(*vit);
         WideVectorSceneRepSet::iterator it = sceneReps.find(&dummyRep);
-//        TimeInterval curTime = TimeGetCurrent();
         if (it != sceneReps.end())
         {
             WideVectorSceneRep *sceneRep = *it;
 
-            // Porting: Fade turned off
-//            if (sceneRep->fade > 0.0)
-//            {
-//                SimpleIDSet allIDs = sceneRep->drawIDs;
-//                allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
-//                for (SimpleIDSet::iterator it = allIDs.begin();
-//                     it != allIDs.end(); ++it)
-//                    changes.push_back(new FadeChangeRequest(*it, curTime, curTime+sceneRep->fade));
-            
-//                __block NSObject * __weak thisCanary = canary;
-//
-//                // Spawn off the deletion for later
-//                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
-//                               scene->getDispatchQueue(),
-//                               ^{
-//                                   if (thisCanary)
-//                                   {
-//                                       SimpleIDSet theIDs;
-//                                       theIDs.insert(sceneRep->getId());
-//                                       ChangeSet delChanges;
-//                                       removeVectors(theIDs, delChanges);
-//                                       scene->addChangeRequests(delChanges);
-//                                   }
-//                               }
-//                               );
+            TimeInterval removeTime = 0.0;
+            if (sceneRep->fade > 0.0)
+            {
+                SimpleIDSet allIDs = sceneRep->drawIDs;
+                allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+                for (SimpleIDSet::iterator it = allIDs.begin();
+                     it != allIDs.end(); ++it)
+                    changes.push_back(new FadeChangeRequest(*it, curTime, curTime+sceneRep->fade));
                 
-//                sceneRep->fade = 0.0;
-//            } else {
-                (*it)->clearContents(changes);
-                sceneReps.erase(it);
-                delete sceneRep;
-//            }
+                removeTime = curTime + sceneRep->fade;
+            }
+            
+            (*it)->clearContents(changes,removeTime);
+            sceneReps.erase(it);
+            delete sceneRep;
         }
     }
     

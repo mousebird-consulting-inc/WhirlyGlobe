@@ -147,7 +147,7 @@ class DynamicTextureClearRegion : public ChangeRequest
 {
 public:
     /// Construct with the dynamic texture ID and the region to clear
-    DynamicTextureClearRegion(SimpleIdentity texId,const DynamicTexture::Region &region) : texId(texId), region(region) { }
+    DynamicTextureClearRegion(SimpleIdentity texId,const DynamicTexture::Region &region,TimeInterval inWhen) : texId(texId), region(region) { when = inWhen; }
 
     /// Clear the region from the given dynamic texture.  Never call this.
 	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
@@ -192,7 +192,7 @@ public:
     bool updateTexture(Texture *,int frame,const TextureRegion &texRegion,ChangeSet &changes);
 
     /// Free up the space for a texture from one of the dynamic textures
-    void removeTexture(const SubTexture &subTex,ChangeSet &changes);
+    void removeTexture(const SubTexture &subTex,ChangeSet &changes,TimeInterval when);
     
     /// Return the IDs for the dynamic textures we're using
     void getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which);
@@ -208,7 +208,7 @@ public:
     bool empty();
     
     /// Look for any textures that should be cleaned up
-    void cleanup(ChangeSet &changes);
+    void cleanup(ChangeSet &changes,TimeInterval when);
 
     /// Clear out the active dynamic textures.  Caller deals with the
     ///  change requests.

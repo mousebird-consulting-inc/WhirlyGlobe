@@ -101,7 +101,7 @@ public:
     ~BillboardSceneRep();
 
     // Clear the contents out of the scene
-    void clearContents(SelectionManager *selectManager,ChangeSet &changes);
+    void clearContents(SelectionManager *selectManager,ChangeSet &changes,TimeInterval when);
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs used for selection
@@ -153,7 +153,6 @@ public:
     void removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes);
 
 protected:
-    bool *canary;
     pthread_mutex_t billLock;
     BillboardSceneRepSet sceneReps;
 };

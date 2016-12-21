@@ -151,7 +151,7 @@ void QuadTileLoader::flushUpdates(ChangeSet &changes)
     {
         if (tileBuilder->drawAtlas->hasUpdates() && !tileBuilder->drawAtlas->waitingOnSwap())
         {
-            tileBuilder->texAtlas->cleanup(changeRequests);
+            tileBuilder->texAtlas->cleanup(changeRequests,0.0);
             tileBuilder->drawAtlas->swap(changeRequests, &BigDrawableSwapCallback, this->getController()->getId());
         }
         if (tileBuilder->poleDrawAtlas && tileBuilder->poleDrawAtlas->hasUpdates() && !tileBuilder->poleDrawAtlas->waitingOnSwap())

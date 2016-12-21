@@ -70,7 +70,7 @@ public:
     ~WideVectorSceneRep();
     
     void enableContents(bool enable,ChangeSet &changes);
-    void clearContents(ChangeSet &changes);
+    void clearContents(ChangeSet &changes,TimeInterval when);
     
     SimpleIDSet drawIDs;
     SimpleIDSet instIDs;    // Instances if we're doing that

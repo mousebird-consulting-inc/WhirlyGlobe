@@ -40,10 +40,10 @@ void ShapeSceneRep::enableContents(WhirlyKit::SelectionManager *selectManager, b
     }
 }
 
-void ShapeSceneRep::clearContents(SelectionManager *selectManager, ChangeSet &changes)
+void ShapeSceneRep::clearContents(SelectionManager *selectManager, ChangeSet &changes,TimeInterval when)
 {
     for (const SimpleIdentity idIt : drawIDs){
-        changes.push_back(new RemDrawableReq(idIt));
+        changes.push_back(new RemDrawableReq(idIt,when));
         if (selectManager)
             for (const SimpleIdentity it : selectIDs)
                 selectManager->removeSelectable(it);
@@ -257,43 +257,22 @@ void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes)
 
     pthread_mutex_lock(&shapeLock);
 
+    TimeInterval curTime = TimeGetCurrent();
     for (auto shapeID : shapeIDs) {
         ShapeSceneRep dummyRep(shapeID);
         auto sit = shapeReps.find(&dummyRep);
         if (sit != shapeReps.end()) {
             ShapeSceneRep *shapeRep = *sit;
 
-// TODO Support fade
-// Meanwhile...
-			shapeRep->clearContents(selectManager, changes);
-			shapeReps.erase(sit);
-			delete shapeRep;
-/*
-            TimeInterval curTime = TimeGetCurrent();
+            TimeInterval removeTime = 0.0;
             if (shapeRep->fade > 0.0) {
                 for (SimpleIDSet::iterator idIt = shapeRep->drawIDs.begin(); idIt != shapeRep->drawIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+shapeRep->fade));
-
-                __block void * __weak thisCanary = canary;
-
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, shapeRep->fade * NSEC_PER_SEC),
-                                   scene->getDispatchQueue(), ^{
-                    if (thisCanary) {
-                        SimpleIDSet theseShapeIDs;
-                        theseShapeIDs.insert(shapeID);
-                        ChangeSet delChanges;
-                        removeShapes(theseShapeIDs, delChanges);
-                        scene->addChangeRequests(delChanges);
-                    }
-                });
-                shapeRep->fade = 0.0;
             }
-            else {
-                shapeRep->clearContents(selectManager, changes);
-                shapeReps.erase(sit);
-                delete shapeRep;
-            }
- */
+            
+			shapeRep->clearContents(selectManager, changes, removeTime);
+			shapeReps.erase(sit);
+			delete shapeRep;
         }
     }
 

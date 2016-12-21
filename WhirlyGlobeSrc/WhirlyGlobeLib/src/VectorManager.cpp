@@ -758,12 +758,12 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
     pthread_mutex_lock(&vectorLock);
     
+    TimeInterval curTime = TimeGetCurrent();
     for (SimpleIDSet::iterator vit = vecIDs.begin(); vit != vecIDs.end(); ++vit)
     {
         VectorSceneRep dummyRep(*vit);
         VectorSceneRepSet::iterator it = vectorReps.find(&dummyRep);
         
-//        TimeInterval curTime = CFAbsoluteTimeGetCurrent();
         if (it != vectorReps.end())
         {
             VectorSceneRep *sceneRep = *it;
@@ -771,32 +771,22 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
             SimpleIDSet allIDs = sceneRep->drawIDs;
             allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
 
-            // Note: Porting
-//            if (sceneRep->fade > 0.0)
-//            {
-//                for (SimpleIDSet::iterator idIt = allIDs.begin();
-//                     idIt != allIDs.end(); ++idIt)
-//                    changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+sceneRep->fade));
-//                
-//                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
-//                               scene->getDispatchQueue(),
-//                               ^{
-//                                   SimpleIDSet theIDs;
-//                                   theIDs.insert(sceneRep->getId());
-//                                   ChangeSet delChanges;
-//                                   removeVectors(theIDs, delChanges);
-//                                   scene->addChangeRequests(delChanges);
-//                               }
-//                               );
-//                sceneRep->fade = 0.0;
-//            } else {
+            TimeInterval removeTime = 0.0;
+            if (sceneRep->fade > 0.0)
+            {
                 for (SimpleIDSet::iterator idIt = allIDs.begin();
                      idIt != allIDs.end(); ++idIt)
-                    changes.push_back(new RemDrawableReq(*idIt));
-                vectorReps.erase(it);
+                    changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+sceneRep->fade));
                 
-                delete sceneRep;
-//            }
+                removeTime = curTime + sceneRep->fade;
+            }
+            
+            for (SimpleIDSet::iterator idIt = allIDs.begin();
+                 idIt != allIDs.end(); ++idIt)
+                changes.push_back(new RemDrawableReq(*idIt));
+            vectorReps.erase(it);
+            
+            delete sceneRep;
         }
     }
     
