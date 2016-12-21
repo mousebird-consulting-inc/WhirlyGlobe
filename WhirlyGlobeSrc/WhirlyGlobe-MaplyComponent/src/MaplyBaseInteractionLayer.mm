@@ -530,7 +530,7 @@ public:
 }
 
 // Called by the texture dealloc
-- (void)clearTexture:(MaplyTexture *)tex
+- (void)clearTexture:(MaplyTexture *)tex when:(NSTimeInterval)when
 {
     if (!layerThread || isShuttingDown)
         return;
@@ -541,7 +541,7 @@ public:
     {
         if (atlasGroup)
         {
-            [atlasGroup removeTexture:tex.texID changes:changes];
+            [atlasGroup removeTexture:tex.texID changes:changes when:when];
             scene->removeSubTexture(tex.texID);
         }
     } else {
@@ -3182,8 +3182,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 if (geomManager && !userObj.geomIDs.empty())
                     geomManager->removeGeometry(userObj.geomIDs, changes);
                 if (fontTexManager && !userObj.drawStringIDs.empty())
+                {
+                    // Note: Giving the fonts 2s to stick around
+                    //       This avoids problems with texture being laid out.
+                    //       Without this we lose the textures before we're done with them
+                    NSTimeInterval when = CFAbsoluteTimeGetCurrent() + 2.0;
                     for (SimpleIdentity dStrID : userObj.drawStringIDs)
-                        [fontTexManager removeString:dStrID changes:changes];
+                        [fontTexManager removeString:dStrID changes:changes when:when];
+                }
                 if (partSysManager && !userObj.partSysIDs.empty())
                 {
                     for (SimpleIdentity partSysID : userObj.partSysIDs)
