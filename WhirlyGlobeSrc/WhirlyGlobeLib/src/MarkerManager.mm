@@ -48,12 +48,12 @@ namespace WhirlyKit
             layoutManager->enableLayoutObjects(screenShapeIDs, enable);
     }
     
-    void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,ChangeSet &changes)
+    void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,ChangeSet &changes,NSTimeInterval when)
     {
         // Just delete everything
         for (SimpleIDSet::iterator idIt = drawIDs.begin();
              idIt != drawIDs.end(); ++idIt)
-            changes.push_back(new RemDrawableReq(*idIt));
+            changes.push_back(new RemDrawableReq(*idIt,when));
         drawIDs.clear();
         
         if (selectManager && !selectIDs.empty())
@@ -455,36 +455,21 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
         {
             MarkerSceneRep *markerRep = *it;
             
+            NSTimeInterval removeTime = 0.0;
             if (markerRep->fadeOut > 0.0)
             {
                 NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                 for (SimpleIDSet::iterator idIt = markerRep->drawIDs.begin();
                      idIt != markerRep->drawIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+markerRep->fadeOut));
-                
-                __block NSObject * __weak thisCanary = canary;
-                
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, markerRep->fadeOut * NSEC_PER_SEC),
-                               scene->getDispatchQueue(),
-                               ^{
-                                   if (thisCanary)
-                                   {
-                                       SimpleIDSet theseMarkerIDs;
-                                       theseMarkerIDs.insert(markerID);
-                                       ChangeSet delChanges;
-                                       removeMarkers(theseMarkerIDs,delChanges);
-                                       scene->addChangeRequests(delChanges);
-                                   }
-                               }
-                               );
-                
-                markerRep->fadeOut = 0.0;
-            } else {
-                markerRep->clearContents(selectManager, layoutManager, generatorId, screenGenId, changes);
-                
-                markerReps.erase(it);
-                delete markerRep;
+
+                removeTime = curTime + markerRep->fadeOut;
             }
+            
+            
+            markerRep->clearContents(selectManager, layoutManager, generatorId, screenGenId, changes, removeTime);
+                
+            markerReps.erase(it);
         }
     }
     
