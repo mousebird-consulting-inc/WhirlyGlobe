@@ -470,6 +470,7 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
             markerRep->clearContents(selectManager, layoutManager, generatorId, screenGenId, changes, removeTime);
                 
             markerReps.erase(it);
+            delete markerRep;
         }
     }
     

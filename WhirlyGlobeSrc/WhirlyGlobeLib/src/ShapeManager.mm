@@ -742,6 +742,7 @@ void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes)
             
             shapeRep->clearContents(selectManager, changes, removeTime);
             shapeReps.erase(sit);
+            delete shapeRep;
         }
     }
     

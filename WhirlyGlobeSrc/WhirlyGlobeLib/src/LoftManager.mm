@@ -737,6 +737,7 @@ void LoftManager::removeLoftedPolys(SimpleIDSet &polyIDs,ChangeSet &changes)
                  idIt != sceneRep->drawIDs.end(); ++idIt)
                 changes.push_back(new RemDrawableReq(*idIt,removeTime));
             loftReps.erase(it);
+            delete sceneRep;
         }
     }
     

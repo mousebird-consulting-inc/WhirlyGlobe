@@ -304,6 +304,7 @@ void BillboardManager::removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes)
             
             sceneRep->clearContents(selectManager,changes,removeTime);
             sceneReps.erase(it);
+            delete sceneRep;
         }
     }
     
