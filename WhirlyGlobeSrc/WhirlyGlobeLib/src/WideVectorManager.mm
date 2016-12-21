@@ -714,13 +714,13 @@ void WideVectorSceneRep::enableContents(bool enable,ChangeSet &changes)
         changes.push_back(new OnOffChangeRequest(*it,enable));
 }
 
-void WideVectorSceneRep::clearContents(ChangeSet &changes)
+void WideVectorSceneRep::clearContents(ChangeSet &changes,NSTimeInterval when)
 {
     SimpleIDSet allIDs = drawIDs;
     allIDs.insert(instIDs.begin(),instIDs.end());
     for (SimpleIDSet::iterator it = allIDs.begin();
          it != allIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it));
+        changes.push_back(new RemDrawableReq(*it,when));
 }
 
 WideVectorManager::WideVectorManager()
@@ -890,6 +890,7 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
         {
             WideVectorSceneRep *sceneRep = *it;
             
+            NSTimeInterval removeTime = 0.0;
             if (sceneRep->fade > 0.0)
             {
                 SimpleIDSet allIDs = sceneRep->drawIDs;
@@ -897,30 +898,12 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
                 for (SimpleIDSet::iterator it = allIDs.begin();
                      it != allIDs.end(); ++it)
                     changes.push_back(new FadeChangeRequest(*it, curTime, curTime+sceneRep->fade));
-                
-                __block NSObject * __weak thisCanary = canary;
 
-                // Spawn off the deletion for later
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
-                               scene->getDispatchQueue(),
-                               ^{
-                                   if (thisCanary)
-                                   {
-                                       SimpleIDSet theIDs;
-                                       theIDs.insert(sceneRep->getId());
-                                       ChangeSet delChanges;
-                                       removeVectors(theIDs, delChanges);
-                                       scene->addChangeRequests(delChanges);
-                                   }
-                               }
-                               );
-                
-                sceneRep->fade = 0.0;
-            } else {
-                (*it)->clearContents(changes);
-                sceneReps.erase(it);
-                delete sceneRep;
+                removeTime = curTime + sceneRep->fade;
             }
+            
+            (*it)->clearContents(changes,removeTime);
+            sceneReps.erase(it);
         }
     }
     

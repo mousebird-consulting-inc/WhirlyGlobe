@@ -349,7 +349,7 @@ public:
         if (usesAtlas && texAtlas)
         {
             if (subTex.texId != EmptyIdentity)
-                texAtlas->removeTexture(subTex, changeRequests);
+                texAtlas->removeTexture(subTex, changeRequests, 0.0);
         } else {
             for (SimpleIDSet::iterator it = texIDs.begin();
                  it != texIDs.end(); ++it)
