@@ -850,6 +850,7 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
                  idIt != allIDs.end(); ++idIt)
                 changes.push_back(new RemDrawableReq(*idIt,removeTime));
             vectorReps.erase(it);
+            delete sceneRep;
         }
     }
     
