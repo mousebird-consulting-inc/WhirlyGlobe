@@ -127,7 +127,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
     return false;
 }
 
-- (void)removeTexture:(WhirlyKit::SimpleIdentity)subTexID changes:(WhirlyKit::ChangeSet &)changes
+- (void)removeTexture:(WhirlyKit::SimpleIdentity)subTexID changes:(WhirlyKit::ChangeSet &)changes when:(NSTimeInterval)when
 {
     @synchronized(self)
     {
@@ -136,10 +136,10 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
         {
             // Clear out the
             const SubTexToAtlas &entry = *it;
-            entry.atlas->removeTexture(entry.subTex, changes);
+            entry.atlas->removeTexture(entry.subTex, changes, when);
             
             // May need to remove the texture atlas
-            entry.atlas->cleanup(changes);
+            entry.atlas->cleanup(changes,when);
             if (entry.atlas->empty())
             {
                 entry.atlas->teardown(changes);
@@ -160,7 +160,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
              it != atlases.end(); ++it)
         {
             DynamicTextureAtlas *atlas = *it;
-            atlas->cleanup(changes);
+            atlas->cleanup(changes,0.0);
             delete atlas;
         }
         

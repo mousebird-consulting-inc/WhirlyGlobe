@@ -525,7 +525,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     return drawString;
 }
             
-- (void)removeString:(SimpleIdentity)drawStringId changes:(ChangeSet &)changes
+- (void)removeString:(SimpleIdentity)drawStringId changes:(ChangeSet &)changes when:(NSTimeInterval)when
 {
     pthread_mutex_lock(&lock);
     
@@ -556,7 +556,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
             // And possibly remove some sub textures
             if (!texRemove.empty())
                 for (unsigned int ii=0;ii<texRemove.size();ii++)
-                    texAtlas->removeTexture(texRemove[ii], changes);
+                    texAtlas->removeTexture(texRemove[ii], changes, when);
             
             // Also see if we're done with the font
             if (fm->refCount <= 0)
