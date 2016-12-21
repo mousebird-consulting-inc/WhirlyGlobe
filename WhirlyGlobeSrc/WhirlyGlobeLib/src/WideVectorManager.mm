@@ -904,6 +904,7 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
             
             (*it)->clearContents(changes,removeTime);
             sceneReps.erase(it);
+            delete sceneRep;
         }
     }
     
