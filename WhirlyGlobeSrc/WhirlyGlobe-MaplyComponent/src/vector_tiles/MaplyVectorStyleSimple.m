@@ -37,10 +37,13 @@
 {
     MaplyVectorStyleSimple *style;
     
+    
     // Look for existing layer
-    style = stylesByLayerName[layer];
-    if (style)
-        return @[style];
+    @synchronized (self) {
+        style = stylesByLayerName[layer];
+        if (style)
+            return @[style];
+    }
     int layer_order = (int)[attributes[@"layer_order"] integerValue];
     
     int geomType = (int)[attributes[@"geometry_type"] integerValue];
@@ -61,8 +64,11 @@
         default:
             break;
     }
-    stylesByUUID[style.uuid] = style;
-    stylesByLayerName[layer] = style;
+    
+    @synchronized (self) {
+        stylesByUUID[style.uuid] = style;
+        stylesByLayerName[layer] = style;
+    }
     
     return @[style];
 }
