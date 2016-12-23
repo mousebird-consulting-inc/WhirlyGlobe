@@ -45,5 +45,6 @@
 #import "VectorHoleTestCase.h"
 #import "VectorStyleTestCase.h"
 #import "ActiveObjectTestCase.h"
+#import "GeoJSONSource.h"
 
 #endif
