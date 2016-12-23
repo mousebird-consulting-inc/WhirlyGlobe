@@ -53,9 +53,10 @@
     if (node.kind != DDXMLElementKind)
         return nil;
     DDXMLElement *element = (DDXMLElement *)node;
-    NSArray *matches = [element elementsForName:childName];
-    if (matches && matches.count == 1)
-        return matches[0];
+    for (DDXMLNode *child in [element children]) {
+        if ([[child localName] isEqualToString:childName])
+            return child;
+    }
     return nil;
 }
 

@@ -69,7 +69,7 @@
  */
 @interface SLDFilter : NSObject
 
-@property (nonatomic, strong) SLDOperator * _Nonnull operator;
+@property (nonatomic, strong) SLDOperator * _Nonnull sldOperator;
 
 @end
 
