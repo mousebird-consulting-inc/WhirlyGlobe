@@ -128,9 +128,10 @@
     if (node.kind != DDXMLElementKind)
         return nil;
     DDXMLElement *element = (DDXMLElement *)node;
-    NSArray *matches = [element elementsForName:childName];
-    if (matches && matches.count == 1)
-        return matches[0];
+    for (DDXMLNode *child in [element children]) {
+        if ([[child localName] isEqualToString:childName])
+            return child;
+    }
     return nil;
 }
 
@@ -296,7 +297,7 @@
     for (DDXMLNode *child in [filterNode children]) {
         SLDOperator *operator = [SLDOperator operatorForNode:child];
         if (operator) {
-            filter.operator = operator;
+            filter.sldOperator = operator;
             break;
         }
         else
@@ -350,14 +351,14 @@
                 if (rule.filters.count == 0 && rule.elseFilters.count == 0)
                     matched = true;
                 for (SLDFilter *filter in rule.filters) {
-                    if ([filter.operator.predicate evaluateWithObject:attributes]) {
+                    if ([filter.sldOperator.predicate evaluateWithObject:attributes]) {
                         matched = true;
                         break;
                     }
                 }
                 if (!matched) {
                     for (SLDFilter *filter in rule.elseFilters) {
-                        if ([filter.operator.predicate evaluateWithObject:attributes]) {
+                        if ([filter.sldOperator.predicate evaluateWithObject:attributes]) {
                             matched = true;
                             break;
                         }
