@@ -35,7 +35,7 @@ class NASAGIBSTestCase: MaplyTestCase {
 		let baseCacheDir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.cachesDirectory, FileManager.SearchPathDomainMask.userDomainMask, true)
 		let nasaTilescacheDir = "\(baseCacheDir)/nasatiles/"
 		let maxZoom = Int32(9)
-		let tileSource = MaplyRemoteTileSource(baseURL: "http://otile1.mqcdn.com/tiles/1.0.0/sat/", ext: "jpg", minZoom: 0, maxZoom: maxZoom)
+		let tileSource = MaplyRemoteTileSource(baseURL: "http://s.basemaps.cartocdn.com/dark_all/", ext: "png", minZoom: 0, maxZoom: maxZoom)
 		tileSource?.cacheDir = nasaTilescacheDir
 		let layer = MaplyQuadImageTilesLayer(coordSystem: tileSource!.coordSys, tileSource: tileSource!)
 		
@@ -57,7 +57,7 @@ class NASAGIBSTestCase: MaplyTestCase {
 	
 	func setupOverlaysLayer (_ baseLayer: MaplyBaseViewController) {
 		let cacheDir = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.cachesDirectory, FileManager.SearchPathDomainMask.userDomainMask, true)
-        let tileInfo = MaplyRemoteTileInfo(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/Sea_Surface_Temp_Blended/default/2015-06-25/GoogleMapsCompatible_Level7/{z}/{y}/{x}", ext: "png", minZoom: 0, maxZoom: 7)
+        let tileInfo = MaplyRemoteTileInfo(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/2015-07-01/GoogleMapsCompatible_Level8/{z}/{y}/{x}", ext: "jpg", minZoom: 0, maxZoom: 8)
         let tileSource = MaplyRemoteTileSource(info: tileInfo)
 		tileSource?.cacheDir = "\(cacheDir)/sea_temperature"
 		tileInfo.cachedFileLifetime = 3 //Invalidate OWM data after three secs
