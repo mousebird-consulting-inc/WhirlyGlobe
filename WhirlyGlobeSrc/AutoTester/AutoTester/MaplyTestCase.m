@@ -280,6 +280,11 @@
     [self.baseViewController clearAnnotations];
 }
 
+-(void)maplyViewController:(MaplyViewController *)viewC didSelect:(NSObject *)selectedObj
+{
+    [self handleSelection:selectedObj];
+}
+
 - (void)maplyViewController:(MaplyViewController *__nonnull)viewC didSelect:(NSObject *__nonnull)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt
 {
     [self handleSelection:selectedObj];

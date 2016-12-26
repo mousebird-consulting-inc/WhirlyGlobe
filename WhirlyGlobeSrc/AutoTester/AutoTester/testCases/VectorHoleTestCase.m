@@ -8,9 +8,14 @@
 
 #import "VectorHoleTestCase.h"
 
+@interface VectorHoleTestCase()
+
+@property (nonatomic) MaplyBaseViewController *viewC;
+
+@end
+
+
 @implementation VectorHoleTestCase
-
-
 
 - (instancetype)init
 {
@@ -71,6 +76,7 @@
 {
     self.baseView = [[GeographyClassTestCase alloc]init];
     [self.baseView setUpWithGlobe:globeVC];
+    self.viewC = globeVC;
     //Overlay Countries
     [self overlayVectors:(MaplyBaseViewController*)globeVC];
 }
@@ -80,24 +86,35 @@
 {
     self.baseView = [[GeographyClassTestCase alloc]init];
     [self.baseView setUpWithMap:mapVC];
+    self.viewC = mapVC;
     [self overlayVectors:(MaplyBaseViewController*)mapVC];
 }
 
-- (void) handleSelection:(MaplyBaseViewController *)viewC
-                selected:(NSObject *)selectedObj
+- (void)handleSelection:(id)selectedObjs
 {
-    // ensure it's a MaplyVectorObject. It should be one of our outlines.
-    if ([selectedObj isKindOfClass:[MaplyVectorObject class]]) {
-        MaplyVectorObject *theVector = (MaplyVectorObject *)selectedObj;
-        MaplyCoordinate location;
-        
-        if ([theVector centroid:&location]) {
-            MaplyAnnotation *annotate = [[MaplyAnnotation alloc]init];
-            annotate.title = @"Selected";
-            annotate.subTitle = (NSString *)theVector.userObject;
-            [viewC addAnnotation:annotate forPoint:location offset:CGPointZero];
+    [self.baseViewController clearAnnotations];
+    
+    bool isMultiple = [selectedObjs isKindOfClass:[NSArray class]] && [(NSArray *)selectedObjs count] >= 1;
+
+	MaplyVectorObject *theVector = nil;
+
+    if (isMultiple) {
+        MaplySelectedObject *firstObj = [(NSArray *)selectedObjs objectAtIndex:0];
+        if ([firstObj.selectedObj isKindOfClass:[MaplyVectorObject class]]) {
+			theVector = (MaplyVectorObject *)firstObj.selectedObj;
         }
     }
+    else if ([selectedObjs isKindOfClass:[MaplyVectorObject class]]) {
+		theVector = (MaplyVectorObject *)selectedObjs;
+    }
+
+	if (theVector) {
+		MaplyCoordinate location = [theVector center];
+		MaplyAnnotation *annotate = [[MaplyAnnotation alloc]init];
+		annotate.title = @"Selected";
+		annotate.subTitle = (NSString *)theVector.userObject;
+		[self.viewC addAnnotation:annotate forPoint:location offset:CGPointZero];
+	}
 }
 
 @end
