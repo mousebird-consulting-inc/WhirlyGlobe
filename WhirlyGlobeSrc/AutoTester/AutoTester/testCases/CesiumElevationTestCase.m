@@ -41,7 +41,7 @@
 	globeVC.clearColor = [UIColor colorWithWhite:0.5 alpha:1.0];
 
 	// Cesium as an elevation source
-	MaplyRemoteTileElevationCesiumSource *cesiumElev = [[MaplyRemoteTileElevationCesiumSource alloc] initWithBaseURL:@"http://cesiumjs.org/stk-terrain/tilesets/world/tiles/" ext:@"terrain" minZoom:0 maxZoom:16];
+	MaplyRemoteTileElevationCesiumSource *cesiumElev = [[MaplyRemoteTileElevationCesiumSource alloc] initWithBaseURL:@"https://assets.agi.com/stk-terrain/v1/tilesets/world/tiles/" ext:@"terrain" minZoom:0 maxZoom:16];
 
 	NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
 
