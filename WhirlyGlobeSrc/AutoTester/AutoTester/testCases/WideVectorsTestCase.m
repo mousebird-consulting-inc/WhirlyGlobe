@@ -232,12 +232,16 @@
 	GeographyClassTestCase * baseLayer = [[GeographyClassTestCase alloc]init];
 	[baseLayer setUpWithGlobe:globeVC];
 	[self wideLineTest:globeVC];
+    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:0.1];
+
 }
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC{
 	GeographyClassTestCase * baseLayer = [[GeographyClassTestCase alloc]init];
 	[baseLayer setUpWithMap:mapVC];
 	[self wideLineTest:mapVC];
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:0.1];
+
 }
 
 @end
