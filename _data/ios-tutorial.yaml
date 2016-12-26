@@ -23,6 +23,7 @@
     - filename: adding_vector_data.html
     - filename: screen_markers.html
     - filename: screen_labels.html
+    - filename: styled_geojson.html
 
 - section: Shapes
   files:
