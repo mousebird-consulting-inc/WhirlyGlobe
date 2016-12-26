@@ -15,16 +15,13 @@ class MapzenVectorTestCase: MaplyTestCase {
 
 		self.name = "Mapzen Vectors"
 		self.captureDelay = 5
-		self.implementations = [ .map, .globe]
+		self.implementations = [.map, .globe]
 	}
     
     func setupMapzenLayer(_ baseVC: MaplyBaseViewController)
     {
-        //let styleData = NSData(contentsOfFile: NSBundle.mainBundle().pathForResource("MapzenGLStyle", ofType: "json")!)
-        
-        
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC), execute: {
-            
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
+
             let styleData = try? Data(contentsOf: URL(fileURLWithPath: Bundle.main.path(forResource: "MapzenSLDStyle", ofType: "sld")!))
             
             let mzSource = MapzenSource(
@@ -49,8 +46,7 @@ class MapzenVectorTestCase: MaplyTestCase {
             pageLayer?.useTargetZoomLevel = true
             pageLayer?.singleLevelLoading = true
             baseVC.add(pageLayer!)
-            
-        });
+        }
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
