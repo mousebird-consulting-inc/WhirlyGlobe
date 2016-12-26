@@ -490,6 +490,9 @@
 		8F981DBB1DE3577C00717DF1 /* ne_10m_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */; };
 		8F981DBC1DE3577C00717DF1 /* ne_10m_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */; };
 		8FC34D0E1CE7218E00BEB7C4 /* DownloadResourceOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FC34D0D1CE7218E00BEB7C4 /* DownloadResourceOperation.m */; };
+		8FDE435D1E01C7200026B20E /* StamenWatercolorRemote-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 8FDE435C1E01C7200026B20E /* StamenWatercolorRemote-map.png */; };
+		8FDE43621E01C9420026B20E /* ImageSingleLevelTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 8FDE43601E01C9420026B20E /* ImageSingleLevelTestCase-map.png */; };
+		8FDE43631E01C9420026B20E /* ImageSingleLevelTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 8FDE43611E01C9420026B20E /* ImageSingleLevelTestCase-globe.png */; };
 		8FE129191CDFB3B8004744FC /* TestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FE129181CDFB3B8004744FC /* TestCell.swift */; };
 		D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */; };
 		D8200C981BE93E6E00B22CF5 /* StarsSunTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */; };
@@ -1076,6 +1079,9 @@
 		8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shx; path = ../../resources/vectors/ne_10m_roads/ne_10m_roads.shx; sourceTree = "<group>"; };
 		8FC34D0C1CE7218E00BEB7C4 /* DownloadResourceOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadResourceOperation.h; sourceTree = "<group>"; };
 		8FC34D0D1CE7218E00BEB7C4 /* DownloadResourceOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadResourceOperation.m; sourceTree = "<group>"; };
+		8FDE435C1E01C7200026B20E /* StamenWatercolorRemote-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "StamenWatercolorRemote-map.png"; sourceTree = "<group>"; };
+		8FDE43601E01C9420026B20E /* ImageSingleLevelTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ImageSingleLevelTestCase-map.png"; sourceTree = "<group>"; };
+		8FDE43611E01C9420026B20E /* ImageSingleLevelTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ImageSingleLevelTestCase-globe.png"; sourceTree = "<group>"; };
 		8FE129181CDFB3B8004744FC /* TestCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCell.swift; sourceTree = "<group>"; };
 		B0F0DA1CE80D1854F94B969E /* Pods_AutoTester.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AutoTester.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorsTestCase.h; sourceTree = "<group>"; };
@@ -1225,6 +1231,9 @@
 		888943331BD6EE1A00C39A66 /* baselines */ = {
 			isa = PBXGroup;
 			children = (
+				8FDE43601E01C9420026B20E /* ImageSingleLevelTestCase-map.png */,
+				8FDE43611E01C9420026B20E /* ImageSingleLevelTestCase-globe.png */,
+				8FDE435C1E01C7200026B20E /* StamenWatercolorRemote-map.png */,
 				883DF6F11C1CE164000756E9 /* AnimatedBasemapTestCase-globe.png */,
 				883DF6F21C1CE164000756E9 /* AnimatedBasemapTestCase-map.png */,
 				883DF6F31C1CE164000756E9 /* BNGCustomMapTestCase-map.png */,
@@ -2075,6 +2084,7 @@
 				88FF5E381BC31D95002F15CE /* ERI.geojson in Resources */,
 				88FF5CC81BC31D6D002F15CE /* prison-24@2x.png in Resources */,
 				88FF5E841BC31D95002F15CE /* MHL.geojson in Resources */,
+				8FDE43621E01C9420026B20E /* ImageSingleLevelTestCase-map.png in Resources */,
 				88FF5C821BC31D6D002F15CE /* airport-24@2x.png in Resources */,
 				88FF5C811BC31D6D002F15CE /* airfield-24@2x.png in Resources */,
 				88FF5ED01BC31D95002F15CE /* TJK.geojson in Resources */,
@@ -2331,6 +2341,7 @@
 				88FF5CE41BC31D6D002F15CE /* triangle-stroked-24@2x.png in Resources */,
 				88FF5EB91BC31D95002F15CE /* SHN.geojson in Resources */,
 				88FF5E971BC31D95002F15CE /* NFK.geojson in Resources */,
+				8FDE43631E01C9420026B20E /* ImageSingleLevelTestCase-globe.png in Resources */,
 				88FF5C9E1BC31D6D002F15CE /* danger-24@2x.png in Resources */,
 				88FF5C971BC31D6D002F15CE /* city-24@2x.png in Resources */,
 				88FF5CB81BC31D6D002F15CE /* minefield-24@2x.png in Resources */,
@@ -2423,6 +2434,7 @@
 				88FF5E221BC31D95002F15CE /* CMR.geojson in Resources */,
 				88FF5CDD1BC31D6D002F15CE /* telephone-24@2x.png in Resources */,
 				88FF5E231BC31D95002F15CE /* COD.geojson in Resources */,
+				8FDE435D1E01C7200026B20E /* StamenWatercolorRemote-map.png in Resources */,
 				D84AA5971C1A26C100413B76 /* OSTN02_NTv2.gsb in Resources */,
 				88FF5CC11BC31D6D002F15CE /* pharmacy-24@2x.png in Resources */,
 				E5941DBF1E0CEC8600E1C8B3 /* belfast_ireland_waterways.geojson in Resources */,
