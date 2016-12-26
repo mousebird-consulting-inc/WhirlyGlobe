@@ -425,7 +425,7 @@ using namespace WhirlyKit;
 //    int y = ((int)(1<<tileID.level)-tileID.y)-1;
     int y = tileID.y;
     NSMutableURLRequest *urlReq = nil;
-    int level = tileID.level-1;
+    int level = tileID.level;
     
     // Fetch the traditional way
     NSMutableString *fullURLStr = [NSMutableString stringWithFormat:@"%@%d/%d/%d.%@",self.baseURL,level,tileID.x,y,self.ext];
