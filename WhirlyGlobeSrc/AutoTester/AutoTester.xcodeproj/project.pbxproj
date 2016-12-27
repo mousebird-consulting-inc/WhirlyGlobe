@@ -534,7 +534,6 @@
 		E5941DBE1E0CEC8600E1C8B3 /* belfast_ireland_waterareas.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E5941DB91E0CEC8600E1C8B3 /* belfast_ireland_waterareas.geojson */; };
 		E5941DBF1E0CEC8600E1C8B3 /* belfast_ireland_waterways.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E5941DBA1E0CEC8600E1C8B3 /* belfast_ireland_waterways.geojson */; };
 		E5941DC11E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5941DC01E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift */; };
-		E5941DC41E0CF2C400E1C8B3 /* GeoJSONSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E5941DC21E0CF2C400E1C8B3 /* GeoJSONSource.mm */; };
 		E5941DCA1E0D02A800E1C8B3 /* osm_buildings.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC51E0D02A800E1C8B3 /* osm_buildings.sld */; };
 		E5941DCB1E0D02A800E1C8B3 /* osm_landuse.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC61E0D02A800E1C8B3 /* osm_landuse.sld */; };
 		E5941DCC1E0D02A800E1C8B3 /* osm_roads.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC71E0D02A800E1C8B3 /* osm_roads.sld */; };
@@ -1137,8 +1136,6 @@
 		E5941DB91E0CEC8600E1C8B3 /* belfast_ireland_waterareas.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = belfast_ireland_waterareas.geojson; path = ../../resources/vectors/belfast_ireland/belfast_ireland_waterareas.geojson; sourceTree = "<group>"; };
 		E5941DBA1E0CEC8600E1C8B3 /* belfast_ireland_waterways.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = belfast_ireland_waterways.geojson; path = ../../resources/vectors/belfast_ireland/belfast_ireland_waterways.geojson; sourceTree = "<group>"; };
 		E5941DC01E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoJSONStyleTestCase.swift; sourceTree = "<group>"; };
-		E5941DC21E0CF2C400E1C8B3 /* GeoJSONSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GeoJSONSource.mm; sourceTree = "<group>"; };
-		E5941DC31E0CF2C400E1C8B3 /* GeoJSONSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoJSONSource.h; sourceTree = "<group>"; };
 		E5941DC51E0D02A800E1C8B3 /* osm_buildings.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = osm_buildings.sld; path = ../../resources/vectors/belfast_ireland/osm_buildings.sld; sourceTree = "<group>"; };
 		E5941DC61E0D02A800E1C8B3 /* osm_landuse.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = osm_landuse.sld; path = ../../resources/vectors/belfast_ireland/osm_landuse.sld; sourceTree = "<group>"; };
 		E5941DC71E0D02A800E1C8B3 /* osm_roads.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = osm_roads.sld; path = ../../resources/vectors/belfast_ireland/osm_roads.sld; sourceTree = "<group>"; };
@@ -1386,8 +1383,6 @@
 				D84433ED1C14E4FE00A52117 /* CartoDBLayer.m */,
 				D8F2FE211BE7B1B40058A310 /* MapzenSource.h */,
 				D8F2FE221BE7B1B40058A310 /* MapzenSource.m */,
-				E5941DC31E0CF2C400E1C8B3 /* GeoJSONSource.h */,
-				E5941DC21E0CF2C400E1C8B3 /* GeoJSONSource.mm */,
 				88E4B8C81B83B6AB0050D21B /* Main.storyboard */,
 				88E4B8C21B83B6AB0050D21B /* Supporting Files */,
 				886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */,
@@ -2596,7 +2591,6 @@
 				8895D8B01CA4ABA9004387FB /* ParticleTest.m in Sources */,
 				E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */,
 				D880112F1BFD16A900606EC6 /* DropboxViewController.swift in Sources */,
-				E5941DC41E0CF2C400E1C8B3 /* GeoJSONSource.mm in Sources */,
 				D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */,
 				D84433EE1C14E4FE00A52117 /* CartoDBLayer.m in Sources */,
 				886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */,

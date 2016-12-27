@@ -451,6 +451,8 @@
 		2BE53AE51D24A31B00B60FAD /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE538D41D249A6A00B60FAD /* libWhirlyGlobeLib.a */; };
 		E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */; };
 		E56DB3D81D6B1B5A007000D2 /* SLDStyleSet.m in Sources */ = {isa = PBXBuildFile; fileRef = E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */; };
+		E56E02A71E11F99500C1DD85 /* GeoJSONSource.h in Headers */ = {isa = PBXBuildFile; fileRef = E56E02A61E11F99500C1DD85 /* GeoJSONSource.h */; };
+		E56E02AA1E11F9AD00C1DD85 /* GeoJSONSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E56E02A91E11F9AD00C1DD85 /* GeoJSONSource.mm */; };
 		E5D2D6631DE67B1400E02305 /* MaplyLocationTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = E5D2D6621DE67B1400E02305 /* MaplyLocationTracker.h */; };
 		E5D2D6661DE67CF600E02305 /* MaplyLocationTracker.mm in Sources */ = {isa = PBXBuildFile; fileRef = E5D2D6651DE67CF600E02305 /* MaplyLocationTracker.mm */; };
 		E5EB67AB1D6DD19700FB3679 /* SLDWellKnownMarkers.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EB67AA1D6DD19700FB3679 /* SLDWellKnownMarkers.m */; };
@@ -933,6 +935,8 @@
 		2BE53AC61D249E1500B60FAD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDStyleSet.h; sourceTree = "<group>"; };
 		E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDStyleSet.m; sourceTree = "<group>"; };
+		E56E02A61E11F99500C1DD85 /* GeoJSONSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoJSONSource.h; sourceTree = "<group>"; };
+		E56E02A91E11F9AD00C1DD85 /* GeoJSONSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GeoJSONSource.mm; sourceTree = "<group>"; };
 		E5D2D6621DE67B1400E02305 /* MaplyLocationTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyLocationTracker.h; sourceTree = "<group>"; };
 		E5D2D6651DE67CF600E02305 /* MaplyLocationTracker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyLocationTracker.mm; sourceTree = "<group>"; };
 		E5EB67AA1D6DD19700FB3679 /* SLDWellKnownMarkers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDWellKnownMarkers.m; sourceTree = "<group>"; };
@@ -1141,6 +1145,7 @@
 		2BE537811D249A1200B60FAD /* vector_tiles */ = {
 			isa = PBXGroup;
 			children = (
+				E56E02A61E11F99500C1DD85 /* GeoJSONSource.h */,
 				2BE537821D249A1200B60FAD /* MapboxMultiSourceTileInfo.h */,
 				2BE537891D249A1200B60FAD /* MapboxVectorTiles.h */,
 				2BE5378A1D249A1200B60FAD /* MaplyVectorStyle.h */,
@@ -1248,6 +1253,7 @@
 		2BE537DC1D249A1200B60FAD /* vector_tiles */ = {
 			isa = PBXGroup;
 			children = (
+				E56E02A91E11F9AD00C1DD85 /* GeoJSONSource.mm */,
 				2BE537DD1D249A1200B60FAD /* MapboxMultiSourceTileInfo.mm */,
 				2BE537E41D249A1200B60FAD /* MapboxVectorTiles.mm */,
 				2BE537E51D249A1200B60FAD /* MaplyVectorStyle.mm */,
@@ -1745,6 +1751,7 @@
 				2BE538341D249A1200B60FAD /* NSData+Zlib.h in Headers */,
 				2BE538571D249A1200B60FAD /* TiltDelegate.h in Headers */,
 				2BE53AB41D249CAF00B60FAD /* SMCalloutView.h in Headers */,
+				E56E02A71E11F99500C1DD85 /* GeoJSONSource.h in Headers */,
 				2BE538041D249A1200B60FAD /* MaplyComponent.h in Headers */,
 				2BE537FC1D249A1200B60FAD /* MaplyAnnotation.h in Headers */,
 				2BE537FD1D249A1200B60FAD /* MaplyAtmosphere.h in Headers */,
@@ -1991,6 +1998,7 @@
 				2BE539F51D249C2900B60FAD /* arena.cc in Sources */,
 				2BE53A341D249C3D00B60FAD /* coded_stream.cc in Sources */,
 				2BE5388E1D249A1200B60FAD /* MaplyMBTileSource.mm in Sources */,
+				E56E02AA1E11F9AD00C1DD85 /* GeoJSONSource.mm in Sources */,
 				2BE53A6B1D249C4600B60FAD /* atomicops_internals_x86_gcc.cc in Sources */,
 				2BE538821D249A1200B60FAD /* MaplyElevationDatabase.mm in Sources */,
 				2BE539F21D249C2900B60FAD /* any.cc in Sources */,
