@@ -42,6 +42,7 @@
     NSMutableDictionary *_namedLayers;
     NSInteger symbolizerId;
     NSURL *_baseURL;
+    int _relativeDrawPriority;
     
 }
 
@@ -50,8 +51,9 @@
     @details After constructing the SLDStyleSet object, call loadSldURL: or loadSldData:baseURL: to parse the desired SLD document tree and create the corresponding symbolizers.
     @param viewC The map or globe view controller.
     @param useLayerNames Whether to use names of NamedLayer elements as a criteria in matching styles.
+ @param relativeDrawPriority The z-order relative to other vector features. This will be incremented internally for each style rule, so if you have multiple SLDStyleSets, leave some space between the relativeDrawPriority of each.
  */
-- (id)initWithViewC:(MaplyBaseViewController *)viewC useLayerNames:(BOOL)useLayerNames {
+- (id)initWithViewC:(MaplyBaseViewController *)viewC useLayerNames:(BOOL)useLayerNames relativeDrawPriority:(int)relativeDrawPriority {
     self = [super init];
     if (self) {
         self.viewC = viewC;
@@ -62,6 +64,7 @@
         self.tileStyleSettings.markerScale = [UIScreen mainScreen].scale;
         self.tileStyleSettings.useWideVectors = true;
         symbolizerId = 0;
+        _relativeDrawPriority = relativeDrawPriority;
         self.symbolizers = [NSMutableDictionary dictionary];
     }
     return self;
@@ -271,9 +274,10 @@
     
     for (DDXMLNode *child in [ruleNode children]) {
         NSString *name = [child localName];
-        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator baseURL:_baseURL];
+        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator relativeDrawPriority:_relativeDrawPriority baseURL:_baseURL];
         
         if (symbolizers) {
+            _relativeDrawPriority += 1;
             for (MaplyVectorTileStyle * symbolizer in symbolizers) {
                 symbolizer.uuid = @(symbolizerId);
                 self.symbolizers[@(symbolizerId)] = symbolizer;
