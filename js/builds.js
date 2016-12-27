@@ -16,7 +16,7 @@ function getAPIData() {
 			}
 		});
 	}).error(function() {
-		document.getElementById("table").innerHTML = "<div class='alert alert-danger'><strong>Something bad happened...</strong> Mr. Jenkins seems to be too busy... try again later</div>";
+		document.getElementById("table").innerHTML = "<div class='alert alert-danger'><strong>Mr. Jenkins is unable to report his status...</strong>Probably you need to allow unsafe scripts execution in your web browser.</div>";
 	});
 }
 
