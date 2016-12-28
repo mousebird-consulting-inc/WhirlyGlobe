@@ -67,11 +67,11 @@ typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} Geometry
 namespace WhirlyKit
 {
 
-void GeomSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &changes)
+void GeomSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &changes,NSTimeInterval removeTime)
 {
     for (SimpleIDSet::iterator it = drawIDs.begin();
          it != drawIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it));
+        changes.push_back(new RemDrawableReq(*it,removeTime));
     if (selectManager && !selectIDs.empty())
         selectManager->removeSelectables(selectIDs);
 }
@@ -897,35 +897,19 @@ void GeometryManager::removeGeometry(SimpleIDSet &geomIDs,ChangeSet &changes)
         {
             GeomSceneRep *sceneRep = *it;
             
+            NSTimeInterval removeTime = 0.0;
             if (sceneRep->fade > 0.0)
             {
                 for (SimpleIDSet::iterator it = sceneRep->drawIDs.begin();
                      it != sceneRep->drawIDs.end(); ++it)
                     changes.push_back(new FadeChangeRequest(*it, curTime, curTime+sceneRep->fade));
                 
-                __block NSObject * __weak thisCanary = canary;
-
-                // Spawn off the deletion for later
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
-                               scene->getDispatchQueue(),
-                               ^{
-                                   if (thisCanary)
-                                   {
-                                       SimpleIDSet theIDs;
-                                       theIDs.insert(sceneRep->getId());
-                                       ChangeSet delChanges;
-                                       removeGeometry(theIDs, delChanges);
-                                       scene->addChangeRequests(delChanges);
-                                   }
-                               }
-                               );
-                
-                sceneRep->fade = 0.0;
-            } else {
-                sceneRep->clearContents(selectManager,changes);
-                sceneReps.erase(it);
-                delete sceneRep;
+                removeTime = curTime + sceneRep->fade;
             }
+            
+            sceneRep->clearContents(selectManager,changes,removeTime);
+            sceneReps.erase(it);
+            delete sceneRep;
         }
     }
 

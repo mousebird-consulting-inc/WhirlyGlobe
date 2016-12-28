@@ -74,7 +74,7 @@ public:
 - (WhirlyKit::DrawableString *)addString:(NSAttributedString *)str changes:(std::vector<WhirlyKit::ChangeRequest *> &)changes;
 
 /// Remove resources associated with the given string
-- (void)removeString:(WhirlyKit::SimpleIdentity)drawStringId changes:(std::vector<WhirlyKit::ChangeRequest *> &)changes;
+- (void)removeString:(WhirlyKit::SimpleIdentity)drawStringId changes:(std::vector<WhirlyKit::ChangeRequest *> &)changes when:(NSTimeInterval)when;
 
 /// Tear down anything we've built
 - (void)clear:(std::vector<WhirlyKit::ChangeRequest *> &)changes;

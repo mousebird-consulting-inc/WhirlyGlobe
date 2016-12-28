@@ -195,6 +195,9 @@
   */
 @property (nonatomic,strong,nullable) NSString *queryStr;
 
+/// @brief If set, we've decided this is a replacement URL with {x},{y} and {z} in the baseURL string
+@property (nonatomic) bool replaceURL;
+
 /** @brief Add a bounding box tiles are valid within.
  @details By default all areas within the coordinate system are valid for paging tiles.  If you call this, then only the bounding boxes you've added are valid.  You can call this method multiple times.
  @param bbox Bounding box for valid tiles in the local coordinate system.
@@ -235,6 +238,11 @@
  @return True if the tile is loadable, false if not.
  */
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox;
+
+/** @brief Assign a user object here to get it passed back to you.
+    @details Optional property used by developers.
+  */
+@property (nonatomic,strong) id _Nullable userObject;
 
 @end
 
