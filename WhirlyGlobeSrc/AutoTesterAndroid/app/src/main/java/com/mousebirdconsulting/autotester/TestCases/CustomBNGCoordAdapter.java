@@ -20,7 +20,7 @@ public class CustomBNGCoordAdapter extends MaplyTestCase
     public CustomBNGCoordAdapter(Activity activity) {
         super(activity);
         this.setTestName("Custom BNG Coord Adapter");
-        this.setDelay(100000);
+        this.setDelay(2000);
         this.implementation = TestExecutionImplementation.Both;
     }
 
