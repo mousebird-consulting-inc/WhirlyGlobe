@@ -354,7 +354,7 @@ public class MapGestureHandler
 	// Update rotation when there are two fingers working
 	void handleRotation(MotionEvent event)
 	{
-		if (allowRotate)
+		if (allowRotate && event.getPointerCount() > 1)
 		{
 			MotionEvent.PointerCoords p0 = new MotionEvent.PointerCoords();
 			MotionEvent.PointerCoords p1 = new MotionEvent.PointerCoords();
