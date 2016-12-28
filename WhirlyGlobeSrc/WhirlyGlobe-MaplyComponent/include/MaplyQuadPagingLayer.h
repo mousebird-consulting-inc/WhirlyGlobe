@@ -262,6 +262,10 @@ typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
   */
 - (void)reload:(MaplyBoundingBox)bounds;
 
+/** @brief True if the layer is active.  False if it's been shut down.
+  */
+@property (readonly) bool valid;
+
 /** @brief Generate a 3D bounding box for the given tile.
     @details Generate a bounding box for the tile in its native coordinate system.  It may also call out to the delegate for accurate Z values.
   */

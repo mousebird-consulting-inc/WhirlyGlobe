@@ -40,7 +40,7 @@ public:
     void enableContents(WhirlyKit::SelectionManager *selectManager,bool enable,ChangeSet &changeRequests);
     
     // Clear the contents out of the scene
-    void clearContents(WhirlyKit::SelectionManager *selectManager,ChangeSet &changeRequests);
+    void clearContents(WhirlyKit::SelectionManager *selectManager,ChangeSet &changeRequests,NSTimeInterval when);
     
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs in the selection layer

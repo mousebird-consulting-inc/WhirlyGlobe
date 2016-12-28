@@ -28,6 +28,7 @@
 #import "NSString+DDXML.h"
 #import "Maply3dTouchPreviewDelegate.h"
 
+
 using namespace Eigen;
 using namespace WhirlyKit;
 
@@ -50,6 +51,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyBaseViewController
 {
+    MaplyLocationTracker *_locationTracker;
 }
 
 - (void) clear
@@ -1240,12 +1242,24 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)removeLayers:(NSArray *)layers
 {
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        [self performSelector:@selector(removeLayers:) withObject:layers];
+        return;
+    }
+
     for (MaplyViewControllerLayer *layer in layers)
         [self removeLayer:layer];
 }
 
 - (void)removeAllLayers
 {
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        [self performSelector:@selector(removeAllLayers) withObject:nil];
+        return;
+    }
+
     NSArray *allLayers = [NSArray arrayWithArray:userLayers];
     
     for (MaplyViewControllerLayer *theLayer in allLayers)
@@ -1386,5 +1400,30 @@ static const float PerfOutputDelay = 15.0;
 - (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *__nullable)other {
     // Implement in derived class.
 }
+
+
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate {
+    if (_locationTracker)
+        [self stopLocationTracking];
+    _locationTracker = [[MaplyLocationTracker alloc] initWithViewC:self Delegate:delegate useHeading:useHeading useCourse:useCourse simulate:simulate];
+}
+
+- (void)changeLocationTrackingLockType:(MaplyLocationLockType)lockType {
+    [self changeLocationTrackingLockType:lockType forwardTrackOffset:0];
+}
+
+- (void)changeLocationTrackingLockType:(MaplyLocationLockType)lockType forwardTrackOffset:(int)forwardTrackOffset {
+    if (!_locationTracker)
+        return;
+    [_locationTracker changeLockType:lockType forwardTrackOffset:forwardTrackOffset];
+}
+
+- (void)stopLocationTracking {
+    if (!_locationTracker)
+        return;
+    [_locationTracker teardown];
+    _locationTracker = nil;
+}
+
 
 @end

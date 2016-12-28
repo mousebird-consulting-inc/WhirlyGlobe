@@ -96,7 +96,15 @@ using namespace WhirlyGlobe;
     double t = (currentTime-startTime)/(endTime-startTime);
     if (t < 0.0)  t = 0.0;
     if (t > 1.0)  t = 1.0;
-    state.heading = (endState.heading - startState.heading)*t + startState.heading;
+    
+    float dHeading = endState.heading - startState.heading;
+    if (ABS(dHeading) <= M_PI)
+        state.heading = (dHeading)*t + startState.heading;
+    else if (dHeading > 0)
+        state.heading = (dHeading - 2.0*M_PI)*t + startState.heading;
+    else
+        state.heading = (dHeading + 2.0*M_PI)*t + startState.heading;
+    
     state.height = (endState.height - startState.height)*t + startState.height;
     state.tilt = (endState.tilt - startState.tilt)*t + startState.tilt;
     MaplyCoordinateD pos;
@@ -804,6 +812,50 @@ using namespace WhirlyGlobe;
     return true;
 }
 
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong {
+    
+    if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
+    {
+        NSLog(@"WhirlyGlobeViewController: Invalid location passed to animationToPosition:");
+        return false;
+    }
+    
+    [globeView cancelAnimation];
+
+    // save current view state
+    WhirlyGlobeViewControllerAnimationState *curState = [self getViewState];
+
+    // temporarily change view state, without propagating updates, to find offset coordinate
+    WhirlyGlobeViewControllerAnimationState *nextState = [[WhirlyGlobeViewControllerAnimationState alloc] init];
+    nextState.heading = newHeading;
+    nextState.tilt = self.tilt;
+    nextState.pos = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
+    nextState.height = newHeight;
+    [self setViewStateInternal:nextState updateWatchers:false];
+    
+    // find offset coordinate
+    MaplyCoordinate geoCoord;
+    CGPoint invPoint = CGPointMake(self.view.frame.size.width/2+loc.x, self.view.frame.size.height/2+loc.y);
+    if (![self geoPointFromScreen:invPoint geoCoord:&geoCoord])
+    {
+        [self setViewStateInternal:curState updateWatchers:false];
+        return false;
+    }
+    
+    // restore current view state
+    [self setViewStateInternal:curState updateWatchers:false];
+    
+    // animate to offset coordinate
+    WhirlyGlobeViewControllerSimpleAnimationDelegate *anim = [[WhirlyGlobeViewControllerSimpleAnimationDelegate alloc] init];
+    anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(geoCoord);
+    anim.heading = newHeading;
+    anim.height = newHeight;
+    anim.tilt = [self tilt];
+    [self animateWithDelegate:anim time:howLong];
+    
+    return true;
+}
+
 // External facing set position
 - (void)setPosition:(WGCoordinate)newPos
 {
@@ -1439,6 +1491,8 @@ using namespace WhirlyGlobe;
 
     WhirlyGlobeViewControllerAnimationState *stateStart = [self getViewState];
     
+    stateStart.heading = fmod(stateStart.heading + 2.0*M_PI, 2.0*M_PI);
+    
     // Tell the delegate what we're up to
     [animationDelegate globeViewController:self startState:stateStart startTime:now endTime:animationDelegateEnd];
     
@@ -1447,12 +1501,21 @@ using namespace WhirlyGlobe;
 
 - (void)setViewState:(WhirlyGlobeViewControllerAnimationState *)animState
 {
+    [self setViewState:animState updateWatchers:true];
+}
+
+- (void)setViewState:(WhirlyGlobeViewControllerAnimationState *)animState updateWatchers:(bool)updateWatchers
+{
     [globeView cancelAnimation];
-    [self setViewStateInternal:animState];
+    [self setViewStateInternal:animState updateWatchers:updateWatchers];
 }
 
 - (void)setViewStateInternal:(WhirlyGlobeViewControllerAnimationState *)animState
 {
+    [self setViewStateInternal:animState updateWatchers:true];
+}
+
+- (void)setViewStateInternal:(WhirlyGlobeViewControllerAnimationState *)animState updateWatchers:(bool)updateWatchers {
     Vector3d startLoc(0,0,1);
     
     if (animState.screenPos.x >= 0.0 && animState.screenPos.y >= 0.0)
@@ -1507,7 +1570,7 @@ using namespace WhirlyGlobe;
     else
         globeView.tilt = animState.tilt;
     
-    globeView.rotQuat = finalQuat;
+    [globeView setRotQuat:finalQuat updateWatchers:updateWatchers];
 }
 
 - (WhirlyGlobeViewControllerAnimationState *)getViewState

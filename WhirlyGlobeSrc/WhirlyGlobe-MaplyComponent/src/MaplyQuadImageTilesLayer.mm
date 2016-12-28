@@ -132,7 +132,7 @@ using namespace WhirlyKit;
     _maxVis = DrawVisibleInvalid;
     canShortCircuitImportance = false;
     maxShortCircuitLevel = -1;
-    _useTargetZoomLevel = true;
+    _useTargetZoomLevel = false;
     _singleLevelLoading = false;
     _viewUpdatePeriod = 0.1;
     _enable = true;
@@ -481,6 +481,12 @@ using namespace WhirlyKit;
         [quadLayer reset];
 }
 
+- (void)setSingleLevelLoading:(bool)newVal
+{
+    _useTargetZoomLevel = newVal;
+    _singleLevelLoading = newVal;
+}
+
 - (void)setAnimationPeriod:(float)animationPeriod
 {
     _animationPeriod = animationPeriod;
@@ -662,6 +668,33 @@ using namespace WhirlyKit;
         Point2f span = mbr.ur()-mbr.ll();
         mbr.ll() = ourCenter2d - span/2.0;
         mbr.ur() = ourCenter2d + span/2.0;
+        // If that MBR is pushing the north or south boundaries, let's adjust it
+        Mbr quadTreeMbr = quadLayer.quadtree->getMbr();
+        if (mbr.ur().y() > quadTreeMbr.ur().y())
+        {
+            double dy = mbr.ur().y() - quadTreeMbr.ur().y();
+            mbr.ur().y() -= dy;
+            mbr.ll().y() -= dy;
+        } else
+            if (mbr.ll().y() < quadTreeMbr.ll().y())
+            {
+                double dy = quadTreeMbr.ll().y() - mbr.ll().y();
+                mbr.ur().y() += dy;
+                mbr.ll().y() += dy;
+            }
+        // Also the east and west boundaries
+        if (mbr.ur().x() > quadTreeMbr.ur().x())
+        {
+            double dx = mbr.ur().x() - quadTreeMbr.ur().x();
+            mbr.ur().x() -= dx;
+            mbr.ll().x() -= dx;
+        } else
+            if (mbr.ll().x() < quadTreeMbr.ll().x())
+            {
+                double dx = quadTreeMbr.ll().x() - mbr.ll().x();
+                mbr.ur().x() += dx;
+                mbr.ll().x() += dx;
+            }
         float import = ScreenImportance(lastViewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), lastViewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
         import *= _importanceScale;
         if (import <= quadLayer.minImportance)
@@ -717,6 +750,9 @@ using namespace WhirlyKit;
         }
         quadLayer.targetLevels = targetLevels;
     }
+    canShortCircuitImportance = true;
+    
+//    NSLog(@"Short circuiting to level %d",maxShortCircuitLevel);
 }
 
 /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
@@ -805,7 +841,8 @@ using namespace WhirlyKit;
         import *= _importanceScale;
     }
 
-//    NSLog(@"Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
+//    if (import > 0.0)
+//        NSLog(@"Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
     return import;
 }
@@ -1003,12 +1040,12 @@ using namespace WhirlyKit;
     }
 }
 
-- (void)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID
+- (bool)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID
 {
-    [self loadedImages:tileReturn forTile:tileID frame:-1];
+    return [self loadedImages:tileReturn forTile:tileID frame:-1];
 }
 
-- (void)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID frame:(int)frame
+- (bool)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID frame:(int)frame
 {
     int borderTexel = tileLoader.borderTexel;
 
@@ -1053,7 +1090,7 @@ using namespace WhirlyKit;
                     [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
             }
             
-            return;
+            return false;
         }
     }
     
@@ -1069,6 +1106,8 @@ using namespace WhirlyKit;
         else
             [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
     }
+    
+    return loadTile != nil;
 }
 
 - (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID

@@ -171,6 +171,11 @@ using namespace WhirlyKit;
     _trackUp = false;
 }
 
+- (void)setDoRotation:(bool)newVal
+{
+    _doRotation = newVal;
+}
+
 // Called for pinch actions
 - (void)pinchGesture:(id)sender
 {
@@ -233,32 +238,27 @@ using namespace WhirlyKit;
             // Calculate a starting rotation
             if (valid && _doRotation)
             {
-                if (_allowPan)
+                CGPoint center = [pinch locationInView:glView];
+                CGPoint touch0 = [pinch locationOfTouch:0 inView:glView];
+                float dx = touch0.x-center.x,dy=touch0.y-center.y;
+                startRot = atan2(dy, dx);
+                Point3d hit;
+                Point3d interPt;
+                double interDist;
+                if (intManager->findIntersection(sceneRender, globeView, Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor), Point2f(startPoint.x,startPoint.y), interPt, interDist))
                 {
-                    CGPoint center = [pinch locationInView:glView];
-                    CGPoint touch0 = [pinch locationOfTouch:0 inView:glView];
-                    float dx = touch0.x-center.x,dy=touch0.y-center.y;
-                    startRot = atan2(dy, dx);
-                    Point3d hit;
-                    Point3d interPt;
-                    double interDist;
-                    if (intManager->findIntersection(sceneRender, globeView, Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor), Point2f(startPoint.x,startPoint.y), interPt, interDist))
+                    sphereRadius = interPt.norm();
+                    startOnSphere = interPt.normalized();
+                    startRotAxisValid = true;
+                    startRotAxis = hit;
+                } else {
+                    if ([globeView pointOnSphereFromScreen:center transform:&startTransform
+                                                 frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                                       hit:&hit normalized:true])
                     {
-                        sphereRadius = interPt.norm();
-                        startOnSphere = interPt.normalized();
                         startRotAxisValid = true;
                         startRotAxis = hit;
-                    } else {
-                        if ([globeView pointOnSphereFromScreen:center transform:&startTransform
-                                                     frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                                           hit:&hit normalized:true])
-                        {
-                            startRotAxisValid = true;
-                            startRotAxis = hit;
-                        }
                     }
-                } else {
-                    startRotAxisValid = false;
                 }
             }
 
@@ -321,7 +321,7 @@ using namespace WhirlyKit;
                     double curRot = atan2(dy, dx);
                     double diffRot = curRot-startRot;
                     Eigen::AngleAxisd rotQuat(-diffRot,startRotAxis);
-                    newRotQuat = newRotQuat * rotQuat;
+                    newRotQuat = startQuat * rotQuat;
                     
                     if (curRot != 0.0)
                     {
@@ -373,7 +373,7 @@ using namespace WhirlyKit;
                     return;
                 }
                 
-                if (_allowPan)
+                if (_allowPan || _doRotation)
                     [globeView setRotQuat:(newRotQuat) updateWatchers:false];
                 if (_tiltDelegate)
                 {

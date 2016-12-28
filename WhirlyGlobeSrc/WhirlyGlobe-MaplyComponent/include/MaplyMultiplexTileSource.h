@@ -22,11 +22,50 @@
 #import "MaplyCoordinateSystem.h"
 #import "MaplyRemoteTileSource.h"
 
+/** @brief A delegate called during various parts of the tile loading and display operation.
+ @details The remote tile source delegate provides feedback on which
+ tiles loaded and which didn't.  You'll be called in all sorts of
+ random threads here, so act accordingly.
+ @details This delegate interface can also be used to modify data as it comes in.
+ */
+@protocol MaplyMultiplexTileSourceDelegate <NSObject>
+
+@optional
+
+/** @brief The tile successfully loaded.
+ @param tileSource the remote tile source that loaded the tile.
+ @param tileID The ID of the tile we loaded.
+ */
+- (void) remoteTileInfo:(id __nonnull)tileInfo tileDidLoad:(MaplyTileID)tileID frame:(int)frame;
+
+/** @brief Modify the tile data after it's been read.
+ @details This method is useful for messing with tile sources that may not be images, but can be turned into images.
+ */
+- (nonnull NSData *) remoteTileInfo:(id __nonnull)tileInfo modifyTileReturn:(NSData *__nonnull)tileData forTile:(MaplyTileID)tileID frame:(int)frame;
+
+/** @brief The tile failed to load.
+ @param tileSource The remote tile source that tried to load the tile.
+ @param tileID The tile ID of the tile that failed to load.
+ @param error The NSError message, probably from the network routine.
+ */
+- (void) remoteTileInfo:(id __nonnull)tileInfo tileDidNotLoad:(MaplyTileID)tileID frame:(int)frame error:(NSError *__nonnull)error;
+
+/** @brief Called when the tile is unloaded.
+ @details Normally you won't get called when an image or vector tile is unloaded from memory.  If you set this, you will.
+ @details You're not required to do anything, but you can clean up data of your own if you like.
+ @details You will be called on another thread, so act accordingly.
+ @param tileID The tile that that just got unloaded.
+ */
+- (void)remoteTileInfo:(id __nonnull)tileInfo tileUnloaded:(MaplyTileID)tileID frame:(int)frame;
+
+@end
+
+
 /** @brief The multiplex tile source is for bunging other tile sources together.
     @details The Multiplex Tile source takes a bunch of other tiles source
     objects and switches between them.  Strictly speaking, it doesn't
     multiplex.  The quad image layer asks for all of its images at
-    once for a given tile.  I just like the work 'multiplex'.
+    once for a given tile.  I just like the word 'multiplex'.
     Multiplex. Multiplex.  So futuristic in a 1970's way.  Multiplex.
     @details Anyway, this is useful for animating between different tile
     sources.
@@ -50,7 +89,7 @@
 /** @brief A delegate for tile loads and failures.
     @details If set, you'll get callbacks when the various tiles load (or don't). You get called in all sorts of threads.  Act accordingly.
  */
-@property (nonatomic,weak,nullable) NSObject<MaplyRemoteTileSourceDelegate> *delegate;
+@property (nonatomic,weak,nullable) NSObject<MaplyMultiplexTileSourceDelegate> *delegate;
 
 /** @brief If set, we'll let failures pass through.
     @details If you're fetching a very wide set of tiles, you may want to let a few failures happen and fill in the images yourself.
