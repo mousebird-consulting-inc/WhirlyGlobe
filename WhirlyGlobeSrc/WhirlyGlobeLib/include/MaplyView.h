@@ -93,4 +93,7 @@
 /// Set the rotation angle
 - (void)setRotAngle:(double)newRotAngle;
 
+/// Set the rotation angle, with option to not run view updates
+- (void)setRotAngle:(double)newRotAngle runViewUpdates:(bool)runViewUpdates;
+
 @end

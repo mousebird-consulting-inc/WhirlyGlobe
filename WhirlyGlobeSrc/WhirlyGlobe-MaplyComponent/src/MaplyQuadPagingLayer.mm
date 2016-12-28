@@ -227,7 +227,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     _maxTiles = 256;
     canShortCircuitImportance = false;
     maxShortCircuitLevel = -1;
-    _useTargetZoomLevel = true;
+    _useTargetZoomLevel = false;
     _singleLevelLoading = false;
     _groupChildrenWithParent = true;
     hasUnload = [tileSource respondsToSelector:@selector(tileDidUnload:)];
@@ -250,6 +250,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_unlock(&tileSetLock);
     
     pthread_mutex_destroy(&tileSetLock);
+    tileSource = nil;
 }
 
 - (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)inViewC
@@ -270,6 +271,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     quadLayer.maxTiles = _maxTiles;
     
     [super.layerThread addLayer:quadLayer];
+    _valid = true;
     
     return true;
 }
@@ -289,7 +291,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
 {
-	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter() || !_valid)
 		return kMaplyNullBoundingBox;
 
 	MaplyBoundingBox bounds;
@@ -301,13 +303,14 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
-    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+    WhirlyKitQuadDisplayLayer *thisQuadLayer = quadLayer;
+    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter() || !_valid)
         return;
     
     Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
     
     GeoMbr geoMbr;
-    CoordSystem *wkCoordSys = quadLayer.coordSys;
+    CoordSystem *wkCoordSys = thisQuadLayer.coordSys;
     geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ll().x(),mbr.ll().y(),0.0)));
     geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ll().y(),0.0)));
     geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ur().y(),0.0)));
@@ -337,7 +340,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)geoBoundsForTileD:(MaplyTileID)tileID ll:(MaplyCoordinateD *)ll ur:(MaplyCoordinateD *)ur
 {
-    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter() || !_valid)
         return;
     
     Point2d mbrLL,mbrUR;
@@ -432,7 +435,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (int)targetZoomLevel
 {
-    if (!lastViewState || !_renderer || !scene)
+    if (!lastViewState || !_renderer || !scene || !_valid)
         return minZoom;
     
     int zoomLevel = 0;
@@ -461,6 +464,33 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         Point2f span = mbr.ur()-mbr.ll();
         mbr.ll() = ourCenter2d - span/2.0;
         mbr.ur() = ourCenter2d + span/2.0;
+        // If that MBR is pushing the north or south boundaries, let's adjust it
+        Mbr quadTreeMbr = quadLayer.quadtree->getMbr();
+        if (mbr.ur().y() > quadTreeMbr.ur().y())
+        {
+            double dy = mbr.ur().y() - quadTreeMbr.ur().y();
+            mbr.ur().y() -= dy;
+            mbr.ll().y() -= dy;
+        } else
+            if (mbr.ll().y() < quadTreeMbr.ll().y())
+            {
+                double dy = quadTreeMbr.ll().y() - mbr.ll().y();
+                mbr.ur().y() += dy;
+                mbr.ll().y() += dy;
+            }
+        // Also the east and west boundaries
+        if (mbr.ur().x() > quadTreeMbr.ur().x())
+        {
+            double dx = mbr.ur().x() - quadTreeMbr.ur().x();
+            mbr.ur().x() -= dx;
+            mbr.ll().x() -= dx;
+        } else
+            if (mbr.ll().x() < quadTreeMbr.ll().x())
+            {
+                double dx = quadTreeMbr.ll().x() - mbr.ll().x();
+                mbr.ur().x() += dx;
+                mbr.ll().x() += dx;
+            }
         float import = ScreenImportance(lastViewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), lastViewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
         if (import <= quadLayer.minImportance)
         {
@@ -1067,7 +1097,9 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
 {
+    _valid = false;
     [self clearContents];
+    tileSource = nil;
 }
 
 - (void)reload
