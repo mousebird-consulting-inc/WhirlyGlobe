@@ -21,6 +21,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		ScreenLabelsTestCase(),
 		ScreenMarkersTestCase(),
 		MarkersTestCase(),
+		AnimatedMarkersTestCase(),
 		VectorsTestCase(),
 		VectorStyleTestCase(),
 		VectorHoleTestCase(),
@@ -28,6 +29,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		WideVectorsTestCase(),
 		WideVectorGlobeTestCase(),
 		TextureVectorTestCase(),
+		GeoJSONStyleTestCase(),
 		
 		ClusteredMarkersTestCase(),
 		MegaMarkersTestCase(),
@@ -64,6 +66,9 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		FindHeightTestCase(),
 		FullAnimationTest(),
 		ActiveObjectTestCase(),
+		AnimationDelegateTestCase(),
+		LocationTrackingSimTestCase(),
+		LocationTrackingRealTestCase(),
 
 		Issue721TestCase()
 	]

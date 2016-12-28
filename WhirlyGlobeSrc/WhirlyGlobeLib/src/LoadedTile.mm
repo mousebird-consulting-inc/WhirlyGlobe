@@ -1147,7 +1147,7 @@ void LoadedTile::clearContents(TileBuilder *tileBuilder,ChangeSet &changeRequest
     if (tileBuilder)
     {
         if (!subTexs.empty() && subTexs[0].texId != EmptyIdentity && tileBuilder->texAtlas)
-            tileBuilder->texAtlas->removeTexture(subTexs[0], changeRequests);
+            tileBuilder->texAtlas->removeTexture(subTexs[0], changeRequests, 0.0);
         subTexs.clear();
     }
     for (unsigned int ii=0;ii<texIds.size();ii++)

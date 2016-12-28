@@ -52,7 +52,7 @@ public:
     float fade;
     
     // Remove the contents of this scene rep
-    void clearContents(SelectionManager *selectManager,ChangeSet &changes);
+    void clearContents(SelectionManager *selectManager,ChangeSet &changes,NSTimeInterval removeTime);
     
     // Enable/disable contents
     void enableContents(SelectionManager *selectManager,bool enable,ChangeSet &changes);
@@ -291,7 +291,6 @@ public:
     void removeGeometry(SimpleIDSet &billIDs,ChangeSet &changes);
     
 protected:
-    NSObject *canary;
     pthread_mutex_t geomLock;
     GeomSceneRepSet sceneReps;
 };
