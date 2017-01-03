@@ -53,11 +53,11 @@
                 case MapnikSLDStyle:
                 {
                     // The simple version will display everything
-                    MaplyVectorStyleSimpleGenerator *simpleSet = [[MaplyVectorStyleSimpleGenerator alloc] initWithViewC:viewC];
-                    styleSet = simpleSet;
+//                    MaplyVectorStyleSimpleGenerator *simpleSet = [[MaplyVectorStyleSimpleGenerator alloc] initWithViewC:viewC];
+//                    styleSet = simpleSet;
                     // This version uses an SLD
-//                    SLDStyleSet *sldStyleSet = [[SLDStyleSet alloc] initWithViewC:viewC useLayerNames:NO];
-//                    [sldStyleSet loadSldData:styleData baseURL:[NSURL URLWithString:baseURL]];
+                    SLDStyleSet *sldStyleSet = [[SLDStyleSet alloc] initWithViewC:viewC useLayerNames:NO relativeDrawPriority:0];
+                    [sldStyleSet loadSldData:styleData baseURL:[NSURL URLWithString:baseURL]];
                 }
                     break;
             }

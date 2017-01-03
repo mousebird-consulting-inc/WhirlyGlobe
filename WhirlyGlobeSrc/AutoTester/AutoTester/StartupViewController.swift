@@ -29,6 +29,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		WideVectorsTestCase(),
 		WideVectorGlobeTestCase(),
 		TextureVectorTestCase(),
+		GeoJSONStyleTestCase(),
 		
 		ClusteredMarkersTestCase(),
 		MegaMarkersTestCase(),
