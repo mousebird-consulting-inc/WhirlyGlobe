@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyComponent.h"
-//#import "GSNParser.h"
 
 #define GEOJSON_MAX_POINTS 4096
 
