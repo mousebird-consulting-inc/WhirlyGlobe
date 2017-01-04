@@ -11,6 +11,7 @@
 #import "SLDOperators.h"
 #import "SLDSymbolizers.h"
 #import "MaplyVectorTileStyle.h"
+#import "DDXML.h"
 
 
 @implementation SLDNamedLayer
