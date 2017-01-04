@@ -39,28 +39,28 @@ class GeoJSONStyleTestCase: MaplyTestCase {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             
-            self.landUseSource = GeoJSONSource.init(viewC: self.baseViewController, geoJSONURL: Bundle.main.url(forResource: "belfast_ireland_landusages", withExtension: "geojson"), sldURL: Bundle.main.url(forResource: "osm_landuse", withExtension: "sld"), relativeDrawPriority:100)
+            self.landUseSource = GeoJSONSource.init(viewC: self.baseViewController!, geoJSONURL: Bundle.main.url(forResource: "belfast_ireland_landusages", withExtension: "geojson")!, sldURL: Bundle.main.url(forResource: "osm_landuse", withExtension: "sld")!, relativeDrawPriority:100)
             self.landUseSource?.startParse(completion: {
                 
                 self.switchLandUse?.isOn = true
                 self.switchLandUse?.isEnabled = true
                 
-                self.waterAreaSource = GeoJSONSource.init(viewC: self.baseViewController, geoJSONURL: Bundle.main.url(forResource: "belfast_ireland_waterareas", withExtension: "geojson"), sldURL: Bundle.main.url(forResource: "osm_water", withExtension: "sld"), relativeDrawPriority:200)
+                self.waterAreaSource = GeoJSONSource.init(viewC: self.baseViewController!, geoJSONURL: Bundle.main.url(forResource: "belfast_ireland_waterareas", withExtension: "geojson")!, sldURL: Bundle.main.url(forResource: "osm_water", withExtension: "sld")!, relativeDrawPriority:200)
                 self.waterAreaSource?.startParse(completion: {
                     
-                    self.waterLineSource = GeoJSONSource.init(viewC: self.baseViewController, geoJSONURL: Bundle.main.url(forResource: "belfast_ireland_waterways", withExtension: "geojson"), sldURL: Bundle.main.url(forResource: "water_lines", withExtension: "sld"), relativeDrawPriority:300)
+                    self.waterLineSource = GeoJSONSource.init(viewC: self.baseViewController!, geoJSONURL: Bundle.main.url(forResource: "belfast_ireland_waterways", withExtension: "geojson")!, sldURL: Bundle.main.url(forResource: "water_lines", withExtension: "sld")!, relativeDrawPriority:300)
                     self.waterLineSource?.startParse(completion: {
                         
                         self.switchWater?.isOn = true
                         self.switchWater?.isEnabled = true
                         
-                        self.buildingsSource = GeoJSONSource.init(viewC: self.baseViewController, geoJSONURL: Bundle.main.url(forResource: "belfast_ireland_buildings", withExtension: "geojson"), sldURL: Bundle.main.url(forResource: "osm_buildings", withExtension: "sld"), relativeDrawPriority:400)
+                        self.buildingsSource = GeoJSONSource.init(viewC: self.baseViewController!, geoJSONURL: Bundle.main.url(forResource: "belfast_ireland_buildings", withExtension: "geojson")!, sldURL: Bundle.main.url(forResource: "osm_buildings", withExtension: "sld")!, relativeDrawPriority:400)
                         self.buildingsSource?.startParse(completion: {
                             
                             self.switchBuildings?.isOn = true
                             self.switchBuildings?.isEnabled = true
                             
-                            self.roadsSource = GeoJSONSource.init(viewC: self.baseViewController, geoJSONURL: Bundle.main.url(forResource: "belfast_ireland_roads", withExtension: "geojson"), sldURL: Bundle.main.url(forResource: "osm_roads", withExtension: "sld"), relativeDrawPriority:500)
+                            self.roadsSource = GeoJSONSource.init(viewC: self.baseViewController!, geoJSONURL: Bundle.main.url(forResource: "belfast_ireland_roads", withExtension: "geojson")!, sldURL: Bundle.main.url(forResource: "osm_roads", withExtension: "sld")!, relativeDrawPriority:500)
                             self.roadsSource?.startParse(completion: {
                                 
                                 self.switchRoads?.isOn = true
@@ -75,7 +75,7 @@ class GeoJSONStyleTestCase: MaplyTestCase {
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        let baseLayer = StamenWatercolorRemote()
+        let baseLayer = CartoDBTestCase()
         baseLayer.setUpWithGlobe(globeVC)
         
         setupCommon(baseVC: globeVC)
@@ -84,13 +84,13 @@ class GeoJSONStyleTestCase: MaplyTestCase {
     }
 
     override func setUpWithMap(_ mapVC: MaplyViewController) {
-        let baseLayer = StamenWatercolorRemote()
+        let baseLayer = CartoDBTestCase()
         baseLayer.setUpWithMap(mapVC)
         
         setupCommon(baseVC: mapVC)
         
         mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(-5.93, 54.597), height: 0.005, time: 1.0)
-        mapVC.setZoomLimitsMin(0.0005, max: 4.0)
+        mapVC.setZoomLimitsMin(0.0002, max: 4.0)
 
     }
     
