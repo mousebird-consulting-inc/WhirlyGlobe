@@ -407,6 +407,7 @@ static const float PerfOutputDelay = 15.0;
         return;
     
     scene->dumpStats();
+    [interactLayer dumpStats];
     
     [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];    
 }
@@ -1405,7 +1406,7 @@ static const float PerfOutputDelay = 15.0;
 - (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate {
     if (_locationTracker)
         [self stopLocationTracking];
-    _locationTracker = [[MaplyLocationTracker alloc] initWithViewC:self Delegate:delegate useHeading:useHeading useCourse:useCourse simulate:simulate];
+    _locationTracker = [[MaplyLocationTracker alloc] initWithViewC:self delegate:delegate useHeading:useHeading useCourse:useCourse simulate:simulate];
 }
 
 - (void)changeLocationTrackingLockType:(MaplyLocationLockType)lockType {

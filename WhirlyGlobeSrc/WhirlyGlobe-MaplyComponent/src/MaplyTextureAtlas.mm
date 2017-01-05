@@ -148,6 +148,8 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
             }
             
             subTexMap.erase(it);
+        } else {
+            NSLog(@"SubTex: Asked to remove sub texture that isn't present.");
         }
     }
 }
@@ -166,6 +168,24 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
         
         atlases.clear();
     }
+}
+
+- (void)dumpStats
+{
+    int numRegions=0,numDynamicTextures=0;
+    
+    @synchronized(self)
+    {
+        for (auto &it : atlases)
+        {
+            int nr,ndt;
+            it->getUsage(nr, ndt);
+            numRegions += nr;
+            numDynamicTextures += ndt;
+        }
+    }
+    
+    NSLog(@"Texture Atlas: %d regions, %d dynamic textures",numRegions,numDynamicTextures);
 }
 
 @end
