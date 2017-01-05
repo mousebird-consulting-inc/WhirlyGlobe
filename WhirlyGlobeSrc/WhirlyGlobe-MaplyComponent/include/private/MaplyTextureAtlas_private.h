@@ -41,4 +41,7 @@
 // Shut down the atlas group and clean up the associated memory
 - (void)clear:(WhirlyKit::ChangeSet &)changes;
 
+// Write out usage stats
+- (void)dumpStats;
+
 @end
