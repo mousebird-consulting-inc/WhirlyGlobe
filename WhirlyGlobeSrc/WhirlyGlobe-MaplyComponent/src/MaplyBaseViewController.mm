@@ -407,6 +407,7 @@ static const float PerfOutputDelay = 15.0;
         return;
     
     scene->dumpStats();
+    [interactLayer dumpStats];
     
     [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];    
 }

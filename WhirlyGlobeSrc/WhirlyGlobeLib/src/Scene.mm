@@ -640,6 +640,8 @@ void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whir
         tex->destroyInGL(scene->getMemManager());
         scene->textures.erase(it);
         delete tex;
+    } else {
+        NSLog(@"RemTextureReq: No such texture.");
     }
     pthread_mutex_unlock(&scene->textureLock);
 }
