@@ -89,9 +89,6 @@ public:
     void getUtilization(int &numCell,int &usedCell);
     
 protected:
-    /// Used for debugging
-    std::string name;
-    
     /// If set, this is a compressed format (assume PVRTC4)
     bool compressed;
     /// Texture memory format
@@ -210,7 +207,10 @@ public:
     ///  change requests.
     void teardown(ChangeSet &changes);
     
-        /// Print out some utilization info
+    /// Get some basic info out
+    void getUsage(int &numRegions,int &dynamicTextures);
+    
+    /// Print out some utilization info
     void log();
 
 protected:

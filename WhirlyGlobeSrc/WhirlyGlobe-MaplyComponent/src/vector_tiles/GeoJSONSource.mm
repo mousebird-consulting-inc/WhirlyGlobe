@@ -19,9 +19,10 @@ using namespace WhirlyKit;
     NSURL *_geoJSONURL, *_sldURL;
     NSArray *_compObjs;
     bool _loaded, _enabled;
+    int _relativeDrawPriority;
 }
 
-- (id)initWithViewC:(MaplyBaseViewController *)baseVC GeoJSONURL:(NSURL *)geoJSONURL sldURL:(NSURL *)sldURL {
+- (id)initWithViewC:(MaplyBaseViewController *)baseVC GeoJSONURL:(NSURL *)geoJSONURL sldURL:(NSURL *)sldURL relativeDrawPriority:(int)relativeDrawPriority {
     self = [super init];
     if (self) {
         
@@ -35,6 +36,7 @@ using namespace WhirlyKit;
         _sldURL = sldURL;
         _loaded = false;
         _enabled = false;
+        _relativeDrawPriority = relativeDrawPriority;
     }
     return self;
 }
@@ -73,7 +75,7 @@ using namespace WhirlyKit;
             });
         }
         
-        SLDStyleSet *styleSet = [[SLDStyleSet alloc] initWithViewC:baseVC useLayerNames:NO];
+        SLDStyleSet *styleSet = [[SLDStyleSet alloc] initWithViewC:baseVC useLayerNames:NO relativeDrawPriority:_relativeDrawPriority];
         [styleSet loadSldURL:_sldURL];
 
         ShapeSet shapes;

@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import "MapboxVectorTiles.h"
-#import "DDXML.h"
 
 /** @brief Class corresponding to the sld:NamedLayer element
  @see http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd for SLD v1.1.0
@@ -90,8 +89,9 @@
  @details After constructing the SLDStyleSet object, call loadSldURL: or loadSldData:baseURL: to parse the desired SLD document tree and create the corresponding symbolizers.
  @param viewC The map or globe view controller.
  @param useLayerNames Whether to use names of NamedLayer elements as a criteria in matching styles.
+ @param relativeDrawPriority The z-order relative to other vector features. This will be incremented internally for each style rule, so if you have multiple SLDStyleSets, leave some space between the relativeDrawPriority of each.
  */
-- (id _Nullable)initWithViewC:(MaplyBaseViewController * _Nonnull)viewC useLayerNames:(BOOL)useLayerNames;
+- (id _Nullable)initWithViewC:(MaplyBaseViewController * _Nonnull)viewC useLayerNames:(BOOL)useLayerNames relativeDrawPriority:(int)relativeDrawPriority;
 
 - (void)loadSldURL:(NSURL *__nullable)url;
 - (void)loadSldData:(NSData *__nonnull)sldData baseURL:(NSURL *__nonnull)baseURL;

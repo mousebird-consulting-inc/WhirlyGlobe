@@ -548,6 +548,7 @@ public:
         if (scene)
             changes.push_back(new RemTextureReq(tex.texID));
     }
+    tex.texID = EmptyIdentity;
 
     [self flushChanges:changes mode:MaplyThreadAny];
 }
@@ -3442,6 +3443,15 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 - (NSObject*)selectLabelsAndMarkerForScreenPoint:(CGPoint)screenPoint
 {
     return nil;
+}
+
+- (void)dumpStats
+{
+    @synchronized (userObjects) {
+        NSLog(@"Component Objects: %d",[userObjects count]);
+    }
+    
+    [atlasGroup dumpStats];
 }
 
 @end
