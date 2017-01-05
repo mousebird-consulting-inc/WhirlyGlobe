@@ -188,4 +188,7 @@
 // Clean up a given texture
 - (void)clearTexture:(MaplyTexture *)tex when:(NSTimeInterval)when;
 
+// Write out usage stats
+- (void)dumpStats;
+
 @end
