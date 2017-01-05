@@ -591,7 +591,6 @@ void DynamicTextureAtlas::cleanup(ChangeSet &changes,NSTimeInterval when)
                 changes.push_back(new RemTextureReq(texVec->at(ii)->getId(),when));
             delete texVec;
             textures.erase(it);
-            NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
         }
     }
 }
