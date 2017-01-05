@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import "MapboxVectorTiles.h"
-#import "DDXML.h"
 
 /** @brief Class corresponding to the sld:NamedLayer element
  @see http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd for SLD v1.1.0
