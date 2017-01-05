@@ -89,6 +89,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_fromGeoJSON
 
 /*
  * Class:     com_mousebird_maply_VectorObject
+ * Method:    countPoints
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorObject_countPoints
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
  * Method:    FromGeoJSONAssembly
  * Signature: (Ljava/lang/String;)Ljava/util/Map;
  */
