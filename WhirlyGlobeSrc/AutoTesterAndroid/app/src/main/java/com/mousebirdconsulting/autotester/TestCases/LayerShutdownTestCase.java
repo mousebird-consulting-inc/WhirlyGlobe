@@ -30,6 +30,7 @@ public class LayerShutdownTestCase extends MaplyTestCase  {
 
     QuadImageTileLayer stamenLayer = null;
     QuadPagingLayer vectorLayer = null;
+    boolean canceled = false;
 
     private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) {
         String cacheDirName = "stamen_watercolor3";
@@ -81,17 +82,19 @@ public class LayerShutdownTestCase extends MaplyTestCase  {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (stamenLayer != null) {
-                    baseVC.removeLayer(stamenLayer);
-                    baseVC.removeLayer(vectorLayer);
-                    stamenLayer = null;
-                }
-                stamenLayer = setupImageLayer(testType,baseVC);
-                vectorLayer = setupVectorLayer(testType,baseVC);
-                baseVC.addLayer(stamenLayer);
-                baseVC.addLayer(vectorLayer);
+                if (!canceled) {
+                    if (stamenLayer != null) {
+                        baseVC.removeLayer(stamenLayer);
+                        baseVC.removeLayer(vectorLayer);
+                        stamenLayer = null;
+                    }
+                    stamenLayer = setupImageLayer(testType, baseVC);
+                    vectorLayer = setupVectorLayer(testType, baseVC);
+                    baseVC.addLayer(stamenLayer);
+                    baseVC.addLayer(vectorLayer);
 
-                cycleLayer(testType,baseVC);
+                    cycleLayer(testType, baseVC);
+                }
             }
         }, ShutDownDelay);
     }
@@ -112,4 +115,13 @@ public class LayerShutdownTestCase extends MaplyTestCase  {
         mapVC.setAllowRotateGesture(true);
 //		mapVC.setZoomLimits(0.0,1.0);
         return true;
-    }}
+    }
+
+    public void shutdown() {
+        canceled = true;
+        super.shutdown();
+    }
+}
+
+
+

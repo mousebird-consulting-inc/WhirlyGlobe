@@ -304,8 +304,18 @@ public class TestListFragment extends Fragment {
 
 							case Interactive:
 								selected.setVisibility(View.INVISIBLE);
-								map.setVisibility(View.VISIBLE);
-								globe.setVisibility(View.VISIBLE);
+								if (this.testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Both || this.testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Map) {
+									map.setVisibility(View.VISIBLE);
+								}
+								else {
+									map.setVisibility(View.INVISIBLE);
+								}
+								if (this.testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Both || this.testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Globe) {
+									globe.setVisibility(View.VISIBLE);
+								}
+								else {
+									globe.setVisibility(View.INVISIBLE);
+								}
 								map.setOnClickListener(new View.OnClickListener() {
 									@Override
 									public void onClick(View v) {

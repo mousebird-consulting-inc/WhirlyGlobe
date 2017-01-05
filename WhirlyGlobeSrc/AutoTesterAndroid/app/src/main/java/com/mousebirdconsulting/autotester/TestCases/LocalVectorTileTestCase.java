@@ -37,6 +37,7 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
         super(activity);
         setTestName("Local Vector Tile Test");
         setDelay(1000);
+        this.implementation = TestExecutionImplementation.Both;
 
         this.activity = activity;
     }

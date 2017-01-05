@@ -54,15 +54,15 @@ public class AtmosphereTestCase extends MaplyTestCase {
     // Day-time data source
     RemoteTileInfo daySource(MaplyBaseController baseC)
     {
-        return new RemoteTileInfo("http://otile1.mqcdn.com/tiles/1.0.0/sat/",
+        return new RemoteTileInfo("http://light_all.basemaps.cartocdn.com/light_all/",
                 "png",1,8);
     }
 
     // Night-time data source
     RemoteTileInfo nightSource(MaplyBaseController baseC)
     {
-        return new RemoteTileInfo("http://map1.vis.earthdata.nasa.gov/wmts-webmerc/VIIRS_CityLights_2012/default/2015-05-07/GoogleMapsCompatible_Level8/{z}/{y}/{x}",
-                "jpg",1,8);
+        return new RemoteTileInfo("http://s.basemaps.cartocdn.com/dark_all/",
+                "png",1,8);
     }
 
     // The night images have gone missing
