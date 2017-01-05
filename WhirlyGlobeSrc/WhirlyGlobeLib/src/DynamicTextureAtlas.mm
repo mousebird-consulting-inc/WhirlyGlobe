@@ -449,7 +449,9 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
             found = true;
         }
         for (unsigned int ii=0;ii<dynTexVec->size();ii++)
+        {
             changes.push_back(new AddTextureReq(dynTexVec->at(ii)));
+        }
     }
     
     if (found)
@@ -565,7 +567,8 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
             DynamicTexture *tex = texVec->at(0);
             tex->getNumRegions()--;
         }
-    }
+    } else
+        NSLog(@"DynamicTextureAtlas: Request to remove non-existent texture.");
 }
     
 bool DynamicTextureAtlas::empty()
@@ -588,7 +591,7 @@ void DynamicTextureAtlas::cleanup(ChangeSet &changes,NSTimeInterval when)
                 changes.push_back(new RemTextureReq(texVec->at(ii)->getId(),when));
             delete texVec;
             textures.erase(it);
-            //                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
+            NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
         }
     }
 }
@@ -628,6 +631,12 @@ void DynamicTextureAtlas::teardown(ChangeSet &changes)
     }
     textures.clear();
     regions.clear();
+}
+    
+void DynamicTextureAtlas::getUsage(int &numRegions,int &dynamicTextures)
+{
+    numRegions = regions.size();
+    dynamicTextures = textures.size();
 }
 
 void DynamicTextureAtlas::log()
