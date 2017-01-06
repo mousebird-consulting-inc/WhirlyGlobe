@@ -171,9 +171,19 @@ using namespace WhirlyKit;
     _trackUp = false;
 }
 
+- (void)setNorthUp:(bool)newVal
+{
+    _northUp = newVal;
+}
+
 - (void)setDoRotation:(bool)newVal
 {
     _doRotation = newVal;
+}
+
+- (void)setZoomAroundPinch:(bool)newVal
+{
+    _zoomAroundPinch = newVal;
 }
 
 // Called for pinch actions
@@ -283,7 +293,9 @@ using namespace WhirlyKit;
                 Eigen::Quaterniond newRotQuat = globeView.rotQuat;
                 Point3d axis = [globeView currentUp];
                 Eigen::Quaterniond oldQuat = globeView.rotQuat;
-                if (_allowPan)
+                if (_doRotation && startRotAxisValid && !(_northUp || _trackUp))
+                    newRotQuat = startQuat;
+                if (_allowPan || _zoomAroundPinch)
                 {
                     if (_zoomAroundPinch)
                     {
@@ -321,7 +333,7 @@ using namespace WhirlyKit;
                     double curRot = atan2(dy, dx);
                     double diffRot = curRot-startRot;
                     Eigen::AngleAxisd rotQuat(-diffRot,startRotAxis);
-                    newRotQuat = startQuat * rotQuat;
+                    newRotQuat = newRotQuat * rotQuat;
                     
                     if (curRot != 0.0)
                     {
