@@ -712,6 +712,9 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
      */
     public void handleStartMoving(boolean userMotion)
     {
+		if (!userMotion)
+			isAnimating = true;
+
 		if (!isCompletelySetup())
 			return;
 
@@ -732,6 +735,9 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	 */
 	public void handleStopMoving(boolean userMotion)
 	{
+		if (!userMotion)
+			isAnimating = false;
+
 		if (!isCompletelySetup())
 			return;
 
