@@ -8,7 +8,7 @@ layout: ios-tutorial
 
 ## Getting started
 
-For this example we provide source code to get going.  Download [this zip archive]({{ site.baseurl }}/tutorial/resources/micello_map/micello_tutorial.zip) and copy its files to your project directory.  You should overwrite your existing ViewController.* files with the ones in the archive.  Add the other files to the project.
+For this example we provide source code to get going.  Download [this zip archive]({{ site.baseurl }}/tutorial/ios/resources/micello_map/micello_tutorial.zip) and copy its files to your project directory.  You should overwrite your existing ViewController.* files with the ones in the archive.  Add the other files to the project.
 
 The new ViewController class is simplified to only use a globe, and only display remote OpenStreetMap tiles.
 
