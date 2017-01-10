@@ -341,17 +341,25 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		if (!valid)
 			return;
 
-//		Log.i("QuadPagingLayer","Unload tile: " + level + "(" + x + "," + y + ")");		
-		
+//		Log.i("QuadPagingLayer","Unload tile: " + level + "(" + x + "," + y + ")");
+
 		MaplyTileID tileID = new MaplyTileID(x,y,level);
 		LoadedTile tile = findLoadedTile(tileID);
+
 		// Guess it wasn't loaded.  Punt.
-		if (tile == null)
+		if (tile == null) {
+			if (tileID.level >= pagingDelegate.minZoom())
+				pagingDelegate.tileDidUnload(tileID);
+
 			return;
+		}
 		
 		removeLoadedTile(tileID);
 		tile.clear(maplyControl);
-		
+
+		if (tileID.level >= pagingDelegate.minZoom())
+			pagingDelegate.tileDidUnload(tileID);
+
 		// Check the parent
 		if (tileID.level>= pagingDelegate.minZoom() && !singleLevelLoading)
 		{
