@@ -71,7 +71,7 @@ public:
     float fade;
     
     // Remove the contents of this scene rep
-    void clearContents(SelectionManager *selectManager,ChangeSet &changes);
+    void clearContents(SelectionManager *selectManager,ChangeSet &changes,TimeInterval when);
     
     // Enable/disable contents
     void enableContents(SelectionManager *selectManager,bool enable,ChangeSet &changes);

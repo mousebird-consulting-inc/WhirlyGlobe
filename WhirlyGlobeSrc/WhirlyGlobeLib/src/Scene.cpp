@@ -205,7 +205,13 @@ void Scene::addChangeRequests(const ChangeSet &newChanges)
 {
     pthread_mutex_lock(&changeRequestLock);
     
-    changeRequests.insert(changeRequests.end(),newChanges.begin(),newChanges.end());
+    for (ChangeRequest *change : newChanges)
+    {
+        if (change && change->when > 0.0)
+            timedChangeRequests.insert(change);
+        else
+            changeRequests.push_back(change);
+    }
     
     pthread_mutex_unlock(&changeRequestLock);
 }
@@ -215,7 +221,10 @@ void Scene::addChangeRequest(ChangeRequest *newChange)
 {
     pthread_mutex_lock(&changeRequestLock);
     
-    changeRequests.push_back(newChange);
+    if (newChange && newChange->when > 0.0)
+        timedChangeRequests.insert(newChange);
+    else
+        changeRequests.push_back(newChange);
     
     pthread_mutex_unlock(&changeRequestLock);
 }
@@ -382,11 +391,26 @@ const DrawableRefSet &Scene::getDrawables()
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
-void Scene::processChanges(WhirlyKit::View *view,WhirlyKit::SceneRendererES *renderer)
+void Scene::processChanges(WhirlyKit::View *view,WhirlyKit::SceneRendererES *renderer,TimeInterval now)
 {
     // We're not willing to wait in the rendering thread
     if (!pthread_mutex_trylock(&changeRequestLock))
     {
+        // See if any of the timed changes are ready
+        std::vector<ChangeRequest *> toMove;
+        for (ChangeRequest *req : timedChangeRequests)
+        {
+            if (now >= req->when)
+                toMove.push_back(req);
+            else
+                break;
+        }
+        for (ChangeRequest *req : toMove)
+        {
+            timedChangeRequests.erase(req);
+            changeRequests.push_back(req);
+        }
+        
         for (unsigned int ii=0;ii<changeRequests.size();ii++)
         {
             ChangeRequest *req = changeRequests[ii];
@@ -401,23 +425,21 @@ void Scene::processChanges(WhirlyKit::View *view,WhirlyKit::SceneRendererES *ren
     }
 }
     
-bool Scene::hasChanges()
+bool Scene::hasChanges(TimeInterval now)
 {
     bool changes = false;
     if (!pthread_mutex_trylock(&changeRequestLock))
     {
         changes = !changeRequests.empty();
         
-        pthread_mutex_unlock(&changeRequestLock);            
-    }        
+        if (!changes)
+            if (timedChangeRequests.size() > 0)
+                changes = now >= (*timedChangeRequests.begin())->when;
+        
+        pthread_mutex_unlock(&changeRequestLock);
+    }
     if (changes)
         return true;
-    
-    // How about the active models?
-    // Note: Porting
-//    for (NSObject<WhirlyKitActiveModel> *model in activeModels)
-//        if ([model hasUpdate])
-//            return true;
     
     return changes;
 }

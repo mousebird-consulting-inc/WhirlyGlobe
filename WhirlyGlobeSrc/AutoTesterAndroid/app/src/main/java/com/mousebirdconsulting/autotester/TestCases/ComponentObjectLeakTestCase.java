@@ -67,7 +67,7 @@ public class ComponentObjectLeakTestCase extends MaplyTestCase {
         baseView.setUpWithMap(mapVC);
 
         Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < COUNT; i++) {
             addAndRemove(mapVC, COUNT, icon);
         }
 

@@ -78,6 +78,7 @@ public class MapView extends View
 	{
 		synchronized (this) {
 			animationDelegate = delegate;
+			control.handleStartMoving(true);
 		}
 	}
 	

@@ -187,12 +187,12 @@ void SceneRendererES2::processScene()
     if (!scene)
         return;
     
-    scene->processChanges(theView,this);
+    scene->processChanges(theView,this,TimeGetCurrent());
 }
 
 bool SceneRendererES2::hasChanges()
 {
-  return scene->hasChanges() || viewDidChange() || !contRenderRequests.empty();
+  return scene->hasChanges(TimeGetCurrent()) || viewDidChange() || !contRenderRequests.empty();
 }
 
 // Make the screen a bit bigger for testing
@@ -386,7 +386,7 @@ void SceneRendererES2::render()
         
 		// Merge any outstanding changes into the scenegraph
 		// Or skip it if we don't acquire the lock
-		scene->processChanges(theView,this);
+		scene->processChanges(theView,this,lastDraw);
         
         if (perfInterval > 0)
             perfTimer.stopTiming("Scene processing");

@@ -109,7 +109,7 @@ typedef std::map<SimpleIdentity,SimpleIdentity> TextureIDMap;
 class ChangeRequest
 {
 public:
-	ChangeRequest() { }
+    ChangeRequest() : when(0.0) { }
     virtual ~ChangeRequest();
 		
     /// Return true if this change requires a GL Flush in the thread it was executed in
@@ -120,10 +120,24 @@ public:
 		
 	/// Make a change to the scene.  For the renderer.  Never call this.
 	virtual void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view) = 0;
+    
+    /// If non-zero we'll execute this request after the given absolute time
+    TimeInterval when;
 };
     
 /// Representation of a list of changes.  Might get more complex in the future.
 typedef std::vector<ChangeRequest *> ChangeSet;
+typedef struct
+{
+    bool operator () (const ChangeRequest *a,const ChangeRequest *b)
+    {
+        if (a->when == b->when)
+            return a < b;
+        return a->when < b->when;
+    }
+} ChangeSorter;
+/// This version is sorted by when to run it
+typedef std::set<ChangeRequest *,ChangeSorter> SortedChangeSet;
 
 /** Drawable tweakers are called every frame to mess with things.
     It's up to you to make the changes, just make them quick.

@@ -29,6 +29,7 @@ public class ImageSingleLevelTestCase extends MaplyTestCase {
         baseLayer.setCoverPoles(false);
         baseLayer.setHandleEdges(false);
         baseLayer.setDrawPriority(1000);
+        baseLayer.setImageDepth(16);
         baseLayer.setSingleLevelLoading(true);
 
         control.addLayer(baseLayer);

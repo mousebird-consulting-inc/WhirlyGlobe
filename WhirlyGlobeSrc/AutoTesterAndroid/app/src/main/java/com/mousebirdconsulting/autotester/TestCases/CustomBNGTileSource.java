@@ -27,7 +27,7 @@ public class CustomBNGTileSource extends MaplyTestCase
     public CustomBNGTileSource(Activity activity) {
         super(activity);
         this.setTestName("Custom BNG Tile Source");
-        this.setDelay(100000);
+        this.setDelay(2000);
         this.implementation = TestExecutionImplementation.Both;
     }
 
@@ -57,10 +57,6 @@ public class CustomBNGTileSource extends MaplyTestCase
     // Put together a British National Grid system
     static public CoordSystem MakeBNGCoordSystem(Activity activity, boolean displayVersion)
     {
-        // Set up the proj4 string including the local grid file
-        String outFileName = getFilePathFromAssets("OSTN02_NTv2.gsb", activity);
-        String nullFileName = getFilePathFromAssets("null.lla", activity);
-
 //        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=" + outFileName + ",null" + " +units=m +no_defs";
         String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs";
         Proj4CoordSystem coordSys = new Proj4CoordSystem(projStr);

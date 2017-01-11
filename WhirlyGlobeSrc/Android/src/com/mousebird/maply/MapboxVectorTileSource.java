@@ -211,11 +211,23 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
         }
     }
 
+    HashMap<MaplyTileID,ConnectionTask> tasks = new HashMap<MaplyTileID,ConnectionTask>();
+
     /**
      * Notification that a tile unloaded.
      */
     public void tileDidUnload(MaplyTileID tileID)
     {
+        // Look for the connection and cancel it if need be
+        synchronized (tasks)
+        {
+            ConnectionTask task = tasks.get(tileID);
+            if (task != null) {
+                tasks.remove(tileID);
+                task.isCanceled = true;
+                task.call.cancel();
+            }
+        }
     }
 
     File cacheDir = null;
@@ -242,7 +254,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
         MaplyTileID tileID = null;
         URL url = null;
         String locFile = null;
-        com.squareup.okhttp.Call call;
+        public com.squareup.okhttp.Call call;
         byte[] tileData = null;
         File cacheFile = null;
         boolean isCanceled = false;
@@ -282,6 +294,9 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
                 Request request = new Request.Builder().url(url).build();
 
                 call = client.newCall(request);
+                synchronized (tasks) {
+                    tasks.put(tileID,this);
+                }
                 call.enqueue(this);
             } catch (Exception e) {
                 if (debugOutput)
@@ -291,7 +306,8 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
 
         // Callback from OK HTTP on tile loading failure
         public void onFailure(Request request, IOException e) {
-            Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+            if (!isCanceled)
+                Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
         }
 
         // Callback from OK HTTP on success

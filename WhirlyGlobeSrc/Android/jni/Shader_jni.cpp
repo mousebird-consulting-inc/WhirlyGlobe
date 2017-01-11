@@ -133,29 +133,19 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shader_getID
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
-(JNIEnv *env, jobject obj, jobject sceneObj, jstring nameStr, jlong texID)
+(JNIEnv *env, jobject obj, jobject changeSetObj, jstring nameStr, jlong texID)
 {
     try
     {
         OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
         OpenGLES2Program *inst = classInfo->getObject(env,obj);
-	Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
-        if (!inst || !scene)
+        ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        if (!inst || !changes)
             return;
         
-        glUseProgram(inst->getProgram());
-
         JavaString name(env,nameStr);
-
-	TextureBase *tex = scene->getTexture(texID);
-	if (tex && tex->getGLId() != 0)
-	{
-	  inst->setTexture(name.cStr,tex->getGLId());
-	} else {
-          __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Missing texture or GL ID in Shader::addTextureNative(), texID = %d, numTextures = %d",(int)texID,(int)scene->textures.size());
-	  if (tex)
-	    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Missing GL ID in Shader::addTextureNative()");	    
-	}
+        // Do this on the rendering thread so we don't get ahead of ourselves
+        changes->push_back(new ShaderAddTextureReq(inst->getId(),name.cStr,texID));
     }
     catch (...)
     {

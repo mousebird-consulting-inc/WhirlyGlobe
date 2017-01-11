@@ -133,6 +133,11 @@ public class VectorObject implements Iterable<VectorObject>
 	 * @return false if we were unable to parse the GeoJSON
 	 */
 	public native boolean fromGeoJSON(String json);
+
+	/**
+	 * Returns the total number of points in a feature.  Used for assessing size.
+     */
+	public native int countPoints();
 	
 	/**
 	 * Load vector objects from a GeoJSON assembly, which is just a bunch of GeoJSON stuck together.

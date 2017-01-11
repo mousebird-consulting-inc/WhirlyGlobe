@@ -618,6 +618,9 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
      */
     public void handleStartMoving(boolean userMotion)
     {
+		if (!userMotion)
+			isAnimating = true;
+
         if (renderWrapper == null || renderWrapper.maplyRender == null)
             return;
         
@@ -638,6 +641,9 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
      */
     public void handleStopMoving(boolean userMotion)
     {
+		if (!userMotion)
+			isAnimating = false;
+
         if (renderWrapper == null || renderWrapper.maplyRender == null)
             return;
         

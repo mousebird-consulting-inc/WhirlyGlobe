@@ -564,7 +564,7 @@ bool DynamicTextureAtlas::updateTexture(Texture *tex,int frame,const TextureRegi
     return false;
 }
     
-void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &changes)
+void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &changes,TimeInterval when)
 {
     TextureRegion texRegion;
     texRegion.subTex.setId(subTex.getId());
@@ -575,7 +575,7 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
         TextureRegion theRegion = *it;
         // Tell the dynamic texture to clear it out, but we'll send that request over to
         //  the renderer so we can be sure we're not still using it
-        changes.push_back(new DynamicTextureClearRegion(theRegion.dynTexId,theRegion.region));
+        changes.push_back(new DynamicTextureClearRegion(theRegion.dynTexId,theRegion.region,when));
         regions.erase(it);
         
         // See if that texture is now empty
@@ -597,7 +597,7 @@ bool DynamicTextureAtlas::empty()
     return textures.empty();
 }
     
-void DynamicTextureAtlas::cleanup(ChangeSet &changes)
+void DynamicTextureAtlas::cleanup(ChangeSet &changes,TimeInterval when)
 {
     DynamicTextureSet::iterator itNext;
     for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); it = itNext)
@@ -609,7 +609,7 @@ void DynamicTextureAtlas::cleanup(ChangeSet &changes)
         if (tex->getNumRegions() == 0)
         {
             for (unsigned int ii=0;ii<texVec->size();ii++)
-                changes.push_back(new RemTextureReq(texVec->at(ii)->getId()));
+                changes.push_back(new RemTextureReq(texVec->at(ii)->getId(),when));
             delete texVec;
             textures.erase(it);
             //                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());

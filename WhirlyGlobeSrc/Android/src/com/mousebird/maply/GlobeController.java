@@ -451,10 +451,10 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	 */
 	public void setPositionGeo(final double x,final double y,final double z)
 	{
-		if (!running)
+		if (!isCompletelySetup())
 			return;
 
-		if (!rendererAttached) {
+		if (!isCompletelySetup()) {
 			addPostSurfaceRunnable(new Runnable() {
 				@Override
 				public void run() {
@@ -501,16 +501,15 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	 */
 	public void animatePositionGeo(final double x,final double y,final double z,final double howLong)
 	{
-		if (!isCompletelySetup())
-			return;
-
-		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					animatePositionGeo(x,y,z,howLong);
-				}
-			});
+		if (!isCompletelySetup()) {
+			if (!rendererAttached) {
+				addPostSurfaceRunnable(new Runnable() {
+					@Override
+					public void run() {
+						animatePositionGeo(x, y, z, howLong);
+					}
+				});
+			}
 			return;
 		}
 
@@ -713,6 +712,9 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
      */
     public void handleStartMoving(boolean userMotion)
     {
+		if (!userMotion)
+			isAnimating = true;
+
 		if (!isCompletelySetup())
 			return;
 
@@ -733,6 +735,9 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	 */
 	public void handleStopMoving(boolean userMotion)
 	{
+		if (!userMotion)
+			isAnimating = false;
+
 		if (!isCompletelySetup())
 			return;
 

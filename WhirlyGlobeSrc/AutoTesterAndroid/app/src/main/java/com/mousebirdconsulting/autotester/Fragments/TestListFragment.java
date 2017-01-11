@@ -39,6 +39,7 @@ import com.mousebirdconsulting.autotester.TestCases.LightingTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LocalVectorTileTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MBTilesImageTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MaplyStarModelTestCase;
+import com.mousebirdconsulting.autotester.TestCases.MapzenTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MarkersAndLinesTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.PagingLayerTestCase;
@@ -141,6 +142,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new LayerShutdownTestCase(getActivity()));
 			testCases.add(new GeomPointsTestCase(getActivity()));
 			testCases.add(new AutoRotateTestCase(getActivity()));
+			testCases.add(new MapzenTestCase(getActivity()));
 //			testCases.add(new ArealTestCase(getActivity()));
 		}
 
@@ -304,8 +306,18 @@ public class TestListFragment extends Fragment {
 
 							case Interactive:
 								selected.setVisibility(View.INVISIBLE);
-								map.setVisibility(View.VISIBLE);
-								globe.setVisibility(View.VISIBLE);
+								if (this.testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Both || this.testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Map) {
+									map.setVisibility(View.VISIBLE);
+								}
+								else {
+									map.setVisibility(View.INVISIBLE);
+								}
+								if (this.testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Both || this.testCase.getImplementation() == MaplyTestCase.TestExecutionImplementation.Globe) {
+									globe.setVisibility(View.VISIBLE);
+								}
+								else {
+									globe.setVisibility(View.INVISIBLE);
+								}
 								map.setOnClickListener(new View.OnClickListener() {
 									@Override
 									public void onClick(View v) {

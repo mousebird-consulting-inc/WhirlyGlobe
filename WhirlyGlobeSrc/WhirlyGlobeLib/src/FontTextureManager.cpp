@@ -172,7 +172,7 @@ void FontTextureManager::clear(ChangeSet &changes)
     pthread_mutex_unlock(&lock);
 }
 
-void FontTextureManager::removeString(SimpleIdentity drawStringId,ChangeSet &changes)
+void FontTextureManager::removeString(SimpleIdentity drawStringId,ChangeSet &changes,TimeInterval when)
 {
     pthread_mutex_lock(&lock);
     
@@ -203,7 +203,7 @@ void FontTextureManager::removeString(SimpleIdentity drawStringId,ChangeSet &cha
             // And possibly remove some sub textures
             if (!texRemove.empty())
                 for (unsigned int ii=0;ii<texRemove.size();ii++)
-                    texAtlas->removeTexture(texRemove[ii], changes);
+                    texAtlas->removeTexture(texRemove[ii], changes, when);
 
             // Also see if we're done with the font
             if (fm->refCount <= 0)

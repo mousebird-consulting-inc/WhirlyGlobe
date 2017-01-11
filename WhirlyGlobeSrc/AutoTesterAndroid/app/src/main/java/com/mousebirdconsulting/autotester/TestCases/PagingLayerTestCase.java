@@ -35,7 +35,7 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
         super(activity);
         setTestName("Paging Layer Test");
         setDelay(1000);
-
+        this.implementation = TestExecutionImplementation.Both;
         this.activity = activity;
     }
 

@@ -88,7 +88,9 @@ class RemTextureReq : public ChangeRequest
 public:
     /// Construct with the ID
 	RemTextureReq(SimpleIdentity texId) : texture(texId) { }
-
+    /// This version is a time deletion
+    RemTextureReq(SimpleIdentity texId,TimeInterval inWhen) : texture(texId) { when = inWhen; }
+    
     /// Remove from the renderer.  Never call this.
 	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
 	
@@ -124,7 +126,9 @@ class RemDrawableReq : public ChangeRequest
 public:
     /// Construct with the drawable ID and an optional fade interval
 	RemDrawableReq(SimpleIdentity drawId) : drawable(drawId) { }
-
+    /// This version is a timed delete
+    RemDrawableReq(SimpleIdentity drawId,TimeInterval inWhen) : drawable(drawId) { when = inWhen; }
+    
     /// Remove the drawable.  Never call this
 	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
 	
@@ -311,10 +315,10 @@ public:
 	
 	/// Process change requests
 	/// Only the renderer should call this in the rendering thread
-	void processChanges(WhirlyKit::View *view,WhirlyKit::SceneRendererES *renderer);
+	void processChanges(WhirlyKit::View *view,WhirlyKit::SceneRendererES *renderer,TimeInterval now);
     
     /// True if there are pending updates
-    bool hasChanges();
+    bool hasChanges(TimeInterval now);
     
     /// Add sub texture mappings.
     /// These are mappings from images to parts of texture atlases.
@@ -435,6 +439,7 @@ public:
 	/// We keep a list of change requests to execute
 	/// This can be accessed in multiple threads, so we lock it
 	ChangeSet changeRequests;
+    SortedChangeSet timedChangeRequests;
     
     pthread_mutex_t subTexLock;
     typedef std::set<SubTexture> SubTextureSet;

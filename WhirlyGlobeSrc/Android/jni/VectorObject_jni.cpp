@@ -401,6 +401,53 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_pointInside
     return false;
 }
 
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorObject_countPoints
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
+        VectorObject *vecObj = classInfo->getObject(env,obj);
+        if (!vecObj)
+            return 0;
+
+        int numPts = 0;
+        for (auto shape : vecObj->shapes)
+        {
+            if(std::dynamic_pointer_cast<VectorLinear>(shape) != NULL)
+            {
+                VectorLinearRef linear = std::dynamic_pointer_cast<VectorLinear>(shape);
+                numPts += linear->pts.size();
+            } else if(std::dynamic_pointer_cast<VectorLinear3d>(shape) != NULL)
+            {
+            } else if(std::dynamic_pointer_cast<VectorAreal>(shape) != NULL)
+            {
+                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(shape);
+                if (ar)
+                {
+                    for (int ii=0;ii<ar->loops.size();ii++)
+                    {
+                        numPts += ar->loops[ii].size();
+                    }
+                }
+            } else if(std::dynamic_pointer_cast<VectorPoints>(shape) != NULL)
+            {
+                VectorPointsRef points = std::dynamic_pointer_cast<VectorPoints>(shape);
+                numPts += points->pts.size();
+            }
+        }
+        
+        return numPts;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::countPoints()");
+    }
+    
+    return false;
+}
+
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_readFromFile
   (JNIEnv *env, jobject obj, jstring fileNameStr)
 {

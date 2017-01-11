@@ -84,7 +84,7 @@ public class LightingAdapter {
 
     private void addLights() {
         Light light;
-
+        this.viewC.clearLights();
         for (LocationInfo locationInfo : this.locations) {
             light = new Light();
             light.setPos(new Point3d(locationInfo.x, locationInfo.y, locationInfo.z));

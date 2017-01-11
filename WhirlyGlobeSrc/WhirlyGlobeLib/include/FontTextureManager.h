@@ -173,7 +173,7 @@ public:
     typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 
     /// Remove resources associated with the given string
-    void removeString(SimpleIdentity drawStringId,ChangeSet &changes);
+    void removeString(SimpleIdentity drawStringId,ChangeSet &changes,TimeInterval when);
     
     // Tear down everything we've built
     void clear(ChangeSet &changes);

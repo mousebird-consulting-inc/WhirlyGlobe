@@ -79,6 +79,7 @@ public class GlobeView extends View
 	void setAnimationDelegate(AnimationDelegate delegate)
 	{
 		animationDelegate = delegate;
+		control.handleStartMoving(false);
 	}
 	
 	// Clear the animation delegate
