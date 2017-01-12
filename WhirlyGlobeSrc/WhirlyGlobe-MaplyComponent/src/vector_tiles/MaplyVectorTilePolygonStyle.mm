@@ -67,8 +67,16 @@
             MaplyTexture *texture = [viewC addTexture:img desc:@{kMaplyTexWrapX: @(YES),kMaplyTexWrapY: @(YES)} mode:MaplyThreadAny];
             desc[kMaplyVecTexture] = texture;
             desc[kMaplyVecTextureProjection] = kMaplyProjectionTangentPlane;
-            desc[kMaplyVecTexScaleX] = @(100.0);
-            desc[kMaplyVecTexScaleY] = @(100.0);
+            
+            float scaleX = 6400.0;
+            float scaleY = -6400.0;
+            if (styleEntry[@"width"])
+                scaleX = 6400.0 / [styleEntry[@"width"] floatValue];
+            if (styleEntry[@"height"])
+                scaleY = -6400.0 / [styleEntry[@"height"] floatValue];
+            
+            desc[kMaplyVecTexScaleX] = @(scaleX);
+            desc[kMaplyVecTexScaleY] = @(scaleY);
         }
         
         desc[kMaplySelectable] = @(settings.selectable);
