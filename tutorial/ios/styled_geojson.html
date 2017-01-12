@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width initial-scale=1" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-  <title>Remote ArcGIS Layers</title>
+  <title>Styled GeoJSON</title>
   <meta name="description" content="A high performance map and globe toolkit for iOS and Android.
 ">
 
@@ -20,7 +20,7 @@
   <![endif]-->
 
   <link rel="stylesheet" href="/WhirlyGlobe/css/main.css">
-  <link rel="canonical" href="http://mousebird.github.io//WhirlyGlobe/tutorial/ios/remote_ArcGIS_image_layers.html">
+  <link rel="canonical" href="http://mousebird.github.io//WhirlyGlobe/tutorial/ios/styled_geojson.html">
 
   <!-- Fontwork -->
   <link rel="stylesheet" type="text/css" href="/WhirlyGlobe/css/MyFontsWebfontsKit.css">
@@ -104,120 +104,178 @@
         <div class="row">
           <div class="col-sm-9 tutorial tutorial-main">
 
-            <h2>Remote ArcGIS Layers</h2>
-            <p><em>Tutorial developed by Chris Lamb.</em></p>
+            <h2>Styled GeoJSON</h2>
+            <p><em>Tutorial by Ranen Ghosh</em></p>
 
-<p><strong>This tutorial requires WhirlyGlobe-Maply version 2.4 or greater.</strong></p>
+<p>This tutorial will show you how to add GeoJSON files to the map or globe. The features in the GeoJSON files will have their colors and other display properties set by a separate Styled Layer Descriptor document.</p>
 
-<p>WhirlyGlobe-Maply is an open source toolkit, part of the vibrant FOSS4G community, albeit focused on mobile.  Even so, we interface to commercial data and systems all the time.  Let’s interface to the 800lb gorilla of GIS, ESRI!</p>
+<h2 id="getting-started">Getting started</h2>
 
-<h3 id="esir-arcgis-data-sets">ESIR ArcGIS Data Sets</h3>
+<p>You will need to have already run through the <a href="remote_image_layer.html">remote image layer</a> tutorial.  Let’s get started by opening your HelloEarth project.</p>
 
-<p><a href="http://www.esri.com/">ESRI’s ArcGIS platform</a> has a huge number of freely available data sets, as well as the ability to generate your own with ESIR tools.  Here are a few examples of what we’re going to build today.</p>
+<p><img src="/WhirlyGlobe/images/tutorial/styled_geojson_1.jpg" alt="Xcode HelloEarth" /></p>
 
-<p><img src="/WhirlyGlobe/images/tutorial/ArcGIS_Header.jpg" alt="Header pic" /></p>
+<p>If you haven’t got one here is a suitable ViewController file to start with (for <a href="/WhirlyGlobe/tutorial/ios/code/ViewController_styled_geojson.m">Objective-C</a> or <a href="/WhirlyGlobe/tutorial/ios/code/ViewController_styled_geojson.swift">Swift</a>).  This version is from the previous tutorial for a <a href="remote_image_layer.html">remote image layer</a>.</p>
 
-<p>You’ll need a sample project for this tutorial. Go back and start with the <a href="http://mousebird.github.io/WhirlyGlobe/tutorial/hello_earth.html">Hello Earth</a> tutorial and work thru the <a href="remote_image_layer.html">CartoDB Tutorial</a>.  We’ll want the vector tiling logic from that one, but if you’d rather just get started with those files, you can download them here;</p>
+<h2 id="get-some-data">Get some data</h2>
 
-<ul>
-  <li><a href="/WhirlyGlobe/tutorial/ios/code/ViewController_cartodb.m">ViewController.m</a> Your main view controller.</li>
-  <li><a href="/WhirlyGlobe/tutorial/ios/code/CartoDBLayer.h">CartoDBLayer.h</a> CartoDBLayer header.</li>
-  <li><a href="/WhirlyGlobe/tutorial/ios/code/CartoDBLayer.m">CartoDBLayer.m</a> CartoDBLayer implementation.</li>
-</ul>
+<p>At this time, download some GeoJSON data to play with. We’re going to use the Belfast dataset from Mapzen’s Metro Extracts.  Download this file and extract it into your working directory:</p>
 
-<h3 id="hello-earth">Hello Earth</h3>
-<p>OK to summarize, in this app we’re are going to utilize remote datasets from ESRI <a href="https://www.arcgis.com/features/">ArcGIS service</a>.  In this app, we are going to load one of their base maps, a National Geographic style map found in their list of example REST services <a href="http://services.arcgisonline.com/arcgis/rest/services">here</a>.</p>
+<p>https://s3.amazonaws.com/metro-extracts.mapzen.com/belfast_ireland.imposm-geojson.zip</p>
 
-<p>And as a second act we are going to access one of their vector data sets showing New York City’s flood zones in a list of vector services found <a href="http://services.arcgis.com/OfH668nDRN7tbJh0/ArcGIS/rest/services">here</a>.</p>
+<p>Drag the files belfast_ireland_landusages.geojson, belfast_ireland_buildings.geojson, and belfast_ireland_roads.geojson into your project.</p>
 
-<p>We won’t get into the details of how the ESRI service works.  It’s huge and they cover that in detail themselves.  We’ll start with the CartoDB example and modify it as need.</p>
+<p>We’re also going to need some Styled Layer Descriptor stylesheets. Here are one for each layer: <a href="/WhirlyGlobe/tutorial/resources/styled_geojson/landuse.sld">landuse.sld</a>, <a href="/WhirlyGlobe/tutorial/resources/styled_geojson/buildings.sld">buildings.sld</a>, and <a href="/WhirlyGlobe/tutorial/resources/styled_geojson/roads.sld">roads.sld</a>. Download those into your working directory, and drag them into your project as well.</p>
 
-<p>First up, gather the files list above, build them and you should see something like this.</p>
+<h2 id="start-up-over-belfast">Start up over Belfast</h2>
 
-<p><img src="/WhirlyGlobe/images/tutorial/CartoDB_NYCBuildings.png" alt="CartoDB pic" /></p>
+<p>Change the last part of viewDidLoad so that the app starts over Belfast.</p>
 
-<h3 id="arcgis-base-map---national-geographic-world-map">ArcGIS Base Map - National Geographic World Map</h3>
-<p>So first thing we’re going to load up one of ArcGIS’s base maps, the beautiful &amp; revered <a href="http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer">National Geographic World Map</a>.  All we have to do change the URL reference in the existing code &amp; the new map should appear, as if by magic.  Find the following code in viewDidLoad, and replace the URL string in the MaplyRemoteTileSource designated initializer with the URL of the ArcGIS webpage below;</p>
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc">    <span class="c1">// start up over Belfast
+</span>    <span class="k">if</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="nb">nil</span><span class="p">)</span>
+    <span class="p">{</span>   
+        <span class="n">globeViewC</span><span class="p">.</span><span class="n">height</span> <span class="o">=</span> <span class="mi">0</span><span class="p">.</span><span class="mi">8</span><span class="p">;</span>
+        <span class="p">[</span><span class="n">globeViewC</span> <span class="nf">animateToPosition</span><span class="p">:</span><span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">.</span><span class="mi">93</span><span class="p">,</span><span class="mi">54</span><span class="p">.</span><span class="mi">597</span><span class="p">)</span>
+                                 <span class="nf">time</span><span class="p">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">];</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">mapViewC</span><span class="p">.</span><span class="n">height</span> <span class="o">=</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+        <span class="p">[</span><span class="n">mapViewC</span> <span class="nf">animateToPosition</span><span class="p">:</span><span class="n">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">.</span><span class="mi">93</span><span class="p">,</span><span class="mi">54</span><span class="p">.</span><span class="mi">597</span><span class="p">)</span>
+                               <span class="nf">time</span><span class="p">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">];</span>
+    <span class="p">}</span></code></pre></figure>
 
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="c1">// Data by OpenStreetMap under the Open Data Commons Open Database License.
-</span><span class="n">MaplyRemoteTileSource</span> <span class="o">*</span><span class="n">tileSource</span> <span class="o">=</span>  <span class="p">[[</span><span class="n">MaplyRemoteTileSource</span> <span class="nf">alloc</span><span class="p">]</span>
-<span class="nf">initWithBaseURL</span><span class="p">:</span><span class="s">@"http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServ/tile/{z}/{y}/{x}"</span>
-<span class="nf">ext</span><span class="p">:</span><span class="s">@"png"</span> <span class="n">minZoom</span><span class="o">:</span><span class="mi">0</span> <span class="n">maxZoom</span><span class="o">:</span><span class="n">maxZoom</span><span class="p">];</span></code></pre></figure>
+</li><li data-index="1">
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">http://services.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer</code></pre></figure>
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">        <span class="c1">// start up over Belfast</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">globeViewC</span> <span class="o">=</span> <span class="n">globeViewC</span> <span class="p">{</span>
+            <span class="n">globeViewC</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">0.8</span>
+            <span class="n">globeViewC</span><span class="o">.</span><span class="nf">animateToPosition</span><span class="p">(</span><span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">5.93</span><span class="p">,</span><span class="mf">54.597</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="nv">mapViewC</span> <span class="o">=</span> <span class="n">mapViewC</span> <span class="p">{</span>
+            <span class="n">mapViewC</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="n">mapViewC</span><span class="o">.</span><span class="nf">animateToPosition</span><span class="p">(</span><span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">5.93</span><span class="p">,</span><span class="mf">54.597</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="p">}</span></code></pre></figure>
+ </li></ul>
 
-<p>you also need to adjust the maxZoom value (in this case - 17) and make sure the ext:file is png.  The /tile/{z}/{y}/{x} string appended to the end of the URL ensures proper tiling orientation.</p>
+<h2 id="the-geojsonsource-object">The GeoJSONSource object</h2>
 
-<p>Run the app, zoom way out, and you should get a great rendition of everyone’s favorite Nat Geo globe.  Easy Peasey!</p>
+<p>The <strong>GeoJSONSource</strong> object allows you to add, remove, enable disable GeoJSON vector features on the globe or map.</p>
 
-<p><img src="/WhirlyGlobe/images/tutorial/NatGeoGlobe.png" alt="NatGeo globe pic" /></p>
+<p>If you’re using Objective-C, then include the header in your ViewController.m source file.</p>
 
-<h3 id="next-up---vector-layers">Next up - Vector Layers</h3>
-<p>Vector layers are datasets that return polygons, attributes and other things.  The mechanics of how WhirlyGlobe handles this data is thoroughly detailed in the CartoDB tutorial, and you should review that there if you like.  Here today we are simply going to replace the CartoDB data with data from ArcGIS, specifically showing the various different flood zones in the NYC area.  We’ll also make a few other changes to make the displayed data pop!  Here goes;</p>
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="cp">#import "GeoJSONSource.h"</span></code></pre></figure>
 
-<p>As discussed, we have created a CartoDBLayer object that conforms to the MaplyPagingDelegate.  This object then queries the remote data source for the data required by the tiles displayed with the method startFetchForTile:forLayer:.  This query is comprised of 2 portions, a URL for the remote server, and a SQL query that are joined together in the constructRequest method.  Let’s start by changing the URL to -</p>
+</li><li data-index="1">
+ </li></ul>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">http://services.arcgis.com/OfH668nDRN7tbJh0/ArcGIS/rest/services/NYCEvacZones2013/FeatureServer</code></pre></figure>
+<p>Add some GeoJSONSource objects for land use, buildings, and roads to your ViewController’s member variables:</p>
 
-<p>in the CartoDBLayer constructRequest code.</p>
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc"> <span class="n">GeoJSONSource</span> <span class="o">*</span><span class="n">landUseSource</span><span class="p">,</span> <span class="o">*</span><span class="n">buildingsSource</span><span class="p">,</span> <span class="o">*</span><span class="n">roadsSource</span><span class="p">;</span></code></pre></figure>
 
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="k">-</span> <span class="p">(</span><span class="n">NSURLRequest</span> <span class="o">*</span><span class="p">)</span><span class="nf">constructRequest</span><span class="p">:(</span><span class="n">MaplyBoundingBox</span><span class="p">)</span><span class="nv">bbox</span> <span class="p">{</span>
-<span class="c1">// construct a query string
-</span><span class="kt">double</span> <span class="n">toDeg</span> <span class="o">=</span> <span class="mi">180</span><span class="o">/</span><span class="n">M_PI</span><span class="p">;</span>
-<span class="n">NSString</span> <span class="o">*</span><span class="n">query</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nf">stringWithFormat</span><span class="p">:</span><span class="n">search</span><span class="p">,</span><span class="n">bbox</span><span class="p">.</span><span class="n">ll</span><span class="p">.</span><span class="n">x</span><span class="o">*</span><span class="n">toDeg</span><span class="p">,</span><span class="n">bbox</span><span class="p">.</span><span class="n">ll</span><span class="p">.</span><span class="n">y</span><span class="o">*</span><span class="n">toDeg</span><span class="p">,</span><span class="n">bbox</span><span class="p">.</span><span class="n">ur</span><span class="p">.</span><span class="n">x</span><span class="o">*</span><span class="n">toDeg</span><span class="p">,</span><span class="n">bbox</span><span class="p">.</span><span class="n">ur</span><span class="p">.</span><span class="n">y</span><span class="o">*</span><span class="n">toDeg</span><span class="p">];</span>
-<span class="n">NSString</span> <span class="o">*</span><span class="n">encodeQuery</span> <span class="o">=</span> <span class="p">[</span><span class="n">query</span> <span class="nf">stringByAddingPercentEscapesUsingEncoding</span><span class="p">:</span><span class="n">NSUTF8StringEncoding</span><span class="p">];</span>
-<span class="n">encodeQuery</span> <span class="o">=</span> <span class="p">[</span><span class="n">encodeQuery</span> <span class="nf">stringByReplacingOccurrencesOfString</span><span class="p">:</span><span class="s">@"&amp;"</span> <span class="nf">withString</span><span class="p">:</span><span class="s">@"%26"</span><span class="p">];</span>
-<span class="n">NSString</span> <span class="o">*</span><span class="n">fullUrl</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nf">stringWithFormat</span><span class="p">:</span><span class="s">@"https://pluto.cartodb.com/api/v2/sql?format=GeoJSON&amp;q=%@"</span><span class="p">,</span><span class="n">encodeQuery</span><span class="p">];.</span>
-<span class="n">NSURLRequest</span> <span class="o">*</span><span class="n">urlReq</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSURLRequest</span> <span class="nf">requestWithURL</span><span class="p">:[</span><span class="n">NSURL</span> <span class="nf">URLWithString</span><span class="p">:</span><span class="n">fullUrl</span><span class="p">]];</span>
+</li><li data-index="1">
 
-<span class="k">return</span> <span class="n">urlReq</span><span class="p">;</span>
-<span class="p">}</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">    <span class="n">fileprivate</span> <span class="k">var</span> <span class="nv">landUseSource</span><span class="p">:</span> <span class="kt">GeoJSONSource</span><span class="p">?</span>
+    <span class="n">fileprivate</span> <span class="k">var</span> <span class="nv">buildingsSource</span><span class="p">:</span> <span class="kt">GeoJSONSource</span><span class="p">?</span>
+    <span class="n">fileprivate</span> <span class="k">var</span> <span class="nv">roadsSource</span><span class="p">:</span> <span class="kt">GeoJSONSource</span><span class="p">?</span></code></pre></figure>
+ </li></ul>
 
-<p>And we’ll also need to change the query in the ViewController’s addBuildings method</p>
+<h2 id="starting-with-land-use">Starting with land use</h2>
 
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">addBuildings</span>
-<span class="p">{</span>
-<span class="n">NSString</span> <span class="o">*</span><span class="n">search</span> <span class="o">=</span> <span class="s">@"WHERE=Zone&gt;=1&amp;f=pgeojson&amp;outSR=4326"</span><span class="p">;</span>
-<span class="c1">// NSString *search = @"SELECT the_geom,address,ownername,numfloors FROM mn_mappluto_13v1 WHERE the_geom &amp;&amp; ST_SetSRID(ST_MakeBox2D(ST_Point(%f, %f), ST_Point(%f, %f)), 4326) LIMIT 2000;";
-</span>
-<span class="n">CartoDBLayer</span> <span class="o">*</span><span class="n">cartoLayer</span> <span class="o">=</span> <span class="p">[[</span><span class="n">CartoDBLayer</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithSearch</span><span class="p">:</span><span class="n">search</span><span class="p">];</span>
-<span class="n">cartoLayer</span><span class="p">.</span><span class="n">minZoom</span> <span class="o">=</span> <span class="mi">13</span><span class="p">;</span>
-<span class="n">cartoLayer</span><span class="p">.</span><span class="n">maxZoom</span> <span class="o">=</span> <span class="mi">15</span><span class="p">;</span></code></pre></figure>
+<p>We’re going to first display the land use GeoJSON file on the globe/map. To do this, we construct the GeoJSONSource object, passing in the map/globe view controller and URLs for both the GeoJSON and SLD files. There’s also a relativeDrawPriority argument, to control the order of different layers. The only catch is that we have to give the map/globe a chance to set up first; for this reason we’ll construct the GeoJSONSource object after a short delay (using dispatch_after in Objective-C, or asyncAfter in swift):</p>
 
-<p>outSR is the ouptput spacial reference, and pgeojson also defines the output format.
-Run the project, and you should see the layers for the flood zones.  Not?  OK, lets adjust a few things to see what’s going on;</p>
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc">    <span class="n">dispatch_after</span><span class="p">(</span> <span class="n">dispatch_time</span><span class="p">(</span><span class="n">DISPATCH_TIME_NOW</span><span class="p">,</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span> <span class="o">*</span> <span class="n">NSEC_PER_SEC</span><span class="p">),</span> <span class="n">dispatch_get_main_queue</span><span class="p">(),</span> <span class="o">^</span><span class="p">{</span>
+        <span class="n">landUseSource</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GeoJSONSource</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithViewC</span><span class="p">:</span><span class="n">theViewC</span> <span class="nf">GeoJSONURL</span><span class="p">:[[</span><span class="n">NSBundle</span> <span class="nf">mainBundle</span><span class="p">]</span> <span class="nf">URLForResource</span><span class="p">:</span><span class="s">@"belfast_ireland_landusages"</span> <span class="nf">withExtension</span><span class="p">:</span><span class="s">@"geojson"</span><span class="p">]</span> <span class="n">sldURL</span><span class="o">:</span><span class="p">[[</span><span class="n">NSBundle</span> <span class="nf">mainBundle</span><span class="p">]</span> <span class="nf">URLForResource</span><span class="p">:</span><span class="s">@"landuse"</span> <span class="nf">withExtension</span><span class="p">:</span><span class="s">@"sld"</span><span class="p">]</span> <span class="n">relativeDrawPriority</span><span class="o">:</span><span class="mi">100</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">landUseSource</span> <span class="nf">startParse</span><span class="p">];</span>
+    <span class="p">});</span></code></pre></figure>
 
-<ul>
-  <li>Change the mni/maxZoom levels = 9 to 13</li>
-  <li>Modify the initial zoom level to 0.008</li>
-  <li>query for a single zone&gt;=4</li>
-  <li>Also let’s add in a NSLog statement to see if data is being returned</li>
-</ul>
+</li><li data-index="1">
 
-<figure class="highlight"><pre><code class="language-objc" data-lang="objc"><span class="p">[</span><span class="n">NSURLConnection</span> <span class="nf">sendAsynchronousRequest</span><span class="p">:</span><span class="n">urlReq</span> <span class="nf">queue</span><span class="p">:</span><span class="n">opQueue</span> <span class="n">completionHandler</span><span class="o">:^</span><span class="p">(</span><span class="n">NSURLResponse</span> <span class="o">*</span><span class="n">response</span><span class="p">,</span> <span class="n">NSData</span> <span class="o">*</span><span class="n">data</span><span class="p">,</span> <span class="n">NSError</span> <span class="o">*</span><span class="n">connectionError</span><span class="p">)</span>
-<span class="p">{</span>
-<span class="n">NSLog</span><span class="p">(</span><span class="s">@"returned data length is %lu"</span><span class="p">,</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="n">data</span><span class="p">.</span><span class="n">length</span><span class="p">);</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">    <span class="kt">DispatchQueue</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">asyncAfter</span><span class="p">(</span><span class="nv">deadline</span><span class="p">:</span> <span class="o">.</span><span class="nf">now</span><span class="p">()</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">landUseSource</span> <span class="o">=</span> <span class="kt">GeoJSONSource</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">viewC</span><span class="p">:</span> <span class="k">self</span><span class="o">.</span><span class="n">theViewC</span><span class="o">!</span><span class="p">,</span> <span class="nv">geoJSONURL</span><span class="p">:</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">url</span><span class="p">(</span><span class="nv">forResource</span><span class="p">:</span> <span class="s">"belfast_ireland_landusages"</span><span class="p">,</span> <span class="nv">withExtension</span><span class="p">:</span> <span class="s">"geojson"</span><span class="p">),</span> <span class="nv">sldURL</span><span class="p">:</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">url</span><span class="p">(</span><span class="nv">forResource</span><span class="p">:</span> <span class="s">"landuse"</span><span class="p">,</span> <span class="nv">withExtension</span><span class="p">:</span> <span class="s">"sld"</span><span class="p">),</span> <span class="nv">relativeDrawPriority</span><span class="p">:</span><span class="mi">100</span><span class="p">)</span>  
+        <span class="k">self</span><span class="o">.</span><span class="n">landUseSource</span><span class="p">?</span><span class="o">.</span><span class="nf">startParse</span><span class="p">()</span>
+    <span class="p">}</span></code></pre></figure>
+ </li></ul>
 
-<p>Run the project again, and you should see some data displayed.  It’s not exactly what we want, but at least we know we’re receiving data, Yay!  Now lets clean up this bad boy.</p>
+<p>Now, when you zoom to Belfast, Northern Ireland, you’ll see the land usages overlaid on the basemap.</p>
 
-<ul>
-  <li>Color individual zones</li>
-  <li>Adjust zoom &amp; position</li>
-</ul>
+<p><img src="/WhirlyGlobe/images/tutorial/styled_geojson_2.jpg" alt="Land usages in Belfast" /></p>
 
-<p>Through the magic of files fiddling, we finally end up with -</p>
+<h2 id="adding-more-layers-asynchronously">Adding more layers, asynchronously</h2>
 
-<p><img src="/WhirlyGlobe/images/tutorial/ArcGISProgression.png" alt="NYC flood zones pic" /></p>
+<p>We’re going to add additional layers for buildings and roads.  But to prevent the app from slowing down while loading three different data layers at once, we’re going to read the data in sequentially.</p>
 
-<p>Very pretty.</p>
+<p>You’ll have noticed that, in the previous section, the parsing method was called <em>startParse</em>. This is because the method returns immediately to avoid locking up the UI thread, but the parsing will run in a background thread.</p>
 
-<p>Here are the various completed files for your programming pleasure;</p>
+<p>With the additional data layers to process, we’re going to use the <em>startParseWithCompletion</em> method, instead.</p>
 
-<ul>
-  <li><a href="/WhirlyGlobe/tutorial/ios/code/ViewController_ArcGIS.m">ViewController.m</a></li>
-  <li><a href="/WhirlyGlobe/tutorial/ios/code/ArcGISLayer.m">ArcGISLayer.h</a></li>
-  <li><a href="/WhirlyGlobe/tutorial/ios/code/ArcGISLayer.m">ArcGISLayer.m</a></li>
-</ul>
+<p>First, change the call to <em>startParse</em> with <em>startParseWithCompletion</em>:</p>
+
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
+        [landUseSource startParseWithCompletion:^() {
+        }];
+</li><li data-index="1">
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">        <span class="k">self</span><span class="o">.</span><span class="n">landUseSource</span><span class="p">?</span><span class="o">.</span><span class="nf">startParse</span><span class="p">(</span><span class="nv">completion</span><span class="p">:</span> <span class="p">{</span>
+        <span class="p">})</span></code></pre></figure>
+ </li></ul>
+
+<p>This simply passes in an empty code block to be run after parsing is completed.  So far, there is no actual change in behavior.</p>
+
+<p>Now, we’ll load a second data layer (buildings) after the first one is finished parsing.  We’ll add code inside the completion block:</p>
+
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc">        <span class="p">[</span><span class="n">landUseSource</span> <span class="nf">startParseWithCompletion</span><span class="p">:</span><span class="o">^</span><span class="p">()</span> <span class="p">{</span>
+            <span class="n">buildingsSource</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GeoJSONSource</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithViewC</span><span class="p">:</span><span class="n">theViewC</span> <span class="nf">GeoJSONURL</span><span class="p">:[[</span><span class="n">NSBundle</span> <span class="nf">mainBundle</span><span class="p">]</span> <span class="nf">URLForResource</span><span class="p">:</span><span class="s">@"belfast_ireland_buildings"</span> <span class="nf">withExtension</span><span class="p">:</span><span class="s">@"geojson"</span><span class="p">]</span> <span class="n">sldURL</span><span class="o">:</span><span class="p">[[</span><span class="n">NSBundle</span> <span class="nf">mainBundle</span><span class="p">]</span> <span class="nf">URLForResource</span><span class="p">:</span><span class="s">@"osm_buildings"</span> <span class="nf">withExtension</span><span class="p">:</span><span class="s">@"sld"</span><span class="p">]</span> <span class="n">relativeDrawPriority</span><span class="o">:</span><span class="mi">200</span><span class="p">];</span>
+            <span class="p">[</span><span class="n">buildingsSource</span> <span class="nf">startParseWithCompletion</span><span class="p">:</span><span class="o">^</span><span class="p">()</span> <span class="p">{</span>
+            <span class="p">}];</span>
+        <span class="p">}];</span></code></pre></figure>
+
+</li><li data-index="1">
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">        <span class="k">self</span><span class="o">.</span><span class="n">landUseSource</span><span class="p">?</span><span class="o">.</span><span class="nf">startParse</span><span class="p">(</span><span class="nv">completion</span><span class="p">:</span> <span class="p">{</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">buildingsSource</span> <span class="o">=</span> <span class="kt">GeoJSONSource</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">viewC</span><span class="p">:</span> <span class="k">self</span><span class="o">.</span><span class="n">theViewC</span><span class="o">!</span><span class="p">,</span> <span class="nv">geoJSONURL</span><span class="p">:</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">url</span><span class="p">(</span><span class="nv">forResource</span><span class="p">:</span> <span class="s">"belfast_ireland_buildings"</span><span class="p">,</span> <span class="nv">withExtension</span><span class="p">:</span> <span class="s">"geojson"</span><span class="p">),</span> <span class="nv">sldURL</span><span class="p">:</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">url</span><span class="p">(</span><span class="nv">forResource</span><span class="p">:</span> <span class="s">"osm_buildings"</span><span class="p">,</span> <span class="nv">withExtension</span><span class="p">:</span> <span class="s">"sld"</span><span class="p">),</span> <span class="nv">relativeDrawPriority</span><span class="p">:</span><span class="mi">200</span><span class="p">)</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">buildingsSource</span><span class="p">?</span><span class="o">.</span><span class="nf">startParse</span><span class="p">(</span><span class="nv">completion</span><span class="p">:</span> <span class="p">{</span>
+            <span class="p">})</span>
+        <span class="p">})</span></code></pre></figure>
+ </li></ul>
+
+<p>And to add the third data layer (roads), we’ll nest the third GeoJSONSource parsing inside the completion block of the second:</p>
+
+<div class="multiple_code_header"><a href="#" data-index="0">&nbsp;</a><a href="#" data-index="1">&nbsp;</a></div>
+<ul class="multiple_code"><li data-index="0"> 
+<figure class="highlight"><pre><code class="language-objc" data-lang="objc">        <span class="p">[</span><span class="n">landUseSource</span> <span class="nf">startParseWithCompletion</span><span class="p">:</span><span class="o">^</span><span class="p">()</span> <span class="p">{</span>
+            <span class="n">buildingsSource</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GeoJSONSource</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithViewC</span><span class="p">:</span><span class="n">theViewC</span> <span class="nf">GeoJSONURL</span><span class="p">:[[</span><span class="n">NSBundle</span> <span class="nf">mainBundle</span><span class="p">]</span> <span class="nf">URLForResource</span><span class="p">:</span><span class="s">@"belfast_ireland_buildings"</span> <span class="nf">withExtension</span><span class="p">:</span><span class="s">@"geojson"</span><span class="p">]</span> <span class="n">sldURL</span><span class="o">:</span><span class="p">[[</span><span class="n">NSBundle</span> <span class="nf">mainBundle</span><span class="p">]</span> <span class="nf">URLForResource</span><span class="p">:</span><span class="s">@"osm_buildings"</span> <span class="nf">withExtension</span><span class="p">:</span><span class="s">@"sld"</span><span class="p">]</span> <span class="n">relativeDrawPriority</span><span class="o">:</span><span class="mi">200</span><span class="p">];</span>
+            <span class="p">[</span><span class="n">buildingsSource</span> <span class="nf">startParseWithCompletion</span><span class="p">:</span><span class="o">^</span><span class="p">()</span> <span class="p">{</span>
+                <span class="n">roadsSource</span> <span class="o">=</span> <span class="p">[[</span><span class="n">GeoJSONSource</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithViewC</span><span class="p">:</span><span class="n">theViewC</span> <span class="nf">GeoJSONURL</span><span class="p">:[[</span><span class="n">NSBundle</span> <span class="nf">mainBundle</span><span class="p">]</span> <span class="nf">URLForResource</span><span class="p">:</span><span class="s">@"belfast_ireland_roads"</span> <span class="nf">withExtension</span><span class="p">:</span><span class="s">@"geojson"</span><span class="p">]</span> <span class="n">sldURL</span><span class="o">:</span><span class="p">[[</span><span class="n">NSBundle</span> <span class="nf">mainBundle</span><span class="p">]</span> <span class="nf">URLForResource</span><span class="p">:</span><span class="s">@"osm_roads"</span> <span class="nf">withExtension</span><span class="p">:</span><span class="s">@"sld"</span><span class="p">]</span> <span class="n">relativeDrawPriority</span><span class="o">:</span><span class="mi">300</span><span class="p">];</span>
+                <span class="p">[</span><span class="n">roadsSource</span> <span class="nf">startParse</span><span class="p">];</span>
+            <span class="p">}];</span>
+        <span class="p">}];</span></code></pre></figure>
+
+</li><li data-index="1">
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift">        <span class="k">self</span><span class="o">.</span><span class="n">landUseSource</span><span class="p">?</span><span class="o">.</span><span class="nf">startParse</span><span class="p">(</span><span class="nv">completion</span><span class="p">:</span> <span class="p">{</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">buildingsSource</span> <span class="o">=</span> <span class="kt">GeoJSONSource</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">viewC</span><span class="p">:</span> <span class="k">self</span><span class="o">.</span><span class="n">theViewC</span><span class="o">!</span><span class="p">,</span> <span class="nv">geoJSONURL</span><span class="p">:</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">url</span><span class="p">(</span><span class="nv">forResource</span><span class="p">:</span> <span class="s">"belfast_ireland_buildings"</span><span class="p">,</span> <span class="nv">withExtension</span><span class="p">:</span> <span class="s">"geojson"</span><span class="p">),</span> <span class="nv">sldURL</span><span class="p">:</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">url</span><span class="p">(</span><span class="nv">forResource</span><span class="p">:</span> <span class="s">"osm_buildings"</span><span class="p">,</span> <span class="nv">withExtension</span><span class="p">:</span> <span class="s">"sld"</span><span class="p">),</span> <span class="nv">relativeDrawPriority</span><span class="p">:</span><span class="mi">200</span><span class="p">)</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">buildingsSource</span><span class="p">?</span><span class="o">.</span><span class="nf">startParse</span><span class="p">(</span><span class="nv">completion</span><span class="p">:</span> <span class="p">{</span>
+                <span class="k">self</span><span class="o">.</span><span class="n">roadsSource</span> <span class="o">=</span> <span class="kt">GeoJSONSource</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">viewC</span><span class="p">:</span> <span class="k">self</span><span class="o">.</span><span class="n">theViewC</span><span class="o">!</span><span class="p">,</span> <span class="nv">geoJSONURL</span><span class="p">:</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">url</span><span class="p">(</span><span class="nv">forResource</span><span class="p">:</span> <span class="s">"belfast_ireland_roads"</span><span class="p">,</span> <span class="nv">withExtension</span><span class="p">:</span> <span class="s">"geojson"</span><span class="p">),</span> <span class="nv">sldURL</span><span class="p">:</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">url</span><span class="p">(</span><span class="nv">forResource</span><span class="p">:</span> <span class="s">"osm_roads"</span><span class="p">,</span> <span class="nv">withExtension</span><span class="p">:</span> <span class="s">"sld"</span><span class="p">),</span> <span class="nv">relativeDrawPriority</span><span class="p">:</span><span class="mi">300</span><span class="p">)</span>
+                <span class="k">self</span><span class="o">.</span><span class="n">roadsSource</span><span class="p">?</span><span class="o">.</span><span class="nf">startParse</span><span class="p">()</span>
+            <span class="p">})</span>
+        <span class="p">})</span></code></pre></figure>
+ </li></ul>
+
+<p><img src="/WhirlyGlobe/images/tutorial/styled_geojson_3.jpg" alt="Adding buildings and roads" /></p>
+
+<h2 id="other-geojsonsource-properties-and-methods">Other GeoJSONSource properties and methods</h2>
+
+<p>The GeoJSONSource object has a readonly boolean <em>loaded</em> property to tell you if it’s done parsing the input json file.  There’s also a settable boolean <em>enabled</em> property (which starts as true once the json file is parsed), which can be set to false to hide the features from the map/globe.  Finally, there’s a <em>teardown</em> method to remove the features from the globe/map, and free associated resources.</p>
 
 
 
@@ -295,6 +353,9 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/getting_started.html">Before You Start</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -594,7 +655,13 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_source.html">Source Distribution</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -915,7 +982,13 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/building_from_cocoapod.html">Cocoapods</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1364,7 +1437,16 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/your_first_globe.html">Your First Globe</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -1807,7 +1889,13 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/remote_image_layer.html">Remote Image Layer</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2025,6 +2113,9 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Overlays</li>
@@ -2038,6 +2129,9 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/adding_vector_data.html">Vector Data</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -2472,6 +2566,9 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/screen_labels.html">Screen Labels</a></li>
                       
                       
@@ -2516,7 +2613,174 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
-                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/styled_geojson.html">Styled GeoJSON</a></li>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      <li class="sidebar-list-item current"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/styled_geojson.html">Styled GeoJSON</a></li>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Shapes</li>
@@ -2684,10 +2948,16 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                       <li class="sidebar-header-item">Interaction</li>
                       <ol class="list-unstyled sidebar-list-items">
+                      
+                      
+                      
                       
                       
                       
@@ -3101,7 +3371,13 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/location_tracking.html">Location Tracking</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -3352,7 +3628,13 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/aeris_weather.html">Aeris Weather Layer</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -3760,7 +4042,13 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/micello_map.html">Micello Indoor Maps</a></li>
+                      
+                      
+                      
                       
                       
                       
@@ -3990,6 +4278,9 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
                       
                       
                       
+                      
+                      
+                      
                       </ol>
                       
                     </ol>
@@ -4100,6 +4391,38 @@ Run the project, and you should see the layers for the flood zones.  Not?  OK, l
             
 
             
+            
+            
+            
+            
+
+            
+            
+
+            <!-- what follows is kinda horrifying -->
+            <!-- is the current page the first page of the first tutorial section? -->
+            
+
+            <!-- is the current page the last page of the last tutorial section? -->
+            
+
+            <!-- is the current page the first in a tutorial section? -->
+            
+
+            <!-- is the current page the last in a tutorial section containing multiple pages? -->
+            
+
+            <!-- is the current page neither the first or last in a tutorial section -->
+            
+
+            
+            
+            
+
+            <!-- deliver next/prev links -->
+            <a class="prev" href="/WhirlyGlobe/tutorial/ios/screen_labels.html">Previous</a><a class="next" href="/WhirlyGlobe/tutorial/ios/spheres.html">Next</a>
+
+
             
             
             
