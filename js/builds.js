@@ -76,6 +76,10 @@ function getDuration(seconds) {
 
 function convertJobToHTMLRow(job, s3XML) {
 	var data = getArrayDataJob(job);
+	if (data === null) {
+		return;
+	}
+
 	var html = "<tr>";
 	for (var i = 0; i < data.length; i++) {
 		switch (i) {
@@ -132,8 +136,7 @@ function convertJobToHTMLRow(job, s3XML) {
 		html = html + "<td>None</td><td>None</td>";
 	}
 
-	html = html + "</tr>";
-	return html;
+	return html + "</tr>";
 }
 
 function getArrayDataJob(job){
@@ -157,7 +160,7 @@ function getArrayDataJob(job){
 	$.each(job, function(x1, y1) {
 		switch (x1) {
 			case "name":
-				data[0] = y1;
+				data[0] = y1.startsWith("AutoTester_") ? null : y1
 				break;
 			case "lastBuild":
 				if (y1 != null && y1 != undefined) {
@@ -181,7 +184,7 @@ function getArrayDataJob(job){
 				break;
 		}
 	});
-	return data;
+	return data[0] === null ? null : data;
 }
 
 function getS3Data(dataXML, testName, platform)
