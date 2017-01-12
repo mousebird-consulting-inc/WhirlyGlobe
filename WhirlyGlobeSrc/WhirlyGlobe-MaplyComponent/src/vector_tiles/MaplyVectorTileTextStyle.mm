@@ -211,6 +211,9 @@ typedef enum {
             subStyle->desc[kMaplyTextOutlineColor] = outlineColor;
             subStyle->desc[kMaplyTextOutlineSize] = @(outlineSize*settings.textScale);
         }
+        if (styleEntry[@"drawpriority"])
+            subStyle->desc[kMaplyDrawPriority] = @([styleEntry[@"drawpriority"] integerValue]);
+            
         // Just turn fade off for these
         subStyle->desc[kMaplyFade] = @(0.0);
         subStyle->desc[kMaplyEnable] = @NO;

@@ -68,6 +68,10 @@
         if ([[child localName] isEqualToString:@"Literal"])
             return [child stringValue];
     }
+    for (DDXMLNode *child in [node children]) {
+        if (child.kind == DDXMLTextKind)
+            return [child stringValue];
+    }
     return nil;
 }
 
@@ -89,6 +93,8 @@
     if ([[node localName] isEqualToString:@"PropertyName"])
         return [NSString stringWithFormat:@"[%@]", [node stringValue]];
     else if ([[node localName] isEqualToString:@"Literal"])
+        return [node stringValue];
+    else if (node.kind == DDXMLTextKind)
         return [node stringValue];
     return nil;
 }
@@ -555,6 +561,9 @@
     
     NSMutableDictionary *labelParams = [NSMutableDictionary dictionary];
     
+    labelParams[@"dx"] = @(25);
+    labelParams[@"dy"] = @(0);
+    
     // Label text
     DDXMLElement *labelNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:textSymbolizerNode childName:@"Label"];
     if (labelNode) {
@@ -588,8 +597,11 @@
             DDXMLElement *displacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"Displacement"];
             
             
-        } else if (linePlacementNode)
+        } else if (linePlacementNode) {
             labelParams[@"placement"] = @"line";
+            labelParams[@"dx"] = @(0);
+            labelParams[@"dy"] = @(15);
+        }
     }
     
     
@@ -629,8 +641,6 @@
         labelParams[@"minscaledenom"] = minScaleDenom;
     if (maxScaleDenom)
         labelParams[@"maxscaledenom"] = maxScaleDenom;
-    
-    labelParams[@"dx"] = @(25);
     
     MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": @"TextSymbolizer", @"substyles": @[labelParams]}
                                                                settings:tileStyleSettings
