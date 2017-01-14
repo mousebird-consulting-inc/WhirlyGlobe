@@ -38,8 +38,10 @@
     float red = (((hexColor) >> 16) & 0xFF)/255.0;
     float green = (((hexColor) >> 8) & 0xFF)/255.0;
     float blue = (((hexColor) >> 0) & 0xFF)/255.0;
+    
+    NSLog(@"0x%x",hexColor);
         
-    UIColor *color = [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+    UIColor *color = [UIColor colorWithRed:red*alpha green:green*alpha blue:blue*alpha alpha:alpha];
     [colors addObject:color];
 }
 
@@ -110,6 +112,11 @@
     UIGraphicsEndImageContext();
     
     return image;
+}
+
+- (NSArray *)getColors
+{
+    return colors;
 }
 
 @end
