@@ -147,6 +147,18 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 
 @end
 
+/** A simple rectangle.
+  */
+@interface WhirlyKitShapeRectangle : WhirlyKitShape
+
+/// Lower left corner
+@property (nonatomic,assign) WhirlyKit::Point3d &ll;
+
+/// Upper right corner
+@property (nonatomic,assign) WhirlyKit::Point3d &ur;
+
+@end
+
 namespace WhirlyKit
 {
     

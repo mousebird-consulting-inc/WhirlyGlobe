@@ -42,6 +42,11 @@
  */
 @property (nonatomic,strong) id  __nullable userObject;
 
+/** @brief If set, this shape is in clip coordinates and will not be transformed.
+    @details Some objects (the rectangle) can be used as overlays in clip coordinates.  This is set if that's the case.
+  */
+@property (nonatomic,assign) bool clipCoords;
+
 @end
 
 /** @brief Shows a circle at the given location on the globe or map.
@@ -121,7 +126,7 @@ typedef MaplyShapeSphere WGShapeSphere;
 
 typedef MaplyShapeCylinder WGShapeCylinder;
 
-/** @brief Represent an great circle or great circle with height.
+/** @brief Represents an great circle or great circle with height.
     @details Great circles are the shortest distance between two points on a globe.  We extend that a bit here, by adding height.  The result is a curved object that can either sit on top of the globe or rise above it.  In either case it begins and ends at the specified points on the globe.
  */
 @interface MaplyShapeGreatCircle : MaplyShape
@@ -145,6 +150,23 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 /** @brief Angle between start and end points in radians
   */
 - (float)calcAngleBetween;
+
+@end
+
+/** @brief Represents a simple rectangle in 3D.
+    @details The rectangle is a 2D object in 3D.  Specify the lower left and upper right coordinates as
+    well as an optional texture.
+  */
+@interface MaplyShapeRectangle : MaplyShape
+
+/// @brief Lower left corner in 3D
+@property (nonatomic,assign) MaplyCoordinate3dD ll;
+
+/// @brief Upper right corner in 3D
+@property (nonatomic,assign) MaplyCoordinate3dD ur;
+
+/// @brief If set, the texture to stretch across the rectangle.
+@property (nonatomic) MaplyTexture *texture;
 
 @end
 
