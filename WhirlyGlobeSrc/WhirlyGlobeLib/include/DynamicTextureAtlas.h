@@ -55,6 +55,10 @@ public:
     /// Render side only.  Don't call this.  Destroy the OpenGL ES version
     void destroyInGL(OpenGLMemManager *memManager);
     
+    /// Set the interpolation type used for min and mag
+    void setInterpType(GLenum inType) { interpType = inType; }
+    GLenum getInterpType() { return interpType; }
+    
     /// Add the given texture at the given location.
     /// This is probably called on the layer thread
     void addTexture(Texture *tex,const Region &region);
@@ -91,6 +95,8 @@ public:
 protected:
     /// If set, this is a compressed format (assume PVRTC4)
     bool compressed;
+    /// Interpolation type
+    GLenum interpType;
     /// Texture memory format
     GLenum format,type;
     /// Number of texels on a side
@@ -177,6 +183,10 @@ public:
     /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
     DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1);
     virtual ~DynamicTextureAtlas();
+    
+    /// Set the interpolation type used for min and mag
+    void setInterpType(GLenum inType) { interpType = inType; }
+    GLenum getInterpType() { return interpType; }
 
     /// Try to add the texture to one of our dynamic textures, or create one.
     bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *texRegion=NULL);
@@ -218,6 +228,8 @@ protected:
     int texSize;
     int cellSize;
     GLenum format;
+    /// Interpolation type
+    GLenum interpType;
     
     /// If set, overwrite texture data with empty pixels
     bool clearTextures;

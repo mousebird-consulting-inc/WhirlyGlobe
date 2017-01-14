@@ -111,7 +111,7 @@ using namespace WhirlyKit;
     return _program->getId();
 }
 
-- (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)auxImage
+- (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)auxImage desc:(NSDictionary *)desc
 {
     if ([NSThread currentThread] != [NSThread mainThread])
     {
@@ -121,12 +121,16 @@ using namespace WhirlyKit;
     
     if (!scene || !renderer)
         return;
-
+    
     EAGLContext *oldContext = [EAGLContext currentContext];
     [renderer useContext];
     [renderer forceDrawNextFrame];
     
     Texture *auxTex = new Texture([_name cStringUsingEncoding:NSASCIIStringEncoding],auxImage);
+    if ([desc[kMaplyTexMinFilter] isEqualToString:kMaplyMinFilterNearest])
+        auxTex->setInterpType(GL_NEAREST);
+    else if ([desc[kMaplyTexMinFilter] isEqualToString:kMaplyMinFilterLinear])
+        auxTex->setInterpType(GL_LINEAR);
     SimpleIdentity auxTexId = auxTex->getId();
     auxTex->createInGL(scene->getMemManager());
     GLuint glTexId = auxTex->getGLId();
@@ -141,6 +145,11 @@ using namespace WhirlyKit;
     
     if (oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
+}
+
+- (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)auxImage
+{
+    [self addTextureNamed:shaderAttrName image:auxImage desc:nil];
 }
 
 - (bool)setUniformFloatNamed:(NSString *)uniName val:(float)val
@@ -235,6 +244,26 @@ using namespace WhirlyKit;
     val.x() = x;  val.y() = y;  val.z() = z;  val.w() = w;
     bool ret = _program->setUniform(name, val);
 
+    if (oldContext != [EAGLContext currentContext])
+        [EAGLContext setCurrentContext:oldContext];
+    
+    return ret;
+}
+
+- (bool)setUniformVector4Named:(NSString *__nonnull)uniName x:(float)x y:(float)y z:(float)z w:(float)w index:(int)which
+{
+    if (!_program)
+        return false;
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [renderer useContext];
+    glUseProgram(_program->getProgram());
+    
+    std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
+    Eigen::Vector4f val;
+    val.x() = x;  val.y() = y;  val.z() = z;  val.w() = w;
+    bool ret = _program->setUniform(name, val, which);
+    
     if (oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
     

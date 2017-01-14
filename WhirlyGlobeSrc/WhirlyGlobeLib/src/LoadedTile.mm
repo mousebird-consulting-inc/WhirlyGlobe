@@ -317,7 +317,7 @@ TileBuilder::~TileBuilder()
 static const int SingleVertexSize = 3*sizeof(float) + 2*sizeof(float) +  4*sizeof(unsigned char) + 3*sizeof(float);
 static const int SingleElementSize = sizeof(GLushort);
     
-void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,int numImages,int textureAtlasSize,int sampleSizeX,int sampleSizeY)
+void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,GLenum interpType,int numImages,int textureAtlasSize,int sampleSizeX,int sampleSizeY)
 {
     // Note: Trouble with PVRTC sub texture loading
     if (imageType != WKTilePVRTC4)
@@ -336,6 +336,7 @@ void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,int numImages,int
         
         imageDepth = numImages;
         texAtlas = new DynamicTextureAtlas(textureAtlasSize,texSortSize,glFormat,numImages);
+        texAtlas->setInterpType(interpType);
         drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
         drawAtlas->setFade(fade);
         poleDrawAtlas = new DynamicDrawableAtlas("Tile Quad Loader Ples",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
