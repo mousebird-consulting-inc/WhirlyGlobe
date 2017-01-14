@@ -61,6 +61,24 @@
         {
             desc[kMaplyColor] = [MaplyVectorTiles ParseColor:styleEntry[@"fill"] alpha:alpha];
         }
+        
+        if (styleEntry[@"image"]) {
+            UIImage *img = styleEntry[@"image"];
+            MaplyTexture *texture = [viewC addTexture:img desc:@{kMaplyTexWrapX: @(YES),kMaplyTexWrapY: @(YES)} mode:MaplyThreadAny];
+            desc[kMaplyVecTexture] = texture;
+            desc[kMaplyVecTextureProjection] = kMaplyProjectionTangentPlane;
+            
+            float scaleX = 6400.0;
+            float scaleY = -6400.0;
+            if (styleEntry[@"width"])
+                scaleX = 6400.0 / [styleEntry[@"width"] floatValue];
+            if (styleEntry[@"height"])
+                scaleY = -6400.0 / [styleEntry[@"height"] floatValue];
+            
+            desc[kMaplyVecTexScaleX] = @(scaleX);
+            desc[kMaplyVecTexScaleY] = @(scaleY);
+        }
+        
         desc[kMaplySelectable] = @(settings.selectable);
         /*
         if(styleEntry[@"file"])
@@ -82,6 +100,9 @@
 {
     MaplyComponentObject *baseObj = nil;
     NSMutableArray *compObjs = [NSMutableArray array];
+    
+    float ClipGridSize = 2.0/180.0*M_PI;
+    
     for (NSDictionary *desc in subStyles)
     {
         MaplyComponentObject *compObj = nil;
@@ -91,7 +112,14 @@
             NSMutableArray *tessObjs = [NSMutableArray array];
             for (MaplyVectorObject *vec in vecObjs)
             {
-                MaplyVectorObject *tessVec = [vec tesselate];
+                //MaplyVectorObject *tessVec = [vec tesselate];
+                
+                MaplyCoordinate center = [vec centroid];
+                vec.attributes[kMaplyVecCenterX] = @(center.x);
+                vec.attributes[kMaplyVecCenterY] = @(center.y);
+                
+                MaplyVectorObject *tessVec = [[vec clipToGrid:CGSizeMake(ClipGridSize, ClipGridSize)] tesselate];
+                
                 if (tessVec)
                     [tessObjs addObject:tessVec];
             }
