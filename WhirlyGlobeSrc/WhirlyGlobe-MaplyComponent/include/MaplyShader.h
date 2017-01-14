@@ -123,9 +123,26 @@ These are the per vertex attributes provided to each vertex shader.
 /** @brief Add a texture tied to the given attribute name.
     @details Shaders can have a variety of attributes passed to them.  This is incompletely implemented and documented.  In this particular case we add the given image, convert it to a texture and tie it to the shader attribute name.
     @param shaderAttrName The name of the attribute in the shader.  This should be compatible with a texture.
-    @param image The UIImage we'll convert to a texture and pass in.  This UIImage will be tracked by the view controller and disposed of when we're finished iwht it.
+    @param image The UIImage we'll convert to a texture and pass in.  This UIImage will be tracked by the view controller and disposed of when we're finished with it.
   */
 - (void)addTextureNamed:(NSString *__nonnull)shaderAttrName image:(UIImage *__nonnull)image;
+
+/** @brief Add a texture tied to the given attribute name.
+ @details Shaders can have a variety of attributes passed to them.  This is incompletely implemented and documented.  In this particular case we add the given image, convert it to a texture and tie it to the shader attribute name.
+ @param shaderAttrName The name of the attribute in the shader.  This should be compatible with a texture.
+ @param image The UIImage we'll convert to a texture and pass in.  This UIImage will be tracked by the view controller and disposed of when we're finished with it.
+ @param desc A description dictionary controlling how the image is converted to a texture and represented in the system.
+ 
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyTexFormat|NSNumber|The texture format to use for the image.  Consult addTexture:imageFormat:wrapFlags:mode: for a list.  Default is MaplyImageIntRGBA.|
+ |kMaplyTexMinFilter|NSNumber|Filter to use for minification.  This can be kMaplyMinFilterNearest or kMaplyMinFilterLinear. Default is kMaplyMinFilterLinear.|
+ |kMaplyTexMagFilter|NSNumber|Filter to use for magnification.  This can be kMaplyMinFilterNearest or kMaplyMinFilterLinear. Default is kMaplyMinFilterLinear.|
+ |kMaplyTexWrapX|NSNumber boolean|Texture wraps in x direction.  Off by default.|
+ |kMaplyTexWrapY|NSNumber boolean|Texture wraps in y direction.  Off by default.|
+ |kMaplyTexAtlas|NSNumber boolean|If set, the texture goes into an appropriate atlas.  If not set, it's a standalone texture (default).|
+ */
+- (void)addTextureNamed:(NSString *__nonnull)shaderAttrName image:(UIImage *__nonnull)image desc:(NSDictionary * _Nullable)desc;
 
 /** @brief Set a float uniform in the shader with the given name.
     @return Returns true if there was such a uniform, false otherwise.
@@ -151,6 +168,11 @@ These are the per vertex attributes provided to each vertex shader.
     @return Returns true if there was such a uniform, false otherwise.
  */
 - (bool)setUniformVector4Named:(NSString *__nonnull)uniName x:(float)x y:(float)y z:(float)z w:(float)w;
+
+/** @brief Set a 4 component float uniform in the shader with the given name at the given index
+    @return Returns true if there was such a uniform, false otherwise.
+ */
+- (bool)setUniformVector4Named:(NSString *__nonnull)uniName x:(float)x y:(float)y z:(float)z w:(float)w index:(int)which;
 
 /** @brief Check if the shader is valid.
     @details The shader setup can fail in a number of ways.  Check this after creating the shader to see if it succeded.  If not, look to getError to see why.
