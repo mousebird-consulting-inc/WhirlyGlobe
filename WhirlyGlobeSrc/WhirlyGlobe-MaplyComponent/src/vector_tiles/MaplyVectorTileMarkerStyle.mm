@@ -162,10 +162,10 @@
                 marker.layoutImportance = settings.markerImportance;
                 if (marker.image)
                 {
-                    marker.size = ((UIImage *)marker.image).size;
+                    marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->height);
                     // The markers will be scaled up on a retina display, so compensate
                     if (isRetina)
-                        marker.size = CGSizeMake(marker.size.width/2.0, marker.size.height/2.0);
+                        marker.size = CGSizeMake(settings.markerScale*subStyle->width/2.0, settings.markerScale*subStyle->height/2.0);
                 } else
                     marker.size = CGSizeMake(settings.markerScale*subStyle->width, settings.markerScale*subStyle->height);
                 [markers addObject:marker];

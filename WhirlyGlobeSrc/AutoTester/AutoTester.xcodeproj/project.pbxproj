@@ -526,6 +526,13 @@
 		D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */; };
 		D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */; };
 		DD3B9467B8D80BF7EBF57472 /* Pods_AutoTester.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0F0DA1CE80D1854F94B969E /* Pods_AutoTester.framework */; };
+		E53CF5DA1E1EAF63000FB5C1 /* belfast_ireland_amenities.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5D91E1EAF63000FB5C1 /* belfast_ireland_amenities.geojson */; };
+		E53CF5DE1E1EAF6A000FB5C1 /* amenities.sld in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5DD1E1EAF6A000FB5C1 /* amenities.sld */; };
+		E53CF5E41E1EAF73000FB5C1 /* firehouse.png in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5DF1E1EAF73000FB5C1 /* firehouse.png */; };
+		E53CF5E51E1EAF73000FB5C1 /* fuel.png in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5E01E1EAF73000FB5C1 /* fuel.png */; };
+		E53CF5E61E1EAF73000FB5C1 /* library.png in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5E11E1EAF73000FB5C1 /* library.png */; };
+		E53CF5E71E1EAF73000FB5C1 /* police.png in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5E21E1EAF73000FB5C1 /* police.png */; };
+		E53CF5E81E1EAF73000FB5C1 /* school.png in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5E31E1EAF73000FB5C1 /* school.png */; };
 		E5679F481CB72DE800369A15 /* LabelAnimationTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F431CB72DE800369A15 /* LabelAnimationTestCase.m */; };
 		E5679F491CB72DE800369A15 /* WMSTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F451CB72DE800369A15 /* WMSTestCase.m */; };
 		E5679F4A1CB72DE800369A15 /* FindHeightTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F471CB72DE800369A15 /* FindHeightTestCase.m */; };
@@ -542,6 +549,11 @@
 		E5941DCC1E0D02A800E1C8B3 /* osm_roads.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC71E0D02A800E1C8B3 /* osm_roads.sld */; };
 		E5941DCD1E0D02A800E1C8B3 /* osm_water.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC81E0D02A800E1C8B3 /* osm_water.sld */; };
 		E5941DCE1E0D02A800E1C8B3 /* water_lines.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC91E0D02A800E1C8B3 /* water_lines.sld */; };
+		E5C82FCC1E221C890074DF23 /* cemetery.png in Resources */ = {isa = PBXBuildFile; fileRef = E5C82FC71E221C890074DF23 /* cemetery.png */; };
+		E5C82FCD1E221C890074DF23 /* commercial.png in Resources */ = {isa = PBXBuildFile; fileRef = E5C82FC81E221C890074DF23 /* commercial.png */; };
+		E5C82FCE1E221C890074DF23 /* industrial.png in Resources */ = {isa = PBXBuildFile; fileRef = E5C82FC91E221C890074DF23 /* industrial.png */; };
+		E5C82FCF1E221C890074DF23 /* forest.png in Resources */ = {isa = PBXBuildFile; fileRef = E5C82FCA1E221C890074DF23 /* forest.png */; };
+		E5C82FD01E221C890074DF23 /* residential.png in Resources */ = {isa = PBXBuildFile; fileRef = E5C82FCB1E221C890074DF23 /* residential.png */; };
 		E5CC4E201DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CC4E1F1DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift */; };
 		E5D2D65F1DE65CE400E02305 /* LocationTrackingSimTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D2D65E1DE65CE400E02305 /* LocationTrackingSimTestCase.swift */; };
 		E5D2D6681DE6C25300E02305 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D6671DE6C25300E02305 /* libsqlite3.tbd */; };
@@ -1126,6 +1138,13 @@
 		D8F2FE2A1BE7CAD30058A310 /* MegaMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MegaMarkersTestCase.h; sourceTree = "<group>"; };
 		D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MegaMarkersTestCase.m; sourceTree = "<group>"; };
 		D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelsTestCase.swift; sourceTree = "<group>"; };
+		E53CF5D91E1EAF63000FB5C1 /* belfast_ireland_amenities.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = belfast_ireland_amenities.geojson; path = ../../resources/vectors/belfast_ireland/belfast_ireland_amenities.geojson; sourceTree = "<group>"; };
+		E53CF5DD1E1EAF6A000FB5C1 /* amenities.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = amenities.sld; path = ../../resources/vectors/belfast_ireland/amenities.sld; sourceTree = "<group>"; };
+		E53CF5DF1E1EAF73000FB5C1 /* firehouse.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = firehouse.png; path = ../../resources/vectors/belfast_ireland/firehouse.png; sourceTree = "<group>"; };
+		E53CF5E01E1EAF73000FB5C1 /* fuel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = fuel.png; path = ../../resources/vectors/belfast_ireland/fuel.png; sourceTree = "<group>"; };
+		E53CF5E11E1EAF73000FB5C1 /* library.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = library.png; path = ../../resources/vectors/belfast_ireland/library.png; sourceTree = "<group>"; };
+		E53CF5E21E1EAF73000FB5C1 /* police.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = police.png; path = ../../resources/vectors/belfast_ireland/police.png; sourceTree = "<group>"; };
+		E53CF5E31E1EAF73000FB5C1 /* school.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = school.png; path = ../../resources/vectors/belfast_ireland/school.png; sourceTree = "<group>"; };
 		E5679F421CB72DE800369A15 /* LabelAnimationTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelAnimationTestCase.h; sourceTree = "<group>"; };
 		E5679F431CB72DE800369A15 /* LabelAnimationTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelAnimationTestCase.m; sourceTree = "<group>"; };
 		E5679F441CB72DE800369A15 /* WMSTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WMSTestCase.h; sourceTree = "<group>"; };
@@ -1147,6 +1166,11 @@
 		E5941DC71E0D02A800E1C8B3 /* osm_roads.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = osm_roads.sld; path = ../../resources/vectors/belfast_ireland/osm_roads.sld; sourceTree = "<group>"; };
 		E5941DC81E0D02A800E1C8B3 /* osm_water.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = osm_water.sld; path = ../../resources/vectors/belfast_ireland/osm_water.sld; sourceTree = "<group>"; };
 		E5941DC91E0D02A800E1C8B3 /* water_lines.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = water_lines.sld; path = ../../resources/vectors/belfast_ireland/water_lines.sld; sourceTree = "<group>"; };
+		E5C82FC71E221C890074DF23 /* cemetery.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cemetery.png; path = ../../resources/vectors/belfast_ireland/cemetery.png; sourceTree = "<group>"; };
+		E5C82FC81E221C890074DF23 /* commercial.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = commercial.png; path = ../../resources/vectors/belfast_ireland/commercial.png; sourceTree = "<group>"; };
+		E5C82FC91E221C890074DF23 /* industrial.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = industrial.png; path = ../../resources/vectors/belfast_ireland/industrial.png; sourceTree = "<group>"; };
+		E5C82FCA1E221C890074DF23 /* forest.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = forest.png; path = ../../resources/vectors/belfast_ireland/forest.png; sourceTree = "<group>"; };
+		E5C82FCB1E221C890074DF23 /* residential.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = residential.png; path = ../../resources/vectors/belfast_ireland/residential.png; sourceTree = "<group>"; };
 		E5CC4E1F1DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationTrackingRealTestCase.swift; sourceTree = "<group>"; };
 		E5D2D65E1DE65CE400E02305 /* LocationTrackingSimTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationTrackingSimTestCase.swift; sourceTree = "<group>"; };
 		E5D2D6671DE6C25300E02305 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
@@ -1955,6 +1979,13 @@
 		E5941DB51E0CEA5700E1C8B3 /* belfast_northern_ireland */ = {
 			isa = PBXGroup;
 			children = (
+				E53CF5D91E1EAF63000FB5C1 /* belfast_ireland_amenities.geojson */,
+				E53CF5DD1E1EAF6A000FB5C1 /* amenities.sld */,
+				E53CF5DF1E1EAF73000FB5C1 /* firehouse.png */,
+				E53CF5E01E1EAF73000FB5C1 /* fuel.png */,
+				E53CF5E11E1EAF73000FB5C1 /* library.png */,
+				E53CF5E21E1EAF73000FB5C1 /* police.png */,
+				E53CF5E31E1EAF73000FB5C1 /* school.png */,
 				E5941DC51E0D02A800E1C8B3 /* osm_buildings.sld */,
 				E5941DC61E0D02A800E1C8B3 /* osm_landuse.sld */,
 				E5941DC71E0D02A800E1C8B3 /* osm_roads.sld */,
@@ -1965,6 +1996,11 @@
 				E5941DB81E0CEC8600E1C8B3 /* belfast_ireland_roads.geojson */,
 				E5941DB91E0CEC8600E1C8B3 /* belfast_ireland_waterareas.geojson */,
 				E5941DBA1E0CEC8600E1C8B3 /* belfast_ireland_waterways.geojson */,
+				E5C82FC71E221C890074DF23 /* cemetery.png */,
+				E5C82FC81E221C890074DF23 /* commercial.png */,
+				E5C82FC91E221C890074DF23 /* industrial.png */,
+				E5C82FCA1E221C890074DF23 /* forest.png */,
+				E5C82FCB1E221C890074DF23 /* residential.png */,
 			);
 			name = belfast_northern_ireland;
 			sourceTree = "<group>";
@@ -2139,6 +2175,7 @@
 				883DF72B1C1CE164000756E9 /* LoftedPolysTestCase-globe.png in Resources */,
 				88FF5CE31BC31D6D002F15CE /* triangle-24@2x.png in Resources */,
 				88FF5E471BC31D95002F15CE /* GHA.geojson in Resources */,
+				E53CF5E51E1EAF73000FB5C1 /* fuel.png in Resources */,
 				88FF5E081BC31D95002F15CE /* BEN.geojson in Resources */,
 				88FF5DFC1BC31D95002F15CE /* ARE.geojson in Resources */,
 				88FF5E4B1BC31D95002F15CE /* GMB.geojson in Resources */,
@@ -2222,6 +2259,7 @@
 				88FF5CE21BC31D6D002F15CE /* town-hall-24@2x.png in Resources */,
 				2B4BA6D81C83A22000DC1562 /* track.geojson in Resources */,
 				88FF5CF21BC31D6D002F15CE /* starcatalog_orig.txt in Resources */,
+				E53CF5E81E1EAF73000FB5C1 /* school.png in Resources */,
 				88FF5ECA1BC31D95002F15CE /* SYC.geojson in Resources */,
 				883DF7381C1CE164000756E9 /* ScreenLabelsTestCase-map.png in Resources */,
 				2B4BA6D01C83A22000DC1562 /* mowing-lawn.geojson in Resources */,
@@ -2280,6 +2318,8 @@
 				88FF5E561BC31D95002F15CE /* HMD.geojson in Resources */,
 				88FF5DFA1BC31D95002F15CE /* ALB.geojson in Resources */,
 				88FF5E3E1BC31D95002F15CE /* FJI.geojson in Resources */,
+				E53CF5E71E1EAF73000FB5C1 /* police.png in Resources */,
+				E53CF5E61E1EAF73000FB5C1 /* library.png in Resources */,
 				883DF72A1C1CE164000756E9 /* LabelsTestCase-map.png in Resources */,
 				883DF7311C1CE164000756E9 /* MarkersTestCase-map.png in Resources */,
 				2B6953681C7E67DD007FC51E /* colorramp.png in Resources */,
@@ -2302,6 +2342,7 @@
 				88FF5ED11BC31D95002F15CE /* TKL.geojson in Resources */,
 				8F981DB81DE3577C00717DF1 /* ne_10m_roads.dbf in Resources */,
 				88FF5DF81BC31D95002F15CE /* AIA.geojson in Resources */,
+				E53CF5DA1E1EAF63000FB5C1 /* belfast_ireland_amenities.geojson in Resources */,
 				88FF5E761BC31D95002F15CE /* LIE.geojson in Resources */,
 				88FF5C9B1BC31D6D002F15CE /* cricket-24@2x.png in Resources */,
 				88FF5CAA1BC31D6D002F15CE /* grocery-24@2x.png in Resources */,
@@ -2322,6 +2363,7 @@
 				88FF5E271BC31D95002F15CE /* COM.geojson in Resources */,
 				2B4BA6CE1C83A22000DC1562 /* leftbend.geojson in Resources */,
 				88FF5EDC1BC31D95002F15CE /* UKR.geojson in Resources */,
+				E5C82FCF1E221C890074DF23 /* forest.png in Resources */,
 				88FF5EA91BC31D95002F15CE /* PRI.geojson in Resources */,
 				88FF5EAD1BC31D95002F15CE /* PSE.geojson in Resources */,
 				88FF5EEB1BC31D95002F15CE /* ZAF.geojson in Resources */,
@@ -2339,12 +2381,14 @@
 				8FDE43631E01C9420026B20E /* ImageSingleLevelTestCase-globe.png in Resources */,
 				88FF5C9E1BC31D6D002F15CE /* danger-24@2x.png in Resources */,
 				88FF5C971BC31D6D002F15CE /* city-24@2x.png in Resources */,
+				E5C82FCE1E221C890074DF23 /* industrial.png in Resources */,
 				88FF5CB81BC31D6D002F15CE /* minefield-24@2x.png in Resources */,
 				88FF5E6E1BC31D95002F15CE /* KNA.geojson in Resources */,
 				88FF5C801BC31D6D002F15CE /* world_web_mercator.sqlite in Resources */,
 				88FF5CED1BC31D6D002F15CE /* MapzenStyles.json in Resources */,
 				88FF5EDA1BC31D95002F15CE /* TZA.geojson in Resources */,
 				88FF5EBC1BC31D95002F15CE /* SLE.geojson in Resources */,
+				E5C82FD01E221C890074DF23 /* residential.png in Resources */,
 				883DF7441C1CE164000756E9 /* WideVectorsTestCase-map.png in Resources */,
 				88FF5E811BC31D95002F15CE /* MDG.geojson in Resources */,
 				88FF5E371BC31D95002F15CE /* EGY.geojson in Resources */,
@@ -2374,6 +2418,7 @@
 				88FF5CBA1BC31D6D002F15CE /* museum-24@2x.png in Resources */,
 				88FF5CDB1BC31D6D002F15CE /* suitcase-24@2x.png in Resources */,
 				88FF5DF91BC31D95002F15CE /* ALA.geojson in Resources */,
+				E5C82FCD1E221C890074DF23 /* commercial.png in Resources */,
 				88FF5E191BC31D95002F15CE /* BVT.geojson in Resources */,
 				88FF5E711BC31D95002F15CE /* LAO.geojson in Resources */,
 				E5941DCE1E0D02A800E1C8B3 /* water_lines.sld in Resources */,
@@ -2426,6 +2471,7 @@
 				88FF5E1F1BC31D95002F15CE /* CHL.geojson in Resources */,
 				88FF5E741BC31D95002F15CE /* LBY.geojson in Resources */,
 				88FF5CB21BC31D6D002F15CE /* lighthouse-24@2x.png in Resources */,
+				E5C82FCC1E221C890074DF23 /* cemetery.png in Resources */,
 				88FF5E221BC31D95002F15CE /* CMR.geojson in Resources */,
 				88FF5CDD1BC31D6D002F15CE /* telephone-24@2x.png in Resources */,
 				88FF5E231BC31D95002F15CE /* COD.geojson in Resources */,
@@ -2439,6 +2485,7 @@
 				88FF5E951BC31D95002F15CE /* NCL.geojson in Resources */,
 				88FF5C891BC31D6D002F15CE /* baseball-24@2x.png in Resources */,
 				88FF5EA61BC31D95002F15CE /* PLW.geojson in Resources */,
+				E53CF5E41E1EAF73000FB5C1 /* firehouse.png in Resources */,
 				88FF5BE91BC31D53002F15CE /* star_background.png in Resources */,
 				88FF5E6C1BC31D95002F15CE /* KHM.geojson in Resources */,
 				88FF5C7D1BC31D6D002F15CE /* lowres_wtb_4x0.pvrtc in Resources */,
@@ -2492,6 +2539,7 @@
 				883DF71C1C1CE164000756E9 /* AnimatedBasemapTestCase-map.png in Resources */,
 				88FF5C881BC31D6D002F15CE /* bar-24@2x.png in Resources */,
 				883DF73E1C1CE164000756E9 /* StarsSunTestCase-globe.png in Resources */,
+				E53CF5DE1E1EAF6A000FB5C1 /* amenities.sld in Resources */,
 				88FF5ECB1BC31D95002F15CE /* SYR.geojson in Resources */,
 				88FF5EA71BC31D95002F15CE /* PNG.geojson in Resources */,
 				88FF5E681BC31D95002F15CE /* JPN.geojson in Resources */,

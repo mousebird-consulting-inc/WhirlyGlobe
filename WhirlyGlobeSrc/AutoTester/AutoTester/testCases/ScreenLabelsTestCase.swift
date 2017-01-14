@@ -60,7 +60,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 							kMaplyShadowColor: UIColor.black,
 							kMaplyShadowSize: 1.0,
                             kMaplySelectable: true,
-							kMaplyColor: UIColor.white]) {
+							kMaplyTextColor: UIColor.white]) {
 						labelList.append(comp)
 					}
 				}
@@ -71,7 +71,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 							kMaplyTextOutlineColor: UIColor.black,
 							kMaplyTextOutlineSize: 2.0,
                             kMaplySelectable: true,
-							kMaplyColor: UIColor.white]) {
+							kMaplyTextColor: UIColor.lightGray]) {
 						labelList.append(comp)
 					}
 				}
