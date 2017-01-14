@@ -141,6 +141,8 @@
 @property (nonatomic) UIColor *northPoleColor,*southPoleColor;
 /// The data type of GL textures we'll be creating.  RGBA by default.
 @property (nonatomic,assign) WhirlyKitTileImageType imageType;
+/// Interpolation type for the textures we're creating
+@property (nonatomic,assign) GLenum interpType;
 /// If set (before we start) we'll use dynamic texture and drawable atlases
 @property (nonatomic,assign) bool useDynamicAtlas;
 /// If set we'll scale the input images to the nearest square power of two

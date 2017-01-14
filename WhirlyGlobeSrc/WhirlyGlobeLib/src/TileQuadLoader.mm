@@ -86,6 +86,7 @@ using namespace WhirlyKit;
         _minPageVis = DrawVisibleInvalid;
         _maxPageVis = DrawVisibleInvalid;
         _imageType = WKTileIntRGBA;
+        _interpType = GL_LINEAR;
         _useDynamicAtlas = true;
         _numImages = 1;
         currentImage0 = 0;
@@ -636,7 +637,7 @@ using namespace WhirlyKit;
             estTexX = std::max(gridElev.sizeX-1, estTexX);
             estTexY = std::max(gridElev.sizeY-1, estTexY);
         }
-        tileBuilder->initAtlases(_imageType,_numImages,_textureAtlasSize,estTexX,estTexY);
+        tileBuilder->initAtlases(_imageType,_interpType,_numImages,_textureAtlasSize,estTexX,estTexY);
         if (!_enable)
         {
             tileBuilder->drawAtlas->setEnableAllDrawables(false, changeRequests);

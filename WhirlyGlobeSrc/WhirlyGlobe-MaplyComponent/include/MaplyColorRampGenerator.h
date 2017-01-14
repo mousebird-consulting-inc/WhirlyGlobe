@@ -30,4 +30,7 @@
 /// Generate the image with the color ramp in it
 - (UIImage *)makeImage:(CGSize)size;
 
+/// Get a list of colors (rather than generating an image)
+- (NSArray *)getColors;
+
 @end

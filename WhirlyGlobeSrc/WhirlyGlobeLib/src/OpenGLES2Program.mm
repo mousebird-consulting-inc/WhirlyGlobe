@@ -162,6 +162,27 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector4f 
     return true;
 }
 
+bool OpenGLES2Program::setUniform(const std::string &inName,const Eigen::Vector4f &vec,int index)
+{
+    std::string name = inName + "[0]";
+    OpenGLESUniform *uni = findUniform(name);
+    if (!uni)
+        return false;
+    
+    if (uni->type != GL_FLOAT_VEC4)
+        return false;
+    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() &&
+        uni->val.fVals[2] == vec.z() && uni->val.fVals[3] == vec.w())
+        return true;
+    
+    glUniform4f(uni->index+index, vec.x(), vec.y(), vec.z(), vec.w());
+    CheckGLError("BigDrawable::draw() glUniform4f");
+    uni->isSet = true;
+    uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
+    
+    return true;
+}
+
 bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Matrix4f &mat)
 {
     OpenGLESUniform *uni = findUniform(name);
