@@ -38,6 +38,7 @@
 #import "MaplyCluster.h"
 #import "Maply3DTouchPreviewDatasource.h"
 #import "MaplyLocationTracker.h"
+#import "MaplyRenderTarget.h"
 
 /** @brief When selecting multiple objects, one or more of these is returned.
     @details When you implement one of the selection delegates that takes multiple objects, you'll get an NSArray of these things.
@@ -730,6 +731,23 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
   */
 - (MaplyTexture *__nullable)addTexture:(UIImage *__nonnull)image desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
+/** @brief Create an empty texture and return it.
+    @details Empty textures are used for offscreen rendering and other crazy stuff.  You probably don't want to do this.
+    @param desc The description dictionary controlling the format and other textures goodies.
+
+ |Key|Type|Description|
+ |:--|:---|:----------|
+ |kMaplyTexFormat|NSNumber|The texture format to use for the image.  Consult addTexture:imageFormat:wrapFlags:mode: for a list.  Default is MaplyImageIntRGBA.|
+ |kMaplyTexMinFilter|NSNumber|Filter to use for minification.  This can be kMaplyMinFilterNearest or kMaplyMinFilterLinear. Default is kMaplyMinFilterLinear.|
+ |kMaplyTexMagFilter|NSNumber|Filter to use for magnification.  This can be kMaplyMinFilterNearest or kMaplyMinFilterLinear. Default is kMaplyMinFilterLinear.|
+ |kMaplyTexWrapX|NSNumber boolean|Texture wraps in x direction.  Off by default.|
+ |kMaplyTexWrapY|NSNumber boolean|Texture wraps in y direction.  Off by default.|
+ |kMaplyTexAtlas|NSNumber boolean|If set, the texture goes into an appropriate atlas.  If not set, it's a standalone texture (default).|
+ 
+    @param sizeX The horizontal size of the textures (in pixels).
+    @param sizeY Vertical size of the texture (in pixels).
+ */
+- (MaplyTexture *__nullable)createTexture:(NSDictionary * _Nullable)spec sizeX:(int)sizeX sizeY:(int)sizeY;
 
 /** @brief Add an image as a texture, but put it in a texture atlas.  Return a
  @details Texture atlases consolidate a number of compatible textures, speeding up rendering of any geometry they're used on.  If you know you're going to be using a UIImage with a lot of other images in, say, a group of markers, it's wise to add it here first.
@@ -777,6 +795,17 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
     @details Only call this if you're managing the texture explicitly and know you're finished with them.
  */
 - (void)removeTextures:(NSArray *__nonnull)texture mode:(MaplyThreadMode)threadMode;
+
+/** @brief Add a render target to the system
+    @details Sets up a render target and will start rendering to it on the next frame.
+    @details Keep the render target around so you can remove it later.
+  */
+- (void)addRenderTarget:(MaplyRenderTarget * _Nonnull)renderTarget;
+
+/** @brief Remove the given render target from the system.
+    @details Ask the system to stop drawing to the given render target.  It will do this on the next frame.
+  */
+- (void)removeRenderTarget:(MaplyRenderTarget * _Nonnull)renderTarget;
 
 /** @brief Set the max number of objects for the layout engine to display.
     @details The layout engine works with screen objects, such MaplyScreenLabel and MaplyScreenMaker.  If those have layoutImportance set, this will control the maximum number we can display.

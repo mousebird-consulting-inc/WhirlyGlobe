@@ -204,7 +204,7 @@ void ClusterHelper::addObject(LayoutObjectEntry *objEntry,const std::vector<Poin
                 removeFromCells(testMbr, which);
                 
                 // Make up a cluster for the two of them.
-                clusterID = clusterObjects.size();
+                clusterID = (int)clusterObjects.size();
                 clusterObjects.resize(clusterObjects.size()+1);
                 clusterObj = &clusterObjects[clusterID];
                 clusterObj->children.push_back(which);

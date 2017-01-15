@@ -593,8 +593,8 @@
         if (pointPlacementNode) {
             labelParams[@"placement"] = @"point";
             
-            DDXMLElement *anchorPointNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"AnchorPoint"];
-            DDXMLElement *displacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"Displacement"];
+//            DDXMLElement *anchorPointNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"AnchorPoint"];
+//            DDXMLElement *displacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"Displacement"];
             
             
         } else if (linePlacementNode) {

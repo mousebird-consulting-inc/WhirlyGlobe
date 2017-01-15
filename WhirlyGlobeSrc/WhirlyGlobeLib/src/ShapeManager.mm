@@ -587,6 +587,68 @@ static std::vector<Point3f> circleSamples;
 
 @end
 
+@implementation WhirlyKitShapeRectangle
+
+- (id)init
+{
+    self = [super init];
+    
+    return self;
+}
+
+- (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter shapeInfo:(WhirlyKitShapeInfo *)shapeInfo
+{
+    if (shapeInfo.hasCenter)
+        return shapeInfo.center;
+
+    // Note: Do a proper center at some point
+    
+    return Point3d(0,0,0);
+}
+
+// Build the geometry for a circle in display space
+- (void)makeGeometryWithBuilder:(WhirlyKit::ShapeDrawableBuilder *)regBuilder triBuilder:(WhirlyKit::ShapeDrawableBuilderTri *)triBuilder scene:(WhirlyKit::Scene *)scene selectManager:(SelectionManager *)selectManager sceneRep:(ShapeSceneRep *)sceneRep
+{
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    
+    RGBAColor theColor = (super.useColor ? super.color : [regBuilder->getShapeInfo().color asRGBAColor]);
+
+    // Source points
+    std::vector<Point3d> pts(4);
+    std::vector<TexCoord> texCoords(4);
+    pts[0] = Point3d(_ll.x(),_ll.y(),_ll.z());
+    texCoords[0] = TexCoord(0,0);
+    pts[3] = Point3d(_ur.x(),_ll.y(),_ur.z());
+    texCoords[3] = TexCoord(1,0);
+    pts[2] = Point3d(_ur.x(),_ur.y(),_ur.z());
+    texCoords[2] = TexCoord(1,1);
+    pts[1] = Point3d(_ll.x(),_ur.y(),_ll.z());
+    texCoords[1] = TexCoord(0,1);
+    
+    Point3d norm;
+    if (!self.clipCoords)
+    {
+        for (unsigned int ii=0;ii<4;ii++)
+        {
+            const Point3d &pt = pts[ii];
+            Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(pt.x(),pt.y()));
+            localPt.z() = pt.z();
+            pts[ii] = coordAdapter->localToDisplay(localPt);
+        }
+        norm = coordAdapter->normalForLocal(pts[0]);
+    } else {
+        norm = Point3d(0,0,1);
+    }
+    
+    // Note: Need the bounding box eventually
+    Mbr shapeMbr;
+    triBuilder->addConvexOutline(pts,texCoords,norm,theColor,shapeMbr);
+
+    // Note: Should do selection too
+}
+
+@end
+
 ShapeManager::ShapeManager()
 {
     pthread_mutex_init(&shapeLock, NULL);
@@ -611,6 +673,11 @@ void ShapeManager::convertShape(WhirlyKitShape *shape,std::vector<WhirlyKit::Geo
     ShapeDrawableBuilderTri drawBuildTri(scene->getCoordAdapter(),shapeInfo,center);
     ShapeDrawableBuilder drawBuildReg(scene->getCoordAdapter(),shapeInfo,true,center);
     
+    // Some special shapes are already in OpenGL clip space
+    if (shape.clipCoords)
+    {
+        drawBuildTri.clipCoords = true;
+    }
     [shape makeGeometryWithBuilder:&drawBuildReg triBuilder:&drawBuildTri scene:scene selectManager:nil sceneRep:nil];
     
     // Scrape out the triangles
@@ -621,7 +688,7 @@ void ShapeManager::convertShape(WhirlyKitShape *shape,std::vector<WhirlyKit::Geo
     outGeom.texId = EmptyIdentity;
     for (BasicDrawable *draw : drawBuildTri.drawables)
     {
-        int basePts = outGeom.pts.size();
+        int basePts = (int)outGeom.pts.size();
         outGeom.pts.reserve(draw->points.size());
         for (const Point3f &pt : draw->points)
             outGeom.pts.push_back(Point3d(pt.x(),pt.y(),pt.z()));
@@ -676,7 +743,13 @@ SimpleIdentity ShapeManager::addShapes(NSArray *shapes,NSDictionary * desc,Chang
     
     // Work through the shapes
     for (WhirlyKitShape *shape in shapeInfo.shapes)
+    {
+        if (shape.clipCoords)
+            drawBuildTri.setClipCoords(true);
+        else
+            drawBuildTri.setClipCoords(false);
         [shape makeGeometryWithBuilder:&drawBuildReg triBuilder:&drawBuildTri scene:scene selectManager:selectManager sceneRep:sceneRep];
+    }
     
     // Flush out remaining geometry
     drawBuildReg.flush();

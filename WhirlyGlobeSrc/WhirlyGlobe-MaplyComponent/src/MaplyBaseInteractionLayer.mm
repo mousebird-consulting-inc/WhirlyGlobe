@@ -1920,6 +1920,7 @@ public:
     // Need to convert shapes to the form the API is expecting
     NSMutableArray *ourShapes = [NSMutableArray array];
     NSMutableArray *specialShapes = [NSMutableArray array];
+    std::set<MaplyTexture *> textures;
     for (NSObject *shape in shapes)
     {
         if ([shape isKindOfClass:[MaplyShapeCircle class]])
@@ -1996,6 +1997,23 @@ public:
                 compObj.selectIDs.insert(lin.selectID);
             }
             [specialShapes addObject:lin];
+        } else if ([shape isKindOfClass:[MaplyShapeRectangle class]])
+        {
+            MaplyShapeRectangle *rc = (MaplyShapeRectangle *)shape;
+            WhirlyKitShapeRectangle *rect = [rc asWKShape:inDesc];
+            if (rc.color)
+            {
+                rect.useColor = true;
+                RGBAColor color = [rc.color asRGBAColor];
+                rect.color = color;
+            }
+            if (rc.texture)
+            {
+                textures.insert(rc.texture);
+                rect.texID = rc.texture.texID;
+            }
+            // Note: Selectability
+            [ourShapes addObject:rect];
         } else if ([shape isKindOfClass:[MaplyShapeLinear class]])
         {
             MaplyShapeLinear *lin = (MaplyShapeLinear *)shape;
@@ -2046,6 +2064,8 @@ public:
             [ourShapes addObject:newEx];
         }
     }
+    
+    compObj.textures = textures;
     
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     if (shapeManager)
@@ -3448,7 +3468,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 - (void)dumpStats
 {
     @synchronized (userObjects) {
-        NSLog(@"Component Objects: %d",[userObjects count]);
+        NSLog(@"Component Objects: %d",(int)[userObjects count]);
     }
     
     [atlasGroup dumpStats];
