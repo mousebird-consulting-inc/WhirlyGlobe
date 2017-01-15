@@ -76,6 +76,60 @@ public:
     WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
 };
 
+/** What and where we're rendering.  This can be a regular framebuffer
+ to the screen or to a texture.
+ */
+class RenderTarget : public Identifiable
+{
+public:
+    RenderTarget();
+    
+    // Set up the render target
+    bool init(Scene *scene,SimpleIdentity targetTexID);
+    
+    // Clear up resources from the render target
+    void clear();
+    
+    /// Make this framebuffer active
+    void setActiveFramebuffer();
+    
+    /// OpenGL ES Name for the frame buffer
+    GLuint framebuffer;
+    /// OpenGL ES Name for the color buffer
+    GLuint colorbuffer;
+    /// OpenGL ES Name for the depth buffer
+    GLuint depthbuffer;
+    /// Output framebuffer size fo glViewport
+    int width,height;
+};
+
+// Add a new render target
+class AddRenderTargetReq : public ChangeRequest
+{
+public:
+    AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID);
+    
+    /// Add the render target to the renderer
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    int width,height;
+    SimpleIdentity renderTargetID;
+    SimpleIdentity texID;
+};
+
+class RemRenderTargetReq : public ChangeRequest
+{
+public:
+    RemRenderTargetReq(SimpleIdentity targetID);
+    
+    /// Remove the render target from the renderer
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    SimpleIdentity targetID;
+};
+
 }
 
 /// OpenGL ES state optimizer.  This short circuits many of the OGL state
@@ -177,13 +231,6 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 /// It's subclassed for the specific version of OpenGL ES
 @interface WhirlyKitSceneRendererES : NSObject
 {    
-    /// OpenGL ES Name for the frame buffer
-    GLuint defaultFramebuffer;
-    /// OpenGL ES Name for the color buffer
-    GLuint colorRenderbuffer;
-    /// OpenGL ES Name for the depth buffer
-    GLuint depthRenderbuffer;
-	
 	unsigned int frameCount;
 	NSTimeInterval frameCountStart;
     WhirlyKit::PerformanceTimer perfTimer;
@@ -198,6 +245,9 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
     WhirlyKit::SimpleIDSet contRenderRequests;
     
     WhirlyKit::RGBAColor _clearColor;
+    
+    // What we're rendering to (and where)
+    std::vector<WhirlyKit::RenderTarget> renderTargets;
 }
 
 /// Rendering context
@@ -279,5 +329,11 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 
 /// Used by the subclasses to determine if the view changed and needs to be updated
 - (bool) viewDidChange;
+
+/// Add the given rendering target and, you know, render to it
+- (void) addRenderTarget:(WhirlyKit::RenderTarget &)newTarget;
+
+/// Clear out the given render target
+- (void) clearRenderTarget:(WhirlyKit::SimpleIdentity)targetID;
 
 @end

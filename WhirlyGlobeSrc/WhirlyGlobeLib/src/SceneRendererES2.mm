@@ -351,13 +351,8 @@ static const float ScreenOverlap = 0.1;
 
     GLint framebufferWidth = super.framebufferWidth;
     GLint framebufferHeight = super.framebufferHeight;
-    if (!renderSetup)
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
-        CheckGLError("SceneRendererES2: glBindFramebuffer");
-        glViewport(0, 0, framebufferWidth,framebufferHeight);
-        CheckGLError("SceneRendererES2: glViewport");
-    }
+    if (!renderSetup && renderTargets.size() == 1)
+        renderTargets[0].setActiveFramebuffer();
 
     // Get the model and view matrices
     Eigen::Matrix4d modelTrans4d = [super.theView calcModelMatrix];
@@ -640,6 +635,8 @@ static const float ScreenOverlap = 0.1;
         
         SimpleIdentity curProgramId = EmptyIdentity;
         
+        // Iterate through rendering targets here
+        
         bool depthMaskOn = (super.zBufferMode == zBufferOn);
         for (unsigned int ii=0;ii<drawList.size();ii++)
         {
@@ -830,11 +827,8 @@ static const float ScreenOverlap = 0.1;
         glInvalidateFramebuffer(GL_FRAMEBUFFER,1,discards);
     CheckGLError("SceneRendererES2: glDiscardFramebufferEXT");
 
-    if (!renderSetup)
-    {
-        glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
-        CheckGLError("SceneRendererES2: glBindRenderbuffer");
-    }
+    if (!renderSetup && renderTargets.size() == 1)
+        renderTargets[0].setActiveFramebuffer();
 
     // The user wants help with a screen snapshot
     if (_snapshotDelegate)
