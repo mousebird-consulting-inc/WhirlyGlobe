@@ -310,7 +310,7 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         state.startEnable = ssObj.startEnable;
         state.endEnable = ssObj.endEnable;
         VertexAttributeSetConvert(geom.vertexAttrs,state.vertexAttrs);
-        DrawableWrap *drawWrap = findOrAddDrawWrap(state,geom.coords.size(),geom.coords.size()-2,ssObj.worldLoc);
+        DrawableWrap *drawWrap = findOrAddDrawWrap(state,(int)geom.coords.size(),(int)(geom.coords.size()-2),ssObj.worldLoc);
         
         // May need to adjust things based on time
         Point3d startLoc3d = ssObj.worldLoc;

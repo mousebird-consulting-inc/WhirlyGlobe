@@ -65,6 +65,8 @@ void BasicDrawable::basicDrawableInit()
     requestZBuffer = false;
     writeZBuffer = true;
     
+    clipCoords = true;
+    
     hasMatrix = false;
 }
 
@@ -352,6 +354,11 @@ void BasicDrawable::setWriteZBuffer(bool val)
 
 bool BasicDrawable::getWriteZbuffer() const
 { return writeZBuffer; }
+    
+void BasicDrawable::setClipCoords(bool inClipCoords)
+{
+    clipCoords = inClipCoords;
+}
 
 unsigned int BasicDrawable::addPoint(const Point3f &pt)
 {
@@ -1150,11 +1157,21 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     }
     
     // Model/View/Projection matrix
-    prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
-    prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
-    prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
-    prog->setUniform("u_mvpNormalMatrix", frameInfo.mvpNormalMat);
-    prog->setUniform("u_pMatrix", frameInfo.projMat);
+    if (clipCoords)
+    {
+        Matrix4f identMatrix = Matrix4f::Identity();
+        prog->setUniform("u_mvpMatrix", identMatrix);
+        prog->setUniform("u_mvMatrix", identMatrix);
+        prog->setUniform("u_mvNormalMatrix", identMatrix);
+        prog->setUniform("u_mvpNormalMatrix", identMatrix);
+        prog->setUniform("u_pMatrix", identMatrix);
+    } else {
+        prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
+        prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
+        prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
+        prog->setUniform("u_mvpNormalMatrix", frameInfo.mvpNormalMat);
+        prog->setUniform("u_pMatrix", frameInfo.projMat);
+    }
     
     // Any uniforms we may want to apply to the shader
     for (auto const &attr : uniforms)

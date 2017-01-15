@@ -196,7 +196,7 @@ void ShapeDrawableBuilder::getChanges(ChangeSet &changeRequests,SimpleIDSet &dra
 
 
 ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo,const Point3d &center)
-: coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center)
+: coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false)
 {
 }
     
@@ -210,6 +210,8 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
 {
     drawable = new BasicDrawable("Shape Layer");
     [shapeInfo setupBasicDrawable:drawable];
+    if (clipCoords)
+        drawable->setClipCoords(true);
     drawMbr.reset();
     drawable->setType(GL_TRIANGLES);
     // Adjust according to the vector info
@@ -223,6 +225,18 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
         Matrix4d transMat = trans.matrix();
         drawable->setMatrix(&transMat);
     }
+}
+    
+void ShapeDrawableBuilderTri::setClipCoords(bool newClipCoords)
+{
+    if (clipCoords != newClipCoords)
+    {
+        // Different values of clipCoords aren't compatible, unsurprisingly
+        if (drawable)
+            flush();
+    }
+    
+    clipCoords = newClipCoords;
 }
     
 // Add a triangle with normals
@@ -253,6 +267,40 @@ void ShapeDrawableBuilderTri::addTriangle(Point3f p0,Point3f n0,RGBAColor c0,Poi
     drawable->addPoint((Point3f)(p2-center3f));
     drawable->addNormal(n2);
     drawable->addColor(c2);
+    
+    drawable->addTriangle(BasicDrawable::Triangle(0+baseVert,2+baseVert,1+baseVert));
+    drawMbr.expand(shapeMbr);
+}
+
+// Add a triangle with normals and texture coords
+void ShapeDrawableBuilderTri::addTriangle(Point3d p0,Point3d n0,RGBAColor c0,TexCoord tx0,Point3d p1,Point3d n1,RGBAColor c1,TexCoord tx1,Point3d p2,Point3d n2,RGBAColor c2,TexCoord tx2,Mbr shapeMbr)
+{
+    if (!drawable ||
+        (drawable->getNumPoints()+3 > MaxDrawablePoints) ||
+        (drawable->getNumTris()+1 > MaxDrawableTriangles))
+    {
+        // We're done with it, toss it to the scene
+        if (drawable)
+            flush();
+        
+        setupNewDrawable();
+    }
+    Mbr mbr = drawable->getLocalMbr();
+    mbr.expand(shapeMbr);
+    drawable->setLocalMbr(mbr);
+    int baseVert = drawable->getNumPoints();
+    drawable->addPoint((Point3d)(p0-center));
+    drawable->addNormal(n0);
+    drawable->addColor(c0);
+    drawable->addTexCoord(0,tx0);
+    drawable->addPoint((Point3d)(p1-center));
+    drawable->addNormal(n1);
+    drawable->addColor(c1);
+    drawable->addTexCoord(0,tx1);
+    drawable->addPoint((Point3d)(p2-center));
+    drawable->addNormal(n2);
+    drawable->addColor(c2);
+    drawable->addTexCoord(0,tx2);
     
     drawable->addTriangle(BasicDrawable::Triangle(0+baseVert,2+baseVert,1+baseVert));
     drawMbr.expand(shapeMbr);
@@ -334,7 +382,15 @@ void ShapeDrawableBuilderTri::addConvexOutline(std::vector<Point3d> &pts,Point3d
     for (unsigned int ii = 2;ii<pts.size();ii++)
         addTriangle(pts[0], norm, color, pts[ii-1], norm, color, pts[ii], norm, color, shapeMbr);
 }
-    
+
+// Add a convex outline with tex coords, triangulated
+void ShapeDrawableBuilderTri::addConvexOutline(std::vector<Point3d> &pts,std::vector<TexCoord> &texCoords,Point3d norm,RGBAColor color,Mbr shapeMbr)
+{
+    // It's convex, so we'll just triangulate it dumb style
+    for (unsigned int ii = 2;ii<pts.size();ii++)
+        addTriangle(pts[0], norm, color, texCoords[0], pts[ii-1], norm, color, texCoords[ii-1], pts[ii], norm, color, texCoords[ii], shapeMbr);
+}
+
 void ShapeDrawableBuilderTri::addComplexOutline(std::vector<Point3d> &pts,Point3d norm,RGBAColor color,Mbr shapeMbr)
 {
     Point3f norm3f(norm.x(),norm.y(),norm.z());
