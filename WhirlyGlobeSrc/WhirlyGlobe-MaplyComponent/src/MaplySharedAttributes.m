@@ -116,6 +116,8 @@ NSString* const kMaplyShadowColor = @"shadowColor";
 NSString* const kMaplyTextOutlineSize = @"outlineSize";
 /// If outline is being used, we can control the stroke size
 NSString* const kMaplyTextOutlineColor = @"outlineColor";
+NSString* const kMaplyTexSizeX = @"texsizex";
+NSString* const kMaplyTexSizeY = @"texsizey";
 
 /// These are used for screen and regular markers.
 NSString* const kMaplyClusterGroup = @"clusterGroup";

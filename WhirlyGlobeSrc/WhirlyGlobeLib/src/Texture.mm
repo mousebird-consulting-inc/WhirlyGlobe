@@ -131,19 +131,19 @@ namespace WhirlyKit
 {
 	
 Texture::Texture(const std::string &name)
-	: TextureBase(name), texData(NULL), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR)
+	: TextureBase(name), texData(NULL), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
 {
 }
 	
 // Construct with raw texture data
 Texture::Texture(const std::string &name,NSData *texData,bool isPVRTC)
-	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR)
+	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
 { 
 }
 
 // Set up the texture from a filename
 Texture::Texture(const std::string &name,NSString *baseName,NSString *ext)
-    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR)
+    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
 {	
 	if (![ext compare:@"pvrtc"])
 	{
@@ -176,13 +176,13 @@ Texture::Texture(const std::string &name,NSString *baseName,NSString *ext)
 
 // Construct with a UIImage
 Texture::Texture(const std::string &name,UIImage *inImage,bool roundUp)
-    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR)
+    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
 {
 	texData = [inImage rawDataRetWidth:&width height:&height roundUp:roundUp];
 }
 
 Texture::Texture(const std::string &name,UIImage *inImage,int inWidth,int inHeight)
-    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR)
+    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
 {
     texData = [inImage rawDataScaleWidth:inWidth height:inHeight border:0];
     width = inWidth;  height = inHeight;
@@ -195,6 +195,9 @@ Texture::~Texture()
 
 NSData *Texture::processData()
 {
+    if (!texData)
+        return nil;
+    
 	if (isPVRTC || isPKM)
 	{
         return texData;
@@ -300,7 +303,7 @@ unsigned char *Texture::ResolvePKM(NSData *texData,int &pkmType,int &size,int &w
 // Note: Should load the texture from disk elsewhere
 bool Texture::createInGL(OpenGLMemManager *memManager)
 {
-	if (!texData)
+	if (!texData && !isEmptyTexture)
 		return false;
 
     // We'll only create this once
