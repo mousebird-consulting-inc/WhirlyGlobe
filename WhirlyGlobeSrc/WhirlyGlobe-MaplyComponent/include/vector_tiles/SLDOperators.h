@@ -51,9 +51,9 @@
 
 @interface SLDIsLikeOperator : SLDOperator
 
-@property (nonatomic, strong) NSString *wildCardStr;
-@property (nonatomic, strong) NSString *singleCharStr;
-@property (nonatomic, strong) NSString *escapeCharStr;
+@property (nonatomic, strong, nullable) NSString *wildCardStr;
+@property (nonatomic, strong, nullable) NSString *singleCharStr;
+@property (nonatomic, strong, nullable) NSString *escapeCharStr;
 @property (nonatomic, assign) BOOL matchCase;
 @property (nonatomic, strong) SLDPropertyNameExpression * _Nonnull propertyExpression;
 @property (nonatomic, strong) SLDLiteralExpression * _Nonnull literalExpression;

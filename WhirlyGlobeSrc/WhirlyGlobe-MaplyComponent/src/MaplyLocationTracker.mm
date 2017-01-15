@@ -346,7 +346,7 @@
     if (!globeVC && !mapVC)
         return;
     
-    MaplyCoordinateD locationD = MaplyCoordinateDMakeWithMaplyCoordinate(location);
+//    MaplyCoordinateD locationD = MaplyCoordinateDMakeWithMaplyCoordinate(location);
     
     switch (_lockType) {
         case MaplyLocationLockNone:

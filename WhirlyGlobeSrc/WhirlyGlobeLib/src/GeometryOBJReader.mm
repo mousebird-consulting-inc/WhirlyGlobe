@@ -35,7 +35,7 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
     while (fgets(line, 2047, fp))
     {
         lineNo++;
-        int lineLen = strlen(line);
+        int lineLen = (int)strlen(line);
         
         // Empty line
         if (lineLen == 0 || line[0] == '\n')
@@ -175,7 +175,7 @@ bool GeometryModelOBJ::parse(FILE *fp)
     {
         lineNo++;
         strcpy(line,origLine);
-        int lineLen = strlen(line);
+        int lineLen = (int)strlen(line);
 
         // Empty line
         if (lineLen == 0 || line[0] == '\n')
@@ -484,7 +484,7 @@ void GeometryModelOBJ::toRawGeometry(std::vector<std::string> &textures,std::vec
         for (unsigned int jj=0;jj<it.faces.size();jj++)
         {
             const Face *face = it.faces[jj];
-            int basePt = geom.pts.size();
+            int basePt = (int)geom.pts.size();
             for (unsigned int kk=0;kk<face->verts.size();kk++)
             {
                 const Vertex &vert = face->verts[kk];

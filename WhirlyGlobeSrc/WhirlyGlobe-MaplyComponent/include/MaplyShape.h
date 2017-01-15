@@ -21,6 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "WGCoordinate.h"
 #import "MaplyMatrix.h"
+#import "MaplyTexture.h"
 
 /** @brief Maply Shape is the base class for the actual shape objects.
     @details The maply shape is just the base class.  Look to MaplyShapeCircle, MaplyShapeCylinder, MaplyShapeSphere, MaplyShapeGreatCircle, and MaplyShapeLinear.
@@ -166,7 +167,7 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 @property (nonatomic,assign) MaplyCoordinate3dD ur;
 
 /// @brief If set, the texture to stretch across the rectangle.
-@property (nonatomic) MaplyTexture *texture;
+@property (nonatomic,nullable) MaplyTexture *texture;
 
 @end
 

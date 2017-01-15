@@ -39,6 +39,12 @@
 
 @end
 
+@interface MaplyShapeRectangle()
+
+- (WhirlyKitShapeRectangle *)asWKShape:(NSDictionary *)desc;
+
+@end
+
 @interface MaplyShapeExtruded()
 
 - (WhirlyKitShapeExtruded *)asWKShape:(NSDictionary *)desc;
