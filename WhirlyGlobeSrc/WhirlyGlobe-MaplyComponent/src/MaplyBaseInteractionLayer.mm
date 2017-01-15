@@ -350,13 +350,28 @@ public:
     bool wrapY = [desc boolForKey:kMaplyTexWrapY default:false];
     int magFilter = [desc enumForKey:kMaplyTexMagFilter values:@[kMaplyMinFilterNearest,kMaplyMinFilterLinear] default:0];
     
-    int imgWidth = image.size.width * image.scale;
-    int imgHeight = image.size.height * image.scale;
-    imgWidth = NextPowOf2(imgWidth);
-    imgHeight = NextPowOf2(imgHeight);
+    int imgWidth,imgHeight;
+    if (image)
+    {
+        imgWidth = image.size.width * image.scale;
+        imgHeight = image.size.height * image.scale;
+        imgWidth = NextPowOf2(imgWidth);
+        imgHeight = NextPowOf2(imgHeight);
+    } else {
+        imgWidth = [desc intForKey:kMaplyTexSizeX default:0];
+        imgHeight = [desc intForKey:kMaplyTexSizeY default:0];
+    }
     
     // Add it and download it
-    Texture *tex = new Texture("MaplyBaseInteraction",image,imgWidth,imgHeight);
+    Texture *tex;
+    if (image)
+        tex = new Texture("MaplyBaseInteraction",image,imgWidth,imgHeight);
+    else {
+        tex = new Texture("MaplyBaseInteraction");
+        tex->setWidth(imgWidth);
+        tex->setHeight(imgHeight);
+        tex->setIsEmptyTexture(true);
+    }
     tex->setWrap(wrapX, wrapY);
     tex->setUsesMipmaps(false);
     tex->setInterpType(magFilter == 0 ? GL_NEAREST : GL_LINEAR);
@@ -426,7 +441,7 @@ public:
         imageTextures.erase(rem);
 
     // Takes the altas path instead
-    if (!maplyTex && [desc boolForKey:kMaplyTexAtlas default:false])
+    if (!maplyTex && image && [desc boolForKey:kMaplyTexAtlas default:false])
     {
         pthread_mutex_unlock(&imageLock);
         return [self addTextureToAtlas:image desc:desc mode:threadMode];
