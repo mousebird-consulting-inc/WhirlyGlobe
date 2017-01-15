@@ -133,9 +133,9 @@
             if (expression)
                 [expressions addObject:expression];
             if ([expression isKindOfClass:[SLDPropertyNameExpression class]])
-                self.propertyExpression = expression;
+                self.propertyExpression = (SLDPropertyNameExpression *)expression;
             else if ([expression isKindOfClass:[SLDLiteralExpression class]])
-                self.literalExpression = expression;
+                self.literalExpression = (SLDLiteralExpression *)expression;
         }
         if (expressions.count != 2)
             return nil;
@@ -233,7 +233,7 @@
         if (!self.matchCase)
             predOptions = NSCaseInsensitivePredicateOption;
         
-        self.predicate = [NSComparisonPredicate predicateWithLeftExpression:self.propertyExpression rightExpression:self.literalExpression modifier:0 type:NSLikePredicateOperatorType options:predOptions];
+        self.predicate = [NSComparisonPredicate predicateWithLeftExpression:(NSExpression *)self.propertyExpression rightExpression:(NSExpression *)self.literalExpression modifier:0 type:NSLikePredicateOperatorType options:predOptions];
         
     }
     return self;
@@ -290,7 +290,7 @@
         
         NSExpression *boundsExpression = [NSExpression expressionForAggregate:@[self.lowerBoundaryExpression, self.upperBoundaryExpression]];
         
-        self.predicate = [NSComparisonPredicate predicateWithLeftExpression:self.subExpression rightExpression:boundsExpression modifier:0 type:NSBetweenPredicateOperatorType options:0];
+        self.predicate = [NSComparisonPredicate predicateWithLeftExpression:(NSExpression *)self.subExpression rightExpression:boundsExpression modifier:0 type:NSBetweenPredicateOperatorType options:0];
 
         
     }

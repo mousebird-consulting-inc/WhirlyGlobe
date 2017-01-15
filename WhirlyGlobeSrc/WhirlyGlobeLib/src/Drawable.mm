@@ -456,7 +456,7 @@ int VertexAttribute::numElements() const
         case BDIntType:
         {
             std::vector<int> *ints = (std::vector<int> *)data;
-            return ints->size();
+            return (int)ints->size();
         }
         case BDDataTypeMax:
             return 0;

@@ -138,6 +138,29 @@ using namespace WhirlyKit;
 
 @end
 
+@implementation MaplyShapeRectangle
+
+- (instancetype)init
+{
+    self = [super init];
+    if (!self)
+        return nil;
+        
+    return self;
+}
+
+- (WhirlyKitShapeRectangle *)asWKShape:(NSDictionary *)desc
+{
+    WhirlyKitShapeRectangle *newRect = [[WhirlyKitShapeRectangle alloc] init];
+    newRect.ll.x() = _ll.x;  newRect.ll.y() = _ll.y;  newRect.ll.z() = _ll.z;
+    newRect.ur.x() = _ur.x;  newRect.ur.y() = _ur.y;  newRect.ur.z() = _ur.z;
+    newRect.clipCoords = self.clipCoords;
+    
+    return newRect;
+}
+
+@end
+
 @implementation MaplyShapeLinear
 {
     /// Number of coordinates to display in linear

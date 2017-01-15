@@ -34,7 +34,7 @@
  @see MaplyVectorTileStyle
  @see MaplyVectorStyleSettings
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL;
++ (NSArray<MaplyVectorTileStyle *> * _Nullable) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings * _Nonnull)tileStyleSettings viewC:(MaplyBaseViewController * _Nonnull)viewC minScaleDenom:(NSNumber * _Nonnull)minScaleDenom maxScaleDenom:(NSNumber * _Nonnull)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL * _Nonnull)baseURL;
 @end
 
 /** @brief Class corresponding to the LineSymbolizer element

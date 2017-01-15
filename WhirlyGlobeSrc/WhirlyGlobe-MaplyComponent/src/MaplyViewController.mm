@@ -1017,11 +1017,11 @@ using namespace Maply;
 }
 
 // Called every frame from within the map view
-- (void)updateView:(MaplyView *)mapView {
+- (void)updateView:(MaplyView *)theMapView {
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
     if (!animationDelegate)
     {
-        [mapView cancelAnimation];
+        [theMapView cancelAnimation];
         return;
     }
     
@@ -1036,7 +1036,7 @@ using namespace Maply;
     
     if (lastOne)
     {
-        [mapView cancelAnimation];
+        [theMapView cancelAnimation];
         if ([animationDelegate respondsToSelector:@selector(mapViewControllerDidFinishAnimation:)])
             [animationDelegate mapViewControllerDidFinishAnimation:self];
         animationDelegate = nil;

@@ -54,7 +54,7 @@ using namespace Eigen;
     _startEnable = [desc doubleForKey:@"enablestart" default:0.0];
     _endEnable = [desc doubleForKey:@"enableend" default:0.0];
     SimpleIdentity shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
-    _programID = [desc intForKey:@"program" default:shaderID];
+    _programID = [desc intForKey:@"program" default:(int)shaderID];
     
     // Uniforms to be passed to shader
     // Note: Should add the rest of the types

@@ -50,6 +50,7 @@ static inline void decodeHighWaterMark(vector<uint32_t> encoded, vector<uint32_t
 	}
 }
 
+#if 0
 static inline void oct_normalize(float vec[3]) {
 	float len = sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
 	vec[0] /= len;
@@ -70,7 +71,7 @@ static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
 
 	return Point3f(vec[0], vec[1], vec[2]);
 }
-
+#endif
 
 @implementation WhirlyKitElevationCesiumChunk
 
@@ -161,7 +162,7 @@ static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
 	// ====================
 
 	// Handle padding
-	uint32_t currentPosition = data - startData;
+	uint32_t currentPosition = (uint32_t)(data - startData);
 
 	if (currentPosition % indexSize != 0) {
 		data += (indexSize - (currentPosition % indexSize));
@@ -332,7 +333,7 @@ static inline Point3f canonical_oct_decode(uint8_t x, uint8_t y)
     TexCoord texIncr(1.0/(float)_sizeX,1.0/(float)_sizeY);
 
     // We'll set up and fill in the drawable
-    BasicDrawable *chunk = new BasicDrawable("Tile Quad Loader",_mesh->pts.size(),_mesh->tris.size());
+    BasicDrawable *chunk = new BasicDrawable("Tile Quad Loader",(unsigned int)_mesh->pts.size(),(unsigned int)_mesh->tris.size());
     if (drawInfo->useTileCenters)
         chunk->setMatrix(&drawInfo->transMat);
     

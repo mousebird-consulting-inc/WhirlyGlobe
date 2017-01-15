@@ -91,8 +91,8 @@ using namespace WhirlyKit;
         if (texImage)
         {
             loadImage.imageData = texImage;
-            loadImage.width = CGImageGetWidth(texImage.CGImage);
-            loadImage.height = CGImageGetHeight(texImage.CGImage);
+            loadImage.width = (int)CGImageGetWidth(texImage.CGImage);
+            loadImage.height = (int)CGImageGetHeight(texImage.CGImage);
             loadImage.type = WKLoadedImageUIImage;
         } else
             return nil;
