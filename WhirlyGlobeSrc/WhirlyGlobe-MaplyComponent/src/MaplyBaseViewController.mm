@@ -1013,6 +1013,21 @@ static const float PerfOutputDelay = 15.0;
     return maplyTex;
 }
 
+- (MaplyTexture *__nullable)createTexture:(NSDictionary * _Nullable)inDesc sizeX:(int)sizeX sizeY:(int)sizeY mode:(MaplyThreadMode)threadMode
+{
+    if (![interactLayer startOfWork])
+        return nil;
+    
+    NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
+    desc[kMaplyTexSizeX] = @(sizeX);
+    desc[kMaplyTexSizeY] = @(sizeY);
+    MaplyTexture *maplyTex = [interactLayer addTexture:nil desc:desc mode:threadMode];
+    
+    [interactLayer endOfWork];
+    
+    return maplyTex;
+}
+
 - (void)removeTexture:(MaplyTexture *)texture mode:(MaplyThreadMode)threadMode
 {
     if (![interactLayer startOfWork])
