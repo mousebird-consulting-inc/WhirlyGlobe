@@ -613,6 +613,9 @@ static std::vector<Point3f> circleSamples;
     
     RGBAColor theColor = (super.useColor ? super.color : [regBuilder->getShapeInfo().color asRGBAColor]);
 
+    if (_texID != EmptyIdentity)
+        triBuilder->setTexID(_texID);
+
     // Source points
     std::vector<Point3d> pts(4);
     std::vector<TexCoord> texCoords(4);
