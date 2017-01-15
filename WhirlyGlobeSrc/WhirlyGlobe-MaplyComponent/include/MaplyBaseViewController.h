@@ -747,7 +747,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
     @param sizeX The horizontal size of the textures (in pixels).
     @param sizeY Vertical size of the texture (in pixels).
  */
-- (MaplyTexture *__nullable)createTexture:(NSDictionary * _Nullable)spec sizeX:(int)sizeX sizeY:(int)sizeY;
+- (MaplyTexture *__nullable)createTexture:(NSDictionary * _Nullable)spec sizeX:(int)sizeX sizeY:(int)sizeY mode:(MaplyThreadMode)threadMode;
 
 /** @brief Add an image as a texture, but put it in a texture atlas.  Return a
  @details Texture atlases consolidate a number of compatible textures, speeding up rendering of any geometry they're used on.  If you know you're going to be using a UIImage with a lot of other images in, say, a group of markers, it's wise to add it here first.
