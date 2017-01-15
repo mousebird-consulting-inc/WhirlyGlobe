@@ -196,7 +196,7 @@ void ShapeDrawableBuilder::getChanges(ChangeSet &changeRequests,SimpleIDSet &dra
 
 
 ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo,const Point3d &center)
-: coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false)
+: coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false), texID(EmptyIdentity)
 {
 }
     
@@ -219,6 +219,8 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
     drawable->setRequestZBuffer(shapeInfo.zBufferRead);
     drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
     drawable->setProgram(shapeInfo.programID);
+    if (texID != EmptyIdentity)
+        drawable->setTexId(0, texID);
     if (center.x() != 0.0 || center.y() != 0.0 || center.z() != 0.0)
     {
         Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
@@ -237,6 +239,17 @@ void ShapeDrawableBuilderTri::setClipCoords(bool newClipCoords)
     }
     
     clipCoords = newClipCoords;
+}
+    
+void ShapeDrawableBuilderTri::setTexID(SimpleIdentity newTexID)
+{
+    if (texID != newTexID)
+    {
+        if (drawable)
+            flush();
+    }
+    
+    texID = newTexID;
 }
     
 // Add a triangle with normals
