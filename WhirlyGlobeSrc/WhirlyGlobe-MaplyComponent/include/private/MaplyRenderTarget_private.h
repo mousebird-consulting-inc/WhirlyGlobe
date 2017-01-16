@@ -19,3 +19,10 @@
  */
 
 #import "MaplyRenderTarget.h"
+#import "WhirlyGlobe.h"
+
+@interface MaplyRenderTarget()
+
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity renderTargetID;
+
+@end

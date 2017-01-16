@@ -83,6 +83,7 @@ class RenderTarget : public Identifiable
 {
 public:
     RenderTarget();
+    RenderTarget(SimpleIdentity newID) : Identifiable(newID) { }
     
     // Set up the render target
     bool init(Scene *scene,SimpleIdentity targetTexID);
@@ -91,7 +92,7 @@ public:
     void clear();
     
     /// Make this framebuffer active
-    void setActiveFramebuffer();
+    void setActiveFramebuffer(WhirlyKitSceneRendererES *renderer);
     
     /// OpenGL ES Name for the frame buffer
     GLuint framebuffer;
@@ -101,6 +102,8 @@ public:
     GLuint depthbuffer;
     /// Output framebuffer size fo glViewport
     int width,height;
+    /// Set if we've set up background and such
+    bool isSetup;
 };
 
 // Add a new render target
@@ -230,7 +233,8 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 /// Base class for the scene renderer.
 /// It's subclassed for the specific version of OpenGL ES
 @interface WhirlyKitSceneRendererES : NSObject
-{    
+{
+@public
 	unsigned int frameCount;
 	NSTimeInterval frameCountStart;
     WhirlyKit::PerformanceTimer perfTimer;

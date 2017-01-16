@@ -23,6 +23,7 @@
 #import "MaplyMatrix.h"
 #import "MaplyVertexAttribute.h"
 #import "MaplyTexture.h"
+#import "MaplyRenderTarget.h"
 #import "MaplyLabel.h"
 #import "MaplyScreenLabel.h"
 #import "MaplyMarker.h"

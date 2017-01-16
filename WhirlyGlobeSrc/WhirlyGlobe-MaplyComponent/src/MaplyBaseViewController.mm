@@ -1063,6 +1063,26 @@ static const float PerfOutputDelay = 15.0;
                                          kMaplyTexAtlas: @(YES)} mode:threadMode];
 }
 
+- (void)addRenderTarget:(MaplyRenderTarget *)renderTarget
+{
+    if (![interactLayer startOfWork])
+        return;
+
+    [interactLayer addRenderTarget:renderTarget];
+    
+    [interactLayer endOfWork];
+}
+
+- (void)removeRenderTarget:(MaplyRenderTarget *)renderTarget
+{
+    if (![interactLayer startOfWork])
+        return;
+    
+    [interactLayer removeRenderTarget:renderTarget];
+    
+    [interactLayer endOfWork];
+}
+
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
 {
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
