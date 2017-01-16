@@ -20,6 +20,16 @@
 
 #import "MaplyRenderTarget_private.h"
 
+using namespace WhirlyKit;
+
 @implementation MaplyRenderTarget
+
+- (id)init
+{
+    self = [super init];
+    _renderTargetID = Identifiable::genId();
+    
+    return self;
+}
 
 @end

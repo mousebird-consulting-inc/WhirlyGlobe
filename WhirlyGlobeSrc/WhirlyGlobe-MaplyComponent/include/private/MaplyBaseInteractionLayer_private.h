@@ -163,6 +163,12 @@
 // This version defaults the wrap flags
 - (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode;
 
+// Add a render target to the renderer
+- (void)addRenderTarget:(MaplyRenderTarget *)renderTarget;
+
+// Stop rendering to a given render target
+- (void)removeRenderTarget:(MaplyRenderTarget *)renderTarget;
+
 // Remove the texture associated with an image  or just decrement its reference count
 - (void)removeImageTexture:(MaplyTexture *)tex changes:(WhirlyKit::ChangeSet &)changes;
 

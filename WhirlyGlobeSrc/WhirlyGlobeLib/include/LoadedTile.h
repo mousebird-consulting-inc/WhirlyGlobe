@@ -248,6 +248,9 @@ public:
     
     // Set if we're in single level mode.  That is, we're only trying to display a single level.
     bool singleLevel;
+    
+    // If set non-zero we'll render to another target
+    SimpleIdentity renderTargetID;
 };
     
 /** The Loaded Tile is used to track tiles that have been
