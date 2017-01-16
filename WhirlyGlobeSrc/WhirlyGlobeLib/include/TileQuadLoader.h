@@ -153,6 +153,8 @@
 @property (nonatomic,assign) int textureAtlasSize;
 /// How many texels we put around the borders of each tile
 @property (nonatomic,assign) int borderTexel;
+/// If set, where this layer will be rendererd
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity renderTargetID;
 
 /// Set this up with an object that'll return an image per tile
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;

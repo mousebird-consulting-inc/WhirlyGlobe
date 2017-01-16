@@ -284,7 +284,8 @@ TileBuilder::TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quad
     texAtlas(NULL),
     newDrawables(false),
     singleLevel(false),
-    useTileCenters(true)
+    useTileCenters(true),
+    renderTargetID(EmptyIdentity)
 {
     pthread_mutex_init(&texAtlasMappingLock, NULL);
 }
@@ -339,8 +340,12 @@ void TileBuilder::initAtlases(WhirlyKitTileImageType imageType,GLenum interpType
         texAtlas->setInterpType(interpType);
         drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
         drawAtlas->setFade(fade);
+        if (renderTargetID != EmptyIdentity)
+            drawAtlas->setRenderTarget(renderTargetID);
         poleDrawAtlas = new DynamicDrawableAtlas("Tile Quad Loader Ples",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
         poleDrawAtlas->setFade(fade);
+        if (renderTargetID != EmptyIdentity)
+            poleDrawAtlas->setRenderTarget(renderTargetID);
         newDrawables = true;
     }
 }

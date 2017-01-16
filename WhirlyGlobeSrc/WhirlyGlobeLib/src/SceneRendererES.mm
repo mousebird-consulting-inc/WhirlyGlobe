@@ -44,7 +44,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 }
     
 RenderTarget::RenderTarget()
-    : framebuffer(0), colorbuffer(0), depthbuffer(0), width(0), height(0)
+    : framebuffer(0), colorbuffer(0), depthbuffer(0), width(0), height(0), isSetup(false)
 {
 }
     
@@ -83,6 +83,7 @@ bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
+    isSetup = false;
     return true;
 }
     
@@ -96,13 +97,26 @@ void RenderTarget::clear()
         glDeleteFramebuffers(1,&framebuffer);
 }
     
-void RenderTarget::setActiveFramebuffer()
+void RenderTarget::setActiveFramebuffer(WhirlyKitSceneRendererES *renderer)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     CheckGLError("SceneRendererES2: glBindFramebuffer");
     glViewport(0, 0, width, height);
     CheckGLError("SceneRendererES2: glViewport");
-    glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
+    if (colorbuffer)
+        glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
+    
+    if (!isSetup)
+    {
+        // Note: Should allow this to be selected
+        // For non-main rendering targets, we want clear
+        if (getId())
+            glClearColor(0.0,0.0,0.0,0.0);
+        else
+            glClearColor(renderer->_clearColor.r / 255.0, renderer->_clearColor.g / 255.0, renderer->_clearColor.b / 255.0, renderer->_clearColor.a / 255.0);
+        CheckGLError("SceneRendererES2: glClearColor");
+        isSetup = true;
+    }
 }
     
 AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID)
@@ -113,8 +127,10 @@ AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,i
 // Set up a render target
 void AddRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    RenderTarget renderTarget;
-    renderTarget.init(scene,EmptyIdentity);
+    RenderTarget renderTarget(renderTargetID);
+    renderTarget.width = width;
+    renderTarget.height = height;
+    renderTarget.init(scene,texID);
     
     [renderer addRenderTarget:renderTarget];
 }
@@ -291,7 +307,7 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
             return nil;
         }
         
-        RenderTarget defaultTarget;
+        RenderTarget defaultTarget(EmptyIdentity);
         defaultTarget.init(NULL,EmptyIdentity);
         renderTargets.push_back(defaultTarget);
         
@@ -327,7 +343,7 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
 /// Add the given rendering target and, you know, render to it
 - (void) addRenderTarget:(RenderTarget &)newTarget
 {
-    renderTargets.push_back(newTarget);
+    renderTargets.insert(renderTargets.begin(),newTarget);
 }
 
 /// Clear out the given render target

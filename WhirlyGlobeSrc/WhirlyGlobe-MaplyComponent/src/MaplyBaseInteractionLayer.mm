@@ -39,6 +39,7 @@
 #import "MaplyParticleSystem_private.h"
 #import "MaplyShape_private.h"
 #import "MaplyPoints_private.h"
+#import "MaplyRenderTarget_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -362,6 +363,7 @@ public:
         imgHeight = [desc intForKey:kMaplyTexSizeY default:0];
     }
     
+    
     // Add it and download it
     Texture *tex;
     if (image)
@@ -456,6 +458,8 @@ public:
         maplyTex.texID = tex->getId();
         maplyTex.interactLayer = self;
         maplyTex.image = image;
+        maplyTex.width = tex->getWidth();
+        maplyTex.height = tex->getHeight();
         
         changes.push_back(new AddTextureReq(tex));
         imageTextures.push_back(maplyTex);
@@ -3158,6 +3162,28 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     return compObj;
 }
+
+// Add a render target to the renderer
+- (void)addRenderTarget:(MaplyRenderTarget *)renderTarget
+{
+    if (renderTarget.renderTargetID == EmptyIdentity || renderTarget.texture == nil)
+        return;
+    
+    ChangeSet changes;
+    changes.push_back(new AddRenderTargetReq(renderTarget.renderTargetID,renderTarget.texture.width,renderTarget.texture.height,renderTarget.texture.texID));
+    
+    [self flushChanges:changes mode:MaplyThreadCurrent];
+}
+
+// Stop rendering to a given render target
+- (void)removeRenderTarget:(MaplyRenderTarget *)renderTarget
+{
+    ChangeSet changes;
+    changes.push_back(new RemRenderTargetReq(renderTarget.renderTargetID));
+
+    [self flushChanges:changes mode:MaplyThreadCurrent];
+}
+
 
 // Remove the object, but do it on the layer thread
 - (void)removeObjectRun:(NSArray *)argArray

@@ -36,6 +36,9 @@
 // Set if this is a sub texture reference
 @property (nonatomic) bool isSubTex;
 
+// Set if we created the texture
+@property (nonatomic,assign) int width,height;
+
 // If set, the texture ID associated with this texture
 @property (nonatomic) WhirlyKit::SimpleIdentity texID;
 
