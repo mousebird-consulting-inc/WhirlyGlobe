@@ -68,6 +68,10 @@
         if ([[child localName] isEqualToString:@"Literal"])
             return [child stringValue];
     }
+    for (DDXMLNode *child in [node children]) {
+        if (child.kind == DDXMLTextKind)
+            return [child stringValue];
+    }
     return nil;
 }
 
@@ -89,6 +93,8 @@
     if ([[node localName] isEqualToString:@"PropertyName"])
         return [NSString stringWithFormat:@"[%@]", [node stringValue]];
     else if ([[node localName] isEqualToString:@"Literal"])
+        return [node stringValue];
+    else if (node.kind == DDXMLTextKind)
         return [node stringValue];
     return nil;
 }
@@ -223,6 +229,139 @@
     return img;
 }
 
++ (NSMutableDictionary *)paramsForGraphicNode:(DDXMLElement *)graphicNode baseURL:(NSURL *)baseURL {
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    
+    NSString *wellKnownName;
+    
+    for (DDXMLNode *child in [graphicNode children]) {
+        NSString *childName = [child localName];
+        
+        if ([childName isEqualToString:@"ExternalGraphic"]) {
+            
+            DDXMLElement *onlineResourceNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"OnlineResource"];
+            DDXMLElement *inlineContentNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"InlineContent"];
+            DDXMLElement *formatNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Format"];
+            
+            NSString *format = (formatNode ? [formatNode stringValue] : nil);
+            if (!format || (![format isEqualToString:@"image/png"] && ![format isEqualToString:@"image/gif"])) {
+                NSLog(@"SLDPointSymbolizer: Skipping unsupported graphic format.");
+                return nil;
+            }
+            
+            if (onlineResourceNode) {
+                UIImage *image = [SLDSymbolizer imageForOnlineResourceNode:onlineResourceNode baseURL:baseURL];
+                if (image)
+                    params[@"image"] = image;
+            } else if (inlineContentNode) {
+                UIImage *image = [SLDSymbolizer imageForInlineContentNode:inlineContentNode];
+                if (image)
+                    params[@"image"] = image;
+            } else {
+                NSLog(@"SLDPointSymbolizer: Unexpected ExternalGraphic structure.");
+                return nil;
+            }
+            
+        } else if ([childName isEqualToString:@"Mark"]) {
+            
+            DDXMLElement *wellKnownNameNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"WellKnownName"];
+            DDXMLElement *onlineResourceNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"OnlineResource"];
+            DDXMLElement *inlineContentNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"InlineContent"];
+            DDXMLElement *formatNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Format"];
+            
+            if (wellKnownNameNode) {
+                // Note the WellKnownName to handle below.
+                wellKnownName = [wellKnownNameNode stringValue];
+            } else {
+                
+                NSString *format = (formatNode ? [formatNode stringValue] : nil);
+                if (!format || (![format isEqualToString:@"image/png"] && ![format isEqualToString:@"image/gif"])) {
+                    NSLog(@"SLDPointSymbolizer: Skipping unsupported graphic format.");
+                    return nil;
+                }
+                
+                if (onlineResourceNode) {
+                    UIImage *image = [SLDSymbolizer imageForOnlineResourceNode:onlineResourceNode baseURL:baseURL];
+                    if (image)
+                        params[@"image"] = image;
+                } else if (inlineContentNode) {
+                    UIImage *image = [SLDSymbolizer imageForInlineContentNode:inlineContentNode];
+                    if (image)
+                        params[@"image"] = image;
+                } else {
+                    NSLog(@"SLDPointSymbolizer: Unexpected Mark structure.");
+                    return nil;
+                }
+            }
+            
+            // Fill color
+            DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Fill"];
+            if (fillNode) {
+                NSDictionary *fillParams = [SLDSymbolizer dictForSvgCssParametersInElement:fillNode];
+                
+                if (fillParams && fillParams[@"fill"])
+                    params[@"fill"] = fillParams[@"fill"];
+            }
+            
+            // Stroke color
+            DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Stroke"];
+            if (strokeNode) {
+                NSDictionary *strokeParams = [SLDSymbolizer dictForSvgCssParametersInElement:strokeNode];
+                
+                if (strokeParams && strokeParams[@"stroke"])
+                    params[@"stroke"] = strokeParams[@"stroke"];
+            }
+            
+            
+        } else if ([childName isEqualToString:@"Size"]) {
+            // Marker size
+            NSString *size = [SLDSymbolizer stringForLiteralInNode:child];
+            if (!size) {
+                size = [child stringValue];
+            }
+            if (size) {
+                params[@"width"] = size;
+                params[@"height"] = size;
+            }
+        }
+    }
+    
+    if (wellKnownName) {
+        
+        UIColor *strokeColor, *fillColor;
+        int imgWidth, imgHeight;
+        
+        // Transform relevant drawing parameters.
+        if (params[@"stroke"])
+            strokeColor = [MaplyVectorTiles ParseColor:params[@"stroke"] alpha:1.0];
+        else
+            strokeColor = [UIColor darkGrayColor];
+        
+        if (params[@"fill"])
+            fillColor = [MaplyVectorTiles ParseColor:params[@"fill"] alpha:1.0];
+        else
+            fillColor = [UIColor whiteColor];
+        
+        if (params[@"width"] && params[@"height"]) {
+            imgWidth = [params[@"width"] intValue];
+            if (imgWidth < 8)
+                imgWidth = 8;
+            imgHeight = [params[@"height"] intValue];
+            if (imgHeight < 8)
+                imgHeight = 8;
+        }
+        
+        // Draw marker image.
+        UIImage *image = [SLDWellKnownMarkers imageWithName:wellKnownName strokeColor:strokeColor fillColor:fillColor size:MIN(imgWidth, imgHeight)];
+        if (!image)
+            return nil;
+        
+        params[@"image"] = image;
+    }
+    
+    return params;
+}
 
 
 @end
@@ -316,11 +455,24 @@
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromFillNode:(DDXMLElement *)fillNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
     
     NSMutableDictionary *fillParams = [SLDSymbolizer dictForSvgCssParametersInElement:fillNode];
-    if (!fillParams) {
+    DDXMLElement *graphicFillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:fillNode childName:@"GraphicFill"];
+    
+    if (!fillParams && !graphicFillNode) {
         NSLog(@"SLDPolygonSymbolizer: Fill node but no fill parameters.");
         return nil;
     }
     
+    if (!fillParams)
+        fillParams = [NSMutableDictionary dictionary];
+    if (graphicFillNode) {
+        DDXMLElement *graphicNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:graphicFillNode childName:@"Graphic"];
+        if (graphicNode) {
+            NSMutableDictionary *graphicsParams = [SLDSymbolizer paramsForGraphicNode:graphicNode baseURL:baseURL];
+            if (graphicsParams)
+                [fillParams addEntriesFromDictionary:graphicsParams];
+        }
+    }
+
     fillParams[@"drawpriority"] = @(relativeDrawPriority);
     
     if (minScaleDenom)
@@ -361,139 +513,12 @@
  */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromPointSymbolizerNode:(DDXMLElement *)pointSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
     
-    NSMutableDictionary *pointParams = [NSMutableDictionary dictionary];
-
     DDXMLElement *graphicNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:pointSymbolizerNode childName:@"Graphic"];
     
     if (!graphicNode)
         return nil;
     
-    NSString *wellKnownName;
-    
-    for (DDXMLNode *child in [graphicNode children]) {
-        NSString *childName = [child localName];
-        
-        if ([childName isEqualToString:@"ExternalGraphic"]) {
-        
-            DDXMLElement *onlineResourceNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"OnlineResource"];
-            DDXMLElement *inlineContentNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"InlineContent"];
-            DDXMLElement *formatNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Format"];
-            
-            NSString *format = (formatNode ? [formatNode stringValue] : nil);
-            if (!format || (![format isEqualToString:@"image/png"] && ![format isEqualToString:@"image/gif"])) {
-                NSLog(@"SLDPointSymbolizer: Skipping unsupported graphic format.");
-                return nil;
-            }
-            
-            if (onlineResourceNode) {
-                UIImage *image = [SLDSymbolizer imageForOnlineResourceNode:onlineResourceNode baseURL:baseURL];
-                if (image)
-                    pointParams[@"image"] = image;
-            } else if (inlineContentNode) {
-                UIImage *image = [SLDSymbolizer imageForInlineContentNode:inlineContentNode];
-                if (image)
-                    pointParams[@"image"] = image;
-            } else {
-                NSLog(@"SLDPointSymbolizer: Unexpected ExternalGraphic structure.");
-                return nil;
-            }
-            
-        } else if ([childName isEqualToString:@"Mark"]) {
-            
-            DDXMLElement *wellKnownNameNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"WellKnownName"];
-            DDXMLElement *onlineResourceNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"OnlineResource"];
-            DDXMLElement *inlineContentNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"InlineContent"];
-            DDXMLElement *formatNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Format"];
-            
-            if (wellKnownNameNode) {
-                // Note the WellKnownName to handle below.
-                wellKnownName = [wellKnownNameNode stringValue];
-            } else {
-                
-                NSString *format = (formatNode ? [formatNode stringValue] : nil);
-                if (!format || (![format isEqualToString:@"image/png"] && ![format isEqualToString:@"image/gif"])) {
-                    NSLog(@"SLDPointSymbolizer: Skipping unsupported graphic format.");
-                    return nil;
-                }
-                
-                if (onlineResourceNode) {
-                    UIImage *image = [SLDSymbolizer imageForOnlineResourceNode:onlineResourceNode baseURL:baseURL];
-                    if (image)
-                        pointParams[@"image"] = image;
-                } else if (inlineContentNode) {
-                    UIImage *image = [SLDSymbolizer imageForInlineContentNode:inlineContentNode];
-                    if (image)
-                        pointParams[@"image"] = image;
-                } else {
-                    NSLog(@"SLDPointSymbolizer: Unexpected Mark structure.");
-                    return nil;
-                }
-            }
-            
-            // Fill color
-            DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Fill"];
-            if (fillNode) {
-                NSDictionary *fillParams = [SLDSymbolizer dictForSvgCssParametersInElement:fillNode];
-                
-                if (fillParams && fillParams[@"fill"])
-                    pointParams[@"fill"] = fillParams[@"fill"];
-            }
-            
-            // Stroke color
-            DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:child childName:@"Stroke"];
-            if (strokeNode) {
-                NSDictionary *strokeParams = [SLDSymbolizer dictForSvgCssParametersInElement:strokeNode];
-                
-                if (strokeParams && strokeParams[@"stroke"])
-                    pointParams[@"stroke"] = strokeParams[@"stroke"];
-            }
-
-            
-        } else if ([childName isEqualToString:@"Size"]) {
-            // Marker size
-            NSString *size = [SLDSymbolizer stringForLiteralInNode:child];
-            if (!size) {
-                size = [child stringValue];
-            }
-            if (size) {
-                pointParams[@"width"] = size;
-                pointParams[@"height"] = size;
-            }
-        }
-    }
-    
-    if (wellKnownName) {
-        
-        UIColor *strokeColor, *fillColor;
-        int imgWidth, imgHeight;
-        
-        // Transform relevant drawing parameters.
-        if (pointParams[@"stroke"])
-            strokeColor = [MaplyVectorTiles ParseColor:pointParams[@"stroke"] alpha:1.0];
-        else
-            strokeColor = [UIColor darkGrayColor];
-        
-        if (pointParams[@"fill"])
-            fillColor = [MaplyVectorTiles ParseColor:pointParams[@"fill"] alpha:1.0];
-        else
-            fillColor = [UIColor whiteColor];
-        
-        if (pointParams[@"width"] && pointParams[@"height"]) {
-            imgWidth = [pointParams[@"width"] intValue];
-            if (imgWidth < 8)
-                imgWidth = 8;
-            imgHeight = [pointParams[@"height"] intValue];
-            if (imgHeight < 8)
-                imgHeight = 8;
-        }
-        
-        // Draw marker image.
-        UIImage *image = [SLDWellKnownMarkers imageWithName:wellKnownName strokeColor:strokeColor fillColor:fillColor size:MIN(imgWidth, imgHeight)];
-        if (!image)
-            return nil;
-
-        pointParams[@"image"] = image;
-    }
+    NSMutableDictionary *pointParams = [SLDSymbolizer paramsForGraphicNode:graphicNode baseURL:baseURL];
     
     pointParams[@"drawpriority"] = @(relativeDrawPriority);
     
@@ -536,6 +561,9 @@
     
     NSMutableDictionary *labelParams = [NSMutableDictionary dictionary];
     
+    labelParams[@"dx"] = @(25);
+    labelParams[@"dy"] = @(0);
+    
     // Label text
     DDXMLElement *labelNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:textSymbolizerNode childName:@"Label"];
     if (labelNode) {
@@ -547,6 +575,14 @@
             }
         }
     }
+    
+    // Label font
+    DDXMLElement *labelFontNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:textSymbolizerNode childName:@"Font"];
+    if (labelFontNode) {
+        NSMutableDictionary *fontParams = [SLDSymbolizer dictForSvgCssParametersInElement:labelFontNode];
+        if (fontParams)
+            [labelParams addEntriesFromDictionary:fontParams];
+    }
 
     // Label placement
     DDXMLElement *labelPlacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:textSymbolizerNode childName:@"LabelPlacement"];
@@ -554,10 +590,18 @@
         DDXMLElement *pointPlacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"PointPlacement"];
         DDXMLElement *linePlacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"LinePlacement"];
         
-        if (pointPlacementNode)
+        if (pointPlacementNode) {
             labelParams[@"placement"] = @"point";
-        else if (linePlacementNode)
+            
+            DDXMLElement *anchorPointNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"AnchorPoint"];
+            DDXMLElement *displacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"Displacement"];
+            
+            
+        } else if (linePlacementNode) {
             labelParams[@"placement"] = @"line";
+            labelParams[@"dx"] = @(0);
+            labelParams[@"dy"] = @(15);
+        }
     }
     
     
@@ -597,8 +641,6 @@
         labelParams[@"minscaledenom"] = minScaleDenom;
     if (maxScaleDenom)
         labelParams[@"maxscaledenom"] = maxScaleDenom;
-    
-    labelParams[@"dx"] = @(25);
     
     MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": @"TextSymbolizer", @"substyles": @[labelParams]}
                                                                settings:tileStyleSettings

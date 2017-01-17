@@ -15,11 +15,13 @@ class GeoJSONStyleTestCase: MaplyTestCase {
     fileprivate var waterLineSource: GeoJSONSource?
     fileprivate var buildingsSource: GeoJSONSource?
     fileprivate var landUseSource: GeoJSONSource?
+    fileprivate var amenitiesSource: GeoJSONSource?
     
     fileprivate var switchRoads: UISwitch?
     fileprivate var switchWater: UISwitch?
     fileprivate var switchBuildings: UISwitch?
     fileprivate var switchLandUse: UISwitch?
+    fileprivate var switchAmenities: UISwitch?
     
     override init() {
         super.init()
@@ -30,7 +32,7 @@ class GeoJSONStyleTestCase: MaplyTestCase {
     }
     
     func setupCommon(baseVC: MaplyBaseViewController) {
-        let frameView = UIView.init(frame: CGRect(x: 10, y: 75, width: 180, height: 180))
+        let frameView = UIView.init(frame: CGRect(x: 10, y: 75, width: 180, height: 215))
         frameView.backgroundColor = UIColor.lightGray;
         frameView.alpha = 0.8
         baseVC.view.addSubview(frameView)
@@ -65,6 +67,15 @@ class GeoJSONStyleTestCase: MaplyTestCase {
                                 
                                 self.switchRoads?.isOn = true
                                 self.switchRoads?.isEnabled = true
+                                
+                                self.amenitiesSource = GeoJSONSource.init(viewC: self.baseViewController!, geoJSONURL: Bundle.main.url(forResource: "belfast_ireland_amenities", withExtension: "geojson")!, sldURL: Bundle.main.url(forResource: "amenities", withExtension: "sld")!, relativeDrawPriority:600)
+                                self.amenitiesSource?.startParse(completion: {
+                                    
+                                    self.switchAmenities?.isOn = true
+                                    self.switchAmenities?.isEnabled = true
+                                    
+                                })
+
                                 
                             })
                         })
@@ -110,6 +121,11 @@ class GeoJSONStyleTestCase: MaplyTestCase {
     func onSwitchRoads() {
         self.roadsSource!.enabled = !(self.roadsSource!.enabled)
     }
+    
+    func onSwitchAmenities() {
+        self.amenitiesSource!.enabled = !(self.amenitiesSource!.enabled)
+    }
+
     
     func teardownCommon(baseVC: MaplyBaseViewController) {
         
@@ -168,6 +184,17 @@ class GeoJSONStyleTestCase: MaplyTestCase {
         switchRoads?.addTarget(self, action: #selector(onSwitchRoads), for: .valueChanged)
         frameView.addSubview(switchRoads!)
         
+
+        label = UILabel.init(frame: CGRect(x: 10, y: 160, width: 100, height: 30))
+        label.text = "Amenities"
+        frameView.addSubview(label)
+        
+        switchAmenities = UISwitch.init(frame: CGRect(x: 120, y: 160, width: 60, height: 30))
+        switchAmenities?.isOn = false
+        switchAmenities?.isEnabled = false
+        switchAmenities?.addTarget(self, action: #selector(onSwitchAmenities), for: .valueChanged)
+        frameView.addSubview(switchAmenities!)
+
         
     }
 }
