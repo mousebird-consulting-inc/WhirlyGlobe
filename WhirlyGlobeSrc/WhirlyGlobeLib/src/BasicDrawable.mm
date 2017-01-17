@@ -65,7 +65,7 @@ void BasicDrawable::basicDrawableInit()
     requestZBuffer = false;
     writeZBuffer = true;
     
-    clipCoords = true;
+    clipCoords = false;
     
     hasMatrix = false;
 }
