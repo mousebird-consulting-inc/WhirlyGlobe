@@ -160,7 +160,7 @@ function getArrayDataJob(job){
 	$.each(job, function(x1, y1) {
 		switch (x1) {
 			case "name":
-				data[0] = !y1.startsWith("WhirlyGlobe-Maply_") ? null : y1
+				data[0] = y1.startsWith("AutoTester_") ? null : y1
 				break;
 			case "lastBuild":
 				if (y1 != null && y1 != undefined) {
