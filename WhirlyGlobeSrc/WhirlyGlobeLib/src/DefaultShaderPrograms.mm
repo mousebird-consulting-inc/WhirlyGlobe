@@ -556,9 +556,9 @@ void SetupDefaultShaders(Scene *scene)
     OpenGLES2Program *triShader = new OpenGLES2Program("Default triangle shader with lighting",vertexShaderTri,fragmentShaderTri);
     OpenGLES2Program *lineShader;
     if (dynamic_cast<WhirlyGlobe::GlobeScene *>(scene))
-        lineShader = new OpenGLES2Program("Default line shader with backface culling",vertexShaderLine,fragmentShaderLineNoBack);
+        lineShader = new OpenGLES2Program("Default line shader with backface culling",vertexShaderLine,fragmentShaderLine);
     else
-        lineShader = new OpenGLES2Program("Default line shader without culling",vertexShaderLineNoBack,fragmentShaderLine);
+        lineShader = new OpenGLES2Program("Default line shader without culling",vertexShaderLineNoBack,fragmentShaderLineNoBack);
     if (!triShader->isValid() || !lineShader->isValid())
     {
         NSLog(@"SetupDefaultShaders: Default triangle and line shaders didn't compile.  Nothing will work.");
