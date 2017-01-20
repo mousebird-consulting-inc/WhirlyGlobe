@@ -1308,8 +1308,7 @@ bool VectorParseTopNode(JSONNode node,ShapeSet &shapes,JSONNode &crs)
         return VectorParseFeatures(*featIt,shapes);
     } else if (!type.compare("Feature"))
     {
-        if (!VectorParseFeature(node,shapes))
-            return false;
+        return VectorParseFeature(node,shapes);
     } else
         return false;
 
