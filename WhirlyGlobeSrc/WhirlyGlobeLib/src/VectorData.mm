@@ -1065,12 +1065,15 @@ bool VectorParseCoordinates(JSONNode node,VectorRing &pts)
         // We're expecting two numbers here
         if (it->type() == JSON_NUMBER)
         {
-            if (node.size() != 2)
+            if (node.size() < 2)
                 return false;
             
             float lon = it->as_float();  ++it;
             float lat = it->as_float();
             pts.push_back(GeoCoord::CoordFromDegrees(lon,lat));
+            
+            if (node.size() == 3)
+                ++it;
 
             continue;
         }
@@ -1303,6 +1306,10 @@ bool VectorParseTopNode(JSONNode node,ShapeSet &shapes,JSONNode &crs)
         if (featIt == node.end() || featIt->type() != JSON_ARRAY)
             return false;
         return VectorParseFeatures(*featIt,shapes);
+    } else if (!type.compare("Feature"))
+    {
+        if (!VectorParseFeature(node,shapes))
+            return false;
     } else
         return false;
 
