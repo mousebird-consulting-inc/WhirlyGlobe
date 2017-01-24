@@ -545,19 +545,26 @@ static bool trackConnections = false;
                     if (weakSelf)
                     {
                         NSData *imgData = data;
-
-                        // Let the delegate know we loaded successfully
-                        if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
-                            [weakSelf.delegate remoteTileSource:weakSelf tileDidLoad:tileID];
-
-                        // Let's also write it back out for the cache
-                        [weakSelf.tileInfo writeToCache:tileID tileData:imgData];
-
+                        
                         if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyTileReturn:forTile:)])
                             imgData = [_delegate remoteTileSource:self modifyTileReturn:imgData forTile:tileID];
 
                         // Let the paging layer know about it
-                        [layer loadedImages:imgData forTile:tileID];
+                        bool convertSuccess = [layer loadedImages:imgData forTile:tileID];
+
+                        // Let the delegate know we loaded successfully
+                        if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
+                        {
+                            if (convertSuccess)
+                                [weakSelf.delegate remoteTileSource:weakSelf tileDidLoad:tileID];
+                            else
+                                if ([weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
+                                    [weakSelf.delegate remoteTileSource:weakSelf tileDidNotLoad:tileID error:nil];
+                        }
+
+                        // Let's also write it back out for the cache
+                        if (convertSuccess)
+                            [weakSelf.tileInfo writeToCache:tileID tileData:imgData];
 
                         [weakSelf clearTile:tileID];
                     }
