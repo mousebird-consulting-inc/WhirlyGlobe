@@ -27,6 +27,8 @@
 		2B6953651C7E601A007FC51E /* AnimatedColorRampTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
 		2B7FC0A71E32B67400AF253A /* testJson.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B7FC0A61E32B67400AF253A /* testJson.json */; };
+		2B8849EB1E37F7CB0027C397 /* LIDARTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */; };
+		2B8849FB1E37F9B30027C397 /* stadium-utm-quad-data.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */; };
 		2B91A22E1DC14B7500B72527 /* ImageSingleLevelTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */; };
 		2B93D9671D41433500EAD280 /* WideVectorGlobeTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */; };
 		2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */; };
@@ -609,6 +611,9 @@
 		2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimatedColorRampTestCase.m; sourceTree = "<group>"; };
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
 		2B7FC0A61E32B67400AF253A /* testJson.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = testJson.json; path = resources/testJson.json; sourceTree = "<group>"; };
+		2B8849E91E37F7CB0027C397 /* LIDARTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LIDARTestCase.h; sourceTree = "<group>"; };
+		2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LIDARTestCase.mm; sourceTree = "<group>"; };
+		2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = "stadium-utm-quad-data.sqlite"; path = "../../resources/lidar/stadium-utm-quad-data.sqlite"; sourceTree = "<group>"; };
 		2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageSingleLevelTestCase.swift; sourceTree = "<group>"; };
 		2B93D9651D41433500EAD280 /* WideVectorGlobeTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorGlobeTestCase.h; sourceTree = "<group>"; };
 		2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WideVectorGlobeTestCase.m; sourceTree = "<group>"; };
@@ -1387,6 +1392,8 @@
 				E5D2D6741DEDEABF00E02305 /* AnimationDelegateTestCase.swift */,
 				E5CC4E1F1DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift */,
 				E5941DC01E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift */,
+				2B8849E91E37F7CB0027C397 /* LIDARTestCase.h */,
+				2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -1456,6 +1463,7 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */,
 				2B7FC0A61E32B67400AF253A /* testJson.json */,
 				E5941DB51E0CEA5700E1C8B3 /* belfast_northern_ireland */,
 				8F981DB21DE3577C00717DF1 /* ne_10m_roads.dbf */,
@@ -2384,6 +2392,7 @@
 				88FF5E971BC31D95002F15CE /* NFK.geojson in Resources */,
 				8FDE43631E01C9420026B20E /* ImageSingleLevelTestCase-globe.png in Resources */,
 				88FF5C9E1BC31D6D002F15CE /* danger-24@2x.png in Resources */,
+				2B8849FB1E37F9B30027C397 /* stadium-utm-quad-data.sqlite in Resources */,
 				88FF5C971BC31D6D002F15CE /* city-24@2x.png in Resources */,
 				E5C82FCE1E221C890074DF23 /* industrial.png in Resources */,
 				88FF5CB81BC31D6D002F15CE /* minefield-24@2x.png in Resources */,
@@ -2662,6 +2671,7 @@
 				2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */,
 				88BF11571BCDA1BB0002205E /* ResultsViewController.swift in Sources */,
 				8FE129191CDFB3B8004744FC /* TestCell.swift in Sources */,
+				2B8849EB1E37F7CB0027C397 /* LIDARTestCase.mm in Sources */,
 				D84AA5991C1A2B9800413B76 /* BNGTestCase.swift in Sources */,
 				2BD358F31DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift in Sources */,
 				D8DCCC9F1BDB89A900BA3866 /* FullScreenViewController.swift in Sources */,
