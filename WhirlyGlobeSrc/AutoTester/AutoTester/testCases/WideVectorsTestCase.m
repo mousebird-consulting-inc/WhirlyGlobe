@@ -92,7 +92,7 @@
                                          kMaplyFade: @0,
                                          kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
                                          kMaplyVecCentered: @YES,
-//                                         kMaplyVecTexture: lineTexture,
+                                         kMaplyVecTexture: lineTexture,
                                          kMaplyWideVecEdgeFalloff: @(1.0),
                                          kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                          kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
