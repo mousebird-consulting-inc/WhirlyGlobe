@@ -83,9 +83,7 @@
     NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:nil];
     if(path) {
         NSData *data = [NSData dataWithContentsOfFile:path];
-        NSDictionary *jsonDictionary = [NSJSONSerialization JSONObjectWithData:data
-                                                                       options:0 error:nil];
-        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithGeoJSONDictionary:jsonDictionary];
+        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithGeoJSON:data];
         if(vecObj) {
             MaplyComponentObject *obj1 = [baseViewC addWideVectors:@[vecObj]
                                  desc: @{kMaplyColor: [UIColor colorWithRed:1 green:0 blue:0 alpha:1.0],
@@ -94,7 +92,7 @@
                                          kMaplyFade: @0,
                                          kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
                                          kMaplyVecCentered: @YES,
-                                         kMaplyVecTexture: lineTexture,
+//                                         kMaplyVecTexture: lineTexture,
                                          kMaplyWideVecEdgeFalloff: @(1.0),
                                          kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                          kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
@@ -121,8 +119,8 @@
 
 - (NSArray *)addGeoJson:(NSString*)name viewC:(MaplyBaseViewController *)viewC
 {
-    return [self addGeoJson:name dashPattern:@[@8, @8] width:4 viewC:viewC];
-//    return [self addGeoJson:name dashPattern:@[@8, @8] width:20 viewC:viewC];
+//    return [self addGeoJson:name dashPattern:@[@8, @8] width:4 viewC:viewC];
+    return [self addGeoJson:name dashPattern:@[@8, @8] width:20 viewC:viewC];
 }
 
 - (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj baseViewC: (MaplyBaseViewController*) baseViewC dashedLineTex: (MaplyTexture*) dashedLineTex filledLineTex: (MaplyTexture*) filledLineTex
@@ -221,6 +219,8 @@
     [self addGeoJson:@"square.geojson" viewC:viewC];
     [self addGeoJson:@"track.geojson" viewC:viewC];
     [self addGeoJson:@"uturn2.geojson" dashPattern:@[@16, @16] width:40 viewC:viewC];
+    
+    [self addGeoJson:@"testJson.json" viewC:viewC];
     
     //    [self addGeoJson:@"straight.geojson"];
     //    [self addGeoJson:@"uturn.geojson"];
