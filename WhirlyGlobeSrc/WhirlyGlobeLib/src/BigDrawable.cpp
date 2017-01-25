@@ -22,6 +22,7 @@
 #import "Scene.h"
 #import "SceneRendererES2.h"
 #import "GLUtils.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -279,6 +280,8 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
     // Let the shaders know if we even have a texture
     prog->setUniform("u_hasTexture", anyTextures);
 
+//    WHIRLYKIT_LOGD("BigDrawable --- start ---");
+
     // The program itself may have some textures to bind
     bool hasTexture[WhirlyKitMaxTextures];
     int progTexBound = prog->bindTextures();
@@ -297,9 +300,9 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
         {
             frameInfo->stateOpt->setActiveTexture(GL_TEXTURE0+ii+progTexBound);
             glBindTexture(GL_TEXTURE_2D, glTexID);
-            CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
+            CheckGLError("BigDrawable::drawVBO2() glBindTexture");
             prog->setUniform(baseMapName, (int)ii+progTexBound);
-            CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
+            CheckGLError("BigDrawable::drawVBO2() glUniform1i");
         }
     }
 
@@ -314,19 +317,22 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
         {
             glGenVertexArrays(1,&theBuffer.vertexArrayObj);
             glBindVertexArray(theBuffer.vertexArrayObj);
-            CheckGLError("BasicDrawable::drawVBO2() glBindVertexArrayOES");
+            CheckGLError("BigDrawable::drawVBO2() glBindVertexArrayOES");
         }
 
         glBindBuffer(GL_ARRAY_BUFFER,theBuffer.vertexBufferId);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBuffer.elementBufferId);
-        CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+//        WHIRLYKIT_LOGD("BigDrawable glBindBuffer GL_ARRAY_BUFFER %d",theBuffer.vertexBufferId);
+//        WHIRLYKIT_LOGD("BigDrawable glBindBuffer GL_ELEMENT_ARRAY_BUFFER %d",theBuffer.elementBufferId);
+        CheckGLError("BigDrawable::drawVBO2() glBindBuffer");
 
         // Vertex array
         if (vertAttr)
         {
             glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, singleVertexSize, 0);
             glEnableVertexAttribArray ( vertAttr->index );
-            CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
+//            WHIRLYKIT_LOGD("BigDrawable glEnableVertexAttribArray GL_ARRAY_BUFFER %d",vertAttr->index);
+            CheckGLError("BigDrawable::drawVBO2() glEnableVertexAttribArray");
         }
         
         for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
@@ -343,7 +349,8 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
                     progAttrs[ii] = progAttr;
                     glVertexAttribPointer(progAttr->index, attr.glEntryComponents(), attr.glType(), attr.glNormalize(), singleVertexSize, CALCBUFOFF(0, attr.buffer));
                     glEnableVertexAttribArray(progAttr->index);
-                    CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
+//                    WHIRLYKIT_LOGD("BigDrawable glEnableVertexAttribArray GL_ARRAY_BUFFER %d",progAttr->index);
+                    CheckGLError("BigDrawable::drawVBO2() glEnableVertexAttribArray");
                 }
             }
         }
@@ -351,7 +358,7 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
         if (hasVertexArraySupport)
         {
             glBindVertexArray(0);
-            CheckGLError("BasicDrawable::drawVBO2() glBindVertexArrayOES(0)");
+            CheckGLError("BigDrawable::drawVBO2() glBindVertexArrayOES(0)");
         }
         
         // Let a subclass set up their own VAO state
@@ -368,7 +375,7 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
             
             glBindBuffer(GL_ARRAY_BUFFER, 0);
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-            CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+            CheckGLError("BigDrawable::drawVBO2() glBindBuffer");
         }
     }
     
@@ -385,7 +392,7 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
     if (hasVertexArraySupport)
     {
     	glBindVertexArray(theBuffer.vertexArrayObj);
-        CheckGLError("BasicDrawable::drawVBO2() glBindVertexArrayOES");
+        CheckGLError("BigDrawable::drawVBO2() glBindVertexArrayOES");
     }
     if (theBuffer.numElement != 0)
         glDrawElements(GL_TRIANGLES, theBuffer.numElement, GL_UNSIGNED_SHORT, 0);
@@ -403,15 +410,23 @@ void BigDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
     // Tear it all down
     if (!hasVertexArraySupport)
     {
-        if (vertAttr)
+        if (vertAttr) {
             glDisableVertexAttribArray(vertAttr->index);
+//            WHIRLYKIT_LOGD("BigDrawable glDisableVertexAttribArray %d",vertAttr->index);
+        }
         for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
-            if (progAttrs[ii])
+            if (progAttrs[ii]) {
                 glDisableVertexAttribArray(progAttrs[ii]->index);
+//                WHIRLYKIT_LOGD("BigDrawable glDisableVertexAttribArray GL_ARRAY_BUFFER %d",progAttrs[ii]->index);
+            }
         
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//        WHIRLYKIT_LOGD("BigDrawable glBindBuffer GL_ARRAY_BUFFER %d",0);
+//        WHIRLYKIT_LOGD("BigDrawable glBindBuffer GL_ELEMENT_ARRAY_BUFFER %d",0);
     }
+    
+//    WHIRLYKIT_LOGD("BigDrawable --- end ---");
 }
     
 SimpleIdentity BigDrawable::addRegion(RawDataRef vertData,int &vertPos,RawDataRef elementData,bool enabled)

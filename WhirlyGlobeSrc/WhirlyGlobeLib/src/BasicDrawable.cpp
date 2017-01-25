@@ -22,6 +22,7 @@
 #import "Drawable.h"
 #import "BasicDrawable.h"
 #import "SceneRendererES.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -1151,6 +1152,8 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
         glTexIDs.push_back(glTexID);
     }
     
+//    WHIRLYKIT_LOGD("BasicDrawable ---- start ----");
+    
     // Model/View/Projection matrix
     prog->setUniform("u_mvpMatrix", frameInfo->mvpMat);
     prog->setUniform("u_mvMatrix", frameInfo->viewAndModelMat);
@@ -1272,6 +1275,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
         }
         usedLocalVertices = true;
         glEnableVertexAttribArray ( vertAttr->index );
+//        WHIRLYKIT_LOGD("BasicDrawable glEnableVertexAttribArray %d",vertAttr->index);
         
         // All the rest of the attributes
         for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
@@ -1288,6 +1292,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
                     else
                         glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
                     glEnableVertexAttribArray(thisAttr->index);
+//                    WHIRLYKIT_LOGD("BasicDrawable glEnableVertexAttribArray %d",thisAttr->index);
                     progAttrs[ii] = thisAttr;
                 } else {
                     // The program is expecting it, so we need a default
@@ -1302,6 +1307,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
         {
             boundElements = true;
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedBuffer);
+//            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer %d",sharedBuffer);
             CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
         }
     }
@@ -1363,6 +1369,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
                 frameInfo->stateOpt->setLineWidth(lineWidth);
                 CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
                 glDrawArrays(type, 0, numPoints);
+//                WHIRLYKIT_LOGD("BasicDrawable points = %d",numPoints);
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
             case GL_TRIANGLE_STRIP:
@@ -1383,7 +1390,10 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
     // Note: Porting.  Is this redundant?
     // Tear down the various arrays, if we stood them up
     if (usedLocalVertices)
+    {
         glDisableVertexAttribArray(vertAttr->index);
+//        WHIRLYKIT_LOGD("BasicDrawable glDisableVertexAttribArray %d",vertAttr->index);
+    }
     //    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
     //        if (progAttrs[ii])
     //            glDisableVertexAttribArray(progAttrs[ii]->index);
@@ -1392,16 +1402,29 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
     {
         // Now tear down all that state
         if (vertAttr)
+        {
             glDisableVertexAttribArray(vertAttr->index);
+//            WHIRLYKIT_LOGD("BasicDrawable glDisableVertexAttribArray %d",vertAttr->index);
+        }
         for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
             if (progAttrs[ii])
+            {
                 glDisableVertexAttribArray(progAttrs[ii]->index);
-        if (boundElements)
+//                WHIRLYKIT_LOGD("BasicDrawable glDisableVertexAttribArray %d",progAttrs[ii]->index);
+            }
+        if (boundElements) {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer 0");
+        }
         if (sharedBuffer)
+        {
             glBindBuffer(GL_ARRAY_BUFFER, 0);
+//            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer 0");
+        }
     }
-    
+
+//    WHIRLYKIT_LOGD("BasicDrawable ---- end ----");
+
     // Let a subclass clean up any remaining state
     postDrawCallback(frameInfo,scene);
 }
