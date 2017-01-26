@@ -40,7 +40,7 @@ ViewPlacementGenerator::~ViewPlacementGenerator()
     viewInstanceSet.clear();
 }
     
-void ViewPlacementGenerator::addView(GeoCoord loc,UIView *view,float minVis,float maxVis)
+void ViewPlacementGenerator::addView(GeoCoord loc,const Point2d &offset2,UIView *view,float minVis,float maxVis)
 {
     // Make sure it isn't already there
     removeView(view);
@@ -50,13 +50,14 @@ void ViewPlacementGenerator::addView(GeoCoord loc,UIView *view,float minVis,floa
     viewInst.maxVis = maxVis;
     CGRect frame = view.frame;
     viewInst.offset = Point2d(frame.origin.x,frame.origin.y);
+    viewInst.offset2 = offset2;
     
     pthread_mutex_lock(&viewInstanceLock);
     viewInstanceSet.insert(viewInst);
     pthread_mutex_unlock(&viewInstanceLock);
 }
 
-void ViewPlacementGenerator::moveView(GeoCoord loc,UIView *view,float minVis,float maxVis)
+void ViewPlacementGenerator::moveView(GeoCoord loc,const Point2d &offset2,UIView *view,float minVis,float maxVis)
 {
     pthread_mutex_lock(&viewInstanceLock);
 
@@ -73,6 +74,7 @@ void ViewPlacementGenerator::moveView(GeoCoord loc,UIView *view,float minVis,flo
     viewInst.minVis = minVis;
     viewInst.maxVis = maxVis;
     viewInst.offset = offset;
+    viewInst.offset2 = offset2;
     viewInstanceSet.insert(viewInst);
     
     pthread_mutex_unlock(&viewInstanceLock);
@@ -230,11 +232,11 @@ void ViewPlacementGenerator::generateDrawables(WhirlyKitRendererFrameInfo *frame
                 dispatch_async(dispatch_get_main_queue(),
                                ^{
                                    viewInst.view.hidden = false;
-                                   viewInst.view.frame = CGRectMake(screenPt.x / scale + viewInst.offset.x(), screenPt.y / scale + viewInst.offset.y(), size.width, size.height);
+                                   viewInst.view.frame = CGRectMake(screenPt.x / scale + viewInst.offset.x() + viewInst.offset2.x(), screenPt.y / scale + viewInst.offset.y() + viewInst.offset2.y(), size.width, size.height);
                                });
             } else {
                 viewInst.view.hidden = false;
-                viewInst.view.frame = CGRectMake(screenPt.x / scale + viewInst.offset.x(), screenPt.y / scale + viewInst.offset.y(), size.width, size.height);
+                viewInst.view.frame = CGRectMake(screenPt.x / scale + viewInst.offset.x() + viewInst.offset2.x(), screenPt.y / scale + viewInst.offset.y() + viewInst.offset2.y(), size.width, size.height);
             }
         } else {
             if ([NSThread currentThread] != [NSThread mainThread])

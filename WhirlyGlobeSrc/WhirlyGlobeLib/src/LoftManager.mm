@@ -539,7 +539,7 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLof
         for (ShapeSet::iterator it = sceneRep->shapes.begin();
              it != sceneRep->shapes.end(); ++it)
         {
-            VectorArealRef theAreal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+            VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
             if (theAreal.get())
             {
                 for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
@@ -634,7 +634,7 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,NSDiction
         for (ShapeSet::iterator it = polyInfo->shapes.begin();
              it != polyInfo->shapes.end(); ++it)
         {
-            VectorArealRef theAreal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+            VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
             if (theAreal.get())
             {
                 // Work through the loops
@@ -719,7 +719,8 @@ void LoftManager::removeLoftedPolys(SimpleIDSet &polyIDs,ChangeSet &changes)
         if (it != loftReps.end())
         {
             LoftedPolySceneRep *sceneRep = *it;
-            
+
+            NSTimeInterval removeTime = 0.0;
             if (sceneRep->fade > 0.0)
             {
                 NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
@@ -727,32 +728,16 @@ void LoftManager::removeLoftedPolys(SimpleIDSet &polyIDs,ChangeSet &changes)
                 for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                      idIt != sceneRep->drawIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+sceneRep->fade));
-                
-                __block NSObject * __weak thisCanary = canary;
 
-                // Kick off the delete in a bit
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
-                               scene->getDispatchQueue(),
-                               ^{
-                                   if (thisCanary)
-                                   {
-                                       SimpleIDSet theIDs;
-                                       theIDs.insert(sceneRep->getId());
-                                       ChangeSet delChanges;
-                                       removeLoftedPolys(theIDs, delChanges);
-                                       scene->addChangeRequests(delChanges);
-                                   }
-                               }
-                               );
-                sceneRep->fade = 0.0;
-            } else {
-                for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-                     idIt != sceneRep->drawIDs.end(); ++idIt)
-                    changes.push_back(new RemDrawableReq(*idIt));
-                loftReps.erase(it);
-                
-                delete sceneRep;
+                removeTime = curTime + sceneRep->fade;
             }
+            
+            
+            for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
+                 idIt != sceneRep->drawIDs.end(); ++idIt)
+                changes.push_back(new RemDrawableReq(*idIt,removeTime));
+            loftReps.erase(it);
+            delete sceneRep;
         }
     }
     

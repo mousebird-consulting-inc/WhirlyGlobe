@@ -53,7 +53,7 @@ int ParticleSystemAttribute::dataSize()
 
 @implementation MaplyParticleSystem
 
-- (id)initWithName:(NSString *)name
+- (instancetype)initWithName:(NSString *)name
 {
     self = [super init];
     if (!self)

@@ -156,8 +156,13 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
         // Turn this on to provide glTexImage2D with empty memory so Instruments doesn't complain
 //        size_t size = texSize*texSize*4;
 //        unsigned char *zeroMem = (unsigned char *)malloc(size);
+//        unsigned int *intMem = (unsigned int *)zeroMem;
+//        for (unsigned int ii=0;ii<texSize*texSize;ii++)
+//        {
+//            intMem[ii] = 0x000000ff;
+//        }
 //        memset(zeroMem, 255, size);
-//        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texSize, texSize, 0, GL_RGBA, format, zeroMem);
+//        glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, GL_RGBA, type, zeroMem);
 //        free(zeroMem);
         glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, type, NULL);
     }
@@ -213,6 +218,9 @@ void DynamicTexture::addTextureData(int startX,int startY,int width,int height,N
     
 void DynamicTexture::clearTextureData(int startX,int startY,int width,int height)
 {
+    if (!clearTextures)
+        return;
+    
     glBindTexture(GL_TEXTURE_2D, glId);
     
     if (compressed)
@@ -225,7 +233,7 @@ void DynamicTexture::clearTextureData(int startX,int startY,int width,int height
 //            NSLog(@"Compressed texture doesn't match atlas.");
 //        else
 //            glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
-    } else if (clearTextures) {
+    } else {
         std::vector<unsigned char> emptyPixels(width*height*4,0);
         glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, emptyPixels.data());
     }
@@ -355,7 +363,10 @@ DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,
     
 DynamicTextureAtlas::~DynamicTextureAtlas()
 {
-    // It's up to the scene to actually delete the textures
+    // Clean up anything we might have left over
+    for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); ++it)
+        delete *it;
+
     textures.clear();
 }
     
@@ -424,6 +435,9 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
             dynTexVec->push_back(dynTex);
             dynTex->createInGL(memManager);
         }
+        // Unfortunately, we have to flush here or run the risk of no one else seeing our texture
+//        glFlush();
+
 //        NSLog(@"Added dynamic texture %ld (%ld)",dynTex->getId(),textures.size());
         textures.insert(dynTexVec);
         DynamicTexture::Region thisRegion;
@@ -435,7 +449,9 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
             found = true;
         }
         for (unsigned int ii=0;ii<dynTexVec->size();ii++)
+        {
             changes.push_back(new AddTextureReq(dynTexVec->at(ii)));
+        }
     }
     
     if (found)
@@ -526,7 +542,7 @@ bool DynamicTextureAtlas::updateTexture(Texture *tex,int frame,const TextureRegi
     return false;
 }
     
-void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &changes)
+void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &changes,NSTimeInterval when)
 {
     TextureRegion texRegion;
     texRegion.subTex.setId(subTex.getId());
@@ -537,7 +553,7 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
         TextureRegion theRegion = *it;
         // Tell the dynamic texture to clear it out, but we'll send that request over to
         //  the renderer so we can be sure we're not still using it
-        changes.push_back(new DynamicTextureClearRegion(theRegion.dynTexId,theRegion.region));
+        changes.push_back(new DynamicTextureClearRegion(theRegion.dynTexId,theRegion.region,when));
         regions.erase(it);
         
         // See if that texture is now empty
@@ -551,7 +567,8 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
             DynamicTexture *tex = texVec->at(0);
             tex->getNumRegions()--;
         }
-    }
+    } else
+        NSLog(@"DynamicTextureAtlas: Request to remove non-existent texture.");
 }
     
 bool DynamicTextureAtlas::empty()
@@ -559,7 +576,7 @@ bool DynamicTextureAtlas::empty()
     return textures.empty();
 }
     
-void DynamicTextureAtlas::cleanup(ChangeSet &changes)
+void DynamicTextureAtlas::cleanup(ChangeSet &changes,NSTimeInterval when)
 {
     DynamicTextureSet::iterator itNext;
     for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); it = itNext)
@@ -571,10 +588,9 @@ void DynamicTextureAtlas::cleanup(ChangeSet &changes)
         if (tex->getNumRegions() == 0)
         {
             for (unsigned int ii=0;ii<texVec->size();ii++)
-                changes.push_back(new RemTextureReq(texVec->at(ii)->getId()));
+                changes.push_back(new RemTextureReq(texVec->at(ii)->getId(),when));
             delete texVec;
             textures.erase(it);
-            //                NSLog(@"Removing dynamic texture %ld (%ld)",tex->getId(),textures.size());
         }
     }
 }
@@ -603,7 +619,7 @@ SimpleIdentity DynamicTextureAtlas::getTextureIDForFrame(SimpleIdentity baseTexI
     return EmptyIdentity;
 }
     
-void DynamicTextureAtlas::shutdown(ChangeSet &changes)
+void DynamicTextureAtlas::teardown(ChangeSet &changes)
 {
     for (DynamicTextureSet::iterator it = textures.begin(); it != textures.end(); ++it)
     {
@@ -614,6 +630,12 @@ void DynamicTextureAtlas::shutdown(ChangeSet &changes)
     }
     textures.clear();
     regions.clear();
+}
+    
+void DynamicTextureAtlas::getUsage(int &numRegions,int &dynamicTextures)
+{
+    numRegions = regions.size();
+    dynamicTextures = textures.size();
 }
 
 void DynamicTextureAtlas::log()

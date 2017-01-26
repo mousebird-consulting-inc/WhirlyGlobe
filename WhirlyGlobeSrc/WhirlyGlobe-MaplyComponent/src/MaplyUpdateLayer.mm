@@ -26,7 +26,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyViewerState
 
-- (id)initWithViewState:(WhirlyKitViewState *)inViewState
+- (instancetype)initWithViewState:(WhirlyKitViewState *)inViewState
 {
     self = [super init];
     if (!self)
@@ -58,7 +58,7 @@ using namespace WhirlyKit;
     WhirlyKitViewState *viewState;
 }
 
-- (id)initWithDelegate:(NSObject<MaplyUpdateDelegate> *)inDelegate moveDist:(double)moveDist minTime:(double)minTime
+- (instancetype)initWithDelegate:(NSObject<MaplyUpdateDelegate> *)inDelegate moveDist:(double)moveDist minTime:(double)minTime
 {
     self = [super init];
     if (!self)
@@ -119,7 +119,7 @@ using namespace WhirlyKit;
     if (layerThread.viewWatcher)
         [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
     
-    [delegate shutdown:self];
+    [delegate teardown:self];
 }
 
 @end

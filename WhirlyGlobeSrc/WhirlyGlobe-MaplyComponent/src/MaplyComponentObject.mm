@@ -22,7 +22,7 @@
 
 @implementation MaplyComponentObject
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     _isSelectable = true;
@@ -31,7 +31,7 @@
     return self;
 }
 
-- (id)initWithDesc:(NSDictionary *)desc
+- (instancetype)initWithDesc:(NSDictionary *)desc
 {
     self = [super init];
     _isSelectable = true;

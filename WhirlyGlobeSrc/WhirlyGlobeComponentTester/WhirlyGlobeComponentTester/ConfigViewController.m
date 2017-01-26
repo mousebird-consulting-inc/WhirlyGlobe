@@ -90,6 +90,7 @@
                                                rows:
                 @{kMaplyTestOWM: @(NO),
                   kMaplyTestForecastIO: @(NO),
+                  kMaplyAerisTest: @(NO)
                   }
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
@@ -108,6 +109,7 @@
                   kMaplyTestLoftedPoly: @(NO),
                   kMaplyTestQuadMarkers: @(NO),
                   kMaplyTestMegaMarkers: @(NO),
+                  kMaplyTestMarkerCluster: @(NO),
                   kMaplyTestLatLon: @(NO),
                   kMaplyTestArcGIS: @(NO),
                   kMaplyTestStarsAndSun: @(NO),
@@ -117,14 +119,6 @@
                                                rows:
                 @{kMaplyTestAnimateSphere: @(NO)}
                                        singleSelect:false]]];
-
-            [newValues addObject:
-             [ConfigSection ConfigSectionWithName:kMaplyTestCategoryGestures
-                                             rows:
-              @{kMaplyTestNorthUp: @(NO),
-                kMaplyTestPinch: @(YES),
-                kMaplyTestRotate: @(YES)}
-                                     singleSelect:false]];
             break;
         case ConfigOptions3DTerrain:
             break;
@@ -146,7 +140,8 @@
                                                rows:
                 @{kMaplyTestOWM: @(NO),
                   kMaplyTestForecastIO: @(NO),
-                  kMaplyMapzenVectors: @(NO)
+                  kMaplyMapzenVectors: @(NO),
+                  kMaplyAerisTest: @(NO)
                   }
                                        singleSelect:false],
                [ConfigSection ConfigSectionWithName:kMaplyTestCategoryObjects
@@ -163,17 +158,17 @@
                   kMaplyTestArcGIS: @(NO),
                   }
                                    singleSelect:false]]];
-            
-            [newValues addObject:
-             [ConfigSection ConfigSectionWithName:kMaplyTestCategoryGestures
-                                             rows:
-              @{
-                kMaplyTestPinch: @(YES),
-                kMaplyTestRotate: @(YES)}
-                                     singleSelect:false]];
             break;
     }
 
+    [newValues addObject:
+     [ConfigSection ConfigSectionWithName:kMaplyTestCategoryGestures
+                                     rows:
+      @{kMaplyTestNorthUp: @(NO),
+                            kMaplyTestPan: @(YES),
+                          kMaplyTestPinch: @(YES),
+                         kMaplyTestRotate: @(YES)}
+                             singleSelect:false]];
     [newValues addObject:
      [ConfigSection ConfigSectionWithName:kMaplyTestCategoryInternal
                     rows:

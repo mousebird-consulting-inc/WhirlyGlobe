@@ -19,8 +19,6 @@
  */
 
 #import <set>
-#import <boost/shared_ptr.hpp>
-#import <boost/pointer_cast.hpp>
 
 namespace WhirlyKit
 {
@@ -74,7 +72,7 @@ protected:
 };
 
 /// Reference counted version of Identifiable
-typedef boost::shared_ptr<Identifiable> IdentifiableRef;
+typedef std::shared_ptr<Identifiable> IdentifiableRef;
 	
 /// Used to sort identifiables in a set or similar STL container
 typedef struct

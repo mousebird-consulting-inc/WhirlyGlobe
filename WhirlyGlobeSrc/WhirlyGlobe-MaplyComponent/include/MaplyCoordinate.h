@@ -32,6 +32,10 @@ typedef struct
     float x,y;
 } MaplyCoordinate;
 
+
+static const MaplyCoordinate kMaplyNullCoordinate = {.x = FLT_MIN, .y = FLT_MIN};
+
+
 /** @typedef struct MaplyCoordinateD
     @brief Double precision version of 2D coordinate.
     @details This works the same was as the MaplyCoordinate, but has
@@ -41,6 +45,9 @@ typedef struct
 {
     double x,y;
 } MaplyCoordinateD;
+
+static const MaplyCoordinateD kMaplyNullCoordinateD = {.x = DBL_MIN, .y = DBL_MIN};
+
 
 /** @typedef struct MaplyCoordinate3d
     @brief A 3D coordinate representation.
@@ -59,10 +66,30 @@ typedef struct
 @interface MaplyCoordinate3dWrapper : NSObject
 
 /// @brief Initialize with a 3D coordinate
-- (id)initWithCoord:(MaplyCoordinate3d)coord;
+- (instancetype)initWithCoord:(MaplyCoordinate3d)coord;
 
 /// @brief 3D coordinate
 @property (nonatomic,readonly) MaplyCoordinate3d coord;
+
+@end
+
+typedef struct
+{
+    double x,y,z;
+} MaplyCoordinate3dD;
+
+static const MaplyCoordinate3dD kMaplyNullCoordinate3dD = {.x = DBL_MIN, .y = DBL_MIN, .z = DBL_MIN};
+
+/** @brief An NSObject based wrapper for 3D coordinates.
+ @details This wrapper encapsulates a MaplyCoordinate3d so we can pass them around in NSDictionary objects.
+ */
+@interface MaplyCoordinate3dDWrapper : NSObject
+
+/// @brief Initialize with a 3D coordinate
+- (instancetype)initWithCoord:(MaplyCoordinate3dD)coord;
+
+/// @brief 3D coordinate
+@property (nonatomic,readonly) MaplyCoordinate3dD coord;
 
 @end
 
@@ -76,6 +103,26 @@ typedef struct
     MaplyCoordinate ur;
 } MaplyBoundingBox;
 
+static const MaplyBoundingBox kMaplyNullBoundingBox = {
+	.ll = {.x = FLT_MIN, .y = FLT_MIN},
+	.ur = {.x = FLT_MIN, .y = FLT_MIN}
+};
+
+/** @typedef struct MaplyBoundingBox
+ @brief Represents a bounding box in a particular coordinate system.
+ @details ll is the lower left and ur is the upper right.
+ */
+typedef struct
+{
+	MaplyCoordinateD ll;
+	MaplyCoordinateD ur;
+} MaplyBoundingBoxD;
+
+static const MaplyBoundingBoxD kMaplyNullBoundingBoxD = {
+	.ll = {.x = DBL_MIN, .y = DBL_MIN},
+	.ur = {.x = DBL_MIN, .y = DBL_MIN}
+};
+
 #if __cplusplus
 extern "C" {
 #endif
@@ -85,6 +132,12 @@ extern "C" {
     @return A 2D MaplyCoordinate in radians (if representing a lon/lat value).
   */
 MaplyCoordinate MaplyCoordinateMake(float radLon,float radLat);
+
+/** @brief Construct a MaplyCoordianteD with longitude and latitude values in radians.
+    @details MaplyCoordinate's are in radians when they represent lon/lat values.  This constructs one with radians as input.
+    @return A 2D MaplyCoordinateD in radians (if representing a lon/lat value).
+    */
+MaplyCoordinateD MaplyCoordinateDMake(double radLon,double radLat);
     
 /** @brief Construct a MaplyGeoCoordinate with longitude and latitude values in degrees.
     @details MaplyCoordinate's are in radians when they represent lon/lat values.  This function does that conversion for you.
@@ -93,6 +146,21 @@ MaplyCoordinate MaplyCoordinateMake(float radLon,float radLat);
     @return A 2D MaplyCoordinate in radians (if representing a lon/lat value).
   */
 MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat);
+
+/** @brief Construct a MaplyGeoCoordinate with longitude and latitude values in degrees.
+ @details MaplyCoordinate's are in radians when they represent lon/lat values.  This function does that conversion for you.
+ @param degLon The longitude value (east to west) in degrees.
+ @param degLat The latitude value (north to south) in degrees.
+ @return A 2D MaplyCoordinate in radians (if representing a lon/lat value).
+ */
+MaplyCoordinateD MaplyCoordinateDMakeWithDegrees(float degLon,float degLat);
+
+/** @brief Construct a MaplyCoordinateD with a MaplyCoordinate.
+    @details This function constructs a MaplyCoordinateD with the component values of the input MaplyCoordinate.
+    @param c The input MaplyCoordinate value.
+    @return A 2D MaplyCoordinateD in radians (if representing a lon/lat value).
+  */
+MaplyCoordinateD MaplyCoordinateDMakeWithMaplyCoordinate(MaplyCoordinate c);
     
 /** @brief Construct a MaplyCoordinat3d from the values given.
     @param x The x value, or longitude in radians if we're making geo coordinates.
@@ -102,6 +170,15 @@ MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat);
     @return A 3D MaplyCoordinate3d in radians + other (if representing a lon/lat value).
   */
 MaplyCoordinate3d MaplyCoordinate3dMake(float x,float y,float z);
+
+/** @brief Construct a MaplyCoordinat3d from the values given.
+    @param x The x value, or longitude in radians if we're making geo coordinates.
+    @param y The y value, or latitude in radians if we're making geo coordinates.
+    @param z The z value, sometimes this is display coordinates (radius == 1.0 for a sphere)
+ and sometimes this is meters.  It depends on how you're using it.
+    @return A 3D MaplyCoordinate3d in radians + other (if representing a lon/lat value).
+ */
+MaplyCoordinate3dD MaplyCoordinate3dDMake(double x,double y,double z);
 
 /** @brief Construct a MaplyBoundingBox from the values given.
     @details The inputs are in degrees and the order is longitude *then* latitude.

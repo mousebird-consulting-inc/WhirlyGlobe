@@ -28,10 +28,10 @@
 @interface MaplyPagingElevationTestTileSource : NSObject<MaplyPagingDelegate>
 
 /// Initialize with the coordinate system, min and max zoom levels, and the number of images to return
-- (id)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom elevSource:(id<MaplyElevationSourceDelegate>) elevSource;
+- (nonnull instancetype)initWithCoordSys:(MaplyCoordinateSystem *__nonnull)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom elevSource:(id<MaplyElevationSourceDelegate> __nullable) elevSource;
 
 /// Coordinate system we're pretending to be in
-@property (nonatomic,readonly) MaplyCoordinateSystem *coordSys;
+@property (nonatomic,readonly,nonnull) MaplyCoordinateSystem *coordSys;
 
 /// Minimum zoom level supported
 @property (nonatomic) int minZoom;
@@ -40,6 +40,6 @@
 @property (nonatomic) int maxZoom;
 
 /// The data source for elevation data
-@property (nonatomic) id<MaplyElevationSourceDelegate> elevSource;
+@property (nonatomic,nullable) id<MaplyElevationSourceDelegate> elevSource;
 
 @end

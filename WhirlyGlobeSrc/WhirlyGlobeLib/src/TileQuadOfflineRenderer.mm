@@ -200,7 +200,6 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
         }
     }
     somethingChanged = true;
-    // Note: Debugging
 //    if (!immediateScheduled)
 //    {
 //        [self performSelector:@selector(imageRenderImmediate) onThread:_quadLayer.layerThread withObject:nil waitUntilDone:NO];
@@ -434,7 +433,6 @@ typedef std::set<OfflineTile *,OfflineTileSorter> OfflineTileSet;
                             imageToDraw = [UIImage imageWithData:(NSData *)imageToDraw];
                         if (![imageToDraw isKindOfClass:[UIImage class]])
                         {
-                            // Note: Debugging.  Should put this back
 //                            NSLog(@"Found bad image in offline renderer.");
                             imageToDraw = nil;
                         }
