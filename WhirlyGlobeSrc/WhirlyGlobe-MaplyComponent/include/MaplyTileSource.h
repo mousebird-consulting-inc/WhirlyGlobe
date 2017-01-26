@@ -51,7 +51,7 @@ typedef struct
 } MaplyTileID;
 
 /// @brief Convert a MaplyTileID to an NSString
-NSString *MaplyTileIDString(MaplyTileID tileID);
+NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
 
 /** @brief The protocol for a Maply Tile Source.  
     @details Fill out this protocol and you can pass in your own data tile by tile. This protocol is used by the MaplyQuadImageTilesLayer to pull in image data per tile.  This can be one or more images, they can be local, remote or even generated on the fly.  It's up to the object itself to return suitable data as requested or indicate failure (by returning nil).
@@ -90,7 +90,7 @@ NSString *MaplyTileIDString(MaplyTileID tileID);
  be MaplyPlateCarree, which covers the whole earth.  Sometimes
  it might even be something unique of your own.
  */
-- (MaplyCoordinateSystem*)coordSys;
+- (nonnull MaplyCoordinateSystem *)coordSys;
 
 @optional
 
@@ -101,7 +101,7 @@ NSString *MaplyTileIDString(MaplyTileID tileID);
     @details bbox The bounding box of the tile we're asking about, for convenience.
     @return True if the tile is loadable, false if not.
   */
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox;
 
 /** @brief For tiles of variable sizes, return the pixel size we'll use to evaluate this particular tile.
     @details If you have tiles with variable sizes... first of all why?  Seriously, why are you doing that?  Stop it.
@@ -116,7 +116,7 @@ NSString *MaplyTileIDString(MaplyTileID tileID);
     @details If you don't have an image to load (because there isn't one) and you want the layer to keep paging below that, you should pass in a MaplyImageTile set up as a placeholder.  The visual tile will be blank, but you'll have the opportunity to provide higher resolution tiles.
     @return Return an NSData*.
   */
-- (id)imageForTile:(MaplyTileID)tileID;
+- (nullable id)imageForTile:(MaplyTileID)tileID;
 
 /** @brief Fetch the image for a given frame of a given tile.  These are for animation.
     @details For this method, you can return either a full UIImage or a MaplyImageTile.
@@ -126,7 +126,7 @@ NSString *MaplyTileIDString(MaplyTileID tileID);
     @param frame Frame of tile animation to load.
     @return Return an NSData*.
  */
-- (id)imageForTile:(MaplyTileID)tileID frame:(int)frame;
+- (nullable id)imageForTile:(MaplyTileID)tileID frame:(int)frame;
 
 /** @brief Start fetching the given tile, probably with your own threads.
     @details If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
@@ -134,7 +134,7 @@ NSString *MaplyTileIDString(MaplyTileID tileID);
     @param layer This is probably a MaplyQuadImageTilesLayer, but others use this protocol as well.  Your tile source should know.
     @param tileID The tile you should start fetching.
   */
-- (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID;
+- (void)startFetchLayer:(id __nonnull)layer tile:(MaplyTileID)tileID;
 
 /** @brief Start fetching the given tile, but just the given frame.  This is for multi-frame tiles (e.g. animations).
     @details If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
@@ -143,7 +143,7 @@ NSString *MaplyTileIDString(MaplyTileID tileID);
     @param tileID The tile you should start fetching.
     @param frame The individual frame (of an animation) to fetch.
   */
-- (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID frame:(int)frame;
+- (void)startFetchLayer:(id __nonnull)layer tile:(MaplyTileID)tileID frame:(int)frame;
 
 /** @brief Called when the tile is disabled by the renderer.
     @details Normally you won't get called when an image or vector tile is disabled from display.  If you set this, you will.

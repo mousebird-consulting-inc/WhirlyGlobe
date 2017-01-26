@@ -41,7 +41,7 @@ typedef struct
     UIImage *image;
 }
 
-- (id)initWithFileName:(NSString *)fileName
+- (instancetype)initWithFileName:(NSString *)fileName
 {
     self = [super init];
     
@@ -141,8 +141,8 @@ typedef struct
     partSys = [[MaplyParticleSystem alloc] initWithName:@"Stars"];
     partSys.type = MaplyParticleSystemTypePoint;
     partSys.lifetime = 1e20;
-    partSys.totalParticles = stars.size();
-    partSys.batchSize = stars.size();
+    partSys.totalParticles = (int)stars.size();
+    partSys.batchSize = (int)stars.size();
     partSys.continuousUpdate = false;
     partSys.shader = shader.name;
     if (starTex)

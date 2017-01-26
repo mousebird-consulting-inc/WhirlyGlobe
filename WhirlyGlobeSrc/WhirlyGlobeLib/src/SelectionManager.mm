@@ -28,6 +28,7 @@
 #import "SceneRendererES.h"
 #import "ScreenSpaceBuilder.h"
 #import "LayoutManager.h"
+#import "MaplyLayerViewWatcher.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -647,13 +648,13 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
          it != rect2Dselectables.end(); ++it)
     {
         const RectSelectable2D &sel = *it;
-        if (sel.selectID != EmptyIdentity)
+        if (sel.selectID != EmptyIdentity && sel.enable)
         {
             if (sel.minVis == DrawVisibleInvalid ||
                 (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
             {
                 ScreenSpaceObjectLocation objLoc;
-                objLoc.shapeID = sel.selectID;
+                objLoc.shapeIDs.push_back(sel.selectID);
                 objLoc.dispLoc = sel.center;
                 objLoc.offset = Point2d(0,0);
                 for (unsigned int ii=0;ii<4;ii++)
@@ -677,7 +678,7 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
                 (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
             {
                 ScreenSpaceObjectLocation objLoc;
-                objLoc.shapeID = sel.selectID;
+                objLoc.shapeIDs.push_back(sel.selectID);
                 objLoc.dispLoc = sel.centerForTime(now);
                 objLoc.offset = Point2d(0,0);
                 for (unsigned int ii=0;ii<4;ii++)
@@ -699,9 +700,16 @@ SelectionManager::PlacementInfo::PlacementInfo(WhirlyKitView *view,WhirlyKitScen
     
     // Sort out what kind of view it is
     if ([view isKindOfClass:[WhirlyGlobeView class]])
+    {
         globeView = (WhirlyGlobeView *)view;
-    else if ([view isKindOfClass:[MaplyView class]])
+        globeViewState = [[WhirlyGlobeViewState alloc] initWithView:globeView renderer:renderer];
+        viewState = globeViewState;
+    } else if ([view isKindOfClass:[MaplyView class]])
+    {
         mapView = (MaplyView *)view;
+        mapViewState = [[MaplyViewState alloc] initWithView:mapView renderer:renderer];
+        viewState = mapViewState;
+    }
     heightAboveSurface = view.heightAboveSurface;
     
     // Calculate a slightly bigger framebuffer to grab nearby features
@@ -763,7 +771,11 @@ struct selectedsorter
     bool operator() (const SelectionManager::SelectedObject &a,const SelectionManager::SelectedObject &b) const
     {
         if (a.screenDist == b.screenDist)
-            return a.distIn3D < b.distIn3D;
+        {
+            if (a.isCluster == b.isCluster)
+                return a.distIn3D < b.distIn3D;
+            return a.isCluster < b.isCluster;
+        }
         return a.screenDist < b.screenDist;
     }
 } SelectedSorter;
@@ -786,7 +798,44 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
     
     if (selObjs.empty())
         return EmptyIdentity;
-    return selObjs[0].selectID;
+    return selObjs[0].selectIDs[0];
+}
+
+Matrix2d SelectionManager::calcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
+{
+    // Switch from counter-clockwise to clockwise
+    double rot = 2*M_PI-ssObj->rotation;
+    
+    Point3d upVec,northVec,eastVec;
+    if (!globeViewState)
+    {
+        upVec = Point3d(0,0,1);
+        northVec = Point3d(0,1,0);
+        eastVec = Point3d(1,0,0);
+    } else {
+        upVec = ssObj->dispLoc.normalized();
+        // Vector pointing north
+        northVec = Point3d(-ssObj->dispLoc.x(),-ssObj->dispLoc.y(),1.0-ssObj->dispLoc.z());
+        eastVec = northVec.cross(upVec);
+        northVec = upVec.cross(eastVec);
+    }
+    
+    // This vector represents the rotation in world space
+    Point3d rotVec = eastVec * sin(rot) + northVec * cos(rot);
+    
+    // Project down into screen space
+    Vector4d projRot = normalMat * Vector4d(rotVec.x(),rotVec.y(),rotVec.z(),0.0);
+    
+    // Use the resulting x & y
+    screenRot = atan2(projRot.y(),projRot.x())-M_PI/2.0;
+    // Keep the labels upright
+    if (ssObj->keepUpright)
+        if (screenRot > M_PI/2 && screenRot < 3*M_PI/2)
+            screenRot = screenRot + M_PI;
+    Matrix2d screenRotMat;
+    screenRotMat = Eigen::Rotation2Dd(screenRot);
+    
+    return screenRotMat;
 }
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
@@ -807,6 +856,12 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
     // And the eye vector for billboards
     Vector4d eyeVec4 = pInfo.viewAndModelInvMat * Vector4d(0,0,1,0);
     Vector3d eyeVec(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
+    Matrix4d modelTrans = pInfo.viewState.fullMatrices[0];
+    Matrix4d normalMat = pInfo.viewState.fullMatrices[0].inverse().transpose();
+
+    Point2f frameBufferSize;
+    frameBufferSize.x() = renderer.framebufferWidth;
+    frameBufferSize.y() = renderer.framebufferHeight;
 
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     
@@ -840,26 +895,58 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
             if (!pInfo.frameMbr.overlaps(objMbr))
                 continue;
             
-            if (screenObj.shapeID != EmptyIdentity)
+            if (!screenObj.shapeIDs.empty())
             {
-                std::vector<Point2f> screenPts;
-                for (unsigned int kk=0;kk<4;kk++)
-                {
-                    const Point2d &screenObjPt = screenObj.pts[kk];
-                    Point2d theScreenPt = Point2d(screenObjPt.x(),-screenObjPt.y()) + projPt + Point2d(screenObj.offset.x(),-screenObj.offset.y());
-                    screenPts.push_back(Point2f(theScreenPt.x(),theScreenPt.y()));
-                }
+                Matrix2d screenRotMat;
+                float screenRot = 0.0;
+                CGPoint objPt;
+                objPt.x = projPt.x();  objPt.y = projPt.y();
+                if (screenObj.rotation != 0.0)
+                    screenRotMat = calcScreenRot(screenRot,pInfo.viewState,pInfo.globeViewState,&screenObj,objPt,modelTrans,normalMat,frameBufferSize);
 
+                std::vector<Point2f> screenPts;
+                if (screenRot == 0.0)
+                {
+                    for (unsigned int kk=0;kk<screenObj.pts.size();kk++)
+                    {
+                        const Point2d &screenObjPt = screenObj.pts[kk];
+                        Point2d theScreenPt = Point2d(screenObjPt.x(),-screenObjPt.y()) + projPt + Point2d(screenObj.offset.x(),-screenObj.offset.y());
+                        screenPts.push_back(Point2f(theScreenPt.x(),theScreenPt.y()));
+                    }
+                } else {
+                    Point2d center(objPt.x,objPt.y);
+                    for (unsigned int kk=0;kk<screenObj.pts.size();kk++)
+                    {
+                        const Point2d screenObjPt = screenRotMat * (screenObj.pts[kk] + Point2d(screenObj.offset.x(),screenObj.offset.y()));
+                        Point2d theScreenPt = Point2d(screenObjPt.x(),-screenObjPt.y()) + projPt;
+                        screenPts.push_back(Point2f(theScreenPt.x(),theScreenPt.y()));
+                    }
+                }
+                
+                // Note: Debugging
+//                {
+//                    NSMutableString *str = [NSMutableString string];
+//                    [str appendFormat:@"Selectable object %d pts: ",screenPts.size()];
+//                    for (auto pt : screenPts)
+//                        [str appendFormat:@" [%d,%d]",(int)(pt.x()),(int)(pt.y())];
+//                    NSLog(@"%@",str);
+//                }
+
+                
                 // See if we fall within that polygon
                 if (PointInPolygon(touchPt, screenPts))
                 {
-                    SelectedObject selObj(screenObj.shapeID,0.0,0.0);
-                    selObjs.push_back(selObj);
+                    for (auto shapeID : screenObj.shapeIDs)
+                    {
+                        SelectedObject selObj(shapeID,0.0,0.0);
+                        selObj.isCluster = screenObj.isCluster;
+                        selObjs.push_back(selObj);
+                    }
                     break;
                 }
                 
                 // Now for a proximity check around the edges
-                for (unsigned int ii=0;ii<4;ii++)
+                for (unsigned int ii=0;ii<screenObj.pts.size();ii++)
                 {
                     float t;
                     Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt,t);
@@ -871,8 +958,12 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
         // Got close enough to this object to select it
         if (closeDist2 < maxDist2)
         {
-            SelectedObject selObj(screenObj.shapeID,0.0,sqrtf(closeDist2));
-            selObjs.push_back(selObj);
+            for (auto shapeID : screenObj.shapeIDs)
+            {
+                SelectedObject selObj(shapeID,0.0,sqrtf(closeDist2));
+                selObj.isCluster = screenObj.isCluster;
+                selObjs.push_back(selObj);
+            }
         }
         
         if (!multi && !selObjs.empty())
@@ -886,7 +977,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
     if (pInfo.globeView)
         eyePos = pInfo.globeView.eyePos;
     else
-        NSLog(@"Need to fill in eyePos for mapView");
+        eyePos = pInfo.mapView.eyePos;
 
     if (!polytopeSelectables.empty())
     {

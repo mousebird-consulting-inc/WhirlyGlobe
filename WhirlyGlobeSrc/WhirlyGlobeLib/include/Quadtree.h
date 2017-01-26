@@ -18,6 +18,7 @@
  *
  */
 
+#import <Foundation/Foundation.h>
 #import "WhirlyVector.h"
 #import <set>
 
@@ -228,6 +229,9 @@ public:
     
     /// Check if a given frame is completely loaded (if we're in frame mode)
     bool frameIsLoaded(int frame,int *tilesLoaded);
+    
+    /// Return the bounding box for the quad tree
+    Mbr getMbr() const { return mbr; }
     
     /// Dump out to the log for debugging
     void Print();

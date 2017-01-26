@@ -29,6 +29,6 @@
     @details This initializer wants the name of a texture group file as created by the ImageChopper program.  That's a plist and a group of images to go with it.
     @details Seriously, go use MaplyQuadImageTilesLayer instead.
   */
-- (id)initWithWithTexGroup:(NSString *)texGroupName;
+- (nonnull instancetype)initWithWithTexGroup:(NSString *__nonnull)texGroupName;
 
 @end

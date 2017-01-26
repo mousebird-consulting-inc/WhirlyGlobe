@@ -18,7 +18,9 @@
  *
  */
 
+#import <UIKit/UIKit.h>
 #import "Identifiable.h"
+#include <pthread.h>
 
 static dispatch_once_t onceToken;
 

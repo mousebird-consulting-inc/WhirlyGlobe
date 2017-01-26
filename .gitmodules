@@ -1,15 +1,9 @@
 [submodule "third-party/shapelib"]
 	path = third-party/shapelib
 	url = https://github.com/mousebird/shapelib.git
-[submodule "third-party/boost"]
-	path = third-party/boost
-	url = https://github.com/mousebird/boost.git
 [submodule "third-party/proj-4"]
 	path = third-party/proj-4
 	url = https://github.com/mousebird/proj-4.git
-[submodule "third-party/AFNetworking"]
-	path = third-party/AFNetworking
-	url = https://github.com/AFNetworking/AFNetworking
 [submodule "third-party/libjson"]
 	path = third-party/libjson
 	url = https://github.com/mousebird/libjson.git
@@ -19,9 +13,6 @@
 [submodule "third-party/KissXML"]
 	path = third-party/KissXML
 	url = https://github.com/mousebird/KissXML.git
-[submodule "third-party/AFKissXMLRequestOperation"]
-	path = third-party/AFKissXMLRequestOperation
-	url = https://github.com/AFNetworking/AFKissXMLRequestOperation.git
 [submodule "third-party/fmdb"]
 	path = third-party/fmdb
 	url = https://github.com/ccgus/fmdb.git
@@ -46,3 +37,6 @@
 [submodule "third-party/protobuf"]
 	path = third-party/protobuf
 	url = https://github.com/mousebird/protobuf.git
+[submodule "third-party/laszip"]
+	path = third-party/laszip
+	url = https://github.com/mousebird/LASzip

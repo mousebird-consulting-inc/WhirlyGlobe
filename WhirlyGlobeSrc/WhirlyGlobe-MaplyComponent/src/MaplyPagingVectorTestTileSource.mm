@@ -23,7 +23,7 @@
 
 @implementation MaplyPagingVectorTestTileSource
 
-- (id)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom
+- (instancetype)initWithCoordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom
 {
     self = [super init];
     if (!self)
@@ -44,7 +44,8 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
                        // Add in a little delay
-                       usleep(0.215 * 1e6);
+                       if (_useDelay)
+                           usleep(0.215 * 1e6);
                        
                        if (tileID.level > _maxZoom)
                        {
@@ -55,10 +56,12 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
                            MaplyCoordinate center;
                            center.x = (ll.x+ur.x)/2.0;  center.y = (ll.y+ur.y)/2.0;
                            MaplyCoordinate coords[4];
-                           coords[0] = ll;
-                           coords[1].x = ur.x;  coords[1].y = ll.y;
-                           coords[2] = ur;
-                           coords[3].x = ll.x;  coords[3].y = ur.y;
+                           double spanX = ur.x - ll.x;
+                           double spanY = ur.y - ll.y;
+                           coords[0] = MaplyCoordinateMake(ll.x+spanX*0.1,ll.y+spanY*0.1);
+                           coords[1] = MaplyCoordinateMake(ll.x+spanX*0.1,ur.y-spanY*0.1);
+                           coords[2] = MaplyCoordinateMake(ur.x-spanX*0.1,ur.y-spanY*0.1);
+                           coords[3] = MaplyCoordinateMake(ur.x-spanX*0.1,ll.y+spanY*0.1);
                            
                            // Color rectangle with outline
                            int hexColor = debugColors[tileID.level % MaxDebugColors];
@@ -72,12 +75,14 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
                                                               kMaplyColor: color,
                                                               kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+100+tileID.level)
                                                               }
+                                                              mode:MaplyThreadCurrent
                                                             ];
                            MaplyComponentObject *compObj1 = [layer.viewC addVectors:@[rect] desc:
                                                              @{kMaplyFilled: @(false),
                                                                kMaplyColor: [UIColor whiteColor],
                                                                kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+101+tileID.level)
                                                                }
+                                                                mode:MaplyThreadCurrent
                                                              ];
                            
                            // Label
@@ -88,7 +93,9 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
                                                              @{kMaplyFont: [UIFont systemFontOfSize:18.0],
                                                                kMaplyJustify: @"center",
                                                                kMaplyTextOutlineSize: @(1.0)
-                                                               }];
+                                                               }
+                                                                mode:MaplyThreadCurrent
+                                                             ];
                            
                            [layer addData:@[compObj0,compObj1,compObj2] forTile:tileID];
                            

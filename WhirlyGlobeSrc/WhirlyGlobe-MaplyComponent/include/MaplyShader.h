@@ -24,7 +24,13 @@
 
 /** @brief The various types of attributes that can be passed in to shaders.
   */
-typedef enum {MaplyShaderAttrTypeInt,MaplyShaderAttrTypeFloat,MaplyShaderAttrTypeFloat2,MaplyShaderAttrTypeFloat3,MaplyShaderAttrTypeFloat4} MaplyShaderAttrType;
+typedef NS_ENUM(NSInteger, MaplyShaderAttrType){
+	MaplyShaderAttrTypeInt,
+	MaplyShaderAttrTypeFloat,
+	MaplyShaderAttrTypeFloat2,
+	MaplyShaderAttrTypeFloat3,
+	MaplyShaderAttrTypeFloat4
+};
 
 /** @brief The shader is a direct interface to OpenGL ES 2.0 shader language.
     @details You can set your own shader programs in the toolkit!  Yeah, that's as complex as it sounds.
@@ -97,7 +103,7 @@ These are the per vertex attributes provided to each vertex shader.
     @param baseViewC The view controller where we'll register the new shader.
     @return Returns a shader program if it succeeded.  It may not work, however, so call valid first.
   */
-- (id)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(MaplyBaseViewController *)baseViewC;
+- (nullable instancetype)initWithName:(NSString * __nonnull)name vertexFile:(NSString * __nonnull)vertexFileName fragmentFile:(NSString * __nonnull)fragFileName viewC:(MaplyBaseViewController * __nonnull)baseViewC;
 
 /** @brief Initialize with the shader programs tied to a particular view controller.
     @details This initializer will parse the given shader program, link it and return a MaplyShader if it succeeded.  It will tie that shader in to the given view controller (and really, it's renderer).  You can only use that shader in that view controller.
@@ -107,44 +113,44 @@ These are the per vertex attributes provided to each vertex shader.
     @param baseViewC The view controller where we'll register the new shader.
     @return Returns a shader program if it succeeded.  IT may not work, however, so call valid first.
  */
-- (id)initWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg viewC:(MaplyBaseViewController *)baseViewC;
+- (nullable instancetype)initWithName:(NSString *__nonnull)name vertex:(NSString *__nonnull)vertexProg fragment:(NSString *__nonnull)fragProg viewC:(MaplyBaseViewController *__nonnull)baseViewC;
 
 /** @brief Name of the shader program.
     @details This is the name passed in to the init call.  You can search by this name in some circumstances.
   */
-@property (nonatomic,strong) NSString *name;
+@property (nonatomic,strong) NSString * __nullable name;
 
 /** @brief Add a texture tied to the given attribute name.
     @details Shaders can have a variety of attributes passed to them.  This is incompletely implemented and documented.  In this particular case we add the given image, convert it to a texture and tie it to the shader attribute name.
     @param shaderAttrName The name of the attribute in the shader.  This should be compatible with a texture.
     @param image The UIImage we'll convert to a texture and pass in.  This UIImage will be tracked by the view controller and disposed of when we're finished iwht it.
   */
-- (void)addTextureNamed:(NSString *)shaderAttrName image:(UIImage *)image;
+- (void)addTextureNamed:(NSString *__nonnull)shaderAttrName image:(UIImage *__nonnull)image;
 
 /** @brief Set a float uniform in the shader with the given name.
     @return Returns true if there was such a uniform, false otherwise.
   */
-- (bool)setUniformFloatNamed:(NSString *)uniName val:(float)val;
+- (bool)setUniformFloatNamed:(NSString *__nonnull)uniName val:(float)val;
 
 /** @brief Set an integer uniform in the shader with the given name.
     @return Returns true if there was such a uniform, false otherwise.
  */
-- (bool)setUniformIntNamed:(NSString *)uniName val:(int)val;
+- (bool)setUniformIntNamed:(NSString *__nonnull)uniName val:(int)val;
 
 /** @brief Set a 2 component float uniform in the shader with the given name.
     @return Returns true if there was such a uniform, false otherwise.
  */
-- (bool)setUniformVector2Named:(NSString *)uniName x:(float)x y:(float)y;
+- (bool)setUniformVector2Named:(NSString *__nonnull)uniName x:(float)x y:(float)y;
 
 /** @brief Set a 3 component float uniform in the shader with the given name.
     @return Returns true if there was such a uniform, false otherwise.
  */
-- (bool)setUniformVector3Named:(NSString *)uniName x:(float)x y:(float)y z:(float)z;
+- (bool)setUniformVector3Named:(NSString *__nonnull)uniName x:(float)x y:(float)y z:(float)z;
 
 /** @brief Set a 4 component float uniform in the shader with the given name.
     @return Returns true if there was such a uniform, false otherwise.
  */
-- (bool)setUniformVector4Named:(NSString *)uniName x:(float)x y:(float)y z:(float)z w:(float)w;
+- (bool)setUniformVector4Named:(NSString *__nonnull)uniName x:(float)x y:(float)y z:(float)z w:(float)w;
 
 /** @brief Check if the shader is valid.
     @details The shader setup can fail in a number of ways.  Check this after creating the shader to see if it succeded.  If not, look to getError to see why.
@@ -154,6 +160,6 @@ These are the per vertex attributes provided to each vertex shader.
 /** @brief Return the compilation error if there was one.
     @details Shader construction can fail in a number of interesting ways.  Call valid to see if it did fail, and then call this method to see why.
   */
-- (NSString *)getError;
+- (NSString *__nullable)getError;
 
 @end

@@ -50,6 +50,7 @@ typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCap
 @property (nonatomic) UIColor *color;
 @property (nonatomic,assign) float width;
 @property (nonatomic,assign) float repeatSize;
+@property (nonatomic,assign) float edgeSize;
 @property (nonatomic,assign) WhirlyKit::WideVectorCoordsType coordType;
 @property (nonatomic,assign) WhirlyKit::WideVectorLineJoinType joinType;
 @property (nonatomic,assign) WhirlyKit::WideVectorLineCapType capType;
@@ -74,7 +75,7 @@ public:
     ~WideVectorSceneRep();
     
     void enableContents(bool enable,ChangeSet &changes);
-    void clearContents(ChangeSet &changes);
+    void clearContents(ChangeSet &changes,NSTimeInterval when);
     
     SimpleIDSet drawIDs;
     SimpleIDSet instIDs;    // Instances if we're doing that

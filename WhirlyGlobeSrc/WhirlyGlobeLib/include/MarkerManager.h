@@ -52,7 +52,7 @@ public:
     ~MarkerSceneRep() { };
 
     // Clear the contents out of the scene
-    void clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,ChangeSet &changes);
+    void clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,ChangeSet &changes,NSTimeInterval when);
     
     // Enable/disable marker related features
     void enableContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,bool enable,ChangeSet &changes);
@@ -75,6 +75,7 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 @property (nonatomic) bool screenObject;
 @property (nonatomic) float width,height;
 @property (nonatomic) WhirlyKit::SimpleIdentity  markerId;
+@property (nonatomic) int clusterGroup;
 
 - (id)initWithMarkers:(NSArray *)markers desc:(NSDictionary *)desc;
 

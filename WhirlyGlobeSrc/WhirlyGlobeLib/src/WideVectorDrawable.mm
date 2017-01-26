@@ -28,61 +28,138 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-WideVectorDrawable::WideVectorDrawable() : BasicDrawable("WideVector"), texRepeat(1.0)
+WideVectorDrawable::WideVectorDrawable(const std::string &inName,unsigned int numVert,unsigned int numTri,bool globeMode)
+ : BasicDrawable(), texRepeat(1.0), edgeSize(1.0), realWidthSet(false), globeMode(globeMode)
 {
+    name = inName;
+    basicDrawableInit();
+    
+    points.reserve(numVert);
+    tris.reserve(numTri);
     lineWidth = 10.0/1024.0;
-    offsetIndex = addAttribute(BDFloat3Type, "a_dir");
-    lenIndex = addAttribute(BDFloatType, "a_maxlen");
+    if (globeMode)
+        normalEntry = addAttribute(BDFloat3Type, "a_normal",numVert);
+    p1_index = addAttribute(BDFloat3Type, "a_p1",numVert);
+    tex_index = addAttribute(BDFloat4Type, "a_texinfo",numVert);
+    n0_index = addAttribute(BDFloat3Type, "a_n0",numVert);
+    c0_index = addAttribute(BDFloatType, "a_c0",numVert);
+}
+ 
+// Not.  Do not want standard attributes.
+void WideVectorDrawable::setupStandardAttributes(int numReserve)
+{
 }
     
-void WideVectorDrawable::addDir(const Point3f &dir)
+unsigned int WideVectorDrawable::addPoint(const Point3f &pt)
 {
-    addAttributeValue(offsetIndex, dir);
+#ifdef WIDEVECDEBUG
+    locPts.push_back(pt);
+#endif
+    return BasicDrawable::addPoint(pt);
 }
     
-void WideVectorDrawable::addDir(const Point3d &dir)
+void WideVectorDrawable::addNormal(const Point3f &norm)
 {
-    addAttributeValue(offsetIndex, Point3f(dir.x(),dir.y(),dir.z()));
+    if (globeMode)
+    {
+        BasicDrawable::addNormal(norm);
+    }
+}
 
-//    // Note: Debugging
-//    dirs.push_back(Point3d(dir.x(),dir.y(),dir.z()));
+void WideVectorDrawable::addNormal(const Point3d &norm)
+{
+    if (globeMode)
+    {
+        BasicDrawable::addNormal(norm);
+    }
 }
 
-void WideVectorDrawable::addMaxLen(double len)
+void WideVectorDrawable::add_p1(const Point3f &pt)
 {
-    addAttributeValue(lenIndex, len);
-    
-//    // Note: Debugging
-//    lens.push_back(len);
+    addAttributeValue(p1_index, pt);
+#ifdef WIDEVECDEBUG
+    p1.push_back(pt);
+#endif
 }
-    
+
+void WideVectorDrawable::add_texInfo(float texX,float texYmin,float texYmax,float texOffset)
+{
+    addAttributeValue(tex_index, Vector4f(texX,texYmin,texYmax,texOffset));
+#ifdef WIDEVECDEBUG
+#endif
+}
+
+void WideVectorDrawable::add_n0(const Point3f &dir)
+{
+    addAttributeValue(n0_index, dir);
+#ifdef WIDEVECDEBUG
+    n0.push_back(dir);
+#endif
+}
+
+void WideVectorDrawable::add_c0(float val)
+{
+    addAttributeValue(c0_index, val);
+#ifdef WIDEVECDEBUG
+    c0.push_back(val);
+#endif
+}
+
 void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scene)
 {
-//    double u_length = 0.0;
-//    double u_scale = 1.0;
-//    double u_pixDispSize = 0.0;
-    
     if (frameInfo.program)
     {
         float scale = std::max(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight);
         float screenSize = frameInfo.screenSizeInDisplayCoords.x();
         float pixDispSize = std::min(frameInfo.screenSizeInDisplayCoords.x(),frameInfo.screenSizeInDisplayCoords.y()) / scale;
-        frameInfo.program->setUniform("u_scale", 1.f/scale);
-        frameInfo.program->setUniform("u_length", lineWidth/scale);
-        frameInfo.program->setUniform("u_pixDispSize", pixDispSize);
-        frameInfo.program->setUniform("u_lineWidth", lineWidth);
+        if (realWidthSet)
+        {
+            frameInfo.program->setUniform("u_w2", (float)(realWidth / pixDispSize));
+            frameInfo.program->setUniform("u_real_w2", (float)realWidth);
+            frameInfo.program->setUniform("u_edge", edgeSize);
+        } else {
+            frameInfo.program->setUniform("u_w2", lineWidth);
+            frameInfo.program->setUniform("u_real_w2", pixDispSize * lineWidth);
+            frameInfo.program->setUniform("u_edge", edgeSize);
+        }
         float texScale = scale/(screenSize*texRepeat);
         frameInfo.program->setUniform("u_texScale", texScale);
+        frameInfo.program->setUniform("u_color", Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
         
-        // Note: Debugging
-//        u_length = lineWidth/scale;
-//        u_scale = scale;
-//        u_pixDispSize = pixDispSize;
+        // Note: This calculation is out of date with respect to the shader
+        // Redo the calculation for debugging
+//        NSLog(@"\n");
+//        for (unsigned int ii=0;ii<locPts.size();ii++)
+//        {
+//            float u_w2 = lineWidth/(2.f*scale);
+//            float u_real_w2 = pixDispSize * lineWidth;
+//            Point3f a_p0 = locPts[ii];
+//            Point3f a_p1 = p1[ii];
+//            Point2f a_t0_limit = t0_limits[ii];
+//            Point3f a_n0 = n0[ii];
+//            float a_c0 = c0[ii];
+//            
+//            Vector4f screen_p0 = frameInfo.mvpMat * Vector4f(a_p0.x(),a_p0.y(),a_p0.z(),1.0);
+//            screen_p0 /= screen_p0.w();
+//            Vector4f screen_p1 = frameInfo.mvpMat * Vector4f(a_p1.x(),a_p1.y(),a_p1.z(),1.0);
+//            screen_p1 /= screen_p1.w();
+//            Point2f loc_p0(screen_p0.x(),screen_p0.y());
+//            Point2f loc_p1(screen_p1.x(),screen_p1.y());
+//            
+//            Vector4f screen_n0 = frameInfo.mvpMat * Vector4f(a_n0.x(),a_n0.y(),a_n0.z(),0.0);
+//            Point2f loc_n0(screen_n0.x(),screen_n0.y());
+//
+//            float t0 = a_c0 * u_real_w2;
+//            Vector2f calcOff = (loc_p1-loc_p0) * t0 + loc_n0 * u_w2;
+//            Point2f finalPos2f = loc_p0 + calcOff;
+//            
+//            NSLog(@"t0 = %f",t0);
+//            NSLog(@"finalPos = (%f,%f)",finalPos2f.x(),finalPos2f.y());
+//        }
     }
     
     BasicDrawable::draw(frameInfo,scene);
     
-    // Note: Debugging
 //    for (unsigned int ii=0;ii<dirs.size();ii++)
 //    {
 //        double len = lens[ii];
@@ -96,56 +173,134 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
 
 static const char *vertexShaderTri =
 "uniform mat4  u_mvpMatrix;\n"
-"uniform mat4  u_mvMatrix;\n"
-"uniform mat4  u_pMatrix;\n"
+"uniform mat4  u_mvMatrix;"
+"uniform mat4  u_mvNormalMatrix;"
 "uniform float u_fade;\n"
-"uniform float u_length;\n"
+"uniform float u_w2;\n"
+"uniform float u_real_w2;\n"
 "uniform float u_texScale;\n"
-"uniform float u_pixDispSize;\n"
-"uniform float u_lineWidth;\n"
+"uniform vec4 u_color;\n"
 "\n"
 "attribute vec3 a_position;\n"
-"attribute vec2 a_texCoord0;\n"
-"attribute vec4 a_color;\n"
-"attribute vec3 a_dir;\n"
-"attribute float a_maxlen;\n"
+"attribute vec3 a_normal;\n"
+"attribute vec4 a_texinfo;\n"
+//"attribute vec4 a_color;\n"
+"attribute vec3 a_p1;\n"
+"attribute vec3 a_n0;\n"
+"attribute float a_c0;\n"
 "\n"
 "varying vec2 v_texCoord;\n"
-"varying vec4 v_color;\n"
+//"varying vec4 v_color;\n"
 "\n"
 "void main()\n"
 "{\n"
-"   v_texCoord = vec2(a_texCoord0.x, a_texCoord0.y * u_texScale);\n"
-"   v_color = a_color;\n"
-"   vec4 vertPos = u_mvpMatrix * vec4(a_position,1.0);\n"
-"   vertPos /= vertPos.w;\n"
-"   vec2 screenDir = (u_mvpMatrix * vec4(a_dir,0.0)).xy;\n"
-"   vec2 calcOff = screenDir * u_length;\n"
-"   if (u_pixDispSize * length(a_dir) * u_lineWidth > a_maxlen && a_maxlen > 0.0)\n"
-"      calcOff = vec2(0,0);\n"
-"   gl_Position = vertPos + vec4(calcOff,0,0);\n"
+//"   v_color = a_color;\n"
+//  Position along the line
+"   float t0 = a_c0 * u_real_w2;\n"
+"   t0 = clamp(t0,0.0,1.0);\n"
+"   vec3 realPos = (a_p1 - a_position) * t0 + a_n0 * u_real_w2 + a_position;\n"
+"   float texPos = ((a_texinfo.z - a_texinfo.y) * t0 + a_texinfo.y + a_texinfo.w * u_real_w2) * u_texScale;\n"
+"   v_texCoord = vec2(a_texinfo.x, texPos);\n"
+"   vec4 screenPos = u_mvpMatrix * vec4(realPos,1.0);\n"
+"   screenPos /= screenPos.w;\n"
+"   gl_Position = vec4(screenPos.xy,0,1.0);\n"
 "}\n"
 ;
 
-static const char *fragmentShaderTri =
-"precision mediump float;                            \n"
+static const char *vertexGlobeShaderTri =
+"uniform mat4  u_mvpMatrix;\n"
+"uniform mat4  u_mvMatrix;"
+"uniform mat4  u_mvNormalMatrix;"
+"uniform float u_fade;\n"
+"uniform float u_w2;\n"
+"uniform float u_real_w2;\n"
+"uniform float u_texScale;\n"
+"uniform vec4 u_color;\n"
 "\n"
-"uniform sampler2D s_baseMap0;                        \n"
-"uniform bool  u_hasTexture;                         \n"
+"attribute vec3 a_position;\n"
+"attribute vec3 a_normal;\n"
+"attribute vec4 a_texinfo;\n"
+//"attribute vec4 a_color;\n"
+"attribute vec3 a_p1;\n"
+"attribute vec3 a_n0;\n"
+"attribute float a_c0;\n"
 "\n"
-"varying vec2      v_texCoord;                       \n"
-"varying vec4      v_color;                          \n"
+"varying vec2 v_texCoord;\n"
+//"varying vec4 v_color;\n"
+"varying float      v_dot;\n"
 "\n"
-"void main()                                         \n"
-"{                                                   \n"
-"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0); \n"
-"  gl_FragColor = v_color * baseColor;  \n"
-"}                                                   \n"
+"void main()\n"
+"{\n"
+//"   v_color = a_color;\n"
+//  Position along the line
+"   float t0 = a_c0 * u_real_w2;\n"
+"   t0 = clamp(t0,0.0,1.0);\n"
+"   vec3 realPos = (a_p1 - a_position) * t0 + a_n0 * u_real_w2 + a_position;\n"
+"   vec4 pt = u_mvMatrix * vec4(a_position,1.0);\n"
+"   pt /= pt.w;\n"
+"   vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);\n"
+"   v_dot = dot(-pt.xyz,testNorm.xyz);\n"
+"   float texPos = ((a_texinfo.z - a_texinfo.y) * t0 + a_texinfo.y + a_texinfo.w * u_real_w2) * u_texScale;\n"
+"   v_texCoord = vec2(a_texinfo.x, texPos);\n"
+"   vec4 screenPos = u_mvpMatrix * vec4(realPos,1.0);\n"
+"   screenPos /= screenPos.w;\n"
+"   gl_Position = vec4(screenPos.xy,0,1.0);\n"
+"}\n"
+;
+
+static const char *fragmentShaderTriAlias =
+"precision mediump float;\n"
+"\n"
+"uniform sampler2D s_baseMap0;\n"
+"uniform bool  u_hasTexture;\n"
+"uniform float u_w2;\n"
+"uniform float u_edge;\n"
+"uniform vec4 u_color;\n"
+"\n"
+"varying vec2      v_texCoord;\n"
+"\n"
+"void main()\n"
+"{\n"
+"  float patternVal = u_hasTexture ? texture2D(s_baseMap0, vec2(0.5,v_texCoord.y)).a : 1.0;\n"
+"  float alpha = 1.0;\n"
+"  float across = v_texCoord.x * u_w2;\n"
+"  if (across < u_edge)\n"
+"    alpha = across/u_edge;\n"
+"  if (across > u_w2-u_edge)\n"
+"    alpha = (u_w2-across)/u_edge;\n"
+"  gl_FragColor = u_color * alpha * patternVal;\n"
+"}\n"
+;
+
+static const char *fragmentGlobeShaderTriAlias =
+"precision mediump float;\n"
+"\n"
+"uniform sampler2D s_baseMap0;\n"
+"uniform bool  u_hasTexture;\n"
+"uniform float u_w2;\n"
+"uniform float u_edge;\n"
+"uniform vec4 u_color;\n"
+"\n"
+"varying vec2      v_texCoord;\n"
+"varying float      v_dot;\n"
+//"varying vec4      v_color;\n"
+"\n"
+"void main()\n"
+"{\n"
+"  float patternVal = u_hasTexture ? texture2D(s_baseMap0, vec2(0.5,v_texCoord.y)).a : 1.0;\n"
+"  float alpha = 1.0;\n"
+"  float across = v_texCoord.x * u_w2;\n"
+"  if (across < u_edge)\n"
+"    alpha = across/u_edge;\n"
+"  if (across > u_w2-u_edge)\n"
+"    alpha = (u_w2-across)/u_edge;\n"
+"  gl_FragColor = (v_dot > 0.0 ? u_color * alpha * patternVal : vec4(0.0,0.0,0.0,0.0));\n"
+"}\n"
 ;
 
 WhirlyKit::OpenGLES2Program *BuildWideVectorProgram()
 {
-    OpenGLES2Program *shader = new OpenGLES2Program(kWideVectorShaderName,vertexShaderTri,fragmentShaderTri);
+    OpenGLES2Program *shader = new OpenGLES2Program(kWideVectorShaderName,vertexShaderTri,fragmentShaderTriAlias);
     if (!shader->isValid())
     {
         delete shader;
@@ -164,7 +319,29 @@ WhirlyKit::OpenGLES2Program *BuildWideVectorProgram()
     
     return shader;
 }
+
+WhirlyKit::OpenGLES2Program *BuildWideVectorGlobeProgram()
+{
+    OpenGLES2Program *shader = new OpenGLES2Program(kWideVectorGlobeShaderName,vertexGlobeShaderTri,fragmentGlobeShaderTriAlias);
+    if (!shader->isValid())
+    {
+        delete shader;
+        shader = NULL;
+    }
     
+    // Set some reasonable defaults
+    if (shader)
+    {
+        glUseProgram(shader->getProgram());
+        
+        shader->setUniform("u_length", 10.f/1024);
+        shader->setUniform("u_texScale", 1.f);
+    }
+    
+    
+    return shader;
+}
+
     
     
 }

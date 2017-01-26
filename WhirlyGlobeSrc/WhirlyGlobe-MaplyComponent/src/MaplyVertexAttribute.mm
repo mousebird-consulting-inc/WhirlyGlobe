@@ -24,7 +24,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyVertexAttribute
 
-- (id)initWithName:(NSString *)name float:(float)val
+- (instancetype)initWithName:(NSString *)name float:(float)val
 {
     self = [super init];
     attr.type = BDFloatType;
@@ -34,7 +34,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (id)initWithName:(NSString *)name floatX:(float)x y:(float)y
+- (instancetype)initWithName:(NSString *)name floatX:(float)x y:(float)y
 {
     self = [super init];
     attr.type = BDFloat2Type;
@@ -45,7 +45,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (id)initWithName:(NSString *)name floatX:(float)x y:(float)y z:(float)z
+- (instancetype)initWithName:(NSString *)name floatX:(float)x y:(float)y z:(float)z
 {
     self = [super init];
     attr.type = BDFloat3Type;
@@ -57,7 +57,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (id)initWithName:(NSString *)name color:(UIColor *)color
+- (instancetype)initWithName:(NSString *)name color:(UIColor *)color
 {
     self = [super init];
     attr.type = BDChar4Type;
@@ -71,7 +71,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (id)initWithName:(NSString *)name int:(int)val
+- (instancetype)initWithName:(NSString *)name int:(int)val
 {
     self = [super init];
     attr.type = BDIntType;

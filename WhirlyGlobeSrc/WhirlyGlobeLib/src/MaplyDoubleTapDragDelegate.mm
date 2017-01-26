@@ -79,7 +79,12 @@ using namespace WhirlyKit;
             float newZ = startZ * scale;
             if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
             {
-                [self.mapView setLoc:Point3d(curLoc.x(),curLoc.y(),newZ)];
+                Point3d newLoc(curLoc.x(),curLoc.y(),newZ);
+                // Check if we're still within bounds
+                if ([self withinBounds:newLoc view:glView renderer:sceneRenderer])
+                {
+                    [self.mapView setLoc:newLoc];
+                }
             }
         }
             break;

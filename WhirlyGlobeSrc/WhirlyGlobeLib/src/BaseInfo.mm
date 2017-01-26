@@ -23,6 +23,7 @@
 #import "Drawable.h"
 #import "BasicDrawable.h"
 #import "BasicDrawableInstance.h"
+#import "UIColor+Stuff.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -55,6 +56,41 @@ using namespace Eigen;
     SimpleIdentity shaderID = [desc intForKey:@"shader" default:EmptyIdentity];
     _programID = [desc intForKey:@"program" default:shaderID];
     
+    // Uniforms to be passed to shader
+    // Note: Should add the rest of the types
+    NSDictionary *uniformDict = desc[@"shaderuniforms"];
+    if (uniformDict)
+    {
+        for (NSString *key in uniformDict.allKeys)
+        {
+            id val = uniformDict[key];
+            if ([val isKindOfClass:[NSNumber class]])
+            {
+                SingleVertexAttribute valAttr;
+                valAttr.name = [key cStringUsingEncoding:NSASCIIStringEncoding];
+                
+                valAttr.type = BDFloatType;
+                valAttr.data.floatVal = [val floatValue];
+                
+                _uniforms.insert(valAttr);
+            } else if ([val isKindOfClass:[UIColor class]])
+            {
+                SingleVertexAttribute valAttr;
+                valAttr.name = [key cStringUsingEncoding:NSASCIIStringEncoding];
+
+                UIColor *col = val;
+                valAttr.type = BDChar4Type;
+                RGBAColor color = [col asRGBAColor];
+                valAttr.data.color[0] = color.r;
+                valAttr.data.color[1] = color.g;
+                valAttr.data.color[2] = color.b;
+                valAttr.data.color[3] = color.a;
+
+                _uniforms.insert(valAttr);
+            }
+        }        
+    }
+    
     return self;
 }
 
@@ -65,6 +101,8 @@ using namespace Eigen;
     drawable->setDrawPriority(_drawPriority);
     drawable->setVisibleRange(_minVis,_maxVis);
     drawable->setViewerVisibility(_minViewerDist,_maxViewerDist,_viewerCenter);
+    drawable->setProgram(_programID);
+    drawable->setUniforms(_uniforms);
 }
 
 - (void)setupBasicDrawableInstance:(WhirlyKit::BasicDrawableInstance *)drawInst
@@ -74,6 +112,7 @@ using namespace Eigen;
     drawInst->setDrawPriority(_drawPriority);
     drawInst->setVisibleRange(_minVis,_maxVis);
     drawInst->setViewerVisibility(_minViewerDist,_maxViewerDist,_viewerCenter);
+    drawInst->setUniforms(_uniforms);
 }
 
 @end

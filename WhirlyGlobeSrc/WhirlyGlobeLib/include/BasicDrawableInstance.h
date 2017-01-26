@@ -28,8 +28,6 @@
 #import <vector>
 #import <set>
 #import <map>
-#import <boost/shared_ptr.hpp>
-#import <boost/pointer_cast.hpp>
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "GlobeView.h"
@@ -134,6 +132,9 @@ public:
     // Time we start counting from for motion
     NSTimeInterval getStartTime() { return startTime; }
 
+    /// Set the uniforms to be applied to the
+    virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
+
     /// Return the translation matrix if there is one
     const Eigen::Matrix4d *getMatrix() const;
     
@@ -177,9 +178,11 @@ protected:
     int numInstances;
     GLuint instBuffer;
     GLuint vertArrayObj;
-    int centerSize,matSize,colorSize,instSize,modelDirSize;
+    int centerSize,matSize,colorInstSize,colorSize,instSize,modelDirSize;
     NSTimeInterval startTime;
     bool moving;
+    // Uniforms to apply to shader
+    SingleVertexAttributeSet uniforms;
     
     // If set, we'll instance this one multiple times
     std::vector<SingleInstance> instances;
@@ -188,6 +191,6 @@ protected:
 };
 
 /// Reference counted version of BasicDrawableInstance
-typedef boost::shared_ptr<BasicDrawableInstance> BasicDrawableInstanceRef;
+typedef std::shared_ptr<BasicDrawableInstance> BasicDrawableInstanceRef;
 
 }

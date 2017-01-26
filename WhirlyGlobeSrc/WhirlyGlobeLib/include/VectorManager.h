@@ -82,7 +82,6 @@ public:
     void enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes);
     
 protected:
-    NSObject *canary;
     pthread_mutex_t vectorLock;
     VectorSceneRepSet vectorReps;
 };

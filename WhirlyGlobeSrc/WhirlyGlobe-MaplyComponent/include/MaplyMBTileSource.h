@@ -43,7 +43,7 @@
      part of the name.  I'll tack on the sqlite extension.
     @return Returns a new MaplyMBTileSource object on success, nil on failure.
   */
-- (id)initWithMBTiles:(NSString *)fileName;
+- (nullable instancetype)initWithMBTiles:(NSString *__nonnull)fileName;
 
 /** @brief The maximum zoom level in the MBTiles archive.
     @details This is initially the max zoom level read out
@@ -59,11 +59,16 @@
  */
 @property (nonatomic) int minZoom;
 
+/** @brief Returns the bounding box of the MBTiles file.
+    @details This returns the bounding box of the MBTiles file in degrees.  Keep in mind that bounding boxes aren't required to be accurage.  This just reports what was in the file.
+  */
+- (MaplyBoundingBox)getBounds;
+
 /** @brief The coordinate system for the MBTiles file.
     @details The coordinate system for an MBTiles file
      is always web mercator with the web extents.  This is
      known as web mercator and it makes cartographers cry.
   */
-@property (nonatomic,readonly) MaplyCoordinateSystem *coordSys;
+@property (nonatomic,readonly,nonnull) MaplyCoordinateSystem *coordSys;
 
 @end

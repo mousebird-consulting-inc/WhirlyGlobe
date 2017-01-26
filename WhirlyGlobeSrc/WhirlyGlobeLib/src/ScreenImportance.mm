@@ -26,7 +26,6 @@
 #import "UIImage+Stuff.h"
 #import "VectorData.h"
 #import "SceneRendererES2.h"
-#import <boost/math/special_functions/fpclassify.hpp>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -59,12 +58,26 @@ static float const BoundsEps = 10.0 / EarthRadius;
     
     // Figure out where the bounds drop in display space
     std::vector<Point3d> dispBounds;
+    std::vector<Point3d> localBounds;
+    std::vector<Point2d> geoBounds;
     dispBounds.reserve(srcBounds.size());
+    localBounds.reserve(srcBounds.size());
+    geoBounds.reserve(srcBounds.size());
     std::vector<Point3d> srcPts;
     srcPts.reserve(srcBounds.size());
+    Point2d geoLL,geoUR;
+    bool hasValidArea = coordAdapter->getGeoBounds(geoLL,geoUR);
     for (unsigned int ii=0;ii<srcBounds.size();ii++)
     {
-        Point3d localPt = CoordSystemConvert3d(srcSystem, displaySystem, srcBounds[ii]);
+        Point3d srcPt = srcBounds[ii];
+        Point3d localPt;
+        // For display systems that don't work everywhere, we have to go through geo coordinates to check
+        if (hasValidArea)
+        {
+            Point2d geoPt = srcSystem->localToGeographicD(srcPt);
+            geoBounds.push_back(geoPt);
+        }
+        localPt = CoordSystemConvert3d(srcSystem, displaySystem, srcPt);
         Point3d dispPt = coordAdapter->localToDisplay(localPt);
         Point3d dispNorm = coordAdapter->normalForLocal(localPt);
         dispSolid.surfNormals.push_back(dispNorm);
@@ -76,13 +89,28 @@ static float const BoundsEps = 10.0 / EarthRadius;
             {
                 dispBounds.push_back(dispPt);
                 srcPts.push_back(srcBounds[ii]);
+                localBounds.push_back(localPt);
             }
         } else {
             dispBounds.push_back(dispPt);
             srcPts.push_back(srcBounds[ii]);
+            localBounds.push_back(localPt);
         }
     }
     
+    // If there's a lon/lat boundary, make sure we at least overlap it
+    if (hasValidArea)
+    {
+        if (geoBounds.empty())
+            return nil;
+        Mbr geoValidMbr,geoMbr;
+        geoMbr.addPoints(geoBounds);
+        geoValidMbr.addPoint(geoLL);
+        geoValidMbr.addPoint(geoUR);
+        if (!geoValidMbr.overlaps(geoMbr))
+            return nil;
+    }
+        
     // If we didn't get enough boundary points, this is degenerate
     if (dispBounds.size() < 3)
         return nil;
@@ -281,7 +309,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         
         double screenArea = CalcLoopArea(screenPts);
         screenArea = std::abs(screenArea);
-        if (boost::math::isnan(screenArea))
+        if (std::isnan(screenArea))
             screenArea = 0.0;
         
         // Now project the screen points back into model space
@@ -365,6 +393,27 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
 
 - (bool)isOnScreenForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
 {
+    if (!viewState.coordAdapter->isFlat())
+    {
+        // If the viewer is inside the bounds, the node is maximimally important (duh)
+        if ([self isInside:viewState.eyePos])
+            return MAXFLOAT;
+        
+        // Make sure that we're pointed toward the eye, even a bit
+        if (!_surfNormals.empty())
+        {
+            bool isFacing = false;
+            for (unsigned int ii=0;ii<_surfNormals.size();ii++)
+            {
+                const Vector3d &surfNorm = _surfNormals[ii];
+                if ((isFacing |= (surfNorm.dot(viewState.eyePos) >= 0.0)))
+                    break;
+            }
+            if (!isFacing)
+                return false;
+        }
+    }
+    
     for (unsigned int offi=0;offi<viewState.viewMatrices.size();offi++)
     {
         for (unsigned int ii=0;ii<_polys.size();ii++)
@@ -431,10 +480,9 @@ double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSi
     if (!dispSolid)
     {
         dispSolid = [WhirlyKitDisplaySolid displaySolidWithNodeIdent:nodeIdent mbr:nodeMbr minZ:0.0 maxZ:0.0 srcSystem:srcSystem adapter:coordAdapter];
-        if (dispSolid)
-            attrs[@"DisplaySolid"] = dispSolid;
-        else
-            attrs[@"DisplaySolid"] = [NSNull null];
+        if (!dispSolid)
+            dispSolid = (WhirlyKitDisplaySolid *)[NSNull null];
+        attrs[@"DisplaySolid"] = dispSolid;
     }
     
     // This means the tile is degenerate (as far as we're concerned)
