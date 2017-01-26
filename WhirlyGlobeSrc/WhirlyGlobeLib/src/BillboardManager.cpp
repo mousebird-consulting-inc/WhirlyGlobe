@@ -19,7 +19,7 @@
  */
 
 #include "BillboardManager.h"
-
+#include "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -114,6 +114,7 @@ void BillboardDrawableBuilder::addBillboard(Point3d center, const Point2dVector 
         drawable->setTexId(0,texId);
         drawable->setRequestZBuffer(billInfo->zBufferRead);
         drawable->setWriteZBuffer(billInfo->zBufferWrite);
+        drawable->setDrawPriority(billInfo->drawPriority);
         if (!vertAttrs.empty())
         {
             SingleVertexAttributeInfoSet vertInfoSet;

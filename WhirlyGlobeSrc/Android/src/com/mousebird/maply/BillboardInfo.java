@@ -86,16 +86,13 @@ public class BillboardInfo extends BaseInfo {
         this.shaderName = shaderName;
     }
 
-    public void finalize() {
-        dispose();
-    }
-
-    static {
+    static
+    {
         nativeInit();
     }
     private static native void nativeInit();
     native void initialise();
     native void dispose();
-    private long nativeHandle;
+
     private String shaderName;
 }
