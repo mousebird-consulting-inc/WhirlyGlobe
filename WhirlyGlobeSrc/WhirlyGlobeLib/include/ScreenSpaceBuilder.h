@@ -105,6 +105,9 @@ public:
     /// Build drawables and add them to the change list
     void flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs);
     
+    /// Calculate the rotation vector for a rotation
+    static Point3d CalcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3d &worldLoc,float rot);
+    
 protected:
     // Wrapper used to track
     class DrawableWrap
@@ -125,7 +128,6 @@ protected:
         ScreenSpaceDrawable *draw;
         
     protected:
-        Point3d calcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3d &worldLoc,float rot);
     };
 
     // Comparitor for drawable wrapper set
@@ -156,6 +158,7 @@ class ScreenSpaceObject : public Identifiable
 {
 public:
     friend class LayoutManager;
+    friend class SelectionManager;
     friend ScreenSpaceBuilder;
     
     ScreenSpaceObject();
@@ -196,6 +199,7 @@ public:
     void setEnableTime(NSTimeInterval startEnable,NSTimeInterval endEnable);
     void setVisibility(float minVis,float maxVis);
     void setDrawPriority(int drawPriority);
+    int getDrawPriority() { return state.drawPriority; }
     void setKeepUpright(bool keepUpright);
     void setRotation(double rotation);
     void setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown);
@@ -203,6 +207,9 @@ public:
     void setPeriod(NSTimeInterval period);
     
     void addGeometry(const ConvexGeometry &geom);
+    
+    // Get a program ID either from the drawable state or geometry
+    SimpleIdentity getTypicalProgramID();
     
 protected:
     bool enable;
@@ -224,12 +231,18 @@ class ScreenSpaceObjectLocation
 public:
     ScreenSpaceObjectLocation();
 
-    // ID for selector
-    SimpleIdentity shapeID;
+    // IDs for selected objects (one if regular, more than one for cluster)
+    std::vector<SimpleIdentity> shapeIDs;
+    // Set if this is a cluster
+    bool isCluster;
     // Location of object in display space
     Point3d dispLoc;
     // Offset on the screen (presumably if it's been moved around during layout)
     Point2d offset;
+    // Set if we're sup
+    bool keepUpright;
+    // Rotation if there is one
+    double rotation;
     // Size of the object in screen space
     std::vector<Point2d> pts;
     // Bounding box, for quick testing

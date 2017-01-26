@@ -34,7 +34,7 @@
 @interface WGStandardTiltDelegate : NSObject<WGTiltCalculatorDelegate>
 
 // Initialize with a globe view
-- (id)initWithGlobeView:(WhirlyGlobeView *)globeView;
+- (instancetype)initWithGlobeView:(WhirlyGlobeView *)globeView;
 
 @end
 
@@ -59,6 +59,9 @@
 
 /// If set, we'll rotate around the pinch
 @property (nonatomic,assign) bool doRotation;
+
+/// If set, we'll pan around the center point.  If not, we just zoom.
+@property (nonatomic,assign) bool allowPan;
 
 /// If set, we'll maintain north as up
 @property (nonatomic,assign) bool northUp;

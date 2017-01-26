@@ -136,6 +136,16 @@ public:
         geoCenter = inGeoCenter;
     }
     
+    void addPoints(VectorRing3d &inPts,bool closed,NSDictionary *attrs)
+    {
+        VectorRing pts;
+        pts.reserve(pts.size());
+        for (const auto &pt : inPts)
+            pts.push_back(Point2f(pt.x(),pt.y()));
+        
+        addPoints(pts,closed,attrs);
+    }
+    
     void addPoints(VectorRing &pts,bool closed,NSDictionary *attrs)
     {
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
@@ -301,7 +311,28 @@ public:
         
         addPoints(mesh, attrs);
     }
-    
+
+    // This version converts a ring into a mesh (chopping, tesselating, etc...)
+    void addPoints(VectorRing3d &inRing,NSDictionary *attrs)
+    {
+        VectorRing ring;
+        ring.reserve(inRing.size());
+        for (const auto &pt : inRing)
+            ring.push_back(Point2f(pt.x(),pt.y()));
+        
+        // Grid subdivision is done here
+        std::vector<VectorRing> inRings;
+        if (vecInfo->subdivEps > 0.0 && vecInfo->gridSubdiv)
+            ClipLoopToGrid(ring, Point2f(0.0,0.0), Point2f(vecInfo->subdivEps,vecInfo->subdivEps), inRings);
+        else
+            inRings.push_back(ring);
+        VectorTrianglesRef mesh(VectorTriangles::createTriangles());
+        for (unsigned int ii=0;ii<inRings.size();ii++)
+            TesselateRing(inRings[ii],mesh);
+        
+        addPoints(mesh, attrs);
+    }
+
     // If it's a mesh, we're assuming it's been fully processed (triangulated, chopped, and so on)
     void addPoints(VectorTrianglesRef mesh,NSDictionary *attrs)
     {
@@ -388,8 +419,8 @@ public:
                             Point3d dispPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD))-center;
                             Point3d dir = dispPt - planeOrg;
                             Point3d comp(dir.dot(planeX),dir.dot(planeY),dir.dot(planeUp));
-                            texCoord.x() = comp.x();
-                            texCoord.y() = comp.y();
+                            texCoord.x() = comp.x() * vecInfo->texScale.x();
+                            texCoord.y() = comp.y() * vecInfo->texScale.y();
                         }
                             break;
                         case TextureProjectionNone:
@@ -496,7 +527,6 @@ protected:
 
 VectorManager::VectorManager()
 {
-    canary = [[NSObject alloc] init];
     pthread_mutex_init(&vectorLock, NULL);
 }
 
@@ -523,7 +553,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     sceneRep->fade = vecInfo.fade;
 
     // No longer do anything with points in here
-//    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*first);
+//    VectorPointsRef thePoints = std::dynamic_pointer_cast<VectorPoints>(*first);
 //    bool linesOrPoints = (thePoints.get() ? false : true);
     
     // Look for per vector colors
@@ -582,7 +612,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     for (ShapeSet::iterator it = vecInfo->shapes.begin();
          it != vecInfo->shapes.end(); ++it)
     {
-        VectorArealRef theAreal = boost::dynamic_pointer_cast<VectorAreal>(*it);
+        VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
         if (theAreal.get())
         {
             if (vecInfo->filled)
@@ -606,7 +636,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                 }
             }
         } else {
-            VectorLinearRef theLinear = boost::dynamic_pointer_cast<VectorLinear>(*it);
+            VectorLinearRef theLinear = std::dynamic_pointer_cast<VectorLinear>(*it);
             if (theLinear.get())
             {
                 if (vecInfo->filled)
@@ -623,26 +653,44 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                         drawBuild.addPoints(theLinear->pts,false,theLinear->getAttrDict());
                 }
             } else {
-                VectorTrianglesRef theMesh = boost::dynamic_pointer_cast<VectorTriangles>(*it);
-                if (theMesh.get())
+                VectorLinear3dRef theLinear3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+                if (theLinear3d.get())
                 {
                     if (vecInfo->filled)
-                        drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
-                    else {
-                        for (unsigned int ti=0;ti<theMesh->tris.size();ti++)
+                    {
+                        // Triangulate the outside
+                        drawBuildTri.addPoints(theLinear3d->pts,theLinear3d->getAttrDict());
+                    } else {
+                        if (vecInfo->sample > 0.0)
                         {
-                            VectorRing ring;
-                            theMesh->getTriangle(ti, ring);
-                            drawBuild.addPoints(ring,true,theMesh->getAttrDict());
-                        }
+                            VectorRing3d newPts;
+                            SubdivideEdges(theLinear3d->pts, newPts, false, vecInfo->sample);
+                            drawBuild.addPoints(newPts,false,theLinear3d->getAttrDict());
+                        } else
+                            drawBuild.addPoints(theLinear3d->pts,false,theLinear3d->getAttrDict());
                     }
                 } else {
-                    // Note: Points are.. pointless
-                    //                    VectorPointsRef thePoints = boost::dynamic_pointer_cast<VectorPoints>(*it);
-                    //                    if (thePoints.get())
-                    //                    {
-                    //                        drawBuild.addPoints(thePoints->pts,false);
-                    //                    }
+                    VectorTrianglesRef theMesh = std::dynamic_pointer_cast<VectorTriangles>(*it);
+                    if (theMesh.get())
+                    {
+                        if (vecInfo->filled)
+                            drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
+                        else {
+                            for (unsigned int ti=0;ti<theMesh->tris.size();ti++)
+                            {
+                                VectorRing ring;
+                                theMesh->getTriangle(ti, ring);
+                                drawBuild.addPoints(ring,true,theMesh->getAttrDict());
+                            }
+                        }
+                    } else {
+                        // Note: Points are.. pointless
+                        //                    VectorPointsRef thePoints = std::dynamic_pointer_cast<VectorPoints>(*it);
+                        //                    if (thePoints.get())
+                        //                    {
+                        //                        drawBuild.addPoints(thePoints->pts,false);
+                        //                    }
+                    }
                 }
             }
         }
@@ -788,36 +836,21 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
             SimpleIDSet allIDs = sceneRep->drawIDs;
             allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
 
+            NSTimeInterval removeTime = 0.0;
             if (sceneRep->fade > 0.0)
             {
                 for (SimpleIDSet::iterator idIt = allIDs.begin();
                      idIt != allIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+sceneRep->fade));
-                
-                __block NSObject * __weak thisCanary = canary;
-                
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
-                               scene->getDispatchQueue(),
-                               ^{
-                                   if (thisCanary)
-                                   {
-                                       SimpleIDSet theIDs;
-                                       theIDs.insert(sceneRep->getId());
-                                       ChangeSet delChanges;
-                                       removeVectors(theIDs, delChanges);
-                                       scene->addChangeRequests(delChanges);
-                                   }
-                               }
-                               );
-                sceneRep->fade = 0.0;
-            } else {
-                for (SimpleIDSet::iterator idIt = allIDs.begin();
-                     idIt != allIDs.end(); ++idIt)
-                    changes.push_back(new RemDrawableReq(*idIt));
-                vectorReps.erase(it);
-                
-                delete sceneRep;
+
+                removeTime = curTime + sceneRep->fade;
             }
+            
+            for (SimpleIDSet::iterator idIt = allIDs.begin();
+                 idIt != allIDs.end(); ++idIt)
+                changes.push_back(new RemDrawableReq(*idIt,removeTime));
+            vectorReps.erase(it);
+            delete sceneRep;
         }
     }
     

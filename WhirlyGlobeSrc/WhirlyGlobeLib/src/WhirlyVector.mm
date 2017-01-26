@@ -157,7 +157,7 @@ GeoMbr::GeoMbr(const std::vector<Point2f> &pts)
 }
 
 // Expand the MBR by this coordinate
-void GeoMbr::addGeoCoord(GeoCoord coord)
+void GeoMbr::addGeoCoord(const GeoCoord &coord)
 {
 	if (!valid())
 	{
@@ -170,11 +170,22 @@ void GeoMbr::addGeoCoord(GeoCoord coord)
 	pt_ur.x() = std::max(pt_ur.x(),coord.x());
 	pt_ur.y() = std::max(pt_ur.y(),coord.y());
 }
+    
+void GeoMbr::addGeoCoord(const Point3d &coord)
+{
+    addGeoCoord(GeoCoord(coord.x(),coord.y()));
+}
 	
 void GeoMbr::addGeoCoords(const std::vector<GeoCoord> &coords)
 {
 	for (unsigned int ii=0;ii<coords.size();ii++)
 		addGeoCoord(coords[ii]);
+}
+    
+void GeoMbr::addGeoCoords(const std::vector<Point3d> &coords)
+{
+    for (const Point3d &coord: coords)
+        addGeoCoord(coord);
 }
 
 void GeoMbr::addGeoCoords(const std::vector<Point2f> &coords)

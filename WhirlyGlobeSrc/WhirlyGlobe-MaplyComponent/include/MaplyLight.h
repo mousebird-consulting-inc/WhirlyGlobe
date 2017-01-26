@@ -40,11 +40,11 @@
 /** @brief Ambient color for the light.
     @details This color will always be added to any given pixel.  It provides a baseline lighting value.
   */
-@property (nonatomic,strong) UIColor *ambient;
+@property (nonatomic,strong) UIColor *__nullable ambient;
 
 /** @brief Diffuse light color.
     @details The diffuse color is multiplied by a directional value and so will vary depending on geometry normals.
   */
-@property (nonatomic,strong) UIColor *diffuse;
+@property (nonatomic,strong) UIColor *__nullable diffuse;
 
 @end

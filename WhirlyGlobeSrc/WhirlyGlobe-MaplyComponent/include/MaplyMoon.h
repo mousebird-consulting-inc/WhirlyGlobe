@@ -31,7 +31,7 @@
 /** @brief Initialize with a date.
     @details Initialize with the given date.  The moon position will correspond to that.  Must be after 2000.
   */
-- (id)initWithDate:(NSDate *)date;
+- (nonnull instancetype)initWithDate:(NSDate *__nonnull)date;
 
 /// @brief Location on the globe where the moon would land if it fell straight down.  Ouch.
 - (MaplyCoordinate)asCoordinate;

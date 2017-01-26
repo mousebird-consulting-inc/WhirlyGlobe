@@ -19,6 +19,7 @@
  */
 
 
+#import <UIKit/UIKit.h>
 #import "GlobeMath.h"
 #import "FlatMath.h"
 #import "proj_api.h"
@@ -211,7 +212,12 @@ Point3d FakeGeocentricDisplayAdapter::DisplayToLocal(Point3d pt)
     Point2d geoCoord;
     geoCoord.y() = asin(pt.z());
     double rad = sqrt(1.0-pt.z()*pt.z());
-    geoCoord.x() = acos(pt.x() / rad);
+    if (rad >= 0.0)
+        geoCoord.x() = acos(pt.x() / rad);
+    else
+        geoCoord.x() = 0.0;
+    if (std::isnan(geoCoord.x()))
+        geoCoord.x() = 0.0;
     if (pt.y() < 0)  geoCoord.x() *= -1;
     
     return Point3d(geoCoord.x(),geoCoord.y(),0.0);

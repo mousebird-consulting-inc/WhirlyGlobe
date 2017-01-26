@@ -28,8 +28,6 @@
 #import <vector>
 #import <set>
 #import <map>
-#import <boost/shared_ptr.hpp>
-#import <boost/pointer_cast.hpp>
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "GlobeView.h"
@@ -122,7 +120,7 @@ typedef std::map<SimpleIdentity,SimpleIdentity> TextureIDMap;
 class ChangeRequest
 {
 public:
-	ChangeRequest() { }
+    ChangeRequest() : when(0.0) { }
 	virtual ~ChangeRequest() { }
 		
     /// Return true if this change requires a GL Flush in the thread it was executed in
@@ -133,10 +131,25 @@ public:
 		
 	/// Make a change to the scene.  For the renderer.  Never call this.
 	virtual void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view) = 0;
+    
+    /// If non-zero we'll execute this request after the given absolute time
+    NSTimeInterval when;
 };
     
 /// Representation of a list of changes.  Might get more complex in the future.
 typedef std::vector<ChangeRequest *> ChangeSet;
+    
+typedef struct
+{
+    bool operator () (const ChangeRequest *a,const ChangeRequest *b)
+    {
+        if (a->when == b->when)
+            return a < b;
+        return a->when < b->when;
+    }
+} ChangeSorter;
+/// This version is sorted by when to run it
+typedef std::set<ChangeRequest *,ChangeSorter> SortedChangeSet;
 
 /** Drawable tweakers are called every frame to mess with things.
     It's up to you to make the changes, just make them quick.
@@ -149,7 +162,7 @@ public:
     virtual void tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame) = 0;
 };
     
-typedef boost::shared_ptr<DrawableTweaker> DrawableTweakerRef;
+typedef std::shared_ptr<DrawableTweaker> DrawableTweakerRef;
 typedef std::set<DrawableTweakerRef> DrawableTweakerRefSet;
 
 /** The Drawable base class.  Inherit from this and fill in the virtual
@@ -157,6 +170,9 @@ typedef std::set<DrawableTweakerRef> DrawableTweakerRefSet;
  */
 class Drawable : public Identifiable
 {
+protected:
+    /// Used in special cases
+    Drawable() { }
 public:
     /// Construct empty
 	Drawable(const std::string &name);
@@ -218,7 +234,7 @@ protected:
 };
 
 /// Reference counted Drawable pointer
-typedef boost::shared_ptr<Drawable> DrawableRef;
+typedef std::shared_ptr<Drawable> DrawableRef;
     
 /** Drawable Change Request is a subclass of the change request
     for drawables.  This is, itself, subclassed for specific
@@ -254,7 +270,7 @@ static const unsigned int MaxDrawableTriangles = (MaxDrawablePoints / 3);
 class SubTexture;
 
 /// Data types we'll accept for attributes
-typedef enum {BDFloat4Type,BDFloat3Type,BDChar4Type,BDFloat2Type,BDFloatType,BDIntType} BDAttributeDataType;
+typedef enum {BDFloat4Type,BDFloat3Type,BDChar4Type,BDFloat2Type,BDFloatType,BDIntType,BDDataTypeMax} BDAttributeDataType;
     
     
 /// Used to keep track of attributes (other than points)

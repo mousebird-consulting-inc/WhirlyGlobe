@@ -60,7 +60,7 @@ using namespace WhirlyKit;
 
 - (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
 {
-    if (!_tileLayer)
+    if (!_tileLayer || !_tileLayer.enable)
         return;
     
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
@@ -98,7 +98,14 @@ using namespace WhirlyKit;
     NSDictionary *tessDict;
 }
 
-- (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
+- (instancetype)initWithTileSource:(NSObject<MaplyTileSource> *)tileSource
+{
+	self = [self initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
+
+	return self;
+}
+
+- (instancetype)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys tileSource:(NSObject<MaplyTileSource> *)inTileSource
 {
     if (!inTileSource)
         return nil;
@@ -113,8 +120,8 @@ using namespace WhirlyKit;
     _currentImage = 0;
     _animationPeriod = 0;
     _asyncFetching = true;
-    _minElev = -100.0;
-    _maxElev = 8900;
+    _minElev = 0.0;
+    _maxElev = 1000;
     _texturAtlasSize = 2048;
     _imageFormat = MaplyImageIntRGBA;
     _flipY = true;
@@ -125,7 +132,7 @@ using namespace WhirlyKit;
     _maxVis = DrawVisibleInvalid;
     canShortCircuitImportance = false;
     maxShortCircuitLevel = -1;
-    _useTargetZoomLevel = true;
+    _useTargetZoomLevel = false;
     _singleLevelLoading = false;
     _viewUpdatePeriod = 0.1;
     _enable = true;
@@ -170,7 +177,7 @@ using namespace WhirlyKit;
     minZoom = [_tileSource minZoom];
     maxZoom = [_tileSource maxZoom];
     tileSize = [_tileSource tileSize];
-    
+        
     // Set up tile and and quad layer with us as the data source
     tileLoader = [[WhirlyKitQuadTileLoader alloc] initWithDataSource:self];
     [self setupTileLoader];
@@ -269,6 +276,8 @@ using namespace WhirlyKit;
     tileLoader.enable = _enable;
     tileLoader.fade = _fade;
     tileLoader.borderTexel = _borderTexel;
+    tileLoader.northPoleColor = _northPoleColor;
+    tileLoader.southPoleColor = _southPoleColor;
     // Note: Still having problems with this
     tileLoader.useTileCenters = false;
     switch (_imageFormat)
@@ -344,6 +353,19 @@ using namespace WhirlyKit;
     }
 }
 
+- (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
+{
+	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+		return kMaplyNullBoundingBox;
+
+	MaplyBoundingBox box;
+
+	[self geoBoundsForTile:tileID bbox:&box];
+
+	return box;
+}
+
+
 - (void)geoBoundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
 {
     if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
@@ -368,6 +390,18 @@ using namespace WhirlyKit;
     bbox->ll.y = geoMbr.ll().y();
     bbox->ur.x = geoMbr.ur().x();
     bbox->ur.y = geoMbr.ur().y();
+}
+
+- (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID
+{
+	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+		return kMaplyNullBoundingBox;
+
+	MaplyBoundingBox box;
+
+	[self geoBoundsForTile:tileID bbox:&box];
+
+	return box;
 }
 
 - (void)boundsForTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
@@ -445,6 +479,12 @@ using namespace WhirlyKit;
 {
     if (quadLayer)
         [quadLayer reset];
+}
+
+- (void)setSingleLevelLoading:(bool)newVal
+{
+    _useTargetZoomLevel = newVal;
+    _singleLevelLoading = newVal;
 }
 
 - (void)setAnimationPeriod:(float)animationPeriod
@@ -604,11 +644,21 @@ using namespace WhirlyKit;
         return minZoom;
     
     int zoomLevel = 0;
-    WhirlyKit::Point2f center = Point2f(lastViewState.eyePos.x(),lastViewState.eyePos.y());
+    // Start with the center (where we're looking) in model coordinates
+    WhirlyKit::Point3d centerInModel = lastViewState.eyePos;
     // The coordinate adapter might have its own center
     Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
-    center.x() += adaptCenter.x();
-    center.y() += adaptCenter.y();
+    centerInModel += adaptCenter;
+    if (!scene->getCoordAdapter()->isFlat())
+        centerInModel.normalize();
+    
+    // Convert from model coordinates to the coord adapters local coordinates
+    Point3d localPt = scene->getCoordAdapter()->displayToLocal(centerInModel);
+    
+    // Now convert into our coordinate system
+    Point3d ourCenter = CoordSystemConvert3d(scene->getCoordAdapter()->getCoordSystem(), self.coordSystem, localPt);
+    Point2f ourCenter2d(ourCenter.x(),ourCenter.y());
+
     while (zoomLevel <= maxZoom)
     {
         WhirlyKit::Quadtree::Identifier ident;
@@ -616,8 +666,35 @@ using namespace WhirlyKit;
         // Make an MBR right in the middle of where we're looking
         Mbr mbr = quadLayer.quadtree->generateMbrForNode(ident);
         Point2f span = mbr.ur()-mbr.ll();
-        mbr.ll() = center - span/2.0;
-        mbr.ur() = center + span/2.0;
+        mbr.ll() = ourCenter2d - span/2.0;
+        mbr.ur() = ourCenter2d + span/2.0;
+        // If that MBR is pushing the north or south boundaries, let's adjust it
+        Mbr quadTreeMbr = quadLayer.quadtree->getMbr();
+        if (mbr.ur().y() > quadTreeMbr.ur().y())
+        {
+            double dy = mbr.ur().y() - quadTreeMbr.ur().y();
+            mbr.ur().y() -= dy;
+            mbr.ll().y() -= dy;
+        } else
+            if (mbr.ll().y() < quadTreeMbr.ll().y())
+            {
+                double dy = quadTreeMbr.ll().y() - mbr.ll().y();
+                mbr.ur().y() += dy;
+                mbr.ll().y() += dy;
+            }
+        // Also the east and west boundaries
+        if (mbr.ur().x() > quadTreeMbr.ur().x())
+        {
+            double dx = mbr.ur().x() - quadTreeMbr.ur().x();
+            mbr.ur().x() -= dx;
+            mbr.ll().x() -= dx;
+        } else
+            if (mbr.ll().x() < quadTreeMbr.ll().x())
+            {
+                double dx = quadTreeMbr.ll().x() - mbr.ll().x();
+                mbr.ur().x() += dx;
+                mbr.ll().x() += dx;
+            }
         float import = ScreenImportance(lastViewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), lastViewState.eyeVec, tileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
         import *= _importanceScale;
         if (import <= quadLayer.minImportance)
@@ -645,54 +722,37 @@ using namespace WhirlyKit;
         return;
     }
     
-    CoordSystemDisplayAdapter *coordAdapter = viewState.coordAdapter;
-    Point3d center = coordAdapter->getCenter();
-    if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
-    {
-        canShortCircuitImportance = true;
-        if (!coordAdapter->isFlat())
-        {
-            canShortCircuitImportance = false;
-            return;
-        }
-        // We happen to store tilt in the view matrix.
-        // Note: Fix this.  This won't detect tilt
+    // We happen to store tilt in the view matrix.
+    // Note: Fix this.  This won't detect tilt
 //        Eigen::Matrix4d &viewMat = viewState.viewMatrices[0];
 //        if (!viewMat.isIdentity())
 //        {
 //            canShortCircuitImportance = false;
 //            return;
 //        }
-        // The tile source coordinate system must be the same as the display's system
-        if (!coordSys->coordSystem->isSameAs(coordAdapter->getCoordSystem()))
+    
+    // We need to feel our way down to the appropriate level
+    maxShortCircuitLevel = [self targetZoomLevel];
+    if (_singleLevelLoading)
+    {
+        std::set<int> targetLevels;
+        targetLevels.insert(maxShortCircuitLevel);
+        for (NSNumber *level in _multiLevelLoads)
         {
-            canShortCircuitImportance = false;
-            return;
-        }
-        
-        // We need to feel our way down to the appropriate level
-        maxShortCircuitLevel = [self targetZoomLevel];
-        if (_singleLevelLoading)
-        {
-            std::set<int> targetLevels;
-            targetLevels.insert(maxShortCircuitLevel);
-            for (NSNumber *level in _multiLevelLoads)
+            if ([level isKindOfClass:[NSNumber class]])
             {
-                if ([level isKindOfClass:[NSNumber class]])
-                {
-                    int whichLevel = [level integerValue];
-                    if (whichLevel < 0)
-                        whichLevel = maxShortCircuitLevel+whichLevel;
-                    if (whichLevel >= 0 && whichLevel < maxShortCircuitLevel)
-                        targetLevels.insert(whichLevel);
-                }
+                int whichLevel = (int)[level integerValue];
+                if (whichLevel < 0)
+                    whichLevel = maxShortCircuitLevel+whichLevel;
+                if (whichLevel >= 0 && whichLevel < maxShortCircuitLevel)
+                    targetLevels.insert(whichLevel);
             }
-            quadLayer.targetLevels = targetLevels;
         }
-    } else {
-        // Note: Can't short circuit in this case.  Something wrong with the math
-        canShortCircuitImportance = false;
+        quadLayer.targetLevels = targetLevels;
     }
+    canShortCircuitImportance = true;
+    
+//    NSLog(@"Short circuiting to level %d",maxShortCircuitLevel);
 }
 
 /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
@@ -740,7 +800,7 @@ using namespace WhirlyKit;
         MaplyBoundingBox bbox;
         bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
         bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
-        if (![_tileSource validTile:tileID bbox:&bbox])
+        if (![_tileSource validTile:tileID bbox:bbox])
             return 0.0;
     }
 
@@ -759,7 +819,17 @@ using namespace WhirlyKit;
         {
             import = 1.0/(ident.level+10);
             if (ident.level <= maxShortCircuitLevel)
+            {
                 import += 1.0;
+                
+                if (!scene->getCoordAdapter()->isFlat())
+                {
+                    // Nudge it by the screen importance so the bigger ones are loaded first
+                    double screenImport = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+                    
+                    import += screenImport / 1e10;
+                }
+            }
         }
     } else {
         if (elevDelegate)
@@ -771,13 +841,14 @@ using namespace WhirlyKit;
         import *= _importanceScale;
     }
 
-//    NSLog(@"Tiles = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
+//    if (import > 0.0)
+//        NSLog(@"Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
     
     return import;
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
-- (void)shutdown
+- (void)teardown
 {
     super.layerThread = nil;
 }
@@ -969,12 +1040,12 @@ using namespace WhirlyKit;
     }
 }
 
-- (void)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID
+- (bool)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID
 {
-    [self loadedImages:tileReturn forTile:tileID frame:-1];
+    return [self loadedImages:tileReturn forTile:tileID frame:-1];
 }
 
-- (void)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID frame:(int)frame
+- (bool)loadedImages:(id)tileReturn forTile:(MaplyTileID)tileID frame:(int)frame
 {
     int borderTexel = tileLoader.borderTexel;
 
@@ -1019,7 +1090,7 @@ using namespace WhirlyKit;
                     [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
             }
             
-            return;
+            return false;
         }
     }
     
@@ -1035,6 +1106,8 @@ using namespace WhirlyKit;
         else
             [self performSelector:@selector(mergeTile:) onThread:super.layerThread withObject:args waitUntilDone:NO];
     }
+    
+    return loadTile != nil;
 }
 
 - (void)loadError:(NSError *)error forTile:(MaplyTileID)tileID

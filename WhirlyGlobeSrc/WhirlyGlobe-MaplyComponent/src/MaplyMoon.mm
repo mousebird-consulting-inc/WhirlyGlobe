@@ -28,7 +28,7 @@
 }
 
 // Math borrowed from: http://www.lunar-occultations.com/rlo/ephemeris.htm
-- (id)initWithDate:(NSDate *)inDate
+- (instancetype)initWithDate:(NSDate *)inDate
 {
     self = [super init];
 

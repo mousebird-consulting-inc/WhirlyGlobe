@@ -20,27 +20,28 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MaplyMapnikVectorTiles.h"
+#import "MapboxVectorTiles.h"
 
-@class MaplyVectorTileStyleSettings;
+@class MaplyVectorStyleSettings;
 
 @interface MapnikStyleSet : NSObject <NSXMLParserDelegate, MaplyVectorStyleDelegate>
 
-@property (nonatomic, strong) MaplyVectorTileStyleSettings *tileStyleSettings;
-@property (nonatomic, strong) NSMutableDictionary *styleDictionary;
-@property (nonatomic, weak) MaplyBaseViewController *viewC;
+@property (nonatomic, strong, nullable) MaplyVectorStyleSettings *tileStyleSettings;
+@property (nonatomic, strong, nullable) NSMutableDictionary *styleDictionary;
+@property (nonatomic, weak, nullable) MaplyBaseViewController *viewC;
 @property (nonatomic, readonly) BOOL parsing;
-@property (nonatomic, strong) UIColor *backgroundColor;
+@property (nonatomic, strong, nullable) UIColor *backgroundColor;
 @property (nonatomic, assign) NSInteger tileMaxZoom;
 @property (nonatomic, assign) NSInteger drawPriorityOffset;
 @property (nonatomic, assign) CGFloat alpha;
 
-- (instancetype)initForViewC:(MaplyBaseViewController *)viewC;
-- (void)loadXmlFile:(NSString*)filePath;
-- (void)loadXmlData:(NSData *)docData;
-- (void)loadJsonData:(NSData *)jsonData;
-- (void)loadJsonFile:(NSString*)filePath;
-- (void)saveAsJSON:(NSString *)filePath;
+- (nonnull instancetype)initForViewC:(MaplyBaseViewController *__nonnull)viewC;
+
+- (void)loadXmlFile:(NSString *__nonnull)filePath;
+- (void)loadXmlData:(NSData *__nonnull)docData;
+- (void)loadJsonData:(NSData *__nonnull)jsonData;
+- (void)loadJsonFile:(NSString*__nonnull)filePath;
+- (void)saveAsJSON:(NSString *__nonnull)filePath;
 - (void)generateStyles;
 
 @end

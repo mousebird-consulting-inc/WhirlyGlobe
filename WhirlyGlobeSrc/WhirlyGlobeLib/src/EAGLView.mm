@@ -55,7 +55,8 @@
         _frameInterval = 1;
         self.useRetina = TRUE;
         resizeFail = false;
-        resizeFailRetry = 0;        
+        resizeFailRetry = 0;
+        _pauseDisplayLink = true;
     }
     
     return self;
@@ -108,7 +109,7 @@
                 [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];            
         } else
             displayLink.paused = NO;
-        
+
         _animating = TRUE;
     }
 }
@@ -118,10 +119,12 @@
     if (_animating)
     {
         _animating = FALSE;
+        if (_pauseDisplayLink)
+            displayLink.paused = true;
     }
 }
 
-- (void) shutdown
+- (void) teardown
 {
     if (_animating)
     {
