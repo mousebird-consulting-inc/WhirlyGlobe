@@ -11,14 +11,13 @@ If you'd like a good binary build, just grab 2.5 or a *nightly* version.  If you
 
 ### Version 2.5
 
-The official released version of WhirlyGlobe-Maply is 2.5.  You can get that directly right there.
+The official released version of WhirlyGlobe-Maply is 2.5.  The binary downloads are as follows.
 
-| Architecture | Download |
-| ------------ | -------- |
-| iOS          | [iOS 2.5 framework](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_5.zip) |
-| Android          | [Android 2.5 AAR](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_5.aar) |
+[iOS 2.5 framework](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_5.zip) |
 
-The iOS version is a binary framework you can import into your project.  On of [our tutorials](https://mousebird.github.io/WhirlyGlobe/tutorial/ios/building_from_binary.html/) discusses that in detail.
+[Android 2.5 AAR](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_5.aar) |
+
+The iOS version is a binary framework you can import into your project.  One of [our tutorials](https://mousebird.github.io/WhirlyGlobe/tutorial/ios/building_from_binary.html/) discusses that in detail.
 
 For Android, you can use the AAR and we discuss how in [another tutorial](https://mousebird.github.io/WhirlyGlobe/tutorial/android/building-from-nightly.html).
 
