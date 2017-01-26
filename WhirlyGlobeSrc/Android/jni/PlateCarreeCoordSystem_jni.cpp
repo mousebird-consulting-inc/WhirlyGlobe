@@ -30,16 +30,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_PlateCarreeCoordSystem_nativeIni
 {
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_SphericalMercatorCoordSystem_initialise
+JNIEXPORT void JNICALL Java_com_mousebird_maply_PlateCarreeCoordSystem_initialise
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
-		SphericalMercatorCoordSystem *coordSystem = new SphericalMercatorCoordSystem();
+		PlateCarreeCoordSystem *coordSystem = new PlateCarreeCoordSystem();
 		CoordSystemClassInfo::getClassInfo()->setHandle(env,obj,coordSystem);
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalMercatorCoordSystem::initialise()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in PlateCarreeCoordSystem::initialise()");
 	}
 }
