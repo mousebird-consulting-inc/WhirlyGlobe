@@ -41,7 +41,7 @@
 @interface WhirlyGlobeView : WhirlyKitView
 
 /// Initialize with an existing globe view
-- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView;
+- (id)initWithView:(WhirlyGlobeView *)inGlobeView;
 
 /// The globe has a radius of 1.0 so 1.0 + heightAboveGlobe is the offset from the middle of the globe
 @property (nonatomic,assign) double heightAboveGlobe;
@@ -76,9 +76,6 @@
 /// Return where up (0,0,1) is after model rotation
 - (Eigen::Vector3d)currentUp;
 
-/// Calculate where the eye is in model coordinates
-- (Eigen::Vector3d)eyePos;
-
 /// Given a rotation, where would (0,0,1) wind up
 + (Eigen::Vector3d)prospectiveUp:(Eigen::Quaterniond &)prospectiveRot;
 
@@ -87,6 +84,12 @@
     Returns false if not and the closest point on the sphere
  */
 - (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3d *)hit normalized:(bool)normalized;
+
+/** Given a location on the screen and the screen size, figure out where we touched the sphere
+ Returns true if we hit and where
+ Returns false if not and the closest point on the sphere
+ */
+- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3d *)hit normalized:(bool)normalized radius:(double)radius;
 
 /** From a world location (3D), figure out the projection to the screen
     Returns a point within the frame

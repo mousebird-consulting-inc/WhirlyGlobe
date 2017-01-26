@@ -281,6 +281,7 @@ static const char *fragmentShaderGroundTri =
 #define kAtmosphereGroundShader @"Atmosphere Ground Shader"
 
 @interface SunUpdater : MaplyActiveObject
+@property (nonatomic) bool lockToCamera;
 @end
 
 @implementation SunUpdater
@@ -290,9 +291,10 @@ static const char *fragmentShaderGroundTri =
     MaplyCoordinate3d sunPos;
     MaplyShader *shader,*groundShader;
     MaplyAtmosphere * __weak atm;
+    Vector3d lastCameraPos;
 }
 
-- (id)initWithShader:(MaplyShader *)inShader groundShader:(MaplyShader *)inGroundShader atm:(MaplyAtmosphere *)inAtm viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithShader:(MaplyShader *)inShader groundShader:(MaplyShader *)inGroundShader atm:(MaplyAtmosphere *)inAtm viewC:(MaplyBaseViewController *)viewC
 {
     self = [super initWithViewController:viewC];
     changed = true;
@@ -300,13 +302,14 @@ static const char *fragmentShaderGroundTri =
     shader = inShader;
     groundShader = inGroundShader;
     atm = inAtm;
+    _lockToCamera = false;
     
     return self;
 }
 
 - (bool)hasUpdate
 {
-    return changed;
+    return changed || !started;
 }
 
 - (void)setSunPosition:(MaplyCoordinate3d)inSunPos
@@ -315,11 +318,25 @@ static const char *fragmentShaderGroundTri =
     changed = true;
 }
 
+- (void)setLockToCamera:(bool)lockToCamera
+{
+    _lockToCamera = lockToCamera;
+    changed = true;
+}
+
 // Thanks to: http://stainlessbeer.weebly.com/planets-9-atmospheric-scattering.html
 //  for the parameter values.
 
 - (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
 {
+    if (!changed && started)
+    {
+        // Check the camera position
+        Vector3d cameraPos = frameInfo.eyePos;
+        if (cameraPos == lastCameraPos)
+            return;
+    }
+    
     EAGLContext *oldContext = [EAGLContext currentContext];
     [frameInfo.sceneRenderer useContext];
     [frameInfo.sceneRenderer forceDrawNextFrame];
@@ -328,6 +345,8 @@ static const char *fragmentShaderGroundTri =
     Vector4d sunDir4d = Vector4d(sunPos.x,sunPos.y,sunPos.z,1.0);
     sunDir4d /= sunDir4d.w();
     Vector3d sunDir3d(sunDir4d.x(),sunDir4d.y(),sunDir4d.z());
+    if (_lockToCamera)
+        sunDir3d = cameraPos;
     sunDir3d.normalize();
     double cameraHeight = cameraPos.norm();
     float scale = 1.0f / (atm.outerRadius - 1.f);
@@ -373,6 +392,7 @@ static const char *fragmentShaderGroundTri =
     
     changed = false;
     started = true;
+    lastCameraPos = cameraPos;
     
     if (oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
@@ -389,7 +409,7 @@ static const char *fragmentShaderGroundTri =
     float wavelength[3];
 }
 
-- (id)initWithViewC:(WhirlyGlobeViewController *)inViewC
+- (instancetype)initWithViewC:(WhirlyGlobeViewController *)inViewC
 {
     self = [super init];
     
@@ -426,11 +446,30 @@ static const char *fragmentShaderGroundTri =
     wavelength[2] = inVals[2];
 }
 
+- (void)setWavelengthRed:(float) redWavelength green:(float)greenWavelength blue:(float)blueWavelength
+{
+    wavelength[0] = redWavelength;
+    wavelength[1] = greenWavelength;
+    wavelength[2] = blueWavelength;
+}
+
 - (void)getWavelength:(float *)retVals
 {
     retVals[0] = wavelength[0];
     retVals[1] = wavelength[1];
     retVals[2] = wavelength[2];
+}
+
+- (float)getWavelengthForComponent:(short)component
+{
+    return wavelength[component];
+}
+
+- (void)setLockToCamera:(bool)lockToCamera
+{
+    _lockToCamera = lockToCamera;
+    if (sunUpdater)
+        sunUpdater.lockToCamera = _lockToCamera;
 }
 
 - (void)complexAtmosphere

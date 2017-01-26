@@ -110,7 +110,7 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
             
             for (unsigned int ii=0;ii<3;ii++)
                 activeMtl->Ks[ii] = atof(toks[ii+1]);
-        } else if (!strcmp(key,"d") || !strcmp(key,"Tr"))
+        } else if (!strcmp(key,"d"))
         {
             if (toks.size() < 2 || !activeMtl)
             {
@@ -119,6 +119,15 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
             }
             
             activeMtl->trans = atof(toks[1]);
+        } else if (!strcmp(key,"Tr"))
+        {
+            if (toks.size() < 2 || !activeMtl)
+            {
+                success = false;
+                break;
+            }
+            
+            activeMtl->trans = 1.0-atof(toks[1]);
         } else if (!strcmp(key,"illum"))
         {
             if (toks.size() < 2 || !activeMtl)

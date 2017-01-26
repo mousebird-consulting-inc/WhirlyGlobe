@@ -22,6 +22,8 @@ This is the master branch of the WhirlyGlobe-Maply Component and API version 2.3
 
 ---
 
+There’s a tutorial on [getting started](http://mousebird.github.io/WhirlyGlobe/tutorial/building_from_source.html) with WhirlyGlobe-Maply from github.  If you’re in a hurry, here’s the capsule version.
+
 WhirlyGlobe-Maply uses a bunch of submodules, which you'll need to get.  Like so.
 
 - git submodule init

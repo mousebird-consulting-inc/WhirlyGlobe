@@ -22,13 +22,14 @@
 
 @implementation MaplyMarker
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     if (!self)
         return nil;
     
     _selectable = true;
+    _period = 5.0;
     
     return self;
 }

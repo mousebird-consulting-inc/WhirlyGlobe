@@ -171,6 +171,26 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 @end
 
+// Wrapper for bounding box so we can pass it around
+@interface MaplyReloadInfo : NSObject
+
+@property (nonatomic,assign) MaplyBoundingBox bbox;
++ (MaplyReloadInfo *) reloadInfoWithBounds:(MaplyBoundingBox)bbox;
+
+@end
+
+@implementation MaplyReloadInfo
+
++ (MaplyReloadInfo *) reloadInfoWithBounds:(MaplyBoundingBox)bbox
+{
+    MaplyReloadInfo *reloadObj = [[MaplyReloadInfo alloc] init];
+    reloadObj.bbox = bbox;
+    
+    return reloadObj;
+}
+
+@end
+
 @implementation MaplyQuadPagingLayer
 {
     WhirlyKitQuadDisplayLayer *quadLayer;
@@ -188,9 +208,10 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     WhirlyKitViewState *lastViewState;
     WhirlyKitSceneRendererES *_renderer;
     bool hasUnload;
+    bool hasBoundingBox;
 }
 
-- (id)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys delegate:(NSObject<MaplyPagingDelegate> *)inTileSource
+- (instancetype)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys delegate:(NSObject<MaplyPagingDelegate> *)inTileSource
 {
     self = [super init];
 
@@ -206,12 +227,14 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     _maxTiles = 256;
     canShortCircuitImportance = false;
     maxShortCircuitLevel = -1;
-    _useTargetZoomLevel = true;
+    _useTargetZoomLevel = false;
     _singleLevelLoading = false;
     _groupChildrenWithParent = true;
     hasUnload = [tileSource respondsToSelector:@selector(tileDidUnload:)];
+    hasBoundingBox = [tileSource respondsToSelector:@selector(getBoundingBox:ll:ur:)];
     _minTileHeight = 0.0;
     _maxTileHeight = 0.0;
+    _useParentTileBounds = true;
     
     return self;
 }
@@ -227,6 +250,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_unlock(&tileSetLock);
     
     pthread_mutex_destroy(&tileSetLock);
+    tileSource = nil;
 }
 
 - (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)inViewC
@@ -247,6 +271,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     quadLayer.maxTiles = _maxTiles;
     
     [super.layerThread addLayer:quadLayer];
+    _valid = true;
     
     return true;
 }
@@ -264,15 +289,28 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     pthread_mutex_unlock(&tileSetLock);
 }
 
+- (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
+{
+	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter() || !_valid)
+		return kMaplyNullBoundingBox;
+
+	MaplyBoundingBox bounds;
+
+	[self geoBoundsforTile:tileID ll:&bounds.ll ur:&bounds.ur];
+
+	return bounds;
+}
+
 - (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
 {
-    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+    WhirlyKitQuadDisplayLayer *thisQuadLayer = quadLayer;
+    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter() || !_valid)
         return;
     
     Mbr mbr = quadLayer.quadtree->generateMbrForNode(WhirlyKit::Quadtree::Identifier(tileID.x,tileID.y,tileID.level));
     
     GeoMbr geoMbr;
-    CoordSystem *wkCoordSys = quadLayer.coordSys;
+    CoordSystem *wkCoordSys = thisQuadLayer.coordSys;
     geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ll().x(),mbr.ll().y(),0.0)));
     geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ll().y(),0.0)));
     geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ur().y(),0.0)));
@@ -284,9 +322,25 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     ur->y = geoMbr.ur().y();
 }
 
+- (MaplyBoundingBoxD)geoBoundsForTileD:(MaplyTileID)tileID
+{
+	if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+		return kMaplyNullBoundingBoxD;
+
+	MaplyBoundingBoxD bounds;
+
+	[self geoBoundsForTileD:tileID ll:&bounds.ll ur:&bounds.ur];
+
+	return bounds;
+}
+
+//- (void)boundingBoxForTile:(MaplyTileID)tileID ll:(MaplyCoordinate3dD * __nonnull)ll ur:(MaplyCoordinate3dD * __nonnull)ur
+//{
+//}
+
 - (void)geoBoundsForTileD:(MaplyTileID)tileID ll:(MaplyCoordinateD *)ll ur:(MaplyCoordinateD *)ur
 {
-    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter())
+    if (!quadLayer || !quadLayer.quadtree || !scene || !scene->getCoordAdapter() || !_valid)
         return;
     
     Point2d mbrLL,mbrUR;
@@ -311,6 +365,15 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     ll->y = minPt.y();
     ur->x = maxPt.x();
     ur->y = maxPt.y();
+}
+
+- (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID
+{
+	MaplyBoundingBox bounds;
+
+	[self boundsforTile:tileID ll:&bounds.ll ur:&bounds.ur];
+
+	return bounds;
 }
 
 - (void)boundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur
@@ -372,15 +435,25 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (int)targetZoomLevel
 {
-    if (!lastViewState || !_renderer || !scene)
+    if (!lastViewState || !_renderer || !scene || !_valid)
         return minZoom;
     
     int zoomLevel = 0;
-    WhirlyKit::Point2f center = Point2f(lastViewState.eyePos.x(),lastViewState.eyePos.y());
+    
+    // Start with the center (where we're looking) in model coordinates
+    WhirlyKit::Point3d centerInModel = lastViewState.eyePos;
     // The coordinate adapter might have its own center
     Point3d adaptCenter = scene->getCoordAdapter()->getCenter();
-    center.x() += adaptCenter.x();
-    center.y() += adaptCenter.y();
+    centerInModel += adaptCenter;
+    if (!scene->getCoordAdapter()->isFlat())
+        centerInModel.normalize();
+    
+    // Convert from model coordinates to the coord adapters local coordinates
+    Point3d localPt = scene->getCoordAdapter()->displayToLocal(centerInModel);
+    
+    // Now convert into our coordinate system
+    Point3d ourCenter = CoordSystemConvert3d(scene->getCoordAdapter()->getCoordSystem(), self.coordSystem, localPt);
+    Point2f ourCenter2d(ourCenter.x(),ourCenter.y());
 
     while (zoomLevel <= maxZoom)
     {
@@ -389,8 +462,35 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         // Make an MBR right in the middle of where we're looking
         Mbr mbr = quadLayer.quadtree->generateMbrForNode(ident);
         Point2f span = mbr.ur()-mbr.ll();
-        mbr.ll() = center - span/2.0;
-        mbr.ur() = center + span/2.0;
+        mbr.ll() = ourCenter2d - span/2.0;
+        mbr.ur() = ourCenter2d + span/2.0;
+        // If that MBR is pushing the north or south boundaries, let's adjust it
+        Mbr quadTreeMbr = quadLayer.quadtree->getMbr();
+        if (mbr.ur().y() > quadTreeMbr.ur().y())
+        {
+            double dy = mbr.ur().y() - quadTreeMbr.ur().y();
+            mbr.ur().y() -= dy;
+            mbr.ll().y() -= dy;
+        } else
+            if (mbr.ll().y() < quadTreeMbr.ll().y())
+            {
+                double dy = quadTreeMbr.ll().y() - mbr.ll().y();
+                mbr.ur().y() += dy;
+                mbr.ll().y() += dy;
+            }
+        // Also the east and west boundaries
+        if (mbr.ur().x() > quadTreeMbr.ur().x())
+        {
+            double dx = mbr.ur().x() - quadTreeMbr.ur().x();
+            mbr.ur().x() -= dx;
+            mbr.ll().x() -= dx;
+        } else
+            if (mbr.ll().x() < quadTreeMbr.ll().x())
+            {
+                double dx = quadTreeMbr.ll().x() - mbr.ll().x();
+                mbr.ur().x() += dx;
+                mbr.ll().x() += dx;
+            }
         float import = ScreenImportance(lastViewState, Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight), lastViewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, nil);
         if (import <= quadLayer.minImportance)
         {
@@ -399,6 +499,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         }
         zoomLevel++;
     }
+    
+//    NSLog(@"Selected level %d",zoomLevel);
     
     return std::min(zoomLevel,maxZoom);
 }
@@ -416,42 +518,24 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         return;
     }
     
-    CoordSystemDisplayAdapter *coordAdapter = viewState.coordAdapter;
-    Point3d center = coordAdapter->getCenter();
-    if (center.x() == 0.0 && center.y() == 0.0 && center.z() == 0.0)
+    canShortCircuitImportance = true;
+
+    // We happen to store tilt in the view matrix.
+    // Note: Fix this.  This won't detect tilt
+    //        Eigen::Matrix4d &viewMat = viewState.viewMatrices[0];
+    //        if (!viewMat.isIdentity())
+    //        {
+    //            canShortCircuitImportance = false;
+    //            return;
+    //        }
+    
+    // We need to feel our way down to the appropriate level
+    maxShortCircuitLevel = [self targetZoomLevel];
+    if (_singleLevelLoading)
     {
-        canShortCircuitImportance = true;
-        if (!coordAdapter->isFlat())
-        {
-            canShortCircuitImportance = false;
-            return;
-        }
-        // We happen to store tilt in the view matrix.
-        // Note: Fix this.  This won't detect tilt
-        //        Eigen::Matrix4d &viewMat = viewState.viewMatrices[0];
-        //        if (!viewMat.isIdentity())
-        //        {
-        //            canShortCircuitImportance = false;
-        //            return;
-        //        }
-        // The tile source coordinate system must be the same as the display's system
-        if (!coordSys->coordSystem->isSameAs(coordAdapter->getCoordSystem()))
-        {
-            canShortCircuitImportance = false;
-            return;
-        }
-        
-        // We need to feel our way down to the appropriate level
-        maxShortCircuitLevel = [self targetZoomLevel];
-        if (_singleLevelLoading)
-        {
-            std::set<int> targetLevels;
-            targetLevels.insert(maxShortCircuitLevel);
-            quadLayer.targetLevels = targetLevels;
-        }
-    } else {
-        // Note: Can't short circuit in this case.  Something wrong with the math
-        canShortCircuitImportance = false;
+        std::set<int> targetLevels;
+        targetLevels.insert(maxShortCircuitLevel);
+        quadLayer.targetLevels = targetLevels;
     }
 }
 
@@ -461,34 +545,64 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     if (ident.level <= 1)
         return MAXFLOAT;
     
-    // For a child tile, we're taking the size of our parent so all the children load at once
-    WhirlyKit::Quadtree::Identifier parentIdent;
-    parentIdent.x = ident.x / 2;
-    parentIdent.y = ident.y / 2;
-    parentIdent.level = ident.level - 1;
+    // We may use the parent bounding box for testing
+    // This will force all four children in at once.
+    WhirlyKit::Quadtree::Identifier testID;
+    MaplyTileID testTileID;
+    if (_useParentTileBounds)
+    {
+        // For a child tile, we're taking the size of our parent so all the children load at once
+        WhirlyKit::Quadtree::Identifier parentIdent;
+        parentIdent.x = ident.x / 2;
+        parentIdent.y = ident.y / 2;
+        parentIdent.level = ident.level - 1;
+        
+        testID = parentIdent;
+    } else {
+        testID = ident;
+    }
+    testTileID.x = testID.x;    testTileID.y = testID.y;    testTileID.level = testID.level;
     
-    Mbr parentMbr = quadLayer.quadtree->generateMbrForNode(parentIdent);
+    Mbr testMbr = quadLayer.quadtree->generateMbrForNode(testID);
 
     double import = 0.0;
     if (canShortCircuitImportance && maxShortCircuitLevel != -1)
     {
-        if (TileIsOnScreen(viewState, frameSize, coordSys->coordSystem, scene->getCoordAdapter(), (_singleLevelLoading ? mbr : parentMbr), ident, attrs))
+        if (TileIsOnScreen(viewState, frameSize, coordSys->coordSystem, scene->getCoordAdapter(), (_singleLevelLoading ? mbr : testMbr), ident, attrs))
         {
+            // Generate a simple importance for anything at this level
             import = 1.0/(ident.level+10);
             if (ident.level <= maxShortCircuitLevel)
+            {
                 import += 1.0;
+                
+                if (!scene->getCoordAdapter()->isFlat())
+                {
+                    // Nudge it by the screen importance so the bigger ones are loaded first
+                    double screenImport = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), testMbr, ident, attrs);
+                    
+                    import += screenImport / 1e10;
+                }
+            }
         }
         import *= self.importance;
     } else {
+        MaplyCoordinate3dD ll,ur;
+        ll.x = testMbr.ll().x();  ll.y = testMbr.ll().y();  ll.z = _minTileHeight;
+        ur.x = testMbr.ur().x();  ur.y = testMbr.ur().y();  ur.z = _maxTileHeight;
+        
+        if (hasBoundingBox)
+            [tileSource getBoundingBox:testTileID ll:&ll ur:&ur];
+        
         // This is how much screen real estate we're covering for this tile
         double div = 1.0;
         if (_groupChildrenWithParent)
             div = 4.0;
         
-        if (_minTileHeight != _maxTileHeight)
-            import = ScreenImportance(viewState, frameSize, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, _minTileHeight, _maxTileHeight, ident, attrs) / div;
+        if (ll.z != ur.z)
+            import = ScreenImportance(viewState, frameSize, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), testMbr, ll.z, ur.z, ident, attrs) / div;
         else
-            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), parentMbr, ident, attrs) / div;
+            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), testMbr, ident, attrs) / div;
     }
     
     // Just the importance of this tile.
@@ -501,7 +615,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
-- (void)shutdown
+- (void)teardown
 {
     super.layerThread = nil;
     quadLayer = nil;
@@ -519,6 +633,11 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     return -1;
 }
 
+- (void)setSingleLevelLoading:(bool)singleLevelLoading
+{
+    _singleLevelLoading = singleLevelLoading;
+    _useTargetZoomLevel = singleLevelLoading;
+}
 
 - (void)setQuadLayer:(WhirlyKitQuadDisplayLayer *)layer
 {
@@ -978,7 +1097,9 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)shutdownLayer:(WhirlyKitQuadDisplayLayer *)layer scene:(WhirlyKit::Scene *)scene
 {
+    _valid = false;
     [self clearContents];
+    tileSource = nil;
 }
 
 - (void)reload
@@ -1001,6 +1122,46 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     // Note: Shouldn't hold up the layer thread for this
     for (unsigned int ii=0;ii<tilesToRefresh.size();ii++)
         [self askDelegateForLoad:tilesToRefresh[ii] isRefresh:true];
+}
+
+- (void)reloadSelected:(MaplyReloadInfo *)reloadInfo
+{
+    Mbr mbr;
+    mbr.addPoint(Point2f(reloadInfo.bbox.ll.x,reloadInfo.bbox.ll.y));
+    mbr.addPoint(Point2f(reloadInfo.bbox.ur.x,reloadInfo.bbox.ur.y));
+    
+    // Brute force our way through
+    pthread_mutex_lock(&tileSetLock);
+    std::vector<MaplyTileID> tilesToRefresh;
+    for (auto it = tileSet.begin();it != tileSet.end(); ++it)
+        if ((*it)->nodeIdent.level >= minZoom)
+        {
+            MaplyBoundingBox tileBbox = [self geoBoundsForTile:(*it)->nodeIdent];
+            Mbr tileMbr;
+            tileMbr.addPoint(Point2f(tileBbox.ll.x,tileBbox.ll.y));
+            tileMbr.addPoint(Point2f(tileBbox.ur.x,tileBbox.ur.y));
+
+            tilesToRefresh.push_back((*it)->nodeIdent);
+        }
+    pthread_mutex_unlock(&tileSetLock);
+    
+    // Ask the delegate to reload each tile
+    // Note: Shouldn't hold up the layer thread for this
+    for (unsigned int ii=0;ii<tilesToRefresh.size();ii++)
+        [self askDelegateForLoad:tilesToRefresh[ii] isRefresh:true];
+}
+
+- (void)reload:(MaplyBoundingBox)bounds
+{
+    MaplyReloadInfo *reloadInfo = [MaplyReloadInfo reloadInfoWithBounds:bounds];
+    
+    if ([NSThread currentThread] != super.layerThread)
+    {
+        [self performSelector:@selector(reloadSelected:) onThread:super.layerThread withObject:reloadInfo waitUntilDone:NO];
+        return;
+    }
+
+    [self reloadSelected:reloadInfo];
 }
 
 

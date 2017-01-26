@@ -22,7 +22,7 @@
 
 @implementation MaplyBillboard
 
-- (id)initWithImage:(id)texture color:(UIColor *)color size:(CGSize)size
+- (instancetype)initWithImage:(id)texture color:(UIColor *)color size:(CGSize)size
 {
     self = [super init];
     if (!self)

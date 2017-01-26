@@ -22,6 +22,20 @@
 #import <WhirlyGlobe.h>
 #import "MaplyBaseViewController_private.h"
 
+namespace WhirlyKit
+{
+// Wraps strings with size and translation
+class GeomStringWrapper
+{
+public:
+    GeomStringWrapper() : mat(mat.Identity()), str(nil) { }
+    
+    Eigen::Matrix4d mat;
+    CGSize size;
+    NSAttributedString *str;
+};
+}
+
 @class MaplyBaseInteractionLayer;
 
 @interface MaplyGeomModel()
@@ -30,6 +44,7 @@
     std::vector<std::string> textures;
     std::vector<WhirlyKit::GeometryRaw> rawGeom;
     std::set<MaplyTexture *> maplyTextures;
+    std::vector<WhirlyKit::GeomStringWrapper> strings;
 }
 
 // Return the list of texture file names
@@ -39,6 +54,6 @@
 - (void)asRawGeometry:(std::vector<WhirlyKit::GeometryRaw> &)rawGeom withTexMapping:(const std::vector<WhirlyKit::SimpleIdentity> &)texFileMap;
 
 // Return the ID for or generate a base model in the Geometry Manager
-- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer mode:(MaplyThreadMode)threadMode;
+- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKitFontTextureManager *)fontTexManager compObj:(MaplyComponentObject *)compObj mode:(MaplyThreadMode)threadMode;
 
 @end

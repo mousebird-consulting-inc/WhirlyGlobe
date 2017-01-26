@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <MaplyCoordinate.h>
+#import "MaplyCoordinate.h"
 #import "MaplyScreenMarker.h"
 #import "MaplyVectorObject.h"
 #import "MaplyViewTracker.h"
@@ -29,6 +29,90 @@
 
 @class MaplyViewControllerLayer;
 @class MaplyViewController;
+
+
+/** @brief Animation State used by the MaplyViewControllerAnimationDelegate.
+ @details You fill out one of these when you're implementing the animation delegate.  Return it and the view controller will set the respective values to match.
+ */
+@interface MaplyViewControllerAnimationState : NSObject
+
+/// @brief Heading is calculated from due north
+/// @details If not set or set to MAXFLOAT, this is ignored
+@property (nonatomic) double heading;
+
+/// @brief Height above the map
+@property (nonatomic) double height;
+
+/// @brief Position to move to on the map
+@property (nonatomic) MaplyCoordinateD pos;
+
+/// @brief If set, this is a point on the screen where pos should be.
+/// @details By default this is (-1,-1) meaning the screen position is just the middle.  Otherwise, this is where the position should wind up on the screen, if it can.
+@property (nonatomic) CGPoint screenPos;
+
+/** @brief Interpolate a new state between the given states A and B.
+ @details This does a simple interpolation (lat/lon, not great circle) between the two animation states.
+ */
++ (nonnull MaplyViewControllerAnimationState *)Interpolate:(double)t from:(MaplyViewControllerAnimationState *__nonnull)stateA to:(MaplyViewControllerAnimationState *__nonnull)stateB;
+
+@end
+
+/** @brief An animation delegate that can be set on a MaplyViewController to control the view over time.
+ @details Filling out these methods will get you animation callbacks at the proper time to control position, heading and height on a frame basis.
+ @details You pass the resulting object in to
+ */
+@protocol MaplyViewControllerAnimationDelegate <NSObject>
+
+/** @brief This method is called when the animation starts.
+ @details At the animation start we collect up the various parameters of the current visual view state and pas them in via the startState.  You probably want to keep track of this for later.
+ @param viewC The view controller doing the animation.
+ @param startState The starting point for the visual view animation.  Cache this somewhere for your own interpolation.
+ @param startTime When the animation starts (e.g. now)
+ @param endTime When the animation ends.  This is an absolute value.
+ */
+- (void)mapViewController:(MaplyViewController *__nonnull)viewC startState:(MaplyViewControllerAnimationState *__nonnull)startState startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime;
+
+/** @brief This method is called at the beginning of every frame draw to position the viewer.
+ @details This is the method that does all the work.  You need to fill out the returned MaplyViewControllerAnimationState according to whatever interpolation your'e doing based on the currentTime.
+ @param viewC The view controller doing the animation.
+ @param currentTime The time for this frame.  Use this rather than calculating the time yourself.
+ @return The MaplyViewControllerAnimationState expressing where you want the viewer to be and where they are looking.
+ */
+- (nonnull MaplyViewControllerAnimationState *)mapViewController:(MaplyViewController *__nonnull)viewC stateForTime:(NSTimeInterval)currentTime;
+
+@optional
+
+/** @brief This method is called at the end of the animation.
+ @details The map view controller calls this method when the animation is finished.  Do your cleanup here if need be.
+ @param viewC The map view controller.
+ */
+- (void)mapViewControllerDidFinishAnimation:(MaplyViewController *__nonnull)viewC;
+
+@end
+
+/** @brief A simple animation delegate for moving the map around.
+ @details The animation delegate support provides a lot of flexibility.  This version just provides all the standard fields and interpolates from beginning to end.
+ */
+@interface MaplyViewControllerSimpleAnimationDelegate : NSObject <MaplyViewControllerAnimationDelegate>
+
+/// @brief Initialize with an animation state to copy
+- (nonnull instancetype)initWithState:(MaplyViewControllerAnimationState *__nonnull)endState;
+
+/// @brief Location at the end of the animation
+@property (nonatomic) MaplyCoordinateD loc;
+
+/// @brief Heading at the end of the animation
+@property (nonatomic) double heading;
+
+/// @brief Height at the end of the animation
+@property (nonatomic) double height;
+
+@end
+
+
+
+
+
 
 /** @brief A protocol to fill out for selection and tap messages from the MaplyViewController.
     @details Fill out the protocol when you want to get back selection and tap messages.  All the methods are optional.
@@ -40,7 +124,7 @@
 /** @brief Called when the user taps on or near an object.
     @details You're given the object you passed in originally, such as a MaplyScreenMarker.  You can set a userObject on most of these to put your own data in there for tracking.
   */
-- (void)maplyViewController:(MaplyViewController *)viewC didSelect:(NSObject *)selectedObj;
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didSelect:(NSObject *__nonnull)selectedObj;
 
 /** @brief User selected a given object and tapped at a given location.
     @details This is called when the user selects an object.  It differs from maplyViewController:didSelect: in that it passes on the location (in the local coordinate system) and the position on screen.
@@ -49,19 +133,19 @@
     @param coord Location in the local coordinate system where the user tapped.
     @param screenPt Location on screen where the user tapped.
  */
-- (void)maplyViewController:(MaplyViewController *)viewC didSelect:(NSObject *)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt;
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didSelect:(NSObject *__nonnull)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt;
 
 /** @brief User tapped at a given location.
     @details This is a tap at a specific location on the map.  This won't be called if they tapped and selected, just for taps.
   */
-- (void)maplyViewController:(MaplyViewController *)viewC didTapAt:(MaplyCoordinate)coord;
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didTapAt:(MaplyCoordinate)coord;
 
 /** @brief Called when the map starts moving.
  @param viewC The map view controller.
  @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
  @details This is called when something (probably the user) starts moving the map.
  */
-- (void)maplyViewControllerDidStartMoving:(MaplyViewController *)viewC userMotion:(bool)userMotion;
+- (void)maplyViewControllerDidStartMoving:(MaplyViewController *__nonnull)viewC userMotion:(bool)userMotion;
 
 /** @brief Called when the map stops moving.
  @details This is called when the map stops moving.  It passes in the corners of the current viewspace.
@@ -69,18 +153,24 @@
  @param userMotion Set if this is motion being caused by the user, rather than a call to set location.
  @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the map (think zoomed out), its values are set to MAXFLOAT.
  */
-- (void)maplyViewController:(MaplyViewController *)viewC didStopMoving:(MaplyCoordinate *)corners userMotion:(bool)userMotion;
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didStopMoving:(MaplyCoordinate *__nonnull)corners userMotion:(bool)userMotion;
 
 /** @brief Called when the user taps on one of your annotations.
     @details This is called when the user taps on an annotation.
     @param annotation Which annotation they tapped on.
   */
-- (void)maplyViewController:(MaplyViewController *)viewC didTapAnnotation:(MaplyAnnotation*)annotation;
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didTapAnnotation:(MaplyAnnotation*__nonnull)annotation;
 
 /// Old version for compatibility.  Use tap instead.
-- (void)maplyViewController:(MaplyViewController *)viewC didClickAnnotation:(MaplyAnnotation*)annotation __deprecated;
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didClickAnnotation:(MaplyAnnotation*__nonnull)annotation __deprecated;
 
 @end
+
+
+typedef NS_ENUM(NSInteger, MaplyMapType) {
+	MaplyMapType3D,
+	MaplyMapTypeFlat,
+};
 
 /** @brief This view controller implements a map.
     @details This is the main entry point for displaying a 2D or 3D map.  Create one of these, fill it with data and let your users mess around with it.
@@ -91,31 +181,34 @@
   */
 @interface MaplyViewController : MaplyBaseViewController
 
+/// @brief Initialize as a flat or 3D map.
+- (nonnull instancetype)initWithMapType:(MaplyMapType)mapType;
+
 /// @brief Initialize as a 3D map.
-- (id)init;
+- (nonnull instancetype)init __deprecated;
 
 /// @brief Initialize as a 2D map.
-- (id)initAsFlatMap;
+- (nonnull instancetype)initAsFlatMap __deprecated;
 
 /** @brief Initialize as a 2D map tied to a UIScrollView.
     @details In this mode we disable all the the gestures.
     @param scrollView The UIScrollView to track.
     @param tetherView If set, we assume the scroll view is manipulating a blank UIView which we'll watch.
   */
-- (id)initAsTetheredFlatMap:(UIScrollView *)scrollView tetherView:(UIView *)tetherView;
+- (nonnull instancetype)initAsTetheredFlatMap:(UIScrollView *__nonnull)scrollView tetherView:(UIView *__nullable)tetherView;
 
 /** @brief Reset the UIScrollView for tethered mode.
     @details Occasionally we need to reset the UIScrollView and tether view.  This will do that.
     @param scrollView The UIScrollView to track.
     @param tetherView If set, we assume the scroll view is manipulating a blank UIView which we'll watch.
   */
-- (void)resetTetheredFlatMap:(UIScrollView *)scrollView tetherView:(UIView *)tetherView;
+- (void)resetTetheredFlatMap:(UIScrollView *__nonnull)scrollView tetherView:(UIView *__nullable)tetherView;
 
 /// @brief Set if we're in 2D mode.
 @property (nonatomic,readonly) bool flatMode;
 
 /// @brief If we're in tethered flat map mode, this is the view we're monitoring for size and offset changes.
-@property(nonatomic,weak) UIView *tetherView;
+@property(nonatomic,weak) UIView *__nullable tetherView;
 
 /// @brief If set before startup (after init), we'll turn off all gestures and work only in tethered mode.
 @property(nonatomic,assign) bool tetheredMode;
@@ -123,7 +216,7 @@
 /// @brief Set the coordinate system to use in display.
 /// @details The coordinate system needs to be valid in flat mode.  The extents, if present, will be used to define the coordinate system origin.
 /// @details nil is the default and will result in a full web style Spherical Mercator.
-@property(nonatomic,strong) MaplyCoordinateSystem *coordSys;
+@property(nonatomic,strong) MaplyCoordinateSystem *__nullable coordSys;
 
 /** @brief Set the center of the display coordinate system.
     @details This is (0,0,0) by default.  If you set it to something else all display coordinates will be offset from that origin.
@@ -161,6 +254,16 @@
   */
 @property(nonatomic,assign) bool doubleTapDragGesture;
 
+/** @brief If set, we use a modified pan gesture recognizer to play nice
+ with the scroll view.  For the UIScrollView object, set clipsToBounds,
+ pagingEnabled, and delaysContentTouches to YES, and set scrollEnabled
+ and canCancelContentTouches to NO.  Add swipe gesture recognizers
+ to the scroll view to control paging, and call
+ requirePanGestureRecognizerToFailForGesture: for each.
+ @details Off by default.
+ */
+@property(nonatomic,assign) bool inScrollView;
+
 /** @brief turn the touch to cancel animation gesture on and off
     @details off by default
  */
@@ -178,7 +281,7 @@
 /** @brief Delegate for selection and location tapping.
     @details Fill in the MaplyViewControllerDelegate and assign it here to get callbacks for object selection and tapping.
   */
-@property(nonatomic,weak) NSObject<MaplyViewControllerDelegate> *delegate;
+@property(nonatomic,weak) NSObject<MaplyViewControllerDelegate> *__nullable delegate;
 
 /** @brief Current height above terrain.
     @details In 3D map mode this is the height from which the user is viewing the map.  Maps are usually -PI to +PI along their horizontal edges.
@@ -191,9 +294,19 @@
 @property (nonatomic,assign) bool viewWrap;
 
 /** @brief The box the view point can be in.
+ @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box.  Coordinates are in geographic (radians).
+ */
+- (MaplyBoundingBox)getViewExtents;
+
+/** @brief The box the view point can be in.
     @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box.  Coordinates are in geographic (radians).
   */
-- (void)getViewExtentsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
+- (void)getViewExtentsLL:(MaplyCoordinate *__nonnull)ll ur:(MaplyCoordinate *__nonnull)ur;
+
+/** @brief The box the view point can be in.
+ @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box. Coordinates are in geographic (radians).
+ */
+- (void)setViewExtents:(MaplyBoundingBox)box;
 
 /** @brief The box the view point can be in.
     @details This is the box the view point is allowed to be within.  The view controller will constrain it to be within that box. Coordinates are in geographic (radians).
@@ -231,6 +344,32 @@
  */
 - (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(NSTimeInterval)howLong;
 
+/** @brief Animate to the given position, heading and height over time.
+ @param newPos A coordinate in geographic (lon/lat radians)
+ @param newHeight New height to animate to.
+ @param newHeading New heading to finish on.
+ @param howLong A time interval in seconds.
+ */
+- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong;
+
+/** @brief Animate to the given position, heading and height over time.
+ @param newPos A coordinate in geographic (lon/lat radians) (double precision)
+ @param newHeight New height to animate to. (double)
+ @param newHeading New heading to finish on. (double)
+ @param howLong A time interval in seconds.
+ */
+- (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(NSTimeInterval)howLong;
+
+/** @brief Animate to the given position, screen position, heading and height over time.
+ @details If it's impossible to move newPos to loc, then nothing happens.
+ @param newPos A coordinate in geographic (lon/lat radians)
+ @param loc The location on the screen where we'd like it to go.
+ @param newHeight New height to animate to.
+ @param newHeading New heading to finish on.
+ @param howLong A time interval in seconds.
+ */
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong;
+
 /** @brief Set the center of the screen to the given position immediately.
     @param newPos The geographic position (lon/lat in radians) to move to.
   */
@@ -242,17 +381,48 @@
   */
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
+/** @brief Return the current center position
+ @param pos The center of the screen in geographic (lon/lat in radians).
+ */
+- (MaplyCoordinate)getPosition;
+
+/** @brief Return the current view point's height above the map.
+ @param height The current view point's height above the map.
+ */
+- (float)getHeight;
+
 /** @brief Return the current center position and height.
     @param pos The center of the screen in geographic (lon/lat in radians).
     @param height The current view point's height above the map.
   */
-- (void)getPosition:(MaplyCoordinate *)pos height:(float *)height;
+- (void)getPosition:(MaplyCoordinate *__nonnull)pos height:(float *__nonnull)height;
+
+
+/** @brief Set the viewing state all at once
+ @details This sets the position, height, screen position and heading all at once.
+ */
+- (void)setViewState:(MaplyViewControllerAnimationState *__nonnull)viewState;
+
+/** @brief Make a MaplyViewControllerAnimationState object from the current view state.
+ @details This returns the current view parameters in a single MaplyViewControllerAnimationState.
+ */
+- (nullable MaplyViewControllerAnimationState *)getViewState;
+
+/** @brief Return the closest a viewer is allowed to get to the map surface.
+ @return FLT_MIN if there's no pitchDelegate set
+ */
+- (float)getMinZoom;
+
+/** @brief Return the farthest away a viewer is allowed to get from the map surface
+ @return FLT_MIN if there's no pitchDelegate set
+ */
+- (float)getMaxZoom;
 
 /** @brief Return the zoom limits for 3D map mode.
     @param minHeight The closest a viewer is allowed to get to the map surface.
     @param maxHeight The farthest away a viewer is allowed to get from the map surface.
   */
-- (void)getZoomLimitsMin:(float *)minHeight max:(float *)maxHeight;
+- (void)getZoomLimitsMin:(float *__nonnull)minHeight max:(float *__nonnull)maxHeight;
 
 /** @brief Set the zoom limits for 3D map mode.
     @param minHeight The closest a viewer is allowed to get to the map surface.
@@ -270,12 +440,22 @@
     @param The bounding box (in radians) we're trying to view.
     @param pos Where the view will be looking.
   */
-- (float)findHeightToViewBounds:(MaplyBoundingBox *)bbox pos:(MaplyCoordinate)pos;
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos;
 
 /**
  @brief Return the extents of the current view
  @return Returns the Bounding Box (in radians) corresponding to the current view
  */
-- (MaplyBoundingBox) getCurrentExtents;
+- (MaplyBoundingBox)getCurrentExtents;
+
+/**
+ @brief Make a gesture recognizer's success depend on the pan gesture
+ recognizer's failure.
+ @details When using the map view within a scroll view, add swipe gesture
+ recognizers to the scroll view to control paging, and call this method
+ for each.  See also the inScrollView property and its comment.
+ @param other The other, subordinate gesture recognizer.
+ */
+- (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *__nullable)other;
 
 @end

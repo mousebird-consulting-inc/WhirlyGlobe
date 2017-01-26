@@ -30,7 +30,7 @@ using namespace WhirlyGlobe;
     WhirlyKitSphericalEarthQuadLayer *earthLayer;
 }
 
-- (id)initWithWithTexGroup:(NSString *)inTexGroupName
+- (instancetype)initWithWithTexGroup:(NSString *)inTexGroupName
 {
     self = [super init];
     if (!self)
