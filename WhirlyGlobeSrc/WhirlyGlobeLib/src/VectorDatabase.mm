@@ -242,7 +242,7 @@ bool VectorDatabase::buildCaches(NSString *mbrCache,NSString *sqlDb)
                     // Create the field
                     if (!dataType.empty())
                     {
-                        sqlhelpers::OneShot(db,[NSString stringWithFormat:@"ALTER TABLE vectors ADD %@ %s;",key,dataType.c_str()]);                                                
+                        sqlhelpers::OneShot(db,[NSString stringWithFormat:@"ALTER TABLE vectors ADD \"%@\" %s;",key,dataType.c_str()]);                                                
                         fields.insert(fieldName);
                     } else
                         ignoreFields.insert(fieldName);
@@ -254,7 +254,7 @@ bool VectorDatabase::buildCaches(NSString *mbrCache,NSString *sqlDb)
             NSMutableString *valStr = [NSMutableString stringWithString:@"?, "];
             for (unsigned int jj=0;jj<keys.size();jj++)
             {
-                [keyStr appendFormat:@"%s%s",keys[jj].c_str(),(jj==keys.size()-1 ? "" : ", ")];
+                [keyStr appendFormat:@"\"%s\"%s",keys[jj].c_str(),(jj==keys.size()-1 ? "" : ", ")];
                 [valStr appendFormat:@"?%s",(jj==keys.size()-1 ? "" : ", ")];
             }
             sqlhelpers::StatementWrite insStmt(db,[NSString stringWithFormat:@"INSERT INTO vectors (%@) values (%@);",keyStr,valStr]);
@@ -380,7 +380,7 @@ void VectorDatabase::findArealsForPoint(const GeoCoord &coord,ShapeSet &shapes)
             if (shape.get())
             {
                 bool keep = false;
-                VectorArealRef ar = boost::dynamic_pointer_cast<VectorAreal>(shape);
+                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(shape);
                 if (ar && ar->pointInside(coord))
                     keep = true;
                 // Hand it back to the caller.  Up to them to delete it

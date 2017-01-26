@@ -40,7 +40,6 @@ using namespace Eigen;
     return self;
 }
 
-
 - (void)updateView:(MaplyView *)mapView
 {
     if (_startDate == 0.0)

@@ -41,6 +41,9 @@
 #define kMaplyTestOWM @"OpenWeatherMap - Remote"
 #define kMaplyTestForecastIO @"Forecast.IO Snapshot - Remote"
 #define kMaplyMapzenVectors @"Mapzen Vectors - Remote"
+#define kMaplyWindTest @"Wind Particles - Remote"
+#define kMaplyOrdnanceSurveyTest @"British National Grid Test - Local"
+#define kMaplyAerisTest @"Aeris Weather - Remote"
 
 // Objects we can display
 #define kMaplyTestCategoryObjects @"Maply Objects"
@@ -59,6 +62,7 @@
 #define kMaplyTestLoftedPoly @"Lofted Polygons"
 #define kMaplyTestQuadMarkers @"Quad Paging Markers"
 #define kMaplyTestMegaMarkers @"Mega Markers"
+#define kMaplyTestMarkerCluster @"Marker Clustering"
 #define kMaplyTestLatLon @"Lon/Lat lines"
 #define kMaplyTestRoads @"Wide Linear Test"
 #define kMaplyTestArcGIS @"ArcGIS Vectors"
@@ -73,6 +77,7 @@
 #define kMaplyTestCategoryGestures @"Gestures"
 
 #define kMaplyTestNorthUp @"Keep North Up"
+#define kMaplyTestPan @"Pan Gesture"
 #define kMaplyTestPinch @"Pinch Gesture"
 #define kMaplyTestRotate @"Rotate Gesture"
 

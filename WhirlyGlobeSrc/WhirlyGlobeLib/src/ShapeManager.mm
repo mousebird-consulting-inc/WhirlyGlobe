@@ -55,11 +55,11 @@ void ShapeSceneRep::enableContents(WhirlyKit::SelectionManager *selectManager,bo
             selectManager->enableSelectable(*it, enable);
 }
     
-void ShapeSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &changeRequests)
+void ShapeSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &changeRequests,NSTimeInterval when)
 {
     for (SimpleIDSet::iterator idIt = drawIDs.begin();
          idIt != drawIDs.end(); ++idIt)
-        changeRequests.push_back(new RemDrawableReq(*idIt));
+        changeRequests.push_back(new RemDrawableReq(*idIt,when));
     if (selectManager)
         for (SimpleIDSet::iterator it = selectIDs.begin();it != selectIDs.end(); ++it)
             selectManager->removeSelectable(*it);
@@ -95,11 +95,19 @@ void ShapeSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &cha
 
 // Number of samples for a circle.
 // Note: Make this a parameter
-static int CircleSamples = 10;
+static int DefaultCircleSamples = 10;
 
 static const float sqrt2 = 1.4142135623;
 
 @implementation WhirlyKitCircle
+
+- (id)init
+{
+    self = [super init];
+    _sampleX = DefaultCircleSamples;
+    
+    return self;
+}
 
 - (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter shapeInfo:(WhirlyKitShapeInfo *)shapeInfo
 {
@@ -140,9 +148,9 @@ static const float sqrt2 = 1.4142135623;
     
     // Calculate the locations, using the axis from the center
     std::vector<Point3f> samples;
-    samples.resize(CircleSamples);
-    for (unsigned int ii=0;ii<CircleSamples;ii++)
-        samples[ii] =  xAxis * _radius * sinf(2*M_PI*ii/(float)(CircleSamples-1)) + _radius * yAxis * cosf(2*M_PI*ii/(float)(CircleSamples-1)) + dispPt;
+    samples.resize(_sampleX);
+    for (unsigned int ii=0;ii<_sampleX;ii++)
+        samples[ii] =  xAxis * _radius * sinf(2*M_PI*ii/(float)(_sampleX-1)) + _radius * yAxis * cosf(2*M_PI*ii/(float)(_sampleX-1)) + dispPt;
     
     // We need the bounding box in the local coordinate system
     Point3f bot,top;
@@ -293,6 +301,14 @@ static const float sqrt2 = 1.4142135623;
 
 @implementation WhirlyKitCylinder
 
+- (id)init
+{
+    self = [super init];
+    _sampleX = DefaultCircleSamples;
+    
+    return self;
+}
+
 - (Point3d)displayCenter:(CoordSystemDisplayAdapter *)coordAdapter shapeInfo:(WhirlyKitShapeInfo *)shapeInfo
 {
     if (shapeInfo.hasCenter)
@@ -337,15 +353,15 @@ static std::vector<Point3f> circleSamples;
     // Generate the circle ones
     if (circleSamples.empty())
     {
-        circleSamples.resize(CircleSamples);
-        for (unsigned int ii=0;ii<CircleSamples;ii++)
-            circleSamples[ii] = xAxis * sinf(2*M_PI*ii/(float)(CircleSamples-1)) + yAxis * cosf(2*M_PI*ii/(float)(CircleSamples-1));
+        circleSamples.resize(_sampleX);
+        for (unsigned int ii=0;ii<_sampleX;ii++)
+            circleSamples[ii] = xAxis * sinf(2*M_PI*ii/(float)(_sampleX-1)) + yAxis * cosf(2*M_PI*ii/(float)(_sampleX-1));
     }
     
     // Calculate samples around the bottom
     std::vector<Point3f> samples;
-    samples.resize(CircleSamples);
-    for (unsigned int ii=0;ii<CircleSamples;ii++)
+    samples.resize(_sampleX);
+    for (unsigned int ii=0;ii<_sampleX;ii++)
         samples[ii] =  _radius * circleSamples[ii] + dispPt;
     
     // We need the bounding box in the local coordinate system
@@ -368,7 +384,7 @@ static std::vector<Point3f> circleSamples;
     triBuilder->addConvexOutline(top,norm,theColor,shapeMbr);
     
     // For the sides we'll just run things bottom to top
-    for (unsigned int ii=0;ii<CircleSamples;ii++)
+    for (unsigned int ii=0;ii<_sampleX;ii++)
     {
         std::vector<Point3f> pts(4);
         pts[0] = samples[ii];
@@ -606,10 +622,32 @@ void ShapeManager::convertShape(WhirlyKitShape *shape,std::vector<WhirlyKit::Geo
     for (BasicDrawable *draw : drawBuildTri.drawables)
     {
         int basePts = outGeom.pts.size();
+        outGeom.pts.reserve(draw->points.size());
         for (const Point3f &pt : draw->points)
             outGeom.pts.push_back(Point3d(pt.x(),pt.y(),pt.z()));
+        outGeom.triangles.reserve(draw->tris.size());
         for (const BasicDrawable::Triangle &tri : draw->tris)
             outGeom.triangles.push_back(GeometryRaw::RawTriangle(tri.verts[0]+basePts,tri.verts[1]+basePts,tri.verts[2]+basePts));
+        if (draw->colorEntry >= 0)
+        {
+            outGeom.colors.reserve(draw->points.size());
+            VertexAttribute *vertAttr = draw->vertexAttributes[draw->colorEntry];
+            for (int ii=0;ii<vertAttr->numElements();ii++)
+            {
+                RGBAColor *color = (RGBAColor *)vertAttr->addressForElement(ii);
+                outGeom.colors.push_back(*color);
+            }
+        }
+        if (draw->normalEntry >= 0)
+        {
+            outGeom.norms.reserve(draw->points.size());
+            VertexAttribute *vertAttr = draw->vertexAttributes[draw->normalEntry];
+            for (int ii=0;ii<vertAttr->numElements();ii++)
+            {
+                Point3f *norm = (Point3f *)vertAttr->addressForElement(ii);
+                outGeom.norms.push_back(Point3d(norm->x(),norm->y(),norm->z()));
+            }
+        }
     }
 }
 
@@ -691,33 +729,20 @@ void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes)
         {
             ShapeSceneRep *shapeRep = *sit;
             
+            NSTimeInterval removeTime = 0.0;
             if (shapeRep->fade > 0.0)
             {
                 for (SimpleIDSet::iterator idIt = shapeRep->drawIDs.begin();
                      idIt != shapeRep->drawIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+shapeRep->fade));
-                
-                __block NSObject * __weak thisCanary = canary;
 
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, shapeRep->fade * NSEC_PER_SEC),
-                               scene->getDispatchQueue(),
-                               ^{
-                                   if (thisCanary)
-                                   {
-                                       SimpleIDSet theseShapeIDs;
-                                       theseShapeIDs.insert(shapeID);
-                                       ChangeSet delChanges;
-                                       removeShapes(theseShapeIDs, delChanges);
-                                       scene->addChangeRequests(delChanges);
-                                   }
-                               }
-                               );
-                shapeRep->fade = 0.0;
-            } else {
-                shapeRep->clearContents(selectManager, changes);
-                shapeReps.erase(sit);
-                delete shapeRep;
+                removeTime = curTime = shapeRep->fade;
             }
+            
+            
+            shapeRep->clearContents(selectManager, changes, removeTime);
+            shapeReps.erase(sit);
+            delete shapeRep;
         }
     }
     

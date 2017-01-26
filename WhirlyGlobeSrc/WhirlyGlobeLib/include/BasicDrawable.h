@@ -28,8 +28,6 @@
 #import <vector>
 #import <set>
 #import <map>
-#import <boost/shared_ptr.hpp>
-#import <boost/pointer_cast.hpp>
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "GlobeView.h"
@@ -46,6 +44,11 @@ class BasicDrawable : public Drawable
 {
     friend class BigDrawableAtlas;
     friend class BasicDrawableInstance;
+
+protected:
+    // Used by subclasses
+    BasicDrawable() { }
+    
 public:
     /// Construct empty
     BasicDrawable(const std::string &name);
@@ -238,8 +241,8 @@ public:
     
     /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
     ///  it by.  The index returned is how you will access it.
-    virtual int addAttribute(BDAttributeDataType dataType,const std::string &name);
-    
+    virtual int addAttribute(BDAttributeDataType dataType,const std::string &name,int numThings = -1);
+        
     /// Return the number of points added so far
     virtual unsigned int getNumPoints() const;
     
@@ -267,6 +270,9 @@ public:
     /// Return the active transform matrix, if we have one
     virtual const Eigen::Matrix4d *getMatrix() const;
     
+    /// Set the uniforms to be applied to the
+    virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
+    
     /// Run the texture and texture coordinates based on a SubTexture
     virtual void applySubTexture(int which,SubTexture subTex,int startingAt=0);
     
@@ -286,6 +292,8 @@ public:
     virtual const std::vector<VertexAttribute *> &getVertexAttributes();
     
 public:
+    // Used by subclasses to do the standard init
+    void basicDrawableInit();
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);
     /// Draw routine for OpenGL 2.0
@@ -307,7 +315,7 @@ public:
     // Entries for the standard attributes we create on startup
     int colorEntry,normalEntry;
     // Set up the standard vertex attributes we use
-    void setupStandardAttributes(int numReserve=0);
+    virtual void setupStandardAttributes(int numReserve=0);
     
     bool on;  // If set, draw.  If not, not
     NSTimeInterval startEnable,endEnable;
@@ -338,6 +346,8 @@ public:
     bool hasMatrix;
     // If the drawable has a matrix, we'll transform by that before drawing
     Eigen::Matrix4d mat;
+    // Uniforms to apply to shader
+    SingleVertexAttributeSet uniforms;
     
     // Size for a single vertex w/ all its data.  Used by shared buffer
     int vertexSize;
@@ -379,7 +389,7 @@ protected:
 };
 
 /// Reference counted version of BasicDrawable
-typedef boost::shared_ptr<BasicDrawable> BasicDrawableRef;
+typedef std::shared_ptr<BasicDrawable> BasicDrawableRef;
 
 /// Ask the renderer to change a drawable's color
 class ColorChangeRequest : public DrawableChangeRequest

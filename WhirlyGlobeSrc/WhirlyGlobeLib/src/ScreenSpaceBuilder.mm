@@ -29,8 +29,8 @@ namespace WhirlyKit
 
 ScreenSpaceBuilder::DrawableState::DrawableState()
     : period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
-    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), motion(false), rotation(false), keepUpright(false),
-    enable(true), startEnable(0.0), endEnable(0.0)
+    enable(true), startEnable(0.0), endEnable(0.0),
+    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), motion(false), rotation(false), keepUpright(false)
 {
 }
     
@@ -113,7 +113,7 @@ bool ScreenSpaceBuilder::DrawableWrap::operator < (const DrawableWrap &that) con
     return state < that.state;
 }
 
-Point3d ScreenSpaceBuilder::DrawableWrap::calcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3d &worldLoc,float rot)
+Point3d ScreenSpaceBuilder::CalcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3d &worldLoc,float rot)
 {
     // Switch from counter-clockwise to clockwise
     rot = 2*M_PI-rot;
@@ -153,7 +153,7 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     if (vertAttrs && !vertAttrs->empty())
         draw->addVertexAttributes(*vertAttrs);
     if (state.rotation)
-        draw->addRot(calcRotationVec(coordAdapter,worldLoc,rot));
+        draw->addRot(ScreenSpaceBuilder::CalcRotationVec(coordAdapter,worldLoc,rot));
 }
 
 void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
@@ -302,7 +302,8 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         const ScreenSpaceObject::ConvexGeometry &geom = ssObj.geometry[ii];
         DrawableState state = ssObj.state;
         state.texIDs = geom.texIDs;
-        state.progID = geom.progID;
+        if (geom.progID != EmptyIdentity)
+            state.progID = geom.progID;
         if (geom.drawPriority > -1)
             state.drawPriority = geom.drawPriority;
         state.enable = ssObj.enable;
@@ -378,7 +379,7 @@ ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
 }
     
 ScreenSpaceObject::ScreenSpaceObject()
-    : enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), endWorldLoc(0,0,0), startTime(0), endTime(0), offset(0,0), rotation(0), keepUpright(false)
+    : enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), endWorldLoc(0,0,0), startTime(0.0), endTime(0.0), offset(0,0), rotation(0), keepUpright(false)
 {
 }
 
@@ -478,8 +479,19 @@ void ScreenSpaceObject::addGeometry(const ConvexGeometry &geom)
     geometry.push_back(geom);
 }
     
+SimpleIdentity ScreenSpaceObject::getTypicalProgramID()
+{
+    for (auto geom : geometry)
+    {
+        if (geom.progID != EmptyIdentity)
+            return geom.progID;
+    }
+    
+    return state.progID;
+}
+    
 ScreenSpaceObjectLocation::ScreenSpaceObjectLocation()
-: shapeID(EmptyIdentity), dispLoc(0,0,0), offset(0,0)
+: isCluster(false), dispLoc(0,0,0), offset(0,0), keepUpright(false), rotation(0.0)
 {
     
 }

@@ -60,8 +60,11 @@ using namespace Eigen;
 	return self;
 }
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView
+- (id)initWithView:(WhirlyGlobeView *)inGlobeView
 {
+    if (![inGlobeView isKindOfClass:[WhirlyGlobeView class]])
+        return nil;
+    
     self = [super initWithView:inGlobeView];
     super.coordAdapter = &fakeGeoC;
     absoluteMinHeight = inGlobeView->absoluteMinHeight;
@@ -256,6 +259,47 @@ using namespace Eigen;
     Eigen::Matrix4d modelMat = rot.inverse().matrix();
     Vector4d newUp = modelMat *Vector4d(0,0,1,0);
     return Vector3d(newUp.x(),newUp.y(),newUp.z());
+}
+
+- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3d *)hit normalized:(bool)normalized radius:(double)radius
+{
+    // Back project the point from screen space into model space
+    Point3d screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:true];
+    
+    // Run the screen point and the eye point (origin) back through
+    //  the model matrix to get a direction and origin in model space
+    Eigen::Matrix4d modelTrans = *transform;
+    Matrix4d invModelMat = modelTrans.inverse();
+    Point3d eyePt(0,0,0);
+    Vector4d modelEye = invModelMat * Vector4d(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
+    Vector4d modelScreenPt = invModelMat * Vector4d(screenPt.x(),screenPt.y(),screenPt.z(),1.0);
+    
+    // Now intersect that with a unit sphere to see where we hit
+    Vector4d dir4 = modelScreenPt - modelEye;
+    Vector3d dir(dir4.x(),dir4.y(),dir4.z());
+    double t;
+    if (IntersectSphereRadius(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, radius, *hit, &t) && t > 0.0)
+        return true;
+    
+    // We need the closest pass, if that didn't work out
+    if (normalized)
+    {
+        Vector3d orgDir(-modelEye.x(),-modelEye.y(),-modelEye.z());
+        orgDir.normalize();
+        dir.normalize();
+        Vector3d tmpDir = orgDir.cross(dir);
+        Vector3d resVec = dir.cross(tmpDir);
+        *hit = -resVec.normalized();
+    } else {
+        double len2 = dir.squaredNorm();
+        double top = dir.dot(Vector3d(modelScreenPt.x(),modelScreenPt.y(),modelScreenPt.z()));
+        double t = 0.0;
+        if (len2 > 0.0)
+            t = top/len2;
+        *hit = Vector3d(modelEye.x(),modelEye.y(),modelEye.z()) + dir*t;
+    }
+    
+    return false;    
 }
 	
 - (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit normalized:(bool)normalized

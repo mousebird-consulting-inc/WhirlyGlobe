@@ -22,6 +22,7 @@
 #import "RotateDelegate.h"
 #import "EAGLView.h"
 #import "SceneRendererES.h"
+#import "IntersectionManager.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -38,6 +39,7 @@ using namespace WhirlyKit;
     /// Axis to rotate around
 //    Eigen::Vector3d axis;
     float startRot;
+    double sphereRadius;
 }
 
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
@@ -47,6 +49,7 @@ using namespace WhirlyKit;
 		globeView = inView;
         valid = false;
         _rotateAroundCenter = true;
+        sphereRadius = 1.0;
 	}
 	
 	return self;
@@ -89,7 +92,7 @@ using namespace WhirlyKit;
             Eigen::Matrix4d curTransform = [globeView calcFullMatrix];
             if ([globeView pointOnSphereFromScreen:center transform:&curTransform
                                          frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                               hit:&hit normalized:true])
+                                               hit:&hit normalized:true radius:sphereRadius])
             {
                 // This gives us a direction to rotate around
                 // And how far to rotate
@@ -129,7 +132,9 @@ using namespace WhirlyKit;
         valid = false;
         return;
     }
-    
+
+    IntersectionManager *intManager = (IntersectionManager *)sceneRender.scene->getManager(kWKIntersectionManager);
+
 	switch (rotate.state)
 	{
 		case UIGestureRecognizerStateBegan:
@@ -140,13 +145,24 @@ using namespace WhirlyKit;
 			startTransform = [globeView calcFullMatrix];
             startQuat = [globeView rotQuat];
             valid = true;
+            CGPoint startPoint = [rotate locationInView:glView];
             
-            if ([globeView pointOnSphereFromScreen:[rotate locationInView:glView] transform:&startTransform
-                                         frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                               hit:&startOnSphere normalized:true])
+            // Look for an intersection with grabbable objects
+            Point3d interPt;
+            double interDist;
+            if (intManager->findIntersection(sceneRender, globeView, Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor), Point2f(startPoint.x,startPoint.y), interPt, interDist))
+            {
+                sphereRadius = interPt.norm();
+                startOnSphere = interPt.normalized();
                 valid = true;
-            else
-                valid = false;
+            } else {
+                if ([globeView pointOnSphereFromScreen:[rotate locationInView:glView] transform:&startTransform
+                                             frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
+                                                   hit:&startOnSphere normalized:true])
+                    valid = true;
+                else
+                    valid = false;
+            }
             
             CGPoint center = [rotate locationInView:glView];
             CGPoint touch0 = [rotate locationOfTouch:0 inView:glView];
@@ -179,7 +195,7 @@ using namespace WhirlyKit;
                     Eigen::Matrix4d curTransform = [globeView calcFullMatrix];
                     if ([globeView pointOnSphereFromScreen:[rotate locationInView:glView] transform:&curTransform
                                                  frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                                       hit:&hit normalized:true])
+                                                       hit:&hit normalized:true radius:sphereRadius])
                     {
                         // This gives us a direction to rotate around
                         // And how far to rotate

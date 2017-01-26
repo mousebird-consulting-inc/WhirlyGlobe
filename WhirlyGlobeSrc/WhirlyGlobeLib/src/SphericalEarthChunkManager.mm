@@ -349,7 +349,7 @@ public:
         if (usesAtlas && texAtlas)
         {
             if (subTex.texId != EmptyIdentity)
-                texAtlas->removeTexture(subTex, changeRequests);
+                texAtlas->removeTexture(subTex, changeRequests, 0.0);
         } else {
             for (SimpleIDSet::iterator it = texIDs.begin();
                  it != texIDs.end(); ++it)
@@ -499,13 +499,17 @@ int SphericalChunkManager::getNumChunks()
 /// Process outstanding requests
 void SphericalChunkManager::processRequests(ChangeSet &changes)
 {
+    pthread_mutex_lock(&requestLock);
+    std::queue<ChunkRequest> theRequests = requests;
+    std::queue<ChunkRequest> empty;
+    std::swap( requests, empty );
+    pthread_mutex_unlock(&requestLock);
+    
     // Process the changes and then flush them out
-    while (!requests.empty())
+    while (!theRequests.empty())
     {
-        pthread_mutex_lock(&requestLock);
-        ChunkRequest request = requests.front();
-        requests.pop();
-        pthread_mutex_unlock(&requestLock);
+        ChunkRequest request = theRequests.front();
+        theRequests.pop();
         processChunkRequest(request,changes);
     }    
 }

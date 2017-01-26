@@ -22,7 +22,7 @@
 
 @implementation MaplyScreenMarker
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     if (!self)

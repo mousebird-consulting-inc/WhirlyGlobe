@@ -89,7 +89,7 @@ using namespace WhirlyKit;
 }
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
-- (void)shutdown
+- (void)teardown
 {
 }
 
@@ -232,9 +232,9 @@ using namespace WhirlyKit;
 	return self;    
 }
 
-- (void)shutdown
+- (void)teardown
 {
-    [super shutdown];
+    [super teardown];
     
     earthDataStructure = nil;
     imageDataSource = nil;

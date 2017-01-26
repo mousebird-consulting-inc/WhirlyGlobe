@@ -37,6 +37,9 @@
  */
 @interface MaplyView : WhirlyKitView
 
+/// Initialize with an existing globe view
+- (id)initWithView:(MaplyView *)inMapView;
+
 /// Viewer location
 @property(nonatomic,readonly) WhirlyKit::Point3d &loc;
 /// Viewer rotation angle
@@ -89,5 +92,8 @@
 
 /// Set the rotation angle
 - (void)setRotAngle:(double)newRotAngle;
+
+/// Set the rotation angle, with option to not run view updates
+- (void)setRotAngle:(double)newRotAngle runViewUpdates:(bool)runViewUpdates;
 
 @end

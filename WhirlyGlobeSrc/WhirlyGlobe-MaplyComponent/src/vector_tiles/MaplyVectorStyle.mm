@@ -18,18 +18,15 @@
  *
  */
 
+#import "MapboxVectorTiles.h"
 #import "MaplyVectorStyle.h"
-#import "MaplyVectorLineStyle.h"
-#import "MaplyVectorMarkerStyle.h"
-#import "MaplyVectorPolygonStyle.h"
-#import "MaplyVectorTextStyle.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 
-@implementation MaplyVectorTileStyleSettings
+@implementation MaplyVectorStyleSettings
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     _lineScale = 1.0;
@@ -39,7 +36,6 @@ using namespace WhirlyKit;
     _markerSize = 10.0;
     _mapScaleScale = 1.0;
     _dashPatternScale = 1.0;
-    // Note: Debugging
     _useWideVectors = false;
     _wideVecCuttoff = 0.0;
     _oldVecWidthScale = 1.0;
@@ -56,208 +52,76 @@ using namespace WhirlyKit;
 
 @end
 
-@implementation MaplyVectorTileStyle
-
-+ (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
+NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,MaplyBaseViewController * _Nonnull viewC,MaplyThreadMode threadMode)
 {
-    MaplyVectorTileStyle *tileStyle = nil;
+    NSMutableArray *compObjs = [NSMutableArray array];
+    MaplyTileID fakeTileID;
+    fakeTileID.x = 0;  fakeTileID.y = 0;  fakeTileID.level = 0;
+    NSMutableDictionary *featureStyles = [[NSMutableDictionary alloc] init];
     
-    NSString *typeStr = styleEntry[@"type"];
-    if ([typeStr isEqualToString:@"LineSymbolizer"])
+    // First we sort by the styles that each feature uses.
+    int whichLayer = 0;
+    for (MaplyVectorObject *thisVecObj in vecObjs)
     {
-        tileStyle = [[MaplyVectorTileStyleLine alloc] initWithStyleEntry:styleEntry settings:settings viewC:viewC];
-    } else if ([typeStr isEqualToString:@"PolygonSymbolizer"] || [typeStr isEqualToString:@"PolygonPatternSymbolizer"])
-    {
-        tileStyle = [[MaplyVectorTileStylePolygon alloc] initWithStyleEntry:styleEntry settings:settings viewC:viewC];
-    } else if ([typeStr isEqualToString:@"TextSymbolizer"])
-    {
-        tileStyle = [[MaplyVectorTileStyleText alloc] initWithStyleEntry:styleEntry settings:settings viewC:viewC];
-    } else if ([typeStr isEqualToString:@"MarkersSymbolizer"])
-    {
-        tileStyle = [[MaplyVectorTileStyleMarker alloc] initWithStyleEntry:styleEntry settings:settings viewC:viewC];
-    } else {
-        // Set up one that doesn't do anything
-        NSLog(@"Unknown symbolizer type %@",typeStr);
-        tileStyle = [[MaplyVectorTileStyle alloc] init];
-    }
-    
-    return tileStyle;
-}
-
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry viewC:(MaplyBaseViewController *)viewC
-{
-    self = [super init];
-    _viewC = viewC;
-    _uuid = styleEntry[@"uuid"];
-    if ([styleEntry[@"tilegeom"] isEqualToString:@"add"])
-        self.geomAdditive = true;
-    _selectable = styleEntry[kMaplySelectable];
-    
-    return self;
-}
-
-- (void)resolveVisibility:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings desc:(NSMutableDictionary *)desc
-{
-    float minVis = DrawVisibleInvalid;
-    float maxVis = DrawVisibleInvalid;
-    if (styleEntry[@"minscaledenom"])
-    {
-        float minScale = [styleEntry[@"minscaledenom"] floatValue];
-        minVis = [self.viewC heightForMapScale:minScale] * settings.mapScaleScale;
-    }
-    if (styleEntry[@"maxscaledenom"])
-    {
-        float maxScale = [styleEntry[@"maxscaledenom"] floatValue];
-        maxVis = [self.viewC heightForMapScale:maxScale] * settings.mapScaleScale;
-    }
-    if (minVis != DrawVisibleInvalid)
-    {
-        desc[kMaplyMinVis] = @(minVis);
-        if (maxVis != DrawVisibleInvalid)
-            desc[kMaplyMaxVis] = @(maxVis);
-        else
-            desc[kMaplyMaxVis] = @(20.0);
-    } else if (maxVis != DrawVisibleInvalid)
-    {
-        desc[kMaplyMinVis] = @(0.0);
-        desc[kMaplyMaxVis] = @(maxVis);
-    }
-}
-
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
-{
-    return nil;
-}
-
-
-//sometimes we get strings that look like [name]+'\n '+[ele]
-- (NSString*)formatText:(NSString*)formatString forObject:(MaplyVectorObject*)vec
-{
-    if (!formatString)
-    {
-        return nil;
-    }
-    
-    // Note: This is a terrible hack.  Change the regex string or fix the data.
-    {
-        NSMutableDictionary *attributes = (NSMutableDictionary *)vec.attributes;
-        if (attributes[@"NAME"] && !attributes[@"name"])
-            attributes[@"name"] = attributes[@"NAME"];
-    }
-
-    @try {
-        //Do variable substitution on [ ... ]
-        NSMutableString *result;
+        for (MaplyVectorObject *vecObj in [thisVecObj splitVectors])
         {
-            NSError *error;
-            NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"\\[[^\\[\\]]+\\]"
-                                                                              options:0
-                                                                                error:&error];
-            NSArray* matches = [regex matchesInString:formatString
-                                              options:0
-                                                range:NSMakeRange(0, formatString.length)];
+            NSString *layer = vecObj.attributes[@"layer"];
+            if (!layer)
+                layer = vecObj.attributes[@"layer_name"];
+            if (layer && ![styleDelegate layerShouldDisplay:layer tile:fakeTileID])
+                continue;
             
-            if(matches.count)
-            {
-                NSDictionary *attributes = vec.attributes;
-                result = [NSMutableString stringWithString:formatString];
-                for (int i=(int)matches.count-1; i>= 0; i--)
-                {
-                    NSTextCheckingResult* match = matches[i];
-                    NSString *matchedStr = [formatString substringWithRange:NSMakeRange(match.range.location + 1,
-                                                                                        match.range.length - 2)];
-                    id replacement = attributes[matchedStr]?:@"";
-                    if([replacement isKindOfClass:[NSNumber class]])
-                    {
-                        replacement = [replacement stringValue];
-                    }
-                    [result replaceCharactersInRange:match.range withString:replacement];
-                }
-            }
-        }
-        
-        //replace \n with a newline
-        if([formatString rangeOfString:@"\\"].location != NSNotFound )
-        {
-            if(!result)
-            {
-                result = [NSMutableString stringWithString:formatString];
-            }
-            [result replaceOccurrencesOfString:@"\\n"
-                                    withString:@"\n"
-                                       options:0
-                                         range:NSMakeRange(0, result.length)];
-        }
-        
-        //replace + and surrounding whitespace
-        //This should probably check if the plus is surrounded by '', but for now i havent needed that
-        {
-            NSError *error;
-            NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"\\s?\\+\\s?"
-                                                                              options:0
-                                                                                error:&error];
-            NSArray* matches = [regex matchesInString:result?:formatString
-                                              options:0
-                                                range:NSMakeRange(0, result?result.length:formatString.length)];
+            if (!layer)
+                layer = [NSString stringWithFormat:@"layer%d",whichLayer];
             
-            if(matches.count)
+            // Need to set a geometry type
+            MapnikGeometryType geomType = GeomTypeUnknown;
+            switch ([vecObj vectorType])
             {
-                if(!result)
-                {
-                    result = [NSMutableString stringWithString:formatString];
-                }
-                for (int i=(int)matches.count-1; i>= 0; i--)
-                {
-                    NSTextCheckingResult* match = matches[i];
-                    [result deleteCharactersInRange:match.range];
-                }
+                case MaplyVectorPointType:
+                    geomType = GeomTypePoint;
+                    break;
+                case MaplyVectorLinearType:
+                case MaplyVectorLinear3dType:
+                    geomType = GeomTypeLineString;
+                    break;
+                case MaplyVectorArealType:
+                    geomType = GeomTypePolygon;
+                    break;
+                case MaplyVectorMultiType:
+                    break;
+                default:
+                    break;
             }
-        }
-        
-        //replace quotes around quoted strings
-        {
-            NSError *error;
-            NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"'[^\\.]+'"
-                                                                              options:0
-                                                                                error:&error];
-            NSArray* matches = [regex matchesInString:result?:formatString
-                                              options:0
-                                                range:NSMakeRange(0, result?result.length:formatString.length)];
+            vecObj.attributes[@"geometry_type"] = @(geomType);
             
-            if(matches.count)
+            NSArray *styles = [styleDelegate stylesForFeatureWithAttributes:vecObj.attributes onTile:fakeTileID inLayer:layer viewC:viewC];
+            if (styles.count == 0)
+                continue;
+            
+            for (NSObject<MaplyVectorStyle> *style in styles)
             {
-                if(!result)
-                {
-                    result = [NSMutableString stringWithString:formatString];
+                NSMutableArray *featuresForStyle = featureStyles[style.uuid];
+                if(!featuresForStyle) {
+                    featuresForStyle = [NSMutableArray new];
+                    featureStyles[style.uuid] = featuresForStyle;
                 }
-                for (int i=(int)matches.count-1; i>= 0; i--)
-                {
-                    NSTextCheckingResult* match = matches[i];
-                    NSString *matchedStr = [result substringWithRange:NSMakeRange(match.range.location + 1,
-                                                                                        match.range.length - 2)];
-                    [result replaceCharactersInRange:match.range withString:matchedStr];
-                }
+                [featuresForStyle addObject:vecObj];
             }
         }
         
-        if(result)
-        {
-            return result;
-        } else {
-            return formatString;
-        }
+        whichLayer++;
     }
-    @catch (NSException *exception){
-        NSLog(@"Error formatting string:\"%@\" exception:%@", formatString, exception);
-        return nil;
+
+    // Then we add each of those styles as a group for efficiency
+    NSArray *symbolizerKeys = [featureStyles.allKeys sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES]]];
+    for(id key in symbolizerKeys) {
+        NSObject<MaplyVectorStyle> *symbolizer = [styleDelegate styleForUUID:key viewC:viewC];
+        NSArray *features = featureStyles[key];
+        NSArray *newCompObjs = [symbolizer buildObjects:features forTile:fakeTileID viewC:viewC];
+        if (newCompObjs.count > 0)
+            [compObjs addObjectsFromArray:newCompObjs];
     }
+
+    return compObjs;
 }
-
-
-- (NSString*)description
-{
-    return [NSString stringWithFormat:@"%@ uuid:%@ additive:%d",
-          [[self class] description], self.uuid, self.geomAdditive];
-}
-
-@end

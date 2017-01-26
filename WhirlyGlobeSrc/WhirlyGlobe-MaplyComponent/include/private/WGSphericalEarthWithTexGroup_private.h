@@ -26,7 +26,7 @@
 
 /// Set up a spherical earth layer with a texture group.
 /// Returns nil on failure.
-- (id)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene texGroup:(NSString *)texGroupName;
+- (instancetype)initWithWithLayerThread:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene texGroup:(NSString *)texGroupName;
 
 /// Clean up any and all resources 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene;

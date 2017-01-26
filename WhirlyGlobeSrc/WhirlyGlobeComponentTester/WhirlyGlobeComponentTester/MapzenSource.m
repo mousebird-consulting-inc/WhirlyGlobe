@@ -15,7 +15,7 @@
     NSString *apiKey;
     NSOperationQueue *opQueue;
     NSString *ext;
-    MaplyMapnikVectorTileParser *tileParser;
+    MapboxVectorTileParser *tileParser;
     NSObject<MaplyVectorStyleDelegate> *styleSet;
 }
 - (id)initWithBase:(NSString *)inBaseURL layers:(NSArray *)inLayers apiKey:(NSString *)inApiKey sourceType:(MapzenSourceType)inType styleData:(NSData *)styleData styleType:(MapnikStyleType)styleType viewC:(MaplyBaseViewController *)viewC
@@ -65,7 +65,7 @@
             }
                         
             // Create a tile parser for later
-            tileParser = [[MaplyMapnikVectorTileParser alloc] initWithStyle:styleSet viewC:viewC];
+            tileParser = [[MapboxVectorTileParser alloc] initWithStyle:styleSet viewC:viewC];
         }
             break;
     }
@@ -140,7 +140,7 @@
                      if (!connectionError)
                      {
                          // Expecting GeoJSON
-                         MaplyVectorObject *vecObj = [MaplyVectorObject VectorObjectFromGeoJSON:data];
+                         MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithGeoJSON:data];
                          
                          if (vecObj)
                          {

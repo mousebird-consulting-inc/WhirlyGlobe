@@ -19,12 +19,10 @@
  */
 
 #import "vector_tiles/MapnikStyleSet.h"
+#import "vector_tiles/MaplyVectorTileStyle.h"
+#import "vector_tiles/MaplyVectorTiles.h"
 
 #import "MaplyRemoteTileSource.h"
-#import "MaplyVectorLineStyle.h"
-#import "MaplyVectorMarkerStyle.h"
-#import "MaplyVectorPolygonStyle.h"
-#import "MaplyVectorTextStyle.h"
 #import "MapnikStyle.h"
 #import "MapnikStyleRule.h"
 #import "NSDictionary+StyleRules.h"
@@ -76,7 +74,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 - (instancetype)init {
   self = [super init];
   if(self) {
-    self.tileStyleSettings = [MaplyVectorTileStyleSettings new];
+    self.tileStyleSettings = [MaplyVectorStyleSettings new];
     self.tileStyleSettings.lineScale = [UIScreen mainScreen].scale;
     self.tileStyleSettings.dashPatternScale =  [UIScreen mainScreen].scale;
     self.tileStyleSettings.markerScale = [UIScreen mainScreen].scale;
