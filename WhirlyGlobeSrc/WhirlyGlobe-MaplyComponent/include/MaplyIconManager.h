@@ -25,9 +25,9 @@
 @interface MaplyIconManager : NSObject
 
 // Fetch the simple UIImage for the icon with the given name
-+ (UIImage *)iconForName:(NSString *)name size:(CGSize)size;
++ (nullable UIImage *)iconForName:(NSString *__nonnull)name size:(CGSize)size;
 
 // Slightly more complex icon
-+ (UIImage *)iconForName:(NSString *)name size:(CGSize)size color:(UIColor *)color circleColor:(UIColor *)circleColor strokeSize:(float)strokeSize strokeColor:(UIColor *)strokeColor;
++ (nullable UIImage *)iconForName:(NSString *__nullable)name size:(CGSize)size color:(UIColor *__nullable)color circleColor:(UIColor *__nullable)circleColor strokeSize:(float)strokeSize strokeColor:(UIColor *__nullable)strokeColor;
 
 @end

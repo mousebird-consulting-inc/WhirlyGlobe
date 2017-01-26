@@ -54,7 +54,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
     int atlasSize;
 }
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene
+- (instancetype)initWithScene:(WhirlyKit::Scene *)inScene
 {
     self = [super init];
     if (!self)
@@ -127,7 +127,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
     return false;
 }
 
-- (void)removeTexture:(WhirlyKit::SimpleIdentity)subTexID changes:(WhirlyKit::ChangeSet &)changes
+- (void)removeTexture:(WhirlyKit::SimpleIdentity)subTexID changes:(WhirlyKit::ChangeSet &)changes when:(NSTimeInterval)when
 {
     @synchronized(self)
     {
@@ -136,18 +136,20 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
         {
             // Clear out the
             const SubTexToAtlas &entry = *it;
-            entry.atlas->removeTexture(entry.subTex, changes);
+            entry.atlas->removeTexture(entry.subTex, changes, when);
             
             // May need to remove the texture atlas
-            entry.atlas->cleanup(changes);
+            entry.atlas->cleanup(changes,when);
             if (entry.atlas->empty())
             {
-                entry.atlas->shutdown(changes);
+                entry.atlas->teardown(changes);
                 delete entry.atlas;
                 atlases.erase(entry.atlas);
             }
             
             subTexMap.erase(it);
+        } else {
+            NSLog(@"SubTex: Asked to remove sub texture that isn't present.");
         }
     }
 }
@@ -160,12 +162,30 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
              it != atlases.end(); ++it)
         {
             DynamicTextureAtlas *atlas = *it;
-            atlas->cleanup(changes);
+            atlas->cleanup(changes,0.0);
             delete atlas;
         }
         
         atlases.clear();
     }
+}
+
+- (void)dumpStats
+{
+    int numRegions=0,numDynamicTextures=0;
+    
+    @synchronized(self)
+    {
+        for (auto &it : atlases)
+        {
+            int nr,ndt;
+            it->getUsage(nr, ndt);
+            numRegions += nr;
+            numDynamicTextures += ndt;
+        }
+    }
+    
+    NSLog(@"Texture Atlas: %d regions, %d dynamic textures",numRegions,numDynamicTextures);
 }
 
 @end

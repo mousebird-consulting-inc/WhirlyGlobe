@@ -37,7 +37,7 @@ using namespace WhirlyKit;
     sqlite3 *_sqlDb;
 }
 
-- (id)initWithMBTiles:(NSString *)mbTilesName
+- (instancetype)initWithMBTiles:(NSString *)mbTilesName
 {
     self = [super init];
     if (!self)
@@ -148,6 +148,7 @@ using namespace WhirlyKit;
     {
         if (_sqlDb)
             sqlite3_close(_sqlDb);
+        _sqlDb = nil;
     }
 }
 
@@ -164,6 +165,15 @@ using namespace WhirlyKit;
 - (int)tileSize
 {
     return _pixelsPerTile;
+}
+
+- (MaplyBoundingBox)getBounds
+{
+    MaplyBoundingBox bbox;
+    bbox.ll = MaplyCoordinateMake(_geoMbr.ll().x(),_geoMbr.ll().y());
+    bbox.ur = MaplyCoordinateMake(_geoMbr.ur().x(),_geoMbr.ur().y());
+    
+    return bbox;
 }
 
 - (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
@@ -202,7 +212,7 @@ using namespace WhirlyKit;
 }
 
 
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
 {
     @synchronized(self)
     {

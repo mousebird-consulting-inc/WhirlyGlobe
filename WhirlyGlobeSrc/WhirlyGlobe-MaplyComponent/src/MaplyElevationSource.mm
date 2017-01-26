@@ -29,7 +29,7 @@
 
 @implementation MaplyElevationGridChunk
 
-- (id)initWithGridData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY
+- (instancetype)initWithGridData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY
 {
     if (self = [super init])
     {
@@ -46,7 +46,7 @@
 
 @implementation MaplyElevationCesiumChunk
 
-- (id)initWithCesiumData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY
+- (instancetype)initWithCesiumData:(NSData *)data sizeX:(unsigned int)sizeX sizeY:(unsigned int)sizeY
 {
     if (self = [super init])
         self.chunkImpl = [[WhirlyKitElevationCesiumChunk alloc] initWithCesiumData:data sizeX:sizeX sizeY:sizeY];
@@ -68,7 +68,7 @@
     MaplySphericalMercator *coordSys;
 }
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     if (!self)

@@ -20,7 +20,6 @@
 
 #import "MapboxMultiSourceTileInfo.h"
 #import "MapnikStyleSet.h"
-#import "MapboxVectorStyleSet.h"
 #import <set>
 #import <map>
 #import <vector>
@@ -41,7 +40,7 @@ public:
     NSString *ext;
     // Style sheet, if this is vector
     NSObject<MaplyVectorStyleDelegate> *styleSet;
-    MaplyMapnikVectorTileParser *tileParser;
+    MapboxVectorTileParser *tileParser;
     // Specific tile URLs, if we have them
     NSArray *tileURLs;
     UIColor *backgroundColor;
@@ -58,7 +57,7 @@ public:
     NSMutableDictionary *vecTiles;
 }
 
-- (id)initWithViewC:(MaplyBaseViewController *)inViewC
+- (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC
 {
     self = [super init];
     if (!self)
@@ -89,7 +88,7 @@ public:
 
 - (int)maxZoom
 {
-    return sourcesByZoom.size()-1;
+    return (int)sourcesByZoom.size()-1;
 }
 
 - (bool)addImageMap:(NSString *)map minZoom:(int)minZoom maxZoom:(int)maxZoom type:(NSString *)imageType
@@ -100,7 +99,7 @@ public:
     source.minZoom = minZoom;  source.maxZoom = maxZoom;
     source.ext = imageType;
     sources.push_back(source);
-    [self addedSource:sources.size()-1];
+    [self addedSource:(int)sources.size()-1];
     
     return true;
 }
@@ -127,19 +126,20 @@ public:
             styleSet = mapnikStyleSet;
         }
             break;
-        case MapnikMapboxGLStyle:
-        {
-            MaplyMapboxVectorStyleSet *mapboxStyleSet = [[MaplyMapboxVectorStyleSet alloc] initWithJSON:styleData viewC:viewC];
-            styleSet = mapboxStyleSet;
-        }
+//        case MapnikMapboxGLStyle:
+//        {
+//            MaplyMapboxVectorStyleSet *mapboxStyleSet = [[MaplyMapboxVectorStyleSet alloc] initWithJSON:styleData viewC:viewC];
+//            styleSet = mapboxStyleSet;
+//        }
+        default:
             break;
     }
     
-    MaplyMapnikVectorTileParser *tileParser = [[MaplyMapnikVectorTileParser alloc] initWithStyle:styleSet viewC:viewC];
+    MapboxVectorTileParser *tileParser = [[MapboxVectorTileParser alloc] initWithStyle:styleSet viewC:viewC];
     source.styleSet = styleSet;
     source.tileParser = tileParser;
     sources.push_back(source);
-    [self addedSource:sources.size()-1];
+    [self addedSource:(int)sources.size()-1];
     
     return true;
 }
@@ -175,7 +175,7 @@ public:
     else
         source.maxZoom = maxZoom;
     sources.push_back(source);
-    [self addedSource:sources.size()-1];
+    [self addedSource:(int)sources.size()-1];
     
     return true;
 }

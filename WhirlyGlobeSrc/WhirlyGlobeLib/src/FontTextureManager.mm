@@ -38,7 +38,7 @@ static const float BogusFontScale = 2.0;
 class FontManager
 {
 public:
-    FontManager(CTFontRef theFont) : font(theFont),refCount(0),color(nil),outlineColor(nil),outlineSize(0.0) { CFRetain(font); }
+    FontManager(CTFontRef theFont) : font(theFont),refCount(0),color(nil),backColor(nil),outlineColor(nil),outlineSize(0.0) { CFRetain(font); }
     ~FontManager()
     {
         CFRelease(font);
@@ -145,6 +145,7 @@ public:
 
     int refCount;
     UIColor *color;
+    UIColor *backColor;
     NSString *fontName;
     UIColor *outlineColor;
     float outlineSize;
@@ -236,7 +237,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     
     if (texAtlas)
     {
-        texAtlas->shutdown(changes);
+        texAtlas->teardown(changes);
         delete texAtlas;
         texAtlas = NULL;
     }
@@ -275,6 +276,14 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     // Set up a real context for the glyph rendering
     NSMutableData *retData = [NSMutableData dataWithLength:width*height*4];
     CGContextRef theContext = CGBitmapContextCreate((void *)[retData bytes], width, height, 8, width * 4, colorSpace, kCGImageAlphaPremultipliedLast);
+    
+    if (fm->backColor)
+    {
+        CGContextSetFillColorWithColor(theContext, fm->backColor.CGColor);
+        CGContextBeginPath(theContext);
+        CGContextAddRect(theContext, CGRectMake(0, 0, width, height));
+        CGContextDrawPath(theContext, kCGPathFill);
+    }
     
     // Flip
     CGContextTranslateCTM(theContext, 0.0f, height);
@@ -333,7 +342,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 }
             
 // Look for an existing font that will match the UIFont given
-- (FontManager *)findFontManagerForFont:(UIFont *)uiFont color:(UIColor *)color outlineColor:(UIColor *)outlineColor outlineSize:(NSNumber *)outlineSize
+- (FontManager *)findFontManagerForFont:(UIFont *)uiFont color:(UIColor *)color backColor:(UIColor *)backColor outlineColor:(UIColor *)outlineColor outlineSize:(NSNumber *)outlineSize
 {
     NSString *fontName = uiFont.fontName;
     float pointSize = uiFont.pointSize;
@@ -346,7 +355,9 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
         FontManager *fm = *it;
         if (![fontName compare:fm->fontName] && pointSize == fm->pointSize &&
             ((!fm->color && !color) ||
-             ([fm->color asRGBAColor]) == [color asRGBAColor]) &&
+             ([fm->color asRGBAColor] == [color asRGBAColor])) &&
+            ((!fm->backColor && !backColor) ||
+             ([fm->backColor asRGBAColor] == [backColor asRGBAColor])) &&
             ((!fm->outlineColor && !outlineColor) ||
              ([fm->outlineColor asRGBAColor] == [outlineColor asRGBAColor])) &&
             (fm->outlineSize == [outlineSize floatValue]))
@@ -358,6 +369,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     FontManager *fm = new FontManager(font);
     fm->fontName = fontName;
     fm->color = color;
+    fm->backColor = backColor;
     fm->pointSize = pointSize;
     fm->outlineColor = outlineColor;
     fm->outlineSize = [outlineSize floatValue];
@@ -421,10 +433,11 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
                 outlineColor = nil;
             }
             UIColor *foregroundColor = attrs[NSForegroundColorAttributeName];
+            UIColor *backgroundColor = attrs[NSBackgroundColorAttributeName];
 
             FontManager *fm = nil;
             if ([uiFont isKindOfClass:[UIFont class]])
-                fm = [self findFontManagerForFont:uiFont color:foregroundColor outlineColor:outlineColor outlineSize:outlineSize];
+                fm = [self findFontManagerForFont:uiFont color:foregroundColor backColor:backgroundColor outlineColor:outlineColor outlineSize:outlineSize];
             if (!fm)
                 continue;
             
@@ -512,7 +525,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     return drawString;
 }
             
-- (void)removeString:(SimpleIdentity)drawStringId changes:(ChangeSet &)changes
+- (void)removeString:(SimpleIdentity)drawStringId changes:(ChangeSet &)changes when:(NSTimeInterval)when
 {
     pthread_mutex_lock(&lock);
     
@@ -543,7 +556,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
             // And possibly remove some sub textures
             if (!texRemove.empty())
                 for (unsigned int ii=0;ii<texRemove.size();ii++)
-                    texAtlas->removeTexture(texRemove[ii], changes);
+                    texAtlas->removeTexture(texRemove[ii], changes, when);
             
             // Also see if we're done with the font
             if (fm->refCount <= 0)

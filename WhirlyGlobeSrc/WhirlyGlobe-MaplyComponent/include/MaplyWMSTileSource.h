@@ -27,7 +27,7 @@
 @interface MaplyWMSLayerBoundingBox : NSObject
 
 /// Coordinate Reference System
-@property (nonatomic,strong) NSString *crs;
+@property (nonatomic,strong,nullable) NSString *crs;
 
 /// Left side of the bounding box
 @property (nonatomic) double minx;
@@ -39,7 +39,7 @@
 @property (nonatomic) double maxy;
 
 /// Generate the coordinate system, if we can
-- (MaplyCoordinateSystem *)buildCoordinateSystem;
+- (nullable MaplyCoordinateSystem *)buildCoordinateSystem;
 
 @end
 
@@ -48,8 +48,10 @@
   */
 @interface MaplyWMSStyle : NSObject
 
-/// Name and title as returned
-@property (nonatomic,strong) NSString *name,*title;
+/// The name as returned by the service
+@property (nonatomic,strong,nullable) NSString *name;
+/// The title as returned by the service
+@property (nonatomic,strong,nullable) NSString *title;
 
 @end
 
@@ -59,20 +61,20 @@
 @interface MaplyWMSLayer : NSObject
 
 /// The name as returned by the service
-@property (nonatomic,strong) NSString *name;
+@property (nonatomic,strong,nullable) NSString *name;
 /// The title as returned by the service
-@property (nonatomic,strong) NSString *title;
+@property (nonatomic,strong,nullable) NSString *title;
 /// The abstract as returned by the service
-@property (nonatomic,strong) NSString *abstract;
+@property (nonatomic,strong,nullable) NSString *abstract;
 
 /// Coordinate reference systems supported by the layer
-@property (nonatomic,strong) NSArray *coordRefSystems;
+@property (nonatomic,strong,nullable) NSArray *coordRefSystems;
 
 /// Styles we can choose
-@property (nonatomic,strong) NSArray *styles;
+@property (nonatomic,strong,nullable) NSArray *styles;
 
 /// Bounding boxes for zero or more of the CRS'
-@property (nonatomic,strong) NSArray *boundingBoxes;
+@property (nonatomic,strong,nullable) NSArray *boundingBoxes;
 
 /// Lower left corner in longitude/latitude
 @property (nonatomic) MaplyCoordinate ll;
@@ -80,10 +82,10 @@
 @property (nonatomic) MaplyCoordinate ur;
 
 /// Try to build a coordinate system we understand
-- (MaplyCoordinateSystem *)buildCoordSystem;
+- (nullable MaplyCoordinateSystem *)buildCoordSystem;
 
 /// Find the style with the given name
-- (MaplyWMSStyle *)findStyle:(NSString *)styleName;
+- (nullable MaplyWMSStyle *)findStyle:(NSString *__nonnull)styleName;
 
 @end
 
@@ -96,25 +98,25 @@
 @interface MaplyWMSCapabilities : NSObject
 
 /// We can fetch the capabilities from this URL
-+ (NSString *)CapabilitiesURLFor:(NSString *)baseURL;
++ (nonnull NSString *)CapabilitiesURLFor:(NSString *__nonnull)baseURL;
 
 /// The name as returned by the service
-@property (nonatomic,strong) NSString *name;
+@property (nonatomic,strong,nullable) NSString *name;
 /// The title as returned by the service
-@property (nonatomic,strong) NSString *title;
+@property (nonatomic,strong,nullable) NSString *title;
 
 /// Available formats (strings)
-@property (nonatomic,strong) NSArray *formats;
+@property (nonatomic,strong,nullable) NSArray *formats;
 
 /// Layers we can fetch from
-@property (nonatomic,strong) NSArray *layers;
+@property (nonatomic,strong,nullable) NSArray *layers;
 
 /// This constructor will initialize with an XML document that
 ///  we've fetched from the server, presumably.
-- (id)initWithXML:(DDXMLDocument *)xmlDoc;
+- (nullable instancetype)initWithXML:(DDXMLDocument *__nonnull)xmlDoc;
 
 /// Look for a layer with the given name.
-- (MaplyWMSLayer *)findLayer:(NSString *)name;
+- (nullable MaplyWMSLayer *)findLayer:(NSString *__nonnull)name;
 
 @end
 
@@ -126,19 +128,19 @@
 @interface MaplyWMSTileSource : NSObject<MaplyTileSource>
 
 /// Base URL for the Map Service
-@property (nonatomic,strong) NSString *baseURL;
+@property (nonatomic,strong,nullable) NSString *baseURL;
 
 /// Capabilities describing the service
-@property (nonatomic,strong) MaplyWMSCapabilities *capabilities;
+@property (nonatomic,strong,nullable) MaplyWMSCapabilities *capabilities;
 
 /// Image type to request
-@property (nonatomic,strong) NSString *imageType;
+@property (nonatomic,strong,nullable) NSString *imageType;
 
 /// Layer we're grabbing
-@property (nonatomic,strong) MaplyWMSLayer *layer;
+@property (nonatomic,strong,nonnull) MaplyWMSLayer *layer;
 
 /// Optional style we're using
-@property (nonatomic,strong) MaplyWMSStyle *style;
+@property (nonatomic,strong,nonnull) MaplyWMSStyle *style;
 
 /// Minimum zoom level we'll expect
 @property (nonatomic,readonly) int minZoom;
@@ -152,10 +154,10 @@
 @property (nonatomic) bool transparent;
 
 /// Coordinate system (used to build URLs)
-@property (nonatomic,readonly) MaplyCoordinateSystem *coordSys;
+@property (nonatomic,readonly,nonnull) MaplyCoordinateSystem *coordSys;
 
 /// If set, we'll cache the images locally (a good idea with WMS)
-@property (nonatomic,strong) NSString *cacheDir;
+@property (nonatomic,strong,nullable) NSString *cacheDir;
 
 /** Initialize with the parameters the WMS server is going to want.
     @param baseURL The main URL we'll use to construct queries.
@@ -170,7 +172,7 @@
             asks for based on the overall extents and the zoom levels.
     @param maxZoom The max zoom level we'll query.
   */
-- (id)initWithBaseURL:(NSString *)baseURL capabilities:(MaplyWMSCapabilities *)cap layer:(MaplyWMSLayer *)layer style:(MaplyWMSStyle *)style coordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom tileSize:(int)tileSize;
+- (nullable instancetype)initWithBaseURL:(NSString *__nonnull)baseURL capabilities:(MaplyWMSCapabilities *__nullable)cap layer:(MaplyWMSLayer *__nonnull)layer style:(MaplyWMSStyle *__nonnull)style coordSys:(MaplyCoordinateSystem *__nonnull)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom tileSize:(int)tileSize;
 
 @end
 

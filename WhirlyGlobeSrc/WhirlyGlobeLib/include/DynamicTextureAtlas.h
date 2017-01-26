@@ -89,9 +89,6 @@ public:
     void getUtilization(int &numCell,int &usedCell);
     
 protected:
-    /// Used for debugging
-    std::string name;
-    
     /// If set, this is a compressed format (assume PVRTC4)
     bool compressed;
     /// Texture memory format
@@ -147,6 +144,8 @@ class DynamicTextureClearRegion : public ChangeRequest
 public:
     /// Construct with the dynamic texture ID and the region to clear
     DynamicTextureClearRegion(SimpleIdentity texId,const DynamicTexture::Region &region) : texId(texId), region(region) { }
+    /// This version takes a time
+    DynamicTextureClearRegion(SimpleIdentity texId,const DynamicTexture::Region &region,NSTimeInterval inWhen) : texId(texId), region(region) { when = inWhen; }
 
     /// Clear the region from the given dynamic texture.  Never call this.
 	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
@@ -177,7 +176,7 @@ public:
 
     /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
     DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1);
-    ~DynamicTextureAtlas();
+    virtual ~DynamicTextureAtlas();
 
     /// Try to add the texture to one of our dynamic textures, or create one.
     bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *texRegion=NULL);
@@ -186,7 +185,7 @@ public:
     bool updateTexture(Texture *,int frame,const TextureRegion &texRegion,ChangeSet &changes);
     
     /// Free up the space for a texture from one of the dynamic textures
-    void removeTexture(const SubTexture &subTex,ChangeSet &changes);
+    void removeTexture(const SubTexture &subTex,ChangeSet &changes,NSTimeInterval when);
     
     /// Return the IDs for the dynamic textures we're using
     void getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which);
@@ -202,13 +201,16 @@ public:
     bool empty();
     
     /// Look for any textures that should be cleaned up
-    void cleanup(ChangeSet &changes);
+    void cleanup(ChangeSet &changes,NSTimeInterval when);
 
     /// Clear out the active dynamic textures.  Caller deals with the
     ///  change requests.
-    void shutdown(ChangeSet &changes);
+    void teardown(ChangeSet &changes);
     
-        /// Print out some utilization info
+    /// Get some basic info out
+    void getUsage(int &numRegions,int &dynamicTextures);
+    
+    /// Print out some utilization info
     void log();
 
 protected:

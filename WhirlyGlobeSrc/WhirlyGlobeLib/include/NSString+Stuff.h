@@ -18,6 +18,7 @@
  *
  */
 
+#import <UIKit/UIKit.h>
 #import <string>
 
 @interface NSString(Stuff)

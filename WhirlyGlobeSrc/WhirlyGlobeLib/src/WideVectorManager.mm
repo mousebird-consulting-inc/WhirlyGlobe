@@ -45,6 +45,7 @@ using namespace Eigen;
     _capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
     _texID = [desc intForKey:@"texture" default:EmptyIdentity];
     _repeatSize = [desc floatForKey:@"repeatSize" default:(_coordType == WideVecCoordScreen ? 32 : 6371000.0 / 20)];
+    _edgeSize = [desc floatForKey:@"edgefalloff" default:1.0];
     _miterLimit = [desc floatForKey:@"miterLimit" default:2.0];
     _texSnap = [desc boolForKey:@"texsnap" default:false];
 }
@@ -54,178 +55,156 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
+// Turn this on for smaller texture lengths
+//#define TEXTURE_RESET 1
+
 class WideVectorBuilder
 {
 public:
-    WideVectorBuilder(WhirlyKitWideVectorInfo *vecInfo,const Point3d &localCenter,const Point3d &dispCenter,const RGBAColor inColor,CoordSystemDisplayAdapter *coordAdapter)
-    : vecInfo(vecInfo), angleCutoff(DegToRad(30.0)), texOffset(0.0), edgePointsValid(false), coordAdapter(coordAdapter), localCenter(localCenter), dispCenter(dispCenter)
+    WideVectorBuilder(WhirlyKitWideVectorInfo *vecInfo,const Point3d &localCenter,const Point3d &dispCenter,const RGBAColor inColor,bool makeTurns,CoordSystemDisplayAdapter *coordAdapter)
+    : vecInfo(vecInfo), angleCutoff(DegToRad(30.0)), texOffset(0.0), edgePointsValid(false), coordAdapter(coordAdapter), localCenter(localCenter), dispCenter(dispCenter), makeDistinctTurn(makeTurns)
     {
 //        color = [vecInfo.color asRGBAColor];
         color = inColor;
     }
-    
-    // Intersect widened lines for the miter case
-    bool intersectWideLines(const Point3d &p0,const Point3d &p1,const Point3d &p2,const Point3d &n0,const Point3d &n1,Point3d &iPt,double &t0,double &t1)
+
+    // Two widened lines that intersect in a point.
+    // Width/2 is the input
+    class InterPoint
     {
-        Point2d p10(p1.x()-p0.x(),p1.y()-p0.y());
-        Point2d p21(p2.x()-p1.x(),p2.y()-p1.y());
-        Point2d pn0(p0.x()+n0.x(),p0.y()+n0.y());
-        Point2d pn1(p1.x()+n1.x(),p1.y()+n1.y());
-        
-        // Choose the form of the equation based on the size of this denominator
-        double num, denom;
-        if (std::abs(p10.x()) > std::abs(p10.y()))
+    public:
+        InterPoint() : texX(0.0),texYmin(0.0),texYmax(0.0),texOffset(0.0) { }
+        // Construct with a single line
+        InterPoint(const Point3d &p0,const Point3d &p1,const Point3d &n0,double inTexX,double inTexYmin,double inTexYmax,double inTexOffset)
         {
-            double termA = p10.y()/p10.x();
-            denom = p21.y() - p21.x() * termA;
-            num = (pn1.x() - pn0.x())*termA + pn0.y()-pn1.y();
-        } else {
-            double termA = p10.x()/p10.y();
-            denom = p21.y()*termA-p21.x();
-            num = pn1.x() - pn0.x() + (pn0.y() - pn1.y())*termA;
+            c = 0;
+            dir = p1 - p0;
+            n = n0;
+            org = p0;
+            dest = p1;
+            texX = inTexX;
+            texYmin = inTexYmin;
+            texYmax = inTexYmax;
+            texOffset = inTexOffset;
         }
-        if (denom == 0.0)
-            return false;
         
-        t1 = num/denom;
-        iPt = (p2-p1) * t1 + p1 + n1;
-        
-        if (std::abs(p10.x()) > std::abs(p10.y()))
-            t0 = (p21.x() * t1 + pn1.x() - pn0.x())/p10.x();
-        else
-            t0 = (p21.y() * t1 + pn1.y() - pn0.y())/p10.y();
-                
-        return true;
-    }
-    
-    // Straight up 2D line intersection.  Z is ignred until the end.
-    bool intersectLinesIn2D(const Point3d &p1,const Point3d &p2,const Point3d &p3,const Point3d &p4,Point3d *iPt)
-    {
-        float denom = (p1.x()-p2.x())*(p3.y()-p4.y()) - (p1.y() - p2.y())*(p3.x() - p4.x());
-        if (denom == 0.0)
-            return false;
-        
-        float termA = (p1.x()*p2.y() - p1.y()*p2.x());
-        float termB = (p3.x() * p4.y() - p3.y() * p4.x());
-        iPt->x() = ( termA * (p3.x() - p4.x()) - (p1.x() - p2.x()) * termB)/denom;
-        iPt->y() = ( termA * (p3.y() - p4.y()) - (p1.y() - p2.y()) * termB)/denom;
-        iPt->z() = 0.0;
-        
-        return true;
-    }
-    
-    // Intersect lines using the origin,direction form. Just a 2D intersection
-    bool intersectLinesDir(const Point3d &aOrg,const Point3d &aDir,const Point3d &bOrg,const Point3d &bDir,Point3d &iPt)
-    {
-        // Choose the form of the equation based on the size of this denominator
-        double num, denom;
-        if (std::abs(aDir.x()) > std::abs(aDir.y()))
+        // Return a version of the point flipped around its main axis
+        InterPoint flipped()
         {
-            double termA = aDir.y()/aDir.x();
-            denom = bDir.y() - bDir.x() * termA;
-            num = (bOrg.x() - aOrg.x())*termA + aOrg.y()-bOrg.y();
-        } else {
-            double termA = aDir.x()/aDir.y();
-            denom = bDir.y()*termA-bDir.x();
-            num = bOrg.x() - aOrg.x() + (aOrg.y() - bOrg.y())*termA;
+            InterPoint iPt = *this;
+            iPt.n *= -1;
+            iPt.texX = 1.0 - texX;
+            
+            return iPt;
         }
-        if (denom == 0.0)
-            return false;
         
-        double t1 = num/denom;
-        iPt = bDir * t1 + bOrg;
+        // Pass in the half width to calculate the intersection point
+        Point3d calcInterPt(double w2)
+        {
+            double t0 = c * w2;
+            Point3d iPt = dir * t0 + n * w2 + org;
+            
+            return iPt;
+        }
+        
+        double c;
+        Point3d dir;
+        Point3d n;
+        Point3d org,dest;
+        double texX;
+        double texYmin,texYmax,texOffset;
+    };
+    
+    // Intersect the wide lines, but return an equation to calculate the point
+    bool intersectWideLines(const Point3d &p0,const Point3d &p1,const Point3d &p2,const Point3d &n0,const Point3d &n1,InterPoint &iPt0,InterPoint &iPt1,double texX,double texY0,double texY1,double texY2)
+    {
+        {
+            iPt0.texX = texX;
+            iPt0.dir = p0 - p1;
+            iPt0.n = n0;
+            iPt0.org = p1;
+            iPt0.texYmin = texY1;
+            iPt0.dest = p0;
+            iPt0.texYmax = texY0;
+            Point3d p01 = p0 - p1;
+            Point3d n01 = n0 - n1;
+            Point3d p21 = p2 - p1;
+            
+            double denom = (p21.y()*p01.x() - p01.y()*p21.x());
+            if (denom == 0.0)
+                return false;
+            iPt0.c = (n01.y()*p21.x() - n01.x()*p21.y())/denom;
+        }
+
+        {
+            iPt1.texX = texX;
+            iPt1.dir = p2 - p1;
+            iPt1.n = n1;
+            iPt1.org = p1;
+            iPt1.texYmin = texY1;
+            iPt1.dest = p2;
+            iPt1.texYmax = texY2;
+            Point3d n10 = n1 - n0;
+            Point3d p21 = p2 - p1;
+            Point3d p01 = p0 - p1;
+            double denom = p21.x()*p01.y()-p21.y()*p01.x();
+            if (denom == 0.0)
+                return false;
+            iPt1.c = (n10.y()*p01.x() - n10.x()*p01.y())/denom;
+        }
         
         return true;
     }
-    
-    // Add a rectangle to the drawable
-    void addRect(BasicDrawable *drawable,Point3d *corners,TexCoord *texCoords,const Point3d &up,const RGBAColor &thisColor)
+
+    // Add a rectangle to the wide drawable
+    void addWideRect(WideVectorDrawable *drawable,InterPoint *verts,const Point3d &up)
     {
         int startPt = drawable->getNumPoints();
 
         for (unsigned int vi=0;vi<4;vi++)
         {
-            Point3d dispPt = corners[vi];
-            drawable->addPoint(dispPt);
-            if (vecInfo.texID != EmptyIdentity)
-                drawable->addTexCoord(0, texCoords[vi]);
+            InterPoint &vert = verts[vi];
+            drawable->addPoint(Vector3dToVector3f(vert.org));
             drawable->addNormal(up);
-//            drawable->addColor(thisColor);
+            drawable->add_p1(Vector3dToVector3f(vert.dest));
+            drawable->add_n0(Vector3dToVector3f(vert.n));
+            drawable->add_c0(vert.c);
+            drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax,vert.texOffset);
         }
-        
+
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+3));
         drawable->addTriangle(BasicDrawable::Triangle(startPt+1,startPt+2,startPt+3));
-    }
-    
-    // Add a rectangle to the wide drawable
-    void addWideRect(WideVectorDrawable *drawable,Point3d *corners,const Point3d &pa,const Point3d &pb,TexCoord *texCoords,const Point3d &up,const RGBAColor &thisColor)
-    {
-        int startPt = drawable->getNumPoints();
-        
-        for (unsigned int vi=0;vi<4;vi++)
-        {
-            drawable->addPoint(vi < 2 ? pa : pb);
-            drawable->addDir(corners[vi]);
-            if (vecInfo.texID != EmptyIdentity)
-                drawable->addTexCoord(0, texCoords[vi]);
-            drawable->addNormal(up);
-            drawable->addMaxLen(0.0);
-//            drawable->addColor(thisColor);
-        }
-        
-        drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+3));
-        drawable->addTriangle(BasicDrawable::Triangle(startPt+1,startPt+2,startPt+3));
-    }
-    
-    // Add a triangle to the drawable
-    void addTri(BasicDrawable *drawable,Point3d *corners,TexCoord *texCoords,const Point3d &up,const RGBAColor &thisColor)
-    {
-        int startPt = drawable->getNumPoints();
-        
-        for (unsigned int vi=0;vi<3;vi++)
-        {
-            drawable->addPoint(corners[vi]);
-            if (vecInfo.texID != EmptyIdentity)
-                drawable->addTexCoord(0, texCoords[vi]);
-            drawable->addNormal(up);
-//            drawable->addColor(thisColor);
-        }
-        
-        drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+2));
     }
     
     // Add a triangle to the wide drawable
-    void addWideTri(WideVectorDrawable *drawable,Point3d *corners,const Point3d &org,TexCoord *texCoords,float len,const Point3d &up,const RGBAColor &thisColor)
+    void addWideTri(WideVectorDrawable *drawable,InterPoint *verts,const Point3d &up)
     {
         int startPt = drawable->getNumPoints();
 
         for (unsigned int vi=0;vi<3;vi++)
         {
-            drawable->addPoint(org);
-            drawable->addDir(corners[vi]);
-            drawable->addMaxLen(len);
-            
-            if (vecInfo.texID != EmptyIdentity)
-                drawable->addTexCoord(0, texCoords[vi]);
+            InterPoint &vert = verts[vi];
+            drawable->addPoint(Vector3dToVector3f(vert.org));
             drawable->addNormal(up);
-//            drawable->addColor(thisColor);
+            drawable->add_p1(Vector3dToVector3f(vert.dest));
+            drawable->add_n0(Vector3dToVector3f(vert.n));
+            drawable->add_c0(vert.c);
+            drawable->add_texInfo(vert.texX,vert.texYmin,vert.texYmax,vert.texOffset);
         }
         
         drawable->addTriangle(BasicDrawable::Triangle(startPt+0,startPt+1,startPt+2));
     }
     
     // Build the polygons for a widened line segment
-    void buildPolys(const Point3d *pa,const Point3d *pb,const Point3d *pc,const Point3d &up,BasicDrawable *drawable)
+    void buildPolys(const Point3d *pa,const Point3d *pb,const Point3d *pc,const Point3d &up,BasicDrawable *drawable,bool buildSegment,bool buildJunction)
     {
         WideVectorDrawable *wideDrawable = dynamic_cast<WideVectorDrawable *>(drawable);
         
         double texLen = (*pb-*pa).norm();
-        double texJoinLen = 0;
+        double texLen2 = 0.0;
         // Degenerate segment
         if (texLen == 0.0)
             return;
-        if (vecInfo.coordType == WideVecCoordReal)
-            texLen /= vecInfo.repeatSize;
         
         // Next segment is degenerate
         if (pc)
@@ -234,13 +213,9 @@ public:
                 pc = NULL;
         }
 
-        double calcScale = (vecInfo.coordType == WideVecCoordReal ? 1.0 : 1/EarthRadius);
-
         // We need the normal (with respect to the line), and its inverse
-        // These are half, for half the width
         Point3d norm0 = (*pb-*pa).cross(up);
         norm0.normalize();
-        norm0 /= 2.0;
         Point3d revNorm0 = norm0 * -1.0;
         
         Point3d norm1(0,0,0),revNorm1(0,0,0);
@@ -248,395 +223,197 @@ public:
         {
             norm1 = (*pc-*pb).cross(up);
             norm1.normalize();
-            norm1 /= 2.0;
             revNorm1 = norm1 * -1.0;
+            texLen2 = (*pc-*pa).norm();
         }
         
-        if (vecInfo.coordType == WideVecCoordReal)
-        {
-            norm0 *= vecInfo.width;
-            norm1 *= vecInfo.width;
-            revNorm0 *= vecInfo.width;
-            revNorm1 *= vecInfo.width;
-        }
-
         Point3d paLocal = *pa-dispCenter;
         Point3d pbLocal = *pb-dispCenter;
-        Point3d pbLocalAdj = pbLocal;
+
+        // Lengths we use to calculate texture coordinates
+        double texBase = texOffset;
+        double texNext = texOffset+texLen;
+        double texNext2 = texOffset+texLen+texLen2;
+        
+#ifdef TEXTURE_RESET
+        texBase = 0.0;
+        texNext = texLen;
+        texNext2 = texLen+texLen2;
+#endif
 
         // Look for valid starting points.  If they're not there, make some simple ones
         if (!edgePointsValid)
         {
-            if (vecInfo.coordType == WideVecCoordReal)
-            {
-                e0 = paLocal + revNorm0;
-                e1 = paLocal + norm0;
-            } else {
-                e0 = paLocal + revNorm0*calcScale;
-                e1 = paLocal + norm0*calcScale;
-            }
-            centerAdj = paLocal;
+            e0 = InterPoint(paLocal,pbLocal,revNorm0,1.0,texBase,texNext,0.0);
+            e1 = InterPoint(paLocal,pbLocal,norm0,0.0,texBase,texNext,0.0);
+            edgePointsValid = true;
         }
-        
-        RGBAColor thisColor = color;
-//        float scale = drand48() / 2 + 0.5;
-//        thisColor.r *= scale;
-//        thisColor.g *= scale;
-//        thisColor.b *= scale;
-        
+
         // Calculate points for the expanded linear
-        Point3d corners[4];
-        TexCoord texCoords[4];
+        InterPoint corners[4];
         
-        Point3d rPt,lPt;
+        InterPoint rPt0,lPt0,rPt1,lPt1;
         Point3d pcLocal = (pc ? *pc-dispCenter: Point3d(0,0,0));
         Point3d dirA = (paLocal-pbLocal).normalized();
-        double lenA = (paLocal-pbLocal).norm();
-        double lenB = 0.0;
-        Point3d dirB;
         
-        // Figure out which way the bend goes and calculation intersection points
-        double t0l,t1l,t0r,t1r;
+        // Figure out which way the bend goes and calculate intersection points
         bool iPtsValid = false;
+        double dot;
+        double angleBetween = M_PI;
         if (pc)
         {
             // Compare the angle between the two segments.
             // We want to catch when the data folds back on itself.
-            dirB = (pcLocal-pbLocal).normalized();
-            lenB = (pcLocal-pbLocal).norm();
-            double dot = dirA.dot(dirB);
+            Point3d dirB = (pcLocal-pbLocal).normalized();
+            dot = dirA.dot(dirB);
             if (dot > -0.99999998476 && dot < 0.99999998476)
-                if (intersectWideLines(paLocal,pbLocal,pcLocal,norm0*calcScale,norm1*calcScale,rPt,t0r,t1r) &&
-                    intersectWideLines(paLocal,pbLocal,pcLocal,revNorm0*calcScale,revNorm1*calcScale,lPt,t0l,t1l))
+                if (intersectWideLines(paLocal, pbLocal, pcLocal, norm0, norm1, rPt0, rPt1, 0.0, texBase, texNext, texNext2) &&
+                    intersectWideLines(paLocal, pbLocal, pcLocal, revNorm0, revNorm1, lPt0, lPt1, 1.0, texBase, texNext, texNext2))
+                {
                     iPtsValid = true;
+                    angleBetween = acos(dot);
+                }
         }
         
         // Points from the last round
         corners[0] = e0;
         corners[1] = e1;
-        
-        Point3d next_e0,next_e1,next_e0_dir,next_e1_dir;
+        InterPoint next_e0,next_e1;
+
+        // Really acute angles tend to break things
+        if (angleBetween < 4.0 / 180.0 * M_PI)
+        {
+            iPtsValid = false;
+            edgePointsValid = false;
+        }
+
+        // End points of the segments
+        InterPoint endPt0(pbLocal,paLocal,norm0,0.0,texNext,texBase,0.0);
+        InterPoint endPt1;
+        if (pc)
+            endPt1 = InterPoint(pbLocal,pcLocal,norm1,0.0,texNext,texNext2,0.0);
+
+        // Set up the segment points
         if (iPtsValid)
         {
             // Bending right
-            if (t0l > 1.0)
+            if (rPt0.c > 0.0)
             {
-                // Make sure we didn't exceed the length of either segment
-                if (t0r > 0.0 && t0r < 1.0 && t1r > 0.0 && t1r < 1.0)
-                {
-                    if (vecInfo.coordType == WideVecCoordReal)
-                    {
-                        corners[2] = rPt;
-                        corners[3] = rPt + revNorm0 * 2;
-                        next_e0 = rPt + revNorm1 * 2;
-                        next_e1 = corners[2];
-                    } else {
-                        corners[2] = rPt;
-                        corners[3] = rPt + revNorm0 * calcScale * 2;
-                        
-                        next_e0 = rPt + revNorm1 * calcScale * 2;
-                        next_e1 = corners[2];
-                    }
-                } else
-                    iPtsValid = false;
+                corners[2] = rPt0;
+                corners[3] = rPt0.flipped();
+                next_e0 = rPt1.flipped();
+                next_e1 = rPt1;
             } else {
                 // Bending left
-                // Make sure we didn't exceed the length of either segment
-                if (t0l > 0.0 && t0l < 1.0 && t1l > 0.0 && t1l < 1.0)
-                {
-                    if (vecInfo.coordType == WideVecCoordReal)
-                    {
-                        corners[2] = lPt + norm0 * 2;
-                        corners[3] = lPt;
-                        next_e0 = corners[3];
-                        next_e1 = lPt + norm1 * 2;
-                    } else {
-                        corners[2] = lPt + norm0 * calcScale * 2;
-                        corners[3] = lPt;
-
-                        next_e0 = lPt;
-                        next_e1 = lPt + norm1 * calcScale * 2;
-                    }
-                } else
-                    iPtsValid = false;
+                corners[2] = lPt0.flipped();
+                corners[3] = lPt0;
+                next_e0 = lPt1;
+                next_e1 = lPt1.flipped();
             }
+        } else {
+            corners[2] = endPt0;
+            corners[3] = endPt0.flipped();
+            next_e0 = endPt0.flipped();
+            next_e1 = endPt0;
         }
         
-        if (!iPtsValid)
+        // Do the join polygons if we can
+        // Note: Always doing bevel case (sort of)
+        if (iPtsValid && buildJunction)
         {
-            if (vecInfo.coordType == WideVecCoordReal)
-            {
-                corners[2] = pbLocal + norm0;
-                corners[3] = pbLocal + revNorm0;
-                next_e0 = corners[3];
-                next_e1 = corners[2];
-            } else {
-                corners[2] = pbLocal + norm0 * calcScale;
-                corners[3] = pbLocal + revNorm0 * calcScale;
-                next_e0 = corners[3];
-                next_e1 = corners[2];
-            }
-            edgePointsValid = false;
-        } else
-            edgePointsValid = true;
-        
-        texCoords[0] = TexCoord(0.0,texOffset);
-        texCoords[1] = TexCoord(1.0,texOffset);
-        texCoords[2] = TexCoord(1.0,texOffset+texLen);
-        texCoords[3] = TexCoord(0.0,texOffset+texLen);
-        
-        double minSegLen = 0.0;
-        if (vecInfo.coordType == WideVecCoordScreen)
-            minSegLen = std::max(lenA,lenB);
-        
-        // Make an explicit join
-        Point3d triVerts[3];
-        TexCoord triTex[3];
-        if (iPtsValid)
-        {
-            double len = 0.0;
             WideVectorLineJoinType joinType = vecInfo.joinType;
-            
-            // We may need to switch to a bevel join if miter is too extreme
-            if (joinType == WideVecMiterJoin)
-            {
-                // Bending right
-                if (t0l > 1.0)
-                {
-                    // Measure the distance from the left point to the middle
-                    len = (lPt-pbLocal).norm()/calcScale;
-                } else {
-                    // Bending left
-                    len = (rPt-pbLocal).norm()/calcScale;
-                }
-                
-                if (vecInfo.coordType == WideVecCoordReal)
-                {
-                    if (2*len/vecInfo.width > vecInfo.miterLimit)
-                        joinType = WideVecBevelJoin;
-                } else {
-                    if (2*len > vecInfo.miterLimit)
-                        joinType = WideVecBevelJoin;
-                }
-            }
+            // Switch to a miter join if the angle is too great for a bevel
+            if (joinType == WideVecMiterJoin && angleBetween < (M_PI-vecInfo.miterLimit*M_PI/180.0))
+                joinType = WideVecBevelJoin;
             
             switch (joinType)
             {
-                case WideVecMiterJoin:
+                case WideVecBevelJoin:
                 {
+                    // An offset that makes the texture coordinates work
+                    double texAdjust = cos(angleBetween/2.0);
+                    
+                    // Three triangles make up the bend
+                    
                     // Bending right
-                    if (t0l > 1.0)
+                    if (rPt0.c > 0.0)
                     {
-                        // Build two triangles to join up to the middle
-                        double texJoinLens[2];
-                        texJoinLens[0] = (lPt-corners[3]).norm()/2.0;
-                        triTex[0] = TexCoord(0.0,texOffset+texLen);
-                        triTex[1] = TexCoord(1.0,texOffset+texLen);
-                        triTex[2] = TexCoord(0.0,texOffset+texLen+texJoinLens[0]);
-                        if (vecInfo.coordType == WideVecCoordReal)
+                        InterPoint triVerts[3];
+                        
+                        triVerts[0] = texLen > texLen2 ? rPt0 : rPt1;
+                        triVerts[0].texYmin = texNext;
+                        triVerts[0].texYmax = texNext;
+                        triVerts[1] = endPt1.flipped();
+                        triVerts[1].texYmin = texNext;
+                        triVerts[1].texYmax = texNext;
+                        triVerts[1].texOffset = texAdjust;
+                        triVerts[2] = endPt0.flipped();
+                        triVerts[2].texYmin = texNext;
+                        triVerts[2].texYmax = texNext;
+                        triVerts[2].texOffset = -texAdjust;
+                        addWideTri(wideDrawable,triVerts,up);
+                        
+                        if (makeDistinctTurn)
                         {
-                            triVerts[0] = corners[3];
-                            triVerts[1] = rPt;
-                            triVerts[2] = lPt;
-                            addTri(drawable,triVerts,triTex,up,thisColor);
+                            // Build separate triangles for the turn
+                            triVerts[0] = rPt0;
+                            triVerts[1] = endPt0.flipped();
+                            triVerts[2] = rPt0.flipped();
+                            addWideTri(wideDrawable,triVerts,up);
+                            
+                            triVerts[0] = rPt1;
+                            triVerts[1] = rPt1.flipped();
+                            triVerts[2] = endPt1.flipped();
+                            addWideTri(wideDrawable,triVerts,up);
                         } else {
-                            triVerts[0] = (corners[3]-pbLocal)/calcScale;
-                            triVerts[1] = (rPt-pbLocal)/calcScale;
-                            triVerts[2] = (lPt-pbLocal)/calcScale;
-                            addWideTri(wideDrawable,triVerts,pbLocal,triTex,minSegLen,up,thisColor);
+                            // Extend the segments
+                            corners[3] = endPt0.flipped();
+                            next_e0 = endPt1.flipped();
                         }
-                        texJoinLens[1] = (next_e0-lPt).norm()/2.0;
-                        triTex[0] = TexCoord(0.0,texOffset+texLen+texJoinLens[0]);
-                        triTex[1] = TexCoord(1.0,texOffset+texLen+texJoinLens[0]);
-                        triTex[2] = TexCoord(0.0,texOffset+texLen+texJoinLens[0]+texJoinLens[1]);
-                        if (vecInfo.coordType == WideVecCoordReal)
-                        {
-                            triVerts[0] = lPt;
-                            triVerts[1] = rPt;
-                            triVerts[2] = next_e0;
-                            addTri(drawable,triVerts,triTex,up,thisColor);
-                        } else {
-                            triVerts[0] = (lPt-pbLocal)/calcScale;
-                            triVerts[1] = (rPt-pbLocal)/calcScale;
-                            triVerts[2] = (next_e0-pbLocal)/calcScale;
-                            addWideTri(wideDrawable,triVerts,pbLocal,triTex,minSegLen,up,thisColor);
-                        }
-                        texJoinLen = texJoinLens[0] + texJoinLens[1];
                     } else {
                         // Bending left
-                        double texJoinLens[2];
-                        texJoinLens[0] = (rPt-corners[2]).norm()/2.0;
-                        triTex[0] = TexCoord(0.0,texOffset+texLen);
-                        triTex[1] = TexCoord(1.0,texOffset+texLen);
-                        triTex[2] = TexCoord(1.0,texOffset+texLen+texJoinLens[0]);
-                        if (vecInfo.coordType == WideVecCoordReal)
+                        InterPoint triVerts[3];
+                        
+                        triVerts[0] = texLen > texLen2 ? lPt0 : lPt1;
+                        triVerts[0].texYmin = texNext;
+                        triVerts[0].texYmax = texNext;
+                        triVerts[1] = endPt0;
+                        triVerts[1].texYmin = texNext;
+                        triVerts[1].texYmax = texNext;
+                        triVerts[1].texOffset = -texAdjust;
+                        triVerts[2] = endPt1;
+                        triVerts[2].texYmin = texNext;
+                        triVerts[2].texYmax = texNext;
+                        triVerts[2].texOffset = texAdjust;
+                        addWideTri(wideDrawable,triVerts,up);
+                        
+                        if (makeDistinctTurn)
                         {
-                            triVerts[0] = lPt;
-                            triVerts[1] = corners[2];
-                            triVerts[2] = rPt;
-                            addTri(drawable,triVerts,triTex,up,thisColor);
+                            // Build separate triangles for the turn
+                            triVerts[0] = lPt0;
+                            triVerts[1] = lPt0.flipped();
+                            triVerts[2] = endPt0;
+                            addWideTri(wideDrawable,triVerts,up);
+                            
+                            triVerts[0] = lPt1;
+                            triVerts[1] = endPt1;
+                            triVerts[2] = lPt1.flipped();
+                            addWideTri(wideDrawable,triVerts,up);
                         } else {
-                            triVerts[0] = (lPt-pbLocal)/calcScale;
-                            triVerts[1] = (corners[2]-pbLocal)/calcScale;
-                            triVerts[2] = (rPt-pbLocal)/calcScale;
-                            addWideTri(wideDrawable,triVerts,pbLocal,triTex,minSegLen,up,thisColor);
+                            // Extend the segments
+                            corners[2] = endPt0;
+                            next_e1 = endPt1;
                         }
-                        texJoinLens[1] = (next_e1-rPt).norm()/2.0;
-                        triTex[0] = TexCoord(0.0,texOffset+texLen+texJoinLens[0]);
-                        triTex[1] = TexCoord(1.0,texOffset+texLen+texJoinLens[0]);
-                        triTex[2] = TexCoord(1.0,texOffset+texLen+texJoinLens[0]+texJoinLens[1]);
-                        if (vecInfo.coordType == WideVecCoordReal)
-                        {
-                            triVerts[0] = lPt;
-                            triVerts[1] = rPt;
-                            triVerts[2] = next_e1;
-                            addTri(drawable,triVerts,triTex,up,thisColor);
-                        } else {
-                            triVerts[0] = (lPt-pbLocal)/calcScale;
-                            triVerts[1] = (rPt-pbLocal)/calcScale;
-                            triVerts[2] = (next_e1-pbLocal)/calcScale;
-                            addWideTri(wideDrawable,triVerts,pbLocal,triTex,minSegLen,up,thisColor);
-                        }
-                        texJoinLen = texJoinLens[0] + texJoinLens[1];
                     }
                 }
                     break;
-                case WideVecBevelJoin:
+                case WideVecMiterJoin:
                 {
-                    // Bending right
-                    if (t0l > 1.0)
-                    {
-                        // lPt1 is a point in the middle of the prospective bevel
-                        Point3d lNorm = (lPt-pbLocal).normalized();
-                        Point3d lPt1 = pbLocal + lNorm * calcScale * (vecInfo.coordType == WideVecCoordReal ? vecInfo.width : 1.0);
-                        Point3d iNorm = up.cross(lNorm);
-//                        Point3d juncCtr = (rPt+lPt1)/2.0;
-//                        pbLocalAdj = juncCtr;
-                        
-                        // Find the intersection points with the edges along the left side
-                        Point3d li0,li1;
-                        if (intersectLinesDir(lPt1,iNorm,corners[0],pbLocal-paLocal,li0) &&
-                            intersectLinesDir(lPt1,iNorm,next_e0,pcLocal-pbLocal,li1))
-                        {
-                            double texLens[3];
-                            // Form three triangles for this junction
-                            texLens[0] = (li0-corners[3]).norm()/2.0;
-                            triTex[0] = TexCoord(0.0,texOffset+texLen);
-                            triTex[1] = TexCoord(1.0,texOffset+texLen);
-                            triTex[2] = TexCoord(0.0,texOffset+texLen+texLens[0]);
-                            if (vecInfo.coordType == WideVecCoordReal)
-                            {
-                                triVerts[0] = corners[3];
-                                triVerts[1] = rPt;
-                                triVerts[2] = li0;
-                                addTri(drawable,triVerts,triTex,up,thisColor);
-                            } else {
-                                triVerts[0] = (corners[3]-pbLocalAdj)/calcScale;
-                                triVerts[1] = (rPt-pbLocalAdj)/calcScale;
-                                triVerts[2] = (li0-pbLocalAdj)/calcScale;
-                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,minSegLen,up,thisColor);
-                            }
-                            texLens[1] = (li1-li0).norm()/2.0;
-                            triTex[0] = TexCoord(0.0,texOffset+texLen+texLens[0]);
-                            triTex[1] = TexCoord(1.0,texOffset+texLen+texLens[0]);
-                            triTex[2] = TexCoord(0.0,texOffset+texLen+texLens[0]+texLens[1]);
-                            if (vecInfo.coordType == WideVecCoordReal)
-                            {
-                                triVerts[0] = li0;
-                                triVerts[1] = rPt;
-                                triVerts[2] = li1;
-                                addTri(drawable,triVerts,triTex,up,thisColor);
-                            } else {
-                                triVerts[0] = (li0-pbLocalAdj)/calcScale;
-                                triVerts[1] = (rPt-pbLocalAdj)/calcScale;
-                                triVerts[2] = (li1-pbLocalAdj)/calcScale;
-                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,minSegLen,up,thisColor);
-                            }
-                            texLens[2] = (next_e0-li1).norm()/2.0;
-                            triTex[0] = TexCoord(0.0,texOffset+texLen+texLens[0]+texLens[1]);
-                            triTex[1] = TexCoord(1.0,texOffset+texLen+texLens[0]+texLens[1]);
-                            triTex[2] = TexCoord(0.0,texOffset+texLen+texLens[0]+texLens[1]+texLens[2]);
-                            if (vecInfo.coordType == WideVecCoordReal)
-                            {
-                                triVerts[0] = li1;
-                                triVerts[1] = rPt;
-                                triVerts[2] = next_e0;
-                                addTri(drawable,triVerts,triTex,up,thisColor);
-                            } else {
-                                triVerts[0] = (li1-pbLocalAdj)/calcScale;
-                                triVerts[1] = (rPt-pbLocalAdj)/calcScale;
-                                triVerts[2] = (next_e0-pbLocalAdj)/calcScale;
-                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,minSegLen,up,thisColor);
-                            }
-                            texJoinLen = texLens[0] + texLens[1] + texLens[2];
-                        }
-                    } else {
-                        // Bending left
-                        // rPt1 is a point in the middle of the prospective bevel
-                        Point3d rNorm = (rPt-pbLocal).normalized();
-                        Point3d rPt1 = pbLocal + rNorm * calcScale * (vecInfo.coordType == WideVecCoordReal ? vecInfo.width : 1.0);
-                        Point3d iNorm = rNorm.cross(up);
-//                        Point3d juncCtr = (lPt+rPt1)/2.0;
-                        //                        pbLocalAdj = juncCtr;
-                        
-                        // Find the intersection points with the edges along the right side
-                        Point3d ri0,ri1;
-                        if (intersectLinesDir(rPt1,iNorm,corners[1], pbLocal-paLocal, ri0) &&
-                            intersectLinesDir(rPt1,iNorm,next_e1,pcLocal-pbLocal,ri1))
-                        {
-                            double texLens[3];
-                            // Form three triangles for this junction
-                            texLens[0] = (ri0-corners[2]).norm()/2.0;
-                            triTex[0] = TexCoord(0.0,texOffset+texLen);
-                            triTex[1] = TexCoord(1.0,texOffset+texLen);
-                            triTex[2] = TexCoord(1.0,texOffset+texLen+texLens[0]);
-                            if (vecInfo.coordType == WideVecCoordReal)
-                            {
-                                triVerts[0] = lPt;
-                                triVerts[1] = corners[2];
-                                triVerts[2] = ri0;
-                                addTri(drawable,triVerts,triTex,up,thisColor);
-                            } else {
-                                triVerts[0] = (lPt-pbLocalAdj)/calcScale;
-                                triVerts[1] = (corners[2]-pbLocalAdj)/calcScale;
-                                triVerts[2] = (ri0-pbLocalAdj)/calcScale;
-                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,minSegLen,up,thisColor);
-                            }
-                            texLens[1] = (ri1-ri0).norm()/2.0;
-                            triTex[0] = TexCoord(0.0,texOffset+texLen+texLens[0]);
-                            triTex[1] = TexCoord(1.0,texOffset+texLen+texLens[0]);
-                            triTex[2] = TexCoord(1.0,texOffset+texLen+texLens[0]+texLens[1]);
-                            if (vecInfo.coordType == WideVecCoordReal)
-                            {
-                                triVerts[0] = lPt;
-                                triVerts[1] = ri0;
-                                triVerts[2] = ri1;
-                                addTri(drawable,triVerts,triTex,up,thisColor);
-                            } else {
-                                triVerts[0] = (lPt-pbLocalAdj)/calcScale;
-                                triVerts[1] = (ri0-pbLocalAdj)/calcScale;
-                                triVerts[2] = (ri1-pbLocalAdj)/calcScale;
-                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,minSegLen,up,thisColor);
-                            }
-                            texLens[2] = (next_e1-ri1).norm()/2.0;
-                            triTex[0] = TexCoord(0.0,texOffset+texLen+texLens[0]+texLens[1]);
-                            triTex[1] = TexCoord(1.0,texOffset+texLen+texLens[0]+texLens[1]);
-                            triTex[2] = TexCoord(1.0,texOffset+texLen+texLens[0]+texLens[1]+texLens[2]);
-                            if (vecInfo.coordType == WideVecCoordReal)
-                            {
-                                triVerts[0] = lPt;
-                                triVerts[1] = ri1;
-                                triVerts[2] = next_e1;
-                                addTri(drawable,triVerts,triTex,up,thisColor);
-                            } else {
-                                triVerts[0] = (lPt-pbLocalAdj)/calcScale;
-                                triVerts[1] = (ri1-pbLocalAdj)/calcScale;
-                                triVerts[2] = (next_e1-pbLocalAdj)/calcScale;
-                                addWideTri(wideDrawable,triVerts,pbLocalAdj,triTex,minSegLen,up,thisColor);
-                            }
-                            texJoinLen = texLens[0] + texLens[1] + texLens[2];
-                        }
-                    }
+                    // Don't do anything special for miter joins
+                    corners[2] = rPt0;
+                    corners[3] = lPt0;
+                    next_e0 = lPt0;
+                    next_e1 = rPt0;
                 }
                     break;
                 case WideVecRoundJoin:
@@ -644,31 +421,29 @@ public:
             }
         }
         
-        // Add the segment rectangle
-        if (vecInfo.coordType == WideVecCoordReal)
-        {
-            addRect(drawable,corners,texCoords,up,thisColor);
-        } else {
-            // Run the offsets for the corners.
-            Point3d cornerVecs[4];
-            for (unsigned int ii=0;ii<4;ii++)
-                cornerVecs[ii] = (corners[ii]-((ii < 2) ? centerAdj : pbLocalAdj))/calcScale;
-
-            addWideRect(wideDrawable,cornerVecs,centerAdj,pbLocalAdj,texCoords,up,thisColor);
-        }
+        // Add the rectangles
+        if (buildSegment)
+            addWideRect(wideDrawable, corners, up);
         
         e0 = next_e0;
         e1 = next_e1;
-        centerAdj = pbLocalAdj;
-        texOffset += texLen+texJoinLen;
+
+#ifdef TEXTURE_RESET
+        e0.texYmin -= texLen;
+        e0.texYmax -= texLen;
+        e1.texYmin -= texLen;
+        e1.texYmax -= texLen;
+#endif
+
+        texOffset += texLen;
     }
     
     
     // Add a point to the widened linear we're building
-    void addPoint(const Point3d &inPt,const Point3d &up,BasicDrawable *drawable)
+    void addPoint(const Point3d &inPt,const Point3d &up,BasicDrawable *drawable,bool closed,bool buildSegment,bool buildJunction)
     {
         // Compare with the last point, if it's the same, toss it
-        if (!pts.empty() && pts.back() == inPt)
+        if (!pts.empty() && pts.back() == inPt && !closed)
             return;
         
         pts.push_back(inPt);
@@ -677,19 +452,19 @@ public:
             const Point3d &pa = pts[pts.size()-3];
             const Point3d &pb = pts[pts.size()-2];
             const Point3d &pc = pts[pts.size()-1];
-            buildPolys(&pa,&pb,&pc,up,drawable);
+            buildPolys(&pa,&pb,&pc,up,drawable,buildSegment,buildJunction);
         }
         lastUp = up;
     }
     
     // Flush out any outstanding points
-    void flush(BasicDrawable *drawable)
+    void flush(BasicDrawable *drawable,bool buildLastSegment, bool buildLastJunction)
     {
         if (pts.size() >= 2)
         {
             const Point3d &pa = pts[pts.size()-2];
             const Point3d &pb = pts[pts.size()-1];
-            buildPolys(&pa, &pb, NULL, lastUp, drawable);
+            buildPolys(&pa, &pb, NULL, lastUp, drawable, buildLastSegment, buildLastJunction);
         }
     }
 
@@ -698,6 +473,7 @@ public:
     RGBAColor color;
     Point3d localCenter,dispCenter;
     double angleCutoff;
+    bool makeDistinctTurn;
     
     double texOffset;
 
@@ -705,7 +481,8 @@ public:
     Point3d lastUp;
     
     bool edgePointsValid;
-    Point3d e0,e1,centerAdj;
+    InterPoint e0,e1;
+    //,centerAdj;
 };
 
 // Used to build up drawables
@@ -728,24 +505,29 @@ public:
     }
     
     // Build or return a suitable drawable (depending on the mode)
-    BasicDrawable *getDrawable(int ptCount,int triCount)
+    BasicDrawable *getDrawable(int ptCount,int triCount,int ptCountAllocate,int triCountAllocate)
     {
+        int ptGuess = std::min(std::max(ptCount,0),(int)MaxDrawablePoints);
+        int triGuess = std::min(std::max(triCount,0),(int)MaxDrawableTriangles);
+
         if (!drawable ||
-            (drawable->getNumPoints()+ptCount > MaxDrawablePoints) ||
-            (drawable->getNumTris()+triCount > MaxDrawableTriangles))
+            (drawable->getNumPoints()+ptGuess > MaxDrawablePoints) ||
+            (drawable->getNumTris()+triGuess > MaxDrawableTriangles))
         {
             flush();
-          
+            
+//            NSLog(@"Pts = %d, tris = %d",ptGuess,triGuess);
+            int ptAlloc = std::min(std::max(ptCountAllocate,0),(int)MaxDrawablePoints);
+            int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
+            WideVectorDrawable *wideDrawable = new WideVectorDrawable("Widen Vector",ptAlloc,triAlloc,!scene->getCoordAdapter()->isFlat());
+            drawable = wideDrawable;
+            drawable->setProgram(vecInfo.programID);
+            wideDrawable->setTexRepeat(vecInfo.repeatSize);
+            wideDrawable->setEdgeSize(vecInfo.edgeSize);
+            wideDrawable->setLineWidth(vecInfo.width);
             if (vecInfo.coordType == WideVecCoordReal)
-            {
-                drawable = new BasicDrawable("WideVector");
-            } else {
-                WideVectorDrawable *wideDrawable = new WideVectorDrawable();
-                drawable = wideDrawable;
-                drawable->setProgram(vecInfo.programID);
-                wideDrawable->setTexRepeat(vecInfo.repeatSize);
-                wideDrawable->setLineWidth(vecInfo.width);
-            }
+                wideDrawable->setRealWorldWidth(vecInfo.width);
+            
 //            drawMbr.reset();
             drawable->setType(GL_TRIANGLES);
             [vecInfo setupBasicDrawable:drawable];
@@ -764,32 +546,105 @@ public:
     }
     
     // Add the points for a linear
-    void addLinear(VectorRing &pts,const Point3d &up)
+    void addLinear(const VectorRing &pts,const Point3d &up,bool closed)
     {
+        // We'll add one on the beginning and two on the end
+        //  if we're doing a closed loop.  This gets us
+        //  valid junctions that match up.
+        int startPoint = 0;
+        bool makeDistinctTurns = false;
+        if (closed)
+        {
+            // Note: We need this so we don't lose one turn
+            //       This could be optimized
+            makeDistinctTurns = true;
+            if (pts.size() > 2)
+            {
+                if (pts.front() == pts.back())
+                {
+                    startPoint = -3;
+                } else {
+                    startPoint = -2;
+                }
+            }
+        }
+
         RGBAColor color = [vecInfo.color asRGBAColor];
-//        color.r = random()%256;
-//        color.g = random()%256;
-//        color.b = random()%256;
-//        color.a = 255;
-        WideVectorBuilder vecBuilder(vecInfo,localCenter,dispCenter,color,coordAdapter);
+        WideVectorBuilder vecBuilder(vecInfo,localCenter,dispCenter,color,makeDistinctTurns,coordAdapter);
+        
+        // Guess at how many points and triangles we'll need
+        int totalTriCount = 5*pts.size();
+        int totalPtCount = totalTriCount * 3;
+        if (totalTriCount < 0)  totalTriCount = 0;
+        if (totalPtCount < 0)  totalPtCount = 0;
         
         // Work through the segments
+        Point2f lastPt;
+        bool validLastPt = false;
+        for (int ii=startPoint;ii<(int)pts.size();ii++)
+        {
+            // Get the points in display space
+            Point2f geoA = pts[(ii+pts.size())%pts.size()];
+            
+            if (validLastPt && geoA == lastPt)
+                continue;
+
+            Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y()));
+            Point3d dispPa = coordAdapter->localToDisplay(localPa);
+            Point3d thisUp = up;
+            if (!coordAdapter->isFlat())
+                thisUp = coordAdapter->normalForLocal(localPa);
+            
+            // Get a drawable ready
+            int triCount = 2+3;
+            int ptCount = triCount*3;
+            BasicDrawable *thisDrawable = getDrawable(ptCount,triCount,totalPtCount,totalTriCount);
+            totalTriCount -= triCount;
+            totalPtCount -= ptCount;
+            drawMbr.addPoint(geoA);
+            
+            bool doSegment = !closed || (ii > 0);
+            bool doJunction = !closed || (ii >= 0);
+            vecBuilder.addPoint(dispPa,thisUp,thisDrawable,closed,doSegment,doJunction);
+            
+//            NSLog(@"Pt = (%f,%f), doSegment = %d, doJunction = %d",geoA.x(),geoA.y(),(int)doSegment,(int)doJunction);
+            
+            lastPt = geoA;
+            validLastPt = true;
+        }
+
+        vecBuilder.flush(drawable,!closed,true);
+    }
+    
+    // Debug verson of add linear
+    void addLinearDebug()
+    {
+        Point3d up(0,0,1);
+        VectorRing pts;
+        pts.push_back(GeoCoord(0,1));
+        pts.push_back(GeoCoord(0,0));
+        pts.push_back(GeoCoord(1,0));
+        
+        RGBAColor color = [vecInfo.color asRGBAColor];
+        WideVectorBuilder vecBuilder(vecInfo,Point3d(0,0,0),Point3d(0,0,0),color,false,coordAdapter);
+        
         for (unsigned int ii=0;ii<pts.size();ii++)
         {
             // Get the points in display space
             Point2f geoA = pts[ii];
-            Point3d dispPa = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y())));
             
+            Point3d dispPa(geoA.x(),geoA.y(),0.0);
+
             // Get a drawable ready
             int ptCount = 5;
             int triCount = 4;
-            BasicDrawable *thisDrawable = getDrawable(ptCount,triCount);
+            BasicDrawable *thisDrawable = getDrawable(ptCount,triCount,ptCount,triCount);
             drawMbr.addPoint(geoA);
-            
-            vecBuilder.addPoint(dispPa,up,thisDrawable);
-        }
 
-        vecBuilder.flush(drawable);
+            vecBuilder.addPoint(dispPa,up,thisDrawable,false,true,true);
+        }
+        
+        vecBuilder.flush(drawable,true,true);
     }
 
     // Flush out the drawables
@@ -859,13 +714,13 @@ void WideVectorSceneRep::enableContents(bool enable,ChangeSet &changes)
         changes.push_back(new OnOffChangeRequest(*it,enable));
 }
 
-void WideVectorSceneRep::clearContents(ChangeSet &changes)
+void WideVectorSceneRep::clearContents(ChangeSet &changes,NSTimeInterval when)
 {
     SimpleIDSet allIDs = drawIDs;
     allIDs.insert(instIDs.begin(),instIDs.end());
     for (SimpleIDSet::iterator it = allIDs.begin();
          it != allIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it));
+        changes.push_back(new RemDrawableReq(*it,when));
 }
 
 WideVectorManager::WideVectorManager()
@@ -908,15 +763,32 @@ SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,NSDictionary *desc
     {
         centerUp = coordAdapter->normalForLocal(localCenter);
     }
-    
+
     for (ShapeSet::iterator it = shapes->begin(); it != shapes->end(); ++it)
     {
-        VectorLinearRef lin = boost::dynamic_pointer_cast<VectorLinear>(*it);
+        VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
         {
-            builder.addLinear(lin->pts,centerUp);
+            builder.addLinear(lin->pts,centerUp,false);
+        } else {
+            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+            if (ar)
+            {
+                for (const auto &loop : ar->loops)
+                {
+                    if (loop.size() > 2 && loop.begin() != loop.end())
+                    {
+                        // Just tack on another point at the end.  Kind of dumb, but easy.
+                        VectorRing newLoop = loop;
+                        newLoop.push_back(loop[0]);
+                        builder.addLinear(newLoop, centerUp, true);
+                    } else
+                        builder.addLinear(loop, centerUp, true);
+                }
+            }
         }
     }
+//    builder.addLinearDebug();
     
     WideVectorSceneRep *sceneRep = builder.flush(changes);
     SimpleIdentity vecID = EmptyIdentity;
@@ -1025,6 +897,7 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
         {
             WideVectorSceneRep *sceneRep = *it;
             
+            NSTimeInterval removeTime = 0.0;
             if (sceneRep->fade > 0.0)
             {
                 SimpleIDSet allIDs = sceneRep->drawIDs;
@@ -1032,30 +905,13 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
                 for (SimpleIDSet::iterator it = allIDs.begin();
                      it != allIDs.end(); ++it)
                     changes.push_back(new FadeChangeRequest(*it, curTime, curTime+sceneRep->fade));
-                
-                __block NSObject * __weak thisCanary = canary;
 
-                // Spawn off the deletion for later
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, sceneRep->fade * NSEC_PER_SEC),
-                               scene->getDispatchQueue(),
-                               ^{
-                                   if (thisCanary)
-                                   {
-                                       SimpleIDSet theIDs;
-                                       theIDs.insert(sceneRep->getId());
-                                       ChangeSet delChanges;
-                                       removeVectors(theIDs, delChanges);
-                                       scene->addChangeRequests(delChanges);
-                                   }
-                               }
-                               );
-                
-                sceneRep->fade = 0.0;
-            } else {
-                (*it)->clearContents(changes);
-                sceneReps.erase(it);
-                delete sceneRep;
+                removeTime = curTime + sceneRep->fade;
             }
+            
+            (*it)->clearContents(changes,removeTime);
+            sceneReps.erase(it);
+            delete sceneRep;
         }
     }
     

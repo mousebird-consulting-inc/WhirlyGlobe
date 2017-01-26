@@ -55,7 +55,7 @@ using namespace WhirlyKit;
 - (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit
 {
 	// Back project the point from screen space into model space
-	Point3d screenPt = [self pointUnproject:Point2d(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:true];
+	Point3d screenPt = [self pointUnproject:Point2d(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:false];
 	
 	// Run the screen point and the eye point (origin) back through
 	//  the model matrix to get a direction and origin in model space

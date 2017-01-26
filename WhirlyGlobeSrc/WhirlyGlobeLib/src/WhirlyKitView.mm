@@ -50,6 +50,7 @@ using namespace Eigen;
 - (id)initWithView:(WhirlyKitView *)inView
 {
     self = [super init];
+    _coordAdapter = inView->_coordAdapter;
     _fieldOfView = inView->_fieldOfView;
     _nearPlane = inView->_nearPlane;
     _imagePlaneSize = inView->_imagePlaneSize;
@@ -150,6 +151,11 @@ using namespace Eigen;
 - (double)heightAboveSurface
 {
     return 0.0;
+}
+
+- (Eigen::Vector3d)eyePos
+{
+    return Eigen::Vector3d(0,0,0);
 }
 
 - (Point3d)pointUnproject:(Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip
