@@ -24,35 +24,34 @@
 
 @interface MaplyRemoteTileElevationInfo : NSObject
 
-- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
+- (nonnull instancetype)initWithBaseURL:(NSString *__nonnull)baseURL ext:(NSString *__nonnull)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
-@property (nonatomic,readonly) NSString *baseURL;
+@property (nonatomic,readonly,nonnull) NSString *baseURL;
+@property (nonatomic, strong,nonnull) NSString *ext;
 
 @property (nonatomic) int minZoom;
 @property (nonatomic) int maxZoom;
-
-@property (nonatomic, strong) NSString *ext;
 
 @property (nonatomic,assign) float timeOut;
 
 @property (nonatomic) int pixelsPerSide;
 
-@property (nonatomic,strong) MaplyCoordinateSystem *coordSys;
+@property (nonatomic,strong,nullable) MaplyCoordinateSystem *coordSys;
 
-@property (nonatomic, strong) NSString *cacheDir;
+@property (nonatomic, strong,nullable) NSString *cacheDir;
 
 @property (nonatomic) int cachedFileLifetime;
 
-@property (nonatomic,strong) NSString *queryStr;
+@property (nonatomic,strong,nullable) NSString *queryStr;
 
 //TODO(JM) not needed yet?
 //- (void)addBoundingBox:(MaplyBoundingBox *)bbox;
 //- (void)addGeoBoundingBox:(MaplyBoundingBox *)bbox;
-//- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox *)bbox;
+//- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox;
 
-- (NSURLRequest *)requestForTile:(MaplyTileID)tileID;
+- (nullable NSURLRequest *)requestForTile:(MaplyTileID)tileID;
 
-- (NSString *)fileNameForTile:(MaplyTileID)tileID;
+- (nullable NSString *)fileNameForTile:(MaplyTileID)tileID;
 
 - (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
 
@@ -67,49 +66,49 @@
 
 @optional
 
-- (void) remoteTileElevationSource:(id)tileSource tileDidLoad:(MaplyTileID)tileID;
+- (void) remoteTileElevationSource:(id __nonnull)tileSource tileDidLoad:(MaplyTileID)tileID;
 
-- (MaplyElevationChunk *) remoteTileElevationSource:(id)tileSource
-		modifyElevReturn:(MaplyElevationChunk *)elevChunk
+- (nullable MaplyElevationChunk *) remoteTileElevationSource:(id __nonnull)tileSource
+		modifyElevReturn:(MaplyElevationChunk *__nullable)elevChunk
 		forTile:(MaplyTileID)tileID;
 
-- (void) remoteTileElevationSource:(id)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *)error;
+- (void) remoteTileElevationSource:(id __nonnull)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *__nonnull)error;
 
 //TODO(JM) need enable/disable elevation?
 //- (void)remoteTileElevationSource:(id)tileSource tileDisabled:(MaplyTileID)tileID;
 //- (void)remoteTileElevationSource:(id)tileSource tileEnabled:(MaplyTileID)tileID;
 
-- (void)remoteTileElevationSource:(id)tileSource tileUnloaded:(MaplyTileID)tileID;
+- (void)remoteTileElevationSource:(id __nonnull)tileSource tileUnloaded:(MaplyTileID)tileID;
 
 @end
 
 
 @interface MaplyRemoteTileElevationSource : NSObject<MaplyElevationSourceDelegate>
 
-- (id)initWithBaseURL:(NSString *)baseURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
+- (nullable instancetype)initWithBaseURL:(NSString *__nonnull)baseURL ext:(NSString *__nonnull)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
-- (id)initWithInfo:(MaplyRemoteTileElevationInfo *)info;
+- (nullable instancetype)initWithInfo:(MaplyRemoteTileElevationInfo *__nonnull)info;
 
 
 // Inherited from MaplyElevationSourceDelegate
-- (MaplyCoordinateSystem *)getCoordSystem;
+- (nullable MaplyCoordinateSystem *)getCoordSystem;
 - (int)minZoom;
 - (int)maxZoom;
 
-- (MaplyElevationChunk *)elevForTile:(MaplyTileID)tileID;
+- (nullable MaplyElevationChunk *)elevForTile:(MaplyTileID)tileID;
 
 - (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
 
-- (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID;
+- (void)startFetchLayer:(id __nonnull)layer tile:(MaplyTileID)tileID;
 
-- (MaplyElevationChunk *)decodeElevationData:(NSData *)data;
+- (nonnull MaplyElevationChunk *)decodeElevationData:(NSData *__nonnull)data;
 
-@property (nonatomic,strong) MaplyRemoteTileElevationInfo *tileInfo;
+@property (nonatomic,strong,nullable) MaplyRemoteTileElevationInfo *tileInfo;
 
-@property (nonatomic,weak) NSObject<MaplyRemoteTileElevationSourceDelegate> *delegate;
+@property (nonatomic,weak,nullable) NSObject<MaplyRemoteTileElevationSourceDelegate> *delegate;
 
-@property (nonatomic,strong) MaplyCoordinateSystem *coordSys;
-@property (nonatomic,strong) NSString *cacheDir;
+@property (nonatomic,strong,nullable) MaplyCoordinateSystem *coordSys;
+@property (nonatomic,strong,nullable) NSString *cacheDir;
 
 
 //TODO(JM) needed?

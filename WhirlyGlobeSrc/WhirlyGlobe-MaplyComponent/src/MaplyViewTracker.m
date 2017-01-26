@@ -22,12 +22,13 @@
 
 @implementation MaplyViewTracker
 
-- (id)init
+- (instancetype)init
 {
     self = [super init];
     // Note: This should be DrawVisibleInvalid
     _minVis = 1e10;
     _maxVis = 1e10;
+    _offset = CGPointMake(0,0);
     
     return self;
 }

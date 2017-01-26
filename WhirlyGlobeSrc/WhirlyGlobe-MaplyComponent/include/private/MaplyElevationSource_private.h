@@ -27,7 +27,7 @@
 @interface MaplyElevationSourceAdapter : NSObject <WhirlyKitElevationHelper>
 
 /// Initialize with an elevation source
-- (id)initWithElevationSource:(NSObject<MaplyElevationSourceDelegate> *)elevSource;
+- (instancetype)initWithElevationSource:(NSObject<MaplyElevationSourceDelegate> *)elevSource;
 
 @end
 

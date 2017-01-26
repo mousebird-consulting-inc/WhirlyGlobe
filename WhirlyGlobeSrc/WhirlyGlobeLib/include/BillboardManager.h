@@ -94,7 +94,7 @@ public:
     ~BillboardSceneRep();
     
     // Clear the contents out of the scene
-    void clearContents(SelectionManager *selectManager,ChangeSet &changes);
+    void clearContents(SelectionManager *selectManager,ChangeSet &changes,NSTimeInterval when);
     
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs used for selection
@@ -146,7 +146,6 @@ public:
     void removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes);
 
 protected:
-    NSObject *canary;
     pthread_mutex_t billLock;
     BillboardSceneRepSet sceneReps;
 };

@@ -94,6 +94,9 @@ typedef std::set<NSObject<WhirlyKitViewWatcherDelegate> * __weak> WhirlyKitViewW
 /// Return the nominal height above the surface of the data
 - (double)heightAboveSurface;
 
+/// Calculate where the eye is in model coordinates
+- (Eigen::Vector3d)eyePos;
+
 /// From a screen point calculate the corresponding point in 3-space
 - (WhirlyKit::Point3d)pointUnproject:(WhirlyKit::Point2f)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip;
 

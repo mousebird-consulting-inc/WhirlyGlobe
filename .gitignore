@@ -8,3 +8,15 @@ project.xcworkspace
 _site
 WhirlyGlobeSrc/WhirlyGlobeLib/WhirlyGlobe.framework
 WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.framework
+AA+.htm
+AATest.sln
+AATest.vcproj
+CMakeLists.txt
+naughter.css
+stdafx.cpp
+docs
+.ruby-gemset
+.ruby-version
+WhirlyGlobeMaplyComponent.framework.zip
+linecount
+WhirlyGlobeSrc/local_libs/proj4-mapbox

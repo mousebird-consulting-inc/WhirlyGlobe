@@ -289,7 +289,7 @@ static const float ScreenOverlap = 0.1;
     if (oldContext != super.context)
         [EAGLContext setCurrentContext:super.context];
     
-    scene->processChanges(super.theView,self);
+    scene->processChanges(super.theView,self,CFAbsoluteTimeGetCurrent());
     
     if (oldContext != super.context)
         [EAGLContext setCurrentContext:oldContext];
@@ -305,20 +305,26 @@ static const float ScreenOverlap = 0.1;
     frameCount++;
     
     if (super.framebufferWidth <= 0 || super.framebufferHeight <= 0)
+    {
+        // Process the scene even if the window isn't up
+        [self processScene];
         return;
+    }
 
     if (!renderStateOptimizer)
         renderStateOptimizer = [[WhirlyKitOpenGLStateOptimizer alloc] init];
 
 	[super.theView animate];
+    
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
 
     // Decide if we even need to draw
-    if (!scene->hasChanges() && ![self viewDidChange] && contRenderRequests.empty())
+    if (!scene->hasChanges(now) && ![self viewDidChange] && contRenderRequests.empty())
         return;
     
     NSTimeInterval perfInterval = super.perfInterval;
     
-    lastDraw = CFAbsoluteTimeGetCurrent();
+    lastDraw = now;
         
     if (perfInterval > 0)
         perfTimer.startTiming("Render Frame");
@@ -483,7 +489,7 @@ static const float ScreenOverlap = 0.1;
         
 		// Merge any outstanding changes into the scenegraph
 		// Or skip it if we don't acquire the lock
-		scene->processChanges(super.theView,self);
+		scene->processChanges(super.theView,self,now);
         
         if (perfInterval > 0)
             perfTimer.stopTiming("Scene processing");

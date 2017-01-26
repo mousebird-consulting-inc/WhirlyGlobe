@@ -21,6 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "MaplyElevationDatabase.h"
 #import "NSData+Zlib.h"
+#import "sqlite3.h"
 #import "FMDatabase.h"
 #import "FMDatabaseQueue.h"
 
@@ -31,7 +32,7 @@
     int _minZoom,_maxZoom;
 }
 
-- (id)initWithName:(NSString *)name
+- (instancetype)initWithName:(NSString *)name
 {
     self = [super init];
     if (!self)

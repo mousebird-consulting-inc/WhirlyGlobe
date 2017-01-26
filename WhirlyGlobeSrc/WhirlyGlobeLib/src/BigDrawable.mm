@@ -210,6 +210,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     OpenGLES2Program *prog = frameInfo.program;
     
     // GL Texture IDs
+    bool anyTextures = false;
     std::vector<GLuint> glTexIDs;
     for (unsigned int ii=0;ii<texInfo.size();ii++)
     {
@@ -220,6 +221,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             glTexID = scene->getGLTexture(thisTexInfo.texId);
 //            if (!glTexID)
 //                NSLog(@"Missing texture");
+            anyTextures = true;
         }
         glTexIDs.push_back(glTexID);
     }
@@ -257,7 +259,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
     prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
     prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
-
+    
     // Fill the a_singleMatrix attribute with default values
     const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
     if (matAttr)
@@ -272,7 +274,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     prog->setUniform("u_fade", theFade);
     
     // Let the shaders know if we even have a texture
-    prog->setUniform("u_hasTexture", !glTexIDs.empty());
+    prog->setUniform("u_hasTexture", anyTextures);
 
     // The program itself may have some textures to bind
     bool hasTexture[WhirlyKitMaxTextures];
@@ -719,7 +721,7 @@ void BigDrawableSwap::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Wh
         SwapInfo &swap = swaps[ii];
 
         DrawableRef draw = scene->getDrawable(swap.drawId);
-        BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+        BigDrawableRef bigDraw = std::dynamic_pointer_cast<BigDrawable>(draw);
         if (bigDraw)
             bigDraw->swapBuffers(swap.whichBuffer);
     }
@@ -737,7 +739,7 @@ void BigDrawableSwap::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Wh
 void BigDrawableFlush::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     DrawableRef draw = scene->getDrawable(drawId);
-    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    BigDrawableRef bigDraw = std::dynamic_pointer_cast<BigDrawable>(draw);
     if (bigDraw)
     {
         int whichBuffer = (bigDraw->getActiveBuffer() == 0 ? 1 : 0);
@@ -748,7 +750,7 @@ void BigDrawableFlush::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,W
 void BigDrawableTexChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     DrawableRef draw = scene->getDrawable(drawId);
-    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    BigDrawableRef bigDraw = std::dynamic_pointer_cast<BigDrawable>(draw);
     if (bigDraw)
         bigDraw->setTexID(which,texId);
 }
@@ -756,7 +758,7 @@ void BigDrawableTexChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES 
 void BigDrawableOnOffChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     DrawableRef draw = scene->getDrawable(drawId);
-    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    BigDrawableRef bigDraw = std::dynamic_pointer_cast<BigDrawable>(draw);
     if (bigDraw)
         bigDraw->setOnOff(enable);
 }
@@ -764,7 +766,7 @@ void BigDrawableOnOffChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererE
 void BigDrawableDrawPriorityChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     DrawableRef draw = scene->getDrawable(drawId);
-    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    BigDrawableRef bigDraw = std::dynamic_pointer_cast<BigDrawable>(draw);
     if (bigDraw)
         bigDraw->setDrawPriority(drawPriority);
 }
@@ -772,7 +774,7 @@ void BigDrawableDrawPriorityChangeRequest::execute(Scene *scene,WhirlyKitSceneRe
 void BigDrawableFadeChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     DrawableRef draw = scene->getDrawable(drawID);
-    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    BigDrawableRef bigDraw = std::dynamic_pointer_cast<BigDrawable>(draw);
     if (bigDraw)
         bigDraw->setFade(fade);
 }
@@ -780,7 +782,7 @@ void BigDrawableFadeChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES
 void BigDrawableProgramIDChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     DrawableRef draw = scene->getDrawable(drawId);
-    BigDrawableRef bigDraw = boost::dynamic_pointer_cast<BigDrawable>(draw);
+    BigDrawableRef bigDraw = std::dynamic_pointer_cast<BigDrawable>(draw);
     if (bigDraw)
         bigDraw->setProgram(programID);
 }

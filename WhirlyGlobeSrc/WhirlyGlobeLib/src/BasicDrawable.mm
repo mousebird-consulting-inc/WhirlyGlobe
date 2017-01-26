@@ -30,10 +30,12 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-
-BasicDrawable::BasicDrawable(const std::string &name)
-: Drawable(name)
+    
+void BasicDrawable::basicDrawableInit()
 {
+    colorEntry = -1;
+    normalEntry = -1;
+    
     on = true;
     startEnable = 0.0;
     endEnable = 0.0;
@@ -64,6 +66,12 @@ BasicDrawable::BasicDrawable(const std::string &name)
     writeZBuffer = true;
     
     hasMatrix = false;
+}
+
+BasicDrawable::BasicDrawable(const std::string &name)
+: Drawable(name)
+{
+    basicDrawableInit();
     
     setupStandardAttributes();
 }
@@ -71,38 +79,11 @@ BasicDrawable::BasicDrawable(const std::string &name)
 BasicDrawable::BasicDrawable(const std::string &name,unsigned int numVert,unsigned int numTri)
 : Drawable(name)
 {
-    on = true;
-    startEnable = 0.0;
-    endEnable = 0.0;
-    programId = EmptyIdentity;
-    usingBuffers = false;
-    isAlpha = false;
-    drawPriority = 0;
-    drawOffset = 0;
+    basicDrawableInit();
+    
     points.reserve(numVert);
-    setupStandardAttributes(numVert);
     tris.reserve(numTri);
-    fadeDown = fadeUp = 0.0;
-    color.r = color.g = color.b = color.a = 255;
-    lineWidth = 1.0;
-    drawPriority = 0;
-    minVisible = maxVisible = DrawVisibleInvalid;
-    minVisibleFadeBand = maxVisibleFadeBand = 0.0;
-    minViewerDist = maxViewerDist = DrawVisibleInvalid;
-    viewerCenter = Point3d(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid);
-    requestZBuffer = false;
-    writeZBuffer = true;
-    
-    numTris = 0;
-    numPoints = 0;
-    
-    pointBuffer = triBuffer = 0;
-    sharedBuffer = 0;
-    vertexSize = 0;
-    vertArrayObj = 0;
-    sharedBufferIsExternal = false;
-    
-    hasMatrix = false;
+    setupStandardAttributes(numVert);
 }
 
 BasicDrawable::~BasicDrawable()
@@ -131,7 +112,7 @@ void BasicDrawable::setupTexCoordEntry(int which,int numReserve)
 
 void BasicDrawable::setupStandardAttributes(int numReserve)
 {
-    setupTexCoordEntry(0,numReserve);
+//    setupTexCoordEntry(0,numReserve);
     
     colorEntry = addAttribute(BDChar4Type,"a_color");
     vertexAttributes[colorEntry]->setDefaultColor(RGBAColor(255,255,255,255));
@@ -285,6 +266,8 @@ float BasicDrawable::getDrawOffset()
 void BasicDrawable::setType(GLenum inType)
 {
     type = inType;
+    if (type == GL_LINES)
+        writeZBuffer = false;
 }
 
 GLenum BasicDrawable::getType() const
@@ -310,7 +293,8 @@ void BasicDrawable::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
 void BasicDrawable::setColor(RGBAColor inColor)
 {
     color = inColor;
-    vertexAttributes[colorEntry]->setDefaultColor(color);
+    if (colorEntry >= 0)
+        vertexAttributes[colorEntry]->setDefaultColor(color);
 }
 
 /// Set the color as an array.
@@ -367,7 +351,7 @@ void BasicDrawable::setWriteZBuffer(bool val)
 { writeZBuffer = val; }
 
 bool BasicDrawable::getWriteZbuffer() const
-{ if (type == GL_LINES || type == GL_LINE_LOOP || type == GL_POINTS) return false;  return writeZBuffer; }
+{ return writeZBuffer; }
 
 unsigned int BasicDrawable::addPoint(const Point3f &pt)
 {
@@ -516,6 +500,8 @@ void BasicDrawable::addVertexAttributes(const SingleVertexAttributeSet &attrs)
             case BDIntType:
                 addAttributeValue(attrId, it->data.intVal);
                 break;
+            case BDDataTypeMax:
+                break;
         }
     }
 }
@@ -571,14 +557,16 @@ void BasicDrawable::applySubTexture(int which,SubTexture subTex,int startingAt)
     }
 }
 
-int BasicDrawable::addAttribute(BDAttributeDataType dataType,const std::string &name)
+int BasicDrawable::addAttribute(BDAttributeDataType dataType,const std::string &name,int numThings)
 {
     VertexAttribute *attr = new VertexAttribute(dataType,name);
+    if (numThings > 0)
+        attr->reserve(numThings);
     vertexAttributes.push_back(attr);
     
     return (unsigned int)(vertexAttributes.size()-1);
 }
-
+    
 unsigned int BasicDrawable::getNumPoints() const
 { return (unsigned int)points.size(); }
 
@@ -611,6 +599,11 @@ void BasicDrawable::setMatrix(const Eigen::Matrix4d *inMat)
 /// Return the active transform matrix, if we have one
 const Eigen::Matrix4d *BasicDrawable::getMatrix() const
 { if (hasMatrix) return &mat;  return NULL; }
+    
+void BasicDrawable::setUniforms(const SingleVertexAttributeSet &newUniforms)
+{
+    uniforms = newUniforms;
+}
 
 // Size of a single vertex in an interleaved buffer
 // Note: We're resetting the buffers for no good reason
@@ -662,9 +655,8 @@ void BasicDrawable::addPointToBuffer(unsigned char *basePtr,int which,const Poin
         }
     }
     
-    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+    for (VertexAttribute *attr : vertexAttributes)
     {
-        VertexAttribute *attr = vertexAttributes[ii];
         if (attr->numElements() != 0)
             memcpy(basePtr+attr->buffer, attr->addressForElement(which), attr->size());
     }
@@ -1164,6 +1156,10 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     prog->setUniform("u_mvpNormalMatrix", frameInfo.mvpNormalMat);
     prog->setUniform("u_pMatrix", frameInfo.projMat);
     
+    // Any uniforms we may want to apply to the shader
+    for (auto const &attr : uniforms)
+        prog->setUniform(attr);
+    
     // Fill the a_singleMatrix attribute with default values
     const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
     if (matAttr)
@@ -1349,9 +1345,14 @@ void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,WhirlyKitRendererFram
     double t = fmod(frame.currentTime-startTime,period)/period;
     int base = floor(t * texIDs.size());
     int next = (base+1)%texIDs.size();
+    double interp = t*texIDs.size()-base;
     
     basicDraw->setTexId(0, texIDs[base]);
     basicDraw->setTexId(1, texIDs[next]);
+    
+    // Interpolation as well
+    if (frame.program)
+        frame.program->setUniform("u_interp", (float)interp);
     
     // This forces a redraw every frame
     // Note: There has to be a better way
@@ -1392,12 +1393,12 @@ ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
 
 void ColorChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
     {
         basicDrawable->setColor(color);
     } else {
-        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setColor(RGBAColor(color[0],color[1],color[2],color[3]));
     }
@@ -1411,11 +1412,11 @@ OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
 
 void OnOffChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setOnOff(newOnOff);
     else {
-        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setEnable(newOnOff);
     }
@@ -1428,11 +1429,11 @@ VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float min
 
 void VisibilityChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setVisibleRange(minVis,maxVis);
     else {
-        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         basicDrawInst->setVisibleRange(minVis, maxVis);
     }
 }
@@ -1446,7 +1447,7 @@ FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,NSTimeInterval fadeUp
 void FadeChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     // Fade it out, then remove it
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
     {
         basicDrawable->setFade(fadeDown, fadeUp);
@@ -1464,7 +1465,7 @@ DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,unsigned int wh
 
 void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setTexId(which,newTexId);
 }
@@ -1476,7 +1477,7 @@ DrawTexturesChangeRequest::DrawTexturesChangeRequest(SimpleIdentity drawId,const
 
 void DrawTexturesChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setTexIDs(newTexIDs);
 }
@@ -1488,7 +1489,7 @@ TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matri
 
 void TransformChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDraw = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDraw = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDraw.get())
         basicDraw->setMatrix(&newMat);
 }
@@ -1500,11 +1501,11 @@ DrawPriorityChangeRequest::DrawPriorityChangeRequest(SimpleIdentity drawId,int d
 
 void DrawPriorityChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setDrawPriority(drawPriority);
     else {
-        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setDrawPriority(drawPriority);
     }
@@ -1517,11 +1518,11 @@ LineWidthChangeRequest::LineWidthChangeRequest(SimpleIdentity drawId,float lineW
 
 void LineWidthChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = boost::dynamic_pointer_cast<BasicDrawable>(draw);
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
         basicDrawable->setLineWidth(lineWidth);
     else {
-        BasicDrawableInstanceRef basicDrawInst = boost::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setLineWidth(lineWidth);
     }

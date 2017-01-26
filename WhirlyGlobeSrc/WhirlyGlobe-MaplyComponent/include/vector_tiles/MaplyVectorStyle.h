@@ -24,7 +24,7 @@
 /** @brief Settings that control how vector tiles look in relation to their styles.
     @details These are set based on the sort of device we're on, particularly retina vs. non-retina.  They can be manipulated directly as well for your needs.
   */
-@interface MaplyVectorTileStyleSettings : NSObject
+@interface MaplyVectorStyleSettings : NSObject
 
 /// @brief Line widths will be scaled by this amount before display.
 @property (nonatomic) float lineScale;
@@ -57,43 +57,67 @@
 /// @brief If set, we'll make the areal features selectable.  If not, this saves memory.
 @property (nonatomic) bool selectable;
 
+/// @brief If set, icons will be loaded from this directory
+@property (nonatomic, strong) NSString * _Nullable iconDirectory;
+
 /// @brief The default font family for all text
-@property (nonatomic,strong) NSString *fontName;
+@property (nonatomic,strong) NSString * _Nullable fontName;
 
 @end
 
-/** The Maply Vector Tile Style is an internal representation of the style JSON coming out
-    of a Maply Vector Tile database.
-  */
-@interface MaplyVectorTileStyle : NSObject
+@protocol MaplyVectorStyle;
 
-/** @brief Construct a style entry from an NSDictionary.
+/** @brief Protocol for styling the vectors.
+ @details You pass in an object which adheres to this protocol and will style
+ the vectors read by a MaplyMapnikVectorTiles object.  In general, this will be
+ a parsed Mapnik vector file, but you can substitute your own logic as well.
+ */
+@protocol MaplyVectorStyleDelegate <NSObject>
+
+/** @brief Return the styles that apply to the given feature (attributes).
+ */
+- (nullable NSArray *)stylesForFeatureWithAttributes:(NSDictionary *__nonnull)attributes
+                                              onTile:(MaplyTileID)tileID
+                                             inLayer:(NSString *__nonnull)layer
+                                               viewC:(MaplyBaseViewController *__nonnull)viewC;
+
+/// @brief Return true if the given layer is meant to display for the given tile (zoom level)
+- (BOOL)layerShouldDisplay:(NSString *__nonnull)layer tile:(MaplyTileID)tileID;
+
+/// @brief Return the style associated with the given UUID.
+- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(NSString *__nonnull)uiid viewC:(MaplyBaseViewController *__nonnull)viewC;
+
+@end
+
+/** @brief Base protocol for the vector styles.
+    @details Maply Vector Style is the protocol the your vector style needs to
+    implement for the vector tile parsers to recognize it.
   */
-+ (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
+@protocol MaplyVectorStyle<NSObject>
 
 /// @brief Unique Identifier for this style
-@property (nonatomic,strong) id<NSCopying> uuid;
+- (NSString * _Nonnull) uuid;
 
 /// @brief Set if this geometry is additive (e.g. sticks around) rather than replacement
-@property (nonatomic) bool geomAdditive;
-
-/// @brief Construct a style entry from an NSDictionary
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry viewC:(MaplyBaseViewController *)viewC;
-
-/// Turn the min/maxscaledenom into height ranges for minVis/maxVis
-- (void)resolveVisibility:(NSDictionary *)styleEntry settings:(MaplyVectorTileStyleSettings *)settings desc:(NSMutableDictionary *)desc;
+- (bool) geomAdditive;
 
 /// @brief Construct objects related to this style based on the input data.
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
-
-/// @brief parse a mapnik style template string
-- (NSString*)formatText:(NSString*)formatString forObject:(MaplyVectorObject*)vec;
-
-/// @brief The view controller we're constructing objects in
-@property (nonatomic,weak) MaplyBaseViewController *viewC;
-
-/// @brief If set, we create selectable objects
-/// @details This controls whether the objects we create are selectable.  Off by default.
-@property (nonatomic) bool selectable;
+- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController * _Nonnull)viewC;
 
 @end
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+/** @brief Use a style delegate to interpret vector data.
+ @details Run the style delegate against the given vectors.  The resulting features are added to the
+ given view controller using the thread mode specified.
+ @param vecObjs An array of MaplyVectorObject.
+ @param styleDelegate The style delegate that controls how the vectors will look.
+ @param viewC View controller to add the geometry to.
+ @param threadMode MaplyThreadCurrent will block until all the features are added.  MaplyThreadAny will do some of the work on another thread.
+ */
+NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,MaplyBaseViewController * _Nonnull viewC,MaplyThreadMode threadMode);
+#ifdef __cplusplus
+}
+#endif

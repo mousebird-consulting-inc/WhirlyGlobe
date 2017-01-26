@@ -50,9 +50,18 @@
     @param tileID The tile the system wants you to start loading.
     @param layer The quad paging layer you'll hand the data over to when it's loaded.
   */
-- (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer;
+- (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *__nonnull)layer;
 
 @optional
+
+/** @brief Return a custom bounding box for importance calculation.
+    @details This is an optional method that can be used to provide a custom bounding box for a given tile.
+    @details If you're going to use this, please make the tile smaller.  Bigger tiles may not work correctly.
+    @details This is intended to allow 3D loading calculations to work better with divergent height data.
+    @param ll Lower left corner.  This is already filled in with default information.
+    @param ur Upper right corner.  This is already filled in with default information.
+ */
+- (void)getBoundingBox:(MaplyTileID)tileID ll:(MaplyCoordinate3dD * __nonnull)ll ur:(MaplyCoordinate3dD * __nonnull)ur;
 
 /** @brief An optional callback when a tile is unloaded.
     @details If filled in, you'll be called when a tile is unloaded.
@@ -61,7 +70,10 @@
 
 @end
 
-typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
+typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
+	MaplyDataStyleAdd,
+	MaplyDataStyleReplace,
+};
 
 /** @brief The Quad Paging Layer is for loading things like vector tile sets.
     @details The Maply Quad Paging Layer implements a general purpose paging interface for quad tree based data sources.  This is different from the MaplyQuadImageTilesLayer in that it's meant for paging things like vector tiles, or really any other features that are not images.
@@ -85,7 +97,7 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
 
 /** @brief Control how tiles are indexed, either from the lower left or the upper left.
  @details If set, we'll use the OSM approach (also Google Maps) to y indexing.  This is off by default.
- @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you're tile source looks odd, try setting this to false.
+ @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if youre tile source looks odd, try setting this to false.
  @details Default value is false.
  */
 @property (nonatomic) bool flipY;
@@ -93,7 +105,7 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
 /** @brief The view controller this paging layer is associated with.
     @details This view controller is the one you should create visual objects in.
   */
-@property (nonatomic,weak,readonly) MaplyBaseViewController *viewC;
+@property (nonatomic,weak,readonly,nullable) MaplyBaseViewController *viewC;
 
 /** @brief Initialize with coordinate system and delegate for paging.
     @details This initializer takes the coordinate system we're working in and the MaplyPagingDelegate object.  Fill out that to do the real work.
@@ -101,7 +113,7 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
     @param tileSource The tile source that will fetch data and create visible objects.
     @return Returns a MaplyViewControllerLayer that can be added to the MaplyBaseViewController.
   */
-- (id)initWithCoordSystem:(MaplyCoordinateSystem *)coordSys delegate:(NSObject<MaplyPagingDelegate> *)tileSource;
+- (nullable instancetype)initWithCoordSystem:(MaplyCoordinateSystem *__nonnull)coordSys delegate:(NSObject<MaplyPagingDelegate> *__nonnull)tileSource;
 
 /** @brief Use the target zoom level shortcut when possible.
     @details This turns on the target zoom level shortcut as described in targetZoomLevel.  When on we'll calculate tile importance that way, that is based on a target zoom level rather than the more complex screen space calculations.
@@ -122,6 +134,13 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
  */
 - (int)targetZoomLevel;
 
+/** @brief Modify how the importance (screen space) is calculated for any given tile.
+    @details This is set by default and when set we use the parent's bounding box to calculate importance for a given tile.
+    @details This has the effect of forcing all four children to load at once.  If you don't need that, if you're doing additive
+        geometry, for instance, then you can set this to false.
+  */
+@property (nonatomic) bool useParentTileBounds;
+
 /** @brief This controls how the importance of tiles is calculated.  Either individually (false) or with the parent (true),
     @details This is a low level laoding control parameter.  Don't change unless you know why.
     @details By default this is true.
@@ -134,7 +153,7 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
     @param dataObjects An NSArray of MaplyComponentObject objects.
     @param tileID The tile ID for the data we're handing over.
   */
-- (void)addData:(NSArray *)dataObjects forTile:(MaplyTileID)tileID;
+- (void)addData:(NSArray *__nonnull)dataObjects forTile:(MaplyTileID)tileID;
 
 /** @brief You call this from your MaplyPagingDelegate with an array of data you've created for a tile.
     @details This method is called by your MaplyPagingDelegate to add MaplyComponentObject's to the data for a given tile.  Please create them disabled by putting @"enable": @(NO) in the description dictionary.  The paging layer will then be responsible for cleaning them up when needed as well as turning them on and off as the user moves around.
@@ -143,7 +162,7 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
     @param tileID The tile ID for the data we're handing over.
     @param style If set to MaplyDataStyleReplace the data at this level will replace data at lower levels.  This is the default.  If set to MaplyDataStyleAdd then the data at this level adds to data above and below this level.
  */
-- (void)addData:(NSArray *)dataObjects forTile:(MaplyTileID)tileID style:(MaplyQuadPagingDataStyle)dataStyle;
+- (void)addData:(NSArray *__nonnull)dataObjects forTile:(MaplyTileID)tileID style:(MaplyQuadPagingDataStyle)dataStyle;
 
 /** @brief Called from your MaplyPagingDelegate when a tile fails to load.
     @details If you fail to load your tile data in your MaplyPagingDelegate, you need to let the paging layer know with this call.  Otherwise the paging layer assumes the tile is still loading.
@@ -168,10 +187,25 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
 /** @brief Calculate the bounding box for a single tile in geographic.
     @details This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
     @param tileID The ID for the tile we're interested in.
-    @param ll The lower left corner of the tile in geographic coordinates.
-    @param ur The upper right corner of the tile in geographic coordinates.
+    @return The lower left and upper right corner of the tile in geographic coordinates. Returns kMaplyNullBoundingBox in case of error
   */
-- (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
+- (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID;
+
+/** @brief Calculate the bounding box for a single tile in geographic.
+ @details This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
+ @param tileID The ID for the tile we're interested in.
+ @param ll The lower left corner of the tile in geographic coordinates.
+ @param ur The upper right corner of the tile in geographic coordinates.
+ */
+- (void)geoBoundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *__nonnull)ll ur:(MaplyCoordinate *__nonnull)ur;
+
+
+/** @brief Calculate the bounding box for a single tile in geographic using doubles.
+ @details This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
+ @param tileID The ID for the tile we're interested in.
+ @return The lower left and upper right corner of the tile in geographic coordinates. Returns kMaplyNullBoundingBoxD in case of error
+ */
+- (MaplyBoundingBoxD)geoBoundsForTileD:(MaplyTileID)tileID;
 
 /** @brief Calculate the bounding box for a single tile in geographic using doubles.
  @details This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
@@ -179,7 +213,14 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
  @param ll The lower left corner of the tile in geographic coordinates.
  @param ur The upper right corner of the tile in geographic coordinates.
  */
-- (void)geoBoundsForTileD:(MaplyTileID)tileID ll:(MaplyCoordinateD *)ll ur:(MaplyCoordinateD *)ur;
+- (void)geoBoundsForTileD:(MaplyTileID)tileID ll:(MaplyCoordinateD *__nonnull)ll ur:(MaplyCoordinateD *__nonnull)ur;
+
+/** @brief Calculate the bounding box for a single tile in the local coordinate system.
+ @details This utility method calculates the bounding box for a tile in the coordinate system used for the layer.
+ @param tileID The ID for the tile we're interested in.
+ @return The lower left and upper right corner of the tile in geographic coordinates.
+ */
+- (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID;
 
 /** @brief Calculate the bounding box for a single tile in the local coordinate system.
     @details This utility method calculates the bounding box for a tile in the coordinate system used for the layer.
@@ -187,7 +228,7 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
     @param ll The lower left corner of the tile in local coordinates.
     @param ur The upper right corner of the tile in local coordinates.
   */
-- (void)boundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
+- (void)boundsforTile:(MaplyTileID)tileID ll:(MaplyCoordinate *__nonnull)ll ur:(MaplyCoordinate *__nonnull)ur;
 
 /** @brief Return the center of the tile in display coordinates.
     @param tileID The ID for the tile we're interested in.
@@ -216,7 +257,21 @@ typedef enum {MaplyDataStyleAdd,MaplyDataStyleReplace} MaplyQuadPagingDataStyle;
   */
 - (void)reload;
 
+/** @brief Request a reload of the paging layer within the given bounding box.
+    @details Figures out which tiles overlap the given bounding box and asks for a refresh on those.
+  */
+- (void)reload:(MaplyBoundingBox)bounds;
 
-- (NSObject<MaplyPagingDelegate>*)pagingDelegate;
+/** @brief True if the layer is active.  False if it's been shut down.
+  */
+@property (readonly) bool valid;
+
+/** @brief Generate a 3D bounding box for the given tile.
+    @details Generate a bounding box for the tile in its native coordinate system.  It may also call out to the delegate for accurate Z values.
+  */
+// - (void)boundingBoxForTile:(MaplyTileID)tileID ll:(MaplyCoordinate3dD * __nonnull)ll ur:(MaplyCoordinate3dD * __nonnull)ur;
+
+
+- (nullable NSObject<MaplyPagingDelegate> *)pagingDelegate;
 
 @end
