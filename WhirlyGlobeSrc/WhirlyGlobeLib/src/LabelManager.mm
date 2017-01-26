@@ -216,6 +216,10 @@ LabelManager::LabelManager()
     
 LabelManager::~LabelManager()
 {
+    for (LabelSceneRepSet::iterator it = labelReps.begin();
+         it != labelReps.end(); ++it)
+        delete *it;
+    labelReps.clear();
     pthread_mutex_destroy(&labelLock);
 }
     
@@ -382,55 +386,47 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
         {
             LabelSceneRep *labelRep = *it;
             
+            NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+            NSTimeInterval removeTime = 0.0;
             // We need to fade them out, then delete
             if (labelRep->fadeOut > 0.0)
             {
-                NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
                 for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                      idIt != labelRep->drawIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fadeOut));
-                
-                __block NSObject * __weak thisCanary = canary;
 
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, labelRep->fadeOut * NSEC_PER_SEC),
-                               scene->getDispatchQueue(),
-                               ^{
-                                   if (thisCanary)
-                                   {
-                                       SimpleIDSet theIDs;
-                                       theIDs.insert(labelRep->getId());
-                                       ChangeSet delChanges;
-                                       removeLabels(theIDs, delChanges);
-                                       scene->addChangeRequests(delChanges);
-                                   }
-                               }
-                               );
-
-                labelRep->fadeOut = 0.0;
-            } else {
-                for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
-                     idIt != labelRep->drawIDs.end(); ++idIt)
-                    changes.push_back(new RemDrawableReq(*idIt));
-                for (SimpleIDSet::iterator idIt = labelRep->texIDs.begin();
-                     idIt != labelRep->texIDs.end(); ++idIt)
-                    changes.push_back(new RemTextureReq(*idIt));
-                for (SimpleIDSet::iterator idIt = labelRep->drawStrIDs.begin();
-                     idIt != labelRep->drawStrIDs.end(); ++idIt)
-                {
-                    if (fontTexManager)
-                        [fontTexManager removeString:*idIt changes:changes];
-                }
-                
-                if (selectManager && !labelRep->selectIDs.empty())
-                    selectManager->removeSelectables(labelRep->selectIDs);
-
-                // Note: Screenspace  Doesn't handle fade
-                if (layoutManager && !labelRep->layoutIDs.empty())
-                    layoutManager->removeLayoutObjects(labelRep->layoutIDs);
-                
-                labelReps.erase(it);
-                delete labelRep;
+                removeTime = curTime+labelRep->fadeOut;
             }
+            
+            for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
+                 idIt != labelRep->drawIDs.end(); ++idIt)
+                changes.push_back(new RemDrawableReq(*idIt,removeTime));
+            for (SimpleIDSet::iterator idIt = labelRep->texIDs.begin();
+                 idIt != labelRep->texIDs.end(); ++idIt)
+                changes.push_back(new RemTextureReq(*idIt,removeTime));
+            for (SimpleIDSet::iterator idIt = labelRep->drawStrIDs.begin();
+                 idIt != labelRep->drawStrIDs.end(); ++idIt)
+            {
+                if (fontTexManager)
+                {
+                    // Give the layout manager a little extra time so we don't pull the
+                    // textures out from underneath it
+                    NSTimeInterval fontRemoveTime = removeTime;
+                    if (layoutManager && !labelRep->layoutIDs.empty())
+                        fontRemoveTime = curTime+2.0;
+                    [fontTexManager removeString:*idIt changes:changes when:removeTime];
+                }
+            }
+            
+            if (selectManager && !labelRep->selectIDs.empty())
+                selectManager->removeSelectables(labelRep->selectIDs);
+
+            // Note: Screenspace  Doesn't handle fade
+            if (layoutManager && !labelRep->layoutIDs.empty())
+                layoutManager->removeLayoutObjects(labelRep->layoutIDs);
+            
+            labelReps.erase(it);
+            delete labelRep;
         }
     }
 

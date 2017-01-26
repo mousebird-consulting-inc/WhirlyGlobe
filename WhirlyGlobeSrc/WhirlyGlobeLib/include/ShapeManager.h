@@ -40,7 +40,7 @@ public:
     void enableContents(WhirlyKit::SelectionManager *selectManager,bool enable,ChangeSet &changeRequests);
     
     // Clear the contents out of the scene
-    void clearContents(WhirlyKit::SelectionManager *selectManager,ChangeSet &changeRequests);
+    void clearContents(WhirlyKit::SelectionManager *selectManager,ChangeSet &changeRequests,NSTimeInterval when);
     
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs in the selection layer
@@ -78,6 +78,8 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 @property (nonatomic,assign) float radius;
 /// An offset from the globe in display units (radius of the globe = 1.0)
 @property (nonatomic,assign) float height;
+/// Number of samples to use in the circle
+@property (nonatomic,assign) int sampleX;
 
 @end
 
@@ -106,6 +108,8 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 @property (nonatomic,assign) float radius;
 /// Height in display units
 @property (nonatomic,assign) float height;
+/// Samples around the outside
+@property (nonatomic,assign) int sampleX;
 
 @end
 

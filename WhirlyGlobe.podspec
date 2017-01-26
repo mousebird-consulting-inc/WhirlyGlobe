@@ -9,7 +9,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "WhirlyGlobe"
-  s.version          = "2.4"
+  s.version          = "2.4.1"
   s.summary          = "WhirlyGlobe-Maply: Geospatial visualization for iOS and Android."
   s.description      = <<-DESC
                         WhirlyGlobe-Maply is a high performance geospatial display toolkit for iOS and Android.
@@ -25,10 +25,10 @@ Pod::Spec.new do |s|
   s.platform     = :ios, '7.0'
   s.requires_arc = true
 
-  s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'v2.4' }
+  s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'develop_2_4_1' }
 
   s.compiler_flags = '-D__USE_SDL_GLES__', '-D__IPHONEOS__ -DSQLITE_OPEN_READONLY'
-  s.xcconfig = { "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/boost\" \"${PODS_ROOT}/eigen\" \"${PODS_ROOT}/clipper\" \"$(SDKROOT)/usr/include/libxml2\"" }
+  s.xcconfig = { "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/eigen\" \"${PODS_ROOT}/clipper\" \"$(SDKROOT)/usr/include/libxml2\"" }
 
   s.default_subspec = 'MaplyComponent'
 
@@ -62,11 +62,6 @@ Pod::Spec.new do |s|
   s.subspec 'Lib-Headers' do |lh|
     lh.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
     lh.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
-    lh.dependency 'boost/string_algorithms-includes', '<= 1.51.0'
-    lh.dependency 'boost/shared_ptr-includes', '<= 1.51.0'
-    lh.dependency 'boost/pointer_cast-includes', '<= 1.51.0'
-    lh.dependency 'boost/math-includes', '<= 1.51.0'
-    lh.dependency 'boost/graph-includes', '<= 1.51.0'
     lh.dependency 'eigen', '~> 3.2.4'
   end
 
@@ -88,7 +83,7 @@ Pod::Spec.new do |s|
   s.subspec 'MaplyComponent-Headers' do |mch|
     mch.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/**/*.h'
     mch.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/*.h' # , "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h"
-    mch.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/{MaplyComponent,WhirlyGlobeComponent,MaplyBridge,vector_tile.pb}.h', 'WhirlyGlobeSrc/local_libs/**'
+    mch.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/{MaplyBridge,vector_tile.pb}.h', 'WhirlyGlobeSrc/local_libs/**'
     mch.dependency 'WhirlyGlobe/Lib-Headers'
   end
 
@@ -102,7 +97,6 @@ Pod::Spec.new do |s|
     mc.dependency 'WhirlyGlobe/aaplus'
     mc.dependency 'WhirlyGlobe/Lib'
     mc.dependency 'WhirlyGlobe/MaplyComponent-Headers'
-    mc.dependency 'AFNetworking', '~> 2.6.3'
     mc.dependency 'SMCalloutView'
     mc.dependency 'FMDB'
     mc.libraries = 'z', 'xml2'

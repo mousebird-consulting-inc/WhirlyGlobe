@@ -25,6 +25,7 @@
 #import "ViewPlacementGenerator.h"
 #import "FontTextureManager.h"
 #import "SelectionManager.h"
+#import "IntersectionManager.h"
 #import "LayoutManager.h"
 #import "ShapeManager.h"
 #import "MarkerManager.h"
@@ -47,9 +48,16 @@ Scene::Scene()
     
 void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
 {
+    pthread_mutex_init(&coordAdapterLock,NULL);
+    pthread_mutex_init(&changeRequestLock,NULL);
+    pthread_mutex_init(&subTexLock, NULL);
+    pthread_mutex_init(&textureLock,NULL);
+    pthread_mutex_init(&generatorLock,NULL);
+    pthread_mutex_init(&programLock,NULL);
+    pthread_mutex_init(&managerLock,NULL);
+
     ssGen = NULL;
     
-    pthread_mutex_init(&coordAdapterLock,NULL);
     coordAdapter = adapter;
     cullTree = new CullTree(adapter,localMbr,depth);
     
@@ -59,9 +67,10 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
 
     dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
 
-    pthread_mutex_init(&managerLock,NULL);
     // Selection manager is used for object selection from any thread
     addManager(kWKSelectionManager,new SelectionManager(this,[UIScreen mainScreen].scale));
+    // Intersection handling
+    addManager(kWKIntersectionManager, new IntersectionManager(this));
     // Layout manager handles text and icon layout
     addManager(kWKLayoutManager, new LayoutManager());
     // Shape manager handles circles, spheres and such
@@ -89,12 +98,6 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
     
     activeModels = [NSMutableArray array];
-    
-    pthread_mutex_init(&changeRequestLock,NULL);        
-    pthread_mutex_init(&subTexLock, NULL);
-    pthread_mutex_init(&textureLock,NULL);
-    pthread_mutex_init(&generatorLock,NULL);
-    pthread_mutex_init(&programLock,NULL);
 }
 
 Scene::~Scene()
@@ -125,12 +128,13 @@ Scene::~Scene()
     pthread_mutex_destroy(&generatorLock);
     pthread_mutex_destroy(&programLock);
     
-    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+    auto theChangeRuquests = changeRequests;
+    changeRequests.clear();
+    for (unsigned int ii=0;ii<theChangeRuquests.size();ii++)
     {
         // Note: Tear down change requests?
-        delete changeRequests[ii];
+        delete theChangeRuquests[ii];
     }
-    changeRequests.clear();
     
     activeModels = nil;
     
@@ -182,7 +186,13 @@ void Scene::addChangeRequests(const ChangeSet &newChanges)
 {
     pthread_mutex_lock(&changeRequestLock);
     
-    changeRequests.insert(changeRequests.end(),newChanges.begin(),newChanges.end());
+    for (ChangeRequest *change : newChanges)
+    {
+        if (change && change->when > 0.0)
+            timedChangeRequests.insert(change);
+        else
+            changeRequests.push_back(change);
+    }
     
     pthread_mutex_unlock(&changeRequestLock);
 }
@@ -192,7 +202,10 @@ void Scene::addChangeRequest(ChangeRequest *newChange)
 {
     pthread_mutex_lock(&changeRequestLock);
     
-    changeRequests.push_back(newChange);
+    if (newChange && newChange->when > 0.0)
+        timedChangeRequests.insert(newChange);
+    else
+        changeRequests.push_back(newChange);
     
     pthread_mutex_unlock(&changeRequestLock);
 }
@@ -298,7 +311,7 @@ void Scene::removeActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
     if ([activeModels containsObject:activeModel])
     {
         [activeModels removeObject:activeModel];
-        [activeModel shutdown];
+        [activeModel teardown];
     }
 }
     
@@ -350,11 +363,26 @@ const DrawableRefSet &Scene::getDrawables()
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
-void Scene::processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer)
+void Scene::processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
 {
     // We're not willing to wait in the rendering thread
     if (!pthread_mutex_trylock(&changeRequestLock))
     {
+        // See if any of the timed changes are ready
+        std::vector<ChangeRequest *> toMove;
+        for (ChangeRequest *req : timedChangeRequests)
+        {
+            if (now >= req->when)
+                toMove.push_back(req);
+            else
+                break;
+        }
+        for (ChangeRequest *req : toMove)
+        {
+            timedChangeRequests.erase(req);
+            changeRequests.push_back(req);
+        }
+        
         for (unsigned int ii=0;ii<changeRequests.size();ii++)
         {
             ChangeRequest *req = changeRequests[ii];
@@ -369,12 +397,16 @@ void Scene::processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *rendere
     }
 }
     
-bool Scene::hasChanges()
+bool Scene::hasChanges(NSTimeInterval now)
 {
     bool changes = false;
     if (!pthread_mutex_trylock(&changeRequestLock))
     {
         changes = !changeRequests.empty();
+        
+        if (!changes)
+            if (timedChangeRequests.size() > 0)
+                changes = now >= (*timedChangeRequests.begin())->when;
         
         pthread_mutex_unlock(&changeRequestLock);            
     }        
@@ -582,6 +614,13 @@ void Scene::removeProgram(SimpleIdentity progId)
     pthread_mutex_unlock(&programLock);
 }
     
+AddTextureReq::~AddTextureReq()
+{
+    if (tex)
+        delete tex;
+    tex = NULL;
+}
+    
 void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     if (!tex->getGLId())
@@ -592,6 +631,7 @@ void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whir
 
 void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
+    pthread_mutex_lock(&scene->textureLock);
     TextureBase dumbTex(texture);
     Scene::TextureSet::iterator it = scene->textures.find(&dumbTex);
     if (it != scene->textures.end())
@@ -600,7 +640,17 @@ void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whir
         tex->destroyInGL(scene->getMemManager());
         scene->textures.erase(it);
         delete tex;
+    } else {
+        NSLog(@"RemTextureReq: No such texture.");
     }
+    pthread_mutex_unlock(&scene->textureLock);
+}
+
+AddDrawableReq::~AddDrawableReq()
+{
+    if (drawable)
+        delete drawable;
+    drawable = NULL;
 }
 
 void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
@@ -610,7 +660,7 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
     if (drawInst)
     {
         DrawableRef theDraw = scene->getDrawable(drawInst->getMasterID());
-        BasicDrawableRef baseDraw = boost::dynamic_pointer_cast<BasicDrawable>(theDraw);
+        BasicDrawableRef baseDraw = std::dynamic_pointer_cast<BasicDrawable>(theDraw);
         if (baseDraw)
             drawInst->setMaster(baseDraw);
         else {
@@ -647,7 +697,7 @@ void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
 
         scene->remDrawable(*it);        
     } else
-        NSLog(@"Missing drawable for RemDrawableReq: %d", drawable);
+        NSLog(@"Missing drawable for RemDrawableReq: %llu", drawable);
 }
 
 void AddGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)

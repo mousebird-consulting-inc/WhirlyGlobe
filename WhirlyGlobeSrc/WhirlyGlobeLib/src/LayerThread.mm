@@ -129,7 +129,7 @@ using namespace WhirlyKit;
     {
         // If we're done, we won't bother shutting down things nicely
         if (![self isCancelled])
-            [layer shutdown];
+            [layer teardown];
         [layers removeObject:layer];
     }
 }
@@ -172,12 +172,8 @@ using namespace WhirlyKit;
 
 - (void)flushChangeRequests
 {
-    pthread_mutex_lock(&changeLock);
-    
-    [self runAddChangeRequests];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(runAddChangeRequests) object:nil];
-    
-    pthread_mutex_unlock(&changeLock);
+    [self runAddChangeRequests];
 }
 
 - (void)requestFlush
@@ -189,17 +185,23 @@ using namespace WhirlyKit;
 {
     [EAGLContext setCurrentContext:_glContext];
 
+    std::vector<WhirlyKit::ChangeRequest *> changesToProcess;
+    pthread_mutex_lock(&changeLock);
+    changesToProcess = changeRequests;
+    changeRequests.clear();
+    pthread_mutex_unlock(&changeLock);
+
     bool requiresFlush = false;
     // Set up anything that needs to be set up
     ChangeSet changesToAdd;
-    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+    for (unsigned int ii=0;ii<changesToProcess.size();ii++)
     {
-        ChangeRequest *change = changeRequests[ii];
+        ChangeRequest *change = changesToProcess[ii];
         if (change)
         {
             requiresFlush |= change->needsFlush();
             change->setupGL(glSetupInfo, _scene->getMemManager());
-            changesToAdd.push_back(changeRequests[ii]);
+            changesToAdd.push_back(changesToProcess[ii]);
         } else
             // A NULL change request is just a flush request
             requiresFlush = true;
@@ -217,7 +219,6 @@ using namespace WhirlyKit;
     }
     
     _scene->addChangeRequests(changesToAdd);
-    changeRequests.clear();
 }
 
 - (void)log
@@ -293,7 +294,7 @@ using namespace WhirlyKit;
         if (!_mainLayerThread)
         {
             for (NSObject<WhirlyKitLayer> *layer in layers)
-                [layer shutdown];
+                [layer teardown];
             
             [self runAddChangeRequests];
         }

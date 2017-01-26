@@ -41,13 +41,16 @@
 /// If set, we'll expect to respond to outside calls to drawView: and our own
 ///  display link will be less aggressive.  This works well with UIScrollView.
 @property (nonatomic) bool reactiveMode;
+/// If set, we'll pause the display link for stopAnimation
+/// If not set we'll continue firing and process the scene but not render
+@property (nonatomic) bool pauseDisplayLink;
 
 /// Start animating.  Typically right before we're displayed
 - (void) startAnimation;
 /// Stop animating.  It can be restarted or destroyed after this.
 - (void) stopAnimation;
 /// Destroy the display link.  Cannot be restarted.
-- (void) shutdown;
+- (void) teardown;
 
 /// Draw into the actual view
 - (void) drawView:(id)sender;

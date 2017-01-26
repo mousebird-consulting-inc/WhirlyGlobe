@@ -26,6 +26,8 @@
 #import "NSDictionary+StyleRules.h"
 #import "DDXMLElementAdditions.h"
 #import "NSString+DDXML.h"
+#import "Maply3dTouchPreviewDelegate.h"
+
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -49,6 +51,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyBaseViewController
 {
+    MaplyLocationTracker *_locationTracker;
 }
 
 - (void) clear
@@ -56,16 +59,19 @@ using namespace WhirlyKit;
     if (!scene)
         return;
     
+    defaultClusterGenerator = nil;
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
 
     [glView stopAnimation];
+    [glView teardown];
     
     EAGLContext *oldContext = [EAGLContext currentContext];
     [sceneRenderer useContext];
     for (MaplyShader *shader in shaders)
-        [shader shutdown];
+        [shader teardown];
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
     sceneRenderer.scene = nil;
@@ -117,7 +123,7 @@ using namespace WhirlyKit;
 - (void) dealloc
 {
     if (scene)
-        [self clear];
+        [self teardown];
 }
 
 - (WhirlyKitView *) loadSetup_view
@@ -236,6 +242,10 @@ using namespace WhirlyKit;
 	// This will start loading things
 	[baseLayerThread start];
     
+    // Default cluster generator
+    defaultClusterGenerator = [[MaplyBasicClusterGenerator alloc] initWithColors:@[[UIColor orangeColor]] clusterNumber:0 size:CGSizeMake(32,32) viewC:self];
+    [self addClusterGenerator:defaultClusterGenerator];
+    
     // Set up defaults for the hints
     NSDictionary *newHints = [NSDictionary dictionary];
     [self setHints:newHints];
@@ -288,12 +298,12 @@ using namespace WhirlyKit;
     [glView stopAnimation];
 }
 
-- (void)shutdown
+- (void)teardown
 {
     [interactLayer lockingShutdown];
     
     if (glView)
-        [glView shutdown];
+        [glView teardown];
     
     [self clear];
 }
@@ -397,6 +407,7 @@ static const float PerfOutputDelay = 15.0;
         return;
     
     scene->dumpStats();
+    [interactLayer dumpStats];
     
     [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];    
 }
@@ -551,6 +562,12 @@ static const float PerfOutputDelay = 15.0;
 {
     return [self addScreenMarkers:markers desc:desc mode:MaplyThreadAny];
 }
+
+- (void)addClusterGenerator:(NSObject <MaplyClusterGenerator> *)clusterGen
+{
+    [interactLayer addClusterGenerator:clusterGen];
+}
+
 
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
@@ -797,6 +814,17 @@ static const float PerfOutputDelay = 15.0;
     return [self addLoftedPolys:polys key:key cache:cacheDb desc:desc mode:MaplyThreadAny];
 }
 
+- (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+{
+    if (![interactLayer startOfWork])
+        return nil;
+
+    MaplyComponentObject *compObj = [interactLayer addPoints:points desc:desc mode:threadMode];
+    [interactLayer endOfWork];
+    
+    return compObj;
+}
+
 /// Add a view to track to a particular location
 - (void)addViewTracker:(WGViewTracker *)viewTrack
 {
@@ -810,7 +838,7 @@ static const float PerfOutputDelay = 15.0;
     
     // Hook it into the renderer
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
-    vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
+    vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),Point2d(viewTrack.offset.x,viewTrack.offset.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
     sceneRenderer.triggerDraw = true;
     
     // And add it to the view hierarchy
@@ -823,7 +851,7 @@ static const float PerfOutputDelay = 15.0;
 {
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
 
-    vpGen->moveView(GeoCoord(newPos.x,newPos.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
+    vpGen->moveView(GeoCoord(newPos.x,newPos.y),Point2d(0,0),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
     sceneRenderer.triggerDraw = true;
 }
 
@@ -891,10 +919,10 @@ static const float PerfOutputDelay = 15.0;
     ViewPlacementGenerator *vpGen = scene->getViewPlacementGenerator();
     if (alreadyHere)
     {
-        vpGen->moveView(GeoCoord(coord.x,coord.y),annotate.calloutView,annotate.minVis,annotate.maxVis);
+        vpGen->moveView(GeoCoord(coord.x,coord.y),Point2d(0,0),annotate.calloutView,annotate.minVis,annotate.maxVis);
     } else
     {
-        vpGen->addView(GeoCoord(coord.x,coord.y),annotate.calloutView,annotate.minVis,annotate.maxVis);
+        vpGen->addView(GeoCoord(coord.x,coord.y),Point2d(0,0),annotate.calloutView,annotate.minVis,annotate.maxVis);
     }
     sceneRenderer.triggerDraw = true;
 }
@@ -1215,12 +1243,24 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)removeLayers:(NSArray *)layers
 {
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        [self performSelector:@selector(removeLayers:) withObject:layers];
+        return;
+    }
+
     for (MaplyViewControllerLayer *layer in layers)
         [self removeLayer:layer];
 }
 
 - (void)removeAllLayers
 {
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        [self performSelector:@selector(removeAllLayers) withObject:nil];
+        return;
+    }
+
     NSArray *allLayers = [NSArray arrayWithArray:userLayers];
     
     for (MaplyViewControllerLayer *theLayer in allLayers)
@@ -1318,5 +1358,73 @@ static const float PerfOutputDelay = 15.0;
     ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
     return ret;
 }
+
+- (MaplyCoordinate3dD)displayCoordD:(MaplyCoordinate3dD)localCoord fromSystem:(MaplyCoordinateSystem *)coordSys
+{
+    Point3d loc3d = CoordSystemConvert3d(coordSys->coordSystem, visualView.coordAdapter->getCoordSystem(), Point3d(localCoord.x,localCoord.y,localCoord.z));
+    Point3d pt = visualView.coordAdapter->localToDisplay(loc3d);
+    
+    MaplyCoordinate3dD ret;
+    ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
+    return ret;
+}
+
+- (BOOL)enable3dTouchSelection:(NSObject<Maply3dTouchPreviewDatasource>*)previewDataSource
+{
+    if(previewingContext)
+    {
+        [self disable3dTouchSelection];
+    }
+    
+    if([self respondsToSelector:@selector(traitCollection)] &&
+       [self.traitCollection respondsToSelector:@selector(forceTouchCapability)] &&
+       self.traitCollection.forceTouchCapability == UIForceTouchCapabilityAvailable)
+    {
+        previewTouchDelegate = [Maply3dTouchPreviewDelegate touchDelegate:self
+                                                            interactLayer:interactLayer
+                                                               datasource:previewDataSource];
+        previewingContext = [self registerForPreviewingWithDelegate:previewTouchDelegate
+                                                         sourceView:self.view];
+        return YES;
+    }
+    return NO;
+}
+
+- (void)disable3dTouchSelection {
+    if(previewingContext)
+    {
+        [self unregisterForPreviewingWithContext:previewingContext];
+        previewingContext = nil;
+    }
+}
+
+- (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *__nullable)other {
+    // Implement in derived class.
+}
+
+
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate {
+    if (_locationTracker)
+        [self stopLocationTracking];
+    _locationTracker = [[MaplyLocationTracker alloc] initWithViewC:self delegate:delegate useHeading:useHeading useCourse:useCourse simulate:simulate];
+}
+
+- (void)changeLocationTrackingLockType:(MaplyLocationLockType)lockType {
+    [self changeLocationTrackingLockType:lockType forwardTrackOffset:0];
+}
+
+- (void)changeLocationTrackingLockType:(MaplyLocationLockType)lockType forwardTrackOffset:(int)forwardTrackOffset {
+    if (!_locationTracker)
+        return;
+    [_locationTracker changeLockType:lockType forwardTrackOffset:forwardTrackOffset];
+}
+
+- (void)stopLocationTracking {
+    if (!_locationTracker)
+        return;
+    [_locationTracker teardown];
+    _locationTracker = nil;
+}
+
 
 @end

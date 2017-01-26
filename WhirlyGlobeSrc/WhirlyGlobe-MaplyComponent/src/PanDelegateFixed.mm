@@ -19,6 +19,7 @@
  */
 
 #import "PanDelegateFixed.h"
+#import <UIKit/UIGestureRecognizerSubclass.h>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -26,6 +27,26 @@ using namespace WhirlyGlobe;
 
 // Kind of panning we're in the middle of
 typedef enum {PanNone,PanFree,PanSuspended} PanningType;
+
+@implementation MinDelayPanGestureRecognizer
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    startTime = CFAbsoluteTimeGetCurrent();
+    [super touchesBegan:touches withEvent:event];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    if (CFAbsoluteTimeGetCurrent() - startTime >= kPanDelegateMinTime)
+        [super touchesEnded:touches withEvent:event];
+    else
+        self.state = UIGestureRecognizerStateFailed;
+}
+
+- (void)forceEnd {
+    self.state = UIGestureRecognizerStateEnded;
+}
+
+@end
 
 @implementation PanDelegateFixed
 {
@@ -38,6 +59,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 	Eigen::Matrix4d startTransform;
 	// Where we first touched the sphere
     WhirlyKit::Point3d startOnSphere;
+    double sphereRadius;
 	// Rotation when we started
 	Eigen::Quaterniond startQuat;
     
@@ -50,7 +72,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     bool runEndMomentum;
 }
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inView
+- (instancetype)initWithGlobeView:(WhirlyGlobeView *)inView
 {
 	if ((self = [super init]))
 	{
@@ -63,10 +85,14 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 }
 
 
-+ (PanDelegateFixed *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
++ (PanDelegateFixed *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView useCustomPanRecognizer:(bool)useCustomPanRecognizer
 {
 	PanDelegateFixed *panDelegate = [[PanDelegateFixed alloc] initWithGlobeView:globeView];
-    UIPanGestureRecognizer *panRecog = [[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
+    UIPanGestureRecognizer *panRecog;
+    if (useCustomPanRecognizer)
+        panRecog = [[MinDelayPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
+    else
+        panRecog = [[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
     panRecog.delegate = panDelegate;
     panDelegate.gestureRecognizer = panRecog;
 	[view addGestureRecognizer:panRecog];
@@ -89,12 +115,27 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     startPoint = [pan locationInView:glView];
     spinDate = CFAbsoluteTimeGetCurrent();
     lastTouch = [pan locationInView:glView];
-    if ([view pointOnSphereFromScreen:startPoint transform:&startTransform 
-                            frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere normalized:true])
-        // We'll start out letting them play with both axes
-        panType = PanFree;                
-    else
-        panType = PanNone;
+    
+    IntersectionManager *intManager = (IntersectionManager *)sceneRender.scene->getManager(kWKIntersectionManager);
+
+    // Look for an intersection with grabbable objects
+    Point3d interPt;
+    double interDist;
+    if (intManager->findIntersection(sceneRender, view, Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor), Point2f(startPoint.x,startPoint.y), interPt, interDist))
+    {
+        sphereRadius = interPt.norm();
+        startOnSphere = interPt.normalized();
+        panType = PanFree;        
+    } else {
+        sphereRadius = 1.0;
+        if ([view pointOnSphereFromScreen:startPoint transform:&startTransform
+                                frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere normalized:true])
+        {
+            // We'll start out letting them play with both axes
+            panType = PanFree;                
+        } else
+            panType = PanNone;
+    }
 }
 
 // How long we let the momentum run at the end of a pan
@@ -109,6 +150,21 @@ static const float MomentumAnimLen = 1.0;
     if (screenPt.z() == 0.0)
         return false;
     float t = - view.heightAboveGlobe / screenPt.z();
+    
+    *hit = screenPt * t;
+    
+    return true;
+}
+
+- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize height:(float)height hit:(Point3d *)hit
+{
+    // Back Project the screen point into model space
+    Point3d screenPt = [view pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:false];
+    
+    screenPt.normalize();
+    if (screenPt.z() == 0.0)
+        return false;
+    float t = - (view.heightAboveGlobe-height) / screenPt.z();
     
     *hit = screenPt * t;
     
@@ -130,13 +186,22 @@ static const float MomentumAnimLen = 1.0;
         return;
     }
 
-    // Cancel for more than one finger
+    // End for more than one finger
     if ([pan numberOfTouches] > 1)
     {
         panType = PanSuspended;
         runEndMomentum = false;
-        _gestureRecognizer.enabled = false;
-        _gestureRecognizer.enabled = true;
+
+        if ([_gestureRecognizer isKindOfClass:[MinDelayPanGestureRecognizer class]]) {
+            // Don't cancel if interoperating with a scroll view.  (Otherwise
+            // the globe view would be paged away.)
+            MinDelayPanGestureRecognizer *minDelayPanGestureRecognizer = (MinDelayPanGestureRecognizer *)_gestureRecognizer;
+            [minDelayPanGestureRecognizer forceEnd];
+        } else {
+            // Cancel gesture
+            _gestureRecognizer.enabled = false;
+            _gestureRecognizer.enabled = true;
+        }
         return;
     }
 	    
@@ -148,6 +213,15 @@ static const float MomentumAnimLen = 1.0;
             runEndMomentum = true;
             
             [self startRotateManipulation:pan sceneRender:sceneRender glView:glView];
+
+            // Cancel gesture if touched within globe view but outside of the globe itself.
+            // When interoperating with a scroll view, this allows a horizontal pan gesture
+            // to be interpreted as a swipe, and thus trigger paging the scroll view.
+            if (panType == PanNone) {
+                self.gestureRecognizer.enabled = NO;
+                self.gestureRecognizer.enabled = YES;
+                return;
+            }
             [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidStart object:view];
 		}
 			break;
@@ -173,7 +247,8 @@ static const float MomentumAnimLen = 1.0;
                 CGPoint touchPt = [pan locationInView:glView];
                 lastTouch = touchPt;
 				bool onSphere = [view pointOnSphereFromScreen:touchPt transform:&startTransform
-									frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true];
+                                                    frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true radius:sphereRadius];
+                hit.normalize();
                 
                 // The math breaks down when we have a significant tilt
                 // Cancel when they do that
@@ -248,8 +323,8 @@ static const float MomentumAnimLen = 1.0;
                 
                 Point3d hit0,hit1;
                 Point2f frameSize(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor);
-                if ([self pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:frameSize hit:&hit0] &&
-                    [self pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:frameSize hit:&hit1])
+                if ([self pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:frameSize height:sphereRadius-1.0 hit:&hit0] &&
+                    [self pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:frameSize height:sphereRadius-1.0 hit:&hit1])
                 {
                     
                     float len = (hit1-hit0).norm();

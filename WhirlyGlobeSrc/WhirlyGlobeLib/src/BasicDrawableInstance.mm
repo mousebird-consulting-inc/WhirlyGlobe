@@ -115,6 +115,11 @@ const Eigen::Matrix4d *BasicDrawableInstance::getMatrix() const
     return basicDraw->getMatrix();
 }
 
+void BasicDrawableInstance::setUniforms(const SingleVertexAttributeSet &newUniforms)
+{
+    uniforms = newUniforms;
+}
+
 void BasicDrawableInstance::addInstances(const std::vector<SingleInstance> &insts)
 {
     instances.insert(instances.end(), insts.begin(), insts.end());
@@ -134,6 +139,7 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
     // Note: Should allow for a list of optional attributes here
     centerSize = sizeof(GLfloat)*3;
     matSize = sizeof(GLfloat)*16;
+    colorInstSize = sizeof(GLfloat);
     colorSize = sizeof(GLubyte)*4;
     if (moving)
     {
@@ -141,7 +147,7 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
     } else {
         modelDirSize = 0;
     }
-    instSize = centerSize + matSize + colorSize + modelDirSize;
+    instSize = centerSize + matSize + colorSize + colorInstSize + modelDirSize;
     int bufferSize = instSize * instances.size();
     
     instBuffer = memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
@@ -158,15 +164,17 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
         const SingleInstance &inst = instances[ii];
         Point3f center3f(inst.center.x(),inst.center.y(),inst.center.z());
         Matrix4f mat = Matrix4dToMatrix4f(inst.mat);
-        RGBAColor locColor = inst.colorOverride ? inst.color : color;
+        float colorInst = inst.colorOverride ? 1.0 : 0.0;
+        RGBAColor locColor = colorInst ? inst.color : color;
         memcpy(basePtr, (void *)center3f.data(), centerSize);
         memcpy(basePtr+centerSize, (void *)mat.data(), matSize);
-        memcpy(basePtr+centerSize+matSize, (void *)&locColor.r, colorSize);
+        memcpy(basePtr+centerSize+matSize, (void *)&colorInst, colorInstSize);
+        memcpy(basePtr+centerSize+matSize+colorInstSize, (void *)&locColor.r, colorSize);
         if (moving)
         {
             Point3d modelDir = (inst.endCenter - inst.center)/inst.duration;
             Point3f modelDir3f(modelDir.x(),modelDir.y(),modelDir.z());
-            memcpy(basePtr+centerSize+matSize+colorSize, (void *)modelDir3f.data(), modelDirSize);
+            memcpy(basePtr+centerSize+matSize+colorInstSize+colorSize, (void *)modelDir3f.data(), modelDirSize);
         }
     }
     
@@ -202,56 +210,78 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
     glBindVertexArrayOES(vertArrayObj);
 
     glBindBuffer(GL_ARRAY_BUFFER,instBuffer);
-    const OpenGLESAttribute *centerAttr = prog->findAttribute("a_modelCenter");
-    if (centerAttr)
     {
-        glVertexAttribPointer(centerAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(0));
-        CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-        if (context.API < kEAGLRenderingAPIOpenGLES3)
-            glVertexAttribDivisorEXT(centerAttr->index, 1);
-        else
-            glVertexAttribDivisor(centerAttr->index, 1);
-        glEnableVertexAttribArray(centerAttr->index);
-        CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
-    }
-    const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
-    if (matAttr)
-    {
-        for (unsigned int im=0;im<4;im++)
+        const OpenGLESAttribute *centerAttr = prog->findAttribute("a_modelCenter");
+        if (centerAttr)
         {
-            glVertexAttribPointer(matAttr->index+im, 4, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+im*(4*sizeof(GLfloat))));
+            glVertexAttribPointer(centerAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(0));
             CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
             if (context.API < kEAGLRenderingAPIOpenGLES3)
-                glVertexAttribDivisorEXT(matAttr->index+im, 1);
+                glVertexAttribDivisorEXT(centerAttr->index, 1);
             else
-                glVertexAttribDivisor(matAttr->index+im, 1);
-            glEnableVertexAttribArray(matAttr->index+im);
+                glVertexAttribDivisor(centerAttr->index, 1);
+            glEnableVertexAttribArray(centerAttr->index);
             CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
         }
     }
-    const OpenGLESAttribute *colorAttr = prog->findAttribute("a_color");
-    if (colorAttr)
     {
-        glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, instSize, (const GLvoid *)(long)(centerSize+matSize));
-        CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-        if (context.API < kEAGLRenderingAPIOpenGLES3)
-            glVertexAttribDivisorEXT(colorAttr->index, 1);
-        else
-            glVertexAttribDivisor(colorAttr->index, 1);
-        glEnableVertexAttribArray(colorAttr->index);
-        CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
+        const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+        if (matAttr)
+        {
+            for (unsigned int im=0;im<4;im++)
+            {
+                glVertexAttribPointer(matAttr->index+im, 4, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+im*(4*sizeof(GLfloat))));
+                CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
+                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                    glVertexAttribDivisorEXT(matAttr->index+im, 1);
+                else
+                    glVertexAttribDivisor(matAttr->index+im, 1);
+                glEnableVertexAttribArray(matAttr->index+im);
+                CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
+            }
+        }
     }
-    const OpenGLESAttribute *dirAttr = prog->findAttribute("a_modelDir");
-    if (moving && dirAttr)
     {
-        glVertexAttribPointer(dirAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+matSize+colorSize));
-        CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-        if (context.API < kEAGLRenderingAPIOpenGLES3)
-            glVertexAttribDivisorEXT(dirAttr->index, 1);
-        else
-            glVertexAttribDivisor(dirAttr->index, 1);
-        glEnableVertexAttribArray(dirAttr->index);
-        CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
+        const OpenGLESAttribute *useColorAttr = prog->findAttribute("a_useInstanceColor");
+        if (useColorAttr)
+        {
+            glVertexAttribPointer(useColorAttr->index, 1, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+matSize));
+            CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
+            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                glVertexAttribDivisorEXT(useColorAttr->index, 1);
+            else
+                glVertexAttribDivisor(useColorAttr->index, 1);
+            glEnableVertexAttribArray(useColorAttr->index);
+            CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
+        }
+    }
+    {
+        const OpenGLESAttribute *colorAttr = prog->findAttribute("a_instanceColor");
+        if (colorAttr)
+        {
+            glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, instSize, (const GLvoid *)(long)(centerSize+matSize+colorInstSize));
+            CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
+            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                glVertexAttribDivisorEXT(colorAttr->index, 1);
+            else
+                glVertexAttribDivisor(colorAttr->index, 1);
+            glEnableVertexAttribArray(colorAttr->index);
+            CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
+        }
+    }
+    {
+        const OpenGLESAttribute *dirAttr = prog->findAttribute("a_modelDir");
+        if (moving && dirAttr)
+        {
+            glVertexAttribPointer(dirAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+matSize+colorInstSize+colorSize));
+            CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
+            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                glVertexAttribDivisorEXT(dirAttr->index, 1);
+            else
+                glVertexAttribDivisor(dirAttr->index, 1);
+            glEnableVertexAttribArray(dirAttr->index);
+            CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
+        }
     }
 
     glBindVertexArrayOES(0);
@@ -398,6 +428,10 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         
         // If this is present, the drawable wants to do something based where the viewer is looking
         prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
+        
+        // Any uniforms we may want to apply to the shader
+        for (auto const &attr : uniforms)
+            prog->setUniform(attr);
         
         // The program itself may have some textures to bind
         bool hasTexture[WhirlyKitMaxTextures];
