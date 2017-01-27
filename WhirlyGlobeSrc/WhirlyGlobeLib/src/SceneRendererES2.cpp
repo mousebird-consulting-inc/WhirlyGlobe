@@ -621,6 +621,10 @@ void SceneRendererES2::render()
                         
             // Draw using the given program
             drawContain.drawable->draw(&baseFrameInfo,scene);
+
+            // Note: This fixes a rendering problem on some Android hardware
+//            glFlush();
+
             
             // If we had a local matrix, set the frame info back to the general one
 //            if (localMat)
