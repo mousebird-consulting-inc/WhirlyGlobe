@@ -1,0 +1,2375 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>MaplyQuadPagingLayer Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+    <a name="//apple_ref/objc/Class/MaplyQuadPagingLayer" class="dashAnchor"></a>
+    <a title="MaplyQuadPagingLayer Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">WhirlyGlobe-Maply Docs</a> (81% documented)</p>
+        <p class="header-right"><a href="https://github.com/mousebird/WhirlyGlobe"><img src="../img/gh.png"/>View on GitHub</a></p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">WhirlyGlobe-Maply Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        MaplyQuadPagingLayer Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyActiveObject.html">MaplyActiveObject</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyAerisLayerInfo.html">MaplyAerisLayerInfo</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyAerisTileSet.html">MaplyAerisTileSet</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyAerisTiles.html">MaplyAerisTiles</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyAnimationTestTileSource.html">MaplyAnimationTestTileSource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyAnnotation.html">MaplyAnnotation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyAtmosphere.html">MaplyAtmosphere</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyBaseViewController.html">MaplyBaseViewController</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyBasicClusterGenerator.html">MaplyBasicClusterGenerator</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyBillboard.html">MaplyBillboard</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyBlankTileSource.html">MaplyBlankTileSource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes.html#/c:objc(cs)MaplyCesiumCoordSystem">MaplyCesiumCoordSystem</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyClusterGroup.html">MaplyClusterGroup</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyClusterInfo.html">MaplyClusterInfo</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyColorRampGenerator.html">MaplyColorRampGenerator</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyComponentObject.html">MaplyComponentObject</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyCoordinate3dDWrapper.html">MaplyCoordinate3dDWrapper</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyCoordinate3dWrapper.html">MaplyCoordinate3dWrapper</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyCoordinateSystem.html">MaplyCoordinateSystem</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyElevationCesiumChunk.html">MaplyElevationCesiumChunk</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes.html#/c:objc(cs)MaplyElevationChunk">MaplyElevationChunk</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyElevationDatabase.html">MaplyElevationDatabase</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyElevationGridChunk.html">MaplyElevationGridChunk</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes.html#/c:objc(cs)MaplyElevationSourceTester">MaplyElevationSourceTester</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyFrameStatus.html">MaplyFrameStatus</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyGDALRetileSource.html">MaplyGDALRetileSource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyGeomBuilder.html">MaplyGeomBuilder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyGeomModel.html">MaplyGeomModel</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyGeomModelInstance.html">MaplyGeomModelInstance</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyGeomState.html">MaplyGeomState</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyIconManager.html">MaplyIconManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyImageTile.html">MaplyImageTile</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyLAZQuadReader.html">MaplyLAZQuadReader</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyLabel.html">MaplyLabel</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyLight.html">MaplyLight</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyLocationTracker.html">MaplyLocationTracker</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyMBTileSource.html">MaplyMBTileSource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyMarker.html">MaplyMarker</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyMatrix.html">MaplyMatrix</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyMoon.html">MaplyMoon</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyMovingGeomModelInstance.html">MaplyMovingGeomModelInstance</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyMovingScreenLabel.html">MaplyMovingScreenLabel</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyMovingScreenMarker.html">MaplyMovingScreenMarker</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyMultiplexTileSource.html">MaplyMultiplexTileSource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyOfflineImage.html">MaplyOfflineImage</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyPagingElevationTestTileSource.html">MaplyPagingElevationTestTileSource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyPagingVectorTestTileSource.html">MaplyPagingVectorTestTileSource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyParticleBatch.html">MaplyParticleBatch</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyParticleSystem.html">MaplyParticleSystem</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyPlateCarree.html">MaplyPlateCarree</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyPoints.html">MaplyPoints</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyProj4CoordSystem.html">MaplyProj4CoordSystem</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyQuadImageOfflineLayer.html">MaplyQuadImageOfflineLayer</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyQuadImageTilesLayer.html">MaplyQuadImageTilesLayer</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyQuadPagingLayer.html">MaplyQuadPagingLayer</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyQuadTracker.html">MaplyQuadTracker</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes.html#/c:objc(cs)MaplyRemoteTileElevationCesiumInfo">MaplyRemoteTileElevationCesiumInfo</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyRemoteTileElevationCesiumSource.html">MaplyRemoteTileElevationCesiumSource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyRemoteTileElevationInfo.html">MaplyRemoteTileElevationInfo</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyRemoteTileElevationSource.html">MaplyRemoteTileElevationSource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyRemoteTileInfo.html">MaplyRemoteTileInfo</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyRemoteTileSource.html">MaplyRemoteTileSource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyScreenLabel.html">MaplyScreenLabel</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyScreenMarker.html">MaplyScreenMarker</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyScreenObject.html">MaplyScreenObject</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplySelectedObject.html">MaplySelectedObject</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyShader.html">MaplyShader</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyShape.html">MaplyShape</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyShapeCircle.html">MaplyShapeCircle</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyShapeCylinder.html">MaplyShapeCylinder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyShapeExtruded.html">MaplyShapeExtruded</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyShapeGreatCircle.html">MaplyShapeGreatCircle</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyShapeLinear.html">MaplyShapeLinear</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyShapeSphere.html">MaplyShapeSphere</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplySphericalMercator.html">MaplySphericalMercator</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplySphericalQuadEarthWithTexGroup.html">MaplySphericalQuadEarthWithTexGroup</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyStarsModel.html">MaplyStarsModel</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplySticker.html">MaplySticker</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplySun.html">MaplySun</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes.html#/c:objc(cs)MaplyTexture">MaplyTexture</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyUpdateLayer.html">MaplyUpdateLayer</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyVectorDatabase.html">MaplyVectorDatabase</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyVectorObject.html">MaplyVectorObject</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyVertexAttribute.html">MaplyVertexAttribute</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyViewController.html">MaplyViewController</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyViewControllerAnimationState.html">MaplyViewControllerAnimationState</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyViewControllerLayer.html">MaplyViewControllerLayer</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyViewControllerSimpleAnimationDelegate.html">MaplyViewControllerSimpleAnimationDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyViewTracker.html">MaplyViewTracker</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyViewerState.html">MaplyViewerState</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyWMSCapabilities.html">MaplyWMSCapabilities</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyWMSLayer.html">MaplyWMSLayer</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyWMSLayerBoundingBox.html">MaplyWMSLayerBoundingBox</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyWMSStyle.html">MaplyWMSStyle</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyWMSTileSource.html">MaplyWMSTileSource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/WhirlyGlobeViewController.html">WhirlyGlobeViewController</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/WhirlyGlobeViewControllerAnimationState.html">WhirlyGlobeViewControllerAnimationState</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/WhirlyGlobeViewControllerSimpleAnimationDelegate.html">WhirlyGlobeViewControllerSimpleAnimationDelegate</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Constants.html">Constants</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyAtmosphereDrawPriorityDefault">kMaplyAtmosphereDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyBackgroundColor">kMaplyBackgroundColor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyBillboardDrawPriorityDefault">kMaplyBillboardDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyBillboardOrient">kMaplyBillboardOrient</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyBillboardOrientEye">kMaplyBillboardOrientEye</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyBillboardOrientGround">kMaplyBillboardOrientGround</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyClusterGroup">kMaplyClusterGroup</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyColor">kMaplyColor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyDefaultLineShader">kMaplyDefaultLineShader</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyDefaultTriangleShader">kMaplyDefaultTriangleShader</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyDrawOffset">kMaplyDrawOffset</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyDrawPriority">kMaplyDrawPriority</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyEnable">kMaplyEnable</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyEnableEnd">kMaplyEnableEnd</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyEnableStart">kMaplyEnableStart</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyFade">kMaplyFade</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyFadeIn">kMaplyFadeIn</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyFadeOut">kMaplyFadeOut</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyFadeOutTime">kMaplyFadeOutTime</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyFeatureDrawPriorityBase">kMaplyFeatureDrawPriorityBase</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyFilled">kMaplyFilled</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyFont">kMaplyFont</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyImageLayerDrawPriorityDefault">kMaplyImageLayerDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyJustify">kMaplyJustify</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLAZReaderColorScale">kMaplyLAZReaderColorScale</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLAZReaderCoordSys">kMaplyLAZReaderCoordSys</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLAZReaderZOffset">kMaplyLAZReaderZOffset</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLAZShaderPointSize">kMaplyLAZShaderPointSize</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLAZShaderZMax">kMaplyLAZShaderZMax</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLAZShaderZMin">kMaplyLAZShaderZMin</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLabelDrawPriorityDefault">kMaplyLabelDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLabelHeight">kMaplyLabelHeight</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLabelWidth">kMaplyLabelWidth</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLoftedPolyBase">kMaplyLoftedPolyBase</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLoftedPolyGridSize">kMaplyLoftedPolyGridSize</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLoftedPolyHeight">kMaplyLoftedPolyHeight</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLoftedPolyOutline">kMaplyLoftedPolyOutline</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLoftedPolyOutlineBottom">kMaplyLoftedPolyOutlineBottom</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLoftedPolyOutlineColor">kMaplyLoftedPolyOutlineColor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLoftedPolyOutlineDrawPriority">kMaplyLoftedPolyOutlineDrawPriority</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLoftedPolyOutlineSide">kMaplyLoftedPolyOutlineSide</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLoftedPolyOutlineWidth">kMaplyLoftedPolyOutlineWidth</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLoftedPolySide">kMaplyLoftedPolySide</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLoftedPolyTop">kMaplyLoftedPolyTop</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyLoftedPolysDrawPriorityDefault">kMaplyLoftedPolysDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyMarkerDrawPriorityDefault">kMaplyMarkerDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyMaxVis">kMaplyMaxVis</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyMinFilterLinear">kMaplyMinFilterLinear</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyMinFilterNearest">kMaplyMinFilterNearest</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyMinVis">kMaplyMinVis</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyModelDrawPriorityDefault">kMaplyModelDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyMoonDrawPriorityDefault">kMaplyMoonDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyNoBackfaceLineShader">kMaplyNoBackfaceLineShader</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyNoLightTriangleShader">kMaplyNoLightTriangleShader</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:MaplyCoordinate.h@kMaplyNullBoundingBox">kMaplyNullBoundingBox</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:MaplyCoordinate.h@kMaplyNullBoundingBoxD">kMaplyNullBoundingBoxD</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:MaplyCoordinate.h@kMaplyNullCoordinate">kMaplyNullCoordinate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:MaplyCoordinate.h@kMaplyNullCoordinate3dD">kMaplyNullCoordinate3dD</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:MaplyCoordinate.h@kMaplyNullCoordinateD">kMaplyNullCoordinateD</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyParticleSystemDrawPriorityDefault">kMaplyParticleSystemDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyPointSize">kMaplyPointSize</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyPointSizeDefault">kMaplyPointSizeDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyProjectionScreen">kMaplyProjectionScreen</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyProjectionTangentPlane">kMaplyProjectionTangentPlane</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyRenderHintCulling">kMaplyRenderHintCulling</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyRenderHintZBuffer">kMaplyRenderHintZBuffer</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyRendererLightingMode">kMaplyRendererLightingMode</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplySampleX">kMaplySampleX</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplySampleY">kMaplySampleY</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplySelectable">kMaplySelectable</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShader">kMaplyShader</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShaderBillboardEye">kMaplyShaderBillboardEye</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShaderBillboardGround">kMaplyShaderBillboardGround</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShaderDefaultLine">kMaplyShaderDefaultLine</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShaderDefaultLineNoBackface">kMaplyShaderDefaultLineNoBackface</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShaderDefaultModelTri">kMaplyShaderDefaultModelTri</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShaderDefaultTri">kMaplyShaderDefaultTri</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShaderDefaultTriMultiTex">kMaplyShaderDefaultTriMultiTex</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShaderDefaultTriMultiTexRamp">kMaplyShaderDefaultTriMultiTexRamp</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShaderDefaultTriNightDay">kMaplyShaderDefaultTriNightDay</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShaderDefaultTriNoLighting">kMaplyShaderDefaultTriNoLighting</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShaderDefaultTriScreenTex">kMaplyShaderDefaultTriScreenTex</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShaderParticleSystemPointDefault">kMaplyShaderParticleSystemPointDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShaderUniforms">kMaplyShaderUniforms</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShadowColor">kMaplyShadowColor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShadowSize">kMaplyShadowSize</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShapeCenterX">kMaplyShapeCenterX</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShapeCenterY">kMaplyShapeCenterY</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShapeCenterZ">kMaplyShapeCenterZ</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShapeDrawPriorityDefault">kMaplyShapeDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShapeInsideOut">kMaplyShapeInsideOut</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShapeSampleX">kMaplyShapeSampleX</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyShapeSampleY">kMaplyShapeSampleY</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyStarsDrawPriorityDefault">kMaplyStarsDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyStickerDrawPriorityDefault">kMaplyStickerDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyStickerImageFormat">kMaplyStickerImageFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyStickerImages">kMaplyStickerImages</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplySubdivEpsilon">kMaplySubdivEpsilon</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplySubdivGreatCircle">kMaplySubdivGreatCircle</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplySubdivGrid">kMaplySubdivGrid</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplySubdivSimple">kMaplySubdivSimple</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplySubdivStatic">kMaplySubdivStatic</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplySubdivType">kMaplySubdivType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplySunDrawPriorityDefault">kMaplySunDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexAtlas">kMaplyTexAtlas</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexFormat">kMaplyTexFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexMagFilter">kMaplyTexMagFilter</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexMinFilter">kMaplyTexMinFilter</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexWrapX">kMaplyTexWrapX</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexWrapY">kMaplyTexWrapY</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextColor">kMaplyTextColor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextOutlineColor">kMaplyTextOutlineColor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextOutlineSize">kMaplyTextOutlineSize</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyVecCenterX">kMaplyVecCenterX</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyVecCenterY">kMaplyVecCenterY</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyVecCentered">kMaplyVecCentered</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyVecHeight">kMaplyVecHeight</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyVecMinSample">kMaplyVecMinSample</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyVecTexScaleX">kMaplyVecTexScaleX</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyVecTexScaleY">kMaplyVecTexScaleY</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyVecTexture">kMaplyVecTexture</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyVecTextureProjection">kMaplyVecTextureProjection</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyVecWidth">kMaplyVecWidth</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyVectorDrawPriorityDefault">kMaplyVectorDrawPriorityDefault</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyViewableCenterX">kMaplyViewableCenterX</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyViewableCenterY">kMaplyViewableCenterY</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyViewableCenterZ">kMaplyViewableCenterZ</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyViewerMaxDist">kMaplyViewerMaxDist</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyViewerMinDist">kMaplyViewerMinDist</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyWideVecBevelJoin">kMaplyWideVecBevelJoin</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyWideVecCoordType">kMaplyWideVecCoordType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyWideVecCoordTypeReal">kMaplyWideVecCoordTypeReal</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyWideVecCoordTypeScreen">kMaplyWideVecCoordTypeScreen</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyWideVecEdgeFalloff">kMaplyWideVecEdgeFalloff</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyWideVecJoinType">kMaplyWideVecJoinType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyWideVecMiterJoin">kMaplyWideVecMiterJoin</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyWideVecMiterLimit">kMaplyWideVecMiterLimit</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyWideVecTexRepeatLen">kMaplyWideVecTexRepeatLen</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyZBufferRead">kMaplyZBufferRead</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyZBufferWrite">kMaplyZBufferWrite</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enums</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/MaplyLabelJustify.html">MaplyLabelJustify</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/MaplyMapType.html">MaplyMapType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/MaplyParticleSystemType.html">MaplyParticleSystemType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/MaplyQuadImageFormat.html">MaplyQuadImageFormat</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/MaplyQuadPagingDataStyle.html">MaplyQuadPagingDataStyle</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/MaplyShaderAttrType.html">MaplyShaderAttrType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/MaplyThreadMode.html">MaplyThreadMode</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/MaplyVectorObjectType.html">MaplyVectorObjectType</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/Maply3dTouchPreviewDatasource.html">Maply3dTouchPreviewDatasource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/MaplyClusterGenerator.html">MaplyClusterGenerator</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/MaplyElevationSourceDelegate.html">MaplyElevationSourceDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/MaplyLocationTrackerDelegate.html">MaplyLocationTrackerDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/MaplyMultiplexTileSourceDelegate.html">MaplyMultiplexTileSourceDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/MaplyQuadImageOfflineDelegate.html">MaplyQuadImageOfflineDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/MaplyRemoteTileElevationSourceDelegate.html">MaplyRemoteTileElevationSourceDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/MaplyRemoteTileInfoProtocol.html">MaplyRemoteTileInfoProtocol</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/MaplyRemoteTileSourceDelegate.html">MaplyRemoteTileSourceDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/MaplyTileSource.html">MaplyTileSource</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/MaplyUpdateDelegate.html">MaplyUpdateDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/MaplyViewControllerAnimationDelegate.html">MaplyViewControllerAnimationDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/MaplyViewControllerDelegate.html">MaplyViewControllerDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/WhirlyGlobeViewControllerAnimationDelegate.html">WhirlyGlobeViewControllerAnimationDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/WhirlyGlobeViewControllerDelegate.html">WhirlyGlobeViewControllerDelegate</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Type Definitions.html">Type Definitions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Type Definitions/MaplyBoundingBox.html">MaplyBoundingBox</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions/MaplyBoundingBoxD.html">MaplyBoundingBoxD</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions/MaplyCoordinate.html">MaplyCoordinate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions/MaplyCoordinate3d.html">MaplyCoordinate3d</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions/MaplyCoordinate3dD.html">MaplyCoordinate3dD</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions/MaplyCoordinateD.html">MaplyCoordinateD</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions/MaplyLocationLockType.html">MaplyLocationLockType</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions/MaplyLocationTrackerSimulationPoint.html">MaplyLocationTrackerSimulationPoint</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions/MaplyQuadTrackerPointReturn.html">MaplyQuadTrackerPointReturn</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions.html#/c:MaplyComponentObject.h@T@WGComponentObject">WGComponentObject</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions.html#/c:WGCoordinate.h@T@WGCoordinate">WGCoordinate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions.html#/c:MaplyLabel.h@T@WGLabel">WGLabel</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions.html#/c:MaplyMarker.h@T@WGMarker">WGMarker</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions.html#/c:MaplyScreenLabel.h@T@WGScreenLabel">WGScreenLabel</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions.html#/c:MaplyScreenMarker.h@T@WGScreenMarker">WGScreenMarker</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions.html#/c:MaplyShape.h@T@WGShapeCircle">WGShapeCircle</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions.html#/c:MaplyShape.h@T@WGShapeCylinder">WGShapeCylinder</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions.html#/c:MaplyShape.h@T@WGShapeSphere">WGShapeSphere</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions.html#/c:MaplyVectorObject.h@T@WGVectorObject">WGVectorObject</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Type Definitions.html#/c:MaplyViewTracker.h@T@WGViewTracker">WGViewTracker</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Functions.html">Functions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyBoundingBoxMakeWithDegrees">MaplyBoundingBoxMakeWithDegrees</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyBoundingBoxesOverlap">MaplyBoundingBoxesOverlap</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyCoordinate3dDMake">MaplyCoordinate3dDMake</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyCoordinate3dMake">MaplyCoordinate3dMake</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyCoordinateDMake">MaplyCoordinateDMake</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyCoordinateDMakeWithDegrees">MaplyCoordinateDMakeWithDegrees</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyCoordinateDMakeWithMaplyCoordinate">MaplyCoordinateDMakeWithMaplyCoordinate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyCoordinateMake">MaplyCoordinateMake</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyCoordinateMakeWithDegrees">MaplyCoordinateMakeWithDegrees</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyCoordinateSystemFromEPSG">MaplyCoordinateSystemFromEPSG</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyGreatCircleDistance">MaplyGreatCircleDistance</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyLAZBuildPointShader">MaplyLAZBuildPointShader</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyLAZBuildRampPointShader">MaplyLAZBuildRampPointShader</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyTileIDString">MaplyTileIDString</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@WGCoordinateMakeWithDegrees">WGCoordinateMakeWithDegrees</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>MaplyQuadPagingLayer</h1>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyQuadPagingLayer</span> <span class="p">:</span> <span class="nc">MaplyViewControllerLayer</span></code></pre>
+
+                </div>
+              </div>
+            <p>@brief The Quad Paging Layer is for loading things like vector tile sets.
+    @details The Maply Quad Paging Layer implements a general purpose paging interface for quad tree based data sources.  This is different from the MaplyQuadImageTilesLayer in that it&rsquo;s meant for paging things like vector tiles, or really any other features that are not images.
+    @details You set up an object that implements the MaplyPagingDelegate protocol, create the MaplyQuadPagingLayer and respond to the startFetchForTile:forLayer: method.
+    @details Once you&rsquo;ve fetched your data for a given tile, you&rsquo;ll need to call tileDidLoad: or tileFailedToLoad:.  Then you&rsquo;ll want to create the visual objects in the MaplyViewController or WhirlyGlobeViewController and pass them in to addData:forTile:
+    @details This is how the paging layer keeps track of which objects you&rsquo;ve created for a given tile and can then remove them when the time comes.
+    @details Objects must be created with @<q>enable</q> set to @(NO) in the description dictionary.  Tiles are paged before they are needed for dipslay and so the paging layer must have control over when data is displayed. It uses the enable/disable options for the various Maply objects in the view controllers.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(py)numSimultaneousFetches"></a>
+                    <a name="//apple_ref/objc/Property/numSimultaneousFetches" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(py)numSimultaneousFetches">numSimultaneousFetches</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Number of fetches allowed at once.
+    @details Change the number of fetches allowed at once.  This means you&rsquo;ll have at most numSimultaneousFetches dispatch queues going.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">int</span> <span class="n">numSimultaneousFetches</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">numSimultaneousFetches</span><span class="p">:</span> <span class="kt">Int32</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(py)importance"></a>
+                    <a name="//apple_ref/objc/Property/importance" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(py)importance">importance</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief The importance cutoff below which we won&rsquo;t bother to page a tile.
+    @details The paging layer will evaluate tiles based on screen space they take up.  This is the cutoff we use to evaluate when a tile is worth paging in.  It&rsquo;s the number of pixels a given tile would take up on the screen.
+    @details Typical values would be on the order of 256*256.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">float</span> <span class="n">importance</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">importance</span><span class="p">:</span> <span class="kt">Float</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(py)flipY"></a>
+                    <a name="//apple_ref/objc/Property/flipY" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(py)flipY">flipY</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Control how tiles are indexed, either from the lower left or the upper left.
+ @details If set, we&rsquo;ll use the OSM approach (also Google Maps) to y indexing.  This is off by default.
+ @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if youre tile source looks odd, try setting this to false.
+ @details Default value is false.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">_Bool</span> <span class="n">flipY</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">flipY</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(py)viewC"></a>
+                    <a name="//apple_ref/objc/Property/viewC" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(py)viewC">viewC</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief The view controller this paging layer is associated with.
+    @details This view controller is the one you should create visual objects in.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">,</span> <span class="n">nullable</span><span class="p">)</span> <span class="n"><a href="../Classes/MaplyBaseViewController.html">MaplyBaseViewController</a></span> <span class="o">*</span><span class="n">viewC</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">weak</span> <span class="k">var</span> <span class="nv">viewC</span><span class="p">:</span> <span class="kt"><a href="../Classes/MaplyBaseViewController.html">MaplyBaseViewController</a></span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)initWithCoordSystem:delegate:"></a>
+                    <a name="//apple_ref/objc/Method/-initWithCoordSystem:delegate:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)initWithCoordSystem:delegate:">-initWithCoordSystem:delegate:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Initialize with coordinate system and delegate for paging.
+    @details This initializer takes the coordinate system we&rsquo;re working in and the MaplyPagingDelegate object.  Fill out that to do the real work.
+    - parameter: coordSys The coordinate system we&rsquo;re working in.
+    - parameter: tileSource The tile source that will fetch data and create visible objects.
+    - returns: Returns a MaplyViewControllerLayer that can be added to the MaplyBaseViewController.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">nullable</span> <span class="n">instancetype</span><span class="p">)</span>
+<span class="nf">initWithCoordSystem</span><span class="p">:(</span><span class="n"><a href="../Classes/MaplyCoordinateSystem.html">MaplyCoordinateSystem</a></span> <span class="o">*</span><span class="n">_Nonnull</span><span class="p">)</span><span class="nv">coordSys</span>
+           <span class="nf">delegate</span><span class="p">:(</span><span class="n">NSObject</span><span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span> <span class="o">*</span><span class="n">_Nonnull</span><span class="p">)</span><span class="nv">tileSource</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="nf">init</span><span class="p">?(</span><span class="n">coordSystem</span> <span class="nv">coordSys</span><span class="p">:</span> <span class="kt"><a href="../Classes/MaplyCoordinateSystem.html">MaplyCoordinateSystem</a></span><span class="p">,</span> <span class="n">delegate</span> <span class="nv">tileSource</span><span class="p">:</span> <span class="kt">NSObjectProtocol</span> </code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>coordSys</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The coordinate system we&rsquo;re working in.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>tileSource</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The tile source that will fetch data and create visible objects.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>Returns a MaplyViewControllerLayer that can be added to the MaplyBaseViewController.</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(py)useTargetZoomLevel"></a>
+                    <a name="//apple_ref/objc/Property/useTargetZoomLevel" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(py)useTargetZoomLevel">useTargetZoomLevel</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Use the target zoom level shortcut when possible.
+    @details This turns on the target zoom level shortcut as described in targetZoomLevel.  When on we&rsquo;ll calculate tile importance that way, that is based on a target zoom level rather than the more complex screen space calculations.
+    @details It&rsquo;s on by default and will activate only when this layer&rsquo;s coordinate system is the same as the display system and there&rsquo;s no view matrix (e.g. tilt) set.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">_Bool</span> <span class="n">useTargetZoomLevel</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">useTargetZoomLevel</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(py)singleLevelLoading"></a>
+                    <a name="//apple_ref/objc/Property/singleLevelLoading" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(py)singleLevelLoading">singleLevelLoading</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Only load a single level at a time.
+    @details When set, we&rsquo;ll only load one level of tiles at once.  This is very efficient for memory and fast for loading, but you&rsquo;ll see flashing as you move between levels.
+    @details This mode only works with flat maps and is off by default.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">_Bool</span> <span class="n">singleLevelLoading</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">singleLevelLoading</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)targetZoomLevel"></a>
+                    <a name="//apple_ref/objc/Method/-targetZoomLevel" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)targetZoomLevel">-targetZoomLevel</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief The target zoom level for this layer given the current view settings.
+    @details Calculates the target zoom level for the middle of the screen.
+    @details This only makes sense for flat maps that use the same coordinate system we&rsquo;re using in this tile source.  In addition, the viewer can&rsquo;t have a tilt or any non-2D transform in the view matrix.  If it does, this is meaningless, but it&rsquo;ll return a number anyway.
+    @details If all those conditions are met then we can say we&rsquo;re only displaying a single zoom level and this is that.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">targetZoomLevel</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">targetZoomLevel</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Int32</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(py)useParentTileBounds"></a>
+                    <a name="//apple_ref/objc/Property/useParentTileBounds" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(py)useParentTileBounds">useParentTileBounds</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Modify how the importance (screen space) is calculated for any given tile.
+    @details This is set by default and when set we use the parent&rsquo;s bounding box to calculate importance for a given tile.
+    @details This has the effect of forcing all four children to load at once.  If you don&rsquo;t need that, if you&rsquo;re doing additive
+        geometry, for instance, then you can set this to false.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">_Bool</span> <span class="n">useParentTileBounds</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">useParentTileBounds</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(py)groupChildrenWithParent"></a>
+                    <a name="//apple_ref/objc/Property/groupChildrenWithParent" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(py)groupChildrenWithParent">groupChildrenWithParent</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief This controls how the importance of tiles is calculated.  Either individually (false) or with the parent (true),
+    @details This is a low level laoding control parameter.  Don&rsquo;t change unless you know why.
+    @details By default this is true.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">_Bool</span> <span class="n">groupChildrenWithParent</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">groupChildrenWithParent</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)addData:forTile:"></a>
+                    <a name="//apple_ref/objc/Method/-addData:forTile:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)addData:forTile:">-addData:forTile:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief You call this from your MaplyPagingDelegate with an array of data you&rsquo;ve created for a tile.
+    @details This method is called by your MaplyPagingDelegate to add MaplyComponentObject&rsquo;s to the data for a given tile.  Please create them disabled by putting @<q>enable</q>: @(NO) in the description dictionary.  The paging layer will then be responsible for cleaning them up when needed as well as turning them on and off as the user moves around.
+    @details The call is thread safe.
+    - parameter: dataObjects An NSArray of MaplyComponentObject objects.
+    - parameter: tileID The tile ID for the data we&rsquo;re handing over.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">addData</span><span class="p">:(</span><span class="n">NSArray</span> <span class="o">*</span><span class="n">_Nonnull</span><span class="p">)</span><span class="nv">dataObjects</span> <span class="nf">forTile</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span><span class="nv">tileID</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">addData</span><span class="p">(</span><span class="n">_</span> <span class="nv">dataObjects</span><span class="p">:</span> <span class="p">[</span><span class="kt">Any</span><span class="p">],</span> <span class="n">forTile</span> <span class="nv">tileID</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>dataObjects</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>An NSArray of MaplyComponentObject objects.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>tileID</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The tile ID for the data we&rsquo;re handing over.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)addData:forTile:style:"></a>
+                    <a name="//apple_ref/objc/Method/-addData:forTile:style:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)addData:forTile:style:">-addData:forTile:style:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief You call this from your MaplyPagingDelegate with an array of data you&rsquo;ve created for a tile.
+    @details This method is called by your MaplyPagingDelegate to add MaplyComponentObject&rsquo;s to the data for a given tile.  Please create them disabled by putting @<q>enable</q>: @(NO) in the description dictionary.  The paging layer will then be responsible for cleaning them up when needed as well as turning them on and off as the user moves around.
+    @details The call is thread safe.
+    - parameter: dataObjects An NSArray of MaplyComponentObject objects.
+    - parameter: tileID The tile ID for the data we&rsquo;re handing over.
+    - parameter: style If set to MaplyDataStyleReplace the data at this level will replace data at lower levels.  This is the default.  If set to MaplyDataStyleAdd then the data at this level adds to data above and below this level.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">addData</span><span class="p">:(</span><span class="n">NSArray</span> <span class="o">*</span><span class="n">_Nonnull</span><span class="p">)</span><span class="nv">dataObjects</span>
+        <span class="nf">forTile</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span><span class="nv">tileID</span>
+          <span class="nf">style</span><span class="p">:(</span><span class="n"><a href="../Enums/MaplyQuadPagingDataStyle.html">MaplyQuadPagingDataStyle</a></span><span class="p">)</span><span class="nv">dataStyle</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">addData</span><span class="p">(</span><span class="n">_</span> <span class="nv">dataObjects</span><span class="p">:</span> <span class="p">[</span><span class="kt">Any</span><span class="p">],</span> <span class="n">forTile</span> <span class="nv">tileID</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">,</span> <span class="n">style</span> <span class="nv">dataStyle</span><span class="p">:</span> <span class="kt"><a href="../Enums/MaplyQuadPagingDataStyle.html">MaplyQuadPagingDataStyle</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>dataObjects</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>An NSArray of MaplyComponentObject objects.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>tileID</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The tile ID for the data we&rsquo;re handing over.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>style</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>If set to MaplyDataStyleReplace the data at this level will replace data at lower levels.  This is the default.  If set to MaplyDataStyleAdd then the data at this level adds to data above and below this level.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)tileFailedToLoad:"></a>
+                    <a name="//apple_ref/objc/Method/-tileFailedToLoad:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)tileFailedToLoad:">-tileFailedToLoad:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Called from your MaplyPagingDelegate when a tile fails to load.
+    @details If you fail to load your tile data in your MaplyPagingDelegate, you need to let the paging layer know with this call.  Otherwise the paging layer assumes the tile is still loading.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">tileFailedToLoad</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span><span class="nv">tileID</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">tileFailed</span><span class="p">(</span><span class="n">toLoad</span> <span class="nv">tileID</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)tileDidLoad:"></a>
+                    <a name="//apple_ref/objc/Method/-tileDidLoad:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)tileDidLoad:">-tileDidLoad:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Called from your MaplyPagingDelegate when a tile loads.
+    @details When you&rsquo;ve finished loading the data for a tile in your MaplyPagingDelegate, but before you&rsquo;ve called addData:forTile: call this method to let the paging layer know you succeeded in loading the tile.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">tileDidLoad</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span><span class="nv">tileID</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">tileDidLoad</span><span class="p">(</span><span class="n">_</span> <span class="nv">tileID</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)tile:hasNumParts:"></a>
+                    <a name="//apple_ref/objc/Method/-tile:hasNumParts:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)tile:hasNumParts:">-tile:hasNumParts:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief If you&rsquo;re loading a number of parts of a tile from different sources, tell the layer about it.
+    @details Rather than a single tileDidLoad: call, you can break it up into the number of parts you&rsquo;re actually loading.  This is convenient if you&rsquo;re fetching data from multiple sources.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">tile</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span><span class="nv">tileID</span> <span class="nf">hasNumParts</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">numParts</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">tile</span><span class="p">(</span><span class="n">_</span> <span class="nv">tileID</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">,</span> <span class="n">hasNumParts</span> <span class="nv">numParts</span><span class="p">:</span> <span class="kt">Int32</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)tileDidLoad:part:"></a>
+                    <a name="//apple_ref/objc/Method/-tileDidLoad:part:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)tileDidLoad:part:">-tileDidLoad:part:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief If you&rsquo;re loading your tile in parts, let the layer know which part just got loaded.
+    @details If you&rsquo;ve set the number of parts with tile:hasNumParts: this is how you let the layer know which parts you&rsquo;ve loaded.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">tileDidLoad</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span><span class="nv">tileID</span> <span class="nf">part</span><span class="p">:(</span><span class="kt">int</span><span class="p">)</span><span class="nv">whichPart</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">tileDidLoad</span><span class="p">(</span><span class="n">_</span> <span class="nv">tileID</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">,</span> <span class="n">part</span> <span class="nv">whichPart</span><span class="p">:</span> <span class="kt">Int32</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)geoBoundsForTile:"></a>
+                    <a name="//apple_ref/objc/Method/-geoBoundsForTile:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)geoBoundsForTile:">-geoBoundsForTile:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Calculate the bounding box for a single tile in geographic.
+    @details This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
+    - parameter: tileID The ID for the tile we&rsquo;re interested in.
+    - returns: The lower left and upper right corner of the tile in geographic coordinates. Returns kMaplyNullBoundingBox in case of error</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Type Definitions/MaplyBoundingBox.html">MaplyBoundingBox</a></span><span class="p">)</span><span class="nf">geoBoundsForTile</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span><span class="nv">tileID</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">geoBounds</span><span class="p">(</span><span class="n">forTile</span> <span class="nv">tileID</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Type Definitions/MaplyBoundingBox.html">MaplyBoundingBox</a></span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>tileID</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The ID for the tile we&rsquo;re interested in.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The lower left and upper right corner of the tile in geographic coordinates. Returns kMaplyNullBoundingBox in case of error</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)geoBoundsforTile:ll:ur:"></a>
+                    <a name="//apple_ref/objc/Method/-geoBoundsforTile:ll:ur:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)geoBoundsforTile:ll:ur:">-geoBoundsforTile:ll:ur:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Calculate the bounding box for a single tile in geographic.
+ @details This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
+ - parameter: tileID The ID for the tile we&rsquo;re interested in.
+ - parameter: ll The lower left corner of the tile in geographic coordinates.
+ - parameter: ur The upper right corner of the tile in geographic coordinates.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">geoBoundsforTile</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span><span class="nv">tileID</span>
+                      <span class="nf">ll</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyCoordinate.html">MaplyCoordinate</a></span> <span class="o">*</span><span class="n">_Nonnull</span><span class="p">)</span><span class="nv">ll</span>
+                      <span class="nf">ur</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyCoordinate.html">MaplyCoordinate</a></span> <span class="o">*</span><span class="n">_Nonnull</span><span class="p">)</span><span class="nv">ur</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">geoBoundsforTile</span><span class="p">(</span><span class="n">_</span> <span class="nv">tileID</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">,</span> <span class="nv">ll</span><span class="p">:</span> <span class="kt">UnsafeMutablePointer</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>tileID</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The ID for the tile we&rsquo;re interested in.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>ll</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The lower left corner of the tile in geographic coordinates.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>ur</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The upper right corner of the tile in geographic coordinates.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)geoBoundsForTileD:"></a>
+                    <a name="//apple_ref/objc/Method/-geoBoundsForTileD:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)geoBoundsForTileD:">-geoBoundsForTileD:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Calculate the bounding box for a single tile in geographic using doubles.
+ @details This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
+ - parameter: tileID The ID for the tile we&rsquo;re interested in.
+ - returns: The lower left and upper right corner of the tile in geographic coordinates. Returns kMaplyNullBoundingBoxD in case of error</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Type Definitions/MaplyBoundingBoxD.html">MaplyBoundingBoxD</a></span><span class="p">)</span><span class="nf">geoBoundsForTileD</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span><span class="nv">tileID</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">geoBounds</span><span class="p">(</span><span class="k">for</span> <span class="nv">tileID</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Type Definitions/MaplyBoundingBoxD.html">MaplyBoundingBoxD</a></span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>tileID</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The ID for the tile we&rsquo;re interested in.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The lower left and upper right corner of the tile in geographic coordinates. Returns kMaplyNullBoundingBoxD in case of error</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)geoBoundsForTileD:ll:ur:"></a>
+                    <a name="//apple_ref/objc/Method/-geoBoundsForTileD:ll:ur:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)geoBoundsForTileD:ll:ur:">-geoBoundsForTileD:ll:ur:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Calculate the bounding box for a single tile in geographic using doubles.
+ @details This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
+ - parameter: tileID The ID for the tile we&rsquo;re interested in.
+ - parameter: ll The lower left corner of the tile in geographic coordinates.
+ - parameter: ur The upper right corner of the tile in geographic coordinates.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">geoBoundsForTileD</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span><span class="nv">tileID</span>
+                       <span class="nf">ll</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyCoordinateD.html">MaplyCoordinateD</a></span> <span class="o">*</span><span class="n">_Nonnull</span><span class="p">)</span><span class="nv">ll</span>
+                       <span class="nf">ur</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyCoordinateD.html">MaplyCoordinateD</a></span> <span class="o">*</span><span class="n">_Nonnull</span><span class="p">)</span><span class="nv">ur</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">geoBounds</span><span class="p">(</span><span class="k">for</span> <span class="nv">tileID</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">,</span> <span class="nv">ll</span><span class="p">:</span> <span class="kt">UnsafeMutablePointer</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>tileID</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The ID for the tile we&rsquo;re interested in.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>ll</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The lower left corner of the tile in geographic coordinates.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>ur</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The upper right corner of the tile in geographic coordinates.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)boundsForTile:"></a>
+                    <a name="//apple_ref/objc/Method/-boundsForTile:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)boundsForTile:">-boundsForTile:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Calculate the bounding box for a single tile in the local coordinate system.
+ @details This utility method calculates the bounding box for a tile in the coordinate system used for the layer.
+ - parameter: tileID The ID for the tile we&rsquo;re interested in.
+ - returns: The lower left and upper right corner of the tile in geographic coordinates.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Type Definitions/MaplyBoundingBox.html">MaplyBoundingBox</a></span><span class="p">)</span><span class="nf">boundsForTile</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span><span class="nv">tileID</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">bounds</span><span class="p">(</span><span class="n">forTile</span> <span class="nv">tileID</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Type Definitions/MaplyBoundingBox.html">MaplyBoundingBox</a></span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>tileID</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The ID for the tile we&rsquo;re interested in.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The lower left and upper right corner of the tile in geographic coordinates.</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)boundsforTile:ll:ur:"></a>
+                    <a name="//apple_ref/objc/Method/-boundsforTile:ll:ur:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)boundsforTile:ll:ur:">-boundsforTile:ll:ur:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Calculate the bounding box for a single tile in the local coordinate system.
+    @details This utility method calculates the bounding box for a tile in the coordinate system used for the layer.
+    - parameter: tileID The ID for the tile we&rsquo;re interested in.
+    - parameter: ll The lower left corner of the tile in local coordinates.
+    - parameter: ur The upper right corner of the tile in local coordinates.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">boundsforTile</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span><span class="nv">tileID</span>
+                   <span class="nf">ll</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyCoordinate.html">MaplyCoordinate</a></span> <span class="o">*</span><span class="n">_Nonnull</span><span class="p">)</span><span class="nv">ll</span>
+                   <span class="nf">ur</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyCoordinate.html">MaplyCoordinate</a></span> <span class="o">*</span><span class="n">_Nonnull</span><span class="p">)</span><span class="nv">ur</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">boundsforTile</span><span class="p">(</span><span class="n">_</span> <span class="nv">tileID</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">,</span> <span class="nv">ll</span><span class="p">:</span> <span class="kt">UnsafeMutablePointer</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>tileID</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The ID for the tile we&rsquo;re interested in.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>ll</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The lower left corner of the tile in local coordinates.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>ur</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The upper right corner of the tile in local coordinates.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)displayCenterForTile:"></a>
+                    <a name="//apple_ref/objc/Method/-displayCenterForTile:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)displayCenterForTile:">-displayCenterForTile:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Return the center of the tile in display coordinates.
+    - parameter: tileID The ID for the tile we&rsquo;re interested in.
+    - returns: Return the center in display space for the given tile.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Type Definitions/MaplyCoordinate3d.html">MaplyCoordinate3d</a></span><span class="p">)</span><span class="nf">displayCenterForTile</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span><span class="nv">tileID</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">displayCenter</span><span class="p">(</span><span class="n">forTile</span> <span class="nv">tileID</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyTileID.html">MaplyTileID</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Type Definitions/MaplyCoordinate3d.html">MaplyCoordinate3d</a></span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>tileID</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The ID for the tile we&rsquo;re interested in.</p>
+
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>Return the center in display space for the given tile.</p>
+
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(py)maxTiles"></a>
+                    <a name="//apple_ref/objc/Property/maxTiles" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(py)maxTiles">maxTiles</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Maximum number of tiles to load in at once.
+ @details This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 256 and that&rsquo;s generally good enough.  However, if your tile size is small, you may want to load in more.
+ @details Tile loading can get out of control when using elevation data.  The toolkit calculates potential sceen coverage for each tile so elevation data makes all tiles more important.  As a result the system will happily page in way more data than you may want.  The limit becomes important in elevation mode, so leave it at 128 unless you need to change it.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">int</span> <span class="n">maxTiles</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">maxTiles</span><span class="p">:</span> <span class="kt">Int32</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(py)minTileHeight"></a>
+                    <a name="//apple_ref/objc/Property/minTileHeight" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(py)minTileHeight">minTileHeight</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Set the minimum tile height (0.0 by default).
+    @details When paging tiles containing 3D geometry it&rsquo;s helpful to know the min and max height.  This is the minimum height and defaults to 0.0.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">float</span> <span class="n">minTileHeight</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">minTileHeight</span><span class="p">:</span> <span class="kt">Float</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(py)maxTileHeight"></a>
+                    <a name="//apple_ref/objc/Property/maxTileHeight" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(py)maxTileHeight">maxTileHeight</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Set the maximum tile height (0.0 off by default)
+    @details When paging tiles containing 3D geometry it&rsquo;s helpful to know the min and max height.  This is the maximum height and it defaults to 0.0.  When min and max are the same, they are ignored.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">float</span> <span class="n">maxTileHeight</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">maxTileHeight</span><span class="p">:</span> <span class="kt">Float</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)reload"></a>
+                    <a name="//apple_ref/objc/Method/-reload" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)reload">-reload</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Reload the paging layer contents.
+    @details This asks the paging layer to clean out its current data and reload everything from scratch.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">reload</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">reload</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)reload:"></a>
+                    <a name="//apple_ref/objc/Method/-reload:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)reload:">-reload:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief Request a reload of the paging layer within the given bounding box.
+    @details Figures out which tiles overlap the given bounding box and asks for a refresh on those.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">reload</span><span class="p">:(</span><span class="n"><a href="../Type Definitions/MaplyBoundingBox.html">MaplyBoundingBox</a></span><span class="p">)</span><span class="nv">bounds</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">reload</span><span class="p">(</span><span class="n">_</span> <span class="nv">bounds</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyBoundingBox.html">MaplyBoundingBox</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(py)valid"></a>
+                    <a name="//apple_ref/objc/Property/valid" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(py)valid">valid</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>@brief True if the layer is active.  False if it&rsquo;s been shut down.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">atomic</span><span class="p">)</span> <span class="kt">_Bool</span> <span class="n">valid</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">valid</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)MaplyQuadPagingLayer(im)pagingDelegate"></a>
+                    <a name="//apple_ref/objc/Method/-pagingDelegate" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyQuadPagingLayer(im)pagingDelegate">-pagingDelegate</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Undocumented</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyQuadPagingLayer</span> <span class="p">:</span> <span class="nc">MaplyViewControllerLayer</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2017 <a class="link" href="https://mousebirdconsulting.com" target="_blank" rel="external">mousebird consulting inc</a>. All rights reserved. (Last updated: 2017-01-27)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>
