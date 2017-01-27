@@ -593,14 +593,38 @@
         if (pointPlacementNode) {
             labelParams[@"placement"] = @"point";
             
-            DDXMLElement *anchorPointNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"AnchorPoint"];
-            DDXMLElement *displacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"Displacement"];
-            
-            
+            DDXMLElement *anchorPointNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:pointPlacementNode childName:@"AnchorPoint"];
+            DDXMLElement *displacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:pointPlacementNode childName:@"Displacement"];
+            if (displacementNode) {
+                DDXMLElement *displacementXNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:displacementNode childName:@"DisplacementX"];
+                DDXMLElement *displacementYNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:displacementNode childName:@"DisplacementY"];
+                NSString *sDisplacementX, *sDisplacementY;
+                if (displacementXNode)
+                    sDisplacementX = [SLDSymbolizer stringForLiteralInNode:displacementXNode];
+                if (displacementYNode)
+                    sDisplacementY = [SLDSymbolizer stringForLiteralInNode:displacementYNode];
+                int displacementX = 25;
+                if (sDisplacementX)
+                    displacementX = [sDisplacementX intValue];
+                int displacementY = 0;
+                if (sDisplacementY)
+                    displacementY = [sDisplacementY intValue];
+                labelParams[@"dx"] = @(displacementX);
+                labelParams[@"dy"] = @(displacementY);
+            }
         } else if (linePlacementNode) {
+            
+            DDXMLElement *perpendicularOffsetNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:linePlacementNode childName:@"PerpendicularOffset"];
+            float dy = 0;
+            if (perpendicularOffsetNode) {
+                NSString * sPerpendicularOffset = [SLDSymbolizer stringForLiteralInNode:perpendicularOffsetNode];
+                if (sPerpendicularOffset) {
+                    dy = [sPerpendicularOffset floatValue];
+                }
+            }
             labelParams[@"placement"] = @"line";
             labelParams[@"dx"] = @(0);
-            labelParams[@"dy"] = @(15);
+            labelParams[@"dy"] = @(dy);
         }
     }
     
