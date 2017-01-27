@@ -33,7 +33,7 @@ dependencies {
     
     // other libraries will appear here
 
-    compile 'com.mousebirdconsulting.maply:Android:0.7'
+    compile 'com.mousebirdconsulting.maply:Android:2.5'
 }
 ```
 
@@ -48,13 +48,13 @@ It may happen that the specified version is not included in JCenter yet (it happ
 
 
 ```
-Could not find com.mousebirdconsulting.maply:Android:0.7.
+Could not find com.mousebirdconsulting.maply:Android:2.5.
 ```
 
 or maybe this one
 
 ```
-Failed to resolve: com.mousebirdconsulting.maply:Android:0.7
+Failed to resolve: com.mousebirdconsulting.maply:Android:2.5
 ```
 
 then add the following "maven" section to your `YOUR_PROJECT_HOME/build.gradle` file
