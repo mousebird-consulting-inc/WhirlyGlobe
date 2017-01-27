@@ -17,7 +17,7 @@ allprojects {
 }
 
 group = 'com.mousebirdconsulting.maply'
-version = '0.7'
+version = '2.5'
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
@@ -202,7 +202,7 @@ bintray {
     }
 }
 
-def artifactVersion = '0.7'
+def artifactVersion = '2.5'
 
 publishing {
     publications {
