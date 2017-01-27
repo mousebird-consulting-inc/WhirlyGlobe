@@ -52,6 +52,7 @@
 
 @property (nonatomic, strong) NSNumber * _Nullable minScaleDenominator;
 @property (nonatomic, strong) NSNumber * _Nullable maxScaleDenominator;
+@property (nonatomic, strong) NSNumber * _Nullable relativeDrawPriority;
 
 @property (nonatomic, strong) NSMutableArray * _Nullable symbolizers;
 
