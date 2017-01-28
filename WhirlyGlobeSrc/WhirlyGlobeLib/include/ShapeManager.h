@@ -25,9 +25,14 @@
 #import "SelectionManager.h"
 #import "Scene.h"
 
+
+/// Samples (x) to use when converting shape to polygons
+extern NSString* const kWhirlyKitShapeSampleX;
+
+
 namespace WhirlyKit
 {
-    
+
 /// Used internally to track shape related resources
 class ShapeSceneRep : public Identifiable
 {
@@ -72,6 +77,9 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 /// This will display a circle around the location as defined by the base class
 @interface WhirlyKitCircle : WhirlyKitShape
 
+/// @brief Construct with a description.  Uses the kShapeSampleX
+- (nonnull instancetype)initWithDesc:(NSDictionary *__nonnull)desc;
+
 /// The location for the origin of the shape
 @property (nonatomic,assign) WhirlyKit::GeoCoord &loc;
 /// Radius is in display units
@@ -99,6 +107,9 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 
 /// This puts a cylinder with its base at the locaton
 @interface WhirlyKitCylinder : WhirlyKitShape
+
+/// @brief Construct with a description.  Uses the kShapeSampleX
+- (nonnull instancetype)initWithDesc:(NSDictionary *__nonnull)desc;
 
 /// The location for the origin of the shape
 @property (nonatomic,assign) WhirlyKit::GeoCoord &loc;
