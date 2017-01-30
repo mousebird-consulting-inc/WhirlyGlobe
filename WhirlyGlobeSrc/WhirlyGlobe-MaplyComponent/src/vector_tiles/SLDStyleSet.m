@@ -312,6 +312,7 @@
         
         if (symbolizers) {
             _relativeDrawPriority += 1;
+            relativeDrawPriority += 1;
             for (MaplyVectorTileStyle * symbolizer in symbolizers) {
                 symbolizer.uuid = @(symbolizerId);
                 self.symbolizers[@(symbolizerId)] = symbolizer;
