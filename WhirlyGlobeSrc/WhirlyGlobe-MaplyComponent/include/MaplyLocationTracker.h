@@ -74,6 +74,7 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
 - (void) teardown;
 
 /** @brief Get the current device location
+ @return The coordinate if valid, else kMaplyNullCoordinate
  */
 - (MaplyCoordinate)getLocation;
 
