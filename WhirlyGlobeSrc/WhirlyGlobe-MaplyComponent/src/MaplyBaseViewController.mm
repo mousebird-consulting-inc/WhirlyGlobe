@@ -1426,5 +1426,11 @@ static const float PerfOutputDelay = 15.0;
     _locationTracker = nil;
 }
 
+- (MaplyCoordinate)getDeviceLocation {
+    if (!_locationTracker)
+        return kMaplyNullCoordinate;
+    return [_locationTracker getLocation];
+}
+
 
 @end
