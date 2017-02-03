@@ -39,6 +39,10 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="Global Schooner" image="globalschooner.png" body="Take an interactive journey across the globe with Prairie Schooner, complete with exclusive content and more than 300 profiles of authors from around the world." link="https://itunes.apple.com/us/app/global-schooner/id612496796?mt=8" %}
 
+{% include app_entry.html name="iBobber" image="ibobber.jpg" body="The iBobber app from Reelsonar interfaces to their fish finding hardware.  It also shows a globe with active users." link="https://itunes.apple.com/us/app/ibobber/id794673333?mt=8" %}
+
+{% include app_entry.html name="iBobber" image="ibobber.jpg" body="The iBobber app from Reelsonar is also available on Android." link="https://play.google.com/store/apps/details?id=com.reelsonar.ibobber&hl=en" %}
+
 {% include app_entry.html name="InterAtlas" image="interatlas.jpeg" body="Inter Atlas has the distinction of being the first WhirlyGlobe app.  It's a neat little geography tool hooked up to wikipedia." link="https://itunes.apple.com/us/app/interatlas/id501997258?mt=8" %}
 
 {% include app_entry.html name="LiveFlight" image="liveflight.png" body="LiveFlight is a flight tracker for the mobile flight simulator, Infinite Flight. Explore flights on a 3D globe or interact with highly-detailed airport ground charts." link="https://itunes.apple.com/us/app/liveflight-flight-tracker/id933626355" %}

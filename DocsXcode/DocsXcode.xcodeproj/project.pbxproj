@@ -14,6 +14,7 @@
 		2B14BFE11B86446700CE29A4 /* smartplates.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = smartplates.png; sourceTree = "<group>"; };
 		2B14BFE21B86446700CE29A4 /* worldatlas.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = worldatlas.png; sourceTree = "<group>"; };
 		2B19B10B1AB7F4AE00862BCD /* epicenter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epicenter.png; sourceTree = "<group>"; };
+		2B2BD8961E451CA200CC6FEF /* ibobber.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ibobber.jpg; sourceTree = "<group>"; };
 		2B2E59E01CA06E9B008FFE4A /* locationtech_March_20_2016.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = locationtech_March_20_2016.md; path = ../locationtech/locationtech_March_20_2016.md; sourceTree = "<group>"; };
 		2B2E59E21CA06EDC008FFE4A /* natgeodarksky.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = natgeodarksky.jpg; path = ../locationtech/images/natgeodarksky.jpg; sourceTree = "<group>"; };
 		2B2E59E31CA07EC7008FFE4A /* androidbng.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = androidbng.jpg; path = ../locationtech/images/androidbng.jpg; sourceTree = "<group>"; };
@@ -350,6 +351,7 @@
 		2B4E06B81A153FB100ADA318 /* apps */ = {
 			isa = PBXGroup;
 			children = (
+				2B2BD8961E451CA200CC6FEF /* ibobber.jpg */,
 				2BADFD8A1C7FC9E8004687FB /* miizee.png */,
 				2BB7660F1C73A14700F01F2A /* aeroviereports.jpeg */,
 				2BB766101C73A14700F01F2A /* climearth.jpeg */,
