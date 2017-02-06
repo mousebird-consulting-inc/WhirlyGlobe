@@ -27,6 +27,9 @@
 /// Add a color as a UIColor
 - (void)addColor:(UIColor *)color;
 
+/// Add color with values expressed as integers 0-255
+- (void)addByteRed:(int)red green:(int)green blue:(int)blue alpha:(int)alpha;
+
 /// Generate the image with the color ramp in it
 - (UIImage *)makeImage:(CGSize)size;
 
