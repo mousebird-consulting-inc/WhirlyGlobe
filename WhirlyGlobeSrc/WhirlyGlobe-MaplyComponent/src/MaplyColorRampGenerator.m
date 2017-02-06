@@ -50,6 +50,11 @@
     [colors addObject:color];
 }
 
+- (void)addByteRed:(int)red green:(int)green blue:(int)blue alpha:(int)alpha
+{
+    [colors addObject:[UIColor colorWithRed:red/255.0 green:green/255.0 blue:blue/255.0 alpha:alpha/255.0]];
+}
+
 - (UIColor *)interpColor:(float)where
 {
     if ([colors count] == 0)
