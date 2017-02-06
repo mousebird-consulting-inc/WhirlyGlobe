@@ -81,6 +81,10 @@
     return self;
 }
 
+- (CLLocationManager *)locationManager {
+    return _locationManager;
+}
+
 - (void) teardown {
     if (!_simulate)
         [self teardownLocationManager];
