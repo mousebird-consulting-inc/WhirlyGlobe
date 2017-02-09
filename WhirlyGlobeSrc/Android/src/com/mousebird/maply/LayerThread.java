@@ -217,7 +217,8 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 
 		// Block until the queue drains
 		try {
-			endLock.acquire();
+			if (renderer != null)
+				endLock.acquire();
 		} catch (Exception e) {
 		}
 
