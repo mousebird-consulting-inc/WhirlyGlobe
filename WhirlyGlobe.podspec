@@ -84,6 +84,7 @@ Pod::Spec.new do |s|
     mch.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/**/*.h'
     mch.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/*.h' # , "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h"
     mch.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/{MaplyBridge,vector_tile.pb}.h', 'WhirlyGlobeSrc/local_libs/**'
+    mch.exclude_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/MaplyLAZ*.h'
     mch.dependency 'WhirlyGlobe/Lib-Headers'
   end
 
@@ -101,6 +102,7 @@ Pod::Spec.new do |s|
     mc.dependency 'FMDB'
     mc.libraries = 'z', 'xml2'
     mc.frameworks = 'CoreLocation', 'MobileCoreServices', 'SystemConfiguration', 'CFNetwork'
+    mc.exclude_files = 'third-party/laszip/**/*.cpp', 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/src/MaplyLAZ*.mm'
   end
 
 end
