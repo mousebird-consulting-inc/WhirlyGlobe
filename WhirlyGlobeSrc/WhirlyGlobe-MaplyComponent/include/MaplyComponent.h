@@ -63,10 +63,10 @@
 #import "MaplyGeomBuilder.h"
 #import "MaplyColorRampGenerator.h"
 #import "MaplyAerisTiles.h"
-#import "MaplyLAZQuadReader.h"
 
 // These are not pulled in by the podspec
 #ifdef NOTPODSPECWG
+#import "MaplyLAZQuadReader.h"
 #import "vector_tiles/MaplyVectorTiles.h"
 #import "vector_tiles/MapboxVectorTiles.h"
 #import "vector_tiles/MapnikStyleSet.h"
