@@ -451,8 +451,10 @@ public class MaplyBaseController
 				layerThreads.clear();
 			}
 
-			metroThread.shutdown();
-			metroThread = null;
+			if (metroThread != null) {
+				metroThread.shutdown();
+				metroThread = null;
+			}
 
 
 			scene.teardownGL();
@@ -479,14 +481,17 @@ public class MaplyBaseController
 			glContexts = null;
 
 			// And the main one
-			egl.eglDestroySurface(renderWrapper.maplyRender.display, glContext.eglSurface);
-			egl.eglDestroyContext(renderWrapper.maplyRender.display, glContext.eglContext);
-			glContext = null;
+			if (renderWrapper != null && renderWrapper.maplyRender != null && glContext != null) {
+				egl.eglDestroySurface(renderWrapper.maplyRender.display, glContext.eglSurface);
+				egl.eglDestroyContext(renderWrapper.maplyRender.display, glContext.eglContext);
+				glContext = null;
+			}
 
 			// Clean up OpenGL ES resources
 			setEGLContext(null);
 
-			renderWrapper.shutdown();
+			if (renderWrapper != null)
+				renderWrapper.shutdown();
 
 			baseView = null;
 			renderWrapper = null;
