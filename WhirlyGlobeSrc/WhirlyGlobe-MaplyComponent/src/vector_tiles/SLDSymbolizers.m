@@ -27,15 +27,45 @@
  */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
     
+    static NSMutableDictionary *zOrderGroups;
+    if (!zOrderGroups)
+        zOrderGroups = [NSMutableDictionary dictionary];
+    
     NSString *name = [element localName];
+    
+    if (![SLDLineSymbolizer matchesSymbolizerNamed:name] && ![SLDPolygonSymbolizer matchesSymbolizerNamed:name] && ![SLDPointSymbolizer matchesSymbolizerNamed:name] && ![SLDTextSymbolizer matchesSymbolizerNamed:name])
+        return nil;
+    
+    int overrideRelativeDrawPriority = relativeDrawPriority;
+    
+    NSArray *vendorOptionNodes = [element elementsForName:@"VendorOption"];
+    if (vendorOptionNodes) {
+        for (DDXMLElement *vendorOptionNode in vendorOptionNodes) {
+            DDXMLNode *optionNameNode = [vendorOptionNode attributeForName:@"name"];
+            NSString *optionName;
+            if (optionNameNode)
+                optionName = [optionNameNode stringValue];
+            if (optionName && [optionName isEqualToString:@"zOrderGroup"]) {
+                NSString *groupName = [self stringForLiteralInNode:vendorOptionNode];
+                if (groupName) {
+                    if (zOrderGroups[groupName])
+                        overrideRelativeDrawPriority = [zOrderGroups[groupName] intValue];
+                    else
+                        zOrderGroups[groupName] = @(relativeDrawPriority);
+                    break;
+                }
+            }
+        }
+    }
+    
     if ([SLDLineSymbolizer matchesSymbolizerNamed:name])
-        return [SLDLineSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:relativeDrawPriority baseURL:baseURL];
+        return [SLDLineSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority baseURL:baseURL];
     else if ([SLDPolygonSymbolizer matchesSymbolizerNamed:name])
-        return [SLDPolygonSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:relativeDrawPriority baseURL:baseURL];
+        return [SLDPolygonSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority baseURL:baseURL];
     else if ([SLDPointSymbolizer matchesSymbolizerNamed:name])
-        return [SLDPointSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:relativeDrawPriority baseURL:baseURL];
+        return [SLDPointSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority baseURL:baseURL];
     else if ([SLDTextSymbolizer matchesSymbolizerNamed:name])
-        return [SLDTextSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:relativeDrawPriority baseURL:baseURL];
+        return [SLDTextSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority baseURL:baseURL];
     return nil;
 }
 
