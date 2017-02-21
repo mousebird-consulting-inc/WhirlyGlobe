@@ -237,7 +237,6 @@ public:
                         import += 1.0;
                 }
             }
-//            import *= importanceScale;
         } else {
             // Note: Porting
             //            if (elevDelegate)
@@ -318,6 +317,7 @@ public:
             }
             Dictionary attrs;
             float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), mbr, ident, &attrs);
+            import *= importanceScale;
             if (import <= shortCircuitImportance)
             {
                 zoomLevel--;
@@ -361,7 +361,7 @@ public:
             }
             control->setTargetLevels(targetLevels);
         }
-//        __android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
+        __android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
     }
     
     /// QuadDataStructure shutdown
