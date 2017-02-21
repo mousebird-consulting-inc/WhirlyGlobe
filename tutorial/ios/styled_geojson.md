@@ -113,9 +113,9 @@ With the additional data layers to process, we're going to use the *startParseWi
 First, change the call to *startParse* with *startParseWithCompletion*:
 
 {% multiple_code %} {% highlight objc %}
-{% endhighlight %}
         [landUseSource startParseWithCompletion:^() {
         }];
+{% endhighlight %}
 {----}
 {% highlight swift %}
         self.landUseSource?.startParse(completion: {
