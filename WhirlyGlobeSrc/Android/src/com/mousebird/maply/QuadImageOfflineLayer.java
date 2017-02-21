@@ -180,6 +180,9 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
             evalStepRun = null;
         }
 
+        if (!getEnable())
+            return;
+
         // Note: Check that the renderer is set up and such.
         ChangeSet changes = new ChangeSet();
         boolean didSomething = nativeEvalStep(changes);
@@ -306,6 +309,9 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
         ChangeSet changes = new ChangeSet();
         setEnable(enable,changes);
         layerThread.addChanges(changes);
+
+        if (enable)
+            scheduleEvalStep();
     }
 
     native void setEnable(boolean enable,ChangeSet changes);

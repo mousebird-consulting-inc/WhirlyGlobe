@@ -193,14 +193,14 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 						fOut.close();
 					}
 					if (debugOutput)
-						Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+						Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
 				} catch (Exception e) {
 					if (debugOutput)
 						Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
 				}
 			} else {
 				if (debugOutput)
-					Log.d("Maply", "Fetch failed for remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+					Log.d("Maply", "Fetch failed for remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
 			}
 
 			boolean reportThisTile = false;

@@ -81,6 +81,15 @@ public:
             delete coordSys;
     }
     
+    void setOn(bool newEnable)
+    {
+        enable = newEnable;
+        if (tileLoader != NULL)
+            tileLoader->setOn(enable);
+        if (control != NULL)
+            control->setEnable(enable);
+    }
+    
     // Get Java methods for a particular instance
     void setJavaRefs(JNIEnv *env,jobject obj)
     {
@@ -126,6 +135,7 @@ public:
         control->setMeteredMode(false);
         control->init(scene,renderer);
         control->setMaxTiles(maxTiles);
+        control->setEnable(enable);
         if (!framePriorities.empty())
             control->setFrameLoadingPriorities(framePriorities);
         
@@ -181,6 +191,7 @@ public:
     {
         if (ident.level == 0)
             return MAXFLOAT;
+        const char *pathType = NULL;
         
         Quadtree::Identifier tileID;
         tileID.level = ident.level;
@@ -209,12 +220,27 @@ public:
         double import = 0.0;
         if (canShortCircuitImportance && maxShortCircuitLevel != -1)
         {
-            if (TileIsOnScreen(viewState, frameSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs))
+            if (scene->getCoordAdapter()->isFlat())
             {
-                import = 1.0/(ident.level+10);
-                if (ident.level <= maxShortCircuitLevel)
-                    import += 1.0;
+                if (TileIsOnScreen(viewState, frameSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs))
+                {
+                    import = 1.0/(ident.level+10);
+                    if (ident.level <= maxShortCircuitLevel)
+                        import += 1.0;
+                }
+                pathType = "short flat";
+            } else {
+                // We need the backfacing checks that ScreenImportance does
+                import = ScreenImportance(viewState, frameSize, viewState->eyeVec, tileSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs);
+                if (import > 0.0)
+                {
+                    import = 1.0/(ident.level+10);
+                    if (ident.level <= maxShortCircuitLevel)
+                        import += 1.0;
+                }
+                pathType = "short round";
             }
+//            import *= importanceScale;
         } else {
             // Note: Porting
             //            if (elevDelegate)
@@ -224,9 +250,12 @@ public:
             import = ScreenImportance(viewState, frameSize, viewState->eyeVec, thisTileSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs);
             //            }
             import *= importanceScale;
+            
+            pathType = "full";
         }
-        
-//        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
+
+        if (import > 0.0)
+            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile = %d: (%d,%d), import = %f path = %s",ident.level,ident.x,ident.y,import,pathType);
         
         return import;
     }
@@ -308,12 +337,13 @@ public:
     /// Called when the view state changes.  If you're caching info, do it here.
     virtual void newViewState(ViewState *viewState)
     {
-        //    	__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Got new view state");
+        __android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Got new view state");
         
         lastViewState = viewState;
         
         if (!useTargetZoomLevel)
         {
+            __android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Can't short circuit");
             canShortCircuitImportance = false;
             maxShortCircuitLevel = -1;
             return;
@@ -497,13 +527,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setEnable
 {
     try
     {
-        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
-        QuadImageOfflineLayerAdapter *adapter = classInfo->getObject(env,obj);
+        QuadImageOfflineLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!adapter || !changeSet || !adapter->tileLoader)
+        if (!adapter)
             return;
-        ChangeSet changes;
-        adapter->tileLoader->setOn(enable);
+        adapter->setOn(enable);
     }
     catch (...)
     {
@@ -872,7 +900,10 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_native
         ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
         if (!adapter || !changes)
             return false;
-        
+
+        if (!adapter->enable)
+            return false;
+
         adapter->env = env;
         
         // Note: Not passing in frame boundary info
@@ -980,7 +1011,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_getEna
         if (!adapter || !adapter->tileLoader)
             return false;
         
-        return adapter->tileLoader->getOn();
+        return adapter->enable;
     }
     catch (...)
     {

@@ -45,6 +45,12 @@ public class Point3d
 		initialise();		
 		setValue(that.getX(),that.getY(),that.getZ());
 	}
+
+	public Point3d(Point2d start,double z)
+	{
+		initialise();
+		setValue(start.getX(),start.getY(),z);
+	}
 	
 	/**
 	 * Initialize with 3 doubles.
