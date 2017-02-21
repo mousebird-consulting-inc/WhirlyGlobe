@@ -191,7 +191,6 @@ public:
     {
         if (ident.level == 0)
             return MAXFLOAT;
-        const char *pathType = NULL;
         
         Quadtree::Identifier tileID;
         tileID.level = ident.level;
@@ -228,7 +227,6 @@ public:
                     if (ident.level <= maxShortCircuitLevel)
                         import += 1.0;
                 }
-                pathType = "short flat";
             } else {
                 // We need the backfacing checks that ScreenImportance does
                 import = ScreenImportance(viewState, frameSize, viewState->eyeVec, tileSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs);
@@ -238,7 +236,6 @@ public:
                     if (ident.level <= maxShortCircuitLevel)
                         import += 1.0;
                 }
-                pathType = "short round";
             }
 //            import *= importanceScale;
         } else {
@@ -250,12 +247,10 @@ public:
             import = ScreenImportance(viewState, frameSize, viewState->eyeVec, thisTileSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs);
             //            }
             import *= importanceScale;
-            
-            pathType = "full";
         }
 
-        if (import > 0.0)
-            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile = %d: (%d,%d), import = %f path = %s",ident.level,ident.x,ident.y,import,pathType);
+//        if (import > 0.0)
+//            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
         
         return import;
     }
@@ -337,13 +332,13 @@ public:
     /// Called when the view state changes.  If you're caching info, do it here.
     virtual void newViewState(ViewState *viewState)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Got new view state");
+//        __android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Got new view state");
         
         lastViewState = viewState;
         
         if (!useTargetZoomLevel)
         {
-            __android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Can't short circuit");
+//            __android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Can't short circuit");
             canShortCircuitImportance = false;
             maxShortCircuitLevel = -1;
             return;
@@ -366,7 +361,7 @@ public:
             }
             control->setTargetLevels(targetLevels);
         }
-        __android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
+//        __android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
     }
     
     /// QuadDataStructure shutdown

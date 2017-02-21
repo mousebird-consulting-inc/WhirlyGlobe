@@ -247,7 +247,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
             }
             catch (Exception e)
             {
-				Log.e("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " because: " + e.toString());
+				Log.e("Maply", "Failed to fetch remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " because: " + e.toString());
             }
 
             reportTile();
