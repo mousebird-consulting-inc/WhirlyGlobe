@@ -361,7 +361,7 @@ public:
             }
             control->setTargetLevels(targetLevels);
         }
-        __android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
+//        __android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
     }
     
     /// QuadDataStructure shutdown
