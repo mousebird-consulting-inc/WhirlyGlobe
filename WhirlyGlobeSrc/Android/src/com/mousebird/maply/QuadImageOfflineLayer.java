@@ -100,6 +100,8 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
     public void shutdown()
     {
         valid = false;
+        if (tileSource != null)
+            tileSource.clear(this);
         if (layerThread != null)
             layerThread.removeWatcher(this);
         cancelEvalStep();

@@ -81,6 +81,11 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		 * @param frame If the source support multiple frames, this is the frame.  Otherwise -1.
 		 */
 		public void startFetchForTile(QuadImageTileLayerInterface layer,MaplyTileID tileID,int frame);
+
+		/**
+		 * Clear out any resources (such as HTTP requests) because we're shutting down.
+		 */
+		public void clear(QuadImageTileLayerInterface layer);
 	}
 	
 	public MaplyBaseController maplyControl = null;
@@ -171,6 +176,8 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 	public void shutdown()
 	{
 		valid = false;
+		if (tileSource != null)
+			tileSource.clear(this);
 		if (layerThread != null)
 			layerThread.removeWatcher(this);
 		cancelEvalStep();

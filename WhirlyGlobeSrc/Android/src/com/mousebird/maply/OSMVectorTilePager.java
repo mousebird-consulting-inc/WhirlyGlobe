@@ -524,4 +524,8 @@ public class OSMVectorTilePager implements QuadPagingLayer.PagingInterface
 			return vecData;
 		return null;
 	}
+
+	public void clear()
+	{
+	}
 }

@@ -106,4 +106,7 @@ public class TestQuadPager implements QuadPagingLayer.PagingInterface
 	{
 	}
 
+	public void clear()
+	{
+	}
 }

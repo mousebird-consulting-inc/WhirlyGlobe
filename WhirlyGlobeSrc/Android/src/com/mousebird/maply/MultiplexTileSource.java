@@ -52,6 +52,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	int maxZoom = 0;
 	int pixelsPerSide = 256;
 	OkHttpClient client = null;
+	Object NET_TAG = new Object();
 
 	// Set if we can use the premultiply option
 	boolean hasPremultiplyOption = false;
@@ -143,7 +144,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
                 }
 
                 // Load the data from that URL
-                Request request = new Request.Builder().url(url).build();
+                Request request = new Request.Builder().url(url).tag(NET_TAG).build();
 
                 call = client.newCall(request);
                 call.enqueue(this);
@@ -153,6 +154,9 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 
         // Callback from OK HTTP on tile loading failure
         public void onFailure(Request request, IOException e) {
+			// Ignore cancels
+			if (e.getLocalizedMessage().contains("Canceled"))
+				return;
             Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
         }
 
@@ -511,6 +515,18 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
                     task.fetchTile();
 				}
 			}
+		}
+	}
+
+	public void clear(QuadImageTileLayerInterface layer)
+	{
+		synchronized (this) {
+			client.cancel(NET_TAG);
+			client = null;
+
+			controller = null;
+			coordSys = null;
+			sources = null;
 		}
 	}
 }

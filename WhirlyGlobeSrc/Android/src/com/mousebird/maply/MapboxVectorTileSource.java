@@ -27,7 +27,8 @@ import java.util.zip.ZipEntry;
  */
 public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
 {
-    OkHttpClient client = new OkHttpClient();
+    MaplyBaseController controller;
+    OkHttpClient client;
     MBTiles mbTiles = null;
     RemoteTileInfo tileInfo = null;
     public boolean debugOutput = false;
@@ -46,8 +47,10 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
         vecStyleFactory = inVecStyleFactor;
     }
 
-    public MapboxVectorTileSource(RemoteTileInfo inTileInfo,VectorStyleInterface inVecStyleFactor)
+    public MapboxVectorTileSource(MaplyBaseController baseController,RemoteTileInfo inTileInfo,VectorStyleInterface inVecStyleFactor)
     {
+        controller = baseController;
+        client = baseController.getHttpClient();
         tileInfo = inTileInfo;
         tileParser = new MapboxVectorTileParser();
         vecStyleFactory = inVecStyleFactor;
@@ -109,9 +112,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
                     bout.write(buffer, 0, count);
 
                 tileData = bout.toByteArray();
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 // We'll try the raw data if we can't decompress it
             }
 
@@ -120,36 +121,34 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
             Mbr mbr = layer.geoBoundsForTile(tileID);
             mbr.ll = toMerc(mbr.ll);
             mbr.ur = toMerc(mbr.ur);
-            MapboxVectorTileParser.DataReturn dataObjs = tileParser.parseData(tileData,mbr);
+            MapboxVectorTileParser.DataReturn dataObjs = tileParser.parseData(tileData, mbr);
 
             if (dataObjs == null)
                 return false;
 
             // Work through the vector objects
             if (vecStyleFactory != null) {
-                HashMap<String,ArrayList<VectorObject>> vecObjsPerStyle = new HashMap<String,ArrayList<VectorObject>>();
+                HashMap<String, ArrayList<VectorObject>> vecObjsPerStyle = new HashMap<String, ArrayList<VectorObject>>();
 
                 // Sort the vector objects into bins based on their styles
                 if (dataObjs != null && dataObjs.vectorObjects != null)
                     for (VectorObject vecObj : dataObjs.vectorObjects) {
                         AttrDictionary attrs = vecObj.getAttributes();
-                        VectorStyle[] styles = vecStyleFactory.stylesForFeature(attrs,tileID,attrs.getString("layer_name"),layer.maplyControl);
-                        for (VectorStyle style : styles)
-                        {
+                        VectorStyle[] styles = vecStyleFactory.stylesForFeature(attrs, tileID, attrs.getString("layer_name"), layer.maplyControl);
+                        for (VectorStyle style : styles) {
                             ArrayList<VectorObject> vecObjsForStyle = vecObjsPerStyle.get(style.getUuid());
                             if (vecObjsForStyle == null) {
                                 vecObjsForStyle = new ArrayList<VectorObject>();
-                                vecObjsPerStyle.put(style.getUuid(),vecObjsForStyle);
+                                vecObjsPerStyle.put(style.getUuid(), vecObjsForStyle);
                             }
                             vecObjsForStyle.add(vecObj);
                         }
                     }
 
                 // Work through the various styles
-                for (String uuid : vecObjsPerStyle.keySet())
-                {
+                for (String uuid : vecObjsPerStyle.keySet()) {
                     ArrayList<VectorObject> vecObjs = vecObjsPerStyle.get(uuid);
-                    VectorStyle style = vecStyleFactory.styleForUUID(uuid,layer.maplyControl);
+                    VectorStyle style = vecStyleFactory.styleForUUID(uuid, layer.maplyControl);
 
                     // This makes the objects
                     if (style != null) {
@@ -163,9 +162,9 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
 
             // Add all the component objects we created
             if (tileCompObjs.size() > 0)
-                layer.addData(tileCompObjs,tileID);
+                layer.addData(tileCompObjs, tileID);
 
-//                    Log.d("Maply","Loaded vector tile: " + tileID.toString());
+            //                    Log.d("Maply","Loaded vector tile: " + tileID.toString());
 
             layer.tileDidLoad(tileID);
         } else
@@ -213,24 +212,69 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
 
     HashMap<MaplyTileID,ConnectionTask> tasks = new HashMap<MaplyTileID,ConnectionTask>();
 
+    ConnectionTask getTask(MaplyTileID tileID)
+    {
+        synchronized (tasks)
+        {
+            return tasks.get(tileID);
+        }
+    }
+
+    void addTask(MaplyTileID tileID,ConnectionTask task)
+    {
+        synchronized (tasks)
+        {
+            tasks.put(tileID,task);
+        }
+    }
+
+    void removeTask(MaplyTileID tileID)
+    {
+        synchronized (tasks)
+        {
+            tasks.remove(tileID);
+        }
+    }
+
     /**
      * Notification that a tile unloaded.
      */
     public void tileDidUnload(MaplyTileID tileID)
     {
-        // Look for the connection and cancel it if need be
-        synchronized (tasks)
-        {
-            ConnectionTask task = tasks.get(tileID);
-            if (task != null) {
-                tasks.remove(tileID);
-                task.isCanceled = true;
-                task.call.cancel();
-            }
+        ConnectionTask task = getTask(tileID);
+
+        if (task != null) {
+            task.cancel();
+            task.clear();
         }
     }
 
+    // Called when the layer shuts down
+    public void clear()
+    {
+        synchronized (this)
+        {
+            client.cancel(NET_TAG);
+
+            synchronized (tasks)
+            {
+                HashMap<MaplyTileID,ConnectionTask> theTasks = (HashMap<MaplyTileID,ConnectionTask>)tasks.clone();
+                for (ConnectionTask task : theTasks.values())
+                    task.clear();
+            }
+
+            controller = null;
+            client = null;
+            mbTiles = null;
+            tileInfo = null;
+            tileParser = null;
+            vecStyleFactory = null;
+        }
+    }
+
+
     File cacheDir = null;
+    Object NET_TAG = new Object();
 
     /**
      * Set the cache directory for fetched vector tiles.  We'll look there first.
@@ -271,16 +315,18 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
         // Either fetch the tile from the local cache or fetch it remotely
         protected void fetchTile() {
             try {
-                // See if it's here locally
-                if (locFile != null) {
-                    cacheFile = new File(locFile);
-                    if (cacheFile.exists()) {
-                        tileData = FileUtils.readFileToByteArray(cacheFile);
-                        if (debugOutput) {
-                            if (tileData != null)
-                                Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
-                            else
-                                Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+                synchronized (this) {
+                    // See if it's here locally
+                    if (locFile != null) {
+                        cacheFile = new File(locFile);
+                        if (cacheFile.exists()) {
+                            tileData = FileUtils.readFileToByteArray(cacheFile);
+                            if (debugOutput) {
+                                if (tileData != null)
+                                    Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+                                else
+                                    Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+                            }
                         }
                     }
                 }
@@ -291,13 +337,13 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
                 }
 
                 // Load the data from that URL
-                Request request = new Request.Builder().url(url).build();
+                Request request = new Request.Builder().url(url).tag(NET_TAG).build();
 
-                call = client.newCall(request);
-                synchronized (tasks) {
-                    tasks.put(tileID,this);
+                synchronized (this) {
+                    call = client.newCall(request);
+                    addTask(tileID, this);
+                    call.enqueue(this);
                 }
-                call.enqueue(this);
             } catch (Exception e) {
                 if (debugOutput)
                     Log.e("Maply","Exception while trying to fetch the tile: " + e.toString());
@@ -306,8 +352,14 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
 
         // Callback from OK HTTP on tile loading failure
         public void onFailure(Request request, IOException e) {
+            // Ignore cancels
+            if (e.getLocalizedMessage().contains("Canceled"))
+                return;
+
             if (!isCanceled)
                 Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+
+            clear();
         }
 
         // Callback from OK HTTP on success
@@ -347,19 +399,44 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
 
         // Let the system know we've got a tile
         protected void reportTile() {
+            synchronized (this) {
+                if (layer != null) {
                     // Let the layer and delegate know what happened with it
                     if (tileData == null) {
                         layer.tileFailedToLoad(tileID);
                     } else {
                         layer.tileDidLoad(tileID);
                     }
+                }
+            }
+
+            clear();
         }
 
         // Cancel an outstanding request
         protected void cancel() {
-            isCanceled = true;
-            if (call != null)
-                call.cancel();
+            synchronized (this) {
+                isCanceled = true;
+                if (call != null)
+                    call.cancel();
+            }
+
+            clear();
+        }
+
+        void clear()
+        {
+            removeTask(tileID);
+
+            synchronized (this)
+            {
+                tileSource = null;
+                layer = null;
+                url = null;
+                locFile = null;
+                call = null;
+                cacheFile = null;
+            }
         }
     }
 }

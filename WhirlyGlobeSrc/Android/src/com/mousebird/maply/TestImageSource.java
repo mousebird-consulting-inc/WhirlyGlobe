@@ -116,4 +116,9 @@ public class TestImageSource implements QuadImageTileLayer.TileSource
 		}
 		});
 	}
+
+	@Override
+	public void clear(QuadImageTileLayerInterface layer)
+	{
+	}
 }

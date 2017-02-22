@@ -117,9 +117,12 @@ public class RemoteTileInfo
 	 * Construct the actual Request from the URL.
 	 * If you need to mess with the HTTP request headers, override this method.
      */
-	public Request buildRequest(URL url)
+	public Request buildRequest(URL url,Object OkHTTP_TAG)
 	{
-		return new Request.Builder().url(url).build();
+		if (OkHTTP_TAG == null)
+			return new Request.Builder().url(url).build();
+		else
+			return new Request.Builder().url(url).tag(OkHTTP_TAG).build();
 	}
 
 	/**

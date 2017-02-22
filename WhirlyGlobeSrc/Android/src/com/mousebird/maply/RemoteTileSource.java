@@ -46,9 +46,11 @@ import java.net.URL;
  */
 public class RemoteTileSource implements QuadImageTileLayer.TileSource
 {
+	MaplyBaseController controller = null;
 	RemoteTileInfo tileInfo = null;
 	public CoordSystem coordSys = new SphericalMercatorCoordSystem();
-	OkHttpClient client = new OkHttpClient();
+	OkHttpClient client;
+	Object NET_TAG = new Object();
 
 	// Set if we can use the premultiply option
 	boolean hasPremultiplyOption = false;
@@ -91,8 +93,11 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	 * 
 	 * @param inTileInfo
 	 */
-	public RemoteTileSource(RemoteTileInfo inTileInfo)
+	public RemoteTileSource(MaplyBaseController baseControl,RemoteTileInfo inTileInfo)
 	{
+		controller = baseControl;
+		client = baseControl.getHttpClient();
+
 		// See if the premultiplied option is available
 		try {
 			Object opts = new BitmapFactory.Options();
@@ -190,7 +195,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
                 }
 
                 // Load the data from that URL
-				Request request = tileInfo.buildRequest(url);
+				Request request = tileInfo.buildRequest(url,NET_TAG);
 
                 call = client.newCall(request);
                 call.enqueue(this);
@@ -202,6 +207,9 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 
         // Callback from OK HTTP on tile loading failure
         public void onFailure(Request request, IOException e) {
+			// Ignore cancels
+			if (e.getLocalizedMessage().contains("Canceled"))
+				return;
             Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
         }
 
@@ -301,5 +309,14 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 		ConnectionTask task = new ConnectionTask(layer,this,tileID,tileURL,cacheFile);
         task.fetchTile();
 	}
-	
+
+	@Override
+	public void clear(QuadImageTileLayerInterface layer)
+	{
+		synchronized (this) {
+			client.cancel(NET_TAG);
+
+			client = null;
+		}
+	}
 }

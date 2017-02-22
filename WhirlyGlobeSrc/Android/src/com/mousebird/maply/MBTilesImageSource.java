@@ -76,4 +76,10 @@ public class MBTilesImageSource implements QuadImageTileLayer.TileSource
 
         thread.run();
     }
+
+    @Override
+    public void clear(final QuadImageTileLayerInterface layer)
+    {
+        // Note: Not keeping track of read threads
+    }
 }

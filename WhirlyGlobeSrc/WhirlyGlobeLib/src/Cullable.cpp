@@ -20,6 +20,7 @@
 
 #import "GlobeScene.h"
 #import "GlobeMath.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -37,8 +38,7 @@ CullTree::~CullTree()
 
 void CullTree::dumpStats()
 {
-    // Note: Porting
-//    NSLog(@"CullTree: %d nodes",topCullable->countNodes());
+    WHIRLYKIT_LOGV("CullTree: %d nodes",(int)topCullable->countNodes());
 }
     
 Cullable::Cullable(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr localMbr,int depth)
