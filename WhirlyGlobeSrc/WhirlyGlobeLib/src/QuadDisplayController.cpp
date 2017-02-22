@@ -605,7 +605,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
             for (unsigned int ii=0;ii<numFrames;ii++)
             {
                 FrameLoadStatus &status = frameLoadStats[ii];
-                status.complete = quadtree->frameIsLoaded(ii, &status.numTilesLoaded);
+                status.complete = quadtree->frameIsLoaded(ii, &status.numTilesLoaded, true);
                 status.currentFrame = ii == frameLoadingPriority[curFrameEntry];
             }
         }

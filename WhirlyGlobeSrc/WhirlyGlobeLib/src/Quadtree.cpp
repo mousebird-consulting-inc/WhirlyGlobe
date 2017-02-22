@@ -287,7 +287,7 @@ void Quadtree::clearFlagCounts(int frameFlags)
             frameLoadCounts[ii]--;
 }
     
-bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded)
+bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded,bool forDisplay)
 {
     int count = getFrameCount(frame);
     if (tilesLoaded)
@@ -298,7 +298,14 @@ bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded)
         return false;
 
     int nodesSize = nodesByIdent.size();
-    bool isLoaded = (count+numPhantomNodes) == nodesSize;
+    bool isLoaded = false;
+    if (knownNumNodes != 0 && forDisplay)
+        isLoaded = count == knownNumNodes;
+    else {
+        isLoaded = (count+numPhantomNodes) == nodesSize;
+        if (isLoaded)
+            knownNumNodes = count;
+    }
     
 //    if (count+numPhantomNodes > nodesByIdent.size())
 //        NSLog(@"Got one");
