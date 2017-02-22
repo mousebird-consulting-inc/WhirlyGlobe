@@ -317,8 +317,7 @@ public:
             }
             Dictionary attrs;
             float import = ScreenImportance(viewState, frameSize, viewState->eyeVec, 1, coordSys, scene->getCoordAdapter(), mbr, ident, &attrs);
-            import *= importanceScale;
-            if (import <= shortCircuitImportance)
+            if (import <= shortCircuitImportance/(importanceScale*importanceScale))
             {
                 zoomLevel--;
                 break;
