@@ -314,7 +314,8 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	public void clear(QuadImageTileLayerInterface layer)
 	{
 		synchronized (this) {
-			client.cancel(NET_TAG);
+			if (client != null)
+				client.cancel(NET_TAG);
 
 			client = null;
 		}

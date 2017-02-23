@@ -254,7 +254,8 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
     {
         synchronized (this)
         {
-            client.cancel(NET_TAG);
+            if (client != null)
+                client.cancel(NET_TAG);
 
             synchronized (tasks)
             {
