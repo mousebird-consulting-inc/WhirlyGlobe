@@ -295,6 +295,7 @@ public:
     glSetupInfo = nil;
     ourClusterGen.layer = nil;
     clusterGens.clear();
+    tempContexts.clear();
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
