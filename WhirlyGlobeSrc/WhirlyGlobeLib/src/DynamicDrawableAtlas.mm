@@ -93,7 +93,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
     }
     
     // Look for a big drawable that's compatible (e.g. uses the same textures and so forth)
-    BigDrawable *foundBigDraw = nil;
+    BigDrawableRef foundBigDraw;
     DrawRepresent represent(draw->getId());
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
@@ -138,8 +138,9 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
 
         newBigDraw->setModes(draw);
         newBigDraw->setupGL(NULL, memManager);
-        changes.push_back(new AddDrawableReq(newBigDraw));
-        bigDrawables.insert(BigDrawableInfo(draw->getTexId(0),newBigDraw));
+        BigDrawableRef newBigDrawRef(newBigDraw);
+        changes.push_back(new AddDrawableReq(newBigDrawRef));
+        bigDrawables.insert(BigDrawableInfo(draw->getTexId(0),newBigDrawRef));
         if (destTexIDs && newBigDraw->texInfo.size() > 0)
         {
             for (unsigned int ti=0;ti<destTexIDs->size();ti++)
@@ -157,7 +158,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
         {
             represent.vertexSize = (int)[vertData length];
             represent.bigDrawId = newBigDraw->getId();
-            foundBigDraw = newBigDraw;
+            foundBigDraw = newBigDrawRef;
         }
     }
     
@@ -185,7 +186,7 @@ void DynamicDrawableAtlas::setEnableDrawable(SimpleIdentity drawId,bool enabled)
     represent = *it;
     
     // Find the big drawable enable/disable it in there
-    BigDrawable *bigDraw = NULL;
+    BigDrawableRef bigDraw;
     BigDrawableSet::iterator bit;
     for (bit = bigDrawables.begin(); bit != bigDrawables.end(); ++bit)
     {
@@ -252,7 +253,7 @@ bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &chang
     drawables.erase(it);
     
     // Find the big drawable and remove it from that
-    BigDrawable *bigDraw = NULL;
+    BigDrawableRef bigDraw;
     BigDrawableSet::iterator bit;
     for (bit = bigDrawables.begin(); bit != bigDrawables.end(); ++bit)
     {
@@ -295,7 +296,7 @@ bool DynamicDrawableAtlas::hasUpdates()
     
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
-        BigDrawable *bigDraw = it->bigDraw;
+        BigDrawableRef bigDraw = it->bigDraw;
         if (bigDraw->hasChanges())
             return true;
     }
@@ -321,7 +322,7 @@ void DynamicDrawableAtlas::swap(ChangeSet &changes,NSObject * __weak target,SEL 
     std::vector<BigDrawableSet::iterator> toErase;
     for (BigDrawableSet::iterator it = bigDrawables.begin(); it != bigDrawables.end(); ++it)
     {
-        BigDrawable *bigDraw = it->bigDraw;
+        BigDrawableRef bigDraw = it->bigDraw;
         bigDraw->swap(changes,swapRequest);
         
         if (bigDraw->empty())

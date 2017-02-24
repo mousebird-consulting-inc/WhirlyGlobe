@@ -62,7 +62,8 @@ class AddTextureReq : public ChangeRequest
 public:
     /// Construct with a texture.
     /// You are not responsible for deleting the texture after this.
-	AddTextureReq(TextureBase *tex) : tex(tex) { }
+    AddTextureReq(TextureBase *tex) { texRef = TextureBaseRef(tex); }
+    AddTextureReq(const TextureBaseRef &texRef) : texRef(texRef) { }
     /// If the texture hasn't been added to the renderer, clean it up.
     ~AddTextureReq();
 
@@ -70,16 +71,16 @@ public:
     virtual bool needsFlush() { return true; }
     
     /// Create the texture on its native thread
-    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (tex) tex->createInGL(memManager); };
+    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (texRef) texRef->createInGL(memManager); };
 
 	/// Add to the renderer.  Never call this.
 	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
 	
     /// Only use this if you've thought it out
-    TextureBase *getTex() { return tex; }
+    TextureBase *getTex() { return texRef.get(); }
 
 protected:
-	TextureBase *tex;
+    TextureBaseRef texRef;
 };
 
 /// Remove a texture referred to by ID
@@ -103,7 +104,8 @@ class AddDrawableReq : public ChangeRequest
 {
 public:
     /// Construct with a drawable.  You're not responsible for deletion
-	AddDrawableReq(Drawable *drawable) : drawable(drawable) { }
+	AddDrawableReq(Drawable *drawable) : drawRef(drawable) { }
+    AddDrawableReq(const DrawableRef &drawRef) : drawRef(drawRef) { }
     /// If the drawable wasn't used, delete it
     ~AddDrawableReq();
     
@@ -111,13 +113,13 @@ public:
     virtual bool needsFlush() { return true; }
     
     /// Create the drawable on its native thread
-    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (drawable) drawable->setupGL(setupInfo, memManager); };
+    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (drawRef) drawRef->setupGL(setupInfo, memManager); };
 
 	/// Add to the renderer.  Never call this
 	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);	
 	
 protected:
-	Drawable *drawable;
+    DrawableRef drawRef;
 };
 
 /// Ask the renderer to remove the drawable from the scene
@@ -395,9 +397,9 @@ public:
 	/// All the drawables we've been handed, sorted by ID
 	DrawableRefSet drawables;
 	
-	typedef std::set<TextureBase *,IdentifiableSorter> TextureSet;
+    typedef std::set<TextureBaseRef,IdentifiableRefSorter> TextureRefSet;
 	/// Textures, sorted by ID
-	TextureSet textures;
+	TextureRefSet textures;
     
     /// Mutex for accessing textures
     pthread_mutex_t textureLock;
