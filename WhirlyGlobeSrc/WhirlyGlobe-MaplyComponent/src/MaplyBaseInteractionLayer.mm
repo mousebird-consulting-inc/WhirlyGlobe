@@ -306,7 +306,7 @@ public:
     
     if ([NSThread currentThread] != layerThread)
     {
-        [self performSelector:@selector(lockingShutdown) onThread:layerThread withObject:nil waitUntilDone:NO];
+        [self performSelector:@selector(lockingShutdown) onThread:layerThread withObject:nil waitUntilDone:YES];
         return;
     }
 
