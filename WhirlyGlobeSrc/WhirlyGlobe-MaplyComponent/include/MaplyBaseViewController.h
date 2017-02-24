@@ -971,4 +971,15 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  */
 - (void)stopLocationTracking;
 
+/** @brief Get the current location tracker device location
+ @return The coordinate if valid, else kMaplyNullCoordinate
+ */
+- (MaplyCoordinate)getDeviceLocation;
+
+/** @brief @brief Exposes MaplyLocationTracker's location manager for use elsewhere
+    @return The CLLocationmanager if it exists, else nil
+ */
+- (CLLocationManager *)getTrackingLocationManager;
+
+
 @end
