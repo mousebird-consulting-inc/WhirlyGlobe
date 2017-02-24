@@ -27,6 +27,8 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="Flag Ceremony" image="flagceremony.jpg" body="This app displays flags of the world on a globe along with national anthems and other information." link="https://itunes.apple.com/us/app/flag-ceremony/id1180086391?mt=8" %}
 
+{% include app_entry.html name="Flight Assistant" image="flightasst.webp" body="Flight Assistant is an aviation moving map GPS application.  Displays a wide variety of aviation data in detail." link="https://play.google.com/store/apps/details?id=com.ironbird.fav2" %}
+
 {% include app_entry.html name="Flightwise Flight Tracker" image="flightwise.png" body="This is a flight tracker for individual commercial flights." link="https://itunes.apple.com/us/app/flightwise-flight-tracker/id329517941?mt=8" %}
 
 {% include app_entry.html name="Flightwise Flight Planner" image="flightwiseplanner.png" body="An aviation app designed for pilots that can create and file flight plans, view aviation charts and weather and lookup airport information." link="https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=364909735&mt=8" %}
