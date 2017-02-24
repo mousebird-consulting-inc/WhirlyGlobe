@@ -303,17 +303,22 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
     /** Enable/Disable the whole layer.
      *	By default this is on.  If you turn it off, it'll stop renering offline data.
      */
-    public void setEnable(boolean enable)
+    public void setEnable(final boolean enable)
     {
         if (layerThread == null)
             return;
 
-        ChangeSet changes = new ChangeSet();
-        setEnable(enable,changes);
-        layerThread.addChanges(changes);
+        layerThread.addTask(new Runnable() {
+            @Override
+            public void run() {
+                ChangeSet changes = new ChangeSet();
+                setEnable(enable,changes);
+                layerThread.addChanges(changes);
 
-        if (enable)
-            scheduleEvalStep();
+                if (enable)
+                    scheduleEvalStep();
+            }
+        });
     }
 
     native void setEnable(boolean enable,ChangeSet changes);
