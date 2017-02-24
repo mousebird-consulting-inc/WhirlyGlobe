@@ -433,6 +433,15 @@ public class MaplyBaseController
 	{
 		startupAborted = true;
 		synchronized (this) {
+			if (httpClient != null)
+			{
+				if (httpClient.getDispatcher() != null && httpClient.getDispatcher().getExecutorService() != null)
+					httpClient.getDispatcher().getExecutorService().shutdown();
+				if (httpClient.getConnectionPool() != null)
+					httpClient.getConnectionPool().evictAll();
+				httpClient = null;
+			}
+
 			running = false;
 
 			// This will make sure we have a valid context
