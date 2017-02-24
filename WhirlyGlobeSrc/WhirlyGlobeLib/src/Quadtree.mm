@@ -161,7 +161,7 @@ void Quadtree::Node::Print()
 }
 
 Quadtree::Quadtree(Mbr mbr,int minLevel,int maxLevel,int maxNodes,float minImportance,NSObject<WhirlyKitQuadTreeImportanceDelegate> *importDelegate)
-    : mbr(mbr), minLevel(minLevel), maxLevel(maxLevel), maxNodes(maxNodes), minImportance(minImportance), numPhantomNodes(0)
+    : mbr(mbr), minLevel(minLevel), maxLevel(maxLevel), maxNodes(maxNodes), minImportance(minImportance), numPhantomNodes(0), knownNumNodes(0)
 {
     this->importDelegate = importDelegate;
 }
@@ -276,7 +276,7 @@ void Quadtree::clearFlagCounts(int frameFlags)
             frameLoadCounts[ii]--;
 }
     
-bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded)
+bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded,bool forDisplay)
 {
     int count = getFrameCount(frame);
     if (tilesLoaded)
@@ -286,7 +286,14 @@ bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded)
     if (count == 0)
         return false;
     
-    bool isLoaded = (count+numPhantomNodes) == nodesByIdent.size();
+    bool isLoaded = false;
+    if (knownNumNodes != 0 && forDisplay)
+        isLoaded = count == knownNumNodes;
+    else {
+        isLoaded = (count+numPhantomNodes) == nodesByIdent.size();
+        if (isLoaded)
+            knownNumNodes = count;
+    }
     
 //    if (count+numPhantomNodes > nodesByIdent.size())
 //        NSLog(@"Got one");
@@ -535,6 +542,8 @@ int Quadtree::numEvals()
     
 void Quadtree::clearEvals()
 {
+    knownNumNodes = 0;
+    
     for (NodesByIdentType::iterator it = nodesByIdent.begin();it != nodesByIdent.end(); ++it)
     {
         Node *node = *it;
