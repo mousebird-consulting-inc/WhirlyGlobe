@@ -324,6 +324,9 @@ public:
 
 - (bool)startOfWork
 {
+    if (isShuttingDown)
+        return false;
+    
     bool ret = true;
     
     pthread_mutex_lock(&workLock);
