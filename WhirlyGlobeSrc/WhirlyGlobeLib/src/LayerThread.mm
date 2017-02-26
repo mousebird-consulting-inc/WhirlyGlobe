@@ -288,6 +288,9 @@ using namespace WhirlyKit;
                 if (!finished)
                     [NSThread sleepForTimeInterval:0.01];
             } while (!finished);
+
+            [threadsToShutdown removeAllObjects];
+            threadsToShutdown = nil;
         }
 
         // If we're not the main thread, let's clean up our layers before we shut down

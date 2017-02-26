@@ -42,7 +42,7 @@ namespace WhirlyKit
     // Last view state we've seen
     WhirlyKitViewState *viewState;
     // Used for sizing info
-    WhirlyKitSceneRendererES *renderer;
+    WhirlyKitSceneRendererES * __weak renderer;
 }
 
 - (id)initWithRenderer:(WhirlyKitSceneRendererES *)inRenderer
