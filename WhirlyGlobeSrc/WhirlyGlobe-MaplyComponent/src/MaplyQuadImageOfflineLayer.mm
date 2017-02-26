@@ -44,7 +44,7 @@ using namespace WhirlyKit;
     WhirlyKitQuadTileOfflineLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
     WhirlyKitViewState *lastViewState;
-    WhirlyKitSceneRendererES *renderer;
+    WhirlyKitSceneRendererES * __weak renderer;
     Scene *scene;
     bool sourceSupportsMulti;
     bool sourceWantsAsync;
