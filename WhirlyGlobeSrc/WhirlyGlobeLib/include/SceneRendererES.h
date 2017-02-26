@@ -113,7 +113,7 @@ public:
 /// Renderer version (e.g. OpenGL ES 1 vs 2)
 @property (nonatomic,assign) EAGLRenderingAPI oglVersion;
 /// Renderer itself
-@property (nonatomic,weak) WhirlyKitSceneRendererES *sceneRenderer;
+@property (nonatomic,weak) WhirlyKitSceneRendererES * __weak sceneRenderer;
 /// View
 @property (nonatomic,weak) WhirlyKitView *theView;
 /// Current model matrix from the view

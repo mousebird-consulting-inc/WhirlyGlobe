@@ -254,15 +254,6 @@ public:
     pthread_mutex_destroy(&workLock);
     pthread_cond_destroy(&workWait);
     
-    for (ThreadChangeSet::iterator it = perThreadChanges.begin();
-         it != perThreadChanges.end();++it)
-    {
-        ThreadChanges threadChanges = *it;
-        for (unsigned int ii=0;ii<threadChanges.changes.size();ii++)
-            delete threadChanges.changes[ii];
-    }
-    perThreadChanges.clear();
-    
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
@@ -297,6 +288,15 @@ public:
     clusterGens.clear();
     tempContexts.clear();
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    
+    for (ThreadChangeSet::iterator it = perThreadChanges.begin();
+         it != perThreadChanges.end();++it)
+    {
+        ThreadChanges threadChanges = *it;
+        for (unsigned int ii=0;ii<threadChanges.changes.size();ii++)
+            delete threadChanges.changes[ii];
+    }
+    perThreadChanges.clear();
 }
 
 - (void)lockingShutdown
