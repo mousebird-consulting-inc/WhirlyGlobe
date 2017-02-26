@@ -206,7 +206,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     bool canShortCircuitImportance;
     int maxShortCircuitLevel;
     WhirlyKitViewState *lastViewState;
-    WhirlyKitSceneRendererES *_renderer;
+    WhirlyKitSceneRendererES * __weak _renderer;
     bool hasUnload;
     bool hasBoundingBox;
 }
