@@ -618,6 +618,14 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 - (void)teardown
 {
     super.layerThread = nil;
+    if (quadLayer)
+    {
+        quadLayer.dataStructure = nil;
+        quadLayer.loader = nil;
+    }
+    quadLayer = nil;;
+    tileSource = nil;
+    
     quadLayer = nil;
 }
 
