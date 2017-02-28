@@ -240,6 +240,13 @@ public:
     numActiveWorkers = 0;
     pthread_cond_init(&workWait, NULL);
     
+    // Grab everything to force people to wait, hopefully
+    pthread_mutex_lock(&selectLock);
+    pthread_mutex_lock(&imageLock);
+    pthread_mutex_lock(&changeLock);
+    pthread_mutex_lock(&tempContextLock);
+    pthread_mutex_lock(&workLock);
+    
     return self;
 }
 
@@ -273,6 +280,13 @@ public:
         ourClusterGen.layer = self;
         layoutManager->addClusterGenerator(&ourClusterGen);
     }
+    
+    // We locked these in hopes of slowing down anyone trying to race us.  Unlock 'em.
+    pthread_mutex_unlock(&selectLock);
+    pthread_mutex_unlock(&imageLock);
+    pthread_mutex_unlock(&changeLock);
+    pthread_mutex_unlock(&tempContextLock);
+    pthread_mutex_unlock(&workLock);
 }
 
 - (void)teardown
