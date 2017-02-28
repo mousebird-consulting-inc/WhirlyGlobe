@@ -229,6 +229,12 @@ using namespace WhirlyKit;
     _scene = NULL;
 }
 
+- (void)systemTeardown
+{
+    _dataStructure = nil;
+    _loader = nil;
+}
+
 // Called by the renderer (in that thread, so be careful)
 - (void)frameStart:(WhirlyKitFrameMessage *)msg;
 {        
