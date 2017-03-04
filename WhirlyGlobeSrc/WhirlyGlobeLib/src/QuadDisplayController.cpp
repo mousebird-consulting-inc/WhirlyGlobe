@@ -145,6 +145,24 @@ void QuadDisplayController::getFrameLoadStatus(std::vector<WhirlyKit::FrameLoadS
     retFrameLoadStats = frameLoadStats;
     pthread_mutex_unlock(&frameLoadingLock);
 }
+   
+void QuadDisplayController::setTargetLevels(const std::set<int> &newTargetLevels)
+{
+#ifdef __ANDROID__
+#ifdef LOGLOADING
+    std::string priorStr;
+    for (int prior : newTargetLevels)
+    {
+        char tmpStr[100];
+        sprintf(tmpStr,"%d",prior);
+        priorStr += (std::string)tmpStr + " ";
+    }
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Target levels set to: %s",priorStr.c_str());
+#endif
+#endif
+
+    targetLevels = newTargetLevels;
+}
     
 void QuadDisplayController::setEnable(bool newEnable)
 {
@@ -195,6 +213,11 @@ void QuadDisplayController::viewUpdate(ViewState *inViewState)
     if (!enable)
     {
         viewState = *inViewState;
+
+        // Need to keep the data structure informed, even so
+        if (firstUpdate)
+            dataStructure->newViewState(inViewState);
+        
         return;
     }
     
@@ -336,6 +359,12 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                 }
             } else {
                 bool isInTargetLevels = targetLevels.find(nodeInfo.ident.level) != targetLevels.end();
+#ifdef __ANDROID__
+#ifdef LOGLOADING
+                if (isInTargetLevels)
+                    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","In target levels %d: (%d,%d)", nodeInfo.ident.level, nodeInfo.ident.x, nodeInfo.ident.y);
+#endif
+#endif
                 bool singleTargetLevel = targetLevels.size() == 1;
                 int minTargetLevel = *(targetLevels.begin());
                 int maxTargetLevel = *(--(targetLevels.end()));
@@ -346,7 +375,12 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                     {
                         addChildren = true;
                         if (quadtree->childFailed(nodeInfo.ident))
+                        {
+#ifdef LOGLOADING
+                            WHIRLYKIT_LOGV("Child failed to load so loading %d: (%d,%d)",nodeInfo.ident.level, nodeInfo.ident.x, nodeInfo.ident.y);
+#endif
                             shouldLoad = quadtree->shouldLoadTile(nodeInfo.ident,curFrame);
+                        }
                     } else if (isInTargetLevels && !nodeInfo.failed)
                     {
                         if (nodeInfo.childCoverage && nodeInfo.ident.level != maxTargetLevel)
@@ -368,8 +402,12 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
                             addChildren = true;
                             if (nodeInfo.childCoverage || singleTargetLevel)
                                 makePhantom = !quadtree->childrenEvaluating(nodeInfo.ident) && !quadtree->childrenLoading(nodeInfo.ident);
-                            else
+                            else {
+#ifdef LOGLOADING
+                                WHIRLYKIT_LOGV("Loading because of fall-through %d: (%d,%d)",nodeInfo.ident.level, nodeInfo.ident.x, nodeInfo.ident.y);
+#endif
                                 shouldLoad = shouldLoadFrame && !nodeInfo.isFrameLoading(curFrame);
+                            }
                         }
                     }
                 }
@@ -504,8 +542,6 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
     // Deal with outstanding phantom nodes
     if (!toPhantom.empty())
     {
-        std::set<Quadtree::Identifier> toKeep;
-        
         for (std::set<Quadtree::Identifier>::iterator it = toPhantom.begin();it != toPhantom.end(); ++it)
         {
             Quadtree::Identifier ident = *it;
@@ -538,6 +574,7 @@ bool QuadDisplayController::evalStep(TimeInterval frameStart,TimeInterval frameI
     } else
         loader->endUpdates(changes);
     
+    // Note: Differs from iOS version
     if (!meteredMode)
         loader->endUpdates(changes);
     

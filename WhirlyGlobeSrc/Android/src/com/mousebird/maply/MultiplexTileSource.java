@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -416,7 +417,35 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 		if (minZoom > maxZoom)
 			throw new IllegalArgumentException();
 	}
-	
+
+	ArrayList<Mbr> mbrs = new ArrayList<>();
+
+	/**
+	 * If set, only tiles inside the bounding box are valid.
+	 */
+	public void addGeoBoundingBox(Mbr mbr)
+	{
+		Mbr locMbr = new Mbr();
+		Point3d pt0 = coordSys.geographicToLocal(new Point3d(mbr.ll.getX(),mbr.ll.getY(),0.0));
+		Point3d pt1 = coordSys.geographicToLocal(new Point3d(mbr.ur.getX(),mbr.ur.getY(),0.0));
+		locMbr.addPoint(pt0.toPoint2d());
+		locMbr.addPoint(pt1.toPoint2d());
+		mbrs.add(locMbr);
+	}
+
+	// Check if a tile is within our bounding boxes
+	public boolean validTile(MaplyTileID tileID,Mbr tileBounds)
+	{
+		if (mbrs.isEmpty())
+			return true;
+
+		for (Mbr mbr : mbrs)
+			if (mbr.overlaps(tileBounds))
+				return true;
+
+		return false;
+	}
+
 	File cacheDir = null;
 	/**
 	 * Set the cache directory for fetched images.  We'll look there first.

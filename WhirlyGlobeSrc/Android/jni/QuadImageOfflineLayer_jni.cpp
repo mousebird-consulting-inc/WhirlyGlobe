@@ -25,6 +25,7 @@
 #import "com_mousebird_maply_QuadImageOfflineLayer.h"
 #import "WhirlyGlobe.h"
 #import "ImageWrapper.h"
+#import "WhirlyKitLog.h"
 
 using namespace WhirlyKit;
 
@@ -61,7 +62,7 @@ public:
     ViewState *lastViewState;
     
     // Methods for Java quad image layer
-    jmethodID startFetchJava,scheduleEvalStepJava,imageRenderCallbackJava;
+    jmethodID startFetchJava,scheduleEvalStepJava,imageRenderCallbackJava,validTileCallbackJava;
     
     QuadImageOfflineLayerAdapter(CoordSystem *coordSys)
     : env(NULL), javaObj(NULL), renderer(NULL), coordSys(coordSys),
@@ -98,6 +99,7 @@ public:
         startFetchJava = env->GetMethodID(theClass,"startFetch","(IIII)V");
         scheduleEvalStepJava = env->GetMethodID(theClass,"scheduleEvalStep","()V");
         imageRenderCallbackJava = env->GetMethodID(theClass,"imageRenderCallback","(JDDIII)V");
+        validTileCallbackJava = env->GetMethodID(theClass,"validTile","(IIIDDDD)Z");
         env->DeleteLocalRef(theClass);
     }
     
@@ -197,15 +199,8 @@ public:
         tileID.x = ident.x;
         tileID.y = ident.y;
         
-        // Note: Porting.  Valid tile support.
-        //        if (canDoValidTiles && ident.level >= minZoom)
-        //        {
-        //            MaplyBoundingBox bbox;
-        //            bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
-        //            bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
-        //            if (![_tileSource validTile:tileID bbox:&bbox])
-        //                return 0.0;
-        //        }
+        if (!validTile(ident,mbr))
+            return 0.0;
         
         // Note: Porting.  Variable size tiles.
         int thisTileSize = tileSize;
@@ -230,6 +225,9 @@ public:
             } else {
                 // We need the backfacing checks that ScreenImportance does
                 import = ScreenImportance(viewState, frameSize, viewState->eyeVec, tileSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs);
+                
+//                WHIRLYKIT_LOGV("ScreenImportance: %f, %d: (%d,%d)",import,ident.level,ident.x,ident.y);
+                
                 if (import > 0.0)
                 {
                     import = 1.0/(ident.level+10);
@@ -354,9 +352,9 @@ public:
             for (int whichLevel : levelLoads)
             {
                 if (whichLevel < 0)
-                whichLevel = maxShortCircuitLevel+whichLevel;
+                    whichLevel = maxShortCircuitLevel+whichLevel;
                 if (whichLevel >= 0 && whichLevel < maxShortCircuitLevel)
-                targetLevels.insert(whichLevel);
+                    targetLevels.insert(whichLevel);
             }
             control->setTargetLevels(targetLevels);
         }
@@ -389,8 +387,6 @@ public:
     /// We'll call the loader back with the image when it's ready.
     virtual void startFetch(QuadTileLoaderSupport *quadLoader,int level,int col,int row,int frame,Dictionary *attrs)
     {
-//   		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Asking for tile: %d : (%d,%d)",level,col,row);
-        
         env->CallVoidMethod(javaObj, startFetchJava, level, col, row, frame);
     }
     
@@ -422,7 +418,7 @@ public:
     // Callback letting us know a tile was removed
     void tileWasUnloaded(int level,int col,int row)
     {
-      __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did unload: %d: (%d,%d)",level,col,row);
+//      __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile did unload: %d: (%d,%d)",level,col,row);
         scheduleEvalStep();
     }
     
@@ -459,6 +455,12 @@ public:
     virtual void offlineRender(QuadTileOfflineLoader *loader,QuadTileOfflineImage *image)
     {
         env->CallVoidMethod(javaObj, imageRenderCallbackJava, image->texture, image->centerSize.x(), image->centerSize.y(), (int)image->texSize.x(), (int)image->texSize.y(), image->frame);
+    }
+    
+    // Called to see if a given tile is valid
+    virtual bool validTile(const Quadtree::Identifier &ident,const Mbr &mbr)
+    {
+        return env->CallBooleanMethod(javaObj, validTileCallbackJava, ident.x, ident.y, ident.level, mbr.ll().x(), mbr.ll().y(), mbr.ur().x(), mbr.ur().y());
     }
 };
 
@@ -1070,3 +1072,60 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_imageRende
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageOfflineLayer::imageRenderToLevel()");
     }
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_geoBoundsForTileNative
+(JNIEnv *env, jobject obj, jint x, jint y, jint level, jobject llObj, jobject urObj)
+{
+    try
+    {
+        QuadImageOfflineLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        Point2d *ll = Point2dClassInfo::getClassInfo()->getObject(env,llObj);
+        Point2d *ur = Point2dClassInfo::getClassInfo()->getObject(env,urObj);
+        if (!adapter || !ll || !ur)
+            return;
+        
+        Mbr mbr = adapter->control->getQuadtree()->generateMbrForNode(WhirlyKit::Quadtree::Identifier(x,y,level));
+        
+        GeoMbr geoMbr;
+        CoordSystem *wkCoordSys = adapter->control->getCoordSys();
+        geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ll().x(),mbr.ll().y(),0.0)));
+        geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ll().y(),0.0)));
+        geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ur().x(),mbr.ur().y(),0.0)));
+        geoMbr.addGeoCoord(wkCoordSys->localToGeographic(Point3f(mbr.ll().x(),mbr.ur().y(),0.0)));
+        
+        ll->x() = geoMbr.ll().x();
+        ll->y() = geoMbr.ll().y();
+        ur->x() = geoMbr.ur().x();
+        ur->y() = geoMbr.ur().y();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::geoBoundsForTileNative()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_boundsForTileNative
+(JNIEnv *env, jobject obj, jint x, jint y, jint level, jobject llObj, jobject urObj)
+{
+    try
+    {
+        QuadImageOfflineLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
+        Point2d *ll = Point2dClassInfo::getClassInfo()->getObject(env,llObj);
+        Point2d *ur = Point2dClassInfo::getClassInfo()->getObject(env,urObj);
+        if (!adapter || !ll || !ur)
+            return;
+        
+        Mbr mbr = adapter->control->getQuadtree()->generateMbrForNode(WhirlyKit::Quadtree::Identifier(x,y,level));
+        
+        ll->x() = mbr.ll().x();
+        ll->y() = mbr.ll().y();
+        ur->x() = mbr.ur().x();
+        ur->y() = mbr.ur().y();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadPagingLayer::boundsForTileNative()");
+    }
+}
+
+

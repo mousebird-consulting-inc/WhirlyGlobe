@@ -129,6 +129,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_setSingleL
 
 /*
  * Class:     com_mousebird_maply_QuadImageOfflineLayer
+ * Method:    boundsForTileNative
+ * Signature: (IIILcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Point2d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_boundsForTileNative
+  (JNIEnv *, jobject, jint, jint, jint, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageOfflineLayer
+ * Method:    geoBoundsForTileNative
+ * Signature: (IIILcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Point2d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageOfflineLayer_geoBoundsForTileNative
+  (JNIEnv *, jobject, jint, jint, jint, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageOfflineLayer
  * Method:    setMbrNative
  * Signature: (DDDD)V
  */

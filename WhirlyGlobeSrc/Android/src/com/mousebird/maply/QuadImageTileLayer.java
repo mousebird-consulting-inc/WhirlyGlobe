@@ -72,6 +72,14 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		public int pixelsPerSide();
 
 		/**
+		 * Check if a tile is valid.  If it isn't, we won't load it.
+		 * @param tileID Tile which we're checking.
+		 * @param tileBounds Bounding box of that tile in the source's coordinate system.
+         * @return
+         */
+		public boolean validTile(MaplyTileID tileID,Mbr tileBounds);
+
+		/**
 		 * This tells you when to start fetching a given tile. When you've fetched
 		 * the image you'll want to call loadedTile().  If you fail to fetch an image
 		 * call that with nil.

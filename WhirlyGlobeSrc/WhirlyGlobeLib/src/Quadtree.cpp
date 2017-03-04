@@ -562,8 +562,7 @@ void Quadtree::clearEvals()
 //        node->nodeInfo.loading = false;
 //        node->nodeInfo.childrenLoading = 0;
         node->nodeInfo.childrenEval = 0;
-        // Note: Porting
-//        node->nodeInfo.failed = false;
+        node->nodeInfo.failed = false;
     }
     
     evalNodes.clear();

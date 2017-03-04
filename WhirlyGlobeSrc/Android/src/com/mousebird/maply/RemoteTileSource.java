@@ -144,7 +144,12 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 
 	@Override
 	public int pixelsPerSide() { return tileInfo.pixelsPerSide; }
-	
+
+	public boolean validTile(MaplyTileID tileID,Mbr tileBounds)
+	{
+		return true;
+	}
+
 	// Connection task fetches the image
 	private class ConnectionTask implements com.squareup.okhttp.Callback
 	{
