@@ -106,7 +106,7 @@ void RenderTarget::setActiveFramebuffer(WhirlyKitSceneRendererES *renderer)
     if (colorbuffer)
         glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
     
-    if (!isSetup)
+//    if (!isSetup)
     {
         // Note: Should allow this to be selected
         // For non-main rendering targets, we want clear
