@@ -242,6 +242,7 @@ void QuadDisplayController::viewUpdate(ViewState *inViewState)
     }
     
     resetEvaluation();
+    quadtree->resetKnownNodes();
     // Note: Porting Above this level, reset the evalStep:
 
     if (fullLoad)

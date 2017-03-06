@@ -20,6 +20,7 @@
 
 #import "glwrapper.h"
 #import "Quadtree.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -300,17 +301,24 @@ bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded,bool forDisplay)
     int nodesSize = nodesByIdent.size();
     bool isLoaded = false;
     if (knownNumNodes != 0 && forDisplay)
-        isLoaded = count == knownNumNodes;
+        isLoaded = count >= knownNumNodes;
     else {
         isLoaded = (count+numPhantomNodes) == nodesSize;
-        if (isLoaded)
+        if (isLoaded && knownNumNodes == 0)
+        {
             knownNumNodes = count;
+//            WHIRLYKIT_LOGV("knownNumNodes set to %d",knownNumNodes);
+        }
     }
     
-//    if (count+numPhantomNodes > nodesByIdent.size())
-//        NSLog(@"Got one");
-    
     return isLoaded;
+}
+    
+void Quadtree::resetKnownNodes()
+{
+    knownNumNodes = 0;
+
+//    WHIRLYKIT_LOGV("knownNumNodes reset");
 }
     
 void Quadtree::updateParentCoverage(const Identifier &ident,std::vector<Identifier> &coveredTiles,std::vector<Identifier> &unCoveredTiles)

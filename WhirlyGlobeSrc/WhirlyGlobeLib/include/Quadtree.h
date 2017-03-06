@@ -238,6 +238,9 @@ public:
     /// Return the number of active phantom nodes
     int getNumPhantom() const { return numPhantomNodes; }
     
+    /// Reset the number of known nodes to load
+    void resetKnownNodes();
+    
     /// Dump out to the log for debugging
     void Print();
     
