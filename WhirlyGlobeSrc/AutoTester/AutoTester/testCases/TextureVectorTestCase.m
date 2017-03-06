@@ -48,7 +48,7 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
                 for (MaplyVectorObject *thisVecObj in [countryVec splitVectors])
                 {
                     MaplyVectorObject *vecObj = [thisVecObj deepCopy2];
-                    // This will the center of the texture application
+                    // This will be the center of the texture application
                     MaplyCoordinate center = [vecObj centroid];
                     vecObj.attributes[kMaplyVecCenterX] = @(center.x);
                     vecObj.attributes[kMaplyVecCenterY] = @(center.y);
