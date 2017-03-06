@@ -304,7 +304,7 @@ bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded,bool forDisplay)
         isLoaded = count >= knownNumNodes;
     else {
         isLoaded = (count+numPhantomNodes) == nodesSize;
-        if (isLoaded && knownNumNodes == 0)
+        if (isLoaded || count < knownNumNodes)
         {
             knownNumNodes = count;
 //            WHIRLYKIT_LOGV("knownNumNodes set to %d",knownNumNodes);
