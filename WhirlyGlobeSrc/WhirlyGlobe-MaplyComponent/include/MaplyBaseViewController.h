@@ -979,7 +979,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
 /** @brief @brief Exposes MaplyLocationTracker's location manager for use elsewhere
     @return The CLLocationmanager if it exists, else nil
  */
-- (CLLocationManager *)getTrackingLocationManager;
+- (CLLocationManager * _Nullable )getTrackingLocationManager;
 
 
 @end
