@@ -131,7 +131,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords) const
     
     // Look for a spot big enough
     bool found = false;
-    int foundX,foundY;
+    int foundX=0,foundY=0;
     for (int iy=0;iy<gridSizeY-gridCellsY && !found;iy++)
         for (int ix=0;ix<gridSizeX-gridCellsX && !found;ix++)
         {

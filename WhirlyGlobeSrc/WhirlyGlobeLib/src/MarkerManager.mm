@@ -447,7 +447,6 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
     
     for (SimpleIDSet::iterator mit = markerIDs.begin();mit != markerIDs.end(); ++mit)
     {
-        SimpleIdentity markerID = *mit;
         MarkerSceneRep dummyRep;
         dummyRep.setId(*mit);
         MarkerSceneRepSet::iterator it = markerReps.find(&dummyRep);

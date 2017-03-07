@@ -137,6 +137,12 @@ public:
     
     /// Return which is the active buffer
     int getActiveBuffer() { return activeBuffer; }
+
+    // If set, we'll render this data where idrected
+    void setRenderTarget(SimpleIdentity newRenderTarget) { renderTargetID = newRenderTarget; }
+
+    // EmptyIdentity is the standard view, anything else ia custom render target
+    SimpleIdentity getRenderTarget() { return renderTargetID; }
     
     /// Count the size of vertex and element buffers we're representing
     void getUtilization(int &vertSize,int &elSize);
@@ -151,6 +157,7 @@ protected:
     float fade;
     Eigen::Matrix4d transMat;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
+    SimpleIdentity renderTargetID;
     
     // The vertex attributes we're representing in the buffers
     std::vector<VertexAttribute> vertexAttributes;

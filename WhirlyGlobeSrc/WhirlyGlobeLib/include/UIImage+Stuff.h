@@ -34,6 +34,13 @@
 
 @end
 
+@interface NSData(Stuff)
+
+/// Check the content type on the possible image.  Returns nil on failure.
+-(NSString *)contentTypeForImage;
+
+@end
+
 // A function we can call to force the linker to bring in categories
 #ifdef __cplusplus
 extern "C"

@@ -130,7 +130,7 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
     if (instBuffer)
         return;
     
-    numInstances = instances.size();
+    numInstances = (int)instances.size();
     
     if (instances.empty())
         return;
@@ -148,7 +148,7 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
         modelDirSize = 0;
     }
     instSize = centerSize + matSize + colorSize + colorInstSize + modelDirSize;
-    int bufferSize = instSize * instances.size();
+    int bufferSize = (int)(instSize * instances.size());
     
     instBuffer = memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, instBuffer);

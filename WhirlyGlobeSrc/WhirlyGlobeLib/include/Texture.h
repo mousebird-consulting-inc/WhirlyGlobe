@@ -120,6 +120,8 @@ public:
     GLenum getInterpType() { return interpType; }
     /// If we're converting to a single byte, set the source
     void setSingleByteSource(WKSingleByteSource source) { byteSource = source; }
+    /// If set, this is a texture we're creating for output purposes
+    void setIsEmptyTexture(bool inIsEmptyTexture) { isEmptyTexture = inIsEmptyTexture; }
 
     /// Render side only.  Don't call this.  Create the openGL version
 	virtual bool createInGL(OpenGLMemManager *memManager);
@@ -147,6 +149,7 @@ protected:
     bool usesMipmaps;
     bool wrapU,wrapV;
     GLenum interpType;
+    bool isEmptyTexture;
 };
 	
 }

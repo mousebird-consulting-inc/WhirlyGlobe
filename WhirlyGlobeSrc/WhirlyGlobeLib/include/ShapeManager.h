@@ -66,6 +66,8 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 @property (nonatomic,assign) bool useColor;
 /// Local color, which will override the default
 @property (nonatomic,assign) WhirlyKit::RGBAColor &color;
+/// If set the shape is already in clip coordinates and shouldn't be transformed
+@property (nonatomic,assign) bool clipCoords;
 
 @end
 
@@ -156,6 +158,9 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 
 /// Upper right corner
 @property (nonatomic,assign) WhirlyKit::Point3d &ur;
+
+/// Texture to stretch across the whole thing
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity texID;
 
 @end
 

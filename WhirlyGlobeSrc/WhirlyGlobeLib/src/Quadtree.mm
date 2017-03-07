@@ -264,7 +264,7 @@ int Quadtree::getFrameCount(int frame)
     
 void Quadtree::addFrameLoaded(int frame)
 {
-    for (int ii=frameLoadCounts.size();ii<=frame;ii++)
+    for (int ii=(int)frameLoadCounts.size();ii<=frame;ii++)
         frameLoadCounts.push_back(0);
     frameLoadCounts[frame]++;
 }
@@ -537,7 +537,7 @@ bool Quadtree::childFailed(const Identifier &ident)
     
 int Quadtree::numEvals()
 {
-    return evalNodes.size();
+    return (int)evalNodes.size();
 }
     
 void Quadtree::clearEvals()

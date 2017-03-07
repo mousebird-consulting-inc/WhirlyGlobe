@@ -39,6 +39,7 @@
 #import "MaplyParticleSystem_private.h"
 #import "MaplyShape_private.h"
 #import "MaplyPoints_private.h"
+#import "MaplyRenderTarget_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -368,13 +369,29 @@ public:
     bool wrapY = [desc boolForKey:kMaplyTexWrapY default:false];
     int magFilter = [desc enumForKey:kMaplyTexMagFilter values:@[kMaplyMinFilterNearest,kMaplyMinFilterLinear] default:0];
     
-    int imgWidth = image.size.width * image.scale;
-    int imgHeight = image.size.height * image.scale;
-    imgWidth = NextPowOf2(imgWidth);
-    imgHeight = NextPowOf2(imgHeight);
+    int imgWidth,imgHeight;
+    if (image)
+    {
+        imgWidth = image.size.width * image.scale;
+        imgHeight = image.size.height * image.scale;
+        imgWidth = NextPowOf2(imgWidth);
+        imgHeight = NextPowOf2(imgHeight);
+    } else {
+        imgWidth = [desc intForKey:kMaplyTexSizeX default:0];
+        imgHeight = [desc intForKey:kMaplyTexSizeY default:0];
+    }
+    
     
     // Add it and download it
-    Texture *tex = new Texture("MaplyBaseInteraction",image,imgWidth,imgHeight);
+    Texture *tex;
+    if (image)
+        tex = new Texture("MaplyBaseInteraction",image,imgWidth,imgHeight);
+    else {
+        tex = new Texture("MaplyBaseInteraction");
+        tex->setWidth(imgWidth);
+        tex->setHeight(imgHeight);
+        tex->setIsEmptyTexture(true);
+    }
     tex->setWrap(wrapX, wrapY);
     tex->setUsesMipmaps(false);
     tex->setInterpType(magFilter == 0 ? GL_NEAREST : GL_LINEAR);
@@ -444,7 +461,7 @@ public:
         imageTextures.erase(rem);
 
     // Takes the altas path instead
-    if (!maplyTex && [desc boolForKey:kMaplyTexAtlas default:false])
+    if (!maplyTex && image && [desc boolForKey:kMaplyTexAtlas default:false])
     {
         pthread_mutex_unlock(&imageLock);
         return [self addTextureToAtlas:image desc:desc mode:threadMode];
@@ -459,6 +476,8 @@ public:
         maplyTex.texID = tex->getId();
         maplyTex.interactLayer = self;
         maplyTex.image = image;
+        maplyTex.width = tex->getWidth();
+        maplyTex.height = tex->getHeight();
         
         changes.push_back(new AddTextureReq(tex));
         imageTextures.push_back(maplyTex);
@@ -1938,6 +1957,7 @@ public:
     // Need to convert shapes to the form the API is expecting
     NSMutableArray *ourShapes = [NSMutableArray array];
     NSMutableArray *specialShapes = [NSMutableArray array];
+    std::set<MaplyTexture *> textures;
     for (NSObject *shape in shapes)
     {
         if ([shape isKindOfClass:[MaplyShapeCircle class]])
@@ -2014,6 +2034,23 @@ public:
                 compObj.selectIDs.insert(lin.selectID);
             }
             [specialShapes addObject:lin];
+        } else if ([shape isKindOfClass:[MaplyShapeRectangle class]])
+        {
+            MaplyShapeRectangle *rc = (MaplyShapeRectangle *)shape;
+            WhirlyKitShapeRectangle *rect = [rc asWKShape:inDesc];
+            if (rc.color)
+            {
+                rect.useColor = true;
+                RGBAColor color = [rc.color asRGBAColor];
+                rect.color = color;
+            }
+            if (rc.texture)
+            {
+                textures.insert(rc.texture);
+                rect.texID = rc.texture.texID;
+            }
+            // Note: Selectability
+            [ourShapes addObject:rect];
         } else if ([shape isKindOfClass:[MaplyShapeLinear class]])
         {
             MaplyShapeLinear *lin = (MaplyShapeLinear *)shape;
@@ -2064,6 +2101,8 @@ public:
             [ourShapes addObject:newEx];
         }
     }
+    
+    compObj.textures = textures;
     
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
     if (shapeManager)
@@ -3142,6 +3181,28 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     return compObj;
 }
 
+// Add a render target to the renderer
+- (void)addRenderTarget:(MaplyRenderTarget *)renderTarget
+{
+    if (renderTarget.renderTargetID == EmptyIdentity || renderTarget.texture == nil)
+        return;
+    
+    ChangeSet changes;
+    changes.push_back(new AddRenderTargetReq(renderTarget.renderTargetID,renderTarget.texture.width,renderTarget.texture.height,renderTarget.texture.texID));
+    
+    [self flushChanges:changes mode:MaplyThreadCurrent];
+}
+
+// Stop rendering to a given render target
+- (void)removeRenderTarget:(MaplyRenderTarget *)renderTarget
+{
+    ChangeSet changes;
+    changes.push_back(new RemRenderTargetReq(renderTarget.renderTargetID));
+
+    [self flushChanges:changes mode:MaplyThreadCurrent];
+}
+
+
 // Remove the object, but do it on the layer thread
 - (void)removeObjectRun:(NSArray *)argArray
 {
@@ -3466,7 +3527,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 - (void)dumpStats
 {
     @synchronized (userObjects) {
-        NSLog(@"Component Objects: %d",[userObjects count]);
+        NSLog(@"Component Objects: %d",(int)[userObjects count]);
     }
     
     [atlasGroup dumpStats];
