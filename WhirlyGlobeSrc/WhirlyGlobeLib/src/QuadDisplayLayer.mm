@@ -27,7 +27,7 @@
 #import "VectorData.h"
 #import "SceneRendererES2.h"
 
-//#define TILELOGGING 1
+// #define TILELOGGING 1
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -227,6 +227,12 @@ using namespace WhirlyKit;
     _loader = nil;
     
     _scene = NULL;
+}
+
+- (void)systemTeardown
+{
+    _dataStructure = nil;
+    _loader = nil;
 }
 
 // Called by the renderer (in that thread, so be careful)
@@ -584,7 +590,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
 //            if (!_quadtree->childrenEvaluating(ident) && !_quadtree->childrenLoading(ident))
             {
 #ifdef TILELOGGING
-                NSLog(@"Flushing phantom tile: %d: (%d,%d)",ident.level,ident.x,ident.y);
+                NSLog(@"Flushing phantom tile: %d: (%d,%d), num Phantom = %d",ident.level,ident.x,ident.y,_quadtree->getNumPhantom());
 #endif
                 const Quadtree::NodeInfo *nodeInfo = _quadtree->getNodeInfo(ident);
                 if (nodeInfo)
@@ -665,7 +671,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             for (unsigned int ii=0;ii<numFrames;ii++)
             {
                 FrameLoadStatus &status = frameLoadStats[ii];
-                status.complete = _quadtree->frameIsLoaded(ii, &status.numTilesLoaded);
+                status.complete = _quadtree->frameIsLoaded(ii, &status.numTilesLoaded, true);
                 status.currentFrame = ii == frameLoadingPriority[curFrameEntry];
             }
         }
@@ -720,7 +726,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
             if (!_quadtree->isPhantom(ident))
             {
 #ifdef TILELOGGING
-                NSLog(@"Adding to the phantom list: %d: (%d,%d)",ident.level,ident.x,ident.y);
+                NSLog(@"Adding to the phantom list: %d: (%d,%d), num Phantom = %d",ident.level,ident.x,ident.y,_quadtree->getNumPhantom());
 #endif
                 toPhantom.insert(ident);
             }

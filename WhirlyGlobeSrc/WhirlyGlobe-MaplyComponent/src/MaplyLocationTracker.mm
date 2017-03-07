@@ -68,6 +68,7 @@
         _simulate = simulate;
         _lockType = MaplyLocationLockNone;
         _forwardTrackOffset = 0;
+        _prevLoc = kMaplyNullCoordinate;
         
         [self setupMarkerImages];
         if (!_simulate)
@@ -78,6 +79,10 @@
         
     }
     return self;
+}
+
+- (CLLocationManager *)locationManager {
+    return _locationManager;
 }
 
 - (void) teardown {
@@ -379,6 +384,7 @@
 
 - (void) locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error {
     __strong NSObject<MaplyLocationTrackerDelegate> *delegate = _delegate;
+    _prevLoc = kMaplyNullCoordinate;
     _latestHeading = nil;
     if (delegate)
         [delegate locationManager:manager didFailWithError:error];
@@ -434,6 +440,10 @@
     _latestHeading = @(hdgDeg);
     CLLocation *location = [[CLLocation alloc] initWithCoordinate:(CLLocationCoordinate2D){latDeg, lonDeg} altitude:10000.0 horizontalAccuracy:250 verticalAccuracy:15 course:hdgDeg speed:0 timestamp:[NSDate date]];
     [self updateLocation:location];
+}
+
+- (MaplyCoordinate)getLocation {
+    return _prevLoc;
 }
 
 @end

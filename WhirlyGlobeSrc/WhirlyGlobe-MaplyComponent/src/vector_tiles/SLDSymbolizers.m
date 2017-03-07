@@ -27,15 +27,45 @@
  */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
     
+    static NSMutableDictionary *zOrderGroups;
+    if (!zOrderGroups)
+        zOrderGroups = [NSMutableDictionary dictionary];
+    
     NSString *name = [element localName];
+    
+    if (![SLDLineSymbolizer matchesSymbolizerNamed:name] && ![SLDPolygonSymbolizer matchesSymbolizerNamed:name] && ![SLDPointSymbolizer matchesSymbolizerNamed:name] && ![SLDTextSymbolizer matchesSymbolizerNamed:name])
+        return nil;
+    
+    int overrideRelativeDrawPriority = relativeDrawPriority;
+    
+    NSArray *vendorOptionNodes = [element elementsForName:@"VendorOption"];
+    if (vendorOptionNodes) {
+        for (DDXMLElement *vendorOptionNode in vendorOptionNodes) {
+            DDXMLNode *optionNameNode = [vendorOptionNode attributeForName:@"name"];
+            NSString *optionName;
+            if (optionNameNode)
+                optionName = [optionNameNode stringValue];
+            if (optionName && [optionName isEqualToString:@"zOrderGroup"]) {
+                NSString *groupName = [self stringForLiteralInNode:vendorOptionNode];
+                if (groupName) {
+                    if (zOrderGroups[groupName])
+                        overrideRelativeDrawPriority = [zOrderGroups[groupName] intValue];
+                    else
+                        zOrderGroups[groupName] = @(relativeDrawPriority);
+                    break;
+                }
+            }
+        }
+    }
+    
     if ([SLDLineSymbolizer matchesSymbolizerNamed:name])
-        return [SLDLineSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:relativeDrawPriority baseURL:baseURL];
+        return [SLDLineSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority baseURL:baseURL];
     else if ([SLDPolygonSymbolizer matchesSymbolizerNamed:name])
-        return [SLDPolygonSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:relativeDrawPriority baseURL:baseURL];
+        return [SLDPolygonSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority baseURL:baseURL];
     else if ([SLDPointSymbolizer matchesSymbolizerNamed:name])
-        return [SLDPointSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:relativeDrawPriority baseURL:baseURL];
+        return [SLDPointSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority baseURL:baseURL];
     else if ([SLDTextSymbolizer matchesSymbolizerNamed:name])
-        return [SLDTextSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:relativeDrawPriority baseURL:baseURL];
+        return [SLDTextSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority baseURL:baseURL];
     return nil;
 }
 
@@ -593,14 +623,38 @@
         if (pointPlacementNode) {
             labelParams[@"placement"] = @"point";
             
-            DDXMLElement *anchorPointNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"AnchorPoint"];
-            DDXMLElement *displacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:labelPlacementNode childName:@"Displacement"];
-            
-            
+            DDXMLElement *anchorPointNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:pointPlacementNode childName:@"AnchorPoint"];
+            DDXMLElement *displacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:pointPlacementNode childName:@"Displacement"];
+            if (displacementNode) {
+                DDXMLElement *displacementXNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:displacementNode childName:@"DisplacementX"];
+                DDXMLElement *displacementYNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:displacementNode childName:@"DisplacementY"];
+                NSString *sDisplacementX, *sDisplacementY;
+                if (displacementXNode)
+                    sDisplacementX = [SLDSymbolizer stringForLiteralInNode:displacementXNode];
+                if (displacementYNode)
+                    sDisplacementY = [SLDSymbolizer stringForLiteralInNode:displacementYNode];
+                int displacementX = 25;
+                if (sDisplacementX)
+                    displacementX = [sDisplacementX intValue];
+                int displacementY = 0;
+                if (sDisplacementY)
+                    displacementY = [sDisplacementY intValue];
+                labelParams[@"dx"] = @(displacementX);
+                labelParams[@"dy"] = @(displacementY);
+            }
         } else if (linePlacementNode) {
+            
+            DDXMLElement *perpendicularOffsetNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:linePlacementNode childName:@"PerpendicularOffset"];
+            float dy = 0;
+            if (perpendicularOffsetNode) {
+                NSString * sPerpendicularOffset = [SLDSymbolizer stringForLiteralInNode:perpendicularOffsetNode];
+                if (sPerpendicularOffset) {
+                    dy = [sPerpendicularOffset floatValue];
+                }
+            }
             labelParams[@"placement"] = @"line";
             labelParams[@"dx"] = @(0);
-            labelParams[@"dy"] = @(15);
+            labelParams[@"dy"] = @(dy);
         }
     }
     

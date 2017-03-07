@@ -240,6 +240,13 @@ public:
     numActiveWorkers = 0;
     pthread_cond_init(&workWait, NULL);
     
+    // Grab everything to force people to wait, hopefully
+    pthread_mutex_lock(&selectLock);
+    pthread_mutex_lock(&imageLock);
+    pthread_mutex_lock(&changeLock);
+    pthread_mutex_lock(&tempContextLock);
+    pthread_mutex_lock(&workLock);
+    
     return self;
 }
 
@@ -253,15 +260,6 @@ public:
     pthread_mutex_destroy(&tempContextLock);
     pthread_mutex_destroy(&workLock);
     pthread_cond_destroy(&workWait);
-    
-    for (ThreadChangeSet::iterator it = perThreadChanges.begin();
-         it != perThreadChanges.end();++it)
-    {
-        ThreadChanges threadChanges = *it;
-        for (unsigned int ii=0;ii<threadChanges.changes.size();ii++)
-            delete threadChanges.changes[ii];
-    }
-    perThreadChanges.clear();
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
@@ -282,6 +280,13 @@ public:
         ourClusterGen.layer = self;
         layoutManager->addClusterGenerator(&ourClusterGen);
     }
+    
+    // We locked these in hopes of slowing down anyone trying to race us.  Unlock 'em.
+    pthread_mutex_unlock(&selectLock);
+    pthread_mutex_unlock(&imageLock);
+    pthread_mutex_unlock(&changeLock);
+    pthread_mutex_unlock(&tempContextLock);
+    pthread_mutex_unlock(&workLock);
 }
 
 - (void)teardown
@@ -295,7 +300,17 @@ public:
     glSetupInfo = nil;
     ourClusterGen.layer = nil;
     clusterGens.clear();
+    tempContexts.clear();
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    
+    for (ThreadChangeSet::iterator it = perThreadChanges.begin();
+         it != perThreadChanges.end();++it)
+    {
+        ThreadChanges threadChanges = *it;
+        for (unsigned int ii=0;ii<threadChanges.changes.size();ii++)
+            delete threadChanges.changes[ii];
+    }
+    perThreadChanges.clear();
 }
 
 - (void)lockingShutdown
@@ -306,7 +321,7 @@ public:
     
     if ([NSThread currentThread] != layerThread)
     {
-        [self performSelector:@selector(lockingShutdown) onThread:layerThread withObject:nil waitUntilDone:NO];
+        [self performSelector:@selector(lockingShutdown) onThread:layerThread withObject:nil waitUntilDone:YES];
         return;
     }
 
@@ -324,6 +339,9 @@ public:
 
 - (bool)startOfWork
 {
+    if (isShuttingDown)
+        return false;
+    
     bool ret = true;
     
     pthread_mutex_lock(&workLock);

@@ -46,5 +46,6 @@
 #import "VectorStyleTestCase.h"
 #import "ActiveObjectTestCase.h"
 #import "GeoJSONSource.h"
+#import "LIDARTestCase.h"
 
 #endif
