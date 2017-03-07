@@ -109,8 +109,7 @@ Scene::~Scene()
         delete cullTree;
         cullTree = NULL;
     }
-    for (TextureSet::iterator it = textures.begin(); it != textures.end(); ++it)
-        delete *it;
+    textures.clear();
     for (GeneratorSet::iterator it = generators.begin(); it != generators.end(); ++it)
         delete *it;
     
@@ -218,8 +217,9 @@ GLuint Scene::getGLTexture(SimpleIdentity texIdent)
     GLuint ret = 0;
     
     pthread_mutex_lock(&textureLock);
-    TextureBase dumbTex(texIdent);
-    TextureSet::iterator it = textures.find(&dumbTex);
+    // Might be a texture ref
+    TextureBaseRef dumbTex(new TextureBase(texIdent));
+    Scene::TextureRefSet::iterator it = textures.find(dumbTex);
     if (it != textures.end())
     {
         ret = (*it)->getGLId();
@@ -328,12 +328,11 @@ void Scene::teardownGL()
         cullTree = NULL;
     }
     drawables.clear();
-    for (TextureSet::iterator it = textures.begin();
+    for (TextureRefSet::iterator it = textures.begin();
          it != textures.end(); ++it)
     {
-        TextureBase *texture = *it;
-        texture->destroyInGL(&memManager);
-        delete texture;
+        TextureBaseRef texRef = *it;
+        texRef->destroyInGL(&memManager);
     }
     textures.clear();
     
@@ -346,10 +345,10 @@ TextureBase *Scene::getTexture(SimpleIdentity texId)
     pthread_mutex_lock(&textureLock);
     
     TextureBase *retTex = NULL;
-    TextureBase dumbTex(texId);
-    Scene::TextureSet::iterator it = textures.find(&dumbTex);
+    TextureBaseRef dumbTex(new TextureBase(texId));
+    Scene::TextureRefSet::iterator it = textures.find(dumbTex);
     if (it != textures.end())
-        retTex = *it;
+        retTex = it->get();
     
     pthread_mutex_unlock(&textureLock);
     
@@ -616,47 +615,41 @@ void Scene::removeProgram(SimpleIdentity progId)
     
 AddTextureReq::~AddTextureReq()
 {
-    if (tex)
-        delete tex;
-    tex = NULL;
+    texRef = NULL;
 }
     
 void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    if (!tex->getGLId())
-        tex->createInGL(scene->getMemManager());
-    scene->textures.insert(tex);
-    tex = NULL;
+    if (!texRef->getGLId())
+        texRef->createInGL(scene->getMemManager());
+    scene->textures.insert(texRef);
+    texRef = NULL;
 }
 
 void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     pthread_mutex_lock(&scene->textureLock);
-    TextureBase dumbTex(texture);
-    Scene::TextureSet::iterator it = scene->textures.find(&dumbTex);
+    TextureBaseRef dumpTexRef(new TextureBase(texture));
+    Scene::TextureRefSet::iterator it = scene->textures.find(dumpTexRef);
     if (it != scene->textures.end())
     {
-        TextureBase *tex = *it;
+        TextureBaseRef tex = *it;
         tex->destroyInGL(scene->getMemManager());
         scene->textures.erase(it);
-        delete tex;
-    } else {
+    } else
         NSLog(@"RemTextureReq: No such texture.");
-    }
     pthread_mutex_unlock(&scene->textureLock);
 }
 
 AddDrawableReq::~AddDrawableReq()
 {
-    if (drawable)
-        delete drawable;
-    drawable = NULL;
+    drawRef = NULL;
 }
 
 void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     // If this is an instance, deal with that madness
-    BasicDrawableInstance *drawInst = dynamic_cast<BasicDrawableInstance *>(drawable);
+    BasicDrawableInstance *drawInst = dynamic_cast<BasicDrawableInstance *>(drawRef.get());
     if (drawInst)
     {
         DrawableRef theDraw = scene->getDrawable(drawInst->getMasterID());
@@ -664,23 +657,20 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
         if (baseDraw)
             drawInst->setMaster(baseDraw);
         else {
-            // Uh oh, dangling reference, just kill it
-            delete drawable;
             return;
         }
     }
 
-    DrawableRef drawRef(drawable);
     scene->addDrawable(drawRef);
     
     // Initialize any OpenGL foo
     WhirlyKitGLSetupInfo *setupInfo = [[WhirlyKitGLSetupInfo alloc] init];
     setupInfo->minZres = [view calcZbufferRes];
-    drawable->setupGL(setupInfo,scene->getMemManager());
+    drawRef->setupGL(setupInfo,scene->getMemManager());
     
-    drawable->updateRenderer(renderer);
+    drawRef->updateRenderer(renderer);
         
-    drawable = NULL;
+    drawRef = NULL;
 }
 
 void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
