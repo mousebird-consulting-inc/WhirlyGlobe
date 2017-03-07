@@ -102,7 +102,6 @@ public:
     WhirlyKitMaterial *defaultMat;
     dispatch_queue_t contextQueue;
     dispatch_semaphore_t frameRenderingSemaphore;
-    bool renderSetup;
     WhirlyKitOpenGLStateOptimizer *renderStateOptimizer;
     std::set<__weak NSObject<WhirlyKitFrameBoundaryObserver> *> frameObservers;
 }
@@ -148,8 +147,6 @@ public:
     frameRenderingSemaphore = dispatch_semaphore_create(1);
     contextQueue = dispatch_queue_create("rendering queue",DISPATCH_QUEUE_SERIAL);
     
-    renderSetup = false;
-
     // Note: Try to turn this back on at some point
     _dispatchRendering = false;
 
@@ -165,7 +162,8 @@ public:
 
 - (void)forceRenderSetup
 {
-    renderSetup = false;
+    for (auto &renderTarget : renderTargets)
+        renderTarget.isSetup = false;
 }
 
 // When the scene is set, we'll compile our shaders
@@ -217,12 +215,12 @@ public:
 - (void) setClearColor:(UIColor *)color
 {
     _clearColor = [color asRGBAColor];
-    renderSetup = false;
+    [self forceRenderSetup];
 }
 
 - (BOOL)resizeFromLayer:(CAEAGLLayer *)layer
 {
-    renderSetup = false;
+    [self forceRenderSetup];
     bool ret = [super resizeFromLayer:layer];
     
     return ret;
@@ -338,7 +336,7 @@ static const float ScreenOverlap = 0.1;
         [EAGLContext setCurrentContext:context];
     CheckGLError("SceneRendererES2: setCurrentContext");
     
-    if (!renderSetup)
+//    if (!renderSetup)
     {
         // Turn on blending
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -355,13 +353,8 @@ static const float ScreenOverlap = 0.1;
 
     GLint framebufferWidth = super.framebufferWidth;
     GLint framebufferHeight = super.framebufferHeight;
-    if (!renderSetup)
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
-        CheckGLError("SceneRendererES2: glBindFramebuffer");
-        glViewport(0, 0, framebufferWidth,framebufferHeight);
-        CheckGLError("SceneRendererES2: glViewport");
-    }
+//    if (!renderSetup && renderTargets.size() == 1)
+//        renderTargets[0].setActiveFramebuffer();
 
     // Get the model and view matrices
     Eigen::Matrix4d modelTrans4d = [super.theView calcModelMatrix];
@@ -400,15 +393,7 @@ static const float ScreenOverlap = 0.1;
             break;
     }
     
-    if (!renderSetup)
-    {
-        glClearColor(_clearColor.r / 255.0, _clearColor.g / 255.0, _clearColor.b / 255.0, _clearColor.a / 255.0);
-        CheckGLError("SceneRendererES2: glClearColor");
-    }
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    CheckGLError("SceneRendererES2: glClear");
-
-    if (!renderSetup)
+//    if (!renderSetup)
     {
         glEnable(GL_CULL_FACE);
         CheckGLError("SceneRendererES2: glEnable(GL_CULL_FACE)");
@@ -644,93 +629,110 @@ static const float ScreenOverlap = 0.1;
         
         SimpleIdentity curProgramId = EmptyIdentity;
         
-        bool depthMaskOn = (super.zBufferMode == zBufferOn);
-        for (unsigned int ii=0;ii<drawList.size();ii++)
+        // Iterate through rendering targets here
+        for (RenderTarget &renderTarget : renderTargets)
         {
-            DrawableContainer &drawContain = drawList[ii];
-            
-            // The first time we hit an explicitly alpha drawable
-            //  turn off the depth buffer
-            if (super.depthBufferOffForAlpha && !(super.zBufferMode == zBufferOffDefault))
-            {
-                if (depthMaskOn && super.depthBufferOffForAlpha && drawContain.drawable->hasAlpha(baseFrameInfo))
-                {
-                    depthMaskOn = false;
-                    [renderStateOptimizer setEnableDepthTest:false];
-                }
-            }
-            
-            // For this mode we turn the z buffer off until we get a request to turn it on
-            if (super.zBufferMode == zBufferOffDefault)
-            {
-                if (drawContain.drawable->getRequestZBuffer())
-                {
-                    [renderStateOptimizer setDepthFunc:GL_LESS];
-                    depthMaskOn = true;
-                } else {
-                    [renderStateOptimizer setDepthFunc:GL_ALWAYS];
-                }
-            }
-            
-            // If we're drawing lines or points we don't want to update the z buffer
-            if (super.zBufferMode != zBufferOff)
-            {
-                if (drawContain.drawable->getWriteZbuffer())
-                    [renderStateOptimizer setDepthMask:GL_TRUE];
-                else
-                    [renderStateOptimizer setDepthMask:GL_FALSE];
-            }
+            renderTarget.setActiveFramebuffer(self);
 
-            // Set up transforms to use right now
-            Matrix4f currentMvpMat = Matrix4dToMatrix4f(drawContain.mvpMat);
-            Matrix4f currentMvMat = Matrix4dToMatrix4f(drawContain.mvMat);
-            Matrix4f currentMvNormalMat = Matrix4dToMatrix4f(drawContain.mvNormalMat);
-            baseFrameInfo.mvpMat = currentMvpMat;
-            baseFrameInfo.viewAndModelMat = currentMvMat;
-            baseFrameInfo.viewModelNormalMat = currentMvNormalMat;
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            CheckGLError("SceneRendererES2: glClear");
             
-            // Figure out the program to use for drawing
-            SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
-            if (drawProgramId == EmptyIdentity)
-            drawProgramId = defaultTriShader;
-            if (drawProgramId != curProgramId)
+            bool depthMaskOn = (super.zBufferMode == zBufferOn);
+            for (unsigned int ii=0;ii<drawList.size();ii++)
             {
-                curProgramId = drawProgramId;
-                OpenGLES2Program *program = scene->getProgram(drawProgramId);
-                if (program)
+                DrawableContainer &drawContain = drawList[ii];
+                
+                // The first time we hit an explicitly alpha drawable
+                //  turn off the depth buffer
+                if (super.depthBufferOffForAlpha && !(super.zBufferMode == zBufferOffDefault))
                 {
-                    //                    [renderStateOptimizer setUseProgram:program->getProgram()];
-                    glUseProgram(program->getProgram());
-                    // Assign the lights if we need to
-                    if (program->hasLights() && ([lights count] > 0))
-                    program->setLights(lights, lightsLastUpdated, defaultMat, currentMvpMat);
-                    // Explicitly turn the lights on
-                    program->setUniform(kWKOGLNumLights, (int)[lights count]);
-                    
-                    baseFrameInfo.program = program;
+                    if (depthMaskOn && super.depthBufferOffForAlpha && drawContain.drawable->hasAlpha(baseFrameInfo))
+                    {
+                        depthMaskOn = false;
+                        [renderStateOptimizer setEnableDepthTest:false];
+                    }
+                }
+                
+                // For this mode we turn the z buffer off until we get a request to turn it on
+                if (super.zBufferMode == zBufferOffDefault)
+                {
+                    if (drawContain.drawable->getRequestZBuffer())
+                    {
+                        [renderStateOptimizer setDepthFunc:GL_LESS];
+                        depthMaskOn = true;
+                    } else {
+                        [renderStateOptimizer setDepthFunc:GL_ALWAYS];
+                    }
+                }
+                
+                // If we're drawing lines or points we don't want to update the z buffer
+                if (super.zBufferMode != zBufferOff)
+                {
+                    if (drawContain.drawable->getWriteZbuffer())
+                        [renderStateOptimizer setDepthMask:GL_TRUE];
+                    else
+                        [renderStateOptimizer setDepthMask:GL_FALSE];
+                }
+
+                // Set up transforms to use right now
+                Matrix4f currentMvpMat = Matrix4dToMatrix4f(drawContain.mvpMat);
+                Matrix4f currentMvMat = Matrix4dToMatrix4f(drawContain.mvMat);
+                Matrix4f currentMvNormalMat = Matrix4dToMatrix4f(drawContain.mvNormalMat);
+                baseFrameInfo.mvpMat = currentMvpMat;
+                baseFrameInfo.viewAndModelMat = currentMvMat;
+                baseFrameInfo.viewModelNormalMat = currentMvNormalMat;
+                
+                // Figure out the program to use for drawing
+                SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
+                if (drawProgramId == EmptyIdentity)
+                drawProgramId = defaultTriShader;
+                if (drawProgramId != curProgramId)
+                {
+                    curProgramId = drawProgramId;
+                    OpenGLES2Program *program = scene->getProgram(drawProgramId);
+                    if (program)
+                    {
+                        //                    [renderStateOptimizer setUseProgram:program->getProgram()];
+                        glUseProgram(program->getProgram());
+                        // Assign the lights if we need to
+                        if (program->hasLights() && ([lights count] > 0))
+                        program->setLights(lights, lightsLastUpdated, defaultMat, currentMvpMat);
+                        // Explicitly turn the lights on
+                        program->setUniform(kWKOGLNumLights, (int)[lights count]);
+                        
+                        baseFrameInfo.program = program;
+                    }
+                }
+                if (drawProgramId == EmptyIdentity)
+                    continue;
+                
+                // Only draw drawables that are active for the current render target
+                if (drawContain.drawable->getRenderTarget() != renderTarget.getId())
+                    continue;
+                
+                // Run any tweakers right here
+                drawContain.drawable->runTweakers(baseFrameInfo);
+                
+                // Draw using the given program
+                drawContain.drawable->draw(baseFrameInfo,scene);
+                
+                // If we had a local matrix, set the frame info back to the general one
+    //            if (localMat)
+    //                offFrameInfo.mvpMat = mvpMat;
+                
+                numDrawables++;
+                if (perfInterval > 0)
+                {
+                    // Note: Need a better way to track buffer ID growth
+                    //                BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(drawable);
+                    //                if (basicDraw)
+                    //                    perfTimer.addCount("Buffer IDs", basicDraw->getPointBuffer());
                 }
             }
-            if (drawProgramId == EmptyIdentity)
-                continue;
             
-            // Run any tweakers right here
-            drawContain.drawable->runTweakers(baseFrameInfo);
-            
-            // Draw using the given program
-            drawContain.drawable->draw(baseFrameInfo,scene);
-            
-            // If we had a local matrix, set the frame info back to the general one
-//            if (localMat)
-//                offFrameInfo.mvpMat = mvpMat;
-            
-            numDrawables++;
-            if (perfInterval > 0)
-            {
-                // Note: Need a better way to track buffer ID growth
-                //                BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(drawable);
-                //                if (basicDraw)
-                //                    perfTimer.addCount("Buffer IDs", basicDraw->getPointBuffer());
-            }
+            // Note: Added this for render target
+            if (renderTargets.size() > 1)
+                glFinish();
         }
         
         if (perfInterval > 0)
@@ -834,12 +836,6 @@ static const float ScreenOverlap = 0.1;
         glInvalidateFramebuffer(GL_FRAMEBUFFER,1,discards);
     CheckGLError("SceneRendererES2: glDiscardFramebufferEXT");
 
-    if (!renderSetup)
-    {
-        glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
-        CheckGLError("SceneRendererES2: glBindRenderbuffer");
-    }
-
     // The user wants help with a screen snapshot
     if (_snapshotDelegate)
     {
@@ -922,8 +918,6 @@ static const float ScreenOverlap = 0.1;
     
     if (oldContext != context)
         [EAGLContext setCurrentContext:oldContext];
-    
-    renderSetup = true;
 }
 
 @end

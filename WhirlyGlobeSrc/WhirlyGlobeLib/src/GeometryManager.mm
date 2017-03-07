@@ -154,8 +154,8 @@ void GeometryRaw::applyTransform(const Matrix4d &mat)
     
 void GeometryRaw::estimateSize(int &numPts,int &numTris)
 {
-    numPts = pts.size();
-    numTris = triangles.size();
+    numPts = (int)pts.size();
+    numTris = (int)triangles.size();
 }
     
 // Calculate bounding box
@@ -321,7 +321,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         {
             GeomPointAttrDataInt *attrs = new GeomPointAttrDataInt();
             attrs->name = name;
-            idx = attrData.size();
+            idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
             break;
@@ -329,7 +329,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         {
             GeomPointAttrDataFloat *attrs = new GeomPointAttrDataFloat();
             attrs->name = name;
-            idx = attrData.size();
+            idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
             break;
@@ -337,7 +337,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         {
             GeomPointAttrDataPoint2f *attrs = new GeomPointAttrDataPoint2f();
             attrs->name = name;
-            idx = attrData.size();
+            idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
             break;
@@ -345,7 +345,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         {
             GeomPointAttrDataPoint3f *attrs = new GeomPointAttrDataPoint3f();
             attrs->name = name;
-            idx = attrData.size();
+            idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
             break;
@@ -353,7 +353,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         {
             GeomPointAttrDataPoint4f *attrs = new GeomPointAttrDataPoint4f();
             attrs->name = name;
-            idx = attrData.size();
+            idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
             break;
@@ -361,7 +361,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         {
             GeomPointAttrDataPoint2d *attrs = new GeomPointAttrDataPoint2d();
             attrs->name = name;
-            idx = attrData.size();
+            idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
             break;
@@ -369,7 +369,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         {
             GeomPointAttrDataPoint3d *attrs = new GeomPointAttrDataPoint3d();
             attrs->name = name;
-            idx = attrData.size();
+            idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
             break;

@@ -141,6 +141,8 @@
 @property (nonatomic) UIColor *northPoleColor,*southPoleColor;
 /// The data type of GL textures we'll be creating.  RGBA by default.
 @property (nonatomic,assign) WhirlyKitTileImageType imageType;
+/// Interpolation type for the textures we're creating
+@property (nonatomic,assign) GLenum interpType;
 /// If set (before we start) we'll use dynamic texture and drawable atlases
 @property (nonatomic,assign) bool useDynamicAtlas;
 /// If set we'll scale the input images to the nearest square power of two
@@ -151,6 +153,8 @@
 @property (nonatomic,assign) int textureAtlasSize;
 /// How many texels we put around the borders of each tile
 @property (nonatomic,assign) int borderTexel;
+/// If set, where this layer will be rendererd
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity renderTargetID;
 
 /// Set this up with an object that'll return an image per tile
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadTileImageDataSource> *)imageSource;

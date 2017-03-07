@@ -58,6 +58,9 @@ public:
     
     /// Change the program ID for all the drawables we're using
     void setProgramIDAllDrawables(SimpleIdentity programID,ChangeSet &changes);
+    
+    /// Set where we'll render the output
+    void setRenderTarget(SimpleIdentity renderTargetID);
         
     /// Used to track the remappings we need from one set of textures to another
     class DrawTexInfo
@@ -120,6 +123,7 @@ protected:
     bool hasChanges;
     bool enable;
     float fade;
+    SimpleIdentity renderTargetID;
     BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes);
     SimpleIdentity shaderId;
     OpenGLMemManager *memManager;

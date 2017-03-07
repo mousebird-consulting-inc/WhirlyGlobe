@@ -505,7 +505,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
                 
                 if (!objsForCluster.empty())
                 {
-                    int clusterEntryID = clusterEntries.size();
+                    int clusterEntryID = (int)clusterEntries.size();
                     clusterEntries.resize(clusterEntryID+1);
                     ClusterEntry &clusterEntry = clusterEntries[clusterEntryID];
 
@@ -529,7 +529,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
                         if (!params.selectable)
                             clusterEntry.layoutObj.selectPts.clear();
                     }
-                    clusterEntry.clusterParamID = clusterParams.size()-1;
+                    clusterEntry.clusterParamID = (int)(clusterParams.size()-1);
 
                     // Figure out if all the objects in this new cluster come from the same old cluster
                     //  and assign the new cluster ID

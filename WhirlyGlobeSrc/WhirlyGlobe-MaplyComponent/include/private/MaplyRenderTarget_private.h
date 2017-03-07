@@ -1,9 +1,9 @@
 /*
- *  MaplyShape_private.h
+ *  MaplyRenderTarget_private.h
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 7/13/15.
- *  Copyright 2012-2015 mousebird consulting
+ *  Created by Steve Gifford on 1/13/17.
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,35 +18,11 @@
  *
  */
 
-#import "MaplyShape.h"
+#import "MaplyRenderTarget.h"
 #import "WhirlyGlobe.h"
 
-@interface MaplyShapeCircle()
+@interface MaplyRenderTarget()
 
-- (WhirlyKitCircle *)asWKShape:(NSDictionary *)desc;
-
-@end
-
-@interface MaplyShapeSphere()
-
-- (WhirlyKitSphere *)asWKShape:(NSDictionary *)desc;
-
-@end
-
-@interface MaplyShapeCylinder()
-
-- (WhirlyKitCylinder *)asWKShape:(NSDictionary *)desc;
-
-@end
-
-@interface MaplyShapeRectangle()
-
-- (WhirlyKitShapeRectangle *)asWKShape:(NSDictionary *)desc;
-
-@end
-
-@interface MaplyShapeExtruded()
-
-- (WhirlyKitShapeExtruded *)asWKShape:(NSDictionary *)desc;
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity renderTargetID;
 
 @end

@@ -27,7 +27,7 @@ namespace WhirlyKit
 {
  
 DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum inFormat,bool clearTextures)
-    : TextureBase(name), texSize(texSize), cellSize(cellSize), numCell(0), numRegions(0), compressed(false), layoutGrid(NULL), clearTextures(clearTextures)
+    : TextureBase(name), texSize(texSize), cellSize(cellSize), numCell(0), numRegions(0), compressed(false), layoutGrid(NULL), clearTextures(clearTextures), interpType(GL_LINEAR)
 {
     if (texSize <= 0 || cellSize <= 0)
         return;
@@ -126,8 +126,8 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
     glBindTexture(GL_TEXTURE_2D, glId);
     CheckGLError("DynamicTexture::createInGL() glBindTexture()");
     
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interpType);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpType);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -284,7 +284,7 @@ bool DynamicTexture::findRegion(int sizeX,int sizeY,Region &region)
     // Now look for a region that'll fit
     // Look for a spot big enough
     bool found = false;
-    int foundX,foundY;
+    int foundX=0,foundY=0;
     for (int iy=0;iy<=numCell-sizeY && !found;iy++)
         for (int ix=0;ix<=numCell-sizeX && !found;ix++)
         {
@@ -357,7 +357,7 @@ void DynamicTextureAddRegion::execute(Scene *scene,WhirlyKitSceneRendererES *ren
 }
     
 DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth)
-    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth), clearTextures(imageDepth>1)
+    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth), clearTextures(imageDepth>1), interpType(GL_LINEAR)
 {
 }
     
@@ -432,6 +432,7 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
         for (unsigned int ii=0;ii<imageDepth;ii++)
         {
             DynamicTextureRef dynTex(new DynamicTexture("Dynamic Texture Atlas",texSize,cellSize,format,clearTextures));
+            dynTex->setInterpType(interpType);
             dynTexVec->push_back(dynTex);
             dynTex->createInGL(memManager);
         }

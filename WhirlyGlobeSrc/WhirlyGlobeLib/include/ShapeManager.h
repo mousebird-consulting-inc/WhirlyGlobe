@@ -66,6 +66,8 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 @property (nonatomic,assign) bool useColor;
 /// Local color, which will override the default
 @property (nonatomic,assign) WhirlyKit::RGBAColor &color;
+/// If set the shape is already in clip coordinates and shouldn't be transformed
+@property (nonatomic,assign) bool clipCoords;
 
 @end
 
@@ -144,6 +146,21 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 
 /// Transform to apply to this extruded shape before placement
 @property (nonatomic,assign) Eigen::Matrix4d &transform;
+
+@end
+
+/** A simple rectangle.
+  */
+@interface WhirlyKitShapeRectangle : WhirlyKitShape
+
+/// Lower left corner
+@property (nonatomic,assign) WhirlyKit::Point3d &ll;
+
+/// Upper right corner
+@property (nonatomic,assign) WhirlyKit::Point3d &ur;
+
+/// Texture to stretch across the whole thing
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity texID;
 
 @end
 

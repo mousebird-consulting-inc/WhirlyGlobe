@@ -139,7 +139,7 @@ public:
     void textureSize(int width, int height,int *destWidth,int *destHeight);
     
     // Initialize texture and drawable atlases (only once)
-    void initAtlases(WhirlyKitTileImageType imageType,int numImages,int textureAtlasSize,int sampleSizeX,int sampleSizeY);
+    void initAtlases(WhirlyKitTileImageType imageType,GLenum interpType,int numImages,int textureAtlasSize,int sampleSizeX,int sampleSizeY);
     
     // Build the edge matching skirt
     void buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std::vector<TexCoord> &texCoords,float skirtFactor,bool haveElev,const Point3d &theCenter);
@@ -248,6 +248,9 @@ public:
     
     // Set if we're in single level mode.  That is, we're only trying to display a single level.
     bool singleLevel;
+    
+    // If set non-zero we'll render to another target
+    SimpleIdentity renderTargetID;
 };
     
 /** The Loaded Tile is used to track tiles that have been
