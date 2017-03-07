@@ -600,6 +600,8 @@ static double MAX_EXTENT = 20037508.342789244;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
     ^{
         MaplyBoundingBox bbox;
+        if (!layer.valid)
+            return;
         [layer geoBoundsforTile:tileID ll:&bbox.ll ur:&bbox.ur];
         bbox.ll = [self toMerc:bbox.ll];
         bbox.ur = [self toMerc:bbox.ur];
@@ -611,6 +613,8 @@ static double MAX_EXTENT = 20037508.342789244;
                 //this should probably check validTile, but that could be slower
                 continue;
             }
+            if (!layer.valid)
+                return;
             
             MaplyTileID flippedYTile;
             if(layer.flipY) {
@@ -650,6 +654,9 @@ static double MAX_EXTENT = 20037508.342789244;
             }
         }
         
+        if (!layer.valid)
+            return;
+
         // Hand the objects over to the layer
         [layer addData:compObjs forTile:tileID style:MaplyDataStyleReplace];
         [layer tileDidLoad:tileID];
