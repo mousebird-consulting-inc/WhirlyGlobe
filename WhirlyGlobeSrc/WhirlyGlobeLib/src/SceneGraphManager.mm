@@ -33,7 +33,7 @@ SceneGraphManager::SceneGraphManager(DynamicDrawableAtlas *drawAtlas) : drawAtla
 SceneGraphManager::~SceneGraphManager()
 {
     drawAtlas = NULL;
-    for (NodeSet::iterator it = allNodes.begin(); it != allNodes.end(); ++it)
+    for (NodeSet::iterator it = topNodes.begin(); it != topNodes.end(); ++it)
         delete *it;
     topNodes.clear();
     allNodes.clear();
