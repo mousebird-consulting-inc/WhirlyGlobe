@@ -64,10 +64,9 @@ public:
     SceneGraphGroup(SimpleIdentity theId) : Identifiable(theId) { }
     virtual ~SceneGraphGroup()
     {
-        // No longer need this.  We're always deleting all the nodes in the manager
-//        for (std::set<SceneGraphNode *>::iterator it = nodes.begin();
-//             it != nodes.end(); ++it)
-//            delete *it;
+        for (std::set<SceneGraphNode *>::iterator it = nodes.begin();
+             it != nodes.end(); ++it)
+            delete *it;
         nodes.clear();
     }
     

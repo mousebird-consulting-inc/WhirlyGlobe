@@ -206,7 +206,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     bool canShortCircuitImportance;
     int maxShortCircuitLevel;
     WhirlyKitViewState *lastViewState;
-    WhirlyKitSceneRendererES *_renderer;
+    WhirlyKitSceneRendererES * __weak _renderer;
     bool hasUnload;
     bool hasBoundingBox;
 }
@@ -618,6 +618,9 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 - (void)teardown
 {
     super.layerThread = nil;
+    quadLayer = nil;;
+    tileSource = nil;
+    
     quadLayer = nil;
 }
 
