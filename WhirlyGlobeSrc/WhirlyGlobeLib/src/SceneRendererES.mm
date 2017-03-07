@@ -42,6 +42,108 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     
     return true;
 }
+    
+RenderTarget::RenderTarget()
+    : framebuffer(0), colorbuffer(0), depthbuffer(0), width(0), height(0), isSetup(false)
+{
+}
+    
+bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
+{
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    
+    // Our destination is a texture in this case
+    if (targetTexID)
+    {
+        colorbuffer = 0;
+        TextureBase *tex = scene->getTexture(targetTexID);
+        if (tex)
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->getGLId(), 0);
+    } else {
+        // Generate our own color buffer
+        glGenRenderbuffers(1, &colorbuffer);
+        CheckGLError("SceneRendererES: glGenRenderbuffers");
+        glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
+        CheckGLError("SceneRendererES: glBindRenderbuffer");
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorbuffer);
+        CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
+    }
+    
+    glGenRenderbuffers(1, &depthbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer);
+    
+//    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
+//    if(status != GL_FRAMEBUFFER_COMPLETE) {
+//        NSLog(@"Failed to build valid render target: %x", status);
+//        return false;
+//    }
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    isSetup = false;
+    return true;
+}
+    
+void RenderTarget::clear()
+{
+    if (colorbuffer)
+        glDeleteRenderbuffers(1,&colorbuffer);
+    if (depthbuffer)
+        glDeleteRenderbuffers(1,&depthbuffer);
+    if (framebuffer)
+        glDeleteFramebuffers(1,&framebuffer);
+}
+    
+void RenderTarget::setActiveFramebuffer(WhirlyKitSceneRendererES *renderer)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    CheckGLError("SceneRendererES2: glBindFramebuffer");
+    glViewport(0, 0, width, height);
+    CheckGLError("SceneRendererES2: glViewport");
+    if (colorbuffer)
+        glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
+    
+//    if (!isSetup)
+    {
+        // Note: Should allow this to be selected
+        // For non-main rendering targets, we want clear
+        if (getId())
+            glClearColor(0.0,0.0,0.0,0.0);
+        else
+            glClearColor(renderer->_clearColor.r / 255.0, renderer->_clearColor.g / 255.0, renderer->_clearColor.b / 255.0, renderer->_clearColor.a / 255.0);
+        CheckGLError("SceneRendererES2: glClearColor");
+        isSetup = true;
+    }
+}
+    
+AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID)
+    : renderTargetID(renderTargetID), width(width), height(height), texID(texID)
+{
+}
+
+// Set up a render target
+void AddRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    RenderTarget renderTarget(renderTargetID);
+    renderTarget.width = width;
+    renderTarget.height = height;
+    renderTarget.init(scene,texID);
+    
+    [renderer addRenderTarget:renderTarget];
+}
+    
+RemRenderTargetReq::RemRenderTargetReq(SimpleIdentity targetID)
+    : targetID(targetID)
+{
+}
+    
+void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    [renderer clearRenderTarget:targetID];
+}
 
 }
 
@@ -205,25 +307,9 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
             return nil;
         }
         
-        // Create default framebuffer object.
-        glGenFramebuffers(1, &defaultFramebuffer);
-        CheckGLError("SceneRendererES: glGenFramebuffers");
-        glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
-        CheckGLError("SceneRendererES: glBindFramebuffer");
-        
-        // Create color render buffer and allocate backing store.
-        glGenRenderbuffers(1, &colorRenderbuffer);
-        CheckGLError("SceneRendererES: glGenRenderbuffers");
-        glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
-        CheckGLError("SceneRendererES: glBindRenderbuffer");
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorRenderbuffer);
-        CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
-        
-		// Allocate depth buffer
-		glGenRenderbuffers(1, &depthRenderbuffer);
-        CheckGLError("SceneRendererES: glGenRenderbuffers");
-		glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
-        CheckGLError("SceneRendererES: glBindRenderbuffer");
+        RenderTarget defaultTarget(EmptyIdentity);
+        defaultTarget.init(NULL,EmptyIdentity);
+        renderTargets.push_back(defaultTarget);
         
         // All the animations should work now, except for particle systems
         _useViewChanged = true;
@@ -245,28 +331,34 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
     EAGLContext *oldContext = [EAGLContext currentContext];
     if (oldContext != _context)
         [EAGLContext setCurrentContext:_context];
-    	
-	if (defaultFramebuffer)
-	{
-		glDeleteFramebuffers(1, &defaultFramebuffer);
-		defaultFramebuffer = 0;
-	}
-	
-	if (colorRenderbuffer)
-	{
-		glDeleteRenderbuffers(1, &colorRenderbuffer);
-		colorRenderbuffer = 0;
-	}
-	
-	if (depthRenderbuffer)
-	{
-		glDeleteRenderbuffers(1, &depthRenderbuffer	);
-		depthRenderbuffer = 0;
-	}
-	
+    
+    for (auto &target : renderTargets)
+        target.clear();
+    
 	if (oldContext != _context)
         [EAGLContext setCurrentContext:oldContext];
 	_context = nil;	
+}
+
+/// Add the given rendering target and, you know, render to it
+- (void) addRenderTarget:(RenderTarget &)newTarget
+{
+    renderTargets.insert(renderTargets.begin(),newTarget);
+}
+
+/// Clear out the given render target
+- (void) clearRenderTarget:(SimpleIdentity)targetID
+{
+    for (int ii=0;ii<renderTargets.size();ii++)
+    {
+        RenderTarget &target = renderTargets[ii];
+        if (target.getId() == targetID)
+        {
+            target.clear();
+            renderTargets.erase(renderTargets.begin()+ii);
+            break;
+        }
+    }
 }
 
 // We'll take the maximum requested time
@@ -309,23 +401,31 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 
 - (BOOL) resizeFromLayer:(CAEAGLLayer *)layer
 {
+    if (renderTargets.empty())
+        return false;
+    
     EAGLContext *oldContext = [EAGLContext currentContext];
     if (oldContext != _context)
         [EAGLContext setCurrentContext:_context];
     
-	glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
+    RenderTarget &renderTarget = renderTargets[0];
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, renderTarget.framebuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, renderTarget.colorbuffer);
     CheckGLError("SceneRendererES: glBindRenderbuffer");
 	[_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer];
     CheckGLError("SceneRendererES: glBindRenderbuffer");
 	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &_framebufferWidth);
 	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &_framebufferHeight);
+    renderTarget.width = _framebufferWidth;
+    renderTarget.height = _framebufferHeight;
     
 	// For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
-	glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, renderTarget.depthbuffer);
     CheckGLError("SceneRendererES: glBindRenderbuffer");
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, _framebufferWidth, _framebufferHeight);
     CheckGLError("SceneRendererES: glRenderbufferStorage");
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderTarget.depthbuffer);
     CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
 	
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)

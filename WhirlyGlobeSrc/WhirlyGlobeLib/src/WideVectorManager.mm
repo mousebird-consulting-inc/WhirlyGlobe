@@ -573,7 +573,7 @@ public:
         WideVectorBuilder vecBuilder(vecInfo,localCenter,dispCenter,color,makeDistinctTurns,coordAdapter);
         
         // Guess at how many points and triangles we'll need
-        int totalTriCount = 5*pts.size();
+        int totalTriCount = (int)(5*pts.size());
         int totalPtCount = totalTriCount * 3;
         if (totalTriCount < 0)  totalTriCount = 0;
         if (totalPtCount < 0)  totalPtCount = 0;

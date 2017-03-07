@@ -22,6 +22,7 @@
 #import <set>
 #import "MaplyMultiplexTileSource.h"
 #import "MaplyQuadImageTilesLayer.h"
+#import "UIImage+Stuff.h"
 
 namespace Maply
 {
@@ -305,7 +306,7 @@ static bool trackConnections = false;
     id tileData = originalTileData;
 
     // We can override the data either in a subclass or in the delegate
-    if (originalTileData)
+    if (originalTileData || self.acceptFailures)
     {
         id tileInfo = _tileSources[(which > -1 ? which : 0)];
         if ([_delegate respondsToSelector:@selector(remoteTileInfo:modifyTileReturn:forTile:frame:)])
@@ -495,8 +496,11 @@ static bool trackConnections = false;
                 NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
                 ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
                     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-
-                        if (!error) {
+                        NSError *theError = error;
+                        if (!theError && ![data contentTypeForImage])
+                            theError = [NSError errorWithDomain:@"MaplyErrorDomain" code:0 userInfo:nil];
+                        
+                        if (!theError) {
                             if (weakSelf)
                                 [weakSelf gotTile:tileID which:which data:data layer:layer fromCache:false];
 
@@ -510,8 +514,10 @@ static bool trackConnections = false;
                             if (weakSelf)
                             {
                                 if (weakSelf.acceptFailures)
-                                    [weakSelf gotTile:tileID which:which data:error layer:layer fromCache:false];
-                                else
+                                {
+                                    [weakSelf gotTile:tileID which:which data:nil layer:layer fromCache:false];
+                                    theError = nil;
+                                } else
                                     [weakSelf failedToGetTile:tileID frame:frame error:error layer:layer];
                             }
 
