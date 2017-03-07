@@ -188,7 +188,6 @@
  @param  userStyleNode The DDXMLElement corresponding to the UserStyle element in the document tree.
  */
 - (SLDUserStyle *)loadUserStyleNode:(DDXMLElement *)userStyleNode {
-    NSError *error;
     SLDUserStyle *sldUserStyle = [[SLDUserStyle alloc] init];
 
     DDXMLNode *nameNode = [self getSingleChildNodeForNode:userStyleNode childName:@"Name"];
@@ -214,7 +213,6 @@
  @param  featureTypeStyleNode The DDXMLElement corresponding to the FeatureTypeStyle element in the document tree.
  */
 - (SLDFeatureTypeStyle *)loadFeatureTypeStyleNode:(DDXMLElement *)featureTypeStyleNode {
-    NSError *error;
     SLDFeatureTypeStyle *featureTypeStyle = [[SLDFeatureTypeStyle alloc] init];
 
     NSMutableArray *rules = [NSMutableArray array];
@@ -235,7 +233,6 @@
  @param  ruleNode The DDXMLElement corresponding to the Rule element in the document tree.
  */
 - (SLDRule *)loadRuleNode:(DDXMLElement *)ruleNode {
-    NSError *error;
     SLDRule *rule = [[SLDRule alloc] init];
     
     
@@ -299,7 +296,6 @@
  @param ruleNode The DDXMLElement corresponding to the Rule element in the document tree.
  */
 - (void)loadSymbolizersForRule:(SLDRule *)rule andRuleNode:(DDXMLElement *)ruleNode {
-    NSError *error;
     rule.symbolizers = [NSMutableArray array];
     
     int relativeDrawPriority = _relativeDrawPriority;
@@ -307,8 +303,8 @@
         relativeDrawPriority += rule.relativeDrawPriority.intValue;
     
     for (DDXMLNode *child in [ruleNode children]) {
-        NSString *name = [child localName];
-        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator relativeDrawPriority:relativeDrawPriority baseURL:_baseURL];
+//        NSString *name = [child localName];
+        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:(DDXMLElement *)child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator relativeDrawPriority:_relativeDrawPriority baseURL:_baseURL];
         
         if (symbolizers) {
             _relativeDrawPriority += 1;

@@ -66,11 +66,12 @@
         {
             MaplyImageTile *otherTile = (MaplyImageTile *)data;
             data = [otherTile->stuff objectAtIndex:0];
+        } else {
+            if (![data isKindOfClass:[NSData class]])
+                return nil;
+            if ([data length] != width*height*4)
+                return nil;
         }
-        if (![data isKindOfClass:[NSData class]])
-            return nil;
-        if ([data length] != width*height*4)
-            return nil;
         [outArray addObject:data];
     }
     

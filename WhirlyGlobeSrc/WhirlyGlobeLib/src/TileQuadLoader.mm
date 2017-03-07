@@ -102,6 +102,7 @@ using namespace WhirlyKit;
         _enable = true;
         _fade = 1.0;
         _useTileCenters = true;
+        _renderTargetID = EmptyIdentity;
         defaultTessX = defaultTessY = 10;
         canLoadFrames = [inDataSource respondsToSelector:@selector(quadTileLoader:startFetchForLevel:col:row:frame:attrs:)];
         pthread_mutex_init(&tileLock, NULL);
@@ -558,6 +559,7 @@ using namespace WhirlyKit;
         tileBuilder->singleLevel = !_quadLayer.targetLevels.empty();
         tileBuilder->enabled = _enable;
         tileBuilder->fade = _fade;
+        tileBuilder->renderTargetID = _renderTargetID;
 
         // If we haven't decided how many active textures we'll have, do that
         if (_activeTextures == -1)
