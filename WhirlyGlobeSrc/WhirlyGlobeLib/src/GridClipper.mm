@@ -75,7 +75,7 @@ bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, bool closed,std::vecto
                 } else if (outcode0 & outcode1) { // Both points outside of MBR
                     break;
                 } else { //At least one point outside of MBR
-                    double x, y;
+                    double x=0.0, y=0.0;
                     
                     // At least one endpoint is outside the clip rectangle; pick it.
                     OutCode outcodeOut = outcode0 ? outcode0 : outcode1;

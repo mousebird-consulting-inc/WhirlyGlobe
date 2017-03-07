@@ -136,6 +136,10 @@ extern NSString* const kMaplyShadowColor;
 extern NSString* const kMaplyTextOutlineSize;
 /// If outline is being used, we can control the stroke size
 extern NSString* const kMaplyTextOutlineColor;
+/// When creating textures, we may pass in the size
+extern NSString* const kMaplyTexSizeX;
+/// When creating textures, we may pass in the size
+extern NSString* const kMaplyTexSizeY;
 
 /// These are used for screen and regular markers.
 extern NSString* const kMaplyClusterGroup;
