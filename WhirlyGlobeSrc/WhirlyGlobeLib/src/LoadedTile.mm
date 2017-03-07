@@ -71,34 +71,36 @@ using namespace WhirlyKit;
 
 + (WhirlyKitLoadedImage *)LoadedImageWithNSDataAsPNGorJPG:(NSData *)imageData
 {
-    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
-    
-    // Check if it's a PKM
-    int dataLen = (int)[imageData length];
-    if (dataLen > 3 && !strncmp((char *)[imageData bytes], "PKM", 3))
-    {
-        loadImage.type = WKLoadedImageNSDataPKM;
-        loadImage.borderSize = 0;
-        loadImage.width = loadImage.height = sqrtf(dataLen*2-16);
-        loadImage.imageData = imageData;
-    } else {
-        loadImage.type = WKLoadedImageNSDataAsImage;
-        loadImage.borderSize = 0;
-        loadImage.width = loadImage.height = 0;
-        loadImage.imageData = imageData;
-
-        UIImage *texImage = [UIImage imageWithData:(NSData *)imageData];
-        if (texImage)
+    @synchronized(self) {
+        WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
+        
+        // Check if it's a PKM
+        int dataLen = (int)[imageData length];
+        if (dataLen > 3 && !strncmp((char *)[imageData bytes], "PKM", 3))
         {
-            loadImage.imageData = texImage;
-            loadImage.width = CGImageGetWidth(texImage.CGImage);
-            loadImage.height = CGImageGetHeight(texImage.CGImage);
-            loadImage.type = WKLoadedImageUIImage;
-        } else
-            return nil;
+            loadImage.type = WKLoadedImageNSDataPKM;
+            loadImage.borderSize = 0;
+            loadImage.width = loadImage.height = sqrtf(dataLen*2-16);
+            loadImage.imageData = imageData;
+        } else {
+            loadImage.type = WKLoadedImageNSDataAsImage;
+            loadImage.borderSize = 0;
+            loadImage.width = loadImage.height = 0;
+            loadImage.imageData = imageData;
+
+            UIImage *texImage = [UIImage imageWithData:(NSData *)imageData];
+            if (texImage)
+            {
+                loadImage.imageData = texImage;
+                loadImage.width = CGImageGetWidth(texImage.CGImage);
+                loadImage.height = CGImageGetHeight(texImage.CGImage);
+                loadImage.type = WKLoadedImageUIImage;
+            } else
+                return nil;
+        }
+        
+        return loadImage;
     }
-    
-    return loadImage;
 }
 
 + (WhirlyKitLoadedImage *)PlaceholderImage
