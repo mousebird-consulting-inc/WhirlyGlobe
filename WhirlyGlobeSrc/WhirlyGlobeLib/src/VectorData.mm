@@ -1050,14 +1050,14 @@ NSMutableDictionary *VectorParseProperties(JSONNode node)
 }
     
 // Parse coordinate list out of a node
-bool VectorParseCoordinates(JSONNode node,VectorRing &pts)
+bool VectorParseCoordinates(JSONNode node,VectorRing &pts, bool subCall=false)
 {
     for (JSONNode::const_iterator it = node.begin();
          it != node.end(); ++it)
     {
         if (it->type() == JSON_ARRAY)
         {
-            if (!VectorParseCoordinates(*it, pts))
+            if (!VectorParseCoordinates(*it, pts, true))
                 return false;
             continue;
         }
@@ -1065,12 +1065,17 @@ bool VectorParseCoordinates(JSONNode node,VectorRing &pts)
         // We're expecting two numbers here
         if (it->type() == JSON_NUMBER)
         {
-            if (node.size() != 2)
+            if (node.size() < 2)
                 return false;
             
             float lon = it->as_float();  ++it;
             float lat = it->as_float();
             pts.push_back(GeoCoord::CoordFromDegrees(lon,lat));
+
+            // There might be a Z value or even other junk.  We just want the first two coordinates
+            //  in this particular case.
+            if (subCall)
+                return true;
 
             continue;
         }
@@ -1303,6 +1308,9 @@ bool VectorParseTopNode(JSONNode node,ShapeSet &shapes,JSONNode &crs)
         if (featIt == node.end() || featIt->type() != JSON_ARRAY)
             return false;
         return VectorParseFeatures(*featIt,shapes);
+    } else if (!type.compare("Feature"))
+    {
+        return VectorParseFeature(node,shapes);
     } else
         return false;
 

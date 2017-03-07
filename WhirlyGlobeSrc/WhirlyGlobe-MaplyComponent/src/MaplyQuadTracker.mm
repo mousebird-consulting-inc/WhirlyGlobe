@@ -52,7 +52,7 @@ public:
 {
     CoordSystemDisplayAdapter *coordAdapter;
     WhirlyGlobeView *globeView;
-    WhirlyKitSceneRendererES *renderer;
+    WhirlyKitSceneRendererES * __weak renderer;
     std::set<TileWrapper> tiles;
 }
 
