@@ -134,12 +134,12 @@ protected:
     {
     public:
         BigDrawableInfo() { }
-        BigDrawableInfo(SimpleIdentity baseTexId,BigDrawable *bigDraw) : baseTexId(baseTexId), bigDraw(bigDraw) { }
+        BigDrawableInfo(SimpleIdentity baseTexId,const BigDrawableRef &bigDraw) : baseTexId(baseTexId), bigDraw(bigDraw) { }
         BigDrawableInfo & operator = (const BigDrawableInfo &that) { baseTexId = that.baseTexId; bigDraw = that.bigDraw; return *this; }
         bool operator < (const BigDrawableInfo &that) const { return bigDraw->getId() > that.bigDraw->getId(); }
         // This is the texture ID we associated with the big drawable.
         SimpleIdentity baseTexId;
-        BigDrawable *bigDraw;
+        BigDrawableRef bigDraw;
     };
     typedef std::set<BigDrawableInfo> BigDrawableSet;
     BigDrawableSet bigDrawables;
