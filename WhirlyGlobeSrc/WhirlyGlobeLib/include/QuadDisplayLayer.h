@@ -198,10 +198,10 @@ public:
 /// How far the viewer has to move to force an update (if non-zero)
 @property (nonatomic,assign) float minUpdateDist;
 /// Data source for the quad tree structure
-@property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadDataStructure> *dataStructure;
+@property (nonatomic,strong) NSObject<WhirlyKitQuadDataStructure> *dataStructure;
 /// Loader that may be creating and deleting data as the quad tiles load
 ///  and unload.
-@property (nonatomic,strong,readonly) NSObject<WhirlyKitQuadLoader> *loader;
+@property (nonatomic,strong) NSObject<WhirlyKitQuadLoader> *loader;
 /// The renderer we need for frame sizes
 @property (nonatomic,weak) WhirlyKitSceneRendererES2 *renderer;
 /// If set we'll try to match the frame boundaries for our update

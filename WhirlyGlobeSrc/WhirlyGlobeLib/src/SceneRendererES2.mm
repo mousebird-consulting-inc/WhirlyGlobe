@@ -305,7 +305,11 @@ static const float ScreenOverlap = 0.1;
     frameCount++;
     
     if (super.framebufferWidth <= 0 || super.framebufferHeight <= 0)
+    {
+        // Process the scene even if the window isn't up
+        [self processScene];
         return;
+    }
 
     if (!renderStateOptimizer)
         renderStateOptimizer = [[WhirlyKitOpenGLStateOptimizer alloc] init];

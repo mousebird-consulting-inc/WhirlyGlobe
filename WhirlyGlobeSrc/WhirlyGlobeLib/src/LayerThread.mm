@@ -130,6 +130,10 @@ using namespace WhirlyKit;
         // If we're done, we won't bother shutting down things nicely
         if (![self isCancelled])
             [layer teardown];
+        else {
+            if ([layer respondsToSelector:@selector(systemTeardown)])
+                [layer systemTeardown];
+        }
         [layers removeObject:layer];
     }
 }
@@ -288,6 +292,9 @@ using namespace WhirlyKit;
                 if (!finished)
                     [NSThread sleepForTimeInterval:0.01];
             } while (!finished);
+
+            [threadsToShutdown removeAllObjects];
+            threadsToShutdown = nil;
         }
 
         // If we're not the main thread, let's clean up our layers before we shut down

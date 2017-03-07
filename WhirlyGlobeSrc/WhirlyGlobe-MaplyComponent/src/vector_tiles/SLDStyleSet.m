@@ -139,6 +139,17 @@
     return nil;
 }
 
+- (NSString *)stringForLiteralInNode:(DDXMLNode *)node {
+    for (DDXMLNode *child in [node children]) {
+        if ([[child localName] isEqualToString:@"Literal"])
+            return [child stringValue];
+    }
+    for (DDXMLNode *child in [node children]) {
+        if (child.kind == DDXMLTextKind)
+            return [child stringValue];
+    }
+    return nil;
+}
 
 /** @brief Load the NamedLayer xml element into a SLDNamedLayer object.
     @param  namedLayerNode The DDXMLElement corresponding to the NamedLayer element in the document tree.
@@ -259,6 +270,24 @@
     DDXMLNode *maxScaleNode = [self getSingleChildNodeForNode:ruleNode childName:@"MaxScaleDenominator"];
     if (maxScaleNode)
         rule.maxScaleDenominator = [nf numberFromString:[maxScaleNode stringValue]];
+    
+    NSArray *vendorOptionNodes = [ruleNode elementsForName:@"VendorOption"];
+    if (vendorOptionNodes) {
+        for (DDXMLElement *vendorOptionNode in vendorOptionNodes) {
+            DDXMLNode *optionNameNode = [vendorOptionNode attributeForName:@"name"];
+            NSString *optionName;
+            if (optionNameNode)
+                optionName = [optionNameNode stringValue];
+            if (optionName && [optionName isEqualToString:@"relativeDrawPriority"]) {
+                NSString *sVal = [self stringForLiteralInNode:vendorOptionNode];
+                if (sVal) {
+                    rule.relativeDrawPriority = @([sVal intValue]);
+                    break;
+                }
+            }
+            
+        }
+    }
 
     [self loadSymbolizersForRule:rule andRuleNode:ruleNode];
     
@@ -273,12 +302,17 @@
     NSError *error;
     rule.symbolizers = [NSMutableArray array];
     
+    int relativeDrawPriority = _relativeDrawPriority;
+    if (rule.relativeDrawPriority)
+        relativeDrawPriority += rule.relativeDrawPriority.intValue;
+    
     for (DDXMLNode *child in [ruleNode children]) {
         NSString *name = [child localName];
-        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator relativeDrawPriority:_relativeDrawPriority baseURL:_baseURL];
+        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator relativeDrawPriority:relativeDrawPriority baseURL:_baseURL];
         
         if (symbolizers) {
             _relativeDrawPriority += 1;
+            relativeDrawPriority += 1;
             for (MaplyVectorTileStyle * symbolizer in symbolizers) {
                 symbolizer.uuid = @(symbolizerId);
                 self.symbolizers[@(symbolizerId)] = symbolizer;

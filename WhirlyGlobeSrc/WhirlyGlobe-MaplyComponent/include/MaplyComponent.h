@@ -66,6 +66,7 @@
 
 // These are not pulled in by the podspec
 #ifdef NOTPODSPECWG
+#import "MaplyLAZQuadReader.h"
 #import "vector_tiles/MaplyVectorTiles.h"
 #import "vector_tiles/MapboxVectorTiles.h"
 #import "vector_tiles/MapnikStyleSet.h"
