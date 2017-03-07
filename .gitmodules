@@ -25,9 +25,6 @@
 [submodule "third-party/kompex-sqlite-wrapper"]
 	path = third-party/kompex-sqlite-wrapper
 	url = https://github.com/Aethelflaed/kompex-sqlite-wrapper.git
-[submodule "eigen2"]
-	path = third-party/eigen
-	url = https://github.com/RLovelett/eigen
 [submodule "resources_new"]
 	path = resources
 	url = https://github.com/mousebird/wg-resources-new.git
@@ -37,3 +34,9 @@
 [submodule "third-party/protobuf"]
 	path = third-party/protobuf
 	url = https://github.com/mousebird/protobuf.git
+[submodule "third-party/laszip"]
+	path = third-party/laszip
+	url = https://github.com/mousebird/LASzip
+[submodule "third-party/eigen"]
+	path = third-party/eigen
+	url = https://github.com/RLovelett/eigen.git

@@ -119,8 +119,10 @@ protected:
     /// If set, overwrite texture data with empty pixels
     bool clearTextures;
 };
+    
+typedef std::shared_ptr<DynamicTexture> DynamicTextureRef;
 
-typedef std::vector<DynamicTexture *> DynamicTextureVec;
+typedef std::vector<DynamicTextureRef> DynamicTextureVec;
 
 // Used to sort dynamic texture vectors
 typedef struct

@@ -87,7 +87,7 @@ using namespace WhirlyKit;
     float _minElev,_maxElev;
     bool canShortCircuitImportance;
     int maxShortCircuitLevel;
-    WhirlyKitSceneRendererES *_renderer;
+    WhirlyKitSceneRendererES * __weak _renderer;
     WhirlyKitViewState *lastViewState;
     NSObject<MaplyElevationSourceDelegate> *elevDelegate;
     bool variableSizeTiles;

@@ -44,7 +44,7 @@ using namespace WhirlyKit;
     WhirlyKitQuadTileOfflineLoader *tileLoader;
     WhirlyKitQuadDisplayLayer *quadLayer;
     WhirlyKitViewState *lastViewState;
-    WhirlyKitSceneRendererES *renderer;
+    WhirlyKitSceneRendererES * __weak renderer;
     Scene *scene;
     bool sourceSupportsMulti;
     bool sourceWantsAsync;
@@ -392,6 +392,7 @@ using namespace WhirlyKit;
         } else {
             // We need the backfacing checks that ScreenImportance does
             import = ScreenImportance(viewState, frameSize, viewState.eyeVec, tileSize, [coordSys getCoordSystem], coordAdapter, mbr, ident, attrs);
+//               NSLog(@"ScreenImportance = %f %d: (%d,%d)",import,ident.level,ident.x,ident.y);
             if (import > 0.0)
             {
                 import = 1.0/(ident.level+10);

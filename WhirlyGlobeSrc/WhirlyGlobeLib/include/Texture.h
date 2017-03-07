@@ -63,6 +63,8 @@ protected:
     std::string name;
 };
     
+typedef std::shared_ptr<TextureBase> TextureBaseRef;
+    
 /// For single byte pixels, what's the source, R G B or A?
 typedef enum {WKSingleRed,WKSingleGreen,WKSingleBlue,WKSingleRGB,WKSingleAlpha} WKSingleByteSource;
 
