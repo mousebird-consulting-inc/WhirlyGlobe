@@ -340,7 +340,7 @@ public:
                     {
                         InterPoint triVerts[3];
                         
-                        triVerts[0] = rPt0;
+                        triVerts[0] = texLen > texLen2 ? rPt0 : rPt1;
                         triVerts[0].texYmin = texNext;
                         triVerts[0].texYmax = texNext;
                         triVerts[1] = endPt1.flipped();
@@ -374,7 +374,7 @@ public:
                         // Bending left
                         InterPoint triVerts[3];
                         
-                        triVerts[0] = lPt0;
+                        triVerts[0] = texLen > texLen2 ? lPt0 : lPt1;
                         triVerts[0].texYmin = texNext;
                         triVerts[0].texYmax = texNext;
                         triVerts[1] = endPt0;
@@ -774,7 +774,14 @@ SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,const WideVectorIn
             {
                 for (const auto &loop : ar->loops)
                 {
-                    builder.addLinear(loop, centerUp, true);
+                    if (loop.size() > 2 && loop.begin() != loop.end())
+                    {
+                        // Just tack on another point at the end.  Kind of dumb, but easy.
+                        VectorRing newLoop = loop;
+                        newLoop.push_back(loop[0]);
+                        builder.addLinear(newLoop, centerUp, true);
+                    } else
+                        builder.addLinear(loop, centerUp, true);
                 }
             }
         }

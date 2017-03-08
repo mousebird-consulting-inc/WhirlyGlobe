@@ -101,6 +101,13 @@ public class ComponentObject
 		vectorIDs.add(id);
 	}
 
+	void addWideVectorID(long id)
+	{
+		if (wideVectorIDs == null)
+			wideVectorIDs = new ArrayList<Long>();
+		wideVectorIDs.add(id);
+	}
+
 	ArrayList<VectorObject> vecObjs = null;
 
 	// Add a vector for selection
@@ -119,6 +126,19 @@ public class ComponentObject
 		long[] retIDs = new long[vectorIDs.size()];
 		int which = 0;
 		for (Long id : vectorIDs) {
+			retIDs[which++] = id;
+		}
+
+		return retIDs;
+	}
+
+	long[] getWideVectorIDs()
+	{
+		if (wideVectorIDs == null)
+			return null;
+		long[] retIDs = new long[wideVectorIDs.size()];
+		int which = 0;
+		for (Long id : wideVectorIDs) {
 			retIDs[which++] = id;
 		}
 
@@ -186,9 +206,11 @@ public class ComponentObject
 
 	// Enable/disable anything the component object is holding
 	void enable(MaplyBaseController control,boolean enable,ChangeSet changes)
-	{	
+	{
 		if (vectorIDs != null && vectorIDs.size() > 0)
 			control.vecManager.enableVectors(convertIDs(vectorIDs), enable, changes);
+		if (wideVectorIDs != null && wideVectorIDs.size() > 0)
+			control.wideVecManager.enableVectors(convertIDs(wideVectorIDs), enable, changes);
 		if (markerIDs != null && markerIDs.size() > 0)
 			control.markerManager.enableMarkers(convertIDs(markerIDs), enable, changes);
 		if (stickerIDs != null && stickerIDs.size() > 0)
@@ -218,6 +240,11 @@ public class ComponentObject
 		{
 			control.vecManager.removeVectors(convertIDs(vectorIDs), changes);
 			vectorIDs.clear();
+		}
+		if (wideVectorIDs != null && wideVectorIDs.size() > 0)
+		{
+			control.vecManager.removeVectors(convertIDs(wideVectorIDs), changes);
+			wideVectorIDs.clear();
 		}
 		if (markerIDs != null && markerIDs.size() > 0)
 		{
@@ -272,6 +299,7 @@ public class ComponentObject
 	private ArrayList<Long> markerIDs = null;
 	private ArrayList<Long> stickerIDs = null;
 	private ArrayList<Long> vectorIDs = null;
+	private ArrayList<Long> wideVectorIDs = null;
 	private ArrayList<Long> labelIDs = null;
 	private ArrayList<Long> particleSystemIDs = null;
 	private ArrayList<Long> geometryIDs = null;

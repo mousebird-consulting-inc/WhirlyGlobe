@@ -133,6 +133,7 @@ public class MaplyBaseController
 
 	// Managers are thread safe objects for handling adding and removing types of data
 	VectorManager vecManager;
+	WideVectorManager wideVecManager;
 	MarkerManager markerManager;
     StickerManager stickerManager;
 	LabelManager labelManager;
@@ -279,6 +280,7 @@ public class MaplyBaseController
 
 		// Fire up the managers.  Can't do anything without these.
 		vecManager = new VectorManager(scene);
+		wideVecManager = new WideVectorManager(scene);
 		markerManager = new MarkerManager(scene);
         stickerManager = new StickerManager(scene);
 		labelManager = new LabelManager(scene);
@@ -465,6 +467,7 @@ public class MaplyBaseController
 
 			coordAdapter.shutdown();
 			vecManager.dispose();
+			wideVecManager.dispose();
 			markerManager.dispose();
 			stickerManager.dispose();
 			selectionManager.dispose();
@@ -508,6 +511,7 @@ public class MaplyBaseController
 			scene = null;
 			view = null;
 			vecManager = null;
+			wideVecManager = null;
 			markerManager = null;
 			stickerManager = null;
 			labelManager = null;
@@ -1136,6 +1140,12 @@ public class MaplyBaseController
 		return compObj;
 	}
 
+	/**
+	 * Change the visual representation of the given vectors.
+	 * @param vecObj The component object returned by the original addVectors() call.
+	 * @param vecInfo Visual representation to use for the changes.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+     */
 	public void changeVectors(final ComponentObject vecObj,final VectorInfo vecInfo,ThreadMode mode)
 	{
 		if (!running)
@@ -1163,6 +1173,65 @@ public class MaplyBaseController
 				};
 		addTask(run, mode);
 	}
+
+	/**
+	 * Add wide vectors to the MaplyController to display.  Vectors are linear or areal
+	 * features with line width, filled style, color and so forth defined by the
+	 * WideVectorInfo class.
+	 * <br>
+	 * Wide vectors differ from regular lines in that they're implemented with a more
+	 * complicated shader.  They can be arbitrarily large, have textures, and have a transparent
+	 * falloff at the edges.  This makes them look anti-aliased.
+	 *
+	 * @param vecs A list of VectorObject's created by the user or read in from various sources.
+	 * @param wideVecInfo A description of how the vectors should look.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @return The ComponentObject representing the vectors.  This is necessary for modifying
+	 * or deleting the vectors once created.
+	 */
+	public ComponentObject addWideVectors(final List<VectorObject> vecs,final WideVectorInfo wideVecInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = addComponentObj();
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						// Vectors are simple enough to just add
+						ChangeSet changes = new ChangeSet();
+						long vecId = wideVecManager.addVectors(vecs, wideVecInfo, changes);
+						if (scene != null)
+							changes.process(scene);
+
+						// Track the vector ID for later use
+						if (vecId != EmptyIdentity)
+							compObj.addWideVectorID(vecId);
+
+						for (VectorObject vecObj : vecs)
+						{
+							// Keep track of this one for selection
+							if (vecObj.selectable)
+								compObj.addVector(vecObj);
+						}
+
+						if (wideVecInfo.disposeAfterUse || disposeAfterRemoval)
+							for (VectorObject vecObj : vecs)
+								if (!vecObj.selectable)
+									vecObj.dispose();
+					}
+				};
+
+		addTask(run, mode);
+
+		return compObj;
+	}
+
 
 	/**
 	 * Add a single screen marker.  See addScreenMarkers() for details.
