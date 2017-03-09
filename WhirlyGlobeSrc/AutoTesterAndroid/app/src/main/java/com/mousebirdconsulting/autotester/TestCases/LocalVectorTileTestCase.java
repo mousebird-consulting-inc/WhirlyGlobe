@@ -46,7 +46,7 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
     {
 
         // We need to copy the file from the asset so that it can be used as a file
-        File mbTiles = this.getMbTileFile("mbtiles/world_full_v2.mbtiles", "world_full_v2.mbtiles");
+        File mbTiles = this.getMbTileFile("mbtiles/world_0_6.mbtiles", "world_0_6.mbtiles");
 
         if (!mbTiles.exists()) {
             throw new FileNotFoundException(String.format("Could not copy MBTiles asset to \"%s\"", mbTiles.getAbsolutePath()));
