@@ -33,11 +33,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_enableVectors
 
 /*
  * Class:     com_mousebird_maply_WideVectorManager
- * Method:    changeVectors
- * Signature: ([JLcom/mousebird/maply/VectorInfo;Lcom/mousebird/maply/ChangeSet;)V
+ * Method:    instanceVectors
+ * Signature: (JLcom/mousebird/maply/WideVectorInfo;Lcom/mousebird/maply/ChangeSet;)J
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_changeVectors
-  (JNIEnv *, jobject, jlongArray, jobject, jobject);
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorManager_instanceVectors
+  (JNIEnv *, jobject, jlong, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_WideVectorManager

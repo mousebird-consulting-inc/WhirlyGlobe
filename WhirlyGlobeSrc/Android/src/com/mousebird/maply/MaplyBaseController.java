@@ -963,7 +963,7 @@ public class MaplyBaseController
 		vecObjs.add(vec);
 		return addVectors(vecObjs,vecInfo,mode);
 	}
-	
+
 	/**
 	 * Add a single layer.  This will start processing its data on the layer thread at some
 	 * point in the near future.
@@ -1224,6 +1224,52 @@ public class MaplyBaseController
 							for (VectorObject vecObj : vecs)
 								if (!vecObj.selectable)
 									vecObj.dispose();
+					}
+				};
+
+		addTask(run, mode);
+
+		return compObj;
+	}
+
+	/**
+	 * Instance an existing set of wide vectors but change their parameters.
+	 * <br>
+	 * Wide vectors can take up a lot of memory.  So if you want to display the same set with
+	 * different parameters (e.g. width, color) this is the way to do it.
+	 *
+	 * @param inCompObj The Component Object returned by an addWideVectors call.
+	 * @param wideVecInfo How we want the vectors to look.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return The ComponentObject representing the instanced wide vectors.  This is necessary for modifying
+	 * or deleting the instance once created.
+     */
+	public ComponentObject instanceWideVectors(final ComponentObject inCompObj,final WideVectorInfo wideVecInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = addComponentObj();
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						// Vectors are simple enough to just add
+						ChangeSet changes = new ChangeSet();
+
+						for (long vecID : inCompObj.getWideVectorIDs()) {
+							long instID = wideVecManager.instanceVectors(vecID,wideVecInfo,changes);
+
+							if (instID != EmptyIdentity)
+								compObj.addWideVectorID(instID);
+						}
+
+						if (scene != null)
+							changes.process(scene);
 					}
 				};
 

@@ -19,7 +19,12 @@ public class WideVectorInfo extends BaseInfo
 
     public WideVectorInfo()
     {
-
+        setColor(Color.WHITE);
+        setLineWidth(2.0f);
+        setJoinType(JoinType.MiterJoin);
+        setMitreLimit(2.0f);
+        setTexId(0);
+        setEdgeFalloff(1.0f);
     }
 
     public void finalize()
@@ -51,10 +56,10 @@ public class WideVectorInfo extends BaseInfo
      */
     public void setTexture(MaplyTexture tex)
     {
-        setTextureNative(tex.texID);
+        setTexId(tex.texID);
     }
 
-    native void setTextureNative(long texID);
+    native void setTexId(long texID);
 
     /**
      * This is the repeat size for a texture applied along the widened line.
@@ -66,16 +71,6 @@ public class WideVectorInfo extends BaseInfo
      * Number of pixels to use in blending the edges of the wide vectors.
      */
     public native void setEdgeFalloff(double falloff);
-
-    /**
-     * When evaulating min/max viewer distance, we'll use this center.
-     */
-    public void setViewableCenter(Point3d center)
-    {
-        setViewableCenterNative(center.getX(),center.getY(),center.getZ());
-    }
-
-    native void setViewableCenterNative(double x,double y,double z);
 
     /**
      * Set the color used by the geometry.

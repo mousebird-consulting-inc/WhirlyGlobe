@@ -27,8 +27,8 @@ public class WideVectorManager {
     // Enable/disable vectors by ID
     public native void enableVectors(long ids[],boolean enable,ChangeSet changes);
 
-    // Change the display of vectors
-    public native void changeVectors(long ids[],VectorInfo vecInfo,ChangeSet changes);
+    // Instance the given wide vectors with the given changes
+    public native long instanceVectors(long vecId,WideVectorInfo vecInfo,ChangeSet changes);
 
     static
     {

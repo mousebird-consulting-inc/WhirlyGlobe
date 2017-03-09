@@ -25,10 +25,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setMitreLimit
 
 /*
  * Class:     com_mousebird_maply_WideVectorInfo
- * Method:    setTextureNative
+ * Method:    setTexId
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTextureNative
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTexId
   (JNIEnv *, jobject, jlong);
 
 /*
@@ -46,14 +46,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTextureRepeatL
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setEdgeFalloff
   (JNIEnv *, jobject, jdouble);
-
-/*
- * Class:     com_mousebird_maply_WideVectorInfo
- * Method:    setViewableCenterNative
- * Signature: (DDD)V
- */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setViewableCenterNative
-  (JNIEnv *, jobject, jdouble, jdouble, jdouble);
 
 /*
  * Class:     com_mousebird_maply_WideVectorInfo
