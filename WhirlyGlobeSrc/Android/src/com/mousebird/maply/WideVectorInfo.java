@@ -19,12 +19,14 @@ public class WideVectorInfo extends BaseInfo
 
     public WideVectorInfo()
     {
+        initialise();
         setColor(Color.WHITE);
         setLineWidth(2.0f);
         setJoinType(JoinType.MiterJoin);
         setMitreLimit(2.0f);
         setTexId(0);
         setEdgeFalloff(1.0f);
+        setDrawPriority(WideVectorPriorityDefault);
     }
 
     public void finalize()

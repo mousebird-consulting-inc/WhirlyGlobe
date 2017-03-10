@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
@@ -1230,6 +1231,29 @@ public class MaplyBaseController
 		addTask(run, mode);
 
 		return compObj;
+	}
+
+	/**
+	 * Add wide vectors to the MaplyController to display.  Vectors are linear or areal
+	 * features with line width, filled style, color and so forth defined by the
+	 * WideVectorInfo class.
+	 * <br>
+	 * Wide vectors differ from regular lines in that they're implemented with a more
+	 * complicated shader.  They can be arbitrarily large, have textures, and have a transparent
+	 * falloff at the edges.  This makes them look anti-aliased.
+	 *
+	 * @param vec The vector object to turn into wide vectors.
+	 * @param wideVecInfo A description of how the vectors should look.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @return The ComponentObject representing the vectors.  This is necessary for modifying
+	 * or deleting the vectors once created.
+	 */
+	public ComponentObject addWideVector(VectorObject vec,WideVectorInfo wideVecInfo,ThreadMode mode)
+	{
+		ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
+		vecObjs.add(vec);
+
+		return addWideVectors(vecObjs,wideVecInfo,mode);
 	}
 
 	/**

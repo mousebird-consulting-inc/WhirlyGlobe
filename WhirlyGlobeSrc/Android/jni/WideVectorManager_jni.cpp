@@ -22,6 +22,7 @@
 #import "Maply_jni.h"
 #import "com_mousebird_maply_WideVectorManager.h"
 #import "WhirlyGlobe.h"
+#import "WhirlyKitLog.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
@@ -102,8 +103,6 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorManager_addVectors
         if (!wrap || !vecInfo || !changeSet)
             return EmptyIdentity;
         
-        //        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "WideVectorInfo: (min,max) = (%f, %f), color = (%d,%d,%d,%d)",vecInfo->minVis,vecInfo->maxVis,(int)vecInfo->color.r,(int)vecInfo->color.g,(int)vecInfo->color.b,(int)vecInfo->color.a);
-        
         // Get the iterator
         // Note: Look these up once
         jclass listClass = env->GetObjectClass(vecObjList);
@@ -126,6 +125,13 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorManager_addVectors
         }
         env->DeleteLocalRef(liter);
         
+        // Resolve a missing program
+        if (vecInfo->programID == EmptyIdentity)
+        {
+            bool isGlobe = dynamic_cast<WhirlyGlobe::GlobeScene *>(wrap->scene);
+            vecInfo->programID = wrap->vecManager->getScene()->getProgramIDBySceneName(isGlobe ? kToolkitDefaultWideVectorGlobeProgram : kToolkitDefaultWideVectorProgram);
+        }
+                
         SimpleIdentity vecId = wrap->vecManager->addVectors(&shapes,*vecInfo,*changeSet);
         
         return vecId;
