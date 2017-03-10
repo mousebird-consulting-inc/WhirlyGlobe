@@ -89,6 +89,16 @@
     if (!_simulate)
         [self teardownLocationManager];
     _delegate = nil;
+    if (_markerObj) {
+        [_theViewC removeObject:_markerObj];
+        [_theViewC removeObject:_movingMarkerObj];
+        _markerObj = nil;
+        _movingMarkerObj = nil;
+    }
+    if (_shapeCircleObj) {
+        [_theViewC removeObject:_shapeCircleObj];
+        _shapeCircleObj = nil;
+    }
 }
 
 - (void) changeLockType:(MaplyLocationLockType)lockType forwardTrackOffset:(int)forwardTrackOffset {
