@@ -32,7 +32,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		String cacheDirName = "stamen_watercolor3";
 		File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
 		cacheDir.mkdir();
-		RemoteTileSource remoteTileSource = new RemoteTileSource(new RemoteTileInfo("http://tile.stamen.com/watercolor/", "png", 0, 18));
+		RemoteTileSource remoteTileSource = new RemoteTileSource(baseController,new RemoteTileInfo("http://tile.stamen.com/watercolor/", "png", 0, 18));
 		remoteTileSource.setCacheDir(cacheDir);
 		// Note: Turn this on to get more information from the tile source
 //		remoteTileSource.debugOutput = true;

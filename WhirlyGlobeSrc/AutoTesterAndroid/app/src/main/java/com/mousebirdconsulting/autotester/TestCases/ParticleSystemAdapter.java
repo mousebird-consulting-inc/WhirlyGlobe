@@ -389,4 +389,9 @@ public class ParticleSystemAdapter implements QuadPagingLayer.PagingInterface {
             return true;
         }
     }
+
+    @Override
+    public void clear()
+    {
+    }
 }

@@ -35,7 +35,7 @@ public class MapzenTestCase extends MaplyTestCase {
                         "https://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.mvt?api_key=vector-tiles-ejNTZ28",
                         null,
                         0, 19);
-        MapboxVectorTileSource tileSource = new MapboxVectorTileSource(tileInfo, simpleStyles);
+        MapboxVectorTileSource tileSource = new MapboxVectorTileSource(baseController, tileInfo, simpleStyles);
         tileSource.debugOutput = true;
 
         QuadPagingLayer layer = new QuadPagingLayer(baseController, tileSource.coordSys, tileSource);
