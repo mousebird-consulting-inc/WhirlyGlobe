@@ -1031,18 +1031,18 @@ bool VectorParseProperties(JSONNode node,Dictionary &dict)
 }
     
 // Parse coordinate list out of a node
-bool VectorParseCoordinates(JSONNode node,VectorRing &pts)
+bool VectorParseCoordinates(JSONNode node,VectorRing &pts, bool subCall=false)
 {
     for (JSONNode::const_iterator it = node.begin();
          it != node.end(); ++it)
     {
         if (it->type() == JSON_ARRAY)
         {
-            if (!VectorParseCoordinates(*it, pts))
+            if (!VectorParseCoordinates(*it, pts, true))
                 return false;
             continue;
         }
-
+        
         // We're expecting two numbers here
         if (it->type() == JSON_NUMBER)
         {
@@ -1052,10 +1052,12 @@ bool VectorParseCoordinates(JSONNode node,VectorRing &pts)
             float lon = it->as_float();  ++it;
             float lat = it->as_float();
             pts.push_back(GeoCoord::CoordFromDegrees(lon,lat));
-
-            if (node.size() == 3)
-                ++it;
-
+            
+            // There might be a Z value or even other junk.  We just want the first two coordinates
+            //  in this particular case.
+            if (subCall)
+                return true;
+            
             continue;
         }
         
