@@ -135,6 +135,9 @@ using namespace Maply;
     float scale;
     bool scheduledToDraw;
     bool isPanning,isZooming,isAnimating;
+    
+    /// Boundary quad that we're to stay within, in display coords
+    std::vector<WhirlyKit::Point2f> bounds;
 }
 
 - (instancetype)initWithMapType:(MaplyMapType)mapType
@@ -690,13 +693,17 @@ using namespace Maply;
     
     // Convert the bounds to a rectangle in local coordinates
     Point3f bounds3d[4];
-    Point2f bounds[4];
+    Point2f bounds2d[4];
     bounds3d[0] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ll.x,ll.y)));
     bounds3d[1] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ur.x,ll.y)));
     bounds3d[2] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ur.x,ur.y)));
     bounds3d[3] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ll.x,ur.y)));
+    bounds.clear();
     for (unsigned int ii=0;ii<4;ii++)
-        bounds[ii] = Point2f(bounds3d[ii].x(),bounds3d[ii].y());
+    {
+        bounds2d[ii] = Point2f(bounds3d[ii].x(),bounds3d[ii].y());
+        bounds.push_back(bounds2d[ii]);
+    }
     
     if (flatView)
     {
@@ -704,15 +711,15 @@ using namespace Maply;
     }
     
     if (panDelegate)
-        [panDelegate setBounds:bounds];
+        [panDelegate setBounds:bounds2d];
     if (pinchDelegate)
-        [pinchDelegate setBounds:bounds];
+        [pinchDelegate setBounds:bounds2d];
     if (doubleTapDelegate)
-        [doubleTapDelegate setBounds:bounds];
+        [doubleTapDelegate setBounds:bounds2d];
     if (twoFingerTapDelegate)
-        [twoFingerTapDelegate setBounds:bounds];
+        [twoFingerTapDelegate setBounds:bounds2d];
     if (doubleTapDragDelegate)
-        [doubleTapDragDelegate setBounds:bounds];
+        [doubleTapDragDelegate setBounds:bounds2d];
 }
 
 // Internal animation handler
@@ -803,13 +810,30 @@ using namespace Maply;
     
     [mapView cancelAnimation];
     
-    MaplyViewControllerSimpleAnimationDelegate *anim = [[MaplyViewControllerSimpleAnimationDelegate alloc] init];
-    anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
-    anim.heading = newHeading;
-    anim.height = newHeight;
-    [self animateWithDelegate:anim time:howLong];
+    // save current view state
+    MaplyViewControllerAnimationState *curState = [self getViewState];
+
+    // temporarily change view state, without propagating updates, to check validity
+    MaplyViewControllerAnimationState *nextState = [[MaplyViewControllerAnimationState alloc] init];
+    nextState.heading = newHeading;
+    nextState.pos = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
+    nextState.height = newHeight;
+    [self setViewStateInternal:nextState runViewUpdates:false];
+    bool valid = [self withinBounds:mapView.loc view:glView renderer:sceneRenderer];
     
-    return true;
+    // restore current view state
+    [self setViewStateInternal:curState runViewUpdates:false];
+
+    if (valid)
+    {
+        MaplyViewControllerSimpleAnimationDelegate *anim = [[MaplyViewControllerSimpleAnimationDelegate alloc] init];
+        anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
+        anim.heading = newHeading;
+        anim.height = newHeight;
+        [self animateWithDelegate:anim time:howLong];
+    }
+    
+    return valid;
 }
 
 - (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(NSTimeInterval)howLong
@@ -855,17 +879,25 @@ using namespace Maply;
     CGPoint invPoint = CGPointMake(self.view.frame.size.width/2+loc.x, self.view.frame.size.height/2+loc.y);
     MaplyCoordinate geoCoord = [self geoFromScreenPoint:invPoint];
     
+    // check if within bounds
+    nextState.pos = MaplyCoordinateDMakeWithMaplyCoordinate(geoCoord);
+    [self setViewStateInternal:nextState runViewUpdates:false];
+    bool valid = [self withinBounds:mapView.loc view:glView renderer:sceneRenderer];
+    
     // restore current view state
     [self setViewStateInternal:curState runViewUpdates:false];
+
+    if (valid)
+    {
+        // animate to offset coordinate
+        MaplyViewControllerSimpleAnimationDelegate *anim = [[MaplyViewControllerSimpleAnimationDelegate alloc] init];
+        anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(geoCoord);
+        anim.heading = newHeading;
+        anim.height = newHeight;
+        [self animateWithDelegate:anim time:howLong];
+    }
     
-    // animate to offset coordinate
-    MaplyViewControllerSimpleAnimationDelegate *anim = [[MaplyViewControllerSimpleAnimationDelegate alloc] init];
-    anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(geoCoord);
-    anim.heading = newHeading;
-    anim.height = newHeight;
-    [self animateWithDelegate:anim time:howLong];
-    
-    return true;
+    return valid;
 }
 
 // Only used for a flat view
@@ -879,6 +911,34 @@ using namespace Maply;
     MaplyAnimateFlat *animate = [[MaplyAnimateFlat alloc] initWithView:flatView destWindow:windowSize2f destContentOffset:contentOffset2f howLong:howLong];
     curAnimation = animate;
     flatView.delegate = animate;
+}
+
+// Bounds check on a single point
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+{
+    if (bounds.empty())
+        return true;
+    
+    Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
+    
+    // The corners of the view should be within the bounds
+    CGPoint corners[4];
+    corners[0] = CGPointMake(0,0);
+    corners[1] = CGPointMake(view.frame.size.width, 0.0);
+    corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
+    corners[3] = CGPointMake(0.0, view.frame.size.height);
+    Point3d planePts[4];
+    bool isValid = true;
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
+                              frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
+                                    hit:&planePts[ii] clip:false];
+        isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
+        //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
+    }
+    
+    return isValid;
 }
 
 // External facing set position
