@@ -243,7 +243,7 @@ public class ComponentObject
 		}
 		if (wideVectorIDs != null && wideVectorIDs.size() > 0)
 		{
-			control.vecManager.removeVectors(convertIDs(wideVectorIDs), changes);
+			control.wideVecManager.removeVectors(convertIDs(wideVectorIDs), changes);
 			wideVectorIDs.clear();
 		}
 		if (markerIDs != null && markerIDs.size() > 0)
