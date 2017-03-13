@@ -1861,7 +1861,15 @@ public class MaplyBaseController
         /**
          * Image format to use when creating textures.
          */
-        QuadImageTileLayer.ImageFormat imageFormat = QuadImageTileLayer.ImageFormat.MaplyImageIntRGBA;
+        public QuadImageTileLayer.ImageFormat imageFormat = QuadImageTileLayer.ImageFormat.MaplyImageIntRGBA;
+		/**
+		 * Horizonal texture wrap.
+		 */
+		public boolean wrapU = false;
+		/**
+		 * Vertical texture wrap
+		 */
+		public boolean wrapV = false;
     }
 
     /**
@@ -1870,7 +1878,7 @@ public class MaplyBaseController
      * @param settings Settings to use.
      * @param mode Add on the current thread or elsewhere.
      */
-	public MaplyTexture addTexture(final Bitmap image,TextureSettings settings,ThreadMode mode)
+	public MaplyTexture addTexture(final Bitmap image,final TextureSettings settings,ThreadMode mode)
     {
         final MaplyTexture texture = new MaplyTexture();
 		final Texture rawTex = new Texture();
@@ -1885,7 +1893,8 @@ public class MaplyBaseController
                     {
                         ChangeSet changes = new ChangeSet();
 
-						rawTex.setBitmap(image);
+						rawTex.setBitmap(image,settings.imageFormat.ordinal());
+						rawTex.setSettings(settings.wrapU,settings.wrapV);
                         changes.addTexture(rawTex, scene);
 
                         // Flush the texture changes
