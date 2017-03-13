@@ -1,12 +1,15 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
+import com.mousebird.maply.LinearTextureBuilder;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.MaplyTexture;
 import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
 import com.mousebird.maply.WideVectorInfo;
@@ -28,9 +31,22 @@ public class WideVectorsTestCase extends MaplyTestCase {
     }
 
     void addGeoJSON(MaplyBaseController baseController, String name) {
+        // Build a dashed pattern
+        LinearTextureBuilder texBuild = new LinearTextureBuilder();
+        int[] pattern = new int[2];
+        pattern[0] = 4;
+        pattern[1] = 4;
+        texBuild.setPattern(pattern);
+        Bitmap patternImage = texBuild.makeImage();
+        MaplyBaseController.TextureSettings texSet = new MaplyBaseController.TextureSettings();
+        texSet.wrapU = true;  texSet.wrapV = true;
+        MaplyTexture tex = baseController.addTexture(patternImage,new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
+
         WideVectorInfo wideVecInfo = new WideVectorInfo();
         wideVecInfo.setColor(Color.RED);
         wideVecInfo.setLineWidth(20.0f);
+        wideVecInfo.setTexture(tex);
+        wideVecInfo.setTextureRepeatLength(8.0);
 
         VectorInfo vecInfo = new VectorInfo();
         vecInfo.setLineWidth(4.0f);
