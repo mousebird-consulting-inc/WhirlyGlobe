@@ -114,7 +114,7 @@
  @details Tesselates the given polygon and adds the resulting triangles to the geometry.
  @param pts An array of 3D points.
  @param tex Texture coordinates.  One for each point.
- @param norm Normals to go with the points.
+ @param norms Normals to go with the points.
  @param numPts Number of points in the 3D array.
  @param state The visual state to use when creating the geometry.
  */
@@ -167,7 +167,7 @@
  @param angle The angle in radians to rotate by.
  @param x X component of the axis to rotate around.
  @param y Y component of the axis to rotate around.
- @param Z Z component of the axis to rotate around.
+ @param z Z component of the axis to rotate around.
  */
 - (void)rotate:(double)angle aroundX:(double)x y:(double)y z:(double)z;
 
