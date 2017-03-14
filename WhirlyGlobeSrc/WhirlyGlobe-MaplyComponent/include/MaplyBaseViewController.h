@@ -733,7 +733,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
 
 /** @brief Create an empty texture and return it.
     @details Empty textures are used for offscreen rendering and other crazy stuff.  You probably don't want to do this.
-    @param desc The description dictionary controlling the format and other textures goodies.
+    @param spec The description dictionary controlling the format and other textures goodies.
 
  |Key|Type|Description|
  |:--|:---|:----------|
@@ -1005,7 +1005,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  */
 - (MaplyCoordinate)getDeviceLocation;
 
-/** @brief @brief Exposes MaplyLocationTracker's location manager for use elsewhere
+/** @brief Exposes MaplyLocationTracker's location manager for use elsewhere
     @return The CLLocationmanager if it exists, else nil
  */
 - (CLLocationManager * _Nullable )getTrackingLocationManager;

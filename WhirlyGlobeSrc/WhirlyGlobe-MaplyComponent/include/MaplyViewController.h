@@ -339,7 +339,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 /** @brief Animate the given position and height to the screen position over time.
  @details This is similar to animateToPosition:time: but it also takes a height paramater
  @param newPos The geographic position (lon/lat in radians) to move to.
- @param height  the view point height above the map.
+ @param newHeight  the view point height above the map.
  @param howLong How long in seconds to take getting there.
  */
 - (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(NSTimeInterval)howLong;
@@ -382,12 +382,10 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
 /** @brief Return the current center position
- @param pos The center of the screen in geographic (lon/lat in radians).
  */
 - (MaplyCoordinate)getPosition;
 
 /** @brief Return the current view point's height above the map.
- @param height The current view point's height above the map.
  */
 - (float)getHeight;
 
@@ -437,7 +435,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 
 /** @brief Find a height that shows the given bounding box.
     @details This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
-    @param The bounding box (in radians) we're trying to view.
+    @param bbox The bounding box (in radians) we're trying to view.
     @param pos Where the view will be looking.
   */
 - (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos;
