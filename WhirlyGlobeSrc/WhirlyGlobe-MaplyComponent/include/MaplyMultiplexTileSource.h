@@ -33,8 +33,9 @@
 @optional
 
 /** @brief The tile successfully loaded.
- @param tileSource the remote tile source that loaded the tile.
+ @param tileInfo TileInfo corresponding to the data that was loaded.
  @param tileID The ID of the tile we loaded.
+ @param frame The frame loaded.
  */
 - (void) remoteTileInfo:(id __nonnull)tileInfo tileDidLoad:(MaplyTileID)tileID frame:(int)frame;
 
@@ -44,7 +45,7 @@
 - (nonnull NSData *) remoteTileInfo:(id __nonnull)tileInfo modifyTileReturn:(NSData *__nonnull)tileData forTile:(MaplyTileID)tileID frame:(int)frame;
 
 /** @brief The tile failed to load.
- @param tileSource The remote tile source that tried to load the tile.
+ @param tileInfo TileInfo corresponding to the data that was loaded.
  @param tileID The tile ID of the tile that failed to load.
  @param error The NSError message, probably from the network routine.
  */

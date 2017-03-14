@@ -59,8 +59,7 @@
 /** @brief Delegate call for the image stack that's been rendered by the MaplyQuadImageOfflineLayer.
     @details This is the callback method to get the images rendered by the MaplyQuadImageOfflineLayer.  You fill this in and then do whatever you may want with the data.  You'll be called on a random thread here, so act accordingly.
     @param layer The offline rendering layer producing the image stack.
-    @param images One or more images rendered by the offline layer.  The size of the array will correspond to the depth of the tile source provided to the offline layer.
-    @param bbox The bounding box of the images in the coordinate system of the offline layer.
+    @param offlineImage One or more images rendered by the offline layer.  The size of the array will correspond to the depth of the tile source provided to the offline layer.
   */
 - (void)offlineLayer:(MaplyQuadImageOfflineLayer *__nonnull)layer image:(MaplyOfflineImage *__nonnull)offlineImage;
 
