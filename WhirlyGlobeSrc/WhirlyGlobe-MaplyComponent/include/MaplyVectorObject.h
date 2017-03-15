@@ -284,6 +284,11 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
   */
 - (double)areaOfOuterLoops;
 
+/** @brief Convert any linear features into areal features.
+    @details Convert linear features to areal features by closing each one individually.
+  */
+- (MaplyVectorObject * _Nonnull )linearsToAreals;
+
 /** @brief Convert a feature to an NSArray of NSArrays of CLLocation points.
     @details This is intended for areal features.  It will convert those coordinates to CLLocation values and return them.  Obviously this is intended for things that need CLLocation values.
     @return Returns an NSArray of NSArray's which then contain CLLocation points.
