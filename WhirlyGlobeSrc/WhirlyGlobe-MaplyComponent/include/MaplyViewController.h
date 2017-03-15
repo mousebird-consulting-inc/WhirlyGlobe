@@ -109,11 +109,6 @@
 
 @end
 
-
-
-
-
-
 /** @brief A protocol to fill out for selection and tap messages from the MaplyViewController.
     @details Fill out the protocol when you want to get back selection and tap messages.  All the methods are optional.
   */
@@ -154,6 +149,15 @@
  @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the map (think zoomed out), its values are set to MAXFLOAT.
  */
 - (void)maplyViewController:(MaplyViewController *__nonnull)viewC didStopMoving:(MaplyCoordinate *__nonnull)corners userMotion:(bool)userMotion;
+
+/** @brief Called whenever the viewpoint moves.
+ @details This is called whenever the viewpoint moves.  That includes user motion as well as animations.
+ @details It may be triggered as often as every frame.  If that's a problem, use one of the other variants.
+ @param viewC The map view controller.
+ @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.
+ */
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didMove:(MaplyCoordinate *__nonnull)corners;
+
 
 /** @brief Called when the user taps on one of your annotations.
     @details This is called when the user taps on an annotation.
