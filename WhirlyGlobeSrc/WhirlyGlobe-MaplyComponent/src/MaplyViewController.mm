@@ -263,11 +263,31 @@ using namespace Maply;
     
     coordAdapter = NULL;
     _tetherView = NULL;
+    
+    delegateRespondsToViewUpdate = false;
 }
 
 - (void)dealloc
 {
 }
+
+- (void)setDelegate:(NSObject<MaplyViewControllerDelegate> *)delegate
+{
+    _delegate = delegate;
+    delegateRespondsToViewUpdate = [_delegate respondsToSelector:@selector(maplyViewController:didMove:)];
+}
+
+// Called by the globe view when something changes
+- (void)viewUpdated:(WhirlyKitView *)view
+{
+//    if (delegateRespondsToViewUpdate)
+    {
+        MaplyCoordinate corners[4];
+        [self corners:corners];
+        [_delegate maplyViewController:self didMove:corners];
+    }
+}
+
 
 // Change the view window and force a draw
 - (void)setupFlatView
@@ -358,6 +378,7 @@ using namespace Maply;
         mapView.continuousZoom = true;
         mapView.wrap = _viewWrap;
     }
+    [mapView addWatcherDelegate:self];
 
     return mapView;
 }
