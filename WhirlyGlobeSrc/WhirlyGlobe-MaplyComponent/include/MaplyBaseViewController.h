@@ -971,6 +971,12 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  */
 - (void)disable3dTouchSelection;
 
+/** @brief Return all the selectable objects at the given location.
+    @details Objects can be selected via the delegate or the search can be run directly here.
+    @details This is not thread safe and will block the main thread.
+  */
+- (NSArray * _Nonnull)objectsAtCoord:(MaplyCoordinate)coord;
+
 /// @brief Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;
 
