@@ -51,7 +51,7 @@ using namespace WhirlyGlobe;
 		xDim = texGroup.numX;
 		yDim = texGroup.numY;
         _fade = 0.0;
-        _drawPriority = 0;
+        _drawPriority = 100;
 	}
 	
 	return self;
