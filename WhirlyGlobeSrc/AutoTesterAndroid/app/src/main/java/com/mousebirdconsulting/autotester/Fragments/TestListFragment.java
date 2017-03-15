@@ -49,6 +49,7 @@ import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ShapesTestCase;
 import com.mousebirdconsulting.autotester.TestCases.SimpleParticleSystemTestCase;
+import com.mousebirdconsulting.autotester.TestCases.SLDTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StartupShutdownTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
@@ -147,6 +148,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new MapzenTestCase(getActivity()));
 			testCases.add(new LIDARTestCase(getActivity()));
 			testCases.add(new WideVectorsTestCase(getActivity()));
+			testCases.add(new SLDTestCase(getActivity()));
 //			testCases.add(new ArealTestCase(getActivity()));
 		}
 
