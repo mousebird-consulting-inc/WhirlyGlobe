@@ -94,6 +94,11 @@ NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
 
 @optional
 
+/** @brief Called when the layer shuts down.
+    @details This is called by the main layer when things are shut down.  It's optional.
+  */
+- (void)clear;
+
 /** @brief Check if we should even try to load a given tile.
     @details Tile pyramids can be sparse.  If you know where your pyramid is sparse, you can short circuit the fetch and simply return false here.
     @details If this method isn't filled in, everything defaults to true.

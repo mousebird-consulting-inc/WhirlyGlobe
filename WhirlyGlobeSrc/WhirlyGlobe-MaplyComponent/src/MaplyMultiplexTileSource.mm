@@ -184,6 +184,11 @@ static bool trackConnections = false;
 
 - (void)dealloc
 {
+    [self clear];
+}
+
+- (void)clear
+{
     @synchronized(self)
     {
         for (Maply::SortedTileSet::iterator it = sortedTiles.begin();
