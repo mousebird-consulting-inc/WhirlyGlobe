@@ -544,6 +544,18 @@ static const float PerfOutputDelay = 15.0;
     sceneRenderer.doCulling = culling;
 }
 
+- (bool) startOfWork
+{
+    return [interactLayer startOfWork];
+}
+
+/// Called internally to end a block of work being done
+- (void) endOfWork
+{
+    [interactLayer endOfWork];
+}
+
+
 #pragma mark - Geometry related methods
 
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;

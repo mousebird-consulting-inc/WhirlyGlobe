@@ -878,6 +878,8 @@ public:
         }
         float halfLen = totLen / 2.0;
         
+        if (!maplyCoordSys)
+            return false;
         WhirlyKit::CoordSystem *coordSys = maplyCoordSys->coordSystem;
         
         // Now we'll walk along, looking for the middle

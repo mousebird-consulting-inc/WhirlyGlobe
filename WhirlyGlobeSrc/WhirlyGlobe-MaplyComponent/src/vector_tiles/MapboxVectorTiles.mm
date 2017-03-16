@@ -38,6 +38,7 @@
 #import "VectorData.h"
 #import "MaplyMBTileSource.h"
 #import "MapnikStyleSet.h"
+#import "MaplyBaseViewController_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -595,8 +596,7 @@ static double MAX_EXTENT = 20037508.342789244;
 
 - (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer
 {
-    
-    //  NSLog(@"%@ startFetchForTile: %d/%d/%d", NSStringFromClass([self class]), tileID.level,tileID.x,tileID.y);
+//    NSLog(@"%@ startFetchForTile: %d/%d/%d", NSStringFromClass([self class]), tileID.level,tileID.x,tileID.y);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
     ^{
         MaplyBoundingBox bbox;
@@ -638,12 +638,18 @@ static double MAX_EXTENT = 20037508.342789244;
                 // If the app shuts down the layer while we're working
                 if (!layer.valid)
                     break;
-                    
-                MaplyVectorTileData *retData = [_tileParser buildObjects:tileData tile:tileID bounds:bbox];
-                if (!retData)
+
+                MaplyVectorTileData *retData = nil;
+                if ([layer.viewC startOfWork])
                 {
-                    NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,flippedYTile.y);
-                } else {
+                    retData = [_tileParser buildObjects:tileData tile:tileID bounds:bbox];
+                    if (!retData)
+                        NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,flippedYTile.y);
+                }
+                [layer.viewC endOfWork];
+
+                if (retData)
+                {
                     // Keep track of the component objects created
                     if ([retData.compObjs count] > 0)
                         [compObjs addObjectsFromArray:retData.compObjs];
@@ -654,13 +660,15 @@ static double MAX_EXTENT = 20037508.342789244;
             }
         }
         
-        if (!layer.valid)
-            return;
+//        if (!layer.valid)
+//            return;
 
         // Hand the objects over to the layer
         [layer addData:compObjs forTile:tileID style:MaplyDataStyleReplace];
         [layer tileDidLoad:tileID];
-        
+
+//        NSLog(@"%@ finished load: %d/%d/%d for %d objects", NSStringFromClass([self class]), tileID.level,tileID.x,tileID.y,[compObjs count]);
+
         // Note: Turn this back on for debugging
         //    CFTimeInterval duration = CFAbsoluteTimeGetCurrent() - start;
         //    NSLog(@"Added %lu components for %d features for tile %d/%d/%d in %f seconds",

@@ -127,4 +127,10 @@
 /// Make the renderer's GL context active.  This is used internally.
 - (void) useGLContext;
 
+/// Called internally to mark a block of work being done
+- (bool) startOfWork;
+
+/// Called internally to end a block of work being done
+- (void) endOfWork;
+
 @end
