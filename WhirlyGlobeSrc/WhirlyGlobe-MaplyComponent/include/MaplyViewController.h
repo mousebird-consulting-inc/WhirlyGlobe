@@ -130,6 +130,14 @@
  */
 - (void)maplyViewController:(MaplyViewController *__nonnull)viewC didSelect:(NSObject *__nonnull)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt;
 
+/** @brief User selected one or more objects at a given location.
+    @param viewC View Controller that saw the selection(s).
+    @param selectedObjs The object(s) selected.  Probably one of MaplyVectorObject or MaplyScreenLabel or so on.
+    @param coord Location in the local coordinate system where the user tapped.
+    @param screenPt Location on screen where the user tapped.
+  */
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC allSelect:(NSArray *__nonnull)selectedObjs atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt;
+
 /** @brief User tapped at a given location.
     @details This is a tap at a specific location on the map.  This won't be called if they tapped and selected, just for taps.
   */
