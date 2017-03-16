@@ -1490,4 +1490,12 @@ static const float PerfOutputDelay = 15.0;
     return _locationTracker.locationManager;
 }
 
+- (float) getMaxLineWidth
+{
+    GLfloat width[2];
+    glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, &width[0]);
+    
+    return width[1];
+}
+
 @end
