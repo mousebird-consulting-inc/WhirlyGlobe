@@ -41,6 +41,15 @@
     MaplyQuadPagingLayer *layer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:tileSource.coordSys delegate:vecTiles];
     layer.flipY = false;
     [mapVC addLayer:layer];
+    
+    // Tear it down in 5s
+//    [self performSelector:@selector(doRemoveLayer:) withObject:layer afterDelay:10.0];
+}
+
+- (void)doRemoveLayer:(MaplyQuadPagingLayer *)layer
+{
+    NSLog(@"Removing layer");
+    [self.baseViewController removeLayer:layer];
 }
 
 @end
