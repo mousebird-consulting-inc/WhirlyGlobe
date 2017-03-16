@@ -155,6 +155,7 @@ using namespace Maply;
 		_flatMode = true;
 	}
 
+    _pinchGesture = true;
 	_rotateGesture = true;
 	_doubleTapDragGesture = true;
 	_twoFingerTapGesture = true;
@@ -429,9 +430,12 @@ using namespace Maply;
         // Wire up the gesture recognizers
         tapDelegate = [MaplyTapDelegate tapDelegateForView:glView mapView:mapView];
         panDelegate = [MaplyPanDelegate panDelegateForView:glView mapView:mapView useCustomPanRecognizer:self.inScrollView];
-        pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView];
-        pinchDelegate.minZoom = [mapView minHeightAboveSurface];
-        pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
+        if (_pinchGesture)
+        {
+            pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView];
+            pinchDelegate.minZoom = [mapView minHeightAboveSurface];
+            pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
+        }
         if(_rotateGesture)
             rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:glView mapView:mapView];
         if(_doubleTapZoomGesture)
@@ -561,6 +565,29 @@ using namespace Maply;
 - (void)setPanGesture:(bool)enabled
 {
     panDelegate.gestureRecognizer.enabled = enabled;
+}
+
+- (void)setPinchGesture:(bool)pinchGesture
+{
+    _pinchGesture = pinchGesture;
+    if (pinchGesture)
+    {
+        if (!pinchDelegate)
+        {
+            pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:glView mapView:mapView];
+            pinchDelegate.minZoom = [mapView minHeightAboveSurface];
+            pinchDelegate.maxZoom = [mapView maxHeightAboveSurface];
+            
+            if (twoFingerTapDelegate)
+                [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+        }
+    } else {
+        if (pinchDelegate)
+        {
+            [glView removeGestureRecognizer:pinchDelegate.gestureRecognizer];
+            pinchDelegate = nil;
+        }
+    }
 }
 
 - (void)setRotateGesture:(bool)rotateGesture
