@@ -1016,5 +1016,9 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  */
 - (CLLocationManager * _Nullable )getTrackingLocationManager;
 
+/** @brief Return the maximum width of regular lines.
+    @details Return the maximum supported line width from OpenGL ES on this device.
+  */
+- (float) getMaxLineWidth;
 
 @end
