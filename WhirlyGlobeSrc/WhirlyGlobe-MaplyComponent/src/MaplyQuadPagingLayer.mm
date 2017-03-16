@@ -816,6 +816,14 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)addData:(NSArray *)dataObjects forTile:(MaplyTileID)tileID style:(MaplyQuadPagingDataStyle)dataStyle
 {
+    // This means we shut down while one of those threads was messing around
+    if (!_valid)
+    {
+        // Just just delete it all
+        [_viewC removeObjects:dataObjects];
+        return;
+    }
+    
     pthread_mutex_lock(&tileSetLock);
     QuadPagingLoadedTile dummyTile(tileID);
     QuadPagingLoadedTileSet::iterator it = tileSet.find(&dummyTile);

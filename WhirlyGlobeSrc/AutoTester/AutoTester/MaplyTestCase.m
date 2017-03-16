@@ -162,6 +162,8 @@
 }
 
 -(void) removeGlobeController {
+    [self.globeViewController teardown];
+    
 	[self.globeViewController.view removeFromSuperview];
 	self.globeViewController = nil;
 
@@ -177,6 +179,8 @@
 	[self removeMapController];
 }
 - (void) removeMapController {
+    [self.mapViewController teardown];
+    
 	[self.mapViewController.view removeFromSuperview];
 	self.mapViewController = nil;
 }
