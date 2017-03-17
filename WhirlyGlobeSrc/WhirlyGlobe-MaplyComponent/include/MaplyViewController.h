@@ -109,11 +109,6 @@
 
 @end
 
-
-
-
-
-
 /** @brief A protocol to fill out for selection and tap messages from the MaplyViewController.
     @details Fill out the protocol when you want to get back selection and tap messages.  All the methods are optional.
   */
@@ -135,6 +130,14 @@
  */
 - (void)maplyViewController:(MaplyViewController *__nonnull)viewC didSelect:(NSObject *__nonnull)selectedObj atLoc:(WGCoordinate)coord onScreen:(CGPoint)screenPt;
 
+/** @brief User selected one or more objects at a given location.
+    @param viewC View Controller that saw the selection(s).
+    @param selectedObjs The object(s) selected.  Probably one of MaplyVectorObject or MaplyScreenLabel or so on.
+    @param coord Location in the local coordinate system where the user tapped.
+    @param screenPt Location on screen where the user tapped.
+  */
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC allSelect:(NSArray *__nonnull)selectedObjs atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt;
+
 /** @brief User tapped at a given location.
     @details This is a tap at a specific location on the map.  This won't be called if they tapped and selected, just for taps.
   */
@@ -154,6 +157,15 @@
  @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the map (think zoomed out), its values are set to MAXFLOAT.
  */
 - (void)maplyViewController:(MaplyViewController *__nonnull)viewC didStopMoving:(MaplyCoordinate *__nonnull)corners userMotion:(bool)userMotion;
+
+/** @brief Called whenever the viewpoint moves.
+ @details This is called whenever the viewpoint moves.  That includes user motion as well as animations.
+ @details It may be triggered as often as every frame.  If that's a problem, use one of the other variants.
+ @param viewC The map view controller.
+ @param corners An array of length 4 containing the corners of the view space (lower left, lower right, upper right, upper left).  If any of those corners does not intersect the globe (think zoomed out), its values are set to MAXFLOAT.
+ */
+- (void)maplyViewController:(MaplyViewController *__nonnull)viewC didMove:(MaplyCoordinate *__nonnull)corners;
+
 
 /** @brief Called when the user taps on one of your annotations.
     @details This is called when the user taps on an annotation.
@@ -339,7 +351,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 /** @brief Animate the given position and height to the screen position over time.
  @details This is similar to animateToPosition:time: but it also takes a height paramater
  @param newPos The geographic position (lon/lat in radians) to move to.
- @param height  the view point height above the map.
+ @param newHeight  the view point height above the map.
  @param howLong How long in seconds to take getting there.
  */
 - (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(NSTimeInterval)howLong;
@@ -382,12 +394,10 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
 /** @brief Return the current center position
- @param pos The center of the screen in geographic (lon/lat in radians).
  */
 - (MaplyCoordinate)getPosition;
 
 /** @brief Return the current view point's height above the map.
- @param height The current view point's height above the map.
  */
 - (float)getHeight;
 
@@ -437,7 +447,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 
 /** @brief Find a height that shows the given bounding box.
     @details This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
-    @param The bounding box (in radians) we're trying to view.
+    @param bbox The bounding box (in radians) we're trying to view.
     @param pos Where the view will be looking.
   */
 - (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos;

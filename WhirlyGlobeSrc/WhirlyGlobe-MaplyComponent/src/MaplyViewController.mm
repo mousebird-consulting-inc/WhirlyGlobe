@@ -263,11 +263,31 @@ using namespace Maply;
     
     coordAdapter = NULL;
     _tetherView = NULL;
+    
+    delegateRespondsToViewUpdate = false;
 }
 
 - (void)dealloc
 {
 }
+
+- (void)setDelegate:(NSObject<MaplyViewControllerDelegate> *)delegate
+{
+    _delegate = delegate;
+    delegateRespondsToViewUpdate = [_delegate respondsToSelector:@selector(maplyViewController:didMove:)];
+}
+
+// Called by the globe view when something changes
+- (void)viewUpdated:(WhirlyKitView *)view
+{
+    if (delegateRespondsToViewUpdate)
+    {
+        MaplyCoordinate corners[4];
+        [self corners:corners];
+        [_delegate maplyViewController:self didMove:corners];
+    }
+}
+
 
 // Change the view window and force a draw
 - (void)setupFlatView
@@ -358,6 +378,7 @@ using namespace Maply;
         mapView.continuousZoom = true;
         mapView.wrap = _viewWrap;
     }
+    [mapView addWatcherDelegate:self];
 
     return mapView;
 }
@@ -1260,7 +1281,7 @@ using namespace Maply;
 }
 
 // Called back on the main thread after the interaction thread does the selection
-- (void)handleSelection:(MaplyTapMessage *)msg didSelect:(NSObject *)selectedObj
+- (void)handleSelection:(MaplyTapMessage *)msg didSelect:(NSArray *)selectedObjs
 {
     MaplyCoordinate coord;
     coord.x = msg.whereGeo.lon();
@@ -1272,15 +1293,40 @@ using namespace Maply;
     if (coord.x > M_PI)
         coord.x -= 2*M_PI * std::ceil((coord.x - M_PI)/(2*M_PI));
 
-    if (selectedObj && self.selection)
+    if ([selectedObjs count] > 0 && self.selection)
     {
         // The user selected something, so let the delegate know
         if (_delegate)
         {
-            if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:atLoc:onScreen:)])
-                [_delegate maplyViewController:self didSelect:selectedObj atLoc:coord onScreen:msg.touchLoc];
-            else if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
-                [_delegate maplyViewController:self didSelect:selectedObj];
+            if ([_delegate respondsToSelector:@selector(maplyViewController:allSelect:atLoc:onScreen:)])
+                [_delegate maplyViewController:self allSelect:selectedObjs atLoc:coord onScreen:msg.touchLoc];
+            else {
+                MaplySelectedObject *selectVecObj = nil;
+                MaplySelectedObject *selObj = nil;
+                // If the selected objects are vectors, use the draw priority
+                for (MaplySelectedObject *whichObj in selectedObjs)
+                {
+                    if ([whichObj.selectedObj isKindOfClass:[MaplyVectorObject class]])
+                    {
+                        MaplyVectorObject *vecObj0 = selectVecObj.selectedObj;
+                        MaplyVectorObject *vecObj1 = whichObj.selectedObj;
+                        if (!vecObj0 || ([vecObj1.attributes[kMaplyDrawPriority] intValue] > [vecObj0.attributes[kMaplyDrawPriority] intValue]))
+                            selectVecObj = whichObj;
+                    } else {
+                        // If there's a non-vector object just pick it
+                        selectVecObj = nil;
+                        selObj = whichObj;
+                        break;
+                    }
+                }
+                if (selectVecObj)
+                    selObj = selectVecObj;
+
+                if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:atLoc:onScreen:)])
+                    [_delegate maplyViewController:self didSelect:selObj atLoc:coord onScreen:msg.touchLoc];
+                else if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
+                    [_delegate maplyViewController:self didSelect:selObj];
+            }
         }
     } else {
         // The user didn't select anything, let the delegate know.

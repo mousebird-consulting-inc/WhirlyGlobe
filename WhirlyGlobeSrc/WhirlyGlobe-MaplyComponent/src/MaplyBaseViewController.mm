@@ -1302,6 +1302,11 @@ static const float PerfOutputDelay = 15.0;
         [self removeLayer:theLayer];
 }
 
+-(NSArray*)objectsAtCoord:(MaplyCoordinate)coord
+{
+    return [interactLayer findVectorsInPoint:Point2f(coord.x,coord.y)];
+}
+
 #pragma mark - Properties
 
 - (UIColor *)clearColor

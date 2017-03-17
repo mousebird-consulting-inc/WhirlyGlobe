@@ -160,7 +160,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
     @details The call is thread safe.
     @param dataObjects An NSArray of MaplyComponentObject objects.
     @param tileID The tile ID for the data we're handing over.
-    @param style If set to MaplyDataStyleReplace the data at this level will replace data at lower levels.  This is the default.  If set to MaplyDataStyleAdd then the data at this level adds to data above and below this level.
+    @param dataStyle If set to MaplyDataStyleReplace the data at this level will replace data at lower levels.  This is the default.  If set to MaplyDataStyleAdd then the data at this level adds to data above and below this level.
  */
 - (void)addData:(NSArray *__nonnull)dataObjects forTile:(MaplyTileID)tileID style:(MaplyQuadPagingDataStyle)dataStyle;
 

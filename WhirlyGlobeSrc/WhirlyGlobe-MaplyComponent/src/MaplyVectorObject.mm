@@ -501,6 +501,7 @@ public:
             VectorPointsRef newPts = VectorPoints::createPoints();
             newPts->pts = points->pts;
             newPts->setAttrDict([NSMutableDictionary dictionaryWithDictionary:points->getAttrDict()]);
+            newPts->initGeoMbr();
             newVecObj.shapes.insert(newPts);
         } else {
             VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
@@ -509,6 +510,7 @@ public:
                 VectorLinearRef newLin = VectorLinear::createLinear();
                 newLin->pts = lin->pts;
                 newLin->setAttrDict([NSMutableDictionary dictionaryWithDictionary:lin->getAttrDict()]);
+                newLin->initGeoMbr();
                 newVecObj.shapes.insert(newLin);
             } else {
                 VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
@@ -517,6 +519,7 @@ public:
                     VectorLinear3dRef newLin3d = VectorLinear3d::createLinear();
                     newLin3d->pts = lin3d->pts;
                     newLin3d->setAttrDict([NSMutableDictionary dictionaryWithDictionary:lin3d->getAttrDict()]);
+                    newLin3d->initGeoMbr();
                     newVecObj.shapes.insert(newLin3d);
                 } else {
                     VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
@@ -525,6 +528,7 @@ public:
                         VectorArealRef newAr = VectorAreal::createAreal();
                         newAr->loops = ar->loops;
                         newAr->setAttrDict([NSMutableDictionary dictionaryWithDictionary:ar->getAttrDict()]);
+                        newAr->initGeoMbr();
                         newVecObj.shapes.insert(newAr);
                     } else {
                         VectorTrianglesRef tri = std::dynamic_pointer_cast<VectorTriangles>(*it);
@@ -535,6 +539,7 @@ public:
                             newTri->pts = tri->pts;
                             newTri->tris = tri->tris;
                             newTri->setAttrDict([NSMutableDictionary dictionaryWithDictionary:tri->getAttrDict()]);
+                            newTri->initGeoMbr();
                             newVecObj.shapes.insert(newTri);
                         }
                     }
@@ -1434,6 +1439,30 @@ public:
     FakeGeocentricDisplayAdapter adapter;
     
     [self subdivideToInternal:epsilon adapter:&adapter edgeMode:false];
+}
+
+- (MaplyVectorObject *)linearsToAreals
+{
+    MaplyVectorObject *newVec = [[MaplyVectorObject alloc] init];
+    
+    for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
+    {
+        VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+        if (ar)
+        {
+            newVec->_shapes.insert(ar);
+        } else {
+            VectorLinearRef ln = std::dynamic_pointer_cast<VectorLinear>(*it);
+            if (ln)
+            {
+                VectorArealRef newAr = VectorAreal::createAreal();
+                newAr->loops.push_back(ln->pts);
+                newVec->_shapes.insert(newAr);
+            }
+        }
+    }
+    
+    return newVec;
 }
 
 - (MaplyVectorObject *) tesselate
