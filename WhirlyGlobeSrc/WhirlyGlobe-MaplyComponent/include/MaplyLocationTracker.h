@@ -46,6 +46,9 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
 
 @optional
 
+// Optional delegate method called if location locked to screen, but screen cannot follow location because doing so would violate the view extents.  
+- (void) locationOutsideViewExtents;
+
 - (MaplyLocationTrackerSimulationPoint)getSimulationPoint;
 
 @end
