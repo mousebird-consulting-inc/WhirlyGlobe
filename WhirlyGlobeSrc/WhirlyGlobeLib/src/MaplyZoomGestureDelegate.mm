@@ -56,6 +56,9 @@ using namespace WhirlyKit;
 {
     if (bounds.empty())
         return true;
+
+    Point3d oldLoc = self.mapView.loc;
+    [self.mapView setLoc:loc runUpdates:false];
     
     Eigen::Matrix4d fullMatrix = [_mapView calcFullMatrix];
     
@@ -75,7 +78,7 @@ using namespace WhirlyKit;
         isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
         //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
     }
-    
+    [self.mapView setLoc:oldLoc runUpdates:false];
     return isValid;
 }
 
