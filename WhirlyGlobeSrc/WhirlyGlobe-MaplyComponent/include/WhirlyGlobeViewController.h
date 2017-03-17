@@ -325,7 +325,7 @@
 
 /** @brief Turn on autorotate to rotate by the given amount every second.
     @details This turns on an auto-rotate mode.  The globe will start rotating after a delay by the given number of degrees per second.  Very pleasant.
-    @param autoRotatInterval Wait this number of seconds after user interaction to auto rotate.
+    @param autoRotateInterval Wait this number of seconds after user interaction to auto rotate.
     @param autoRotateDegrees Rotate this number of degrees (not radians) per second.
   */
 - (void)setAutoRotateInterval:(float)autoRotateInterval degrees:(float)autoRotateDegrees;
@@ -509,7 +509,7 @@
 /**
  @brief Return the extents of the current view.
  @details When we're dealing with a globe the corners could be outside of the globe, in this case false is returned.
- @param bbox. The bbox will be returned here.
+ @param bbox The bbox will be returned here.
  @return Returns true if exists a bounding bbox for the current view, otherwise returns false
  */
 - (bool)getCurrentExtents:(MaplyBoundingBox *__nonnull)bbox;

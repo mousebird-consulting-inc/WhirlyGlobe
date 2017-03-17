@@ -26,6 +26,7 @@
 #import "MaplyVectorObject_private.h"
 #import "MaplyCoordinate.h"
 #import "ImageTexture_private.h"
+#import <vector>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -73,40 +74,61 @@ using namespace WhirlyGlobe;
 - (void) userDidTapLayerThread:(MaplyTapMessage *)msg
 {
     // First, we'll look for labels and markers
-    NSObject *selObj = [self selectLabelsAndMarkerForScreenPoint:msg.touchLoc];
-    if(!selObj) {
-        // Next, try the vectors
-        // Note: Ignoring everything but the first return
-        NSArray *vecObjs = [self findVectorsInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y()) inView:(MaplyBaseViewController*)self.viewController multi:true];
-        if ([vecObjs count] > 0)
-            selObj = [vecObjs objectAtIndex:0];
+    NSMutableArray *retSelectArr = [self selectMultipleLabelsAndMarkersForScreenPoint:msg.touchLoc];
+    
+    // Next, try the vectors
+    NSArray *vecObjs = [self findVectorsInPoint:Point2f(msg.whereGeo.x(),msg.whereGeo.y()) inView:(MaplyBaseViewController*)self.viewController multi:true];
+    for (MaplyVectorObject *vecObj in vecObjs)
+    {
+        MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
+        selObj.selectedObj = vecObj;
+        selObj.screenDist = 0.0;
+        // Note: Not quite right
+        selObj.zDist = 0.0;
+        [retSelectArr addObject:selObj];
     }
     
     // Tell the view controller about it
     dispatch_async(dispatch_get_main_queue(),^
                    {
-                       [_viewController handleSelection:msg didSelect:selObj];
+                       [_viewController handleSelection:msg didSelect:retSelectArr];
                    }
                    );
 }
 
-- (NSObject*)selectLabelsAndMarkerForScreenPoint:(CGPoint)screenPoint
+- (NSMutableArray*)selectMultipleLabelsAndMarkersForScreenPoint:(CGPoint)screenPoint
 {
-    SimpleIdentity selID = ((SelectionManager *)scene->getManager(kWKSelectionManager))->pickObject(Point2f(screenPoint.x, screenPoint.y),10.0,mapView);
+    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
+    std::vector<SelectionManager::SelectedObject> selectedObjs;
+    selectManager->pickObjects(Point2f(screenPoint.x,screenPoint.y),10.0,mapView,selectedObjs);
     
-    NSObject *selObj;
-    if (selID != EmptyIdentity)
+    NSMutableArray *retSelectArr = [NSMutableArray array];
+    if (!selectedObjs.empty())
     {
-        // Found something.  Now find the associated object
-        SelectObjectSet::iterator it = selectObjectSet.find(SelectObject(selID));
-        if (it != selectObjectSet.end())
+        // Work through the objects the manager found, creating entries for each
+        for (unsigned int ii=0;ii<selectedObjs.size();ii++)
         {
-            selObj = it->obj;
+            SelectionManager::SelectedObject &theSelObj = selectedObjs[ii];
+            MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
+            
+            for (auto selectID : theSelObj.selectIDs)
+            {
+                SelectObjectSet::iterator it = selectObjectSet.find(SelectObject(selectID));
+                if (it != selectObjectSet.end())
+                    selObj.selectedObj = it->obj;
+                
+                selObj.screenDist = theSelObj.screenDist;
+                selObj.cluster = theSelObj.isCluster;
+                selObj.zDist = theSelObj.distIn3D;
+                
+                if (selObj.selectedObj)
+                    [retSelectArr addObject:selObj];
+            }
         }
     }
-    return selObj;
+    
+    return retSelectArr;
 }
-
 
 // Check for a selection
 - (void) userDidTap:(MaplyTapMessage *)msg
