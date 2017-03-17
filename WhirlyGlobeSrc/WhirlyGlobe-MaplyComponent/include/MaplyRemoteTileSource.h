@@ -274,7 +274,7 @@
     @param tileID The tile ID of the tile that failed to load.
     @param error The NSError message, probably from the network routine.
   */
-- (void) remoteTileSource:(id __nonnull)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *__nonnull)error;
+- (void) remoteTileSource:(id __nonnull)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *__nullable)error;
 
 /** @brief Called when the tile is disabled.
  */
