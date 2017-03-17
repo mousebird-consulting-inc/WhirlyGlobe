@@ -358,10 +358,12 @@
 - (void) lockToLocation:(MaplyCoordinate)location heading:(float)heading{
     __strong WhirlyGlobeViewController *globeVC = _globeVC;
     __strong MaplyViewController *mapVC = _mapVC;
+    __strong NSObject<MaplyLocationTrackerDelegate> *delegate = _delegate;
     if (!globeVC && !mapVC)
         return;
     
 //    MaplyCoordinateD locationD = MaplyCoordinateDMakeWithMaplyCoordinate(location);
+    bool valid = true;
     
     switch (_lockType) {
         case MaplyLocationLockNone:
@@ -370,22 +372,26 @@
             if (globeVC)
                 [globeVC animateToPosition:location height:[globeVC getHeight] heading:0.0 time:0.5];
             else if (mapVC)
-                [mapVC animateToPosition:location height:[mapVC getHeight] heading:0.0 time:0.5];
+                valid = [mapVC animateToPosition:location height:[mapVC getHeight] heading:0.0 time:0.5];
             break;
         case MaplyLocationLockHeadingUp:
             if (globeVC)
                 [globeVC animateToPosition:location height:[globeVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
             else if (mapVC)
-                [mapVC animateToPosition:location height:[mapVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
+                valid = [mapVC animateToPosition:location height:[mapVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
             break;
         case MaplyLocationLockHeadingUpOffset:
             if (globeVC)
                 [globeVC animateToPosition:location onScreen:CGPointMake(0, -_forwardTrackOffset) height:[globeVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
             else if (mapVC)
-                [mapVC animateToPosition:location onScreen:CGPointMake(0, -_forwardTrackOffset) height:[mapVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
+                valid = [mapVC animateToPosition:location onScreen:CGPointMake(0, -_forwardTrackOffset) height:[mapVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
             break;
         default:
             break;
+    }
+    
+    if (!valid && [delegate respondsToSelector:@selector(locationOutsideViewExtents)]) {
+        [delegate locationOutsideViewExtents];
     }
 }
 
