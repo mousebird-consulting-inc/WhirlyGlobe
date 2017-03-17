@@ -2053,7 +2053,7 @@
 						CreatedOnToolsVersion = 6.4;
 						DevelopmentTeam = BFXSGS6V8N;
 						LastSwiftMigration = 0800;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};

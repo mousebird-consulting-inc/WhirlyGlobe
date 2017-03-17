@@ -290,6 +290,11 @@
     [self handleSelection:selectedObj];
 }
 
+- (void)maplyViewController:(MaplyViewController *)viewC allSelect:(NSArray *)selectedObjs atLoc:(MaplyCoordinate)coord onScreen:(CGPoint)screenPt
+{
+    [self handleSelection:selectedObjs];
+}
+
 - (void)maplyViewController:(MaplyViewController *)viewC didTapAt:(MaplyCoordinate)coord
 {
     [self.baseViewController clearAnnotations];
