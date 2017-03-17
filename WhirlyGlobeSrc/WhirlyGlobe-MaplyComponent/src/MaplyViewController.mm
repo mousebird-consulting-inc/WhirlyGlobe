@@ -1350,9 +1350,9 @@ using namespace Maply;
                     selObj = selectVecObj;
 
                 if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:atLoc:onScreen:)])
-                    [_delegate maplyViewController:self didSelect:selObj atLoc:coord onScreen:msg.touchLoc];
+                    [_delegate maplyViewController:self didSelect:selObj.selectedObj atLoc:coord onScreen:msg.touchLoc];
                 else if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
-                    [_delegate maplyViewController:self didSelect:selObj];
+                    [_delegate maplyViewController:self didSelect:selObj.selectedObj];
             }
         }
     } else {
