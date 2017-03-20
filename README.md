@@ -1,4 +1,4 @@
-![WhirlyGlobe-Maply](/images/banner.jpg)
+![WhirlyGlobe-Maply](/common/images/banner.jpg)
 
 If you're new to WhirlyGlobe-Maply, please go [read the main page](http://mousebird.github.com/WhirlyGlobe/).
 
