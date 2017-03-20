@@ -33,40 +33,40 @@ Pod::Spec.new do |s|
   s.default_subspec = 'MaplyComponent'
 
   s.subspec 'glues-wg' do |gl|
-    gl.source_files = 'WhirlyGlobeSrc/local_libs/glues/**/*.{c,h}'
-    gl.preserve_paths = 'WhirlyGlobeSrc/local_libs/glues/**/*.i'
-    gl.private_header_files = 'WhirlyGlobeSrc/local_libs/glues/**/*.h'
-    gl.exclude_files = 'WhirlyGlobeSrc/local_libs/glues/source/libnurbs/nurbtess/{glimports,mystdio,mystdlib}.h', 'WhirlyGlobeSrc/local_libs/glues/source/glu.h'
+    gl.source_files = 'common/local_libs/glues/**/*.{c,h}'
+    gl.preserve_paths = 'common/local_libs/glues/**/*.i'
+    gl.private_header_files = 'common/local_libs/glues/**/*.h'
+    gl.exclude_files = 'common/local_libs/glues/source/libnurbs/nurbtess/{glimports,mystdio,mystdlib}.h', 'common/local_libs/glues/source/glu.h'
   end
 
   s.subspec 'shapefile' do |shp|
-    shp.source_files = 'WhirlyGlobeSrc/local_libs/shapefile/**/*.{c,h}'
-    shp.private_header_files = 'WhirlyGlobeSrc/local_libs/shapefile/**/*.h'
+    shp.source_files = 'common/local_libs/shapefile/**/*.{c,h}'
+    shp.private_header_files = 'common/local_libs/shapefile/**/*.h'
   end
 
   s.subspec 'kissxml' do |kss|
-    kss.source_files = 'WhirlyGlobeSrc/local_libs/KissXML/**/*.{h,m}'
-    kss.private_header_files = 'WhirlyGlobeSrc/local_libs/KissXML/**/*.h'
+    kss.source_files = 'common/local_libs/KissXML/**/*.{h,m}'
+    kss.private_header_files = 'common/local_libs/KissXML/**/*.h'
   end
 
   s.subspec 'aaplus' do |aa|
-    aa.source_files = 'WhirlyGlobeSrc/local_libs/aaplus/**/*.{h,cpp}'
-    aa.private_header_files = 'WhirlyGlobeSrc/local_libs/aaplus/**/*.h'
+    aa.source_files = 'common/local_libs/aaplus/**/*.{h,cpp}'
+    aa.private_header_files = 'common/local_libs/aaplus/**/*.h'
   end
 
   s.subspec 'octencoding' do |oe|
-    oe.source_files = 'WhirlyGlobeSrc/local_libs/octencoding/**/*.h'
-    oe.private_header_files = 'WhirlyGlobeSrc/local_libs/octencoding/**/*.h'
+    oe.source_files = 'common/local_libs/octencoding/**/*.h'
+    oe.private_header_files = 'common/local_libs/octencoding/**/*.h'
   end
 
   s.subspec 'Lib-Headers' do |lh|
-    lh.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
-    lh.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/include/*.h'
+    lh.source_files = 'ios/library/WhirlyGlobeLib/include/*.h'
+    lh.private_header_files = 'ios/library/WhirlyGlobeLib/include/*.h'
     lh.dependency 'eigen', '~> 3.2.4'
   end
 
   s.subspec 'Lib' do |l|
-    l.source_files = 'WhirlyGlobeSrc/WhirlyGlobeLib/src/*.{mm,m}'
+    l.source_files = 'ios/library/WhirlyGlobeLib/src/*.{mm,m}'
     l.dependency 'WhirlyGlobe/Lib-Headers'
     l.dependency 'WhirlyGlobe/glues-wg'
     l.dependency 'WhirlyGlobe/octencoding'
@@ -81,10 +81,10 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'MaplyComponent-Headers' do |mch|
-    mch.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/**/*.h'
-    mch.public_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/*.h' # , "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h"
-    mch.private_header_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/{MaplyBridge,vector_tile.pb}.h', 'WhirlyGlobeSrc/local_libs/**'
-    mch.exclude_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/MaplyLAZ*.h'
+    mch.source_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h'
+    mch.public_header_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/*.h' # , "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h"
+    mch.private_header_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/{MaplyBridge,vector_tile.pb}.h', 'common/local_libs/**'
+    mch.exclude_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/MaplyLAZ*.h'
     mch.dependency 'WhirlyGlobe/Lib-Headers'
   end
 
@@ -93,7 +93,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'MaplyComponent' do |mc|
-    mc.source_files = 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/src/*.{mm,m,cpp}'
+    mc.source_files = 'ios/library/WhirlyGlobe-MaplyComponent/src/*.{mm,m,cpp}'
     mc.dependency 'WhirlyGlobe/kissxml'
     mc.dependency 'WhirlyGlobe/aaplus'
     mc.dependency 'WhirlyGlobe/Lib'
@@ -102,7 +102,7 @@ Pod::Spec.new do |s|
     mc.dependency 'FMDB'
     mc.libraries = 'z', 'xml2'
     mc.frameworks = 'CoreLocation', 'MobileCoreServices', 'SystemConfiguration', 'CFNetwork'
-    mc.exclude_files = 'third-party/laszip/**/*.cpp', 'WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/src/MaplyLAZ*.mm'
+    mc.exclude_files = 'third-party/laszip/**/*.cpp', 'ios/library/WhirlyGlobe-MaplyComponent/src/MaplyLAZ*.mm'
   end
 
 end
