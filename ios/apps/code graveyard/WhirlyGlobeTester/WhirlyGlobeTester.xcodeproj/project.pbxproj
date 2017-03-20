@@ -81,7 +81,6 @@
 		2B2C1DF11458B92600B5D61D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B2C1DF01458B92600B5D61D /* QuartzCore.framework */; };
 		2B2C1E4D1458BC8100B5D61D /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B2C1E4C1458BC8100B5D61D /* libsqlite3.dylib */; };
 		2B2C1E501458C52100B5D61D /* InteractionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2C1E4F1458C52000B5D61D /* InteractionLayer.mm */; };
-		2B61D7F31607C394007888CF /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B61D7F21607C38E007888CF /* libWhirlyGlobeLib.a */; };
 		2B80456514992063003FFABE /* number_0.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B80455B14992063003FFABE /* number_0.png */; };
 		2B80456614992063003FFABE /* number_1.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B80455C14992063003FFABE /* number_1.png */; };
 		2B80456714992063003FFABE /* number_2.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B80455D14992063003FFABE /* number_2.png */; };
@@ -108,10 +107,11 @@
 		2BEB7400146F478900B8AB0A /* BigButtonViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BEB73FE146F478800B8AB0A /* BigButtonViewController.m */; };
 		2BEB7401146F478900B8AB0A /* BigButtonView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2BEB73FF146F478900B8AB0A /* BigButtonView.xib */; };
 		2BEB7403146F487600B8AB0A /* globebutton.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BEB7402146F487600B8AB0A /* globebutton.png */; };
+		8F858B081E7FE94800037D4E /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858B071E7FE94000037D4E /* libWhirlyGlobeLib.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		2B61D7F11607C38E007888CF /* PBXContainerItemProxy */ = {
+		8F858B061E7FE94000037D4E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2B61D7EA1607C38E007888CF /* WhirlyGlobeLib.xcodeproj */;
 			proxyType = 2;
@@ -201,7 +201,7 @@
 		2B2C1E4C1458BC8100B5D61D /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		2B2C1E4E1458C52000B5D61D /* InteractionLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InteractionLayer.h; sourceTree = "<group>"; };
 		2B2C1E4F1458C52000B5D61D /* InteractionLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = InteractionLayer.mm; sourceTree = "<group>"; };
-		2B61D7EA1607C38E007888CF /* WhirlyGlobeLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeLib.xcodeproj; path = ../WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj; sourceTree = "<group>"; };
+		2B61D7EA1607C38E007888CF /* WhirlyGlobeLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeLib.xcodeproj; path = ../../../library/WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj; sourceTree = "<group>"; };
 		2B80455B14992063003FFABE /* number_0.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = number_0.png; path = resources/number_0.png; sourceTree = SOURCE_ROOT; };
 		2B80455C14992063003FFABE /* number_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = number_1.png; path = resources/number_1.png; sourceTree = SOURCE_ROOT; };
 		2B80455D14992063003FFABE /* number_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = number_2.png; path = resources/number_2.png; sourceTree = SOURCE_ROOT; };
@@ -239,7 +239,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2B61D7F31607C394007888CF /* libWhirlyGlobeLib.a in Frameworks */,
+				8F858B081E7FE94800037D4E /* libWhirlyGlobeLib.a in Frameworks */,
 				2B2C1E4D1458BC8100B5D61D /* libsqlite3.dylib in Frameworks */,
 				2B2C1DF11458B92600B5D61D /* QuartzCore.framework in Frameworks */,
 				2B2C1DEF1458B90A00B5D61D /* OpenGLES.framework in Frameworks */,
@@ -428,14 +428,6 @@
 			name = resources;
 			sourceTree = "<group>";
 		};
-		2B61D7EB1607C38E007888CF /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				2B61D7F21607C38E007888CF /* libWhirlyGlobeLib.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		2B8045591499204D003FFABE /* numbers */ = {
 			isa = PBXGroup;
 			children = (
@@ -494,6 +486,14 @@
 			path = "resources/icons and launch";
 			sourceTree = SOURCE_ROOT;
 		};
+		8F858B031E7FE94000037D4E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8F858B071E7FE94000037D4E /* libWhirlyGlobeLib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -534,7 +534,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 2B61D7EB1607C38E007888CF /* Products */;
+					ProductGroup = 8F858B031E7FE94000037D4E /* Products */;
 					ProjectRef = 2B61D7EA1607C38E007888CF /* WhirlyGlobeLib.xcodeproj */;
 				},
 			);
@@ -546,11 +546,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		2B61D7F21607C38E007888CF /* libWhirlyGlobeLib.a */ = {
+		8F858B071E7FE94000037D4E /* libWhirlyGlobeLib.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libWhirlyGlobeLib.a;
-			remoteRef = 2B61D7F11607C38E007888CF /* PBXContainerItemProxy */;
+			remoteRef = 8F858B061E7FE94000037D4E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -744,7 +744,7 @@
 				HEADER_SEARCH_PATHS = (
 					"../../../utilities/eigen-eigen-3.0.1",
 					../../../utilities/boost_1_45_0,
-					../WhirlyGlobeLib/include/,
+					../../../library/WhirlyGlobeLib/include/,
 				);
 				INFOPLIST_FILE = "WhirlyGlobeTester/WhirlyGlobeTester-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
@@ -767,7 +767,7 @@
 				HEADER_SEARCH_PATHS = (
 					"../../../utilities/eigen-eigen-3.0.1",
 					../../../utilities/boost_1_45_0,
-					../WhirlyGlobeLib/include/,
+					../../../library/WhirlyGlobeLib/include/,
 				);
 				INFOPLIST_FILE = "WhirlyGlobeTester/WhirlyGlobeTester-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
