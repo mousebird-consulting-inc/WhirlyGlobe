@@ -12,7 +12,7 @@ import com.mousebird.maply.MapboxVectorTileSource;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.QuadPagingLayer;
-import com.mousebird.maply.VectorStyleSimpleGenerator;
+import com.mousebirdconsulting.autotester.ColorfulStyleGenerator;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -46,7 +46,7 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
     {
 
         // We need to copy the file from the asset so that it can be used as a file
-        File mbTiles = this.getMbTileFile("mbtiles/world_full_v2.mbtiles", "world_full_v2.mbtiles");
+        File mbTiles = this.getMbTileFile("mbtiles/world_0_8.mbtiles", "world_0_8.mbtiles");
 
         if (!mbTiles.exists()) {
             throw new FileNotFoundException(String.format("Could not copy MBTiles asset to \"%s\"", mbTiles.getAbsolutePath()));
@@ -55,12 +55,15 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
         Log.d(TAG, String.format("Obtained MBTiles SQLLite database \"%s\"", mbTiles.getAbsolutePath()));
 
         MBTiles mbTileSource = new MBTiles(mbTiles);
-        VectorStyleSimpleGenerator simpleStyles = new VectorStyleSimpleGenerator(baseController);
+        ColorfulStyleGenerator simpleStyles = new ColorfulStyleGenerator();
         MapboxVectorTileSource tileSource = new MapboxVectorTileSource(mbTileSource,simpleStyles);
 
         QuadPagingLayer layer = new QuadPagingLayer(baseController,tileSource.coordSys,tileSource);
         layer.setSimultaneousFetches(4);
         layer.setImportance(1024*1024);
+
+//        layer.setSingleLevelLoading(baseController instanceof MapController);
+//        layer.setUseTargetZoomLevel(baseController instanceof MapController);
 
         return layer;
     }
@@ -71,8 +74,8 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
         baseCase.setUpWithGlobe(globeVC);
         globeVC.addLayer(setupVectorLayer(globeVC, ConfigOptions.TestType.GlobeTest));
 
-        Point2d loc = Point2d.FromDegrees(2.3508, 48.8567);
-        globeVC.setPositionGeo(loc.getX(),loc.getY(),0.15);
+        Point2d loc = Point2d.FromDegrees(-1.1219586761346174,46.221563509822936);
+        globeVC.setPositionGeo(loc.getX(),loc.getY(),1.2);
 
         return true;
     }
@@ -83,8 +86,8 @@ public class LocalVectorTileTestCase extends MaplyTestCase {
         baseCase.setUpWithMap(mapVC);
         mapVC.addLayer(setupVectorLayer(mapVC, ConfigOptions.TestType.MapTest));
 
-        Point2d loc = Point2d.FromDegrees(2.3508, 48.8567);
-        mapVC.setPositionGeo(loc.getX(),loc.getY(),0.15);
+        Point2d loc = Point2d.FromDegrees(-1.1219586761346174,46.221563509822936);
+        mapVC.setPositionGeo(loc.getX(),loc.getY(),1.2);
 
         return true;
     }
