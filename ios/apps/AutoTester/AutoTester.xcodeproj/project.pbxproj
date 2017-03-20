@@ -40,7 +40,6 @@
 		2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */; };
 		2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */; };
 		2BDEB3361C989D18003259B3 /* CartoDBLightTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3351C989D18003259B3 /* CartoDBLightTestCase.m */; };
-		2BE53AF41D25901300B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AEF1D258FE800B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
 		8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
 		88231C791BA784BC00A95F2B /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88231C781BA784BC00A95F2B /* ConfigViewController.xib */; };
@@ -488,6 +487,7 @@
 		88FF5EF31BC31D95002F15CE /* tl_2013_06075_roads.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */; };
 		8F4D91DC1CDFA7DE00F68045 /* globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F4D91DA1CDFA7DE00F68045 /* globe.png */; };
 		8F4D91DD1CDFA7DE00F68045 /* map.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F4D91DB1CDFA7DE00F68045 /* map.png */; };
+		8F858B011E7FE7EB00037D4E /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */; };
 		8F981DB81DE3577C00717DF1 /* ne_10m_roads.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB21DE3577C00717DF1 /* ne_10m_roads.dbf */; };
 		8F981DB91DE3577C00717DF1 /* ne_10m_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */; };
 		8F981DBB1DE3577C00717DF1 /* ne_10m_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */; };
@@ -568,14 +568,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		2BE53AEE1D258FE800B60FAD /* PBXContainerItemProxy */ = {
+		8F858AFB1E7FE60C00037D4E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 2BE536FF1D2499E500B60FAD;
 			remoteInfo = WhirlyGlobeMaplyComponent;
 		};
-		2BE53AF01D258FE800B60FAD /* PBXContainerItemProxy */ = {
+		8F858AFD1E7FE60C00037D4E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */;
 			proxyType = 2;
@@ -590,7 +590,7 @@
 		2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorHoleTestCase.m; sourceTree = "<group>"; };
 		2B1C264D1C90FFFC00C71B0A /* VectorMBTilesTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorMBTilesTestCase.h; sourceTree = "<group>"; };
 		2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorMBTilesTestCase.m; sourceTree = "<group>"; };
-		2B1C26511C9100A500C71B0A /* France.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = France.mbtiles; path = ../../resources/vectors/France.mbtiles; sourceTree = "<group>"; };
+		2B1C26511C9100A500C71B0A /* France.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; name = France.mbtiles; path = ../../../resources/vectors/France.mbtiles; sourceTree = "<group>"; };
 		2B2A417C1D83454900098E12 /* ActiveObjectTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActiveObjectTestCase.h; sourceTree = "<group>"; };
 		2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActiveObjectTestCase.m; sourceTree = "<group>"; };
 		2B392B6F1C5AC59D001EE40B /* RunwayBuilderTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RunwayBuilderTestCase.h; sourceTree = "<group>"; };
@@ -613,7 +613,7 @@
 		2B7FC0A61E32B67400AF253A /* testJson.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = testJson.json; path = resources/testJson.json; sourceTree = "<group>"; };
 		2B8849E91E37F7CB0027C397 /* LIDARTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LIDARTestCase.h; sourceTree = "<group>"; };
 		2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LIDARTestCase.mm; sourceTree = "<group>"; };
-		2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = "stadium-utm-quad-data.sqlite"; path = "../../resources/lidar/stadium-utm-quad-data.sqlite"; sourceTree = "<group>"; };
+		2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */ = {isa = PBXFileReference; lastKnownFileType = text; name = "stadium-utm-quad-data.sqlite"; path = "../../../resources/lidar/stadium-utm-quad-data.sqlite"; sourceTree = "<group>"; };
 		2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageSingleLevelTestCase.swift; sourceTree = "<group>"; };
 		2B93D9651D41433500EAD280 /* WideVectorGlobeTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorGlobeTestCase.h; sourceTree = "<group>"; };
 		2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WideVectorGlobeTestCase.m; sourceTree = "<group>"; };
@@ -621,7 +621,7 @@
 		2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorStyleTestCase.m; sourceTree = "<group>"; };
 		2BC0FB761DCAA18A004125F1 /* TextureVectorTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureVectorTestCase.h; sourceTree = "<group>"; };
 		2BC0FB771DCAA18A004125F1 /* TextureVectorTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextureVectorTestCase.m; sourceTree = "<group>"; };
-		2BC0FB791DCAA574004125F1 /* dots.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dots.png; path = ../../resources/textures/dots.png; sourceTree = "<group>"; };
+		2BC0FB791DCAA574004125F1 /* dots.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = dots.png; path = ../../../resources/textures/dots.png; sourceTree = "<group>"; };
 		2BC2DCCB1D1F4CE20088D350 /* ShapefileTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapefileTestCase.h; sourceTree = "<group>"; };
 		2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShapefileTestCase.m; sourceTree = "<group>"; };
 		2BC2DCEE1D2345AF0088D350 /* PagingLayerTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagingLayerTestCase.h; sourceTree = "<group>"; };
@@ -633,7 +633,7 @@
 		2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GreatCircleTestCase.m; sourceTree = "<group>"; };
 		2BDEB3341C989D18003259B3 /* CartoDBLightTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CartoDBLightTestCase.h; sourceTree = "<group>"; };
 		2BDEB3351C989D18003259B3 /* CartoDBLightTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CartoDBLightTestCase.m; sourceTree = "<group>"; };
-		2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeMaplyComponent.xcodeproj; path = "../WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.xcodeproj"; sourceTree = "<group>"; };
+		2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeMaplyComponent.xcodeproj; path = "../../library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.xcodeproj"; sourceTree = "<group>"; };
 		2BFC7E4F1D132DCB0040E2A3 /* ScreenMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenMarkersTestCase.h; sourceTree = "<group>"; };
 		2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenMarkersTestCase.m; sourceTree = "<group>"; };
 		50758EC5237C3DF35AB67BE9 /* Pods-AutoTester.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AutoTester.release.xcconfig"; path = "Pods/Target Support Files/Pods-AutoTester/Pods-AutoTester.release.xcconfig"; sourceTree = "<group>"; };
@@ -700,12 +700,12 @@
 		88E4B8CB1B83B6AB0050D21B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		88E4B8CE1B83B6AB0050D21B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		88E4B8EC1B83B9610050D21B /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
-		88FF5BE01BC31D53002F15CE /* cube.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cube.obj; path = ../../WhirlyGlobeSrc/WhirlyGlobeComponentTester/resources/cube.obj; sourceTree = "<group>"; };
+		88FF5BE01BC31D53002F15CE /* cube.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cube.obj; path = ../../ios/apps/WhirlyGlobeComponentTester/resources/cube.obj; sourceTree = "<group>"; };
 		88FF5BE11BC31D53002F15CE /* map_pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map_pin.png; path = ../WhirlyGlobeComponentTester/resources/map_pin.png; sourceTree = "<group>"; };
 		88FF5BE21BC31D53002F15CE /* Smiley_Face_Avatar_by_PixelTwist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Smiley_Face_Avatar_by_PixelTwist.png; path = ../WhirlyGlobeComponentTester/resources/Smiley_Face_Avatar_by_PixelTwist.png; sourceTree = "<group>"; };
-		88FF5BE31BC31D53002F15CE /* star_background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = star_background.png; path = ../../WhirlyGlobeSrc/WhirlyGlobeComponentTester/resources/star_background.png; sourceTree = "<group>"; };
+		88FF5BE31BC31D53002F15CE /* star_background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = star_background.png; path = ../../ios/apps/WhirlyGlobeComponentTester/resources/star_background.png; sourceTree = "<group>"; };
 		88FF5BE41BC31D53002F15CE /* Star.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Star.png; path = ../WhirlyGlobeComponentTester/resources/Star.png; sourceTree = "<group>"; };
-		88FF5BE51BC31D53002F15CE /* SunImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SunImage.png; path = ../../WhirlyGlobeSrc/WhirlyGlobeComponentTester/resources/SunImage.png; sourceTree = "<group>"; };
+		88FF5BE51BC31D53002F15CE /* SunImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SunImage.png; path = ../../ios/apps/WhirlyGlobeComponentTester/resources/SunImage.png; sourceTree = "<group>"; };
 		88FF5BED1BC31D6D002F15CE /* geography-class_medres.mbtiles */ = {isa = PBXFileReference; lastKnownFileType = file; path = "geography-class_medres.mbtiles"; sourceTree = "<group>"; };
 		88FF5BEF1BC31D6D002F15CE /* lowres_wtb_0x0.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_0x0.pvrtc; sourceTree = "<group>"; };
 		88FF5BF01BC31D6D002F15CE /* lowres_wtb_0x1.pvrtc */ = {isa = PBXFileReference; lastKnownFileType = file; path = lowres_wtb_0x1.pvrtc; sourceTree = "<group>"; };
@@ -1091,10 +1091,10 @@
 		88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = tl_2013_06075_roads.sqlite; sourceTree = "<group>"; };
 		8F4D91DA1CDFA7DE00F68045 /* globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = globe.png; path = AutoTester/icons/globe.png; sourceTree = "<group>"; };
 		8F4D91DB1CDFA7DE00F68045 /* map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map.png; path = AutoTester/icons/map.png; sourceTree = "<group>"; };
-		8F981DB21DE3577C00717DF1 /* ne_10m_roads.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.dbf; path = ../../resources/vectors/ne_10m_roads/ne_10m_roads.dbf; sourceTree = "<group>"; };
-		8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ne_10m_roads.prj; path = ../../resources/vectors/ne_10m_roads/ne_10m_roads.prj; sourceTree = "<group>"; };
-		8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shp; path = ../../resources/vectors/ne_10m_roads/ne_10m_roads.shp; sourceTree = "<group>"; };
-		8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shx; path = ../../resources/vectors/ne_10m_roads/ne_10m_roads.shx; sourceTree = "<group>"; };
+		8F981DB21DE3577C00717DF1 /* ne_10m_roads.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.dbf; path = ../../../resources/vectors/ne_10m_roads/ne_10m_roads.dbf; sourceTree = "<group>"; };
+		8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ne_10m_roads.prj; path = ../../../resources/vectors/ne_10m_roads/ne_10m_roads.prj; sourceTree = "<group>"; };
+		8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shp; path = ../../../resources/vectors/ne_10m_roads/ne_10m_roads.shp; sourceTree = "<group>"; };
+		8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shx; path = ../../../resources/vectors/ne_10m_roads/ne_10m_roads.shx; sourceTree = "<group>"; };
 		8FC34D0C1CE7218E00BEB7C4 /* DownloadResourceOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadResourceOperation.h; sourceTree = "<group>"; };
 		8FC34D0D1CE7218E00BEB7C4 /* DownloadResourceOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadResourceOperation.m; sourceTree = "<group>"; };
 		8FDE435C1E01C7200026B20E /* StamenWatercolorRemote-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "StamenWatercolorRemote-map.png"; sourceTree = "<group>"; };
@@ -1145,13 +1145,13 @@
 		D8F2FE2A1BE7CAD30058A310 /* MegaMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MegaMarkersTestCase.h; sourceTree = "<group>"; };
 		D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MegaMarkersTestCase.m; sourceTree = "<group>"; };
 		D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ModelsTestCase.swift; sourceTree = "<group>"; };
-		E53CF5D91E1EAF63000FB5C1 /* belfast_ireland_amenities.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = belfast_ireland_amenities.geojson; path = ../../resources/vectors/belfast_ireland/belfast_ireland_amenities.geojson; sourceTree = "<group>"; };
-		E53CF5DD1E1EAF6A000FB5C1 /* amenities.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = amenities.sld; path = ../../resources/vectors/belfast_ireland/amenities.sld; sourceTree = "<group>"; };
-		E53CF5DF1E1EAF73000FB5C1 /* firehouse.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = firehouse.png; path = ../../resources/vectors/belfast_ireland/firehouse.png; sourceTree = "<group>"; };
-		E53CF5E01E1EAF73000FB5C1 /* fuel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = fuel.png; path = ../../resources/vectors/belfast_ireland/fuel.png; sourceTree = "<group>"; };
-		E53CF5E11E1EAF73000FB5C1 /* library.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = library.png; path = ../../resources/vectors/belfast_ireland/library.png; sourceTree = "<group>"; };
-		E53CF5E21E1EAF73000FB5C1 /* police.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = police.png; path = ../../resources/vectors/belfast_ireland/police.png; sourceTree = "<group>"; };
-		E53CF5E31E1EAF73000FB5C1 /* school.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = school.png; path = ../../resources/vectors/belfast_ireland/school.png; sourceTree = "<group>"; };
+		E53CF5D91E1EAF63000FB5C1 /* belfast_ireland_amenities.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = belfast_ireland_amenities.geojson; sourceTree = "<group>"; };
+		E53CF5DD1E1EAF6A000FB5C1 /* amenities.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = amenities.sld; sourceTree = "<group>"; };
+		E53CF5DF1E1EAF73000FB5C1 /* firehouse.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = firehouse.png; sourceTree = "<group>"; };
+		E53CF5E01E1EAF73000FB5C1 /* fuel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fuel.png; sourceTree = "<group>"; };
+		E53CF5E11E1EAF73000FB5C1 /* library.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = library.png; sourceTree = "<group>"; };
+		E53CF5E21E1EAF73000FB5C1 /* police.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = police.png; sourceTree = "<group>"; };
+		E53CF5E31E1EAF73000FB5C1 /* school.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = school.png; sourceTree = "<group>"; };
 		E5679F421CB72DE800369A15 /* LabelAnimationTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelAnimationTestCase.h; sourceTree = "<group>"; };
 		E5679F431CB72DE800369A15 /* LabelAnimationTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelAnimationTestCase.m; sourceTree = "<group>"; };
 		E5679F441CB72DE800369A15 /* WMSTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WMSTestCase.h; sourceTree = "<group>"; };
@@ -1162,22 +1162,22 @@
 		E5679F4D1CB7669400369A15 /* FullAnimationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FullAnimationTest.m; sourceTree = "<group>"; };
 		E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AerisWeatherTestCase.m; sourceTree = "<group>"; };
 		E57E78C91C936B8400C468C6 /* AerisWeatherTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AerisWeatherTestCase.h; sourceTree = "<group>"; };
-		E5941DB61E0CEC8600E1C8B3 /* belfast_ireland_buildings.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = belfast_ireland_buildings.geojson; path = ../../resources/vectors/belfast_ireland/belfast_ireland_buildings.geojson; sourceTree = "<group>"; };
-		E5941DB71E0CEC8600E1C8B3 /* belfast_ireland_landusages.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = belfast_ireland_landusages.geojson; path = ../../resources/vectors/belfast_ireland/belfast_ireland_landusages.geojson; sourceTree = "<group>"; };
-		E5941DB81E0CEC8600E1C8B3 /* belfast_ireland_roads.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = belfast_ireland_roads.geojson; path = ../../resources/vectors/belfast_ireland/belfast_ireland_roads.geojson; sourceTree = "<group>"; };
-		E5941DB91E0CEC8600E1C8B3 /* belfast_ireland_waterareas.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = belfast_ireland_waterareas.geojson; path = ../../resources/vectors/belfast_ireland/belfast_ireland_waterareas.geojson; sourceTree = "<group>"; };
-		E5941DBA1E0CEC8600E1C8B3 /* belfast_ireland_waterways.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = belfast_ireland_waterways.geojson; path = ../../resources/vectors/belfast_ireland/belfast_ireland_waterways.geojson; sourceTree = "<group>"; };
+		E5941DB61E0CEC8600E1C8B3 /* belfast_ireland_buildings.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = belfast_ireland_buildings.geojson; sourceTree = "<group>"; };
+		E5941DB71E0CEC8600E1C8B3 /* belfast_ireland_landusages.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = belfast_ireland_landusages.geojson; sourceTree = "<group>"; };
+		E5941DB81E0CEC8600E1C8B3 /* belfast_ireland_roads.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = belfast_ireland_roads.geojson; sourceTree = "<group>"; };
+		E5941DB91E0CEC8600E1C8B3 /* belfast_ireland_waterareas.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = belfast_ireland_waterareas.geojson; sourceTree = "<group>"; };
+		E5941DBA1E0CEC8600E1C8B3 /* belfast_ireland_waterways.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = belfast_ireland_waterways.geojson; sourceTree = "<group>"; };
 		E5941DC01E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GeoJSONStyleTestCase.swift; sourceTree = "<group>"; };
-		E5941DC51E0D02A800E1C8B3 /* osm_buildings.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = osm_buildings.sld; path = ../../resources/vectors/belfast_ireland/osm_buildings.sld; sourceTree = "<group>"; };
-		E5941DC61E0D02A800E1C8B3 /* osm_landuse.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = osm_landuse.sld; path = ../../resources/vectors/belfast_ireland/osm_landuse.sld; sourceTree = "<group>"; };
-		E5941DC71E0D02A800E1C8B3 /* osm_roads.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = osm_roads.sld; path = ../../resources/vectors/belfast_ireland/osm_roads.sld; sourceTree = "<group>"; };
-		E5941DC81E0D02A800E1C8B3 /* osm_water.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = osm_water.sld; path = ../../resources/vectors/belfast_ireland/osm_water.sld; sourceTree = "<group>"; };
-		E5941DC91E0D02A800E1C8B3 /* water_lines.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = water_lines.sld; path = ../../resources/vectors/belfast_ireland/water_lines.sld; sourceTree = "<group>"; };
-		E5C82FC71E221C890074DF23 /* cemetery.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = cemetery.png; path = ../../resources/vectors/belfast_ireland/cemetery.png; sourceTree = "<group>"; };
-		E5C82FC81E221C890074DF23 /* commercial.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = commercial.png; path = ../../resources/vectors/belfast_ireland/commercial.png; sourceTree = "<group>"; };
-		E5C82FC91E221C890074DF23 /* industrial.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = industrial.png; path = ../../resources/vectors/belfast_ireland/industrial.png; sourceTree = "<group>"; };
-		E5C82FCA1E221C890074DF23 /* forest.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = forest.png; path = ../../resources/vectors/belfast_ireland/forest.png; sourceTree = "<group>"; };
-		E5C82FCB1E221C890074DF23 /* residential.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = residential.png; path = ../../resources/vectors/belfast_ireland/residential.png; sourceTree = "<group>"; };
+		E5941DC51E0D02A800E1C8B3 /* osm_buildings.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = osm_buildings.sld; sourceTree = "<group>"; };
+		E5941DC61E0D02A800E1C8B3 /* osm_landuse.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = osm_landuse.sld; sourceTree = "<group>"; };
+		E5941DC71E0D02A800E1C8B3 /* osm_roads.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = osm_roads.sld; sourceTree = "<group>"; };
+		E5941DC81E0D02A800E1C8B3 /* osm_water.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = osm_water.sld; sourceTree = "<group>"; };
+		E5941DC91E0D02A800E1C8B3 /* water_lines.sld */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = water_lines.sld; sourceTree = "<group>"; };
+		E5C82FC71E221C890074DF23 /* cemetery.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = cemetery.png; sourceTree = "<group>"; };
+		E5C82FC81E221C890074DF23 /* commercial.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = commercial.png; sourceTree = "<group>"; };
+		E5C82FC91E221C890074DF23 /* industrial.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = industrial.png; sourceTree = "<group>"; };
+		E5C82FCA1E221C890074DF23 /* forest.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = forest.png; sourceTree = "<group>"; };
+		E5C82FCB1E221C890074DF23 /* residential.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = residential.png; sourceTree = "<group>"; };
 		E5CC4E1F1DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationTrackingRealTestCase.swift; sourceTree = "<group>"; };
 		E5D2D65E1DE65CE400E02305 /* LocationTrackingSimTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationTrackingSimTestCase.swift; sourceTree = "<group>"; };
 		E5D2D6671DE6C25300E02305 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
@@ -1193,11 +1193,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8F858B011E7FE7EB00037D4E /* WhirlyGlobeMaplyComponent.framework in Frameworks */,
 				E5D2D66E1DE6C26A00E02305 /* libc++.tbd in Frameworks */,
 				E5D2D66C1DE6C26000E02305 /* libz.tbd in Frameworks */,
 				E5D2D66A1DE6C25A00E02305 /* libxml2.tbd in Frameworks */,
 				E5D2D6681DE6C25300E02305 /* libsqlite3.tbd in Frameworks */,
-				2BE53AF41D25901300B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */,
 				88E4B8ED1B83B9610050D21B /* CoreLocation.framework in Frameworks */,
 				DD3B9467B8D80BF7EBF57472 /* Pods_AutoTester.framework in Frameworks */,
 			);
@@ -1223,15 +1223,6 @@
 				2B4BA6CD1C83A22000DC1562 /* uturn.geojson */,
 			);
 			name = "wide vectors";
-			sourceTree = "<group>";
-		};
-		2BE53AE91D258FE800B60FAD /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				2BE53AEF1D258FE800B60FAD /* WhirlyGlobeMaplyComponent.framework */,
-				2BE53AF11D258FE800B60FAD /* WhirlyGlobeMaplyComponentTests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		3651D5D283D23F0C2EFDE845 /* Frameworks */ = {
@@ -1501,7 +1492,7 @@
 				88FF5BEE1BC31D6D002F15CE /* lowres_wtb */,
 			);
 			name = base_maps;
-			path = ../../resources/base_maps;
+			path = ../../../resources/base_maps;
 			sourceTree = "<group>";
 		};
 		88FF5BEE1BC31D6D002F15CE /* lowres_wtb */ = {
@@ -1528,7 +1519,7 @@
 				88FF5BFB1BC31D6D002F15CE /* world_web_mercator.sqlite */,
 			);
 			name = elevation;
-			path = ../../resources/elevation;
+			path = ../../../resources/elevation;
 			sourceTree = "<group>";
 		};
 		88FF5BFC1BC31D6D002F15CE /* maki icons */ = {
@@ -1642,7 +1633,7 @@
 				88FF5C661BC31D6D002F15CE /* zoo-24@2x.png */,
 			);
 			name = "maki icons";
-			path = "../../resources/maki icons";
+			path = "../../../resources/maki icons";
 			sourceTree = "<group>";
 		};
 		88FF5C671BC31D6D002F15CE /* mapbox vectors */ = {
@@ -1651,7 +1642,7 @@
 				88FF5C681BC31D6D002F15CE /* osm-bright.xml */,
 			);
 			name = "mapbox vectors";
-			path = "../../resources/mapbox vectors";
+			path = "../../../resources/mapbox vectors";
 			sourceTree = "<group>";
 		};
 		88FF5C691BC31D6D002F15CE /* mapzen vectors */ = {
@@ -1662,7 +1653,7 @@
 				E5EF69EF1D6B573700A2A660 /* MapzenSLDStyle.sld */,
 			);
 			name = "mapzen vectors";
-			path = "../../resources/mapzen vectors";
+			path = "../../../resources/mapzen vectors";
 			sourceTree = "<group>";
 		};
 		88FF5C6C1BC31D6D002F15CE /* models */ = {
@@ -1675,7 +1666,7 @@
 				88FF5C701BC31D6D002F15CE /* vp.mtl */,
 			);
 			name = models;
-			path = ../../resources/models;
+			path = ../../../resources/models;
 			sourceTree = "<group>";
 		};
 		88FF5C711BC31D6D002F15CE /* stars */ = {
@@ -1687,7 +1678,7 @@
 				88FF5C731BC31D6D002F15CE /* starcatalog_short.txt */,
 			);
 			name = stars;
-			path = ../../resources/stars;
+			path = ../../../resources/stars;
 			sourceTree = "<group>";
 		};
 		88FF5CF41BC31D94002F15CE /* country_json_50m */ = {
@@ -1944,7 +1935,7 @@
 				88FF5DED1BC31D95002F15CE /* ZWE.geojson */,
 			);
 			name = country_json_50m;
-			path = ../../resources/vectors/country_json_50m;
+			path = ../../../resources/vectors/country_json_50m;
 			sourceTree = "<group>";
 		};
 		88FF5DEE1BC31D95002F15CE /* sf_roads */ = {
@@ -1958,7 +1949,7 @@
 				88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */,
 			);
 			name = sf_roads;
-			path = ../../resources/vectors/sf_roads;
+			path = ../../../resources/vectors/sf_roads;
 			sourceTree = "<group>";
 		};
 		8F4D91D81CDFA7C000F68045 /* Icons */ = {
@@ -1968,6 +1959,15 @@
 				8F4D91DB1CDFA7DE00F68045 /* map.png */,
 			);
 			name = Icons;
+			sourceTree = "<group>";
+		};
+		8F858AF71E7FE60C00037D4E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */,
+				8F858AFE1E7FE60C00037D4E /* WhirlyGlobeMaplyComponentTests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		D74E325D5843D7D84B9E3A09 /* Pods */ = {
@@ -2014,6 +2014,7 @@
 				E5C82FCB1E221C890074DF23 /* residential.png */,
 			);
 			name = belfast_northern_ireland;
+			path = ../../../resources/vectors/belfast_ireland;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2051,7 +2052,7 @@
 				TargetAttributes = {
 					88E4B8BE1B83B6AB0050D21B = {
 						CreatedOnToolsVersion = 6.4;
-						DevelopmentTeam = BFXSGS6V8N;
+						DevelopmentTeam = AB6UJVB82J;
 						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
 					};
@@ -2070,7 +2071,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 2BE53AE91D258FE800B60FAD /* Products */;
+					ProductGroup = 8F858AF71E7FE60C00037D4E /* Products */;
 					ProjectRef = 2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */;
 				},
 			);
@@ -2082,18 +2083,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		2BE53AEF1D258FE800B60FAD /* WhirlyGlobeMaplyComponent.framework */ = {
+		8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = WhirlyGlobeMaplyComponent.framework;
-			remoteRef = 2BE53AEE1D258FE800B60FAD /* PBXContainerItemProxy */;
+			remoteRef = 8F858AFB1E7FE60C00037D4E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		2BE53AF11D258FE800B60FAD /* WhirlyGlobeMaplyComponentTests.xctest */ = {
+		8F858AFE1E7FE60C00037D4E /* WhirlyGlobeMaplyComponentTests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = WhirlyGlobeMaplyComponentTests.xctest;
-			remoteRef = 2BE53AF01D258FE800B60FAD /* PBXContainerItemProxy */;
+			remoteRef = 8F858AFD1E7FE60C00037D4E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -2620,7 +2621,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		DA2650C3F3FEDD93FE6A8CBD /* [CP] Copy Pods Resources */ = {
@@ -2833,18 +2834,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = BFXSGS6V8N;
+				DEVELOPMENT_TEAM = AB6UJVB82J;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"\"$(SRCROOT)/../WhirlyGlobe-MaplyComponent/include/\"/**",
-					"\"$(SRCROOT)/../../third-party/AFNetworking/AFNetworking\"",
-					"\"$(SRCROOT)/../../third-party/KissXML/KissXML\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/\"/**",
+					"\"$(SRCROOT)/../../../third-party/AFNetworking/AFNetworking\"",
+					"\"$(SRCROOT)/../../../third-party/KissXML/KissXML\"",
 					"\"$(SDKROOT)/usr/include/libxml2\"",
-					"\"$(SRCROOT)/../WhirlyGlobe-MaplyComponent/include/vector_tiles\"",
-					"\"$(SRCROOT)/../WhirlyGlobe-MaplyComponent/include/private\"",
-					"\"$(SRCROOT)/../WhirlyGlobeLib/include/\"",
-					"\"$(SRCROOT)/../../third-party/eigen\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/vector_tiles\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/private\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobeLib/include/\"",
+					"\"$(SRCROOT)/../../../third-party/eigen\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -2865,18 +2866,18 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = BFXSGS6V8N;
+				DEVELOPMENT_TEAM = AB6UJVB82J;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"\"$(SRCROOT)/../WhirlyGlobe-MaplyComponent/include/\"/**",
-					"\"$(SRCROOT)/../../third-party/AFNetworking/AFNetworking\"",
-					"\"$(SRCROOT)/../../third-party/KissXML/KissXML\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/\"/**",
+					"\"$(SRCROOT)/../../../third-party/AFNetworking/AFNetworking\"",
+					"\"$(SRCROOT)/../../../third-party/KissXML/KissXML\"",
 					"\"$(SDKROOT)/usr/include/libxml2\"",
-					"\"$(SRCROOT)/../WhirlyGlobe-MaplyComponent/include/vector_tiles\"",
-					"\"$(SRCROOT)/../WhirlyGlobe-MaplyComponent/include/private\"",
-					"\"$(SRCROOT)/../WhirlyGlobeLib/include/\"",
-					"\"$(SRCROOT)/../../third-party/eigen\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/vector_tiles\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/private\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobeLib/include/\"",
+					"\"$(SRCROOT)/../../../third-party/eigen\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
