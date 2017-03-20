@@ -13,7 +13,6 @@
 		2B40429015F6BA3500937923 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 2B40428E15F6BA3500937923 /* InfoPlist.strings */; };
 		2B40429215F6BA3500937923 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B40429115F6BA3500937923 /* main.m */; };
 		2B40429615F6BA3500937923 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40429515F6BA3500937923 /* AppDelegate.mm */; };
-		2B4042A915F6BF8800937923 /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B4042A815F6BF8100937923 /* libWhirlyGlobeLib.a */; };
 		2B4042AE15F6C0DF00937923 /* InteractionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40429D15F6BEEE00937923 /* InteractionLayer.mm */; };
 		2B4042B015F6C0DF00937923 /* WhirlyGlobeAppViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40429F15F6BEF800937923 /* WhirlyGlobeAppViewController.mm */; };
 		2B4042B215F6C0EF00937923 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B4042B115F6C0EF00937923 /* OpenGLES.framework */; };
@@ -98,10 +97,12 @@
 		2BD4C94A1642FBED004C8F67 /* regions.mbr in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4C9421642FBED004C8F67 /* regions.mbr */; };
 		2BD4C94B1642FBED004C8F67 /* regions.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4C9431642FBED004C8F67 /* regions.sqlite */; };
 		2BD4C94D1642FC5A004C8F67 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD4C94C1642FC5A004C8F67 /* Default-568h@2x.png */; };
+		8F858B191E7FEB5000037D4E /* libWhirlyGlobeLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858B181E7FEB4A00037D4E /* libWhirlyGlobeLib.a */; };
+		8F858B1B1E7FEB7800037D4E /* WhirlyGlobe.h in Sources */ = {isa = PBXBuildFile; fileRef = 8F858B1A1E7FEB7800037D4E /* WhirlyGlobe.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		2B4042A715F6BF8100937923 /* PBXContainerItemProxy */ = {
+		8F858B171E7FEB4A00037D4E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2B4042A015F6BF8000937923 /* WhirlyGlobeLib.xcodeproj */;
 			proxyType = 2;
@@ -125,7 +126,7 @@
 		2B40429D15F6BEEE00937923 /* InteractionLayer.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = InteractionLayer.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B40429E15F6BEF800937923 /* WhirlyGlobeAppViewController.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = WhirlyGlobeAppViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		2B40429F15F6BEF800937923 /* WhirlyGlobeAppViewController.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = WhirlyGlobeAppViewController.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		2B4042A015F6BF8000937923 /* WhirlyGlobeLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeLib.xcodeproj; path = ../WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj; sourceTree = "<group>"; };
+		2B4042A015F6BF8000937923 /* WhirlyGlobeLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeLib.xcodeproj; path = ../../../library/WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj; sourceTree = "<group>"; };
 		2B4042B115F6C0EF00937923 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		2B4042B315F6C0F700937923 /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		2B4042B515F6C0FF00937923 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -212,6 +213,7 @@
 		2BD4C9421642FBED004C8F67 /* regions.mbr */ = {isa = PBXFileReference; lastKnownFileType = file; path = regions.mbr; sourceTree = "<group>"; };
 		2BD4C9431642FBED004C8F67 /* regions.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = regions.sqlite; sourceTree = "<group>"; };
 		2BD4C94C1642FC5A004C8F67 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		8F858B1A1E7FEB7800037D4E /* WhirlyGlobe.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WhirlyGlobe.h; path = ../../../library/WhirlyGlobeLib/include/WhirlyGlobe.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -219,10 +221,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8F858B191E7FEB5000037D4E /* libWhirlyGlobeLib.a in Frameworks */,
 				2B4042B615F6C0FF00937923 /* QuartzCore.framework in Frameworks */,
 				2B4042B415F6C0F700937923 /* libsqlite3.dylib in Frameworks */,
 				2B4042B215F6C0EF00937923 /* OpenGLES.framework in Frameworks */,
-				2B4042A915F6BF8800937923 /* libWhirlyGlobeLib.a in Frameworks */,
 				2B40428615F6BA3500937923 /* UIKit.framework in Frameworks */,
 				2B40428815F6BA3500937923 /* Foundation.framework in Frameworks */,
 				2B40428A15F6BA3500937923 /* CoreGraphics.framework in Frameworks */,
@@ -235,6 +237,7 @@
 		2B40427615F6BA3500937923 = {
 			isa = PBXGroup;
 			children = (
+				8F858B1A1E7FEB7800037D4E /* WhirlyGlobe.h */,
 				2BD4C94C1642FC5A004C8F67 /* Default-568h@2x.png */,
 				2B40462115F9525B00937923 /* Icon-72.png */,
 				2B40461F15F9525100937923 /* Icon@2x.png */,
@@ -295,14 +298,6 @@
 				2B40429315F6BA3500937923 /* WhirlyGlobe-Prefix.pch */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		2B4042A115F6BF8000937923 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				2B4042A815F6BF8100937923 /* libWhirlyGlobeLib.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		2B4042B715F6C20000937923 /* resources */ = {
@@ -447,6 +442,14 @@
 			path = "vectors/whirlyglobe-app-vector_cache";
 			sourceTree = "<group>";
 		};
+		8F858B141E7FEB4A00037D4E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8F858B181E7FEB4A00037D4E /* libWhirlyGlobeLib.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -488,7 +491,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 2B4042A115F6BF8000937923 /* Products */;
+					ProductGroup = 8F858B141E7FEB4A00037D4E /* Products */;
 					ProjectRef = 2B4042A015F6BF8000937923 /* WhirlyGlobeLib.xcodeproj */;
 				},
 			);
@@ -500,11 +503,11 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		2B4042A815F6BF8100937923 /* libWhirlyGlobeLib.a */ = {
+		8F858B181E7FEB4A00037D4E /* libWhirlyGlobeLib.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libWhirlyGlobeLib.a;
-			remoteRef = 2B4042A715F6BF8100937923 /* PBXContainerItemProxy */;
+			remoteRef = 8F858B171E7FEB4A00037D4E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -603,6 +606,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8F858B1B1E7FEB7800037D4E /* WhirlyGlobe.h in Sources */,
 				2B40449A15F6C2AE00937923 /* PanDelegateFixed.mm in Sources */,
 				2B4042AE15F6C0DF00937923 /* InteractionLayer.mm in Sources */,
 				2B4042B015F6C0DF00937923 /* WhirlyGlobeAppViewController.mm in Sources */,
@@ -685,7 +689,7 @@
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
 					../../../utilities/boost_1_45_0/,
-					"../../../utilities/eigen-eigen-3.0.1/",
+					"../../../../third-party/eigen/",
 				);
 				INFOPLIST_FILE = "WhirlyGlobeApp/WhirlyGlobe-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
@@ -704,7 +708,7 @@
 				HEADER_SEARCH_PATHS = (
 					../WhirlyGlobeLib/include/,
 					../../../utilities/boost_1_45_0/,
-					"../../../utilities/eigen-eigen-3.0.1/",
+					"../../../../third-party/eigen/",
 				);
 				INFOPLIST_FILE = "WhirlyGlobeApp/WhirlyGlobe-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
