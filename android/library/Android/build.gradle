@@ -1,0 +1,252 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
+        classpath 'com.github.dcendents:android-maven-plugin:1.2'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0"
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+group = 'com.mousebirdconsulting.maply'
+version = '2.5'
+
+apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: "com.jfrog.artifactory"
+
+apply plugin: 'maven-publish'
+
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.3"
+
+    sourceSets {
+        main {
+            manifest.srcFile 'GradleManifest.xml'
+            jni.srcDirs = []
+            jniLibs.srcDir 'libs'
+            res.srcDirs = ['res']
+            java.srcDirs = ['src']
+        }
+    }
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 23
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.txt'
+        }
+    }
+    
+    lintOptions {
+        abortOnError false
+    }    
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:23.0.0'
+    compile 'com.squareup.okhttp:okhttp:2.3.0'
+    compile 'com.squareup.okio:okio:1.3.0'
+    compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
+
+}
+
+import org.gradle.internal.os.OperatingSystem;
+import org.apache.tools.ant.taskdefs.condition.Os;
+
+
+task buildHeaders(type: Exec, description: 'Build headers to be used on native build') {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    commandLine "./buildheaders.sh", properties.getProperty('sdk.dir')
+}
+
+
+task buildNative(type: Exec, description: 'Compile native code using NDK') {
+    def ndkDir = plugins.getPlugin('com.android.library').sdkHandler.getNdkFolder()
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine "$ndkDir/ndk-build.cmd",
+            '-C', file('.').absolutePath,
+            '-j', Runtime.runtime.availableProcessors(),
+            'all',
+             'APP_ABI=' + (project.hasProperty('architecture') ? architecture : 'all')
+//           ,'NDK_DEBUG=1'
+    } else {
+        commandLine "$ndkDir/ndk-build",
+            '-C', file('.').absolutePath,
+            '-j', Runtime.runtime.availableProcessors(),
+            'all',
+             'APP_ABI=' + (project.hasProperty('architecture') ? architecture : 'all')
+//           ,'NDK_DEBUG=1'
+    } 
+}
+
+task cleanNative(type: Exec, description: 'Clean native compiled code') {
+    def ndkDir = plugins.getPlugin('com.android.library').sdkHandler.getNdkFolder()
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine "$ndkDir/ndk-build.cmd",
+            '-C', file('.').absolutePath,
+            'clean'
+    } else {
+        commandLine "$ndkDir/ndk-build",
+            '-C', file('.').absolutePath,
+            'clean'
+    }
+}
+    
+clean.dependsOn 'cleanNative'
+
+if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+    println "*** Build headers is skipped on Windows"
+} else {
+    buildNative.dependsOn 'buildHeaders'
+}
+
+tasks.withType(JavaCompile) {
+    compileTask -> compileTask.dependsOn buildNative
+}
+
+
+def siteUrl = 'http://mousebird.github.io/WhirlyGlobe/'
+def gitUrl = 'https://github.com/mousebird/WhirlyGlobe.git'
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+
+                name 'WhirlyGlobe-Maply is an open source toolkit for iOS and Android. You can use it to build an interactive 2D map (Maply) or a 3D globe (WhirlyGlobe)'
+//                artifactId = 'maply' It's just the folder name
+                url siteUrl
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id '1'
+                        name 'Steve Gifford'
+                        email 'sjg@mousebirdconsulting.com'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+
+                }
+            }
+        }
+    }
+}
+
+task javadoc(type: Javadoc) {
+    source = fileTree(dir: ".", include: "**/*.java")
+    ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
+    classpath += files(ext.androidJar)
+    destinationDir = file("doc")
+    failOnError false
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+bintray {
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        userOrg = 'mousebirdconsulting'
+        repo = "WhirlyGlobe"
+        name = "Maply"
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
+    }
+}
+
+def artifactVersion = '2.5'
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            artifactId "WhirlyGlobe"
+            version = artifactVersion
+            artifact "${project.buildDir}/outputs/aar/${project.name}-release.aar"
+
+            pom.withXml {
+                def root = asNode()
+                def license = root.appendNode('licenses').appendNode('license')
+                license.appendNode('name', 'The Apache Software License, Version 2.0')
+                license.appendNode('url', 'http://www.apache.org/licenses/LICENSE-2.0.txt')
+                license.appendNode('distribution', 'repo')
+            }
+        }
+    }
+}
+
+
+
+artifactory {
+    contextUrl = 'http://oss.jfrog.org'
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    publish {
+        repository {
+            repoKey = artifactVersion.endsWith('SNAPSHOT') ? 'oss-snapshot-local' : 'oss-release-local'
+            username = properties.getProperty("bintray.user")
+            password = properties.getProperty("bintray.apikey")
+            maven = true
+        }
+        defaults {
+            publishArtifacts = true
+            publications('aar')
+            publishPom = false //Publish generated POM files to Artifactory (true by default)
+            publishIvy = false //Publish generated Ivy descriptor files to Artifactory (true by default)
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'jcenter'
+            username = properties.getProperty("bintray.user")
+            password = properties.getProperty("bintray.apikey")
+        }
+    }
+}
