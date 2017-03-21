@@ -1,5 +1,9 @@
 Breaking Changes:
 
+## 2.5.1:
+* We moved directories around.  Look for the AutoTester app in ios/AutoTester
+* If you’re linking to WhirlyGlobeMaplyComponent look for it in ios/library/WhirlyGlobe-MaplyComponent
+
 ## 2.4.1:
 * MaplyLinearTextureBuilder
     * no longer has an opacityFunc property.
