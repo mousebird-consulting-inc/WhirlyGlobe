@@ -10,7 +10,7 @@ BUILT_PRODUCTS_SIMULATOR=`xcodebuild -target WhirlyGlobeMaplyComponent -scheme W
 BUILT_PRODUCTS_IPHONEOS=`xcodebuild -target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent -configuration Release -sdk iphoneos -showBuildSettings OTHER_CFLAGS='-fembed-bitcode' | grep -m 1 "BUILT_PRODUCTS_DIR" | grep -oEi "\/.*"`
 
 xcodebuild -target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent -configuration Release -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPad Air' OTHER_CFLAGS='-fembed-bitcode' clean build
-xcodebuild -target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent -configuration Release -sdk iphoneos -DONLY_ACTIVE_ARCH=NO OTHER_CFLAGS='-fembed-bitcode'
+xcodebuild -target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent -configuration Release -sdk iphoneos -DONLY_ACTIVE_ARCH=NO OTHER_CFLAGS='-fembed-bitcode' clean build
 
 # name and build location
 PROJECT_NAME=WhirlyGlobeMaplyComponent
