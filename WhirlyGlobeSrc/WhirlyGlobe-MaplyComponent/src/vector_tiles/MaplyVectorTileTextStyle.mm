@@ -45,6 +45,7 @@ typedef enum {
     TextSymbolizerTextTransform textTransform;
     NSString *textField;
     float layoutImportance;
+    NSNumber *layoutPlacement;
 }
 
 @end
@@ -189,6 +190,15 @@ typedef enum {
                 subStyle->placement = TextPlacementVertex;
         }
         
+        if(styleEntry[@"layout-placement"]) {
+            NSString *sLayoutPlacement = styleEntry[@"layout-placement"];
+            @try {
+                int layoutPlacement = [sLayoutPlacement intValue];
+                subStyle->layoutPlacement = @(layoutPlacement);
+            } @finally {
+            }
+        }
+        
         subStyle->textTransform = TextTransformNone;
         if(styleEntry[@"text-transform"])
         {
@@ -310,6 +320,8 @@ typedef enum {
                     [labels addObject:label];
                 }
             }
+            if (subStyle->layoutPlacement)
+                label.layoutPlacement = [subStyle->layoutPlacement intValue];
         }
 
         // Note: This should be MaplyThreadCurrent, but...
