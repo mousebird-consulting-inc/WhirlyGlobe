@@ -1,0 +1,10 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 1, "LabelRank": 1, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Sao Tome and Principe", "SOV_A3": "STP", "ADM0_DIF": 0.0, "LEVEL": 4.0, "TYPE": "Geo subunit", "ADMIN": "Sao Tome and Principe", "ADM0_A3": "STP", "GEOU_DIF": 0.0, "GEOUNIT": "Sao Tome and Principe", "GU_A3": "STP", "SU_DIF": 1.0, "SUBUNIT": "Principe", "SU_A3": "STA", "NAME": "Principe", "ABBREV": "Prin.", "POSTAL": "PR", "NAME_FORMA": "", "TERR_": "", "NAME_SORT": "Principe", "MAP_COLOR": 7.0, "POP_EST": 5000.0, "GDP_MD_EST": -99.0, "FIPS_10_": "-99", "ISO_A2": "-99", "ISO_A3": "-99", "ISO_N3": -99.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 7.423868, 1.567708 ], [ 7.386661, 1.54156 ], [ 7.342426, 1.563574 ], [ 7.330643, 1.603365 ], [ 7.387591, 1.680156 ], [ 7.414463, 1.699121 ], [ 7.436993, 1.68305 ], [ 7.450429, 1.661966 ], [ 7.45229, 1.631115 ], [ 7.423868, 1.567708 ] ] ] } }
+,
+{ "type": "Feature", "properties": { "ScaleRank": 1, "LabelRank": 1, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Sao Tome and Principe", "SOV_A3": "STP", "ADM0_DIF": 0.0, "LEVEL": 4.0, "TYPE": "Geo subunit", "ADMIN": "Sao Tome and Principe", "ADM0_A3": "STP", "GEOU_DIF": 0.0, "GEOUNIT": "Sao Tome and Principe", "GU_A3": "STP", "SU_DIF": 1.0, "SUBUNIT": "Sao Tome", "SU_A3": "STS", "NAME": "Sao Tome", "ABBREV": "SaoT.", "POSTAL": "ST", "NAME_FORMA": "", "TERR_": "", "NAME_SORT": "Sao Tome", "MAP_COLOR": 7.0, "POP_EST": 157000.0, "GDP_MD_EST": -99.0, "FIPS_10_": "-99", "ISO_A2": "-99", "ISO_A3": "-99", "ISO_N3": -99.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 6.659987, 0.120665 ], [ 6.55684, 0.047388 ], [ 6.519737, 0.066301 ], [ 6.496999, 0.117357 ], [ 6.468164, 0.227325 ], [ 6.477569, 0.280138 ], [ 6.524284, 0.34029 ], [ 6.62588, 0.400234 ], [ 6.686962, 0.404368 ], [ 6.7498, 0.325614 ], [ 6.750007, 0.243448 ], [ 6.659987, 0.120665 ] ] ] } }
+
+]
+}

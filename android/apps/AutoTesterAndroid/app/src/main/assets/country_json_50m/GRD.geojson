@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 1, "LabelRank": 1, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Grenada", "SOV_A3": "GRD", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "Grenada", "ADM0_A3": "GRD", "GEOU_DIF": 0.0, "GEOUNIT": "Grenada", "GU_A3": "GRD", "SU_DIF": 0.0, "SUBUNIT": "Grenada", "SU_A3": "GRD", "NAME": "Grenada", "ABBREV": "Gren.", "POSTAL": "GD", "NAME_FORMA": "", "TERR_": "", "NAME_SORT": "Grenada", "MAP_COLOR": 6.0, "POP_EST": 90739.0, "GDP_MD_EST": 1161.0, "FIPS_10_": "GJ", "ISO_A2": "GD", "ISO_A3": "GRD", "ISO_N3": 308.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -61.715504, 12.012652 ], [ -61.782192, 12.00844 ], [ -61.755734, 12.045467 ], [ -61.749895, 12.108434 ], [ -61.714987, 12.185174 ], [ -61.660469, 12.237031 ], [ -61.607035, 12.223285 ], [ -61.627137, 12.053942 ], [ -61.715504, 12.012652 ] ] ] } }
+
+]
+}
