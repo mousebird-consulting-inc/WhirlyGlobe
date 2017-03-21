@@ -28,7 +28,7 @@ then
 fi
 IFS=$oldIFS
 
-WGTREE=../Android
+WGTREE=../../library/Android
 
 pushd $WGTREE
 ./gradlew assemble$vers -Parchitecture=$arch
