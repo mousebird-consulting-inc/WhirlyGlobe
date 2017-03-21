@@ -3,10 +3,8 @@ ANDROID_SDK_HOME=/Users/jenkins/Dev/android-sdk-macosx
 
 cd ..
 
-pushd WhirlyGlobe-MaplyComponent
 git submodule init
 git submodule update
-popd
 
 pushd Android
 find ./src -name "*.class" -type f -delete
@@ -16,6 +14,8 @@ find ./src -name "*.class" -type f -delete
 cp $LOCAL_PROPS .
 ./gradlew clean assembleRelease
 popd
+
+cd ../apps
 
 pushd AutoTesterAndroid
 ./copy-maply.sh release nocache
