@@ -28,7 +28,7 @@ then
 fi
 IFS=$oldIFS
 
-pushd ../Android/
+pushd ../../library/Android/
 ./gradlew assemble$vers -Parchitecture=$arch
 popd
 
