@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "Netherlands", "SOV_A3": "NL1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Country", "ADMIN": "Sint Maarten", "ADM0_A3": "SXM", "GEOU_DIF": 0.0, "GEOUNIT": "Sint Maarten", "GU_A3": "SXM", "SU_DIF": 0.0, "SUBUNIT": "Sint Maarten", "SU_A3": "SXM", "NAME": "Sint Maarten", "ABBREV": "St. M.", "POSTAL": "SX", "NAME_FORMA": "", "TERR_": "Neth.", "NAME_SORT": "Netherlands Antilles", "MAP_COLOR": 9.0, "POP_EST": 37429.0, "GDP_MD_EST": 400.0, "FIPS_10_": "NT", "ISO_A2": "SX", "ISO_A3": "SXM", "ISO_N3": 534.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -63.123019, 18.068942 ], [ -63.011168, 18.068942 ], [ -63.012324, 18.04541 ], [ -63.023073, 18.019185 ], [ -63.090459, 18.041431 ], [ -63.12472, 18.064324 ], [ -63.123019, 18.068942 ] ] ] } }
+
+]
+}

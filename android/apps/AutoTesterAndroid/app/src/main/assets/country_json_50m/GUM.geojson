@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "United States of America", "SOV_A3": "US1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Dependency", "ADMIN": "Guam", "ADM0_A3": "GUM", "GEOU_DIF": 0.0, "GEOUNIT": "Guam", "GU_A3": "GUM", "SU_DIF": 0.0, "SUBUNIT": "Guam", "SU_A3": "GUM", "NAME": "Guam", "ABBREV": "Guam", "POSTAL": "GU", "NAME_FORMA": "Territory of Guam", "TERR_": "U.S.A.", "NAME_SORT": "Guam", "MAP_COLOR": 1.0, "POP_EST": 178430.0, "GDP_MD_EST": 2500.0, "FIPS_10_": "GQ", "ISO_A2": "GU", "ISO_A3": "GUM", "ISO_N3": 316.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 144.741791, 13.259294 ], [ 144.699519, 13.257537 ], [ 144.66283, 13.29105 ], [ 144.650013, 13.313503 ], [ 144.64929, 13.42869 ], [ 144.790367, 13.526875 ], [ 144.836669, 13.622373 ], [ 144.875426, 13.614621 ], [ 144.909636, 13.599015 ], [ 144.94085, 13.570335 ], [ 144.779928, 13.41112 ], [ 144.741791, 13.259294 ] ] ] } }
+
+]
+}
