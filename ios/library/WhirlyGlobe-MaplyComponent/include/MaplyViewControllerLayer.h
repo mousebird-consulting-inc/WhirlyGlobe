@@ -30,4 +30,9 @@
   */
 @property (nonatomic,assign) int drawPriority;
 
+/** @brief Set as unique identifier, or group...
+ @details use this property in order to localize this layer in the Globe/Map, you use in a predicate to catch as a load layer in Globe...
+ */
+@property (nonatomic, strong) NSString *identifier;
+
 @end
