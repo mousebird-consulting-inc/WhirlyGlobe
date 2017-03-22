@@ -83,7 +83,6 @@ template<> SimplePolyClassInfo *SimplePolyClassInfo::classInfoObj = NULL;
 template<> StringWrapperClassInfo *StringWrapperClassInfo::classInfoObj = NULL;
 template<> MapboxVectorTileParserClassInfo *MapboxVectorTileParserClassInfo::classInfoObj = NULL;
 template<> SelectedObjectClassInfo *SelectedObjectClassInfo::classInfoObj = NULL;
-template<> ShaderGeneratorWrapperClassInfo *ShaderGeneratorWrapperClassInfo::classInfoObj = NULL;
 template<> GeometryManagerClassInfo *GeometryManagerClassInfo::classInfoObj = NULL;
 template<> GeometryInfoClassInfo *GeometryInfoClassInfo::classInfoObj = NULL;
 template<> GeometryRawPointsClassInfo *GeometryRawPointsClassInfo::classInfoObj = NULL;
