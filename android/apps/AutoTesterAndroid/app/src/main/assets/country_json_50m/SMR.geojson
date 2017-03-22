@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 3, "LabelRank": 3, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "San Marino", "SOV_A3": "SMR", "ADM0_DIF": 0.0, "LEVEL": 2.0, "TYPE": "Sovereign country", "ADMIN": "San Marino", "ADM0_A3": "SMR", "GEOU_DIF": 0.0, "GEOUNIT": "San Marino", "GU_A3": "SMR", "SU_DIF": 0.0, "SUBUNIT": "San Marino", "SU_A3": "SMR", "NAME": "San Marino", "ABBREV": "S.M.", "POSTAL": "RSM", "NAME_FORMA": "Republic of San Marino", "TERR_": "", "NAME_SORT": "San Marino", "MAP_COLOR": 6.0, "POP_EST": 30324.0, "GDP_MD_EST": 1662.0, "FIPS_10_": "SM", "ISO_A2": "SM", "ISO_A3": "SMR", "ISO_N3": 674.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 12.485264, 43.901429 ], [ 12.426353, 43.894091 ], [ 12.396897, 43.934554 ], [ 12.441081, 43.982406 ], [ 12.503661, 43.98977 ], [ 12.514668, 43.952976 ], [ 12.485264, 43.901429 ] ] ] } }
+
+]
+}

@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+                                                                                
+"features": [
+{ "type": "Feature", "properties": { "ScaleRank": 4, "LabelRank": 4, "FeatureCla": "Adm-0 map subunits", "SOVEREIGNT": "United Kingdom", "SOV_A3": "GB1", "ADM0_DIF": 1.0, "LEVEL": 2.0, "TYPE": "Country", "ADMIN": "Jersey", "ADM0_A3": "JEY", "GEOU_DIF": 0.0, "GEOUNIT": "Jersey", "GU_A3": "JEY", "SU_DIF": 0.0, "SUBUNIT": "Jersey", "SU_A3": "JEY", "NAME": "Jersey", "ABBREV": "Jey.", "POSTAL": "JE", "NAME_FORMA": "Bailiwick of Jersey", "TERR_": "Crown dependency of U.K.", "NAME_SORT": "Jersey", "MAP_COLOR": 3.0, "POP_EST": 91626.0, "GDP_MD_EST": 5100.0, "FIPS_10_": "JE", "ISO_A2": "JE", "ISO_A3": "JEY", "ISO_N3": 832.0 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -2.018631, 49.231259 ], [ -2.009898, 49.180797 ], [ -2.053745, 49.169816 ], [ -2.09103, 49.187386 ], [ -2.165676, 49.187386 ], [ -2.235827, 49.176378 ], [ -2.220479, 49.266373 ], [ -2.082245, 49.255392 ], [ -2.018631, 49.231259 ] ] ] } }
+
+]
+}
