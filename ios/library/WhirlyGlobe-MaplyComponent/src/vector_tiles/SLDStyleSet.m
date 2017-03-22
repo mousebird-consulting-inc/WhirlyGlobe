@@ -301,10 +301,12 @@
     int relativeDrawPriority = _relativeDrawPriority;
     if (rule.relativeDrawPriority)
         relativeDrawPriority += rule.relativeDrawPriority.intValue;
+
+    // Allows certain params from symbolizers to be accessed by subsequent symbolizers within a rule.
+    NSMutableDictionary *crossSymbolizerParams = [NSMutableDictionary dictionary];
     
     for (DDXMLNode *child in [ruleNode children]) {
-//        NSString *name = [child localName];
-        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:(DDXMLElement *)child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator relativeDrawPriority:_relativeDrawPriority baseURL:_baseURL];
+        NSArray <MaplyVectorTileStyle *> *symbolizers = [SLDSymbolizer maplyVectorTileStyleWithElement:(DDXMLElement *)child tileStyleSettings:self.tileStyleSettings viewC:self.viewC minScaleDenom:rule.minScaleDenominator maxScaleDenom:rule.maxScaleDenominator relativeDrawPriority:_relativeDrawPriority crossSymbolizerParams:crossSymbolizerParams baseURL:_baseURL];
         
         if (symbolizers) {
             _relativeDrawPriority += 1;
