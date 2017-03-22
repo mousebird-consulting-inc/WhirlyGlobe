@@ -1024,6 +1024,6 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
 /** @brief Return all layers loaded by user.
  @details All layers loaded by user than are currently loaded.
  */
--(NSArray *)loadedLayers;
+-(NSArray * _Nonnull)loadedLayers;
 
 @end
