@@ -22,3 +22,5 @@ linecount
 WhirlyGlobeSrc/local_libs/proj4-mapbox
 WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/build
 WhirlyGlobeSrc/AutoTester/AutoTester.xcworkspace
+*.class
+android/apps/AutoTesterAndroid/.idea
