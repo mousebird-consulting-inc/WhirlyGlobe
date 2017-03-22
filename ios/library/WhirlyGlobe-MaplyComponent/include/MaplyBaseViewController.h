@@ -1021,4 +1021,9 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
   */
 - (float) getMaxLineWidth;
 
+/** @brief Return all layers loaded by user.
+ @details All layers loaded by user than are currently loaded.
+ */
+-(NSArray *)loadedLayers;
+
 @end
