@@ -1498,4 +1498,9 @@ static const float PerfOutputDelay = 15.0;
     return width[1];
 }
 
+-(NSArray *)loadedLayers
+{
+    return [NSArray arrayWithArray:userLayers];
+}
+
 @end
