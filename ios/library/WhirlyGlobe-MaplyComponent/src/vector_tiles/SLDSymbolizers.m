@@ -9,6 +9,7 @@
 #import "SLDSymbolizers.h"
 #import "SLDWellKnownMarkers.h"
 #import "MaplyVectorTiles.h"
+#import "MaplyScreenLabel.h"
 
 @implementation SLDSymbolizer
 
@@ -25,7 +26,7 @@
  @see MaplyVectorTileStyle
  @see MaplyVectorStyleSettings
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority crossSymbolizerParams:(NSMutableDictionary *)crossSymbolizerParams baseURL:(NSURL *)baseURL {
     
     static NSMutableDictionary *zOrderGroups;
     if (!zOrderGroups)
@@ -59,13 +60,13 @@
     }
     
     if ([SLDLineSymbolizer matchesSymbolizerNamed:name])
-        return [SLDLineSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority baseURL:baseURL];
+        return [SLDLineSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority crossSymbolizerParams:crossSymbolizerParams baseURL:baseURL];
     else if ([SLDPolygonSymbolizer matchesSymbolizerNamed:name])
-        return [SLDPolygonSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority baseURL:baseURL];
+        return [SLDPolygonSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority crossSymbolizerParams:crossSymbolizerParams baseURL:baseURL];
     else if ([SLDPointSymbolizer matchesSymbolizerNamed:name])
-        return [SLDPointSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority baseURL:baseURL];
+        return [SLDPointSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority crossSymbolizerParams:crossSymbolizerParams baseURL:baseURL];
     else if ([SLDTextSymbolizer matchesSymbolizerNamed:name])
-        return [SLDTextSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority baseURL:baseURL];
+        return [SLDTextSymbolizer maplyVectorTileStyleWithElement:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:overrideRelativeDrawPriority crossSymbolizerParams:crossSymbolizerParams baseURL:baseURL];
     return nil;
 }
 
@@ -400,7 +401,7 @@
 
 /** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority crossSymbolizerParams:(NSMutableDictionary *)crossSymbolizerParams baseURL:(NSURL *)baseURL {
     
     DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke"];
     
@@ -456,7 +457,7 @@
 
 /** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority crossSymbolizerParams:(NSMutableDictionary *)crossSymbolizerParams baseURL:(NSURL *)baseURL {
     
     DDXMLElement *fillNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Fill"];
     DDXMLElement *strokeNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:element childName:@"Stroke"];
@@ -529,9 +530,9 @@
 
 /** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority crossSymbolizerParams:(NSMutableDictionary *)crossSymbolizerParams baseURL:(NSURL *)baseURL {
     
-    MaplyVectorTileStyle *s = [SLDPointSymbolizer maplyVectorTileStyleFromPointSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:relativeDrawPriority baseURL:baseURL];
+    MaplyVectorTileStyle *s = [SLDPointSymbolizer maplyVectorTileStyleFromPointSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:relativeDrawPriority crossSymbolizerParams:crossSymbolizerParams baseURL:baseURL];
     
     if (!s)
         return nil;
@@ -541,7 +542,7 @@
 
 /** @brief Parses a PointSymbolizer node and returns a corresponding MaplyVectorTileStyle object.
  */
-+ (MaplyVectorTileStyle *)maplyVectorTileStyleFromPointSymbolizerNode:(DDXMLElement *)pointSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
++ (MaplyVectorTileStyle *)maplyVectorTileStyleFromPointSymbolizerNode:(DDXMLElement *)pointSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority crossSymbolizerParams:(NSMutableDictionary *)crossSymbolizerParams baseURL:(NSURL *)baseURL {
     
     DDXMLElement *graphicNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:pointSymbolizerNode childName:@"Graphic"];
     
@@ -556,6 +557,11 @@
         pointParams[@"minscaledenom"] = minScaleDenom;
     if (maxScaleDenom)
         pointParams[@"maxscaledenom"] = maxScaleDenom;
+
+    if (pointParams[@"width"] && pointParams[@"height"]) {
+        crossSymbolizerParams[@"width"] = pointParams[@"width"];
+        crossSymbolizerParams[@"height"] = pointParams[@"height"];
+    }
     
     MaplyVectorTileStyle *s = [MaplyVectorTileStyle styleFromStyleEntry:@{@"type": @"MarkersSymbolizer", @"substyles": @[pointParams]}
                                                                settings:tileStyleSettings
@@ -575,9 +581,9 @@
 
 /** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
-+ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
++ (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority crossSymbolizerParams:(NSMutableDictionary *)crossSymbolizerParams baseURL:(NSURL *)baseURL {
     
-    MaplyVectorTileStyle *s = [SLDTextSymbolizer maplyVectorTileStyleFromTextSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:relativeDrawPriority baseURL:baseURL];
+    MaplyVectorTileStyle *s = [SLDTextSymbolizer maplyVectorTileStyleFromTextSymbolizerNode:element tileStyleSettings:tileStyleSettings viewC:viewC minScaleDenom:minScaleDenom maxScaleDenom:maxScaleDenom relativeDrawPriority:relativeDrawPriority crossSymbolizerParams:crossSymbolizerParams baseURL:baseURL];
     
     if (!s)
         return nil;
@@ -587,11 +593,11 @@
 
 /** @brief Parses a TextSymbolizer node and returns a corresponding MaplyVectorTileStyle object.
  */
-+ (MaplyVectorTileStyle *)maplyVectorTileStyleFromTextSymbolizerNode:(DDXMLElement *)textSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
++ (MaplyVectorTileStyle *)maplyVectorTileStyleFromTextSymbolizerNode:(DDXMLElement *)textSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority crossSymbolizerParams:(NSMutableDictionary *)crossSymbolizerParams baseURL:(NSURL *)baseURL {
     
     NSMutableDictionary *labelParams = [NSMutableDictionary dictionary];
     
-    labelParams[@"dx"] = @(25);
+    labelParams[@"dx"] = @(10);
     labelParams[@"dy"] = @(0);
     
     // Label text
@@ -625,6 +631,38 @@
             
             DDXMLElement *anchorPointNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:pointPlacementNode childName:@"AnchorPoint"];
             DDXMLElement *displacementNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:pointPlacementNode childName:@"Displacement"];
+
+            if (anchorPointNode) {
+                DDXMLElement *anchorPointXNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:anchorPointNode childName:@"AnchorPointX"];
+                DDXMLElement *anchorPointYNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:anchorPointNode childName:@"AnchorPointY"];
+                NSString *sAnchorPointX, *sAnchorPointY;
+                if (anchorPointXNode)
+                    sAnchorPointX = [SLDSymbolizer stringForLiteralInNode:anchorPointXNode];
+                if (anchorPointYNode)
+                    sAnchorPointY = [SLDSymbolizer stringForLiteralInNode:anchorPointYNode];
+                float anchorPointX = 0.0;
+                if (sAnchorPointX)
+                    anchorPointX = [sAnchorPointX floatValue];
+                float anchorPointY = 0.5;
+                if (sAnchorPointY)
+                    anchorPointY = [sAnchorPointY floatValue];
+                
+                int layoutPlacement;
+                if (anchorPointX <= 0.33)
+                    layoutPlacement = kMaplyLayoutRight;
+                else if (anchorPointX > 0.67)
+                    layoutPlacement = kMaplyLayoutLeft;
+                else {
+                    if (anchorPointY <= 0.33)
+                        layoutPlacement = kMaplyLayoutBelow;
+                    else if (anchorPointY > 0.67)
+                        layoutPlacement = kMaplyLayoutAbove;
+                    else
+                        layoutPlacement = kMaplyLayoutCenter;
+                }
+                labelParams[@"layout-placement"] = @(layoutPlacement);
+            }
+
             if (displacementNode) {
                 DDXMLElement *displacementXNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:displacementNode childName:@"DisplacementX"];
                 DDXMLElement *displacementYNode = (DDXMLElement *)[SLDSymbolizer getSingleChildNodeForNode:displacementNode childName:@"DisplacementY"];
@@ -633,10 +671,10 @@
                     sDisplacementX = [SLDSymbolizer stringForLiteralInNode:displacementXNode];
                 if (displacementYNode)
                     sDisplacementY = [SLDSymbolizer stringForLiteralInNode:displacementYNode];
-                int displacementX = 25;
+                int displacementX = [labelParams[@"dx"] intValue];
                 if (sDisplacementX)
                     displacementX = [sDisplacementX intValue];
-                int displacementY = 0;
+                int displacementY = [labelParams[@"dy"] intValue];
                 if (sDisplacementY)
                     displacementY = [sDisplacementY intValue];
                 labelParams[@"dx"] = @(displacementX);
@@ -687,6 +725,41 @@
             labelParams[@"fill"] = labelFillParams[@"fill"];
         if (labelFillParams && labelFillParams[@"fill-opacity"])
             labelParams[@"opacity"] = labelFillParams[@"fill-opacity"];
+    }
+
+    NSArray *vendorOptionNodes = [textSymbolizerNode elementsForName:@"VendorOption"];
+    if (vendorOptionNodes) {
+        NSMutableDictionary *markerRelation = [NSMutableDictionary dictionary];
+        @try {
+            for (DDXMLElement *vendorOptionNode in vendorOptionNodes) {
+                DDXMLNode *optionNameNode = [vendorOptionNode attributeForName:@"name"];
+                NSString *optionName;
+                if (optionNameNode)
+                    optionName = [optionNameNode stringValue];
+                
+                if (optionName && [@[@"markerXScale", @"markerXOffset", @"markerYScale", @"markerYOffset"] containsObject:optionName]) {
+                    float f = [[self stringForLiteralInNode:vendorOptionNode] floatValue];
+                    markerRelation[optionName] = @(f);
+                }
+            }
+        } @finally {
+        }
+        NSNumber *markerXScale = markerRelation[@"markerXScale"];
+        NSNumber *markerXOffset = markerRelation[@"markerXOffset"];
+        NSNumber *markerYScale = markerRelation[@"markerYScale"];
+        NSNumber *markerYOffset = markerRelation[@"markerYOffset"];
+        if (markerXScale && markerXOffset && markerYScale && markerYOffset && crossSymbolizerParams[@"width"] && crossSymbolizerParams[@"height"]) {
+            @try {
+                NSNumber *markerWidth = @([crossSymbolizerParams[@"width"] floatValue]);
+                NSNumber *markerHeight = @([crossSymbolizerParams[@"height"] floatValue]);
+                int dx = (int)(markerXScale.floatValue * markerWidth.floatValue + markerXOffset.floatValue);
+                int dy = (int)(markerYScale.floatValue * markerHeight.floatValue + markerYOffset.floatValue);
+                labelParams[@"placement"] = @"point";
+                labelParams[@"dx"] = @(dx);
+                labelParams[@"dy"] = @(dy);
+            } @finally {
+            }
+        }
     }
 
     labelParams[@"drawpriority"] = @(relativeDrawPriority);
