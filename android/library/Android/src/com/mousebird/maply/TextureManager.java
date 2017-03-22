@@ -87,7 +87,7 @@ class TextureManager
 			testWrapper.texID = texture.getID();
 
 			// After we call addTexture it's no longer ours to play with
-			changes.addTexture(texture, scene);
+			changes.addTexture(texture, scene, 1);
 			textures.add(testWrapper);
 
 			return testWrapper.texID;

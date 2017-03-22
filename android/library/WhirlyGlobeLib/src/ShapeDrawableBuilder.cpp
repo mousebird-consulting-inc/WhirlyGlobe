@@ -167,7 +167,7 @@ void ShapeDrawableBuilder::getChanges(WhirlyKit::ChangeSet &changes,SimpleIDSet 
 
 
 ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo, const Point3d &center)
-    : coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center)
+    : coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false), texID(EmptyIdentity)
 {
 }
 

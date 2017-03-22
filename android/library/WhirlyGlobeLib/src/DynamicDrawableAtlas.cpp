@@ -229,6 +229,11 @@ void DynamicDrawableAtlas::setProgramIDAllDrawables(SimpleIdentity programID,Cha
         changes.push_back(new BigDrawableProgramIDChangeRequest(it->bigDraw->getId(),programID));
 }
     
+void DynamicDrawableAtlas::setRenderTarget(SimpleIdentity inRenderTargetID)
+{
+    renderTargetID = inRenderTargetID;
+}
+    
 bool DynamicDrawableAtlas::removeDrawable(SimpleIdentity drawId,ChangeSet &changes)
 {
     // Look for the representation
