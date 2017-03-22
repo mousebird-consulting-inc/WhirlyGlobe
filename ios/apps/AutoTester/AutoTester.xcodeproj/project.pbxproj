@@ -611,6 +611,7 @@
 		2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimatedColorRampTestCase.m; sourceTree = "<group>"; };
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
 		2B7FC0A61E32B67400AF253A /* testJson.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = testJson.json; path = resources/testJson.json; sourceTree = "<group>"; };
+		2B82B36A1E82DEC80095FB14 /* libWhirlyGlobeLib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libWhirlyGlobeLib.a; path = "../../../../../Library/Developer/Xcode/DerivedData/AutoTester-epfnzsexulkpmkertqcfhteihfmy/Build/Products/Debug-iphoneos/libWhirlyGlobeLib.a"; sourceTree = "<group>"; };
 		2B8849E91E37F7CB0027C397 /* LIDARTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LIDARTestCase.h; sourceTree = "<group>"; };
 		2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LIDARTestCase.mm; sourceTree = "<group>"; };
 		2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */ = {isa = PBXFileReference; lastKnownFileType = text; name = "stadium-utm-quad-data.sqlite"; path = "../../../resources/lidar/stadium-utm-quad-data.sqlite"; sourceTree = "<group>"; };
@@ -1228,6 +1229,7 @@
 		3651D5D283D23F0C2EFDE845 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2B82B36A1E82DEC80095FB14 /* libWhirlyGlobeLib.a */,
 				E5D2D66D1DE6C26A00E02305 /* libc++.tbd */,
 				E5D2D66B1DE6C26000E02305 /* libz.tbd */,
 				E5D2D6691DE6C25A00E02305 /* libxml2.tbd */,
@@ -2052,9 +2054,8 @@
 				TargetAttributes = {
 					88E4B8BE1B83B6AB0050D21B = {
 						CreatedOnToolsVersion = 6.4;
-						DevelopmentTeam = AB6UJVB82J;
 						LastSwiftMigration = 0800;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -2834,7 +2835,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = AB6UJVB82J;
+				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -2866,7 +2867,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = AB6UJVB82J;
+				DEVELOPMENT_TEAM = "";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
