@@ -102,7 +102,8 @@ TileBuilder::TileBuilder(CoordSystem *coordSys,Mbr mbr,WhirlyKit::Quadtree *quad
     newDrawables(false),
     singleLevel(false),
     texAtlasPixelFudge(0.0),
-    useTileCenters(true)
+    useTileCenters(true),
+    renderTargetID(EmptyIdentity)
 {
     pthread_mutex_init(&texAtlasMappingLock, NULL);
 }
@@ -135,7 +136,7 @@ TileBuilder::~TileBuilder()
 static const int SingleVertexSize = 3*sizeof(float) + 2*sizeof(float) +  4*sizeof(unsigned char) + 3*sizeof(float);
 static const int SingleElementSize = sizeof(GLushort);
     
-void TileBuilder::initAtlases(TileImageType imageType,int numImages,int textureAtlasSize,int sampleSizeX,int sampleSizeY)
+void TileBuilder::initAtlases(TileImageType imageType,GLenum interpType,int numImages,int textureAtlasSize,int sampleSizeX,int sampleSizeY)
 {
     // Note: Trouble with PVRTC sub texture loading
     if (imageType != WKTilePVRTC4)
@@ -155,10 +156,15 @@ void TileBuilder::initAtlases(TileImageType imageType,int numImages,int textureA
         imageDepth = numImages;
         texAtlas = new DynamicTextureAtlas(textureAtlasSize,texSortSize,glFormat,numImages);
         texAtlas->setPixelFudgeFactor(texAtlasPixelFudge);
+        texAtlas->setInterpType(interpType);
         drawAtlas = new DynamicDrawableAtlas("Tile Quad Loader",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
         drawAtlas->setFade(fade);
+        if (renderTargetID != EmptyIdentity)
+            drawAtlas->setRenderTarget(renderTargetID);
         poleDrawAtlas = new DynamicDrawableAtlas("Tile Quad Loader Ples",SingleElementSize,DrawBufferSize,ElementBufferSize,scene->getMemManager(),NULL,programId);
         poleDrawAtlas->setFade(fade);
+        if (renderTargetID != EmptyIdentity)
+            poleDrawAtlas->setRenderTarget(renderTargetID);
         newDrawables = true;
     }
 }

@@ -46,9 +46,9 @@ import javax.microedition.khronos.egl.EGLSurface;
 public class LayerThread extends HandlerThread implements View.ViewWatcher
 {
 	boolean valid = true;
-	View view = null;
-	Scene scene = null;
-	MaplyRenderer renderer = null;
+	public View view = null;
+	public Scene scene = null;
+	public MaplyRenderer renderer = null;
 	ReentrantLock startLock = new ReentrantLock();
 	ArrayList<Layer> layers = new ArrayList<Layer>();
 	// A unique context for this thread
@@ -63,7 +63,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 * @author sjg
 	 *
 	 */
-	interface ViewWatcherInterface
+	public interface ViewWatcherInterface
 	{
 		/**
 		 * This method is called when the view updates, but no more often then the minTime().
@@ -289,7 +289,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 * 
 	 * @param newChanges Change requests to process.
 	 */
-	void addChanges(ChangeSet newChanges)
+	public void addChanges(ChangeSet newChanges)
 	{
 		if (changes == null || newChanges == null)
 			return;

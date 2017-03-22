@@ -107,6 +107,43 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Texture_setBitmap
 	return false;
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_setSize
+(JNIEnv *env, jobject obj, jint sizeX, jint sizeY)
+{
+    try
+    {
+        TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
+        Texture *tex = classInfo->getObject(env,obj);
+        if (!tex)
+            return;
+
+        tex->setWidth(sizeX);
+        tex->setHeight(sizeY);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Texture::setSize()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_setIsEmpty
+(JNIEnv *env, jobject obj, jboolean isEmpty)
+{
+    try
+    {
+        TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
+        Texture *tex = classInfo->getObject(env,obj);
+        if (!tex)
+            return;
+
+        tex->setIsEmptyTexture(isEmpty);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Texture::setIsEmpty()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_setSettings
 (JNIEnv *env, jobject obj, jboolean wrapU, jboolean wrapV)
 {

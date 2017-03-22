@@ -20,6 +20,7 @@
 
 #import "GLUtils.h"
 #import "Texture.h"
+#import "WhirlyKitLog.h"
 
 using namespace WhirlyKit;
 
@@ -130,13 +131,13 @@ namespace WhirlyKit
 {
 	
 Texture::Texture(const std::string &name)
-	: TextureBase(name), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR)
+	: TextureBase(name), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
 {
 }
 	
 // Construct with raw texture data
 Texture::Texture(const std::string &name,RawDataRef texData,bool isPVRTC)
-	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR)
+	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
 { 
 }
 
@@ -153,6 +154,9 @@ void Texture::setRawData(RawData *inRawData,int inWidth,int inHeight)
 
 RawDataRef Texture::processData()
 {
+    if (!texData)
+        return NULL;
+    
     if (isPVRTC)
     {
         return texData;
@@ -261,7 +265,7 @@ unsigned char *Texture::ResolvePKM(RawDataRef texData,int &pkmType,int &size,int
 // Note: Should load the texture from disk elsewhere
 bool Texture::createInGL(OpenGLMemManager *memManager)
 {
-	if (!texData)
+	if (!texData && !isEmptyTexture)
 		return false;
 
     // We'll only create this once
@@ -311,19 +315,20 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
          {
             case GL_UNSIGNED_BYTE:
             default:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, convertedData->getRawData());
+                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                              convertedData ? convertedData->getRawData() : NULL);
                 break;
             case GL_UNSIGNED_SHORT_5_6_5:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, convertedData->getRawData());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, convertedData ? convertedData->getRawData() : NULL);
                 break;
             case GL_UNSIGNED_SHORT_4_4_4_4:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, convertedData->getRawData());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, convertedData ? convertedData->getRawData() : NULL);
                 break;
             case GL_UNSIGNED_SHORT_5_5_5_1:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, convertedData->getRawData());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, convertedData ? convertedData->getRawData() : NULL);
                 break;
             case GL_ALPHA:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, convertedData->getRawData());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, convertedData ? convertedData->getRawData() : NULL);
                 break;
                  // Note: Porting
 //            case GL_COMPRESSED_RGB8_ETC2:

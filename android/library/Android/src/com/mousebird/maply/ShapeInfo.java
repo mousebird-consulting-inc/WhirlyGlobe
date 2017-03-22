@@ -33,6 +33,7 @@ public class ShapeInfo extends BaseInfo {
         setColor(Color.WHITE);
         setZBufferRead(true);
         setZBufferWrite(true);
+        setDrawPriority(80000);
     }
 
     public void finalize() {

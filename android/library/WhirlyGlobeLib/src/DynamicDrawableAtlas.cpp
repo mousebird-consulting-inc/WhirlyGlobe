@@ -26,7 +26,7 @@ namespace WhirlyKit
     
 DynamicDrawableAtlas::DynamicDrawableAtlas(const std::string &name,int singleElementSize,int numVertexBytes,int numElementBytes,OpenGLMemManager *memManager,BigDrawable *(*newBigDrawable)(BasicDrawable *draw,int singleElementSize,int numVertexBytes,int numElementBytes),
                                            SimpleIdentity shaderId)
-    : name(name), singleVertexSize(0), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId), enable(true), hasChanges(false), fade(1.0)
+    : name(name), singleVertexSize(0), singleElementSize(singleElementSize), numVertexBytes(numVertexBytes), numElementBytes(numElementBytes), memManager(memManager), newBigDrawable(newBigDrawable), shaderId(shaderId), enable(true), hasChanges(false), fade(1.0), renderTargetID(EmptyIdentity)
 {
 }
     
@@ -134,6 +134,7 @@ bool DynamicDrawableAtlas::addDrawable(BasicDrawable *draw,ChangeSet &changes,bo
         newBigDraw->setOnOff(this->enable);
         newBigDraw->setProgram(shaderId);
         newBigDraw->setFade(fade);
+        newBigDraw->setRenderTarget(renderTargetID);
 
         newBigDraw->setModes(draw);
         newBigDraw->setupGL(NULL, memManager);

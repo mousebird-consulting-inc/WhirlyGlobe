@@ -27,7 +27,7 @@ package com.mousebird.maply;
  * In general, toolkit users shouldn't need to interact with these.
  * 
  */
-class ViewState 
+public class ViewState
 {
 	protected ViewState()
 	{

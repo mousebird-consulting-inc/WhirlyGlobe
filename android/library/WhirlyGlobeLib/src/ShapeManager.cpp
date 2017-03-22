@@ -177,6 +177,68 @@ void WhirlyKitSphere::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *r
     }
 }
 
+WhirlyKitRectangle::WhirlyKitRectangle()
+: ll(0,0,0), ur(0,0,0), texID(EmptyIdentity)
+{
+}
+    
+WhirlyKitRectangle::~WhirlyKitRectangle()
+{    
+}
+
+Point3d WhirlyKitRectangle::displayCenter(CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo)
+{
+    if (shapeInfo->getHasCenter())
+        return shapeInfo->getCenter();
+
+    // Note: Do a proper center at some point
+    
+    return Point3d(0,0,0);
+}
+
+// Build the geometry for a circle in display space
+void WhirlyKitRectangle::makeGeometryWithBuilder(ShapeDrawableBuilder *regBuilder,ShapeDrawableBuilderTri *triBuilder,Scene *scene,SelectionManager *selectManager,ShapeSceneRep *sceneRep)
+{
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    
+    auto theColor = getUseColor() ? getColor() : regBuilder->getShapeInfo()->getColor();
+
+    if (texID != EmptyIdentity)
+        triBuilder->setTexID(texID);
+
+    // Source points
+    Point3dVector pts(4);
+    std::vector<TexCoord> texCoords(4);
+    pts[0] = Point3d(ll.x(),ll.y(),ll.z());
+    texCoords[0] = TexCoord(0,0);
+    pts[3] = Point3d(ur.x(),ll.y(),ur.z());
+    texCoords[3] = TexCoord(1,0);
+    pts[2] = Point3d(ur.x(),ur.y(),ur.z());
+    texCoords[2] = TexCoord(1,1);
+    pts[1] = Point3d(ll.x(),ur.y(),ll.z());
+    texCoords[1] = TexCoord(0,1);
+    
+    Point3d norm;
+    if (!getClipCoords())
+    {
+        for (unsigned int ii=0;ii<4;ii++)
+        {
+            const Point3d &pt = pts[ii];
+            Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(pt.x(),pt.y()));
+            localPt.z() = pt.z();
+            pts[ii] = coordAdapter->localToDisplay(localPt);
+        }
+        norm = coordAdapter->normalForLocal(pts[0]);
+    } else {
+        norm = Point3d(0,0,1);
+    }
+    
+    // Note: Need the bounding box eventually
+    Mbr shapeMbr;
+    triBuilder->addConvexOutline(pts,texCoords,norm,theColor,shapeMbr);
+
+    // Note: Should do selection too
+}
 
 ShapeManager::ShapeManager()
 {
@@ -216,6 +278,10 @@ SimpleIdentity ShapeManager::addShapes(std::vector<WhirlyKitShape*> shapes, Whir
 
     // Work through the shapes
     for (auto shape : shapes) {
+        if (shape->getClipCoords())
+            drawBuildTri.setClipCoords(true);
+        else
+            drawBuildTri.setClipCoords(false);
         shape->makeGeometryWithBuilder(&drawBuildReg, &drawBuildTri, getScene(), selectManager, sceneRep);
     }
 

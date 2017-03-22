@@ -57,6 +57,14 @@ JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_Shape_getColor
 
 /*
  * Class:     com_mousebird_maply_Shape
+ * Method:    setClipCoords
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setClipCoords
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_Shape
  * Method:    nativeInit
  * Signature: ()V
  */

@@ -453,6 +453,7 @@ typedef JavaClassInfo<WhirlyKit::QuadTrackerPointReturn> QuadTrackerPointReturnC
 typedef JavaClassInfo<WhirlyKit::WhirlyKitShapeInfo> ShapeInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitShape> ShapeClassInfo;
 typedef JavaClassInfo<WhirlyKit::WhirlyKitSphere> ShapeSphereClassInfo;
+typedef JavaClassInfo<WhirlyKit::WhirlyKitRectangle> ShapeRectangleClassInfo;
 typedef JavaClassInfo<WhirlyKit::ShapeManager> ShapeManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryManager> GeometryManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::GeometryInfo> GeometryInfoClassInfo;

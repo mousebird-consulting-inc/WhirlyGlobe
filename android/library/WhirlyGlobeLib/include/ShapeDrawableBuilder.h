@@ -120,12 +120,21 @@ public:
     ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo,const Point3d &center);
     virtual ~ShapeDrawableBuilderTri();
 
+    // If set the geometry is already in OpenGL clip coordinates, so we don't transform it
+    void setClipCoords(bool newClipCoords);
+    
+    // If set, we'll apply the given texture
+    void setTexID(SimpleIdentity texID);
+    
     // Add a triangle with normals
     void addTriangle(Point3f p0,Point3f n0,RGBAColor c0,Point3f p1,Point3f n1,RGBAColor c1,Point3f p2,Point3f n2,RGBAColor c2,Mbr shapeMbr);
 
     // Add a triangle with normals
     void addTriangle(Point3d p0,Point3d n0,RGBAColor c0,Point3d p1,Point3d n1,RGBAColor c1,Point3d p2,Point3d n2,RGBAColor c2,Mbr shapeMbr);
 
+    // Add a triangle with normals and texture coords
+    void addTriangle(const Point3d &p0,const Point3d &n0,RGBAColor c0,const TexCoord &tx0,const Point3d &p1,const Point3d &n1,RGBAColor c1,const TexCoord &tx1,const Point3d &p2,const Point3d &n2,RGBAColor c2,const TexCoord &tx2,Mbr shapeMbr);
+    
     // Add a group of pre-build triangles
     void addTriangles(Point3fVector &pts,Point3fVector &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris);
 
@@ -134,6 +143,9 @@ public:
 
     // Add a convex outline, triangulated
     void addConvexOutline(Point3dVector &pts,Point3d norm,RGBAColor color,Mbr shapeMbr);
+
+    // Add a convex outline, triangulated with texture coords
+    void addConvexOutline(Point3dVector &pts,std::vector<TexCoord> &texCoords,Point3d norm,RGBAColor color,Mbr shapeMbr);
 
     // Add a complex outline, triangulated
     void addComplexOutline(Point3dVector &pts,Point3d norm,RGBAColor color,Mbr shapeMbr);
@@ -155,7 +167,9 @@ public:
     WhirlyKitShapeInfo *shapeInfo;
     BasicDrawable *drawable;
     std::vector<BasicDrawable *> drawables;
+    SimpleIdentity texID;
     Point3d center;
+    bool clipCoords;
 };
 
 }

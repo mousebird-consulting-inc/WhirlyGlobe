@@ -180,3 +180,18 @@ JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_Shape_getColor
     return NULL;
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setClipCoords
+(JNIEnv *env, jobject obj, jboolean newVal)
+{
+    try
+    {
+        ShapeClassInfo *classInfo = ShapeClassInfo::getClassInfo();
+        WhirlyKitShape *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+
+        inst->setClipCoords(newVal);
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::setClipCoords()");
+    }
+}
