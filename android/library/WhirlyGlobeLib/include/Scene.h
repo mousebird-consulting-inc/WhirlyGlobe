@@ -70,7 +70,7 @@ public:
     virtual bool needsFlush() { return true; }
     
     /// Create the texture on its native thread
-    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (tex) tex->createInGL(memManager); };
+    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
 
 	/// Add to the renderer.  Never call this.
 	void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);

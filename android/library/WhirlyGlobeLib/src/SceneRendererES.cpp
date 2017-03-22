@@ -19,11 +19,8 @@
  */
 
 #import "SceneRendererES.h"
-// Note: Porting
-//#import "UIColor+Stuff.h"
 #import "GLUtils.h"
-// Note: Porting
-//#import "SelectionManager.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -43,6 +40,134 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
             return false;
     
     return true;
+}
+    
+RenderTarget::RenderTarget()
+    : framebuffer(0), colorbuffer(0), depthbuffer(0), width(0), height(0), isSetup(false)
+{
+}
+    
+bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
+{
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    
+    // Our destination is a texture in this case
+    if (targetTexID)
+    {
+        colorbuffer = 0;
+        TextureBase *tex = scene->getTexture(targetTexID);
+        if (tex)
+        {
+            glBindTexture(GL_TEXTURE_2D, tex->getGLId());
+            CheckGLError("RenderTarget: glBindTexture");
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->getGLId(), 0);
+            CheckGLError("RenderTarget: glFramebufferTexture2D");
+        } else
+            WHIRLYKIT_LOGE("RenderTarget: No such texture %d",(int)targetTexID);
+
+    } else {
+        // Generate our own color buffer
+        glGenRenderbuffers(1, &colorbuffer);
+        CheckGLError("RenderTarget: glGenRenderbuffers");
+        glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
+        CheckGLError("RenderTarget: glBindRenderbuffer");
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorbuffer);
+        CheckGLError("RenderTarget: glFramebufferRenderbuffer");
+    }
+    
+//    WHIRLYKIT_LOGD("RenderTarget init: framebuffer = %d colorbuffer = %d width = %d, height = %d, targetTexID = %d",(int)framebuffer,(int)colorbuffer,width,height,(int)targetTexID);
+    
+    glGenRenderbuffers(1, &depthbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer);
+    CheckGLError("RenderTarget: glFramebufferRenderbuffer");
+    
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
+    if(status != GL_FRAMEBUFFER_COMPLETE) {
+        WHIRLYKIT_LOGD("RenderTarget: Failed to build valid render target: %x",status);
+    }
+    
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    isSetup = false;
+    return true;
+}
+    
+bool RenderTarget::initFromState(int inWidth,int inHeight)
+{
+    width = inWidth;
+    height = inHeight;
+    GLint iVal;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING,&iVal);    framebuffer = iVal;
+    glGetIntegerv(GL_RENDERBUFFER_BINDING,&iVal);   colorbuffer = iVal;
+    
+//    WHIRLYKIT_LOGD("RenderTarget initFromState: framebuffer = %d colorbuffer = %d width = %d, height = %d",framebuffer,colorbuffer,width,height);
+}
+    
+void RenderTarget::clear()
+{
+    if (colorbuffer)
+        glDeleteRenderbuffers(1,&colorbuffer);
+    if (depthbuffer)
+        glDeleteRenderbuffers(1,&depthbuffer);
+    if (framebuffer)
+        glDeleteFramebuffers(1,&framebuffer);
+}
+    
+void RenderTarget::setActiveFramebuffer(WhirlyKit::SceneRendererES *renderer)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    CheckGLError("SceneRendererES2: glBindFramebuffer");
+    glViewport(0, 0, width, height);
+    CheckGLError("SceneRendererES2: glViewport");
+    if (colorbuffer)
+        glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
+    
+//    WHIRLYKIT_LOGD("RenderTarget setActive: framebuffer = %d colorbuffer = %d width = %d, height = %d",framebuffer,colorbuffer,width,height);
+    
+    if (!isSetup)
+    {
+        // Note: Should allow this to be selected
+        // For non-main rendering targets, we want clear
+        if (getId())
+        {
+            glClearColor(0.0,0.0,0.0,0.0);
+        } else {
+            RGBAColor color = renderer->getClearColor();
+            glClearColor(color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
+        }
+        CheckGLError("SceneRendererES2: glClearColor");
+        isSetup = true;
+    }
+}
+    
+AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID)
+    : renderTargetID(renderTargetID), width(width), height(height), texID(texID)
+{
+}
+
+// Set up a render target
+void AddRenderTargetReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
+{
+    RenderTarget renderTarget(renderTargetID);
+    renderTarget.width = width;
+    renderTarget.height = height;
+    renderTarget.init(scene,texID);
+    
+    renderer->addRenderTarget(renderTarget);
+}
+    
+RemRenderTargetReq::RemRenderTargetReq(SimpleIdentity targetID)
+    : targetID(targetID)
+{
+}
+    
+void RemRenderTargetReq::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
+{
+    renderer->clearRenderTarget(targetID);
 }
     
 RendererFrameInfo::RendererFrameInfo()
@@ -149,7 +274,6 @@ SceneRendererES::SceneRendererES(int apiVersion)
     scale = 1.0;
     scene = NULL;
     theView = NULL;
-    defaultFramebuffer = colorRenderbuffer = depthRenderbuffer = 0;
     
     // All the animations should work now, except for particle systems
     useViewChanged = true;
@@ -177,29 +301,34 @@ SceneRendererES::~SceneRendererES()
 //    EAGLContext *oldContext = [EAGLContext currentContext];
 //    if (oldContext != context)
 //        [EAGLContext setCurrentContext:context];
-    
-	if (defaultFramebuffer)
-	{
-		glDeleteFramebuffers(1, &defaultFramebuffer);
-		defaultFramebuffer = 0;
-	}
-	
-	if (colorRenderbuffer)
-	{
-		glDeleteRenderbuffers(1, &colorRenderbuffer);
-		colorRenderbuffer = 0;
-	}
-	
-	if (depthRenderbuffer)
-	{
-		glDeleteRenderbuffers(1, &depthRenderbuffer	);
-		depthRenderbuffer = 0;
-	}
+
+   for (auto &target : renderTargets)
+        target.clear();
+        
 	
     // Note: Porting
 //	if (oldContext != context)
 //        [EAGLContext setCurrentContext:oldContext];
 //	context = NULL;
+}
+
+void SceneRendererES::addRenderTarget(RenderTarget &newTarget)
+{
+  renderTargets.insert(renderTargets.begin(),newTarget);
+}
+
+void SceneRendererES::clearRenderTarget(SimpleIdentity targetID)
+{
+    for (int ii=0;ii<renderTargets.size();ii++)
+    {
+        RenderTarget &target = renderTargets[ii];
+        if (target.getId() == targetID)
+        {
+            target.clear();
+            renderTargets.erase(renderTargets.begin()+ii);
+            break;
+        }
+    }
 }
 
 // We'll take the maximum requested time
@@ -238,6 +367,11 @@ void SceneRendererES::setScene(WhirlyKit::Scene *newScene)
 void SceneRendererES::setClearColor(const RGBAColor &color)
 {
     clearColor = color;
+}
+
+RGBAColor SceneRendererES::getClearColor()
+{
+    return clearColor;
 }
 
 // Calculate an acceptable MBR from world coords

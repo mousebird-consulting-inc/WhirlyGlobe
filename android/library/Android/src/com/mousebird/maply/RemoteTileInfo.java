@@ -22,6 +22,10 @@ public class RemoteTileInfo
 	public int maxZoom = 0;
 	public int pixelsPerSide = 256;
 	public boolean replaceURL = false;
+	/**
+	 * Set this as a note to yourself in callbacks.
+	 */
+	public Object userObject = null;
 
 	/**
 	 * Construct a remote tile source that fetches from a single URL.  You provide

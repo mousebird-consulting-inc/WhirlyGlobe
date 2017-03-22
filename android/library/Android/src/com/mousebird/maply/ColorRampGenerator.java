@@ -110,10 +110,10 @@ public class ColorRampGenerator
                 else
                     color = colors.get(xx);
             }
-//            p.setColor(color);
-            p.setColor(Color.RED);
-//            canvas.drawRect((float)xx,0.f,(float)xx+1,(float)height,p);
-            canvas.drawRect(0,0,width,height,p);
+            p.setColor(color);
+//            p.setColor(Color.RED);
+            canvas.drawRect((float)xx,0.f,(float)xx+1,(float)height,p);
+//            canvas.drawRect(0,0,width,height,p);
         }
 
         return bitmap;

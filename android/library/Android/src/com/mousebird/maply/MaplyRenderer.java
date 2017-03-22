@@ -32,7 +32,7 @@ import javax.microedition.khronos.egl.*;
  * @author sjg
  *
  */
-class MaplyRenderer
+public class MaplyRenderer
 {
 	public Point2d frameSize = new Point2d();
 	

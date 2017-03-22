@@ -49,7 +49,7 @@ QuadTileLoader::QuadTileLoader(const std::string &name,QuadTileImageDataSource *
     northPoleColor(255,255,255,255), southPoleColor(255,255,255,255),
     imageType(WKTileIntRGBA), useDynamicAtlas(true), tileScale(WKTileScaleNone), fixedTileSize(256), textureAtlasSize(2048), borderTexel(1),
     tileBuilder(NULL), doingUpdate(false), defaultTessX(10), defaultTessY(10),
-    currentImage0(0), currentImage1(0), texAtlasPixelFudge(0.0), useTileCenters(true)
+    currentImage0(0), currentImage1(0), texAtlasPixelFudge(0.0), useTileCenters(true), interpType(GL_LINEAR), renderTargetID(EmptyIdentity)
 {
     pthread_mutex_init(&tileLock, NULL);
     #pragma fail  Figure out if data source can load frames right here
@@ -264,36 +264,39 @@ void QuadTileLoader::setCurrentImage(int newImage,ChangeSet &changes)
 
 void QuadTileLoader::runSetCurrentImage(ChangeSet &changes)
 {
-    std::vector<DynamicDrawableAtlas::DrawTexInfo> theDrawTexInfo;
-    std::vector<SimpleIdentity> baseTexIDs,startTexIDs,endTexIDs;
-    
-    pthread_mutex_lock(&tileBuilder->texAtlasMappingLock);
-    // Copy this out to avoid locking too long
-    if (tileBuilder->texAtlasMappings.size() > 0)
-        baseTexIDs = tileBuilder->texAtlasMappings[0];
+    if (tileBuilder)
+    {
+        std::vector<DynamicDrawableAtlas::DrawTexInfo> theDrawTexInfo;
+        std::vector<SimpleIdentity> baseTexIDs,startTexIDs,endTexIDs;
+
+        pthread_mutex_lock(&tileBuilder->texAtlasMappingLock);
+        // Copy this out to avoid locking too long
+        if (tileBuilder->texAtlasMappings.size() > 0)
+            baseTexIDs = tileBuilder->texAtlasMappings[0];
         if (currentImage0 != -1 && currentImage0 < tileBuilder->texAtlasMappings.size())
             startTexIDs = tileBuilder->texAtlasMappings[currentImage0];
-            if (currentImage1 != -1 && currentImage1 < tileBuilder->texAtlasMappings.size())
-                endTexIDs = tileBuilder->texAtlasMappings[currentImage1];
-                theDrawTexInfo = tileBuilder->drawTexInfo;
-                pthread_mutex_unlock(&tileBuilder->texAtlasMappingLock);
-                
-                // If these are different something's gone very wrong
-                // Well, actually this happens if we're setting the start or end image to nothing
-                //    if (baseTexIDs.size() == startTexIDs.size() && baseTexIDs.size() == endTexIDs.size())
+        if (currentImage1 != -1 && currentImage1 < tileBuilder->texAtlasMappings.size())
+            endTexIDs = tileBuilder->texAtlasMappings[currentImage1];
+        theDrawTexInfo = tileBuilder->drawTexInfo;
+        pthread_mutex_unlock(&tileBuilder->texAtlasMappingLock);
+        
+        // If these are different something's gone very wrong
+        // Well, actually this happens if we're setting the start or end image to nothing
+        //    if (baseTexIDs.size() == startTexIDs.size() && baseTexIDs.size() == endTexIDs.size())
+        {
+            // Now for the change requests
+            for (unsigned int ii=0;ii<theDrawTexInfo.size();ii++)
             {
-                // Now for the change requests
-                for (unsigned int ii=0;ii<theDrawTexInfo.size();ii++)
-                {
-                    const DynamicDrawableAtlas::DrawTexInfo &drawInfo = theDrawTexInfo[ii];
-                    for (unsigned int jj=0;jj<baseTexIDs.size();jj++)
-                        if (drawInfo.baseTexId == baseTexIDs[jj])
-                        {
-                            changes.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,0,(currentImage0 == -1 ? EmptyIdentity : startTexIDs[jj])));
-                            changes.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,1,(currentImage1 == -1 ? EmptyIdentity :endTexIDs[jj])));
-                        }
-                }
+                const DynamicDrawableAtlas::DrawTexInfo &drawInfo = theDrawTexInfo[ii];
+                for (unsigned int jj=0;jj<baseTexIDs.size();jj++)
+                    if (drawInfo.baseTexId == baseTexIDs[jj])
+                    {
+                        changes.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,0,(currentImage0 == -1 || jj >= startTexIDs.size() ? EmptyIdentity : startTexIDs[jj])));
+                        changes.push_back(new BigDrawableTexChangeRequest(drawInfo.drawId,1,(currentImage1 == -1 || jj >= endTexIDs.size() ? EmptyIdentity :endTexIDs[jj])));
+                    }
             }
+        }
+    }
 }
 
 void QuadTileLoader::setCurrentImageStart(int startImage,int endImage,ChangeSet &changes)
@@ -752,6 +755,7 @@ void QuadTileLoader::loadedImages(QuadTileImageDataSource *dataSource,const std:
         tileBuilder->singleLevel = !control->getTargetLevels().empty();
         tileBuilder->texAtlasPixelFudge = texAtlasPixelFudge;
         tileBuilder->fade = fade;
+        tileBuilder->renderTargetID = renderTargetID;
         
         // If we haven't decided how many active textures we'll have, do that
         if (activeTextures == -1)
@@ -830,7 +834,7 @@ void QuadTileLoader::loadedImages(QuadTileImageDataSource *dataSource,const std:
 //            estTexX = std::max(gridElev.sizeX-1, estTexX);
 //            estTexY = std::max(gridElev.sizeY-1, estTexY);
 //        }
-        tileBuilder->initAtlases(imageType,numImages,textureAtlasSize,estTexX,estTexY);
+        tileBuilder->initAtlases(imageType,interpType,numImages,textureAtlasSize,estTexX,estTexY);
         if (!enable)
         {
             tileBuilder->drawAtlas->setEnableAllDrawables(false, changes);

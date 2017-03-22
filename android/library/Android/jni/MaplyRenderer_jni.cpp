@@ -37,6 +37,16 @@ bool MaplySceneRenderer::resize(int width,int height)
 {
     context = eglGetCurrentContext();
     
+    if (renderTargets.empty())
+    {
+        RenderTarget defaultTarget(EmptyIdentity);
+        defaultTarget.initFromState(width,height);
+        renderTargets.push_back(defaultTarget);
+    } else {
+        RenderTarget &defaultTarget = renderTargets.back();
+        defaultTarget.initFromState(width,height);
+    }
+    
     framebufferWidth = width;
     framebufferHeight = height;
     lastDraw = 0;

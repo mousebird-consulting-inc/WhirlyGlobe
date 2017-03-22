@@ -132,6 +132,7 @@ public:
     bool setUniform(const std::string &name,const Eigen::Vector2f &vec);
     bool setUniform(const std::string &name,const Eigen::Vector3f &vec);
     bool setUniform(const std::string &name,const Eigen::Vector4f &vec);
+    bool setUniform(const std::string &name,const Eigen::Vector4f &vec,int index);
     bool setUniform(const std::string &name,const Eigen::Matrix4f &mat);
     bool setUniform(const std::string &name,int val);
     bool setUniform(const SingleVertexAttribute &attr);

@@ -32,8 +32,8 @@ import android.graphics.Bitmap;
  */
 public class MaplyImageTile 
 {
-	Bitmap[] bitmaps = null;
-	Bitmap bitmap = null;
+	public Bitmap[] bitmaps = null;
+	public Bitmap bitmap = null;
 	
 	/**
 	 * Construct with a bitmap.

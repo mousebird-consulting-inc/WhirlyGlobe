@@ -143,7 +143,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_addTexture
-  (JNIEnv *env, jobject obj, jobject texObj, jobject sceneObj)
+  (JNIEnv *env, jobject obj, jobject texObj, jobject sceneObj, jint filterType)
 {
 	try
 	{
@@ -156,6 +156,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_addTexture
 
         // We take control of the Texture * as soon as it goes into the change set
         TextureClassInfo::getClassInfo()->clearHandle(env,texObj);
+        switch (filterType)
+        {
+            case 0:
+                texture->setInterpType(GL_NEAREST);
+                break;
+            case 1:
+                texture->setInterpType(GL_LINEAR);
+                break;
+        }
 
 		changeSet->push_back(new AddTextureReq(texture));
 	}
