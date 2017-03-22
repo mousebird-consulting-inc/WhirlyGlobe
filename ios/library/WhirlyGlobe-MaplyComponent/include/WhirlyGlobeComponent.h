@@ -74,4 +74,5 @@
 #import "vector_tiles/MapnikStyleSet.h"
 #import "vector_tiles/MapboxMultiSourceTileInfo.h"
 #import "vector_tiles/MaplyVectorStyleSimple.h"
+#import "vector_tiles/SLDStyleSet.h"
 #endif
