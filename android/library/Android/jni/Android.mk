@@ -30,6 +30,7 @@ LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/laszip/src/
 LOCAL_C_INCLUDES += $(PROTOBUF_DIR)/stubs/
 LOCAL_C_INCLUDES += $(PROTOBUF_DIR)/io/
 LOCAL_C_INCLUDES += jni/
+LOCAL_C_INCLUDES += jni/utility/
 LOCAL_C_INCLUDES += ../../../common/local_libs/aaplus/
 
 LOCAL_MODULE    := Maply
@@ -144,7 +145,7 @@ MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp AngleAxis_jni.cpp \
 					SelectionManager_jni.cpp SelectedObject_jni.cpp Shader_jni.cpp SimplePoly_jni.cpp SingleLabelAndroid.cpp \
 					SphericalMercatorCoordSystem_jni.cpp StringWrapper_jni.cpp \
 					Scene_jni.cpp ScreenObject_jni.cpp Sticker_jni.cpp StickerInfo_jni.cpp StickerManager_jni.cpp Sun_jni.cpp \
-					ShapeInfo_jni.cpp Shape_jni.cpp ShapeSphere_jni.cpp ShapeManager_jni.cpp Texture_jni.cpp \
+					ShapeInfo_jni.cpp Shape_jni.cpp ShapeRectangle_jni.cpp ShapeSphere_jni.cpp ShapeManager_jni.cpp Texture_jni.cpp \
 					VectorInfo_jni.cpp VectorIterator_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp View_jni.cpp VertexAttribute_jni.cpp ViewState_jni.cpp WideVectorManager_jni.cpp WideVectorInfo_jni.cpp
 
 LOCAL_SRC_FILES += $(MAPLY_JNI_FILES)

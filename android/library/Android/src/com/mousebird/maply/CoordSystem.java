@@ -44,11 +44,11 @@ public class CoordSystem
 	/**
 	 * Lower left corner of the bounding box in local coordinates.
 	 */
-	Point3d ll = null;
+	public Point3d ll = null;
 	/**
 	 * Upper right corner of the bounding box in local coordinates.
 	 */
-	Point3d ur = null;
+	public Point3d ur = null;
 
 	/**
 	 * Return the valid bounding box for the coordinate system.

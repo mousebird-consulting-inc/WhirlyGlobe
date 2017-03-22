@@ -173,6 +173,9 @@ public:
     /// Check if we want to write to the z buffer
     virtual bool getWriteZbuffer() const;
     
+    /// If true the geometry is already in clip coordinates, so we won't transform it
+    virtual void setClipCoords(bool clipCoords);
+    
     /// Add a point when building up geometry.  Returns the index.
     virtual unsigned int addPoint(const Point3f &pt);
     virtual unsigned int addPoint(const Point3d &pt);
@@ -351,6 +354,9 @@ public:
     GLuint vertArrayObj;
     GLuint sharedBufferOffset;
     bool sharedBufferIsExternal;
+    
+    // If set the geometry is already in OpenGL clip coordinates, so no transform
+    bool clipCoords;
 };
 
 /** Drawable Tweaker that cycles through textures.

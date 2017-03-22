@@ -62,7 +62,6 @@ public:
     bool hasChanges();
     
 protected:
-    bool renderSetup;
     OpenGLStateOptimizer *renderStateOptimizer;
     
     TimeInterval lightsLastUpdated;

@@ -28,9 +28,9 @@ package com.mousebird.maply;
  * @author sjg
  *
  */
-class Layer
+public class Layer
 {
-	LayerThread layerThread = null;
+	protected LayerThread layerThread = null;
 
 	/**
 	 * Once your layer is created and handed to the LayerThread, it needs to

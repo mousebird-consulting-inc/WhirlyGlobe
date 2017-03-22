@@ -93,7 +93,7 @@ public:
 SceneRendererES2::SceneRendererES2()
 //: SceneRendererES(kEAGLRenderingAPIOpenGLES2), renderStateOptimizer(NULL), renderSetup(false)
 // Note: Porting
-: SceneRendererES(2), renderStateOptimizer(NULL), renderSetup(false), extraFrameDrawn(false)
+: SceneRendererES(2), renderStateOptimizer(NULL), extraFrameDrawn(false)
 {
     // Add a simple default light
     WhirlyKitDirectionalLight *light = new WhirlyKitDirectionalLight();
@@ -114,7 +114,6 @@ SceneRendererES2::SceneRendererES2()
 //    frameRenderingSemaphore = dispatch_semaphore_create(1);
 //    contextQueue = dispatch_queue_create("rendering queue",DISPATCH_QUEUE_SERIAL);
     
-    renderSetup = false;
 }
 
 SceneRendererES2::~SceneRendererES2()
@@ -131,7 +130,8 @@ SceneRendererES2::~SceneRendererES2()
 
 void SceneRendererES2::forceRenderSetup()
 {
-    renderSetup = false;
+    for (auto &renderTarget : renderTargets)
+        renderTarget.isSetup = false;
 }
 
 // When the scene is set, we'll compile our shaders
@@ -174,7 +174,7 @@ void SceneRendererES2::setDefaultMaterial(WhirlyKitMaterial *mat)
 void SceneRendererES2::setClearColor(const RGBAColor &color)
 {
     clearColor = color;
-    renderSetup = false;
+    forceRenderSetup();
 }
 
 void SceneRendererES2::processScene()
@@ -227,7 +227,7 @@ void SceneRendererES2::render()
     if (perfInterval > 0)
         perfTimer.startTiming("Render Setup");
     
-    if (!renderSetup)
+//    if (!renderSetup)
     {
         // Turn on blending
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -238,16 +238,8 @@ void SceneRendererES2::render()
     WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(theView);
     Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(theView);
 
-    if (!renderSetup)
-    {
-        if (defaultFramebuffer)
-        {
-            glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebuffer);
-            CheckGLError("SceneRendererES2: glBindFramebuffer");
-        }
-        glViewport(0, 0, framebufferWidth,framebufferHeight);
-        CheckGLError("SceneRendererES2: glViewport");
-    }
+//    if (!renderSetup && renderTargets.size() == 1)
+//        renderTargets[0].setActiveFramebuffer();
 
     // Get the model and view matrices
     Eigen::Matrix4d modelTrans4d = theView->calcModelMatrix();
@@ -285,19 +277,7 @@ void SceneRendererES2::render()
             break;
     }
     
-    if (!renderSetup)
-    {
-        // Note: What happens if they change this?
-        glClearColor(clearColor.r / 255.0, clearColor.g / 255.0, clearColor.b / 255.0, clearColor.a / 255.0);
-        CheckGLError("SceneRendererES2: glClearColor");
-    }
-//    if (defaultFramebuffer)
-//    {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        CheckGLError("SceneRendererES2: glClear");
-//    }
-
-    if (!renderSetup)
+//    if (!renderSetup)
     {
         glEnable(GL_CULL_FACE);
         CheckGLError("SceneRendererES2: glEnable(GL_CULL_FACE)");
@@ -541,6 +521,14 @@ void SceneRendererES2::render()
         
         SimpleIdentity curProgramId = EmptyIdentity;
 		
+        // Iterate through rendering targets here
+        for (RenderTarget &renderTarget : renderTargets)
+        {
+            renderTarget.setActiveFramebuffer(this);
+
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            CheckGLError("SceneRendererES2: glClear");
+		
         bool depthMaskOn = (zBufferMode == zBufferOn);
         for (unsigned int ii=0;ii<drawList.size();ii++)
         {
@@ -611,6 +599,10 @@ void SceneRendererES2::render()
             if (drawProgramId == EmptyIdentity)
                 continue;
             
+                    // Only draw drawables that are active for the current render target
+                    if (drawContain.drawable->getRenderTarget() != renderTarget.getId())
+                        continue;                
+                
             // Run any tweakers right here
             drawContain.drawable->runTweakers(&baseFrameInfo);
                         
@@ -635,6 +627,11 @@ void SceneRendererES2::render()
             }
 		}
         
+            // Note: Added this for render target
+            if (renderTargets.size() > 1)
+                glFinish();
+        }
+                
         if (perfInterval > 0)
             perfTimer.addCount("Drawables drawn", numDrawables);
         
@@ -737,15 +734,6 @@ void SceneRendererES2::render()
 //    glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
 //    CheckGLError("SceneRendererES2: glDiscardFramebufferEXT");
 
-    if (!renderSetup)
-    {
-        if (colorRenderbuffer)
-        {
-            glBindRenderbuffer(GL_RENDERBUFFER, colorRenderbuffer);
-            CheckGLError("SceneRendererES2: glBindRenderbuffer");
-        }
-    }
-
     if (perfInterval > 0)
         perfTimer.stopTiming("Present Renderbuffer");
     
@@ -772,6 +760,4 @@ void SceneRendererES2::render()
         WHIRLYKIT_LOGV("---Scene Contents---");
         scene->dumpStats();
 	}
-        
-    renderSetup = true;
 }

@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
+import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Handler;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import com.squareup.okhttp.OkHttpClient;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +29,8 @@ import java.util.Vector;
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLSurface;
+
+import static com.mousebird.maply.MaplyBaseController.TextureSettings.FilterType.FilterLinear;
 
 /**
  * The base controller is a base class for both Maply and WhirlyGlobe controllers.
@@ -92,7 +96,7 @@ public class MaplyBaseController
 	protected CoordSystemDisplayAdapter coordAdapter;
 	
 	// Scene stores the objects
-	protected Scene scene = null;
+	public Scene scene = null;
 
     /**
      * Return the current scene.  Only for sure within the library.
@@ -171,6 +175,11 @@ public class MaplyBaseController
 	}
 
 	private int lastLayerThreadReturned = 0;
+
+	/**
+	 * Activity for the whole app.
+     */
+	public Activity getActivity() { return activity; }
 
 	/**
 	 * Returns a layer thread you can do whatever you like on.  You don't have
@@ -441,17 +450,20 @@ public class MaplyBaseController
 			// This will make sure we have a valid context
 			setEGLContext(glContext);
 
-			renderWrapper.stopRendering();
+			if (renderWrapper != null)
+			     renderWrapper.stopRendering();
 
 			//		Choreographer.getInstance().removeFrameCallback(this);
 			ArrayList<LayerThread> layerThreadsToRemove = null;
-			synchronized (layerThreads) {
-				layerThreadsToRemove = new ArrayList<LayerThread>(layerThreads);
-			}
-			for (LayerThread layerThread : layerThreadsToRemove)
-				layerThread.shutdown();
-			synchronized (layerThreads) {
-				layerThreads.clear();
+			if (layerThreads != null) {
+				synchronized (layerThreads) {
+					layerThreadsToRemove = new ArrayList<LayerThread>(layerThreads);
+				}
+				for (LayerThread layerThread : layerThreadsToRemove)
+					layerThread.shutdown();
+				synchronized (layerThreads) {
+					layerThreads.clear();
+				}
 			}
 
 			if (metroThread != null) {
@@ -460,29 +472,41 @@ public class MaplyBaseController
 			}
 
 
-			scene.teardownGL();
-			scene.shutdown();
+			if (scene != null) {
+				scene.teardownGL();
+				scene.shutdown();
+			}
 
 			//		scene.dispose();
 			//		view.dispose();
 
-			coordAdapter.shutdown();
-			vecManager.dispose();
-			wideVecManager.dispose();
-			markerManager.dispose();
-			stickerManager.dispose();
-			selectionManager.dispose();
-			labelManager.dispose();
-			layoutManager.dispose();
-			particleSystemManager.dispose();
+			if (coordAdapter != null)
+				coordAdapter.shutdown();
+			if (vecManager != null)
+				vecManager.dispose();
+		        if (wideVecManager != null)
+			        wideVecManager.dispose();
+			if (stickerManager != null)
+				stickerManager.dispose();
+			if (selectionManager != null)
+				selectionManager.dispose();
+			if (labelManager != null)
+				labelManager.dispose();
+			if (layoutManager != null)
+				layoutManager.dispose();
+			if (particleSystemManager != null)
+				particleSystemManager.dispose();
 
 			// Shut down the contexts
 			EGL10 egl = (EGL10) EGLContext.getEGL();
-			for (ContextInfo context : glContexts) {
-				egl.eglDestroySurface(renderWrapper.maplyRender.display, context.eglSurface);
-				egl.eglDestroyContext(renderWrapper.maplyRender.display, context.eglContext);
+			if (glContexts != null) {
+				for (ContextInfo context : glContexts) {
+					egl.eglDestroySurface(renderWrapper.maplyRender.display, context.eglSurface);
+					egl.eglDestroyContext(renderWrapper.maplyRender.display, context.eglContext);
+				}
+				glContexts = null;
+
 			}
-			glContexts = null;
 
 			// And the main one
 			if (renderWrapper != null && renderWrapper.maplyRender != null && glContext != null) {
@@ -852,7 +876,12 @@ public class MaplyBaseController
 	 */
 	public void setViewExtents(Point2d ll,Point2d ur)
 	{
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+			return;
+
 		CoordSystemDisplayAdapter coordAdapter = view.getCoordAdapter();
+		if (coordAdapter == null)
+			return;
 		CoordSystem coordSys = coordAdapter.getCoordSystem();
 		
 		viewBounds = new Point2d[4];
@@ -1858,10 +1887,16 @@ public class MaplyBaseController
         {
         }
 
+        public enum FilterType {FilterNearest,FilterLinear};
+
         /**
          * Image format to use when creating textures.
          */
         public QuadImageTileLayer.ImageFormat imageFormat = QuadImageTileLayer.ImageFormat.MaplyImageIntRGBA;
+		/**
+		 * Filter type for created textures.
+		 */
+		public FilterType filterType = FilterLinear;
 		/**
 		 * Horizonal texture wrap.
 		 */
@@ -1893,13 +1928,13 @@ public class MaplyBaseController
                     {
                         ChangeSet changes = new ChangeSet();
 
-						rawTex.setBitmap(image,settings.imageFormat.ordinal());
-						rawTex.setSettings(settings.wrapU,settings.wrapV);
-                        changes.addTexture(rawTex, scene);
+			rawTex.setBitmap(image,settings.imageFormat.ordinal());
+			rawTex.setSettings(settings.wrapU,settings.wrapV);
+                        changes.addTexture(rawTex, scene, settings.filterType.ordinal());
 
                         // Flush the texture changes
-						if (scene != null)
-							changes.process(scene);
+			if (scene != null)
+				changes.process(scene);
                     }
                 };
 
@@ -1907,6 +1942,46 @@ public class MaplyBaseController
 
         return texture;
     }
+    
+    	/**
+	 * Create an empty texture of the given size.
+	 * @param width Width of the resulting texture
+	 * @param height Height of the resulting texture
+	 * @param settings Other texture related settings
+	 * @param mode Which thread to do the work on
+     * @return The new texture (or a reference to it, anyway)
+     */
+	public MaplyTexture createTexture(final int width,final int height,final TextureSettings settings,ThreadMode mode)
+	{
+		final MaplyTexture texture = new MaplyTexture();
+		final Texture rawTex = new Texture();
+		texture.texID = rawTex.getID();
+		texture.width = width;
+		texture.height = height;
+
+		// Possibly do the work somewhere else
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+						rawTex.setSize(width,height);
+						rawTex.setIsEmpty(true);
+						changes.addTexture(rawTex, scene, settings.filterType.ordinal());
+
+						// Flush the texture changes
+						if (scene != null)
+							changes.process(scene);
+					}
+				};
+
+		addTask(run, mode);
+
+		return texture;
+	}
 
 	/**
 	 * Add texture to the system with the given settings.
@@ -1914,7 +1989,7 @@ public class MaplyBaseController
 	 * @param settings Settings to use.
 	 * @param mode Add on the current thread or elsewhere.
 	 */
-	public MaplyTexture addTexture(final Texture rawTex,TextureSettings settings,ThreadMode mode)
+	public MaplyTexture addTexture(final Texture rawTex,final TextureSettings settings,ThreadMode mode)
 	{
 		final MaplyTexture texture = new MaplyTexture();
 
@@ -1927,7 +2002,7 @@ public class MaplyBaseController
 					{
 						ChangeSet changes = new ChangeSet();
 						texture.texID = rawTex.getID();
-						changes.addTexture(rawTex, scene);
+						changes.addTexture(rawTex, scene, settings.filterType.ordinal());
 
 						// Flush the texture changes
 						if (scene != null)
@@ -1993,6 +2068,27 @@ public class MaplyBaseController
 				};
 
 		addTask(run, mode);
+	}
+
+	/** Add a render target to the system
+	 * <br>
+     * Sets up a render target and will start rendering to it on the next frame.
+	 * Keep the render target around so you can remove it later.
+	 */
+	public void addRenderTarget(RenderTarget renderTarget)
+	{
+		scene.addRenderTargetNative(renderTarget.renderTargetID,
+				renderTarget.texture.width,renderTarget.texture.height,
+				renderTarget.texture.texID);
+	}
+
+	/** Remove the given render target from the system.
+	 * <br>
+	 * Ask the system to stop drawing to the given render target.  It will do this on the next frame.
+	 */
+	public void removeRenderTarget(RenderTarget renderTarget)
+	{
+		scene.removeRenderTargetNative(renderTarget.renderTargetID);
 	}
 
     /**
@@ -2534,4 +2630,20 @@ public class MaplyBaseController
 
 		return compObj;
 	}
+
+	/**
+	 * Returns the maximum line width on the current device.
+	 */
+	public float getMaxLineWidth()
+	{
+		setEGLContext(glContext);
+
+		float widths[] = new float[2];
+		GLES20.glGetFloatv(GLES20.GL_ALIASED_LINE_WIDTH_RANGE, widths, 0);
+
+		setEGLContext(null);
+
+		return widths[1];
+	}
+
 }

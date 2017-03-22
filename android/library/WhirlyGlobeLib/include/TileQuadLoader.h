@@ -223,6 +223,10 @@ public:
     void setImageType(TileImageType inType) { imageType = inType; }
     TileImageType getImageType() { return imageType; }
     
+    /// Interpolation type when zooming in on the textures
+    void setInterType(GLenum inInterpType) { interpType = inInterpType; }
+    GLenum getInterpType() { return interpType; }
+    
     /// If set (before we start) we'll use dynamic texture and drawable atlases
     void setUseDynamicAtlas(bool inVal) { useDynamicAtlas = inVal; }
     bool getUseDynamicAtlas() { return useDynamicAtlas; }
@@ -242,6 +246,10 @@ public:
     /// How many texels we put around the borders of each tile
     void setBorderTexel(int inVal) { borderTexel = inVal; }
     int getBorderTexel() { return borderTexel; }
+    
+    /// If set, where this layer will be rendererd
+    void setRenderTarget(SimpleIdentity inRenderTargetID) { renderTargetID = inRenderTargetID; }
+    SimpleIdentity getRenderTarget() { return renderTargetID; }
     
     /// A fudge factor for border texels.  This lets us pretend we have them
     ///  and split the difference between bogus and ugly.
@@ -274,6 +282,9 @@ protected:
     WhirlyKit::SimpleIdentity programId;
     bool includeElev;
     bool useElevAsZ;
+    
+    GLenum interpType;
+    SimpleIdentity renderTargetID;
     
     unsigned int numImages;
     int activeTextures;

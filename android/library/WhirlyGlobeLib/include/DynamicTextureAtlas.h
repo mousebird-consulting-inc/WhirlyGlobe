@@ -55,6 +55,10 @@ public:
     /// Render side only.  Don't call this.  Destroy the OpenGL ES version
     void destroyInGL(OpenGLMemManager *memManager);
     
+    /// Set the interpolation type used for min and mag
+    void setInterpType(GLenum inType) { interpType = inType; }
+    GLenum getInterpType() { return interpType; }
+    
     /// Add the given texture at the given location.
     /// This is probably called on the layer thread
     void addTexture(Texture *tex,const Region &region);
@@ -94,6 +98,8 @@ protected:
     
     /// If set, this is a compressed format (assume PVRTC4)
     bool compressed;
+    /// Interpolation type
+    GLenum interpType;
     /// Texture memory format
     GLenum format,type;
     /// Number of texels on a side
@@ -181,6 +187,10 @@ public:
     DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1,bool mainThreadMerge=false);
     ~DynamicTextureAtlas();
 
+    /// Set the interpolation type used for min and mag
+    void setInterpType(GLenum inType) { interpType = inType; }
+    GLenum getInterpType() { return interpType; }
+
     /// Fudge factor for border pixels.  We'll add this/pixelSize to the lower left
     ///  and subtract this/pixelSize from the upper right for each texture application.
     void setPixelFudgeFactor(float pixFudge);
@@ -222,6 +232,8 @@ protected:
     int texSize;
     int cellSize;
     GLenum format;
+    /// Interpolation type
+    GLenum interpType;
     float pixelFudge;
     bool mainThreadMerge;
 

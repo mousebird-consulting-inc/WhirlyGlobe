@@ -120,8 +120,8 @@ void QuadDisplayController::init(Scene *inScene,SceneRendererES *inRenderer)
     
 void QuadDisplayController::setFrameLoadingPriorities(const std::vector<int> &priorities)
 {
-#ifdef __ANDROID__
 #ifdef LOGLOADING
+    WHIRLYKIT_LOGD("Resetting frame priorities...");
     std::string priorStr;
     for (int prior : priorities)
     {
@@ -129,8 +129,7 @@ void QuadDisplayController::setFrameLoadingPriorities(const std::vector<int> &pr
         sprintf(tmpStr,"%d",prior);
         priorStr += (std::string)tmpStr + " ";
     }
-    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","Resetting frame priorities: %s",priorStr.c_str());
-#endif
+    WHIRLYKIT_LOGD("Resetting frame priorities: %s",priorStr.c_str());
 #endif
 
     // Note: Porting  Needs some thread logic above this level

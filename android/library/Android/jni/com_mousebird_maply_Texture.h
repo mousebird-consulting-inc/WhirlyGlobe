@@ -22,6 +22,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_setSettings
  */
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Texture_setBitmap
   (JNIEnv *, jobject, jobject, jint);
+  
+  /*
+ * Class:     com_mousebird_maply_Texture
+ * Method:    setSize
+ * Signature: (II)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_setSize
+  (JNIEnv *, jobject, jint, jint);
+
+/*
+ * Class:     com_mousebird_maply_Texture
+ * Method:    setIsEmpty
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_setIsEmpty
+  (JNIEnv *, jobject, jboolean);
 
 /*
  * Class:     com_mousebird_maply_Texture

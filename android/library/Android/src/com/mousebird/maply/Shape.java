@@ -68,6 +68,12 @@ public class Shape {
      */
     public native float[] getColor();
 
+    /** If set, this shape is in clip coordinates and will not be transformed.
+     * <br>
+     * Some objects (the rectangle) can be used as overlays in clip coordinates.  This is set if that's the case.
+     */
+    public native void setClipCoords(boolean clipVal);
+
     // Overridden by subclasses
     public void dispose() { }
 
