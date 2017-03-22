@@ -12,21 +12,23 @@
     "0B217F6BC43ADD8D8303F2376C76B47B8B74CD9C" : 9223372036854775807,
     "DBA6F8B12B84878540F44342C4772AC004D85ABD" : 9223372036854775807,
     "9FF210C40B5F6FF575BA5DCEA5467BFAAB7EB8B0" : 9223372036854775807,
+    "62120A694F229133C01EB730D97929A86EE261C0" : 9223372036854775807,
     "542E08E1407FCC2DB0FF89E003D671D027C039F1" : 9223372036854775807,
     "04101981B66E318109934C9516F88D824BB96459" : 9223372036854775807
   },
   "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "D1266B53-A6EF-4435-82D6-28DE7FE302B0",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
-    "DB33CBD4D80E1B1AD982034BCF4CA065484EA96E" : "WhirlyGlobe\/third-party\/libjson\/",
-    "3417D484EE489964993A77F8A0AAAE31FFC8EA92" : "WhirlyGlobe\/third-party\/proj-4\/",
-    "2E886417438041B07C57F4D680E7E83E5EF0B23B" : "WhirlyGlobe\/",
-    "D1BB63D501E0048981F00509C5A268D4AF5FEE4C" : "WhirlyGlobe\/third-party\/SMCalloutView\/",
-    "6EE8C3CD1205674099D0F29D1E5116B4056D84DF" : "WhirlyGlobe\/third-party\/clipper\/",
-    "0B217F6BC43ADD8D8303F2376C76B47B8B74CD9C" : "WhirlyGlobe\/third-party\/laszip\/",
-    "DBA6F8B12B84878540F44342C4772AC004D85ABD" : "WhirlyGlobe\/third-party\/protobuf\/",
-    "9FF210C40B5F6FF575BA5DCEA5467BFAAB7EB8B0" : "WhirlyGlobe\/third-party\/glues\/",
-    "542E08E1407FCC2DB0FF89E003D671D027C039F1" : "WhirlyGlobe\/resources\/",
-    "04101981B66E318109934C9516F88D824BB96459" : "WhirlyGlobe\/third-party\/fmdb\/"
+    "DB33CBD4D80E1B1AD982034BCF4CA065484EA96E" : "WhirlyGlobe2\/third-party\/libjson\/",
+    "3417D484EE489964993A77F8A0AAAE31FFC8EA92" : "WhirlyGlobe2\/third-party\/proj-4\/",
+    "2E886417438041B07C57F4D680E7E83E5EF0B23B" : "WhirlyGlobe2\/",
+    "D1BB63D501E0048981F00509C5A268D4AF5FEE4C" : "WhirlyGlobe2\/third-party\/SMCalloutView\/",
+    "6EE8C3CD1205674099D0F29D1E5116B4056D84DF" : "WhirlyGlobe2\/third-party\/clipper\/",
+    "0B217F6BC43ADD8D8303F2376C76B47B8B74CD9C" : "WhirlyGlobe2\/third-party\/laszip\/",
+    "DBA6F8B12B84878540F44342C4772AC004D85ABD" : "WhirlyGlobe2\/third-party\/protobuf\/",
+    "9FF210C40B5F6FF575BA5DCEA5467BFAAB7EB8B0" : "WhirlyGlobe2\/third-party\/glues\/",
+    "62120A694F229133C01EB730D97929A86EE261C0" : "WhirlyGlobe2\/third-party\/shapelib\/",
+    "542E08E1407FCC2DB0FF89E003D671D027C039F1" : "WhirlyGlobe2\/resources\/",
+    "04101981B66E318109934C9516F88D824BB96459" : "WhirlyGlobe2\/third-party\/fmdb\/"
   },
   "DVTSourceControlWorkspaceBlueprintNameKey" : "AutoTester",
   "DVTSourceControlWorkspaceBlueprintVersion" : 204,
@@ -56,6 +58,11 @@
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/mousebird\/wg-resources-new.git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "542E08E1407FCC2DB0FF89E003D671D027C039F1"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/mousebird\/shapelib.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "62120A694F229133C01EB730D97929A86EE261C0"
     },
     {
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/mousebird\/clipper",
