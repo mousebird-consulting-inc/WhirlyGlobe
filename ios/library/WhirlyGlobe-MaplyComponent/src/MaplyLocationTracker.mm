@@ -216,13 +216,37 @@
                                                    to:_locationManager
                                                  from:self
                                              forEvent:nil];
-        [[UIApplication sharedApplication] sendAction:@selector(startUpdatingHeading)
-                                                   to:_locationManager
-                                                 from:self
-                                             forEvent:nil];
-        
-        
+        if (_useHeading)
+            [[UIApplication sharedApplication] sendAction:@selector(startUpdatingHeading)
+                                                       to:_locationManager
+                                                     from:self
+                                                 forEvent:nil];
     }
+    
+    if (_useHeading)
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification object:nil];
+}
+
+- (void)orientationChanged:(NSNotification *)notification {
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    switch (orientation) {
+        case UIDeviceOrientationPortrait:
+            _locationManager.headingOrientation = CLDeviceOrientationPortrait;
+            break;
+        case UIDeviceOrientationPortraitUpsideDown:
+            _locationManager.headingOrientation = CLDeviceOrientationPortraitUpsideDown;
+            break;
+        case UIDeviceOrientationLandscapeRight:
+            _locationManager.headingOrientation = CLDeviceOrientationLandscapeRight;
+            break;
+        case UIDeviceOrientationLandscapeLeft:
+            _locationManager.headingOrientation = CLDeviceOrientationLandscapeLeft;
+            break;
+        default: // UIDeviceOrientationUnknown
+            _locationManager.headingOrientation = CLDeviceOrientationPortrait;
+            break;
+    }
+    
 }
 
 - (void) teardownLocationManager {
@@ -231,6 +255,8 @@
     [_locationManager stopUpdatingLocation];
     if (_useHeading)
         [_locationManager stopUpdatingHeading];
+    if (_useHeading)
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
     _locationManager.delegate = nil;
     _locationManager = nil;
     _didRequestWhenInUseAuth = false;
