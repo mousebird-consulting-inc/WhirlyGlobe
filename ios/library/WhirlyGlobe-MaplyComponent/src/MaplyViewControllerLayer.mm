@@ -27,6 +27,7 @@
 {
     _drawPriorityWasSet = true;
     _drawPriority = drawPriority;
+    _identifier = @"Unidentified MaplyViewControllerLayer";
 }
 
 - (bool)startLayer:(WhirlyKitLayerThread *)layerThread scene:(WhirlyKit::Scene *)scene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)viewC
