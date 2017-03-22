@@ -37,6 +37,7 @@ WhirlyKitShapeInfo::WhirlyKitShapeInfo()
     : color(255,255,255,255), lineWidth(1.0), shapeId(EmptyIdentity), insideOut(false),
     zBufferRead(true), zBufferWrite(true), hasCenter(false), center(0.0,0.0,0.0)
 {
+    shapeId = Identifiable::genId();
 }
 
 WhirlyKitShapeInfo::~WhirlyKitShapeInfo()
@@ -180,6 +181,8 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
 {
     drawable = new BasicDrawable("Shape Layer");
     shapeInfo->setupBasicDrawable(drawable);
+    if (clipCoords)
+        drawable->setClipCoords(true);
     drawMbr.reset();
     drawable->setType(GL_TRIANGLES);
     // Adjust according to the vector info
@@ -187,6 +190,8 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
     drawable->setRequestZBuffer(shapeInfo->getZBufferRead());
     drawable->setWriteZBuffer(shapeInfo->getZBufferWrite());
     drawable->setProgram(shapeInfo->programID);
+    if (texID != EmptyIdentity)
+        drawable->setTexId(0, texID);
     if (center.x() != 0.0 || center.y() != 0.0 || center.z() != 0.0)
     {
         Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
@@ -195,6 +200,29 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
     }
 }
 
+void ShapeDrawableBuilderTri::setClipCoords(bool newClipCoords)
+{
+    if (clipCoords != newClipCoords)
+    {
+        // Different values of clipCoords aren't compatible, unsurprisingly
+        if (drawable)
+            flush();
+    }
+    
+    clipCoords = newClipCoords;
+}
+    
+void ShapeDrawableBuilderTri::setTexID(SimpleIdentity newTexID)
+{
+    if (texID != newTexID)
+    {
+        if (drawable)
+            flush();
+    }
+    
+    texID = newTexID;
+}
+    
 // Add a triangle with normals
 void ShapeDrawableBuilderTri::addTriangle(Point3f p0,Point3f n0,RGBAColor c0,Point3f p1,Point3f n1,RGBAColor c1,Point3f p2,Point3f n2,RGBAColor c2,Mbr shapeMbr)
 {
@@ -224,6 +252,40 @@ void ShapeDrawableBuilderTri::addTriangle(Point3f p0,Point3f n0,RGBAColor c0,Poi
     drawable->addNormal(n2);
     drawable->addColor(c2);
 
+    drawable->addTriangle(BasicDrawable::Triangle(0+baseVert,2+baseVert,1+baseVert));
+    drawMbr.expand(shapeMbr);
+}
+
+// Add a triangle with normals and texture coords
+void ShapeDrawableBuilderTri::addTriangle(const Point3d &p0,const Point3d &n0,RGBAColor c0,const TexCoord &tx0,const Point3d &p1,const Point3d &n1,RGBAColor c1,const TexCoord &tx1,const Point3d &p2,const Point3d &n2,RGBAColor c2,const TexCoord &tx2,Mbr shapeMbr)
+{
+    if (!drawable ||
+        (drawable->getNumPoints()+3 > MaxDrawablePoints) ||
+        (drawable->getNumTris()+1 > MaxDrawableTriangles))
+    {
+        // We're done with it, toss it to the scene
+        if (drawable)
+            flush();
+        
+        setupNewDrawable();
+    }
+    Mbr mbr = drawable->getLocalMbr();
+    mbr.expand(shapeMbr);
+    drawable->setLocalMbr(mbr);
+    int baseVert = drawable->getNumPoints();
+    drawable->addPoint((Point3d)(p0-center));
+    drawable->addNormal(n0);
+    drawable->addColor(c0);
+    drawable->addTexCoord(0,tx0);
+    drawable->addPoint((Point3d)(p1-center));
+    drawable->addNormal(n1);
+    drawable->addColor(c1);
+    drawable->addTexCoord(0,tx1);
+    drawable->addPoint((Point3d)(p2-center));
+    drawable->addNormal(n2);
+    drawable->addColor(c2);
+    drawable->addTexCoord(0,tx2);
+    
     drawable->addTriangle(BasicDrawable::Triangle(0+baseVert,2+baseVert,1+baseVert));
     drawMbr.expand(shapeMbr);
 }
@@ -303,6 +365,14 @@ void ShapeDrawableBuilderTri::addConvexOutline(Point3dVector &pts,Point3d norm,R
     // It's convex, so we'll just triangulate it dumb style
     for (unsigned int ii = 2;ii<pts.size();ii++)
         addTriangle(pts[0], norm, color, pts[ii-1], norm, color, pts[ii], norm, color, shapeMbr);
+}
+
+// Add a convex outline with tex coords, triangulated
+void ShapeDrawableBuilderTri::addConvexOutline(Point3dVector &pts,std::vector<TexCoord> &texCoords,Point3d norm,RGBAColor color,Mbr shapeMbr)
+{
+    // It's convex, so we'll just triangulate it dumb style
+    for (unsigned int ii = 2;ii<pts.size();ii++)
+        addTriangle(pts[0], norm, color, texCoords[0], pts[ii-1], norm, color, texCoords[ii-1], pts[ii], norm, color, texCoords[ii], shapeMbr);
 }
 
 void ShapeDrawableBuilderTri::addComplexOutline(Point3dVector &pts,Point3d norm,RGBAColor color,Mbr shapeMbr)

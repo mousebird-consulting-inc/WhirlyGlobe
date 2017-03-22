@@ -28,6 +28,8 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
+import org.apache.commons.io.IOUtils;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,7 +50,8 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 {
     MaplyBaseController controller = null;
 	CoordSystem coordSys = null;
-	RemoteTileInfo[] sources = null;
+	public RemoteTileInfo[] sources = null;
+	public Bitmap blankImage = null;
 	int minZoom = 0;
 	int maxZoom = 0;
 	int pixelsPerSide = 256;
@@ -77,6 +80,35 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	 */
 	public RemoteTileSource.TileSourceDelegate delegate = null;
 	
+	/**
+	 * Convert the raw image data into a bitmap.  You can override this if you have your own way of doing it.
+	 */
+	public Bitmap bitmapFromRaw(byte[] rawImage)
+	{
+		Bitmap bitmap = null;
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		//                options.inScaled = false;
+		//                options.inPremultiplied = false;
+		options.inScaled = false;
+		options.inDither = false;
+		options.inPreferQualityOverSpeed = true;
+		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+		if (hasPremultiplyOption)
+			options.inPremultiplied = false;
+		bitmap = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
+
+		// Let's try it with the default options
+		if (bitmap == null)
+		{
+			bitmap = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, null);
+			if (bitmap != null)
+				if (debugOutput)
+					Log.d("Maply","Image decode succeeded second time.");
+		}
+
+		return bitmap;
+	}
+
 	// Connection task fetches a single image
 	private class ConnectionTask implements com.squareup.okhttp.Callback {
         MultiplexTileSource tileSource = null;
@@ -87,7 +119,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
         String locFile = null;
         com.squareup.okhttp.Call call;
         Bitmap bm = null;
-        File cacheFile = null;
+        public File cacheFile = null;
         boolean isCanceled = false;
 		public boolean singleFetch = false;
 
@@ -107,17 +139,13 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
                 if (locFile != null) {
                     cacheFile = new File(locFile);
                     if (cacheFile.exists()) {
-						BitmapFactory.Options options = new BitmapFactory.Options();
-						options.inScaled = false;
-						options.inDither = false;
-						options.inPreferQualityOverSpeed = true;
-						options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-						if (hasPremultiplyOption)
-							options.inPremultiplied = false;
                         BufferedInputStream aBufferedInputStream = new BufferedInputStream(new FileInputStream(cacheFile));
-                        bm = BitmapFactory.decodeStream(aBufferedInputStream,null,options);
-						if (debugOutput)
-	                        Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+			byte[] rawImage = IOUtils.toByteArray(aBufferedInputStream);
+
+			bm = bitmapFromRaw(rawImage);
+
+			if (debugOutput)
+	                       Log.d("Maply", "Read cached file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
                     }
                 }
 
@@ -171,25 +199,17 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 				byte[] rawImage = null;
 				try {
 					rawImage = response.body().bytes();
-					BitmapFactory.Options options = new BitmapFactory.Options();
-					//                options.inScaled = false;
-					//                options.inPremultiplied = false;
-					options.inScaled = false;
-					options.inDither = false;
-					options.inPreferQualityOverSpeed = true;
-					options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-					if (hasPremultiplyOption)
-						options.inPremultiplied = false;
-					bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, options);
 
-					// Let's try it with the default options
-					if (bm == null)
-					{
-						bm = BitmapFactory.decodeByteArray(rawImage, 0, rawImage.length, null);
-						if (bm != null)
-							if (debugOutput)
-								Log.d("Maply","Image decode succeeded second time.");
+					bm = bitmapFromRaw(rawImage);
+
+					// Last chance.  If we've got a blank image, use that
+					if (bm == null && blankImage != null) {
+						bm = blankImage;
+						cacheFile = null;
 					}
+
+					if (bm == null)
+						throw new Exception("Failed to decode image");
 
 					// Save to cache
 					if (cacheFile != null && rawImage != null && bm != null) {
@@ -251,12 +271,16 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 						} else {
 							imageTile = new MaplyImageTile(tile.tileData);
 						}
-						if (tileSource.delegate != null)
-							tileSource.delegate.tileDidLoad(tileSource, tileID, frame);
+						if (tileSource.delegate != null) {
+							RemoteTileInfo tileInfo = tileSource.sources[frame];
+							tileSource.delegate.tileDidLoad(tileInfo, tileID, frame);
+						}
 						layer.loadedTile(tileID, frame, imageTile);
                     } else {
-                        if (tileSource.delegate != null)
-                            tileSource.delegate.tileDidNotLoad(tileSource, tileID, frame);
+                        if (tileSource.delegate != null) {
+				RemoteTileInfo tileInfo = tileSource.sources[frame];
+				tileSource.delegate.tileDidNotLoad(tileInfo, tileID, frame);
+			}
                         layer.loadedTile(tileID, frame, null);
                     }
 
@@ -531,7 +555,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 			}
 			for (int which=start;which<=end;which++)
 			{
-				if (tile.fetches[which] == null)
+				if (tile.fetches.length > which && tile.fetches[which] == null)
 				{
 					String cacheFile = null;
 					RemoteTileInfo tileInfo = sources[which];

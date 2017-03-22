@@ -27,15 +27,15 @@ package com.mousebird.maply;
  * not be manipulating these.
  * 
  */
-class ChangeSet
+public class ChangeSet
 {
-	ChangeSet()
+	public ChangeSet()
 	{
 		initialise();
 	}
 	
 	// Add a texture to the list of changes to the scene
-	public native void addTexture(Texture texture,Scene scene);
+	public native void addTexture(Texture texture,Scene scene,int filterType);
 	
 	// Remove a texture from the scene by ID
 	public native void removeTexture(long texID);

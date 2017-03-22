@@ -67,6 +67,9 @@ public:
 	void setColor(WhirlyKit::RGBAColor value) { color = value; }
 	WhirlyKit::RGBAColor getColor() { return color; }
 
+    void setClipCoords(bool newVal) { clipCoords = newVal; }
+    bool getClipCoords() { return clipCoords; }
+
 	virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
 
@@ -75,6 +78,7 @@ private:
     WhirlyKit::SimpleIdentity selectID;
     bool useColor;
     WhirlyKit::RGBAColor color;
+    bool clipCoords;
 };
 
 class WhirlyKitSphere : public WhirlyKitShape
@@ -107,6 +111,31 @@ private:
     float height;
     float radius;
     int sampleX, sampleY;
+};
+
+class WhirlyKitRectangle : public WhirlyKitShape
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
+    WhirlyKitRectangle();
+    virtual ~WhirlyKitRectangle();
+
+	void setLL(const Point3d &inLL) { ll = inLL; }
+	Point3d getLL() { return ll; }
+
+	void setUR(const Point3d &inUR) { ur = inUR; }
+	Point3d getUR() { return ur; }
+	
+	void setTexID(SimpleIdentity inTexID) { texID = inTexID; }
+	SimpleIdentity getTexID() { return texID; }
+
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
+
+private:
+    Point3d ll,ur;
+    SimpleIdentity texID;
 };
 
 #define kWKShapeManager "WKShapeManager"

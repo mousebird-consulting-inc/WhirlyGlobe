@@ -63,6 +63,16 @@ class Texture
 	 */
 	public native boolean setBitmap(Bitmap inBitmap,int imageFormat);
 	
+		/**
+	 * Create an empty texture of the given size.
+     */
+	public native void setSize(int sizeX,int sizeY);
+
+	/**
+	 * Set if we're creating this texture empty
+     */
+	public native void setIsEmpty(boolean isEmpty);
+	
 	// Once created, this is how we identify it to the rendering engine
 	public native long getID();
 	

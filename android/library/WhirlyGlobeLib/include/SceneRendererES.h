@@ -69,6 +69,66 @@ public:
     WhirlyKit::RendererFrameInfo *frameInfo;
 };
 
+/** What and where we're rendering.  This can be a regular framebuffer
+ to the screen or to a texture.
+ */
+class RenderTarget : public Identifiable
+{
+public:
+    RenderTarget();
+    RenderTarget(SimpleIdentity newID) : Identifiable(newID) { }
+    
+    // Set up the render target
+    bool init(Scene *scene,SimpleIdentity targetTexID);
+    
+    // Pull in framebuffer info from the current OpenGL State
+    bool initFromState(int inWidth,int inHeight);
+    
+    // Clear up resources from the render target
+    void clear();
+    
+    /// Make this framebuffer active
+    void setActiveFramebuffer(WhirlyKit::SceneRendererES *renderer);
+    
+    /// OpenGL ES Name for the frame buffer
+    GLuint framebuffer;
+    /// OpenGL ES Name for the color buffer
+    GLuint colorbuffer;
+    /// OpenGL ES Name for the depth buffer
+    GLuint depthbuffer;
+    /// Output framebuffer size fo glViewport
+    int width,height;
+    /// Set if we've set up background and such
+    bool isSetup;
+};
+
+// Add a new render target
+class AddRenderTargetReq : public ChangeRequest
+{
+public:
+    AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID);
+    
+    /// Add the render target to the renderer
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+    
+protected:
+    int width,height;
+    SimpleIdentity renderTargetID;
+    SimpleIdentity texID;
+};
+
+class RemRenderTargetReq : public ChangeRequest
+{
+public:
+    RemRenderTargetReq(SimpleIdentity targetID);
+    
+    /// Remove the render target from the renderer
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+    
+protected:
+    SimpleIdentity targetID;
+};
+
 /// OpenGL ES state optimizer.  This short circuits many of the OGL state
 ///  changes that would otherwise be redundant.
 class OpenGLStateOptimizer
@@ -209,6 +269,9 @@ public:
     /// Use this to set the clear color for the screen.  Defaults to black
     void setClearColor(const RGBAColor &color);
     
+    /// Return the current clear color
+    RGBAColor getClearColor();
+    
     /// Get the framebuffer size
     Point2f getFramebufferSize() { return Point2f(framebufferWidth,framebufferHeight); }
     
@@ -250,6 +313,12 @@ public:
     
     /// If set, we'll draw one more frame than needed after updates stop
     virtual void setExtraFrameMode(bool newMode) { extraFrameMode = newMode; }
+
+    /// Add a render target to start rendering too
+    void addRenderTarget(RenderTarget &newTarget);
+    
+    /// Stop rendering to the matching render target
+    void clearRenderTarget(SimpleIdentity targetID);
 
 // Note: Fix this
 public:
@@ -295,13 +364,6 @@ public:
     /// Force a draw at the next opportunity
     bool triggerDraw;
 
-    /// OpenGL ES Name for the frame buffer
-    GLuint defaultFramebuffer;
-    /// OpenGL ES Name for the color buffer
-    GLuint colorRenderbuffer;
-    /// OpenGL ES Name for the depth buffer
-    GLuint depthRenderbuffer;
-	
 	unsigned int frameCount;
 	TimeInterval frameCountStart;
     WhirlyKit::PerformanceTimer perfTimer;
@@ -322,6 +384,8 @@ public:
     
     // If set we draw one extra frame after updates stop
     bool extraFrameMode;
+    
+    std::vector<RenderTarget> renderTargets;
 };
 
 }

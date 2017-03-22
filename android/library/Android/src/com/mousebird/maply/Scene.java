@@ -32,6 +32,9 @@ public class Scene
 	 */
 	public native void addShaderProgram(Shader shader,String sceneName);
 
+	public native void addRenderTargetNative(long renderTargetID,int width,int height,long texID);
+	public native void removeRenderTargetNative(long renderTargetID);
+
 	/**
 	 * Tear down the OpenGL resources.  Context needs to be set first.
 	 */

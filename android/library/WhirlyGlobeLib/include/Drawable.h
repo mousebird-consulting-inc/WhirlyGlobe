@@ -206,6 +206,9 @@ public:
     /// Check if we're supposed to write to the z buffer
     virtual bool getWriteZbuffer() const { return true; }
     
+    /// Drawables can override where they're drawn.  EmptyIdentity is the regular screen.
+    virtual SimpleIdentity getRenderTarget() { return EmptyIdentity; }
+    
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(WhirlyKit::SceneRendererES *renderer) = 0;
     
