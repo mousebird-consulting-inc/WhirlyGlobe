@@ -77,11 +77,14 @@ using namespace WhirlyKit;
             float height = sceneRenderer.framebufferHeight / glView.contentScaleFactor;
             float scale = powf(2.0,2*diffY/(height/2));
             float newZ = startZ * scale;
+            Point2d newCenter;
             if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
             {
+                MaplyView *testMapView = [[MaplyView alloc] initWithView:self.mapView];
                 Point3d newLoc(curLoc.x(),curLoc.y(),newZ);
+                Point3d newCenter;
                 // Check if we're still within bounds
-                if ([self withinBounds:newLoc view:glView renderer:sceneRenderer])
+                if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
                 {
                     [self.mapView setLoc:newLoc];
                 }

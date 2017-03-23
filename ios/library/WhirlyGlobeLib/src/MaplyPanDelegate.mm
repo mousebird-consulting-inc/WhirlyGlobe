@@ -106,12 +106,15 @@ using namespace WhirlyKit;
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
     if (bounds.empty())
+    {
+        *newCenter = loc;
         return true;
+    }
     
-    Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
+    Eigen::Matrix4d fullMatrix = [testMapView calcFullMatrix];
 
     // The corners of the view should be within the bounds
     CGPoint corners[4];
@@ -123,11 +126,17 @@ using namespace WhirlyKit;
     bool isValid = true;
     for (unsigned int ii=0;ii<4;ii++)
     {
-        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
+        [testMapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
                               frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
                                     hit:&planePts[ii] clip:false];
         isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
 //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
+    }
+    
+    // Try to adjust the center
+    if (isValid)
+    {
+        *newCenter = loc;
     }
     
     return isValid;
@@ -179,29 +188,42 @@ static const float AnimLen = 1.0;
                                        frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
                                             hit:&hit clip:false];
 
+                
                 // Note: Just doing a translation for now.  Won't take angle into account
+                MaplyView *testMapView = [[MaplyView alloc] initWithView:mapView];
                 Point3d oldLoc = mapView.loc;
                 Point3d newLoc = startOnPlane - hit + startLoc;
-                [mapView setLoc:newLoc runUpdates:false];
+                testMapView.loc = newLoc;
+                Point3d newCenter;
+                bool validLoc = false;
                 
                 // We'll do a hard stop if we're not within the bounds
                 // Note: We're trying this location out, then backing off if it failed.
-                if (![self withinBounds:newLoc view:glView renderer:sceneRender])
+                if (![self withinBounds:newLoc view:glView renderer:sceneRender mapView:testMapView newCenter:&newCenter])
                 {
                     // How about if we leave the x alone?
                     Point3d testLoc = Point3d(oldLoc.x(),newLoc.y(),newLoc.z());
-                    [mapView setLoc:testLoc runUpdates:false];
-                    if (![self withinBounds:testLoc view:glView renderer:sceneRender])
+                    [testMapView setLoc:testLoc runUpdates:false];
+                    if (![self withinBounds:testLoc view:glView renderer:sceneRender mapView:testMapView newCenter:&newCenter])
                     {
                         // How about leaving y alone?
                         testLoc = Point3d(newLoc.x(),oldLoc.y(),newLoc.z());
-                        [mapView setLoc:testLoc runUpdates:false];
-                        if (![self withinBounds:testLoc view:glView renderer:sceneRender])
-                            [mapView setLoc:oldLoc runUpdates:false];
+                        [testMapView setLoc:testLoc runUpdates:false];
+                        if ([self withinBounds:testLoc view:glView renderer:sceneRender mapView:testMapView newCenter:&newCenter])
+                            validLoc = true;
+                    } else {
+                        validLoc = true;
                     }
+                } else {
+                    validLoc = true;
                 }
                 
-                [mapView runViewUpdates];
+                // Okay, we found a good location, so go
+                if (validLoc)
+                {
+                    [mapView setLoc:newCenter runUpdates:false];
+                    [mapView runViewUpdates];
+                }
             }
         }
             break;

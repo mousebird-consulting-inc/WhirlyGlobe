@@ -61,8 +61,9 @@ using namespace WhirlyKit;
         {
             Point3d newLoc(hit.x(),hit.y(),newZ);
             Point3f newLoc3f(newLoc.x(),newLoc.y(),newLoc.z());
+            Point3d newCenter;
             // Check if we're still within bounds
-            if ([self withinBounds:newLoc view:glView renderer:sceneRenderer])
+            if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:self.mapView newCenter:&newCenter])
             {
                 animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView translate:newLoc3f howLong:_animTime];
                 self.mapView.delegate = animation;

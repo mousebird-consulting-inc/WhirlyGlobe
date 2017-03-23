@@ -867,7 +867,8 @@ using namespace Maply;
     nextState.pos = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
     nextState.height = newHeight;
     [self setViewStateInternal:nextState runViewUpdates:false];
-    bool valid = [self withinBounds:mapView.loc view:glView renderer:sceneRenderer];
+    Point3d newCenter;
+    bool valid = [self withinBounds:mapView.loc view:glView renderer:sceneRenderer mapView:mapView newCenter:&newCenter];
     
     // restore current view state
     [self setViewStateInternal:curState runViewUpdates:false];
@@ -930,7 +931,8 @@ using namespace Maply;
     // check if within bounds
     nextState.pos = MaplyCoordinateDMakeWithMaplyCoordinate(geoCoord);
     [self setViewStateInternal:nextState runViewUpdates:false];
-    bool valid = [self withinBounds:mapView.loc view:glView renderer:sceneRenderer];
+    Point3d newCenter;
+    bool valid = [self withinBounds:mapView.loc view:glView renderer:sceneRenderer mapView:mapView newCenter:&newCenter];
     
     // restore current view state
     [self setViewStateInternal:curState runViewUpdates:false];
@@ -962,10 +964,13 @@ using namespace Maply;
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
     if (bounds.empty())
+    {
+        *newCenter = loc;
         return true;
+    }
     
     Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
     
@@ -984,6 +989,12 @@ using namespace Maply;
                                     hit:&planePts[ii] clip:false];
         isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
         //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
+    }
+    
+    // Try to adjust the center
+    if (isValid)
+    {
+        *newCenter = loc;
     }
     
     return isValid;
