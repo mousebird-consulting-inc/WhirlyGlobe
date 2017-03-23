@@ -137,7 +137,7 @@ using namespace Maply;
     bool isPanning,isZooming,isAnimating;
     
     /// Boundary quad that we're to stay within, in display coords
-    std::vector<WhirlyKit::Point2f> bounds;
+    std::vector<WhirlyKit::Point2d> bounds;
 }
 
 - (instancetype)initWithMapType:(MaplyMapType)mapType
@@ -741,7 +741,7 @@ using namespace Maply;
     
     // Convert the bounds to a rectangle in local coordinates
     Point3f bounds3d[4];
-    Point2f bounds2d[4];
+    Point2d bounds2d[4];
     bounds3d[0] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ll.x,ll.y)));
     bounds3d[1] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ur.x,ll.y)));
     bounds3d[2] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ur.x,ur.y)));
@@ -749,7 +749,7 @@ using namespace Maply;
     bounds.clear();
     for (unsigned int ii=0;ii<4;ii++)
     {
-        bounds2d[ii] = Point2f(bounds3d[ii].x(),bounds3d[ii].y());
+        bounds2d[ii] = Point2d(bounds3d[ii].x(),bounds3d[ii].y());
         bounds.push_back(bounds2d[ii]);
     }
     
@@ -771,7 +771,7 @@ using namespace Maply;
 }
 
 // Internal animation handler
-- (void)animateToPoint:(Point3f)newLoc time:(NSTimeInterval)howLong
+- (void)animateToPoint:(Point3d)newLoc time:(NSTimeInterval)howLong
 {
     if (_tetheredMode)
         return;
@@ -795,7 +795,7 @@ using namespace Maply;
     if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
 
-    Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+    Point3d loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
     loc.z() = mapView.loc.z();
     [self animateToPoint:loc time:howLong];
 }
@@ -812,7 +812,7 @@ using namespace Maply;
     if ([mapView pointOnPlaneFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc clip:true])
     {
         Point3f diffLoc(whereLoc.x()-mapView.loc.x(),whereLoc.y()-mapView.loc.y(),0.0);
-        Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+        Point3d loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
         loc.x() -= diffLoc.x();
         loc.y() -= diffLoc.y();
         loc.z() = mapView.loc.z();
@@ -842,7 +842,7 @@ using namespace Maply;
     if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
 
-    Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(newPos.x,newPos.y)));
+    Point3d loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
     loc.z() = newHeight;
     
     [self animateToPoint:loc time:howLong];
@@ -966,38 +966,7 @@ using namespace Maply;
 // Bounds check on a single point
 - (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
-    if (bounds.empty())
-    {
-        *newCenter = loc;
-        return true;
-    }
-    
-    Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
-    
-    // The corners of the view should be within the bounds
-    CGPoint corners[4];
-    corners[0] = CGPointMake(0,0);
-    corners[1] = CGPointMake(view.frame.size.width, 0.0);
-    corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
-    corners[3] = CGPointMake(0.0, view.frame.size.height);
-    Point3d planePts[4];
-    bool isValid = true;
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
-                              frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
-                                    hit:&planePts[ii] clip:false];
-        isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
-        //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
-    }
-    
-    // Try to adjust the center
-    if (isValid)
-    {
-        *newCenter = loc;
-    }
-    
-    return isValid;
+    return MaplyGestureWithinBounds(bounds,loc,view,sceneRender,testMapView,newCenter);
 }
 
 // External facing set position

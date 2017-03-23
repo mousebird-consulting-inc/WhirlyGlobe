@@ -25,7 +25,7 @@ using namespace Eigen;
 
 @implementation MaplyAnimateViewTranslation
 
-- (id)initWithView:(MaplyView *)globeView translate:(Point3f &)newLoc howLong:(float)howLong
+- (id)initWithView:(MaplyView *)globeView translate:(Point3d &)newLoc howLong:(float)howLong
 {
     self = [super init];
     
@@ -34,7 +34,7 @@ using namespace Eigen;
         _startDate = CFAbsoluteTimeGetCurrent();
         _endDate = _startDate + howLong;
         _startLoc = globeView.loc;
-        _endLoc = Point3d(newLoc.x(),newLoc.y(),newLoc.z());
+        _endLoc = newLoc;
     }
     
     return self;
