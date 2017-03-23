@@ -69,12 +69,15 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
     if (bounds.empty())
+    {
+        *newCenter = loc;
         return true;
+    }
     
-    Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
+    Eigen::Matrix4d fullMatrix = [testMapView calcFullMatrix];
     
     // The corners of the view should be within the bounds
     CGPoint corners[4];
@@ -86,11 +89,17 @@ using namespace WhirlyKit;
     bool isValid = true;
     for (unsigned int ii=0;ii<4;ii++)
     {
-        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
+        [testMapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
                               frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
                                     hit:&planePts[ii] clip:false];
         isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
         //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
+    }
+    
+    // Try to adjust the center
+    if (isValid)
+    {
+        *newCenter = loc;
     }
     
     return isValid;
@@ -117,25 +126,27 @@ using namespace WhirlyKit;
     double dist = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
     Point3d newLoc = org + dir * dist;
     [theMapView setLoc:newLoc runUpdates:false];
+    
+    Point3d newCenter;
 
     // We'll do a hard stop if we're not within the bounds
     // Note: We're trying this location out, then backing off if it failed.
-    if (![self withinBounds:newLoc view:glView renderer:sceneRenderer])
+    if (![self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:theMapView newCenter:&newCenter])
     {
         // How about if we leave the x alone?
         Point3d testLoc = Point3d(oldLoc.x(),newLoc.y(),newLoc.z());
         [mapView setLoc:testLoc runUpdates:false];
-        if (![self withinBounds:testLoc view:glView renderer:sceneRenderer])
+        if (![self withinBounds:testLoc view:glView renderer:sceneRenderer mapView:theMapView newCenter:&newCenter])
         {
             // How about leaving y alone?
             testLoc = Point3d(newLoc.x(),oldLoc.y(),newLoc.z());
             [mapView setLoc:testLoc runUpdates:false];
-            if (![self withinBounds:testLoc view:glView renderer:sceneRenderer])
+            if (![self withinBounds:testLoc view:glView renderer:sceneRenderer mapView:theMapView newCenter:&newCenter])
                 [mapView setLoc:oldLoc runUpdates:false];
         }
     }
     
-    if (![self withinBounds:newLoc view:glView renderer:sceneRenderer])
+    if (![self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:theMapView newCenter:&newCenter])
         [theMapView setLoc:oldLoc runUpdates:false];
     
     [theMapView runViewUpdates];
