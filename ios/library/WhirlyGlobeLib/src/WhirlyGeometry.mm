@@ -92,7 +92,7 @@ bool IntersectSphereRadius(Point3d org,Vector3d dir,double radius,Point3d &hit,d
 // Point in poly routine
 // Courtesy: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 
-bool PointInPolygon(Point2f pt,const std::vector<Point2f> &ring)
+bool PointInPolygon(const Point2f &pt,const std::vector<Point2f> &ring)
 {
 	size_t ii, jj;
 	bool c = false;
@@ -103,7 +103,19 @@ bool PointInPolygon(Point2f pt,const std::vector<Point2f> &ring)
 	}
 	return c;
 }
-    
+
+bool PointInPolygon(const Point2d &pt,const std::vector<Point2d> &ring)
+{
+    size_t ii, jj;
+    bool c = false;
+    for (ii = 0, jj = ring.size()-1; ii < ring.size(); jj = ii++) {
+        if ( ((ring[ii].y()>pt.y()) != (ring[jj].y()>pt.y())) &&
+            (pt.x() < (ring[jj].x()-ring[ii].x()) * (pt.y()-ring[ii].y()) / (ring[jj].y()-ring[ii].y()) + ring[ii].x()) )
+            c = !c;
+    }
+    return c;
+}
+
 bool ConvexPolyIntersect(const std::vector<Point2f> &pts0,const std::vector<Point2f> &pts1)
 {
     // Simple bounding box check
@@ -177,6 +189,32 @@ Point2d ClosestPointOnLineSegment(const Point2d &p0,const Point2d &p1,const Poin
         return p1;
     
     return Point2d(p0.x()+dx*u,p0.y()+dy*u);
+}
+    
+double ClosestPointToPolygon(const std::vector<Point2d> &pts,const Point2d &pt,Point2d *retClosePt)
+{
+    double minDist2 = MAXFLOAT;
+    Point2d closePt;
+    
+    for (unsigned int ii=0;ii<4;ii++)
+    {
+        const Point2d &p0 = pts[ii];
+        const Point2d &p1 = pts[(ii+1)%4];
+        
+        double t;
+        Point2d thisClosePt = ClosestPointOnLineSegment(p0, p1, pt, t);
+        double thisDist2 = (pt - thisClosePt).squaredNorm();
+        if (thisDist2 < minDist2)
+        {
+            minDist2 = thisDist2;
+            closePt = thisClosePt;
+        }
+    }
+    
+    if (retClosePt)
+        *retClosePt = closePt;
+    
+    return sqrt(minDist2);
 }
 	
 bool IntersectLines(const Point2f &p1,const Point2f &p2,const Point2f &p3,const Point2f &p4,Point2f *iPt)

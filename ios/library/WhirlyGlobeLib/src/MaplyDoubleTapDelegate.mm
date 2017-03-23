@@ -62,12 +62,11 @@ using namespace WhirlyKit;
         if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
         {
             Point3d newLoc(hit.x(),hit.y(),newZ);
-            Point3f newLoc3f(newLoc.x(),newLoc.y(),newLoc.z());
             Point3d newCenter;
             // Check if we're still within bounds
-            if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:self.mapView newCenter:&newCenter])
+            if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:[[MaplyView alloc] initWithView:self.mapView] newCenter:&newCenter])
             {
-                animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView translate:newLoc3f howLong:_animTime];
+                animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView translate:newCenter howLong:_animTime];
                 self.mapView.delegate = animation;
             }
         }
