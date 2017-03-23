@@ -23,9 +23,8 @@ class MapzenVectorTestCase: MaplyTestCase {
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC)) {
 
             let styleData = try? Data(contentsOf: URL(fileURLWithPath: Bundle.main.path(forResource: "MapzenSLDStyle", ofType: "sld")!))
-            
             let mzSource = MapzenSource(
-                base: "http://vector.mapzen.com/osm",
+                base: "http://tile.mapzen.com/mapzen/vector/v1",
                 layers: ["all"],
                 apiKey: "vector-tiles-ejNTZ28",
                 sourceType: MapzenSourcePBF,
