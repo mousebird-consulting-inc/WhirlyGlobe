@@ -645,8 +645,9 @@ static double MAX_EXTENT = 20037508.342789244;
                     retData = [_tileParser buildObjects:tileData tile:tileID bounds:bbox];
                     if (!retData)
                         NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,flippedYTile.y);
+
+                    [layer.viewC endOfWork];
                 }
-                [layer.viewC endOfWork];
 
                 if (retData)
                 {
