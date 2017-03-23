@@ -19,6 +19,7 @@
  */
 
 #import "MaplyZoomGestureDelegate.h"
+#import "MaplyPanDelegate.h"
 
 #import "EAGLView.h"
 #import "SceneRendererES.h"
@@ -44,7 +45,7 @@ using namespace WhirlyKit;
     return TRUE;
 }
 
-- (void)setBounds:(WhirlyKit::Point2f *)inBounds
+- (void)setBounds:(WhirlyKit::Point2d *)inBounds
 {
     bounds.clear();
     for (unsigned int ii=0;ii<4;ii++)
@@ -54,41 +55,7 @@ using namespace WhirlyKit;
 // Bounds check on a single point
 - (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
-    if (bounds.empty())
-    {
-        if (newCenter)
-            *newCenter = loc;
-        return true;
-    }
-
-    [testMapView setLoc:loc runUpdates:false];
-    
-    Eigen::Matrix4d fullMatrix = [testMapView calcFullMatrix];
-    
-    // The corners of the view should be within the bounds
-    CGPoint corners[4];
-    corners[0] = CGPointMake(0,0);
-    corners[1] = CGPointMake(view.frame.size.width, 0.0);
-    corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
-    corners[3] = CGPointMake(0.0, view.frame.size.height);
-    Point3d planePts[4];
-    bool isValid = true;
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        [testMapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
-                              frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
-                                    hit:&planePts[ii] clip:false];
-        isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
-        //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
-    }
-    
-    // Try to adjust the center
-    if (isValid)
-    {
-        *newCenter = loc;
-    }
-    
-    return isValid;
+    return MaplyGestureWithinBounds(bounds,loc,view,sceneRender,testMapView,newCenter);
 }
 
 // Called for double tap actions
