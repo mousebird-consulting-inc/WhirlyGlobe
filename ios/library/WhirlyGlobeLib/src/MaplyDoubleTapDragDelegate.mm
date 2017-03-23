@@ -86,6 +86,7 @@ using namespace WhirlyKit;
                 // Check if we're still within bounds
                 if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
                 {
+                    newLoc = newCenter;
                     [self.mapView setLoc:newLoc];
                 }
             }
