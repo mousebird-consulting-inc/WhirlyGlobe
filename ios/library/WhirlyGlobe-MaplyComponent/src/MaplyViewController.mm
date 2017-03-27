@@ -858,10 +858,8 @@ using namespace Maply;
     
     [mapView cancelAnimation];
     
-    // save current view state
-    MaplyViewControllerAnimationState *curState = [self getViewState];
 
-    // temporarily change view state, without propagating updates, to check validity
+    // See if the change of location will cause problems
     MaplyViewControllerAnimationState *nextState = [[MaplyViewControllerAnimationState alloc] init];
     nextState.heading = newHeading;
     nextState.pos = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
@@ -870,9 +868,6 @@ using namespace Maply;
     Point3d newCenter;
     bool valid = [self withinBounds:mapView.loc view:glView renderer:sceneRenderer mapView:mapView newCenter:&newCenter];
     
-    // restore current view state
-    [self setViewStateInternal:curState runViewUpdates:false];
-
     if (valid)
     {
         MaplyViewControllerSimpleAnimationDelegate *anim = [[MaplyViewControllerSimpleAnimationDelegate alloc] init];
@@ -1120,8 +1115,18 @@ using namespace Maply;
     // Ask the delegate where we're supposed to be
     MaplyViewControllerAnimationState *animState = [animationDelegate mapViewController:self stateForTime:now];
     
-    [self setViewStateInternal:animState];
-    
+    // Do a validity check and possibly adjust the center
+    Point3d loc(animState.pos.x,animState.pos.y,animState.height);
+    MaplyView *testMapView = [[MaplyView alloc] initWithView:mapView];
+    Point3d newCenter;
+    if ([self withinBounds:loc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
+    {
+        GeoCoord geoCoord = coordAdapter->getCoordSystem()->localToGeographic(newCenter);
+        animState.pos = {geoCoord.x(),geoCoord.y()};
+        animState.height = newCenter.z();
+        [self setViewStateInternal:animState];
+    }
+
     if (lastOne)
     {
         [theMapView cancelAnimation];
@@ -1263,7 +1268,6 @@ using namespace Maply;
         maxHeight = minHeight;
     } else {
         // Now for the binary search
-        // Note: I'd rather make a copy of the view first
         float minRange = 1e-5;
         do
         {
