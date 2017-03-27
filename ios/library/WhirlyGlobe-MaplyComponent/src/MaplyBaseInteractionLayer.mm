@@ -2523,6 +2523,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             chunk.eps = [inDesc[kMaplySubdivEpsilon] floatValue];
         if (sticker.coordSys)
             chunk.coordSys = [sticker.coordSys getCoordSystem];
+        if ([inDesc[kMaplyColor] isKindOfClass:[UIColor class]])
+            chunk.color = inDesc[kMaplyColor];
         if (inDesc[kMaplyMinVis] != nil)
             chunk.minVis = [inDesc[kMaplyMinVis] floatValue];
         if (inDesc[kMaplyMaxVis] != nil)
