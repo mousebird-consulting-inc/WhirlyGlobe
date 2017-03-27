@@ -20,6 +20,7 @@
 
 #import <queue>
 #import <set>
+#import "UIColor+stuff.h"
 #import "DynamicTextureAtlas.h"
 #import "DynamicDrawableAtlas.h"
 #import "SphericalEarthChunkManager.h"
@@ -39,6 +40,7 @@ using namespace WhirlyKit;
     _sampleX = _sampleY = 12;
     _minSampleX = _minSampleY = 1;
     _eps = 0.0005;
+    _color = [UIColor whiteColor];
     _minVis = DrawVisibleInvalid;
     _maxVis = DrawVisibleInvalid;
     _readZBuffer = false;
@@ -138,6 +140,7 @@ static const float SkirtFactor = 0.95;
     drawable->setVisibleRange(_minVis, _maxVis, _minVisBand, _maxVisBand);
     drawable->setRequestZBuffer(self.readZBuffer);
     drawable->setWriteZBuffer(self.writeZBuffer);
+    drawable->setColor([_color asRGBAColor]);
     drawable->setProgram(_programID);
     
     int thisSampleX = _sampleX, thisSampleY = _sampleY;
@@ -264,6 +267,7 @@ static const float SkirtFactor = 0.95;
         skirtDrawable->setLocalMbr(_mbr);
         skirtDrawable->setDrawPriority(0);
         skirtDrawable->setDrawOffset(_drawOffset);
+        skirtDrawable->setColor([_color asRGBAColor]);
         skirtDrawable->setTexIDs(_texIDs);
         skirtDrawable->setOnOff(enable);
         skirtDrawable->setVisibleRange(_minVis, _maxVis);
