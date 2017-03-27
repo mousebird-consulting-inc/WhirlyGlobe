@@ -19,6 +19,7 @@
  */
 
 #import "MaplyZoomGestureDelegate.h"
+#import "MaplyPanDelegate.h"
 
 #import "EAGLView.h"
 #import "SceneRendererES.h"
@@ -44,7 +45,7 @@ using namespace WhirlyKit;
     return TRUE;
 }
 
-- (void)setBounds:(WhirlyKit::Point2f *)inBounds
+- (void)setBounds:(WhirlyKit::Point2d *)inBounds
 {
     bounds.clear();
     for (unsigned int ii=0;ii<4;ii++)
@@ -52,34 +53,9 @@ using namespace WhirlyKit;
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
-    if (bounds.empty())
-        return true;
-
-    Point3d oldLoc = self.mapView.loc;
-    [self.mapView setLoc:loc runUpdates:false];
-    
-    Eigen::Matrix4d fullMatrix = [_mapView calcFullMatrix];
-    
-    // The corners of the view should be within the bounds
-    CGPoint corners[4];
-    corners[0] = CGPointMake(0,0);
-    corners[1] = CGPointMake(view.frame.size.width, 0.0);
-    corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
-    corners[3] = CGPointMake(0.0, view.frame.size.height);
-    Point3d planePts[4];
-    bool isValid = true;
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        [_mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
-                              frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
-                                    hit:&planePts[ii] clip:false];
-        isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
-        //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
-    }
-    [self.mapView setLoc:oldLoc runUpdates:false];
-    return isValid;
+    return MaplyGestureWithinBounds(bounds,loc,view,sceneRender,testMapView,newCenter);
 }
 
 // Called for double tap actions
@@ -98,11 +74,16 @@ using namespace WhirlyKit;
     if ([_mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
     {
         double newZ = curLoc.z() - (curLoc.z() - _minZoom)/2.0;
+        Point2d newCenter;
         if (_minZoom >= _maxZoom || (_minZoom < newZ && newZ < _maxZoom))
         {
-            [_mapView setLoc:Point3d(hit.x(),hit.y(),newZ)];
-            if (![self withinBounds:_mapView.loc view:glView renderer:sceneRenderer])
-                [_mapView setLoc:curLoc];
+            MaplyView *testMapView = [[MaplyView alloc] initWithView:_mapView];
+            [testMapView setLoc:Point3d(hit.x(),hit.y(),newZ)];
+            Point3d newCenter;
+            if ([self withinBounds:_mapView.loc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
+            {
+                [_mapView setLoc:newCenter];
+            }
         }
     } else {
         // Not expecting this case

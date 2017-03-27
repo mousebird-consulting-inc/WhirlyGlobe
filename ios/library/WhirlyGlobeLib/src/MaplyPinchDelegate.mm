@@ -79,13 +79,14 @@ using namespace WhirlyKit;
             double newZ = startZ/pinch.scale;
             if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
             {
-                //set new height, but dont update display yet
+                MaplyView *testMapView = [[MaplyView alloc] initWithView:self.mapView];
+
                 Point3d newLoc(curLoc.x(), curLoc.y(), newZ);
-                [self.mapView setLoc:newLoc runUpdates:NO];
+                [testMapView setLoc:newLoc runUpdates:NO];
 
                 //calculatute scalepoint offset in screenspace
-                Eigen::Matrix4d modelTrans = [self.mapView calcFullMatrix];
-                CGPoint currentScalePointScreenLoc = [self.mapView pointOnScreenFromPlane:startingGeoPoint
+                Eigen::Matrix4d modelTrans = [testMapView calcFullMatrix];
+                CGPoint currentScalePointScreenLoc = [testMapView pointOnScreenFromPlane:startingGeoPoint
                                                                                transform:&modelTrans
                                                                                frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
                 CGPoint screenOffset = {startingMidPoint.x - currentScalePointScreenLoc.x,
@@ -95,18 +96,19 @@ using namespace WhirlyKit;
                 CGPoint newMapCenterPoint = {static_cast<CGFloat>((glView.frame.size.width/2.0) - screenOffset.x),
                     static_cast<CGFloat>((glView.frame.size.height/2.0) - screenOffset.y)};
                 Point3d newCenterGeoPoint;
-                [self.mapView pointOnPlaneFromScreen:newMapCenterPoint
+                [testMapView pointOnPlaneFromScreen:newMapCenterPoint
                                            transform:&modelTrans
                                            frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)
                                                  hit:&newLoc
                                                 clip:true];
                 newLoc.z() = newZ;
                 
-                [self.mapView setLoc:newLoc runUpdates:YES];
-
-                //Check if we've gone out of bounds, undo changes if needed
-                if (![self withinBounds:self.mapView.loc view:glView renderer:sceneRenderer])
-                    [self.mapView setLoc:curLoc];
+                [testMapView setLoc:newLoc runUpdates:YES];
+                Point3d newCenter;
+                if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
+                {
+                    [self.mapView setLoc:newCenter runUpdates:YES];
+                }
             }
         }
 			break;

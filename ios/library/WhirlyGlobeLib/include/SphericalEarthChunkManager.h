@@ -51,6 +51,8 @@
 @property (nonatomic,assign) float drawOffset;
 /// Sorting priority for the generated geometry
 @property (nonatomic,assign) int drawPriority;
+/// Color of the base polygon
+@property (nonatomic) UIColor *color;
 /// Sampling along X and Y.
 /// If the eps is set, this is the maximum sampling in x/y
 @property (nonatomic,assign) int sampleX,sampleY;

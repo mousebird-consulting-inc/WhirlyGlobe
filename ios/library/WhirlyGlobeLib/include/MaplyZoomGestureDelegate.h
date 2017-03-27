@@ -28,7 +28,7 @@
 @interface MaplyZoomGestureDelegate : NSObject <UIGestureRecognizerDelegate>
 {
   /// Boundary quad that we're to stay within
-  std::vector<WhirlyKit::Point2f> bounds;
+  std::vector<WhirlyKit::Point2d> bounds;
 }
 
 /// Minimum allowable zoom level
@@ -40,7 +40,7 @@
 @property (nonatomic,weak) MaplyView *mapView;
 
 /// Set the bounding rectangle
-- (void)setBounds:(WhirlyKit::Point2f *)bounds;
+- (void)setBounds:(WhirlyKit::Point2d *)bounds;
 
 - (instancetype)initWithMapView:(MaplyView *)inView;
 
