@@ -22,12 +22,17 @@
 #import <vector>
 #import "MaplyView.h"
 
+@class WhirlyKitSceneRendererES;
+
 // Sent out when the pan delegate takes control
 #define kPanDelegateDidStart @"WKPanDelegateStarted"
 // Sent out when the pan delegate finished (but hands off to momentum)
 #define kPanDelegateDidEnd @"WKPanDelegateEnded"
 
 #define kPanDelegateMinTime 0.1
+
+// Bounds check that adjusts the center to try and compensate
+bool MaplyGestureWithinBounds(const std::vector<WhirlyKit::Point2d> &bounds,const WhirlyKit::Point3d &loc,UIView *view,WhirlyKitSceneRendererES *sceneRender,MaplyView *testMapView,WhirlyKit::Point3d *newCenter);
 
 // Custom pan gesture recognizer that plays well with scroll views.
 @interface MinDelay2DPanGestureRecognizer : UIPanGestureRecognizer {
@@ -47,6 +52,6 @@
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 
 /// Set the bounding rectangle
-- (void)setBounds:(WhirlyKit::Point2f *)bounds;
+- (void)setBounds:(WhirlyKit::Point2d *)bounds;
 
 @end

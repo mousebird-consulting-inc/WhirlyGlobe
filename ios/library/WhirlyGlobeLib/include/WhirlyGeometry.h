@@ -35,7 +35,11 @@ bool IntersectSphereRadius(Point3d org,Eigen::Vector3d dir,double radius,Point3d
 
 /// Returns true if the given point is inside the close polygon
 ///  defined by ring.  Standard winding-ish test.
-bool PointInPolygon(Point2f pt,const std::vector<Point2f> &ring);
+bool PointInPolygon(const Point2f &pt,const std::vector<Point2f> &ring);
+
+/// Returns true if the given point is inside the close polygon
+///  defined by ring.  Standard winding-ish test.
+bool PointInPolygon(const Point2d &pt,const std::vector<Point2d> &ring);
 
 /// Run a convex polygon intersection check.  Returns true if they overlap
 bool ConvexPolyIntersect(const std::vector<Point2f> &pts0,const std::vector<Point2f> &pts1);
@@ -51,6 +55,9 @@ Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Poin
 
 /// Find the point on a line segment closest to the given point.  Also returns the parametric value.
 Point2d ClosestPointOnLineSegment(const Point2d &p0,const Point2d &p1,const Point2d &pt,double &t);
+
+/// Find the closest point on the polygon to the point passed in
+double ClosestPointToPolygon(const std::vector<Point2d> &pts,const Point2d &pt,Point2d *closePt);
 	
 /// Calculates the intersection point of two lines (not line segments) if there is one
 bool IntersectLines(const Point2f &a0,const Point2f &a1,const Point2f &b0,const Point2f &b1,Point2f *iPt);
