@@ -80,6 +80,50 @@ public class SLDIsBetweenOperator extends SLDOperator {
     }
 
     public boolean evaluateWithAttrs(AttrDictionary attrs) {
+
+        Object subExpressionResult = subExpression.evaluateWithAttrs(attrs);
+        Object lowerBoundaryResult = lowerBoundaryExpression.evaluateWithAttrs(attrs);
+        Object upperBoundaryResult = upperBoundaryExpression.evaluateWithAttrs(attrs);
+
+        if (subExpressionResult instanceof Number) {
+            Number subExpressionNumber, lowerBoundaryNumber, upperBoundaryNumber;
+
+            if (subExpressionResult instanceof Number)
+                subExpressionNumber = (Number)subExpressionResult;
+            else if ((subExpressionResult instanceof String) && SLDParseHelper.isStringNumeric((String)subExpressionResult))
+                subExpressionNumber = Double.valueOf((String)subExpressionResult);
+            else
+                return false;
+
+            if (lowerBoundaryResult instanceof Number)
+                lowerBoundaryNumber = (Number)lowerBoundaryResult;
+            else if ((lowerBoundaryResult instanceof String) && SLDParseHelper.isStringNumeric((String)lowerBoundaryResult))
+                lowerBoundaryNumber = Double.valueOf((String)lowerBoundaryResult);
+            else
+                return false;
+
+            if (upperBoundaryResult instanceof Number)
+                upperBoundaryNumber = (Number)upperBoundaryResult;
+            else if ((upperBoundaryResult instanceof String) && SLDParseHelper.isStringNumeric((String)upperBoundaryResult))
+                upperBoundaryNumber = Double.valueOf((String)upperBoundaryResult);
+            else
+                return false;
+
+            double subExpressionDouble = subExpressionNumber.doubleValue();
+            double lowerBoundaryDouble = lowerBoundaryNumber.doubleValue();
+            double upperBoundaryDouble = upperBoundaryNumber.doubleValue();
+
+            return ((lowerBoundaryDouble <= subExpressionDouble) && (subExpressionDouble <= upperBoundaryDouble));
+
+        } else if ((subExpressionResult instanceof String) && (lowerBoundaryResult instanceof String) && (upperBoundaryResult instanceof String)) {
+
+            String subExpressionString = (String)subExpressionResult;
+            String lowerBoundaryString = (String)lowerBoundaryResult;
+            String upperBoundaryString = (String)upperBoundaryResult;
+
+            return ((lowerBoundaryString.compareTo(subExpressionString) <= 0) && (subExpressionString.compareTo(upperBoundaryString) <= 0));
+        }
+
         return false;
     }
 

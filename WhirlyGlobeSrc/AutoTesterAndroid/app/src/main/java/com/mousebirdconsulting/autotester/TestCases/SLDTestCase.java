@@ -45,11 +45,11 @@ public class SLDTestCase extends MaplyTestCase {
         try {
             styleSet.loadSldInputStream(getActivity().getAssets().open("osm_landuse.sld"));
         } catch (XmlPullParserException xppException) {
-            Log.i("*", "xppException");
+            Log.e("AutoTesterAndroid", "SLDStyleSet XPP exception", xppException);
         } catch (IOException ioException) {
-            Log.i("*", "ioException");
+            Log.e("AutoTesterAndroid", "SLDStyleSet IO exception", ioException);
         } catch (Exception exception) {
-            Log.i("*", "exception");
+            Log.e("AutoTesterAndroid", "SLDStyleSet exception", exception);
         }
 
     }

@@ -29,6 +29,9 @@ import java.io.InputStream;
 
 import android.util.Log;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
 import com.mousebird.maply.sld.sldexpressions.SLDExpression;
 import com.mousebird.maply.sld.sldexpressions.SLDExpressionFactory;
@@ -37,10 +40,26 @@ import com.mousebird.maply.sld.sldexpressions.SLDLiteralExpression;
 
 public class SLDIsLikeOperator extends SLDOperator {
 
-    private SLDExpression propertyExpression;
-    private SLDExpression literalExpression;
+    private String wildCard, singleChar, escapeChar;
+    private boolean matchCase;
+
+    private Pattern pattern;
+    private SLDPropertyNameExpression propertyExpression;
+
 
     public SLDIsLikeOperator(XmlPullParser xpp) throws XmlPullParserException, IOException {
+
+        wildCard = xpp.getAttributeValue(null, "wildCard");
+        singleChar = xpp.getAttributeValue(null, "singleChar");
+        escapeChar = xpp.getAttributeValue(null, "escapeChar");
+
+        matchCase = true;
+        String matchCaseStr = xpp.getAttributeValue(null, "matchCase");
+        if ((matchCaseStr != null) && (matchCaseStr.equals("false") || matchCaseStr.equals("0")))
+            matchCase = false;
+
+        SLDLiteralExpression literalExpression = null;
+
         while (xpp.next() != XmlPullParser.END_TAG) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -49,13 +68,54 @@ public class SLDIsLikeOperator extends SLDOperator {
 
             SLDExpression expression = SLDExpressionFactory.expressionForNode(xpp);
             if (expression instanceof  SLDPropertyNameExpression) {
-                this.literalExpression = expression;
+                this.propertyExpression = (SLDPropertyNameExpression)expression;
             } else if (expression instanceof  SLDLiteralExpression) {
-                this.propertyExpression = expression;
+                literalExpression = (SLDLiteralExpression)expression;
             } else if (expression == null) {
                 SLDParseHelper.skip(xpp);
             }
 
+        }
+
+        if (literalExpression != null && wildCard != null && wildCard.length() == 1 && singleChar != null && singleChar.length() == 1 && escapeChar != null && escapeChar.length() == 1) {
+
+            char oldWildCardChar = wildCard.charAt(0);
+            char oldSingleChar = singleChar.charAt(0);
+            char oldEscapeChar = escapeChar.charAt(0);
+
+            String newWildCardChar = ".*";
+            String newSingleChar = ".?";
+
+            Object literalValueObj = literalExpression.getLiteral();
+            if (literalValueObj instanceof String) {
+                String likeStr = (String)literalValueObj;
+
+                String newLikeStr = new String();
+                int oldLen = likeStr.length();
+
+                char bufc;
+
+                for (int i=0; i<oldLen; i++) {
+                    bufc = likeStr.charAt(i);
+                    if (bufc == oldSingleChar)
+                        newLikeStr = newLikeStr.concat(newSingleChar);
+                    else if (bufc == oldWildCardChar)
+                        newLikeStr = newLikeStr.concat(newWildCardChar);
+                    else if (bufc == oldEscapeChar) {
+                        if (i == oldLen-1)
+                            continue;
+                        newLikeStr = newLikeStr.concat(Pattern.quote(likeStr.substring(i+1,i+2)));
+                        i++;
+                    } else {
+                        newLikeStr = newLikeStr.concat(Pattern.quote(likeStr.substring(i,i+1)));
+                    }
+                }
+
+                if (matchCase)
+                    pattern = Pattern.compile(newLikeStr);
+                else
+                    pattern = Pattern.compile(newLikeStr, Pattern.CASE_INSENSITIVE);
+            }
         }
     }
 
@@ -67,7 +127,14 @@ public class SLDIsLikeOperator extends SLDOperator {
 
 
     public boolean evaluateWithAttrs(AttrDictionary attrs) {
-        return false;
+        Object propertyValueObj = propertyExpression.evaluateWithAttrs(attrs);
+        if (!(propertyValueObj instanceof String))
+            return false;
+
+        String propertyValue = (String)propertyValueObj;
+
+        Matcher m = pattern.matcher(propertyValue);
+        return m.matches();
     }
 
 }

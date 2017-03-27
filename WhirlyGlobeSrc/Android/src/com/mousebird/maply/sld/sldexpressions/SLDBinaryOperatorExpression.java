@@ -34,10 +34,24 @@ import android.util.Log;
 
 public class SLDBinaryOperatorExpression extends SLDExpression {
 
+    private enum ExpressionType { ExpressionTypeAdd, ExpressionTypeSub, ExpressionTypeMul, ExpressionTypeDiv};
+
+    private ExpressionType expressionType;
     private SLDExpression leftExpression;
     private SLDExpression rightExpression;
 
     public SLDBinaryOperatorExpression(XmlPullParser xpp) throws XmlPullParserException, IOException {
+
+        String expressionName = xpp.getName();
+        if (expressionName.equals("Add"))
+            expressionType = ExpressionType.ExpressionTypeAdd;
+        else if (expressionName.equals("Sub"))
+            expressionType = ExpressionType.ExpressionTypeSub;
+        else if (expressionName.equals("Mul"))
+            expressionType = ExpressionType.ExpressionTypeMul;
+        else if (expressionName.equals("Div"))
+            expressionType = ExpressionType.ExpressionTypeDiv;
+
         ArrayList<SLDExpression> expressions = new ArrayList<SLDExpression>();
         while (xpp.next() != XmlPullParser.END_TAG) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
@@ -60,6 +74,29 @@ public class SLDBinaryOperatorExpression extends SLDExpression {
 
 
     public Object evaluateWithAttrs(AttrDictionary attrs) {
+
+        Object leftObject = leftExpression.evaluateWithAttrs(attrs);
+        Object rightObject = rightExpression.evaluateWithAttrs(attrs);
+
+        if (!(leftObject instanceof  Number) || !(rightObject instanceof  Number))
+            return null;
+        Number leftNumber = (Number)leftObject;
+        Number rightNumber = (Number)rightObject;
+
+        if (expressionType == ExpressionType.ExpressionTypeAdd)
+            return Double.valueOf(leftNumber.doubleValue() + rightNumber.doubleValue());
+        else if (expressionType == ExpressionType.ExpressionTypeSub)
+            return Double.valueOf(leftNumber.doubleValue() - rightNumber.doubleValue());
+        else if (expressionType == ExpressionType.ExpressionTypeMul)
+            return Double.valueOf(leftNumber.doubleValue() * rightNumber.doubleValue());
+        else if (expressionType == ExpressionType.ExpressionTypeDiv) {
+            try {
+                double d = leftNumber.doubleValue() / rightNumber.doubleValue();
+                return Double.valueOf(d);
+            } catch (Exception e) {
+                return null;
+            }
+        }
         return null;
     }
 

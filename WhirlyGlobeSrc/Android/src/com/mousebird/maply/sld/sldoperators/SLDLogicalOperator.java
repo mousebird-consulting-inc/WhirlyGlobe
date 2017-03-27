@@ -35,9 +35,19 @@ import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
 
 public class SLDLogicalOperator extends SLDOperator {
 
+    private enum LogicType { LogicTypeAnd, LogicTypeOr };
+
+    private LogicType logicType;
     private List<SLDOperator> subOperators;
 
     public SLDLogicalOperator(XmlPullParser xpp) throws XmlPullParserException, IOException {
+
+        String operatorName = xpp.getName();
+        if (operatorName.equals("And"))
+            logicType = LogicType.LogicTypeAnd;
+        else if (operatorName.equals("Or"))
+            logicType = LogicType.LogicTypeOr;
+
         this.subOperators = new ArrayList<SLDOperator>();
         while (xpp.next() != XmlPullParser.END_TAG) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
@@ -62,7 +72,14 @@ public class SLDLogicalOperator extends SLDOperator {
     }
 
     public boolean evaluateWithAttrs(AttrDictionary attrs) {
-        return false;
+        boolean result = true;
+        for (SLDOperator operator : subOperators) {
+            if (logicType == LogicType.LogicTypeAnd)
+                result = result && operator.evaluateWithAttrs(attrs);
+            else if (logicType == LogicType.LogicTypeOr)
+                result = result || operator.evaluateWithAttrs(attrs);
+        }
+        return result;
     }
 
 }

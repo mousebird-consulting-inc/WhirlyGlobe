@@ -41,6 +41,7 @@ public class SLDPropertyNameExpression extends SLDExpression {
                 continue;
             }
             Log.i("SLDPropertyNameExpr", xpp.getText());
+            propertyName = xpp.getText();
 
 
 //            if (xpp.getEventType() != XmlPullParser.START_TAG) {
@@ -56,7 +57,7 @@ public class SLDPropertyNameExpression extends SLDExpression {
 
 
     public Object evaluateWithAttrs(AttrDictionary attrs) {
-        return null;
+        return attrs.get(propertyName);
     }
 
     public static boolean matchesElementNamed(String elementName) {

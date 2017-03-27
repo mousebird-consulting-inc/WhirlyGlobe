@@ -61,6 +61,8 @@ public class SLDIsNullOperator extends SLDOperator {
 
 
     public boolean evaluateWithAttrs(AttrDictionary attrs) {
+        if (subExpression != null)
+            return (subExpression.evaluateWithAttrs(attrs) == null);
         return false;
     }
 

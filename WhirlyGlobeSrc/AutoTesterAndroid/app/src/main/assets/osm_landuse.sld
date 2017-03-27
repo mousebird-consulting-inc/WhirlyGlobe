@@ -14,7 +14,7 @@
               <ogc:Literal>forest</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
-    	  <se:MaxScaleDenominator>120000</se:MaxScaleDenominator>
+    	  <MaxScaleDenominator>120000</MaxScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
               <CssParameter name="fill">#6b942e</CssParameter>
@@ -34,7 +34,7 @@
               <ogc:Literal>forest</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
-    	  <se:MaxScaleDenominator>5000</se:MaxScaleDenominator>
+    	  <MaxScaleDenominator>5000</MaxScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
 			  <GraphicFill>
@@ -58,7 +58,7 @@
               <ogc:Literal>residential</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
-    	  <se:MaxScaleDenominator>120000</se:MaxScaleDenominator>
+    	  <MaxScaleDenominator>120000</MaxScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
               <CssParameter name="fill">#ffc965</CssParameter>
@@ -78,7 +78,7 @@
               <ogc:Literal>residential</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
-    	  <se:MaxScaleDenominator>5000</se:MaxScaleDenominator>
+    	  <MaxScaleDenominator>5000</MaxScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
 			  <GraphicFill>
@@ -108,7 +108,7 @@
             </ogc:PropertyIsEqualTo>
             </ogc:Or>
           </ogc:Filter>
-    	  <se:MaxScaleDenominator>120000</se:MaxScaleDenominator>
+    	  <MaxScaleDenominator>120000</MaxScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
               <CssParameter name="fill">#aac566</CssParameter>
@@ -124,7 +124,7 @@
               <ogc:Literal>meadow</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
-    <se:MaxScaleDenominator>40000</se:MaxScaleDenominator>
+    <MaxScaleDenominator>40000</MaxScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
               <CssParameter name="fill">#ffeec6</CssParameter>
@@ -144,7 +144,7 @@
               <ogc:Literal>industrial</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
-    	  <se:MaxScaleDenominator>120000</se:MaxScaleDenominator>
+    	  <MaxScaleDenominator>120000</MaxScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
               <CssParameter name="fill">#c0a3cb</CssParameter>
@@ -164,7 +164,7 @@
               <ogc:Literal>industrial</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
-    	  <se:MaxScaleDenominator>5000</se:MaxScaleDenominator>
+    	  <MaxScaleDenominator>5000</MaxScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
 			  <GraphicFill>
@@ -198,7 +198,7 @@
             </ogc:PropertyIsEqualTo>
             </ogc:Or>
           </ogc:Filter>
-    	  <se:MaxScaleDenominator>40000</se:MaxScaleDenominator>
+    	  <MaxScaleDenominator>40000</MaxScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
               <CssParameter name="fill">#ffeec6</CssParameter>
@@ -218,7 +218,7 @@
               <ogc:Literal>cemetery</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
-    	  <se:MaxScaleDenominator>40000</se:MaxScaleDenominator>
+    	  <MaxScaleDenominator>40000</MaxScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
               <CssParameter name="fill">#c2debd</CssParameter>
@@ -238,7 +238,7 @@
               <ogc:Literal>cemetery</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
-    	  <se:MaxScaleDenominator>5000</se:MaxScaleDenominator>
+    	  <MaxScaleDenominator>5000</MaxScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
 			  <GraphicFill>
@@ -268,7 +268,7 @@
             </ogc:PropertyIsEqualTo>
             </ogc:Or>
           </ogc:Filter>
-    	  <se:MaxScaleDenominator>120000</se:MaxScaleDenominator>
+    	  <MaxScaleDenominator>120000</MaxScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
               <CssParameter name="fill">#c4909c</CssParameter>
@@ -288,7 +288,7 @@
               <ogc:Literal>commercial</ogc:Literal>
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
-    	  <se:MaxScaleDenominator>5000</se:MaxScaleDenominator>
+    	  <MaxScaleDenominator>5000</MaxScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
 			  <GraphicFill>

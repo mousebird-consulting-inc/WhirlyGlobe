@@ -40,13 +40,17 @@ public class SLDLiteralExpression extends SLDExpression {
                 continue;
             }
             Log.i("SLDLiteralExpr", xpp.getText());
+            literal = xpp.getText();
         }
 
     }
 
+    public Object getLiteral() {
+        return literal;
+    }
 
     public Object evaluateWithAttrs(AttrDictionary attrs) {
-        return null;
+        return literal;
     }
 
     public static boolean matchesElementNamed(String elementName) {

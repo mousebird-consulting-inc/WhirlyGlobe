@@ -59,6 +59,8 @@ public class SLDNotOperator extends SLDOperator {
 
 
     public boolean evaluateWithAttrs(AttrDictionary attrs) {
+        if (subOperator != null)
+            return !subOperator.evaluateWithAttrs(attrs);
         return false;
     }
 
