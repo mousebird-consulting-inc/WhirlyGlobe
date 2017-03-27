@@ -54,6 +54,7 @@ using namespace WhirlyKit;
 	Point3d hit;
     Eigen::Matrix4d theTransform = [self.mapView calcFullMatrix];
     CGPoint touchLoc = [tap locationInView:tap.view];
+    Point2d newCenter;
     if ([self.mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
     {
         double newZ = curLoc.z() - (curLoc.z() - self.minZoom)/2.0;
@@ -61,11 +62,11 @@ using namespace WhirlyKit;
         if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
         {
             Point3d newLoc(hit.x(),hit.y(),newZ);
-            Point3f newLoc3f(newLoc.x(),newLoc.y(),newLoc.z());
+            Point3d newCenter;
             // Check if we're still within bounds
-            if ([self withinBounds:newLoc view:glView renderer:sceneRenderer])
+            if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:[[MaplyView alloc] initWithView:self.mapView] newCenter:&newCenter])
             {
-                animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView translate:newLoc3f howLong:_animTime];
+                animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView translate:newCenter howLong:_animTime];
                 self.mapView.delegate = animation;
             }
         }

@@ -37,6 +37,6 @@
 
 /// Kick off a translate to the given position over the given time
 /// Assign this to the globe view's delegate and it'll do the rest
-- (id)initWithView:(MaplyView *)globeView translate:(WhirlyKit::Point3f &)newLoc howLong:(float)howLong;
+- (id)initWithView:(MaplyView *)globeView translate:(WhirlyKit::Point3d &)newLoc howLong:(float)howLong;
 
 @end

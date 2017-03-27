@@ -19,6 +19,7 @@
  */
 
 #import "MaplyAnimateTranslateMomentum.h"
+#import "MaplyPanDelegate.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -34,10 +35,10 @@ using namespace WhirlyKit;
     float maxTime;
     CFTimeInterval startDate;
     WhirlyKit::Point3d org;
-    std::vector<WhirlyKit::Point2f> bounds;
+    std::vector<WhirlyKit::Point2d> bounds;
 }
 
-- (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2f> &)inBounds view:(UIView *)inView renderer:(WhirlyKitSceneRendererES *)inSceneRenderer
+- (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2d> &)inBounds view:(UIView *)inView renderer:(WhirlyKitSceneRendererES *)inSceneRenderer
 {
     if ((self = [super init]))
     {
@@ -69,31 +70,9 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
-    if (bounds.empty())
-        return true;
-    
-    Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
-    
-    // The corners of the view should be within the bounds
-    CGPoint corners[4];
-    corners[0] = CGPointMake(0,0);
-    corners[1] = CGPointMake(view.frame.size.width, 0.0);
-    corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
-    corners[3] = CGPointMake(0.0, view.frame.size.height);
-    Point3d planePts[4];
-    bool isValid = true;
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
-                              frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
-                                    hit:&planePts[ii] clip:false];
-        isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
-        //        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
-    }
-    
-    return isValid;
+    return MaplyGestureWithinBounds(bounds,loc,view,sceneRender,testMapView,newCenter);
 }
 
 // Called by the view when it's time to update
@@ -117,28 +96,19 @@ using namespace WhirlyKit;
     double dist = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
     Point3d newLoc = org + dir * dist;
     [theMapView setLoc:newLoc runUpdates:false];
+    
+    Point3d newCenter;
+    
+    MaplyView *testMapView = [[MaplyView alloc] initWithView:theMapView];
 
     // We'll do a hard stop if we're not within the bounds
     // Note: We're trying this location out, then backing off if it failed.
-    if (![self withinBounds:newLoc view:glView renderer:sceneRenderer])
+    if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
     {
-        // How about if we leave the x alone?
-        Point3d testLoc = Point3d(oldLoc.x(),newLoc.y(),newLoc.z());
-        [mapView setLoc:testLoc runUpdates:false];
-        if (![self withinBounds:testLoc view:glView renderer:sceneRenderer])
-        {
-            // How about leaving y alone?
-            testLoc = Point3d(newLoc.x(),oldLoc.y(),newLoc.z());
-            [mapView setLoc:testLoc runUpdates:false];
-            if (![self withinBounds:testLoc view:glView renderer:sceneRenderer])
-                [mapView setLoc:oldLoc runUpdates:false];
-        }
+        [theMapView setLoc:newCenter runUpdates:true];
+    } else {
+        startDate = 0.0;
     }
-    
-    if (![self withinBounds:newLoc view:glView renderer:sceneRenderer])
-        [theMapView setLoc:oldLoc runUpdates:false];
-    
-    [theMapView runViewUpdates];
 }
 
 

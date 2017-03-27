@@ -26,6 +26,61 @@
 
 using namespace WhirlyKit;
 
+bool MaplyGestureWithinBounds(const std::vector<WhirlyKit::Point2d> &bounds,const Point3d &loc,UIView *view,WhirlyKitSceneRendererES *sceneRender,MaplyView *testMapView,Point3d *newCenter)
+{
+    if (newCenter)
+        *newCenter = loc;
+    
+    if (bounds.empty())
+        return true;
+    
+    // The corners of the view should be within the bounds
+    CGPoint corners[4];
+    corners[0] = CGPointMake(0,0);
+    corners[1] = CGPointMake(view.frame.size.width, 0.0);
+    corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
+    corners[3] = CGPointMake(0.0, view.frame.size.height);
+    
+    bool isValid = false;
+    Point2d locOffset(0,0);
+    for (unsigned tests=0;tests<4;tests++)
+    {
+        Point3d newLoc = loc+Point3d(locOffset.x(),locOffset.y(),0.0);
+        [testMapView setLoc:newLoc runUpdates:false];
+        Eigen::Matrix4d fullMatrix = [testMapView calcFullMatrix];
+        
+        bool checkOkay = true;
+        for (unsigned int ii=0;ii<4;ii++)
+        {
+            Point3d planePt;
+            [testMapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
+                                      frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
+                                            hit:&planePt clip:false];
+            if (!PointInPolygon(Point2d(planePt.x(),planePt.y()), bounds))
+            {
+                Point2d closePt;
+                ClosestPointToPolygon(bounds, Point2d(planePt.x(),planePt.y()), &closePt);
+                Point2d thisOffset = 1.01 * (closePt - Point2d(planePt.x(),planePt.y()));
+                // Try to move around, inward
+                locOffset += thisOffset;
+                checkOkay = false;
+                
+                break;
+            }
+        }
+        
+        if (checkOkay)
+        {
+            isValid = true;
+            if (newCenter)
+                *newCenter = newLoc;
+            break;
+        }
+    }
+    
+    return isValid;
+}
+
 @implementation MinDelay2DPanGestureRecognizer
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -59,7 +114,7 @@ using namespace WhirlyKit;
     WhirlyKit::Point3d startLoc;
     CGPoint lastTouch;
     /// Boundary quad that we're to stay within
-    std::vector<WhirlyKit::Point2f> bounds;
+    std::vector<WhirlyKit::Point2d> bounds;
 
     MaplyAnimateTranslateMomentum *translateDelegate;
 }
@@ -98,39 +153,17 @@ using namespace WhirlyKit;
     return TRUE;
 }
 
-- (void)setBounds:(WhirlyKit::Point2f *)inBounds
+- (void)setBounds:(WhirlyKit::Point2d *)inBounds
 {
     bounds.clear();
     for (unsigned int ii=0;ii<4;ii++)
-        bounds.push_back(inBounds[ii]);
+        bounds.push_back(Point2d(inBounds[ii].x(),inBounds[ii].y()));
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
-    if (bounds.empty())
-        return true;
-    
-    Eigen::Matrix4d fullMatrix = [mapView calcFullMatrix];
-
-    // The corners of the view should be within the bounds
-    CGPoint corners[4];
-    corners[0] = CGPointMake(0,0);
-    corners[1] = CGPointMake(view.frame.size.width, 0.0);
-    corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
-    corners[3] = CGPointMake(0.0, view.frame.size.height);
-    Point3d planePts[4];
-    bool isValid = true;
-    for (unsigned int ii=0;ii<4;ii++)
-    {
-        [mapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
-                              frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
-                                    hit:&planePts[ii] clip:false];
-        isValid &= PointInPolygon(Point2f(planePts[ii].x(),planePts[ii].y()), bounds);
-//        NSLog(@"plane hit = (%f,%f), isValid = %s",planePts[ii].x(),planePts[ii].y(),(isValid ? "yes" : "no"));
-    }
-    
-    return isValid;
+    return MaplyGestureWithinBounds(bounds,loc,view,sceneRender,testMapView,newCenter);
 }
 
 // How long we'll animate the gesture ending
@@ -179,29 +212,42 @@ static const float AnimLen = 1.0;
                                        frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
                                             hit:&hit clip:false];
 
+                
                 // Note: Just doing a translation for now.  Won't take angle into account
+                MaplyView *testMapView = [[MaplyView alloc] initWithView:mapView];
                 Point3d oldLoc = mapView.loc;
                 Point3d newLoc = startOnPlane - hit + startLoc;
-                [mapView setLoc:newLoc runUpdates:false];
+                testMapView.loc = newLoc;
+                Point3d newCenter;
+                bool validLoc = false;
                 
                 // We'll do a hard stop if we're not within the bounds
                 // Note: We're trying this location out, then backing off if it failed.
-                if (![self withinBounds:newLoc view:glView renderer:sceneRender])
+                if (![self withinBounds:newLoc view:glView renderer:sceneRender mapView:testMapView newCenter:&newCenter])
                 {
                     // How about if we leave the x alone?
                     Point3d testLoc = Point3d(oldLoc.x(),newLoc.y(),newLoc.z());
-                    [mapView setLoc:testLoc runUpdates:false];
-                    if (![self withinBounds:testLoc view:glView renderer:sceneRender])
+                    [testMapView setLoc:testLoc runUpdates:false];
+                    if (![self withinBounds:testLoc view:glView renderer:sceneRender mapView:testMapView newCenter:&newCenter])
                     {
                         // How about leaving y alone?
                         testLoc = Point3d(newLoc.x(),oldLoc.y(),newLoc.z());
-                        [mapView setLoc:testLoc runUpdates:false];
-                        if (![self withinBounds:testLoc view:glView renderer:sceneRender])
-                            [mapView setLoc:oldLoc runUpdates:false];
+                        [testMapView setLoc:testLoc runUpdates:false];
+                        if ([self withinBounds:testLoc view:glView renderer:sceneRender mapView:testMapView newCenter:&newCenter])
+                            validLoc = true;
+                    } else {
+                        validLoc = true;
                     }
+                } else {
+                    validLoc = true;
                 }
                 
-                [mapView runViewUpdates];
+                // Okay, we found a good location, so go
+                if (validLoc)
+                {
+                    [mapView setLoc:newCenter runUpdates:false];
+                    [mapView runViewUpdates];
+                }
             }
         }
             break;
