@@ -1715,6 +1715,26 @@ public:
 	return self;
 }
 
+- (instancetype)initWithShapefileInDocuments:(NSString *)shapeName
+{
+    if (self = [super init]) {
+
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        NSString *documentsDirectory = [paths objectAtIndex:0];
+        NSString *filePath = [documentsDirectory stringByAppendingPathComponent: shapeName];
+
+        //VectorDatabase(NSString *bundleDir,NSString *cacheDir,NSString *baseName,VectorReader *reader,const std::set<std::string> *indices,bool cache=false,bool autoload=false);
+
+        VectorDatabase *vecDb = new VectorDatabase(documentsDirectory, documentsDirectory, shapeName, new ShapeReader(filePath), NULL);
+
+        vectorDb = vecDb;
+        baseName = shapeName;
+    }
+
+    return self;
+}
+
+
 
 /// Construct from a shapefile in the bundle
 + (MaplyVectorDatabase *) vectorDatabaseWithShape:(NSString *)shapeName

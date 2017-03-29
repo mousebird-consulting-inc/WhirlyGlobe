@@ -356,6 +356,12 @@ typedef MaplyVectorObject WGVectorObject;
  */
 - (nonnull instancetype)initWithShape:(NSString *__nonnull)shapeName;
 
+/** @brief Construct from a shapfile in the apps documents
+    @details Construct a MaplyVectorDabase from a shapefile found in the app's bundle. This will create a bounding box cache file and a sqlite database for the attributes to speed later lookups.
+ */
+- (nonnull instancetype)initWithShapefileInDocuments:(NSString *__nonnull)shapeName;
+
+
 /** @brief Return vectors that match the given SQL query
     @details Run a SQL query on the data, looking for vectors that match.  These will be returned in a single MaplyVectorObject, or nil if there are none.
   */
