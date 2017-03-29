@@ -912,6 +912,11 @@ static const float PerfOutputDelay = 15.0;
     
     // Let's put it in the right place so the callout can do its layout logic
     CGPoint pt = [self screenPointFromGeo:coord];
+
+    // Fix for bad screen point return (courtesy highlander)
+    if (isnan(pt.x) || isnan(pt.y))
+        pt = CGPointMake(-2000.0,-2000.0);
+    
     CGRect rect = CGRectMake(pt.x+offset.x, pt.y+offset.y, 0.0, 0.0);
     annotate.loc = coord;
     if (!alreadyHere)
