@@ -122,6 +122,19 @@ tasks.withType(JavaCompile) {
     compileTask -> compileTask.dependsOn buildNative
 }
 
+task deleteDebugJar(type: Delete) {
+	delete('bin/maply.jar')
+}
+
+task createDebugJar(type: Copy) {
+    from('build/intermediates/bundles/debug/')
+    into('bin')
+    include('classes.jar')
+    rename('classes.jar', 'maply.jar')
+}
+
+createDebugJar.dependsOn(deleteDebugJar, build)
+
 
 def siteUrl = 'http://mousebird.github.io/WhirlyGlobe/'
 def gitUrl = 'https://github.com/mousebird/WhirlyGlobe.git'
