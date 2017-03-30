@@ -38,6 +38,7 @@ import com.mousebirdconsulting.autotester.TestCases.LIDARTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LayerShutdownTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LightingTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LocalVectorTileTestCase;
+import com.mousebirdconsulting.autotester.TestCases.LocalWorldVectorTileTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MBTilesImageTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MaplyStarModelTestCase;
 import com.mousebirdconsulting.autotester.TestCases.MapzenTestCase;
@@ -136,6 +137,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new MBTilesImageTestCase(getActivity()));
 			testCases.add(new BillboardTestCase(getActivity()));
 			testCases.add(new LocalVectorTileTestCase(getActivity()));
+			testCases.add(new LocalWorldVectorTileTestCase(getActivity()));
 			testCases.add(new PagingLayerTestCase(getActivity()));
 			testCases.add(new CoordConversionTestCase(getActivity()));
 			testCases.add(new StartupShutdownTestCase(getActivity()));

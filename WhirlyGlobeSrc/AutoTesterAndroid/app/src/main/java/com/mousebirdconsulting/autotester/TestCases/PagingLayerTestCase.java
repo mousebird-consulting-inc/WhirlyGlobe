@@ -82,7 +82,7 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
 
                                VectorInfo vecInfo = new VectorInfo();
                                int color = colors[tileID.level % colors.length];
-                               float alpha = 0.5f;
+                               float alpha = 0.25f;
                                vecInfo.setColor(Color.argb((int)(128*alpha), (int)(Color.red(color)*alpha), (int)(Color.green(color)*alpha), (int)(Color.blue(color)*alpha)));
                                vecInfo.setFilled(true);
                                vecInfo.setEnable(false);

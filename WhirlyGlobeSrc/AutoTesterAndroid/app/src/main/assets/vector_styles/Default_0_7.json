@@ -1,0 +1,90 @@
+{
+  "land": [
+    {
+      "name": "land fill",
+      "type": "FILL",
+      "minLevel": 0,
+      "maxLevel": 22,
+      "relativeDrawPriority": 100,
+      "relativeLayoutImportance": 10,
+      "colorArgb": "#ebdeb9"
+    }
+  ],
+  "lakes": [
+    {
+      "name": "lakes",
+      "type": "FILL",
+      "minLevel": 4,
+      "maxLevel": 22,
+      "relativeDrawPriority": 300,
+      "relativeLayoutImportance": 10,
+      "colorArgb": "#91b5dd"
+    }
+  ],
+  "railroads": [
+    {
+      "name": "railways low level",
+      "type": "STROKE",
+      "minLevel": 5,
+      "maxLevel": 6,
+      "relativeDrawPriority": 400,
+      "relativeLayoutImportance": 10,
+      "colorArgb": "#405063",
+      "lineWidth": 0.5
+    },
+    {
+      "name": "railways high level",
+      "type": "STROKE",
+      "minLevel": 7,
+      "maxLevel": 22,
+      "relativeDrawPriority": 400,
+      "relativeLayoutImportance": 10,
+      "colorArgb": "#405063",
+      "lineWidth": 1
+    }
+  ],
+  "rivers": [
+    {
+      "name": "rivers low level",
+      "type": "STROKE",
+      "minLevel": 4,
+      "maxLevel": 5,
+      "relativeDrawPriority": 200,
+      "relativeLayoutImportance": 10,
+      "colorArgb": "#bcccdd",
+      "lineWidth": 0.5
+    },
+    {
+      "name": "rivers high level",
+      "type": "STROKE",
+      "minLevel": 6,
+      "maxLevel": 22,
+      "relativeDrawPriority": 120,
+      "relativeLayoutImportance": 10,
+      "colorArgb": "#91b5dd",
+      "lineWidth": 1.5
+    }
+  ],
+  "roads": [
+    {
+      "name": "roads low level",
+      "type": "STROKE",
+      "minLevel": 6,
+      "maxLevel": 6,
+      "relativeDrawPriority": 500,
+      "relativeLayoutImportance": 10,
+      "colorArgb": "#c2895d",
+      "lineWidth": 0.5
+    },
+    {
+      "name": "roads high level",
+      "type": "STROKE",
+      "minLevel": 7,
+      "maxLevel": 22,
+      "relativeDrawPriority": 500,
+      "relativeLayoutImportance": 10,
+      "colorArgb": "#e88031",
+      "lineWidth": 1
+    }
+  ]
+}
