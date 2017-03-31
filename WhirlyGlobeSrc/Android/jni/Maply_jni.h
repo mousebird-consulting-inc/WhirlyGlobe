@@ -432,6 +432,7 @@ typedef JavaClassInfo<WhirlyGlobe::GlobeView> GlobeViewClassInfo;
 typedef JavaClassInfo<WhirlyKit::View> ViewClassInfo;
 typedef JavaClassInfo<WhirlyKit::BaseInfo> BaseInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorInfo> VectorInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::WideVectorInfo> WideVectorInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorObject> VectorObjectClassInfo;
 typedef JavaClassInfo<WhirlyKit::MarkerInfo> MarkerInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::LabelInfo> LabelInfoClassInfo;

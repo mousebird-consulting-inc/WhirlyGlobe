@@ -94,6 +94,11 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		 * data separate from ComponentObjects, which the QuadLayer will take care of.
          */
 		public void tileDidUnload(MaplyTileID tileID);
+
+		/**
+		 * Called on shutdown when it's time to release everything you've got your grubby hands on.
+		 */
+		public void clear();
 	}
 	
 	public MaplyBaseController maplyControl = null;
@@ -173,6 +178,8 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			valid = false;
 			cancelEvalStep();
 
+			pagingDelegate.clear();
+
 			// Remove the contents of all the tiles
 			// Note: This is being done on the current thread.  Do we want that?
 			for (LoadedTile tile : loadedTiles.values())
@@ -183,6 +190,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			nativeShutdown(changes);
 			layerThread.addChanges(changes);
 			super.shutdown();
+
+			pagingDelegate = null;
+			maplyControl = null;
 		}
 
 		dispose();

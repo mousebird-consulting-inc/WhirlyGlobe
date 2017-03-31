@@ -50,6 +50,7 @@ template<> SceneClassInfo *SceneClassInfo::classInfoObj = NULL;
 template<> ViewClassInfo *ViewClassInfo::classInfoObj = NULL;
 template<> BaseInfoClassInfo *BaseInfoClassInfo::classInfoObj = NULL;
 template<> VectorInfoClassInfo *VectorInfoClassInfo::classInfoObj = NULL;
+template<> WideVectorInfoClassInfo *WideVectorInfoClassInfo::classInfoObj = NULL;
 template<> VectorObjectClassInfo *VectorObjectClassInfo::classInfoObj = NULL;
 template<> MarkerInfoClassInfo *MarkerInfoClassInfo::classInfoObj = NULL;
 template<> SphericalChunkInfoClassInfo *SphericalChunkInfoClassInfo::classInfoObj = NULL;

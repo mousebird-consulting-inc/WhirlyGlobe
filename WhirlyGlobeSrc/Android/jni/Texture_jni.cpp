@@ -71,7 +71,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_dispose
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Texture_setBitmap
-  (JNIEnv *env, jobject obj, jobject bitmapObj)
+  (JNIEnv *env, jobject obj, jobject bitmapObj, jint format)
 {
 	try
 	{
@@ -105,6 +105,17 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Texture_setBitmap
 	}
 
 	return false;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_setSettings
+(JNIEnv *env, jobject obj, jboolean wrapU, jboolean wrapV)
+{
+    TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
+    Texture *tex = classInfo->getObject(env,obj);
+    if (!tex)
+        return;
+    
+    tex->setWrap(wrapU,wrapV);
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Texture_getID

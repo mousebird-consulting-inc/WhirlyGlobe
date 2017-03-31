@@ -20,6 +20,7 @@
 
 #import "glwrapper.h"
 #import "Quadtree.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -287,7 +288,7 @@ void Quadtree::clearFlagCounts(int frameFlags)
             frameLoadCounts[ii]--;
 }
     
-bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded)
+bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded,bool forDisplay)
 {
     int count = getFrameCount(frame);
     if (tilesLoaded)
@@ -298,12 +299,26 @@ bool Quadtree::frameIsLoaded(int frame,int *tilesLoaded)
         return false;
 
     int nodesSize = nodesByIdent.size();
-    bool isLoaded = (count+numPhantomNodes) == nodesSize;
-    
-//    if (count+numPhantomNodes > nodesByIdent.size())
-//        NSLog(@"Got one");
+    bool isLoaded = false;
+    if (knownNumNodes != 0 && forDisplay)
+        isLoaded = count >= knownNumNodes;
+    else {
+        isLoaded = (count+numPhantomNodes) == nodesSize;
+        if (isLoaded || count < knownNumNodes)
+        {
+            knownNumNodes = count;
+//            WHIRLYKIT_LOGV("knownNumNodes set to %d",knownNumNodes);
+        }
+    }
     
     return isLoaded;
+}
+    
+void Quadtree::resetKnownNodes()
+{
+    knownNumNodes = 0;
+
+//    WHIRLYKIT_LOGV("knownNumNodes reset");
 }
     
 void Quadtree::updateParentCoverage(const Identifier &ident,std::vector<Identifier> &coveredTiles,std::vector<Identifier> &unCoveredTiles)
@@ -555,8 +570,7 @@ void Quadtree::clearEvals()
 //        node->nodeInfo.loading = false;
 //        node->nodeInfo.childrenLoading = 0;
         node->nodeInfo.childrenEval = 0;
-        // Note: Porting
-//        node->nodeInfo.failed = false;
+        node->nodeInfo.failed = false;
     }
     
     evalNodes.clear();

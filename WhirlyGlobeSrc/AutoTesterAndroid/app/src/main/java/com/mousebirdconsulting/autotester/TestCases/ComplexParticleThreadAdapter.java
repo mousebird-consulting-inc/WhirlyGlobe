@@ -482,4 +482,8 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
             return true;
         }
     }
+
+    public void clear()
+    {
+    }
 }

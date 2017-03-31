@@ -24,6 +24,7 @@
 #import <android/log.h>
 #endif
 #import "GLUtils.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -493,14 +494,16 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
         offImage.frame = whichFrame;
         offImage.mbr = mbr;
         offImage.texSize = Point2d(outSizeX,outSizeY);
-        offImage.centerSize = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x()/2.0, texSize.y()/2.0));
-        offImage.cornerSizes[0] = pixelSizeForMbr(mbr,texSize,Point2d(0.0, 0.0));
-        offImage.cornerSizes[1] = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x(), 0.0));
-        offImage.cornerSizes[2] = pixelSizeForMbr(mbr,texSize,Point2d(texSize.x(), texSize.y()));
-        offImage.cornerSizes[3] = pixelSizeForMbr(mbr,texSize,Point2d(0.0, texSize.y()));
+        offImage.centerSize = pixelSizeForMbr(mbr,offImage.texSize,Point2d(offImage.texSize.x()/2.0, offImage.texSize.y()/2.0));
+        offImage.cornerSizes[0] = pixelSizeForMbr(mbr,offImage.texSize,Point2d(0.0, 0.0));
+        offImage.cornerSizes[1] = pixelSizeForMbr(mbr,offImage.texSize,Point2d(offImage.texSize.x(), 0.0));
+        offImage.cornerSizes[2] = pixelSizeForMbr(mbr,offImage.texSize,Point2d(offImage.texSize.x(), offImage.texSize.y()));
+        offImage.cornerSizes[3] = pixelSizeForMbr(mbr,offImage.texSize,Point2d(0.0, offImage.texSize.y()));
         
         if (outputDelegate)
             outputDelegate->offlineRender(this, &offImage);
+
+//        WHIRLYKIT_LOGV("centerSize = (%f,%f), texSize = (%d,%d)",offImage.centerSize.x(),offImage.centerSize.y(),(int)offImage.texSize.x(),(int)offImage.texSize.y());
     }
 //        CGContextRelease(theContext);
 //        CGColorSpaceRelease(colorSpace);
@@ -510,8 +513,6 @@ void QuadTileOfflineLoader::imageRenderToLevel(int deep,ChangeSet &changes)
 #if defined(__ANDROID__)
 //    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Offline rendered %d tiles of %d", numRenderedTiles,(int)tiles.size());
 #endif
-    
-    //        NSLog(@"CenterSize = (%f,%f), texSize = (%d,%d)",image.centerSize.width,image.centerSize.height,(int)texSize.width,(int)texSize.height);
     
     // Shut down state we used for rendering, except the texture
     if (vertAttr)

@@ -35,3 +35,6 @@ gradle-wrapper.jar
 gradle-wrapper.properties
 WhirlyGlobeSrc/Android/projectFilesBackup/.idea
 *.iml
+WhirlyGlobeSrc/Android/libs
+WhirlyGlobeSrc/AutoTesterAndroid/app/.externalNativeBuild
+WhirlyGlobeSrc/WhirlyGlobeLib/WhirlyGlobeLib.xcodeproj

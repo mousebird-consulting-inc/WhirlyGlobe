@@ -44,6 +44,11 @@ public class MBTilesImageSource implements QuadImageTileLayer.TileSource
         return pixelsPerSide;
     }
 
+    public boolean validTile(MaplyTileID tileID,Mbr tileBounds)
+    {
+        return true;
+    }
+
     /**
      * This tells you when to start fetching a given tile. When you've fetched
      * the image you'll want to call loadedTile().  If you fail to fetch an image
@@ -75,5 +80,11 @@ public class MBTilesImageSource implements QuadImageTileLayer.TileSource
         };
 
         thread.run();
+    }
+
+    @Override
+    public void clear(final QuadImageTileLayerInterface layer)
+    {
+        // Note: Not keeping track of read threads
     }
 }

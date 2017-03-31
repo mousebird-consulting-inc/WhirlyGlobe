@@ -20,15 +20,10 @@
 
 #import "Platform.h"
 #import "SceneRendererES2.h"
-// Note: Porting
-//#import "UIColor+Stuff.h"
 #import "GLUtils.h"
 #import "DefaultShaderPrograms.h"
 #import "MaplyView.h"
-// Note: Porting
-//#import "UIImage+Stuff.h"
-//#import "NSDictionary+Stuff.h"
-//#import "NSString+Stuff.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -773,6 +768,9 @@ void SceneRendererES2::render()
         perfTimer.report(fpsReport);
         perfTimer.log();
         perfTimer.clear();
+        
+        WHIRLYKIT_LOGV("---Scene Contents---");
+        scene->dumpStats();
 	}
         
     renderSetup = true;

@@ -230,10 +230,16 @@ public:
     int getFrameCount(int frame);
     
     /// Check if a given frame is completely loaded (if we're in frame mode)
-    bool frameIsLoaded(int frame,int *tilesLoaded);
+    bool frameIsLoaded(int frame,int *tilesLoaded,bool forDisplay=false);
     
     /// Return the quad tree's bounding box
     Mbr getMbr() const { return mbr; }
+    
+    /// Return the number of active phantom nodes
+    int getNumPhantom() const { return numPhantomNodes; }
+    
+    /// Reset the number of known nodes to load
+    void resetKnownNodes();
     
     /// Dump out to the log for debugging
     void Print();
@@ -305,7 +311,8 @@ protected:
     int maxNodes;
     float minImportance;
     int numPhantomNodes;
-    /// Used to calculate importance for a particular 
+    int knownNumNodes;
+    /// Used to calculate importance for a particular
     QuadTreeImportanceCalculator *importDelegate;
     
     // All nodes, sorted by ID

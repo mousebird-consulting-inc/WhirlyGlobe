@@ -246,7 +246,10 @@ public class LAZQuadReader implements QuadPagingLayer.PagingInterface
 
     public void tileDidUnload(MaplyTileID tileID)
     {
+    }
 
+    public void clear()
+    {
     }
 
     public void finalize()

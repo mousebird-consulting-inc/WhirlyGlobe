@@ -100,6 +100,8 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
     public void shutdown()
     {
         valid = false;
+        if (tileSource != null)
+            tileSource.clear(this);
         if (layerThread != null)
             layerThread.removeWatcher(this);
         cancelEvalStep();
@@ -179,6 +181,9 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
             evalStepHandle = null;
             evalStepRun = null;
         }
+
+        if (!getEnable())
+            return;
 
         // Note: Check that the renderer is set up and such.
         ChangeSet changes = new ChangeSet();
@@ -298,14 +303,22 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
     /** Enable/Disable the whole layer.
      *	By default this is on.  If you turn it off, it'll stop renering offline data.
      */
-    public void setEnable(boolean enable)
+    public void setEnable(final boolean enable)
     {
         if (layerThread == null)
             return;
 
-        ChangeSet changes = new ChangeSet();
-        setEnable(enable,changes);
-        layerThread.addChanges(changes);
+        layerThread.addTask(new Runnable() {
+            @Override
+            public void run() {
+                ChangeSet changes = new ChangeSet();
+                setEnable(enable,changes);
+                layerThread.addChanges(changes);
+
+                if (enable)
+                    scheduleEvalStep();
+            }
+        });
     }
 
     native void setEnable(boolean enable,ChangeSet changes);
@@ -437,6 +450,48 @@ public class QuadImageOfflineLayer extends Layer implements LayerThread.ViewWatc
         if (period > 0.0)
             imageRenderPeriodic();
     }
+
+    /**
+     * Calculate the bounding box in the local coordinate system.
+     * @param tileID
+     * @return
+     */
+    public Mbr boundsForTile(MaplyTileID tileID)
+    {
+        Mbr mbr = new Mbr(new Point2d(0,0),new Point2d(0,0));
+        boundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);
+        return mbr;
+    }
+    protected native void boundsForTileNative(int x,int y,int level,Point2d ll,Point2d ur);
+
+    /**
+     * Calculate the bounding box for a given tile in geographic, that is in
+     * WGS84 longitude/latitude radians.
+     */
+    public Mbr geoBoundsForTile(MaplyTileID tileID)
+    {
+        Mbr mbr = new Mbr(new Point2d(0,0),new Point2d(0,0));
+        geoBoundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);
+        return mbr;
+    }
+    protected native void geoBoundsForTileNative(int x,int y,int level,Point2d ll,Point2d ur);
+
+    // Called by the JNI side to check a tile
+    public boolean validTile(int x,int y,int level,double sx,double sy,double ex,double ey)
+    {
+        MaplyTileID tileID = new MaplyTileID();
+        tileID.level = level;  tileID.x = x;  tileID.y = y;
+
+        Point2d ll = new Point2d();
+        Point2d ur = new Point2d();
+        boundsForTileNative(x,y,level,ll,ur);
+        Mbr mbr = new Mbr();
+        mbr.addPoint(ll);
+        mbr.addPoint(ur);
+
+        return tileSource.validTile(tileID,mbr);
+    }
+
 
     /**
      * Set (or change) the bounding box of the area we're rendering to.

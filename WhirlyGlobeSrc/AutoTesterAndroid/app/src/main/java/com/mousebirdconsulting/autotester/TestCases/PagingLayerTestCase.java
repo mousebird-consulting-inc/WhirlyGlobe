@@ -154,4 +154,10 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
 
         return true;
     }
+
+    @Override
+    public void clear()
+    {
+
+    }
 }

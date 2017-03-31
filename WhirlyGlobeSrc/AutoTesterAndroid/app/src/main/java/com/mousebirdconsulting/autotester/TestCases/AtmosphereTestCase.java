@@ -99,7 +99,7 @@ public class AtmosphereTestCase extends MaplyTestCase {
                     tileSource = fullTileSource;
                 } else {
                     RemoteTileInfo tileInfo = daySource(globeVC);
-                    RemoteTileSource singleSource = new RemoteTileSource(tileInfo);
+                    RemoteTileSource singleSource = new RemoteTileSource(globeVC,tileInfo);
 //                    singleSource.setCacheDir(cacheDir);
                     tileSource = singleSource;
                 }

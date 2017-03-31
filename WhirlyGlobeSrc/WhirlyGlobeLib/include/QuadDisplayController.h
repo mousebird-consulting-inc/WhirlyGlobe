@@ -254,7 +254,7 @@ public:
     void setMinUpdateDist(float newDist) { minUpdateDist = newDist; }
     /// If set, we're only displaying the target level, ideally
     const std::set<int> &getTargetLevels() { return targetLevels; }
-    void setTargetLevels(const std::set<int> &newTargetLevels) { targetLevels = newTargetLevels; }
+    void setTargetLevels(const std::set<int> &newTargetLevels);
 
     /// Draw lines instead of polygons, for demonstration.
     bool getLineMode() { return lineMode; }

@@ -1,0 +1,8 @@
+{"type":"FeatureCollection","features":[
+                                        {"type":"Feature","id":"ATA","properties":{"name":"Antarctica"},"geometry":{"type":"MultiPolygon","coordinates":[
+                                                                                                                                                         [
+                                                                                                                                                          [
+                                                                                                                                                          	[1, 75], [90, 75], [179, 75], [-90, 75], [1, 75]
+                                                                                                                                                           ]
+                                                                                                                                                          ]]}}
+                                        ]}

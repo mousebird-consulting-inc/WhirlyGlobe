@@ -511,12 +511,11 @@ SimpleIdentity Scene::getScreenSpaceGeneratorID()
 
 void Scene::dumpStats()
 {
-    // Note: Porting
-//    NSLog(@"Scene: %ld drawables",drawables.size());
-//    NSLog(@"Scene: %d active models",[activeModels count]);
-//    NSLog(@"Scene: %ld generators",generators.size());
-//    NSLog(@"Scene: %ld textures",textures.size());
-//    NSLog(@"Scene: %ld sub textures",subTextureMap.size());
+    WHIRLYKIT_LOGV("Scene: %ld drawables",(long int)drawables.size());
+//    WHIRLYKIT_LOGV("Scene: %d active models",activeModels.size());
+//    WHIRLYKIT_LOGV("Scene: %ld generators",generators.size());
+    WHIRLYKIT_LOGV("Scene: %ld textures",(long int)textures.size());
+    WHIRLYKIT_LOGV("Scene: %ld sub textures",(long int)subTextureMap.size());
     cullTree->dumpStats();
     memManager.dumpStats();
     for (GeneratorSet::iterator it = generators.begin();

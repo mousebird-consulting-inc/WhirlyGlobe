@@ -23,6 +23,7 @@
 #import "GlobeScene.h"
 #import "SceneRendererES.h"
 #import "TextureAtlas.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -185,9 +186,8 @@ void OpenGLMemManager::clearTextureIDs()
 
 void OpenGLMemManager::dumpStats()
 {
-    // Note: Porting
-//    NSLog(@"MemCache: %ld buffers",buffIDs.size());
-//    NSLog(@"MemCache: %ld textures",texIDs.size());
+    WHIRLYKIT_LOGV("MemCache: %ld buffers",(long int)buffIDs.size());
+    WHIRLYKIT_LOGV("MemCache: %ld textures",(long int)texIDs.size());
 }
 		
 void OpenGLMemManager::lock()

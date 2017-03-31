@@ -53,6 +53,7 @@ import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StartupShutdownTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.VectorsTestCase;
+import com.mousebirdconsulting.autotester.TestCases.WideVectorsTestCase;
 
 import java.util.ArrayList;
 
@@ -145,6 +146,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new AutoRotateTestCase(getActivity()));
 			testCases.add(new MapzenTestCase(getActivity()));
 			testCases.add(new LIDARTestCase(getActivity()));
+			testCases.add(new WideVectorsTestCase(getActivity()));
 //			testCases.add(new ArealTestCase(getActivity()));
 		}
 

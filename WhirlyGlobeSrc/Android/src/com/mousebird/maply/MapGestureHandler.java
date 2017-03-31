@@ -49,6 +49,9 @@ public class MapGestureHandler
 	double zoomLimitMax = 1000.0;
 	double startRot = Double.MAX_VALUE;
 	double startViewRot = Double.MAX_VALUE;
+
+	long lastZoomEnd = 0;
+
 	public MapGestureHandler(MapController inControl,View inView)
 	{
 		mapControl = inControl;
@@ -183,6 +186,7 @@ public class MapGestureHandler
 		public void onScaleEnd(ScaleGestureDetector detector)
 		{
 //			Log.d("Maply","Ending scale");
+			lastZoomEnd = System.currentTimeMillis();
 			isActive = false;
 		}
 	}
@@ -257,7 +261,13 @@ public class MapGestureHandler
 				float velocityY) 
 		{
 //			Log.d("Maply","Fling: (x,y) = " + velocityX + " " + velocityY);
-			
+
+			if (System.currentTimeMillis() - lastZoomEnd < 175)
+			{
+				isActive = false;
+				return true;
+			}
+
 			// Project the points into map space
 			Matrix4d mapTransform = maplyControl.mapView.calcModelViewMatrix();
 			Point2d touch0 = new Point2d(e1.getX(),e1.getY());
@@ -318,6 +328,10 @@ public class MapGestureHandler
 		@Override
 		public boolean onSingleTapConfirmed(MotionEvent e) 
 		{
+			if (System.currentTimeMillis() - lastZoomEnd < 175) {
+				return true;
+			}
+
 			mapControl.processTap(new Point2d(e.getX(),e.getY()));
 			return true;
 		}
@@ -412,19 +426,20 @@ public class MapGestureHandler
 		
 		if (!sl.isActive && !gl.isActive && !slWasActive)
 		{
-			if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP))
-			{
-				Point3d loc = mapView.getLoc();
-				double newZ = loc.getZ()*2.0;
-				newZ = Math.min(newZ,zoomLimitMax);
-				newZ = Math.max(newZ,zoomLimitMin);
-				loc.setValue(loc.getX(), loc.getY(), newZ);
-				
-				// Now kick off the animation
-				mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, mapControl.renderWrapper.maplyRender, loc, (float) 0.1, mapControl.viewBounds));
+			if (System.currentTimeMillis() - lastZoomEnd >= 175) {
+				if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP)) {
+					Point3d loc = mapView.getLoc();
+					double newZ = loc.getZ() * 2.0;
+					newZ = Math.min(newZ, zoomLimitMax);
+					newZ = Math.max(newZ, zoomLimitMin);
+					loc.setValue(loc.getX(), loc.getY(), newZ);
 
-				sl.isActive = false;
-				gl.isActive = false;
+					// Now kick off the animation
+					mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, mapControl.renderWrapper.maplyRender, loc, (float) 0.1, mapControl.viewBounds));
+
+					sl.isActive = false;
+					gl.isActive = false;
+				}
 			}
 		}
 

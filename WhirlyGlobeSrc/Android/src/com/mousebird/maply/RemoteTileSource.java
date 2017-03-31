@@ -46,9 +46,11 @@ import java.net.URL;
  */
 public class RemoteTileSource implements QuadImageTileLayer.TileSource
 {
+	MaplyBaseController controller = null;
 	RemoteTileInfo tileInfo = null;
 	public CoordSystem coordSys = new SphericalMercatorCoordSystem();
-	OkHttpClient client = new OkHttpClient();
+	OkHttpClient client;
+	Object NET_TAG = new Object();
 
 	// Set if we can use the premultiply option
 	boolean hasPremultiplyOption = false;
@@ -91,8 +93,11 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 	 * 
 	 * @param inTileInfo
 	 */
-	public RemoteTileSource(RemoteTileInfo inTileInfo)
+	public RemoteTileSource(MaplyBaseController baseControl,RemoteTileInfo inTileInfo)
 	{
+		controller = baseControl;
+		client = baseControl.getHttpClient();
+
 		// See if the premultiplied option is available
 		try {
 			Object opts = new BitmapFactory.Options();
@@ -139,7 +144,12 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 
 	@Override
 	public int pixelsPerSide() { return tileInfo.pixelsPerSide; }
-	
+
+	public boolean validTile(MaplyTileID tileID,Mbr tileBounds)
+	{
+		return true;
+	}
+
 	// Connection task fetches the image
 	private class ConnectionTask implements com.squareup.okhttp.Callback
 	{
@@ -190,7 +200,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
                 }
 
                 // Load the data from that URL
-				Request request = tileInfo.buildRequest(url);
+				Request request = tileInfo.buildRequest(url,NET_TAG);
 
                 call = client.newCall(request);
                 call.enqueue(this);
@@ -202,7 +212,11 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 
         // Callback from OK HTTP on tile loading failure
         public void onFailure(Request request, IOException e) {
-            Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+			// Ignore cancels
+			if (e != null && e.getLocalizedMessage().contains("Canceled"))
+				return;
+			if (tileID != null)
+	            Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
         }
 
         // Callback from OK HTTP on success
@@ -247,7 +261,7 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
             }
             catch (Exception e)
             {
-				Log.e("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " because: " + e.toString());
+				Log.e("Maply", "Failed to fetch remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " because: " + e.toString());
             }
 
             reportTile();
@@ -301,5 +315,15 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
 		ConnectionTask task = new ConnectionTask(layer,this,tileID,tileURL,cacheFile);
         task.fetchTile();
 	}
-	
+
+	@Override
+	public void clear(QuadImageTileLayerInterface layer)
+	{
+		synchronized (this) {
+			if (client != null)
+				client.cancel(NET_TAG);
+
+			client = null;
+		}
+	}
 }

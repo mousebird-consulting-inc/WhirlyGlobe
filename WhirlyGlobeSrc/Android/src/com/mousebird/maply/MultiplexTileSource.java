@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -52,6 +53,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 	int maxZoom = 0;
 	int pixelsPerSide = 256;
 	OkHttpClient client = null;
+	Object NET_TAG = new Object();
 
 	// Set if we can use the premultiply option
 	boolean hasPremultiplyOption = false;
@@ -143,7 +145,7 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
                 }
 
                 // Load the data from that URL
-                Request request = new Request.Builder().url(url).build();
+                Request request = new Request.Builder().url(url).tag(NET_TAG).build();
 
                 call = client.newCall(request);
                 call.enqueue(this);
@@ -153,7 +155,11 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 
         // Callback from OK HTTP on tile loading failure
         public void onFailure(Request request, IOException e) {
-            Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
+			// Ignore cancels
+			if (e != null && e.getLocalizedMessage().contains("Canceled"))
+				return;
+			if (tileID != null)
+	            Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
         }
 
         // Callback from OK HTTP on success
@@ -193,14 +199,14 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 						fOut.close();
 					}
 					if (debugOutput)
-						Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+						Log.d("Maply", "Fetched remote file for tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
 				} catch (Exception e) {
 					if (debugOutput)
 						Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
 				}
 			} else {
 				if (debugOutput)
-					Log.d("Maply", "Fetch failed for remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
+					Log.d("Maply", "Fetch failed for remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")" + " " + frame);
 			}
 
 			boolean reportThisTile = false;
@@ -412,7 +418,35 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
 		if (minZoom > maxZoom)
 			throw new IllegalArgumentException();
 	}
-	
+
+	ArrayList<Mbr> mbrs = new ArrayList<>();
+
+	/**
+	 * If set, only tiles inside the bounding box are valid.
+	 */
+	public void addGeoBoundingBox(Mbr mbr)
+	{
+		Mbr locMbr = new Mbr();
+		Point3d pt0 = coordSys.geographicToLocal(new Point3d(mbr.ll.getX(),mbr.ll.getY(),0.0));
+		Point3d pt1 = coordSys.geographicToLocal(new Point3d(mbr.ur.getX(),mbr.ur.getY(),0.0));
+		locMbr.addPoint(pt0.toPoint2d());
+		locMbr.addPoint(pt1.toPoint2d());
+		mbrs.add(locMbr);
+	}
+
+	// Check if a tile is within our bounding boxes
+	public boolean validTile(MaplyTileID tileID,Mbr tileBounds)
+	{
+		if (mbrs.isEmpty())
+			return true;
+
+		for (Mbr mbr : mbrs)
+			if (mbr.overlaps(tileBounds))
+				return true;
+
+		return false;
+	}
+
 	File cacheDir = null;
 	/**
 	 * Set the cache directory for fetched images.  We'll look there first.
@@ -511,6 +545,19 @@ public class MultiplexTileSource implements QuadImageTileLayer.TileSource
                     task.fetchTile();
 				}
 			}
+		}
+	}
+
+	public void clear(QuadImageTileLayerInterface layer)
+	{
+		synchronized (this) {
+			if (client != null)
+				client.cancel(NET_TAG);
+			client = null;
+
+			controller = null;
+			coordSys = null;
+			sources = null;
 		}
 	}
 }

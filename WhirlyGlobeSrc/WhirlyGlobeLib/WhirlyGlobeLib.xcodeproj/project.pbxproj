@@ -536,6 +536,11 @@
 		2BB766061C6FFF7E00F01F2A /* com_mousebird_maply_GeneralDisplayAdapter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB766051C6FFF7E00F01F2A /* com_mousebird_maply_GeneralDisplayAdapter.h */; };
 		2BB766091C6FFF9B00F01F2A /* com_mousebird_maply_Proj4CoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB766071C6FFF9B00F01F2A /* com_mousebird_maply_Proj4CoordSystem.h */; };
 		2BB7660A1C6FFF9B00F01F2A /* com_mousebird_maply_QuadImageOfflineLayer_RenderedImageDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB766081C6FFF9B00F01F2A /* com_mousebird_maply_QuadImageOfflineLayer_RenderedImageDelegate.h */; };
+		2BBAD70E1E70C2BF0051036E /* WideVectorInfo_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBAD70C1E70C2BF0051036E /* WideVectorInfo_jni.cpp */; };
+		2BBAD70F1E70C2BF0051036E /* WideVectorManager_jni.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBAD70D1E70C2BF0051036E /* WideVectorManager_jni.cpp */; };
+		2BBAD7131E70C2E60051036E /* com_mousebird_maply_WideVectorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBAD7101E70C2E60051036E /* com_mousebird_maply_WideVectorManager.h */; };
+		2BBAD7141E70C2E60051036E /* com_mousebird_maply_WideVectorInfo_JoinType.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBAD7111E70C2E60051036E /* com_mousebird_maply_WideVectorInfo_JoinType.h */; };
+		2BBAD7151E70C2E60051036E /* com_mousebird_maply_WideVectorInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBAD7121E70C2E60051036E /* com_mousebird_maply_WideVectorInfo.h */; };
 		2BC8496B1C6932FD0058D10F /* WideVectorDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC849691C6932FD0058D10F /* WideVectorDrawable.h */; };
 		2BC8496C1C6932FD0058D10F /* WideVectorManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC8496A1C6932FD0058D10F /* WideVectorManager.h */; };
 		2BC8496F1C6933120058D10F /* WideVectorDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC8496D1C6933120058D10F /* WideVectorDrawable.cpp */; };
@@ -1333,6 +1338,11 @@
 		2BB766081C6FFF9B00F01F2A /* com_mousebird_maply_QuadImageOfflineLayer_RenderedImageDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_QuadImageOfflineLayer_RenderedImageDelegate.h; path = ../Android/jni/com_mousebird_maply_QuadImageOfflineLayer_RenderedImageDelegate.h; sourceTree = "<group>"; };
 		2BB7660B1C70013700F01F2A /* Proj4CoordSystem_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Proj4CoordSystem_jni.cpp; path = ../Android/jni/Proj4CoordSystem_jni.cpp; sourceTree = "<group>"; };
 		2BB7660D1C70014D00F01F2A /* GeneralDisplayAdapter_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeneralDisplayAdapter_jni.cpp; path = ../Android/jni/GeneralDisplayAdapter_jni.cpp; sourceTree = "<group>"; };
+		2BBAD70C1E70C2BF0051036E /* WideVectorInfo_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WideVectorInfo_jni.cpp; path = ../Android/jni/WideVectorInfo_jni.cpp; sourceTree = "<group>"; };
+		2BBAD70D1E70C2BF0051036E /* WideVectorManager_jni.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WideVectorManager_jni.cpp; path = ../Android/jni/WideVectorManager_jni.cpp; sourceTree = "<group>"; };
+		2BBAD7101E70C2E60051036E /* com_mousebird_maply_WideVectorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_WideVectorManager.h; path = ../Android/jni/com_mousebird_maply_WideVectorManager.h; sourceTree = "<group>"; };
+		2BBAD7111E70C2E60051036E /* com_mousebird_maply_WideVectorInfo_JoinType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_WideVectorInfo_JoinType.h; path = ../Android/jni/com_mousebird_maply_WideVectorInfo_JoinType.h; sourceTree = "<group>"; };
+		2BBAD7121E70C2E60051036E /* com_mousebird_maply_WideVectorInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_mousebird_maply_WideVectorInfo.h; path = ../Android/jni/com_mousebird_maply_WideVectorInfo.h; sourceTree = "<group>"; };
 		2BC849691C6932FD0058D10F /* WideVectorDrawable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorDrawable.h; sourceTree = "<group>"; };
 		2BC8496A1C6932FD0058D10F /* WideVectorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorManager.h; sourceTree = "<group>"; };
 		2BC8496D1C6933120058D10F /* WideVectorDrawable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WideVectorDrawable.cpp; sourceTree = "<group>"; };
@@ -1887,6 +1897,9 @@
 		2B4B19291BA38A940091A743 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2BBAD7101E70C2E60051036E /* com_mousebird_maply_WideVectorManager.h */,
+				2BBAD7111E70C2E60051036E /* com_mousebird_maply_WideVectorInfo_JoinType.h */,
+				2BBAD7121E70C2E60051036E /* com_mousebird_maply_WideVectorInfo.h */,
 				2B6C78711DEE278B006B3164 /* com_mousebird_maply_LAZQuadReader_Settings.h */,
 				2B6C78731DEE278B006B3164 /* com_mousebird_maply_LAZQuadReader.h */,
 				2BAA43D41DD54A0C00FF9027 /* com_mousebird_maply_GeometryInfo.h */,
@@ -2076,6 +2089,8 @@
 				88D57FC91CA1EBF000A203F8 /* VertexAttribute_jni.cpp */,
 				2B4B19C81BA38AFB0091A743 /* View_jni.cpp */,
 				2B4B19C91BA38AFB0091A743 /* ViewState_jni.cpp */,
+				2BBAD70C1E70C2BF0051036E /* WideVectorInfo_jni.cpp */,
+				2BBAD70D1E70C2BF0051036E /* WideVectorManager_jni.cpp */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -2771,6 +2786,7 @@
 				883C07771CC055740042B20C /* AAMercury.h in Headers */,
 				2B3B31E31CF623DD00F52374 /* atomicops_internals_macosx.h in Headers */,
 				883C07811CC055740042B20C /* AAMoonPerigeeApogee.h in Headers */,
+				2BBAD7151E70C2E60051036E /* com_mousebird_maply_WideVectorInfo.h in Headers */,
 				2B3B31E01CF623DD00F52374 /* atomicops_internals_arm_gcc.h in Headers */,
 				8F6F0A651D041753009B2F25 /* OverlapHelper.h in Headers */,
 				2B35683818D762BF00EF8DB1 /* VectorData.h in Headers */,
@@ -2849,6 +2865,7 @@
 				2B6C78741DEE278B006B3164 /* com_mousebird_maply_LAZQuadReader_Settings.h in Headers */,
 				2B3B30DE1CF6227F00F52374 /* descriptor.h in Headers */,
 				2B4B197F1BA38AD90091A743 /* com_mousebird_maply_Point3d.h in Headers */,
+				2BBAD7141E70C2E60051036E /* com_mousebird_maply_WideVectorInfo_JoinType.h in Headers */,
 				2B3B31FC1CF623DD00F52374 /* template_util.h in Headers */,
 				2B969E651DBAD60400DF2C32 /* com_mousebird_maply_GeometryRaw_GeometryType.h in Headers */,
 				2B4B197B1BA38AD90091A743 /* com_mousebird_maply_MarkerManager.h in Headers */,
@@ -3033,6 +3050,7 @@
 				883C076D1CC055740042B20C /* AAInterpolate.h in Headers */,
 				2BDC8A6F192C08F600DFECF0 /* LabelRenderer.h in Headers */,
 				2BA2327B179859F30063CC84 /* SDL_opengles.h in Headers */,
+				2BBAD7131E70C2E60051036E /* com_mousebird_maply_WideVectorManager.h in Headers */,
 				883C074B1CC055740042B20C /* AABinaryStar.h in Headers */,
 				2B3567EB18D762BF00EF8DB1 /* Identifiable.h in Headers */,
 				2B009D0C186102E4001E2EE8 /* JSONValidator.h in Headers */,
@@ -3148,6 +3166,7 @@
 				2B3B30E11CF6227F00F52374 /* dynamic_message.cc in Sources */,
 				2BC849701C6933120058D10F /* WideVectorManager.cpp in Sources */,
 				2B3B31F81CF623DD00F52374 /* strutil.cc in Sources */,
+				2BBAD70E1E70C2BF0051036E /* WideVectorInfo_jni.cpp in Sources */,
 				2B7EF43A16025D8C00D4079F /* nad_init.c in Sources */,
 				2B7EF43B16025D8C00D4079F /* nad_intr.c in Sources */,
 				2B35674918D762A700EF8DB1 /* DynamicDrawableAtlas.cpp in Sources */,
@@ -3441,6 +3460,7 @@
 				88D653F01C92CF9200B39955 /* ShapeDrawableBuilder.cpp in Sources */,
 				2B7EF4BE16025D8C00D4079F /* PJ_wag3.c in Sources */,
 				2B7EF4BF16025D8C00D4079F /* PJ_wag7.c in Sources */,
+				2BBAD70F1E70C2BF0051036E /* WideVectorManager_jni.cpp in Sources */,
 				2B7EF4C016025D8C00D4079F /* PJ_wink1.c in Sources */,
 				88D57FE91CA1ED3F00A203F8 /* geodesic.c in Sources */,
 				2B7EF4C116025D8C00D4079F /* PJ_wink2.c in Sources */,

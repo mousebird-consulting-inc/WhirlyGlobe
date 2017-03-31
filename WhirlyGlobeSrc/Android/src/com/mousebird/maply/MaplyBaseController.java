@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
@@ -133,6 +134,7 @@ public class MaplyBaseController
 
 	// Managers are thread safe objects for handling adding and removing types of data
 	VectorManager vecManager;
+	WideVectorManager wideVecManager;
 	MarkerManager markerManager;
     StickerManager stickerManager;
 	LabelManager labelManager;
@@ -279,6 +281,7 @@ public class MaplyBaseController
 
 		// Fire up the managers.  Can't do anything without these.
 		vecManager = new VectorManager(scene);
+		wideVecManager = new WideVectorManager(scene);
 		markerManager = new MarkerManager(scene);
         stickerManager = new StickerManager(scene);
 		labelManager = new LabelManager(scene);
@@ -465,6 +468,7 @@ public class MaplyBaseController
 
 			coordAdapter.shutdown();
 			vecManager.dispose();
+			wideVecManager.dispose();
 			markerManager.dispose();
 			stickerManager.dispose();
 			selectionManager.dispose();
@@ -493,12 +497,22 @@ public class MaplyBaseController
 			if (renderWrapper != null)
 				renderWrapper.shutdown();
 
+			if (httpClient != null)
+			{
+				if (httpClient.getDispatcher() != null && httpClient.getDispatcher().getExecutorService() != null)
+					httpClient.getDispatcher().getExecutorService().shutdown();
+				if (httpClient.getConnectionPool() != null)
+					httpClient.getConnectionPool().evictAll();
+				httpClient = null;
+			}
+
 			baseView = null;
 			renderWrapper = null;
 			coordAdapter = null;
 			scene = null;
 			view = null;
 			vecManager = null;
+			wideVecManager = null;
 			markerManager = null;
 			stickerManager = null;
 			labelManager = null;
@@ -950,7 +964,7 @@ public class MaplyBaseController
 		vecObjs.add(vec);
 		return addVectors(vecObjs,vecInfo,mode);
 	}
-	
+
 	/**
 	 * Add a single layer.  This will start processing its data on the layer thread at some
 	 * point in the near future.
@@ -1127,6 +1141,12 @@ public class MaplyBaseController
 		return compObj;
 	}
 
+	/**
+	 * Change the visual representation of the given vectors.
+	 * @param vecObj The component object returned by the original addVectors() call.
+	 * @param vecInfo Visual representation to use for the changes.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+     */
 	public void changeVectors(final ComponentObject vecObj,final VectorInfo vecInfo,ThreadMode mode)
 	{
 		if (!running)
@@ -1154,6 +1174,134 @@ public class MaplyBaseController
 				};
 		addTask(run, mode);
 	}
+
+	/**
+	 * Add wide vectors to the MaplyController to display.  Vectors are linear or areal
+	 * features with line width, filled style, color and so forth defined by the
+	 * WideVectorInfo class.
+	 * <br>
+	 * Wide vectors differ from regular lines in that they're implemented with a more
+	 * complicated shader.  They can be arbitrarily large, have textures, and have a transparent
+	 * falloff at the edges.  This makes them look anti-aliased.
+	 *
+	 * @param vecs A list of VectorObject's created by the user or read in from various sources.
+	 * @param wideVecInfo A description of how the vectors should look.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @return The ComponentObject representing the vectors.  This is necessary for modifying
+	 * or deleting the vectors once created.
+	 */
+	public ComponentObject addWideVectors(final List<VectorObject> vecs,final WideVectorInfo wideVecInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = addComponentObj();
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						// Vectors are simple enough to just add
+						ChangeSet changes = new ChangeSet();
+						long vecId = wideVecManager.addVectors(vecs, wideVecInfo, changes);
+						if (scene != null)
+							changes.process(scene);
+
+						// Track the vector ID for later use
+						if (vecId != EmptyIdentity)
+							compObj.addWideVectorID(vecId);
+
+						for (VectorObject vecObj : vecs)
+						{
+							// Keep track of this one for selection
+							if (vecObj.selectable)
+								compObj.addVector(vecObj);
+						}
+
+						if (wideVecInfo.disposeAfterUse || disposeAfterRemoval)
+							for (VectorObject vecObj : vecs)
+								if (!vecObj.selectable)
+									vecObj.dispose();
+					}
+				};
+
+		addTask(run, mode);
+
+		return compObj;
+	}
+
+	/**
+	 * Add wide vectors to the MaplyController to display.  Vectors are linear or areal
+	 * features with line width, filled style, color and so forth defined by the
+	 * WideVectorInfo class.
+	 * <br>
+	 * Wide vectors differ from regular lines in that they're implemented with a more
+	 * complicated shader.  They can be arbitrarily large, have textures, and have a transparent
+	 * falloff at the edges.  This makes them look anti-aliased.
+	 *
+	 * @param vec The vector object to turn into wide vectors.
+	 * @param wideVecInfo A description of how the vectors should look.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @return The ComponentObject representing the vectors.  This is necessary for modifying
+	 * or deleting the vectors once created.
+	 */
+	public ComponentObject addWideVector(VectorObject vec,WideVectorInfo wideVecInfo,ThreadMode mode)
+	{
+		ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
+		vecObjs.add(vec);
+
+		return addWideVectors(vecObjs,wideVecInfo,mode);
+	}
+
+	/**
+	 * Instance an existing set of wide vectors but change their parameters.
+	 * <br>
+	 * Wide vectors can take up a lot of memory.  So if you want to display the same set with
+	 * different parameters (e.g. width, color) this is the way to do it.
+	 *
+	 * @param inCompObj The Component Object returned by an addWideVectors call.
+	 * @param wideVecInfo How we want the vectors to look.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return The ComponentObject representing the instanced wide vectors.  This is necessary for modifying
+	 * or deleting the instance once created.
+     */
+	public ComponentObject instanceWideVectors(final ComponentObject inCompObj,final WideVectorInfo wideVecInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = addComponentObj();
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						// Vectors are simple enough to just add
+						ChangeSet changes = new ChangeSet();
+
+						for (long vecID : inCompObj.getWideVectorIDs()) {
+							long instID = wideVecManager.instanceVectors(vecID,wideVecInfo,changes);
+
+							if (instID != EmptyIdentity)
+								compObj.addWideVectorID(instID);
+						}
+
+						if (scene != null)
+							changes.process(scene);
+					}
+				};
+
+		addTask(run, mode);
+
+		return compObj;
+	}
+
 
 	/**
 	 * Add a single screen marker.  See addScreenMarkers() for details.
@@ -1713,7 +1861,15 @@ public class MaplyBaseController
         /**
          * Image format to use when creating textures.
          */
-        QuadImageTileLayer.ImageFormat imageFormat = QuadImageTileLayer.ImageFormat.MaplyImageIntRGBA;
+        public QuadImageTileLayer.ImageFormat imageFormat = QuadImageTileLayer.ImageFormat.MaplyImageIntRGBA;
+		/**
+		 * Horizonal texture wrap.
+		 */
+		public boolean wrapU = false;
+		/**
+		 * Vertical texture wrap
+		 */
+		public boolean wrapV = false;
     }
 
     /**
@@ -1722,7 +1878,7 @@ public class MaplyBaseController
      * @param settings Settings to use.
      * @param mode Add on the current thread or elsewhere.
      */
-	public MaplyTexture addTexture(final Bitmap image,TextureSettings settings,ThreadMode mode)
+	public MaplyTexture addTexture(final Bitmap image,final TextureSettings settings,ThreadMode mode)
     {
         final MaplyTexture texture = new MaplyTexture();
 		final Texture rawTex = new Texture();
@@ -1737,7 +1893,8 @@ public class MaplyBaseController
                     {
                         ChangeSet changes = new ChangeSet();
 
-						rawTex.setBitmap(image);
+						rawTex.setBitmap(image,settings.imageFormat.ordinal());
+						rawTex.setSettings(settings.wrapU,settings.wrapV);
                         changes.addTexture(rawTex, scene);
 
                         // Flush the texture changes

@@ -24,7 +24,7 @@ import android.graphics.Bitmap;
 
 /**
  * Encapsulates a Maply Texture.  This is opaque to toolkit users.  They'll
- * use a NamedBitmap instead.
+ * use a MaplyTexture instead.
  *
  */
 class Texture 
@@ -40,10 +40,16 @@ class Texture
 	/**
 	 * Initialize a texture with a bitmap.  The contents of the bitmap will fill in the texture.
 	 */
-	public Texture(Bitmap inBitmap)
+	public Texture(Bitmap inBitmap,QuadImageTileLayer.ImageFormat imageFormat)
 	{
-		setBitmap(inBitmap);
+		setBitmap(inBitmap,imageFormat.ordinal());
 	}
+
+	/**
+	 * Set wrapping parameters.
+     */
+	public native void setSettings(boolean wrapU,boolean wrapV);
+
 	public void finalize()
 	{
 		dispose();
@@ -55,7 +61,7 @@ class Texture
 	 * @param inBitmap Bitmap to use for the Texture.
 	 * @return Returns false if it can't figure it out
 	 */
-	public native boolean setBitmap(Bitmap inBitmap);
+	public native boolean setBitmap(Bitmap inBitmap,int imageFormat);
 	
 	// Once created, this is how we identify it to the rendering engine
 	public native long getID();
