@@ -105,6 +105,8 @@ bool RenderTarget::initFromState(int inWidth,int inHeight)
     glGetIntegerv(GL_RENDERBUFFER_BINDING,&iVal);   colorbuffer = iVal;
     
 //    WHIRLYKIT_LOGD("RenderTarget initFromState: framebuffer = %d colorbuffer = %d width = %d, height = %d",framebuffer,colorbuffer,width,height);
+    
+    return true;
 }
     
 void RenderTarget::clear()
