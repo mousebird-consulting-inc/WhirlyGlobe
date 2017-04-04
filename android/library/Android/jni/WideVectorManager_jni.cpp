@@ -200,11 +200,13 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorManager_instanceVecto
         if (!wrap || !vecInfo || !changeSet)
             return EmptyIdentity;
         
-        wrap->vecManager->instanceVectors(vecID,*vecInfo,*changeSet);
+        return wrap->vecManager->instanceVectors(vecID,*vecInfo,*changeSet);
     }
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorManager::instanceVectors()");
     }
+
+    return EmptyIdentity;
 }
 
