@@ -24,6 +24,7 @@
 		2B4BA6D71C83A22000DC1562 /* straight.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CB1C83A22000DC1562 /* straight.geojson */; };
 		2B4BA6D81C83A22000DC1562 /* track.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CC1C83A22000DC1562 /* track.geojson */; };
 		2B4BA6D91C83A22000DC1562 /* uturn.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CD1C83A22000DC1562 /* uturn.geojson */; };
+		2B5E8AF51E943560000B39E5 /* greensquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B5E8AF41E943560000B39E5 /* greensquare.png */; };
 		2B6953651C7E601A007FC51E /* AnimatedColorRampTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
 		2B7FC0A71E32B67400AF253A /* testJson.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B7FC0A61E32B67400AF253A /* testJson.json */; };
@@ -607,6 +608,7 @@
 		2B4BA6CB1C83A22000DC1562 /* straight.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = straight.geojson; path = ../WhirlyGlobeComponentTester/resources/straight.geojson; sourceTree = "<group>"; };
 		2B4BA6CC1C83A22000DC1562 /* track.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = track.geojson; path = ../WhirlyGlobeComponentTester/resources/track.geojson; sourceTree = "<group>"; };
 		2B4BA6CD1C83A22000DC1562 /* uturn.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = uturn.geojson; path = ../WhirlyGlobeComponentTester/resources/uturn.geojson; sourceTree = "<group>"; };
+		2B5E8AF41E943560000B39E5 /* greensquare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = greensquare.png; path = resources/greensquare.png; sourceTree = "<group>"; };
 		2B6953631C7E601A007FC51E /* AnimatedColorRampTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatedColorRampTestCase.h; sourceTree = "<group>"; };
 		2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnimatedColorRampTestCase.m; sourceTree = "<group>"; };
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
@@ -1456,6 +1458,7 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				2B5E8AF41E943560000B39E5 /* greensquare.png */,
 				2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */,
 				2B7FC0A61E32B67400AF253A /* testJson.json */,
 				E5941DB51E0CEA5700E1C8B3 /* belfast_northern_ireland */,
@@ -2138,6 +2141,7 @@
 				88FF5E111BC31D95002F15CE /* BLR.geojson in Resources */,
 				88FF5ED61BC31D95002F15CE /* TUN.geojson in Resources */,
 				D882B8361C07BA2500649BE9 /* styles.css in Resources */,
+				2B5E8AF51E943560000B39E5 /* greensquare.png in Resources */,
 				88FF5E9C1BC31D95002F15CE /* NOR.geojson in Resources */,
 				88FF5CCB1BC31D6D002F15CE /* rail-underground-24@2x.png in Resources */,
 				883DF71F1C1CE164000756E9 /* BNGTestCase-map.png in Resources */,
