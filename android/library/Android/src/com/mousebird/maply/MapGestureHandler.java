@@ -102,11 +102,7 @@ public class MapGestureHandler
 			return true;
 
 		// We make a copy of the map view so we can mess with it
-		// Note: This is horribly inefficient
 		MapView thisMapView = mapView.clone();
-		thisMapView.setLoc(newLocalPos);
-		
-	    Matrix4d fullMatrix = thisMapView.calcModelViewMatrix();
 
 	    // The corners of the view should be within the bounds
 	    Point2d corners[] = new Point2d[4];
@@ -114,14 +110,40 @@ public class MapGestureHandler
 	    corners[1] = new Point2d(frameSize.getX(), 0.0);
 	    corners[2] = new Point2d(frameSize.getX(), frameSize.getY());
 	    corners[3] = new Point2d(0.0, frameSize.getY());
-	    for (int ii=0;ii<4;ii++)
-	    {
-	    	Point3d hit = thisMapView.pointOnPlaneFromScreen(corners[ii], fullMatrix, frameSize, false);
-	    	if (!GeometryUtils.PointInPolygon(new Point2d(hit.getX(),hit.getY()), bounds))
-	    		return false;
-	    }
+
+		boolean isValid = false;
+		Point2d locOffset = new Point2d(0,0);
+		for (int tests=0;tests<4;tests++) {
+			Point3d testLoc = new Point3d(newLocalPos.getX()+locOffset.getX(),newLocalPos.getY()+locOffset.getY(),newLocalPos.getZ());
+			thisMapView.setLoc(testLoc);
+			Matrix4d fullMatrix = thisMapView.calcModelViewMatrix();
+
+			boolean checkOkay = true;
+			for (int ii = 0; ii < 4; ii++) {
+				Point3d hit = thisMapView.pointOnPlaneFromScreen(corners[ii], fullMatrix, frameSize, false);
+				Point2d hit2d = new Point2d(hit.getX(), hit.getY());
+				if (!GeometryUtils.PointInPolygon(hit2d, bounds)) {
+					Point2d closePt = new Point2d();
+					GeometryUtils.ClosestPointToPolygon(bounds,hit2d,closePt);
+					Point2d thisOffset = new Point2d(1.01*(closePt.getX()-hit2d.getX()),1.01*(closePt.getY()-hit2d.getY()));
+
+					locOffset = locOffset.addTo(thisOffset);
+					checkOkay = false;
+
+					break;
+				}
+			}
+
+			if (checkOkay)
+			{
+				isValid = true;
+				newLocalPos.setValue(testLoc.getX(),testLoc.getY(),testLoc.getZ());
+
+				return true;
+			}
+		}
 	    
-	    return true;
+	    return false;
 	}
 	
 	// Listening for a pinch scale event

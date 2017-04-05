@@ -48,4 +48,62 @@ public class GeometryUtils
 		}
 		return c;
 	}
+
+	/**
+	 * Find the point on a line segment closest to the given point.  Also returns the parametric value.
+	 * @param p0 First point in the line segment.
+	 * @param p1 Second point in the line segment.
+	 * @param pt Point near the line segment.
+	 * @return The closest point on the line segment to the point.
+	 */
+	public static Point2d ClosestPointOnLineSegment(Point2d p0,Point2d p1,Point2d pt)
+	{
+		double dx = p1.getX()-p0.getX(), dy = p1.getY()-p0.getY();
+		double denom = dx*dx+dy*dy;
+
+		if (denom == 0.0)
+			return p0;
+
+		double u = ((pt.getX()-p0.getX())*(p1.getX()-p0.getX())+(pt.getY()-p0.getY())*(p1.getY()-p0.getY()))/denom;
+
+		if (u <= 0.0)
+			return p0;
+
+		if (u >= 1.0)
+			return p1;
+
+		return new Point2d(p0.getX()+dx*u,p0.getY()+dy*u);
+	}
+
+	/**
+	 * Find the closest point on the polygon to the point passed in
+	 *
+	 * @param pts Polygon we're testing against.
+	 * @param pt Point that's near the polygon.
+	 * @param retClosePt The closest point on the polygon to the input pt.
+	 */
+	public static double ClosestPointToPolygon(Point2d pts[],Point2d pt,Point2d retClosePt)
+	{
+		double minDist2 = Double.MAX_VALUE;
+		Point2d closePt = null;
+
+		for (int ii=0;ii<pts.length;ii++)
+		{
+        	Point2d p0 = pts[ii];
+        	Point2d p1 = pts[(ii+1)%pts.length];
+
+			double t;
+			Point2d thisClosePt = ClosestPointOnLineSegment(p0, p1, pt);
+			double thisDist2 = (new Point2d(pt.getX()-thisClosePt.getX(),pt.getY()-thisClosePt.getY())).squaredNorm();
+			if (thisDist2 < minDist2)
+			{
+				minDist2 = thisDist2;
+				closePt = thisClosePt;
+			}
+		}
+
+		retClosePt.setValue(closePt.getX(),closePt.getY());
+
+		return Math.sqrt(minDist2);
+	}
 }
