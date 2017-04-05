@@ -89,6 +89,14 @@ public class Point2d
 	}
 
 	/**
+	 * Returns the squared norm (dx*dx + dy*dy)
+	 */
+	public double squaredNorm()
+	{
+		return getX()*getX()+getY()*getY();
+	}
+
+	/**
 	 * Points are normally stored as radians, if they're positions on the globe or map.
 	 * This converts and returns degrees.
      */
