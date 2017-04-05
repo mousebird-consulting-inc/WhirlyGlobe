@@ -39,6 +39,8 @@ public class MapGestureHandler
 	MapView mapView = null;
 
 	public boolean allowRotate = false;
+	public boolean allowZoom = true;
+	public boolean allowPan = true;
 	
 	ScaleGestureDetector sgd = null;
 	ScaleListener sl = null;
@@ -140,6 +142,9 @@ public class MapGestureHandler
 		@Override
 		public boolean onScaleBegin(ScaleGestureDetector detector)
 		{
+			if (!allowZoom)
+				return false;
+
 			startZ = maplyControl.mapView.getLoc().getZ();
 			startDist = detector.getCurrentSpan();
 //			Log.d("Maply","Starting zoom");
@@ -161,6 +166,9 @@ public class MapGestureHandler
 		@Override
 		public boolean onScale(ScaleGestureDetector detector)
 		{
+			if (!allowZoom)
+				return false;
+
 			float curDist = detector.getCurrentSpan();
 			if (curDist > 0.0 && startDist > 0.0)
 			{				
@@ -185,6 +193,9 @@ public class MapGestureHandler
 		@Override
 		public void onScaleEnd(ScaleGestureDetector detector)
 		{
+			if (!allowZoom)
+				return;
+
 //			Log.d("Maply","Ending scale");
 			lastZoomEnd = System.currentTimeMillis();
 			isActive = false;
@@ -227,6 +238,9 @@ public class MapGestureHandler
 		{
 			if (!isActive)
 				return false;
+
+			if (!allowPan)
+				return false;
 			
 			Point2d newScreenPos = new Point2d(e2.getX(),e2.getY());
 			
@@ -261,6 +275,9 @@ public class MapGestureHandler
 				float velocityY) 
 		{
 //			Log.d("Maply","Fling: (x,y) = " + velocityX + " " + velocityY);
+
+			if (!allowPan)
+				return false;
 
 			if (System.currentTimeMillis() - lastZoomEnd < 175)
 			{
@@ -340,6 +357,9 @@ public class MapGestureHandler
 		@Override
 		public boolean onDoubleTap(MotionEvent e) 
 		{
+			if (!allowZoom)
+				return false;
+
 			// Figure out where they tapped
 			Point2d touch = new Point2d(e.getX(),e.getY());
 			Matrix4d mapTransform = maplyControl.mapView.calcModelViewMatrix();
@@ -424,7 +444,7 @@ public class MapGestureHandler
 			cancelRotation();
 		}
 		
-		if (!sl.isActive && !gl.isActive && !slWasActive)
+		if (!sl.isActive && !gl.isActive && !slWasActive && allowZoom)
 		{
 			if (System.currentTimeMillis() - lastZoomEnd >= 175) {
 				if (event.getPointerCount() == 2 && (event.getActionMasked() == MotionEvent.ACTION_POINTER_UP)) {

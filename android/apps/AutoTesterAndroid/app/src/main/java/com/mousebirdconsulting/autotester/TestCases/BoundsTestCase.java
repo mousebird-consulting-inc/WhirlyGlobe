@@ -34,6 +34,8 @@ public class BoundsTestCase extends MaplyTestCase
         baseView.setUpWithMap(mapVC);
 
         mapVC.setPositionGeo(0,0,0.1);
+//        mapVC.setAllowZoom(false);
+//        mapVC.setAllowPan(false);
         mapVC.setViewExtents(Point2d.FromDegrees(-60,-40), Point2d.FromDegrees(60,70));
 
         return true;
