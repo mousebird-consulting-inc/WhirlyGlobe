@@ -467,6 +467,30 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 
 		gestureHandler.allowRotate = allowRotate;
 	}
+
+	/**
+	 * If set, the user can zoom in and out.
+	 * If not set, they can't.  On by default.
+	 */
+	public void setAllowZoom(boolean allowZoom)
+	{
+		if (!running)
+			return;
+
+		gestureHandler.allowZoom = allowZoom;
+	}
+
+	/**
+	 * If set, the user can pan around.
+	 * If not set, they can't.  On by default.
+	 */
+	public void setAllowPan(boolean allowPan)
+	{
+		if (!running)
+			return;
+
+		gestureHandler.allowPan = allowPan;
+	}
 	
 	// Gesture handler
 	MapGestureHandler gestureHandler = null;
