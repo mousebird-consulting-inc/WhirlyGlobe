@@ -22,7 +22,11 @@ package com.mousebird.maply.sld.sldsymbolizers;
 
 import android.util.Log;
 
+import com.mousebird.maply.VectorStyleSettings;
+import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
+import com.mousebird.maply.VectorTileLineStyle;
+import com.mousebird.maply.MaplyBaseController;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -31,19 +35,28 @@ import java.io.IOException;
 
 public class SLDLineSymbolizer extends SLDSymbolizer {
 
-    public SLDLineSymbolizer(XmlPullParser xpp) throws XmlPullParserException, IOException {
+    private VectorTileLineStyle vectorTileLineStyle;
+
+    public SLDLineSymbolizer(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
+
         while (xpp.next() != XmlPullParser.END_TAG) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             Log.i("SLDLineSymbolizer", xpp.getName());
-            if (false) {
+
+            if (xpp.getName().equals("Stroke")) {
+                vectorTileLineStyle = SLDSymbolizer.vectorTileLineStyleFromStrokeNode(xpp, symbolizerParams.getBaseController(), symbolizerParams.getVectorStyleSettings());
             } else {
                 SLDParseHelper.skip(xpp);
             }
         }
     }
 
+
+    public VectorTileStyle[] getStyles() {
+        return new VectorTileStyle[]{};
+    }
 
     public static boolean matchesSymbolizerNamed(String symbolizerName) {
         if (symbolizerName.equals("LineSymbolizer"))

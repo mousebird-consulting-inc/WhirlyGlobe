@@ -87,6 +87,7 @@ template<> GeometryInfoClassInfo *GeometryInfoClassInfo::classInfoObj = NULL;
 template<> GeometryRawPointsClassInfo *GeometryRawPointsClassInfo::classInfoObj = NULL;
 template<> GeometryRawClassInfo *GeometryRawClassInfo::classInfoObj = NULL;
 template<> GeometryInstanceClassInfo *GeometryInstanceClassInfo::classInfoObj = NULL;
+template<> GeoJSONSourceClassInfo *GeoJSONSourceClassInfo::classInfoObj = NULL;
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {

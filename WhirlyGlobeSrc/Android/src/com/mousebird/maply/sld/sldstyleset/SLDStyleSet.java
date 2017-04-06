@@ -22,28 +22,58 @@ package com.mousebird.maply.sld.sldstyleset;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
+
+import com.mousebird.maply.AttrDictionary;
+import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.MaplyTileID;
+import com.mousebird.maply.VectorStyle;
+import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDNamedLayer;
+import com.mousebird.maply.VectorStyleInterface;
+import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.VectorStyleSettings;
+import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerParams;
+
+import android.app.Activity;
 
 import android.util.Log;
 
-public class SLDStyleSet {
+public class SLDStyleSet implements VectorStyleInterface {
 
     private boolean useLayerNames;
     private int relativeDrawPriority;
-    private HashMap<String, SLDNamedLayer> namedLayers;
+    private HashMap<String, SLDNamedLayer> namedLayers =  new HashMap<String, SLDNamedLayer>();;
+    private HashMap<String, VectorStyle> stylesByUUID = new HashMap<String, VectorStyle>();
+    private MaplyBaseController viewC;
+    private VectorStyleSettings vectorStyleSettings;
+    private SLDSymbolizerParams symbolizerParams;
 
-    public SLDStyleSet(boolean useLayerNames, int relativeDrawPriority)
+    public SLDStyleSet(MaplyBaseController viewC, DisplayMetrics displayMetrics, boolean useLayerNames, int relativeDrawPriority)
     {
+        this.viewC = viewC;
         this.useLayerNames = useLayerNames;
         this.relativeDrawPriority = relativeDrawPriority;
-        this.namedLayers = new HashMap<String, SLDNamedLayer>();
+
+        float scale = displayMetrics.density;
+        vectorStyleSettings = new VectorStyleSettings();
+        vectorStyleSettings.setLineScale(scale);
+        vectorStyleSettings.setDashPatternScale(scale);
+        vectorStyleSettings.setMarkerScale(scale);
+        vectorStyleSettings.setUseWideVectors(true);
+
+        symbolizerParams = new SLDSymbolizerParams(viewC, vectorStyleSettings, null, relativeDrawPriority);
+
+
     }
 
     public void loadSldInputStream(InputStream in) throws XmlPullParserException, IOException
@@ -67,14 +97,44 @@ public class SLDStyleSet {
 
     private void loadStyledLayerDescriptorNode(XmlPullParser xpp) throws XmlPullParserException, IOException
     {
+
         while (xpp.next() != XmlPullParser.END_TAG) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             if (xpp.getName().equals("NamedLayer")) {
-                SLDNamedLayer namedLayer = new SLDNamedLayer(xpp);
-                this.namedLayers.put(namedLayer.getName(), namedLayer);
+                SLDNamedLayer namedLayer = new SLDNamedLayer(xpp, symbolizerParams);
+                namedLayers.put(namedLayer.getName(), namedLayer);
+
+                List<VectorTileStyle> vectorTileStyles = namedLayer.getStyles();
+                for (VectorTileStyle vectorTileStyle : vectorTileStyles) {
+                    stylesByUUID.put(vectorTileStyle.getUuid(), vectorTileStyle);
+                }
             }
         }
+    }
+
+    @Override
+    public VectorStyle[] stylesForFeature(AttrDictionary attrs, MaplyTileID tileID, String layerName, MaplyBaseController controller)
+    {
+        List<VectorTileStyle> vectorTileStyles = new ArrayList<VectorTileStyle>();
+        boolean matched;
+        for (SLDNamedLayer namedLayer : namedLayers.values()) {
+            vectorTileStyles.addAll(namedLayer.stylesForFeatureAttributes(attrs));
+        }
+        return vectorTileStyles.toArray(new VectorStyle[0]);
+    }
+
+    @Override
+    public boolean layerShouldDisplay(String layerName,MaplyTileID tileID)
+    {
+        return true;
+    }
+
+    @Override
+    public VectorStyle styleForUUID(String uuid,MaplyBaseController controller)
+    {
+        VectorStyle style = stylesByUUID.get(uuid);
+        return style;
     }
 }

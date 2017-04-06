@@ -3,6 +3,7 @@ package com.mousebirdconsulting.autotester.TestCases;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 import android.app.Activity;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 
@@ -14,6 +15,7 @@ import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebird.maply.sld.sldstyleset.SLDStyleSet;
+import com.mousebird.maply.GeoJSONSource;
 
 import android.util.Log;
 
@@ -41,9 +43,17 @@ public class SLDTestCase extends MaplyTestCase {
     }
 
     private void testSLD() {
-        SLDStyleSet styleSet = new SLDStyleSet(false, 0);
+        SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getResources().getDisplayMetrics(), false, 0);
         try {
-            styleSet.loadSldInputStream(getActivity().getAssets().open("osm_landuse.sld"));
+            Log.i("SLDTestCase", "flag 1");
+            styleSet.loadSldInputStream(getActivity().getAssets().open("osm_roads.sld"));
+            Log.i("SLDTestCase", "flag 2");
+
+            GeoJSONSource gjs = new GeoJSONSource(controller, getActivity().getAssets().open("belfast_ireland_roads.geojson"), styleSet, 0);
+            Log.i("SLDTestCase", "flag 3");
+            gjs.startParse();
+            Log.i("SLDTestCase", "flag 4");
+
         } catch (XmlPullParserException xppException) {
             Log.e("AutoTesterAndroid", "SLDStyleSet XPP exception", xppException);
         } catch (IOException ioException) {

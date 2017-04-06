@@ -29,25 +29,47 @@ import java.util.ArrayList;
 
 import android.util.Log;
 
+import com.mousebird.maply.AttrDictionary;
+import com.mousebird.maply.VectorStyleSettings;
+import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDFeatureTypeStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
+import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerParams;
+
 
 public class SLDUserStyle {
 
-    private List<SLDFeatureTypeStyle> featureTypeStyles;
+    private List<SLDFeatureTypeStyle> featureTypeStyles = new ArrayList<SLDFeatureTypeStyle>();
 
-    public SLDUserStyle(XmlPullParser xpp) throws XmlPullParserException, IOException {
-        this.featureTypeStyles = new ArrayList<SLDFeatureTypeStyle>();
+    public SLDUserStyle(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
         while (xpp.next() != XmlPullParser.END_TAG) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             Log.i("SLDUserStyle", xpp.getName());
             if (xpp.getName().equals("FeatureTypeStyle")) {
-                this.featureTypeStyles.add(new SLDFeatureTypeStyle(xpp));
+                featureTypeStyles.add(new SLDFeatureTypeStyle(xpp, symbolizerParams));
             } else {
                 SLDParseHelper.skip(xpp);
             }
         }
     }
+
+    public List<VectorTileStyle> getStyles() {
+        List<VectorTileStyle> styles = new ArrayList<VectorTileStyle>();
+        for (SLDFeatureTypeStyle featureTypeStyle : featureTypeStyles) {
+            styles.addAll(featureTypeStyle.getStyles());
+        }
+        return styles;
+    }
+
+    public List<VectorTileStyle> stylesForFeatureAttributes(AttrDictionary attrs) {
+        List<VectorTileStyle> styles = new ArrayList<VectorTileStyle>();
+        for (SLDFeatureTypeStyle featureTypeStyle : featureTypeStyles) {
+            styles.addAll(featureTypeStyle.stylesForFeatureAttributes(attrs));
+        }
+        return styles;
+    }
+
 }

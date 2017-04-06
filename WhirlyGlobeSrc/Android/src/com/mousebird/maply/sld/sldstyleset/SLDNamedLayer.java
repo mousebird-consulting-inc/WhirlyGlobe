@@ -30,30 +30,36 @@ import java.util.ArrayList;
 import android.util.Log;
 
 
+import com.mousebird.maply.AttrDictionary;
+import com.mousebird.maply.VectorStyleSettings;
+import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDUserStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
+import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerParams;
+
 
 public class SLDNamedLayer {
 
     private String name;
-    private List<SLDUserStyle> userStyles;
+
+    private List<SLDUserStyle> userStyles = new ArrayList<SLDUserStyle>();
 
     public String getName() {
         return this.name;
     }
 
-    public SLDNamedLayer(XmlPullParser xpp) throws XmlPullParserException, IOException {
-        this.name = "";
-        this.userStyles = new ArrayList<SLDUserStyle>();
+    public SLDNamedLayer(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
+        name = "";
         while (xpp.next() != XmlPullParser.END_TAG) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             Log.i("SLDNamedLayer", xpp.getName());
             if (xpp.getName().equals("Name"))
-                this.setName(xpp);
+                name = SLDParseHelper.nodeTextValue(xpp);
             else if (xpp.getName().equals("UserStyle"))
-                this.userStyles.add(new SLDUserStyle(xpp));
+                userStyles.add(new SLDUserStyle(xpp, symbolizerParams));
             else
                 SLDParseHelper.skip(xpp);
 
@@ -61,14 +67,20 @@ public class SLDNamedLayer {
 
     }
 
-    private void setName(XmlPullParser xpp) throws XmlPullParserException, IOException {
-        while (xpp.next() != XmlPullParser.END_TAG) {
-            if (xpp.getEventType() != XmlPullParser.TEXT) {
-                continue;
-            }
-            this.name = xpp.getText();
+    public List<VectorTileStyle> getStyles() {
+        List<VectorTileStyle> styles = new ArrayList<VectorTileStyle>();
+        for (SLDUserStyle userStyle : userStyles) {
+            styles.addAll(userStyle.getStyles());
         }
+        return styles;
     }
 
+    public List<VectorTileStyle> stylesForFeatureAttributes(AttrDictionary attrs) {
+        List<VectorTileStyle> styles = new ArrayList<VectorTileStyle>();
+        for (SLDUserStyle userStyle : userStyles) {
+            styles.addAll(userStyle.stylesForFeatureAttributes(attrs));
+        }
+        return styles;
+    }
 
 }

@@ -44,6 +44,17 @@ public class SLDParseHelper {
         }
     }
 
+    public static String nodeTextValue(XmlPullParser parser) throws XmlPullParserException, IOException {
+        String textValue = null;
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() != XmlPullParser.TEXT) {
+                continue;
+            }
+            textValue = parser.getText();
+        }
+        return textValue;
+    }
+
     public static boolean isStringNumeric(String s) {
 
         // https://developer.android.com/reference/java/lang/Double.html#valueOf(java.lang.String)

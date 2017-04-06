@@ -27,27 +27,48 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.mousebird.maply.AttrDictionary;
+import com.mousebird.maply.VectorStyleSettings;
+import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDRule;
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
+import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerParams;
+
 
 import android.util.Log;
 
 public class SLDFeatureTypeStyle {
 
-    private List<SLDRule> rules;
+    private List<SLDRule> rules = new ArrayList<SLDRule>();;
 
-    public SLDFeatureTypeStyle(XmlPullParser xpp) throws XmlPullParserException, IOException {
-        this.rules = new ArrayList<SLDRule>();
+    public SLDFeatureTypeStyle(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
         while (xpp.next() != XmlPullParser.END_TAG) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             Log.i("SLDFeatureTypeStyle", xpp.getName());
             if (xpp.getName().equals("Rule")) {
-                this.rules.add(new SLDRule(xpp));
+                rules.add(new SLDRule(xpp, symbolizerParams));
             } else {
                 SLDParseHelper.skip(xpp);
             }
         }
+    }
+
+    public List<VectorTileStyle> getStyles() {
+        List<VectorTileStyle> styles = new ArrayList<VectorTileStyle>();
+        for (SLDRule rule : rules) {
+            styles.addAll(rule.getStyles());
+        }
+        return styles;
+    }
+
+    public List<VectorTileStyle> stylesForFeatureAttributes(AttrDictionary attrs) {
+        List<VectorTileStyle> styles = new ArrayList<VectorTileStyle>();
+        for (SLDRule rule : rules) {
+            styles.addAll(rule.stylesForFeatureAttributes(attrs));
+        }
+        return styles;
     }
 }

@@ -24,46 +24,88 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
+import com.mousebird.maply.AttrDictionary;
 import com.mousebird.maply.sld.sldstyleset.SLDFilter;
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
 import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizer;
 import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerFactory;
+import com.mousebird.maply.VectorTileStyle;
+import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.VectorStyleSettings;
+import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerParams;
 
 import android.util.Log;
 
 public class SLDRule {
 
-    private List<SLDFilter> filters;
-    private List<SLDFilter> elseFilters;
-    private List<SLDSymbolizer> symbolizers;
+    private List<SLDFilter> filters = new ArrayList<SLDFilter>();
+    private List<SLDFilter> elseFilters = new ArrayList<SLDFilter>();
 
+    public List<VectorTileStyle> getStyles() {
+        return styles;
+    }
 
-    public SLDRule(XmlPullParser xpp) throws XmlPullParserException, IOException {
-        this.filters = new ArrayList<SLDFilter>();
-        this.elseFilters = new ArrayList<SLDFilter>();
-        this.symbolizers = new ArrayList<SLDSymbolizer>();
+    private List<VectorTileStyle> styles = new ArrayList<VectorTileStyle>();
+
+    public SLDRule(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
+
+        symbolizerParams.resetRuleParams();
+
         while (xpp.next() != XmlPullParser.END_TAG) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             Log.i("SLDRule", xpp.getName());
             if (xpp.getName().equals("Filter")) {
-                this.filters.add(new SLDFilter(xpp));
+                filters.add(new SLDFilter(xpp));
             } else if (xpp.getName().equals("ElseFilter")) {
-                this.elseFilters.add(new SLDFilter(xpp));
+                elseFilters.add(new SLDFilter(xpp));
             } else if (xpp.getName().equals("MinScaleDenominator")) {
+                String value = SLDParseHelper.nodeTextValue(xpp);
+                if (SLDParseHelper.isStringNumeric(value))
+                    symbolizerParams.setMinScaleDenominator(Double.valueOf(value));
             } else if (xpp.getName().equals("MaxScaleDenominator")) {
+                String value = SLDParseHelper.nodeTextValue(xpp);
+                if (SLDParseHelper.isStringNumeric(value))
+                    symbolizerParams.setMaxScaleDenominator(Double.valueOf(value));
             } else {
-                SLDSymbolizer symbolizer = SLDSymbolizerFactory.symbolizerForNode(xpp);
+                SLDSymbolizer symbolizer = SLDSymbolizerFactory.symbolizerForNode(xpp, symbolizerParams);
                 if (symbolizer != null) {
-                    this.symbolizers.add(symbolizer);
+                    styles.addAll(Arrays.asList(symbolizer.getStyles()));
+                    symbolizerParams.incrementRelativeDrawPriority();
                 } else {
                     SLDParseHelper.skip(xpp);
                 }
             }
         }
     }
+
+
+    public List<VectorTileStyle> stylesForFeatureAttributes(AttrDictionary attrs) {
+        boolean matched = false;
+        if (filters.size() == 0 && elseFilters.size() == 0)
+            matched = true;
+        for (SLDFilter filter : filters) {
+            if (filter.getOperator().evaluateWithAttrs(attrs)) {
+                matched = true;
+                break;
+            }
+        }
+        if (!matched) {
+            for (SLDFilter filter: elseFilters) {
+                if (filter.getOperator().evaluateWithAttrs(attrs)) {
+                    matched = true;
+                    break;
+                }
+            }
+        }
+        if (matched)
+            return styles;
+        return new ArrayList<VectorTileStyle>();
+    }
+
 }

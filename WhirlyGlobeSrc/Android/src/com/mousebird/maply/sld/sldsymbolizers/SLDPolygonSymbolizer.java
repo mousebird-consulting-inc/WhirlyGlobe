@@ -22,6 +22,7 @@ package com.mousebird.maply.sld.sldsymbolizers;
 
 import android.util.Log;
 
+import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -42,6 +43,10 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
                 SLDParseHelper.skip(xpp);
             }
         }
+    }
+
+    public VectorTileStyle[] getStyles() {
+        return new VectorTileStyle[]{};
     }
 
 

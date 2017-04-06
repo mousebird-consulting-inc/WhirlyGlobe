@@ -33,6 +33,10 @@ import android.util.Log;
 
 public class SLDFilter {
 
+    public SLDOperator getOperator() {
+        return operator;
+    }
+
     private SLDOperator operator;
     public SLDFilter(XmlPullParser xpp) throws XmlPullParserException, IOException {
         while (xpp.next() != XmlPullParser.END_TAG) {

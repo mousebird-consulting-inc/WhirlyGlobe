@@ -124,7 +124,8 @@ MAPLY_CORE_SRC_FILES := BaseInfo.cpp BasicDrawable.cpp BasicDrawableInstance.cpp
 					SelectionManager.cpp ShapeReader.cpp SphericalEarthChunkManager.cpp SphericalMercator.cpp \
 					Tesselator.cpp Texture.cpp TextureAtlas.cpp TileQuadLoader.cpp TileQuadOfflineRenderer.cpp \
 					VectorData.cpp vector_tile.pb.cpp VectorManager.cpp VectorObject.cpp ViewState.cpp \
-					WideVectorDrawable.cpp WideVectorManager.cpp WhirlyGeometry.cpp WhirlyKitView.cpp WhirlyVector.cpp
+					WideVectorDrawable.cpp WideVectorManager.cpp WhirlyGeometry.cpp WhirlyKitView.cpp WhirlyVector.cpp \
+					GeoJSONSource.cpp
 MAPLY_CORE_SRC_DIR := $(SRC_DIR)
 LOCAL_SRC_FILES += $(MAPLY_CORE_SRC_FILES:%=$(MAPLY_CORE_SRC_DIR)/%)
 
@@ -145,7 +146,8 @@ MAPLY_JNI_FILES := Maply_jni.cpp AttrDictionary_jni.cpp AngleAxis_jni.cpp \
 					SphericalMercatorCoordSystem_jni.cpp StringWrapper_jni.cpp \
 					Scene_jni.cpp ScreenObject_jni.cpp Sticker_jni.cpp StickerInfo_jni.cpp StickerManager_jni.cpp Sun_jni.cpp \
 					ShapeInfo_jni.cpp Shape_jni.cpp ShapeSphere_jni.cpp ShapeManager_jni.cpp Texture_jni.cpp \
-					VectorInfo_jni.cpp VectorIterator_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp View_jni.cpp VertexAttribute_jni.cpp ViewState_jni.cpp WideVectorManager_jni.cpp WideVectorInfo_jni.cpp
+					VectorInfo_jni.cpp VectorIterator_jni.cpp VectorManager_jni.cpp VectorObject_jni.cpp View_jni.cpp VertexAttribute_jni.cpp ViewState_jni.cpp WideVectorManager_jni.cpp WideVectorInfo_jni.cpp \
+					GeoJSONSource_jni.cpp
 
 LOCAL_SRC_FILES += $(MAPLY_JNI_FILES)
 

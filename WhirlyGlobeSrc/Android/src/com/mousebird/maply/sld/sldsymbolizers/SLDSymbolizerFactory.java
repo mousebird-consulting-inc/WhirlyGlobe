@@ -24,12 +24,15 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
+import com.mousebird.maply.VectorStyleSettings;
+import com.mousebird.maply.MaplyBaseController;
+
 public class SLDSymbolizerFactory {
 
-    public static SLDSymbolizer symbolizerForNode(XmlPullParser xpp) throws XmlPullParserException, IOException {
+    public static SLDSymbolizer symbolizerForNode(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
         String symbolizerName = xpp.getName();
         if (SLDLineSymbolizer.matchesSymbolizerNamed(symbolizerName))
-            return new SLDLineSymbolizer(xpp);
+            return new SLDLineSymbolizer(xpp, symbolizerParams);
         else if (SLDPolygonSymbolizer.matchesSymbolizerNamed(symbolizerName))
             return new SLDPolygonSymbolizer(xpp);
         else if (SLDPointSymbolizer.matchesSymbolizerNamed(symbolizerName))

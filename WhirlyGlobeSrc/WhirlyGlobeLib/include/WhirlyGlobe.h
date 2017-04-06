@@ -114,6 +114,7 @@
 #import "ScreenObject.h"
 #ifndef MAPLYMINIMAL
 #import "MapboxVectorTileParser.h"
+#import "GeoJSONSource.h"
 #endif
 #import "OverlapHelper.h"
 
