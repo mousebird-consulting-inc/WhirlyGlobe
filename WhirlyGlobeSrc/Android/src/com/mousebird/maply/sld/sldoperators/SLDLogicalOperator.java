@@ -47,6 +47,8 @@ public class SLDLogicalOperator extends SLDOperator {
             logicType = LogicType.LogicTypeAnd;
         else if (operatorName.equals("Or"))
             logicType = LogicType.LogicTypeOr;
+        else
+            throw new IllegalArgumentException();
 
         this.subOperators = new ArrayList<SLDOperator>();
         while (xpp.next() != XmlPullParser.END_TAG) {
@@ -73,6 +75,8 @@ public class SLDLogicalOperator extends SLDOperator {
 
     public boolean evaluateWithAttrs(AttrDictionary attrs) {
         boolean result = true;
+        if (logicType == LogicType.LogicTypeOr)
+            result = false;
         for (SLDOperator operator : subOperators) {
             if (logicType == LogicType.LogicTypeAnd)
                 result = result && operator.evaluateWithAttrs(attrs);

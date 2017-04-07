@@ -24,9 +24,26 @@ public class GeoJSONSource {
     private boolean enabled;
     private SLDStyleSet styleSet;
     private InputStream jsonStream;
+
+    public void setStyleSet(SLDStyleSet styleSet) {
+        this.styleSet = styleSet;
+    }
+
+    public void setJsonStream(InputStream jsonStream) {
+        this.jsonStream = jsonStream;
+    }
+
+    public void setBaseController(MaplyBaseController baseController) {
+        this.baseController = baseController;
+    }
+
+    public void setRelativeDrawPriority(int relativeDrawPriority) {
+        this.relativeDrawPriority = relativeDrawPriority;
+    }
+
     private MaplyBaseController baseController;
     private int relativeDrawPriority;
-    ArrayList<ComponentObject> componentObjects;
+    ArrayList<ComponentObject> componentObjects = new ArrayList<ComponentObject>();
 
     public boolean isLoaded() {
         return loaded;
@@ -46,13 +63,10 @@ public class GeoJSONSource {
             baseController.disableObjects(componentObjects, MaplyBaseController.ThreadMode.ThreadAny);
     }
 
-    public GeoJSONSource(MaplyBaseController baseController, InputStream jsonStream, SLDStyleSet styleSet, int relativeDrawPriority) {
+    public GeoJSONSource() {
 
+        initialise();
         Log.i("GeoJSONSource", "constructor");
-        this.baseController = baseController;
-        this.jsonStream = jsonStream;
-        this.styleSet = styleSet;
-        this.relativeDrawPriority = relativeDrawPriority;
         loaded = false;
         enabled = false;
 
@@ -65,29 +79,22 @@ public class GeoJSONSource {
             HashMap<String, ArrayList<VectorObject>> featureStyles = new HashMap<String, ArrayList<VectorObject>>();
             VectorObject[] vecs;
 
-            Log.i("ParseTask", "doInBackground flag 1");
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-
             int nRead;
             byte[] data = new byte[16384];
 
             while ((nRead = jsonStream.read(data, 0, data.length)) != -1) {
                 buffer.write(data, 0, nRead);
             }
-
             buffer.flush();
-            Log.i("ParseTask", "doInBackground flag 2");
-
             vecs = parseData(buffer.toString());
-
-            Log.i("ParseTask", "doInBackground flag 3");
 
             if (vecs != null) {
                 MaplyTileID nullTileID = new MaplyTileID(0,0,0);
                 for (VectorObject vecObj : vecs) {
                     VectorStyle[] styles = styleSet.stylesForFeature(vecObj.getAttributes(), nullTileID, "", baseController);
                     if (styles == null || styles.length == 0)
-                        continue;;
+                        continue;
                     for (VectorStyle style : styles) {
                         ArrayList<VectorObject> featuresForStyle = featureStyles.get(style.getUuid());
                         if (featuresForStyle == null) {
@@ -98,7 +105,6 @@ public class GeoJSONSource {
                     }
                 }
             }
-            Log.i("ParseTask", "doInBackground flag 4");
 
             if (vecs != null) {
                 MaplyTileID nullTileID = new MaplyTileID(0, 0, 0);
@@ -113,6 +119,7 @@ public class GeoJSONSource {
 
 
         } catch (Exception exception) {
+            Log.e("ParseTask", "exception", exception);
         }
 
         completionBlock.run();
@@ -251,5 +258,19 @@ public class GeoJSONSource {
             postRun.run();
         }
     }
+
+    public void finalize()
+    {
+        dispose();
+    }
+
+    static
+    {
+        nativeInit();
+    }
+    native void initialise();
+    native void dispose();
+    private static native void nativeInit();
+    protected long nativeHandle;
 
 }

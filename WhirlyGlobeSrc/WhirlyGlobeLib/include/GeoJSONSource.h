@@ -33,7 +33,7 @@ class GeoJSONSource
 {
 public:
     GeoJSONSource();
-    virtual ~GeoJSONSource();
+    ~GeoJSONSource();
     bool parseData(std::string json, std::vector<VectorObject *> &vecObjs);
 
 private:

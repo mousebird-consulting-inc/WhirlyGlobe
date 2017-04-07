@@ -78,21 +78,14 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_GeoJSONSource_parseData
 {
     try
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "_parseData flag 1");
         GeoJSONSourceClassInfo *classInfo = GeoJSONSourceClassInfo::getClassInfo();
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "_parseData flag 1a");
         GeoJSONSource *inst = classInfo->getObject(env,obj);
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "_parseData flag 1b");
         if (!inst || !json)
             return NULL;
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "_parseData flag 1c");
 
         std::vector<VectorObject *> vecObjs;
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "_parseData flag 1d");
         const char *cStr = env->GetStringUTFChars(json, 0);
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "_parseData flag 1e");
         bool parsed = inst->parseData(cStr, vecObjs);
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "_parseData flag 2");
 
         if (!parsed || vecObjs.empty())
             return NULL;
@@ -102,7 +95,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_GeoJSONSource_parseData
             vecClassInfo = VectorObjectClassInfo::getClassInfo(env,"com/mousebird/maply/VectorObject");
 
         jobjectArray retArr = env->NewObjectArray(vecObjs.size(), vecClassInfo->getClass(), NULL);
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "_parseData flag 3");
 
         int which = 0;
         for (VectorObject *vecObj : vecObjs)
@@ -112,7 +104,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_GeoJSONSource_parseData
             env->DeleteLocalRef( vecObjObj);
             which++;
         }
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "_parseData flag 4");
         
         return retArr;
     }

@@ -39,7 +39,8 @@ bool GeoJSONSource::parseData(std::string json, std::vector<VectorObject *> &vec
     if (!parsed)
         return false;
 
-    vecObjs = std::vector<VectorObject *>(shapes.size());
+    vecObjs = std::vector<VectorObject *>();
+    vecObjs.reserve(2*shapes.size());
 
     for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it) {
 

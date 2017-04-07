@@ -49,7 +49,11 @@ public class SLDTestCase extends MaplyTestCase {
             styleSet.loadSldInputStream(getActivity().getAssets().open("osm_roads.sld"));
             Log.i("SLDTestCase", "flag 2");
 
-            GeoJSONSource gjs = new GeoJSONSource(controller, getActivity().getAssets().open("belfast_ireland_roads.geojson"), styleSet, 0);
+            GeoJSONSource gjs = new GeoJSONSource();
+            gjs.setBaseController(controller);
+            gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_roads.geojson"));
+            gjs.setStyleSet(styleSet);
+            gjs.setRelativeDrawPriority(0);
             Log.i("SLDTestCase", "flag 3");
             gjs.startParse();
             Log.i("SLDTestCase", "flag 4");

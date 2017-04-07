@@ -55,7 +55,7 @@ public class SLDLineSymbolizer extends SLDSymbolizer {
 
 
     public VectorTileStyle[] getStyles() {
-        return new VectorTileStyle[]{};
+        return new VectorTileStyle[]{vectorTileLineStyle};
     }
 
     public static boolean matchesSymbolizerNamed(String symbolizerName) {
