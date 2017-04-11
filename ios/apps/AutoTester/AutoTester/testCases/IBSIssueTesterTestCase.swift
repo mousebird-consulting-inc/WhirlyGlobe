@@ -8,7 +8,7 @@
 
 import Foundation
 
-class IBSIssueTesterTestCase: MaplyTestCase {
+class IBSIssueTesterTestCase: MaplyTestCase, MaplyTileSource {
 
 
     // MARK: - Constants
@@ -41,6 +41,70 @@ class IBSIssueTesterTestCase: MaplyTestCase {
     // MARK: Protocol XyZAbdc
 
 
+    func minZoom() -> Int32 {
+        return 7
+    }
+
+
+    func maxZoom() -> Int32 {
+        return 7
+    }
+
+
+    func tileSize() -> Int32 {
+        return 256
+    }
+
+
+    func tileIsLocal(_ tileID: MaplyTileID, frame: Int32) -> Bool {
+        return true
+    }
+
+
+    func coordSys() -> MaplyCoordinateSystem {
+        return MaplySphericalMercator()
+    }
+
+    func startFetchLayer(_ layer: Any, tile tileID: MaplyTileID) {
+
+        let tilesLayer = layer as! MaplyQuadImageTilesLayer
+
+        DispatchQueue.global().async { [unowned self] in
+
+
+            if (tileID.x >= 62 && tileID.x <= 66 && tileID.y >= 80 && tileID.y <= 85) {
+                UIGraphicsBeginImageContextWithOptions(CGSize(width: 256, height: 256), false, 1)
+                let context = UIGraphicsGetCurrentContext()
+                context?.setFillColor(red: 1, green: 0, blue: 0, alpha: 0.2)
+                context?.fill(CGRect(x: 20, y: 20, width: 216, height: 216))
+
+                let image = UIGraphicsGetImageFromCurrentImageContext()
+
+                tilesLayer.loadedImages(image!, forTile: tileID)
+
+                print(String(format: "Tile found  for [%d, %d, %d]", tileID.x, tileID.y, tileID.level))
+
+                return
+            }
+
+            // Uncomment the lines below to re-establish the loading of existing tiles
+//            UIGraphicsBeginImageContextWithOptions(CGSize(width: 256, height: 256), false, 1)
+//            let context = UIGraphicsGetCurrentContext()
+//            context?.setFillColor(red: 0, green: 1, blue: 0, alpha: 0.1)
+//            context?.fill(CGRect(x: 20, y: 20, width: 216, height: 216))
+//
+//            let image = UIGraphicsGetImageFromCurrentImageContext()
+//
+//            tilesLayer.loadedImages(image!, forTile: tileID)
+
+            print(String(format: "*** No Tile found  for [%d, %d, %d]", tileID.x, tileID.y, tileID.level))
+        }
+    }
+
+    
+
+
+
 
     // MARK: - Public methods
 
@@ -48,9 +112,8 @@ class IBSIssueTesterTestCase: MaplyTestCase {
         let baseLayer = GeographyClassTestCase()
         baseLayer.setUpWithGlobe(globeVC)
 
-//        globeVC.add(setupLayer(baseVC: globeVC))
+        globeVC.add(self.setupLayer(forController: globeVC)!)
 
-        self.addObjects(toController: globeVC)
 
         globeVC.keepNorthUp = true
         globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(3.84, 43), time: 1.0)
@@ -60,11 +123,9 @@ class IBSIssueTesterTestCase: MaplyTestCase {
         let baseLayer = GeographyClassTestCase()
         baseLayer.setUpWithMap(mapVC)
 
-//        mapVC.add(setupLayer(baseVC: mapVC))
+        mapVC.add(self.setupLayer(forController: mapVC)!)
 
-        self.addObjects(toController: mapVC)
-
-        mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(3.84, 43), height: 0.5, time: 1.0)
+        mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(3.84, 43), height: 0.4, time: 1.0)
         mapVC.setZoomLimitsMin(0.01, max: 4.0)
     }
     
@@ -76,83 +137,22 @@ class IBSIssueTesterTestCase: MaplyTestCase {
     // MARK: - Private methods
 
 
-    private func addObjects(toController vc: MaplyBaseViewController) {
+    private func setupLayer(forController vc: MaplyBaseViewController) -> MaplyQuadImageTilesLayer? {
 
-        let lat: Float = 44
-        let lon: Float = 4
-        let loc = MaplyCoordinateMakeWithDegrees(lon, lat)
+        let coordinateSystem = MaplySphericalMercator.init()
 
-        // Adding the text at the bottom
-        var label = MaplyScreenLabel()
-        label.text = "The quick brown fox is at the bottom"
-        label.loc = loc
+        if let layer = MaplyQuadImageTilesLayer.init(coordSystem: coordinateSystem, tileSource: self){
+            layer.handleEdges = false
+            layer.coverPoles = false
+            layer.requireElev = false
+            layer.waitLoad = false
+            layer.singleLevelLoading = true
+            layer.useTargetZoomLevel = true
+            layer.numSimultaneousFetches = 8
 
-        var info = Dictionary<AnyHashable, Any>()
+            return layer
+        }
 
-        info[kMaplyTextColor] = UIColor.brown
-        info[kMaplyTextOutlineColor] = UIColor.white
-        info[kMaplyTextOutlineSize] = 2.0
-        info[kMaplyDrawPriority] = 10
-        info[kMaplyEnable] = true
-        info[kMaplyFont] = UIFont.init(name: "Helvetica-Bold", size: 24.0)
-
-        vc.addScreenLabels([label], desc: info, mode: MaplyThreadMode.current)
-
-
-        // Adding a marker above the text
-        let marker = MaplyScreenMarker()
-        marker.image = UIImage(named:"Smiley_Face_Avatar_by_PixelTwist")
-        marker.loc = loc
-        marker.size = CGSize(width: 100, height: 100)
-
-        info = Dictionary<AnyHashable, Any>()
-
-        info[kMaplyDrawPriority] = 20
-
-        vc.addScreenMarkers([marker], desc: info, mode: MaplyThreadMode.current)
-
-
-
-        // Adding a cross made of wide vectors above the marker
-        let ur = MaplyCoordinateMakeWithDegrees(lon + 1, lat + 1)
-        let ll = MaplyCoordinateMakeWithDegrees(lon - 1, lat - 1)
-        let ul = MaplyCoordinateMakeWithDegrees(lon - 1, lat + 1)
-        let lr = MaplyCoordinateMakeWithDegrees(lon + 1, lat - 1)
-        var ls1 = [ur, ll]
-        let wv1 = MaplyVectorObject(lineString: &ls1, numCoords: 2, attributes: nil)
-        var ls2 = [ul, lr]
-        let wv2 = MaplyVectorObject(lineString: &ls2, numCoords: 2, attributes: nil)
-
-        var lineInfo = Dictionary<AnyHashable, Any>()
-        lineInfo[kMaplyVecWidth] = 50
-        lineInfo[kMaplyColor] = UIColor.red
-        lineInfo[kMaplyDrawPriority] = 30
-        lineInfo[kMaplyEnable] = true
-        lineInfo[kMaplyFilled] = false
-        lineInfo[kMaplyWideVecCoordType] = kMaplyWideVecCoordTypeScreen
-
-        vc.addWideVectors([wv1, wv2], desc: lineInfo, mode: MaplyThreadMode.current)
-
-
-
-
-        // Adding some text above
-        label = MaplyScreenLabel()
-        label.text = "The lazzy dog is at the top"
-        label.loc = MaplyCoordinateMakeWithDegrees(lon, lat)
-
-        info = Dictionary<AnyHashable, Any>()
-
-        info[kMaplyTextColor] = UIColor.blue
-        info[kMaplyTextOutlineColor] = UIColor.white
-        info[kMaplyTextOutlineSize] = 1.0
-        info[kMaplyDrawPriority] = 50
-        info[kMaplyEnable] = true
-        info[kMaplyFont] = UIFont.init(name: "Helvetica-Bold", size: 16.0)
-
-        vc.addScreenLabels([label], desc: info, mode: MaplyThreadMode.current)
-        
+        return nil
     }
-
-
 }
