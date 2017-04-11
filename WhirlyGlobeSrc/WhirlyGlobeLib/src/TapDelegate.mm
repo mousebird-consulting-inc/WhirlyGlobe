@@ -30,10 +30,14 @@ using namespace WhirlyKit;
 	WhirlyGlobeView *globeView;
 }
 
+
+@synthesize stopGlobeMoveOnTap;
+
 - (id)initWithGlobeView:(WhirlyGlobeView *)inView
 {
 	if ((self = [super init]))
 	{
+        stopGlobeMoveOnTap = false;
 		globeView = inView;
 	}
 	
@@ -61,6 +65,11 @@ using namespace WhirlyKit;
 - (void)tapAction:(id)sender
 {
 	UITapGestureRecognizer *tap = sender;
+
+    if (stopGlobeMoveOnTap)
+    {
+        [globeView cancelAnimation];
+    }
     
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
 	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
