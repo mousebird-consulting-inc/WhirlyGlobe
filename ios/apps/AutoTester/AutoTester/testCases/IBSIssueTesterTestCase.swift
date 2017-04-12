@@ -104,7 +104,7 @@ class IBSIssueTesterTestCase: MaplyTestCase {
         info[kMaplyTextOutlineSize] = 2.0
         info[kMaplyDrawPriority] = 50
         info[kMaplyEnable] = true
-        info[kMaplyFont] = UIFont.init(name: "Helvetica-Bold", size: 16.0)
+        info[kMaplyFont] = UIFont.init(name: "Helvetica-Bold", size: 12.0)
 
         vc.addScreenLabels([label], desc: info, mode: MaplyThreadMode.current)
 
@@ -113,7 +113,7 @@ class IBSIssueTesterTestCase: MaplyTestCase {
 
         // Adding some "warning" text
         label = MaplyScreenLabel()
-        label.text = "A black & white marker should show here"
+        label.text = "A black & white marker shows here"
         label.loc = loc2
 
         info = Dictionary<AnyHashable, Any>()
@@ -123,21 +123,31 @@ class IBSIssueTesterTestCase: MaplyTestCase {
         info[kMaplyTextOutlineSize] = 2.0
         info[kMaplyDrawPriority] = 50
         info[kMaplyEnable] = true
-        info[kMaplyFont] = UIFont.init(name: "Helvetica-Bold", size: 16.0)
+        info[kMaplyFont] = UIFont.init(name: "Helvetica-Bold", size: 12.0)
 
         vc.addScreenLabels([label], desc: info, mode: MaplyThreadMode.current)
 
 
         // Filtering the image
-        let colorMatrixFilter = CIFilter(name: "CIPhotoEffectMono")!
-        colorMatrixFilter.setDefaults()
-        colorMatrixFilter.setValue(CIImage(image: UIImage(named:"Smiley_Face_Avatar_by_PixelTwist")!)!, forKey: kCIInputImageKey)
+        let uiSmiley = UIImage(named: "Smiley_Face_Avatar_by_PixelTwist")!
+        let ciSmiley = CIImage(image: uiSmiley)
 
-        if let ciImage = colorMatrixFilter.outputImage {
-            let bwImage = UIImage(ciImage: ciImage, scale: 1.0, orientation: UIImageOrientation.up)
+        if let bwSmiley = ciSmiley?.applyingFilter("CIPhotoEffectNoir", withInputParameters: nil) {
+
+            UIGraphicsBeginImageContextWithOptions(uiSmiley.size, false, uiSmiley.scale)
+            defer {
+                UIGraphicsEndImageContext()
+            }
+
+            UIImage(ciImage: bwSmiley).draw(in: CGRect(origin: .zero, size: uiSmiley.size))
+
+            guard let image = UIGraphicsGetImageFromCurrentImageContext() else {
+                print("*** Could not get image from context ***")
+                return
+            }
 
             marker = MaplyScreenMarker()
-            marker.image = bwImage
+            marker.image = image
             marker.loc = loc2
             marker.size = CGSize(width: 50, height: 50)
 
@@ -147,7 +157,7 @@ class IBSIssueTesterTestCase: MaplyTestCase {
 
             vc.addScreenMarkers([marker], desc: info, mode: MaplyThreadMode.current)
         } else {
-            print("*** ciImage is nil ***")
+            print("*** bwSmiley is nil ***")
         }
     }
 }
