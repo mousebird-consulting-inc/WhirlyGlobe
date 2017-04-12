@@ -66,7 +66,7 @@ using namespace WhirlyKit;
             // Check if we're still within bounds
             if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:[[MaplyView alloc] initWithView:self.mapView] newCenter:&newCenter])
             {
-                animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView translate:newCenter howLong:_animTime];
+                animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView view:glView translate:newCenter howLong:_animTime];
                 self.mapView.delegate = animation;
             }
         }
