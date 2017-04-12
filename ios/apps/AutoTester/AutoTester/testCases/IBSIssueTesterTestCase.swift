@@ -13,6 +13,8 @@ class IBSIssueTesterTestCase: MaplyTestCase {
 
     // MARK: - Constants
 
+    private static let BaseDrawPriority = kMaplyModelDrawPriorityDefault
+
 
 
     // MARK: - Private variables
@@ -92,7 +94,7 @@ class IBSIssueTesterTestCase: MaplyTestCase {
         info[kMaplyTextColor] = UIColor.brown
         info[kMaplyTextOutlineColor] = UIColor.white
         info[kMaplyTextOutlineSize] = 2.0
-        info[kMaplyDrawPriority] = 10
+        info[kMaplyDrawPriority] = IBSIssueTesterTestCase.BaseDrawPriority + 10
         info[kMaplyEnable] = true
         info[kMaplyFont] = UIFont.init(name: "Helvetica-Bold", size: 24.0)
 
@@ -107,26 +109,26 @@ class IBSIssueTesterTestCase: MaplyTestCase {
 
         info = Dictionary<AnyHashable, Any>()
 
-        info[kMaplyDrawPriority] = 20
+        info[kMaplyDrawPriority] = IBSIssueTesterTestCase.BaseDrawPriority + 20
 
         vc.addScreenMarkers([marker], desc: info, mode: MaplyThreadMode.current)
 
 
 
         // Adding a cross made of wide vectors above the marker
-        let ur = MaplyCoordinateMakeWithDegrees(lon + 1, lat + 1)
-        let ll = MaplyCoordinateMakeWithDegrees(lon - 1, lat - 1)
-        let ul = MaplyCoordinateMakeWithDegrees(lon - 1, lat + 1)
-        let lr = MaplyCoordinateMakeWithDegrees(lon + 1, lat - 1)
-        var ls1 = [ur, ll]
+        let loc1 = MaplyCoordinateMakeWithDegrees(lon + 1, lat)
+        let loc2 = MaplyCoordinateMakeWithDegrees(lon - 1, lat)
+        let loc3 = MaplyCoordinateMakeWithDegrees(lon, lat + 0.7)
+        let loc4 = MaplyCoordinateMakeWithDegrees(lon, lat - 0.7)
+        var ls1 = [loc1, loc2]
         let wv1 = MaplyVectorObject(lineString: &ls1, numCoords: 2, attributes: nil)
-        var ls2 = [ul, lr]
+        var ls2 = [loc3, loc4]
         let wv2 = MaplyVectorObject(lineString: &ls2, numCoords: 2, attributes: nil)
 
         var lineInfo = Dictionary<AnyHashable, Any>()
         lineInfo[kMaplyVecWidth] = 50
         lineInfo[kMaplyColor] = UIColor.red
-        lineInfo[kMaplyDrawPriority] = 30
+        lineInfo[kMaplyDrawPriority] = IBSIssueTesterTestCase.BaseDrawPriority + 30
         lineInfo[kMaplyEnable] = true
         lineInfo[kMaplyFilled] = false
         lineInfo[kMaplyWideVecCoordType] = kMaplyWideVecCoordTypeScreen
@@ -146,7 +148,7 @@ class IBSIssueTesterTestCase: MaplyTestCase {
         info[kMaplyTextColor] = UIColor.blue
         info[kMaplyTextOutlineColor] = UIColor.white
         info[kMaplyTextOutlineSize] = 1.0
-        info[kMaplyDrawPriority] = 50
+        info[kMaplyDrawPriority] = IBSIssueTesterTestCase.BaseDrawPriority + 50
         info[kMaplyEnable] = true
         info[kMaplyFont] = UIFont.init(name: "Helvetica-Bold", size: 16.0)
 
