@@ -191,10 +191,20 @@ MaplyCoordinate3dD MaplyCoordinate3dDMake(double x,double y,double z);
 MaplyBoundingBox MaplyBoundingBoxMakeWithDegrees(float degLon0,float degLat0,float degLon1,float degLat1);
     
 /** @brief Check if two bounding boxes overlap.
-    @return Returns true if they did overlap, false otherwise.
- */
+     @return Returns true if they did overlap, false otherwise.
+  */
 bool MaplyBoundingBoxesOverlap(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1);
-
+    
+/** @brief Check if a bounding contains a given coordinate.
+     @return Returns true if the bounding box contains the coordinate.
+  */
+bool MaplyBoundingBoxContains(MaplyBoundingBox bbox, MaplyCoordinate c);
+    
+/** @brief Expands a bounding box by a given fraction of its size.
+     @return Returns the expanded bounding box.
+  */
+MaplyBoundingBox MaplyBoundingBoxExpandByFraction(MaplyBoundingBox bbox, float buffer);
+    
 /** @brief Calculate the great circle distance between two geo coordinates.
     @details This calculates the distance on a sphere between one point and another.
     @param p0 The starting point, lon/lat in radians.
