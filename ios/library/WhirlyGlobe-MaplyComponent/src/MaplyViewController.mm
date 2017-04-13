@@ -61,6 +61,16 @@ using namespace Maply;
     return newState;
 }
 
+- (bool) isEqual:(id)object
+{
+    if (![object isKindOfClass:[MaplyViewControllerAnimationState class]])
+        return false;
+    MaplyViewControllerAnimationState *otherState = object;
+    
+    return self.pos.x == otherState.pos.x && self.pos.y == otherState.pos.y &&
+    self.heading == otherState.heading && self.height == otherState.height &&
+    self.screenPos.x == otherState.screenPos.x && self.screenPos.y == otherState.screenPos.y;
+}
 
 @end
 
@@ -528,6 +538,28 @@ using namespace Maply;
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        // We could do something fancy while it's moving
+    } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        // If we have view extents, we want to nudge those
+        // Do a validity check and possibly adjust the center
+        MaplyView *testMapView = [[MaplyView alloc] initWithView:mapView];
+        Point3d newCenter;
+        if ([self withinBounds:mapView.loc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
+        {
+            if (mapView.loc != newCenter)
+                mapView.loc = newCenter;
+            else {
+                // Note: If this happens we should try zooming in a bit, most likely
+            }
+        }
+    }];
+}
+
 
 // Register for interesting tap events and others
 // Note: Fill this in
@@ -859,26 +891,13 @@ using namespace Maply;
     
     [mapView cancelAnimation];
     
-
-    // See if the change of location will cause problems
-    MaplyViewControllerAnimationState *nextState = [[MaplyViewControllerAnimationState alloc] init];
-    nextState.heading = newHeading;
-    nextState.pos = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
-    nextState.height = newHeight;
-    [self setViewStateInternal:nextState runViewUpdates:false];
-    Point3d newCenter;
-    bool valid = [self withinBounds:mapView.loc view:glView renderer:sceneRenderer mapView:mapView newCenter:&newCenter];
+    MaplyViewControllerSimpleAnimationDelegate *anim = [[MaplyViewControllerSimpleAnimationDelegate alloc] init];
+    anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
+    anim.heading = newHeading;
+    anim.height = newHeight;
+    [self animateWithDelegate:anim time:howLong];
     
-    if (valid)
-    {
-        MaplyViewControllerSimpleAnimationDelegate *anim = [[MaplyViewControllerSimpleAnimationDelegate alloc] init];
-        anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
-        anim.heading = newHeading;
-        anim.height = newHeight;
-        [self animateWithDelegate:anim time:howLong];
-    }
-    
-    return valid;
+    return true;
 }
 
 - (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(NSTimeInterval)howLong
@@ -962,6 +981,9 @@ using namespace Maply;
 // Bounds check on a single point
 - (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
+    if (bounds.empty())
+        return true;
+    
     return MaplyGestureWithinBounds(bounds,loc,view,sceneRender,testMapView,newCenter);
 }
 
@@ -1000,7 +1022,15 @@ using namespace Maply;
     
     Point3d loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
     loc.z() = height;
-    mapView.loc = loc;
+
+    // Do a validity check and possibly adjust the center
+    MaplyView *testMapView = [[MaplyView alloc] initWithView:mapView];
+    Point3d newCenter;
+    if ([self withinBounds:loc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
+    {
+        mapView.loc = newCenter;
+    }
+
     [self handleStopMoving:NO];
 }
 
@@ -1112,12 +1142,16 @@ using namespace Maply;
     bool lastOne = false;
     if (now > animationDelegateEnd)
         lastOne = true;
+    
+    // Current view state
+    MaplyViewControllerAnimationState *oldState = [self getViewState];
 
     // Ask the delegate where we're supposed to be
     MaplyViewControllerAnimationState *animState = [animationDelegate mapViewController:self stateForTime:now];
     
     // Do a validity check and possibly adjust the center
-    Point3d loc(animState.pos.x,animState.pos.y,animState.height);
+    Point3d loc = coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y));
+    loc.z() = animState.height;
     MaplyView *testMapView = [[MaplyView alloc] initWithView:mapView];
     Point3d newCenter;
     if ([self withinBounds:loc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
@@ -1125,8 +1159,11 @@ using namespace Maply;
         GeoCoord geoCoord = coordAdapter->getCoordSystem()->localToGeographic(newCenter);
         animState.pos = {geoCoord.x(),geoCoord.y()};
         animState.height = newCenter.z();
-        [self setViewStateInternal:animState];
-    }
+        
+        if (![oldState isEqual:animState])
+            [self setViewStateInternal:animState];
+    } else
+        lastOne = true;
 
     if (lastOne)
     {
