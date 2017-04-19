@@ -112,6 +112,9 @@ public:
     /// Middle
     const Point2f mid() const { return (pt_ll+pt_ur)/2.0; }
 
+    /// span
+    Point2f span() const;
+
 	/// Check validity
 	bool valid() const { return pt_ur.x() >= pt_ll.x(); }
 	
@@ -151,7 +154,10 @@ public:
     
     /// Expand with the given MBR
     void expand(const Mbr &that);
-	
+
+    /// Expands by a given fraction of the receiver's size
+    void expandByFraction(double bufferZone);
+
 protected:
 	Point2f pt_ll,pt_ur;
 };
