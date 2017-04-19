@@ -327,58 +327,61 @@
         _shapeCircleObj = nil;
     }
     
-    // TODO: should we return before or after removing existing markers?
-    if (location.horizontalAccuracy < 0)
-        return;
-    
-    MaplyShapeCircle *shapeCircle = [self shapeCircleForCoord:endLoc AndHorizontalAccuracy:location.horizontalAccuracy];
-    if (shapeCircle) {
-        _shapeCircleObj = [_theViewC addShapes:@[shapeCircle] desc:_shapeCircleDesc];
+    if (location.horizontalAccuracy >= 0) {
+        MaplyShapeCircle *shapeCircle = [self shapeCircleForCoord:endLoc AndHorizontalAccuracy:location.horizontalAccuracy];
+        if (shapeCircle) {
+            _shapeCircleObj = [_theViewC addShapes:@[shapeCircle] desc:_shapeCircleDesc];
+        }
+        
+        NSNumber *orientation;
+        if (_useHeading && _latestHeading)
+            orientation = _latestHeading;
+        else if (_useCourse && location.course >= 0)
+            orientation = @(location.course);
+            
+        NSArray *markerImages;
+        if (orientation)
+            markerImages = _markerImgsDirectional;
+        else
+            markerImages = _markerImgs;
+        
+        MaplyMovingScreenMarker *movingMarker = [[MaplyMovingScreenMarker alloc] init];
+        movingMarker.loc = startLoc;
+        movingMarker.endLoc = endLoc;
+        movingMarker.duration = 0.5;
+        
+        movingMarker.period = 1.0;
+        movingMarker.size = CGSizeMake(LOC_TRACKER_POS_MARKER_SIZE, LOC_TRACKER_POS_MARKER_SIZE);
+        if (orientation)
+            movingMarker.rotation = -M_PI/180.0 * orientation.doubleValue;
+        movingMarker.images = markerImages;
+        movingMarker.layoutImportance = MAXFLOAT;
+        
+        MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
+        marker.loc = endLoc;
+        
+        marker.period = 1.0;
+        marker.size = CGSizeMake(LOC_TRACKER_POS_MARKER_SIZE, LOC_TRACKER_POS_MARKER_SIZE);
+        if (orientation)
+            marker.rotation = -M_PI/180.0 * orientation.doubleValue;
+        marker.images = markerImages;
+        marker.layoutImportance = MAXFLOAT;
+        
+        NSTimeInterval ti = [NSDate timeIntervalSinceReferenceDate]+0.5;
+        _markerDesc[kMaplyEnableStart] = _movingMarkerDesc[kMaplyEnableEnd] = @(ti);
+        
+        _movingMarkerObj = [_theViewC addScreenMarkers:@[movingMarker] desc:_movingMarkerDesc];
+        _markerObj = [_theViewC addScreenMarkers:@[marker] desc:_markerDesc];
+        
+        [self lockToLocation:endLoc heading:(orientation ? orientation.floatValue : 0.0)];
+        
+        _prevLoc = endLoc;
     }
     
-    NSNumber *orientation;
-    if (_useHeading && _latestHeading)
-        orientation = _latestHeading;
-    else if (_useCourse && location.course >= 0)
-        orientation = @(location.course);
-        
-    NSArray *markerImages;
-    if (orientation)
-        markerImages = _markerImgsDirectional;
-    else
-        markerImages = _markerImgs;
-    
-    MaplyMovingScreenMarker *movingMarker = [[MaplyMovingScreenMarker alloc] init];
-    movingMarker.loc = startLoc;
-    movingMarker.endLoc = endLoc;
-    movingMarker.duration = 0.5;
-    
-    movingMarker.period = 1.0;
-    movingMarker.size = CGSizeMake(LOC_TRACKER_POS_MARKER_SIZE, LOC_TRACKER_POS_MARKER_SIZE);
-    if (orientation)
-        movingMarker.rotation = -M_PI/180.0 * orientation.doubleValue;
-    movingMarker.images = markerImages;
-    movingMarker.layoutImportance = MAXFLOAT;
-    
-    MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
-    marker.loc = endLoc;
-    
-    marker.period = 1.0;
-    marker.size = CGSizeMake(LOC_TRACKER_POS_MARKER_SIZE, LOC_TRACKER_POS_MARKER_SIZE);
-    if (orientation)
-        marker.rotation = -M_PI/180.0 * orientation.doubleValue;
-    marker.images = markerImages;
-    marker.layoutImportance = MAXFLOAT;
-    
-    NSTimeInterval ti = [NSDate timeIntervalSinceReferenceDate]+0.5;
-    _markerDesc[kMaplyEnableStart] = _movingMarkerDesc[kMaplyEnableEnd] = @(ti);
-    
-    _movingMarkerObj = [_theViewC addScreenMarkers:@[movingMarker] desc:_movingMarkerDesc];
-    _markerObj = [_theViewC addScreenMarkers:@[marker] desc:_markerDesc];
-    
-    [self lockToLocation:endLoc heading:(orientation ? orientation.floatValue : 0.0)];
-    
-    _prevLoc = endLoc;
+    __strong NSObject<MaplyLocationTrackerDelegate> *delegate = _delegate;
+    if (delegate && [delegate respondsToSelector:@selector(updateLocation:)]) {
+        [delegate updateLocation:location];
+    }
 }
 
 - (void) lockToLocation:(MaplyCoordinate)location heading:(float)heading{
@@ -389,7 +392,6 @@
         return;
     
 //    MaplyCoordinateD locationD = MaplyCoordinateDMakeWithMaplyCoordinate(location);
-    bool valid = true;
     
     switch (_lockType) {
         case MaplyLocationLockNone:
@@ -398,27 +400,24 @@
             if (globeVC)
                 [globeVC animateToPosition:location height:[globeVC getHeight] heading:0.0 time:0.5];
             else if (mapVC)
-                valid = [mapVC animateToPosition:location height:[mapVC getHeight] heading:0.0 time:0.5];
+                [mapVC animateToPosition:location height:[mapVC getHeight] heading:0.0 time:0.5];
             break;
         case MaplyLocationLockHeadingUp:
             if (globeVC)
                 [globeVC animateToPosition:location height:[globeVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
             else if (mapVC)
-                valid = [mapVC animateToPosition:location height:[mapVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
+                [mapVC animateToPosition:location height:[mapVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
             break;
         case MaplyLocationLockHeadingUpOffset:
             if (globeVC)
                 [globeVC animateToPosition:location onScreen:CGPointMake(0, -_forwardTrackOffset) height:[globeVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
             else if (mapVC)
-                valid = [mapVC animateToPosition:location onScreen:CGPointMake(0, -_forwardTrackOffset) height:[mapVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
+                [mapVC animateToPosition:location onScreen:CGPointMake(0, -_forwardTrackOffset) height:[mapVC getHeight] heading:fmod(M_PI/180.0 * heading + 2.0*M_PI, 2.0*M_PI) time:0.5];
             break;
         default:
             break;
     }
     
-    if (!valid && [delegate respondsToSelector:@selector(locationOutsideViewExtents)]) {
-        [delegate locationOutsideViewExtents];
-    }
 }
 
 #pragma mark
