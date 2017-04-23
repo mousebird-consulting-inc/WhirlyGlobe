@@ -1,5 +1,7 @@
-var url = 'http://mousebird-home.asuscomm.com:8080/api/json?depth=2&pretty=true&tree=jobs[name,lastBuild[number,duration,timestamp,result,estimatedDuration]]'
+var url = 'http://mousebird-home.asuscomm.com:8080/api/json?depth=2&pretty=true&tree=jobs[name,lastBuild[number,duration,timestamp,result,estimatedDuration]]';
 var s3Url = "https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/";
+var s3Urldocs = "https://s3.amazonaws.com/whirlyglobemaplydistributiondocs/";
+
 
 function getAPIData() {
 	$.getJSON(url,function(jenkinsJSON) { 
@@ -24,9 +26,12 @@ function buildUI(jenkinsJSON, s3XML) {
 	var items = [];
 	$.each (jenkinsJSON, function (x1, y1) {
 		if (x1 == "jobs") {
-			var table = "<div class='table-responsive builds text-center'><table class='table table-bordered'><thead><tr><th>Name</th><th>Status</th><th>Last Duration</th><th>Build Count</th><th>Last Result</th><th>Last Run Date</th><th>Last Binary</th><th>Other Binaries</th></tr></thead><tbody>";
+			var table = "<div class='table-responsive builds text-center'><table class='table table-bordered'><thead><tr><th>Name</th><th>Status</th><th>Last Duration</th><th>Build Count</th><th>Last Result</th><th>Last Run Date</th><th>Last Binary</th><th>Reference</th><th>Other Binaries</th></tr></thead><tbody>";
 			$.each (y1, function(x2, y2) {
-				table = table + convertJobToHTMLRow(y2, s3XML);
+				var row = convertJobToHTMLRow(y2, s3XML);
+				if (row != null){
+					table = table + row;
+				}
 			});
 			table = table +"</tbody></table></div>";
 			document.getElementById("table").innerHTML = table;
@@ -116,24 +121,42 @@ function convertJobToHTMLRow(job, s3XML) {
 	if (binaries.length > 0) {
 		var lastBinary = binaries[binaries.length-1];
 		var binaryName = lastBinary.split("/");
-		html = html + "<td><a href="+s3Url+lastBinary+">"+binaryName[1]+"</a></td><td>"
+		var refereceUrl = lastBinary.replace("builds", "docs").replace(".zip", "/index.html").replace(".aar", "/index.html");
+		$.ajax({
+			url: s3Urldocs+refereceUrl,
+			type: "GET",
+			success: function(){
+			// Se ejecuta cuando se ha recibido correctamente
+			// los datos de la url
+					html = html + "<td><a href="+s3Url+lastBinary+" target='_blank' >"+binaryName[1]+"</a></td><td><a href='"+s3Urldocs+refereceUrl+"'' class='btn btn-info btn-md' role='button' aria-pressed='true' target='_blank'>Documentation</a></td><td>"
+			},
+			error: function(){
+			// Se ejecuta cuando es imposible obtener
+			// los datos de la url
+					html = html + "<td><a href="+s3Url+lastBinary+">"+binaryName[1]+"</a></td><td><strong>No available</strong></td><td>"
+			},
+			async: false, // La petición es síncrona
+			cache: false // No queremos usar la caché del navegador
+		});
 		if (binaries.length > 1) {
 			html = html + "<button type='button' class='btn btn-info btn-md' data-toggle='modal' data-target='#"+data[0]+"'>See More</button>";
 			html = html + "<div id='"+data[0]+"' class='modal fade' role='dialog'><div class='modal-dialog'>";
 			html = html + "<div class='modal-content'><div class='modal-header tutorial-main'><button type='button' class='close' data-dismiss='modal'>&times;</button><h2>Binaries</h2></div>";
-			html = html + "<div class='modal-body tutorial tutorial-main'>";
+			html = html + "<div class='modal-body tutorial builds tutorial-main'><table class='table table-bordered'style='background:transparent;'><thead><tr><th>Name</th><th>Binary</th><th>Reference</th></tr></thead><tbody>";
 			for (var i = binaries.length-2; i >= 0 ; i--){
 				binaryName = binaries[i].split("/");
-				html = html + "<p><a href="+s3Url+binaries[i]+">"+binaryName[1]+"</a></p>"
+				var oldReferenceUrl = binaries[i].replace("builds", "docs").replace(".zip", "/index.html").replace(".aar", "/index.html");
+				html = html + "<tr style='background:transparent;'><td>"+binaryName[1].replace(".zip", "").replace(".aar", "")+"</td><td><a href="+s3Url+binaries[i]+" target='_blank'>Download</a></td><td><a href="+s3Urldocs+oldReferenceUrl+" target='_blank'>Documentation</a></td></tr>"
+
 			}
-			html = html+"</div><div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>Close</button></div></div></div></div></td>";
+			html = html+"</tbody></table></div><div class='modal-footer'><button type='button' class='btn btn-default' data-dismiss='modal'>Close</button></div></div></div></div></td>";
 		}
 		else {
 			html = html+"None</td>";
 		}
 	}
 	else {
-		html = html + "<td>None</td><td>None</td>";
+		html = html + "<td>None</td><td>None</td><td>None</td>";
 	}
 
 	return html + "</tr>";
@@ -192,15 +215,17 @@ function getS3Data(dataXML, testName, platform)
 	var binaries = [];
 	$(dataXML).find('Contents').each(function() {
 		var key = $(this).find('Key').text();
-		if (key.toLowerCase().includes(platform) && !key.toLowerCase().includes("latest")) {
-			if (testName.toLowerCase().includes("nightly")) {
-				if (key.toLowerCase().includes("nightly")) {
-					binaries.push(key);
+		if (key.includes("iOS_daily_builds") || key.includes("android_daily_builds")){
+			if (key.toLowerCase().includes(platform) && !key.toLowerCase().includes("latest")) {
+				if (testName.toLowerCase().includes("nightly")) {
+					if (key.toLowerCase().includes("nightly")) {
+						binaries.push(key);
+					}
 				}
-			}
-			else {
-				if (!key.toLowerCase().includes("nightly")) {
-					binaries.push(key);
+				else {
+					if (!key.toLowerCase().includes("nightly")) {
+						binaries.push(key);
+					}
 				}
 			}
 		}
