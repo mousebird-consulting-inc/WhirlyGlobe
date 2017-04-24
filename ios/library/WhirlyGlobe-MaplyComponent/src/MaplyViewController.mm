@@ -529,6 +529,9 @@ using namespace Maply;
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
+    // Note: This is experimental for now
+    return;
+    
     dispatch_async(dispatch_get_main_queue(),
     ^{
         bool newCoordValid = false;
