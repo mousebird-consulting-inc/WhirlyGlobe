@@ -527,6 +527,56 @@ using namespace Maply;
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
+{
+    dispatch_async(dispatch_get_main_queue(),
+    ^{
+        bool newCoordValid = false;
+        MaplyCoordinate newCoord;
+        double newHeight;
+        
+        // Let's rerun the view constrants if we have them, because things can move around
+        Point3d newCenter;
+        MaplyView *thisMapView = [[MaplyView alloc] initWithView:mapView];
+        bool valid = [self withinBounds:mapView.loc view:glView renderer:sceneRenderer mapView:thisMapView newCenter:&newCenter];
+        if (valid)
+        {
+            if (mapView.loc.x() != newCenter.x() || mapView.loc.y() != newCenter.y())
+            {
+                GeoCoord geoCoord = coordAdapter->getCoordSystem()->localToGeographic(newCenter);
+                newCoord = {geoCoord.x(),geoCoord.y()};
+                newHeight = self.height;
+            }
+        } else {
+            // Mess with the height
+            MaplyBoundingBox bbox = [self getViewExtents];
+            if (bbox.ll.x < bbox.ur.x)
+            {
+                MaplyCoordinate coord;  coord.x = (bbox.ll.x+bbox.ur.x)/2.0;  coord.y = (bbox.ll.y+bbox.ur.y)/2.0;
+                float testHeight = [self findHeightToViewBounds:bbox pos:coord];
+                if (testHeight != self.height)
+                {
+                    Point3d newLoc(coord.x,coord.y,testHeight);
+                    Point3d newNewCenter;
+                    bool valid = [self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:thisMapView newCenter:&newNewCenter];
+                    
+                    newCoordValid = true;
+                    newHeight = testHeight;
+                    if (valid)
+                    {
+                        newCoord = {coord.x,coord.y};
+                    } else {
+                        GeoCoord geoCoord = coordAdapter->getCoordSystem()->localToGeographic(newNewCenter);
+                        newCoord = {geoCoord.x(),geoCoord.y()};
+                    }
+                }
+            }
+        }
+        
+        if (newCoordValid)
+            [self setPosition:newCoord height:newHeight];
+    });
+}
 
 // Register for interesting tap events and others
 // Note: Fill this in
