@@ -1269,8 +1269,8 @@ using namespace Maply;
     return [theView pointOnScreenFromPlane:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
 }
 
-// See if the given bounding box is all on sreen
-- (bool)checkCoverage:(Mbr &)mbr mapView:(MaplyView *)theView height:(float)height
+// See if the given bounding box is all on screen
+- (bool)checkCoverage:(Mbr &)mbr mapView:(MaplyView *)theView height:(float)height margin:(const Point2d &)margin
 {
     Point3d loc = mapView.loc;
     Point3d testLoc = Point3d(loc.x(),loc.y(),height);
@@ -1289,11 +1289,17 @@ using namespace Maply;
     CGPoint ulScreen = [self screenPointFromGeo:ul mapView:theView];
     CGPoint lrScreen = [self screenPointFromGeo:lr mapView:theView];
     
-    return std::abs(lrScreen.x - ulScreen.x) < frame.size.width && std::abs(lrScreen.y - ulScreen.y) < frame.size.height;
+    return std::abs(lrScreen.x - ulScreen.x) < (frame.size.width-2*margin.x()) && std::abs(lrScreen.y - ulScreen.y) < (frame.size.height-2*margin.y());
 }
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos
 {
+    return [self findHeightToViewBounds:bbox pos:pos marginX:0 marginY:0];
+}
+
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos marginX:(double)marginX marginY:(double)marginY
+{
+    Point2d margin(marginX,marginY);
     MaplyView *tempMapView = [[MaplyView alloc] initWithView:mapView];
 
     Point3d oldLoc = tempMapView.loc;
@@ -1311,8 +1317,8 @@ using namespace Maply;
     }
     
     // Check that we can at least see it
-    bool minOnScreen = [self checkCoverage:mbr mapView:tempMapView height:minHeight];
-    bool maxOnScreen = [self checkCoverage:mbr mapView:tempMapView height:maxHeight];
+    bool minOnScreen = [self checkCoverage:mbr mapView:tempMapView height:minHeight margin:margin];
+    bool maxOnScreen = [self checkCoverage:mbr mapView:tempMapView height:maxHeight margin:margin];
     if (!minOnScreen && !maxOnScreen)
     {
         [tempMapView setLoc:oldLoc runUpdates:false];
@@ -1326,7 +1332,7 @@ using namespace Maply;
         do
         {
             float midHeight = (minHeight + maxHeight)/2.0;
-            bool midOnScreen = [self checkCoverage:mbr mapView:tempMapView height:midHeight];
+            bool midOnScreen = [self checkCoverage:mbr mapView:tempMapView height:midHeight margin:margin];
         
             if (!minOnScreen && midOnScreen)
             {
