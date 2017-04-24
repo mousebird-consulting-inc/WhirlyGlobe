@@ -138,6 +138,7 @@ using namespace Maply;
     
     /// Boundary quad that we're to stay within, in display coords
     std::vector<WhirlyKit::Point2d> bounds;
+    Point2d bounds2d[4];
 }
 
 - (instancetype)initWithMapType:(MaplyMapType)mapType
@@ -794,7 +795,6 @@ using namespace Maply;
     
     // Convert the bounds to a rectangle in local coordinates
     Point3f bounds3d[4];
-    Point2d bounds2d[4];
     bounds3d[0] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ll.x,ll.y)));
     bounds3d[1] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ur.x,ll.y)));
     bounds3d[2] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ur.x,ur.y)));
@@ -830,8 +830,9 @@ using namespace Maply;
         return;
     
     [mapView cancelAnimation];
-
-    MaplyAnimateViewTranslation *animTrans = [[MaplyAnimateViewTranslation alloc] initWithView:mapView translate:newLoc howLong:howLong];
+    
+    MaplyAnimateViewTranslation *animTrans = [[MaplyAnimateViewTranslation alloc] initWithView:mapView view:glView translate:newLoc howLong:howLong];
+    animTrans.bounds = bounds2d;
     curAnimation = animTrans;
     mapView.delegate = animTrans;
 }
