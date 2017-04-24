@@ -362,6 +362,9 @@ public:
     
     // Return all the drawables in a list.  Only call this on the main thread.
     const DrawableRefSet &getDrawables();
+    
+    // Used to track overlaps at the edges of a viewable area
+    void addLocalMbr(const Mbr &localMbr);
 	
     /// Dump out stats on what is currently in the scene.
     /// Use this sparingly, as it writes to the log.
@@ -476,6 +479,9 @@ public:
     
     /// Remove the given program by ID (ours, not OpenGL's)
     void removeProgram(SimpleIdentity progId);
+    
+    /// For 2D maps we have an overlap margin based on what drawables may overlap the edges
+    double getOverlapMargin() { return overlapMargin; }
         
 protected:
     /// Only the subclasses are allowed to create these
@@ -493,6 +499,9 @@ protected:
     
     /// A map from the scene names to the various programs
     OpenGLES2ProgramMap glProgramMap;
+    
+    /// Used for 2D overlap testing
+    double overlapMargin;
 };
 	
 }
