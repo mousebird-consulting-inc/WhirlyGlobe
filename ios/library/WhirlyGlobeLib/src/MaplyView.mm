@@ -102,7 +102,7 @@ using namespace WhirlyKit;
     return rot.matrix();
 }
 
-- (void) getOffsetMatrices:(std::vector<Eigen::Matrix4d> &)offsetMatrices frameBuffer:(WhirlyKit::Point2f)frameBufferSize
+- (void) getOffsetMatrices:(std::vector<Eigen::Matrix4d> &)offsetMatrices frameBuffer:(WhirlyKit::Point2f)frameBufferSize buffer:(float)bufferSizeX
 {
     Point3f ll,ur;
     if (_wrap && super.coordAdapter && super.coordAdapter->getBounds(ll, ur))
@@ -132,10 +132,10 @@ using namespace WhirlyKit;
             Eigen::Affine3d offsetMat(Eigen::Translation3d(thisNum*localSpanX,0.0,0.0));
             Eigen::Matrix4d testMat = projMat * modelTrans;
             Point3d testPts[4];
-            testPts[0] = Point3d(thisNum*localSpanX+ll.x(),ll.y(),0.0);
-            testPts[1] = Point3d((thisNum+1)*localSpanX+ll.x(),ll.y(),0.0);
-            testPts[2] = Point3d((thisNum+1)*localSpanX+ll.x(),ur.y(),0.0);
-            testPts[3] = Point3d(thisNum*localSpanX+ll.x(),ur.y(),0.0);
+            testPts[0] = Point3d(thisNum*localSpanX+ll.x()-bufferSizeX,ll.y(),0.0);
+            testPts[1] = Point3d((thisNum+1)*localSpanX+ll.x()+bufferSizeX,ll.y(),0.0);
+            testPts[2] = Point3d((thisNum+1)*localSpanX+ll.x()+bufferSizeX,ur.y(),0.0);
+            testPts[3] = Point3d(thisNum*localSpanX+ll.x()-bufferSizeX,ur.y(),0.0);
             Mbr testMbr;
             for (unsigned int jj=0;jj<4;jj++)
             {

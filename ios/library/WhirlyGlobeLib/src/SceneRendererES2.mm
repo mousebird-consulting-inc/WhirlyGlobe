@@ -346,10 +346,13 @@ static const float ScreenOverlap = 0.1;
     // See if we're dealing with a globe view
     WhirlyGlobeView *globeView = nil;
     MaplyView *mapView = nil;
+    float overlapMarginX = 0.0;
     if ([super.theView isKindOfClass:[WhirlyGlobeView class]])
         globeView = (WhirlyGlobeView *)super.theView;
-    if ([super.theView isKindOfClass:[MaplyView class]])
+    if ([super.theView isKindOfClass:[MaplyView class]]) {
+        overlapMarginX = scene->getOverlapMargin();
         mapView = (MaplyView *)super.theView;
+    }
 
     GLint framebufferWidth = super.framebufferWidth;
     GLint framebufferHeight = super.framebufferHeight;
@@ -435,7 +438,7 @@ static const float ScreenOverlap = 0.1;
         Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
         baseFrameInfo.pvMat = pvMat4f;
         baseFrameInfo.pvMat4d = pvMat;
-        [super.theView getOffsetMatrices:baseFrameInfo.offsetMatrices frameBuffer:frameSize];
+        [super.theView getOffsetMatrices:baseFrameInfo.offsetMatrices frameBuffer:frameSize buffer:overlapMarginX];
         Point2d screenSize = [super.theView screenSizeInDisplayCoords:frameSize];
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         baseFrameInfo.lights = lights;
