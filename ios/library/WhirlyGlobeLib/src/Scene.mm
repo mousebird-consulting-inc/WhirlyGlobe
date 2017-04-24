@@ -98,6 +98,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
     
     activeModels = [NSMutableArray array];
+    
+    overlapMargin = 0.0;
 }
 
 Scene::~Scene()
@@ -239,6 +241,21 @@ DrawableRef Scene::getDrawable(SimpleIdentity drawId)
         return *it;
     
     return DrawableRef();
+}
+    
+void Scene::addLocalMbr(const Mbr &localMbr)
+{
+    Point3f ll,ur;
+    coordAdapter->getBounds(ll,ur);
+    
+    // Note: This will only get bigger, never smaller
+    if (localMbr.ll().x() < ll.x() && localMbr.ur().x() > ll.x())
+    {
+        double dx1 = ll.x() - localMbr.ll().x();
+        double dx2 = localMbr.ur().x() - ll.x();
+        double dx = std::max(dx1,dx2);
+        overlapMargin = std::max(overlapMargin,dx);
+    }
 }
 
 Generator *Scene::getGenerator(SimpleIdentity genId)
@@ -662,6 +679,9 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
     }
 
     scene->addDrawable(drawRef);
+    
+    if (drawRef->getLocalMbr().valid())
+        scene->addLocalMbr(drawRef->getLocalMbr());
     
     // Initialize any OpenGL foo
     WhirlyKitGLSetupInfo *setupInfo = [[WhirlyKitGLSetupInfo alloc] init];
