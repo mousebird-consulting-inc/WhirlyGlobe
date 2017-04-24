@@ -25,3 +25,4 @@ WhirlyGlobeSrc/AutoTester/AutoTester.xcworkspace
 *.class
 android/apps/AutoTesterAndroid/.idea
 android/library/Android/.gradle
+ios/library/WhirlyGlobe-MaplyComponent/build
