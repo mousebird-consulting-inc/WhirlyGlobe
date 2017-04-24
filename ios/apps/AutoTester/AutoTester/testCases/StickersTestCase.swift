@@ -20,13 +20,14 @@ class StickersTestCase: MaplyTestCase {
 
 	func addStickers (_ arrayComp: NSArray , baseViewC: MaplyBaseViewController) {
 		let startImage = UIImage(named: "Smiley_Face_Avatar_by_PixelTwist")
+        let startTex = baseViewC.addTexture(startImage!, desc: [kMaplyTexMagFilter: kMaplyMinFilterLinear], mode: MaplyThreadMode.current)
 		var stickers = [MaplySticker]()
 		for object in arrayComp {
 			let sticker = MaplySticker()
 			let center = (object as! MaplyVectorObject).center()
 			sticker.ll = center
 			sticker.ur = MaplyCoordinate(x: center.x + 0.1, y: center.y+0.1)
-			sticker.image = startImage
+			sticker.image = startTex
 			stickers.append(sticker)
 		}
 		baseViewC.addStickers(stickers, desc: [kMaplyFade: (1.0)])
@@ -37,11 +38,11 @@ class StickersTestCase: MaplyTestCase {
         
         let sticker = MaplySticker()
         sticker.coordSys = MaplySphericalMercator.init(webStandard: ())
-//        sticker.ll = (sticker.coordSys?.geo(toLocal: MaplyCoordinateMakeWithDegrees(-223.9008, -63.4974) ))!
-//        sticker.ur = (sticker.coordSys?.geo(toLocal: MaplyCoordinateMakeWithDegrees(-105.3074, 36.1572) ))!
+        sticker.ll = (sticker.coordSys?.geo(toLocal: MaplyCoordinateMakeWithDegrees(-223.9008, -63.4974) ))!
+        sticker.ur = (sticker.coordSys?.geo(toLocal: MaplyCoordinateMakeWithDegrees(-105.3074, 36.1572) ))!
 //        sticker.ll.x -= Float(2*M_PI)
-        sticker.ll = (sticker.coordSys?.geo(toLocal: MaplyCoordinateMakeWithDegrees(-76.4594, -19.9719) ))!
-        sticker.ur = (sticker.coordSys?.geo(toLocal: MaplyCoordinateMakeWithDegrees( 19.954, 61.5041) ))!
+//        sticker.ll = (sticker.coordSys?.geo(toLocal: MaplyCoordinateMakeWithDegrees(-76.4594, -19.9719) ))!
+//        sticker.ur = (sticker.coordSys?.geo(toLocal: MaplyCoordinateMakeWithDegrees( 19.954, 61.5041) ))!
 
 //        sticker.ll = MaplyCoordinateMakeWithDegrees(-223.9008, -63.4974)
 //        sticker.ur = MaplyCoordinateMakeWithDegrees(-105.3074, 36.1572)
@@ -65,7 +66,7 @@ class StickersTestCase: MaplyTestCase {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithMap(mapVC)
 
-        addStickers(baseLayer.compList, baseViewC: mapVC)
+//        addStickers(baseLayer.compList, baseViewC: mapVC)
         
         addTestSticker(baseViewC: mapVC)
 	}
