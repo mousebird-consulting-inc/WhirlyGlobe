@@ -47,7 +47,7 @@ class ModelsTestCase: MaplyTestCase {
 			if let model = model {
 				var modelInstances = [MaplyMovingGeomModelInstance]()
 				let scaletMat = MaplyMatrix(scale: 1000.0/6371000.0)
-				let rotMat = MaplyMatrix(angle: M_PI/2.0, axisX: 1.0, axisY: 0.0, axisZ: 0.0)
+				let rotMat = MaplyMatrix(angle: Double.pi/2.0, axisX: 1.0, axisY: 0.0, axisZ: 0.0)
 				let localMat = rotMat.multiply(with: scaletMat)
 				for loc in locations {
 					let mInst = MaplyMovingGeomModelInstance()
