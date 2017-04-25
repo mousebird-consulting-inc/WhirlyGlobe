@@ -316,7 +316,7 @@ public:
     _invModelMatrix = _modelMatrix.inverse();
     std::vector<Eigen::Matrix4d> offMatrices;
     Point2f frameSize(renderer.framebufferWidth,renderer.framebufferHeight);
-    [view getOffsetMatrices:offMatrices frameBuffer:frameSize];
+    [view getOffsetMatrices:offMatrices frameBuffer:frameSize buffer:0.0];
     _viewMatrices.resize(offMatrices.size());
     _invViewMatrices.resize(offMatrices.size());
     _fullMatrices.resize(offMatrices.size());

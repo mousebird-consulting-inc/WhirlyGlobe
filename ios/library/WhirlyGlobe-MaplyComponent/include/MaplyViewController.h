@@ -452,6 +452,16 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
   */
 - (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos;
 
+/** @brief Find a height that shows the given bounding box.
+ @details This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
+ @details This version takes a margin to add around the outside of the area.
+ @param bbox The bounding box (in radians) we're trying to view.
+ @param pos Where the view will be looking.
+ @param marginX Horizontal boundary around the area
+ @param marginY Vertical boundary around the area
+ */
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos marginX:(double)marginX marginY:(double)marginY;
+
 /**
  @brief Return the extents of the current view
  @return Returns the Bounding Box (in radians) corresponding to the current view
