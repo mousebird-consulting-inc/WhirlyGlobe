@@ -35,7 +35,7 @@
 - (void)addString:(NSString *)str font:(UIFont *)font color:(UIColor *)color;
 
 /** @brief Add an attributed string to the screen object.
-    @details This adds an annotated string to the screen object.  The size will be based on the lenght of the string and the font.
+    @details This adds an annotated string to the screen object.  The size will be based on the length of the string and the font.
   */
 - (void)addAttributedString:(NSAttributedString *)str;
 

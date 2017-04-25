@@ -361,7 +361,7 @@
     if (wellKnownName) {
         
         UIColor *strokeColor, *fillColor;
-        int imgWidth, imgHeight;
+        int imgWidth = 0, imgHeight = 0;
         
         // Transform relevant drawing parameters.
         if (params[@"stroke"])

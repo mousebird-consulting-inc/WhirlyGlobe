@@ -73,11 +73,10 @@ namespace WhirlyKit
 }
 
 // Initialize a label info with data from the description dictionary
-- (id)initWithStrs:(NSArray *)inStrs desc:(NSDictionary *)desc
+- (id)initWithDesc:(NSDictionary *)desc
 {
     if ((self = [super initWithDesc:desc]))
     {
-        self.strs = inStrs;
         [self parseDesc:desc];
     }
     
@@ -244,7 +243,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
     // Drawables we build up as we go
     DrawableIDMap drawables;
 
-    for (WhirlyKitSingleLabel *label in _labelInfo.strs)
+    for (WhirlyKitSingleLabel *label in _strs)
     {
         UIColor *theTextColor = _labelInfo.textColor;
         UIColor *theBackColor = _labelInfo.backColor;
@@ -561,13 +560,13 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
     
     // Let's only bother for more than one label and if we're not using
     //  the font manager
-    bool texAtlasOn = [_labelInfo.strs count] > 1 && (_fontTexManager == nil);
+    bool texAtlasOn = [_strs count] > 1 && (_fontTexManager == nil);
     
     // Keep track of images rendered from text
     std::map<std::string,RenderedImage> renderedImages;
     
     // Work through the labels
-    for (WhirlyKitSingleLabel *label in _labelInfo.strs)
+    for (WhirlyKitSingleLabel *label in _strs)
     {
         TexCoord texOrg,texDest;
         CGSize textSize;

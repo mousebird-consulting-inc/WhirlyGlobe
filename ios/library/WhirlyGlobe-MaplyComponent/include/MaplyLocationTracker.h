@@ -46,7 +46,7 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
 
 @optional
 
-- (void) updateLocation:(CLLocation *)location;
+- (void) updateLocation:(CLLocation * __nonnull)location;
 
 - (MaplyLocationTrackerSimulationPoint)getSimulationPoint;
 
