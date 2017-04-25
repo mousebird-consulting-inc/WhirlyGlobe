@@ -8,7 +8,7 @@
 
 #import <WhirlyGlobeComponent.h>
 #import "ExtrudedModelTestCase.h"
-#import "AutoTester-swift.h"
+#import "AutoTester-Swift.h"
 
 static const float EarthRadius = 6371000;
 

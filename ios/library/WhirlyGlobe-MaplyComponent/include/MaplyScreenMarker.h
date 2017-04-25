@@ -33,7 +33,7 @@
 @property (nonatomic,assign) MaplyCoordinate loc;
 
 /** @brief Screen size in points.
-    @details The marker will always be this size on the screen.  The size is specified in display coordinates.  For the globe those are based on a radius of 1.0.
+    @details The marker will always be this size on the screen.  The size is specified in pixels.
   */
 @property (nonatomic,assign) CGSize size;
 

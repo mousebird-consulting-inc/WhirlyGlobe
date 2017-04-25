@@ -22,14 +22,14 @@ class AnimationDelegateTestCase: MaplyTestCase {
         baseLayer.setUpWithGlobe(globeVC)
         
         globeVC.keepNorthUp = false
-        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.290,37.7793), height: 0.005, heading: 3.0*Float(M_PI)/Float(4.0), time: 3.0)
+        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.290,37.7793), height: 0.005, heading: 3.0*Float(Double.pi)/Float(4.0), time: 3.0)
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         let baseLayer = StamenWatercolorRemote()
         baseLayer.setUpWithMap(mapVC)
         
-        mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.290,37.7793), height: 0.005, heading: 3.0*Float(M_PI)/Float(4.0), time: 3.0)
+        mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.290,37.7793), height: 0.005, heading: 3.0*Float(Double.pi)/Float(4.0), time: 3.0)
         
     }
 
