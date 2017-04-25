@@ -60,7 +60,7 @@ bool MaplyGestureWithinBounds(const std::vector<WhirlyKit::Point2d> &bounds,cons
             {
                 Point2d closePt;
                 ClosestPointToPolygon(bounds, Point2d(planePt.x(),planePt.y()), &closePt);
-                Point2d thisOffset = 1.01 * (closePt - Point2d(planePt.x(),planePt.y()));
+                Point2d thisOffset = 1.001 * (closePt - Point2d(planePt.x(),planePt.y()));
                 // Try to move around, inward
                 locOffset += thisOffset;
                 checkOkay = false;
