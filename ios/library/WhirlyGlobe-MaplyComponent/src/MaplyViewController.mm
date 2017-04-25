@@ -540,26 +540,57 @@ using namespace Maply;
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator
 {
-    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+    // Note: This is experimental for now
+    return;
     
-    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-        // We could do something fancy while it's moving
-    } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
-        // If we have view extents, we want to nudge those
-        // Do a validity check and possibly adjust the center
-        MaplyView *testMapView = [[MaplyView alloc] initWithView:mapView];
+    dispatch_async(dispatch_get_main_queue(),
+    ^{
+        bool newCoordValid = false;
+        MaplyCoordinate newCoord;
+        double newHeight = 0.0;
+        
+        // Let's rerun the view constrants if we have them, because things can move around
         Point3d newCenter;
-        if ([self withinBounds:mapView.loc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
+        MaplyView *thisMapView = [[MaplyView alloc] initWithView:mapView];
+        bool valid = [self withinBounds:mapView.loc view:glView renderer:sceneRenderer mapView:thisMapView newCenter:&newCenter];
+        if (valid)
         {
-            if (mapView.loc != newCenter)
-                mapView.loc = newCenter;
-            else {
-                // Note: If this happens we should try zooming in a bit, most likely
+            if (mapView.loc.x() != newCenter.x() || mapView.loc.y() != newCenter.y())
+            {
+                GeoCoord geoCoord = coordAdapter->getCoordSystem()->localToGeographic(newCenter);
+                newCoord = {geoCoord.x(),geoCoord.y()};
+                newHeight = self.height;
+            }
+        } else {
+            // Mess with the height
+            MaplyBoundingBox bbox = [self getViewExtents];
+            if (bbox.ll.x < bbox.ur.x)
+            {
+                MaplyCoordinate coord;  coord.x = (bbox.ll.x+bbox.ur.x)/2.0;  coord.y = (bbox.ll.y+bbox.ur.y)/2.0;
+                float testHeight = [self findHeightToViewBounds:bbox pos:coord];
+                if (testHeight != self.height)
+                {
+                    Point3d newLoc(coord.x,coord.y,testHeight);
+                    Point3d newNewCenter;
+                    bool valid = [self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:thisMapView newCenter:&newNewCenter];
+                    
+                    newCoordValid = true;
+                    newHeight = testHeight;
+                    if (valid)
+                    {
+                        newCoord = {coord.x,coord.y};
+                    } else {
+                        GeoCoord geoCoord = coordAdapter->getCoordSystem()->localToGeographic(newNewCenter);
+                        newCoord = {geoCoord.x(),geoCoord.y()};
+                    }
+                }
             }
         }
-    }];
+        
+        if (newCoordValid)
+            [self setPosition:newCoord height:newHeight];
+    });
 }
-
 
 // Register for interesting tap events and others
 // Note: Fill this in
@@ -1253,8 +1284,8 @@ using namespace Maply;
     return [theView pointOnScreenFromPlane:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
 }
 
-// See if the given bounding box is all on sreen
-- (bool)checkCoverage:(Mbr &)mbr mapView:(MaplyView *)theView height:(float)height
+// See if the given bounding box is all on screen
+- (bool)checkCoverage:(Mbr &)mbr mapView:(MaplyView *)theView height:(float)height margin:(const Point2d &)margin
 {
     Point3d loc = mapView.loc;
     Point3d testLoc = Point3d(loc.x(),loc.y(),height);
@@ -1273,11 +1304,17 @@ using namespace Maply;
     CGPoint ulScreen = [self screenPointFromGeo:ul mapView:theView];
     CGPoint lrScreen = [self screenPointFromGeo:lr mapView:theView];
     
-    return std::abs(lrScreen.x - ulScreen.x) < frame.size.width && std::abs(lrScreen.y - ulScreen.y) < frame.size.height;
+    return std::abs(lrScreen.x - ulScreen.x) < (frame.size.width-2*margin.x()) && std::abs(lrScreen.y - ulScreen.y) < (frame.size.height-2*margin.y());
 }
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos
 {
+    return [self findHeightToViewBounds:bbox pos:pos marginX:0 marginY:0];
+}
+
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos marginX:(double)marginX marginY:(double)marginY
+{
+    Point2d margin(marginX,marginY);
     MaplyView *tempMapView = [[MaplyView alloc] initWithView:mapView];
 
     Point3d oldLoc = tempMapView.loc;
@@ -1295,8 +1332,8 @@ using namespace Maply;
     }
     
     // Check that we can at least see it
-    bool minOnScreen = [self checkCoverage:mbr mapView:tempMapView height:minHeight];
-    bool maxOnScreen = [self checkCoverage:mbr mapView:tempMapView height:maxHeight];
+    bool minOnScreen = [self checkCoverage:mbr mapView:tempMapView height:minHeight margin:margin];
+    bool maxOnScreen = [self checkCoverage:mbr mapView:tempMapView height:maxHeight margin:margin];
     if (!minOnScreen && !maxOnScreen)
     {
         [tempMapView setLoc:oldLoc runUpdates:false];
@@ -1310,7 +1347,7 @@ using namespace Maply;
         do
         {
             float midHeight = (minHeight + maxHeight)/2.0;
-            bool midOnScreen = [self checkCoverage:mbr mapView:tempMapView height:midHeight];
+            bool midOnScreen = [self checkCoverage:mbr mapView:tempMapView height:midHeight margin:margin];
         
             if (!minOnScreen && midOnScreen)
             {

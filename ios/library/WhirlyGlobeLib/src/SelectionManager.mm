@@ -728,7 +728,7 @@ SelectionManager::PlacementInfo::PlacementInfo(WhirlyKitView *view,WhirlyKitScen
     viewAndModelInvMat = viewAndModelMat.inverse();
     viewModelNormalMat = viewAndModelMat.inverse().transpose();
     projMat = [view calcProjectionMatrix:frameSizeScale margin:0.0];
-    [view getOffsetMatrices:offsetMatrices frameBuffer:frameSize];
+    [view getOffsetMatrices:offsetMatrices frameBuffer:frameSize buffer:0.0];
 }
 
 void SelectionManager::projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts,float scale)
