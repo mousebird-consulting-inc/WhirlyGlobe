@@ -159,7 +159,8 @@ using namespace WhirlyKit;
 
 - (void)calcExtents:(NSDictionary *)topDesc corners:(Point3f *)pts norm:(Point3f *)norm coordAdapter:(CoordSystemDisplayAdapter *)coordAdapter
 {
-    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:[NSArray arrayWithObject:self.text] desc:topDesc];
+    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithDesc:topDesc];
+    
     
     // Width and height can be overriden per label
     float theWidth = labelInfo.width;
@@ -226,7 +227,7 @@ LabelManager::~LabelManager()
 SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,ChangeSet &changes)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:labels desc:desc];
+    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithDesc:desc];
     
     // Set up the representation (but then hand it off)
     LabelSceneRep *labelRep = new LabelSceneRep();
@@ -248,6 +249,7 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
     labelRenderer.scene = scene;
     labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : nil);
     labelRenderer.scale = renderer.scale;
+    labelRenderer.strs = labels;
     
     // Can't use fancy strings on ios5 and we can't use dynamic texture atlases in a block
     bool oldiOS = [[[UIDevice currentDevice] systemVersion] floatValue] < 6.0;
@@ -320,7 +322,7 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
 
 void LabelManager::changeLabel(SimpleIdentity labelID,NSDictionary *desc,ChangeSet &changes)
 {
-    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:nil desc:desc];
+    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithDesc:desc];
     
     pthread_mutex_lock(&labelLock);
     

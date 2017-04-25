@@ -62,7 +62,6 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 // Label spec passed around between threads
 @interface WhirlyKitLabelInfo : WhirlyKitBaseInfo
 
-@property (nonatomic) NSArray *strs;
 @property (nonatomic) UIColor *textColor,*backColor;
 @property (nonatomic) UIFont *font;
 @property (nonatomic,assign) bool screenObject;
@@ -75,7 +74,7 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic) UIColor *outlineColor;
 @property (nonatomic,assign) float outlineSize;
 
-- (id)initWithStrs:(NSArray *)inStrs desc:(NSDictionary *)desc;
+- (id)initWithDesc:(NSDictionary *)desc;
 
 @end
 
@@ -114,6 +113,9 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic,assign) bool useAttributedString;
 /// Scale, if we're using that
 @property (nonatomic,assign) float scale;
+
+/// Strings to render
+@property (nonatomic) NSArray *strs;
 
 /// Renders the labels into a big texture and stores the resulting info
 - (void)render;

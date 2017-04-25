@@ -27,7 +27,7 @@ class WeatherShader {
 			return shaderName
 		}
 
-		print("Shader failed to compile: \(shader?.getError())\n")
+		print("Shader failed to compile: \(shader?.getError() ?? "")\n")
 		return nil
 	}
 }
