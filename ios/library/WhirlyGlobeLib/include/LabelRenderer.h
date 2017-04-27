@@ -58,6 +58,7 @@ typedef std::set<LabelSceneRep *,IdentifiableSorter> LabelSceneRepSet;
 
 // How a label is justified for display
 typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} WhirlyKitLabelJustify;
+typedef enum {WhirlyKitTextCenter,WhirlyKitTextLeft,WhirlyKitTextRight} WhirlyKitTextJustify;
 
 // Label spec passed around between threads
 @interface WhirlyKitLabelInfo : WhirlyKitBaseInfo
@@ -68,7 +69,8 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic,assign) bool layoutEngine;
 @property (nonatomic,assign) float layoutImportance;
 @property (nonatomic,assign) float width,height;
-@property (nonatomic,assign) WhirlyKitLabelJustify justify;
+@property (nonatomic,assign) WhirlyKitLabelJustify labelJustify;
+@property (nonatomic,assign) WhirlyKitTextJustify textJustify;
 @property (nonatomic,strong) UIColor *shadowColor;
 @property (nonatomic,assign) float shadowSize;
 @property (nonatomic) UIColor *outlineColor;
