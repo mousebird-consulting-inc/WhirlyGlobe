@@ -23,16 +23,45 @@ package com.mousebird.maply;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
+import com.mousebird.maply.MarkerInfo;
+import android.graphics.Bitmap;
 
 
 
 public class VectorTileMarkerStyle extends VectorTileStyle {
 
-    public VectorTileMarkerStyle(VectorStyleSettings settings, MaplyBaseController viewC) {
+    private MarkerInfo markerInfo;
+    private Bitmap bitmap;
+
+    public VectorTileMarkerStyle(MarkerInfo markerInfo, Bitmap bitmap, VectorStyleSettings settings, MaplyBaseController viewC) {
         super(viewC);
+
+        this.markerInfo = markerInfo;
+        this.bitmap = bitmap;
+
+
     }
 
     public ComponentObject[] buildObjects(List<VectorObject> objects, MaplyTileID tileID, MaplyBaseController controller) {
+
+        ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
+        for (VectorObject vector : objects) {
+            Point2d centroid = vector.centroid();
+            if (centroid != null) {
+                ScreenMarker marker = new ScreenMarker();
+                marker.image = bitmap;
+                marker.loc = centroid;
+                marker.size = new Point2d(32, 32);
+                marker.selectable = true;
+                markers.add(marker);
+            }
+        }
+
+        ComponentObject compObj = controller.addScreenMarkers(markers, markerInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
+        if (compObj != null) {
+            return new ComponentObject[]{compObj};
+        }
         return null;
     }
 

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.content.res.AssetManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
@@ -58,11 +59,22 @@ public class SLDStyleSet implements VectorStyleInterface {
     private VectorStyleSettings vectorStyleSettings;
     private SLDSymbolizerParams symbolizerParams;
 
-    public SLDStyleSet(MaplyBaseController viewC, DisplayMetrics displayMetrics, boolean useLayerNames, int relativeDrawPriority)
+    private InputStream inputStream;
+
+    public SLDStyleSet(MaplyBaseController viewC, AssetManager assetManager, String sldFileName, DisplayMetrics displayMetrics, boolean useLayerNames, int relativeDrawPriority) throws XmlPullParserException, IOException
     {
         this.viewC = viewC;
         this.useLayerNames = useLayerNames;
         this.relativeDrawPriority = relativeDrawPriority;
+
+        inputStream = assetManager.open(sldFileName);
+
+        String basePath;
+        int i = sldFileName.lastIndexOf('/');
+        if (i == -1)
+            basePath = "";
+        else
+            basePath = sldFileName.substring(0, i);
 
         float scale = displayMetrics.density;
         vectorStyleSettings = new VectorStyleSettings();
@@ -71,18 +83,16 @@ public class SLDStyleSet implements VectorStyleInterface {
         vectorStyleSettings.setMarkerScale(scale);
         vectorStyleSettings.setUseWideVectors(true);
 
-        symbolizerParams = new SLDSymbolizerParams(viewC, vectorStyleSettings, null, relativeDrawPriority);
-
-
+        symbolizerParams = new SLDSymbolizerParams(viewC, assetManager, vectorStyleSettings, basePath, relativeDrawPriority);
     }
 
-    public void loadSldInputStream(InputStream in) throws XmlPullParserException, IOException
+    public void loadSldInputStream() throws XmlPullParserException, IOException
     {
         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
         factory.setNamespaceAware(true);
         XmlPullParser xpp = factory.newPullParser();
 
-        xpp.setInput(in, null);
+        xpp.setInput(inputStream, null);
 
         while (xpp.next() != XmlPullParser.END_DOCUMENT) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
@@ -92,8 +102,8 @@ public class SLDStyleSet implements VectorStyleInterface {
                 this.loadStyledLayerDescriptorNode(xpp);
             }
         }
-
     }
+
 
     private void loadStyledLayerDescriptorNode(XmlPullParser xpp) throws XmlPullParserException, IOException
     {

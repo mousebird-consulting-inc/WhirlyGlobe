@@ -34,11 +34,11 @@ public class SLDSymbolizerFactory {
         if (SLDLineSymbolizer.matchesSymbolizerNamed(symbolizerName))
             return new SLDLineSymbolizer(xpp, symbolizerParams);
         else if (SLDPolygonSymbolizer.matchesSymbolizerNamed(symbolizerName))
-            return new SLDPolygonSymbolizer(xpp);
+            return new SLDPolygonSymbolizer(xpp, symbolizerParams);
         else if (SLDPointSymbolizer.matchesSymbolizerNamed(symbolizerName))
-            return new SLDPointSymbolizer(xpp);
+            return new SLDPointSymbolizer(xpp, symbolizerParams);
         else if (SLDTextSymbolizer.matchesSymbolizerNamed(symbolizerName))
-            return new SLDTextSymbolizer(xpp);
+            return new SLDTextSymbolizer(xpp, symbolizerParams);
 
         return null;
     }

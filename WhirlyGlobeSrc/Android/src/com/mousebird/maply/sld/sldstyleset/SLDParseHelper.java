@@ -23,14 +23,16 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.AbstractMap;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
 public class SLDParseHelper {
 
     public static void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
-        if (parser.getEventType() != XmlPullParser.START_TAG) {
-            throw new IllegalStateException();
-        }
+//        if (parser.getEventType() != XmlPullParser.START_TAG) {
+//            throw new IllegalStateException();
+//        }
         int depth = 1;
         while (depth != 0) {
             switch (parser.next()) {
@@ -53,6 +55,28 @@ public class SLDParseHelper {
             textValue = parser.getText();
         }
         return textValue;
+    }
+
+    public static String stringForLiteralInNode(XmlPullParser parser) throws XmlPullParserException, IOException {
+        String textValue = null;
+
+        while (parser.next() != XmlPullParser.END_TAG) {
+            if (parser.getEventType() == XmlPullParser.START_TAG) {
+                if (parser.getName().equals("Literal")) {
+                    while (parser.next() != XmlPullParser.END_TAG) {
+                        if (parser.getEventType() == XmlPullParser.TEXT)
+                            textValue = parser.getText();
+                        else if (parser.getEventType() == XmlPullParser.START_TAG)
+                            skip(parser);
+                    }
+                } else
+                    skip(parser);
+            } else if (parser.getEventType() == XmlPullParser.TEXT)
+                textValue = parser.getText();
+
+        }
+        return textValue;
+
     }
 
     public static boolean isStringNumeric(String s) {

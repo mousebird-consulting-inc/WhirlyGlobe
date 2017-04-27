@@ -34,13 +34,16 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.util.Vector;
+import java.io.InputStream;
 import java.util.List;
 import java.util.ArrayList;
 
 
 import android.graphics.Color;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+import android.util.Log;
 
 public abstract class SLDSymbolizer {
 
@@ -110,7 +113,8 @@ public abstract class SLDSymbolizer {
                     dashArray = value;
                 }
 
-            }
+            } else
+                SLDParseHelper.skip(xpp);
         }
 
         if (strokeColor != null) {
@@ -163,6 +167,132 @@ public abstract class SLDSymbolizer {
         VectorTileLineStyle vectorTileLineStyle = new VectorTileLineStyle(baseInfo, vectorStyleSettings, viewC);
         return vectorTileLineStyle;
 
+    }
+
+    public static SLDGraphicParams graphicParamsForGraphicNode(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
+        SLDGraphicParams graphicParams = new SLDGraphicParams();
+
+        while (xpp.next() != XmlPullParser.END_TAG) {
+            if (xpp.getEventType() != XmlPullParser.START_TAG) {
+                continue;
+            }
+
+            if (xpp.getName().equals("ExternalGraphic")) {
+
+                parseMarkOrExternalGraphic(xpp, graphicParams, symbolizerParams);
+
+            } else if (xpp.getName().equals("Mark")) {
+
+                parseMarkOrExternalGraphic(xpp, graphicParams, symbolizerParams);
+
+            } else if (xpp.getName().equals("Size")) {
+
+                String size = SLDParseHelper.stringForLiteralInNode(xpp);
+                if (size != null && SLDParseHelper.isStringNumeric(size)) {
+                    double d = Double.valueOf(size).doubleValue();
+                    graphicParams.setWidth((int)d);
+                    graphicParams.setHeight((int)d);
+                }
+
+            }
+        }
+
+
+        return graphicParams;
+    }
+
+
+    public static void parseMarkOrExternalGraphic(XmlPullParser xpp, SLDGraphicParams graphicParams, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
+        String format = null;
+        String href = null;
+        String type = null;
+        String encoding = null;
+        String contents = null;
+        String wellKnownName = null;
+        boolean isMark = xpp.getName().equals("Mark");
+        while (xpp.next() != XmlPullParser.END_TAG) {
+            if (xpp.getEventType() != XmlPullParser.START_TAG)
+                continue;
+
+            if (xpp.getName().equals("WellKnownName") && isMark) {
+
+                wellKnownName = SLDParseHelper.stringForLiteralInNode(xpp);
+
+            } else if (xpp.getName().equals("OnlineResource")) {
+
+                href = xpp.getAttributeValue(null, "href");
+
+                type = xpp.getAttributeValue(null, "type");
+
+                SLDParseHelper.skip(xpp);
+
+            } else if (xpp.getName().equals("InlineContent")) {
+
+                encoding = xpp.getAttributeValue(null, "encoding");
+
+                contents = SLDParseHelper.stringForLiteralInNode(xpp);
+
+                SLDParseHelper.skip(xpp);
+
+            } else if (xpp.getName().equals("Format"))
+                format = SLDParseHelper.stringForLiteralInNode(xpp);
+
+            else if ((xpp.getName().equals("Fill") || xpp.getName().equals("Stroke")) && isMark) {
+
+                boolean isFill = xpp.getName().equals("Fill");
+                while (xpp.next() != XmlPullParser.END_TAG) {
+                    if (xpp.getEventType() != XmlPullParser.START_TAG)
+                        continue;
+                    if (xpp.getName().equals("SvgParameter") || xpp.getName().equals("CssParameter")) {
+
+                        String name = xpp.getAttributeValue(null, "name");
+                        String value = null;
+                        while (xpp.next() != XmlPullParser.END_TAG) {
+                            if (xpp.getEventType() != XmlPullParser.TEXT)
+                                value = xpp.getText();
+                            else if (xpp.getEventType() == XmlPullParser.START_TAG)
+                                SLDParseHelper.skip(xpp);
+                        }
+                        if (name != null && value != null) {
+                            if (isFill)
+                                graphicParams.setFillColor(Integer.valueOf(Color.parseColor(value)));
+                            else
+                                graphicParams.setStrokeColor(Integer.valueOf(Color.parseColor(value)));
+                        }
+                    } else
+                        SLDParseHelper.skip(xpp);
+                }
+
+            } else if (xpp.getName().equals("Stroke") && isMark) {
+
+            }
+        }
+
+        if (format == null || (!format.equals("image/png") && !format.equals("image/gif")))
+            return;
+        // TODO: handle wellKnownName
+        if (href != null) {
+            if (type == null || type.equals("simple")) {
+                InputStream inputStream = null;
+                try {
+                    inputStream = symbolizerParams.getAssetManager().open(symbolizerParams.getBasePath() + href);
+                } catch (IOException e) {
+                    Log.e("SLDSymbolizer", "parseMarkOrExternalGraphic", e);
+                }
+                if (inputStream != null) {
+                    //Bitmap bmp = BitmapFactory.decodeFile(symbolizerParams.getBasePath() + href);
+                    Bitmap bmp = BitmapFactory.decodeStream(inputStream);
+                    graphicParams.setBitmap(bmp);
+                }
+            }
+        } else if (contents != null) {
+            if (encoding != null && encoding.equals("base64")) {
+                byte[] base64converted=Base64.decode(contents,Base64.DEFAULT);
+                Bitmap bmp=BitmapFactory.decodeByteArray(base64converted,0,base64converted.length);
+                graphicParams.setBitmap(bmp);
+            }
+
+        }
     }
 
 }

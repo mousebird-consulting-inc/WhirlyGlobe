@@ -20,10 +20,16 @@
 package com.mousebird.maply.sld.sldsymbolizers;
 
 
+import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.VectorStyleSettings;
+import com.mousebird.maply.VectorTileMarkerStyle;
 import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
+import com.mousebird.maply.MaplyTexture;
+import com.mousebird.maply.MarkerInfo;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -32,20 +38,42 @@ import java.io.IOException;
 
 public class SLDPointSymbolizer extends SLDSymbolizer {
 
-    public SLDPointSymbolizer(XmlPullParser xpp) throws XmlPullParserException, IOException {
+    private VectorTileMarkerStyle vectorTileMarkerStyle;
+
+    public SLDPointSymbolizer(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
+
+        Bitmap bitmap = null;
+        MarkerInfo markerInfo = new MarkerInfo();
+        markerInfo.disposeAfterUse = true;
+        markerInfo.setEnable(false);
+        markerInfo.setClusterGroup(0);
+        markerInfo.setLayoutImportance(1.f);
+
         while (xpp.next() != XmlPullParser.END_TAG) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
             Log.i("SLDPointSymbolizer", xpp.getName());
-            if (false) {
+            if (xpp.getName().equals("Graphic")) {
+                SLDGraphicParams graphicParams = SLDSymbolizer.graphicParamsForGraphicNode(xpp, symbolizerParams);
+                if (graphicParams != null) {
+                    bitmap = graphicParams.getBitmap();
+                    // TODO: how to use textures with filled vectors in Android?
+//                    if (bmp != null) {
+//                        texture = symbolizerParams.getBaseController().addTexture(graphicParams.getBitmap(), new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
+//                    }
+                }
             } else {
                 SLDParseHelper.skip(xpp);
             }
         }
+
+        vectorTileMarkerStyle = new VectorTileMarkerStyle(markerInfo, bitmap, symbolizerParams.getVectorStyleSettings(), symbolizerParams.getBaseController());
     }
 
     public VectorTileStyle[] getStyles() {
+        if (vectorTileMarkerStyle != null)
+            return new VectorTileStyle[]{vectorTileMarkerStyle};
         return new VectorTileStyle[]{};
     }
 

@@ -43,20 +43,24 @@ public class SLDTestCase extends MaplyTestCase {
     }
 
     private void testSLD() {
-        SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getResources().getDisplayMetrics(), false, 0);
+
         try {
-            Log.i("SLDTestCase", "flag 1");
-            styleSet.loadSldInputStream(getActivity().getAssets().open("osm_roads.sld"));
-            Log.i("SLDTestCase", "flag 2");
+
+            //SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "osm_roads.sld", activity.getResources().getDisplayMetrics(), false, 0);
+            //SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "osm_landuse.sld", activity.getResources().getDisplayMetrics(), false, 0);
+            SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "amenities.sld", activity.getResources().getDisplayMetrics(), false, 0);
+
+            styleSet.loadSldInputStream();
+
 
             GeoJSONSource gjs = new GeoJSONSource();
             gjs.setBaseController(controller);
-            gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_roads.geojson"));
+            //gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_roads.geojson"));
+            //gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_landusages.geojson"));
+            gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_amenities.geojson"));
             gjs.setStyleSet(styleSet);
             gjs.setRelativeDrawPriority(0);
-            Log.i("SLDTestCase", "flag 3");
             gjs.startParse();
-            Log.i("SLDTestCase", "flag 4");
 
         } catch (XmlPullParserException xppException) {
             Log.e("AutoTesterAndroid", "SLDStyleSet XPP exception", xppException);

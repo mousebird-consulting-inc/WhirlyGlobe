@@ -24,15 +24,23 @@ package com.mousebird.maply;
 import java.util.HashMap;
 import java.util.List;
 
-
+import android.util.Log;
 
 public class VectorTilePolygonStyle extends VectorTileStyle {
 
-    public VectorTilePolygonStyle(VectorStyleSettings settings, MaplyBaseController viewC) {
+    private VectorInfo vectorInfo;
+
+
+    public VectorTilePolygonStyle(VectorInfo vectorInfo, VectorStyleSettings settings, MaplyBaseController viewC) {
         super(viewC);
+        this.vectorInfo = vectorInfo;
     }
 
     public ComponentObject[] buildObjects(List<VectorObject> objects, MaplyTileID tileID, MaplyBaseController controller) {
+        ComponentObject compObj = controller.addVectors(objects, vectorInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
+        if (compObj != null) {
+            return new ComponentObject[]{compObj};
+        }
         return null;
     }
 
