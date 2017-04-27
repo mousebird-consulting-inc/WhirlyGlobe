@@ -89,5 +89,48 @@ class ScreenLabelsTestCase: MaplyTestCase {
 #endif
 			}
 		}
+        
+        // A multi-line test case
+        let label = MaplyScreenLabel()
+        label.text = "abcdef\nghijklm\nnopqr\nstuvw\nxyzAB\nCDEFG\nHIJKL\nMNOPQR\nSTUVW\nXYZ"
+        label.selectable = true
+        label.layoutImportance = 20
+        label.userObject = label.text
+        label.layoutPlacement = kMaplyLayoutCenter
+        label.loc = MaplyCoordinateMake(0.0, 0.0)
+        
+        theViewC.addScreenLabels([label], desc: [
+            kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
+            kMaplyTextOutlineColor: UIColor.red,
+            kMaplyTextOutlineSize: 2.0,
+            kMaplyTextJustify: kMaplyTextJustifyCenter,
+            kMaplySelectable: true,
+            kMaplyBackgroundColor: UIColor.purple,
+            kMaplyTextColor: UIColor.lightGray])
+
+        // Marker for reference
+        let marker = MaplyScreenMarker()
+        marker.loc = MaplyCoordinateMake(0.0, 0.0)
+        marker.layoutImportance = MAXFLOAT
+        marker.size = CGSize(width: 8.0, height: 8.0)
+        theViewC.addScreenMarkers([marker], desc: [kMaplyDrawPriority: 10000000, kMaplyColor: UIColor.blue])
+
+        // A multi-line test case
+        let label2 = MaplyScreenLabel()
+        label2.text = "abcdef"
+        label2.selectable = true
+        label2.layoutImportance = 20
+        label2.userObject = label.text
+        label2.layoutPlacement = kMaplyLayoutCenter
+        label2.loc = MaplyCoordinateMakeWithDegrees(1.0, 0.0)
+        
+        theViewC.addScreenLabels([label2], desc: [
+            kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
+            kMaplyTextOutlineColor: UIColor.blue,
+            kMaplyTextOutlineSize: 2.0,
+            kMaplyTextJustify: kMaplyTextJustifyCenter,
+            kMaplySelectable: true,
+            kMaplyBackgroundColor: UIColor.yellow,
+            kMaplyTextColor: UIColor.lightGray])
 	}
 }
