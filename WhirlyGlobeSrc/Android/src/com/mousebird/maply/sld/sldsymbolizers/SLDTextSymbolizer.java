@@ -43,10 +43,24 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
 
     public SLDTextSymbolizer(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
 
+        MaplyBaseController viewC = symbolizerParams.getBaseController();
+        VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
+
         LabelInfo labelInfo = new LabelInfo();
         Point2d offset = new Point2d(0.0, 0.0);
         String textField = null;
 
+        if (symbolizerParams.getMinScaleDenominator() != null) {
+            if (symbolizerParams.getMaxScaleDenominator() == null)
+                labelInfo.setMaxVis(Float.MAX_VALUE);
+            labelInfo.setMinVis((float) viewC.heightForMapScale(symbolizerParams.getMinScaleDenominator().floatValue()));
+        }
+        if (symbolizerParams.getMaxScaleDenominator() != null) {
+            if (symbolizerParams.getMinScaleDenominator() == null)
+                labelInfo.setMinVis(0.0f);
+            labelInfo.setMaxVis((float) viewC.heightForMapScale(symbolizerParams.getMaxScaleDenominator().floatValue()));
+        }
+        
         while (xpp.next() != XmlPullParser.END_TAG) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -84,7 +98,7 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
         if (offset.getX() == 0.0 && offset.getY() == 0.0)
             offset = null;
 
-        vectorTileTextStyle = new VectorTileTextStyle(labelInfo, offset, textField, symbolizerParams.getVectorStyleSettings(), symbolizerParams.getBaseController());
+        vectorTileTextStyle = new VectorTileTextStyle(labelInfo, offset, textField, vectorStyleSettings, viewC);
     }
 
     private String getLabel(XmlPullParser xpp) throws XmlPullParserException, IOException {

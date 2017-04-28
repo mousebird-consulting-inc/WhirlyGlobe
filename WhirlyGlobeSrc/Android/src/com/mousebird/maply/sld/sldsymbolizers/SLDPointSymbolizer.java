@@ -42,12 +42,26 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
 
     public SLDPointSymbolizer(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
 
+        MaplyBaseController viewC = symbolizerParams.getBaseController();
+        VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
+
         Bitmap bitmap = null;
         MarkerInfo markerInfo = new MarkerInfo();
         markerInfo.disposeAfterUse = true;
         markerInfo.setEnable(false);
         markerInfo.setClusterGroup(0);
         markerInfo.setLayoutImportance(1.f);
+
+        if (symbolizerParams.getMinScaleDenominator() != null) {
+            if (symbolizerParams.getMaxScaleDenominator() == null)
+                markerInfo.setMaxVis(Float.MAX_VALUE);
+            markerInfo.setMinVis((float) viewC.heightForMapScale(symbolizerParams.getMinScaleDenominator().floatValue()));
+        }
+        if (symbolizerParams.getMaxScaleDenominator() != null) {
+            if (symbolizerParams.getMinScaleDenominator() == null)
+                markerInfo.setMinVis(0.0f);
+            markerInfo.setMaxVis((float) viewC.heightForMapScale(symbolizerParams.getMaxScaleDenominator().floatValue()));
+        }
 
         while (xpp.next() != XmlPullParser.END_TAG) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
@@ -60,7 +74,7 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
                     bitmap = graphicParams.getBitmap();
                     // TODO: how to use textures with filled vectors in Android?
 //                    if (bmp != null) {
-//                        texture = symbolizerParams.getBaseController().addTexture(graphicParams.getBitmap(), new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
+//                        texture = viewC.addTexture(graphicParams.getBitmap(), new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
 //                    }
                 }
             } else {
@@ -68,7 +82,7 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
             }
         }
 
-        vectorTileMarkerStyle = new VectorTileMarkerStyle(markerInfo, bitmap, symbolizerParams.getVectorStyleSettings(), symbolizerParams.getBaseController());
+        vectorTileMarkerStyle = new VectorTileMarkerStyle(markerInfo, bitmap, vectorStyleSettings, viewC);
     }
 
     public VectorTileStyle[] getStyles() {

@@ -52,7 +52,7 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
             }
             Log.i("SLDPolygonSymbolizer", xpp.getName());
             if (xpp.getName().equals("Stroke")) {
-                vectorTileLineStyle = SLDSymbolizer.vectorTileLineStyleFromStrokeNode(xpp, symbolizerParams.getBaseController(), symbolizerParams.getVectorStyleSettings());
+                vectorTileLineStyle = SLDSymbolizer.vectorTileLineStyleFromStrokeNode(xpp, symbolizerParams);
             } else if (xpp.getName().equals("Fill")) {
                 vectorTilePolygonStyle = vectorTilePolygonStyleFromFillNode(xpp, symbolizerParams);
             } else {
@@ -78,11 +78,25 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
     }
 
     public static VectorTilePolygonStyle vectorTilePolygonStyleFromFillNode(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
-//MaplyBaseController viewC, VectorStyleSettings vectorStyleSettings, String basePath
+
+        MaplyBaseController viewC = symbolizerParams.getBaseController();
+        VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
+
         VectorInfo wideVectorInfo = new VectorInfo();
         wideVectorInfo.disposeAfterUse = true;
         wideVectorInfo.setEnable(false);
         wideVectorInfo.setFilled(true);
+
+        if (symbolizerParams.getMinScaleDenominator() != null) {
+            if (symbolizerParams.getMaxScaleDenominator() == null)
+                wideVectorInfo.setMaxVis(Float.MAX_VALUE);
+            wideVectorInfo.setMinVis((float) viewC.heightForMapScale(symbolizerParams.getMinScaleDenominator().floatValue()));
+        }
+        if (symbolizerParams.getMaxScaleDenominator() != null) {
+            if (symbolizerParams.getMinScaleDenominator() == null)
+                wideVectorInfo.setMinVis(0.0f);
+            wideVectorInfo.setMaxVis((float) viewC.heightForMapScale(symbolizerParams.getMaxScaleDenominator().floatValue()));
+        }
 
         Integer fillColor = null;
         Float fillOpacity = null;
@@ -145,7 +159,7 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
             wideVectorInfo.setColor(color);
         }
 
-        VectorTilePolygonStyle vectorTilePolygonStyle = new VectorTilePolygonStyle(wideVectorInfo, symbolizerParams.getVectorStyleSettings(), symbolizerParams.getBaseController());
+        VectorTilePolygonStyle vectorTilePolygonStyle = new VectorTilePolygonStyle(wideVectorInfo, vectorStyleSettings, viewC);
         return vectorTilePolygonStyle;
     }
 

@@ -14,27 +14,21 @@ public class SLDSymbolizerParams {
     // Assigned once per SLD
     private MaplyBaseController baseController;
     private VectorStyleSettings vectorStyleSettings;
-
-    public AssetManager getAssetManager() {
-        return assetManager;
-    }
-
     private AssetManager assetManager;
-
-    public String getBasePath() {
-        return basePath;
-    }
-
     private String basePath;
 
     public MaplyBaseController getBaseController() {
         return baseController;
     }
-
     public VectorStyleSettings getVectorStyleSettings() {
         return vectorStyleSettings;
     }
-
+    public AssetManager getAssetManager() {
+        return assetManager;
+    }
+    public String getBasePath() {
+        return basePath;
+    }
 
 
     public SLDSymbolizerParams(MaplyBaseController baseController, AssetManager assetManager, VectorStyleSettings vectorStyleSettings, String basePath, int relativeDrawPriority) {
@@ -44,7 +38,6 @@ public class SLDSymbolizerParams {
         this.basePath = basePath;
         this.relativeDrawPriority = relativeDrawPriority;
     }
-
 
 
     // Assigned once per Rule
@@ -61,7 +54,6 @@ public class SLDSymbolizerParams {
     public Number getMinScaleDenominator() {
         return minScaleDenominator;
     }
-
     public void setMinScaleDenominator(Number minScaleDenominator) {
         this.minScaleDenominator = minScaleDenominator;
     }
@@ -69,15 +61,14 @@ public class SLDSymbolizerParams {
     public Number getMaxScaleDenominator() {
         return maxScaleDenominator;
     }
-
     public void setMaxScaleDenominator(Number maxScaleDenominator) {
         this.maxScaleDenominator = maxScaleDenominator;
     }
 
-
     public HashMap<String, Object> getCrossSymbolizerParams() {
         return crossSymbolizerParams;
     }
+
 
     // Increments once per Symbolizer
     private int relativeDrawPriority;

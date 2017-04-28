@@ -49,7 +49,10 @@ public abstract class SLDSymbolizer {
 
     public abstract VectorTileStyle[] getStyles();
 
-    public static VectorTileLineStyle vectorTileLineStyleFromStrokeNode(XmlPullParser xpp, MaplyBaseController viewC, VectorStyleSettings vectorStyleSettings) throws XmlPullParserException, IOException {
+    public static VectorTileLineStyle vectorTileLineStyleFromStrokeNode(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
+
+        MaplyBaseController viewC = symbolizerParams.getBaseController();
+        VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
 
         boolean useWideVectors = vectorStyleSettings.isUseWideVectors();
         BaseInfo baseInfo;
@@ -64,6 +67,16 @@ public abstract class SLDSymbolizer {
         }
         baseInfo.disposeAfterUse = true;
         baseInfo.setEnable(false);
+        if (symbolizerParams.getMinScaleDenominator() != null) {
+            if (symbolizerParams.getMaxScaleDenominator() == null)
+                baseInfo.setMaxVis(Float.MAX_VALUE);
+            baseInfo.setMinVis((float) viewC.heightForMapScale(symbolizerParams.getMinScaleDenominator().floatValue()));
+        }
+        if (symbolizerParams.getMaxScaleDenominator() != null) {
+            if (symbolizerParams.getMinScaleDenominator() == null)
+                baseInfo.setMinVis(0.0f);
+            baseInfo.setMaxVis((float) viewC.heightForMapScale(symbolizerParams.getMaxScaleDenominator().floatValue()));
+        }
         //baseInfo.setDrawPriority(???)
 
         Integer strokeColor = null;
