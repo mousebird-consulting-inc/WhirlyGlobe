@@ -20,30 +20,10 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
 
-import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LayerThread;
-import com.mousebird.maply.MaplyBaseController;
-import com.mousebird.maply.MaplyTileID;
-import com.mousebird.maply.ParticleBatch;
-import com.mousebird.maply.ParticleSystem;
-import com.mousebird.maply.ParticleSystemAttribute;
-import com.mousebird.maply.Point2d;
-import com.mousebird.maply.QuadPagingLayer;
-import com.mousebird.maply.SphericalMercatorCoordSystem;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.Date;
-import java.util.HashMap;
 
 public class ParticleSystemTestCase extends MaplyTestCase {
 

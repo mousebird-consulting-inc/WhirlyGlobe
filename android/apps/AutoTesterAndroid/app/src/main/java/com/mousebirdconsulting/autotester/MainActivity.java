@@ -25,16 +25,17 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Unbinder;
 
 public class MainActivity extends AppCompatActivity implements NavigationDrawer.Listener {
 
-	@InjectView(R.id.toolbar)
+	@BindView(R.id.toolbar)
 	Toolbar toolbar;
-	@InjectView(R.id.drawer_layout)
+	@BindView(R.id.drawer_layout)
 	DrawerLayout drawerLayout; //Drawerlayout
-	@InjectView(R.id.navigation_drawer)
+	@BindView(R.id.navigation_drawer)
 	NavigationDrawer navigationDrawer;
 	private Menu menu;
 	private TestListFragment testList;
@@ -45,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 	private boolean executing = false;
 
 	private ArrayList<MaplyTestResult> testResults;
+
+	private Unbinder unbinder;
 
 	Handler memHandler = new Handler();
 	private Runnable runnableCode = new Runnable() {
@@ -62,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
-		ButterKnife.inject(this);
+		unbinder = ButterKnife.bind(this);
 
 		// Force a load of the library
 		System.loadLibrary("Maply");
@@ -399,6 +402,12 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 			this.testList = new TestListFragment();
 			selectFragment(this.testList);
 		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unbinder.unbind();
 	}
 
 	private void stopTests() {
