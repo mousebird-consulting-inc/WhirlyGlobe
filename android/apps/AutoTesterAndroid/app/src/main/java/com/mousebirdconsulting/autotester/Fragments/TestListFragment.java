@@ -57,17 +57,19 @@ import com.mousebirdconsulting.autotester.TestCases.WideVectorsTestCase;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Unbinder;
 
 
 public class TestListFragment extends Fragment {
 
-	@InjectView(R.id.testList_recyclerList)
-	RecyclerView testList;
+	@BindView(R.id.testList_recyclerList) RecyclerView testList;
 
 	private TestListAdapter adapter;
 	private MaplyDownloadManager manager;
+
+	private Unbinder unbinder;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -76,10 +78,16 @@ public class TestListFragment extends Fragment {
 
 	@Override
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-		ButterKnife.inject(this, view);
+		unbinder = ButterKnife.bind(this, view);
 		adapter = new TestListAdapter();
 		testList.setAdapter(adapter);
 		testList.setLayoutManager(createLayoutManager());
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	private RecyclerView.LayoutManager createLayoutManager() {

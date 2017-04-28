@@ -18,22 +18,25 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestResult;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Unbinder;
 
 
 public class ResultActivity extends AppCompatActivity {
 
-	@InjectView(R.id.toolbar)
+	@BindView(R.id.toolbar)
 	Toolbar toolbar;
-	@InjectView(R.id.testsResults_recyclerList)
+	@BindView(R.id.testsResults_recyclerList)
 	RecyclerView resultsList;
+
+	private Unbinder unbinder;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.result_activity);
-		ButterKnife.inject(this);
+		unbinder = ButterKnife.bind(this);
 		configureToolbar();
 
 		try {
@@ -45,6 +48,12 @@ public class ResultActivity extends AppCompatActivity {
 		} catch (Exception ex) {
 			System.out.println("Bundle error");
 		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unbinder.unbind();
 	}
 
 	private RecyclerView.LayoutManager createLayoutManager() {
@@ -129,5 +138,7 @@ public class ResultActivity extends AppCompatActivity {
 
 
 		}
+
+
 	}
 }

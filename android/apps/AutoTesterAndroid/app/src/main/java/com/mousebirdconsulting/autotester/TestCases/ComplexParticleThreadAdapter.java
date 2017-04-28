@@ -39,9 +39,12 @@ import com.mousebird.maply.QuadPagingLayer;
 import com.mousebird.maply.QuadTracker;
 import com.mousebird.maply.QuadTrackerPointReturn;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+
 
 import java.io.IOException;
 import java.net.URL;
@@ -328,12 +331,12 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
         Log.d("Maply","No longer tracking tile: " + tileID);
     }
 
-    private class ConnectionTask implements com.squareup.okhttp.Callback{
+    private class ConnectionTask implements Callback {
 
         private URL url = null;
         private ComplexParticleThreadAdapter tileDelegate = null;
         private Bitmap bm = null;
-        private com.squareup.okhttp.Call call = null;
+        private Call call = null;
         private MaplyTileID tileID = null;
         private QuadPagingLayer layer = null;
         private OkHttpClient client = new OkHttpClient();
@@ -401,7 +404,6 @@ public class ComplexParticleThreadAdapter implements QuadPagingLayer.PagingInter
                 this.tileDelegate.clearTile(tileID);
                 layer.tileFailedToLoad(tileID);
             }
-
         }
     }
     public DataTile getDataTile(MaplyTileID tileID) {

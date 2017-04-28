@@ -16,9 +16,12 @@ import com.mousebird.maply.ParticleSystemAttribute;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.QuadPagingLayer;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
+
 
 import java.io.IOException;
 import java.net.URL;
@@ -229,12 +232,12 @@ public class ParticleSystemAdapter implements QuadPagingLayer.PagingInterface {
     }
 
 
-    private class ConnectionTask implements com.squareup.okhttp.Callback{
+    private class ConnectionTask implements Callback {
 
         private URL url = null;
         private ParticleSystemAdapter adapter = null;
         private Bitmap bm = null;
-        private com.squareup.okhttp.Call call = null;
+        private Call call = null;
         private MaplyTileID tileID = null;
         private QuadPagingLayer layer = null;
         private OkHttpClient client = new OkHttpClient();
@@ -301,7 +304,6 @@ public class ParticleSystemAdapter implements QuadPagingLayer.PagingInterface {
                 this.adapter.clearTile(tileID);
                 layer.tileFailedToLoad(tileID);
             }
-
         }
     }
 
