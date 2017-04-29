@@ -42,6 +42,7 @@
 		2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */; };
 		2BDEB3361C989D18003259B3 /* CartoDBLightTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3351C989D18003259B3 /* CartoDBLightTestCase.m */; };
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
+		806F268A1E9CF1010006864D /* IBSIssueTesterTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 806F26891E9CF1010006864D /* IBSIssueTesterTestCase.swift */; };
 		8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
 		88231C791BA784BC00A95F2B /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88231C781BA784BC00A95F2B /* ConfigViewController.xib */; };
 		883DF71B1C1CE164000756E9 /* AnimatedBasemapTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F11C1CE164000756E9 /* AnimatedBasemapTestCase-globe.png */; };
@@ -641,6 +642,7 @@
 		2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenMarkersTestCase.m; sourceTree = "<group>"; };
 		50758EC5237C3DF35AB67BE9 /* Pods-AutoTester.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AutoTester.release.xcconfig"; path = "Pods/Target Support Files/Pods-AutoTester/Pods-AutoTester.release.xcconfig"; sourceTree = "<group>"; };
 		726309C36257E6205E08B947 /* Pods-AutoTester.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AutoTester.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AutoTester/Pods-AutoTester.debug.xcconfig"; sourceTree = "<group>"; };
+		806F26891E9CF1010006864D /* IBSIssueTesterTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IBSIssueTesterTestCase.swift; sourceTree = "<group>"; };
 		8810B2D11BA9D45F00446CE3 /* MaplyTesterBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyTesterBridge.h; sourceTree = "<group>"; };
 		8820852A1DC81051008F8E76 /* Issue721TestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Issue721TestCase.swift; sourceTree = "<group>"; };
 		88231C781BA784BC00A95F2B /* ConfigViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ConfigViewController.xib; sourceTree = "<group>"; };
@@ -1389,6 +1391,7 @@
 				E5941DC01E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift */,
 				2B8849E91E37F7CB0027C397 /* LIDARTestCase.h */,
 				2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */,
+				806F26891E9CF1010006864D /* IBSIssueTesterTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2057,8 +2060,9 @@
 				TargetAttributes = {
 					88E4B8BE1B83B6AB0050D21B = {
 						CreatedOnToolsVersion = 6.4;
+						DevelopmentTeam = LEES4TW946;
 						LastSwiftMigration = 0800;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -2696,6 +2700,7 @@
 				E5941DC11E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift in Sources */,
 				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
 				E57E78CA1C936B8400C468C6 /* AerisWeatherTestCase.m in Sources */,
+				806F268A1E9CF1010006864D /* IBSIssueTesterTestCase.swift in Sources */,
 				88E4B8C51B83B6AB0050D21B /* AppDelegate.swift in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,
 				2BDEB3361C989D18003259B3 /* CartoDBLightTestCase.m in Sources */,
@@ -2839,7 +2844,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = LEES4TW946;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -2854,7 +2859,7 @@
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mousebird.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ironbird.map.AutoTester;
 				PRODUCT_NAME = AutoTester;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -2871,7 +2876,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = LEES4TW946;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -2886,7 +2891,7 @@
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.mousebird.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.ironbird.map.AutoTester;
 				PRODUCT_NAME = AutoTester;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/AutoTester/MaplyTesterBridge.h";
 				SWIFT_VERSION = 3.0;
