@@ -71,7 +71,9 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		LocationTrackingRealTestCase(),
 
 		Issue721TestCase(),
-		LIDARTestCase()
+		LIDARTestCase(),
+
+		IBSIssueTesterTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
