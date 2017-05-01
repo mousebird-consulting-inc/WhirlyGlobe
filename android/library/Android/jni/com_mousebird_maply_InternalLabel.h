@@ -33,10 +33,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setRotation
 
 /*
  * Class:     com_mousebird_maply_InternalLabel
- * Method:    setText
+ * Method:    addText
  * Signature: ([II)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setText
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_addText
   (JNIEnv *, jobject, jintArray, jint);
 
 /*
