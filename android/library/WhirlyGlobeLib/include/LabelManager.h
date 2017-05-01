@@ -55,7 +55,7 @@ public:
 //    NSString *text;
     std::string text;
     // Sometimes rather than strings, we pass around the code points
-    std::vector<int> codePoints;
+    std::vector<std::vector<int>> codePointsLines;
     
     /// A geolocation for the middle, left or right of the label
     ///  depending on the justification
@@ -84,7 +84,7 @@ public:
     float layoutImportance;
 
     // Used to build the drawable string on specific platforms
-    virtual DrawableString *generateDrawableString(const LabelInfo *,FontTextureManager *fontTexManager,ChangeSet &changes) = 0;
+    virtual std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *,FontTextureManager *fontTexManager,ChangeSet &changes) = 0;
     
 // Note: Porting
 //    /// This is used to sort out width and height from the defaults.  Pass
