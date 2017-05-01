@@ -1,6 +1,7 @@
 # NDK_TOOLCHAIN_VERSION := clang3.6
 
 APP_CPPFLAGS += -Wno-deprecated 
+APP_CPPFLAGS += -Wno-undefined-var-template
 APP_CPPFLAGS += -std=c++11
 APP_CPPFLAGS += -frtti
 APP_CPPFLAGS += -fexceptions
