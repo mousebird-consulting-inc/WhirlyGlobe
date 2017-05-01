@@ -110,7 +110,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setBackgroundColor
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTypeface
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTypefaceNative
   (JNIEnv *env, jobject obj, jobject typefaceObj)
 {
 	try
@@ -147,7 +147,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_LabelInfo_getTypeface
     return NULL;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSize
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSizeNative
   (JNIEnv *env, jobject obj, jfloat fontSize)
 {
 	try
@@ -163,6 +163,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSize
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setFontSize()");
 	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLineHeightNative
+(JNIEnv *env, jobject obj, jfloat lineSize)
+{
+    try
+    {
+        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        if (!info)
+            return;
+        
+        info->lineHeight = lineSize;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setLineHeightNative()");
+    }
 }
 
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getTextColor
@@ -241,6 +259,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutPlacement
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setLayoutPlacement()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTextJustifyNative
+(JNIEnv *env, jobject obj, jint textLayout)
+{
+    try
+    {
+        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        if (!info)
+            return;
+        
+        info->textJustify = (WhirlyKit::TextJustify)textLayout;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setTextJustifyNativ()");
     }
 }
 

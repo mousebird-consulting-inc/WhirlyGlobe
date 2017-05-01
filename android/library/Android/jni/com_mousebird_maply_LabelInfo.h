@@ -25,18 +25,26 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setBackgroundColor
 
 /*
  * Class:     com_mousebird_maply_LabelInfo
- * Method:    setTypeface
+ * Method:    setLineHeightNative
+ * Signature: (F)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLineHeightNative
+  (JNIEnv *, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
+ * Method:    setTypefaceNative
  * Signature: (Landroid/graphics/Typeface;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTypeface
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTypefaceNative
   (JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_LabelInfo
- * Method:    setFontSize
+ * Method:    setFontSizeNative
  * Signature: (F)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSize
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSizeNative
   (JNIEnv *, jobject, jfloat);
 
 /*
@@ -69,6 +77,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutImportance
  * Signature: (I)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutPlacement
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
+ * Method:    setTextJustifyNative
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTextJustifyNative
   (JNIEnv *, jobject, jint);
 
 /*
