@@ -252,3 +252,58 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_AttrDictionary_toString
     
     return NULL;
 }
+
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_get
+  (JNIEnv *env, jobject obj, jstring attrNameStr)
+{
+	try
+	{
+		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+		Dictionary *dict = classInfo->getObject(env,obj);
+		if (!dict)
+			return NULL;
+
+		const char *cStr = env->GetStringUTFChars(attrNameStr,0);
+		if (!cStr)
+			return NULL;
+		std::string attrName(cStr);
+		env->ReleaseStringUTFChars(attrNameStr, cStr);
+
+		if (dict->hasField(attrName))
+		{
+            DictionaryType dictType = dict->getType(attrName);
+            if (dictType == DictTypeString)
+            {
+        		std::string str = dict->getString(attrName);
+        		if (!str.empty())
+        		{
+        			return env->NewStringUTF(str.c_str());
+        		}
+            }
+            else if (dictType == DictTypeInt)
+            {
+			    int val = dict->getInt(attrName);
+			    return JavaIntegerClassInfo::getClassInfo(env)->makeInteger(env,val);
+            }
+            else if (dictType == DictTypeDouble)
+            {
+			    double val = dict->getDouble(attrName);
+		        return JavaDoubleClassInfo::getClassInfo(env)->makeDouble(env,val);
+            }
+            else
+                return NULL;
+
+        }
+
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::get()");
+	}
+
+	return NULL;
+}
+
+
+

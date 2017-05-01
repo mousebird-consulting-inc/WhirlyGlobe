@@ -59,6 +59,13 @@ public class AttrDictionary
 	public native Double getDouble(String attrName);
 
 	/**
+	 * Fetch an Object corresponding to the given attribute name.
+	 * @param attrName Name of the attribute we're looking for.
+	 * @return Returns an Object for the given attribute or null if there was none.
+	 */
+	public native Object get(String attrName);
+
+	/**
 	 * Set a string value.
 	 * @param attrName Name of the attribute to set.
 	 * @param attrVal String value to set.
