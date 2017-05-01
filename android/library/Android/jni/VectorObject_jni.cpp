@@ -497,3 +497,75 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_writeToFile
     
     return false;
 }
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_tesselateNative
+(JNIEnv *env, jobject obj, jobject retObj)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        if (!vecObj || !retVecObj)
+            return false;
+        
+        for (ShapeSet::iterator it = vecObj->shapes.begin();it!=vecObj->shapes.end();it++)
+        {
+            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+            if (ar)
+            {
+                VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
+                TesselateLoops(ar->loops, trisRef);
+                trisRef->setAttrDict(*(ar->getAttrDict()));
+                trisRef->initGeoMbr();
+                retVecObj->shapes.insert(trisRef);
+            }
+        }
+        
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::tesselateNative()");
+    }
+    
+    return false;
+}
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_clipToGridNative
+(JNIEnv *env, jobject obj, jobject retObj, jdouble sizeX, jdouble sizeY)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        if (!vecObj || !retVecObj)
+            return false;
+        
+        for (ShapeSet::iterator it = vecObj->shapes.begin();it!=vecObj->shapes.end();it++)
+        {
+            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+            if (ar)
+            {
+                std::vector<VectorRing> newLoops;
+                ClipLoopsToGrid(ar->loops, Point2f(0.0,0.0), Point2f(sizeX,sizeY), newLoops);
+                for (unsigned int jj=0;jj<newLoops.size();jj++)
+                {
+                    VectorArealRef newAr = VectorAreal::createAreal();
+                    newAr->setAttrDict(*(ar->getAttrDict()));
+                    newAr->loops.push_back(newLoops[jj]);
+                    retVecObj->shapes.insert(newAr);
+                }
+            }
+        }
+        
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::clipToGridNative()");
+    }
+    
+    return false;
+}

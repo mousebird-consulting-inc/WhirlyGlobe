@@ -138,6 +138,34 @@ public class VectorObject implements Iterable<VectorObject>
 	 * Returns the total number of points in a feature.  Used for assessing size.
      */
 	public native int countPoints();
+
+	/**
+	 * Tesselate the areal features and return a new vector object.
+	 */
+	public VectorObject tesselate()
+	{
+		VectorObject retVecObj = new VectorObject();
+		if (!tesselateNative(retVecObj))
+			return null;
+
+		return retVecObj;
+	}
+
+	native boolean tesselateNative(VectorObject retVecObj);
+
+	/**
+	 * Clip the given areal features to a grid of the given size.
+	 */
+	public VectorObject clipToGrid(Point2d size)
+	{
+		VectorObject retVecObj = new VectorObject();
+		if (!clipToGridNative(retVecObj,size.getX(),size.getY()))
+			return null;
+
+		return retVecObj;
+	}
+
+	native boolean clipToGridNative(VectorObject retVecObj,double sizeX,double sizeY);
 	
 	/**
 	 * Load vector objects from a GeoJSON assembly, which is just a bunch of GeoJSON stuck together.
