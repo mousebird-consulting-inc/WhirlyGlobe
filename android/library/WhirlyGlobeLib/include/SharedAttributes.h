@@ -89,7 +89,9 @@
 #define MaplyLabelWidth WKString("width")
 /// Justification for label placement.  This takes an NSString with one of:
 ///  middle, left, right
-#define MaplyJustify WKString("justify")
+#define MaplyLabelJustify WKString("justify")
+/// Text justification within multi-line strings
+#define MaplyTextJustify WKString("textjustify")
 /// If set, we'll draw a shadow behind each label with this as the stroke size
 #define MaplyShadowSize WKString("shadowSize")
 /// If shadow size is being used, we can control the shadow color like so

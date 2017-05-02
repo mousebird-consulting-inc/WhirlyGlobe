@@ -187,7 +187,7 @@ using namespace WhirlyKit;
     Point2f theIconSize = (_iconTexture==EmptyIdentity ? Point2f(0,0) : Point2f(2*height2,2*height2));
     
     Point3f corners[4],iconCorners[4];
-    [self calcExtents2:width2 height2:height2 iconSize:theIconSize justify:labelInfo.justify corners:corners norm:norm iconCorners:iconCorners coordAdapter:coordAdapter];
+    [self calcExtents2:width2 height2:height2 iconSize:theIconSize justify:labelInfo.labelJustify corners:corners norm:norm iconCorners:iconCorners coordAdapter:coordAdapter];
     
     // If we have an icon, we need slightly different corners
     if (_iconTexture)

@@ -21,7 +21,11 @@
 package com.mousebird.maply;
 
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Typeface;
+
+import static android.R.attr.textColor;
+import static android.R.attr.typeface;
 
 /**
  * We use this class to designate attribute shared by a group of labels.
@@ -47,6 +51,7 @@ public class LabelInfo extends BaseInfo
 		setFontSize(24.f);
 		setLayoutImportance(Float.MAX_VALUE);
 		setLayoutPlacement(LayoutRight | LayoutLeft | LayoutAbove | LayoutBelow);
+		setTextJustify(TextJustify.TextLeft);
 
 		setDrawPriority(LabelPriorityDefault);
 	}
@@ -94,16 +99,47 @@ public class LabelInfo extends BaseInfo
 	 * @param a alpha
 	 */
 	public native void setBackgroundColor(float r,float g,float b,float a);
-	
+
+	void updateLineHeight()
+	{
+		if (fontSize == 0.0 || getTypeface() == null)
+			return;
+
+		Paint paint = new Paint();
+		paint.setTextSize(fontSize);
+		paint.setTypeface(getTypeface());
+		Paint.FontMetrics fm = paint.getFontMetrics();
+		float fontHeight = (float)Math.ceil( Math.abs( fm.bottom ) + Math.abs( fm.top ) );
+		setLineHeightNative(fontHeight);
+	}
+
+	native void setLineHeightNative(float fontHeight);
+
 	/**
 	 * Set the typeface used in the text.
 	 */
-	public native void setTypeface(Typeface typeface);
+	public void setTypeface(Typeface typeface)
+	{
+		setTypefaceNative(typeface);
 
+		updateLineHeight();
+	}
+
+	native void setTypefaceNative(Typeface typeface);
+
+	float fontSize = 0.f;
 	/**
 	 * Set the font size for the text.  For screen labels this controls the geometry size as well.
 	 */
-	public native void setFontSize(float size);
+	public void setFontSize(float size)
+	{
+		fontSize = size;
+		setFontSizeNative(size);
+
+		updateLineHeight();
+	}
+
+	native void setFontSizeNative(float size);
 
 	/**
 	 * Set the color of outline.
@@ -154,6 +190,21 @@ public class LabelInfo extends BaseInfo
 	 * its point.
 	 */
 	public native void setLayoutPlacement(int newPlacement);
+
+	/**
+	 * Justification values for text.  Can be center, left, or right.
+	 */
+	public enum TextJustify {TextCenter,TextLeft,TextRight};
+
+	/**
+	 * For multi-line labels, you can justify the text to the left, right or center.
+	 * Only works for multi-line labels.
+	 */
+	public void setTextJustify(TextJustify textJustify)
+	{
+		setTextJustifyNative(textJustify.ordinal());
+	}
+	native void setTextJustifyNative(int textJustify);
 
 	/**
 	 * Return the typeface used for the labels.

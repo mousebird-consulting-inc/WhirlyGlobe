@@ -141,6 +141,15 @@ extern NSString* const kMaplyTexSizeX;
 /// When creating textures, we may pass in the size
 extern NSString* const kMaplyTexSizeY;
 
+/// How to justify multi-line text
+extern NSString* const kMaplyTextJustify;
+/// Justify text to the right
+extern NSString* const kMaplyTextJustifyRight;
+/// Justify text to the left
+extern NSString* const kMaplyTextJustifyLeft;
+/// Justify text to the center
+extern NSString* const kMaplyTextJustifyCenter;
+
 /// These are used for screen and regular markers.
 extern NSString* const kMaplyClusterGroup;
 
