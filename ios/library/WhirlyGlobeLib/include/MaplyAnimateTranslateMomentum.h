@@ -29,6 +29,9 @@
   */
 @interface MaplyAnimateTranslateMomentum : NSObject<MaplyAnimationDelegate>
 
+/// Set if a user kicked this off (true by default)
+@property (nonatomic) bool userMotion;
+
 /// Initialize with a velocity and negative acceleration (to slow down)
 - (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(WhirlyKit::Point3f)inDir bounds:(std::vector<WhirlyKit::Point2d> &)inBounds view:(UIView *)inView renderer:(WhirlyKitSceneRendererES *)inSceneRenderer;
 

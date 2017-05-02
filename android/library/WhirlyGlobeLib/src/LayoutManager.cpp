@@ -637,15 +637,15 @@ bool LayoutManager::runLayoutRules(ViewState *viewState, std::vector<ClusterEntr
                                 break;
 							// Center
 							case 1:
-								objOffset = Point2d(-layoutSpan.x()/2.0,-layoutSpan.y()/2.0);
+								objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y()/2.0);
 								break;
 							// Right
                             case 2:
-								objOffset = Point2d(0.0,-layoutSpan.y()/2.0);
+								objOffset = Point2d(0.0,layoutSpan.y()/2.0);
 								break;
 							// Left
                             case 3:
-								objOffset = Point2d(-(layoutSpan.x()),-layoutSpan.y()/2.0);
+								objOffset = Point2d(-(layoutSpan.x()),layoutSpan.y()/2.0);
                                 break;
 							// Above
                             case 4:
@@ -653,7 +653,7 @@ bool LayoutManager::runLayoutRules(ViewState *viewState, std::vector<ClusterEntr
 								break;
                                 // Below
                             case 5:
-								objOffset = Point2d(-layoutSpan.x()/2.0,-layoutSpan.y());
+								objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y());
 								break;
                         }
 
@@ -666,10 +666,10 @@ bool LayoutManager::runLayoutRules(ViewState *viewState, std::vector<ClusterEntr
                             objPts[3] = objPts[0] + Point2d(0.0,layoutSpan.y()*resScale);
                         } else {
                             Point2d center(objPt.x(),objPt.y());
-                            objPts[0] = objOffset + layoutOrg;
-                            objPts[1] = objOffset + layoutOrg + Point2d(layoutSpan.x(),0.0);
-                            objPts[2] = objOffset + layoutOrg + Point2d(layoutSpan.x(),layoutSpan.y());
-                            objPts[3] = objOffset + layoutOrg + Point2d(0.0,layoutSpan.y());
+                            objPts[0] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg;
+                            objPts[1] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),0.0);
+                            objPts[2] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),layoutSpan.y());
+                            objPts[3] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(0.0,layoutSpan.y());
                             for (unsigned int oi=0;oi<4;oi++)
                             {
                                 Point2d &thisObjPt = objPts[oi];
