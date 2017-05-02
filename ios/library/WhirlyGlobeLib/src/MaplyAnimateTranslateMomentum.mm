@@ -50,6 +50,7 @@ using namespace WhirlyKit;
         org = mapView.loc;
         glView = inView;
         sceneRenderer = inSceneRenderer;
+        _userMotion = true;
         
         // Let's calculate the maximum time, so we know when to stop
         if (acceleration != 0.0)
