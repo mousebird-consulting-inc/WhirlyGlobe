@@ -126,15 +126,17 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
             if (dataObjs == null)
                 return false;
 
+            VectorStyleInterface ourVecStyleFactory = vecStyleFactory;
+
             // Work through the vector objects
-            if (vecStyleFactory != null) {
+            if (ourVecStyleFactory != null) {
                 HashMap<String, ArrayList<VectorObject>> vecObjsPerStyle = new HashMap<String, ArrayList<VectorObject>>();
 
                 // Sort the vector objects into bins based on their styles
                 if (dataObjs != null && dataObjs.vectorObjects != null)
                     for (VectorObject vecObj : dataObjs.vectorObjects) {
                         AttrDictionary attrs = vecObj.getAttributes();
-                        VectorStyle[] styles = vecStyleFactory.stylesForFeature(attrs, tileID, attrs.getString("layer_name"), layer.maplyControl);
+                        VectorStyle[] styles = ourVecStyleFactory.stylesForFeature(attrs, tileID, attrs.getString("layer_name"), layer.maplyControl);
                         for (VectorStyle style : styles) {
                             ArrayList<VectorObject> vecObjsForStyle = vecObjsPerStyle.get(style.getUuid());
                             if (vecObjsForStyle == null) {
@@ -148,7 +150,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
                 // Work through the various styles
                 for (String uuid : vecObjsPerStyle.keySet()) {
                     ArrayList<VectorObject> vecObjs = vecObjsPerStyle.get(uuid);
-                    VectorStyle style = vecStyleFactory.styleForUUID(uuid, layer.maplyControl);
+                    VectorStyle style = ourVecStyleFactory.styleForUUID(uuid, layer.maplyControl);
 
                     // This makes the objects
                     if (style != null) {
@@ -188,9 +190,12 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
                 @Override
                 public void run() {
                     // Load the data, if it's there
-                    byte[] tileData = mbTiles.getDataTile(tileID);
+                    MBTiles thisMbTiles = mbTiles;
+                    if (thisMbTiles != null) {
+                        byte[] tileData = thisMbTiles.getDataTile(tileID);
 
-                    processData(layer, tileID, tileData);
+                        processData(layer, tileID, tileData);
+                    }
                 }
             });
         } else {

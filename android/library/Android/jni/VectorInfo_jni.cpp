@@ -189,3 +189,72 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setLineWidth
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setLineWidth()");
 	}
 }
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureNative
+(JNIEnv *env, jobject obj, jlong texID)
+{
+    try
+    {
+        VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+        VectorInfo *vecInfo = classInfo->getObject(env,obj);
+        if (!vecInfo)
+            return;
+        vecInfo->texId = texID;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setTextureNative()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setVecCenterNative
+(JNIEnv *env, jobject obj, jdouble centerX, jdouble centerY)
+{
+    try
+    {
+        VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+        VectorInfo *vecInfo = classInfo->getObject(env,obj);
+        if (!vecInfo)
+            return;
+        vecInfo->vecCenterSet = true;
+        vecInfo->vecCenter = Point2f(centerX,centerY);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setVecCenterNative()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTexScale
+(JNIEnv *env, jobject obj, jdouble texScaleU, jdouble texScaleV)
+{
+    try
+    {
+        VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+        VectorInfo *vecInfo = classInfo->getObject(env,obj);
+        if (!vecInfo)
+            return;
+        vecInfo->texScale = Point2f(texScaleU,texScaleV);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setTexScale()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureProjectionNative
+(JNIEnv *env, jobject obj, jint texProj)
+{
+    try
+    {
+        VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+        VectorInfo *vecInfo = classInfo->getObject(env,obj);
+        if (!vecInfo)
+            return;
+        vecInfo->texProj = (TextureProjections)texProj;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setTextureProjectionNative()");
+    }
+}

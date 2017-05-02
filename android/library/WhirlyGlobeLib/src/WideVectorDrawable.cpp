@@ -110,7 +110,7 @@ void WideVectorDrawable::draw(RendererFrameInfo *frameInfo, Scene *scene)
     if (frameInfo->program)
     {
         float scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
-        float screenSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y());
+        float screenSize = frameInfo->screenSizeInDisplayCoords.x();
         float pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
         if (realWidthSet)
         {

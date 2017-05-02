@@ -46,6 +46,7 @@ using namespace Eigen;
         _endDate = _startDate + howLong;
         _startLoc = globeView.loc;
         _endLoc = newLoc;
+        _userMotion = true;
     }
     
     return self;
