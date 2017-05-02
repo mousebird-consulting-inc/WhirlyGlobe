@@ -65,6 +65,7 @@ typedef std::set<LabelSceneRep *,IdentifiableSorter> LabelSceneRepSet;
     
 // How a label is justified for display
 typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} LabelJustify;
+typedef enum {WhirlyKitTextCenter,WhirlyKitTextLeft,WhirlyKitTextRight} TextJustify;
 
 // Label spec passed around between threads
 class LabelInfo : public BaseInfo
@@ -78,11 +79,13 @@ public:
     float layoutImportance;
     int layoutPlacement;
     float width,height;
-    LabelJustify justify;
+    LabelJustify labelJustify;
+    TextJustify textJustify;
     RGBAColor shadowColor;
     float shadowSize;
     RGBAColor outlineColor;
     float outlineSize;
+    float lineHeight;
 };
     
 /** Used to render a group of labels, possibly on

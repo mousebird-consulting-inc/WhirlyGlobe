@@ -24,6 +24,7 @@
 #import "MaplyInteractionLayer_private.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyAnnotation_private.h"
+#import "MaplyAnimateTranslateMomentum.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -842,6 +843,7 @@ using namespace Maply;
     [mapView cancelAnimation];
     
     MaplyAnimateViewTranslation *animTrans = [[MaplyAnimateViewTranslation alloc] initWithView:mapView view:glView translate:newLoc howLong:howLong];
+    animTrans.userMotion = false;
     animTrans.bounds = bounds2d;
     curAnimation = animTrans;
     mapView.delegate = animTrans;
@@ -1496,7 +1498,14 @@ using namespace Maply;
     
     bool userMotion = false;
     if ([mapView.delegate isKindOfClass:[MaplyAnimateViewTranslation class]])
-        userMotion = true;
+    {
+        MaplyAnimateViewTranslation *viewTrans = (MaplyAnimateViewTranslation *)mapView.delegate;
+        userMotion = viewTrans.userMotion;
+    } else if ([mapView.delegate isKindOfClass:[MaplyAnimateTranslateMomentum class]])
+    {
+        MaplyAnimateTranslateMomentum *viewTrans = (MaplyAnimateTranslateMomentum *)mapView.delegate;
+        userMotion = viewTrans.userMotion;
+    }
 
     isAnimating = false;
     [self handleStopMoving:userMotion];

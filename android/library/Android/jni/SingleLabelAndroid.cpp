@@ -25,11 +25,18 @@
 namespace WhirlyKit
 {
 
-DrawableString *SingleLabelAndroid::generateDrawableString(const LabelInfo *inLabelInfo,FontTextureManager *inFontTexManager,ChangeSet &changes)
+std::vector<DrawableString *> SingleLabelAndroid::generateDrawableStrings(const LabelInfo *inLabelInfo,FontTextureManager *inFontTexManager,ChangeSet &changes)
 {
 	FontTextureManagerAndroid *fontTexManager = (FontTextureManagerAndroid *)inFontTexManager;
 	const LabelInfoAndroid *labelInfo = (LabelInfoAndroid *)inLabelInfo;
-	return fontTexManager->addString(labelInfo->env,codePoints,labelInfo->labelInfoObj,changes);
+
+    std::vector<DrawableString *> drawStrs;
+    for (std::vector<int> &codePoints : codePointsLines)
+    {
+        drawStrs.push_back(fontTexManager->addString(labelInfo->env,codePoints,labelInfo->labelInfoObj,changes));
+    }
+    
+    return drawStrs;
 }
 
 }

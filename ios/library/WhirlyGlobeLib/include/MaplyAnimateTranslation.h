@@ -34,6 +34,8 @@
 @property (nonatomic,assign) WhirlyKit::Point3d startLoc;
 /// Where to end the translation.  We'll interpolate from the start to here.
 @property (nonatomic,assign) WhirlyKit::Point3d endLoc;
+/// Set if a user kicked this off (true by default)
+@property (nonatomic) bool userMotion;
 
 /// Kick off a translate to the given position over the given time
 /// Assign this to the globe view's delegate and it'll do the rest
