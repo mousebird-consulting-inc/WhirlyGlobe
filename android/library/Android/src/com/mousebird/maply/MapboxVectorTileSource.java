@@ -118,6 +118,10 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
 
             // Parse the data
             // Note: Eventually short circuit parsing with layer test and UUID test
+
+            if (tileParser == null)
+                return false;
+
             Mbr mbr = layer.geoBoundsForTile(tileID);
             mbr.ll = toMerc(mbr.ll);
             mbr.ur = toMerc(mbr.ur);
