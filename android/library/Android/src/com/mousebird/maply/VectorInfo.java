@@ -128,7 +128,10 @@ public class VectorInfo extends BaseInfo
 	}
 
 	native void setTextureProjectionNative(int texProjection);
-	
+
+	// Convert to a string for debugging
+	public native String toString();
+
 	static
 	{
 		nativeInit();
