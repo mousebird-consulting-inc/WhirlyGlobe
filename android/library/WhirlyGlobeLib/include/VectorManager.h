@@ -66,6 +66,9 @@ public:
     VectorInfo();
     VectorInfo(const Dictionary &dict);
     
+    // Convert contents to a string for debugging
+    virtual std::string toString();
+    
     bool                        filled;
     float                       sample;
     SimpleIdentity              texId;
