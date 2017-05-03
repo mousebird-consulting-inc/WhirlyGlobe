@@ -99,7 +99,8 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
 
         if (offset.getX() == 0.0 && offset.getY() == 0.0)
             offset = null;
-
+        
+        labelInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority());
         vectorTileTextStyle = new VectorTileTextStyle(labelInfo, placement, offset, textField, vectorStyleSettings, viewC);
     }
 
