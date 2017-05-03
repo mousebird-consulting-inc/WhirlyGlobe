@@ -47,8 +47,8 @@ public class SLDTestCase extends MaplyTestCase {
 
         try {
 
-            SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "osm_roads.sld", activity.getResources().getDisplayMetrics(), false, 0);
-            //SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "osm_landuse.sld", activity.getResources().getDisplayMetrics(), false, 0);
+            //SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "osm_roads.sld", activity.getResources().getDisplayMetrics(), false, 0);
+            SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "osm_landuse.sld", activity.getResources().getDisplayMetrics(), false, 0);
             //SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "amenities.sld", activity.getResources().getDisplayMetrics(), false, 0);
 
             styleSet.loadSldInputStream();
@@ -56,8 +56,8 @@ public class SLDTestCase extends MaplyTestCase {
 
             GeoJSONSource gjs = new GeoJSONSource();
             gjs.setBaseController(controller);
-            gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_roads.geojson"));
-            //gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_landusages.geojson"));
+            //gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_roads.geojson"));
+            gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_landusages.geojson"));
             //gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_amenities.geojson"));
             gjs.setStyleSet(styleSet);
             gjs.setRelativeDrawPriority(0);
