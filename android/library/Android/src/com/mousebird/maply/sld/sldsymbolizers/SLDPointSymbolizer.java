@@ -78,7 +78,7 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
             }
         }
 
-        markerInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority());
+        markerInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MarkerInfo.ScreenMarkerPriorityDefault);
         vectorTileMarkerStyle = new VectorTileMarkerStyle(markerInfo, bitmap, vectorStyleSettings, viewC);
     }
 

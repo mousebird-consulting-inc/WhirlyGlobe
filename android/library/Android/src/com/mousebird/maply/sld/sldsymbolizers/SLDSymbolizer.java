@@ -176,7 +176,7 @@ public abstract class SLDSymbolizer {
             wideVectorInfo.setTextureRepeatLength(repeatLength);
         }
 
-        baseInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority());
+        baseInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + VectorInfo.VectorPriorityDefault);
         VectorTileLineStyle vectorTileLineStyle = new VectorTileLineStyle(baseInfo, vectorStyleSettings, viewC);
         return vectorTileLineStyle;
 
