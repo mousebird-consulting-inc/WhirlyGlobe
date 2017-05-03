@@ -82,20 +82,20 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
         MaplyBaseController viewC = symbolizerParams.getBaseController();
         VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
 
-        VectorInfo wideVectorInfo = new VectorInfo();
-        wideVectorInfo.disposeAfterUse = true;
-        wideVectorInfo.setEnable(false);
-        wideVectorInfo.setFilled(true);
+        VectorInfo vectorInfo = new VectorInfo();
+        vectorInfo.disposeAfterUse = true;
+        vectorInfo.setEnable(false);
+        vectorInfo.setFilled(true);
 
         if (symbolizerParams.getMinScaleDenominator() != null) {
             if (symbolizerParams.getMaxScaleDenominator() == null)
-                wideVectorInfo.setMaxVis(Float.MAX_VALUE);
-            wideVectorInfo.setMinVis((float) viewC.heightForMapScale(symbolizerParams.getMinScaleDenominator().floatValue()));
+                vectorInfo.setMaxVis(Float.MAX_VALUE);
+            vectorInfo.setMinVis((float) viewC.heightForMapScale(symbolizerParams.getMinScaleDenominator().floatValue()));
         }
         if (symbolizerParams.getMaxScaleDenominator() != null) {
             if (symbolizerParams.getMinScaleDenominator() == null)
-                wideVectorInfo.setMinVis(0.0f);
-            wideVectorInfo.setMaxVis((float) viewC.heightForMapScale(symbolizerParams.getMaxScaleDenominator().floatValue()));
+                vectorInfo.setMinVis(0.0f);
+            vectorInfo.setMaxVis((float) viewC.heightForMapScale(symbolizerParams.getMaxScaleDenominator().floatValue()));
         }
 
         Integer fillColor = null;
@@ -141,9 +141,23 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
                         if (graphicParams != null) {
                             Bitmap bmp = graphicParams.getBitmap();
                             if (bmp != null) {
-                                // TODO: how do we use textures with filled polygons in Android?
-//                                MaplyTexture tex = symbolizerParams.getBaseController().addTexture(graphicParams.getBitmap(), new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
-//                                wideVectorInfo.setTexture(tex);
+                                MaplyBaseController.TextureSettings texSettings = new MaplyBaseController.TextureSettings();
+                                texSettings.wrapU = true;  texSettings.wrapV = true;
+                                MaplyTexture tex = viewC.addTexture(graphicParams.getBitmap(), texSettings, MaplyBaseController.ThreadMode.ThreadCurrent);
+                                vectorInfo.setTexture(tex);
+
+                                float scaleX = 20000.0f;
+                                float scaleY = -20000.0f;
+                                Integer width = graphicParams.getWidth();
+                                Integer height = graphicParams.getHeight();
+                                if (width != null && width.floatValue() != 0.0f)
+                                    scaleX = 20000.0f / width.floatValue();
+                                if (height != null && height.floatValue() != 0.0f)
+                                    scaleY = -20000.0f / height.floatValue();
+
+                                vectorInfo.setTexScale(scaleX, scaleY);
+                                vectorInfo.setTextureProjection(VectorInfo.TextureProjection.TangentPlane);
+
                             }
                         }
                     }
@@ -156,10 +170,10 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
             if (fillOpacity != null)
                 color = Color.argb(Math.round(fillOpacity.floatValue()*255.f), Color.red(color), Color.green(color), Color.blue(color));
 
-            wideVectorInfo.setColor(color);
+            vectorInfo.setColor(color);
         }
 
-        VectorTilePolygonStyle vectorTilePolygonStyle = new VectorTilePolygonStyle(wideVectorInfo, vectorStyleSettings, viewC);
+        VectorTilePolygonStyle vectorTilePolygonStyle = new VectorTilePolygonStyle(vectorInfo, vectorStyleSettings, viewC);
         return vectorTilePolygonStyle;
     }
 
