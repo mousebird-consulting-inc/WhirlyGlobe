@@ -65,7 +65,7 @@ public abstract class SLDSymbolizer {
             vectorInfo = new VectorInfo();
             baseInfo = vectorInfo;
         }
-        baseInfo.disposeAfterUse = true;
+//        baseInfo.disposeAfterUse = true;
         baseInfo.setEnable(false);
         if (symbolizerParams.getMinScaleDenominator() != null) {
             if (symbolizerParams.getMaxScaleDenominator() == null)

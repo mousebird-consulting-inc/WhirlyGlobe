@@ -65,6 +65,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureProjectionN
 
 /*
  * Class:     com_mousebird_maply_VectorInfo
+ * Method:    toString
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorInfo_toString
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorInfo
  * Method:    nativeInit
  * Signature: ()V
  */
