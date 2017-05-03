@@ -31,6 +31,8 @@ public abstract class VectorTileStyle implements VectorStyle {
     protected WeakReference<MaplyBaseController> viewC;
     protected boolean selectable;
 
+    static long uuidCount = 0;
+
     public String getUuid() {
         return uuid;
     }
@@ -39,9 +41,17 @@ public abstract class VectorTileStyle implements VectorStyle {
         return geomAdditive;
     }
 
+    static synchronized long makeUUID()
+    {
+        uuidCount++;
+
+        return uuidCount;
+    }
+
     public VectorTileStyle(MaplyBaseController viewC) {
         this.viewC = new WeakReference<MaplyBaseController>(viewC);
-        uuid = " " + Math.random() * 1000000 + Math.random() * 10000;
+
+        uuid = "" + makeUUID();
 
 //        if (((String)styleEntry.get("tilegeom")).equals("add"))
 //            geomAdditive = true;

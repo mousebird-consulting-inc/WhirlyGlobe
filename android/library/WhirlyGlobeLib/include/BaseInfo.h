@@ -21,6 +21,7 @@
 #import <math.h>
 #import <set>
 #import <map>
+#import <string>
 #import "Identifiable.h"
 #import "WhirlyVector.h"
 #import "Dictionary.h"
@@ -41,6 +42,9 @@ public:
     BaseInfo();
     /// Construct with a dictionary
     BaseInfo(const Dictionary &dict);
+    
+    // Convert contents to a string for debugging
+    virtual std::string toString();
     
     /// Set the various parameters on a basic drawable
     void setupBasicDrawable(BasicDrawable *drawable) const;

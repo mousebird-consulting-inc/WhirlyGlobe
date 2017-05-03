@@ -47,7 +47,7 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
 
         Bitmap bitmap = null;
         MarkerInfo markerInfo = new MarkerInfo();
-        markerInfo.disposeAfterUse = true;
+//        markerInfo.disposeAfterUse = true;
         markerInfo.setEnable(false);
         markerInfo.setClusterGroup(0);
         markerInfo.setLayoutImportance(1.f);
