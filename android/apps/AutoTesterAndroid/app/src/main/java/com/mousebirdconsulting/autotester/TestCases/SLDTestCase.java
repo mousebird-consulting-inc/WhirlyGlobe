@@ -1,5 +1,6 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
+import com.mousebird.maply.Point2d;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 import android.app.Activity;
@@ -76,6 +77,9 @@ public class SLDTestCase extends MaplyTestCase {
     public boolean setUpWithMap(MapController mapVC) throws Exception {
         CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
         mapBoxSatelliteTestCase.setUpWithMap(mapVC);
+        Point2d loc = Point2d.FromDegrees(-5.93, 54.597);
+        mapVC.setPositionGeo(loc.getX(), loc.getY(), 0.001);
+
         testSLD();
         return true;
     }
@@ -84,6 +88,9 @@ public class SLDTestCase extends MaplyTestCase {
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
         CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
         mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
+        Point2d loc = Point2d.FromDegrees(-5.93, 54.597);
+        globeVC.animatePositionGeo(loc.getX(), loc.getY(), 0.001, 1.0);
+
         testSLD();
         return true;
     }
