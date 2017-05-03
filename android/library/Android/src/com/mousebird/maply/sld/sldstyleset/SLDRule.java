@@ -72,6 +72,15 @@ public class SLDRule {
                 String value = SLDParseHelper.nodeTextValue(xpp);
                 if (SLDParseHelper.isStringNumeric(value))
                     symbolizerParams.setMaxScaleDenominator(Double.valueOf(value));
+            } else if (xpp.getName().equals("VendorOption")) {
+                String optionName = xpp.getAttributeValue(null, "name");
+                if (optionName != null && optionName.equals("relativeDrawPriority")) {
+                    String sVal = SLDParseHelper.stringForLiteralInNode(xpp);
+                    if (sVal != null && SLDParseHelper.isStringNumeric(sVal))
+                        symbolizerParams.setRelativeDrawPriority(Double.valueOf(sVal).intValue());
+
+                }
+
             } else {
                 SLDSymbolizer symbolizer = SLDSymbolizerFactory.symbolizerForNode(xpp, symbolizerParams);
                 if (symbolizer != null) {
