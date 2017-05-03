@@ -87,16 +87,16 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
         vectorInfo.setEnable(false);
         vectorInfo.setFilled(true);
 
-        if (symbolizerParams.getMinScaleDenominator() != null) {
-            if (symbolizerParams.getMaxScaleDenominator() == null)
-                vectorInfo.setMaxVis(Float.MAX_VALUE);
-            vectorInfo.setMinVis((float) viewC.heightForMapScale(symbolizerParams.getMinScaleDenominator().floatValue()));
-        }
-        if (symbolizerParams.getMaxScaleDenominator() != null) {
-            if (symbolizerParams.getMinScaleDenominator() == null)
-                vectorInfo.setMinVis(0.0f);
-            vectorInfo.setMaxVis((float) viewC.heightForMapScale(symbolizerParams.getMaxScaleDenominator().floatValue()));
-        }
+//        if (symbolizerParams.getMinScaleDenominator() != null) {
+//            if (symbolizerParams.getMaxScaleDenominator() == null)
+//                vectorInfo.setMaxVis(Float.MAX_VALUE);
+//            vectorInfo.setMinVis((float) viewC.heightForMapScale(symbolizerParams.getMinScaleDenominator().floatValue()));
+//        }
+//        if (symbolizerParams.getMaxScaleDenominator() != null) {
+//            if (symbolizerParams.getMinScaleDenominator() == null)
+//                vectorInfo.setMinVis(0.0f);
+//            vectorInfo.setMaxVis((float) viewC.heightForMapScale(symbolizerParams.getMaxScaleDenominator().floatValue()));
+//        }
 
         Integer fillColor = null;
         Float fillOpacity = null;
@@ -166,9 +166,10 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
         }
 
         if (fillColor != null) {
-            int color = fillColor.intValue();
-            if (fillOpacity != null)
-                color = Color.argb(Math.round(fillOpacity.floatValue()*255.f), Color.red(color), Color.green(color), Color.blue(color));
+            int color = Color.argb(128, 255, 0, 0);
+//            int color = fillColor.intValue();
+//            if (fillOpacity != null)
+//                color = Color.argb(Math.round(fillOpacity.floatValue()*255.f), Color.red(color), Color.green(color), Color.blue(color));
 
             vectorInfo.setColor(color);
         }

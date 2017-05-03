@@ -47,8 +47,8 @@ public class SLDTestCase extends MaplyTestCase {
 
         try {
 
-            SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "osm_roads.sld", activity.getResources().getDisplayMetrics(), false, 0);
-            //SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "osm_landuse.sld", activity.getResources().getDisplayMetrics(), false, 0);
+            //SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "osm_roads.sld", activity.getResources().getDisplayMetrics(), false, 0);
+            SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "osm_landuse.sld", activity.getResources().getDisplayMetrics(), false, 0);
             //SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "amenities.sld", activity.getResources().getDisplayMetrics(), false, 0);
 
             styleSet.loadSldInputStream();
@@ -56,8 +56,8 @@ public class SLDTestCase extends MaplyTestCase {
 
             GeoJSONSource gjs = new GeoJSONSource();
             gjs.setBaseController(controller);
-            gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_roads.geojson"));
-            //gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_landusages.geojson"));
+            //gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_roads.geojson"));
+            gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_landusages.geojson"));
             //gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_amenities.geojson"));
             gjs.setStyleSet(styleSet);
             gjs.setRelativeDrawPriority(0);
@@ -75,8 +75,8 @@ public class SLDTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
-        mapBoxSatelliteTestCase.setUpWithMap(mapVC);
+//        CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
+//        mapBoxSatelliteTestCase.setUpWithMap(mapVC);
         Point2d loc = Point2d.FromDegrees(-5.93, 54.597);
         mapVC.setPositionGeo(loc.getX(), loc.getY(), 0.001);
 
@@ -86,8 +86,8 @@ public class SLDTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
-        mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
+//        CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
+//        mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
         Point2d loc = Point2d.FromDegrees(-5.93, 54.597);
         globeVC.animatePositionGeo(loc.getX(), loc.getY(), 0.001, 1.0);
 
