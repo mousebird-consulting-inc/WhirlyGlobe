@@ -83,7 +83,7 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
         VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
 
         VectorInfo vectorInfo = new VectorInfo();
-        vectorInfo.disposeAfterUse = true;
+//        vectorInfo.disposeAfterUse = true;
         vectorInfo.setEnable(false);
         vectorInfo.setFilled(true);
 
