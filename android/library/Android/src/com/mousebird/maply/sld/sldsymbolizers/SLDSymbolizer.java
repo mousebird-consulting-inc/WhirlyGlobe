@@ -203,8 +203,8 @@ public abstract class SLDSymbolizer {
                 String size = SLDParseHelper.stringForLiteralInNode(xpp);
                 if (size != null && SLDParseHelper.isStringNumeric(size)) {
                     double d = Double.valueOf(size).doubleValue();
-                    graphicParams.setWidth((int)d);
-                    graphicParams.setHeight((int)d);
+                    graphicParams.setWidth(Integer.valueOf((int)d));
+                    graphicParams.setHeight(Integer.valueOf((int)d));
                 }
 
             }

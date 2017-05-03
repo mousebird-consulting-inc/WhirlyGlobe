@@ -5,25 +5,25 @@ import android.graphics.Color;
 
 public class SLDGraphicParams {
 
-    int width;
-    int height;
+    Integer width;
+    Integer height;
     Bitmap bitmap;
     Integer fillColor;
     Integer strokeColor;
 
-    public int getWidth() {
+    public Integer getWidth() {
         return width;
     }
 
-    public void setWidth(int width) {
+    public void setWidth(Integer width) {
         this.width = width;
     }
 
-    public int getHeight() {
+    public Integer getHeight() {
         return height;
     }
 
-    public void setHeight(int height) {
+    public void setHeight(Integer height) {
         this.height = height;
     }
 

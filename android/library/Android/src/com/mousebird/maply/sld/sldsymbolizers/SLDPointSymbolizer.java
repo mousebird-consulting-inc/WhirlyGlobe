@@ -70,13 +70,9 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
             Log.i("SLDPointSymbolizer", xpp.getName());
             if (xpp.getName().equals("Graphic")) {
                 SLDGraphicParams graphicParams = SLDSymbolizer.graphicParamsForGraphicNode(xpp, symbolizerParams);
-                if (graphicParams != null) {
+                if (graphicParams != null)
                     bitmap = graphicParams.getBitmap();
-                    // TODO: how to use textures with filled vectors in Android?
-//                    if (bmp != null) {
-//                        texture = viewC.addTexture(graphicParams.getBitmap(), new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
-//                    }
-                }
+
             } else {
                 SLDParseHelper.skip(xpp);
             }

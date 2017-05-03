@@ -40,6 +40,7 @@ import java.io.IOException;
 public class SLDTextSymbolizer extends SLDSymbolizer {
 
     private VectorTileTextStyle vectorTileTextStyle;
+    private VectorTileTextStyle.Placement placement = VectorTileTextStyle.Placement.Point;
 
     public SLDTextSymbolizer(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
 
@@ -49,6 +50,7 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
         LabelInfo labelInfo = new LabelInfo();
         Point2d offset = new Point2d(0.0, 0.0);
         String textField = null;
+
 
         if (symbolizerParams.getMinScaleDenominator() != null) {
             if (symbolizerParams.getMaxScaleDenominator() == null)
@@ -98,7 +100,7 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
         if (offset.getX() == 0.0 && offset.getY() == 0.0)
             offset = null;
 
-        vectorTileTextStyle = new VectorTileTextStyle(labelInfo, offset, textField, vectorStyleSettings, viewC);
+        vectorTileTextStyle = new VectorTileTextStyle(labelInfo, placement, offset, textField, vectorStyleSettings, viewC);
     }
 
     private String getLabel(XmlPullParser xpp) throws XmlPullParserException, IOException {
@@ -282,7 +284,8 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
                 }
 
                 offset.setValue(offset.getX(), dy);
-
+                labelInfo.setLayoutPlacement(LabelInfo.LayoutCenter);
+                this.placement = VectorTileTextStyle.Placement.Line;
             } else {
                 SLDParseHelper.skip(xpp);
             }

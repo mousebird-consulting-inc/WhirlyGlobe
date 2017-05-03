@@ -70,11 +70,16 @@ public class SLDSymbolizerParams {
     }
 
 
+
     // Increments once per Symbolizer
     private int relativeDrawPriority;
 
     public int getRelativeDrawPriority() {
         return relativeDrawPriority;
+    }
+
+    public void setRelativeDrawPriority(int relativeDrawPriority) {
+        this.relativeDrawPriority = relativeDrawPriority;
     }
 
     public void incrementRelativeDrawPriority() {

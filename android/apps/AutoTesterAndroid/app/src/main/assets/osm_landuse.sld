@@ -15,6 +15,7 @@
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
     	  <MaxScaleDenominator>120000</MaxScaleDenominator>
+    	  <MinScaleDenominator>5000</MinScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
               <CssParameter name="fill">#6b942e</CssParameter>
@@ -59,6 +60,7 @@
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
     	  <MaxScaleDenominator>120000</MaxScaleDenominator>
+    	  <MinScaleDenominator>5000</MinScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
               <CssParameter name="fill">#ffc965</CssParameter>
@@ -145,6 +147,7 @@
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
     	  <MaxScaleDenominator>120000</MaxScaleDenominator>
+    	  <MinScaleDenominator>5000</MinScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
               <CssParameter name="fill">#c0a3cb</CssParameter>
@@ -219,6 +222,7 @@
             </ogc:PropertyIsEqualTo>
           </ogc:Filter>
     	  <MaxScaleDenominator>40000</MaxScaleDenominator>
+    	  <MinScaleDenominator>5000</MinScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
               <CssParameter name="fill">#c2debd</CssParameter>
@@ -269,6 +273,7 @@
             </ogc:Or>
           </ogc:Filter>
     	  <MaxScaleDenominator>120000</MaxScaleDenominator>
+    	  <MinScaleDenominator>5000</MinScaleDenominator>
           <PolygonSymbolizer>
             <Fill>
               <CssParameter name="fill">#c4909c</CssParameter>

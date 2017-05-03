@@ -34,10 +34,15 @@ public class VectorTileTextStyle extends VectorTileStyle {
     private String textField;
     private Point2d offset;
 
-    public VectorTileTextStyle(LabelInfo labelInfo, Point2d offset, String textField, VectorStyleSettings settings, MaplyBaseController viewC) {
+    public enum Placement {Point, Line};
+
+    private Placement placement = Placement.Point;
+
+    public VectorTileTextStyle(LabelInfo labelInfo, Placement placement, Point2d offset, String textField, VectorStyleSettings settings, MaplyBaseController viewC) {
         super(viewC);
 
         this.labelInfo = labelInfo;
+        this.placement = placement;
         this.textField = textField;
         this.offset = offset;
     }
@@ -48,13 +53,28 @@ public class VectorTileTextStyle extends VectorTileStyle {
 
         for (VectorObject vector : objects) {
 
-            Point2d centroid = vector.centroid();
-            if (centroid != null) {
-                ScreenLabel screenLabel = new ScreenLabel();
-                screenLabel.loc = centroid;
+            ScreenLabel screenLabel = new ScreenLabel();
+            if (placement == Placement.Point) {
+                Point2d centroid = vector.centroid();
+                if (centroid != null)
+                    screenLabel.loc = centroid;
+                else
+                    screenLabel = null;
+            } else if (placement == Placement.Line) {
+                Point2d middle = new Point2d();
+                double rot = vector.linearMiddle(middle);
+                screenLabel.loc = middle;
+                rot = -1.0 * rot + Math.PI/2.0;
+                if (rot > Math.PI/2.0 || rot < -Math.PI/2.0)
+                    rot += Math.PI;
+                screenLabel.rotation = rot;
+
+            }
+            if (screenLabel != null) {
                 screenLabel.offset = offset;
                 screenLabel.selectable = true;
                 screenLabel.text = formatText(textField, vector.getAttributes());
+                screenLabel.layoutImportance = 1.0f + labelInfo.fontSize / 1000.0f;
                 labels.add(screenLabel);
             }
         }
