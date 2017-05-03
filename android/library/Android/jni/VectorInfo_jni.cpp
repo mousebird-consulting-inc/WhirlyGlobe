@@ -19,6 +19,7 @@
  */
 
 #import <jni.h>
+#import <string>
 #import "Maply_jni.h"
 #import "com_mousebird_maply_VectorInfo.h"
 #import "WhirlyGlobe.h"
@@ -242,6 +243,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTexScale
     }
 }
 
+
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureProjectionNative
 (JNIEnv *env, jobject obj, jint texProj)
 {
@@ -257,4 +260,25 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureProjectionN
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setTextureProjectionNative()");
     }
+}
+
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorInfo_toString
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+        VectorInfo *vecInfo = classInfo->getObject(env,obj);
+        if (!vecInfo)
+            return NULL;
+        
+        std::string outStr = vecInfo->toString();
+        return env->NewStringUTF(outStr.c_str());
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::toString()");
+    }
+    
+    return NULL;
 }
