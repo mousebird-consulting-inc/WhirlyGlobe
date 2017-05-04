@@ -178,7 +178,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			valid = false;
 			cancelEvalStep();
 
-			pagingDelegate.clear();
+			PagingInterface ourPagingDelegate = pagingDelegate;
+			if (ourPagingDelegate != null)
+				ourPagingDelegate.clear();
 
 			// Remove the contents of all the tiles
 			// Note: This is being done on the current thread.  Do we want that?
