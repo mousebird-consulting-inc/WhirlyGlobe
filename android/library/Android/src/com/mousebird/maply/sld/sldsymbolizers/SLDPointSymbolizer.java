@@ -35,6 +35,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  *
@@ -76,15 +77,25 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
             Log.i("SLDPointSymbolizer", xpp.getName());
             if (xpp.getName().equals("Graphic")) {
                 SLDGraphicParams graphicParams = SLDSymbolizer.graphicParamsForGraphicNode(xpp, symbolizerParams);
-                if (graphicParams != null)
+                if (graphicParams != null) {
                     bitmap = graphicParams.getBitmap();
+
+                    Number width = graphicParams.getWidth();
+                    Number height = graphicParams.getHeight();
+                    HashMap<String, Object> crossSymParams = symbolizerParams.getCrossSymbolizerParams();
+                    if (width != null && height != null && crossSymParams != null) {
+                        crossSymParams.put("width", width);
+                        crossSymParams.put("height", height);
+
+                    }
+                }
 
             } else {
                 SLDParseHelper.skip(xpp);
             }
         }
 
-        markerInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MarkerInfo.ScreenMarkerPriorityDefault);
+        markerInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.MarkerDrawPriorityDefault);
         vectorTileMarkerStyle = new VectorTileMarkerStyle(markerInfo, bitmap, vectorStyleSettings, viewC);
     }
 
