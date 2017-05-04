@@ -160,8 +160,6 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         else
             layoutEngine = false;
         
-        WHIRLYKIT_LOGV("layoutEngine = %s", (layoutEngine ? "yes" : "no"));
-
         ScreenSpaceObject *screenShape = NULL;
         ScreenSpaceObject *backScreenShape = NULL;
         LayoutObject *layoutObject = NULL;
