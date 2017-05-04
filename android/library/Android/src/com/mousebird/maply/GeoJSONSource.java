@@ -18,6 +18,11 @@ import android.util.Log;
 /**
  * The GeoJSONSource will load vector features from a GeoJSON document, style them with an
  * SLD document, and add them to the globe or map.
+ *
+ * To use GeoJSONSource first construct one, then set the styleSet, the jsonStream, and the
+ * baseController, and finally call startParse() to parse the JSON features, apply the styles,
+ * and add them to the globe or map.
+ *
  */
 public class GeoJSONSource {
 
@@ -79,7 +84,26 @@ public class GeoJSONSource {
     }
 
     /**
-     * Start parsing the GeoJSON.
+     *
+     * Start parsing the GeoJSON.  This will load the features, apply the styles, and add the
+     * styled features to the globe or map.
+     *
+     */
+    public void startParse() {
+        startParse(new Runnable() {
+            @Override
+            public void run() {
+            }
+        });
+    }
+
+    /**
+     * Start parsing the GeoJSON.  Call this method if you have a custom Runnable that should
+     * be executed after completion.
+     *
+     * This will load the features, apply the styles, and add the styled features to the
+     * globe or map.
+     *
      * @param completionBlock Block to execute after completion.
      */
     public void startParse(final Runnable completionBlock) {
@@ -139,119 +163,7 @@ public class GeoJSONSource {
         }
     }
 
-
-//    public void startParse(final Runnable completionBlock) {
-//        ParseTask parseTask = new ParseTask(jsonStream, styleSet, baseController);
-//
-//        class MyRunnable implements Runnable {
-//            ParseTask parseTask;
-//            public void setParseTask(ParseTask parseTask) {
-//                this.parseTask = parseTask;
-//            }
-//
-//            @Override
-//            public void run() {
-//                loaded = true;
-//                enabled = true;
-//                componentObjects = this.parseTask.getComponentObjects();
-//                this.parseTask = null;
-//                completionBlock.run();
-//            }
-//        }
-//        MyRunnable runnable = new MyRunnable();
-//        runnable.setParseTask(parseTask);
-//        parseTask.setPostRun(runnable);
-//        parseTask.execute(Integer.valueOf(0));
-//    }
-
-    public void startParse() {
-        startParse(new Runnable() {
-            @Override
-            public void run() {
-            }
-        });
-    }
-
     native VectorObject[] parseData(String json);
-
-    private class ParseTask extends AsyncTask<Integer, Void, Integer>
-    {
-        InputStream jsonStream;
-        SLDStyleSet styleSet;
-        MaplyBaseController baseController;
-        Runnable postRun;
-        VectorObject[] vecs;
-        HashMap<String, ArrayList<VectorObject>> featureStyles = new HashMap<String, ArrayList<VectorObject>>();
-        ArrayList<ComponentObject> componentObjects = new ArrayList<ComponentObject>();
-
-        public ArrayList<ComponentObject> getComponentObjects() {
-            return componentObjects;
-        }
-
-        public void setPostRun(Runnable postRun) {
-            this.postRun = postRun;
-        }
-
-        ParseTask(InputStream jsonStream, SLDStyleSet styleSet, MaplyBaseController baseController)
-        {
-            this.jsonStream = jsonStream;
-            this.styleSet = styleSet;
-            this.baseController = baseController;
-            vecs = null;
-        }
-
-        @Override
-        protected Integer doInBackground(Integer... args)
-        {
-            try {
-                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                int nRead;
-                byte[] data = new byte[16384];
-
-                while ((nRead = jsonStream.read(data, 0, data.length)) != -1) {
-                    buffer.write(data, 0, nRead);
-                }
-                buffer.flush();
-
-                vecs = parseData(buffer.toString());
-
-                if (vecs != null) {
-                    MaplyTileID nullTileID = new MaplyTileID(0,0,0);
-                    for (VectorObject vecObj : vecs) {
-                        VectorStyle[] styles = styleSet.stylesForFeature(vecObj.getAttributes(), nullTileID, "", baseController);
-                        if (styles == null || styles.length == 0)
-                            continue;;
-                        for (VectorStyle style : styles) {
-                            ArrayList<VectorObject> featuresForStyle = featureStyles.get(style.getUuid());
-                            if (featuresForStyle == null) {
-                                featuresForStyle = new ArrayList<VectorObject>();
-                                featureStyles.put(style.getUuid(), featuresForStyle);
-                            }
-                            featuresForStyle.add(vecObj);
-                        }
-                    }
-                }
-            } catch (Exception exception) {
-                Log.e("ParseTask", "exception", exception);
-            }
-            return Integer.valueOf(0);
-        }
-
-        @Override
-        protected void onPostExecute(Integer result) {
-            if (vecs != null) {
-                MaplyTileID nullTileID = new MaplyTileID(0, 0, 0);
-                for (String uuid : featureStyles.keySet()) {
-                    VectorStyle style = styleSet.styleForUUID(uuid, baseController);
-                    ArrayList<VectorObject> featuresForStyle = featureStyles.get(uuid);
-                    //List<VectorObject> objects, MaplyTileID tileID, MaplyBaseController controller)
-                    componentObjects.addAll(Arrays.asList(style.buildObjects(featuresForStyle, nullTileID, baseController)));
-                }
-            }
-            baseController.enableObjects(componentObjects, MaplyBaseController.ThreadMode.ThreadAny);
-            postRun.run();
-        }
-    }
 
     public void finalize()
     {
