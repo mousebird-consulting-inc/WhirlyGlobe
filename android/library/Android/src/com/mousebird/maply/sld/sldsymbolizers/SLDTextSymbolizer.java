@@ -36,6 +36,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  *
@@ -47,6 +48,11 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
 
     private VectorTileTextStyle vectorTileTextStyle;
     private VectorTileTextStyle.Placement placement = VectorTileTextStyle.Placement.Point;
+
+    Number markerXScale = null;
+    Number markerXOffset = null;
+    Number markerYScale = null;
+    Number markerYOffset = null;
 
     public SLDTextSymbolizer(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
 
@@ -96,16 +102,19 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
 
             } else if (xpp.getName().equals("VendorOption")) {
 
-                getVendorOptions(xpp);
+                getVendorOption(xpp);
 
             } else {
                 SLDParseHelper.skip(xpp);
             }
         }
 
+        processVendorOptions(symbolizerParams, offset);
+
+        Log.i("SLDTextSymbolizer", "offset " + offset.getX() + " , " + offset.getY());
         if (offset.getX() == 0.0 && offset.getY() == 0.0)
             offset = null;
-        
+
         labelInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.LabelDrawPriorityDefault);
         vectorTileTextStyle = new VectorTileTextStyle(labelInfo, placement, offset, textField, vectorStyleSettings, viewC);
     }
@@ -237,17 +246,27 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
                                 SLDParseHelper.skip(xpp);
                         }
 
-                        if (ax <= 0.33f)
+                        if (ax <= 0.33f) {
                             labelInfo.setLayoutPlacement(LabelInfo.LayoutLeft);
-                        else if (ax > 0.67)
+                            Log.i("SLDTextSymbolizer", "labelInfo.setLayoutPlacement(LabelInfo.LayoutLeft);");
+                        }
+                        else if (ax > 0.67) {
                             labelInfo.setLayoutPlacement(LabelInfo.LayoutRight);
+                            Log.i("SLDTextSymbolizer", "labelInfo.setLayoutPlacement(LabelInfo.LayoutRight);");
+                        }
                         else {
-                            if (ay <= 0.33f)
+                            if (ay <= 0.33f) {
                                 labelInfo.setLayoutPlacement(LabelInfo.LayoutBelow);
-                            else if (ay > 0.67f)
+                                Log.i("SLDTextSymbolizer", "labelInfo.setLayoutPlacement(LabelInfo.LayoutBelow);");
+                            }
+                            else if (ay > 0.67f) {
                                 labelInfo.setLayoutPlacement(LabelInfo.LayoutAbove);
-                            else
+                                Log.i("SLDTextSymbolizer", "labelInfo.setLayoutPlacement(LabelInfo.LayoutAbove);");
+                            }
+                            else {
                                 labelInfo.setLayoutPlacement(LabelInfo.LayoutCenter);
+                                Log.i("SLDTextSymbolizer", "labelInfo.setLayoutPlacement(LabelInfo.LayoutCenter);");
+                            }
                         }
 
                     } else if (xpp.getName().equals("Displacement")) {
@@ -395,11 +414,43 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
 
     }
 
-    private void getVendorOptions(XmlPullParser xpp) throws XmlPullParserException, IOException {
-        //TODO: implement this
-        SLDParseHelper.skip(xpp);
+    private void getVendorOption(XmlPullParser xpp) throws XmlPullParserException, IOException {
+        String optionName = xpp.getAttributeValue(null, "name");
+        if (optionName != null) {
+            String sVal = SLDParseHelper.stringForLiteralInNode(xpp);
+            if (sVal != null && SLDParseHelper.isStringNumeric(sVal)) {
+                Double d = Double.valueOf(sVal);
+                if (optionName.equals("markerXScale"))
+                    markerXScale = d;
+                else if (optionName.equals("markerXOffset"))
+                    markerXOffset = d;
+                else if (optionName.equals("markerYScale"))
+                    markerYScale = d;
+                else if (optionName.equals("markerYOffset"))
+                    markerYOffset = d;
+            }
+        }
     }
 
+    private void processVendorOptions(SLDSymbolizerParams symbolizerParams, Point2d offset) {
+        if (markerXScale == null || markerXOffset == null || markerYScale == null || markerYOffset == null)
+            return;
+
+        HashMap<String, Object> crossSymParams = symbolizerParams.getCrossSymbolizerParams();
+        if (crossSymParams == null)
+            return;
+        Number width = (Number)crossSymParams.get("width");
+        Number height = (Number)crossSymParams.get("height");
+        if (width == null || height == null)
+            return;
+
+        int dx = (int)(markerXScale.floatValue() * width.floatValue() + markerXOffset.floatValue() );
+        int dy = (int)(markerYScale.floatValue() * height.floatValue() + markerYOffset.floatValue() );
+        placement = VectorTileTextStyle.Placement.Point;
+        offset.setValue(dx, dy);
+
+
+    }
 
     public VectorTileStyle[] getStyles() {
         if (vectorTileTextStyle != null)
