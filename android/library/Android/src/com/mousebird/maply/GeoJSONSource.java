@@ -26,7 +26,6 @@ public class GeoJSONSource {
     private SLDStyleSet styleSet;
     private InputStream jsonStream;
     private MaplyBaseController baseController;
-    private int relativeDrawPriority;
     ArrayList<ComponentObject> componentObjects = new ArrayList<ComponentObject>();
 
     public boolean isLoaded() {
@@ -69,10 +68,6 @@ public class GeoJSONSource {
      */
     public void setBaseController(MaplyBaseController baseController) {
         this.baseController = baseController;
-    }
-
-    public void setRelativeDrawPriority(int relativeDrawPriority) {
-        this.relativeDrawPriority = relativeDrawPriority;
     }
 
     public GeoJSONSource() {

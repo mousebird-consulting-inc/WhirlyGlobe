@@ -1,5 +1,6 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
+import com.mousebird.maply.LayerThread;
 import com.mousebird.maply.Point2d;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -46,22 +47,38 @@ public class SLDTestCase extends MaplyTestCase {
     private void testSLD() {
 
         try {
+            LayerThread layerThread = controller.getWorkingThread();
 
-            //SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "osm_roads.sld", activity.getResources().getDisplayMetrics(), false, 0);
-            SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "osm_landuse.sld", activity.getResources().getDisplayMetrics(), false, 0);
-            //SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), "amenities.sld", activity.getResources().getDisplayMetrics(), false, 0);
+            class AddGeoJSONRunnable implements Runnable {
+                GeoJSONSource geoJSONSource;
+                public void setGeoJSONSource(GeoJSONSource geoJSONSource) {
+                    this.geoJSONSource = geoJSONSource;
+                }
+                @Override
+                public void run() {
+                    geoJSONSource.startParse();
+                }
+            }
 
-            styleSet.loadSldInputStream();
+//            String[] slds = new String[]{"osm_landuse.sld", "osm_roads.sld", "amenities.sld"};
+//            String[] geojsons = new String[]{"belfast_ireland_landusages.geojson", "belfast_ireland_roads.geojson", "belfast_ireland_amenities.geojson"};
+            String[] slds = new String[]{"amenities.sld"};
+            String[] geojsons = new String[]{"belfast_ireland_amenities.geojson"};
 
+            for (int i=0; i<slds.length; i++) {
 
-            GeoJSONSource gjs = new GeoJSONSource();
-            gjs.setBaseController(controller);
-            //gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_roads.geojson"));
-            gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_landusages.geojson"));
-            //gjs.setJsonStream(getActivity().getAssets().open("belfast_ireland_amenities.geojson"));
-            gjs.setStyleSet(styleSet);
-            gjs.setRelativeDrawPriority(0);
-            gjs.startParse();
+                SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), slds[i], activity.getResources().getDisplayMetrics(), false, i*100000);
+                styleSet.loadSldInputStream();
+
+                GeoJSONSource gjs = new GeoJSONSource();
+                gjs.setBaseController(controller);
+                gjs.setJsonStream(getActivity().getAssets().open(geojsons[i]));
+                gjs.setStyleSet(styleSet);
+
+                AddGeoJSONRunnable addGeoJSONRunnable = new AddGeoJSONRunnable();
+                addGeoJSONRunnable.setGeoJSONSource(gjs);
+                layerThread.addTask(addGeoJSONRunnable);
+            }
 
         } catch (XmlPullParserException xppException) {
             Log.e("AutoTesterAndroid", "SLDStyleSet XPP exception", xppException);

@@ -182,7 +182,7 @@ public abstract class SLDSymbolizer {
             wideVectorInfo.setTextureRepeatLength(repeatLength);
         }
 
-        baseInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + VectorInfo.VectorPriorityDefault);
+        baseInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.FeatureDrawPriorityBase);
         VectorTileLineStyle vectorTileLineStyle = new VectorTileLineStyle(baseInfo, vectorStyleSettings, viewC);
         return vectorTileLineStyle;
 
