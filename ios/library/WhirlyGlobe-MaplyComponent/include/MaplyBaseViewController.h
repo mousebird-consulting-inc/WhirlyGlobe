@@ -239,6 +239,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  |kMaplyLabelHeight|NSNumber|Height of the text in points.|
  |kMaplyLabelWidth|NSNumber|Width of the text in points.  It's best to set Height and leave this out.  That way the width will be calculated by the toolkit.|
  |kMaplyJustify|NSString|This can be set to @"middle", @"left", or @"right" to justify the text around the location.|
+ |kMaplyTextJustify|NSString|This can be kMaplyTextJustifyRight, kMaplyTextJustifyCenter, or kMaplyTextJustifyLeft|
  |kMaplyShadowSize|NSNumber|If set, we'll draw a shadow with the kMaplyShadowColor offset by this amount.  We recommend using an outline instead.|
  |kMaplyShadowColor|UIColor|If we're drawing a shadow, this is its color.|
  |kMaplyTextOutlineSize|NSNumber|If set, we'll draw an outline around the text (really draw it twice).  The outline will be this large.|
@@ -278,7 +279,6 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
  |kMaplyLabelHeight|NSNumber|Height of the text in display coordinates.  For the globe these are based on radius = 1.0.|
  |kMaplyLabelWidth|NSNumber|Width of the text in display coordinates.  It's best to set Height and leave this out.  That way the width will be calculated by the toolkit.|
  |kMaplyJustify|NSString|This can be set to @"middle", @"left", or @"right" to justify the text around the location.|
- |kMaplyTextJustify|NSString|This can be kMaplyTextJustifyRight, kMaplyTextJustifyCenter, or kMaplyTextJustifyLeft|
  |kMaplyShadowSize|NSNumber|If set, we'll draw a shadow with the kMaplyShadowColor offset by this amount.  We recommend using an outline instead.|
  |kMaplyShadowColor|UIColor|If we're drawing a shadow, this is its color.|
  |kMaplyMinVis|NSNumber|This is viewer height above the globe or map.  The label will only be visible if the user is above this height.  Off by default.|
