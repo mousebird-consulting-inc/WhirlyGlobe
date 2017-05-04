@@ -56,7 +56,6 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDPolygonSymbolizer", xpp.getName());
             if (xpp.getName().equals("Stroke")) {
                 vectorTileLineStyle = SLDSymbolizer.vectorTileLineStyleFromStrokeNode(xpp, symbolizerParams);
             } else if (xpp.getName().equals("Fill")) {
@@ -89,7 +88,6 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
         VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
 
         VectorInfo vectorInfo = new VectorInfo();
-//        vectorInfo.disposeAfterUse = true;
         vectorInfo.setEnable(false);
         vectorInfo.setFilled(true);
 

@@ -46,18 +46,7 @@ public class SLDPropertyNameExpression extends SLDExpression {
             if (xpp.getEventType() != XmlPullParser.TEXT) {
                 continue;
             }
-            Log.i("SLDPropertyNameExpr", xpp.getText());
             propertyName = xpp.getText();
-
-
-//            if (xpp.getEventType() != XmlPullParser.START_TAG) {
-//                continue;
-//            }
-//            Log.i("SLDPropertyNameExpr", xpp.getName());
-//            if (false) {
-//            } else {
-//                SLDParseHelper.skip(xpp);
-//            }
         }
     }
 

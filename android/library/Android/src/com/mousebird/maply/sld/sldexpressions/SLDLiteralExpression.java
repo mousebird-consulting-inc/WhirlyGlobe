@@ -45,7 +45,6 @@ public class SLDLiteralExpression extends SLDExpression {
             if (xpp.getEventType() != XmlPullParser.TEXT) {
                 continue;
             }
-            Log.i("SLDLiteralExpr", xpp.getText());
             literal = xpp.getText();
         }
 
