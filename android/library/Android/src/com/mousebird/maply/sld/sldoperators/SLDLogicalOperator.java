@@ -61,7 +61,6 @@ public class SLDLogicalOperator extends SLDOperator {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDLogicalOperator", xpp.getName());
             SLDOperator operator = SLDOperatorFactory.operatorForNode(xpp);
             if (operator != null) {
                 this.subOperators.add(operator);

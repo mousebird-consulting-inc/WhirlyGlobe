@@ -54,9 +54,7 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
 
         Bitmap bitmap = null;
         MarkerInfo markerInfo = new MarkerInfo();
-//        markerInfo.disposeAfterUse = true;
         markerInfo.setEnable(false);
-        markerInfo.setClusterGroup(0);
         markerInfo.setLayoutImportance(1.f);
 
         if (symbolizerParams.getMinScaleDenominator() != null) {
@@ -74,7 +72,6 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDPointSymbolizer", xpp.getName());
             if (xpp.getName().equals("Graphic")) {
                 SLDGraphicParams graphicParams = SLDSymbolizer.graphicParamsForGraphicNode(xpp, symbolizerParams);
                 if (graphicParams != null) {

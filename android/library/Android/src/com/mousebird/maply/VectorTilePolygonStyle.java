@@ -51,7 +51,6 @@ public class VectorTilePolygonStyle extends VectorTileStyle {
 
             VectorObject tessObj = null;
             Point2d center = vecObj.centroid();
-            Log.i("VectorTilePolygonStyle", "vecObj null? " + (vecObj == null) + " ; center null? " + (center == null));
 
             if (globeMode && center != null)
             {
