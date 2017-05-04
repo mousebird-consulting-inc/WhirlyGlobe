@@ -150,14 +150,14 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
                                 MaplyTexture tex = viewC.addTexture(graphicParams.getBitmap(), texSettings, MaplyBaseController.ThreadMode.ThreadCurrent);
                                 vectorInfo.setTexture(tex);
 
-                                float scaleX = 20000.0f;
-                                float scaleY = -20000.0f;
+                                float scaleX = 50000.0f;
+                                float scaleY = -100000.0f;
                                 Integer width = graphicParams.getWidth();
                                 Integer height = graphicParams.getHeight();
                                 if (width != null && width.floatValue() != 0.0f)
-                                    scaleX = 20000.0f / width.floatValue();
+                                    scaleX = 50000.0f / width.floatValue();
                                 if (height != null && height.floatValue() != 0.0f)
-                                    scaleY = -20000.0f / height.floatValue();
+                                    scaleY = -100000.0f / height.floatValue();
 
                                 vectorInfo.setTexScale(scaleX, scaleY);
                                 vectorInfo.setTextureProjection(VectorInfo.TextureProjection.TangentPlane);
