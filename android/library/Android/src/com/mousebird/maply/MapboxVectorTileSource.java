@@ -121,7 +121,12 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
             Mbr mbr = layer.geoBoundsForTile(tileID);
             mbr.ll = toMerc(mbr.ll);
             mbr.ur = toMerc(mbr.ur);
-            MapboxVectorTileParser.DataReturn dataObjs = tileParser.parseData(tileData, mbr);
+
+            MapboxVectorTileParser ourTileParser = tileParser;
+            if (ourTileParser == null)
+                return false;
+
+            MapboxVectorTileParser.DataReturn dataObjs = ourTileParser.parseData(tileData, mbr);
 
             if (dataObjs == null)
                 return false;
