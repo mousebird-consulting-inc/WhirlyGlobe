@@ -52,7 +52,6 @@ public class SLDUserStyle {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDUserStyle", xpp.getName());
             if (xpp.getName().equals("FeatureTypeStyle")) {
                 featureTypeStyles.add(new SLDFeatureTypeStyle(xpp, symbolizerParams));
             } else {

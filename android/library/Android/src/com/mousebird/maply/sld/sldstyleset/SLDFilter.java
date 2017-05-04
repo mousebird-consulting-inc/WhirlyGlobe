@@ -49,7 +49,6 @@ public class SLDFilter {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDFilter", xpp.getName());
 
             SLDOperator operator = SLDOperatorFactory.operatorForNode(xpp);
             if (operator != null) {
