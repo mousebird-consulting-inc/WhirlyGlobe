@@ -205,6 +205,7 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
                                 labelInfo.setFontSize(size);
                         }
                     }
+                    labelInfo.setLayoutImportance(1.0f + labelInfo.getFontSize() / 1000.0f);
                 }
 
             } else {
@@ -216,6 +217,7 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
     }
 
     private void getLabelPlacementParams(XmlPullParser xpp, LabelInfo labelInfo, Point2d offset) throws XmlPullParserException, IOException {
+        labelInfo.setLayoutImportance(1.0f + labelInfo.getFontSize() / 1000.0f);
         while (xpp.next() != XmlPullParser.END_TAG) {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
