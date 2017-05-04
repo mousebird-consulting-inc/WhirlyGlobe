@@ -63,7 +63,6 @@ public class SLDBinaryOperatorExpression extends SLDExpression {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDBinaryOperatorExpr", xpp.getName());
 
             SLDExpression expression = SLDExpressionFactory.expressionForNode(xpp);
             if (expression != null) {

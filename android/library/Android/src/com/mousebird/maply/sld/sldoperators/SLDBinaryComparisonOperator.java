@@ -79,7 +79,6 @@ public class SLDBinaryComparisonOperator extends SLDOperator {
                 continue;
             }
 
-            Log.i("SLDBinaryComparisonOper", xpp.getName());
             SLDExpression expression = SLDExpressionFactory.expressionForNode(xpp);
             if (expression != null) {
                 expressions.add(expression);
