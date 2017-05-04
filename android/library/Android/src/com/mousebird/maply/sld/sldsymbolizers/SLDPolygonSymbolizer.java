@@ -179,7 +179,7 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
             vectorInfo.setColor(color);
         }
 
-        vectorInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + VectorInfo.VectorPriorityDefault);
+        vectorInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.FeatureDrawPriorityBase);
         VectorTilePolygonStyle vectorTilePolygonStyle = new VectorTilePolygonStyle(vectorInfo, vectorStyleSettings, viewC);
         return vectorTilePolygonStyle;
     }
