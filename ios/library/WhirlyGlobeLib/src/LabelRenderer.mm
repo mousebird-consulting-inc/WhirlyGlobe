@@ -302,6 +302,8 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 [attrStr addAttribute:NSForegroundColorAttributeName value:theTextColor range:NSMakeRange(0, strLen)];
             }
             DrawableString *drawStr = [_fontTexManager addString:attrStr changes:_changeRequests];
+            if (!drawStr)
+                continue;
             Mbr thisMbr = drawStr->mbr;
             thisMbr.ll().y() += lineHeight * whichLine;
             thisMbr.ur().y() += lineHeight * whichLine;
