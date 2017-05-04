@@ -27,7 +27,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-
+/**
+ * The VectorTileStyle base class for styling labels.
+ */
 public class VectorTileTextStyle extends VectorTileStyle {
 
     private LabelInfo labelInfo;
@@ -88,6 +90,13 @@ public class VectorTileTextStyle extends VectorTileStyle {
         return null;
     }
 
+    /**
+     *
+     * Parse a mapnik-style template string.
+     * @param formatString The format string.
+     * @param attributes Attributes for substitution.
+     * @return The formatted text.
+     */
     public static String formatText(String formatString, AttrDictionary attributes) {
 
         if (formatString == null)

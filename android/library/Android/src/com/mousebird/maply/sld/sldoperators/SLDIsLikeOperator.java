@@ -38,6 +38,12 @@ import com.mousebird.maply.sld.sldexpressions.SLDExpressionFactory;
 import com.mousebird.maply.sld.sldexpressions.SLDPropertyNameExpression;
 import com.mousebird.maply.sld.sldexpressions.SLDLiteralExpression;
 
+/**
+ *
+ * Class corresponding to the ogc:PropertyIsLike elements
+ * @see http://schemas.opengis.net/filter/1.1.0/filter.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/filter/1.0.0/filter.xsd for SLD v1.0.0
+ */
 public class SLDIsLikeOperator extends SLDOperator {
 
     private String wildCard, singleChar, escapeChar;

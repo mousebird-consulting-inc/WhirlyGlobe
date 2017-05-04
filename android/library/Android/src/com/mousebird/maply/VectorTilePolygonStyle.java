@@ -27,6 +27,9 @@ import java.util.ArrayList;
 
 import android.util.Log;
 
+/**
+ * The VectorTileStyle base class for styling polygon features.
+ */
 public class VectorTilePolygonStyle extends VectorTileStyle {
 
     private VectorInfo vectorInfo;

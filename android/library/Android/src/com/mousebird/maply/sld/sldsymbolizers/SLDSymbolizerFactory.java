@@ -27,6 +27,9 @@ import java.io.IOException;
 import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.MaplyBaseController;
 
+/**
+ * Factory class for constructing SLDSymbolizer-subclassed objects.
+ */
 public class SLDSymbolizerFactory {
 
     public static SLDSymbolizer symbolizerForNode(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {

@@ -40,6 +40,12 @@ import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerParams;
 
 import android.util.Log;
 
+/**
+ *
+ * Class corresponding to the se:Rule element
+ * @see http://schemas.opengis.net/se/1.1.0/FeatureStyle.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
+ */
 public class SLDRule {
 
     private List<SLDFilter> filters = new ArrayList<SLDFilter>();
