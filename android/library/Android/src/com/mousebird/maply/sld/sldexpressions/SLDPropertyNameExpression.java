@@ -31,6 +31,12 @@ import java.io.InputStream;
 
 import android.util.Log;
 
+/**
+ *
+ * Class corresponding to the ogc:PropertyName element
+ * @see http://schemas.opengis.net/filter/1.1.0/expr.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/filter/1.0.0/expr.xsd for SLD v1.0.0
+ */
 public class SLDPropertyNameExpression extends SLDExpression {
 
     private String propertyName;

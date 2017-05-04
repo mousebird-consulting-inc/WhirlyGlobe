@@ -29,6 +29,13 @@ import java.io.InputStream;
 
 import android.util.Log;
 
+/**
+ *
+ * Base class for elements of ogc:comparisonOps or ogc:logicOps.
+ * @details Elements of ogc:spatialOps are not supported.
+ * @see http://schemas.opengis.net/filter/1.1.0/filter.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/filter/1.0.0/filter.xsd for SLD v1.0.0
+ */
 abstract public class SLDOperator
 {
     public abstract boolean evaluateWithAttrs(AttrDictionary attrs);

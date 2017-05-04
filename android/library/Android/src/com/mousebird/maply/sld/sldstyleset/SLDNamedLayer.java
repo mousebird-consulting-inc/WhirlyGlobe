@@ -38,7 +38,12 @@ import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerParams;
 
-
+/**
+ * Class corresponding to the sld:NamedLayer element
+ * @see http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
+ *
+ */
 public class SLDNamedLayer {
 
     private String name;

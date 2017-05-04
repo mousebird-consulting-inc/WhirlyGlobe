@@ -23,6 +23,12 @@ import com.mousebird.maply.AttrDictionary;
 
 import android.util.Log;
 
+/**
+ *
+ * Base class for elements derived from the ogc:expression abstract element.
+ * @see http://schemas.opengis.net/filter/1.1.0/expr.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/filter/1.0.0/expr.xsd for SLD v1.0.0
+ */
 public abstract class SLDExpression {
 
     public abstract Object evaluateWithAttrs(AttrDictionary attrs);

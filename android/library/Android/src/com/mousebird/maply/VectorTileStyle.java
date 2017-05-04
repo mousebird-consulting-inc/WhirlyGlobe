@@ -24,6 +24,12 @@ package com.mousebird.maply;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
+/**
+ *
+ * VectorTileStyle is the base class for full-featured vector geometry styles.
+ * This builds Maply objects for vector data, displaying the vectors on the globe or map.
+ * @see VectorStyle
+ */
 public abstract class VectorTileStyle implements VectorStyle {
 
     protected boolean geomAdditive;
