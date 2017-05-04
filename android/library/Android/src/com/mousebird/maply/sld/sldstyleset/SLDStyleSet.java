@@ -51,9 +51,12 @@ import android.util.Log;
 
 /**
  *
- * Class corresponding to the sld:StyledLayerDescriptor element
- * @details The sld:StyledLayerDescriptor element is the root element of the Styled Layer Descriptor document.
- * @details Implements the VectorStyleInterface interface for matching and applying styles to vector objects.
+ * A Styled Layer Descriptor (SLD) is an XML document that describes the appearance of map layers.
+ * And SLD is made of rules.  Each rule specifies a condition that must be met by a vector feature
+ * for the rule to apply to it, and how to display the vector feature if the rule applies.
+ *
+ * The sld:StyledLayerDescriptor element is the root element of the Styled Layer Descriptor document.
+ * Implements the VectorStyleInterface interface for matching and applying styles to vector objects.
  * @see http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd for SLD v1.1.0
  * @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
  * @see VectorStyleInterface
@@ -72,7 +75,9 @@ public class SLDStyleSet implements VectorStyleInterface {
 
     /**
      *
-     * Constructs a SLDStyleSet object.
+     * Constructs a SLDStyleSet object.  This does not load the data in the SLD file.  Use
+     * loadSldInputStream() for that.
+     *
      * @details After constructing the SLDStyleSet object, call loadSldInputStream() to parse the desired SLD document tree and create the corresponding symbolizers.
      * @param viewC The map or globe view controller
      * @param assetManager The AssetManager instance
@@ -108,6 +113,13 @@ public class SLDStyleSet implements VectorStyleInterface {
         symbolizerParams = new SLDSymbolizerParams(viewC, assetManager, vectorStyleSettings, basePath, relativeDrawPriority);
     }
 
+    /**
+     *
+     * Parses the desired SLD document tree and create the corresponding symbolizers.
+     *
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     public void loadSldInputStream() throws XmlPullParserException, IOException
     {
         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
