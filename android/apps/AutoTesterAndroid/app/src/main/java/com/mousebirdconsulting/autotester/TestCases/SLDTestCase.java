@@ -62,8 +62,8 @@ public class SLDTestCase extends MaplyTestCase {
 
             String[] slds = new String[]{"osm_landuse.sld", "osm_roads.sld", "amenities.sld"};
             String[] geojsons = new String[]{"belfast_ireland_landusages.geojson", "belfast_ireland_roads.geojson", "belfast_ireland_amenities.geojson"};
-//            String[] slds = new String[]{"amenities.sld"};
-//            String[] geojsons = new String[]{"belfast_ireland_amenities.geojson"};
+//            String[] slds = new String[]{"osm_landuse.sld"};
+//            String[] geojsons = new String[]{"belfast_ireland_landusages.geojson"};
 
             for (int i=0; i<slds.length; i++) {
 
