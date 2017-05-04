@@ -37,6 +37,12 @@ import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
 import com.mousebird.maply.sld.sldexpressions.SLDExpression;
 import com.mousebird.maply.sld.sldexpressions.SLDExpressionFactory;
 
+/**
+ *
+ * Class corresponding to the ogc:BinaryComparisonOpType elements
+ * @see http://schemas.opengis.net/filter/1.1.0/filter.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/filter/1.0.0/filter.xsd for SLD v1.0.0
+ */
 public class SLDBinaryComparisonOperator extends SLDOperator {
 
     private enum ComparisonType { EqualTo, NotEqualTo, LessThan, GreaterThan, LessThanOrEqualTo, GreaterThanOrEqualTo };

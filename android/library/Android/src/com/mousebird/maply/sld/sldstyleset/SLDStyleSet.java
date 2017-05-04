@@ -49,6 +49,15 @@ import android.app.Activity;
 
 import android.util.Log;
 
+/**
+ *
+ * Class corresponding to the sld:StyledLayerDescriptor element
+ * @details The sld:StyledLayerDescriptor element is the root element of the Styled Layer Descriptor document.
+ * @details Implements the VectorStyleInterface interface for matching and applying styles to vector objects.
+ * @see http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
+ * @see VectorStyleInterface
+ */
 public class SLDStyleSet implements VectorStyleInterface {
 
     private boolean useLayerNames;
@@ -61,6 +70,19 @@ public class SLDStyleSet implements VectorStyleInterface {
 
     private InputStream inputStream;
 
+    /**
+     *
+     * Constructs a SLDStyleSet object.
+     * @details After constructing the SLDStyleSet object, call loadSldInputStream() to parse the desired SLD document tree and create the corresponding symbolizers.
+     * @param viewC The map or globe view controller
+     * @param assetManager The AssetManager instance
+     * @param sldFileName The file name of the SLD document
+     * @param displayMetrics The DisplayMetrics instance
+     * @param useLayerNames Whether to use names of NamedLayer elements as a criteria in matching styles.
+     * @param relativeDrawPriority The z-order relative to other vector features. This will be incremented internally for each style rule, so if you have multiple SLDStyleSets, leave some space between the relativeDrawPriority of each.
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     public SLDStyleSet(MaplyBaseController viewC, AssetManager assetManager, String sldFileName, DisplayMetrics displayMetrics, boolean useLayerNames, int relativeDrawPriority) throws XmlPullParserException, IOException
     {
         this.viewC = viewC;

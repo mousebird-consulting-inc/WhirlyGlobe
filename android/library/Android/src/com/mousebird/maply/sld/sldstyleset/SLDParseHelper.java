@@ -27,12 +27,18 @@ import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
+/**
+ * Class containing static methods to assist in XML parsing.
+ */
 public class SLDParseHelper {
 
+    /**
+     * Skip the current node.
+     * @param parser The XmlPullParser instance
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     public static void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
-//        if (parser.getEventType() != XmlPullParser.START_TAG) {
-//            throw new IllegalStateException();
-//        }
         int depth = 1;
         while (depth != 0) {
             switch (parser.next()) {
@@ -46,6 +52,13 @@ public class SLDParseHelper {
         }
     }
 
+    /**
+     * Get the text value from the node, and exit the node.
+     * @param parser The XmlPullParser instance
+     * @return The node text value, or null if none found.
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     public static String nodeTextValue(XmlPullParser parser) throws XmlPullParserException, IOException {
         String textValue = null;
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -57,6 +70,13 @@ public class SLDParseHelper {
         return textValue;
     }
 
+    /**
+     * Get the text value from the node if it is plain text (or within if it's a Literal) and exit the node.
+     * @param parser The XmlPullParser instance
+     * @return The text value, or null if none found.
+     * @throws XmlPullParserException
+     * @throws IOException
+     */
     public static String stringForLiteralInNode(XmlPullParser parser) throws XmlPullParserException, IOException {
         String textValue = null;
 
@@ -79,10 +99,13 @@ public class SLDParseHelper {
 
     }
 
+    /**
+     * Is the string numeric?
+     * https://developer.android.com/reference/java/lang/Double.html#valueOf(java.lang.String)
+     * @param s The string
+     * @return true if the string is numeric, else false.
+     */
     public static boolean isStringNumeric(String s) {
-
-        // https://developer.android.com/reference/java/lang/Double.html#valueOf(java.lang.String)
-
         final String Digits     = "(\\p{Digit}+)";
         final String HexDigits  = "(\\p{XDigit}+)";
         // an exponent is 'e' or 'E' followed by an optionally
