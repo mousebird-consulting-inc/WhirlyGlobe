@@ -141,6 +141,10 @@ public class LabelInfo extends BaseInfo
 
 	native void setFontSizeNative(float size);
 
+	public float getFontSize() {
+		return fontSize;
+	}
+
 	/**
 	 * Set the color of outline.
 	 * Color components range from 0.0 to 1.0.
