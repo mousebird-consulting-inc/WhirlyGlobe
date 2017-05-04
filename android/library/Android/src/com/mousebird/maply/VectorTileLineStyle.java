@@ -25,7 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
-
+/**
+ * The VectorTileStyle base class for styling line features.
+ */
 public class VectorTileLineStyle extends VectorTileStyle {
 
     private boolean useWideVectors;

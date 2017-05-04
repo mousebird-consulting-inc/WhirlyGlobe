@@ -36,6 +36,12 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
+/**
+ *
+ * Class corresponding to the PointSymbolizer element
+ * @see http://schemas.opengis.net/se/1.1.0/Symbolizer.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
+ */
 public class SLDPointSymbolizer extends SLDSymbolizer {
 
     private VectorTileMarkerStyle vectorTileMarkerStyle;

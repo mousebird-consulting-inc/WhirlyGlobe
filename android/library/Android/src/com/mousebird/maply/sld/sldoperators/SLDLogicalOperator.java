@@ -33,6 +33,12 @@ import android.util.Log;
 
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
 
+/**
+ *
+ * Class corresponding to the ogc:logicOps elements
+ * @see http://schemas.opengis.net/filter/1.1.0/filter.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/filter/1.0.0/filter.xsd for SLD v1.0.0
+ */
 public class SLDLogicalOperator extends SLDOperator {
 
     private enum LogicType { LogicTypeAnd, LogicTypeOr };

@@ -45,6 +45,12 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
 
+/**
+ *
+ * Base class for Symbolizer elements
+ * @see http://schemas.opengis.net/se/1.1.0/Symbolizer.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
+ */
 public abstract class SLDSymbolizer {
 
     public abstract VectorTileStyle[] getStyles();

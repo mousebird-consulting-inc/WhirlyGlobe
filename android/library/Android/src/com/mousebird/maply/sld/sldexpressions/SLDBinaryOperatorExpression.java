@@ -32,6 +32,12 @@ import java.util.ArrayList;
 
 import android.util.Log;
 
+/**
+ *
+ * Class corresponding to the ogc:BinaryOperatorType elements
+ * @see http://schemas.opengis.net/filter/1.1.0/expr.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/filter/1.0.0/expr.xsd for SLD v1.0.0
+ */
 public class SLDBinaryOperatorExpression extends SLDExpression {
 
     private enum ExpressionType { ExpressionTypeAdd, ExpressionTypeSub, ExpressionTypeMul, ExpressionTypeDiv};

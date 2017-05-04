@@ -31,6 +31,12 @@ import android.util.Log;
 
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
 
+/**
+ *
+ * Class corresponding to the ogc:Not element
+ * @see http://schemas.opengis.net/filter/1.1.0/filter.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/filter/1.0.0/filter.xsd for SLD v1.0.0
+ */
 public class SLDNotOperator extends SLDOperator {
 
     private SLDOperator subOperator;

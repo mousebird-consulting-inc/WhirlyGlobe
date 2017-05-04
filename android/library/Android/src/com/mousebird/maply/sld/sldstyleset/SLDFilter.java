@@ -31,6 +31,12 @@ import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
 
 import android.util.Log;
 
+/**
+ *
+ * Class corresponding to the ogc:Filter element
+ * @see http://schemas.opengis.net/filter/1.1.0/filter.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/filter/1.0.0/filter.xsd for SLD v1.0.0
+ */
 public class SLDFilter {
 
     public SLDOperator getOperator() {

@@ -15,6 +15,10 @@ import java.util.ArrayList;
 import android.os.AsyncTask;
 import android.util.Log;
 
+/**
+ * The GeoJSONSource will load vector features from a GeoJSON document, style them with an
+ * SLD document, and add them to the globe or map.
+ */
 public class GeoJSONSource {
 
     private boolean loaded;
@@ -43,14 +47,26 @@ public class GeoJSONSource {
             baseController.disableObjects(componentObjects, MaplyBaseController.ThreadMode.ThreadAny);
     }
 
+    /**
+     * Sets the SLD styleset used to style vector features based on their attributes.
+     * @param styleSet The SLDStyleSet object.
+     */
     public void setStyleSet(SLDStyleSet styleSet) {
         this.styleSet = styleSet;
     }
 
+    /**
+     * Sets the InputStream from which the JSON document will be read.
+     * @param jsonStream The InputStream object which is the source of the JSON document.
+     */
     public void setJsonStream(InputStream jsonStream) {
         this.jsonStream = jsonStream;
     }
 
+    /**
+     * Sets the globe or map controller to which vector features will be added.
+     * @param baseController The MaplyBaseController instance.
+     */
     public void setBaseController(MaplyBaseController baseController) {
         this.baseController = baseController;
     }
@@ -67,6 +83,10 @@ public class GeoJSONSource {
 
     }
 
+    /**
+     * Start parsing the GeoJSON.
+     * @param completionBlock Block to execute after completion.
+     */
     public void startParse(final Runnable completionBlock) {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int nRead;

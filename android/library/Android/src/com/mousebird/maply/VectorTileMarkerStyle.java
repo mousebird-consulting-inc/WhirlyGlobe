@@ -28,7 +28,9 @@ import com.mousebird.maply.MarkerInfo;
 import android.graphics.Bitmap;
 
 
-
+/**
+ * The VectorTileStyle base class for styling markers.
+ */
 public class VectorTileMarkerStyle extends VectorTileStyle {
 
     private MarkerInfo markerInfo;
