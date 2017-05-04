@@ -48,7 +48,6 @@ public class SLDIsNullOperator extends SLDOperator {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDIsNullOperator", xpp.getName());
 
             SLDExpression expression = SLDExpressionFactory.expressionForNode(xpp);
             if (expression != null) {

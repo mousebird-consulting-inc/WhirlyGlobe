@@ -49,7 +49,6 @@ public class SLDLineSymbolizer extends SLDSymbolizer {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDLineSymbolizer", xpp.getName());
 
             if (xpp.getName().equals("Stroke")) {
                 vectorTileLineStyle = SLDSymbolizer.vectorTileLineStyleFromStrokeNode(xpp, symbolizerParams);

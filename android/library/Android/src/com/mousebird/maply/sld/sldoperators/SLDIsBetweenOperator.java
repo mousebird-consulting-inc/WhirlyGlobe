@@ -44,7 +44,6 @@ public class SLDIsBetweenOperator extends SLDOperator {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDIsBetweenOperator", xpp.getName());
 
             SLDExpression expression = SLDExpressionFactory.expressionForNode(xpp);
             if (expression != null) {

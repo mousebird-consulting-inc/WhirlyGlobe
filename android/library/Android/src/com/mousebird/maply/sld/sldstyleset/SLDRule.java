@@ -65,7 +65,6 @@ public class SLDRule {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDRule", xpp.getName());
             if (xpp.getName().equals("Filter")) {
                 filters.add(new SLDFilter(xpp));
             } else if (xpp.getName().equals("ElseFilter")) {
