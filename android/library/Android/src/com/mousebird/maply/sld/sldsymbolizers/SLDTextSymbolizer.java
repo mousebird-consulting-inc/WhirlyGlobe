@@ -79,7 +79,6 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDTextSymbolizer", xpp.getName());
             if (xpp.getName().equals("Label")) {
 
                 textField = getLabel(xpp);
@@ -111,7 +110,6 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
 
         processVendorOptions(symbolizerParams, offset);
 
-        Log.i("SLDTextSymbolizer", "offset " + offset.getX() + " , " + offset.getY());
         if (offset.getX() == 0.0 && offset.getY() == 0.0)
             offset = null;
 
@@ -248,27 +246,17 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
                                 SLDParseHelper.skip(xpp);
                         }
 
-                        if (ax <= 0.33f) {
-                            labelInfo.setLayoutPlacement(LabelInfo.LayoutLeft);
-                            Log.i("SLDTextSymbolizer", "labelInfo.setLayoutPlacement(LabelInfo.LayoutLeft);");
-                        }
-                        else if (ax > 0.67) {
+                        if (ax <= 0.33f)
                             labelInfo.setLayoutPlacement(LabelInfo.LayoutRight);
-                            Log.i("SLDTextSymbolizer", "labelInfo.setLayoutPlacement(LabelInfo.LayoutRight);");
-                        }
+                        else if (ax > 0.67)
+                            labelInfo.setLayoutPlacement(LabelInfo.LayoutLeft);
                         else {
-                            if (ay <= 0.33f) {
+                            if (ay <= 0.33f)
                                 labelInfo.setLayoutPlacement(LabelInfo.LayoutBelow);
-                                Log.i("SLDTextSymbolizer", "labelInfo.setLayoutPlacement(LabelInfo.LayoutBelow);");
-                            }
-                            else if (ay > 0.67f) {
+                            else if (ay > 0.67f)
                                 labelInfo.setLayoutPlacement(LabelInfo.LayoutAbove);
-                                Log.i("SLDTextSymbolizer", "labelInfo.setLayoutPlacement(LabelInfo.LayoutAbove);");
-                            }
-                            else {
+                            else
                                 labelInfo.setLayoutPlacement(LabelInfo.LayoutCenter);
-                                Log.i("SLDTextSymbolizer", "labelInfo.setLayoutPlacement(LabelInfo.LayoutCenter);");
-                            }
                         }
 
                     } else if (xpp.getName().equals("Displacement")) {

@@ -71,7 +71,6 @@ public abstract class SLDSymbolizer {
             vectorInfo = new VectorInfo();
             baseInfo = vectorInfo;
         }
-//        baseInfo.disposeAfterUse = true;
         baseInfo.setEnable(false);
         if (symbolizerParams.getMinScaleDenominator() != null) {
             if (symbolizerParams.getMaxScaleDenominator() == null)
@@ -83,7 +82,6 @@ public abstract class SLDSymbolizer {
                 baseInfo.setMinVis(0.0f);
             baseInfo.setMaxVis((float) viewC.heightForMapScale(symbolizerParams.getMaxScaleDenominator().floatValue()));
         }
-        //baseInfo.setDrawPriority(???)
 
         Integer strokeColor = null;
         Float strokeOpacity = null;
@@ -299,7 +297,6 @@ public abstract class SLDSymbolizer {
                     Log.e("SLDSymbolizer", "parseMarkOrExternalGraphic", e);
                 }
                 if (inputStream != null) {
-                    //Bitmap bmp = BitmapFactory.decodeFile(symbolizerParams.getBasePath() + href);
                     Bitmap bmp = BitmapFactory.decodeStream(inputStream);
                     graphicParams.setBitmap(bmp);
                 }

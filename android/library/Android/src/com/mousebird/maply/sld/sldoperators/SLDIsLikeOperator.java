@@ -70,7 +70,6 @@ public class SLDIsLikeOperator extends SLDOperator {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDIsLikeOperator", xpp.getName());
 
             SLDExpression expression = SLDExpressionFactory.expressionForNode(xpp);
             if (expression instanceof  SLDPropertyNameExpression) {
