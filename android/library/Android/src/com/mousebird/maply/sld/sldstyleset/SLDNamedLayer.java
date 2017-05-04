@@ -60,7 +60,6 @@ public class SLDNamedLayer {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDNamedLayer", xpp.getName());
             if (xpp.getName().equals("Name"))
                 name = SLDParseHelper.nodeTextValue(xpp);
             else if (xpp.getName().equals("UserStyle"))
