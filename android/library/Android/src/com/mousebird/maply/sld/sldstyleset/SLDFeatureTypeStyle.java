@@ -53,7 +53,6 @@ public class SLDFeatureTypeStyle {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
-            Log.i("SLDFeatureTypeStyle", xpp.getName());
             if (xpp.getName().equals("Rule")) {
                 rules.add(new SLDRule(xpp, symbolizerParams));
             } else {
