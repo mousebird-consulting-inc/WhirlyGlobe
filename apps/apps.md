@@ -23,9 +23,9 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="eLLaWalk" image="ellawalk.png" body="eLLaWalk is part of the promotion for the new eLLa fragrance from Victorinox.  This Android app lets you see your organized walks on your device." link="https://play.google.com/store/apps/details?id=com.ellawalk.android" %}
 
-{% include app_entry.html name="Epicenter" image="epicenter.png" body="An interactive, animated app plotting the latest 30 days of USGS earthquake data." link="https://itunes.apple.com/us/app/ergo360/id552304846?mt=8" %}
+{% include app_entry.html name="Epicenter" image="epicenter.png" body="An interactive, animated app plotting the latest 30 days of USGS earthquake data." link="https://itunes.apple.com/us/app/epicenter-30-days-worldwide/id972755325?mt=8" %}
 
-{% include app_entry.html name="Ergo360" image="ergo360.jpg" body="The Ergo 360 app calculates an aircraft’s fuel and oxygen consumption at a given altitude and plots their ranges as different colored rings on an interactive map." link="https://itunes.apple.com/us/app/epicenter-30-days-worldwide/id972755325?mt=8" %}
+{% include app_entry.html name="Ergo360" image="ergo360.jpg" body="The Ergo 360 app calculates an aircraft’s fuel and oxygen consumption at a given altitude and plots their ranges as different colored rings on an interactive map." link="https://itunes.apple.com/us/app/ergo360/id552304846?mt=8" %}
 
 {% include app_entry.html name="Flag Ceremony" image="flagceremony.jpg" body="This app displays flags of the world on a globe along with national anthems and other information." link="https://itunes.apple.com/us/app/flag-ceremony/id1180086391?mt=8" %}
 
