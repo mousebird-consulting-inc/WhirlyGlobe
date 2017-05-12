@@ -51,7 +51,7 @@ void ShapeSceneRep::clearContents(SelectionManager *selectManager, ChangeSet &ch
 }
 
 WhirlyKitShape::WhirlyKitShape()
-    : isSelectable(false), selectID(EmptyIdentity), useColor(false), color(255,255,255,255)
+    : isSelectable(false), selectID(EmptyIdentity), useColor(false), color(255,255,255,255), clipCoords(false)
 {
 }
 
