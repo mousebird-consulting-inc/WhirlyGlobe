@@ -32,6 +32,11 @@ import java.io.File;
  */
 public class MapGlobeTestFragment extends Fragment implements ConfigOptions.ConfigOptionsListener
 {
+
+    private static String TAG;
+
+    private static final double DEG_TO_RAD = Math.PI / 180.0;
+
 	MapController mapControl = null;
 	GlobeController globeControl = null;
 	MaplyBaseController baseControl = null;
@@ -43,8 +48,15 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
     ConfigOptions.MapType mode = ConfigOptions.MapType.FlatMap;
 
     View topView = null;
-			
-	@Override
+
+    public MapGlobeTestFragment() {
+        super();
+
+        TAG = this.getClass().getSimpleName();
+
+    }
+
+    @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState)
 	{
@@ -171,7 +183,7 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
                 tileSource = new TestImageSource(getActivity().getMainLooper(), 0, 22);
                 imageDepth = 8;
                 break;
-            case QuadVectorTest: {
+            case QuadVectorTest:
                 TestQuadPager testPager = new TestQuadPager(0, 22);
                 SphericalMercatorCoordSystem coordSys = new SphericalMercatorCoordSystem();
                 QuadPagingLayer pagingLayer = new QuadPagingLayer(mapControl, coordSys, testPager);
@@ -180,7 +192,21 @@ public class MapGlobeTestFragment extends Fragment implements ConfigOptions.Conf
                 pagingLayer.setSingleLevelLoading(true);
                 pagingLayer.setUseTargetZoomLevel(true);
                 mapControl.addLayer(pagingLayer);
-            }
+
+            case OSMLocalTiles:
+                // Use min zoom & max zoom that do match you local tiles
+                tileSource = new LocalAssetsTileProvider(this.getActivity(), "osm_local_tiles", "jpg", 6, 13);
+                // Tricking the controller to center on area with tiles
+
+                // Tweak coordinates according to your own local tiles
+                double lat = 43.685278, lon = 3.928889;
+
+                if (mapControl != null) {
+                    mapControl.setPositionGeo(lat * DEG_TO_RAD, lon * DEG_TO_RAD, .005);
+                } else {
+                    globeControl.setPositionGeo(lat * DEG_TO_RAD, lon * DEG_TO_RAD, .005);
+                }
+
             break;
         }
 

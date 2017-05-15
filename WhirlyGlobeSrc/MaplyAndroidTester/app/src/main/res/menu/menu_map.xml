@@ -23,6 +23,7 @@
                 <item android:id="@+id/quadtest_layer" android:title="Quad Test" />
                 <item android:id="@+id/quadtestanimate_layer" android:title="Quad Test Animated" />
                 <item android:id="@+id/quadvectortest_layer" android:title="Quad Vector Test" />
+                <item android:id="@+id/osmlocaltiles_layer" android:title="OSM Local Tiles" />
             </group>
         </menu>
     </item>

@@ -13,7 +13,7 @@ public class ConfigOptions {
 
     // Identifiers for base layers
     public enum BaseOptions {
-        BlankLayer, GeographyClass, MapboxRegular, MapboxSatellite, OSMMapquest, StamenWatercolor, QuadTest, QuadTestAnimate, QuadVectorTest
+        BlankLayer, GeographyClass, MapboxRegular, MapboxSatellite, OSMMapquest, StamenWatercolor, QuadTest, QuadTestAnimate, QuadVectorTest, OSMLocalTiles
     }
 
     // Identifiers for overlay options
@@ -110,6 +110,9 @@ public class ConfigOptions {
                     break;
                 case R.id.quadvectortest_layer:
                     baseSection = BaseOptions.QuadVectorTest;
+                    break;
+                case R.id.osmlocaltiles_layer:
+                    baseSection = BaseOptions.OSMLocalTiles;
                     break;
                 case R.id.forecastio_layer:
                     overlays[0] = !overlays[0];
