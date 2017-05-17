@@ -5,4 +5,7 @@ target 'AutoTester' do
 	pod 'MBProgressHUD', '~> 0.9.1'
 end
 
+target 'AutoTesterJenkins' do
+	pod 'MBProgressHUD', '~> 0.9.1'
+end
 
