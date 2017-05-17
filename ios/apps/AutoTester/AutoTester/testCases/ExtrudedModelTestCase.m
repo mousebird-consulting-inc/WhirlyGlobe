@@ -8,7 +8,7 @@
 
 #import <WhirlyGlobeComponent.h>
 #import "ExtrudedModelTestCase.h"
-#import "AutoTester-Swift.h"
+#import "CartoDBTestCase.h"
 
 static const float EarthRadius = 6371000;
 
@@ -108,7 +108,7 @@ static LocationInfo locations[NumLocations] =
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    StamenWatercolorRemote *baseView = [[StamenWatercolorRemote alloc] init];
+    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     
     [self addArrows:locations len:NumLocations stride:1 offset:0 desc:
