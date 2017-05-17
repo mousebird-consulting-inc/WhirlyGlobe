@@ -7,7 +7,7 @@
 //
 
 #import "RunwayBuilderTestCase.h"
-#import "AutoTester-Swift.h"
+#import "CartoDBTestCase.h"
 
 @implementation RunwayBuilderTestCase
 

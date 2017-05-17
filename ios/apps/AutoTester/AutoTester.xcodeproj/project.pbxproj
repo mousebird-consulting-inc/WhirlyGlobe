@@ -97,6 +97,7 @@
 		88E4B8CC1B83B6AB0050D21B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CB1B83B6AB0050D21B /* Images.xcassets */; };
 		88E4B8CF1B83B6AB0050D21B /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */; };
 		88E4B8ED1B83B9610050D21B /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8EC1B83B9610050D21B /* CoreLocation.framework */; };
+		88F0951F1ECD041300E7E686 /* AutoTesterJenkins.plist in Resources */ = {isa = PBXBuildFile; fileRef = 88F0951E1ECD041300E7E686 /* AutoTesterJenkins.plist */; };
 		88FF5BE61BC31D53002F15CE /* cube.obj in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE01BC31D53002F15CE /* cube.obj */; };
 		88FF5BE71BC31D53002F15CE /* map_pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE11BC31D53002F15CE /* map_pin.png */; };
 		88FF5BE81BC31D53002F15CE /* Smiley_Face_Avatar_by_PixelTwist.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE21BC31D53002F15CE /* Smiley_Face_Avatar_by_PixelTwist.png */; };
@@ -494,6 +495,565 @@
 		8F981DBB1DE3577C00717DF1 /* ne_10m_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */; };
 		8F981DBC1DE3577C00717DF1 /* ne_10m_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */; };
 		8FC34D0E1CE7218E00BEB7C4 /* DownloadResourceOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FC34D0D1CE7218E00BEB7C4 /* DownloadResourceOperation.m */; };
+		8FDB56BE1ECB9C0700993B7D /* ActiveObjectTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */; };
+		8FDB56BF1ECB9C0700993B7D /* LabelAnimationTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F431CB72DE800369A15 /* LabelAnimationTestCase.m */; };
+		8FDB56C01ECB9C0700993B7D /* ExtrudedModelTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */; };
+		8FDB56C11ECB9C0700993B7D /* MovingScreenLabelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */; };
+		8FDB56C21ECB9C0700993B7D /* LoftedPolysTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200CA31BE9624300B22CF5 /* LoftedPolysTestCase.m */; };
+		8FDB56C31ECB9C0700993B7D /* WeatherShader.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ECF1BDEA2E400BB7BC7 /* WeatherShader.swift */; };
+		8FDB56C41ECB9C0700993B7D /* MaplyTestResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11511BCD9BF70002205E /* MaplyTestResult.m */; };
+		8FDB56C51ECB9C0700993B7D /* MovingScreenMarkers.m in Sources */ = {isa = PBXBuildFile; fileRef = D8228AA51BE785E1001D6914 /* MovingScreenMarkers.m */; };
+		8FDB56C61ECB9C0700993B7D /* DownloadResourceOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 8FC34D0D1CE7218E00BEB7C4 /* DownloadResourceOperation.m */; };
+		8FDB56C71ECB9C0700993B7D /* CesiumElevationTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCCAB1BDC1A1200BA3866 /* CesiumElevationTestCase.m */; };
+		8FDB56C81ECB9C0700993B7D /* ImageSingleLevelTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */; };
+		8FDB56C91ECB9C0700993B7D /* MaplyTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11481BCD3DA40002205E /* MaplyTestCase.m */; };
+		8FDB56CA1ECB9C0700993B7D /* ResultCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11581BCDA3960002205E /* ResultCell.swift */; };
+		8FDB56CB1ECB9C0700993B7D /* CartoDBTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D84433EA1C14E4E700A52117 /* CartoDBTestCase.m */; };
+		8FDB56CC1ECB9C0700993B7D /* ParticleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D3E0671C4EDA1800F0D006 /* ParticleTestCase.swift */; };
+		8FDB56CD1ECB9C0700993B7D /* ScreenLabelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8341A721BE2DFE100411A46 /* ScreenLabelsTestCase.swift */; };
+		8FDB56CE1ECB9C0700993B7D /* ParticleTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8895D8AF1CA4ABA9004387FB /* ParticleTest.m */; };
+		8FDB56CF1ECB9C0700993B7D /* AnimationDelegateTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D2D6741DEDEABF00E02305 /* AnimationDelegateTestCase.swift */; };
+		8FDB56D01ECB9C0700993B7D /* DropboxViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D880112D1BFD16A900606EC6 /* DropboxViewController.swift */; };
+		8FDB56D11ECB9C0700993B7D /* AnimatedBasemapTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */; };
+		8FDB56D21ECB9C0700993B7D /* CartoDBLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = D84433ED1C14E4FE00A52117 /* CartoDBLayer.m */; };
+		8FDB56D31ECB9C0700993B7D /* StartupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */; };
+		8FDB56D41ECB9C0700993B7D /* BNGCustomMapTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84AA5931C1A1C9700413B76 /* BNGCustomMapTestCase.swift */; };
+		8FDB56D51ECB9C0700993B7D /* GreatCircleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */; };
+		8FDB56D61ECB9C0700993B7D /* ResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11561BCDA1BB0002205E /* ResultsViewController.swift */; };
+		8FDB56D71ECB9C0700993B7D /* TestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FE129181CDFB3B8004744FC /* TestCell.swift */; };
+		8FDB56D81ECB9C0700993B7D /* LIDARTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */; };
+		8FDB56D91ECB9C0700993B7D /* BNGTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84AA5981C1A2B9800413B76 /* BNGTestCase.swift */; };
+		8FDB56DA1ECB9C0700993B7D /* AnimatedMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */; };
+		8FDB56DB1ECB9C0700993B7D /* FullScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DCCC9E1BDB89A900BA3866 /* FullScreenViewController.swift */; };
+		8FDB56DC1ECB9C0700993B7D /* PagingLayerTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */; };
+		8FDB56DD1ECB9C0700993B7D /* StamenWatercolorRemote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */; };
+		8FDB56DE1ECB9C0700993B7D /* ConfigViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCCC1BA74D1200494BB0 /* ConfigViewController.swift */; };
+		8FDB56DF1ECB9C0700993B7D /* AnimatedColorRampTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */; };
+		8FDB56E01ECB9C0700993B7D /* NASAGIBSTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84433E61C14A46100A52117 /* NASAGIBSTestCase.swift */; };
+		8FDB56E11ECB9C0700993B7D /* VectorMBTilesTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */; };
+		8FDB56E21ECB9C0700993B7D /* FindHeightTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F471CB72DE800369A15 /* FindHeightTestCase.m */; };
+		8FDB56E31ECB9C0700993B7D /* VectorHoleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */; };
+		8FDB56E41ECB9C0700993B7D /* WideVectorsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */; };
+		8FDB56E51ECB9C0700993B7D /* ElevationLocalDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = D84AA59B1C1A2E9900413B76 /* ElevationLocalDatabase.m */; };
+		8FDB56E61ECB9C0700993B7D /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
+		8FDB56E71ECB9C0700993B7D /* StickersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8200CA01BE9563F00B22CF5 /* StickersTestCase.swift */; };
+		8FDB56E81ECB9C0700993B7D /* GeoJSONStyleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5941DC01E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift */; };
+		8FDB56E91ECB9C0700993B7D /* GeographyClassTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF115C1BCDA9530002205E /* GeographyClassTestCase.m */; };
+		8FDB56EA1ECB9C0700993B7D /* AerisWeatherTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */; };
+		8FDB56EB1ECB9C0700993B7D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */; };
+		8FDB56EC1ECB9C0700993B7D /* RunwayBuilderTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */; };
+		8FDB56ED1ECB9C0700993B7D /* CartoDBLightTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3351C989D18003259B3 /* CartoDBLightTestCase.m */; };
+		8FDB56EE1ECB9C0700993B7D /* ModelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */; };
+		8FDB56EF1ECB9C0700993B7D /* ClusteredMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */; };
+		8FDB56F01ECB9C0700993B7D /* ShapefileTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */; };
+		8FDB56F11ECB9C0700993B7D /* LabelsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE261BE7BD630058A310 /* LabelsTestCase.m */; };
+		8FDB56F21ECB9C0700993B7D /* FullAnimationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F4D1CB7669400369A15 /* FullAnimationTest.m */; };
+		8FDB56F31ECB9C0700993B7D /* LocationTrackingSimTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D2D65E1DE65CE400E02305 /* LocationTrackingSimTestCase.swift */; };
+		8FDB56F41ECB9C0700993B7D /* LocationTrackingRealTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CC4E1F1DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift */; };
+		8FDB56F51ECB9C0700993B7D /* MegaMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */; };
+		8FDB56F61ECB9C0700993B7D /* VectorsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8341A701BE2C8D200411A46 /* VectorsTestCase.m */; };
+		8FDB56F71ECB9C0700993B7D /* VectorStyleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */; };
+		8FDB56F81ECB9C0700993B7D /* ShapesTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200C9E1BE9516300B22CF5 /* ShapesTestCase.m */; };
+		8FDB56F91ECB9C0700993B7D /* WMSTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F451CB72DE800369A15 /* WMSTestCase.m */; };
+		8FDB56FA1ECB9C0700993B7D /* WideVectorGlobeTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */; };
+		8FDB56FB1ECB9C0700993B7D /* StarsSunTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */; };
+		8FDB56FC1ECB9C0700993B7D /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
+		8FDB56FD1ECB9C0700993B7D /* TextureVectorTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC0FB771DCAA18A004125F1 /* TextureVectorTestCase.m */; };
+		8FDB56FE1ECB9C0700993B7D /* MapzenVectorTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8341A621BE299BF00411A46 /* MapzenVectorTestCase.swift */; };
+		8FDB56FF1ECB9C0700993B7D /* MarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */; };
+		8FDB57001ECB9C0700993B7D /* MapzenSource.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE221BE7B1B40058A310 /* MapzenSource.m */; };
+		8FDB57021ECB9C0700993B7D /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */; };
+		8FDB57031ECB9C0700993B7D /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D66D1DE6C26A00E02305 /* libc++.tbd */; };
+		8FDB57041ECB9C0700993B7D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D66B1DE6C26000E02305 /* libz.tbd */; };
+		8FDB57051ECB9C0700993B7D /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D6691DE6C25A00E02305 /* libxml2.tbd */; };
+		8FDB57061ECB9C0700993B7D /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = E5D2D6671DE6C25300E02305 /* libsqlite3.tbd */; };
+		8FDB57071ECB9C0700993B7D /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88E4B8EC1B83B9610050D21B /* CoreLocation.framework */; };
+		8FDB57081ECB9C0700993B7D /* Pods_AutoTester.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0F0DA1CE80D1854F94B969E /* Pods_AutoTester.framework */; };
+		8FDB570A1ECB9C0700993B7D /* GUF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D521BC31D94002F15CE /* GUF.geojson */; };
+		8FDB570B1ECB9C0700993B7D /* ne_10m_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */; };
+		8FDB570C1ECB9C0700993B7D /* CIV.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D211BC31D94002F15CE /* CIV.geojson */; };
+		8FDB570D1ECB9C0700993B7D /* MapzenGLStyle.json in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C6A1BC31D6D002F15CE /* MapzenGLStyle.json */; };
+		8FDB570E1ECB9C0700993B7D /* religious-jewish-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C491BC31D6D002F15CE /* religious-jewish-24@2x.png */; };
+		8FDB570F1ECB9C0700993B7D /* star-stroked-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C561BC31D6D002F15CE /* star-stroked-24@2x.png */; };
+		8FDB57101ECB9C0700993B7D /* lowres_wtb_info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BF91BC31D6D002F15CE /* lowres_wtb_info.plist */; };
+		8FDB57111ECB9C0700993B7D /* CAN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D1C1BC31D94002F15CE /* CAN.geojson */; };
+		8FDB57121ECB9C0700993B7D /* USA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DDF1BC31D95002F15CE /* USA.geojson */; };
+		8FDB57131ECB9C0700993B7D /* commercial-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C161BC31D6D002F15CE /* commercial-24@2x.png */; };
+		8FDB57141ECB9C0700993B7D /* MarkersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7061C1CE164000756E9 /* MarkersTestCase-globe.png */; };
+		8FDB57151ECB9C0700993B7D /* NLD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D9B1BC31D94002F15CE /* NLD.geojson */; };
+		8FDB57161ECB9C0700993B7D /* art-gallery-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C011BC31D6D002F15CE /* art-gallery-24@2x.png */; };
+		8FDB57171ECB9C0700993B7D /* alcohol-shop-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BFF1BC31D6D002F15CE /* alcohol-shop-24@2x.png */; };
+		8FDB57181ECB9C0700993B7D /* SunImage.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE51BC31D53002F15CE /* SunImage.png */; };
+		8FDB57191ECB9C0700993B7D /* ClusteredMarkersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6FB1C1CE164000756E9 /* ClusteredMarkersTestCase-map.png */; };
+		8FDB571A1ECB9C0700993B7D /* park2-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C3A1BC31D6D002F15CE /* park2-24@2x.png */; };
+		8FDB571B1ECB9C0700993B7D /* KEN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D6A1BC31D94002F15CE /* KEN.geojson */; };
+		8FDB571C1ECB9C0700993B7D /* GUM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D531BC31D94002F15CE /* GUM.geojson */; };
+		8FDB571D1ECB9C0700993B7D /* bank-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C031BC31D6D002F15CE /* bank-24@2x.png */; };
+		8FDB571E1ECB9C0700993B7D /* ERI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D381BC31D94002F15CE /* ERI.geojson */; };
+		8FDB571F1ECB9C0700993B7D /* prison-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C441BC31D6D002F15CE /* prison-24@2x.png */; };
+		8FDB57201ECB9C0700993B7D /* MHL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D841BC31D94002F15CE /* MHL.geojson */; };
+		8FDB57211ECB9C0700993B7D /* ImageSingleLevelTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 8FDE43601E01C9420026B20E /* ImageSingleLevelTestCase-map.png */; };
+		8FDB57221ECB9C0700993B7D /* airport-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BFE1BC31D6D002F15CE /* airport-24@2x.png */; };
+		8FDB57231ECB9C0700993B7D /* airfield-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BFD1BC31D6D002F15CE /* airfield-24@2x.png */; };
+		8FDB57241ECB9C0700993B7D /* TJK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DD01BC31D95002F15CE /* TJK.geojson */; };
+		8FDB57251ECB9C0700993B7D /* TTO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DD51BC31D95002F15CE /* TTO.geojson */; };
+		8FDB57261ECB9C0700993B7D /* BDI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D061BC31D94002F15CE /* BDI.geojson */; };
+		8FDB57271ECB9C0700993B7D /* YEM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DEA1BC31D95002F15CE /* YEM.geojson */; };
+		8FDB57281ECB9C0700993B7D /* BLR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D111BC31D94002F15CE /* BLR.geojson */; };
+		8FDB57291ECB9C0700993B7D /* TUN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DD61BC31D95002F15CE /* TUN.geojson */; };
+		8FDB572A1ECB9C0700993B7D /* styles.css in Resources */ = {isa = PBXBuildFile; fileRef = D882B8351C07BA2500649BE9 /* styles.css */; };
+		8FDB572B1ECB9C0700993B7D /* greensquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B5E8AF41E943560000B39E5 /* greensquare.png */; };
+		8FDB572C1ECB9C0700993B7D /* NOR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D9C1BC31D94002F15CE /* NOR.geojson */; };
+		8FDB572D1ECB9C0700993B7D /* rail-underground-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C471BC31D6D002F15CE /* rail-underground-24@2x.png */; };
+		8FDB572E1ECB9C0700993B7D /* BNGTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F51C1CE164000756E9 /* BNGTestCase-map.png */; };
+		8FDB572F1ECB9C0700993B7D /* laundry-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C2C1BC31D6D002F15CE /* laundry-24@2x.png */; };
+		8FDB57301ECB9C0700993B7D /* BOL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D141BC31D94002F15CE /* BOL.geojson */; };
+		8FDB57311ECB9C0700993B7D /* GGY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D461BC31D94002F15CE /* GGY.geojson */; };
+		8FDB57321ECB9C0700993B7D /* IMN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D5C1BC31D94002F15CE /* IMN.geojson */; };
+		8FDB57331ECB9C0700993B7D /* LBN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D721BC31D94002F15CE /* LBN.geojson */; };
+		8FDB57341ECB9C0700993B7D /* GAB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D431BC31D94002F15CE /* GAB.geojson */; };
+		8FDB57351ECB9C0700993B7D /* LSO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D781BC31D94002F15CE /* LSO.geojson */; };
+		8FDB57361ECB9C0700993B7D /* ne_10m_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */; };
+		8FDB57371ECB9C0700993B7D /* SSD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DC21BC31D95002F15CE /* SSD.geojson */; };
+		8FDB57381ECB9C0700993B7D /* KOR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D6F1BC31D94002F15CE /* KOR.geojson */; };
+		8FDB57391ECB9C0700993B7D /* DOM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D341BC31D94002F15CE /* DOM.geojson */; };
+		8FDB573A1ECB9C0700993B7D /* rightbend.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C51C83A22000DC1562 /* rightbend.geojson */; };
+		8FDB573B1ECB9C0700993B7D /* ScreenLabelsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF70D1C1CE164000756E9 /* ScreenLabelsTestCase-globe.png */; };
+		8FDB573C1ECB9C0700993B7D /* GNQ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D4D1BC31D94002F15CE /* GNQ.geojson */; };
+		8FDB573D1ECB9C0700993B7D /* CZE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D2F1BC31D94002F15CE /* CZE.geojson */; };
+		8FDB573E1ECB9C0700993B7D /* emergency-telephone-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C1E1BC31D6D002F15CE /* emergency-telephone-24@2x.png */; };
+		8FDB573F1ECB9C0700993B7D /* WSM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DE91BC31D95002F15CE /* WSM.geojson */; };
+		8FDB57401ECB9C0700993B7D /* KIR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D6D1BC31D94002F15CE /* KIR.geojson */; };
+		8FDB57411ECB9C0700993B7D /* AGO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5CF71BC31D94002F15CE /* AGO.geojson */; };
+		8FDB57421ECB9C0700993B7D /* cessna.obj in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C6D1BC31D6D002F15CE /* cessna.obj */; };
+		8FDB57431ECB9C0700993B7D /* HKG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D551BC31D94002F15CE /* HKG.geojson */; };
+		8FDB57441ECB9C0700993B7D /* lowres_wtb_2x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BF41BC31D6D002F15CE /* lowres_wtb_2x1.pvrtc */; };
+		8FDB57451ECB9C0700993B7D /* LUX.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D7A1BC31D94002F15CE /* LUX.geojson */; };
+		8FDB57461ECB9C0700993B7D /* osm_landuse.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC61E0D02A800E1C8B3 /* osm_landuse.sld */; };
+		8FDB57471ECB9C0700993B7D /* MapzenSLDStyle.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5EF69EF1D6B573700A2A660 /* MapzenSLDStyle.sld */; };
+		8FDB57481ECB9C0700993B7D /* GNB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D4C1BC31D94002F15CE /* GNB.geojson */; };
+		8FDB57491ECB9C0700993B7D /* MRT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D8D1BC31D94002F15CE /* MRT.geojson */; };
+		8FDB574A1ECB9C0700993B7D /* lowres_wtb_0x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BF01BC31D6D002F15CE /* lowres_wtb_0x1.pvrtc */; };
+		8FDB574B1ECB9C0700993B7D /* FSM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D421BC31D94002F15CE /* FSM.geojson */; };
+		8FDB574C1ECB9C0700993B7D /* belfast_ireland_buildings.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E5941DB61E0CEC8600E1C8B3 /* belfast_ireland_buildings.geojson */; };
+		8FDB574D1ECB9C0700993B7D /* parking-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C3B1BC31D6D002F15CE /* parking-24@2x.png */; };
+		8FDB574E1ECB9C0700993B7D /* circle-stroked-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C121BC31D6D002F15CE /* circle-stroked-24@2x.png */; };
+		8FDB574F1ECB9C0700993B7D /* lowres_wtb_4x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BF81BC31D6D002F15CE /* lowres_wtb_4x1.pvrtc */; };
+		8FDB57501ECB9C0700993B7D /* MAR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D7E1BC31D94002F15CE /* MAR.geojson */; };
+		8FDB57511ECB9C0700993B7D /* ScreenMarkersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7101C1CE164000756E9 /* ScreenMarkersTestCase-map.png */; };
+		8FDB57521ECB9C0700993B7D /* UMI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DDD1BC31D95002F15CE /* UMI.geojson */; };
+		8FDB57531ECB9C0700993B7D /* LKA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D771BC31D94002F15CE /* LKA.geojson */; };
+		8FDB57541ECB9C0700993B7D /* LVA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D7B1BC31D94002F15CE /* LVA.geojson */; };
+		8FDB57551ECB9C0700993B7D /* CAF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D1B1BC31D94002F15CE /* CAF.geojson */; };
+		8FDB57561ECB9C0700993B7D /* tl_2013_06075_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF31BC31D95002F15CE /* tl_2013_06075_roads.shx */; };
+		8FDB57571ECB9C0700993B7D /* REU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DB01BC31D95002F15CE /* REU.geojson */; };
+		8FDB57581ECB9C0700993B7D /* SUR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DC41BC31D95002F15CE /* SUR.geojson */; };
+		8FDB57591ECB9C0700993B7D /* MDA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D801BC31D94002F15CE /* MDA.geojson */; };
+		8FDB575A1ECB9C0700993B7D /* MCO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D7F1BC31D94002F15CE /* MCO.geojson */; };
+		8FDB575B1ECB9C0700993B7D /* LoftedPolysTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7011C1CE164000756E9 /* LoftedPolysTestCase-globe.png */; };
+		8FDB575C1ECB9C0700993B7D /* triangle-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C5F1BC31D6D002F15CE /* triangle-24@2x.png */; };
+		8FDB575D1ECB9C0700993B7D /* GHA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D471BC31D94002F15CE /* GHA.geojson */; };
+		8FDB575E1ECB9C0700993B7D /* fuel.png in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5E01E1EAF73000FB5C1 /* fuel.png */; };
+		8FDB575F1ECB9C0700993B7D /* BEN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D081BC31D94002F15CE /* BEN.geojson */; };
+		8FDB57601ECB9C0700993B7D /* ARE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5CFC1BC31D94002F15CE /* ARE.geojson */; };
+		8FDB57611ECB9C0700993B7D /* GMB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D4B1BC31D94002F15CE /* GMB.geojson */; };
+		8FDB57621ECB9C0700993B7D /* PAN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DA21BC31D94002F15CE /* PAN.geojson */; };
+		8FDB57631ECB9C0700993B7D /* waste-basket-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C631BC31D6D002F15CE /* waste-basket-24@2x.png */; };
+		8FDB57641ECB9C0700993B7D /* lowres_wtb_2x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BF31BC31D6D002F15CE /* lowres_wtb_2x0.pvrtc */; };
+		8FDB57651ECB9C0700993B7D /* FRA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D401BC31D94002F15CE /* FRA.geojson */; };
+		8FDB57661ECB9C0700993B7D /* farm-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C1F1BC31D6D002F15CE /* farm-24@2x.png */; };
+		8FDB57671ECB9C0700993B7D /* MNP.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D8B1BC31D94002F15CE /* MNP.geojson */; };
+		8FDB57681ECB9C0700993B7D /* LBR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D731BC31D94002F15CE /* LBR.geojson */; };
+		8FDB57691ECB9C0700993B7D /* KGZ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D6B1BC31D94002F15CE /* KGZ.geojson */; };
+		8FDB576A1ECB9C0700993B7D /* tl_2013_06075_roads.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DEF1BC31D95002F15CE /* tl_2013_06075_roads.dbf */; };
+		8FDB576B1ECB9C0700993B7D /* ESP.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D3A1BC31D94002F15CE /* ESP.geojson */; };
+		8FDB576C1ECB9C0700993B7D /* Star.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE41BC31D53002F15CE /* Star.png */; };
+		8FDB576D1ECB9C0700993B7D /* swimming-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C581BC31D6D002F15CE /* swimming-24@2x.png */; };
+		8FDB576E1ECB9C0700993B7D /* ARG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5CFD1BC31D94002F15CE /* ARG.geojson */; };
+		8FDB576F1ECB9C0700993B7D /* TCD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DCD1BC31D95002F15CE /* TCD.geojson */; };
+		8FDB57701ECB9C0700993B7D /* NASAGIBSTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF70B1C1CE164000756E9 /* NASAGIBSTestCase-globe.png */; };
+		8FDB57711ECB9C0700993B7D /* DZA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D351BC31D94002F15CE /* DZA.geojson */; };
+		8FDB57721ECB9C0700993B7D /* LabelsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6FF1C1CE164000756E9 /* LabelsTestCase-globe.png */; };
+		8FDB57731ECB9C0700993B7D /* bus-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C0A1BC31D6D002F15CE /* bus-24@2x.png */; };
+		8FDB57741ECB9C0700993B7D /* KAZ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D691BC31D94002F15CE /* KAZ.geojson */; };
+		8FDB57751ECB9C0700993B7D /* Smiley_Face_Avatar_by_PixelTwist.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE21BC31D53002F15CE /* Smiley_Face_Avatar_by_PixelTwist.png */; };
+		8FDB57761ECB9C0700993B7D /* MLT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D871BC31D94002F15CE /* MLT.geojson */; };
+		8FDB57771ECB9C0700993B7D /* CesiumElevationTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F81C1CE164000756E9 /* CesiumElevationTestCase-globe.png */; };
+		8FDB57781ECB9C0700993B7D /* NER.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D961BC31D94002F15CE /* NER.geojson */; };
+		8FDB57791ECB9C0700993B7D /* MegaMarkersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7081C1CE164000756E9 /* MegaMarkersTestCase-globe.png */; };
+		8FDB577A1ECB9C0700993B7D /* SVK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DC51BC31D95002F15CE /* SVK.geojson */; };
+		8FDB577B1ECB9C0700993B7D /* MLI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D861BC31D94002F15CE /* MLI.geojson */; };
+		8FDB577C1ECB9C0700993B7D /* PRT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DAB1BC31D94002F15CE /* PRT.geojson */; };
+		8FDB577D1ECB9C0700993B7D /* VCT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DE21BC31D95002F15CE /* VCT.geojson */; };
+		8FDB577E1ECB9C0700993B7D /* ATF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D011BC31D94002F15CE /* ATF.geojson */; };
+		8FDB577F1ECB9C0700993B7D /* spiral.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C91C83A22000DC1562 /* spiral.geojson */; };
+		8FDB57801ECB9C0700993B7D /* SLB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DBB1BC31D95002F15CE /* SLB.geojson */; };
+		8FDB57811ECB9C0700993B7D /* rocket-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C4D1BC31D6D002F15CE /* rocket-24@2x.png */; };
+		8FDB57821ECB9C0700993B7D /* VNM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DE61BC31D95002F15CE /* VNM.geojson */; };
+		8FDB57831ECB9C0700993B7D /* IDN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D5B1BC31D94002F15CE /* IDN.geojson */; };
+		8FDB57841ECB9C0700993B7D /* BLZ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D121BC31D94002F15CE /* BLZ.geojson */; };
+		8FDB57851ECB9C0700993B7D /* NRU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D9E1BC31D94002F15CE /* NRU.geojson */; };
+		8FDB57861ECB9C0700993B7D /* osm-bright.xml in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C681BC31D6D002F15CE /* osm-bright.xml */; };
+		8FDB57871ECB9C0700993B7D /* cross-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C181BC31D6D002F15CE /* cross-24@2x.png */; };
+		8FDB57881ECB9C0700993B7D /* GBR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D441BC31D94002F15CE /* GBR.geojson */; };
+		8FDB57891ECB9C0700993B7D /* DNK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D331BC31D94002F15CE /* DNK.geojson */; };
+		8FDB578A1ECB9C0700993B7D /* COK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D251BC31D94002F15CE /* COK.geojson */; };
+		8FDB578B1ECB9C0700993B7D /* SEN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DB61BC31D95002F15CE /* SEN.geojson */; };
+		8FDB578C1ECB9C0700993B7D /* BGD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D0B1BC31D94002F15CE /* BGD.geojson */; };
+		8FDB578D1ECB9C0700993B7D /* sawtoothbegin.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C81C83A22000DC1562 /* sawtoothbegin.geojson */; };
+		8FDB578E1ECB9C0700993B7D /* toilets-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C5C1BC31D6D002F15CE /* toilets-24@2x.png */; };
+		8FDB578F1ECB9C0700993B7D /* circle-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C111BC31D6D002F15CE /* circle-24@2x.png */; };
+		8FDB57901ECB9C0700993B7D /* disability-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C1B1BC31D6D002F15CE /* disability-24@2x.png */; };
+		8FDB57911ECB9C0700993B7D /* PAK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DA11BC31D94002F15CE /* PAK.geojson */; };
+		8FDB57921ECB9C0700993B7D /* library-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C2D1BC31D6D002F15CE /* library-24@2x.png */; };
+		8FDB57931ECB9C0700993B7D /* CPV.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D281BC31D94002F15CE /* CPV.geojson */; };
+		8FDB57941ECB9C0700993B7D /* MEX.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D831BC31D94002F15CE /* MEX.geojson */; };
+		8FDB57951ECB9C0700993B7D /* ZMB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DEC1BC31D95002F15CE /* ZMB.geojson */; };
+		8FDB57961ECB9C0700993B7D /* fire-station-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C221BC31D6D002F15CE /* fire-station-24@2x.png */; };
+		8FDB57971ECB9C0700993B7D /* globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F4D91DA1CDFA7DE00F68045 /* globe.png */; };
+		8FDB57981ECB9C0700993B7D /* sawtooth.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C71C83A22000DC1562 /* sawtooth.geojson */; };
+		8FDB57991ECB9C0700993B7D /* dog-park-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C1C1BC31D6D002F15CE /* dog-park-24@2x.png */; };
+		8FDB579A1ECB9C0700993B7D /* ATA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D001BC31D94002F15CE /* ATA.geojson */; };
+		8FDB579B1ECB9C0700993B7D /* VIR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DE51BC31D95002F15CE /* VIR.geojson */; };
+		8FDB579C1ECB9C0700993B7D /* HUN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D5A1BC31D94002F15CE /* HUN.geojson */; };
+		8FDB579D1ECB9C0700993B7D /* URY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DDE1BC31D95002F15CE /* URY.geojson */; };
+		8FDB579E1ECB9C0700993B7D /* GIN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D491BC31D94002F15CE /* GIN.geojson */; };
+		8FDB579F1ECB9C0700993B7D /* MapzenVectorTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7051C1CE164000756E9 /* MapzenVectorTestCase-map.png */; };
+		8FDB57A01ECB9C0700993B7D /* ShapesTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7111C1CE164000756E9 /* ShapesTestCase-globe.png */; };
+		8FDB57A11ECB9C0700993B7D /* POL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DA81BC31D94002F15CE /* POL.geojson */; };
+		8FDB57A21ECB9C0700993B7D /* JAM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D651BC31D94002F15CE /* JAM.geojson */; };
+		8FDB57A31ECB9C0700993B7D /* GUY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D541BC31D94002F15CE /* GUY.geojson */; };
+		8FDB57A41ECB9C0700993B7D /* SGP.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DB71BC31D95002F15CE /* SGP.geojson */; };
+		8FDB57A51ECB9C0700993B7D /* testJson.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B7FC0A61E32B67400AF253A /* testJson.json */; };
+		8FDB57A61ECB9C0700993B7D /* NGA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D981BC31D94002F15CE /* NGA.geojson */; };
+		8FDB57A71ECB9C0700993B7D /* land-use-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C2B1BC31D6D002F15CE /* land-use-24@2x.png */; };
+		8FDB57A81ECB9C0700993B7D /* polling-place-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C421BC31D6D002F15CE /* polling-place-24@2x.png */; };
+		8FDB57A91ECB9C0700993B7D /* BTN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D181BC31D94002F15CE /* BTN.geojson */; };
+		8FDB57AA1ECB9C0700993B7D /* RWA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DB31BC31D95002F15CE /* RWA.geojson */; };
+		8FDB57AB1ECB9C0700993B7D /* PRY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DAC1BC31D94002F15CE /* PRY.geojson */; };
+		8FDB57AC1ECB9C0700993B7D /* SOM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DBF1BC31D95002F15CE /* SOM.geojson */; };
+		8FDB57AD1ECB9C0700993B7D /* SLV.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DBD1BC31D95002F15CE /* SLV.geojson */; };
+		8FDB57AE1ECB9C0700993B7D /* parking-garage-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C3C1BC31D6D002F15CE /* parking-garage-24@2x.png */; };
+		8FDB57AF1ECB9C0700993B7D /* VEN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DE31BC31D95002F15CE /* VEN.geojson */; };
+		8FDB57B01ECB9C0700993B7D /* town-hall-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C5E1BC31D6D002F15CE /* town-hall-24@2x.png */; };
+		8FDB57B11ECB9C0700993B7D /* track.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CC1C83A22000DC1562 /* track.geojson */; };
+		8FDB57B21ECB9C0700993B7D /* starcatalog_orig.txt in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C721BC31D6D002F15CE /* starcatalog_orig.txt */; };
+		8FDB57B31ECB9C0700993B7D /* school.png in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5E31E1EAF73000FB5C1 /* school.png */; };
+		8FDB57B41ECB9C0700993B7D /* SYC.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DCA1BC31D95002F15CE /* SYC.geojson */; };
+		8FDB57B51ECB9C0700993B7D /* ScreenLabelsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF70E1C1CE164000756E9 /* ScreenLabelsTestCase-map.png */; };
+		8FDB57B61ECB9C0700993B7D /* mowing-lawn.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C41C83A22000DC1562 /* mowing-lawn.geojson */; };
+		8FDB57B71ECB9C0700993B7D /* ne_10m_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */; };
+		8FDB57B81ECB9C0700993B7D /* WLF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DE81BC31D95002F15CE /* WLF.geojson */; };
+		8FDB57B91ECB9C0700993B7D /* rightv.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C61C83A22000DC1562 /* rightv.geojson */; };
+		8FDB57BA1ECB9C0700993B7D /* SDN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DB51BC31D95002F15CE /* SDN.geojson */; };
+		8FDB57BB1ECB9C0700993B7D /* cemetery-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C0F1BC31D6D002F15CE /* cemetery-24@2x.png */; };
+		8FDB57BC1ECB9C0700993B7D /* AUT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D041BC31D94002F15CE /* AUT.geojson */; };
+		8FDB57BD1ECB9C0700993B7D /* ferry-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C211BC31D6D002F15CE /* ferry-24@2x.png */; };
+		8FDB57BE1ECB9C0700993B7D /* playground-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C401BC31D6D002F15CE /* playground-24@2x.png */; };
+		8FDB57BF1ECB9C0700993B7D /* BFA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D0A1BC31D94002F15CE /* BFA.geojson */; };
+		8FDB57C01ECB9C0700993B7D /* IND.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D5D1BC31D94002F15CE /* IND.geojson */; };
+		8FDB57C11ECB9C0700993B7D /* ShapesTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7121C1CE164000756E9 /* ShapesTestCase-map.png */; };
+		8FDB57C21ECB9C0700993B7D /* ASM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5CFF1BC31D94002F15CE /* ASM.geojson */; };
+		8FDB57C31ECB9C0700993B7D /* ScreenMarkersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF70F1C1CE164000756E9 /* ScreenMarkersTestCase-globe.png */; };
+		8FDB57C41ECB9C0700993B7D /* ETH.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D3C1BC31D94002F15CE /* ETH.geojson */; };
+		8FDB57C51ECB9C0700993B7D /* CRI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D291BC31D94002F15CE /* CRI.geojson */; };
+		8FDB57C61ECB9C0700993B7D /* ISR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D631BC31D94002F15CE /* ISR.geojson */; };
+		8FDB57C71ECB9C0700993B7D /* tl_2013_06075_roads.mbr in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF01BC31D95002F15CE /* tl_2013_06075_roads.mbr */; };
+		8FDB57C81ECB9C0700993B7D /* embassy-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C1D1BC31D6D002F15CE /* embassy-24@2x.png */; };
+		8FDB57C91ECB9C0700993B7D /* StickersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7151C1CE164000756E9 /* StickersTestCase-globe.png */; };
+		8FDB57CA1ECB9C0700993B7D /* dots.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB791DCAA574004125F1 /* dots.png */; };
+		8FDB57CB1ECB9C0700993B7D /* ISL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D621BC31D94002F15CE /* ISL.geojson */; };
+		8FDB57CC1ECB9C0700993B7D /* ESH.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D391BC31D94002F15CE /* ESH.geojson */; };
+		8FDB57CD1ECB9C0700993B7D /* religious-muslim-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C4A1BC31D6D002F15CE /* religious-muslim-24@2x.png */; };
+		8FDB57CE1ECB9C0700993B7D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8C81B83B6AB0050D21B /* Main.storyboard */; };
+		8FDB57CF1ECB9C0700993B7D /* SWE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DC71BC31D95002F15CE /* SWE.geojson */; };
+		8FDB57D01ECB9C0700993B7D /* star-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C551BC31D6D002F15CE /* star-24@2x.png */; };
+		8FDB57D11ECB9C0700993B7D /* IOT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D5E1BC31D94002F15CE /* IOT.geojson */; };
+		8FDB57D21ECB9C0700993B7D /* america-football-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C001BC31D6D002F15CE /* america-football-24@2x.png */; };
+		8FDB57D31ECB9C0700993B7D /* MNE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D891BC31D94002F15CE /* MNE.geojson */; };
+		8FDB57D41ECB9C0700993B7D /* CHN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D201BC31D94002F15CE /* CHN.geojson */; };
+		8FDB57D51ECB9C0700993B7D /* cube.obj in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE01BC31D53002F15CE /* cube.obj */; };
+		8FDB57D61ECB9C0700993B7D /* cafe-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C0B1BC31D6D002F15CE /* cafe-24@2x.png */; };
+		8FDB57D71ECB9C0700993B7D /* BMU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D131BC31D94002F15CE /* BMU.geojson */; };
+		8FDB57D81ECB9C0700993B7D /* village-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C611BC31D6D002F15CE /* village-24@2x.png */; };
+		8FDB57D91ECB9C0700993B7D /* map_pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE11BC31D53002F15CE /* map_pin.png */; };
+		8FDB57DA1ECB9C0700993B7D /* CHE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D1E1BC31D94002F15CE /* CHE.geojson */; };
+		8FDB57DB1ECB9C0700993B7D /* GEO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D451BC31D94002F15CE /* GEO.geojson */; };
+		8FDB57DC1ECB9C0700993B7D /* HND.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D571BC31D94002F15CE /* HND.geojson */; };
+		8FDB57DD1ECB9C0700993B7D /* cinema-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C101BC31D6D002F15CE /* cinema-24@2x.png */; };
+		8FDB57DE1ECB9C0700993B7D /* FRO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D411BC31D94002F15CE /* FRO.geojson */; };
+		8FDB57DF1ECB9C0700993B7D /* BNGTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F41C1CE164000756E9 /* BNGTestCase-globe.png */; };
+		8FDB57E01ECB9C0700993B7D /* starcatalog_short.txt in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C731BC31D6D002F15CE /* starcatalog_short.txt */; };
+		8FDB57E11ECB9C0700993B7D /* AnimatedBasemapTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F11C1CE164000756E9 /* AnimatedBasemapTestCase-globe.png */; };
+		8FDB57E21ECB9C0700993B7D /* FLK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D3F1BC31D94002F15CE /* FLK.geojson */; };
+		8FDB57E31ECB9C0700993B7D /* belfast_ireland_roads.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E5941DB81E0CEC8600E1C8B3 /* belfast_ireland_roads.geojson */; };
+		8FDB57E41ECB9C0700993B7D /* SJM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DBA1BC31D95002F15CE /* SJM.geojson */; };
+		8FDB57E51ECB9C0700993B7D /* moon.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C6F1BC31D6D002F15CE /* moon.png */; };
+		8FDB57E61ECB9C0700993B7D /* ECU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D361BC31D94002F15CE /* ECU.geojson */; };
+		8FDB57E71ECB9C0700993B7D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */; };
+		8FDB57E81ECB9C0700993B7D /* TLS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DD31BC31D95002F15CE /* TLS.geojson */; };
+		8FDB57E91ECB9C0700993B7D /* MDV.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D821BC31D94002F15CE /* MDV.geojson */; };
+		8FDB57EA1ECB9C0700993B7D /* ATG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D021BC31D94002F15CE /* ATG.geojson */; };
+		8FDB57EB1ECB9C0700993B7D /* HMD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D561BC31D94002F15CE /* HMD.geojson */; };
+		8FDB57EC1ECB9C0700993B7D /* ALB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5CFA1BC31D94002F15CE /* ALB.geojson */; };
+		8FDB57ED1ECB9C0700993B7D /* FJI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D3E1BC31D94002F15CE /* FJI.geojson */; };
+		8FDB57EE1ECB9C0700993B7D /* police.png in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5E21E1EAF73000FB5C1 /* police.png */; };
+		8FDB57EF1ECB9C0700993B7D /* library.png in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5E11E1EAF73000FB5C1 /* library.png */; };
+		8FDB57F01ECB9C0700993B7D /* LabelsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7001C1CE164000756E9 /* LabelsTestCase-map.png */; };
+		8FDB57F11ECB9C0700993B7D /* MarkersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7071C1CE164000756E9 /* MarkersTestCase-map.png */; };
+		8FDB57F21ECB9C0700993B7D /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
+		8FDB57F31ECB9C0700993B7D /* CYP.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D2E1BC31D94002F15CE /* CYP.geojson */; };
+		8FDB57F41ECB9C0700993B7D /* ZWE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DED1BC31D95002F15CE /* ZWE.geojson */; };
+		8FDB57F51ECB9C0700993B7D /* NAM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D941BC31D94002F15CE /* NAM.geojson */; };
+		8FDB57F61ECB9C0700993B7D /* SXM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DC91BC31D95002F15CE /* SXM.geojson */; };
+		8FDB57F71ECB9C0700993B7D /* PRK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DAA1BC31D94002F15CE /* PRK.geojson */; };
+		8FDB57F81ECB9C0700993B7D /* BRA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D151BC31D94002F15CE /* BRA.geojson */; };
+		8FDB57F91ECB9C0700993B7D /* ElevationLocalDatabase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6FC1C1CE164000756E9 /* ElevationLocalDatabase-globe.png */; };
+		8FDB57FA1ECB9C0700993B7D /* marker-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C321BC31D6D002F15CE /* marker-24@2x.png */; };
+		8FDB57FB1ECB9C0700993B7D /* place-of-worship-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C3F1BC31D6D002F15CE /* place-of-worship-24@2x.png */; };
+		8FDB57FC1ECB9C0700993B7D /* FIN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D3D1BC31D94002F15CE /* FIN.geojson */; };
+		8FDB57FD1ECB9C0700993B7D /* monument-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C351BC31D6D002F15CE /* monument-24@2x.png */; };
+		8FDB57FE1ECB9C0700993B7D /* cessna.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C6E1BC31D6D002F15CE /* cessna.png */; };
+		8FDB57FF1ECB9C0700993B7D /* basketball-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C061BC31D6D002F15CE /* basketball-24@2x.png */; };
+		8FDB58001ECB9C0700993B7D /* TON.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DD41BC31D95002F15CE /* TON.geojson */; };
+		8FDB58011ECB9C0700993B7D /* belfast_ireland_landusages.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E5941DB71E0CEC8600E1C8B3 /* belfast_ireland_landusages.geojson */; };
+		8FDB58021ECB9C0700993B7D /* fuel-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C231BC31D6D002F15CE /* fuel-24@2x.png */; };
+		8FDB58031ECB9C0700993B7D /* TKL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DD11BC31D95002F15CE /* TKL.geojson */; };
+		8FDB58041ECB9C0700993B7D /* ne_10m_roads.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB21DE3577C00717DF1 /* ne_10m_roads.dbf */; };
+		8FDB58051ECB9C0700993B7D /* AIA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5CF81BC31D94002F15CE /* AIA.geojson */; };
+		8FDB58061ECB9C0700993B7D /* belfast_ireland_amenities.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5D91E1EAF63000FB5C1 /* belfast_ireland_amenities.geojson */; };
+		8FDB58071ECB9C0700993B7D /* LIE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D761BC31D94002F15CE /* LIE.geojson */; };
+		8FDB58081ECB9C0700993B7D /* cricket-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C171BC31D6D002F15CE /* cricket-24@2x.png */; };
+		8FDB58091ECB9C0700993B7D /* grocery-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C261BC31D6D002F15CE /* grocery-24@2x.png */; };
+		8FDB580A1ECB9C0700993B7D /* post-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C431BC31D6D002F15CE /* post-24@2x.png */; };
+		8FDB580B1ECB9C0700993B7D /* MYT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D931BC31D94002F15CE /* MYT.geojson */; };
+		8FDB580C1ECB9C0700993B7D /* VGB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DE41BC31D95002F15CE /* VGB.geojson */; };
+		8FDB580D1ECB9C0700993B7D /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CB1B83B6AB0050D21B /* Images.xcassets */; };
+		8FDB580E1ECB9C0700993B7D /* SPM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DC01BC31D95002F15CE /* SPM.geojson */; };
+		8FDB580F1ECB9C0700993B7D /* COG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D241BC31D94002F15CE /* COG.geojson */; };
+		8FDB58101ECB9C0700993B7D /* CartoDBTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F61C1CE164000756E9 /* CartoDBTestCase-globe.png */; };
+		8FDB58111ECB9C0700993B7D /* France.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C26511C9100A500C71B0A /* France.mbtiles */; };
+		8FDB58121ECB9C0700993B7D /* MWI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D911BC31D94002F15CE /* MWI.geojson */; };
+		8FDB58131ECB9C0700993B7D /* tennis-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C5A1BC31D6D002F15CE /* tennis-24@2x.png */; };
+		8FDB58141ECB9C0700993B7D /* clothing-store-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C141BC31D6D002F15CE /* clothing-store-24@2x.png */; };
+		8FDB58151ECB9C0700993B7D /* golf-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C251BC31D6D002F15CE /* golf-24@2x.png */; };
+		8FDB58161ECB9C0700993B7D /* THA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DCF1BC31D95002F15CE /* THA.geojson */; };
+		8FDB58171ECB9C0700993B7D /* KWT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D701BC31D94002F15CE /* KWT.geojson */; };
+		8FDB58181ECB9C0700993B7D /* COM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D271BC31D94002F15CE /* COM.geojson */; };
+		8FDB58191ECB9C0700993B7D /* leftbend.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C21C83A22000DC1562 /* leftbend.geojson */; };
+		8FDB581A1ECB9C0700993B7D /* UKR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DDC1BC31D95002F15CE /* UKR.geojson */; };
+		8FDB581B1ECB9C0700993B7D /* forest.png in Resources */ = {isa = PBXBuildFile; fileRef = E5C82FCA1E221C890074DF23 /* forest.png */; };
+		8FDB581C1ECB9C0700993B7D /* PRI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DA91BC31D94002F15CE /* PRI.geojson */; };
+		8FDB581D1ECB9C0700993B7D /* PSE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DAD1BC31D94002F15CE /* PSE.geojson */; };
+		8FDB581E1ECB9C0700993B7D /* ZAF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DEB1BC31D95002F15CE /* ZAF.geojson */; };
+		8FDB581F1ECB9C0700993B7D /* VAT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DE11BC31D95002F15CE /* VAT.geojson */; };
+		8FDB58201ECB9C0700993B7D /* lowres_wtb_0x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BEF1BC31D6D002F15CE /* lowres_wtb_0x0.pvrtc */; };
+		8FDB58211ECB9C0700993B7D /* straight.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CB1C83A22000DC1562 /* straight.geojson */; };
+		8FDB58221ECB9C0700993B7D /* AUS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D031BC31D94002F15CE /* AUS.geojson */; };
+		8FDB58231ECB9C0700993B7D /* BHR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D0D1BC31D94002F15CE /* BHR.geojson */; };
+		8FDB58241ECB9C0700993B7D /* heliport-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C281BC31D6D002F15CE /* heliport-24@2x.png */; };
+		8FDB58251ECB9C0700993B7D /* BIH.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D0F1BC31D94002F15CE /* BIH.geojson */; };
+		8FDB58261ECB9C0700993B7D /* college-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C151BC31D6D002F15CE /* college-24@2x.png */; };
+		8FDB58271ECB9C0700993B7D /* triangle-stroked-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C601BC31D6D002F15CE /* triangle-stroked-24@2x.png */; };
+		8FDB58281ECB9C0700993B7D /* SHN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DB91BC31D95002F15CE /* SHN.geojson */; };
+		8FDB58291ECB9C0700993B7D /* NFK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D971BC31D94002F15CE /* NFK.geojson */; };
+		8FDB582A1ECB9C0700993B7D /* ImageSingleLevelTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 8FDE43611E01C9420026B20E /* ImageSingleLevelTestCase-globe.png */; };
+		8FDB582B1ECB9C0700993B7D /* danger-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C1A1BC31D6D002F15CE /* danger-24@2x.png */; };
+		8FDB582C1ECB9C0700993B7D /* stadium-utm-quad-data.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */; };
+		8FDB582D1ECB9C0700993B7D /* city-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C131BC31D6D002F15CE /* city-24@2x.png */; };
+		8FDB582E1ECB9C0700993B7D /* industrial.png in Resources */ = {isa = PBXBuildFile; fileRef = E5C82FC91E221C890074DF23 /* industrial.png */; };
+		8FDB582F1ECB9C0700993B7D /* minefield-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C341BC31D6D002F15CE /* minefield-24@2x.png */; };
+		8FDB58301ECB9C0700993B7D /* KNA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D6E1BC31D94002F15CE /* KNA.geojson */; };
+		8FDB58311ECB9C0700993B7D /* world_web_mercator.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BFB1BC31D6D002F15CE /* world_web_mercator.sqlite */; };
+		8FDB58321ECB9C0700993B7D /* MapzenStyles.json in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C6B1BC31D6D002F15CE /* MapzenStyles.json */; };
+		8FDB58331ECB9C0700993B7D /* TZA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DDA1BC31D95002F15CE /* TZA.geojson */; };
+		8FDB58341ECB9C0700993B7D /* SLE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DBC1BC31D95002F15CE /* SLE.geojson */; };
+		8FDB58351ECB9C0700993B7D /* residential.png in Resources */ = {isa = PBXBuildFile; fileRef = E5C82FCB1E221C890074DF23 /* residential.png */; };
+		8FDB58361ECB9C0700993B7D /* WideVectorsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF71A1C1CE164000756E9 /* WideVectorsTestCase-map.png */; };
+		8FDB58371ECB9C0700993B7D /* MDG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D811BC31D94002F15CE /* MDG.geojson */; };
+		8FDB58381ECB9C0700993B7D /* EGY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D371BC31D94002F15CE /* EGY.geojson */; };
+		8FDB58391ECB9C0700993B7D /* CartoDBTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F71C1CE164000756E9 /* CartoDBTestCase-map.png */; };
+		8FDB583A1ECB9C0700993B7D /* ModelsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF70A1C1CE164000756E9 /* ModelsTestCase-globe.png */; };
+		8FDB583B1ECB9C0700993B7D /* NZL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D9F1BC31D94002F15CE /* NZL.geojson */; };
+		8FDB583C1ECB9C0700993B7D /* MTQ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D8F1BC31D94002F15CE /* MTQ.geojson */; };
+		8FDB583D1ECB9C0700993B7D /* HTI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D591BC31D94002F15CE /* HTI.geojson */; };
+		8FDB583E1ECB9C0700993B7D /* DJI.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D311BC31D94002F15CE /* DJI.geojson */; };
+		8FDB583F1ECB9C0700993B7D /* COL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D261BC31D94002F15CE /* COL.geojson */; };
+		8FDB58401ECB9C0700993B7D /* shop-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C4F1BC31D6D002F15CE /* shop-24@2x.png */; };
+		8FDB58411ECB9C0700993B7D /* WideVectorsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7191C1CE164000756E9 /* WideVectorsTestCase-globe.png */; };
+		8FDB58421ECB9C0700993B7D /* religious-christian-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C481BC31D6D002F15CE /* religious-christian-24@2x.png */; };
+		8FDB58431ECB9C0700993B7D /* GRD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D4F1BC31D94002F15CE /* GRD.geojson */; };
+		8FDB58441ECB9C0700993B7D /* BLM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D101BC31D94002F15CE /* BLM.geojson */; };
+		8FDB58451ECB9C0700993B7D /* campsite-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C0D1BC31D6D002F15CE /* campsite-24@2x.png */; };
+		8FDB58461ECB9C0700993B7D /* PHL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DA51BC31D94002F15CE /* PHL.geojson */; };
+		8FDB58471ECB9C0700993B7D /* BNGCustomMapTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F31C1CE164000756E9 /* BNGCustomMapTestCase-map.png */; };
+		8FDB58481ECB9C0700993B7D /* MAC.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D7C1BC31D94002F15CE /* MAC.geojson */; };
+		8FDB58491ECB9C0700993B7D /* water-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C641BC31D6D002F15CE /* water-24@2x.png */; };
+		8FDB584A1ECB9C0700993B7D /* GLP.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D4A1BC31D94002F15CE /* GLP.geojson */; };
+		8FDB584B1ECB9C0700993B7D /* IRQ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D611BC31D94002F15CE /* IRQ.geojson */; };
+		8FDB584C1ECB9C0700993B7D /* MAF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D7D1BC31D94002F15CE /* MAF.geojson */; };
+		8FDB584D1ECB9C0700993B7D /* square-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C531BC31D6D002F15CE /* square-24@2x.png */; };
+		8FDB584E1ECB9C0700993B7D /* NIU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D9A1BC31D94002F15CE /* NIU.geojson */; };
+		8FDB584F1ECB9C0700993B7D /* BHS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D0E1BC31D94002F15CE /* BHS.geojson */; };
+		8FDB58501ECB9C0700993B7D /* museum-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C361BC31D6D002F15CE /* museum-24@2x.png */; };
+		8FDB58511ECB9C0700993B7D /* suitcase-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C571BC31D6D002F15CE /* suitcase-24@2x.png */; };
+		8FDB58521ECB9C0700993B7D /* ALA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5CF91BC31D94002F15CE /* ALA.geojson */; };
+		8FDB58531ECB9C0700993B7D /* commercial.png in Resources */ = {isa = PBXBuildFile; fileRef = E5C82FC81E221C890074DF23 /* commercial.png */; };
+		8FDB58541ECB9C0700993B7D /* BVT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D191BC31D94002F15CE /* BVT.geojson */; };
+		8FDB58551ECB9C0700993B7D /* LAO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D711BC31D94002F15CE /* LAO.geojson */; };
+		8FDB58561ECB9C0700993B7D /* water_lines.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC91E0D02A800E1C8B3 /* water_lines.sld */; };
+		8FDB58571ECB9C0700993B7D /* NASAGIBSTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF70C1C1CE164000756E9 /* NASAGIBSTestCase-map.png */; };
+		8FDB58581ECB9C0700993B7D /* map.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F4D91DB1CDFA7DE00F68045 /* map.png */; };
+		8FDB58591ECB9C0700993B7D /* CUW.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D2B1BC31D94002F15CE /* CUW.geojson */; };
+		8FDB585A1ECB9C0700993B7D /* GTM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D511BC31D94002F15CE /* GTM.geojson */; };
+		8FDB585B1ECB9C0700993B7D /* harbor-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C271BC31D6D002F15CE /* harbor-24@2x.png */; };
+		8FDB585C1ECB9C0700993B7D /* CesiumElevationTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F91C1CE164000756E9 /* CesiumElevationTestCase-map.png */; };
+		8FDB585D1ECB9C0700993B7D /* ConfigViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88231C781BA784BC00A95F2B /* ConfigViewController.xib */; };
+		8FDB585E1ECB9C0700993B7D /* park-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C391BC31D6D002F15CE /* park-24@2x.png */; };
+		8FDB585F1ECB9C0700993B7D /* NIC.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D991BC31D94002F15CE /* NIC.geojson */; };
+		8FDB58601ECB9C0700993B7D /* geography-class_medres.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BED1BC31D6D002F15CE /* geography-class_medres.mbtiles */; };
+		8FDB58611ECB9C0700993B7D /* PYF.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DAE1BC31D94002F15CE /* PYF.geojson */; };
+		8FDB58621ECB9C0700993B7D /* MMR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D881BC31D94002F15CE /* MMR.geojson */; };
+		8FDB58631ECB9C0700993B7D /* DEU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D301BC31D94002F15CE /* DEU.geojson */; };
+		8FDB58641ECB9C0700993B7D /* fast-food-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C201BC31D6D002F15CE /* fast-food-24@2x.png */; };
+		8FDB58651ECB9C0700993B7D /* MNG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D8A1BC31D94002F15CE /* MNG.geojson */; };
+		8FDB58661ECB9C0700993B7D /* UZB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DE01BC31D95002F15CE /* UZB.geojson */; };
+		8FDB58671ECB9C0700993B7D /* square.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CA1C83A22000DC1562 /* square.geojson */; };
+		8FDB58681ECB9C0700993B7D /* HRV.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D581BC31D94002F15CE /* HRV.geojson */; };
+		8FDB58691ECB9C0700993B7D /* building-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C091BC31D6D002F15CE /* building-24@2x.png */; };
+		8FDB586A1ECB9C0700993B7D /* lowres_wtb_1x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BF21BC31D6D002F15CE /* lowres_wtb_1x1.pvrtc */; };
+		8FDB586B1ECB9C0700993B7D /* GRL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D501BC31D94002F15CE /* GRL.geojson */; };
+		8FDB586C1ECB9C0700993B7D /* AFG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5CF61BC31D94002F15CE /* AFG.geojson */; };
+		8FDB586D1ECB9C0700993B7D /* VectorsTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7171C1CE164000756E9 /* VectorsTestCase-globe.png */; };
+		8FDB586E1ECB9C0700993B7D /* MSR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D8E1BC31D94002F15CE /* MSR.geojson */; };
+		8FDB586F1ECB9C0700993B7D /* oil-well-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C381BC31D6D002F15CE /* oil-well-24@2x.png */; };
+		8FDB58701ECB9C0700993B7D /* MOZ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D8C1BC31D94002F15CE /* MOZ.geojson */; };
+		8FDB58711ECB9C0700993B7D /* CUB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D2A1BC31D94002F15CE /* CUB.geojson */; };
+		8FDB58721ECB9C0700993B7D /* SAU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DB41BC31D95002F15CE /* SAU.geojson */; };
+		8FDB58731ECB9C0700993B7D /* MUS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D901BC31D94002F15CE /* MUS.geojson */; };
+		8FDB58741ECB9C0700993B7D /* CCK.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D1D1BC31D94002F15CE /* CCK.geojson */; };
+		8FDB58751ECB9C0700993B7D /* SMR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DBE1BC31D95002F15CE /* SMR.geojson */; };
+		8FDB58761ECB9C0700993B7D /* ClusteredMarkersTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6FA1C1CE164000756E9 /* ClusteredMarkersTestCase-globe.png */; };
+		8FDB58771ECB9C0700993B7D /* square-stroked-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C541BC31D6D002F15CE /* square-stroked-24@2x.png */; };
+		8FDB58781ECB9C0700993B7D /* AND.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5CFB1BC31D94002F15CE /* AND.geojson */; };
+		8FDB58791ECB9C0700993B7D /* TGO.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DCE1BC31D95002F15CE /* TGO.geojson */; };
+		8FDB587A1ECB9C0700993B7D /* rail-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C451BC31D6D002F15CE /* rail-24@2x.png */; };
+		8FDB587B1ECB9C0700993B7D /* MegaMarkersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7091C1CE164000756E9 /* MegaMarkersTestCase-map.png */; };
+		8FDB587C1ECB9C0700993B7D /* warehouse-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C621BC31D6D002F15CE /* warehouse-24@2x.png */; };
+		8FDB587D1ECB9C0700993B7D /* marker-stroked-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C331BC31D6D002F15CE /* marker-stroked-24@2x.png */; };
+		8FDB587E1ECB9C0700993B7D /* bicycle-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C081BC31D6D002F15CE /* bicycle-24@2x.png */; };
+		8FDB587F1ECB9C0700993B7D /* roadblock-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C4C1BC31D6D002F15CE /* roadblock-24@2x.png */; };
+		8FDB58801ECB9C0700993B7D /* restaurant-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C4B1BC31D6D002F15CE /* restaurant-24@2x.png */; };
+		8FDB58811ECB9C0700993B7D /* JOR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D671BC31D94002F15CE /* JOR.geojson */; };
+		8FDB58821ECB9C0700993B7D /* music-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C371BC31D6D002F15CE /* music-24@2x.png */; };
+		8FDB58831ECB9C0700993B7D /* hospital-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C291BC31D6D002F15CE /* hospital-24@2x.png */; };
+		8FDB58841ECB9C0700993B7D /* car-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C0E1BC31D6D002F15CE /* car-24@2x.png */; };
+		8FDB58851ECB9C0700993B7D /* CHL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D1F1BC31D94002F15CE /* CHL.geojson */; };
+		8FDB58861ECB9C0700993B7D /* LBY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D741BC31D94002F15CE /* LBY.geojson */; };
+		8FDB58871ECB9C0700993B7D /* lighthouse-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C2E1BC31D6D002F15CE /* lighthouse-24@2x.png */; };
+		8FDB58881ECB9C0700993B7D /* cemetery.png in Resources */ = {isa = PBXBuildFile; fileRef = E5C82FC71E221C890074DF23 /* cemetery.png */; };
+		8FDB58891ECB9C0700993B7D /* CMR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D221BC31D94002F15CE /* CMR.geojson */; };
+		8FDB588A1ECB9C0700993B7D /* telephone-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C591BC31D6D002F15CE /* telephone-24@2x.png */; };
+		8FDB588B1ECB9C0700993B7D /* COD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D231BC31D94002F15CE /* COD.geojson */; };
+		8FDB588C1ECB9C0700993B7D /* StamenWatercolorRemote-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 8FDE435C1E01C7200026B20E /* StamenWatercolorRemote-map.png */; };
+		8FDB588D1ECB9C0700993B7D /* OSTN02_NTv2.gsb in Resources */ = {isa = PBXBuildFile; fileRef = D84AA5961C1A26C100413B76 /* OSTN02_NTv2.gsb */; };
+		8FDB588E1ECB9C0700993B7D /* pharmacy-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C3D1BC31D6D002F15CE /* pharmacy-24@2x.png */; };
+		8FDB588F1ECB9C0700993B7D /* belfast_ireland_waterways.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E5941DBA1E0CEC8600E1C8B3 /* belfast_ireland_waterways.geojson */; };
+		8FDB58901ECB9C0700993B7D /* PCN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DA31BC31D94002F15CE /* PCN.geojson */; };
+		8FDB58911ECB9C0700993B7D /* TKM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DD21BC31D95002F15CE /* TKM.geojson */; };
+		8FDB58921ECB9C0700993B7D /* DMA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D321BC31D94002F15CE /* DMA.geojson */; };
+		8FDB58931ECB9C0700993B7D /* NCL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D951BC31D94002F15CE /* NCL.geojson */; };
+		8FDB58941ECB9C0700993B7D /* baseball-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C051BC31D6D002F15CE /* baseball-24@2x.png */; };
+		8FDB58951ECB9C0700993B7D /* PLW.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DA61BC31D94002F15CE /* PLW.geojson */; };
+		8FDB58961ECB9C0700993B7D /* firehouse.png in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5DF1E1EAF73000FB5C1 /* firehouse.png */; };
+		8FDB58971ECB9C0700993B7D /* star_background.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BE31BC31D53002F15CE /* star_background.png */; };
+		8FDB58981ECB9C0700993B7D /* KHM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D6C1BC31D94002F15CE /* KHM.geojson */; };
+		8FDB58991ECB9C0700993B7D /* lowres_wtb_4x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BF71BC31D6D002F15CE /* lowres_wtb_4x0.pvrtc */; };
+		8FDB589A1ECB9C0700993B7D /* SWZ.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DC81BC31D95002F15CE /* SWZ.geojson */; };
+		8FDB589B1ECB9C0700993B7D /* tl_2013_06075_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF11BC31D95002F15CE /* tl_2013_06075_roads.prj */; };
+		8FDB589C1ECB9C0700993B7D /* TWN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DD91BC31D95002F15CE /* TWN.geojson */; };
+		8FDB589D1ECB9C0700993B7D /* zoo-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C661BC31D6D002F15CE /* zoo-24@2x.png */; };
+		8FDB589E1ECB9C0700993B7D /* JEY.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D661BC31D94002F15CE /* JEY.geojson */; };
+		8FDB589F1ECB9C0700993B7D /* OMN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DA01BC31D94002F15CE /* OMN.geojson */; };
+		8FDB58A01ECB9C0700993B7D /* BEL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D071BC31D94002F15CE /* BEL.geojson */; };
+		8FDB58A11ECB9C0700993B7D /* PER.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DA41BC31D94002F15CE /* PER.geojson */; };
+		8FDB58A21ECB9C0700993B7D /* LTU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D791BC31D94002F15CE /* LTU.geojson */; };
+		8FDB58A31ECB9C0700993B7D /* skiing-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C501BC31D6D002F15CE /* skiing-24@2x.png */; };
+		8FDB58A41ECB9C0700993B7D /* RUS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DB21BC31D95002F15CE /* RUS.geojson */; };
+		8FDB58A51ECB9C0700993B7D /* tl_2013_06075_roads.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */; };
+		8FDB58A61ECB9C0700993B7D /* ROU.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DB11BC31D95002F15CE /* ROU.geojson */; };
+		8FDB58A71ECB9C0700993B7D /* VectorsTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7181C1CE164000756E9 /* VectorsTestCase-map.png */; };
+		8FDB58A81ECB9C0700993B7D /* beer-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C071BC31D6D002F15CE /* beer-24@2x.png */; };
+		8FDB58A91ECB9C0700993B7D /* ITA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D641BC31D94002F15CE /* ITA.geojson */; };
+		8FDB58AA1ECB9C0700993B7D /* GIB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D481BC31D94002F15CE /* GIB.geojson */; };
+		8FDB58AB1ECB9C0700993B7D /* GRC.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D4E1BC31D94002F15CE /* GRC.geojson */; };
+		8FDB58AC1ECB9C0700993B7D /* slaughterhouse-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C511BC31D6D002F15CE /* slaughterhouse-24@2x.png */; };
+		8FDB58AD1ECB9C0700993B7D /* SRB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DC11BC31D95002F15CE /* SRB.geojson */; };
+		8FDB58AE1ECB9C0700993B7D /* MKD.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D851BC31D94002F15CE /* MKD.geojson */; };
+		8FDB58AF1ECB9C0700993B7D /* StamenWatercolorRemote-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7131C1CE164000756E9 /* StamenWatercolorRemote-globe.png */; };
+		8FDB58B01ECB9C0700993B7D /* lowres_wtb_1x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BF11BC31D6D002F15CE /* lowres_wtb_1x0.pvrtc */; };
+		8FDB58B11ECB9C0700993B7D /* CXR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D2C1BC31D94002F15CE /* CXR.geojson */; };
+		8FDB58B21ECB9C0700993B7D /* TUV.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DD81BC31D95002F15CE /* TUV.geojson */; };
+		8FDB58B31ECB9C0700993B7D /* town-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C5D1BC31D6D002F15CE /* town-24@2x.png */; };
+		8FDB58B41ECB9C0700993B7D /* lowres_wtb_3x0.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BF51BC31D6D002F15CE /* lowres_wtb_3x0.pvrtc */; };
+		8FDB58B51ECB9C0700993B7D /* SVN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DC61BC31D95002F15CE /* SVN.geojson */; };
+		8FDB58B61ECB9C0700993B7D /* UGA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DDB1BC31D95002F15CE /* UGA.geojson */; };
+		8FDB58B71ECB9C0700993B7D /* CYM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D2D1BC31D94002F15CE /* CYM.geojson */; };
+		8FDB58B81ECB9C0700993B7D /* EST.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D3B1BC31D94002F15CE /* EST.geojson */; };
+		8FDB58B91ECB9C0700993B7D /* industrial-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C2A1BC31D6D002F15CE /* industrial-24@2x.png */; };
+		8FDB58BA1ECB9C0700993B7D /* vp.mtl in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C701BC31D6D002F15CE /* vp.mtl */; };
+		8FDB58BB1ECB9C0700993B7D /* BWA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D1A1BC31D94002F15CE /* BWA.geojson */; };
+		8FDB58BC1ECB9C0700993B7D /* wetland-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C651BC31D6D002F15CE /* wetland-24@2x.png */; };
+		8FDB58BD1ECB9C0700993B7D /* dam-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C191BC31D6D002F15CE /* dam-24@2x.png */; };
+		8FDB58BE1ECB9C0700993B7D /* BES.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D091BC31D94002F15CE /* BES.geojson */; };
+		8FDB58BF1ECB9C0700993B7D /* london-underground-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C311BC31D6D002F15CE /* london-underground-24@2x.png */; };
+		8FDB58C01ECB9C0700993B7D /* StickersTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7161C1CE164000756E9 /* StickersTestCase-map.png */; };
+		8FDB58C11ECB9C0700993B7D /* rail-above-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C461BC31D6D002F15CE /* rail-above-24@2x.png */; };
+		8FDB58C21ECB9C0700993B7D /* ARM.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5CFE1BC31D94002F15CE /* ARM.geojson */; };
+		8FDB58C31ECB9C0700993B7D /* camera-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C0C1BC31D6D002F15CE /* camera-24@2x.png */; };
+		8FDB58C41ECB9C0700993B7D /* soccer-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C521BC31D6D002F15CE /* soccer-24@2x.png */; };
+		8FDB58C51ECB9C0700993B7D /* ABW.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5CF51BC31D94002F15CE /* ABW.geojson */; };
+		8FDB58C61ECB9C0700993B7D /* bakery-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C021BC31D6D002F15CE /* bakery-24@2x.png */; };
+		8FDB58C71ECB9C0700993B7D /* belfast_ireland_waterareas.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E5941DB91E0CEC8600E1C8B3 /* belfast_ireland_waterareas.geojson */; };
+		8FDB58C81ECB9C0700993B7D /* BRB.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D161BC31D94002F15CE /* BRB.geojson */; };
+		8FDB58C91ECB9C0700993B7D /* AnimatedBasemapTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6F21C1CE164000756E9 /* AnimatedBasemapTestCase-map.png */; };
+		8FDB58CA1ECB9C0700993B7D /* bar-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C041BC31D6D002F15CE /* bar-24@2x.png */; };
+		8FDB58CB1ECB9C0700993B7D /* StarsSunTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF7141C1CE164000756E9 /* StarsSunTestCase-globe.png */; };
+		8FDB58CC1ECB9C0700993B7D /* amenities.sld in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5DD1E1EAF6A000FB5C1 /* amenities.sld */; };
+		8FDB58CD1ECB9C0700993B7D /* SYR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DCB1BC31D95002F15CE /* SYR.geojson */; };
+		8FDB58CE1ECB9C0700993B7D /* PNG.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DA71BC31D94002F15CE /* PNG.geojson */; };
+		8FDB58CF1ECB9C0700993B7D /* JPN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D681BC31D94002F15CE /* JPN.geojson */; };
+		8FDB58D01ECB9C0700993B7D /* LCA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D751BC31D94002F15CE /* LCA.geojson */; };
+		8FDB58D11ECB9C0700993B7D /* tl_2013_06075_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF21BC31D95002F15CE /* tl_2013_06075_roads.shp */; };
+		8FDB58D21ECB9C0700993B7D /* theatre-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C5B1BC31D6D002F15CE /* theatre-24@2x.png */; };
+		8FDB58D31ECB9C0700993B7D /* pitch-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C3E1BC31D6D002F15CE /* pitch-24@2x.png */; };
+		8FDB58D41ECB9C0700993B7D /* uturn.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6CD1C83A22000DC1562 /* uturn.geojson */; };
+		8FDB58D51ECB9C0700993B7D /* IRL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D5F1BC31D94002F15CE /* IRL.geojson */; };
+		8FDB58D61ECB9C0700993B7D /* TCA.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DCC1BC31D95002F15CE /* TCA.geojson */; };
+		8FDB58D71ECB9C0700993B7D /* AZE.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D051BC31D94002F15CE /* AZE.geojson */; };
+		8FDB58D81ECB9C0700993B7D /* STP.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DC31BC31D95002F15CE /* STP.geojson */; };
+		8FDB58D91ECB9C0700993B7D /* BGR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D0C1BC31D94002F15CE /* BGR.geojson */; };
+		8FDB58DA1ECB9C0700993B7D /* TUR.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DD71BC31D95002F15CE /* TUR.geojson */; };
+		8FDB58DB1ECB9C0700993B7D /* MYS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D921BC31D94002F15CE /* MYS.geojson */; };
+		8FDB58DC1ECB9C0700993B7D /* osm_roads.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC71E0D02A800E1C8B3 /* osm_roads.sld */; };
+		8FDB58DD1ECB9C0700993B7D /* VUT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DE71BC31D95002F15CE /* VUT.geojson */; };
+		8FDB58DE1ECB9C0700993B7D /* osm_water.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC81E0D02A800E1C8B3 /* osm_water.sld */; };
+		8FDB58DF1ECB9C0700993B7D /* osm_buildings.sld in Resources */ = {isa = PBXBuildFile; fileRef = E5941DC51E0D02A800E1C8B3 /* osm_buildings.sld */; };
+		8FDB58E01ECB9C0700993B7D /* lodging-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C2F1BC31D6D002F15CE /* lodging-24@2x.png */; };
+		8FDB58E11ECB9C0700993B7D /* police-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C411BC31D6D002F15CE /* police-24@2x.png */; };
+		8FDB58E21ECB9C0700993B7D /* GeographyClassTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6FD1C1CE164000756E9 /* GeographyClassTestCase-globe.png */; };
+		8FDB58E31ECB9C0700993B7D /* school-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C4E1BC31D6D002F15CE /* school-24@2x.png */; };
+		8FDB58E41ECB9C0700993B7D /* QAT.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DAF1BC31D95002F15CE /* QAT.geojson */; };
+		8FDB58E51ECB9C0700993B7D /* logging-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C301BC31D6D002F15CE /* logging-24@2x.png */; };
+		8FDB58E61ECB9C0700993B7D /* BRN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D171BC31D94002F15CE /* BRN.geojson */; };
+		8FDB58E71ECB9C0700993B7D /* leftv.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C31C83A22000DC1562 /* leftv.geojson */; };
+		8FDB58E81ECB9C0700993B7D /* IRN.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D601BC31D94002F15CE /* IRN.geojson */; };
+		8FDB58E91ECB9C0700993B7D /* garden-24@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5C241BC31D6D002F15CE /* garden-24@2x.png */; };
+		8FDB58EA1ECB9C0700993B7D /* NPL.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5D9D1BC31D94002F15CE /* NPL.geojson */; };
+		8FDB58EB1ECB9C0700993B7D /* GeographyClassTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 883DF6FE1C1CE164000756E9 /* GeographyClassTestCase-map.png */; };
+		8FDB58EC1ECB9C0700993B7D /* lowres_wtb_3x1.pvrtc in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5BF61BC31D6D002F15CE /* lowres_wtb_3x1.pvrtc */; };
+		8FDB58ED1ECB9C0700993B7D /* SGS.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DB81BC31D95002F15CE /* SGS.geojson */; };
+		8FDB58EE1ECB9C0700993B7D /* DropboxViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = D880112E1BFD16A900606EC6 /* DropboxViewController.xib */; };
 		8FDE435D1E01C7200026B20E /* StamenWatercolorRemote-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 8FDE435C1E01C7200026B20E /* StamenWatercolorRemote-map.png */; };
 		8FDE43621E01C9420026B20E /* ImageSingleLevelTestCase-map.png in Resources */ = {isa = PBXBuildFile; fileRef = 8FDE43601E01C9420026B20E /* ImageSingleLevelTestCase-map.png */; };
 		8FDE43631E01C9420026B20E /* ImageSingleLevelTestCase-globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 8FDE43611E01C9420026B20E /* ImageSingleLevelTestCase-globe.png */; };
@@ -703,6 +1263,7 @@
 		88E4B8CB1B83B6AB0050D21B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		88E4B8CE1B83B6AB0050D21B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		88E4B8EC1B83B9610050D21B /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		88F0951E1ECD041300E7E686 /* AutoTesterJenkins.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AutoTesterJenkins.plist; sourceTree = "<group>"; };
 		88FF5BE01BC31D53002F15CE /* cube.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cube.obj; path = ../../ios/apps/WhirlyGlobeComponentTester/resources/cube.obj; sourceTree = "<group>"; };
 		88FF5BE11BC31D53002F15CE /* map_pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = map_pin.png; path = ../WhirlyGlobeComponentTester/resources/map_pin.png; sourceTree = "<group>"; };
 		88FF5BE21BC31D53002F15CE /* Smiley_Face_Avatar_by_PixelTwist.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Smiley_Face_Avatar_by_PixelTwist.png; path = ../WhirlyGlobeComponentTester/resources/Smiley_Face_Avatar_by_PixelTwist.png; sourceTree = "<group>"; };
@@ -1100,6 +1661,7 @@
 		8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shx; path = ../../../resources/vectors/ne_10m_roads/ne_10m_roads.shx; sourceTree = "<group>"; };
 		8FC34D0C1CE7218E00BEB7C4 /* DownloadResourceOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadResourceOperation.h; sourceTree = "<group>"; };
 		8FC34D0D1CE7218E00BEB7C4 /* DownloadResourceOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadResourceOperation.m; sourceTree = "<group>"; };
+		8FDB58F41ECB9C0700993B7D /* AutoTesterJenkins.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AutoTesterJenkins.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8FDE435C1E01C7200026B20E /* StamenWatercolorRemote-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "StamenWatercolorRemote-map.png"; sourceTree = "<group>"; };
 		8FDE43601E01C9420026B20E /* ImageSingleLevelTestCase-map.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ImageSingleLevelTestCase-map.png"; sourceTree = "<group>"; };
 		8FDE43611E01C9420026B20E /* ImageSingleLevelTestCase-globe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "ImageSingleLevelTestCase-globe.png"; sourceTree = "<group>"; };
@@ -1203,6 +1765,20 @@
 				E5D2D6681DE6C25300E02305 /* libsqlite3.tbd in Frameworks */,
 				88E4B8ED1B83B9610050D21B /* CoreLocation.framework in Frameworks */,
 				DD3B9467B8D80BF7EBF57472 /* Pods_AutoTester.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8FDB57011ECB9C0700993B7D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8FDB57021ECB9C0700993B7D /* WhirlyGlobeMaplyComponent.framework in Frameworks */,
+				8FDB57031ECB9C0700993B7D /* libc++.tbd in Frameworks */,
+				8FDB57041ECB9C0700993B7D /* libz.tbd in Frameworks */,
+				8FDB57051ECB9C0700993B7D /* libxml2.tbd in Frameworks */,
+				8FDB57061ECB9C0700993B7D /* libsqlite3.tbd in Frameworks */,
+				8FDB57071ECB9C0700993B7D /* CoreLocation.framework in Frameworks */,
+				8FDB57081ECB9C0700993B7D /* Pods_AutoTester.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1409,6 +1985,7 @@
 			isa = PBXGroup;
 			children = (
 				88E4B8BF1B83B6AB0050D21B /* AutoTester.app */,
+				8FDB58F41ECB9C0700993B7D /* AutoTesterJenkins.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1446,6 +2023,7 @@
 		88E4B8C21B83B6AB0050D21B /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				88F0951E1ECD041300E7E686 /* AutoTesterJenkins.plist */,
 				88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */,
 				88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */,
 				88E4B8CB1B83B6AB0050D21B /* Images.xcassets */,
@@ -2045,6 +2623,26 @@
 			productReference = 88E4B8BF1B83B6AB0050D21B /* AutoTester.app */;
 			productType = "com.apple.product-type.application";
 		};
+		8FDB56BB1ECB9C0700993B7D /* AutoTesterJenkins */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8FDB58F11ECB9C0700993B7D /* Build configuration list for PBXNativeTarget "AutoTesterJenkins" */;
+			buildPhases = (
+				8FDB56BC1ECB9C0700993B7D /* [CP] Check Pods Manifest.lock */,
+				8FDB56BD1ECB9C0700993B7D /* Sources */,
+				8FDB57011ECB9C0700993B7D /* Frameworks */,
+				8FDB57091ECB9C0700993B7D /* Resources */,
+				8FDB58EF1ECB9C0700993B7D /* [CP] Embed Pods Frameworks */,
+				8FDB58F01ECB9C0700993B7D /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = AutoTesterJenkins;
+			productName = HelloEarthSwift;
+			productReference = 8FDB58F41ECB9C0700993B7D /* AutoTesterJenkins.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -2060,6 +2658,9 @@
 						DevelopmentTeam = BFXSGS6V8N;
 						LastSwiftMigration = 0800;
 						ProvisioningStyle = Automatic;
+					};
+					8FDB56BB1ECB9C0700993B7D = {
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -2083,6 +2684,7 @@
 			projectRoot = "";
 			targets = (
 				88E4B8BE1B83B6AB0050D21B /* AutoTester */,
+				8FDB56BB1ECB9C0700993B7D /* AutoTesterJenkins */,
 			);
 		};
 /* End PBXProject section */
@@ -2266,6 +2868,7 @@
 				88FF5EB71BC31D95002F15CE /* SGP.geojson in Resources */,
 				2B7FC0A71E32B67400AF253A /* testJson.json in Resources */,
 				88FF5E981BC31D95002F15CE /* NGA.geojson in Resources */,
+				88F0951F1ECD041300E7E686 /* AutoTesterJenkins.plist in Resources */,
 				88FF5CAF1BC31D6D002F15CE /* land-use-24@2x.png in Resources */,
 				88FF5CC61BC31D6D002F15CE /* polling-place-24@2x.png in Resources */,
 				88FF5E181BC31D95002F15CE /* BTN.geojson in Resources */,
@@ -2597,6 +3200,498 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8FDB57091ECB9C0700993B7D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8FDB570A1ECB9C0700993B7D /* GUF.geojson in Resources */,
+				8FDB570B1ECB9C0700993B7D /* ne_10m_roads.prj in Resources */,
+				8FDB570C1ECB9C0700993B7D /* CIV.geojson in Resources */,
+				8FDB570D1ECB9C0700993B7D /* MapzenGLStyle.json in Resources */,
+				8FDB570E1ECB9C0700993B7D /* religious-jewish-24@2x.png in Resources */,
+				8FDB570F1ECB9C0700993B7D /* star-stroked-24@2x.png in Resources */,
+				8FDB57101ECB9C0700993B7D /* lowres_wtb_info.plist in Resources */,
+				8FDB57111ECB9C0700993B7D /* CAN.geojson in Resources */,
+				8FDB57121ECB9C0700993B7D /* USA.geojson in Resources */,
+				8FDB57131ECB9C0700993B7D /* commercial-24@2x.png in Resources */,
+				8FDB57141ECB9C0700993B7D /* MarkersTestCase-globe.png in Resources */,
+				8FDB57151ECB9C0700993B7D /* NLD.geojson in Resources */,
+				8FDB57161ECB9C0700993B7D /* art-gallery-24@2x.png in Resources */,
+				8FDB57171ECB9C0700993B7D /* alcohol-shop-24@2x.png in Resources */,
+				8FDB57181ECB9C0700993B7D /* SunImage.png in Resources */,
+				8FDB57191ECB9C0700993B7D /* ClusteredMarkersTestCase-map.png in Resources */,
+				8FDB571A1ECB9C0700993B7D /* park2-24@2x.png in Resources */,
+				8FDB571B1ECB9C0700993B7D /* KEN.geojson in Resources */,
+				8FDB571C1ECB9C0700993B7D /* GUM.geojson in Resources */,
+				8FDB571D1ECB9C0700993B7D /* bank-24@2x.png in Resources */,
+				8FDB571E1ECB9C0700993B7D /* ERI.geojson in Resources */,
+				8FDB571F1ECB9C0700993B7D /* prison-24@2x.png in Resources */,
+				8FDB57201ECB9C0700993B7D /* MHL.geojson in Resources */,
+				8FDB57211ECB9C0700993B7D /* ImageSingleLevelTestCase-map.png in Resources */,
+				8FDB57221ECB9C0700993B7D /* airport-24@2x.png in Resources */,
+				8FDB57231ECB9C0700993B7D /* airfield-24@2x.png in Resources */,
+				8FDB57241ECB9C0700993B7D /* TJK.geojson in Resources */,
+				8FDB57251ECB9C0700993B7D /* TTO.geojson in Resources */,
+				8FDB57261ECB9C0700993B7D /* BDI.geojson in Resources */,
+				8FDB57271ECB9C0700993B7D /* YEM.geojson in Resources */,
+				8FDB57281ECB9C0700993B7D /* BLR.geojson in Resources */,
+				8FDB57291ECB9C0700993B7D /* TUN.geojson in Resources */,
+				8FDB572A1ECB9C0700993B7D /* styles.css in Resources */,
+				8FDB572B1ECB9C0700993B7D /* greensquare.png in Resources */,
+				8FDB572C1ECB9C0700993B7D /* NOR.geojson in Resources */,
+				8FDB572D1ECB9C0700993B7D /* rail-underground-24@2x.png in Resources */,
+				8FDB572E1ECB9C0700993B7D /* BNGTestCase-map.png in Resources */,
+				8FDB572F1ECB9C0700993B7D /* laundry-24@2x.png in Resources */,
+				8FDB57301ECB9C0700993B7D /* BOL.geojson in Resources */,
+				8FDB57311ECB9C0700993B7D /* GGY.geojson in Resources */,
+				8FDB57321ECB9C0700993B7D /* IMN.geojson in Resources */,
+				8FDB57331ECB9C0700993B7D /* LBN.geojson in Resources */,
+				8FDB57341ECB9C0700993B7D /* GAB.geojson in Resources */,
+				8FDB57351ECB9C0700993B7D /* LSO.geojson in Resources */,
+				8FDB57361ECB9C0700993B7D /* ne_10m_roads.shp in Resources */,
+				8FDB57371ECB9C0700993B7D /* SSD.geojson in Resources */,
+				8FDB57381ECB9C0700993B7D /* KOR.geojson in Resources */,
+				8FDB57391ECB9C0700993B7D /* DOM.geojson in Resources */,
+				8FDB573A1ECB9C0700993B7D /* rightbend.geojson in Resources */,
+				8FDB573B1ECB9C0700993B7D /* ScreenLabelsTestCase-globe.png in Resources */,
+				8FDB573C1ECB9C0700993B7D /* GNQ.geojson in Resources */,
+				8FDB573D1ECB9C0700993B7D /* CZE.geojson in Resources */,
+				8FDB573E1ECB9C0700993B7D /* emergency-telephone-24@2x.png in Resources */,
+				8FDB573F1ECB9C0700993B7D /* WSM.geojson in Resources */,
+				8FDB57401ECB9C0700993B7D /* KIR.geojson in Resources */,
+				8FDB57411ECB9C0700993B7D /* AGO.geojson in Resources */,
+				8FDB57421ECB9C0700993B7D /* cessna.obj in Resources */,
+				8FDB57431ECB9C0700993B7D /* HKG.geojson in Resources */,
+				8FDB57441ECB9C0700993B7D /* lowres_wtb_2x1.pvrtc in Resources */,
+				8FDB57451ECB9C0700993B7D /* LUX.geojson in Resources */,
+				8FDB57461ECB9C0700993B7D /* osm_landuse.sld in Resources */,
+				8FDB57471ECB9C0700993B7D /* MapzenSLDStyle.sld in Resources */,
+				8FDB57481ECB9C0700993B7D /* GNB.geojson in Resources */,
+				8FDB57491ECB9C0700993B7D /* MRT.geojson in Resources */,
+				8FDB574A1ECB9C0700993B7D /* lowres_wtb_0x1.pvrtc in Resources */,
+				8FDB574B1ECB9C0700993B7D /* FSM.geojson in Resources */,
+				8FDB574C1ECB9C0700993B7D /* belfast_ireland_buildings.geojson in Resources */,
+				8FDB574D1ECB9C0700993B7D /* parking-24@2x.png in Resources */,
+				8FDB574E1ECB9C0700993B7D /* circle-stroked-24@2x.png in Resources */,
+				8FDB574F1ECB9C0700993B7D /* lowres_wtb_4x1.pvrtc in Resources */,
+				8FDB57501ECB9C0700993B7D /* MAR.geojson in Resources */,
+				8FDB57511ECB9C0700993B7D /* ScreenMarkersTestCase-map.png in Resources */,
+				8FDB57521ECB9C0700993B7D /* UMI.geojson in Resources */,
+				8FDB57531ECB9C0700993B7D /* LKA.geojson in Resources */,
+				8FDB57541ECB9C0700993B7D /* LVA.geojson in Resources */,
+				8FDB57551ECB9C0700993B7D /* CAF.geojson in Resources */,
+				8FDB57561ECB9C0700993B7D /* tl_2013_06075_roads.shx in Resources */,
+				8FDB57571ECB9C0700993B7D /* REU.geojson in Resources */,
+				8FDB57581ECB9C0700993B7D /* SUR.geojson in Resources */,
+				8FDB57591ECB9C0700993B7D /* MDA.geojson in Resources */,
+				8FDB575A1ECB9C0700993B7D /* MCO.geojson in Resources */,
+				8FDB575B1ECB9C0700993B7D /* LoftedPolysTestCase-globe.png in Resources */,
+				8FDB575C1ECB9C0700993B7D /* triangle-24@2x.png in Resources */,
+				8FDB575D1ECB9C0700993B7D /* GHA.geojson in Resources */,
+				8FDB575E1ECB9C0700993B7D /* fuel.png in Resources */,
+				8FDB575F1ECB9C0700993B7D /* BEN.geojson in Resources */,
+				8FDB57601ECB9C0700993B7D /* ARE.geojson in Resources */,
+				8FDB57611ECB9C0700993B7D /* GMB.geojson in Resources */,
+				8FDB57621ECB9C0700993B7D /* PAN.geojson in Resources */,
+				8FDB57631ECB9C0700993B7D /* waste-basket-24@2x.png in Resources */,
+				8FDB57641ECB9C0700993B7D /* lowres_wtb_2x0.pvrtc in Resources */,
+				8FDB57651ECB9C0700993B7D /* FRA.geojson in Resources */,
+				8FDB57661ECB9C0700993B7D /* farm-24@2x.png in Resources */,
+				8FDB57671ECB9C0700993B7D /* MNP.geojson in Resources */,
+				8FDB57681ECB9C0700993B7D /* LBR.geojson in Resources */,
+				8FDB57691ECB9C0700993B7D /* KGZ.geojson in Resources */,
+				8FDB576A1ECB9C0700993B7D /* tl_2013_06075_roads.dbf in Resources */,
+				8FDB576B1ECB9C0700993B7D /* ESP.geojson in Resources */,
+				8FDB576C1ECB9C0700993B7D /* Star.png in Resources */,
+				8FDB576D1ECB9C0700993B7D /* swimming-24@2x.png in Resources */,
+				8FDB576E1ECB9C0700993B7D /* ARG.geojson in Resources */,
+				8FDB576F1ECB9C0700993B7D /* TCD.geojson in Resources */,
+				8FDB57701ECB9C0700993B7D /* NASAGIBSTestCase-globe.png in Resources */,
+				8FDB57711ECB9C0700993B7D /* DZA.geojson in Resources */,
+				8FDB57721ECB9C0700993B7D /* LabelsTestCase-globe.png in Resources */,
+				8FDB57731ECB9C0700993B7D /* bus-24@2x.png in Resources */,
+				8FDB57741ECB9C0700993B7D /* KAZ.geojson in Resources */,
+				8FDB57751ECB9C0700993B7D /* Smiley_Face_Avatar_by_PixelTwist.png in Resources */,
+				8FDB57761ECB9C0700993B7D /* MLT.geojson in Resources */,
+				8FDB57771ECB9C0700993B7D /* CesiumElevationTestCase-globe.png in Resources */,
+				8FDB57781ECB9C0700993B7D /* NER.geojson in Resources */,
+				8FDB57791ECB9C0700993B7D /* MegaMarkersTestCase-globe.png in Resources */,
+				8FDB577A1ECB9C0700993B7D /* SVK.geojson in Resources */,
+				8FDB577B1ECB9C0700993B7D /* MLI.geojson in Resources */,
+				8FDB577C1ECB9C0700993B7D /* PRT.geojson in Resources */,
+				8FDB577D1ECB9C0700993B7D /* VCT.geojson in Resources */,
+				8FDB577E1ECB9C0700993B7D /* ATF.geojson in Resources */,
+				8FDB577F1ECB9C0700993B7D /* spiral.geojson in Resources */,
+				8FDB57801ECB9C0700993B7D /* SLB.geojson in Resources */,
+				8FDB57811ECB9C0700993B7D /* rocket-24@2x.png in Resources */,
+				8FDB57821ECB9C0700993B7D /* VNM.geojson in Resources */,
+				8FDB57831ECB9C0700993B7D /* IDN.geojson in Resources */,
+				8FDB57841ECB9C0700993B7D /* BLZ.geojson in Resources */,
+				8FDB57851ECB9C0700993B7D /* NRU.geojson in Resources */,
+				8FDB57861ECB9C0700993B7D /* osm-bright.xml in Resources */,
+				8FDB57871ECB9C0700993B7D /* cross-24@2x.png in Resources */,
+				8FDB57881ECB9C0700993B7D /* GBR.geojson in Resources */,
+				8FDB57891ECB9C0700993B7D /* DNK.geojson in Resources */,
+				8FDB578A1ECB9C0700993B7D /* COK.geojson in Resources */,
+				8FDB578B1ECB9C0700993B7D /* SEN.geojson in Resources */,
+				8FDB578C1ECB9C0700993B7D /* BGD.geojson in Resources */,
+				8FDB578D1ECB9C0700993B7D /* sawtoothbegin.geojson in Resources */,
+				8FDB578E1ECB9C0700993B7D /* toilets-24@2x.png in Resources */,
+				8FDB578F1ECB9C0700993B7D /* circle-24@2x.png in Resources */,
+				8FDB57901ECB9C0700993B7D /* disability-24@2x.png in Resources */,
+				8FDB57911ECB9C0700993B7D /* PAK.geojson in Resources */,
+				8FDB57921ECB9C0700993B7D /* library-24@2x.png in Resources */,
+				8FDB57931ECB9C0700993B7D /* CPV.geojson in Resources */,
+				8FDB57941ECB9C0700993B7D /* MEX.geojson in Resources */,
+				8FDB57951ECB9C0700993B7D /* ZMB.geojson in Resources */,
+				8FDB57961ECB9C0700993B7D /* fire-station-24@2x.png in Resources */,
+				8FDB57971ECB9C0700993B7D /* globe.png in Resources */,
+				8FDB57981ECB9C0700993B7D /* sawtooth.geojson in Resources */,
+				8FDB57991ECB9C0700993B7D /* dog-park-24@2x.png in Resources */,
+				8FDB579A1ECB9C0700993B7D /* ATA.geojson in Resources */,
+				8FDB579B1ECB9C0700993B7D /* VIR.geojson in Resources */,
+				8FDB579C1ECB9C0700993B7D /* HUN.geojson in Resources */,
+				8FDB579D1ECB9C0700993B7D /* URY.geojson in Resources */,
+				8FDB579E1ECB9C0700993B7D /* GIN.geojson in Resources */,
+				8FDB579F1ECB9C0700993B7D /* MapzenVectorTestCase-map.png in Resources */,
+				8FDB57A01ECB9C0700993B7D /* ShapesTestCase-globe.png in Resources */,
+				8FDB57A11ECB9C0700993B7D /* POL.geojson in Resources */,
+				8FDB57A21ECB9C0700993B7D /* JAM.geojson in Resources */,
+				8FDB57A31ECB9C0700993B7D /* GUY.geojson in Resources */,
+				8FDB57A41ECB9C0700993B7D /* SGP.geojson in Resources */,
+				8FDB57A51ECB9C0700993B7D /* testJson.json in Resources */,
+				8FDB57A61ECB9C0700993B7D /* NGA.geojson in Resources */,
+				8FDB57A71ECB9C0700993B7D /* land-use-24@2x.png in Resources */,
+				8FDB57A81ECB9C0700993B7D /* polling-place-24@2x.png in Resources */,
+				8FDB57A91ECB9C0700993B7D /* BTN.geojson in Resources */,
+				8FDB57AA1ECB9C0700993B7D /* RWA.geojson in Resources */,
+				8FDB57AB1ECB9C0700993B7D /* PRY.geojson in Resources */,
+				8FDB57AC1ECB9C0700993B7D /* SOM.geojson in Resources */,
+				8FDB57AD1ECB9C0700993B7D /* SLV.geojson in Resources */,
+				8FDB57AE1ECB9C0700993B7D /* parking-garage-24@2x.png in Resources */,
+				8FDB57AF1ECB9C0700993B7D /* VEN.geojson in Resources */,
+				8FDB57B01ECB9C0700993B7D /* town-hall-24@2x.png in Resources */,
+				8FDB57B11ECB9C0700993B7D /* track.geojson in Resources */,
+				8FDB57B21ECB9C0700993B7D /* starcatalog_orig.txt in Resources */,
+				8FDB57B31ECB9C0700993B7D /* school.png in Resources */,
+				8FDB57B41ECB9C0700993B7D /* SYC.geojson in Resources */,
+				8FDB57B51ECB9C0700993B7D /* ScreenLabelsTestCase-map.png in Resources */,
+				8FDB57B61ECB9C0700993B7D /* mowing-lawn.geojson in Resources */,
+				8FDB57B71ECB9C0700993B7D /* ne_10m_roads.shx in Resources */,
+				8FDB57B81ECB9C0700993B7D /* WLF.geojson in Resources */,
+				8FDB57B91ECB9C0700993B7D /* rightv.geojson in Resources */,
+				8FDB57BA1ECB9C0700993B7D /* SDN.geojson in Resources */,
+				8FDB57BB1ECB9C0700993B7D /* cemetery-24@2x.png in Resources */,
+				8FDB57BC1ECB9C0700993B7D /* AUT.geojson in Resources */,
+				8FDB57BD1ECB9C0700993B7D /* ferry-24@2x.png in Resources */,
+				8FDB57BE1ECB9C0700993B7D /* playground-24@2x.png in Resources */,
+				8FDB57BF1ECB9C0700993B7D /* BFA.geojson in Resources */,
+				8FDB57C01ECB9C0700993B7D /* IND.geojson in Resources */,
+				8FDB57C11ECB9C0700993B7D /* ShapesTestCase-map.png in Resources */,
+				8FDB57C21ECB9C0700993B7D /* ASM.geojson in Resources */,
+				8FDB57C31ECB9C0700993B7D /* ScreenMarkersTestCase-globe.png in Resources */,
+				8FDB57C41ECB9C0700993B7D /* ETH.geojson in Resources */,
+				8FDB57C51ECB9C0700993B7D /* CRI.geojson in Resources */,
+				8FDB57C61ECB9C0700993B7D /* ISR.geojson in Resources */,
+				8FDB57C71ECB9C0700993B7D /* tl_2013_06075_roads.mbr in Resources */,
+				8FDB57C81ECB9C0700993B7D /* embassy-24@2x.png in Resources */,
+				8FDB57C91ECB9C0700993B7D /* StickersTestCase-globe.png in Resources */,
+				8FDB57CA1ECB9C0700993B7D /* dots.png in Resources */,
+				8FDB57CB1ECB9C0700993B7D /* ISL.geojson in Resources */,
+				8FDB57CC1ECB9C0700993B7D /* ESH.geojson in Resources */,
+				8FDB57CD1ECB9C0700993B7D /* religious-muslim-24@2x.png in Resources */,
+				8FDB57CE1ECB9C0700993B7D /* Main.storyboard in Resources */,
+				8FDB57CF1ECB9C0700993B7D /* SWE.geojson in Resources */,
+				8FDB57D01ECB9C0700993B7D /* star-24@2x.png in Resources */,
+				8FDB57D11ECB9C0700993B7D /* IOT.geojson in Resources */,
+				8FDB57D21ECB9C0700993B7D /* america-football-24@2x.png in Resources */,
+				8FDB57D31ECB9C0700993B7D /* MNE.geojson in Resources */,
+				8FDB57D41ECB9C0700993B7D /* CHN.geojson in Resources */,
+				8FDB57D51ECB9C0700993B7D /* cube.obj in Resources */,
+				8FDB57D61ECB9C0700993B7D /* cafe-24@2x.png in Resources */,
+				8FDB57D71ECB9C0700993B7D /* BMU.geojson in Resources */,
+				8FDB57D81ECB9C0700993B7D /* village-24@2x.png in Resources */,
+				8FDB57D91ECB9C0700993B7D /* map_pin.png in Resources */,
+				8FDB57DA1ECB9C0700993B7D /* CHE.geojson in Resources */,
+				8FDB57DB1ECB9C0700993B7D /* GEO.geojson in Resources */,
+				8FDB57DC1ECB9C0700993B7D /* HND.geojson in Resources */,
+				8FDB57DD1ECB9C0700993B7D /* cinema-24@2x.png in Resources */,
+				8FDB57DE1ECB9C0700993B7D /* FRO.geojson in Resources */,
+				8FDB57DF1ECB9C0700993B7D /* BNGTestCase-globe.png in Resources */,
+				8FDB57E01ECB9C0700993B7D /* starcatalog_short.txt in Resources */,
+				8FDB57E11ECB9C0700993B7D /* AnimatedBasemapTestCase-globe.png in Resources */,
+				8FDB57E21ECB9C0700993B7D /* FLK.geojson in Resources */,
+				8FDB57E31ECB9C0700993B7D /* belfast_ireland_roads.geojson in Resources */,
+				8FDB57E41ECB9C0700993B7D /* SJM.geojson in Resources */,
+				8FDB57E51ECB9C0700993B7D /* moon.png in Resources */,
+				8FDB57E61ECB9C0700993B7D /* ECU.geojson in Resources */,
+				8FDB57E71ECB9C0700993B7D /* LaunchScreen.xib in Resources */,
+				8FDB57E81ECB9C0700993B7D /* TLS.geojson in Resources */,
+				8FDB57E91ECB9C0700993B7D /* MDV.geojson in Resources */,
+				8FDB57EA1ECB9C0700993B7D /* ATG.geojson in Resources */,
+				8FDB57EB1ECB9C0700993B7D /* HMD.geojson in Resources */,
+				8FDB57EC1ECB9C0700993B7D /* ALB.geojson in Resources */,
+				8FDB57ED1ECB9C0700993B7D /* FJI.geojson in Resources */,
+				8FDB57EE1ECB9C0700993B7D /* police.png in Resources */,
+				8FDB57EF1ECB9C0700993B7D /* library.png in Resources */,
+				8FDB57F01ECB9C0700993B7D /* LabelsTestCase-map.png in Resources */,
+				8FDB57F11ECB9C0700993B7D /* MarkersTestCase-map.png in Resources */,
+				8FDB57F21ECB9C0700993B7D /* colorramp.png in Resources */,
+				8FDB57F31ECB9C0700993B7D /* CYP.geojson in Resources */,
+				8FDB57F41ECB9C0700993B7D /* ZWE.geojson in Resources */,
+				8FDB57F51ECB9C0700993B7D /* NAM.geojson in Resources */,
+				8FDB57F61ECB9C0700993B7D /* SXM.geojson in Resources */,
+				8FDB57F71ECB9C0700993B7D /* PRK.geojson in Resources */,
+				8FDB57F81ECB9C0700993B7D /* BRA.geojson in Resources */,
+				8FDB57F91ECB9C0700993B7D /* ElevationLocalDatabase-globe.png in Resources */,
+				8FDB57FA1ECB9C0700993B7D /* marker-24@2x.png in Resources */,
+				8FDB57FB1ECB9C0700993B7D /* place-of-worship-24@2x.png in Resources */,
+				8FDB57FC1ECB9C0700993B7D /* FIN.geojson in Resources */,
+				8FDB57FD1ECB9C0700993B7D /* monument-24@2x.png in Resources */,
+				8FDB57FE1ECB9C0700993B7D /* cessna.png in Resources */,
+				8FDB57FF1ECB9C0700993B7D /* basketball-24@2x.png in Resources */,
+				8FDB58001ECB9C0700993B7D /* TON.geojson in Resources */,
+				8FDB58011ECB9C0700993B7D /* belfast_ireland_landusages.geojson in Resources */,
+				8FDB58021ECB9C0700993B7D /* fuel-24@2x.png in Resources */,
+				8FDB58031ECB9C0700993B7D /* TKL.geojson in Resources */,
+				8FDB58041ECB9C0700993B7D /* ne_10m_roads.dbf in Resources */,
+				8FDB58051ECB9C0700993B7D /* AIA.geojson in Resources */,
+				8FDB58061ECB9C0700993B7D /* belfast_ireland_amenities.geojson in Resources */,
+				8FDB58071ECB9C0700993B7D /* LIE.geojson in Resources */,
+				8FDB58081ECB9C0700993B7D /* cricket-24@2x.png in Resources */,
+				8FDB58091ECB9C0700993B7D /* grocery-24@2x.png in Resources */,
+				8FDB580A1ECB9C0700993B7D /* post-24@2x.png in Resources */,
+				8FDB580B1ECB9C0700993B7D /* MYT.geojson in Resources */,
+				8FDB580C1ECB9C0700993B7D /* VGB.geojson in Resources */,
+				8FDB580D1ECB9C0700993B7D /* Images.xcassets in Resources */,
+				8FDB580E1ECB9C0700993B7D /* SPM.geojson in Resources */,
+				8FDB580F1ECB9C0700993B7D /* COG.geojson in Resources */,
+				8FDB58101ECB9C0700993B7D /* CartoDBTestCase-globe.png in Resources */,
+				8FDB58111ECB9C0700993B7D /* France.mbtiles in Resources */,
+				8FDB58121ECB9C0700993B7D /* MWI.geojson in Resources */,
+				8FDB58131ECB9C0700993B7D /* tennis-24@2x.png in Resources */,
+				8FDB58141ECB9C0700993B7D /* clothing-store-24@2x.png in Resources */,
+				8FDB58151ECB9C0700993B7D /* golf-24@2x.png in Resources */,
+				8FDB58161ECB9C0700993B7D /* THA.geojson in Resources */,
+				8FDB58171ECB9C0700993B7D /* KWT.geojson in Resources */,
+				8FDB58181ECB9C0700993B7D /* COM.geojson in Resources */,
+				8FDB58191ECB9C0700993B7D /* leftbend.geojson in Resources */,
+				8FDB581A1ECB9C0700993B7D /* UKR.geojson in Resources */,
+				8FDB581B1ECB9C0700993B7D /* forest.png in Resources */,
+				8FDB581C1ECB9C0700993B7D /* PRI.geojson in Resources */,
+				8FDB581D1ECB9C0700993B7D /* PSE.geojson in Resources */,
+				8FDB581E1ECB9C0700993B7D /* ZAF.geojson in Resources */,
+				8FDB581F1ECB9C0700993B7D /* VAT.geojson in Resources */,
+				8FDB58201ECB9C0700993B7D /* lowres_wtb_0x0.pvrtc in Resources */,
+				8FDB58211ECB9C0700993B7D /* straight.geojson in Resources */,
+				8FDB58221ECB9C0700993B7D /* AUS.geojson in Resources */,
+				8FDB58231ECB9C0700993B7D /* BHR.geojson in Resources */,
+				8FDB58241ECB9C0700993B7D /* heliport-24@2x.png in Resources */,
+				8FDB58251ECB9C0700993B7D /* BIH.geojson in Resources */,
+				8FDB58261ECB9C0700993B7D /* college-24@2x.png in Resources */,
+				8FDB58271ECB9C0700993B7D /* triangle-stroked-24@2x.png in Resources */,
+				8FDB58281ECB9C0700993B7D /* SHN.geojson in Resources */,
+				8FDB58291ECB9C0700993B7D /* NFK.geojson in Resources */,
+				8FDB582A1ECB9C0700993B7D /* ImageSingleLevelTestCase-globe.png in Resources */,
+				8FDB582B1ECB9C0700993B7D /* danger-24@2x.png in Resources */,
+				8FDB582C1ECB9C0700993B7D /* stadium-utm-quad-data.sqlite in Resources */,
+				8FDB582D1ECB9C0700993B7D /* city-24@2x.png in Resources */,
+				8FDB582E1ECB9C0700993B7D /* industrial.png in Resources */,
+				8FDB582F1ECB9C0700993B7D /* minefield-24@2x.png in Resources */,
+				8FDB58301ECB9C0700993B7D /* KNA.geojson in Resources */,
+				8FDB58311ECB9C0700993B7D /* world_web_mercator.sqlite in Resources */,
+				8FDB58321ECB9C0700993B7D /* MapzenStyles.json in Resources */,
+				8FDB58331ECB9C0700993B7D /* TZA.geojson in Resources */,
+				8FDB58341ECB9C0700993B7D /* SLE.geojson in Resources */,
+				8FDB58351ECB9C0700993B7D /* residential.png in Resources */,
+				8FDB58361ECB9C0700993B7D /* WideVectorsTestCase-map.png in Resources */,
+				8FDB58371ECB9C0700993B7D /* MDG.geojson in Resources */,
+				8FDB58381ECB9C0700993B7D /* EGY.geojson in Resources */,
+				8FDB58391ECB9C0700993B7D /* CartoDBTestCase-map.png in Resources */,
+				8FDB583A1ECB9C0700993B7D /* ModelsTestCase-globe.png in Resources */,
+				8FDB583B1ECB9C0700993B7D /* NZL.geojson in Resources */,
+				8FDB583C1ECB9C0700993B7D /* MTQ.geojson in Resources */,
+				8FDB583D1ECB9C0700993B7D /* HTI.geojson in Resources */,
+				8FDB583E1ECB9C0700993B7D /* DJI.geojson in Resources */,
+				8FDB583F1ECB9C0700993B7D /* COL.geojson in Resources */,
+				8FDB58401ECB9C0700993B7D /* shop-24@2x.png in Resources */,
+				8FDB58411ECB9C0700993B7D /* WideVectorsTestCase-globe.png in Resources */,
+				8FDB58421ECB9C0700993B7D /* religious-christian-24@2x.png in Resources */,
+				8FDB58431ECB9C0700993B7D /* GRD.geojson in Resources */,
+				8FDB58441ECB9C0700993B7D /* BLM.geojson in Resources */,
+				8FDB58451ECB9C0700993B7D /* campsite-24@2x.png in Resources */,
+				8FDB58461ECB9C0700993B7D /* PHL.geojson in Resources */,
+				8FDB58471ECB9C0700993B7D /* BNGCustomMapTestCase-map.png in Resources */,
+				8FDB58481ECB9C0700993B7D /* MAC.geojson in Resources */,
+				8FDB58491ECB9C0700993B7D /* water-24@2x.png in Resources */,
+				8FDB584A1ECB9C0700993B7D /* GLP.geojson in Resources */,
+				8FDB584B1ECB9C0700993B7D /* IRQ.geojson in Resources */,
+				8FDB584C1ECB9C0700993B7D /* MAF.geojson in Resources */,
+				8FDB584D1ECB9C0700993B7D /* square-24@2x.png in Resources */,
+				8FDB584E1ECB9C0700993B7D /* NIU.geojson in Resources */,
+				8FDB584F1ECB9C0700993B7D /* BHS.geojson in Resources */,
+				8FDB58501ECB9C0700993B7D /* museum-24@2x.png in Resources */,
+				8FDB58511ECB9C0700993B7D /* suitcase-24@2x.png in Resources */,
+				8FDB58521ECB9C0700993B7D /* ALA.geojson in Resources */,
+				8FDB58531ECB9C0700993B7D /* commercial.png in Resources */,
+				8FDB58541ECB9C0700993B7D /* BVT.geojson in Resources */,
+				8FDB58551ECB9C0700993B7D /* LAO.geojson in Resources */,
+				8FDB58561ECB9C0700993B7D /* water_lines.sld in Resources */,
+				8FDB58571ECB9C0700993B7D /* NASAGIBSTestCase-map.png in Resources */,
+				8FDB58581ECB9C0700993B7D /* map.png in Resources */,
+				8FDB58591ECB9C0700993B7D /* CUW.geojson in Resources */,
+				8FDB585A1ECB9C0700993B7D /* GTM.geojson in Resources */,
+				8FDB585B1ECB9C0700993B7D /* harbor-24@2x.png in Resources */,
+				8FDB585C1ECB9C0700993B7D /* CesiumElevationTestCase-map.png in Resources */,
+				8FDB585D1ECB9C0700993B7D /* ConfigViewController.xib in Resources */,
+				8FDB585E1ECB9C0700993B7D /* park-24@2x.png in Resources */,
+				8FDB585F1ECB9C0700993B7D /* NIC.geojson in Resources */,
+				8FDB58601ECB9C0700993B7D /* geography-class_medres.mbtiles in Resources */,
+				8FDB58611ECB9C0700993B7D /* PYF.geojson in Resources */,
+				8FDB58621ECB9C0700993B7D /* MMR.geojson in Resources */,
+				8FDB58631ECB9C0700993B7D /* DEU.geojson in Resources */,
+				8FDB58641ECB9C0700993B7D /* fast-food-24@2x.png in Resources */,
+				8FDB58651ECB9C0700993B7D /* MNG.geojson in Resources */,
+				8FDB58661ECB9C0700993B7D /* UZB.geojson in Resources */,
+				8FDB58671ECB9C0700993B7D /* square.geojson in Resources */,
+				8FDB58681ECB9C0700993B7D /* HRV.geojson in Resources */,
+				8FDB58691ECB9C0700993B7D /* building-24@2x.png in Resources */,
+				8FDB586A1ECB9C0700993B7D /* lowres_wtb_1x1.pvrtc in Resources */,
+				8FDB586B1ECB9C0700993B7D /* GRL.geojson in Resources */,
+				8FDB586C1ECB9C0700993B7D /* AFG.geojson in Resources */,
+				8FDB586D1ECB9C0700993B7D /* VectorsTestCase-globe.png in Resources */,
+				8FDB586E1ECB9C0700993B7D /* MSR.geojson in Resources */,
+				8FDB586F1ECB9C0700993B7D /* oil-well-24@2x.png in Resources */,
+				8FDB58701ECB9C0700993B7D /* MOZ.geojson in Resources */,
+				8FDB58711ECB9C0700993B7D /* CUB.geojson in Resources */,
+				8FDB58721ECB9C0700993B7D /* SAU.geojson in Resources */,
+				8FDB58731ECB9C0700993B7D /* MUS.geojson in Resources */,
+				8FDB58741ECB9C0700993B7D /* CCK.geojson in Resources */,
+				8FDB58751ECB9C0700993B7D /* SMR.geojson in Resources */,
+				8FDB58761ECB9C0700993B7D /* ClusteredMarkersTestCase-globe.png in Resources */,
+				8FDB58771ECB9C0700993B7D /* square-stroked-24@2x.png in Resources */,
+				8FDB58781ECB9C0700993B7D /* AND.geojson in Resources */,
+				8FDB58791ECB9C0700993B7D /* TGO.geojson in Resources */,
+				8FDB587A1ECB9C0700993B7D /* rail-24@2x.png in Resources */,
+				8FDB587B1ECB9C0700993B7D /* MegaMarkersTestCase-map.png in Resources */,
+				8FDB587C1ECB9C0700993B7D /* warehouse-24@2x.png in Resources */,
+				8FDB587D1ECB9C0700993B7D /* marker-stroked-24@2x.png in Resources */,
+				8FDB587E1ECB9C0700993B7D /* bicycle-24@2x.png in Resources */,
+				8FDB587F1ECB9C0700993B7D /* roadblock-24@2x.png in Resources */,
+				8FDB58801ECB9C0700993B7D /* restaurant-24@2x.png in Resources */,
+				8FDB58811ECB9C0700993B7D /* JOR.geojson in Resources */,
+				8FDB58821ECB9C0700993B7D /* music-24@2x.png in Resources */,
+				8FDB58831ECB9C0700993B7D /* hospital-24@2x.png in Resources */,
+				8FDB58841ECB9C0700993B7D /* car-24@2x.png in Resources */,
+				8FDB58851ECB9C0700993B7D /* CHL.geojson in Resources */,
+				8FDB58861ECB9C0700993B7D /* LBY.geojson in Resources */,
+				8FDB58871ECB9C0700993B7D /* lighthouse-24@2x.png in Resources */,
+				8FDB58881ECB9C0700993B7D /* cemetery.png in Resources */,
+				8FDB58891ECB9C0700993B7D /* CMR.geojson in Resources */,
+				8FDB588A1ECB9C0700993B7D /* telephone-24@2x.png in Resources */,
+				8FDB588B1ECB9C0700993B7D /* COD.geojson in Resources */,
+				8FDB588C1ECB9C0700993B7D /* StamenWatercolorRemote-map.png in Resources */,
+				8FDB588D1ECB9C0700993B7D /* OSTN02_NTv2.gsb in Resources */,
+				8FDB588E1ECB9C0700993B7D /* pharmacy-24@2x.png in Resources */,
+				8FDB588F1ECB9C0700993B7D /* belfast_ireland_waterways.geojson in Resources */,
+				8FDB58901ECB9C0700993B7D /* PCN.geojson in Resources */,
+				8FDB58911ECB9C0700993B7D /* TKM.geojson in Resources */,
+				8FDB58921ECB9C0700993B7D /* DMA.geojson in Resources */,
+				8FDB58931ECB9C0700993B7D /* NCL.geojson in Resources */,
+				8FDB58941ECB9C0700993B7D /* baseball-24@2x.png in Resources */,
+				8FDB58951ECB9C0700993B7D /* PLW.geojson in Resources */,
+				8FDB58961ECB9C0700993B7D /* firehouse.png in Resources */,
+				8FDB58971ECB9C0700993B7D /* star_background.png in Resources */,
+				8FDB58981ECB9C0700993B7D /* KHM.geojson in Resources */,
+				8FDB58991ECB9C0700993B7D /* lowres_wtb_4x0.pvrtc in Resources */,
+				8FDB589A1ECB9C0700993B7D /* SWZ.geojson in Resources */,
+				8FDB589B1ECB9C0700993B7D /* tl_2013_06075_roads.prj in Resources */,
+				8FDB589C1ECB9C0700993B7D /* TWN.geojson in Resources */,
+				8FDB589D1ECB9C0700993B7D /* zoo-24@2x.png in Resources */,
+				8FDB589E1ECB9C0700993B7D /* JEY.geojson in Resources */,
+				8FDB589F1ECB9C0700993B7D /* OMN.geojson in Resources */,
+				8FDB58A01ECB9C0700993B7D /* BEL.geojson in Resources */,
+				8FDB58A11ECB9C0700993B7D /* PER.geojson in Resources */,
+				8FDB58A21ECB9C0700993B7D /* LTU.geojson in Resources */,
+				8FDB58A31ECB9C0700993B7D /* skiing-24@2x.png in Resources */,
+				8FDB58A41ECB9C0700993B7D /* RUS.geojson in Resources */,
+				8FDB58A51ECB9C0700993B7D /* tl_2013_06075_roads.sqlite in Resources */,
+				8FDB58A61ECB9C0700993B7D /* ROU.geojson in Resources */,
+				8FDB58A71ECB9C0700993B7D /* VectorsTestCase-map.png in Resources */,
+				8FDB58A81ECB9C0700993B7D /* beer-24@2x.png in Resources */,
+				8FDB58A91ECB9C0700993B7D /* ITA.geojson in Resources */,
+				8FDB58AA1ECB9C0700993B7D /* GIB.geojson in Resources */,
+				8FDB58AB1ECB9C0700993B7D /* GRC.geojson in Resources */,
+				8FDB58AC1ECB9C0700993B7D /* slaughterhouse-24@2x.png in Resources */,
+				8FDB58AD1ECB9C0700993B7D /* SRB.geojson in Resources */,
+				8FDB58AE1ECB9C0700993B7D /* MKD.geojson in Resources */,
+				8FDB58AF1ECB9C0700993B7D /* StamenWatercolorRemote-globe.png in Resources */,
+				8FDB58B01ECB9C0700993B7D /* lowres_wtb_1x0.pvrtc in Resources */,
+				8FDB58B11ECB9C0700993B7D /* CXR.geojson in Resources */,
+				8FDB58B21ECB9C0700993B7D /* TUV.geojson in Resources */,
+				8FDB58B31ECB9C0700993B7D /* town-24@2x.png in Resources */,
+				8FDB58B41ECB9C0700993B7D /* lowres_wtb_3x0.pvrtc in Resources */,
+				8FDB58B51ECB9C0700993B7D /* SVN.geojson in Resources */,
+				8FDB58B61ECB9C0700993B7D /* UGA.geojson in Resources */,
+				8FDB58B71ECB9C0700993B7D /* CYM.geojson in Resources */,
+				8FDB58B81ECB9C0700993B7D /* EST.geojson in Resources */,
+				8FDB58B91ECB9C0700993B7D /* industrial-24@2x.png in Resources */,
+				8FDB58BA1ECB9C0700993B7D /* vp.mtl in Resources */,
+				8FDB58BB1ECB9C0700993B7D /* BWA.geojson in Resources */,
+				8FDB58BC1ECB9C0700993B7D /* wetland-24@2x.png in Resources */,
+				8FDB58BD1ECB9C0700993B7D /* dam-24@2x.png in Resources */,
+				8FDB58BE1ECB9C0700993B7D /* BES.geojson in Resources */,
+				8FDB58BF1ECB9C0700993B7D /* london-underground-24@2x.png in Resources */,
+				8FDB58C01ECB9C0700993B7D /* StickersTestCase-map.png in Resources */,
+				8FDB58C11ECB9C0700993B7D /* rail-above-24@2x.png in Resources */,
+				8FDB58C21ECB9C0700993B7D /* ARM.geojson in Resources */,
+				8FDB58C31ECB9C0700993B7D /* camera-24@2x.png in Resources */,
+				8FDB58C41ECB9C0700993B7D /* soccer-24@2x.png in Resources */,
+				8FDB58C51ECB9C0700993B7D /* ABW.geojson in Resources */,
+				8FDB58C61ECB9C0700993B7D /* bakery-24@2x.png in Resources */,
+				8FDB58C71ECB9C0700993B7D /* belfast_ireland_waterareas.geojson in Resources */,
+				8FDB58C81ECB9C0700993B7D /* BRB.geojson in Resources */,
+				8FDB58C91ECB9C0700993B7D /* AnimatedBasemapTestCase-map.png in Resources */,
+				8FDB58CA1ECB9C0700993B7D /* bar-24@2x.png in Resources */,
+				8FDB58CB1ECB9C0700993B7D /* StarsSunTestCase-globe.png in Resources */,
+				8FDB58CC1ECB9C0700993B7D /* amenities.sld in Resources */,
+				8FDB58CD1ECB9C0700993B7D /* SYR.geojson in Resources */,
+				8FDB58CE1ECB9C0700993B7D /* PNG.geojson in Resources */,
+				8FDB58CF1ECB9C0700993B7D /* JPN.geojson in Resources */,
+				8FDB58D01ECB9C0700993B7D /* LCA.geojson in Resources */,
+				8FDB58D11ECB9C0700993B7D /* tl_2013_06075_roads.shp in Resources */,
+				8FDB58D21ECB9C0700993B7D /* theatre-24@2x.png in Resources */,
+				8FDB58D31ECB9C0700993B7D /* pitch-24@2x.png in Resources */,
+				8FDB58D41ECB9C0700993B7D /* uturn.geojson in Resources */,
+				8FDB58D51ECB9C0700993B7D /* IRL.geojson in Resources */,
+				8FDB58D61ECB9C0700993B7D /* TCA.geojson in Resources */,
+				8FDB58D71ECB9C0700993B7D /* AZE.geojson in Resources */,
+				8FDB58D81ECB9C0700993B7D /* STP.geojson in Resources */,
+				8FDB58D91ECB9C0700993B7D /* BGR.geojson in Resources */,
+				8FDB58DA1ECB9C0700993B7D /* TUR.geojson in Resources */,
+				8FDB58DB1ECB9C0700993B7D /* MYS.geojson in Resources */,
+				8FDB58DC1ECB9C0700993B7D /* osm_roads.sld in Resources */,
+				8FDB58DD1ECB9C0700993B7D /* VUT.geojson in Resources */,
+				8FDB58DE1ECB9C0700993B7D /* osm_water.sld in Resources */,
+				8FDB58DF1ECB9C0700993B7D /* osm_buildings.sld in Resources */,
+				8FDB58E01ECB9C0700993B7D /* lodging-24@2x.png in Resources */,
+				8FDB58E11ECB9C0700993B7D /* police-24@2x.png in Resources */,
+				8FDB58E21ECB9C0700993B7D /* GeographyClassTestCase-globe.png in Resources */,
+				8FDB58E31ECB9C0700993B7D /* school-24@2x.png in Resources */,
+				8FDB58E41ECB9C0700993B7D /* QAT.geojson in Resources */,
+				8FDB58E51ECB9C0700993B7D /* logging-24@2x.png in Resources */,
+				8FDB58E61ECB9C0700993B7D /* BRN.geojson in Resources */,
+				8FDB58E71ECB9C0700993B7D /* leftv.geojson in Resources */,
+				8FDB58E81ECB9C0700993B7D /* IRN.geojson in Resources */,
+				8FDB58E91ECB9C0700993B7D /* garden-24@2x.png in Resources */,
+				8FDB58EA1ECB9C0700993B7D /* NPL.geojson in Resources */,
+				8FDB58EB1ECB9C0700993B7D /* GeographyClassTestCase-map.png in Resources */,
+				8FDB58EC1ECB9C0700993B7D /* lowres_wtb_3x1.pvrtc in Resources */,
+				8FDB58ED1ECB9C0700993B7D /* SGS.geojson in Resources */,
+				8FDB58EE1ECB9C0700993B7D /* DropboxViewController.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -2613,6 +3708,51 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AutoTester/Pods-AutoTester-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8FDB56BC1ECB9C0700993B7D /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		8FDB58EF1ECB9C0700993B7D /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AutoTester/Pods-AutoTester-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8FDB58F01ECB9C0700993B7D /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-AutoTester/Pods-AutoTester-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		D7529E79898E1F28CCC7DF93 /* [CP] Check Pods Manifest.lock */ = {
@@ -2719,6 +3859,80 @@
 				D8341A631BE299BF00411A46 /* MapzenVectorTestCase.swift in Sources */,
 				D8F2FE291BE7C2000058A310 /* MarkersTestCase.swift in Sources */,
 				D8F2FE231BE7B1B40058A310 /* MapzenSource.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8FDB56BD1ECB9C0700993B7D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8FDB56BE1ECB9C0700993B7D /* ActiveObjectTestCase.m in Sources */,
+				8FDB56BF1ECB9C0700993B7D /* LabelAnimationTestCase.m in Sources */,
+				8FDB56C01ECB9C0700993B7D /* ExtrudedModelTestCase.m in Sources */,
+				8FDB56C11ECB9C0700993B7D /* MovingScreenLabelsTestCase.swift in Sources */,
+				8FDB56C21ECB9C0700993B7D /* LoftedPolysTestCase.m in Sources */,
+				8FDB56C31ECB9C0700993B7D /* WeatherShader.swift in Sources */,
+				8FDB56C41ECB9C0700993B7D /* MaplyTestResult.m in Sources */,
+				8FDB56C51ECB9C0700993B7D /* MovingScreenMarkers.m in Sources */,
+				8FDB56C61ECB9C0700993B7D /* DownloadResourceOperation.m in Sources */,
+				8FDB56C71ECB9C0700993B7D /* CesiumElevationTestCase.m in Sources */,
+				8FDB56C81ECB9C0700993B7D /* ImageSingleLevelTestCase.swift in Sources */,
+				8FDB56C91ECB9C0700993B7D /* MaplyTestCase.m in Sources */,
+				8FDB56CA1ECB9C0700993B7D /* ResultCell.swift in Sources */,
+				8FDB56CB1ECB9C0700993B7D /* CartoDBTestCase.m in Sources */,
+				8FDB56CC1ECB9C0700993B7D /* ParticleTestCase.swift in Sources */,
+				8FDB56CD1ECB9C0700993B7D /* ScreenLabelsTestCase.swift in Sources */,
+				8FDB56CE1ECB9C0700993B7D /* ParticleTest.m in Sources */,
+				8FDB56CF1ECB9C0700993B7D /* AnimationDelegateTestCase.swift in Sources */,
+				8FDB56D01ECB9C0700993B7D /* DropboxViewController.swift in Sources */,
+				8FDB56D11ECB9C0700993B7D /* AnimatedBasemapTestCase.swift in Sources */,
+				8FDB56D21ECB9C0700993B7D /* CartoDBLayer.m in Sources */,
+				8FDB56D31ECB9C0700993B7D /* StartupViewController.swift in Sources */,
+				8FDB56D41ECB9C0700993B7D /* BNGCustomMapTestCase.swift in Sources */,
+				8FDB56D51ECB9C0700993B7D /* GreatCircleTestCase.m in Sources */,
+				8FDB56D61ECB9C0700993B7D /* ResultsViewController.swift in Sources */,
+				8FDB56D71ECB9C0700993B7D /* TestCell.swift in Sources */,
+				8FDB56D81ECB9C0700993B7D /* LIDARTestCase.mm in Sources */,
+				8FDB56D91ECB9C0700993B7D /* BNGTestCase.swift in Sources */,
+				8FDB56DA1ECB9C0700993B7D /* AnimatedMarkersTestCase.swift in Sources */,
+				8FDB56DB1ECB9C0700993B7D /* FullScreenViewController.swift in Sources */,
+				8FDB56DC1ECB9C0700993B7D /* PagingLayerTestCase.m in Sources */,
+				8FDB56DD1ECB9C0700993B7D /* StamenWatercolorRemote.swift in Sources */,
+				8FDB56DE1ECB9C0700993B7D /* ConfigViewController.swift in Sources */,
+				8FDB56DF1ECB9C0700993B7D /* AnimatedColorRampTestCase.m in Sources */,
+				8FDB56E01ECB9C0700993B7D /* NASAGIBSTestCase.swift in Sources */,
+				8FDB56E11ECB9C0700993B7D /* VectorMBTilesTestCase.m in Sources */,
+				8FDB56E21ECB9C0700993B7D /* FindHeightTestCase.m in Sources */,
+				8FDB56E31ECB9C0700993B7D /* VectorHoleTestCase.m in Sources */,
+				8FDB56E41ECB9C0700993B7D /* WideVectorsTestCase.m in Sources */,
+				8FDB56E51ECB9C0700993B7D /* ElevationLocalDatabase.m in Sources */,
+				8FDB56E61ECB9C0700993B7D /* ScreenMarkersTestCase.m in Sources */,
+				8FDB56E71ECB9C0700993B7D /* StickersTestCase.swift in Sources */,
+				8FDB56E81ECB9C0700993B7D /* GeoJSONStyleTestCase.swift in Sources */,
+				8FDB56E91ECB9C0700993B7D /* GeographyClassTestCase.m in Sources */,
+				8FDB56EA1ECB9C0700993B7D /* AerisWeatherTestCase.m in Sources */,
+				8FDB56EB1ECB9C0700993B7D /* AppDelegate.swift in Sources */,
+				8FDB56EC1ECB9C0700993B7D /* RunwayBuilderTestCase.m in Sources */,
+				8FDB56ED1ECB9C0700993B7D /* CartoDBLightTestCase.m in Sources */,
+				8FDB56EE1ECB9C0700993B7D /* ModelsTestCase.swift in Sources */,
+				8FDB56EF1ECB9C0700993B7D /* ClusteredMarkersTestCase.swift in Sources */,
+				8FDB56F01ECB9C0700993B7D /* ShapefileTestCase.m in Sources */,
+				8FDB56F11ECB9C0700993B7D /* LabelsTestCase.m in Sources */,
+				8FDB56F21ECB9C0700993B7D /* FullAnimationTest.m in Sources */,
+				8FDB56F31ECB9C0700993B7D /* LocationTrackingSimTestCase.swift in Sources */,
+				8FDB56F41ECB9C0700993B7D /* LocationTrackingRealTestCase.swift in Sources */,
+				8FDB56F51ECB9C0700993B7D /* MegaMarkersTestCase.m in Sources */,
+				8FDB56F61ECB9C0700993B7D /* VectorsTestCase.m in Sources */,
+				8FDB56F71ECB9C0700993B7D /* VectorStyleTestCase.m in Sources */,
+				8FDB56F81ECB9C0700993B7D /* ShapesTestCase.m in Sources */,
+				8FDB56F91ECB9C0700993B7D /* WMSTestCase.m in Sources */,
+				8FDB56FA1ECB9C0700993B7D /* WideVectorGlobeTestCase.m in Sources */,
+				8FDB56FB1ECB9C0700993B7D /* StarsSunTestCase.swift in Sources */,
+				8FDB56FC1ECB9C0700993B7D /* Issue721TestCase.swift in Sources */,
+				8FDB56FD1ECB9C0700993B7D /* TextureVectorTestCase.m in Sources */,
+				8FDB56FE1ECB9C0700993B7D /* MapzenVectorTestCase.swift in Sources */,
+				8FDB56FF1ECB9C0700993B7D /* MarkersTestCase.swift in Sources */,
+				8FDB57001ECB9C0700993B7D /* MapzenSource.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2896,6 +4110,69 @@
 			};
 			name = Release;
 		};
+		8FDB58F21ECB9C0700993B7D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 726309C36257E6205E08B947 /* Pods-AutoTester.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				DEVELOPMENT_TEAM = "";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/\"/**",
+					"\"$(SRCROOT)/../../../third-party/AFNetworking/AFNetworking\"",
+					"\"$(SRCROOT)/../../../third-party/KissXML/KissXML\"",
+					"\"$(SDKROOT)/usr/include/libxml2\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/vector_tiles\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/private\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobeLib/include/\"",
+					"\"$(SRCROOT)/../../../third-party/eigen\"",
+				);
+				INFOPLIST_FILE = AutoTester/AutoTesterJenkins.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mousebird.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/AutoTester/MaplyTesterBridge.h";
+				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		8FDB58F31ECB9C0700993B7D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 50758EC5237C3DF35AB67BE9 /* Pods-AutoTester.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				DEVELOPMENT_TEAM = "";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/\"/**",
+					"\"$(SRCROOT)/../../../third-party/AFNetworking/AFNetworking\"",
+					"\"$(SRCROOT)/../../../third-party/KissXML/KissXML\"",
+					"\"$(SDKROOT)/usr/include/libxml2\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/vector_tiles\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/private\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobeLib/include/\"",
+					"\"$(SRCROOT)/../../../third-party/eigen\"",
+				);
+				INFOPLIST_FILE = AutoTester/AutoTesterJenkins.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.mousebird.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/AutoTester/MaplyTesterBridge.h";
+				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2913,6 +4190,15 @@
 			buildConfigurations = (
 				88E4B8DF1B83B6AC0050D21B /* Debug */,
 				88E4B8E01B83B6AC0050D21B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8FDB58F11ECB9C0700993B7D /* Build configuration list for PBXNativeTarget "AutoTesterJenkins" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8FDB58F21ECB9C0700993B7D /* Debug */,
+				8FDB58F31ECB9C0700993B7D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
