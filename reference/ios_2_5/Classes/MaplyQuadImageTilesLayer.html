@@ -14,8 +14,8 @@
     <a title="MaplyQuadImageTilesLayer Class Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="../index.html">WhirlyGlobe-Maply Docs</a> (81% documented)</p>
-        <p class="header-right"><a href="https://github.com/mousebird/WhirlyGlobe"><img src="../img/gh.png"/>View on GitHub</a></p>
+        <p><a href="../index.html">WhirlyGlobe-Maply Docs</a> (83% documented)</p>
+        <p class="header-right"><a href="ithub_url"><img src="../img/gh.png"/>View on GitHub</a></p>
       </div>
     </header>
     <div class="content-wrapper">
@@ -128,9 +128,6 @@
                 <a href="../Classes/MaplyImageTile.html">MaplyImageTile</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Classes/MaplyLAZQuadReader.html">MaplyLAZQuadReader</a>
-              </li>
-              <li class="nav-group-task">
                 <a href="../Classes/MaplyLabel.html">MaplyLabel</a>
               </li>
               <li class="nav-group-task">
@@ -218,6 +215,9 @@
                 <a href="../Classes/MaplyRemoteTileSource.html">MaplyRemoteTileSource</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/MaplyRenderTarget.html">MaplyRenderTarget</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/MaplyScreenLabel.html">MaplyScreenLabel</a>
               </li>
               <li class="nav-group-task">
@@ -249,6 +249,9 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/MaplyShapeLinear.html">MaplyShapeLinear</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyShapeRectangle.html">MaplyShapeRectangle</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/MaplyShapeSphere.html">MaplyShapeSphere</a>
@@ -401,24 +404,6 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyJustify">kMaplyJustify</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderColorScale">kMaplyLAZReaderColorScale</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderCoordSys">kMaplyLAZReaderCoordSys</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderZOffset">kMaplyLAZReaderZOffset</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderPointSize">kMaplyLAZShaderPointSize</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderZMax">kMaplyLAZShaderZMax</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderZMin">kMaplyLAZShaderZMin</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyLabelDrawPriorityDefault">kMaplyLabelDrawPriorityDefault</a>
@@ -655,6 +640,12 @@
                 <a href="../Constants.html#/c:@kMaplyTexMinFilter">kMaplyTexMinFilter</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexSizeX">kMaplyTexSizeX</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexSizeY">kMaplyTexSizeY</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTexWrapX">kMaplyTexWrapX</a>
               </li>
               <li class="nav-group-task">
@@ -662,6 +653,18 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTextColor">kMaplyTextColor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustify">kMaplyTextJustify</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyCenter">kMaplyTextJustifyCenter</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyLeft">kMaplyTextJustifyLeft</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyRight">kMaplyTextJustifyRight</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTextOutlineColor">kMaplyTextOutlineColor</a>
@@ -906,6 +909,12 @@
             <a href="../Functions.html">Functions</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyBoundingBoxContains">MaplyBoundingBoxContains</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyBoundingBoxExpandByFraction">MaplyBoundingBoxExpandByFraction</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Functions.html#/c:@F@MaplyBoundingBoxMakeWithDegrees">MaplyBoundingBoxMakeWithDegrees</a>
               </li>
               <li class="nav-group-task">
@@ -939,12 +948,6 @@
                 <a href="../Functions.html#/c:@F@MaplyGreatCircleDistance">MaplyGreatCircleDistance</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Functions.html#/c:@F@MaplyLAZBuildPointShader">MaplyLAZBuildPointShader</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Functions.html#/c:@F@MaplyLAZBuildRampPointShader">MaplyLAZBuildRampPointShader</a>
-              </li>
-              <li class="nav-group-task">
                 <a href="../Functions.html#/c:@F@MaplyTileIDString">MaplyTileIDString</a>
               </li>
               <li class="nav-group-task">
@@ -960,18 +963,37 @@
             <h1>MaplyQuadImageTilesLayer</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyQuadImageTilesLayer</span> <span class="p">:</span> <span class="nc">MaplyViewControllerLayer</span></code></pre>
+                  <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyQuadImageTilesLayer</span> <span class="p">:</span> <span class="nc"><a href="../Classes/MaplyViewControllerLayer.html">MaplyViewControllerLayer</a></span></code></pre>
 
                 </div>
               </div>
-            <p>@brief The Maply Quad Image Tiles Layer is for paging image pyramids local or remote.
-    @details This layer pages image pyramids.  They can be local or remote, in any coordinate system Maply supports and you provide a MaplyTileSource conformant object to do the actual image tile fetching.
-    @details This is the main interface for image pyramid paging and so has a lot of knobs you can twiddle.  The defaults should work fine in most cases.
-    @details You probably don&rsquo;t have to implement your own tile source.  Go look at the MaplyRemoteTileSource and MaplyMBTileSource objects, as well as MaplyMultiplexTileSource.  Those will do remote, local, and sources for animation respectively.  There&rsquo;s also MaplyWMSTileSource, but I wouldn&rsquo;t expect to use that.
-    - see: MaplyRemoteTileSource
-    - see: MaplyMBTileSource
-    - see: MaplyMultiplexTileSource
-    - see: MaplyWMSTileSource</p>
+            <p>The Maply Quad Image Tiles Layer is for paging image pyramids local or remote.</p>
+
+<p>This layer pages image pyramids.  They can be local or remote, in any coordinate system Maply supports and you provide a MaplyTileSource conformant object to do the actual image tile fetching.</p>
+
+<p>This is the main interface for image pyramid paging and so has a lot of knobs you can twiddle.  The defaults should work fine in most cases.</p>
+
+<p>You probably don&rsquo;t have to implement your own tile source.  Go look at the MaplyRemoteTileSource and MaplyMBTileSource objects, as well as MaplyMultiplexTileSource.  Those will do remote, local, and sources for animation respectively.  There&rsquo;s also MaplyWMSTileSource, but I wouldn&rsquo;t expect to use that.</p>
+<div class="aside aside-see">
+    <p class="aside-title">See</p>
+    MaplyRemoteTileSource
+
+</div>
+<div class="aside aside-see">
+    <p class="aside-title">See</p>
+    MaplyMBTileSource
+
+</div>
+<div class="aside aside-see">
+    <p class="aside-title">See</p>
+    MaplyMultiplexTileSource
+
+</div>
+<div class="aside aside-see">
+    <p class="aside-title">See</p>
+    MaplyWMSTileSource
+
+</div>
 
           </section>
           <section class="section task-group-section">
@@ -990,9 +1012,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Initialize with a the tile source object.
- @details The initialize expects a tile source.  The tile source can be one of the standard ones listed above, or it can be one of your own that conforms to the MaplyTileSource protocol. The tile source&rsquo;s coordinate system will be used.
- - parameter: tileSource This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.</p>
+                        <p>Initialize with a the tile source object.</p>
+
+<p>The initialize expects a tile source.  The tile source can be one of the standard ones listed above, or it can be one of your own that conforms to the MaplyTileSource protocol. The tile source&rsquo;s coordinate system will be used.</p>
 
                       </div>
                       <div class="declaration">
@@ -1022,7 +1044,6 @@
                               <td>
                                 <div>
                                   <p>This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -1045,11 +1066,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Initialize with a coordinate system for the image pyramid and the tile source object.<br>
-    @details The initialize expects a coordinate system (probably MaplySphericalMercator) and a tile source.  The tile source can be one of the standard ones listed above, or it can be one of your own that conforms to the MaplyTileSource protocol.
-    - parameter: coordSys The coordinate system. This must match what your
-            image pyramid is in, or it will look weird.  Very weird.
-    - parameter: tileSource This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.</p>
+                        <p>Initialize with a coordinate system for the image pyramid and the tile source object.  </p>
+
+<p>The initialize expects a coordinate system (probably MaplySphericalMercator) and a tile source.  The tile source can be one of the standard ones listed above, or it can be one of your own that conforms to the MaplyTileSource protocol.</p>
 
                       </div>
                       <div class="declaration">
@@ -1080,8 +1099,7 @@
                               <td>
                                 <div>
                                   <p>The coordinate system. This must match what your
-           image pyramid is in, or it will look weird.  Very weird.</p>
-
+    image pyramid is in, or it will look weird.  Very weird.</p>
                                 </div>
                               </td>
                             </tr>
@@ -1094,7 +1112,6 @@
                               <td>
                                 <div>
                                   <p>This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -1117,8 +1134,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Set the active tile source.
-    @details If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.</p>
+                        <p>Set the active tile source.</p>
+
+<p>If you change this, it will force a reload of all loaded tiles and start fetching from the new tile source.</p>
 
                       </div>
                       <div class="declaration">
@@ -1151,8 +1169,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Enable/Disable the whole layer.
-    @details By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.</p>
+                        <p>Enable/Disable the whole layer.</p>
+
+<p>By default this is on.  If you turn it off, there may be a slight delay before the whole layer disappears.  The layer will keep working, but any geometry will be invisible until you turn it back on.</p>
 
                       </div>
                       <div class="declaration">
@@ -1184,8 +1203,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Set the fade for the whole layer.
-    @details By default this is 1.0.  The fade values can be changed while the layer is running.  It will blend the layer with the fade value when rendering.  A value of 0.0 will stop rendering the layer.</p>
+                        <p>Set the fade for the whole layer.</p>
+
+<p>By default this is 1.0.  The fade values can be changed while the layer is running.  It will blend the layer with the fade value when rendering.  A value of 0.0 will stop rendering the layer.</p>
 
                       </div>
                       <div class="declaration">
@@ -1217,8 +1237,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief The number of simultaneous fetches the layer will attempt at once.
-    @details The toolkit loves its dispatch queues and threads.  By default this number is set to 8 or 16, but if you need to constrain it, you can set it lower (or higher!).  If your tile source can&rsquo;t handle multi-thread access, set this to 1.</p>
+                        <p>The number of simultaneous fetches the layer will attempt at once.</p>
+
+<p>The toolkit loves its dispatch queues and threads.  By default this number is set to 8 or 16, but if you need to constrain it, you can set it lower (or higher!).  If your tile source can&rsquo;t handle multi-thread access, set this to 1.</p>
 
                       </div>
                       <div class="declaration">
@@ -1250,9 +1271,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief If set, we&rsquo;ll generate skirts between different levels of details on the globe.
-    @details This option makes zero sense in 2D mode, some sense if 3D map mode (if you&rsquo;re doing elevation) and a lot of sense in globe mode.  What it does is generate skirts along the sides of each tile so you can&rsquo;t see between that tile and the next one when it abuts a different level of detail.
-    @details Best to set this explicitly.  For a base map (e.g. the first image layer you put down), it should probably be set.  For following layers it should probably not, but specifics can change.  Try it out.</p>
+                        <p>If set, we&rsquo;ll generate skirts between different levels of details on the globe.</p>
+
+<p>This option makes zero sense in 2D mode, some sense if 3D map mode (if you&rsquo;re doing elevation) and a lot of sense in globe mode.  What it does is generate skirts along the sides of each tile so you can&rsquo;t see between that tile and the next one when it abuts a different level of detail.</p>
+
+<p>Best to set this explicitly.  For a base map (e.g. the first image layer you put down), it should probably be set.  For following layers it should probably not, but specifics can change.  Try it out.</p>
 
                       </div>
                       <div class="declaration">
@@ -1284,10 +1307,13 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Generate pole geometry for projections that don&rsquo;t go all the way to the poles.
-    @details This is for spherical mercator with web extents.  That projection doesn&rsquo;t run all the way to the poles, but it gets fairly close.  If set, we close that gap for the north and south poles and generate the remaining geometry.
-    @details We&rsquo;ll pull a texture value from the edge of the images, so build your texture accordingly.  A nice flat color along the north and south border is the best idea.  If not, it&rsquo;ll look a little odd, but still okay.
-    @details Though this is designed for MaplySphericalMercator, it may work in similar projections.  It&rsquo;s not going to make any sense for, say UTM, but give it a try.</p>
+                        <p>Generate pole geometry for projections that don&rsquo;t go all the way to the poles.</p>
+
+<p>This is for spherical mercator with web extents.  That projection doesn&rsquo;t run all the way to the poles, but it gets fairly close.  If set, we close that gap for the north and south poles and generate the remaining geometry.</p>
+
+<p>We&rsquo;ll pull a texture value from the edge of the images, so build your texture accordingly.  A nice flat color along the north and south border is the best idea.  If not, it&rsquo;ll look a little odd, but still okay.</p>
+
+<p>Though this is designed for MaplySphericalMercator, it may work in similar projections.  It&rsquo;s not going to make any sense for, say UTM, but give it a try.</p>
 
                       </div>
                       <div class="declaration">
@@ -1319,8 +1345,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Color for polygons that make up the north pole.
-    @details If coverPoles is set to true, then this will be the color of the polygons.  If this is not set, we&rsquo;ll pull that color from the textures.</p>
+                        <p>Color for polygons that make up the north pole.</p>
+
+<p>If coverPoles is set to true, then this will be the color of the polygons.  If this is not set, we&rsquo;ll pull that color from the textures.</p>
 
                       </div>
                       <div class="declaration">
@@ -1352,8 +1379,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Color for polygons that make up the south pole.
- @details If coverPoles is set to true, then this will be the color of the polygons.  If this is not set, we&rsquo;ll pull that color from the textures.</p>
+                        <p>Color for polygons that make up the south pole.</p>
+
+<p>If coverPoles is set to true, then this will be the color of the polygons.  If this is not set, we&rsquo;ll pull that color from the textures.</p>
 
                       </div>
                       <div class="declaration">
@@ -1385,8 +1413,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Set the minimum viewer height the layer will be visible at.
-    @details This is off by default.  When on the layer will not be visible unless the viewer is above this height.</p>
+                        <p>Set the minimum viewer height the layer will be visible at.</p>
+
+<p>This is off by default.  When on the layer will not be visible unless the viewer is above this height.</p>
 
                       </div>
                       <div class="declaration">
@@ -1418,8 +1447,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Set the maximum viewer height the layer will be visible at.
-    @details This is off by default.  When on the layer will not be visible unless the viewer is below this height.</p>
+                        <p>Set the maximum viewer height the layer will be visible at.</p>
+
+<p>This is off by default.  When on the layer will not be visible unless the viewer is below this height.</p>
 
                       </div>
                       <div class="declaration">
@@ -1451,8 +1481,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Controls whether the fetching code runs in a single thread or is spawned asyncronously.
-    @details If set, we&rsquo;ll kick off the tile fetches in their own dispatched blocks.  If not set, we&rsquo;ll just do it in the layer thread.</p>
+                        <p>Controls whether the fetching code runs in a single thread or is spawned asyncronously.</p>
+
+<p>If set, we&rsquo;ll kick off the tile fetches in their own dispatched blocks.  If not set, we&rsquo;ll just do it in the layer thread.</p>
 
                       </div>
                       <div class="declaration">
@@ -1484,9 +1515,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Set the minimum time for an update based on the viewer&rsquo;s location and orientation.
-    @details Paging layers watch the viewer to see what it&rsquo;s up to.  When the viewer moves, the layer updates its contents accordingly.  However, the viewer can be moving constantly so we need a way to keep things under control.
-    @details This value (in seconds) specifies the minimum time between updates.  In other words, we won&rsquo;t recalculate things more often than this.  Default value is 1/10s.</p>
+                        <p>Set the minimum time for an update based on the viewer&rsquo;s location and orientation.</p>
+
+<p>Paging layers watch the viewer to see what it&rsquo;s up to.  When the viewer moves, the layer updates its contents accordingly.  However, the viewer can be moving constantly so we need a way to keep things under control.</p>
+
+<p>This value (in seconds) specifies the minimum time between updates.  In other words, we won&rsquo;t recalculate things more often than this.  Default value is 1/10s.</p>
 
                       </div>
                       <div class="declaration">
@@ -1518,11 +1551,18 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Set the minimum movement for an update based on the viewer&rsquo;s location.
-    @details This is useful for throttling layer updates based on how far a viewer moves.  This will only kick off a view update if the viewer moves the given distance (in display coordinates).
-    @details We do not take orientation into account here, so you&rsquo;d probably be better looking straight down.  Default is off.
-    @details I suggest not using this unless you&rsquo;ve already run into the problem this solves.  Specifically that&rsquo;s where you&rsquo;ve moving constantly, but in small increments and are burning too much CPU.
-    - see: viewUpdatePeriod</p>
+                        <p>Set the minimum movement for an update based on the viewer&rsquo;s location.</p>
+
+<p>This is useful for throttling layer updates based on how far a viewer moves.  This will only kick off a view update if the viewer moves the given distance (in display coordinates).</p>
+
+<p>We do not take orientation into account here, so you&rsquo;d probably be better looking straight down.  Default is off.</p>
+
+<p>I suggest not using this unless you&rsquo;ve already run into the problem this solves.  Specifically that&rsquo;s where you&rsquo;ve moving constantly, but in small increments and are burning too much CPU.</p>
+<div class="aside aside-see">
+    <p class="aside-title">See</p>
+    viewUpdatePeriod
+
+</div>
 
                       </div>
                       <div class="declaration">
@@ -1554,8 +1594,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Have the layer wait until all local tiles are loaded before updating the renderer.
-    @details This will have the layer sit on updates until all the local tiles are in.  You won&rsquo;t see the lower levels loading in.  See waitLoadTimeout.</p>
+                        <p>Have the layer wait until all local tiles are loaded before updating the renderer.</p>
+
+<p>This will have the layer sit on updates until all the local tiles are in.  You won&rsquo;t see the lower levels loading in.  See waitLoadTimeout.</p>
 
                       </div>
                       <div class="declaration">
@@ -1587,8 +1628,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief The timeout for wait loads.  We can&rsquo;t wait longer than this for local updates to come back.
-    @details If waitLoad is on, this is the maximum time we&rsquo;ll wait for local tile fetches to complete.  There&rsquo;s a limit to the volume of scene changes we can let build up int he queue before we have to flush them.</p>
+                        <p>The timeout for wait loads.  We can&rsquo;t wait longer than this for local updates to come back.</p>
+
+<p>If waitLoad is on, this is the maximum time we&rsquo;ll wait for local tile fetches to complete.  There&rsquo;s a limit to the volume of scene changes we can let build up int he queue before we have to flush them.</p>
 
                       </div>
                       <div class="declaration">
@@ -1620,9 +1662,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief The number of images we&rsquo;re expecting to get per tile.
-    @details This is the number of images the layer will ask for per tile.  The default is 1, which is the normal case.  If this is greater than one that typically means we&rsquo;re going to animate between them.
-    @details the MaplyTileSource delegate is always expected to provide this many imates.</p>
+                        <p>The number of images we&rsquo;re expecting to get per tile.</p>
+
+<p>This is the number of images the layer will ask for per tile.  The default is 1, which is the normal case.  If this is greater than one that typically means we&rsquo;re going to animate between them.</p>
+
+<p>the MaplyTileSource delegate is always expected to provide this many imates.</p>
 
                       </div>
                       <div class="declaration">
@@ -1654,9 +1698,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Set the current image we&rsquo;re displaying.
-    @details This sets the current image being displayed, and interpolates between it and the next image.  If set to an integer value, you&rsquo;ll get just that image.  If set to a value between integers, you&rsquo;ll get a blend of the two.
-    @details This is incompatible with setting an animationPeriod.  Do just one or the other.</p>
+                        <p>Set the current image we&rsquo;re displaying.</p>
+
+<p>This sets the current image being displayed, and interpolates between it and the next image.  If set to an integer value, you&rsquo;ll get just that image.  If set to a value between integers, you&rsquo;ll get a blend of the two.</p>
+
+<p>This is incompatible with setting an animationPeriod.  Do just one or the other.</p>
 
                       </div>
                       <div class="declaration">
@@ -1688,9 +1734,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief If set, we&rsquo;ll use this as the maximum current image value when animating.
-    @details By default this is off (-1).  When it&rsquo;s on, we&rsquo;ll consider this the last valid value for currentImage.  This means, when animating, we&rsquo;ll run from 0 to maxCurrentImage.
-    @details This is helpful when you have an animation you want to taper off at the end past the last frame.</p>
+                        <p>If set, we&rsquo;ll use this as the maximum current image value when animating.</p>
+
+<p>By default this is off (-1).  When it&rsquo;s on, we&rsquo;ll consider this the last valid value for currentImage.  This means, when animating, we&rsquo;ll run from 0 to maxCurrentImage.</p>
+
+<p>This is helpful when you have an animation you want to taper off at the end past the last frame.</p>
 
                       </div>
                       <div class="declaration">
@@ -1722,9 +1770,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief The length of time we&rsquo;ll take to switch through all available images (per tile).
-    @details If set to non-zero right after layer creation we&rsquo;ll run through all the available images (in each tile) over the given period.  This only makes sense if you&rsquo;ve got more than one image per tile.
-    @details If you want tighter control use the currentImage property and set your own timer.</p>
+                        <p>The length of time we&rsquo;ll take to switch through all available images (per tile).</p>
+
+<p>If set to non-zero right after layer creation we&rsquo;ll run through all the available images (in each tile) over the given period.  This only makes sense if you&rsquo;ve got more than one image per tile.</p>
+
+<p>If you want tighter control use the currentImage property and set your own timer.</p>
 
                       </div>
                       <div class="declaration">
@@ -1756,9 +1806,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief If set to true, we&rsquo;ll consider the list of images for each tile to be circular when we animate.
-    @details When set we&rsquo;ll loop back to the first image when we go past the last.  This is the default.
-    @details When not set, we&rsquo;ll run from 0 to maxCurrentImage and then restart.</p>
+                        <p>If set to true, we&rsquo;ll consider the list of images for each tile to be circular when we animate.</p>
+
+<p>When set we&rsquo;ll loop back to the first image when we go past the last.  This is the default.</p>
+
+<p>When not set, we&rsquo;ll run from 0 to maxCurrentImage and then restart.</p>
 
                       </div>
                       <div class="declaration">
@@ -1790,9 +1842,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief If set, we&rsquo;ll try to fetch frames individually.
-    @details When fetching from a data source that has multiple frames we&rsquo;ll fetch each frame individually and allow them to display as we go.
-    @details If this is false, we&rsquo;ll force all the frames to load for a given tile before we move on to the next tile.</p>
+                        <p>If set, we&rsquo;ll try to fetch frames individually.</p>
+
+<p>When fetching from a data source that has multiple frames we&rsquo;ll fetch each frame individually and allow them to display as we go.</p>
+
+<p>If this is false, we&rsquo;ll force all the frames to load for a given tile before we move on to the next tile.</p>
 
                       </div>
                       <div class="declaration">
@@ -1824,8 +1878,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief For the case where we&rsquo;re loading individual frames, this sets the order to load them in.
-    @details When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.</p>
+                        <p>For the case where we&rsquo;re loading individual frames, this sets the order to load them in.</p>
+
+<p>When doing animation and loading frames, we have the option of loading them one by one.  Normally we start from 0 and work our way up, but you can control that order here.</p>
 
                       </div>
                       <div class="declaration">
@@ -1857,9 +1912,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Include the original z values in the tile geometry for a custom shader.
-    @details When generating tiles for the globe we project the coordinates from their local system (probably MaplySphericalMercator) into a display system.  If you wanted the original z values, to say, write a custom shader that maps color to elevation, that data is now missing.
-    @details If set, this adds the z values back as a separate vertex attribute called <q>a_elev</q> for your shader to pick up.</p>
+                        <p>Include the original z values in the tile geometry for a custom shader.</p>
+
+<p>When generating tiles for the globe we project the coordinates from their local system (probably MaplySphericalMercator) into a display system.  If you wanted the original z values, to say, write a custom shader that maps color to elevation, that data is now missing.</p>
+
+<p>If set, this adds the z values back as a separate vertex attribute called <q>a_elev</q> for your shader to pick up.</p>
 
                       </div>
                       <div class="declaration">
@@ -1891,9 +1948,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief If true we&rsquo;ll actuall use the elevation values to modify the mesh.
-    @details When this is on we&rsquo;ll modify the mesh to actually use elevation values passed in through the elevation delegate. On is the default, logically enough.
-    @details Why would you ever turn it off?  If you wanted a flat (or curved for the globe) mesh with elevation values in their seperate attribute array.  You might want a shading effect rather than actual geometry.</p>
+                        <p>If true we&rsquo;ll actuall use the elevation values to modify the mesh.</p>
+
+<p>When this is on we&rsquo;ll modify the mesh to actually use elevation values passed in through the elevation delegate. On is the default, logically enough.</p>
+
+<p>Why would you ever turn it off?  If you wanted a flat (or curved for the globe) mesh with elevation values in their seperate attribute array.  You might want a shading effect rather than actual geometry.</p>
 
                       </div>
                       <div class="declaration">
@@ -1925,10 +1984,13 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Requires an elevation chunk for every tile we display.
-    @details Elevation data is optional on the globe or map.  If it exists, via the MaplyElevationSource delegate on the view controller, then we&rsquo;ll use it to construct the tile.  This property requires elevation for any tile we display.
-    @details What this does is prevent flat tiles from showing up if there&rsquo;s more imagery than elevation.
-    @details We do make a distinction between missing tiles and tiles that are simply flat (at zero) in the MaplyElevationDatabase, so ocean will work correctly.</p>
+                        <p>Requires an elevation chunk for every tile we display.</p>
+
+<p>Elevation data is optional on the globe or map.  If it exists, via the MaplyElevationSource delegate on the view controller, then we&rsquo;ll use it to construct the tile.  This property requires elevation for any tile we display.</p>
+
+<p>What this does is prevent flat tiles from showing up if there&rsquo;s more imagery than elevation.</p>
+
+<p>We do make a distinction between missing tiles and tiles that are simply flat (at zero) in the MaplyElevationDatabase, so ocean will work correctly.</p>
 
                       </div>
                       <div class="declaration">
@@ -1960,8 +2022,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Color for the tile geometry.
-    @details The geometry we create for tiles has an RGBA color.  It&rsquo;s white/full alpha by default, but you can set it here.  You might want to do this if you&rsquo;d like a semi-transparent layer, sort of a shader of course, where you can do whatever you like.</p>
+                        <p>Color for the tile geometry.</p>
+
+<p>The geometry we create for tiles has an RGBA color.  It&rsquo;s white/full alpha by default, but you can set it here.  You might want to do this if you&rsquo;d like a semi-transparent layer, sort of a shader of course, where you can do whatever you like.</p>
 
                       </div>
                       <div class="declaration">
@@ -1988,9 +2051,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Maximum number of tiles to load in at once.
-    @details This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 128 and that&rsquo;s generally good enough.  However, if your tile size is small, you may want to load in more.
-    @details Tile loading can get out of control when using elevation data.  The toolkit calculates potential sceen coverage for each tile so elevation data makes all tiles more important.  As a result the system will happily page in way more data than you may want.  The limit becomes important in elevation mode, so leave it at 128 unless you need to change it.</p>
+                        <p>Maximum number of tiles to load in at once.</p>
+
+<p>This is the maximum number of tiles the pager will have loaded into memory at once.  The default is 128 and that&rsquo;s generally good enough.  However, if your tile size is small, you may want to load in more.</p>
+
+<p>Tile loading can get out of control when using elevation data.  The toolkit calculates potential sceen coverage for each tile so elevation data makes all tiles more important.  As a result the system will happily page in way more data than you may want.  The limit becomes important in elevation mode, so leave it at 128 unless you need to change it.</p>
 
                       </div>
                       <div class="declaration">
@@ -2022,9 +2087,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Tinker with the importance for tiles.  This will cause more or fewer tiles to load
-    @details The system calculates an importance for each tile based on its size and location on the screen.  You can mess with those values here.
-    @details Any value less than 1.0 will make the tiles less important.  Any value greater than 1.0 will make tiles more important.</p>
+                        <p>Tinker with the importance for tiles.  This will cause more or fewer tiles to load</p>
+
+<p>The system calculates an importance for each tile based on its size and location on the screen.  You can mess with those values here.</p>
+
+<p>Any value less than 1.0 will make the tiles less important.  Any value greater than 1.0 will make tiles more important.</p>
 
                       </div>
                       <div class="declaration">
@@ -2056,9 +2123,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Set the shader name to use for generated tiles.
-    @details Shader programs are accessed by name.  When you create a shader and tie it into the scene, you&rsquo;ll have the name.  Use that name here to ensure that all tiles are rendered with that MaplyShader.
-    @details Be sure to set this immediately after layer creation.  It can&rsquo;t be changed in the middle.</p>
+                        <p>Set the shader name to use for generated tiles.</p>
+
+<p>Shader programs are accessed by name.  When you create a shader and tie it into the scene, you&rsquo;ll have the name.  Use that name here to ensure that all tiles are rendered with that MaplyShader.</p>
+
+<p>Be sure to set this immediately after layer creation.  It can&rsquo;t be changed in the middle.</p>
 
                       </div>
                       <div class="declaration">
@@ -2090,9 +2159,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Set the (power of two) size of texture atlases the layer will create.
-    @details The system makes extensive use of texture atlases for rendering tiles.  Typically we&rsquo;ll only have one or two gigantic textures will all our imagery and a handfull of drawables.  This is what makes the system fast.  Very fast.
-    @details This option controls the size of those texture atlases.  It&rsquo;s set to 2048 by default (2048x2048 texels).  If you&rsquo;re going to change it, set it to 1024, but don&rsquo;t go any lower unless you know something we don&rsquo;t.  It must always be a power of 2.</p>
+                        <p>Set the (power of two) size of texture atlases the layer will create.</p>
+
+<p>The system makes extensive use of texture atlases for rendering tiles.  Typically we&rsquo;ll only have one or two gigantic textures will all our imagery and a handfull of drawables.  This is what makes the system fast.  Very fast.</p>
+
+<p>This option controls the size of those texture atlases.  It&rsquo;s set to 2048 by default (2048x2048 texels).  If you&rsquo;re going to change it, set it to 1024, but don&rsquo;t go any lower unless you know something we don&rsquo;t.  It must always be a power of 2.</p>
 
                       </div>
                       <div class="declaration">
@@ -2124,9 +2195,12 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Set the image format for the texture atlases (thus the imagery).
-    @details OpenGL ES offers us several image formats that are more efficient than 32 bit RGBA, but they&rsquo;re not always appropriate.  This property lets you choose one of them.  The 16 or 8 bit ones can save a huge amount of space and will work well for some imagery, most maps, and a lot of weather overlays.
-    @details Be sure to set this at layer creation, it won&rsquo;t do anything later on.</p>
+                        <pre class="highlight plaintext"><code>Set the image format for the texture atlases (thus the imagery).
+
+OpenGL ES offers us several image formats that are more efficient than 32 bit RGBA, but they're not always appropriate.  This property lets you choose one of them.  The 16 or 8 bit ones can save a huge amount of space and will work well for some imagery, most maps, and a lot of weather overlays.
+
+Be sure to set this at layer creation, it won't do anything later on.
+</code></pre>
 
 <table><thead>
 <tr>
@@ -2206,9 +2280,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Number of border texels to set up around image tiles.
-    @details For matching image tiles along borders in 3D (probably the globe) we resample the image slightly smaller than we get and make up a boundary around the outside.  This number controls that border size.
-    @details By default this is 1.  It&rsquo;s safe to set it to 0 for 2D maps and some overalys.</p>
+                        <p>Number of border texels to set up around image tiles.</p>
+
+<p>For matching image tiles along borders in 3D (probably the globe) we resample the image slightly smaller than we get and make up a boundary around the outside.  This number controls that border size.</p>
+
+<p>By default this is 1.  It&rsquo;s safe to set it to 0 for 2D maps and some overalys.</p>
 
                       </div>
                       <div class="declaration">
@@ -2240,10 +2316,13 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Control how tiles are indexed, either from the lower left or the upper left.
-    @details If set, we&rsquo;ll use the OSM approach (also Google Maps) to y indexing.  That&rsquo;s that default and it&rsquo;s normally what you&rsquo;re run into.
-    @details Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you&rsquo;re tile source looks odd, try setting this to false.
-    @details Default value is true.</p>
+                        <p>Control how tiles are indexed, either from the lower left or the upper left.</p>
+
+<p>If set, we&rsquo;ll use the OSM approach (also Google Maps) to y indexing.  That&rsquo;s that default and it&rsquo;s normally what you&rsquo;re run into.</p>
+
+<p>Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you&rsquo;re tile source looks odd, try setting this to false.</p>
+
+<p>Default value is true.</p>
 
                       </div>
                       <div class="declaration">
@@ -2275,9 +2354,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Use the target zoom level shortcut when possible.
-    @details This turns on the target zoom level shortcut as described in targetZoomLevel.  When on we&rsquo;ll calculate tile importance that way, that is based on a target zoom level rather than the more complex screen space calculations.
-    @details It&rsquo;s on by default and will activate only when this layer&rsquo;s coordinate system is the same as the display system and there&rsquo;s no view matrix (e.g. tilt) set.</p>
+                        <p>Use the target zoom level shortcut when possible.</p>
+
+<p>This turns on the target zoom level shortcut as described in targetZoomLevel.  When on we&rsquo;ll calculate tile importance that way, that is based on a target zoom level rather than the more complex screen space calculations.</p>
+
+<p>It&rsquo;s on by default and will activate only when this layer&rsquo;s coordinate system is the same as the display system and there&rsquo;s no view matrix (e.g. tilt) set.</p>
 
                       </div>
                       <div class="declaration">
@@ -2309,9 +2390,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Only load a single level at a time.
-    @details When set, we&rsquo;ll only load one level of tiles at once.  This is very efficient for memory and fast for loading, but you&rsquo;ll see flashing as you move between levels.
-    @details Off by default.</p>
+                        <p>Only load a single level at a time.</p>
+
+<p>When set, we&rsquo;ll only load one level of tiles at once.  This is very efficient for memory and fast for loading, but you&rsquo;ll see flashing as you move between levels.</p>
+
+<p>Off by default.</p>
 
                       </div>
                       <div class="declaration">
@@ -2343,10 +2426,13 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Detail the levels you want loaded in target level mode.
-    @details The image display can work in one of two modes, quad tree where it loads everything starting from the min level or a target level mode where it just tries to load one or more target levels.  This is the array that controls which levels it will try to load.
-    @details We do this so that the user doesn&rsquo;t have to wait for the target level to load.  This can be distracting on large displays with small tiles.  If you use this mode, the layer will load lower levels first, filling in quicker and then load the target level.  This looks much better, but doesn&rsquo;t take as long as the full quad tree based loading.
-    @details The layer calculates the optimal target level (for 2D maps, if you&rsquo;re in that mode).  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.</p>
+                        <p>Detail the levels you want loaded in target level mode.</p>
+
+<p>The image display can work in one of two modes, quad tree where it loads everything starting from the min level or a target level mode where it just tries to load one or more target levels.  This is the array that controls which levels it will try to load.</p>
+
+<p>We do this so that the user doesn&rsquo;t have to wait for the target level to load.  This can be distracting on large displays with small tiles.  If you use this mode, the layer will load lower levels first, filling in quicker and then load the target level.  This looks much better, but doesn&rsquo;t take as long as the full quad tree based loading.</p>
+
+<p>The layer calculates the optimal target level (for 2D maps, if you&rsquo;re in that mode).  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.</p>
 
                       </div>
                       <div class="declaration">
@@ -2378,10 +2464,13 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief The target zoom level for this layer given the current view settings.
-    @details Calculates the target zoom level for the middle of the screen.
-    @details This only makes sense for flat maps that use the same coordinate system we&rsquo;re using in this tile source.  In addition, the viewer can&rsquo;t have a tilt or any non-2D transform in the view matrix.  If it does, this is meaningless, but it&rsquo;ll return a number anyway.
-    @details If all those conditions are met then we can say we&rsquo;re only displaying a single zoom level and this is that.</p>
+                        <p>The target zoom level for this layer given the current view settings.</p>
+
+<p>Calculates the target zoom level for the middle of the screen.</p>
+
+<p>This only makes sense for flat maps that use the same coordinate system we&rsquo;re using in this tile source.  In addition, the viewer can&rsquo;t have a tilt or any non-2D transform in the view matrix.  If it does, this is meaningless, but it&rsquo;ll return a number anyway.</p>
+
+<p>If all those conditions are met then we can say we&rsquo;re only displaying a single zoom level and this is that.</p>
 
                       </div>
                       <div class="declaration">
@@ -2413,10 +2502,13 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Set the number of samples for each tile per level.
-    @details When sampling the globe without an elevation input, we&rsquo;ll divide each tile into a given number of samples.  By default this is 10x10.  Setting this dictionary will let you control that sampling per level.
-    @details Each entry in the dictionary is an NSNumber for the level (-1 for default).  The corresponding value is an NSNumber for the sampling (e.g. 10).
-    @details Call this immediately after setting up the layer or it won&rsquo;t take effect.</p>
+                        <p>Set the number of samples for each tile per level.</p>
+
+<p>When sampling the globe without an elevation input, we&rsquo;ll divide each tile into a given number of samples.  By default this is 10x10.  Setting this dictionary will let you control that sampling per level.</p>
+
+<p>Each entry in the dictionary is an NSNumber for the level (-1 for default).  The corresponding value is an NSNumber for the sampling (e.g. 10).</p>
+
+<p>Call this immediately after setting up the layer or it won&rsquo;t take effect.</p>
 
                       </div>
                       <div class="declaration">
@@ -2448,9 +2540,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Force a full reload of all tiles.
- @details This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it&rsquo;s taking too long, you&rsquo;ll see these page in from the low to the high level.
- @details This is good for tile sources, like weather, that need to be refreshed every so often.</p>
+                        <p>Force a full reload of all tiles.</p>
+
+<p>This will notify the system to flush out all the existing tiles and start reloading from the top.  If everything is cached locally (and the MaplyTileSource objects say so) then this should appear instantly.  If something needs to be fetched or it&rsquo;s taking too long, you&rsquo;ll see these page in from the low to the high level.</p>
+
+<p>This is good for tile sources, like weather, that need to be refreshed every so often.</p>
 
                       </div>
                       <div class="declaration">
@@ -2482,11 +2576,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Pass back the loaded image(s) for a given tile.
-    @details If the tile source implements startFetchForTile: then we&rsquo;ll expect it to do the asynchronous loading.  When it&rsquo;s done loading an image, it calls this.
-    @details When we&rsquo;re loading just one image per tile, call this with a UIImage or MaplyImageTile. If we&rsquo;re expecting multiple images (see: imageDepth) then pass in a MaplyImageTile that&rsquo;s been set up appropriately.
-    - parameter: images Either one of UIImage or MaplyPlaceholderImage.
-    - parameter: tileID The tile we&rsquo;ve loaded.</p>
+                        <p>Pass back the loaded image(s) for a given tile.</p>
+
+<p>If the tile source implements startFetchForTile: then we&rsquo;ll expect it to do the asynchronous loading.  When it&rsquo;s done loading an image, it calls this.</p>
+
+<p>When we&rsquo;re loading just one image per tile, call this with a UIImage or MaplyImageTile. If we&rsquo;re expecting multiple images (see: imageDepth) then pass in a MaplyImageTile that&rsquo;s been set up appropriately.</p>
 
                       </div>
                       <div class="declaration">
@@ -2515,7 +2609,6 @@
                               <td>
                                 <div>
                                   <p>Either one of UIImage or MaplyPlaceholderImage.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -2528,7 +2621,6 @@
                               <td>
                                 <div>
                                   <p>The tile we&rsquo;ve loaded.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -2551,12 +2643,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Pass back the loaded image(s) for a given tile.
-    @details If the tile source implements startFetchForTile: then we&rsquo;ll expect it to do the asynchronous loading.  When it&rsquo;s done loading an image, it calls this.
-    @details When we&rsquo;re loading just one image per tile, call this with a UIImage or MaplyImageTile. If we&rsquo;re expecting multiple images (see: imageDepth) then pass in a MaplyImageTile that&rsquo;s been set up appropriately.
-    - parameter: images Either one of UIImage or MaplyPlaceholderImage.
-    - parameter: tileID The tile we&rsquo;ve loaded.
-    - parameter: frame If we&rsquo;re loading an animation frame by frame, this is the frame ID.</p>
+                        <p>Pass back the loaded image(s) for a given tile.</p>
+
+<p>If the tile source implements startFetchForTile: then we&rsquo;ll expect it to do the asynchronous loading.  When it&rsquo;s done loading an image, it calls this.</p>
+
+<p>When we&rsquo;re loading just one image per tile, call this with a UIImage or MaplyImageTile. If we&rsquo;re expecting multiple images (see: imageDepth) then pass in a MaplyImageTile that&rsquo;s been set up appropriately.</p>
 
                       </div>
                       <div class="declaration">
@@ -2587,7 +2678,6 @@
                               <td>
                                 <div>
                                   <p>Either one of UIImage or MaplyPlaceholderImage.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -2600,7 +2690,6 @@
                               <td>
                                 <div>
                                   <p>The tile we&rsquo;ve loaded.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -2613,7 +2702,6 @@
                               <td>
                                 <div>
                                   <p>If we&rsquo;re loading an animation frame by frame, this is the frame ID.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -2643,7 +2731,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyQuadImageTilesLayer</span> <span class="p">:</span> <span class="nc">MaplyViewControllerLayer</span></code></pre>
+                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyQuadImageTilesLayer</span> <span class="p">:</span> <span class="nc"><a href="../Classes/MaplyViewControllerLayer.html">MaplyViewControllerLayer</a></span></code></pre>
 
                         </div>
                       </div>
@@ -2670,7 +2758,7 @@
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyQuadImageTilesLayer</span> <span class="p">:</span> <span class="nc">MaplyViewControllerLayer</span></code></pre>
+                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyQuadImageTilesLayer</span> <span class="p">:</span> <span class="nc"><a href="../Classes/MaplyViewControllerLayer.html">MaplyViewControllerLayer</a></span></code></pre>
 
                         </div>
                       </div>
@@ -2690,9 +2778,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Pass back an error for a given tile.
-    @details If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.
-    @details It can also just call loadedImages:forTile: with nil, but this is more helpful.</p>
+                        <p>Pass back an error for a given tile.</p>
+
+<p>If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.</p>
+
+<p>It can also just call loadedImages:forTile: with nil, but this is more helpful.</p>
 
                       </div>
                       <div class="declaration">
@@ -2724,9 +2814,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Pass back an error for a given tile and frame (if we&rsquo;re loading animations).
-    @details If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.
-    @details It can also just call loadedImages:forTile: with nil, but this is more helpful.</p>
+                        <p>Pass back an error for a given tile and frame (if we&rsquo;re loading animations).</p>
+
+<p>If the tile source implements startFetchForTile: then this is how it tells us about a specific failure.</p>
+
+<p>It can also just call loadedImages:forTile: with nil, but this is more helpful.</p>
 
                       </div>
                       <div class="declaration">
@@ -2760,9 +2852,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Status structures describing which frames are loaded.
-    @details Query this to find out which frames are completely loaded into memory and which are not.
-    @details This queries the underlying control logic and there is no delegate.  It&rsquo;s polling only.</p>
+                        <p>Status structures describing which frames are loaded.</p>
+
+<p>Query this to find out which frames are completely loaded into memory and which are not.</p>
+
+<p>This queries the underlying control logic and there is no delegate.  It&rsquo;s polling only.</p>
 
                       </div>
                       <div class="declaration">
@@ -2794,8 +2888,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Return the bounding box for a given tile.
- @details This calculates the bounding box (in geographic) for the given tile.</p>
+                        <p>Return the bounding box for a given tile.</p>
+
+<p>This calculates the bounding box (in geographic) for the given tile.</p>
 
                       </div>
                       <div class="declaration">
@@ -2827,8 +2922,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Return the bounding box for a given tile.
-    @details This calculates the bounding box (in geographic) for the given tile.</p>
+                        <p>Return the bounding box for a given tile.</p>
+
+<p>This calculates the bounding box (in geographic) for the given tile.</p>
 
                       </div>
                       <div class="declaration">
@@ -2861,8 +2957,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Return the bounding box for a given tile.
- @details This calculate the bounding box in local coordinates for the given tile.</p>
+                        <p>Return the bounding box for a given tile.</p>
+
+<p>This calculate the bounding box in local coordinates for the given tile.</p>
 
                       </div>
                       <div class="declaration">
@@ -2894,8 +2991,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Return the bounding box for a given tile.
-    @details This calculate the bounding box in local coordinates for the given tile.</p>
+                        <p>Return the bounding box for a given tile.</p>
+
+<p>This calculate the bounding box in local coordinates for the given tile.</p>
 
                       </div>
                       <div class="declaration">
@@ -2927,9 +3025,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Do a hard reset of the layer.
-    @details This will clean out all the layers resources and force it to start loading again.
-    @details Call this right after you change a tile source.  This lets you change the tile source to something incompatible with the previous one.</p>
+                        <p>Do a hard reset of the layer.</p>
+
+<p>This will clean out all the layers resources and force it to start loading again.</p>
+
+<p>Call this right after you change a tile source.  This lets you change the tile source to something incompatible with the previous one.</p>
 
                       </div>
                       <div class="declaration">
@@ -2953,8 +3053,8 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2017 <a class="link" href="https://mousebirdconsulting.com" target="_blank" rel="external">mousebird consulting inc</a>. All rights reserved. (Last updated: 2017-01-27)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+          <p>&copy; 2017 <a class="link" href="http://mousebirdconsulting.com" target="_blank" rel="external">Steve Gifford</a>. All rights reserved. (Last updated: 2017-05-19)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>
     </div>

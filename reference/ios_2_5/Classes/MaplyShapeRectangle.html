@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>MaplyLAZQuadReader Class Reference</title>
+    <title>MaplyShapeRectangle Class Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset='utf-8'>
@@ -10,19 +10,19 @@
     
   </head>
   <body>
-    <a name="//apple_ref/objc/Class/MaplyLAZQuadReader" class="dashAnchor"></a>
-    <a title="MaplyLAZQuadReader Class Reference"></a>
+    <a name="//apple_ref/objc/Class/MaplyShapeRectangle" class="dashAnchor"></a>
+    <a title="MaplyShapeRectangle Class Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="../index.html">WhirlyGlobe-Maply Docs</a> (81% documented)</p>
-        <p class="header-right"><a href="https://github.com/mousebird/WhirlyGlobe"><img src="../img/gh.png"/>View on GitHub</a></p>
+        <p><a href="../index.html">WhirlyGlobe-Maply Docs</a> (83% documented)</p>
+        <p class="header-right"><a href="ithub_url"><img src="../img/gh.png"/>View on GitHub</a></p>
       </div>
     </header>
     <div class="content-wrapper">
       <p id="breadcrumbs">
         <a href="../index.html">WhirlyGlobe-Maply Reference</a>
         <img id="carat" src="../img/carat.png" />
-        MaplyLAZQuadReader Class Reference
+        MaplyShapeRectangle Class Reference
       </p>
     </div>
     <div class="content-wrapper">
@@ -128,9 +128,6 @@
                 <a href="../Classes/MaplyImageTile.html">MaplyImageTile</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Classes/MaplyLAZQuadReader.html">MaplyLAZQuadReader</a>
-              </li>
-              <li class="nav-group-task">
                 <a href="../Classes/MaplyLabel.html">MaplyLabel</a>
               </li>
               <li class="nav-group-task">
@@ -218,6 +215,9 @@
                 <a href="../Classes/MaplyRemoteTileSource.html">MaplyRemoteTileSource</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/MaplyRenderTarget.html">MaplyRenderTarget</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/MaplyScreenLabel.html">MaplyScreenLabel</a>
               </li>
               <li class="nav-group-task">
@@ -249,6 +249,9 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/MaplyShapeLinear.html">MaplyShapeLinear</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyShapeRectangle.html">MaplyShapeRectangle</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/MaplyShapeSphere.html">MaplyShapeSphere</a>
@@ -401,24 +404,6 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyJustify">kMaplyJustify</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderColorScale">kMaplyLAZReaderColorScale</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderCoordSys">kMaplyLAZReaderCoordSys</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderZOffset">kMaplyLAZReaderZOffset</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderPointSize">kMaplyLAZShaderPointSize</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderZMax">kMaplyLAZShaderZMax</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderZMin">kMaplyLAZShaderZMin</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyLabelDrawPriorityDefault">kMaplyLabelDrawPriorityDefault</a>
@@ -655,6 +640,12 @@
                 <a href="../Constants.html#/c:@kMaplyTexMinFilter">kMaplyTexMinFilter</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexSizeX">kMaplyTexSizeX</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexSizeY">kMaplyTexSizeY</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTexWrapX">kMaplyTexWrapX</a>
               </li>
               <li class="nav-group-task">
@@ -662,6 +653,18 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTextColor">kMaplyTextColor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustify">kMaplyTextJustify</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyCenter">kMaplyTextJustifyCenter</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyLeft">kMaplyTextJustifyLeft</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyRight">kMaplyTextJustifyRight</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTextOutlineColor">kMaplyTextOutlineColor</a>
@@ -906,6 +909,12 @@
             <a href="../Functions.html">Functions</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyBoundingBoxContains">MaplyBoundingBoxContains</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyBoundingBoxExpandByFraction">MaplyBoundingBoxExpandByFraction</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Functions.html#/c:@F@MaplyBoundingBoxMakeWithDegrees">MaplyBoundingBoxMakeWithDegrees</a>
               </li>
               <li class="nav-group-task">
@@ -939,12 +948,6 @@
                 <a href="../Functions.html#/c:@F@MaplyGreatCircleDistance">MaplyGreatCircleDistance</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Functions.html#/c:@F@MaplyLAZBuildPointShader">MaplyLAZBuildPointShader</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Functions.html#/c:@F@MaplyLAZBuildRampPointShader">MaplyLAZBuildRampPointShader</a>
-              </li>
-              <li class="nav-group-task">
                 <a href="../Functions.html#/c:@F@MaplyTileIDString">MaplyTileIDString</a>
               </li>
               <li class="nav-group-task">
@@ -957,15 +960,17 @@
       <article class="main-content">
         <section>
           <section class="section">
-            <h1>MaplyLAZQuadReader</h1>
+            <h1>MaplyShapeRectangle</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
+                  <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyShapeRectangle</span> <span class="p">:</span> <span class="nc"><a href="../Classes/MaplyShape.html">MaplyShape</a></span></code></pre>
 
                 </div>
               </div>
-            <p>@brief The LAZ Quad Reader will page a Lidar (LAZ or LAS) database organized
-    into tiles in a sqlite database.</p>
+            <p>Represents a simple rectangle in 3D.</p>
+
+<p>The rectangle is a 2D object in 3D.  Specify the lower left and upper right coordinates as
+well as an optional texture.</p>
 
           </section>
           <section class="section task-group-section">
@@ -974,9 +979,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)coordSys"></a>
-                    <a name="//apple_ref/objc/Property/coordSys" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)coordSys">coordSys</a>
+                    <a name="/c:objc(cs)MaplyShapeRectangle(py)ll"></a>
+                    <a name="//apple_ref/objc/Property/ll" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyShapeRectangle(py)ll">ll</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -984,489 +989,19 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Lower left corner in 3D</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)name"></a>
-                    <a name="//apple_ref/objc/Property/name" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)name">name</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)minX"></a>
-                    <a name="//apple_ref/objc/Property/minX" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)minX">minX</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)minY"></a>
-                    <a name="//apple_ref/objc/Property/minY" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)minY">minY</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)minZ"></a>
-                    <a name="//apple_ref/objc/Property/minZ" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)minZ">minZ</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)maxX"></a>
-                    <a name="//apple_ref/objc/Property/maxX" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)maxX">maxX</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)maxY"></a>
-                    <a name="//apple_ref/objc/Property/maxY" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)maxY">maxY</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)maxZ"></a>
-                    <a name="//apple_ref/objc/Property/maxZ" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)maxZ">maxZ</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)zOffset"></a>
-                    <a name="//apple_ref/objc/Property/zOffset" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)zOffset">zOffset</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)minZoom"></a>
-                    <a name="//apple_ref/objc/Property/minZoom" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)minZoom">minZoom</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)maxZoom"></a>
-                    <a name="//apple_ref/objc/Property/maxZoom" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)maxZoom">maxZoom</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)minTilePoints"></a>
-                    <a name="//apple_ref/objc/Property/minTilePoints" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)minTilePoints">minTilePoints</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)maxTilePoints"></a>
-                    <a name="//apple_ref/objc/Property/maxTilePoints" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)maxTilePoints">maxTilePoints</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)shader"></a>
-                    <a name="//apple_ref/objc/Property/shader" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)shader">shader</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(py)pointSize"></a>
-                    <a name="//apple_ref/objc/Property/pointSize" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(py)pointSize">pointSize</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(im)initWithDB:desc:viewC:"></a>
-                    <a name="//apple_ref/objc/Method/-initWithDB:desc:viewC:" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(im)initWithDB:desc:viewC:">-initWithDB:desc:viewC:</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>@brief Initialize the pager with a LAZ sqlite database.
-    @details This opens the sqlite database and reads the manifest.
-    - parameter: fileName The sqlite LAZ database to read.  Pass in the full path.
-    - parameter: desc Overrides for the setup.  We put attributes in here that aren&rsquo;t quite right in the database.</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithDB</span><span class="p">:(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">fileName</span>
-            <span class="nf">desc</span><span class="p">:(</span><span class="n">NSDictionary</span> <span class="o">*</span><span class="p">)</span><span class="nv">desc</span>
-           <span class="nf">viewC</span><span class="p">:(</span><span class="n"><a href="../Classes/WhirlyGlobeViewController.html">WhirlyGlobeViewController</a></span> <span class="o">*</span><span class="p">)</span><span class="nv">viewC</span><span class="p">;</span></code></pre>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n"><a href="../Type Definitions/MaplyCoordinate3dD.html">MaplyCoordinate3dD</a></span> <span class="n">ll</span><span class="p">;</span></code></pre>
 
                         </div>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="nf">init</span><span class="o">!</span><span class="p">(</span><span class="n">db</span> <span class="nv">fileName</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span><span class="p">,</span> <span class="nv">desc</span><span class="p">:</span> <span class="p">[</span><span class="kt">AnyHashable</span> <span class="p">:</span> <span class="kt">Any</span><span class="p">]</span><span class="o">!</span><span class="p">,</span> <span class="nv">viewC</span><span class="p">:</span> <span class="kt"><a href="../Classes/WhirlyGlobeViewController.html">WhirlyGlobeViewController</a></span><span class="o">!</span><span class="p">)</span></code></pre>
-
-                        </div>
-                      </div>
-                      <div>
-                        <h4>Parameters</h4>
-                        <table class="graybox">
-                          <tbody>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>fileName</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>The sqlite LAZ database to read.  Pass in the full path.</p>
-
-                                </div>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <code>
-                                <em>desc</em>
-                                </code>
-                              </td>
-                              <td>
-                                <div>
-                                  <p>Overrides for the setup.  We put attributes in here that aren&rsquo;t quite right in the database.</p>
-
-                                </div>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(im)getNumTilesFromMaxPoints:"></a>
-                    <a name="//apple_ref/objc/Method/-getNumTilesFromMaxPoints:" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(im)getNumTilesFromMaxPoints:">-getNumTilesFromMaxPoints:</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">ll</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyCoordinate3dD.html">MaplyCoordinate3dD</a></span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>
@@ -1476,9 +1011,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(im)getCenter"></a>
-                    <a name="//apple_ref/objc/Method/-getCenter" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(im)getCenter">-getCenter</a>
+                    <a name="/c:objc(cs)MaplyShapeRectangle(py)ur"></a>
+                    <a name="//apple_ref/objc/Property/ur" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyShapeRectangle(py)ur">ur</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -1486,14 +1021,19 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>Upper right corner in 3D</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n"><a href="../Type Definitions/MaplyCoordinate3dD.html">MaplyCoordinate3dD</a></span> <span class="n">ur</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">ur</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyCoordinate3dD.html">MaplyCoordinate3dD</a></span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>
@@ -1503,9 +1043,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(im)getBoundsLL:ur:"></a>
-                    <a name="//apple_ref/objc/Method/-getBoundsLL:ur:" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(im)getBoundsLL:ur:">-getBoundsLL:ur:</a>
+                    <a name="/c:objc(cs)MaplyShapeRectangle(py)texture"></a>
+                    <a name="//apple_ref/objc/Property/texture" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyShapeRectangle(py)texture">texture</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -1513,41 +1053,19 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Undocumented</p>
+                        <p>If set, the texture to stretch across the rectangle.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">,</span> <span class="n">nullable</span><span class="p">)</span> <span class="n"><a href="../Classes.html#/c:objc(cs)MaplyTexture">MaplyTexture</a></span> <span class="o">*</span><span class="n">texture</span><span class="p">;</span></code></pre>
 
                         </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyLAZQuadReader(im)hasColor"></a>
-                    <a name="//apple_ref/objc/Method/-hasColor" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyLAZQuadReader(im)hasColor">-hasColor</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Undocumented</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
                         <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyLAZQuadReader</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n"><a href="../Protocols/MaplyPagingDelegate.html">MaplyPagingDelegate</a></span><span class="o">&gt;</span></code></pre>
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">texture</span><span class="p">:</span> <span class="kt"><a href="../Classes.html#/c:objc(cs)MaplyTexture">MaplyTexture</a></span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>
@@ -1559,8 +1077,8 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2017 <a class="link" href="https://mousebirdconsulting.com" target="_blank" rel="external">mousebird consulting inc</a>. All rights reserved. (Last updated: 2017-01-27)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+          <p>&copy; 2017 <a class="link" href="http://mousebirdconsulting.com" target="_blank" rel="external">Steve Gifford</a>. All rights reserved. (Last updated: 2017-05-19)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>
     </div>
