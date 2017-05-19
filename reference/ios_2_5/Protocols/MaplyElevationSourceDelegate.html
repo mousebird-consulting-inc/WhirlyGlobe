@@ -14,8 +14,8 @@
     <a title="MaplyElevationSourceDelegate Protocol Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="../index.html">WhirlyGlobe-Maply Docs</a> (81% documented)</p>
-        <p class="header-right"><a href="https://github.com/mousebird/WhirlyGlobe"><img src="../img/gh.png"/>View on GitHub</a></p>
+        <p><a href="../index.html">WhirlyGlobe-Maply Docs</a> (83% documented)</p>
+        <p class="header-right"><a href="ithub_url"><img src="../img/gh.png"/>View on GitHub</a></p>
       </div>
     </header>
     <div class="content-wrapper">
@@ -128,9 +128,6 @@
                 <a href="../Classes/MaplyImageTile.html">MaplyImageTile</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Classes/MaplyLAZQuadReader.html">MaplyLAZQuadReader</a>
-              </li>
-              <li class="nav-group-task">
                 <a href="../Classes/MaplyLabel.html">MaplyLabel</a>
               </li>
               <li class="nav-group-task">
@@ -218,6 +215,9 @@
                 <a href="../Classes/MaplyRemoteTileSource.html">MaplyRemoteTileSource</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/MaplyRenderTarget.html">MaplyRenderTarget</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/MaplyScreenLabel.html">MaplyScreenLabel</a>
               </li>
               <li class="nav-group-task">
@@ -249,6 +249,9 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/MaplyShapeLinear.html">MaplyShapeLinear</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyShapeRectangle.html">MaplyShapeRectangle</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/MaplyShapeSphere.html">MaplyShapeSphere</a>
@@ -401,24 +404,6 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyJustify">kMaplyJustify</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderColorScale">kMaplyLAZReaderColorScale</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderCoordSys">kMaplyLAZReaderCoordSys</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderZOffset">kMaplyLAZReaderZOffset</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderPointSize">kMaplyLAZShaderPointSize</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderZMax">kMaplyLAZShaderZMax</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderZMin">kMaplyLAZShaderZMin</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyLabelDrawPriorityDefault">kMaplyLabelDrawPriorityDefault</a>
@@ -655,6 +640,12 @@
                 <a href="../Constants.html#/c:@kMaplyTexMinFilter">kMaplyTexMinFilter</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexSizeX">kMaplyTexSizeX</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexSizeY">kMaplyTexSizeY</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTexWrapX">kMaplyTexWrapX</a>
               </li>
               <li class="nav-group-task">
@@ -662,6 +653,18 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTextColor">kMaplyTextColor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustify">kMaplyTextJustify</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyCenter">kMaplyTextJustifyCenter</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyLeft">kMaplyTextJustifyLeft</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyRight">kMaplyTextJustifyRight</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTextOutlineColor">kMaplyTextOutlineColor</a>
@@ -906,6 +909,12 @@
             <a href="../Functions.html">Functions</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyBoundingBoxContains">MaplyBoundingBoxContains</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyBoundingBoxExpandByFraction">MaplyBoundingBoxExpandByFraction</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Functions.html#/c:@F@MaplyBoundingBoxMakeWithDegrees">MaplyBoundingBoxMakeWithDegrees</a>
               </li>
               <li class="nav-group-task">
@@ -939,12 +948,6 @@
                 <a href="../Functions.html#/c:@F@MaplyGreatCircleDistance">MaplyGreatCircleDistance</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Functions.html#/c:@F@MaplyLAZBuildPointShader">MaplyLAZBuildPointShader</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Functions.html#/c:@F@MaplyLAZBuildRampPointShader">MaplyLAZBuildRampPointShader</a>
-              </li>
-              <li class="nav-group-task">
                 <a href="../Functions.html#/c:@F@MaplyTileIDString">MaplyTileIDString</a>
               </li>
               <li class="nav-group-task">
@@ -964,10 +967,12 @@
 
                 </div>
               </div>
-            <p>@brief Elevation Source Delegate provides elevation data
-     for a given tile.
-    @details The Elevation Source Delegate provides elevation data on demand for a given tile.  It returns a MaplyElevationChunk or nil if no data is available.  Your delegate may be called on a random thread, so act accordingly.
-    @details This object is probably being used in conjuction with a MaplyTileSource, but is treated separately.  We may reuse the same elevation source for multiple image pyramids and they tend not to be packaged together.</p>
+            <p>Elevation Source Delegate provides elevation data
+ for a given tile.</p>
+
+<p>The Elevation Source Delegate provides elevation data on demand for a given tile.  It returns a MaplyElevationChunk or nil if no data is available.  Your delegate may be called on a random thread, so act accordingly.</p>
+
+<p>This object is probably being used in conjuction with a MaplyTileSource, but is treated separately.  We may reuse the same elevation source for multiple image pyramids and they tend not to be packaged together.</p>
 
           </section>
           <section class="section task-group-section">
@@ -986,9 +991,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Return the coordinate system we&rsquo;re using.
-    @details The coordinate system used by the elevation source delegate should match any associated MaplyTileSource objects.  The toolkit won&rsquo;t check that, so it&rsquo;s up to you.
-    @details The coordinate system is probably MaplySphericalMercator.</p>
+                        <p>Return the coordinate system we&rsquo;re using.</p>
+
+<p>The coordinate system used by the elevation source delegate should match any associated MaplyTileSource objects.  The toolkit won&rsquo;t check that, so it&rsquo;s up to you.</p>
+
+<p>The coordinate system is probably MaplySphericalMercator.</p>
 
                       </div>
                       <div class="declaration">
@@ -1020,8 +1027,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief The minimum zoom level this delegate can provide.
-    @details The min zoom level should probably be 0 or at least match your MaplyTileSource objects.</p>
+                        <p>The minimum zoom level this delegate can provide.</p>
+
+<p>The min zoom level should probably be 0 or at least match your MaplyTileSource objects.</p>
 
                       </div>
                       <div class="declaration">
@@ -1053,9 +1061,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief The maximum zoom level this delegate can provide.
-    @details The max zoom level is not a requirement.  The elevation pyramid can be sparse, just as the image pyramid can be.
-    @details The MaplyQuadImageTilesLayer has an option to not display image tiles that don&rsquo;t have corresponding elevation.  In other words, the image display will cut off when there&rsquo;s no more elevation.</p>
+                        <p>The maximum zoom level this delegate can provide.</p>
+
+<p>The max zoom level is not a requirement.  The elevation pyramid can be sparse, just as the image pyramid can be.</p>
+
+<p>The MaplyQuadImageTilesLayer has an option to not display image tiles that don&rsquo;t have corresponding elevation.  In other words, the image display will cut off when there&rsquo;s no more elevation.</p>
 
                       </div>
                       <div class="declaration">
@@ -1087,8 +1097,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Return the elevation samples for a given tile.
-    @details Your delegate can return elevation data for the given tile or nil if no data was available.  Elevation is in meters and data values are 32 bit floats.</p>
+                        <p>Return the elevation samples for a given tile.</p>
+
+<p>Your delegate can return elevation data for the given tile or nil if no data was available.  Elevation is in meters and data values are 32 bit floats.</p>
 
                       </div>
                       <div class="declaration">
@@ -1120,8 +1131,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Return true if the data is local to the device.
-    @details Let us know if the data is local or remote.  This is a hint to the pager and will be called before elevForTile:.  If you don&rsquo;t know, just return false.</p>
+                        <p>Return true if the data is local to the device.</p>
+
+<p>Let us know if the data is local or remote.  This is a hint to the pager and will be called before elevForTile:.  If you don&rsquo;t know, just return false.</p>
 
                       </div>
                       <div class="declaration">
@@ -1145,8 +1157,8 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2017 <a class="link" href="https://mousebirdconsulting.com" target="_blank" rel="external">mousebird consulting inc</a>. All rights reserved. (Last updated: 2017-01-27)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+          <p>&copy; 2017 <a class="link" href="http://mousebirdconsulting.com" target="_blank" rel="external">Steve Gifford</a>. All rights reserved. (Last updated: 2017-05-19)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>
     </div>

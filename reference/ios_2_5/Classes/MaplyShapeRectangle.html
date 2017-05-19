@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>MaplyGeomModelInstance Class Reference</title>
+    <title>MaplyShapeRectangle Class Reference</title>
     <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
     <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
     <meta charset='utf-8'>
@@ -10,8 +10,8 @@
     
   </head>
   <body>
-    <a name="//apple_ref/objc/Class/MaplyGeomModelInstance" class="dashAnchor"></a>
-    <a title="MaplyGeomModelInstance Class Reference"></a>
+    <a name="//apple_ref/objc/Class/MaplyShapeRectangle" class="dashAnchor"></a>
+    <a title="MaplyShapeRectangle Class Reference"></a>
     <header>
       <div class="content-wrapper">
         <p><a href="../index.html">WhirlyGlobe-Maply Docs</a> (83% documented)</p>
@@ -22,7 +22,7 @@
       <p id="breadcrumbs">
         <a href="../index.html">WhirlyGlobe-Maply Reference</a>
         <img id="carat" src="../img/carat.png" />
-        MaplyGeomModelInstance Class Reference
+        MaplyShapeRectangle Class Reference
       </p>
     </div>
     <div class="content-wrapper">
@@ -960,16 +960,17 @@
       <article class="main-content">
         <section>
           <section class="section">
-            <h1>MaplyGeomModelInstance</h1>
+            <h1>MaplyShapeRectangle</h1>
               <div class="declaration">
                 <div class="language">
-                  <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyGeomModelInstance</span> <span class="p">:</span> <span class="nc">NSObject</span></code></pre>
+                  <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">MaplyShapeRectangle</span> <span class="p">:</span> <span class="nc"><a href="../Classes/MaplyShape.html">MaplyShape</a></span></code></pre>
 
                 </div>
               </div>
-            <p>Place a geometry model at a given location</p>
+            <p>Represents a simple rectangle in 3D.</p>
 
-<p>Geometry models tend to be expensive so we load and place them in a two step process.  First you create the MaplyGeomModel and then you place it in one or more spots with this MaplyGeomModelInstance.</p>
+<p>The rectangle is a 2D object in 3D.  Specify the lower left and upper right coordinates as
+well as an optional texture.</p>
 
           </section>
           <section class="section task-group-section">
@@ -978,9 +979,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/c:objc(cs)MaplyGeomModelInstance(py)userObject"></a>
-                    <a name="//apple_ref/objc/Property/userObject" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyGeomModelInstance(py)userObject">userObject</a>
+                    <a name="/c:objc(cs)MaplyShapeRectangle(py)ll"></a>
+                    <a name="//apple_ref/objc/Property/ll" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyShapeRectangle(py)ll">ll</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -988,21 +989,19 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>User data object for selection</p>
-
-<p>When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the model instance means to them.</p>
+                        <p>Lower left corner in 3D</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readwrite</span><span class="p">,</span> <span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">,</span> <span class="n">nullable</span><span class="p">)</span> <span class="n">id</span> <span class="n">userObject</span><span class="p">;</span></code></pre>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n"><a href="../Type Definitions/MaplyCoordinate3dD.html">MaplyCoordinate3dD</a></span> <span class="n">ll</span><span class="p">;</span></code></pre>
 
                         </div>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">userObject</span><span class="p">:</span> <span class="kt">Any</span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">ll</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyCoordinate3dD.html">MaplyCoordinate3dD</a></span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>
@@ -1012,9 +1011,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/c:objc(cs)MaplyGeomModelInstance(py)model"></a>
-                    <a name="//apple_ref/objc/Property/model" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyGeomModelInstance(py)model">model</a>
+                    <a name="/c:objc(cs)MaplyShapeRectangle(py)ur"></a>
+                    <a name="//apple_ref/objc/Property/ur" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyShapeRectangle(py)ur">ur</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -1022,19 +1021,19 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>The model to instance</p>
+                        <p>Upper right corner in 3D</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readwrite</span><span class="p">,</span> <span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">,</span> <span class="n">nullable</span><span class="p">)</span> <span class="n"><a href="../Classes/MaplyGeomModel.html">MaplyGeomModel</a></span> <span class="o">*</span><span class="n">model</span><span class="p">;</span></code></pre>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n"><a href="../Type Definitions/MaplyCoordinate3dD.html">MaplyCoordinate3dD</a></span> <span class="n">ur</span><span class="p">;</span></code></pre>
 
                         </div>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">model</span><span class="p">:</span> <span class="kt"><a href="../Classes/MaplyGeomModel.html">MaplyGeomModel</a></span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">ur</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyCoordinate3dD.html">MaplyCoordinate3dD</a></span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>
@@ -1044,9 +1043,9 @@
                 <li class="item">
                   <div>
                     <code>
-                    <a name="/c:objc(cs)MaplyGeomModelInstance(py)center"></a>
-                    <a name="//apple_ref/objc/Property/center" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyGeomModelInstance(py)center">center</a>
+                    <a name="/c:objc(cs)MaplyShapeRectangle(py)texture"></a>
+                    <a name="//apple_ref/objc/Property/texture" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)MaplyShapeRectangle(py)texture">texture</a>
                     </code>
                   </div>
                   <div class="height-container">
@@ -1054,113 +1053,19 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>Where we&rsquo;d like to place the instanced model.</p>
-
-<p>This is the center of the object in geographic radians.</p>
+                        <p>If set, the texture to stretch across the rectangle.</p>
 
                       </div>
                       <div class="declaration">
                         <h4>Declaration</h4>
                         <div class="language">
                           <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n"><a href="../Type Definitions/MaplyCoordinate3d.html">MaplyCoordinate3d</a></span> <span class="n">center</span><span class="p">;</span></code></pre>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">,</span> <span class="n">nullable</span><span class="p">)</span> <span class="n"><a href="../Classes.html#/c:objc(cs)MaplyTexture">MaplyTexture</a></span> <span class="o">*</span><span class="n">texture</span><span class="p">;</span></code></pre>
 
                         </div>
                         <div class="language">
                           <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">center</span><span class="p">:</span> <span class="kt"><a href="../Type Definitions/MaplyCoordinate3d.html">MaplyCoordinate3d</a></span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyGeomModelInstance(py)transform"></a>
-                    <a name="//apple_ref/objc/Property/transform" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyGeomModelInstance(py)transform">transform</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Transform used to oriented the model instance</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readwrite</span><span class="p">,</span> <span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">,</span> <span class="n">nullable</span><span class="p">)</span> <span class="n"><a href="../Classes/MaplyMatrix.html">MaplyMatrix</a></span> <span class="o">*</span><span class="n">transform</span><span class="p">;</span></code></pre>
-
-                        </div>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">transform</span><span class="p">:</span> <span class="kt"><a href="../Classes/MaplyMatrix.html">MaplyMatrix</a></span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyGeomModelInstance(py)colorOverride"></a>
-                    <a name="//apple_ref/objc/Property/colorOverride" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyGeomModelInstance(py)colorOverride">colorOverride</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Color to force all polygons to use.
-If set, this will force all polygons to use this color.  nil by default.</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">strong</span><span class="p">,</span><span class="n">nullable</span><span class="p">)</span> <span class="n">UIColor</span> <span class="o">*</span><span class="n">colorOverride</span></code></pre>
-
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-                </li>
-                <li class="item">
-                  <div>
-                    <code>
-                    <a name="/c:objc(cs)MaplyGeomModelInstance(py)selectable"></a>
-                    <a name="//apple_ref/objc/Property/selectable" class="dashAnchor"></a>
-                    <a class="token" href="#/c:objc(cs)MaplyGeomModelInstance(py)selectable">selectable</a>
-                    </code>
-                  </div>
-                  <div class="height-container">
-                    <div class="pointer-container"></div>
-                    <section class="section">
-                      <div class="pointer"></div>
-                      <div class="abstract">
-                        <p>Set if you want to select these</p>
-
-                      </div>
-                      <div class="declaration">
-                        <h4>Declaration</h4>
-                        <div class="language">
-                          <p class="aside-title">Objective-C</p>
-                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">_Bool</span> <span class="n">selectable</span><span class="p">;</span></code></pre>
-
-                        </div>
-                        <div class="language">
-                          <p class="aside-title">Swift</p>
-                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">selectable</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">texture</span><span class="p">:</span> <span class="kt"><a href="../Classes.html#/c:objc(cs)MaplyTexture">MaplyTexture</a></span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
 
                         </div>
                       </div>

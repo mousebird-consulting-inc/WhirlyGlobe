@@ -14,8 +14,8 @@
     <a title="MaplyRemoteTileSource Class Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="../index.html">WhirlyGlobe-Maply Docs</a> (81% documented)</p>
-        <p class="header-right"><a href="https://github.com/mousebird/WhirlyGlobe"><img src="../img/gh.png"/>View on GitHub</a></p>
+        <p><a href="../index.html">WhirlyGlobe-Maply Docs</a> (83% documented)</p>
+        <p class="header-right"><a href="ithub_url"><img src="../img/gh.png"/>View on GitHub</a></p>
       </div>
     </header>
     <div class="content-wrapper">
@@ -128,9 +128,6 @@
                 <a href="../Classes/MaplyImageTile.html">MaplyImageTile</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Classes/MaplyLAZQuadReader.html">MaplyLAZQuadReader</a>
-              </li>
-              <li class="nav-group-task">
                 <a href="../Classes/MaplyLabel.html">MaplyLabel</a>
               </li>
               <li class="nav-group-task">
@@ -218,6 +215,9 @@
                 <a href="../Classes/MaplyRemoteTileSource.html">MaplyRemoteTileSource</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/MaplyRenderTarget.html">MaplyRenderTarget</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/MaplyScreenLabel.html">MaplyScreenLabel</a>
               </li>
               <li class="nav-group-task">
@@ -249,6 +249,9 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/MaplyShapeLinear.html">MaplyShapeLinear</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyShapeRectangle.html">MaplyShapeRectangle</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/MaplyShapeSphere.html">MaplyShapeSphere</a>
@@ -401,24 +404,6 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyJustify">kMaplyJustify</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderColorScale">kMaplyLAZReaderColorScale</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderCoordSys">kMaplyLAZReaderCoordSys</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderZOffset">kMaplyLAZReaderZOffset</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderPointSize">kMaplyLAZShaderPointSize</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderZMax">kMaplyLAZShaderZMax</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderZMin">kMaplyLAZShaderZMin</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyLabelDrawPriorityDefault">kMaplyLabelDrawPriorityDefault</a>
@@ -655,6 +640,12 @@
                 <a href="../Constants.html#/c:@kMaplyTexMinFilter">kMaplyTexMinFilter</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexSizeX">kMaplyTexSizeX</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexSizeY">kMaplyTexSizeY</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTexWrapX">kMaplyTexWrapX</a>
               </li>
               <li class="nav-group-task">
@@ -662,6 +653,18 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTextColor">kMaplyTextColor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustify">kMaplyTextJustify</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyCenter">kMaplyTextJustifyCenter</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyLeft">kMaplyTextJustifyLeft</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyRight">kMaplyTextJustifyRight</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTextOutlineColor">kMaplyTextOutlineColor</a>
@@ -906,6 +909,12 @@
             <a href="../Functions.html">Functions</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyBoundingBoxContains">MaplyBoundingBoxContains</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyBoundingBoxExpandByFraction">MaplyBoundingBoxExpandByFraction</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Functions.html#/c:@F@MaplyBoundingBoxMakeWithDegrees">MaplyBoundingBoxMakeWithDegrees</a>
               </li>
               <li class="nav-group-task">
@@ -939,12 +948,6 @@
                 <a href="../Functions.html#/c:@F@MaplyGreatCircleDistance">MaplyGreatCircleDistance</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Functions.html#/c:@F@MaplyLAZBuildPointShader">MaplyLAZBuildPointShader</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Functions.html#/c:@F@MaplyLAZBuildRampPointShader">MaplyLAZBuildRampPointShader</a>
-              </li>
-              <li class="nav-group-task">
                 <a href="../Functions.html#/c:@F@MaplyTileIDString">MaplyTileIDString</a>
               </li>
               <li class="nav-group-task">
@@ -964,11 +967,18 @@
 
                 </div>
               </div>
-            <p>@brief The remote tile source knows how to fetch remote image pyramids.
-    @details This is the MaplyTileSource compliant object that communicates with remote servers and fetches individual tiles as needed by the MaplyQuadImageTileLayer.
-    @details It can be initialized in a couple of different ways depending on the information you have available.  Either you explicitly provide the baseURL, min and max levels and such, or hand in an NSDictionary that&rsquo;s been parsed from a tile spec.
-    @details The remote tile source also handles cacheing if it you give it a cacheDir to work in.  By default cacheing is off (so be careful).
-    - see: MaplyQuadImageTilesLayer</p>
+            <p>The remote tile source knows how to fetch remote image pyramids.</p>
+
+<p>This is the MaplyTileSource compliant object that communicates with remote servers and fetches individual tiles as needed by the MaplyQuadImageTileLayer.</p>
+
+<p>It can be initialized in a couple of different ways depending on the information you have available.  Either you explicitly provide the baseURL, min and max levels and such, or hand in an NSDictionary that&rsquo;s been parsed from a tile spec.</p>
+
+<p>The remote tile source also handles cacheing if it you give it a cacheDir to work in.  By default cacheing is off (so be careful).</p>
+<div class="aside aside-see">
+    <p class="aside-title">See</p>
+    MaplyQuadImageTilesLayer
+
+</div>
 
           </section>
           <section class="section task-group-section">
@@ -987,15 +997,11 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Initialize with enough information to fetch remote tiles.
-    @details This version of the init method takes all the explicit
-     information needed to fetch remote tiles.  This includes the
-     base URL, file extension (e.g. image type), and min and max zoom levels.
-    - parameter: baseURL The base URL for fetching TMS tiles.
-    - parameter: ext Extension for the images we&rsquo;ll be fetching, typically @<q>png</q> or @<q>jpg</q>
-    - parameter: minZoom The minimum zoom level to fetch.  This really should be 0.
-    - parameter: maxZoom The maximum zoom level to fetch.
-    - returns: The MaplyRemoteTileSource object or nil on failure.</p>
+                        <p>Initialize with enough information to fetch remote tiles.</p>
+
+<p>This version of the init method takes all the explicit
+ information needed to fetch remote tiles.  This includes the
+ base URL, file extension (e.g. image type), and min and max zoom levels.</p>
 
                       </div>
                       <div class="declaration">
@@ -1027,7 +1033,6 @@
                               <td>
                                 <div>
                                   <p>The base URL for fetching TMS tiles.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -1039,12 +1044,7 @@
                               </td>
                               <td>
                                 <div>
-                                  <p>Extension for the images we&rsquo;ll be fetching, typically 
-<q>
-png</q> or 
-<q>
-jpg</q></p>
-
+                                  <p>Extension for the images we&rsquo;ll be fetching, typically @<q>png</q> or @<q>jpg</q></p>
                                 </div>
                               </td>
                             </tr>
@@ -1057,7 +1057,6 @@ jpg</q></p>
                               <td>
                                 <div>
                                   <p>The minimum zoom level to fetch.  This really should be 0.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -1070,7 +1069,6 @@ jpg</q></p>
                               <td>
                                 <div>
                                   <p>The maximum zoom level to fetch.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -1080,7 +1078,6 @@ jpg</q></p>
                       <div>
                         <h4>Return Value</h4>
                         <p>The MaplyRemoteTileSource object or nil on failure.</p>
-
                       </div>
                     </section>
                   </div>
@@ -1098,15 +1095,15 @@ jpg</q></p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Initialize from a remote tile spec.
-    @details This version of the initializer takes an NSDictionary parsed
-    from a JSON tile spec.  Take a look at the tile spec itself
-    here (<a href="https://github.com/mapbox/tilejson-spec">https://github.com/mapbox/tilejson-spec</a>).  Basically
-    it defines the available URLs (there can be multiple), the
-    min and max zoom levels, coordinate system (not really) and
-    file extension.  In many cases the coordinate system extents can&rsquo;t
-    be trusted.
-    - parameter: jsonSpec An NSDictionary parsed from the JSON tile spec.</p>
+                        <p>Initialize from a remote tile spec.</p>
+
+<p>This version of the initializer takes an NSDictionary parsed
+from a JSON tile spec.  Take a look at the tile spec itself
+here (<a href="https://github.com/mapbox/tilejson-spec">https://github.com/mapbox/tilejson-spec</a>).  Basically
+it defines the available URLs (there can be multiple), the
+min and max zoom levels, coordinate system (not really) and
+file extension.  In many cases the coordinate system extents can&rsquo;t
+be trusted.</p>
 
                       </div>
                       <div class="declaration">
@@ -1135,7 +1132,6 @@ jpg</q></p>
                               <td>
                                 <div>
                                   <p>An NSDictionary parsed from the JSON tile spec.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -1158,11 +1154,11 @@ jpg</q></p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Read the image, but only if it&rsquo;s in the cache.
-    @details MaplyRemoteTileSource uses asynchronous fetching.  This method is inherently
-    synchronous.  You expect it to return the image for a tile right now.  So this method
-    only works if the tile is in the cache.  Be sure to check on that first.
-    - parameter: tileID The tile (that should be in the cache) you want to read.</p>
+                        <p>Read the image, but only if it&rsquo;s in the cache.</p>
+
+<p>MaplyRemoteTileSource uses asynchronous fetching.  This method is inherently
+synchronous.  You expect it to return the image for a tile right now.  So this method
+only works if the tile is in the cache.  Be sure to check on that first.</p>
 
                       </div>
                       <div class="declaration">
@@ -1191,7 +1187,6 @@ jpg</q></p>
                               <td>
                                 <div>
                                   <p>The tile (that should be in the cache) you want to read.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -1214,11 +1209,11 @@ jpg</q></p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Initialize with remote tile info.
-    @details The MaplyRemoteTileInfo object stores all the specifics about remote tile data.
-    We actually created one of those for the other init calls in this objects.  Fill that object
-    in and then call this initializaer.
-    - parameter: info The MaplyRemoteTileInfo describing where to fetch the tiles.</p>
+                        <p>Initialize with remote tile info.</p>
+
+<p>The MaplyRemoteTileInfo object stores all the specifics about remote tile data.
+We actually created one of those for the other init calls in this objects.  Fill that object
+in and then call this initializaer.</p>
 
                       </div>
                       <div class="declaration">
@@ -1248,7 +1243,6 @@ jpg</q></p>
                               <td>
                                 <div>
                                   <p>The MaplyRemoteTileInfo describing where to fetch the tiles.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -1271,7 +1265,7 @@ jpg</q></p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Description of where we fetch the tiles from and where to cache them.</p>
+                        <p>Description of where we fetch the tiles from and where to cache them.</p>
 
                       </div>
                       <div class="declaration">
@@ -1304,8 +1298,9 @@ jpg</q></p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief A delegate for tile loads and failures.
-    @details If set, you&rsquo;ll get callbacks when the various tiles load (or don&rsquo;t). You get called in all sorts of threads.  Act accordingly.</p>
+                        <p>A delegate for tile loads and failures.</p>
+
+<p>If set, you&rsquo;ll get callbacks when the various tiles load (or don&rsquo;t). You get called in all sorts of threads.  Act accordingly.</p>
 
                       </div>
                       <div class="declaration">
@@ -1338,7 +1333,7 @@ jpg</q></p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Passes through the coord system from the MaplyRemoteTileInfo</p>
+                        <p>Passes through the coord system from the MaplyRemoteTileInfo</p>
 
                       </div>
                       <div class="declaration">
@@ -1371,7 +1366,7 @@ jpg</q></p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Passes through the cacheDir from the MaplyRemoteTileInfo</p>
+                        <p>Passes through the cacheDir from the MaplyRemoteTileInfo</p>
 
                       </div>
                       <div class="declaration">
@@ -1403,7 +1398,7 @@ jpg</q></p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief If set, we&rsquo;ll track the outstanding connections across all remote tile sources</p>
+                        <p>If set, we&rsquo;ll track the outstanding connections across all remote tile sources</p>
 
                       </div>
                       <div class="declaration">
@@ -1435,7 +1430,7 @@ jpg</q></p>
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Number of outstanding connections across all remote tile sources</p>
+                        <p>Number of outstanding connections across all remote tile sources</p>
 
                       </div>
                       <div class="declaration">
@@ -1459,8 +1454,8 @@ jpg</q></p>
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2017 <a class="link" href="https://mousebirdconsulting.com" target="_blank" rel="external">mousebird consulting inc</a>. All rights reserved. (Last updated: 2017-01-27)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+          <p>&copy; 2017 <a class="link" href="http://mousebirdconsulting.com" target="_blank" rel="external">Steve Gifford</a>. All rights reserved. (Last updated: 2017-05-19)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>
     </div>
