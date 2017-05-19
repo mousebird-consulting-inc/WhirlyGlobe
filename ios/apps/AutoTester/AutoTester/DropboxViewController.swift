@@ -8,7 +8,6 @@
 
 import UIKit
 //import SwiftyDropbox
-import MBProgressHUD
 
 class DropboxSection {
 	
