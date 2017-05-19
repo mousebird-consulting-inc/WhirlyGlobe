@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/24/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,23 +23,27 @@
 #import "WhirlyGlobeViewController.h"
 #import "MaplyLight.h"
 
-/** @brief Utility for calculating sun position and shading info.
-    @details This is a utility class that figures out where the sun is at a given date and provides positional information for lighting calculations.
+/** 
+    Utility for calculating sun position and shading info.
+    
+    This is a utility class that figures out where the sun is at a given date and provides positional information for lighting calculations.
   */
 @interface MaplySun : NSObject
 
-/** @brief Initialize with a date.
-    @details Initialize with the given date.  The sun position will correspond to that.
+/** 
+    Initialize with a date.
+    
+    Initialize with the given date.  The sun position will correspond to that.
   */
 - (nonnull instancetype)initWithDate:(NSDate *__nonnull)date;
 
-/// @brief Return the vector corresponding to the sun location from the earth.
+/// Return the vector corresponding to the sun location from the earth.
 - (MaplyCoordinate3d)getDirection;
 
-/// @brief Makes up a light that corresponds to the sun's location at a given time
+/// Makes up a light that corresponds to the sun's location at a given time
 - (nonnull MaplyLight *)makeLight;
 
-/// @brief Returns the location above the globe in lon/lat.  Yay geocentrism!
+/// Returns the location above the globe in lon/lat.  Yay geocentrism!
 - (MaplyCoordinate)asPosition;
 
 @end

@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/24/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,43 +27,59 @@ typedef NS_ENUM(NSInteger, MaplyLabelJustify) {
 	MaplyLabelJustifyRight
 };
 
-/** @brief This is a 3D label.
-    @details The Maply Label is a 3D object that sits on top of the globe (or map) at a specified location.  If you want a 2D label that sits on top of everything else, you want the MaplyScreenLabel.  Seriously, you probably want that.
+/** 
+    This is a 3D label.
+    
+    The Maply Label is a 3D object that sits on top of the globe (or map) at a specified location.  If you want a 2D label that sits on top of everything else, you want the MaplyScreenLabel.  Seriously, you probably want that.
   */
 @interface MaplyLabel : NSObject
 
-/** @brief The location (in geographic) for this label.
-    @details The Maply Label is a 3D object and this is its location on the globe or map.  The coordinates are in geographic (lon/lat) and the actual layout is controleld by justify.
+/** 
+    The location (in geographic) for this label.
+    
+    The Maply Label is a 3D object and this is its location on the globe or map.  The coordinates are in geographic (lon/lat) and the actual layout is controleld by justify.
   */
 @property (nonatomic,assign) MaplyCoordinate loc;
 
-/** @brief Size of the label in display units.
-    @details The Maply Label is a 3D object placed on top of the globe or map. This controls the size of that label in display coordinates.  For the globe display coordinates are based on a radius of 1.0.
-    @details One or both values of the size can be set.  Typically you want to set the height and let the toolkit calculate the width.
+/** 
+    Size of the label in display units.
+    
+    The Maply Label is a 3D object placed on top of the globe or map. This controls the size of that label in display coordinates.  For the globe display coordinates are based on a radius of 1.0.
+    
+    One or both values of the size can be set.  Typically you want to set the height and let the toolkit calculate the width.
   */
 @property (nonatomic,assign) CGSize size;
 
-/// @brief The text to display on the globe or map at the given location.
+/// The text to display on the globe or map at the given location.
 @property (nonatomic,strong) NSString * __nullable text;
 
-/** @brief Text can be accompanied by an optional icon image.
-    @details If set, we'll put this image to the left of the text in the label.  The UIImage (or MaplyTexture) will be tracked by the view controller and reused as needed or disposed of when no longer needed.
-    @details The name had to change because Apple's private selector search is somewhat weak.
+/** 
+    Text can be accompanied by an optional icon image.
+    
+    If set, we'll put this image to the left of the text in the label.  The UIImage (or MaplyTexture) will be tracked by the view controller and reused as needed or disposed of when no longer needed.
+    
+    The name had to change because Apple's private selector search is somewhat weak.
  */
 @property (nonatomic,strong) id __nullable iconImage2;
 
-/** @brief An option color override.
-    @details If set, this color will override the color passed in with the NSDictionary in the view controller's add method.
+/** 
+    An option color override.
+    
+    If set, this color will override the color passed in with the NSDictionary in the view controller's add method.
  */
 @property (nonatomic,strong) UIColor * __nullable color;
 
-/** @brief Label selectability.  On by default
-    @details If set, this label can be selected by the user.  If not set, this label will never appear in selection results.
+/** 
+    Label selectability.  On by default
+    
+    If set, this label can be selected by the user.  If not set, this label will never appear in selection results.
  */
 @property (nonatomic,assign) bool selectable;
 
-/** @brief The text justification based on the location.
-    @details Text can be placed around the location based on this value.
+/** 
+    The text justification based on the location.
+    
+    Text can be placed around the location based on this value.
  
 |Justify Value|Description|
 |:------------|:----------|
@@ -73,8 +89,10 @@ typedef NS_ENUM(NSInteger, MaplyLabelJustify) {
   */
 @property (nonatomic,assign) MaplyLabelJustify justify;
 
-/** @brief User data object for selection
-    @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the label means to them.
+/** 
+    User data object for selection
+    
+    When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the label means to them.
  */
 @property (nonatomic,strong) id __nullable userObject;
 

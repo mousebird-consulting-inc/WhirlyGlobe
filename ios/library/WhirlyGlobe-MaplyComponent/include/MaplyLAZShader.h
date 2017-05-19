@@ -3,7 +3,7 @@
 //  LidarViewer
 //
 //  Created by Steve Gifford on 10/27/15.
-//  Copyright © 2015 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
 //
 
 #import "WhirlyGlobeComponent.h"

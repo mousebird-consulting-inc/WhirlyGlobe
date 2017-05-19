@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 7/2/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,26 +23,30 @@
 #import "WhirlyGlobeViewController.h"
 #import "MaplyLight.h"
 
-/** @brief Utility for calculating moon position.
-    @details This is a utility class that figures out where the moon is at a given data and provides the position.
+/** 
+    Utility for calculating moon position.
+    
+    This is a utility class that figures out where the moon is at a given data and provides the position.
   */
 @interface MaplyMoon : NSObject
 
-/** @brief Initialize with a date.
-    @details Initialize with the given date.  The moon position will correspond to that.  Must be after 2000.
+/** 
+    Initialize with a date.
+    
+    Initialize with the given date.  The moon position will correspond to that.  Must be after 2000.
   */
 - (nonnull instancetype)initWithDate:(NSDate *__nonnull)date;
 
-/// @brief Location on the globe where the moon would land if it fell straight down.  Ouch.
+/// Location on the globe where the moon would land if it fell straight down.  Ouch.
 - (MaplyCoordinate)asCoordinate;
 
-/// @brief Return the location above the globe in lon/lat/distance.  Yay geocentric!
+/// Return the location above the globe in lon/lat/distance.  Yay geocentric!
 - (MaplyCoordinate3d)asPosition;
 
-/// @brief Illuminated fraction of the moon
+/// Illuminated fraction of the moon
 @property (readonly) double illuminatedFraction;
 
-/// @brief Phase of the moon.
+/// Phase of the moon.
 @property (readonly) double phase;
 
 @end

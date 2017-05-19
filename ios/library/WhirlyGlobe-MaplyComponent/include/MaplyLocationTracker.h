@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Ranen Ghosh on 11/23/16.
- *  Copyright 2012-2016 mousebird consulting
+ *  Copyright 2012-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,8 +35,10 @@ typedef struct
 
 typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLockHeadingUp, MaplyLocationLockHeadingUpOffset} MaplyLocationLockType;
 
-/* @brief Implement the MaplyLocationTrackerDelegate protocol to receive location services callbacks.
-   @details This is to handle problems / failures further up the line.
+/* 
+    Implement the MaplyLocationTrackerDelegate protocol to receive location services callbacks.
+   
+    This is to handle problems / failures further up the line.
 */
 @protocol MaplyLocationTrackerDelegate
 
@@ -52,34 +54,47 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
 
 @end
 
-/* @brief The MaplyLocationTracker class provides support for showing current position and heading on the map or globe.
-   @details Be sure to set NSLocationWhenInUseUsageDescription in your app's Info.plist before using.
+/* 
+    The MaplyLocationTracker class provides support for showing current position and heading on the map or globe.
+   
+    Be sure to set NSLocationWhenInUseUsageDescription in your app's Info.plist before using.
  */
 @interface MaplyLocationTracker : NSObject <CLLocationManagerDelegate>
 
-/// @brief Exposes MaplyLocationTracker's location manager for use elsewhere
+/// Exposes MaplyLocationTracker's location manager for use elsewhere
 @property (nonatomic, readonly, nullable) CLLocationManager *locationManager;
 
-/** @brief MaplyLocationTracker constructor
- @param viewC The globe or map view controller
- @param delegate The MaplyLocationTrackerDelegate for receiving location event callbacks
- @param useHeading Use location services heading information (requires physical magnetometer)
- @param useCourse Use location services course information as fallback if heading unavailable
+/** 
+    MaplyLocationTracker constructor
+ 
+    @param viewC The globe or map view controller
+ 
+    @param delegate The MaplyLocationTrackerDelegate for receiving location event callbacks
+ 
+    @param useHeading Use location services heading information (requires physical magnetometer)
+ 
+    @param useCourse Use location services course information as fallback if heading unavailable
  */
 - (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate;
 
-/** @brief Change lock type
- @param lockType The MaplyLocationLockType value for lock behavior
- @param forwardTrackOffset The vertical offset if using MaplyLocationLockHeadingUpOffset (positive values are below the view center)
+/** 
+    Change lock type
+ 
+    @param lockType The MaplyLocationLockType value for lock behavior
+ 
+    @param forwardTrackOffset The vertical offset if using MaplyLocationLockHeadingUpOffset (positive values are below the view center)
  */
 - (void) changeLockType:(MaplyLocationLockType)lockType forwardTrackOffset:(int)forwardTrackOffset;
 
-/** @brief Stop the MaplyLocationTracker behavior and shut it down.
+/** 
+    Stop the MaplyLocationTracker behavior and shut it down.
  */
 - (void) teardown;
 
-/** @brief Get the current device location
- @return The coordinate if valid, else kMaplyNullCoordinate
+/** 
+    Get the current device location
+ 
+    @return The coordinate if valid, else kMaplyNullCoordinate
  */
 - (MaplyCoordinate)getLocation;
 

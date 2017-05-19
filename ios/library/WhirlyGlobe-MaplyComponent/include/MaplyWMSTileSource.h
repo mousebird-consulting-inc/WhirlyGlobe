@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 7/25/13.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -160,16 +160,23 @@
 @property (nonatomic,strong,nullable) NSString *cacheDir;
 
 /** Initialize with the parameters the WMS server is going to want.
+    
     @param baseURL The main URL we'll use to construct queries.
+    
     @param cap The capabilities as parsed from the service.
+    
     @param layer The layer we'll access.  There can be multiple and it's
             up to you to pick one.
+    
     @param style The style variant of the layer we want.  Again there can
             be multiple and it's up to you to pick.
+    
     @param coordSys The coordinate system we're expecting to work in.
+    
     @param minZoom The min zoom level we want.  Note that WMS doesn't handle
             this directly.  Our tile source just controls what areas it
             asks for based on the overall extents and the zoom levels.
+    
     @param maxZoom The max zoom level we'll query.
   */
 - (nullable instancetype)initWithBaseURL:(NSString *__nonnull)baseURL capabilities:(MaplyWMSCapabilities *__nullable)cap layer:(MaplyWMSLayer *__nonnull)layer style:(MaplyWMSStyle *__nonnull)style coordSys:(MaplyCoordinateSystem *__nonnull)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom tileSize:(int)tileSize;

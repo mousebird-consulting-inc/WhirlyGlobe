@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,33 +27,34 @@
   */
 @interface MaplyVectorTileStyle : NSObject<MaplyVectorStyle>
 
-/** @brief Construct a style entry from an NSDictionary.
+/** 
+    Construct a style entry from an NSDictionary.
   */
 + (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
 
-/// @brief Unique Identifier for this style
+/// Unique Identifier for this style
 @property (nonatomic,strong) id<NSCopying> uuid;
 
-/// @brief Set if this geometry is additive (e.g. sticks around) rather than replacement
+/// Set if this geometry is additive (e.g. sticks around) rather than replacement
 @property (nonatomic) bool geomAdditive;
 
-/// @brief Construct a style entry from an NSDictionary
+/// Construct a style entry from an NSDictionary
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry viewC:(MaplyBaseViewController *)viewC;
 
 /// Turn the min/maxscaledenom into height ranges for minVis/maxVis
 - (void)resolveVisibility:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings desc:(NSMutableDictionary *)desc;
 
-/// @brief Construct objects related to this style based on the input data.
+/// Construct objects related to this style based on the input data.
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
 
-/// @brief parse a mapnik style template string
+/// parse a mapnik style template string
 - (NSString*)formatText:(NSString*)formatString forObject:(MaplyVectorObject*)vec;
 
-/// @brief The view controller we're constructing objects in
+/// The view controller we're constructing objects in
 @property (nonatomic,weak) MaplyBaseViewController *viewC;
 
-/// @brief If set, we create selectable objects
-/// @details This controls whether the objects we create are selectable.  Off by default.
+/// If set, we create selectable objects
+/// This controls whether the objects we create are selectable.  Off by default.
 @property (nonatomic) bool selectable;
 
 @end

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/14/11.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@
 #import "WhirlyGeometry.h"
 #import "WhirlyKitView.h"
 
-/// @cond
+
 @class WhirlyGlobeView;
-/// @endcond
+
 
 /// Animation callback
 @protocol WhirlyGlobeAnimationDelegate
