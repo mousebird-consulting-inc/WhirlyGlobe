@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B82B5CA1E82E2490095FB14 /* common.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3A11E82E2490095FB14 /* common.h */; };
 		2B82B5CB1E82E2490095FB14 /* eqarea.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3A21E82E2490095FB14 /* eqarea.h */; };
 		2B82B5CC1E82E2490095FB14 /* eqdist.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3A31E82E2490095FB14 /* eqdist.h */; };
@@ -1038,6 +1039,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B82B3A11E82E2490095FB14 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = "/Users/sjg/iPhone/WhirlyGlobe2/ios/third-party/octencoding/../../../common/local_libs/octencoding/common.h"; sourceTree = "<absolute>"; };
 		2B82B3A21E82E2490095FB14 /* eqarea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eqarea.h; path = "/Users/sjg/iPhone/WhirlyGlobe2/ios/third-party/octencoding/../../../common/local_libs/octencoding/eqarea.h"; sourceTree = "<absolute>"; };
 		2B82B3A31E82E2490095FB14 /* eqdist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eqdist.h; path = "/Users/sjg/iPhone/WhirlyGlobe2/ios/third-party/octencoding/../../../common/local_libs/octencoding/eqdist.h"; sourceTree = "<absolute>"; };
@@ -2089,17 +2091,9 @@
 		2B82B36E1E82E2080095FB14 /* WhirlyGlobeLib */ = {
 			isa = PBXGroup;
 			children = (
-				2B82B3701E82E2260095FB14 /* tess */,
-			);
-			name = WhirlyGlobeLib;
-			sourceTree = "<group>";
-		};
-		2B82B3701E82E2260095FB14 /* tess */ = {
-			isa = PBXGroup;
-			children = (
 				2B82B5C91E82E2490095FB14 /* Classes */,
 			);
-			name = tess;
+			name = WhirlyGlobeLib;
 			sourceTree = "<group>";
 		};
 		2B82B3AA1E82E2490095FB14 /* octencoding */ = {
@@ -3144,6 +3138,7 @@
 		2BE537191D249A1200B60FAD /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */,
 				2B8849FD1E37FDAA0027C397 /* MaplyLAZShader.h */,
 				2B8849FE1E37FDAA0027C397 /* MaplyLAZQuadReader.h */,
 				2BE5371B1D249A1200B60FAD /* Maply3DTouchPreviewDatasource.h */,
@@ -4130,6 +4125,7 @@
 				2BE538541D249A1200B60FAD /* PanDelegateFixed.h in Headers */,
 				2BE538301D249A1200B60FAD /* MaplyViewController.h in Headers */,
 				2B82B7261E82E24A0095FB14 /* GlobeDoubleTapDragDelegate.h in Headers */,
+				2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */,
 				2B82B60D1E82E2490095FB14 /* JSONMemory.h in Headers */,
 				2BE537F91D249A1200B60FAD /* MaplyActiveObject.h in Headers */,
 				2B884A711E3803170027C397 /* laswritepoint.hpp in Headers */,
