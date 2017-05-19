@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/24/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,65 +32,91 @@
 /// Okay to place below a point
 #define kMaplyLayoutBelow  (1<<5)
 
-/** @brief The Screen Label is a 2D label that tracks a given geographic location.
-    @details This screen label will track the given geographic position.  If it's behind the globe it will disappear.  The label is rendered in a fixed size and will always appear on top of other geometry.
+/** 
+    The Screen Label is a 2D label that tracks a given geographic location.
+    
+    This screen label will track the given geographic position.  If it's behind the globe it will disappear.  The label is rendered in a fixed size and will always appear on top of other geometry.
   */
 @interface MaplyScreenLabel : NSObject
 
-/** @brief Location of the screen label in geographic (lat/lon) in radians.
-    @details The screen label will track this position.  If it would be behind the globe (in globe mode), then it will disappear.
+/** 
+    Location of the screen label in geographic (lat/lon) in radians.
+    
+    The screen label will track this position.  If it would be behind the globe (in globe mode), then it will disappear.
   */
 @property (nonatomic,assign) MaplyCoordinate loc;
 
-/** @brief An optional rotation to apply to the screen label.
-    @details This is a rotation we'll apply after the screen position has been calculated.  You can use this to do things like track the orientation of roads.
-    @details Rotation is in radians counter-clockwise from north.
+/** 
+    An optional rotation to apply to the screen label.
+    
+    This is a rotation we'll apply after the screen position has been calculated.  You can use this to do things like track the orientation of roads.
+    
+    Rotation is in radians counter-clockwise from north.
   */
 @property (nonatomic,assign) float rotation;
 
-/** @brief When the screen is rotated, try to keep the label upright.
-    @details This tells the layout and display engine to keep the label oriented upright no matter what.  In practice this means it will manipulate the rotation by 180 degrees.
+/** 
+    When the screen is rotated, try to keep the label upright.
+    
+    This tells the layout and display engine to keep the label oriented upright no matter what.  In practice this means it will manipulate the rotation by 180 degrees.
   */
 @property (nonatomic,assign) bool keepUpright;
 
-/** @brief The actual text to display.
-    @details This is a simple NSString for the text.  Things like font are set in the NSDictionary passed in to the add call in the view controller.
+/** 
+    The actual text to display.
+    
+    This is a simple NSString for the text.  Things like font are set in the NSDictionary passed in to the add call in the view controller.
   */
 @property (nonatomic,strong) NSString * __nullable text;
 
-/** @brief Text can be accompanied by an optional icon image.
-    @details If set, we'll put this image to the left of the text in the screen label.  The UIImage will be tracked by the view controller and reused as needed or disposed of when no longer needed.
-    @details The name had to change because Apple's private selector search is somewhat weak.
+/** 
+    Text can be accompanied by an optional icon image.
+    
+    If set, we'll put this image to the left of the text in the screen label.  The UIImage will be tracked by the view controller and reused as needed or disposed of when no longer needed.
+    
+    The name had to change because Apple's private selector search is somewhat weak.
   */
 @property (nonatomic,strong) UIImage * __nullable iconImage2;
 
-/** @brief Icon size in points.
-    @details If there is an icon image, this is how big it is.
+/** 
+    Icon size in points.
+    
+    If there is an icon image, this is how big it is.
   */
 @property (nonatomic,assign) CGSize iconSize;
 
-/** @brief An optional offset for the whole screen label.
-    @details If set, we'll move the screen label around by this amount before rendering it.  These are screen coordinates, not geographic.
+/** 
+    An optional offset for the whole screen label.
+    
+    If set, we'll move the screen label around by this amount before rendering it.  These are screen coordinates, not geographic.
   */
 @property (nonatomic,assign) CGPoint offset;
 
-/** @brief An option color override.
-    @details If set, this color will override the color passed in with the NSDictionary in the view controller's add method.
+/** 
+    An option color override.
+    
+    If set, this color will override the color passed in with the NSDictionary in the view controller's add method.
   */
 @property (nonatomic,strong) UIColor * __nullable color;
 
-/** @brief Label selectability.  On by default
-    @details If set, this label can be selected by the user.  If not set, this screen label will never appear in selection results.
+/** 
+    Label selectability.  On by default
+    
+    If set, this label can be selected by the user.  If not set, this screen label will never appear in selection results.
   */
 @property (nonatomic,assign) bool selectable;
 
-/** @brief The layout importance compared to other features, 0 by default.
- @details The toolkit has a simple layout engine that runs several times per second.  It controls the placement of all participating screen based features, such as MaplyScreenLabel and MaplyScreenMaker objects.  This value controls the relative importance of this particular object.  By default that importance is 0 so the object must compete with others.  Setting it to MAXFLOAT will bypass the layout engine entirely and the object will always appear.
+/** 
+    The layout importance compared to other features, 0 by default.
+ 
+    The toolkit has a simple layout engine that runs several times per second.  It controls the placement of all participating screen based features, such as MaplyScreenLabel and MaplyScreenMaker objects.  This value controls the relative importance of this particular object.  By default that importance is 0 so the object must compete with others.  Setting it to MAXFLOAT will bypass the layout engine entirely and the object will always appear.
  */
 @property (nonatomic,assign) float layoutImportance;
 
-/** @brief The placement rules for the layout engine to follow.
-    @details The layout engine isn't the brightest bulb in the string and it needs placement hints.  This value tells the engine where we can move the label around.  These are bit flags, so OR them together as needed.  The default is everything.
+/** 
+    The placement rules for the layout engine to follow.
+    
+    The layout engine isn't the brightest bulb in the string and it needs placement hints.  This value tells the engine where we can move the label around.  These are bit flags, so OR them together as needed.  The default is everything.
  
 |Layout Flag|Meaning|
 |:----------|:------|
@@ -101,22 +127,26 @@
  */
 @property (nonatomic,assign) int layoutPlacement;
 
-/** @brief User data object for selection
-    @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the screen label means to them.
+/** 
+    User data object for selection
+    
+    When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the screen label means to them.
   */
 @property (nonatomic,strong) id  __nullable userObject;
 
 @end
 
-/** @brief A version of the maply screen label that moves.
-    @details This version of the screen label can move in a limited way over time.
+/** 
+    A version of the maply screen label that moves.
+    
+    This version of the screen label can move in a limited way over time.
  */
 @interface MaplyMovingScreenLabel : MaplyScreenLabel
 
-/// @brief The end point for animation
+/// The end point for animation
 @property (nonatomic,assign) MaplyCoordinate endLoc;
 
-/// @brief How long it will take the screen label to get to endLoc
+/// How long it will take the screen label to get to endLoc
 @property (nonatomic,assign) NSTimeInterval duration;
 
 @end

@@ -3,7 +3,7 @@
 //  SLDTest
 //
 //  Created by Ranen Ghosh on 2016-08-12.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #import "SLDStyleSet.h"
@@ -48,11 +48,16 @@
 }
 
 
-/** @brief Constructs a SLDStyleSet object.
-    @details After constructing the SLDStyleSet object, call loadSldURL: or loadSldData:baseURL: to parse the desired SLD document tree and create the corresponding symbolizers.
+/** 
+    Constructs a SLDStyleSet object.
+    
+    After constructing the SLDStyleSet object, call loadSldURL: or loadSldData:baseURL: to parse the desired SLD document tree and create the corresponding symbolizers.
+    
     @param viewC The map or globe view controller.
+    
     @param useLayerNames Whether to use names of NamedLayer elements as a criteria in matching styles.
- @param relativeDrawPriority The z-order relative to other vector features. This will be incremented internally for each style rule, so if you have multiple SLDStyleSets, leave some space between the relativeDrawPriority of each.
+ 
+    @param relativeDrawPriority The z-order relative to other vector features. This will be incremented internally for each style rule, so if you have multiple SLDStyleSets, leave some space between the relativeDrawPriority of each.
  */
 - (id)initWithViewC:(MaplyBaseViewController *)viewC useLayerNames:(BOOL)useLayerNames relativeDrawPriority:(int)relativeDrawPriority {
     self = [super init];
@@ -71,8 +76,11 @@
     return self;
 }
 
-/** @brief Load SLD document from the specified URL
-    @details Currently only file URLs are supported.
+/** 
+    Load SLD document from the specified URL
+    
+    Currently only file URLs are supported.
+    
     @param url The URL from which to load the SLD document.
  */
 - (void)loadSldURL:(NSURL *__nullable)url {
@@ -89,9 +97,13 @@
     }
 }
 
-/** @brief Load SLD document from data
-    @details Load an SLD document from data.
+/** 
+    Load SLD document from data
+    
+    Load an SLD document from data.
+    
     @param sldData The SLD document
+    
     @param baseURL The base URL from which any external references (e.g. images) will be located.
  */
 - (void)loadSldData:(NSData *__nonnull)sldData baseURL:(NSURL *__nonnull)baseURL {
@@ -125,7 +137,8 @@
 
 }
 
-/** @brief Gets a single node for the provided element name.
+/** 
+    Gets a single node for the provided element name.
  */
 - (DDXMLNode *)getSingleChildNodeForNode:(DDXMLNode *)node childName:(NSString *)childName {
     
@@ -151,7 +164,9 @@
     return nil;
 }
 
-/** @brief Load the NamedLayer xml element into a SLDNamedLayer object.
+/** 
+    Load the NamedLayer xml element into a SLDNamedLayer object.
+    
     @param  namedLayerNode The DDXMLElement corresponding to the NamedLayer element in the document tree.
  */
 - (SLDNamedLayer *)loadNamedLayerNode:(DDXMLElement *)namedLayerNode {
@@ -184,8 +199,10 @@
     return sldNamedLayer;
 }
 
-/** @brief Load the UserStyle xml element into a SLDUserStyle object.
- @param  userStyleNode The DDXMLElement corresponding to the UserStyle element in the document tree.
+/** 
+    Load the UserStyle xml element into a SLDUserStyle object.
+ 
+    @param  userStyleNode The DDXMLElement corresponding to the UserStyle element in the document tree.
  */
 - (SLDUserStyle *)loadUserStyleNode:(DDXMLElement *)userStyleNode {
     SLDUserStyle *sldUserStyle = [[SLDUserStyle alloc] init];
@@ -209,8 +226,10 @@
     return sldUserStyle;
 }
 
-/** @brief Load the FeatureTypeStyle xml element into a SLDFeatureTypeStyle object.
- @param  featureTypeStyleNode The DDXMLElement corresponding to the FeatureTypeStyle element in the document tree.
+/** 
+    Load the FeatureTypeStyle xml element into a SLDFeatureTypeStyle object.
+ 
+    @param  featureTypeStyleNode The DDXMLElement corresponding to the FeatureTypeStyle element in the document tree.
  */
 - (SLDFeatureTypeStyle *)loadFeatureTypeStyleNode:(DDXMLElement *)featureTypeStyleNode {
     SLDFeatureTypeStyle *featureTypeStyle = [[SLDFeatureTypeStyle alloc] init];
@@ -229,8 +248,10 @@
     return featureTypeStyle;
 }
 
-/** @brief Load the Rule xml element into a SLDRule object.
- @param  ruleNode The DDXMLElement corresponding to the Rule element in the document tree.
+/** 
+    Load the Rule xml element into a SLDRule object.
+ 
+    @param  ruleNode The DDXMLElement corresponding to the Rule element in the document tree.
  */
 - (SLDRule *)loadRuleNode:(DDXMLElement *)ruleNode {
     SLDRule *rule = [[SLDRule alloc] init];
@@ -291,9 +312,12 @@
     return rule;
 }
 
-/** @brief Loops through the Rule's symbolizers in the document tree and generates the corresponding objects.
- @param rule The SLDRule object to own the generated symbolizer objects.
- @param ruleNode The DDXMLElement corresponding to the Rule element in the document tree.
+/** 
+    Loops through the Rule's symbolizers in the document tree and generates the corresponding objects.
+ 
+    @param rule The SLDRule object to own the generated symbolizer objects.
+ 
+    @param ruleNode The DDXMLElement corresponding to the Rule element in the document tree.
  */
 - (void)loadSymbolizersForRule:(SLDRule *)rule andRuleNode:(DDXMLElement *)ruleNode {
     rule.symbolizers = [NSMutableArray array];
@@ -324,8 +348,10 @@
     }
 }
 
-/** @brief Load the Filter xml element into a SLDFilter object.
- @param  filterNode The DDXMLElement corresponding to the Filter element in the document tree.
+/** 
+    Load the Filter xml element into a SLDFilter object.
+ 
+    @param  filterNode The DDXMLElement corresponding to the Filter element in the document tree.
  */
 - (SLDFilter *)loadFilterNode:(DDXMLElement *)filterNode {
     

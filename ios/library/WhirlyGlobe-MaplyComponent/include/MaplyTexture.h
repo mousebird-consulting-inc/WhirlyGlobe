@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 10/25/13.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,9 +20,12 @@
 
 #import <Foundation/Foundation.h>
 
-/** @brief Represents an OpenGL texture.
-    @details The MaplyTexture is an opaque object used to track OpenGL ES textures.  You create one from the MaplyBaseViewController's addImage call.  Then that texture will live until this object is released.
-    @details These can be used in place of UIImages in the various objects (e.g. MaplyScreenMarker).
+/** 
+    Represents an OpenGL texture.
+    
+    The MaplyTexture is an opaque object used to track OpenGL ES textures.  You create one from the MaplyBaseViewController's addImage call.  Then that texture will live until this object is released.
+    
+    These can be used in place of UIImages in the various objects (e.g. MaplyScreenMarker).
   */
 @interface MaplyTexture : NSObject
 @end

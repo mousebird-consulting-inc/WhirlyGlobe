@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/27/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,10 +34,10 @@
 #import "ElevationChunk.h"
 #import "LoadedTile.h"
 
-/// @cond
+
 @class WhirlyKitQuadTileLoader;
 @protocol WhirlyKitQuadTileImageDataSource;
-/// @endcond
+
 
 /** This protocol outlines the method that a WhirlyKitQuadTileImageDataSource
  compliant object uses to tell the tile loader that a tile has loaded or
