@@ -21,16 +21,22 @@
 #import <Foundation/Foundation.h>
 #import "MaplyTexture.h"
 
-/** @brief Represents a render target (other than the screen)
-    @details Individual objects can ask to be drawn somewhere other than the screen.
+/** 
+    Represents a render target (other than the screen)
+    
+    Individual objects can ask to be drawn somewhere other than the screen.
     This is how we do that.
-    @details A render target is just a link between a render every frame and a MaplyTexture.  To get at the actual image you use the MaplyTexture.
-    @details At the moment a render target can only draw the full screen, possibly at a lower resolution.
+    
+    A render target is just a link between a render every frame and a MaplyTexture.  To get at the actual image you use the MaplyTexture.
+    
+    At the moment a render target can only draw the full screen, possibly at a lower resolution.
   */
 @interface MaplyRenderTarget : NSObject
 
-/** @brief The texture we'll draw into.
-    @details This is the texture we'll draw into.  Use createTexture to set it up.
+/** 
+    The texture we'll draw into.
+    
+    This is the texture we'll draw into.  Use createTexture to set it up.
   */
 @property (nonatomic) MaplyTexture *texture;
 
