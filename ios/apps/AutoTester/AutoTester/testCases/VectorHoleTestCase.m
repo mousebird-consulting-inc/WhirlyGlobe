@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 8/11/16.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #import "VectorHoleTestCase.h"

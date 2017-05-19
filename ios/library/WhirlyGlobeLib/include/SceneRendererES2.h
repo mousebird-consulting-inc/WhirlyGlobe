@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/23/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 
-/// @cond
+
 @class WhirlyKitSceneRendererES1;
 @class WhirlyKitSceneRendererES2;
-/// @endcond
+
 
 /** This message is sent out by the renderer right
     before it does its thing.  We use it to loosely

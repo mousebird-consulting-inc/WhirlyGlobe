@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/30/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,57 +23,59 @@
 #import "WhirlyGlobeViewController.h"
 #import "MaplyLight.h"
 
-/** @brief Sets up the objects and shaders to implement an atmosphere.
-    @details This object sets up a shader implementation of the simple atmosphere from GPU Gems 2  http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter16.html
+/** 
+    Sets up the objects and shaders to implement an atmosphere.
+    
+    This object sets up a shader implementation of the simple atmosphere from GPU Gems 2  http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter16.html
   */
 @interface MaplyAtmosphere : NSObject
 
-/// @brief Initialize the view controller.  Will place objects in that view controller.
+/// Initialize the view controller.  Will place objects in that view controller.
 - (nullable instancetype)initWithViewC:(WhirlyGlobeViewController *__nonnull)viewC;
 
-/// @brief Rayleigh scattering constant (0.0025 by default)
+/// Rayleigh scattering constant (0.0025 by default)
 @property (nonatomic) float Kr;
 
-/// @brief Mie scattering constant (0.0010 by default)
+/// Mie scattering constant (0.0010 by default)
 @property (nonatomic) float Km;
 
-/// @brief Brightness of the sun (20.0 by default)
+/// Brightness of the sun (20.0 by default)
 @property (nonatomic) float ESun;
 
-/// @brief Number of samples for the ray through the atmosphere (3 by default)
+/// Number of samples for the ray through the atmosphere (3 by default)
 @property (nonatomic) int numSamples;
 
-/// @brief Outer radius of the atmosphere (1.05 by default).  Earth is radius 1.0.
+/// Outer radius of the atmosphere (1.05 by default).  Earth is radius 1.0.
 @property (nonatomic) float outerRadius;
 
-/// @brief Constant used in the fragment shader.  Default is -0.95.
+/// Constant used in the fragment shader.  Default is -0.95.
 @property (nonatomic) float g;
 
-/// @brief Exposure constant in fragment shader.  Default is 2.0.
+/// Exposure constant in fragment shader.  Default is 2.0.
 @property (nonatomic) float exposure;
 
-/// @brief The ground shader we set up.  You need to apply it yourself.
+/// The ground shader we set up.  You need to apply it yourself.
 @property (nonatomic,nullable) MaplyShader *groundShader;
 
-/// @brief If set we'll lock the sun direction to the camera position.  Permanent daylight.
+/// If set we'll lock the sun direction to the camera position.  Permanent daylight.
 @property (nonatomic) bool lockToCamera;
 
-/// @brief Wavelengths of the light (RGB).  Three floats, defaults are: 0.650, 0.570, 0.475
+/// Wavelengths of the light (RGB).  Three floats, defaults are: 0.650, 0.570, 0.475
 - (void)setWavelength:(float *__nonnull)wavelength;
 
-/// @brief Wavelengths of the light (RGB).  Defaults are: 0.650, 0.570, 0.475
+/// Wavelengths of the light (RGB).  Defaults are: 0.650, 0.570, 0.475
 - (void)setWavelengthRed:(float) redWavelength green:(float)greenWavelength blue:(float)blueWavelength;
 
-/// @brief Return the current wavelength settings (RGB)
+/// Return the current wavelength settings (RGB)
 - (void)getWavelength:(float *__nonnull)wavelength;
 
-/// @brief Return the current wavelength settings (RGB). The component is 0 for red, 1 for green and  2 for blue
+/// Return the current wavelength settings (RGB). The component is 0 for red, 1 for green and  2 for blue
 - (float)getWavelengthForComponent:(short)component;
 
-/// @brief Set the sun's position relative to the earth.  This is what comes out of MaplySun.
+/// Set the sun's position relative to the earth.  This is what comes out of MaplySun.
 - (void)setSunPosition:(MaplyCoordinate3d)sunDir;
 
-/// @brief Remove objects from the view controller we set it up in.
+/// Remove objects from the view controller we set it up in.
 - (void)removeFromViewC;
 
 @end

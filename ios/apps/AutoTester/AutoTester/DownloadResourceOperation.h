@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 13/5/16.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

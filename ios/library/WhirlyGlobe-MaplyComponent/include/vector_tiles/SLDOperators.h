@@ -3,7 +3,7 @@
 //  SLDTest
 //
 //  Created by Ranen Ghosh on 2016-08-12.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -11,7 +11,8 @@
 #import "SLDExpressions.h"
 
 /** @brief Base class for elements of ogc:comparisonOps or ogc:logicOps.
- @details Elements of ogc:spatialOps are not supported.
+ 
+    Elements of ogc:spatialOps are not supported.
  @see http://schemas.opengis.net/filter/1.1.0/filter.xsd for SLD v1.1.0
  @see http://schemas.opengis.net/filter/1.0.0/filter.xsd for SLD v1.0.0
  */

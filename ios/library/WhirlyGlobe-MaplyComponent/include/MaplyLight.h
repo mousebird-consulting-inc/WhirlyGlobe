@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/30/13.
- *  Copyright 2012-2015 mousebird consulting
+ *  Copyright 2012-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,29 +21,40 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 
-/** @brief The Light provides a simple interface to basic lighting within the toolkit.
-    @details You can have up to 8 lights in the current version of the toolkit.  Obviously this is all shader implementation with OpenGL ES 2.0, so you can always just bypass this and do what you like.  However, the default shaders will look for these lights.
-    @details The lights are very simple, suitable for the globe, and contain a position, a couple of colors, and a view dependent flag.
+/** 
+    The Light provides a simple interface to basic lighting within the toolkit.
+    
+    You can have up to 8 lights in the current version of the toolkit.  Obviously this is all shader implementation with OpenGL ES 2.0, so you can always just bypass this and do what you like.  However, the default shaders will look for these lights.
+    
+    The lights are very simple, suitable for the globe, and contain a position, a couple of colors, and a view dependent flag.
   */
 @interface MaplyLight : NSObject
 
-/** @brief The location of this particular light in display space.
-    @details This is a single light's location in display space.  Display space for the globe is based on a radius of 1.0.
+/** 
+    The location of this particular light in display space.
+    
+    This is a single light's location in display space.  Display space for the globe is based on a radius of 1.0.
   */
 @property (nonatomic,assign) MaplyCoordinate3d pos;
 
-/** @brief Controls whether the light takes the model matrix into account or not.
-    @details If set, this light moves with the model (usually the globe).  You'd use this for a real sun position. If not set, the light is static and does not move or rotate.
+/** 
+    Controls whether the light takes the model matrix into account or not.
+    
+    If set, this light moves with the model (usually the globe).  You'd use this for a real sun position. If not set, the light is static and does not move or rotate.
   */
 @property (nonatomic,assign) bool viewDependent;
 
-/** @brief Ambient color for the light.
-    @details This color will always be added to any given pixel.  It provides a baseline lighting value.
+/** 
+    Ambient color for the light.
+    
+    This color will always be added to any given pixel.  It provides a baseline lighting value.
   */
 @property (nonatomic,strong) UIColor *__nullable ambient;
 
-/** @brief Diffuse light color.
-    @details The diffuse color is multiplied by a directional value and so will vary depending on geometry normals.
+/** 
+    Diffuse light color.
+    
+    The diffuse color is multiplied by a directional value and so will vary depending on geometry normals.
   */
 @property (nonatomic,strong) UIColor *__nullable diffuse;
 

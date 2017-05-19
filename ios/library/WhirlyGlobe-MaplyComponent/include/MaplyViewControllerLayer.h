@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 10/25/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,18 +20,24 @@
 
 #import <Foundation/Foundation.h>
 
-/** @brief The View Controller Layer is a base class for other display layers.
-    @details You don't create these directory.  This is a base class for things like the MaplyQuadPagingLayer and the MaplyQuadImageTilesLayer.
+/** 
+    The View Controller Layer is a base class for other display layers.
+    
+    You don't create these directory.  This is a base class for things like the MaplyQuadPagingLayer and the MaplyQuadImageTilesLayer.
   */
 @interface MaplyViewControllerLayer : NSObject
 
-/** @brief Set the priority for drawing.
-    @details This is how you control where the geometry produced by this layer shows up with respect to other layers and other geometry.  This must be set immediately after creation.  It will have undefined behavior after the layer has started.
+/** 
+    Set the priority for drawing.
+    
+    This is how you control where the geometry produced by this layer shows up with respect to other layers and other geometry.  This must be set immediately after creation.  It will have undefined behavior after the layer has started.
   */
 @property (nonatomic,assign) int drawPriority;
 
-/** @brief Set as unique identifier, or group...
- @details use this property in order to localize this layer in the Globe/Map, you use in a predicate to catch as a load layer in Globe...
+/** 
+    Set as unique identifier, or group...
+ 
+    use this property in order to localize this layer in the Globe/Map, you use in a predicate to catch as a load layer in Globe...
  */
 @property (nonatomic, strong) NSString *identifier;
 

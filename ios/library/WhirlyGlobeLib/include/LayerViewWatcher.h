@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,11 +21,11 @@
 #import <UIKit/UIKit.h>
 #import "WhirlyKitView.h"
 
-/// @cond
+
 @class WhirlyKitLayerThread;
 @class WhirlyKitViewState;
 @class WhirlyKitSceneRendererES;
-/// @endcond
+
 
 /** The layer view watcher is a base class.  We subclass it for specific
     view types, such as globe and map.  Each of the subclasses determines

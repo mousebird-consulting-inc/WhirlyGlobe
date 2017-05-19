@@ -3,7 +3,7 @@
 //  LidarViewer
 //
 //  Created by Steve Gifford on 4/13/16.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #include <fstream>

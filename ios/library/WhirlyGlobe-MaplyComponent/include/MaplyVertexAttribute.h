@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 11/29/13.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,10 +20,14 @@
 
 #import <UIKit/UIKit.h>
 
-/** @brief Vertex Attributes are passed all the way though on objects to shaders.
-    @details If you have your own custom shader, you often need a way to feed it data.  The toolkit will set up the standard data, like vertices, texture coordinates and normals, but sometimes you need something custom.
-    @details Vertex attributes are the mechanism you use to pass that custom data all the way down to the shader.
-    @details How the vertex attributes are used depends on the data type, so consult the appropriate object.
+/** 
+    Vertex Attributes are passed all the way though on objects to shaders.
+    
+    If you have your own custom shader, you often need a way to feed it data.  The toolkit will set up the standard data, like vertices, texture coordinates and normals, but sometimes you need something custom.
+    
+    Vertex attributes are the mechanism you use to pass that custom data all the way down to the shader.
+    
+    How the vertex attributes are used depends on the data type, so consult the appropriate object.
   */
 @interface MaplyVertexAttribute : NSObject
 

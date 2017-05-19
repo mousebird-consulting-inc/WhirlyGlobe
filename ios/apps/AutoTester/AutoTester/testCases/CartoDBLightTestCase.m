@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 3/15/16.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #import "WhirlyGlobeComponent.h"

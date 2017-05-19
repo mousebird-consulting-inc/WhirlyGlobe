@@ -3,7 +3,7 @@
 //  WhirlyGlobeMaplyComponentTests
 //
 //  Created by Steve Gifford on 6/29/16.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #import <XCTest/XCTest.h>
