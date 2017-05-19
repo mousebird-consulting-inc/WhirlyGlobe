@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by @jmnavarro on 6/22/15.
- *  Copyright 2011-2015 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2017 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,7 +24,8 @@
 
 using namespace std;
 
-/** @details An elevation chunk that understands Cesium's terrainf format.
+/** 
+    An elevation chunk that understands Cesium's terrainf format.
     This converts Cesium data into a form we can interpolate or display.
   */
 @interface WhirlyKitElevationCesiumChunk : NSObject<WhirlyKitElevationChunk>

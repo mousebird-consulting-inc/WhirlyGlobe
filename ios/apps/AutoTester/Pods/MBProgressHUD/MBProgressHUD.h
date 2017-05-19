@@ -115,10 +115,13 @@ typedef void (^MBProgressHUDCompletionBlock)();
  *
  * @note This method sets `removeFromSuperViewOnHide`. The HUD will automatically be removed from the view hierarchy when hidden.
  *
- * @param view The view that the HUD will be added to
- * @param animated If set to YES the HUD will appear using the current animationType. If set to NO the HUD will not use
+ * 
+    @param view The view that the HUD will be added to
+ * 
+    @param animated If set to YES the HUD will appear using the current animationType. If set to NO the HUD will not use
  * animations while appearing.
- * @return A reference to the created HUD.
+ * 
+    @return A reference to the created HUD.
  *
  * @see hideHUDForView:animated:
  * @see animationType
@@ -130,10 +133,13 @@ typedef void (^MBProgressHUDCompletionBlock)();
  *
  * @note This method sets `removeFromSuperViewOnHide`. The HUD will automatically be removed from the view hierarchy when hidden.
  *
- * @param view The view that is going to be searched for a HUD subview.
- * @param animated If set to YES the HUD will disappear using the current animationType. If set to NO the HUD will not use
+ * 
+    @param view The view that is going to be searched for a HUD subview.
+ * 
+    @param animated If set to YES the HUD will disappear using the current animationType. If set to NO the HUD will not use
  * animations while disappearing.
- * @return YES if a HUD was found and removed, NO otherwise.
+ * 
+    @return YES if a HUD was found and removed, NO otherwise.
  *
  * @see showHUDAddedTo:animated:
  * @see animationType
@@ -145,10 +151,13 @@ typedef void (^MBProgressHUDCompletionBlock)();
  *
  * @note This method sets `removeFromSuperViewOnHide`. The HUDs will automatically be removed from the view hierarchy when hidden.
  *
- * @param view The view that is going to be searched for HUD subviews.
- * @param animated If set to YES the HUDs will disappear using the current animationType. If set to NO the HUDs will not use
+ * 
+    @param view The view that is going to be searched for HUD subviews.
+ * 
+    @param animated If set to YES the HUDs will disappear using the current animationType. If set to NO the HUDs will not use
  * animations while disappearing.
- * @return the number of HUDs found and removed.
+ * 
+    @return the number of HUDs found and removed.
  *
  * @see hideHUDForView:animated:
  * @see animationType
@@ -158,16 +167,20 @@ typedef void (^MBProgressHUDCompletionBlock)();
 /**
  * Finds the top-most HUD subview and returns it. 
  *
- * @param view The view that is going to be searched.
- * @return A reference to the last HUD subview discovered.
+ * 
+    @param view The view that is going to be searched.
+ * 
+    @return A reference to the last HUD subview discovered.
  */
 + (MB_INSTANCETYPE)HUDForView:(UIView *)view;
 
 /**
  * Finds all HUD subviews and returns them.
  *
- * @param view The view that is going to be searched.
- * @return All found HUD views (array of MBProgressHUD objects).
+ * 
+    @param view The view that is going to be searched.
+ * 
+    @return All found HUD views (array of MBProgressHUD objects).
  */
 + (NSArray *)allHUDsForView:(UIView *)view;
 
@@ -175,7 +188,8 @@ typedef void (^MBProgressHUDCompletionBlock)();
  * A convenience constructor that initializes the HUD with the window's bounds. Calls the designated constructor with
  * window.bounds as the parameter.
  *
- * @param window The window instance that will provide the bounds for the HUD. Should be the same instance as
+ * 
+    @param window The window instance that will provide the bounds for the HUD. Should be the same instance as
  * the HUD's superview (i.e., the window that the HUD will be added to).
  */
 - (id)initWithWindow:(UIWindow *)window;
@@ -184,7 +198,8 @@ typedef void (^MBProgressHUDCompletionBlock)();
  * A convenience constructor that initializes the HUD with the view's bounds. Calls the designated constructor with
  * view.bounds as the parameter
  *
- * @param view The view instance that will provide the bounds for the HUD. Should be the same instance as
+ * 
+    @param view The view instance that will provide the bounds for the HUD. Should be the same instance as
  * the HUD's superview (i.e., the view that the HUD will be added to).
  */
 - (id)initWithView:(UIView *)view;
@@ -194,7 +209,8 @@ typedef void (^MBProgressHUDCompletionBlock)();
  * the user interface can be updated. Call this method when your task is already set-up to be executed in a new thread
  * (e.g., when using something like NSOperation or calling an asynchronous call like NSURLRequest).
  *
- * @param animated If set to YES the HUD will appear using the current animationType. If set to NO the HUD will not use
+ * 
+    @param animated If set to YES the HUD will appear using the current animationType. If set to NO the HUD will not use
  * animations while appearing.
  *
  * @see animationType
@@ -205,7 +221,8 @@ typedef void (^MBProgressHUDCompletionBlock)();
  * Hide the HUD. This still calls the hudWasHidden: delegate. This is the counterpart of the show: method. Use it to
  * hide the HUD when your task completes.
  *
- * @param animated If set to YES the HUD will disappear using the current animationType. If set to NO the HUD will not use
+ * 
+    @param animated If set to YES the HUD will disappear using the current animationType. If set to NO the HUD will not use
  * animations while disappearing.
  *
  * @see animationType
@@ -216,9 +233,11 @@ typedef void (^MBProgressHUDCompletionBlock)();
  * Hide the HUD after a delay. This still calls the hudWasHidden: delegate. This is the counterpart of the show: method. Use it to
  * hide the HUD when your task completes.
  *
- * @param animated If set to YES the HUD will disappear using the current animationType. If set to NO the HUD will not use
+ * 
+    @param animated If set to YES the HUD will disappear using the current animationType. If set to NO the HUD will not use
  * animations while disappearing.
- * @param delay Delay in seconds until the HUD is hidden.
+ * 
+    @param delay Delay in seconds until the HUD is hidden.
  *
  * @see animationType
  */
@@ -230,10 +249,14 @@ typedef void (^MBProgressHUDCompletionBlock)();
  * This method also takes care of autorelease pools so your method does not have to be concerned with setting up a
  * pool.
  *
- * @param method The method to be executed while the HUD is shown. This method will be executed in a new thread.
- * @param target The object that the target method belongs to.
- * @param object An optional object to be passed to the method.
- * @param animated If set to YES the HUD will (dis)appear using the current animationType. If set to NO the HUD will not use
+ * 
+    @param method The method to be executed while the HUD is shown. This method will be executed in a new thread.
+ * 
+    @param target The object that the target method belongs to.
+ * 
+    @param object An optional object to be passed to the method.
+ * 
+    @param animated If set to YES the HUD will (dis)appear using the current animationType. If set to NO the HUD will not use
  * animations while (dis)appearing.
  */
 - (void)showWhileExecuting:(SEL)method onTarget:(id)target withObject:(id)object animated:(BOOL)animated;
@@ -264,11 +287,15 @@ typedef void (^MBProgressHUDCompletionBlock)();
 /** 
  * Shows the HUD while a block is executing on the specified dispatch queue, executes completion block on the main queue, and then hides the HUD.
  *
- * @param animated If set to YES the HUD will (dis)appear using the current animationType. If set to NO the HUD will
+ * 
+    @param animated If set to YES the HUD will (dis)appear using the current animationType. If set to NO the HUD will
  * not use animations while (dis)appearing.
- * @param block The block to be executed while the HUD is shown.
- * @param queue The dispatch queue on which the block should be executed.
- * @param completion The block to be executed on completion.
+ * 
+    @param block The block to be executed while the HUD is shown.
+ * 
+    @param queue The dispatch queue on which the block should be executed.
+ * 
+    @param completion The block to be executed on completion.
  *
  * @see completionBlock
  */

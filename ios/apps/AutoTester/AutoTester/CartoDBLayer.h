@@ -3,7 +3,7 @@
 //  HelloEarth
 //
 //  Created by Steve Gifford on 11/18/14.
-//  Copyright (c) 2014 mousebird consulting. All rights reserved.
+//  Copyright © 2014-2017 mousebird consulting. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

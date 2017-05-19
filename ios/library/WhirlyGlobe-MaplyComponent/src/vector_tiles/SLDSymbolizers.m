@@ -3,7 +3,7 @@
 //  SLDTest
 //
 //  Created by Ranen Ghosh on 2016-08-12.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #import "SLDSymbolizers.h"
@@ -13,16 +13,26 @@
 
 @implementation SLDSymbolizer
 
-/** @brief Produces MaplyVectorTileStyle objects for an SLD Symbolizer element
- @details Parses the XML subtree and returns an array of corresponding MaplyVectorTileStyle objects.
- @param element The XML element corresponding to a symbolizer
- @param tileStyleSettings The base MaplyVectorStyleSettings settings to apply.
- @param viewC The map or globe view controller.
- @param minScaleDenom If non-null, the minimum map scale at which to apply any constructed symbolizer.
- @param maxScaleDenom If non-null, the maximum map scale at which to apply any constructed symbolizer.
- @param relativeDrawPriority The z-order relative to other vector features.
- @param baseURL The base URL from which external resources (e.g. images) will be located.
- @return An array of MaplyVectorTileStyle objects corresponding to the particular XML element.
+/** 
+    Produces MaplyVectorTileStyle objects for an SLD Symbolizer element
+ 
+    Parses the XML subtree and returns an array of corresponding MaplyVectorTileStyle objects.
+ 
+    @param element The XML element corresponding to a symbolizer
+ 
+    @param tileStyleSettings The base MaplyVectorStyleSettings settings to apply.
+ 
+    @param viewC The map or globe view controller.
+ 
+    @param minScaleDenom If non-null, the minimum map scale at which to apply any constructed symbolizer.
+ 
+    @param maxScaleDenom If non-null, the maximum map scale at which to apply any constructed symbolizer.
+ 
+    @param relativeDrawPriority The z-order relative to other vector features.
+ 
+    @param baseURL The base URL from which external resources (e.g. images) will be located.
+ 
+    @return An array of MaplyVectorTileStyle objects corresponding to the particular XML element.
  @see MaplyVectorTileStyle
  @see MaplyVectorStyleSettings
  */
@@ -70,15 +80,18 @@
     return nil;
 }
 
-/** @brief Returns whether this class can parse the symbolizer corresponding to the provided element name.
-    @details Each subclass matches different symbolizer elements.
+/** 
+    Returns whether this class can parse the symbolizer corresponding to the provided element name.
+    
+    Each subclass matches different symbolizer elements.
  */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
     return NO;
 }
 
 
-/** @brief Gets a single node for the provided element name
+/** 
+    Gets a single node for the provided element name
  */
 + (DDXMLNode *)getSingleChildNodeForNode:(DDXMLNode *)node childName:(NSString *)childName {
     
@@ -92,7 +105,8 @@
     return nil;
 }
 
-/** @brief If the element is an ogc:Literal, return the value.
+/** 
+    If the element is an ogc:Literal, return the value.
  */
 + (NSString *)stringForLiteralInNode:(DDXMLNode *)node {
     for (DDXMLNode *child in [node children]) {
@@ -106,7 +120,8 @@
     return nil;
 }
 
-/** @brief Get the attribute by local name (ignoring prefix)
+/** 
+    Get the attribute by local name (ignoring prefix)
  */
 + (DDXMLNode *)getAttributeForElement:(DDXMLElement *)element attributeName:(NSString *)attributeName {
     for (DDXMLNode *child in [element attributes]) {
@@ -116,8 +131,10 @@
     return nil;
 }
 
-/** @brief If the element is an ogc:Literal or ogc:PropertyName, return the appropriate value.
-    @details For ogc:PropertyName, the property name is placed in square brackets for later substitution, as expected by MaplyVectorTileStyle formatText:forObject: .
+/** 
+    If the element is an ogc:Literal or ogc:PropertyName, return the appropriate value.
+    
+    For ogc:PropertyName, the property name is placed in square brackets for later substitution, as expected by MaplyVectorTileStyle formatText:forObject: .
     @see MaplyVectorTileStyle
  */
 + (NSString *)stringForParameterValueTypeNode:(DDXMLNode *)node {
@@ -130,8 +147,10 @@
     return nil;
 }
 
-/** @brief Parses a series of se:SvgParameter child nodes and returns a dictionary.
-    @details This is used to parse the style information in various elements used in symbolizers, in SLD v1.1.0.
+/** 
+    Parses a series of se:SvgParameter child nodes and returns a dictionary.
+    
+    This is used to parse the style information in various elements used in symbolizers, in SLD v1.1.0.
  */
 + (NSMutableDictionary *)dictForSvgParametersInElement:(DDXMLElement *)element {
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
@@ -147,8 +166,10 @@
     return params;
 }
 
-/** @brief Parses a series of se:CssParameter child nodes and returns a dictionary.
- @details This is used to parse the style information in various elements used in symbolizers, in SLD v1.0.0.
+/** 
+    Parses a series of se:CssParameter child nodes and returns a dictionary.
+ 
+    This is used to parse the style information in various elements used in symbolizers, in SLD v1.0.0.
  */
 + (NSMutableDictionary *)dictForCssParametersInElement:(DDXMLElement *)element {
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
@@ -164,9 +185,12 @@
     return params;
 }
 
-/** @brief Parses a series of se:CssParameter or se:SvgParameter child nodes and returns a dictionary.
- @details This is used to parse the style information in various elements used in symbolizers.
- @details This will deal with both SLD versions 1.0.0 and 1.1.0.
+/** 
+    Parses a series of se:CssParameter or se:SvgParameter child nodes and returns a dictionary.
+ 
+    This is used to parse the style information in various elements used in symbolizers.
+ 
+    This will deal with both SLD versions 1.0.0 and 1.1.0.
  */
 + (NSMutableDictionary *)dictForSvgCssParametersInElement:(DDXMLElement *)element {
     NSMutableDictionary *params = [SLDSymbolizer dictForSvgParametersInElement:element];
@@ -399,7 +423,8 @@
 
 @implementation SLDLineSymbolizer
 
-/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
+/** 
+    See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority crossSymbolizerParams:(NSMutableDictionary *)crossSymbolizerParams baseURL:(NSURL *)baseURL {
     
@@ -416,13 +441,15 @@
     return @[s];
 }
 
-/** @brief See comment for SLDSymbolizer matchesSymbolizerNamed:
+/** 
+    See comment for SLDSymbolizer matchesSymbolizerNamed:
  */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
     return [symbolizerName isEqualToString:@"LineSymbolizer"];
 }
 
-/** @brief Parses a stroke node and returns a corresponding MaplyVectorTileStyle object.
+/** 
+    Parses a stroke node and returns a corresponding MaplyVectorTileStyle object.
  */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromStrokeNode:(DDXMLElement *)strokeNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
     
@@ -449,13 +476,15 @@
 
 @implementation SLDPolygonSymbolizer
 
-/** @brief See comment for SLDSymbolizer matchesSymbolizerNamed:
+/** 
+    See comment for SLDSymbolizer matchesSymbolizerNamed:
  */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
     return [symbolizerName isEqualToString:@"PolygonSymbolizer"];
 }
 
-/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
+/** 
+    See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority crossSymbolizerParams:(NSMutableDictionary *)crossSymbolizerParams baseURL:(NSURL *)baseURL {
     
@@ -481,7 +510,8 @@
     return nil;
 }
 
-/** @brief Parses a fill node and returns a corresponding MaplyVectorTileStyle object.
+/** 
+    Parses a fill node and returns a corresponding MaplyVectorTileStyle object.
  */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromFillNode:(DDXMLElement *)fillNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority baseURL:(NSURL *)baseURL {
     
@@ -522,13 +552,15 @@
 
 @implementation SLDPointSymbolizer
 
-/** @brief See comment for SLDSymbolizer matchesSymbolizerNamed:
+/** 
+    See comment for SLDSymbolizer matchesSymbolizerNamed:
  */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
     return [symbolizerName isEqualToString:@"PointSymbolizer"];
 }
 
-/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
+/** 
+    See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority crossSymbolizerParams:(NSMutableDictionary *)crossSymbolizerParams baseURL:(NSURL *)baseURL {
     
@@ -540,7 +572,8 @@
     return @[s];
 }
 
-/** @brief Parses a PointSymbolizer node and returns a corresponding MaplyVectorTileStyle object.
+/** 
+    Parses a PointSymbolizer node and returns a corresponding MaplyVectorTileStyle object.
  */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromPointSymbolizerNode:(DDXMLElement *)pointSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority crossSymbolizerParams:(NSMutableDictionary *)crossSymbolizerParams baseURL:(NSURL *)baseURL {
     
@@ -573,13 +606,15 @@
 
 @implementation SLDTextSymbolizer
 
-/** @brief See comment for SLDSymbolizer matchesSymbolizerNamed:
+/** 
+    See comment for SLDSymbolizer matchesSymbolizerNamed:
  */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName {
     return [symbolizerName isEqualToString:@"TextSymbolizer"];
 }
 
-/** @brief See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
+/** 
+    See comment for SLDSymbolizer maplyVectorTileStyleWithElement:tileStyleSettings:viewC:minScaleDenom:maxScaleDenom:
  */
 + (NSArray<MaplyVectorTileStyle *> *) maplyVectorTileStyleWithElement:(DDXMLElement * _Nonnull)element tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority crossSymbolizerParams:(NSMutableDictionary *)crossSymbolizerParams baseURL:(NSURL *)baseURL {
     
@@ -591,7 +626,8 @@
     return @[s];
 }
 
-/** @brief Parses a TextSymbolizer node and returns a corresponding MaplyVectorTileStyle object.
+/** 
+    Parses a TextSymbolizer node and returns a corresponding MaplyVectorTileStyle object.
  */
 + (MaplyVectorTileStyle *)maplyVectorTileStyleFromTextSymbolizerNode:(DDXMLElement *)textSymbolizerNode tileStyleSettings:(MaplyVectorStyleSettings *)tileStyleSettings viewC:(MaplyBaseViewController *)viewC minScaleDenom:(NSNumber *)minScaleDenom maxScaleDenom:(NSNumber *)maxScaleDenom relativeDrawPriority:(int)relativeDrawPriority crossSymbolizerParams:(NSMutableDictionary *)crossSymbolizerParams baseURL:(NSURL *)baseURL {
     

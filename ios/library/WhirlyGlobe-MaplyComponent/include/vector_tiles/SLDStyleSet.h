@@ -3,7 +3,7 @@
 //  SLDTest
 //
 //  Created by Ranen Ghosh on 2016-08-12.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -74,8 +74,10 @@
 @end
 
 /** @brief Class corresponding to the sld:StyledLayerDescriptor element
- @details The sld:StyledLayerDescriptor element is the root element of the Styled Layer Descriptor document.
- @details Implements the MaplyVectorStyleDelegate protocol for matching and applying styles to vector objects.
+ 
+    The sld:StyledLayerDescriptor element is the root element of the Styled Layer Descriptor document.
+ 
+    Implements the MaplyVectorStyleDelegate protocol for matching and applying styles to vector objects.
  @see http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd for SLD v1.1.0
  @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
  @see MaplyVectorStyleDelegate
@@ -86,11 +88,16 @@
 @property (nonatomic, weak, nullable) MaplyBaseViewController *viewC;
 @property (nonatomic, strong, nullable) MaplyVectorStyleSettings *tileStyleSettings;
 
-/** @brief Constructs a SLDStyleSet object.
- @details After constructing the SLDStyleSet object, call loadSldURL: or loadSldData:baseURL: to parse the desired SLD document tree and create the corresponding symbolizers.
- @param viewC The map or globe view controller.
- @param useLayerNames Whether to use names of NamedLayer elements as a criteria in matching styles.
- @param relativeDrawPriority The z-order relative to other vector features. This will be incremented internally for each style rule, so if you have multiple SLDStyleSets, leave some space between the relativeDrawPriority of each.
+/** 
+    Constructs a SLDStyleSet object.
+ 
+    After constructing the SLDStyleSet object, call loadSldURL: or loadSldData:baseURL: to parse the desired SLD document tree and create the corresponding symbolizers.
+ 
+    @param viewC The map or globe view controller.
+ 
+    @param useLayerNames Whether to use names of NamedLayer elements as a criteria in matching styles.
+ 
+    @param relativeDrawPriority The z-order relative to other vector features. This will be incremented internally for each style rule, so if you have multiple SLDStyleSets, leave some space between the relativeDrawPriority of each.
  */
 - (id _Nullable)initWithViewC:(MaplyBaseViewController * _Nonnull)viewC useLayerNames:(BOOL)useLayerNames relativeDrawPriority:(int)relativeDrawPriority;
 

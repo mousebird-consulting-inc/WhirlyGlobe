@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/4/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,29 +22,39 @@
 #import "MaplyComponentObject.h"
 #import "WhirlyGlobeViewController.h"
 
-/** @brief The Stars Model parses and then displays a star field.
-    @details  This is used to display a star field around the earth.
+/** 
+    The Stars Model parses and then displays a star field.
+    
+     This is used to display a star field around the earth.
   */
 @interface MaplyStarsModel : NSObject
 
-/// @brief Read stars from the given file
+/// Read stars from the given file
 - (nullable instancetype)initWithFileName:(NSString *__nonnull)fileName;
 
-/// @brief Use the given image for each point.
-/// @details The given image will be sampled for individual points.
+/// Use the given image for each point.
+/// The given image will be sampled for individual points.
 - (void)setImage:(UIImage *__nonnull)image;
 
-/** @brief Add stars to the given view controller
-    @details Turn the star positions into geometry to display.  This object will track the resulting geometry objects.
+/** 
+    Add stars to the given view controller
+    
+    Turn the star positions into geometry to display.  This object will track the resulting geometry objects.
+    
     @param viewC The view controller to add the start geometry to.
+    
     @param date The date for the 
+    
     @param desc Additional parameters that may related to the geometry.
+    
     @param mode Thread mode to use when adding the geometry.
   */
 - (void)addToViewC:(WhirlyGlobeViewController *__nonnull)viewC date:(NSDate *__nonnull)date desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)mode;
 
-/** @brief Remove star geometry from the registered view controller.
-    @details Removes any objects created for the star geometry.
+/** 
+    Remove star geometry from the registered view controller.
+    
+    Removes any objects created for the star geometry.
   */
 - (void)removeFromViewC;
 

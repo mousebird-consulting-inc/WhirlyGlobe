@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 7/15/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@
 #import "MaplyTileSource.h"
 #import "MaplyCoordinateSystem.h"
 
-/** @brief A blank tile sources just generates a single colored image for each tile.
+/** 
+    A blank tile sources just generates a single colored image for each tile.
   */
 @interface MaplyBlankTileSource : NSObject<MaplyTileSource>
 

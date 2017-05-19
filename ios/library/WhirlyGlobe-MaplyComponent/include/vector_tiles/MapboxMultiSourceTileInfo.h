@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/23/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,46 +21,62 @@
 #import "MaplyRemoteTileSource.h"
 #import "MapboxVectorTiles.h"
 
-/** @brief Used to represent a Mapbox source compiled from multiple individual sources.
-    @details You can use these to merge different sources together (assuming they can be merged), returning image and/or vector tiles.
+/** 
+    Used to represent a Mapbox source compiled from multiple individual sources.
+    
+    You can use these to merge different sources together (assuming they can be merged), returning image and/or vector tiles.
   */
 @interface MapboxMultiSourceTileInfo : MaplyRemoteTileInfo <MaplyRemoteTileSourceDelegate>
 
-/** @brief Initialze the multi source tile info object.  Fill in everything else later.
+/** 
+    Initialze the multi source tile info object.  Fill in everything else later.
   */
 - (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nonnull)viewC;
 
-/** @brief The object needs this if you're parsing vector tiles.
+/** 
+    The object needs this if you're parsing vector tiles.
   */
 @property (nonatomic,weak, nullable) MaplyQuadImageTilesLayer *imageLayer;
 
-/** @brief The cache directory where we'll store combo tiles.
-    @details If set, we'll store the cached returns for image and/or vector tiles.  If not set, we won't cache.
+/** 
+    The cache directory where we'll store combo tiles.
+    
+    If set, we'll store the cached returns for image and/or vector tiles.  If not set, we won't cache.
   */
 //@property (nonatomic,strong) NSString *cacheDir;
 
-/** @brief If set, we'll use an access key to get map data.
+/** 
+    If set, we'll use an access key to get map data.
   */
 @property (nonatomic,strong, nullable) NSString *accessToken;
 
-/** @brief Add an image based map covering the given levels.
-    @details This adds an image based map of the given type (e.g. jpg or png) at the given levels.
+/** 
+    Add an image based map covering the given levels.
+    
+    This adds an image based map of the given type (e.g. jpg or png) at the given levels.
   */
 - (bool)addImageMap:(NSString *__nonnull)map minZoom:(int)minZoom maxZoom:(int)maxZoom type:(NSString *__nonnull)imageType;
 
-/** @brief Add a vector map at the given levels.
-    @details This adds a vector map for the given levels
+/** 
+    Add a vector map at the given levels.
+    
+    This adds a vector map for the given levels
   */
 - (bool)addVectorMap:(NSString *__nonnull)map style:(NSData *__nonnull)styleSheet styleType:(MapnikStyleType)styleType minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
-/** @brief Add a vector or image map, depending on the tile spec.
-    @details This version parses a tile spec and figures out what we're loading from there.
+/** 
+    Add a vector or image map, depending on the tile spec.
+    
+    This version parses a tile spec and figures out what we're loading from there.
   */
 - (bool)addTileSpec:(NSDictionary *__nonnull)tileSpec;
 
-/** @brief Add a vector or image map, depending on the tile spec.
-    @details This version parses a tile spec and figures out what we're loading from there.
-    @details You can also override which zoom levels to use.
+/** 
+    Add a vector or image map, depending on the tile spec.
+    
+    This version parses a tile spec and figures out what we're loading from there.
+    
+    You can also override which zoom levels to use.
  */
 - (bool)addTileSpec:(NSDictionary *__nonnull)tileSpec minZoom:(int)minZoom maxZoom:(int)maxZoom;
 

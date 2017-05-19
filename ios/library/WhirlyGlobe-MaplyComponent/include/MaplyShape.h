@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/28/12.
- *  Copyright 2012-2015 mousebird consulting
+ *  Copyright 2012-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,50 +23,68 @@
 #import "MaplyMatrix.h"
 #import "MaplyTexture.h"
 
-/** @brief Maply Shape is the base class for the actual shape objects.
-    @details The maply shape is just the base class.  Look to MaplyShapeCircle, MaplyShapeCylinder, MaplyShapeSphere, MaplyShapeGreatCircle, and MaplyShapeLinear.
+/** 
+    Maply Shape is the base class for the actual shape objects.
+    
+    The maply shape is just the base class.  Look to MaplyShapeCircle, MaplyShapeCylinder, MaplyShapeSphere, MaplyShapeGreatCircle, and MaplyShapeLinear.
   */
 @interface MaplyShape : NSObject
 
-/** @brief The color of the shape.
-    @details We can set object color in the NSDictionary passed in with the add method.  We can also override that here.
+/** 
+    The color of the shape.
+    
+    We can set object color in the NSDictionary passed in with the add method.  We can also override that here.
  */
 @property (nonatomic,strong) UIColor * __nullable color;
 
-/** @brief If set, the object is selectable
- @details The object is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.
+/** 
+    If set, the object is selectable
+ 
+    The object is selectable if this is set when the object is passed in to an add call.  If not set, you'll never see it in selection.
  */
 @property (nonatomic,assign) bool selectable;
 
-/** @brief User data object for selection
- @details When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the shape means to them.
+/** 
+    User data object for selection
+ 
+    When the user selects a feature and the developer gets it in their delegate, this is an object they can use to figure out what the shape means to them.
  */
 @property (nonatomic,strong) id  __nullable userObject;
 
-/** @brief If set, this shape is in clip coordinates and will not be transformed.
-    @details Some objects (the rectangle) can be used as overlays in clip coordinates.  This is set if that's the case.
+/** 
+    If set, this shape is in clip coordinates and will not be transformed.
+    
+    Some objects (the rectangle) can be used as overlays in clip coordinates.  This is set if that's the case.
   */
 @property (nonatomic,assign) bool clipCoords;
 
 @end
 
-/** @brief Shows a circle at the given location on the globe or map.
-    @details This object represents a circle at the given geographic location.  It needs a radius (in display coordinates) and can optionally have a height above the globe or map.
+/** 
+    Shows a circle at the given location on the globe or map.
+    
+    This object represents a circle at the given geographic location.  It needs a radius (in display coordinates) and can optionally have a height above the globe or map.
  */
 @interface MaplyShapeCircle : MaplyShape
 
-/** @brief Center of the circle in local coordinates.
-    @details This is the center of the circle in geographic.
+/** 
+    Center of the circle in local coordinates.
+    
+    This is the center of the circle in geographic.
   */
 @property (nonatomic,assign) MaplyCoordinate center;
 
-/** @brief Radius of the circle in display units.
-    @details This is the radius of the circle, but not in geographic.  It's in display units.  Display units for the globe are based on a radius of 1.0.  Scale accordingly.  For the map, display units typically run from -PI to +PI, depending on the coordinate system.
+/** 
+    Radius of the circle in display units.
+    
+    This is the radius of the circle, but not in geographic.  It's in display units.  Display units for the globe are based on a radius of 1.0.  Scale accordingly.  For the map, display units typically run from -PI to +PI, depending on the coordinate system.
   */
 @property (nonatomic,assign) float radius;
 
-/** @brief Offset height above the globe in display units.
-    @details This is the height above the globe for the center of the circle.  It's also in display units, like the radius.
+/** 
+    Offset height above the globe in display units.
+    
+    This is the height above the globe for the center of the circle.  It's also in display units, like the radius.
   */
 @property (nonatomic,assign) float height;
 
@@ -74,23 +92,31 @@
 
 typedef MaplyShapeCircle WGShapeCircle;
 
-/** @brief Display a sphere at the given location with the given radius.
-    @details This object represents a sphere at the
+/** 
+    Display a sphere at the given location with the given radius.
+    
+    This object represents a sphere at the
   */
 @interface MaplyShapeSphere : MaplyShape
 
-/** @brief Center of the sphere in local coordinates.
-    @details The x and y coordinates correspond to longitude and latitude and are in geographic (radians).  The Z value is in display coordinates.  For that globe that's based on a radius of 1.0.  Scale accordingly.
+/** 
+    Center of the sphere in local coordinates.
+    
+    The x and y coordinates correspond to longitude and latitude and are in geographic (radians).  The Z value is in display coordinates.  For that globe that's based on a radius of 1.0.  Scale accordingly.
  */
 @property (nonatomic,assign) MaplyCoordinate center;
 
-/** @brief Radius of the sphere in display units.
-    @details This is the radius of the sphere, but not in geographic.  It's in display units.  Display units for the globe are based on a radius of 1.0.  Scale accordingly.  For the map, display units typically run from -PI to +PI, depending on the coordinate system.
+/** 
+    Radius of the sphere in display units.
+    
+    This is the radius of the sphere, but not in geographic.  It's in display units.  Display units for the globe are based on a radius of 1.0.  Scale accordingly.  For the map, display units typically run from -PI to +PI, depending on the coordinate system.
  */
 @property (nonatomic,assign) float radius;
 
-/** @brief Offset height above the globe in display units.
-    @details This is the height above the globe for the center of the sphere.  It's also in display units, like the radius.
+/** 
+    Offset height above the globe in display units.
+    
+    This is the height above the globe for the center of the sphere.  It's also in display units, like the radius.
  */
 @property (nonatomic,assign) float height;
 
@@ -98,28 +124,38 @@ typedef MaplyShapeCircle WGShapeCircle;
 
 typedef MaplyShapeSphere WGShapeSphere;
 
-/** @brief Represent a cyclinder on the globe or map.
-    @details This object represents a cylinder with it's base tied to the surface of the globe or map and it's top pointed outward (on the globe anyway).  The base can be offset and the overall radius and height are adjustable.
+/** 
+    Represent a cyclinder on the globe or map.
+    
+    This object represents a cylinder with it's base tied to the surface of the globe or map and it's top pointed outward (on the globe anyway).  The base can be offset and the overall radius and height are adjustable.
   */
 @interface MaplyShapeCylinder : MaplyShape
 
-/** @brief Center of the cylinder's base in geographic.
-    @details The x and y coordinates correspond to longitude and latitude and are in geographic (radians).
+/** 
+    Center of the cylinder's base in geographic.
+    
+    The x and y coordinates correspond to longitude and latitude and are in geographic (radians).
  */
 @property (nonatomic,assign) MaplyCoordinate baseCenter;
 
-/** @brief Base height above the globe in display units.
-    @details This is an optional base offset from the globe or map.  The cylinder will be offset by this amount.  It's also in display units, like the radius.
+/** 
+    Base height above the globe in display units.
+    
+    This is an optional base offset from the globe or map.  The cylinder will be offset by this amount.  It's also in display units, like the radius.
  */
 @property (nonatomic,assign) float baseHeight;
 
-/** @brief Radius of the cylinder in display units.
-    @details This is the radius of the cylinder, but not in geographic.  It's in display units.  Display units for the globe are based on a radius of 1.0.  Scale accordingly.  For the map, display units typically run from -PI to +PI, depending on the coordinate system.
+/** 
+    Radius of the cylinder in display units.
+    
+    This is the radius of the cylinder, but not in geographic.  It's in display units.  Display units for the globe are based on a radius of 1.0.  Scale accordingly.  For the map, display units typically run from -PI to +PI, depending on the coordinate system.
  */
 @property (nonatomic,assign) float radius;
 
-/** @brief Height of the cylinder in display units.
-    @details This is the height of the cylinder.  The top of the cylinder will be at baseHeight+height.  It's also in display units, like the radius.
+/** 
+    Height of the cylinder in display units.
+    
+    This is the height of the cylinder.  The top of the cylinder will be at baseHeight+height.  It's also in display units, like the radius.
  */
 @property (nonatomic,assign) float height;
 
@@ -127,117 +163,152 @@ typedef MaplyShapeSphere WGShapeSphere;
 
 typedef MaplyShapeCylinder WGShapeCylinder;
 
-/** @brief Represents an great circle or great circle with height.
-    @details Great circles are the shortest distance between two points on a globe.  We extend that a bit here, by adding height.  The result is a curved object that can either sit on top of the globe or rise above it.  In either case it begins and ends at the specified points on the globe.
+/** 
+    Represents an great circle or great circle with height.
+    
+    Great circles are the shortest distance between two points on a globe.  We extend that a bit here, by adding height.  The result is a curved object that can either sit on top of the globe or rise above it.  In either case it begins and ends at the specified points on the globe.
  */
 @interface MaplyShapeGreatCircle : MaplyShape
 
-/// @brief Starting point in geographic coordinates.
+/// Starting point in geographic coordinates.
 @property (nonatomic,assign) MaplyCoordinate startPt;
 
-/// @brief End point in geographic coordinates
+/// End point in geographic coordinates
 @property (nonatomic,assign) MaplyCoordinate endPt;
 
-/** @brief Height of the great circle shape right in its middle.
-    @details This is the height of the great circle right in the middle.  It will built toward that height and then go back down as it reaches the endPt.  The height is in display units.  For the globe that's based on a radius of 1.0.
+/** 
+    Height of the great circle shape right in its middle.
+    
+    This is the height of the great circle right in the middle.  It will built toward that height and then go back down as it reaches the endPt.  The height is in display units.  For the globe that's based on a radius of 1.0.
  */
 @property (nonatomic,assign) float height;
 
-/** @brief Line width for the great circle geometry.
-    @details The great circle is implemented as a set of lines. This is the width, in pixels, of those lines.
+/** 
+    Line width for the great circle geometry.
+    
+    The great circle is implemented as a set of lines. This is the width, in pixels, of those lines.
   */
 @property (nonatomic,assign) float lineWidth;
 
-/** @brief Angle between start and end points in radians
+/** 
+    Angle between start and end points in radians
   */
 - (float)calcAngleBetween;
 
 @end
 
-/** @brief Represents a simple rectangle in 3D.
-    @details The rectangle is a 2D object in 3D.  Specify the lower left and upper right coordinates as
+/** 
+    Represents a simple rectangle in 3D.
+    
+    The rectangle is a 2D object in 3D.  Specify the lower left and upper right coordinates as
     well as an optional texture.
   */
 @interface MaplyShapeRectangle : MaplyShape
 
-/// @brief Lower left corner in 3D
+/// Lower left corner in 3D
 @property (nonatomic,assign) MaplyCoordinate3dD ll;
 
-/// @brief Upper right corner in 3D
+/// Upper right corner in 3D
 @property (nonatomic,assign) MaplyCoordinate3dD ur;
 
-/// @brief If set, the texture to stretch across the rectangle.
+/// If set, the texture to stretch across the rectangle.
 @property (nonatomic,nullable) MaplyTexture *texture;
 
 @end
 
-/** @brief A linear feature offset from the globe.
-    @details The main difference between this object and a regular MaplyVectorObject is that you specify coordiantes in 3D.  You can use this to create linear features that are offset from the globe.
+/** 
+    A linear feature offset from the globe.
+    
+    The main difference between this object and a regular MaplyVectorObject is that you specify coordiantes in 3D.  You can use this to create linear features that are offset from the globe.
   */
 @interface MaplyShapeLinear : MaplyShape
 
-/** @brief Line width in pixels
-    @details The linear is implemented as a set of line segments in OpenGL ES.  This is their line width in pixels.
+/** 
+    Line width in pixels
+    
+    The linear is implemented as a set of line segments in OpenGL ES.  This is their line width in pixels.
   */
 @property (nonatomic,assign) float lineWidth;
 
-/** @brief Initialize with coordinates and coordinate array size
-    @details This initializer will make a copy of the coordinates and use them to draw the lines.  The x and y values are in geographic.  The z values are offsets from the globe (or map) and are in display units.  For the globe display units are based on a radius of 1.0.
+/** 
+    Initialize with coordinates and coordinate array size
+    
+    This initializer will make a copy of the coordinates and use them to draw the lines.  The x and y values are in geographic.  The z values are offsets from the globe (or map) and are in display units.  For the globe display units are based on a radius of 1.0.
   */
 - (nullable instancetype)initWithCoords:(MaplyCoordinate3d * __nonnull)coords numCoords:(int)numCoords;
 
-/** @brief Return the coordinates for this linear feature.
+/** 
+    Return the coordinates for this linear feature.
+    
     @return Returns the number of coordinates and a pointer to the coordinate array.
   */
 - (int)getCoords:(MaplyCoordinate3d *__nullable *__nonnull)retCoords;
 
 @end
 
-/** @brief An extruded shape with an arbitrary outline.
-    @details This object represents an extruded shape with the given thickness.  It can be oriented according to the pitch, roll, yaw and height.
+/** 
+    An extruded shape with an arbitrary outline.
+    
+    This object represents an extruded shape with the given thickness.  It can be oriented according to the pitch, roll, yaw and height.
   */
 @interface MaplyShapeExtruded : MaplyShape
 
-/** @brief Construct with the coordinates for the outline to extrude.
- @details Pass in pairs of doubles that correspond to the
+/** 
+    Construct with the coordinates for the outline to extrude.
+ 
+    Pass in pairs of doubles that correspond to the
  */
 - (nonnull instancetype)initWithOutline:(NSArray * __nonnull)coords;
 
-/** @brief Construct with the coordinates for the outline to extrude.
-    @details Pass in pairs of doubles that correspond to the
+/** 
+    Construct with the coordinates for the outline to extrude.
+    
+    Pass in pairs of doubles that correspond to the
   */
 - (nonnull instancetype)initWithOutline:(double * __nonnull)coords numCoordPairs:(int)numCoordPairs;
 
-/** @brief Number of coordinate pairs in this shape.
+/** 
+    Number of coordinate pairs in this shape.
   */
 @property (nonatomic,readonly) int numCoordPairs;
 
-/** @brief Array of coordinate values.
+/** 
+    Array of coordinate values.
   */
 @property (nonatomic,readonly) double * __nullable coordData;
 
-/** @brief Where we'd like to place the extruded shape.
-    @details This is the center of the object in geographic radians.
+/** 
+    Where we'd like to place the extruded shape.
+    
+    This is the center of the object in geographic radians.
   */
 @property (nonatomic) MaplyCoordinate center;
 
-/** @brief Scale for coordinates.  Set to 1/EarthRadiusInMeters by default.
-    @details The coordinates will be scaled by this before creating the geometry.  By default this is set to 1/EarthRadius(m) so you can build your shape in meters.  Also applies to thickness and height.
+/** 
+    Scale for coordinates.  Set to 1/EarthRadiusInMeters by default.
+    
+    The coordinates will be scaled by this before creating the geometry.  By default this is set to 1/EarthRadius(m) so you can build your shape in meters.  Also applies to thickness and height.
   */
 @property (nonatomic,assign) double scale;
 
-/** @brief Thickness for the resulting shape.
-    @details We build an extruded shape out of this information and this is its thickness.  If this is zero, you just get a double sided polygon.
+/** 
+    Thickness for the resulting shape.
+    
+    We build an extruded shape out of this information and this is its thickness.  If this is zero, you just get a double sided polygon.
   */
 @property (nonatomic,assign) double thickness;
 
-/** @brief Height to place the resulting shape at.
-    @details We'll put this shape at the given height above the surface of the globe or map.
+/** 
+    Height to place the resulting shape at.
+    
+    We'll put this shape at the given height above the surface of the globe or map.
   */
 @property (nonatomic,assign) double height;
 
-/** @brief The transform to apply to this shape.
-    @details If set, this transform is applied before placing the feature.  You can set a transform matrix up with roll, pitch, and yaw.
+/** 
+    The transform to apply to this shape.
+    
+    If set, this transform is applied before placing the feature.  You can set a transform matrix up with roll, pitch, and yaw.
   */
 @property (nonatomic,strong) MaplyMatrix * __nullable transform;
 

@@ -3,7 +3,7 @@
 //  SLDTest
 //
 //  Created by Ranen Ghosh on 2016-08-12.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -16,21 +16,33 @@
  */
 @interface SLDSymbolizer : NSObject
 
-/** @brief Returns whether this class can parse the symbolizer corresponding to the provided element name.
- @details Each subclass matches different symbolizer elements.
+/** 
+    Returns whether this class can parse the symbolizer corresponding to the provided element name.
+ 
+    Each subclass matches different symbolizer elements.
  */
 + (BOOL)matchesSymbolizerNamed:(NSString * _Nonnull)symbolizerName;
 
-/** @brief Produces MaplyVectorTileStyle objects for an SLD Symbolizer element
- @details Parses the XML subtree and returns an array of corresponding MaplyVectorTileStyle objects.
- @param element The XML element corresponding to a symbolizer
- @param tileStyleSettings The base MaplyVectorStyleSettings settings to apply.
- @param viewC The map or globe view controller.
- @param minScaleDenom If non-null, the minimum map scale at which to apply any constructed symbolizer.
- @param maxScaleDenom If non-null, the maximum map scale at which to apply any constructed symbolizer.
- @param relativeDrawPriority The z-order relative to other vector features.
- @param baseURL The base URL from which external resources (e.g. images) will be located.
- @return An array of MaplyVectorTileStyle objects corresponding to the particular XML element.
+/** 
+    Produces MaplyVectorTileStyle objects for an SLD Symbolizer element
+ 
+    Parses the XML subtree and returns an array of corresponding MaplyVectorTileStyle objects.
+ 
+    @param element The XML element corresponding to a symbolizer
+ 
+    @param tileStyleSettings The base MaplyVectorStyleSettings settings to apply.
+ 
+    @param viewC The map or globe view controller.
+ 
+    @param minScaleDenom If non-null, the minimum map scale at which to apply any constructed symbolizer.
+ 
+    @param maxScaleDenom If non-null, the maximum map scale at which to apply any constructed symbolizer.
+ 
+    @param relativeDrawPriority The z-order relative to other vector features.
+ 
+    @param baseURL The base URL from which external resources (e.g. images) will be located.
+ 
+    @return An array of MaplyVectorTileStyle objects corresponding to the particular XML element.
  @see MaplyVectorTileStyle
  @see MaplyVectorStyleSettings
  */
