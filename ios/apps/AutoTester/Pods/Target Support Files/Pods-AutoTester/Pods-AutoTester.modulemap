@@ -1,6 +1,0 @@
-framework module Pods_AutoTester {
-  umbrella header "Pods-AutoTester-umbrella.h"
-
-  export *
-  module * { export * }
-}
