@@ -129,19 +129,21 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 		// It's a blank view on top of our view, which we get rid of when we
 		//  actually draw something there.
 		// http://stackoverflow.com/questions/19970829/android-and-opengl-gives-black-frame-at-startup
-		if (firstFrame)
+		if (firstFrame && valid && maplyControl != null)
 		{
 			firstFrame = false;
-			maplyControl.getContentView().post(
-					new Runnable() {
-						@Override
-						public void run() {
-							if (maplyControl != null && Build.VERSION.SDK_INT > 16)
-								if (!maplyControl.usesTextureView() || Build.VERSION.SDK_INT < 24)
-									maplyControl.getContentView().setBackground(null);
+			if (maplyControl != null) {
+				maplyControl.getContentView().post(
+						new Runnable() {
+							@Override
+							public void run() {
+								if (maplyControl != null && Build.VERSION.SDK_INT > 16)
+									if (!maplyControl.usesTextureView() || Build.VERSION.SDK_INT < 24)
+										maplyControl.getContentView().setBackground(null);
+							}
 						}
-					}
-			);
+				);
+			}
 		}
 
 		try {
