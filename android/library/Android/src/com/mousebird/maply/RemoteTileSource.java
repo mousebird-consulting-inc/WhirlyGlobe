@@ -213,8 +213,11 @@ public class RemoteTileSource implements QuadImageTileLayer.TileSource
         // Callback from OK HTTP on tile loading failure
         public void onFailure(Request request, IOException e) {
 			// Ignore cancels
-			if (e != null && e.getLocalizedMessage().contains("Canceled"))
-				return;
+			if (e != null) {
+				String mess = e.getLocalizedMessage();
+				if (mess != null && mess.contains("Canceled"))
+					return;
+			}
 			if (tileID != null)
 	            Log.e("Maply", "Failed to fetch remote tile " + tileID.level + ": (" + tileID.x + "," + tileID.y + ")");
         }
