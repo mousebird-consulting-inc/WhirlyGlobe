@@ -14,8 +14,8 @@
     <a title="MaplyMultiplexTileSourceDelegate Protocol Reference"></a>
     <header>
       <div class="content-wrapper">
-        <p><a href="../index.html">WhirlyGlobe-Maply Docs</a> (81% documented)</p>
-        <p class="header-right"><a href="https://github.com/mousebird/WhirlyGlobe"><img src="../img/gh.png"/>View on GitHub</a></p>
+        <p><a href="../index.html">WhirlyGlobe-Maply Docs</a> (83% documented)</p>
+        <p class="header-right"><a href="ithub_url"><img src="../img/gh.png"/>View on GitHub</a></p>
       </div>
     </header>
     <div class="content-wrapper">
@@ -128,9 +128,6 @@
                 <a href="../Classes/MaplyImageTile.html">MaplyImageTile</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Classes/MaplyLAZQuadReader.html">MaplyLAZQuadReader</a>
-              </li>
-              <li class="nav-group-task">
                 <a href="../Classes/MaplyLabel.html">MaplyLabel</a>
               </li>
               <li class="nav-group-task">
@@ -218,6 +215,9 @@
                 <a href="../Classes/MaplyRemoteTileSource.html">MaplyRemoteTileSource</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Classes/MaplyRenderTarget.html">MaplyRenderTarget</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Classes/MaplyScreenLabel.html">MaplyScreenLabel</a>
               </li>
               <li class="nav-group-task">
@@ -249,6 +249,9 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/MaplyShapeLinear.html">MaplyShapeLinear</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MaplyShapeRectangle.html">MaplyShapeRectangle</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Classes/MaplyShapeSphere.html">MaplyShapeSphere</a>
@@ -401,24 +404,6 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyJustify">kMaplyJustify</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderColorScale">kMaplyLAZReaderColorScale</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderCoordSys">kMaplyLAZReaderCoordSys</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZReaderZOffset">kMaplyLAZReaderZOffset</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderPointSize">kMaplyLAZShaderPointSize</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderZMax">kMaplyLAZShaderZMax</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Constants.html#/c:@kMaplyLAZShaderZMin">kMaplyLAZShaderZMin</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyLabelDrawPriorityDefault">kMaplyLabelDrawPriorityDefault</a>
@@ -655,6 +640,12 @@
                 <a href="../Constants.html#/c:@kMaplyTexMinFilter">kMaplyTexMinFilter</a>
               </li>
               <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexSizeX">kMaplyTexSizeX</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTexSizeY">kMaplyTexSizeY</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTexWrapX">kMaplyTexWrapX</a>
               </li>
               <li class="nav-group-task">
@@ -662,6 +653,18 @@
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTextColor">kMaplyTextColor</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustify">kMaplyTextJustify</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyCenter">kMaplyTextJustifyCenter</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyLeft">kMaplyTextJustifyLeft</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Constants.html#/c:@kMaplyTextJustifyRight">kMaplyTextJustifyRight</a>
               </li>
               <li class="nav-group-task">
                 <a href="../Constants.html#/c:@kMaplyTextOutlineColor">kMaplyTextOutlineColor</a>
@@ -906,6 +909,12 @@
             <a href="../Functions.html">Functions</a>
             <ul class="nav-group-tasks">
               <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyBoundingBoxContains">MaplyBoundingBoxContains</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Functions.html#/c:@F@MaplyBoundingBoxExpandByFraction">MaplyBoundingBoxExpandByFraction</a>
+              </li>
+              <li class="nav-group-task">
                 <a href="../Functions.html#/c:@F@MaplyBoundingBoxMakeWithDegrees">MaplyBoundingBoxMakeWithDegrees</a>
               </li>
               <li class="nav-group-task">
@@ -939,12 +948,6 @@
                 <a href="../Functions.html#/c:@F@MaplyGreatCircleDistance">MaplyGreatCircleDistance</a>
               </li>
               <li class="nav-group-task">
-                <a href="../Functions.html#/c:@F@MaplyLAZBuildPointShader">MaplyLAZBuildPointShader</a>
-              </li>
-              <li class="nav-group-task">
-                <a href="../Functions.html#/c:@F@MaplyLAZBuildRampPointShader">MaplyLAZBuildRampPointShader</a>
-              </li>
-              <li class="nav-group-task">
                 <a href="../Functions.html#/c:@F@MaplyTileIDString">MaplyTileIDString</a>
               </li>
               <li class="nav-group-task">
@@ -964,11 +967,13 @@
 
                 </div>
               </div>
-            <p>@brief A delegate called during various parts of the tile loading and display operation.
- @details The remote tile source delegate provides feedback on which
- tiles loaded and which didn&rsquo;t.  You&rsquo;ll be called in all sorts of
- random threads here, so act accordingly.
- @details This delegate interface can also be used to modify data as it comes in.</p>
+            <p>A delegate called during various parts of the tile loading and display operation.</p>
+
+<p>The remote tile source delegate provides feedback on which
+tiles loaded and which didn&rsquo;t.  You&rsquo;ll be called in all sorts of
+random threads here, so act accordingly.</p>
+
+<p>This delegate interface can also be used to modify data as it comes in.</p>
 
           </section>
           <section class="section task-group-section">
@@ -987,9 +992,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief The tile successfully loaded.
- - parameter: tileSource the remote tile source that loaded the tile.
- - parameter: tileID The ID of the tile we loaded.</p>
+                        <p>The tile successfully loaded.</p>
 
                       </div>
                       <div class="declaration">
@@ -1014,13 +1017,12 @@
                             <tr>
                               <td>
                                 <code>
-                                <em>tileSource</em>
+                                <em>tileInfo</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>the remote tile source that loaded the tile.</p>
-
+                                  <p>TileInfo corresponding to the data that was loaded.</p>
                                 </div>
                               </td>
                             </tr>
@@ -1033,7 +1035,18 @@
                               <td>
                                 <div>
                                   <p>The ID of the tile we loaded.</p>
-
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>frame</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The frame loaded.</p>
                                 </div>
                               </td>
                             </tr>
@@ -1056,8 +1069,9 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Modify the tile data after it&rsquo;s been read.
- @details This method is useful for messing with tile sources that may not be images, but can be turned into images.</p>
+                        <p>Modify the tile data after it&rsquo;s been read.</p>
+
+<p>This method is useful for messing with tile sources that may not be images, but can be turned into images.</p>
 
                       </div>
                       <div class="declaration">
@@ -1092,10 +1106,7 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief The tile failed to load.
- - parameter: tileSource The remote tile source that tried to load the tile.
- - parameter: tileID The tile ID of the tile that failed to load.
- - parameter: error The NSError message, probably from the network routine.</p>
+                        <p>The tile failed to load.</p>
 
                       </div>
                       <div class="declaration">
@@ -1121,13 +1132,12 @@
                             <tr>
                               <td>
                                 <code>
-                                <em>tileSource</em>
+                                <em>tileInfo</em>
                                 </code>
                               </td>
                               <td>
                                 <div>
-                                  <p>The remote tile source that tried to load the tile.</p>
-
+                                  <p>TileInfo corresponding to the data that was loaded.</p>
                                 </div>
                               </td>
                             </tr>
@@ -1140,7 +1150,6 @@
                               <td>
                                 <div>
                                   <p>The tile ID of the tile that failed to load.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -1153,7 +1162,6 @@
                               <td>
                                 <div>
                                   <p>The NSError message, probably from the network routine.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -1176,11 +1184,13 @@
                     <section class="section">
                       <div class="pointer"></div>
                       <div class="abstract">
-                        <p>@brief Called when the tile is unloaded.
- @details Normally you won&rsquo;t get called when an image or vector tile is unloaded from memory.  If you set this, you will.
- @details You&rsquo;re not required to do anything, but you can clean up data of your own if you like.
- @details You will be called on another thread, so act accordingly.
- - parameter: tileID The tile that that just got unloaded.</p>
+                        <p>Called when the tile is unloaded.</p>
+
+<p>Normally you won&rsquo;t get called when an image or vector tile is unloaded from memory.  If you set this, you will.</p>
+
+<p>You&rsquo;re not required to do anything, but you can clean up data of your own if you like.</p>
+
+<p>You will be called on another thread, so act accordingly.</p>
 
                       </div>
                       <div class="declaration">
@@ -1211,7 +1221,6 @@
                               <td>
                                 <div>
                                   <p>The tile that that just got unloaded.</p>
-
                                 </div>
                               </td>
                             </tr>
@@ -1226,8 +1235,8 @@
           </section>
         </section>
         <section id="footer">
-          <p>&copy; 2017 <a class="link" href="https://mousebirdconsulting.com" target="_blank" rel="external">mousebird consulting inc</a>. All rights reserved. (Last updated: 2017-01-27)</p>
-          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.7.3</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+          <p>&copy; 2017 <a class="link" href="http://mousebirdconsulting.com" target="_blank" rel="external">Steve Gifford</a>. All rights reserved. (Last updated: 2017-05-19)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.8.2</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
         </section>
       </article>
     </div>
