@@ -46,7 +46,8 @@ using namespace WhirlyKit;
 
 - (bool)calcWidth:(float *)width height:(float *)height defaultFont:(UIFont *)font
 {
-    CGSize textSize = [_text sizeWithFont:font];
+    CGSize textSize = [_text sizeWithAttributes:
+                       @{NSFontAttributeName: font}];
     if (textSize.width == 0 || textSize.height == 0)
         return false;
     
@@ -171,7 +172,8 @@ using namespace WhirlyKit;
         theHeight = [_desc floatForKey:@"height" default:theHeight];
     }
     
-    CGSize textSize = [_text sizeWithFont:labelInfo.font];
+    CGSize textSize = [_text sizeWithAttributes:
+                       @{NSFontAttributeName: labelInfo.font}];
     
     float width2,height2;
     if (theWidth != 0.0)
