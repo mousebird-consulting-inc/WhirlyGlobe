@@ -43,6 +43,8 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 
 {% include app_entry.html name="Global Schooner" image="globalschooner.png" body="Take an interactive journey across the globe with Prairie Schooner, complete with exclusive content and more than 300 profiles of authors from around the world." link="https://itunes.apple.com/us/app/global-schooner/id612496796?mt=8" %}
 
+{% include app_entry.html name="Find the Fun" image="findthefun.jpeg" body="A platform for map-based guidebook apps.  The iOS version uses WhirlyGlobe-Maply." link="http://www.grandma.technology/" %}
+
 {% include app_entry.html name="iBobber" image="ibobber.jpg" body="The iBobber app from Reelsonar interfaces to their fish finding hardware.  It also shows a globe with active users." link="https://itunes.apple.com/us/app/ibobber/id794673333?mt=8" %}
 
 {% include app_entry.html name="iBobber" image="ibobber.jpg" body="The iBobber app from Reelsonar is also available on Android." link="https://play.google.com/store/apps/details?id=com.reelsonar.ibobber&hl=en" %}
@@ -60,6 +62,8 @@ A toolkit is only as good as the apps that use it.  Here are some of our favorit
 {% include app_entry.html name="Miizee" image="miizee.png" body="Use Miizee to broadcast HD quality live events on-the-go from any location to any screen using only your Facebook account to connect with the world." link="https://itunes.apple.com/us/app/miizee/id995816207?mt=8" %}
 
 {% include app_entry.html name="National Geographic World Atlas" image="worldatlas.png" body="A very popular reference app on iOS, version 4.0 uses WhirlyGlobe to great effect." link="https://itunes.apple.com/us/app/national-geographic-world/id364733950?mt=8" %}
+
+{% include app_entry.html name="NATS Airspace Explorer" image="natsae.jpeg" body="Airspace Explorer is a flight tracking and airspace education app developed by the National Air Traffic Control System of the UK." link="http://www.nats.aero/ae-home/" %}
 
 {% include app_entry.html name="Offline Topo Maps" image="offlinetopomaps.png" body="Offline Topo Maps is a simpler version of Gaia GPS." link="https://itunes.apple.com/us/app/offline-topo-maps/id376535806?mt=8" %}
 
