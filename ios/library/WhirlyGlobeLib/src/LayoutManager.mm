@@ -139,7 +139,15 @@ void LayoutManager::enableLayoutObjects(const SimpleIDSet &theObjects,bool enabl
         LayoutObjectEntry entry(*it);
         LayoutEntrySet::iterator eit = layoutObjects.find(&entry);
         if (eit != layoutObjects.end())
-            (*eit)->obj.enable = enable;
+        {
+            LayoutObjectEntry *entry = *eit;
+            if (!enable)
+            {
+                entry->newCluster = -1;
+                entry->currentCluster = -1;
+            }
+            entry->obj.enable = enable;
+        }
     }
     hasUpdates = true;    
 
