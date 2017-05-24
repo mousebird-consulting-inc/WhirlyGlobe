@@ -42,6 +42,9 @@
 /// If not set or set to MAXFLOAT, we calculate tilt the regular way
 @property (nonatomic) double tilt;
 
+/// Roll as used in the view controller
+@property (nonatomic) double roll;
+
 /// Position to move to on the globe
 @property (nonatomic) MaplyCoordinateD pos;
 
@@ -129,6 +132,9 @@
 
 /// Tilt at the end of the animation
 @property (nonatomic) double tilt;
+
+/// Roll at the end of the animaiton
+@property (nonatomic) double roll;
 
 @end
 
@@ -372,6 +378,11 @@
     If keepNorthUp is set this is always 0.
   */
 @property(nonatomic,assign) float heading;
+
+/**
+    The current roll around the axis pointed out of the user's nose.
+    */
+@property (nonatomic,assign) double roll;
 
 /** 
     Returns the closest a viewer is allowed to get to the map surface.
