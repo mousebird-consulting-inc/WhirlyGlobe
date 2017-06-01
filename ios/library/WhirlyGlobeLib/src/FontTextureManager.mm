@@ -244,6 +244,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     for (DrawStringRepSet::iterator it = drawStringReps.begin();
          it != drawStringReps.end(); ++it)
         delete *it;
+    drawStringReps.clear();
     for (FontManagerSet::iterator it = fontManagers.begin();
          it != fontManagers.end(); ++it)
         delete *it;
@@ -514,11 +515,13 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     {
         delete drawString;
         delete drawStringRep;
+        drawStringRep = NULL;
         drawString = NULL;
     }
     
     // We need to track the glyphs we're using
-    drawStringReps.insert(drawStringRep);
+    if (drawStringRep != NULL)
+        drawStringReps.insert(drawStringRep);
 
     pthread_mutex_unlock(&lock);
 
