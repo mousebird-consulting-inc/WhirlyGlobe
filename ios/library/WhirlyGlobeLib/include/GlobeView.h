@@ -47,6 +47,8 @@
 @property (nonatomic,assign) double heightAboveGlobe;
 /// Quaternion used for rotation from origin state
 @property (nonatomic,assign) Eigen::Quaterniond rotQuat;
+/// Roll around an axis pointed straight out of the front
+@property (nonatomic,assign) double roll;
 /// Used to update position based on time (or whatever other factor you like)
 @property (nonatomic,weak) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
 /// The view can have a tilt.  0 is straight down.  PI/2 is looking to the horizon.
@@ -69,6 +71,9 @@
 
 /// This version allows you to not update the watchers.
 - (void)setRotQuat:(Eigen::Quaterniond)rotQuat updateWatchers:(bool)updateWatchers;
+
+/// This version allows you not to update the watchers.
+- (void)setRoll:(double)roll updateWatchers:(bool)updateWatchers;
 
 /// Calculate the z offset to make the earth appear where we want it
 - (double)calcEarthZOffset;
