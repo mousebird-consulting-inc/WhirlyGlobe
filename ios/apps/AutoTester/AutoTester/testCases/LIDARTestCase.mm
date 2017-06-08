@@ -89,6 +89,8 @@ static int MaxDisplayedPoints = 3000000;
 {
     // Give us a tilt
     [globeVC setTiltMinHeight:0.001 maxHeight:0.01 minTilt:1.21771169 maxTilt:0.0];
+    
+    globeVC.tiltGesture = true;
 
     // Base layer from CartoDB
     [self addBaseLayer:globeVC];
@@ -119,6 +121,7 @@ static int MaxDisplayedPoints = 3000000;
     viewState.heading = -3.118891;
     viewState.height = 0.00004537477798294276;
     viewState.tilt   = 0.988057;
+//    viewState.roll = M_PI/8;
     MaplyCoordinate center = [[quadDelegate coordSys] localToGeo:[quadDelegate getCenter]];
     viewState.pos = MaplyCoordinateDMake(center.x,center.y);
     [globeVC setViewState:viewState];
