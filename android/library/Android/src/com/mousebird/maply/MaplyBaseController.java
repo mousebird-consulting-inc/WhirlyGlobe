@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.squareup.okhttp.Dispatcher;
 import com.squareup.okhttp.OkHttpClient;
 
 import java.nio.FloatBuffer;
@@ -25,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
@@ -126,10 +129,28 @@ public class MaplyBaseController
     /**
      * Return an HTTP Client for use in fetching data, probably tiles.
      */
-    OkHttpClient getHttpClient()
+    synchronized OkHttpClient getHttpClient()
 	{
-		if (httpClient == null)
+		if (httpClient == null) {
 			httpClient = new OkHttpClient();
+
+			// This little dance lets the OKHttp client shutdown and then reject any random calls
+			// we may send its way
+			Dispatcher dispatch = httpClient.getDispatcher();
+			try {
+				if (dispatch != null) {
+					ExecutorService service = dispatch.getExecutorService();
+					if (service != null) {
+						ThreadPoolExecutor exec = (ThreadPoolExecutor) service;
+						exec.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardPolicy());
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				Log.e("Maply","OkHttp discard policy change no longer working.");
+			}
+		}
 		return httpClient;
 	}
 	
