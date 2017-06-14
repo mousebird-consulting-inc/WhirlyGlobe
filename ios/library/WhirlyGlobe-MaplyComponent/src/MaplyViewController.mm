@@ -62,7 +62,7 @@ using namespace Maply;
     return newState;
 }
 
-- (bool) isEqual:(id)object
+- (BOOL) isEqual:(id)object
 {
     if (![object isKindOfClass:[MaplyViewControllerAnimationState class]])
         return false;
