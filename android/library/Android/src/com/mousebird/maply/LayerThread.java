@@ -499,9 +499,11 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 					final ViewState viewState = view.makeViewState(renderer);
 					long now = System.currentTimeMillis();
 					updateWatchers(viewState,now);
-					
-					trailingHandle = null;
-					trailingRun = null;
+
+					synchronized (this) {
+						trailingHandle = null;
+						trailingRun = null;
+					}
 				}				
 			};
 			
