@@ -381,6 +381,13 @@ typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
   */
 - (void)reload:(MaplyBoundingBox)bounds;
 
+/**
+    Change this to enable or disable all content at once.
+ 
+    The changes will happened immediately, so consider running this on a separate thread.
+  */
+- (void)setEnable:(bool)enable;
+
 /** 
     True if the layer is active.  False if it's been shut down.
   */
