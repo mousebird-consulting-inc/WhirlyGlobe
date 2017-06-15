@@ -67,6 +67,10 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     Eigen::Quaterniond spinQuat;
     CFTimeInterval spinDate;
     CGPoint lastTouch;
+    CGPoint pprevTouch;
+    CGPoint prevTouch;
+    CFTimeInterval touchDate;
+
     AnimateViewMomentum *viewAnimation;
     
     bool runEndMomentum;
@@ -223,6 +227,10 @@ static const float MomentumAnimLen = 1.0;
                 return;
             }
             [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidStart object:view];
+	    touchDate = CFAbsoluteTimeGetCurrent();
+            pprevTouch = [pan locationInView:glView];
+            prevTouch = pprevTouch;
+
 		}
 			break;
 		case UIGestureRecognizerStateChanged:
@@ -294,6 +302,14 @@ static const float MomentumAnimLen = 1.0;
                 // If our spin sample is too old, grab a new one
                 spinDate = CFAbsoluteTimeGetCurrent();
                 spinQuat = view.rotQuat;
+		
+		//Keep track of real time velocity
+                if (touchDate+.1>CFAbsoluteTimeGetCurrent()){
+                    pprevTouch = prevTouch;
+                    prevTouch = [pan locationInView:glView];
+                    touchDate = CFAbsoluteTimeGetCurrent();
+                }
+
 			}
 		}
 			break;
@@ -309,7 +325,10 @@ static const float MomentumAnimLen = 1.0;
             if (panType == PanFree && runEndMomentum)
             {
                 // We'll use this to get two points in model space
-                CGPoint vel = [pan velocityInView:glView];
+                CGPoint vel;
+                CFTimeInterval elapsed = (CFAbsoluteTimeGetCurrent() - touchDate)+.12;
+                vel.x = (lastTouch.x-pprevTouch.x)/elapsed;
+                vel.y = (lastTouch.y-pprevTouch.y)/elapsed;
                 CGPoint touch0 = lastTouch;
                 CGPoint touch1 = touch0;  touch1.x += MomentumAnimLen*vel.x; touch1.y += MomentumAnimLen*vel.y;
                 Point3d p0 = [view pointUnproject:Point2f(touch0.x,touch0.y) width:sceneRender.framebufferWidth/glView.contentScaleFactor height:sceneRender.framebufferHeight/glView.contentScaleFactor clip:false];
