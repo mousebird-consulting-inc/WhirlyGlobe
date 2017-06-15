@@ -3,6 +3,7 @@ package com.mousebirdconsulting.autotester.TestCases;
 import android.app.Activity;
 import android.graphics.Color;
 import android.util.Log;
+import android.os.Handler;
 
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.CoordSystem;
@@ -143,16 +144,39 @@ public class PagingLayerTestCase extends MaplyTestCase implements QuadPagingLaye
         return true;
     }
 
+    static boolean enableTest = false;
+
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
         CartoDBMapTestCase baseCase = new CartoDBMapTestCase(getActivity());
         baseCase.setUpWithMap(mapVC);
-        mapVC.addLayer(setupPagingLayer(mapVC, ConfigOptions.TestType.MapTest));
+        QuadPagingLayer pagingLayer = setupPagingLayer(mapVC, ConfigOptions.TestType.MapTest);
+        mapVC.addLayer(pagingLayer);
 
         Point2d loc = Point2d.FromDegrees(2.3508, 48.8567);
         mapVC.setPositionGeo(loc.getX(),loc.getY(),1.0);
 
+        if (enableTest)
+        {
+            runEnableTest(mapVC,pagingLayer,false);
+        }
+
         return true;
+    }
+
+    private void runEnableTest(final MaplyBaseController control, final QuadPagingLayer pagingLayer, final boolean enable)
+    {
+        Handler handler = new Handler();
+        Runnable run = new Runnable() {
+            @Override
+            public void run() {
+                pagingLayer.setEnable(enable);
+
+                runEnableTest(control,pagingLayer,!enable);
+            }
+        };
+
+        handler.postDelayed(run, 5000);
     }
 
     @Override
