@@ -23,6 +23,15 @@
 namespace WhirlyKit
 {
 
+typedef enum {
+    MaplyVectorNoneType = 0,
+    MaplyVectorPointType = 1,
+    MaplyVectorLinearType = 2,
+    MaplyVectorLinear3dType = 3,
+    MaplyVectorArealType = 4,
+    MaplyVectorMultiType = 5,
+} MaplyVectorObjectType;
+
 /** @brief The C++ object we use to wrap a group of vectors and consolidate the various methods for manipulating vectors.
     @details The VectorObject stores a list of reference counted VectorShape objects.
   */
@@ -63,6 +72,9 @@ public:
     
     /// @brief Write to a file
     bool toFile(const std::string &file);
+
+    /// @brief Return the type of vector
+    MaplyVectorObjectType getVectorType();
     
 public:
     ShapeSet shapes;
