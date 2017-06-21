@@ -73,6 +73,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
                            MaplyComponentObject *compObj0 = [layer.viewC addVectors:@[rect] desc:
                                                             @{kMaplyFilled: @(true),
                                                               kMaplyColor: color,
+                                                              kMaplyEnable: @NO,
                                                               kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+100+tileID.level)
                                                               }
                                                               mode:MaplyThreadCurrent
@@ -80,6 +81,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
                            MaplyComponentObject *compObj1 = [layer.viewC addVectors:@[rect] desc:
                                                              @{kMaplyFilled: @(false),
                                                                kMaplyColor: [UIColor whiteColor],
+                                                               kMaplyEnable: @NO,
                                                                kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+101+tileID.level)
                                                                }
                                                                 mode:MaplyThreadCurrent
@@ -92,6 +94,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
                            MaplyComponentObject *compObj2 = [layer.viewC addScreenLabels:@[label] desc:
                                                              @{kMaplyFont: [UIFont systemFontOfSize:18.0],
                                                                kMaplyJustify: @"center",
+                                                               kMaplyEnable: @NO,
                                                                kMaplyTextOutlineSize: @(1.0)
                                                                }
                                                                 mode:MaplyThreadCurrent

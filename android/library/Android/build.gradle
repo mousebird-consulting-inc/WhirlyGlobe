@@ -177,6 +177,7 @@ task javadoc(type: Javadoc) {
     ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
     classpath += files(ext.androidJar)
     destinationDir = file("doc")
+    include "**/com/mousebird/maply/**"
     failOnError false
 }
 

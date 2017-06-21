@@ -202,6 +202,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     int numFetches;
     // Tiles we've loaded or are loading
     pthread_mutex_t tileSetLock;
+    // Set while we're refreshing or enabling/disabling
+    pthread_mutex_t refreshLock;
     QuadPagingLoadedTileSet tileSet;
     bool canShortCircuitImportance;
     int maxShortCircuitLevel;
@@ -209,6 +211,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     WhirlyKitSceneRendererES * __weak _renderer;
     bool hasUnload;
     bool hasBoundingBox;
+    bool topEnable;
 }
 
 - (instancetype)initWithCoordSystem:(MaplyCoordinateSystem *)inCoordSys delegate:(NSObject<MaplyPagingDelegate> *)inTileSource
@@ -222,6 +225,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     tileSource = inTileSource;
     _numSimultaneousFetches = 8;
     pthread_mutex_init(&tileSetLock, NULL);
+    pthread_mutex_init(&refreshLock, NULL);
     _importance = 512*512;
     _flipY = true;
     _maxTiles = 256;
@@ -235,6 +239,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     _minTileHeight = 0.0;
     _maxTileHeight = 0.0;
     _useParentTileBounds = true;
+    topEnable = true;
     
     return self;
 }
@@ -957,6 +962,13 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         
     pthread_mutex_unlock(&tileSetLock);
 
+    // Just disable everything if it's meant to be off
+    if (!topEnable)
+    {
+        [toDisable addObjectsFromArray:toEnable];
+        [toEnable removeAllObjects];
+    }
+    
     if ([toEnable count] > 0)
         [_viewC enableObjects:toEnable mode:MaplyThreadCurrent];
     if ([toDisable count] > 0)
@@ -1018,12 +1030,12 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         [_viewC removeObjects:remCompObjs mode:MaplyThreadCurrent];
 
     // These are added immediately and stick around till the tile is deleted
-    if ([addCompObjs count] > 0)
+    if ([addCompObjs count] > 0 && topEnable)
         [_viewC enableObjects:addCompObjs mode:MaplyThreadCurrent];
     
     if (_singleLevelLoading)
     {
-        if ([replaceCompObjs count] > 0)
+        if ([replaceCompObjs count] > 0 && topEnable)
             [_viewC enableObjects:replaceCompObjs mode:MaplyThreadCurrent];
     } else
         [self runTileUpdate];
@@ -1164,6 +1176,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)reload:(MaplyBoundingBox)bounds
 {
+    pthread_mutex_lock(&refreshLock);
+    
     MaplyReloadInfo *reloadInfo = [MaplyReloadInfo reloadInfoWithBounds:bounds];
     
     if ([NSThread currentThread] != super.layerThread)
@@ -1173,6 +1187,56 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     }
 
     [self reloadSelected:reloadInfo];
+    
+    pthread_mutex_unlock(&refreshLock);
+}
+
+- (void)setEnable:(bool)newEnable
+{
+    if (topEnable == newEnable)
+        return;
+    
+    topEnable = newEnable;
+
+    pthread_mutex_lock(&refreshLock);
+    NSMutableArray *addCompObjs = [NSMutableArray array];
+    NSMutableArray *replaceCompObjs = [NSMutableArray array];
+    
+    // Enable everything that thinks it should be on
+    if (newEnable)
+    {
+        for (auto it = tileSet.begin();it != tileSet.end(); ++it)
+        {
+            QuadPagingLoadedTile *tile = *it;
+            if (tile->addCompObjs)
+                [addCompObjs addObjectsFromArray:tile->addCompObjs];
+            if (tile->enable && tile->replaceCompObjs)
+                [replaceCompObjs addObjectsFromArray:tile->replaceCompObjs];
+        }
+        
+        [_viewC startChanges];
+        [_viewC enableObjects:addCompObjs mode:MaplyThreadCurrent];
+        [_viewC enableObjects:replaceCompObjs mode:MaplyThreadCurrent];
+        [_viewC endChanges];
+        
+    } else {
+        // Disable absolutely everything
+        for (auto it = tileSet.begin();it != tileSet.end(); ++it)
+        {
+            QuadPagingLoadedTile *tile = *it;
+            if (tile->addCompObjs)
+                [addCompObjs addObjectsFromArray:tile->addCompObjs];
+            if (tile->replaceCompObjs)
+                [replaceCompObjs addObjectsFromArray:tile->replaceCompObjs];
+        }
+        
+        [_viewC startChanges];
+        [_viewC disableObjects:addCompObjs mode:MaplyThreadCurrent];
+        [_viewC disableObjects:replaceCompObjs mode:MaplyThreadCurrent];
+        [_viewC endChanges];
+    }
+
+    pthread_mutex_unlock(&refreshLock);
 }
 
 
