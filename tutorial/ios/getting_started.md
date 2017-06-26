@@ -19,5 +19,5 @@ We make use of [git](http://en.wikipedia.org/wiki/Git_(software)) and [github](h
 
 For iOS development, you’ll need a recent version of [Xcode](http://en.wikipedia.org/wiki/Xcode).
 
-Xcode 7.3 and WhirlyGlobe­-Maply 2.4 were used to prepare this guide. If you're using a newer version of either, things might be different.
+Xcode 8.3 and WhirlyGlobe­-Maply 2.5 were used to prepare this guide. If you're using a newer version of either, things might be different.
 

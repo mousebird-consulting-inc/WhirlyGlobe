@@ -47,16 +47,16 @@ Let's take a quick look at our project from before.  There's a method in there c
   {% highlight swift %}
 private func addCountries() {
     // handle this in another thread
-    let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
-    dispatch_async(queue) {
-        let allOutlines = NSBundle.mainBundle().pathsForResourcesOfType("geojson", inDirectory: nil) as! [String]
+    let queue = DispatchQueue.global()
+    queue.async {
+        let allOutlines = Bundle.main.paths(forResourcesOfType: "geojson", inDirectory: nil) as! [String]
 
         for outline in allOutlines {
             if let jsonData = NSData(contentsOfFile: outline),
-                   wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData) {
+                   let wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData) {
                 // the admin tag from the country outline geojson has the country name ­ save
                 if let attrs = wgVecObj.attributes,
-                       vecName = attrs.objectForKey("ADMIN") as? NSObject {
+                       let vecName = attrs.objectForKey("ADMIN") as? NSObject {
 
                     wgVecObj.userObject = vecName
                 }
@@ -123,9 +123,9 @@ if vecName.description.characters.count > 0 {
     self.theViewC?.addScreenLabels([label],
         desc: [
             kMaplyFont: UIFont.boldSystemFontOfSize(14.0),
-            kMaplyTextOutlineColor: UIColor.blackColor(),
+            kMaplyTextOutlineColor: UIColor.black,
             kMaplyTextOutlineSize: 2.0,
-            kMaplyColor: UIColor.whiteColor()
+            kMaplyColor: UIColor.white
         ])
 }
   {% endhighlight %}

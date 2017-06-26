@@ -76,7 +76,7 @@ if (globeViewC != nil)
 
   {% highlight swift %}
 // we want a black background for a globe, a white background for a map.
-theViewC!.clearColor = (globeViewC != nil) ? UIColor.blackColor() : UIColor.whiteColor()
+theViewC!.clearColor = (globeViewC != nil) ? UIColor.black : UIColor.white
 
 // and thirty fps if we can get it ­ change this to 3 if you find your app is struggling
 theViewC!.frameInterval = 2
@@ -84,11 +84,11 @@ theViewC!.frameInterval = 2
 // start up over San Francisco
 if let globeViewC = globeViewC {
     globeViewC.height = 0.8
-    globeViewC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1.0)
+    globeViewC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1.0)
 }
 else if let mapViewC = mapViewC {
     mapViewC.height = 1.0
-    mapViewC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1.0)
+    mapViewC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1.0)
 }
   {% endhighlight %}
 {% endmultiple_code %}
@@ -121,13 +121,13 @@ let accessToken = "YOUR ACCESS TOKEN GOES HERE"
 
 let baseURL = "https://api.tiles.mapbox.com/v4/\(mapID)/{z}/{x}/{y}.png?access_token=\(accessToken)"
 let tileSource = MaplyRemoteTileSource(baseURL: baseURL, ext: nil, minZoom: 1, maxZoom: 22)
-let baseCacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0] as String
+let baseCacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0] as String
 tileSource!.cacheDir = "\(baseCacheDir)/\(mapID)/"
 
 imageLayer = MaplyQuadImageTilesLayer(coordSystem: tileSource!.coordSys, tileSource: tileSource!)
 imageLayer.drawPriority = kMaplyImageLayerDrawPriorityDefault + 100
 imageLayer.importanceScale = 0.25
-theViewC!.addLayer(imageLayer)
+theViewC!.add(imageLayer)
   {% endhighlight %}
 {% endmultiple_code %}
 
@@ -225,11 +225,11 @@ if (globeViewC != nil)
   {% highlight swift %}
 if let globeViewC = globeViewC {
     globeViewC.height = 0.002
-    globeViewC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1.0)
+    globeViewC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1.0)
 }
 else if let mapViewC = mapViewC {
     mapViewC.height = 0.002
-    mapViewC.animateToPosition(MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1.0)
+    mapViewC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192,37.7793), time: 1.0)
 }
   {% endhighlight %}
 {% endmultiple_code %}

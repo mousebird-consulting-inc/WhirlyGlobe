@@ -72,7 +72,7 @@ class CartoDBLayer: NSObject, MaplyPagingDelegate {
    private var _maxZoom = Int32(0)
 
    private var search: String
-   private var opQueue: NSOperationQueue?
+   private var opQueue: OperationQueue?
 
    // Create with the search string we'll use
    init(search: String) {
@@ -137,11 +137,11 @@ if (globeViewC != nil)
 // start up over New York
 if let globeViewC = globeViewC {
     globeViewC.height = 0.0002
-    globeViewC.animateToPosition(MaplyCoordinateMakeWithDegrees(-73.99, 40.75), time: 1.0)
+    globeViewC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-73.99, 40.75), time: 1.0)
 }
 else if let mapViewC = mapViewC {
     mapViewC.height = 0.0002
-    mapViewC.animateToPosition(MaplyCoordinateMakeWithDegrees(-73.99, 40.75), time: 1.0)
+    mapViewC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-73.99, 40.75), time: 1.0)
 }
   {% endhighlight %}
 {% endmultiple_code %}

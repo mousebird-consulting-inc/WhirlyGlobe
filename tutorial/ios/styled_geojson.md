@@ -46,11 +46,11 @@ Change the last part of viewDidLoad so that the app starts over Belfast.
         // start up over Belfast
         if let globeViewC = globeViewC {
             globeViewC.height = 0.8
-            globeViewC.animateToPosition(MaplyCoordinateMakeWithDegrees(-5.93,54.597), time: 1.0)
+            globeViewC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-5.93,54.597), time: 1.0)
         }
         else if let mapViewC = mapViewC {
             mapViewC.height = 1.0
-            mapViewC.animateToPosition(MaplyCoordinateMakeWithDegrees(-5.93,54.597), time: 1.0)
+            mapViewC.animate(toPosition:MaplyCoordinateMakeWithDegrees(-5.93,54.597), time: 1.0)
         }
 {% endhighlight %} {% endmultiple_code %}
 

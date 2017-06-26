@@ -130,7 +130,7 @@ if (DoOverlay)
   {% highlight swift %}
 if DoOverlay {
    // For network paging layers, where we'll store temp files
-   let cacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
+   let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
    if let tileSource = MaplyRemoteTileSource(baseURL: "http://map1.vis.earthdata.nasa.gov/wmts-webmerc/Sea_Surface_Temp_Blended/default/2015-06-25/GoogleMapsCompatible_Level7/{z}/{y}/{x}", 
          ext: "png", 
          minZoom: 0, 

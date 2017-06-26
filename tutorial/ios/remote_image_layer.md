@@ -34,7 +34,7 @@ MaplyQuadImageTilesLayer *layer =
 
   {% highlight swift %}
 // set up the data source
-if let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres"),
+if let tileSource = MaplyMBTileSource(mbTiles: "geography-class_medres"),
         // set up the layer
         layer = MaplyQuadImageTilesLayer(tileSource: tileSource) {
 
@@ -90,14 +90,14 @@ let useLocalTiles = false
 let layer: MaplyQuadImageTilesLayer
 
 if useLocalTiles {
-    guard let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres") else {
+    guard let tileSource = MaplyMBTileSource(mbTiles: "geography-class_medres") else {
         // can't load local tile set
     }
     layer = MaplyQuadImageTilesLayer(tileSource: tileSource)!
 }
 else {
     // Because this is a remote tile set, we'll want a cache directory
-    let baseCacheDir = NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)[0]
+    let baseCacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
     let tilesCacheDir = "\(baseCacheDir)/stamentiles/"
     let maxZoom = Int32(18)
 

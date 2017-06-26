@@ -15,9 +15,9 @@ If you haven't got one here is a suitable ViewController (for [Objective-C]({{ s
                                            
 ### Geography Class MBTiles
 
-We need the Geography Class MBTiles file from Mapbox.  Luckily, you'll find you already have it.
+We need the Geography Class MBTiles file from Mapbox.  Luckily, you'll can download the mbtiles file and add it to your project easily. (http://openstreetmap.org/)
 
-If you set up WhirlyGlobe-Maply as a submodule, look in libs/WhirlyGlobeMap/resources/.  If you used the binary distribution look in BinaryDirectory/resources.  For Cocoapods, if you already added the pod for WhirlyGlobeResources, Pods/WhirlyGlobeResoures/base_maps.  We want to the file geography-class_medres.mbtiles.
+First, download the [MBTile file] (https://s3.amazonaws.com/whirlyglobedocs/tutorialsupport/geography-class_medres.mbtiles) and save it into your projects directory. 
 
 Add **geography­class_medres.mbtiles** to your project by dragging it into HelloEarth in your Project Navigator view. You can create a Resources folder there if you like, but it's not necessary. The same goes for 'Copy items into the destination group's folder' – if you want your project to have its own copy of the file, check that box. What you must do, however is check the 'Add to targets' box for HelloEarth, to ensure that the data is packaged with your app when it is built.
 
@@ -96,31 +96,31 @@ if (globeViewC != nil) {
 
   {% highlight swift %}
 // we want a black background for a globe, a white background for a map.
-theViewC!.clearColor = (globeViewC != nil) ? UIColor.blackColor() : UIColor.whiteColor()
+theViewC!.clearColor = (globeViewC != nil) ? UIColor.black : UIColor.white
 
 // and thirty fps if we can get it ­ change this to 3 if you find your app is struggling
 theViewC!.frameInterval = 2
 
 // set up the data source
-if let tileSource = MaplyMBTileSource(MBTiles: "geography-class_medres"),
-       layer = MaplyQuadImageTilesLayer(tileSource: tileSource) {
+if let tileSource = MaplyMBTileSource(mbTiles: "geography-class_medres"),
+       let layer = MaplyQuadImageTilesLayer(tileSource: tileSource) {
     layer.handleEdges = (globeViewC != nil)
     layer.coverPoles = (globeViewC != nil)
     layer.requireElev = false
     layer.waitLoad = false
     layer.drawPriority = 0
     layer.singleLevelLoading = false
-    theViewC!.addLayer(layer)
+    theViewC!.add(layer)
 }
 
 // start up over Madrid, center of the old-world
 if let globeViewC = globeViewC {
     globeViewC.height = 0.8
-    globeViewC.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
+    globeViewC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
 }
 else if let mapViewC = mapViewC {
     mapViewC.height = 1.0
-    mapViewC.animateToPosition(MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
+    mapViewC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), time: 1.0)
 }
   {% endhighlight %}
 {% endmultiple_code %}

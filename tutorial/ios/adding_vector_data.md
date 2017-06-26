@@ -94,7 +94,7 @@ vectorDict = @{
 
   {% highlight swift %}
 vectorDict = [
-    kMaplyColor: UIColor.whiteColor(),
+    kMaplyColor: UIColor.white,
     kMaplySelectable: true,
     kMaplyVecWidth: 4.0]
 
@@ -141,17 +141,17 @@ Finally, fill in the addCountries method itself after viewDidLoad.
   {% highlight swift %}
 private func addCountries() {
    // handle this in another thread
-   let queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)
-   dispatch_async(queue) {	
-      let bundle = NSBundle.mainBundle()
-      let allOutlines = bundle.pathsForResourcesOfType("geojson", inDirectory: "country_json_50m")
+   let queue = DispatchQueue.global()
+   queue.async {	
+      let bundle = Bundle.main
+      let allOutlines = bundle.paths(forResourcesOfType: "geojson", inDirectory: "country_json_50m")
 
       for outline in allOutlines {
          if let jsonData = NSData(contentsOfFile: outline), 
-                wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData) {
+                let wgVecObj = MaplyVectorObject(fromGeoJSON: jsonData as Data) {
             // the admin tag from the country outline geojson has the country name ­ save
             if let attrs = wgVecObj.attributes,
-                   vecName = attrs.objectForKey("ADMIN") as? NSObject {
+                   let vecName = attrs.objectForKey("ADMIN") as? NSObject {
                wgVecObj.userObject = vecName
             }
 
