@@ -213,7 +213,7 @@
 
   
 <figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="c1">// we want a black background for a globe, a white background for a map.</span>
-<span class="n">theViewC</span><span class="o">!.</span><span class="n">clearColor</span> <span class="o">=</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">?</span> <span class="kt">UIColor</span><span class="o">.</span><span class="nf">blackColor</span><span class="p">()</span> <span class="p">:</span> <span class="kt">UIColor</span><span class="o">.</span><span class="nf">whiteColor</span><span class="p">()</span>
+<span class="n">theViewC</span><span class="o">!.</span><span class="n">clearColor</span> <span class="o">=</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">?</span> <span class="kt">UIColor</span><span class="o">.</span><span class="nv">black</span> <span class="p">:</span> <span class="kt">UIColor</span><span class="o">.</span><span class="n">white</span>
 
 <span class="c1">// and thirty fps if we can get it ­ change this to 3 if you find your app is struggling</span>
 <span class="n">theViewC</span><span class="o">!.</span><span class="n">frameInterval</span> <span class="o">=</span> <span class="mi">2</span>
@@ -221,11 +221,11 @@
 <span class="c1">// start up over San Francisco</span>
 <span class="k">if</span> <span class="k">let</span> <span class="nv">globeViewC</span> <span class="o">=</span> <span class="n">globeViewC</span> <span class="p">{</span>
     <span class="n">globeViewC</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">0.8</span>
-    <span class="n">globeViewC</span><span class="o">.</span><span class="nf">animateToPosition</span><span class="p">(</span><span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">122.4192</span><span class="p">,</span><span class="mf">37.7793</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">globeViewC</span><span class="o">.</span><span class="nf">animate</span><span class="p">(</span><span class="nv">toPosition</span><span class="p">:</span> <span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">122.4192</span><span class="p">,</span><span class="mf">37.7793</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="p">}</span>
 <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="nv">mapViewC</span> <span class="o">=</span> <span class="n">mapViewC</span> <span class="p">{</span>
     <span class="n">mapViewC</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">1.0</span>
-    <span class="n">mapViewC</span><span class="o">.</span><span class="nf">animateToPosition</span><span class="p">(</span><span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">122.4192</span><span class="p">,</span><span class="mf">37.7793</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">mapViewC</span><span class="o">.</span><span class="nf">animate</span><span class="p">(</span><span class="nv">toPosition</span><span class="p">:</span> <span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">122.4192</span><span class="p">,</span><span class="mf">37.7793</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="p">}</span>
   </code></pre></figure>
 
@@ -261,13 +261,13 @@
 
 <span class="k">let</span> <span class="nv">baseURL</span> <span class="o">=</span> <span class="s">"https://api.tiles.mapbox.com/v4/</span><span class="se">\(</span><span class="n">mapID</span><span class="se">)</span><span class="s">/{z}/{x}/{y}.png?access_token=</span><span class="se">\(</span><span class="n">accessToken</span><span class="se">)</span><span class="s">"</span>
 <span class="k">let</span> <span class="nv">tileSource</span> <span class="o">=</span> <span class="kt">MaplyRemoteTileSource</span><span class="p">(</span><span class="nv">baseURL</span><span class="p">:</span> <span class="n">baseURL</span><span class="p">,</span> <span class="nv">ext</span><span class="p">:</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">minZoom</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nv">maxZoom</span><span class="p">:</span> <span class="mi">22</span><span class="p">)</span>
-<span class="k">let</span> <span class="nv">baseCacheDir</span> <span class="o">=</span> <span class="kt">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="o">.</span><span class="kt">CachesDirectory</span><span class="p">,</span> <span class="o">.</span><span class="kt">UserDomainMask</span><span class="p">,</span> <span class="kc">true</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">as</span> <span class="kt">String</span>
+<span class="k">let</span> <span class="nv">baseCacheDir</span> <span class="o">=</span> <span class="kt">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="o">.</span><span class="n">cachesDirectory</span><span class="p">,</span> <span class="o">.</span><span class="n">userDomainMask</span><span class="p">,</span> <span class="kc">true</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">as</span> <span class="kt">String</span>
 <span class="n">tileSource</span><span class="o">!.</span><span class="n">cacheDir</span> <span class="o">=</span> <span class="s">"</span><span class="se">\(</span><span class="n">baseCacheDir</span><span class="se">)</span><span class="s">/</span><span class="se">\(</span><span class="n">mapID</span><span class="se">)</span><span class="s">/"</span>
 
 <span class="n">imageLayer</span> <span class="o">=</span> <span class="kt">MaplyQuadImageTilesLayer</span><span class="p">(</span><span class="nv">coordSystem</span><span class="p">:</span> <span class="n">tileSource</span><span class="o">!.</span><span class="n">coordSys</span><span class="p">,</span> <span class="nv">tileSource</span><span class="p">:</span> <span class="n">tileSource</span><span class="o">!</span><span class="p">)</span>
 <span class="n">imageLayer</span><span class="o">.</span><span class="n">drawPriority</span> <span class="o">=</span> <span class="n">kMaplyImageLayerDrawPriorityDefault</span> <span class="o">+</span> <span class="mi">100</span>
 <span class="n">imageLayer</span><span class="o">.</span><span class="n">importanceScale</span> <span class="o">=</span> <span class="mf">0.25</span>
-<span class="n">theViewC</span><span class="o">!.</span><span class="nf">addLayer</span><span class="p">(</span><span class="n">imageLayer</span><span class="p">)</span>
+<span class="n">theViewC</span><span class="o">!.</span><span class="nf">add</span><span class="p">(</span><span class="n">imageLayer</span><span class="p">)</span>
   </code></pre></figure>
 
 </li></ul>
@@ -376,11 +376,11 @@
   
 <figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">if</span> <span class="k">let</span> <span class="nv">globeViewC</span> <span class="o">=</span> <span class="n">globeViewC</span> <span class="p">{</span>
     <span class="n">globeViewC</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">0.002</span>
-    <span class="n">globeViewC</span><span class="o">.</span><span class="nf">animateToPosition</span><span class="p">(</span><span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">122.4192</span><span class="p">,</span><span class="mf">37.7793</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">globeViewC</span><span class="o">.</span><span class="nf">animate</span><span class="p">(</span><span class="nv">toPosition</span><span class="p">:</span> <span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">122.4192</span><span class="p">,</span><span class="mf">37.7793</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="p">}</span>
 <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="nv">mapViewC</span> <span class="o">=</span> <span class="n">mapViewC</span> <span class="p">{</span>
     <span class="n">mapViewC</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">0.002</span>
-    <span class="n">mapViewC</span><span class="o">.</span><span class="nf">animateToPosition</span><span class="p">(</span><span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">122.4192</span><span class="p">,</span><span class="mf">37.7793</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">mapViewC</span><span class="o">.</span><span class="nf">animate</span><span class="p">(</span><span class="nv">toPosition</span><span class="p">:</span> <span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">122.4192</span><span class="p">,</span><span class="mf">37.7793</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="p">}</span>
   </code></pre></figure>
 

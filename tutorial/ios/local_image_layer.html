@@ -117,9 +117,9 @@
 
 <h3 id="geography-class-mbtiles">Geography Class MBTiles</h3>
 
-<p>We need the Geography Class MBTiles file from Mapbox.  Luckily, you’ll find you already have it.</p>
+<p>We need the Geography Class MBTiles file from Mapbox.  Luckily, you’ll can download the mbtiles file and add it to your project easily. (http://openstreetmap.org/)</p>
 
-<p>If you set up WhirlyGlobe-Maply as a submodule, look in libs/WhirlyGlobeMap/resources/.  If you used the binary distribution look in BinaryDirectory/resources.  For Cocoapods, if you already added the pod for WhirlyGlobeResources, Pods/WhirlyGlobeResoures/base_maps.  We want to the file geography-class_medres.mbtiles.</p>
+<p>First, download the [MBTile file] (https://s3.amazonaws.com/whirlyglobedocs/tutorialsupport/geography-class_medres.mbtiles) and save it into your projects directory.</p>
 
 <p>Add <strong>geography­class_medres.mbtiles</strong> to your project by dragging it into HelloEarth in your Project Navigator view. You can create a Resources folder there if you like, but it’s not necessary. The same goes for ‘Copy items into the destination group’s folder’ – if you want your project to have its own copy of the file, check that box. What you must do, however is check the ‘Add to targets’ box for HelloEarth, to ensure that the data is packaged with your app when it is built.</p>
 
@@ -205,31 +205,31 @@
 
   
 <figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="c1">// we want a black background for a globe, a white background for a map.</span>
-<span class="n">theViewC</span><span class="o">!.</span><span class="n">clearColor</span> <span class="o">=</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">?</span> <span class="kt">UIColor</span><span class="o">.</span><span class="nf">blackColor</span><span class="p">()</span> <span class="p">:</span> <span class="kt">UIColor</span><span class="o">.</span><span class="nf">whiteColor</span><span class="p">()</span>
+<span class="n">theViewC</span><span class="o">!.</span><span class="n">clearColor</span> <span class="o">=</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="kc">nil</span><span class="p">)</span> <span class="p">?</span> <span class="kt">UIColor</span><span class="o">.</span><span class="nv">black</span> <span class="p">:</span> <span class="kt">UIColor</span><span class="o">.</span><span class="n">white</span>
 
 <span class="c1">// and thirty fps if we can get it ­ change this to 3 if you find your app is struggling</span>
 <span class="n">theViewC</span><span class="o">!.</span><span class="n">frameInterval</span> <span class="o">=</span> <span class="mi">2</span>
 
 <span class="c1">// set up the data source</span>
-<span class="k">if</span> <span class="k">let</span> <span class="nv">tileSource</span> <span class="o">=</span> <span class="kt">MaplyMBTileSource</span><span class="p">(</span><span class="kt">MBTiles</span><span class="p">:</span> <span class="s">"geography-class_medres"</span><span class="p">),</span>
-       <span class="n">layer</span> <span class="o">=</span> <span class="kt">MaplyQuadImageTilesLayer</span><span class="p">(</span><span class="nv">tileSource</span><span class="p">:</span> <span class="n">tileSource</span><span class="p">)</span> <span class="p">{</span>
+<span class="k">if</span> <span class="k">let</span> <span class="nv">tileSource</span> <span class="o">=</span> <span class="kt">MaplyMBTileSource</span><span class="p">(</span><span class="nv">mbTiles</span><span class="p">:</span> <span class="s">"geography-class_medres"</span><span class="p">),</span>
+       <span class="k">let</span> <span class="nv">layer</span> <span class="o">=</span> <span class="kt">MaplyQuadImageTilesLayer</span><span class="p">(</span><span class="nv">tileSource</span><span class="p">:</span> <span class="n">tileSource</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">layer</span><span class="o">.</span><span class="n">handleEdges</span> <span class="o">=</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="kc">nil</span><span class="p">)</span>
     <span class="n">layer</span><span class="o">.</span><span class="n">coverPoles</span> <span class="o">=</span> <span class="p">(</span><span class="n">globeViewC</span> <span class="o">!=</span> <span class="kc">nil</span><span class="p">)</span>
     <span class="n">layer</span><span class="o">.</span><span class="n">requireElev</span> <span class="o">=</span> <span class="kc">false</span>
     <span class="n">layer</span><span class="o">.</span><span class="n">waitLoad</span> <span class="o">=</span> <span class="kc">false</span>
     <span class="n">layer</span><span class="o">.</span><span class="n">drawPriority</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">layer</span><span class="o">.</span><span class="n">singleLevelLoading</span> <span class="o">=</span> <span class="kc">false</span>
-    <span class="n">theViewC</span><span class="o">!.</span><span class="nf">addLayer</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+    <span class="n">theViewC</span><span class="o">!.</span><span class="nf">add</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
 <span class="p">}</span>
 
 <span class="c1">// start up over Madrid, center of the old-world</span>
 <span class="k">if</span> <span class="k">let</span> <span class="nv">globeViewC</span> <span class="o">=</span> <span class="n">globeViewC</span> <span class="p">{</span>
     <span class="n">globeViewC</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">0.8</span>
-    <span class="n">globeViewC</span><span class="o">.</span><span class="nf">animateToPosition</span><span class="p">(</span><span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">3.6704803</span><span class="p">,</span> <span class="mf">40.5023056</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">globeViewC</span><span class="o">.</span><span class="nf">animate</span><span class="p">(</span><span class="nv">toPosition</span><span class="p">:</span> <span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">3.6704803</span><span class="p">,</span> <span class="mf">40.5023056</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="p">}</span>
 <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="nv">mapViewC</span> <span class="o">=</span> <span class="n">mapViewC</span> <span class="p">{</span>
     <span class="n">mapViewC</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">1.0</span>
-    <span class="n">mapViewC</span><span class="o">.</span><span class="nf">animateToPosition</span><span class="p">(</span><span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">3.6704803</span><span class="p">,</span> <span class="mf">40.5023056</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">mapViewC</span><span class="o">.</span><span class="nf">animate</span><span class="p">(</span><span class="nv">toPosition</span><span class="p">:</span> <span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">3.6704803</span><span class="p">,</span> <span class="mf">40.5023056</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="p">}</span>
   </code></pre></figure>
 

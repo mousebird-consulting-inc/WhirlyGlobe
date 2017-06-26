@@ -138,7 +138,7 @@
 
   
 <figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="c1">// set up the data source</span>
-<span class="k">if</span> <span class="k">let</span> <span class="nv">tileSource</span> <span class="o">=</span> <span class="kt">MaplyMBTileSource</span><span class="p">(</span><span class="kt">MBTiles</span><span class="p">:</span> <span class="s">"geography-class_medres"</span><span class="p">),</span>
+<span class="k">if</span> <span class="k">let</span> <span class="nv">tileSource</span> <span class="o">=</span> <span class="kt">MaplyMBTileSource</span><span class="p">(</span><span class="nv">mbTiles</span><span class="p">:</span> <span class="s">"geography-class_medres"</span><span class="p">),</span>
         <span class="c1">// set up the layer</span>
         <span class="n">layer</span> <span class="o">=</span> <span class="kt">MaplyQuadImageTilesLayer</span><span class="p">(</span><span class="nv">tileSource</span><span class="p">:</span> <span class="n">tileSource</span><span class="p">)</span> <span class="p">{</span>
 
@@ -196,14 +196,14 @@
 <span class="k">let</span> <span class="nv">layer</span><span class="p">:</span> <span class="kt">MaplyQuadImageTilesLayer</span>
 
 <span class="k">if</span> <span class="n">useLocalTiles</span> <span class="p">{</span>
-    <span class="k">guard</span> <span class="k">let</span> <span class="nv">tileSource</span> <span class="o">=</span> <span class="kt">MaplyMBTileSource</span><span class="p">(</span><span class="kt">MBTiles</span><span class="p">:</span> <span class="s">"geography-class_medres"</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">guard</span> <span class="k">let</span> <span class="nv">tileSource</span> <span class="o">=</span> <span class="kt">MaplyMBTileSource</span><span class="p">(</span><span class="nv">mbTiles</span><span class="p">:</span> <span class="s">"geography-class_medres"</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
         <span class="c1">// can't load local tile set</span>
     <span class="p">}</span>
     <span class="n">layer</span> <span class="o">=</span> <span class="kt">MaplyQuadImageTilesLayer</span><span class="p">(</span><span class="nv">tileSource</span><span class="p">:</span> <span class="n">tileSource</span><span class="p">)</span><span class="o">!</span>
 <span class="p">}</span>
 <span class="k">else</span> <span class="p">{</span>
     <span class="c1">// Because this is a remote tile set, we'll want a cache directory</span>
-    <span class="k">let</span> <span class="nv">baseCacheDir</span> <span class="o">=</span> <span class="kt">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="o">.</span><span class="kt">CachesDirectory</span><span class="p">,</span> <span class="o">.</span><span class="kt">UserDomainMask</span><span class="p">,</span> <span class="kc">true</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">let</span> <span class="nv">baseCacheDir</span> <span class="o">=</span> <span class="kt">NSSearchPathForDirectoriesInDomains</span><span class="p">(</span><span class="o">.</span><span class="n">cachesDirectory</span><span class="p">,</span> <span class="o">.</span><span class="n">userDomainMask</span><span class="p">,</span> <span class="kc">true</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">let</span> <span class="nv">tilesCacheDir</span> <span class="o">=</span> <span class="s">"</span><span class="se">\(</span><span class="n">baseCacheDir</span><span class="se">)</span><span class="s">/stamentiles/"</span>
     <span class="k">let</span> <span class="nv">maxZoom</span> <span class="o">=</span> <span class="kt">Int32</span><span class="p">(</span><span class="mi">18</span><span class="p">)</span>
 

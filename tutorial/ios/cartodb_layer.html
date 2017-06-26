@@ -176,7 +176,7 @@
    <span class="kd">private</span> <span class="k">var</span> <span class="nv">_maxZoom</span> <span class="o">=</span> <span class="kt">Int32</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
    <span class="kd">private</span> <span class="k">var</span> <span class="nv">search</span><span class="p">:</span> <span class="kt">String</span>
-   <span class="kd">private</span> <span class="k">var</span> <span class="nv">opQueue</span><span class="p">:</span> <span class="kt">NSOperationQueue</span><span class="p">?</span>
+   <span class="kd">private</span> <span class="k">var</span> <span class="nv">opQueue</span><span class="p">:</span> <span class="kt">OperationQueue</span><span class="p">?</span>
 
    <span class="c1">// Create with the search string we'll use</span>
    <span class="nf">init</span><span class="p">(</span><span class="nv">search</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>
@@ -242,11 +242,11 @@
 <figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="c1">// start up over New York</span>
 <span class="k">if</span> <span class="k">let</span> <span class="nv">globeViewC</span> <span class="o">=</span> <span class="n">globeViewC</span> <span class="p">{</span>
     <span class="n">globeViewC</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">0.0002</span>
-    <span class="n">globeViewC</span><span class="o">.</span><span class="nf">animateToPosition</span><span class="p">(</span><span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">73.99</span><span class="p">,</span> <span class="mf">40.75</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">globeViewC</span><span class="o">.</span><span class="nf">animate</span><span class="p">(</span><span class="nv">toPosition</span><span class="p">:</span> <span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">73.99</span><span class="p">,</span> <span class="mf">40.75</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="p">}</span>
 <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="nv">mapViewC</span> <span class="o">=</span> <span class="n">mapViewC</span> <span class="p">{</span>
     <span class="n">mapViewC</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mf">0.0002</span>
-    <span class="n">mapViewC</span><span class="o">.</span><span class="nf">animateToPosition</span><span class="p">(</span><span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">73.99</span><span class="p">,</span> <span class="mf">40.75</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">mapViewC</span><span class="o">.</span><span class="nf">animate</span><span class="p">(</span><span class="nv">toPosition</span><span class="p">:</span> <span class="kt">MaplyCoordinateMakeWithDegrees</span><span class="p">(</span><span class="o">-</span><span class="mf">73.99</span><span class="p">,</span> <span class="mf">40.75</span><span class="p">),</span> <span class="nv">time</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
 <span class="p">}</span>
   </code></pre></figure>
 

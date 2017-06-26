@@ -151,16 +151,16 @@
   
 <figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">private</span> <span class="kd">func</span> <span class="nf">addCountries</span><span class="p">()</span> <span class="p">{</span>
     <span class="c1">// handle this in another thread</span>
-    <span class="k">let</span> <span class="nv">queue</span> <span class="o">=</span> <span class="nf">dispatch_get_global_queue</span><span class="p">(</span><span class="kt">DISPATCH_QUEUE_PRIORITY_BACKGROUND</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="nf">dispatch_async</span><span class="p">(</span><span class="n">queue</span><span class="p">)</span> <span class="p">{</span>
-        <span class="k">let</span> <span class="nv">allOutlines</span> <span class="o">=</span> <span class="kt">NSBundle</span><span class="o">.</span><span class="nf">mainBundle</span><span class="p">()</span><span class="o">.</span><span class="nf">pathsForResourcesOfType</span><span class="p">(</span><span class="s">"geojson"</span><span class="p">,</span> <span class="nv">inDirectory</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span> <span class="k">as!</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span>
+    <span class="k">let</span> <span class="nv">queue</span> <span class="o">=</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">()</span>
+    <span class="n">queue</span><span class="o">.</span><span class="n">async</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">allOutlines</span> <span class="o">=</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">paths</span><span class="p">(</span><span class="nv">forResourcesOfType</span><span class="p">:</span> <span class="s">"geojson"</span><span class="p">,</span> <span class="nv">inDirectory</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span> <span class="k">as!</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">outline</span> <span class="k">in</span> <span class="n">allOutlines</span> <span class="p">{</span>
             <span class="k">if</span> <span class="k">let</span> <span class="nv">jsonData</span> <span class="o">=</span> <span class="kt">NSData</span><span class="p">(</span><span class="nv">contentsOfFile</span><span class="p">:</span> <span class="n">outline</span><span class="p">),</span>
-                   <span class="n">wgVecObj</span> <span class="o">=</span> <span class="kt">MaplyVectorObject</span><span class="p">(</span><span class="nv">fromGeoJSON</span><span class="p">:</span> <span class="n">jsonData</span><span class="p">)</span> <span class="p">{</span>
+                   <span class="k">let</span> <span class="nv">wgVecObj</span> <span class="o">=</span> <span class="kt">MaplyVectorObject</span><span class="p">(</span><span class="nv">fromGeoJSON</span><span class="p">:</span> <span class="n">jsonData</span><span class="p">)</span> <span class="p">{</span>
                 <span class="c1">// the admin tag from the country outline geojson has the country name ­ save</span>
                 <span class="k">if</span> <span class="k">let</span> <span class="nv">attrs</span> <span class="o">=</span> <span class="n">wgVecObj</span><span class="o">.</span><span class="n">attributes</span><span class="p">,</span>
-                       <span class="n">vecName</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="nf">objectForKey</span><span class="p">(</span><span class="s">"ADMIN"</span><span class="p">)</span> <span class="k">as?</span> <span class="kt">NSObject</span> <span class="p">{</span>
+                       <span class="k">let</span> <span class="nv">vecName</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="nf">objectForKey</span><span class="p">(</span><span class="s">"ADMIN"</span><span class="p">)</span> <span class="k">as?</span> <span class="kt">NSObject</span> <span class="p">{</span>
 
                     <span class="n">wgVecObj</span><span class="o">.</span><span class="n">userObject</span> <span class="o">=</span> <span class="n">vecName</span>
                 <span class="p">}</span>
@@ -229,9 +229,9 @@
     <span class="k">self</span><span class="o">.</span><span class="n">theViewC</span><span class="p">?</span><span class="o">.</span><span class="nf">addScreenLabels</span><span class="p">([</span><span class="n">label</span><span class="p">],</span>
         <span class="nv">desc</span><span class="p">:</span> <span class="p">[</span>
             <span class="nv">kMaplyFont</span><span class="p">:</span> <span class="kt">UIFont</span><span class="o">.</span><span class="nf">boldSystemFontOfSize</span><span class="p">(</span><span class="mf">14.0</span><span class="p">),</span>
-            <span class="nv">kMaplyTextOutlineColor</span><span class="p">:</span> <span class="kt">UIColor</span><span class="o">.</span><span class="nf">blackColor</span><span class="p">(),</span>
+            <span class="nv">kMaplyTextOutlineColor</span><span class="p">:</span> <span class="kt">UIColor</span><span class="o">.</span><span class="n">black</span><span class="p">,</span>
             <span class="nv">kMaplyTextOutlineSize</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-            <span class="nv">kMaplyColor</span><span class="p">:</span> <span class="kt">UIColor</span><span class="o">.</span><span class="nf">whiteColor</span><span class="p">()</span>
+            <span class="nv">kMaplyColor</span><span class="p">:</span> <span class="kt">UIColor</span><span class="o">.</span><span class="n">white</span>
         <span class="p">])</span>
 <span class="p">}</span>
   </code></pre></figure>
