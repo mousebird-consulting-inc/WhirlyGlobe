@@ -22,3 +22,4 @@
 #import "MaplyBaseViewController.h"
 #import "WhirlyGlobeViewController.h"
 #import "MaplyViewController.h"
+#import "GeoJSONSource.h"
