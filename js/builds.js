@@ -1,4 +1,4 @@
-var url = 'http://mousebird-home.asuscomm.com:8080/api/json?depth=2&pretty=true&tree=jobs[name,lastBuild[number,duration,timestamp,result,estimatedDuration]]';
+var url = 'http://jenkins.mousebirdconsulting.com:8080/api/json?depth=2&pretty=true&tree=jobs[name,lastBuild[number,duration,timestamp,result,estimatedDuration]]';
 var s3Url = "https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/";
 var s3Urldocs = "https://s3.amazonaws.com/whirlyglobemaplydistributiondocs/";
 
