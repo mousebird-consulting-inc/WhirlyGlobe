@@ -33,6 +33,12 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
     RemoteTileInfo tileInfo = null;
     public boolean debugOutput = false;
 
+    /**
+     * If set, we'll explicity dispose of the the vector objects after we're done.
+     * This cuts down on memory use.
+     */
+    public boolean disposeAfterRemoval = false;
+
     MapboxVectorTileParser tileParser = null;
     VectorStyleInterface vecStyleFactory = null;
 
@@ -174,6 +180,13 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
             //                    Log.d("Maply","Loaded vector tile: " + tileID.toString());
 
             layer.tileDidLoad(tileID);
+
+            // Explicitly dispose of vector objects for efficiency
+            if (disposeAfterRemoval)
+            {
+                for (VectorObject vecObj : dataObjs.vectorObjects)
+                    vecObj.dispose();
+            }
         } else
             // This just means the tile was empty
             layer.tileDidLoad(tileID);
