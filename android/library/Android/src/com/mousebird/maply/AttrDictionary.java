@@ -32,7 +32,7 @@ public class AttrDictionary
 	/**
 	 * Construct an empty attribution dictionary
 	 */
-	AttrDictionary()
+	public AttrDictionary()
 	{
 		initialise();
 	}
@@ -88,6 +88,9 @@ public class AttrDictionary
 
 	// Convert to a string for debugging
 	public native String toString();
+
+    // Merge in key-value pairs from another dictionary
+    public native void addEntries(AttrDictionary other);
 	
 	static
 	{
