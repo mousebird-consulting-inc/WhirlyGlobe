@@ -73,6 +73,14 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_AttrDictionary_toString
 
 /*
  * Class:     com_mousebird_maply_AttrDictionary
+ * Method:    addEntries
+ * Signature: (Lcom/mousebird/maply/AttrDictionary;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_addEntries
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_AttrDictionary
  * Method:    nativeInit
  * Signature: ()V
  */
