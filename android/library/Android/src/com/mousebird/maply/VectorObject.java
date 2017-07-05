@@ -166,6 +166,48 @@ public class VectorObject implements Iterable<VectorObject>
 	}
 
 	native boolean clipToGridNative(VectorObject retVecObj,double sizeX,double sizeY);
+
+	/**
+	 * Clip the given features to an Mbr
+	 */
+	public VectorObject clipToMbr(Mbr mbr)
+	{
+		VectorObject retVecObj = new VectorObject();
+		if (!clipToMbrNative(retVecObj, mbr.ll.getX(), mbr.ll.getY(), mbr.ur.getX(), mbr.ur.getY()))
+			return null;
+
+		return retVecObj;
+    }
+
+	native boolean clipToMbrNative(VectorObject retVecObj,double llX,double llY, double urX, double urY);
+
+    public enum MaplyVectorObjectType {
+        MaplyVectorNoneType(0), MaplyVectorPointType(1), MaplyVectorLinearType(2), MaplyVectorLinear3dType(3), MaplyVectorArealType(4), MaplyVectorMultiType(5);
+        private final int objType;
+        MaplyVectorObjectType(int objType) {this.objType = objType;}
+        public int getValue() { return objType;}
+    };
+
+	public MaplyVectorObjectType getVectorType()
+	{
+		int vectorType = getVectorTypeNative();
+        if (vectorType == MaplyVectorObjectType.MaplyVectorNoneType.getValue())
+            return MaplyVectorObjectType.MaplyVectorNoneType;
+        else if (vectorType == MaplyVectorObjectType.MaplyVectorPointType.getValue())
+            return MaplyVectorObjectType.MaplyVectorPointType;
+        else if (vectorType == MaplyVectorObjectType.MaplyVectorLinearType.getValue())
+            return MaplyVectorObjectType.MaplyVectorLinearType;
+        else if (vectorType == MaplyVectorObjectType.MaplyVectorLinear3dType.getValue())
+            return MaplyVectorObjectType.MaplyVectorLinear3dType;
+        else if (vectorType == MaplyVectorObjectType.MaplyVectorArealType.getValue())
+            return MaplyVectorObjectType.MaplyVectorArealType;
+        else if (vectorType == MaplyVectorObjectType.MaplyVectorMultiType.getValue())
+            return MaplyVectorObjectType.MaplyVectorMultiType;
+        else
+            return MaplyVectorObjectType.MaplyVectorNoneType;
+	}
+
+    native int getVectorTypeNative();
 	
 	/**
 	 * Load vector objects from a GeoJSON assembly, which is just a bunch of GeoJSON stuck together.
