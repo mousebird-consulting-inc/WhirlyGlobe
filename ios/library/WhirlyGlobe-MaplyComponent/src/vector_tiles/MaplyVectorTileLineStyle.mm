@@ -86,6 +86,8 @@
             if(styleEntry[@"stroke-dasharray"])
             {
                 NSArray *componentStrings = [styleEntry[@"stroke-dasharray"] componentsSeparatedByString:@","];
+                if (componentStrings.count == 1)
+                    componentStrings = [styleEntry[@"stroke-dasharray"] componentsSeparatedByString:@" "];
                 NSMutableArray *componentNumbers = [NSMutableArray arrayWithCapacity:componentStrings.count];
                 for(NSString *s in componentStrings) {
                     int n = [s intValue] * settings.dashPatternScale;
