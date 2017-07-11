@@ -29,7 +29,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
 {
     MaplyBaseController controller;
     OkHttpClient client;
-    MBTiles mbTiles = null;
+    MapboxTileSource mbTiles = null;
     RemoteTileInfo tileInfo = null;
     public boolean debugOutput = false;
 
@@ -42,7 +42,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
     public MapboxVectorTileSource(MBTiles dataSource,VectorStyleInterface inVecStyleFactor)
     {
         mbTiles = dataSource;
-        coordSys = mbTiles.coordSys;
+        coordSys = mbTiles.getCoordSystem();
         tileParser = new MapboxVectorTileParser();
         vecStyleFactory = inVecStyleFactor;
     }
@@ -65,7 +65,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
     public int minZoom()
     {
         if (mbTiles != null)
-            return mbTiles.minZoom();
+            return mbTiles.getMinZoom();
         else
             return tileInfo.minZoom;
     }
@@ -76,7 +76,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
     public int maxZoom()
     {
         if (mbTiles != null)
-            return mbTiles.maxZoom();
+            return mbTiles.getMaxZoom();
         else
             return tileInfo.maxZoom;
     }
@@ -195,7 +195,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
                 @Override
                 public void run() {
                     // Load the data, if it's there
-                    MBTiles thisMbTiles = mbTiles;
+                    MapboxTileSource thisMbTiles = mbTiles;
                     if (thisMbTiles != null) {
                         byte[] tileData = thisMbTiles.getDataTile(tileID);
 

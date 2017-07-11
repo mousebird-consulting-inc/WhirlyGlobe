@@ -23,7 +23,7 @@ public class MBTilesImageSource implements QuadImageTileLayer.TileSource
      */
     public int minZoom()
     {
-        return mbTileDb.minZoom();
+        return mbTileDb.getMinZoom();
     }
 
     /**
@@ -31,7 +31,7 @@ public class MBTilesImageSource implements QuadImageTileLayer.TileSource
      */
     public int maxZoom()
     {
-        return mbTileDb.maxZoom();
+        return mbTileDb.getMaxZoom();
     }
 
     public int pixelsPerSide = 256;
