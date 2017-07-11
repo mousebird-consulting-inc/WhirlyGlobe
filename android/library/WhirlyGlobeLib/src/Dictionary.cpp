@@ -345,5 +345,12 @@ std::string Dictionary::toString() const
     
     return str;
 }
+
+void Dictionary::addEntries(const Dictionary *other)
+{
+    for (FieldMap::const_iterator it = other->fields.begin();it != other->fields.end();++it)
+        fields[it->first] = it->second->copy();
+
+}
     
 }

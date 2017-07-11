@@ -242,5 +242,42 @@ bool VectorObject::toFile(const std::string &file)
     return VectorWriteFile(file, shapes);
 }
 
+MaplyVectorObjectType VectorObject::getVectorType()
+{
+    if (shapes.empty())
+        return MaplyVectorMultiType;
+
+    MaplyVectorObjectType type = MaplyVectorNoneType;
+    for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it)
+    {
+        MaplyVectorObjectType thisType = MaplyVectorNoneType;
+        VectorPointsRef points = std::dynamic_pointer_cast<VectorPoints>(*it);
+        if (points)
+            thisType = MaplyVectorPointType;
+        else {
+            VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
+            if (lin)
+                thisType = MaplyVectorLinearType;
+            else {
+                VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+                if (lin3d)
+                {
+                    thisType = MaplyVectorLinear3dType;
+                } else {
+                    VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+                    if (ar)
+                        thisType = MaplyVectorArealType;
+                }
+            }
+        }
+
+        if (type == MaplyVectorNoneType)                                                                                                                                                                                                                type = thisType;
+        else
+            if (type != thisType)
+                return MaplyVectorMultiType;
+    }
+
+    return type;
+}
 
 }
