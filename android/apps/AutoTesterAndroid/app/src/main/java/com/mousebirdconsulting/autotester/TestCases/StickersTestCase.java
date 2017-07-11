@@ -13,7 +13,6 @@ import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.Sticker;
 import com.mousebird.maply.StickerInfo;
 import com.mousebird.maply.VectorObject;
-import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
 
@@ -47,7 +46,7 @@ public class StickersTestCase extends MaplyTestCase {
 	}
 
 	private void addStickers(ArrayList<VectorObject> vectors, MaplyBaseController baseVC) {
-		Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
+		Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.lfbd_pdc);
 		MaplyTexture maplyTexture = baseVC.addTexture(icon, new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadAny);
 		ArrayList<MaplyTexture> textures = new ArrayList<>();
 		textures.add(maplyTexture);
@@ -55,14 +54,25 @@ public class StickersTestCase extends MaplyTestCase {
 		for (VectorObject vector : vectors) {
 			Sticker sticker = new Sticker();
 			sticker.setImages(textures);
-			Point2d center = vector.centroid();
+			Point2d center = Point2d.FromDegrees(-0.381378, 45.089304);
 			if (center != null) {
-				Point2d centroid = vector.centroid();
-				sticker.setLowerLeft(centroid);
-				sticker.setUpperRight(centroid.getX() + 0.5f, centroid.getY() + 0.5f);
+				Point2d centroid = center;
+				sticker.setLowerLeft(centroid.getX() - 0.0025f, centroid.getY() - 0.005f);
+				sticker.setUpperRight(centroid.getX() + 0.0025f, centroid.getY() + 0.005f);
 				sticker.setImageFormat(QuadImageTileLayer.ImageFormat.MaplyImageETC2RGBPA8);
 				stickers.add(sticker);
+
+				sticker = new Sticker();
+				sticker.setImages(textures);
+				sticker.setLowerLeft(centroid);
+				sticker.setLowerLeft(centroid.getX() - 0.0025f, centroid.getY() - 0.005f);
+				sticker.setUpperRight(centroid.getX() + 0.0025f, centroid.getY() + 0.005f);
+				sticker.setImageFormat(QuadImageTileLayer.ImageFormat.MaplyImageETC2RGBPA8);
+				sticker.setRotation(Math.PI / -4.0);
+				stickers.add(sticker);
 			}
+
+			break;
 		}
 		StickerInfo info = new StickerInfo();
 		baseVC.addStickers(stickers, info, MaplyBaseController.ThreadMode.ThreadAny);
