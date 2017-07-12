@@ -272,8 +272,6 @@ public abstract class SLDSymbolizer {
 
                 contents = SLDParseHelper.stringForLiteralInNode(xpp);
 
-                SLDParseHelper.skip(xpp);
-
             } else if (xpp.getName().equals("Format"))
                 format = SLDParseHelper.stringForLiteralInNode(xpp);
 
@@ -306,7 +304,6 @@ public abstract class SLDSymbolizer {
 
             }
         }
-
         if ((wellKnownName == null) &&
                 (format == null || (!format.equals("image/png") && !format.equals("image/gif"))))
             return;
