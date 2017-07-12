@@ -185,8 +185,18 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
         // Convert the four corners into place
         // Rotate around the center
         Point3f center = (dispPts[0] + dispPts[1] + dispPts[2] + dispPts[3])/4.0;
-        Eigen::Affine3f rot(AngleAxisf(rotation,center));
-        Eigen::Matrix4f mat = rot.matrix();
+
+        Eigen::Matrix4f mat;
+        if (coordAdapter->isFlat())
+        {
+            Eigen::Affine3f trans1(Translation3f(-center.x(),-center.y(),0.0));
+            Eigen::Affine3f rot(AngleAxisf(rotation,Point3f(0.0,0.0,1.0)));
+            Eigen::Affine3f trans2(Translation3f(center.x(),center.y(),0.0));
+            mat = trans2.matrix() * rot.matrix() * trans1.matrix();
+        } else {
+            Eigen::Affine3f rot(AngleAxisf(rotation,center));
+            mat = rot.matrix();
+        }
         
         // Rotate the corners
         for (unsigned int ii=0;ii<4;ii++)
