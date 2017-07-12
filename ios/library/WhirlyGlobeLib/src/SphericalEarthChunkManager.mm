@@ -193,13 +193,22 @@ static const float SkirtFactor = 0.95;
                 drawable->addNormal(dispLoc3f);
             }
     } else {
-        // Note: Not sure this works with specific coordinate systems
         // With rotation, we need to handle this differently
         // Convert the four corners into place
         // Rotate around the center
         Point3f center = (dispPts[0] + dispPts[1] + dispPts[2] + dispPts[3])/4.0;
-        Eigen::Affine3f rot(AngleAxisf(_rotation,center));
-        Eigen::Matrix4f mat = rot.matrix();
+        
+        Eigen::Matrix4f mat;
+        if (coordAdapter->isFlat())
+        {
+            Eigen::Affine3f trans1(Translation3f(-center.x(),-center.y(),0.0));
+            Eigen::Affine3f rot(AngleAxisf(_rotation,Point3f(0.0,0.0,1.0)));
+            Eigen::Affine3f trans2(Translation3f(center.x(),center.y(),0.0));
+            mat = trans2.matrix() * rot.matrix() * trans1.matrix();
+        } else {
+            Eigen::Affine3f rot(AngleAxisf(_rotation,center));
+            mat = rot.matrix();
+        }
         
         // Rotate the corners
         for (unsigned int ii=0;ii<4;ii++)
