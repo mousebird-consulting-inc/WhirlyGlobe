@@ -354,7 +354,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
     
     For matching image tiles along borders in 3D (probably the globe) we resample the image slightly smaller than we get and make up a boundary around the outside.  This number controls that border size.
     
-    By default this is 1.  It's safe to set it to 0 for 2D maps and some overalys.
+    By default this is 1.  It's safe to set it to 0 for 2D maps and some overlays.
   */
 @property (nonatomic) int borderTexel;
 

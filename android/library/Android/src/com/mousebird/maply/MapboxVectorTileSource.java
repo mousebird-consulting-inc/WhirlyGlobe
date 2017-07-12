@@ -39,7 +39,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
     /**
      * Construct with a initialized MBTilesSource.  This version reads from a local database.
      */
-    public MapboxVectorTileSource(MBTiles dataSource,VectorStyleInterface inVecStyleFactor)
+    public MapboxVectorTileSource(MapboxTileSource dataSource,VectorStyleInterface inVecStyleFactor)
     {
         mbTiles = dataSource;
         coordSys = mbTiles.getCoordSystem();
