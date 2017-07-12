@@ -154,7 +154,7 @@ void ConvertFloat4fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::
 void ConvertLongArrayToSet(JNIEnv *env,jlongArray &idArrayObj,std::set<WhirlyKit::SimpleIdentity> &intSet)
 {
     int idCount = env->GetArrayLength(idArrayObj);
-    long long *ids = env->GetLongArrayElements(idArrayObj, NULL);
+    jlong *ids = env->GetLongArrayElements(idArrayObj, NULL);
     if (idCount == 0)
         return;
     

@@ -28,7 +28,7 @@ import java.io.File;
 /**
  * The MBTiles Source reads Mapbox style MBTiles files.
  */
-public class MBTiles
+public class MBTiles implements MapboxTileSource
 {
 
     //***********************************************************************//
@@ -115,7 +115,7 @@ public class MBTiles
     /**
      * The minimum zoom level you'll be called about to create a tile for.
      */
-    public int minZoom()
+    public int getMinZoom()
     {
         return minZoom;
     }
@@ -123,7 +123,7 @@ public class MBTiles
     /**
      * The maximum zoom level you'll be called about to create a tile for.
      */
-    public int maxZoom()
+    public int getMaxZoom()
     {
         return maxZoom;
     }
@@ -141,14 +141,10 @@ public class MBTiles
     // The coordinate system for these is almost always spherical mercator
     public CoordSystem coordSys = new SphericalMercatorCoordSystem();
 
-
-    //***********************************************************************//
-    //                           Public methods                              //
-    //***********************************************************************//
-
-    //***********************************************************************//
-    //                           Private methods                             //
-    //***********************************************************************//
+    public CoordSystem getCoordSystem()
+    {
+        return coordSys;
+    }
 
     /**
      * Initializes the MBTilesSource with an SQLite database.
