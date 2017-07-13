@@ -40,12 +40,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.ArrayList;
 
-/**
- *
- * Class corresponding to the PolygonSymbolizer element
- * @see http://schemas.opengis.net/se/1.1.0/Symbolizer.xsd for SLD v1.1.0
- * @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
- */
 public class SLDPolygonSymbolizer extends SLDSymbolizer {
 
     private VectorTileLineStyle vectorTileLineStyle;
@@ -56,6 +50,7 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
+            Log.i("SLDPolygonSymbolizer", xpp.getName());
             if (xpp.getName().equals("Stroke")) {
                 vectorTileLineStyle = SLDSymbolizer.vectorTileLineStyleFromStrokeNode(xpp, symbolizerParams);
             } else if (xpp.getName().equals("Fill")) {
@@ -88,19 +83,20 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
         VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
 
         VectorInfo vectorInfo = new VectorInfo();
+//        vectorInfo.disposeAfterUse = true;
         vectorInfo.setEnable(false);
         vectorInfo.setFilled(true);
 
-        if (symbolizerParams.getMinScaleDenominator() != null) {
-            if (symbolizerParams.getMaxScaleDenominator() == null)
-                vectorInfo.setMaxVis(Float.MAX_VALUE);
-            vectorInfo.setMinVis((float) viewC.heightForMapScale(symbolizerParams.getMinScaleDenominator().floatValue()));
-        }
-        if (symbolizerParams.getMaxScaleDenominator() != null) {
-            if (symbolizerParams.getMinScaleDenominator() == null)
-                vectorInfo.setMinVis(0.0f);
-            vectorInfo.setMaxVis((float) viewC.heightForMapScale(symbolizerParams.getMaxScaleDenominator().floatValue()));
-        }
+//        if (symbolizerParams.getMinScaleDenominator() != null) {
+//            if (symbolizerParams.getMaxScaleDenominator() == null)
+//                vectorInfo.setMaxVis(Float.MAX_VALUE);
+//            vectorInfo.setMinVis((float) viewC.heightForMapScale(symbolizerParams.getMinScaleDenominator().floatValue()));
+//        }
+//        if (symbolizerParams.getMaxScaleDenominator() != null) {
+//            if (symbolizerParams.getMinScaleDenominator() == null)
+//                vectorInfo.setMinVis(0.0f);
+//            vectorInfo.setMaxVis((float) viewC.heightForMapScale(symbolizerParams.getMaxScaleDenominator().floatValue()));
+//        }
 
         Integer fillColor = null;
         Float fillOpacity = null;
@@ -150,14 +146,14 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
                                 MaplyTexture tex = viewC.addTexture(graphicParams.getBitmap(), texSettings, MaplyBaseController.ThreadMode.ThreadCurrent);
                                 vectorInfo.setTexture(tex);
 
-                                float scaleX = 50000.0f;
-                                float scaleY = -100000.0f;
+                                float scaleX = 20000.0f;
+                                float scaleY = -20000.0f;
                                 Integer width = graphicParams.getWidth();
                                 Integer height = graphicParams.getHeight();
                                 if (width != null && width.floatValue() != 0.0f)
-                                    scaleX = 50000.0f / width.floatValue();
+                                    scaleX = 20000.0f / width.floatValue();
                                 if (height != null && height.floatValue() != 0.0f)
-                                    scaleY = -100000.0f / height.floatValue();
+                                    scaleY = -20000.0f / height.floatValue();
 
                                 vectorInfo.setTexScale(scaleX, scaleY);
                                 vectorInfo.setTextureProjection(VectorInfo.TextureProjection.TangentPlane);
@@ -170,14 +166,15 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
         }
 
         if (fillColor != null) {
-            int color = fillColor.intValue();
-            if (fillOpacity != null)
-                color = Color.argb(Math.round(fillOpacity.floatValue()*255.f), Color.red(color), Color.green(color), Color.blue(color));
+            int color = Color.argb(128, 255, 0, 0);
+//            int color = fillColor.intValue();
+//            if (fillOpacity != null)
+//                color = Color.argb(Math.round(fillOpacity.floatValue()*255.f), Color.red(color), Color.green(color), Color.blue(color));
 
             vectorInfo.setColor(color);
         }
 
-        vectorInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.FeatureDrawPriorityBase);
+        vectorInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority());
         VectorTilePolygonStyle vectorTilePolygonStyle = new VectorTilePolygonStyle(vectorInfo, vectorStyleSettings, viewC);
         return vectorTilePolygonStyle;
     }
