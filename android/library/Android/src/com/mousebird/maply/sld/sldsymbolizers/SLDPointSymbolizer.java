@@ -35,14 +35,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.util.HashMap;
 
-/**
- *
- * Class corresponding to the PointSymbolizer element
- * @see http://schemas.opengis.net/se/1.1.0/Symbolizer.xsd for SLD v1.1.0
- * @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
- */
 public class SLDPointSymbolizer extends SLDSymbolizer {
 
     private VectorTileMarkerStyle vectorTileMarkerStyle;
@@ -54,7 +47,9 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
 
         Bitmap bitmap = null;
         MarkerInfo markerInfo = new MarkerInfo();
+//        markerInfo.disposeAfterUse = true;
         markerInfo.setEnable(false);
+        markerInfo.setClusterGroup(0);
         markerInfo.setLayoutImportance(1.f);
 
         if (symbolizerParams.getMinScaleDenominator() != null) {
@@ -72,27 +67,18 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
             if (xpp.getEventType() != XmlPullParser.START_TAG) {
                 continue;
             }
+            Log.i("SLDPointSymbolizer", xpp.getName());
             if (xpp.getName().equals("Graphic")) {
                 SLDGraphicParams graphicParams = SLDSymbolizer.graphicParamsForGraphicNode(xpp, symbolizerParams);
-                if (graphicParams != null) {
+                if (graphicParams != null)
                     bitmap = graphicParams.getBitmap();
-
-                    Number width = graphicParams.getWidth();
-                    Number height = graphicParams.getHeight();
-                    HashMap<String, Object> crossSymParams = symbolizerParams.getCrossSymbolizerParams();
-                    if (width != null && height != null && crossSymParams != null) {
-                        crossSymParams.put("width", width);
-                        crossSymParams.put("height", height);
-
-                    }
-                }
 
             } else {
                 SLDParseHelper.skip(xpp);
             }
         }
 
-        markerInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.MarkerDrawPriorityDefault);
+        markerInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority());
         vectorTileMarkerStyle = new VectorTileMarkerStyle(markerInfo, bitmap, vectorStyleSettings, viewC);
     }
 
