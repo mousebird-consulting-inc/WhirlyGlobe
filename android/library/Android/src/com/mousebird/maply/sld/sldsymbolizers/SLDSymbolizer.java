@@ -45,6 +45,12 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
 
+/**
+ *
+ * Base class for Symbolizer elements
+ * @see http://schemas.opengis.net/se/1.1.0/Symbolizer.xsd for SLD v1.1.0
+ * @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
+ */
 public abstract class SLDSymbolizer {
 
     public abstract VectorTileStyle[] getStyles();
@@ -65,7 +71,6 @@ public abstract class SLDSymbolizer {
             vectorInfo = new VectorInfo();
             baseInfo = vectorInfo;
         }
-//        baseInfo.disposeAfterUse = true;
         baseInfo.setEnable(false);
         if (symbolizerParams.getMinScaleDenominator() != null) {
             if (symbolizerParams.getMaxScaleDenominator() == null)
@@ -77,7 +82,6 @@ public abstract class SLDSymbolizer {
                 baseInfo.setMinVis(0.0f);
             baseInfo.setMaxVis((float) viewC.heightForMapScale(symbolizerParams.getMaxScaleDenominator().floatValue()));
         }
-        //baseInfo.setDrawPriority(???)
 
         Integer strokeColor = null;
         Float strokeOpacity = null;
@@ -176,7 +180,7 @@ public abstract class SLDSymbolizer {
             wideVectorInfo.setTextureRepeatLength(repeatLength);
         }
 
-        baseInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority());
+        baseInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.FeatureDrawPriorityBase);
         VectorTileLineStyle vectorTileLineStyle = new VectorTileLineStyle(baseInfo, vectorStyleSettings, viewC);
         return vectorTileLineStyle;
 
@@ -315,7 +319,6 @@ public abstract class SLDSymbolizer {
                     Log.e("SLDSymbolizer", "parseMarkOrExternalGraphic", e);
                 }
                 if (inputStream != null) {
-                    //Bitmap bmp = BitmapFactory.decodeFile(symbolizerParams.getBasePath() + href);
                     Bitmap bmp = BitmapFactory.decodeStream(inputStream);
                     graphicParams.setBitmap(bmp);
                 }
