@@ -57,7 +57,9 @@ public class VectorTileTextStyle extends VectorTileStyle {
 
             ScreenLabel screenLabel = new ScreenLabel();
             if (placement == Placement.Point) {
-                Point2d centroid = vector.centroid();
+                Point2d ll = new Point2d();
+                Point2d ur = new Point2d();
+                Point2d centroid = vector.largestLoopCenter(ll, ur);
                 if (centroid != null)
                     screenLabel.loc = centroid;
                 else
