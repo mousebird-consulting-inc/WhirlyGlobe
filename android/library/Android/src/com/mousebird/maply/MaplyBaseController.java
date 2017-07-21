@@ -129,7 +129,7 @@ public class MaplyBaseController
     /**
      * Return an HTTP Client for use in fetching data, probably tiles.
      */
-    synchronized OkHttpClient getHttpClient()
+    public synchronized OkHttpClient getHttpClient()
 	{
 		if (httpClient == null) {
 			httpClient = new OkHttpClient();
