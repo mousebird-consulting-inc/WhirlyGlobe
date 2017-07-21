@@ -27,6 +27,30 @@
           </PolygonSymbolizer>
         </Rule>
         <Rule>
+          <Name>Landuse - Forest Pattern</Name>
+          <Title>Forest Pattern</Title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>type</ogc:PropertyName>
+              <ogc:Literal>forest</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+    	  <MaxScaleDenominator>5000</MaxScaleDenominator>
+          <PolygonSymbolizer>
+            <Fill>
+			  <GraphicFill>
+                <Graphic>
+                  <ExternalGraphic>
+                    <OnlineResource xlink:type="simple" xlink:href="forest.png"/>
+                    <Format>image/png</Format>
+                  </ExternalGraphic>
+                  <Size>0.125</Size>
+                </Graphic>
+			  </GraphicFill>
+            </Fill>
+          </PolygonSymbolizer>
+        </Rule>
+        <Rule>
           <Name>Landuse - Residential</Name>
           <Title>Residential</Title>
           <ogc:Filter>
@@ -45,6 +69,30 @@
            <CssParameter name="stroke">#e6e6e6</CssParameter>
            <CssParameter name="stroke-width">1</CssParameter>
          </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+        <Rule>
+          <Name>Landuse - Residential Pattern</Name>
+          <Title>Residential Pattern</Title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>type</ogc:PropertyName>
+              <ogc:Literal>residential</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+    	  <MaxScaleDenominator>5000</MaxScaleDenominator>
+          <PolygonSymbolizer>
+            <Fill>
+			  <GraphicFill>
+                <Graphic>
+                  <ExternalGraphic>
+                    <OnlineResource xlink:type="simple" xlink:href="residential.png"/>
+                    <Format>image/png</Format>
+                  </ExternalGraphic>
+                  <Size>0.125</Size>
+                </Graphic>
+			  </GraphicFill>
+            </Fill>
           </PolygonSymbolizer>
         </Rule>
         <Rule>
@@ -111,6 +159,30 @@
           </PolygonSymbolizer>
         </Rule>
         <Rule>
+          <Name>Landuse - Industrial Pattern</Name>
+          <Title>Industrial Pattern</Title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>type</ogc:PropertyName>
+              <ogc:Literal>industrial</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+    	  <MaxScaleDenominator>5000</MaxScaleDenominator>
+          <PolygonSymbolizer>
+            <Fill>
+			  <GraphicFill>
+                <Graphic>
+                  <ExternalGraphic>
+                    <OnlineResource xlink:type="simple" xlink:href="industrial.png"/>
+                    <Format>image/png</Format>
+                  </ExternalGraphic>
+                  <Size>0.125</Size>
+                </Graphic>
+			  </GraphicFill>
+            </Fill>
+          </PolygonSymbolizer>
+        </Rule>
+        <Rule>
           <Name>Landuse - Farmland</Name>
           <Title>Farmland</Title>
           <ogc:Filter>
@@ -162,6 +234,30 @@
           </PolygonSymbolizer>
         </Rule>
         <Rule>
+          <Name>Landuse - Cemetery Pattern</Name>
+          <Title>Cemetery Pattern</Title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>type</ogc:PropertyName>
+              <ogc:Literal>cemetery</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+    	  <MaxScaleDenominator>5000</MaxScaleDenominator>
+          <PolygonSymbolizer>
+            <Fill>
+			  <GraphicFill>
+                <Graphic>
+                  <ExternalGraphic>
+                    <OnlineResource xlink:type="simple" xlink:href="cemetery.png"/>
+                    <Format>image/png</Format>
+                  </ExternalGraphic>
+                  <Size>0.125</Size>
+                </Graphic>
+			  </GraphicFill>
+            </Fill>
+          </PolygonSymbolizer>
+        </Rule>
+        <Rule>
           <Name>Landuse - Commercial</Name>
           <Title>Commercial</Title>
           <ogc:Filter>
@@ -186,6 +282,30 @@
            <CssParameter name="stroke">#d5d5d5</CssParameter>
            <CssParameter name="stroke-width">1</CssParameter>
          </Stroke>
+          </PolygonSymbolizer>
+        </Rule>
+        <Rule>
+          <Name>Landuse - Commercial Pattern</Name>
+          <Title>Commercial Pattern</Title>
+          <ogc:Filter>
+            <ogc:PropertyIsEqualTo>
+              <ogc:PropertyName>type</ogc:PropertyName>
+              <ogc:Literal>commercial</ogc:Literal>
+            </ogc:PropertyIsEqualTo>
+          </ogc:Filter>
+    	  <MaxScaleDenominator>5000</MaxScaleDenominator>
+          <PolygonSymbolizer>
+            <Fill>
+			  <GraphicFill>
+                <Graphic>
+                  <ExternalGraphic>
+                    <OnlineResource xlink:type="simple" xlink:href="commercial.png"/>
+                    <Format>image/png</Format>
+                  </ExternalGraphic>
+                  <Size>0.125</Size>
+                </Graphic>
+			  </GraphicFill>
+            </Fill>
           </PolygonSymbolizer>
         </Rule>
       </FeatureTypeStyle>
