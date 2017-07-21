@@ -115,6 +115,7 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
 
         labelInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.LabelDrawPriorityDefault);
         vectorTileTextStyle = new VectorTileTextStyle(labelInfo, placement, offset, textField, vectorStyleSettings, viewC);
+        symbolizerParams.incrementRelativeDrawPriority();
     }
 
     private String getLabel(XmlPullParser xpp) throws XmlPullParserException, IOException {
