@@ -94,6 +94,7 @@ public class SLDPointSymbolizer extends SLDSymbolizer {
 
         markerInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.MarkerDrawPriorityDefault);
         vectorTileMarkerStyle = new VectorTileMarkerStyle(markerInfo, bitmap, vectorStyleSettings, viewC);
+        symbolizerParams.incrementRelativeDrawPriority();
     }
 
     public VectorTileStyle[] getStyles() {
