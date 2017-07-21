@@ -59,10 +59,13 @@ public class VectorTileTextStyle extends VectorTileStyle {
                 Point2d ll = new Point2d();
                 Point2d ur = new Point2d();
                 Point2d centroid = vector.largestLoopCenter(ll, ur);
+                if (centroid == null)
+                    centroid = vector.centroid();
                 if (centroid != null)
                     screenLabel.loc = centroid;
-                else
+                else {
                     screenLabel = null;
+                }
             } else if (placement == Placement.Line) {
                 Point2d middle = new Point2d();
                 double rot = vector.linearMiddle(middle);
