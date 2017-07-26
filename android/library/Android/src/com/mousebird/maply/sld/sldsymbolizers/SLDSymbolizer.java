@@ -313,8 +313,14 @@ public abstract class SLDSymbolizer {
         else if (href != null) {
             if (type == null || type.equals("simple")) {
                 InputStream inputStream = null;
+                String graphicPath;
+                String basePath = symbolizerParams.getBasePath();
+                if (basePath == null || basePath.equals(""))
+                    graphicPath = href;
+                else
+                    graphicPath = symbolizerParams.getBasePath() + "/" + href;
                 try {
-                    inputStream = symbolizerParams.getAssetManager().open(symbolizerParams.getBasePath() + href);
+                    inputStream = symbolizerParams.getAssetManager().open(graphicPath);
                 } catch (IOException e) {
                     Log.e("SLDSymbolizer", "parseMarkOrExternalGraphic", e);
                 }
