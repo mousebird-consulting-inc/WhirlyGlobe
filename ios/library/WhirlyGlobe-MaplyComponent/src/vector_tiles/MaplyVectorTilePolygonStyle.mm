@@ -18,6 +18,7 @@
  *
  */
 
+#import "WhirlyGlobeComponent.h"
 #import "MaplyVectorTilePolygonStyle.h"
 
 // Filled polygons styles
@@ -118,7 +119,11 @@
                 vec.attributes[kMaplyVecCenterX] = @(center.x);
                 vec.attributes[kMaplyVecCenterY] = @(center.y);
                 
-                MaplyVectorObject *tessVec = [[vec clipToGrid:CGSizeMake(ClipGridSize, ClipGridSize)] tesselate];
+                MaplyVectorObject *tessVec = nil;
+                if ([viewC isKindOfClass:[WhirlyGlobeViewController class]])
+                    tessVec = [[vec clipToGrid:CGSizeMake(ClipGridSize, ClipGridSize)] tesselate];
+                else
+                    tessVec = [vec tesselate];
                 
                 if (tessVec)
                     [tessObjs addObject:tessVec];
