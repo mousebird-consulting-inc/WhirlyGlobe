@@ -18,7 +18,6 @@
  *
  */
 
-#define NOTPODSPECWG 1
 #import "MaplyComponent.h"
 #import "MaplyBaseViewController.h"
 #import "WhirlyGlobeViewController.h"
