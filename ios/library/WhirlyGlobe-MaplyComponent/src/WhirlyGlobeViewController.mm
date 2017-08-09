@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ using namespace WhirlyGlobe;
     _heading = DBL_MAX;
     _height = 1.0;
     _tilt = DBL_MAX;
+    _roll = 0.0;
     _pos.x = _pos.y = 0.0;
     _screenPos = {-1,-1};
     
@@ -48,6 +49,7 @@ using namespace WhirlyGlobe;
     newState.height = (stateB.height-stateA.height)*t + stateA.height;
     newState.tilt = (stateB.tilt-stateA.tilt)*t + stateA.tilt;
     newState.pos = MaplyCoordinateDMake((stateB.pos.x-stateA.pos.x)*t + stateA.pos.x,(stateB.pos.y-stateA.pos.y)*t + stateA.pos.y);
+    newState.roll = (stateB.roll-stateA.roll)*t + stateA.roll;
     if (stateA.screenPos.x >= 0.0 && stateA.screenPos.y >= 0.0 &&
         stateB.screenPos.x >= 0.0 && stateB.screenPos.y >= 0.0)
     {
@@ -85,6 +87,7 @@ using namespace WhirlyGlobe;
         endState.height = _height;
         endState.tilt = _tilt;
         endState.pos = _loc;
+        endState.roll = _roll;
     }
     startTime = inStartTime;
     endTime = inEndTime;
@@ -107,6 +110,7 @@ using namespace WhirlyGlobe;
     
     state.height = (endState.height - startState.height)*t + startState.height;
     state.tilt = (endState.tilt - startState.tilt)*t + startState.tilt;
+    state.roll = (endState.roll - startState.roll)*t + startState.roll;
     MaplyCoordinateD pos;
     pos.x = (endState.pos.x - startState.pos.x)*t + startState.pos.x;
     pos.y = (endState.pos.y - startState.pos.y)*t + startState.pos.y;
@@ -605,6 +609,16 @@ using namespace WhirlyGlobe;
     globeView.tilt = newTilt;
 }
 
+- (double)roll
+{
+    return globeView.roll;
+}
+
+- (void)setRoll:(double)newRoll
+{
+    globeView.roll = newRoll;
+}
+
 - (void)setDoubleTapZoomGesture:(bool)doubleTapZoomGesture
 {
     _doubleTapZoomGesture = doubleTapZoomGesture;
@@ -829,6 +843,7 @@ using namespace WhirlyGlobe;
     WhirlyGlobeViewControllerAnimationState *nextState = [[WhirlyGlobeViewControllerAnimationState alloc] init];
     nextState.heading = newHeading;
     nextState.tilt = self.tilt;
+    nextState.roll = self.roll;
     nextState.pos = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
     nextState.height = newHeight;
     [self setViewStateInternal:nextState updateWatchers:false];
@@ -1569,6 +1584,7 @@ using namespace WhirlyGlobe;
         globeView.tilt = [tiltControlDelegate tiltFromHeight:globeView.heightAboveGlobe];
     else
         globeView.tilt = animState.tilt;
+    [globeView setRoll:animState.roll updateWatchers:false];
     
     [globeView setRotQuat:finalQuat updateWatchers:updateWatchers];
 }
@@ -1581,6 +1597,7 @@ using namespace WhirlyGlobe;
     startUp = [globeView currentUp];
     state.heading = self.heading;
     state.tilt = self.tilt;
+    state.roll = self.roll;
     MaplyCoordinateD pos;
     double height;
     [self getPositionD:&pos height:&height];

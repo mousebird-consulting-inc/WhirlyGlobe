@@ -43,13 +43,13 @@ public class WideVectorsTestCase extends MaplyTestCase {
         MaplyTexture tex = baseController.addTexture(patternImage,new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
 
         WideVectorInfo wideVecInfo = new WideVectorInfo();
-        wideVecInfo.setColor(Color.RED);
-        wideVecInfo.setLineWidth(20.0f);
+        wideVecInfo.setColor(Color.BLUE);
+        wideVecInfo.setLineWidth(40.0f);
         wideVecInfo.setTexture(tex);
         wideVecInfo.setTextureRepeatLength(8.0);
 
         VectorInfo vecInfo = new VectorInfo();
-        vecInfo.setLineWidth(4.0f);
+        vecInfo.setLineWidth(10.0f);
         vecInfo.setColor(Color.BLACK);
 
         ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
@@ -61,9 +61,9 @@ public class WideVectorsTestCase extends MaplyTestCase {
             VectorObject vecObj = new VectorObject();
             vecObj.fromGeoJSON(json);
 
-            ComponentObject compObj = baseController.addVector(vecObj, vecInfo, MaplyBaseController.ThreadMode.ThreadAny);
-            compObjs.add(compObj);
-            compObj = baseController.addWideVector(vecObj, wideVecInfo, MaplyBaseController.ThreadMode.ThreadAny);
+//            ComponentObject compObj = baseController.addVector(vecObj, vecInfo, MaplyBaseController.ThreadMode.ThreadAny);
+//            compObjs.add(compObj);
+            ComponentObject compObj = baseController.addWideVector(vecObj, wideVecInfo, MaplyBaseController.ThreadMode.ThreadAny);
             compObjs.add(compObj);
         } catch (Exception e) {
         }

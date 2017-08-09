@@ -3,12 +3,11 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 18/11/15.
-//  Copyright © 2015 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
 //
 
 import UIKit
 //import SwiftyDropbox
-import MBProgressHUD
 
 class DropboxSection {
 	

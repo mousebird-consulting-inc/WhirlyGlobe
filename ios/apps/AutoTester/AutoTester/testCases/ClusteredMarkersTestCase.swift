@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 2/11/15.
-//  Copyright © 2015 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
 //
 
 import UIKit
@@ -44,7 +44,18 @@ class ClusteredMarkersTestCase: MaplyTestCase {
 			marker.userObject = (object as AnyObject).userObject!
 			markers.append(marker)
 		}
-		theBaseView.addScreenMarkers(markers, desc: [kMaplyClusterGroup: 0], mode: MaplyThreadMode.current)
+		let screenObj =  theBaseView.addScreenMarkers(markers, desc: [kMaplyClusterGroup: 0], mode: MaplyThreadMode.current)
+
+        // Disable after a few seconds
+        DispatchQueue.main.asyncAfter(deadline:  .now() + 5.0) {
+            theBaseView.disableObjects([screenObj!], mode: MaplyThreadMode.current)
+        }
+        
+        // Re-enable after a few seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
+            theBaseView.enable([screenObj!], mode: MaplyThreadMode.current)
+        }
+        
 	}
 
 }

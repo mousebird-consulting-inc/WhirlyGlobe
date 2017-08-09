@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/14/11.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@
 #import "WhirlyGeometry.h"
 #import "WhirlyKitView.h"
 
-/// @cond
+
 @class WhirlyGlobeView;
-/// @endcond
+
 
 /// Animation callback
 @protocol WhirlyGlobeAnimationDelegate
@@ -47,6 +47,8 @@
 @property (nonatomic,assign) double heightAboveGlobe;
 /// Quaternion used for rotation from origin state
 @property (nonatomic,assign) Eigen::Quaterniond rotQuat;
+/// Roll around an axis pointed straight out of the front
+@property (nonatomic,assign) double roll;
 /// Used to update position based on time (or whatever other factor you like)
 @property (nonatomic,weak) NSObject<WhirlyGlobeAnimationDelegate> *delegate;
 /// The view can have a tilt.  0 is straight down.  PI/2 is looking to the horizon.
@@ -69,6 +71,9 @@
 
 /// This version allows you to not update the watchers.
 - (void)setRotQuat:(Eigen::Quaterniond)rotQuat updateWatchers:(bool)updateWatchers;
+
+/// This version allows you not to update the watchers.
+- (void)setRoll:(double)roll updateWatchers:(bool)updateWatchers;
 
 /// Calculate the z offset to make the earth appear where we want it
 - (double)calcEarthZOffset;

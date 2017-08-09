@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 26/10/15.
-//  Copyright © 2015 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
 //
 
 import UIKit
@@ -27,7 +27,7 @@ class WeatherShader {
 			return shaderName
 		}
 
-		print("Shader failed to compile: \(shader?.getError())\n")
+		print("Shader failed to compile: \(shader?.getError() ?? "")\n")
 		return nil
 	}
 }

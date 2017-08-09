@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/26/11.
- *  Copyright 2011-2015 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2017 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -728,7 +728,7 @@ SelectionManager::PlacementInfo::PlacementInfo(WhirlyKitView *view,WhirlyKitScen
     viewAndModelInvMat = viewAndModelMat.inverse();
     viewModelNormalMat = viewAndModelMat.inverse().transpose();
     projMat = [view calcProjectionMatrix:frameSizeScale margin:0.0];
-    [view getOffsetMatrices:offsetMatrices frameBuffer:frameSize];
+    [view getOffsetMatrices:offsetMatrices frameBuffer:frameSize buffer:0.0];
 }
 
 void SelectionManager::projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts,float scale)

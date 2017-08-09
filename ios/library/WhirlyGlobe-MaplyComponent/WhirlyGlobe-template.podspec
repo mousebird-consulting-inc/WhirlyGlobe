@@ -14,11 +14,9 @@
 # ******************************************************************************
 Pod::Spec.new do |s|
   s.name             = "WhirlyGlobe"
-  s.version          = "2.4.1-{{BUILD_TAG}}"
+  s.version          = "2.6.0-{{BUILD_TAG}}"
   s.summary          = "WhirlyGlobe-Maply: Geospatial visualization for iOS and Android."
-  s.description      = <<-DESC
-                        IMPORTANT: This is an early adopter version. Use it at your own risk.
-                       DESC
+  s.description      = "Consult the project's home page at http://mousebird.github.io/WhirlyGlobe"
   s.homepage         = "http://mousebird.github.io/WhirlyGlobe/builds/builds.html"
   s.screenshots      = "http://mousebird.github.io/WhirlyGlobe/images/carousel/home/mapandglobe.jpg", "http://mousebird.github.io/WhirlyGlobe/images/carousel/home/mtrainier.jpg"
   s.license          = 'Apache 2.0'

@@ -3,11 +3,11 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 3/11/16.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #import "GreatCircleTestCase.h"
-#import "AutoTester-Swift.h"
+#import "CartoDBTestCase.h"
 
 @implementation GreatCircleTestCase
 
@@ -202,7 +202,7 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    StamenWatercolorRemote *baseView = [[StamenWatercolorRemote alloc] init];
+    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     globeVC.keepNorthUp = false;
     
@@ -213,7 +213,7 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    StamenWatercolorRemote *baseView = [[StamenWatercolorRemote alloc] init];
+    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
     
     [self addLongRoute:mapVC globe:false];

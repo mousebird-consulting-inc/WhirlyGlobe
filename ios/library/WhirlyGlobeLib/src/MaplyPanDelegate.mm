@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ bool MaplyGestureWithinBounds(const std::vector<WhirlyKit::Point2d> &bounds,cons
             {
                 Point2d closePt;
                 ClosestPointToPolygon(bounds, Point2d(planePt.x(),planePt.y()), &closePt);
-                Point2d thisOffset = 1.01 * (closePt - Point2d(planePt.x(),planePt.y()));
+                Point2d thisOffset = 1.001 * (closePt - Point2d(planePt.x(),planePt.y()));
                 // Try to move around, inward
                 locOffset += thisOffset;
                 checkOkay = false;

@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by @jmnavarro on 6/16/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -128,7 +128,8 @@
 @interface MaplyRemoteTileElevationCesiumInfo : MaplyRemoteTileElevationInfo
 @end
 
-/** @details The Cesium terrain server uses an odd tiling system with two top level nodes.
+/** 
+    The Cesium terrain server uses an odd tiling system with two top level nodes.
  */
 @interface MaplyCesiumCoordSystem : MaplyPlateCarree
 

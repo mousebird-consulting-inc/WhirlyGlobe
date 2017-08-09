@@ -23,5 +23,9 @@ WhirlyGlobeSrc/local_libs/proj4-mapbox
 WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/build
 WhirlyGlobeSrc/AutoTester/AutoTester.xcworkspace
 *.class
-android/apps/AutoTesterAndroid/.idea
+**/*.iml
+**/.idea
+android/**/local.properties
 android/library/Android/.gradle
+ios/library/WhirlyGlobe-MaplyComponent/build
+ios/library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.framework

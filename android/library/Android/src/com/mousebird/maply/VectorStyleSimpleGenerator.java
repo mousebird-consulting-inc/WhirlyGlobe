@@ -113,7 +113,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         public ComponentObject[] buildObjects(List<VectorObject> vecObjs,MaplyTileID tileID,MaplyBaseController controller)
         {
             VectorInfo vecInfo = new VectorInfo();
-            vecInfo.disposeAfterUse = true;
+//            vecInfo.disposeAfterUse = true;
             vecInfo.setColor((float)red,(float)green,(float)blue,1.f);
             vecInfo.setLineWidth(4.f);
             vecInfo.setFilled(false);

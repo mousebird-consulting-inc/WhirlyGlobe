@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/19/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -140,6 +140,15 @@ extern NSString* const kMaplyTextOutlineColor;
 extern NSString* const kMaplyTexSizeX;
 /// When creating textures, we may pass in the size
 extern NSString* const kMaplyTexSizeY;
+
+/// How to justify multi-line text
+extern NSString* const kMaplyTextJustify;
+/// Justify text to the right
+extern NSString* const kMaplyTextJustifyRight;
+/// Justify text to the left
+extern NSString* const kMaplyTextJustifyLeft;
+/// Justify text to the center
+extern NSString* const kMaplyTextJustifyCenter;
 
 /// These are used for screen and regular markers.
 extern NSString* const kMaplyClusterGroup;

@@ -9,30 +9,33 @@
 #import <Foundation/Foundation.h>
 #import "MapboxVectorTiles.h"
 
-/** @brief Simple default style to see something in vector tile data.
-    @details A simple vector style that displays each layer in a random color.
+/** 
+    Simple default style to see something in vector tile data.
+    
+    A simple vector style that displays each layer in a random color.
     Use this as a starting point for your own style.
   */
 @interface MaplyVectorStyleSimpleGenerator : NSObject<MaplyVectorStyleDelegate>
 
 @property (nonatomic,weak) MaplyBaseViewController *viewC;
 
-/// @brief Initialize with a map view controller
+/// Initialize with a map view controller
 - (id)initWithViewC:(MaplyBaseViewController *)viewC;
 
 @end
 
-/** @brief Base class for the simple vector style.
+/** 
+    Base class for the simple vector style.
   */
 @interface MaplyVectorStyleSimple : NSObject<MaplyVectorStyle>
 
-/// @brief Unique Identifier for this style
+/// Unique Identifier for this style
 @property (nonatomic,strong) NSString *uuid;
 
-/// @brief Set if this geometry is additive (e.g. sticks around) rather than replacement
+/// Set if this geometry is additive (e.g. sticks around) rather than replacement
 @property (nonatomic) bool geomAdditive;
 
-/// @brief Priority for sorting among layers
+/// Priority for sorting among layers
 @property (nonatomic) int drawPriority;
 
 @property (nonatomic,weak) MaplyBaseViewController *viewC;
@@ -41,7 +44,8 @@
 
 @end
 
-/** @brief Simple filled polygon with a random color.
+/** 
+    Simple filled polygon with a random color.
   */
 @interface MaplyVectorStyleSimplePolygon : MaplyVectorStyleSimple
 
@@ -49,7 +53,8 @@
 
 @end
 
-/** @brief Simple point we'll convert to a label.
+/** 
+    Simple point we'll convert to a label.
   */
 @interface MaplyVectorStyleSimplePoint : MaplyVectorStyleSimple
 
@@ -57,7 +62,8 @@
 
 @end
 
-/** @brief Simple linear with a random color.
+/** 
+    Simple linear with a random color.
   */
 @interface MaplyVectorStyleSimpleLinear : MaplyVectorStyleSimple
 

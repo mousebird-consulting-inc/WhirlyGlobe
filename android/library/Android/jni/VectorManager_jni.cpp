@@ -120,7 +120,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
 		{
 			jobject javaVecObj = env->CallObjectMethod(liter, next);
 			VectorObject *vecObj = vecObjClassInfo->getObject(env,javaVecObj);
-			shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
+			if (vecObj != NULL)
+				shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
 			env->DeleteLocalRef(javaVecObj);
 		}
 		env->DeleteLocalRef(liter);

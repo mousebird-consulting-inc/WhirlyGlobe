@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -86,6 +86,8 @@
             if(styleEntry[@"stroke-dasharray"])
             {
                 NSArray *componentStrings = [styleEntry[@"stroke-dasharray"] componentsSeparatedByString:@","];
+                if (componentStrings.count == 1)
+                    componentStrings = [styleEntry[@"stroke-dasharray"] componentsSeparatedByString:@" "];
                 NSMutableArray *componentNumbers = [NSMutableArray arrayWithCapacity:componentStrings.count];
                 for(NSString *s in componentStrings) {
                     int n = [s intValue] * settings.dashPatternScale;

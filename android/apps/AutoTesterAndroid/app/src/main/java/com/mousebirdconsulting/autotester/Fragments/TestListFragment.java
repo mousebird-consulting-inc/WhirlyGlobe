@@ -33,6 +33,7 @@ import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 import com.mousebirdconsulting.autotester.TestCases.GeomPointsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
+import com.mousebirdconsulting.autotester.TestCases.IBSTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ImageSingleLevelTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LIDARTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LayerShutdownTestCase;
@@ -49,25 +50,29 @@ import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ShapesTestCase;
 import com.mousebirdconsulting.autotester.TestCases.SimpleParticleSystemTestCase;
+import com.mousebirdconsulting.autotester.TestCases.SLDTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StartupShutdownTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
+import com.mousebirdconsulting.autotester.TestCases.TextureVectorTestCase;
 import com.mousebirdconsulting.autotester.TestCases.VectorsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.WideVectorsTestCase;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.Unbinder;
 
 
 public class TestListFragment extends Fragment {
 
-	@InjectView(R.id.testList_recyclerList)
-	RecyclerView testList;
+	@BindView(R.id.testList_recyclerList) RecyclerView testList;
 
 	private TestListAdapter adapter;
 	private MaplyDownloadManager manager;
+
+	private Unbinder unbinder;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -76,10 +81,16 @@ public class TestListFragment extends Fragment {
 
 	@Override
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-		ButterKnife.inject(this, view);
+		unbinder = ButterKnife.bind(this, view);
 		adapter = new TestListAdapter();
 		testList.setAdapter(adapter);
 		testList.setLayoutManager(createLayoutManager());
+	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		unbinder.unbind();
 	}
 
 	private RecyclerView.LayoutManager createLayoutManager() {
@@ -115,6 +126,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new AnimatedBaseMapTestCase(getActivity()));
 			testCases.add(new ImageSingleLevelTestCase(getActivity()));
 			testCases.add(new VectorsTestCase(getActivity()));
+			testCases.add(new TextureVectorTestCase(getActivity()));
 			testCases.add(new ScreenLabelsTestCase(getActivity()));
 			testCases.add(new ScreenMarkersTestCase(getActivity()));
 			testCases.add(new MarkersTestCase(getActivity()));
@@ -147,6 +159,8 @@ public class TestListFragment extends Fragment {
 			testCases.add(new MapzenTestCase(getActivity()));
 			testCases.add(new LIDARTestCase(getActivity()));
 			testCases.add(new WideVectorsTestCase(getActivity()));
+			testCases.add(new SLDTestCase(getActivity()));
+			testCases.add(new IBSTestCase(getActivity()));
 //			testCases.add(new ArealTestCase(getActivity()));
 		}
 

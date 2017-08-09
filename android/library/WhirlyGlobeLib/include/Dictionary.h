@@ -88,6 +88,9 @@ public:
     
     // Convert to a string for debugging
     std::string toString() const;
+
+    // Merge in key-value pairs from another dictionary
+    void addEntries(const Dictionary *other);
     
 protected:
     class Value

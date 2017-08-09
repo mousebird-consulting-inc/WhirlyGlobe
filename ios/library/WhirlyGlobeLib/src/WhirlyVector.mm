@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/25/11.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -104,6 +104,12 @@ float Mbr::area() const
 {
 	return (pt_ur.x() - pt_ll.x())*(pt_ur.y() - pt_ll.y());
 }
+
+Point2f Mbr::span() const
+{
+    return Point2f(pt_ur.x()-pt_ll.x(),pt_ur.y()-pt_ll.y());
+}
+
     
 void Mbr::expand(const Mbr &that)
 {
@@ -111,6 +117,16 @@ void Mbr::expand(const Mbr &that)
     addPoint(that.pt_ur);
 }
 
+
+void Mbr::expandByFraction(double bufferZone)
+{
+    Point2f spanViewMbr = span();
+    pt_ll.x() = pt_ll.x()-spanViewMbr.x()*bufferZone;
+    pt_ll.y() = pt_ll.y()-spanViewMbr.y()*bufferZone;
+    pt_ur.x() = pt_ur.x()+spanViewMbr.x()*bufferZone;
+    pt_ur.y() = pt_ur.y()+spanViewMbr.y()*bufferZone;
+}
+    
     
 void Mbr::asPoints(std::vector<Point2f> &pts) const
 {

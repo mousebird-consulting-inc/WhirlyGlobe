@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 6/28/16.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #import "PagingLayerTestCase.h"
@@ -41,6 +41,8 @@
     [self setupPagingLayer: mapVC];
 }
 
+const bool enableTest = false;
+
 - (void) setupPagingLayer:(MaplyBaseViewController*) baseLayer
 {
     MaplySphericalMercator *coordSys = [[MaplySphericalMercator alloc] initWebStandard];
@@ -52,6 +54,23 @@
     quadLayer.useParentTileBounds = false;
     quadLayer.maxTiles = 100;
     [baseLayer addLayer:quadLayer];
+    
+    if (enableTest)
+        [self performSelector:@selector(runDisable:) withObject:quadLayer afterDelay:5.0];
+}
+
+- (void)runEnable:(MaplyQuadPagingLayer *)quadLayer
+{
+    [quadLayer setEnable:true];
+    
+    [self performSelector:@selector(runDisable:) withObject:quadLayer afterDelay:5.0];
+}
+
+- (void)runDisable:(MaplyQuadPagingLayer *)quadLayer
+{
+    [quadLayer setEnable:false];
+    
+    [self performSelector:@selector(runEnable:) withObject:quadLayer afterDelay:5.0];
 }
 
 @end

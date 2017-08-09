@@ -497,3 +497,172 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_writeToFile
     
     return false;
 }
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_tesselateNative
+(JNIEnv *env, jobject obj, jobject retObj)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        if (!vecObj || !retVecObj)
+            return false;
+        
+        for (ShapeSet::iterator it = vecObj->shapes.begin();it!=vecObj->shapes.end();it++)
+        {
+            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+            if (ar)
+            {
+                VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
+                TesselateLoops(ar->loops, trisRef);
+                trisRef->setAttrDict(*(ar->getAttrDict()));
+                trisRef->initGeoMbr();
+                retVecObj->shapes.insert(trisRef);
+            }
+        }
+        
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::tesselateNative()");
+    }
+    
+    return false;
+}
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_clipToGridNative
+(JNIEnv *env, jobject obj, jobject retObj, jdouble sizeX, jdouble sizeY)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        if (!vecObj || !retVecObj)
+            return false;
+        
+        for (ShapeSet::iterator it = vecObj->shapes.begin();it!=vecObj->shapes.end();it++)
+        {
+            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+            if (ar)
+            {
+                std::vector<VectorRing> newLoops;
+                ClipLoopsToGrid(ar->loops, Point2f(0.0,0.0), Point2f(sizeX,sizeY), newLoops);
+                for (unsigned int jj=0;jj<newLoops.size();jj++)
+                {
+                    VectorArealRef newAr = VectorAreal::createAreal();
+                    newAr->setAttrDict(*(ar->getAttrDict()));
+                    newAr->loops.push_back(newLoops[jj]);
+                    retVecObj->shapes.insert(newAr);
+                }
+            }
+        }
+        
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::clipToGridNative()");
+    }
+    
+    return false;
+}
+
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_clipToMbrNative
+(JNIEnv *env, jobject obj, jobject retObj, jdouble llX, jdouble llY, jdouble urX, jdouble urY)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        if (!vecObj || !retVecObj)
+            return false;
+
+		Mbr mbr(Point2f(llX, llY), Point2f(urX, urY));
+
+        for (ShapeSet::iterator it = vecObj->shapes.begin();it!=vecObj->shapes.end();it++)
+        {
+            if(std::dynamic_pointer_cast<VectorLinear>(*it) != NULL)
+            {
+	            VectorLinearRef linear = std::dynamic_pointer_cast<VectorLinear>(*it);
+	            std::vector<VectorRing> newLoops;
+	            ClipLoopToMbr(linear->pts, mbr, false, newLoops);
+	            for (std::vector<VectorRing>::iterator it = newLoops.begin(); it != newLoops.end(); it++)
+	            {
+	                VectorLinearRef newLinear = VectorLinear::createLinear();
+	                newLinear->setAttrDict(*(linear->getAttrDict()));
+	                newLinear->pts = *it;
+	                retVecObj->shapes.insert(newLinear);
+	            }
+            }
+            else if(std::dynamic_pointer_cast<VectorLinear3d>(*it) != NULL)
+            {
+        		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Don't know how to clip linear3d objects");
+				return false;
+            }
+            else if(std::dynamic_pointer_cast<VectorAreal>(*it) != NULL)
+            {
+	            VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+	            if (ar)
+	            {
+	                for (int ii=0;ii<ar->loops.size();ii++)
+	                {
+	                    std::vector<VectorRing> newLoops;
+	                    ClipLoopToMbr(ar->loops[ii], mbr, true, newLoops);
+	                    for (unsigned int jj=0;jj<newLoops.size();jj++)
+	                    {
+	                        VectorArealRef newAr = VectorAreal::createAreal();
+	                        newAr->setAttrDict(*(ar->getAttrDict()));
+	                        newAr->loops.push_back(newLoops[jj]);
+	                        retVecObj->shapes.insert(newAr);
+	                    }
+	                }
+	            }
+            }
+            else if(std::dynamic_pointer_cast<VectorPoints>(*it) != NULL)
+            {
+	            VectorPointsRef points = std::dynamic_pointer_cast<VectorPoints>(*it);
+	            VectorPointsRef newPoints = VectorPoints::createPoints();
+	            for (unsigned int ii=0;ii<points->pts.size();ii++)
+	            {
+	                const Point2f &pt = points->pts[ii];
+	                if(pt.x() >= llX && pt.x() <= urX &&
+	                   pt.y() >= llY && pt.y() <= urY)
+	                {
+	                    newPoints->pts.push_back(pt);
+	                }
+	            }
+            }
+        }
+
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::clipToMbrNative()");
+    }
+    
+    return false;
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorObject_getVectorTypeNative
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        VectorObject *vecObj = classInfo->getObject(env,obj);
+        if (!vecObj)
+            return MaplyVectorNoneType;
+		return vecObj->getVectorType();
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::clipToMbrNative()");
+    }
+	return MaplyVectorNoneType;
+}

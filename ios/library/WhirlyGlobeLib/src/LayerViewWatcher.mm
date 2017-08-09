@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -316,7 +316,7 @@ public:
     _invModelMatrix = _modelMatrix.inverse();
     std::vector<Eigen::Matrix4d> offMatrices;
     Point2f frameSize(renderer.framebufferWidth,renderer.framebufferHeight);
-    [view getOffsetMatrices:offMatrices frameBuffer:frameSize];
+    [view getOffsetMatrices:offMatrices frameBuffer:frameSize buffer:0.0];
     _viewMatrices.resize(offMatrices.size());
     _invViewMatrices.resize(offMatrices.size());
     _fullMatrices.resize(offMatrices.size());

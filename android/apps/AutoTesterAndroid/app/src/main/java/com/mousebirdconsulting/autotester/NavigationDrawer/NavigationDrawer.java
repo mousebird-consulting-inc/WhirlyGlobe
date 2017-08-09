@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.R;
 
-import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
@@ -38,7 +37,6 @@ public class NavigationDrawer extends LinearLayout {
 		setBackgroundColor(typedValue.data);
 
 		LayoutInflater.from(context).inflate(R.layout.view_navigation_drawer, this, true);
-		ButterKnife.inject(this);
 
 		runGlobeView = (TextView) findViewById(R.id.runGlobe);
 		runBothView = (TextView) findViewById(R.id.runBoth);

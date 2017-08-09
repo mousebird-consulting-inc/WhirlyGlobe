@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
  *
  */
 
+#import "WhirlyGlobeComponent.h"
 #import "MaplyVectorTilePolygonStyle.h"
 
 // Filled polygons styles
@@ -118,7 +119,11 @@
                 vec.attributes[kMaplyVecCenterX] = @(center.x);
                 vec.attributes[kMaplyVecCenterY] = @(center.y);
                 
-                MaplyVectorObject *tessVec = [[vec clipToGrid:CGSizeMake(ClipGridSize, ClipGridSize)] tesselate];
+                MaplyVectorObject *tessVec = nil;
+                if ([viewC isKindOfClass:[WhirlyGlobeViewController class]])
+                    tessVec = [[vec clipToGrid:CGSizeMake(ClipGridSize, ClipGridSize)] tesselate];
+                else
+                    tessVec = [vec tesselate];
                 
                 if (tessVec)
                     [tessObjs addObject:tessVec];

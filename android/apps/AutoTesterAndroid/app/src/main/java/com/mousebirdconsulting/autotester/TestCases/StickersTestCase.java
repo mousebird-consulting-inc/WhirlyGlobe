@@ -13,7 +13,6 @@ import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.Sticker;
 import com.mousebird.maply.StickerInfo;
 import com.mousebird.maply.VectorObject;
-import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
 
@@ -61,6 +60,7 @@ public class StickersTestCase extends MaplyTestCase {
 				sticker.setLowerLeft(centroid);
 				sticker.setUpperRight(centroid.getX() + 0.5f, centroid.getY() + 0.5f);
 				sticker.setImageFormat(QuadImageTileLayer.ImageFormat.MaplyImageETC2RGBPA8);
+				sticker.setRotation(45.0/180.0 * Math.PI);
 				stickers.add(sticker);
 			}
 		}

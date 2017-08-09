@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -98,9 +98,37 @@ bool MaplyBoundingBoxesOverlap(MaplyBoundingBox bbox0,MaplyBoundingBox bbox1)
     mbr0.ur() = Point2f(bbox0.ur.x,bbox0.ur.y);
     mbr1.ll() = Point2f(bbox1.ll.x,bbox1.ll.y);
     mbr1.ur() = Point2f(bbox1.ur.x,bbox1.ur.y);
-    
+
     return mbr0.overlaps(mbr1);
 }
+
+bool MaplyBoundingBoxContains(MaplyBoundingBox bbox, MaplyCoordinate c)
+{
+    Mbr mbr;
+    Point2f point = Point2f(c.x, c.y);
+    mbr.ll() = Point2f(bbox.ll.x,bbox.ll.y);
+    mbr.ur() = Point2f(bbox.ur.x,bbox.ur.y);
+
+    return mbr.insideOrOnEdge(point);
+}
+
+
+MaplyBoundingBox MaplyBoundingBoxExpandByFraction(MaplyBoundingBox bbox, float buffer)
+{
+    Mbr mbr;
+    mbr.ll() = Point2f(bbox.ll.x,bbox.ll.y);
+    mbr.ur() = Point2f(bbox.ur.x,bbox.ur.y);
+
+    mbr.expandByFraction(buffer);
+
+    MaplyBoundingBox r;
+    r.ll = MaplyCoordinateMake(mbr.ll().x(), mbr.ll().y());
+    r.ur = MaplyCoordinateMake(mbr.ur().x(), mbr.ur().y());
+
+    return r;
+}
+
+
 
 double MaplyGreatCircleDistance(MaplyCoordinate p0,MaplyCoordinate p1)
 {

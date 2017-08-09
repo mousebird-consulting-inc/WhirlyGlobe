@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/14/11.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ using namespace Eigen;
        	heightInflection = 0.011;
 		self.heightAboveGlobe = 1.1;
        	_tilt = 0.0;
+        _roll = 0.0;
 	}
 	
 	return self;
@@ -76,6 +77,7 @@ using namespace Eigen;
     _heightAboveGlobe = inGlobeView.heightAboveGlobe;
     _rotQuat = inGlobeView.rotQuat;
     _tilt = inGlobeView.tilt;
+    _roll = inGlobeView.roll;
     
     return self;
 }
@@ -110,6 +112,21 @@ using namespace Eigen;
     _rotQuat = newRotQuat;
     if (updateWatchers)
        [self runViewUpdates];
+}
+
+- (void)setRoll:(double)roll
+{
+    [self setRoll:roll updateWatchers:true];
+}
+
+- (void)setRoll:(double)roll updateWatchers:(bool)updateWatchers
+{
+    if (isnan(roll))
+        return;
+    
+    _roll = roll;
+    if (updateWatchers)
+        [self runViewUpdates];
 }
 
 - (void)setTilt:(double)newTilt
@@ -240,8 +257,10 @@ using namespace Eigen;
     @synchronized(self)
     {
         Eigen::Quaterniond selfRotPitch(AngleAxisd(-_tilt, Vector3d::UnitX()));
+        Eigen::Quaterniond selfRoll(AngleAxisd(_roll, Vector3d::UnitZ()));
+        Eigen::Quaterniond combo = selfRoll * selfRotPitch;
         
-        return ((Affine3d)selfRotPitch).matrix();
+        return ((Affine3d)combo).matrix();
     }
 }
 

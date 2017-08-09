@@ -40,6 +40,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 {
 	// Set when the layer is operating
 	boolean valid = false;
+
+	// Used to control enable/disable
+	private boolean topEnable = true;
 	
 	private QuadPagingLayer()
 	{
@@ -178,7 +181,9 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 			valid = false;
 			cancelEvalStep();
 
-			pagingDelegate.clear();
+			PagingInterface ourPagingDelegate = pagingDelegate;
+			if (ourPagingDelegate != null)
+				ourPagingDelegate.clear();
 
 			// Remove the contents of all the tiles
 			// Note: This is being done on the current thread.  Do we want that?
@@ -539,8 +544,11 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 		}
 		if (singleLevelLoading)
 		{
-			if (tile != null)
-				maplyControl.enableObjects(tile.compObjs,MaplyBaseController.ThreadMode.ThreadCurrent);
+			if (tile != null) {
+				tile.enable = true;
+				if (topEnable)
+					maplyControl.enableObjects(tile.compObjs, MaplyBaseController.ThreadMode.ThreadCurrent);
+			}
 		} else
 			runTileUpdate(parentTile(tileID));
 		
@@ -687,10 +695,49 @@ public class QuadPagingLayer extends Layer implements LayerThread.ViewWatcherInt
 				evaluate(found,true,toEnable,toDisable);
 		}
 
-		if (toEnable.size() > 0)
+		// Disable everything if it's all meant to be off
+		if (!topEnable)
+		{
+			toDisable.addAll(toEnable);
+			toEnable = null;
+		}
+
+		if (toEnable != null && toEnable.size() > 0)
 			maplyControl.enableObjects(toEnable,MaplyBaseController.ThreadMode.ThreadCurrent);
-		if (toDisable.size() > 0)
+		if (toDisable != null && toDisable.size() > 0)
 			maplyControl.disableObjects(toDisable,MaplyBaseController.ThreadMode.ThreadCurrent);
+	}
+
+	/**
+	 * Turn any created geometry on and off as a group.
+	 */
+	public void setEnable(boolean newEnable)
+	{
+		if (topEnable == newEnable)
+			return;
+
+		topEnable = newEnable;
+
+		synchronized (loadedTiles)
+		{
+			ArrayList<ComponentObject> toEnable = new ArrayList<ComponentObject>();
+			ArrayList<ComponentObject> toDisable = new ArrayList<ComponentObject>();
+
+			for (LoadedTile tile : loadedTiles.values())
+			{
+				if (topEnable) {
+					if (tile.enable)
+						toEnable.addAll(tile.compObjs);
+					else
+						toDisable.addAll(tile.compObjs);
+				} else {
+					toDisable.addAll(tile.compObjs);
+				}
+			}
+
+			maplyControl.enableObjects(toEnable, MaplyBaseController.ThreadMode.ThreadCurrent);
+			maplyControl.disableObjects(toDisable, MaplyBaseController.ThreadMode.ThreadCurrent);
+		}
 	}
 	
 	native void nativeShutdown(ChangeSet changes);

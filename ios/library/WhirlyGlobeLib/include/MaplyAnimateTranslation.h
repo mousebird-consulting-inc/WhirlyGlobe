@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/20/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,9 +34,14 @@
 @property (nonatomic,assign) WhirlyKit::Point3d startLoc;
 /// Where to end the translation.  We'll interpolate from the start to here.
 @property (nonatomic,assign) WhirlyKit::Point3d endLoc;
+/// Set if a user kicked this off (true by default)
+@property (nonatomic) bool userMotion;
 
 /// Kick off a translate to the given position over the given time
 /// Assign this to the globe view's delegate and it'll do the rest
-- (id)initWithView:(MaplyView *)globeView translate:(WhirlyKit::Point3d &)newLoc howLong:(float)howLong;
+- (id)initWithView:(MaplyView *)globeView view:(UIView *)inView translate:(WhirlyKit::Point3d &)newLoc howLong:(float)howLong;
+
+/// Set the bounding rectangle
+- (void)setBounds:(WhirlyKit::Point2d *)bounds;
 
 @end

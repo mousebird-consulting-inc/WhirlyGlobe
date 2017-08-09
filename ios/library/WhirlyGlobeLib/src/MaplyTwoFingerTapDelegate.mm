@@ -3,7 +3,7 @@
  *
  *
  *  Created by Jesse Crocker on 2/4/14.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ using namespace WhirlyKit;
             // Check if we're still within bounds
             if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:[[MaplyView alloc] initWithView:self.mapView] newCenter:&newCenter])
             {
-                animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView translate:newCenter howLong:_animTime];
+                animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView view:glView translate:newCenter howLong:_animTime];
                 self.mapView.delegate = animation;
             }
         }

@@ -32,7 +32,7 @@ public class AttrDictionary
 	/**
 	 * Construct an empty attribution dictionary
 	 */
-	AttrDictionary()
+	public AttrDictionary()
 	{
 		initialise();
 	}
@@ -59,6 +59,13 @@ public class AttrDictionary
 	public native Double getDouble(String attrName);
 
 	/**
+	 * Fetch an Object corresponding to the given attribute name.
+	 * @param attrName Name of the attribute we're looking for.
+	 * @return Returns an Object for the given attribute or null if there was none.
+	 */
+	public native Object get(String attrName);
+
+	/**
 	 * Set a string value.
 	 * @param attrName Name of the attribute to set.
 	 * @param attrVal String value to set.
@@ -81,6 +88,9 @@ public class AttrDictionary
 
 	// Convert to a string for debugging
 	public native String toString();
+
+    // Merge in key-value pairs from another dictionary
+    public native void addEntries(AttrDictionary other);
 	
 	static
 	{

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/15/13.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -244,6 +244,7 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     for (DrawStringRepSet::iterator it = drawStringReps.begin();
          it != drawStringReps.end(); ++it)
         delete *it;
+    drawStringReps.clear();
     for (FontManagerSet::iterator it = fontManagers.begin();
          it != fontManagers.end(); ++it)
         delete *it;
@@ -514,11 +515,13 @@ typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
     {
         delete drawString;
         delete drawStringRep;
+        drawStringRep = NULL;
         drawString = NULL;
     }
     
     // We need to track the glyphs we're using
-    drawStringReps.insert(drawStringRep);
+    if (drawStringRep != NULL)
+        drawStringReps.insert(drawStringRep);
 
     pthread_mutex_unlock(&lock);
 

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -46,7 +46,8 @@ using namespace WhirlyKit;
 
 - (bool)calcWidth:(float *)width height:(float *)height defaultFont:(UIFont *)font
 {
-    CGSize textSize = [_text sizeWithFont:font];
+    CGSize textSize = [_text sizeWithAttributes:
+                       @{NSFontAttributeName: font}];
     if (textSize.width == 0 || textSize.height == 0)
         return false;
     
@@ -159,7 +160,8 @@ using namespace WhirlyKit;
 
 - (void)calcExtents:(NSDictionary *)topDesc corners:(Point3f *)pts norm:(Point3f *)norm coordAdapter:(CoordSystemDisplayAdapter *)coordAdapter
 {
-    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:[NSArray arrayWithObject:self.text] desc:topDesc];
+    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithDesc:topDesc];
+    
     
     // Width and height can be overriden per label
     float theWidth = labelInfo.width;
@@ -170,7 +172,8 @@ using namespace WhirlyKit;
         theHeight = [_desc floatForKey:@"height" default:theHeight];
     }
     
-    CGSize textSize = [_text sizeWithFont:labelInfo.font];
+    CGSize textSize = [_text sizeWithAttributes:
+                       @{NSFontAttributeName: labelInfo.font}];
     
     float width2,height2;
     if (theWidth != 0.0)
@@ -186,7 +189,7 @@ using namespace WhirlyKit;
     Point2f theIconSize = (_iconTexture==EmptyIdentity ? Point2f(0,0) : Point2f(2*height2,2*height2));
     
     Point3f corners[4],iconCorners[4];
-    [self calcExtents2:width2 height2:height2 iconSize:theIconSize justify:labelInfo.justify corners:corners norm:norm iconCorners:iconCorners coordAdapter:coordAdapter];
+    [self calcExtents2:width2 height2:height2 iconSize:theIconSize justify:labelInfo.labelJustify corners:corners norm:norm iconCorners:iconCorners coordAdapter:coordAdapter];
     
     // If we have an icon, we need slightly different corners
     if (_iconTexture)
@@ -226,7 +229,7 @@ LabelManager::~LabelManager()
 SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,ChangeSet &changes)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:labels desc:desc];
+    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithDesc:desc];
     
     // Set up the representation (but then hand it off)
     LabelSceneRep *labelRep = new LabelSceneRep();
@@ -248,6 +251,7 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
     labelRenderer.scene = scene;
     labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : nil);
     labelRenderer.scale = renderer.scale;
+    labelRenderer.strs = labels;
     
     // Can't use fancy strings on ios5 and we can't use dynamic texture atlases in a block
     bool oldiOS = [[[UIDevice currentDevice] systemVersion] floatValue] < 6.0;
@@ -320,7 +324,7 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
 
 void LabelManager::changeLabel(SimpleIdentity labelID,NSDictionary *desc,ChangeSet &changes)
 {
-    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:nil desc:desc];
+    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithDesc:desc];
     
     pthread_mutex_lock(&labelLock);
     

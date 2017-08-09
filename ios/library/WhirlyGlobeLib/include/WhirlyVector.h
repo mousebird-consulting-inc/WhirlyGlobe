@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/18/11.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -112,6 +112,9 @@ public:
     /// Middle
     const Point2f mid() const { return (pt_ll+pt_ur)/2.0; }
 
+    /// span
+    Point2f span() const;
+
 	/// Check validity
 	bool valid() const { return pt_ur.x() >= pt_ll.x(); }
 	
@@ -151,7 +154,10 @@ public:
     
     /// Expand with the given MBR
     void expand(const Mbr &that);
-	
+
+    /// Expands by a given fraction of the receiver's size
+    void expandByFraction(double bufferZone);
+
 protected:
 	Point2f pt_ll,pt_ur;
 };

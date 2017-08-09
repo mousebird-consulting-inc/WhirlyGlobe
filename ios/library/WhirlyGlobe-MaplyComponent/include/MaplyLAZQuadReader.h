@@ -3,7 +3,7 @@
 //  LidarViewer
 //
 //  Created by Steve Gifford on 4/13/16.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -18,7 +18,8 @@ extern NSString * const kMaplyLAZReaderZOffset;
 /// Scale the color values.  By default this is (1<<16)-1
 extern NSString * const kMaplyLAZReaderColorScale;
 
-/** @brief The LAZ Quad Reader will page a Lidar (LAZ or LAS) database organized
+/** 
+    The LAZ Quad Reader will page a Lidar (LAZ or LAS) database organized
     into tiles in a sqlite database.
   */
 @interface MaplyLAZQuadReader : NSObject<MaplyPagingDelegate>
@@ -47,14 +48,20 @@ extern NSString * const kMaplyLAZReaderColorScale;
 // Point size to pass through to the shader
 @property (nonatomic) float pointSize;
 
-/** @brief Initialize with the file name of the sqlite db and the LAZ file
-    @details Initialize the the reader with a LAZ file and a separate index file.
+/** 
+    Initialize with the file name of the sqlite db and the LAZ file
+    
+    Initialize the the reader with a LAZ file and a separate index file.
   */
 //- (id)initWithDB:(NSString *)fileName indexFile:(NSString *)indexFileName desc:(NSDictionary *)desc;
 
-/** @brief Initialize the pager with a LAZ sqlite database.
-    @details This opens the sqlite database and reads the manifest.
+/** 
+    Initialize the pager with a LAZ sqlite database.
+    
+    This opens the sqlite database and reads the manifest.
+    
     @param fileName The sqlite LAZ database to read.  Pass in the full path.
+    
     @param desc Overrides for the setup.  We put attributes in here that aren't quite right in the database.
   */
 - (id)initWithDB:(NSString *)fileName desc:(NSDictionary *)desc viewC:(WhirlyGlobeViewController *)viewC;

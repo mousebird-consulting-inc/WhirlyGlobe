@@ -3,10 +3,9 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
-        classpath 'com.github.dcendents:android-maven-plugin:1.2'
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.4.0"
+        classpath 'com.android.tools.build:gradle:2.3.1'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
     }
 }
 
@@ -16,20 +15,19 @@ allprojects {
     }
 }
 
+
 group = 'com.mousebirdconsulting.maply'
 version = '2.5'
 
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-apply plugin: "com.jfrog.artifactory"
-
 apply plugin: 'maven-publish'
 
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 25
+    buildToolsVersion "25.0.1"
 
     sourceSets {
         main {
@@ -49,7 +47,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-project.txt'), 'proguard-rules.txt'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-android-optimize.txt'
         }
     }
     
@@ -59,9 +57,9 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:23.0.0'
-    compile 'com.squareup.okhttp:okhttp:2.3.0'
-    compile 'com.squareup.okio:okio:1.3.0'
+    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.squareup.okhttp:okhttp:2.7.5'
+    compile 'com.squareup.okio:okio:1.12.0'
     compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
 
 }
@@ -78,8 +76,7 @@ task buildHeaders(type: Exec, description: 'Build headers to be used on native b
 
 
 task buildNative(type: Exec, description: 'Compile native code using NDK') {
-    def ndkDir = plugins.getPlugin('com.android.library').sdkHandler.getNdkFolder()
-
+    def ndkDir = project.android.ndkDirectory.absolutePath
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         commandLine "$ndkDir/ndk-build.cmd",
             '-C', file('.').absolutePath,
@@ -98,7 +95,8 @@ task buildNative(type: Exec, description: 'Compile native code using NDK') {
 }
 
 task cleanNative(type: Exec, description: 'Clean native compiled code') {
-    def ndkDir = plugins.getPlugin('com.android.library').sdkHandler.getNdkFolder()
+    def ndkDir = project.android.ndkDirectory.absolutePath
+
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         commandLine "$ndkDir/ndk-build.cmd",
             '-C', file('.').absolutePath,
@@ -173,11 +171,13 @@ install {
     }
 }
 
+
 task javadoc(type: Javadoc) {
     source = fileTree(dir: ".", include: "**/*.java")
     ext.androidJar = "${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"
     classpath += files(ext.androidJar)
     destinationDir = file("doc")
+    include "**/com/mousebird/maply/**"
     failOnError false
 }
 
@@ -237,29 +237,6 @@ publishing {
 
 
 
-artifactory {
-    contextUrl = 'http://oss.jfrog.org'
-    Properties properties = new Properties()
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    publish {
-        repository {
-            repoKey = artifactVersion.endsWith('SNAPSHOT') ? 'oss-snapshot-local' : 'oss-release-local'
-            username = properties.getProperty("bintray.user")
-            password = properties.getProperty("bintray.apikey")
-            maven = true
-        }
-        defaults {
-            publishArtifacts = true
-            publications('aar')
-            publishPom = false //Publish generated POM files to Artifactory (true by default)
-            publishIvy = false //Publish generated Ivy descriptor files to Artifactory (true by default)
-        }
-    }
-    resolve {
-        repository {
-            repoKey = 'jcenter'
-            username = properties.getProperty("bintray.user")
-            password = properties.getProperty("bintray.apikey")
-        }
-    }
-}
+
+
+

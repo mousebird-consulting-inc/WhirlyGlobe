@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 10/16/14.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,33 +20,45 @@
 
 #import <Foundation/Foundation.h>
 
-/** @brief Represents a matrix for position manipulation.
-    @details Encapsulates a 4x4 matrix used for object placement and other things.  This is more a wrapper than a full service object.
+/** 
+    Represents a matrix for position manipulation.
+    
+    Encapsulates a 4x4 matrix used for object placement and other things.  This is more a wrapper than a full service object.
   */
 @interface MaplyMatrix : NSObject
 
-/** @brief Construct with yaw, pitch, and roll parameters.
-    @details Construct the matrix with the standard yaw, pitch, and roll used by aircraft.
+/** 
+    Construct with yaw, pitch, and roll parameters.
+    
+    Construct the matrix with the standard yaw, pitch, and roll used by aircraft.
   */
 - (nonnull instancetype)initWithYaw:(double)yaw pitch:(double)pitch roll:(double)roll;
 
-/** @brief Construct with a consistent scale in each dimension.
-    @details Construct with the same scale in x,y, and z.
+/** 
+    Construct with a consistent scale in each dimension.
+    
+    Construct with the same scale in x,y, and z.
   */
 - (nonnull instancetype)initWithScale:(double)scale;
 
-/** @brief Construct with a translation.
-    @details Construct with a translation in 3D.
+/** 
+    Construct with a translation.
+    
+    Construct with a translation in 3D.
   */
 - (nonnull instancetype)initWithTranslateX:(double)x y:(double)y z:(double)z;
 
-/** @brief Construct a rotation around the given axis.
-    @details Build a matrix that rotates the given amount (in radians) around the given axis.
+/** 
+    Construct a rotation around the given axis.
+    
+    Build a matrix that rotates the given amount (in radians) around the given axis.
   */
 - (nonnull instancetype)initWithAngle:(double)ang axisX:(double)x axisY:(double)y axisZ:(double)z;
 
-/** @brief Multiply the given matrix with this one and return a new one.
-    @details Multiply the given matrix like so:  ret = this * other.  Return the new one.
+/** 
+    Multiply the given matrix with this one and return a new one.
+    
+    Multiply the given matrix like so:  ret = this * other.  Return the new one.
   */
 - (nonnull instancetype)multiplyWith:(MaplyMatrix * __nonnull)other;
 

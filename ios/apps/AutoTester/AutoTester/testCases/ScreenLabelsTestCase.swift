@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 30/10/15.
-//  Copyright © 2015 mousebird consulting. All rights reserved.
+//  Copyright © 2015-2017 mousebird consulting. All rights reserved.
 //
 
 import UIKit
@@ -89,5 +89,67 @@ class ScreenLabelsTestCase: MaplyTestCase {
 #endif
 			}
 		}
-	}
+        
+        // A multi-line test case
+        let label = MaplyScreenLabel()
+        label.text = "Multi-line labels\nare now\navailable in\nWhirlyGlobe-Maply."
+        label.selectable = true
+        label.layoutImportance = 30
+        label.userObject = label.text
+        label.layoutPlacement = kMaplyLayoutCenter
+        label.loc = MaplyCoordinateMakeWithDegrees(0.0, 5.0)
+        
+        theViewC.addScreenLabels([label], desc: [
+            kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
+            kMaplyTextOutlineColor: UIColor.red,
+            kMaplyTextOutlineSize: 2.0,
+            kMaplyTextJustify: kMaplyTextJustifyCenter,
+            kMaplySelectable: true,
+//            kMaplyBackgroundColor: UIColor.purple,
+            kMaplyTextColor: UIColor.lightGray])
+
+        // Marker for reference
+//        let marker = MaplyScreenMarker()
+//        marker.loc = MaplyCoordinateMake(0.0, 0.0)
+//        marker.layoutImportance = MAXFLOAT
+//        marker.size = CGSize(width: 8.0, height: 8.0)
+//        theViewC.addScreenMarkers([marker], desc: [kMaplyDrawPriority: 10000000, kMaplyColor: UIColor.blue])
+
+        // A multi-line test case
+        let label2 = MaplyScreenLabel()
+        label2.text = "And now\nyou can\njustify text."
+        label2.selectable = true
+        label2.layoutImportance = 25
+        label2.userObject = label.text
+        label2.layoutPlacement = kMaplyLayoutCenter
+        label2.loc = MaplyCoordinateMakeWithDegrees(3.0, 5.0)
+        
+        theViewC.addScreenLabels([label2], desc: [
+            kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
+            kMaplyTextOutlineColor: UIColor.blue,
+            kMaplyTextOutlineSize: 2.0,
+            kMaplyTextJustify: kMaplyTextJustifyRight,
+            kMaplySelectable: true,
+//            kMaplyBackgroundColor: UIColor.yellow,
+            kMaplyTextColor: UIColor.lightGray])
+    
+    // A multi-line test case
+    let label3 = MaplyScreenLabel()
+    label3.text = "Android too!"
+    label3.selectable = true
+    label3.layoutImportance = 20
+    label3.userObject = label.text
+    label3.layoutPlacement = kMaplyLayoutCenter
+    label3.loc = MaplyCoordinateMakeWithDegrees(1.5, 5.0-0.75)
+    
+    theViewC.addScreenLabels([label3], desc: [
+    kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
+    kMaplyTextOutlineColor: UIColor.black,
+    kMaplyTextOutlineSize: 2.0,
+    kMaplyTextJustify: kMaplyTextJustifyRight,
+    kMaplySelectable: true,
+    //            kMaplyBackgroundColor: UIColor.yellow,
+    kMaplyTextColor: UIColor.lightGray])
+}
+
 }

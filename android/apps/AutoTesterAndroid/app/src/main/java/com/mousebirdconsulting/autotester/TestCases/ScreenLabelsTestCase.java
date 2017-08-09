@@ -63,21 +63,23 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	}
 
 	// If set, we'll put markers around the points for debugging
-	static boolean addMarkers = false;
+	static boolean addMarkers = true;
 
 	private void insertLabels(ArrayList<VectorObject> objects, MaplyBaseController baseVC) {
 
 		LabelInfo labelInfo = new LabelInfo();
-		labelInfo.setFontSize(128.f);
-		labelInfo.setTextColor(Color.WHITE);
+		labelInfo.setFontSize(32.f);
+		labelInfo.setTextColor(Color.BLACK);
 //		labelInfo.setBackgroundColor(Color.RED);
 		labelInfo.setTypeface(Typeface.DEFAULT);
 //		labelInfo.setLayoutImportance(1.f);
-		labelInfo.setLayoutPlacement(LabelInfo.LayoutLeft|LabelInfo.LayoutRight|LabelInfo.LayoutCenter);
+		labelInfo.setLayoutPlacement(LabelInfo.LayoutAbove|LabelInfo.LayoutCenter);
+		labelInfo.setTextJustify(LabelInfo.TextJustify.TextLeft);
 //		labelInfo.setMinVis(0.f);
 //		labelInfo.setMaxVis(2.5f);
-		labelInfo.setOutlineColor(Color.BLACK);
-		labelInfo.setOutlineSize(1.f);
+		labelInfo.setOutlineColor(Color.WHITE);
+		labelInfo.setOutlineSize(2.f);
+		labelInfo.setBackgroundColor(Color.BLUE);
 
 		MarkerInfo markerInfo = new MarkerInfo();
 		markerInfo.setDrawPriority(labelInfo.getDrawPriority() - 1);
@@ -95,7 +97,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 					label.loc = object.centroid();
 					label.selectable = true;
 					label.layoutImportance = 1.f;
-					label.rotation = Math.PI/4.0;
+//					label.rotation = Math.PI/4.0;
 					labels.add(label);
 
 					if (addMarkers) {
@@ -109,13 +111,22 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		}
 
 		// Toss in a few with explicit diacritics
-		labels.add(makeLabel(-74.075833, 4.4, "Bogotá", 2.f));
-		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá2", 2.f));
-		labels.add(makeLabel(6.0219, 47.2431, "Besançon", 2.f));
-		labels.add(makeLabel(4.361, 43.838, "Nîmes", 2.f));
-		labels.add(makeLabel(4.9053, 43.9425, "Morières-lès-Avignon", 2.f));
-		labels.add(makeLabel(11.616667, 44.833333, "Ferrara", 2.f));
-		labels.add(makeLabel(7, 49.233333, "Saarbrücken", 2.f));
+//		labels.add(makeLabel(-74.075833, 4.4, "Bogotá", 2.f));
+//		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá2", 2.f));
+//		labels.add(makeLabel(6.0219, 47.2431, "Besançon", 2.f));
+//		labels.add(makeLabel(4.361, 43.838, "Nîmes", 2.f));
+//		labels.add(makeLabel(4.9053, 43.9425, "Morières-lès-Avignon", 2.f));
+//		labels.add(makeLabel(11.616667, 44.833333, "Ferrara", 2.f));
+//		labels.add(makeLabel(7, 49.233333, "Saarbrücken", 2.f));
+
+		labels.add(makeLabel(0.0, 0.0, "abcdef\nghijklmn\nopqrstu\nvwxyzA\nBCDEF\nGHIJKLMN\nOPQRTST\nUVWXYZ", 10.f));
+		{
+			ScreenMarker marker = new ScreenMarker();
+			marker.loc = Point2d.FromDegrees(0.0,0.0);
+			marker.size = new Point2d(32.f, 32.f);
+			markers.add(marker);
+		}
+		labels.add(makeLabel(1.0, 0.0, "abcdef\nghijklmn\nopqrstu\nvwxyz", 10.f));
 
 //		labels.add(makeLabel(4.361, 43.838, "Nîmes", Float.MAX_VALUE));
 

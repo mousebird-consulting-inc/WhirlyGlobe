@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Ranen Ghosh on 4/7/16.
-//  Copyright © 2016 mousebird consulting. All rights reserved.
+//  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
 #import "FindHeightTestCase.h"
@@ -86,7 +86,7 @@
         bbox.ll = MaplyCoordinateMakeWithDegrees(7.05090689853, 47.7675500593);
         bbox.ur = MaplyCoordinateMakeWithDegrees(8.06813647023, 49.0562323851);
         MaplyCoordinate center = MaplyCoordinateMakeWithDegrees((7.05090689853+8.06813647023)/2, (47.7675500593+49.0562323851)/2);
-        double height = [mapVC findHeightToViewBounds:bbox pos:center];
+        double height = [mapVC findHeightToViewBounds:bbox pos:center marginX:20.0 marginY:100.0];
         mapVC.height = height;
         [mapVC animateToPosition:center time:1.0];
         NSLog(@"height = %f",height);

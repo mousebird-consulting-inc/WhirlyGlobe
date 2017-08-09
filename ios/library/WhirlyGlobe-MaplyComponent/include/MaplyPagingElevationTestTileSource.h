@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/19/14.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,8 +22,10 @@
 #import "MaplyCoordinateSystem.h"
 
 
-/** @brief A data source used for testing paging layer.
-    @details This data source puts up a colored and numbered rectangle for each tile loaded.  It's useful for debugging paging schemes.
+/** 
+    A data source used for testing paging layer.
+    
+    This data source puts up a colored and numbered rectangle for each tile loaded.  It's useful for debugging paging schemes.
   */
 @interface MaplyPagingElevationTestTileSource : NSObject<MaplyPagingDelegate>
 

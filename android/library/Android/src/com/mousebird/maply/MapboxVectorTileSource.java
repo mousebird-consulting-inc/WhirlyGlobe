@@ -29,7 +29,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
 {
     MaplyBaseController controller;
     OkHttpClient client;
-    MBTiles mbTiles = null;
+    MapboxTileSource mbTiles = null;
     RemoteTileInfo tileInfo = null;
     public boolean debugOutput = false;
 
@@ -39,10 +39,10 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
     /**
      * Construct with a initialized MBTilesSource.  This version reads from a local database.
      */
-    public MapboxVectorTileSource(MBTiles dataSource,VectorStyleInterface inVecStyleFactor)
+    public MapboxVectorTileSource(MapboxTileSource dataSource,VectorStyleInterface inVecStyleFactor)
     {
         mbTiles = dataSource;
-        coordSys = mbTiles.coordSys;
+        coordSys = mbTiles.getCoordSystem();
         tileParser = new MapboxVectorTileParser();
         vecStyleFactory = inVecStyleFactor;
     }
@@ -65,7 +65,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
     public int minZoom()
     {
         if (mbTiles != null)
-            return mbTiles.minZoom();
+            return mbTiles.getMinZoom();
         else
             return tileInfo.minZoom;
     }
@@ -76,7 +76,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
     public int maxZoom()
     {
         if (mbTiles != null)
-            return mbTiles.maxZoom();
+            return mbTiles.getMaxZoom();
         else
             return tileInfo.maxZoom;
     }
@@ -121,20 +121,27 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
             Mbr mbr = layer.geoBoundsForTile(tileID);
             mbr.ll = toMerc(mbr.ll);
             mbr.ur = toMerc(mbr.ur);
-            MapboxVectorTileParser.DataReturn dataObjs = tileParser.parseData(tileData, mbr);
+
+            MapboxVectorTileParser ourTileParser = tileParser;
+            if (ourTileParser == null)
+                return false;
+
+            MapboxVectorTileParser.DataReturn dataObjs = ourTileParser.parseData(tileData, mbr);
 
             if (dataObjs == null)
                 return false;
 
+            VectorStyleInterface ourVecStyleFactory = vecStyleFactory;
+
             // Work through the vector objects
-            if (vecStyleFactory != null) {
+            if (ourVecStyleFactory != null) {
                 HashMap<String, ArrayList<VectorObject>> vecObjsPerStyle = new HashMap<String, ArrayList<VectorObject>>();
 
                 // Sort the vector objects into bins based on their styles
                 if (dataObjs != null && dataObjs.vectorObjects != null)
                     for (VectorObject vecObj : dataObjs.vectorObjects) {
                         AttrDictionary attrs = vecObj.getAttributes();
-                        VectorStyle[] styles = vecStyleFactory.stylesForFeature(attrs, tileID, attrs.getString("layer_name"), layer.maplyControl);
+                        VectorStyle[] styles = ourVecStyleFactory.stylesForFeature(attrs, tileID, attrs.getString("layer_name"), layer.maplyControl);
                         for (VectorStyle style : styles) {
                             ArrayList<VectorObject> vecObjsForStyle = vecObjsPerStyle.get(style.getUuid());
                             if (vecObjsForStyle == null) {
@@ -148,7 +155,7 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
                 // Work through the various styles
                 for (String uuid : vecObjsPerStyle.keySet()) {
                     ArrayList<VectorObject> vecObjs = vecObjsPerStyle.get(uuid);
-                    VectorStyle style = vecStyleFactory.styleForUUID(uuid, layer.maplyControl);
+                    VectorStyle style = ourVecStyleFactory.styleForUUID(uuid, layer.maplyControl);
 
                     // This makes the objects
                     if (style != null) {
@@ -188,9 +195,12 @@ public class MapboxVectorTileSource implements QuadPagingLayer.PagingInterface
                 @Override
                 public void run() {
                     // Load the data, if it's there
-                    byte[] tileData = mbTiles.getDataTile(tileID);
+                    MapboxTileSource thisMbTiles = mbTiles;
+                    if (thisMbTiles != null) {
+                        byte[] tileData = thisMbTiles.getDataTile(tileID);
 
-                    processData(layer, tileID, tileData);
+                        processData(layer, tileID, tileData);
+                    }
                 }
             });
         } else {

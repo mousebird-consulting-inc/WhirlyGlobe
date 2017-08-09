@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Ranen Ghosh on 2/24/16.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -118,6 +118,10 @@ NSString* const kMaplyTextOutlineSize = @"outlineSize";
 NSString* const kMaplyTextOutlineColor = @"outlineColor";
 NSString* const kMaplyTexSizeX = @"texsizex";
 NSString* const kMaplyTexSizeY = @"texsizey";
+NSString* const kMaplyTextJustify = @"textjustify";
+NSString* const kMaplyTextJustifyRight = @"right";
+NSString* const kMaplyTextJustifyLeft = @"left";
+NSString* const kMaplyTextJustifyCenter = @"center";
 
 /// These are used for screen and regular markers.
 NSString* const kMaplyClusterGroup = @"clusterGroup";

@@ -87,7 +87,51 @@ public class VectorInfo extends BaseInfo
 	 * This is the line width for vector features.  By default this is 1.0.
 	 */
 	public native void setLineWidth(float lineWidth);
-	
+
+	/**
+	 * If set and filled is set, we will apply the given texture across any areal features.
+	 * How the texture is applied can be controlled by the textScale, textureProjection, and vecCenter.
+	 */
+	public void setTexture(MaplyTexture tex)
+	{
+		setTextureNative(tex.texID);
+	}
+
+	native void setTextureNative(long texID);
+
+	/**
+	 * These control the center of a texture application.  If not set we'll use the areal's centroid.
+	 * If set, we'll use these instead.  They should be in local coordinates (probably geographic radians).
+	 */
+	public void setVecCenter(Point2d center)
+	{
+		setVecCenterNative(center.getX(),center.getY());
+	}
+
+	native void setVecCenterNative(double x,double y);
+
+	/**
+	 * These control the scale of the texture application.  We'll multiply by these numbers before
+	 * generating texture coordinates from the vertices.
+	 */
+	public native void setTexScale(double u,double v);
+
+	/**
+	 * When using textures on areal features, you can project the texture a couple of different ways.
+	 * Using TangentPlane works well for the globe and Screen works well in 2D.
+	 */
+	public enum TextureProjection {None,TangentPlane,Screen};
+
+	public void setTextureProjection(TextureProjection texProjection)
+	{
+		setTextureProjectionNative(texProjection.ordinal());
+	}
+
+	native void setTextureProjectionNative(int texProjection);
+
+	// Convert to a string for debugging
+	public native String toString();
+
 	static
 	{
 		nativeInit();

@@ -69,6 +69,36 @@ VectorInfo::VectorInfo(const Dictionary &dict) :
     }
 }
     
+// Really Android?  Really?
+template <typename T>
+std::string to_string(T value)
+{
+    std::ostringstream os ;
+    os << value ;
+    return os.str() ;
+}
+    
+std::string VectorInfo::toString()
+{
+    std::string outStr = BaseInfo::toString();
+    
+    outStr +=
+    (std::string)"filled = " + (filled ? "yes" : "no") + ";" +
+    " sample = " + to_string(sample) + ";" +
+    " texId = " + to_string(texId) + ";" +
+    " texScale = (" + to_string(texScale.x()) + "," + to_string(texScale.x()) + ");" +
+    " subdivEps = " + to_string(subdivEps) + ";" +
+    " gridSubdiv = " + (gridSubdiv ? "yes" : "no") + ";" +
+    " texProj = " + to_string(texProj) + ";" +
+    " color = (" + to_string((int)color.r) + "," + to_string((int)color.g) + "," + to_string((int)color.b) + "," + to_string((int)color.a) + ");" +
+    " lineWidth = " + to_string(lineWidth) + ";" +
+    " centered = " + (centered ? "yes" : "no") + ";" +
+    " vecCenterSet = " + (vecCenterSet ? "yes" : "no") + ";" +
+    " vecCenter = (" + to_string(vecCenter.x()) + "," + to_string(vecCenter.y()) + ");";
+    
+    return outStr;
+}
+    
 void VectorSceneRep::clear(ChangeSet &changes)
 {
     for (SimpleIDSet::iterator it = drawIDs.begin(); it != drawIDs.end(); ++it)

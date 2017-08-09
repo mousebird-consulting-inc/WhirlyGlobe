@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/20/12.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ using namespace WhirlyKit;
         org = mapView.loc;
         glView = inView;
         sceneRenderer = inSceneRenderer;
+        _userMotion = true;
         
         // Let's calculate the maximum time, so we know when to stop
         if (acceleration != 0.0)

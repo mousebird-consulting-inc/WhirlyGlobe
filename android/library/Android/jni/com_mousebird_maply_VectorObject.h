@@ -97,6 +97,38 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorObject_countPoints
 
 /*
  * Class:     com_mousebird_maply_VectorObject
+ * Method:    tesselateNative
+ * Signature: (Lcom/mousebird/maply/VectorObject;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_tesselateNative
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
+ * Method:    clipToGridNative
+ * Signature: (Lcom/mousebird/maply/VectorObject;DD)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_clipToGridNative
+  (JNIEnv *, jobject, jobject, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
+ * Method:    clipToMbrNative
+ * Signature: (Lcom/mousebird/maply/VectorObject;DDDD)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_clipToMbrNative
+  (JNIEnv *, jobject, jobject, jdouble, jdouble, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
+ * Method:    getVectorTypeNative
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorObject_getVectorTypeNative
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
  * Method:    FromGeoJSONAssembly
  * Signature: (Ljava/lang/String;)Ljava/util/Map;
  */

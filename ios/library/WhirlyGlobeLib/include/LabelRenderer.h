@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/11/13.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2017 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -58,24 +58,25 @@ typedef std::set<LabelSceneRep *,IdentifiableSorter> LabelSceneRepSet;
 
 // How a label is justified for display
 typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} WhirlyKitLabelJustify;
+typedef enum {WhirlyKitTextCenter,WhirlyKitTextLeft,WhirlyKitTextRight} WhirlyKitTextJustify;
 
 // Label spec passed around between threads
 @interface WhirlyKitLabelInfo : WhirlyKitBaseInfo
 
-@property (nonatomic) NSArray *strs;
 @property (nonatomic) UIColor *textColor,*backColor;
 @property (nonatomic) UIFont *font;
 @property (nonatomic,assign) bool screenObject;
 @property (nonatomic,assign) bool layoutEngine;
 @property (nonatomic,assign) float layoutImportance;
 @property (nonatomic,assign) float width,height;
-@property (nonatomic,assign) WhirlyKitLabelJustify justify;
+@property (nonatomic,assign) WhirlyKitLabelJustify labelJustify;
+@property (nonatomic,assign) WhirlyKitTextJustify textJustify;
 @property (nonatomic,strong) UIColor *shadowColor;
 @property (nonatomic,assign) float shadowSize;
 @property (nonatomic) UIColor *outlineColor;
 @property (nonatomic,assign) float outlineSize;
 
-- (id)initWithStrs:(NSArray *)inStrs desc:(NSDictionary *)desc;
+- (id)initWithDesc:(NSDictionary *)desc;
 
 @end
 
@@ -114,6 +115,9 @@ typedef enum {WhirlyKitLabelMiddle,WhirlyKitLabelLeft,WhirlyKitLabelRight} Whirl
 @property (nonatomic,assign) bool useAttributedString;
 /// Scale, if we're using that
 @property (nonatomic,assign) float scale;
+
+/// Strings to render
+@property (nonatomic) NSArray *strs;
 
 /// Renders the labels into a big texture and stores the resulting info
 - (void)render;

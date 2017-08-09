@@ -33,6 +33,46 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setLineWidth
 
 /*
  * Class:     com_mousebird_maply_VectorInfo
+ * Method:    setTextureNative
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureNative
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_mousebird_maply_VectorInfo
+ * Method:    setVecCenterNative
+ * Signature: (DD)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setVecCenterNative
+  (JNIEnv *, jobject, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_VectorInfo
+ * Method:    setTexScale
+ * Signature: (DD)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTexScale
+  (JNIEnv *, jobject, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_VectorInfo
+ * Method:    setTextureProjectionNative
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureProjectionNative
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_VectorInfo
+ * Method:    toString
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorInfo_toString
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorInfo
  * Method:    nativeInit
  * Signature: ()V
  */

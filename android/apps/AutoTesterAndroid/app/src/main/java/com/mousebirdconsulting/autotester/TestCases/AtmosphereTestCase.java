@@ -78,6 +78,7 @@ public class AtmosphereTestCase extends MaplyTestCase {
             @Override
             public void run() {
                 globeVC.setPositionGeo(0, 0, 5.0);
+                globeVC.clearLights();
 
                 Atmosphere atmosphere = new Atmosphere((GlobeController) globeVC, MaplyBaseController.ThreadMode.ThreadAny);
                 atmosphere.setWaveLength(new float[]{0.650f, 0.570f, 0.475f});

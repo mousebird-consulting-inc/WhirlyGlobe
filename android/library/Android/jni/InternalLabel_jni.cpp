@@ -128,7 +128,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setRotation
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setText
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_addText
 (JNIEnv *env, jobject obj, jintArray textArray, jint len)
 {
 	try
@@ -139,13 +139,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setText
 			return;
 
         JavaIntArray intArray(env,textArray);
-        label->codePoints.resize(len);
+        std::vector<int> codePoints;
+        codePoints.resize(len);
         for (int ii=0;ii<intArray.len;ii++)
-            label->codePoints[ii] = intArray.rawInt[ii];
+            codePoints[ii] = intArray.rawInt[ii];
+        label->codePointsLines.push_back(codePoints);
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::setText()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::addText()");
 	}
 }
 
