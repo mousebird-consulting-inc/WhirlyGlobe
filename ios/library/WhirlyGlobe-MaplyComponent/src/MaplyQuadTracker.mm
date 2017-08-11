@@ -121,6 +121,7 @@ public:
         for (unsigned int ii=0;ii<numPts;ii++)
         {
             MaplyQuadTrackerPointReturn *trackInfo = &tilesInfo[ii];
+            trackInfo->inside = true;
             double u = trackInfo->screenU;
             double v = 1.0 - trackInfo->screenV;
             
@@ -147,6 +148,9 @@ public:
                 // Clip to the overall bounds
                 trackInfo->tileU = (coordPt.x()-wholeMbr.ll.x)/mbrSpanX;
                 trackInfo->tileV = (coordPt.y()-wholeMbr.ll.y)/mbrSpanY;
+                if (trackInfo->tileU < 0.0 || trackInfo->tileV < 0.0 ||
+                    trackInfo->tileU > 1.0 || trackInfo->tileV > 1.0)
+                    trackInfo->inside = false;
                 trackInfo->tileU = std::min(trackInfo->tileU, 1.0);  trackInfo->tileU = std::max(trackInfo->tileU,0.0);
                 trackInfo->tileV = std::min(trackInfo->tileV, 1.0);  trackInfo->tileV = std::max(trackInfo->tileV,0.0);
 

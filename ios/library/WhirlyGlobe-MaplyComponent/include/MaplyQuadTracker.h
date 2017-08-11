@@ -33,8 +33,10 @@ typedef struct
     double screenU,screenV;
     /// The tile the corresponding point belonged to.  Level set to -1 if invalid.
     MaplyTileID tileID;
+    /// Set if the point was inside the area at all.  We do snap.
+    bool inside;
     // Required to make the C/C++ bridge happy
-    int padding;
+    char padding[3];
     /// Location in coordinate system
     double locX,locY;
     /// Location within tile (scaled from 0-1)
