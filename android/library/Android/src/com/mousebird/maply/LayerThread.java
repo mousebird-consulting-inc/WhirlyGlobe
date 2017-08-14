@@ -27,6 +27,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.microedition.khronos.egl.EGL10;
@@ -218,7 +219,8 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		// Block until the queue drains
 		try {
 			if (renderer != null)
-				endLock.acquire();
+				if (!endLock.tryAcquire(500, TimeUnit.MILLISECONDS))
+					return;
 		} catch (Exception e) {
 		}
 
