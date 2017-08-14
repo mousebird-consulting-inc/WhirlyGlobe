@@ -97,7 +97,9 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 			if (updateHandle == null)
 			{
 				updateRun = makeRepeatingTask();
-				updateHandle = maplyControl.getLayerThread().addDelayedTask(updateRun,200);
+				if (maplyControl != null && maplyControl.getLayerThread() != null) {
+					updateHandle = maplyControl.getLayerThread().addDelayedTask(updateRun, 200);
+				}
 			}
 		}
 	}
