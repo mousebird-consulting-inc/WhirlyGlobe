@@ -65,6 +65,7 @@ public:
     coordAdapter = viewC->visualView.coordAdapter;
     renderer = viewC->sceneRenderer;
     globeView = viewC->globeView;
+    _wraparound = false;
     
     return self;
 }
@@ -145,6 +146,14 @@ public:
                 trackInfo->locX = coordPt.x();
                 trackInfo->locY = coordPt.y();
 
+                if (_wraparound)
+                {
+                    if (coordPt.x() < wholeMbr.ll.x)
+                        coordPt.x() += 2*M_PI;
+                    else if (coordPt.x() > wholeMbr.ur.x)
+                        coordPt.x() -= 2*M_PI;
+                }
+                
                 // Clip to the overall bounds
                 trackInfo->tileU = (coordPt.x()-wholeMbr.ll.x)/mbrSpanX;
                 trackInfo->tileV = (coordPt.y()-wholeMbr.ll.y)/mbrSpanY;

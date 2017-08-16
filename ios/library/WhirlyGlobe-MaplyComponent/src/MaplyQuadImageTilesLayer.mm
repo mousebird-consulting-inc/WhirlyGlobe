@@ -342,8 +342,10 @@ using namespace WhirlyKit;
         int defTess = 10;
         if (tessDict[@(-1)])
             defTess = [tessDict[@(-1)] intValue];
-        std::vector<int> tessVals(maxZoom,defTess);
-        for (unsigned int ii=0;ii<maxZoom;ii++)
+        if (tessDict[@"-1"])
+            defTess = [tessDict[@"-1"] intValue];
+        std::vector<int> tessVals(maxZoom+1,defTess);
+        for (unsigned int ii=0;ii<maxZoom+1;ii++)
         {
             if (tessDict[@(ii)])
                 tessVals[ii] = [tessDict[@(ii)] intValue];

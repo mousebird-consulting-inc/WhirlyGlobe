@@ -69,6 +69,12 @@ typedef struct
   */
 @property (nonatomic,assign) int minLevel;
 
+/**
+    If set, we'll wrap the X coordinates around the globe.
+    We need this for coordinate systems which go around the globe.
+  */
+@property (nonatomic,assign) bool wraparound;
+
 /** 
     Query the quad tracker for tiles and locations within them for a group of points.
     
