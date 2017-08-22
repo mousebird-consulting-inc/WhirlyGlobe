@@ -1606,8 +1606,8 @@ public class MaplyBaseController
 
 						long[] stickerIDs = stickerObj.getStickerIDs();
 						if (stickerIDs != null && stickerIDs.length > 0) {
-							long stickerID = stickerIDs[0];
-							stickerManager.changeSticker(stickerID, stickerInfo, changes);
+							for (long stickerID : stickerIDs)
+								stickerManager.changeSticker(stickerID, stickerInfo, changes);
 						}
 
 						if (scene != null)
