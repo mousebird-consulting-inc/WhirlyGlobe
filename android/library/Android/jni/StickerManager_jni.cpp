@@ -171,3 +171,26 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyChunkTe
     
     return false;
 }
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyDrawPriority
+(JNIEnv *env, jobject obj, jlong stickerID, jint drawPriority, jobject changeSetObj)
+{
+    try
+    {
+        StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
+        SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
+        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        if (!chunkManager || !changeSet)
+            return false;
+        
+        chunkManager->modifyDrawPriority(stickerID,drawPriority,*changeSet);
+        
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunkManager::modifyDrawPriority()");
+    }
+    
+    return false;
+}
