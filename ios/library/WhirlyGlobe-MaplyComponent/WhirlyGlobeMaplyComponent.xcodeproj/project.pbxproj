@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B3FD2C31F478F5200CA9C18 /* MaplyRenderTarget.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B82B5CA1E82E2490095FB14 /* common.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3A11E82E2490095FB14 /* common.h */; };
 		2B82B5CB1E82E2490095FB14 /* eqarea.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3A21E82E2490095FB14 /* eqarea.h */; };
@@ -1039,6 +1040,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRenderTarget.mm; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B82B3A11E82E2490095FB14 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = "/Users/sjg/iPhone/WhirlyGlobe2/ios/third-party/octencoding/../../../common/local_libs/octencoding/common.h"; sourceTree = "<absolute>"; };
 		2B82B3A21E82E2490095FB14 /* eqarea.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eqarea.h; path = "/Users/sjg/iPhone/WhirlyGlobe2/ios/third-party/octencoding/../../../common/local_libs/octencoding/eqarea.h"; sourceTree = "<absolute>"; };
@@ -3290,6 +3292,7 @@
 		2BE537991D249A1200B60FAD /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */,
 				2B884A031E37FE9E0027C397 /* MaplyLAZMeshBuilder.mm */,
 				2B884A041E37FE9E0027C397 /* MaplyLAZQuadReader.mm */,
 				2B884A051E37FE9E0027C397 /* MaplyLAZShader.mm */,
@@ -4387,6 +4390,7 @@
 				2BE5389C1D249A1200B60FAD /* MaplyScreenMarker.m in Sources */,
 				2B884A6D1E3803170027C397 /* laswriteitemcompressed_v2.cpp in Sources */,
 				2B884A751E3803170027C397 /* laszip.cpp in Sources */,
+				2B3FD2C31F478F5200CA9C18 /* MaplyRenderTarget.mm in Sources */,
 				2B82B7A31E82E24B0095FB14 /* ShapeManager.mm in Sources */,
 				2B82B75C1E82E24A0095FB14 /* Lighting.mm in Sources */,
 				2B884A741E3803170027C397 /* laszip_dll.cpp in Sources */,
@@ -4898,6 +4902,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MACH_O_TYPE = staticlib;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -4941,6 +4946,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
+				MACH_O_TYPE = staticlib;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
