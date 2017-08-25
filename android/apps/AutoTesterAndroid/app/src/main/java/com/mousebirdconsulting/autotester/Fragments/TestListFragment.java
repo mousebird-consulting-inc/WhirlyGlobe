@@ -33,6 +33,7 @@ import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
 import com.mousebirdconsulting.autotester.TestCases.GeomPointsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
+import com.mousebirdconsulting.autotester.TestCases.IBSTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ImageSingleLevelTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LIDARTestCase;
 import com.mousebirdconsulting.autotester.TestCases.LayerShutdownTestCase;
@@ -159,6 +160,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new LIDARTestCase(getActivity()));
 			testCases.add(new WideVectorsTestCase(getActivity()));
 			testCases.add(new SLDTestCase(getActivity()));
+			testCases.add(new IBSTestCase(getActivity()));
 //			testCases.add(new ArealTestCase(getActivity()));
 		}
 
