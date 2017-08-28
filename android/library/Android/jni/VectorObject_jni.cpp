@@ -570,6 +570,78 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_clipToGridNativ
     return false;
 }
 
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToGlobeNative
+(JNIEnv *env, jobject obj, jobject retObj, jdouble epsilon)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        if (!vecObj || !retVecObj)
+            return false;
+        
+        retVecObj->shapes = vecObj->shapes;
+        retVecObj->subdivideToGlobe(epsilon);
+        
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::subdivideToGlobeNative()");
+    }
+    
+    return false;
+}
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToGlobeGreatCircleNative
+(JNIEnv *env, jobject obj, jobject retObj, jdouble epsilon)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        if (!vecObj || !retVecObj)
+            return false;
+        
+        retVecObj->shapes = vecObj->shapes;
+        retVecObj->subdivideToGlobeGreatCircle(epsilon);
+        
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::subdivideToGlobeGreatCircleNative()");
+    }
+    
+    return false;
+}
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToFlatGreatCircleNative
+(JNIEnv *env, jobject obj, jobject retObj, jdouble epsilon)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        VectorObject *vecObj = classInfo->getObject(env,obj);
+        VectorObject *retVecObj = classInfo->getObject(env,retObj);
+        if (!vecObj || !retVecObj)
+            return false;
+        
+        retVecObj->shapes = vecObj->shapes;
+        retVecObj->subdivideToFlatGreatCircle(epsilon);
+        
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::subdivideToFlatGreatCircleNative()");
+    }
+    
+    return false;
+}
+
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_clipToMbrNative
 (JNIEnv *env, jobject obj, jobject retObj, jdouble llX, jdouble llY, jdouble urX, jdouble urY)

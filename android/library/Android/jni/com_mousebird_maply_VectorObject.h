@@ -113,6 +113,30 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_clipToGridNativ
 
 /*
  * Class:     com_mousebird_maply_VectorObject
+ * Method:    subdivideToGlobeNative
+ * Signature: (Lcom/mousebird/maply/VectorObject;D)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToGlobeNative
+  (JNIEnv *, jobject, jobject, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
+ * Method:    subdivideToGlobeGreatCircleNative
+ * Signature: (Lcom/mousebird/maply/VectorObject;D)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToGlobeGreatCircleNative
+  (JNIEnv *, jobject, jobject, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
+ * Method:    subdivideToFlatGreatCircleNative
+ * Signature: (Lcom/mousebird/maply/VectorObject;D)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToFlatGreatCircleNative
+  (JNIEnv *, jobject, jobject, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
  * Method:    clipToMbrNative
  * Signature: (Lcom/mousebird/maply/VectorObject;DDDD)Z
  */
