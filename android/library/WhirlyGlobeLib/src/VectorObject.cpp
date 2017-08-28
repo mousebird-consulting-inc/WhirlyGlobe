@@ -19,6 +19,9 @@
  */
 
 #import "VectorObject.h"
+#import "GlobeMath.h"
+#import "VectorData.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -278,6 +281,134 @@ MaplyVectorObjectType VectorObject::getVectorType()
     }
 
     return type;
+}
+    
+void VectorObject::subdivideToGlobe(float epsilon)
+{
+    FakeGeocentricDisplayAdapter adapter;
+    
+    for (ShapeSet::iterator it = shapes.begin();it!=shapes.end();it++)
+    {
+        VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
+        if (lin)
+        {
+            VectorRing outPts;
+            SubdivideEdgesToSurface(lin->pts, outPts, false, &adapter, epsilon);
+            lin->pts = outPts;
+        } else {
+            VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+            if (lin3d)
+            {
+                VectorRing3d outPts;
+                SubdivideEdgesToSurface(lin3d->pts, outPts, false, &adapter, epsilon);
+                lin3d->pts = outPts;
+            } else {
+                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+                if (ar)
+                {
+                    for (unsigned int ii=0;ii<ar->loops.size();ii++)
+                    {
+                        VectorRing outPts;
+                        SubdivideEdgesToSurface(ar->loops[ii], outPts, true, &adapter, epsilon);
+                        ar->loops[ii] = outPts;
+                    }
+                }
+            }
+        }
+    }    
+}
+   
+void VectorObject::subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDisplayAdapter *adapter,bool edgeMode)
+{
+    CoordSystem *coordSys = adapter->getCoordSystem();
+    
+    for (ShapeSet::iterator it = shapes.begin();it!=shapes.end();it++)
+    {
+        VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
+        if (lin)
+        {
+            VectorRing3d outPts;
+            SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, adapter, epsilon);
+            VectorRing outPts2D;
+            outPts2D.resize(outPts.size());
+            for (unsigned int ii=0;ii<outPts.size();ii++)
+                outPts2D[ii] = coordSys->localToGeographic(adapter->displayToLocal(outPts[ii]));
+            if (lin->pts.size() > 0)
+            {
+                outPts2D.front() = lin->pts.front();
+                outPts2D.back() = lin->pts.back();
+            }
+            
+            if (edgeMode && outPts.size() > 1)
+            {
+                // See if they cross the edge of a wraparound coordinate system
+                // Note: Only works for spherical mercator, most likely
+                VectorRing offsetPts2D(outPts2D.size());
+                double xOff = 0.0;
+                for (unsigned int ii=0;ii<outPts2D.size()-1;ii++)
+                {
+                    offsetPts2D[ii] = Point2f(outPts2D[ii].x()+xOff,outPts2D[ii].y());
+                    if (std::abs(outPts2D[ii].x() - outPts2D[ii+1].x()) > 1.1*M_PI)
+                    {
+                        if (outPts2D[ii].x() < 0.0)
+                            xOff -= 2*M_PI;
+                        else
+                            xOff += 2*M_PI;
+                    }
+                }
+                offsetPts2D.back() = outPts2D.back() + Point2f(xOff,0.0);
+                
+                lin->pts = offsetPts2D;
+            } else
+                lin->pts = outPts2D;
+            
+            WHIRLYKIT_LOGD("lin pts = %lu, eps = %f",lin->pts.size(),epsilon);
+        } else {
+            VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
+            if (lin3d)
+            {
+                VectorRing3d outPts;
+                SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, adapter, epsilon);
+                for (unsigned int ii=0;ii<outPts.size();ii++)
+                {
+                    Point3d locPt = adapter->displayToLocal(outPts[ii]);
+                    GeoCoord outPt = coordSys->localToGeographic(locPt);
+                    outPts[ii] = Point3d(outPt.x(),outPt.y(),0.0);
+                }
+                lin3d->pts = outPts;
+            } else {
+                VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+                if (ar)
+                {
+                    for (unsigned int ii=0;ii<ar->loops.size();ii++)
+                    {
+                        VectorRing3d outPts;
+                        SubdivideEdgesToSurfaceGC(ar->loops[ii], outPts, true, adapter, epsilon);
+                        VectorRing outPts2D;
+                        outPts2D.resize(outPts.size());
+                        for (unsigned int ii=0;ii<outPts.size();ii++)
+                        outPts2D[ii] = coordSys->localToGeographic(adapter->displayToLocal(outPts[ii]));
+                        ar->loops[ii] = outPts2D;
+                    }
+                }
+            }
+        }
+    }
+}
+
+    
+void VectorObject::subdivideToGlobeGreatCircle(float epsilon)
+{
+    FakeGeocentricDisplayAdapter adapter;
+    
+    subdivideToInternal(epsilon,&adapter,true);
+}
+    
+void VectorObject::subdivideToFlatGreatCircle(float epsilon)
+{
+    FakeGeocentricDisplayAdapter adapter;
+    
+    subdivideToInternal(epsilon,&adapter,false);
 }
 
 }

@@ -21,6 +21,7 @@
 #import <string>
 #import "VectorData.h"
 #import "ShapeReader.h"
+#import "WhirlyKitLog.h"
 #ifndef MAPLYMINIMAL
 #import "libjson.h"
 #endif
@@ -251,11 +252,11 @@ void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,Point3dVect
     // Note: Probably not right
 //    if (std::abs(p0.x() - p1.x()) > M_PI)
 //        return;
-    
+
     Point3d midP = (p0+p1)/2.0;
     Point3d midOnSphere = midP;
     if (adapter && !adapter->isFlat())
-        midP.normalized() * (1.0 + surfOffset);
+        midOnSphere = midP.normalized() * (1.0 + surfOffset);
     float dist2 = (midOnSphere - midP).squaredNorm();
     if (dist2 > eps*eps || minPts > 0)
     {
