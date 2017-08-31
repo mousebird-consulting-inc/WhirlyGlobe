@@ -734,8 +734,8 @@ static const float ScreenOverlap = 0.1;
             }
             
             // Note: Added this for render target
-            if (renderTargets.size() > 1)
-                glFinish();
+//            if (renderTargets.size() > 1)
+//                glFinish();
         }
         
         if (perfInterval > 0)
