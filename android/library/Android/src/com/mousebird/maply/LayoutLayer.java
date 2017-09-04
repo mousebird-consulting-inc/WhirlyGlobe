@@ -43,7 +43,11 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 		super.startLayer(inLayerThread);
 
 		scheduleUpdate();
-		maplyControl.getLayerThread().addWatcher(this);
+		if (maplyControl != null) {
+			LayerThread layerThread = maplyControl.getLayerThread();
+			if (layerThread != null)
+				maplyControl.getLayerThread().addWatcher(this);
+		}
 	}
 	
 	public void shutdown()
