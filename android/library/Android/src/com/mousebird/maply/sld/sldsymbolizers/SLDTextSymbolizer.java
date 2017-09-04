@@ -115,6 +115,7 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
 
         labelInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.LabelDrawPriorityDefault);
         vectorTileTextStyle = new VectorTileTextStyle(labelInfo, placement, offset, textField, vectorStyleSettings, viewC);
+        symbolizerParams.incrementRelativeDrawPriority();
     }
 
     private String getLabel(XmlPullParser xpp) throws XmlPullParserException, IOException {
@@ -169,19 +170,19 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
                 } else if (name.equals("font-size")) {
                     String fontSize = value.trim();
                     if (fontSize.equals("xx-small"))
-                        labelInfo.setFontSize(8.0f);
+                        labelInfo.setFontSize(2.0f * 8.0f);
                     else if (fontSize.equals("x-small"))
-                        labelInfo.setFontSize(10.0f);
+                        labelInfo.setFontSize(2.0f * 10.0f);
                     else if (fontSize.equals("small"))
-                        labelInfo.setFontSize(11.0f);
+                        labelInfo.setFontSize(2.0f * 11.0f);
                     else if (fontSize.equals("medium"))
-                        labelInfo.setFontSize(12.0f);
+                        labelInfo.setFontSize(2.0f * 12.0f);
                     else if (fontSize.equals("large"))
-                        labelInfo.setFontSize(18.0f);
+                        labelInfo.setFontSize(2.0f * 18.0f);
                     else if (fontSize.equals("x-large"))
-                        labelInfo.setFontSize(24.0f);
+                        labelInfo.setFontSize(2.0f * 24.0f);
                     else if (fontSize.equals("xx-large"))
-                        labelInfo.setFontSize(36.0f);
+                        labelInfo.setFontSize(2.0f * 36.0f);
                     else {
                         String numericalFontSize = fontSize;
                         if (fontSize.endsWith("px"))
@@ -194,13 +195,13 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
                         if (SLDParseHelper.isStringNumeric(numericalFontSize)) {
                             float size = Float.valueOf(numericalFontSize).floatValue();
                             if (fontSize.endsWith("px"))
-                                labelInfo.setFontSize(size);
+                                labelInfo.setFontSize(2.0f * size);
                             else if (fontSize.endsWith("em"))
-                                labelInfo.setFontSize(size * 12.0f);
+                                labelInfo.setFontSize(2.0f * size * 12.0f);
                             else if (fontSize.endsWith("%"))
-                                labelInfo.setFontSize(size * 100.0f * 12.0f);
+                                labelInfo.setFontSize(2.0f * size * 100.0f * 12.0f);
                             else
-                                labelInfo.setFontSize(size);
+                                labelInfo.setFontSize(2.0f * size);
                         }
                     }
                     labelInfo.setLayoutImportance(1.0f + labelInfo.getFontSize() / 1000.0f);
