@@ -78,7 +78,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,int val)
         return true;
     
     glUniform1i(uni->index,val);
-    CheckGLError("BigDrawable::draw() glUniform1i");
+    CheckGLError("OpenGLES2Program::setUniform() glUniform1i");
     uni->isSet = true;
     uni->val.iVals[0] = val;
     
@@ -115,7 +115,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector2f 
         return true;
     
     glUniform2f(uni->index, vec.x(), vec.y());
-    CheckGLError("BigDrawable::draw() glUniform2f");
+    CheckGLError("OpenGLES2Program::setUniform() glUniform2f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();
     
@@ -134,7 +134,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector3f 
         return true;
     
     glUniform3f(uni->index, vec.x(), vec.y(), vec.z());
-    CheckGLError("BigDrawable::draw() glUniform3f");
+    CheckGLError("OpenGLES2Program::setUniform() glUniform3f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z();
     
@@ -155,7 +155,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector4f 
         return true;
     
     glUniform4f(uni->index, vec.x(), vec.y(), vec.z(), vec.w());
-    CheckGLError("BigDrawable::draw() glUniform4f");
+    CheckGLError("OpenGLES2Program::setUniform() glUniform4f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
     
@@ -176,7 +176,7 @@ bool OpenGLES2Program::setUniform(const std::string &inName,const Eigen::Vector4
         return true;
     
     glUniform4f(uni->index+index, vec.x(), vec.y(), vec.z(), vec.w());
-    CheckGLError("BigDrawable::draw() glUniform4f");
+    CheckGLError("OpenGLES2Program::setUniform() glUniform4f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
     
@@ -206,7 +206,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Matrix4f 
     }
     
     glUniformMatrix4fv(uni->index, 1, GL_FALSE, (GLfloat *)mat.data());
-    CheckGLError("BigDrawable::draw() glUniformMatrix4fv");
+    CheckGLError("OpenGLES2Program::setUniform() glUniformMatrix4fv");
     uni->isSet = true;
     for (unsigned int ii=0;ii<16;ii++)
         uni->val.mat[ii] = mat.data()[ii];

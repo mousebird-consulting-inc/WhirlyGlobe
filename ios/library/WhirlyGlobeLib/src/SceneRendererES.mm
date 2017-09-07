@@ -48,6 +48,10 @@ RenderTarget::RenderTarget()
 {
 }
     
+RenderTarget::RenderTarget(SimpleIdentity newID) : Identifiable(newID), framebuffer(0), colorbuffer(0), depthbuffer(0), width(0), height(0), isSetup(false)
+{
+}
+    
 bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
 {
     glGenFramebuffers(1, &framebuffer);
@@ -63,17 +67,21 @@ bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
     } else {
         // Generate our own color buffer
         glGenRenderbuffers(1, &colorbuffer);
-        CheckGLError("SceneRendererES: glGenRenderbuffers");
+        CheckGLError("RenderTarget: glGenRenderbuffers");
         glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
-        CheckGLError("SceneRendererES: glBindRenderbuffer");
+        CheckGLError("RenderTarget: glBindRenderbuffer");
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorbuffer);
-        CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
+        CheckGLError("RenderTarget: glFramebufferRenderbuffer");
+
+        glGenRenderbuffers(1, &depthbuffer);
+        CheckGLError("RenderTarget: glGenRenderbuffers");
+        glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer);
+        CheckGLError("RenderTarget: glBindRenderbuffer");
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+        CheckGLError("RenderTarget: glRenderbufferStorage");
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer);
+        CheckGLError("RenderTarget: glFramebufferRenderbuffer");
     }
-    
-    glGenRenderbuffers(1, &depthbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer);
     
 //    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
 //    if(status != GL_FRAMEBUFFER_COMPLETE) {
@@ -82,6 +90,7 @@ bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
 //    }
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    CheckGLError("RenderTarget: glBindFramebuffer");
     
     isSetup = false;
     return true;
@@ -306,6 +315,7 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
 		{
             return nil;
         }
+        CheckGLError("SceneRendererES::initWithOpenGLESVersion() setCurrentContext");
         
         RenderTarget defaultTarget(EmptyIdentity);
         defaultTarget.init(NULL,EmptyIdentity);
@@ -408,13 +418,14 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
     if (oldContext != _context)
         [EAGLContext setCurrentContext:_context];
     
-    RenderTarget &renderTarget = renderTargets[0];
+    RenderTarget &renderTarget = renderTargets.back();
     
     glBindFramebuffer(GL_FRAMEBUFFER, renderTarget.framebuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, renderTarget.colorbuffer);
     CheckGLError("SceneRendererES: glBindRenderbuffer");
-	[_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer];
-    CheckGLError("SceneRendererES: glBindRenderbuffer");
+	if (![_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer])
+        NSLog(@"SCeneRendererES: Failure in renderbufferStorage");
+    CheckGLError("SceneRendererES: resizeFromLayer");
 	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &_framebufferWidth);
 	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &_framebufferHeight);
     renderTarget.width = _framebufferWidth;
@@ -436,6 +447,7 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
 		return NO;
 	}
 		
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     lastDraw = 0;
 	
     if (oldContext != _context)
