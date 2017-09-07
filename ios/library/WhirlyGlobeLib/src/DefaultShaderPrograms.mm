@@ -24,6 +24,7 @@
 #import "ScreenSpaceDrawable.h"
 #import "ParticleSystemDrawable.h"
 #import "GlobeScene.h"
+#import "GLUtils.h"
 
 namespace WhirlyKit
 {
@@ -555,6 +556,7 @@ void SetupDefaultShaders(Scene *scene)
     // Default triangle and line (point) shaders
     OpenGLES2Program *triShader = new OpenGLES2Program("Default triangle shader with lighting",vertexShaderTri,fragmentShaderTri);
     OpenGLES2Program *lineShader;
+    CheckGLError("SetupDefaultShaders() triShader");
     if (dynamic_cast<WhirlyGlobe::GlobeScene *>(scene))
         lineShader = new OpenGLES2Program("Default line shader with backface culling",vertexShaderLine,fragmentShaderLine);
     else
@@ -572,9 +574,11 @@ void SetupDefaultShaders(Scene *scene)
         scene->setSceneProgram(kToolkitDefaultLineProgram, lineShader->getId());
         scene->setSceneProgram(kSceneDefaultLineShader, lineShader->getId());
     }
+    CheckGLError("SetupDefaultShaders() lineShader");
     
     // Line shader that doesn't do backface culling
     OpenGLES2Program *lineNoBackShader = new OpenGLES2Program("Default line shader without backface culling",vertexShaderLineNoBack,fragmentShaderLineNoBack);
+    CheckGLError("SetupDefaultShaders() lineNoBackShader");
     if (!lineNoBackShader->isValid())
     {
         NSLog(@"SetupDefaultShaders: Line shader without backface checking didn't compile.");
@@ -585,6 +589,7 @@ void SetupDefaultShaders(Scene *scene)
     
     // Triangle shader that doesn't do lighting
     OpenGLES2Program *triShaderNoLight = new OpenGLES2Program("Default triangle shader without lighting",vertexShaderNoLightTri,fragmentShaderNoLightTri);
+    CheckGLError("SetupDefaultShaders() triShaderNoLight");
     if (!triShaderNoLight->isValid())
     {
         NSLog(@"SetupDefaultShaders: Triangle shader without lighting didn't compile.");
@@ -595,6 +600,7 @@ void SetupDefaultShaders(Scene *scene)
 
     // Triangle shader for model instancing
     OpenGLES2Program *triShaderModel = new OpenGLES2Program("Triangle shader for models with lighting and motion",vertexShaderModelTri,fragmentShaderTri);
+    CheckGLError("SetupDefaultShaders() triShaderModel");
     if (!triShaderModel->isValid())
     {
         NSLog(@"SetupDefaultShaders: Triangle shader for model instancing and lighting didn't compile.");
@@ -605,6 +611,7 @@ void SetupDefaultShaders(Scene *scene)
 
     // Triangle shader that does screen space texture application
     OpenGLES2Program *triShaderScreenTex = new OpenGLES2Program("Triangle shader with screen texture and lighting",vertexShaderScreenTexTri,fragmentShaderTri);
+    CheckGLError("SetupDefaultShaders() triShaderScreenTex");
     if (!triShaderScreenTex->isValid())
     {
         NSLog(@"SetupDefaultShaders: Triangle shader with screen texture and lighting didn't compile.");
@@ -615,6 +622,7 @@ void SetupDefaultShaders(Scene *scene)
     
     // Triangle shader that handles multiple textures
     OpenGLES2Program *triShaderMultiTex = new OpenGLES2Program("Triangle shader with multitex and lighting",vertexShaderTriMultiTex,fragmentShaderTriMultiTex);
+    CheckGLError("SetupDefaultShaders() triShaderMultiTex");
     if (!triShaderMultiTex->isValid())
     {
         NSLog(@"SetupDefaultShaders: Triangle shader with multi texture support didn't compile.");
@@ -625,6 +633,7 @@ void SetupDefaultShaders(Scene *scene)
 
     // Triangle shader with ramp texture
     OpenGLES2Program *triShaderMultiTexRamp = new OpenGLES2Program("Triangle ramp shader with multitex and lighting",vertexShaderTriMultiTex,fragmentShaderTriMultiTexRamp);
+    CheckGLError("SetupDefaultShaders() triShaderMultiTexRamp");
     if (!triShaderMultiTexRamp->isValid())
     {
         NSLog(@"SetupDefaultShaders: Triangle ramp shader with multi texture support didn't compile.");
@@ -635,6 +644,7 @@ void SetupDefaultShaders(Scene *scene)
 
     // Triangle shader that does night/day shading with multiple textures
     OpenGLES2Program *triShaderNightDay = new OpenGLES2Program("Triangle shader with multitex, lighting, and night/day support",vertexShaderTriNightDay,fragmentShaderTriNightDay);
+    CheckGLError("SetupDefaultShaders() triShaderNightDay");
     if (!triShaderNightDay->isValid())
     {
         NSLog(@"SetupDefaultShaders: Triangle shader with night/day support didn't compile.");

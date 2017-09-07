@@ -178,6 +178,7 @@ public:
     EAGLContext *oldContext = [EAGLContext currentContext];
     if (oldContext != super.context)
         [EAGLContext setCurrentContext:super.context];
+    CheckGLError("Scene::setScene() setCurrentContext");
     
     SetupDefaultShaders(super.scene);
     
