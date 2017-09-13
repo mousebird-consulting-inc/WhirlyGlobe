@@ -130,6 +130,7 @@
     }
     
     MaplyComponentObject *compObj = [super.viewC addVectors:tessObjs desc:@{kMaplyColor: _color,
+                                                                            kMaplyShader: kMaplyShaderDefaultLine,
                                                                            kMaplyFilled: @(YES),
                                                                            kMaplyDrawPriority: @(self.drawPriority)
                                                                            } mode:MaplyThreadCurrent];
