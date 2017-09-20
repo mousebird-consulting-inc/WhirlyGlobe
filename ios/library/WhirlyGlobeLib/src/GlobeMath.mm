@@ -115,7 +115,7 @@ Point3f GeoCoordSystem::GeocentricToLocal(Point3f geocPt)
     InitProj4();
     
     double x,y,z;
-    x = geocPt.x(), y = geocPt.y(), z = geocPt.z();
+    x = geocPt.x(); y = geocPt.y(); z = geocPt.z();
     pj_transform(pj_geocentric, pj_latlon, 1, 1, &x, &y, &z);
     return Point3f(x,y,z);
 }
