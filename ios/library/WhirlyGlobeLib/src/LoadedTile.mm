@@ -426,11 +426,11 @@ void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,Basic
     
     // For single level mode it's not worth getting fancy
     // Note: The level check is kind of a hack.  We're avoiding a resolution problem at high levels
-    if (singleLevel || drawInfo->ident.level > 17)
-    {
-        sphereTessX = 1;
-        sphereTessY = 1;
-    }
+//    if (singleLevel || drawInfo->ident.level > 17)
+//    {
+//        sphereTessX = 1;
+//        sphereTessY = 1;
+//    }
     
     // Unit size of each tesselation in spherical mercator
     Point2d incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
