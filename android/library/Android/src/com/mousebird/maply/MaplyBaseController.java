@@ -1407,6 +1407,8 @@ public class MaplyBaseController
 					long texID = EmptyIdentity;
 					if (marker.image != null)
 						texID = texManager.addTexture(marker.image, scene, changes);
+					if (marker.tex != null)
+						texID = marker.tex.texID;
 					if (texID != EmptyIdentity)
 						intMarker.addTexID(texID);
 					if (marker.vertexAttributes != null)
