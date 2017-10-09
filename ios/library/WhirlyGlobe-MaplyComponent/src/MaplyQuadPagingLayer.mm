@@ -1176,8 +1176,6 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)reload:(MaplyBoundingBox)bounds
 {
-    pthread_mutex_lock(&refreshLock);
-    
     MaplyReloadInfo *reloadInfo = [MaplyReloadInfo reloadInfoWithBounds:bounds];
     
     if ([NSThread currentThread] != super.layerThread)
@@ -1185,6 +1183,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         [self performSelector:@selector(reloadSelected:) onThread:super.layerThread withObject:reloadInfo waitUntilDone:NO];
         return;
     }
+
+    pthread_mutex_lock(&refreshLock);
 
     [self reloadSelected:reloadInfo];
     
