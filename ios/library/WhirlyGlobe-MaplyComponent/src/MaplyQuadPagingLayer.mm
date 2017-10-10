@@ -1149,6 +1149,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
 
 - (void)reloadSelected:(MaplyReloadInfo *)reloadInfo
 {
+    pthread_mutex_lock(&refreshLock);
+
     Mbr mbr;
     mbr.addPoint(Point2f(reloadInfo.bbox.ll.x,reloadInfo.bbox.ll.y));
     mbr.addPoint(Point2f(reloadInfo.bbox.ur.x,reloadInfo.bbox.ur.y));
@@ -1172,6 +1174,8 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     // Note: Shouldn't hold up the layer thread for this
     for (unsigned int ii=0;ii<tilesToRefresh.size();ii++)
         [self askDelegateForLoad:tilesToRefresh[ii] isRefresh:true];
+    
+    pthread_mutex_unlock(&refreshLock);
 }
 
 - (void)reload:(MaplyBoundingBox)bounds
@@ -1184,11 +1188,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
         return;
     }
 
-    pthread_mutex_lock(&refreshLock);
-
     [self reloadSelected:reloadInfo];
-    
-    pthread_mutex_unlock(&refreshLock);
 }
 
 - (void)setEnable:(bool)newEnable
