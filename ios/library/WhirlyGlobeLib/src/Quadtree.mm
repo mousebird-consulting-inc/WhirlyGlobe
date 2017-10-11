@@ -812,7 +812,7 @@ Mbr Quadtree::generateMbrForNode(const Identifier &ident)
 
 void Quadtree::generateMbrForNode(const Identifier &ident,Point2d &ll,Point2d &ur)
 {
-    Point2d chunkSize(mbr.ur().x()-mbr.ll().x(),mbr.ur().y()-mbr.ll().y());
+    Point2d chunkSize((double)mbr.ur().x()-(double)mbr.ll().x(),(double)mbr.ur().y()-(double)mbr.ll().y());
     chunkSize.x() /= (1<<ident.level);
     chunkSize.y() /= (1<<ident.level);
     
