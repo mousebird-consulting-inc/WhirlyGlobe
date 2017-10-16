@@ -213,10 +213,10 @@ public class MaplyBaseController
 		// The first one is for use by the toolkit
 		int numAvailable = workerThreads.size();
 
-		if (numAvailable < 0)
+		if (numAvailable == 0)
 			return null;
 
-		if (numAvailable == 0)
+		if (numAvailable == 1)
 			return workerThreads.get(0);
 
 		return workerThreads.get((lastLayerThreadReturned++) % numAvailable);
