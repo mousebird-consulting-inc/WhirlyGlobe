@@ -1407,6 +1407,8 @@ public class MaplyBaseController
 					long texID = EmptyIdentity;
 					if (marker.image != null)
 						texID = texManager.addTexture(marker.image, scene, changes);
+					if (marker.tex != null)
+						texID = marker.tex.texID;
 					if (texID != EmptyIdentity)
 						intMarker.addTexID(texID);
 					if (marker.vertexAttributes != null)
@@ -1606,8 +1608,8 @@ public class MaplyBaseController
 
 						long[] stickerIDs = stickerObj.getStickerIDs();
 						if (stickerIDs != null && stickerIDs.length > 0) {
-							long stickerID = stickerIDs[0];
-							stickerManager.changeSticker(stickerID, stickerInfo, changes);
+							for (long stickerID : stickerIDs)
+								stickerManager.changeSticker(stickerID, stickerInfo, changes);
 						}
 
 						if (scene != null)

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.MaplyBaseController;
@@ -12,6 +13,7 @@ import com.mousebird.maply.Point2d;
 import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.Sticker;
 import com.mousebird.maply.StickerInfo;
+import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
@@ -65,6 +67,10 @@ public class StickersTestCase extends MaplyTestCase {
 			}
 		}
 		StickerInfo info = new StickerInfo();
-		baseVC.addStickers(stickers, info, MaplyBaseController.ThreadMode.ThreadAny);
+		info.setDrawPriority(VectorInfo.VectorPriorityDefault+1000);
+		ComponentObject compObj = baseVC.addStickers(stickers, info, MaplyBaseController.ThreadMode.ThreadCurrent);
+		StickerInfo info2 = new StickerInfo();
+		info2.setDrawPriority(VectorInfo.VectorPriorityDefault-1);
+		baseVC.changeSticker(compObj, info2, MaplyBaseController.ThreadMode.ThreadCurrent);
 	}
 }

@@ -90,7 +90,6 @@ public class SLDRule {
                 SLDSymbolizer symbolizer = SLDSymbolizerFactory.symbolizerForNode(xpp, symbolizerParams);
                 if (symbolizer != null) {
                     styles.addAll(Arrays.asList(symbolizer.getStyles()));
-                    symbolizerParams.incrementRelativeDrawPriority();
                 } else {
                     SLDParseHelper.skip(xpp);
                 }

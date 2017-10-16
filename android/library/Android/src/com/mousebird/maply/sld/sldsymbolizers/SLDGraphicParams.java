@@ -10,6 +10,7 @@ public class SLDGraphicParams {
     Bitmap bitmap;
     Integer fillColor;
     Integer strokeColor;
+    String wellKnownName;
 
     public Integer getWidth() {
         return width;
@@ -51,6 +52,13 @@ public class SLDGraphicParams {
         this.strokeColor = strokeColor;
     }
 
+    public String getWellKnownName() {
+        return wellKnownName;
+    }
+
+    public void setWellKnownName(String wellKnownName) {
+        this.wellKnownName = wellKnownName;
+    }
 
     public SLDGraphicParams() {
         fillColor = null;
