@@ -138,6 +138,9 @@ public:
     /// Modify the given chunk (new texture IDs)
     bool modifyChunkTextures(SimpleIdentity chunkID,const std::vector<SimpleIdentity> &texIDs,ChangeSet &changes);
     
+    /// Modify the draw priority
+    bool modifyDrawPriority(SimpleIdentity chunkID,int drawPriority,ChangeSet &changes);
+    
     /// Enable or disable the given chunk
     void enableChunk(SimpleIdentity chunkID,bool enable,ChangeSet &changes);
     

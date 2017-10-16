@@ -17,6 +17,8 @@ public class StickerManager
     public void changeSticker(long stickerID,StickerInfo stickerInfo,ChangeSet changes)
     {
         modifyChunkTextures(stickerID,stickerInfo,changes);
+        if (stickerInfo.getDrawPriority() != -1)
+            modifyDrawPriority(stickerID,stickerInfo.getDrawPriority(),changes);
     }
 
     // Add a single sticker to the scene and return an ID for tracker
@@ -24,6 +26,9 @@ public class StickerManager
 
     // Modify the given chunk with new texture IDs
     public native boolean modifyChunkTextures(long stickerID,StickerInfo stickerInfo,ChangeSet changes);
+
+    // Modify the draw priority
+    public native boolean modifyDrawPriority(long stickerID,int drawPriority,ChangeSet changes);
 
     // Enable/disable stickers by ID
     public native void enableStickers(long ids[],boolean enable,ChangeSet changes);

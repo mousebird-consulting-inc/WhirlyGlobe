@@ -21,6 +21,7 @@
 package com.mousebird.maply;
 
 import java.util.Map;
+import java.util.Vector;
 
 /**
  * The Maply VectorObject represents a group of vector features.  There can be a single point in here,
@@ -166,6 +167,54 @@ public class VectorObject implements Iterable<VectorObject>
 	}
 
 	native boolean clipToGridNative(VectorObject retVecObj,double sizeX,double sizeY);
+
+	/**
+	 Subdivide the edges in this feature to a given tolerance.
+
+	 This will break up long edges in a vector until they lie flat on a globe to a given epsilon.  The epislon is in display coordinates (radius = 1.0). This routine breaks this up along geographic boundaries.
+	 */
+	public VectorObject subdivideToGlobe(float epsilon)
+	{
+		VectorObject retVecObj = new VectorObject();
+		if (!subdivideToGlobeNative(retVecObj,epsilon))
+			return null;
+
+		return retVecObj;
+	}
+
+	native boolean subdivideToGlobeNative(VectorObject retVecObj,double epsilon);
+
+	/**
+	 Subdivide the edges in this feature to a given tolerance, using great circle math.
+
+	 This will break up long edges in a vector until they lie flat on a globe to a given epsilon using a great circle route.  The epsilon is in display coordinates (radius = 1.0).
+	 */
+	public VectorObject subdivideToGlobeGreatCircle(double epsilon)
+	{
+		VectorObject retVecObj = new VectorObject();
+		if (!subdivideToGlobeGreatCircleNative(retVecObj,epsilon))
+			return null;
+
+		return retVecObj;
+	}
+
+	native boolean subdivideToGlobeGreatCircleNative(VectorObject retVecObj,double epsilon);
+
+	/**
+	 Subdivide the edges in this feature to a given tolerance, using great circle math.
+
+	 This version samples a great circle to display on a flat map.
+	 */
+	public VectorObject subdivideToFlatGreatCircle(double epsilon)
+	{
+		VectorObject retVecObj = new VectorObject();
+		if (!subdivideToFlatGreatCircleNative(retVecObj,epsilon))
+			return null;
+
+		return retVecObj;
+	}
+
+	native boolean subdivideToFlatGreatCircleNative(VectorObject retVecObj,double epsilon);
 
 	/**
 	 * Clip the given features to an Mbr
