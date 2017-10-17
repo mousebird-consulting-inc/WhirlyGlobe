@@ -103,12 +103,14 @@ using namespace Eigen;
             // Then rotate it back on to the YZ axis
             // This will keep it upward
             float ang = atan(northPole.x()/northPole.y());
+            
             // However, the pole might be down now
             // If so, rotate it back up
             if (northPole.y() < 0.0)
                 ang += M_PI;
             Eigen::AngleAxisd upRot(ang,newUp);
-            newQuat = newQuat * upRot;
+            
+            newQuat = (newQuat * upRot).normalized();
         }
     }
 
