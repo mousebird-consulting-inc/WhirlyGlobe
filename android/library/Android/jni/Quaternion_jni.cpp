@@ -194,3 +194,25 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_slerp
     return NULL;
 }
 
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_normalized
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        QuaternionClassInfo *classInfo = QuaternionClassInfo::getClassInfo();
+        Quaterniond *quat = classInfo->getObject(env,obj);
+        if (!quat)
+            return NULL;
+        
+        Eigen::Quaterniond newQuat = (*quat).normalized();
+        
+        return MakeQuaternion(env,newQuat);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Quaternion::normalized()");
+    }
+    
+    return NULL;
+}
+
