@@ -86,7 +86,7 @@ public class GlobeAnimateMomentum implements GlobeView.AnimationDelegate
                 if (northPole.getY() < 0.0)
                     ang += Math.PI;
                 AngleAxis upRot = new AngleAxis(ang,newUp);
-                newRotQuat = newRotQuat.multiply(upRot);
+                newRotQuat = newRotQuat.multiply(upRot).normalized();
 			}
 		}
 		
