@@ -30,7 +30,6 @@
 		2B82B5DD1E82E2490095FB14 /* glues_registry.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B3B51E82E2490095FB14 /* glues_registry.c */; };
 		2B82B5DE1E82E2490095FB14 /* glues_registry.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3B61E82E2490095FB14 /* glues_registry.h */; };
 		2B82B5DF1E82E2490095FB14 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3B71E82E2490095FB14 /* glues.h */; };
-		2B82B5E01E82E2490095FB14 /* alg-outline in Resources */ = {isa = PBXBuildFile; fileRef = 2B82B3B81E82E2490095FB14 /* alg-outline */; };
 		2B82B5E11E82E2490095FB14 /* dict-list.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3B91E82E2490095FB14 /* dict-list.h */; };
 		2B82B5E21E82E2490095FB14 /* dict.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B3BA1E82E2490095FB14 /* dict.c */; };
 		2B82B5E31E82E2490095FB14 /* dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3BB1E82E2490095FB14 /* dict.h */; };
@@ -511,6 +510,14 @@
 		2B82B7BF1E82E24B0095FB14 /* SphericalEarthChunkLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5C61E82E2490095FB14 /* SphericalEarthChunkLayer.mm */; };
 		2B82B7C31E82E68E0095FB14 /* clipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B7C11E82E68E0095FB14 /* clipper.cpp */; };
 		2B82B7C41E82E68E0095FB14 /* clipper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B7C21E82E68E0095FB14 /* clipper.hpp */; };
+		2B84ED131F83FC5A00B34D73 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED121F83FC5A00B34D73 /* CoreGraphics.framework */; };
+		2B84ED151F83FC6000B34D73 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED141F83FC6000B34D73 /* OpenGLES.framework */; };
+		2B84ED171F83FC7000B34D73 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED161F83FC7000B34D73 /* QuartzCore.framework */; };
+		2B84ED181F83FC7900B34D73 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AC21D249DDE00B60FAD /* libsqlite3.tbd */; };
+		2B84ED191F83FC7E00B34D73 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53ABC1D249DA400B60FAD /* libxml2.tbd */; };
+		2B84ED1B1F83FC8F00B34D73 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED1A1F83FC8F00B34D73 /* UIKit.framework */; };
+		2B84ED1D1F83FC9B00B34D73 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED1C1F83FC9B00B34D73 /* CoreText.framework */; };
+		2B84ED1E1F83FC9F00B34D73 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AC41D249E0600B60FAD /* libz.tbd */; };
 		2B884A001E37FDAA0027C397 /* MaplyLAZShader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8849FD1E37FDAA0027C397 /* MaplyLAZShader.h */; };
 		2B884A011E37FDAA0027C397 /* MaplyLAZQuadReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8849FE1E37FDAA0027C397 /* MaplyLAZQuadReader.h */; };
 		2B884A061E37FE9E0027C397 /* MaplyLAZMeshBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A031E37FE9E0027C397 /* MaplyLAZMeshBuilder.mm */; };
@@ -906,7 +913,6 @@
 		2BE539FA1D249C2900B60FAD /* descriptor.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE539CE1D249C2900B60FAD /* descriptor.h */; };
 		2BE539FB1D249C2900B60FAD /* descriptor.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE539CF1D249C2900B60FAD /* descriptor.pb.cc */; };
 		2BE539FC1D249C2900B60FAD /* descriptor.pb.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE539D01D249C2900B60FAD /* descriptor.pb.h */; };
-		2BE539FD1D249C2900B60FAD /* descriptor.proto in Resources */ = {isa = PBXBuildFile; fileRef = 2BE539D11D249C2900B60FAD /* descriptor.proto */; };
 		2BE539FE1D249C2900B60FAD /* descriptor_database.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE539D21D249C2900B60FAD /* descriptor_database.cc */; };
 		2BE539FF1D249C2900B60FAD /* descriptor_database.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE539D31D249C2900B60FAD /* descriptor_database.h */; };
 		2BE53A001D249C2900B60FAD /* dynamic_message.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE539D41D249C2900B60FAD /* dynamic_message.cc */; };
@@ -1544,6 +1550,11 @@
 		2B82B5C61E82E2490095FB14 /* SphericalEarthChunkLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SphericalEarthChunkLayer.mm; sourceTree = "<group>"; };
 		2B82B7C11E82E68E0095FB14 /* clipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = clipper.cpp; path = "../../../third-party/clipper/cpp/clipper.cpp"; sourceTree = "<group>"; };
 		2B82B7C21E82E68E0095FB14 /* clipper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = clipper.hpp; path = "../../../third-party/clipper/cpp/clipper.hpp"; sourceTree = "<group>"; };
+		2B84ED121F83FC5A00B34D73 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		2B84ED141F83FC6000B34D73 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		2B84ED161F83FC7000B34D73 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		2B84ED1A1F83FC8F00B34D73 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		2B84ED1C1F83FC9B00B34D73 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		2B8849FD1E37FDAA0027C397 /* MaplyLAZShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyLAZShader.h; sourceTree = "<group>"; };
 		2B8849FE1E37FDAA0027C397 /* MaplyLAZQuadReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyLAZQuadReader.h; sourceTree = "<group>"; };
 		2B884A031E37FE9E0027C397 /* MaplyLAZMeshBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyLAZMeshBuilder.mm; sourceTree = "<group>"; };
@@ -2074,6 +2085,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B84ED1E1F83FC9F00B34D73 /* libz.tbd in Frameworks */,
+				2B84ED1D1F83FC9B00B34D73 /* CoreText.framework in Frameworks */,
+				2B84ED1B1F83FC8F00B34D73 /* UIKit.framework in Frameworks */,
+				2B84ED191F83FC7E00B34D73 /* libxml2.tbd in Frameworks */,
+				2B84ED181F83FC7900B34D73 /* libsqlite3.tbd in Frameworks */,
+				2B84ED171F83FC7000B34D73 /* QuartzCore.framework in Frameworks */,
+				2B84ED151F83FC6000B34D73 /* OpenGLES.framework in Frameworks */,
+				2B84ED131F83FC5A00B34D73 /* CoreGraphics.framework in Frameworks */,
 				2BE53AC71D249E1500B60FAD /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3023,6 +3042,18 @@
 			name = clipper;
 			sourceTree = "<group>";
 		};
+		2B84ED111F83FC5A00B34D73 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2B84ED1C1F83FC9B00B34D73 /* CoreText.framework */,
+				2B84ED1A1F83FC8F00B34D73 /* UIKit.framework */,
+				2B84ED161F83FC7000B34D73 /* QuartzCore.framework */,
+				2B84ED141F83FC6000B34D73 /* OpenGLES.framework */,
+				2B84ED121F83FC5A00B34D73 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		2B884A091E3802EE0027C397 /* laszip */ = {
 			isa = PBXGroup;
 			children = (
@@ -3104,6 +3135,7 @@
 				2BE537011D2499E500B60FAD /* WhirlyGlobeMaplyComponent */,
 				2BE5370D1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests */,
 				2BE537001D2499E500B60FAD /* Products */,
+				2B84ED111F83FC5A00B34D73 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -4287,8 +4319,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2B82B5E01E82E2490095FB14 /* alg-outline in Resources */,
-				2BE539FD1D249C2900B60FAD /* descriptor.proto in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5014,7 +5044,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MACH_O_TYPE = staticlib;
+				MACH_O_TYPE = mh_dylib;
 				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -5069,7 +5099,7 @@
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MACH_O_TYPE = staticlib;
+				MACH_O_TYPE = mh_dylib;
 				OTHER_CFLAGS = "-fembed-bitcode";
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
