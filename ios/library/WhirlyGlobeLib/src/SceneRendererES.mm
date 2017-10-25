@@ -62,8 +62,10 @@ bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
     {
         colorbuffer = 0;
         TextureBase *tex = scene->getTexture(targetTexID);
-        if (tex)
+        if (tex) {
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->getGLId(), 0);
+            CheckGLError("RenderTarget: glFramebufferTexture2D");
+        }
     } else {
         // Generate our own color buffer
         glGenRenderbuffers(1, &colorbuffer);
