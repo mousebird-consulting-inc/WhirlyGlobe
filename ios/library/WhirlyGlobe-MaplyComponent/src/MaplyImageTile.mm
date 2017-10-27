@@ -23,13 +23,6 @@
 #import "WhirlyGlobe.h"
 
 @implementation MaplyImageTile
-{
-@public
-    int _width,_height;
-    int _targetWidth,_targetHeight;
-    
-    NSArray *stuff;
-}
 
 - (instancetype)initAsPlaceholder
 {
