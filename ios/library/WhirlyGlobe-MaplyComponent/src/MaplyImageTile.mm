@@ -241,4 +241,16 @@
     return loadTile;
 }
 
+- (NSData *) asNSData
+{
+    if ([stuff count] > 0)
+    {
+        id obj = [stuff objectAtIndex:0];
+        if ([obj isKindOfClass:[NSData class]])
+            return obj;
+    }
+
+    return nil;
+}
+
 @end

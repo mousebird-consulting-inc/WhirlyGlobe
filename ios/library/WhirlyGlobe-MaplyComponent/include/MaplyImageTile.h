@@ -109,4 +109,9 @@
  */
 @property (nonatomic) CGSize targetSize;
 
+/**
+    If this wraps a single NSData object in some form, return it, probably for storage.
+  */
+- (NSData *) asNSData;
+
 @end
