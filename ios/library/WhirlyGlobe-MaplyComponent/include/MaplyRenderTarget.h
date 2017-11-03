@@ -40,4 +40,23 @@
   */
 @property (nonatomic) MaplyTexture *texture;
 
+/**
+    If set, we'll clear the target textures every frame before rendering to it.
+ 
+    If not set, we won't clear the render target texture between frames.
+ 
+    True by default.
+  */
+@property (nonatomic) bool clearEveryFrame;
+
+/**
+    If set, anything rendered to this render target will blend with what's there.
+    This is the way it normally works for screen rendering.
+ 
+    If not set, what's rendered will replace what was there before.
+ 
+    Set to false by default.
+  */
+@property (nonatomic) bool blend;
+
 @end

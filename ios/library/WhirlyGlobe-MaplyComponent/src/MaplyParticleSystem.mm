@@ -19,6 +19,7 @@
  */
 
 #import "MaplyParticleSystem_private.h"
+#import "MaplyRenderTarget_private.h"
 #import "MaplySharedAttributes.h"
 
 namespace WhirlyKit
@@ -51,7 +52,12 @@ int ParticleSystemAttribute::dataSize()
     
 }
 
+using namespace WhirlyKit;
+
 @implementation MaplyParticleSystem
+{
+    SimpleIdentity renderTargetID;
+}
 
 - (instancetype)initWithName:(NSString *)name
 {
@@ -67,6 +73,7 @@ int ParticleSystemAttribute::dataSize()
     _batchSize = 2000;
     _totalParticles = 100000;
     _baseTime = CFAbsoluteTimeGetCurrent();
+    renderTargetID = EmptyIdentity;
     
     return self;
 }
@@ -83,6 +90,11 @@ int ParticleSystemAttribute::dataSize()
 - (void)addTexture:(id)image
 {
     _images.push_back(image);
+}
+
+- (void)setRenderTarget:(MaplyRenderTarget *)renderTarget
+{
+    renderTargetID = renderTarget.renderTargetID;
 }
 
 @end

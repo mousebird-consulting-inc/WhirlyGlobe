@@ -84,6 +84,7 @@ class RenderTarget : public Identifiable
 public:
     RenderTarget();
     RenderTarget(SimpleIdentity newID);
+    void init();
     
     // Set up the render target
     bool init(Scene *scene,SimpleIdentity targetTexID);
@@ -104,13 +105,19 @@ public:
     int width,height;
     /// Set if we've set up background and such
     bool isSetup;
+    
+    // Clear color, if we're clearing
+    GLfloat clearColor[4];
+    bool clearEveryFrame;
+    // Control how the blending into a destination works
+    bool blendEnable;
 };
 
 // Add a new render target
 class AddRenderTargetReq : public ChangeRequest
 {
 public:
-    AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID);
+    AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend);
     
     /// Add the render target to the renderer
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
@@ -119,6 +126,8 @@ protected:
     int width,height;
     SimpleIdentity renderTargetID;
     SimpleIdentity texID;
+    bool clearEveryFrame;
+    bool blend;
 };
 
 class RemRenderTargetReq : public ChangeRequest

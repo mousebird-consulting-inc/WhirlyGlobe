@@ -44,12 +44,25 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 }
     
 RenderTarget::RenderTarget()
-    : framebuffer(0), colorbuffer(0), depthbuffer(0), width(0), height(0), isSetup(false)
 {
+    init();
 }
     
-RenderTarget::RenderTarget(SimpleIdentity newID) : Identifiable(newID), framebuffer(0), colorbuffer(0), depthbuffer(0), width(0), height(0), isSetup(false)
+RenderTarget::RenderTarget(SimpleIdentity newID) : Identifiable(newID)
 {
+    init();
+}
+    
+void RenderTarget::init()
+{
+    framebuffer = 0;
+    colorbuffer = 0;
+    depthbuffer = 0;
+    width = 0;
+    height = 0;
+    isSetup = false;
+    clearColor[0] = 0.0;  clearColor[1] = 0.0;  clearColor[2] = 0.0;  clearColor[3] = 0.0;
+    clearEveryFrame = true;
 }
     
 bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
@@ -117,21 +130,25 @@ void RenderTarget::setActiveFramebuffer(WhirlyKitSceneRendererES *renderer)
     if (colorbuffer)
         glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
     
+    // Note: Have to run this all the time for some reason
 //    if (!isSetup)
     {
-        // Note: Should allow this to be selected
-        // For non-main rendering targets, we want clear
-        if (getId())
-            glClearColor(0.0,0.0,0.0,0.0);
-        else
-            glClearColor(renderer->_clearColor.r / 255.0, renderer->_clearColor.g / 255.0, renderer->_clearColor.b / 255.0, renderer->_clearColor.a / 255.0);
+        if (blendEnable)
+        {
+            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_BLEND);
+        } else {
+            glDisable(GL_BLEND);
+        }
+        glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+        
         CheckGLError("SceneRendererES2: glClearColor");
         isSetup = true;
     }
 }
     
-AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID)
-    : renderTargetID(renderTargetID), width(width), height(height), texID(texID)
+AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend)
+    : renderTargetID(renderTargetID), width(width), height(height), texID(texID), clearEveryFrame(clearEveryFrame), blend(blend)
 {
 }
 
@@ -141,6 +158,8 @@ void AddRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
     RenderTarget renderTarget(renderTargetID);
     renderTarget.width = width;
     renderTarget.height = height;
+    renderTarget.clearEveryFrame = clearEveryFrame;
+    renderTarget.blendEnable = blend;
     renderTarget.init(scene,texID);
     
     [renderer addRenderTarget:renderTarget];
@@ -321,6 +340,8 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
         
         RenderTarget defaultTarget(EmptyIdentity);
         defaultTarget.init(NULL,EmptyIdentity);
+        defaultTarget.clearEveryFrame = true;
+        defaultTarget.blendEnable = true;
         renderTargets.push_back(defaultTarget);
         
         // All the animations should work now, except for particle systems
@@ -465,6 +486,19 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
 - (void) setClearColor:(UIColor *)color
 {
     _clearColor = [color asRGBAColor];
+    
+    for (auto &target : renderTargets)
+    {
+        // This is the default render target
+        if (target.getId() == EmptyIdentity)
+        {
+            target.clearColor[0] = _clearColor.r / 255.0;
+            target.clearColor[1] = _clearColor.g / 255.0;
+            target.clearColor[2] = _clearColor.b / 255.0;
+            target.clearColor[3] = _clearColor.a / 255.0;
+            break;
+        }
+    }
 }
 
 // Calculate an acceptable MBR from world coords

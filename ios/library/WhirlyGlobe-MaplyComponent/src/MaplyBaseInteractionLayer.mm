@@ -3190,7 +3190,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         return;
     
     ChangeSet changes;
-    changes.push_back(new AddRenderTargetReq(renderTarget.renderTargetID,renderTarget.texture.width,renderTarget.texture.height,renderTarget.texture.texID));
+    changes.push_back(new AddRenderTargetReq(renderTarget.renderTargetID,renderTarget.texture.width,renderTarget.texture.height,renderTarget.texture.texID,renderTarget.clearEveryFrame,renderTarget.blend));
     
     [self flushChanges:changes mode:MaplyThreadCurrent];
 }

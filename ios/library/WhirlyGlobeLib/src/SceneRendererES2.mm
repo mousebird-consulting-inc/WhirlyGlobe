@@ -638,8 +638,11 @@ static const float ScreenOverlap = 0.1;
         {
             renderTarget.setActiveFramebuffer(self);
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            CheckGLError("SceneRendererES2: glClear");
+            if (renderTarget.clearEveryFrame)
+            {
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                CheckGLError("SceneRendererES2: glClear");
+            }
             
             bool depthMaskOn = (super.zBufferMode == zBufferOn);
             for (unsigned int ii=0;ii<drawList.size();ii++)

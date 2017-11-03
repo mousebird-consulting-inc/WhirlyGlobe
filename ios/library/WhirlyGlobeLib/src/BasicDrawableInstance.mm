@@ -31,7 +31,7 @@ namespace WhirlyKit
 {
 
 BasicDrawableInstance::BasicDrawableInstance(const std::string &name,SimpleIdentity masterID,Style style)
-: Drawable(name), programID(EmptyIdentity), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0), instBuffer(0), numInstances(0), vertArrayObj(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid), viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid), startTime(0), moving(false), instanceStyle(style)
+: Drawable(name), programID(EmptyIdentity), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0), instBuffer(0), numInstances(0), vertArrayObj(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid), viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid), startTime(0), moving(false), instanceStyle(style), renderTargetID(EmptyIdentity)
 {
 }
 

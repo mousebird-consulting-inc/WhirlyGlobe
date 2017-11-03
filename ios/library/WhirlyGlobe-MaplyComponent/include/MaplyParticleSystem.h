@@ -21,6 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
 #import "MaplyShader.h"
+#import "MaplyRenderTarget.h"
 
 typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
 	MaplyParticleSystemTypePoint,
@@ -112,6 +113,13 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
     All the textures will be handed over to the shader.
   */
 - (void)addTexture:(id __nonnull)image;
+
+/**
+    Draw these particles to the given render target.
+ 
+    Rather than being drawn to the screen, these particles will be drawn to the offscreen render target.
+  */
+- (void)setRenderTarget:(MaplyRenderTarget * __nonnull)renderTarget;
 
 @end
 

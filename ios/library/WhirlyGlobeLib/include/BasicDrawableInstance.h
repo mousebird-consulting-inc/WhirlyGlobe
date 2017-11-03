@@ -157,6 +157,12 @@ public:
     /// Add a instance to the stack of instances this instance represents (mmm, noun overload)
     void addInstances(const std::vector<SingleInstance> &insts);
     
+    // If set, we'll render this data where directed
+    void setRenderTarget(SimpleIdentity newRenderTarget) { renderTargetID = newRenderTarget; }
+    
+    // EmptyIdentity is the standard view, anything else ia custom render target
+    SimpleIdentity getRenderTarget() { return renderTargetID; }
+    
 protected:
     Style instanceStyle;
     SimpleIdentity programID;
@@ -183,7 +189,8 @@ protected:
     bool moving;
     // Uniforms to apply to shader
     SingleVertexAttributeSet uniforms;
-    
+    SimpleIdentity renderTargetID;
+
     // If set, we'll instance this one multiple times
     std::vector<SingleInstance> instances;
     // While rendering, which instance we're rendering

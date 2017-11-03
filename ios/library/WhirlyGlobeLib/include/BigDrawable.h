@@ -138,7 +138,7 @@ public:
     /// Return which is the active buffer
     int getActiveBuffer() { return activeBuffer; }
 
-    // If set, we'll render this data where idrected
+    // If set, we'll render this data where directed
     void setRenderTarget(SimpleIdentity newRenderTarget) { renderTargetID = newRenderTarget; }
 
     // EmptyIdentity is the standard view, anything else ia custom render target
