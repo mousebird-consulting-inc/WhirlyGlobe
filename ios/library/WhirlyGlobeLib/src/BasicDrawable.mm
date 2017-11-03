@@ -64,6 +64,7 @@ void BasicDrawable::basicDrawableInit()
     sharedBufferIsExternal = false;
     requestZBuffer = false;
     writeZBuffer = true;
+    renderTargetID = EmptyIdentity;
     
     clipCoords = false;
     
