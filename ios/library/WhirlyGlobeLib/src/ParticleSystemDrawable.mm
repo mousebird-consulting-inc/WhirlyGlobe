@@ -296,6 +296,10 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     prog->setUniform("u_mvpNormalMatrix", frameInfo.mvpNormalMat);
     prog->setUniform("u_pMatrix", frameInfo.projMat);
     prog->setUniform("u_scale", Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
+
+    // Size of a single pixel
+    Point2f pixDispSize(frameInfo.screenSizeInDisplayCoords.x()/frameInfo.sceneRenderer.framebufferWidth,frameInfo.screenSizeInDisplayCoords.y()/frameInfo.sceneRenderer.framebufferHeight);
+
     
     // If this is present, the drawable wants to do something based where the viewer is looking
     prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
@@ -303,6 +307,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     prog->setUniform("u_size", pointSize);
     prog->setUniform("u_time", (float)(frameInfo.currentTime-baseTime));
     prog->setUniform("u_lifetime", (float)lifetime);
+    prog->setUniform("u_pixDispSize", pixDispSize);
     
     // The program itself may have some textures to bind
     bool hasTexture[WhirlyKitMaxTextures];
