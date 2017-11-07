@@ -1006,6 +1006,13 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
   */
 - (void)addRenderTarget:(MaplyRenderTarget * _Nonnull)renderTarget;
 
+/**
+    Set the texture a given render target is writing to.
+ 
+    Render targets start out with one, but you may wish to change it.
+  */
+- (void)changeRenderTarget:(MaplyRenderTarget * __nonnull)renderTarget tex:(MaplyTexture * __nullable)tex;
+
 /** 
     Remove the given render target from the system.
     

@@ -66,6 +66,7 @@ using namespace WhirlyKit;
         _center.y() = [desc doubleForKey:@"shapecentery" default:0.0];
         _center.z() = [desc doubleForKey:@"shapecenterz" default:0.0];
     }
+    _renderTargetId = [desc intForKey:@"rendertarget" default:EmptyIdentity];
 }
 
 @end
@@ -109,6 +110,8 @@ void ShapeDrawableBuilder::addPoints(std::vector<Point3f> &pts,RGBAColor color,M
         drawable->setRequestZBuffer(shapeInfo.zBufferRead);
         drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
         drawable->setProgram(shapeInfo.programID);
+        if (shapeInfo.renderTargetId != EmptyIdentity)
+            drawable->setRenderTarget(shapeInfo.renderTargetId);
         if (center.x() != 0.0 || center.y() != 0.0 || center.z() != 0.0)
         {
             Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
@@ -219,6 +222,8 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
     drawable->setRequestZBuffer(shapeInfo.zBufferRead);
     drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
     drawable->setProgram(shapeInfo.programID);
+    if (shapeInfo.renderTargetId != EmptyIdentity)
+        drawable->setRenderTarget(shapeInfo.renderTargetId);
     if (texID != EmptyIdentity)
         drawable->setTexId(0, texID);
     if (center.x() != 0.0 || center.y() != 0.0 || center.z() != 0.0)

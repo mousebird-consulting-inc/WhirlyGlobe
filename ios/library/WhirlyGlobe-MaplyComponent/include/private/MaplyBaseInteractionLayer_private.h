@@ -166,6 +166,9 @@
 // Add a render target to the renderer
 - (void)addRenderTarget:(MaplyRenderTarget *)renderTarget;
 
+// Chang the texture being used by a render target
+- (void)changeRenderTarget:(MaplyRenderTarget *)renderTarget tex:(MaplyTexture *)tex;
+
 // Stop rendering to a given render target
 - (void)removeRenderTarget:(MaplyRenderTarget *)renderTarget;
 

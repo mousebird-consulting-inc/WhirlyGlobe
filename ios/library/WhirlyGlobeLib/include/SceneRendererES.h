@@ -95,6 +95,9 @@ public:
     /// Make this framebuffer active
     void setActiveFramebuffer(WhirlyKitSceneRendererES *renderer);
     
+    /// Set up the target texture
+    void setTargetTexture(Scene *scene,SimpleIdentity newTargetTexID);
+    
     /// OpenGL ES Name for the frame buffer
     GLuint framebuffer;
     /// OpenGL ES Name for the color buffer
@@ -129,7 +132,22 @@ protected:
     bool clearEveryFrame;
     bool blend;
 };
+    
+// Change details about a rendering target.  In this case, just texture.
+class ChangeRenderTargetReq : public ChangeRequest
+{
+public:
+    ChangeRenderTargetReq(SimpleIdentity renderTargetID,SimpleIdentity texID);
+    
+    /// Add the render target to the renderer
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    SimpleIdentity renderTargetID;
+    SimpleIdentity texID;
+};
 
+// Remove a render target from the rendering loop
 class RemRenderTargetReq : public ChangeRequest
 {
 public:

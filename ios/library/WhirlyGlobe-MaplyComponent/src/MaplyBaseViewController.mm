@@ -27,6 +27,7 @@
 #import "DDXMLElementAdditions.h"
 #import "NSString+DDXML.h"
 #import "Maply3dTouchPreviewDelegate.h"
+#import "MaplyTexture_private.h"
 
 
 using namespace Eigen;
@@ -1086,6 +1087,16 @@ static const float PerfOutputDelay = 15.0;
         return;
 
     [interactLayer addRenderTarget:renderTarget];
+    
+    [interactLayer endOfWork];
+}
+
+- (void)changeRenderTarget:(MaplyRenderTarget *)renderTarget tex:(MaplyTexture *)tex
+{
+    if (![interactLayer startOfWork])
+        return;
+    
+    [interactLayer changeRenderTarget:renderTarget tex:tex];
     
     [interactLayer endOfWork];
 }

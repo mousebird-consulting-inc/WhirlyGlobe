@@ -443,22 +443,25 @@ public:
     
     // Look for an image texture that's already representing our UIImage
     MaplyTexture *maplyTex = nil;
-    std::vector<MaplyImageTextureList::iterator> toRemove;
-    for (MaplyImageTextureList::iterator theImageTex = imageTextures.begin();
-         theImageTex != imageTextures.end(); ++theImageTex)
+    if (image != nil)
     {
-        if (*theImageTex)
+        std::vector<MaplyImageTextureList::iterator> toRemove;
+        for (MaplyImageTextureList::iterator theImageTex = imageTextures.begin();
+             theImageTex != imageTextures.end(); ++theImageTex)
         {
-            if ((*theImageTex).image == image)
+            if (*theImageTex)
             {
-                maplyTex = *theImageTex;
-                break;
-            }
-        } else
-            toRemove.push_back(theImageTex);
+                if ((*theImageTex).image == image)
+                {
+                    maplyTex = *theImageTex;
+                    break;
+                }
+            } else
+                toRemove.push_back(theImageTex);
+        }
+        for (auto rem : toRemove)
+            imageTextures.erase(rem);
     }
-    for (auto rem : toRemove)
-        imageTextures.erase(rem);
 
     // Takes the altas path instead
     if (!maplyTex && image && [desc boolForKey:kMaplyTexAtlas default:false])
@@ -746,6 +749,19 @@ public:
         SimpleIdentity shaderID = scene->getProgramIDBySceneName([defaultShaderName cStringUsingEncoding:NSASCIIStringEncoding]);
         if (shaderID != EmptyIdentity)
             inDesc[kMaplyShader] = @(shaderID);
+    }
+}
+
+// Turn a MaplyRenderTarget object into an ID the engine recognizes
+- (void)resolveRenderTarget:(NSMutableDictionary *)desc
+{
+    // Look for a render target
+    SimpleIdentity renderTargetID = EmptyIdentity;
+    MaplyRenderTarget *renderTarget = desc[@"rendertarget"];
+    if ([renderTarget isKindOfClass:[MaplyRenderTarget class]])
+    {
+        renderTargetID = renderTarget.renderTargetID;
+        desc[@"rendertarget"] = @(renderTargetID);
     }
 }
 
@@ -1953,6 +1969,7 @@ public:
 
     // Might be a custom shader on these
     [self resolveShader:inDesc defaultShader:nil];
+    [self resolveRenderTarget:inDesc];
 
     // Need to convert shapes to the form the API is expecting
     NSMutableArray *ourShapes = [NSMutableArray array];
@@ -2965,6 +2982,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         wkPartSys.totalParticles = partSys.totalParticles;
         wkPartSys.baseTime = partSys.baseTime;
         wkPartSys.continuousUpdate = partSys.continuousUpdate;
+        wkPartSys.renderTargetID = partSys.renderTargetID;
         // Type
         switch (partSys.type)
         {
@@ -3191,6 +3209,15 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     ChangeSet changes;
     changes.push_back(new AddRenderTargetReq(renderTarget.renderTargetID,renderTarget.texture.width,renderTarget.texture.height,renderTarget.texture.texID,renderTarget.clearEveryFrame,renderTarget.blend));
+    
+    [self flushChanges:changes mode:MaplyThreadCurrent];
+}
+
+- (void)changeRenderTarget:(MaplyRenderTarget *)renderTarget tex:(MaplyTexture *)tex
+{
+    ChangeSet changes;
+    SimpleIdentity texID = tex ? tex.texID : EmptyIdentity;
+    changes.push_back(new ChangeRenderTargetReq(renderTarget.renderTargetID,texID));
     
     [self flushChanges:changes mode:MaplyThreadCurrent];
 }
