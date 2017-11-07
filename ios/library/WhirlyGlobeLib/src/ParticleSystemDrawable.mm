@@ -191,6 +191,7 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
     pthread_mutex_lock(&batchLock);
     batches[batch.batchID] = batch;
     batches[batch.batchID].active = true;
+    chunksDirty = true;
     pthread_mutex_unlock(&batchLock);
 }
     
