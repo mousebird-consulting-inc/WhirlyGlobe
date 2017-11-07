@@ -68,18 +68,15 @@ void RenderTarget::init()
 bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
 {
     glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     
     // Our destination is a texture in this case
     if (targetTexID)
     {
         colorbuffer = 0;
-        TextureBase *tex = scene->getTexture(targetTexID);
-        if (tex) {
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->getGLId(), 0);
-            CheckGLError("RenderTarget: glFramebufferTexture2D");
-        }
+        setTargetTexture(scene,targetTexID);
     } else {
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
         // Generate our own color buffer
         glGenRenderbuffers(1, &colorbuffer);
         CheckGLError("RenderTarget: glGenRenderbuffers");
@@ -96,6 +93,9 @@ bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
         CheckGLError("RenderTarget: glRenderbufferStorage");
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer);
         CheckGLError("RenderTarget: glFramebufferRenderbuffer");
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        CheckGLError("RenderTarget: glBindFramebuffer");
     }
     
 //    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
@@ -104,11 +104,22 @@ bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
 //        return false;
 //    }
     
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    CheckGLError("RenderTarget: glBindFramebuffer");
     
     isSetup = false;
     return true;
+}
+    
+void RenderTarget::setTargetTexture(Scene *scene,SimpleIdentity targetTexID)
+{
+    TextureBase *tex = scene->getTexture(targetTexID);
+    if (tex) {
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->getGLId(), 0);
+        CheckGLError("RenderTarget: glFramebufferTexture2D");
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 }
     
 void RenderTarget::clear()
@@ -163,6 +174,22 @@ void AddRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
     renderTarget.init(scene,texID);
     
     [renderer addRenderTarget:renderTarget];
+}
+    
+ChangeRenderTargetReq::ChangeRenderTargetReq(SimpleIdentity renderTargetID,SimpleIdentity texID)
+    : renderTargetID(renderTargetID), texID(texID)
+{
+}
+    
+void ChangeRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    for (RenderTarget &renderTarget : renderer->renderTargets)
+    {
+        if (renderTarget.getId() == renderTargetID) {
+            renderTarget.setTargetTexture(scene,texID);
+            break;
+        }
+    }
 }
     
 RemRenderTargetReq::RemRenderTargetReq(SimpleIdentity targetID)

@@ -37,6 +37,7 @@
 @property (nonatomic,assign) bool zBufferWrite;
 @property (nonatomic,assign) bool hasCenter;
 @property (nonatomic,assign) WhirlyKit::Point3d &center;
+@property (nonatomic,assign) WhirlyKit::SimpleIdentity renderTargetId;
 
 - (id)initWithShapes:(NSArray *)shapes desc:(NSDictionary *)desc;
 

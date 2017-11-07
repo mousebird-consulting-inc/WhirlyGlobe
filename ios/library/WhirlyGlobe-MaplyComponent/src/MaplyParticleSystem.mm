@@ -55,9 +55,6 @@ int ParticleSystemAttribute::dataSize()
 using namespace WhirlyKit;
 
 @implementation MaplyParticleSystem
-{
-    SimpleIdentity renderTargetID;
-}
 
 - (instancetype)initWithName:(NSString *)name
 {
@@ -73,7 +70,7 @@ using namespace WhirlyKit;
     _batchSize = 2000;
     _totalParticles = 100000;
     _baseTime = CFAbsoluteTimeGetCurrent();
-    renderTargetID = EmptyIdentity;
+    _renderTargetID = EmptyIdentity;
     
     return self;
 }
@@ -94,7 +91,7 @@ using namespace WhirlyKit;
 
 - (void)setRenderTarget:(MaplyRenderTarget *)renderTarget
 {
-    renderTargetID = renderTarget.renderTargetID;
+    _renderTargetID = renderTarget.renderTargetID;
 }
 
 @end

@@ -85,6 +85,7 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     draw->setLifetime(sceneRep->partSys.lifetime);
     draw->setTexIDs(sceneRep->partSys.texIDs);
     draw->setContinuousUpdate(sceneRep->partSys.continuousUpdate);
+    draw->setRenderTarget(sceneRep->partSys.renderTargetID);
     changes.push_back(new AddDrawableReq(draw));
     sceneRep->draws.insert(draw);
     

@@ -67,6 +67,8 @@ NSString* const kMaplyEnableEnd = @"enableend";
 NSString* const kMaplyZBufferRead = @"zbufferread";
 /// Have a given object write itself to the z buffer
 NSString* const kMaplyZBufferWrite = @"zbufferwrite";
+/// Set the render target if the given geometry type supports it
+NSString* const kMaplyRenderTarget = @"rendertarget";
 
 /// Assign a shader program to a particular feature.  Use the shader program's name
 NSString* const kMaplyShader = @"shader";
