@@ -19,6 +19,7 @@
  */
 
 #import <vector>
+#import <unordered_map>
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
 #import <OpenGLES/ES3/gl.h>
@@ -156,9 +157,9 @@ protected:
     GLuint fragShader;
     CFTimeInterval lightsLastUpdated;
     // Uniforms sorted for fast lookup
-    std::vector<OpenGLESUniform> uniforms;
+    std::unordered_map<std::string,std::shared_ptr<OpenGLESUniform>> uniforms;
     // Attributes sorted for fast lookup
-    std::vector<OpenGLESAttribute> attrs;
+    std::unordered_map<std::string,std::shared_ptr<OpenGLESAttribute>> attrs;
 };
 
 }

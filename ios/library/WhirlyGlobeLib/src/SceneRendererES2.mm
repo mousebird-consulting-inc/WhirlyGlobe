@@ -573,7 +573,7 @@ static const float ScreenOverlap = 0.1;
                 DrawableRefSet rawDrawables = scene->getDrawables();
                 for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
                 {
-                    Drawable *theDrawable = it->get();
+                    Drawable *theDrawable = it->second.get();
                     if (theDrawable->isOn(offFrameInfo))
                     {
                         const Matrix4d *localMat = theDrawable->getMatrix();

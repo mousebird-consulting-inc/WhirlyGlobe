@@ -324,30 +324,28 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
     char thingName[1024];
     for (unsigned int ii=0;ii<numUniform;ii++)
     {
-        OpenGLESUniform uni;
+        std::shared_ptr<OpenGLESUniform> uni(new OpenGLESUniform());
         GLint bufLen;
         thingName[0] = 0;
-        glGetActiveUniform(program, ii, 1023, &bufLen, &uni.size, &uni.type, thingName);
-        uni.name = thingName;
-        uni.index = glGetUniformLocation(program, thingName);
-        uniforms.push_back(uni);
+        glGetActiveUniform(program, ii, 1023, &bufLen, &uni->size, &uni->type, thingName);
+        uni->name = thingName;
+        uni->index = glGetUniformLocation(program, thingName);
+        uniforms[uni->name] = uni;
     }
-    std::sort(uniforms.begin(),uniforms.end());
     
     // Convert the attributes into a more useful form
     GLint numAttr;
     glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &numAttr);
     for (unsigned int ii=0;ii<numAttr;ii++)
     {
-        OpenGLESAttribute attr;
+        std::shared_ptr<OpenGLESAttribute> attr(new OpenGLESAttribute());
         GLint bufLen;
         thingName[0] = 0;
-        glGetActiveAttrib(program, ii, 1023, &bufLen, &attr.size, &attr.type, thingName);
-        attr.index = glGetAttribLocation(program, thingName);
-        attr.name = thingName;
-        attrs.push_back(attr);
+        glGetActiveAttrib(program, ii, 1023, &bufLen, &attr->size, &attr->type, thingName);
+        attr->index = glGetAttribLocation(program, thingName);
+        attr->name = thingName;
+        attrs[attr->name] = attr;
     }
-    std::sort(attrs.begin(),attrs.end());
 }
     
 // Clean up oustanding OpenGL resources
@@ -381,22 +379,18 @@ bool OpenGLES2Program::isValid()
 
 OpenGLESUniform *OpenGLES2Program::findUniform(const std::string &uniformName)
 {
-    OpenGLESUniform uni(uniformName);
-    auto it = std::lower_bound(uniforms.begin(),uniforms.end(),uni);
-    if (it == uniforms.end() || it->name != uni.name)
+    auto it = uniforms.find(uniformName);
+    if (it == uniforms.end())
         return NULL;
-    
-    return &*it;
+    return it->second.get();
 }
 
 const OpenGLESAttribute *OpenGLES2Program::findAttribute(const std::string &attrName)
 {
-    OpenGLESAttribute attr(attrName);
-    auto it = std::lower_bound(attrs.begin(),attrs.end(),attr);
-    if (it == attrs.end() || it->name != attr.name)
+    auto it = attrs.find(attrName);
+    if (it == attrs.end())
         return NULL;
-    
-    return &*it;
+    return it->second.get();
 }
     
 bool OpenGLES2Program::hasLights()
@@ -435,13 +429,13 @@ int OpenGLES2Program::bindTextures()
 {
     int numTextures = 0;
     
-    for (auto &uni : uniforms)
+    for (auto uni : uniforms)
     {
-        if (uni.isTexture)
+        if (uni.second->isTexture)
         {
             glActiveTexture(GL_TEXTURE0+numTextures);
-            glBindTexture(GL_TEXTURE_2D, uni.val.iVals[0]);
-            glUniform1i(uni.index,numTextures);
+            glBindTexture(GL_TEXTURE_2D, uni.second->val.iVals[0]);
+            glUniform1i(uni.second->index,numTextures);
             numTextures++;
         }
     }
