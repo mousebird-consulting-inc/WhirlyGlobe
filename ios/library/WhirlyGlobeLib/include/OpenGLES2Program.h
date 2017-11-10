@@ -39,6 +39,8 @@ public:
     OpenGLESUniform() : index(0), size(0), isSet(false), isTexture(false) { }
     OpenGLESUniform(const std::string &name) : name(name) { }
     
+    bool operator < (const OpenGLESUniform &that) const { return name < that.name; }
+    
     /// Return true if this uniform is an array
     bool isArray() { return size != 0; }
     /// Return true if the type matches
@@ -64,21 +66,13 @@ public:
     } val;
 };
 
-// Used for sorting
-typedef struct
-{
-    bool operator()(const OpenGLESUniform *a,const OpenGLESUniform *b)
-    {
-        return a->name < b->name;
-    }
-} UniformNameSortStruct;
-
 /// Used to track an attribute (per vertex) within an OpenGL ES 2.0 shader program
 class OpenGLESAttribute
 {
 public:
     OpenGLESAttribute() : index(0), size(0) { }
     OpenGLESAttribute(const std::string &name) : name(name) { }
+
     bool operator < (const OpenGLESAttribute &that) const { return name < that.name; }
     
     /// Return true if this uniform is an array
@@ -95,16 +89,6 @@ public:
     /// Attribute data type
     GLenum type;
 };
-        
-// Used for sorting
-typedef struct
-{
-    bool operator()(const OpenGLESAttribute *a,const OpenGLESAttribute *b)
-    {
-        return a->name < b->name;
-    }
-} AttributeNameSortStruct;
-
 
 /** Representation of an OpenGL ES 2.0 program.  It's an identifiable so we can
     point to it generically.  Otherwise, pretty basic.
@@ -172,9 +156,9 @@ protected:
     GLuint fragShader;
     CFTimeInterval lightsLastUpdated;
     // Uniforms sorted for fast lookup
-    std::set<OpenGLESUniform *,UniformNameSortStruct> uniforms;
+    std::vector<OpenGLESUniform> uniforms;
     // Attributes sorted for fast lookup
-    std::set<OpenGLESAttribute *,AttributeNameSortStruct> attrs;
+    std::vector<OpenGLESAttribute> attrs;
 };
 
 }

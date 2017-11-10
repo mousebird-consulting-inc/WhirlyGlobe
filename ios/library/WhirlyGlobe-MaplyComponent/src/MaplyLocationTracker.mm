@@ -387,7 +387,7 @@
 - (void) lockToLocation:(MaplyCoordinate)location heading:(float)heading{
     __strong WhirlyGlobeViewController *globeVC = _globeVC;
     __strong MaplyViewController *mapVC = _mapVC;
-    __strong NSObject<MaplyLocationTrackerDelegate> *delegate = _delegate;
+//    __strong NSObject<MaplyLocationTrackerDelegate> *delegate = _delegate;
     if (!globeVC && !mapVC)
         return;
     
