@@ -164,7 +164,7 @@ void GeometryRaw::calcBounds(Point3d &ll,Point3d &ur)
     ll.x() = MAXFLOAT;  ll.y() = MAXFLOAT;  ll.z() = MAXFLOAT;
     ur.x() = -MAXFLOAT;  ur.y() = -MAXFLOAT;  ur.z() = -MAXFLOAT;
     
-    for (const auto pt : pts)
+    for (const auto &pt : pts)
     {
         ll.x() = std::min(ll.x(),pt.x());
         ll.y() = std::min(ll.y(),pt.y());

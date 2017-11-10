@@ -195,6 +195,10 @@ void BigDrawable::setOnOff(bool onOff)
     enable = onOff;
 }
     
+// Putting there here rather than running sprintf is a lot faster.  Really.  Oy.
+static const char *baseMapNames[WhirlyKitMaxTextures] = {"s_baseMap0","s_baseMap1","s_baseMap2","s_baseMap3","s_baseMap4","s_baseMap5","s_baseMap6","s_baseMap7"};
+
+    
 // Used to pass in buffer offsets
 #define CALCBUFOFF(base,off) ((char *)(base) + (off))
 
@@ -286,8 +290,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
     {
         GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
-        char baseMapName[40];
-        sprintf(baseMapName,"s_baseMap%d",ii);
+        const char *baseMapName = baseMapNames[ii];
         const OpenGLESUniform *texUni = prog->findUniform(baseMapName);
         hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
         if (hasTexture[ii+progTexBound])

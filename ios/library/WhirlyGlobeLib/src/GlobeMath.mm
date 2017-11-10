@@ -84,7 +84,7 @@ Point3f GeoCoordSystem::LocalToGeocentric(Point3f localPt)
     InitProj4();
     
     double x,y,z;
-    x = localPt.x(), y = localPt.y(), z = localPt.z();
+    x = localPt.x(); y = localPt.y(); z = localPt.z();
     pj_transform( pj_latlon, pj_geocentric, 1, 1, &x, &y, &z );
     return Point3f(x,y,z);
 }
@@ -94,7 +94,7 @@ Point3d GeoCoordSystem::LocalToGeocentric(Point3d localPt)
     InitProj4();
     
     double x,y,z;
-    x = localPt.x(), y = localPt.y(), z = localPt.z();
+    x = localPt.x(); y = localPt.y(); z = localPt.z();
     pj_transform( pj_latlon, pj_geocentric, 1, 1, &x, &y, &z );
     return Point3d(x,y,z);
 }
@@ -125,7 +125,7 @@ Point3d GeoCoordSystem::GeocentricToLocal(Point3d geocPt)
     InitProj4();
     
     double x,y,z;
-    x = geocPt.x(), y = geocPt.y(), z = geocPt.z();
+    x = geocPt.x(); y = geocPt.y(); z = geocPt.z();
     pj_transform(pj_geocentric, pj_latlon, 1, 1, &x, &y, &z);
     return Point3d(x,y,z);
 }
