@@ -39,7 +39,7 @@ GlobeScene::~GlobeScene()
     
 void GlobeScene::addDrawable(DrawableRef draw)
 {
-    drawables.insert(draw);
+    drawables[draw->getId()] = draw;
 
     // Account for the geo coordinate wrapping
     Mbr localMbr = draw->getLocalMbr();
@@ -65,7 +65,9 @@ void GlobeScene::remDrawable(DrawableRef draw)
     for (unsigned int ii=0;ii<localMbrs.size();ii++)
         cullTree->getTopCullable()->remDrawable(cullTree,localMbrs[ii],draw);
 
-    drawables.erase(draw);
+    auto it = drawables.find(draw->getId());
+    if (it != drawables.end())
+        drawables.erase(it);
 }
 
 }
