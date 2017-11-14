@@ -49,6 +49,7 @@ History: PJN / 01-02-2005 1. Fixed a problem with the declaration of the variabl
                           2. Updated the observed DeltaT values from http://maia.usno.navy.mil/ser7/deltat.data to 1st January 2015
                           3. Updated the predicted DeltaT values from http://maia.usno.navy.mil/ser7/deltat.preds to 1st January 2024
                           4. Updated the CumulativeLeapSeconds table from http://maia.usno.navy.mil/ser7/tai-utc.dat to 1st July 2015
+      Niskov / 15-11-2017 1. Updated the observed DeltaT values from  http://maia.usno.navy.mil/ser7/deltat.data to 1st June 2017
   
 Copyright (c) 2003 - 2015 by PJ Naughter (Web: www.naughter.com, Email: pjna@naughter.com)
 
@@ -85,7 +86,7 @@ struct DeltaTValue
 
 const DeltaTValue g_DeltaTValues[] = 
 {
-//All the initial values are observed values from 1 February 1973 to 1 October 2014 as taken from http://maia.usno.navy.mil/ser7/deltat.data 
+//All the initial values are observed values from 1 February 1973 to 1 June 2017 as taken from http://maia.usno.navy.mil/ser7/deltat.data 
   { 2441714.5,	43.4724 },
   { 2441742.5,	43.5648 },
   { 2441773.5,	43.6737 },
@@ -590,17 +591,37 @@ const DeltaTValue g_DeltaTValues[] =
   { 2456962.5,  67.5711 }, //1 November 2014
   { 2456992.5,  67.6070 }, //1 December 2014
   { 2457023.5,  67.6439 }, //1 January 2015
+  { 2457054.5,  67.6765 }, //1 February 2015
+  { 2457082.5,  67.7117 }, //1 March 2015
+  { 2457113.5,  67.7591 }, //1 April 2015
+  { 2457143.5,  67.8012 }, //1 May 2015
+  { 2457174.5,  67.8402 }, //1 June 2015
+  { 2457204.5,  67.8606 }, //1 July 2015
+  { 2457235.5,  67.8822 }, //1 August 2015
+  { 2457266.5,  67.9120 }, //1 September 2015
+  { 2457296.5,  67.9547 }, //1 October 2015
+  { 2457327.5,  68.0055 }, //1 November 2015
+  { 2457357.5,  68.0514 }, //1 December 2015
+  { 2457388.5,  68.1024 }, //1 January 2016
+  { 2457419.5,  68.1577 }, //1 February 2016
+  { 2457448.5,  68.2044 }, //1 March 2016
+  { 2457479.5,  68.2665 }, //1 April 2016
+  { 2457509.5,  68.3188 }, //1 May 2016
+  { 2457540.5,  68.3704 }, //1 June 2016
+  { 2457570.5,  68.3964 }, //1 July 2016
+  { 2457601.5,  68.4095 }, //1 August 2016
+  { 2457632.5,  68.4305 }, //1 September 2016
+  { 2457662.5,  68.4630 }, //1 October 2016
+  { 2457693.5,  68.5078 }, //1 November 2016
+  { 2457723.5,  68.5537 }, //1 December 2016
+  { 2457754.5,  68.5927 }, //1 January 2017
+  { 2457785.5,  68.6298 }, //1 February 2017
+  { 2457813.5,  68.6671 }, //1 March 2017
+  { 2457844.5,  68.7135 }, //1 April 2017
+  { 2457874.5,  68.7623 }, //1 May 2017
+  { 2457905.5,  68.8033 } //1 June 2017
 
 //All these final values are predicted values from Year 2015.25 to Year 2024.0 are taken from http://maia.usno.navy.mil/ser7/deltat.preds
-  { 2457114.75, 67.9    }, //2015.25
-  { 2457206.00, 68.0    }, //2015.5
-  { 2457297.25, 68.2    }, //2015.75
-  { 2457388.50, 68.3    }, //2016.0
-  { 2457480.00, 68.4    }, //2016.25
-  { 2457571.50, 68.5    }, //2016.5
-  { 2457663.00, 68.6    }, //2016.75
-  { 2457754.50, 68.7    }, //2017.0
-  { 2457845.75, 68.9    }, //2017.25
   { 2457937.00, 69      }, //2017.5
   { 2458210.75, 69      }, //2018.25
   { 2458302.00, 70      }, //2018.5
