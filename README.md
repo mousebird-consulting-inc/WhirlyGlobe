@@ -26,7 +26,7 @@ There’s a tutorial for both iOS and Android:
 Builds
 ---
 
-This is the master branch of the WhirlyGlobe-Maply Component and API version 2.5.  It should be easy to compile, as all the crazy dependencies are in submodules.  You can also get a [precompiled version] (http://mousebird.github.io/WhirlyGlobe/builds/builds.html).
+This is the master branch of the WhirlyGlobe-Maply Component and API version 2.5.  It should be easy to compile, as all the crazy dependencies are in submodules.  You can also get a [precompiled version](http://mousebird.github.io/WhirlyGlobe/builds/builds.html).
 
 WhirlyGlobe-Maply uses a bunch of submodules, which you'll need to get.  Like so.
 
@@ -44,6 +44,6 @@ More Information
 
 Follow us on Twitter:
 
-[@whrlyglobemaply] (https://twitter.com/whrlyglobemaply)
+[@whrlyglobemaply](https://twitter.com/whrlyglobemaply)
 
 Questions to:  contact@mousebirdconsulting.com
