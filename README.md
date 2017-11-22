@@ -20,8 +20,8 @@ Check out the [mousebird consulting blog](http://mousebirdconsulting.blogspot.co
 
 There’s a tutorial for both iOS and Android:
 
-- [Getting started with iOS](http://mousebird.github.io/WhirlyGlobe/tutorial/building_from_source.html) 
-- [Getting started with Android](http://mousebird.github.io/WhirlyGlobe/tutorial/building_from_source.html) 
+- [Getting started with iOS](http://mousebird.github.io/WhirlyGlobe/tutorial/ios/getting_started.html) 
+- [Getting started with Android](http://mousebird.github.io/WhirlyGlobe/tutorial/android/getting-started.html) 
 
 Builds
 ---
