@@ -21,6 +21,7 @@
 #import "VectorObject.h"
 #import "GlobeMath.h"
 #import "VectorData.h"
+#import "ShapeReader.h"
 #import "WhirlyKitLog.h"
 
 namespace WhirlyKit
@@ -54,6 +55,21 @@ bool VectorObject::FromGeoJSONAssembly(const std::string &json,std::map<std::str
     return true;
 }
 #endif
+    
+bool VectorObject::fromShapeFile(const std::string &fileName)
+{
+    ShapeReader shapeReader(fileName);
+    if (!shapeReader.isValid())
+        return false;
+    
+    int numObj = shapeReader.getNumObjects();
+    for (unsigned int ii=0;ii<numObj;ii++) {
+        VectorShapeRef shape = shapeReader.getObjectByIndex(ii, NULL);
+        shapes.insert(shape);
+    }
+    
+    return true;
+}
     
 Dictionary *VectorObject::getAttributes()
 {

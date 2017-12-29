@@ -45,6 +45,11 @@ public:
     /// @param json The GeoJSON data as a std::string
     /// @return True on success, false on failure.
     bool fromGeoJSON(const std::string &json);
+    
+    /// @brief Read objects from the given shapefile
+    /// @param fileName The filename of the Shapefile
+    /// @return True on success, false on failure.
+    bool fromShapeFile(const std::string &fileName);
 
     /// @brief Assemblies are just concattenated JSON
     static bool FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObject *> &vecData);

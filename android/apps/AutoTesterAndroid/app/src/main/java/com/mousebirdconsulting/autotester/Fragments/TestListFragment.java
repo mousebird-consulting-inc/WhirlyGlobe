@@ -48,6 +48,7 @@ import com.mousebirdconsulting.autotester.TestCases.PagingLayerTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
+import com.mousebirdconsulting.autotester.TestCases.ShapefileTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ShapesTestCase;
 import com.mousebirdconsulting.autotester.TestCases.SimpleParticleSystemTestCase;
 import com.mousebirdconsulting.autotester.TestCases.SLDTestCase;
@@ -126,6 +127,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new AnimatedBaseMapTestCase(getActivity()));
 			testCases.add(new ImageSingleLevelTestCase(getActivity()));
 			testCases.add(new VectorsTestCase(getActivity()));
+			testCases.add(new ShapefileTestCase(getActivity()));
 			testCases.add(new GreatCircleTestCase(getActivity()));
 			testCases.add(new TextureVectorTestCase(getActivity()));
 			testCases.add(new ScreenLabelsTestCase(getActivity()));
