@@ -136,6 +136,13 @@ public class VectorObject implements Iterable<VectorObject>
 	public native boolean fromGeoJSON(String json);
 
 	/**
+	 * Load vector objects from a Shapefile.
+	 * @param fileName The filename of the Shapefile.
+	 * @return false if we were unable to parse the Shapefile.
+	 */
+	public native boolean fromShapeFile(String fileName);
+
+	/**
 	 * Returns the total number of points in a feature.  Used for assessing size.
      */
 	public native int countPoints();

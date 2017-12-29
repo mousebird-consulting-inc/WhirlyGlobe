@@ -232,6 +232,34 @@ jboolean Java_com_mousebird_maply_VectorObject_fromGeoJSON
     return false;
 }
 
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_fromShapeFile
+(JNIEnv *env, jobject obj, jstring jstr)
+{
+    try
+    {
+        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
+        VectorObject *vecObj = classInfo->getObject(env,obj);
+        if (!vecObj)
+            return false;
+        
+        const char *cStr = env->GetStringUTFChars(jstr,0);
+        if (!cStr)
+            return false;
+        std::string jsonStr(cStr);
+        env->ReleaseStringUTFChars(jstr, cStr);
+        
+        bool ret = vecObj->fromShapeFile(jsonStr);
+        
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorObject::fromShapeFile()");
+    }
+    
+    return false;
+}
+
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_FromGeoJSONAssembly
   (JNIEnv *env, jclass vecObjClass, jstring jstr)
 {
