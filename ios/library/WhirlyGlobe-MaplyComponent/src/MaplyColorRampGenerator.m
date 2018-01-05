@@ -10,16 +10,23 @@
 
 @implementation MaplyColorRampGenerator
 {
+    NSMutableArray *entryColors;
     NSMutableArray *colors;
 }
 
 - (id)init
 {
     self = [super init];
+    entryColors = [NSMutableArray array];
     colors = [NSMutableArray array];
     _stretch = true;
     
     return self;
+}
+
+- (void)addSingleEntryColor:(UIColor *)color
+{
+    [entryColors addObject:color];
 }
 
 - (void)addHexColor:(int)hexColor
@@ -101,13 +108,17 @@
     for (unsigned int xx=0;xx<width;xx++)
     {
         UIColor *color = nil;
-        if (_stretch)
-            color = [self interpColor:(xx/(float)(width-1))];
-        else {
-            if (xx >= [colors count])
-                color = [UIColor clearColor];
-            else
-                color = [colors objectAtIndex:xx];
+        if (xx < [entryColors count]) {
+            color = [entryColors objectAtIndex:xx];
+        } else {
+            if (_stretch)
+                color = [self interpColor:(xx/(float)(width-1))];
+            else {
+                if (xx >= [colors count])
+                    color = [UIColor clearColor];
+                else
+                    color = [colors objectAtIndex:xx];
+            }
         }
         [color setFill];
         CGContextFillRect(ctx, CGRectMake(xx, 0.0, 1, height));
