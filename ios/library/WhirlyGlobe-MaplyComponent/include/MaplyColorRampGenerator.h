@@ -24,6 +24,9 @@
 /// This color has an alpha too
 - (void)addHexColorWithAlpha:(int)hexColor;
 
+/// A color that's present in only one entry
+- (void)addSingleEntryColor:(UIColor *)color;
+
 /// Add a color as a UIColor
 - (void)addColor:(UIColor *)color;
 
