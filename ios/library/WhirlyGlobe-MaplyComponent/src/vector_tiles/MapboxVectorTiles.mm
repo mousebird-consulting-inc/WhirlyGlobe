@@ -69,7 +69,7 @@ static double MAX_EXTENT = 20037508.342789244;
     _viewC = nil;
 }
 
-- (MaplyVectorTileData *)buildObjects:(NSData *)tileData tile:(MaplyTileID)tileID bounds:(MaplyBoundingBox)bbox
+- (MaplyVectorTileData *)buildObjects:(NSData *)tileData tile:(MaplyTileID)tileID bounds:(MaplyBoundingBox)bbox geoBounds:(MaplyBoundingBox)geoBbox
 {
     //calulate tile bounds and coordinate shift
     int tileSize = 256;
@@ -350,11 +350,11 @@ static double MAX_EXTENT = 20037508.342789244;
     }
     
     if(self.debugLabel || self.debugOutline) {
-        MaplyCoordinate ne = bbox.ur;
-        MaplyCoordinate sw = bbox.ll;
+        MaplyCoordinate ne = geoBbox.ur;
+        MaplyCoordinate sw = geoBbox.ll;
         if(self.debugLabel) {
             MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
-            label.text = [NSString stringWithFormat:@"%d/%d/%d %lu items", tileID.level, tileID.x,
+            label.text = [NSString stringWithFormat:@"%d: (%d,%d)\n%lu items", tileID.level, tileID.x,
                           tileID.y, (unsigned long)components.count];
             MaplyCoordinate tileCenter;
             tileCenter.x = (ne.x + sw.x)/2.0;
@@ -362,8 +362,12 @@ static double MAX_EXTENT = 20037508.342789244;
             label.loc = tileCenter;
             
             MaplyComponentObject *c = [_viewC addScreenLabels:@[label]
-                                                              desc:@{kMaplyFont : [UIFont boldSystemFontOfSize:12],
-                                                                     kMaplyTextColor : [UIColor blackColor]}];
+                                                         desc:@{kMaplyFont : [UIFont boldSystemFontOfSize:12],
+                                                                kMaplyTextColor : [UIColor blackColor],
+                                                                kMaplyDrawPriority : @(kMaplyMaxDrawPriorityDefault+100000000),
+                                                                kMaplyEnable: @(NO)
+                                                                }
+                                                         mode:MaplyThreadCurrent];
             [components addObject:c];
         }
         if(self.debugOutline) {
@@ -379,9 +383,12 @@ static double MAX_EXTENT = 20037508.342789244;
                                                                                 numCoords:5
                                                                                attributes:nil];
             MaplyComponentObject *c = [_viewC addVectors:@[outlineObj]
-                                                         desc:@{kMaplyColor: [UIColor redColor],
-                                                                kMaplyVecWidth:@(1)
-                                                                }];
+                                                    desc:@{kMaplyColor: [UIColor redColor],
+                                                           kMaplyVecWidth:@(1),
+                                                           kMaplyDrawPriority : @(kMaplyMaxDrawPriorityDefault+100000000),
+                                                           kMaplyEnable: @(NO)
+                                                           }
+                                                    mode:MaplyThreadCurrent];
             [components addObject:c];
         }
     }
@@ -603,6 +610,7 @@ static double MAX_EXTENT = 20037508.342789244;
         if (!layer.valid)
             return;
         [layer geoBoundsforTile:tileID ll:&bbox.ll ur:&bbox.ur];
+        MaplyBoundingBox geoBbox = bbox;
         bbox.ll = [self toMerc:bbox.ll];
         bbox.ur = [self toMerc:bbox.ur];
         
@@ -642,7 +650,7 @@ static double MAX_EXTENT = 20037508.342789244;
                 MaplyVectorTileData *retData = nil;
                 if ([layer.viewC startOfWork])
                 {
-                    retData = [_tileParser buildObjects:tileData tile:tileID bounds:bbox];
+                    retData = [_tileParser buildObjects:tileData tile:tileID bounds:bbox geoBounds:geoBbox];
                     if (!retData)
                         NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,flippedYTile.y);
 

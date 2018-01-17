@@ -106,7 +106,7 @@ public:
     GLuint depthbuffer;
     /// Output framebuffer size fo glViewport
     int width,height;
-    /// Set if we've set up background and such
+    /// Set if we've set up background and suchs
     bool isSetup;
     
     // Clear color, if we're clearing

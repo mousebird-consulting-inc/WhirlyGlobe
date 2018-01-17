@@ -38,8 +38,8 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		StickersTestCase(),
 
 		PagingLayerTestCase(),
-		MapzenVectorTestCase(),
 		VectorMBTilesTestCase(),
+        OpenMapTilesTestCase(),
 
 		StarsSunTestCase(),
 		ShapesTestCase(),
