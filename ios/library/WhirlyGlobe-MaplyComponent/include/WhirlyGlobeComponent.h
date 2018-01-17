@@ -75,4 +75,10 @@
 #import "vector_tiles/MapboxMultiSourceTileInfo.h"
 #import "vector_tiles/MaplyVectorStyleSimple.h"
 #import "vector_tiles/SLDStyleSet.h"
+#import "vector_tiles/MapboxVectorStyleSet.h"
+#import "vector_tiles/MapboxVectorStyleFill.h"
+#import "vector_tiles/MapboxVectorStyleBackground.h"
+#import "vector_tiles/MapboxVectorStyleLine.h"
+#import "vector_tiles/MapboxVectorStyleRaster.h"
+#import "vector_tiles/MapboxVectorStyleSymbol.h"
 #endif

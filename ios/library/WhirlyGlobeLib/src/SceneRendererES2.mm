@@ -215,7 +215,7 @@ public:
 
 - (void) setClearColor:(UIColor *)color
 {
-    _clearColor = [color asRGBAColor];
+    [super setClearColor:color];
     [self forceRenderSetup];
 }
 

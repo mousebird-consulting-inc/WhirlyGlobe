@@ -93,6 +93,8 @@ const int kMaplyLoftedPolysDrawPriorityDefault = 70000;
 const int kMaplyShapeDrawPriorityDefault = 80000;
 const int kMaplyBillboardDrawPriorityDefault = 90000;
 const int kMaplyModelDrawPriorityDefault = 100000;
+// Unlikely to have any draw priorities here or beyond.
+const int kMaplyMaxDrawPriorityDefault = 100100;
 
 /// These are used just for the screen and regular labels
 

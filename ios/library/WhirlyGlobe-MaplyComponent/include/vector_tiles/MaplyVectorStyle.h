@@ -28,6 +28,9 @@
   */
 @interface MaplyVectorStyleSettings : NSObject
 
+/// Initialize with the (presumably) retina scale
+- (instancetype __nonnull)initWithScale:(CGFloat)scale;
+
 /// Line widths will be scaled by this amount before display.
 @property (nonatomic) float lineScale;
 /// Text sizes will be scaled by this amount before display.
@@ -55,7 +58,7 @@
 /// Where we're using old vectors (e.g. not wide) scale them by this amount
 @property (nonatomic) float oldVecWidthScale;
 
-/// If we're using widened vectors, only active them for strokes wider than this.  Defaults to zero.
+/// If we're using widened vectors, only activate them for strokes wider than this.  Defaults to zero.
 @property (nonatomic) float wideVecCuttoff;
 
 /// If set, we'll make the areal features selectable.  If not, this saves memory.

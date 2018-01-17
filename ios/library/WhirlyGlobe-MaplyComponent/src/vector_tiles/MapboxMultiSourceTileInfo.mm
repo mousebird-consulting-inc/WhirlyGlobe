@@ -280,12 +280,13 @@ public:
 
     // The tile parser wants bounds in meters(ish)
     [_imageLayer boundsForTile:tileID bbox:&bbox];
+    MaplyBoundingBox geoBbox = bbox;
     bbox.ll.x *= 20037508.342789244/M_PI;
     bbox.ll.y *= 20037508.342789244/(M_PI);
     bbox.ur.x *= 20037508.342789244/M_PI;
     bbox.ur.y *= 20037508.342789244/(M_PI);
     
-    MaplyVectorTileData *vecTileData = [source->tileParser buildObjects:tileData tile:tileID bounds:bbox];
+    MaplyVectorTileData *vecTileData = [source->tileParser buildObjects:tileData tile:tileID bounds:bbox geoBounds:geoBbox];
     @synchronized(self)
     {
         vecTiles[MaplyTileIDString(tileID)] = vecTileData;

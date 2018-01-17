@@ -101,6 +101,7 @@ extern const int kMaplyLoftedPolysDrawPriorityDefault;
 extern const int kMaplyShapeDrawPriorityDefault;
 extern const int kMaplyBillboardDrawPriorityDefault;
 extern const int kMaplyModelDrawPriorityDefault;
+extern const int kMaplyMaxDrawPriorityDefault;
 
 #define kWGMarkerDrawPriorityDefault kMaplyMarkerDrawPriorityDefault
 #define kWGVectorDrawPriorityDefault kMaplyVectorDrawPriorityDefault

@@ -84,7 +84,7 @@ typedef NS_ENUM(NSInteger, MapnikCommandType) {
 
  @param bbox is in the local coordinate system (likely Spherical Mercator)
  */
-- (nullable MaplyVectorTileData *)buildObjects:(NSData *__nonnull)data tile:(MaplyTileID)tileID bounds:(MaplyBoundingBox)bbox;
+- (nullable MaplyVectorTileData *)buildObjects:(NSData *__nonnull)data tile:(MaplyTileID)tileID bounds:(MaplyBoundingBox)bbox geoBounds:(MaplyBoundingBox)geoBbox;
 
 @end
 
