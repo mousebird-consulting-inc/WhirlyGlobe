@@ -418,7 +418,7 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
                     NSTimeInterval fontRemoveTime = removeTime;
                     if (layoutManager && !labelRep->layoutIDs.empty())
                         fontRemoveTime = curTime+2.0;
-                    [fontTexManager removeString:*idIt changes:changes when:removeTime];
+                    [fontTexManager removeString:*idIt changes:changes when:fontRemoveTime];
                 }
             }
             

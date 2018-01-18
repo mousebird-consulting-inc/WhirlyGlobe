@@ -137,6 +137,8 @@ extern NSString* const kMaplyShadowColor;
 #define kWGShadowColor kMaplyShadowColor
 /// If outline is being used, we can control the color
 extern NSString* const kMaplyTextOutlineSize;
+/// Vertical line spacing.  Defaults to the Font's line spacing
+extern NSString* const kMaplyTextLineSpacing;
 /// If outline is being used, we can control the stroke size
 extern NSString* const kMaplyTextOutlineColor;
 /// When creating textures, we may pass in the size

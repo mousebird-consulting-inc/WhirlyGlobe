@@ -233,7 +233,7 @@
     return [UIColor colorWithRed:red*opacity green:green*opacity blue:blue*opacity alpha:alpha*opacity];
 }
 
-- (UIColor *)colorValue:(NSString *)name dict:(NSDictionary *)dict defVal:(UIColor *)defVal
+- (UIColor *)colorValue:(NSString *)name dict:(NSDictionary *)dict defVal:(UIColor *)defVal multiplyAlpha:(bool)multiplyAlpha
 {
     id thing = dict[name];
     if (!thing)
@@ -304,8 +304,11 @@
         [scanner scanInt:&blue];
         float alpha;
         [scanner scanFloat:&alpha];
-        
-        return [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha];
+
+        if (multiplyAlpha)
+            return [UIColor colorWithRed:red/255.0*alpha green:green/255.0*alpha blue:blue/255.0*alpha alpha:alpha];
+        else
+            return [UIColor colorWithRed:red/255.0 green:green/255.0 blue:blue/255.0 alpha:alpha];
     } else if ([str rangeOfString:@"hsl("].location == 0)
     {
         NSScanner *scanner = [NSScanner scannerWithString:str];
@@ -493,7 +496,7 @@
     _geomType = MBGeomNone;
     
     _filterType = (MapboxVectorFilterType)[styleSet enumValue:[filterArray objectAtIndex:0]
-                options:@[@"==",@"!=",@">",@">=",@"<",@"<=",@"in",@"!in",@"all",@"any",@"none"]
+                options:@[@"==",@"!=",@">",@">=",@"<",@"<=",@"in",@"!in",@"has",@"!has",@"all",@"any",@"none"]
                  defVal:MBFilterNone];
     
     // Filter with two arguments
@@ -543,6 +546,15 @@
             [inclVals addObject:val];
         }
         _attrVals = inclVals;
+    } else if (_filterType <= MBFilterNotHas)
+    {
+        // Filters with existence
+        if ([filterArray count] < 2)
+        {
+            NSLog(@"Expecting at least two arguments for filter of type (%@)",[filterArray objectAtIndex:0]);
+            return nil;
+        }
+        _attrName = [filterArray objectAtIndex:1];
     } else if (_filterType == MBFilterAll || _filterType == MBFilterAny)
     {
         // Any and all have subfilters
@@ -622,6 +634,16 @@
         }
         
         ret = (_filterType == MBFilterIn ? isIn : !isIn);
+    } else if (_filterType == MBFilterHas || _filterType == MBFilterNotHas)
+    {
+        // Check for attribute existence
+        bool canHas = false;
+        
+        id featAttrVal = attrs[_attrName];
+        if (featAttrVal)
+            canHas = true;
+        
+        ret = (_filterType == MBFilterHas ? canHas : !canHas);
     } else {
         // Equality related operators
         id featAttrVal = attrs[_attrName];

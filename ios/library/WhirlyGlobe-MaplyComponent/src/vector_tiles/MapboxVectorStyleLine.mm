@@ -83,7 +83,7 @@
             _opacityFunc = [styleSet stopsValue:opEntry defVal:nil];
     } else
         _opacity = 1.0;
-    _color = [styleSet colorValue:@"line-color" dict:styleEntry defVal:[UIColor blackColor]];
+    _color = [styleSet colorValue:@"line-color" dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:true];
     id widthEntry = [styleSet constantSubstitution:styleEntry[@"line-width"] forField:@"line-width"];
     if (widthEntry)
     {

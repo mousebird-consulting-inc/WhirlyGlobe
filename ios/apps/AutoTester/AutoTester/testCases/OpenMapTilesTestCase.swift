@@ -21,7 +21,7 @@ class OpenMapTilesTestCase: MaplyTestCase {
     // Set up an OpenMapTiles display layer
     func setupLayer(_ baseVC: MaplyBaseViewController) -> MaplyQuadPagingLayer?
     {
-        guard let path = Bundle.main.path(forResource: "SE_PolygonsLines", ofType: "json") else {
+        guard let path = Bundle.main.path(forResource: "SE_Basic", ofType: "json") else {
             return nil
         }
         guard let styleData = NSData.init(contentsOfFile: path) else {

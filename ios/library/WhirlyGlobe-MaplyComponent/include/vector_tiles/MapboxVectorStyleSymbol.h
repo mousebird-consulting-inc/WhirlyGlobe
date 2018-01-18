@@ -20,12 +20,23 @@
 
 #import "MapboxVectorStyleSet.h"
 
+typedef enum {MBTextCenter,MBTextLeft,MBTextRight,MBTextTop,MBTextBottom,MBTextTopLeft,MBTextTopRight,MBTextBottomLeft,MBTextBottomRight} MapboxTextAnchor;
+
+
 @interface MapboxVectorSymbolLayout : NSObject
 
 /// @brief Field to use when displaying the text
-@property (nonatomic) NSString *textField;
-/// @brief the biggest we'll let the text get (Note: Is this font or what?)
-@property (nonatomic) double textMaxSize;
+@property (nonatomic) NSArray<NSString *> *textFields;
+/// @brief Font to use for display
+@property (nonatomic) NSString *textFontName;
+/// @brief The maximum line width for wrapping
+@property (nonatomic) double textMaxWidth;
+/// If set, the immutable text size
+@property (nonatomic) double textSize;
+/// If set, a function that controls text size
+@property (nonatomic) MaplyVectorFunctionStops *textSizeFunc;
+/// How the text is laid out in relation to it's attach point
+@property (nonatomic) MapboxTextAnchor textAnchor;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
 
@@ -33,11 +44,12 @@
 
 @interface MapboxVectorSymbolPaint : NSObject
 
+// Default text color
 @property (nonatomic) UIColor *textColor;
+// If there's a halo, this is the color
 @property (nonatomic) UIColor *textHaloColor;
-
-@property (nonatomic) double textSize;
-@property (nonatomic) MaplyVectorFunctionStops *textSizeFunc;
+// If there's a halo, this is the size
+@property (nonatomic) double textHaloWidth;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
 

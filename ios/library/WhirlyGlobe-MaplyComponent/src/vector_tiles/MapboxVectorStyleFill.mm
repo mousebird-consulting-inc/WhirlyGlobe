@@ -44,8 +44,8 @@
         }
     } else
         _opacity = 1.0;
-    _color = [styleSet colorValue:@"fill-color" dict:styleEntry defVal:[UIColor blackColor]];
-    _outlineColor = [styleSet colorValue:@"fill-outline-color" dict:styleEntry defVal:nil];
+    _color = [styleSet colorValue:@"fill-color" dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:true];
+    _outlineColor = [styleSet colorValue:@"fill-outline-color" dict:styleEntry defVal:nil multiplyAlpha:true];
     
     return self;
 }

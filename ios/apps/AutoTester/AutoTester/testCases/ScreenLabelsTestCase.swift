@@ -56,7 +56,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 				if (i % 2 == 0) {
 					// Some with text shadow
 					if let comp = theViewC.addScreenLabels([label], desc: [
-							kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
+							kMaplyFont: UIFont.boldSystemFont(ofSize: 12.0),
 							kMaplyShadowColor: UIColor.black,
 							kMaplyShadowSize: 1.0,
                             kMaplySelectable: true,

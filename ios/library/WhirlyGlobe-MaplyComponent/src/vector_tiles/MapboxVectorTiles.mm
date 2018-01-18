@@ -153,6 +153,8 @@ static double MAX_EXTENT = 20037508.342789244;
                             attributes[key] = @(value.sint_value());
                         } else if (value.has_uint_value()) {
                             attributes[key] = @(value.uint_value());
+                        } else {
+                            NSLog(@"Unknown attribute type");
                         }
                     }
                 }
@@ -363,7 +365,7 @@ static double MAX_EXTENT = 20037508.342789244;
             
             MaplyComponentObject *c = [_viewC addScreenLabels:@[label]
                                                          desc:@{kMaplyFont : [UIFont boldSystemFontOfSize:12],
-                                                                kMaplyTextColor : [UIColor blackColor],
+                                                                kMaplyTextColor : [UIColor colorWithRed:0.25 green:0.25 blue:0.25 alpha:0.25],
                                                                 kMaplyDrawPriority : @(kMaplyMaxDrawPriorityDefault+100000000),
                                                                 kMaplyEnable: @(NO)
                                                                 }

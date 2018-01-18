@@ -32,6 +32,8 @@
 		2B7FC0A71E32B67400AF253A /* testJson.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B7FC0A61E32B67400AF253A /* testJson.json */; };
 		2B8849EB1E37F7CB0027C397 /* LIDARTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */; };
 		2B8849FB1E37F9B30027C397 /* stadium-utm-quad-data.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */; };
+		2B8F3259201021CF006DDE27 /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */; };
+		2B8F325A201021CF006DDE27 /* NotoSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */; };
 		2B91A22E1DC14B7500B72527 /* ImageSingleLevelTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */; };
 		2B93D9671D41433500EAD280 /* WideVectorGlobeTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */; };
 		2BB4766820004763006AAACB /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */; };
@@ -1187,6 +1189,8 @@
 		2B8849E91E37F7CB0027C397 /* LIDARTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LIDARTestCase.h; sourceTree = "<group>"; };
 		2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LIDARTestCase.mm; sourceTree = "<group>"; };
 		2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */ = {isa = PBXFileReference; lastKnownFileType = text; name = "stadium-utm-quad-data.sqlite"; path = "../../../resources/lidar/stadium-utm-quad-data.sqlite"; sourceTree = "<group>"; };
+		2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSans-Regular.ttf"; path = "../../../../../../../maps/NotoSans-Regular.ttf"; sourceTree = "<group>"; };
+		2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSans-Bold.ttf"; path = "../../../../../../../maps/NotoSans-Bold.ttf"; sourceTree = "<group>"; };
 		2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageSingleLevelTestCase.swift; sourceTree = "<group>"; };
 		2B93D9651D41433500EAD280 /* WideVectorGlobeTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorGlobeTestCase.h; sourceTree = "<group>"; };
 		2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WideVectorGlobeTestCase.m; sourceTree = "<group>"; };
@@ -1806,6 +1810,8 @@
 		2BB4768A2008445B006AAACB /* styles */ = {
 			isa = PBXGroup;
 			children = (
+				2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */,
+				2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */,
 				2B7E288A200EC109007E2965 /* SE_Basic.json */,
 				2B7E2889200EC109007E2965 /* SE_PolygonsLines.json */,
 			);
@@ -2702,6 +2708,7 @@
 				88FF5CC81BC31D6D002F15CE /* prison-24@2x.png in Resources */,
 				88FF5E841BC31D95002F15CE /* MHL.geojson in Resources */,
 				8FDE43621E01C9420026B20E /* ImageSingleLevelTestCase-map.png in Resources */,
+				2B8F325A201021CF006DDE27 /* NotoSans-Bold.ttf in Resources */,
 				88FF5C821BC31D6D002F15CE /* airport-24@2x.png in Resources */,
 				88FF5C811BC31D6D002F15CE /* airfield-24@2x.png in Resources */,
 				88FF5ED01BC31D95002F15CE /* TJK.geojson in Resources */,
@@ -3111,6 +3118,7 @@
 				88FF5CAE1BC31D6D002F15CE /* industrial-24@2x.png in Resources */,
 				88FF5CF11BC31D6D002F15CE /* vp.mtl in Resources */,
 				88FF5E1A1BC31D95002F15CE /* BWA.geojson in Resources */,
+				2B8F3259201021CF006DDE27 /* NotoSans-Regular.ttf in Resources */,
 				88FF5CE91BC31D6D002F15CE /* wetland-24@2x.png in Resources */,
 				88FF5C9D1BC31D6D002F15CE /* dam-24@2x.png in Resources */,
 				88FF5E091BC31D95002F15CE /* BES.geojson in Resources */,
