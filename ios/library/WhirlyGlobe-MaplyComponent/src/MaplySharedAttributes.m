@@ -118,6 +118,8 @@ NSString* const kMaplyShadowSize = @"shadowSize";
 NSString* const kMaplyShadowColor = @"shadowColor";
 /// If outline is being used, we can control the color
 NSString* const kMaplyTextOutlineSize = @"outlineSize";
+/// Vertical line spacing.  Defaults to the Font's line spacing
+NSString* const kMaplyTextLineSpacing = @"lineSpacing";
 /// If outline is being used, we can control the stroke size
 NSString* const kMaplyTextOutlineColor = @"outlineColor";
 NSString* const kMaplyTexSizeX = @"texsizex";

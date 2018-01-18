@@ -28,7 +28,7 @@
     if (!self)
         return nil;
     
-    _color = [styleSet colorValue:@"background-color" dict:styleEntry defVal:[UIColor blackColor]];
+    _color = [styleSet colorValue:@"background-color" dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:true];
     if (styleEntry[@"background-image"])
     {
         NSLog(@"MapboxStyleSet: Ignoring background image");

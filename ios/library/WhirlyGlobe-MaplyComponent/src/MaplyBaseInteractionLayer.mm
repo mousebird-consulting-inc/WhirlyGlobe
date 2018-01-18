@@ -1325,6 +1325,10 @@ public:
             [desc setObject:@(label.layoutImportance) forKey:@"layoutImportance"];
             [desc setObject:@(label.layoutPlacement) forKey:@"layoutPlacement"];
         }
+        if ([inDesc objectForKey:@"lineSpacing"])
+        {
+            desc[@"lineSpacing"] = [inDesc objectForKey:@"lineSpacing"];
+        }
         wgLabel.screenOffset = CGSizeMake(label.offset.x,label.offset.y);
         if (label.selectable)
         {
