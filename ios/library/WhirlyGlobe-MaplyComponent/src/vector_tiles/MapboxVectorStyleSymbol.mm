@@ -29,6 +29,9 @@
     if (!self)
         return nil;
     
+    _placement = (MapboxSymbolPlacement)[styleSet enumValue:styleEntry[@"symbol-placement"] options:@[@"point",@"line"] defVal:MBPlacePoint];
+    _textTransform = (MapboxTextTransform)[styleSet enumValue:styleEntry[@"text-transform"] options:@[@"none",@"uppercase",@"lowercase"] defVal:MBTextTransNone];
+    
     NSString *textField = [styleSet stringValue:@"text-field" dict:styleEntry defVal:nil];
     NSMutableArray *textFields = [NSMutableArray array];
     if (textField) {
@@ -63,7 +66,7 @@
     _textAnchor = MBTextCenter;
     if (textAnchor)
     {
-        _textAnchor = (MapboxTextAnchor)[styleSet enumValue:@"text-anchor" options:@[@"center",@"left",@"right",@"top",@"bottom",@"top-left",@"top-right",@"bottom-left",@"bottom-right"] defVal:MBTextCenter];
+        _textAnchor = (MapboxTextAnchor)[styleSet enumValue:styleEntry[@"text-anchor"] options:@[@"center",@"left",@"right",@"top",@"bottom",@"top-left",@"top-right",@"bottom-left",@"bottom-right"] defVal:MBTextCenter];
     }
 
     return self;
@@ -185,6 +188,7 @@
     NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
     mutDesc[kMaplyFont] = font;
     desc = mutDesc;
+    // Note: Made up value for pushing multi-line text together
     mutDesc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
 
     NSMutableArray *labels = [NSMutableArray array];
@@ -206,9 +210,35 @@
             rank = [vecObj.attributes[@"rank"] integerValue];
         }
         label.layoutImportance = 1000000 - rank + (101-tileID.level)/100;
-        
+
+        // Change the text if needed
+        switch (_layout.textTransform)
+        {
+            case MBTextTransNone:
+                break;
+            case MBTextTransUppercase:
+                label.text = [label.text uppercaseString];
+                break;
+            case MBTextTransLowercase:
+                label.text = [label.text lowercaseString];
+                break;
+        }
+        // Break it up into lines, if necessary
         if (_layout.textMaxWidth != 0.0) {
             label.text = [self breakUpText:label.text width:_layout.textMaxWidth * font.pointSize font:font];
+        }
+        
+        // Point or line placement
+        if (_layout.placement == MBPlaceLine) {
+            MaplyCoordinate middle;
+            double rot;
+            [vecObj linearMiddle:&middle rot:&rot displayCoordSys:viewC.coordSystem];
+            label.loc = middle;
+            label.rotation = -1 * rot+M_PI/2.0;
+            if(label.rotation > M_PI_2 || label.rotation < -M_PI_2) {
+                label.rotation += M_PI;
+            }
+            label.keepUpright = true;
         }
         
         // Anchor options for the layout engine
