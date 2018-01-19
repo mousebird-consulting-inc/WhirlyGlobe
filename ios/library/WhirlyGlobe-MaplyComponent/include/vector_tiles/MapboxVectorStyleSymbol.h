@@ -21,10 +21,15 @@
 #import "MapboxVectorStyleSet.h"
 
 typedef enum {MBTextCenter,MBTextLeft,MBTextRight,MBTextTop,MBTextBottom,MBTextTopLeft,MBTextTopRight,MBTextBottomLeft,MBTextBottomRight} MapboxTextAnchor;
-
+typedef enum {MBPlacePoint,MBPlaceLine} MapboxSymbolPlacement;
+typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxTextTransform;
 
 @interface MapboxVectorSymbolLayout : NSObject
 
+/// How we place the symbole (at a point, or along a line)
+@property (nonatomic) MapboxSymbolPlacement placement;
+/// If set, turn the text uppercase
+@property (nonatomic) MapboxTextTransform textTransform;
 /// @brief Field to use when displaying the text
 @property (nonatomic) NSArray<NSString *> *textFields;
 /// @brief Font to use for display
