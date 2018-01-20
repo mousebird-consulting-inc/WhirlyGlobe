@@ -27,6 +27,6 @@
  */
 @interface MaplyVectorTileStyleMarker : MaplyVectorTileStyle
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end

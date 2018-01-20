@@ -70,7 +70,7 @@ using namespace WhirlyKit;
 
 @end
 
-NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,MaplyBaseViewController * _Nonnull viewC,MaplyThreadMode threadMode)
+NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,MaplyThreadMode threadMode)
 {
     NSMutableArray *compObjs = [NSMutableArray array];
     MaplyTileID fakeTileID;

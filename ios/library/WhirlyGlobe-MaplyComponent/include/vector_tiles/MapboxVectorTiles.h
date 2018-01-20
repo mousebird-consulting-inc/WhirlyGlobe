@@ -68,13 +68,13 @@ typedef NS_ENUM(NSInteger, MapnikCommandType) {
 @interface MapboxVectorTileParser : NSObject
 
 /// Initialize with the style delegate
-- (nonnull instancetype)initWithStyle:(NSObject<MaplyVectorStyleDelegate> *__nonnull)styleDelegate viewC:(MaplyBaseViewController *__nonnull)viewC;
+- (nonnull instancetype)initWithStyle:(NSObject<MaplyVectorStyleDelegate> *__nonnull)styleDelegate viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 /// The styling delegate turns vector data into visible objects in the toolkit
 @property (nonatomic, strong, nonnull) NSObject<MaplyVectorStyleDelegate> *styleDelegate;
 
 /// Maply view controller we're adding this data to
-@property (nonatomic, weak, nullable) MaplyBaseViewController * __weak viewC;
+@property (nonatomic, weak, nullable) NSObject<MaplyRenderControllerProtocol> * __weak viewC;
 
 @property (nonatomic, assign) BOOL debugLabel;
 @property (nonatomic, assign) BOOL debugOutline;
@@ -137,7 +137,7 @@ typedef NS_ENUM(NSInteger, MapnikStyleType) {
     
     @param failureBlock This block is called if any of the loading fails.
   */
-+ (void) StartRemoteVectorTilesWithTileSpec:(NSString *__nonnull)tileSpec accessToken:(NSString *__nonnull)accessToken style:(NSString *__nonnull)styleFile styleType:(MapnikStyleType)styleType cacheDir:(NSString *__nonnull)cacheDir viewC:(MaplyBaseViewController *__nonnull)viewC success:(void (^__nonnull)(MapboxVectorTiles *__nonnull vecTiles))successBlock failure:(void (^__nonnull)(NSError *__nonnull error))failureBlock;
++ (void) StartRemoteVectorTilesWithTileSpec:(NSString *__nonnull)tileSpec accessToken:(NSString *__nonnull)accessToken style:(NSString *__nonnull)styleFile styleType:(MapnikStyleType)styleType cacheDir:(NSString *__nonnull)cacheDir viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC success:(void (^__nonnull)(MapboxVectorTiles *__nonnull vecTiles))successBlock failure:(void (^__nonnull)(NSError *__nonnull error))failureBlock;
 
 /** 
     A convenience method that fetches all the relevant files and creates a vector tiles object.
@@ -164,12 +164,12 @@ typedef NS_ENUM(NSInteger, MapnikStyleType) {
     
     @param failureBlock This block is called if any of the loading fails.
  */
-+ (void) StartRemoteVectorTilesWithURL:(NSString *__nonnull)tileURL ext:(NSString *__nonnull)ext minZoom:(int)minZoom maxZoom:(int)maxZoom accessToken:(NSString *__nonnull)accessToken style:(NSString *__nonnull)styleFile styleType:(MapnikStyleType)styleType cacheDir:(NSString *__nonnull)cacheDir viewC:(MaplyBaseViewController *__nonnull)viewC success:(void (^__nonnull)(MapboxVectorTiles *__nonnull vecTiles))successBlock failure:(void (^__nonnull)(NSError *__nonnull error))failureBlock;
++ (void) StartRemoteVectorTilesWithURL:(NSString *__nonnull)tileURL ext:(NSString *__nonnull)ext minZoom:(int)minZoom maxZoom:(int)maxZoom accessToken:(NSString *__nonnull)accessToken style:(NSString *__nonnull)styleFile styleType:(MapnikStyleType)styleType cacheDir:(NSString *__nonnull)cacheDir viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC success:(void (^__nonnull)(MapboxVectorTiles *__nonnull vecTiles))successBlock failure:(void (^__nonnull)(NSError *__nonnull error))failureBlock;
 
 /** 
     Init with a single remote tile source.
   */
-- (nonnull instancetype)initWithTileSource:(NSObject<MaplyTileSource> *__nonnull)tileSource style:(NSObject<MaplyVectorStyleDelegate> *__nonnull)style viewC:(MaplyBaseViewController *__nonnull)viewC;
+- (nonnull instancetype)initWithTileSource:(NSObject<MaplyTileSource> *__nonnull)tileSource style:(NSObject<MaplyVectorStyleDelegate> *__nonnull)style viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 /** 
     Init with a list of tile sources.
@@ -177,7 +177,7 @@ typedef NS_ENUM(NSInteger, MapnikStyleType) {
     These are MaplyRemoteTileInfo objects and will be combined by the
     MaplyMapnikVectorTiles object for display.
 */
-- (nonnull instancetype)initWithTileSources:(NSArray *__nonnull)tileSources style:(NSObject<MaplyVectorStyleDelegate> *__nonnull)style viewC:(MaplyBaseViewController *__nonnull)viewC;
+- (nonnull instancetype)initWithTileSources:(NSArray *__nonnull)tileSources style:(NSObject<MaplyVectorStyleDelegate> *__nonnull)style viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 /** 
     Init with the filename of an MBTiles archive containing PBF tiles.
@@ -186,6 +186,6 @@ typedef NS_ENUM(NSInteger, MapnikStyleType) {
     
     The file should be local.
   */
-- (nonnull instancetype)initWithMBTiles:(MaplyMBTileSource *__nonnull)tileSource style:(NSObject<MaplyVectorStyleDelegate> *__nonnull)style viewC:(MaplyBaseViewController *__nonnull)viewC;
+- (nonnull instancetype)initWithMBTiles:(MaplyMBTileSource *__nonnull)tileSource style:(NSObject<MaplyVectorStyleDelegate> *__nonnull)style viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 @end

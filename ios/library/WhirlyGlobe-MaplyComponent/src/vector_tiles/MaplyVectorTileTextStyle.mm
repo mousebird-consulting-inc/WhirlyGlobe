@@ -59,7 +59,7 @@ typedef enum {
     NSMutableArray *subStyles;
 }
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super initWithStyleEntry:styles viewC:viewC];
 
@@ -247,7 +247,7 @@ typedef enum {
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {
     MaplyCoordinateSystem *displaySystem = viewC.coordSystem;
     

@@ -19,7 +19,8 @@
  */
 
 #import "MaplyTexture_private.h"
-#import "MaplyBaseViewController_private.h"
+#import "MaplyRenderController_private.h"
+#import "MaplyBaseInteractionLayer_private.h"
 
 using namespace WhirlyKit;
 

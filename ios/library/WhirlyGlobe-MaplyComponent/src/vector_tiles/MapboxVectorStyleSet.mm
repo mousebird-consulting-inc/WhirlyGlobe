@@ -30,7 +30,7 @@
     NSMutableDictionary *layersByUUID;
 }
 
-- (id)initWithJSON:(NSData *)styleJSON viewC:(MaplyBaseViewController *)viewC
+- (id)initWithJSON:(NSData *)styleJSON viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     if (!self)
@@ -83,7 +83,7 @@
 - (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
                                     onTile:(MaplyTileID)tileID
                                    inLayer:(NSString*)sourceLayer
-                                     viewC:(MaplyBaseViewController *)viewC
+                                     viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     NSArray *layersToRun = _layersBySource[sourceLayer];
     if (!layersToRun)
@@ -105,7 +105,7 @@
     return (layersToRun.count != 0);
 }
 
-- (MaplyVectorTileStyle*)styleForUUID:(NSString*)uuid viewC:(MaplyBaseViewController *)viewC
+- (MaplyVectorTileStyle*)styleForUUID:(NSString*)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     return layersByUUID[uuid];
 }
@@ -445,7 +445,7 @@
     return layer;
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)layerDict parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC
+- (id)initWithStyleEntry:(NSDictionary *)layerDict parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     if (!self)
@@ -467,7 +467,7 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     return nil;
 }
@@ -476,7 +476,7 @@
 
 @implementation MapboxVectorFilter
 
-- (id)initWithArray:(NSArray *)filterArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
+- (id)initWithArray:(NSArray *)filterArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     if (![filterArray isKindOfClass:[NSArray class]])
     {
@@ -573,7 +573,7 @@
     return self;
 }
 
-- (bool)testFeature:(NSDictionary *)attrs tile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC
+- (bool)testFeature:(NSDictionary *)attrs tile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     bool ret = true;
     
@@ -708,7 +708,7 @@
 
 @implementation MaplyVectorFunctionStops
 
-- (id)initWithArray:(NSArray *)dataArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
+- (id)initWithArray:(NSArray *)dataArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     if (![dataArray isKindOfClass:[NSArray class]])
     {

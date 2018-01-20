@@ -24,7 +24,7 @@
 #import "Tesselator.h"
 #import "GridClipper.h"
 #import <CoreLocation/CoreLocation.h>
-#import "MaplyBaseViewController.h"
+#import "MaplyRenderController_private.h"
 #import "MaplyViewController.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyCoordinateSystem_private.h"
@@ -645,7 +645,7 @@ public:
 }
 
 //Fuzzy matching for selecting Linear features
-- (bool)pointNearLinear:(MaplyCoordinate)coord distance:(float)maxDistance inViewController:(MaplyBaseViewController*)vc
+- (bool)pointNearLinear:(MaplyCoordinate)coord distance:(float)maxDistance inViewController:(MaplyBaseViewController *)vc
 {
     for (ShapeSet::iterator it = _shapes.begin();it != _shapes.end();++it)
     {

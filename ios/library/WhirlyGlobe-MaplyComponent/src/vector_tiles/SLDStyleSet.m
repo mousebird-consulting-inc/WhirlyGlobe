@@ -59,7 +59,7 @@
  
     @param relativeDrawPriority The z-order relative to other vector features. This will be incremented internally for each style rule, so if you have multiple SLDStyleSets, leave some space between the relativeDrawPriority of each.
  */
-- (id)initWithViewC:(MaplyBaseViewController *)viewC useLayerNames:(BOOL)useLayerNames relativeDrawPriority:(int)relativeDrawPriority {
+- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC useLayerNames:(BOOL)useLayerNames relativeDrawPriority:(int)relativeDrawPriority {
     self = [super init];
     if (self) {
         self.viewC = viewC;
@@ -378,7 +378,7 @@
 - (nullable NSArray *)stylesForFeatureWithAttributes:(NSDictionary *__nonnull)attributes
                                               onTile:(MaplyTileID)tileID
                                              inLayer:(NSString *__nonnull)layer
-                                               viewC:(MaplyBaseViewController *__nonnull)viewC {
+                                               viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC {
     
     
     if (self.useLayerNames) {
@@ -403,7 +403,7 @@
 - (nullable NSArray *)stylesForFeatureWithAttributes:(NSDictionary *__nonnull)attributes
                                               onTile:(MaplyTileID)tileID
                                         inNamedLayer:(SLDNamedLayer *__nonnull)namedLayer
-                                               viewC:(MaplyBaseViewController *__nonnull)viewC {
+                                               viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC {
     
     NSMutableArray *styles = [NSMutableArray array];
     bool matched;
@@ -443,7 +443,7 @@
     return YES;
 }
 
-- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(NSString *__nonnull)uuid viewC:(MaplyBaseViewController *__nonnull)viewC {
+- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(NSString *__nonnull)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC {
     return self.symbolizers[uuid];
 }
 

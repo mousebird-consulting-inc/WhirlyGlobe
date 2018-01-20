@@ -63,7 +63,7 @@ public:
         return nil;
     
     coordAdapter = viewC->visualView.coordAdapter;
-    renderer = viewC->sceneRenderer;
+    renderer = viewC->renderControl->sceneRenderer;
     globeView = viewC->globeView;
     _wraparound = false;
     

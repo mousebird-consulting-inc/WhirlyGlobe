@@ -77,7 +77,7 @@ static const char *fragmentShaderTriPointRamp =
 "}\n"
 ;
 
-MaplyShader *MaplyLAZBuildPointShader(MaplyBaseViewController *viewC)
+MaplyShader *MaplyLAZBuildPointShader(NSObject<MaplyRenderControllerProtocol> *viewC)
 {
     MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Lidar Point Shader" vertex:[NSString stringWithFormat:@"%s",vertexShaderTriPoint] fragment:[NSString stringWithFormat:@"%s",fragmentShaderTriPoint] viewC:viewC];
     
@@ -90,7 +90,7 @@ MaplyShader *MaplyLAZBuildPointShader(MaplyBaseViewController *viewC)
     return shader;
 }
 
-MaplyShader *MaplyLAZBuildRampPointShader(MaplyBaseViewController *viewC,UIImage *colorRamp)
+MaplyShader *MaplyLAZBuildRampPointShader(NSObject<MaplyRenderControllerProtocol> *viewC,UIImage *colorRamp)
 {
     MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Lidar Ramp Point Shader" vertex:[NSString stringWithFormat:@"%s",vertexShaderTriPointRamp] fragment:[NSString stringWithFormat:@"%s",fragmentShaderTriPointRamp] viewC:viewC];
     

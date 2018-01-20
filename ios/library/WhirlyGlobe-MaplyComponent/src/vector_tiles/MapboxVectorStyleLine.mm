@@ -23,7 +23,7 @@
 
 @implementation MapboxVectorLineLayout
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     if (!self)
@@ -43,7 +43,7 @@
 
 @implementation MapboxVectorLineDashArray
 
-- (instancetype)initWithStyleEntry:(NSArray *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSArray *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     if (!self)
@@ -62,7 +62,7 @@
 
 @implementation MapboxVectorLinePaint
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     if (!self)
@@ -123,7 +123,7 @@ static unsigned int NextPowOf2(unsigned int val)
     return (val + 1);
 }
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super initWithStyleEntry:styleEntry parent:refLayer styleSet:styleSet drawPriority:drawPriority viewC:viewC];
     if (!self)
@@ -161,8 +161,9 @@ static unsigned int NextPowOf2(unsigned int val)
         [lineTexBuilder setPattern:dashComponents];
         UIImage *lineImage = [lineTexBuilder makeImage];
         MaplyTexture *filledLineTex = [viewC addTexture:lineImage
-                                            imageFormat:MaplyImageIntRGBA
-                                              wrapFlags:MaplyImageWrapY
+                                                   desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
+                                                          kMaplyTexWrapY: @(MaplyImageWrapY)
+                                                          }
                                                    mode:MaplyThreadCurrent];
         lineDesc = [NSMutableDictionary dictionaryWithDictionary:
                     @{kMaplyVecWidth: @(_paint.width * styleSet.tileStyleSettings.lineScale),
@@ -195,7 +196,7 @@ static unsigned int NextPowOf2(unsigned int val)
 }
 
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID  viewC:(MaplyBaseViewController *)viewC
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID  viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
     

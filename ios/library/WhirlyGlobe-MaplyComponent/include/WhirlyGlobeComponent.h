@@ -34,6 +34,7 @@
 #import "MaplyParticleSystem.h"
 #import "MaplyVectorObject.h"
 #import "MaplyViewTracker.h"
+#import "MaplyRenderController.h"
 #import "MaplyViewController.h"
 #import "WhirlyGlobeViewController.h"
 #import "MaplyQuadPagingLayer.h"

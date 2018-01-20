@@ -3496,7 +3496,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 }
 
 
-- (NSArray *)findVectorsInPoint:(Point2f)pt inView:(MaplyBaseViewController*)vc multi:(bool)multi
+- (NSArray *)findVectorsInPoint:(Point2f)pt inView:(NSObject<MaplyRenderControllerProtocol> *)vc multi:(bool)multi
 {
     NSMutableArray *foundObjs = [NSMutableArray array];
     

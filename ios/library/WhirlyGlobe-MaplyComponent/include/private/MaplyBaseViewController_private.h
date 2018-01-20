@@ -34,20 +34,19 @@
 #import "MaplyCluster.h"
 #import "SMCalloutView.h"
 #import "Maply3dTouchPreviewDelegate.h"
+#import "MaplyRenderController_private.h"
 
 @interface MaplyBaseViewController() <SMCalloutViewDelegate>
 {
 @public
+    MaplyRenderController *renderControl;
+    
     WhirlyKitEAGLView *glView;
-    WhirlyKitSceneRendererES2 *sceneRenderer;
     
     WhirlyKitLayerThread *baseLayerThread;
     WhirlyKitLayoutLayer *layoutLayer;
     WhirlyKitParticleSystemLayer *partSysLayer;
     NSMutableArray *layerThreads;
-
-    // Our own interaction layer does most of the work
-    MaplyBaseInteractionLayer *interactLayer;
 
     // Layers (and associated data) created for the user
     NSMutableArray *userLayers;
@@ -57,24 +56,9 @@
     
     // List of annotations we're tracking for location
     NSMutableArray *annotations;
-        
-    // General rendering and other display hints
-    NSDictionary *hints;
-        
-    // Clear color we're using
-    UIColor *theClearColor;
-    
-    /// Pointer to the scene.  The subclasses are keeping pointers with their specific subclass.
-    WhirlyKit::Scene *scene;
     
     /// A pointer to the 3D view.  The subclasses are keeping points with the right subclass.
     WhirlyKitView *visualView;
-    
-    /// Active lights
-    NSMutableArray *lights;
-    
-    /// Active shaders
-    NSMutableArray *shaders;
     
     /// Active models
     NSMutableArray *activeObjects;

@@ -48,7 +48,7 @@
     
     @param callbackBlock The block that gets called (on the main thread) when the construction succeeds or fails.
   */
-+ (void)StartRemoteVectorTiles:(NSString *__nonnull)jsonURL cacheDir:(NSString *__nonnull)cacheDir viewC:(MaplyBaseViewController *__nonnull)viewC block:(void (^__nonnull)(MaplyVectorTiles *__nullable vecTiles))callbackBlock;
++ (void)StartRemoteVectorTiles:(NSString *__nonnull)jsonURL cacheDir:(NSString *__nonnull)cacheDir viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC block:(void (^__nonnull)(MaplyVectorTiles *__nullable vecTiles))callbackBlock;
 
 /** 
     Initialize with a local tiles database and a view controller to display to.
@@ -57,7 +57,7 @@
     
     The vector database will respond to the MaplyPagingDelegate and pull in tiles as needed for display.
   */
-- (nullable instancetype)initWithDatabase:(NSString *__nonnull)tilesDB viewC:(MaplyBaseViewController *__nonnull)viewC;
+- (nullable instancetype)initWithDatabase:(NSString *__nonnull)tilesDB viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 /** 
     Initialize with a JSON tile spec, which specifies where the tiles come from and other values.
@@ -70,7 +70,7 @@
     
     @param viewC The view controller we'll use to create objects.
   */
-- (nullable instancetype)initWithTileSpec:(NSDictionary *__nonnull)jsonSpec styles:(NSDictionary *__nonnull)styles viewC:(MaplyBaseViewController *__nonnull)viewC;
+- (nullable instancetype)initWithTileSpec:(NSDictionary *__nonnull)jsonSpec styles:(NSDictionary *__nonnull)styles viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 /// The minimum level this database covers
 @property (nonatomic,assign) int minLevel;
@@ -79,7 +79,7 @@
 @property (nonatomic,assign) int maxLevel;
 
 /// The view controller the vector database paging builds its objects in
-@property (nonatomic,weak,nullable) MaplyBaseViewController *viewC;
+@property (nonatomic,weak,nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 
 /// Settings that control how objects are built with relation to tiles
 @property (nonatomic,strong,nullable) MaplyVectorStyleSettings *settings;

@@ -18,7 +18,7 @@
     MaplyVectorStyleSimpleLinear *linStyle;
 }
 
-- (id)initWithViewC:(MaplyBaseViewController *)viewC
+- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     if (!self)
@@ -33,7 +33,7 @@
 - (nullable NSArray *)stylesForFeatureWithAttributes:(NSDictionary *__nonnull)attributes
                                               onTile:(MaplyTileID)tileID
                                              inLayer:(NSString *__nonnull)layer
-                                               viewC:(MaplyBaseViewController *__nonnull)viewC
+                                               viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
 {
     MaplyVectorStyleSimple *style;
     
@@ -79,7 +79,7 @@
     return true;
 }
 
-- (nullable MaplyVectorTileStyle *)styleForUUID:(NSString *__nonnull)uuid viewC:(MaplyBaseViewController *__nonnull)viewC
+- (nullable MaplyVectorTileStyle *)styleForUUID:(NSString *__nonnull)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC
 {
     return stylesByUUID[uuid];
 }
@@ -88,7 +88,7 @@
 
 @implementation MaplyVectorStyleSimple
 
-- (id)initWithViewC:(MaplyBaseViewController *)viewC
+- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     _viewC = viewC;
@@ -99,7 +99,7 @@
     return self;
 }
 
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController * _Nonnull)viewC
+- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
 {
     return nil;
 }
@@ -108,7 +108,7 @@
 
 @implementation MaplyVectorStyleSimplePolygon
 
-- (id)initWithViewC:(MaplyBaseViewController *)viewC
+- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super initWithViewC:viewC];
     float red = drand48()/2.0;
@@ -119,7 +119,7 @@
     return self;
 }
 
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController * _Nonnull)viewC
+- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
 {
     NSMutableArray *tessObjs = [NSMutableArray array];
     for (MaplyVectorObject *vecObj in vecObjs)
@@ -143,7 +143,7 @@
 
 @implementation MaplyVectorStyleSimplePoint
 
-- (id)initWithViewC:(MaplyBaseViewController *)viewC
+- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super initWithViewC:viewC];
     _font = [UIFont systemFontOfSize:24.0];
@@ -151,7 +151,7 @@
     return self;
 }
 
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController * _Nonnull)viewC
+- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
 {
     NSMutableArray *labels = [NSMutableArray array];
     
@@ -188,7 +188,7 @@
 
 @implementation MaplyVectorStyleSimpleLinear
 
-- (id)initWithViewC:(MaplyBaseViewController *)viewC
+- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super initWithViewC:viewC];
     float red = drand48()/2.0;
@@ -199,7 +199,7 @@
     return self;
 }
 
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController * _Nonnull)viewC
+- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
 {
     MaplyComponentObject *compObj = [super.viewC addVectors:vecObjs desc:@{kMaplyColor: _color,
                                                                            kMaplyDrawPriority: @(self.drawPriority),

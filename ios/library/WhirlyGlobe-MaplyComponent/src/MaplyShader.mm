@@ -22,7 +22,7 @@
 #import <string>
 #import <WhirlyGlobe.h>
 #import "MaplyShader_private.h"
-#import "MaplyBaseViewController_private.h"
+#import "MaplyRenderController_private.h"
 
 using namespace WhirlyKit;
 
@@ -36,7 +36,7 @@ using namespace WhirlyKit;
     SimpleIDSet texIDs;
 }
 
-- (instancetype)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(MaplyBaseViewController *)baseViewC
+- (instancetype)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
 {
     NSError *error = nil;
     _name = name;
@@ -67,7 +67,7 @@ using namespace WhirlyKit;
     return [self initWithName:name vertex:vertexShader fragment:fragShader viewC:baseViewC];
 }
 
-- (instancetype)initWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg viewC:(MaplyBaseViewController *)baseViewC
+- (instancetype)initWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
 {
     if (!vertexProg || !fragProg)
     {
@@ -80,8 +80,12 @@ using namespace WhirlyKit;
     std::string fragStr = [fragProg cStringUsingEncoding:NSASCIIStringEncoding];
     std::string nameStr = [name cStringUsingEncoding:NSASCIIStringEncoding];
 
+    MaplyRenderController *renderControl = [baseViewC getRenderControl];
+    if (!renderControl)
+        return nil;
+    
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [baseViewC useGLContext];
+    [renderControl useGLContext];
     _program = new OpenGLES2Program(nameStr,vertexStr,fragStr);
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
@@ -94,11 +98,11 @@ using namespace WhirlyKit;
         return nil;
     }
     
-    scene = baseViewC->scene;
-    renderer = baseViewC->sceneRenderer;
+    scene = renderControl->scene;
+    renderer = renderControl->sceneRenderer;
     
-    if (baseViewC->scene)
-        baseViewC->scene->addProgram(_program);
+    if (renderControl->scene)
+        renderControl->scene->addProgram(_program);
     
     return self;
 }

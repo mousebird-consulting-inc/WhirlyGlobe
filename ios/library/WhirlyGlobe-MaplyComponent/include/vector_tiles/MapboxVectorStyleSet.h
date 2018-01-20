@@ -34,7 +34,7 @@
 @property (nonatomic, strong) MaplyVectorStyleSettings *tileStyleSettings;
 
 /// @brief The view controller everything will be added to
-@property (nonatomic, weak) MaplyBaseViewController *viewC;
+@property (nonatomic, weak) NSObject<MaplyRenderControllerProtocol> *viewC;
 
 /// @brief Style name
 @property (nonatomic, strong) NSString *name;
@@ -59,7 +59,7 @@
 
 /// @brief Initialize with the style JSON and the view controller
 /// @details We'll parse the style JSON passed in and return nil on failure.
-- (id)initWithJSON:(NSData *)styleJSON viewC:(MaplyBaseViewController *)viewC;
+- (id)initWithJSON:(NSData *)styleJSON viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /// @brief Return an integer value for the given name, taking the constants into account.
 - (int)intValue:(NSString *)name dict:(NSDictionary *)dict defVal:(int)defVal;
@@ -126,7 +126,7 @@
 + (id)VectorStyleLayer:(MaplyMapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority;
 
 /// @brief Base class initialization.  Copies data out of the refLayer
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(MaplyBaseViewController *)viewC;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /// @brief Unique Identifier for this style
 @property(nonatomic,strong) NSString *uuid;
@@ -135,7 +135,7 @@
 @property(nonatomic) bool geomAdditive;
 
 /// @brief Construct objects related to this style based on the input data.
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end
 
@@ -167,10 +167,10 @@ typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVecto
 @property (nonatomic) NSArray *subFilters;
 
 /// @brief Parse the filter info out of the style entry
-- (id)initWithArray:(NSArray *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
+- (id)initWithArray:(NSArray *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /// @brief Test a feature's attributes against the filter
-- (bool)testFeature:(NSDictionary *)attrs tile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
+- (bool)testFeature:(NSDictionary *)attrs tile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end
 
@@ -195,7 +195,7 @@ typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVecto
 @property (nonatomic,assign) double base;
 
 /// @brief Parse out of a JSON array
-- (id)initWithArray:(NSArray *)dataArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(MaplyBaseViewController *)viewC;
+- (id)initWithArray:(NSArray *)dataArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /// @brief Calculate a value given the zoom level
 - (double)valueForZoom:(int)zoom;

@@ -38,7 +38,7 @@
 #import "VectorData.h"
 #import "MaplyMBTileSource.h"
 #import "MapnikStyleSet.h"
-#import "MaplyBaseViewController_private.h"
+#import "MaplyRenderController_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -51,7 +51,7 @@ static double MAX_EXTENT = 20037508.342789244;
 
 @implementation MapboxVectorTileParser
 
-- (instancetype)initWithStyle:(NSObject<MaplyVectorStyleDelegate> *)styleDelegate viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyle:(NSObject<MaplyVectorStyleDelegate> *)styleDelegate viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     if (!self)
@@ -410,7 +410,7 @@ static double MAX_EXTENT = 20037508.342789244;
 
 @implementation MapboxVectorTiles
 
-+ (void) StartRemoteVectorTilesWithTileSpec:(NSString *)tileSpecURL accessToken:(NSString *)accessToken style:(NSString *)styleURL styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MapboxVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock
++ (void) StartRemoteVectorTilesWithTileSpec:(NSString *)tileSpecURL accessToken:(NSString *)accessToken style:(NSString *)styleURL styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC success:(void (^)(MapboxVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock
 {
     // We'll invoke this block when we've fetched the tilespec and the style file
     void (^startBlock)(NSDictionary *tileSpec,NSData *styleData) =
@@ -507,7 +507,7 @@ static double MAX_EXTENT = 20037508.342789244;
     }
 }
 
-+ (void) StartRemoteVectorTilesWithURL:(NSString *)tileURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom accessToken:(NSString *)accessToken style:(NSString *)styleURL styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MapboxVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
++ (void) StartRemoteVectorTilesWithURL:(NSString *)tileURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom accessToken:(NSString *)accessToken style:(NSString *)styleURL styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC success:(void (^)(MapboxVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
 {
     // We'll invoke this block when we've fetched the tilespec and the style file
     void (^startBlock)(NSData *styleData) =
@@ -561,7 +561,7 @@ static double MAX_EXTENT = 20037508.342789244;
     }
 }
 
-- (instancetype) initWithTileSources:(NSArray*)tileSources style:(NSObject<MaplyVectorStyleDelegate> *)style viewC:(MaplyBaseViewController *)viewC
+- (instancetype) initWithTileSources:(NSArray*)tileSources style:(NSObject<MaplyVectorStyleDelegate> *)style viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
   self = [super init];
   if(self) {
@@ -571,13 +571,13 @@ static double MAX_EXTENT = 20037508.342789244;
   return self;
 }
 
-- (instancetype) initWithTileSource:(MaplyRemoteTileInfo*)tileSource style:(NSObject<MaplyVectorStyleDelegate> *)style viewC:(MaplyBaseViewController *)viewC
+- (instancetype) initWithTileSource:(MaplyRemoteTileInfo*)tileSource style:(NSObject<MaplyVectorStyleDelegate> *)style viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [self initWithTileSources:@[tileSource] style:style viewC:viewC];
   return self;
 }
 
-- (instancetype) initWithMBTiles:(MaplyMBTileSource *)tileSource style:(NSObject<MaplyVectorStyleDelegate> *)style viewC:(MaplyBaseViewController *)viewC
+- (instancetype) initWithMBTiles:(MaplyMBTileSource *)tileSource style:(NSObject<MaplyVectorStyleDelegate> *)style viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [self initWithTileSources:@[tileSource] style:style viewC:viewC];
     return self;
@@ -650,13 +650,14 @@ static double MAX_EXTENT = 20037508.342789244;
                     break;
 
                 MaplyVectorTileData *retData = nil;
-                if ([layer.viewC startOfWork])
+                MaplyRenderController *renderControl = [layer.viewC getRenderControl];
+                if ([renderControl startOfWork])
                 {
                     retData = [_tileParser buildObjects:tileData tile:tileID bounds:bbox geoBounds:geoBbox];
                     if (!retData)
                         NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,flippedYTile.y);
 
-                    [layer.viewC endOfWork];
+                    [renderControl endOfWork];
                 }
 
                 if (retData)
