@@ -328,10 +328,10 @@ using namespace Maply;
 
 - (void) loadSetup_lighting
 {
-    if (![sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
+    if (![renderControl->sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
         return;
    
-    NSString *lightingType = hints[kWGRendererLightingMode];
+    NSString *lightingType = renderControl->hints[kWGRendererLightingMode];
     int lightingRegular = true;
     if ([lightingType respondsToSelector:@selector(compare:)])
         lightingRegular = [lightingType compare:@"none"];
@@ -340,10 +340,10 @@ using namespace Maply;
     // We need to add a new shader to turn it off
     if (!lightingRegular)
     {
-        SimpleIdentity triNoLighting = scene->getProgramIDByName(kToolkitDefaultTriangleNoLightingProgram);
+        SimpleIdentity triNoLighting = renderControl->scene->getProgramIDByName(kToolkitDefaultTriangleNoLightingProgram);
         if (triNoLighting != EmptyIdentity)
-            scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
-        [sceneRenderer replaceLights:nil];
+            renderControl->scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
+        [renderControl->sceneRenderer replaceLights:nil];
     } else {
         // Add a default light
         MaplyLight *light = [[MaplyLight alloc] init];
@@ -355,9 +355,9 @@ using namespace Maply;
     }
 
     // We don't want the backface culling program for lines
-    SimpleIdentity lineNoBackface = scene->getProgramIDByName(kToolkitDefaultLineNoBackfaceProgram);
+    SimpleIdentity lineNoBackface = renderControl->scene->getProgramIDByName(kToolkitDefaultLineNoBackfaceProgram);
     if (lineNoBackface)
-        scene->setSceneProgram(kSceneDefaultLineShader, lineNoBackface);
+        renderControl->scene->setSceneProgram(kSceneDefaultLineShader, lineNoBackface);
 }
 
 - (WhirlyKitView *) loadSetup_view
@@ -422,7 +422,7 @@ using namespace Maply;
     if (scrollView)
     {
         glView.reactiveMode = true;
-        sceneRenderer.zBufferMode = zBufferOffDefault;
+        renderControl->sceneRenderer.zBufferMode = zBufferOffDefault;
     }
     
     Point3f ll,ur;
@@ -553,7 +553,7 @@ using namespace Maply;
         // Let's rerun the view constrants if we have them, because things can move around
         Point3d newCenter;
         MaplyView *thisMapView = [[MaplyView alloc] initWithView:mapView];
-        bool valid = [self withinBounds:mapView.loc view:glView renderer:sceneRenderer mapView:thisMapView newCenter:&newCenter];
+        bool valid = [self withinBounds:mapView.loc view:glView renderer:renderControl->sceneRenderer mapView:thisMapView newCenter:&newCenter];
         if (valid)
         {
             if (mapView.loc.x() != newCenter.x() || mapView.loc.y() != newCenter.y())
@@ -573,7 +573,7 @@ using namespace Maply;
                 {
                     Point3d newLoc(coord.x,coord.y,testHeight);
                     Point3d newNewCenter;
-                    bool valid = [self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:thisMapView newCenter:&newNewCenter];
+                    bool valid = [self withinBounds:newLoc view:glView renderer:renderControl->sceneRenderer mapView:thisMapView newCenter:&newNewCenter];
                     
                     newCoordValid = true;
                     newHeight = testHeight;
@@ -871,11 +871,13 @@ using namespace Maply;
 {
     if (_tetheredMode)
         return false;
+    if (!renderControl)
+        return false;
     
     // Figure out where the point lands on the map
     Eigen::Matrix4d modelTrans = [mapView calcFullMatrix];
     Point3d whereLoc;
-    if ([mapView pointOnPlaneFromScreen:loc transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc clip:true])
+    if ([mapView pointOnPlaneFromScreen:loc transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc clip:true])
     {
         Point3f diffLoc(whereLoc.x()-mapView.loc.x(),whereLoc.y()-mapView.loc.y(),0.0);
         Point3d loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
@@ -959,6 +961,8 @@ using namespace Maply;
         NSLog(@"MaplyViewController: Invalid location passed to animationToPosition:");
         return false;
     }
+    if (!renderControl)
+        return false;
     
     [mapView cancelAnimation];
 
@@ -980,7 +984,7 @@ using namespace Maply;
     nextState.pos = MaplyCoordinateDMakeWithMaplyCoordinate(geoCoord);
     [self setViewStateInternal:nextState runViewUpdates:false];
     Point3d newCenter;
-    bool valid = [self withinBounds:mapView.loc view:glView renderer:sceneRenderer mapView:mapView newCenter:&newCenter];
+    bool valid = [self withinBounds:mapView.loc view:glView renderer:renderControl->sceneRenderer mapView:mapView newCenter:&newCenter];
     
     // restore current view state
     [self setViewStateInternal:curState runViewUpdates:false];
@@ -1034,6 +1038,8 @@ using namespace Maply;
 {
     if (scrollView)
         return;
+    if (!renderControl)
+        return;
 
     [self handleStartMoving:NO];
     
@@ -1059,7 +1065,7 @@ using namespace Maply;
     // Do a validity check and possibly adjust the center
     MaplyView *testMapView = [[MaplyView alloc] initWithView:mapView];
     Point3d newCenter;
-    if ([self withinBounds:loc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
+    if ([self withinBounds:loc view:glView renderer:renderControl->sceneRenderer mapView:testMapView newCenter:&newCenter])
     {
         mapView.loc = newCenter;
     }
@@ -1105,6 +1111,8 @@ using namespace Maply;
 
 - (void)setViewStateInternal:(MaplyViewControllerAnimationState *)animState runViewUpdates:(bool)runViewUpdates
 {
+    if (!renderControl)
+        return;
     
     Point3f loc = mapView.coordAdapter->localToDisplay(mapView.coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(animState.pos.x, animState.pos.y)));
     loc.z() = animState.height;
@@ -1113,7 +1121,7 @@ using namespace Maply;
     {
         Eigen::Matrix4d modelTrans = [mapView calcFullMatrix];
         Point3d hit;
-        if ([mapView pointOnPlaneFromScreen:animState.screenPos transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
+        if ([mapView pointOnPlaneFromScreen:animState.screenPos transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
         {
             Point3f diffLoc(hit.x()-mapView.loc.x(),hit.y()-mapView.loc.y(),0.0);
             loc.x() -= diffLoc.x();
@@ -1165,6 +1173,9 @@ using namespace Maply;
 
 // Called every frame from within the map view
 - (void)updateView:(MaplyView *)theMapView {
+    if (!renderControl)
+        return;
+    
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
     if (!animationDelegate)
     {
@@ -1187,7 +1198,7 @@ using namespace Maply;
     loc.z() = animState.height;
     MaplyView *testMapView = [[MaplyView alloc] initWithView:mapView];
     Point3d newCenter;
-    if ([self withinBounds:loc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
+    if ([self withinBounds:loc view:glView renderer:renderControl->sceneRenderer mapView:testMapView newCenter:&newCenter])
     {
         GeoCoord geoCoord = coordAdapter->getCoordSystem()->localToGeographic(newCenter);
         animState.pos = {geoCoord.x(),geoCoord.y()};
@@ -1280,10 +1291,13 @@ using namespace Maply;
 
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord mapView:(MaplyView *)theView
 {
+    if (!renderControl)
+        return CGPointMake(0.0, 0.0);
+    
     Point3d pt = theView.coordAdapter->localToDisplay(theView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
     
     Eigen::Matrix4d modelTrans = [theView calcFullMatrix];
-    return [theView pointOnScreenFromPlane:pt transform:&modelTrans frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+    return [theView pointOnScreenFromPlane:pt transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
 }
 
 // See if the given bounding box is all on screen
@@ -1555,11 +1569,14 @@ using namespace Maply;
 
 - (void)corners:(MaplyCoordinate *)corners
 {
+    if (!renderControl)
+        return;
+    
     CGPoint screenCorners[4];
     screenCorners[0] = CGPointMake(0.0, 0.0);
-    screenCorners[1] = CGPointMake(sceneRenderer.framebufferWidth,0.0);
-    screenCorners[2] = CGPointMake(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
-    screenCorners[3] = CGPointMake(0.0, sceneRenderer.framebufferHeight);
+    screenCorners[1] = CGPointMake(renderControl->sceneRenderer.framebufferWidth,0.0);
+    screenCorners[2] = CGPointMake(renderControl->sceneRenderer.framebufferWidth,renderControl->sceneRenderer.framebufferHeight);
+    screenCorners[3] = CGPointMake(0.0, renderControl->sceneRenderer.framebufferHeight);
     
     for (unsigned int ii=0;ii<4;ii++)
     {

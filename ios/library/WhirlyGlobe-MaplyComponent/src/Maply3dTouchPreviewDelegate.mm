@@ -12,7 +12,7 @@
 #import "WhirlyGlobeViewController.h"
 
 @interface Maply3dTouchPreviewDelegate () {
-    MaplyBaseViewController * _Nonnull viewC;
+    NSObject<MaplyRenderControllerProtocol> * _Nonnull __weak viewC;
     MaplyBaseInteractionLayer * __weak interactLayer;
 }
 
@@ -23,7 +23,7 @@ using namespace WhirlyKit;
 
 @implementation Maply3dTouchPreviewDelegate
 
-+ (Maply3dTouchPreviewDelegate * _Nonnull)touchDelegate:(MaplyBaseViewController * _Nonnull)maplyViewC
++ (Maply3dTouchPreviewDelegate * _Nonnull)touchDelegate:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)maplyViewC
                                           interactLayer:( MaplyBaseInteractionLayer*)interactLayer
                                              datasource:(NSObject<Maply3dTouchPreviewDatasource>* _Nonnull)datasource
 {

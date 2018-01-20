@@ -49,7 +49,7 @@ public:
 
 @implementation MapboxMultiSourceTileInfo
 {
-    MaplyBaseViewController *viewC;
+    NSObject<MaplyRenderControllerProtocol> *viewC;
     std::vector<NSString *> baseURLs;
     std::vector<SingleTileSource> sources;
     // Sorted by zoom level
@@ -57,7 +57,7 @@ public:
     NSMutableDictionary *vecTiles;
 }
 
-- (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC
+- (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
 {
     self = [super init];
     if (!self)
@@ -318,7 +318,7 @@ public:
     }
 
     if (vecTileData)
-        [viewC removeObjects:vecTileData.compObjs];
+        [viewC removeObjects:vecTileData.compObjs mode:MaplyThreadAny];
 }
 
 // The given tile unloaded

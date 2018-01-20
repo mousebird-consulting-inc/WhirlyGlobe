@@ -15,7 +15,7 @@ using namespace WhirlyKit;
 
 @implementation GeoJSONSource {
  
-    __weak MaplyBaseViewController *_baseVC;
+    __weak NSObject<MaplyRenderControllerProtocol> *_baseVC;
     NSURL *_geoJSONURL, *_sldURL;
     NSArray *_compObjs;
     bool _loaded, _enabled;
@@ -23,7 +23,7 @@ using namespace WhirlyKit;
     SLDStyleSet *_styleSet;
 }
 
-- (id)initWithViewC:(MaplyBaseViewController *)baseVC GeoJSONURL:(NSURL *)geoJSONURL sldURL:(NSURL *)sldURL relativeDrawPriority:(int)relativeDrawPriority {
+- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)baseVC GeoJSONURL:(NSURL *)geoJSONURL sldURL:(NSURL *)sldURL relativeDrawPriority:(int)relativeDrawPriority {
     self = [super init];
     if (self) {
         
@@ -51,7 +51,7 @@ using namespace WhirlyKit;
 }
 
 - (void) setEnabled:(bool)enabled {
-    __strong MaplyBaseViewController *baseVC = _baseVC;
+    __strong NSObject<MaplyRenderControllerProtocol> *baseVC = _baseVC;
     if (_enabled == enabled || !_loaded || !baseVC)
         return;
     _enabled = enabled;
@@ -68,7 +68,7 @@ using namespace WhirlyKit;
 - (void)startParseWithCompletion:(nonnull void (^)()) completionBlock {
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        __strong MaplyBaseViewController *baseVC = _baseVC;
+        __strong NSObject<MaplyRenderControllerProtocol> *baseVC = _baseVC;
         if (!baseVC) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 completionBlock();

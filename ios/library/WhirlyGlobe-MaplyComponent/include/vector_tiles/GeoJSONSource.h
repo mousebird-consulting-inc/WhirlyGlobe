@@ -13,7 +13,7 @@
 
 @interface GeoJSONSource : NSObject
 
-- (id _Nullable)initWithViewC:(MaplyBaseViewController * _Nonnull)baseVC GeoJSONURL:(NSURL * _Nonnull)geoJSONURL sldURL:(NSURL * _Nonnull)sldURL relativeDrawPriority:(int)relativeDrawPriority ;
+- (id _Nullable)initWithViewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)baseVC GeoJSONURL:(NSURL * _Nonnull)geoJSONURL sldURL:(NSURL * _Nonnull)sldURL relativeDrawPriority:(int)relativeDrawPriority ;
 
 - (void)startParseWithCompletion:(nonnull void (^)()) completionBlock;
 

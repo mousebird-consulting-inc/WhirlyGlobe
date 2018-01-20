@@ -18,7 +18,7 @@ extern NSString* const kMaplyLAZShaderZMin;
 extern NSString* const kMaplyLAZShaderZMax;
 
 // This is a simple point shader that passes colors in
-MaplyShader *MaplyLAZBuildPointShader(MaplyBaseViewController *viewC);
+MaplyShader *MaplyLAZBuildPointShader(NSObject<MaplyRenderControllerProtocol> *viewC);
 
 // This shader uses a ramp shader texture to look up colors
-MaplyShader *MaplyLAZBuildRampPointShader(MaplyBaseViewController *viewC,UIImage *colorRamp);
+MaplyShader *MaplyLAZBuildRampPointShader(NSObject<MaplyRenderControllerProtocol> *viewC,UIImage *colorRamp);

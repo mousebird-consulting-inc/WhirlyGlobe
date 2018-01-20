@@ -85,7 +85,7 @@
 @interface SLDStyleSet : NSObject <MaplyVectorStyleDelegate>
 
 @property (nonatomic, assign) BOOL useLayerNames;
-@property (nonatomic, weak, nullable) MaplyBaseViewController *viewC;
+@property (nonatomic, weak, nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 @property (nonatomic, strong, nullable) MaplyVectorStyleSettings *tileStyleSettings;
 
 /** 
@@ -99,7 +99,7 @@
  
     @param relativeDrawPriority The z-order relative to other vector features. This will be incremented internally for each style rule, so if you have multiple SLDStyleSets, leave some space between the relativeDrawPriority of each.
  */
-- (id _Nullable)initWithViewC:(MaplyBaseViewController * _Nonnull)viewC useLayerNames:(BOOL)useLayerNames relativeDrawPriority:(int)relativeDrawPriority;
+- (id _Nullable)initWithViewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC useLayerNames:(BOOL)useLayerNames relativeDrawPriority:(int)relativeDrawPriority;
 
 - (void)loadSldURL:(NSURL *__nullable)url;
 - (void)loadSldData:(NSData *__nonnull)sldData baseURL:(NSURL *__nonnull)baseURL;

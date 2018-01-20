@@ -85,6 +85,7 @@ static UIColor* colorForElevatedSide(int zoomLevel, float darkFactor)
                                                               kMaplyColor: color,
                                                               kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+100+tileID.level)
                                                               }
+                                                                               mode:MaplyThreadCurrent
                                                             ];
 
 						   color = colorForElevatedSide(tileID.level, 0.9);
@@ -100,6 +101,7 @@ static UIColor* colorForElevatedSide(int zoomLevel, float darkFactor)
                                                               kMaplyColor: color,
                                                               kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+100+tileID.level)
                                                               }
+                                                                               mode:MaplyThreadCurrent
                                                             ];
 
 						   color = colorForElevatedSide(tileID.level, 0.8);
@@ -116,6 +118,7 @@ static UIColor* colorForElevatedSide(int zoomLevel, float darkFactor)
                                                               kMaplyColor: color,
                                                               kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+100+tileID.level)
                                                               }
+                                                                               mode:MaplyThreadCurrent
                                                             ];
 
 						   color = colorForElevatedSide(tileID.level, 0.7);
@@ -130,6 +133,7 @@ static UIColor* colorForElevatedSide(int zoomLevel, float darkFactor)
                                                               kMaplyColor: color,
                                                               kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault+100+tileID.level)
                                                               }
+                                                                               mode:MaplyThreadCurrent
                                                             ];
 
                            // Label
@@ -144,7 +148,9 @@ static UIColor* colorForElevatedSide(int zoomLevel, float darkFactor)
                                                              @{kMaplyFont: [UIFont systemFontOfSize:18.0],
                                                                kMaplyJustify: @"center",
                                                                kMaplyTextOutlineSize: @(1.0)
-                                                               }];
+                                                               }
+                                                                                    mode:MaplyThreadCurrent
+                                                             ];
                            
                            [layer addData:@[compObj0,compObj1,compObj2,compObj3,compObj4] forTile:tileID];
                            

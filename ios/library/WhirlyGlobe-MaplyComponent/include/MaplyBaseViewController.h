@@ -39,6 +39,7 @@
 #import "Maply3DTouchPreviewDatasource.h"
 #import "MaplyLocationTracker.h"
 #import "MaplyRenderTarget.h"
+#import "MaplyRenderController.h"
 
 /** 
     When selecting multiple objects, one or more of these is returned.
@@ -65,13 +66,6 @@
 
 @protocol MaplyLocationTrackerDelegate;
 
-/// Where we'd like an add to be executed.  If you need immediate feedback,
-///  then be on the main thread and use MaplyThreadCurrent.  Any is the default. 
-typedef NS_ENUM(NSInteger, MaplyThreadMode) {
-	MaplyThreadCurrent,
-	MaplyThreadAny,
-};
-
 /** 
     Base class for the Maply and WhirlyGlobe view controllers.
     
@@ -79,7 +73,7 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
     
     Don't create one of these directly, instead use the MaplyViewController or the WhirlyGlobeViewController.
  */
-@interface MaplyBaseViewController : UIViewController
+@interface MaplyBaseViewController : UIViewController <MaplyRenderControllerProtocol>
 
 /** 
     Turn selection on or off globally.
@@ -1065,22 +1059,6 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
     @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
  */
 - (void)enableObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode;
-
-/** 
-    Call this to start journaling changes for this thread.
-    
-    Your can collect up your add/remove/enable changes on the current thread.  Call startChanges to start collecting and endChanges to flush the changes.
-    
-    This has no real meaning on the main thread and don't collect too many changes.  They take memory.
-  */
-- (void)startChanges;
-
-/** 
-    Call this to flush your journal changes out ot the scene.
-    
-    This is the other end of startChanges.
-  */
-- (void)endChanges;
 
 /** 
     Add the given active object to the scene.

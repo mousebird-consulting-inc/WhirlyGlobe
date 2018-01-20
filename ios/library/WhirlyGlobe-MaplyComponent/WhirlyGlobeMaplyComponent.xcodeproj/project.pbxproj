@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B127BF92012A12B0099F405 /* MaplyRenderController_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BF82012A12A0099F405 /* MaplyRenderController_private.h */; };
+		2B127BFB2012A1390099F405 /* MaplyRenderTarget_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BFA2012A1390099F405 /* MaplyRenderTarget_private.h */; };
+		2B127BFD2012ACA20099F405 /* MaplyRenderController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */; };
 		2B3FD2C31F478F5200CA9C18 /* MaplyRenderTarget.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B82B5CA1E82E2490095FB14 /* common.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3A11E82E2490095FB14 /* common.h */; };
@@ -1057,6 +1060,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2B127BF720126FBD0099F405 /* MaplyRenderController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyRenderController.h; sourceTree = "<group>"; };
+		2B127BF82012A12A0099F405 /* MaplyRenderController_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderController_private.h; sourceTree = "<group>"; };
+		2B127BFA2012A1390099F405 /* MaplyRenderTarget_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget_private.h; sourceTree = "<group>"; };
+		2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRenderController.mm; sourceTree = "<group>"; };
 		2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRenderTarget.mm; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B82B3A11E82E2490095FB14 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = "/Users/sjg/iPhone/WhirlyGlobe2/ios/third-party/octencoding/../../../common/local_libs/octencoding/common.h"; sourceTree = "<absolute>"; };
@@ -3205,6 +3212,7 @@
 				2BE5371F1D249A1200B60FAD /* MaplyAnimationTestTileSource.h */,
 				2BE537201D249A1200B60FAD /* MaplyAnnotation.h */,
 				2BE537211D249A1200B60FAD /* MaplyAtmosphere.h */,
+				2B127BF720126FBD0099F405 /* MaplyRenderController.h */,
 				2BE537221D249A1200B60FAD /* MaplyBaseViewController.h */,
 				2BE537231D249A1200B60FAD /* MaplyBillboard.h */,
 				2BE537241D249A1200B60FAD /* MaplyBlankTileSource.h */,
@@ -3275,6 +3283,8 @@
 		2BE5375A1D249A1200B60FAD /* private */ = {
 			isa = PBXGroup;
 			children = (
+				2B127BFA2012A1390099F405 /* MaplyRenderTarget_private.h */,
+				2B127BF82012A12A0099F405 /* MaplyRenderController_private.h */,
 				2BE5375B1D249A1200B60FAD /* ImageTexture_private.h */,
 				2BE5375C1D249A1200B60FAD /* MaplyActiveObject_private.h */,
 				2BE5375D1D249A1200B60FAD /* MaplyAnnotation_private.h */,
@@ -3353,6 +3363,7 @@
 		2BE537991D249A1200B60FAD /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */,
 				2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */,
 				2B884A031E37FE9E0027C397 /* MaplyLAZMeshBuilder.mm */,
 				2B884A041E37FE9E0027C397 /* MaplyLAZQuadReader.mm */,
@@ -4042,6 +4053,7 @@
 				2B82B71E1E82E24A0095FB14 /* ScreenImportance.h in Headers */,
 				2B82B5DE1E82E2490095FB14 /* glues_registry.h in Headers */,
 				2BE53A1A1D249C2900B60FAD /* wire_format.h in Headers */,
+				2B127BFB2012A1390099F405 /* MaplyRenderTarget_private.h in Headers */,
 				2BE53A7D1D249C4700B60FAD /* type_traits.h in Headers */,
 				2B82B7251E82E24A0095FB14 /* GlobeDoubleTapDelegate.h in Headers */,
 				2BE538631D249A1200B60FAD /* MapboxVectorTiles.h in Headers */,
@@ -4086,6 +4098,7 @@
 				2BE537FC1D249A1200B60FAD /* MaplyAnnotation.h in Headers */,
 				2B82B7401E82E24A0095FB14 /* MaplyDoubleTapDelegate.h in Headers */,
 				2BE537FD1D249A1200B60FAD /* MaplyAtmosphere.h in Headers */,
+				2B127BF92012A12B0099F405 /* MaplyRenderController_private.h in Headers */,
 				2BE539871D249BEF00B60FAD /* AASun.h in Headers */,
 				2B82B70D1E82E24A0095FB14 /* SelectionManager.h in Headers */,
 				2BE53A1D1D249C2900B60FAD /* wire_format_lite_inl.h in Headers */,
@@ -4521,6 +4534,7 @@
 				2BE53A631D249C4600B60FAD /* stringpiece.cc in Sources */,
 				2B82B62E1E82E2490095FB14 /* PJ_sch.c in Sources */,
 				2B82B65E1E82E24A0095FB14 /* pj_ellps.c in Sources */,
+				2B127BFD2012ACA20099F405 /* MaplyRenderController.mm in Sources */,
 				2B82B67F1E82E24A0095FB14 /* PJ_lask.c in Sources */,
 				2B82B7781E82E24A0095FB14 /* MaplyAnimateTranslation.mm in Sources */,
 				2B884A6B1E3803170027C397 /* laswriteitemcompressed_v1.cpp in Sources */,

@@ -155,14 +155,6 @@
 // Flush out outstanding changes for this thread
 - (void)endChanges;
 
-///// Internal routines.  Don't ever call these outside of the layer thread.
-
-// An internal routine to add an image to our local UIImage/ID cache
-- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags interpType:(GLenum)interpType mode:(MaplyThreadMode)threadMode;
-
-// This version defaults the wrap flags
-- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode;
-
 // Add a render target to the renderer
 - (void)addRenderTarget:(MaplyRenderTarget *)renderTarget;
 
@@ -199,5 +191,13 @@
 
 // Write out usage stats
 - (void)dumpStats;
+
+///// Internal routines.  Don't ever call these outside of the layer thread.
+
+// An internal routine to add an image to our local UIImage/ID cache
+- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags interpType:(GLenum)interpType mode:(MaplyThreadMode)threadMode;
+
+// This version defaults the wrap flags
+- (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode;
 
 @end

@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class MaplyBaseViewController;
+@protocol MaplyRenderControllerProtocol;
 
 /** 
     The various types of attributes that can be passed in to shaders.
@@ -116,7 +116,7 @@ These are the per vertex attributes provided to each vertex shader.
     
     @return Returns a shader program if it succeeded.  It may not work, however, so call valid first.
   */
-- (nullable instancetype)initWithName:(NSString * __nonnull)name vertexFile:(NSString * __nonnull)vertexFileName fragmentFile:(NSString * __nonnull)fragFileName viewC:(MaplyBaseViewController * __nonnull)baseViewC;
+- (nullable instancetype)initWithName:(NSString * __nonnull)name vertexFile:(NSString * __nonnull)vertexFileName fragmentFile:(NSString * __nonnull)fragFileName viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC;
 
 /** 
     Initialize with the shader programs tied to a particular view controller.
@@ -133,7 +133,7 @@ These are the per vertex attributes provided to each vertex shader.
     
     @return Returns a shader program if it succeeded.  IT may not work, however, so call valid first.
  */
-- (nullable instancetype)initWithName:(NSString *__nonnull)name vertex:(NSString *__nonnull)vertexProg fragment:(NSString *__nonnull)fragProg viewC:(MaplyBaseViewController *__nonnull)baseViewC;
+- (nullable instancetype)initWithName:(NSString *__nonnull)name vertex:(NSString *__nonnull)vertexProg fragment:(NSString *__nonnull)fragProg viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)baseViewC;
 
 /** 
     Name of the shader program.

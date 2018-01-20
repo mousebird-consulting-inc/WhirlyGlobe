@@ -21,24 +21,7 @@
 #import "MaplyViewControllerLayer.h"
 #import "MaplyCoordinateSystem.h"
 #import "MaplyTileSource.h"
-
-/// The various image formats we support.  RGBA is the default, and most expensive.
-typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
-	MaplyImageIntRGBA,
-	MaplyImageUShort565,
-	MaplyImageUShort4444,
-	MaplyImageUShort5551,
-	MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,
-        MaplyImageUByteRGB,
-	MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
-	MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
-	MaplyImage4Layer8Bit
-};
-
-/// Wrap values for certain types of textures
-#define MaplyImageWrapNone (0)
-#define MaplyImageWrapX (1<<0)
-#define MaplyImageWrapY (1<<1)
+#import "MaplyRenderController.h"
 
 /** 
     The Maply Quad Image Tiles Layer is for paging image pyramids local or remote.

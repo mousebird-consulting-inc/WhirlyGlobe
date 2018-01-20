@@ -56,7 +56,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     NSArray *tileURLs;
 }
 
-+ ( void)StartRemoteVectorTiles:(NSString *)jsonURL cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC block:(void (^)(MaplyVectorTiles *vecTiles))callbackBlock
++ ( void)StartRemoteVectorTiles:(NSString *)jsonURL cacheDir:(NSString *)cacheDir viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC block:(void (^)(MaplyVectorTiles *vecTiles))callbackBlock
 {
     // First we need the JSON describing the whole thing
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:jsonURL]];
@@ -174,7 +174,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     return [UIColor colorWithWhite:1.0 alpha:alpha];
 }
 
-- (instancetype)initWithDirectory:(NSString *)tilesDir viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithDirectory:(NSString *)tilesDir viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     _viewC = viewC;
@@ -215,7 +215,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     return self;
 }
 
-- (instancetype)initWithDatabase:(NSString *)name viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithDatabase:(NSString *)name viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     _viewC = viewC;
@@ -283,7 +283,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
     return self;
 }
 
-- (instancetype)initWithTileSpec:(NSDictionary *)jsonSpec styles:(NSDictionary *)styleDict viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithTileSpec:(NSDictionary *)jsonSpec styles:(NSDictionary *)styleDict viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     _viewC = viewC;

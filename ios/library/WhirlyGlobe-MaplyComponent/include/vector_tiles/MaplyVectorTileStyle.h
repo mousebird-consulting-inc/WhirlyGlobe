@@ -30,7 +30,7 @@
 /** 
     Construct a style entry from an NSDictionary.
   */
-+ (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC;
++ (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /// Unique Identifier for this style
 @property (nonatomic,strong) id<NSCopying> uuid;
@@ -39,19 +39,19 @@
 @property (nonatomic) bool geomAdditive;
 
 /// Construct a style entry from an NSDictionary
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry viewC:(MaplyBaseViewController *)viewC;
+- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /// Turn the min/maxscaledenom into height ranges for minVis/maxVis
 - (void)resolveVisibility:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings desc:(NSMutableDictionary *)desc;
 
 /// Construct objects related to this style based on the input data.
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /// parse a mapnik style template string
 - (NSString*)formatText:(NSString*)formatString forObject:(MaplyVectorObject*)vec;
 
 /// The view controller we're constructing objects in
-@property (nonatomic,weak) MaplyBaseViewController *viewC;
+@property (nonatomic,weak) NSObject<MaplyRenderControllerProtocol> *viewC;
 
 /// If set, we create selectable objects
 /// This controls whether the objects we create are selectable.  Off by default.
