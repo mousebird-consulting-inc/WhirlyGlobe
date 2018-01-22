@@ -96,6 +96,6 @@
 @property (nonatomic,weak) NSObject<WhirlyKitSnapshot> *snapshotDelegate;
 
 // Used by a subclass
-- (id) initWithVersion:(EAGLRenderingAPI)apiVersion;
+- (id) initWithVersion:(EAGLRenderingAPI)apiVersion size:(CGSize)size;
 
 @end

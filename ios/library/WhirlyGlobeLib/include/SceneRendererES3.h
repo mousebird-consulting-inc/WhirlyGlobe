@@ -31,4 +31,7 @@
 //  then create a 2.0 version
 - (id)init;
 
+// Initialize an offline renderer of the given size
+- (id)initWithSize:(CGSize)size;
+
 @end

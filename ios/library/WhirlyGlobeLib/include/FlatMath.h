@@ -89,4 +89,33 @@ protected:
 /// A representative earth radius value.  We use this for scaling, not accurate geolocation.
 static const float EarthRadius = 6371000;
 
+/** This coord system just passes through output values as inputs.
+    It's useful for an offline renderer.
+  */
+class PassThroughCoordSystem : public WhirlyKit::CoordSystem
+{
+public:
+    PassThroughCoordSystem();
+    
+    /// Convert from the local coordinate system to lat/lon
+    GeoCoord localToGeographic(Point3f);
+    GeoCoord localToGeographic(Point3d);
+    Point2d localToGeographicD(Point3d);
+    /// Convert from lat/lon t the local coordinate system
+    Point3f geographicToLocal(GeoCoord);
+    Point3d geographicToLocal3d(GeoCoord);
+    Point3d geographicToLocal(Point2d);
+    
+    /// Convert from local coordinates to WGS84 geocentric
+    Point3f localToGeocentric(Point3f);
+    Point3d localToGeocentric(Point3d);
+    /// Convert from WGS84 geocentric to local coordinates
+    Point3f geocentricToLocal(Point3f);
+    Point3d geocentricToLocal(Point3d);
+    
+    /// Return true if the other coordinate system is Flat Earth with the same origin
+    bool isSameAs(CoordSystem *coordSys);
+protected:
+};
+
 }

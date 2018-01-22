@@ -140,16 +140,25 @@ using namespace WhirlyKit;
 
 - (void)addThingToDelete:(WhirlyKit::DelayedDeletable *)thing
 {
+    if (!thing)
+        return;
+    
     thingsToDelete.push_back(thing);
 }
 
 - (void)addThingToRelease:(NSObject *)thing
 {
+    if (!thing)
+        return;
+    
     [thingsToRelease addObject:thing];
 }
 
 - (void)addThreadToShutdown:(WhirlyKitLayerThread *)thread
 {
+    if (!thread)
+        return;
+    
     [threadsToShutdown addObject:thread];
 }
 

@@ -275,11 +275,14 @@ public:
     glSetupInfo = [[WhirlyKitGLSetupInfo alloc] init];
     glSetupInfo->minZres = [visualView calcZbufferRes];
     
-    LayoutManager *layoutManager =(LayoutManager *)scene->getManager(kWKLayoutManager);
-    if (layoutManager)
+    if (layerThread)
     {
-        ourClusterGen.layer = self;
-        layoutManager->addClusterGenerator(&ourClusterGen);
+        LayoutManager *layoutManager =(LayoutManager *)scene->getManager(kWKLayoutManager);
+        if (layoutManager)
+        {
+            ourClusterGen.layer = self;
+            layoutManager->addClusterGenerator(&ourClusterGen);
+        }
     }
     
     // We locked these in hopes of slowing down anyone trying to race us.  Unlock 'em.
@@ -362,8 +365,20 @@ public:
     pthread_mutex_unlock(&workLock);
 }
 
+// If we're not running in our own thread, we're part of an offline render.
+// In that case, render everything now.
+- (MaplyThreadMode)resolveThreadMode:(MaplyThreadMode)threadMode
+{
+    if (!layerThread)
+        return MaplyThreadCurrent;
+    
+    return threadMode;
+}
+
 - (Texture *)createTexture:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+    
     int imageFormat = [desc intForKey:kMaplyTexFormat default:MaplyImageIntRGBA];
     bool wrapX = [desc boolForKey:kMaplyTexWrapX default:false];
     bool wrapY = [desc boolForKey:kMaplyTexWrapY default:false];
@@ -439,6 +454,8 @@ public:
 // Explicitly add a texture
 - (MaplyTexture *)addTexture:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     pthread_mutex_lock(&imageLock);
     
     // Look for an image texture that's already representing our UIImage
@@ -496,6 +513,8 @@ public:
 
 - (MaplyTexture *)addTextureToAtlas:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     ChangeSet changes;
 
     // May need a temporary context when setting up textures
@@ -565,6 +584,8 @@ public:
 
 - (void)removeTextures:(NSArray *)textures mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     for (MaplyTexture *texture in textures)
         [texture clear];
 }
@@ -595,6 +616,8 @@ public:
 
 - (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     return [self addImage:image imageFormat:imageFormat wrapFlags:MaplyImageWrapNone interpType:GL_NEAREST mode:threadMode];
 }
 
@@ -602,6 +625,8 @@ public:
 // Called in the layer thread
 - (MaplyTexture *)addImage:(id)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags interpType:(GLenum)interpType mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyTexture *maplyTex = [self addTexture:image desc:@{kMaplyTexFormat: @(imageFormat),
                                kMaplyTexWrapX: @(wrapFlags & MaplyImageWrapX),
                                kMaplyTexWrapY: @(wrapFlags & MaplyImageWrapY),
@@ -659,6 +684,8 @@ public:
 // We flush out changes in different ways depending on the thread mode
 - (void)flushChanges:(ChangeSet &)changes mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     if (changes.empty())
         return;
     // This means we beat the layer thread setup, so we'll put this in orbit
@@ -928,6 +955,8 @@ public:
 // Called in the main thread.
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -1187,6 +1216,8 @@ public:
 // Add 3D markers
 - (MaplyComponentObject *)addMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
 
@@ -1218,6 +1249,8 @@ public:
 // This happens if we're making OpenGL calls on a thread that doesn't have a context.
 - (EAGLContext *)setupTempContext:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     EAGLContext *tmpContext = nil;
     
     // Use the renderer's context
@@ -1384,6 +1417,8 @@ public:
 // Add screen space (2D) labels
 - (MaplyComponentObject *)addScreenLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -1506,6 +1541,8 @@ public:
 // Add 3D labels
 - (MaplyComponentObject *)addLabels:(NSArray *)labels desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -1638,6 +1675,8 @@ public:
 // Add vectors
 - (MaplyComponentObject *)addVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -1758,6 +1797,8 @@ public:
 
 - (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -1856,6 +1897,8 @@ public:
 // Instance vectors
 - (MaplyComponentObject *)instanceVectors:(MaplyComponentObject *)baseObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -1932,6 +1975,8 @@ public:
 // Change vector representation
 - (void)changeVectors:(MaplyComponentObject *)vecObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     if (!vecObj)
         return;
     
@@ -2161,6 +2206,8 @@ public:
 // Add shapes
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -2425,6 +2472,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -2454,6 +2503,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (MaplyComponentObject *)addGeometry:(NSArray *)geom desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -2577,6 +2628,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Add stickers
 - (MaplyComponentObject *)addStickers:(NSArray *)stickers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -2673,6 +2726,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Change stickers
 - (void)changeSticker:(MaplyComponentObject *)stickerObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     if (!stickerObj)
         return;
     
@@ -2744,6 +2799,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Add lofted polys
 - (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -2916,6 +2973,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Add billboards
 - (MaplyComponentObject *)addBillboards:(NSArray *)bboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -3056,6 +3115,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -3127,6 +3188,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     NSArray *argArray = @[batch, @(threadMode)];
     switch (threadMode)
     {
@@ -3188,6 +3251,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
@@ -3350,6 +3415,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Remove a group of objects at once
 - (void)removeObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     NSArray *argArray = @[userObjs, @(threadMode)];
 
     // If any are under construction, we need to toss this over to the layer thread
@@ -3436,6 +3503,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Enable objects
 - (void)enableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     NSArray *argArray = @[userObjs, @(true), @(threadMode)];
 
     // If any are under construction, we need to toss this over to the layer thread
@@ -3463,6 +3532,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Disable objects
 - (void)disableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode
 {
+    threadMode = [self resolveThreadMode:threadMode];
+
     NSArray *argArray = @[userObjs, @(false), @(threadMode)];
 
     // If any are under construction, we need to toss this over to the layer thread
@@ -3498,6 +3569,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (NSArray *)findVectorsInPoint:(Point2f)pt inView:(NSObject<MaplyRenderControllerProtocol> *)vc multi:(bool)multi
 {
+    if (!layerThread)
+        return nil;
+    
     NSMutableArray *foundObjs = [NSMutableArray array];
     
     pt = [visualView unwrapCoordinate:pt];
@@ -3521,7 +3595,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                             [foundObjs addObject:vecObj];
                             if (!multi)
                                 break;
-                        } else if (vc && [vecObj pointNearLinear:coord distance:20 inViewController:vc]) {
+                        } else if (vc && [vecObj pointNearLinear:coord distance:20 inViewController:(MaplyBaseViewController *)vc]) {
                             [foundObjs addObject:vecObj];
                             if (!multi)
                                 break;

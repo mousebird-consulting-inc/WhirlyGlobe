@@ -803,3 +803,17 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 
 @end
 
+/**
+ The Render Controller is a standalone WhirlyGlobe-Maply renderer.
+ 
+ This Render Controller is used for offline rendering.
+ */
+@interface MaplyRenderController : NSObject<MaplyRenderControllerProtocol>
+
+/// Initialize as an offline renderer of a given target size
+- (instancetype __nullable)initWithSize:(CGSize)size;
+
+/// If set up in offline mode, this is how we draw
+- (UIImage * __nullable)renderToImage;
+
+@end

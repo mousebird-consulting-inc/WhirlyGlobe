@@ -24,7 +24,12 @@
 
 - (id)init
 {
-    return [super initWithVersion:kEAGLRenderingAPIOpenGLES3];
+    return [super initWithVersion:kEAGLRenderingAPIOpenGLES3 size:CGSizeZero];
+}
+
+- (id)initWithSize:(CGSize)size
+{
+    return [super initWithVersion:kEAGLRenderingAPIOpenGLES3 size:size];
 }
 
 @end
