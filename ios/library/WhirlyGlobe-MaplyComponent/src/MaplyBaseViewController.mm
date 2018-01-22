@@ -173,18 +173,6 @@ using namespace WhirlyKit;
     
     allowRepositionForAnnnotations = true;
     
-    // Need this logic here to pull in the categories
-    static bool dummyInit = false;
-    if (!dummyInit)
-    {
-        NSDataDummyFunc();
-        NSDictionaryStyleDummyFunc();
-        DDXMLElementDummyFunc();
-        DDXMLDummyFunc();
-        
-        dummyInit = true;
-    }
-    
     userLayers = [NSMutableArray array];
     _threadPerLayer = true;
     

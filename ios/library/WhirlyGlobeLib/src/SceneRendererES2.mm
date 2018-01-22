@@ -108,10 +108,10 @@ public:
 
 - (id) init
 {
-    return [self initWithVersion:kEAGLRenderingAPIOpenGLES2];
+    return [self initWithVersion:kEAGLRenderingAPIOpenGLES2 size:CGSizeZero];
 }
 
-- (id) initWithVersion:(EAGLRenderingAPI)apiVersion
+- (id) initWithVersion:(EAGLRenderingAPI)apiVersion size:(CGSize)size
 {
     // We do this to pull in the categories without the -ObjC flag.
     // It's dumb, but it works
@@ -125,7 +125,7 @@ public:
         dummyInit = true;
     }
     
-    self = [super initWithOpenGLESVersion:apiVersion];
+    self = [super initWithOpenGLESVersion:apiVersion size:(CGSize)size];
     if (!self)
         return nil;
     lights = [NSMutableArray array];

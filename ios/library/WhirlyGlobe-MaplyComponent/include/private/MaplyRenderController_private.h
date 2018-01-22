@@ -32,11 +32,12 @@
  
     This Render Controller is used for offline rendering.
   */
-@interface MaplyRenderController : NSObject<MaplyRenderControllerProtocol>
+@interface MaplyRenderController()
 {
 @public
-    WhirlyKitSceneRendererES2 *sceneRenderer;
-
+    // Scene renderer... renders the scene
+    WhirlyKitSceneRendererES3 *sceneRenderer;
+    
     // Our own interaction layer does most of the work
     MaplyBaseInteractionLayer *interactLayer;
 
@@ -54,9 +55,13 @@
     
     /// Active shaders
     NSMutableArray *shaders;
+    
+    /// Used to be screen objects were always drawn last.  Now that's optional.
+    int screenDrawPriorityOffset;
 }
 
-@property (nonatomic,assign) int screenObjectDrawPriorityOffset;
+- (int)screenObjectDrawPriorityOffset;
+- (void)setScreenObjectDrawPriorityOffset:(int)newPriority;
 
 // Setup
 - (void)loadSetup;

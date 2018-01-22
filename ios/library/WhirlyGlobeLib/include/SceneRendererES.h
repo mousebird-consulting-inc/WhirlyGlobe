@@ -323,7 +323,7 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 @property (nonatomic,assign) bool triggerDraw;
 
 /// Initialize with API version
-- (id) initWithOpenGLESVersion:(EAGLRenderingAPI)apiVersion;
+- (id) initWithOpenGLESVersion:(EAGLRenderingAPI)apiVersion size:(CGSize)size;
 
 /// Render to the screen, ideally within the given duration.
 /// The subclasses fill this in

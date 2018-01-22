@@ -31,6 +31,9 @@ class OpenMapTilesTestCase: MaplyTestCase {
             return nil
         }
         
+        // Set up an offline renderer
+        let offlineRender = MaplyRenderController.init(size: CGSize.init(width: 512.0, height: 512.0))
+        
         let tileInfo = MaplyRemoteTileInfo.init(baseURL: "http://public-mobile-data-stage-saildrone-com.s3-us-west-1.amazonaws.com/openmaptiles/{z}/{x}/{y}.png", ext: nil, minZoom: 0, maxZoom: 14)
         let tileSource = MaplyRemoteTileSource(info: tileInfo)
 //        let simpleStyle = MaplyVectorStyleSimpleGenerator(viewC: baseVC)

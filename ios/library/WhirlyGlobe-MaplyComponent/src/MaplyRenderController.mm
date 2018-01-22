@@ -20,15 +20,56 @@
 
 #import "MaplyRenderController_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
+#import "NSData+Zlib.h"
+#import "NSDictionary+StyleRules.h"
+#import "DDXMLElementAdditions.h"
+#import "NSString+DDXML.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
 
 @implementation MaplyRenderController
+{
+    // This view is used when we're doing an offline renderer
+    PassThroughCoordSystem *coordSys;
+    GeneralCoordSystemDisplayAdapter *coordAdapter;
+    MaplyFlatView *flatView;
+    bool offlineMode;
+}
 
-//- (instancetype)initWithSize:(CGSize)size
-//{
-//}
+- (instancetype)initWithSize:(CGSize)size
+{
+    self = [super init];
+    
+    offlineMode = true;
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    
+    // Coordinate system and view that just pass coordinates through
+    coordSys = new PassThroughCoordSystem();
+    Point3d ll(0.0,0.0,0.0),ur(size.width,size.height,0.0);
+    Point3d scale(1.0,1.0,1.0);
+    coordAdapter = new GeneralCoordSystemDisplayAdapter(coordSys,ll,ur,ll,scale);
+    flatView = [[MaplyFlatView alloc] initWithCoordAdapter:coordAdapter];
+    scene = new Maply::MapScene(coordAdapter);
+
+    // Set up the renderer with a target size
+    sceneRenderer = [[WhirlyKitSceneRendererES3 alloc] initWithSize:size];
+    
+    theClearColor = [UIColor blackColor];
+    [sceneRenderer setClearColor:theClearColor];
+    
+    // Turn on the model matrix optimization for drawing
+    sceneRenderer.useViewChanged = true;
+    
+    interactLayer = [[MaplyBaseInteractionLayer alloc] initWithView:flatView];
+    [interactLayer startWithThread:nil scene:scene];
+    
+    if (oldContext)
+        [EAGLContext setCurrentContext:oldContext];
+    
+    return self;
+}
 
 - (void)teardown
 {
@@ -36,6 +77,25 @@ using namespace Eigen;
     [sceneRenderer useContext];
     for (MaplyShader *shader in shaders)
         [shader teardown];
+    // This stuff is our responsibility if we created it
+    if (offlineMode)
+    {
+        if (interactLayer)
+            [interactLayer teardown];
+        interactLayer = nil;
+        if (flatView)
+            flatView = nil;
+        if (coordAdapter) {
+            delete coordAdapter;
+            coordAdapter = NULL;
+        }
+        if (coordSys) {
+            delete coordSys;
+            coordSys = NULL;
+        }
+        scene = nil;
+    }
+    sceneRenderer = nil;
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
 }
@@ -48,14 +108,31 @@ using namespace Eigen;
     theClearColor = nil;
 }
 
+- (void)weirdSelectorSetup
+{
+    // Need this logic here to pull in the categories
+    static bool dummyInit = false;
+    if (!dummyInit)
+    {
+        NSDataDummyFunc();
+        NSDictionaryStyleDummyFunc();
+        DDXMLElementDummyFunc();
+        DDXMLDummyFunc();
+        
+        dummyInit = true;
+    }
+}
+
 - (void)loadSetup
 {
-    _screenObjectDrawPriorityOffset = 1000000;
+    [self weirdSelectorSetup];
+    
+    screenDrawPriorityOffset = 1000000;
     
     // Set up the OpenGL ES renderer
     sceneRenderer = [[WhirlyKitSceneRendererES3 alloc] init];
     if (!sceneRenderer)
-        sceneRenderer = [[WhirlyKitSceneRendererES2 alloc] init];
+        sceneRenderer = [[WhirlyKitSceneRendererES3 alloc] init];
     sceneRenderer.zBufferMode = zBufferOffDefault;
     // Switch to that context for any assets we create
     // Note: Should be switching back at the end
@@ -70,9 +147,19 @@ using namespace Eigen;
 
 - (void)setScreenObjectDrawPriorityOffset:(int)drawPriorityOffset
 {
-    _screenObjectDrawPriorityOffset = drawPriorityOffset;
+    screenDrawPriorityOffset = drawPriorityOffset;
     if (interactLayer)
-        interactLayer.screenObjectDrawPriorityOffset = _screenObjectDrawPriorityOffset;
+        interactLayer.screenObjectDrawPriorityOffset = screenDrawPriorityOffset;
+}
+
+- (int)screenObjectDrawPriorityOffset
+{
+    return screenDrawPriorityOffset;
+}
+
+- (UIImage *)renderToImage
+{
+    return nil;
 }
 
 - (void) useGLContext

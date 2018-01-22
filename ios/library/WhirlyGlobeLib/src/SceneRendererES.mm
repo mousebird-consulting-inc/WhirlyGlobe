@@ -342,7 +342,7 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
     Eigen::Matrix4d modelMat,viewMat,projMat;    
 }
 
-- (id) initWithOpenGLESVersion:(EAGLRenderingAPI)apiVersion
+- (id) initWithOpenGLESVersion:(EAGLRenderingAPI)apiVersion size:(CGSize)size
 {
 	if ((self = [super init]))
 	{
@@ -366,6 +366,8 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
         CheckGLError("SceneRendererES::initWithOpenGLESVersion() setCurrentContext");
         
         RenderTarget defaultTarget(EmptyIdentity);
+        defaultTarget.width = (int)size.width;
+        defaultTarget.height = (int)size.height;
         defaultTarget.init(NULL,EmptyIdentity);
         defaultTarget.clearEveryFrame = true;
         defaultTarget.blendEnable = true;
