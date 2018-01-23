@@ -222,6 +222,7 @@ public:
     OurClusterGenerator ourClusterGen;
     // Last frame (layout frame, not screen frame)
     std::vector<MaplyTexture *> currentClusterTex,oldClusterTex;
+    bool offlineMode;
 }
 
 - (instancetype)initWithView:(WhirlyKitView *)inVisualView
@@ -268,6 +269,7 @@ public:
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene
 {
     layerThread = inLayerThread;
+    offlineMode = layerThread == nil;
     scene = (WhirlyGlobe::GlobeScene *)inScene;
     userObjects = [NSMutableSet set];
     atlasGroup = [[MaplyTextureAtlasGroup alloc] initWithScene:scene];
@@ -320,7 +322,7 @@ public:
 - (void)lockingShutdown
 {
     // This shouldn't happen
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
     
     if ([NSThread currentThread] != layerThread)
@@ -822,7 +824,7 @@ public:
 // Called in an unknown thread
 - (void)addScreenMarkersRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     NSArray *markers = [argArray objectAtIndex:0];
@@ -1121,7 +1123,7 @@ public:
 // Called in an unknown thread.
 - (void)addMarkersRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     NSArray *markers = [argArray objectAtIndex:0];
@@ -1307,7 +1309,7 @@ public:
 // Called in an unknown thread.
 - (void)addScreenLabelsRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     NSArray *labels = [argArray objectAtIndex:0];
@@ -1451,7 +1453,7 @@ public:
 // Called in an unknown thread.
 - (void)addLabelsRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     NSArray *labels = [argArray objectAtIndex:0];
@@ -1575,7 +1577,7 @@ public:
 // Called in an unknown thread
 - (void)addVectorsRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     NSArray *vectors = [argArray objectAtIndex:0];
@@ -1708,7 +1710,7 @@ public:
 // Called in an unknown thread
 - (void)addWideVectorsRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     NSArray *vectors = [argArray objectAtIndex:0];
@@ -1830,7 +1832,7 @@ public:
 // Called in an unknown thread
 - (void)instanceVectorsRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     MaplyComponentObject *baseObj = [argArray objectAtIndex:0];
@@ -1941,7 +1943,7 @@ public:
 // Actually do the vector change
 - (void)changeVectorRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     MaplyComponentObject *vecObj = [argArray objectAtIndex:0];
@@ -2002,7 +2004,7 @@ public:
 // Called in the layer thread
 - (void)addShapesRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
@@ -2427,7 +2429,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Called in the layer thread
 - (void)addGeometryRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     NSArray *geom = argArray[0];
@@ -2535,7 +2537,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Called in the layer thread
 - (void)addStickersRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     NSArray *stickers = argArray[0];
@@ -2660,7 +2662,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Actually do the sticker change
 - (void)changeStickerRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     MaplyComponentObject *stickerObj = [argArray objectAtIndex:0];
@@ -2753,7 +2755,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Actually add the lofted polys.
 - (void)addLoftedPolysRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     NSArray *vectors = [argArray objectAtIndex:0];
@@ -2831,7 +2833,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Actually add the billboards.
 - (void)addBillboardsRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     NSArray *bills = argArray[0];
@@ -3004,7 +3006,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)addParticleSystemRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     MaplyParticleSystem *partSys = argArray[0];
@@ -3136,7 +3138,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)addParticleSystemBatchRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     MaplyParticleBatch *batch = argArray[0];
@@ -3304,7 +3306,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Remove the object, but do it on the layer thread
 - (void)removeObjectRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
     
     NSArray *inUserObjs = argArray[0];
@@ -3443,7 +3445,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)enableObjectsRun:(NSArray *)argArray
 {
-    if (isShuttingDown || !layerThread)
+    if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
     NSArray *theObjs = argArray[0];
