@@ -98,6 +98,9 @@ public:
     /// Set up the target texture
     void setTargetTexture(Scene *scene,SimpleIdentity newTargetTexID);
     
+    /// Set the GL texture directly
+    void setTargetTexture(TextureBase *tex);
+    
     /// OpenGL ES Name for the frame buffer
     GLuint framebuffer;
     /// OpenGL ES Name for the color buffer
@@ -279,6 +282,9 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
     
     // What we're rendering to (and where)
     std::vector<WhirlyKit::RenderTarget> renderTargets;
+    
+    // If we're an offline renderer, the texture we're rendering into
+    WhirlyKit::Texture *framebufferTex;
 }
 
 /// Rendering context

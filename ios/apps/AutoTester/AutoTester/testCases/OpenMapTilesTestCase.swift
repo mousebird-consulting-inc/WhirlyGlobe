@@ -33,6 +33,8 @@ class OpenMapTilesTestCase: MaplyTestCase {
         
         // Set up an offline renderer
         let offlineRender = MaplyRenderController.init(size: CGSize.init(width: 512.0, height: 512.0))
+        offlineRender?.setClear(UIColor.red)
+        let testImage = offlineRender?.renderToImage()
         
         let tileInfo = MaplyRemoteTileInfo.init(baseURL: "http://public-mobile-data-stage-saildrone-com.s3-us-west-1.amazonaws.com/openmaptiles/{z}/{x}/{y}.png", ext: nil, minZoom: 0, maxZoom: 14)
         let tileSource = MaplyRemoteTileSource(info: tileInfo)

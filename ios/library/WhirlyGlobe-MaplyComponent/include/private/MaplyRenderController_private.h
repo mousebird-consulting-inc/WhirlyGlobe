@@ -32,7 +32,7 @@
  
     This Render Controller is used for offline rendering.
   */
-@interface MaplyRenderController()
+@interface MaplyRenderController()<WhirlyKitSnapshot>
 {
 @public
     // Scene renderer... renders the scene
