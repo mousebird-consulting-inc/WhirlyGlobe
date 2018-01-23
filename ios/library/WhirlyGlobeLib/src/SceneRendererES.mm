@@ -112,16 +112,24 @@ bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
 void RenderTarget::setTargetTexture(Scene *scene,SimpleIdentity targetTexID)
 {
     TextureBase *tex = scene->getTexture(targetTexID);
-    if (tex) {
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->getGLId(), 0);
-        CheckGLError("RenderTarget: glFramebufferTexture2D");
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
+    if (tex)
+        setTargetTexture(tex);
 }
+
+void RenderTarget::setTargetTexture(TextureBase *tex)
+{
+    if (framebuffer == 0) {
+        glGenFramebuffers(1, &framebuffer);
+        colorbuffer = 0;
+    }
     
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->getGLId(), 0);
+    CheckGLError("RenderTarget: glFramebufferTexture2D");
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void RenderTarget::clear()
 {
     if (colorbuffer)
@@ -358,6 +366,9 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
 		
 		_context = [[EAGLContext alloc] initWithAPI:apiVersion];
         
+        _framebufferWidth = (int)size.width;
+        _framebufferHeight = (int)size.height;
+        
         EAGLContext *oldContext = [EAGLContext currentContext];
         if (!_context || ![EAGLContext setCurrentContext:_context])
 		{
@@ -365,10 +376,24 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
         }
         CheckGLError("SceneRendererES::initWithOpenGLESVersion() setCurrentContext");
         
+        // We need a texture to draw to in this case
+        if (_framebufferWidth > 0)
+        {
+            framebufferTex = new Texture("Framebuffer Texture");
+            framebufferTex->setWidth(_framebufferWidth);
+            framebufferTex->setHeight(_framebufferHeight);
+            framebufferTex->setIsEmptyTexture(true);
+            framebufferTex->setFormat(GL_UNSIGNED_BYTE);
+            framebufferTex->createInGL(NULL);
+        }
+
         RenderTarget defaultTarget(EmptyIdentity);
         defaultTarget.width = (int)size.width;
         defaultTarget.height = (int)size.height;
-        defaultTarget.init(NULL,EmptyIdentity);
+        if (framebufferTex)
+            defaultTarget.setTargetTexture(framebufferTex);
+        else
+            defaultTarget.init(NULL,EmptyIdentity);
         defaultTarget.clearEveryFrame = true;
         defaultTarget.blendEnable = true;
         renderTargets.push_back(defaultTarget);
@@ -396,6 +421,12 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
     
     for (auto &target : renderTargets)
         target.clear();
+    
+    if (framebufferTex) {
+        framebufferTex->destroyInGL(_scene->getMemManager());
+        delete framebufferTex;
+        framebufferTex = NULL;
+    }
     
 	if (oldContext != _context)
         [EAGLContext setCurrentContext:oldContext];

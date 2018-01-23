@@ -35,6 +35,7 @@ using namespace Eigen;
     GeneralCoordSystemDisplayAdapter *coordAdapter;
     MaplyFlatView *flatView;
     bool offlineMode;
+    UIImage *snapshotImage;
 }
 
 - (instancetype)initWithSize:(CGSize)size
@@ -55,7 +56,10 @@ using namespace Eigen;
 
     // Set up the renderer with a target size
     sceneRenderer = [[WhirlyKitSceneRendererES3 alloc] initWithSize:size];
-    
+    sceneRenderer.zBufferMode = zBufferOffDefault;
+    sceneRenderer.scene = scene;
+    sceneRenderer.theView = flatView;
+
     theClearColor = [UIColor blackColor];
     [sceneRenderer setClearColor:theClearColor];
     
@@ -159,7 +163,10 @@ using namespace Eigen;
 
 - (UIImage *)renderToImage
 {
-    return nil;
+    sceneRenderer.snapshotDelegate = self;
+    [sceneRenderer render:0.0];
+    
+    return snapshotImage;
 }
 
 - (void) useGLContext
@@ -455,6 +462,13 @@ using namespace Eigen;
 
 - (void)endChanges
 {
+}
+
+// Snapshot protocol
+
+- (void)snapshot:(UIImage *)image
+{
+    snapshotImage = image;
 }
 
 @end
