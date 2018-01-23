@@ -589,7 +589,6 @@ static const float ScreenOverlap = 0.1;
                 }
             }
             
-            
             if (perfInterval > 0)
                 perfTimer.stopTiming("Culling");
             

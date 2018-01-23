@@ -21,6 +21,8 @@
 
 #import "MapboxVectorTiles.h"
 #import "MaplyTileSource.h"
+#import "MapboxVectorStyleSet.h"
+#import "MapboxVectorStyleBackground.h"
 
 #include <iostream>
 #include <fstream>
@@ -199,8 +201,13 @@ static double MAX_EXTENT = 20037508.342789244;
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord encoded in tile coord space, from 0 to TILE_SIZE
                                     //Covert to epsg:3785, then to degrees, then to radians
-                                    point.x() = DegToRad(((tileOriginX + x / sx) / MAX_EXTENT) * 180.0);
-                                    point.y() = 2 * atan(exp(DegToRad(((tileOriginY - y / sy) / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                    Point2f loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                    if (_localCoords) {
+                                        point = loc;
+                                    } else {
+                                        point.x() = DegToRad((loc.x() / MAX_EXTENT) * 180.0);
+                                        point.y() = 2 * atan(exp(DegToRad((loc.y() / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                    }
                                     
                                     if(cmd == SEG_MOVETO) { //move to means we are starting a new segment
                                         if(lin && lin->pts.size() > 0) { //We've already got a line, finish it
@@ -255,9 +262,14 @@ static double MAX_EXTENT = 20037508.342789244;
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord is encoded in tile coord space, from 0 to TILE_SIZE
                                     //Covert to epsg:3785, then to degrees, then to radians
-                                    point.x() = DegToRad(((tileOriginX + x / sx) / MAX_EXTENT) * 180.0);
-                                    point.y() = 2 * atan(exp(DegToRad(((tileOriginY - y / sy) / MAX_EXTENT) * 180.0))) - M_PI_2;
-                                    
+                                    Point2f loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                    if (_localCoords) {
+                                        point = loc;
+                                    } else {
+                                        point.x() = DegToRad((loc.x() / MAX_EXTENT) * 180.0);
+                                        point.y() = 2 * atan(exp(DegToRad((loc.y() / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                    }
+
                                     if(cmd == SEG_MOVETO) { //move to means we are starting a new segment
                                         firstCoord = point;
                                         //TODO: does this ever happen when we are part way through a shape? holes?
@@ -305,8 +317,13 @@ static double MAX_EXTENT = 20037508.342789244;
                                     //At this point x/y is a coord is encoded in tile coord space, from 0 to TILE_SIZE
                                     //Covert to epsg:3785, then to degrees, then to radians
                                     if(x > 0 && x < 256 && y > 0 && y < 256) {
-                                        point.x() = DegToRad(((tileOriginX + x / sx) / MAX_EXTENT) * 180.0);
-                                        point.y() = 2 * atan(exp(DegToRad(((tileOriginY - y / sy) / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                        Point2f loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                        if (_localCoords) {
+                                            point = loc;
+                                        } else {
+                                            point.x() = DegToRad((loc.x() / MAX_EXTENT) * 180.0);
+                                            point.y() = 2 * atan(exp(DegToRad((loc.y() / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                        }
                                         shape->pts.push_back(point);
                                     }
                                 } else if (cmd == (SEG_CLOSE & ((1 << cmd_bits) - 1))) {
@@ -374,19 +391,17 @@ static double MAX_EXTENT = 20037508.342789244;
         }
         if(self.debugOutline) {
             MaplyCoordinate outline[5];
-            outline[0] = ne;
-            outline[1].x = ne.x;
-            outline[1].y = sw.y;
-            outline[2] = sw;
-            outline[3].x = sw.x;
-            outline[3].y = ne.y;
-            outline[4] = ne;
+            outline[0].x = ne.x;            outline[0].y = ne.y;
+            outline[1].x = ne.x;            outline[1].y = sw.y;
+            outline[2].x = sw.x;            outline[2].y = sw.y;
+            outline[3].x = sw.x;            outline[3].y = ne.y;
+            outline[4].x = ne.x;            outline[4].y = ne.y;
             MaplyVectorObject *outlineObj = [[MaplyVectorObject alloc] initWithLineString:outline
                                                                                 numCoords:5
                                                                                attributes:nil];
             MaplyComponentObject *c = [_viewC addVectors:@[outlineObj]
                                                     desc:@{kMaplyColor: [UIColor redColor],
-                                                           kMaplyVecWidth:@(1),
+                                                           kMaplyVecWidth:@(4),
                                                            kMaplyDrawPriority : @(kMaplyMaxDrawPriorityDefault+100000000),
                                                            kMaplyEnable: @(NO)
                                                            }
@@ -565,7 +580,7 @@ static double MAX_EXTENT = 20037508.342789244;
 {
   self = [super init];
   if(self) {
-    self.tileSources = tileSources;
+      self.tileSources = tileSources;
       _tileParser = [[MapboxVectorTileParser alloc] initWithStyle:style viewC:viewC];
   }
   return self;
@@ -574,7 +589,7 @@ static double MAX_EXTENT = 20037508.342789244;
 - (instancetype) initWithTileSource:(MaplyRemoteTileInfo*)tileSource style:(NSObject<MaplyVectorStyleDelegate> *)style viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [self initWithTileSources:@[tileSource] style:style viewC:viewC];
-  return self;
+    return self;
 }
 
 - (instancetype) initWithMBTiles:(MaplyMBTileSource *)tileSource style:(NSObject<MaplyVectorStyleDelegate> *)style viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
@@ -733,5 +748,163 @@ static double MAX_EXTENT = 20037508.342789244;
   return coord;
 }
 
+
+@end
+
+@implementation MapboxVectorTileImageSource
+{
+    MaplyRemoteTileInfo *tileInfo;
+    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
+    MaplyMapboxVectorStyleSet *style;
+    MaplySphericalMercator *coordSys;
+    MaplyRenderController *offlineRender;
+    UIColor *backColor;
+}
+
+- (instancetype _Nullable ) initWithTileInfo:(MaplyRemoteTileInfo *_Nonnull)inTileInfo style:(MaplyMapboxVectorStyleSet *__nonnull)inStyle viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)inViewC
+{
+    self = [super init];
+    tileInfo = inTileInfo;
+    viewC = inViewC;
+    style = inStyle;
+    coordSys = [[MaplySphericalMercator alloc] initWebStandard];
+    
+    offlineRender = [[MaplyRenderController alloc] initWithSize:CGSizeMake(512.0,512.0)];
+    offlineRender.clearColor = [UIColor blueColor];
+    _tileParser = [[MapboxVectorTileParser alloc] initWithStyle:style viewC:offlineRender];
+    _tileParser.localCoords = true;
+    
+    MapboxVectorLayerBackground *backLayer = style.layersByName[@"background"];
+    backColor = backLayer.paint.color;
+
+    return self;
+}
+
+- (int)minZoom
+{
+    return tileInfo.minZoom;
+}
+
+- (int)maxZoom
+{
+    return tileInfo.maxZoom;
+}
+
+- (int)tileSize
+{
+    return 512;
+}
+
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
+{
+    return false;
+}
+
+- (nonnull MaplyCoordinateSystem *)coordSys
+{
+    return coordSys;
+}
+
+- (void)clear
+{
+}
+
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
+{
+    return true;
+}
+
+- (int)tileSizeForTile:(MaplyTileID)tileID
+{
+    return [self tileSize];
+}
+
+- (void)startFetchLayer:(MaplyQuadImageTilesLayer *)layer tile:(MaplyTileID)tileID
+{
+    MaplyBoundingBox bbox;
+    bbox.ll = MaplyCoordinateMake(0,0);  bbox.ur = MaplyCoordinateMake(512, 512);
+    
+//    MaplyTileID flippedYTile;
+//    if(layer.flipY) {
+//       flippedYTile.level = tileID.level;
+//       flippedYTile.x = tileID.x;
+//       flippedYTile.y = ((int)(1<<tileID.level)-tileID.y)-1;
+//    } else {
+//       flippedYTile = tileID;
+//    }
+
+    NSURLRequest *urlReq = [tileInfo requestForTile:tileID];
+    if (!urlReq)
+       return;
+
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
+                                 ^(NSData * _Nullable tileData, NSURLResponse * _Nullable response, NSError * _Nullable error)
+    {
+        UIImage *image = nil;
+        
+        if(tileData.length) {
+            if([tileData isCompressed]) {
+               tileData = [tileData uncompressGZip];
+               if(!tileData.length) {
+                   NSLog(@"Error: tile data was nil after decompression");
+                   return;
+               }
+            }
+
+            @synchronized(offlineRender)
+            {
+                // Build the vector objects
+                MaplyVectorTileData *retData = nil;
+//                offlineRender.clearColor = [UIColor colorWithRed:0.5+drand48()*0.5 green:0.5+drand48()*0.5 blue:0.5+drand48()*0.5 alpha:1.0];
+                offlineRender.clearColor = backColor;
+                if ((retData = [_tileParser buildObjects:tileData tile:tileID bounds:bbox geoBounds:bbox]))
+                {
+                    // Turn all those objects on
+                    [offlineRender enableObjects:retData.compObjs mode:MaplyThreadCurrent];
+                    
+                    image = [offlineRender renderToImage];
+                    
+                    // And then remove them all
+                    [offlineRender removeObjects:retData.compObjs mode:MaplyThreadCurrent];
+                } else
+                   NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+            }
+        } else {
+           // Note: Empty tile.  What to do?
+        }
+        
+        [layer loadedImages:image forTile:tileID frame:-1];
+    }];
+    [task resume];
+}
+
+- (void)tileWasDisabled:(MaplyTileID)tileID
+{
+    
+}
+
+- (void)tileWasEnabled:(MaplyTileID)tileID
+{
+    
+}
+
+- (void)tileUnloaded:(MaplyTileID)tileID
+{
+    
+}
+
+/**
+ Convert a coordinate from lat/lon radians to epsg:3785
+ Verified output with "cs2cs +init=epsg:4326 +to +init=epsg:3785", correct within .5 meters, 
+ but frequently off by .4
+ */
+- (MaplyCoordinate)toMerc:(MaplyCoordinate)coord {
+    //  MaplyCoordinate orig = coord;
+    coord.x = RadToDeg(coord.x) * MAX_EXTENT / 180;
+    coord.y = 3189068.5 * log((1.0 + sin(coord.y)) / (1.0 - sin(coord.y)));
+    //  NSLog(@"%f %f -> %.2f %.2f", RadToDeg(orig.x), RadToDeg(orig.y), coord.x, coord.y);
+    return coord;
+}
 
 @end

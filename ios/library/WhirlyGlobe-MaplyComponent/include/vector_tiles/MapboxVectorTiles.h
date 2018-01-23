@@ -46,6 +46,7 @@ typedef NS_ENUM(NSInteger, MapnikCommandType) {
 
 @class MaplyVectorTileStyle;
 @class MaplyMBTileSource;
+@class MaplyRemoteTileInfo;
 
 /** 
     Container for data parsed out of a vector tile.
@@ -75,6 +76,9 @@ typedef NS_ENUM(NSInteger, MapnikCommandType) {
 
 /// Maply view controller we're adding this data to
 @property (nonatomic, weak, nullable) NSObject<MaplyRenderControllerProtocol> * __weak viewC;
+
+/// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
+@property (nonatomic, assign) bool localCoords;
 
 @property (nonatomic, assign) BOOL debugLabel;
 @property (nonatomic, assign) BOOL debugOutline;
@@ -187,5 +191,19 @@ typedef NS_ENUM(NSInteger, MapnikStyleType) {
     The file should be local.
   */
 - (nonnull instancetype)initWithMBTiles:(MaplyMBTileSource *__nonnull)tileSource style:(NSObject<MaplyVectorStyleDelegate> *__nonnull)style viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
+
+@end
+
+/**
+    A tile source for Mapbox vector tiles that renders into images (partially).
+ 
+    This tile source will render some data into images for use by the QuadImages layer and then
+  */
+@interface MapboxVectorTileImageSource : NSObject<MaplyTileSource>
+
+- (instancetype _Nullable ) initWithTileInfo:(MaplyRemoteTileInfo *_Nonnull)tileInfo style:(NSObject<MaplyVectorStyleDelegate> *__nonnull)style viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
+
+/// Handles the actual Mapnik vector tile parsing
+@property (nonatomic, strong, nullable) MapboxVectorTileParser *tileParser;
 
 @end

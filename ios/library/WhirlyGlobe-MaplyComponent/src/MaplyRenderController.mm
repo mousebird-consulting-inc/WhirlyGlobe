@@ -50,8 +50,14 @@ using namespace Eigen;
     coordSys = new PassThroughCoordSystem();
     Point3d ll(0.0,0.0,0.0),ur(size.width,size.height,0.0);
     Point3d scale(1.0,1.0,1.0);
-    coordAdapter = new GeneralCoordSystemDisplayAdapter(coordSys,ll,ur,ll,scale);
+    Point3d center = (ll+ur)/2.0;
+    coordAdapter = new GeneralCoordSystemDisplayAdapter(coordSys,ll,ur,center,scale);
     flatView = [[MaplyFlatView alloc] initWithCoordAdapter:coordAdapter];
+    Mbr extents;
+    extents.addPoint(Point2f(ll.x(),ll.y()));
+    extents.addPoint(Point2f(ur.x(),ur.y()));
+    [flatView setExtents:extents];
+    [flatView setWindowSize:Point2f(size.width,size.height) contentOffset:Point2f(0.0,0.0)];
     scene = new Maply::MapScene(coordAdapter);
 
     // Set up the renderer with a target size
@@ -59,6 +65,7 @@ using namespace Eigen;
     sceneRenderer.zBufferMode = zBufferOffDefault;
     sceneRenderer.scene = scene;
     sceneRenderer.theView = flatView;
+    sceneRenderer.doCulling = false;
 
     theClearColor = [UIColor blackColor];
     [sceneRenderer setClearColor:theClearColor];
