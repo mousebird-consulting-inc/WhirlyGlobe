@@ -25,12 +25,12 @@
 #import "MapboxVectorStyleRaster.h"
 #import "MapboxVectorStyleSymbol.h"
 
-@implementation MaplyMapboxVectorStyleSet
+@implementation MapboxVectorStyleSet
 {
     NSMutableDictionary *layersByUUID;
 }
 
-- (id)initWithJSON:(NSData *)styleJSON viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (id)initWithJSON:(NSData *)styleJSON viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC filter:(bool (^)(NSDictionary *))filterBlock
 {
     self = [super init];
     if (!self)
@@ -55,6 +55,8 @@
     int which = 0;
     for (NSDictionary *layerStyle in layerStyles)
     {
+        if (filterBlock && !(filterBlock(layerStyle)))
+            continue;
         MaplyMapboxVectorStyleLayer *layer = [MaplyMapboxVectorStyleLayer VectorStyleLayer:self JSON:layerStyle drawPriority:(10*which + kMaplyVectorDrawPriorityDefault)];
         if (layer)
         {
@@ -383,7 +385,7 @@
 
 @implementation MaplyMapboxVectorStyleLayer
 
-+ (id)VectorStyleLayer:(MaplyMapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority
++ (id)VectorStyleLayer:(MapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority
 {
     MaplyMapboxVectorStyleLayer *layer = nil;
     MaplyMapboxVectorStyleLayer *refLayer = nil;
@@ -445,7 +447,7 @@
     return layer;
 }
 
-- (id)initWithStyleEntry:(NSDictionary *)layerDict parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (id)initWithStyleEntry:(NSDictionary *)layerDict parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     if (!self)
@@ -476,7 +478,7 @@
 
 @implementation MapboxVectorFilter
 
-- (id)initWithArray:(NSArray *)filterArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (id)initWithArray:(NSArray *)filterArray styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     if (![filterArray isKindOfClass:[NSArray class]])
     {
@@ -708,7 +710,7 @@
 
 @implementation MaplyVectorFunctionStops
 
-- (id)initWithArray:(NSArray *)dataArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (id)initWithArray:(NSArray *)dataArray styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     if (![dataArray isKindOfClass:[NSArray class]])
     {

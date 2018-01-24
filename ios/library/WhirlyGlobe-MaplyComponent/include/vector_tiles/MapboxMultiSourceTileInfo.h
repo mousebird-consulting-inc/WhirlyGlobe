@@ -22,6 +22,12 @@
 #import "MapboxVectorTiles.h"
 #import "MaplyQuadImageTilesLayer.h"
 
+/// The various types of style that will work with Mapnik vector tiles
+typedef NS_ENUM(NSInteger, MapnikStyleType) {
+    MapnikXMLStyle,
+    MapnikSLDStyle
+};
+
 /** 
     Used to represent a Mapbox source compiled from multiple individual sources.
     

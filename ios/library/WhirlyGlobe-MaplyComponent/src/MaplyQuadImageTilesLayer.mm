@@ -401,7 +401,7 @@ using namespace WhirlyKit;
 
 	MaplyBoundingBox box;
 
-	[self geoBoundsForTile:tileID bbox:&box];
+	[self boundsForTile:tileID bbox:&box];
 
 	return box;
 }
