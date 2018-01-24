@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B127BFF201802BB0099F405 /* OpenMapTilesHybridTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */; };
 		2B158BEF1D5D19E900103E04 /* VectorHoleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */; };
 		2B1C264F1C90FFFC00C71B0A /* VectorMBTilesTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */; };
 		2B1C26531C91037100C71B0A /* France.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C26511C9100A500C71B0A /* France.mbtiles */; };
@@ -1158,6 +1159,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenMapTilesHybridTestCase.swift; sourceTree = "<group>"; };
 		2B158BED1D5D19E900103E04 /* VectorHoleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorHoleTestCase.h; sourceTree = "<group>"; };
 		2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorHoleTestCase.m; sourceTree = "<group>"; };
 		2B1C264D1C90FFFC00C71B0A /* VectorMBTilesTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorMBTilesTestCase.h; sourceTree = "<group>"; };
@@ -1891,6 +1893,7 @@
 			isa = PBXGroup;
 			children = (
 				2BB4766E200047C6006AAACB /* OpenMapTilesTestCase.swift */,
+				2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */,
 				2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */,
 				E5679F4C1CB7669400369A15 /* FullAnimationTest.h */,
 				E5679F4D1CB7669400369A15 /* FullAnimationTest.m */,
@@ -3690,6 +3693,7 @@
 				D84433EE1C14E4FE00A52117 /* CartoDBLayer.m in Sources */,
 				886FCCC31BA73C1D00494BB0 /* StartupViewController.swift in Sources */,
 				D84AA5941C1A1C9700413B76 /* BNGCustomMapTestCase.swift in Sources */,
+				2B127BFF201802BB0099F405 /* OpenMapTilesHybridTestCase.swift in Sources */,
 				2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */,
 				88BF11571BCDA1BB0002205E /* ResultsViewController.swift in Sources */,
 				8FE129191CDFB3B8004744FC /* TestCell.swift in Sources */,
