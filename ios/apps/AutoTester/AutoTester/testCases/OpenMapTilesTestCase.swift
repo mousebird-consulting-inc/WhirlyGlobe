@@ -27,7 +27,7 @@ class OpenMapTilesTestCase: MaplyTestCase {
         guard let styleData = NSData.init(contentsOfFile: path) else {
             return nil
         }
-        guard let styleSet = MaplyMapboxVectorStyleSet.init(json: styleData as Data!, viewC: baseVC) else {
+        guard let styleSet = MapboxVectorStyleSet.init(json: styleData as Data!, viewC: baseVC, filter: nil) else {
             return nil
         }
         
@@ -35,7 +35,7 @@ class OpenMapTilesTestCase: MaplyTestCase {
         let tileSource = MaplyRemoteTileSource(info: tileInfo)
         
         if let tileSource = tileSource {
-            let pageDelegate = MapboxVectorTiles(tileSource: tileSource, style: styleSet, viewC: baseVC)
+            let pageDelegate = MapboxVectorTilesPagingDelegate(tileSource: tileSource, style: styleSet, viewC: baseVC)
 //            pageDelegate.tileParser?.debugLabel = true
 //            pageDelegate.tileParser?.debugOutline = true
             if let pageLayer = MaplyQuadPagingLayer(coordSystem: MaplySphericalMercator(), delegate: pageDelegate) {

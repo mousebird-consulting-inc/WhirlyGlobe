@@ -128,7 +128,7 @@ public:
             break;
 //        case MapnikMapboxGLStyle:
 //        {
-//            MaplyMapboxVectorStyleSet *mapboxStyleSet = [[MaplyMapboxVectorStyleSet alloc] initWithJSON:styleData viewC:viewC];
+//            MapboxVectorStyleSet *mapboxStyleSet = [[MapboxVectorStyleSet alloc] initWithJSON:styleData viewC:viewC];
 //            styleSet = mapboxStyleSet;
 //        }
         default:

@@ -28,7 +28,7 @@
 /** @brief The Mapbox Vector Style Set parses Mapbox GL Style sheets and turns them into Maply compatible styles.
     @details A style delegate is required by the Mapnik parser to build geometry out of Mapnik vector tiles.  This style delegate can read a Mapbox GL Style sheet and produce compatible styles.
  */
-@interface MaplyMapboxVectorStyleSet : NSObject <MaplyVectorStyleDelegate>
+@interface MapboxVectorStyleSet : NSObject <MaplyVectorStyleDelegate>
 
 /// @brief Default settings and scale factor for Mapnik vector geometry.
 @property (nonatomic, strong) MaplyVectorStyleSettings *tileStyleSettings;
@@ -59,7 +59,8 @@
 
 /// @brief Initialize with the style JSON and the view controller
 /// @details We'll parse the style JSON passed in and return nil on failure.
-- (id)initWithJSON:(NSData *)styleJSON viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+/// @details The optional filter can be used to reject layers we won't use
+- (id)initWithJSON:(NSData *)styleJSON viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC filter:(bool (^)(NSDictionary *))filterBlock;
 
 /// @brief Return an integer value for the given name, taking the constants into account.
 - (int)intValue:(NSString *)name dict:(NSDictionary *)dict defVal:(int)defVal;
@@ -102,7 +103,7 @@
 @interface MaplyMapboxVectorStyleLayer : NSObject<MaplyVectorStyle>
 // Note: Need a better base class than MaplyVectorTileStyle
 
-@property (nonatomic,weak) MaplyMapboxVectorStyleSet *styleSet;
+@property (nonatomic,weak) MapboxVectorStyleSet *styleSet;
 
 /// @brief ID on the layer style entry
 @property (nonatomic) NSString *ident;
@@ -123,10 +124,10 @@
 @property (nonatomic) int drawPriority;
 
 /// @brief Initialize with the style sheet and the entry for this layer
-+ (id)VectorStyleLayer:(MaplyMapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority;
++ (id)VectorStyleLayer:(MapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority;
 
 /// @brief Base class initialization.  Copies data out of the refLayer
-- (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MaplyMapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /// @brief Unique Identifier for this style
 @property(nonatomic,strong) NSString *uuid;
@@ -167,7 +168,7 @@ typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVecto
 @property (nonatomic) NSArray *subFilters;
 
 /// @brief Parse the filter info out of the style entry
-- (id)initWithArray:(NSArray *)styleEntry styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (id)initWithArray:(NSArray *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /// @brief Test a feature's attributes against the filter
 - (bool)testFeature:(NSDictionary *)attrs tile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
@@ -195,7 +196,7 @@ typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVecto
 @property (nonatomic,assign) double base;
 
 /// @brief Parse out of a JSON array
-- (id)initWithArray:(NSArray *)dataArray styleSet:(MaplyMapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (id)initWithArray:(NSArray *)dataArray styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /// @brief Calculate a value given the zoom level
 - (double)valueForZoom:(int)zoom;

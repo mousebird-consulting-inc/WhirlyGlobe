@@ -27,39 +27,52 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         guard let styleData = NSData.init(contentsOfFile: path) else {
             return nil
         }
-        guard let styleSet = MaplyMapboxVectorStyleSet.init(json: styleData as Data!, viewC: baseVC) else {
+
+        // Set up an offline renderer and a Mapbox vector style handler to render to it
+        guard let offlineRender = MaplyRenderController.init(size: CGSize.init(width: 512.0, height: 512.0)) else {
             return nil
         }
-        
-        // Set up an offline renderer
-        //        let offlineRender = MaplyRenderController.init(size: CGSize.init(width: 512.0, height: 512.0))
-        //        offlineRender?.setClear(UIColor.red)
-        //        let testImage = offlineRender?.renderToImage()
-        
+        guard let imageStyleSet = MapboxVectorStyleSet.init(json: styleData as Data!, viewC: offlineRender,
+                                                                 filter:
+            { (styleAttrs) -> Bool in
+                let dict = styleAttrs! as Dictionary
+                // We only want polygons for the image
+                if let type = dict["type"] as? String {
+                    if type == "background" || type == "fill" {
+                        return true
+                    }
+                }
+                return false
+            })
+        else {
+            return nil
+        }
+
+        // Set up a style for just the vector data we want to overlay
+        guard let vectorStyleSet = MapboxVectorStyleSet.init(json: styleData as Data!, viewC: baseVC,
+                                                                  filter:
+                { (styleAttrs) -> Bool in
+                    let dict = styleAttrs! as Dictionary
+                    // We want everything but the polygons
+                    if let type = dict["type"] as? String {
+                        if type != "background" && type != "fill" {
+                            return true
+                        }
+                    }
+                    return false
+                })
+            else {
+                return nil
+        }
+
+        // Set up the tile info (where the data is) and the tile source to interpet it
         let tileInfo = MaplyRemoteTileInfo.init(baseURL: "http://public-mobile-data-stage-saildrone-com.s3-us-west-1.amazonaws.com/openmaptiles/{z}/{x}/{y}.png", ext: nil, minZoom: 0, maxZoom: 14)
-        //        let tileSource = MaplyRemoteTileSource(info: tileInfo)
-        //        let simpleStyle = MaplyVectorStyleSimpleGenerator(viewC: baseVC)
-        
-        //        if let tileSource = tileSource {
-        //            let pageDelegate = MapboxVectorTiles(tileSource: tileSource, style: styleSet, viewC: baseVC)
-        //            pageDelegate.tileParser?.debugLabel = true
-        //            pageDelegate.tileParser?.debugOutline = true
-        //            if let pageLayer = MaplyQuadPagingLayer(coordSystem: MaplySphericalMercator(), delegate: pageDelegate) {
-        //                pageLayer.flipY = false
-        //                pageLayer.importance = 512*512;
-        //                pageLayer.singleLevelLoading = true
-        //
-        //                // Background layer supplies the background color
-        //                if let backLayer = styleSet.layersByName["background"] as? MapboxVectorLayerBackground? {
-        //                    baseVC.clearColor = backLayer?.paint.color
-        //                }
-        //
-        //                return pageLayer
-        //            }
-        //        }
-        
-        let tileSource = MapboxVectorTileImageSource.init(tileInfo: tileInfo, style: styleSet, viewC: baseVC)
+        let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
+        let tileSource = MapboxVectorTileImageSource.init(tileInfo: tileInfo, imageStyle: imageStyleSet, offlineRender: offlineRender, vectorStyle: vectorStyleSet, viewC: baseVC)
         if let tileSource = tileSource {
+            tileSource.cacheDir = "\(cacheDir)/openmaptiles_saildrone/"
+            // Fire up an image layer to fetch it.
+            // This will also manage the vector objects
             if let imageLayer = MaplyQuadImageTilesLayer.init(tileSource: tileSource) {
                 imageLayer.flipY = true
                 if baseVC is WhirlyGlobeViewController {
