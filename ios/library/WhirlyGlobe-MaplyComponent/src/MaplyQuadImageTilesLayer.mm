@@ -93,7 +93,7 @@ using namespace WhirlyKit;
     bool variableSizeTiles;
     bool canDoValidTiles;
     bool canFetchFrames;
-    bool wantsUnload,wantsEnabled,wantsDisabled;
+    bool wantsUnload,wantsEnabled,wantsDisabled,wantsClear;
     std::vector<int> framePriorities;
     NSDictionary *tessDict;
 }
@@ -162,6 +162,7 @@ using namespace WhirlyKit;
     wantsUnload = [_tileSource respondsToSelector:@selector(tileUnloaded:)];
     wantsEnabled = [_tileSource respondsToSelector:@selector(tileWasEnabled:)];
     wantsDisabled = [_tileSource respondsToSelector:@selector(tileWasDisabled:)];
+    wantsClear = [_tileSource respondsToSelector:@selector(clear)];
     
     return self;
 }
@@ -619,6 +620,8 @@ using namespace WhirlyKit;
 {
     [_viewC removeActiveObject:imageUpdater];
     imageUpdater = nil;
+    if (wantsClear)
+        [_tileSource clear];
     [inLayerThread removeLayer:quadLayer];
 }
 
