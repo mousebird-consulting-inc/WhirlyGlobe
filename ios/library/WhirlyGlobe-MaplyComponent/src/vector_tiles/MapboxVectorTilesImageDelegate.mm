@@ -47,8 +47,10 @@ using namespace WhirlyKit;
 
 static double MAX_EXTENT = 20037508.342789244;
 
+static bool debugMode = false;
+
 // Objects sorted by Tile ID
-static class ObjectsByTile
+class ObjectsByTile
 {
 public:
     ObjectsByTile() : compObjs(NULL) { }
@@ -66,7 +68,6 @@ public:
     }
     
     MaplyTileID tileID;
-    
     NSArray *compObjs;
 };
 
@@ -165,6 +166,21 @@ public:
     if (!urlReq)
         return;
     
+    // Add an entry for this tile
+    @synchronized(self)
+    {
+        if (debugMode)
+            NSLog(@"Started adding tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+        ObjectsByTile newTile(tileID);
+        auto it = tiles.find(newTile);
+        if (it == tiles.end()) {
+            tiles.insert(newTile);
+        } else {
+            if (debugMode)
+                NSLog(@"Tried to add a tile that's already there");
+        }
+    }
+
     NSData *tileData = nil;
     NSString *cacheFileName;
     if (_cacheDir) {
@@ -184,25 +200,27 @@ public:
             tileData = nil;
     }
     
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
-                                  ^(NSData * _Nullable netData, NSURLResponse * _Nullable response, NSError * _Nullable error)
-                                  {
-                                      NSData *thisTileData = nil;
-                                      if(netData.length) {
-                                          if([netData isCompressed]) {
-                                              thisTileData = [netData uncompressGZip];
-                                              if(!thisTileData.length) {
-                                                  NSLog(@"Error: tile data was nil after decompression");
-                                                  return;
+    if (!tileData) {
+        NSURLSession *session = [NSURLSession sharedSession];
+        NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
+                                      ^(NSData * _Nullable netData, NSURLResponse * _Nullable response, NSError * _Nullable error)
+                                      {
+                                          NSData *thisTileData = nil;
+                                          if(netData.length) {
+                                              if([netData isCompressed]) {
+                                                  thisTileData = [netData uncompressGZip];
+                                                  if(!thisTileData.length) {
+                                                      NSLog(@"Error: tile data was nil after decompression");
+                                                      return;
+                                                  }
                                               }
                                           }
-                                      }
-                                      
-                                      if ([self processData:thisTileData tile:tileID layer:layer] && cacheFileName)
-                                          [netData writeToFile:cacheFileName atomically:NO];
-                                  }];
-    [task resume];
+                                          
+                                          if ([self processData:thisTileData tile:tileID layer:layer] && cacheFileName)
+                                              [netData writeToFile:cacheFileName atomically:NO];
+                                      }];
+        [task resume];
+    }
 }
 
 - (bool)processData:(NSData *)tileData tile:(MaplyTileID)tileID layer:(MaplyQuadImageTilesLayer *)layer
@@ -248,14 +266,24 @@ public:
         NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
         return false;
     }
-
-    // Keep track of the data by tile
+    
     @synchronized(self)
     {
-        ObjectsByTile tile;
-        tile.tileID = tileID;
-        tile.compObjs = retData.compObjs;
-        tiles.insert(tile);
+        // Make sure we still want the tile
+        ObjectsByTile testTile(tileID);
+        auto it = tiles.find(testTile);
+        if (it == tiles.end()) {
+            // Uh oh.  Got deleted while we were loading.  Nuke everything.
+            [viewC removeObjects:retData.compObjs mode:MaplyThreadCurrent];
+            if (debugMode)
+                NSLog(@"In-transit delete for tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+        } else {
+            tiles.erase(it);
+            testTile.compObjs = retData.compObjs;
+            tiles.insert(testTile);
+            if (debugMode)
+                NSLog(@"Finished adding tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+        }
     }
     
     [layer loadedImages:image forTile:tileID frame:-1];
@@ -270,8 +298,14 @@ public:
         auto it = tiles.find(dummyTile);
         if (it != tiles.end()) {
             [viewC disableObjects:it->compObjs mode:MaplyThreadCurrent];
+        } else {
+            if (debugMode)
+                NSLog(@"Tried to disable tile that isn't there");
         }
     }
+    
+    if (debugMode)
+        NSLog(@"Disabling tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 }
 
 - (void)tileWasEnabled:(MaplyTileID)tileID
@@ -282,8 +316,14 @@ public:
         auto it = tiles.find(dummyTile);
         if (it != tiles.end()) {
             [viewC enableObjects:it->compObjs mode:MaplyThreadCurrent];
+        } else {
+            if (debugMode)
+                NSLog(@"Tried to enable tile that isn't there");
         }
     }
+
+    if (debugMode)
+        NSLog(@"Enabling tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 }
 
 - (void)tileUnloaded:(MaplyTileID)tileID
@@ -295,8 +335,14 @@ public:
         if (it != tiles.end()) {
             [viewC removeObjects:it->compObjs mode:MaplyThreadCurrent];
             tiles.erase(it);
+        } else {
+            if (debugMode)
+                NSLog(@"Tried to unload tile that isn't there");
         }
     }
+    
+    if (debugMode)
+        NSLog(@"Unloading tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 }
 
 /**

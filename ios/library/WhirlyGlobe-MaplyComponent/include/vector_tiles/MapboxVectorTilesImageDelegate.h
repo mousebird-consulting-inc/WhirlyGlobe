@@ -42,6 +42,6 @@
                                        viewC:(MaplyBaseViewController *__nonnull)viewC;
 
 /// nil by default, but if set we'll cache tiles here
-@property (nonatomic) NSString *cacheDir;
+@property (nonatomic) NSString * __nullable cacheDir;
 
 @end
