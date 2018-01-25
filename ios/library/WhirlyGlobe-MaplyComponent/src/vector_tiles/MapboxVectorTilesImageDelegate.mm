@@ -138,6 +138,15 @@ public:
 
 - (void)clear
 {
+    NSMutableArray *compObjs = [NSMutableArray array];
+    @synchronized(self)
+    {
+        for (auto tile : tiles) {
+            if (tile.compObjs != nil)
+                [compObjs addObjectsFromArray:tile.compObjs];
+        }
+    }
+    [viewC removeObjects:compObjs mode:MaplyThreadAny];
 }
 
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
