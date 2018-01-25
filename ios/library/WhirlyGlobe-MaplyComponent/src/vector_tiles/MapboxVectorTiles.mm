@@ -158,6 +158,8 @@ static double MAX_EXTENT = 20037508.342789244;
                         } else {
                             NSLog(@"Unknown attribute type");
                         }
+                    } else {
+                        NSLog(@"Got a bad one");
                     }
                 }
                 
