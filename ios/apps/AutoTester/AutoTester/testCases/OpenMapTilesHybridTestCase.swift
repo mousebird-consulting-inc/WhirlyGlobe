@@ -75,6 +75,7 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
             // This will also manage the vector objects
             if let imageLayer = MaplyQuadImageTilesLayer.init(tileSource: tileSource) {
                 imageLayer.flipY = true
+                imageLayer.importanceScale = 0.25
                 if baseVC is WhirlyGlobeViewController {
                     imageLayer.handleEdges = true
                     imageLayer.coverPoles = true
@@ -87,7 +88,7 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
-        mapVC.performanceOutput = true
+//        mapVC.performanceOutput = true
         
         if let layer = setupLayer(mapVC) {
             mapVC.add(layer)
@@ -95,7 +96,7 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        globeVC.performanceOutput = true
+//        globeVC.performanceOutput = true
         
         if let layer = setupLayer(globeVC) {
             globeVC.add(layer)
