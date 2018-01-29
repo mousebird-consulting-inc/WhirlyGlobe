@@ -1468,5 +1468,12 @@ static const float PerfOutputDelay = 15.0;
     return renderControl;
 }
 
+- (CGSize)getFramebufferSize
+{
+    if (!renderControl || !renderControl->sceneRenderer)
+        return CGSizeZero;
+    
+    return CGSizeMake(renderControl->sceneRenderer.framebufferWidth,renderControl->sceneRenderer.framebufferHeight);
+}
 
 @end

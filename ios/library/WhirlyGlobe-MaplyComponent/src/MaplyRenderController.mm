@@ -471,6 +471,14 @@ using namespace Eigen;
 {
 }
 
+- (CGSize)getFramebufferSize
+{
+    if (!sceneRenderer)
+        return CGSizeZero;
+    
+    return CGSizeMake(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+}
+
 // Snapshot protocol
 
 - (void)snapshot:(UIImage *)image

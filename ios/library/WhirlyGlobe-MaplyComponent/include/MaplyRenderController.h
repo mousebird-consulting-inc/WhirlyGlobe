@@ -797,9 +797,11 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 
 - (void)setClearColor:(UIColor *__nonnull)clearColor;
 
-// For internal user only
-- (MaplyRenderController * __nullable)getRenderControl;
+/// Return the framebuffer size in pixels (no scale)
+- (CGSize)getFramebufferSize;
 
+// For internal use only
+- (MaplyRenderController * __nullable)getRenderControl;
 
 @end
 

@@ -28,6 +28,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyShader
 {
+    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
     WhirlyKit::Scene *scene;
     WhirlyKitSceneRendererES * __weak renderer;
     NSString *buildError;
@@ -69,20 +70,38 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
 {
+    self = [super init];
+    
+    viewC = baseViewC;
+    
+    [self delayedSetupWithName:name vertex:vertexProg fragment:fragProg];
+    
+    return self;
+}
+
+- (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
+{
+    self = [super init];
+    
+    return self;
+}
+
+- (bool)delayedSetupWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg
+{
     if (!vertexProg || !fragProg)
     {
         buildError = @"Empty vertex or fragment shader program.";
-        return nil;
+        return false;
     }
     
     _name = name;
     std::string vertexStr = [vertexProg cStringUsingEncoding:NSASCIIStringEncoding];
     std::string fragStr = [fragProg cStringUsingEncoding:NSASCIIStringEncoding];
     std::string nameStr = [name cStringUsingEncoding:NSASCIIStringEncoding];
-
-    MaplyRenderController *renderControl = [baseViewC getRenderControl];
+    
+    MaplyRenderController *renderControl = [viewC getRenderControl];
     if (!renderControl)
-        return nil;
+        return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
     [renderControl useGLContext];
@@ -95,7 +114,7 @@ using namespace WhirlyKit;
         buildError = @"Could not compile program.";
         delete _program;
         _program = NULL;
-        return nil;
+        return false;
     }
     
     scene = renderControl->scene;
@@ -104,7 +123,7 @@ using namespace WhirlyKit;
     if (renderControl->scene)
         renderControl->scene->addProgram(_program);
     
-    return self;
+    return true;
 }
 
 - (SimpleIdentity)getShaderID
