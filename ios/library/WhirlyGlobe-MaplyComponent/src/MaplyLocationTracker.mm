@@ -442,7 +442,7 @@
     }
     if (status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted) {
         [self teardownLocationManager];
-    } else if (status == kCLAuthorizationStatusAuthorized || status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusAuthorizedAlways) {
+    } else if (status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusAuthorizedAlways) {
         
         [_locationManager startUpdatingLocation];
         if (_useHeading)

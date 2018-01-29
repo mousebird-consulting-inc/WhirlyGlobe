@@ -46,9 +46,9 @@ using namespace WhirlyKit;
 - (void)runCalculation
 {
     // It all starts with the Julian date
-    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     calendar.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
-    NSDateComponents *components = [calendar components:(NSYearCalendarUnit | NSMonthCalendarUnit | NSDayCalendarUnit | NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:date];
+    NSDateComponents *components = [calendar components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond) fromDate:date];
     CAADate aaDate(components.year,components.month,components.day,components.hour,components.minute,components.second,true);
     double jdSun = CAADynamicalTime::UTC2TT(aaDate.Julian());
     
