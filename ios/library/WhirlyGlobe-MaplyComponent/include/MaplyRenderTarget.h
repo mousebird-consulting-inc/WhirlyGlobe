@@ -51,10 +51,10 @@
 
 /**
     If set, anything rendered to this render target will blend with what's there.
-    This is the way it normally works for screen rendering.
  
     If not set, what's rendered will replace what was there before.
- 
+    This is the way it normally works for screen rendering.
+
     Set to false by default.
   */
 @property (nonatomic) bool blend;
