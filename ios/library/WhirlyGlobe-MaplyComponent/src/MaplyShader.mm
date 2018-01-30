@@ -82,7 +82,9 @@ using namespace WhirlyKit;
 - (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
 {
     self = [super init];
-    
+
+    viewC = baseViewC;
+
     return self;
 }
 
