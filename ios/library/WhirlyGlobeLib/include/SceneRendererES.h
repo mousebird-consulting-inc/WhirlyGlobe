@@ -123,7 +123,7 @@ public:
 class AddRenderTargetReq : public ChangeRequest
 {
 public:
-    AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend);
+    AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor);
     
     /// Add the render target to the renderer
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
@@ -133,6 +133,7 @@ protected:
     SimpleIdentity renderTargetID;
     SimpleIdentity texID;
     bool clearEveryFrame;
+    RGBAColor clearColor;
     bool blend;
 };
     
