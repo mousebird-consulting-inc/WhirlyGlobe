@@ -115,6 +115,7 @@ public:
     /// Set the given uniform to the given value.
     /// These check the type and cache a value to save on duplicate gl calls
     bool setUniform(const std::string &name,float val);
+    bool setUniform(const std::string &name,float val,int index);
     bool setUniform(const std::string &name,const Eigen::Vector2f &vec);
     bool setUniform(const std::string &name,const Eigen::Vector3f &vec);
     bool setUniform(const std::string &name,const Eigen::Vector4f &vec);

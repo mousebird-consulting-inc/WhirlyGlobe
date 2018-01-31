@@ -30,6 +30,7 @@ using namespace WhirlyKit;
     _renderTargetID = Identifiable::genId();
     _clearEveryFrame = true;
     _blend = false;
+    _clearColor = nil;
     
     return self;
 }

@@ -166,8 +166,8 @@ void RenderTarget::setActiveFramebuffer(WhirlyKitSceneRendererES *renderer)
     }
 }
     
-AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend)
-    : renderTargetID(renderTargetID), width(width), height(height), texID(texID), clearEveryFrame(clearEveryFrame), blend(blend)
+AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor)
+    : renderTargetID(renderTargetID), width(width), height(height), texID(texID), clearEveryFrame(clearEveryFrame), blend(blend), clearColor(clearColor)
 {
 }
 
@@ -178,6 +178,10 @@ void AddRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
     renderTarget.width = width;
     renderTarget.height = height;
     renderTarget.clearEveryFrame = clearEveryFrame;
+    renderTarget.clearColor[0] = clearColor.r;
+    renderTarget.clearColor[1] = clearColor.g;
+    renderTarget.clearColor[2] = clearColor.b;
+    renderTarget.clearColor[3] = clearColor.a;
     renderTarget.blendEnable = blend;
     renderTarget.init(scene,texID);
     

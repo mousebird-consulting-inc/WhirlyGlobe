@@ -18,7 +18,7 @@
  *
  */
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "MaplyTexture.h"
 
 /** 
@@ -48,6 +48,13 @@
     True by default.
   */
 @property (nonatomic) bool clearEveryFrame;
+
+/**
+    Clear the render target to this color every frame.
+ 
+    Default is clear black.
+  */
+@property (nonatomic) UIColor *clearColor;
 
 /**
     If set, anything rendered to this render target will blend with what's there.

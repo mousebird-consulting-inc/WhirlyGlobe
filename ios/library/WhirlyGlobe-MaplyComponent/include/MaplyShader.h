@@ -182,6 +182,13 @@ These are the per vertex attributes provided to each vertex shader.
   */
 - (bool)setUniformFloatNamed:(NSString *__nonnull)uniName val:(float)val;
 
+/**
+    Set a float uniform index within an array.
+ 
+    @return Returns true if there was such a uniform, false otherwise.
+ */
+- (bool)setUniformFloatNamed:(NSString *__nonnull)uniName val:(float)val index:(int)idx;
+
 /** 
     Set an integer uniform in the shader with the given name.
     

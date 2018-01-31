@@ -196,6 +196,25 @@ using namespace WhirlyKit;
     return ret;
 }
 
+- (bool)setUniformFloatNamed:(NSString *__nonnull)uniName val:(float)val index:(int)idx
+{
+    if (!_program)
+        return false;
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [renderer useContext];
+    [renderer forceDrawNextFrame];
+    glUseProgram(_program->getProgram());
+    
+    std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
+    bool ret = _program->setUniform(name, val, idx);
+    
+    if (oldContext != [EAGLContext currentContext])
+        [EAGLContext setCurrentContext:oldContext];
+    
+    return ret;
+}
+
 - (bool)setUniformIntNamed:(NSString *)uniName val:(int)val
 {
     if (!_program)

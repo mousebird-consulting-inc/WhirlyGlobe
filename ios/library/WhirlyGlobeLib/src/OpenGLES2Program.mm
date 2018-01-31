@@ -57,6 +57,27 @@ bool OpenGLES2Program::setUniform(const std::string &name,float val)
     return true;
 }
 
+bool OpenGLES2Program::setUniform(const std::string &inName,float val,int index)
+{
+    std::string name = inName + "[0]";
+    OpenGLESUniform *uni = findUniform(name);
+    if (!uni)
+        return false;
+
+    if (uni->type != GL_FLOAT)
+        return false;
+    
+    if (uni->isSet && uni->val.fVals[0] == val)
+        return true;
+    
+    glUniform1f(uni->index+index,val);
+    CheckGLError("OpenGLES2Program::setUniform() glUniform1f");
+    uni->isSet = true;
+    uni->val.fVals[0] = val;
+    
+    return true;
+}
+
 bool OpenGLES2Program::setUniform(const std::string &name,int val)
 {
     OpenGLESUniform *uni = findUniform(name);
