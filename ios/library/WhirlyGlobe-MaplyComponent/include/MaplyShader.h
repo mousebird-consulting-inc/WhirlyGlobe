@@ -217,6 +217,20 @@ These are the per vertex attributes provided to each vertex shader.
  */
 - (bool)setUniformVector4Named:(NSString *__nonnull)uniName x:(float)x y:(float)y z:(float)z w:(float)w;
 
+/**
+    Set a 4 component float uniform in the shader with the given name from a color.
+
+    @return Returns true if there was such a uniform, false otherwise.
+ */
+- (bool)setUniformVector4Named:(NSString *__nonnull)uniName color:(UIColor * __nonnull)color;
+
+/**
+ Set a 4 component float uniform in the shader with the given name at the given index from a color.
+ 
+ @return Returns true if there was such a uniform, false otherwise.
+ */
+- (bool)setUniformVector4Named:(NSString *__nonnull)uniName color:(UIColor * __nonnull)color index:(int)which;
+
 /** 
     Set a 4 component float uniform in the shader with the given name at the given index
     

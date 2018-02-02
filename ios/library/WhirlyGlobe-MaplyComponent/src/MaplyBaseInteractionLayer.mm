@@ -2112,10 +2112,10 @@ public:
                 RGBAColor color = [rc.color asRGBAColor];
                 rect.color = color;
             }
-            if (rc.texture)
+            for (MaplyTexture *tex in rc.textures)
             {
-                textures.insert(rc.texture);
-                rect.texID = rc.texture.texID;
+                textures.insert(tex);
+                rect.texIDs.push_back(tex.texID);
             }
             // Note: Selectability
             [ourShapes addObject:rect];

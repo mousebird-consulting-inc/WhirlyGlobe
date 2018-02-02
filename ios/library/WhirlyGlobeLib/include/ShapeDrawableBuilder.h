@@ -94,7 +94,7 @@ public:
     void setClipCoords(bool newClipCoords);
     
     // If set, we'll apply the given texture
-    void setTexID(SimpleIdentity texID);
+    void setTexIDs(const std::vector<SimpleIdentity> &texIDs);
     
     // Add a triangle with normals
     void addTriangle(Point3f p0,Point3f n0,RGBAColor c0,Point3f p1,Point3f n1,RGBAColor c1,Point3f p2,Point3f n2,RGBAColor c2,Mbr shapeMbr);
@@ -137,7 +137,7 @@ public:
     WhirlyKitShapeInfo *shapeInfo;
     BasicDrawable *drawable;
     std::vector<BasicDrawable *> drawables;
-    SimpleIdentity texID;
+    std::vector<SimpleIdentity> texIDs;
     Point3d center;
     bool clipCoords;
 };

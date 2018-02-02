@@ -145,8 +145,14 @@ using namespace WhirlyKit;
     self = [super init];
     if (!self)
         return nil;
+    _textures = [NSMutableArray array];
         
     return self;
+}
+
+- (void)addTexture:(MaplyTexture *)texture
+{
+    [_textures addObject:texture];
 }
 
 - (WhirlyKitShapeRectangle *)asWKShape:(NSDictionary *)desc

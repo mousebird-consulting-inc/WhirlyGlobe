@@ -211,8 +211,11 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 /// Upper right corner in 3D
 @property (nonatomic,assign) MaplyCoordinate3dD ur;
 
-/// If set, the texture to stretch across the rectangle.
-@property (nonatomic,nullable) MaplyTexture *texture;
+/// If set, the textures to stretch across the rectangle.
+@property (nonatomic,nullable) NSMutableArray *textures;
+
+/// Add a texture to stretch across the rectangle
+- (void)addTexture:(MaplyTexture * __nonnull)texture;
 
 @end
 
