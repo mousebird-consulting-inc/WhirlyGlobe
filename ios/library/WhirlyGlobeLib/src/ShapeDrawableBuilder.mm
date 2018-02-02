@@ -199,7 +199,7 @@ void ShapeDrawableBuilder::getChanges(ChangeSet &changeRequests,SimpleIDSet &dra
 
 
 ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo,const Point3d &center)
-: coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false), texID(EmptyIdentity)
+: coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false)
 {
 }
     
@@ -224,8 +224,12 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
     drawable->setProgram(shapeInfo.programID);
     if (shapeInfo.renderTargetId != EmptyIdentity)
         drawable->setRenderTarget(shapeInfo.renderTargetId);
-    if (texID != EmptyIdentity)
-        drawable->setTexId(0, texID);
+    int which = 0;
+    for (auto texID : texIDs)
+    {
+        drawable->setTexId(which, texID);
+        which++;
+    }
     if (center.x() != 0.0 || center.y() != 0.0 || center.z() != 0.0)
     {
         Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
@@ -246,15 +250,15 @@ void ShapeDrawableBuilderTri::setClipCoords(bool newClipCoords)
     clipCoords = newClipCoords;
 }
     
-void ShapeDrawableBuilderTri::setTexID(SimpleIdentity newTexID)
+void ShapeDrawableBuilderTri::setTexIDs(const std::vector<SimpleIdentity> &newTexIDs)
 {
-    if (texID != newTexID)
+    if (texIDs != newTexIDs)
     {
         if (drawable)
             flush();
     }
     
-    texID = newTexID;
+    texIDs = newTexIDs;
 }
     
 // Add a triangle with normals

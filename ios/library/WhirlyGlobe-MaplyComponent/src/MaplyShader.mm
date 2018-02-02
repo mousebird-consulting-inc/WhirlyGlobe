@@ -314,6 +314,21 @@ using namespace WhirlyKit;
     return ret;
 }
 
+- (bool)setUniformVector4Named:(NSString *__nonnull)uniName color:(UIColor *)color
+{
+    CGFloat red,green,blue,alpha;
+    [color getRed:&red green:&green blue:&blue alpha:&alpha];
+    return [self setUniformVector4Named:uniName x:red y:green z:blue w:alpha];
+}
+
+- (bool)setUniformVector4Named:(NSString *__nonnull)uniName color:(UIColor *)color index:(int)which
+{
+    CGFloat red,green,blue,alpha;
+    [color getRed:&red green:&green blue:&blue alpha:&alpha];
+    return [self setUniformVector4Named:uniName x:red y:green z:blue w:alpha index:which];
+}
+
+
 // We're assuming the view controller has set the proper context
 - (void)teardown
 {
