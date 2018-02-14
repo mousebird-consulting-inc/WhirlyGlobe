@@ -93,7 +93,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'MaplyComponent' do |mc|
-    mc.source_files = 'ios/library/WhirlyGlobe-MaplyComponent/src/*.{mm,m,cpp}'
+    mc.source_files = 'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp}'
     mc.dependency 'WhirlyGlobe/kissxml'
     mc.dependency 'WhirlyGlobe/aaplus'
     mc.dependency 'WhirlyGlobe/Lib'

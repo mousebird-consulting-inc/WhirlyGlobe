@@ -25,6 +25,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyChunkTe
 
 /*
  * Class:     com_mousebird_maply_StickerManager
+ * Method:    modifyDrawPriority
+ * Signature: (JILcom/mousebird/maply/ChangeSet;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyDrawPriority
+  (JNIEnv *, jobject, jlong, jint, jobject);
+
+/*
+ * Class:     com_mousebird_maply_StickerManager
  * Method:    enableStickers
  * Signature: ([JZLcom/mousebird/maply/ChangeSet;)V
  */

@@ -23,6 +23,7 @@
 #import "DynamicTextureAtlas.h"
 #import "DynamicDrawableAtlas.h"
 #import "SphericalEarthChunkManager.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -449,6 +450,25 @@ bool SphericalChunkManager::modifyChunkTextures(SimpleIdentity chunkID,const std
     
     for (SimpleIDSet::iterator it = drawIDs.begin(); it != drawIDs.end(); ++it)
         changes.push_back(new DrawTexturesChangeRequest(*it,texIDs));
+    
+    return true;
+}
+    
+bool SphericalChunkManager::modifyDrawPriority(SimpleIdentity chunkID,int drawPriority,ChangeSet &changes)
+{
+    SimpleIDSet drawIDs;
+
+    pthread_mutex_lock(&repLock);
+    ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
+    ChunkRepSet::iterator it = chunkReps.find(dummyRef);
+    if (it != chunkReps.end())
+    {
+        drawIDs = (*it)->drawIDs;
+    }
+    pthread_mutex_unlock(&repLock);
+    
+    for (SimpleIDSet::iterator it = drawIDs.begin(); it != drawIDs.end(); ++it)
+        changes.push_back(new DrawPriorityChangeRequest(*it,drawPriority));
     
     return true;
 }

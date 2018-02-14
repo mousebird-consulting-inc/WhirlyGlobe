@@ -26,12 +26,15 @@ namespace WhirlyKit
 {
 
 ShapeReader::ShapeReader(const std::string &fileName)
+    : shp(NULL), dbf(NULL)
 {
 	const char *cFile =  fileName.c_str();
 	shp = SHPOpen(cFile, "rb");
 	if (!shp)
 		return;
 	dbf = DBFOpen(cFile, "rb");
+    if (!dbf)
+        return;
 	where = 0;	
 	SHPGetInfo((SHPInfo *)shp, &numEntity, &shapeType, minBound, maxBound);
 }

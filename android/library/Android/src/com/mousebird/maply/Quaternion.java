@@ -62,7 +62,10 @@ public class Quaternion
 	
 	// Linear interpolation between this Quaternion and that one
 	public native Quaternion slerp(Quaternion that,double t);
-		
+
+	// Normalize the quaternion and return a new one
+	public native Quaternion normalized();
+
 	static
 	{
 		nativeInit();

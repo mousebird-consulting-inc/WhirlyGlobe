@@ -194,8 +194,8 @@ using namespace WhirlyKit;
 {
     SphericalMercatorCoordSystem *coordSys = new SphericalMercatorCoordSystem();
     self = [super initWithCoordSystem:coordSys];
-    Point3d pt0 = coordSys->geographicToLocal3d(GeoCoord::CoordFromDegrees(-180,-85.05113));
-    Point3d pt1 = coordSys->geographicToLocal3d(GeoCoord::CoordFromDegrees( 180, 85.05113));
+    Point3d pt0 = coordSys->geographicToLocal(Point2d(-180/180.0 * M_PI,-85.05113/180.0 * M_PI));
+    Point3d pt1 = coordSys->geographicToLocal(Point2d( 180/180.0 * M_PI, 85.05113/180.0 * M_PI));
     ll.x = pt0.x();  ll.y = pt0.y();
     ur.x = pt1.x();  ur.y = pt1.y();
     
