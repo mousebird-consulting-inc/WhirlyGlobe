@@ -63,7 +63,7 @@ public class VectorTilePolygonStyle extends VectorTileStyle {
                     thisClipGridLon *= 2.0;
 
                 vecObj.getAttributes().setDouble("veccenterx",center.getX());
-                vecObj.getAttributes().setDouble("veccentery",center.getX());
+                vecObj.getAttributes().setDouble("veccentery",center.getY());
 
                 // We clip the vector to a grid and then tesselate the results
                 // This forms the vector closer to the globe, make it look nicer

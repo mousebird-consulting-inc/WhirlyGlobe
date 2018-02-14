@@ -22,10 +22,9 @@ package com.mousebird.maply;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The VectorTileStyle base class for styling labels.
@@ -57,11 +56,16 @@ public class VectorTileTextStyle extends VectorTileStyle {
 
             ScreenLabel screenLabel = new ScreenLabel();
             if (placement == Placement.Point) {
-                Point2d centroid = vector.centroid();
+                Point2d ll = new Point2d();
+                Point2d ur = new Point2d();
+                Point2d centroid = vector.largestLoopCenter(ll, ur);
+                if (centroid == null)
+                    centroid = vector.centroid();
                 if (centroid != null)
                     screenLabel.loc = centroid;
-                else
+                else {
                     screenLabel = null;
+                }
             } else if (placement == Placement.Line) {
                 Point2d middle = new Point2d();
                 double rot = vector.linearMiddle(middle);

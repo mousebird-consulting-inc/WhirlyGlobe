@@ -41,6 +41,14 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_slerp
 
 /*
  * Class:     com_mousebird_maply_Quaternion
+ * Method:    normalized
+ * Signature: ()Lcom/mousebird/maply/Quaternion;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Quaternion_normalized
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_Quaternion
  * Method:    nativeInit
  * Signature: ()V
  */

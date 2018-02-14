@@ -214,6 +214,29 @@ public abstract class SLDSymbolizer {
             }
         }
 
+        String wellKnownName = graphicParams.getWellKnownName();
+        if (wellKnownName != null) {
+            Integer strokeColor = graphicParams.getStrokeColor();
+            Integer fillColor = graphicParams.getFillColor();
+
+            if (strokeColor == null)
+                strokeColor = Color.DKGRAY;
+            if (fillColor == null)
+                fillColor = Color.WHITE;
+
+            Integer width = graphicParams.getWidth();
+            Integer height = graphicParams.getHeight();
+            if (width == null || width < 8)
+                width = 8;
+            if (height == null || height < 8)
+                height = 8;
+
+
+
+            Bitmap bmp = SLDWellKnownMarkers.getBitmap(wellKnownName, strokeColor, fillColor, Math.min(width, height));
+            graphicParams.setBitmap(bmp);
+        }
+
 
         return graphicParams;
     }
@@ -249,8 +272,6 @@ public abstract class SLDSymbolizer {
 
                 contents = SLDParseHelper.stringForLiteralInNode(xpp);
 
-                SLDParseHelper.skip(xpp);
-
             } else if (xpp.getName().equals("Format"))
                 format = SLDParseHelper.stringForLiteralInNode(xpp);
 
@@ -265,11 +286,12 @@ public abstract class SLDSymbolizer {
                         String name = xpp.getAttributeValue(null, "name");
                         String value = null;
                         while (xpp.next() != XmlPullParser.END_TAG) {
-                            if (xpp.getEventType() != XmlPullParser.TEXT)
+                            if (xpp.getEventType() == XmlPullParser.TEXT)
                                 value = xpp.getText();
                             else if (xpp.getEventType() == XmlPullParser.START_TAG)
                                 SLDParseHelper.skip(xpp);
                         }
+
                         if (name != null && value != null) {
                             if (isFill)
                                 graphicParams.setFillColor(Integer.valueOf(Color.parseColor(value)));
@@ -280,19 +302,25 @@ public abstract class SLDSymbolizer {
                         SLDParseHelper.skip(xpp);
                 }
 
-            } else if (xpp.getName().equals("Stroke") && isMark) {
-
             }
         }
-
-        if (format == null || (!format.equals("image/png") && !format.equals("image/gif")))
+        if ((wellKnownName == null) &&
+                (format == null || (!format.equals("image/png") && !format.equals("image/gif"))))
             return;
-        // TODO: handle wellKnownName
-        if (href != null) {
+
+        if (wellKnownName != null)
+            graphicParams.setWellKnownName(wellKnownName);
+        else if (href != null) {
             if (type == null || type.equals("simple")) {
                 InputStream inputStream = null;
+                String graphicPath;
+                String basePath = symbolizerParams.getBasePath();
+                if (basePath == null || basePath.equals(""))
+                    graphicPath = href;
+                else
+                    graphicPath = symbolizerParams.getBasePath() + "/" + href;
                 try {
-                    inputStream = symbolizerParams.getAssetManager().open(symbolizerParams.getBasePath() + href);
+                    inputStream = symbolizerParams.getAssetManager().open(graphicPath);
                 } catch (IOException e) {
                     Log.e("SLDSymbolizer", "parseMarkOrExternalGraphic", e);
                 }

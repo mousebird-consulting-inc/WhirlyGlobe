@@ -52,6 +52,7 @@ public class SLDLineSymbolizer extends SLDSymbolizer {
 
             if (xpp.getName().equals("Stroke")) {
                 vectorTileLineStyle = SLDSymbolizer.vectorTileLineStyleFromStrokeNode(xpp, symbolizerParams);
+                symbolizerParams.incrementRelativeDrawPriority();
             } else {
                 SLDParseHelper.skip(xpp);
             }

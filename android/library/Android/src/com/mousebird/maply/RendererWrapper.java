@@ -26,6 +26,7 @@ import android.os.Build;
 
 import java.nio.IntBuffer;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -67,7 +68,8 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 	public void onSurfaceCreated(GL10 gl, EGLConfig config)
 	{
 		try {
-			renderLock.acquire();
+			if (!renderLock.tryAcquire(500, TimeUnit.MILLISECONDS))
+				return;
 		}
 		catch (Exception e)
 		{
@@ -207,7 +209,10 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 	public void stopRendering()
 	{
 		try {
-			renderLock.acquire();
+			if (!renderLock.tryAcquire(500, TimeUnit.MILLISECONDS)) {
+				valid = false;
+				return;
+			}
 		}
 		catch (Exception e)
 		{

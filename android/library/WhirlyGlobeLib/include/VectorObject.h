@@ -45,6 +45,11 @@ public:
     /// @param json The GeoJSON data as a std::string
     /// @return True on success, false on failure.
     bool fromGeoJSON(const std::string &json);
+    
+    /// @brief Read objects from the given shapefile
+    /// @param fileName The filename of the Shapefile
+    /// @return True on success, false on failure.
+    bool fromShapeFile(const std::string &fileName);
 
     /// @brief Assemblies are just concattenated JSON
     static bool FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObject *> &vecData);
@@ -66,6 +71,23 @@ public:
     
     /// @brief Point inside polygon test
     bool pointInside(const Point2d &pt);
+    
+    /**
+     Subdivide the edges in this feature to a given tolerance.
+     */
+    void subdivideToGlobe(float epsilon);
+    
+    /**
+     Subdivide the edges in this feature to a given tolerance, using great circle math.
+     */
+    void subdivideToGlobeGreatCircle(float epsilon);
+    
+    /**
+     Subdivide the edges in this feature to a given tolerance, using great circle math.
+     This version samples a great circle to display on a flat map.
+     */
+    void subdivideToFlatGreatCircle(float epsilon);
+
 
     /// @brief Read from a file
     bool fromFile(const std::string &fileName);
@@ -77,6 +99,8 @@ public:
     MaplyVectorObjectType getVectorType();
     
 public:
+    void subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDisplayAdapter *adapter,bool edgeMode);
+    
     ShapeSet shapes;
 };
 

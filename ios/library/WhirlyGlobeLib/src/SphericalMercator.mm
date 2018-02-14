@@ -78,7 +78,7 @@ Point3d SphericalMercatorCoordSystem::geographicToLocal3d(GeoCoord geo)
 {
     Point3d coord;
     coord.x() = geo.lon() - originLon;
-    float lat = geo.lat();
+    double lat = geo.lat();
     if (lat < -PoleLimit) lat = -PoleLimit;
     if (lat > PoleLimit) lat = PoleLimit;
     coord.y() = log((1.0f+sin(lat))/cos(lat));
@@ -91,7 +91,7 @@ Point3d SphericalMercatorCoordSystem::geographicToLocal(Point2d geo)
 {
     Point3d coord;
     coord.x() = geo.x() - originLon;
-    float lat = geo.y();
+    double lat = geo.y();
     if (lat < -PoleLimit) lat = -PoleLimit;
     if (lat > PoleLimit) lat = PoleLimit;
     coord.y() = log((1.0f+sin(lat))/cos(lat));

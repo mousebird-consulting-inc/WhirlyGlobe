@@ -60,6 +60,11 @@ public class ScreenMarker
 	public Bitmap image = null;
 
 	/**
+	 * If set, we'll use this texture which has already been converted to Maply format.
+	 */
+	public MaplyTexture tex = null;
+
+	/**
 	 * Background color for a marker can be overridden at this level.
 	 */
 	public int color = 0xFFFFFFFF;
