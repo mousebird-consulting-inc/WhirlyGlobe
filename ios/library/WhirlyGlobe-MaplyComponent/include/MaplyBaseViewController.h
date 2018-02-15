@@ -1007,6 +1007,14 @@
   */
 - (void)changeRenderTarget:(MaplyRenderTarget * __nonnull)renderTarget tex:(MaplyTexture * __nullable)tex;
 
+/**
+    Request a one time clear for the render target.
+
+    Rather than clearing every frame, you may want to specifically request a clear.  This will
+    be executed at the next frame and then not again.
+  */
+- (void)clearRenderTarget:(MaplyRenderTarget * __nonnull)renderTarget mode:(MaplyThreadMode)threadMode;
+
 /** 
     Remove the given render target from the system.
     

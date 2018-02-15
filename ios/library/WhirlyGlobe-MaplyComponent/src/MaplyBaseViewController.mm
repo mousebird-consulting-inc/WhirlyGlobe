@@ -1013,6 +1013,16 @@ static const float PerfOutputDelay = 15.0;
     [renderControl endOfWork];
 }
 
+- (void)clearRenderTarget:(MaplyRenderTarget *)renderTarget mode:(MaplyThreadMode)threadMode
+{
+    if (!renderControl || ![renderControl startOfWork])
+        return;
+    
+    [renderControl->interactLayer clearRenderTarget:renderTarget mode:threadMode];
+
+    [renderControl endOfWork];
+}
+
 - (void)removeRenderTarget:(MaplyRenderTarget *)renderTarget
 {
     if (!renderControl || ![renderControl startOfWork])

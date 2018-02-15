@@ -115,6 +115,8 @@ public:
     // Clear color, if we're clearing
     GLfloat clearColor[4];
     bool clearEveryFrame;
+    // Clear on the next frame, then reset this
+    bool clearOnce;
     // Control how the blending into a destination works
     bool blendEnable;
 };
@@ -149,6 +151,19 @@ public:
 protected:
     SimpleIdentity renderTargetID;
     SimpleIdentity texID;
+};
+    
+// Request a one time clear on the rendering target.  Happens next frame.
+class ClearRenderTargetReq : public ChangeRequest
+{
+public:
+    ClearRenderTargetReq(SimpleIdentity renderTargetID);
+    
+    /// Add the render target to the renderer
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    SimpleIdentity renderTargetID;
 };
 
 // Remove a render target from the rendering loop
@@ -372,6 +387,6 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 - (void) addRenderTarget:(WhirlyKit::RenderTarget &)newTarget;
 
 /// Clear out the given render target
-- (void) clearRenderTarget:(WhirlyKit::SimpleIdentity)targetID;
+- (void) removeRenderTarget:(WhirlyKit::SimpleIdentity)targetID;
 
 @end

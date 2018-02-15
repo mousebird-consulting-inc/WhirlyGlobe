@@ -637,8 +637,9 @@ static const float ScreenOverlap = 0.1;
         {
             renderTarget.setActiveFramebuffer(self);
 
-            if (renderTarget.clearEveryFrame)
+            if (renderTarget.clearEveryFrame || renderTarget.clearOnce)
             {
+                renderTarget.clearOnce = false;
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 CheckGLError("SceneRendererES2: glClear");
             }
