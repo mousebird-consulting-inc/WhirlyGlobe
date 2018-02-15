@@ -63,6 +63,7 @@ void RenderTarget::init()
     isSetup = false;
     clearColor[0] = 0.0;  clearColor[1] = 0.0;  clearColor[2] = 0.0;  clearColor[3] = 0.0;
     clearEveryFrame = true;
+    clearOnce = false;
 }
     
 bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
@@ -211,7 +212,23 @@ RemRenderTargetReq::RemRenderTargetReq(SimpleIdentity targetID)
     
 void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    [renderer clearRenderTarget:targetID];
+    [renderer removeRenderTarget:targetID];
+}
+
+ClearRenderTargetReq::ClearRenderTargetReq(SimpleIdentity targetID)
+: renderTargetID(targetID)
+{
+}
+
+void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    for (RenderTarget &renderTarget : renderer->renderTargets)
+    {
+        if (renderTarget.getId() == renderTargetID) {
+            renderTarget.clearOnce = true;
+            break;
+        }
+    }
 }
 
 }
@@ -444,7 +461,7 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
 }
 
 /// Clear out the given render target
-- (void) clearRenderTarget:(SimpleIdentity)targetID
+- (void) removeRenderTarget:(SimpleIdentity)targetID
 {
     for (int ii=0;ii<renderTargets.size();ii++)
     {

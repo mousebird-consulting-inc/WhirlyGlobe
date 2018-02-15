@@ -3299,6 +3299,34 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self flushChanges:changes mode:MaplyThreadCurrent];
 }
 
+- (void)clearRenderTargetRun:(NSArray *)argArray
+{
+    MaplyRenderTarget *renderTarget = argArray[0];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
+    
+    ChangeSet changes;
+    
+    changes.push_back(new ClearRenderTargetReq(renderTarget.renderTargetID));
+    
+    [self flushChanges:changes mode:threadMode];
+}
+
+- (void)clearRenderTarget:(MaplyRenderTarget *)renderTarget mode:(MaplyThreadMode)threadMode
+{
+    threadMode = [self resolveThreadMode:threadMode];
+
+    NSArray *argArray = @[renderTarget, @(threadMode)];
+    switch (threadMode)
+    {
+        case MaplyThreadCurrent:
+            [self clearRenderTargetRun:argArray];
+            break;
+        case MaplyThreadAny:
+            [self performSelector:@selector(clearRenderTargetRun:) onThread:layerThread withObject:argArray waitUntilDone:NO];
+            break;
+    }
+}
+
 // Stop rendering to a given render target
 - (void)removeRenderTarget:(MaplyRenderTarget *)renderTarget
 {
