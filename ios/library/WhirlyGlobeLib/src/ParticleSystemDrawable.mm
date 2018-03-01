@@ -30,7 +30,7 @@ namespace WhirlyKit
 {
 
 ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &inVertAttrs,int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)
-    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), programId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startb(0), endb(0), chunksDirty(true), usingContinuousRender(true)
+    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), programId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startb(0), endb(0), chunksDirty(true), usingContinuousRender(true), renderTargetID(EmptyIdentity)
 {
     pthread_mutex_init(&batchLock, NULL);
     
@@ -191,6 +191,7 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
     pthread_mutex_lock(&batchLock);
     batches[batch.batchID] = batch;
     batches[batch.batchID].active = true;
+    chunksDirty = true;
     pthread_mutex_unlock(&batchLock);
 }
     
@@ -271,6 +272,9 @@ bool ParticleSystemDrawable::findEmptyBatch(Batch &retBatch)
     return ret;
 }
 
+// Putting there here rather than running sprintf is a lot faster.  Really.  Oy.
+static const char *baseMapNames[WhirlyKitMaxTextures] = {"s_baseMap0","s_baseMap1","s_baseMap2","s_baseMap3","s_baseMap4","s_baseMap5","s_baseMap6","s_baseMap7"};
+
 void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
     updateBatches(frameInfo.currentTime);
@@ -296,6 +300,10 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     prog->setUniform("u_mvpNormalMatrix", frameInfo.mvpNormalMat);
     prog->setUniform("u_pMatrix", frameInfo.projMat);
     prog->setUniform("u_scale", Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
+
+    // Size of a single pixel
+    Point2f pixDispSize(frameInfo.screenSizeInDisplayCoords.x()/frameInfo.sceneRenderer.framebufferWidth,frameInfo.screenSizeInDisplayCoords.y()/frameInfo.sceneRenderer.framebufferHeight);
+
     
     // If this is present, the drawable wants to do something based where the viewer is looking
     prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
@@ -303,6 +311,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     prog->setUniform("u_size", pointSize);
     prog->setUniform("u_time", (float)(frameInfo.currentTime-baseTime));
     prog->setUniform("u_lifetime", (float)lifetime);
+    prog->setUniform("u_pixDispSize", pixDispSize);
     
     // The program itself may have some textures to bind
     bool hasTexture[WhirlyKitMaxTextures];
@@ -314,16 +323,14 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
     {
         GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
-        char baseMapName[40];
-        sprintf(baseMapName,"s_baseMap%d",ii);
-        const OpenGLESUniform *texUni = prog->findUniform(baseMapName);
+        const OpenGLESUniform *texUni = prog->findUniform(baseMapNames[ii]);
         hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
         if (hasTexture[ii+progTexBound])
         {
             [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
             glBindTexture(GL_TEXTURE_2D, glTexID);
             CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
-            prog->setUniform(baseMapName, (int)ii+progTexBound);
+            prog->setUniform(baseMapNames[ii], (int)ii+progTexBound);
             CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
         }
     }

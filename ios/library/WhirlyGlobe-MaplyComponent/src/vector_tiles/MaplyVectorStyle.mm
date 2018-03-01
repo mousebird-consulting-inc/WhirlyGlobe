@@ -44,6 +44,24 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (instancetype)initWithScale:(CGFloat)scale
+{
+    self = [super init];
+    _lineScale = scale;
+    _textScale = scale;
+    _markerScale = scale;
+    _markerImportance = 2.0;
+    _markerSize = 10.0;
+    _mapScaleScale = 1.0;
+    _dashPatternScale = 1.0;
+    _useWideVectors = false;
+    _wideVecCuttoff = 0.0;
+    _oldVecWidthScale = 1.0;
+    _selectable = false;
+    
+    return self;
+}
+
 - (NSString*)description
 {
   return [NSString stringWithFormat:@"%@: lineScale:%f textScale:%f markerScale:%f mapScaleScale:%f",
@@ -52,7 +70,7 @@ using namespace WhirlyKit;
 
 @end
 
-NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,MaplyBaseViewController * _Nonnull viewC,MaplyThreadMode threadMode)
+NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,MaplyThreadMode threadMode)
 {
     NSMutableArray *compObjs = [NSMutableArray array];
     MaplyTileID fakeTileID;

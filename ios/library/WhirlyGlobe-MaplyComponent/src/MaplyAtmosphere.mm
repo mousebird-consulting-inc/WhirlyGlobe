@@ -294,7 +294,7 @@ static const char *fragmentShaderGroundTri =
     Vector3d lastCameraPos;
 }
 
-- (instancetype)initWithShader:(MaplyShader *)inShader groundShader:(MaplyShader *)inGroundShader atm:(MaplyAtmosphere *)inAtm viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithShader:(MaplyShader *)inShader groundShader:(MaplyShader *)inGroundShader atm:(MaplyAtmosphere *)inAtm viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super initWithViewController:viewC];
     changed = true;

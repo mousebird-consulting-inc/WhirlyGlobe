@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyTexture.h"
-#import "MaplyBaseViewController.h"
+#import "MaplyRenderController.h"
 #import "WhirlyGlobe.h"
 
 @class MaplyBaseInteractionLayer;

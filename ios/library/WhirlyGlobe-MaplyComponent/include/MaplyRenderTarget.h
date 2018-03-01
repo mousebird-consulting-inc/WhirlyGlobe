@@ -18,7 +18,7 @@
  *
  */
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "MaplyTexture.h"
 
 /** 
@@ -39,5 +39,31 @@
     This is the texture we'll draw into.  Use createTexture to set it up.
   */
 @property (nonatomic) MaplyTexture *texture;
+
+/**
+    If set, we'll clear the target textures every frame before rendering to it.
+ 
+    If not set, we won't clear the render target texture between frames.
+ 
+    True by default.
+  */
+@property (nonatomic) bool clearEveryFrame;
+
+/**
+    Clear the render target to this color every frame.
+ 
+    Default is clear black.
+  */
+@property (nonatomic) UIColor *clearColor;
+
+/**
+    If set, anything rendered to this render target will blend with what's there.
+ 
+    If not set, what's rendered will replace what was there before.
+    This is the way it normally works for screen rendering.
+
+    Set to false by default.
+  */
+@property (nonatomic) bool blend;
 
 @end

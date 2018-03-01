@@ -84,7 +84,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   return self;
 }
 
-- (instancetype)initForViewC:(MaplyBaseViewController *)viewC {
+- (instancetype)initForViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC {
   self = [self init];
   if(self) {
     self.viewC = viewC;
@@ -280,7 +280,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 - (NSArray*)stylesForFeatureWithAttributes:(NSDictionary*)attributes
                                     onTile:(MaplyTileID)tileID
                                    inLayer:(NSString*)layer
-                                     viewC:(MaplyBaseViewController *)viewC
+                                     viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
   NSMutableArray *symbolizers = [NSMutableArray new];
   NSArray *styles = self.layers[layer];
@@ -316,7 +316,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 }
 
 
-- (MaplyVectorTileStyle*)styleForUUID:(NSString *)uuid viewC:(MaplyBaseViewController *)viewC {
+- (MaplyVectorTileStyle*)styleForUUID:(NSString *)uuid viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC {
   return self.symbolizers[uuid];
 }
 

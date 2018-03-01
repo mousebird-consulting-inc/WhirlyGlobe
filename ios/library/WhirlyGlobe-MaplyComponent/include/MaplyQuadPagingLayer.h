@@ -22,7 +22,7 @@
 #import "MaplyViewControllerLayer.h"
 #import "MaplyCoordinateSystem.h"
 #import "MaplyTileSource.h"
-#import "MaplyBaseViewController.h"
+#import "MaplyRenderController.h"
 
 @class MaplyQuadPagingLayer;
 
@@ -143,7 +143,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
     
     This view controller is the one you should create visual objects in.
   */
-@property (nonatomic,weak,readonly,nullable) MaplyBaseViewController *viewC;
+@property (nonatomic,weak,readonly,nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 
 /** 
     Initialize with coordinate system and delegate for paging.
@@ -154,7 +154,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadPagingDataStyle) {
     
     @param tileSource The tile source that will fetch data and create visible objects.
     
-    @return Returns a MaplyViewControllerLayer that can be added to the MaplyBaseViewController.
+    @return Returns a MaplyViewControllerLayer that can be added to the NSObject<MaplyRenderControllerProtocol>.
   */
 - (nullable instancetype)initWithCoordSystem:(MaplyCoordinateSystem *__nonnull)coordSys delegate:(NSObject<MaplyPagingDelegate> *__nonnull)tileSource;
 

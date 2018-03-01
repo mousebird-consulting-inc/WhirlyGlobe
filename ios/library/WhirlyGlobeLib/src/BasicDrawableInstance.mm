@@ -31,7 +31,7 @@ namespace WhirlyKit
 {
 
 BasicDrawableInstance::BasicDrawableInstance(const std::string &name,SimpleIdentity masterID,Style style)
-: Drawable(name), programID(EmptyIdentity), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0), instBuffer(0), numInstances(0), vertArrayObj(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid), viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid), startTime(0), moving(false), instanceStyle(style)
+: Drawable(name), programID(EmptyIdentity), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0), instBuffer(0), numInstances(0), vertArrayObj(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid), viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid), startTime(0), moving(false), instanceStyle(style), renderTargetID(EmptyIdentity)
 {
 }
 
@@ -290,6 +290,10 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
     return vertArrayObj;
 }
     
+// Putting there here rather than running sprintf is a lot faster.  Really.  Oy.
+static const char *baseMapNames[WhirlyKitMaxTextures] = {"s_baseMap0","s_baseMap1","s_baseMap2","s_baseMap3","s_baseMap4","s_baseMap5","s_baseMap6","s_baseMap7"};
+
+    
 // Used to pass in buffer offsets
 #define CALCBUFOFF(base,off) ((char *)((long)(base) + (off)))
 
@@ -443,8 +447,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
         {
             GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
-            char baseMapName[40];
-            sprintf(baseMapName,"s_baseMap%d",ii);
+            const char *baseMapName = baseMapNames[ii];
             const OpenGLESUniform *texUni = prog->findUniform(baseMapName);
             hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
             if (hasTexture[ii+progTexBound])

@@ -47,7 +47,7 @@
     NSMutableArray *subStyles;
 }
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorStyleSettings *)inSettings viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)styles settings:(MaplyVectorStyleSettings *)inSettings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super initWithStyleEntry:styles viewC:viewC];
     settings = inSettings;
@@ -129,7 +129,7 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {    
     bool isRetina = [UIScreen mainScreen].scale > 1.0;
 

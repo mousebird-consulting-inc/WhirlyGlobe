@@ -241,7 +241,7 @@
 	[baseLayer setUpWithMap:mapVC];
 	[self wideLineTest:mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:0.1];
-
+    [self loadShapeFile:mapVC];
 }
 
 @end

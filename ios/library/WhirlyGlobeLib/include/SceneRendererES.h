@@ -83,7 +83,8 @@ class RenderTarget : public Identifiable
 {
 public:
     RenderTarget();
-    RenderTarget(SimpleIdentity newID) : Identifiable(newID) { }
+    RenderTarget(SimpleIdentity newID);
+    void init();
     
     // Set up the render target
     bool init(Scene *scene,SimpleIdentity targetTexID);
@@ -94,6 +95,12 @@ public:
     /// Make this framebuffer active
     void setActiveFramebuffer(WhirlyKitSceneRendererES *renderer);
     
+    /// Set up the target texture
+    void setTargetTexture(Scene *scene,SimpleIdentity newTargetTexID);
+    
+    /// Set the GL texture directly
+    void setTargetTexture(TextureBase *tex);
+    
     /// OpenGL ES Name for the frame buffer
     GLuint framebuffer;
     /// OpenGL ES Name for the color buffer
@@ -102,15 +109,23 @@ public:
     GLuint depthbuffer;
     /// Output framebuffer size fo glViewport
     int width,height;
-    /// Set if we've set up background and such
+    /// Set if we've set up background and suchs
     bool isSetup;
+    
+    // Clear color, if we're clearing
+    GLfloat clearColor[4];
+    bool clearEveryFrame;
+    // Clear on the next frame, then reset this
+    bool clearOnce;
+    // Control how the blending into a destination works
+    bool blendEnable;
 };
 
 // Add a new render target
 class AddRenderTargetReq : public ChangeRequest
 {
 public:
-    AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID);
+    AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor);
     
     /// Add the render target to the renderer
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
@@ -119,8 +134,39 @@ protected:
     int width,height;
     SimpleIdentity renderTargetID;
     SimpleIdentity texID;
+    bool clearEveryFrame;
+    RGBAColor clearColor;
+    bool blend;
+};
+    
+// Change details about a rendering target.  In this case, just texture.
+class ChangeRenderTargetReq : public ChangeRequest
+{
+public:
+    ChangeRenderTargetReq(SimpleIdentity renderTargetID,SimpleIdentity texID);
+    
+    /// Add the render target to the renderer
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    SimpleIdentity renderTargetID;
+    SimpleIdentity texID;
+};
+    
+// Request a one time clear on the rendering target.  Happens next frame.
+class ClearRenderTargetReq : public ChangeRequest
+{
+public:
+    ClearRenderTargetReq(SimpleIdentity renderTargetID);
+    
+    /// Add the render target to the renderer
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    SimpleIdentity renderTargetID;
 };
 
+// Remove a render target from the rendering loop
 class RemRenderTargetReq : public ChangeRequest
 {
 public:
@@ -252,6 +298,9 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
     
     // What we're rendering to (and where)
     std::vector<WhirlyKit::RenderTarget> renderTargets;
+    
+    // If we're an offline renderer, the texture we're rendering into
+    WhirlyKit::Texture *framebufferTex;
 }
 
 /// Rendering context
@@ -296,7 +345,7 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 @property (nonatomic,assign) bool triggerDraw;
 
 /// Initialize with API version
-- (id) initWithOpenGLESVersion:(EAGLRenderingAPI)apiVersion;
+- (id) initWithOpenGLESVersion:(EAGLRenderingAPI)apiVersion size:(CGSize)size;
 
 /// Render to the screen, ideally within the given duration.
 /// The subclasses fill this in
@@ -338,6 +387,6 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 - (void) addRenderTarget:(WhirlyKit::RenderTarget &)newTarget;
 
 /// Clear out the given render target
-- (void) clearRenderTarget:(WhirlyKit::SimpleIdentity)targetID;
+- (void) removeRenderTarget:(WhirlyKit::SimpleIdentity)targetID;
 
 @end
