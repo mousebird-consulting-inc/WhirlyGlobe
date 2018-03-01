@@ -108,10 +108,10 @@ public:
 
 - (id) init
 {
-    return [self initWithVersion:kEAGLRenderingAPIOpenGLES2];
+    return [self initWithVersion:kEAGLRenderingAPIOpenGLES2 size:CGSizeZero];
 }
 
-- (id) initWithVersion:(EAGLRenderingAPI)apiVersion
+- (id) initWithVersion:(EAGLRenderingAPI)apiVersion size:(CGSize)size
 {
     // We do this to pull in the categories without the -ObjC flag.
     // It's dumb, but it works
@@ -124,12 +124,12 @@ public:
         NSStringDummyFunc();
         dummyInit = true;
     }
-    
-    self = [super initWithOpenGLESVersion:apiVersion];
+
+    self = [super initWithOpenGLESVersion:apiVersion size:(CGSize)size];
     if (!self)
         return nil;
     lights = [NSMutableArray array];
-    
+
     // Add a simple default light
     WhirlyKitDirectionalLight *light = [[WhirlyKitDirectionalLight alloc] init];
     [light setPos:Vector3f(0.75, 0.5, -1.0)];
@@ -143,10 +143,10 @@ public:
     [self setDefaultMaterial:[[WhirlyKitMaterial alloc] init]];
 
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-    
+
     frameRenderingSemaphore = dispatch_semaphore_create(1);
     contextQueue = dispatch_queue_create("rendering queue",DISPATCH_QUEUE_SERIAL);
-    
+
     // Note: Try to turn this back on at some point
     _dispatchRendering = false;
 
@@ -178,6 +178,7 @@ public:
     EAGLContext *oldContext = [EAGLContext currentContext];
     if (oldContext != super.context)
         [EAGLContext setCurrentContext:super.context];
+    CheckGLError("Scene::setScene() setCurrentContext");
     
     SetupDefaultShaders(super.scene);
     
@@ -214,7 +215,7 @@ public:
 
 - (void) setClearColor:(UIColor *)color
 {
-    _clearColor = [color asRGBAColor];
+    [super setClearColor:color];
     [self forceRenderSetup];
 }
 
@@ -572,7 +573,7 @@ static const float ScreenOverlap = 0.1;
                 DrawableRefSet rawDrawables = scene->getDrawables();
                 for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
                 {
-                    Drawable *theDrawable = it->get();
+                    Drawable *theDrawable = it->second.get();
                     if (theDrawable->isOn(offFrameInfo))
                     {
                         const Matrix4d *localMat = theDrawable->getMatrix();
@@ -587,7 +588,6 @@ static const float ScreenOverlap = 0.1;
                     }
                 }
             }
-            
             
             if (perfInterval > 0)
                 perfTimer.stopTiming("Culling");
@@ -637,8 +637,12 @@ static const float ScreenOverlap = 0.1;
         {
             renderTarget.setActiveFramebuffer(self);
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            CheckGLError("SceneRendererES2: glClear");
+            if (renderTarget.clearEveryFrame || renderTarget.clearOnce)
+            {
+                renderTarget.clearOnce = false;
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                CheckGLError("SceneRendererES2: glClear");
+            }
             
             bool depthMaskOn = (super.zBufferMode == zBufferOn);
             for (unsigned int ii=0;ii<drawList.size();ii++)
@@ -734,8 +738,8 @@ static const float ScreenOverlap = 0.1;
             }
             
             // Note: Added this for render target
-            if (renderTargets.size() > 1)
-                glFinish();
+//            if (renderTargets.size() > 1)
+//                glFinish();
         }
         
         if (perfInterval > 0)
@@ -895,8 +899,11 @@ static const float ScreenOverlap = 0.1;
         _snapshotDelegate = nil;
     }
 
-    [context presentRenderbuffer:GL_RENDERBUFFER];
-    CheckGLError("SceneRendererES2: presentRenderbuffer");
+    if (!framebufferTex)
+    {
+        [context presentRenderbuffer:GL_RENDERBUFFER];
+        CheckGLError("SceneRendererES2: presentRenderbuffer");
+    }
     
     if (perfInterval > 0)
         perfTimer.stopTiming("Present Renderbuffer");

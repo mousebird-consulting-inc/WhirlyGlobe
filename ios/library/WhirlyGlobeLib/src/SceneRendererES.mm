@@ -44,36 +44,60 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 }
     
 RenderTarget::RenderTarget()
-    : framebuffer(0), colorbuffer(0), depthbuffer(0), width(0), height(0), isSetup(false)
 {
+    init();
+}
+    
+RenderTarget::RenderTarget(SimpleIdentity newID) : Identifiable(newID)
+{
+    init();
+}
+    
+void RenderTarget::init()
+{
+    framebuffer = 0;
+    colorbuffer = 0;
+    depthbuffer = 0;
+    width = 0;
+    height = 0;
+    isSetup = false;
+    clearColor[0] = 0.0;  clearColor[1] = 0.0;  clearColor[2] = 0.0;  clearColor[3] = 0.0;
+    clearEveryFrame = true;
+    clearOnce = false;
 }
     
 bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
 {
     glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     
     // Our destination is a texture in this case
     if (targetTexID)
     {
         colorbuffer = 0;
-        TextureBase *tex = scene->getTexture(targetTexID);
-        if (tex)
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->getGLId(), 0);
+        setTargetTexture(scene,targetTexID);
     } else {
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+
         // Generate our own color buffer
         glGenRenderbuffers(1, &colorbuffer);
-        CheckGLError("SceneRendererES: glGenRenderbuffers");
+        CheckGLError("RenderTarget: glGenRenderbuffers");
         glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
-        CheckGLError("SceneRendererES: glBindRenderbuffer");
+        CheckGLError("RenderTarget: glBindRenderbuffer");
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorbuffer);
-        CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
+        CheckGLError("RenderTarget: glFramebufferRenderbuffer");
+
+        glGenRenderbuffers(1, &depthbuffer);
+        CheckGLError("RenderTarget: glGenRenderbuffers");
+        glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer);
+        CheckGLError("RenderTarget: glBindRenderbuffer");
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+        CheckGLError("RenderTarget: glRenderbufferStorage");
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer);
+        CheckGLError("RenderTarget: glFramebufferRenderbuffer");
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        CheckGLError("RenderTarget: glBindFramebuffer");
     }
-    
-    glGenRenderbuffers(1, &depthbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer);
     
 //    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
 //    if(status != GL_FRAMEBUFFER_COMPLETE) {
@@ -81,12 +105,32 @@ bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
 //        return false;
 //    }
     
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
     isSetup = false;
     return true;
 }
     
+void RenderTarget::setTargetTexture(Scene *scene,SimpleIdentity targetTexID)
+{
+    TextureBase *tex = scene->getTexture(targetTexID);
+    if (tex)
+        setTargetTexture(tex);
+}
+
+void RenderTarget::setTargetTexture(TextureBase *tex)
+{
+    if (framebuffer == 0) {
+        glGenFramebuffers(1, &framebuffer);
+        colorbuffer = 0;
+    }
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->getGLId(), 0);
+    CheckGLError("RenderTarget: glFramebufferTexture2D");
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
 void RenderTarget::clear()
 {
     if (colorbuffer)
@@ -106,21 +150,25 @@ void RenderTarget::setActiveFramebuffer(WhirlyKitSceneRendererES *renderer)
     if (colorbuffer)
         glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
     
+    // Note: Have to run this all the time for some reason
 //    if (!isSetup)
     {
-        // Note: Should allow this to be selected
-        // For non-main rendering targets, we want clear
-        if (getId())
-            glClearColor(0.0,0.0,0.0,0.0);
-        else
-            glClearColor(renderer->_clearColor.r / 255.0, renderer->_clearColor.g / 255.0, renderer->_clearColor.b / 255.0, renderer->_clearColor.a / 255.0);
+        if (blendEnable)
+        {
+            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_BLEND);
+        } else {
+            glDisable(GL_BLEND);
+        }
+        glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+        
         CheckGLError("SceneRendererES2: glClearColor");
         isSetup = true;
     }
 }
     
-AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID)
-    : renderTargetID(renderTargetID), width(width), height(height), texID(texID)
+AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor)
+    : renderTargetID(renderTargetID), width(width), height(height), texID(texID), clearEveryFrame(clearEveryFrame), blend(blend), clearColor(clearColor)
 {
 }
 
@@ -130,9 +178,31 @@ void AddRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
     RenderTarget renderTarget(renderTargetID);
     renderTarget.width = width;
     renderTarget.height = height;
+    renderTarget.clearEveryFrame = clearEveryFrame;
+    renderTarget.clearColor[0] = clearColor.r;
+    renderTarget.clearColor[1] = clearColor.g;
+    renderTarget.clearColor[2] = clearColor.b;
+    renderTarget.clearColor[3] = clearColor.a;
+    renderTarget.blendEnable = blend;
     renderTarget.init(scene,texID);
     
     [renderer addRenderTarget:renderTarget];
+}
+    
+ChangeRenderTargetReq::ChangeRenderTargetReq(SimpleIdentity renderTargetID,SimpleIdentity texID)
+    : renderTargetID(renderTargetID), texID(texID)
+{
+}
+    
+void ChangeRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    for (RenderTarget &renderTarget : renderer->renderTargets)
+    {
+        if (renderTarget.getId() == renderTargetID) {
+            renderTarget.setTargetTexture(scene,texID);
+            break;
+        }
+    }
 }
     
 RemRenderTargetReq::RemRenderTargetReq(SimpleIdentity targetID)
@@ -142,7 +212,23 @@ RemRenderTargetReq::RemRenderTargetReq(SimpleIdentity targetID)
     
 void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    [renderer clearRenderTarget:targetID];
+    [renderer removeRenderTarget:targetID];
+}
+
+ClearRenderTargetReq::ClearRenderTargetReq(SimpleIdentity targetID)
+: renderTargetID(targetID)
+{
+}
+
+void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    for (RenderTarget &renderTarget : renderer->renderTargets)
+    {
+        if (renderTarget.getId() == renderTargetID) {
+            renderTarget.clearOnce = true;
+            break;
+        }
+    }
 }
 
 }
@@ -285,7 +371,7 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
     Eigen::Matrix4d modelMat,viewMat,projMat;    
 }
 
-- (id) initWithOpenGLESVersion:(EAGLRenderingAPI)apiVersion
+- (id) initWithOpenGLESVersion:(EAGLRenderingAPI)apiVersion size:(CGSize)size
 {
 	if ((self = [super init]))
 	{
@@ -301,14 +387,36 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
 		
 		_context = [[EAGLContext alloc] initWithAPI:apiVersion];
         
+        _framebufferWidth = (int)size.width;
+        _framebufferHeight = (int)size.height;
+        
         EAGLContext *oldContext = [EAGLContext currentContext];
         if (!_context || ![EAGLContext setCurrentContext:_context])
 		{
             return nil;
         }
+        CheckGLError("SceneRendererES::initWithOpenGLESVersion() setCurrentContext");
         
+        // We need a texture to draw to in this case
+        if (_framebufferWidth > 0)
+        {
+            framebufferTex = new Texture("Framebuffer Texture");
+            framebufferTex->setWidth(_framebufferWidth);
+            framebufferTex->setHeight(_framebufferHeight);
+            framebufferTex->setIsEmptyTexture(true);
+            framebufferTex->setFormat(GL_UNSIGNED_BYTE);
+            framebufferTex->createInGL(NULL);
+        }
+
         RenderTarget defaultTarget(EmptyIdentity);
-        defaultTarget.init(NULL,EmptyIdentity);
+        defaultTarget.width = (int)size.width;
+        defaultTarget.height = (int)size.height;
+        if (framebufferTex)
+            defaultTarget.setTargetTexture(framebufferTex);
+        else
+            defaultTarget.init(NULL,EmptyIdentity);
+        defaultTarget.clearEveryFrame = true;
+        defaultTarget.blendEnable = true;
         renderTargets.push_back(defaultTarget);
         
         // All the animations should work now, except for particle systems
@@ -335,6 +443,12 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
     for (auto &target : renderTargets)
         target.clear();
     
+    if (framebufferTex) {
+        framebufferTex->destroyInGL(_scene->getMemManager());
+        delete framebufferTex;
+        framebufferTex = NULL;
+    }
+    
 	if (oldContext != _context)
         [EAGLContext setCurrentContext:oldContext];
 	_context = nil;	
@@ -347,7 +461,7 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
 }
 
 /// Clear out the given render target
-- (void) clearRenderTarget:(SimpleIdentity)targetID
+- (void) removeRenderTarget:(SimpleIdentity)targetID
 {
     for (int ii=0;ii<renderTargets.size();ii++)
     {
@@ -408,13 +522,14 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
     if (oldContext != _context)
         [EAGLContext setCurrentContext:_context];
     
-    RenderTarget &renderTarget = renderTargets[0];
+    RenderTarget &renderTarget = renderTargets.back();
     
     glBindFramebuffer(GL_FRAMEBUFFER, renderTarget.framebuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, renderTarget.colorbuffer);
     CheckGLError("SceneRendererES: glBindRenderbuffer");
-	[_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer];
-    CheckGLError("SceneRendererES: glBindRenderbuffer");
+	if (![_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer])
+        NSLog(@"SCeneRendererES: Failure in renderbufferStorage");
+    CheckGLError("SceneRendererES: resizeFromLayer");
 	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &_framebufferWidth);
 	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &_framebufferHeight);
     renderTarget.width = _framebufferWidth;
@@ -436,6 +551,7 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
 		return NO;
 	}
 		
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     lastDraw = 0;
 	
     if (oldContext != _context)
@@ -451,6 +567,19 @@ void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer
 - (void) setClearColor:(UIColor *)color
 {
     _clearColor = [color asRGBAColor];
+    
+    for (auto &target : renderTargets)
+    {
+        // This is the default render target
+        if (target.getId() == EmptyIdentity)
+        {
+            target.clearColor[0] = _clearColor.r / 255.0;
+            target.clearColor[1] = _clearColor.g / 255.0;
+            target.clearColor[2] = _clearColor.b / 255.0;
+            target.clearColor[3] = _clearColor.a / 255.0;
+            break;
+        }
+    }
 }
 
 // Calculate an acceptable MBR from world coords

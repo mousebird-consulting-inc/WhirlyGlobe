@@ -19,7 +19,6 @@
 #import "TextureVectorTestCase.h"
 #import "ShapefileTestCase.h"
 #import "ScreenMarkersTestCase.h"
-#import "MapzenSource.h"
 #import "LabelsTestCase.h"
 #import "MegaMarkersTestCase.h"
 #import "WideVectorsTestCase.h"

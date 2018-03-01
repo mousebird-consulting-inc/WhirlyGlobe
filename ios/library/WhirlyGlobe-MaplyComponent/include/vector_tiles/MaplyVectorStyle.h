@@ -28,6 +28,9 @@
   */
 @interface MaplyVectorStyleSettings : NSObject
 
+/// Initialize with the (presumably) retina scale
+- (instancetype __nonnull)initWithScale:(CGFloat)scale;
+
 /// Line widths will be scaled by this amount before display.
 @property (nonatomic) float lineScale;
 /// Text sizes will be scaled by this amount before display.
@@ -55,7 +58,7 @@
 /// Where we're using old vectors (e.g. not wide) scale them by this amount
 @property (nonatomic) float oldVecWidthScale;
 
-/// If we're using widened vectors, only active them for strokes wider than this.  Defaults to zero.
+/// If we're using widened vectors, only activate them for strokes wider than this.  Defaults to zero.
 @property (nonatomic) float wideVecCuttoff;
 
 /// If set, we'll make the areal features selectable.  If not, this saves memory.
@@ -86,13 +89,13 @@
 - (nullable NSArray *)stylesForFeatureWithAttributes:(NSDictionary *__nonnull)attributes
                                               onTile:(MaplyTileID)tileID
                                              inLayer:(NSString *__nonnull)layer
-                                               viewC:(MaplyBaseViewController *__nonnull)viewC;
+                                               viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 /// Return true if the given layer is meant to display for the given tile (zoom level)
 - (BOOL)layerShouldDisplay:(NSString *__nonnull)layer tile:(MaplyTileID)tileID;
 
 /// Return the style associated with the given UUID.
-- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(NSString *__nonnull)uiid viewC:(MaplyBaseViewController *__nonnull)viewC;
+- (nullable NSObject<MaplyVectorStyle> *)styleForUUID:(NSString *__nonnull)uiid viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 @end
 
@@ -111,7 +114,7 @@
 - (bool) geomAdditive;
 
 /// Construct objects related to this style based on the input data.
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController * _Nonnull)viewC;
+- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC;
 
 @end
 
@@ -132,7 +135,7 @@ extern "C" {
  
     @param threadMode MaplyThreadCurrent will block until all the features are added.  MaplyThreadAny will do some of the work on another thread.
  */
-NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,MaplyBaseViewController * _Nonnull viewC,MaplyThreadMode threadMode);
+NSArray * _Nonnull AddMaplyVectorsUsingStyle(NSArray * _Nonnull vecObjs,NSObject<MaplyVectorStyleDelegate> * _Nonnull styleDelegate,NSObject<MaplyRenderControllerProtocol> * _Nonnull viewC,MaplyThreadMode threadMode);
 #ifdef __cplusplus
 }
 #endif

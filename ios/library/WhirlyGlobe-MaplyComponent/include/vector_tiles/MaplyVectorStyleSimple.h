@@ -17,10 +17,10 @@
   */
 @interface MaplyVectorStyleSimpleGenerator : NSObject<MaplyVectorStyleDelegate>
 
-@property (nonatomic,weak) MaplyBaseViewController *viewC;
+@property (nonatomic,weak) NSObject<MaplyRenderControllerProtocol> *viewC;
 
 /// Initialize with a map view controller
-- (id)initWithViewC:(MaplyBaseViewController *)viewC;
+- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end
 
@@ -38,9 +38,9 @@
 /// Priority for sorting among layers
 @property (nonatomic) int drawPriority;
 
-@property (nonatomic,weak) MaplyBaseViewController *viewC;
+@property (nonatomic,weak) NSObject<MaplyRenderControllerProtocol> *viewC;
 
-- (id)initWithViewC:(MaplyBaseViewController *)viewC;
+- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end
 

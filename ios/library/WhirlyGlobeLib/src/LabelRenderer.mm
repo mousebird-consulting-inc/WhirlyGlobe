@@ -141,6 +141,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
         float theShadowSize = _labelInfo.shadowSize;
         UIColor *theOutlineColor = _labelInfo.outlineColor;
         float theOutlineSize = _labelInfo.outlineSize;
+        float theLineSpacing = theFont.lineHeight;
         if (label.desc)
         {
             theTextColor = [label.desc objectForKey:@"textColor" checkType:[UIColor class] default:theTextColor];
@@ -150,6 +151,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             theShadowSize = [label.desc floatForKey:@"shadowSize" default:theShadowSize];
             theOutlineColor = [label.desc objectForKey:@"outlineColor" checkType:[UIColor class] default:theOutlineColor];
             theOutlineSize = [label.desc floatForKey:@"outlineSize" default:theOutlineSize];
+            theLineSpacing = [label.desc floatForKey:@"lineSpacing" default:theLineSpacing];
         }
         if (theShadowColor == nil)
             theShadowColor = [UIColor blackColor];
@@ -453,7 +455,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
                 }
             }
             
-            offsetY += lineHeight;
+            offsetY += theLineSpacing;
         }
         
         if (layoutObject)

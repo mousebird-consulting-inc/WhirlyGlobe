@@ -220,11 +220,10 @@ GLuint Scene::getGLTexture(SimpleIdentity texIdent)
     
     pthread_mutex_lock(&textureLock);
     // Might be a texture ref
-    TextureBaseRef dumbTex(new TextureBase(texIdent));
-    Scene::TextureRefSet::iterator it = textures.find(dumbTex);
+    auto it = textures.find(texIdent);
     if (it != textures.end())
     {
-        ret = (*it)->getGLId();
+        ret = it->second->getGLId();
     }
     
     pthread_mutex_unlock(&textureLock);
@@ -234,11 +233,9 @@ GLuint Scene::getGLTexture(SimpleIdentity texIdent)
 
 DrawableRef Scene::getDrawable(SimpleIdentity drawId)
 {
-    BasicDrawable *dumbDraw = new BasicDrawable("None");
-    dumbDraw->setId(drawId);
-    DrawableRefSet::iterator it = drawables.find(DrawableRef(dumbDraw));
+    auto it = drawables.find(drawId);
     if (it != drawables.end())
-        return *it;
+        return it->second;
     
     return DrawableRef();
 }
@@ -336,20 +333,16 @@ void Scene::teardownGL()
 {
     // Note: Tear down generators
     // Note: Tear down active models
-    for (DrawableRefSet::iterator it = drawables.begin();
-         it != drawables.end(); ++it)
-        (*it)->teardownGL(&memManager);
+    for (auto it : drawables)
+        it.second->teardownGL(&memManager);
     if (cullTree)
     {
         delete cullTree;
         cullTree = NULL;
     }
     drawables.clear();
-    for (TextureRefSet::iterator it = textures.begin();
-         it != textures.end(); ++it)
-    {
-        TextureBaseRef texRef = *it;
-        texRef->destroyInGL(&memManager);
+    for (auto it : textures) {
+        it.second->destroyInGL(&memManager);
     }
     textures.clear();
     
@@ -362,10 +355,9 @@ TextureBase *Scene::getTexture(SimpleIdentity texId)
     pthread_mutex_lock(&textureLock);
     
     TextureBase *retTex = NULL;
-    TextureBaseRef dumbTex(new TextureBase(texId));
-    Scene::TextureRefSet::iterator it = textures.find(dumbTex);
+    auto it = textures.find(texId);
     if (it != textures.end())
-        retTex = it->get();
+        retTex = it->second.get();
     
     pthread_mutex_unlock(&textureLock);
     
@@ -639,18 +631,17 @@ void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whir
 {
     if (!texRef->getGLId())
         texRef->createInGL(scene->getMemManager());
-    scene->textures.insert(texRef);
+    scene->textures[texRef->getId()] = texRef;
     texRef = NULL;
 }
 
 void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
     pthread_mutex_lock(&scene->textureLock);
-    TextureBaseRef dumpTexRef(new TextureBase(texture));
-    Scene::TextureRefSet::iterator it = scene->textures.find(dumpTexRef);
+    auto it = scene->textures.find(texture);
     if (it != scene->textures.end())
     {
-        TextureBaseRef tex = *it;
+        TextureBaseRef tex = it->second;
         tex->destroyInGL(scene->getMemManager());
         scene->textures.erase(it);
     } else
@@ -695,17 +686,15 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
 
 void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    BasicDrawable *dumbDraw = new BasicDrawable("None");
-    dumbDraw->setId(drawable);
-    DrawableRefSet::iterator it = scene->drawables.find(DrawableRef(dumbDraw));
+    auto it = scene->drawables.find(drawable);
     if (it != scene->drawables.end())
     {
-        [renderer removeContinuousRenderRequest:(*it)->getId()];
+        [renderer removeContinuousRenderRequest:it->second->getId()];
         
         // Teardown OpenGL foo
-        (*it)->teardownGL(scene->getMemManager());
+        it->second->teardownGL(scene->getMemManager());
 
-        scene->remDrawable(*it);        
+        scene->remDrawable(it->second);
     } else
         NSLog(@"Missing drawable for RemDrawableReq: %llu", drawable);
 }

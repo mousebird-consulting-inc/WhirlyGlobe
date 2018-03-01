@@ -81,7 +81,7 @@
     }
 
     // Stop at -180/+180
-    if (false) {
+    if (/* DISABLES CODE */ (false)) {
         MaplyCoordinate a = MaplyCoordinateMakeWithDegrees(-176.4624, -44.3040);
         MaplyCoordinate b1 = MaplyCoordinateMakeWithDegrees(-180.0, 0.0);
         MaplyCoordinate b2 = MaplyCoordinateMakeWithDegrees(180.0, 0.0);

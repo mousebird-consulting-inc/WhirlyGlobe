@@ -22,12 +22,13 @@
 #import <string>
 #import <WhirlyGlobe.h>
 #import "MaplyShader_private.h"
-#import "MaplyBaseViewController_private.h"
+#import "MaplyRenderController_private.h"
 
 using namespace WhirlyKit;
 
 @implementation MaplyShader
 {
+    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
     WhirlyKit::Scene *scene;
     WhirlyKitSceneRendererES * __weak renderer;
     NSString *buildError;
@@ -36,7 +37,7 @@ using namespace WhirlyKit;
     SimpleIDSet texIDs;
 }
 
-- (instancetype)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(MaplyBaseViewController *)baseViewC
+- (instancetype)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
 {
     NSError *error = nil;
     _name = name;
@@ -67,21 +68,45 @@ using namespace WhirlyKit;
     return [self initWithName:name vertex:vertexShader fragment:fragShader viewC:baseViewC];
 }
 
-- (instancetype)initWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg viewC:(MaplyBaseViewController *)baseViewC
+- (instancetype)initWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
+{
+    self = [super init];
+    
+    viewC = baseViewC;
+    
+    [self delayedSetupWithName:name vertex:vertexProg fragment:fragProg];
+    
+    return self;
+}
+
+- (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
+{
+    self = [super init];
+
+    viewC = baseViewC;
+
+    return self;
+}
+
+- (bool)delayedSetupWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg
 {
     if (!vertexProg || !fragProg)
     {
         buildError = @"Empty vertex or fragment shader program.";
-        return nil;
+        return false;
     }
     
     _name = name;
     std::string vertexStr = [vertexProg cStringUsingEncoding:NSASCIIStringEncoding];
     std::string fragStr = [fragProg cStringUsingEncoding:NSASCIIStringEncoding];
     std::string nameStr = [name cStringUsingEncoding:NSASCIIStringEncoding];
-
+    
+    MaplyRenderController *renderControl = [viewC getRenderControl];
+    if (!renderControl)
+        return false;
+    
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [baseViewC useGLContext];
+    [renderControl useGLContext];
     _program = new OpenGLES2Program(nameStr,vertexStr,fragStr);
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
@@ -91,16 +116,16 @@ using namespace WhirlyKit;
         buildError = @"Could not compile program.";
         delete _program;
         _program = NULL;
-        return nil;
+        return false;
     }
     
-    scene = baseViewC->scene;
-    renderer = baseViewC->sceneRenderer;
+    scene = renderControl->scene;
+    renderer = renderControl->sceneRenderer;
     
-    if (baseViewC->scene)
-        baseViewC->scene->addProgram(_program);
+    if (renderControl->scene)
+        renderControl->scene->addProgram(_program);
     
-    return self;
+    return true;
 }
 
 - (SimpleIdentity)getShaderID
@@ -165,6 +190,25 @@ using namespace WhirlyKit;
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     bool ret = _program->setUniform(name, val);
 
+    if (oldContext != [EAGLContext currentContext])
+        [EAGLContext setCurrentContext:oldContext];
+    
+    return ret;
+}
+
+- (bool)setUniformFloatNamed:(NSString *__nonnull)uniName val:(float)val index:(int)idx
+{
+    if (!_program)
+        return false;
+    
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [renderer useContext];
+    [renderer forceDrawNextFrame];
+    glUseProgram(_program->getProgram());
+    
+    std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
+    bool ret = _program->setUniform(name, val, idx);
+    
     if (oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
     
@@ -269,6 +313,21 @@ using namespace WhirlyKit;
     
     return ret;
 }
+
+- (bool)setUniformVector4Named:(NSString *__nonnull)uniName color:(UIColor *)color
+{
+    CGFloat red,green,blue,alpha;
+    [color getRed:&red green:&green blue:&blue alpha:&alpha];
+    return [self setUniformVector4Named:uniName x:red y:green z:blue w:alpha];
+}
+
+- (bool)setUniformVector4Named:(NSString *__nonnull)uniName color:(UIColor *)color index:(int)which
+{
+    CGFloat red,green,blue,alpha;
+    [color getRed:&red green:&green blue:&blue alpha:&alpha];
+    return [self setUniformVector4Named:uniName x:red y:green z:blue w:alpha index:which];
+}
+
 
 // We're assuming the view controller has set the proper context
 - (void)teardown

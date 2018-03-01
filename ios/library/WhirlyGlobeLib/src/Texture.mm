@@ -311,7 +311,10 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
         return true;
 	
 	// Allocate a texture and set up the various params
-    glId = memManager->getTexID();
+    if (memManager)
+        glId = memManager->getTexID();
+    else
+        glGenTextures(1, &glId);
     CheckGLError("Texture::createInGL() glGenTextures()");
 
 	glBindTexture(GL_TEXTURE_2D, glId);

@@ -49,7 +49,7 @@ public:
 @interface MaplyScreenObject()
 {
 @public
-    __weak MaplyBaseViewController *viewC;
+    __weak NSObject<MaplyRenderControllerProtocol> *viewC;
     // 2D polygons
     std::vector<WhirlyKit::SimplePoly> polys;
     std::vector<WhirlyKit::StringWrapper> strings;

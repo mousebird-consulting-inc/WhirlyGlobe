@@ -31,7 +31,7 @@
     std::vector<bool> wideVecs;
 }
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)style settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super initWithStyleEntry:style viewC:viewC];
 
@@ -147,7 +147,7 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {
     MaplyComponentObject *baseWideObj = nil;
     MaplyComponentObject *baseRegObj = nil;

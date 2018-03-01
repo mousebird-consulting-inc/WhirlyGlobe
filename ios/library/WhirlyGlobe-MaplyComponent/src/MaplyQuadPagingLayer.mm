@@ -825,7 +825,7 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
     if (!_valid)
     {
         // Just just delete it all
-        [_viewC removeObjects:dataObjects];
+        [_viewC removeObjects:dataObjects mode:MaplyThreadCurrent];
         return;
     }
     

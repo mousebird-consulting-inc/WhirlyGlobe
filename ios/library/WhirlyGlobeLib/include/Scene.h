@@ -28,6 +28,7 @@
 
 #import <vector>
 #import <set>
+#import <unordered_map>
 #import "WhirlyVector.h"
 #import "Texture.h"
 #import "Cullable.h"
@@ -231,7 +232,7 @@ protected:
 /// Sorted set of generators
 typedef std::set<Generator *,IdentifiableSorter> GeneratorSet;
     
-typedef std::set<DrawableRef,IdentifiableRefSorter> DrawableRefSet;
+typedef std::unordered_map<SimpleIdentity,DrawableRef> DrawableRefSet;
 
 typedef std::set<OpenGLES2Program *,IdentifiableSorter> OpenGLES2ProgramSet;
 typedef std::map<std::string,OpenGLES2Program *> OpenGLES2ProgramMap;
@@ -400,7 +401,7 @@ public:
 	/// All the drawables we've been handed, sorted by ID
 	DrawableRefSet drawables;
 	
-    typedef std::set<TextureBaseRef,IdentifiableRefSorter> TextureRefSet;
+    typedef std::unordered_map<SimpleIdentity,TextureBaseRef> TextureRefSet;
 	/// Textures, sorted by ID
 	TextureRefSet textures;
     

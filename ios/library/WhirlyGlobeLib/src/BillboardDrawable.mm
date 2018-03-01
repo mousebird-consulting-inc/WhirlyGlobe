@@ -20,6 +20,7 @@
 
 #import "BillboardDrawable.h"
 #import "OpenGLES2Program.h"
+#import "GLUtils.h"
 
 namespace WhirlyKit
 {
@@ -129,6 +130,7 @@ WhirlyKit::OpenGLES2Program *BuildBillboardGroundProgram()
     if (shader)
     {
         glUseProgram(shader->getProgram());
+        CheckGLError("BuildBillboardGroundProgram() glUseProgram");
         
         shader->setUniform("u_eyeVec", Point3f(0,0,1));
     }

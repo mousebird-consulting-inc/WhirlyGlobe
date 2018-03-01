@@ -75,6 +75,8 @@ extern NSString* const kMaplyEnableEnd;
 extern NSString* const kMaplyZBufferRead;
 /// Have a given object write itself to the z buffer
 extern NSString* const kMaplyZBufferWrite;
+/// Set the render target if the given geometry type supports it
+extern NSString* const kMaplyRenderTarget;
 
 /// Assign a shader program to a particular feature.  Use the shader program's name
 extern NSString* const kMaplyShader;
@@ -99,6 +101,7 @@ extern const int kMaplyLoftedPolysDrawPriorityDefault;
 extern const int kMaplyShapeDrawPriorityDefault;
 extern const int kMaplyBillboardDrawPriorityDefault;
 extern const int kMaplyModelDrawPriorityDefault;
+extern const int kMaplyMaxDrawPriorityDefault;
 
 #define kWGMarkerDrawPriorityDefault kMaplyMarkerDrawPriorityDefault
 #define kWGVectorDrawPriorityDefault kMaplyVectorDrawPriorityDefault
@@ -134,6 +137,8 @@ extern NSString* const kMaplyShadowColor;
 #define kWGShadowColor kMaplyShadowColor
 /// If outline is being used, we can control the color
 extern NSString* const kMaplyTextOutlineSize;
+/// Vertical line spacing.  Defaults to the Font's line spacing
+extern NSString* const kMaplyTextLineSpacing;
 /// If outline is being used, we can control the stroke size
 extern NSString* const kMaplyTextOutlineColor;
 /// When creating textures, we may pass in the size

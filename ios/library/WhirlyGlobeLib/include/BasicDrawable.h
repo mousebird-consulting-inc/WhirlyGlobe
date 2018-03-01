@@ -279,6 +279,12 @@ public:
     /// Run the texture and texture coordinates based on a SubTexture
     virtual void applySubTexture(int which,SubTexture subTex,int startingAt=0);
     
+    // If set, we'll render this data where directed
+    void setRenderTarget(SimpleIdentity newRenderTarget) { renderTargetID = newRenderTarget; }
+    
+    // EmptyIdentity is the standard view, anything else ia custom render target
+    SimpleIdentity getRenderTarget() { return renderTargetID; }
+
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
     virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
     
@@ -345,7 +351,8 @@ public:
     unsigned int numPoints, numTris;
     std::vector<Eigen::Vector3f> points;
     std::vector<Triangle> tris;
-    
+    SimpleIdentity renderTargetID;
+
     bool hasMatrix;
     // If the drawable has a matrix, we'll transform by that before drawing
     Eigen::Matrix4d mat;

@@ -35,14 +35,6 @@ OpenGLES2Program::OpenGLES2Program()
     
 OpenGLES2Program::~OpenGLES2Program()
 {
-    for (std::set<OpenGLESUniform *,UniformNameSortStruct>::iterator it = uniforms.begin();
-         it != uniforms.end(); ++it)
-        delete *it;
-    uniforms.clear();
-    for (std::set<OpenGLESAttribute *,AttributeNameSortStruct>::iterator it = attrs.begin();
-         it != attrs.end(); ++it)
-        delete *it;
-    attrs.clear();
 }
     
 bool OpenGLES2Program::setUniform(const std::string &name,float val)
@@ -65,6 +57,27 @@ bool OpenGLES2Program::setUniform(const std::string &name,float val)
     return true;
 }
 
+bool OpenGLES2Program::setUniform(const std::string &inName,float val,int index)
+{
+    std::string name = inName + "[0]";
+    OpenGLESUniform *uni = findUniform(name);
+    if (!uni)
+        return false;
+
+    if (uni->type != GL_FLOAT)
+        return false;
+    
+    if (uni->isSet && uni->val.fVals[0] == val)
+        return true;
+    
+    glUniform1f(uni->index+index,val);
+    CheckGLError("OpenGLES2Program::setUniform() glUniform1f");
+    uni->isSet = true;
+    uni->val.fVals[0] = val;
+    
+    return true;
+}
+
 bool OpenGLES2Program::setUniform(const std::string &name,int val)
 {
     OpenGLESUniform *uni = findUniform(name);
@@ -78,7 +91,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,int val)
         return true;
     
     glUniform1i(uni->index,val);
-    CheckGLError("BigDrawable::draw() glUniform1i");
+    CheckGLError("OpenGLES2Program::setUniform() glUniform1i");
     uni->isSet = true;
     uni->val.iVals[0] = val;
     
@@ -115,7 +128,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector2f 
         return true;
     
     glUniform2f(uni->index, vec.x(), vec.y());
-    CheckGLError("BigDrawable::draw() glUniform2f");
+    CheckGLError("OpenGLES2Program::setUniform() glUniform2f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();
     
@@ -134,7 +147,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector3f 
         return true;
     
     glUniform3f(uni->index, vec.x(), vec.y(), vec.z());
-    CheckGLError("BigDrawable::draw() glUniform3f");
+    CheckGLError("OpenGLES2Program::setUniform() glUniform3f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z();
     
@@ -155,7 +168,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector4f 
         return true;
     
     glUniform4f(uni->index, vec.x(), vec.y(), vec.z(), vec.w());
-    CheckGLError("BigDrawable::draw() glUniform4f");
+    CheckGLError("OpenGLES2Program::setUniform() glUniform4f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
     
@@ -176,7 +189,7 @@ bool OpenGLES2Program::setUniform(const std::string &inName,const Eigen::Vector4
         return true;
     
     glUniform4f(uni->index+index, vec.x(), vec.y(), vec.z(), vec.w());
-    CheckGLError("BigDrawable::draw() glUniform4f");
+    CheckGLError("OpenGLES2Program::setUniform() glUniform4f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
     
@@ -206,7 +219,7 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Matrix4f 
     }
     
     glUniformMatrix4fv(uni->index, 1, GL_FALSE, (GLfloat *)mat.data());
-    CheckGLError("BigDrawable::draw() glUniformMatrix4fv");
+    CheckGLError("OpenGLES2Program::setUniform() glUniformMatrix4fv");
     uni->isSet = true;
     for (unsigned int ii=0;ii<16;ii++)
         uni->val.mat[ii] = mat.data()[ii];
@@ -332,13 +345,13 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
     char thingName[1024];
     for (unsigned int ii=0;ii<numUniform;ii++)
     {
-        OpenGLESUniform *uni = new OpenGLESUniform();
+        std::shared_ptr<OpenGLESUniform> uni(new OpenGLESUniform());
         GLint bufLen;
         thingName[0] = 0;
         glGetActiveUniform(program, ii, 1023, &bufLen, &uni->size, &uni->type, thingName);
         uni->name = thingName;
         uni->index = glGetUniformLocation(program, thingName);
-        uniforms.insert(uni);
+        uniforms[uni->name] = uni;
     }
     
     // Convert the attributes into a more useful form
@@ -346,13 +359,13 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
     glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &numAttr);
     for (unsigned int ii=0;ii<numAttr;ii++)
     {
-        OpenGLESAttribute *attr = new OpenGLESAttribute();
+        std::shared_ptr<OpenGLESAttribute> attr(new OpenGLESAttribute());
         GLint bufLen;
         thingName[0] = 0;
         glGetActiveAttrib(program, ii, 1023, &bufLen, &attr->size, &attr->type, thingName);
         attr->index = glGetAttribLocation(program, thingName);
         attr->name = thingName;
-        attrs.insert(attr);
+        attrs[attr->name] = attr;
     }
 }
     
@@ -387,22 +400,18 @@ bool OpenGLES2Program::isValid()
 
 OpenGLESUniform *OpenGLES2Program::findUniform(const std::string &uniformName)
 {
-    OpenGLESUniform uni(uniformName);
-    std::set<OpenGLESUniform *,UniformNameSortStruct>::iterator it = uniforms.find(&uni);
-    if (it != uniforms.end())
-        return *it;
-    else
+    auto it = uniforms.find(uniformName);
+    if (it == uniforms.end())
         return NULL;
+    return it->second.get();
 }
 
 const OpenGLESAttribute *OpenGLES2Program::findAttribute(const std::string &attrName)
 {
-    OpenGLESAttribute attr(attrName);
-    std::set<OpenGLESAttribute *,AttributeNameSortStruct>::iterator it = attrs.find(&attr);
-    if (it != attrs.end())
-        return *it;
-    else
+    auto it = attrs.find(attrName);
+    if (it == attrs.end())
         return NULL;
+    return it->second.get();
 }
     
 bool OpenGLES2Program::hasLights()
@@ -441,15 +450,13 @@ int OpenGLES2Program::bindTextures()
 {
     int numTextures = 0;
     
-    for (std::set<OpenGLESUniform *,UniformNameSortStruct>::iterator it = uniforms.begin();
-         it != uniforms.end(); ++it)
+    for (auto uni : uniforms)
     {
-        OpenGLESUniform *uni = *it;
-        if (uni->isTexture)
+        if (uni.second->isTexture)
         {
             glActiveTexture(GL_TEXTURE0+numTextures);
-            glBindTexture(GL_TEXTURE_2D, uni->val.iVals[0]);
-            glUniform1i(uni->index,numTextures);
+            glBindTexture(GL_TEXTURE_2D, uni.second->val.iVals[0]);
+            glUniform1i(uni.second->index,numTextures);
             numTextures++;
         }
     }
