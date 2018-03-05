@@ -49,7 +49,7 @@
     if ([textFontArray isKindOfClass:[NSArray class]] && [textFontArray count] > 0) {
         NSString *textField = [textFontArray objectAtIndex:0];
         if ([textField isKindOfClass:[NSString class]]) {
-            _textFontName = textField;
+            _textFontName = [textField stringByReplacingOccurrencesOfString:@" " withString:@"-"];
         }
     }
     _textMaxWidth = [styleSet doubleValue:@"text-max-width" dict:styleEntry defVal:10.0];
@@ -203,7 +203,7 @@
     if (_layout.textFontName) {
         UIFontDescriptor *fontDesc = [[UIFontDescriptor alloc] initWithFontAttributes:@{UIFontDescriptorNameAttribute: _layout.textFontName}];
         font = [UIFont fontWithDescriptor:fontDesc size:textSize];
-        NSLog(@"Asked for: %@,  Got: %@",_layout.textFontName,font.fontName);
+//        NSLog(@"Asked for: %@,  Got: %@",_layout.textFontName,font.fontName);
         if (!font)
             NSLog(@"Found unsupported font %@",fontDesc);
     }
