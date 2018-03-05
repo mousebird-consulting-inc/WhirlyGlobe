@@ -60,7 +60,7 @@
 /// @brief Initialize with the style JSON and the view controller
 /// @details We'll parse the style JSON passed in and return nil on failure.
 /// @details The optional filter can be used to reject layers we won't use
-- (id)initWithJSON:(NSData *)styleJSON viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC filter:(bool (^)(NSDictionary *))filterBlock;
+- (id)initWithJSON:(NSData *)styleJSON settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC filter:(bool (^)(NSDictionary *))filterBlock;
 
 /// @brief Return an integer value for the given name, taking the constants into account.
 - (int)intValue:(NSString *)name dict:(NSDictionary *)dict defVal:(int)defVal;
@@ -70,12 +70,15 @@
 
 /// @brief Return a double value for the given name, taking the constants into account
 - (double)doubleValue:(id)entry defVal:(double)defVal;
+    
+/// @brief Return a bool for the given name.  True if it matches the onString.  Default if it's missing
+- (bool)boolValue:(NSString *)name dict:(NSDictionary *)dict onValue:(NSString *)onString defVal:(bool)defVal;
 
 /// @brief Return a string for the given name, taking the constants into account
 - (NSString *)stringValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSString *)defVal;
 
 /// @brief Return a color for the given name, taking the constants into account
-- (UIColor *)colorValue:(NSString *)name dict:(NSDictionary *)dict defVal:(UIColor *)defVal multiplyAlpha:(bool)multiplyAlpha;
+- (UIColor *)colorValue:(NSString *)name val:(id)val dict:(NSDictionary *)dict defVal:(UIColor *)defVal multiplyAlpha:(bool)multiplyAlpha;
 
 /// @brief Return an array for the given name, taking the constants into account
 - (NSArray *)arrayValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSArray *)defVal;
@@ -184,6 +187,9 @@ typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVecto
 /// @brief Value at that zoom level
 @property (nonatomic) double val;
 
+/// @brief Could also just be a color
+@property (nonatomic) UIColor *color;
+
 @end
 
 /// @brief These are used to control simple values based on zoom level
@@ -200,6 +206,9 @@ typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVecto
 
 /// @brief Calculate a value given the zoom level
 - (double)valueForZoom:(int)zoom;
+
+/// @brief This version returns colors, assuming we're dealing with colors
+- (UIColor *)colorForZoom:(int)zoom;
 
 /// @brief Returns the minimum value
 - (double)minValue;
