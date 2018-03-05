@@ -20,6 +20,14 @@
 
 #import "MapboxVectorStyleSet.h"
 
+@interface MapboxVectorFillLayout : NSObject
+
+@property (nonatomic) bool visible;
+
+- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+
+@end
+
 @interface MapboxVectorFillPaint : NSObject
 
 @property (nonatomic) double opacity;
@@ -35,6 +43,7 @@
 /// @brief The fill (e.g. fill polygon) style
 @interface MapboxVectorLayerFill : MaplyMapboxVectorStyleLayer
 
+@property (nonatomic) MapboxVectorFillLayout *layout;
 @property (nonatomic) MapboxVectorFillPaint *paint;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;

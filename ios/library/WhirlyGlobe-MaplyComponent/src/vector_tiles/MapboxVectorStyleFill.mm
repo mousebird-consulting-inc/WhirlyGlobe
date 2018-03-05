@@ -20,6 +20,21 @@
 
 #import "MapboxVectorStyleFill.h"
 
+@implementation MapboxVectorFillLayout
+
+- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+{
+    self = [super init];
+    if (!self)
+        return nil;
+    
+    _visible = [styleSet boolValue:@"visibility" dict:styleEntry onValue:@"visible" defVal:true];
+    
+    return self;
+}
+
+@end
+
 @implementation MapboxVectorFillPaint
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
@@ -44,8 +59,8 @@
         }
     } else
         _opacity = 1.0;
-    _color = [styleSet colorValue:@"fill-color" dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:true];
-    _outlineColor = [styleSet colorValue:@"fill-outline-color" dict:styleEntry defVal:nil multiplyAlpha:true];
+    _color = [styleSet colorValue:@"fill-color" val:nil dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:true];
+    _outlineColor = [styleSet colorValue:@"fill-outline-color" val:nil dict:styleEntry defVal:nil multiplyAlpha:true];
     
     return self;
 }
@@ -63,11 +78,7 @@
     if (!self)
         return nil;
     
-    if (styleEntry[@"layout"])
-    {
-        NSLog(@"Ignoring fill layout");
-    }
-    
+    _layout = [[MapboxVectorFillLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];    
     _paint = [[MapboxVectorFillPaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
     if (!_paint)
     {
@@ -85,6 +96,8 @@
                        kMaplySelectable: @(false),
                        kMaplyEnable: @(NO)
                       }];
+        if (styleSet.tileStyleSettings.arealShaderName)
+            fillDesc[kMaplyShader] = styleSet.tileStyleSettings.arealShaderName;
     }
     
     if (_paint.outlineColor)
@@ -106,6 +119,10 @@
 {
     NSMutableArray *compObjs = [NSMutableArray array];
     
+    // Note: Would be better to do this earlier
+    if (!_layout.visible)
+        return compObjs;
+
     // Filled polygons
     if (fillDesc)
     {

@@ -24,8 +24,11 @@ typedef enum {MBTextCenter,MBTextLeft,MBTextRight,MBTextTop,MBTextBottom,MBTextT
 typedef enum {MBPlacePoint,MBPlaceLine} MapboxSymbolPlacement;
 typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxTextTransform;
 
+/** Controls the layout logic for Mapbox Symbols.
+  */
 @interface MapboxVectorSymbolLayout : NSObject
 
+@property (nonatomic) bool visible;
 /// How we place the symbole (at a point, or along a line)
 @property (nonatomic) MapboxSymbolPlacement placement;
 /// If set, turn the text uppercase
@@ -51,6 +54,8 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 
 // Default text color
 @property (nonatomic) UIColor *textColor;
+// Possibly a function to describe the text color
+@property (nonatomic) MaplyVectorFunctionStops *textColorFunc;
 // If there's a halo, this is the color
 @property (nonatomic) UIColor *textHaloColor;
 // If there's a halo, this is the size

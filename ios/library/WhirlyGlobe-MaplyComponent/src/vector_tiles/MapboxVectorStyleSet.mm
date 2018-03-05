@@ -30,7 +30,7 @@
     NSMutableDictionary *layersByUUID;
 }
 
-- (id)initWithJSON:(NSData *)styleJSON viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC filter:(bool (^)(NSDictionary *))filterBlock
+- (id)initWithJSON:(NSData *)styleJSON settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC filter:(bool (^)(NSDictionary *))filterBlock
 {
     self = [super init];
     if (!self)
@@ -38,7 +38,9 @@
     
     _viewC = viewC;
     NSError *error = nil;
-    _tileStyleSettings = [[MaplyVectorStyleSettings alloc] initWithScale:UIScreen.mainScreen.scale];
+    _tileStyleSettings = settings;
+    if (!_tileStyleSettings)
+        _tileStyleSettings = [[MaplyVectorStyleSettings alloc] initWithScale:UIScreen.mainScreen.scale];
     NSDictionary *styleDict = [NSJSONSerialization JSONObjectWithData:styleJSON options:NULL error:&error];
     if (!styleDict)
         return nil;
@@ -168,6 +170,18 @@
     
     return [self doubleValue:thing defVal:defVal];
 }
+    
+- (bool)boolValue:(NSString *)name dict:(NSDictionary *)dict onValue:(NSString *)onString defVal:(bool)defVal
+{
+    id thing = dict[name];
+    if (!thing)
+        return defVal;
+    
+    if ([thing isKindOfClass:[NSString class]]) {
+        return [thing isEqualToString:onString];
+    } else
+        return defVal;
+}
 
 - (NSString *)stringValue:(NSString *)name dict:(NSDictionary *)dict defVal:(NSString *)defVal
 {
@@ -235,9 +249,13 @@
     return [UIColor colorWithRed:red*opacity green:green*opacity blue:blue*opacity alpha:alpha*opacity];
 }
 
-- (UIColor *)colorValue:(NSString *)name dict:(NSDictionary *)dict defVal:(UIColor *)defVal multiplyAlpha:(bool)multiplyAlpha
+- (UIColor *)colorValue:(NSString *)name val:(id)val dict:(NSDictionary *)dict defVal:(UIColor *)defVal multiplyAlpha:(bool)multiplyAlpha
 {
-    id thing = dict[name];
+    id thing = nil;
+    if (dict)
+        thing = dict[name];
+    else
+        thing = val;
     if (!thing)
         return defVal;
     
@@ -697,6 +715,9 @@
                     NSLog(@"MapboxVectorFilter: Found numeric comparison that doesn't use numbers.");
                 }
             }
+        } else {
+            // No attribute means no pass
+            ret = false;
         }
     }
     
@@ -734,7 +755,13 @@
         
         MaplyVectorFunctionStop *fStop = [[MaplyVectorFunctionStop alloc] init];
         fStop.zoom = [[stop objectAtIndex:0] doubleValue];
-        fStop.val = [[stop objectAtIndex:1] doubleValue];
+        id valObj = [stop objectAtIndex:1];
+        if ([valObj isKindOfClass:[NSNumber class]])
+            fStop.val = [valObj doubleValue];
+        else {
+            // Maybe a color?
+            fStop.color = [styleSet colorValue:nil val:valObj dict:nil defVal:nil multiplyAlpha:true];
+        }
         [stops addObject:fStop];
     }
     
@@ -771,6 +798,37 @@
     }
     
     return b.val;
+}
+
+- (UIColor *)colorForZoom:(int)zoom
+{
+    MaplyVectorFunctionStop *a = _stops[0],*b = nil;
+    if (zoom <= a.zoom)
+        return a.color;
+    for (int which = 1;which < _stops.count; which++)
+    {
+        b = _stops[which];
+        if (a.zoom <= zoom && zoom < b.zoom)
+        {
+            double ratio = 1.0;
+            if (_base == 1.0) {
+                ratio = (zoom-a.zoom)/(b.zoom-a.zoom);
+            } else {
+                double soFar = zoom-a.zoom;
+                ratio = (pow(_base, soFar) - 1.0) / (pow(_base,b.zoom-a.zoom) - 1.0);
+            }
+            CGFloat ac[4],bc[4];
+            [a.color getRed:&ac[0] green:&ac[1] blue:&ac[2] alpha:&ac[3]];
+            [b.color getRed:&bc[0] green:&bc[1] blue:&bc[2] alpha:&bc[3]];
+            CGFloat res[4];
+            for (unsigned int ii=0;ii<4;ii++)
+                res[ii] = ratio * (bc[ii]-ac[ii]) + ac[ii];
+            return [UIColor colorWithRed:res[0] green:res[1] blue:res[2] alpha:res[3]];
+        }
+        a = b;
+    }
+    
+    return b.color;
 }
 
 - (double)minValue
