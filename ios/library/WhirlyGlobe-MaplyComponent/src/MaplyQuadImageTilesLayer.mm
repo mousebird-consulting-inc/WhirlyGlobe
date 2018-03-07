@@ -93,7 +93,7 @@ using namespace WhirlyKit;
     bool variableSizeTiles;
     bool canDoValidTiles;
     bool canFetchFrames;
-    bool wantsUnload,wantsEnabled,wantsDisabled;
+    bool wantsUnload,wantsEnabled,wantsDisabled,wantsClear;
     std::vector<int> framePriorities;
     NSDictionary *tessDict;
 }
@@ -147,7 +147,7 @@ using namespace WhirlyKit;
     tessDict = nil;
     
     // See if we're letting the source do the async calls or what
-    sourceWantsAsync = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:)];
+    sourceWantsAsync = [_tileSource respondsToSelector:@selector(startFetchLayer:tile:)] || [_tileSource respondsToSelector:@selector(startFetchLayer:tile:frame:)];
     
     // See if the delegate is doing variable sized tiles (kill me)
     variableSizeTiles = [_tileSource respondsToSelector:@selector(tileSizeForTile:)];
@@ -162,6 +162,7 @@ using namespace WhirlyKit;
     wantsUnload = [_tileSource respondsToSelector:@selector(tileUnloaded:)];
     wantsEnabled = [_tileSource respondsToSelector:@selector(tileWasEnabled:)];
     wantsDisabled = [_tileSource respondsToSelector:@selector(tileWasDisabled:)];
+    wantsClear = [_tileSource respondsToSelector:@selector(clear)];
     
     return self;
 }
@@ -342,8 +343,10 @@ using namespace WhirlyKit;
         int defTess = 10;
         if (tessDict[@(-1)])
             defTess = [tessDict[@(-1)] intValue];
-        std::vector<int> tessVals(maxZoom,defTess);
-        for (unsigned int ii=0;ii<maxZoom;ii++)
+        if (tessDict[@"-1"])
+            defTess = [tessDict[@"-1"] intValue];
+        std::vector<int> tessVals(maxZoom+1,defTess);
+        for (unsigned int ii=0;ii<maxZoom+1;ii++)
         {
             if (tessDict[@(ii)])
                 tessVals[ii] = [tessDict[@(ii)] intValue];
@@ -399,7 +402,7 @@ using namespace WhirlyKit;
 
 	MaplyBoundingBox box;
 
-	[self geoBoundsForTile:tileID bbox:&box];
+	[self boundsForTile:tileID bbox:&box];
 
 	return box;
 }
@@ -617,6 +620,8 @@ using namespace WhirlyKit;
 {
     [_viewC removeActiveObject:imageUpdater];
     imageUpdater = nil;
+    if (wantsClear)
+        [_tileSource clear];
     [inLayerThread removeLayer:quadLayer];
 }
 

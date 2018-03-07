@@ -33,8 +33,10 @@ typedef struct
     double screenU,screenV;
     /// The tile the corresponding point belonged to.  Level set to -1 if invalid.
     MaplyTileID tileID;
+    /// Set if the point was inside the area at all.  We do snap.
+    bool inside;
     // Required to make the C/C++ bridge happy
-    int padding;
+    char padding[3];
     /// Location in coordinate system
     double locX,locY;
     /// Location within tile (scaled from 0-1)
@@ -66,6 +68,12 @@ typedef struct
     Set this if you're starting loading at a level higher than 0.  0 is the default.
   */
 @property (nonatomic,assign) int minLevel;
+
+/**
+    If set, we'll wrap the X coordinates around the globe.
+    We need this for coordinate systems which go around the globe.
+  */
+@property (nonatomic,assign) bool wraparound;
 
 /** 
     Query the quad tracker for tiles and locations within them for a group of points.

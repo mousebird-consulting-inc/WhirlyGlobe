@@ -12,7 +12,7 @@
 #import "WhirlyGlobeViewController.h"
 
 @interface Maply3dTouchPreviewDelegate () {
-    MaplyBaseViewController * _Nonnull viewC;
+    MaplyBaseViewController * _Nonnull __weak viewC;
     MaplyBaseInteractionLayer * __weak interactLayer;
 }
 

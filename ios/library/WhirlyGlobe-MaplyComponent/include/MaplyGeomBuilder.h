@@ -20,7 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
-#import "MaplyBaseViewController.h"
+#import "MaplyRenderController.h"
 #import "MaplyGeomModel.h"
 
 /** 
@@ -56,7 +56,7 @@
 @interface MaplyGeomBuilder : NSObject
 
 /// Intialize with the view controller the model will be used in.
-- (id)initWithViewC:(MaplyBaseViewController *)viewC;
+- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /** 
     Create a rectangle around the origin.
@@ -291,7 +291,7 @@
 /** 
     Generate a valid MaplyGeomModel that can be instanced and used as a 3D model.
     
-    This call returns a MaplyGeomModel.  You'll need a model to make MaplyGeomModelInstance objects and for the addModelInstances:desc:mode: call to a MaplyBaseViewController (map or globe).
+    This call returns a MaplyGeomModel.  You'll need a model to make MaplyGeomModelInstance objects and for the addModelInstances:desc:mode: call to a NSObject<MaplyRenderControllerProtocol> (map or globe).
   */
 - (MaplyGeomModel *)makeGeomModel:(MaplyThreadMode)threadMode;
 

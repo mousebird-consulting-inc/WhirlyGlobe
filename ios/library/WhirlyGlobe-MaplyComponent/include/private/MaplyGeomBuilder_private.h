@@ -22,13 +22,13 @@
 #import <set>
 #import "MaplyGeomBuilder.h"
 #import <WhirlyGlobe.h>
-#import "MaplyBaseViewController_private.h"
+#import "MaplyRenderController_private.h"
 #import "MaplyGeomModel_private.h"
 
 @interface MaplyGeomBuilder()
 {
 @public
-    __weak MaplyBaseViewController *viewC;
+    __weak NSObject<MaplyRenderControllerProtocol> *viewC;
 
     std::vector<WhirlyKit::GeometryRaw> rawGeom;
     std::vector<WhirlyKit::GeomStringWrapper> strings;

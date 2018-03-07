@@ -27,4 +27,4 @@
 #ifdef __cplusplus
 extern "C"
 #endif
-void DDXMLElementDummyFunc();
+void DDXMLElementDummyFunc(void);

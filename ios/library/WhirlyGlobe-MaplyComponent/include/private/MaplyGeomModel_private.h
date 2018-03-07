@@ -20,7 +20,7 @@
 
 #import "MaplyGeomModel.h"
 #import <WhirlyGlobe.h>
-#import "MaplyBaseViewController_private.h"
+#import "MaplyRenderController_private.h"
 
 namespace WhirlyKit
 {

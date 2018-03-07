@@ -28,6 +28,7 @@
 #import "WhirlyGlobe.h"
 #import "MaplyImageTile_private.h"
 #import "MaplyTexture_private.h"
+#import "MaplyRenderController_private.h"
 
 using namespace WhirlyKit;
 
@@ -575,7 +576,9 @@ using namespace WhirlyKit;
         // Note: Does the lack of interact layer break things?
         MaplyTexture *maplyTex = [[MaplyTexture alloc] init];
         maplyTex.texID = inImage.texture;
-        maplyTex.interactLayer = _viewC->interactLayer;
+        MaplyRenderController *renderControl = [_viewC getRenderControl];
+        if (renderControl)
+            maplyTex.interactLayer = renderControl->interactLayer;
         
         offlineImage.tex = maplyTex;
         offlineImage.centerSize = inImage.centerSize;

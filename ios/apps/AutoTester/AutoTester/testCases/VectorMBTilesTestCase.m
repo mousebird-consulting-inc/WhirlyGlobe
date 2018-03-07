@@ -12,7 +12,7 @@
 
 @implementation VectorMBTilesTestCase
 {
-    MapboxVectorTiles *vecTiles;
+    MapboxVectorTilesPagingDelegate *vecTiles;
     MaplyVectorStyleSimpleGenerator *simpleStyle;
 }
 
@@ -37,7 +37,7 @@
 
     // Set up a loader for Mapbox Vector tiles in an MBTiles
     MaplyMBTileSource *tileSource = [[MaplyMBTileSource alloc] initWithMBTiles:@"France"];
-    vecTiles = [[MapboxVectorTiles alloc] initWithMBTiles:tileSource style:simpleStyle viewC:mapVC];
+    vecTiles = [[MapboxVectorTilesPagingDelegate alloc] initWithMBTiles:tileSource style:simpleStyle viewC:mapVC];
     MaplyQuadPagingLayer *layer = [[MaplyQuadPagingLayer alloc] initWithCoordSystem:tileSource.coordSys delegate:vecTiles];
     layer.flipY = false;
     [mapVC addLayer:layer];

@@ -129,6 +129,12 @@ public:
     /// Invalidate old batches
     void updateBatches(NSTimeInterval now);
 
+    // If set, we'll render this data where directed
+    void setRenderTarget(SimpleIdentity newRenderTarget) { renderTargetID = newRenderTarget; }
+    
+    // EmptyIdentity is the standard view, anything else ia custom render target
+    SimpleIdentity getRenderTarget() { return renderTargetID; }
+
 protected:
     bool enable;
     int numTotalPoints,batchSize;
@@ -145,6 +151,7 @@ protected:
     bool useRectangles,useInstancing;
     NSTimeInterval baseTime;
     bool usingContinuousRender;
+    SimpleIdentity renderTargetID;
 
     // The vertex attributes we're representing in the buffers
     std::vector<VertexAttribute> vertexAttributes;

@@ -49,7 +49,7 @@ public:
     class Material
     {
     public:
-        Material() { Ka[0] = -1;  Kd[0] = -1, Ks[0] = -1, trans = 1.0, illum = 0.0; }
+        Material() { Ka[0] = -1;  Kd[0] = -1; Ks[0] = -1; trans = 1.0; illum = 0.0; }
         
         bool operator < (const Material &that) const
         {

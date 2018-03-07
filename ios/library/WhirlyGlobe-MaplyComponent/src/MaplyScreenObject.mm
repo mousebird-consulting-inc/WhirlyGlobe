@@ -19,7 +19,7 @@
  */
 
 #import "WhirlyGlobe.h"
-#import "MaplyBaseViewController_private.h"
+#import "MaplyRenderController_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyScreenObject_private.h"
 

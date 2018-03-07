@@ -299,7 +299,7 @@ protected:
     /// Add an entry for the given flag index
     void addFrameLoaded(int frame);
     /// Clear the flag counts for the given flag entries
-    void clearFlagCounts(int frameFlags);
+    void clearFlagCounts(long long frameFlags);
 
     Mbr mbr;
     int minLevel,maxLevel;

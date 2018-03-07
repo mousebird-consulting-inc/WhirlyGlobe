@@ -425,7 +425,7 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
     
     @return An NSArray of MaplyVectorObject.
   */
-- (NSArray *__nonnull)splitVectors;
+- (NSArray<MaplyVectorObject *> *__nonnull)splitVectors;
 
 /** 
     Subdivide the edges in this feature to a given tolerance.

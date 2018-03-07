@@ -13,7 +13,6 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	let tests = [
 		GeographyClassTestCase(),
 		StamenWatercolorRemote(),
-		NASAGIBSTestCase(),
 		CartoDBLightTestCase(),
 		ImageSingleLevelTestCase(),
 
@@ -38,8 +37,9 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		StickersTestCase(),
 
 		PagingLayerTestCase(),
-		MapzenVectorTestCase(),
 		VectorMBTilesTestCase(),
+        OpenMapTilesTestCase(),
+        OpenMapTilesHybridTestCase(),
 
 		StarsSunTestCase(),
 		ShapesTestCase(),
@@ -51,15 +51,12 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		BNGTestCase(),
 		ElevationLocalDatabase(),
 		ParticleTestCase(),
-		CesiumElevationTestCase(),
 		RunwayBuilderTestCase(),
 
 		AnimatedColorRampTestCase(),
 		ExtrudedModelTestCase(),
 		ModelsTestCase(),
 		GreatCircleTestCase(),
-
-		AerisWeatherTestCase(),
 		
 		LabelAnimationTestCase(),
 		WMSTestCase(),
@@ -70,7 +67,6 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		LocationTrackingSimTestCase(),
 		LocationTrackingRealTestCase(),
 
-		Issue721TestCase(),
 		LIDARTestCase()
 	]
 

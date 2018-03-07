@@ -84,7 +84,7 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
     int pointType;
     double colorScale;
     IntersectionHandler intersectionHandler;
-    MaplyBaseViewController *viewC;
+    MaplyBaseViewController * __weak viewC;
 }
 
 - (id)initWithDB:(NSString *)sqliteFileName desc:(NSDictionary *)desc viewC:(WhirlyGlobeViewController *)inViewC
@@ -176,8 +176,11 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
     
     // Hook up an intersection handler
     intersectionHandler.quadReader = self;
-    IntersectionManager *intersectMan = (IntersectionManager *)viewC->scene->getManager(kWKIntersectionManager);
-    intersectMan->addIntersectable(&intersectionHandler);
+    MaplyRenderController *renderControl = [viewC getRenderControl];
+    if (renderControl) {
+        IntersectionManager *intersectMan = (IntersectionManager *)renderControl->scene->getManager(kWKIntersectionManager);
+        intersectMan->addIntersectable(&intersectionHandler);
+    }
 
     return self;
 }
@@ -440,7 +443,7 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
            tileCenter.x = (header->min_x+header->max_x)/2.0;
            tileCenter.y = (header->min_y+header->max_y)/2.0;
            tileCenter.z = 0.0;
-           MaplyCoordinate3dD tileCenterDisp = [layer.viewC displayCoordD:tileCenter fromSystem:_coordSys];
+           MaplyCoordinate3dD tileCenterDisp = [viewC displayCoordD:tileCenter fromSystem:_coordSys];
            points.transform = [[MaplyMatrix alloc] initWithTranslateX:tileCenterDisp.x y:tileCenterDisp.y z:tileCenterDisp.z];
            
            // We generate a triangle mesh underneath a given tile to provide something to grab
@@ -473,7 +476,7 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
                minZ = std::min(coord.z,minZ);
                maxZ = std::max(coord.z,maxZ);
 
-               MaplyCoordinate3dD dispCoord = [layer.viewC displayCoordD:coord fromSystem:_coordSys];
+               MaplyCoordinate3dD dispCoord = [viewC displayCoordD:coord fromSystem:_coordSys];
                MaplyCoordinate3dD dispCoordCenter = MaplyCoordinate3dDMake(dispCoord.x-tileCenterDisp.x, dispCoord.y-tileCenterDisp.y, dispCoord.z-tileCenterDisp.z);
                
                float red = 1.0,green = 1.0, blue = 1.0;
@@ -497,7 +500,7 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
                maxZ += 1.0;
            @synchronized (self) {
                TileBoundsInfo tileInfo(tileID);
-               tileInfo.mesh = meshBuilder.makeMesh(layer.viewC);
+               tileInfo.mesh = meshBuilder.makeMesh(viewC);
                tileInfo.minZ = minZ;  tileInfo.maxZ = maxZ;
                tileSizes.insert(tileInfo);
            }

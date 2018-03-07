@@ -67,6 +67,8 @@ NSString* const kMaplyEnableEnd = @"enableend";
 NSString* const kMaplyZBufferRead = @"zbufferread";
 /// Have a given object write itself to the z buffer
 NSString* const kMaplyZBufferWrite = @"zbufferwrite";
+/// Set the render target if the given geometry type supports it
+NSString* const kMaplyRenderTarget = @"rendertarget";
 
 /// Assign a shader program to a particular feature.  Use the shader program's name
 NSString* const kMaplyShader = @"shader";
@@ -91,6 +93,8 @@ const int kMaplyLoftedPolysDrawPriorityDefault = 70000;
 const int kMaplyShapeDrawPriorityDefault = 80000;
 const int kMaplyBillboardDrawPriorityDefault = 90000;
 const int kMaplyModelDrawPriorityDefault = 100000;
+// Unlikely to have any draw priorities here or beyond.
+const int kMaplyMaxDrawPriorityDefault = 100100;
 
 /// These are used just for the screen and regular labels
 
@@ -114,6 +118,8 @@ NSString* const kMaplyShadowSize = @"shadowSize";
 NSString* const kMaplyShadowColor = @"shadowColor";
 /// If outline is being used, we can control the color
 NSString* const kMaplyTextOutlineSize = @"outlineSize";
+/// Vertical line spacing.  Defaults to the Font's line spacing
+NSString* const kMaplyTextLineSpacing = @"lineSpacing";
 /// If outline is being used, we can control the stroke size
 NSString* const kMaplyTextOutlineColor = @"outlineColor";
 NSString* const kMaplyTexSizeX = @"texsizex";

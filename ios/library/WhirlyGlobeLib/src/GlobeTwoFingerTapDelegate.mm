@@ -60,7 +60,8 @@ using namespace WhirlyKit;
     {
         double curH = globeView.heightAboveGlobe;
         double newH = curH * _zoomTapFactor;
-        if (_minZoom < newH && newH < _maxZoom)
+        newH = std::min(newH,(double)_maxZoom);
+        if (_minZoom < newH && newH <= _maxZoom)
         {
             animate = [[WhirlyGlobeAnimateViewHeight alloc] initWithView:globeView toHeight:newH howLong:_zoomAnimationDuration delegate:self.tiltDelegate];
             globeView.delegate = animate;
