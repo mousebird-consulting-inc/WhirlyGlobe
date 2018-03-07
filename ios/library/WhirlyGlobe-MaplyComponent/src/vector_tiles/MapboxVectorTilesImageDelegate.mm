@@ -222,6 +222,8 @@ public:
                                                       NSLog(@"Error: tile data was nil after decompression");
                                                       return;
                                                   }
+                                              } else {
+                                                  thisTileData = netData;
                                               }
                                           }
                                           
