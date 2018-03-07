@@ -426,7 +426,8 @@ void TileBuilder::generateDrawables(WhirlyKit::ElevationDrawInfo *drawInfo,Basic
     
     // For single level mode it's not worth getting fancy
     // Note: The level check is kind of a hack.  We're avoiding a resolution problem at high levels
-    if (singleLevel || drawInfo->ident.level > 17)
+//    if (singleLevel || drawInfo->ident.level > 17)
+    if (drawInfo->ident.level > 17)
     {
         sphereTessX = 1;
         sphereTessY = 1;

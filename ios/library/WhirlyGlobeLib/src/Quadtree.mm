@@ -55,7 +55,7 @@ bool Quadtree::NodeInfo::isFrameLoaded(int theFrame) const
     if (theFrame == -1)
         return frameFlags != 0;
     else
-        return frameFlags & (1<<theFrame);
+        return frameFlags & ((long long)1<<theFrame);
 }
     
 bool Quadtree::NodeInfo::isFrameLoading(int theFrame) const
@@ -63,7 +63,7 @@ bool Quadtree::NodeInfo::isFrameLoading(int theFrame) const
     if (theFrame == -1)
         return frameLoadingFlags != 0;
     else
-        return frameLoadingFlags & (1<<theFrame);
+        return frameLoadingFlags & ((long long)1<<theFrame);
 }
     
 void Quadtree::NodeInfo::setFrameLoading(int theFrame,bool val)
@@ -72,9 +72,9 @@ void Quadtree::NodeInfo::setFrameLoading(int theFrame,bool val)
         frameLoadingFlags = val;
     else {
         if (val)
-            frameLoadingFlags |= (1<<theFrame);
+            frameLoadingFlags |= ((long long)1<<theFrame);
         else
-            frameLoadingFlags &= ~(1<<theFrame);
+            frameLoadingFlags &= ~((long long)1<<theFrame);
     }
 }
     
@@ -269,10 +269,10 @@ void Quadtree::addFrameLoaded(int frame)
     frameLoadCounts[frame]++;
 }
 
-void Quadtree::clearFlagCounts(int frameFlags)
+void Quadtree::clearFlagCounts(long long frameFlags)
 {
     for (unsigned int ii=0;ii<frameLoadCounts.size();ii++)
-        if (frameFlags & (1<<ii))
+        if (frameFlags & ((long long)1<<ii))
             frameLoadCounts[ii]--;
 }
     
@@ -437,9 +437,9 @@ void Quadtree::didLoad(const Identifier &tileIdent,int frame)
     
     if (frame != -1)
     {
-        if (!(node->nodeInfo.frameFlags & 1<<frame))
+        if (!(node->nodeInfo.frameFlags & (long long)1<<frame))
         {
-            node->nodeInfo.frameFlags |= 1<<frame;
+            node->nodeInfo.frameFlags |= (long long)1<<frame;
             addFrameLoaded(frame);
         }
     }

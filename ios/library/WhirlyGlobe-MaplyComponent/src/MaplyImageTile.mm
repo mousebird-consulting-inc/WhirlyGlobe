@@ -23,13 +23,6 @@
 #import "WhirlyGlobe.h"
 
 @implementation MaplyImageTile
-{
-@public
-    int _width,_height;
-    int _targetWidth,_targetHeight;
-    
-    NSArray *stuff;
-}
 
 - (instancetype)initAsPlaceholder
 {
@@ -246,6 +239,18 @@
     }
     
     return loadTile;
+}
+
+- (NSData *) asNSData
+{
+    if ([stuff count] > 0)
+    {
+        id obj = [stuff objectAtIndex:0];
+        if ([obj isKindOfClass:[NSData class]])
+            return obj;
+    }
+
+    return nil;
 }
 
 @end

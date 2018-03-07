@@ -24,12 +24,13 @@
 #import "MaplyVectorTilePolygonStyle.h"
 #import "MaplyVectorTileTextStyle.h"
 #import "WhirlyGlobe.h"
+#import "MaplyBaseViewController.h"
 
 using namespace WhirlyKit;
 
 @implementation MaplyVectorTileStyle
 
-+ (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings viewC:(MaplyBaseViewController *)viewC
++ (id)styleFromStyleEntry:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     MaplyVectorTileStyle *tileStyle = nil;
     
@@ -55,7 +56,7 @@ using namespace WhirlyKit;
     return tileStyle;
 }
 
-- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     _viewC = viewC;
@@ -69,17 +70,21 @@ using namespace WhirlyKit;
 
 - (void)resolveVisibility:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings desc:(NSMutableDictionary *)desc
 {
+    MaplyBaseViewController *thisViewC = (MaplyBaseViewController *)self.viewC;
+    if (![thisViewC isKindOfClass:[MaplyBaseViewController class]])
+        return;
+    
     float minVis = DrawVisibleInvalid;
     float maxVis = DrawVisibleInvalid;
     if (styleEntry[@"minscaledenom"])
     {
         float minScale = [styleEntry[@"minscaledenom"] floatValue];
-        minVis = [self.viewC heightForMapScale:minScale] * settings.mapScaleScale;
+        minVis = [thisViewC heightForMapScale:minScale] * settings.mapScaleScale;
     }
     if (styleEntry[@"maxscaledenom"])
     {
         float maxScale = [styleEntry[@"maxscaledenom"] floatValue];
-        maxVis = [self.viewC heightForMapScale:maxScale] * settings.mapScaleScale;
+        maxVis = [thisViewC heightForMapScale:maxScale] * settings.mapScaleScale;
     }
     if (minVis != DrawVisibleInvalid)
     {
@@ -95,7 +100,7 @@ using namespace WhirlyKit;
     }
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(MaplyBaseViewController *)viewC;
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {
     return nil;
 }

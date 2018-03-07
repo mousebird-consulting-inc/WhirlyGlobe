@@ -20,6 +20,13 @@
 
 #import "MaplyRemoteTileSource.h"
 #import "MapboxVectorTiles.h"
+#import "MaplyQuadImageTilesLayer.h"
+
+/// The various types of style that will work with Mapnik vector tiles
+typedef NS_ENUM(NSInteger, MapnikStyleType) {
+    MapnikXMLStyle,
+    MapnikSLDStyle
+};
 
 /** 
     Used to represent a Mapbox source compiled from multiple individual sources.
@@ -31,7 +38,7 @@
 /** 
     Initialze the multi source tile info object.  Fill in everything else later.
   */
-- (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nonnull)viewC;
+- (nonnull instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 /** 
     The object needs this if you're parsing vector tiles.

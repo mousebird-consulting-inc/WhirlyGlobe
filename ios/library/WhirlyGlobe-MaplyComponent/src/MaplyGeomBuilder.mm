@@ -21,7 +21,7 @@
 #import "MaplyGeomBuilder_private.h"
 #import "MaplyMatrix_private.h"
 #import "MaplyGeomModel_private.h"
-#import "MaplyBaseViewController_private.h"
+#import "MaplyRenderController_private.h"
 #import "MaplyTexture_private.h"
 
 using namespace Eigen;
@@ -44,7 +44,7 @@ using namespace WhirlyKit;
     std::vector<Point3d> curPts;
 }
 
-- (id)initWithViewC:(MaplyBaseViewController *)inViewC
+- (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
 {
     self = [super init];
     viewC = inViewC;

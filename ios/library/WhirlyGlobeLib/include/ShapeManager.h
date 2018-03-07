@@ -159,8 +159,8 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 /// Upper right corner
 @property (nonatomic,assign) WhirlyKit::Point3d &ur;
 
-/// Texture to stretch across the whole thing
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity texID;
+/// Textures to stretch across the whole thing
+@property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> &texIDs;
 
 @end
 

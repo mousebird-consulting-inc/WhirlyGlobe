@@ -21,6 +21,8 @@
 
 #import "MapboxVectorTiles.h"
 #import "MaplyTileSource.h"
+#import "MapboxVectorStyleSet.h"
+#import "MapboxVectorStyleBackground.h"
 
 #include <iostream>
 #include <fstream>
@@ -38,7 +40,7 @@
 #import "VectorData.h"
 #import "MaplyMBTileSource.h"
 #import "MapnikStyleSet.h"
-#import "MaplyBaseViewController_private.h"
+#import "MaplyRenderController_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -51,7 +53,7 @@ static double MAX_EXTENT = 20037508.342789244;
 
 @implementation MapboxVectorTileParser
 
-- (instancetype)initWithStyle:(NSObject<MaplyVectorStyleDelegate> *)styleDelegate viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithStyle:(NSObject<MaplyVectorStyleDelegate> *)styleDelegate viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     self = [super init];
     if (!self)
@@ -69,7 +71,7 @@ static double MAX_EXTENT = 20037508.342789244;
     _viewC = nil;
 }
 
-- (MaplyVectorTileData *)buildObjects:(NSData *)tileData tile:(MaplyTileID)tileID bounds:(MaplyBoundingBox)bbox
+- (MaplyVectorTileData *)buildObjects:(NSData *)tileData tile:(MaplyTileID)tileID bounds:(MaplyBoundingBox)bbox geoBounds:(MaplyBoundingBox)geoBbox
 {
     //calulate tile bounds and coordinate shift
     int tileSize = 256;
@@ -153,7 +155,11 @@ static double MAX_EXTENT = 20037508.342789244;
                             attributes[key] = @(value.sint_value());
                         } else if (value.has_uint_value()) {
                             attributes[key] = @(value.uint_value());
+                        } else {
+                            NSLog(@"Unknown attribute type");
                         }
+                    } else {
+                        NSLog(@"Got a bad one");
                     }
                 }
                 
@@ -197,8 +203,13 @@ static double MAX_EXTENT = 20037508.342789244;
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord encoded in tile coord space, from 0 to TILE_SIZE
                                     //Covert to epsg:3785, then to degrees, then to radians
-                                    point.x() = DegToRad(((tileOriginX + x / sx) / MAX_EXTENT) * 180.0);
-                                    point.y() = 2 * atan(exp(DegToRad(((tileOriginY - y / sy) / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                    Point2f loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                    if (_localCoords) {
+                                        point = loc;
+                                    } else {
+                                        point.x() = DegToRad((loc.x() / MAX_EXTENT) * 180.0);
+                                        point.y() = 2 * atan(exp(DegToRad((loc.y() / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                    }
                                     
                                     if(cmd == SEG_MOVETO) { //move to means we are starting a new segment
                                         if(lin && lin->pts.size() > 0) { //We've already got a line, finish it
@@ -253,9 +264,14 @@ static double MAX_EXTENT = 20037508.342789244;
                                     y += (static_cast<double>(dy) / scale);
                                     //At this point x/y is a coord is encoded in tile coord space, from 0 to TILE_SIZE
                                     //Covert to epsg:3785, then to degrees, then to radians
-                                    point.x() = DegToRad(((tileOriginX + x / sx) / MAX_EXTENT) * 180.0);
-                                    point.y() = 2 * atan(exp(DegToRad(((tileOriginY - y / sy) / MAX_EXTENT) * 180.0))) - M_PI_2;
-                                    
+                                    Point2f loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                    if (_localCoords) {
+                                        point = loc;
+                                    } else {
+                                        point.x() = DegToRad((loc.x() / MAX_EXTENT) * 180.0);
+                                        point.y() = 2 * atan(exp(DegToRad((loc.y() / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                    }
+
                                     if(cmd == SEG_MOVETO) { //move to means we are starting a new segment
                                         firstCoord = point;
                                         //TODO: does this ever happen when we are part way through a shape? holes?
@@ -303,8 +319,13 @@ static double MAX_EXTENT = 20037508.342789244;
                                     //At this point x/y is a coord is encoded in tile coord space, from 0 to TILE_SIZE
                                     //Covert to epsg:3785, then to degrees, then to radians
                                     if(x > 0 && x < 256 && y > 0 && y < 256) {
-                                        point.x() = DegToRad(((tileOriginX + x / sx) / MAX_EXTENT) * 180.0);
-                                        point.y() = 2 * atan(exp(DegToRad(((tileOriginY - y / sy) / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                        Point2f loc((tileOriginX + x / sx),(tileOriginY - y / sy));
+                                        if (_localCoords) {
+                                            point = loc;
+                                        } else {
+                                            point.x() = DegToRad((loc.x() / MAX_EXTENT) * 180.0);
+                                            point.y() = 2 * atan(exp(DegToRad((loc.y() / MAX_EXTENT) * 180.0))) - M_PI_2;
+                                        }
                                         shape->pts.push_back(point);
                                     }
                                 } else if (cmd == (SEG_CLOSE & ((1 << cmd_bits) - 1))) {
@@ -350,11 +371,11 @@ static double MAX_EXTENT = 20037508.342789244;
     }
     
     if(self.debugLabel || self.debugOutline) {
-        MaplyCoordinate ne = bbox.ur;
-        MaplyCoordinate sw = bbox.ll;
+        MaplyCoordinate ne = geoBbox.ur;
+        MaplyCoordinate sw = geoBbox.ll;
         if(self.debugLabel) {
             MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
-            label.text = [NSString stringWithFormat:@"%d/%d/%d %lu items", tileID.level, tileID.x,
+            label.text = [NSString stringWithFormat:@"%d: (%d,%d)\n%lu items", tileID.level, tileID.x,
                           tileID.y, (unsigned long)components.count];
             MaplyCoordinate tileCenter;
             tileCenter.x = (ne.x + sw.x)/2.0;
@@ -362,26 +383,31 @@ static double MAX_EXTENT = 20037508.342789244;
             label.loc = tileCenter;
             
             MaplyComponentObject *c = [_viewC addScreenLabels:@[label]
-                                                              desc:@{kMaplyFont : [UIFont boldSystemFontOfSize:12],
-                                                                     kMaplyTextColor : [UIColor blackColor]}];
+                                                         desc:@{kMaplyFont : [UIFont boldSystemFontOfSize:12],
+                                                                kMaplyTextColor : [UIColor colorWithRed:0.25 green:0.25 blue:0.25 alpha:0.25],
+                                                                kMaplyDrawPriority : @(kMaplyMaxDrawPriorityDefault+100000000),
+                                                                kMaplyEnable: @(NO)
+                                                                }
+                                                         mode:MaplyThreadCurrent];
             [components addObject:c];
         }
         if(self.debugOutline) {
             MaplyCoordinate outline[5];
-            outline[0] = ne;
-            outline[1].x = ne.x;
-            outline[1].y = sw.y;
-            outline[2] = sw;
-            outline[3].x = sw.x;
-            outline[3].y = ne.y;
-            outline[4] = ne;
+            outline[0].x = ne.x;            outline[0].y = ne.y;
+            outline[1].x = ne.x;            outline[1].y = sw.y;
+            outline[2].x = sw.x;            outline[2].y = sw.y;
+            outline[3].x = sw.x;            outline[3].y = ne.y;
+            outline[4].x = ne.x;            outline[4].y = ne.y;
             MaplyVectorObject *outlineObj = [[MaplyVectorObject alloc] initWithLineString:outline
                                                                                 numCoords:5
                                                                                attributes:nil];
             MaplyComponentObject *c = [_viewC addVectors:@[outlineObj]
-                                                         desc:@{kMaplyColor: [UIColor redColor],
-                                                                kMaplyVecWidth:@(1)
-                                                                }];
+                                                    desc:@{kMaplyColor: [UIColor redColor],
+                                                           kMaplyVecWidth:@(4),
+                                                           kMaplyDrawPriority : @(kMaplyMaxDrawPriorityDefault+100000000),
+                                                           kMaplyEnable: @(NO)
+                                                           }
+                                                    mode:MaplyThreadCurrent];
             [components addObject:c];
         }
     }
@@ -391,336 +417,5 @@ static double MAX_EXTENT = 20037508.342789244;
     
     return tileRet;
 }
-
-@end
-
-@interface MapboxVectorTiles ()
-@property (nonatomic, strong, readwrite) NSArray *tileSources;
-
-@end
-
-@implementation MapboxVectorTiles
-
-+ (void) StartRemoteVectorTilesWithTileSpec:(NSString *)tileSpecURL accessToken:(NSString *)accessToken style:(NSString *)styleURL styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MapboxVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock
-{
-    // We'll invoke this block when we've fetched the tilespec and the style file
-    void (^startBlock)(NSDictionary *tileSpec,NSData *styleData) =
-    ^(NSDictionary *tileSpec,NSData *styleData)
-    {
-        // Got the tile spec, parse out the basics
-        // Note: This should be a vector specific version
-        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:tileSpec];
-//        if (accessToken)
-//            tileSource.tileInfo.queryStr = [NSString stringWithFormat:@"access_token=%@",accessToken];
-        tileSource.cacheDir = cacheDir;
-        if (!tileSource)
-        {
-            failureBlock([[NSError alloc] initWithDomain:@"MaplyMapnikVectorTiles" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to parse JSON tile spec"}]);
-            return;
-        }
-        
-        NSObject<MaplyVectorStyleDelegate> *styleSet = nil;
-        
-        // Now for the styles
-        // This deals with the Mapnik styles themselves
-        switch (styleType)
-        {
-            case MapnikXMLStyle:
-            {
-                MapnikStyleSet *mapnikStyleSet = [[MapnikStyleSet alloc] initForViewC:viewC];
-                [mapnikStyleSet loadXmlData:styleData];
-                [mapnikStyleSet generateStyles];
-                styleSet = mapnikStyleSet;
-            }
-            break;
-//            case MapnikMapboxGLStyle:
-//            {
-//                MaplyMapboxVectorStyleSet *mapboxStyleSet = [[MaplyMapboxVectorStyleSet alloc] initWithJSON:styleData viewC:viewC];
-//                styleSet = mapboxStyleSet;
-//            }
-            break;
-            default:
-                break;
-        }
-        
-        MapboxVectorTiles *vecTiles = [[MapboxVectorTiles alloc] initWithTileSource:tileSource style:styleSet viewC:viewC];
-
-        successBlock(vecTiles);
-    };
-    
-    // This block fetches the json tile spec after the style data has been read
-    void (^fetchBlock)(NSData *styleData) =
-    ^(NSData *styleData){
-        // Look for it locally first
-        NSDictionary *tileSpecDict = [NSDictionary dictionaryWithContentsOfFile:tileSpecURL];
-        if (tileSpecDict)
-            startBlock(tileSpecDict,styleData);
-        else {
-            NSString *fullURL = tileSpecURL;
-            if (accessToken)
-                fullURL = [NSString stringWithFormat:@"%@?access_token=%@",tileSpecURL,accessToken];
-            NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:fullURL]];
-            
-            NSURLSession *session = [NSURLSession sharedSession];
-            NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:
-            ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-                NSError *jsonError;
-                NSDictionary *tileSpecDict;
-                if (!error)
-                    tileSpecDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
-                if (!error && !jsonError)
-                    startBlock(tileSpecDict,styleData);
-                else
-                    failureBlock([[NSError alloc] initWithDomain:@"MaplyMapnikVectorTiles" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to reach JSON tile spec"}]);
-            }];
-            [task resume];
-
-        }
-    };
-
-    // Fetch the style file
-    if ([[NSFileManager defaultManager] fileExistsAtPath:styleURL])
-    {
-        NSData *styleData = [NSData dataWithContentsOfFile:styleURL];
-        fetchBlock(styleData);
-    } else {
-        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:styleURL]];
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:
-        ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            if (!error) {
-                fetchBlock(data);
-            } else {
-                failureBlock([[NSError alloc] initWithDomain:@"MaplyMapnikVectorTiles" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to reach style file."}]);
-            }
-        }];
-        [task resume];
-    }
-}
-
-+ (void) StartRemoteVectorTilesWithURL:(NSString *)tileURL ext:(NSString *)ext minZoom:(int)minZoom maxZoom:(int)maxZoom accessToken:(NSString *)accessToken style:(NSString *)styleURL styleType:(MapnikStyleType)styleType cacheDir:(NSString *)cacheDir viewC:(MaplyBaseViewController *)viewC success:(void (^)(MapboxVectorTiles *vecTiles))successBlock failure:(void (^)(NSError *error))failureBlock;
-{
-    // We'll invoke this block when we've fetched the tilespec and the style file
-    void (^startBlock)(NSData *styleData) =
-    ^(NSData *styleData)
-    {
-        // Got the tile spec, parse out the basics
-        // Note: This should be a vector specific version
-        MaplyRemoteTileInfo *tileInfo = [[MaplyRemoteTileInfo alloc] initWithBaseURL:tileURL ext:ext minZoom:minZoom maxZoom:maxZoom];
-        MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithInfo:tileInfo];
-        if (accessToken && [tileSource.tileInfo isKindOfClass:[MaplyRemoteTileInfo class]])
-            ((MaplyRemoteTileInfo *)tileSource.tileInfo).queryStr = [NSString stringWithFormat:@"access_token=%@",accessToken];
-        tileSource.cacheDir = cacheDir;
-        if (!tileSource)
-        {
-            failureBlock([[NSError alloc] initWithDomain:@"MaplyMapnikVectorTiles" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to parse JSON tile spec"}]);
-            return;
-        }
-        
-        // Now for the styles
-        // This deals with the Mapnik styles themselves
-        MapnikStyleSet *styleSet = [[MapnikStyleSet alloc] initForViewC:viewC];
-        if ([styleURL rangeOfString:@".xml"].location == NSNotFound)
-            [styleSet loadJsonData:styleData];
-        else
-            [styleSet loadXmlData:styleData];
-        
-        MapboxVectorTiles *vecTiles = [[MapboxVectorTiles alloc] initWithTileSource:tileSource style:styleSet viewC:viewC];
-        
-        successBlock(vecTiles);
-        
-        [styleSet generateStyles];
-    };
-    
-    // Fetch the style file
-    if ([[NSFileManager defaultManager] fileExistsAtPath:styleURL])
-    {
-        NSData *styleData = [NSData dataWithContentsOfFile:styleURL];
-        startBlock(styleData);
-    } else {
-        NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:styleURL]];
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:
-            ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-                if (!error)
-                    startBlock(data);
-                else
-                    failureBlock([[NSError alloc] initWithDomain:@"MaplyMapnikVectorTiles" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to reach style file."}]);
-
-        }];
-        [task resume];
-    }
-}
-
-- (instancetype) initWithTileSources:(NSArray*)tileSources style:(NSObject<MaplyVectorStyleDelegate> *)style viewC:(MaplyBaseViewController *)viewC
-{
-  self = [super init];
-  if(self) {
-    self.tileSources = tileSources;
-      _tileParser = [[MapboxVectorTileParser alloc] initWithStyle:style viewC:viewC];
-  }
-  return self;
-}
-
-- (instancetype) initWithTileSource:(MaplyRemoteTileInfo*)tileSource style:(NSObject<MaplyVectorStyleDelegate> *)style viewC:(MaplyBaseViewController *)viewC
-{
-    self = [self initWithTileSources:@[tileSource] style:style viewC:viewC];
-  return self;
-}
-
-- (instancetype) initWithMBTiles:(MaplyMBTileSource *)tileSource style:(NSObject<MaplyVectorStyleDelegate> *)style viewC:(MaplyBaseViewController *)viewC
-{
-    self = [self initWithTileSources:@[tileSource] style:style viewC:viewC];
-    return self;
-}
-
-- (void)dealloc
-{
-    _tileSources = nil;
-}
-
-- (void)setAccessToken:(NSString *)accessToken
-{
-    _accessToken = accessToken;
-    
-    for (MaplyRemoteTileSource *tileSource in _tileSources)
-    {
-        if ([tileSource.tileInfo isKindOfClass:[MaplyRemoteTileInfo class]])
-        {
-            ((MaplyRemoteTileInfo *)tileSource.tileInfo).queryStr = [NSString stringWithFormat:@"access_token=%@",_accessToken];
-        }
-    }
-}
-
-#pragma mark - MaplyPagingDelegate
-
-- (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer
-{
-//    NSLog(@"%@ startFetchForTile: %d/%d/%d", NSStringFromClass([self class]), tileID.level,tileID.x,tileID.y);
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-    ^{
-        MaplyBoundingBox bbox;
-        if (!layer.valid)
-            return;
-        [layer geoBoundsforTile:tileID ll:&bbox.ll ur:&bbox.ur];
-        bbox.ll = [self toMerc:bbox.ll];
-        bbox.ur = [self toMerc:bbox.ur];
-        
-        NSMutableArray *compObjs = [NSMutableArray array];
-        
-        for(NSObject<MaplyTileSource> *tileSource in self.tileSources) {
-            if(tileID.level > tileSource.maxZoom || tileID.level < tileSource.minZoom) {
-                //this should probably check validTile, but that could be slower
-                continue;
-            }
-            if (!layer.valid)
-                return;
-            
-            MaplyTileID flippedYTile;
-            if(layer.flipY) {
-                flippedYTile.level = tileID.level;
-                flippedYTile.x = tileID.x;
-                flippedYTile.y = ((int)(1<<tileID.level)-tileID.y)-1;
-            } else {
-                flippedYTile = tileID;
-            }
-            NSData *tileData = [tileSource imageForTile:flippedYTile];
-            
-            if(tileData.length) {
-                if([tileData isCompressed]) {
-                    tileData = [tileData uncompressGZip];
-                    if(!tileData.length) {
-                        NSLog(@"Error: tile data was nil after decompression");
-                        continue;
-                    }
-                }
-                
-                // If the app shuts down the layer while we're working
-                if (!layer.valid)
-                    break;
-
-                MaplyVectorTileData *retData = nil;
-                if ([layer.viewC startOfWork])
-                {
-                    retData = [_tileParser buildObjects:tileData tile:tileID bounds:bbox];
-                    if (!retData)
-                        NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,flippedYTile.y);
-
-                    [layer.viewC endOfWork];
-                }
-
-                if (retData)
-                {
-                    // Keep track of the component objects created
-                    if ([retData.compObjs count] > 0)
-                        [compObjs addObjectsFromArray:retData.compObjs];
-                    // Note: Ignoring rasters
-                }
-            } else {
-                // Empty tile
-            }
-        }
-        
-//        if (!layer.valid)
-//            return;
-
-        // Hand the objects over to the layer
-        [layer addData:compObjs forTile:tileID style:MaplyDataStyleReplace];
-        [layer tileDidLoad:tileID];
-
-//        NSLog(@"%@ finished load: %d/%d/%d for %d objects", NSStringFromClass([self class]), tileID.level,tileID.x,tileID.y,[compObjs count]);
-
-        // Note: Turn this back on for debugging
-        //    CFTimeInterval duration = CFAbsoluteTimeGetCurrent() - start;
-        //    NSLog(@"Added %lu components for %d features for tile %d/%d/%d in %f seconds",
-        //          (unsigned long)components.count, featureCount,
-        //          tileID.level, tileID.x, tileID.y,
-        //          duration);
-    });
-}
-
-
-- (int)minZoom
-{
-    if (_minZoom != 0)
-        return _minZoom;
-    
-  if(self.tileSources.count) {
-      id tileSource = self.tileSources[0];
-      if ([tileSource isKindOfClass:[MaplyMBTileSource class]])
-          return [(MaplyMBTileSource *)tileSource minZoom];
-      return [(MaplyRemoteTileInfo*)self.tileSources[0] minZoom];
-  } else {
-    return 3;
-  }
-}
-
-
-- (int)maxZoom
-{
-  if(self.tileSources.count) {
-      id tileSource = self.tileSources[0];
-      if ([tileSource isKindOfClass:[MaplyMBTileSource class]])
-          return [(MaplyMBTileSource *)tileSource maxZoom];
-    return [(NSObject <MaplyTileSource>*)self.tileSources[0] maxZoom];
-  } else {
-    return 14;
-  }
-}
-
-
-/**
- Convert a coordinate from lat/lon radians to epsg:3785
- Verified output with "cs2cs +init=epsg:4326 +to +init=epsg:3785", correct within .5 meters, 
- but frequently off by .4
- */
-- (MaplyCoordinate)toMerc:(MaplyCoordinate)coord {
-//  MaplyCoordinate orig = coord;
-  coord.x = RadToDeg(coord.x) * MAX_EXTENT / 180;
-  coord.y = 3189068.5 * log((1.0 + sin(coord.y)) / (1.0 - sin(coord.y)));
-//  NSLog(@"%f %f -> %.2f %.2f", RadToDeg(orig.x), RadToDeg(orig.y), coord.x, coord.y);
-  return coord;
-}
-
 
 @end

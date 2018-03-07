@@ -288,7 +288,7 @@
             return nil;
         }
         
-        NSExpression *boundsExpression = [NSExpression expressionForAggregate:@[self.lowerBoundaryExpression, self.upperBoundaryExpression]];
+        NSExpression *boundsExpression = [NSExpression expressionForAggregate:@[(NSExpression *)self.lowerBoundaryExpression, (NSExpression *)self.upperBoundaryExpression]];
         
         self.predicate = [NSComparisonPredicate predicateWithLeftExpression:(NSExpression *)self.subExpression rightExpression:boundsExpression modifier:0 type:NSBetweenPredicateOperatorType options:0];
 

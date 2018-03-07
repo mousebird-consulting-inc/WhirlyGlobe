@@ -28,14 +28,14 @@
 
 @property (nonatomic, strong, nullable) MaplyVectorStyleSettings *tileStyleSettings;
 @property (nonatomic, strong, nullable) NSMutableDictionary *styleDictionary;
-@property (nonatomic, weak, nullable) MaplyBaseViewController *viewC;
+@property (nonatomic, weak, nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 @property (nonatomic, readonly) BOOL parsing;
 @property (nonatomic, strong, nullable) UIColor *backgroundColor;
 @property (nonatomic, assign) NSInteger tileMaxZoom;
 @property (nonatomic, assign) NSInteger drawPriorityOffset;
 @property (nonatomic, assign) CGFloat alpha;
 
-- (nonnull instancetype)initForViewC:(MaplyBaseViewController *__nonnull)viewC;
+- (nonnull instancetype)initForViewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 - (void)loadXmlFile:(NSString *__nonnull)filePath;
 - (void)loadXmlData:(NSData *__nonnull)docData;

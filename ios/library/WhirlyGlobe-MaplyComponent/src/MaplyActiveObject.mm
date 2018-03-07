@@ -24,7 +24,7 @@
 
 
 /// Default initialization.  Updates will happen on the main queue.
-- (instancetype)initWithViewController:(MaplyBaseViewController *)inViewC
+- (instancetype)initWithViewController:(NSObject<MaplyRenderControllerProtocol> *)inViewC
 {
     self = [super init];
     _viewC = inViewC;

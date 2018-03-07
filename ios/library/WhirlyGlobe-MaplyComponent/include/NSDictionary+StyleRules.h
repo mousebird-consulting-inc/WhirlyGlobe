@@ -30,4 +30,4 @@
 #ifdef __cplusplus
 extern "C"
 #endif
-void NSDictionaryStyleDummyFunc();
+void NSDictionaryStyleDummyFunc(void);

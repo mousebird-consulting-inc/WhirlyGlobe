@@ -20,7 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
-#import "MaplyBaseViewController.h"
+#import "MaplyRenderController.h"
 #import "MaplyMatrix.h"
 
 /** 

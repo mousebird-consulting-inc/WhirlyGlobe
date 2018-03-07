@@ -23,7 +23,7 @@
 #import "MaplyCoordinate.h"
 #import "MaplyCoordinateSystem.h"
 #import "MaplyTileSource.h"
-#import "MaplyBaseViewController.h"
+#import "MaplyRenderController.h"
 
 @class MaplyUpdateLayer;
 

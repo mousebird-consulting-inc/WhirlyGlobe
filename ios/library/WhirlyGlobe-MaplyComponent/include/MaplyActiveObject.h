@@ -21,6 +21,7 @@
 #import <Foundation/Foundation.h>
 
 @class MaplyBaseViewController;
+@protocol MaplyRenderControllerProtocol;
 
 /** 
     Active Objects are used implement animation.
@@ -47,9 +48,9 @@
     
     The default initializer just takes a view controller.  If you replace this with your own, be sure to pass in what you need.
   */
-- (nonnull instancetype)initWithViewController:(MaplyBaseViewController *__nonnull)viewC;
+- (nonnull instancetype)initWithViewController:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 /// The view controller this active object is associated with
-@property (nonatomic,weak,readonly) MaplyBaseViewController *__nullable viewC;
+@property (nonatomic,weak,readonly) NSObject<MaplyRenderControllerProtocol> *__nullable viewC;
 
 @end
