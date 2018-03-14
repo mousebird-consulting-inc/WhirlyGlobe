@@ -47,7 +47,7 @@ using namespace WhirlyKit;
 
 static double MAX_EXTENT = 20037508.342789244;
 
-static bool debugMode = true;
+static bool debugMode = false;
 
 // Objects sorted by Tile ID
 class ObjectsByTile
