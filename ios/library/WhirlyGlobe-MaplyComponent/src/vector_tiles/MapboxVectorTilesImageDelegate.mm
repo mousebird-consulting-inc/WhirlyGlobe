@@ -47,14 +47,14 @@ using namespace WhirlyKit;
 
 static double MAX_EXTENT = 20037508.342789244;
 
-static bool debugMode = false;
+static bool debugMode = true;
 
 // Objects sorted by Tile ID
 class ObjectsByTile
 {
 public:
     ObjectsByTile() : compObjs(NULL) { }
-    ObjectsByTile(MaplyTileID tileID) : tileID(tileID), compObjs(NULL) { }
+    ObjectsByTile(MaplyTileID tileID) : tileID(tileID), compObjs(NULL), enabled(true) { }
     
     bool operator < (const ObjectsByTile &that) const
     {
@@ -67,9 +67,34 @@ public:
         return tileID.level < that.tileID.level;
     }
     
+    void enable(NSObject<MaplyRenderControllerProtocol> *viewC)
+    {
+        enabled = true;
+        if (compObjs) {
+            [viewC enableObjects:compObjs mode:MaplyThreadCurrent];
+        }
+    }
+    
+    void disable(NSObject<MaplyRenderControllerProtocol> *viewC)
+    {
+        enabled = false;
+        if (compObjs) {
+            [viewC disableObjects:compObjs mode:MaplyThreadCurrent];
+        }
+    }
+    
     MaplyTileID tileID;
+    bool enabled;
     NSArray *compObjs;
 };
+
+typedef std::shared_ptr<ObjectsByTile> ObjectsByTileRef;
+
+typedef struct
+{
+    bool operator () (const ObjectsByTileRef a,const ObjectsByTileRef b) const { return *a < *b; }
+} ObjectsByTileRefSorter;
+
 
 @implementation MapboxVectorTileImageSource
 {
@@ -82,7 +107,7 @@ public:
     
     MapboxVectorTileParser *imageTileParser,*vecTileParser;
     
-    std::set<ObjectsByTile> tiles;
+    std::set<ObjectsByTileRef,ObjectsByTileRefSorter> tiles;
 }
 
 - (instancetype _Nullable ) initWithTileInfo:(MaplyRemoteTileInfo *_Nonnull)inTileInfo
@@ -98,13 +123,13 @@ public:
     vecStyle = inVectorStyle;
     viewC = inViewC;
     coordSys = [[MaplySphericalMercator alloc] initWebStandard];
-    
+
     offlineRender = [[MaplyRenderController alloc] initWithSize:CGSizeMake(512.0,512.0)];
     offlineRender.clearColor = [UIColor blueColor];
     imageTileParser = [[MapboxVectorTileParser alloc] initWithStyle:imageStyle viewC:offlineRender];
     imageTileParser.localCoords = true;
     vecTileParser = [[MapboxVectorTileParser alloc] initWithStyle:vecStyle viewC:viewC];
-    
+
     MapboxVectorLayerBackground *backLayer = imageStyle.layersByName[@"background"];
     backColor = backLayer.paint.color;
     
@@ -142,8 +167,8 @@ public:
     @synchronized(self)
     {
         for (auto tile : tiles) {
-            if (tile.compObjs != nil)
-                [compObjs addObjectsFromArray:tile.compObjs];
+            if (tile->compObjs != nil)
+                [compObjs addObjectsFromArray:tile->compObjs];
         }
     }
     [viewC removeObjects:compObjs mode:MaplyThreadAny];
@@ -180,7 +205,7 @@ public:
     {
         if (debugMode)
             NSLog(@"Started adding tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-        ObjectsByTile newTile(tileID);
+        ObjectsByTileRef newTile(new ObjectsByTile(tileID));
         auto it = tiles.find(newTile);
         if (it == tiles.end()) {
             tiles.insert(newTile);
@@ -270,7 +295,7 @@ public:
     MaplyVectorTileData *retData = nil;
     if ((retData = [vecTileParser buildObjects:tileData tile:tileID bounds:spherMercBBox geoBounds:geoBBox]))
     {
-        [viewC enableObjects:retData.compObjs mode:MaplyThreadCurrent];
+        // Success
     } else {
         NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
         return false;
@@ -279,7 +304,7 @@ public:
     @synchronized(self)
     {
         // Make sure we still want the tile
-        ObjectsByTile testTile(tileID);
+        ObjectsByTileRef testTile(new ObjectsByTile(tileID));
         auto it = tiles.find(testTile);
         if (it == tiles.end()) {
             // Uh oh.  Got deleted while we were loading.  Nuke everything.
@@ -287,9 +312,11 @@ public:
             if (debugMode)
                 NSLog(@"In-transit delete for tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
         } else {
-            tiles.erase(it);
-            testTile.compObjs = retData.compObjs;
-            tiles.insert(testTile);
+            (*it)->compObjs = retData.compObjs;
+            if ((*it)->enabled)
+                (*it)->enable(viewC);
+            else
+                (*it)->disable(viewC);
             if (debugMode)
                 NSLog(@"Finished adding tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
         }
@@ -303,10 +330,11 @@ public:
 {
     @synchronized(self)
     {
-        ObjectsByTile dummyTile(tileID);
+        ObjectsByTileRef dummyTile(new ObjectsByTile(tileID));
         auto it = tiles.find(dummyTile);
         if (it != tiles.end()) {
-            [viewC disableObjects:it->compObjs mode:MaplyThreadCurrent];
+            if ((*it)->enabled)
+                (*it)->disable(viewC);
         } else {
             if (debugMode)
                 NSLog(@"Tried to disable tile that isn't there");
@@ -321,10 +349,11 @@ public:
 {
     @synchronized(self)
     {
-        ObjectsByTile dummyTile(tileID);
+        ObjectsByTileRef dummyTile(new ObjectsByTile(tileID));
         auto it = tiles.find(dummyTile);
         if (it != tiles.end()) {
-            [viewC enableObjects:it->compObjs mode:MaplyThreadCurrent];
+            if (!(*it)->enabled)
+                (*it)->enable(viewC);
         } else {
             if (debugMode)
                 NSLog(@"Tried to enable tile that isn't there");
@@ -339,10 +368,11 @@ public:
 {
     @synchronized(self)
     {
-        ObjectsByTile dummyTile(tileID);
+        ObjectsByTileRef dummyTile(new ObjectsByTile(tileID));
         auto it = tiles.find(dummyTile);
         if (it != tiles.end()) {
-            [viewC removeObjects:it->compObjs mode:MaplyThreadCurrent];
+            if ((*it)->compObjs)
+                [viewC removeObjects:(*it)->compObjs mode:MaplyThreadCurrent];
             tiles.erase(it);
         } else {
             if (debugMode)
