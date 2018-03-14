@@ -143,6 +143,7 @@ using namespace WhirlyKit;
     _importanceScale = 1.0;
     _borderTexel = 1;
     _allowFrameLoading = true;
+    _useParentTileBounds = false;
     canFetchFrames = false;
     tessDict = nil;
     
@@ -800,6 +801,25 @@ using namespace WhirlyKit;
     tileID.x = ident.x;
     tileID.y = ident.y;
     
+    // We may use the parent bounding box for testing
+    // This will force all four children in at once.
+    WhirlyKit::Quadtree::Identifier testID;
+    MaplyTileID testTileID;
+    if (_useParentTileBounds)
+    {
+        // For a child tile, we're taking the size of our parent so all the children load at once
+        WhirlyKit::Quadtree::Identifier parentIdent;
+        parentIdent.x = ident.x / 2;
+        parentIdent.y = ident.y / 2;
+        parentIdent.level = ident.level - 1;
+        
+        testID = parentIdent;
+    } else {
+        testID = ident;
+    }
+    testTileID.x = testID.x;    testTileID.y = testID.y;    testTileID.level = testID.level;
+    Mbr testMbr = quadLayer.quadtree->generateMbrForNode(testID);
+
     if (canDoValidTiles && ident.level >= minZoom)
     {
         MaplyBoundingBox bbox;
@@ -839,9 +859,9 @@ using namespace WhirlyKit;
     } else {
         if (elevDelegate)
         {
-            import = ScreenImportance(viewState, frameSize, thisTileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
+            import = ScreenImportance(viewState, frameSize, thisTileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), testMbr, _minElev, _maxElev, ident, attrs);
         } else {
-            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, thisTileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+            import = ScreenImportance(viewState, frameSize, viewState.eyeVec, thisTileSize, [coordSys getCoordSystem], scene->getCoordAdapter(), testMbr, ident, attrs);
         }
         import *= _importanceScale;
     }
