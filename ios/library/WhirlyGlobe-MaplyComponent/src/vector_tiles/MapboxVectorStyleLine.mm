@@ -138,6 +138,7 @@ static unsigned int NextPowOf2(unsigned int val)
     
     _layout = [[MapboxVectorLineLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
     _paint = [[MapboxVectorLinePaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
+    self.drawPriority = [styleSet intValue:@"drawPriority" dict:styleEntry defVal:drawPriority];
     
     if (!_paint)
     {

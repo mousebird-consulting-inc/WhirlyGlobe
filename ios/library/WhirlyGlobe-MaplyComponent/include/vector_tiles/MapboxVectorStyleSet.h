@@ -31,36 +31,36 @@
 @interface MapboxVectorStyleSet : NSObject <MaplyVectorStyleDelegate>
 
 /// @brief Default settings and scale factor for Mapnik vector geometry.
-@property (nonatomic, strong) MaplyVectorStyleSettings *tileStyleSettings;
+@property (nonatomic, strong, nonnull) MaplyVectorStyleSettings *tileStyleSettings;
 
 /// @brief The view controller everything will be added to
-@property (nonatomic, weak) NSObject<MaplyRenderControllerProtocol> *viewC;
+@property (nonatomic, weak, nullable) NSObject<MaplyRenderControllerProtocol> *viewC;
 
 /// @brief Style name
-@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong, nullable) NSString *name;
 
 /// @brief Version number from the style
 @property (nonatomic) NSUInteger version;
 
 /// @brief Constants from the Style sheet
-@property (nonatomic, strong) NSDictionary *constants;
+@property (nonatomic, strong, nullable) NSDictionary *constants;
 
 /// @brief Where we can fetch the sprites
-@property (nonatomic, strong) NSString *spriteURL;
+@property (nonatomic, strong, nullable) NSString *spriteURL;
 
 /// @brief Layers parsed from the style sheet
-@property (nonatomic, strong) NSArray *layers;
+@property (nonatomic, strong, nullable) NSArray *layers;
 
 /// @brief Layers sorted by their ID
-@property (nonatomic, strong) NSDictionary *layersByName;
+@property (nonatomic, strong, nullable) NSDictionary *layersByName;
 
 /// @brief Layers sorted by source layer name
-@property (nonatomic, strong) NSDictionary *layersBySource;
+@property (nonatomic, strong, nullable) NSDictionary *layersBySource;
 
 /// @brief Initialize with the style JSON and the view controller
 /// @details We'll parse the style JSON passed in and return nil on failure.
 /// @details The optional filter can be used to reject layers we won't use
-- (id)initWithJSON:(NSData *)styleJSON settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC filter:(bool (^)(NSDictionary *))filterBlock;
+- (id)initWithJSON:(NSData *)styleJSON settings:(MaplyVectorStyleSettings * __nonnull)settings viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC filter:(bool (^)(NSMutableDictionary * __nonnull))filterBlock;
 
 /// @brief Return an integer value for the given name, taking the constants into account.
 - (int)intValue:(NSString *)name dict:(NSDictionary *)dict defVal:(int)defVal;
