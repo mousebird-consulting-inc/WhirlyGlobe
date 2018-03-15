@@ -30,7 +30,7 @@
     NSMutableDictionary *layersByUUID;
 }
 
-- (id)initWithJSON:(NSData *)styleJSON settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC filter:(bool (^)(NSDictionary *))filterBlock
+- (id)initWithJSON:(NSData *)styleJSON settings:(MaplyVectorStyleSettings *)settings viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC filter:(bool (^)(NSMutableDictionary * __nonnull))filterBlock
 {
     self = [super init];
     if (!self)
@@ -55,10 +55,15 @@
     layersByUUID = [NSMutableDictionary dictionary];
     NSMutableDictionary *layersByName = [NSMutableDictionary dictionary];
     int which = 0;
-    for (NSDictionary *layerStyle in layerStyles)
+    for (NSDictionary *layerStyleIter in layerStyles)
     {
-        if (filterBlock && !(filterBlock(layerStyle)))
-            continue;
+        NSDictionary *layerStyle = layerStyleIter;
+        if (filterBlock) {
+            NSMutableDictionary *layerStyleMod = [NSMutableDictionary dictionaryWithDictionary:layerStyle];
+            if (!(filterBlock(layerStyleMod)))
+                continue;
+            layerStyle = layerStyleMod;
+        }
         MaplyMapboxVectorStyleLayer *layer = [MaplyMapboxVectorStyleLayer VectorStyleLayer:self JSON:layerStyle drawPriority:(10*which + kMaplyVectorDrawPriorityDefault)];
         if (layer)
         {
