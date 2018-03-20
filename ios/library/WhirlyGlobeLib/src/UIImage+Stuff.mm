@@ -115,8 +115,8 @@ using namespace WhirlyKit;
             buf[iy*destWidth + ix] = buf[(iy+1)*destWidth + ix];
         // Top
         for (iy=destHeight-(1+border);iy<destHeight;iy++)
-        for (ix=0,iy=destHeight-1;ix<destWidth;ix++)
-            buf[iy*destWidth + ix] = buf[(iy-1)*destWidth + ix];
+            for (ix=0;ix<destWidth;ix++)
+                buf[iy*destWidth + ix] = buf[(iy-1)*destWidth + ix];
         // Left
         for (ix=border-1;ix>=0;ix--)
             for (iy=0;iy<destHeight;iy++)
