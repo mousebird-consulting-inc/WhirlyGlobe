@@ -31,6 +31,7 @@ class Proj4CoordSystem : public CoordSystem
 public:
     /// Construct with a proj4 string to be passsed to proj.4 (duh)
     Proj4CoordSystem(const std::string &proj4Str);
+    ~Proj4CoordSystem();
     
     /// Convert from the local coordinate system to lat/lon
     GeoCoord localToGeographic(Point3f);

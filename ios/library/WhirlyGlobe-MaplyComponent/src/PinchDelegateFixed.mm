@@ -385,7 +385,7 @@ using namespace WhirlyKit;
                     return;
                 }
                 
-                if (_allowPan || _doRotation)
+                if (_allowPan || _doRotation || _zoomAroundPinch)
                     [globeView setRotQuat:(newRotQuat) updateWatchers:false];
                 if (_tiltDelegate)
                 {
