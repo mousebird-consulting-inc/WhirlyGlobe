@@ -795,6 +795,8 @@ using namespace WhirlyKit;
 {
     if (ident.level == 0)
         return MAXFLOAT;
+    if (ident.level == 1 && _useParentTileBounds)
+        return MAXFLOAT;
     
     MaplyTileID tileID;
     tileID.level = ident.level;
