@@ -32,12 +32,15 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         guard let offlineRender = MaplyRenderController.init(size: CGSize.init(width: 512.0, height: 512.0)) else {
             return nil
         }
-        guard let imageStyleSet = MapboxVectorStyleSet.init(json: styleData as Data!, viewC: offlineRender,
-                                                                 filter:
+        let imageStyleSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
+        imageStyleSettings.arealShaderName = kMaplyShaderDefaultTriNoLighting
+        guard let imageStyleSet = MapboxVectorStyleSet.init(json: styleData as Data!,
+                                                            settings: imageStyleSettings,
+                                                            viewC: offlineRender,
+                                                           filter:
             { (styleAttrs) -> Bool in
-                let dict = styleAttrs! as Dictionary
                 // We only want polygons for the image
-                if let type = dict["type"] as? String {
+                if let type = styleAttrs["type"] as? String {
                     if type == "background" || type == "fill" {
                         return true
                     }
@@ -49,12 +52,13 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         }
 
         // Set up a style for just the vector data we want to overlay
-        guard let vectorStyleSet = MapboxVectorStyleSet.init(json: styleData as Data!, viewC: baseVC,
+        guard let vectorStyleSet = MapboxVectorStyleSet.init(json: styleData as Data!,
+                                                             settings: MaplyVectorStyleSettings.init(scale: UIScreen.main.scale),
+                                                             viewC: baseVC,
                                                                   filter:
                 { (styleAttrs) -> Bool in
-                    let dict = styleAttrs! as Dictionary
                     // We want everything but the polygons
-                    if let type = dict["type"] as? String {
+                    if let type = styleAttrs["type"] as? String {
                         if type != "background" && type != "fill" {
                             return true
                         }
