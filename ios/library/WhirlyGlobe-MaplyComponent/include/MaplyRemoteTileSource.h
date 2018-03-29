@@ -371,7 +371,7 @@
     
     @param error The NSError message, probably from the network routine.
   */
-- (void) remoteTileSource:(id __nonnull)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *__nullable)error;
+- (void)remoteTileSource:(id __nonnull)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *__nullable)error;
 
 /** 
     Called when the tile is disabled.

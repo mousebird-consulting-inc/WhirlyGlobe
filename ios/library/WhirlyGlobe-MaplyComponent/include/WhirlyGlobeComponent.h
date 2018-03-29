@@ -38,6 +38,7 @@
 #import "MaplyViewController.h"
 #import "WhirlyGlobeViewController.h"
 #import "MaplyQuadPagingLayer.h"
+#import "MaplyQuadSamplingLayer.h"
 #import "MaplyUpdateLayer.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyQuadImageOfflineLayer.h"
