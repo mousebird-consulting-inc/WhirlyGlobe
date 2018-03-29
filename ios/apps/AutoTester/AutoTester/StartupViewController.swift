@@ -11,6 +11,8 @@ import UIKit
 class StartupViewController: UITableViewController, UIPopoverControllerDelegate {
 
 	let tests = [
+        GlobeSamplerTestCase(),
+        
 		GeographyClassTestCase(),
 		StamenWatercolorRemote(),
 		NASAGIBSTestCase(),

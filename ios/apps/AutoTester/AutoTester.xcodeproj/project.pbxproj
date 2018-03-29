@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2B0387FB206AD63C00DD5C40 /* GlobeSamplerTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387FA206AD63C00DD5C40 /* GlobeSamplerTestCase.swift */; };
 		2B127BFF201802BB0099F405 /* OpenMapTilesHybridTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */; };
 		2B158BEF1D5D19E900103E04 /* VectorHoleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */; };
 		2B1C264F1C90FFFC00C71B0A /* VectorMBTilesTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.m */; };
@@ -1157,6 +1158,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2B0387FA206AD63C00DD5C40 /* GlobeSamplerTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobeSamplerTestCase.swift; sourceTree = "<group>"; };
 		2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenMapTilesHybridTestCase.swift; sourceTree = "<group>"; };
 		2B158BED1D5D19E900103E04 /* VectorHoleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorHoleTestCase.h; sourceTree = "<group>"; };
 		2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorHoleTestCase.m; sourceTree = "<group>"; };
@@ -1886,6 +1888,7 @@
 		88BF115A1BCDA9530002205E /* testCases */ = {
 			isa = PBXGroup;
 			children = (
+				2B0387FA206AD63C00DD5C40 /* GlobeSamplerTestCase.swift */,
 				2BB4766E200047C6006AAACB /* OpenMapTilesTestCase.swift */,
 				2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */,
 				2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */,
@@ -3672,6 +3675,7 @@
 				D8228AA61BE785E1001D6914 /* MovingScreenMarkers.m in Sources */,
 				8FC34D0E1CE7218E00BEB7C4 /* DownloadResourceOperation.m in Sources */,
 				D8DCCCAC1BDC1A1200BA3866 /* CesiumElevationTestCase.m in Sources */,
+				2B0387FB206AD63C00DD5C40 /* GlobeSamplerTestCase.swift in Sources */,
 				2B91A22E1DC14B7500B72527 /* ImageSingleLevelTestCase.swift in Sources */,
 				88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */,
 				88BF11591BCDA3960002205E /* ResultCell.swift in Sources */,
