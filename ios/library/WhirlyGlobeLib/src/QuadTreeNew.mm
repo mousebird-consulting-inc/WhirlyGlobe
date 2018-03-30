@@ -80,7 +80,7 @@ QuadTreeNew::~QuadTreeNew()
 {
 }
 
-QuadTreeNew::NodeSet QuadTreeNew::calcCoverage(double minImportance,int maxNodes)
+QuadTreeNew::NodeSet QuadTreeNew::calcCoverage(double minImportance,int maxNodes,bool siblingNodes)
 {
     ImportantNodeSet sortedNodes;
     
@@ -97,6 +97,20 @@ QuadTreeNew::NodeSet QuadTreeNew::calcCoverage(double minImportance,int maxNodes
     NodeSet retNodes;
     for (auto nodeIt = sortedNodes.rbegin();nodeIt != sortedNodes.rend();nodeIt++) {
         retNodes.insert(*nodeIt);
+        // Make sure all the siblings are in there for some modes
+        if (siblingNodes) {
+            Node ident = *nodeIt;
+            if (ident.level > minLevel && ident.level < maxLevel) {
+                Node parentIdent(ident.x/2,ident.y/2,ident.level-1);
+                for (int iy=0;iy<2;iy++)
+                    for (int ix=0;ix<2;ix++) {
+                        Node childIdent(parentIdent.x*2+ix,parentIdent.y*2+iy,ident.level);
+                        if (retNodes.find(childIdent) == retNodes.end()) {
+                            retNodes.insert(childIdent);
+                        }
+                    }
+            }
+        }
         if (retNodes.size() >= maxNodes || nodeIt->importance < minImportance)
             break;
     }
