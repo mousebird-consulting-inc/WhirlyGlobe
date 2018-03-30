@@ -29,6 +29,9 @@
   */
 @interface MaplyQuadSamplingLayer : MaplyViewControllerLayer
 
+@property (nonatomic) bool coverPoles;
+@property (nonatomic) bool edgeMatching;
+
 /// Initialize with a coordinate system
 - (nullable instancetype)initWithCoordSystem:(MaplyCoordinateSystem *__nonnull)coordSys;
 

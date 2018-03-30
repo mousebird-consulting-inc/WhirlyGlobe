@@ -25,6 +25,8 @@
 @interface WhirlyKitQuadTileBuilder : NSObject<WhirlyKitQuadLoaderNew>
 
 @property (nonatomic) WhirlyKit::CoordSystem *coordSys;
+@property (nonatomic) bool coverPoles;
+@property (nonatomic) bool edgeMatching;
 
 - (id)initWithCoordSys:(WhirlyKit::CoordSystem *)coordSys;
 

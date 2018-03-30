@@ -24,6 +24,8 @@ class GlobeSamplerTestCase: MaplyTestCase {
         
         if let sampleLayer = MaplyQuadSamplingLayer.init(coordSystem: coordSys) {
             sampleLayer.setMinZoom(0, maxZoom: 10, importance: 256.0*256.0)
+            sampleLayer.edgeMatching = true
+            sampleLayer.coverPoles = false
 
             return sampleLayer
         }

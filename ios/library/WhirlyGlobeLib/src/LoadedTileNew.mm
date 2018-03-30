@@ -227,7 +227,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
             }
         }
         
-        if (geomManage->buildSkirts && geomManage->coordAdapter->isFlat())
+        if (geomManage->buildSkirts && !geomManage->coordAdapter->isFlat())
         {
             // We'll set up and fill in the drawable
             BasicDrawable *skirtChunk = new BasicDrawable("LoadedTileNew");
