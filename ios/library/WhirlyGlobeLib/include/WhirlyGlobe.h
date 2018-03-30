@@ -72,6 +72,7 @@
 #import "MaplyRotateDelegate.h"
 #import "QuadDisplayLayer.h"
 #import "QuadDisplayLayerNew.h"
+#import "QuadTileBuilder.h"
 #import "GlobeLayerViewWatcher.h"
 #import "MBTileQuadSource.h"
 #import "TileQuadLoader.h"

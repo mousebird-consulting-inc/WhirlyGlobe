@@ -64,12 +64,13 @@ protected:
     QuadTreeNew::NodeSet currentNodes;
 }
 
-- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure renderer:(WhirlyKitSceneRendererES *)inRenderer
+- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoaderNew> *)loader renderer:(WhirlyKitSceneRendererES *)inRenderer
 {
     self = [super init];
     if (self)
     {
         _dataStructure = inDataStructure;
+        _loader = loader;
         _coordSys = [_dataStructure coordSystem];
         _mbr = [_dataStructure validExtents];
         minZoom = [_dataStructure minZoom];
@@ -102,6 +103,8 @@ protected:
     // We want view updates, but only every so often
     if (_layerThread.viewWatcher)
         [_layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_viewUpdatePeriod minDist:0.0 maxLagTime:10.0];
+    
+    [_loader setQuadLayer:self];
 }
 
 - (void)teardown
@@ -149,17 +152,22 @@ protected:
                         currentNodes.begin(),currentNodes.end(),
                         std::inserter(toAdd,toAdd.begin()));
 
-    NSLog(@"----- Nodes to add ------");
-    for (auto nodeIt=toAdd.begin();nodeIt!=toAdd.end();nodeIt++)
-    {
-        NSLog(@"  %d: (%d,%d)",nodeIt->level,nodeIt->x,nodeIt->y);
-    }
-    NSLog(@"----- Nodes to remove ------");
-    for (auto nodeIt=toRemove.begin();nodeIt!=toRemove.end();nodeIt++)
-    {
-        NSLog(@"  %d: (%d,%d)",nodeIt->level,nodeIt->x,nodeIt->y);
-    }
-    NSLog(@"----- ------------- ------");
+    if (!toRemove.empty())
+        [_loader quadDisplayLayer:self unLoadTiles:toRemove];
+    if (!toAdd.empty())
+        [_loader quadDisplayLayer:self loadTiles:toAdd];
+
+//    NSLog(@"----- Nodes to add ------");
+//    for (auto nodeIt=toAdd.begin();nodeIt!=toAdd.end();nodeIt++)
+//    {
+//        NSLog(@"  %d: (%d,%d)",nodeIt->level,nodeIt->x,nodeIt->y);
+//    }
+//    NSLog(@"----- Nodes to remove ------");
+//    for (auto nodeIt=toRemove.begin();nodeIt!=toRemove.end();nodeIt++)
+//    {
+//        NSLog(@"  %d: (%d,%d)",nodeIt->level,nodeIt->x,nodeIt->y);
+//    }
+//    NSLog(@"----- ------------- ------");
 
     currentNodes = newNodes;
 }

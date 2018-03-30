@@ -33,6 +33,23 @@
 #import "QuadDisplayLayer.h"
 #import "QuadTreeNew.h"
 
+@class WhirlyKitQuadDisplayLayerNew;
+
+/** The Quad Display Layer (New) calls an object with this protocol
+  */
+@protocol WhirlyKitQuadLoaderNew <NSObject>
+
+/// Called when the layer first starts up.  Keep this around if you need it.
+- (void)setQuadLayer:(WhirlyKitQuadDisplayLayerNew *)layer;
+
+/// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)tiles;
+
+/// Unload the given tiles.
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)tiles;
+
+@end
+
 // Reusing WhirlyKitQuadDataStructure for the size of the quad tree
 
 /** This layer turns view state updates into quad tree tiles to load.
@@ -57,13 +74,14 @@
 @property (nonatomic,assign) float viewUpdatePeriod;
 /// Data source for the quad tree structure
 @property (nonatomic,strong) NSObject<WhirlyKitQuadDataStructure> *dataStructure;
+/// Loader responds to our requests to load and unload tiles
+@property (nonatomic,strong) NSObject<WhirlyKitQuadLoaderNew> *loader;
 /// The renderer we need for frame sizes
 @property (nonatomic,weak) WhirlyKitSceneRendererES2 *renderer;
 /// On by default.  If you turn this off we won't evaluate any view changes.
 @property (nonatomic,assign) bool enable;
 
 /// Construct with a renderer and data source for the tiles
-- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataStructure renderer:(WhirlyKitSceneRendererES *)renderer;
+- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataStructure loader:(NSObject<WhirlyKitQuadLoaderNew> *)loader renderer:(WhirlyKitSceneRendererES *)renderer;
 
 @end
-

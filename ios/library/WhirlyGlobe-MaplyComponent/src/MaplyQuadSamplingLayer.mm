@@ -34,6 +34,7 @@ using namespace WhirlyKit;
     MaplyBaseViewController * __weak viewC;
     WhirlyKit::Scene *scene;
     WhirlyKitQuadDisplayLayerNew *quadLayer;
+    WhirlyKitQuadTileBuilder *builder;
     WhirlyKitSceneRendererES * __weak renderer;
     int minZoom,maxZoom;
     double import;
@@ -62,7 +63,8 @@ using namespace WhirlyKit;
     scene = inScene;
     renderer = inRenderer;
     
-    quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithDataSource:self renderer:renderer];
+    builder = [[WhirlyKitQuadTileBuilder alloc] initWithCoordSys:[coordSys getCoordSystem]];
+    quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithDataSource:self loader:builder renderer:renderer];
     quadLayer.minImportance = import;
     [super.layerThread addLayer:quadLayer];
     

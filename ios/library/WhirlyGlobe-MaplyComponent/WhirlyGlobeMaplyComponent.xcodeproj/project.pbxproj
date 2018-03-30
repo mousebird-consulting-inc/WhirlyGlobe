@@ -22,6 +22,8 @@
 		2B127C08201911DC0099F405 /* MapboxVectorTilesImageDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B127C06201911DC0099F405 /* MapboxVectorTilesImageDelegate.mm */; };
 		2B2B46FA206C000500570F97 /* LoadedTileNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2B46F9206C000500570F97 /* LoadedTileNew.h */; };
 		2B2B46FC206C001900570F97 /* LoadedTileNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B46FB206C001900570F97 /* LoadedTileNew.mm */; };
+		2B2B4701206D931300570F97 /* QuadTileBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2B4700206D931300570F97 /* QuadTileBuilder.h */; };
+		2B2B4703206D932A00570F97 /* QuadTileBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B4702206D932A00570F97 /* QuadTileBuilder.mm */; };
 		2B3FD2C31F478F5200CA9C18 /* MaplyRenderTarget.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B82B5CA1E82E2490095FB14 /* common.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3A11E82E2490095FB14 /* common.h */; };
@@ -1088,6 +1090,8 @@
 		2B127C06201911DC0099F405 /* MapboxVectorTilesImageDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorTilesImageDelegate.mm; sourceTree = "<group>"; };
 		2B2B46F9206C000500570F97 /* LoadedTileNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTileNew.h; sourceTree = "<group>"; };
 		2B2B46FB206C001900570F97 /* LoadedTileNew.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadedTileNew.mm; sourceTree = "<group>"; };
+		2B2B4700206D931300570F97 /* QuadTileBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadTileBuilder.h; sourceTree = "<group>"; };
+		2B2B4702206D932A00570F97 /* QuadTileBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadTileBuilder.mm; sourceTree = "<group>"; };
 		2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRenderTarget.mm; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B82B3A11E82E2490095FB14 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = "/Users/sjg/iPhone/WhirlyGlobe2/ios/third-party/octencoding/../../../common/local_libs/octencoding/common.h"; sourceTree = "<absolute>"; };
@@ -2522,6 +2526,7 @@
 		2B82B4B51E82E2490095FB14 /* geometry utils */ = {
 			isa = PBXGroup;
 			children = (
+				2B2B4700206D931300570F97 /* QuadTileBuilder.h */,
 				2B0387ED20699DD900DD5C40 /* QuadTreeNew.h */,
 				2B82B4AF1E82E2490095FB14 /* WhirlyOctEncoding.h */,
 				2B82B4B01E82E2490095FB14 /* WhirlyVector.h */,
@@ -2885,6 +2890,7 @@
 		2B82B5551E82E2490095FB14 /* geometry utils */ = {
 			isa = PBXGroup;
 			children = (
+				2B2B4702206D932A00570F97 /* QuadTileBuilder.mm */,
 				2B0387EF2069A9EF00DD5C40 /* QuadTreeNew.mm */,
 				2B82B54E1E82E2490095FB14 /* WhirlyOctEncoding.mm */,
 				2B82B54F1E82E2490095FB14 /* WhirlyGeometry.mm */,
@@ -4022,6 +4028,7 @@
 				2BE538361D249A1200B60FAD /* ImageTexture_private.h in Headers */,
 				2B82B6E61E82E24A0095FB14 /* ElevationCesiumFormat.h in Headers */,
 				2BE5397D1D249BEF00B60FAD /* AAPlanetPerihelionAphelion.h in Headers */,
+				2B2B4701206D931300570F97 /* QuadTileBuilder.h in Headers */,
 				2BE5383C1D249A1200B60FAD /* MaplyCoordinateSystem_private.h in Headers */,
 				2BE53A031D249C2900B60FAD /* extension_set.h in Headers */,
 				2B82B72B1E82E24A0095FB14 /* LongPressDelegate.h in Headers */,
@@ -4805,6 +4812,7 @@
 				2B82B65D1E82E24A0095FB14 /* pj_ell_set.c in Sources */,
 				2B82B6301E82E2490095FB14 /* aasincos.c in Sources */,
 				2BE539931D249BEF00B60FAD /* AAEaster.cpp in Sources */,
+				2B2B4703206D932A00570F97 /* QuadTileBuilder.mm in Sources */,
 				2BE539F91D249C2900B60FAD /* descriptor.cc in Sources */,
 				2BE538841D249A1200B60FAD /* MaplyGDALRetileSource.mm in Sources */,
 				2B82B6331E82E2490095FB14 /* bchgen.c in Sources */,

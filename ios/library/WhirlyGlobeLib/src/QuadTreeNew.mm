@@ -86,8 +86,8 @@ QuadTreeNew::NodeSet QuadTreeNew::calcCoverage(double minImportance,int maxNodes
     
     // Start at the lowest level and work our way to higher resolution
     int numX = 1<<minLevel, numY = 1<<minLevel;
-    for (int iy=0;iy<=numY;iy++)
-        for (int ix=0;ix<=numX;ix++)
+    for (int iy=0;iy<numY;iy++)
+        for (int ix=0;ix<numX;ix++)
         {
             ImportantNode node(ix,iy,minLevel);
             evalNode(node,minImportance,sortedNodes);
@@ -107,11 +107,12 @@ QuadTreeNew::NodeSet QuadTreeNew::calcCoverage(double minImportance,int maxNodes
 void QuadTreeNew::evalNode(ImportantNode node,double minImport,ImportantNodeSet &importSet)
 {
     node.importance = importance(node);
-    importSet.insert(node);
     
     if (node.importance < minImport || node.level >= maxLevel)
         return;
-    
+
+    importSet.insert(node);
+
     // Add the children
     for (int iy=0;iy<2;iy++) {
         int indY = 2*node.y + iy;
