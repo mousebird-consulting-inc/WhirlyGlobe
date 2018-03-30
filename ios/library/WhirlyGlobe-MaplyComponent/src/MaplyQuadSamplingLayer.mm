@@ -45,6 +45,8 @@ using namespace WhirlyKit;
     self = [super init];
     
     coordSys = inCoordSys;
+    _coverPoles = true;
+    _edgeMatching = true;
     
     return self;
 }
@@ -64,6 +66,8 @@ using namespace WhirlyKit;
     renderer = inRenderer;
     
     builder = [[WhirlyKitQuadTileBuilder alloc] initWithCoordSys:[coordSys getCoordSystem]];
+    builder.coverPoles = _coverPoles;
+    builder.edgeMatching = _edgeMatching;
     quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithDataSource:self loader:builder renderer:renderer];
     quadLayer.minImportance = import;
     [super.layerThread addLayer:quadLayer];

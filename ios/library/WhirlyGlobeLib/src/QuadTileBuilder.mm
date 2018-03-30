@@ -39,11 +39,30 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (void)setCoverPoles:(bool)coverPoles
+{
+    geomManage.coverPoles = coverPoles;
+}
+
+- (bool)coverPoles
+{
+    return geomManage.coverPoles;
+}
+
+- (void)setEdgeMatching:(bool)edgeMatch
+{
+    geomManage.buildSkirts = edgeMatch;
+}
+
+- (bool)edgeMatching
+{
+    return geomManage.buildSkirts;
+}
+
 - (void)setQuadLayer:(WhirlyKitQuadDisplayLayerNew *)inLayer
 {
     layer = inLayer;
-    geomSettings.lineMode = true;
-    geomManage.coverPoles = false;
+//    geomSettings.lineMode = true;
     MbrD mbr = MbrD([layer.dataStructure validExtents]);
     geomManage.setup(layer.quadtree, layer.scene->getCoordAdapter(),_coordSys,mbr);
 }
