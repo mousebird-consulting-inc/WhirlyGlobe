@@ -39,6 +39,7 @@ public:
     {
     public:
         Node() { }
+        Node(const Node &that) : x(that.x), y(that.y), level(that.level) { }
         /// Construct with the cell coordinates and level.
         Node(int x,int y,int level) : x(x), y(y), level(level) { }
         
@@ -62,6 +63,7 @@ public:
     {
     public:
         ImportantNode() { }
+        ImportantNode(const ImportantNode &that) : Node((Node)that), importance(that.importance) { }
         ImportantNode(int x,int y,int level) : Node(x,y,level) { }
 
         bool operator < (const ImportantNode &that) const;

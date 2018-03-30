@@ -24,9 +24,17 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-
-TileGeomManager::TileGeomManager(CoordSystemDisplayAdapter *coordAdapter)
-    : coordAdapter(coordAdapter), coverPoles(false), buildSkirts(false)
+    
+TileGeomSettings::TileGeomSettings()
+: useTileCenters(true), color(RGBAColor(255,255,255,255)),
+  programID(0), sampleX(10), sampleY(10),
+  minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
+  drawPriority(0), lineMode(false), includeElev(false)
+{
+}
+    
+LoadedTileNew::LoadedTileNew(QuadTreeNew::Node &ident)
+    : ident(ident)
 {
 }
 
@@ -418,6 +426,52 @@ void LoadedTileNew::disableDrawables(ChangeSet &changes)
 {
     for (auto drawID : drawIDs) {
         changes.push_back(new OnOffChangeRequest(drawID,false));
+    }
+}
+    
+void LoadedTileNew::removeDrawables(ChangeSet &changes)
+{
+    for (auto drawID : drawIDs) {
+        changes.push_back(new RemDrawableReq(drawID));
+    }
+}
+
+TileGeomManager::TileGeomManager()
+: coordAdapter(NULL), coverPoles(false), buildSkirts(false)
+{
+}
+    
+void TileGeomManager::setup(QuadTreeNew *inQuadTree,CoordSystemDisplayAdapter *inCoordAdapter,CoordSystem *inCoordSys,MbrD inMbr)
+{
+    quadTree = inQuadTree;
+    coordAdapter = inCoordAdapter;
+    coordSys = inCoordSys;
+    mbr = inMbr;
+}
+    
+void TileGeomManager::addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::NodeSet &tiles,ChangeSet &changes)
+{
+    for (auto ident: tiles) {
+        // Look for an existing tile
+        auto it = tileMap.find(ident);
+        if (it == tileMap.end()) {
+            // Add a new one
+            LoadedTileNewRef tile = LoadedTileNewRef(new LoadedTileNew(ident));
+            tile->makeDrawables(this,geomSettings,changes);
+            tileMap[ident] = tile;
+        }
+    }
+}
+    
+void TileGeomManager::removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes)
+{
+    for (auto ident: tiles) {
+        auto it = tileMap.find(ident);
+        if (it != tileMap.end()) {
+            auto tile = it->second;
+            tile->removeDrawables(changes);
+            tileMap.erase(it);
+        }
     }
 }
 

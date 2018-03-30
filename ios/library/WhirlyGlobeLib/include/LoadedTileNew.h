@@ -38,6 +38,8 @@ namespace WhirlyKit
 class TileGeomSettings
 {
 public:
+    TileGeomSettings();
+    
     // Whether the geometry is centered in its middle with an offset
     bool useTileCenters;
     // Base color for the tiles
@@ -63,6 +65,8 @@ class TileGeomManager;
 class LoadedTileNew
 {
 public:
+    LoadedTileNew(QuadTreeNew::Node &ident);
+    
     // Build the drawable(s) to represent this one tile
     void makeDrawables(TileGeomManager *geomManage,TileGeomSettings &geomSettings,ChangeSet &changes);
 
@@ -82,14 +86,22 @@ public:
     // Active drawable IDs associated with this tile
     SimpleIDSet drawIDs;
 };
+typedef std::shared_ptr<LoadedTileNew> LoadedTileNewRef;
 
 /** Tile Builder builds individual tile geometry for use elsewhere.
   */
 class TileGeomManager
 {
 public:
-    TileGeomManager(CoordSystemDisplayAdapter *coordAdapter);
-    ~TileGeomManager();
+    TileGeomManager();
+    
+    void setup(QuadTreeNew *quadTree,CoordSystemDisplayAdapter *coordAdapter,CoordSystem *coordSys,MbrD inMbr);
+    
+    // Add the tiles list in the node set
+    void addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
+    
+    // Remove the tiles given, if they're being represented
+    void removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
     
     QuadTreeNew *quadTree;
     CoordSystemDisplayAdapter *coordAdapter;
@@ -107,7 +119,10 @@ public:
     // Build the skirts for edge matching
     bool buildSkirts;
     
+    // Bounding box of the whole area
     MbrD mbr;
+    
+    std::map<QuadTreeNew::Node,LoadedTileNewRef> tileMap;
 };
 
 }
