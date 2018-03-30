@@ -139,7 +139,7 @@ protected:
     viewState = inViewState;
 
     // What should be present
-    auto newNodes = _quadtree->calcCoverage(_minImportance,_maxTiles);
+    auto newNodes = _quadtree->calcCoverage(_minImportance,_maxTiles,true);
     QuadTreeNew::NodeSet toRemove,toAdd;
 
     // Nodes to remove

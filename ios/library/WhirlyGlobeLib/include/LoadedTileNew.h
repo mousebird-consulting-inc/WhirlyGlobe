@@ -82,6 +82,7 @@ public:
     // Generate commands to remove the associated drawables
     void removeDrawables(ChangeSet &changes);
 
+    bool enabled;
     QuadTreeNew::Node ident;
     // Active drawable IDs associated with this tile
     SimpleIDSet drawIDs;
@@ -102,6 +103,9 @@ public:
     
     // Remove the tiles given, if they're being represented
     void removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
+    
+    // Turn tiles on/off based on their childen
+    void updateParents(ChangeSet &changes);
     
     QuadTreeNew *quadTree;
     CoordSystemDisplayAdapter *coordAdapter;

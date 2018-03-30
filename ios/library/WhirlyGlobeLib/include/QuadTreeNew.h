@@ -74,7 +74,8 @@ public:
     typedef std::set<ImportantNode> ImportantNodeSet;
 
     // Calculate a set of nodes to load based on importance, but only up to the maximum
-    NodeSet calcCoverage(double minImportance,int maxNodes);
+    // siblingNodes forces us to load all four children of a given parent
+    NodeSet calcCoverage(double minImportance,int maxNodes,bool siblingNodes);
     
     // Generate a bounding box 
     MbrD generateMbrForNode(const Node &node);
@@ -83,7 +84,7 @@ public:
     // If it exceeds max nodes, we'll back off a level until we run out
 //    NodeSet calcCoverageToLevel(int loadLevel,int maxNodes);
 
-protected:
+public:
     // Filled in by the subclass
     virtual double importance(const Node &node) = 0;
     

@@ -34,12 +34,13 @@ TileGeomSettings::TileGeomSettings()
 }
     
 LoadedTileNew::LoadedTileNew(QuadTreeNew::Node &ident)
-    : ident(ident)
+    : ident(ident), enabled(false)
 {
 }
 
 void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &geomSettings,ChangeSet &changes)
 {
+    enabled = true;
     MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
 
     // Make sure this overlaps the area we care about
@@ -417,16 +418,20 @@ void LoadedTileNew::buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std
     
 void LoadedTileNew::enableDrawables(ChangeSet &changes)
 {
-    for (auto drawID : drawIDs) {
-        changes.push_back(new OnOffChangeRequest(drawID,true));
-    }
+    if (!enabled)
+        for (auto drawID : drawIDs) {
+            changes.push_back(new OnOffChangeRequest(drawID,true));
+        }
+    enabled = true;
 }
 
 void LoadedTileNew::disableDrawables(ChangeSet &changes)
 {
-    for (auto drawID : drawIDs) {
-        changes.push_back(new OnOffChangeRequest(drawID,false));
-    }
+    if (enabled)
+        for (auto drawID : drawIDs) {
+            changes.push_back(new OnOffChangeRequest(drawID,false));
+        }
+    enabled = false;
 }
     
 void LoadedTileNew::removeDrawables(ChangeSet &changes)
@@ -461,6 +466,8 @@ void TileGeomManager::addTiles(TileGeomSettings &geomSettings,const QuadTreeNew:
             tileMap[ident] = tile;
         }
     }
+    
+    updateParents(changes);
 }
     
 void TileGeomManager::removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes)
@@ -471,6 +478,32 @@ void TileGeomManager::removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &c
             auto tile = it->second;
             tile->removeDrawables(changes);
             tileMap.erase(it);
+        }
+    }
+    
+    updateParents(changes);
+}
+    
+void TileGeomManager::updateParents(ChangeSet &changes)
+{
+    for (auto entry : tileMap) {
+        auto ident = entry.first;
+        auto tile = entry.second;
+        
+        if (ident.level < quadTree->maxLevel-1) {
+            bool childPresent = false;
+            for (int iy=0;iy<2;iy++)
+                for (int ix=0;ix<2;ix++) {
+                    QuadTreeNew::Node child(ident.x*2+ix,ident.y*2+iy,ident.level+1);
+                    if (tileMap.find(child) != tileMap.end()) {
+                        childPresent = true;
+                        break;
+                    }
+                }
+            if (childPresent)
+                tile->disableDrawables(changes);
+            else
+                tile->enableDrawables(changes);
         }
     }
 }
