@@ -619,7 +619,7 @@ const DeltaTValue g_DeltaTValues[] =
   { 2457813.5,  68.6671 }, //1 March 2017
   { 2457844.5,  68.7135 }, //1 April 2017
   { 2457874.5,  68.7623 }, //1 May 2017
-  { 2457905.5,  68.8033 } //1 June 2017
+  { 2457905.5,  68.8033 }, //1 June 2017
 
 //All these final values are predicted values from Year 2015.25 to Year 2024.0 are taken from http://maia.usno.navy.mil/ser7/deltat.preds
   { 2457937.00, 69      }, //2017.5
