@@ -454,8 +454,10 @@ void TileGeomManager::setup(QuadTreeNew *inQuadTree,CoordSystemDisplayAdapter *i
     mbr = inMbr;
 }
     
-void TileGeomManager::addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::NodeSet &tiles,ChangeSet &changes)
+std::vector<LoadedTileNewRef> TileGeomManager::addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::NodeSet &tiles,ChangeSet &changes)
 {
+    std::vector<LoadedTileNewRef> retTiles;
+
     for (auto ident: tiles) {
         // Look for an existing tile
         auto it = tileMap.find(ident);
@@ -464,10 +466,28 @@ void TileGeomManager::addTiles(TileGeomSettings &geomSettings,const QuadTreeNew:
             LoadedTileNewRef tile = LoadedTileNewRef(new LoadedTileNew(ident));
             tile->makeDrawables(this,geomSettings,changes);
             tileMap[ident] = tile;
+            retTiles.push_back(tile);
         }
     }
     
     updateParents(changes);
+    
+    return retTiles;
+}
+    
+std::vector<LoadedTileNewRef> TileGeomManager::getTiles(const QuadTreeNew::NodeSet &tiles)
+{
+    std::vector<LoadedTileNewRef> retTiles;
+    
+    for (auto ident: tiles) {
+        auto it = tileMap.find(ident);
+        if (it != tileMap.end()) {
+            auto tile = it->second;
+            retTiles.push_back(tile);
+        }
+    }
+    
+    return retTiles;
 }
     
 void TileGeomManager::removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes)

@@ -90,16 +90,21 @@ public:
 typedef std::shared_ptr<LoadedTileNew> LoadedTileNewRef;
 
 /** Tile Builder builds individual tile geometry for use elsewhere.
+    This is just the geometry.  If you want textures on it, you need to do those elsewhere.
   */
 class TileGeomManager
 {
 public:
     TileGeomManager();
     
+    // Construct with the quad tree we're building off of, the coordinate system we're building from and the (valid) bounding box
     void setup(QuadTreeNew *quadTree,CoordSystemDisplayAdapter *coordAdapter,CoordSystem *coordSys,MbrD inMbr);
     
     // Add the tiles list in the node set
-    void addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
+    std::vector<LoadedTileNewRef> addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
+    
+    // Return a list of tiles corresponding to the IDs
+    std::vector<LoadedTileNewRef> getTiles(const QuadTreeNew::NodeSet &tiles);
     
     // Remove the tiles given, if they're being represented
     void removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);

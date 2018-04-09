@@ -257,13 +257,6 @@ using namespace WhirlyKit;
     [self loadSetup];
 }
 
-- (void)viewDidUnload
-{
-	[self clear];
-	
-	[super viewDidUnload];
-}
-
 - (void)startAnimation
 {
     [glView startAnimation];
@@ -324,11 +317,6 @@ using namespace WhirlyKit;
 	[super viewWillDisappear:animated];
 
 	[self stopAnimation];
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    return YES;
 }
 
 - (void)didReceiveMemoryWarning

@@ -200,7 +200,7 @@ typedef struct
             NSString *tileStr = [self indexForTile:tileID];
             tile = [[DataTile alloc] init];
             tile.tileID = tileID;
-            cachedTiles[tileStr] = tile;
+            self->cachedTiles[tileStr] = tile;
         }
     });
     
@@ -238,7 +238,7 @@ typedef struct
 
 								if ([tile isComplete])
 								{
-									[tileTrack addTile:tileID];
+									[self->tileTrack addTile:tileID];
 									[layer tileDidLoad:tileID];
 								}
 							}
@@ -252,7 +252,7 @@ typedef struct
 {
     dispatch_async(queue,
     ^{
-       [tileTrack removeTile:tileID];
+       [self->tileTrack removeTile:tileID];
        [self clearTile:tileID];
     });
 }

@@ -19,15 +19,42 @@
  */
 
 #import "QuadDisplayLayerNew.h"
+#import "LoadedTileNew.h"
 
-/** The Quad Tile Builder generates geometric tiles for
+@class WhirlyKitQuadTileBuilder;
+
+/// Protocol used by the tile builder to notify an interested party about what's
+///  loaded.  If, for example, you want to attach textures to things.
+@protocol WhirlyKitQuadTileBuilderDelegate<NSObject>
+
+/// Called when the builder first starts up.  Keep this around if you need it.
+- (void)setQuadBuilder:(WhirlyKitQuadTileBuilder * __nonnull)builder;
+
+/// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder loadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles;
+
+/// Unload the given tiles.
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder unLoadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles;
+
+@end
+
+/** The Quad Tile Builder generates geometric tiles based on
+     a quad tree and coordinates an image builder on top of those.
   */
 @interface WhirlyKitQuadTileBuilder : NSObject<WhirlyKitQuadLoaderNew>
 
-@property (nonatomic) WhirlyKit::CoordSystem *coordSys;
+// Coordinate system we're building the tiles in
+@property (nonatomic) WhirlyKit::CoordSystem * __nonnull coordSys;
+
+// If set, we'll cover the poles of a curved coordinate system (e.g. spherical mercator)
 @property (nonatomic) bool coverPoles;
+
+// If set, we'll generate skirts to match between levels of detail
 @property (nonatomic) bool edgeMatching;
 
-- (id)initWithCoordSys:(WhirlyKit::CoordSystem *)coordSys;
+// If set, we'll notify the delegate when tiles are loaded and unloaded
+@property (nonatomic) NSObject<WhirlyKitQuadTileBuilderDelegate> * __nullable delegate;
+
+- (id __nullable)initWithCoordSys:(WhirlyKit::CoordSystem * __nonnull )coordSys;
 
 @end

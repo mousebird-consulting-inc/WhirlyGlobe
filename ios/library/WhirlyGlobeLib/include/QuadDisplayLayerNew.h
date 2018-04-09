@@ -35,7 +35,8 @@
 
 @class WhirlyKitQuadDisplayLayerNew;
 
-/** The Quad Display Layer (New) calls an object with this protocol
+/** The Quad Display Layer (New) calls an object with this protocol.
+    Display layer does the geometric logic.  Up to you to do something with it.
   */
 @protocol WhirlyKitQuadLoaderNew <NSObject>
 

@@ -218,7 +218,7 @@ using namespace WhirlyKit;
             // Need the setup to settle before we can do this
             dispatch_async(dispatch_get_main_queue(),
                            ^{
-                               [self setCurrentImage:_currentImage];
+                               [self setCurrentImage:self->_currentImage];
                            });
         }
     }
@@ -958,7 +958,7 @@ using namespace WhirlyKit;
         {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                            ^{
-                               if (frame != -1 && canFetchFrames)
+                               if (frame != -1 && self->canFetchFrames)
                                    [_tileSource startFetchLayer:self tile:tileID frame:frame];
                                else
                                    [_tileSource startFetchLayer:self tile:tileID];
@@ -978,7 +978,7 @@ using namespace WhirlyKit;
     ^{
         // Start with elevation
         MaplyElevationChunk *elevChunk = nil;
-        if (elevDelegate.minZoom <= tileID.level && tileID.level <= elevDelegate.maxZoom)
+        if (self->elevDelegate.minZoom <= tileID.level && tileID.level <= elevDelegate.maxZoom)
         {
             elevChunk = [elevDelegate elevForTile:tileID];
         }

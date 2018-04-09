@@ -68,7 +68,7 @@ using namespace WhirlyKit;
 - (void)startParseWithCompletion:(nonnull void (^)()) completionBlock {
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        __strong NSObject<MaplyRenderControllerProtocol> *baseVC = _baseVC;
+        __strong NSObject<MaplyRenderControllerProtocol> *baseVC = self->_baseVC;
         if (!baseVC) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 completionBlock();
@@ -76,11 +76,11 @@ using namespace WhirlyKit;
             });
         }
         
-        _styleSet = [[SLDStyleSet alloc] initWithViewC:baseVC useLayerNames:NO relativeDrawPriority:_relativeDrawPriority];
-        [_styleSet loadSldURL:_sldURL];
+        self->_styleSet = [[SLDStyleSet alloc] initWithViewC:baseVC useLayerNames:NO relativeDrawPriority:_relativeDrawPriority];
+        [self->_styleSet loadSldURL:_sldURL];
 
         ShapeSet shapes;
-        NSData *geoJSONData = [NSData dataWithContentsOfURL:_geoJSONURL];
+        NSData *geoJSONData = [NSData dataWithContentsOfURL:self->_geoJSONURL];
         NSString *crs;
         bool parsed = VectorParseGeoJSON(shapes, geoJSONData, &crs);
         
@@ -139,7 +139,7 @@ using namespace WhirlyKit;
         dispatch_async(dispatch_get_main_queue(), ^{
             
             for(id key in symbolizerKeys) {
-                NSObject<MaplyVectorStyle> *symbolizer = [_styleSet styleForUUID:key viewC:baseVC];
+                NSObject<MaplyVectorStyle> *symbolizer = [self->_styleSet styleForUUID:key viewC:baseVC];
                 NSArray *features = featureStyles[key];
                 [compObjs addObjectsFromArray:[symbolizer buildObjects:features forTile:nullTileID viewC:baseVC]];
             }
