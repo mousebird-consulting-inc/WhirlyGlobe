@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import <libxml/tree.h>
 
 @class DDXMLDocument;
 
@@ -23,18 +22,18 @@
 
 enum {
 	DDXMLInvalidKind                = 0,
-	DDXMLDocumentKind               = XML_DOCUMENT_NODE,
-	DDXMLElementKind                = XML_ELEMENT_NODE,
-	DDXMLAttributeKind              = XML_ATTRIBUTE_NODE,
-	DDXMLNamespaceKind              = XML_NAMESPACE_DECL,
-	DDXMLProcessingInstructionKind  = XML_PI_NODE,
-	DDXMLCommentKind                = XML_COMMENT_NODE,
-	DDXMLTextKind                   = XML_TEXT_NODE,
-	DDXMLDTDKind                    = XML_DTD_NODE,
-	DDXMLEntityDeclarationKind      = XML_ENTITY_DECL,
-	DDXMLAttributeDeclarationKind   = XML_ATTRIBUTE_DECL,
-	DDXMLElementDeclarationKind     = XML_ELEMENT_DECL,
-	DDXMLNotationDeclarationKind    = XML_NOTATION_NODE
+	DDXMLDocumentKind,
+	DDXMLElementKind,
+	DDXMLAttributeKind,
+	DDXMLNamespaceKind,
+	DDXMLProcessingInstructionKind,
+	DDXMLCommentKind,
+	DDXMLTextKind,
+	DDXMLDTDKind,
+	DDXMLEntityDeclarationKind,
+	DDXMLAttributeDeclarationKind,
+	DDXMLElementDeclarationKind,
+	DDXMLNotationDeclarationKind
 };
 typedef NSUInteger DDXMLNodeKind;
 
@@ -46,28 +45,16 @@ enum {
 };
 
 
-//extern struct _xmlKind;
-
-
+NS_ASSUME_NONNULL_BEGIN
 @interface DDXMLNode : NSObject <NSCopying>
-{
-	// Every DDXML object is simply a wrapper around an underlying libxml node
-	struct _xmlKind *genericPtr;
-	
-	// Every libxml node resides somewhere within an xml tree heirarchy.
-	// We cannot free the tree heirarchy until all referencing nodes have been released.
-	// So all nodes retain a reference to the node that created them,
-	// and when the last reference is released the tree gets freed.
-	DDXMLNode *owner;
-}
 
-//- (id)initWithKind:(DDXMLNodeKind)kind;
+//- (instancetype)initWithKind:(DDXMLNodeKind)kind;
 
-//- (id)initWithKind:(DDXMLNodeKind)kind options:(NSUInteger)options;
+//- (instancetype)initWithKind:(DDXMLNodeKind)kind options:(NSUInteger)options;
 
-//+ (id)document;
+//+ (instancetype)document;
 
-//+ (id)documentWithRootElement:(DDXMLElement *)element;
+//+ (instancetype)documentWithRootElement:(DDXMLElement *)element;
 
 + (id)elementWithName:(NSString *)name;
 
@@ -75,7 +62,7 @@ enum {
 
 + (id)elementWithName:(NSString *)name stringValue:(NSString *)string;
 
-+ (id)elementWithName:(NSString *)name children:(NSArray *)children attributes:(NSArray *)attributes;
++ (id)elementWithName:(NSString *)name children:(nullable NSArray<DDXMLNode *> *)children attributes:(nullable NSArray<DDXMLNode *> *)attributes;
 
 + (id)attributeWithName:(NSString *)name stringValue:(NSString *)stringValue;
 
@@ -89,68 +76,66 @@ enum {
 
 + (id)textWithStringValue:(NSString *)stringValue;
 
-//+ (id)DTDNodeWithXMLString:(NSString *)string;
+//+ (instancetype)DTDNodeWithXMLString:(NSString *)string;
 
 #pragma mark --- Properties ---
 
-- (DDXMLNodeKind)kind;
+@property (readonly) DDXMLNodeKind kind;
 
-- (void)setName:(NSString *)name;
-- (NSString *)name;
+@property (nullable, copy) NSString *name;
 
 //- (void)setObjectValue:(id)value;
-//- (id)objectValue;
+//- (instancetype)objectValue;
 
-- (void)setStringValue:(NSString *)string;
+@property (nullable, copy) NSString *stringValue;
+
 //- (void)setStringValue:(NSString *)string resolvingEntities:(BOOL)resolve;
-- (NSString *)stringValue;
 
 #pragma mark --- Tree Navigation ---
 
-- (NSUInteger)index;
+@property (readonly) NSUInteger index;
+@property (readonly) NSUInteger level;
 
-- (NSUInteger)level;
+@property (nullable, readonly, retain) DDXMLDocument *rootDocument;
 
-- (DDXMLDocument *)rootDocument;
+@property (nullable, readonly, copy) DDXMLNode *parent;
+@property (readonly) NSUInteger childCount;
+@property (nullable, readonly, copy) NSArray<DDXMLNode *> *children;
+- (nullable DDXMLNode *)childAtIndex:(NSUInteger)index;
 
-- (DDXMLNode *)parent;
-- (NSUInteger)childCount;
-- (NSArray *)children;
-- (DDXMLNode *)childAtIndex:(NSUInteger)index;
+@property (nullable, readonly, copy) DDXMLNode *previousSibling;
+@property (nullable, readonly, copy) DDXMLNode *nextSibling;
 
-- (DDXMLNode *)previousSibling;
-- (DDXMLNode *)nextSibling;
-
-- (DDXMLNode *)previousNode;
-- (DDXMLNode *)nextNode;
+@property (nullable, readonly, copy) DDXMLNode *previousNode;
+@property (nullable, readonly, copy) DDXMLNode *nextNode;
 
 - (void)detach;
 
-- (NSString *)XPath;
+@property (nullable, readonly, copy) NSString *XPath;
 
 #pragma mark --- QNames ---
 
-- (NSString *)localName;
-- (NSString *)prefix;
+@property (nullable, readonly, copy) NSString *localName;
+@property (nullable, readonly, copy) NSString *prefix;
 
-- (void)setURI:(NSString *)URI;
-- (NSString *)URI;
+@property (nullable, copy) NSString *URI; //primitive
 
 + (NSString *)localNameForName:(NSString *)name;
-+ (NSString *)prefixForName:(NSString *)name;
++ (nullable NSString *)prefixForName:(NSString *)name;
 //+ (DDXMLNode *)predefinedNamespaceForPrefix:(NSString *)name;
 
 #pragma mark --- Output ---
 
-- (NSString *)description;
-- (NSString *)XMLString;
-- (NSString *)XMLStringWithOptions:(NSUInteger)options;
+@property (readonly, copy) NSString *description;
+@property (readonly, copy) NSString *XMLString;
+- (nonnull NSString *)XMLStringWithOptions:(NSUInteger)options;
 //- (NSString *)canonicalXMLStringPreservingComments:(BOOL)comments;
 
 #pragma mark --- XPath/XQuery ---
 
-- (NSArray *)nodesForXPath:(NSString *)xpath error:(NSError **)error;
+- (nullable NSArray<__kindof DDXMLNode *> *)nodesForXPath:(NSString *)xpath error:(NSError **)error;
 //- (NSArray *)objectsForXQuery:(NSString *)xquery constants:(NSDictionary *)constants error:(NSError **)error;
 //- (NSArray *)objectsForXQuery:(NSString *)xquery error:(NSError **)error;
 
 @end
+NS_ASSUME_NONNULL_END
