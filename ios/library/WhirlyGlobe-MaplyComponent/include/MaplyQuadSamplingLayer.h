@@ -29,7 +29,11 @@
   */
 @interface MaplyQuadSamplingLayer : MaplyViewControllerLayer
 
+/// Generate geometry to cover the north and south poles
+/// Only works for world-wide projections
 @property (nonatomic) bool coverPoles;
+
+/// If set, generate skirt geometry to hide the edges between levels
 @property (nonatomic) bool edgeMatching;
 
 /// Initialize with a coordinate system

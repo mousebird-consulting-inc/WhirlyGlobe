@@ -29,7 +29,7 @@ TileGeomSettings::TileGeomSettings()
 : useTileCenters(true), color(RGBAColor(255,255,255,255)),
   programID(0), sampleX(10), sampleY(10),
   minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
-  drawPriority(0), lineMode(false), includeElev(false)
+  drawPriority(0), lineMode(true), includeElev(false)
 {
 }
     
