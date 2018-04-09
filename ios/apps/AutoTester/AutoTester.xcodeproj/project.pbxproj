@@ -28,13 +28,13 @@
 		2B5E8AF51E943560000B39E5 /* greensquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B5E8AF41E943560000B39E5 /* greensquare.png */; };
 		2B6953651C7E601A007FC51E /* AnimatedColorRampTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B6953641C7E601A007FC51E /* AnimatedColorRampTestCase.m */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
+		2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */; };
+		2B73D6AF207C0D5F00AF5095 /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */; };
 		2B7E288B200EC109007E2965 /* SE_PolygonsLines.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B7E2889200EC109007E2965 /* SE_PolygonsLines.json */; };
 		2B7E288C200EC109007E2965 /* SE_Basic.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B7E288A200EC109007E2965 /* SE_Basic.json */; };
 		2B7FC0A71E32B67400AF253A /* testJson.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B7FC0A61E32B67400AF253A /* testJson.json */; };
 		2B8849EB1E37F7CB0027C397 /* LIDARTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */; };
 		2B8849FB1E37F9B30027C397 /* stadium-utm-quad-data.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */; };
-		2B8F3259201021CF006DDE27 /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */; };
-		2B8F325A201021CF006DDE27 /* NotoSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */; };
 		2B91A22E1DC14B7500B72527 /* ImageSingleLevelTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */; };
 		2B93D9671D41433500EAD280 /* WideVectorGlobeTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */; };
 		2BB4766820004763006AAACB /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */; };
@@ -1191,8 +1191,8 @@
 		2B8849E91E37F7CB0027C397 /* LIDARTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LIDARTestCase.h; sourceTree = "<group>"; };
 		2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LIDARTestCase.mm; sourceTree = "<group>"; };
 		2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */ = {isa = PBXFileReference; lastKnownFileType = text; name = "stadium-utm-quad-data.sqlite"; path = "../../../resources/lidar/stadium-utm-quad-data.sqlite"; sourceTree = "<group>"; };
-		2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSans-Regular.ttf"; path = "../../../../../../../maps/NotoSans-Regular.ttf"; sourceTree = "<group>"; };
-		2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSans-Bold.ttf"; path = "../../../../../../../maps/NotoSans-Bold.ttf"; sourceTree = "<group>"; };
+		2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSans-Regular.ttf"; path = "resources/NotoSans-Regular.ttf"; sourceTree = "<group>"; };
+		2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSans-Bold.ttf"; path = "resources/NotoSans-Bold.ttf"; sourceTree = "<group>"; };
 		2B91A22D1DC14B7500B72527 /* ImageSingleLevelTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageSingleLevelTestCase.swift; sourceTree = "<group>"; };
 		2B93D9651D41433500EAD280 /* WideVectorGlobeTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorGlobeTestCase.h; sourceTree = "<group>"; };
 		2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WideVectorGlobeTestCase.m; sourceTree = "<group>"; };
@@ -1809,17 +1809,6 @@
 			name = "wide vectors";
 			sourceTree = "<group>";
 		};
-		2BB4768A2008445B006AAACB /* styles */ = {
-			isa = PBXGroup;
-			children = (
-				2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */,
-				2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */,
-				2B7E288A200EC109007E2965 /* SE_Basic.json */,
-				2B7E2889200EC109007E2965 /* SE_PolygonsLines.json */,
-			);
-			path = styles;
-			sourceTree = "<group>";
-		};
 		3651D5D283D23F0C2EFDE845 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -2046,7 +2035,10 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				2BB4768A2008445B006AAACB /* styles */,
+				2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */,
+				2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */,
+				2B7E288A200EC109007E2965 /* SE_Basic.json */,
+				2B7E2889200EC109007E2965 /* SE_PolygonsLines.json */,
 				2B5E8AF41E943560000B39E5 /* greensquare.png */,
 				2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */,
 				2B7FC0A61E32B67400AF253A /* testJson.json */,
@@ -2711,7 +2703,6 @@
 				88FF5CC81BC31D6D002F15CE /* prison-24@2x.png in Resources */,
 				88FF5E841BC31D95002F15CE /* MHL.geojson in Resources */,
 				8FDE43621E01C9420026B20E /* ImageSingleLevelTestCase-map.png in Resources */,
-				2B8F325A201021CF006DDE27 /* NotoSans-Bold.ttf in Resources */,
 				88FF5C821BC31D6D002F15CE /* airport-24@2x.png in Resources */,
 				88FF5C811BC31D6D002F15CE /* airfield-24@2x.png in Resources */,
 				88FF5ED01BC31D95002F15CE /* TJK.geojson in Resources */,
@@ -2851,12 +2842,14 @@
 				88FF5EB31BC31D95002F15CE /* RWA.geojson in Resources */,
 				88FF5EAC1BC31D95002F15CE /* PRY.geojson in Resources */,
 				88FF5EBF1BC31D95002F15CE /* SOM.geojson in Resources */,
+				2B73D6AF207C0D5F00AF5095 /* NotoSans-Regular.ttf in Resources */,
 				88FF5EBD1BC31D95002F15CE /* SLV.geojson in Resources */,
 				88FF5CC01BC31D6D002F15CE /* parking-garage-24@2x.png in Resources */,
 				88FF5EE31BC31D95002F15CE /* VEN.geojson in Resources */,
 				88FF5CE21BC31D6D002F15CE /* town-hall-24@2x.png in Resources */,
 				2B4BA6D81C83A22000DC1562 /* track.geojson in Resources */,
 				88FF5CF21BC31D6D002F15CE /* starcatalog_orig.txt in Resources */,
+				2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */,
 				E53CF5E81E1EAF73000FB5C1 /* school.png in Resources */,
 				88FF5ECA1BC31D95002F15CE /* SYC.geojson in Resources */,
 				883DF7381C1CE164000756E9 /* ScreenLabelsTestCase-map.png in Resources */,
@@ -3121,7 +3114,6 @@
 				88FF5CAE1BC31D6D002F15CE /* industrial-24@2x.png in Resources */,
 				88FF5CF11BC31D6D002F15CE /* vp.mtl in Resources */,
 				88FF5E1A1BC31D95002F15CE /* BWA.geojson in Resources */,
-				2B8F3259201021CF006DDE27 /* NotoSans-Regular.ttf in Resources */,
 				88FF5CE91BC31D6D002F15CE /* wetland-24@2x.png in Resources */,
 				88FF5C9D1BC31D6D002F15CE /* dam-24@2x.png in Resources */,
 				88FF5E091BC31D95002F15CE /* BES.geojson in Resources */,
