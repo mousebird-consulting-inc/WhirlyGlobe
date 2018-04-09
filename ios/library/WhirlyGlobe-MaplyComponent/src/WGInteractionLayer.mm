@@ -136,7 +136,7 @@ using namespace WhirlyGlobe;
     // Tell the view controller about it
     dispatch_async(dispatch_get_main_queue(),^
                    {
-                       [_viewController handleSelection:msg didSelect:retSelectArr];
+                       [self->_viewController handleSelection:msg didSelect:retSelectArr];
                    }
                    );
 }

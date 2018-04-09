@@ -92,7 +92,7 @@
 					NSString *snapshot = [weak_self captureScreenFromVC:self.globeViewController];
 
 					[weak_self finishGlobeTestWithActualImage:snapshot
-													   passed:passed && (_globeResult.actualImageFile != nil)];
+													   passed:passed && (self->_globeResult.actualImageFile != nil)];
 					dispatch_group_leave(lock);
 				});
 			}
@@ -141,7 +141,7 @@
 					NSString *snapshot = [weak_self captureScreenFromVC:self.mapViewController];
 
 					[weak_self finishMapTestWithActualImage:snapshot
-													 passed:passed && (_mapResult.actualImageFile != nil)];
+													 passed:passed && (self->_mapResult.actualImageFile != nil)];
 					dispatch_group_leave(lock);
 				});
 			}

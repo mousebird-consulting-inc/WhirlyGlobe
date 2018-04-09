@@ -60,7 +60,7 @@ static UIColor* colorForElevatedSide(int zoomLevel, float darkFactor)
                        // Add in a little delay
                        usleep(0.215 * 1e6);
                        
-                       if (tileID.level > _maxZoom)
+                       if (tileID.level > self->_maxZoom)
                        {
                            [layer tileFailedToLoad:tileID];
                        } else {
@@ -138,7 +138,7 @@ static UIColor* colorForElevatedSide(int zoomLevel, float darkFactor)
 
                            // Label
 
-						   MaplyElevationChunk *elevChunk = [_elevSource elevForTile:tileID];
+						   MaplyElevationChunk *elevChunk = [self->_elevSource elevForTile:tileID];
 						   WhirlyKitElevationCesiumChunk *chunk = (WhirlyKitElevationCesiumChunk *)elevChunk.chunkImpl;
 
                            MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];

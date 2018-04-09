@@ -59,10 +59,11 @@ using namespace WhirlyKit;
     return geomManage.buildSkirts;
 }
 
+// MARK: WhirlyKitQuadLoaderNew delegate
+
 - (void)setQuadLayer:(WhirlyKitQuadDisplayLayerNew *)inLayer
 {
     layer = inLayer;
-//    geomSettings.lineMode = true;
     MbrD mbr = MbrD([layer.dataStructure validExtents]);
     geomManage.setup(layer.quadtree, layer.scene->getCoordAdapter(),_coordSys,mbr);
 }
@@ -70,13 +71,16 @@ using namespace WhirlyKit;
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const QuadTreeNew::NodeSet &)tiles
 {
     ChangeSet changes;
-    geomManage.addTiles(geomSettings, tiles, changes);
+    auto newTiles = geomManage.addTiles(geomSettings, tiles, changes);
+    [_delegate quadBuilder:self loadTiles:newTiles];
     [layer.layerThread addChangeRequests:changes];
 }
 
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer unLoadTiles:(const QuadTreeNew::NodeSet &)tiles
 {
     ChangeSet changes;
+    auto oldTiles = geomManage.getTiles(tiles);
+    [_delegate quadBuilder:self unLoadTiles:oldTiles];
     geomManage.removeTiles(tiles, changes);
     [layer.layerThread addChangeRequests:changes];
 }
