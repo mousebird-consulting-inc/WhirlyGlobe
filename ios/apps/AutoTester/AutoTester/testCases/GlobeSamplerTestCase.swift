@@ -15,7 +15,7 @@ class GlobeSamplerTestCase: MaplyTestCase {
         
         self.name = "GlobeSampler Test Case"
         self.captureDelay = 4
-        self.implementations = [.globe]
+        self.implementations = [.globe,.map]
     }
     
     // Put together a quad sampler layer
@@ -23,9 +23,9 @@ class GlobeSamplerTestCase: MaplyTestCase {
         let coordSys = MaplySphericalMercator(webStandard: ())
         
         if let sampleLayer = MaplyQuadSamplingLayer.init(coordSystem: coordSys) {
-            sampleLayer.setMinZoom(0, maxZoom: 10, importance: 256.0*256.0)
+            sampleLayer.setMinZoom(0, maxZoom: 22, importance: 256.0*256.0)
             sampleLayer.edgeMatching = true
-            sampleLayer.coverPoles = false
+            sampleLayer.coverPoles = true
 
             return sampleLayer
         }
@@ -36,6 +36,12 @@ class GlobeSamplerTestCase: MaplyTestCase {
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
         if let layer = setupLayer(globeVC) {
             globeVC.add(layer)
+        }
+    }
+    
+    override func setUpWithMap(_ mapVC: MaplyViewController) {
+        if let layer = setupLayer(mapVC) {
+            mapVC.add(layer)
         }
     }
 }
