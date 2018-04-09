@@ -80,7 +80,7 @@ public class SLDStyleSet implements VectorStyleInterface {
      *
      * @details After constructing the SLDStyleSet object, call loadSldInputStream() to parse the desired SLD document tree and create the corresponding symbolizers.
      * @param viewC The map or globe view controller
-     * @param assetManager The AssetManager instance
+     * @param assetWrapper Wrapper around the asset manager.
      * @param sldFileName The file name of the SLD document
      * @param displayMetrics The DisplayMetrics instance
      * @param useLayerNames Whether to use names of NamedLayer elements as a criteria in matching styles.
@@ -88,13 +88,13 @@ public class SLDStyleSet implements VectorStyleInterface {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public SLDStyleSet(MaplyBaseController viewC, AssetManager assetManager, String sldFileName, DisplayMetrics displayMetrics, boolean useLayerNames, int relativeDrawPriority) throws XmlPullParserException, IOException
+    public SLDStyleSet(MaplyBaseController viewC, AssetWrapper assetWrapper, String sldFileName, DisplayMetrics displayMetrics, boolean useLayerNames, int relativeDrawPriority) throws XmlPullParserException, IOException
     {
         this.viewC = viewC;
         this.useLayerNames = useLayerNames;
         this.relativeDrawPriority = relativeDrawPriority;
 
-        inputStream = assetManager.open(sldFileName);
+        inputStream = assetWrapper.open(sldFileName);
 
         String basePath;
         int i = sldFileName.lastIndexOf('/');
@@ -110,7 +110,7 @@ public class SLDStyleSet implements VectorStyleInterface {
         vectorStyleSettings.setMarkerScale(scale);
         vectorStyleSettings.setUseWideVectors(true);
 
-        symbolizerParams = new SLDSymbolizerParams(viewC, assetManager, vectorStyleSettings, basePath, relativeDrawPriority);
+        symbolizerParams = new SLDSymbolizerParams(viewC, assetWrapper, vectorStyleSettings, basePath, relativeDrawPriority);
     }
 
     /**
