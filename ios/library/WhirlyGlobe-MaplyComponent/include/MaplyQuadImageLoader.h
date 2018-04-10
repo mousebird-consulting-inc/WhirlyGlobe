@@ -41,6 +41,9 @@
 // They need to start disabled.  The system will enable and delete them when it is time.
 @property (nonatomic) NSArray * __nullable compObjs;
 
+// If this is set, the tile failed to load
+@property (nonatomic) NSError * __nullable error;
+
 @end
 
 /**
@@ -72,9 +75,12 @@
  */
 @property (nonatomic,assign) int numSimultaneousFetches;
 
+/// Set for a lot of debugging output
+@property (nonatomic,assign) bool debugMode;
+
 /** Called by the tile source when a tile had loaded (or failed to load).
     The caller is responsible for filling out the loadReturn completely.
   */
-- (void)loadedReturn:(MaplyQuadImageLoaderReturn * __nullable)loadReturn error:(NSError * __nullable)error;
+- (bool)loadedReturn:(MaplyQuadImageLoaderReturn * __nonnull)loadReturn;
 
 @end

@@ -23,6 +23,7 @@
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyRemoteTileSource_private.h"
+#import "MaplyQuadImageLoader.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -314,7 +315,7 @@ static bool trackConnections = false;
     return self;
 }
 
-- (void)dealloc
+- (void)clear
 {
     @synchronized(self)
     {
@@ -326,6 +327,11 @@ static bool trackConnections = false;
         }
         tileSet.clear();
     }
+}
+
+- (void)dealloc
+{
+    [self clear];
 }
 
 + (void)setTrackConnections:(bool)track
@@ -488,7 +494,46 @@ static bool trackConnections = false;
     return nil;
 }
 
-- (void)startFetchLayer:(MaplyQuadImageTilesLayer *)layer tile:(MaplyTileID)tileID
+- (void)startFetchLayer:(id)layer tile:(MaplyTileID)tileID frame:(int)frame
+{
+    return [self startFetchLayer:layer tile:tileID];
+}
+
+- (bool)reportSuccess:(id)inLayer data:(NSData *)imgData forTile:(MaplyTileID)tileID
+{
+    if ([inLayer isKindOfClass:[MaplyQuadImageTilesLayer class]]) {
+        MaplyQuadImageTilesLayer *qLayer = nil;
+        qLayer = inLayer;
+        return [qLayer loadedImages:imgData forTile:tileID];
+    } else {
+        MaplyQuadImageLoader *qLoad = nil;
+        qLoad = inLayer;
+
+        MaplyQuadImageLoaderReturn *ret = [[MaplyQuadImageLoaderReturn alloc] init];
+        ret.tileID = tileID;
+        ret.image = imgData;
+        return [qLoad loadedReturn:ret];
+    }
+}
+
+- (void)reportFailure:(id)inLayer error:(NSError *)error forTile:(MaplyTileID)tileID
+{
+    if ([inLayer isKindOfClass:[MaplyQuadImageTilesLayer class]]) {
+        MaplyQuadImageTilesLayer *qLayer = nil;
+        qLayer = inLayer;
+        [inLayer loadError:error forTile:tileID];
+    } else {
+        MaplyQuadImageLoader *qLoad = nil;
+        qLoad = inLayer;
+        
+        MaplyQuadImageLoaderReturn *ret = [[MaplyQuadImageLoaderReturn alloc] init];
+        ret.tileID = tileID;
+        ret.error = error;
+        [qLoad loadedReturn:ret];
+    }
+}
+
+- (void)startFetchLayer:(id)inLayer tile:(MaplyTileID)tileID
 {
     if (trackConnections)
         @synchronized([MaplyRemoteTileSource class])
@@ -509,7 +554,7 @@ static bool trackConnections = false;
             [_delegate remoteTileSource:self tileDidLoad:tileID];
 
         // Let the paging layer know about it
-        [layer loadedImages:imgData forTile:tileID];
+        [self reportSuccess:inLayer data:imgData forTile:tileID];
         
         if (trackConnections)
             @synchronized([MaplyRemoteTileSource class])
@@ -521,7 +566,7 @@ static bool trackConnections = false;
         if(!urlReq)
         {
 			NSError *error = [NSError errorWithDomain:@"maply" code:1 userInfo:@{}];
-			[layer loadError:error forTile:tileID];
+            [self reportFailure:inLayer error:error forTile:tileID];
             if (self.delegate && [self.delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
                 [self.delegate remoteTileSource:self tileDidNotLoad:tileID error:error];
             [self clearTile:tileID];
@@ -550,7 +595,7 @@ static bool trackConnections = false;
                             imgData = [weakSelf.delegate remoteTileSource:self modifyTileReturn:imgData forTile:tileID];
 
                         // Let the paging layer know about it
-                        bool convertSuccess = [layer loadedImages:imgData forTile:tileID];
+                        bool convertSuccess = [self reportSuccess:inLayer data:imgData forTile:tileID];
 
                         // Let the delegate know we loaded successfully
                         if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidLoad:)])
@@ -579,7 +624,7 @@ static bool trackConnections = false;
                     if (weakSelf)
                     {
                         // Unsucessful load
-                        [layer loadError:error forTile:tileID];
+                        [self reportFailure:inLayer error:error forTile:tileID];
                         if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
                             [weakSelf.delegate remoteTileSource:weakSelf tileDidNotLoad:tileID error:error];
                         [weakSelf clearTile:tileID];
@@ -602,6 +647,11 @@ static bool trackConnections = false;
         }
         [task resume];
     }
+}
+
+- (void)cancelTile:(MaplyTileID)tileID frame:(int)frame
+{
+    [self clearTile:tileID];
 }
 
 @end
