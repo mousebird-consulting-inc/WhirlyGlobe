@@ -28,7 +28,7 @@
 @protocol WhirlyKitQuadTileBuilderDelegate<NSObject>
 
 /// Called when the builder first starts up.  Keep this around if you need it.
-- (void)setQuadBuilder:(WhirlyKitQuadTileBuilder * __nonnull)builder;
+- (void)setQuadBuilder:(WhirlyKitQuadTileBuilder * __nonnull)builder layer:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer;
 
 /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
 - (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder loadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles;

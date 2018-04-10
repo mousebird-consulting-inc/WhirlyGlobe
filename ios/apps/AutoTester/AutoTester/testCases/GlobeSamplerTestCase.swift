@@ -20,17 +20,30 @@ class GlobeSamplerTestCase: MaplyTestCase {
     
     // Put together a quad sampler layer
     func setupLayer(_ baseVC: MaplyBaseViewController) -> MaplyQuadSamplingLayer? {
-        let coordSys = MaplySphericalMercator(webStandard: ())
-        
-        if let sampleLayer = MaplyQuadSamplingLayer.init(coordSystem: coordSys) {
-            sampleLayer.setMinZoom(0, maxZoom: 22, importance: 256.0*256.0)
-            sampleLayer.edgeMatching = true
-            sampleLayer.coverPoles = true
-
-            return sampleLayer
+        // Stamen tile source
+        let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
+        let thisCacheDir = "\(cacheDir)/stamentiles/"
+        let maxZoom = Int32(16)
+        guard let tileSource = MaplyRemoteTileSource(
+            baseURL: "http://tile.stamen.com/watercolor/",
+            ext: "png", minZoom: Int32(0), maxZoom: Int32(maxZoom)) else {
+                return nil
         }
+        tileSource.cacheDir = thisCacheDir
 
-        return nil
+        let coordSys = MaplySphericalMercator(webStandard: ())
+        guard let imageLoader = MaplyQuadImageLoader(tileSource: tileSource) else {
+            return nil
+        }
+        
+        guard let sampleLayer = MaplyQuadSamplingLayer.init(coordSystem: coordSys, imageLoader: imageLoader) else {
+            return nil
+        }
+        sampleLayer.setMinZoom(0, maxZoom: 22, importance: 256.0*256.0)
+        sampleLayer.edgeMatching = true
+        sampleLayer.coverPoles = true
+
+        return sampleLayer
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {

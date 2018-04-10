@@ -66,6 +66,8 @@ using namespace WhirlyKit;
     layer = inLayer;
     MbrD mbr = MbrD([layer.dataStructure validExtents]);
     geomManage.setup(layer.quadtree, layer.scene->getCoordAdapter(),_coordSys,mbr);
+    
+    [_delegate setQuadBuilder:self layer:layer];
 }
 
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const QuadTreeNew::NodeSet &)tiles

@@ -21,6 +21,7 @@
 #import "MaplyQuadSamplingLayer.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyBaseViewController_private.h"
+#import "MaplyQuadImageLoader_private.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
@@ -36,15 +37,17 @@ using namespace WhirlyKit;
     WhirlyKitQuadDisplayLayerNew *quadLayer;
     WhirlyKitQuadTileBuilder *builder;
     WhirlyKitSceneRendererES * __weak renderer;
+    MaplyQuadImageLoader *imageLoader;
     int minZoom,maxZoom;
     double import;
 }
 
-- (nullable instancetype)initWithCoordSystem:(MaplyCoordinateSystem *__nonnull)inCoordSys
+- (nullable instancetype)initWithCoordSystem:(MaplyCoordinateSystem *__nonnull)inCoordSys imageLoader:(MaplyQuadImageLoader *)inImageLoader
 {
     self = [super init];
     
     coordSys = inCoordSys;
+    imageLoader = inImageLoader;
     _coverPoles = true;
     _edgeMatching = true;
     
@@ -68,6 +71,7 @@ using namespace WhirlyKit;
     builder = [[WhirlyKitQuadTileBuilder alloc] initWithCoordSys:[coordSys getCoordSystem]];
     builder.coverPoles = _coverPoles;
     builder.edgeMatching = _edgeMatching;
+    builder.delegate = imageLoader;
     quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithDataSource:self loader:builder renderer:renderer];
     quadLayer.minImportance = import;
     [super.layerThread addLayer:quadLayer];

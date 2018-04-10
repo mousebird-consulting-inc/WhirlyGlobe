@@ -22,6 +22,7 @@
 #import "MaplyCoordinateSystem.h"
 #import "MaplyTileSource.h"
 #import "MaplyRenderController.h"
+#import "MaplyQuadImageLoader.h"
 
 /** The Quad Sampling Layer runs a quad tree which determines what
     tiles to load.  We hook up other things to this to actually do
@@ -37,7 +38,7 @@
 @property (nonatomic) bool edgeMatching;
 
 /// Initialize with a coordinate system
-- (nullable instancetype)initWithCoordSystem:(MaplyCoordinateSystem *__nonnull)coordSys;
+- (nullable instancetype)initWithCoordSystem:(MaplyCoordinateSystem *__nonnull)coordSys imageLoader:(MaplyQuadImageLoader *__nonnull)imageLoader;
 
 /// Set the zoom levels and importance cutoff
 - (void)setMinZoom:(int)minZoom maxZoom:(int)maxZoom importance:(float)import;

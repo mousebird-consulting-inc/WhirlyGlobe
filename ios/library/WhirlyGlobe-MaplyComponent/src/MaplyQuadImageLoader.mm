@@ -20,10 +20,51 @@
 #import "MaplyQuadImageLoader_private.h"
 #import "QuadTileBuilder.h"
 
+namespace WhirlyKit
+{
+
+// Keep track of what we've already loaded
+class TileAsset
+{
+public:
+    // Clean out assets
+    void clear(ChangeSet &changes) {
+        if (texID != EmptyIdentity)
+            changes.push_back(new RemTextureReq(texID));
+    }
+    
+    SimpleIdentity texID;
+};
+    
+typedef std::map<QuadTreeNew::Node,TileAsset> TileAssetMap;
+}
+
+using namespace WhirlyKit;
+
+@implementation MaplyQuadImageLoaderReturn
+
+- (id)init
+{
+    self = [super init];
+    _frame = -1;
+    
+    return self;
+}
+
+@end
+
 @implementation MaplyQuadImageLoader
 {
     NSObject<MaplyTileSource> *tileSource;
-    WhirlyKitQuadTileBuilder *builder;
+    WhirlyKitQuadTileBuilder * __weak builder;
+    WhirlyKitQuadDisplayLayerNew * __weak layer;
+
+    // What we've been asked to load, in order
+    WhirlyKit::QuadTreeNew::NodeSet toLoad;
+    // What the tile source is currently working on
+    WhirlyKit::QuadTreeNew::NodeSet currentlyLoading;
+    // Tiles we've actually loaded and are active in memory
+    WhirlyKit::TileAssetMap loaded;
 }
 
 - (instancetype)initWithTileSource:(NSObject<MaplyTileSource> *)inTileSource
@@ -38,7 +79,7 @@
         return nil;
     }
     if (![tileSource respondsToSelector:@selector(clear)]) {
-        NSLog(@"MaplyQuadImageLoader requires tile source implement cancelTile:frame:");
+        NSLog(@"MaplyQuadImageLoader requires tile source implement clear");
         return nil;
     }
     if (![tileSource respondsToSelector:@selector(validTile:bbox:)]) {
@@ -47,6 +88,7 @@
     }
     
     _numSimultaneousFetches = 16;
+    _debugMode = true;
 
     self = [super init];
     return self;
@@ -54,26 +96,127 @@
 
 // MARK: Quad Build Delegate
 
-- (void)setQuadBuilder:(WhirlyKitQuadTileBuilder * __nonnull)inBuilder
+- (void)setQuadBuilder:(WhirlyKitQuadTileBuilder * __nonnull)inBuilder layer:(WhirlyKitQuadDisplayLayerNew * __nonnull)inLayer
 {
     builder = inBuilder;
+    layer = inLayer;
 }
 
+// Called on the layer thread
 - (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder loadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles
 {
+    for (auto tile: tiles) {
+        // Already got this one
+        if (loaded.find(tile->ident) != loaded.end()) {
+            continue;
+        }
+        // Already trying to load this one
+        if (currentlyLoading.find(tile->ident) != currentlyLoading.end()) {
+            continue;
+        }
+        // Add to the list of loads
+        if (toLoad.find(tile->ident) == toLoad.end()) {
+            toLoad.insert(tile->ident);
+        }
+    }
     
+    [self updateLoading];
 }
 
+// Called on the layer thread
+- (void)updateLoading
+{
+    // Ask for a few more to load
+    while (currentlyLoading.size() < _numSimultaneousFetches) {
+        auto nextLoad = toLoad.begin();
+        if (nextLoad == toLoad.end())
+            break;
+        
+        currentlyLoading.insert(*nextLoad);
+        
+        // Ask the source to load the tile
+        MaplyTileID tileID;
+        tileID.level = nextLoad->level;
+        tileID.x = nextLoad->x;
+        tileID.y = nextLoad->y;
+        if (_debugMode)
+            NSLog(@"Started loading %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+
+        toLoad.erase(nextLoad);
+        [tileSource startFetchLayer:self tile:tileID frame:-1];
+    }
+}
+
+// Called on the layer thread
 - (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder unLoadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles
 {
+    ChangeSet changes;
     
+    for (auto tile: tiles) {
+        MaplyTileID tileID;
+        tileID.level = tile->ident.level;
+        tileID.x = tile->ident.x;
+        tileID.y = tile->ident.y;
+
+        // Cancel it
+        auto currentLoadingIt = currentlyLoading.find(tile->ident);
+        if (currentLoadingIt != currentlyLoading.end()) {
+            currentlyLoading.erase(currentLoadingIt);
+            if (_debugMode)
+                NSLog(@"Cancelled loading %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+            [tileSource cancelTile:tileID frame:-1];
+            
+            continue;
+        }
+        
+        // Haven't done anything with it yet
+        auto toLoadIt = toLoad.find(tile->ident);
+        if (toLoadIt != toLoad.end()) {
+            toLoad.erase(toLoadIt);
+            
+            continue;
+        }
+        
+        // It was loaded, so clean out the contents
+        auto loadedIt = loaded.find(tile->ident);
+        if (loadedIt != loaded.end()) {
+            if (_debugMode)
+                NSLog(@"Unloading %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+            loadedIt->second.clear(changes);
+
+            loaded.erase(loadedIt);
+        }
+    }
+    
+    [self updateLoading];
 }
 
-// Called by the tile source
-
-- (void)loadedReturn:(MaplyQuadImageLoaderReturn *)loadReturn error:(NSError *)error
+// Called from anywhere
+- (bool)loadedReturn:(MaplyQuadImageLoaderReturn *)loadReturn
 {
+    // Note: Check the data coming in and return false if it's bad
     
+    if (layer.layerThread != [NSThread currentThread]) {
+        [self performSelector:@selector(loadedReturn:) onThread:layer.layerThread withObject:loadReturn waitUntilDone:NO];
+        return true;
+    }
+
+    if (_debugMode)
+        NSLog(@"Loaded %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
+
+    // No longer loading
+    QuadTreeNew::Node node(loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.tileID.level);
+    auto currentLoadingIt = currentlyLoading.find(node);
+    if (currentLoadingIt != currentlyLoading.end()) {
+        currentlyLoading.erase(currentLoadingIt);
+    }
+    
+    // Note: Do something with the return
+
+    [self updateLoading];
+
+    return true;
 }
+
 
 @end
