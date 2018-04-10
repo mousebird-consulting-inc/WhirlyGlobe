@@ -26,7 +26,7 @@ class BNGTestCase: MaplyTestCase {
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
 		StamenWatercolorRemote().setUpWithGlobe(globeVC)
 		BNGCustomMapTestCase().createBritishNationalOverlayLocal(globeVC, maplyMap: false)
-		globeVC.clearColor = UIColor.init(colorLiteralRed: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)
+        globeVC.clearColor = UIColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)
 	}
 
 }

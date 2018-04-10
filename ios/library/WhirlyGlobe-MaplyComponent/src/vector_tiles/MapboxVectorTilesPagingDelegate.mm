@@ -144,7 +144,7 @@ static double MAX_EXTENT = 20037508.342789244;
                                MaplyRenderController *renderControl = [layer.viewC getRenderControl];
                                if ([renderControl startOfWork])
                                {
-                                   retData = [_tileParser buildObjects:tileData tile:tileID bounds:bbox geoBounds:geoBbox];
+                                   retData = [self->_tileParser buildObjects:tileData tile:tileID bounds:bbox geoBounds:geoBbox];
                                    if (!retData)
                                        NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,flippedYTile.y);
                                    

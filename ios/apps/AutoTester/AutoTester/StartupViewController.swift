@@ -8,7 +8,7 @@
 
 import UIKit
 
-class StartupViewController: UITableViewController, UIPopoverControllerDelegate {
+class StartupViewController: UITableViewController, UIPopoverPresentationControllerDelegate {
 
 	let tests = [
         GlobeSamplerTestCase(),
@@ -86,7 +86,6 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	fileprivate var testViewBlack: UIView?
 
 	fileprivate var configViewC: ConfigViewController?
-	fileprivate var popControl: UIPopoverController?
 
 	fileprivate var timer = Timer()
 	fileprivate var seconds = 0
@@ -116,7 +115,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 			self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(StartupViewController.runTests))
 		}
 
-		let rect = UIScreen.main.applicationFrame
+		let rect = UIScreen.main.bounds
 		testViewBlack = UIView(frame: CGRect(x: 0, y: 0, width: rect.width, height: rect.height))
 		testViewBlack?.backgroundColor = UIColor.black
 		testViewBlack?.isHidden = true
@@ -254,10 +253,15 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 
 	fileprivate dynamic func showConfig() {
 		if UI_USER_INTERFACE_IDIOM() == .pad {
-			popControl = UIPopoverController(contentViewController: configViewC!)
-			popControl?.delegate = self
-			popControl?.setContentSize(CGSize(width: 400, height: 4.0/5.0*self.view.bounds.size.height), animated: true)
-			popControl?.present(from: CGRect(x: 0, y: 0, width: 10, height: 10), in: self.navigationController!.view, permittedArrowDirections: .up, animated: true)
+            if let configViewC = configViewC {
+                configViewC.modalPresentationStyle = UIModalPresentationStyle.popover
+                configViewC.preferredContentSize = CGSize(width: 400, height: 4.0/5.0*self.view.bounds.size.height)
+                present(configViewC, animated: true, completion: nil)
+                if let popControl = configViewC.popoverPresentationController {
+                    popControl.sourceView = self.view
+                    popControl.delegate = self
+                }
+            }
 		}
 		else {
 			configViewC!.navigationItem.hidesBackButton = true
@@ -269,7 +273,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	fileprivate func prepareTestView () {
 		testViewBlack?.frame = CGRect(
 			origin: CGPoint.zero,
-			size: UIScreen.main.applicationFrame.size)
+			size: UIScreen.main.bounds.size)
 		let visibleRect = self.view.convert(tableView.bounds, to: self.testViewBlack)
 		self.testViewBlack?.frame = visibleRect
 
@@ -480,7 +484,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		testsTable.reloadData()
 	}
 
-	func popoverControllerDidDismissPopover(_ popoverController: UIPopoverController) {
+	func popoverControllerDidDismissPopover(_ popoverController: UIPopoverPresentationController) {
 		changeSettings()
 	}
 

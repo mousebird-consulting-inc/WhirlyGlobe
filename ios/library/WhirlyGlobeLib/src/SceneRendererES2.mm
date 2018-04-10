@@ -271,7 +271,7 @@ static const float ScreenOverlap = 0.1;
         dispatch_async(contextQueue,
                        ^{
                            [self renderAsync];
-                           dispatch_semaphore_signal(frameRenderingSemaphore);
+                           dispatch_semaphore_signal(self->frameRenderingSemaphore);
                        });
     } else
         [self renderAsync];

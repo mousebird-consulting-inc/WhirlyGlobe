@@ -76,8 +76,8 @@ using namespace WhirlyKit;
             });
         }
         
-        self->_styleSet = [[SLDStyleSet alloc] initWithViewC:baseVC useLayerNames:NO relativeDrawPriority:_relativeDrawPriority];
-        [self->_styleSet loadSldURL:_sldURL];
+        self->_styleSet = [[SLDStyleSet alloc] initWithViewC:baseVC useLayerNames:NO relativeDrawPriority:self->_relativeDrawPriority];
+        [self->_styleSet loadSldURL:self->_sldURL];
 
         ShapeSet shapes;
         NSData *geoJSONData = [NSData dataWithContentsOfURL:self->_geoJSONURL];
@@ -116,7 +116,7 @@ using namespace WhirlyKit;
                 [self processAreal:ar andVectorObjs:vectorObjs];
             }
             
-            NSArray *styles = [_styleSet stylesForFeatureWithAttributes:attributes onTile:nullTileID inLayer:@"" viewC:baseVC];
+            NSArray *styles = [self->_styleSet stylesForFeatureWithAttributes:attributes onTile:nullTileID inLayer:@"" viewC:baseVC];
             
             if (!styles || styles.count == 0)
                 continue;
@@ -144,10 +144,10 @@ using namespace WhirlyKit;
                 [compObjs addObjectsFromArray:[symbolizer buildObjects:features forTile:nullTileID viewC:baseVC]];
             }
             
-            _compObjs = compObjs;
+            self->_compObjs = compObjs;
             [baseVC enableObjects:compObjs mode:MaplyThreadAny];
-            _loaded = true;
-            _enabled = true;
+            self->_loaded = true;
+            self->_enabled = true;
             completionBlock();
         });
 

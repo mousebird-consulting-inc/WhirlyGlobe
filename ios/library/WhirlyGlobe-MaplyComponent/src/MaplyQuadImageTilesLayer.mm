@@ -959,16 +959,16 @@ using namespace WhirlyKit;
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                            ^{
                                if (frame != -1 && self->canFetchFrames)
-                                   [_tileSource startFetchLayer:self tile:tileID frame:frame];
+                                   [self->_tileSource startFetchLayer:self tile:tileID frame:frame];
                                else
-                                   [_tileSource startFetchLayer:self tile:tileID];
+                                   [self->_tileSource startFetchLayer:self tile:tileID];
                            }
                            );
         } else {
             if (frame != -1 && canFetchFrames)
-                [_tileSource startFetchLayer:self tile:tileID frame:frame];
+                [self->_tileSource startFetchLayer:self tile:tileID frame:frame];
             else
-                [_tileSource startFetchLayer:self tile:tileID];
+                [self->_tileSource startFetchLayer:self tile:tileID];
         }
         return;
     }
@@ -978,15 +978,15 @@ using namespace WhirlyKit;
     ^{
         // Start with elevation
         MaplyElevationChunk *elevChunk = nil;
-        if (self->elevDelegate.minZoom <= tileID.level && tileID.level <= elevDelegate.maxZoom)
+        if (self->elevDelegate.minZoom <= tileID.level && tileID.level <= self->elevDelegate.maxZoom)
         {
-            elevChunk = [elevDelegate elevForTile:tileID];
+            elevChunk = [self->elevDelegate elevForTile:tileID];
         }
         
         // Needed elevation and failed to load, so stop
-        if (elevDelegate && _requireElev && !elevChunk)
+        if (self->elevDelegate && self->_requireElev && !elevChunk)
         {
-            NSArray *args = @[[NSNull null],@(col),@(row),@(level),@(frame),_tileSource];
+            NSArray *args = @[[NSNull null],@(col),@(row),@(level),@(frame),self->_tileSource];
             if (super.layerThread)
             {
                 if ([NSThread currentThread] == super.layerThread)
@@ -1000,17 +1000,17 @@ using namespace WhirlyKit;
 
         // Get the data for the tile and sort out what the delegate returned to us
         id tileReturn = nil;
-        if (frame != -1 && canFetchFrames)
-            tileReturn = [_tileSource imageForTile:tileID frame:frame];
+        if (frame != -1 && self->canFetchFrames)
+            tileReturn = [self->_tileSource imageForTile:tileID frame:frame];
         else
-            tileReturn = [_tileSource imageForTile:tileID];
+            tileReturn = [self->_tileSource imageForTile:tileID];
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
         
         // Take into account variable tile sizes
-        int thisTileSize = tileSize;
-        if (variableSizeTiles)
+        int thisTileSize = self->tileSize;
+        if (self->variableSizeTiles)
         {
-            thisTileSize = [_tileSource tileSizeForTile:tileID];
+            thisTileSize = [self->_tileSource tileSizeForTile:tileID];
         }
         if (thisTileSize > 0) {
             tileData.targetSize = CGSize{(CGFloat)thisTileSize, (CGFloat)thisTileSize};
@@ -1046,7 +1046,7 @@ using namespace WhirlyKit;
         if (loadTile && tileData.type != MaplyImgTypePlaceholder)
             loadTile.elevChunk = elevChunk.chunkImpl;
 
-        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),@(frame),_tileSource];
+        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),@(frame),self->_tileSource];
         if (super.layerThread)
         {
             if ([NSThread currentThread] == super.layerThread)

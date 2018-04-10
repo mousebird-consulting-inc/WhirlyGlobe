@@ -27,7 +27,7 @@ class OpenMapTilesTestCase: MaplyTestCase {
         guard let styleData = NSData.init(contentsOfFile: path) else {
             return nil
         }
-        guard let styleSet = MapboxVectorStyleSet.init(json: styleData as Data!,
+        guard let styleSet = MapboxVectorStyleSet.init(json: styleData as Data,
                                                        settings: MaplyVectorStyleSettings.init(scale: UIScreen.main.scale),
                                                        viewC: baseVC,
                                                        filter: nil) else {

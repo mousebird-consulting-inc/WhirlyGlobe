@@ -546,8 +546,8 @@ static bool trackConnections = false;
                     {
                         NSData *imgData = data;
                         
-                        if ([_delegate respondsToSelector:@selector(remoteTileSource:modifyTileReturn:forTile:)])
-                            imgData = [_delegate remoteTileSource:self modifyTileReturn:imgData forTile:tileID];
+                        if ([weakSelf.delegate respondsToSelector:@selector(remoteTileSource:modifyTileReturn:forTile:)])
+                            imgData = [weakSelf.delegate remoteTileSource:self modifyTileReturn:imgData forTile:tileID];
 
                         // Let the paging layer know about it
                         bool convertSuccess = [layer loadedImages:imgData forTile:tileID];

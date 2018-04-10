@@ -62,7 +62,7 @@
         self->aerisLayer.imageDepth = (int)[tileSources count];
         self->aerisLayer.imageFormat = MaplyImageUShort5551;
         self->aerisLayer.drawPriority = 1000;
-        self->aerisLayer.importanceScale = importanceScale;
+        self->aerisLayer.importanceScale = self->importanceScale;
         self->aerisLayer.animationPeriod = 5.0;
         
         [vc addLayer:self->aerisLayer];
