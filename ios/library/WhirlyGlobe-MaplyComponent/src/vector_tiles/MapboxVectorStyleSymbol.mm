@@ -29,6 +29,7 @@
     if (!self)
         return nil;
     
+    _visible = [styleSet boolValue:@"visibility" dict:styleEntry onValue:@"visible" defVal:true];
     _placement = (MapboxSymbolPlacement)[styleSet enumValue:styleEntry[@"symbol-placement"] options:@[@"point",@"line"] defVal:MBPlacePoint];
     _textTransform = (MapboxTextTransform)[styleSet enumValue:styleEntry[@"text-transform"] options:@[@"none",@"uppercase",@"lowercase"] defVal:MBTextTransNone];
     
@@ -48,10 +49,10 @@
     if ([textFontArray isKindOfClass:[NSArray class]] && [textFontArray count] > 0) {
         NSString *textField = [textFontArray objectAtIndex:0];
         if ([textField isKindOfClass:[NSString class]]) {
-            _textFontName = textField;
+            _textFontName = [textField stringByReplacingOccurrencesOfString:@" " withString:@"-"];
         }
     }
-    _textMaxWidth = [styleSet doubleValue:@"text-max-width" dict:styleEntry defVal:10000.0];
+    _textMaxWidth = [styleSet doubleValue:@"text-max-width" dict:styleEntry defVal:10.0];
     id sizeEntry = styleEntry[@"text-size"];
     if (sizeEntry)
     {
@@ -82,8 +83,17 @@
     if (!self)
         return nil;
     
-    _textColor = [styleSet colorValue:@"text-color" dict:styleEntry defVal:[UIColor whiteColor] multiplyAlpha:false];
-    _textHaloColor = [styleSet colorValue:@"text-halo-color" dict:styleEntry defVal:nil multiplyAlpha:false];
+    id textColorEntry = styleEntry[@"text-color"];
+    if (textColorEntry)
+    {
+        if ([textColorEntry isKindOfClass:[NSString class]])
+            _textColor = [styleSet colorValue:@"text-color" val:nil dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:false];
+        else
+            _textColorFunc = [styleSet stopsValue:textColorEntry defVal:nil];
+    } else {
+        _textColor = [UIColor whiteColor];
+    }
+    _textHaloColor = [styleSet colorValue:@"text-halo-color" val:nil dict:styleEntry defVal:nil multiplyAlpha:false];
     _textHaloWidth = [styleSet doubleValue:@"text-halo-width" dict:styleEntry defVal:0.0];
 
     return self;
@@ -117,11 +127,13 @@
     }
     
     symbolDesc = [NSMutableDictionary dictionaryWithDictionary:
-                  @{kMaplyTextColor: _paint.textColor,
+                  @{
 //                    kMaplyFade: @(0.0),
                     kMaplyTextJustify: kMaplyTextJustifyCenter,
                     kMaplyEnable: @(NO)
                     }];
+    if (_paint.textColor)
+        symbolDesc[kMaplyTextColor] = _paint.textColor;
     if (_paint.textHaloColor && _paint.textHaloWidth > 0.0)
     {
         symbolDesc[kMaplyTextOutlineColor] = _paint.textHaloColor;
@@ -165,6 +177,15 @@
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
+
+    // Note: Would be better to do this earlier
+    if (!_layout.visible)
+        return compObjs;
+    
+    if (self.minzoom > tileID.level)
+        return compObjs;
+    if (self.maxzoom < tileID.level)
+        return compObjs;
     
     NSDictionary *desc = symbolDesc;
     double textSize = 24.0;
@@ -182,11 +203,23 @@
     if (_layout.textFontName) {
         UIFontDescriptor *fontDesc = [[UIFontDescriptor alloc] initWithFontAttributes:@{UIFontDescriptorNameAttribute: _layout.textFontName}];
         font = [UIFont fontWithDescriptor:fontDesc size:textSize];
+//        NSLog(@"Asked for: %@,  Got: %@",_layout.textFontName,font.fontName);
+        if (!font)
+            NSLog(@"Found unsupported font %@",fontDesc);
     }
     if (!font)
         font = [UIFont systemFontOfSize:textSize];
+    
+    UIColor *textColor = _paint.textColor;
+    if (_paint.textColorFunc) {
+        textColor = [_paint.textColorFunc colorForZoom:tileID.level];
+    }
+    if (!textColor)
+        textColor = [UIColor whiteColor];
+
     NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
     mutDesc[kMaplyFont] = font;
+    mutDesc[kMaplyTextColor] = textColor;
     desc = mutDesc;
     // Note: Made up value for pushing multi-line text together
     mutDesc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
@@ -203,7 +236,10 @@
                 break;
         }
         if (!label.text)
+        {
+            NSLog(@"Failed to find text for label");
             continue;
+        }
         // The rank is most important, followed by the zoom level.  This keeps the countries on top.
         int rank = 100000;
         if (vecObj.attributes[@"rank"]) {

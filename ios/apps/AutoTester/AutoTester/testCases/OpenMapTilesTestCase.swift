@@ -27,8 +27,11 @@ class OpenMapTilesTestCase: MaplyTestCase {
         guard let styleData = NSData.init(contentsOfFile: path) else {
             return nil
         }
-        guard let styleSet = MapboxVectorStyleSet.init(json: styleData as Data!, viewC: baseVC, filter: nil) else {
-            return nil
+        guard let styleSet = MapboxVectorStyleSet.init(json: styleData as Data!,
+                                                       settings: MaplyVectorStyleSettings.init(scale: UIScreen.main.scale),
+                                                       viewC: baseVC,
+                                                       filter: nil) else {
+                                                        return nil
         }
         
         // Note: Get your own tilehosting key.  This one is not for commercial use
@@ -39,18 +42,18 @@ class OpenMapTilesTestCase: MaplyTestCase {
         if let tileSource = tileSource {
             tileSource.cacheDir = "\(cacheDir)/openmaptiles1/"
             let pageDelegate = MapboxVectorTilesPagingDelegate(tileSource: tileSource, style: styleSet, viewC: baseVC)
-//            pageDelegate.tileParser?.debugLabel = true
-//            pageDelegate.tileParser?.debugOutline = true
+            //            pageDelegate.tileParser?.debugLabel = true
+            //            pageDelegate.tileParser?.debugOutline = true
             if let pageLayer = MaplyQuadPagingLayer(coordSystem: MaplySphericalMercator(), delegate: pageDelegate) {
                 pageLayer.flipY = false
                 pageLayer.importance = 512*512;
                 pageLayer.singleLevelLoading = true
-
+                
                 // Background layer supplies the background color
-                if let backLayer = styleSet.layersByName["background"] as? MapboxVectorLayerBackground? {
+                if let backLayer = styleSet.layersByName!["background"] as? MapboxVectorLayerBackground? {
                     baseVC.clearColor = backLayer?.paint.color
                 }
-
+                
                 return pageLayer
             }
         }
