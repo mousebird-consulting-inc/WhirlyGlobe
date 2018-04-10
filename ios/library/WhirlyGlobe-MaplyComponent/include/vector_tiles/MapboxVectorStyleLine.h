@@ -25,6 +25,7 @@ typedef enum {MBLineJoinBevel,MBLineJoinRound,MBLineJoinMiter} MapboxVectorLineJ
 
 @interface MapboxVectorLineLayout : NSObject
 
+@property (nonatomic) bool visible;
 @property (nonatomic) MapboxVectorLineCap cap;
 @property (nonatomic) MapboxVectorLineJoin join;
 @property (nonatomic) double miterLimit;
@@ -47,6 +48,7 @@ typedef enum {MBLineJoinBevel,MBLineJoinRound,MBLineJoinMiter} MapboxVectorLineJ
 @property (nonatomic) double opacity;
 @property (nonatomic) MaplyVectorFunctionStops *opacityFunc;
 @property (nonatomic) UIColor *color;
+@property (nonatomic) MaplyVectorFunctionStops *colorFunc;
 @property (nonatomic) double width;
 @property (nonatomic) MaplyVectorFunctionStops *widthFunc;
 @property (nonatomic) MapboxVectorLineDashArray *lineDashArray;

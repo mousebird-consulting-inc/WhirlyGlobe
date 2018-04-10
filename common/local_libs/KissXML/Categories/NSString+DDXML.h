@@ -1,7 +1,9 @@
 #import <Foundation/Foundation.h>
-#import <libxml/tree.h>
 
+// We redefine xmlChar to avoid a non-modular include
+typedef unsigned char xmlChar;
 
+NS_ASSUME_NONNULL_BEGIN
 @interface NSString (DDXML)
 
 /**
@@ -12,6 +14,7 @@
 - (NSString *)stringByTrimming;
 
 @end
+NS_ASSUME_NONNULL_END
 
 // Used to pull in category selectors
 #ifdef __cplusplus
