@@ -28,9 +28,8 @@
     self = [super init];
     if (!self)
         return nil;
-    
-    [styleSet unsupportedCheck:@"visibility" in:@"line-layout" styleEntry:styleEntry];
-    
+
+    _visible = [styleSet boolValue:@"visibility" dict:styleEntry onValue:@"visible" defVal:true];
     _cap = (MapboxVectorLineCap)[styleSet enumValue:styleEntry[@"line-cap"] options:@[@"butt",@"round",@"square"] defVal:MBLineCapButt];
     _join = (MapboxVectorLineJoin)[styleSet enumValue:styleEntry[@"line-join"] options:@[@"bevel",@"round",@"miter"] defVal:MBLineJoinMiter];
     _miterLimit = [styleSet doubleValue:@"line-miter-limit" dict:styleEntry defVal:2.0];
@@ -83,7 +82,6 @@
             _opacityFunc = [styleSet stopsValue:opEntry defVal:nil];
     } else
         _opacity = 1.0;
-    _color = [styleSet colorValue:@"line-color" dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:true];
     id widthEntry = [styleSet constantSubstitution:styleEntry[@"line-width"] forField:@"line-width"];
     if (widthEntry)
     {
@@ -93,6 +91,15 @@
             _widthFunc = [styleSet stopsValue:widthEntry defVal:nil];
     } else
         _width = 1.0;
+    id colorEntry = [styleSet constantSubstitution:styleEntry[@"line-color"] forField:@"line-color"];
+    if (colorEntry)
+    {
+        if ([colorEntry isKindOfClass:[NSString class]])
+            _color = [styleSet colorValue:@"line-color" val:nil dict:styleEntry defVal:[UIColor blackColor] multiplyAlpha:true];
+        else
+            _colorFunc = [styleSet stopsValue:colorEntry defVal:nil];
+    } else
+        _color = [UIColor blackColor];
     id dashArrayEntry = styleEntry[@"line-dasharray"];
     if (dashArrayEntry)
     {
@@ -131,6 +138,7 @@ static unsigned int NextPowOf2(unsigned int val)
     
     _layout = [[MapboxVectorLineLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
     _paint = [[MapboxVectorLinePaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
+    self.drawPriority = [styleSet intValue:@"drawPriority" dict:styleEntry defVal:drawPriority];
     
     if (!_paint)
     {
@@ -167,7 +175,6 @@ static unsigned int NextPowOf2(unsigned int val)
                                                    mode:MaplyThreadCurrent];
         lineDesc = [NSMutableDictionary dictionaryWithDictionary:
                     @{kMaplyVecWidth: @(_paint.width * styleSet.tileStyleSettings.lineScale),
-                      kMaplyColor: _paint.color,
                       kMaplyVecTexture: filledLineTex,
                       kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
                       // Note: Hack
@@ -178,12 +185,10 @@ static unsigned int NextPowOf2(unsigned int val)
                       kMaplySelectable: @NO,
                       kMaplyEnable: @NO
                       }];
-
     } else {
         // Simple filled line
         lineDesc = [NSMutableDictionary dictionaryWithDictionary:
                 @{kMaplyVecWidth: @(_paint.width * styleSet.tileStyleSettings.lineScale),
-                  kMaplyColor: _paint.color,
                   kMaplyDrawPriority: @(self.drawPriority),
                   kMaplyFade: @0.0,
                   kMaplyVecCentered: @YES,
@@ -191,7 +196,10 @@ static unsigned int NextPowOf2(unsigned int val)
                   kMaplyEnable: @NO
                   }];
     }
-    
+    if (_paint.color) {
+        lineDesc[kMaplyColor] = _paint.color;
+    }
+
     return self;
 }
 
@@ -199,6 +207,10 @@ static unsigned int NextPowOf2(unsigned int val)
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID  viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
+
+    // Note: Would be better to do this earlier
+    if (!_layout.visible)
+        return compObjs;
     
     NSDictionary *desc = lineDesc;
     bool include = true;
@@ -208,23 +220,29 @@ static unsigned int NextPowOf2(unsigned int val)
         if (width > 0.0)
         {
             NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
-            mutDesc[kMaplyVecWidth] = @(width/2.0);
+            mutDesc[kMaplyVecWidth] = @(width);
             desc = mutDesc;
         } else
             include = false;
     }
+    UIColor *color = _paint.color;
+    if (_paint.colorFunc) {
+        color = [_paint.colorFunc colorForZoom:tileID.level];
+    }
+    if (!color)
+        color = [UIColor blackColor];
     if (_paint.opacityFunc && include)
     {
         double opacity = [_paint.opacityFunc valueForZoom:tileID.level];
         if (opacity > 0.0)
         {
-            UIColor *color = [self.styleSet color:_paint.color withOpacity:opacity];
-            NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
-            mutDesc[kMaplyColor] = color;
-            desc = mutDesc;
+            color = [self.styleSet color:color withOpacity:opacity];
         } else
             include = false;
     }
+    NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
+    mutDesc[kMaplyColor] = color;
+    desc = mutDesc;
     
     if (include)
     {

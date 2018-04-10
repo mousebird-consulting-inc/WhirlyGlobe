@@ -490,14 +490,11 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
         // Use the size they passed in specifically for this calculation
         Point2f inTexSize = realSize ? *realSize : Point2f(firstTex->getWidth(),firstTex->getHeight());
         Point2f offset = realOffset ? *realOffset : Point2f(0,0);
-        if (borderPixels == 0)
-            boundaryPix = Point2f(0,0);
-        else
-//            boundaryPix = Point2f((borderPixels-0.5) / texSize, (borderPixels-0.5) / texSize);
-            boundaryPix = Point2f((borderPixels) / (float)texSize, (borderPixels) / (float)texSize);
-        texRegion.subTex.setFromTex(TexCoord(org.x() + boundaryPix.x() + offset.x() / (float)texSize ,org.y() + boundaryPix.y() + offset.y() / (float)texSize),
-                                    TexCoord(org.x() + inTexSize.x() / (float)texSize - boundaryPix.x(),
-                                             org.y() + inTexSize.y() / (float)texSize - boundaryPix.y()));
+        TexCoord tex0(org.x() + (borderPixels + offset.x()) / (float)texSize ,
+                     org.y() + (borderPixels + offset.y()) / (float)texSize);
+        TexCoord tex1(tex0.x()+(inTexSize.x()-2*borderPixels) / (float)texSize,
+                      tex0.y()+(inTexSize.y()-2*borderPixels) / (float)texSize);
+        texRegion.subTex.setFromTex(tex0,tex1);
         texRegion.subTex.texId = dynTexVec->at(0)->getId();
         
         subTex = texRegion.subTex;

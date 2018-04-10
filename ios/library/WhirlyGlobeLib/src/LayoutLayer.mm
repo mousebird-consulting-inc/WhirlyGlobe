@@ -43,6 +43,7 @@ namespace WhirlyKit
     WhirlyKitViewState *viewState;
     // Used for sizing info
     WhirlyKitSceneRendererES * __weak renderer;
+    NSTimeInterval lastUpdate;
 }
 
 - (id)initWithRenderer:(WhirlyKitSceneRendererES *)inRenderer
@@ -52,6 +53,7 @@ namespace WhirlyKit
         return nil;
     renderer = inRenderer;
     _maxDisplayObjects = 0;
+    lastUpdate = 0.0;
     
     return self;
 }
@@ -79,7 +81,9 @@ namespace WhirlyKit
 }
 
 // How long we'll wait to see if the user has stopped twitching
-static const float DelayPeriod = 0.1;
+static const float DelayPeriod = 0.05;
+// How long we'll let it go without an update
+static const float MaxDelay = 1.0;
 
 // We're getting called for absolutely every update here
 - (void)viewUpdate:(WhirlyKitViewState *)inViewState
@@ -90,6 +94,10 @@ static const float DelayPeriod = 0.1;
     if (viewState && [viewState isKindOfClass:[WhirlyKitViewState class]] && [inViewState isSameAs:viewState])
         return;
     viewState = inViewState;
+    
+    // If it's been too long since an update, let the next one happen
+    if (CFAbsoluteTimeGetCurrent() - lastUpdate > MaxDelay)
+        return;
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
     
@@ -137,19 +145,21 @@ static const float DelayPeriod = 0.1;
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     if (layoutManager)
         layoutManager->setMaxDisplayObjects(_maxDisplayObjects);
-    }
+}
     
 // Layout all the objects we're tracking
 - (void)updateLayout
 {
+    lastUpdate = CFAbsoluteTimeGetCurrent();
+
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     if (layoutManager)
-            {
+    {
         ChangeSet changes;
         layoutManager->updateLayout(viewState,changes);
         [layerThread addChangeRequests:changes];
-        }
     }
+}
     
 - (void)addLayoutObjects:(const std::vector<WhirlyKit::LayoutObject> &)newObjects
 {

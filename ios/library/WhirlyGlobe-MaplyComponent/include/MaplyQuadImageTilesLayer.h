@@ -361,6 +361,14 @@
   */
 @property (nonatomic) bool useTargetZoomLevel;
 
+
+/**
+ Modify how the importance (screen space) is calculated for any given tile.
+ 
+ This is set by default and when set we use the parent's bounding box to calculate importance for a given tile.
+ */
+@property (nonatomic) bool useParentTileBounds;
+
 /** 
     Only load a single level at a time.
     
