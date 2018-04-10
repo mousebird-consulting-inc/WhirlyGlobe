@@ -251,7 +251,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		}
 	}
 
-	fileprivate dynamic func showConfig() {
+	@objc fileprivate dynamic func showConfig() {
 		if UI_USER_INTERFACE_IDIOM() == .pad {
             if let configViewC = configViewC {
                 configViewC.modalPresentationStyle = UIModalPresentationStyle.popover
@@ -317,7 +317,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		}
 	}
 
-	func stopInteractiveTest() {
+	@objc func stopInteractiveTest() {
 		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(StartupViewController.showConfig))
 		self.testViewBlack?.isHidden = true
 		tableView.isScrollEnabled = true
@@ -336,7 +336,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		}
 	}
 	
-	func runTests() {
+	@objc func runTests() {
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(StartupViewController.stopTests))
 		
 		self.title = "Running tests..."
@@ -349,7 +349,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		startTests(tests)
 	}
 	
-	func stopTests() {
+	@objc func stopTests() {
 	}
 
 	fileprivate func startTests(_ tests: [MaplyTestCase]) {
@@ -448,7 +448,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		test.start()
 	}
 
-	func updateTitle(_ timer: Timer) {
+	@objc func updateTitle(_ timer: Timer) {
 		self.seconds -= 1
 		self.title = "\(timer.userInfo!) (\(self.seconds))"
 		if self.seconds == 0 {
@@ -471,7 +471,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		}
 	}
 
-	fileprivate dynamic func editDone() {
+	@objc fileprivate dynamic func editDone() {
 		self.navigationController!.popToViewController(self, animated: true)
 		changeSettings()
 

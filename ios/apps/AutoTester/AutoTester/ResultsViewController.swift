@@ -104,7 +104,7 @@ class ResultsViewController: UITableViewController, UIPopoverPresentationControl
 		}
 	}
 
-	fileprivate dynamic func editDone() {
+	@objc fileprivate dynamic func editDone() {
 		self.navigationController!.popToViewController(self, animated: true)
 	}
 
