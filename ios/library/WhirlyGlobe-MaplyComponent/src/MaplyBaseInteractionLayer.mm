@@ -2253,7 +2253,7 @@ public:
 };
 struct GeomModelInstancesCmp
 {
-    bool operator ()(const GeomModelInstances *a,const GeomModelInstances *b)
+    bool operator ()(const GeomModelInstances *a,const GeomModelInstances *b) const
     {
         return *(a) < *(b);
     }

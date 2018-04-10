@@ -443,7 +443,7 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
            tileCenter.x = (header->min_x+header->max_x)/2.0;
            tileCenter.y = (header->min_y+header->max_y)/2.0;
            tileCenter.z = 0.0;
-           MaplyCoordinate3dD tileCenterDisp = [self->viewC displayCoordD:tileCenter fromSystem:_coordSys];
+           MaplyCoordinate3dD tileCenterDisp = [self->viewC displayCoordD:tileCenter fromSystem:self->_coordSys];
            points.transform = [[MaplyMatrix alloc] initWithTranslateX:tileCenterDisp.x y:tileCenterDisp.y z:tileCenterDisp.z];
            
            // We generate a triangle mesh underneath a given tile to provide something to grab
@@ -476,7 +476,7 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
                minZ = std::min(coord.z,minZ);
                maxZ = std::max(coord.z,maxZ);
 
-               MaplyCoordinate3dD dispCoord = [self->viewC displayCoordD:coord fromSystem:_coordSys];
+               MaplyCoordinate3dD dispCoord = [self->viewC displayCoordD:coord fromSystem:self->_coordSys];
                MaplyCoordinate3dD dispCoordCenter = MaplyCoordinate3dDMake(dispCoord.x-tileCenterDisp.x, dispCoord.y-tileCenterDisp.y, dispCoord.z-tileCenterDisp.z);
                
                float red = 1.0,green = 1.0, blue = 1.0;
@@ -502,7 +502,7 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
                TileBoundsInfo tileInfo(tileID);
                tileInfo.mesh = meshBuilder.makeMesh(self->viewC);
                tileInfo.minZ = minZ;  tileInfo.maxZ = maxZ;
-               tileSizes.insert(tileInfo);
+               self->tileSizes.insert(tileInfo);
            }
            
 //           NSLog(@"Loaded tile %d: (%d,%d) with %d points",tileID.level,tileID.x,tileID.y,count);
@@ -512,8 +512,8 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
                                               kMaplyDrawPriority: @(10000000),
                                               kMaplyShader: self->_shader.name,
                                               kMaplyShaderUniforms:
-                                                  @{kMaplyLAZShaderZMin: @(self->_minZ+_zOffset),
-                                                    kMaplyLAZShaderZMax: @(self->_maxZ+_zOffset),
+                                                  @{kMaplyLAZShaderZMin: @(self->_minZ+self->_zOffset),
+                                                    kMaplyLAZShaderZMax: @(self->_maxZ+self->_zOffset),
                                                     kMaplyLAZShaderPointSize: @(self->_pointSize)
                                                     },
                                               kMaplyZBufferRead: @(YES),

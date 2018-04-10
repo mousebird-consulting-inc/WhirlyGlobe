@@ -39,7 +39,7 @@
 @interface MaplyQuadImageTilesLayer : MaplyViewControllerLayer
 
 /** 
-    Initialize with a the tile source object.
+    Initialize with a tile source object.
  
     The initialize expects a tile source.  The tile source can be one of the standard ones listed above, or it can be one of your own that conforms to the MaplyTileSource protocol. The tile source's coordinate system will be used.
  

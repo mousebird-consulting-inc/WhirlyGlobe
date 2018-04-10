@@ -39,35 +39,43 @@
 	[layer geoBoundsforTile:tileID ll:&bbox.ll ur:&bbox.ur];
 	NSURLRequest *urlReq = [self constructRequest:bbox];
 	
-	// kick off the query asychronously
-	[NSURLConnection sendAsynchronousRequest:urlReq queue:opQueue completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError)
-	{
-		// parse the resulting GeoJSON
-		MaplyVectorObject *vecObj = [MaplyVectorObject VectorObjectFromGeoJSON:data];
-		if (vecObj)
-		{
-			// display it on the map
-			MaplyComponentObject *filledObj =
-				[layer.viewC addVectors:@[vecObj]
-								   desc:@{kMaplyColor: [UIColor colorWithRed:0.25 green:0.0 blue:0.0 alpha:0.25],
-										  kMaplyFilled: @(YES),
-										  kMaplyEnable: @(NO)
-										  }
-								   mode:MaplyThreadCurrent];
-			MaplyComponentObject *outlineObj =
-			[layer.viewC addVectors:@[vecObj]
-							   desc:@{kMaplyColor: [UIColor redColor],
-									  kMaplyFilled: @(NO),
-									  kMaplyEnable: @(NO)
-									  }
-							   mode:MaplyThreadCurrent];
-			// keep track of it in the layer
-			[layer addData:@[filledObj,outlineObj] forTile:tileID];
-		}
-		
-		// let the layer know the tile is done
-		[layer tileDidLoad:tileID];
-	}];
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
+                                  ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                                      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                                          if (error) {
+                                              [layer tileFailedToLoad:tileID];
+                                              return;
+                                          }
+
+                                          // parse the resulting GeoJSON
+                                          MaplyVectorObject *vecObj = [MaplyVectorObject VectorObjectFromGeoJSON:data];
+                                          if (vecObj)
+                                          {
+                                              // display it on the map
+                                              MaplyComponentObject *filledObj =
+                                              [layer.viewC addVectors:@[vecObj]
+                                                                 desc:@{kMaplyColor: [UIColor colorWithRed:0.25 green:0.0 blue:0.0 alpha:0.25],
+                                                                        kMaplyFilled: @(YES),
+                                                                        kMaplyEnable: @(NO)
+                                                                        }
+                                                                 mode:MaplyThreadCurrent];
+                                              MaplyComponentObject *outlineObj =
+                                              [layer.viewC addVectors:@[vecObj]
+                                                                 desc:@{kMaplyColor: [UIColor redColor],
+                                                                        kMaplyFilled: @(NO),
+                                                                        kMaplyEnable: @(NO)
+                                                                        }
+                                                                 mode:MaplyThreadCurrent];
+                                              // keep track of it in the layer
+                                              [layer addData:@[filledObj,outlineObj] forTile:tileID];
+                                          }
+                                          
+                                          // let the layer know the tile is done
+                                          [layer tileDidLoad:tileID];
+                                      });
+                            }];
+    [task resume];
 }
 
 @end
