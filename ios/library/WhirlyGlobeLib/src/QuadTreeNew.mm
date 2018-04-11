@@ -39,7 +39,12 @@ bool QuadTreeNew::Node::operator==(const WhirlyKit::QuadTreeNew::Node &that) con
 {
     return level == that.level && x == that.x && y == that.y;
 }
-    
+
+bool QuadTreeNew::Node::operator!=(const WhirlyKit::QuadTreeNew::Node &that) const
+{
+    return level != that.level || x != that.x || y != that.y;
+}
+
 MbrD QuadTreeNew::generateMbrForNode(const Node &node)
 {
     MbrD outMbr;

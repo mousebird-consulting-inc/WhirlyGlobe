@@ -34,6 +34,11 @@ public:
             changes.push_back(new RemTextureReq(texID));
     }
     
+    // Tile ID of the texture we're applying to this tile.
+    // Might be a lower resolution tile.
+    WhirlyKit::QuadTreeNew::Node texNode;
+
+    // The texture ID owned by this node.  Delete it when we're done.
     SimpleIdentity texID;
 };
     
@@ -89,6 +94,7 @@ using namespace WhirlyKit;
     }
     
     _numSimultaneousFetches = 16;
+    _flipY = true;
 //    _debugMode = true;
 
     self = [super init];
@@ -117,6 +123,7 @@ using namespace WhirlyKit;
         }
         // Add to the list of loads
         if (toLoad.find(tile->ident) == toLoad.end()) {
+            [self findCoverTile:tile->ident changes:changes];
             toLoad.insert(tile->ident);
         }
     }
@@ -244,13 +251,18 @@ using namespace WhirlyKit;
         }
     }
     
-    // This shouldn't happen, but what if there's one already there?
     if (success) {
+        // This shouldn't happen, but what if there's one already there?
         auto loadedIt = loaded.find(ident);
         if (loadedIt != loaded.end()) {
             loadedIt->second.clear(changes);
         }
+        // The asset (texture) is matched directly to the node
+        tileAsset.texNode = ident;
         loaded[ident] = tileAsset;
+        
+        // See if it's useful elsewhere
+        [self applyCoverTile:ident asset:tileAsset changes:changes];
     }
         
     [layer.layerThread addChangeRequests:changes];
@@ -258,6 +270,45 @@ using namespace WhirlyKit;
     [self updateLoading];
 
     return true;
+}
+
+// Evaluate and possibly modify the texture for a given tile based on a possible cover tile
+- (void)evalCoverTile:(const QuadTreeNew::Node &)coverIdent coverAsset:(const TileAsset &)coverAsset tileIdent:(const QuadTreeNew::Node &)tileIdent changes:(ChangeSet &)changes
+{
+    int relLevel = tileIdent.level - coverIdent.level;
+    int relX = tileIdent.x - coverIdent.x * (1<<relLevel), relY = tileIdent.y - coverIdent.y * (1<<relLevel);
+    if (relX >= 0 && relY >= 0 && relX < 1<<relLevel && relY < 1<<relLevel) {
+//        NSLog(@"Cover tile: %d: (%d,%d), child tile: %d: (%d,%d), rel: %d: (%d,%d)",coverIdent.level,coverIdent.x,coverIdent.y,tileIdent.level,tileIdent.x,tileIdent.y,relLevel,relX,relY);
+        LoadedTileNewRef loadedTile = [builder getLoadedTile:tileIdent];
+        for (auto drawID: loadedTile->drawIDs)
+        {
+            if (_flipY)
+                relY = (1<<relLevel)-relY-1;
+            changes.push_back(new DrawTexChangeRequest(drawID,0,coverAsset.texID,relLevel,relX,relY));
+        }
+    }
+}
+
+// Look for a texture we've already loaded that could be used for this new tile
+- (void)findCoverTile:(const QuadTreeNew::Node &)tileIdent changes:(ChangeSet &)changes
+{
+    for (auto it : loaded) {
+        auto coverIdent = it.first;
+        auto coverAsset = it.second;
+        if (coverIdent.level < tileIdent.level)
+            [self evalCoverTile:coverIdent coverAsset:coverAsset tileIdent:tileIdent changes:changes];
+    }
+}
+
+// Apply the texture for a tile we just loaded
+- (void)applyCoverTile:(const QuadTreeNew::Node &)coverIdent asset:(const TileAsset &)coverAsset changes:(ChangeSet &)changes
+{
+    // Now see if there are any other places to use this texture
+    for (QuadTreeNew::Node tileIdent : toLoad) {
+        if (coverIdent.level < tileIdent.level) {
+            [self evalCoverTile:coverIdent coverAsset:coverAsset tileIdent:tileIdent changes:changes];
+        }
+    }
 }
 
 @end
