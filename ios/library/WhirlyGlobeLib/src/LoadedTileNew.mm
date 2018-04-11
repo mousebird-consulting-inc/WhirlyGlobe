@@ -29,7 +29,7 @@ TileGeomSettings::TileGeomSettings()
 : useTileCenters(true), color(RGBAColor(255,255,255,255)),
   programID(0), sampleX(10), sampleY(10),
   minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
-  drawPriority(0), lineMode(true), includeElev(false)
+  drawPriority(0), lineMode(false), includeElev(false)
 {
 }
     
@@ -99,6 +99,9 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     GeoCoord geoUR(geomManage->coordSys->localToGeographic(Point3d(chunkUR.x(),chunkUR.y(),0.0)));
     
     BasicDrawable *chunk = new BasicDrawable("LoadedTileNew",(sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
+    // Note: Make this flexible
+    chunk->setupTexCoordEntry(0, 0);
+    
     changes.push_back(new AddDrawableReq(chunk));
     drawIDs.insert(chunk->getId());
     if (geomSettings.useTileCenters)
@@ -488,6 +491,15 @@ std::vector<LoadedTileNewRef> TileGeomManager::getTiles(const QuadTreeNew::NodeS
     }
     
     return retTiles;
+}
+    
+LoadedTileNewRef TileGeomManager::getTile(QuadTreeNew::Node &ident)
+{
+    auto it = tileMap.find(ident);
+    if (it != tileMap.end())
+        return it->second;
+    
+    return LoadedTileNewRef();
 }
     
 void TileGeomManager::removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes)

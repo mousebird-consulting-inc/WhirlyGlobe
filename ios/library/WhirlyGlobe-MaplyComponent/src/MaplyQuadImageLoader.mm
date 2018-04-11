@@ -19,6 +19,7 @@
 
 #import "MaplyQuadImageLoader_private.h"
 #import "QuadTileBuilder.h"
+#import "MaplyImageTile_private.h"
 
 namespace WhirlyKit
 {
@@ -204,6 +205,8 @@ using namespace WhirlyKit;
     if (_debugMode)
         NSLog(@"Loaded %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
 
+    ChangeSet changes;
+    
     // No longer loading
     QuadTreeNew::Node node(loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.tileID.level);
     auto currentLoadingIt = currentlyLoading.find(node);
@@ -211,12 +214,45 @@ using namespace WhirlyKit;
         currentlyLoading.erase(currentLoadingIt);
     }
     
-    // Note: Do something with the return
+    TileAsset tileAsset;
+    QuadTreeNew::Node ident(loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.tileID.level);
+    
+    // Creat the image and tie it to the drawables
+    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:loadReturn.image];
+    // Note: Deal with border pixels
+    int borderPixel = 0;
+    WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderPixel convertToRaw:true];
+    if ([loadTile.images count] > 0) {
+        WhirlyKitLoadedImage *loadedImage = [loadTile.images objectAtIndex:0];
+        if ([loadedImage isKindOfClass:[WhirlyKitLoadedImage class]]) {
+            Texture *tex = [loadedImage buildTexture:borderPixel destWidth:loadedImage.width destHeight:loadedImage.height];
+            if (tex) {
+                // Create the texture in the renderer
+                tileAsset.texID = tex->getId();
+                changes.push_back(new AddTextureReq(tex));
+                
+                // Assign it to the various drawables
+                LoadedTileNewRef loadedTile = [builder getLoadedTile:ident];
+                if (loadedTile) {
+                    for (auto drawID : loadedTile->drawIDs)
+                        changes.push_back(new DrawTexChangeRequest(drawID,0,tileAsset.texID));
+                }
+            }
+        }
+    }
+    
+    // This shouldn't happen, but what if there's one already there?
+    auto loadedIt = loaded.find(ident);
+    if (loadedIt != loaded.end()) {
+        loadedIt->second.clear(changes);
+    }
+    loaded[ident] = tileAsset;
 
     [self updateLoading];
+    
+    [layer.layerThread addChangeRequests:changes];
 
     return true;
 }
-
 
 @end

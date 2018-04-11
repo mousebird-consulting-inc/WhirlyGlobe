@@ -57,4 +57,7 @@
 
 - (id __nullable)initWithCoordSys:(WhirlyKit::CoordSystem * __nonnull )coordSys;
 
+// Return a tile, if there is one
+- (WhirlyKit::LoadedTileNewRef)getLoadedTile:(WhirlyKit::QuadTreeNew::Node)ident;
+
 @end
