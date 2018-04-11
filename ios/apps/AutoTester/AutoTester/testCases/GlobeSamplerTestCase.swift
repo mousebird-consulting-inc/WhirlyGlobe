@@ -35,6 +35,7 @@ class GlobeSamplerTestCase: MaplyTestCase {
         guard let imageLoader = MaplyQuadImageLoader(tileSource: tileSource) else {
             return nil
         }
+        imageLoader.numSimultaneousFetches = 1
         
         guard let sampleLayer = MaplyQuadSamplingLayer.init(coordSystem: coordSys, imageLoader: imageLoader) else {
             return nil

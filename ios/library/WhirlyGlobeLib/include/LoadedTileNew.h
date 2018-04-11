@@ -106,6 +106,9 @@ public:
     // Return a list of tiles corresponding to the IDs
     std::vector<LoadedTileNewRef> getTiles(const QuadTreeNew::NodeSet &tiles);
     
+    // Return a single node
+    LoadedTileNewRef getTile(QuadTreeNew::Node &ident);
+    
     // Remove the tiles given, if they're being represented
     void removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
     

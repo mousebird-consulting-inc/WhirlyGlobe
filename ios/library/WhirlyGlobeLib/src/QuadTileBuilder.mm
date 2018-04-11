@@ -59,6 +59,11 @@ using namespace WhirlyKit;
     return geomManage.buildSkirts;
 }
 
+- (WhirlyKit::LoadedTileNewRef)getLoadedTile:(WhirlyKit::QuadTreeNew::Node)ident
+{
+    return geomManage.getTile(ident);
+}
+
 // MARK: WhirlyKitQuadLoaderNew delegate
 
 - (void)setQuadLayer:(WhirlyKitQuadDisplayLayerNew *)inLayer
