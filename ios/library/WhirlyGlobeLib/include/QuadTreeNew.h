@@ -46,8 +46,11 @@ public:
         /// Comparison based on x,y,level.  Used for sorting
         bool operator < (const Node &that) const;
         
-        /// Quality operator
+        /// Equality operator
         bool operator == (const Node &that) const;
+        
+        /// Not equal operator
+        bool operator != (const Node &that) const;
         
         /// Spatial subdivision along the X axis relative to the space
         int x;

@@ -98,6 +98,17 @@
  */
 @property (nonatomic) MaplyQuadImageFormat imageFormat;
 
+/**
+ Control how tiles are indexed, either from the lower left or the upper left.
+ 
+ If set, we'll use the OSM approach (also Google Maps) to y indexing.  That's that default and it's normally what you're run into.
+ 
+ Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you're tile source looks odd, try setting this to false.
+ 
+ Default value is true.
+ */
+@property (nonatomic) bool flipY;
+
 /// Set for a lot of debugging output
 @property (nonatomic,assign) bool debugMode;
 
