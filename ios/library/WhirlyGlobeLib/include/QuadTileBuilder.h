@@ -31,10 +31,10 @@
 - (void)setQuadBuilder:(WhirlyKitQuadTileBuilder * __nonnull)builder layer:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer;
 
 /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder loadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles;
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder loadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
 
 /// Unload the given tiles.
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder unLoadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles;
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder unLoadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
 
 @end
 

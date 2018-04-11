@@ -89,7 +89,7 @@ using namespace WhirlyKit;
     }
     
     _numSimultaneousFetches = 16;
-    _debugMode = true;
+//    _debugMode = true;
 
     self = [super init];
     return self;
@@ -104,7 +104,7 @@ using namespace WhirlyKit;
 }
 
 // Called on the layer thread
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder loadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder loadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(ChangeSet &)changes
 {
     for (auto tile: tiles) {
         // Already got this one
@@ -149,10 +149,8 @@ using namespace WhirlyKit;
 }
 
 // Called on the layer thread
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder unLoadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder unLoadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(ChangeSet &)changes
 {
-    ChangeSet changes;
-    
     for (auto tile: tiles) {
         MaplyTileID tileID;
         tileID.level = tile->ident.level;
@@ -196,12 +194,15 @@ using namespace WhirlyKit;
 - (bool)loadedReturn:(MaplyQuadImageLoaderReturn *)loadReturn
 {
     // Note: Check the data coming in and return false if it's bad
-    
-    if (layer.layerThread != [NSThread currentThread]) {
-        [self performSelector:@selector(loadedReturn:) onThread:layer.layerThread withObject:loadReturn waitUntilDone:NO];
-        return true;
-    }
 
+    [self performSelector:@selector(loadedReturnRun:) onThread:layer.layerThread withObject:loadReturn waitUntilDone:NO];
+    
+    return true;
+}
+
+// Called on the layer thread
+- (bool)loadedReturnRun:(MaplyQuadImageLoaderReturn *)loadReturn
+{
     if (_debugMode)
         NSLog(@"Loaded %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
 
@@ -221,19 +222,21 @@ using namespace WhirlyKit;
     MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:loadReturn.image];
     // Note: Deal with border pixels
     int borderPixel = 0;
+    bool success = false;
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderPixel convertToRaw:true];
     if ([loadTile.images count] > 0) {
         WhirlyKitLoadedImage *loadedImage = [loadTile.images objectAtIndex:0];
         if ([loadedImage isKindOfClass:[WhirlyKitLoadedImage class]]) {
-            Texture *tex = [loadedImage buildTexture:borderPixel destWidth:loadedImage.width destHeight:loadedImage.height];
-            if (tex) {
-                // Create the texture in the renderer
-                tileAsset.texID = tex->getId();
-                changes.push_back(new AddTextureReq(tex));
-                
-                // Assign it to the various drawables
-                LoadedTileNewRef loadedTile = [builder getLoadedTile:ident];
-                if (loadedTile) {
+            LoadedTileNewRef loadedTile = [builder getLoadedTile:ident];
+            if (loadedTile) {
+                Texture *tex = [loadedImage buildTexture:borderPixel destWidth:loadedImage.width destHeight:loadedImage.height];
+                if (tex) {
+                    success = true;
+                    // Create the texture in the renderer
+                    tileAsset.texID = tex->getId();
+                    changes.push_back(new AddTextureReq(tex));
+                    
+                    // Assign it to the various drawables
                     for (auto drawID : loadedTile->drawIDs)
                         changes.push_back(new DrawTexChangeRequest(drawID,0,tileAsset.texID));
                 }
@@ -242,15 +245,17 @@ using namespace WhirlyKit;
     }
     
     // This shouldn't happen, but what if there's one already there?
-    auto loadedIt = loaded.find(ident);
-    if (loadedIt != loaded.end()) {
-        loadedIt->second.clear(changes);
+    if (success) {
+        auto loadedIt = loaded.find(ident);
+        if (loadedIt != loaded.end()) {
+            loadedIt->second.clear(changes);
+        }
+        loaded[ident] = tileAsset;
     }
-    loaded[ident] = tileAsset;
+        
+    [layer.layerThread addChangeRequests:changes];
 
     [self updateLoading];
-    
-    [layer.layerThread addChangeRequests:changes];
 
     return true;
 }
