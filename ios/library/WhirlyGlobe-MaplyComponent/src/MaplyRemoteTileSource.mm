@@ -367,6 +367,8 @@ static bool trackConnections = false;
 {
     if ([_tileInfo isKindOfClass:[MaplyRemoteTileSource class]])
         [(MaplyRemoteTileSource *)_tileInfo setCacheDir:cacheDir];
+    else if ([_tileInfo isKindOfClass:[MaplyRemoteTileInfo class]])
+        [(MaplyRemoteTileInfo *)_tileInfo setCacheDir:cacheDir];
 }
 
 - (int)minZoom
@@ -419,7 +421,9 @@ static bool trackConnections = false;
     {
         Maply::TileFetchOpSet::iterator it = tileSet.find(Maply::TileFetchOp(tileID));
         if (it != tileSet.end())
+        {
             tileSet.erase(it);
+        }
     }
 }
 
@@ -581,7 +585,7 @@ static bool trackConnections = false;
         
         // Kick off an async request for the data
         MaplyRemoteTileSource __weak *weakSelf = self;
-
+        
         NSURLSession *session = [NSURLSession sharedSession];
         NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
         ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -621,8 +625,13 @@ static bool trackConnections = false;
                     }
 
                 } else {
+                    // May have cancelled this one
+                    if (![weakSelf areWeFetching:tileID])
+                        return;
+
                     if (weakSelf)
                     {
+//                        NSLog(@"Failed to load: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
                         // Unsucessful load
                         [self reportFailure:inLayer error:error forTile:tileID];
                         if (weakSelf.delegate && [weakSelf.delegate respondsToSelector:@selector(remoteTileSource:tileDidNotLoad:error:)])
@@ -649,9 +658,31 @@ static bool trackConnections = false;
     }
 }
 
+- (bool)areWeFetching:(MaplyTileID)tileID
+{
+    @synchronized(self)
+    {
+        Maply::TileFetchOpSet::iterator it = tileSet.find(Maply::TileFetchOp(tileID));
+        return it != tileSet.end();
+    }
+}
+
 - (void)cancelTile:(MaplyTileID)tileID frame:(int)frame
 {
-    [self clearTile:tileID];
+//    NSLog(@"Cancelled tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+    
+    NSURLSessionDataTask *toCancel = nil;
+    @synchronized(self)
+    {
+        Maply::TileFetchOpSet::iterator it = tileSet.find(Maply::TileFetchOp(tileID));
+        if (it != tileSet.end())
+        {
+            toCancel = it->task;
+            tileSet.erase(it);
+        }
+    }
+    
+    [toCancel cancel];
 }
 
 @end

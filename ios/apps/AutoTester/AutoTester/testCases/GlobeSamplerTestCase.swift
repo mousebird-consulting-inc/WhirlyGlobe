@@ -26,7 +26,7 @@ class GlobeSamplerTestCase: MaplyTestCase {
         let maxZoom = Int32(16)
         guard let tileSource = MaplyRemoteTileSource(
             baseURL: "http://tile.stamen.com/watercolor/",
-            ext: "png", minZoom: Int32(0), maxZoom: Int32(maxZoom)) else {
+            ext: "jpg", minZoom: Int32(0), maxZoom: Int32(maxZoom)) else {
                 return nil
         }
         tileSource.cacheDir = thisCacheDir
@@ -35,7 +35,7 @@ class GlobeSamplerTestCase: MaplyTestCase {
         guard let imageLoader = MaplyQuadImageLoader(tileSource: tileSource) else {
             return nil
         }
-        imageLoader.numSimultaneousFetches = 1
+        imageLoader.numSimultaneousFetches = 8
         
         guard let sampleLayer = MaplyQuadSamplingLayer.init(coordSystem: coordSys, imageLoader: imageLoader) else {
             return nil

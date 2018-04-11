@@ -79,7 +79,8 @@ using namespace WhirlyKit;
 {
     ChangeSet changes;
     auto newTiles = geomManage.addTiles(geomSettings, tiles, changes);
-    [_delegate quadBuilder:self loadTiles:newTiles];
+    [_delegate quadBuilder:self loadTiles:newTiles changes:changes];
+
     [layer.layerThread addChangeRequests:changes];
 }
 
@@ -87,9 +88,11 @@ using namespace WhirlyKit;
 {
     ChangeSet changes;
     auto oldTiles = geomManage.getTiles(tiles);
-    [_delegate quadBuilder:self unLoadTiles:oldTiles];
+    [_delegate quadBuilder:self unLoadTiles:oldTiles changes:changes];
     geomManage.removeTiles(tiles, changes);
+
     [layer.layerThread addChangeRequests:changes];
+
 }
 
 @end
