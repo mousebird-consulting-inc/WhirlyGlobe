@@ -23,6 +23,7 @@
 #import "MaplyTileSource.h"
 #import "MapboxVectorStyleSet.h"
 #import "MapboxVectorStyleBackground.h"
+#import "MaplyQuadImageLoader.h"
 
 #include <iostream>
 #include <fstream>
@@ -47,55 +48,6 @@ using namespace WhirlyKit;
 
 static double MAX_EXTENT = 20037508.342789244;
 
-static bool debugMode = false;
-
-// Objects sorted by Tile ID
-class ObjectsByTile
-{
-public:
-    ObjectsByTile() : compObjs(NULL) { }
-    ObjectsByTile(MaplyTileID tileID) : tileID(tileID), compObjs(NULL), enabled(true) { }
-    
-    bool operator < (const ObjectsByTile &that) const
-    {
-        if (tileID.level == that.tileID.level) {
-            if (tileID.x == that.tileID.x) {
-                return tileID.y < that.tileID.y;
-            }
-            return tileID.x < that.tileID.x;
-        }
-        return tileID.level < that.tileID.level;
-    }
-    
-    void enable(NSObject<MaplyRenderControllerProtocol> *viewC)
-    {
-        enabled = true;
-        if (compObjs) {
-            [viewC enableObjects:compObjs mode:MaplyThreadCurrent];
-        }
-    }
-    
-    void disable(NSObject<MaplyRenderControllerProtocol> *viewC)
-    {
-        enabled = false;
-        if (compObjs) {
-            [viewC disableObjects:compObjs mode:MaplyThreadCurrent];
-        }
-    }
-    
-    MaplyTileID tileID;
-    bool enabled;
-    NSArray *compObjs;
-};
-
-typedef std::shared_ptr<ObjectsByTile> ObjectsByTileRef;
-
-typedef struct
-{
-    bool operator () (const ObjectsByTileRef a,const ObjectsByTileRef b) const { return *a < *b; }
-} ObjectsByTileRefSorter;
-
-
 @implementation MapboxVectorTileImageSource
 {
     MaplyRemoteTileInfo *tileInfo;
@@ -106,8 +58,6 @@ typedef struct
     UIColor *backColor;
     
     MapboxVectorTileParser *imageTileParser,*vecTileParser;
-    
-    std::set<ObjectsByTileRef,ObjectsByTileRefSorter> tiles;
 }
 
 - (instancetype _Nullable ) initWithTileInfo:(MaplyRemoteTileInfo *_Nonnull)inTileInfo
@@ -161,19 +111,6 @@ typedef struct
     return coordSys;
 }
 
-- (void)clear
-{
-    NSMutableArray *compObjs = [NSMutableArray array];
-    @synchronized(self)
-    {
-        for (auto tile : tiles) {
-            if (tile->compObjs != nil)
-                [compObjs addObjectsFromArray:tile->compObjs];
-        }
-    }
-    [viewC removeObjects:compObjs mode:MaplyThreadAny];
-}
-
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox
 {
     return true;
@@ -194,27 +131,12 @@ typedef struct
     }
 }
 
-- (void)startFetchLayer:(MaplyQuadImageTilesLayer *)layer tile:(MaplyTileID)tileID
+- (void)startFetchLayer:(MaplyQuadImageLoader *)loader tile:(MaplyTileID)tileID frame:(int)frame
 {
     NSURLRequest *urlReq = [tileInfo requestForTile:tileID];
     if (!urlReq)
         return;
     
-    // Add an entry for this tile
-    @synchronized(self)
-    {
-        if (debugMode)
-            NSLog(@"Started adding tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-        ObjectsByTileRef newTile(new ObjectsByTile(tileID));
-        auto it = tiles.find(newTile);
-        if (it == tiles.end()) {
-            tiles.insert(newTile);
-        } else {
-            if (debugMode)
-                NSLog(@"Tried to add a tile that's already there");
-        }
-    }
-
     NSData *tileData = nil;
     NSString *cacheFileName;
     if (_cacheDir) {
@@ -230,7 +152,7 @@ typedef struct
 
     // Process from the cached data, but fall back on fetching it
     if (tileData) {
-        if (![self processData:tileData tile:tileID layer:layer])
+        if (![self processData:tileData tile:tileID loader:loader])
             tileData = nil;
     }
     
@@ -250,20 +172,21 @@ typedef struct
                                               }
                                           }
                                           
-                                          if ([self processData:thisTileData tile:tileID layer:layer] && cacheFileName)
+                                          if ([self processData:thisTileData tile:tileID loader:loader] && cacheFileName)
                                               [netData writeToFile:cacheFileName atomically:NO];
                                       }];
         [task resume];
+        [loader registerTile:tileID frame:frame data:task];
     }
 }
 
-- (bool)processData:(NSData *)tileData tile:(MaplyTileID)tileID layer:(MaplyQuadImageTilesLayer *)layer
+- (bool)processData:(NSData *)tileData tile:(MaplyTileID)tileID loader:(MaplyQuadImageLoader *)loader
 {
     MaplyBoundingBox imageBBox;
     imageBBox.ll = MaplyCoordinateMake(0,0);  imageBBox.ur = MaplyCoordinateMake(512, 512);
     MaplyBoundingBox localBBox,geoBBox;
-    localBBox = [layer boundsForTile:tileID];
-    geoBBox = [layer geoBoundsForTile:tileID];
+    localBBox = [loader boundsForTile:tileID];
+    geoBBox = [loader geoBoundsForTile:tileID];
     MaplyBoundingBox spherMercBBox;
     spherMercBBox.ll = [self toMerc:geoBBox.ll];
     spherMercBBox.ur = [self toMerc:geoBBox.ur];
@@ -291,6 +214,8 @@ typedef struct
         }
     }
     
+    MaplyQuadImageLoaderReturn *loadReturn = [[MaplyQuadImageLoaderReturn alloc] init];
+
     // Parse everything else and turn into vectors
     MaplyVectorTileData *retData = nil;
     if ((retData = [vecTileParser buildObjects:tileData tile:tileID bounds:spherMercBBox geoBounds:geoBBox]))
@@ -298,90 +223,35 @@ typedef struct
         // Success
     } else {
         NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+        loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to parse tile"}];
+        [loader loadedReturn:loadReturn];
         return false;
     }
     
-    @synchronized(self)
-    {
-        // Make sure we still want the tile
-        ObjectsByTileRef testTile(new ObjectsByTile(tileID));
-        auto it = tiles.find(testTile);
-        if (it == tiles.end()) {
-            // Uh oh.  Got deleted while we were loading.  Nuke everything.
-            [viewC removeObjects:retData.compObjs mode:MaplyThreadCurrent];
-            if (debugMode)
-                NSLog(@"In-transit delete for tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-        } else {
-            (*it)->compObjs = retData.compObjs;
-            if ((*it)->enabled)
-                (*it)->enable(viewC);
-            else
-                (*it)->disable(viewC);
-            if (debugMode)
-                NSLog(@"Finished adding tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-        }
-    }
+    // Successful load
+    loadReturn.tileID = tileID;
+    loadReturn.frame = -1;
+    loadReturn.image = image;
+    loadReturn.compObjs = retData.compObjs;
+    [loader loadedReturn:loadReturn];
     
-    [layer loadedImages:image forTile:tileID frame:-1];
     return true;
 }
 
-- (void)tileWasDisabled:(MaplyTileID)tileID
+- (void)cancelTile:(MaplyTileID)tileID frame:(int)frame tileData:(id)tileData
 {
-    @synchronized(self)
-    {
-        ObjectsByTileRef dummyTile(new ObjectsByTile(tileID));
-        auto it = tiles.find(dummyTile);
-        if (it != tiles.end()) {
-            if ((*it)->enabled)
-                (*it)->disable(viewC);
-        } else {
-            if (debugMode)
-                NSLog(@"Tried to disable tile that isn't there");
-        }
+    NSURLSessionDataTask *task = tileData;
+    if ([task isKindOfClass:[NSURLSessionDataTask class]]) {
+        [task cancel];
     }
-    
-    if (debugMode)
-        NSLog(@"Disabling tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 }
 
-- (void)tileWasEnabled:(MaplyTileID)tileID
+- (void)clear:(MaplyQuadImageLoader *)loader tileData:(NSArray *)tileDatas
 {
-    @synchronized(self)
-    {
-        ObjectsByTileRef dummyTile(new ObjectsByTile(tileID));
-        auto it = tiles.find(dummyTile);
-        if (it != tiles.end()) {
-            if (!(*it)->enabled)
-                (*it)->enable(viewC);
-        } else {
-            if (debugMode)
-                NSLog(@"Tried to enable tile that isn't there");
-        }
+    for (NSURLSessionDataTask *task in tileDatas) {
+        if ([task isKindOfClass:[NSURLSessionDataTask class]])
+            [task cancel];
     }
-
-    if (debugMode)
-        NSLog(@"Enabling tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-}
-
-- (void)tileUnloaded:(MaplyTileID)tileID
-{
-    @synchronized(self)
-    {
-        ObjectsByTileRef dummyTile(new ObjectsByTile(tileID));
-        auto it = tiles.find(dummyTile);
-        if (it != tiles.end()) {
-            if ((*it)->compObjs)
-                [viewC removeObjects:(*it)->compObjs mode:MaplyThreadCurrent];
-            tiles.erase(it);
-        } else {
-            if (debugMode)
-                NSLog(@"Tried to unload tile that isn't there");
-        }
-    }
-    
-    if (debugMode)
-        NSLog(@"Unloading tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 }
 
 /**

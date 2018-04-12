@@ -120,15 +120,14 @@ NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
 
 /**
     Cancel an outstanding fetch for a given tile.
-  */
-- (void)cancelTile:(MaplyTileID)tileID frame:(int)frame;
-
-/**
- Called when the layer shuts down.
  
- This is called by the main layer when things are shut down.  It's optional.
- */
-- (void)clear;
+ @param tileID The tile you should stop fetching.
+ 
+ @param frame The individual frame (of an animation) to cancel.
+ 
+ @param If you registered tileData, it will be passed back here.
+  */
+- (void)cancelTile:(MaplyTileID)tileID frame:(int)frame tileData:(id __nullable)tileData;
 
 /**
  Check if we should even try to load a given tile.
@@ -145,7 +144,26 @@ NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
  */
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox;
 
+/**
+ Called when the layer shuts down.
+ 
+ This is called by the main layer when things are shut down.
+ 
+ @param tileData All the individual tileData objects registered during load (if any).
+ 
+ This is the newer version, but both clears are still supported.
+ */
+- (void)clear:(id __nonnull)layer tileData:(NSArray * __nonnull)tileData;
+
+
 /** End of methods required by MaplyQuadImageLoader **/
+
+/**
+ Called when the layer shuts down.
+ 
+ This is called by the main layer when things are shut down.  It's optional.
+ */
+- (void)clear;
 
 /**
  Can the given tile be fetched locally or do we need a network call?

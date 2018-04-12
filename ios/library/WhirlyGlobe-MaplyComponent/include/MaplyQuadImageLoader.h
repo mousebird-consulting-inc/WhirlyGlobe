@@ -112,9 +112,58 @@
 /// Set for a lot of debugging output
 @property (nonatomic,assign) bool debugMode;
 
+/**
+ Calculate the bounding box for a single tile in geographic.
+ 
+ This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
+ 
+ @param tileID The ID for the tile we're interested in.
+ 
+ @return The lower left and upper right corner of the tile in geographic coordinates. Returns kMaplyNullBoundingBox in case of error
+ */
+- (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID;
+
+/**
+ Calculate the bounding box for a single tile in geographic using doubles.
+ 
+ This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
+ 
+ @param tileID The ID for the tile we're interested in.
+ 
+ @return The lower left and upper right corner of the tile in geographic coordinates. Returns kMaplyNullBoundingBoxD in case of error
+ */
+- (MaplyBoundingBoxD)geoBoundsForTileD:(MaplyTileID)tileID;
+
+/**
+ Calculate the bounding box for a single tile in the local coordinate system.
+ 
+ This utility method calculates the bounding box for a tile in the coordinate system used for the layer.
+ 
+ @param tileID The ID for the tile we're interested in.
+ 
+ @return The lower left and upper right corner of the tile in geographic coordinates.
+ */
+- (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID;
+
+/**
+ Calculate the bounding box for a single tile in the local coordinate system u sing doubles.
+ 
+ This utility method calculates the bounding box for a tile in the coordinate system used for the layer.
+ 
+ @param tileID The ID for the tile we're interested in.
+ 
+ @return The lower left and upper right corner of the tile in geographic coordinates.
+ */
+- (MaplyBoundingBoxD)boundsForTileD:(MaplyTileID)tileID;
+
 /** Called by the tile source when a tile had loaded (or failed to load).
     The caller is responsible for filling out the loadReturn completely.
   */
 - (bool)loadedReturn:(MaplyQuadImageLoaderReturn * __nonnull)loadReturn;
+
+/** Register an object to be associated with the given tile.
+    This will be passed in for a cancel and dropped after loadReturn: is called.
+  */
+- (void)registerTile:(MaplyTileID)tileID frame:(int)frame data:(id __nullable)tileData;
 
 @end

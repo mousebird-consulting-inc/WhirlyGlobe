@@ -19,7 +19,7 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
     }
     
     // Set up an OpenMapTiles display layer
-    func setupLayer(_ baseVC: MaplyBaseViewController) -> MaplyQuadPagingLayer?
+    func setupLayer(_ baseVC: MaplyBaseViewController) -> MaplyQuadSamplingLayer?
     {
         guard let path = Bundle.main.path(forResource: "SE_Basic", ofType: "json") else {
             return nil
@@ -72,20 +72,26 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         // Set up the tile info (where the data is) and the tile source to interpet it
         let tileInfo = MaplyRemoteTileInfo.init(baseURL: "http://public-mobile-data-stage-saildrone-com.s3-us-west-1.amazonaws.com/openmaptiles/{z}/{x}/{y}.png", ext: nil, minZoom: 0, maxZoom: 14)
         let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
-        let tileSource = MapboxVectorTileImageSource.init(tileInfo: tileInfo, imageStyle: imageStyleSet, offlineRender: offlineRender, vectorStyle: vectorStyleSet, viewC: baseVC)
+        let tileSource = MapboxVectorTileImageSource(tileInfo: tileInfo, imageStyle: imageStyleSet, offlineRender: offlineRender, vectorStyle: vectorStyleSet, viewC: baseVC)
         if let tileSource = tileSource {
             tileSource.cacheDir = "\(cacheDir)/openmaptiles_saildrone/"
-            // Fire up an image layer to fetch it.
-            // This will also manage the vector objects
-            if let imageLayer = MaplyQuadImageTilesLayer.init(tileSource: tileSource) {
-                imageLayer.flipY = true
-                imageLayer.importanceScale = 0.25
-                if baseVC is WhirlyGlobeViewController {
-                    imageLayer.handleEdges = true
-                    imageLayer.coverPoles = true
-                }
-                baseVC.add(imageLayer)
+            
+            guard let imageLoader = MaplyQuadImageLoader(tileSource: tileSource) else {
+                return nil
             }
+            imageLoader.numSimultaneousFetches = 8
+            let coordSys = MaplySphericalMercator(webStandard: ())
+            guard let sampleLayer = MaplyQuadSamplingLayer.init(coordSystem: coordSys, imageLoader: imageLoader) else {
+                return nil
+            }
+            // Note: Get this from the tiles source
+            sampleLayer.setMinZoom(0, maxZoom: 16, importance: 256.0*256.0)
+            if baseVC is WhirlyGlobeViewController {
+                sampleLayer.edgeMatching = true
+                sampleLayer.coverPoles = true
+            }
+            
+            return sampleLayer
         }
         
         return nil

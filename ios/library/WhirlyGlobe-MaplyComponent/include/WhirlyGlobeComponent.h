@@ -42,6 +42,7 @@
 #import "MaplyUpdateLayer.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyQuadImageOfflineLayer.h"
+#import "MaplyQuadImageLoader.h"
 #import "MaplyBlankTileSource.h"
 #import "MaplySphericalQuadEarthWithTexGroup.h"
 #import "MaplyTileSource.h"
