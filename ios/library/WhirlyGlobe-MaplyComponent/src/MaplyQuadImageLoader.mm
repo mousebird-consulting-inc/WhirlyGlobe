@@ -41,8 +41,9 @@ public:
     // The texture ID owned by this node.  Delete it when we're done.
     SimpleIdentity texID;
 };
-    
+
 typedef std::map<QuadTreeNew::Node,TileAsset> TileAssetMap;
+typedef std::map<QuadTreeNew::Node,id> LoadingMap;
 }
 
 using namespace WhirlyKit;
@@ -68,7 +69,7 @@ using namespace WhirlyKit;
     // What we've been asked to load, in order
     WhirlyKit::QuadTreeNew::NodeSet toLoad;
     // What the tile source is currently working on
-    WhirlyKit::QuadTreeNew::NodeSet currentlyLoading;
+    LoadingMap currentlyLoading;
     // Tiles we've actually loaded and are active in memory
     WhirlyKit::TileAssetMap loaded;
 }
@@ -80,12 +81,12 @@ using namespace WhirlyKit;
         NSLog(@"MaplyQuadImageLoader requires tile source implement startFetchLayer:tile:frame:");
         return nil;
     }
-    if (![tileSource respondsToSelector:@selector(cancelTile:frame:)]) {
-        NSLog(@"MaplyQuadImageLoader requires tile source implement cancelTile:frame:");
+    if (![tileSource respondsToSelector:@selector(cancelTile:frame:tileData:)]) {
+        NSLog(@"MaplyQuadImageLoader requires tile source implement cancelTile:frame:tileData:");
         return nil;
     }
-    if (![tileSource respondsToSelector:@selector(clear)]) {
-        NSLog(@"MaplyQuadImageLoader requires tile source implement clear");
+    if (![tileSource respondsToSelector:@selector(clear:tileData:)]) {
+        NSLog(@"MaplyQuadImageLoader requires tile source implement clear:tileData:");
         return nil;
     }
     if (![tileSource respondsToSelector:@selector(validTile:bbox:)]) {
@@ -99,6 +100,75 @@ using namespace WhirlyKit;
 
     self = [super init];
     return self;
+}
+
+- (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
+{
+    if (!layer || !layer.quadtree)
+        return kMaplyNullBoundingBox;
+    
+    MaplyBoundingBox bounds;
+    MaplyBoundingBoxD boundsD = [self geoBoundsForTileD:tileID];
+    bounds.ll = MaplyCoordinateMake(boundsD.ll.x,boundsD.ll.y);
+    bounds.ur = MaplyCoordinateMake(boundsD.ur.x,boundsD.ur.y);
+    
+    return bounds;
+}
+
+- (MaplyBoundingBoxD)geoBoundsForTileD:(MaplyTileID)tileID
+{
+    WhirlyKitQuadDisplayLayerNew *thisQuadLayer = layer;
+    if (!layer || !layer.quadtree)
+        return kMaplyNullBoundingBoxD;
+    
+    MaplyBoundingBoxD bounds;
+    MbrD mbrD = thisQuadLayer.quadtree->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
+    
+    CoordSystem *wkCoordSys = thisQuadLayer.coordSys;
+    Point2d pts[4];
+    pts[0] = wkCoordSys->localToGeographicD(Point3d(mbrD.ll().x(),mbrD.ll().y(),0.0));
+    pts[1] = wkCoordSys->localToGeographicD(Point3d(mbrD.ur().x(),mbrD.ll().y(),0.0));
+    pts[2] = wkCoordSys->localToGeographicD(Point3d(mbrD.ur().x(),mbrD.ur().y(),0.0));
+    pts[3] = wkCoordSys->localToGeographicD(Point3d(mbrD.ll().x(),mbrD.ur().y(),0.0));
+    Point2d minPt(pts[0].x(),pts[0].y()),  maxPt(pts[0].x(),pts[0].y());
+    for (unsigned int ii=1;ii<4;ii++)
+    {
+        minPt.x() = std::min(minPt.x(),pts[ii].x());
+        minPt.y() = std::min(minPt.y(),pts[ii].y());
+        maxPt.x() = std::max(maxPt.x(),pts[ii].x());
+        maxPt.y() = std::max(maxPt.y(),pts[ii].y());
+    }
+    bounds.ll = MaplyCoordinateDMake(minPt.x(), minPt.y());
+    bounds.ur = MaplyCoordinateDMake(maxPt.x(), maxPt.y());
+
+    return bounds;
+}
+
+- (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID
+{
+    MaplyBoundingBox bounds;
+    MaplyBoundingBoxD boundsD;
+    
+    boundsD = [self boundsForTileD:tileID];
+    bounds.ll = MaplyCoordinateMake(boundsD.ll.x, boundsD.ll.y);
+    bounds.ur = MaplyCoordinateMake(boundsD.ur.x, boundsD.ur.y);
+    
+    return bounds;
+}
+
+- (MaplyBoundingBoxD)boundsForTileD:(MaplyTileID)tileID
+{
+    WhirlyKitQuadDisplayLayerNew *thisQuadLayer = layer;
+    if (!layer || !layer.quadtree)
+        return kMaplyNullBoundingBoxD;
+
+    MaplyBoundingBoxD bounds;
+
+    MbrD mbrD = thisQuadLayer.quadtree->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
+    bounds.ll = MaplyCoordinateDMake(mbrD.ll().x(), mbrD.ll().y());
+    bounds.ur = MaplyCoordinateDMake(mbrD.ur().x(), mbrD.ur().y());
+
+    return bounds;
 }
 
 // MARK: Quad Build Delegate
@@ -140,7 +210,7 @@ using namespace WhirlyKit;
         if (nextLoad == toLoad.end())
             break;
         
-        currentlyLoading.insert(*nextLoad);
+        currentlyLoading[*nextLoad] = nil;
         
         // Ask the source to load the tile
         MaplyTileID tileID;
@@ -170,7 +240,12 @@ using namespace WhirlyKit;
             currentlyLoading.erase(currentLoadingIt);
             if (_debugMode)
                 NSLog(@"Cancelled loading %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-            [tileSource cancelTile:tileID frame:-1];
+            id tileData = nil;
+            auto loadIt = currentlyLoading.find(tile->ident);
+            if (loadIt != currentlyLoading.end())
+                tileData = loadIt->second;
+                
+            [tileSource cancelTile:tileID frame:-1 tileData:tileData];
             
             continue;
         }
@@ -270,6 +345,16 @@ using namespace WhirlyKit;
     [self updateLoading];
 
     return true;
+}
+
+- (void)registerTile:(MaplyTileID)tileID frame:(int)frame data:(id __nullable)tileData
+{
+    if ([NSThread currentThread] != layer.layerThread)
+        return;
+    
+    QuadTreeNew::Node node(tileID.level,tileID.x,tileID.y);
+    if (currentlyLoading.find(node) != currentlyLoading.end())
+        currentlyLoading[node] = tileData;
 }
 
 // Evaluate and possibly modify the texture for a given tile based on a possible cover tile

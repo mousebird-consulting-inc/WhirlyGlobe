@@ -329,6 +329,11 @@ static bool trackConnections = false;
     }
 }
 
+- (void)clear:(id)layer tileData:(NSArray *)tileData
+{
+    [self clear];
+}
+
 - (void)dealloc
 {
     [self clear];
@@ -667,7 +672,7 @@ static bool trackConnections = false;
     }
 }
 
-- (void)cancelTile:(MaplyTileID)tileID frame:(int)frame
+- (void)cancelTile:(MaplyTileID)tileID frame:(int)frame tileData:(id)tileData
 {
 //    NSLog(@"Cancelled tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
     
