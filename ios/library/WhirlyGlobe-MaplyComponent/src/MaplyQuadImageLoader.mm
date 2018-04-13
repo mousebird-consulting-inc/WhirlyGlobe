@@ -29,6 +29,8 @@ namespace WhirlyKit
 class TileAsset
 {
 public:
+    TileAsset() : texID(EmptyIdentity), compObjs(nil) { }
+    
     // Clean out assets
     void clear(MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
         if (texID != EmptyIdentity)
@@ -393,6 +395,8 @@ using namespace WhirlyKit;
         
         // See if it's useful elsewhere
         [self applyCoverTile:ident asset:tileAsset changes:changes];
+    } else {
+        tileAsset.clear(interactLayer, changes);
     }
         
     [layer.layerThread addChangeRequests:changes];
