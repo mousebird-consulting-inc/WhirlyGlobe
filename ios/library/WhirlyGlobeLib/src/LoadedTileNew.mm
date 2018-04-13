@@ -419,7 +419,7 @@ void LoadedTileNew::buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std
     }
 }
     
-void LoadedTileNew::enableDrawables(ChangeSet &changes)
+void LoadedTileNew::enable(ChangeSet &changes)
 {
     if (!enabled)
         for (auto drawID : drawIDs) {
@@ -428,7 +428,7 @@ void LoadedTileNew::enableDrawables(ChangeSet &changes)
     enabled = true;
 }
 
-void LoadedTileNew::disableDrawables(ChangeSet &changes)
+void LoadedTileNew::disable(ChangeSet &changes)
 {
     if (enabled)
         for (auto drawID : drawIDs) {
@@ -457,9 +457,9 @@ void TileGeomManager::setup(QuadTreeNew *inQuadTree,CoordSystemDisplayAdapter *i
     mbr = inMbr;
 }
     
-std::vector<LoadedTileNewRef> TileGeomManager::addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::NodeSet &tiles,ChangeSet &changes)
+TileGeomManager::NodeChanges TileGeomManager::addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::NodeSet &tiles,ChangeSet &changes)
 {
-    std::vector<LoadedTileNewRef> retTiles;
+    NodeChanges nodeChanges;
 
     for (auto ident: tiles) {
         // Look for an existing tile
@@ -469,13 +469,13 @@ std::vector<LoadedTileNewRef> TileGeomManager::addTiles(TileGeomSettings &geomSe
             LoadedTileNewRef tile = LoadedTileNewRef(new LoadedTileNew(ident));
             tile->makeDrawables(this,geomSettings,changes);
             tileMap[ident] = tile;
-            retTiles.push_back(tile);
+            nodeChanges.addedTiles.push_back(tile);
         }
     }
     
-    updateParents(changes);
+    updateParents(changes,nodeChanges.enabledTiles,nodeChanges.disabledTiles);
     
-    return retTiles;
+    return nodeChanges;
 }
     
 std::vector<LoadedTileNewRef> TileGeomManager::getTiles(const QuadTreeNew::NodeSet &tiles)
@@ -502,8 +502,10 @@ LoadedTileNewRef TileGeomManager::getTile(QuadTreeNew::Node &ident)
     return LoadedTileNewRef();
 }
     
-void TileGeomManager::removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes)
+TileGeomManager::NodeChanges TileGeomManager::removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes)
 {
+    NodeChanges nodeChanges;
+    
     for (auto ident: tiles) {
         auto it = tileMap.find(ident);
         if (it != tileMap.end()) {
@@ -513,10 +515,12 @@ void TileGeomManager::removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &c
         }
     }
     
-    updateParents(changes);
+    updateParents(changes,nodeChanges.enabledTiles,nodeChanges.disabledTiles);
+    
+    return nodeChanges;
 }
     
-void TileGeomManager::updateParents(ChangeSet &changes)
+void TileGeomManager::updateParents(ChangeSet &changes,LoadedTileVec &enabledNodes,LoadedTileVec &disabledNodes)
 {
     for (auto entry : tileMap) {
         auto ident = entry.first;
@@ -533,9 +537,18 @@ void TileGeomManager::updateParents(ChangeSet &changes)
                     }
                 }
             if (childPresent)
-                tile->disableDrawables(changes);
-            else
-                tile->enableDrawables(changes);
+            {
+                if (tile->enabled)
+                {
+                    disabledNodes.push_back(tile);
+                    tile->disable(changes);
+                }
+            } else {
+                if (!tile->enabled) {
+                    enabledNodes.push_back(tile);
+                    tile->enable(changes);
+                }
+            }
         }
     }
 }

@@ -157,18 +157,6 @@ protected:
     if (!toAdd.empty())
         [_loader quadDisplayLayer:self loadTiles:toAdd];
 
-//    NSLog(@"----- Nodes to add ------");
-//    for (auto nodeIt=toAdd.begin();nodeIt!=toAdd.end();nodeIt++)
-//    {
-//        NSLog(@"  %d: (%d,%d)",nodeIt->level,nodeIt->x,nodeIt->y);
-//    }
-//    NSLog(@"----- Nodes to remove ------");
-//    for (auto nodeIt=toRemove.begin();nodeIt!=toRemove.end();nodeIt++)
-//    {
-//        NSLog(@"  %d: (%d,%d)",nodeIt->level,nodeIt->x,nodeIt->y);
-//    }
-//    NSLog(@"----- ------------- ------");
-
     currentNodes = newNodes;
 }
 

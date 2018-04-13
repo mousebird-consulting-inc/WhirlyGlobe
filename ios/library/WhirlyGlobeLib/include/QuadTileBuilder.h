@@ -33,6 +33,12 @@
 /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
 - (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder loadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
 
+/// The given tiles should be enabled
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder enableTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
+
+/// The given tiles should be disabled
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder disableTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
+
 /// Unload the given tiles.
 - (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder unLoadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
 
@@ -51,6 +57,9 @@
 
 // If set, we'll generate skirts to match between levels of detail
 @property (nonatomic) bool edgeMatching;
+
+// If set, we'll print too much information
+@property (nonatomic) bool debugMode;
 
 // If set, we'll notify the delegate when tiles are loaded and unloaded
 @property (nonatomic) NSObject<WhirlyKitQuadTileBuilderDelegate> * __nullable delegate;

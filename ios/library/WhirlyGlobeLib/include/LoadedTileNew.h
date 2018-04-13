@@ -74,10 +74,10 @@ public:
     void buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std::vector<TexCoord> &texCoords,double skirtFactor,bool haveElev,const Point3d &theCenter);
 
     // Enable associated drawables
-    void enableDrawables(ChangeSet &changes);
+    void enable(ChangeSet &changes);
 
     // Disable associated drawables
-    void disableDrawables(ChangeSet &changes);
+    void disable(ChangeSet &changes);
 
     // Generate commands to remove the associated drawables
     void removeDrawables(ChangeSet &changes);
@@ -88,7 +88,8 @@ public:
     SimpleIDSet drawIDs;
 };
 typedef std::shared_ptr<LoadedTileNew> LoadedTileNewRef;
-
+typedef std::vector<LoadedTileNewRef> LoadedTileVec;
+    
 /** Tile Builder builds individual tile geometry for use elsewhere.
     This is just the geometry.  If you want textures on it, you need to do those elsewhere.
   */
@@ -100,8 +101,17 @@ public:
     // Construct with the quad tree we're building off of, the coordinate system we're building from and the (valid) bounding box
     void setup(QuadTreeNew *quadTree,CoordSystemDisplayAdapter *coordAdapter,CoordSystem *coordSys,MbrD inMbr);
     
+    // Keep track of nodes added, enabled and disabled
+    class NodeChanges
+    {
+    public:
+        LoadedTileVec addedTiles;
+        LoadedTileVec enabledTiles;
+        LoadedTileVec disabledTiles;
+    };
+    
     // Add the tiles list in the node set
-    std::vector<LoadedTileNewRef> addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
+    NodeChanges addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
     
     // Return a list of tiles corresponding to the IDs
     std::vector<LoadedTileNewRef> getTiles(const QuadTreeNew::NodeSet &tiles);
@@ -110,10 +120,10 @@ public:
     LoadedTileNewRef getTile(QuadTreeNew::Node &ident);
     
     // Remove the tiles given, if they're being represented
-    void removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
+    NodeChanges removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
     
     // Turn tiles on/off based on their childen
-    void updateParents(ChangeSet &changes);
+    void updateParents(ChangeSet &changes,LoadedTileVec &enabledNodes,LoadedTileVec &disabledNodes);
     
     QuadTreeNew *quadTree;
     CoordSystemDisplayAdapter *coordAdapter;

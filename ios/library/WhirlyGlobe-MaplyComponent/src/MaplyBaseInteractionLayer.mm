@@ -3336,16 +3336,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self flushChanges:changes mode:MaplyThreadCurrent];
 }
 
-
-// Remove the object, but do it on the layer thread
-- (void)removeObjectRun:(NSArray *)argArray
+- (void)removeObjects:(NSArray *)userObjs changes:(WhirlyKit::ChangeSet &)changes
 {
-    if (isShuttingDown || (!layerThread && !offlineMode))
-        return;
-    
-    NSArray *inUserObjs = argArray[0];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
-    
     MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
     LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
@@ -3358,17 +3350,15 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     WhirlyKitFontTextureManager *fontTexManager = scene->getFontTextureManager();
     ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
 
-    ChangeSet changes;
-        
     // First, let's make sure we're representing it
-    for (MaplyComponentObject *userObj in inUserObjs)
+    for (MaplyComponentObject *userObj in userObjs)
     {
         bool isHere = false;
         @synchronized(userObjects)
         {
             isHere = [userObjects containsObject:userObj];
         }
-
+        
         if (isHere)
         {
             if (userObj.underConstruction)
@@ -3415,7 +3405,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                      it != userObj.textures.end(); ++it)
                     [self removeImageTexture:*it changes:changes];
                 userObj.textures.clear();
-
+                
                 // And any references to selection objects
                 if (!userObj.selectIDs.empty())
                 {
@@ -3439,12 +3429,28 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 [userObjects removeObject:userObj];
             }
             
-//            NSLog(@"Deleted object %lx",(unsigned long)userObj);
+            //            NSLog(@"Deleted object %lx",(unsigned long)userObj);
         } else {
             NSLog(@"Tried to delete object that doesn't exist");
         }
     }
     
+}
+
+
+// Remove the object, but do it on the layer thread
+- (void)removeObjectRun:(NSArray *)argArray
+{
+    if (isShuttingDown || (!layerThread && !offlineMode))
+        return;
+    
+    NSArray *inUserObjs = argArray[0];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:1] intValue];
+    
+    ChangeSet changes;
+
+    [self removeObjects:inUserObjs changes:changes];
+
     [self flushChanges:changes mode:threadMode];
 }
 
@@ -3477,15 +3483,18 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     }
 }
 
-- (void)enableObjectsRun:(NSArray *)argArray
+- (void)enableObjects:(NSArray *)userObjs changes:(ChangeSet &)changes
 {
-    if (isShuttingDown || (!layerThread && !offlineMode))
-        return;
+    [self enableObjectsImpl:userObjs enable:true changes:changes];
+}
 
-    NSArray *theObjs = argArray[0];
-    bool enable = [argArray[1] boolValue];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
+- (void)disableObjects:(NSArray *)userObjs changes:(ChangeSet &)changes
+{
+    [self enableObjectsImpl:userObjs enable:false changes:changes];
+}
 
+- (void)enableObjectsImpl:(NSArray *)userObjs enable:(bool)enable changes:(ChangeSet &)changes
+{
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
     WideVectorManager *wideVectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
     MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
@@ -3495,16 +3504,15 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
     LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
-
-    ChangeSet changes;
-    for (MaplyComponentObject *compObj in theObjs)
+    
+    for (MaplyComponentObject *compObj in userObjs)
     {
         bool isHere = false;
         @synchronized(userObjects)
         {
             isHere = [userObjects containsObject:compObj];
         }
-
+        
         if (isHere)
         {
             compObj.enable = enable;
@@ -3532,6 +3540,19 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             }
         }
     }
+}
+
+- (void)enableObjectsRun:(NSArray *)argArray
+{
+    if (isShuttingDown || (!layerThread && !offlineMode))
+        return;
+
+    NSArray *theObjs = argArray[0];
+    bool enable = [argArray[1] boolValue];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
+
+    ChangeSet changes;
+    [self enableObjectsImpl:theObjs enable:enable changes:changes];
 
     [self flushChanges:changes mode:threadMode];
 }

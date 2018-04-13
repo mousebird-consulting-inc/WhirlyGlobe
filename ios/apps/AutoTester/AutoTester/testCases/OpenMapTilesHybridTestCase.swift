@@ -76,7 +76,7 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         if let tileSource = tileSource {
             tileSource.cacheDir = "\(cacheDir)/openmaptiles_saildrone/"
             
-            guard let imageLoader = MaplyQuadImageLoader(tileSource: tileSource) else {
+            guard let imageLoader = MaplyQuadImageLoader(tileSource: tileSource, viewC: baseVC) else {
                 return nil
             }
             imageLoader.numSimultaneousFetches = 8
@@ -85,7 +85,7 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
                 return nil
             }
             // Note: Get this from the tiles source
-            sampleLayer.setMinZoom(0, maxZoom: 16, importance: 256.0*256.0)
+            sampleLayer.setMinZoom(tileInfo.minZoom, maxZoom: tileInfo.maxZoom, importance: 1024.0*1024.0)
             if baseVC is WhirlyGlobeViewController {
                 sampleLayer.edgeMatching = true
                 sampleLayer.coverPoles = true
