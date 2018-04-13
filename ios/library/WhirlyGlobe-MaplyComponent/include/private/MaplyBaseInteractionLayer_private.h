@@ -131,14 +131,23 @@
 // Add a group of points
 - (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
-// Remove objects associated with the user objects
+// Remove objects associated with the user objects, but just generate the changes don't flush them
 - (void)removeObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
+
+// Remove objects associated with the user objects
+- (void)removeObjects:(NSArray *)userObjs changes:(WhirlyKit::ChangeSet &)changes;
 
 // Enable objects
 - (void)enableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
 
+// Enable objects, but just generate the changes don't flush them
+- (void)enableObjects:(NSArray *)userObjs changes:(WhirlyKit::ChangeSet &)changes;
+
 // Disable objects
 - (void)disableObjects:(NSArray *)userObjs mode:(MaplyThreadMode)threadMode;
+
+// Disable objects, but just generate the changes don't flush them
+- (void)disableObjects:(NSArray *)userObjs changes:(WhirlyKit::ChangeSet &)changes;
 
 // Explicitly add a texture
 - (MaplyTexture *)addTexture:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;

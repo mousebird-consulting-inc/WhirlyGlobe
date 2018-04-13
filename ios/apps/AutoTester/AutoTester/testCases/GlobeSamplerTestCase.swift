@@ -32,7 +32,7 @@ class GlobeSamplerTestCase: MaplyTestCase {
         tileSource.cacheDir = thisCacheDir
 
         let coordSys = MaplySphericalMercator(webStandard: ())
-        guard let imageLoader = MaplyQuadImageLoader(tileSource: tileSource) else {
+        guard let imageLoader = MaplyQuadImageLoader(tileSource: tileSource, viewC: baseVC) else {
             return nil
         }
         imageLoader.numSimultaneousFetches = 8

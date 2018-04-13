@@ -20,6 +20,7 @@
 #import "MaplyQuadImageLoader_private.h"
 #import "QuadTileBuilder.h"
 #import "MaplyImageTile_private.h"
+#import "MaplyRenderController_private.h"
 
 namespace WhirlyKit
 {
@@ -29,9 +30,10 @@ class TileAsset
 {
 public:
     // Clean out assets
-    void clear(ChangeSet &changes) {
+    void clear(MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
         if (texID != EmptyIdentity)
             changes.push_back(new RemTextureReq(texID));
+        [interactLayer removeObjects:compObjs changes:changes];
     }
     
     // Tile ID of the texture we're applying to this tile.
@@ -40,6 +42,9 @@ public:
 
     // The texture ID owned by this node.  Delete it when we're done.
     SimpleIdentity texID;
+    
+    // Component objects owned by the tile
+    NSArray *compObjs;
 };
 
 typedef std::map<QuadTreeNew::Node,TileAsset> TileAssetMap;
@@ -72,11 +77,14 @@ using namespace WhirlyKit;
     LoadingMap currentlyLoading;
     // Tiles we've actually loaded and are active in memory
     WhirlyKit::TileAssetMap loaded;
+    
+    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
 }
 
-- (instancetype)initWithTileSource:(NSObject<MaplyTileSource> *)inTileSource
+- (instancetype)initWithTileSource:(NSObject<MaplyTileSource> *)inTileSource viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)inViewC
 {
     tileSource = inTileSource;
+    viewC = inViewC;
     if (![tileSource respondsToSelector:@selector(startFetchLayer:tile:frame:)]) {
         NSLog(@"MaplyQuadImageLoader requires tile source implement startFetchLayer:tile:frame:");
         return nil;
@@ -228,6 +236,11 @@ using namespace WhirlyKit;
 // Called on the layer thread
 - (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder unLoadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(ChangeSet &)changes
 {
+    auto control = viewC.getRenderControl;
+    if (!control)
+        return;
+    auto interactLayer = control->interactLayer;
+
     for (auto tile: tiles) {
         MaplyTileID tileID;
         tileID.level = tile->ident.level;
@@ -263,13 +276,43 @@ using namespace WhirlyKit;
         if (loadedIt != loaded.end()) {
             if (_debugMode)
                 NSLog(@"Unloading %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-            loadedIt->second.clear(changes);
+            loadedIt->second.clear(interactLayer,changes);
 
             loaded.erase(loadedIt);
         }
     }
     
     [self updateLoading];
+}
+
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder enableTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes
+{
+    auto control = viewC.getRenderControl;
+    if (!control)
+        return;
+    auto interactLayer = control->interactLayer;
+    
+    for (auto tile: tiles) {
+        auto it = loaded.find(tile->ident);
+        if (it != loaded.end()) {
+            [interactLayer enableObjects:it->second.compObjs changes:changes];
+        }
+    }
+}
+
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder disableTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes
+{
+    auto control = viewC.getRenderControl;
+    if (!control)
+        return;
+    auto interactLayer = control->interactLayer;
+    
+    for (auto tile: tiles) {
+        auto it = loaded.find(tile->ident);
+        if (it != loaded.end()) {
+            [interactLayer disableObjects:it->second.compObjs changes:changes];
+        }
+    }
 }
 
 // Called from anywhere
@@ -287,6 +330,11 @@ using namespace WhirlyKit;
 {
     if (_debugMode)
         NSLog(@"Loaded %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
+
+    auto control = viewC.getRenderControl;
+    if (!control)
+        return false;
+    auto interactLayer = control->interactLayer;
 
     ChangeSet changes;
     
@@ -311,6 +359,11 @@ using namespace WhirlyKit;
         if ([loadedImage isKindOfClass:[WhirlyKitLoadedImage class]]) {
             LoadedTileNewRef loadedTile = [builder getLoadedTile:ident];
             if (loadedTile) {
+                // Turn on the objects
+                if (loadedTile->enabled)
+                    [interactLayer enableObjects:loadReturn.compObjs changes:changes];
+                
+                // Build the image
                 Texture *tex = [loadedImage buildTexture:borderPixel destWidth:loadedImage.width destHeight:loadedImage.height];
                 if (tex) {
                     success = true;
@@ -326,11 +379,13 @@ using namespace WhirlyKit;
         }
     }
     
+    tileAsset.compObjs = loadReturn.compObjs;
+    
     if (success) {
         // This shouldn't happen, but what if there's one already there?
         auto loadedIt = loaded.find(ident);
         if (loadedIt != loaded.end()) {
-            loadedIt->second.clear(changes);
+            loadedIt->second.clear(interactLayer,changes);
         }
         // The asset (texture) is matched directly to the node
         tileAsset.texNode = ident;

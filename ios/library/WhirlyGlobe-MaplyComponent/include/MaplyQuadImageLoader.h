@@ -67,7 +67,7 @@
  
  @param tileSource This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.
  */
-- (nullable instancetype)initWithTileSource:(NSObject<MaplyTileSource> *__nonnull)tileSource;
+- (nullable instancetype)initWithTileSource:(NSObject<MaplyTileSource> *__nonnull)tileSource viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
 
 /**
  The number of simultaneous fetches the layer will attempt at once.
