@@ -2,6 +2,7 @@ package com.mousebirdconsulting.autotester.TestCases;
 
 import com.mousebird.maply.LayerThread;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.sld.sldstyleset.AssetWrapper;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 import android.app.Activity;
@@ -75,9 +76,11 @@ public class SLDTestCase extends MaplyTestCase {
                     "belfast_ireland_roads.geojson",
                     "belfast_ireland_amenities.geojson"};
 
+            AssetWrapper assetWrap = new AssetWrapper(activity.getAssets());
+
             for (int i=0; i<slds.length; i++) {
 
-                SLDStyleSet styleSet = new SLDStyleSet(controller, activity.getAssets(), slds[i], activity.getResources().getDisplayMetrics(), false, i*100000);
+                SLDStyleSet styleSet = new SLDStyleSet(controller, assetWrap, slds[i], activity.getResources().getDisplayMetrics(), false, i*100000);
                 styleSet.loadSldInputStream();
 
                 GeoJSONSource gjs = new GeoJSONSource();
