@@ -1,6 +1,7 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
+import android.os.Handler;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
@@ -37,7 +38,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		// Note: Turn this on to get more information from the tile source
 //		remoteTileSource.debugOutput = true;
 		SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
-		QuadImageTileLayer baseLayer = new QuadImageTileLayer(baseController, coordSystem, remoteTileSource);
+		final QuadImageTileLayer baseLayer = new QuadImageTileLayer(baseController, coordSystem, remoteTileSource);
 		if (testType == ConfigOptions.TestType.MapTest)
 		{
 //			baseLayer.setSingleLevelLoading(true);
@@ -49,6 +50,15 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 			baseLayer.setCoverPoles(true);
 			baseLayer.setHandleEdges(true);
 		}
+
+		final Handler handler = new Handler();
+		handler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				baseLayer.reload();
+			}
+		}, 4000);
+
 		return baseLayer;
 
 	}
