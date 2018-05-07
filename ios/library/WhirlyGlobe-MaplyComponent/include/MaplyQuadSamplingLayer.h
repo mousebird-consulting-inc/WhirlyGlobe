@@ -34,6 +34,12 @@
 /// Only works for world-wide projections
 @property (nonatomic) bool coverPoles;
 
+// Set the draw priority values for produced tiles
+@property (nonatomic) int baseDrawPriority;
+
+// Offset between levels for a calculated draw priority
+@property (nonatomic) int drawPriorityPerLevel;
+
 /// If set, generate skirt geometry to hide the edges between levels
 @property (nonatomic) bool edgeMatching;
 

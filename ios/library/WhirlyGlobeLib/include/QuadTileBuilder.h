@@ -58,6 +58,12 @@
 // If set, we'll generate skirts to match between levels of detail
 @property (nonatomic) bool edgeMatching;
 
+// Set the draw priority values for produced tiles
+@property (nonatomic) int baseDrawPriority;
+
+// Offset between levels for a calculated draw priority
+@property (nonatomic) int drawPriorityPerLevel;
+
 // If set, we'll print too much information
 @property (nonatomic) bool debugMode;
 

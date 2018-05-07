@@ -51,7 +51,9 @@ public:
     // If set, viewable range
     double minVis,maxVis;
     // The priority for the drawables
-    int drawPriority;
+    int baseDrawPriority;
+    // Multiply the level by this and add it to the baseDrawPriority
+    int drawPriorityPerLevel;
     // If set, we'll just build lines for debugging
     bool lineMode;
     // If set, we'll include the elevation data
