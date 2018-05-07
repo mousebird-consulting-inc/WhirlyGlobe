@@ -35,6 +35,8 @@ using namespace WhirlyKit;
 {
     self = [super init];
     _coordSys = coordSys;
+    _baseDrawPriority = 0;
+    _drawPriorityPerLevel = 1;
     
     return self;
 }
@@ -52,6 +54,16 @@ using namespace WhirlyKit;
 - (void)setEdgeMatching:(bool)edgeMatch
 {
     geomManage.buildSkirts = edgeMatch;
+}
+
+- (void)setBaseDrawPriority:(int)baseDrawPriority
+{
+    geomSettings.baseDrawPriority = baseDrawPriority;
+}
+
+- (void)setDrawPriorityPerLevel:(int)drawPriorityPerLevel
+{
+    geomSettings.drawPriorityPerLevel = drawPriorityPerLevel;
 }
 
 - (bool)edgeMatching

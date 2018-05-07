@@ -50,6 +50,8 @@ using namespace WhirlyKit;
     imageLoader = inImageLoader;
     _coverPoles = true;
     _edgeMatching = true;
+    _baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
+    _drawPriorityPerLevel = 100;
     
     return self;
 }
@@ -71,6 +73,8 @@ using namespace WhirlyKit;
     builder = [[WhirlyKitQuadTileBuilder alloc] initWithCoordSys:[coordSys getCoordSystem]];
     builder.coverPoles = _coverPoles;
     builder.edgeMatching = _edgeMatching;
+    builder.baseDrawPriority = _baseDrawPriority;
+    builder.drawPriorityPerLevel = _drawPriorityPerLevel;
     builder.delegate = imageLoader;
     quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithDataSource:self loader:builder renderer:renderer];
     quadLayer.minImportance = import;

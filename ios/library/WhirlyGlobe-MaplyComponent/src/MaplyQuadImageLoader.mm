@@ -493,16 +493,16 @@ using namespace WhirlyKit;
             tile->enable = true;
             [interactLayer enableObjects:loadReturn.compObjs changes:changes];
         }
-        
+
         // See if it's useful elsewhere
         [self applyCoverTile:ident asset:tile changes:changes];
     } else {
         [self removeTile:ident layer:interactLayer changes:changes];
     }
-    
+
     // Evaluate parents wrt to their children and enable/disable
     [self evalParentsLayer:interactLayer changes:changes];
-        
+
     [layer.layerThread addChangeRequests:changes];
 
     [self updateLoading];
