@@ -115,6 +115,7 @@
 @implementation MapboxVectorLayerLine
 {
     NSMutableDictionary *lineDesc;
+    int drawPriorityPerLevel;
 }
 
 // Courtesy: http://acius2.blogspot.com/2007/11/calculating-next-power-of-2.html
@@ -199,6 +200,8 @@ static unsigned int NextPowOf2(unsigned int val)
     if (_paint.color) {
         lineDesc[kMaplyColor] = _paint.color;
     }
+    
+    drawPriorityPerLevel = styleSet.tileStyleSettings.drawPriorityPerLevel;
 
     return self;
 }
@@ -242,6 +245,11 @@ static unsigned int NextPowOf2(unsigned int val)
     }
     NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
     mutDesc[kMaplyColor] = color;
+    
+    if (drawPriorityPerLevel > 0) {
+        mutDesc[kMaplyDrawPriority] = @(self.drawPriority + tileID.level * drawPriorityPerLevel);
+    }
+    
     desc = mutDesc;
     
     if (include)
