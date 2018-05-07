@@ -40,6 +40,8 @@ using namespace WhirlyKit;
     _wideVecCuttoff = 0.0;
     _oldVecWidthScale = 1.0;
     _selectable = false;
+    _baseDrawPriority = kMaplyVectorDrawPriorityDefault;
+    _drawPriorityPerLevel = 0;
   
     return self;
 }
@@ -58,7 +60,9 @@ using namespace WhirlyKit;
     _wideVecCuttoff = 0.0;
     _oldVecWidthScale = 1.0;
     _selectable = false;
-    
+    _baseDrawPriority = kMaplyVectorDrawPriorityDefault;
+    _drawPriorityPerLevel = 0;
+
     return self;
 }
 

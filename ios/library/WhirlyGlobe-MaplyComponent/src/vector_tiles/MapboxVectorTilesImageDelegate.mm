@@ -74,7 +74,6 @@ static double MAX_EXTENT = 20037508.342789244;
     viewC = inViewC;
     coordSys = [[MaplySphericalMercator alloc] initWebStandard];
 
-    offlineRender = [[MaplyRenderController alloc] initWithSize:CGSizeMake(512.0,512.0)];
     offlineRender.clearColor = [UIColor blueColor];
     imageTileParser = [[MapboxVectorTileParser alloc] initWithStyle:imageStyle viewC:offlineRender];
     imageTileParser.localCoords = true;
@@ -98,7 +97,7 @@ static double MAX_EXTENT = 20037508.342789244;
 
 - (int)tileSize
 {
-    return 512;
+    return offlineRender.getFramebufferSize.width;
 }
 
 - (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame
@@ -183,7 +182,7 @@ static double MAX_EXTENT = 20037508.342789244;
 - (bool)processData:(NSData *)tileData tile:(MaplyTileID)tileID loader:(MaplyQuadImageLoader *)loader
 {
     MaplyBoundingBox imageBBox;
-    imageBBox.ll = MaplyCoordinateMake(0,0);  imageBBox.ur = MaplyCoordinateMake(512, 512);
+    imageBBox.ll = MaplyCoordinateMake(0,0);  imageBBox.ur = MaplyCoordinateMake(offlineRender.getFramebufferSize.width,offlineRender.getFramebufferSize.height);
     MaplyBoundingBox localBBox,geoBBox;
     localBBox = [loader boundsForTile:tileID];
     geoBBox = [loader geoBoundsForTile:tileID];

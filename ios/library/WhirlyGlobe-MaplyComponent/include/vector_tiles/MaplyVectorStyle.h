@@ -42,6 +42,12 @@
 /// Default marker size when none is specified
 @property (nonatomic) float markerSize;
 
+/// Draw priority calculated as offset from here
+@property (nonatomic) int baseDrawPriority;
+
+/// Offset between levels
+@property (nonatomic) int drawPriorityPerLevel;
+
 /** 
     The overall map scale calculations will be scaled by this amount.
     
