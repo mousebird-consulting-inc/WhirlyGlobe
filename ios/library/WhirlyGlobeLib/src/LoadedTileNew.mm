@@ -107,7 +107,8 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     if (geomSettings.useTileCenters)
         chunk->setMatrix(&transMat);
     
-    chunk->setDrawPriority(geomSettings.baseDrawPriority + ident.level * geomSettings.drawPriorityPerLevel);
+    drawPriority = geomSettings.baseDrawPriority + ident.level * geomSettings.drawPriorityPerLevel;
+    chunk->setDrawPriority(drawPriority);
     chunk->setVisibleRange(geomSettings.minVis, geomSettings.maxVis);
     chunk->setColor(geomSettings.color);
     chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
@@ -124,7 +125,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
         if (geomSettings.useTileCenters)
             poleChunk->setMatrix(&transMat);
         poleChunk->setType(GL_TRIANGLES);
-        poleChunk->setDrawPriority(geomSettings.baseDrawPriority + ident.level * geomSettings.drawPriorityPerLevel);
+        poleChunk->setDrawPriority(drawPriority);
         poleChunk->setVisibleRange(geomSettings.minVis, geomSettings.maxVis);
         poleChunk->setColor(geomSettings.color);
         poleChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
