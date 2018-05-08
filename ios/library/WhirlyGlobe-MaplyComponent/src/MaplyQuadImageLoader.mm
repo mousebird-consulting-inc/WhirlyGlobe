@@ -29,7 +29,7 @@ namespace WhirlyKit
 class TileAsset
 {
 public:
-    TileAsset() : texID(EmptyIdentity), compObjs(nil), shouldEnable(false), enable(false), loadingHandle(nil), state(ToLoad) { }
+    TileAsset() : texID(EmptyIdentity), drawPriority(0), compObjs(nil), shouldEnable(false), enable(false), loadingHandle(nil), state(ToLoad) { }
     
     // Clean out assets
     void clear(MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
@@ -51,6 +51,9 @@ public:
 
     // The texture ID owned by this node.  Delete it when we're done.
     SimpleIdentity texID;
+    
+    // Draw Priority assigned to this tile by default
+    int drawPriority;
     
     // Set if the Tile Builder thinks this should be enabled
     bool shouldEnable;
@@ -473,11 +476,14 @@ using namespace WhirlyKit;
                     success = true;
                     // Create the texture in the renderer
                     tile->texID = tex->getId();
+                    tile->drawPriority = loadedTile->drawPriority;
                     changes.push_back(new AddTextureReq(tex));
                     
                     // Assign it to the various drawables
-                    for (auto drawID : loadedTile->drawIDs)
+                    for (auto drawID : loadedTile->drawIDs) {
                         changes.push_back(new DrawTexChangeRequest(drawID,0,tile->texID));
+                        changes.push_back(new DrawPriorityChangeRequest(drawID,tile->drawPriority));
+                    }
                 }
                 tile->shouldEnable = loadedTile->enabled;
             }
@@ -534,6 +540,7 @@ using namespace WhirlyKit;
             if (_flipY)
                 relY = (1<<relLevel)-relY-1;
             changes.push_back(new DrawTexChangeRequest(drawID,0,coverAsset->texID,relLevel,relX,relY));
+            changes.push_back(new DrawPriorityChangeRequest(drawID,coverAsset->drawPriority));
         }
     }
 }

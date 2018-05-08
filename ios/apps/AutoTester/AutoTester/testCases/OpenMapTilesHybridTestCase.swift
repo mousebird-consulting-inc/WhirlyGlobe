@@ -29,7 +29,8 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         }
         
         // Set up an offline renderer and a Mapbox vector style handler to render to it
-        guard let offlineRender = MaplyRenderController.init(size: CGSize.init(width: 512.0, height: 512.0)) else {
+        let imageSize = (width: 512.0, height: 512.0)
+        guard let offlineRender = MaplyRenderController.init(size: CGSize.init(width: imageSize.width, height: imageSize.height)) else {
             return nil
         }
         let imageStyleSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
@@ -52,8 +53,11 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         }
         
         // Set up a style for just the vector data we want to overlay
+        let vectorSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
+        vectorSettings.baseDrawPriority = 100+1
+        vectorSettings.drawPriorityPerLevel = 1000
         guard let vectorStyleSet = MapboxVectorStyleSet.init(json: styleData as Data,
-                                                             settings: MaplyVectorStyleSettings.init(scale: UIScreen.main.scale),
+                                                             settings: vectorSettings,
                                                              viewC: baseVC,
                                                              filter:
             { (styleAttrs) -> Bool in
@@ -84,6 +88,8 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
             guard let sampleLayer = MaplyQuadSamplingLayer.init(coordSystem: coordSys, imageLoader: imageLoader) else {
                 return nil
             }
+            sampleLayer.baseDrawPriority = vectorSettings.baseDrawPriority-1
+            sampleLayer.drawPriorityPerLevel = vectorSettings.drawPriorityPerLevel
             // Note: Get this from the tiles source
             sampleLayer.setMinZoom(tileInfo.minZoom, maxZoom: tileInfo.maxZoom, importance: 1024.0*1024.0)
             if baseVC is WhirlyGlobeViewController {

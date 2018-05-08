@@ -34,6 +34,7 @@ using namespace WhirlyKit;
 - (id)initWithCoordSys:(WhirlyKit::CoordSystem *)coordSys
 {
     self = [super init];
+    _debugMode = false;
     _coordSys = coordSys;
     _baseDrawPriority = 0;
     _drawPriorityPerLevel = 1;

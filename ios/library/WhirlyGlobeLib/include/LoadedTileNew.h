@@ -88,6 +88,8 @@ public:
     QuadTreeNew::Node ident;
     // Active drawable IDs associated with this tile
     SimpleIDSet drawIDs;
+    // The Draw Priority as set when created
+    int drawPriority;
 };
 typedef std::shared_ptr<LoadedTileNew> LoadedTileNewRef;
 typedef std::vector<LoadedTileNewRef> LoadedTileVec;
