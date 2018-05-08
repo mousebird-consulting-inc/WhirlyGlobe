@@ -126,7 +126,7 @@ using namespace WhirlyKit;
     
     _numSimultaneousFetches = 16;
     _flipY = true;
-    _debugMode = true;
+    _debugMode = false;
     minLevel = tileSource.minZoom;
     maxLevel = tileSource.maxZoom;
 
