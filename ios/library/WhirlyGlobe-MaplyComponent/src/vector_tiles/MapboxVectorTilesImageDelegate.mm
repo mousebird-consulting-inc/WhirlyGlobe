@@ -160,19 +160,21 @@ static double MAX_EXTENT = 20037508.342789244;
         NSURLSessionDataTask *task = [session dataTaskWithRequest:urlReq completionHandler:
                                       ^(NSData * _Nullable netData, NSURLResponse * _Nullable response, NSError * _Nullable error)
                                       {
-                                          NSData *thisTileData = nil;
-                                          if(netData.length) {
-                                              if([netData isCompressed]) {
-                                                  thisTileData = [netData uncompressGZip];
-                                                  if(!thisTileData.length) {
-                                                      NSLog(@"Error: tile data was nil after decompression");
-                                                      return;
+                                          dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                                              NSData *thisTileData = nil;
+                                              if(netData.length) {
+                                                  if([netData isCompressed]) {
+                                                      thisTileData = [netData uncompressGZip];
+                                                      if(!thisTileData.length) {
+                                                          NSLog(@"Error: tile data was nil after decompression");
+                                                          return;
+                                                      }
                                                   }
                                               }
-                                          }
-                                          
-                                          if ([self processData:thisTileData tile:tileID loader:loader] && cacheFileName)
-                                              [netData writeToFile:cacheFileName atomically:NO];
+                                              
+                                              if ([self processData:thisTileData tile:tileID loader:loader] && cacheFileName)
+                                                  [netData writeToFile:cacheFileName atomically:NO];
+                                          });
                                       }];
         [task resume];
         [loader registerTile:tileID frame:frame data:task];
