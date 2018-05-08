@@ -315,45 +315,41 @@ using namespace WhirlyKit;
 // Evaluate parents wrt to their children and enable/disable
 - (void)evalParentsLayer:(MaplyBaseInteractionLayer *)interactLayer changes:(ChangeSet &)changes
 {
-//    // Mark everything with children loading or not
-//    for (auto it : tiles) {
-//        it.second->childrenLoading = false;
-//    }
-//    for (auto it = tiles.rbegin(); it != tiles.rend(); it++) {
-//        auto ident = it->first;
-//        auto tile = it->second;
-//        if ((tile->state == TileAsset::Loading || tile->state == TileAsset::ToLoad)
-//            && ident.level > minLevel) {
-//            // Mark the parent as having loading children
-//            QuadTreeNew::Node parentIdent(ident.x/2,ident.y/2,ident.level-1);
-//            auto parentIt = tiles.find(parentIdent);
-//            if (parentIt != tiles.end())
-//                parentIt->second->childrenLoading = true;
-//        }
-//    }
-//    
-//    for (auto it : tiles) {
-//        auto ident = it.first;
-//        auto tile = it.second;
-//        bool enable = false;
-//        // This node has children loading
-//        if (tile->childrenLoading) {
-//            enable = true;
-//            // Check the parent
-//            if (ident.level > minLevel) {
-//                QuadTreeNew::Node parentIdent(ident.x/2,ident.y/2,ident.level-1);
-//                auto parentIt = tiles.find(parentIdent);
-//                if (parentIt != tiles.end())
-//                    // Parent had children loading, so this node is off
-//                    if (parentIt->second->childrenLoading)
-//                        enable = false;
-//            }
-//        } else {
-//            // If any parent has children loading
-//        }
-//    }
+    // Mark everything with children loading or not
+    for (auto it : tiles) {
+        it.second->childrenLoading = false;
+    }
+    for (auto it = tiles.rbegin(); it != tiles.rend(); it++) {
+        auto ident = it->first;
+        auto tile = it->second;
+        if ((tile->state == TileAsset::Loading || tile->state == TileAsset::ToLoad)
+            && ident.level > minLevel) {
+            // Mark the parent as having loading children
+            QuadTreeNew::Node parentIdent(ident.x/2,ident.y/2,ident.level-1);
+            auto parentIt = tiles.find(parentIdent);
+            if (parentIt != tiles.end())
+                parentIt->second->childrenLoading = true;
+        }
+    }
     
-
+    // If there are children loading and this is off, turn it back on
+    for (auto it : tiles) {
+        auto ident = it.first;
+        auto tile = it.second;
+        if (tile->state == TileAsset::Loaded) {
+            if (tile->childrenLoading || tile->shouldEnable) {
+                if (!tile->enable) {
+                    tile->enable = true;
+                    [interactLayer enableObjects:tile->compObjs changes:changes];
+                }
+            } else {
+                if (tile->enable) {
+                    tile->enable = false;
+                    [interactLayer disableObjects:tile->compObjs changes:changes];
+                }
+            }
+        }
+    }
 }
 
 // Called on the layer thread
@@ -390,7 +386,7 @@ using namespace WhirlyKit;
     
     [self updateLoading];
     
-    // Evaluate parents wrt to their children and enable/disable
+    // Evaluate parents wrt to their children
     [self evalParentsLayer:interactLayer changes:changes];
 }
 
