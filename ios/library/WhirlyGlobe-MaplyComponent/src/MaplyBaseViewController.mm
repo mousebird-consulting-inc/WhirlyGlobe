@@ -417,7 +417,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)removeLight:(MaplyLight *)light
 {
-    [self removeLight:light];
+    [renderControl removeLight:light];
 }
 
 - (void)addShaderProgram:(MaplyShader *)shader sceneName:(NSString *)sceneName
