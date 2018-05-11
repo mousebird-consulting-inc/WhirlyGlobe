@@ -693,6 +693,10 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     if (pointBuffer || sharedBuffer)
         return;
     
+//    if ([NSThread currentThread] == [NSThread mainThread]) {
+//        NSLog(@"Hey why are we doing setupGL on the main thread? %s",name.c_str());
+//    }
+    
     // Offset the geometry upward by minZres units along the normals
     // Only do this once, obviously
     // Note: Probably replace this with a shader program at some point

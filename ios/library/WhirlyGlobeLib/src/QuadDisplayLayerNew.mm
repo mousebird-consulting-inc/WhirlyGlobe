@@ -132,7 +132,7 @@ protected:
         viewState = inViewState;
         return;
     }
-
+    
     if ([_dataStructure respondsToSelector:@selector(newViewState:)])
         [_dataStructure newViewState:inViewState];
 
@@ -156,7 +156,7 @@ protected:
         [_loader quadDisplayLayer:self unLoadTiles:toRemove];
     if (!toAdd.empty())
         [_loader quadDisplayLayer:self loadTiles:toAdd];
-
+    
     currentNodes = newNodes;
 }
 

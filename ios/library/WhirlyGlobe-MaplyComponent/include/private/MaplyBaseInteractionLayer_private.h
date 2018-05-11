@@ -44,6 +44,9 @@
     // Scene we're using
     WhirlyKit::Scene *scene;
     
+    // Pointer to the layerThreads we're using in the base view controller
+    NSArray *layerThreads;
+    
     pthread_mutex_t imageLock;
     // Used to track textures
     MaplyImageTextureList imageTextures;

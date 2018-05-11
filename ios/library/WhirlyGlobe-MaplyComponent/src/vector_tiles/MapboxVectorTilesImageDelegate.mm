@@ -149,10 +149,13 @@ static double MAX_EXTENT = 20037508.342789244;
         }
     }
 
+    NSObject<MaplyRenderControllerProtocol> *weakViewC = viewC;
+
     // Process from the cached data, but fall back on fetching it
     if (tileData) {
-        if (![self processData:tileData tile:tileID loader:loader])
-            tileData = nil;
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self processData:tileData tile:tileID loader:loader viewC:weakViewC];
+        });
     }
     
     if (!tileData) {
@@ -172,7 +175,7 @@ static double MAX_EXTENT = 20037508.342789244;
                                                   }
                                               }
                                               
-                                              if ([self processData:thisTileData tile:tileID loader:loader] && cacheFileName)
+                                              if ([self processData:thisTileData tile:tileID loader:loader viewC:weakViewC] && cacheFileName)
                                                   [netData writeToFile:cacheFileName atomically:NO];
                                           });
                                       }];
@@ -181,7 +184,7 @@ static double MAX_EXTENT = 20037508.342789244;
     }
 }
 
-- (bool)processData:(NSData *)tileData tile:(MaplyTileID)tileID loader:(MaplyQuadImageLoader *)loader
+- (bool)processData:(NSData *)tileData tile:(MaplyTileID)tileID loader:(MaplyQuadImageLoader *)loader viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     MaplyBoundingBox imageBBox;
     imageBBox.ll = MaplyCoordinateMake(0,0);  imageBBox.ur = MaplyCoordinateMake(offlineRender.getFramebufferSize.width,offlineRender.getFramebufferSize.height);
@@ -193,6 +196,8 @@ static double MAX_EXTENT = 20037508.342789244;
     spherMercBBox.ur = [self toMerc:geoBBox.ur];
 
     UIImage *image = nil;
+    
+    [viewC startChanges];
 
     // Parse the polygons and draw into an image
     @synchronized(offlineRender)
@@ -221,8 +226,11 @@ static double MAX_EXTENT = 20037508.342789244;
     MaplyVectorTileData *retData = nil;
     if ((retData = [vecTileParser buildObjects:tileData tile:tileID bounds:spherMercBBox geoBounds:geoBBox]))
     {
-        // Success
+        // Success!
+        [viewC endChanges];
     } else {
+        [viewC endChanges];
+
         NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
         loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to parse tile"}];
         [loader loadedReturn:loadReturn];

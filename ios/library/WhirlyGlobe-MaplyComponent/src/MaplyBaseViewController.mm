@@ -213,6 +213,7 @@ using namespace WhirlyKit;
     renderControl->interactLayer = [self loadSetup_interactionLayer];
     renderControl->interactLayer.screenObjectDrawPriorityOffset = renderControl.screenObjectDrawPriorityOffset;
     renderControl->interactLayer.glView = glView;
+    renderControl->interactLayer->layerThreads = layerThreads;
     [baseLayerThread addLayer:renderControl->interactLayer];
     
 	// Give the renderer what it needs
