@@ -440,9 +440,12 @@ using namespace WhirlyKit;
     
     QuadTreeNew::Node ident(loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.tileID.level);
     auto it = tiles.find(ident);
-    // Never seen it
+    // Never seen it (or probably canceled its load)
     if (it == tiles.end()) {
 //        NSLog(@"LoadedReturnRun: Got a tile we aren't actually loading %d: (%d,%d)",ident.level,ident.x,ident.y);
+        if (loadReturn.compObjs) {
+            [viewC removeObjects:loadReturn.compObjs mode:MaplyThreadCurrent];
+        }
         return false;
     }
     auto tile = it->second;

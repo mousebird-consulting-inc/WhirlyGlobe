@@ -145,6 +145,7 @@ using namespace WhirlyKit;
         for (auto tile : tileChanges.disabledTiles)
             NSLog(@"  %d: (%d,%d)",tile->ident.level,tile->ident.x,tile->ident.y);
         NSLog(@"----- ------------- ------");
+        NSLog(@"Tiles currently loaded %lu",geomManage.tileMap.size());
     }
 
     [layer.layerThread addChangeRequests:changes];
