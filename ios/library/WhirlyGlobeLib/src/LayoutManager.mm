@@ -716,7 +716,8 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
 }
 
 // Time we'll take to disappear objects
-static float const DisappearFade = 0.1;
+static float const NewObjectFadeIn = 0.0;
+static float const OldObjectFadeOut = 0.0;
 
 // Layout all the objects we're tracking
 void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &changes)
@@ -758,7 +759,7 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
             if (!layoutObj->currentEnable)
             {
                 layoutObj->obj.state.fadeDown = curTime;
-                layoutObj->obj.state.fadeUp = curTime+DisappearFade;
+                layoutObj->obj.state.fadeUp = curTime+NewObjectFadeIn;
             }
             
             // Note: The animation below doesn't handle offsets

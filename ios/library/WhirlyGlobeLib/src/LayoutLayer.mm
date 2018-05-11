@@ -83,7 +83,7 @@ namespace WhirlyKit
 // How long we'll wait to see if the user has stopped twitching
 static const float DelayPeriod = 0.05;
 // How long we'll let it go without an update
-static const float MaxDelay = 1.0;
+static const float MaxDelay = 0.25;
 
 // We're getting called for absolutely every update here
 - (void)viewUpdate:(WhirlyKitViewState *)inViewState
