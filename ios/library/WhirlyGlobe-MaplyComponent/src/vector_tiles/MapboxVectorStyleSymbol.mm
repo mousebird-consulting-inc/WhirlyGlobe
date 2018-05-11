@@ -128,7 +128,7 @@
     
     symbolDesc = [NSMutableDictionary dictionaryWithDictionary:
                   @{
-//                    kMaplyFade: @(0.0),
+                    kMaplyFade: @(0.0),
                     kMaplyTextJustify: kMaplyTextJustifyCenter,
                     kMaplyEnable: @(NO)
                     }];
