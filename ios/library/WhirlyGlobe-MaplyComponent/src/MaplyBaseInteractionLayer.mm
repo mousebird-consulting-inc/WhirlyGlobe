@@ -304,6 +304,7 @@ public:
     userObjects = nil;
     atlasGroup = nil;
     glSetupInfo = nil;
+    layerThreads = nil;
     ourClusterGen.layer = nil;
     clusterGens.clear();
     tempContexts.clear();
@@ -711,9 +712,25 @@ public:
                 theChanges.changes.insert(theChanges.changes.end(), changes.begin(), changes.end());
                 perThreadChanges.erase(it);
                 perThreadChanges.insert(theChanges);
-            } else
+            } else {
+                // If we're on a layer thread, we want to flush on that thread
+                auto thisLayerThread = [NSThread currentThread];
+                bool flushHere = thisLayerThread == [NSThread mainThread];
+                if (!flushHere) {
+                    flushHere = true;
+                    for (WhirlyKitLayerThread *layerThread in layerThreads) {
+                        if (layerThread == thisLayerThread) {
+                            flushHere = false;
+                            [layerThread addChangeRequests:changes];
+                            break;
+                        }
+                    }
+                }
+                
                 // We're not, so execute the changes
-                scene->addChangeRequests(changes);
+                if (flushHere)
+                    scene->addChangeRequests(changes);
+            }
 
             pthread_mutex_unlock(&changeLock);
         }
@@ -749,9 +766,19 @@ public:
     ThreadChangeSet::iterator it = perThreadChanges.find(changes);
     if (it != perThreadChanges.end())
     {
+        EAGLContext *tmpContext = [self setupTempContext:MaplyThreadCurrent];
+
         ThreadChanges theseChanges = *it;
+        // Process the setupGL on this thread rather than making the main thread do it
+        if (currentThread != [NSThread mainThread])
+            for (auto &change : theseChanges.changes) {
+                if (change)
+                    change->setupGL(glSetupInfo, scene->getMemManager());
+            }
         scene->addChangeRequests(theseChanges.changes);
         perThreadChanges.erase(it);
+        
+        [self clearTempContext:tmpContext];
     }
 
     pthread_mutex_unlock(&changeLock);

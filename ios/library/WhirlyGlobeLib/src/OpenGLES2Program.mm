@@ -450,7 +450,7 @@ int OpenGLES2Program::bindTextures()
 {
     int numTextures = 0;
     
-    for (auto uni : uniforms)
+    for (const auto &uni : uniforms)
     {
         if (uni.second->isTexture)
         {
