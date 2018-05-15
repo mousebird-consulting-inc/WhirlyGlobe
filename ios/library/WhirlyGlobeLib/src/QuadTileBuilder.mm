@@ -38,7 +38,11 @@ using namespace WhirlyKit;
     _coordSys = coordSys;
     _baseDrawPriority = 0;
     _drawPriorityPerLevel = 1;
-    
+    geomSettings.sampleX = 20;
+    geomSettings.sampleY = 20;
+    geomSettings.topSampleX = 30;
+    geomSettings.topSampleY = 40;
+
     return self;
 }
 

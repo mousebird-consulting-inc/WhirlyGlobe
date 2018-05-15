@@ -28,6 +28,7 @@ namespace WhirlyKit
 TileGeomSettings::TileGeomSettings()
 : useTileCenters(true), color(RGBAColor(255,255,255,255)),
   programID(0), sampleX(10), sampleY(10),
+    topSampleX(10), topSampleY(10),
   minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
   baseDrawPriority(0), drawPriorityPerLevel(1), lineMode(false), includeElev(false)
 {
@@ -75,6 +76,11 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     Point2d chunkSize = theMbr.ur() - theMbr.ll();
     
     int sphereTessX = geomSettings.sampleX,sphereTessY = geomSettings.sampleY;
+    if (ident.level == 0)
+    {
+        sphereTessX = geomSettings.topSampleX;
+        sphereTessY = geomSettings.topSampleY;
+    }
     
     // For single level mode it's not worth getting fancy
     // Note: The level check is kind of a hack.  We're avoiding a resolution problem at high levels
