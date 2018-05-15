@@ -113,6 +113,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     chunk->setColor(geomSettings.color);
     chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
     chunk->setProgram(geomSettings.programID);
+    chunk->setOnOff(false);
     
     // Might need another drawable for poles
     bool separatePoleChunk = false;
@@ -130,6 +131,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
         poleChunk->setColor(geomSettings.color);
         poleChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
         poleChunk->setProgram(geomSettings.programID);
+        poleChunk->setOnOff(false);
         separatePoleChunk = true;
     } else
         poleChunk = chunk;
@@ -249,6 +251,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
             // We need the skirts rendered with the z buffer on, even if we're doing (mostly) pure sorting
             skirtChunk->setRequestZBuffer(true);
             skirtChunk->setProgram(geomSettings.programID);
+            skirtChunk->setOnOff(false);
             
             // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
             //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small

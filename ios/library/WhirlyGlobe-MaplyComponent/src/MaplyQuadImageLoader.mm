@@ -482,6 +482,8 @@ using namespace WhirlyKit;
                     for (auto drawID : loadedTile->drawIDs) {
                         changes.push_back(new DrawTexChangeRequest(drawID,0,tile->texID));
                         changes.push_back(new DrawPriorityChangeRequest(drawID,tile->drawPriority));
+                        if (loadedTile->enabled)
+                            changes.push_back(new OnOffChangeRequest(drawID,true));
                     }
                 }
                 tile->shouldEnable = loadedTile->enabled;
@@ -540,6 +542,8 @@ using namespace WhirlyKit;
                 relY = (1<<relLevel)-relY-1;
             changes.push_back(new DrawTexChangeRequest(drawID,0,coverAsset->texID,relLevel,relX,relY));
             changes.push_back(new DrawPriorityChangeRequest(drawID,coverAsset->drawPriority));
+            if (loadedTile->enabled)
+                changes.push_back(new OnOffChangeRequest(drawID,true));
         }
     }
 }
