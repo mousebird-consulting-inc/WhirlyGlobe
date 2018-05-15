@@ -48,6 +48,8 @@ public:
     SimpleIdentity programID;
     // Samples to generate in X and Y
     int sampleX,sampleY;
+    // Samples for the top level node
+    int topSampleX,topSampleY;
     // If set, viewable range
     double minVis,maxVis;
     // The priority for the drawables
