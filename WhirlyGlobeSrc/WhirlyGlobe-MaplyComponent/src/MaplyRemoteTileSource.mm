@@ -353,6 +353,8 @@ static bool trackConnections = false;
 {
     if ([_tileInfo isKindOfClass:[MaplyRemoteTileSource class]])
         return ((MaplyRemoteTileSource *)_tileInfo).cacheDir;
+    else if ([_tileInfo isKindOfClass:[MaplyRemoteTileSource class]])
+        return ((MaplyRemoteTileInfo *)_tileInfo).cacheDir;
     else
         return nil;
 }
@@ -361,6 +363,8 @@ static bool trackConnections = false;
 {
     if ([_tileInfo isKindOfClass:[MaplyRemoteTileSource class]])
         [(MaplyRemoteTileSource *)_tileInfo setCacheDir:cacheDir];
+    else if ([_tileInfo isKindOfClass:[MaplyRemoteTileInfo class]])
+        [(MaplyRemoteTileInfo *)_tileInfo setCacheDir: cacheDir];
 }
 
 - (int)minZoom
