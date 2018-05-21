@@ -30,6 +30,9 @@
   */
 @interface MaplyQuadSamplingLayer : MaplyViewControllerLayer
 
+/// Initialize with a coordinate system
+- (nullable instancetype)initWithCoordSystem:(MaplyCoordinateSystem *__nonnull)coordSys imageLoader:(MaplyQuadImageLoader *__nonnull)imageLoader;
+
 /// Generate geometry to cover the north and south poles
 /// Only works for world-wide projections
 @property (nonatomic) bool coverPoles;
@@ -42,9 +45,6 @@
 
 /// If set, generate skirt geometry to hide the edges between levels
 @property (nonatomic) bool edgeMatching;
-
-/// Initialize with a coordinate system
-- (nullable instancetype)initWithCoordSystem:(MaplyCoordinateSystem *__nonnull)coordSys imageLoader:(MaplyQuadImageLoader *__nonnull)imageLoader;
 
 /// Set the zoom levels and importance cutoff
 - (void)setMinZoom:(int)minZoom maxZoom:(int)maxZoom importance:(float)import;
