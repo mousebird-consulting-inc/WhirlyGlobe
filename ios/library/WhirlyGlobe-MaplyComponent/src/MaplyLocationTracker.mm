@@ -69,6 +69,9 @@
         _lockType = MaplyLocationLockNone;
         _forwardTrackOffset = 0;
         _prevLoc = kMaplyNullCoordinate;
+        _markerMinVis = 0.0;
+        _markerMaxVis = 1.0;
+        _markerDrawPriority = kMaplyVectorDrawPriorityDefault+1;
         
         [self setupMarkerImages];
         if (!_simulate)
@@ -119,11 +122,11 @@
         [_markerImgsDirectional addObject:[self radialGradientMarkerWithSize:size color0:color0 color1:color1 gradLocation:(0.0 + (float)(8-ABS(8-i))/8.0) radius:(float)(size-32-ABS(8-i))/2.0 directional:true]];
     }
     
-    _markerDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(0.0), kMaplyDrawPriority:@(kMaplyVectorDrawPriorityDefault+1), kMaplyEnableEnd: @(MAXFLOAT)}];
+    _markerDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyMinVis: @(_markerMinVis), kMaplyMaxVis: @(_markerMaxVis), kMaplyFade: @(0.0), kMaplyDrawPriority:@(_markerDrawPriority), kMaplyEnableEnd: @(MAXFLOAT)}];
     
-    _movingMarkerDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyMinVis: @(0.0), kMaplyMaxVis: @(1.0), kMaplyFade: @(0.0), kMaplyDrawPriority:@(kMaplyVectorDrawPriorityDefault+1), kMaplyEnableStart:@(0.0)}];
+    _movingMarkerDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyMinVis: @(_markerMinVis), kMaplyMaxVis: @(_markerMaxVis), kMaplyFade: @(0.0), kMaplyDrawPriority:@(_markerDrawPriority), kMaplyEnableStart:@(0.0)}];
     
-    _shapeCircleDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyColor : [UIColor colorWithRed:0.06 green:0.06 blue:0.1 alpha:0.2], kMaplyFade: @(0.0), kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault), kMaplySampleX: @(100)}];
+    _shapeCircleDesc = [NSMutableDictionary dictionaryWithDictionary:@{kMaplyColor : [UIColor colorWithRed:0.06 green:0.06 blue:0.1 alpha:0.2], kMaplyFade: @(0.0), kMaplyDrawPriority: @(_markerDrawPriority-1), kMaplySampleX: @(100)}];
     
 }
 
