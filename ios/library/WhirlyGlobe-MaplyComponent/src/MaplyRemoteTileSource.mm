@@ -266,6 +266,9 @@ static bool trackConnections = false;
         }
     }
     
+    if (_xAuthToken)
+        [urlReq addValue:_xAuthToken forHTTPHeaderField:@"x-auth-token"];
+    
     return urlReq;
 }
 
