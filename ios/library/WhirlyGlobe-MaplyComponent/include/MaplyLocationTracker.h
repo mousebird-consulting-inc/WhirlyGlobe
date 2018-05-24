@@ -77,6 +77,16 @@ typedef enum {MaplyLocationLockNone, MaplyLocationLockNorthUp, MaplyLocationLock
  */
 - (nonnull instancetype)initWithViewC:(MaplyBaseViewController *__nullable)viewC delegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate;
 
+/**
+    Min/max visibility for the marker assigned to follow location.
+  */
+@property (nonatomic,assign) float markerMinVis,markerMaxVis;
+
+/**
+    Draw priority for the marker assigned to follow location.
+  */
+@property (nonatomic,assign) int markerDrawPriority;
+
 /** 
     Change lock type
  
