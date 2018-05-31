@@ -46,3 +46,6 @@
 [submodule "third-party/AFNetworking"]
 	path = third-party/AFNetworking
 	url = https://github.com/AFNetworking/AFNetworking
+[submodule "third-party/eigen"]
+	path = third-party/eigen
+	url = https://github.com/eigenteam/eigen-git-mirror.git
