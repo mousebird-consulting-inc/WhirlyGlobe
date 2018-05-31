@@ -247,5 +247,14 @@ public:
 /// Call this to nudge the quad display layer awake.
 - (void)wakeUp;
 
+/// Call this to when starting to load a tile for a frame
+- (void) incrementLoadingCounterForFrame:(int)frame;
+
+/// Call this to when a tile load for a frame is completed regardless if it was successful or not.
+- (void) decrementLoadingCounterForFrame:(int)frame;
+
+/// Call this to check if all the tiles for a frame is done loading tiles.
+- (bool) isFrameLoaded:(int)frame;
+
 @end
 

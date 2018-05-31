@@ -515,4 +515,14 @@
   */
 - (void)reset;
 
+/**
+ Reloads the tiles for a requested frame.
+ */
+- (void) reloadFrame:(int)frame;
+
+/**
+ Checks to see if all the tiles are loaded for a requested frame.
+ */
+- (bool) isFrameLoaded:(int)frame;
+
 @end

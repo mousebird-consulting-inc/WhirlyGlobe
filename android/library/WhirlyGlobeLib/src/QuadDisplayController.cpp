@@ -49,6 +49,9 @@ QuadDisplayController::QuadDisplayController(QuadDataStructure *dataStructure,Qu
     greedyMode(false), meteredMode(true), waitForLocalLoads(false),fullLoad(false), fullLoadTimeout(4.0), frameLoading(true), viewUpdatePeriod(0.1),
     minUpdateDist(0.0), lineMode(false), debugMode(false), lastFlush(0.0), somethingHappened(false), firstUpdate(true), numFrames(1), canLoadFrames(false), curFrameEntry(-1), enable(true), didFrameKick(false)
 {
+    pthread_mutex_init(&counterLock, NULL);
+    frameLoadingCounters = std::map<int, int>();
+    
     // Note: Debugging
     greedyMode = true;
     meteredMode = false;
@@ -738,6 +741,9 @@ void QuadDisplayController::tileDidLoad(const WhirlyKit::Quadtree::Identifier &t
     somethingHappened = true;
 
     adapter->adapterTileDidLoad(tileIdent);
+    
+    // Tile Loaded -> decrement the counter
+    decrementLoadingCounterForFrame(frame);
 }
     
 // Tile failed to load.
@@ -775,6 +781,9 @@ void QuadDisplayController::tileDidNotLoad(const Quadtree::Identifier &tileIdent
     somethingHappened = true;
 
     adapter->adapterTileDidNotLoad(tileIdent);
+    
+    // Tile Did Not Load -> decrement the counter
+    decrementLoadingCounterForFrame(frame);
 }
     
 // Clear out all the existing tiles and start over
@@ -850,6 +859,54 @@ void QuadDisplayController::wakeUp()
     somethingHappened = true;
     if (adapter)
         adapter->adapterWakeUp();
+}
+    
+//Frame Loading Counters Functions
+    
+void QuadDisplayController::incrementLoadingCounterForFrame(int frame) {
+    pthread_mutex_lock(&counterLock);
+    int counter = 0;
+    std::map<int,int>::iterator it = frameLoadingCounters.find(frame);
+    if (it != frameLoadingCounters.end()) {
+        counter = it->second;
+    }
+    counter++;
+    frameLoadingCounters[frame] = counter;
+#ifdef __ANDROID__
+#ifdef LOGLOADING
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","INCREMENT COUNTER frame: %d count: %d",frame, counter);
+#endif
+#endif
+    pthread_mutex_unlock(&counterLock);
+}
+    
+void QuadDisplayController::decrementLoadingCounterForFrame(int frame) {
+    pthread_mutex_lock(&counterLock);
+    int counter = 0;
+    std::map<int,int>::iterator it = frameLoadingCounters.find(frame);
+    if (it != frameLoadingCounters.end()) {
+        counter = it->second;
+    }
+    counter--;
+    frameLoadingCounters[frame] = counter;
+#ifdef __ANDROID__
+#ifdef LOGLOADING
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","DECREMENT COUNTER frame: %d count: %d",frame, counter);
+#endif
+#endif
+    pthread_mutex_unlock(&counterLock);
+
+}
+    
+bool QuadDisplayController::isFrameLoaded(int frame) {
+    bool isLoaded = true;
+    pthread_mutex_lock(&counterLock);
+    std::map<int,int>::iterator it = frameLoadingCounters.find(frame);
+    if (it != frameLoadingCounters.end()) {
+        isLoaded = (it->second) == 0;
+    }
+    pthread_mutex_unlock(&counterLock);
+    return isLoaded;
 }
 
 // Importance callback for quad tree

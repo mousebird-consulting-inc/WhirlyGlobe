@@ -617,6 +617,28 @@ using namespace WhirlyKit;
     [quadLayer refresh];
 }
 
+- (void) reloadFrame:(int)frame {
+    // check if the frame is valid
+    if (frame >= _imageDepth || frame < -1) {
+        return;
+    }
+    // run it on the layerThread
+    [self performSelector:@selector(startReloadFrame:) onThread:super.layerThread withObject:[NSNumber numberWithInt:frame] waitUntilDone:NO];
+}
+- (void) startReloadFrame:(id)frameNum
+{
+    if ([NSThread currentThread] != super.layerThread)
+    {
+        [self performSelector:@selector(startReloadFrame:) onThread:super.layerThread withObject:frameNum waitUntilDone:NO];
+        return;
+    }
+    [tileLoader reloadAllTilesForFrame:[frameNum integerValue] layer:quadLayer];
+}
+
+- (bool) isFrameLoaded:(int)frame {
+    return [quadLayer isFrameLoaded:frame];
+}
+
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
     [_viewC removeActiveObject:imageUpdater];

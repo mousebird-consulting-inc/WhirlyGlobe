@@ -108,6 +108,33 @@ InternalLoadedTile *QuadTileLoader::getTile(const Quadtree::Identifier &ident)
     return retTile;
 }
 
+void QuadTileLoader::reloadAllTilesForFrame(int frame)
+{
+    // Inform Layer that loading has started for this frame
+    control->incrementLoadingCounterForFrame(frame);
+    
+    // Get a copy of all the Loaded Tiles' NodeInfos
+    std::vector<WhirlyKit::Quadtree::NodeInfo> nodeInfos;
+    pthread_mutex_lock(&tileLock);
+    for (LoadedTileSet::iterator it = tileSet.begin(); it != tileSet.end(); ++it)
+    {
+        InternalLoadedTile *tile = *it;
+        nodeInfos.push_back(tile->nodeInfo);
+    }
+    pthread_mutex_unlock(&tileLock);
+    
+    // Start reloading all the tiles for the requested frame
+    for (std::vector<WhirlyKit::Quadtree::NodeInfo>::iterator it = nodeInfos.begin(); it != nodeInfos.end(); ++it)
+    {
+        Quadtree::NodeInfo nodeInfo = *it;
+        loadTile(nodeInfo, frame);
+    }
+    
+    // Decrement initial increment now that the tile loads have started.
+    control->decrementLoadingCounterForFrame(frame);
+    
+}
+
 // Make all the various parents update their child geometry
 void QuadTileLoader::refreshParents()
 {
@@ -449,6 +476,8 @@ bool QuadTileLoader::canLoadFrames()
 // Ask the data source to start loading the image for this tile
 void QuadTileLoader::loadTile(const Quadtree::NodeInfo &tileInfo,int frame)
 {
+    // Loading Started -> increment counter
+    control->incrementLoadingCounterForFrame(frame);
     InternalLoadedTile *theTile = getTile(tileInfo.ident);
     
     if (!theTile)
@@ -793,6 +822,8 @@ void QuadTileLoader::loadedImages(QuadTileImageDataSource *dataSource,const std:
     if (it == tileSet.end())
     {
         pthread_mutex_unlock(&tileLock);
+        // Tile Load Error -> Decrment counter.
+        control -> decrementLoadingCounterForFrame(frame);
         return;
     }
     

@@ -122,6 +122,9 @@ public:
 
     /// QuadTileLoaderSupport methods
     virtual void loadedImages(QuadTileImageDataSource *dataSource,const std::vector<LoadedImage *> &loadImages,int level,int col,int row,int frame,ChangeSet &changes);
+    
+    /// Call this method to start fetches for all the tiles in a frame
+    virtual void reloadAllTilesForFrame(int frame);
 
     /// Set up the change requests to make the given image layer the active one
     /// The call is thread safe

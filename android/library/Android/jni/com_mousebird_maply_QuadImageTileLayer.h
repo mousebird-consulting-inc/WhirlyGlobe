@@ -177,6 +177,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_reload
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    startReloadForFrame
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_startReloadForFrame
+(JNIEnv *, jobject, jint);
+    
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    isFrameLoaded
+ * Signature: (I)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_isFrameLoaded
+(JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
  * Method:    setSimultaneousFetches
  * Signature: (I)V
  */

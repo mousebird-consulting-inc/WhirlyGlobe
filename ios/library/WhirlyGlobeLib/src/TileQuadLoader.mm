@@ -290,6 +290,32 @@ using namespace WhirlyKit;
     return retTile;
 }
 
+- (void)reloadAllTilesForFrame:(int)frame layer:(WhirlyKitQuadDisplayLayer *)layer
+{
+    // Inform Layer that loading has started for this frame
+    [layer incrementLoadingCounterForFrame:frame];
+    
+    // Get a copy of all the Loaded Tiles' NodeInfos
+    std::vector<WhirlyKit::Quadtree::NodeInfo> nodeInfos;
+    pthread_mutex_lock(&tileLock);
+    for (LoadedTileSet::iterator it = tileSet.begin(); it != tileSet.end(); ++it)
+    {
+        LoadedTile *tile = *it;
+        nodeInfos.push_back(tile->nodeInfo);
+    }
+    pthread_mutex_unlock(&tileLock);
+    
+    // Start reloading all the tiles for the requested frame
+    for (std::vector<WhirlyKit::Quadtree::NodeInfo>::iterator it = nodeInfos.begin(); it != nodeInfos.end(); ++it)
+    {
+        Quadtree::NodeInfo nodeInfo = *it;
+        [self quadDisplayLayer:layer loadTile:&nodeInfo frame:frame];
+    }
+    
+    // Decrement initial increment now that the tile loads have started.
+    [layer decrementLoadingCounterForFrame:frame];
+}
+
 // Make all the various parents update their child geometry
 - (void)refreshParents:(WhirlyKitQuadDisplayLayer *)layer
 {
@@ -426,6 +452,8 @@ using namespace WhirlyKit;
 // Ask the data source to start loading the image for this tile
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayer *)layer loadTile:(const WhirlyKit::Quadtree::NodeInfo *)tileInfo frame:(int)frame
 {
+    // Loading Started -> increment counter
+    [layer incrementLoadingCounterForFrame:frame];
     // Look for an existing tile
     LoadedTile *theTile = [self getTile:tileInfo->ident];
     if (!theTile)
@@ -597,6 +625,8 @@ using namespace WhirlyKit;
     if (it == tileSet.end())
     {
         pthread_mutex_unlock(&tileLock);
+        // Tile Load Error -> Decrment counter.
+        [_quadLayer decrementLoadingCounterForFrame:frame];
         return;
     }
     

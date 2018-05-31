@@ -1128,6 +1128,43 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_reload
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_startReloadForFrame
+(JNIEnv *env, jobject obj, jint frameNum)
+{
+    try
+    {
+        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+        QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+        if (!adapter)
+            return;
+        adapter->tileLoader->reloadAllTilesForFrame(frameNum);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::reloadFrame()");
+    }
+}
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_isFrameLoaded
+(JNIEnv *env, jobject obj, jint frameNum)
+{
+    try
+    {
+        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+        QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+        if (!adapter)
+            return false;
+        
+        return adapter->control->isFrameLoaded(frameNum);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::isFrameLoaded()");
+    }
+    
+    return false;
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_setSimultaneousFetches
   (JNIEnv *env, jobject obj, jint numFetches)
 {
@@ -1444,6 +1481,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeTileDid
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::nativeTileDidLoad()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::nativeTileDidNotLoad()");
 	}
 }

@@ -76,6 +76,12 @@ using namespace WhirlyKit;
     
     // Used to reset evaluation at the end of a clean run
     bool didFrameKick;
+    
+    // Used for the tile loading counters
+    pthread_mutex_t counterLock;
+    
+    // Dictionary of loading counters for each frame. (key: frame Number (NSNumber), value: counter (NSNumber))
+    NSMutableDictionary *frameLoadingCounters;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
@@ -109,6 +115,8 @@ using namespace WhirlyKit;
         _frameLoading = true;
         _enable = true;
         didFrameKick = false;
+        pthread_mutex_init(&counterLock, NULL);
+        frameLoadingCounters = [[NSMutableDictionary alloc] init];
     }
     
     return self;
@@ -769,6 +777,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
     
     somethingHappened = true;
+    
+    // Tile Loaded -> decrement the counter
+    [self decrementLoadingCounterForFrame:frame];
 }
 
 // Tile failed to load.
@@ -805,6 +816,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];    
 
     somethingHappened = true;
+    
+    // Tile Did Not Load -> decrement the counter
+    [self decrementLoadingCounterForFrame:frame];
 }
 
 // Clear out all the existing tiles and start over
@@ -906,6 +920,62 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(evalStep:) object:nil];
     [self performSelector:@selector(evalStep:) withObject:nil afterDelay:0.0];
     somethingHappened = true;
+}
+
+#pragma mark - Frame Loading Counters Functions
+
+- (void) incrementLoadingCounterForFrame:(int)frame
+{
+    pthread_mutex_lock(&counterLock);
+    NSNumber *key = [NSNumber numberWithInt:frame];
+    NSNumber *counter = [frameLoadingCounters objectForKey:key];
+    if (counter != nil) {
+        int value = [counter integerValue];
+        value++;
+        counter = [NSNumber numberWithInt:value];
+    } else {
+        counter = [NSNumber numberWithInt:1];
+    }
+    [frameLoadingCounters setObject:counter forKey:key];
+    pthread_mutex_unlock(&counterLock);
+#ifdef TILELOGGING
+    NSLog(@"INCREMENT COUNTER frame: %d count: %ld", frame, (long)[counter integerValue]);
+#endif
+}
+
+- (void) decrementLoadingCounterForFrame:(int)frame
+{
+    pthread_mutex_lock(&counterLock);
+    NSNumber *key = [NSNumber numberWithInt:frame];
+    NSNumber *counter = [frameLoadingCounters objectForKey:key];
+    if (counter != nil) {
+        int value = [counter integerValue];
+        if (value > 0) {
+            value--;
+        } else {
+            value = 0;
+        }
+        counter = [NSNumber numberWithInt:value];
+    } else {
+        counter = [NSNumber numberWithInt:0];
+    }
+    [frameLoadingCounters setObject:counter forKey:key];
+    pthread_mutex_unlock(&counterLock);
+#ifdef TILELOGGING
+    NSLog(@"DECREMENT COUNTER frame: %d count: %ld", frame, (long)[counter integerValue]);
+#endif
+}
+
+- (bool) isFrameLoaded:(int)frame
+{
+    bool isLoaded = true;
+    pthread_mutex_lock(&counterLock);
+    NSNumber *counter = [frameLoadingCounters objectForKey:[NSNumber numberWithInt:frame]];
+    if (counter != nil) {
+        isLoaded = counter.integerValue == 0;
+    }
+    pthread_mutex_unlock(&counterLock);
+    return isLoaded;
 }
 
 #pragma mark - Quad Tree Importance Delegate

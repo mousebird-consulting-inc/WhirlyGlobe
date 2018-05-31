@@ -322,6 +322,15 @@ public:
     // No idea what thread this might get called on
     void wakeUp();
     
+    // Call this to when starting to load a tile for a frame
+    void incrementLoadingCounterForFrame(int frame);
+    
+    // Call this to when a tile load for a frame is completed regardless if it was successful or not.
+    void decrementLoadingCounterForFrame(int frame);
+    
+    // Call this to check if all the tiles for a frame is done loading tiles.
+    bool isFrameLoaded(int frame);
+    
     // Callback used by the quad tree
     virtual double importanceForTile(const Quadtree::Identifier &ident,const Mbr &theMbr,Quadtree *tree,Dictionary *attrs);
 
@@ -393,6 +402,12 @@ protected:
 
     // Used to reset evaluation at the end of a clean run
     bool didFrameKick;
+    
+    // Used for the tile loading counters
+    pthread_mutex_t counterLock;
+    
+    // Map of loading counters for each frame.
+    std::map<int, int> frameLoadingCounters;
 };
     
 }

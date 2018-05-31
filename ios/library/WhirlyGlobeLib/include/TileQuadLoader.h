@@ -198,4 +198,7 @@
 /// By default this is 1.0, but it can be set interactively
 - (void)setFade:(float)fade;
 
+/// Call this method to start fetches for all the tiles in a frame
+- (void)reloadAllTilesForFrame:(int)frame layer:(WhirlyKitQuadDisplayLayer *)layer;
+
 @end

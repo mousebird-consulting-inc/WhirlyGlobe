@@ -753,17 +753,35 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     */
     public void reload()
     {
-		layerThread.addTask(new Runnable() {
-			@Override
-			public void run() {
-				ChangeSet changes = new ChangeSet();
-				reload(changes);
-				layerThread.addChanges(changes);
-			}
-		});
+		if (layerThread != null) {
+			layerThread.addTask(new Runnable() {
+				@Override
+				public void run() {
+					ChangeSet changes = new ChangeSet();
+					reload(changes);
+					layerThread.addChanges(changes);
+				}
+			});
+		}
     }
     
     native void reload(ChangeSet changes);
+
+	public void reloadFrame(final int frameNum)
+	{
+		if (layerThread != null) {
+			layerThread.addTask(new Runnable() {
+				@Override
+				public void run() {
+					startReloadForFrame(frameNum);
+				}
+			});
+		}
+	}
+
+	native void startReloadForFrame(int frameNum);
+
+	public native boolean isFrameLoaded(int frame);
     
 	/**
 	 * We can only have a certain number of fetches going at once.
