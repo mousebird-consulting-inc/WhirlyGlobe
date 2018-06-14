@@ -206,7 +206,7 @@ using namespace WhirlyKit;
 - (void)removeTile:(QuadTreeNew::Node)ident layer:(MaplyBaseInteractionLayer *)interactLayer changes:(ChangeSet &)changes
 {
     auto it = tiles.find(ident);
-    // It's already here, which is weird.  Let's get rid of it.
+    // If it's here, let's get rid of it.
     if (it != tiles.end()) {
         it->second->clear(interactLayer, changes);
         if (it->second->state == TileAsset::Loading)
