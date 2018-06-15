@@ -40,6 +40,9 @@
 /// Max zoom level for sampling
 @property (nonatomic) int maxZoom;
 
+/// Initialize with a coordinate system
+- (nullable instancetype)initWithCoordSystem:(MaplyCoordinateSystem *__nonnull)coordSys imageLoader:(MaplyQuadImageLoader *__nonnull)imageLoader;
+
 /// Generate geometry to cover the north and south poles
 /// Only works for world-wide projections
 @property (nonatomic) bool coverPoles;
