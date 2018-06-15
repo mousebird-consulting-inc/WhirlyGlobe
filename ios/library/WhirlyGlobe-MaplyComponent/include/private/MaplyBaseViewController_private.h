@@ -117,4 +117,11 @@
 /// Called internally to end a block of work being done
 - (void) endOfWork;
 
+/// Look for a sampling layer that matches the given parameters
+/// We'll also keep it around until the user lets us know we're done
+- (MaplyQuadSamplingLayer *)findSamplingLayer:(MaplySamplingParams *)params forUser:(NSObject *)userObj;
+
+/// The given user object is done with the given sampling layer.  So we may shut it down.
+- (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(NSObject *)userObj;
+
 @end

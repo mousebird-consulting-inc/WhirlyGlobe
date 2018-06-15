@@ -21,6 +21,7 @@
 #import "MaplyCoordinateSystem.h"
 #import "MaplyTileSource.h"
 #import "MaplyRenderController.h"
+#import "MaplyQuadSampler.h"
 
 /**
     Data return for a loading request.
@@ -67,7 +68,7 @@
  
  @param tileSource This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.
  */
-- (nullable instancetype)initWithTileSource:(NSObject<MaplyTileSource> *__nonnull)tileSource viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileSource:(NSObject<MaplyTileSource> *__nonnull)tileSource viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 /**
  The number of simultaneous fetches the layer will attempt at once.
@@ -75,6 +76,12 @@
  The toolkit loves its dispatch queues and threads.  By default this number is set to 8 or 16, but if you need to constrain it, you can set it lower (or higher!).  If your tile source can't handle multi-thread access, set this to 1.
  */
 @property (nonatomic,assign) int numSimultaneousFetches;
+
+// Set the draw priority values for produced tiles
+@property (nonatomic) int baseDrawPriority;
+
+// Offset between levels for a calculated draw priority
+@property (nonatomic) int drawPriorityPerLevel;
 
 /**
  Set the image format for the texture atlases (thus the imagery).
@@ -165,5 +172,10 @@
     This will be passed in for a cancel and dropped after loadReturn: is called.
   */
 - (void)registerTile:(MaplyTileID)tileID frame:(int)frame data:(id __nullable)tileData;
+
+/** Turn off the image loader and shut things down.
+    This unregisters us with the sampling layer and shuts down the various objects we created.
+  */
+- (void)stop;
 
 @end

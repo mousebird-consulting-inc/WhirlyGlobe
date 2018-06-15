@@ -18,8 +18,10 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         self.implementations = [.map, .globe]
     }
     
+    var imageLoader : MaplyQuadImageLoader? = nil
+
     // Set up an OpenMapTiles display layer
-    func setupLayer(_ baseVC: MaplyBaseViewController) -> MaplyQuadSamplingLayer?
+    func setupLoader(_ baseVC: MaplyBaseViewController) -> MaplyQuadImageLoader?
     {
         guard let path = Bundle.main.path(forResource: "SE_Basic", ofType: "json") else {
             return nil
@@ -80,24 +82,27 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         if let tileSource = tileSource {
             tileSource.cacheDir = "\(cacheDir)/openmaptiles_saildrone/"
             
-            guard let imageLoader = MaplyQuadImageLoader(tileSource: tileSource, viewC: baseVC) else {
+            // Parameters describing how we want a globe broken down
+            let sampleParams = MaplySamplingParams()
+            sampleParams.coordSys = tileSource.coordSys()
+            if baseVC is WhirlyGlobeViewController {
+                sampleParams.coverPoles = true
+                sampleParams.edgeMatching = true
+            } else {
+                sampleParams.coverPoles = false
+                sampleParams.edgeMatching = false
+            }
+            sampleParams.minZoom = 0
+            sampleParams.maxZoom = tileInfo.maxZoom
+
+            guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileSource: tileSource, viewC: baseVC) else {
                 return nil
             }
             imageLoader.numSimultaneousFetches = 8
-            let coordSys = MaplySphericalMercator(webStandard: ())
-            guard let sampleLayer = MaplyQuadSamplingLayer.init(coordSystem: coordSys, imageLoader: imageLoader) else {
-                return nil
-            }
-            sampleLayer.baseDrawPriority = vectorSettings.baseDrawPriority-1
-            sampleLayer.drawPriorityPerLevel = vectorSettings.drawPriorityPerLevel
-            // Note: Get this from the tiles source
-            sampleLayer.setMinZoom(tileInfo.minZoom, maxZoom: tileInfo.maxZoom, importance: 1024.0*1024.0)
-            if baseVC is WhirlyGlobeViewController {
-                sampleLayer.edgeMatching = true
-                sampleLayer.coverPoles = true
-            }
+            imageLoader.baseDrawPriority = vectorSettings.baseDrawPriority-1
+            imageLoader.drawPriorityPerLevel = vectorSettings.drawPriorityPerLevel
             
-            return sampleLayer
+            return imageLoader
         }
         
         return nil
@@ -105,18 +110,13 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         //        mapVC.performanceOutput = true
-        
-        if let layer = setupLayer(mapVC) {
-            mapVC.add(layer)
-        }
+        imageLoader = setupLoader(mapVC)
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
         //        globeVC.performanceOutput = true
-        
-        if let layer = setupLayer(globeVC) {
-            globeVC.add(layer)
-        }
+
+        imageLoader = setupLoader(globeVC)
     }
 }
 

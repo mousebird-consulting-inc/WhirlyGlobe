@@ -21,6 +21,8 @@
 #import "QuadTileBuilder.h"
 #import "MaplyImageTile_private.h"
 #import "MaplyRenderController_private.h"
+#import "MaplyQuadSampler_private.h"
+#import "MaplyBaseViewController_private.h"
 
 namespace WhirlyKit
 {
@@ -88,6 +90,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyQuadImageLoader
 {
+    MaplySamplingParams *params;
     NSObject<MaplyTileSource> *tileSource;
     WhirlyKitQuadTileBuilder * __weak builder;
     WhirlyKitQuadDisplayLayerNew * __weak layer;
@@ -100,13 +103,19 @@ using namespace WhirlyKit;
     // Tiles to load next
     TileAssetMap toLoad;
     
-    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
+    MaplyBaseViewController * __weak viewC;
+    MaplyQuadSamplingLayer *samplingLayer;
 }
 
-- (instancetype)initWithTileSource:(NSObject<MaplyTileSource> *)inTileSource viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)inViewC
+- (nullable instancetype)initWithParams:(MaplySamplingParams *)inParams tileSource:(NSObject<MaplyTileSource> *__nonnull)inTileSource viewC:(MaplyBaseViewController * __nonnull)inViewC
 {
+    params = inParams;
     tileSource = inTileSource;
     viewC = inViewC;
+
+    _baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
+    _drawPriorityPerLevel = 100;
+
     if (![tileSource respondsToSelector:@selector(startFetchLayer:tile:frame:)]) {
         NSLog(@"MaplyQuadImageLoader requires tile source implement startFetchLayer:tile:frame:");
         return nil;
@@ -123,14 +132,18 @@ using namespace WhirlyKit;
         NSLog(@"MaplyQuadImageLoader requires tile source implement validTile:bbox:");
         return nil;
     }
-    
+
+    self = [super init];
+
     _numSimultaneousFetches = 16;
     _flipY = true;
     _debugMode = false;
     minLevel = tileSource.minZoom;
     maxLevel = tileSource.maxZoom;
+    
+    samplingLayer = [viewC findSamplingLayer:params forUser:self];
+    [samplingLayer addBuilderDelegate:self];
 
-    self = [super init];
     return self;
 }
 
@@ -569,6 +582,11 @@ using namespace WhirlyKit;
             [self evalCoverTile:coverIdent coverAsset:coverAsset tileIdent:tileIdent changes:changes];
         }
     }
+}
+
+- (void)stop
+{
+    [viewC releaseSamplingLayer:samplingLayer forUser:self];
 }
 
 @end

@@ -1,5 +1,5 @@
 /*
- *  MaplyQuadSamplingLayer.h
+ *  MaplyQuadSampler.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 3/27/18.
@@ -22,31 +22,35 @@
 #import "MaplyCoordinateSystem.h"
 #import "MaplyTileSource.h"
 #import "MaplyRenderController.h"
-#import "MaplyQuadImageLoader.h"
 
-/** The Quad Sampling Layer runs a quad tree which determines what
-    tiles to load.  We hook up other things to this to actually do
-    the loading.
+/**
+    Sampling parameters.
+ 
+    These are used to describe how we want to break down the globe or
+    flat projection onto the globe.
   */
-@interface MaplyQuadSamplingLayer : MaplyViewControllerLayer
+@interface MaplySamplingParams : NSObject
+
+/// The coordinate system we'll be sampling from.
+@property (nonatomic,nonnull) MaplyCoordinateSystem *coordSys;
+
+/// Min zoom level for sampling
+@property (nonatomic) int minZoom;
+
+/// Max zoom level for sampling
+@property (nonatomic) int maxZoom;
 
 /// Generate geometry to cover the north and south poles
 /// Only works for world-wide projections
 @property (nonatomic) bool coverPoles;
 
-// Set the draw priority values for produced tiles
-@property (nonatomic) int baseDrawPriority;
-
-// Offset between levels for a calculated draw priority
-@property (nonatomic) int drawPriorityPerLevel;
-
 /// If set, generate skirt geometry to hide the edges between levels
 @property (nonatomic) bool edgeMatching;
 
-/// Initialize with a coordinate system
-- (nullable instancetype)initWithCoordSystem:(MaplyCoordinateSystem *__nonnull)coordSys imageLoader:(MaplyQuadImageLoader *__nonnull)imageLoader;
+/// Tesselation values per level for breaking down the coordinate system (e.g. globe)
+@property (nonatomic) int tessX,tessY;
 
-/// Set the zoom levels and importance cutoff
-- (void)setMinZoom:(int)minZoom maxZoom:(int)maxZoom importance:(float)import;
+/// Decide if these sampling params are the same as others
+- (bool)isEqualTo:(MaplySamplingParams *__nonnull)other;
 
 @end
