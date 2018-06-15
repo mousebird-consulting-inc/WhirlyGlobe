@@ -1253,6 +1253,25 @@ static const float PerfOutputDelay = 15.0;
         [self removeLayer:theLayer];
 }
 
+- (MaplyQuadSamplingLayer *)findSamplingLayer:(MaplySamplingParams *)params forUser:(NSObject *)userObj
+{
+    if (!renderControl)
+        return nil;
+
+    MaplyQuadSamplingLayer *layer = [[MaplyQuadSamplingLayer alloc] initWithParams:params];
+    [self addLayer:layer];
+    
+    return layer;
+}
+
+- (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(NSObject *)userObj
+{
+    if (!renderControl)
+        return;
+
+    [self removeLayer:layer];
+}
+
 -(NSArray*)objectsAtCoord:(MaplyCoordinate)coord
 {
     if (!renderControl)

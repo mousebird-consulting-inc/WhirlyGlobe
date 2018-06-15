@@ -18,8 +18,10 @@ class GlobeSamplerTestCase: MaplyTestCase {
         self.implementations = [.globe,.map]
     }
     
+    var imageLoader : MaplyQuadImageLoader? = nil
+    
     // Put together a quad sampler layer
-    func setupLayer(_ baseVC: MaplyBaseViewController) -> MaplyQuadSamplingLayer? {
+    func setupLoader(_ baseVC: MaplyBaseViewController) -> MaplyQuadImageLoader? {
         // Stamen tile source
         let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
         let thisCacheDir = "\(cacheDir)/stamentiles/"
@@ -30,32 +32,28 @@ class GlobeSamplerTestCase: MaplyTestCase {
                 return nil
         }
         tileSource.cacheDir = thisCacheDir
+        
+        // Parameters describing how we want a globe broken down
+        let sampleParams = MaplySamplingParams()
+        sampleParams.coordSys = tileSource.coordSys
+        sampleParams.coverPoles = true
+        sampleParams.edgeMatching = true
+        sampleParams.minZoom = 0
+        sampleParams.maxZoom = 16
 
-        let coordSys = MaplySphericalMercator(webStandard: ())
-        guard let imageLoader = MaplyQuadImageLoader(tileSource: tileSource, viewC: baseVC) else {
+        guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileSource: tileSource, viewC: baseVC) else {
             return nil
         }
         imageLoader.numSimultaneousFetches = 8
-
-        guard let sampleLayer = MaplyQuadSamplingLayer.init(coordSystem: coordSys, imageLoader: imageLoader) else {
-            return nil
-        }
-        sampleLayer.setMinZoom(0, maxZoom: 16, importance: 256.0*256.0)
-        sampleLayer.edgeMatching = true
-        sampleLayer.coverPoles = true
-
-        return sampleLayer
+        
+        return imageLoader
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        if let layer = setupLayer(globeVC) {
-            globeVC.add(layer)
-        }
+        imageLoader = setupLoader(globeVC)
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
-        if let layer = setupLayer(mapVC) {
-            mapVC.add(layer)
-        }
+        imageLoader = setupLoader(mapVC)
     }
 }

@@ -11,8 +11,8 @@
 		2B0387F02069A9EF00DD5C40 /* QuadTreeNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387EF2069A9EF00DD5C40 /* QuadTreeNew.mm */; };
 		2B0387F22069BC2E00DD5C40 /* QuadDisplayLayerNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0387F12069BC2E00DD5C40 /* QuadDisplayLayerNew.h */; };
 		2B0387F42069BC3800DD5C40 /* QuadDisplayLayerNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387F32069BC3800DD5C40 /* QuadDisplayLayerNew.mm */; };
-		2B0387F6206ABD7400DD5C40 /* MaplyQuadSamplingLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387F5206ABD7400DD5C40 /* MaplyQuadSamplingLayer.mm */; };
-		2B0387F8206ABD7B00DD5C40 /* MaplyQuadSamplingLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0387F7206ABD7B00DD5C40 /* MaplyQuadSamplingLayer.h */; };
+		2B0387F6206ABD7400DD5C40 /* MaplyQuadSampler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387F5206ABD7400DD5C40 /* MaplyQuadSampler.mm */; };
+		2B0387F8206ABD7B00DD5C40 /* MaplyQuadSampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0387F7206ABD7B00DD5C40 /* MaplyQuadSampler.h */; };
 		2B127BF92012A12B0099F405 /* MaplyRenderController_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BF82012A12A0099F405 /* MaplyRenderController_private.h */; };
 		2B127BFB2012A1390099F405 /* MaplyRenderTarget_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BFA2012A1390099F405 /* MaplyRenderTarget_private.h */; };
 		2B127BFD2012ACA20099F405 /* MaplyRenderController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */; };
@@ -598,6 +598,7 @@
 		2B884A771E3803170027C397 /* laszipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A3F1E3803170027C397 /* laszipper.cpp */; };
 		2B884A781E3803170027C397 /* laszipper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A401E3803170027C397 /* laszipper.hpp */; };
 		2B884A791E3803170027C397 /* mydefs.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A411E3803170027C397 /* mydefs.hpp */; };
+		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2BB476762000486F006AAACB /* MapboxVectorStyleSymbol.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476702000486E006AAACB /* MapboxVectorStyleSymbol.h */; };
 		2BB476772000486F006AAACB /* MapboxVectorStyleBackground.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476712000486F006AAACB /* MapboxVectorStyleBackground.h */; };
 		2BB476782000486F006AAACB /* MapboxVectorStyleLine.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476722000486F006AAACB /* MapboxVectorStyleLine.h */; };
@@ -1081,8 +1082,8 @@
 		2B0387EF2069A9EF00DD5C40 /* QuadTreeNew.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadTreeNew.mm; sourceTree = "<group>"; };
 		2B0387F12069BC2E00DD5C40 /* QuadDisplayLayerNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadDisplayLayerNew.h; sourceTree = "<group>"; };
 		2B0387F32069BC3800DD5C40 /* QuadDisplayLayerNew.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadDisplayLayerNew.mm; sourceTree = "<group>"; };
-		2B0387F5206ABD7400DD5C40 /* MaplyQuadSamplingLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyQuadSamplingLayer.mm; sourceTree = "<group>"; };
-		2B0387F7206ABD7B00DD5C40 /* MaplyQuadSamplingLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadSamplingLayer.h; sourceTree = "<group>"; };
+		2B0387F5206ABD7400DD5C40 /* MaplyQuadSampler.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyQuadSampler.mm; sourceTree = "<group>"; };
+		2B0387F7206ABD7B00DD5C40 /* MaplyQuadSampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadSampler.h; sourceTree = "<group>"; };
 		2B127BF720126FBD0099F405 /* MaplyRenderController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyRenderController.h; sourceTree = "<group>"; };
 		2B127BF82012A12A0099F405 /* MaplyRenderController_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderController_private.h; sourceTree = "<group>"; };
 		2B127BFA2012A1390099F405 /* MaplyRenderTarget_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget_private.h; sourceTree = "<group>"; };
@@ -1668,6 +1669,7 @@
 		2B884A3F1E3803170027C397 /* laszipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laszipper.cpp; path = "../../../third-party/laszip/src/laszipper.cpp"; sourceTree = "<group>"; };
 		2B884A401E3803170027C397 /* laszipper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laszipper.hpp; path = "../../../third-party/laszip/src/laszipper.hpp"; sourceTree = "<group>"; };
 		2B884A411E3803170027C397 /* mydefs.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = mydefs.hpp; path = "../../../third-party/laszip/src/mydefs.hpp"; sourceTree = "<group>"; };
+		2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadSampler_private.h; sourceTree = "<group>"; };
 		2BB476702000486E006AAACB /* MapboxVectorStyleSymbol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleSymbol.h; sourceTree = "<group>"; };
 		2BB476712000486F006AAACB /* MapboxVectorStyleBackground.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleBackground.h; sourceTree = "<group>"; };
 		2BB476722000486F006AAACB /* MapboxVectorStyleLine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorStyleLine.h; sourceTree = "<group>"; };
@@ -3245,7 +3247,7 @@
 			isa = PBXGroup;
 			children = (
 				2B73D6BD207D1FD300AF5095 /* MaplyQuadImageLoader.h */,
-				2B0387F7206ABD7B00DD5C40 /* MaplyQuadSamplingLayer.h */,
+				2B0387F7206ABD7B00DD5C40 /* MaplyQuadSampler.h */,
 				2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */,
 				2B8849FD1E37FDAA0027C397 /* MaplyLAZShader.h */,
 				2B8849FE1E37FDAA0027C397 /* MaplyLAZQuadReader.h */,
@@ -3327,6 +3329,7 @@
 		2BE5375A1D249A1200B60FAD /* private */ = {
 			isa = PBXGroup;
 			children = (
+				2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */,
 				2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */,
 				2B127BFA2012A1390099F405 /* MaplyRenderTarget_private.h */,
 				2B127BF82012A12A0099F405 /* MaplyRenderController_private.h */,
@@ -3411,7 +3414,7 @@
 			isa = PBXGroup;
 			children = (
 				2B73D6BF207D1FDF00AF5095 /* MaplyQuadImageLoader.mm */,
-				2B0387F5206ABD7400DD5C40 /* MaplyQuadSamplingLayer.mm */,
+				2B0387F5206ABD7400DD5C40 /* MaplyQuadSampler.mm */,
 				2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */,
 				2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */,
 				2B884A031E37FE9E0027C397 /* MaplyLAZMeshBuilder.mm */,
@@ -4009,7 +4012,7 @@
 				2BE53A411D249C3D00B60FAD /* zero_copy_stream_impl.h in Headers */,
 				2B82B5CA1E82E2490095FB14 /* common.h in Headers */,
 				2B2B46FA206C000500570F97 /* LoadedTileNew.h in Headers */,
-				2B0387F8206ABD7B00DD5C40 /* MaplyQuadSamplingLayer.h in Headers */,
+				2B0387F8206ABD7B00DD5C40 /* MaplyQuadSampler.h in Headers */,
 				2BE5398A1D249BEF00B60FAD /* stdafx.h in Headers */,
 				2BE5381F1D249A1200B60FAD /* MaplyRemoteTileSource.h in Headers */,
 				2B82B6D51E82E24A0095FB14 /* FlatMath.h in Headers */,
@@ -4021,6 +4024,7 @@
 				2BE53A681D249C4600B60FAD /* atomicops_internals_macosx.h in Headers */,
 				2B82B5FA1E82E2490095FB14 /* libbase64++.h in Headers */,
 				2BE5382D1D249A1200B60FAD /* MaplyUpdateLayer.h in Headers */,
+				2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */,
 				2B82B7381E82E24A0095FB14 /* MaplyAnimateFlat.h in Headers */,
 				2B0387F22069BC2E00DD5C40 /* QuadDisplayLayerNew.h in Headers */,
 				2B82B7081E82E24A0095FB14 /* OverlapHelper.h in Headers */,
@@ -4875,7 +4879,7 @@
 				2BB476822000488D006AAACB /* MapboxVectorStyleFill.mm in Sources */,
 				2B82B66D1E82E24A0095FB14 /* PJ_goode.c in Sources */,
 				2B82B6B91E82E24A0095FB14 /* PJ_urm5.c in Sources */,
-				2B0387F6206ABD7400DD5C40 /* MaplyQuadSamplingLayer.mm in Sources */,
+				2B0387F6206ABD7400DD5C40 /* MaplyQuadSampler.mm in Sources */,
 				2BE538A31D249A1200B60FAD /* MaplySticker.mm in Sources */,
 				2B82B6201E82E2490095FB14 /* safileio.c in Sources */,
 				2B82B6701E82E24A0095FB14 /* PJ_gstmerc.c in Sources */,
