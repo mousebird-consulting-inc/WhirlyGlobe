@@ -126,7 +126,7 @@ MAPLY_CORE_SRC_FILES := BaseInfo.cpp BasicDrawable.cpp BasicDrawableInstance.cpp
 					Tesselator.cpp Texture.cpp TextureAtlas.cpp TileQuadLoader.cpp TileQuadOfflineRenderer.cpp \
 					VectorData.cpp vector_tile.pb.cpp VectorManager.cpp VectorObject.cpp ViewState.cpp \
 					WideVectorDrawable.cpp WideVectorManager.cpp WhirlyGeometry.cpp WhirlyKitView.cpp WhirlyVector.cpp \
-					GeoJSONSource.cpp
+					GeoJSONSource.cpp WatchdogTimer.cpp
 MAPLY_CORE_SRC_DIR := $(SRC_DIR)
 LOCAL_SRC_FILES += $(MAPLY_CORE_SRC_FILES:%=$(MAPLY_CORE_SRC_DIR)/%)
 

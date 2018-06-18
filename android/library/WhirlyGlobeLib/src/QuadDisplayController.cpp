@@ -52,6 +52,8 @@ QuadDisplayController::QuadDisplayController(QuadDataStructure *dataStructure,Qu
     pthread_mutex_init(&counterLock, NULL);
     frameLoadingCounters = std::map<int, int>();
     
+    pthread_mutex_init(&watchdogTimerLock, NULL);
+    
     // Note: Debugging
     greedyMode = true;
     meteredMode = false;
@@ -863,7 +865,8 @@ void QuadDisplayController::wakeUp()
     
 //Frame Loading Counters Functions
     
-void QuadDisplayController::incrementLoadingCounterForFrame(int frame) {
+void QuadDisplayController::incrementLoadingCounterForFrame(int frame)
+{
     pthread_mutex_lock(&counterLock);
     int counter = 0;
     std::map<int,int>::iterator it = frameLoadingCounters.find(frame);
@@ -872,15 +875,12 @@ void QuadDisplayController::incrementLoadingCounterForFrame(int frame) {
     }
     counter++;
     frameLoadingCounters[frame] = counter;
-#ifdef __ANDROID__
-#ifdef LOGLOADING
-    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","INCREMENT COUNTER frame: %d count: %d",frame, counter);
-#endif
-#endif
     pthread_mutex_unlock(&counterLock);
+    resetWatchdogTimer();
 }
     
-void QuadDisplayController::decrementLoadingCounterForFrame(int frame) {
+void QuadDisplayController::decrementLoadingCounterForFrame(int frame)
+{
     pthread_mutex_lock(&counterLock);
     int counter = 0;
     std::map<int,int>::iterator it = frameLoadingCounters.find(frame);
@@ -889,16 +889,29 @@ void QuadDisplayController::decrementLoadingCounterForFrame(int frame) {
     }
     counter--;
     frameLoadingCounters[frame] = counter;
-#ifdef __ANDROID__
-#ifdef LOGLOADING
-    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","DECREMENT COUNTER frame: %d count: %d",frame, counter);
-#endif
-#endif
     pthread_mutex_unlock(&counterLock);
-
+    
+    if (allFramesLoaded()) {
+        invalidateWatchdogTimer();
+    }
 }
     
-bool QuadDisplayController::isFrameLoaded(int frame) {
+void QuadDisplayController::resetLoadingCounterForFrame(int frame)
+{
+    pthread_mutex_lock(&counterLock);
+    frameLoadingCounters[frame] = 0;
+    pthread_mutex_unlock(&counterLock);
+}
+    
+void QuadDisplayController::resetLoadingCounters()
+{
+    pthread_mutex_lock(&counterLock);
+    frameLoadingCounters.clear();
+    pthread_mutex_unlock(&counterLock);
+}
+    
+bool QuadDisplayController::isFrameLoaded(int frame)
+{
     bool isLoaded = true;
     pthread_mutex_lock(&counterLock);
     std::map<int,int>::iterator it = frameLoadingCounters.find(frame);
@@ -907,6 +920,44 @@ bool QuadDisplayController::isFrameLoaded(int frame) {
     }
     pthread_mutex_unlock(&counterLock);
     return isLoaded;
+}
+    
+bool QuadDisplayController::allFramesLoaded()
+{
+    pthread_mutex_lock(&counterLock);
+    for (std::map<int,int>::iterator it = frameLoadingCounters.begin(); it != frameLoadingCounters.end(); ++it){
+        if ((it->second) != 0) {
+            pthread_mutex_unlock(&counterLock);
+            return false;
+        }
+    }
+    pthread_mutex_unlock(&counterLock);
+    return true;
+}
+    
+void QuadDisplayController::resetWatchdogTimer()
+{
+    pthread_mutex_lock(&watchdogTimerLock);
+    if (!_watchdogTimer.isValid()) {
+        std::function<void()> callback = [&] { this->resetLoadingCounters(); };
+        _watchdogTimer = WatchdogTimer(10000, callback);
+    }
+    
+    if (_watchdogTimer.isRunning()) {
+        _watchdogTimer.reset();
+    } else {
+        _watchdogTimer.start();
+    }
+    pthread_mutex_unlock(&watchdogTimerLock);
+}
+
+void QuadDisplayController::invalidateWatchdogTimer()
+{
+    pthread_mutex_lock(&watchdogTimerLock);
+    if (_watchdogTimer.isValid()) {
+        _watchdogTimer.stop();
+    }
+    pthread_mutex_unlock(&watchdogTimerLock);
 }
 
 // Importance callback for quad tree

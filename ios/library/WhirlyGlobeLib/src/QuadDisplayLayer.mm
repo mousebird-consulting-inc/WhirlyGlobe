@@ -82,6 +82,9 @@ using namespace WhirlyKit;
     
     // Dictionary of loading counters for each frame. (key: frame Number (NSNumber), value: counter (NSNumber))
     NSMutableDictionary *frameLoadingCounters;
+    
+    // Watch dog timer used to reset the counters back to 0 if loading takes too long
+    dispatch_source_t _watchdogTimer;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoader> *)inLoader renderer:(WhirlyKitSceneRendererES *)inRenderer;
@@ -117,6 +120,7 @@ using namespace WhirlyKit;
         didFrameKick = false;
         pthread_mutex_init(&counterLock, NULL);
         frameLoadingCounters = [[NSMutableDictionary alloc] init];
+        _watchdogTimer = nil;
     }
     
     return self;
@@ -938,9 +942,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     }
     [frameLoadingCounters setObject:counter forKey:key];
     pthread_mutex_unlock(&counterLock);
-#ifdef TILELOGGING
-    NSLog(@"INCREMENT COUNTER frame: %d count: %ld", frame, (long)[counter integerValue]);
-#endif
+    [self resetWatchdogTimer];
 }
 
 - (void) decrementLoadingCounterForFrame:(int)frame
@@ -961,9 +963,28 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     }
     [frameLoadingCounters setObject:counter forKey:key];
     pthread_mutex_unlock(&counterLock);
-#ifdef TILELOGGING
-    NSLog(@"DECREMENT COUNTER frame: %d count: %ld", frame, (long)[counter integerValue]);
-#endif
+    
+    if ([self allFramesLoaded]) {
+        [self invalidateWatchdogTimer];
+    }
+}
+
+- (void) resetLoadingCounterForFrame:(int)frame
+{
+    pthread_mutex_lock(&counterLock);
+    NSNumber *key = [NSNumber numberWithInt:frame];
+    NSNumber *counter = [frameLoadingCounters objectForKey:key];
+    counter = [NSNumber numberWithInt:0];
+    [frameLoadingCounters setObject:counter forKey:key];
+    pthread_mutex_unlock(&counterLock);
+    
+}
+
+- (void) resetLoadingCounters
+{
+    pthread_mutex_lock(&counterLock);
+    [frameLoadingCounters removeAllObjects];
+    pthread_mutex_unlock(&counterLock);
 }
 
 - (bool) isFrameLoaded:(int)frame
@@ -976,6 +997,47 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     }
     pthread_mutex_unlock(&counterLock);
     return isLoaded;
+}
+
+- (bool) allFramesLoaded
+{
+    pthread_mutex_lock(&counterLock);
+    for (NSNumber* key in frameLoadingCounters) {
+        NSNumber *counter = frameLoadingCounters[key];
+        if (counter.integerValue != 0) {
+            pthread_mutex_unlock(&counterLock);
+            return false;
+        }
+    }
+    pthread_mutex_unlock(&counterLock);
+    return true;
+}
+
+- (void) resetWatchdogTimer
+{
+    if (!_watchdogTimer || dispatch_source_testcancel(_watchdogTimer)) {
+        [self createWatchdogTimer:10];
+    } else {
+        dispatch_source_set_timer(_watchdogTimer, dispatch_time(DISPATCH_TIME_NOW, 10* NSEC_PER_SEC), DISPATCH_TIME_FOREVER, 0);
+    }
+}
+
+- (void) invalidateWatchdogTimer
+{
+    if (_watchdogTimer) {
+        dispatch_source_cancel(_watchdogTimer);
+    }
+}
+
+- (void) createWatchdogTimer:(int)timeout
+{
+    _watchdogTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));
+    dispatch_source_set_timer(_watchdogTimer, dispatch_time(DISPATCH_TIME_NOW, timeout* NSEC_PER_SEC), DISPATCH_TIME_FOREVER, 100 * NSEC_PER_MSEC);
+    dispatch_source_set_event_handler(_watchdogTimer, ^{
+        [self resetLoadingCounters];
+        dispatch_source_cancel(self->_watchdogTimer);
+    });
+    dispatch_resume(_watchdogTimer);
 }
 
 #pragma mark - Quad Tree Importance Delegate

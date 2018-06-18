@@ -617,7 +617,8 @@ using namespace WhirlyKit;
     [quadLayer refresh];
 }
 
-- (void) reloadFrame:(int)frame {
+- (void) reloadFrame:(int)frame
+{
     // check if the frame is valid
     if (frame >= _imageDepth || frame < -1) {
         return;
@@ -632,11 +633,18 @@ using namespace WhirlyKit;
         [self performSelector:@selector(startReloadFrame:) onThread:super.layerThread withObject:frameNum waitUntilDone:NO];
         return;
     }
+    
     [tileLoader reloadAllTilesForFrame:[frameNum integerValue] layer:quadLayer];
 }
 
-- (bool) isFrameLoaded:(int)frame {
+- (bool) isFrameLoaded:(int)frame
+{
     return [quadLayer isFrameLoaded:frame];
+}
+
+- (bool) allFramesLoaded
+{
+    return [quadLayer allFramesLoaded];
 }
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene

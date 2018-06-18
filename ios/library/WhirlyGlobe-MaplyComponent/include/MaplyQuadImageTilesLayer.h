@@ -525,4 +525,9 @@
  */
 - (bool) isFrameLoaded:(int)frame;
 
+/**
+ Checks to see if all the tiles are loaded for all frames.
+ */
+- (bool) allFramesLoaded;
+
 @end

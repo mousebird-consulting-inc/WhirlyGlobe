@@ -253,8 +253,17 @@ public:
 /// Call this to when a tile load for a frame is completed regardless if it was successful or not.
 - (void) decrementLoadingCounterForFrame:(int)frame;
 
+/// Resets the counter back to 0 for the specified frame.
+- (void) resetLoadingCounterForFrame:(int)frame;
+
+/// Resets all counters back to 0.
+- (void) resetLoadingCounters;
+
 /// Call this to check if all the tiles for a frame is done loading tiles.
 - (bool) isFrameLoaded:(int)frame;
+
+/// Call this to check if all the tiles for all frames are done loading tiles.
+- (bool) allFramesLoaded;
 
 @end
 

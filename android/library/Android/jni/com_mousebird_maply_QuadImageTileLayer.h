@@ -190,6 +190,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_startReloadFo
  */
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_isFrameLoaded
 (JNIEnv *, jobject, jint);
+    
+/*
+ * Class:     com_mousebird_maply_QuadImageTileLayer
+ * Method:    allFramesLoaded
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_allFramesLoaded
+(JNIEnv *, jobject);
 
 /*
  * Class:     com_mousebird_maply_QuadImageTileLayer

@@ -26,6 +26,7 @@
 #import "SceneRendererES.h"
 #import "ScreenImportance.h"
 #import "ViewState.h"
+#import "WatchdogTimer.hpp"
 
 namespace WhirlyKit
 {
@@ -328,8 +329,16 @@ public:
     // Call this to when a tile load for a frame is completed regardless if it was successful or not.
     void decrementLoadingCounterForFrame(int frame);
     
+    // Resets the counter back to 0 for the specified frame.
+    void resetLoadingCounterForFrame(int frame);
+    
+    // Resets all counters back to 0.
+    void resetLoadingCounters();
+    
     // Call this to check if all the tiles for a frame is done loading tiles.
     bool isFrameLoaded(int frame);
+    
+    bool allFramesLoaded();
     
     // Callback used by the quad tree
     virtual double importanceForTile(const Quadtree::Identifier &ident,const Mbr &theMbr,Quadtree *tree,Dictionary *attrs);
@@ -403,11 +412,18 @@ protected:
     // Used to reset evaluation at the end of a clean run
     bool didFrameKick;
     
+private:
+    void resetWatchdogTimer();
+    void invalidateWatchdogTimer();
+    
     // Used for the tile loading counters
     pthread_mutex_t counterLock;
     
     // Map of loading counters for each frame.
     std::map<int, int> frameLoadingCounters;
+    
+    pthread_mutex_t watchdogTimerLock;
+    WatchdogTimer _watchdogTimer;
 };
     
 }
