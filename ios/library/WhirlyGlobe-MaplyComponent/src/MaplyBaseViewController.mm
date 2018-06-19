@@ -63,6 +63,9 @@ using namespace WhirlyKit;
     if (!renderControl->scene)
         return;
     
+    [sharedTileFetcher shutdown];
+    sharedTileFetcher = nil;
+    
     defaultClusterGenerator = nil;
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -170,6 +173,8 @@ using namespace WhirlyKit;
 {
     if (!renderControl)
         renderControl = [[MaplyRenderController alloc] init];
+    
+    sharedTileFetcher = [[MaplyTileFetcher alloc] initWithConnections:16];
     
     allowRepositionForAnnnotations = true;
     
@@ -1164,7 +1169,7 @@ static const float PerfOutputDelay = 15.0;
     {
         WhirlyKitLayerThread *layerThread = baseLayerThread;
         // Only supporting quad image tiles layer for the thread per layer
-        if (_threadPerLayer && [newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]])
+        if (_threadPerLayer && ([newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]] || [newLayer isKindOfClass:[MaplyQuadSamplingLayer class]]))
         {
             layerThread = [[WhirlyKitLayerThread alloc] initWithScene:renderControl->scene view:visualView renderer:renderControl->sceneRenderer mainLayerThread:false];
             [layerThreads addObject:layerThread];
@@ -1253,13 +1258,29 @@ static const float PerfOutputDelay = 15.0;
         [self removeLayer:theLayer];
 }
 
-- (MaplyQuadSamplingLayer *)findSamplingLayer:(MaplySamplingParams *)params forUser:(NSObject *)userObj
+- (MaplyQuadSamplingLayer *)findSamplingLayer:(MaplySamplingParams *)params forUser:(NSObject<WhirlyKitQuadTileBuilderDelegate> *)userObj
 {
     if (!renderControl)
         return nil;
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        NSLog(@"Caller called findSamplerLayer:forUser: off of main thread.");
+        return nil;
+    }
 
+    // Look for a matching sampler
+    for (auto layer : samplingLayers) {
+        if ([layer.params isEqualTo:params]) {
+            [layer addBuilderDelegate:userObj];
+            return layer;
+        }
+    }
+    
+    // Create a new sampler
     MaplyQuadSamplingLayer *layer = [[MaplyQuadSamplingLayer alloc] initWithParams:params];
+    [layer addBuilderDelegate:userObj];
     [self addLayer:layer];
+    samplingLayers.push_back(layer);
     
     return layer;
 }
@@ -1268,8 +1289,23 @@ static const float PerfOutputDelay = 15.0;
 {
     if (!renderControl)
         return;
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        NSLog(@"Caller called findSamplerLayer:forUser: off of main thread.");
+        return;
+    }
 
-    [self removeLayer:layer];
+    [layer removeBuilderDelegate:userObj];
+    
+    if (layer.numClients == 0) {
+        [self removeLayer:layer];
+        samplingLayers.erase(std::find(samplingLayers.begin(),samplingLayers.end(),layer));
+    }
+}
+
+- (MaplyTileFetcher *)getSharedTileFetcher
+{
+    return sharedTileFetcher;
 }
 
 -(NSArray*)objectsAtCoord:(MaplyCoordinate)coord

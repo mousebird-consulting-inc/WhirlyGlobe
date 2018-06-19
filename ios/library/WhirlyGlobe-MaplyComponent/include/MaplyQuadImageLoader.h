@@ -19,22 +19,27 @@
 
 #import "MaplyViewControllerLayer.h"
 #import "MaplyCoordinateSystem.h"
-#import "MaplyTileSource.h"
+#import "MaplyRemoteTileSource.h"
 #import "MaplyRenderController.h"
 #import "MaplyQuadSampler.h"
+#import "MaplyTileFetcher.h"
 
 /**
-    Data return for a loading request.
+  Passed in to and returned by the Loader Interpreter.
  
-    The tile source fills this in and passes it back to the QuadImageLoader.
-  */
-@interface MaplyQuadImageLoaderReturn : NSObject
+  We pass this into the interpreter with the unparsed data.  It parses it and passes that
+  data back, possibly with an error.
+ */
+@interface MaplyLoaderReturn : NSObject
 
 // Tile this is the image for
 @property (nonatomic,assign) MaplyTileID tileID;
 
 // If set, the frame.  -1 by default
 @property (nonatomic,assign) int frame;
+
+// Data returned from a tile request.  Unparsed.
+@property (nonatomic) NSData * __nonnull tileData;
 
 // Can be a UIImage or an NSData containing an image or a MaplyImageTile
 @property (nonatomic) id __nullable image;
@@ -43,9 +48,31 @@
 // They need to start disabled.  The system will enable and delete them when it is time.
 @property (nonatomic) NSArray * __nullable compObjs;
 
-// If this is set, the tile failed to load
+// If this is set, the tile failed to parse
 @property (nonatomic) NSError * __nullable error;
 
+@end
+
+/**
+    Loader Interpreter converts raw data into images and objects.
+ 
+    Converts data returned from a remote source (or cache) into images and/or
+    MaplyComponentObjects that have already been added to the view (disabled).
+  */
+@protocol MaplyLoaderInterpreter<NSObject>
+
+/// Convert the NSData passed in to image and component objects (e.g. add stuff to the view controller).
+/// Everything added should be disabled to start.
+- (void)parseData:(MaplyLoaderReturn * __nonnull)loadReturn;
+
+@end
+
+/**
+    Image loader intrepreter turns NSData objects into MaplyImageTiles.
+ 
+    This is the default interpreter used byt the MaplyQuadImageLoader.
+  */
+@interface MaplyImageLoaderInterpreter : NSObject<MaplyLoaderInterpreter>
 @end
 
 /**
@@ -68,14 +95,15 @@
  
  @param tileSource This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.
  */
-- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileSource:(NSObject<MaplyTileSource> *__nonnull)tileSource viewC:(MaplyBaseViewController * __nonnull)viewC;
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfo:(MaplyRemoteTileInfo *__nonnull)tileInfo viewC:(MaplyBaseViewController * __nonnull)viewC;
 
-/**
- The number of simultaneous fetches the layer will attempt at once.
- 
- The toolkit loves its dispatch queues and threads.  By default this number is set to 8 or 16, but if you need to constrain it, you can set it lower (or higher!).  If your tile source can't handle multi-thread access, set this to 1.
- */
-@property (nonatomic,assign) int numSimultaneousFetches;
+/// Use a specific tile fetcher rather than the one shared by everyone else
+- (void)setTileFetcher:(MaplyTileFetcher * __nonnull)tileFetcher;
+
+/// Set the interpreter for the data coming back.  If you're just getting images, don't set this.
+- (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp;
+
+// Note: We need a variant that takes just a tile source
 
 // Set the draw priority values for produced tiles
 @property (nonatomic) int baseDrawPriority;
@@ -163,19 +191,9 @@
  */
 - (MaplyBoundingBoxD)boundsForTileD:(MaplyTileID)tileID;
 
-/** Called by the tile source when a tile had loaded (or failed to load).
-    The caller is responsible for filling out the loadReturn completely.
-  */
-- (bool)loadedReturn:(MaplyQuadImageLoaderReturn * __nonnull)loadReturn;
-
-/** Register an object to be associated with the given tile.
-    This will be passed in for a cancel and dropped after loadReturn: is called.
-  */
-- (void)registerTile:(MaplyTileID)tileID frame:(int)frame data:(id __nullable)tileData;
-
 /** Turn off the image loader and shut things down.
     This unregisters us with the sampling layer and shuts down the various objects we created.
   */
-- (void)stop;
+- (void)shutdown;
 
 @end
