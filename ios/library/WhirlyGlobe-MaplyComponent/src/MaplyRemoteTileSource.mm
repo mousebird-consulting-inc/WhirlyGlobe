@@ -521,10 +521,12 @@ static bool trackConnections = false;
         MaplyQuadImageLoader *qLoad = nil;
         qLoad = inLayer;
 
-        MaplyQuadImageLoaderReturn *ret = [[MaplyQuadImageLoaderReturn alloc] init];
-        ret.tileID = tileID;
-        ret.image = imgData;
-        return [qLoad loadedReturn:ret];
+        NSLog(@"MaplyRemoteTileSource: Not handling QuadImageLoader case currently.");
+//        MaplyQuadImageLoaderReturn *ret = [[MaplyQuadImageLoaderReturn alloc] init];
+//        ret.tileID = tileID;
+//        ret.image = imgData;
+//        return [qLoad loadedReturn:ret];
+        return false;
     }
 }
 
@@ -538,10 +540,12 @@ static bool trackConnections = false;
         MaplyQuadImageLoader *qLoad = nil;
         qLoad = inLayer;
         
-        MaplyQuadImageLoaderReturn *ret = [[MaplyQuadImageLoaderReturn alloc] init];
-        ret.tileID = tileID;
-        ret.error = error;
-        [qLoad loadedReturn:ret];
+        NSLog(@"MaplyRemoteTileSource: Not handling QuadImageLoader case currently.");
+//        MaplyQuadImageLoaderReturn *ret = [[MaplyQuadImageLoaderReturn alloc] init];
+//        ret.tileID = tileID;
+//        ret.error = error;
+//        [qLoad loadedReturn:ret];
+        return;
     }
 }
 

@@ -96,6 +96,11 @@ using namespace WhirlyKit;
     return true;
 }
 
+- (int)getNumClients
+{
+    return builderDelegates.size();
+}
+
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
     [inLayerThread removeLayer:quadLayer];
@@ -192,11 +197,12 @@ using namespace WhirlyKit;
     }
     
     // Disable the tiles.  The delegates will instance them.
-    for (auto tile : tiles) {
-        for (auto drawID : tile->drawIDs) {
-            changes.push_back(new OnOffChangeRequest(drawID,false));
-        }
-    }
+    // Note: Put this back
+//    for (auto tile : tiles) {
+//        for (auto drawID : tile->drawIDs) {
+//            changes.push_back(new OnOffChangeRequest(drawID,false));
+//        }
+//    }
 
     for (auto delegate : delegates) {
         [delegate quadBuilder:builder loadTiles:tiles changes:changes];

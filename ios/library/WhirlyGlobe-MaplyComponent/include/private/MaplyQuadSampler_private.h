@@ -27,7 +27,11 @@
  */
 @interface MaplyQuadSamplingLayer : MaplyViewControllerLayer
 
+// Parameters this sampler is using (non changeable)
 @property (nonatomic,readonly,nonnull) MaplySamplingParams *params;
+
+// Number of clients using this sampler
+@property (nonatomic,readonly) int numClients;
 
 // Initialize with the sampling parameters
 - (nullable instancetype)initWithParams:(MaplySamplingParams * __nonnull)params;
