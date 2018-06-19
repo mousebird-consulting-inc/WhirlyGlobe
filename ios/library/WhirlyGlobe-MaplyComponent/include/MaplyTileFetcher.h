@@ -62,6 +62,9 @@
   */
 @interface MaplyTileFetcher : NSObject
 
+/// If set to non-zero we'll report out stats every few seconds
+@property (nonatomic) NSTimeInterval statsPeriod;
+
 /// Initialize with the number of connections the fetcher can have open at once
 - (instancetype __nonnull)initWithConnections:(int)numConnections;
 

@@ -147,6 +147,12 @@ using namespace WhirlyKit;
     TileInfoMap tiles;  // All the tiles we're supposed to be loading
     TileInfoSet loading;  // Tiles that are currently loading
     TileInfoSet toLoad;  // Tiles sorted by importance
+    
+    int totalRequests;
+    int totalCancels;
+    int totalFails;
+    int remoteData;
+    int localData;
 }
 
 - (instancetype)initWithConnections:(int)numConnections
@@ -157,8 +163,39 @@ using namespace WhirlyKit;
     // All the internal work is done on a single queue.  Nothing significant, really.
     queue = dispatch_queue_create("MaplyTileFetcher", nil);
     session = [NSURLSession sharedSession];
+    totalRequests = 0;
+    totalCancels = 0;
+    totalFails = 0;
+    remoteData = 0;
+    localData = 0;
     
     return self;
+}
+
+- (void)setStatsPeriod:(NSTimeInterval)statsPeriod
+{
+    _statsPeriod = statsPeriod;
+    
+    [self statsDump];
+}
+
+- (void)statsDump
+{
+    if (!active)
+        return;
+    
+    NSLog(@"---MaplyTileFetcher Stats---");
+    NSLog(@"   Total Requests = %d",totalRequests);
+    NSLog(@"   Canceled Requests = %d",totalCancels);
+    NSLog(@"   Failed Requests = %d",totalFails);
+    NSLog(@"   Data Transferred = %.2fMB",remoteData / (1024.0*1024.0));
+    NSLog(@"   Cached Data = %.2fMB",localData / (1024.0*1024.0));
+
+    if (_statsPeriod > 0.0) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_statsPeriod * NSEC_PER_SEC)), queue, ^{
+            [self statsDump];
+        });
+    }
 }
 
 - (id)startTileFetch:(MaplyTileFetchRequest *)request
@@ -188,6 +225,8 @@ using namespace WhirlyKit;
 // Run on the dispatch queue
 - (void)startTileFetchLocal:(MaplyTileFetchRequest *)request
 {
+    totalRequests++;
+    
     TileIdent ident(request.tileID,request.tileInfo,request.frame);
     auto it = tiles.find(ident);
     if (it != tiles.end()) {
@@ -211,6 +250,8 @@ using namespace WhirlyKit;
 // Run on the dispatch queue
 - (void)cancelTileFetchLocal:(MaplyTileFetchRequest *)request
 {
+    totalCancels++;
+    
     TileIdent ident(request.tileID,request.tileInfo,request.frame);
     auto it = tiles.find(ident);
     if (it == tiles.end()) {
@@ -262,8 +303,13 @@ using namespace WhirlyKit;
                           dispatch_async(self->queue,
                                          ^{
                               if (error) {
-                                  [self finishedLoading:tile data:nil error:error];
+                                  // Cancels don't count as errors
+                                  if (error.code != NSURLErrorCancelled) {
+                                      self->totalFails++;
+                                      [self finishedLoading:tile data:nil error:error];
+                                  }
                               } else {
+                                  self->remoteData += [data length];
                                   [self finishedLoading:tile data:data error:error];
                               }
                         });
@@ -280,6 +326,7 @@ using namespace WhirlyKit;
                 } else {
                     // It worked, but run the finished loading back on our queue
                     dispatch_async(self->queue,^{
+                        self->localData += [data length];
                         [self finishedLoading:tile data:data error:nil];
                     });
                 }
