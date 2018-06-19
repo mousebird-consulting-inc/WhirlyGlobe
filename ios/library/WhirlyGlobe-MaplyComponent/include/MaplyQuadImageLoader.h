@@ -61,8 +61,12 @@
   */
 @protocol MaplyLoaderInterpreter<NSObject>
 
-/// Convert the NSData passed in to image and component objects (e.g. add stuff to the view controller).
-/// Everything added should be disabled to start.
+/**
+ Parse the data coming back from a remote request and turn it into something we can use.
+ 
+ Convert the NSData passed in to image and component objects (e.g. add stuff to the view controller).
+ Everything added should be disabled to start.
+  */
 - (void)parseData:(MaplyLoaderReturn * __nonnull)loadReturn;
 
 @end
