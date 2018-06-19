@@ -175,6 +175,7 @@ using namespace WhirlyKit;
         renderControl = [[MaplyRenderController alloc] init];
     
     sharedTileFetcher = [[MaplyTileFetcher alloc] initWithConnections:16];
+    sharedTileFetcher.statsPeriod = 10.0;
     
     allowRepositionForAnnnotations = true;
     
