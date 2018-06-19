@@ -85,17 +85,25 @@ public:
 
     // Generate commands to remove the associated drawables
     void removeDrawables(ChangeSet &changes);
-
+    
+    // Information about a particular drawable that's useful for instancing it.
+    typedef enum { DrawableGeom, DrawableSkirt, DrawablePole } DrawableKind;
+    class DrawableInfo {
+    public:
+        DrawableInfo(DrawableKind kind,SimpleIdentity drawID,int drawPriority) : kind(kind), drawID(drawID), drawPriority(drawPriority) { }
+        DrawableKind kind;      // What this is.  Main geometry or edge.
+        SimpleIdentity drawID;  // ID corresponding to the drawable created
+        int drawPriority;       // Draw priority we gave it
+    };
     bool enabled;
     QuadTreeNew::Node ident;
-    // Active drawable IDs associated with this tile
-    SimpleIDSet drawIDs;
+    std::vector<DrawableInfo> drawInfo;
     // The Draw Priority as set when created
     int drawPriority;
 };
 typedef std::shared_ptr<LoadedTileNew> LoadedTileNewRef;
 typedef std::vector<LoadedTileNewRef> LoadedTileVec;
-    
+
 /** Tile Builder builds individual tile geometry for use elsewhere.
     This is just the geometry.  If you want textures on it, you need to do those elsewhere.
   */

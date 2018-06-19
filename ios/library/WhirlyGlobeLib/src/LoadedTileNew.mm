@@ -109,7 +109,6 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     chunk->setupTexCoordEntry(0, 0);
     
     changes.push_back(new AddDrawableReq(chunk));
-    drawIDs.insert(chunk->getId());
     if (geomSettings.useTileCenters)
         chunk->setMatrix(&transMat);
     
@@ -120,7 +119,8 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
     chunk->setProgram(geomSettings.programID);
     chunk->setOnOff(false);
-    
+    drawInfo.push_back(DrawableInfo(DrawableGeom,chunk->getId(),chunk->getDrawPriority()));
+
     // Might need another drawable for poles
     bool separatePoleChunk = false;
     BasicDrawable *poleChunk = NULL;
@@ -128,7 +128,6 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     {
         poleChunk = new BasicDrawable("LoadedTileNew");
         changes.push_back(new AddDrawableReq(poleChunk));
-        drawIDs.insert(poleChunk->getId());
         if (geomSettings.useTileCenters)
             poleChunk->setMatrix(&transMat);
         poleChunk->setType(GL_TRIANGLES);
@@ -138,6 +137,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
         poleChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
         poleChunk->setProgram(geomSettings.programID);
         poleChunk->setOnOff(false);
+        drawInfo.push_back(DrawableInfo(DrawablePole,poleChunk->getId(),poleChunk->getDrawPriority()));
         separatePoleChunk = true;
     } else
         poleChunk = chunk;
@@ -244,7 +244,6 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
             // We'll set up and fill in the drawable
             BasicDrawable *skirtChunk = new BasicDrawable("LoadedTileNew");
             changes.push_back(new AddDrawableReq(skirtChunk));
-            drawIDs.insert(skirtChunk->getId());
             if (geomSettings.useTileCenters)
                 skirtChunk->setMatrix(&transMat);
             // Note: We hardwire this to appear after the atmosphere
@@ -258,7 +257,8 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
             skirtChunk->setRequestZBuffer(true);
             skirtChunk->setProgram(geomSettings.programID);
             skirtChunk->setOnOff(false);
-            
+            drawInfo.push_back(DrawableInfo(DrawableSkirt,skirtChunk->getId(),skirtChunk->getDrawPriority()));
+
             // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
             //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
             //  disparity
@@ -432,8 +432,8 @@ void LoadedTileNew::buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std
 void LoadedTileNew::enable(ChangeSet &changes)
 {
     if (!enabled)
-        for (auto drawID : drawIDs) {
-            changes.push_back(new OnOffChangeRequest(drawID,true));
+        for (auto di : drawInfo) {
+            changes.push_back(new OnOffChangeRequest(di.drawID,true));
         }
     enabled = true;
 }
@@ -441,16 +441,16 @@ void LoadedTileNew::enable(ChangeSet &changes)
 void LoadedTileNew::disable(ChangeSet &changes)
 {
     if (enabled)
-        for (auto drawID : drawIDs) {
-            changes.push_back(new OnOffChangeRequest(drawID,false));
+        for (auto di : drawInfo) {
+            changes.push_back(new OnOffChangeRequest(di.drawID,false));
         }
     enabled = false;
 }
     
 void LoadedTileNew::removeDrawables(ChangeSet &changes)
 {
-    for (auto drawID : drawIDs) {
-        changes.push_back(new RemDrawableReq(drawID));
+    for (auto di : drawInfo) {
+        changes.push_back(new RemDrawableReq(di.drawID));
     }
 }
 

@@ -414,15 +414,27 @@ using namespace WhirlyKit;
                     success = true;
                     // Create the texture in the renderer
                     tile->texID = tex->getId();
-                    tile->drawPriority = loadedTile->drawPriority;
+                    tile->drawPriority = _baseDrawPriority + _drawPriorityPerLevel * ident.level;
                     changes.push_back(new AddTextureReq(tex));
                     
                     // Assign it to the various drawables
-                    for (auto drawID : loadedTile->drawIDs) {
-                        changes.push_back(new DrawTexChangeRequest(drawID,0,tile->texID));
-                        changes.push_back(new DrawPriorityChangeRequest(drawID,tile->drawPriority));
+                    for (auto di : loadedTile->drawInfo) {
+                        int newDrawPriority = tile->drawPriority;
+                        switch (di.kind) {
+                            case WhirlyKit::LoadedTileNew::DrawableGeom:
+                                newDrawPriority = tile->drawPriority;
+                                break;
+                            case WhirlyKit::LoadedTileNew::DrawableSkirt:
+                                newDrawPriority = 11;
+                                break;
+                            case WhirlyKit::LoadedTileNew::DrawablePole:
+                                newDrawPriority = tile->drawPriority;
+                                break;
+                        }
+                        changes.push_back(new DrawTexChangeRequest(di.drawID,0,tile->texID));
+                        changes.push_back(new DrawPriorityChangeRequest(di.drawID,newDrawPriority));
                         if (loadedTile->enabled)
-                            changes.push_back(new OnOffChangeRequest(drawID,true));
+                            changes.push_back(new OnOffChangeRequest(di.drawID,true));
                     }
                 }
                 tile->shouldEnable = loadedTile->enabled;
@@ -593,14 +605,33 @@ using namespace WhirlyKit;
     if (relX >= 0 && relY >= 0 && relX < 1<<relLevel && relY < 1<<relLevel) {
 //        NSLog(@"Cover tile: %d: (%d,%d), child tile: %d: (%d,%d), rel: %d: (%d,%d)",coverIdent.level,coverIdent.x,coverIdent.y,tileIdent.level,tileIdent.x,tileIdent.y,relLevel,relX,relY);
         LoadedTileNewRef loadedTile = [builder getLoadedTile:tileIdent];
-        for (auto drawID: loadedTile->drawIDs)
-        {
-            if (_flipY)
-                relY = (1<<relLevel)-relY-1;
-            changes.push_back(new DrawTexChangeRequest(drawID,0,coverAsset->texID,relLevel,relX,relY));
-            changes.push_back(new DrawPriorityChangeRequest(drawID,coverAsset->drawPriority));
-            if (loadedTile->enabled)
-                changes.push_back(new OnOffChangeRequest(drawID,true));
+        auto it = tiles.find(tileIdent);
+        TileAssetRef thisTile;
+        if (it != tiles.end())
+            thisTile = it->second;
+        if (loadedTile && thisTile) {
+            thisTile->texNode = coverIdent;
+            for (auto di : loadedTile->drawInfo)
+            {
+                int newDrawPriority = coverAsset->drawPriority;
+                switch (di.kind) {
+                    case WhirlyKit::LoadedTileNew::DrawableGeom:
+                        newDrawPriority = coverAsset->drawPriority;
+                        break;
+                    case WhirlyKit::LoadedTileNew::DrawableSkirt:
+                        newDrawPriority = 11;
+                        break;
+                    case WhirlyKit::LoadedTileNew::DrawablePole:
+                        newDrawPriority = coverAsset->drawPriority;
+                        break;
+                }
+                if (_flipY)
+                    relY = (1<<relLevel)-relY-1;
+                changes.push_back(new DrawTexChangeRequest(di.drawID,0,coverAsset->texID,relLevel,relX,relY));
+                changes.push_back(new DrawPriorityChangeRequest(di.drawID,newDrawPriority));
+                if (loadedTile->enabled)
+                    changes.push_back(new OnOffChangeRequest(di.drawID,true));
+            }
         }
     }
 }
