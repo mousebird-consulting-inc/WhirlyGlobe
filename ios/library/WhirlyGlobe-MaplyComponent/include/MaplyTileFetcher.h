@@ -29,13 +29,27 @@
   */
 @interface MaplyTileFetchRequest : NSObject
 
+/// The remote URL (and other info) for this request
 @property (nonatomic,nonnull) MaplyRemoteTileInfo *tileInfo;
 
+/// Tile we'd like for the remote request
 @property (nonatomic) MaplyTileID tileID;
+/// Frame, if doing animation, or -1 if not
 @property (nonatomic) int frame;
+/// How important this is to us.  Probably screen space.
 @property (nonatomic) float importance;
 
+/**
+    Tile Fetcher success callback.
+
+    Called on the Tile Fetcher's dispatch queue.  If you're going to do some work, do it
+    somewhere else.
+  */
 @property (nonatomic,nullable) void (^success)(MaplyTileFetchRequest * __nonnull,NSData * __nonnull);
+
+/**
+    Tile Fetcher failure callback.
+  */
 @property (nonatomic,nullable) void (^failure)(MaplyTileFetchRequest * __nonnull,NSError * __nonnull);
 
 @end
