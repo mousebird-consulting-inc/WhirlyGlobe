@@ -44,10 +44,10 @@
 - (void)setQuadLayer:(WhirlyKitQuadDisplayLayerNew *)layer;
 
 /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)tiles;
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)tiles;
 
 /// Unload the given tiles.
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)tiles;
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer unLoadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)tiles;
 
 @end
 

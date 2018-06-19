@@ -34,7 +34,7 @@ TileGeomSettings::TileGeomSettings()
 {
 }
     
-LoadedTileNew::LoadedTileNew(QuadTreeNew::Node &ident)
+LoadedTileNew::LoadedTileNew(QuadTreeNew::ImportantNode &ident)
     : ident(ident), enabled(false)
 {
 }
@@ -467,7 +467,7 @@ void TileGeomManager::setup(QuadTreeNew *inQuadTree,CoordSystemDisplayAdapter *i
     mbr = inMbr;
 }
     
-TileGeomManager::NodeChanges TileGeomManager::addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::NodeSet &tiles,ChangeSet &changes)
+TileGeomManager::NodeChanges TileGeomManager::addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::ImportantNodeSet &tiles,ChangeSet &changes)
 {
     NodeChanges nodeChanges;
 

@@ -61,7 +61,7 @@ protected:
 {
     int minZoom,maxZoom;
     WhirlyKitViewState *viewState;
-    QuadTreeNew::NodeSet currentNodes;
+    QuadTreeNew::ImportantNodeSet currentNodes;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoaderNew> *)loader renderer:(WhirlyKitSceneRendererES *)inRenderer
@@ -140,17 +140,25 @@ protected:
 
     // What should be present
     auto newNodes = _quadtree->calcCoverage(_minImportance,_maxTiles,true);
-    QuadTreeNew::NodeSet toRemove,toAdd;
-
+    QuadTreeNew::ImportantNodeSet toRemove,toAdd;
+    
+    // Need a version of new and old that has no importance values, since those change
+    QuadTreeNew::NodeSet testNewNodes;
+    for (auto node : newNodes)
+        testNewNodes.insert(node);
+    QuadTreeNew::NodeSet testCurrentNodes;
+    for (auto node : currentNodes)
+        testCurrentNodes.insert(node);
+    
     // Nodes to remove
-    std::set_difference(currentNodes.begin(),currentNodes.end(),
-                        newNodes.begin(),newNodes.end(),
-                        std::inserter(toRemove,toRemove.begin()));
-
+    for (auto node : currentNodes)
+        if (testNewNodes.find(node) == testNewNodes.end())
+            toRemove.insert(node);
+    
     // Nodes to add
-    std::set_difference(newNodes.begin(),newNodes.end(),
-                        currentNodes.begin(),currentNodes.end(),
-                        std::inserter(toAdd,toAdd.begin()));
+    for (auto node : newNodes)
+        if (testCurrentNodes.find(node) == testCurrentNodes.end())
+            toAdd.insert(node);
 
     if (!toRemove.empty())
         [_loader quadDisplayLayer:self unLoadTiles:toRemove];

@@ -69,7 +69,7 @@ class TileGeomManager;
 class LoadedTileNew
 {
 public:
-    LoadedTileNew(QuadTreeNew::Node &ident);
+    LoadedTileNew(QuadTreeNew::ImportantNode &ident);
     
     // Build the drawable(s) to represent this one tile
     void makeDrawables(TileGeomManager *geomManage,TileGeomSettings &geomSettings,ChangeSet &changes);
@@ -96,7 +96,7 @@ public:
         int drawPriority;       // Draw priority we gave it
     };
     bool enabled;
-    QuadTreeNew::Node ident;
+    QuadTreeNew::ImportantNode ident;
     std::vector<DrawableInfo> drawInfo;
     // The Draw Priority as set when created
     int drawPriority;
@@ -125,7 +125,7 @@ public:
     };
     
     // Add the tiles list in the node set
-    NodeChanges addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
+    NodeChanges addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::ImportantNodeSet &tiles,ChangeSet &changes);
     
     // Return a list of tiles corresponding to the IDs
     std::vector<LoadedTileNewRef> getTiles(const QuadTreeNew::NodeSet &tiles);

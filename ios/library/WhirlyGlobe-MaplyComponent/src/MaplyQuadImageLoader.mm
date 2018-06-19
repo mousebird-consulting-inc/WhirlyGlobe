@@ -275,7 +275,7 @@ using namespace WhirlyKit;
     }
 }
 
-- (TileAssetRef)addNewTile:(QuadTreeNew::Node)ident layer:(MaplyBaseInteractionLayer *)interactLayer changes:(ChangeSet &)changes
+- (TileAssetRef)addNewTile:(QuadTreeNew::ImportantNode)ident layer:(MaplyBaseInteractionLayer *)interactLayer changes:(ChangeSet &)changes
 {
     // Put together a request for the fetcher
     MaplyTileFetchRequest *request = [[MaplyTileFetchRequest alloc] init];
@@ -283,8 +283,7 @@ using namespace WhirlyKit;
     request.tileInfo = tileInfo;
     request.tileID = tileID;
     request.frame = -1;
-    // Note: Set this to something
-    request.importance = 100 - ident.level;
+    request.importance = ident.importance;
     
     request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
         [self performSelector:@selector(fetchRequestSuccess:) onThread:self->samplingLayer.layerThread withObject:@[request,data] waitUntilDone:NO];
