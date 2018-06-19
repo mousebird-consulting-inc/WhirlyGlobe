@@ -65,9 +65,9 @@ public:
     class ImportantNode : public Node
     {
     public:
-        ImportantNode() { }
+        ImportantNode() : importance(0.0) { }
         ImportantNode(const ImportantNode &that) : Node((Node)that), importance(that.importance) { }
-        ImportantNode(int x,int y,int level) : Node(x,y,level) { }
+        ImportantNode(int x,int y,int level) : Node(x,y,level), importance(0.0) { }
 
         bool operator < (const ImportantNode &that) const;
         bool operator == (const ImportantNode &that) const;
@@ -78,7 +78,7 @@ public:
 
     // Calculate a set of nodes to load based on importance, but only up to the maximum
     // siblingNodes forces us to load all four children of a given parent
-    NodeSet calcCoverage(double minImportance,int maxNodes,bool siblingNodes);
+    ImportantNodeSet calcCoverage(double minImportance,int maxNodes,bool siblingNodes);
     
     // Generate a bounding box 
     MbrD generateMbrForNode(const Node &node);
