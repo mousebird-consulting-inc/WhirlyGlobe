@@ -47,7 +47,7 @@
 - (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)tiles;
 
 /// Unload the given tiles.
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer unLoadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)tiles;
+- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)tiles;
 
 @end
 

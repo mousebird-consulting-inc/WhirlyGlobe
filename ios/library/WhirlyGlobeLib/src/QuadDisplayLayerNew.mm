@@ -140,7 +140,8 @@ protected:
 
     // What should be present
     auto newNodes = _quadtree->calcCoverage(_minImportance,_maxTiles,true);
-    QuadTreeNew::ImportantNodeSet toRemove,toAdd;
+    QuadTreeNew::ImportantNodeSet toAdd;
+    QuadTreeNew::NodeSet toRemove;
     
     // Need a version of new and old that has no importance values, since those change
     QuadTreeNew::NodeSet testNewNodes;
