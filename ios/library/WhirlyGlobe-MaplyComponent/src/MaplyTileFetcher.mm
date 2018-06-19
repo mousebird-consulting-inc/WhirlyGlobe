@@ -354,6 +354,8 @@ using namespace WhirlyKit;
     loading.erase(tile);
     toLoad.erase(tile);
     tiles.erase(it);
+
+    [self updateLoading];
 }
 
 - (void)shutdown
