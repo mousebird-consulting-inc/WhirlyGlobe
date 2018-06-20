@@ -805,17 +805,11 @@ const Quadtree::NodeInfo *Quadtree::getNodeInfo(const Identifier &ident)
     
 Quadtree::NodeInfo Quadtree::generateNode(const Identifier &ident)
 {
-#ifdef __ANDROID__
-    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","GENERATE NODE BEGIN");
-#endif
     NodeInfo nodeInfo;
     nodeInfo.ident = ident;
     nodeInfo.mbr = generateMbrForNode(ident);
     nodeInfo.importance = importDelegate->importanceForTile(nodeInfo.ident, nodeInfo.mbr, this, &nodeInfo.attrs);
     
-#ifdef __ANDROID__
-    __android_log_print(ANDROID_LOG_VERBOSE, "Maply","GENERATE NODE END");
-#endif
     return nodeInfo;
 }
     

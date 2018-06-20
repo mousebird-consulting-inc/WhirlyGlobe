@@ -36,6 +36,11 @@ static float const BoundsEps = 10.0 / EarthRadius;
 DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &nodeMbr,float inMinZ,float inMaxZ,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter)
     : valid(true)
 {
+    if (!coordAdapter) {
+        valid = false;
+        return;
+    }
+    
     // Start with the outline in the source coordinate system
     WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
     Point3dVector srcBounds;

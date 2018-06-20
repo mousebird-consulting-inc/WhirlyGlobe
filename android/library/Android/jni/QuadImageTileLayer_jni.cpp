@@ -92,6 +92,21 @@ public:
 
 	virtual ~QuadImageLayerAdapter()
 	{
+        if (tileLoader)
+            delete tileLoader;
+        tileLoader = NULL;
+        
+        if (control)
+            delete control;
+        control = NULL;
+        
+        scene = NULL;
+        renderer = NULL;
+        lastViewState = NULL;
+        
+        env = NULL;
+        javaObj = NULL;
+        jvm = NULL;
 	}
 
 	// Get Java methods for a particular instance
@@ -261,15 +276,15 @@ public:
 	    animationPeriod = newAnimationPeriod;
 	}
 
-        void setShaderName(const std::string &newName)
+    void setShaderName(const std::string &newName)
+    {
+        shaderName = newName;
+        if (scene && tileLoader)
         {
-	  shaderName = newName;
-	  if (scene && tileLoader)
-	  {
-	      shaderID = scene->getProgramIDBySceneName(shaderName.c_str());
-	      tileLoader->setProgramId(shaderID);
-	  }
-        }    
+            shaderID = scene->getProgramIDBySceneName(shaderName.c_str());
+            tileLoader->setProgramId(shaderID);
+        }
+    }
 
 	// Change which image is displayed (or interpolation thereof)
 	void setCurrentImage(float newCurrentImage,ChangeSet &changes)
@@ -371,24 +386,26 @@ public:
 //        }
 
         double import = 0.0;
-        if (canShortCircuitImportance && maxShortCircuitLevel != -1)
-        {
-            if (TileIsOnScreen(viewState, frameSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs))
+        if (scene) {
+            if (canShortCircuitImportance && maxShortCircuitLevel != -1)
             {
-                import = 1.0/(ident.level+10);
-                if (ident.level <= maxShortCircuitLevel)
-                    import += 1.0;
+                if (TileIsOnScreen(viewState, frameSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs))
+                {
+                    import = 1.0/(ident.level+10);
+                    if (ident.level <= maxShortCircuitLevel)
+                        import += 1.0;
+                }
+                import *= importanceScale;
+            } else {
+                // Note: Porting
+    //            if (elevDelegate)
+    //            {
+    //                import = ScreenImportance(viewState, frameSize, thisTileSize, coordSys, scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
+    //            } else {
+                    import = ScreenImportance(viewState, frameSize, viewState->eyeVec, thisTileSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs);
+    //            }
+                import *= importanceScale;
             }
-            import *= importanceScale;
-        } else {
-        	// Note: Porting
-//            if (elevDelegate)
-//            {
-//                import = ScreenImportance(viewState, frameSize, thisTileSize, coordSys, scene->getCoordAdapter(), mbr, _minElev, _maxElev, ident, attrs);
-//            } else {
-        	    import = ScreenImportance(viewState, frameSize, viewState->eyeVec, thisTileSize, coordSys, scene->getCoordAdapter(), mbr, ident, attrs);
-//            }
-            import *= importanceScale;
         }
 
 //		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Tile = %d: (%d,%d), import = %f",ident.level,ident.x,ident.y,import);
@@ -399,7 +416,7 @@ public:
     // Calculate a target zoom level for display
     int targetZoomLevel(ViewState *viewState)
     {
-        if (!viewState)
+        if (!viewState || !renderer || !scene || !control)
             return minZoom;
         Point2f frameSize = renderer->getFramebufferSize();
 
@@ -482,7 +499,6 @@ public:
     		return;
     	}
 
-        CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         // We need to feel our way down to the appropriate level
         maxShortCircuitLevel = targetZoomLevel(viewState);
         if (singleLevelLoading)
@@ -497,7 +513,8 @@ public:
                 if (whichLevel >= 0 && whichLevel < maxShortCircuitLevel)
                     targetLevels.insert(whichLevel);
             }
-            control->setTargetLevels(targetLevels);
+            if (control)
+                control->setTargetLevels(targetLevels);
         }
 //    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
     }
@@ -536,30 +553,36 @@ public:
     /// The tile loaded correctly (or didn't if it's null)
     void tileLoaded(int level,int col,int row,int frame,RawDataRef imgData,int width,int height,ChangeSet &changes)
     {
-    	if (imgData)
-    	{
-    		ImageWrapper tileWrapper(imgData,width,height);
-    		tileLoader->loadedImage(this, &tileWrapper, level, col, row, frame, changes);
-    	} else {
-            if (level < minZoom)
+        if (tileLoader)
+        {
+            if (imgData)
             {
-                // This is meant to be a placeholder
-                ImageWrapper placeholder;
-                tileLoader->loadedImage(this, &placeholder, level, col, row, frame, changes);
-            } else
-                tileLoader->loadedImage(this, NULL, level, col, row, frame, changes);
-    	}
+                ImageWrapper tileWrapper(imgData,width,height);
+                tileLoader->loadedImage(this, &tileWrapper, level, col, row, frame, changes);
+            } else {
+                if (level < minZoom)
+                {
+                    // This is meant to be a placeholder
+                    ImageWrapper placeholder;
+                    tileLoader->loadedImage(this, &placeholder, level, col, row, frame, changes);
+                } else
+                    tileLoader->loadedImage(this, NULL, level, col, row, frame, changes);
+            }
+        }
     }
 
     /// The tile loaded correctly (or didn't if it's null)
     void tileLoaded(int level,int col,int row,int frame,std::vector<RawDataRef> &imgData,int width,int height,ChangeSet &changes)
     {
-        std::vector<LoadedImage *> images(imgData.size());
-        for (unsigned int ii=0;ii<imgData.size();ii++)
-            images[ii] = new ImageWrapper(imgData[ii],width,height);
-        tileLoader->loadedImages(this, images, level, col, row, frame, changes);
-        for (auto wrap : images)
-            delete wrap;
+        if (tileLoader)
+        {
+            std::vector<LoadedImage *> images(imgData.size());
+            for (unsigned int ii=0;ii<imgData.size();ii++)
+                images[ii] = new ImageWrapper(imgData[ii],width,height);
+            tileLoader->loadedImages(this, images, level, col, row, frame, changes);
+            for (auto wrap : images)
+                delete wrap;
+        }
     }
 
     /// Check if the given tile is a local or remote fetch.  This is a hint
@@ -1115,7 +1138,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_reload
 		QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
 		QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-		if (!adapter || !changeSet)
+		if (!adapter || !changeSet || !adapter->control)
 			return;
 //        adapter->env = env;
 
@@ -1135,7 +1158,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_startReloadFo
     {
         QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
         QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
-        if (!adapter)
+        if (!adapter || !adapter->tileLoader)
             return;
         adapter->tileLoader->reloadAllTilesForFrame(frameNum);
     }
@@ -1152,7 +1175,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_isFrameLo
     {
         QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
         QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
-        if (!adapter)
+        if (!adapter || !adapter->control)
             return false;
         
         return adapter->control->isFrameLoaded(frameNum);
@@ -1172,7 +1195,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_allFrames
     {
         QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
         QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
-        if (!adapter)
+        if (!adapter || !adapter->control)
             return false;
         
         return adapter->control->allFramesLoaded();
@@ -1317,7 +1340,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeViewUpd
 	{
 		QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		ViewState *viewState = ViewStateClassInfo::getClassInfo()->getObject(env,viewStateObj);
-		if (!adapter || !viewState)
+		if (!adapter || !viewState || !adapter->control)
 			return;
 
 //		adapter->env = env;
@@ -1337,7 +1360,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeEva
 	{
 		QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
-		if (!adapter || !changes)
+		if (!adapter || !changes || !adapter->control)
 			return false;
 
 //		adapter->env = env;
@@ -1360,7 +1383,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageTileLayer_nativeRef
 	{
 		QuadImageLayerAdapter *adapter = QILAdapterClassInfo::getClassInfo()->getObject(env,obj);
 		ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
-		if (!adapter || !changes)
+		if (!adapter || !changes || !adapter->control)
 			return false;
 
 		if (adapter->control->getWaitForLocalLoads())

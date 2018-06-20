@@ -416,13 +416,12 @@ private:
     void resetWatchdogTimer();
     void invalidateWatchdogTimer();
     
-    // Used for the tile loading counters
-    pthread_mutex_t counterLock;
+    pthread_mutex_t counterLock = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutex_t watchdogTimerLock = PTHREAD_MUTEX_INITIALIZER;
     
     // Map of loading counters for each frame.
-    std::map<int, int> frameLoadingCounters;
+    std::map<int, int> frameLoadingCounters = std::map<int, int>();
     
-    pthread_mutex_t watchdogTimerLock;
     WatchdogTimer _watchdogTimer;
 };
     

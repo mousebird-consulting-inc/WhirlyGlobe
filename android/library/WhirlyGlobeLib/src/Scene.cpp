@@ -165,11 +165,16 @@ Scene::~Scene()
     if (fontTextureManager)
         delete fontTextureManager;
     fontTextureManager = NULL;
+    
+    coordAdapter = NULL;
 }
     
 CoordSystemDisplayAdapter *Scene::getCoordAdapter()
 {
-    return coordAdapter;
+    pthread_mutex_lock(&coordAdapterLock);
+    CoordSystemDisplayAdapter *adapter = coordAdapter;
+    pthread_mutex_unlock(&coordAdapterLock);
+    return adapter;
 }
     
 void Scene::setDisplayAdapter(CoordSystemDisplayAdapter *newCoordAdapter)

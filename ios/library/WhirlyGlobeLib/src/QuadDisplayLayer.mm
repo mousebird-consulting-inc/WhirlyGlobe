@@ -1018,7 +1018,7 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     if (!_watchdogTimer || dispatch_source_testcancel(_watchdogTimer)) {
         [self createWatchdogTimer:10];
     } else {
-        dispatch_source_set_timer(_watchdogTimer, dispatch_time(DISPATCH_TIME_NOW, 10* NSEC_PER_SEC), DISPATCH_TIME_FOREVER, 0);
+        dispatch_source_set_timer(_watchdogTimer, dispatch_time(DISPATCH_TIME_NOW, 10* NSEC_PER_SEC), DISPATCH_TIME_FOREVER, 100 * NSEC_PER_MSEC);
     }
 }
 

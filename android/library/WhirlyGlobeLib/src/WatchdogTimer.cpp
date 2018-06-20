@@ -13,17 +13,11 @@ using namespace WhirlyKit;
 namespace WhirlyKit {
     WatchdogTimer::WatchdogTimer()
     : _valid(false), _running(false), _secInterval(0), _nsecInterval(0), _callback({})
-    {
-        pthread_mutex_init(&_lock, NULL);
-        pthread_cond_init(&_condition, NULL);
-    }
+    {}
     
     WatchdogTimer::WatchdogTimer(unsigned int milliseconds, std::function<void()> callback)
     : _valid(true), _running(false)
     {
-        pthread_mutex_init(&_lock, NULL);
-        pthread_cond_init(&_condition, NULL);
-        
         _secInterval = milliseconds/1000;
         _nsecInterval = (milliseconds - _secInterval * 1000) * 1000000;
         _callback = callback;
@@ -32,6 +26,8 @@ namespace WhirlyKit {
     WatchdogTimer::~WatchdogTimer()
     {
         stop();
+        pthread_mutex_destroy(&_lock);
+        pthread_cond_destroy(&_condition);
     }
     
     void WatchdogTimer::start()

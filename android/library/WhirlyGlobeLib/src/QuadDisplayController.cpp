@@ -49,11 +49,6 @@ QuadDisplayController::QuadDisplayController(QuadDataStructure *dataStructure,Qu
     greedyMode(false), meteredMode(true), waitForLocalLoads(false),fullLoad(false), fullLoadTimeout(4.0), frameLoading(true), viewUpdatePeriod(0.1),
     minUpdateDist(0.0), lineMode(false), debugMode(false), lastFlush(0.0), somethingHappened(false), firstUpdate(true), numFrames(1), canLoadFrames(false), curFrameEntry(-1), enable(true), didFrameKick(false)
 {
-    pthread_mutex_init(&counterLock, NULL);
-    frameLoadingCounters = std::map<int, int>();
-    
-    pthread_mutex_init(&watchdogTimerLock, NULL);
-    
     // Note: Debugging
     greedyMode = true;
     meteredMode = false;
@@ -79,6 +74,11 @@ QuadDisplayController::~QuadDisplayController()
     if (quadtree)
         delete quadtree;
     quadtree = NULL;
+    
+    pthread_mutex_destroy(&counterLock);
+    pthread_mutex_destroy(&watchdogTimerLock);
+    pthread_mutex_destroy(&frameLoadingLock);
+    
 }
     
 void QuadDisplayController::SendWakeup(SimpleIdentity controllerID)

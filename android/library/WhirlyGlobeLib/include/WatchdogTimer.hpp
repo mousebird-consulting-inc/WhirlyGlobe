@@ -29,8 +29,8 @@ namespace WhirlyKit
         void _threadFunction();
         
         pthread_t _thread;
-        pthread_mutex_t _lock;
-        pthread_cond_t  _condition;
+        pthread_mutex_t _lock = PTHREAD_MUTEX_INITIALIZER;
+        pthread_cond_t  _condition = PTHREAD_COND_INITIALIZER;
         std::function<void()> _callback;
         
         unsigned int _secInterval;
