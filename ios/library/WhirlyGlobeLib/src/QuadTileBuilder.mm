@@ -42,6 +42,7 @@ using namespace WhirlyKit;
     geomSettings.sampleY = 20;
     geomSettings.topSampleX = 30;
     geomSettings.topSampleY = 40;
+    geomSettings.enableGeom = false;
 
     return self;
 }
@@ -87,7 +88,7 @@ using namespace WhirlyKit;
 {
     layer = inLayer;
     MbrD mbr = MbrD([layer.dataStructure validExtents]);
-    geomManage.setup(layer.quadtree, layer.scene->getCoordAdapter(),_coordSys,mbr);
+    geomManage.setup(geomSettings,layer.quadtree, layer.scene->getCoordAdapter(),_coordSys,mbr);
     
     [_delegate setQuadBuilder:self layer:layer];
 }
@@ -97,7 +98,7 @@ using namespace WhirlyKit;
     ChangeSet changes;
     
     // Have the geometry manager add the tiles and deal with changes
-    auto tileChanges = geomManage.addTiles(geomSettings, tiles, changes);
+    auto tileChanges = geomManage.addTiles(tiles, changes);
     
     // Tell the delegate to start loading those tiles
     [_delegate quadBuilder:self loadTiles:tileChanges.addedTiles changes:changes];

@@ -121,6 +121,9 @@ public:
     /// Set the drawable we're instancing
     void setMaster(BasicDrawableRef draw) { basicDraw = draw; }
     
+    /// Return the master being instanced
+    BasicDrawableRef getMaster() { return basicDraw; }
+    
     /// Set this when we're representing moving geometry model instances
     void setIsMoving(bool inMoving) { moving = inMoving; }
     
@@ -132,7 +135,7 @@ public:
     // Time we start counting from for motion
     NSTimeInterval getStartTime() { return startTime; }
 
-    /// Set the uniforms to be applied to the
+    /// Set the uniforms to be applied to the geometry
     virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
 
     /// Return the translation matrix if there is one
@@ -163,6 +166,30 @@ public:
     // EmptyIdentity is the standard view, anything else ia custom render target
     SimpleIdentity getRenderTarget() { return renderTargetID; }
     
+    /// Texture ID and relative override info
+    class TexInfo
+    {
+    public:
+        TexInfo() : texId(EmptyIdentity), relLevel(0), relX(0), relY(0) { }
+        /// Texture ID within the scene
+        SimpleIdentity texId;
+        /// Our use of this texture relative to its native resolution
+        int relLevel,relX,relY;
+    };
+
+    /// Set the texture ID for a specific slot.  You get this from the Texture object.
+    virtual void setTexId(unsigned int which,SimpleIdentity inId);
+    
+    /// Set all the textures at once
+    virtual void setTexIDs(const std::vector<SimpleIdentity> &texIDs);
+    
+    /// Set the relative offsets for texture usage.
+    /// We use these to look up parts of a texture at a higher level
+    virtual void setTexRelative(int which,int relLevel,int relX,int relY);
+    
+    /// Check for the given texture coordinate entry and add it if it's not there
+    virtual void setupTexCoordEntry(int which,int numReserve);
+
 protected:
     Style instanceStyle;
     SimpleIdentity programID;
@@ -190,6 +217,8 @@ protected:
     // Uniforms to apply to shader
     SingleVertexAttributeSet uniforms;
     SimpleIdentity renderTargetID;
+
+    std::vector<TexInfo> texInfo;
 
     // If set, we'll instance this one multiple times
     std::vector<SingleInstance> instances;

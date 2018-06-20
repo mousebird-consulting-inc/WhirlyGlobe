@@ -31,7 +31,7 @@ namespace WhirlyKit
 {
 
 BasicDrawableInstance::BasicDrawableInstance(const std::string &name,SimpleIdentity masterID,Style style)
-: Drawable(name), programID(EmptyIdentity), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0), instBuffer(0), numInstances(0), vertArrayObj(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid), viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid), startTime(0), moving(false), instanceStyle(style), renderTargetID(EmptyIdentity)
+: Drawable(name), programID(EmptyIdentity), enable(true), masterID(masterID), requestZBuffer(false), writeZBuffer(true), startEnable(0.0), endEnable(0.0), instBuffer(0), numInstances(0), vertArrayObj(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid), viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid), startTime(0), moving(false), instanceStyle(style), renderTargetID(EmptyIdentity), hasColor(false), hasDrawPriority(false), hasLineWidth(false)
 {
 }
 
@@ -123,6 +123,44 @@ void BasicDrawableInstance::setUniforms(const SingleVertexAttributeSet &newUnifo
 void BasicDrawableInstance::addInstances(const std::vector<SingleInstance> &insts)
 {
     instances.insert(instances.end(), insts.begin(), insts.end());
+}
+    
+void BasicDrawableInstance::setTexId(unsigned int which,SimpleIdentity inId)
+{
+    setupTexCoordEntry(which, 0);
+    texInfo[which].texId = inId;
+}
+
+void BasicDrawableInstance::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
+{
+    for (unsigned int ii=0;ii<texIDs.size();ii++)
+    {
+        setupTexCoordEntry(ii, 0);
+        texInfo[ii].texId = texIDs[ii];
+    }
+}
+
+void BasicDrawableInstance::setupTexCoordEntry(int which,int numReserve)
+{
+    if (which < texInfo.size())
+        return;
+    
+    for (unsigned int ii=(unsigned int)texInfo.size();ii<=which;ii++)
+    {
+        TexInfo newInfo;
+        texInfo.push_back(newInfo);
+    }
+}
+
+void BasicDrawableInstance::setTexRelative(int which,int relLevel,int relX,int relY)
+{
+    if (which >= texInfo.size())
+        return;
+    
+    TexInfo &ti = texInfo[which];
+    ti.relLevel = relLevel;
+    ti.relX = relX;
+    ti.relY = relY;
 }
 
 void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
@@ -307,6 +345,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         float oldLineWidth = basicDraw->getLineWidth();
         float oldMinVis,oldMaxVis;
         basicDraw->getVisibleRange(oldMinVis, oldMaxVis);
+        std::vector<BasicDrawable::TexInfo> oldTexInfo = basicDraw->getTexInfo();
         
         // Change the drawable
         if (hasDrawPriority)
@@ -315,6 +354,23 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             basicDraw->setColor(color);
         if (hasLineWidth)
             basicDraw->setLineWidth(lineWidth);
+        if (!texInfo.empty())
+        {
+            if (basicDraw->texInfo.size() < texInfo.size())
+                basicDraw->setupTexCoordEntry(texInfo.size()-1, 0);
+            // Override the texture with different ID and relative coords
+            if (texInfo.size() == basicDraw->texInfo.size()) {
+                for (int ii=0;ii<basicDraw->texInfo.size();ii++)
+                {
+                    auto &newEntry = texInfo[ii];
+                    auto &entry = basicDraw->texInfo[ii];
+                    entry.texId = newEntry.texId;
+                    entry.relX = newEntry.relX;
+                    entry.relY = newEntry.relY;
+                    entry.relLevel = newEntry.relLevel;
+                }
+            }
+        }
         basicDraw->setVisibleRange(minVis, maxVis);
         
         Matrix4f oldMvpMat = frameInfo.mvpMat;
@@ -367,6 +423,8 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             basicDraw->setColor(oldColor);
         if (hasLineWidth)
             basicDraw->setLineWidth(oldLineWidth);
+        if (!texInfo.empty())
+            basicDraw->texInfo = oldTexInfo;
         basicDraw->setVisibleRange(oldMinVis, oldMaxVis);
         
     } else {

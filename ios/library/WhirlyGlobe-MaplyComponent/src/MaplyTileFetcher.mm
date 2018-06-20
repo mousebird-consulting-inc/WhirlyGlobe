@@ -279,13 +279,13 @@ using namespace WhirlyKit;
 {
     // Ask for a few more to load
     while (loading.size() < numConnectionsMax) {
-        auto nextLoad = toLoad.begin();
-        if (nextLoad == toLoad.end())
+        auto nextLoad = toLoad.rbegin();
+        if (nextLoad == toLoad.rend())
             break;
         
         // Move it into loading
         TileInfoRef tile = *nextLoad;
-        toLoad.erase(nextLoad);
+        toLoad.erase(std::next(nextLoad).base());
         tile->state = TileInfo::Loading;
         loading.insert(tile);
         

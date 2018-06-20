@@ -30,7 +30,7 @@ TileGeomSettings::TileGeomSettings()
   programID(0), sampleX(10), sampleY(10),
     topSampleX(10), topSampleY(10),
   minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
-  baseDrawPriority(0), drawPriorityPerLevel(1), lineMode(false), includeElev(false)
+  baseDrawPriority(0), drawPriorityPerLevel(1), lineMode(false), includeElev(false), enableGeom(true)
 {
 }
     
@@ -104,7 +104,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     GeoCoord geoLL(geomManage->coordSys->localToGeographic(Point3d(chunkLL.x(),chunkLL.y(),0.0)));
     GeoCoord geoUR(geomManage->coordSys->localToGeographic(Point3d(chunkUR.x(),chunkUR.y(),0.0)));
     
-    BasicDrawable *chunk = new BasicDrawable("LoadedTileNew",(sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
+    BasicDrawable *chunk = new BasicDrawable("LoadedTileNew chunk",(sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
     // Note: Make this flexible
     chunk->setupTexCoordEntry(0, 0);
     
@@ -126,7 +126,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     BasicDrawable *poleChunk = NULL;
     if (geomManage->coverPoles && (geomManage->useNorthPoleColor || geomManage->useSouthPoleColor))
     {
-        poleChunk = new BasicDrawable("LoadedTileNew");
+        poleChunk = new BasicDrawable("LoadedTileNew poleChunk");
         changes.push_back(new AddDrawableReq(poleChunk));
         if (geomSettings.useTileCenters)
             poleChunk->setMatrix(&transMat);
@@ -242,7 +242,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
         if (geomManage->buildSkirts && !geomManage->coordAdapter->isFlat())
         {
             // We'll set up and fill in the drawable
-            BasicDrawable *skirtChunk = new BasicDrawable("LoadedTileNew");
+            BasicDrawable *skirtChunk = new BasicDrawable("LoadedTileNew SkirtChunk");
             changes.push_back(new AddDrawableReq(skirtChunk));
             if (geomSettings.useTileCenters)
                 skirtChunk->setMatrix(&transMat);
@@ -429,18 +429,18 @@ void LoadedTileNew::buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std
     }
 }
     
-void LoadedTileNew::enable(ChangeSet &changes)
+void LoadedTileNew::enable(TileGeomSettings &geomSettings,ChangeSet &changes)
 {
-    if (!enabled)
+    if (geomSettings.enableGeom && !enabled)
         for (auto di : drawInfo) {
             changes.push_back(new OnOffChangeRequest(di.drawID,true));
         }
     enabled = true;
 }
 
-void LoadedTileNew::disable(ChangeSet &changes)
+void LoadedTileNew::disable(TileGeomSettings &geomSettings,ChangeSet &changes)
 {
-    if (enabled)
+    if (geomSettings.enableGeom && enabled)
         for (auto di : drawInfo) {
             changes.push_back(new OnOffChangeRequest(di.drawID,false));
         }
@@ -459,15 +459,16 @@ TileGeomManager::TileGeomManager()
 {
 }
     
-void TileGeomManager::setup(QuadTreeNew *inQuadTree,CoordSystemDisplayAdapter *inCoordAdapter,CoordSystem *inCoordSys,MbrD inMbr)
+void TileGeomManager::setup(TileGeomSettings &geomSettings,QuadTreeNew *inQuadTree,CoordSystemDisplayAdapter *inCoordAdapter,CoordSystem *inCoordSys,MbrD inMbr)
 {
+    settings = geomSettings;
     quadTree = inQuadTree;
     coordAdapter = inCoordAdapter;
     coordSys = inCoordSys;
     mbr = inMbr;
 }
     
-TileGeomManager::NodeChanges TileGeomManager::addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::ImportantNodeSet &tiles,ChangeSet &changes)
+TileGeomManager::NodeChanges TileGeomManager::addTiles(const QuadTreeNew::ImportantNodeSet &tiles,ChangeSet &changes)
 {
     NodeChanges nodeChanges;
 
@@ -477,7 +478,7 @@ TileGeomManager::NodeChanges TileGeomManager::addTiles(TileGeomSettings &geomSet
         if (it == tileMap.end()) {
             // Add a new one
             LoadedTileNewRef tile = LoadedTileNewRef(new LoadedTileNew(ident));
-            tile->makeDrawables(this,geomSettings,changes);
+            tile->makeDrawables(this,settings,changes);
             tileMap[ident] = tile;
             nodeChanges.addedTiles.push_back(tile);
         }
@@ -551,12 +552,12 @@ void TileGeomManager::updateParents(ChangeSet &changes,LoadedTileVec &enabledNod
                 if (tile->enabled)
                 {
                     disabledNodes.push_back(tile);
-                    tile->disable(changes);
+                    tile->disable(settings,changes);
                 }
             } else {
                 if (!tile->enabled) {
                     enabledNodes.push_back(tile);
-                    tile->enable(changes);
+                    tile->enable(settings,changes);
                 }
             }
         }
