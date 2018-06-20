@@ -197,12 +197,11 @@ using namespace WhirlyKit;
     }
     
     // Disable the tiles.  The delegates will instance them.
-    // Note: Put this back
-//    for (auto tile : tiles) {
-//        for (auto drawID : tile->drawIDs) {
-//            changes.push_back(new OnOffChangeRequest(drawID,false));
-//        }
-//    }
+    for (auto tile : tiles) {
+        for (auto di : tile->drawInfo) {
+            changes.push_back(new OnOffChangeRequest(di.drawID,false));
+        }
+    }
 
     for (auto delegate : delegates) {
         [delegate quadBuilder:builder loadTiles:tiles changes:changes];

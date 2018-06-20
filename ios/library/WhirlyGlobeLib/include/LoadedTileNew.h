@@ -60,6 +60,9 @@ public:
     bool lineMode;
     // If set, we'll include the elevation data
     bool includeElev;
+    // If set, we'll enable/disable geometry associated with tiles.
+    // Otherwise we'll just always leave it off, assuming someone else is instancing it
+    bool enableGeom;
 };
 
 class TileGeomManager;
@@ -78,10 +81,10 @@ public:
     void buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std::vector<TexCoord> &texCoords,double skirtFactor,bool haveElev,const Point3d &theCenter);
 
     // Enable associated drawables
-    void enable(ChangeSet &changes);
+    void enable(TileGeomSettings &geomSettings,ChangeSet &changes);
 
     // Disable associated drawables
-    void disable(ChangeSet &changes);
+    void disable(TileGeomSettings &geomSettings,ChangeSet &changes);
 
     // Generate commands to remove the associated drawables
     void removeDrawables(ChangeSet &changes);
@@ -113,7 +116,7 @@ public:
     TileGeomManager();
     
     // Construct with the quad tree we're building off of, the coordinate system we're building from and the (valid) bounding box
-    void setup(QuadTreeNew *quadTree,CoordSystemDisplayAdapter *coordAdapter,CoordSystem *coordSys,MbrD inMbr);
+    void setup(TileGeomSettings &geomSettings,QuadTreeNew *quadTree,CoordSystemDisplayAdapter *coordAdapter,CoordSystem *coordSys,MbrD inMbr);
     
     // Keep track of nodes added, enabled and disabled
     class NodeChanges
@@ -125,7 +128,7 @@ public:
     };
     
     // Add the tiles list in the node set
-    NodeChanges addTiles(TileGeomSettings &geomSettings,const QuadTreeNew::ImportantNodeSet &tiles,ChangeSet &changes);
+    NodeChanges addTiles(const QuadTreeNew::ImportantNodeSet &tiles,ChangeSet &changes);
     
     // Return a list of tiles corresponding to the IDs
     std::vector<LoadedTileNewRef> getTiles(const QuadTreeNew::NodeSet &tiles);
@@ -138,6 +141,8 @@ public:
     
     // Turn tiles on/off based on their childen
     void updateParents(ChangeSet &changes,LoadedTileVec &enabledNodes,LoadedTileVec &disabledNodes);
+    
+    TileGeomSettings settings;
     
     QuadTreeNew *quadTree;
     CoordSystemDisplayAdapter *coordAdapter;

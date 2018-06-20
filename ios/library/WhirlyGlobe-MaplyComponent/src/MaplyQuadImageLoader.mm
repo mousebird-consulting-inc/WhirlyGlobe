@@ -37,6 +37,8 @@ public:
     void clear(MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
         if (texID != EmptyIdentity)
             changes.push_back(new RemTextureReq(texID));
+        for (auto drawID : instanceDrawIDs)
+            changes.push_back(new RemDrawableReq(drawID));
         if (compObjs)
             [interactLayer removeObjects:compObjs changes:changes];
         texID = EmptyIdentity;
@@ -51,6 +53,9 @@ public:
     // Tile ID of the texture we're applying to this tile.
     // Might be a lower resolution tile.
     WhirlyKit::QuadTreeNew::Node texNode;
+    
+    // IDs of the instances we created to shadow the geometry
+    std::vector<SimpleIdentity> instanceDrawIDs;
 
     // The texture ID owned by this node.  Delete it when we're done.
     SimpleIdentity texID;
@@ -297,7 +302,37 @@ using namespace WhirlyKit;
     newTile->state = TileAsset::Loading;
     newTile->shouldEnable = false;
     newTile->enable = false;
+    newTile->drawPriority = _baseDrawPriority + _drawPriorityPerLevel * ident.level;
     tiles[ident] = newTile;
+    
+    auto loadedTile = [builder getLoadedTile:ident];
+    
+    // Make the instance drawables we'll use to mirror the geometry
+    if (loadedTile) {
+        // Assign it to the various drawables
+        for (auto di : loadedTile->drawInfo) {
+            int newDrawPriority = newTile->drawPriority;
+            switch (di.kind) {
+                case WhirlyKit::LoadedTileNew::DrawableGeom:
+                    newDrawPriority = newTile->drawPriority;
+                    break;
+                case WhirlyKit::LoadedTileNew::DrawableSkirt:
+                    newDrawPriority = 11;
+                    break;
+                case WhirlyKit::LoadedTileNew::DrawablePole:
+                    newDrawPriority = newTile->drawPriority;
+                    break;
+            }
+            // Make a drawable instance to shadow the geometry
+            auto drawInst = new BasicDrawableInstance("MaplyQuadImageLoader", di.drawID, BasicDrawableInstance::ReuseStyle);
+            drawInst->setTexId(0, 0);
+            drawInst->setDrawPriority(newDrawPriority);
+            drawInst->setEnable(false);
+            changes.push_back(new AddDrawableReq(drawInst));
+            newTile->instanceDrawIDs.push_back(drawInst->getId());
+        }
+    }
+
     newTile->fetchHandle = [tileFetcher startTileFetch:request];
     [self findCoverTile:ident changes:changes];
     
@@ -314,6 +349,8 @@ using namespace WhirlyKit;
     auto tile = it->second;
     tile->shouldEnable = true;
     tile->enable = true;
+    for (auto drawID : tile->instanceDrawIDs)
+        changes.push_back(new OnOffChangeRequest(drawID,true));
     [interactLayer enableObjects:tile->compObjs changes:changes];
 }
 
@@ -327,6 +364,8 @@ using namespace WhirlyKit;
     auto tile = it->second;
     tile->shouldEnable = false;
     tile->enable = false;
+    for (auto drawID : tile->instanceDrawIDs)
+        changes.push_back(new OnOffChangeRequest(drawID,false));
     [interactLayer disableObjects:tile->compObjs changes:changes];
 }
 
@@ -413,27 +452,14 @@ using namespace WhirlyKit;
                     success = true;
                     // Create the texture in the renderer
                     tile->texID = tex->getId();
-                    tile->drawPriority = _baseDrawPriority + _drawPriorityPerLevel * ident.level;
                     changes.push_back(new AddTextureReq(tex));
                     
                     // Assign it to the various drawables
-                    for (auto di : loadedTile->drawInfo) {
-                        int newDrawPriority = tile->drawPriority;
-                        switch (di.kind) {
-                            case WhirlyKit::LoadedTileNew::DrawableGeom:
-                                newDrawPriority = tile->drawPriority;
-                                break;
-                            case WhirlyKit::LoadedTileNew::DrawableSkirt:
-                                newDrawPriority = 11;
-                                break;
-                            case WhirlyKit::LoadedTileNew::DrawablePole:
-                                newDrawPriority = tile->drawPriority;
-                                break;
-                        }
-                        changes.push_back(new DrawTexChangeRequest(di.drawID,0,tile->texID));
-                        changes.push_back(new DrawPriorityChangeRequest(di.drawID,newDrawPriority));
+                    for (auto instID : tile->instanceDrawIDs) {
+                        changes.push_back(new DrawTexChangeRequest(instID,0,tile->texID));
+                        
                         if (loadedTile->enabled)
-                            changes.push_back(new OnOffChangeRequest(di.drawID,true));
+                            changes.push_back(new OnOffChangeRequest(instID,true));
                     }
                 }
                 tile->shouldEnable = loadedTile->enabled;
@@ -491,7 +517,8 @@ using namespace WhirlyKit;
         return;
     auto interactLayer = control->interactLayer;
 
-    for (auto tile: loadTiles) {
+    for (auto it = loadTiles.rbegin(); it != loadTiles.rend(); ++it) {
+        auto tile = *it;
         // If it's already there, clear it out
         [self removeTile:tile->ident layer:interactLayer changes:changes];
         
@@ -610,8 +637,10 @@ using namespace WhirlyKit;
             thisTile = it->second;
         if (loadedTile && thisTile) {
             thisTile->texNode = coverIdent;
-            for (auto di : loadedTile->drawInfo)
+            for (int which = 0; which < loadedTile->drawInfo.size(); which++)
             {
+                auto di = loadedTile->drawInfo[which];
+                int drawInstID = thisTile->instanceDrawIDs[which];
                 int newDrawPriority = coverAsset->drawPriority;
                 switch (di.kind) {
                     case WhirlyKit::LoadedTileNew::DrawableGeom:
@@ -626,10 +655,10 @@ using namespace WhirlyKit;
                 }
                 if (_flipY)
                     relY = (1<<relLevel)-relY-1;
-                changes.push_back(new DrawTexChangeRequest(di.drawID,0,coverAsset->texID,relLevel,relX,relY));
-                changes.push_back(new DrawPriorityChangeRequest(di.drawID,newDrawPriority));
+                changes.push_back(new DrawTexChangeRequest(drawInstID,0,coverAsset->texID,relLevel,relX,relY));
+                changes.push_back(new DrawPriorityChangeRequest(drawInstID,newDrawPriority));
                 if (loadedTile->enabled)
-                    changes.push_back(new OnOffChangeRequest(di.drawID,true));
+                    changes.push_back(new OnOffChangeRequest(drawInstID,true));
             }
         }
     }

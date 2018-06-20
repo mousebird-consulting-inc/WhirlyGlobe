@@ -1461,8 +1461,9 @@ OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
 void OnOffChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
-    if (basicDrawable)
+    if (basicDrawable) {
         basicDrawable->setOnOff(newOnOff);
+    }
     else {
         BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
@@ -1525,6 +1526,20 @@ void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *rende
             basicDrawable->setTexRelative(which, relLevel, relX, relY);
         else
             basicDrawable->setTexRelative(which, 0, 0, 0);
+    } else {
+        BasicDrawableInstanceRef refDrawable = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (refDrawable) {
+            BasicDrawableRef orgDrawable = refDrawable->getMaster();
+            if (orgDrawable) {
+                if (orgDrawable->texInfo.size() < which)
+                    orgDrawable->setupTexCoordEntry(which, 0);
+                refDrawable->setTexId(which,newTexId);
+                if (relSet)
+                    refDrawable->setTexRelative(which, relLevel, relX, relY);
+                else
+                    refDrawable->setTexRelative(which, 0, 0, 0);
+            }
+        }
     }
 }
 
