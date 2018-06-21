@@ -882,17 +882,29 @@ void QuadDisplayController::incrementLoadingCounterForFrame(int frame)
 void QuadDisplayController::decrementLoadingCounterForFrame(int frame)
 {
     pthread_mutex_lock(&counterLock);
-    int counter = 0;
+    int counter;
     std::map<int,int>::iterator it = frameLoadingCounters.find(frame);
     if (it != frameLoadingCounters.end()) {
         counter = it->second;
+        if (counter > 0) {
+            counter--;
+            if (counter == 0) {
+                if (dataStructure)
+                    dataStructure->sendLayerFrameLoadingEvent(kFrameDidLoad, frame);
+            }
+        } else {
+            counter = 0;
+        }
+    } else {
+        counter = 0;
     }
-    counter--;
     frameLoadingCounters[frame] = counter;
     pthread_mutex_unlock(&counterLock);
     
     if (allFramesLoaded()) {
         invalidateWatchdogTimer();
+        if (dataStructure)
+            dataStructure->sendLayerFrameLoadingEvent(kAllFramesLoaded, -1);
     }
 }
     
@@ -939,7 +951,13 @@ void QuadDisplayController::resetWatchdogTimer()
 {
     pthread_mutex_lock(&watchdogTimerLock);
     if (!_watchdogTimer.isValid()) {
-        std::function<void()> callback = [&] { this->resetLoadingCounters(); };
+        std::function<void()> callback = [&] {
+            if (this) {
+                this->resetLoadingCounters();
+                if (this->dataStructure)
+                    this->dataStructure->sendLayerFrameLoadingEvent(kLoadingTimedOut, -1);
+            }
+        };
         _watchdogTimer = WatchdogTimer(10000, callback);
     }
     

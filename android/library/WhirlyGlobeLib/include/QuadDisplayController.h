@@ -47,6 +47,13 @@ public:
     /// Number of tiles currently loaded
     int numTilesLoaded;
 };
+    
+enum LayerFrameLoadingEvent: int
+{
+    kFrameDidLoad = 0,
+    kAllFramesLoaded = 1,
+    kLoadingTimedOut = 2
+};
 
 /** Quad tree based data structure.  Fill this in to provide structure and
     extents for the quad tree.
@@ -82,6 +89,8 @@ public:
 
     /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
     virtual void shutdown() = 0;
+    
+    virtual void sendLayerFrameLoadingEvent(LayerFrameLoadingEvent event, int frame) {};
 };
 
 

@@ -11,9 +11,7 @@
 using namespace WhirlyKit;
 
 namespace WhirlyKit {
-    WatchdogTimer::WatchdogTimer()
-    : _valid(false), _running(false), _secInterval(0), _nsecInterval(0), _callback({})
-    {}
+    WatchdogTimer::WatchdogTimer(): _valid(false), _running(false), _secInterval(0), _nsecInterval(0), _callback({}){}
     
     WatchdogTimer::WatchdogTimer(unsigned int milliseconds, std::function<void()> callback)
     : _valid(true), _running(false)
@@ -83,7 +81,8 @@ namespace WhirlyKit {
     }
     void* WatchdogTimer::_startThreadFunction(void* timer_ptr)
     {
-        static_cast<WatchdogTimer*>(timer_ptr)->_threadFunction();
+        if (timer_ptr)
+            static_cast<WatchdogTimer*>(timer_ptr)->_threadFunction();
         pthread_exit(NULL);
     }
     

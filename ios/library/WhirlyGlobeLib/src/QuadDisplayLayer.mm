@@ -954,6 +954,11 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
         int value = [counter integerValue];
         if (value > 0) {
             value--;
+            if (value == 0) {
+                if (_dataStructure) {
+                    [_dataStructure sendLayerFrameLoadingEvent:kFrameDidLoad frame:frame];
+                }
+            }
         } else {
             value = 0;
         }
@@ -966,6 +971,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     
     if ([self allFramesLoaded]) {
         [self invalidateWatchdogTimer];
+        if (_dataStructure) {
+            [_dataStructure sendLayerFrameLoadingEvent:kAllFramesLoaded frame:-1];
+        }
     }
 }
 
@@ -1036,6 +1044,9 @@ static const NSTimeInterval AvailableFrame = 4.0/5.0;
     dispatch_source_set_event_handler(_watchdogTimer, ^{
         [self resetLoadingCounters];
         dispatch_source_cancel(self->_watchdogTimer);
+        if (self->_dataStructure) {
+            [self->_dataStructure sendLayerFrameLoadingEvent:kLoadingTimedOut frame:-1];
+        }
     });
     dispatch_resume(_watchdogTimer);
 }

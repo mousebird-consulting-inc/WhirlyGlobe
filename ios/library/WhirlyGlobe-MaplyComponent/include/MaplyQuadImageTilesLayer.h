@@ -23,6 +23,8 @@
 #import "MaplyTileSource.h"
 #import "MaplyRenderController.h"
 
+@protocol MaplyLayerFrameLoadingDelegate;
+
 /** 
     The Maply Quad Image Tiles Layer is for paging image pyramids local or remote.
     
@@ -389,6 +391,11 @@
   */
 @property (nonatomic,strong,nullable) NSArray *multiLevelLoads;
 
+/**
+    Delegate used for the frame loading callback events.
+ */
+@property (nonatomic, weak, nullable) NSObject<MaplyLayerFrameLoadingDelegate>* loadingDelegate;
+
 /** 
     The target zoom level for this layer given the current view settings.
     
@@ -530,4 +537,11 @@
  */
 - (bool) allFramesLoaded;
 
+@end
+
+@protocol MaplyLayerFrameLoadingDelegate
+@optional
+- (void) frameDidLoad:(MaplyQuadImageTilesLayer *__nonnull)layer frame:(int)frame;
+- (void) allFramesLoaded:(MaplyQuadImageTilesLayer *__nonnull)layer;
+- (void) loadingDidTimeout:(MaplyQuadImageTilesLayer *__nonnull)layer;
 @end

@@ -744,6 +744,34 @@ using namespace WhirlyKit;
     return std::min(zoomLevel,maxZoom);
 }
 
+- (void) sendLayerFrameLoadingEvent:(LayerFrameLoadingEvent)event frame:(int)frame
+{
+    if(_loadingDelegate) {
+        switch (event) {
+            case kFrameDidLoad:
+                if ([_loadingDelegate respondsToSelector:@selector(frameDidLoad:frame:)]) {
+                    [_loadingDelegate frameDidLoad: self frame:frame];
+                }
+                break;
+            
+            case kAllFramesLoaded:
+                if ([_loadingDelegate respondsToSelector:@selector(allFramesLoaded:)]) {
+                    [_loadingDelegate allFramesLoaded:self];
+                }
+                break;
+                
+            case kLoadingTimedOut:
+                if ([_loadingDelegate respondsToSelector:@selector(loadingDidTimeout:)]) {
+                    [_loadingDelegate loadingDidTimeout:self];
+                }
+                break;
+                
+            default:
+                break;
+        }
+    }
+}
+
 
 /// Called when we get a new view state
 /// We need to decide if we can short circuit the screen space calculations

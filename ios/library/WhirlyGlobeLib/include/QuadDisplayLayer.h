@@ -55,6 +55,12 @@ public:
     
 }
 
+typedef enum {
+    kFrameDidLoad,
+    kAllFramesLoaded,
+    kLoadingTimedOut
+} LayerFrameLoadingEvent;
+
 /** Quad tree based data structure.  Fill this in to provide structure and
     extents for the quad tree.
  */
@@ -86,6 +92,8 @@ public:
 
 /// Called when the view state changes.  If you're caching info, do it here.
 - (void)newViewState:(WhirlyKitViewState *)viewState;
+
+- (void) sendLayerFrameLoadingEvent:(LayerFrameLoadingEvent)event frame:(int)frame;
 
 @end
 

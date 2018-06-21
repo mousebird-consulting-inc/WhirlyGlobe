@@ -518,11 +518,29 @@ public:
         }
 //    		__android_log_print(ANDROID_LOG_VERBOSE, "newViewState", "Short circuiting to level %d",maxShortCircuitLevel);
     }
+    
+    virtual void sendLayerFrameLoadingEvent(LayerFrameLoadingEvent event, int frame)
+    {
+        if (jvm && javaObj) {
+            JNIEnv *thisEnv;
+            int envStatus = jvm->GetEnv((void **)&thisEnv, JNI_VERSION_1_6);
+            
+            if (envStatus == JNI_EDETACHED) {
+                if (jvm->AttachCurrentThread(&thisEnv, NULL) != 0)
+                    return;
+            }
+            
+            jmethodID sendLayerFrameLoadingEventJava = thisEnv->GetMethodID(thisEnv->GetObjectClass(javaObj),"sendLayerFrameLoadingEvent","(II)V");
+            thisEnv->CallVoidMethod(javaObj, sendLayerFrameLoadingEventJava, event, frame);
+            
+            if (envStatus == JNI_EDETACHED) {
+                jvm->DetachCurrentThread();
+            }
+        }
+    }
 
     /// QuadDataStructure shutdown
-    virtual void shutdown()
-    {
-    }
+    virtual void shutdown(){}
 
     /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
     virtual void shutdownLayer(ChangeSet &changes)

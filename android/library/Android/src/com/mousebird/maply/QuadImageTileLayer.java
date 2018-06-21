@@ -95,9 +95,23 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		 */
 		public void clear(QuadImageTileLayerInterface layer);
 	}
+
+	private class LayerFrameLoadingEvents {
+		static final int onFrameLoaded = 0;
+		static final int onAllFramesLoaded = 1;
+		static final int onLoadingTimedOut = 2;
+	}
+
+	public interface LayerFrameLoadingDelegate
+	{
+		void onFrameLoaded(QuadImageTileLayer layer, int frame);
+		void onAllFramesLoaded(QuadImageTileLayer layer);
+		void onLoadingTimedOut(QuadImageTileLayer layer);
+	}
 	
 	public MaplyBaseController maplyControl = null;
 	public CoordSystem coordSys = null;
+	public LayerFrameLoadingDelegate loadingDelegate = null;
 	TileSource tileSource = null;
 	boolean flipY = true;
 	
@@ -275,6 +289,24 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 		layerThread.addChanges(changes);
 		if (didSomething)
 			scheduleEvalStep();
+	}
+
+	void sendLayerFrameLoadingEvent(int event, int frame) {
+		if (loadingDelegate != null) {
+			switch (event) {
+				case LayerFrameLoadingEvents.onFrameLoaded:
+					loadingDelegate.onFrameLoaded(this, frame);
+					break;
+				case LayerFrameLoadingEvents.onAllFramesLoaded:
+					loadingDelegate.onAllFramesLoaded(this);
+					break;
+				case LayerFrameLoadingEvents.onLoadingTimedOut:
+					loadingDelegate.onLoadingTimedOut(this);
+					break;
+				default:
+					break;
+			}
+		}
 	}
 
 	/**
