@@ -311,6 +311,7 @@ using namespace WhirlyKit;
                               } else {
                                   self->remoteData += [data length];
                                   [self finishedLoading:tile data:data error:error];
+                                  [tileInfo writeToCache:tileID tileData:data];
                               }
                         });
                       }];
