@@ -16,7 +16,7 @@
 		2B127BF92012A12B0099F405 /* MaplyRenderController_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BF82012A12A0099F405 /* MaplyRenderController_private.h */; };
 		2B127BFB2012A1390099F405 /* MaplyRenderTarget_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BFA2012A1390099F405 /* MaplyRenderTarget_private.h */; };
 		2B127BFD2012ACA20099F405 /* MaplyRenderController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */; };
-		2B127C03201911D40099F405 /* MapboxVectorTilesImageDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127C01201911D30099F405 /* MapboxVectorTilesImageDelegate.h */; };
+		2B127C03201911D40099F405 /* MapboxVectorImageInterpeter.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127C01201911D30099F405 /* MapboxVectorImageInterpeter.h */; };
 		2B127C04201911D40099F405 /* MapboxVectorTilesPagingDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127C02201911D30099F405 /* MapboxVectorTilesPagingDelegate.h */; };
 		2B127C07201911DC0099F405 /* MapboxVectorTilesPagingDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B127C05201911DC0099F405 /* MapboxVectorTilesPagingDelegate.mm */; };
 		2B2B46FA206C000500570F97 /* LoadedTileNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2B46F9206C000500570F97 /* LoadedTileNew.h */; };
@@ -601,6 +601,7 @@
 		2B8E608B20D47FEE00FB96F0 /* MaplyTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyTileFetcher.h */; };
 		2B8E608D20D47FF800FB96F0 /* MaplyTileFetcher_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608C20D47FF700FB96F0 /* MaplyTileFetcher_private.h */; };
 		2B8E608F20D4800000FB96F0 /* MaplyTileFetcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8E608E20D4800000FB96F0 /* MaplyTileFetcher.mm */; };
+		2B8E609620DC175E00FB96F0 /* MapboxVectorImageInterpeter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B127C06201911DC0099F405 /* MapboxVectorImageInterpeter.mm */; };
 		2BB476762000486F006AAACB /* MapboxVectorStyleSymbol.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476702000486E006AAACB /* MapboxVectorStyleSymbol.h */; };
 		2BB476772000486F006AAACB /* MapboxVectorStyleBackground.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476712000486F006AAACB /* MapboxVectorStyleBackground.h */; };
 		2BB476782000486F006AAACB /* MapboxVectorStyleLine.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB476722000486F006AAACB /* MapboxVectorStyleLine.h */; };
@@ -1090,10 +1091,10 @@
 		2B127BF82012A12A0099F405 /* MaplyRenderController_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderController_private.h; sourceTree = "<group>"; };
 		2B127BFA2012A1390099F405 /* MaplyRenderTarget_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget_private.h; sourceTree = "<group>"; };
 		2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRenderController.mm; sourceTree = "<group>"; };
-		2B127C01201911D30099F405 /* MapboxVectorTilesImageDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorTilesImageDelegate.h; sourceTree = "<group>"; };
+		2B127C01201911D30099F405 /* MapboxVectorImageInterpeter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorImageInterpeter.h; sourceTree = "<group>"; };
 		2B127C02201911D30099F405 /* MapboxVectorTilesPagingDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapboxVectorTilesPagingDelegate.h; sourceTree = "<group>"; };
 		2B127C05201911DC0099F405 /* MapboxVectorTilesPagingDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorTilesPagingDelegate.mm; sourceTree = "<group>"; };
-		2B127C06201911DC0099F405 /* MapboxVectorTilesImageDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorTilesImageDelegate.mm; sourceTree = "<group>"; };
+		2B127C06201911DC0099F405 /* MapboxVectorImageInterpeter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapboxVectorImageInterpeter.mm; sourceTree = "<group>"; };
 		2B2B46F9206C000500570F97 /* LoadedTileNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTileNew.h; sourceTree = "<group>"; };
 		2B2B46FB206C001900570F97 /* LoadedTileNew.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadedTileNew.mm; sourceTree = "<group>"; };
 		2B2B4700206D931300570F97 /* QuadTileBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadTileBuilder.h; sourceTree = "<group>"; };
@@ -3385,7 +3386,7 @@
 		2BE537811D249A1200B60FAD /* vector_tiles */ = {
 			isa = PBXGroup;
 			children = (
-				2B127C01201911D30099F405 /* MapboxVectorTilesImageDelegate.h */,
+				2B127C01201911D30099F405 /* MapboxVectorImageInterpeter.h */,
 				2B127C02201911D30099F405 /* MapboxVectorTilesPagingDelegate.h */,
 				2BB476712000486F006AAACB /* MapboxVectorStyleBackground.h */,
 				2BB476732000486F006AAACB /* MapboxVectorStyleFill.h */,
@@ -3509,7 +3510,7 @@
 		2BE537DC1D249A1200B60FAD /* vector_tiles */ = {
 			isa = PBXGroup;
 			children = (
-				2B127C06201911DC0099F405 /* MapboxVectorTilesImageDelegate.mm */,
+				2B127C06201911DC0099F405 /* MapboxVectorImageInterpeter.mm */,
 				2B127C05201911DC0099F405 /* MapboxVectorTilesPagingDelegate.mm */,
 				2BB4767E2000488C006AAACB /* MapboxVectorStyleBackground.mm */,
 				2BB4767C2000488C006AAACB /* MapboxVectorStyleFill.mm */,
@@ -4348,7 +4349,7 @@
 				2BE5394E1D249BEF00B60FAD /* AA+.h in Headers */,
 				2BE538711D249A1200B60FAD /* WhirlyGlobeComponent.h in Headers */,
 				2B82B6D81E82E24A0095FB14 /* GLUtils.h in Headers */,
-				2B127C03201911D40099F405 /* MapboxVectorTilesImageDelegate.h in Headers */,
+				2B127C03201911D40099F405 /* MapboxVectorImageInterpeter.h in Headers */,
 				2BE539771D249BEF00B60FAD /* AAParallax.h in Headers */,
 				2BE538251D249A1200B60FAD /* MaplySharedAttributes.h in Headers */,
 				2B82B6FE1E82E24A0095FB14 /* BillboardManager.h in Headers */,
@@ -4704,6 +4705,7 @@
 				2B884A611E3803170027C397 /* lasreaditemcompressed_v1.cpp in Sources */,
 				2B82B6911E82E24A0095FB14 /* pj_msfn.c in Sources */,
 				2BE539B71D249BEF00B60FAD /* AAPlanetPerihelionAphelion.cpp in Sources */,
+				2B8E609620DC175E00FB96F0 /* MapboxVectorImageInterpeter.mm in Sources */,
 				2BE539BC1D249BEF00B60FAD /* AASaturn.cpp in Sources */,
 				2B82B7AB1E82E24B0095FB14 /* FontTextureManager.mm in Sources */,
 				2B0387F02069A9EF00DD5C40 /* QuadTreeNew.mm in Sources */,
