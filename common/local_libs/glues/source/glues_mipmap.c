@@ -1458,8 +1458,8 @@ static void fill_image(const PixelStorageModes* psm,
    GLint groups_per_line;
    GLint group_size;
    GLint elements_per_line;
-   const GLubyte* start;
-   const GLubyte* iter;
+   const GLubyte* start = NULL;
+   const GLubyte* iter = NULL;
    GLushort* iter2;
    GLint i, j, k;
    GLint myswap_bytes;
@@ -1571,8 +1571,8 @@ static void empty_image(const PixelStorageModes* psm, GLint width,
    GLint groups_per_line;
    GLint group_size;
    GLint elements_per_line;
-   GLubyte* start;
-   GLubyte* iter;
+   GLubyte* start = NULL;
+   GLubyte* iter = NULL;
    const GLushort* iter2;
    GLint i, j, k;
    GLint myswap_bytes;
@@ -1842,7 +1842,7 @@ static void scaleInternalPackedPixel(int components,
    int i,j,k,xindex;
 
    const char *temp, *temp0;
-   int outindex;
+   int outindex=0;
 
    int lowx_int, highx_int, lowy_int, highy_int;
    float x_percent, y_percent;

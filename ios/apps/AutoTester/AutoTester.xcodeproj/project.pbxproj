@@ -1169,8 +1169,6 @@
 		2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActiveObjectTestCase.m; sourceTree = "<group>"; };
 		2B392B6F1C5AC59D001EE40B /* RunwayBuilderTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RunwayBuilderTestCase.h; sourceTree = "<group>"; };
 		2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RunwayBuilderTestCase.m; sourceTree = "<group>"; };
-		2B4B50E12048BC3F00CBCF5C /* NotoSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSans-Bold.ttf"; path = "resources/NotoSans-Bold.ttf"; sourceTree = SOURCE_ROOT; };
-		2B4B50E22048BC4000CBCF5C /* NotoSans-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "NotoSans-Regular.ttf"; path = "resources/NotoSans-Regular.ttf"; sourceTree = SOURCE_ROOT; };
 		2B4BA6C21C83A22000DC1562 /* leftbend.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = leftbend.geojson; path = ../WhirlyGlobeComponentTester/resources/leftbend.geojson; sourceTree = "<group>"; };
 		2B4BA6C31C83A22000DC1562 /* leftv.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = leftv.geojson; path = ../WhirlyGlobeComponentTester/resources/leftv.geojson; sourceTree = "<group>"; };
 		2B4BA6C41C83A22000DC1562 /* mowing-lawn.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "mowing-lawn.geojson"; path = "../WhirlyGlobeComponentTester/resources/mowing-lawn.geojson"; sourceTree = "<group>"; };
@@ -3936,13 +3934,10 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/\"/**",
-					"\"$(SRCROOT)/../../../third-party/AFNetworking/AFNetworking\"",
-					"\"$(SRCROOT)/../../../third-party/KissXML/KissXML\"",
 					"\"$(SDKROOT)/usr/include/libxml2\"",
 					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/vector_tiles\"",
 					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/private\"",
 					"\"$(SRCROOT)/../../library/WhirlyGlobeLib/include/\"",
-					"\"$(SRCROOT)/../../../third-party/eigen\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -3968,13 +3963,10 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/\"/**",
-					"\"$(SRCROOT)/../../../third-party/AFNetworking/AFNetworking\"",
-					"\"$(SRCROOT)/../../../third-party/KissXML/KissXML\"",
 					"\"$(SDKROOT)/usr/include/libxml2\"",
 					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/vector_tiles\"",
 					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/private\"",
 					"\"$(SRCROOT)/../../library/WhirlyGlobeLib/include/\"",
-					"\"$(SRCROOT)/../../../third-party/eigen\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;

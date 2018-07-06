@@ -95,15 +95,18 @@ static const float MaxDelay = 1.0;
         return;
     viewState = inViewState;
     
-    // If it's been too long since an update, let the next one happen
+    // If it's been too long since an update, force the next one
     if (CFAbsoluteTimeGetCurrent() - lastUpdate > MaxDelay)
+    {
+        [self updateLayout];
         return;
+    }
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
     
     if (stopped)
     {
-//        NSLog(@"Started moving");
+        NSLog(@"Started moving");
 //        [self disableObjects];
         stopped = false;
     }
@@ -134,7 +137,7 @@ static const float MaxDelay = 1.0;
         return;
     
     stopped = true;
-//    NSLog(@"Stopped moving");
+    NSLog(@"Stopped moving");
     
     [self updateLayout];
 }
@@ -146,10 +149,11 @@ static const float MaxDelay = 1.0;
     if (layoutManager)
         layoutManager->setMaxDisplayObjects(_maxDisplayObjects);
 }
-    
+
 // Layout all the objects we're tracking
 - (void)updateLayout
 {
+    NSLog(@"UpdateLayout called");
     lastUpdate = CFAbsoluteTimeGetCurrent();
 
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
@@ -160,7 +164,7 @@ static const float MaxDelay = 1.0;
         [layerThread addChangeRequests:changes];
     }
 }
-    
+
 - (void)addLayoutObjects:(const std::vector<WhirlyKit::LayoutObject> &)newObjects
 {
     if ([NSThread currentThread] != layerThread)
