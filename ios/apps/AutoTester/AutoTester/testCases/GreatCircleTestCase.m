@@ -204,6 +204,7 @@
 {
     CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
+    globeVC.height = 0.25;
     globeVC.keepNorthUp = false;
     
     [self addLongRoute:globeVC globe:true];
@@ -215,7 +216,8 @@
 {
     CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
-    
+    mapVC.height = 0.25;
+
     [self addLongRoute:mapVC globe:false];
     
     [mapVC setPosition:MaplyCoordinateMakeWithDegrees(2.548,49.010) height:1.0];

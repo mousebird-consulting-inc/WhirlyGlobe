@@ -33,7 +33,6 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		GeoJSONStyleTestCase(),
 		
 		ClusteredMarkersTestCase(),
-		MegaMarkersTestCase(),
 		LabelsTestCase(),
 		MarkersTestCase(),
 		StickersTestCase(),
