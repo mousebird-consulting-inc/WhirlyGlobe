@@ -64,7 +64,7 @@
                 continue;
             layerStyle = layerStyleMod;
         }
-        MaplyMapboxVectorStyleLayer *layer = [MaplyMapboxVectorStyleLayer VectorStyleLayer:self JSON:layerStyle drawPriority:(10*which + kMaplyVectorDrawPriorityDefault)];
+        MaplyMapboxVectorStyleLayer *layer = [MaplyMapboxVectorStyleLayer VectorStyleLayer:self JSON:layerStyle drawPriority:(1*which + settings.baseDrawPriority)];
         if (layer)
         {
             [layers addObject:layer];

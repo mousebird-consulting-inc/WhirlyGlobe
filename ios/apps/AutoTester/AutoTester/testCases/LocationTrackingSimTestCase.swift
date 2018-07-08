@@ -58,7 +58,7 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         mapVC.setZoomLimitsMin(0.0005, max: 4.0)
     }
     
-    func onSegChange() {
+    @objc func onSegChange() {
         if (segCtrl?.selectedSegmentIndex == 0) {
             baseViewController?.changeLocationTrackingLockType(MaplyLocationLockNone)
         } else if (segCtrl?.selectedSegmentIndex == 1) {

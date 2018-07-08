@@ -448,13 +448,13 @@ using namespace WhirlyKit;
         pthread_mutex_unlock(&tileLock);        
     }
     theTile->isLoading = true;
-    
+
     bool isNetworkFetch = ![dataSource respondsToSelector:@selector(tileIsLocalLevel:col:row:frame:)] || ![dataSource tileIsLocalLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y frame:frame];
     if (isNetworkFetch)
         networkFetches.insert(tileInfo->ident);
     else
         localFetches.insert(tileInfo->ident);
-    
+
     [dataSource quadTileLoader:self startFetchForLevel:tileInfo->ident.level col:tileInfo->ident.x row:tileInfo->ident.y frame:frame attrs:tileInfo->attrs];
 }
 

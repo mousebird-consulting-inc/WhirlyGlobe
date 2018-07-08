@@ -35,6 +35,7 @@
 #import "SMCalloutView.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyRenderController_private.h"
+#import "MaplyTileFetcher.h"
 
 @interface MaplyBaseViewController() <SMCalloutViewDelegate>
 {
@@ -83,6 +84,12 @@
   
     /// Need to keep a ref to this because the system keeps a weak ref
     Maply3dTouchPreviewDelegate *previewTouchDelegate;
+    
+    /// Shared sampling layers (used for loaders)
+    std::vector<MaplyQuadSamplingLayer *> samplingLayers;
+    
+    /// Shared tile fetcher used by default for loaders
+    MaplyTileFetcher *sharedTileFetcher;
 }
 
 /// This is called by the subclasses.  Don't call it yourself.
@@ -116,5 +123,15 @@
 
 /// Called internally to end a block of work being done
 - (void) endOfWork;
+
+/// Look for a sampling layer that matches the given parameters
+/// We'll also keep it around until the user lets us know we're done
+- (MaplyQuadSamplingLayer *)findSamplingLayer:(MaplySamplingParams *)params forUser:(NSObject *)userObj;
+
+/// The given user object is done with the given sampling layer.  So we may shut it down.
+- (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(NSObject *)userObj;
+
+/// Return the tile fetcher we shared between loaders
+- (MaplyTileFetcher *)getSharedTileFetcher;
 
 @end

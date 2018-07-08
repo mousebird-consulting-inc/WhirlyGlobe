@@ -324,8 +324,9 @@ int UnescapeCEscapeSequences(const char* source, char* dest,
   const char* p = source;
 
   // Small optimization for case where source = dest and there's no escaping
-  while ( p == d && *p != '\0' && *p != '\\' )
-    p++, d++;
+  while ( p == d && *p != '\0' && *p != '\\' ) {
+      p++; d++;
+  }
 
   while (*p != '\0') {
     if (*p != '\\') {

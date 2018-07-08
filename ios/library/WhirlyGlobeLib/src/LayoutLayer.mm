@@ -83,7 +83,7 @@ namespace WhirlyKit
 // How long we'll wait to see if the user has stopped twitching
 static const float DelayPeriod = 0.05;
 // How long we'll let it go without an update
-static const float MaxDelay = 1.0;
+static const float MaxDelay = 0.25;
 
 // We're getting called for absolutely every update here
 - (void)viewUpdate:(WhirlyKitViewState *)inViewState
@@ -106,7 +106,7 @@ static const float MaxDelay = 1.0;
     
     if (stopped)
     {
-        NSLog(@"Started moving");
+//        NSLog(@"Started moving");
 //        [self disableObjects];
         stopped = false;
     }
@@ -137,7 +137,7 @@ static const float MaxDelay = 1.0;
         return;
     
     stopped = true;
-    NSLog(@"Stopped moving");
+//    NSLog(@"Stopped moving");
     
     [self updateLayout];
 }
@@ -153,7 +153,7 @@ static const float MaxDelay = 1.0;
 // Layout all the objects we're tracking
 - (void)updateLayout
 {
-    NSLog(@"UpdateLayout called");
+//    NSLog(@"UpdateLayout called");
     lastUpdate = CFAbsoluteTimeGetCurrent();
 
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);

@@ -44,17 +44,17 @@ class ClusteredMarkersTestCase: MaplyTestCase {
 			marker.userObject = (object as AnyObject).userObject!
 			markers.append(marker)
 		}
-		let screenObj =  theBaseView.addScreenMarkers(markers, desc: [kMaplyClusterGroup: 0], mode: MaplyThreadMode.current)
+		_ =  theBaseView.addScreenMarkers(markers, desc: [kMaplyClusterGroup: 0], mode: MaplyThreadMode.current)
 
         // Disable after a few seconds
-        DispatchQueue.main.asyncAfter(deadline:  .now() + 5.0) {
-            theBaseView.disableObjects([screenObj!], mode: MaplyThreadMode.current)
-        }
+//        DispatchQueue.main.asyncAfter(deadline:  .now() + 5.0) {
+//            theBaseView.disableObjects([screenObj!], mode: MaplyThreadMode.current)
+//        }
         
         // Re-enable after a few seconds
-        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
-            theBaseView.enable([screenObj!], mode: MaplyThreadMode.current)
-        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) {
+//            theBaseView.enable([screenObj!], mode: MaplyThreadMode.current)
+//        }
         
 	}
 

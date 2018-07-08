@@ -428,7 +428,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
                 data = [res dataForColumn:@"data"];
             }
             // Note: Can we move this out of the block?
-            if (compressed)
+            if (self->compressed)
             {
                 if (data && [data length] > 0)
                     uncompressedData = [data uncompressGZip];
@@ -537,14 +537,14 @@ typedef std::map<std::string,NSMutableArray *> VecsForStyles;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
        ^{
            // Need to do a network fetch
-           if (tileURLs)
+           if (self->tileURLs)
            {
                // See if it's in the cache first
                NSString *cacheFileName = nil;
                NSData *cacheData = nil;
-               if (_cacheDir)
+               if (self->_cacheDir)
                {
-                   cacheFileName = [NSString stringWithFormat:@"%@/tile%d_%d_%d",_cacheDir,tileID.level,tileID.x,tileID.y];
+                   cacheFileName = [NSString stringWithFormat:@"%@/tile%d_%d_%d",self->_cacheDir,tileID.level,tileID.x,tileID.y];
                    cacheData = [NSData dataWithContentsOfFile:cacheFileName];
                }
                
@@ -561,7 +561,7 @@ typedef std::map<std::string,NSMutableArray *> VecsForStyles;
                    [layer tileDidLoad:tileID];
                } else {
                    // Decide here which URL we'll use
-                   NSString *tileURL = [tileURLs objectAtIndex:tileID.x%[tileURLs count]];
+                   NSString *tileURL = [self->tileURLs objectAtIndex:tileID.x%[self->tileURLs count]];
                    
                    // Use the JSON tile spec
     //               int y = ((int)(1<<tileID.level)-tileID.y)-1;

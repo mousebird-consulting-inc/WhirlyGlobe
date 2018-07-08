@@ -245,7 +245,7 @@ protected:
     // Sorter based on id
     typedef struct
     {
-        bool operator() (const Node *a,const Node *b)
+        bool operator() (const Node *a,const Node *b) const
         {
             return a->nodeInfo.ident < b->nodeInfo.ident;
         }
@@ -254,7 +254,7 @@ protected:
     // Sorter based on node importance
     typedef struct
     {
-        bool operator() (const Node *a,const Node *b)
+        bool operator() (const Node *a,const Node *b) const
         {
             if (a->nodeInfo.importance == b->nodeInfo.importance)
                 return a->nodeInfo.ident < b->nodeInfo.ident;

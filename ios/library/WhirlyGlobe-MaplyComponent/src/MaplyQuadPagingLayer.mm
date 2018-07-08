@@ -134,7 +134,7 @@ public:
 typedef struct
 {
     /// Comparison operator based on node identifier
-    bool operator() (const QuadPagingLoadedTile *a,const QuadPagingLoadedTile *b)
+    bool operator() (const QuadPagingLoadedTile *a,const QuadPagingLoadedTile *b) const
     {
         if (a->nodeIdent.level == b->nodeIdent.level)
         {

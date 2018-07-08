@@ -120,11 +120,11 @@
                NSDictionary *fileEntry;
                MaplyRemoteTileInfo *tileSource;
                NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
-               for (int i=0; i<MIN(_tileSetCount,sortedFiles.count); i++) {
+               for (int i=0; i<MIN(self->_tileSetCount,sortedFiles.count); i++) {
                    fileEntry = sortedFiles[i];
-                   NSString *baseURL = [NSString stringWithFormat:@"http://maps.aerisapi.com/%@_%@/%@/{z}/{x}/{y}/%@", _aerisID, _secretKey, _layerInfo.layerCode, fileEntry[@"time"]];
-                   tileSource = [[MaplyRemoteTileInfo alloc] initWithBaseURL:baseURL ext:@"png" minZoom:_layerInfo.minZoom maxZoom:_layerInfo.maxZoom];
-                   tileSource.cacheDir = [NSString stringWithFormat:@"%@/MaplyAeris/%@/%@", cacheDir, _layerInfo.layerCode, fileEntry[@"time"]];
+                   NSString *baseURL = [NSString stringWithFormat:@"http://maps.aerisapi.com/%@_%@/%@/{z}/{x}/{y}/%@", self->_aerisID, self->_secretKey, self->_layerInfo.layerCode, fileEntry[@"time"]];
+                   tileSource = [[MaplyRemoteTileInfo alloc] initWithBaseURL:baseURL ext:@"png" minZoom:self->_layerInfo.minZoom maxZoom:self->_layerInfo.maxZoom];
+                   tileSource.cacheDir = [NSString stringWithFormat:@"%@/MaplyAeris/%@/%@", cacheDir, self->_layerInfo.layerCode, fileEntry[@"time"]];
                    [tileInfoArray addObject:tileSource];
                }
                dispatch_async(dispatch_get_main_queue(), ^{

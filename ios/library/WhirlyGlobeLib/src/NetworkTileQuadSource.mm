@@ -150,7 +150,7 @@ using namespace WhirlyKit;
                        NSString *localName = nil;
                        if (self.cacheDir)
                        {
-                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d.%@",self.cacheDir,level,col,y,_ext];
+                           localName = [NSString stringWithFormat:@"%@/%d_%d_%d.%@",self.cacheDir,level,col,y,self->_ext];
                            
                            if ([[NSFileManager defaultManager] fileExistsAtPath:localName])
                            {
@@ -160,7 +160,7 @@ using namespace WhirlyKit;
 
                        if (!imgData)
                        {
-                           NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",_baseURL,level,col,y,_ext];
+                           NSString *fullURLStr = [NSString stringWithFormat:@"%@%d/%d/%d.%@",self->_baseURL,level,col,y,self->_ext];
                            NSMutableURLRequest *urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
                                             
                            // Fetch the image synchronously

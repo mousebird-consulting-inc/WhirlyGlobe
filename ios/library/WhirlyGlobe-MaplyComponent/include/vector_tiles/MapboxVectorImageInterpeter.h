@@ -25,6 +25,7 @@
 #import "MaplyCoordinate.h"
 #import "MaplyVectorStyle.h"
 #import "MapboxVectorTiles.h"
+#import "MaplyQuadImageLoader.h"
 
 @class MapboxVectorStyleSet;
 
@@ -33,15 +34,12 @@
  
  This tile source will render some data into images for use by the QuadImages layer and then
  */
-@interface MapboxVectorTileImageSource : NSObject<MaplyTileSource>
+@interface MapboxVectorImageInterpeter : NSObject<MaplyLoaderInterpreter>
 
-- (instancetype _Nullable ) initWithTileInfo:(MaplyRemoteTileInfo *_Nonnull)tileInfo
-                                  imageStyle:(MapboxVectorStyleSet *__nonnull)imageStyle
+- (instancetype _Nullable ) initWithLoader:(MaplyQuadImageLoader *__nonnull)loader
+                                imageStyle:(MapboxVectorStyleSet *__nonnull)imageStyle
                                offlineRender:(MaplyRenderController *__nonnull)renderControl
                                  vectorStyle:(MapboxVectorStyleSet *__nonnull)vectorStyle
                                        viewC:(MaplyBaseViewController *__nonnull)viewC;
-
-/// nil by default, but if set we'll cache tiles here
-@property (nonatomic) NSString * __nullable cacheDir;
 
 @end

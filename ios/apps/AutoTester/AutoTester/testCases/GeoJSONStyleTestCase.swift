@@ -105,24 +105,24 @@ class GeoJSONStyleTestCase: MaplyTestCase {
 
     }
     
-    func onSwitchLandUse() {
+    @objc func onSwitchLandUse() {
         self.landUseSource!.enabled = !(self.landUseSource!.enabled)
     }
     
-    func onSwitchWater() {
+    @objc func onSwitchWater() {
         self.waterAreaSource!.enabled = !(self.waterLineSource!.enabled)
         self.waterLineSource!.enabled = !(self.waterLineSource!.enabled)
     }
     
-    func onSwitchBuildings() {
+    @objc func onSwitchBuildings() {
         self.buildingsSource!.enabled = !(self.buildingsSource!.enabled)
     }
     
-    func onSwitchRoads() {
+    @objc func onSwitchRoads() {
         self.roadsSource!.enabled = !(self.roadsSource!.enabled)
     }
     
-    func onSwitchAmenities() {
+    @objc func onSwitchAmenities() {
         self.amenitiesSource!.enabled = !(self.amenitiesSource!.enabled)
     }
 

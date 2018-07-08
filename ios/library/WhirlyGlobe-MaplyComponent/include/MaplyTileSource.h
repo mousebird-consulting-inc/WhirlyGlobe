@@ -89,15 +89,6 @@ NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
 - (int)tileSize;
 
 /** 
-    Can the given tile be fetched locally or do we need a network call?
-    
-    We may ask the tile source if the tile is local or needs to be fetched over the network.  This is a hint for the loader.  Don't return true in error, though, that'll hold up the paging.
-    
-    @return Return true for local tile sources or if you have the tile cached.
-  */
-- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
-
-/** 
     The coordinate system the image pyramid is in.
  
     This is typically going to be MaplySphericalMercator
@@ -110,27 +101,78 @@ NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
 
 @optional
 
-/** 
-    Called when the layer shuts down.
-    
-    This is called by the main layer when things are shut down.  It's optional.
+/** The following methods are required by MaplyQuadImageLoader in addition to the ones above **/
+
+/**
+ Start fetching the given tile, but just the given frame.  This is for multi-frame tiles (e.g. animations).
+ 
+ If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
+ 
+ If you're using a MaplyQuadImageTilesLayer, when you're done fetching (successful or otherwise) call loadedImagesForTile: with the results.
+ 
+ @param layer This is probably a MaplyQuadImageTilesLayer, but others use this protocol as well.  Your tile source should know.
+ 
+ @param tileID The tile you should start fetching.
+ 
+ @param frame The individual frame (of an animation) to fetch.
+ */
+- (void)startFetchLayer:(id __nonnull)layer tile:(MaplyTileID)tileID frame:(int)frame;
+
+/**
+    Cancel an outstanding fetch for a given tile.
+ 
+ @param tileID The tile you should stop fetching.
+ 
+ @param frame The individual frame (of an animation) to cancel.
+ 
+ @param If you registered tileData, it will be passed back here.
   */
+- (void)cancelTile:(MaplyTileID)tileID frame:(int)frame tileData:(id __nullable)tileData;
+
+/**
+ Check if we should even try to load a given tile.
+ 
+ Tile pyramids can be sparse.  If you know where your pyramid is sparse, you can short circuit the fetch and simply return false here.
+ 
+ If this method isn't filled in, everything defaults to true.
+ 
+ tileID The tile we're asking about.
+ 
+ bbox The bounding box of the tile we're asking about, for convenience.
+ 
+ @return True if the tile is loadable, false if not.
+ */
+- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox;
+
+/**
+ Called when the layer shuts down.
+ 
+ This is called by the main layer when things are shut down.
+ 
+ @param tileData All the individual tileData objects registered during load (if any).
+ 
+ This is the newer version, but both clears are still supported.
+ */
+- (void)clear:(id __nonnull)layer tileData:(NSArray * __nonnull)tileData;
+
+
+/** End of methods required by MaplyQuadImageLoader **/
+
+/**
+ Called when the layer shuts down.
+ 
+ This is called by the main layer when things are shut down.  It's optional.
+ */
 - (void)clear;
 
-/** 
-    Check if we should even try to load a given tile.
-    
-    Tile pyramids can be sparse.  If you know where your pyramid is sparse, you can short circuit the fetch and simply return false here.
-    
-    If this method isn't filled in, everything defaults to true.
-    
-    tileID The tile we're asking about.
-    
-    bbox The bounding box of the tile we're asking about, for convenience.
-    
-    @return True if the tile is loadable, false if not.
-  */
-- (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox;
+/**
+ Can the given tile be fetched locally or do we need a network call?
+ 
+ We may ask the tile source if the tile is local or needs to be fetched over the network.  This is a hint for the loader.  Don't return true in error, though, that'll hold up the paging.
+ 
+ @return Return true for local tile sources or if you have the tile cached.
+ */
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
 
 /** 
     For tiles of variable sizes, return the pixel size we'll use to evaluate this particular tile.
@@ -185,21 +227,6 @@ NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
     @param tileID The tile you should start fetching.
   */
 - (void)startFetchLayer:(id __nonnull)layer tile:(MaplyTileID)tileID;
-
-/** 
-    Start fetching the given tile, but just the given frame.  This is for multi-frame tiles (e.g. animations).
-    
-    If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
-    
-    If you're using a MaplyQuadImageTilesLayer, when you're done fetching (successful or otherwise) call loadedImagesForTile: with the results.
-    
-    @param layer This is probably a MaplyQuadImageTilesLayer, but others use this protocol as well.  Your tile source should know.
-    
-    @param tileID The tile you should start fetching.
-    
-    @param frame The individual frame (of an animation) to fetch.
-  */
-- (void)startFetchLayer:(id __nonnull)layer tile:(MaplyTileID)tileID frame:(int)frame;
 
 /** 
     Called when the tile is disabled by the renderer.

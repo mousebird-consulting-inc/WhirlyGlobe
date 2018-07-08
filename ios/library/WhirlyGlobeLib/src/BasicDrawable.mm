@@ -112,6 +112,17 @@ void BasicDrawable::setupTexCoordEntry(int which,int numReserve)
         texInfo.push_back(newInfo);
     }
 }
+    
+void BasicDrawable::setTexRelative(int which,int relLevel,int relX,int relY)
+{
+    if (which >= texInfo.size())
+        return;
+    
+    TexInfo &ti = texInfo[which];
+    ti.relLevel = relLevel;
+    ti.relX = relX;
+    ti.relY = relY;
+}
 
 void BasicDrawable::setupStandardAttributes(int numReserve)
 {
@@ -682,6 +693,10 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     if (pointBuffer || sharedBuffer)
         return;
     
+//    if ([NSThread currentThread] == [NSThread mainThread]) {
+//        NSLog(@"Hey why are we doing setupGL on the main thread? %s",name.c_str());
+//    }
+    
     // Offset the geometry upward by minZres units along the normals
     // Only do this once, obviously
     // Note: Probably replace this with a shader program at some point
@@ -1094,6 +1109,8 @@ GLuint BasicDrawable::setupVAO(OpenGLES2Program *prog)
 
 // Putting there here rather than running sprintf is a lot faster.  Really.  Oy.
 static const char *baseMapNames[WhirlyKitMaxTextures] = {"s_baseMap0","s_baseMap1","s_baseMap2","s_baseMap3","s_baseMap4","s_baseMap5","s_baseMap6","s_baseMap7"};
+static const char *texOffsetNames[WhirlyKitMaxTextures] = {"u_texOffset0","u_texOffset1","u_texOffset2","u_texOffset3","u_texOffset4","u_texOffset5","u_texOffset6","u_texOffset7"};
+static const char *texScaleNames[WhirlyKitMaxTextures] = {"u_texScale0","u_texScale1","u_texScale2","u_texScale3","u_texScale4","u_texScale5","u_texScale6","u_texScale7"};
 
 // Draw Vertex Buffer Objects, OpenGL 2.0
 void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
@@ -1211,14 +1228,25 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     {
         GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
         const char *baseMapName = baseMapNames[ii];
+        const char *texOffsetName = texOffsetNames[ii];
+        const char *texScaleName = texScaleNames[ii];
         const OpenGLESUniform *texUni = prog->findUniform(baseMapName);
         hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
         if (hasTexture[ii+progTexBound])
         {
+            auto thisTexInfo = texInfo[ii];
             [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
             glBindTexture(GL_TEXTURE_2D, glTexID);
             CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
             prog->setUniform(baseMapName, (int)ii+progTexBound);
+            float texScale = 1.0;
+            Vector2f texOffset(0.0,0.0);
+            if (thisTexInfo.relLevel > 0) {
+                texScale = 1.0/(1<<thisTexInfo.relLevel);
+                texOffset = Vector2f(texScale*thisTexInfo.relX,texScale*thisTexInfo.relY);
+            }
+            prog->setUniform(texScaleName, Vector2f(texScale, texScale));
+            prog->setUniform(texOffsetName, texOffset);
             CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
         }
     }
@@ -1433,8 +1461,9 @@ OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
 void OnOffChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
-    if (basicDrawable)
+    if (basicDrawable) {
         basicDrawable->setOnOff(newOnOff);
+    }
     else {
         BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
@@ -1479,15 +1508,39 @@ void FadeChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer
 }
 
 DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId)
-: DrawableChangeRequest(drawId), which(which), newTexId(newTexId)
+: DrawableChangeRequest(drawId), which(which), newTexId(newTexId), relSet(false), relLevel(0), relX(0), relY(0)
 {
 }
 
+DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId,int relLevel,int relX,int relY)
+: WhirlyKit::DrawableChangeRequest(drawId), which(which), newTexId(newTexId), relSet(true), relLevel(relLevel), relX(relX), relY(relY)
+{
+}
+    
 void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
-    if (basicDrawable)
+    if (basicDrawable) {
         basicDrawable->setTexId(which,newTexId);
+        if (relSet)
+            basicDrawable->setTexRelative(which, relLevel, relX, relY);
+        else
+            basicDrawable->setTexRelative(which, 0, 0, 0);
+    } else {
+        BasicDrawableInstanceRef refDrawable = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (refDrawable) {
+            BasicDrawableRef orgDrawable = refDrawable->getMaster();
+            if (orgDrawable) {
+                if (orgDrawable->texInfo.size() < which)
+                    orgDrawable->setupTexCoordEntry(which, 0);
+                refDrawable->setTexId(which,newTexId);
+                if (relSet)
+                    refDrawable->setTexRelative(which, relLevel, relX, relY);
+                else
+                    refDrawable->setTexRelative(which, 0, 0, 0);
+            }
+        }
+    }
 }
 
 DrawTexturesChangeRequest::DrawTexturesChangeRequest(SimpleIdentity drawId,const std::vector<SimpleIdentity> &newTexIDs)

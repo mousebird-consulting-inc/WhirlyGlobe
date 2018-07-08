@@ -445,7 +445,7 @@ using namespace WhirlyKit;
         {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                            ^{
-                               [_tileSource startFetchLayer:self tile:tileID frame:frame];
+                               [self->_tileSource startFetchLayer:self tile:tileID frame:frame];
                            }
                            );
         } else {
@@ -458,7 +458,7 @@ using namespace WhirlyKit;
     void (^workBlock)() =
     ^{
         // Get the data for the tile and sort out what the delegate returned to us
-        id tileReturn = [_tileSource imageForTile:tileID frame:frame];
+        id tileReturn = [self->_tileSource imageForTile:tileID frame:frame];
         
         if ([tileReturn isKindOfClass:[NSError class]])
         {
@@ -469,7 +469,7 @@ using namespace WhirlyKit;
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:tileReturn];
         WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:false];
         
-        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),@(frame),_tileSource];
+        NSArray *args = @[(loadTile ? loadTile : [NSNull null]),@(col),@(row),@(level),@(frame),self->_tileSource];
         if (super.layerThread)
         {
             if ([NSThread currentThread] == super.layerThread)

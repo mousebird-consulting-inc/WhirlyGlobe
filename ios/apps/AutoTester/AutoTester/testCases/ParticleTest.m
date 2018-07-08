@@ -200,7 +200,7 @@ typedef struct
             NSString *tileStr = [self indexForTile:tileID];
             tile = [[DataTile alloc] init];
             tile.tileID = tileID;
-            cachedTiles[tileStr] = tile;
+            self->cachedTiles[tileStr] = tile;
         }
     });
     
@@ -218,7 +218,7 @@ typedef struct
 
 		[[[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:urlStr]
 				completionHandler: ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-					dispatch_async(queue, ^{
+					dispatch_async(self->queue, ^{
 						if (error || !data) {
 							[self clearTile:tileID];
 							[layer tileFailedToLoad:tileID];
@@ -238,7 +238,7 @@ typedef struct
 
 								if ([tile isComplete])
 								{
-									[tileTrack addTile:tileID];
+									[self->tileTrack addTile:tileID];
 									[layer tileDidLoad:tileID];
 								}
 							}
@@ -252,7 +252,7 @@ typedef struct
 {
     dispatch_async(queue,
     ^{
-       [tileTrack removeTile:tileID];
+       [self->tileTrack removeTile:tileID];
        [self clearTile:tileID];
     });
 }
