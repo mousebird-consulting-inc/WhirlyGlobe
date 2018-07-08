@@ -362,8 +362,8 @@ using namespace WhirlyKit;
 
                         MaplyElevationChunk *elevChunk = [weakSelf decodeElevationData:elevData];
 
-                        if ([_delegate respondsToSelector:@selector(remoteTileElevationSource:modifyTileReturn:forTile:)])
-                            elevChunk = [_delegate remoteTileElevationSource:self modifyElevReturn:elevChunk forTile:tileID];
+                        if ([self->_delegate respondsToSelector:@selector(remoteTileElevationSource:modifyTileReturn:forTile:)])
+                            elevChunk = [self->_delegate remoteTileElevationSource:self modifyElevReturn:elevChunk forTile:tileID];
 
                         // Let the paging layer know about it
                         [layer loadedElevation:elevChunk forTile:tileID];

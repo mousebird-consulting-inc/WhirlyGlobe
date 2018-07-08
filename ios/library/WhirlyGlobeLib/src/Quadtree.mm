@@ -819,7 +819,7 @@ void Quadtree::generateMbrForNode(const Identifier &ident,Point2d &ll,Point2d &u
     ll = Point2d(chunkSize.x()*ident.x,chunkSize.y()*ident.y) + Point2d(mbr.ll().x(),mbr.ll().y());
     ur = Point2d(chunkSize.x()*(ident.x+1),chunkSize.y()*(ident.y+1)) + Point2d(mbr.ll().x(),mbr.ll().y());
 }
-    
+
 bool Quadtree::leastImportantNode(NodeInfo &nodeInfo,bool force)
 {
     // Look for the most unimportant node that isn't therwise engaged
@@ -841,10 +841,10 @@ bool Quadtree::leastImportantNode(NodeInfo &nodeInfo,bool force)
             }
         }
     }
-    
+
     return false;
 }
-            
+
 void Quadtree::childrenForNode(const Quadtree::Identifier &ident,std::vector<Quadtree::Identifier> &childIdents)
 {
     for (unsigned int ix=0;ix<2;ix++)

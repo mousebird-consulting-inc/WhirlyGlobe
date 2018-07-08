@@ -29,6 +29,11 @@ GeoCoord GeoCoord::CoordFromDegrees(float lon,float lat)
 {
     return GeoCoord(lon/180.f*M_PI,lat/180.f*M_PI);
 }
+    
+Mbr::Mbr(const MbrD &inMbr)
+ : pt_ll(Point2f(inMbr.ll().x(),inMbr.ll().y())), pt_ur(Point2f(inMbr.ur().x(),inMbr.ur().y()))
+{
+}
 	
 Mbr::Mbr(const std::vector<Point2f> &pts)
     : pt_ll(0,0), pt_ur(-1,-1)
@@ -155,6 +160,123 @@ Mbr Mbr::intersect(const Mbr &that) const
     return out;
 }
 	
+MbrD::MbrD(const std::vector<Point2d> &pts)
+: pt_ll(0,0), pt_ur(-1,-1)
+{
+    for (unsigned int ii=0;ii<pts.size();ii++)
+        addPoint(pts[ii]);
+}
+
+void MbrD::addPoint(Point2f pt)
+{
+    if (!valid())
+    {
+        pt_ll = pt_ur = Point2d(pt.x(),pt.y());
+        return;
+    }
+    
+    pt_ll.x() = std::min(pt_ll.x(),(double)pt.x());
+    pt_ll.y() = std::min(pt_ll.y(),(double)pt.y());
+    pt_ur.x() = std::max(pt_ur.x(),(double)pt.x());
+    pt_ur.y() = std::max(pt_ur.y(),(double)pt.y());
+}
+
+void MbrD::addPoint(Point2d pt)
+{
+    if (!valid())
+    {
+        pt_ll = pt_ur = pt;
+        return;
+    }
+    
+    pt_ll.x() = std::min(pt_ll.x(),pt.x());
+    pt_ll.y() = std::min(pt_ll.y(),pt.y());
+    pt_ur.x() = std::max(pt_ur.x(),pt.x());
+    pt_ur.y() = std::max(pt_ur.y(),pt.y());
+}
+
+void MbrD::addPoints(const std::vector<Point2f> &coords)
+{
+    for (unsigned int ii=0;ii<coords.size();ii++)
+        addPoint(coords[ii]);
+}
+
+void MbrD::addPoints(const std::vector<Point2d> &coords)
+{
+    for (unsigned int ii=0;ii<coords.size();ii++)
+        addPoint(coords[ii]);
+}
+
+// Calculate MBR overlap.  All the various kinds.
+bool MbrD::overlaps(const MbrD &that) const
+{
+    // Basic inclusion cases
+    if ((that.insideOrOnEdge(pt_ll) || that.insideOrOnEdge(pt_ur) || that.insideOrOnEdge(Point2d(pt_ll.x(),pt_ur.y())) || that.insideOrOnEdge(Point2d(pt_ur.x(),pt_ll.y()))) ||
+        (insideOrOnEdge(that.pt_ll) || insideOrOnEdge(that.pt_ur) || insideOrOnEdge(Point2d(that.pt_ll.x(),that.pt_ur.y())) || insideOrOnEdge(Point2d(that.pt_ur.x(),that.pt_ll.y()))))
+        return true;
+    
+    // Now for the skinny overlap cases
+    if ((that.pt_ll.x() <= pt_ll.x() && pt_ur.x() <= that.pt_ur.x() &&
+         pt_ll.y() <= that.pt_ll.y() && that.pt_ur.y() <= pt_ur.y()) ||
+        (pt_ll.x() <= that.pt_ll.x() && that.pt_ur.x() <= pt_ur.x() &&
+         that.pt_ll.y() <= pt_ll.y() && pt_ur.y() <= that.pt_ur.y()))
+        return true;
+    if ((pt_ll.x() <= that.pt_ll.x() && that.pt_ur.x() <= pt_ur.x() &&
+         that.pt_ll.y() <= pt_ll.y() && pt_ur.y() <= that.pt_ur.y()) ||
+        (that.pt_ll.x() <= pt_ll.x() && pt_ur.x() <= that.pt_ur.x() &&
+         pt_ll.y() <= that.pt_ll.y() && that.pt_ur.y() <= pt_ur.y()))
+        return true;
+    
+    return false;
+}
+
+float MbrD::area() const
+{
+    return (pt_ur.x() - pt_ll.x())*(pt_ur.y() - pt_ll.y());
+}
+
+Point2d MbrD::span() const
+{
+    return Point2d(pt_ur.x()-pt_ll.x(),pt_ur.y()-pt_ll.y());
+}
+
+
+void MbrD::expand(const MbrD &that)
+{
+    addPoint(that.pt_ll);
+    addPoint(that.pt_ur);
+}
+
+
+void MbrD::expandByFraction(double bufferZone)
+{
+    Point2d spanViewMbr = span();
+    pt_ll.x() = pt_ll.x()-spanViewMbr.x()*bufferZone;
+    pt_ll.y() = pt_ll.y()-spanViewMbr.y()*bufferZone;
+    pt_ur.x() = pt_ur.x()+spanViewMbr.x()*bufferZone;
+    pt_ur.y() = pt_ur.y()+spanViewMbr.y()*bufferZone;
+}
+
+
+void MbrD::asPoints(std::vector<Point2d> &pts) const
+{
+    pts.push_back(pt_ll);
+    pts.push_back(pt_ur);
+    pts.push_back(pt_ur);
+    pts.push_back(pt_ll);
+}
+
+MbrD MbrD::intersect(const MbrD &that) const
+{
+    MbrD out;
+    out.ll().x() = std::max(ll().x(),that.ll().x());
+    out.ll().y() = std::max(ll().y(),that.ll().y());
+    out.ur().x() = std::min(ur().x(),that.ur().x());
+    out.ur().y() = std::min(ur().y(),that.ur().y());
+    
+    return out;
+}
+    
 GeoMbr::GeoMbr(const std::vector<GeoCoord> &coords)
 	: pt_ll(-1000,-1000), pt_ur(-1000,-1000)
 {

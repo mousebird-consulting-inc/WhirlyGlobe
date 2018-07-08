@@ -44,10 +44,10 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
                        // Add in a little delay
-                       if (_useDelay)
+                       if (self->_useDelay)
                            usleep(0.215 * 1e6);
                        
-                       if (tileID.level > _maxZoom)
+                       if (tileID.level > self->_maxZoom)
                        {
                            [layer tileFailedToLoad:tileID];
                        } else {

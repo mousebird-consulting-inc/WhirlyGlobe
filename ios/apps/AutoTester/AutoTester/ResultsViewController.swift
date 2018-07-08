@@ -9,12 +9,11 @@
 import UIKit
 
 
-class ResultsViewController: UITableViewController, UIPopoverControllerDelegate {
+class ResultsViewController: UITableViewController, UIPopoverPresentationControllerDelegate {
 
 	var titles = [String]()
 	var results = [MaplyTestResult]()
 	fileprivate var dropboxView : DropboxViewController?
-	fileprivate var popControl: UIPopoverController?
     @IBOutlet weak var uploadButton: UIBarButtonItem!
 
 	override func viewDidLoad() {
@@ -23,10 +22,15 @@ class ResultsViewController: UITableViewController, UIPopoverControllerDelegate 
 
 	@IBAction func uploadToDropbox(_ sender: AnyObject) {
 		if UI_USER_INTERFACE_IDIOM() == .pad {
-			popControl = UIPopoverController(contentViewController: dropboxView!)
-			popControl?.delegate = self
-			popControl?.setContentSize(CGSize(width: 400, height: 4.0/5.0*self.view.bounds.size.height), animated: true)
-			popControl?.present(from: CGRect(x: 0, y: 0, width: 10, height: 10), in: self.view, permittedArrowDirections: .up, animated: true)
+            if let dropboxView = dropboxView {
+                dropboxView.modalPresentationStyle = UIModalPresentationStyle.popover
+                dropboxView.preferredContentSize = CGSize(width: 400, height: 4.0/5.0*self.view.bounds.size.height)
+                present(dropboxView, animated: true, completion: nil)
+                if let popControl = dropboxView.popoverPresentationController {
+                    popControl.sourceView = self.view
+                    popControl.delegate = self
+                }
+            }
 		}
 		else {
 			dropboxView!.navigationItem.hidesBackButton = false
@@ -100,7 +104,7 @@ class ResultsViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 	}
 
-	fileprivate dynamic func editDone() {
+	@objc fileprivate dynamic func editDone() {
 		self.navigationController!.popToViewController(self, animated: true)
 	}
 

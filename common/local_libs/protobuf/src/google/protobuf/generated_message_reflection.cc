@@ -73,9 +73,9 @@ const string& NameOfEnum(const EnumDescriptor* descriptor, int value) {
 }
 
 namespace {
-inline bool SupportsArenas(const Descriptor* descriptor) {
-  return descriptor->file()->options().cc_enable_arenas();
-}
+//inline bool SupportsArenas(const Descriptor* descriptor) {
+//  return descriptor->file()->options().cc_enable_arenas();
+//}
 }  // anonymous namespace
 
 // ===================================================================

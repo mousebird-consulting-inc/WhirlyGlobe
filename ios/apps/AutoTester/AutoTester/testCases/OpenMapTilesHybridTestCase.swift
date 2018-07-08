@@ -18,8 +18,10 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         self.implementations = [.map, .globe]
     }
     
+    var imageLoader : MaplyQuadImageLoader? = nil
+
     // Set up an OpenMapTiles display layer
-    func setupLayer(_ baseVC: MaplyBaseViewController) -> MaplyQuadPagingLayer?
+    func setupLoader(_ baseVC: MaplyBaseViewController) -> MaplyQuadImageLoader?
     {
         guard let path = Bundle.main.path(forResource: "SE_Basic", ofType: "json") else {
             return nil
@@ -29,7 +31,8 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         }
         
         // Set up an offline renderer and a Mapbox vector style handler to render to it
-        guard let offlineRender = MaplyRenderController.init(size: CGSize.init(width: 512.0, height: 512.0)) else {
+        let imageSize = (width: 512.0, height: 512.0)
+        guard let offlineRender = MaplyRenderController.init(size: CGSize.init(width: imageSize.width, height: imageSize.height)) else {
             return nil
         }
         let imageStyleSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
@@ -52,8 +55,11 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         }
         
         // Set up a style for just the vector data we want to overlay
+        let vectorSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
+        vectorSettings.baseDrawPriority = 100+1
+        vectorSettings.drawPriorityPerLevel = 1000
         guard let vectorStyleSet = MapboxVectorStyleSet.init(json: styleData as Data,
-                                                             settings: MaplyVectorStyleSettings.init(scale: UIScreen.main.scale),
+                                                             settings: vectorSettings,
                                                              viewC: baseVC,
                                                              filter:
             { (styleAttrs) -> Bool in
@@ -70,42 +76,49 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         }
         
         // Set up the tile info (where the data is) and the tile source to interpet it
-        // Note: Get your own tilehosting key.  This one is not for commercial use
-        let tileInfo = MaplyRemoteTileInfo.init(baseURL: "https://free.tilehosting.com/data/v3/{z}/{x}/{y}.pbf.pict?key=8iZUKgsBTIFhFIZjA5lm", ext: nil, minZoom: 0, maxZoom: 14)
+        let tileInfo = MaplyRemoteTileInfo.init(baseURL: "http://public-mobile-data-stage-saildrone-com.s3-us-west-1.amazonaws.com/openmaptiles/{z}/{x}/{y}.png", ext: nil, minZoom: 0, maxZoom: 14)
         let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
-        let tileSource = MapboxVectorTileImageSource.init(tileInfo: tileInfo, imageStyle: imageStyleSet, offlineRender: offlineRender, vectorStyle: vectorStyleSet, viewC: baseVC)
-        if let tileSource = tileSource {
-            tileSource.cacheDir = "\(cacheDir)/openmaptiles1/"
-            // Fire up an image layer to fetch it.
-            // This will also manage the vector objects
-            if let imageLayer = MaplyQuadImageTilesLayer.init(tileSource: tileSource) {
-                imageLayer.flipY = true
-                imageLayer.importanceScale = 0.25
-                if baseVC is WhirlyGlobeViewController {
-                    imageLayer.handleEdges = true
-                    imageLayer.coverPoles = true
-                }
-                baseVC.add(imageLayer)
-            }
+        tileInfo.cacheDir = "\(cacheDir)/openmaptiles_saildrone/"
+
+        // Parameters describing how we want a globe broken down
+        let sampleParams = MaplySamplingParams()
+        sampleParams.coordSys = tileInfo.coordSys!
+        if baseVC is WhirlyGlobeViewController {
+            sampleParams.coverPoles = true
+            sampleParams.edgeMatching = true
+        } else {
+            sampleParams.coverPoles = false
+            sampleParams.edgeMatching = false
         }
+        // Note: Need to set the tile size because we're loading too much
+        sampleParams.minZoom = 0
+        sampleParams.maxZoom = tileInfo.maxZoom
         
-        return nil
+        guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
+            return nil
+        }
+        // Note: Need to scale the importance for loading here
+        guard let mapboxInterp = MapboxVectorImageInterpeter(loader: imageLoader,
+                                                             imageStyle: imageStyleSet,
+                                                             offlineRender: offlineRender,
+                                                             vectorStyle: vectorStyleSet,
+                                                             viewC: baseVC) else {
+            return nil
+        }
+        imageLoader.setInterpreter(mapboxInterp)
+        
+        return imageLoader
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         //        mapVC.performanceOutput = true
-        
-        if let layer = setupLayer(mapVC) {
-            mapVC.add(layer)
-        }
+        imageLoader = setupLoader(mapVC)
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
         //        globeVC.performanceOutput = true
-        
-        if let layer = setupLayer(globeVC) {
-            globeVC.add(layer)
-        }
+
+        imageLoader = setupLoader(globeVC)
     }
 }
 
