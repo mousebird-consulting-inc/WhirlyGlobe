@@ -36,9 +36,12 @@
 #import "MaplyViewTracker.h"
 #import "MaplyViewController.h"
 #import "MaplyQuadPagingLayer.h"
+#import "MaplyQuadSampler.h"
+#import "MaplyTileFetcher.h"
 #import "MaplyUpdateLayer.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyQuadImageOfflineLayer.h"
+#import "MaplyQuadImageLoader.h"
 #import "MaplyBlankTileSource.h"
 #import "MaplyTileSource.h"
 #import "MaplyWMSTileSource.h"
@@ -65,13 +68,11 @@
 #import "MaplyColorRampGenerator.h"
 #import "MaplyAerisTiles.h"
 
-// These are not pulled in by the podspec
-#ifdef NOTPODSPECWG
 #import "MaplyLAZQuadReader.h"
 #import "vector_tiles/MaplyVectorTiles.h"
 #import "vector_tiles/MapboxVectorTiles.h"
 #import "vector_tiles/MapboxVectorTilesPagingDelegate.h"
-#import "vector_tiles/MapboxVectorTilesImageDelegate.h"
+#import "vector_tiles/MapboxVectorImageInterpeter.h"
 #import "vector_tiles/MapnikStyleSet.h"
 #import "vector_tiles/MapboxMultiSourceTileInfo.h"
 #import "vector_tiles/MaplyVectorStyleSimple.h"
@@ -82,4 +83,3 @@
 #import "vector_tiles/MapboxVectorStyleLine.h"
 #import "vector_tiles/MapboxVectorStyleRaster.h"
 #import "vector_tiles/MapboxVectorStyleSymbol.h"
-#endif

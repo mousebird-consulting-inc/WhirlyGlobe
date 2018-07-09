@@ -34,7 +34,7 @@
 #define __GLUES_QUAD_H__
 
 #if defined(__USE_SDL_GLES__)
-   #include <SDL_opengles.h>
+   #include <SDL/SDL_opengles.h>
    #ifndef GLAPI
       #define GLAPI GL_API
    #endif
@@ -96,7 +96,7 @@ typedef GLUquadric GLUquadricObj;
 #endif /* APIENTRYP */
 
 /* Internal convenience typedefs */
-typedef void (APIENTRYP _GLUfuncptr)();
+typedef void (APIENTRYP _GLUfuncptr)(void);
 
 GLAPI GLUquadric* APIENTRY gluNewQuadric(void);
 GLAPI void APIENTRY gluDeleteQuadric(GLUquadric* state);

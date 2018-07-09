@@ -83,6 +83,8 @@ public:
 	
 	unsigned char r,g,b,a;
 };
+    
+class MbrD;
 	
 /** Bounding rectangle.
   */
@@ -93,6 +95,8 @@ public:
 	Mbr() : pt_ll(0.f,0.f), pt_ur(-1.f,-1.f) { }
     /// Construct with a lower left and upper right point
 	Mbr(Point2f ll,Point2f ur) : pt_ll(ll), pt_ur(ur) { }
+    /// Construct from the double version
+    Mbr(const MbrD &inMbr);
 	/// Construct from the MBR of a vector of points
 	Mbr(const std::vector<Point2f> &pts);
     
@@ -160,6 +164,85 @@ public:
 
 protected:
 	Point2f pt_ll,pt_ur;
+};
+    
+/** Bounding Rectangle with Doubles
+  */
+class MbrD
+{
+public:
+    /// Construct empty, which is marked as invalid
+    MbrD() : pt_ll(0.0,0.0), pt_ur(-1.0,-1.0) { }
+    /// Construct with a lower left and upper right point
+    MbrD(Point2d ll,Point2d ur) : pt_ll(ll), pt_ur(ur) { }
+    /// Construct a double version from the float version
+    MbrD(const Mbr &inMbr) : pt_ll(Point2d(inMbr.ll().x(),inMbr.ll().y())), pt_ur(Point2d(inMbr.ur().x(),inMbr.ur().y())) { }
+    /// Construct from the MBR of a vector of points
+    MbrD(const std::vector<Point2d> &pts);
+    
+    /// Resets back to invalid
+    void reset() { pt_ll = Point2d(0.0,0.0);  pt_ur = Point2d(-1.0,-1.0); }
+    
+    /// Lower left corner
+    const Point2d &ll() const { return pt_ll; }
+    Point2d &ll() { return pt_ll; }
+    /// Lower right corner
+    Point2d lr() const { return Point2d(pt_ur.x(),pt_ll.y()); }
+    /// Upper right corner
+    const Point2d &ur() const { return pt_ur; }
+    Point2d &ur() { return pt_ur; }
+    /// Upper left corner
+    Point2d ul() { return Point2d(pt_ll.x(),pt_ur.y()); }
+    /// Middle
+    const Point2d mid() const { return (pt_ll+pt_ur)/2.0; }
+    
+    /// span
+    Point2d span() const;
+    
+    /// Check validity
+    bool valid() const { return pt_ur.x() >= pt_ll.x(); }
+    
+    /// Calculate area
+    float area() const;
+    
+    /// Extend the MBR by the given point
+    void addPoint(Point2f pt);
+    
+    /// Extend the MBR by the given point
+    void addPoint(Point2d pt);
+    
+    /// Extend the MBR by the given points
+    void addPoints(const std::vector<Point2f> &coords);
+    
+    /// Extend the MBR by the given points
+    void addPoints(const std::vector<Point2d> &coords);
+    
+    /// See if this Mbr overlaps the other one
+    bool overlaps(const MbrD &that) const;
+
+    /// Check if the given 2d point is inside this MBR
+    bool inside(Point2d pt) const { return ((pt_ll.x() < pt.x()) && (pt_ll.y() < pt.y()) && (pt.x() < pt_ur.x()) && (pt.y() < pt_ur.y())); }
+    
+    /// The given MBR is contained within (or on the edge of) this one
+    bool contained(const MbrD &that) { return that.insideOrOnEdge(pt_ll) && that.insideOrOnEdge(pt_ur); }
+    
+    /// Inside or on the edge
+    bool insideOrOnEdge(Point2d pt) const { return ((pt_ll.x() <= pt.x()) && (pt_ll.y() <= pt.y()) && (pt.x() <= pt_ur.x()) && (pt.y() <= pt_ur.y())); }
+    
+    /// Intersection of two MBRs
+    MbrD intersect(const MbrD &that) const;
+    
+    /// Return a list of points, for those routines that need just a list of points
+    void asPoints(std::vector<Point2d> &pts) const;
+    
+    /// Expand with the given MBR
+    void expand(const MbrD &that);
+    
+    /// Expands by a given fraction of the receiver's size
+    void expandByFraction(double bufferZone);
+    
+protected:
+    Point2d pt_ll,pt_ur;
 };
     
 /** Bounding box in 3D (doubles)

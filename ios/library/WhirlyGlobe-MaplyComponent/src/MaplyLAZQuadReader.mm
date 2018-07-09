@@ -397,19 +397,19 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
        bool __block hasColors = false;
        
        // We're either using the index with an external LAZ files or we're grabbing the raw data itself
-       [queue inDatabase:^(FMDatabase *theDb) {
+       [self->queue inDatabase:^(FMDatabase *theDb) {
            FMResultSet *res = nil;
-           if (lazReader)
-               res = [db executeQuery:[NSString stringWithFormat:@"SELECT start,count FROM tileaddress WHERE quadindex=%d;",quadIdx]];
+           if (self->lazReader)
+               res = [self->db executeQuery:[NSString stringWithFormat:@"SELECT start,count FROM tileaddress WHERE quadindex=%d;",quadIdx]];
            else
-               res = [db executeQuery:[NSString stringWithFormat:@"SELECT data FROM lidartiles WHERE quadindex=%d;",quadIdx]];
+               res = [self->db executeQuery:[NSString stringWithFormat:@"SELECT data FROM lidartiles WHERE quadindex=%d;",quadIdx]];
            if ([res next])
            {
-               if (lazReader)
+               if (self->lazReader)
                {
                    pointStart = [res longLongIntForColumn:@"start"];
                    count = [res intForColumn:@"count"];
-                   thisReader = lazReader;
+                   thisReader = self->lazReader;
                    laszip_header_struct *header;
                    laszip_get_header_pointer(thisReader,&header);
                    hasColors = header->point_data_format > 1;
@@ -443,7 +443,7 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
            tileCenter.x = (header->min_x+header->max_x)/2.0;
            tileCenter.y = (header->min_y+header->max_y)/2.0;
            tileCenter.z = 0.0;
-           MaplyCoordinate3dD tileCenterDisp = [viewC displayCoordD:tileCenter fromSystem:_coordSys];
+           MaplyCoordinate3dD tileCenterDisp = [self->viewC displayCoordD:tileCenter fromSystem:self->_coordSys];
            points.transform = [[MaplyMatrix alloc] initWithTranslateX:tileCenterDisp.x y:tileCenterDisp.y z:tileCenterDisp.z];
            
            // We generate a triangle mesh underneath a given tile to provide something to grab
@@ -454,7 +454,7 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
            while (which < count)
            {
                // Get the point and convert to geocentric
-               if (lazReader)
+               if (self->lazReader)
                {
                    laszip_seek_point(thisReader,(which+pointStart));
                    laszip_read_point(thisReader);
@@ -471,20 +471,20 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
                coord.x = p->X * header->x_scale_factor + header->x_offset;
                coord.y = p->Y * header->y_scale_factor + header->y_offset;
                coord.z = p->Z * header->z_scale_factor + header->z_offset;
-               coord.z += _zOffset;
+               coord.z += self->_zOffset;
                
                minZ = std::min(coord.z,minZ);
                maxZ = std::max(coord.z,maxZ);
 
-               MaplyCoordinate3dD dispCoord = [viewC displayCoordD:coord fromSystem:_coordSys];
+               MaplyCoordinate3dD dispCoord = [self->viewC displayCoordD:coord fromSystem:self->_coordSys];
                MaplyCoordinate3dD dispCoordCenter = MaplyCoordinate3dDMake(dispCoord.x-tileCenterDisp.x, dispCoord.y-tileCenterDisp.y, dispCoord.z-tileCenterDisp.z);
                
                float red = 1.0,green = 1.0, blue = 1.0;
                if (hasColors)
                {
-                   red = p->rgb[0] / colorScale;
-                   green = p->rgb[1] / colorScale;
-                   blue = p->rgb[2] / colorScale;
+                   red = p->rgb[0] / self->colorScale;
+                   green = p->rgb[1] / self->colorScale;
+                   blue = p->rgb[2] / self->colorScale;
                }
                [points addDispCoordDoubleX:dispCoordCenter.x y:dispCoordCenter.y z:dispCoordCenter.z];
                [points addColorR:red g:green b:blue a:1.0];
@@ -500,9 +500,9 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
                maxZ += 1.0;
            @synchronized (self) {
                TileBoundsInfo tileInfo(tileID);
-               tileInfo.mesh = meshBuilder.makeMesh(viewC);
+               tileInfo.mesh = meshBuilder.makeMesh(self->viewC);
                tileInfo.minZ = minZ;  tileInfo.maxZ = maxZ;
-               tileSizes.insert(tileInfo);
+               self->tileSizes.insert(tileInfo);
            }
            
 //           NSLog(@"Loaded tile %d: (%d,%d) with %d points",tileID.level,tileID.x,tileID.y,count);
@@ -510,11 +510,11 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
            compObj = [layer.viewC addPoints:@[points] desc:
                                             @{kMaplyColor: [UIColor redColor],
                                               kMaplyDrawPriority: @(10000000),
-                                              kMaplyShader: _shader.name,
+                                              kMaplyShader: self->_shader.name,
                                               kMaplyShaderUniforms:
-                                                  @{kMaplyLAZShaderZMin: @(_minZ+_zOffset),
-                                                    kMaplyLAZShaderZMax: @(_maxZ+_zOffset),
-                                                    kMaplyLAZShaderPointSize: @(_pointSize)
+                                                  @{kMaplyLAZShaderZMin: @(self->_minZ+self->_zOffset),
+                                                    kMaplyLAZShaderZMax: @(self->_maxZ+self->_zOffset),
+                                                    kMaplyLAZShaderPointSize: @(self->_pointSize)
                                                     },
                                               kMaplyZBufferRead: @(YES),
                                               kMaplyZBufferWrite: @(YES)
@@ -523,7 +523,7 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
            [layer addData:@[compObj] forTile:tileID style:MaplyDataStyleAdd];
        }
 
-       if (!lazReader)
+       if (!self->lazReader)
        {
            if (thisReader)
            {

@@ -31,10 +31,7 @@
 - (void)overlayShapefile
 {
 	NSLog(@"Loading shape file...");
-    MaplyVectorDatabase *vecDb = [[MaplyVectorDatabase alloc] initWithShape:@"ne_10m_roads"];
-
-	NSLog(@"Fetching vectors...");
-    MaplyVectorObject *vecObj = [vecDb fetchAllVectors];
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithShapeFile:@"ne_10m_roads"];
 
 	NSLog(@"Adding vectors...");
     compObj = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: [UIColor whiteColor]}];

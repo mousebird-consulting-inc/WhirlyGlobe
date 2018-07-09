@@ -190,7 +190,7 @@ bool LayoutManager::hasChanges()
 // Sort more important things to the front
 typedef struct
 {
-    bool operator () (const LayoutObjectEntry *a,const LayoutObjectEntry *b)
+    bool operator () (const LayoutObjectEntry *a,const LayoutObjectEntry *b) const
     {
         if (a->obj.importance == b->obj.importance)
             return a > b;
@@ -716,7 +716,8 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
 }
 
 // Time we'll take to disappear objects
-static float const DisappearFade = 0.1;
+static float const NewObjectFadeIn = 0.0;
+//static float const OldObjectFadeOut = 0.0;
 
 // Layout all the objects we're tracking
 void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &changes)
@@ -740,11 +741,15 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
     if (!layoutChanges && clusters.size() != oldClusters.size())
         layoutChanges = true;
     
+//    if (layoutChanges)
+//        NSLog(@"LayoutChanges");
+
     if (hasUpdates || layoutChanges)
     {
         // Get rid of the last set of drawables
         for (SimpleIDSet::iterator it = drawIDs.begin(); it != drawIDs.end(); ++it)
             changes.push_back(new RemDrawableReq(*it));
+//        NSLog(@"  Remove previous drawIDs = %lu",drawIDs.size());
         drawIDs.clear();
 
         // Generate the drawables
@@ -758,7 +763,7 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
             if (!layoutObj->currentEnable)
             {
                 layoutObj->obj.state.fadeDown = curTime;
-                layoutObj->obj.state.fadeUp = curTime+DisappearFade;
+                layoutObj->obj.state.fadeUp = curTime+NewObjectFadeIn;
             }
             
             // Note: The animation below doesn't handle offsets
@@ -815,6 +820,7 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
             layoutObj->changed = false;
         }
         
+//        NSLog(@"Got %lu clusters",clusters.size());
         
         // Add in the clusters
         for (auto &cluster : clusters)
@@ -851,6 +857,8 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
         }
         
         ssBuild.flushChanges(changes, drawIDs);
+        
+//        NSLog(@"  Adding new drawIDs = %lu",drawIDs.size());
     }
     
     hasUpdates = false;

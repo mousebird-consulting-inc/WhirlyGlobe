@@ -147,7 +147,7 @@ static const float MaxDelay = 1.0;
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
-                       if (_useDelay)
+                       if (self->_useDelay)
                        {
                            // Random delay
                            usleep(drand48()* MaxDelay * 1e6);
@@ -169,7 +169,7 @@ static const float MaxDelay = 1.0;
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
-                       if (_useDelay)
+                       if (self->_useDelay)
                        {
                            // Random delay
                            usleep(drand48()* MaxDelay * 1e6);

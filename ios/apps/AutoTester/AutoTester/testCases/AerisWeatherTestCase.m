@@ -58,14 +58,14 @@
         
         MaplyMultiplexTileSource *multiSource = [[MaplyMultiplexTileSource alloc] initWithSources:tileSources];
        
-        aerisLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:multiSource.coordSys tileSource:multiSource];
-        aerisLayer.imageDepth = (int)[tileSources count];
-        aerisLayer.imageFormat = MaplyImageUShort5551;
-        aerisLayer.drawPriority = 1000;
-        aerisLayer.importanceScale = importanceScale;
-        aerisLayer.animationPeriod = 5.0;
+        self->aerisLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:multiSource.coordSys tileSource:multiSource];
+        self->aerisLayer.imageDepth = (int)[tileSources count];
+        self->aerisLayer.imageFormat = MaplyImageUShort5551;
+        self->aerisLayer.drawPriority = 1000;
+        self->aerisLayer.importanceScale = self->importanceScale;
+        self->aerisLayer.animationPeriod = 5.0;
         
-        [vc addLayer:aerisLayer];
+        [vc addLayer:self->aerisLayer];
         
     } failure:^(NSError *error) {
     }];

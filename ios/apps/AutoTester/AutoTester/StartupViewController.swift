@@ -8,9 +8,11 @@
 
 import UIKit
 
-class StartupViewController: UITableViewController, UIPopoverControllerDelegate {
+class StartupViewController: UITableViewController, UIPopoverPresentationControllerDelegate {
 
 	let tests = [
+        GlobeSamplerTestCase(),
+        
 		GeographyClassTestCase(),
 		StamenWatercolorRemote(),
 		CartoDBLightTestCase(),
@@ -31,7 +33,6 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		GeoJSONStyleTestCase(),
 		
 		ClusteredMarkersTestCase(),
-		MegaMarkersTestCase(),
 		LabelsTestCase(),
 		MarkersTestCase(),
 		StickersTestCase(),
@@ -79,7 +80,6 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	fileprivate var testViewBlack: UIView?
 
 	fileprivate var configViewC: ConfigViewController?
-	fileprivate var popControl: UIPopoverController?
 
 	fileprivate var timer = Timer()
 	fileprivate var seconds = 0
@@ -109,7 +109,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 			self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .play, target: self, action: #selector(StartupViewController.runTests))
 		}
 
-		let rect = UIScreen.main.applicationFrame
+		let rect = UIScreen.main.bounds
 		testViewBlack = UIView(frame: CGRect(x: 0, y: 0, width: rect.width, height: rect.height))
 		testViewBlack?.backgroundColor = UIColor.black
 		testViewBlack?.isHidden = true
@@ -245,12 +245,17 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 	}
 
-	fileprivate dynamic func showConfig() {
+	@objc fileprivate dynamic func showConfig() {
 		if UI_USER_INTERFACE_IDIOM() == .pad {
-			popControl = UIPopoverController(contentViewController: configViewC!)
-			popControl?.delegate = self
-			popControl?.setContentSize(CGSize(width: 400, height: 4.0/5.0*self.view.bounds.size.height), animated: true)
-			popControl?.present(from: CGRect(x: 0, y: 0, width: 10, height: 10), in: self.navigationController!.view, permittedArrowDirections: .up, animated: true)
+            if let configViewC = configViewC {
+                configViewC.modalPresentationStyle = UIModalPresentationStyle.popover
+                configViewC.preferredContentSize = CGSize(width: 400, height: 4.0/5.0*self.view.bounds.size.height)
+                present(configViewC, animated: true, completion: nil)
+                if let popControl = configViewC.popoverPresentationController {
+                    popControl.sourceView = self.view
+                    popControl.delegate = self
+                }
+            }
 		}
 		else {
 			configViewC!.navigationItem.hidesBackButton = true
@@ -262,7 +267,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 	fileprivate func prepareTestView () {
 		testViewBlack?.frame = CGRect(
 			origin: CGPoint.zero,
-			size: UIScreen.main.applicationFrame.size)
+			size: UIScreen.main.bounds.size)
 		let visibleRect = self.view.convert(tableView.bounds, to: self.testViewBlack)
 		self.testViewBlack?.frame = visibleRect
 
@@ -306,7 +311,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 	}
 
-	func stopInteractiveTest() {
+	@objc func stopInteractiveTest() {
 		self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .edit, target: self, action: #selector(StartupViewController.showConfig))
 		self.testViewBlack?.isHidden = true
 		tableView.isScrollEnabled = true
@@ -325,7 +330,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 	}
 	
-	func runTests() {
+	@objc func runTests() {
 		self.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .stop, target: self, action: #selector(StartupViewController.stopTests))
 		
 		self.title = "Running tests..."
@@ -338,7 +343,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		startTests(tests)
 	}
 	
-	func stopTests() {
+	@objc func stopTests() {
 	}
 
 	fileprivate func startTests(_ tests: [MaplyTestCase]) {
@@ -437,7 +442,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		test.start()
 	}
 
-	func updateTitle(_ timer: Timer) {
+	@objc func updateTitle(_ timer: Timer) {
 		self.seconds -= 1
 		self.title = "\(timer.userInfo!) (\(self.seconds))"
 		if self.seconds == 0 {
@@ -460,7 +465,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		}
 	}
 
-	fileprivate dynamic func editDone() {
+	@objc fileprivate dynamic func editDone() {
 		self.navigationController!.popToViewController(self, animated: true)
 		changeSettings()
 
@@ -473,7 +478,7 @@ class StartupViewController: UITableViewController, UIPopoverControllerDelegate 
 		testsTable.reloadData()
 	}
 
-	func popoverControllerDidDismissPopover(_ popoverController: UIPopoverController) {
+	func popoverControllerDidDismissPopover(_ popoverController: UIPopoverPresentationController) {
 		changeSettings()
 	}
 

@@ -82,7 +82,7 @@ public:
 typedef struct
 {
     /// Comparison operator based on node identifier
-    bool operator() (const OfflineTile *a,const OfflineTile *b)
+    bool operator() (const OfflineTile *a,const OfflineTile *b) const
     {
         return a->ident < b->ident;
     }

@@ -63,6 +63,9 @@ using namespace WhirlyKit;
     if (!renderControl->scene)
         return;
     
+    [sharedTileFetcher shutdown];
+    sharedTileFetcher = nil;
+    
     defaultClusterGenerator = nil;
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -171,6 +174,9 @@ using namespace WhirlyKit;
     if (!renderControl)
         renderControl = [[MaplyRenderController alloc] init];
     
+    sharedTileFetcher = [[MaplyTileFetcher alloc] initWithConnections:16];
+//    sharedTileFetcher.statsPeriod = 10.0;
+    
     allowRepositionForAnnnotations = true;
     
     userLayers = [NSMutableArray array];
@@ -213,6 +219,7 @@ using namespace WhirlyKit;
     renderControl->interactLayer = [self loadSetup_interactionLayer];
     renderControl->interactLayer.screenObjectDrawPriorityOffset = renderControl.screenObjectDrawPriorityOffset;
     renderControl->interactLayer.glView = glView;
+    renderControl->interactLayer->layerThreads = layerThreads;
     [baseLayerThread addLayer:renderControl->interactLayer];
     
 	// Give the renderer what it needs
@@ -255,13 +262,6 @@ using namespace WhirlyKit;
     [super viewDidLoad];
     
     [self loadSetup];
-}
-
-- (void)viewDidUnload
-{
-	[self clear];
-	
-	[super viewDidUnload];
 }
 
 - (void)startAnimation
@@ -324,11 +324,6 @@ using namespace WhirlyKit;
 	[super viewWillDisappear:animated];
 
 	[self stopAnimation];
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    return YES;
 }
 
 - (void)didReceiveMemoryWarning
@@ -1175,7 +1170,7 @@ static const float PerfOutputDelay = 15.0;
     {
         WhirlyKitLayerThread *layerThread = baseLayerThread;
         // Only supporting quad image tiles layer for the thread per layer
-        if (_threadPerLayer && [newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]])
+        if (_threadPerLayer && ([newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]] || [newLayer isKindOfClass:[MaplyQuadSamplingLayer class]]))
         {
             layerThread = [[WhirlyKitLayerThread alloc] initWithScene:renderControl->scene view:visualView renderer:renderControl->sceneRenderer mainLayerThread:false];
             [layerThreads addObject:layerThread];
@@ -1262,6 +1257,56 @@ static const float PerfOutputDelay = 15.0;
     
     for (MaplyViewControllerLayer *theLayer in allLayers)
         [self removeLayer:theLayer];
+}
+
+- (MaplyQuadSamplingLayer *)findSamplingLayer:(MaplySamplingParams *)params forUser:(NSObject<WhirlyKitQuadTileBuilderDelegate> *)userObj
+{
+    if (!renderControl)
+        return nil;
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        NSLog(@"Caller called findSamplerLayer:forUser: off of main thread.");
+        return nil;
+    }
+
+    // Look for a matching sampler
+    for (auto layer : samplingLayers) {
+        if ([layer.params isEqualTo:params]) {
+            [layer addBuilderDelegate:userObj];
+            return layer;
+        }
+    }
+    
+    // Create a new sampler
+    MaplyQuadSamplingLayer *layer = [[MaplyQuadSamplingLayer alloc] initWithParams:params];
+    [layer addBuilderDelegate:userObj];
+    [self addLayer:layer];
+    samplingLayers.push_back(layer);
+    
+    return layer;
+}
+
+- (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(NSObject *)userObj
+{
+    if (!renderControl)
+        return;
+    if ([NSThread currentThread] != [NSThread mainThread])
+    {
+        NSLog(@"Caller called findSamplerLayer:forUser: off of main thread.");
+        return;
+    }
+
+    [layer removeBuilderDelegate:userObj];
+    
+    if (layer.numClients == 0) {
+        [self removeLayer:layer];
+        samplingLayers.erase(std::find(samplingLayers.begin(),samplingLayers.end(),layer));
+    }
+}
+
+- (MaplyTileFetcher *)getSharedTileFetcher
+{
+    return sharedTileFetcher;
 }
 
 -(NSArray*)objectsAtCoord:(MaplyCoordinate)coord

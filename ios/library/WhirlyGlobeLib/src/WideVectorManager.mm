@@ -693,11 +693,12 @@ protected:
 };
     
 WideVectorSceneRep::WideVectorSceneRep()
+    : fade(0.0)
 {
 }
     
 WideVectorSceneRep::WideVectorSceneRep(SimpleIdentity inId)
-    : Identifiable(inId)
+    : Identifiable(inId), fade(0.0)
 {
 }
 

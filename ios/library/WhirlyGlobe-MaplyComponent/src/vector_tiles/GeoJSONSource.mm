@@ -68,7 +68,7 @@ using namespace WhirlyKit;
 - (void)startParseWithCompletion:(nonnull void (^)()) completionBlock {
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        __strong NSObject<MaplyRenderControllerProtocol> *baseVC = _baseVC;
+        __strong NSObject<MaplyRenderControllerProtocol> *baseVC = self->_baseVC;
         if (!baseVC) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 completionBlock();
@@ -76,11 +76,11 @@ using namespace WhirlyKit;
             });
         }
         
-        _styleSet = [[SLDStyleSet alloc] initWithViewC:baseVC useLayerNames:NO relativeDrawPriority:_relativeDrawPriority];
-        [_styleSet loadSldURL:_sldURL];
+        self->_styleSet = [[SLDStyleSet alloc] initWithViewC:baseVC useLayerNames:NO relativeDrawPriority:self->_relativeDrawPriority];
+        [self->_styleSet loadSldURL:self->_sldURL];
 
         ShapeSet shapes;
-        NSData *geoJSONData = [NSData dataWithContentsOfURL:_geoJSONURL];
+        NSData *geoJSONData = [NSData dataWithContentsOfURL:self->_geoJSONURL];
         NSString *crs;
         bool parsed = VectorParseGeoJSON(shapes, geoJSONData, &crs);
         
@@ -116,7 +116,7 @@ using namespace WhirlyKit;
                 [self processAreal:ar andVectorObjs:vectorObjs];
             }
             
-            NSArray *styles = [_styleSet stylesForFeatureWithAttributes:attributes onTile:nullTileID inLayer:@"" viewC:baseVC];
+            NSArray *styles = [self->_styleSet stylesForFeatureWithAttributes:attributes onTile:nullTileID inLayer:@"" viewC:baseVC];
             
             if (!styles || styles.count == 0)
                 continue;
@@ -139,15 +139,15 @@ using namespace WhirlyKit;
         dispatch_async(dispatch_get_main_queue(), ^{
             
             for(id key in symbolizerKeys) {
-                NSObject<MaplyVectorStyle> *symbolizer = [_styleSet styleForUUID:key viewC:baseVC];
+                NSObject<MaplyVectorStyle> *symbolizer = [self->_styleSet styleForUUID:key viewC:baseVC];
                 NSArray *features = featureStyles[key];
                 [compObjs addObjectsFromArray:[symbolizer buildObjects:features forTile:nullTileID viewC:baseVC]];
             }
             
-            _compObjs = compObjs;
+            self->_compObjs = compObjs;
             [baseVC enableObjects:compObjs mode:MaplyThreadAny];
-            _loaded = true;
-            _enabled = true;
+            self->_loaded = true;
+            self->_enabled = true;
             completionBlock();
         });
 

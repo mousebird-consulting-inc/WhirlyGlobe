@@ -200,7 +200,7 @@
 /** 
     The timeout assigned to the NSMutableURLRequest we're using to fetch tiles.
  
-    This is non set by default.  If set, we'll use this value as the timeout on the NSMutableURLRequest we use for fetching tiles.  This lets you extent it where appropriate or shorten it if you like.
+    This is not set by default.  If set, we'll use this value as the timeout on the NSMutableURLRequest we use for fetching tiles.  This lets you extent it where appropriate or shorten it if you like.
  */
 @property (nonatomic,assign) float timeOut;
 
@@ -329,6 +329,11 @@
   */
 @property (nonatomic,strong) id _Nullable userObject;
 
+/**
+    Added to the NSURLRequest as an "x-auth-token" if present.
+  */
+@property (nonatomic,nullable) NSString *xAuthToken;
+
 @end
 
 @class MaplyRemoteTileSource;
@@ -371,7 +376,7 @@
     
     @param error The NSError message, probably from the network routine.
   */
-- (void) remoteTileSource:(id __nonnull)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *__nullable)error;
+- (void)remoteTileSource:(id __nonnull)tileSource tileDidNotLoad:(MaplyTileID)tileID error:(NSError *__nullable)error;
 
 /** 
     Called when the tile is disabled.

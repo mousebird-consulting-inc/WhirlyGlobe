@@ -83,7 +83,7 @@ using namespace WhirlyKit;
             NSString *bounds = readStmt.getString();
             NSScanner *scan = [NSScanner scannerWithString:bounds];
             NSMutableCharacterSet *charSet = [[NSMutableCharacterSet alloc] init];
-            [charSet addCharactersInString:@","];
+            [charSet addCharactersInString:@", "];
             [scan setCharactersToBeSkipped:charSet];
             double ll_lat,ll_lon,ur_lat,ur_lon;
             if (![scan scanDouble:&ll_lon] ||
