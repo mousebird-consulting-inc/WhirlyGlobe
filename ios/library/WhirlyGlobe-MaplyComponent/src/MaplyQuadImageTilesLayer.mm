@@ -164,7 +164,7 @@ using namespace WhirlyKit;
     wantsEnabled = [_tileSource respondsToSelector:@selector(tileWasEnabled:)];
     wantsDisabled = [_tileSource respondsToSelector:@selector(tileWasDisabled:)];
     wantsClear = [_tileSource respondsToSelector:@selector(clear)];
-    wantsClear = [_tileSource respondsToSelector:@selector(clear:)];
+    wantsClear2 = [_tileSource respondsToSelector:@selector(clear:)];
     
     return self;
 }

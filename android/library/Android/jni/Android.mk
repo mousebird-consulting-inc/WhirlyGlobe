@@ -2,23 +2,23 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-BASE_DIR := ../../../../
-SRC_DIR := $(BASE_DIR)/android/library/WhirlyGlobeLib/src/
-INCLUDE_DIR := ../../../android/library/WhirlyGlobeLib/include/
-LOCAL_EXPORT_C_INCLUDES = $(BASE_DIR)/android/library/WhirlyGlobeLib/include/
+BASE_DIR := ../../../..
+SRC_DIR := $(BASE_DIR)/android/library/WhirlyGlobeLib/src
+INCLUDE_DIR := ../../../android/library/WhirlyGlobeLib/include
+LOCAL_EXPORT_C_INCLUDES = $(BASE_DIR)/android/library/WhirlyGlobeLib/include
 
 LOCAL_CPP_EXTENSION := .cxx .cpp .cc
 
-THIRD_PARTY := $(BASE_DIR)/third-party/
-THIRD_PARTY_INC := ../../../third-party/
-PROTOBUF_DIR := ../../../../third-party/protobuf/src/google/protobuf/
-LASZIP_DIR := ../../../../third-party/laszip/src/
+THIRD_PARTY := $(BASE_DIR)/common/local_libs
+THIRD_PARTY_INC := ../../../common/local_libs
+PROTOBUF_DIR := $(THIRD_PARTY)/protobuf/src/google/protobuf
+LASZIP_DIR := $(THIRD_PARTY)/laszip/src
 LOCAL_C_INCLUDES += $(INCLUDE_DIR)
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/eigen/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/boost/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/proj-4/src/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/clipper/
-LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/shapelib/
+LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/shapefile/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/libjson/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/glues/include/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/glues/source/
@@ -31,7 +31,7 @@ LOCAL_C_INCLUDES += $(PROTOBUF_DIR)/stubs/
 LOCAL_C_INCLUDES += $(PROTOBUF_DIR)/io/
 LOCAL_C_INCLUDES += jni/
 LOCAL_C_INCLUDES += jni/utility/
-LOCAL_C_INCLUDES += ../../../common/local_libs/aaplus/
+LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/aaplus/
 
 LOCAL_MODULE    := Maply
 
@@ -77,13 +77,13 @@ PROJ_SRC_FILES := pj_fwd3d.c pj_inv3d.c geodesic.c PJ_calcofi.c pj_fileapi.c pj_
 PROJ_SRC_DIR := $(THIRD_PARTY)/proj-4/src/
 LOCAL_SRC_FILES += $(PROJ_SRC_FILES:%=$(PROJ_SRC_DIR)/%)
 
-AAPLUS_DIR := $(BASE_DIR)/common/local_libs/aaplus/
+AAPLUS_DIR := $(THIRD_PARTY)/aaplus/
 LOCAL_C_INCLUDES += $(AAPLUS_DIR)
 
 LOCAL_SRC_FILES += $(THIRD_PARTY)/clipper/cpp/clipper.cpp
 
 SHP_SRC_FILES = safileio.c dbfopen.c shpopen.c
-SHP_SRC_DIR = $(THIRD_PARTY)/shapelib/
+SHP_SRC_DIR = $(THIRD_PARTY)/shapefile/
 LOCAL_SRC_FILES += $(SHP_SRC_FILES:%=$(SHP_SRC_DIR)/%)
 
 JSON_SRC_FILES = JSONAllocator.cpp JSONDebug.cpp JSONMemory.cpp JSONNode_Mutex.cpp JSONStream.cpp JSONWorker.cpp internalJSONNode.cpp \
@@ -108,7 +108,7 @@ AA_SRC_FILES = AAAberration.cpp AAAngularSeparation.cpp AABinaryStar.cpp AACoord
     AAPhysicalSun.cpp AAPlanetaryPhenomena.cpp AAPlanetPerihelionAphelion.cpp AAPluto.cpp AAPrecession.cpp AARefraction.cpp \
     AARiseTransitSet.cpp AASaturn.cpp AASaturnMoons.cpp AASaturnRings.cpp AASidereal.cpp AAStellarMagnitudes.cpp AASun.cpp AAUranus.cpp AAVenus.cpp
 
-AA_SRC_DIR = $(BASE_DIR)/common/local_libs/aaplus
+AA_SRC_DIR = $(THIRD_PARTY)/aaplus
 LOCAL_SRC_FILES += $(AA_SRC_FILES:%=$(AA_SRC_DIR)/%)
 
 MAPLY_CORE_SRC_FILES := BaseInfo.cpp BasicDrawable.cpp BasicDrawableInstance.cpp BigDrawable.cpp BillboardDrawable.cpp BillboardManager.cpp \
