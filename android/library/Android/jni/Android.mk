@@ -9,16 +9,16 @@ LOCAL_EXPORT_C_INCLUDES = $(BASE_DIR)/android/library/WhirlyGlobeLib/include/
 
 LOCAL_CPP_EXTENSION := .cxx .cpp .cc
 
-THIRD_PARTY := $(BASE_DIR)/third-party/
-THIRD_PARTY_INC := ../../../third-party/
-PROTOBUF_DIR := ../../../../third-party/protobuf/src/google/protobuf/
-LASZIP_DIR := ../../../../third-party/laszip/src/
+THIRD_PARTY := $(BASE_DIR)/common/local_libs/
+THIRD_PARTY_INC := ../../../common/local_libs/
+PROTOBUF_DIR := ../../../../common/local_libs/protobuf/src/google/protobuf/
+LASZIP_DIR := ../../../../common/local_libs/laszip/src/
 LOCAL_C_INCLUDES += $(INCLUDE_DIR)
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/eigen/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/boost/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/proj-4/src/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/clipper/
-LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/shapelib/
+LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/shapefile/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/libjson/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/glues/include/
 LOCAL_C_INCLUDES += $(THIRD_PARTY_INC)/glues/source/
@@ -83,7 +83,7 @@ LOCAL_C_INCLUDES += $(AAPLUS_DIR)
 LOCAL_SRC_FILES += $(THIRD_PARTY)/clipper/cpp/clipper.cpp
 
 SHP_SRC_FILES = safileio.c dbfopen.c shpopen.c
-SHP_SRC_DIR = $(THIRD_PARTY)/shapelib/
+SHP_SRC_DIR = $(THIRD_PARTY)/shapefile/
 LOCAL_SRC_FILES += $(SHP_SRC_FILES:%=$(SHP_SRC_DIR)/%)
 
 JSON_SRC_FILES = JSONAllocator.cpp JSONDebug.cpp JSONMemory.cpp JSONNode_Mutex.cpp JSONStream.cpp JSONWorker.cpp internalJSONNode.cpp \
