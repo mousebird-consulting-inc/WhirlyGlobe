@@ -140,7 +140,7 @@ protected:
 
     // What should be present
     auto newNodes = _quadtree->calcCoverage(_minImportance,_maxTiles,true);
-    QuadTreeNew::ImportantNodeSet toAdd;
+    QuadTreeNew::ImportantNodeSet toAdd,toUpdate;
     QuadTreeNew::NodeSet toRemove;
     
     // Need a version of new and old that has no importance values, since those change
@@ -156,16 +156,15 @@ protected:
         if (testNewNodes.find(node) == testNewNodes.end())
             toRemove.insert(node);
     
-    // Nodes to add
+    // Nodes to add and nodes to update importance for
     for (auto node : newNodes)
         if (testCurrentNodes.find(node) == testCurrentNodes.end())
             toAdd.insert(node);
+        else
+            toUpdate.insert(node);
 
-    if (!toRemove.empty())
-        [_loader quadDisplayLayer:self unLoadTiles:toRemove];
-    if (!toAdd.empty())
-        [_loader quadDisplayLayer:self loadTiles:toAdd];
-    
+    [_loader quadDisplayLayer:self loadTiles:toAdd unLoadTiles:toRemove updateTiles:toUpdate];
+        
     currentNodes = newNodes;
 }
 

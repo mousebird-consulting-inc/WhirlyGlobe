@@ -102,8 +102,11 @@ QuadTreeNew::ImportantNodeSet QuadTreeNew::calcCoverage(double minImportance,int
     ImportantNodeSet retNodes;
     NodeSet testRetNodes;
     for (auto nodeIt = sortedNodes.rbegin();nodeIt != sortedNodes.rend();nodeIt++) {
-        retNodes.insert(*nodeIt);
-        testRetNodes.insert(*nodeIt);
+        if (testRetNodes.find(*nodeIt) == testRetNodes.end())
+        {
+            retNodes.insert(*nodeIt);
+            testRetNodes.insert(*nodeIt);
+        }
         // Make sure all the siblings are in there for some modes
         if (siblingNodes) {
             ImportantNode ident = *nodeIt;

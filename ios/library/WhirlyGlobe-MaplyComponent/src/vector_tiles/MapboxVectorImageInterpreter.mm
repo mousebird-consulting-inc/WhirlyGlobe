@@ -18,7 +18,7 @@
  *
  */
 
-#import "MapboxVectorImageInterpeter.h"
+#import "MapboxVectorImageInterpreter.h"
 #import "MapboxVectorTiles.h"
 #import "MaplyTileSource.h"
 #import "MapboxVectorStyleSet.h"
@@ -49,7 +49,7 @@ using namespace WhirlyKit;
 
 static double MAX_EXTENT = 20037508.342789244;
 
-@implementation MapboxVectorImageInterpeter
+@implementation MapboxVectorImageInterpreter
 {
     MaplyQuadImageLoader * __weak loader;
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
@@ -67,11 +67,18 @@ static double MAX_EXTENT = 20037508.342789244;
                                  vectorStyle:(MapboxVectorStyleSet *__nonnull)inVectorStyle
                                        viewC:(MaplyBaseViewController *__nonnull)inViewC
 {
+    if (inLoader.importanceScale != 1.0) {
+        NSLog(@"MapboxVectorImageInterpreter works poorly with an importance scale.  Failing.");
+        return nil;
+    }
+
     self = [super init];
     loader = inLoader;
     imageStyle = inImageStyle;
     offlineRender = inOfflineRender;
     vecStyle = inVectorStyle;
+    loader.baseDrawPriority = vecStyle.tileStyleSettings.baseDrawPriority;
+    loader.drawPriorityPerLevel = vecStyle.tileStyleSettings.drawPriorityPerLevel;
     viewC = inViewC;
     coordSys = [[MaplySphericalMercator alloc] initWebStandard];
 

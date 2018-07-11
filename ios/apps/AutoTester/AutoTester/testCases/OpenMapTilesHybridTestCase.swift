@@ -83,6 +83,7 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         // Parameters describing how we want a globe broken down
         let sampleParams = MaplySamplingParams()
         sampleParams.coordSys = tileInfo.coordSys!
+        sampleParams.minImportance = 1024 * 1024;
         if baseVC is WhirlyGlobeViewController {
             sampleParams.coverPoles = true
             sampleParams.edgeMatching = true
@@ -98,7 +99,7 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
             return nil
         }
         // Note: Need to scale the importance for loading here
-        guard let mapboxInterp = MapboxVectorImageInterpeter(loader: imageLoader,
+        guard let mapboxInterp = MapboxVectorImageInterpreter(loader: imageLoader,
                                                              imageStyle: imageStyleSet,
                                                              offlineRender: offlineRender,
                                                              vectorStyle: vectorStyleSet,
@@ -106,17 +107,19 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
             return nil
         }
         imageLoader.setInterpreter(mapboxInterp)
+        imageLoader.debugMode = false
+//        imageLoader.importanceScale = 16.0
         
         return imageLoader
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
-        //        mapVC.performanceOutput = true
+                mapVC.performanceOutput = true
         imageLoader = setupLoader(mapVC)
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        //        globeVC.performanceOutput = true
+                globeVC.performanceOutput = true
 
         imageLoader = setupLoader(globeVC)
     }
