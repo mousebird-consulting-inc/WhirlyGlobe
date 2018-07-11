@@ -38,7 +38,8 @@ using namespace WhirlyKit;
     _edgeMatching = true;
     _tessX = 10;
     _tessY = 10;
-    
+    _minImportance = 256*256;
+
     return self;
 }
 
@@ -46,7 +47,8 @@ using namespace WhirlyKit;
 {
     if (_minZoom != other.minZoom || _maxZoom != other.maxZoom ||
         _coverPoles != other.coverPoles || _edgeMatching != other.edgeMatching ||
-        _tessX != other.tessX || _tessY != other.tessY)
+        _tessX != other.tessX || _tessY != other.tessY ||
+        _minImportance != other.minImportance)
         return false;
     
     return _coordSys->coordSystem->isSameAs(other.coordSys->coordSystem);
@@ -65,6 +67,7 @@ using namespace WhirlyKit;
     WhirlyKitQuadTileBuilder *builder;
     WhirlyKitSceneRendererES * __weak renderer;
     std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> builderDelegates;
+    double importance;
 }
 
 - (nullable instancetype)initWithParams:(MaplySamplingParams * __nonnull)params
@@ -75,13 +78,18 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (void)setMinImportance:(double)inImportance
+{
+    importance = inImportance;
+}
+
 - (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)inRenderer viewC:(MaplyBaseViewController *)inViewC
 {
     viewC = inViewC;
     super.layerThread = inLayerThread;
     scene = inScene;
     renderer = inRenderer;
-    
+
     builder = [[WhirlyKitQuadTileBuilder alloc] initWithCoordSys:[_params.coordSys getCoordSystem]];
     builder.coverPoles = _params.coverPoles;
     builder.edgeMatching = _params.edgeMatching;
@@ -89,10 +97,9 @@ using namespace WhirlyKit;
     builder.drawPriorityPerLevel = 0;
     builder.delegate = self;
     quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithDataSource:self loader:builder renderer:renderer];
-    // Note: Should get this from the loaders
-    quadLayer.minImportance = 256*256;
+    quadLayer.minImportance = _params.minImportance;
     [super.layerThread addLayer:quadLayer];
-    
+
     return true;
 }
 
@@ -189,58 +196,22 @@ using namespace WhirlyKit;
     }
 }
 
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder loadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *)builder update:(const WhirlyKit::TileBuilderDelegateInfo &)updates changes:(WhirlyKit::ChangeSet &)changes
 {
     std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> delegates;
     @synchronized(self) {
         delegates = builderDelegates;
     }
-    
+
     // Disable the tiles.  The delegates will instance them.
-    for (auto tile : tiles) {
+    for (auto tile : updates.loadTiles) {
         for (auto di : tile->drawInfo) {
             changes.push_back(new OnOffChangeRequest(di.drawID,false));
         }
     }
 
     for (auto delegate : delegates) {
-        [delegate quadBuilder:builder loadTiles:tiles changes:changes];
-    }
-}
-
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder enableTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes
-{
-    std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> delegates;
-    @synchronized(self) {
-        delegates = builderDelegates;
-    }
-
-    for (auto delegate : delegates) {
-        [delegate quadBuilder:builder enableTiles:tiles changes:changes];
-    }
-}
-
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder disableTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes
-{
-    std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> delegates;
-    @synchronized(self) {
-        delegates = builderDelegates;
-    }
-
-    for (auto delegate : delegates) {
-        [delegate quadBuilder:builder disableTiles:tiles changes:changes];
-    }
-}
-
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder unLoadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes
-{
-    std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> delegates;
-    @synchronized(self) {
-        delegates = builderDelegates;
-    }
-
-    for (auto delegate : delegates) {
-        [delegate quadBuilder:builder unLoadTiles:tiles changes:changes];
+        [delegate quadBuilder:builder update:updates changes:changes];
     }
 }
 

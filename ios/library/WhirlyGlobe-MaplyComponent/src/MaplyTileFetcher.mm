@@ -172,6 +172,11 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (dispatch_queue_t)getQueue
+{
+    return queue;
+}
+
 - (void)setStatsPeriod:(NSTimeInterval)statsPeriod
 {
     _statsPeriod = statsPeriod;
@@ -231,7 +236,7 @@ using namespace WhirlyKit;
     auto it = tiles.find(ident);
     if (it != tiles.end()) {
         // It's already loading, so punt
-        NSLog(@"MaplyTileFetcher: Client requested the same tile fetched twice. Ignoring.");
+        NSLog(@"MaplyTileFetcher: Client requested tile twice: %d : (%d,%d)",ident.level,ident.x,ident.y);
         return;
     }
     
@@ -339,6 +344,16 @@ using namespace WhirlyKit;
 }
 
 // Called on our queue
+- (void)finishTile:(TileInfoRef)tile
+{
+    auto it = tiles.find(tile->ident);
+    if (it != tiles.end())
+        tiles.erase(it);
+    loading.erase(tile);
+    toLoad.erase(tile);
+}
+
+// Called on our queue
 - (void)finishedLoading:(TileInfoRef)tile data:(NSData *)data error:(NSError *)error
 {
     auto it = tiles.find(tile->ident);
@@ -346,17 +361,27 @@ using namespace WhirlyKit;
         // No idea what it is.  Toss it.
         return;
     
-    if (data) {
-        tile->request.success(tile->request,data);
-    } else {
-        tile->request.failure(tile->request, error);
-    }
+    MaplyTileFetcher * __weak weakSelf = self;
     
-    loading.erase(tile);
-    toLoad.erase(tile);
-    tiles.erase(it);
+    // Do the callback on a background queue
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+    ^{
+        // We assume the parsing is going to take some time
+        if (data) {
+           tile->request.success(tile->request,data);
+        } else {
+           tile->request.failure(tile->request, error);
+        }
 
-    [self updateLoading];
+        dispatch_queue_t theQueue = [weakSelf getQueue];
+        if (theQueue)
+            dispatch_async(theQueue,
+            ^{
+                [weakSelf finishTile:tile];
+
+                [weakSelf updateLoading];
+            });
+    });
 }
 
 - (void)shutdown

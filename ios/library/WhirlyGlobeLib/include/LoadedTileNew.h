@@ -128,7 +128,7 @@ public:
     };
     
     // Add the tiles list in the node set
-    NodeChanges addTiles(const QuadTreeNew::ImportantNodeSet &tiles,ChangeSet &changes);
+    NodeChanges addRemoveTiles(const QuadTreeNew::ImportantNodeSet &addTiles,const QuadTreeNew::NodeSet &removeTiles,ChangeSet &changes);
     
     // Return a list of tiles corresponding to the IDs
     std::vector<LoadedTileNewRef> getTiles(const QuadTreeNew::NodeSet &tiles);

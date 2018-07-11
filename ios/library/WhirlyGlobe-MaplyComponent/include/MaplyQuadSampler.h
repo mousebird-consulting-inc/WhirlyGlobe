@@ -40,6 +40,9 @@
 /// Max zoom level for sampling
 @property (nonatomic) int maxZoom;
 
+/// Cutoff for loading tiles.  This is size in screen space (pixels^2)
+@property (nonatomic) double minImportance;
+
 /// Generate geometry to cover the north and south poles
 /// Only works for world-wide projections
 @property (nonatomic) bool coverPoles;

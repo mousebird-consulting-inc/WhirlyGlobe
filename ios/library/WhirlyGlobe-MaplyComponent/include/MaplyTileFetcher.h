@@ -42,8 +42,8 @@
 /**
     Tile Fetcher success callback.
 
-    Called on the Tile Fetcher's dispatch queue.  If you're going to do some work, do it
-    somewhere else.
+    Called on a new dispatch queue and won't be marked as loaded until it returns.
+    This is a good way to limit how many things are loading/parsing at the same time.
   */
 @property (nonatomic,nullable) void (^success)(MaplyTileFetchRequest * __nonnull,NSData * __nonnull);
 

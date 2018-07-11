@@ -116,6 +116,17 @@
 @property (nonatomic) int drawPriorityPerLevel;
 
 /**
+    Scale the importance values passed to the loader and used for a loading cutoff.
+ 
+    A larger value means the tile needs to take up *more* space to be loaded.  So bigger values
+    mean less loading.  The importance values are pixels^2.
+  */
+@property (nonatomic) double importanceScale;
+
+/// Any tiles less important than this (screen area in pixels^2) won't be loaded
+@property (nonatomic) double importanceCutoff;
+
+/**
  Set the image format for the texture atlases (thus the imagery).
  
  OpenGL ES offers us several image formats that are more efficient than 32 bit RGBA, but they're not always appropriate.  This property lets you choose one of them.  The 16 or 8 bit ones can save a huge amount of space and will work well for some imagery, most maps, and a lot of weather overlays.

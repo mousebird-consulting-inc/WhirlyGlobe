@@ -23,6 +23,24 @@
 
 @class WhirlyKitQuadTileBuilder;
 
+namespace WhirlyKit
+{
+    
+/**
+    Tile Builder Delegate Info
+ 
+    This is passed to a Tile Builder Delegate when changes are being made in the Tile Builder;
+  */
+class TileBuilderDelegateInfo {
+public:
+    LoadedTileVec loadTiles;
+    QuadTreeNew::NodeSet unloadTiles;
+    LoadedTileVec enableTiles,disableTiles;
+    QuadTreeNew::ImportantNodeSet changeTiles;
+};
+    
+}
+
 /// Protocol used by the tile builder to notify an interested party about what's
 ///  loaded.  If, for example, you want to attach textures to things.
 @protocol WhirlyKitQuadTileBuilderDelegate<NSObject>
@@ -31,16 +49,7 @@
 - (void)setQuadBuilder:(WhirlyKitQuadTileBuilder * __nonnull)builder layer:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer;
 
 /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder loadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
-
-/// The given tiles should be enabled
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder enableTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
-
-/// The given tiles should be disabled
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder disableTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
-
-/// Unload the given tiles.
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder unLoadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder update:(const WhirlyKit::TileBuilderDelegateInfo &)updates changes:(WhirlyKit::ChangeSet &)changes;
 
 @end
 

@@ -468,11 +468,20 @@ void TileGeomManager::setup(TileGeomSettings &geomSettings,QuadTreeNew *inQuadTr
     mbr = inMbr;
 }
     
-TileGeomManager::NodeChanges TileGeomManager::addTiles(const QuadTreeNew::ImportantNodeSet &tiles,ChangeSet &changes)
+TileGeomManager::NodeChanges TileGeomManager::addRemoveTiles(const QuadTreeNew::ImportantNodeSet &addTiles,const QuadTreeNew::NodeSet &removeTiles,ChangeSet &changes)
 {
     NodeChanges nodeChanges;
 
-    for (auto ident: tiles) {
+    for (auto ident: removeTiles) {
+        auto it = tileMap.find(ident);
+        if (it != tileMap.end()) {
+            auto tile = it->second;
+            tile->removeDrawables(changes);
+            tileMap.erase(it);
+        }
+    }
+
+    for (auto ident: addTiles) {
         // Look for an existing tile
         auto it = tileMap.find(ident);
         if (it == tileMap.end()) {
@@ -511,24 +520,6 @@ LoadedTileNewRef TileGeomManager::getTile(QuadTreeNew::Node &ident)
         return it->second;
     
     return LoadedTileNewRef();
-}
-    
-TileGeomManager::NodeChanges TileGeomManager::removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes)
-{
-    NodeChanges nodeChanges;
-    
-    for (auto ident: tiles) {
-        auto it = tileMap.find(ident);
-        if (it != tileMap.end()) {
-            auto tile = it->second;
-            tile->removeDrawables(changes);
-            tileMap.erase(it);
-        }
-    }
-    
-    updateParents(changes,nodeChanges.enabledTiles,nodeChanges.disabledTiles);
-    
-    return nodeChanges;
 }
     
 void TileGeomManager::updateParents(ChangeSet &changes,LoadedTileVec &enabledNodes,LoadedTileVec &disabledNodes)
