@@ -378,7 +378,7 @@ void VectorObject::subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDispl
             } else
                 lin->pts = outPts2D;
             
-            WHIRLYKIT_LOGD("lin pts = %lu, eps = %f",lin->pts.size(),epsilon);
+//            WHIRLYKIT_LOGD("lin pts = %lu, eps = %f",lin->pts.size(),epsilon);
         } else {
             VectorLinear3dRef lin3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
             if (lin3d)
