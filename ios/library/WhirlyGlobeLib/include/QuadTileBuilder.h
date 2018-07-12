@@ -73,6 +73,9 @@ public:
 // Offset between levels for a calculated draw priority
 @property (nonatomic) int drawPriorityPerLevel;
 
+// Set if we're using single level loading logic
+@property (nonatomic) bool singleLevel;
+
 // If set, we'll print too much information
 @property (nonatomic) bool debugMode;
 

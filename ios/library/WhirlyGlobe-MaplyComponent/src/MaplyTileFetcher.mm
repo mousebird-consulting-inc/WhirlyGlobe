@@ -195,6 +195,7 @@ using namespace WhirlyKit;
     NSLog(@"   Failed Requests = %d",totalFails);
     NSLog(@"   Data Transferred = %.2fMB",remoteData / (1024.0*1024.0));
     NSLog(@"   Cached Data = %.2fMB",localData / (1024.0*1024.0));
+    NSLog(@"   Tiles currently loading = %lu",loading.size());
 
     if (_statsPeriod > 0.0) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_statsPeriod * NSEC_PER_SEC)), queue, ^{

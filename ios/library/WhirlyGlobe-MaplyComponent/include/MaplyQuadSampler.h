@@ -53,6 +53,9 @@
 /// Tesselation values per level for breaking down the coordinate system (e.g. globe)
 @property (nonatomic) int tessX,tessY;
 
+/// If set, we'll try to load a single level
+@property (nonatomic) bool singleLevel;
+
 /// Decide if these sampling params are the same as others
 - (bool)isEqualTo:(MaplySamplingParams *__nonnull)other;
 

@@ -63,6 +63,8 @@ public:
     // If set, we'll enable/disable geometry associated with tiles.
     // Otherwise we'll just always leave it off, assuming someone else is instancing it
     bool enableGeom;
+    // If set, we're building single level geometry, so no parent logic
+    bool singleLevel;
 };
 
 class TileGeomManager;
