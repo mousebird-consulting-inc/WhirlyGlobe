@@ -38,17 +38,19 @@ class GlobeSamplerTestCase: MaplyTestCase {
         sampleParams.edgeMatching = true
         sampleParams.minZoom = tileInfo.minZoom
         sampleParams.maxZoom = tileInfo.maxZoom
+        sampleParams.singleLevel = true
         
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
         }
-        imageLoader.importanceScale = 16.0;
-        imageLoader.debugMode = false
+//        imageLoader.importanceScale = 16.0;
+//        imageLoader.debugMode = true
 
         return imageLoader
     }
 
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
+        globeVC.clearColor = UIColor.red
         imageLoader = setupLoader(globeVC)
     }
 

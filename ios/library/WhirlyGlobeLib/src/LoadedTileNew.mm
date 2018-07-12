@@ -30,7 +30,8 @@ TileGeomSettings::TileGeomSettings()
   programID(0), sampleX(10), sampleY(10),
     topSampleX(10), topSampleY(10),
   minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
-  baseDrawPriority(0), drawPriorityPerLevel(1), lineMode(false), includeElev(false), enableGeom(true)
+  baseDrawPriority(0), drawPriorityPerLevel(1), lineMode(false),
+    includeElev(false), enableGeom(true), singleLevel(false)
 {
 }
     
@@ -524,6 +525,10 @@ LoadedTileNewRef TileGeomManager::getTile(QuadTreeNew::Node &ident)
     
 void TileGeomManager::updateParents(ChangeSet &changes,LoadedTileVec &enabledNodes,LoadedTileVec &disabledNodes)
 {
+    // No parent logic with single level.  Everything is on.
+    if (settings.singleLevel)
+        return;
+    
     for (auto entry : tileMap) {
         auto ident = entry.first;
         auto tile = entry.second;

@@ -78,6 +78,8 @@
 @property (nonatomic,weak) WhirlyKitSceneRendererES2 *renderer;
 /// On by default.  If you turn this off we won't evaluate any view changes.
 @property (nonatomic,assign) bool enable;
+/// Load just the target level (and the lowest level)
+@property (nonatomic,assign) bool singleLevel;
 
 /// Construct with a renderer and data source for the tiles
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataStructure loader:(NSObject<WhirlyKitQuadLoaderNew> *)loader renderer:(WhirlyKitSceneRendererES *)renderer;

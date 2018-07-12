@@ -25,6 +25,7 @@ using namespace WhirlyKit;
 @interface WhirlyKitQuadDisplayLayerNew()
 
 - (double)importanceFor:(const QuadTreeNew::Node &)node;
+- (double)visibility:(const QuadTreeNew::Node &)node;
 
 @end
 
@@ -52,6 +53,11 @@ protected:
     double importance(const Node &node)
     {
         return [dispLayer importanceFor:node];
+    }
+    
+    // Pure visibility check
+    virtual bool visible(const Node &node) {
+        return [dispLayer visibility:node];
     }
 };
 
@@ -82,6 +88,7 @@ protected:
         MbrD mbrD(mbr);
         _quadtree = new DispLayerQuadTree(mbrD,minZoom,maxZoom,self);
         _renderer = (WhirlyKitSceneRendererES2 *)inRenderer;
+        _singleLevel = false;
         _enable = true;
     }
 
@@ -138,11 +145,18 @@ protected:
 
     viewState = inViewState;
 
-    // What should be present
-    auto newNodes = _quadtree->calcCoverage(_minImportance,_maxTiles,true);
+    // Nodes to load are different for single level vs regular loading
+    QuadTreeNew::ImportantNodeSet newNodes;
+    if (_singleLevel) {
+        int targetLevel;
+        std::tie(targetLevel,newNodes) = _quadtree->calcCoverageVisible(_minImportance, _maxTiles);
+    } else {
+        newNodes = _quadtree->calcCoverageImportance(_minImportance,_maxTiles,true);
+    }
+
     QuadTreeNew::ImportantNodeSet toAdd,toUpdate;
     QuadTreeNew::NodeSet toRemove;
-    
+
     // Need a version of new and old that has no importance values, since those change
     QuadTreeNew::NodeSet testNewNodes;
     for (auto node : newNodes)
@@ -150,12 +164,12 @@ protected:
     QuadTreeNew::NodeSet testCurrentNodes;
     for (auto node : currentNodes)
         testCurrentNodes.insert(node);
-    
+
     // Nodes to remove
     for (auto node : currentNodes)
         if (testNewNodes.find(node) == testNewNodes.end())
             toRemove.insert(node);
-    
+
     // Nodes to add and nodes to update importance for
     for (auto node : newNodes)
         if (testCurrentNodes.find(node) == testCurrentNodes.end())
@@ -178,6 +192,18 @@ protected:
 
     // Note: Add back the mutable attributes?
     return [_dataStructure importanceForTile:ident mbr:mbr viewInfo:viewState frameSize:Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight) attrs:nil];
+}
+
+- (double)visibility:(const QuadTreeNew::Node &)node
+{
+    Quadtree::Identifier ident;
+    ident.level = node.level;  ident.x = node.x;  ident.y = node.y;
+    Point2d ll,ur;
+    MbrD mbrD = _quadtree->generateMbrForNode(node);
+    Mbr mbr(mbrD);
+    
+    // Note: Add back the mutable attributes?
+    return [_dataStructure visibilityForTile:ident mbr:mbr viewInfo:viewState frameSize:Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight) attrs:nil];
 }
 
 @end

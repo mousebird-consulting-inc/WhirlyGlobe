@@ -38,17 +38,21 @@ public:
         ourTexture(false), texID(EmptyIdentity), drawPriority(0), compObjs(nil), shouldEnable(false), enable(false), fetchHandle(nil), state(Waiting)
     { }
 
+    // Tile is doing what?
+    typedef enum {Waiting,Loading,Loaded} State;
+    State getState() { return state; }
+
     // Completely clear out the tile geometry
     void clear(MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
-        clearToBlank(interactLayer, changes);
+        clearToBlank(interactLayer, changes, Waiting);
         for (auto drawID : instanceDrawIDs)
             changes.push_back(new RemDrawableReq(drawID));
         instanceDrawIDs.clear();
     }
 
     // Clear out the assets unique to this tile
-    void clearToBlank(MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
-        state = Waiting;
+    void clearToBlank(MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes,State newState) {
+        state = newState;
         if (ourTexture && texID != EmptyIdentity)
             changes.push_back(new RemTextureReq(texID));
         if (compObjs)
@@ -58,10 +62,6 @@ public:
         ourTexture = false;
         compObjs = nil;
     }
-
-    // Tile is doing what?
-    typedef enum {Waiting,Loading,Loaded} State;
-    State getState() { return state; }
     
     // Return the texture ID
     SimpleIdentity getTexID() { return texID; }
@@ -79,6 +79,16 @@ public:
         ourTexture = false;
         texNode = borrowNode;
         texID = inTexID;
+    }
+    
+    // Check if this tile is using another cover texture
+    bool isUsingCoverTex() {
+        return !ourTexture && texID != EmptyIdentity;
+    }
+    
+    // Return the cover texture node
+    QuadTreeNew::Node getCoverTexNode() {
+        return texNode;
     }
     
     // Check if this node is using a borrowed texture from the given one
@@ -119,17 +129,61 @@ public:
             changes.push_back(new AddTextureReq(tex));
             
             // Assign it to the various drawables
-            for (auto instID : instanceDrawIDs) {
-                changes.push_back(new DrawTexChangeRequest(instID,0,texID));
+            for (int which = 0; which < loadedTile->drawInfo.size(); which++) {
+                int drawInstID = instanceDrawIDs[which];
                 
+                // Draw priority for thie asset when it's loaded
+                int newDrawPriority = drawPriority;
+                switch (loadedTile->drawInfo[which].kind) {
+                    case WhirlyKit::LoadedTileNew::DrawableGeom:
+                        newDrawPriority = drawPriority;
+                        break;
+                    case WhirlyKit::LoadedTileNew::DrawableSkirt:
+                        newDrawPriority = 11;
+                        break;
+                    case WhirlyKit::LoadedTileNew::DrawablePole:
+                        newDrawPriority = drawPriority;
+                        break;
+                }
+                changes.push_back(new DrawTexChangeRequest(drawInstID,0,texID));
+                changes.push_back(new DrawPriorityChangeRequest(drawInstID,newDrawPriority));
+
                 if (shouldEnable)
-                    changes.push_back(new OnOffChangeRequest(instID,true));
+                    changes.push_back(new OnOffChangeRequest(drawInstID,true));
             }
 
             if (shouldEnable) {
                 enable = true;
                 [layer enableObjects:compObjs changes:changes];
             }
+        }
+    }
+    
+    // Set up the instance to the base tile's geometry
+    void setupGeom(LoadedTileNewRef loadedTile,int defaultDrawPriority,ChangeSet &changes) {
+        // Assign it to the various drawables
+        drawPriority = defaultDrawPriority;
+        for (auto di : loadedTile->drawInfo) {
+            int newDrawPriority = defaultDrawPriority;
+            switch (di.kind) {
+                case WhirlyKit::LoadedTileNew::DrawableGeom:
+                    newDrawPriority = defaultDrawPriority;
+                    break;
+                case WhirlyKit::LoadedTileNew::DrawableSkirt:
+                    newDrawPriority = 11;
+                    break;
+                case WhirlyKit::LoadedTileNew::DrawablePole:
+                    newDrawPriority = defaultDrawPriority;
+                    break;
+            }
+            
+            // Make a drawable instance to shadow the geometry
+            auto drawInst = new BasicDrawableInstance("MaplyQuadImageLoader", di.drawID, BasicDrawableInstance::ReuseStyle);
+            drawInst->setTexId(0, 0);
+            drawInst->setDrawPriority(newDrawPriority);
+            drawInst->setEnable(false);
+            changes.push_back(new AddDrawableReq(drawInst));
+            instanceDrawIDs.push_back(drawInst->getId());
         }
     }
     
@@ -209,34 +263,6 @@ public:
         [interactLayer disableObjects:compObjs changes:changes];
     }
     
-    // Set up the instance to the base tile's geometry
-    void setupGeom(LoadedTileNewRef loadedTile,int defaultDrawPriority,ChangeSet &changes) {
-        // Assign it to the various drawables
-        drawPriority = defaultDrawPriority;
-        for (auto di : loadedTile->drawInfo) {
-            int newDrawPriority = defaultDrawPriority;
-            switch (di.kind) {
-                case WhirlyKit::LoadedTileNew::DrawableGeom:
-                    newDrawPriority = defaultDrawPriority;
-                    break;
-                case WhirlyKit::LoadedTileNew::DrawableSkirt:
-                    newDrawPriority = 11;
-                    break;
-                case WhirlyKit::LoadedTileNew::DrawablePole:
-                    newDrawPriority = defaultDrawPriority;
-                    break;
-            }
-            
-            // Make a drawable instance to shadow the geometry
-            auto drawInst = new BasicDrawableInstance("MaplyQuadImageLoader", di.drawID, BasicDrawableInstance::ReuseStyle);
-            drawInst->setTexId(0, 0);
-            drawInst->setDrawPriority(newDrawPriority);
-            drawInst->setEnable(false);
-            changes.push_back(new AddDrawableReq(drawInst));
-            instanceDrawIDs.push_back(drawInst->getId());
-        }
-    }
-
 protected:
     State state;
     bool childrenLoading;
@@ -556,21 +582,27 @@ using namespace WhirlyKit;
 // Called on a random dispatch queue
 - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request data:(NSData *)data
 {
+    if (_debugMode)
+        NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d)",request.tileID.level,request.tileID.x,request.tileID.y);
+
     // Ask the interpreter to parse it, but on its own damn queue
     MaplyLoaderReturn *loadData = [[MaplyLoaderReturn alloc] init];
     loadData.tileID = request.tileID;
     loadData.frame = request.frame;
     loadData.tileData = data;
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-                       ^{
-                           [self->loadInterp parseData:loadData];
-                           [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
-                       });
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+                   ^{
+                       [self->loadInterp parseData:loadData];
+                       [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
+                   });
 }
 
 // Called on SamplingLayer.layerThread
 - (void)mergeLoadedTile:(MaplyLoaderReturn *)loadReturn
 {
+    if (_debugMode)
+        NSLog(@"MaplyQuadImageLoader: Merging fetch for %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
+
     if (loadReturn.error)
         NSLog(@"MaplyQuadImageLoader: Error in parsing tile data:\n%@",[loadReturn.error localizedDescription]);
     
@@ -582,6 +614,8 @@ using namespace WhirlyKit;
         if (loadReturn.compObjs) {
             [viewC removeObjects:loadReturn.compObjs mode:MaplyThreadCurrent];
         }
+        if (_debugMode)
+            NSLog(@"MaplyQuadImageLoader: Failed to load tile before it was erased %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
         return;
     }
     auto tile = it->second;
@@ -623,7 +657,7 @@ using namespace WhirlyKit;
         [self applyCoverTile:ident asset:tile changes:changes];
     } else {
         // Something failed, so just clear it back to blank
-        tile->clearToBlank(interactLayer, changes);
+        tile->clearToBlank(interactLayer, changes, TileAsset::Waiting);
     }
     
     // Evaluate parents wrt to their children and enable/disable
@@ -635,7 +669,7 @@ using namespace WhirlyKit;
 // Called on SamplingLayer.layerThread
 - (void)fetchRequestFail:(MaplyTileFetchRequest *)request error:(NSError *)error
 {
-    NSLog(@"MaplyQuadImageLoader: Failed to fetch tile because:\n%@",[error localizedDescription]);
+    NSLog(@"MaplyQuadImageLoader: Failed to fetch tile %d: (%d,%d) because:\n%@",request.tileID.level,request.tileID.x,request.tileID.y,[error localizedDescription]);
 }
 
 // Decide if this tile ought to be loaded
@@ -654,7 +688,7 @@ using namespace WhirlyKit;
     if (_debugMode)
         NSLog(@"Clear tile to blank %d: (%d,%d) texId = %d",ident.level,ident.x,ident.y,(int)tile->getTexID());
 
-    tile->clearToBlank(layer, changes);
+    tile->clearToBlank(layer, changes, TileAsset::Waiting);
 
     // Find a new cover texture for tile
     [self findCoverTile:ident changes:changes];
@@ -662,7 +696,7 @@ using namespace WhirlyKit;
     // If any tiles were using this as a cover, have them find a new one
     for (auto posTile : tiles) {
         if (posTile.second->isUsingTexFromNode(ident)) {
-            posTile.second->clearToBlank(layer, changes);
+            posTile.second->clearToBlank(layer, changes, posTile.second->getState());
             [self findCoverTile:posTile.first changes:changes];
         }
     }
@@ -738,6 +772,8 @@ using namespace WhirlyKit;
                     [self clearTileToBlank:tile ident:ident layer:interactLayer changes:changes];
                     break;
                 case TileAsset::Loading:
+                    if (_debugMode)
+                        NSLog(@"Canceled fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
                     tile->cancelFetch(tileFetcher);
                     break;
             }
@@ -750,8 +786,29 @@ using namespace WhirlyKit;
     for (auto tile: updates.disableTiles)
         [self disableTile:tile->ident layer:interactLayer changes:changes];
 
-    // Evaluate parents wrt to their children
-    [self evalParentsLayer:interactLayer changes:changes];
+    if (params.singleLevel) {
+        [self updateCovers:interactLayer changes:changes];
+    } else {
+        [self evalParentsLayer:interactLayer changes:changes];
+    }
+}
+
+// Look for covers that have disappeared and have to be replaced
+- (void)updateCovers:(MaplyBaseInteractionLayer *)interactLayer changes:(ChangeSet &)changes
+{
+    for (auto it : tiles) {
+        auto ident = it.first;
+        auto tile = it.second;
+        
+        if (tile->isUsingCoverTex()) {
+            auto coverNode = tile->getCoverTexNode();
+            auto coverIt = tiles.find(coverNode);
+            if (coverIt == tiles.end() || coverIt->second->isUsingCoverTex()) {
+                tile->clearToBlank(interactLayer, changes, tile->getState());
+                [self findCoverTile:ident changes:changes];
+            }
+        }
+    }
 }
 
 // Evaluate parents wrt to their children and enable/disable

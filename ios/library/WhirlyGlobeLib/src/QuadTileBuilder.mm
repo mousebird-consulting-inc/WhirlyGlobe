@@ -43,6 +43,7 @@ using namespace WhirlyKit;
     geomSettings.topSampleX = 30;
     geomSettings.topSampleY = 40;
     geomSettings.enableGeom = false;
+    geomSettings.singleLevel = false;
 
     return self;
 }
@@ -70,6 +71,11 @@ using namespace WhirlyKit;
 - (void)setDrawPriorityPerLevel:(int)drawPriorityPerLevel
 {
     geomSettings.drawPriorityPerLevel = drawPriorityPerLevel;
+}
+
+- (void)setSingleLevel:(bool)singleLevel
+{
+    geomSettings.singleLevel = singleLevel;
 }
 
 - (bool)edgeMatching

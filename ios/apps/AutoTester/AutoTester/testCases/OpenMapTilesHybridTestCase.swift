@@ -98,7 +98,9 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
         }
-        // Note: Need to scale the importance for loading here
+        imageLoader.debugMode = false
+        //        imageLoader.importanceScale = 16.0
+
         guard let mapboxInterp = MapboxVectorImageInterpreter(loader: imageLoader,
                                                              imageStyle: imageStyleSet,
                                                              offlineRender: offlineRender,
@@ -107,8 +109,6 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
             return nil
         }
         imageLoader.setInterpreter(mapboxInterp)
-        imageLoader.debugMode = false
-//        imageLoader.importanceScale = 16.0
         
         return imageLoader
     }

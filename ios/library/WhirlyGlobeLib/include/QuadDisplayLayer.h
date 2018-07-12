@@ -87,6 +87,9 @@ public:
 /// Called when the view state changes.  If you're caching info, do it here.
 - (void)newViewState:(WhirlyKitViewState *)viewState;
 
+/// Return true if the tile is visible, false otherwise
+- (bool)visibilityForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs;
+
 @end
 
 /** Loader protocol for quad tree changes.  Fill this in to be

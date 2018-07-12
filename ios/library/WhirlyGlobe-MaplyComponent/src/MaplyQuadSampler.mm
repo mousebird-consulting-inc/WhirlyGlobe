@@ -38,6 +38,7 @@ using namespace WhirlyKit;
     _edgeMatching = true;
     _tessX = 10;
     _tessY = 10;
+    _singleLevel = false;
     _minImportance = 256*256;
 
     return self;
@@ -48,7 +49,8 @@ using namespace WhirlyKit;
     if (_minZoom != other.minZoom || _maxZoom != other.maxZoom ||
         _coverPoles != other.coverPoles || _edgeMatching != other.edgeMatching ||
         _tessX != other.tessX || _tessY != other.tessY ||
-        _minImportance != other.minImportance)
+        _minImportance != other.minImportance ||
+        _singleLevel != other.singleLevel)
         return false;
     
     return _coordSys->coordSystem->isSameAs(other.coordSys->coordSystem);
@@ -95,8 +97,10 @@ using namespace WhirlyKit;
     builder.edgeMatching = _params.edgeMatching;
     builder.baseDrawPriority = 0;
     builder.drawPriorityPerLevel = 0;
+    builder.singleLevel = _params.singleLevel;
     builder.delegate = self;
     quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithDataSource:self loader:builder renderer:renderer];
+    quadLayer.singleLevel = _params.singleLevel;
     quadLayer.minImportance = _params.minImportance;
     [super.layerThread addLayer:quadLayer];
 
@@ -154,6 +158,15 @@ using namespace WhirlyKit;
     double import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [_params.coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
     
     return import;
+}
+
+/// Return true if the tile is visible, false otherwise
+- (bool)visibilityForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+{
+    if (ident.level == 0)
+        return true;
+    
+    return TileIsOnScreen(viewState, frameSize,  [_params.coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
 }
 
 - (void)teardown
