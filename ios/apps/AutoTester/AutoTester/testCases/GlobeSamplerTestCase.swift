@@ -43,7 +43,6 @@ class GlobeSamplerTestCase: MaplyTestCase {
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
         }
-//        imageLoader.importanceScale = 16.0;
 //        imageLoader.debugMode = true
 
         return imageLoader

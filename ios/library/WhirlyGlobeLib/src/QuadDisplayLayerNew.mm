@@ -68,6 +68,7 @@ protected:
     int minZoom,maxZoom;
     WhirlyKitViewState *viewState;
     QuadTreeNew::ImportantNodeSet currentNodes;
+    std::vector<int> levelsToLoad;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoaderNew> *)loader renderer:(WhirlyKitSceneRendererES *)inRenderer
@@ -89,6 +90,7 @@ protected:
         _quadtree = new DispLayerQuadTree(mbrD,minZoom,maxZoom,self);
         _renderer = (WhirlyKitSceneRendererES2 *)inRenderer;
         _singleLevel = false;
+        _levelLoads = nil;
         _enable = true;
     }
 
@@ -112,6 +114,9 @@ protected:
         [_layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_viewUpdatePeriod minDist:0.0 maxLagTime:10.0];
     
     [_loader setQuadLayer:self];
+
+    for (NSNumber *num in _levelLoads)
+        levelsToLoad.push_back([num intValue]);
 }
 
 - (void)teardown
@@ -160,7 +165,7 @@ static const float DelayPeriod = 0.1;
     QuadTreeNew::ImportantNodeSet newNodes;
     if (_singleLevel) {
         int targetLevel;
-        std::tie(targetLevel,newNodes) = _quadtree->calcCoverageVisible(_minImportance, _maxTiles);
+        std::tie(targetLevel,newNodes) = _quadtree->calcCoverageVisible(_minImportance, _maxTiles, levelsToLoad);
     } else {
         newNodes = _quadtree->calcCoverageImportance(_minImportance,_maxTiles,true);
     }

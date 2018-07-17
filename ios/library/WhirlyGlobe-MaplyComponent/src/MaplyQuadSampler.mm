@@ -40,6 +40,7 @@ using namespace WhirlyKit;
     _tessY = 10;
     _singleLevel = false;
     _minImportance = 256*256;
+    _levelLoads = nil;
 
     return self;
 }
@@ -101,6 +102,7 @@ using namespace WhirlyKit;
     builder.delegate = self;
     quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithDataSource:self loader:builder renderer:renderer];
     quadLayer.singleLevel = _params.singleLevel;
+    quadLayer.levelLoads = _params.levelLoads;
     quadLayer.minImportance = _params.minImportance;
     [super.layerThread addLayer:quadLayer];
 
