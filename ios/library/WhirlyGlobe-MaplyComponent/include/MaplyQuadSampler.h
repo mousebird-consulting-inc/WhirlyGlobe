@@ -56,6 +56,13 @@
 /// If set, we'll try to load a single level
 @property (nonatomic) bool singleLevel;
 
+/**
+ Detail the levels you want loaded in target level mode.
+ 
+ The layer calculates the optimal target level.  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.
+ */
+@property (nonatomic,nullable) NSArray *levelLoads;
+
 /// Decide if these sampling params are the same as others
 - (bool)isEqualTo:(MaplySamplingParams *__nonnull)other;
 
