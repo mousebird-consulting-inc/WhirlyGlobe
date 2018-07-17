@@ -122,6 +122,17 @@ protected:
     _scene = NULL;
 }
 
+static const float DelayPeriod = 0.1;
+
+// Called after some period to sweep up removes
+- (void)delayCheck
+{
+    if (!viewState)
+        return;
+
+    [self viewUpdate:viewState];
+}
+
 // Called periodically when the user moves, but not too often
 - (void)viewUpdate:(WhirlyKitViewState *)inViewState
 {
@@ -179,6 +190,11 @@ protected:
     
     QuadTreeNew::NodeSet removesToKeep;
     removesToKeep = [_loader quadDisplayLayer:self loadTiles:toAdd unLoadTiles:toRemove updateTiles:toUpdate];
+
+    // If the load is sitting on unloads, check back with it in a bit
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
+    if (!removesToKeep.empty())
+        [self performSelector:@selector(delayCheck) withObject:nil afterDelay:DelayPeriod];
     
     currentNodes = newNodes;
     for (auto node : removesToKeep) {
