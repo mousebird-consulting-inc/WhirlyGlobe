@@ -729,8 +729,34 @@ using namespace WhirlyKit;
             parent.level -= 1; parent.x /= 2;  parent.y /= 2;
             if (unloadTiles.find(parent) != unloadTiles.end())
             {
-                toKeep.insert(parent);
-                break;
+                auto it = tiles.find(parent);
+                // Nail down the parent that's loaded, but don't care otherwise
+                if (it != tiles.end() && it->second->getState() == TileAsset::Loaded) {
+                    toKeep.insert(parent);
+                    break;
+                }
+            }
+        }
+    }
+    
+    // Now check all the unloads to see if their parents are loading
+    for (auto node : unloadTiles) {
+        auto it = tiles.find(node);
+        if (it == tiles.end())
+            continue;
+        // If this tile (to be unloaded) isn't full loaded, then we don't care about it
+        if (it->second->getState() != TileAsset::Loaded)
+            continue;
+        
+        // Check that it's not already being kept around
+        if (toKeep.find(node) == toKeep.end()) {
+            auto parent = node;
+            while (parent.level > 0) {
+                parent.level -= 1; parent.x /= 2;  parent.y /= 2;
+                if (allLoads.find(parent) != allLoads.end()) {
+                    toKeep.insert(node);
+                    break;
+                }
             }
         }
     }
