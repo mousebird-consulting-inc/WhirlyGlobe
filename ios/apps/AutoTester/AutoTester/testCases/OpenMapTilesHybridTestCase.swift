@@ -83,7 +83,8 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         // Parameters describing how we want a globe broken down
         let sampleParams = MaplySamplingParams()
         sampleParams.coordSys = tileInfo.coordSys!
-        sampleParams.minImportance = 1024 * 1024;
+        sampleParams.minImportance = 1024 * 1024
+        sampleParams.singleLevel = true
         if baseVC is WhirlyGlobeViewController {
             sampleParams.coverPoles = true
             sampleParams.edgeMatching = true
@@ -91,7 +92,6 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
             sampleParams.coverPoles = false
             sampleParams.edgeMatching = false
         }
-        // Note: Need to set the tile size because we're loading too much
         sampleParams.minZoom = 0
         sampleParams.maxZoom = tileInfo.maxZoom
         

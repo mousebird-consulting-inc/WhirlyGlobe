@@ -209,6 +209,19 @@ using namespace WhirlyKit;
     }
 }
 
+- (WhirlyKit::QuadTreeNew::NodeSet)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder
+            loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles
+            unloadTilesToCheck:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles
+{
+    QuadTreeNew::NodeSet toKeep;
+    for (auto delegate : builderDelegates) {
+        auto thisToKeep = [delegate quadBuilder:builder loadTiles:loadTiles unloadTilesToCheck:unloadTiles];
+        toKeep.insert(thisToKeep.begin(),thisToKeep.end());
+    }
+    
+    return toKeep;
+}
+
 - (void)quadBuilder:(WhirlyKitQuadTileBuilder *)builder update:(const WhirlyKit::TileBuilderDelegateInfo &)updates changes:(WhirlyKit::ChangeSet &)changes
 {
     std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> delegates;

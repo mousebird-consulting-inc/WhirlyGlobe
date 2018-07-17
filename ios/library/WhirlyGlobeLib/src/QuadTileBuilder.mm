@@ -99,20 +99,31 @@ using namespace WhirlyKit;
     [_delegate setQuadBuilder:self layer:layer];
 }
 
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles
+- (WhirlyKit::QuadTreeNew::NodeSet)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles
 {
     ChangeSet changes;
     
+    TileBuilderDelegateInfo info;
+    info.unloadTiles = unloadTiles;
+    info.changeTiles = updateTiles;
+
+    QuadTreeNew::NodeSet toKeep;
+    if (!unloadTiles.empty()) {
+        toKeep = [_delegate quadBuilder:self loadTiles:loadTiles unloadTilesToCheck:unloadTiles];
+        // Remove the keep nodes and add them to update with very little importance
+        for (const QuadTreeNew::Node &node: toKeep) {
+            info.unloadTiles.erase(node);
+            info.changeTiles.insert(QuadTreeNew::ImportantNode(node,0.0));
+        }
+    }
+    
     // Have the geometry manager add/remove the tiles and deal with changes
-    auto tileChanges = geomManage.addRemoveTiles(loadTiles,unloadTiles,changes);
+    auto tileChanges = geomManage.addRemoveTiles(loadTiles,info.unloadTiles,changes);
 
     // Tell the delegate what we're up to
-    TileBuilderDelegateInfo info;
     info.loadTiles = tileChanges.addedTiles;
-    info.unloadTiles = unloadTiles;
     info.enableTiles = tileChanges.enabledTiles;
     info.disableTiles = tileChanges.disabledTiles;
-    info.changeTiles = updateTiles;
     [_delegate quadBuilder:self update:info changes:changes];
     
     if (_debugMode)
@@ -132,11 +143,16 @@ using namespace WhirlyKit;
         NSLog(@"----- Nodes to disable ------");
         for (auto tile : tileChanges.disabledTiles)
             NSLog(@"  %d: (%d,%d)",tile->ident.level,tile->ident.x,tile->ident.y);
+        NSLog(@"----- Tiles to keep -----");
+        for (auto tile : toKeep)
+            NSLog(@"  %d: (%d,%d)",tile.level,tile.x,tile.y);
         NSLog(@"----- ------------- ------");
     }
     
     // Flush out any visual changes
     [layer.layerThread addChangeRequests:changes];
+    
+    return toKeep;
 }
 
 @end
