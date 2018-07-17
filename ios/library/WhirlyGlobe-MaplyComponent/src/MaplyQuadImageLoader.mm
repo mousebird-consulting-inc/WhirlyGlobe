@@ -501,13 +501,13 @@ using namespace WhirlyKit;
         if (_debugMode)
             NSLog(@"Unloading tile %d: (%d,%d)",ident.level,ident.x,ident.y);
 
-        it->second->clear(interactLayer, changes);
         if (it->second->getState() == TileAsset::Loading) {
             if (_debugMode)
                 NSLog(@"Cancelled loading %d: (%d,%d)",ident.level,ident.x,ident.y);
-
+            
             it->second->cancelFetch(tileFetcher);
         }
+        it->second->clear(interactLayer, changes);
         tiles.erase(it);
     }
 }
@@ -708,6 +708,34 @@ using namespace WhirlyKit;
 {
     builder = inBuilder;
     layer = inLayer;
+}
+
+- (QuadTreeNew::NodeSet)quadBuilder:(WhirlyKitQuadTileBuilder * _Nonnull)builder loadTiles:(const QuadTreeNew::ImportantNodeSet &)loadTiles unloadTilesToCheck:(const QuadTreeNew::NodeSet &)unloadTiles
+{
+    QuadTreeNew::NodeSet toKeep;
+    
+    // A list of all the tiles that we're going to load or are loading
+    QuadTreeNew::NodeSet allLoads;
+    for (auto node : loadTiles)
+        allLoads.insert(node);
+    for (auto node : tiles)
+        if (node.second->getState() == TileAsset::Loading)
+            allLoads.insert(node.first);
+    
+    // For all those loading or will be loading nodes, nail down their parents
+    for (auto node : allLoads) {
+        auto parent = node;
+        while (parent.level > 0) {
+            parent.level -= 1; parent.x /= 2;  parent.y /= 2;
+            if (unloadTiles.find(parent) != unloadTiles.end())
+            {
+                toKeep.insert(parent);
+                break;
+            }
+        }
+    }
+    
+    return toKeep;
 }
 
 - (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder update:(const WhirlyKit::TileBuilderDelegateInfo &)updates changes:(WhirlyKit::ChangeSet &)changes

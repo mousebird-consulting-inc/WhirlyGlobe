@@ -44,7 +44,11 @@
 - (void)setQuadLayer:(WhirlyKitQuadDisplayLayerNew *)layer;
 
 /// Load some tiles, unload others, and the rest had their importance values change
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)tiles unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)tiles updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles;
+/// Return the nodes we wanted to keep rather than delete
+- (WhirlyKit::QuadTreeNew::NodeSet)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer
+               loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)tiles
+             unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)tiles
+             updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles;
 
 @end
 

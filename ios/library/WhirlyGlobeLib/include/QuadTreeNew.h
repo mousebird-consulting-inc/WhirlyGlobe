@@ -67,6 +67,7 @@ public:
     public:
         ImportantNode() : importance(0.0) { }
         ImportantNode(const ImportantNode &that) : Node((Node)that), importance(that.importance) { }
+        ImportantNode(const Node &that,double import) : Node((Node)that), importance(import) { }
         ImportantNode(int x,int y,int level) : Node(x,y,level), importance(0.0) { }
 
         bool operator < (const ImportantNode &that) const;

@@ -48,8 +48,16 @@ public:
 /// Called when the builder first starts up.  Keep this around if you need it.
 - (void)setQuadBuilder:(WhirlyKitQuadTileBuilder * __nonnull)builder layer:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer;
 
+/// Before we tell the delegate to unload tiles, see if they want to keep them around
+/// Returns the tiles we want to preserve after all
+- (WhirlyKit::QuadTreeNew::NodeSet)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder
+   loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles
+    unloadTilesToCheck:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles;
+
 /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder update:(const WhirlyKit::TileBuilderDelegateInfo &)updates changes:(WhirlyKit::ChangeSet &)changes;
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder
+             update:(const WhirlyKit::TileBuilderDelegateInfo &)updates
+            changes:(WhirlyKit::ChangeSet &)changes;
 
 @end
 

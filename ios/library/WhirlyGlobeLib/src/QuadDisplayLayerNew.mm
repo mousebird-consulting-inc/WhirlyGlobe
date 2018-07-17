@@ -176,10 +176,14 @@ protected:
             toAdd.insert(node);
         else
             toUpdate.insert(node);
-
-    [_loader quadDisplayLayer:self loadTiles:toAdd unLoadTiles:toRemove updateTiles:toUpdate];
-        
+    
+    QuadTreeNew::NodeSet removesToKeep;
+    removesToKeep = [_loader quadDisplayLayer:self loadTiles:toAdd unLoadTiles:toRemove updateTiles:toUpdate];
+    
     currentNodes = newNodes;
+    for (auto node : removesToKeep) {
+        currentNodes.insert(QuadTreeNew::ImportantNode(node,0.0));
+    }
 }
 
 - (double)importanceFor:(const QuadTreeNew::Node &)node
