@@ -283,8 +283,6 @@ protected:
     
     // Set if the Tile Builder thinks this should be enabled
     bool shouldEnable;
-    
-    // Mirror of enable from the Tile Builder
     bool enable;
     
     // Component objects owned by the tile
@@ -351,23 +349,6 @@ using namespace WhirlyKit;
 
     _baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
     _drawPriorityPerLevel = 100;
-
-//    if (![tileSource respondsToSelector:@selector(startFetchLayer:tile:frame:)]) {
-//        NSLog(@"MaplyQuadImageLoader requires tile source implement startFetchLayer:tile:frame:");
-//        return nil;
-//    }
-//    if (![tileSource respondsToSelector:@selector(cancelTile:frame:tileData:)]) {
-//        NSLog(@"MaplyQuadImageLoader requires tile source implement cancelTile:frame:tileData:");
-//        return nil;
-//    }
-//    if (![tileSource respondsToSelector:@selector(clear:tileData:)]) {
-//        NSLog(@"MaplyQuadImageLoader requires tile source implement clear:tileData:");
-//        return nil;
-//    }
-//    if (![tileSource respondsToSelector:@selector(validTile:bbox:)]) {
-//        NSLog(@"MaplyQuadImageLoader requires tile source implement validTile:bbox:");
-//        return nil;
-//    }
 
     self = [super init];
 
