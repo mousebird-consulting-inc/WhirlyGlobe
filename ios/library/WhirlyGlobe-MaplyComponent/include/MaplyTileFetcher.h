@@ -29,11 +29,6 @@
   */
 @interface MaplyTileFetchRequest : NSObject
 
-/// Tile we'd like for the remote request
-@property (nonatomic) MaplyTileID tileID;
-/// Frame, if doing animation, or -1 if not
-@property (nonatomic) int frame;
-
 /// Priority before importance.  Less is more important.
 @property (nonatomic) int priority;
 /// How important this is to us.  Probably screen space.

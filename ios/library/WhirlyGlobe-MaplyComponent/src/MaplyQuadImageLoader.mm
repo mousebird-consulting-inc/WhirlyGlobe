@@ -505,17 +505,16 @@ using namespace WhirlyKit;
     request.urlReq = [tileInfo requestForTile:tileID];
     request.cacheFile = [tileInfo fileNameForTile:tileID];
     request.tileSource = tileInfo;
-    request.tileID = tileID;
-    request.frame = -1;
+    request.priority = 0;
     request.importance = ident.importance * _importanceScale;
     
     request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
-        [self fetchRequestSuccess:request data:data];
+        [self fetchRequestSuccess:request tileID:tileID frame:-1 data:data];
     };
     request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-        [self fetchRequestFail:request error:error];
+        [self fetchRequestFail:request tileID:tileID frame:-1 error:error];
     };
-    
+
     tile->startFetch(tileFetcher,request);
 }
 
@@ -563,15 +562,15 @@ using namespace WhirlyKit;
 }
 
 // Called on a random dispatch queue
-- (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request data:(NSData *)data
+- (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data
 {
     if (_debugMode)
-        NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d)",request.tileID.level,request.tileID.x,request.tileID.y);
+        NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 
     // Ask the interpreter to parse it, but on its own damn queue
     MaplyLoaderReturn *loadData = [[MaplyLoaderReturn alloc] init];
-    loadData.tileID = request.tileID;
-    loadData.frame = request.frame;
+    loadData.tileID = tileID;
+    loadData.frame = frame;
     loadData.tileData = data;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
@@ -650,9 +649,9 @@ using namespace WhirlyKit;
 }
 
 // Called on SamplingLayer.layerThread
-- (void)fetchRequestFail:(MaplyTileFetchRequest *)request error:(NSError *)error
+- (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error
 {
-    NSLog(@"MaplyQuadImageLoader: Failed to fetch tile %d: (%d,%d) because:\n%@",request.tileID.level,request.tileID.x,request.tileID.y,[error localizedDescription]);
+    NSLog(@"MaplyQuadImageLoader: Failed to fetch tile %d: (%d,%d) because:\n%@",tileID.level,tileID.x,tileID.y,[error localizedDescription]);
 }
 
 // Decide if this tile ought to be loaded
