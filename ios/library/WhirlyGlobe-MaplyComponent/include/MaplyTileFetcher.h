@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyRemoteTileSource.h"
+#import "MaplyTileSource.h"
 #import "MaplyCoordinateSystem.h"
 
 /**
@@ -29,15 +29,23 @@
   */
 @interface MaplyTileFetchRequest : NSObject
 
-/// The remote URL (and other info) for this request
-@property (nonatomic,nonnull) MaplyRemoteTileInfo *tileInfo;
-
 /// Tile we'd like for the remote request
 @property (nonatomic) MaplyTileID tileID;
 /// Frame, if doing animation, or -1 if not
 @property (nonatomic) int frame;
+
+/// Priority before importance.  Less is more important.
+@property (nonatomic) int priority;
 /// How important this is to us.  Probably screen space.
 @property (nonatomic) float importance;
+
+/// An object representing the tile source.  Used for sorting.
+@property (nonatomic,nonnull) id tileSource;
+
+/// URL to fetch from
+@property (nonatomic,nonnull) NSURLRequest *urlReq;
+/// File name for cached file (if present).  Save it here when fetched if set.
+@property (nonatomic,nonnull) NSString *cacheFile;
 
 /**
     Tile Fetcher success callback.

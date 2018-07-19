@@ -28,20 +28,20 @@ namespace WhirlyKit
 class TileIdent : public QuadTreeNew::Node
 {
 public:
-    TileIdent(const TileIdent &that) : Node(that), tileInfo(that.tileInfo), frame (that.frame) { }
+    TileIdent(const TileIdent &that) : Node(that), tileSource(that.tileSource), frame (that.frame) { }
     /// Construct with the cell coordinates, level, and frame
-    TileIdent(const QuadTreeNew::Node &node,MaplyRemoteTileInfo *tileInfo,int frame) : QuadTreeNew::Node(node), tileInfo(tileInfo), frame(frame) { }
-    TileIdent(int x,int y,int level,MaplyRemoteTileInfo *tileInfo,int frame) : frame(frame), tileInfo(tileInfo), QuadTreeNew::Node(x,y,level) { }
-    TileIdent(const MaplyTileID &tileID,MaplyRemoteTileInfo *tileInfo,int frame) : tileInfo(tileInfo), frame(frame) { level = tileID.level;  x = tileID.x;  y = tileID.y; }
+    TileIdent(const QuadTreeNew::Node &node,id tileSource,int frame) : QuadTreeNew::Node(node), tileSource(tileSource), frame(frame) { }
+    TileIdent(int x,int y,int level,id tileSource,int frame) : frame(frame), tileSource(tileSource), QuadTreeNew::Node(x,y,level) { }
+    TileIdent(const MaplyTileID &tileID,id tileSource,int frame) : tileSource(tileSource), frame(frame) { level = tileID.level;  x = tileID.x;  y = tileID.y; }
     
     /// Comparison based on x,y,level.  Used for sorting
     bool operator < (const TileIdent &that) const
     {
         if ((Node &)*this == (Node &)that) {
-            if (tileInfo == that.tileInfo) {
+            if (tileSource == that.tileSource) {
                 return frame < that.frame;
             }
-            return tileInfo < that.tileInfo;
+            return tileSource < that.tileSource;
         } else
             return (Node &)*this < (Node &)that;
     }
@@ -50,7 +50,7 @@ public:
     bool operator == (const TileIdent &that) const
     {
         if ((Node &)*this == (Node &)that) {
-            return frame == that.frame && tileInfo == that.tileInfo;
+            return frame == that.frame && tileSource == that.tileSource;
         } else
             return false;
     }
@@ -59,16 +59,16 @@ public:
     bool operator != (const TileIdent &that) const
     {
         if ((Node &)*this != (Node &)that)
-            return frame != that.frame && tileInfo != that.tileInfo;
+            return frame != that.frame && tileSource != that.tileSource;
         else
             return false;
     }
     
-    // Remote source for the tile
-    MaplyRemoteTileInfo *tileInfo;
-    
     // Frame for this tile load
     int frame;
+    
+    // Tile source object used for sorting
+    id tileSource;
 };
 
 // A single tile that we're aware of
@@ -80,13 +80,16 @@ public:
     /// Comparison based on importance, tile source, then x,y,level
     bool operator < (const TileInfo &that) const
     {
-        if (this->importance == that.importance) {
-            if (ident == that.ident) {
+        if (this->priority == that.priority) {
+            if (this->importance == that.importance) {
+                if (ident == that.ident) {
+                    return ident < that.ident;
+                }
                 return ident < that.ident;
             }
-            return ident < that.ident;
+            return this->importance < that.importance;
         }
-        return this->importance < that.importance;
+        return this->priority > that.priority;
     }
 
     // We're either loading it or going to load it eventually
@@ -95,6 +98,9 @@ public:
     
     // Identifier for this request (TileID + frame)
     TileIdent ident;
+    
+    // Priority before importance
+    int priority;
     
     // Importance of this tile request as passed in by the fetch request
     double importance;
@@ -233,7 +239,7 @@ using namespace WhirlyKit;
 {
     totalRequests++;
     
-    TileIdent ident(request.tileID,request.tileInfo,request.frame);
+    TileIdent ident(request.tileID,request.tileSource,request.frame);
     auto it = tiles.find(ident);
     if (it != tiles.end()) {
         // It's already loading, so punt
@@ -258,7 +264,7 @@ using namespace WhirlyKit;
 {
     totalCancels++;
     
-    TileIdent ident(request.tileID,request.tileInfo,request.frame);
+    TileIdent ident(request.tileID,request.tileSource,request.frame);
     auto it = tiles.find(ident);
     if (it == tiles.end()) {
         // Wasn't there.  Ignore.
@@ -280,6 +286,51 @@ using namespace WhirlyKit;
     [self updateLoading];
 }
 
+- (bool)isTileLocal:(TileInfoRef)tile fileName:(NSString *)fileName
+{
+    if (!fileName)
+        return false;
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:fileName])
+    {
+        return true;
+        // Note: Consider moving this logic over here
+        // If the file is out of date, treat it as if it were not local, as it will have to be fetched.
+//        if (self.cachedFileLifetime != 0)
+//        {
+//            NSDate *fileTimestamp = [MaplyRemoteTileInfo dateForFile:fileName];
+//            int ageOfFile = (int) [[NSDate date] timeIntervalSinceDate:fileTimestamp];
+//            if (ageOfFile <= self.cachedFileLifetime)
+//            {
+//                return true;
+//            }
+//            //            else
+//            //            {
+//            //                NSLog(@"TileIsLocal returned false due to tile age: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+//            //            }
+//        }
+//        else // no lifetime set for cached files
+//        {
+//            return true;
+//        }
+    }
+    
+    return false;
+}
+
+- (void)writeToCache:(TileInfoRef)tileInfo tileData:(NSData *)tileData
+{
+    if (tileInfo->request.cacheFile)
+        [tileData writeToFile:tileInfo->request.cacheFile atomically:YES];
+}
+
+- (NSData *)readFromCache:(TileInfoRef)tileInfo
+{
+    if (!tileInfo->request.cacheFile)
+        return nil;
+    return [NSData dataWithContentsOfFile:tileInfo->request.cacheFile];
+}
+
 // Run on the dispatch queue
 - (void)updateLoading
 {
@@ -299,9 +350,7 @@ using namespace WhirlyKit;
         tileID.level = tile->ident.level;
         tileID.x = tile->ident.x;
         tileID.y = tile->ident.y;
-        int frame = tile->ident.frame;
-        auto tileInfo = tile->ident.tileInfo;
-        NSURLRequest *urlReq = [tileInfo requestForTile:tileID];
+        NSURLRequest *urlReq = tile->request.urlReq;
         
         // Set up the fetch task so we can use it in a couple places
         tile->task = [session dataTaskWithRequest:urlReq completionHandler:
@@ -317,16 +366,16 @@ using namespace WhirlyKit;
                               } else {
                                   self->remoteData += [data length];
                                   [self finishedLoading:tile data:data error:error];
-                                  [tileInfo writeToCache:tileID tileData:data];
+                                  [self writeToCache:tile tileData:data];
                               }
                         });
                       }];
         
         // Look for it cached
-        if ([tile->ident.tileInfo tileIsLocal:tileID frame:frame]) {
+        if ([self isTileLocal:tile fileName:tile->request.cacheFile]) {
             // Do the reading somewhere else
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-                NSData *data = [tileInfo readFromCache:tileID];
+                NSData *data = [self readFromCache:tile];
                 if (!data) {
                     // It failed (which happens) so we need to fetch it after all
                     [tile->task resume];
