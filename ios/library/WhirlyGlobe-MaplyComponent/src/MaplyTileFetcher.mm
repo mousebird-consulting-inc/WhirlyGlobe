@@ -36,7 +36,7 @@ public:
         if (this->priority == that.priority) {
             if (this->importance == that.importance) {
                 if (tileSource == that.tileSource) {
-                    return tileSource < that.tileSource;
+                    return request < that.request;
                 }
                 return tileSource < that.tileSource;
             }
@@ -195,6 +195,7 @@ using namespace WhirlyKit;
     TileInfoRef tile(new TileInfo());
     tile->tileSource = request.tileSource;
     tile->importance = request.importance;
+    tile->priority = request.priority;
     tile->state = TileInfo::ToLoad;
     tile->request = request;
     tilesByFetchRequest[request] = tile;
@@ -346,7 +347,7 @@ using namespace WhirlyKit;
 - (void)finishedLoading:(TileInfoRef)tile data:(NSData *)data error:(NSError *)error
 {
     auto it = tilesByFetchRequest.find(tile->request);
-    if (it != tilesByFetchRequest.end())
+    if (it == tilesByFetchRequest.end())
         // No idea what it is.  Toss it.
         return;
     
