@@ -638,6 +638,7 @@ using namespace WhirlyKit;
         // See if it's useful elsewhere
         [self applyCoverTile:ident asset:tile changes:changes];
     } else {
+        NSLog(@"Failed to create texture for tile %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
         // Something failed, so just clear it back to blank
         tile->clearToBlank(interactLayer, changes, TileAsset::Waiting);
     }
