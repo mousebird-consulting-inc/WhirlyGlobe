@@ -502,7 +502,9 @@ using namespace WhirlyKit;
     // Put together a request for the fetcher
     MaplyTileFetchRequest *request = [[MaplyTileFetchRequest alloc] init];
     MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
-    request.tileInfo = tileInfo;
+    request.urlReq = [tileInfo requestForTile:tileID];
+    request.cacheFile = [tileInfo fileNameForTile:tileID];
+    request.tileSource = tileInfo;
     request.tileID = tileID;
     request.frame = -1;
     request.importance = ident.importance * _importanceScale;
