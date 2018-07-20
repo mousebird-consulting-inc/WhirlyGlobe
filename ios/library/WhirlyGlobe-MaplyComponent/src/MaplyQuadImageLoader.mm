@@ -330,6 +330,7 @@ using namespace WhirlyKit;
     WhirlyKitQuadTileBuilder * __weak builder;
     WhirlyKitQuadDisplayLayerNew * __weak layer;
     int minLevel,maxLevel;
+    GLenum texType;
     
     MaplyTileFetcher * __weak tileFetcher;
     NSObject<MaplyLoaderInterpreter> *loadInterp;
@@ -358,6 +359,9 @@ using namespace WhirlyKit;
     maxLevel = tileInfo.maxZoom;
     _importanceScale = 1.0;
     _importanceCutoff = 0.0;
+    _imageFormat = MaplyImageIntRGBA;
+    _borderTexel = 0;
+    texType = GL_UNSIGNED_BYTE;
 
     // Start things out after a delay
     // This lets the caller mess with settings
@@ -379,6 +383,30 @@ using namespace WhirlyKit;
             if (self->_importanceCutoff == 0.0) {
                 self->_importanceCutoff = self->samplingLayer.params.minImportance * self->_importanceScale;
             }
+        }
+        
+        switch (self->_imageFormat) {
+            case MaplyImageIntRGBA:
+            case MaplyImage4Layer8Bit:
+            default:
+                self->texType = GL_UNSIGNED_BYTE;
+                break;
+            case MaplyImageUShort565:
+                self->texType = GL_UNSIGNED_SHORT_5_6_5;
+                break;
+            case MaplyImageUShort4444:
+                self->texType = GL_UNSIGNED_SHORT_4_4_4_4;
+                break;
+            case MaplyImageUShort5551:
+                self->texType = GL_UNSIGNED_SHORT_5_5_5_1;
+                break;
+            case MaplyImageUByteRed:
+            case MaplyImageUByteGreen:
+            case MaplyImageUByteBlue:
+            case MaplyImageUByteAlpha:
+            case MaplyImageUByteRGB:
+                self->texType = GL_ALPHA;
+                break;
         }
     });
 
@@ -615,8 +643,6 @@ using namespace WhirlyKit;
     ChangeSet changes;
     
     WhirlyKitLoadedTile *loadTile = loadReturn.image;
-    // Note: Get this from somewhere
-    int borderPixel = 0;
     Texture *tex = NULL;
     LoadedTileNewRef loadedTile = [builder getLoadedTile:ident];
     if ([loadTile.images count] > 0) {
@@ -624,7 +650,8 @@ using namespace WhirlyKit;
         if ([loadedImage isKindOfClass:[WhirlyKitLoadedImage class]]) {
             if (loadedTile) {
                 // Build the image
-                tex = [loadedImage buildTexture:borderPixel destWidth:loadedImage.width destHeight:loadedImage.height];
+                tex = [loadedImage buildTexture:_borderTexel destWidth:loadedImage.width destHeight:loadedImage.height];
+                tex->setFormat(texType);
             }
         }
     }
