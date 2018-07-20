@@ -385,6 +385,7 @@ using namespace WhirlyKit;
             }
         }
         
+        // Sort out the texture format
         switch (self->_imageFormat) {
             case MaplyImageIntRGBA:
             case MaplyImage4Layer8Bit:
