@@ -326,12 +326,13 @@ using namespace WhirlyKit;
         
         // Set up the fetch task so we can use it in a couple places
         tile->task = [session dataTaskWithRequest:urlReq completionHandler:
-                      ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                      ^(NSData * _Nullable data, NSURLResponse * _Nullable inResponse, NSError * _Nullable error) {
+                          NSHTTPURLResponse *response = (NSHTTPURLResponse *)inResponse;
                           dispatch_async(self->queue,
                                          ^{
-                              if (error) {
+                              if (error || response.statusCode != 200) {
                                   // Cancels don't count as errors
-                                  if (error.code != NSURLErrorCancelled) {
+                                  if (!error || error.code != NSURLErrorCancelled) {
                                       self->totalFails++;
                                       [self finishedLoading:tile data:nil error:error];
                                   }
