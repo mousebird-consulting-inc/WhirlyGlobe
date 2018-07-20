@@ -149,6 +149,15 @@
 @property (nonatomic) MaplyQuadImageFormat imageFormat;
 
 /**
+ Number of border texels to set up around image tiles.
+ 
+ For matching image tiles along borders in 3D (probably the globe) we resample the image slightly smaller than we get and make up a boundary around the outside.  This number controls that border size.
+ 
+ By default this is 1.  It's safe to set it to 0 for 2D maps and some overlays.
+ */
+@property (nonatomic) int borderTexel;
+
+/**
  Control how tiles are indexed, either from the lower left or the upper left.
  
  If set, we'll use the OSM approach (also Google Maps) to y indexing.  That's that default and it's normally what you're run into.
