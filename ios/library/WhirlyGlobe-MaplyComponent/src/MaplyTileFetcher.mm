@@ -244,7 +244,6 @@ using namespace WhirlyKit;
     auto it = tilesByFetchRequest.find(request);
     if (it == tilesByFetchRequest.end()) {
         // Wasn't there.  Ignore.
-        NSLog(@"MaplyTileFetcher: Tried to cancel request that didn't exist.");
         return;
     }
     TileInfoRef tile = it->second;
