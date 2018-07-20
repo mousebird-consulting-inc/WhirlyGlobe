@@ -204,6 +204,38 @@ using namespace WhirlyKit;
     [self updateLoading];
 }
 
+/// Update an active request with a new priority and importance
+- (id)updateTileFetch:(id)request priority:(int)priority importance:(double)importance
+{
+    if (!active)
+        return nil;
+    
+    dispatch_async(queue,
+    ^{
+       [self updateTileFetchLocal:request priority:priority importance:importance];
+    });
+    
+    return request;
+}
+
+// Run on the dispatch queue
+- (void)updateTileFetchLocal:(MaplyTileFetchRequest *)request priority:(int)priority importance:(double)importance
+{
+    auto it = tilesByFetchRequest.find(request);
+    if (it == tilesByFetchRequest.end())
+        return;
+    
+    TileInfoRef tile = it->second;
+    // Don't mess with a tile that's actually loading
+    if (tile->state == TileInfo::ToLoad) {
+        // Change the priority/importance and put it back
+        toLoad.erase(tile);
+        tile->priority = priority;
+        tile->importance = importance;
+        toLoad.insert(tile);
+    }
+}
+
 // Run on the dispatch queue
 - (void)cancelTileFetchLocal:(MaplyTileFetchRequest *)request
 {
@@ -212,6 +244,7 @@ using namespace WhirlyKit;
     auto it = tilesByFetchRequest.find(request);
     if (it == tilesByFetchRequest.end()) {
         // Wasn't there.  Ignore.
+        NSLog(@"MaplyTileFetcher: Tried to cancel request that didn't exist.");
         return;
     }
     TileInfoRef tile = it->second;

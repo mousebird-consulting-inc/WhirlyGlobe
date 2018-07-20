@@ -717,7 +717,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
 
 // Time we'll take to disappear objects
 static float const NewObjectFadeIn = 0.0;
-static float const OldObjectFadeOut = 0.0;
+//static float const OldObjectFadeOut = 0.0;
 
 // Layout all the objects we're tracking
 void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &changes)
