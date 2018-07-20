@@ -74,6 +74,9 @@
 /// Ask for a tile to be fetched.  Returns an object that can be used to cancel the request.
 - (id __nonnull)startTileFetch:(MaplyTileFetchRequest * __nonnull)request;
 
+/// Update an active request with a new priority and importance
+- (id __nonnull)updateTileFetch:(id __nonnull)fetchID priority:(int)priority importance:(double)importance;
+
 /// Cancel a request being fetched
 /// Use the object returned by the startTileFetch call
 - (void)cancelTileFetch:(id __nonnull)requestRet;
