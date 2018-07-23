@@ -134,18 +134,20 @@ void QuadTreeNew::evalNodeImportance(ImportantNode node,double minImport,Importa
 {
     node.importance = importance(node);
     
-    if (node.importance < minImport || node.level >= maxLevel)
+    if (node.importance < minImport || node.level > maxLevel)
         return;
     
     importSet.insert(node);
     
-    // Add the children
-    for (int iy=0;iy<2;iy++) {
-        int indY = 2*node.y + iy;
-        for (int ix=0;ix<2;ix++) {
-            int indX = 2*node.x + ix;
-            ImportantNode childNode(indX,indY,node.level+1);
-            evalNodeImportance(childNode,minImport,importSet);
+    if (node.level < maxLevel) {
+        // Add the children
+        for (int iy=0;iy<2;iy++) {
+            int indY = 2*node.y + iy;
+            for (int ix=0;ix<2;ix++) {
+                int indX = 2*node.x + ix;
+                ImportantNode childNode(indX,indY,node.level+1);
+                evalNodeImportance(childNode,minImport,importSet);
+            }
         }
     }
 }
@@ -182,6 +184,7 @@ std::tuple<int,QuadTreeNew::ImportantNodeSet> QuadTreeNew::calcCoverageVisible(d
         for (int ix=0;ix<numX;ix++)
         {
             ImportantNode node(ix,iy,minLevel);
+            node.importance = MAXFLOAT;
             evalNodeImportance(node,minImportance,sortedNodes);
         }
 
