@@ -217,7 +217,7 @@ protected:
 class NotificationReq : public ChangeRequest
 {
 public:
-    /// The notification name is required, the objection optional
+    /// The notification name is required, the object optional
     NotificationReq(NSString *noteName,NSObject *noteObj);
     virtual ~NotificationReq();
     
@@ -227,6 +227,24 @@ public:
 protected:
     NSString * __strong noteName;
     NSObject * __strong noteObj;
+};
+    
+/// Run a block of code when this change request is executed
+/// We use this to merge data on the main thread after other requests have been executed.
+class RunBlockReq : public ChangeRequest
+{
+public:
+    typedef std::function<void(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)> BlockFunc;
+
+    // Set up with the function to run
+    RunBlockReq(BlockFunc newFunc);
+    virtual ~RunBlockReq();
+    
+    // Run the block of code
+    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    
+protected:
+    BlockFunc func;
 };
         
 /// Sorted set of generators

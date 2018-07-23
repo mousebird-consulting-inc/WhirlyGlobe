@@ -762,4 +762,17 @@ void NotificationReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Wh
                    });
 }
     
+RunBlockReq::RunBlockReq(BlockFunc newFunc) : func(newFunc)
+{
+}
+    
+RunBlockReq::~RunBlockReq()
+{
+}
+    
+void RunBlockReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    func(scene,renderer,view);
+}
+    
 }
