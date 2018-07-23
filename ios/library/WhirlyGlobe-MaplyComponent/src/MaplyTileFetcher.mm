@@ -296,8 +296,12 @@ using namespace WhirlyKit;
 
 - (void)writeToCache:(TileInfoRef)tileInfo tileData:(NSData *)tileData
 {
-    if (tileInfo->request.cacheFile)
+    if (tileInfo->request.cacheFile) {
+        NSString *dir = [tileInfo->request.cacheFile stringByDeletingLastPathComponent];
+        NSError *error;
+        [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&error];
         [tileData writeToFile:tileInfo->request.cacheFile atomically:YES];
+    }
 }
 
 - (NSData *)readFromCache:(TileInfoRef)tileInfo
