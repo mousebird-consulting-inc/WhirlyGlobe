@@ -112,13 +112,15 @@ void BasicDrawable::setupTexCoordEntry(int which,int numReserve)
         texInfo.push_back(newInfo);
     }
 }
-    
-void BasicDrawable::setTexRelative(int which,int relLevel,int relX,int relY)
+
+void BasicDrawable::setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY)
 {
     if (which >= texInfo.size())
         return;
     
     TexInfo &ti = texInfo[which];
+    ti.size = size;
+    ti.borderTexel = borderTexel;
     ti.relLevel = relLevel;
     ti.relX = relX;
     ti.relY = relY;
@@ -1241,9 +1243,16 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             prog->setUniform(baseMapName, (int)ii+progTexBound);
             float texScale = 1.0;
             Vector2f texOffset(0.0,0.0);
+            // Adjust for border pixels
+            if (thisTexInfo.borderTexel > 0 && thisTexInfo.size > 0) {
+                texScale = (thisTexInfo.size - 2 * thisTexInfo.borderTexel) / (double)thisTexInfo.size;
+                float offset = thisTexInfo.borderTexel / (double)thisTexInfo.size;
+                texOffset = Vector2f(offset,offset);
+            }
+            // Adjust for a relative texture lookup (using lower zoom levels)
             if (thisTexInfo.relLevel > 0) {
-                texScale = 1.0/(1<<thisTexInfo.relLevel);
-                texOffset = Vector2f(texScale*thisTexInfo.relX,texScale*thisTexInfo.relY);
+                texScale = texScale/(1<<thisTexInfo.relLevel);
+                texOffset = Vector2f(texScale*thisTexInfo.relX,texScale*thisTexInfo.relY) + texOffset;
             }
             prog->setUniform(texScaleName, Vector2f(texScale, texScale));
             prog->setUniform(texOffsetName, texOffset);
@@ -1512,8 +1521,8 @@ DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,unsigned int wh
 {
 }
 
-DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId,int relLevel,int relX,int relY)
-: WhirlyKit::DrawableChangeRequest(drawId), which(which), newTexId(newTexId), relSet(true), relLevel(relLevel), relX(relX), relY(relY)
+DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId,int size,int borderTexel,int relLevel,int relX,int relY)
+: WhirlyKit::DrawableChangeRequest(drawId), which(which), newTexId(newTexId), relSet(true), size(size), borderTexel(borderTexel), relLevel(relLevel), relX(relX), relY(relY)
 {
 }
     
@@ -1523,9 +1532,9 @@ void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *rende
     if (basicDrawable) {
         basicDrawable->setTexId(which,newTexId);
         if (relSet)
-            basicDrawable->setTexRelative(which, relLevel, relX, relY);
+            basicDrawable->setTexRelative(which, size, borderTexel, relLevel, relX, relY);
         else
-            basicDrawable->setTexRelative(which, 0, 0, 0);
+            basicDrawable->setTexRelative(which, 0, 0, 0, 0, 0);
     } else {
         BasicDrawableInstanceRef refDrawable = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (refDrawable) {
@@ -1535,9 +1544,9 @@ void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *rende
                     orgDrawable->setupTexCoordEntry(which, 0);
                 refDrawable->setTexId(which,newTexId);
                 if (relSet)
-                    refDrawable->setTexRelative(which, relLevel, relX, relY);
+                    refDrawable->setTexRelative(which, size, borderTexel, relLevel, relX, relY);
                 else
-                    refDrawable->setTexRelative(which, 0, 0, 0);
+                    refDrawable->setTexRelative(which, 0, 0, 0, 0, 0);
             }
         }
     }
