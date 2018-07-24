@@ -170,10 +170,11 @@ public:
     class TexInfo
     {
     public:
-        TexInfo() : texId(EmptyIdentity), relLevel(0), relX(0), relY(0) { }
+        TexInfo() : texId(EmptyIdentity), relLevel(0), relX(0), relY(0), size(0), borderTexel(0) { }
         /// Texture ID within the scene
         SimpleIdentity texId;
         /// Our use of this texture relative to its native resolution
+        int size,borderTexel;
         int relLevel,relX,relY;
     };
 
@@ -185,7 +186,7 @@ public:
     
     /// Set the relative offsets for texture usage.
     /// We use these to look up parts of a texture at a higher level
-    virtual void setTexRelative(int which,int relLevel,int relX,int relY);
+    virtual void setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY);
     
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);

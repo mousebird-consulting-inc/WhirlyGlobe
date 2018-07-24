@@ -152,12 +152,14 @@ void BasicDrawableInstance::setupTexCoordEntry(int which,int numReserve)
     }
 }
 
-void BasicDrawableInstance::setTexRelative(int which,int relLevel,int relX,int relY)
+void BasicDrawableInstance::setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY)
 {
     if (which >= texInfo.size())
         return;
     
     TexInfo &ti = texInfo[which];
+    ti.size = size;
+    ti.borderTexel = borderTexel;
     ti.relLevel = relLevel;
     ti.relX = relX;
     ti.relY = relY;
@@ -365,6 +367,8 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                     auto &newEntry = texInfo[ii];
                     auto &entry = basicDraw->texInfo[ii];
                     entry.texId = newEntry.texId;
+                    entry.size = newEntry.size;
+                    entry.borderTexel = newEntry.borderTexel;
                     entry.relX = newEntry.relX;
                     entry.relY = newEntry.relY;
                     entry.relLevel = newEntry.relLevel;

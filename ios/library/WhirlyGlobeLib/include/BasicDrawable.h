@@ -232,13 +232,19 @@ public:
     class TexInfo
     {
     public:
-        TexInfo() : texId(EmptyIdentity), texCoordEntry(0), relLevel(0), relX(0), relY(0) { }
+        TexInfo() : texId(EmptyIdentity), texCoordEntry(0),
+                    relLevel(0), relX(0), relY(0),
+                    size(0), borderTexel(0) { }
         /// Texture ID within the scene
         SimpleIdentity texId;
         /// Vertex attribute entry for this set of texture coordinates
         int texCoordEntry;
         /// Our use of this texture relative to its native resolution
         int relLevel,relX,relY;
+        /// Size of a texture side
+        int size;
+        /// Border texels to avoid.  Used for blending.
+        int borderTexel;
     };
     
     /// Return the current texture info
@@ -309,7 +315,7 @@ public:
     virtual void setupTexCoordEntry(int which,int numReserve);
     /// Set the relative offsets for texture usage.
     /// We use these to look up parts of a texture at a higher level
-    virtual void setTexRelative(int which,int relLevel,int relX,int relY);
+    virtual void setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY);
     /// Draw routine for OpenGL 2.0
     virtual void drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     /// Add a single point to the GL Buffer.
@@ -462,7 +468,7 @@ class DrawTexChangeRequest : public DrawableChangeRequest
 {
 public:
     DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId);
-    DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId,int relLevel,int relX,int relY);
+    DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId,int size,int borderTexel,int relLevel,int relX,int relY);
     
     void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
     
@@ -470,6 +476,7 @@ protected:
     unsigned int which;
     SimpleIdentity newTexId;
     bool relSet;
+    int size,borderTexel;
     int relLevel,relX,relY;
 };
 

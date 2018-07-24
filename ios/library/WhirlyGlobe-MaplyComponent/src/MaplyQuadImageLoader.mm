@@ -238,7 +238,7 @@ public:
                     newDrawPriority = coverAsset->drawPriority;
                     break;
             }
-            changes.push_back(new DrawTexChangeRequest(drawInstID,0,texID,relLevel,relX,relY));
+            changes.push_back(new DrawTexChangeRequest(drawInstID,0,texID,0,0,relLevel,relX,relY));
             changes.push_back(new DrawPriorityChangeRequest(drawInstID,newDrawPriority));
             if (loadedTile->enabled)
                 changes.push_back(new OnOffChangeRequest(drawInstID,true));
