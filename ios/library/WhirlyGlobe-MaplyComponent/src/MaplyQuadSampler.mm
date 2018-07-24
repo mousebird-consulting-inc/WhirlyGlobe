@@ -71,12 +71,14 @@ using namespace WhirlyKit;
     WhirlyKitSceneRendererES * __weak renderer;
     std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> builderDelegates;
     double importance;
+    bool builderStarted;
 }
 
 - (nullable instancetype)initWithParams:(MaplySamplingParams * __nonnull)params
 {
     self = [super init];
     _params = params;
+    builderStarted = false;
     
     return self;
 }
@@ -179,9 +181,16 @@ using namespace WhirlyKit;
 // Add a new builder delegate to watch tile related events
 - (void)addBuilderDelegate:(NSObject<WhirlyKitQuadTileBuilderDelegate> * __nonnull)delegate
 {
+    bool notifyDelegate = false;
+
     @synchronized(self)
     {
         builderDelegates.push_back(delegate);
+        notifyDelegate = builderStarted;
+    }
+    
+    if (notifyDelegate) {
+        [delegate setQuadBuilder:builder layer:quadLayer];
     }
 }
 
@@ -200,6 +209,8 @@ using namespace WhirlyKit;
 
 - (void)setQuadBuilder:(WhirlyKitQuadTileBuilder * __nonnull)builder layer:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer
 {
+    builderStarted = true;
+    
     std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> delegates;
     @synchronized(self)
     {
