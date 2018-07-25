@@ -88,6 +88,29 @@ NSData *ConvertRGBATo5551(NSData *inData)
     return [NSData dataWithBytesNoCopy:temp length:pixelCount*2 freeWhenDone:YES];
 }
 
+// Convert a buffer in A to 1-byte alpha but align it
+NSData *ConvertAToA(NSData *inData,int width,int height)
+{
+    if (width % 4 == 0)
+        return inData;
+    
+    int extra = 4 - (width % 4);
+    int outWidth = width + extra;
+    
+    unsigned char *temp = (unsigned char *)malloc(outWidth*height);
+    
+    const unsigned char *inBytes = (const unsigned char *)[inData bytes];
+    unsigned char *outBytes = (unsigned char *)temp;
+    for (int32_t h=0;h<height;h++) {
+        bzero(&outBytes[width], extra);
+        bcopy(inBytes, outBytes, width);
+        inBytes += width;
+        outBytes += outWidth;
+    }
+
+    return [NSData dataWithBytesNoCopy:temp length:outWidth*height freeWhenDone:YES];
+}
+
 // Convert a buffer in RGBA to 1-byte alpha
 NSData *ConvertRGBATo8(NSData *inData,WKSingleByteSource source)
 {
@@ -219,6 +242,8 @@ NSData *Texture::processData()
                 return ConvertRGBATo5551(texData);
                 break;
             case GL_ALPHA:
+                if ([texData length] == width * height)
+                    return ConvertAToA(texData,width,height);
                 return ConvertRGBATo8(texData,byteSource);
                 break;
             case GL_COMPRESSED_RGB8_ETC2:
