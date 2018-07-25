@@ -88,7 +88,7 @@ NSData *ConvertRGBATo5551(NSData *inData)
     return [NSData dataWithBytesNoCopy:temp length:pixelCount*2 freeWhenDone:YES];
 }
 
-// Convert a buffer in A to 1-byte alpha but align it
+// Convert a buffer in A to 1-byte alpha but align it to 32 bits
 NSData *ConvertAToA(NSData *inData,int width,int height)
 {
     if (width % 4 == 0)
@@ -109,6 +109,62 @@ NSData *ConvertAToA(NSData *inData,int width,int height)
     }
 
     return [NSData dataWithBytesNoCopy:temp length:outWidth*height freeWhenDone:YES];
+}
+
+// Convert a buffer in RG to a 2-byte RG but align it to 32 bits
+NSData *ConvertRGToRG(NSData *inData,int width,int height)
+{
+    if (width % 2 == 0)
+        return inData;
+    
+    int extra = 2 - (width % 2);
+    int outWidth = width + extra;
+    
+    unsigned char *temp = (unsigned char *)malloc(outWidth*height*2);
+    
+    const unsigned char *inBytes = (const unsigned char *)[inData bytes];
+    unsigned char *outBytes = (unsigned char *)temp;
+    for (int32_t h=0;h<height;h++) {
+        bzero(&outBytes[width], 2*extra);
+        bcopy(inBytes, outBytes, 2*width);
+        inBytes += 2*width;
+        outBytes += 2*outWidth;
+    }
+    
+    return [NSData dataWithBytesNoCopy:temp length:outWidth*height*2 freeWhenDone:YES];
+}
+
+NSData *ConvertRGBATo16(NSData *inData,int width,int height)
+{
+    if (width % 2 == 0)
+        return inData;
+    
+    int extra = 2 - (width % 2);
+    int outWidth = width + extra;
+
+    unsigned char *temp = (unsigned char *)malloc(outWidth*height*2);
+    bzero(temp,outWidth*height*2);
+    
+    uint32_t *inPixel32row  = (uint32_t *)[inData bytes];
+    uint8_t *outPixel8row = (uint8_t *)temp;
+    for (int32_t h=0;h<height;h++) {
+        uint32_t *inPixel32 = inPixel32row;
+        uint8_t *outPixel8 = outPixel8row;
+        for (int32_t w=0;w<width;w++) {
+            uint32_t r = ((*inPixel32 >> 0)  & 0xFF);
+            uint32_t g = ((*inPixel32 >> 8)  & 0xFF);
+            outPixel8[0] = r;
+            outPixel8[1] = g;
+            
+            inPixel32++;
+            outPixel8+=2;
+        }
+        
+        inPixel32row += width;
+        outPixel8row += 2*outWidth;
+    }
+    
+    return [NSData dataWithBytesNoCopy:temp length:outWidth*height*2 freeWhenDone:YES];
 }
 
 // Convert a buffer in RGBA to 1-byte alpha
@@ -245,6 +301,13 @@ NSData *Texture::processData()
                 if ([texData length] == width * height)
                     return ConvertAToA(texData,width,height);
                 return ConvertRGBATo8(texData,byteSource);
+                break;
+            case GL_RG:
+                if ([texData length] == width * height * 2)
+                    return ConvertRGToRG(texData,width,height);
+                else if ([texData length] == width * height * 4)
+                    return ConvertRGBATo16(texData,width,height);
+                NSLog(@"Texture: Not handling RG conversion case.");
                 break;
             case GL_COMPRESSED_RGB8_ETC2:
                 // Can't convert this (for now)
@@ -394,6 +457,9 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
                 break;
             case GL_ALPHA:
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, [convertedData bytes]);
+                break;
+            case GL_RG:
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, [convertedData bytes]);
                 break;
             case GL_COMPRESSED_RGB8_ETC2:
                 glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB8_ETC2, width, height, 0, (GLsizei)[convertedData length], [convertedData bytes]);

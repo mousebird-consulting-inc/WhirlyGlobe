@@ -46,6 +46,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
     MaplyImageUShort4444,
     MaplyImageUShort5551,
     MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,
+    MaplyImageUByteRG,
     MaplyImageUByteRGB,
     MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
     MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
