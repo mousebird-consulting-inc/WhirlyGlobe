@@ -111,7 +111,7 @@ using namespace WhirlyKit;
     return true;
 }
 
-- (int)getNumClients
+- (int)numClients
 {
     return builderDelegates.size();
 }
