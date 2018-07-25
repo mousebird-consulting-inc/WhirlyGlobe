@@ -155,4 +155,13 @@ using namespace WhirlyKit;
     return toKeep;
 }
 
+- (TileBuilderDelegateInfo)getLoadingState
+{
+    TileBuilderDelegateInfo info;
+    
+    info.loadTiles = geomManage.getAllTiles();
+    
+    return info;
+}
+
 @end

@@ -95,4 +95,7 @@ public:
 // Return a tile, if there is one
 - (WhirlyKit::LoadedTileNewRef)getLoadedTile:(WhirlyKit::QuadTreeNew::Node)ident;
 
+// Return all the tiles that should be loaded
+- (WhirlyKit::TileBuilderDelegateInfo)getLoadingState;
+
 @end

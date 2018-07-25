@@ -138,6 +138,9 @@ public:
     // Return a single node
     LoadedTileNewRef getTile(QuadTreeNew::Node &ident);
     
+    // Return all the nodes we have geometry for
+    LoadedTileVec getAllTiles();
+    
     // Remove the tiles given, if they're being represented
     NodeChanges removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
     

@@ -514,6 +514,17 @@ std::vector<LoadedTileNewRef> TileGeomManager::getTiles(const QuadTreeNew::NodeS
     return retTiles;
 }
     
+LoadedTileVec TileGeomManager::getAllTiles()
+{
+    LoadedTileVec retTiles;
+    
+    for (auto tile: tileMap) {
+        retTiles.push_back(tile.second);
+    }
+    
+    return retTiles;
+}
+    
 LoadedTileNewRef TileGeomManager::getTile(QuadTreeNew::Node &ident)
 {
     auto it = tileMap.find(ident);
