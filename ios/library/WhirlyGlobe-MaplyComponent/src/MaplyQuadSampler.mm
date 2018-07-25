@@ -190,8 +190,24 @@ using namespace WhirlyKit;
     }
     
     if (notifyDelegate) {
-        [delegate setQuadBuilder:builder layer:quadLayer];
+        // Let the caller finish its setup and then do the notification on the layer thread
+        // Otherwise this can happen before they're ready
+        dispatch_async(dispatch_get_main_queue(),
+                       ^{
+                           [self performSelector:@selector(notifyDelegateStartup:) onThread:self->quadLayer.layerThread withObject:delegate waitUntilDone:NO];
+                       });
     }
+}
+
+- (void)notifyDelegateStartup:(NSObject<WhirlyKitQuadTileBuilderDelegate> * __nonnull)delegate
+{
+    [delegate setQuadBuilder:builder layer:quadLayer];
+    
+    // Pretend we just loaded everything (to the delegate)
+    WhirlyKit::ChangeSet changes;
+    WhirlyKit::TileBuilderDelegateInfo updates = [builder getLoadingState];
+    [delegate quadBuilder:builder update:updates changes:changes];
+    [quadLayer.layerThread addChangeRequests:changes];
 }
 
 // Remove the given builder delegate that was watching tile related events
