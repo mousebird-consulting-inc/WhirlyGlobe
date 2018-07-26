@@ -132,6 +132,9 @@ public:
 	/// Make a change to the scene.  For the renderer.  Never call this.
 	virtual void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view) = 0;
     
+    /// Set this if you need to be run before the active models are run
+    virtual bool needPreExecute() { return false; }
+    
     /// If non-zero we'll execute this request after the given absolute time
     NSTimeInterval when;
 };
