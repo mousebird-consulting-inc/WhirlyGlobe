@@ -465,6 +465,9 @@ static const float ScreenOverlap = 0.1;
         if (perfInterval > 0)
             perfTimer.startTiming("Scene processing");
         
+        // Run the preprocess for the changes.  These modify things the active models need.
+        scene->preProcessChanges(super.theView, self, now);
+        
         // Let the active models to their thing
         // That thing had better not take too long
         for (NSObject<WhirlyKitActiveModel> *activeModel in scene->activeModels)
@@ -477,7 +480,6 @@ static const float ScreenOverlap = 0.1;
             perfTimer.addCount("Scene changes", (int)scene->changeRequests.size());
         
 		// Merge any outstanding changes into the scenegraph
-		// Or skip it if we don't acquire the lock
 		scene->processChanges(super.theView,self,now);
         
         if (perfInterval > 0)

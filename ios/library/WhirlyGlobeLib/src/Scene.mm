@@ -129,12 +129,12 @@ Scene::~Scene()
     pthread_mutex_destroy(&generatorLock);
     pthread_mutex_destroy(&programLock);
     
-    auto theChangeRuquests = changeRequests;
+    auto theChangeRequests = changeRequests;
     changeRequests.clear();
-    for (unsigned int ii=0;ii<theChangeRuquests.size();ii++)
+    for (unsigned int ii=0;ii<theChangeRequests.size();ii++)
     {
         // Note: Tear down change requests?
-        delete theChangeRuquests[ii];
+        delete theChangeRequests[ii];
     }
     
     activeModels = nil;
@@ -368,41 +368,55 @@ const DrawableRefSet &Scene::getDrawables()
 {
     return drawables;
 }
+    
+void Scene::preProcessChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
+{
+    pthread_mutex_lock(&changeRequestLock);
+    // Just doing the ones that require a pre-process
+    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+    {
+        ChangeRequest *req = changeRequests[ii];
+        if (req && req->needPreExecute()) {
+            req->execute(this,renderer,view);
+            delete req;
+            changeRequests[ii] = NULL;
+        }
+    }
+    
+    pthread_mutex_unlock(&changeRequestLock);
+}
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
 void Scene::processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
 {
-    // We're not willing to wait in the rendering thread
-    if (!pthread_mutex_trylock(&changeRequestLock))
+    pthread_mutex_trylock(&changeRequestLock);
+    // See if any of the timed changes are ready
+    std::vector<ChangeRequest *> toMove;
+    for (ChangeRequest *req : timedChangeRequests)
     {
-        // See if any of the timed changes are ready
-        std::vector<ChangeRequest *> toMove;
-        for (ChangeRequest *req : timedChangeRequests)
-        {
-            if (now >= req->when)
-                toMove.push_back(req);
-            else
-                break;
-        }
-        for (ChangeRequest *req : toMove)
-        {
-            timedChangeRequests.erase(req);
-            changeRequests.push_back(req);
-        }
-        
-        for (unsigned int ii=0;ii<changeRequests.size();ii++)
-        {
-            ChangeRequest *req = changeRequests[ii];
-            if (req) {
-                req->execute(this,renderer,view);
-                delete req;
-            }
-        }
-        changeRequests.clear();
-        
-        pthread_mutex_unlock(&changeRequestLock);
+        if (now >= req->when)
+            toMove.push_back(req);
+        else
+            break;
     }
+    for (ChangeRequest *req : toMove)
+    {
+        timedChangeRequests.erase(req);
+        changeRequests.push_back(req);
+    }
+    
+    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+    {
+        ChangeRequest *req = changeRequests[ii];
+        if (req) {
+            req->execute(this,renderer,view);
+            delete req;
+        }
+    }
+    changeRequests.clear();
+        
+    pthread_mutex_unlock(&changeRequestLock);
 }
     
 bool Scene::hasChanges(NSTimeInterval now)

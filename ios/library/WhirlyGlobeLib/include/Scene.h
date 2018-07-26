@@ -239,6 +239,9 @@ public:
     // Set up with the function to run
     RunBlockReq(BlockFunc newFunc);
     virtual ~RunBlockReq();
+
+    // This is probably adding to the change requests and so needs to run first
+    bool needPreExecute() { return true; }
     
     // Run the block of code
     void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
@@ -314,6 +317,9 @@ public:
 	/// Process change requests
 	/// Only the renderer should call this in the rendering thread
 	void processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now);
+    
+    /// Some changes generate other changes, so they go first
+    void preProcessChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now);
     
     /// True if there are pending updates
     bool hasChanges(NSTimeInterval now);
