@@ -128,6 +128,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     if (geomManage->coverPoles && (geomManage->useNorthPoleColor || geomManage->useSouthPoleColor))
     {
         poleChunk = new BasicDrawable("LoadedTileNew poleChunk");
+        poleChunk->setupTexCoordEntry(0, 0);
         changes.push_back(new AddDrawableReq(poleChunk));
         if (geomSettings.useTileCenters)
             poleChunk->setMatrix(&transMat);
@@ -249,6 +250,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
                 skirtChunk->setMatrix(&transMat);
             // Note: We hardwire this to appear after the atmosphere
             //       Would be wiser to make this configurable... sort of
+            skirtChunk->setupTexCoordEntry(0, 0);
             skirtChunk->setDrawPriority(11);
             skirtChunk->setVisibleRange(geomSettings.minVis, geomSettings.maxVis);
             skirtChunk->setColor(geomSettings.color);
