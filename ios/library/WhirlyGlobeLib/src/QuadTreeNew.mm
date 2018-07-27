@@ -132,7 +132,8 @@ QuadTreeNew::ImportantNodeSet QuadTreeNew::calcCoverageImportance(double minImpo
     
 void QuadTreeNew::evalNodeImportance(ImportantNode node,double minImport,ImportantNodeSet &importSet)
 {
-    node.importance = importance(node);
+    if (node.importance != MAXFLOAT)
+        node.importance = importance(node);
     
     if (node.importance < minImport || node.level > maxLevel)
         return;
