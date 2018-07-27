@@ -368,6 +368,9 @@ public:
 class SingleVertexAttributeInfo
 {
 public:
+    SingleVertexAttributeInfo();
+    SingleVertexAttributeInfo(const std::string &name,BDAttributeDataType type);
+    
     /// Comparison operator for set
     bool operator < (const SingleVertexAttributeInfo &that) const
     {
@@ -411,6 +414,14 @@ typedef std::set<SingleVertexAttributeInfo> SingleVertexAttributeInfoSet;
 class SingleVertexAttribute : public SingleVertexAttributeInfo
 {
 public:
+    SingleVertexAttribute();
+    SingleVertexAttribute(const std::string &name,float floatVal);
+    SingleVertexAttribute(const std::string &name,int intVal);
+    SingleVertexAttribute(const std::string &name,unsigned char colorVal[4]);
+    SingleVertexAttribute(const std::string &name,float vec0,float vec1);
+    SingleVertexAttribute(const std::string &name,float vec0,float vec1,float vec2);
+    SingleVertexAttribute(const std::string &name,float vec0,float vec1,float vec2, float vec3);
+
     /// The actual data
     union {
         float vec4[4];

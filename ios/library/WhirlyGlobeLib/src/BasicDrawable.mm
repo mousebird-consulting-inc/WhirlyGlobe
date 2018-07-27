@@ -625,6 +625,11 @@ void BasicDrawable::setUniforms(const SingleVertexAttributeSet &newUniforms)
 {
     uniforms = newUniforms;
 }
+    
+SingleVertexAttributeSet BasicDrawable::getUniforms() const
+{
+    return uniforms;
+}
 
 // Size of a single vertex in an interleaved buffer
 // Note: We're resetting the buffers for no good reason
@@ -1607,6 +1612,23 @@ void LineWidthChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *ren
         BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setLineWidth(lineWidth);
+    }
+}
+    
+DrawUniformsChangeRequest::DrawUniformsChangeRequest(SimpleIdentity drawID,const SingleVertexAttributeSet &attrs)
+    : WhirlyKit::DrawableChangeRequest(drawID), attrs(attrs)
+{
+}
+    
+void DrawUniformsChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+{
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
+    if (basicDrawable)
+        basicDrawable->setUniforms(attrs);
+    else {
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (basicDrawInst)
+            basicDrawInst->setUniforms(attrs);
     }
 }
 

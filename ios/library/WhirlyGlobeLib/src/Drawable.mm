@@ -492,6 +492,16 @@ int VertexAttribute::size() const
             break;
     }
 }
+
+SingleVertexAttributeInfo::SingleVertexAttributeInfo()
+    : name(""), type(BDDataTypeMax)
+{
+}
+
+SingleVertexAttributeInfo::SingleVertexAttributeInfo(const std::string &name,BDAttributeDataType type)
+: name(name), type(type)
+{
+}
     
 int SingleVertexAttributeInfo::size() const
 {
@@ -519,6 +529,53 @@ int SingleVertexAttributeInfo::size() const
             return 0;
             break;
     }
+}
+    
+SingleVertexAttribute::SingleVertexAttribute()
+{
+}
+
+SingleVertexAttribute::SingleVertexAttribute(const std::string &name,float floatVal)
+    : SingleVertexAttributeInfo(name,BDFloatType)
+{
+    data.floatVal = floatVal;
+}
+
+SingleVertexAttribute::SingleVertexAttribute(const std::string &name,int intVal)
+    : SingleVertexAttributeInfo(name,BDIntType)
+{
+    data.intVal = intVal;
+}
+
+SingleVertexAttribute::SingleVertexAttribute(const std::string &name,unsigned char colorVal[4])
+    : SingleVertexAttributeInfo(name,BDChar4Type)
+{
+    for (unsigned int ii=0;ii<4;ii++)
+        data.color[ii] = colorVal[ii];
+}
+
+SingleVertexAttribute::SingleVertexAttribute(const std::string &name,float vec0,float vec1)
+    : SingleVertexAttributeInfo(name,BDFloat2Type)
+{
+    data.vec2[0] = vec0;
+    data.vec2[1] = vec1;
+}
+
+SingleVertexAttribute::SingleVertexAttribute(const std::string &name,float vec0,float vec1,float vec2)
+    : SingleVertexAttributeInfo(name,BDFloat3Type)
+{
+    data.vec3[0] = vec0;
+    data.vec3[1] = vec1;
+    data.vec3[2] = vec2;
+}
+
+SingleVertexAttribute::SingleVertexAttribute(const std::string &name,float vec0,float vec1,float vec2, float vec3)
+    : SingleVertexAttributeInfo(name,BDFloat4Type)
+{
+    data.vec4[0] = vec0;
+    data.vec4[1] = vec1;
+    data.vec4[2] = vec2;
+    data.vec4[3] = vec3;
 }
 
 /// Clean out the data array
