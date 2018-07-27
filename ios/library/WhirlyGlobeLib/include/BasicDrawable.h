@@ -283,6 +283,7 @@ public:
     
     /// Set the uniforms to be applied to the
     virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
+    virtual SingleVertexAttributeSet getUniforms() const;
     
     /// Run the texture and texture coordinates based on a SubTexture
     virtual void applySubTexture(int which,SubTexture subTex,int startingAt=0);
@@ -528,5 +529,16 @@ protected:
     float lineWidth;
 };
     
+/// Reset the uniforms passed into a shader for a specific drawable
+class DrawUniformsChangeRequest : public DrawableChangeRequest
+{
+public:
+    DrawUniformsChangeRequest(SimpleIdentity drawID,const SingleVertexAttributeSet &attrs);
+    
+    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    
+protected:
+    SingleVertexAttributeSet attrs;
+};
+    
 }
-

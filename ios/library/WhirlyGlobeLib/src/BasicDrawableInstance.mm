@@ -347,6 +347,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         float oldLineWidth = basicDraw->getLineWidth();
         float oldMinVis,oldMaxVis;
         basicDraw->getVisibleRange(oldMinVis, oldMaxVis);
+        auto oldUniforms = basicDraw->getUniforms();
         std::vector<BasicDrawable::TexInfo> oldTexInfo = basicDraw->getTexInfo();
         
         // Change the drawable
@@ -356,6 +357,9 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             basicDraw->setColor(color);
         if (hasLineWidth)
             basicDraw->setLineWidth(lineWidth);
+        if (!uniforms.empty()) {
+            basicDraw->setUniforms(uniforms);
+        }
         if (!texInfo.empty())
         {
             if (basicDraw->texInfo.size() < texInfo.size())
@@ -429,6 +433,8 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             basicDraw->setLineWidth(oldLineWidth);
         if (!texInfo.empty())
             basicDraw->texInfo = oldTexInfo;
+        if (!uniforms.empty())
+            basicDraw->setUniforms(oldUniforms);
         basicDraw->setVisibleRange(oldMinVis, oldMaxVis);
         
     } else {
