@@ -371,19 +371,26 @@ const DrawableRefSet &Scene::getDrawables()
     
 void Scene::preProcessChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
 {
+    ChangeSet preRequests;
+    
     pthread_mutex_lock(&changeRequestLock);
     // Just doing the ones that require a pre-process
     for (unsigned int ii=0;ii<changeRequests.size();ii++)
     {
         ChangeRequest *req = changeRequests[ii];
         if (req && req->needPreExecute()) {
-            req->execute(this,renderer,view);
-            delete req;
+            preRequests.push_back(req);
             changeRequests[ii] = NULL;
         }
     }
     
     pthread_mutex_unlock(&changeRequestLock);
+
+    // Run these outside of the lock, since they might use the lock
+    for (auto req : preRequests) {
+        req->execute(this,renderer,view);
+        delete req;
+    }
 }
 
 // Process outstanding changes.
