@@ -329,7 +329,7 @@ using namespace WhirlyKit;
         NSString *dir = [tileInfo->request.cacheFile stringByDeletingLastPathComponent];
         NSError *error;
         [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&error];
-        [tileData writeToFile:tileInfo->request.cacheFile atomically:YES];
+        [tileData writeToFile:tileInfo->request.cacheFile atomically:NO];
     }
 }
 
