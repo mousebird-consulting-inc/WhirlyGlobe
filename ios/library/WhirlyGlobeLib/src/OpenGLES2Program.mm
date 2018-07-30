@@ -22,6 +22,7 @@
 #import "OpenGLES2Program.h"
 #import "Lighting.h"
 #import "GLUtils.h"
+#import "SceneRendererES.h"
 
 using namespace Eigen;
 
@@ -37,9 +38,9 @@ OpenGLES2Program::~OpenGLES2Program()
 {
 }
     
-bool OpenGLES2Program::setUniform(const std::string &name,float val)
+bool OpenGLES2Program::setUniform(StringIdentity nameID,float val)
 {
-    OpenGLESUniform *uni = findUniform(name);
+    OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
         return false;
     
@@ -57,10 +58,10 @@ bool OpenGLES2Program::setUniform(const std::string &name,float val)
     return true;
 }
 
-bool OpenGLES2Program::setUniform(const std::string &inName,float val,int index)
+bool OpenGLES2Program::setUniform(StringIdentity nameID,float val,int index)
 {
-    std::string name = inName + "[0]";
-    OpenGLESUniform *uni = findUniform(name);
+    std::string name = StringIndexer::getString(nameID) + "[0]";
+    OpenGLESUniform *uni = findUniform(StringIndexer::getStringID(name));
     if (!uni)
         return false;
 
@@ -78,9 +79,9 @@ bool OpenGLES2Program::setUniform(const std::string &inName,float val,int index)
     return true;
 }
 
-bool OpenGLES2Program::setUniform(const std::string &name,int val)
+bool OpenGLES2Program::setUniform(StringIdentity nameID,int val)
 {
-    OpenGLESUniform *uni = findUniform(name);
+    OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
         return false;
     
@@ -98,9 +99,9 @@ bool OpenGLES2Program::setUniform(const std::string &name,int val)
     return true;
 }
     
-bool OpenGLES2Program::setTexture(const std::string &name,GLuint val)
+bool OpenGLES2Program::setTexture(StringIdentity nameID,GLuint val)
 {
-    OpenGLESUniform *uni = findUniform(name);
+    OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
         return false;
     
@@ -115,9 +116,9 @@ bool OpenGLES2Program::setTexture(const std::string &name,GLuint val)
 }
 
 
-bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector2f &vec)
+bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector2f &vec)
 {
-    OpenGLESUniform *uni = findUniform(name);
+    OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
         return false;
     
@@ -135,9 +136,9 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector2f 
     return true;
 }
 
-bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector3f &vec)
+bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector3f &vec)
 {
-    OpenGLESUniform *uni = findUniform(name);
+    OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
         return false;
     
@@ -155,9 +156,9 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector3f 
 }
     
 
-bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector4f &vec)
+bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec)
 {
-    OpenGLESUniform *uni = findUniform(name);
+    OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
         return false;
     
@@ -175,10 +176,10 @@ bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Vector4f 
     return true;
 }
 
-bool OpenGLES2Program::setUniform(const std::string &inName,const Eigen::Vector4f &vec,int index)
+bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,int index)
 {
-    std::string name = inName + "[0]";
-    OpenGLESUniform *uni = findUniform(name);
+    std::string name = StringIndexer::getString(nameID) + "[0]";
+    OpenGLESUniform *uni = findUniform(StringIndexer::getStringID(name));
     if (!uni)
         return false;
     
@@ -195,10 +196,12 @@ bool OpenGLES2Program::setUniform(const std::string &inName,const Eigen::Vector4
     
     return true;
 }
+    
 
-bool OpenGLES2Program::setUniform(const std::string &name,const Eigen::Matrix4f &mat)
+
+bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat)
 {
-    OpenGLESUniform *uni = findUniform(name);
+    OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
         return false;
     
@@ -234,22 +237,22 @@ bool OpenGLES2Program::setUniform(const SingleVertexAttribute &attr)
     switch (attr.type)
     {
         case BDFloat4Type:
-            ret = setUniform(attr.name, Vector4f(attr.data.vec4[0],attr.data.vec4[1],attr.data.vec4[2],attr.data.vec4[3]));
+            ret = setUniform(attr.nameID, Vector4f(attr.data.vec4[0],attr.data.vec4[1],attr.data.vec4[2],attr.data.vec4[3]));
             break;
         case BDFloat3Type:
-            ret = setUniform(attr.name, Vector3f(attr.data.vec3[0],attr.data.vec3[1],attr.data.vec3[2]));
+            ret = setUniform(attr.nameID, Vector3f(attr.data.vec3[0],attr.data.vec3[1],attr.data.vec3[2]));
             break;
         case BDChar4Type:
-            ret = setUniform(attr.name, Vector4f(attr.data.color[0],attr.data.color[1],attr.data.color[2],attr.data.color[3]));
+            ret = setUniform(attr.nameID, Vector4f(attr.data.color[0],attr.data.color[1],attr.data.color[2],attr.data.color[3]));
             break;
         case BDFloat2Type:
-            ret = setUniform(attr.name, Vector2f(attr.data.vec2[0],attr.data.vec2[1]));
+            ret = setUniform(attr.nameID, Vector2f(attr.data.vec2[0],attr.data.vec2[1]));
             break;
         case BDFloatType:
-            ret = setUniform(attr.name, attr.data.floatVal);
+            ret = setUniform(attr.nameID, attr.data.floatVal);
             break;
         case BDIntType:
-            ret = setUniform(attr.name, attr.data.intVal);
+            ret = setUniform(attr.nameID, attr.data.intVal);
             break;
         default:
             break;
@@ -349,9 +352,9 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         GLint bufLen;
         thingName[0] = 0;
         glGetActiveUniform(program, ii, 1023, &bufLen, &uni->size, &uni->type, thingName);
-        uni->name = thingName;
+        uni->nameID = StringIndexer::getStringID(thingName);
         uni->index = glGetUniformLocation(program, thingName);
-        uniforms[uni->name] = uni;
+        uniforms[uni->nameID] = uni;
     }
     
     // Convert the attributes into a more useful form
@@ -364,8 +367,8 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         thingName[0] = 0;
         glGetActiveAttrib(program, ii, 1023, &bufLen, &attr->size, &attr->type, thingName);
         attr->index = glGetAttribLocation(program, thingName);
-        attr->name = thingName;
-        attrs[attr->name] = attr;
+        attr->nameID = StringIndexer::getStringID(thingName);
+        attrs[attr->nameID] = attr;
     }
 }
     
@@ -398,17 +401,17 @@ bool OpenGLES2Program::isValid()
 }
     
 
-OpenGLESUniform *OpenGLES2Program::findUniform(const std::string &uniformName)
+OpenGLESUniform *OpenGLES2Program::findUniform(StringIdentity nameID)
 {
-    auto it = uniforms.find(uniformName);
+    auto it = uniforms.find(nameID);
     if (it == uniforms.end())
         return NULL;
     return it->second.get();
 }
 
-const OpenGLESAttribute *OpenGLES2Program::findAttribute(const std::string &attrName)
+const OpenGLESAttribute *OpenGLES2Program::findAttribute(StringIdentity nameID)
 {
-    auto it = attrs.find(attrName);
+    auto it = attrs.find(nameID);
     if (it == attrs.end())
         return NULL;
     return it->second.get();
@@ -416,7 +419,7 @@ const OpenGLESAttribute *OpenGLES2Program::findAttribute(const std::string &attr
     
 bool OpenGLES2Program::hasLights()
 {
-    OpenGLESUniform *lightAttr = findUniform("u_numLights");
+    OpenGLESUniform *lightAttr = findUniform(u_numLightsNameID);
     return lightAttr != NULL;
 }
     
@@ -434,7 +437,7 @@ bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate,Whirl
         WhirlyKitDirectionalLight *light = [lights objectAtIndex:ii];
         lightsSet &= [light bindToProgram:this index:ii modelMatrix:modelMat];
     }
-    OpenGLESUniform *lightAttr = findUniform("u_numLights");
+    OpenGLESUniform *lightAttr = findUniform(u_numLightsNameID);
     if (lightAttr)
         glUniform1i(lightAttr->index, numLights);
     else

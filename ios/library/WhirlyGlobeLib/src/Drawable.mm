@@ -235,8 +235,8 @@ void DrawableChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *rende
 		execute2(scene,renderer,theDrawable);
 }
     
-VertexAttribute::VertexAttribute(BDAttributeDataType dataType,const std::string &name)
-    : dataType(dataType), name(name), data(NULL), buffer(0)
+VertexAttribute::VertexAttribute(BDAttributeDataType dataType,StringIdentity nameID)
+    : dataType(dataType), nameID(nameID), data(NULL), buffer(0)
 {
     defaultData.vec3[0] = 0.0;
     defaultData.vec3[1] = 0.0;
@@ -250,7 +250,7 @@ VertexAttribute::~VertexAttribute()
 }
     
 VertexAttribute::VertexAttribute(const VertexAttribute &that)
-    : dataType(that.dataType), name(that.name), data(NULL), buffer(that.buffer), defaultData(that.defaultData)
+    : dataType(that.dataType), nameID(that.nameID), data(NULL), buffer(that.buffer), defaultData(that.defaultData)
 {
 }
     
@@ -494,12 +494,12 @@ int VertexAttribute::size() const
 }
 
 SingleVertexAttributeInfo::SingleVertexAttributeInfo()
-    : name(""), type(BDDataTypeMax)
+    : nameID(0), type(BDDataTypeMax)
 {
 }
 
-SingleVertexAttributeInfo::SingleVertexAttributeInfo(const std::string &name,BDAttributeDataType type)
-: name(name), type(type)
+SingleVertexAttributeInfo::SingleVertexAttributeInfo(StringIdentity nameID,BDAttributeDataType type)
+: nameID(nameID), type(type)
 {
 }
     
@@ -535,42 +535,42 @@ SingleVertexAttribute::SingleVertexAttribute()
 {
 }
 
-SingleVertexAttribute::SingleVertexAttribute(const std::string &name,float floatVal)
-    : SingleVertexAttributeInfo(name,BDFloatType)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,float floatVal)
+    : SingleVertexAttributeInfo(nameID,BDFloatType)
 {
     data.floatVal = floatVal;
 }
 
-SingleVertexAttribute::SingleVertexAttribute(const std::string &name,int intVal)
-    : SingleVertexAttributeInfo(name,BDIntType)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int intVal)
+    : SingleVertexAttributeInfo(nameID,BDIntType)
 {
     data.intVal = intVal;
 }
 
-SingleVertexAttribute::SingleVertexAttribute(const std::string &name,unsigned char colorVal[4])
-    : SingleVertexAttributeInfo(name,BDChar4Type)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,unsigned char colorVal[4])
+    : SingleVertexAttributeInfo(nameID,BDChar4Type)
 {
     for (unsigned int ii=0;ii<4;ii++)
         data.color[ii] = colorVal[ii];
 }
 
-SingleVertexAttribute::SingleVertexAttribute(const std::string &name,float vec0,float vec1)
-    : SingleVertexAttributeInfo(name,BDFloat2Type)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1)
+    : SingleVertexAttributeInfo(nameID,BDFloat2Type)
 {
     data.vec2[0] = vec0;
     data.vec2[1] = vec1;
 }
 
-SingleVertexAttribute::SingleVertexAttribute(const std::string &name,float vec0,float vec1,float vec2)
-    : SingleVertexAttributeInfo(name,BDFloat3Type)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1,float vec2)
+    : SingleVertexAttributeInfo(nameID,BDFloat3Type)
 {
     data.vec3[0] = vec0;
     data.vec3[1] = vec1;
     data.vec3[2] = vec2;
 }
 
-SingleVertexAttribute::SingleVertexAttribute(const std::string &name,float vec0,float vec1,float vec2, float vec3)
-    : SingleVertexAttributeInfo(name,BDFloat4Type)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1,float vec2, float vec3)
+    : SingleVertexAttributeInfo(nameID,BDFloat4Type)
 {
     data.vec4[0] = vec0;
     data.vec4[1] = vec1;
@@ -870,7 +870,7 @@ bool VertexAttributesAreCompatible(const SingleVertexAttributeInfoSet &infoSet,c
     auto itB = attrSet.begin();
     for (;itA != infoSet.end(); ++itA, ++itB)
     {
-        if (itA->name != itB->name)
+        if (itA->nameID != itB->nameID)
             return false;
         if (itA->type != itB->type)
             return false;

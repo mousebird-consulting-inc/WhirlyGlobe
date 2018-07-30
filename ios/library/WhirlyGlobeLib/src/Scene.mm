@@ -48,6 +48,8 @@ Scene::Scene()
     
 void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
 {
+    SetupDrawableStrings();
+
     pthread_mutex_init(&coordAdapterLock,NULL);
     pthread_mutex_init(&changeRequestLock,NULL);
     pthread_mutex_init(&subTexLock, NULL);

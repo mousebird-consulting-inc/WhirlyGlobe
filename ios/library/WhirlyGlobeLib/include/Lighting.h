@@ -22,8 +22,6 @@
 #import "WhirlyVector.h"
 #import "OpenGLES2Program.h"
 
-#define kWKOGLNumLights "u_numLights"
-
 /** This implements a simple directional light source
   */
 @interface WhirlyKitDirectionalLight : NSObject

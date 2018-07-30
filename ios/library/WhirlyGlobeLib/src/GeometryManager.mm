@@ -307,11 +307,11 @@ void GeometryRawPoints::addPoint(int idx,const Eigen::Vector4f &pt)
         f4Attrs->vals.push_back(pt);
 }
 
-int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType dataType)
+int GeometryRawPoints::addAttribute(StringIdentity nameID,GeomRawDataType dataType)
 {
     // Make sure we don't already have it
     for (GeomPointAttrData *data : attrData)
-        if (name == data->name)
+        if (nameID == data->nameID)
             return -1;
     
     int idx = -1;
@@ -320,7 +320,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         case GeomRawIntType:
         {
             GeomPointAttrDataInt *attrs = new GeomPointAttrDataInt();
-            attrs->name = name;
+            attrs->nameID = nameID;
             idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
@@ -328,7 +328,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         case GeomRawFloatType:
         {
             GeomPointAttrDataFloat *attrs = new GeomPointAttrDataFloat();
-            attrs->name = name;
+            attrs->nameID = nameID;
             idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
@@ -336,7 +336,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         case GeomRawFloat2Type:
         {
             GeomPointAttrDataPoint2f *attrs = new GeomPointAttrDataPoint2f();
-            attrs->name = name;
+            attrs->nameID = nameID;
             idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
@@ -344,7 +344,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         case GeomRawFloat3Type:
         {
             GeomPointAttrDataPoint3f *attrs = new GeomPointAttrDataPoint3f();
-            attrs->name = name;
+            attrs->nameID = nameID;
             idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
@@ -352,7 +352,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         case GeomRawFloat4Type:
         {
             GeomPointAttrDataPoint4f *attrs = new GeomPointAttrDataPoint4f();
-            attrs->name = name;
+            attrs->nameID = nameID;
             idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
@@ -360,7 +360,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         case GeomRawDouble2Type:
         {
             GeomPointAttrDataPoint2d *attrs = new GeomPointAttrDataPoint2d();
-            attrs->name = name;
+            attrs->nameID = nameID;
             idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
@@ -368,7 +368,7 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
         case GeomRawDouble3Type:
         {
             GeomPointAttrDataPoint3d *attrs = new GeomPointAttrDataPoint3d();
-            attrs->name = name;
+            attrs->nameID = nameID;
             idx = (int)attrData.size();
             attrData.push_back(attrs);
         }
@@ -381,12 +381,12 @@ int GeometryRawPoints::addAttribute(const std::string &name,GeomRawDataType data
     return idx;
 }
     
-int GeometryRawPoints::findAttribute(const std::string &name) const
+int GeometryRawPoints::findAttribute(StringIdentity nameID) const
 {
     int which = 0;
     for (auto attr : attrData)
     {
-        if (attr->name == name)
+        if (attr->nameID == nameID)
             return which;
         which++;
     }
@@ -400,7 +400,7 @@ bool GeometryRawPoints::valid() const
     bool hasPosition = false;
     for (auto attrs : attrData)
     {
-        if (attrs->name == "a_position")
+        if (attrs->nameID == a_PositionNameID)
             hasPosition = true;
         if (numVals == -1)
             numVals = attrs->getNumVals();
@@ -420,8 +420,8 @@ void GeometryRawPoints::buildDrawables(std::vector<BasicDrawable *> &draws,const
     
     BasicDrawable *draw = NULL;
     
-    int posIdx = findAttribute("a_position");
-    int colorIdx = findAttribute("a_color");
+    int posIdx = findAttribute(a_PositionNameID);
+    int colorIdx = findAttribute(a_colorNameID);
 
     int numVals = attrData[posIdx]->getNumVals();
     
@@ -472,7 +472,7 @@ void GeometryRawPoints::buildDrawables(std::vector<BasicDrawable *> &draws,const
                     default:
                         break;
                 }
-                attrIdxs[which] = draw->addAttribute(dataType, attrs->name);
+                attrIdxs[which] = draw->addAttribute(dataType, attrs->nameID);
                 which++;
             }
         }

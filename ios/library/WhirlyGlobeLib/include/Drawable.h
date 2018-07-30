@@ -29,6 +29,7 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
+#import "StringIndexer.h"
 #import "WhirlyVector.h"
 #import "GlobeView.h"
 
@@ -283,7 +284,7 @@ typedef enum {BDFloat4Type,BDFloat3Type,BDChar4Type,BDFloat2Type,BDFloatType,BDI
 class VertexAttribute
 {
 public:
-    VertexAttribute(BDAttributeDataType dataType,const std::string &name);
+    VertexAttribute(BDAttributeDataType dataType,StringIdentity nameID);
     VertexAttribute(const VertexAttribute &that);
     ~VertexAttribute();
     
@@ -346,7 +347,7 @@ public:
     /// Data type for the attribute data
     BDAttributeDataType dataType;
     /// Name used in the shader
-    std::string name;
+    StringIdentity nameID;
     /// Default value to pass to OpenGL if there's no data array
     union {
         float vec4[4];
@@ -369,19 +370,19 @@ class SingleVertexAttributeInfo
 {
 public:
     SingleVertexAttributeInfo();
-    SingleVertexAttributeInfo(const std::string &name,BDAttributeDataType type);
+    SingleVertexAttributeInfo(StringIdentity nameID,BDAttributeDataType type);
     
     /// Comparison operator for set
     bool operator < (const SingleVertexAttributeInfo &that) const
     {
-        if (name == that.name)
+        if (nameID == that.nameID)
             return type < that.type;
-        return name < that.name;
+        return nameID < that.nameID;
     }
     
     bool operator == (const SingleVertexAttributeInfo &that) const
     {
-        bool ret = (name == that.name);
+        bool ret = (nameID == that.nameID);
         if (ret)
             return type == that.type;
         return ret;
@@ -403,7 +404,7 @@ public:
     BDAttributeDataType type;
 
     /// Attribute name (e.g. "u_elev")
-    std::string name;
+    StringIdentity nameID;
 };
 
 typedef std::set<SingleVertexAttributeInfo> SingleVertexAttributeInfoSet;
@@ -415,12 +416,12 @@ class SingleVertexAttribute : public SingleVertexAttributeInfo
 {
 public:
     SingleVertexAttribute();
-    SingleVertexAttribute(const std::string &name,float floatVal);
-    SingleVertexAttribute(const std::string &name,int intVal);
-    SingleVertexAttribute(const std::string &name,unsigned char colorVal[4]);
-    SingleVertexAttribute(const std::string &name,float vec0,float vec1);
-    SingleVertexAttribute(const std::string &name,float vec0,float vec1,float vec2);
-    SingleVertexAttribute(const std::string &name,float vec0,float vec1,float vec2, float vec3);
+    SingleVertexAttribute(StringIdentity nameID,float floatVal);
+    SingleVertexAttribute(StringIdentity nameID,int intVal);
+    SingleVertexAttribute(StringIdentity nameID,unsigned char colorVal[4]);
+    SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1);
+    SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1,float vec2);
+    SingleVertexAttribute(StringIdentity nameID,float vec0,float vec1,float vec2, float vec3);
 
     /// The actual data
     union {

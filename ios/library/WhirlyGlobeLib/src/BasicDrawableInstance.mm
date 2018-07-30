@@ -251,7 +251,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
 
     glBindBuffer(GL_ARRAY_BUFFER,instBuffer);
     {
-        const OpenGLESAttribute *centerAttr = prog->findAttribute("a_modelCenter");
+        const OpenGLESAttribute *centerAttr = prog->findAttribute(a_modelCenterNameID);
         if (centerAttr)
         {
             glVertexAttribPointer(centerAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(0));
@@ -265,7 +265,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
         }
     }
     {
-        const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+        const OpenGLESAttribute *matAttr = prog->findAttribute(a_SingleMatrixNameID);
         if (matAttr)
         {
             for (unsigned int im=0;im<4;im++)
@@ -282,7 +282,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
         }
     }
     {
-        const OpenGLESAttribute *useColorAttr = prog->findAttribute("a_useInstanceColor");
+        const OpenGLESAttribute *useColorAttr = prog->findAttribute(a_useInstanceColorNameID);
         if (useColorAttr)
         {
             glVertexAttribPointer(useColorAttr->index, 1, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+matSize));
@@ -296,7 +296,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
         }
     }
     {
-        const OpenGLESAttribute *colorAttr = prog->findAttribute("a_instanceColor");
+        const OpenGLESAttribute *colorAttr = prog->findAttribute(a_instanceColorNameID);
         if (colorAttr)
         {
             glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, instSize, (const GLvoid *)(long)(centerSize+matSize+colorInstSize));
@@ -310,7 +310,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
         }
     }
     {
-        const OpenGLESAttribute *dirAttr = prog->findAttribute("a_modelDir");
+        const OpenGLESAttribute *dirAttr = prog->findAttribute(a_modelDirNameID);
         if (moving && dirAttr)
         {
             glVertexAttribPointer(dirAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+matSize+colorInstSize+colorSize));
@@ -329,10 +329,6 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
 
     return vertArrayObj;
 }
-    
-// Putting there here rather than running sprintf is a lot faster.  Really.  Oy.
-static const char *baseMapNames[WhirlyKitMaxTextures] = {"s_baseMap0","s_baseMap1","s_baseMap2","s_baseMap3","s_baseMap4","s_baseMap5","s_baseMap6","s_baseMap7"};
-
     
 // Used to pass in buffer offsets
 #define CALCBUFOFF(base,off) ((char *)((long)(base) + (off)))
@@ -468,7 +464,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         
         // Time for motion
         if (moving)
-            frameInfo.program->setUniform("u_time", (float)(frameInfo.currentTime - startTime));
+            frameInfo.program->setUniform(u_TimeNameID, (float)(frameInfo.currentTime - startTime));
         
         // GL Texture IDs
         bool anyTextures = false;
@@ -486,20 +482,20 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         }
         
         // Model/View/Projection matrix
-        prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
-        prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
-        prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
-        prog->setUniform("u_mvpNormalMatrix", frameInfo.mvpNormalMat);
-        prog->setUniform("u_pMatrix", frameInfo.projMat);
+        prog->setUniform(mvpMatrixNameID, frameInfo.mvpMat);
+        prog->setUniform(mvMatrixNameID, frameInfo.viewAndModelMat);
+        prog->setUniform(mvNormalMatrixNameID, frameInfo.viewModelNormalMat);
+        prog->setUniform(mvpNormalMatrixNameID, frameInfo.mvpNormalMat);
+        prog->setUniform(u_pMatrixNameID, frameInfo.projMat);
         
         // Fade is always mixed in
-        prog->setUniform("u_fade", fade);
+        prog->setUniform(u_FadeNameID, fade);
         
         // Let the shaders know if we even have a texture
-        prog->setUniform("u_hasTexture", anyTextures);
+        prog->setUniform(u_HasTextureNameID, anyTextures);
         
         // If this is present, the drawable wants to do something based where the viewer is looking
-        prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
+        prog->setUniform(u_EyeVecNameID, frameInfo.fullEyeVec);
         
         // Any uniforms we may want to apply to the shader
         for (auto const &attr : uniforms)
@@ -515,15 +511,15 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
         {
             GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
-            const char *baseMapName = baseMapNames[ii];
-            const OpenGLESUniform *texUni = prog->findUniform(baseMapName);
+            auto baseMapNameID = baseMapNameIDs[ii];
+            const OpenGLESUniform *texUni = prog->findUniform(baseMapNameID);
             hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
             if (hasTexture[ii+progTexBound])
             {
                 [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
                 glBindTexture(GL_TEXTURE_2D, glTexID);
                 CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
-                prog->setUniform(baseMapName, (int)ii+progTexBound);
+                prog->setUniform(baseMapNameID, (int)ii+progTexBound);
                 CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
             }
         }
@@ -533,7 +529,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             setupVAO(prog);
         
         // Figure out what we're using
-        const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
+        const OpenGLESAttribute *vertAttr = prog->findAttribute(a_PositionNameID);
         
         // Vertex array
         bool usedLocalVertices = false;
@@ -551,7 +547,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         for (unsigned int ii=0;ii<basicDraw->vertexAttributes.size();ii++)
         {
             VertexAttribute *attr = basicDraw->vertexAttributes[ii];
-            const OpenGLESAttribute *progAttr = prog->findAttribute(attr->name);
+            const OpenGLESAttribute *progAttr = prog->findAttribute(attr->nameID);
             progAttrs[ii] = NULL;
             if (progAttr)
             {
@@ -584,7 +580,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         if (!instBuffer)
         {
             // Set the singleMatrix attribute to identity
-            const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+            const OpenGLESAttribute *matAttr = prog->findAttribute(a_SingleMatrixNameID);
             if (matAttr)
             {
                 glVertexAttrib4f(matAttr->index,1.0,0.0,0.0,0.0);
@@ -596,7 +592,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         // No direction data, so provide an empty default
         if (!instBuffer || modelDirSize == 0)
         {
-            const OpenGLESAttribute *dirAttr = prog->findAttribute("a_modelDir");
+            const OpenGLESAttribute *dirAttr = prog->findAttribute(a_modelDirNameID);
             if (dirAttr)
                 glVertexAttrib3f(dirAttr->index, 0.0, 0.0, 0.0);
         }
@@ -728,26 +724,26 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         
         if (instBuffer)
         {
-            const OpenGLESAttribute *centerAttr = prog->findAttribute("a_modelCenter");
+            const OpenGLESAttribute *centerAttr = prog->findAttribute(a_modelCenterNameID);
             if (centerAttr)
             {
                 glDisableVertexAttribArray(centerAttr->index);
                 CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
             }
-            const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+            const OpenGLESAttribute *matAttr = prog->findAttribute(a_SingleMatrixNameID);
             if (matAttr)
             {
                 for (unsigned int im=0;im<4;im++)
                     glDisableVertexAttribArray(matAttr->index+im);
                 CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
             }
-            const OpenGLESAttribute *colorAttr = prog->findAttribute("a_color");
+            const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID);
             if (colorAttr)
             {
                 glDisableVertexAttribArray(colorAttr->index);
                 CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
             }
-            const OpenGLESAttribute *dirAttr = prog->findAttribute("a_modelDir");
+            const OpenGLESAttribute *dirAttr = prog->findAttribute(a_modelDirNameID);
             if (dirAttr)
             {
                 glDisableVertexAttribArray(dirAttr->index);
