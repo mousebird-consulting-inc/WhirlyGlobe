@@ -707,7 +707,7 @@ static const float ScreenOverlap = 0.1;
                         if (program->hasLights() && ([lights count] > 0))
                         program->setLights(lights, lightsLastUpdated, defaultMat, currentMvpMat);
                         // Explicitly turn the lights on
-                        program->setUniform(kWKOGLNumLights, (int)[lights count]);
+                        program->setUniform(u_numLightsNameID, (int)[lights count]);
                         
                         baseFrameInfo.program = program;
                     }
@@ -807,7 +807,7 @@ static const float ScreenOverlap = 0.1;
                             //                            [renderStateOptimizer setUseProgram:program->getProgram()];
                             glUseProgram(program->getProgram());
                             // Explicitly turn the lights off
-                            program->setUniform(kWKOGLNumLights, 0);
+                            program->setUniform(u_numLightsNameID, 0);
                             baseFrameInfo.program = program;
                         }
                     }

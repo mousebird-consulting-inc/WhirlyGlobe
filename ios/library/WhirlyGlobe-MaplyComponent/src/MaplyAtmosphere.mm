@@ -24,32 +24,6 @@
 #import "MaplyShader_private.h"
 #import "MaplyActiveObject_private.h"
 
-#define k_v3CameraPos "u_v3CameraPos"
-#define k_v3LightPos "u_v3LightPos"
-#define k_v3InvWavelength "u_v3InvWavelength"
-#define k_fCameraHeight "u_fCameraHeight"
-#define k_fCameraHeight2 "u_fCameraHeight2"
-#define k_fInnerRadius "u_fInnerRadius"
-#define k_fInnerRadius2 "u_fInnerRadius2"
-#define k_fOuterRadius "u_fOuterRadius"
-#define k_fOuterRadius2 "u_fOuterRadius2"
-#define k_fScale "u_fScale"
-#define k_fScaleDepth "u_fScaleDepth"
-#define k_fScaleOverScaleDepth "u_fScaleOverScaleDepth"
-#define k_Kr "u_Kr"
-#define k_Kr4PI "u_Kr4PI"
-#define k_Km "u_Km"
-#define k_Km4PI "u_Km4PI"
-#define k_ESun "u_ESun"
-#define k_KmESun "u_KmESun"
-#define k_KrESun "u_KrESun"
-#define k_v3InvWavelength "u_v3InvWavelength"
-#define k_fSamples "u_fSamples"
-#define k_nSamples "u_nSamples"
-#define k_g "g"
-#define k_g2 "g2"
-#define k_fExposure "fExposure"
-
 using namespace WhirlyKit;
 using namespace Eigen;
 
@@ -324,11 +298,72 @@ static const char *fragmentShaderGroundTri =
     changed = true;
 }
 
+static bool nameIDsSetup = false;
+static StringIdentity v3CameraPosNameID;
+static StringIdentity v3LightPosNameID;
+static StringIdentity v3InvWavelengthNameID;
+static StringIdentity fCameraHeightNameID;
+static StringIdentity fCameraHeight2NameID;
+static StringIdentity fInnerRadiusNameID;
+static StringIdentity fInnerRadius2NameID;
+static StringIdentity fOuterRadiusNameID;
+static StringIdentity fOuterRadius2NameID;
+static StringIdentity fScaleNameID;
+static StringIdentity fScaleDepthNameID;
+static StringIdentity fScaleOverScaleDepthNameID;
+static StringIdentity KrNameID;
+static StringIdentity Kr4PINameID;
+static StringIdentity KmNameID;
+static StringIdentity Km4PINameID;
+static StringIdentity ESunNameID;
+static StringIdentity KmESunNameID;
+static StringIdentity KrESunNameID;
+static StringIdentity fSamplesNameID;
+static StringIdentity nSamplesNameID;
+static StringIdentity gNameID;
+static StringIdentity g2NameID;
+static StringIdentity fExposureNameID;
+
+- (void)setupStringIndices
+{
+    if (nameIDsSetup)
+        return;
+    
+    v3CameraPosNameID = StringIndexer::getStringID("u_v3CameraPos");
+    v3LightPosNameID = StringIndexer::getStringID("u_v3LightPos");
+    v3InvWavelengthNameID = StringIndexer::getStringID("u_v3InvWavelength");
+    fCameraHeightNameID = StringIndexer::getStringID("u_fCameraHeight");
+    fCameraHeight2NameID = StringIndexer::getStringID("u_fCameraHeight2");
+    fInnerRadiusNameID = StringIndexer::getStringID("u_fInnerRadius");
+    fInnerRadius2NameID = StringIndexer::getStringID("u_fInnerRadius2");
+    fOuterRadiusNameID = StringIndexer::getStringID("u_fOuterRadius");
+    fOuterRadius2NameID = StringIndexer::getStringID("u_fOuterRadius2");
+    fScaleNameID = StringIndexer::getStringID("u_fScale");
+    fScaleDepthNameID = StringIndexer::getStringID("u_fScaleDepth");
+    fScaleOverScaleDepthNameID = StringIndexer::getStringID("u_fScaleOverScaleDepth");
+    KrNameID = StringIndexer::getStringID("u_Kr");
+    Kr4PINameID = StringIndexer::getStringID("u_Kr4PI");
+    KmNameID = StringIndexer::getStringID("u_Km");
+    Km4PINameID = StringIndexer::getStringID("u_Km4PI");
+    ESunNameID = StringIndexer::getStringID("u_ESun");
+    KmESunNameID = StringIndexer::getStringID("u_KmESun");
+    KrESunNameID = StringIndexer::getStringID("u_KrESun");
+    fSamplesNameID = StringIndexer::getStringID("u_fSamples");
+    nSamplesNameID = StringIndexer::getStringID("u_nSamples");
+    gNameID = StringIndexer::getStringID("g");
+    g2NameID = StringIndexer::getStringID("g2");
+    fExposureNameID = StringIndexer::getStringID("fExposure");
+
+    nameIDsSetup = true;
+}
+
 // Thanks to: http://stainlessbeer.weebly.com/planets-9-atmospheric-scattering.html
 //  for the parameter values.
 
 - (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
 {
+    [self setupStringIndices];
+    
     if (!changed && started)
     {
         // Check the camera position
@@ -361,33 +396,33 @@ static const char *fragmentShaderGroundTri =
     {
         MaplyShader *thisShader = shaders[ii];
         glUseProgram(thisShader.program->getProgram());
-        thisShader.program->setUniform(k_v3CameraPos, Vector3f(cameraPos.x(),cameraPos.y(),cameraPos.z()));
-        thisShader.program->setUniform(k_fCameraHeight, (float)cameraHeight);
-        thisShader.program->setUniform(k_fCameraHeight2, (float)(cameraHeight*cameraHeight));
-        thisShader.program->setUniform(k_v3LightPos, Vector3f(sunDir3d.x(),sunDir3d.y(),sunDir3d.z()));
+        thisShader.program->setUniform(v3CameraPosNameID, Vector3f(cameraPos.x(),cameraPos.y(),cameraPos.z()));
+        thisShader.program->setUniform(fCameraHeightNameID, (float)cameraHeight);
+        thisShader.program->setUniform(fCameraHeight2NameID, (float)(cameraHeight*cameraHeight));
+        thisShader.program->setUniform(v3LightPosNameID, Vector3f(sunDir3d.x(),sunDir3d.y(),sunDir3d.z()));
 
-        thisShader.program->setUniform(k_fInnerRadius, 1.f);
-        thisShader.program->setUniform(k_fInnerRadius2, 1.f);
-        thisShader.program->setUniform(k_fOuterRadius, atm.outerRadius);
-        thisShader.program->setUniform(k_fOuterRadius2, atm.outerRadius*atm.outerRadius);
-        thisShader.program->setUniform(k_fScale, scale);
-        thisShader.program->setUniform(k_fScaleDepth, scaleDepth);
-        thisShader.program->setUniform(k_fScaleOverScaleDepth, scale / scaleDepth);
+        thisShader.program->setUniform(fInnerRadiusNameID, 1.f);
+        thisShader.program->setUniform(fInnerRadius2NameID, 1.f);
+        thisShader.program->setUniform(fOuterRadiusNameID, atm.outerRadius);
+        thisShader.program->setUniform(fOuterRadius2NameID, atm.outerRadius*atm.outerRadius);
+        thisShader.program->setUniform(fScaleNameID, scale);
+        thisShader.program->setUniform(fScaleDepthNameID, scaleDepth);
+        thisShader.program->setUniform(fScaleOverScaleDepthNameID, scale / scaleDepth);
         
-        thisShader.program->setUniform(k_Kr, atm.Kr);
-        thisShader.program->setUniform(k_Kr4PI, (float)(atm.Kr * 4.0 * M_PI));
-        thisShader.program->setUniform(k_Km, atm.Km);
-        thisShader.program->setUniform(k_Km4PI, (float)(atm.Km * 4.0 * M_PI));
-        thisShader.program->setUniform(k_ESun, atm.ESun);
-        thisShader.program->setUniform(k_KmESun, atm.Km * atm.ESun);
-        thisShader.program->setUniform(k_KrESun, atm.Kr * atm.ESun);
-        thisShader.program->setUniform(k_v3InvWavelength, Vector3f(wavelength[0],wavelength[1],wavelength[2]));
-        thisShader.program->setUniform(k_fSamples, (float)atm.numSamples);
-        thisShader.program->setUniform(k_nSamples, atm.numSamples);
+        thisShader.program->setUniform(KrNameID, atm.Kr);
+        thisShader.program->setUniform(Kr4PINameID, (float)(atm.Kr * 4.0 * M_PI));
+        thisShader.program->setUniform(KmNameID, atm.Km);
+        thisShader.program->setUniform(Km4PINameID, (float)(atm.Km * 4.0 * M_PI));
+        thisShader.program->setUniform(ESunNameID, atm.ESun);
+        thisShader.program->setUniform(KmESunNameID, atm.Km * atm.ESun);
+        thisShader.program->setUniform(KrESunNameID, atm.Kr * atm.ESun);
+        thisShader.program->setUniform(v3InvWavelengthNameID, Vector3f(wavelength[0],wavelength[1],wavelength[2]));
+        thisShader.program->setUniform(fSamplesNameID, (float)atm.numSamples);
+        thisShader.program->setUniform(nSamplesNameID, atm.numSamples);
         
-        thisShader.program->setUniform(k_g, atm.g);
-        thisShader.program->setUniform(k_g2, atm.g * atm.g);
-        thisShader.program->setUniform(k_fExposure, atm.exposure);
+        thisShader.program->setUniform(gNameID, atm.g);
+        thisShader.program->setUniform(g2NameID, atm.g * atm.g);
+        thisShader.program->setUniform(fExposureNameID, atm.exposure);
     }
     
     changed = false;

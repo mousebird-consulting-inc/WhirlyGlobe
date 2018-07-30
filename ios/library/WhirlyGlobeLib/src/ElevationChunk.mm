@@ -210,7 +210,7 @@ typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevat
     chunk->setProgram(drawInfo->programId);
     int elevEntry = 0;
     if (drawInfo->includeElev)
-        elevEntry = chunk->addAttribute(BDFloatType, "a_elev");
+        elevEntry = chunk->addAttribute(BDFloatType, StringIndexer::getStringID("a_elev"));
     // Single level mode uses Z to sort out priority
     //        if (singleLevel != -1)
     //        {

@@ -38,11 +38,11 @@ WideVectorDrawable::WideVectorDrawable(const std::string &inName,unsigned int nu
     tris.reserve(numTri);
     lineWidth = 10.0/1024.0;
     if (globeMode)
-        normalEntry = addAttribute(BDFloat3Type, "a_normal",numVert);
-    p1_index = addAttribute(BDFloat3Type, "a_p1",numVert);
-    tex_index = addAttribute(BDFloat4Type, "a_texinfo",numVert);
-    n0_index = addAttribute(BDFloat3Type, "a_n0",numVert);
-    c0_index = addAttribute(BDFloatType, "a_c0",numVert);
+        normalEntry = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_normal"),numVert);
+    p1_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_p1"),numVert);
+    tex_index = addAttribute(BDFloat4Type, StringIndexer::getStringID("a_texinfo"),numVert);
+    n0_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_n0"),numVert);
+    c0_index = addAttribute(BDFloatType, StringIndexer::getStringID("a_c0"),numVert);
 }
  
 // Not.  Do not want standard attributes.
@@ -114,17 +114,17 @@ void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scen
         float pixDispSize = std::min(frameInfo.screenSizeInDisplayCoords.x(),frameInfo.screenSizeInDisplayCoords.y()) / scale;
         if (realWidthSet)
         {
-            frameInfo.program->setUniform("u_w2", (float)(realWidth / pixDispSize));
-            frameInfo.program->setUniform("u_real_w2", (float)realWidth);
-            frameInfo.program->setUniform("u_edge", edgeSize);
+            frameInfo.program->setUniform(u_w2NameID, (float)(realWidth / pixDispSize));
+            frameInfo.program->setUniform(u_Realw2NameID, (float)realWidth);
+            frameInfo.program->setUniform(u_EdgeNameID, edgeSize);
         } else {
-            frameInfo.program->setUniform("u_w2", lineWidth);
-            frameInfo.program->setUniform("u_real_w2", pixDispSize * lineWidth);
-            frameInfo.program->setUniform("u_edge", edgeSize);
+            frameInfo.program->setUniform(u_w2NameID, lineWidth);
+            frameInfo.program->setUniform(u_Realw2NameID, pixDispSize * lineWidth);
+            frameInfo.program->setUniform(u_EdgeNameID, edgeSize);
         }
         float texScale = scale/(screenSize*texRepeat);
-        frameInfo.program->setUniform("u_texScale", texScale);
-        frameInfo.program->setUniform("u_color", Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
+        frameInfo.program->setUniform(u_texScaleNameID, texScale);
+        frameInfo.program->setUniform(u_colorNameID, Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
         
         // Note: This calculation is out of date with respect to the shader
         // Redo the calculation for debugging
@@ -312,8 +312,8 @@ WhirlyKit::OpenGLES2Program *BuildWideVectorProgram()
     {
         glUseProgram(shader->getProgram());
         
-        shader->setUniform("u_length", 10.f/1024);
-        shader->setUniform("u_texScale", 1.f);
+        shader->setUniform(u_lengthNameID, 10.f/1024);
+        shader->setUniform(u_texScaleNameID, 1.f);
     }
     
     
@@ -334,8 +334,8 @@ WhirlyKit::OpenGLES2Program *BuildWideVectorGlobeProgram()
     {
         glUseProgram(shader->getProgram());
         
-        shader->setUniform("u_length", 10.f/1024);
-        shader->setUniform("u_texScale", 1.f);
+        shader->setUniform(u_lengthNameID, 10.f/1024);
+        shader->setUniform(u_texScaleNameID, 1.f);
     }
     
     

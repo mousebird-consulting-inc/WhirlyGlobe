@@ -32,15 +32,15 @@
 
 namespace WhirlyKit
 {
-    
+
 /// Used to track a uniform within an OpenGL ES 2.0 shader program
 class OpenGLESUniform
 {
 public:
     OpenGLESUniform() : index(0), size(0), isSet(false), isTexture(false) { }
-    OpenGLESUniform(const std::string &name) : name(name) { }
+    OpenGLESUniform(StringIdentity nameID) : nameID(nameID) { }
     
-    bool operator < (const OpenGLESUniform &that) const { return name < that.name; }
+    bool operator < (const OpenGLESUniform &that) const { return nameID < that.nameID; }
     
     /// Return true if this uniform is an array
     bool isArray() { return size != 0; }
@@ -48,7 +48,7 @@ public:
     bool isType(GLenum inType) { return inType == type; }
     
     /// Name of the uniform within the program
-    std::string name;
+    StringIdentity nameID;
     /// Index we'll use to address the uniform
     GLuint index;
     /// If the uniform is an array, this is the length
@@ -72,9 +72,9 @@ class OpenGLESAttribute
 {
 public:
     OpenGLESAttribute() : index(0), size(0) { }
-    OpenGLESAttribute(const std::string &name) : name(name) { }
+    OpenGLESAttribute(StringIdentity nameID) : nameID(nameID) { }
 
-    bool operator < (const OpenGLESAttribute &that) const { return name < that.name; }
+    bool operator < (const OpenGLESAttribute &that) const { return nameID < that.nameID; }
     
     /// Return true if this uniform is an array
     bool isArray() { return size != 0; }
@@ -82,7 +82,7 @@ public:
     bool isType(GLenum inType) { return inType == type; }
 
     /// Name of the per vertex attribute
-    std::string name;
+    StringIdentity nameID;
     /// Index we'll use to address the attribute
     GLuint index;
     /// If an array, this is the length
@@ -110,23 +110,23 @@ public:
     bool isValid();
         
     /// Search for the given uniform name and return the info.  NULL on failure.
-    OpenGLESUniform *findUniform(const std::string &uniformName);
+    OpenGLESUniform *findUniform(StringIdentity nameID);
 
     /// Set the given uniform to the given value.
     /// These check the type and cache a value to save on duplicate gl calls
-    bool setUniform(const std::string &name,float val);
-    bool setUniform(const std::string &name,float val,int index);
-    bool setUniform(const std::string &name,const Eigen::Vector2f &vec);
-    bool setUniform(const std::string &name,const Eigen::Vector3f &vec);
-    bool setUniform(const std::string &name,const Eigen::Vector4f &vec);
-    bool setUniform(const std::string &name,const Eigen::Vector4f &vec,int index);
-    bool setUniform(const std::string &name,const Eigen::Matrix4f &mat);
-    bool setUniform(const std::string &name,int val);
+    bool setUniform(StringIdentity nameID,float val);
+    bool setUniform(StringIdentity nameID,float val,int index);
+    bool setUniform(StringIdentity nameID,const Eigen::Vector2f &vec);
+    bool setUniform(StringIdentity nameID,const Eigen::Vector3f &vec);
+    bool setUniform(StringIdentity nameID,const Eigen::Vector4f &vec);
+    bool setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,int index);
+    bool setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat);
+    bool setUniform(StringIdentity nameID,int val);
     bool setUniform(const SingleVertexAttribute &attr);
     
     /// Tie a given texture ID to the given name.
     /// We have to set these up each time before drawing
-    bool setTexture(const std::string &name,GLuint val);
+    bool setTexture(StringIdentity nameID,GLuint val);
     
     /// Check for the specific attribute associated with WhirlyKit lights
     bool hasLights();
@@ -136,7 +136,7 @@ public:
     bool setLights(NSArray *lights,CFTimeInterval lastUpdated,WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat);
         
     /// Search for the given attribute name and return the info.  NULL on failure.
-    const OpenGLESAttribute *findAttribute(const std::string &attrName);
+    const OpenGLESAttribute *findAttribute(StringIdentity nameID);
     
     /// Return the name (for tracking purposes)
     const std::string &getName() { return name; }
@@ -158,9 +158,9 @@ protected:
     GLuint fragShader;
     CFTimeInterval lightsLastUpdated;
     // Uniforms sorted for fast lookup
-    std::unordered_map<std::string,std::shared_ptr<OpenGLESUniform>> uniforms;
+    std::unordered_map<StringIdentity,std::shared_ptr<OpenGLESUniform>> uniforms;
     // Attributes sorted for fast lookup
-    std::unordered_map<std::string,std::shared_ptr<OpenGLESAttribute>> attrs;
+    std::unordered_map<StringIdentity,std::shared_ptr<OpenGLESAttribute>> attrs;
 };
 
 }

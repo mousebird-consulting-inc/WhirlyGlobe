@@ -67,7 +67,7 @@ using namespace Eigen;
             if ([val isKindOfClass:[NSNumber class]])
             {
                 SingleVertexAttribute valAttr;
-                valAttr.name = [key cStringUsingEncoding:NSASCIIStringEncoding];
+                valAttr.nameID = StringIndexer::getStringID([key cStringUsingEncoding:NSASCIIStringEncoding]);
                 
                 valAttr.type = BDFloatType;
                 valAttr.data.floatVal = [val floatValue];
@@ -76,7 +76,7 @@ using namespace Eigen;
             } else if ([val isKindOfClass:[UIColor class]])
             {
                 SingleVertexAttribute valAttr;
-                valAttr.name = [key cStringUsingEncoding:NSASCIIStringEncoding];
+                valAttr.nameID = StringIndexer::getStringID([key cStringUsingEncoding:NSASCIIStringEncoding]);
 
                 UIColor *col = val;
                 valAttr.type = BDChar4Type;

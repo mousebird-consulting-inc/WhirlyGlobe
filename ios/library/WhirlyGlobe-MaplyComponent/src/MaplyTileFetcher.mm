@@ -203,7 +203,7 @@ using namespace WhirlyKit;
     // If it's alread loaded, just short circuit this
     if (request.cacheFile && [self isTileLocal:tile fileName:request.cacheFile]) {
         MaplyTileFetcher __weak *weakSelf = self;
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSData *data = [self readFromCache:tile];
             if (!data) {
                 MaplyTileFetcher *tmpSelf = weakSelf;
@@ -380,7 +380,7 @@ using namespace WhirlyKit;
         // Look for it cached
         if ([self isTileLocal:tile fileName:tile->request.cacheFile]) {
             // Do the reading somewhere else
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 NSData *data = [self readFromCache:tile];
                 if (!data) {
                     // It failed (which happens) so we need to fetch it after all
