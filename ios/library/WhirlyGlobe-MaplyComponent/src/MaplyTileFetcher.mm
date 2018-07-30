@@ -199,6 +199,35 @@ using namespace WhirlyKit;
     tile->state = TileInfo::ToLoad;
     tile->request = request;
     tilesByFetchRequest[request] = tile;
+
+    // If it's alread loaded, just short circuit this
+    if (request.cacheFile && [self isTileLocal:tile fileName:request.cacheFile]) {
+        MaplyTileFetcher __weak *weakSelf = self;
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            NSData *data = [self readFromCache:tile];
+            if (!data) {
+                MaplyTileFetcher *tmpSelf = weakSelf;
+                if (tmpSelf) {
+                    dispatch_async(tmpSelf->queue, ^{
+                        // Just run the normal load
+                        tmpSelf->toLoad.insert(tile);
+                        
+                        [tmpSelf updateLoading];
+                    });
+                }
+            } else {
+                // It worked, but run the finished loading back on our queue
+                dispatch_async(self->queue,^{
+                    self->localData += [data length];
+                    [self finishedLoading:tile data:data error:nil];
+                });
+            }
+        });
+        
+        return;
+    }
+
+    // Just run the normal load
     toLoad.insert(tile);
     
     [self updateLoading];
