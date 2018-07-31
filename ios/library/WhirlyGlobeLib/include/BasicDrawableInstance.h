@@ -212,6 +212,8 @@ protected:
     int numInstances;
     GLuint instBuffer;
     GLuint vertArrayObj;
+    std::vector<BasicDrawable::VertAttrDefault> vertArrayDefaults;
+    
     int centerSize,matSize,colorInstSize,colorSize,instSize,modelDirSize;
     NSTimeInterval startTime;
     bool moving;

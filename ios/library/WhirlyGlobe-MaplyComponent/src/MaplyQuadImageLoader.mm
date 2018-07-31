@@ -178,7 +178,7 @@ public:
             }
             
             // Make a drawable instance to shadow the geometry
-            auto drawInst = new BasicDrawableInstance("MaplyQuadImageLoader", di.drawID, BasicDrawableInstance::ReuseStyle);
+            auto drawInst = new BasicDrawableInstance("MaplyQuadImageLoader", di.drawID, BasicDrawableInstance::LocalStyle);
             drawInst->setTexId(0, 0);
             drawInst->setDrawPriority(newDrawPriority);
             drawInst->setEnable(false);
