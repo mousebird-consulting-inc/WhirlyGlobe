@@ -485,21 +485,18 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             }
         } else {
             // We have our own tex info to set up, but it does depend on the base drawable
-            if (texInfo.size() == basicDraw->texInfo.size()) {
-                for (int ii=0;ii<basicDraw->texInfo.size();ii++)
+            for (int ii=0;ii<texInfo.size();ii++)
+            {
+                SimpleIdentity texID = texInfo[ii].texId;
+                
+                GLuint glTexID = EmptyIdentity;
+                if (texID != EmptyIdentity)
                 {
-                    SimpleIdentity texID = (texInfo[ii].texId != EmptyIdentity ? texInfo[ii].texId : basicDraw->texInfo[ii].texId);
-                    
-                    GLuint glTexID = EmptyIdentity;
-                    if (texID != EmptyIdentity)
-                    {
-                        glTexID = scene->getGLTexture(texID);
-                        anyTextures = true;
-                    }
-                    glTexIDs.push_back(glTexID);
+                    glTexID = scene->getGLTexture(texID);
+                    anyTextures = true;
                 }
+                glTexIDs.push_back(glTexID);
             }
-
         }
         
         // Model/View/Projection matrix
