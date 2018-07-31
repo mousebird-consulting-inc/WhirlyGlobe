@@ -1080,13 +1080,12 @@ GLuint BasicDrawable::setupVAO(OpenGLES2Program *prog)
         const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->nameID);
         if (thisAttr) {
             if (attr->buffer != 0 || attr->numElements() != 0) {
-                glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), vertexSize, CALCBUFOFF(sharedBufferOffset,attr->buffer));
                 glEnableVertexAttribArray(thisAttr->index);
+                glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), vertexSize, CALCBUFOFF(sharedBufferOffset,attr->buffer));
                 progAttrs[ii] = thisAttr;
             } else {
-                attr->glSetDefault(thisAttr->index);
-                progAttrs[ii] = NULL;
-                CheckGLError("BasicDrawable::setupVAO() glSetDefault");
+                VertAttrDefault attrDef(thisAttr->index,*attr);
+                vertArrayDefaults.push_back(attrDef);
             }
         }
     }
@@ -1284,13 +1283,14 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     }
     
     // Other vertex attributes
-    const OpenGLESAttribute *progAttrs[vertexAttributes.size()];
+    std::vector<const OpenGLESAttribute *> progAttrs;
     if (!vertArrayObj) {
+        progAttrs.resize(vertexAttributes.size(),NULL);
+
         for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
         {
             VertexAttribute *attr = vertexAttributes[ii];
             const OpenGLESAttribute *progAttr = prog->findAttribute(attr->nameID);
-            progAttrs[ii] = NULL;
             if (progAttr)
             {
                 // The data hasn't been downloaded, so hook it up directly here
@@ -1313,11 +1313,15 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
                 }
             }
         }
+    } else {
+        // Vertex Array Objects can't hold the defaults, so we build them earlier
+        for (auto attrDef : vertArrayDefaults) {
+            // The program is expecting it, so we need a default
+            attrDef.attr.glSetDefault(attrDef.progAttrIndex);
+            CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
+        }
     }
-    
-    // Let a subclass bind anything additional
-    bindAdditionalRenderObjects(frameInfo,scene);
-    
+        
     // If we're using a vertex array object, bind it and draw
     if (vertArrayObj)
     {
@@ -1389,13 +1393,10 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     if (usedLocalVertices)
         glDisableVertexAttribArray(vertAttr->index);
     if (!vertArrayObj) {
-        for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+        for (unsigned int ii=0;ii<progAttrs.size();ii++)
             if (progAttrs[ii])
                 glDisableVertexAttribArray(progAttrs[ii]->index);
     }
-    
-    // Let a subclass clean up any remaining state
-    postDrawCallback(frameInfo,scene);
 }
 
 BasicDrawableTexTweaker::BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,NSTimeInterval startTime,double period)

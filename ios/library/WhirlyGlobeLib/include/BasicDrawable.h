@@ -324,12 +324,6 @@ public:
     virtual void addPointToBuffer(unsigned char *basePtr,int which,const Point3d *center);
     /// Called while a new VAO is bound.  Set up your VAO-related state here.
     virtual void setupAdditionalVAO(OpenGLES2Program *prog,GLuint vertArrayObj) { }
-    /// Called after the drawable has bound all its various data, but before it actually
-    /// renders.  This is where you would bind your own attributes and uniforms, if you
-    /// haven't already done so in setupAdditionalVAO()
-    virtual void bindAdditionalRenderObjects(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { }
-    /// Called at the end of the drawOGL2() call
-    virtual void postDrawCallback(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { }
     
     // Attributes associated with each vertex, some standard some not
     std::vector<VertexAttribute *> vertexAttributes;
@@ -371,10 +365,21 @@ public:
     // Uniforms to apply to shader
     SingleVertexAttributeSet uniforms;
     
+    // Attribute that should be applied to the given program index if using VAOs
+    class VertAttrDefault
+    {
+    public:
+        VertAttrDefault(GLuint progAttrIndex,const VertexAttribute &attr)
+        : progAttrIndex(progAttrIndex), attr(attr) { }
+        GLuint progAttrIndex;
+        VertexAttribute attr;
+    };
+    
     // Size for a single vertex w/ all its data.  Used by shared buffer
     int vertexSize;
     GLuint pointBuffer,triBuffer,sharedBuffer;
     GLuint vertArrayObj;
+    std::vector<VertAttrDefault> vertArrayDefaults;
     GLuint sharedBufferOffset;
     bool sharedBufferIsExternal;
     
