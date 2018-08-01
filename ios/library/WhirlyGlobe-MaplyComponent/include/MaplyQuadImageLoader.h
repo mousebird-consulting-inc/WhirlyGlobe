@@ -79,6 +79,9 @@
 @interface MaplyImageLoaderInterpreter : NSObject<MaplyLoaderInterpreter>
 @end
 
+/// Name of the shared MaplyTileFetcher
+extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
+
 /**
  The Maply Quad Image Loader is for paging image pyramids local or remote.
  

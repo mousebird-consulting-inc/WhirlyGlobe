@@ -28,26 +28,32 @@ namespace WhirlyKit
 class TileInfo
 {
 public:
-    TileInfo() : state(), importance(0.0), tileSource(NULL) , request(nil), task(nil) { }
+    TileInfo() : state(), isLocal(false), importance(0.0), tileSource(NULL) , request(nil), task(nil) { }
 
     /// Comparison based on importance, tile source, then x,y,level
     bool operator < (const TileInfo &that) const
     {
-        if (this->priority == that.priority) {
-            if (this->importance == that.importance) {
-                if (tileSource == that.tileSource) {
-                    return request < that.request;
+        if (this->isLocal == that.isLocal) {
+            if (this->priority == that.priority) {
+                if (this->importance == that.importance) {
+                    if (tileSource == that.tileSource) {
+                        return request < that.request;
+                    }
+                    return tileSource < that.tileSource;
                 }
-                return tileSource < that.tileSource;
+                return this->importance < that.importance;
             }
-            return this->importance < that.importance;
+            return this->priority > that.priority;
         }
-        return this->priority > that.priority;
+        return this->isLocal < that.isLocal;
     }
 
     // We're either loading it or going to load it eventually
     typedef enum {ToLoad,Loading} State;
     State state;
+    
+    // Set if we know the tile is cached
+    bool isLocal;
 
     // Used to uniquely identify a group of requests
     id tileSource;
@@ -99,7 +105,6 @@ using namespace WhirlyKit;
 {
     bool active;
     NSURLSession *session;
-    int numConnectionsMax;
     dispatch_queue_t queue;
     
     TileInfoSet loading;  // Tiles that are currently loading
@@ -113,11 +118,12 @@ using namespace WhirlyKit;
     int localData;
 }
 
-- (instancetype)initWithConnections:(int)numConnections
+- (instancetype)initWithName:(NSString *)name connections:(int)numConnections
 {
     self = [super init];
+    _name = name;
     active = true;
-    numConnectionsMax = numConnections;
+    _numConnections = numConnections;
     // All the internal work is done on a single queue.  Nothing significant, really.
     queue = dispatch_queue_create("MaplyTileFetcher", nil);
     session = [NSURLSession sharedSession];
@@ -135,31 +141,18 @@ using namespace WhirlyKit;
     return queue;
 }
 
-- (void)setStatsPeriod:(NSTimeInterval)statsPeriod
-{
-    _statsPeriod = statsPeriod;
-    
-    [self statsDump];
-}
-
 - (void)statsDump
 {
     if (!active)
         return;
     
-    NSLog(@"---MaplyTileFetcher Stats---");
+    NSLog(@"---MaplyTileFetcher %@ Stats---",_name);
     NSLog(@"   Total Requests = %d",totalRequests);
     NSLog(@"   Canceled Requests = %d",totalCancels);
     NSLog(@"   Failed Requests = %d",totalFails);
     NSLog(@"   Data Transferred = %.2fMB",remoteData / (1024.0*1024.0));
     NSLog(@"   Cached Data = %.2fMB",localData / (1024.0*1024.0));
     NSLog(@"   Tiles currently loading = %lu",loading.size());
-
-    if (_statsPeriod > 0.0) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_statsPeriod * NSEC_PER_SEC)), queue, ^{
-            [self statsDump];
-        });
-    }
 }
 
 - (id)startTileFetch:(MaplyTileFetchRequest *)request
@@ -200,32 +193,9 @@ using namespace WhirlyKit;
     tile->request = request;
     tilesByFetchRequest[request] = tile;
 
-    // If it's alread loaded, just short circuit this
-    if (request.cacheFile && [self isTileLocal:tile fileName:request.cacheFile]) {
-        MaplyTileFetcher __weak *weakSelf = self;
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSData *data = [self readFromCache:tile];
-            if (!data) {
-                MaplyTileFetcher *tmpSelf = weakSelf;
-                if (tmpSelf) {
-                    dispatch_async(tmpSelf->queue, ^{
-                        // Just run the normal load
-                        tmpSelf->toLoad.insert(tile);
-                        
-                        [tmpSelf updateLoading];
-                    });
-                }
-            } else {
-                // It worked, but run the finished loading back on our queue
-                dispatch_async(self->queue,^{
-                    self->localData += [data length];
-                    [self finishedLoading:tile data:data error:nil];
-                });
-            }
-        });
-        
-        return;
-    }
+    // If it's already cached, just short circuit this
+    if (request.cacheFile && [self isTileLocal:tile fileName:request.cacheFile])
+        tile->isLocal = true;
 
     // Just run the normal load
     toLoad.insert(tile);
@@ -344,7 +314,7 @@ using namespace WhirlyKit;
 - (void)updateLoading
 {
     // Ask for a few more to load
-    while (loading.size() < numConnectionsMax) {
+    while (loading.size() < _numConnections) {
         auto nextLoad = toLoad.rbegin();
         if (nextLoad == toLoad.rend())
             break;

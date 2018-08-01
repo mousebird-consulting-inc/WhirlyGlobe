@@ -28,7 +28,7 @@
 #import "NSString+DDXML.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
-
+#import "MaplyTileFetcher_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -63,8 +63,9 @@ using namespace WhirlyKit;
     if (!renderControl->scene)
         return;
     
-    [sharedTileFetcher shutdown];
-    sharedTileFetcher = nil;
+    for (auto tileFetcher : tileFetchers)
+        [tileFetcher shutdown];
+    tileFetchers.clear();
     
     defaultClusterGenerator = nil;
     
@@ -173,9 +174,6 @@ using namespace WhirlyKit;
 {
     if (!renderControl)
         renderControl = [[MaplyRenderController alloc] init];
-
-    sharedTileFetcher = [[MaplyTileFetcher alloc] initWithConnections:16];
-    sharedTileFetcher.statsPeriod = 10.0;
     
     allowRepositionForAnnnotations = true;
     
@@ -380,6 +378,9 @@ static const float PerfOutputDelay = 15.0;
     
     renderControl->scene->dumpStats();
     [renderControl->interactLayer dumpStats];
+    for (MaplyTileFetcher *tileFetcher : tileFetchers) {
+        [tileFetcher statsDump];
+    }
     NSLog(@"Sampling layers: %lu",samplingLayers.size());
     
     [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];    
@@ -1305,9 +1306,16 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
-- (MaplyTileFetcher *)getSharedTileFetcher
+- (MaplyTileFetcher *)getTileFetcher:(NSString *)name
 {
-    return sharedTileFetcher;
+    for (auto tileFetcher : tileFetchers)
+        if ([tileFetcher.name isEqualToString:name])
+            return tileFetcher;
+    
+    MaplyTileFetcher *tileFetcher = [[MaplyTileFetcher alloc] initWithName:name connections:16];
+    tileFetchers.push_back(tileFetcher);
+    
+    return tileFetcher;
 }
 
 -(NSArray*)objectsAtCoord:(MaplyCoordinate)coord
