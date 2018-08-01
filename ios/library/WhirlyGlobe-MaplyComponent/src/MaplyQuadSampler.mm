@@ -78,6 +78,7 @@ using namespace WhirlyKit;
 {
     self = [super init];
     _params = params;
+    _debugMode = false;
     builderStarted = false;
     
     return self;
@@ -267,6 +268,22 @@ using namespace WhirlyKit;
 
     for (auto delegate : delegates) {
         [delegate quadBuilder:builder update:updates changes:changes];
+    }
+    
+    if (_debugMode) {
+        NSLog(@"SamplingLayer quadBuilder:update changes = %d",(int)changes.size());
+    }
+}
+
+- (void)quadBuilderPreSceneFlush:(WhirlyKitQuadTileBuilder *)builder
+{
+    std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> delegates;
+    @synchronized(self) {
+        delegates = builderDelegates;
+    }
+    
+    for (auto delegate : delegates) {
+        [delegate quadBuilderPreSceneFlush:builder];
     }
 }
 

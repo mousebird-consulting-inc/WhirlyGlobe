@@ -371,7 +371,7 @@ const DrawableRefSet &Scene::getDrawables()
     return drawables;
 }
     
-void Scene::preProcessChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
+int Scene::preProcessChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
 {
     ChangeSet preRequests;
     
@@ -393,13 +393,15 @@ void Scene::preProcessChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *rend
         req->execute(this,renderer,view);
         delete req;
     }
+    
+    return preRequests.size();
 }
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
 void Scene::processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
 {
-    pthread_mutex_trylock(&changeRequestLock);
+    pthread_mutex_lock(&changeRequestLock);
     // See if any of the timed changes are ready
     std::vector<ChangeRequest *> toMove;
     for (ChangeRequest *req : timedChangeRequests)

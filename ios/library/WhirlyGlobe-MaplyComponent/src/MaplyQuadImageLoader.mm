@@ -856,6 +856,13 @@ using namespace WhirlyKit;
     } else {
         [self evalParentsLayer:interactLayer changes:changes];
     }
+    
+    if (_debugMode)
+        NSLog(@"quadBuilder:updates:changes: changeRequests: %d",(int)changes.size());
+}
+
+- (void)quadBuilderPreSceneFlush:(WhirlyKitQuadTileBuilder *)builder
+{
 }
 
 // Look for covers that have disappeared and have to be replaced

@@ -69,7 +69,7 @@
 /// Doing it like this avoids any problems we may have with shutdown synchronization
 - (void)addThreadToShutdown:(WhirlyKitLayerThread *)thread;
 
-/// Layers need to send their change requests throgh here.
+/// Layers need to send their change requests through here.
 /// You can call this from any thread.
 - (void)addChangeRequest:(WhirlyKit::ChangeRequest *)changeRequest;
 

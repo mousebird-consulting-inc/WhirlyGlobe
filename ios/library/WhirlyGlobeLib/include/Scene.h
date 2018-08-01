@@ -319,7 +319,7 @@ public:
 	void processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now);
     
     /// Some changes generate other changes, so they go first
-    void preProcessChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now);
+    int preProcessChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now);
     
     /// True if there are pending updates
     bool hasChanges(NSTimeInterval now);

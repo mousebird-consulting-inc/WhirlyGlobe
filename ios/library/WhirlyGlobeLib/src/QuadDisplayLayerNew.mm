@@ -207,6 +207,11 @@ static const float DelayPeriod = 0.1;
     }
 }
 
+- (void)preSceneFlush:(WhirlyKitLayerThread *)layerThread
+{
+    [_loader quadDisplayLayerPreSceneFlush:self];
+}
+
 - (double)importanceFor:(const QuadTreeNew::Node &)node
 {
     Quadtree::Identifier ident;
