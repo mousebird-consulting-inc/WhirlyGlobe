@@ -65,17 +65,20 @@
   */
 @interface MaplyTileFetcher : NSObject
 
-/// If set to non-zero we'll report out stats every few seconds
-@property (nonatomic) NSTimeInterval statsPeriod;
-
 /// Initialize with the number of connections the fetcher can have open at once
-- (instancetype __nonnull)initWithConnections:(int)numConnections;
+- (instancetype __nonnull)initWithName:(NSString * __nonnull)name connections:(int)numConnections;
 
 /// Ask for a tile to be fetched.  Returns an object that can be used to cancel the request.
 - (id __nonnull)startTileFetch:(MaplyTileFetchRequest * __nonnull)request;
 
 /// Update an active request with a new priority and importance
 - (id __nonnull)updateTileFetch:(id __nonnull)fetchID priority:(int)priority importance:(double)importance;
+
+/// Name of this tile fetcher.  Used for coordinating tile sources.
+@property (nonatomic,readonly,nonnull) NSString *name;
+
+/// Number of outstanding connections in parallel
+@property (nonatomic) int numConnections;
 
 /// Cancel a request being fetched
 /// Use the object returned by the startTileFetch call

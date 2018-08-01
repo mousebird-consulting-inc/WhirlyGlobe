@@ -323,6 +323,8 @@ using namespace WhirlyKit;
 
 @end
 
+NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
+
 @implementation MaplyQuadImageLoader
 {
     MaplySamplingParams *params;
@@ -367,7 +369,7 @@ using namespace WhirlyKit;
     // This lets the caller mess with settings
     dispatch_async(dispatch_get_main_queue(), ^{
         if (!self->tileFetcher) {
-            self->tileFetcher = [self->viewC getSharedTileFetcher];
+            self->tileFetcher = [self->viewC getTileFetcher:MaplyQuadImageLoaderFetcherName];
         }
         if (!self->loadInterp) {
             self->loadInterp = [[MaplyImageLoaderInterpreter alloc] init];
@@ -596,16 +598,13 @@ using namespace WhirlyKit;
     if (_debugMode)
         NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 
-    // Ask the interpreter to parse it, but on its own damn queue
+    // Ask the interpreter to parse it
     MaplyLoaderReturn *loadData = [[MaplyLoaderReturn alloc] init];
     loadData.tileID = tileID;
     loadData.frame = frame;
     loadData.tileData = data;
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-                   ^{
-                       [self->loadInterp parseData:loadData];
-                       [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
-                   });
+    [self->loadInterp parseData:loadData];
+    [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
 }
 
 // Called on SamplingLayer.layerThread
