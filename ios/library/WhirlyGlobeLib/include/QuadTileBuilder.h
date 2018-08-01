@@ -59,6 +59,8 @@ public:
              update:(const WhirlyKit::TileBuilderDelegateInfo &)updates
             changes:(WhirlyKit::ChangeSet &)changes;
 
+- (void)quadBuilderPreSceneFlush:(WhirlyKitQuadTileBuilder *__nonnull )builder;
+
 @end
 
 /** The Quad Tile Builder generates geometric tiles based on

@@ -155,6 +155,11 @@ using namespace WhirlyKit;
     return toKeep;
 }
 
+- (void)quadDisplayLayerPreSceneFlush:(WhirlyKitQuadDisplayLayerNew *)layer
+{
+    [_delegate quadBuilderPreSceneFlush:self];
+}
+
 - (TileBuilderDelegateInfo)getLoadingState
 {
     TileBuilderDelegateInfo info;

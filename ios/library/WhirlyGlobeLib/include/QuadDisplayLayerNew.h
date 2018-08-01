@@ -50,6 +50,9 @@
              unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)tiles
              updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles;
 
+/// Called right before the layer thread flushes its change requests
+- (void)quadDisplayLayerPreSceneFlush:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer;
+
 @end
 
 // Reusing WhirlyKitQuadDataStructure for the size of the quad tree
