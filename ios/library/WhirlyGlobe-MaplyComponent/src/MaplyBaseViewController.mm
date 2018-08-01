@@ -380,6 +380,7 @@ static const float PerfOutputDelay = 15.0;
     
     renderControl->scene->dumpStats();
     [renderControl->interactLayer dumpStats];
+    NSLog(@"Sampling layers: %lu",samplingLayers.size());
     
     [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];    
 }
