@@ -95,6 +95,7 @@ NSData *ConvertAToA(NSData *inData,int width,int height)
         return inData;
     
     int extra = 4 - (width % 4);
+    if (extra == 4) extra = 0;
     int outWidth = width + extra;
     
     unsigned char *temp = (unsigned char *)malloc(outWidth*height);
@@ -118,6 +119,7 @@ NSData *ConvertRGToRG(NSData *inData,int width,int height)
         return inData;
     
     int extra = 2 - (width % 2);
+    if (extra == 2) extra = 0;
     int outWidth = width + extra;
     
     unsigned char *temp = (unsigned char *)malloc(outWidth*height*2);
@@ -136,10 +138,8 @@ NSData *ConvertRGToRG(NSData *inData,int width,int height)
 
 NSData *ConvertRGBATo16(NSData *inData,int width,int height)
 {
-    if (width % 2 == 0)
-        return inData;
-    
     int extra = 2 - (width % 2);
+    if (extra == 2) extra = 0;
     int outWidth = width + extra;
 
     unsigned char *temp = (unsigned char *)malloc(outWidth*height*2);
