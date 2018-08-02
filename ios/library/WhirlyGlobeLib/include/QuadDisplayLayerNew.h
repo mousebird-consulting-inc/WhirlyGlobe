@@ -75,6 +75,8 @@
 @property (nonatomic,assign) int maxTiles;
 /// Minimum screen area to consider for a pixel
 @property (nonatomic,assign) float minImportance;
+/// Separate importance number of top level nodes
+@property (nonatomic,assign) float minImportanceTop;
 /// How often this layer gets notified of view changes.  1s by default.
 @property (nonatomic,assign) float viewUpdatePeriod;
 /// Data source for the quad tree structure

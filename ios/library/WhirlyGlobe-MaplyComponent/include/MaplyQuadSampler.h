@@ -43,6 +43,10 @@
 /// Cutoff for loading tiles.  This is size in screen space (pixels^2)
 @property (nonatomic) double minImportance;
 
+/// Normally we always load the lowest level
+/// If this is set we only load those lowest level tiles that pass this test
+@property (nonatomic) double minImportanceTop;
+
 /// Generate geometry to cover the north and south poles
 /// Only works for world-wide projections
 @property (nonatomic) bool coverPoles;
