@@ -40,6 +40,7 @@ using namespace WhirlyKit;
     _tessY = 10;
     _singleLevel = false;
     _minImportance = 256*256;
+    _minImportanceTop = 0.0;
     _levelLoads = nil;
 
     return self;
@@ -51,6 +52,7 @@ using namespace WhirlyKit;
         _coverPoles != other.coverPoles || _edgeMatching != other.edgeMatching ||
         _tessX != other.tessX || _tessY != other.tessY ||
         _minImportance != other.minImportance ||
+        _minImportanceTop != other.minImportanceTop ||
         _singleLevel != other.singleLevel)
         return false;
     
@@ -106,6 +108,7 @@ using namespace WhirlyKit;
     quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithDataSource:self loader:builder renderer:renderer];
     quadLayer.singleLevel = _params.singleLevel;
     quadLayer.levelLoads = _params.levelLoads;
+    quadLayer.minImportanceTop = _params.minImportanceTop;
     quadLayer.minImportance = _params.minImportance;
     [super.layerThread addLayer:quadLayer];
 
@@ -157,7 +160,8 @@ using namespace WhirlyKit;
 
 - (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
-    if (ident.level == 0)
+    // World spanning level 0 nodes sometimes have problems evaluating
+    if (_params.minImportanceTop == 0.0 && ident.level == 0)
         return MAXFLOAT;
     
     double import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [_params.coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
