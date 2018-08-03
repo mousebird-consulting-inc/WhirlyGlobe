@@ -22,6 +22,4 @@
 
 @interface MaplyTileFetcher()
 
-- (void)statsDump;
-
 @end

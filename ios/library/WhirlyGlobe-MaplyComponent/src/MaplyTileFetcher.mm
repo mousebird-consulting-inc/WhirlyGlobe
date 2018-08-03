@@ -101,6 +101,43 @@ using namespace WhirlyKit;
 
 @end
 
+@implementation MaplyTileFetcherStats
+
+-(instancetype)initWithFetcher:(MaplyTileFetcher *)fetcher
+{
+    self = [super init];
+    _fetcher = fetcher;
+    _startDate = [[NSDate alloc] init];
+    _totalRequests = 0;
+    _totalCancels = 0;
+    _totalFails = 0;
+    _remoteData = 0;
+    _localData = 0;
+    
+    return self;
+}
+
+- (void)addStats:(MaplyTileFetcherStats * __nonnull)stats
+{
+    _totalRequests += stats.totalRequests;
+    _totalCancels += stats.totalCancels;
+    _totalFails += stats.totalFails;
+    _remoteData += stats.remoteData;
+    _localData += stats.localData;
+}
+
+- (void)dump
+{
+    NSLog(@"---MaplyTileFetcher %@ Stats---",_fetcher.name);
+    NSLog(@"   Total Requests = %d",_totalRequests);
+    NSLog(@"   Canceled Requests = %d",_totalCancels);
+    NSLog(@"   Failed Requests = %d",_totalFails);
+    NSLog(@"   Data Transferred = %.2fMB",_remoteData / (1024.0*1024.0));
+    NSLog(@"   Cached Data = %.2fMB",_localData / (1024.0*1024.0));
+}
+
+@end
+
 @implementation MaplyTileFetcher
 {
     bool active;
@@ -110,12 +147,10 @@ using namespace WhirlyKit;
     TileInfoSet loading;  // Tiles that are currently loading
     TileFetchMap tilesByFetchRequest;  // Tiles sorted by fetch request
     TileInfoSet toLoad;  // Tiles sorted by importance
-
-    int totalRequests;
-    int totalCancels;
-    int totalFails;
-    int remoteData;
-    int localData;
+    
+    // Keeps track of stats
+    MaplyTileFetcherStats *allStats;
+    MaplyTileFetcherStats *recentStats;
 }
 
 - (instancetype)initWithName:(NSString *)name connections:(int)numConnections
@@ -127,32 +162,29 @@ using namespace WhirlyKit;
     // All the internal work is done on a single queue.  Nothing significant, really.
     queue = dispatch_queue_create("MaplyTileFetcher", nil);
     session = [NSURLSession sharedSession];
-    totalRequests = 0;
-    totalCancels = 0;
-    totalFails = 0;
-    remoteData = 0;
-    localData = 0;
+    allStats = [[MaplyTileFetcherStats alloc] init];
+    recentStats = [[MaplyTileFetcherStats alloc] init];
     
     return self;
+}
+
+/// Return the fetching stats since the beginning or since the last reset
+- (MaplyTileFetcherStats * __nullable)getStats:(bool)allTime
+{
+    if (allTime)
+        return allStats;
+    else
+        return recentStats;
+}
+
+- (void)resetStats
+{
+    recentStats = [[MaplyTileFetcherStats alloc] initWithFetcher:self];
 }
 
 - (dispatch_queue_t)getQueue
 {
     return queue;
-}
-
-- (void)statsDump
-{
-    if (!active)
-        return;
-    
-    NSLog(@"---MaplyTileFetcher %@ Stats---",_name);
-    NSLog(@"   Total Requests = %d",totalRequests);
-    NSLog(@"   Canceled Requests = %d",totalCancels);
-    NSLog(@"   Failed Requests = %d",totalFails);
-    NSLog(@"   Data Transferred = %.2fMB",remoteData / (1024.0*1024.0));
-    NSLog(@"   Cached Data = %.2fMB",localData / (1024.0*1024.0));
-    NSLog(@"   Tiles currently loading = %lu",loading.size());
 }
 
 - (id)startTileFetch:(MaplyTileFetchRequest *)request
@@ -182,7 +214,8 @@ using namespace WhirlyKit;
 // Run on the dispatch queue
 - (void)startTileFetchLocal:(MaplyTileFetchRequest *)request
 {
-    totalRequests++;
+    allStats.totalRequests = allStats.totalRequests + 1;
+    recentStats.totalRequests = recentStats.totalRequests + 1;
     
     // Set up new request
     TileInfoRef tile(new TileInfo());
@@ -238,7 +271,8 @@ using namespace WhirlyKit;
 // Run on the dispatch queue
 - (void)cancelTileFetchLocal:(MaplyTileFetchRequest *)request
 {
-    totalCancels++;
+    allStats.totalCancels = allStats.totalCancels + 1;
+    recentStats.totalCancels = recentStats.totalCancels + 1;
 
     auto it = tilesByFetchRequest.find(request);
     if (it == tilesByFetchRequest.end()) {
@@ -336,11 +370,14 @@ using namespace WhirlyKit;
                               if (error || response.statusCode != 200) {
                                   // Cancels don't count as errors
                                   if (!error || error.code != NSURLErrorCancelled) {
-                                      self->totalFails++;
+                                      self->allStats.totalFails = self->allStats.totalFails + 1;
+                                      self->recentStats.totalFails = self->recentStats.totalFails + 1;
                                       [self finishedLoading:tile data:nil error:error];
                                   }
                               } else {
-                                  self->remoteData += [data length];
+                                  int length = [data length];
+                                  self->allStats.remoteData = self->allStats.remoteData + length;
+                                  self->recentStats.remoteData = self->recentStats.remoteData + length;
                                   [self finishedLoading:tile data:data error:error];
                                   [self writeToCache:tile tileData:data];
                               }
@@ -358,7 +395,9 @@ using namespace WhirlyKit;
                 } else {
                     // It worked, but run the finished loading back on our queue
                     dispatch_async(self->queue,^{
-                        self->localData += [data length];
+                        int length = [data length];
+                        self->allStats.localData = self->allStats.localData + length;
+                        self->recentStats.localData = self->recentStats.localData + length;
                         [self finishedLoading:tile data:data error:nil];
                     });
                 }

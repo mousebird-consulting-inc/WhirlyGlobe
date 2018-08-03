@@ -369,7 +369,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     // This lets the caller mess with settings
     dispatch_async(dispatch_get_main_queue(), ^{
         if (!self->tileFetcher) {
-            self->tileFetcher = [self->viewC getTileFetcher:MaplyQuadImageLoaderFetcherName];
+            self->tileFetcher = [self->viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
         }
         if (!self->loadInterp) {
             self->loadInterp = [[MaplyImageLoaderInterpreter alloc] init];
