@@ -51,15 +51,25 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
         NSLog(@"Building bogus tile: (%d,%d,%d)",ident.x,ident.y,ident.level);
     }
     
+    // Scale texture coordinates if we're clipping this tile
+    Point2d texScale(1.0,1.0);
+    Point2d texOffset(0.0,0.0);   // Note: Not using this
+    
     // Snap to the designated area
-    if (theMbr.ll().x() < geomManage->mbr.ll().x())
+    if (theMbr.ll().x() < geomManage->mbr.ll().x()) {
         theMbr.ll().x() = geomManage->mbr.ll().x();
-    if (theMbr.ur().x() > geomManage->mbr.ur().x())
+    }
+    if (theMbr.ur().x() > geomManage->mbr.ur().x()) {
+        texScale.x() = (geomManage->mbr.ur().x()-theMbr.ll().x())/(theMbr.ur().x()-theMbr.ll().x());
         theMbr.ur().x() = geomManage->mbr.ur().x();
-    if (theMbr.ll().y() < geomManage->mbr.ll().y())
+    }
+    if (theMbr.ll().y() < geomManage->mbr.ll().y()) {
         theMbr.ll().y() = geomManage->mbr.ll().y();
-    if (theMbr.ur().y() > geomManage->mbr.ur().y())
+    }
+    if (theMbr.ur().y() > geomManage->mbr.ur().y()) {
+        texScale.y() = (geomManage->mbr.ur().y()-theMbr.ll().y())/(theMbr.ur().y()-theMbr.ll().y());
         theMbr.ur().y() = geomManage->mbr.ur().y();
+    }
     
     // Calculate a center for the tile
     CoordSystem *sceneCoordSys = geomManage->coordAdapter->getCoordSystem();
@@ -96,7 +106,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     Point2d incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
     
     // Texture increment for each tesselation
-    TexCoord texIncr(1.0/(float)sphereTessX,1.0/(float)sphereTessY);
+    TexCoord texIncr(1.0/(float)sphereTessX * texScale.x(),1.0/(float)sphereTessY * texScale.y());
     
     // We need the corners in geographic for the cullable
     Point2d chunkLL(theMbr.ll().x(),theMbr.ll().y());

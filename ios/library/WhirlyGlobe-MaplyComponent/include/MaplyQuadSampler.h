@@ -60,6 +60,10 @@
 /// If set, we'll try to load a single level
 @property (nonatomic) bool singleLevel;
 
+/// If set, the tiles are clipped to this boundary
+@property (nonatomic) MaplyBoundingBoxD clipBounds;
+@property (nonatomic,readonly) bool hasClipBounds;
+
 /**
  Detail the levels you want loaded in target level mode.
  
