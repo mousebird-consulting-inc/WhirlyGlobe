@@ -42,8 +42,24 @@ using namespace WhirlyKit;
     _minImportance = 256*256;
     _minImportanceTop = 0.0;
     _levelLoads = nil;
+    _hasClipBounds = false;
 
     return self;
+}
+
+- (bool)isClipEqualTo:(MaplySamplingParams *__nonnull)other
+{
+    if (_hasClipBounds != other.hasClipBounds)
+        return false;
+    
+    MaplyBoundingBoxD otherClipBounds = other.clipBounds;
+    if (_clipBounds.ll.x != otherClipBounds.ll.x ||
+        _clipBounds.ll.y != otherClipBounds.ll.y ||
+        _clipBounds.ur.x != otherClipBounds.ur.x ||
+        _clipBounds.ur.y != otherClipBounds.ur.y)
+        return false;
+    
+    return true;
 }
 
 - (bool)isEqualTo:(MaplySamplingParams *__nonnull)other
@@ -53,10 +69,17 @@ using namespace WhirlyKit;
         _tessX != other.tessX || _tessY != other.tessY ||
         _minImportance != other.minImportance ||
         _minImportanceTop != other.minImportanceTop ||
-        _singleLevel != other.singleLevel)
+        _singleLevel != other.singleLevel ||
+        ![self isClipEqualTo:other])
         return false;
     
     return _coordSys->coordSystem->isSameAs(other.coordSys->coordSystem);
+}
+
+- (void)setClipBounds:(MaplyBoundingBoxD)clipBounds
+{
+    _hasClipBounds = true;
+    _clipBounds = clipBounds;
 }
 
 @end
@@ -141,7 +164,15 @@ using namespace WhirlyKit;
 
 - (WhirlyKit::Mbr)validExtents
 {
-    return [self totalExtents];
+    if (_params.hasClipBounds) {
+        MaplyCoordinateD ll,ur;
+        ll = _params.clipBounds.ll;
+        ur = _params.clipBounds.ur;
+        
+        Mbr mbr(Point2f(ll.x,ll.y),Point2f(ur.x,ur.y));
+        return mbr;
+    } else
+        return [self totalExtents];
 }
 
 - (int)minZoom
