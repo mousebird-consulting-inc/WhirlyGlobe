@@ -57,6 +57,39 @@
 
 @end
 
+@class MaplyTileFetcher;
+
+/// Stats collected by the fetcher
+@interface MaplyTileFetcherStats : NSObject
+
+@property (nonatomic,readonly,weak,nullable) MaplyTileFetcher *fetcher;
+
+// Start of stats collection
+@property (nonatomic,nonnull) NSDate *startDate;
+
+// Total requests, remote and cached
+@property (nonatomic) int totalRequests;
+
+// Total requests cancelled
+@property (nonatomic) int totalCancels;
+
+// Requests failed
+@property (nonatomic) int totalFails;
+
+// Bytes of remote data loaded
+@property (nonatomic) int remoteData;
+
+// Bytes of cached data loaded
+@property (nonatomic) int localData;
+
+// Add the given stats to ours
+- (void)addStats:(MaplyTileFetcherStats * __nonnull)stats;
+
+// Print out the stats
+- (void)dump;
+
+@end
+
 /**
   Tile fetcher fetches tiles.
  
@@ -83,6 +116,12 @@
 /// Cancel a request being fetched
 /// Use the object returned by the startTileFetch call
 - (void)cancelTileFetch:(id __nonnull)requestRet;
+
+/// Return the fetching stats since the beginning or since the last reset
+- (MaplyTileFetcherStats * __nullable)getStats:(bool)allTime;
+
+/// Reset the counters for one variant of stat
+- (void)resetStats;
 
 /// Kill all outstanding connections and clean up
 - (void)shutdown;

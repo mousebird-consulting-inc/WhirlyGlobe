@@ -1312,6 +1312,9 @@
 -(NSArray * _Nonnull)loadedLayers;
 
 /// Return a tile fetcher we may share between loaders
-- (MaplyTileFetcher * __nonnull)getTileFetcher:(NSString * __nonnull)name;
+- (MaplyTileFetcher * __nonnull)addTileFetcher:(NSString * __nonnull)name;
+
+/// Return an existing tile fetcher if there is one
+- (MaplyTileFetcher * __nullable)getTileFetcher:(NSString * __nonnull)name;
 
 @end

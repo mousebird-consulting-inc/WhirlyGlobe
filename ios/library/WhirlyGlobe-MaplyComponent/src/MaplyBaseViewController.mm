@@ -379,7 +379,9 @@ static const float PerfOutputDelay = 15.0;
     renderControl->scene->dumpStats();
     [renderControl->interactLayer dumpStats];
     for (MaplyTileFetcher *tileFetcher : tileFetchers) {
-        [tileFetcher statsDump];
+        MaplyTileFetcherStats *stats = [tileFetcher getStats:false];
+        [stats dump];
+        [tileFetcher resetStats];
     }
     NSLog(@"Sampling layers: %lu",samplingLayers.size());
     
@@ -1306,7 +1308,7 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
-- (MaplyTileFetcher *)getTileFetcher:(NSString *)name
+- (MaplyTileFetcher *)addTileFetcher:(NSString *)name
 {
     for (auto tileFetcher : tileFetchers)
         if ([tileFetcher.name isEqualToString:name])
@@ -1316,6 +1318,15 @@ static const float PerfOutputDelay = 15.0;
     tileFetchers.push_back(tileFetcher);
     
     return tileFetcher;
+}
+
+- (MaplyTileFetcher *)getTileFetcher:(NSString *)name
+{
+    for (auto tileFetcher : tileFetchers)
+        if ([tileFetcher.name isEqualToString:name])
+            return tileFetcher;
+    
+    return nil;
 }
 
 -(NSArray*)objectsAtCoord:(MaplyCoordinate)coord
