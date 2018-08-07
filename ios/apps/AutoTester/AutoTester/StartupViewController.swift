@@ -15,7 +15,6 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         
 		GeographyClassTestCase(),
 		StamenWatercolorRemote(),
-		NASAGIBSTestCase(),
 		CartoDBLightTestCase(),
 		ImageSingleLevelTestCase(),
 
@@ -34,7 +33,6 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		GeoJSONStyleTestCase(),
 		
 		ClusteredMarkersTestCase(),
-		MegaMarkersTestCase(),
 		LabelsTestCase(),
 		MarkersTestCase(),
 		StickersTestCase(),
@@ -54,15 +52,12 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		BNGTestCase(),
 		ElevationLocalDatabase(),
 		ParticleTestCase(),
-		CesiumElevationTestCase(),
 		RunwayBuilderTestCase(),
 
 		AnimatedColorRampTestCase(),
 		ExtrudedModelTestCase(),
 		ModelsTestCase(),
 		GreatCircleTestCase(),
-
-		AerisWeatherTestCase(),
 		
 		LabelAnimationTestCase(),
 		WMSTestCase(),
@@ -73,7 +68,6 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		LocationTrackingSimTestCase(),
 		LocationTrackingRealTestCase(),
 
-		Issue721TestCase(),
 		LIDARTestCase()
 	]
 

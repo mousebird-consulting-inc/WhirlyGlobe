@@ -20,7 +20,6 @@
 
 #import "ElevationCesiumChunk.h"
 #import "ElevationCesiumFormat.h"
-#import "oct.h"
 #import "WhirlyOctEncoding.h"
 #import "GridClipper.h"
 #import "Tesselator.h"

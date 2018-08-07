@@ -367,6 +367,8 @@ static bool trackConnections = false;
 {
     if ([_tileInfo isKindOfClass:[MaplyRemoteTileSource class]])
         return ((MaplyRemoteTileSource *)_tileInfo).cacheDir;
+    else if ([_tileInfo isKindOfClass:[MaplyRemoteTileInfo class]])
+        return ((MaplyRemoteTileInfo *)_tileInfo).cacheDir;
     else
         return nil;
 }

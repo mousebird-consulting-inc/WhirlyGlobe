@@ -34,10 +34,13 @@ class OpenMapTilesTestCase: MaplyTestCase {
                                                         return nil
         }
         
-        let tileInfo = MaplyRemoteTileInfo.init(baseURL: "http://public-mobile-data-stage-saildrone-com.s3-us-west-1.amazonaws.com/openmaptiles/{z}/{x}/{y}.png", ext: nil, minZoom: 0, maxZoom: 14)
+        // Note: Get your own tilehosting key.  This one is not for commercial use
+        let tileInfo = MaplyRemoteTileInfo.init(baseURL: "https://free.tilehosting.com/data/v3/{z}/{x}/{y}.pbf.pict?key=8iZUKgsBTIFhFIZjA5lm", ext: nil, minZoom: 0, maxZoom: 14)
         let tileSource = MaplyRemoteTileSource(info: tileInfo)
         
+        let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
         if let tileSource = tileSource {
+            tileSource.cacheDir = "\(cacheDir)/openmaptiles1/"
             let pageDelegate = MapboxVectorTilesPagingDelegate(tileSource: tileSource, style: styleSet, viewC: baseVC)
             //            pageDelegate.tileParser?.debugLabel = true
             //            pageDelegate.tileParser?.debugOutline = true
