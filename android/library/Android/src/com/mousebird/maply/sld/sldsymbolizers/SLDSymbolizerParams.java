@@ -4,6 +4,7 @@ import android.content.res.AssetManager;
 
 import com.mousebird.maply.MaplyBaseController;
 import com.mousebird.maply.VectorStyleSettings;
+import com.mousebird.maply.sld.sldstyleset.AssetWrapper;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -14,7 +15,7 @@ public class SLDSymbolizerParams {
     // Assigned once per SLD
     private MaplyBaseController baseController;
     private VectorStyleSettings vectorStyleSettings;
-    private AssetManager assetManager;
+    private AssetWrapper assetWrapper;
     private String basePath;
 
     public MaplyBaseController getBaseController() {
@@ -23,17 +24,17 @@ public class SLDSymbolizerParams {
     public VectorStyleSettings getVectorStyleSettings() {
         return vectorStyleSettings;
     }
-    public AssetManager getAssetManager() {
-        return assetManager;
+    public AssetWrapper getAssetWrapper() {
+        return assetWrapper;
     }
     public String getBasePath() {
         return basePath;
     }
 
 
-    public SLDSymbolizerParams(MaplyBaseController baseController, AssetManager assetManager, VectorStyleSettings vectorStyleSettings, String basePath, int relativeDrawPriority) {
+    public SLDSymbolizerParams(MaplyBaseController baseController, AssetWrapper assetWrapper, VectorStyleSettings vectorStyleSettings, String basePath, int relativeDrawPriority) {
         this.baseController = baseController;
-        this.assetManager = assetManager;
+        this.assetWrapper = assetWrapper;
         this.vectorStyleSettings = vectorStyleSettings;
         this.basePath = basePath;
         this.relativeDrawPriority = relativeDrawPriority;

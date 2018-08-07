@@ -1,7 +1,10 @@
 #import <Foundation/Foundation.h>
 
+// Don't trigger this if we've already seen this typdef
+#ifndef __XML_STRING_H__
 // We redefine xmlChar to avoid a non-modular include
 typedef unsigned char xmlChar;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 @interface NSString (DDXML)

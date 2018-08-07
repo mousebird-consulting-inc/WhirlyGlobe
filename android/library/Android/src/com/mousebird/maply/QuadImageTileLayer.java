@@ -753,9 +753,14 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
     */
     public void reload()
     {
-		ChangeSet changes = new ChangeSet();
-		reload(changes);
-		layerThread.addChanges(changes);
+		layerThread.addTask(new Runnable() {
+			@Override
+			public void run() {
+				ChangeSet changes = new ChangeSet();
+				reload(changes);
+				layerThread.addChanges(changes);
+			}
+		});
     }
     
     native void reload(ChangeSet changes);

@@ -33,6 +33,13 @@ Proj4CoordSystem::Proj4CoordSystem(const std::string &proj4Str)
     pj_geocentric = pj_init_plus("+proj=geocent +datum=WGS84");
 }
     
+Proj4CoordSystem::~Proj4CoordSystem()
+{
+    pj_free(pj);
+    pj_free(pj_latlon);
+    pj_free(pj_geocentric);
+}
+    
 bool Proj4CoordSystem::isValid()
 {
     return pj != NULL;

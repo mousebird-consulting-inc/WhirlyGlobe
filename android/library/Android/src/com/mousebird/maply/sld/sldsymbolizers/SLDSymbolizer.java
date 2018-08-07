@@ -320,7 +320,7 @@ public abstract class SLDSymbolizer {
                 else
                     graphicPath = symbolizerParams.getBasePath() + "/" + href;
                 try {
-                    inputStream = symbolizerParams.getAssetManager().open(graphicPath);
+                    inputStream = symbolizerParams.getAssetWrapper().open(graphicPath);
                 } catch (IOException e) {
                     Log.e("SLDSymbolizer", "parseMarkOrExternalGraphic", e);
                 }

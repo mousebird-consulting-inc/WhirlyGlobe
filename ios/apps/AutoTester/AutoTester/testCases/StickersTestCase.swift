@@ -62,19 +62,19 @@ class StickersTestCase: MaplyTestCase {
     }
 	
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        let baseLayer = GeographyClassTestCase()
+        let baseLayer = VectorsTestCase()
         baseLayer.setUpWithGlobe(globeVC)
 
-//        addStickers(baseLayer.compList, baseViewC: globeVC)
+        addStickers(baseLayer.compList, baseViewC: globeVC)
         
         addTestSticker(baseViewC: globeVC)
 	}
 	
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
-		let baseLayer = GeographyClassTestCase()
+		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithMap(mapVC)
 
-//        addStickers(baseLayer.compList, baseViewC: mapVC)
+        addStickers(baseLayer.compList, baseViewC: mapVC)
         
         addTestSticker(baseViewC: mapVC)
 	}

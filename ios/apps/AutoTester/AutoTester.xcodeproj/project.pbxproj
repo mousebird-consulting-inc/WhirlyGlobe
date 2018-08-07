@@ -2625,7 +2625,7 @@
 				TargetAttributes = {
 					88E4B8BE1B83B6AB0050D21B = {
 						CreatedOnToolsVersion = 6.4;
-						DevelopmentTeam = 7PW76CX263;
+						DevelopmentTeam = BFXSGS6V8N;
 						LastSwiftMigration = 0930;
 						ProvisioningStyle = Automatic;
 					};
@@ -3949,23 +3949,21 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = 7PW76CX263;
+				DEVELOPMENT_TEAM = BFXSGS6V8N;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/\"/**",
-					"\"$(SRCROOT)/../../../third-party/AFNetworking/AFNetworking\"",
-					"\"$(SRCROOT)/../../../third-party/KissXML/KissXML\"",
-					"\"$(SDKROOT)/usr/include/libxml2\"",
+					"\"$(SRCROOT)/../../../common/local_libs/KissXML\"",
 					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/vector_tiles\"",
 					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/private\"",
 					"\"$(SRCROOT)/../../library/WhirlyGlobeLib/include/\"",
-					"\"$(SRCROOT)/../../../third-party/eigen\"",
+					"\"$(SRCROOT)/../../../common/local_libs/eigen\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.saildrone.AutoTester;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTester;
 				PRODUCT_NAME = AutoTester;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -3982,23 +3980,21 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = 7PW76CX263;
+				DEVELOPMENT_TEAM = BFXSGS6V8N;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/\"/**",
-					"\"$(SRCROOT)/../../../third-party/AFNetworking/AFNetworking\"",
-					"\"$(SRCROOT)/../../../third-party/KissXML/KissXML\"",
-					"\"$(SDKROOT)/usr/include/libxml2\"",
+					"\"$(SRCROOT)/../../../common/local_libs/KissXML\"",
 					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/vector_tiles\"",
 					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/private\"",
 					"\"$(SRCROOT)/../../library/WhirlyGlobeLib/include/\"",
-					"\"$(SRCROOT)/../../../third-party/eigen\"",
+					"\"$(SRCROOT)/../../../common/local_libs/eigen\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.saildrone.AutoTester;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTester;
 				PRODUCT_NAME = AutoTester;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/AutoTester/MaplyTesterBridge.h";

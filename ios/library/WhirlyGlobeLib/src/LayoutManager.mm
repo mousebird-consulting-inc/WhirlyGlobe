@@ -741,11 +741,15 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
     if (!layoutChanges && clusters.size() != oldClusters.size())
         layoutChanges = true;
     
+//    if (layoutChanges)
+//        NSLog(@"LayoutChanges");
+
     if (hasUpdates || layoutChanges)
     {
         // Get rid of the last set of drawables
         for (SimpleIDSet::iterator it = drawIDs.begin(); it != drawIDs.end(); ++it)
             changes.push_back(new RemDrawableReq(*it));
+//        NSLog(@"  Remove previous drawIDs = %lu",drawIDs.size());
         drawIDs.clear();
 
         // Generate the drawables
@@ -816,6 +820,7 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
             layoutObj->changed = false;
         }
         
+//        NSLog(@"Got %lu clusters",clusters.size());
         
         // Add in the clusters
         for (auto &cluster : clusters)
@@ -852,6 +857,8 @@ void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &change
         }
         
         ssBuild.flushChanges(changes, drawIDs);
+        
+//        NSLog(@"  Adding new drawIDs = %lu",drawIDs.size());
     }
     
     hasUpdates = false;

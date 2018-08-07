@@ -34,7 +34,7 @@
 #define __glues_h__
 
 #if defined(__USE_SDL_GLES__)
-   #include <SDL_opengles.h>
+   #include <SDL/SDL_opengles.h>
    #ifndef GLAPI
       #define GLAPI GL_API
    #endif
@@ -126,7 +126,7 @@ typedef GLUtesselator GLUtriangulatorObj;
 typedef GLUnurbs GLUnurbsObj;
 
 /* Internal convenience typedefs */
-typedef void (APIENTRYP _GLUfuncptr)();
+typedef void (APIENTRYP _GLUfuncptr)(void);
 
 GLAPI GLboolean APIENTRY gluCheckExtension(const GLubyte* extName, const GLubyte* extString);
 GLAPI void APIENTRY gluCylinder(GLUquadric* quad, GLfloat base, GLfloat top, GLfloat height, GLint slices, GLint stacks);
