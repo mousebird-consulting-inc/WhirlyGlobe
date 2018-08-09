@@ -222,7 +222,7 @@ static const float DelayPeriod = 0.1;
     Mbr mbr(mbrD);
     
     // Is this a valid tile?
-    if (!mbr.overlaps(_mbr)) {
+    if (!_mbr.inside(mbr.mid())) {
         return 0.0;
     }
 
@@ -239,7 +239,7 @@ static const float DelayPeriod = 0.1;
     Mbr mbr(mbrD);
     
     // Is this a valid tile?
-    if (!mbr.overlaps(_mbr)) {
+    if (!_mbr.inside(mbr.mid())) {
         return 0.0;
     }
     
