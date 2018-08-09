@@ -220,6 +220,11 @@ static const float DelayPeriod = 0.1;
     Point2d ll,ur;
     MbrD mbrD = _quadtree->generateMbrForNode(node);
     Mbr mbr(mbrD);
+    
+    // Is this a valid tile?
+    if (!mbr.overlaps(_mbr)) {
+        return 0.0;
+    }
 
     // Note: Add back the mutable attributes?
     return [_dataStructure importanceForTile:ident mbr:mbr viewInfo:viewState frameSize:Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight) attrs:nil];
@@ -232,6 +237,11 @@ static const float DelayPeriod = 0.1;
     Point2d ll,ur;
     MbrD mbrD = _quadtree->generateMbrForNode(node);
     Mbr mbr(mbrD);
+    
+    // Is this a valid tile?
+    if (!mbr.overlaps(_mbr)) {
+        return 0.0;
+    }
     
     // Note: Add back the mutable attributes?
     return [_dataStructure visibilityForTile:ident mbr:mbr viewInfo:viewState frameSize:Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight) attrs:nil];
