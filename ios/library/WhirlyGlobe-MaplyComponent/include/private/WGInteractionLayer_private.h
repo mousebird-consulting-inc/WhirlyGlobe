@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyBaseInteractionLayer_private.h"
+#import "GlobeTapMessage.h"
 
 // The view controller fills this in
 @protocol WGInteractionLayerDelegate <NSObject>

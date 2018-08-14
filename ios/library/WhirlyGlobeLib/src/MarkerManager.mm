@@ -23,6 +23,7 @@
 #import "UIColor+Stuff.h"
 #import "ScreenSpaceBuilder.h"
 #import "LayoutManager.h"
+#import "TextureAtlas.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -479,6 +480,4 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
 void MarkerManager::setScene(Scene *inScene)
 {
     SceneManager::setScene(inScene);
-    
-    screenGenId = scene->getScreenSpaceGeneratorID();
 }

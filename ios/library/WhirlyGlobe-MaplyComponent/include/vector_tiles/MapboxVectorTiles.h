@@ -20,7 +20,7 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MaplyQuadPagingLayer.h"
+#import "MaplyVectorTileStyle.h"
 #import "MaplyTileSource.h"
 #import "MaplyCoordinate.h"
 #import "MaplyVectorStyle.h"

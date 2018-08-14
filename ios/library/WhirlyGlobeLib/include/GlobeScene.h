@@ -19,21 +19,18 @@
  */
 
 #import "Scene.h"
-#import "Cullable.h"
 #import "GlobeMath.h"
 
 namespace WhirlyGlobe
 {
     
 /** GlobeScene is the top level scene object for WhirlyGlobe.
-    The main addition to the basic WhirlyKit Scene is sorting into
-    geo MBR oriented cullables.
  */
 class GlobeScene : public WhirlyKit::Scene
 {
 public:
     /// Construct with the depth of the culling tree and the display adapter
-    GlobeScene(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,int depth);
+    GlobeScene(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
     virtual ~GlobeScene();
     
     /// Add a drawable, taking overlap into account

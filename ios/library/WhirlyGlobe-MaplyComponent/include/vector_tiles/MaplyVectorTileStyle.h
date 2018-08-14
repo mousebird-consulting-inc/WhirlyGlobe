@@ -19,7 +19,6 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyQuadPagingLayer.h"
 #import "MaplyVectorStyle.h"
 
 /** The Maply Vector Tile Style is an internal representation of the style JSON coming out
@@ -56,5 +55,11 @@
 /// If set, we create selectable objects
 /// This controls whether the objects we create are selectable.  Off by default.
 @property (nonatomic) bool selectable;
+
+/// Parse the various types of color strings
++ (UIColor *) ParseColor:(NSString *)colorStr;
+
+/// Parse an RGB color and fill in the alpha
++ (UIColor *) ParseColor:(NSString *)colorStr alpha:(CGFloat)alpha;
 
 @end

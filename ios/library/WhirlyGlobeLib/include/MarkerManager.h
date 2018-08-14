@@ -25,7 +25,6 @@
 #import "BasicDrawable.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
-#import "TextureAtlas.h"
 #import "SelectionManager.h"
 #import "LayoutManager.h"
 #import "Scene.h"

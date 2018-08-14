@@ -340,9 +340,10 @@ using namespace Maply;
     // We need to add a new shader to turn it off
     if (!lightingRegular)
     {
-        SimpleIdentity triNoLighting = renderControl->scene->getProgramIDByName(kToolkitDefaultTriangleNoLightingProgram);
-        if (triNoLighting != EmptyIdentity)
-            renderControl->scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
+        // Note: Porting
+//        SimpleIdentity triNoLighting = renderControl->scene->getProgramIDByName(kToolkitDefaultTriangleNoLightingProgram);
+//        if (triNoLighting != EmptyIdentity)
+//            renderControl->scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
         [renderControl->sceneRenderer replaceLights:nil];
     } else {
         // Add a default light
@@ -355,9 +356,10 @@ using namespace Maply;
     }
 
     // We don't want the backface culling program for lines
-    SimpleIdentity lineNoBackface = renderControl->scene->getProgramIDByName(kToolkitDefaultLineNoBackfaceProgram);
-    if (lineNoBackface)
-        renderControl->scene->setSceneProgram(kSceneDefaultLineShader, lineNoBackface);
+    // Note: Porting
+//    SimpleIdentity lineNoBackface = renderControl->scene->getProgramIDByName(kToolkitDefaultLineNoBackfaceProgram);
+//    if (lineNoBackface)
+//        renderControl->scene->setSceneProgram(kSceneDefaultLineShader, lineNoBackface);
 }
 
 - (WhirlyKitView *) loadSetup_view

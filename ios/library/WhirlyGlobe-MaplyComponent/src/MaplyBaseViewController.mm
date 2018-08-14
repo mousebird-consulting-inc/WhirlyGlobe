@@ -68,6 +68,7 @@ using namespace WhirlyKit;
     tileFetchers.clear();
     
     defaultClusterGenerator = nil;
+    viewPlacementModel = nil;
     
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     
@@ -233,6 +234,9 @@ using namespace WhirlyKit;
     // Default cluster generator
     defaultClusterGenerator = [[MaplyBasicClusterGenerator alloc] initWithColors:@[[UIColor orangeColor]] clusterNumber:0 size:CGSizeMake(32,32) viewC:self];
     [self addClusterGenerator:defaultClusterGenerator];
+    
+    // View Placement active model
+    viewPlacementModel = [[WhirlyKitViewPlacementActiveModel alloc] init];
     
     // Set up defaults for the hints
     NSDictionary *newHints = [NSDictionary dictionary];
@@ -752,8 +756,10 @@ static const float PerfOutputDelay = 15.0;
     }
     
     // Hook it into the renderer
-    ViewPlacementGenerator *vpGen = renderControl->scene->getViewPlacementGenerator();
-    vpGen->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),Point2d(viewTrack.offset.x,viewTrack.offset.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
+    ViewPlacementManager *vpManage = [viewPlacementModel getManager];
+    if (vpManage) {
+        vpManage->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),Point2d(viewTrack.offset.x,viewTrack.offset.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
+    }
     renderControl->sceneRenderer.triggerDraw = true;
     
     // And add it to the view hierarchy
@@ -764,9 +770,10 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)moveViewTracker:(MaplyViewTracker *)viewTrack moveTo:(MaplyCoordinate)newPos
 {
-    ViewPlacementGenerator *vpGen = renderControl->scene->getViewPlacementGenerator();
-
-    vpGen->moveView(GeoCoord(newPos.x,newPos.y),Point2d(0,0),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
+    ViewPlacementManager *vpManage = [viewPlacementModel getManager];
+    if (vpManage) {
+        vpManage->moveView(GeoCoord(newPos.x,newPos.y),Point2d(0,0),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
+    }
     renderControl->sceneRenderer.triggerDraw = true;
 }
 
@@ -787,8 +794,10 @@ static const float PerfOutputDelay = 15.0;
         if (theTracker)
         {
             [viewTrackers removeObject:theTracker];
-            ViewPlacementGenerator *vpGen = renderControl->scene->getViewPlacementGenerator();
-            vpGen->removeView(theTracker.view);
+            ViewPlacementManager *vpManage = [viewPlacementModel getManager];
+            if (vpManage) {
+                vpManage->removeView(theTracker.view);
+            }
             if ([theTracker.view superview] == glView)
                 [theTracker.view removeFromSuperview];
             renderControl->sceneRenderer.triggerDraw = true;
@@ -839,13 +848,15 @@ static const float PerfOutputDelay = 15.0;
     CGRect frame = annotate.calloutView.frame;
     annotate.calloutView.frame = CGRectMake(frame.origin.x-pt.x+offset.x, frame.origin.y-pt.y+offset.y, frame.size.width, frame.size.height);
 
-    ViewPlacementGenerator *vpGen = renderControl->scene->getViewPlacementGenerator();
-    if (alreadyHere)
-    {
-        vpGen->moveView(GeoCoord(coord.x,coord.y),Point2d(0,0),annotate.calloutView,annotate.minVis,annotate.maxVis);
-    } else
-    {
-        vpGen->addView(GeoCoord(coord.x,coord.y),Point2d(0,0),annotate.calloutView,annotate.minVis,annotate.maxVis);
+    ViewPlacementManager *vpManage = [viewPlacementModel getManager];
+    if (vpManage) {
+        if (alreadyHere)
+        {
+            vpManage->moveView(GeoCoord(coord.x,coord.y),Point2d(0,0),annotate.calloutView,annotate.minVis,annotate.maxVis);
+        } else
+        {
+            vpManage->addView(GeoCoord(coord.x,coord.y),Point2d(0,0),annotate.calloutView,annotate.minVis,annotate.maxVis);
+        }
     }
     renderControl->sceneRenderer.triggerDraw = true;
 }
@@ -878,8 +889,10 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return;
     
-    ViewPlacementGenerator *vpGen = renderControl->scene->getViewPlacementGenerator();
-    vpGen->removeView(annotate.calloutView);
+    ViewPlacementManager *vpManage = [viewPlacementModel getManager];
+    if (vpManage) {
+        vpManage->removeView(annotate.calloutView);
+    }
     
     [annotations removeObject:annotate];
     
@@ -891,12 +904,14 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return;
     
-    ViewPlacementGenerator *vpGen = renderControl->scene->getViewPlacementGenerator();
-    for (MaplyAnnotation *annotation in annotations)
-        if (annotate == annotation)
-        {
-            vpGen->freezeView(annotate.calloutView);
-        }
+    ViewPlacementManager *vpManage = [viewPlacementModel getManager];
+    if (vpManage) {
+        for (MaplyAnnotation *annotation in annotations)
+            if (annotate == annotation)
+            {
+                vpManage->freezeView(annotate.calloutView);
+            }
+    }
 }
 
 - (void)unfreezeAnnotation:(MaplyAnnotation *)annotate
@@ -904,12 +919,14 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return;
     
-    ViewPlacementGenerator *vpGen = renderControl->scene->getViewPlacementGenerator();
-    for (MaplyAnnotation *annotation in annotations)
-        if (annotate == annotation)
-        {
-            vpGen->unfreezeView(annotate.calloutView);
-        }
+    ViewPlacementManager *vpManage = [viewPlacementModel getManager];
+    if (vpManage) {
+        for (MaplyAnnotation *annotation in annotations)
+            if (annotate == annotation)
+            {
+                vpManage->unfreezeView(annotate.calloutView);
+            }
+    }
     renderControl->sceneRenderer.triggerDraw = true;
 }
 
@@ -1174,7 +1191,9 @@ static const float PerfOutputDelay = 15.0;
     {
         WhirlyKitLayerThread *layerThread = baseLayerThread;
         // Only supporting quad image tiles layer for the thread per layer
-        if (_threadPerLayer && ([newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]] || [newLayer isKindOfClass:[MaplyQuadSamplingLayer class]]))
+        // Note: Porting
+//        if (_threadPerLayer && ([newLayer isKindOfClass:[MaplyQuadImageTilesLayer class]] || [newLayer isKindOfClass:[MaplyQuadSamplingLayer class]]))
+        if (_threadPerLayer && [newLayer isKindOfClass:[MaplyQuadSamplingLayer class]])
         {
             layerThread = [[WhirlyKitLayerThread alloc] initWithScene:renderControl->scene view:visualView renderer:renderControl->sceneRenderer mainLayerThread:false];
             [layerThreads addObject:layerThread];

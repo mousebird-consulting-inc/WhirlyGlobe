@@ -22,11 +22,15 @@
 #import <WhirlyGlobe.h>
 #import "WhirlyGlobeViewController.h"
 #import "MaplyBaseViewController_private.h"
-#import "WGSphericalEarthWithTexGroup_private.h"
+#import "GlobePinchDelegate.h"
+#import "GlobePanDelegate.h"
+#import "GlobeTiltDelegate.h"
+#import "GlobeTapDelegate.h"
+#import "GlobeAnimateRotation.h"
 #import "GlobeDoubleTapDelegate.h"
 #import "GlobeTwoFingerTapDelegate.h"
 #import "GlobeDoubleTapDragDelegate.h"
-#import "TiltDelegate.h"
+#import "GlobeRotateDelegate.h"
 
 /// This is the private interface to WhirlyGlobeViewController.
 /// Only pull this in if you're subclassing
@@ -40,16 +44,16 @@
     WGInteractionLayer *globeInteractLayer;
         
     // Gesture recognizers
-    WGPinchDelegateFixed *pinchDelegate;
-    PanDelegateFixed *panDelegate;
-    TiltDelegate *tiltDelegate;
+    WhirlyGlobePinchDelegate *pinchDelegate;
+    WhirlyGlobePanDelegate *panDelegate;
+    WhirlyGlobeTiltDelegate *tiltDelegate;
     WhirlyGlobeTapDelegate *tapDelegate;
     WhirlyGlobeRotateDelegate *rotateDelegate;
-    AnimateViewRotation *animateRotation;    
+    WhirlyGlobeAnimateViewRotation *animateRotation;
     WhirlyGlobeDoubleTapDelegate *doubleTapDelegate;
     WhirlyGlobeTwoFingerTapDelegate *twoFingerTapDelegate;
     WhirlyGlobeDoubleTapDragDelegate *doubleTapDragDelegate;
-    WGStandardTiltDelegate *tiltControlDelegate;
+    WhirlyGlobeStandardTiltDelegate *tiltControlDelegate;
 
     // Set when we're animating the view point but we know where it's going
     bool knownAnimateEndRot;

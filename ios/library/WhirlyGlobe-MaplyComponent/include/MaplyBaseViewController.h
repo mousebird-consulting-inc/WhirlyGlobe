@@ -30,7 +30,6 @@
 #import "MaplyShader.h"
 #import "MaplyActiveObject.h"
 #import "MaplyElevationSource.h"
-#import "MaplyQuadImageTilesLayer.h"
 #import "MaplyTexture.h"
 #import "MaplyAnnotation.h"
 #import "MaplyParticleSystem.h"

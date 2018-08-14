@@ -215,7 +215,7 @@ static const float DelayPeriod = 0.1;
 
 - (double)importanceFor:(const QuadTreeNew::Node &)node
 {
-    Quadtree::Identifier ident;
+    QuadTreeIdentifier ident;
     ident.level = node.level;  ident.x = node.x;  ident.y = node.y;
     Point2d ll,ur;
     MbrD mbrD = _quadtree->generateMbrForNode(node);
@@ -232,7 +232,7 @@ static const float DelayPeriod = 0.1;
 
 - (double)visibility:(const QuadTreeNew::Node &)node
 {
-    Quadtree::Identifier ident;
+    QuadTreeIdentifier ident;
     ident.level = node.level;  ident.x = node.x;  ident.y = node.y;
     Point2d ll,ur;
     MbrD mbrD = _quadtree->generateMbrForNode(node);

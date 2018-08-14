@@ -205,7 +205,7 @@ using namespace WhirlyGlobe;
 
 - (Scene *) loadSetup_scene
 {
-    globeScene = new WhirlyGlobe::GlobeScene(globeView.coordAdapter,4);
+    globeScene = new WhirlyGlobe::GlobeScene(globeView.coordAdapter);
     renderControl->sceneRenderer.theView = globeView;
     
     return globeScene;
@@ -224,7 +224,7 @@ using namespace WhirlyGlobe;
     [super loadSetup];
     
     // Wire up the gesture recognizers
-    panDelegate = [PanDelegateFixed panDelegateForView:glView globeView:globeView useCustomPanRecognizer:self.inScrollView];
+    panDelegate = [WhirlyGlobePanDelegate panDelegateForView:glView globeView:globeView useCustomPanRecognizer:self.inScrollView];
     tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:globeView];
     // These will activate the appropriate gesture
     self.panGesture = true;
@@ -293,7 +293,6 @@ using namespace WhirlyGlobe;
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnGlobe:) name:WhirlyGlobeTapMsg object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOutsideGlobe:) name:WhirlyGlobeTapOutsideMsg object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(sphericalEarthLayerLoaded:) name:kWhirlyGlobeSphericalEarthLoaded object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidStart:) name:kPanDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(panDidEnd:) name:kPanDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tiltDidStart:) name:kTiltDelegateDidStart object:nil];
@@ -313,7 +312,6 @@ using namespace WhirlyGlobe;
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapMsg object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:WhirlyGlobeTapOutsideMsg object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kWhirlyGlobeSphericalEarthLoaded object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidStart object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kPanDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kTiltDelegateDidStart object:nil];
@@ -327,40 +325,6 @@ using namespace WhirlyGlobe;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationStarted object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationEnded object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kAnimateViewMomentum object:nil];
-}
-
-/// Add a spherical earth layer with the given set of base images
-- (MaplyViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString *)name
-{
-    WGViewControllerLayer *newLayer = [[WGSphericalEarthWithTexGroup alloc] initWithWithLayerThread:baseLayerThread scene:globeScene texGroup:name];
-    newLayer.drawPriority = layerDrawPriority++ + kMaplyImageLayerDrawPriorityDefault;
-    if (!newLayer)
-        return nil;
-    
-    [userLayers addObject:newLayer];
-    
-    return newLayer;
-}
-
-// Called when the earth layer finishes loading
-- (void)sphericalEarthLayerLoaded:(NSNotification *)note
-{
-    WhirlyGlobeSphericalEarthLayer *layer = note.object;
-    
-    // Look for the matching layer
-    if ([_delegate respondsToSelector:@selector(globeViewController:layerDidLoad:)])
-        for (WGViewControllerLayer *userLayer in userLayers)
-        {
-            if ([userLayer isKindOfClass:[WGSphericalEarthWithTexGroup class]])
-            {
-                WGSphericalEarthWithTexGroup *userSphLayer = (WGSphericalEarthWithTexGroup *)userLayer;
-                if (userSphLayer.earthLayer == layer)
-                {
-                    [_delegate globeViewController:self layerDidLoad:userLayer];
-                    break;
-                }
-            }
-        }
 }
 
 #pragma mark - Properties
@@ -400,7 +364,7 @@ using namespace WhirlyGlobe;
     {
         if (!pinchDelegate)
         {
-            pinchDelegate = [WGPinchDelegateFixed pinchDelegateForView:glView globeView:globeView];
+            pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:globeView];
             pinchDelegate.zoomAroundPinch = true;
             pinchDelegate.doRotation = false;
             pinchDelegate.northUp = panDelegate.northUp;
@@ -462,7 +426,7 @@ using namespace WhirlyGlobe;
     {
         if (!tiltDelegate)
         {
-            tiltDelegate = [TiltDelegate tiltDelegateForView:glView globeView:globeView];
+            tiltDelegate = [WhirlyGlobeTiltDelegate tiltDelegateForView:glView globeView:globeView];
             tiltDelegate.pinchDelegate = pinchDelegate;
             tiltDelegate.tiltCalcDelegate = tiltControlDelegate;
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
@@ -574,7 +538,7 @@ using namespace WhirlyGlobe;
 
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
 {
-    tiltControlDelegate = [[WGStandardTiltDelegate alloc] initWithGlobeView:globeView];
+    tiltControlDelegate = [[WhirlyGlobeStandardTiltDelegate alloc] initWithGlobeView:globeView];
     [tiltControlDelegate setMinTilt:minTilt maxTilt:maxTilt minHeight:minHeight maxHeight:maxHeight];
     if (pinchDelegate)
         pinchDelegate.tiltDelegate = tiltControlDelegate;
@@ -703,7 +667,7 @@ using namespace WhirlyGlobe;
     Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:panDelegate.northUp];
     
     // Rotate to the given position over time
-    animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
+    animateRotation = [[WhirlyGlobeAnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
     globeView.delegate = animateRotation;        
 }
 
@@ -717,7 +681,7 @@ using namespace WhirlyGlobe;
     Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoordD:whereGeo keepNorthUp:panDelegate.northUp];
     
     // Rotate to the given position over time
-    animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
+    animateRotation = [[WhirlyGlobeAnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
     globeView.delegate = animateRotation;
 }
 
@@ -779,7 +743,7 @@ using namespace WhirlyGlobe;
         }
         
         // Rotate to the given position over time
-        animateRotation = [[AnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
+        animateRotation = [[WhirlyGlobeAnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
         globeView.delegate = animateRotation;
         
         return true;

@@ -25,7 +25,6 @@
 #import "SelectObject_private.h"
 #import "ImageTexture_private.h"
 #import "MaplyBaseViewController.h"
-#import "MaplyQuadImageTilesLayer.h"
 #import "MaplyTextureAtlas_private.h"
 
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
@@ -56,6 +55,12 @@
     
     // Texture atlas manager
     MaplyTextureAtlasGroup *atlasGroup;
+    
+    /// Active shaders
+    NSMutableArray *shaders;
+    
+    /// Mapping from shader names to shaders
+    std::map<std::string,MaplyShader *> shaderMap;
     
     pthread_mutex_t tempContextLock;
     // We keep a set of temporary OpenGL ES contexts around for threads that don't have them

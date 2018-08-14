@@ -34,14 +34,12 @@
 #include <set>
 
 #import "CoordSystem.h"
-#import "MaplyRemoteTileSource.h"
 #import "MaplyVectorStyle.h"
 #import "MaplyVectorObject_private.h"
 #import "MaplyScreenLabel.h"
 #import "NSData+Zlib.h"
 #import "vector_tile.pb.h"
 #import "VectorData.h"
-#import "MaplyMBTileSource.h"
 #import "MapnikStyleSet.h"
 #import "MaplyRenderController_private.h"
 

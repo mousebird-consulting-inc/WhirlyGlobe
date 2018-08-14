@@ -8,7 +8,7 @@
 
 #import "SLDSymbolizers.h"
 #import "SLDWellKnownMarkers.h"
-#import "MaplyVectorTiles.h"
+#import "MaplyVectorTileStyle.h"
 #import "MaplyScreenLabel.h"
 
 @implementation SLDSymbolizer
@@ -389,12 +389,12 @@
         
         // Transform relevant drawing parameters.
         if (params[@"stroke"])
-            strokeColor = [MaplyVectorTiles ParseColor:params[@"stroke"] alpha:1.0];
+            strokeColor = [MaplyVectorTileStyle ParseColor:params[@"stroke"] alpha:1.0];
         else
             strokeColor = [UIColor darkGrayColor];
         
         if (params[@"fill"])
-            fillColor = [MaplyVectorTiles ParseColor:params[@"fill"] alpha:1.0];
+            fillColor = [MaplyVectorTileStyle ParseColor:params[@"fill"] alpha:1.0];
         else
             fillColor = [UIColor whiteColor];
         

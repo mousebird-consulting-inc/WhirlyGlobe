@@ -60,7 +60,7 @@
         
         if (styleEntry[@"fill"])
         {
-            desc[kMaplyColor] = [MaplyVectorTiles ParseColor:styleEntry[@"fill"] alpha:alpha];
+            desc[kMaplyColor] = [MaplyVectorTileStyle ParseColor:styleEntry[@"fill"] alpha:alpha];
         }
         
         if (styleEntry[@"image"]) {

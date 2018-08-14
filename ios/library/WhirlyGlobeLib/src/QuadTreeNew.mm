@@ -23,6 +23,26 @@
 namespace WhirlyKit
 {
     
+bool QuadTreeIdentifier::operator<(const QuadTreeIdentifier &that) const
+{
+    if (level == that.level)
+    {
+        if (x == that.x)
+        {
+            return y < that.y;
+        } else {
+            return x < that.x;
+        }
+    }
+    
+    return level < that.level;
+}
+
+bool QuadTreeIdentifier::operator==(const QuadTreeIdentifier &that) const
+{
+    return level == that.level && x == that.x && y == that.y;
+}
+    
 bool QuadTreeNew::Node::operator<(const WhirlyKit::QuadTreeNew::Node &that) const
 {
     if (level == that.level) {

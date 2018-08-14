@@ -35,7 +35,7 @@ using namespace WhirlyKit;
 // Let's not support tiles less than 10m on a side
 static float const BoundsEps = 10.0 / EarthRadius;
 
-+ (WhirlyKitDisplaySolid *)displaySolidWithNodeIdent:(WhirlyKit::Quadtree::Identifier &)nodeIdent mbr:(WhirlyKit::Mbr)nodeMbr minZ:(float)inMinZ maxZ:(float)inMaxZ srcSystem:(WhirlyKit::CoordSystem *)srcSystem adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
++ (WhirlyKitDisplaySolid *)displaySolidWithNodeIdent:(WhirlyKit::QuadTreeIdentifier &)nodeIdent mbr:(WhirlyKit::Mbr)nodeMbr minZ:(float)inMinZ maxZ:(float)inMaxZ srcSystem:(WhirlyKit::CoordSystem *)srcSystem adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
 {
     WhirlyKitDisplaySolid *dispSolid = [[WhirlyKitDisplaySolid alloc] init];
     
@@ -453,7 +453,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
 namespace WhirlyKit
 {
     
-bool TileIsOnScreen(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
+bool TileIsOnScreen(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::QuadTreeIdentifier &nodeIdent,NSMutableDictionary *attrs)
 {
     WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
     if (!dispSolid)
@@ -474,7 +474,7 @@ bool TileIsOnScreen(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,W
 
 
 // Calculate the max pixel size for a tile
-double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
+double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::QuadTreeIdentifier &nodeIdent,NSMutableDictionary *attrs)
 {
     WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
     if (!dispSolid)
@@ -499,7 +499,7 @@ double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSi
 }
 
 // This version is for volumes with height
-double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::Quadtree::Identifier &nodeIdent,NSMutableDictionary *attrs)
+double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::QuadTreeIdentifier &nodeIdent,NSMutableDictionary *attrs)
 {
     WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
     if (!dispSolid)

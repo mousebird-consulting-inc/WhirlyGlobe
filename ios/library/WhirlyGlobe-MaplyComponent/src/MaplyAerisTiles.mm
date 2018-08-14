@@ -19,7 +19,7 @@
  */
 
 #import "MaplyAerisTiles.h"
-#import "MaplyRemoteTileSource.h"
+#import "MaplyTileSource.h"
 
 @implementation MaplyAerisLayerInfo
 

@@ -18,6 +18,7 @@
  *
  */
 
+#import "MaplyAnimateTranslation.h"
 #import "MaplyAnimateTranslateMomentum.h"
 #import "MaplyPanDelegate.h"
 

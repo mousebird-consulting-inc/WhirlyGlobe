@@ -543,16 +543,7 @@ SimpleIdentity BasicDrawable::getTexId(unsigned int which)
 void BasicDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
 {
     [renderer setRenderUntil:fadeUp];
-    [renderer setRenderUntil:fadeDown];
-    
-    // Let's also pull the default shaders out if need be
-    if (programId == EmptyIdentity)
-    {
-        if (type == GL_LINE_LOOP || type == GL_LINES)
-            programId = renderer.scene->getProgramIDBySceneName(kSceneDefaultLineShader);
-        else
-            programId = renderer.scene->getProgramIDBySceneName(kSceneDefaultTriShader);
-    }
+    [renderer setRenderUntil:fadeDown];    
 }
 
 // Move the texture coordinates around and apply a new texture

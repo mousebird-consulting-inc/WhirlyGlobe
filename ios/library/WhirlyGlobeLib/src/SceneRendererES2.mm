@@ -21,7 +21,6 @@
 #import "SceneRendererES3.h"
 #import "UIColor+Stuff.h"
 #import "GLUtils.h"
-#import "DefaultShaderPrograms.h"
 #import "UIImage+Stuff.h"
 #import "NSDictionary+Stuff.h"
 #import "NSString+Stuff.h"
@@ -179,9 +178,7 @@ public:
     if (oldContext != super.context)
         [EAGLContext setCurrentContext:super.context];
     CheckGLError("Scene::setScene() setCurrentContext");
-    
-    SetupDefaultShaders(super.scene);
-    
+        
     lightsLastUpdated = CFAbsoluteTimeGetCurrent();
 
     if (oldContext != super.context)
@@ -244,9 +241,6 @@ public:
             frameObservers.erase(it);
     }
 }
-
-// Make the screen a bit bigger for testing
-static const float ScreenOverlap = 0.1;
 
 - (void) render:(CFTimeInterval)duration
 {
@@ -410,14 +404,6 @@ static const float ScreenOverlap = 0.1;
 	{
 		int numDrawables = 0;
         
-        SimpleIdentity defaultTriShader = scene->getProgramIDBySceneName(kSceneDefaultTriShader);
-        SimpleIdentity defaultLineShader = scene->getProgramIDBySceneName(kSceneDefaultLineShader);
-        if ((defaultTriShader == EmptyIdentity) || (defaultLineShader == EmptyIdentity))
-        {
-            NSLog(@"SceneRendererES2: No valid triangle or line shader.  Giving up.");
-            return;
-        }
-        
         WhirlyKitRendererFrameInfo *baseFrameInfo = [[WhirlyKitRendererFrameInfo alloc] init];
         baseFrameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;
         baseFrameInfo.sceneRenderer = self;
@@ -555,96 +541,24 @@ static const float ScreenOverlap = 0.1;
             offFrameInfo.pvMat = pvMat4f;
             offFrameInfo.pvMat4d = pvMat;
             
-            // If we're looking at a globe, run the culling
-            int drawablesConsidered = 0;
-            int cullTreeCount = 0;
-            if (self.doCulling)
-            {
-                std::set<DrawableRef> toDraw;
-                CullTree *cullTree = scene->getCullTree();
-                // Recursively search for the drawables that overlap the screen
-                Mbr screenMbr;
-                // Stretch the screen MBR a little for safety
-                screenMbr.addPoint(Point2f(-ScreenOverlap*framebufferWidth,-ScreenOverlap*framebufferHeight));
-                screenMbr.addPoint(Point2f((1+ScreenOverlap)*framebufferWidth,(1+ScreenOverlap)*framebufferHeight));
-                [self findDrawables:cullTree->getTopCullable() view:globeView frameSize:Point2f(framebufferWidth,framebufferHeight) modelTrans:&modelTrans4d eyeVec:eyeVec3 frameInfo:offFrameInfo screenMbr:screenMbr topLevel:true toDraw:&toDraw considered:&drawablesConsidered];
-                
-                //		drawList.reserve(toDraw.size());
-                for (std::set<DrawableRef>::iterator it = toDraw.begin();
-                     it != toDraw.end(); ++it)
-                {
-                    Drawable *theDrawable = it->get();
-                    if (theDrawable)
-                    {
-                        const Matrix4d *localMat = theDrawable->getMatrix();
-                        if (localMat)
-                        {
-                            Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                            Eigen::Matrix4d newMvMat = viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                            Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
-                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat,newMvMat,newMvNormalMat));
-                        } else
-                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
-                    } else
-                        NSLog(@"Bad drawable coming from cull tree.");
-                }
-                cullTreeCount = cullTree->getCount();
-            } else {
-                DrawableRefSet rawDrawables = scene->getDrawables();
-                for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
-                {
-                    Drawable *theDrawable = it->second.get();
-                    if (theDrawable->isOn(offFrameInfo))
-                    {
-                        const Matrix4d *localMat = theDrawable->getMatrix();
-                        if (localMat)
-                        {
-                            Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                            Eigen::Matrix4d newMvMat = viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                            Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
-                            drawList.push_back(DrawableContainer(theDrawable,newMvpMat,newMvMat,newMvNormalMat));
-                        } else
-                            drawList.push_back(DrawableContainer(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
-                    }
-                }
-            }
-            
-            if (perfInterval > 0)
-                perfTimer.stopTiming("Culling");
-            
-            if (perfInterval > 0)
-                perfTimer.startTiming("Generators - generate");
 
-            // Run the generators only once, they have to be aware of multiple offset matrices
-            if (off == offsetMats.size()-1)
+            DrawableRefSet rawDrawables = scene->getDrawables();
+            for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
             {
-                // Now ask our generators to make their drawables
-                // Note: Not doing any culling here
-                //       And we should reuse these Drawables
-                const GeneratorSet *generators = scene->getGenerators();
-                for (GeneratorSet::iterator it = generators->begin();
-                     it != generators->end(); ++it)
-                    (*it)->generateDrawables(baseFrameInfo, generatedDrawables, screenDrawables);
-                
-                // Add the generated drawables and sort them all together
-                for (unsigned int ii=0;ii<generatedDrawables.size();ii++)
+                Drawable *theDrawable = it->second.get();
+                if (theDrawable->isOn(offFrameInfo))
                 {
-                    Drawable *theDrawable = generatedDrawables[ii].get();
-                    if (theDrawable)
+                    const Matrix4d *localMat = theDrawable->getMatrix();
+                    if (localMat)
+                    {
+                        Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                        Eigen::Matrix4d newMvMat = viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                        Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
+                        drawList.push_back(DrawableContainer(theDrawable,newMvpMat,newMvMat,newMvNormalMat));
+                    } else
                         drawList.push_back(DrawableContainer(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
                 }
-                bool sortLinesToEnd = (super.zBufferMode == zBufferOffDefault);
-                std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(super.sortAlphaToEnd,sortLinesToEnd,baseFrameInfo));
             }
-            
-            if (perfInterval > 0)
-            {
-                perfTimer.addCount("Drawables considered", drawablesConsidered);
-                perfTimer.addCount("Cullables", cullTreeCount);
-            }
-            
-            if (perfInterval > 0)
-                perfTimer.stopTiming("Generators - generate");
         }
 
         if (perfInterval > 0)
@@ -711,8 +625,6 @@ static const float ScreenOverlap = 0.1;
                 
                 // Figure out the program to use for drawing
                 SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
-                if (drawProgramId == EmptyIdentity)
-                drawProgramId = defaultTriShader;
                 if (drawProgramId != curProgramId)
                 {
                     curProgramId = drawProgramId;
@@ -814,8 +726,6 @@ static const float ScreenOverlap = 0.1;
                 {
                     // Figure out the program to use for drawing
                     SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
-                    if (drawProgramId == EmptyIdentity)
-                    drawProgramId = defaultTriShader;
                     if (drawProgramId != curProgramId)
                     {
                         curProgramId = drawProgramId;

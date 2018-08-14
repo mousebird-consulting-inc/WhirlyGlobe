@@ -56,7 +56,7 @@
         }
         if (styleEntry[@"stroke"])
         {
-            strokeColor = [MaplyVectorTiles ParseColor:styleEntry[@"stroke"] alpha:alpha];
+            strokeColor = [MaplyVectorTileStyle ParseColor:styleEntry[@"stroke"] alpha:alpha];
         }
         
         int drawPriority = 0;

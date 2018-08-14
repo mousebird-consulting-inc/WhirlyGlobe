@@ -582,21 +582,6 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
     }
 }
 
-// Calculate an acceptable MBR from world coords
-- (Mbr) calcCurvedMBR:(Point3f *)corners view:(WhirlyGlobeView *)globeView modelTrans:(Eigen::Matrix4d *)modelTrans frameSize:(Point2f)frameSize
-{
-    Mbr localScreenMbr;
-    
-    for (unsigned int ii=0;ii<WhirlyKitCullableCorners;ii++)
-    {
-        Point3d cornerPt = Point3d(corners[ii].x(),corners[ii].y(),corners[ii].z());
-        CGPoint screenPt = [globeView pointOnScreenFromSphere:cornerPt transform:modelTrans frameSize:frameSize];
-        localScreenMbr.addPoint(Point2f(screenPt.x,screenPt.y));
-    }
-    
-    return localScreenMbr;
-}
-
 - (void) mergeDrawableSet:(const std::set<DrawableRef,IdentifiableRefSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
 {
     // Grab any drawables that live just at this level
@@ -610,60 +595,6 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
         //       And we're doing the refusal check repeatedly as well, possibly
         if ((toDraw->find(draw) == toDraw->end()) && draw->isOn(frameInfo))
             toDraw->insert(draw);
-    }
-}
-
-- (void) findDrawables:(Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans eyeVec:(Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
-{
-    CoordSystemDisplayAdapter *coordAdapter = _scene->getCoordAdapter();
-    
-    // Check the four corners of the cullable to see if they're pointed away
-    // But just for the globe case
-    bool inView = false;
-    if (coordAdapter->isFlat() || isTopLevel)
-    {
-        inView = true;
-    } else {
-        for (unsigned int ii=0;ii<WhirlyKitCullableCornerNorms;ii++)
-        {
-            Vector3f norm = cullable->cornerNorms[ii];
-            if (norm.dot(eyeVec) > 0)
-            {
-                inView = true;
-                break;
-            }
-        }
-    }
-    if (_doCulling && !inView)
-        return;
-    
-    Mbr localScreenMbr;
-    if (globeView)
-        localScreenMbr = [self calcCurvedMBR:&cullable->cornerPoints[0] view:globeView modelTrans:modelTrans frameSize:frameSize];
-    
-    // If this doesn't overlap what we're viewing, we're done
-    if (_doCulling && !screenMbr.overlaps(localScreenMbr))
-        return;
-    
-    // If the footprint of this level on the screen is larger than
-    //  the screen area, keep going down (if we can).
-    float localScreenArea = localScreenMbr.area();
-    float screenArea = screenMbr.area();
-    if (isTopLevel || (localScreenArea > screenArea/4 && cullable->hasChildren()))
-    {
-        // Grab the drawables at this level
-        [self mergeDrawableSet:cullable->getDrawables() globeView:globeView frameSize:frameSize modelTrans:modelTrans frameInfo:frameInfo screenMbr:screenMbr toDraw:toDraw considered:drawablesConsidered];
-        
-        // And recurse downward for the rest
-        for (unsigned int ii=0;ii<4;ii++)
-        {
-            Cullable *child = cullable->getChild(ii);
-            if (child)
-                [self findDrawables:child view:globeView frameSize:frameSize modelTrans:modelTrans eyeVec:eyeVec frameInfo:frameInfo screenMbr:screenMbr topLevel:false toDraw:toDraw considered:drawablesConsidered];
-        }
-    } else {
-        // If not, then just return what we found here
-        [self mergeDrawableSet:cullable->getChildDrawables() globeView:globeView frameSize:frameSize modelTrans:modelTrans frameInfo:frameInfo screenMbr:screenMbr toDraw:toDraw considered:drawablesConsidered];
     }
 }
 

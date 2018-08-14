@@ -31,9 +31,7 @@
 #import <unordered_map>
 #import "WhirlyVector.h"
 #import "Texture.h"
-#import "Cullable.h"
 #import "BasicDrawableInstance.h"
-#import "Generator.h"
 #import "ActiveModel.h"
 #import "CoordSystem.h"
 #import "OpenGLES2Program.h"
@@ -53,7 +51,6 @@ namespace WhirlyKit
     
 class Scene;
 class SubTexture;
-class ScreenSpaceGenerator;
 class ViewPlacementGenerator;
 
 /// Request that the renderer add the given texture.
@@ -137,34 +134,6 @@ public:
 	
 protected:	
 	SimpleIdentity drawable;
-};	
-
-/// Add a Drawable Generator to the scene
-class AddGeneratorReq : public ChangeRequest
-{
-public:
-    /// Construct with the generator
-    AddGeneratorReq(Generator *generator) : generator(generator) { }
-
-    /// Add to the renderer.  Never call this.
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
-    
-protected:
-    Generator *generator;
-};
-    
-/// Remove the Drawable Generator from the scene
-class RemGeneratorReq : public ChangeRequest
-{
-public:
-    /// Construct with the generator ID
-    RemGeneratorReq(SimpleIdentity genId) : genId(genId) { }
-    
-    /// Remove from the renderer.  Never call this.
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
-    
-protected:
-    SimpleIdentity genId;
 };
     
 /// Add an OpenGL ES 2.0 program to the scene for user later
@@ -250,9 +219,6 @@ protected:
     BlockFunc func;
 };
         
-/// Sorted set of generators
-typedef std::set<Generator *,IdentifiableSorter> GeneratorSet;
-    
 typedef std::unordered_map<SimpleIdentity,DrawableRef> DrawableRefSet;
 
 typedef std::set<OpenGLES2Program *,IdentifiableSorter> OpenGLES2ProgramSet;
@@ -282,8 +248,7 @@ protected:
 };
 
 /** This is the top level scene object for WhirlyKit.
-    It keeps track of the drawables by sorting them into
-     cullables and it handles the change requests, which
+    It keeps track of the drawables by and it handles the change requests, which
      consist of pretty much everything that can happen.
  */
 class Scene : public DelayedDeletable
@@ -296,13 +261,6 @@ public:
     /// You can get the coordinate system we're using from that.
     WhirlyKit::CoordSystemDisplayAdapter *getCoordAdapter();
     
-    /// Full set of Generators
-    const GeneratorSet *getGenerators() { return &generators; }
-    
-    /// Search for a Generator by name.
-    /// This is not thread safe, so do this in the main thread
-    SimpleIdentity getGeneratorIDByName(const std::string &name);
-
 	/// Add a single change request.  You can call this from any thread, it locks.
     /// If you have more than one, don't iterate, use the other version.
 	void addChangeRequest(ChangeRequest *newChange);
@@ -345,16 +303,7 @@ public:
     
     /// Remove a drawable from the scene
     virtual void remDrawable(DrawableRef drawable) = 0;
-    
-    /// We create one screen space generator on startup.  This is its ID.
-    SimpleIdentity getScreenSpaceGeneratorID();
-    
-    /// Get the screen space generator (be careful).
-    ScreenSpaceGenerator *getScreenSpaceGenerator() { return ssGen; }
-    
-    /// Get the UIView placement generator.  Only use this in the main thread.
-    ViewPlacementGenerator *getViewPlacementGenerator() { return vpGen; }
-    
+
     /// Called once by the renderer so we can reset any managers that care
     void setRenderer(WhirlyKitSceneRendererES *renderer);
     
@@ -369,9 +318,6 @@ public:
     
     /// Remove an active model (if it's in here).  Only call this on the main thread.
     void removeActiveModel(NSObject<WhirlyKitActiveModel> *);
-    
-    /// Return the top level cullable
-    CullTree *getCullTree() { return cullTree; }
     
     /// Explicitly tear everything down in OpenGL ES.
     /// We're assuming the context has been set.
@@ -404,9 +350,6 @@ public:
     ///  to display coordinates.
     WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
     
-    /// Look for a Draw Generator by ID
-    Generator *getGenerator(SimpleIdentity genId);
-	
 	/// Look for a Drawable by ID
 	DrawableRef getDrawable(SimpleIdentity drawId);
 	
@@ -416,12 +359,6 @@ public:
     /// All the active models
     NSMutableArray *activeModels;
     
-    /// All the drawable generators we've been handed, sorted by ID
-    GeneratorSet generators;
-
-    /// Top level of Cullable quad tree
-    CullTree *cullTree;
-	
 	/// All the drawables we've been handed, sorted by ID
 	DrawableRefSet drawables;
 	
@@ -442,25 +379,13 @@ public:
     typedef std::set<SubTexture> SubTextureSet;
     /// Mappings from images to parts of texture atlases
     SubTextureSet subTextureMap;
-    
-    /// ID for screen space generator
-    SimpleIdentity screenSpaceGeneratorID;
-    
-    /// Lock for accessing the generators
-    pthread_mutex_t generatorLock;
-    
+        
     /// Memory manager, really buffer and texture ID manager
     OpenGLMemManager memManager;
     
     /// Dispatch queue(s) we'll use for... things
     dispatch_queue_t dispatchQueue;
-    
-    /// Screen space generator created on startup
-    ScreenSpaceGenerator *ssGen;
-    
-    /// UIView placement generator created on startup
-    ViewPlacementGenerator *vpGen;
-    
+        
     /// Lock for accessing managers
     pthread_mutex_t managerLock;
 
@@ -479,28 +404,9 @@ public:
     /// Search for a shader program by ID (our ID, not OpenGL's)
     OpenGLES2Program *getProgram(SimpleIdentity programId);
     
-    /// Search for a shader program by the scene name (not the program name)
-    OpenGLES2Program *getProgramBySceneName(const std::string &sceneName);
-
-    /// Look for the given program by scene name and return the ID
-    SimpleIdentity getProgramIDBySceneName(const std::string &sceneName);
-    
-    /// Search for a shader program by its name (not the scene name)
-    OpenGLES2Program *getProgramByName(const std::string &name);
-
-    /// Search for a shader program by its name (not the scene name)
-    SimpleIdentity getProgramIDByName(const std::string &name);
-    
     /// Add a shader for reference, but not with a scene name.
     /// Presumably you'll call setSceneProgram() shortly.
     void addProgram(OpenGLES2Program *prog);
-    
-    /// Add a shader referred to by the scene name.  The scene name is
-    ///  different from the program name.
-    void addProgram(const std::string &sceneName,OpenGLES2Program *prog);
-    
-    /// Set the given scene name to refer to the given program ID
-    void setSceneProgram(const std::string &sceneName,SimpleIdentity programId);
     
     /// Remove the given program by ID (ours, not OpenGL's)
     void removeProgram(SimpleIdentity progId);
@@ -517,13 +423,10 @@ protected:
     ///  top level.
     /// The earth will be recursively divided into a quad tree of given depth.
     /// Init call used by the base class to set things up
-    void Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth);
+    void Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr);
 
     /// All the OpenGL ES 2.0 shader programs we know about
     OpenGLES2ProgramSet glPrograms;
-    
-    /// A map from the scene names to the various programs
-    OpenGLES2ProgramMap glProgramMap;
     
     /// Used for 2D overlap testing
     double overlapMargin;

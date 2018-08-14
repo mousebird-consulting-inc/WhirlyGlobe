@@ -57,214 +57,215 @@ typedef struct
 /// Convert a MaplyTileID to an NSString
 NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
 
-/** 
-    The protocol for a Maply Tile Source.  
-    
-    Fill out this protocol and you can pass in your own data tile by tile. This protocol is used by the MaplyQuadImageTilesLayer to pull in image data per tile.  This can be one or more images, they can be local, remote or even generated on the fly.  It's up to the object itself to return suitable data as requested or indicate failure (by returning nil).
-    
-    The tile source should know its coordinate system, which is handed to Maply separately.
-    @see MaplyQuadImageTilesLayer
-    @see MaplyMBTileSource
-    @see MaplyRemoteTileSource
-  */
-@protocol MaplyTileSource
-
-/// @return Returns the minimum allowable zoom layer.  Ideally, this is 0.
-- (int)minZoom;
+/** The remote tile info encapsulates settings for a remote tile source.
+ It describes where the tile source is and presents URLs for getting the data,
+ and information about local caching.
+ */
+@interface MaplyRemoteTileInfo : NSObject
 
 /**
-    @return Returns the maximum allowable zoom layer.  Typically no more than 18, but it depends on your implementation.
- */
-- (int)maxZoom;
-
-/** 
-    Number of pixels on the side of a single tile (e.g. 128, 256).
-    
-    We use this for screen space calculation, so you don't have to
-     return the exact number of pixels in the imageForTile calls.  It's
-     easier if you do, though.
-    
-    @return Returns the number of pixels on a side for a single tile.
-  */
-- (int)tileSize;
-
-/** 
-    The coordinate system the image pyramid is in.
+ Initialize with enough information to fetch remote tiles.
  
-    This is typically going to be MaplySphericalMercator
+ This version of the init method takes all the explicit
+ information needed to fetch remote tiles.  This includes the
+ base URL, file extension (e.g. image type), and min and max zoom levels.
+ 
+ @param baseURL The base URL for fetching TMS tiles.
+ 
+ @param ext Extension for the images we'll be fetching, typically @"png" or @"jpg"
+ 
+ @param minZoom The minimum zoom level to fetch.  This really should be 0.
+ 
+ @param maxZoom The maximum zoom level to fetch.
+ 
+ @return The MaplyRemoteTileSource object or nil on failure.
+ */
+- (nonnull instancetype)initWithBaseURL:(NSString *__nonnull)baseURL ext:(NSString *__nullable)ext minZoom:(int)minZoom maxZoom:(int)maxZoom;
+
+/**
+ Initialize from a remote tile spec.
+ 
+ This version of the initializer takes an NSDictionary parsed
+ from a JSON tile spec.  Take a look at the tile spec itself
+ here (https://github.com/mapbox/tilejson-spec).  Basically
+ it defines the available URLs (there can be multiple), the
+ min and max zoom levels, coordinate system (not really) and
+ file extension.  In many cases the coordinate system extents can't
+ be trusted.
+ 
+ @param jsonSpec An NSDictionary parsed from the JSON tile spec.
+ */
+- (nullable instancetype)initWithTilespec:(NSDictionary *__nonnull)jsonSpec;
+
+/**
+ The base URL we're fetching from.
+ 
+ This is typically the top of the pyramid and we'll
+ tack on the level, row, and column to form a full URL.
+ */
+@property (nonatomic,readonly,nonnull) NSString *baseURL;
+
+/**
+ The minimum zoom level available.
+ 
+ This is the lowest level we'll try to fetch.  Any levels below that will be filled in with placeholders.  Those are empty, but they allow us to load tiles beneath.
+ */
+@property (nonatomic) int minZoom;
+
+/**
+ The maximum zoom level available.
+ 
+ This is the highest level (e.g. largest) that we'll
+ fetch for a given pyramid tile source.  The source can sparse,
+ so you are not required to have these tiles available, but this
+ is as high as the MaplyQuadImageTilesLayer will fetch.
+ */
+@property (nonatomic) int maxZoom;
+
+/**
+ The image type and file extension for the tiles.
+ 
+ This is the filename extension, which implies the
+ image type.  It's typically @"png" or @"jpg", but it
+ can be anything that UIImage will recognize.
+ */
+@property (nonatomic, strong, nonnull) NSString *ext;
+
+/**
+ The timeout assigned to the NSMutableURLRequest we're using to fetch tiles.
+ 
+ This is not set by default.  If set, we'll use this value as the timeout on the NSMutableURLRequest we use for fetching tiles.  This lets you extent it where appropriate or shorten it if you like.
+ */
+@property (nonatomic,assign) float timeOut;
+
+/**
+ Number of pixels on a side for any given tile.
+ 
+ This is the number of pixels on any side for a
+ given tile and it's typically 128 or 256.  This is largely
+ a hint for the screen space based pager.  In most cases you
+ are not required to actually return an image of the size
+ you specify here, but it's a good idea.
+ */
+@property (nonatomic) int pixelsPerSide;
+
+/**
+ The coordinate system the image pyramid is in.
+ 
+ This is typically going to be MaplySphericalMercator
  with the web mercator extents.  That's what you'll get from
  OpenStreetMap and, often, MapBox.  In other cases it might
  be MaplyPlateCarree, which covers the whole earth.  Sometimes
  it might even be something unique of your own.
  */
-- (nonnull MaplyCoordinateSystem *)coordSys;
-
-@optional
-
-/** The following methods are required by MaplyQuadImageLoader in addition to the ones above **/
+@property (nonatomic,strong,nullable) MaplyCoordinateSystem *coordSys;
 
 /**
- Start fetching the given tile, but just the given frame.  This is for multi-frame tiles (e.g. animations).
+ The cache directory for image tiles.
  
- If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
- 
- If you're using a MaplyQuadImageTilesLayer, when you're done fetching (successful or otherwise) call loadedImagesForTile: with the results.
- 
- @param layer This is probably a MaplyQuadImageTilesLayer, but others use this protocol as well.  Your tile source should know.
- 
- @param tileID The tile you should start fetching.
- 
- @param frame The individual frame (of an animation) to fetch.
+ In general, we want to cache.  The globe, in particular,
+ is going to fetch the same tiles over and over, quite a lot.
+ The cacheing behavior is a little dumb.  It will just write
+ files to the given directory forever.  If you're interacting
+ with a giant image pyramid, that could be problematic.
  */
-- (void)startFetchLayer:(id __nonnull)layer tile:(MaplyTileID)tileID frame:(int)frame;
+@property (nonatomic, strong,nullable) NSString *cacheDir;
 
 /**
-    Cancel an outstanding fetch for a given tile.
+ The maximum age of a cached file in seconds.
  
- @param tileID The tile you should stop fetching.
+ If set, tiles in the cache older than this number of
+ seconds will not be used; rather, a new copy of the tile will be
+ retrieved from the remote source, and the locally cached tile
+ will be updated. This is useful for tiles that represent
+ impermanent data, such as weather information.
+ */
+@property (nonatomic) int cachedFileLifetime;
+
+/**
+ Query string to add after the URL we're fetching from.
  
- @param frame The individual frame (of an animation) to cancel.
+ Add your access tokens and other query arguments.
+ */
+@property (nonatomic,strong,nullable) NSString *queryStr;
+
+/// If set, we've decided this is a replacement URL with {x},{y} and {z} in the baseURL string
+@property (nonatomic) bool replaceURL;
+
+/**
+ Add a bounding box tiles are valid within.
  
- @param If you registered tileData, it will be passed back here.
-  */
-- (void)cancelTile:(MaplyTileID)tileID frame:(int)frame tileData:(id __nullable)tileData;
+ By default all areas within the coordinate system are valid for paging tiles.  If you call this, then only the bounding boxes you've added are valid.  You can call this method multiple times.
+ 
+ @param bbox Bounding box for valid tiles in the local coordinate system.
+ */
+- (void)addBoundingBox:(MaplyBoundingBox *__nonnull)bbox;
+
+/**
+ Add a bounding box tiles are valid within in geo coordinates.
+ 
+ By default all areas within the coordinate system are valid for paging tiles.  If you call this, then only the bounding boxes you've added are valid.  You can call this method multiple times.
+ 
+ @param bbox Bounding box for valid tiles in geo coordinates (radians).
+ */
+- (void)addGeoBoundingBox:(MaplyBoundingBox *__nonnull)bbox;
+
+/**
+ Generate the request for a given tile.
+ 
+ If someone outside of this request wants to fetch the data directly, they can do so by using this NSURLRequest.
+ 
+ @param tileID The tile we'd like the NSURLRequest for.
+ 
+ @return An NSURLRequest object you can use to fetch data for the tile.
+ */
+- (nullable NSURLRequest *)requestForTile:(MaplyTileID)tileID;
+
+/**
+ The full path for a cached tile.
+ 
+ This returns the full path to where a tile is or where a tile would be if it were cached.
+ 
+ We don't check if the tile is there or not.
+ 
+ @param tileID The tile we need the filename for.
+ */
+- (nullable NSString *)fileNameForTile:(MaplyTileID)tileID;
+
+/**
+ Check if a given tile is stored in the local cache.
+ 
+ This checks if the given tile ID is represented in the local cache directory.
+ 
+ @param tileID The tile we'd like to check for.
+ 
+ @param frame If you're loading individual frames this will be the frame.  Otherwise, -1.
+ */
+- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
 
 /**
  Check if we should even try to load a given tile.
  
- Tile pyramids can be sparse.  If you know where your pyramid is sparse, you can short circuit the fetch and simply return false here.
+ Check whether tile level is within zoom limits for the source, and if the tile is within any MBRs that have been added.
  
- If this method isn't filled in, everything defaults to true.
+ @param tileID The tile we're asking about.
  
- tileID The tile we're asking about.
- 
- bbox The bounding box of the tile we're asking about, for convenience.
+ @param bbox The bounding box of the tile we're asking about, for convenience.
  
  @return True if the tile is loadable, false if not.
  */
 - (bool)validTile:(MaplyTileID)tileID bbox:(MaplyBoundingBox)bbox;
 
 /**
- Called when the layer shuts down.
+ Assign a user object here to get it passed back to you.
  
- This is called by the main layer when things are shut down.
- 
- @param tileData All the individual tileData objects registered during load (if any).
- 
- This is the newer version, but both clears are still supported.
+ Optional property used by developers.
  */
-- (void)clear:(id __nonnull)layer tileData:(NSArray * __nonnull)tileData;
-
-
-/** End of methods required by MaplyQuadImageLoader **/
+@property (nonatomic,strong) id _Nullable userObject;
 
 /**
- Called when the layer shuts down.
- 
- This is called by the main layer when things are shut down.  It's optional.
+ Added to the NSURLRequest as an "x-auth-token" if present.
  */
-- (void)clear;
-
-/**
- Can the given tile be fetched locally or do we need a network call?
- 
- We may ask the tile source if the tile is local or needs to be fetched over the network.  This is a hint for the loader.  Don't return true in error, though, that'll hold up the paging.
- 
- @return Return true for local tile sources or if you have the tile cached.
- */
-- (bool)tileIsLocal:(MaplyTileID)tileID frame:(int)frame;
-
-/** 
-    For tiles of variable sizes, return the pixel size we'll use to evaluate this particular tile.
-    
-    If you have tiles with variable sizes... first of all why?  Seriously, why are you doing that?  Stop it.
-    
-    But if you must do variable sized tiles (Why?) fill in this method to give the importance function some clue as to what you're doing.  This will be called per tile to figure out when to load things.
-    
-    Variable sized tiles will screw up other things.  SO DON'T DO IT.
- */
-- (int)tileSizeForTile:(MaplyTileID)tileID;
-
-/** 
-    Fetch the image for a given tile.
-    
-    For this method, you can return either a full UIImage or a MaplyImageTile.
-    
-    If you fail to load the image, just return nil.  At that point the paging won't page in tiles below this image, assuming that image pyramid is truncated at that point.
-    
-    If you don't have an image to load (because there isn't one) and you want the layer to keep paging below that, you should pass in a MaplyImageTile set up as a placeholder.  The visual tile will be blank, but you'll have the opportunity to provide higher resolution tiles.
-    
-    @return Return an NSData*.
-  */
-- (nullable id)imageForTile:(MaplyTileID)tileID;
-
-/** 
-    Fetch the image for a given frame of a given tile.  These are for animation.
-    
-    For this method, you can return either a full UIImage or a MaplyImageTile.
-    
-    If you fail to load the image, just return nil.  At that point the paging won't page in tiles below this image, assuming that image pyramid is truncated at that point.
-    
-    If you don't have an image to load (because there isn't one) and you want the layer to keep paging below that, you should pass in a MaplyImageTile set up as a placeholder.  The visual tile will be blank, but you'll have the opportunity to provide higher resolution tiles.
-    
-    @param tileID Tile to load.
-    
-    @param frame Frame of tile animation to load.
-    
-    @return Return an NSData*.
- */
-- (nullable id)imageForTile:(MaplyTileID)tileID frame:(int)frame;
-
-/** 
-    Start fetching the given tile, probably with your own threads.
-    
-    If this is filled in that means the layer is expecting you to do your own asynchronous fetch.  You'll be called on a random thread here, so act accordingly.
-    
-    If you're using a MaplyQuadImageTilesLayer, when you're done fetching (successful or otherwise) call loadedImagesForTile: with the results.
-    
-    @param layer This is probably a MaplyQuadImageTilesLayer, but others use this protocol as well.  Your tile source should know.
-    
-    @param tileID The tile you should start fetching.
-  */
-- (void)startFetchLayer:(id __nonnull)layer tile:(MaplyTileID)tileID;
-
-/** 
-    Called when the tile is disabled by the renderer.
-    
-    Normally you won't get called when an image or vector tile is disabled from display.  If you set this, you will.
-    
-    You're not required to do anything, but you can disable your own data if you like.
-    
-    You will be called on another thread, so act accordingly.
-    
-    @param tileID The tile tha that just got disabled.
- */
-- (void)tileWasDisabled:(MaplyTileID)tileID;
-
-/** 
-    Called when the tile is enabled by the renderer.
-    
-    Normally you won't get called when an image or vector tile is enabled in display.  If you set this, you will.
-    
-    You're not required to do anything, but you can enable your own data if you like.
-    
-    You will be called on another thread, so act accordingly.
-    
-    @param tileID The tile tha that just got disabled.
- */
-- (void)tileWasEnabled:(MaplyTileID)tileID;
-
-/** 
-    Called when the tile is unloaded.
-    
-    Normally you won't get called when an image or vector tile is unloaded from memory.  If you set this, you will.
-    
-    You're not required to do anything, but you can clean up data of your own if you like.
-    
-    You will be called on another thread, so act accordingly.
-    
-    @param tileID The tile tha that just got unloaded.
-  */
-- (void)tileUnloaded:(MaplyTileID)tileID;
+@property (nonatomic,nullable) NSString *xAuthToken;
 
 @end

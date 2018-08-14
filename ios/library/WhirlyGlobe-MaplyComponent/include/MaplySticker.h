@@ -20,7 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "MaplyCoordinate.h"
-#import "MaplyQuadImageTilesLayer.h"
+#import "MaplyRenderController.h"
 
 /** 
     Stickers are rectangles placed on the globe with an image.

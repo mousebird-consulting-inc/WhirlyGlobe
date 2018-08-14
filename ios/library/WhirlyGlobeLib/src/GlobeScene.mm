@@ -21,16 +21,15 @@
 #import "GlobeScene.h"
 #import "GlobeView.h"
 #import "GlobeMath.h"
-#import "TextureAtlas.h"
 
 using namespace WhirlyKit;
 
 namespace WhirlyGlobe
 {
         
-GlobeScene::GlobeScene(CoordSystemDisplayAdapter *inCoordAdapter,int depth)
+GlobeScene::GlobeScene(CoordSystemDisplayAdapter *inCoordAdapter)
 {
-    Init(inCoordAdapter,GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180,90)),depth-1);
+    Init(inCoordAdapter,GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180,90)));
 }
 
 GlobeScene::~GlobeScene()
@@ -40,31 +39,10 @@ GlobeScene::~GlobeScene()
 void GlobeScene::addDrawable(DrawableRef draw)
 {
     drawables[draw->getId()] = draw;
-
-    // Account for the geo coordinate wrapping
-    Mbr localMbr = draw->getLocalMbr();
-    if (localMbr.valid())
-    {
-        GeoMbr geoMbr(GeoCoord(localMbr.ll().x(),localMbr.ll().y()),GeoCoord(localMbr.ur().x(),localMbr.ur().y()));
-        std::vector<Mbr> localMbrs;
-        geoMbr.splitIntoMbrs(localMbrs);
-        
-        for (unsigned int ii=0;ii<localMbrs.size();ii++)
-            cullTree->getTopCullable()->addDrawable(cullTree,localMbrs[ii],draw);
-    } else
-        cullTree->getTopCullable()->addDrawable(cullTree, localMbr, draw);
 }
 
 void GlobeScene::remDrawable(DrawableRef draw)
 {
-    Mbr localMbr = draw->getLocalMbr();
-    GeoMbr geoMbr(GeoCoord(localMbr.ll().x(),localMbr.ll().y()),GeoCoord(localMbr.ur().x(),localMbr.ur().y()));
-    std::vector<Mbr> localMbrs;
-    geoMbr.splitIntoMbrs(localMbrs);
-    
-    for (unsigned int ii=0;ii<localMbrs.size();ii++)
-        cullTree->getTopCullable()->remDrawable(cullTree,localMbrs[ii],draw);
-
     auto it = drawables.find(draw->getId());
     if (it != drawables.end())
         drawables.erase(it);

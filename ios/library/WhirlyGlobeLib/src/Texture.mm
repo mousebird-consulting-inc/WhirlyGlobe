@@ -23,6 +23,7 @@
 #import "UIImage+Stuff.h"
 
 using namespace WhirlyKit;
+using namespace Eigen;
 
 // Convert a buffer in RGBA to 2-byte 565
 // Code courtesy: http://stackoverflow.com/questions/7930148/opengl-es-on-ios-texture-loading-how-do-i-get-from-a-rgba8888-png-file-to-a-r
@@ -483,5 +484,6 @@ void Texture::destroyInGL(OpenGLMemManager *memManager)
 	if (glId)
         memManager->removeTexID(glId);
 }
+
 
 }

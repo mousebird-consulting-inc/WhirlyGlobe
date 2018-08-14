@@ -58,10 +58,10 @@
     {
         MaplyVectorTileSubStyleMarker *subStyle = [[MaplyVectorTileSubStyleMarker alloc] init];
         if (styleEntry[@"fill"])
-            subStyle->fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"]];
+            subStyle->fillColor = [MaplyVectorTileStyle ParseColor:styleEntry[@"fill"]];
         subStyle->strokeColor = nil;
         if (styleEntry[@"stroke"])
-            subStyle->strokeColor = [MaplyVectorTiles ParseColor:styleEntry[@"stroke"]];
+            subStyle->strokeColor = [MaplyVectorTileStyle ParseColor:styleEntry[@"stroke"]];
         subStyle->width = inSettings.markerSize;
         if (styleEntry[@"width"])
             subStyle->width = [styleEntry[@"width"] floatValue];

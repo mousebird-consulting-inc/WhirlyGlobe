@@ -21,17 +21,52 @@
 #import <Foundation/Foundation.h>
 #import <math.h>
 #import "WhirlyVector.h"
-#import "TextureGroup.h"
 #import "Scene.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "GlobeMath.h"
 #import "sqlhelpers.h"
-#import "Quadtree.h"
 #import "SceneRendererES2.h"
 #import "ScreenImportance.h"
-#import "QuadDisplayLayer.h"
 #import "QuadTreeNew.h"
+
+
+/** Quad tree based data structure.  Fill this in to provide structure and
+ extents for the quad tree.
+ */
+@protocol WhirlyKitQuadDataStructure <NSObject>
+
+/// Return the coordinate system we're working in
+- (WhirlyKit::CoordSystem * __nonnull)coordSystem;
+
+/// Bounding box used to calculate quad tree nodes.  In local coordinate system.
+- (WhirlyKit::Mbr)totalExtents;
+
+/// Bounding box of data you actually want to display.  In local coordinate system.
+/// Unless you're being clever, make this the same as totalExtents.
+- (WhirlyKit::Mbr)validExtents;
+
+/// Return the minimum quad tree zoom level (usually 0)
+- (int)minZoom;
+
+/// Return the maximum quad tree zoom level.  Must be at least minZoom
+- (int)maxZoom;
+
+/// Return an importance value for the given tile
+- (double)importanceForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState * __nonnull) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary * __nullable)attrs;
+
+/// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
+- (void)teardown;
+
+@optional
+
+/// Called when the view state changes.  If you're caching info, do it here.
+- (void)newViewState:(WhirlyKitViewState * __nonnull)viewState;
+
+/// Return true if the tile is visible, false otherwise
+- (bool)visibilityForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState * __nonnull) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary * __nullable)attrs;
+
+@end
 
 @class WhirlyKitQuadDisplayLayerNew;
 

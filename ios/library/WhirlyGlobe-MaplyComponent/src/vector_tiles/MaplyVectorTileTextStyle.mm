@@ -74,7 +74,7 @@ typedef enum {
         
         UIColor *fillColor = [UIColor blackColor];
         if (styleEntry[@"fill"])
-            fillColor = [MaplyVectorTiles ParseColor:styleEntry[@"fill"] alpha:alpha];
+            fillColor = [MaplyVectorTileStyle ParseColor:styleEntry[@"fill"] alpha:alpha];
         subStyle->textSize = 12.0;
         if (styleEntry[@"size"])
         {
@@ -165,7 +165,7 @@ typedef enum {
         
         UIColor *outlineColor = nil;
         if (styleEntry[@"halo-fill"])
-            outlineColor = [MaplyVectorTiles ParseColor:styleEntry[@"halo-fill"] alpha:alpha];
+            outlineColor = [MaplyVectorTileStyle ParseColor:styleEntry[@"halo-fill"] alpha:alpha];
         float outlineSize = 1.0;
         if (styleEntry[@"halo-radius"])
             outlineSize = [styleEntry[@"halo-radius"] floatValue];

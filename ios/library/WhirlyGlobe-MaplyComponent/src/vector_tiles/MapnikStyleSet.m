@@ -20,9 +20,8 @@
 
 #import "vector_tiles/MapnikStyleSet.h"
 #import "vector_tiles/MaplyVectorTileStyle.h"
-#import "vector_tiles/MaplyVectorTiles.h"
 
-#import "MaplyRemoteTileSource.h"
+#import "MaplyTileSource.h"
 #import "MapnikStyle.h"
 #import "MapnikStyleRule.h"
 #import "NSDictionary+StyleRules.h"
@@ -271,7 +270,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   
   NSString *backgroundColorString = self.styleDictionary[@"map"][@"background-color"];
   if(backgroundColorString) {
-    self.backgroundColor = [MaplyVectorTiles ParseColor:backgroundColorString];
+    self.backgroundColor = [MaplyVectorTileStyle ParseColor:backgroundColorString];
   }
 }
 

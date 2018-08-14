@@ -151,5 +151,5 @@ protected:
     GLenum interpType;
     bool isEmptyTexture;
 };
-	
+
 }

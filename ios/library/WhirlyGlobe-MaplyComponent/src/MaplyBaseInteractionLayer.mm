@@ -40,6 +40,7 @@
 #import "MaplyShape_private.h"
 #import "MaplyPoints_private.h"
 #import "MaplyRenderTarget_private.h"
+#import "SphericalEarthChunkManager.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -308,6 +309,11 @@ public:
     ourClusterGen.layer = nil;
     clusterGens.clear();
     tempContexts.clear();
+    
+    for (MaplyShader *shader in shaders)
+        [shader teardown];
+    shaderMap.clear();
+
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
     for (ThreadChangeSet::iterator it = perThreadChanges.begin();
@@ -794,7 +800,7 @@ public:
         if ([shader isKindOfClass:[NSString class]])
         {
             NSString *shaderName = (NSString *)shader;
-            SimpleIdentity shaderID = scene->getProgramIDBySceneName([shaderName cStringUsingEncoding:NSASCIIStringEncoding]);
+            SimpleIdentity shaderID = [self getProgramID:shaderName];
             if (shaderID == EmptyIdentity)
                 [inDesc removeObjectForKey:@"shader"];
             else
@@ -802,7 +808,7 @@ public:
         }
     } else if (defaultShaderName)
     {
-        SimpleIdentity shaderID = scene->getProgramIDBySceneName([defaultShaderName cStringUsingEncoding:NSASCIIStringEncoding]);
+        SimpleIdentity shaderID = [self getProgramID:defaultShaderName];
         if (shaderID != EmptyIdentity)
             inDesc[kMaplyShader] = @(shaderID);
     }
@@ -868,9 +874,9 @@ public:
     
     // Might be a custom shader on these
     if (isMotionMarkers)
-        [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceMotionProgram)];
+        [self resolveShader:inDesc defaultShader:kMaplyScreenSpaceDefaultMotionProgram];
     else
-        [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceProgram)];
+        [self resolveShader:inDesc defaultShader:kMaplyScreenSpaceDefaultProgram];
     [self resolveDrawPriority:inDesc offset:_screenObjectDrawPriorityOffset];
     
     // Convert to WG markers
@@ -1119,6 +1125,15 @@ public:
     }
 }
 
+- (SimpleIdentity) getProgramID:(NSString *)name
+{
+    auto shaderIt = shaderMap.find([name cStringUsingEncoding:NSASCIIStringEncoding]);
+    if (shaderIt != shaderMap.end())
+        return [shaderIt->second getShaderID];
+    
+    return EmptyIdentity;
+}
+
 - (void) clusterID:(SimpleIdentity)clusterID params:(ClusterGenerator::ClusterClassParams &)params
 {
     NSObject <MaplyClusterGenerator> *clusterGen = nil;
@@ -1133,9 +1148,8 @@ public:
     if (shader)
         params.motionShaderID = shader.program->getId();
     else {
-        OpenGLES2Program *program = scene->getProgramBySceneName(kToolkitDefaultScreenSpaceMotionProgram);
-        if (program)
-            params.motionShaderID = program->getId();
+        SimpleIdentity shaderID = [self getProgramID:kMaplyScreenSpaceDefaultMotionProgram];
+        params.motionShaderID = shaderID;
     }
     
     CGSize size = clusterGen.clusterLayoutSize;
@@ -1356,9 +1370,9 @@ public:
 
     // Might be a custom shader on these
     if (isMotionLabels)
-        [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceMotionProgram)];
+        [self resolveShader:inDesc defaultShader:kMaplyScreenSpaceDefaultMotionProgram];
     else
-        [self resolveShader:inDesc defaultShader:@(kToolkitDefaultScreenSpaceProgram)];
+        [self resolveShader:inDesc defaultShader:kMaplyScreenSpaceDefaultProgram];
     [self resolveDrawPriority:inDesc offset:_screenObjectDrawPriorityOffset];
 
     // Convert to WG screen labels
@@ -1752,8 +1766,12 @@ public:
     
     // If there's no shader, we'll apply the default one
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    if (!inDesc[kMaplyShader])
-        inDesc[kMaplyShader] = @(scene->getProgramIDBySceneName(coordAdapter->isFlat() ? kToolkitDefaultWideVectorProgram : kToolkitDefaultWideVectorGlobeProgram));
+    if (!inDesc[kMaplyShader]) {
+        if (coordAdapter->isFlat())
+            inDesc[kMaplyShader] = @([self getProgramID:kMaplyShaderDefaultWideVector]);
+        else
+            inDesc[kMaplyShader] = @([self getProgramID:kMaplyShaderDefaultWideVectorGlobe]);
+    }
 
     // Look for a texture and add it
     if (inDesc[kMaplyVecTexture])
@@ -2215,8 +2233,9 @@ public:
             NSMutableDictionary *newDesc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
             if (!newDesc[kMaplyShader])
             {
-                SimpleIdentity shaderID = scene->getProgramIDBySceneName(kToolkitDefaultLineNoBackfaceProgram);
-                newDesc[kMaplyShader] = @(shaderID);
+                SimpleIdentity shaderID = [self getProgramID:kMaplyShaderDefaultLineNoBackface];
+                if (shaderID != EmptyIdentity)
+                    newDesc[kMaplyShader] = @(shaderID);
             }
             SimpleIdentity shapeID = shapeManager->addShapes(specialShapes, newDesc, changes);
             if (shapeID != EmptyIdentity)
@@ -2884,9 +2903,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     if (billShaderID == EmptyIdentity)
     {
         if ([inDesc[kMaplyBillboardOrient] isEqualToString:kMaplyBillboardOrientEye])
-            billShaderID = scene->getProgramIDBySceneName([kMaplyShaderBillboardEye cStringUsingEncoding:NSASCIIStringEncoding]);
+            billShaderID = [self getProgramID:kMaplyShaderBillboardEye];
         else
-            billShaderID = scene->getProgramIDBySceneName([kMaplyShaderBillboardGround cStringUsingEncoding:NSASCIIStringEncoding]);
+            billShaderID = [self getProgramID:kMaplyShaderBillboardGround];
     }
     
     ChangeSet changes;
@@ -3052,10 +3071,10 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     SimpleIdentity partSysShaderID = [inDesc[kMaplyShader] intValue];
     if (partSysShaderID == EmptyIdentity)
-        partSysShaderID = scene->getProgramIDBySceneName([kMaplyShaderParticleSystemPointDefault cStringUsingEncoding:NSASCIIStringEncoding]);
+        partSysShaderID = [self getProgramID:kMaplyShaderParticleSystemPointDefault];
     if (partSys.shader)
     {
-        partSysShaderID = scene->getProgramIDBySceneName([partSys.shader cStringUsingEncoding:NSASCIIStringEncoding]);
+        partSysShaderID = [self getProgramID:partSys.shader];
     }
     
     ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);

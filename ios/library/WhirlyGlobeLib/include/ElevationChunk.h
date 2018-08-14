@@ -23,7 +23,7 @@
 #import "GlobeMath.h"
 #import "BasicDrawable.h"
 #import "Texture.h"
-#import "Quadtree.h"
+#import "QuadTreeNew.h"
 
 namespace WhirlyKit
 {
@@ -44,7 +44,7 @@ typedef struct
     CoordSystem *coordSys;
     Point3d chunkMidDisp;
     bool ignoreEdgeMatching;
-    WhirlyKit::Quadtree::Identifier ident;
+    WhirlyKit::QuadTreeIdentifier ident;
     int activeTextures;
     int drawOffset;
     float minVis,maxVis;

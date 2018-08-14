@@ -18,7 +18,6 @@
  *
  */
 
-#import "MaplyVectorTiles.h"
 #import "MaplyVectorStyle.h"
 #import "MaplyVectorTileStyle.h"
 

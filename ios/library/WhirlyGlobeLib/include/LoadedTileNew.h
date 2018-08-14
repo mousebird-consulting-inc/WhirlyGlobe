@@ -21,7 +21,6 @@
 #import <Foundation/Foundation.h>
 #import <math.h>
 #import "WhirlyVector.h"
-#import "TextureGroup.h"
 #import "Scene.h"
 #import "DataLayer.h"
 #import "LayerThread.h"

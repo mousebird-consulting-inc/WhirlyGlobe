@@ -53,10 +53,7 @@
 
     /// Active lights
     NSMutableArray *lights;
-    
-    /// Active shaders
-    NSMutableArray *shaders;
-    
+        
     /// Used to be screen objects were always drawn last.  Now that's optional.
     int screenDrawPriorityOffset;
 }

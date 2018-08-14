@@ -21,8 +21,13 @@
 #import "MaplyViewController.h"
 #import "MaplyBaseViewController_private.h"
 #import "MaplyInteractionLayer_private.h"
+#import "MaplyTapDelegate.h"
+#import "MaplyPanDelegate.h"
+#import "MaplyPinchDelegate.h"
+#import "MaplyRotateDelegate.h"
 #import "MaplyDoubleTapDelegate.h"
 #import "MaplyTwoFingerTapDelegate.h"
+#import "MaplyDoubleTapDelegate.h"
 #import "MaplyDoubleTapDragDelegate.h"
 #import "MaplyTouchCancelAnimationDelegate.h"
 
@@ -46,6 +51,7 @@
     MaplyInteractionLayer *mapInteractLayer;
     
     /// Gesture recognizers
+    // Note: Porting
     MaplyTapDelegate *tapDelegate;
     MaplyPanDelegate *panDelegate;
     MaplyPinchDelegate *pinchDelegate;

@@ -189,7 +189,7 @@ using namespace WhirlyKit;
 {
 }
 
-- (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+- (double)importanceForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     // World spanning level 0 nodes sometimes have problems evaluating
     if (_params.minImportanceTop == 0.0 && ident.level == 0)
@@ -201,7 +201,7 @@ using namespace WhirlyKit;
 }
 
 /// Return true if the tile is visible, false otherwise
-- (bool)visibilityForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+- (bool)visibilityForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     if (ident.level == 0)
         return true;

@@ -27,24 +27,16 @@ namespace Maply
     
 MapScene::MapScene(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter)
 {
-    Init(coordAdapter,GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180,90)),1);
+    Init(coordAdapter,GeoMbr(GeoCoord::CoordFromDegrees(-180,-90),GeoCoord::CoordFromDegrees(180,90)));
 }
     
 void MapScene::addDrawable(DrawableRef draw)
 {
     drawables[draw->getId()] = draw;
-
-    // Dump it in the top level for now
-    Mbr localMbr = draw->getLocalMbr();
-    cullTree->getTopCullable()->addDrawable(cullTree, localMbr, draw);
 }
 
 void MapScene::remDrawable(DrawableRef draw)
 {
-    // We're expecting it to just be at the top level
-    Mbr localMbr = draw->getLocalMbr();
-    cullTree->getTopCullable()->remDrawable(cullTree, localMbr, draw);
-
     auto it = drawables.find(draw->getId());
     if (it != drawables.end())
         drawables.erase(it);

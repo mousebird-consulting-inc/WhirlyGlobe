@@ -21,8 +21,6 @@
 #import "Scene.h"
 #import "GlobeView.h"
 #import "GlobeMath.h"
-#import "TextureAtlas.h"
-#import "ViewPlacementGenerator.h"
 #import "FontTextureManager.h"
 #import "SelectionManager.h"
 #import "IntersectionManager.h"
@@ -42,11 +40,10 @@ namespace WhirlyKit
 {
     
 Scene::Scene()
-    : ssGen(NULL)
 {
 }
     
-void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
+void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr)
 {
     SetupDrawableStrings();
 
@@ -54,19 +51,11 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsi
     pthread_mutex_init(&changeRequestLock,NULL);
     pthread_mutex_init(&subTexLock, NULL);
     pthread_mutex_init(&textureLock,NULL);
-    pthread_mutex_init(&generatorLock,NULL);
     pthread_mutex_init(&programLock,NULL);
     pthread_mutex_init(&managerLock,NULL);
 
-    ssGen = NULL;
-    
     coordAdapter = adapter;
-    cullTree = new CullTree(adapter,localMbr,depth);
     
-    // And put in a UIView placement generator for use in the main thread
-    vpGen = new ViewPlacementGenerator(kViewPlacementGeneratorShared);
-    generators.insert(vpGen);
-
     dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
 
     // Selection manager is used for object selection from any thread
@@ -108,14 +97,7 @@ Scene::~Scene()
 {
     pthread_mutex_destroy(&coordAdapterLock);
 
-    if (cullTree)
-    {
-        delete cullTree;
-        cullTree = NULL;
-    }
     textures.clear();
-    for (GeneratorSet::iterator it = generators.begin(); it != generators.end(); ++it)
-        delete *it;
     
     for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
          it != managers.end(); ++it)
@@ -128,7 +110,6 @@ Scene::~Scene()
     pthread_mutex_destroy(&changeRequestLock);
     pthread_mutex_destroy(&subTexLock);
     pthread_mutex_destroy(&textureLock);
-    pthread_mutex_destroy(&generatorLock);
     pthread_mutex_destroy(&programLock);
     
     auto theChangeRequests = changeRequests;
@@ -148,7 +129,6 @@ Scene::~Scene()
          it != glPrograms.end(); ++it)
         delete *it;
     glPrograms.clear();
-    glProgramMap.clear();
 }
     
 CoordSystemDisplayAdapter *Scene::getCoordAdapter()
@@ -163,27 +143,6 @@ void Scene::setDisplayAdapter(CoordSystemDisplayAdapter *newCoordAdapter)
     pthread_mutex_unlock(&coordAdapterLock);
 }
     
-SimpleIdentity Scene::getGeneratorIDByName(const std::string &name)
-{
-    pthread_mutex_lock(&generatorLock);
-    
-    SimpleIdentity retId = EmptyIdentity;
-    for (GeneratorSet::iterator it = generators.begin();
-         it != generators.end(); ++it)
-    {
-        Generator *gen = *it;
-        if (!name.compare(gen->name))
-        {
-            retId = gen->getId();
-            break;
-        }
-    }
-    
-    pthread_mutex_unlock(&generatorLock);
-
-    return retId;
-}
-
 // Add change requests to our list
 void Scene::addChangeRequests(const ChangeSet &newChanges)
 {
@@ -256,24 +215,6 @@ void Scene::addLocalMbr(const Mbr &localMbr)
         overlapMargin = std::max(overlapMargin,dx);
     }
 }
-
-Generator *Scene::getGenerator(SimpleIdentity genId)
-{
-    pthread_mutex_lock(&generatorLock);
-    
-    Generator *retGen = NULL;
-    Generator dumbGen;
-    dumbGen.setId(genId);
-    GeneratorSet::iterator it = generators.find(&dumbGen);
-    if (it != generators.end())
-    {
-        retGen = *it;
-    }
-    
-    pthread_mutex_unlock(&generatorLock);
-    
-    return retGen;
-}
     
 void Scene::setRenderer(WhirlyKitSceneRendererES *renderer)
 {
@@ -285,7 +226,6 @@ void Scene::setRenderer(WhirlyKitSceneRendererES *renderer)
     
     pthread_mutex_unlock(&managerLock);
 }
-
 
 SceneManager *Scene::getManager(const char *name)
 {
@@ -337,11 +277,6 @@ void Scene::teardownGL()
     // Note: Tear down active models
     for (auto it : drawables)
         it.second->teardownGL(&memManager);
-    if (cullTree)
-    {
-        delete cullTree;
-        cullTree = NULL;
-    }
     drawables.clear();
     for (auto it : textures) {
         it.second->destroyInGL(&memManager);
@@ -500,23 +435,13 @@ SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
     return *it;
 }
     
-SimpleIdentity Scene::getScreenSpaceGeneratorID()
-{
-    return screenSpaceGeneratorID;
-}
-
 void Scene::dumpStats()
 {
     NSLog(@"Scene: %ld drawables",drawables.size());
     NSLog(@"Scene: %d active models",(int)[activeModels count]);
-    NSLog(@"Scene: %ld generators",generators.size());
     NSLog(@"Scene: %ld textures",textures.size());
     NSLog(@"Scene: %ld sub textures",subTextureMap.size());
-    cullTree->dumpStats();
     memManager.dumpStats();
-    for (GeneratorSet::iterator it = generators.begin();
-         it != generators.end(); ++it)
-        (*it)->dumpStats();
 }
 
 OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
@@ -535,86 +460,13 @@ OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
         
     return prog;
 }
-    
-OpenGLES2Program *Scene::getProgramBySceneName(const std::string &sceneName)
-{
-    OpenGLES2Program *prog = NULL;
 
-    pthread_mutex_lock(&programLock);
-    
-    OpenGLES2ProgramMap::iterator it = glProgramMap.find(sceneName);
-    if (it != glProgramMap.end())
-        prog = it->second;
-            
-    pthread_mutex_unlock(&programLock);
-    
-    return prog;
-}
-
-SimpleIdentity Scene::getProgramIDBySceneName(const std::string &sceneName)
-{
-    OpenGLES2Program *prog = getProgramBySceneName(sceneName);
-    return prog ? prog->getId() : EmptyIdentity;
-}
-    
-OpenGLES2Program *Scene::getProgramByName(const std::string &name)
-{
-    OpenGLES2Program *prog = NULL;
-    
-    pthread_mutex_lock(&programLock);
-    
-    OpenGLES2ProgramMap::iterator it = glProgramMap.find(name);
-    if (it != glProgramMap.end())
-        prog = it->second;
-    
-    pthread_mutex_unlock(&programLock);
-    
-    return prog;
-}
-    
-/// Search for a shader program by its name (not the scene name)
-SimpleIdentity Scene::getProgramIDByName(const std::string &name)
-{
-    OpenGLES2Program *prog = getProgramByName(name);
-    return prog ? prog->getId() : EmptyIdentity;
-}
-    
 void Scene::addProgram(OpenGLES2Program *prog)
 {
     pthread_mutex_lock(&programLock);
     
     if (glPrograms.find(prog) == glPrograms.end())
         glPrograms.insert(prog);
-    
-    pthread_mutex_unlock(&programLock);
-}
-
-
-void Scene::addProgram(const std::string &sceneName,OpenGLES2Program *prog)
-{
-    pthread_mutex_lock(&programLock);
-
-    if (glPrograms.find(prog) == glPrograms.end())
-        glPrograms.insert(prog);
-    glProgramMap[sceneName] = prog;
-    
-    pthread_mutex_unlock(&programLock);
-}
-    
-void Scene::setSceneProgram(const std::string &sceneName,SimpleIdentity progId)
-{
-    pthread_mutex_lock(&programLock);
-    
-    OpenGLES2Program *prog = NULL;
-    OpenGLES2Program dummy(progId);
-    OpenGLES2ProgramSet::iterator it = glPrograms.find(&dummy);
-    if (it != glPrograms.end())
-    {
-        prog = *it;
-    }
-    
-    if (prog)
-        glProgramMap[sceneName] = prog;
     
     pthread_mutex_unlock(&programLock);
 }
@@ -628,22 +480,7 @@ void Scene::removeProgram(SimpleIdentity progId)
     OpenGLES2ProgramSet::iterator it = glPrograms.find(&dummy);
     if (it != glPrograms.end())
         prog = *it;
-    
-    if (prog)
-    {
-        // Remove references in the map
-        std::vector<OpenGLES2ProgramMap::iterator> toErase;
-        OpenGLES2ProgramMap::iterator it2;
-        for (it2 = glProgramMap.begin();it2 != glProgramMap.end(); ++it2)
-            if (it2->second == prog)
-                toErase.push_back(it2);
-        for (unsigned int ii=0;ii<toErase.size();ii++)
-            glProgramMap.erase(toErase[ii]);
         
-        // And get rid of it in the list of programs
-        glPrograms.erase(it);
-    }
-    
     pthread_mutex_unlock(&programLock);
 }
     
@@ -724,31 +561,9 @@ void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
         NSLog(@"Missing drawable for RemDrawableReq: %llu", drawable);
 }
 
-void AddGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
-{
-    // Add the generator
-    scene->generators.insert(generator);
-    
-    generator = NULL;
-}
-
-void RemGeneratorReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
-{
-    Generator dumbGen;
-    dumbGen.setId(genId);
-    GeneratorSet::iterator it = scene->generators.find(&dumbGen);
-    if (it != scene->generators.end())
-    {
-        Generator *theGenerator = *it;
-        scene->generators.erase(it);
-        
-        delete theGenerator;
-    }
-}
-
 void AddProgramReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
 {
-    scene->addProgram(sceneName,program);
+    scene->addProgram(program);
     program = NULL;
 }
 

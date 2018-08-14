@@ -24,7 +24,6 @@
 #import "GlobeScene.h"
 #import "UIImage+Stuff.h"
 #import "SceneRendererES.h"
-#import "TextureAtlas.h"
 
 namespace WhirlyKit
 {

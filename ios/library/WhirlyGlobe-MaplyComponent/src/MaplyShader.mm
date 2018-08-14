@@ -160,10 +160,9 @@ using namespace WhirlyKit;
     auxTex->createInGL(scene->getMemManager());
     GLuint glTexId = auxTex->getGLId();
     scene->addChangeRequest(new AddTextureReq(auxTex));
-    OpenGLES2Program *prog = scene->getProgramBySceneName([_name cStringUsingEncoding:NSASCIIStringEncoding]);
-    if (prog)
+    if (_program)
     {
-        prog->setTexture(StringIndexer::getStringID([shaderAttrName cStringUsingEncoding:NSASCIIStringEncoding]), (int)glTexId);
+        _program->setTexture(StringIndexer::getStringID([shaderAttrName cStringUsingEncoding:NSASCIIStringEncoding]), (int)glTexId);
     }
     
     texIDs.insert(auxTexId);

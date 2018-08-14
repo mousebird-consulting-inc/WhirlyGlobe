@@ -21,7 +21,6 @@
 #import "EAGLView.h"
 #import "SceneRendererES.h"
 #import "MaplyAnimateTranslation.h"
-#import "MaplyPanDelegate.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -100,3 +99,61 @@ using namespace Eigen;
 }
 
 @end
+
+namespace WhirlyKit
+{
+bool MaplyGestureWithinBounds(const std::vector<WhirlyKit::Point2d> &bounds,const Point3d &loc,UIView *view,WhirlyKitSceneRendererES *sceneRender,MaplyView *testMapView,Point3d *newCenter)
+{
+    if (newCenter)
+        *newCenter = loc;
+    
+    if (bounds.empty())
+        return true;
+    
+    // The corners of the view should be within the bounds
+    CGPoint corners[4];
+    corners[0] = CGPointMake(0,0);
+    corners[1] = CGPointMake(view.frame.size.width, 0.0);
+    corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
+    corners[3] = CGPointMake(0.0, view.frame.size.height);
+    
+    bool isValid = false;
+    Point2d locOffset(0,0);
+    for (unsigned tests=0;tests<4;tests++)
+    {
+        Point3d newLoc = loc+Point3d(locOffset.x(),locOffset.y(),0.0);
+        [testMapView setLoc:newLoc runUpdates:false];
+        Eigen::Matrix4d fullMatrix = [testMapView calcFullMatrix];
+        
+        bool checkOkay = true;
+        for (unsigned int ii=0;ii<4;ii++)
+        {
+            Point3d planePt;
+            [testMapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
+                                      frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
+                                            hit:&planePt clip:false];
+            if (!PointInPolygon(Point2d(planePt.x(),planePt.y()), bounds))
+            {
+                Point2d closePt;
+                ClosestPointToPolygon(bounds, Point2d(planePt.x(),planePt.y()), &closePt);
+                Point2d thisOffset = 1.001 * (closePt - Point2d(planePt.x(),planePt.y()));
+                // Try to move around, inward
+                locOffset += thisOffset;
+                checkOkay = false;
+                
+                break;
+            }
+        }
+        
+        if (checkOkay)
+        {
+            isValid = true;
+            if (newCenter)
+                *newCenter = newLoc;
+            break;
+        }
+    }
+    
+    return isValid;
+}
+}

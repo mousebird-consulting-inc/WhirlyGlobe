@@ -86,8 +86,6 @@ using namespace Eigen;
 {
     EAGLContext *oldContext = [EAGLContext currentContext];
     [sceneRenderer useContext];
-    for (MaplyShader *shader in shaders)
-        [shader teardown];
     // This stuff is our responsibility if we created it
     if (offlineMode)
     {
@@ -199,9 +197,10 @@ using namespace Eigen;
     // Regular lighting is on by default
     if (!lightingRegular)
     {
-        SimpleIdentity triNoLighting = scene->getProgramIDByName(kToolkitDefaultTriangleNoLightingProgram);
-        if (triNoLighting != EmptyIdentity)
-            scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
+        // Note: Porting
+//        SimpleIdentity triNoLighting = scene->getProgramIDByName(kToolkitDefaultTriangleNoLightingProgram);
+//        if (triNoLighting != EmptyIdentity)
+//            scene->setSceneProgram(kSceneDefaultTriShader, triNoLighting);
     } else {
         // Add a default light
         MaplyLight *light = [[MaplyLight alloc] init];
@@ -252,20 +251,25 @@ using namespace Eigen;
 {
     if (!shader)
         return;
+    if (!interactLayer)
+        return;
     
-    if (!shaders)
-        shaders = [NSMutableArray array];
+    if (!interactLayer->shaders)
+        interactLayer->shaders = [NSMutableArray array];
     
-    if (![shaders containsObject:shader])
-        [shaders addObject:shader];
+    if (![interactLayer->shaders containsObject:shader])
+        [interactLayer->shaders addObject:shader];
     
     std::string theSceneName = [sceneName cStringUsingEncoding:NSASCIIStringEncoding];
-    scene->addProgram(theSceneName, shader.program);
+    interactLayer->shaderMap[theSceneName] = shader;
 }
 
 - (MaplyShader *__nullable)getShaderByName:(NSString *__nonnull)name
 {
-    for (MaplyShader *shader in shaders)
+    if (!interactLayer)
+        return nil;
+
+    for (MaplyShader *shader in interactLayer->shaders)
         if (![shader.name compare:name])
             return shader;
     

@@ -21,13 +21,11 @@
 #import <Foundation/Foundation.h>
 #import <math.h>
 #import "WhirlyVector.h"
-#import "TextureGroup.h"
 #import "GlobeScene.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "GlobeMath.h"
 #import "sqlhelpers.h"
-#import "Quadtree.h"
 #import "SceneRendererES.h"
 #import "GlobeLayerViewWatcher.h"
 

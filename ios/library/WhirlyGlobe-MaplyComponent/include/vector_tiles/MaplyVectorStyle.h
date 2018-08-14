@@ -19,7 +19,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyQuadPagingLayer.h"
+#import "MaplyTileSource.h"
+#import "MaplyBaseViewController.h"
 
 /** 
     Settings that control how vector tiles look in relation to their styles.

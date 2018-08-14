@@ -26,9 +26,8 @@
 #import "BasicDrawable.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
-#import "TextureAtlas.h"
 #import "SelectionManager.h"
-#import "VectorDatabase.h"
+#import "VectorData.h"
 
 /** This is the protocol for an object that can handle caching for the lofted poly
  layer.  Generating the lofted polys is expensive, so we try to cache them

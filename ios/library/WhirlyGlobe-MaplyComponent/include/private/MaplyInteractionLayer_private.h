@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyBaseInteractionLayer_private.h"
+#import "MaplyTapMessage.h"
 
 // The view controller fills this in
 @protocol MaplyInteractionLayerDelegate <NSObject>

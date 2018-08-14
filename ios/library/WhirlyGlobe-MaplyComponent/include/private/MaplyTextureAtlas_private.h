@@ -21,7 +21,6 @@
 #import <Foundation/Foundation.h>
 #import <WhirlyGlobe.h>
 #import "MaplyTexture_private.h"
-#import "MaplyQuadImageTilesLayer.h"
 
 // Manages a whole group of texture atlases.  Thread safe.
 @interface MaplyTextureAtlasGroup : NSObject

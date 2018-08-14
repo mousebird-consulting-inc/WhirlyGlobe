@@ -23,11 +23,9 @@
 #import "WhirlyVector.h"
 #import "DataLayer.h"
 #import "LayerThread.h"
-#import "TileQuadLoader.h"
 #import "Scene.h"
-#import "DynamicTextureAtlas.h"
-#import "DynamicDrawableAtlas.h"
 #import "BaseInfo.h"
+#import "LoadedImage.h"
 
 /** This defines a chunk of the globe to overlay with a single
  image.  In general you should use one of the quad layers
@@ -128,11 +126,7 @@ class SphericalChunkManager : public SceneManager
 public:
     SphericalChunkManager();
     virtual ~SphericalChunkManager();
-    
-    /// If we're using texture atlases, pass those in
-    void setAtlases(DynamicTextureAtlas *inTexAtlas,DynamicDrawableAtlas *inDrawAtlas) { texAtlas = inTexAtlas;  drawAtlas = inDrawAtlas; }
-    void setBorderTexel(int inBorderTexel) { borderTexel = inBorderTexel; }
-    
+        
     /// Add the given chunk (enabled or disabled)
     SimpleIdentity addChunk(WhirlyKitSphericalChunk *chunk,bool doEdgeMatching,bool enable,ChangeSet &changes);
     
@@ -160,9 +154,6 @@ protected:
     // Outstanding requests to process
     std::queue<ChunkRequest> requests;
     int borderTexel;
-    pthread_mutex_t atlasLock;
-    DynamicTextureAtlas *texAtlas;
-    DynamicDrawableAtlas *drawAtlas;
 };
 
 }

@@ -20,7 +20,6 @@
 
 #import <math.h>
 #import "WhirlyVector.h"
-#import "TextureGroup.h"
 #import "Scene.h"
 #import "SelectionManager.h"
 

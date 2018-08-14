@@ -27,7 +27,7 @@
     double startHeight,endHeight;
 }
 
-- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong delegate:(NSObject<WGTiltCalculatorDelegate> *)tiltDelegate
+- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong delegate:(NSObject<WhirlyGlobeTiltCalculatorDelegate> *)tiltDelegate
 {
     if ((self = [super init]))
     {

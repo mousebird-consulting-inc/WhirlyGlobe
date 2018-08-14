@@ -24,8 +24,6 @@
 #import "MaplyViewControllerLayer_private.h"
 #import "MaplyComponentObject_private.h"
 #import "WGInteractionLayer_private.h"
-#import "PanDelegateFixed.h"
-#import "PinchDelegateFixed.h"
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
@@ -36,6 +34,8 @@
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyRenderController_private.h"
 #import "MaplyTileFetcher.h"
+#import "ParticleSystemLayer.h"
+#import "ViewPlacementActiveModel.h"
 
 @interface MaplyBaseViewController() <SMCalloutViewDelegate>
 {
@@ -66,6 +66,9 @@
     
     /// The default cluster generator (group 0)
     MaplyBasicClusterGenerator *defaultClusterGenerator;
+    
+    /// View Placement logic used to move annotations around
+    WhirlyKitViewPlacementActiveModel *viewPlacementModel;
     
     /// Current draw priority if we're assigning them ourselves
     int layerDrawPriority;

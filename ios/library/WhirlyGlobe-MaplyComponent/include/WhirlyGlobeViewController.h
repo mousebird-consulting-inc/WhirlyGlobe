@@ -660,13 +660,6 @@
 - (nullable id)findObjectAtLocation:(CGPoint)screenPt;
 
 /** 
-    An old style method to add a spherical earth layer.
-    
-    Image sets and this layer have been superceeded by MaplyQuadImageTilesLayer.  This is here for backwards compatibility.
-  */
-- (nullable MaplyViewControllerLayer *)addSphericalEarthLayerWithImageSet:(NSString * __nonnull)name;
-
-/** 
     Return a location on the screen for a given geographic coordinate or CGPointZero if it's not on the screen.
  
     @param geoCoord Point on the earth in lat/lon radians you want a screen position for.

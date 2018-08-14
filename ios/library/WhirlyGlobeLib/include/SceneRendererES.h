@@ -26,7 +26,6 @@
 #import "WhirlyKitView.h"
 #import "Scene.h"
 #import "PerformanceTimer.h"
-#import "Cullable.h"
 #import "Lighting.h"
 
 
@@ -376,9 +375,6 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 
 /// Use this to set the clear color for the screen.  Defaults to black
 - (void)setClearColor:(UIColor *)inClearColor;
-
-/// Used by the subclasses for culling
-- (void)findDrawables:(WhirlyKit::Cullable *)cullable view:(WhirlyGlobeView *)globeView frameSize:(WhirlyKit::Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans eyeVec:(Eigen::Vector3f)eyeVec frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(WhirlyKit::Mbr)screenMbr topLevel:(bool)isTopLevel toDraw:(std::set<WhirlyKit::DrawableRef> *) toDraw considered:(int *)drawablesConsidered;
 
 /// Used by the subclasses to determine if the view changed and needs to be updated
 - (bool) viewDidChange;

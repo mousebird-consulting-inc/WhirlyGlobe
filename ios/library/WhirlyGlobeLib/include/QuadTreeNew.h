@@ -1,5 +1,5 @@
 /*
- *  QuadTree.h
+ *  QuadTreeNew.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/26/18.
@@ -23,6 +23,29 @@
 
 namespace WhirlyKit
 {
+    
+/// Represents a single quad tree node in simplified form
+/// Here for historical reasons
+class QuadTreeIdentifier
+{
+public:
+    QuadTreeIdentifier() { }
+    /// Construct with the cell coordinates and level.
+    QuadTreeIdentifier(int x,int y,int level) : x(x), y(y), level(level) { }
+    
+    /// Comparison based on x,y,level.  Used for sorting
+    bool operator < (const QuadTreeIdentifier &that) const;
+    
+    /// Quality operator
+    bool operator == (const QuadTreeIdentifier &that) const;
+    
+    /// Spatial subdivision along the X axis relative to the space
+    int x;
+    /// Spatial subdivision along tye Y axis relative to the space
+    int y;
+    /// Level of detail, starting with 0 at the top (low)
+    int level;
+};
 
 /** New implementation of the spatial quad tree.
     Used to identify tiles to load and unload.

@@ -19,7 +19,7 @@
  */
 
 #import <algorithm>
-#import "AnimateViewMomentum.h"
+#import "GlobeAnimateViewMomentum.h"
 
 using namespace Eigen;
 
