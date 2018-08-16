@@ -152,6 +152,8 @@ using namespace Eigen;
     
     // Turn on the model matrix optimization for drawing
     sceneRenderer.useViewChanged = true;
+
+    [self setupShaders];
 }
 
 - (void)setScreenObjectDrawPriorityOffset:(int)drawPriorityOffset
@@ -488,6 +490,21 @@ using namespace Eigen;
 - (void)snapshot:(UIImage *)image
 {
     snapshotImage = image;
+}
+
+// Install the various shaders we expect to be running
+- (void)setupShaders
+{
+    
+    // Billboard shader (ground)
+    OpenGLES2Program *billShaderGround = BuildBillboardGroundProgram();
+    if (!billShaderGround)
+    {
+        NSLog(@"SetupDefaultShaders: Billboard ground shader didn't compile.");
+    } else {
+        scene->addProgram(kToolkitDefaultBillboardGroundProgram, billShaderGround);
+    }
+
 }
 
 @end
