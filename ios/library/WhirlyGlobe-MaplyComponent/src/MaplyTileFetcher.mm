@@ -109,10 +109,12 @@ using namespace WhirlyKit;
     _fetcher = fetcher;
     _startDate = [[NSDate alloc] init];
     _totalRequests = 0;
+    _remoteRequests = 0;
     _totalCancels = 0;
     _totalFails = 0;
     _remoteData = 0;
     _localData = 0;
+    _totalLatency = 0;
     
     return self;
 }
@@ -120,10 +122,12 @@ using namespace WhirlyKit;
 - (void)addStats:(MaplyTileFetcherStats * __nonnull)stats
 {
     _totalRequests += stats.totalRequests;
+    _remoteRequests += stats.remoteRequests;
     _totalCancels += stats.totalCancels;
     _totalFails += stats.totalFails;
     _remoteData += stats.remoteData;
     _localData += stats.localData;
+    _totalLatency += stats.totalLatency;
 }
 
 - (void)dump
@@ -133,7 +137,11 @@ using namespace WhirlyKit;
     NSLog(@"   Canceled Requests = %d",_totalCancels);
     NSLog(@"   Failed Requests = %d",_totalFails);
     NSLog(@"   Data Transferred = %.2fMB",_remoteData / (1024.0*1024.0));
+    NSLog(@"   Latency per request = %.2fms",_totalLatency / _remoteRequests * 1000.0);
+    if (_remoteRequests > 0)
+        NSLog(@"   Average request size = %.2fKB",_remoteData / _remoteRequests / 1024.0);
     NSLog(@"   Cached Data = %.2fMB",_localData / (1024.0*1024.0));
+    NSLog(@"   Num Simultaneous = %d",_fetcher.numConnections);
 }
 
 @end
@@ -194,11 +202,23 @@ using namespace WhirlyKit;
     
     dispatch_async(queue,
     ^{
-        [self startTileFetchLocal:request];
+        [self startTileFetchesLocal:@[request]];
     });
     
     return request;
 }
+
+- (void)startTileFetches:(NSArray<MaplyTileFetchRequest *> *)requests
+{
+    if (!active)
+        return;
+    
+    dispatch_async(queue,
+    ^{
+       [self startTileFetchesLocal:requests];
+    });
+}
+
 
 - (void)cancelTileFetch:(MaplyTileFetchRequest *)request
 {
@@ -212,26 +232,28 @@ using namespace WhirlyKit;
 }
 
 // Run on the dispatch queue
-- (void)startTileFetchLocal:(MaplyTileFetchRequest *)request
+- (void)startTileFetchesLocal:(NSArray<MaplyTileFetchRequest *> *)requests
 {
-    allStats.totalRequests = allStats.totalRequests + 1;
-    recentStats.totalRequests = recentStats.totalRequests + 1;
-    
-    // Set up new request
-    TileInfoRef tile(new TileInfo());
-    tile->tileSource = request.tileSource;
-    tile->importance = request.importance;
-    tile->priority = request.priority;
-    tile->state = TileInfo::ToLoad;
-    tile->request = request;
-    tilesByFetchRequest[request] = tile;
+    allStats.totalRequests = allStats.totalRequests + requests.count;
+    recentStats.totalRequests = recentStats.totalRequests + requests.count;
 
-    // If it's already cached, just short circuit this
-    if (request.cacheFile && [self isTileLocal:tile fileName:request.cacheFile])
-        tile->isLocal = true;
+    for (MaplyTileFetchRequest *request in requests) {
+        // Set up new request
+        TileInfoRef tile(new TileInfo());
+        tile->tileSource = request.tileSource;
+        tile->importance = request.importance;
+        tile->priority = request.priority;
+        tile->state = TileInfo::ToLoad;
+        tile->request = request;
+        tilesByFetchRequest[request] = tile;
 
-    // Just run the normal load
-    toLoad.insert(tile);
+        // If it's already cached, just short circuit this
+        if (request.cacheFile && [self isTileLocal:tile fileName:request.cacheFile])
+            tile->isLocal = true;
+
+        // Just run the normal load
+        toLoad.insert(tile);
+    }
     
     [self updateLoading];
 }
@@ -361,6 +383,10 @@ using namespace WhirlyKit;
         
         NSURLRequest *urlReq = tile->request.urlReq;
         
+        NSTimeInterval fetchStartTile = CFAbsoluteTimeGetCurrent();
+        
+//        NSLog(@"%@ priority = %d, importance = %f",urlReq.URL.absoluteString,tile->priority,tile->importance);
+        
         // Set up the fetch task so we can use it in a couple places
         tile->task = [session dataTaskWithRequest:urlReq completionHandler:
                       ^(NSData * _Nullable data, NSURLResponse * _Nullable inResponse, NSError * _Nullable error) {
@@ -376,8 +402,13 @@ using namespace WhirlyKit;
                                   }
                               } else {
                                   int length = [data length];
+                                  self->allStats.remoteRequests = self->allStats.remoteRequests + 1;
+                                  self->recentStats.remoteRequests = self->recentStats.remoteRequests + 1;
                                   self->allStats.remoteData = self->allStats.remoteData + length;
                                   self->recentStats.remoteData = self->recentStats.remoteData + length;
+                                  NSTimeInterval howLong = CFAbsoluteTimeGetCurrent() - fetchStartTile;
+                                  self->allStats.totalLatency = self->allStats.totalLatency + howLong;
+                                  self->recentStats.totalLatency = self->recentStats.totalLatency + howLong;
                                   [self finishedLoading:tile data:data error:error];
                                   [self writeToCache:tile tileData:data];
                               }

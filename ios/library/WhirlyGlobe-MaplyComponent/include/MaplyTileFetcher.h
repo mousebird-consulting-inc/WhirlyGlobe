@@ -70,6 +70,9 @@
 // Total requests, remote and cached
 @property (nonatomic) int totalRequests;
 
+// Requests that resulted in a remote HTTP call
+@property (nonatomic) int remoteRequests;
+
 // Total requests cancelled
 @property (nonatomic) int totalCancels;
 
@@ -81,6 +84,9 @@
 
 // Bytes of cached data loaded
 @property (nonatomic) int localData;
+
+// Total time spent waiting for successful remote data requests
+@property (nonatomic) NSTimeInterval totalLatency;
 
 // Add the given stats to ours
 - (void)addStats:(MaplyTileFetcherStats * __nonnull)stats;
@@ -102,7 +108,12 @@
 - (instancetype __nonnull)initWithName:(NSString * __nonnull)name connections:(int)numConnections;
 
 /// Ask for a tile to be fetched.  Returns an object that can be used to cancel the request.
+/// This is just returning the request as the id
 - (id __nonnull)startTileFetch:(MaplyTileFetchRequest * __nonnull)request;
+
+/// Add a whole group of requests at once.
+/// This is useful if we want to avoid low priority tiles grabbing the slots first
+- (void)startTileFetches:(NSArray<MaplyTileFetchRequest *> *__nonnull)requests;
 
 /// Update an active request with a new priority and importance
 - (id __nonnull)updateTileFetch:(id __nonnull)fetchID priority:(int)priority importance:(double)importance;
