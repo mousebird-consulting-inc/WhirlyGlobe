@@ -137,9 +137,10 @@ using namespace WhirlyKit;
     NSLog(@"   Canceled Requests = %d",_totalCancels);
     NSLog(@"   Failed Requests = %d",_totalFails);
     NSLog(@"   Data Transferred = %.2fMB",_remoteData / (1024.0*1024.0));
-    NSLog(@"   Latency per request = %.2fms",_totalLatency / _remoteRequests * 1000.0);
-    if (_remoteRequests > 0)
+    if (_remoteRequests > 0) {
+        NSLog(@"   Latency per request = %.2fms",_totalLatency / _remoteRequests * 1000.0);
         NSLog(@"   Average request size = %.2fKB",_remoteData / _remoteRequests / 1024.0);
+    }
     NSLog(@"   Cached Data = %.2fMB",_localData / (1024.0*1024.0));
     NSLog(@"   Num Simultaneous = %d",_fetcher.numConnections);
 }
