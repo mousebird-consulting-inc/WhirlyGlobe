@@ -19,19 +19,23 @@
  */
 
 #import "MaplyShader.h"
+#import <WhirlyGlobe.h>
 
 @interface MaplyShader()
 
-@property (nonatomic,readonly) WhirlyKit::OpenGLES2Program *program;
+@property (nonatomic,readonly,nullable) WhirlyKit::OpenGLES2Program *program;
 
 /// Internal Shader ID used below the Component level
 - (WhirlyKit::SimpleIdentity)getShaderID;
 
 /// Minimal initialization
-- (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC;
+- (nonnull instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC;
+
+/// Initialize directly from an existing program
+- (nullable instancetype)initWithProgram:(WhirlyKit::OpenGLES2Program * __nullable)program viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC;
 
 /// Delayed construction.  Useful in subclasses
-- (bool)delayedSetupWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg;
+- (bool)delayedSetupWithName:(NSString * __nonnull)name vertex:(NSString * __nonnull)vertexProg fragment:(NSString * __nonnull)fragProg;
 
 /// Called by the view controller to clear out the shader program
 - (void)teardown;

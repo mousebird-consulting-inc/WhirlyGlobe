@@ -24,6 +24,8 @@
 #import "NSDictionary+StyleRules.h"
 #import "DDXMLElementAdditions.h"
 #import "NSString+DDXML.h"
+#import "MaplyLineAndPointShaders_private.h"
+#import "MaplyTriangleShaders_private.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -492,19 +494,73 @@ using namespace Eigen;
     snapshotImage = image;
 }
 
+- (void)addShader:(NSString *)inName program:(OpenGLES2Program *)program
+{
+    if (!program) {
+        NSLog(@"Default shader setup:  Failed to create %@",inName);
+        return;
+    }
+
+    std::string name = [inName cStringUsingEncoding:NSASCIIStringEncoding];
+    MaplyShader *shader = [[MaplyShader alloc] initWithProgram:program viewC:self];
+    [interactLayer->shaders addObject:shader];
+    interactLayer->shaderMap[name] = shader;
+}
+
 // Install the various shaders we expect to be running
 - (void)setupShaders
 {
+    if (!interactLayer)
+        return;
     
-    // Billboard shader (ground)
-    OpenGLES2Program *billShaderGround = BuildBillboardGroundProgram();
-    if (!billShaderGround)
-    {
-        NSLog(@"SetupDefaultShaders: Billboard ground shader didn't compile.");
-    } else {
-        scene->addProgram(kToolkitDefaultBillboardGroundProgram, billShaderGround);
-    }
+    [self useGLContext];
 
+    // Default line shaders
+    OpenGLES2Program *defaultLineShader = BuildDefautLineShaderCulling([kMaplyShaderDefaultLine cStringUsingEncoding:NSASCIIStringEncoding]);
+    OpenGLES2Program *defaultLineShaderNoBack = BuildDefaultLineShaderNoCulling([kMaplyShaderDefaultLineNoBackface cStringUsingEncoding:NSASCIIStringEncoding]);
+    if (dynamic_cast<WhirlyGlobe::GlobeScene *>(scene))
+        [self addShader:kMaplyShaderDefaultLine program:defaultLineShader];
+    else
+        [self addShader:kMaplyShaderDefaultLine program:defaultLineShaderNoBack];
+    [self addShader:kMaplyShaderDefaultLineNoBackface program:defaultLineShaderNoBack];
+    
+    // Default triangle shaders
+    [self addShader:kMaplyShaderDefaultTri
+            program:BuildDefaultTriShaderLighting([kMaplyShaderDefaultTri cStringUsingEncoding:NSASCIIStringEncoding])];
+    [self addShader:kMaplyShaderDefaultTriNoLighting
+            program:BuildDefaultTriShaderNoLighting([kMaplyShaderDefaultTriNoLighting cStringUsingEncoding:NSASCIIStringEncoding])];
+    
+    // Model instancing
+    [self addShader:kMaplyShaderDefaultModelTri
+            program:BuildDefaultTriShaderModel([kMaplyShaderDefaultModelTri cStringUsingEncoding:NSASCIIStringEncoding])];
+    
+    // Screen space texture application
+    [self addShader:kMaplyShaderDefaultTriScreenTex
+            program:BuildDefaultTriShaderScreenTexture([kMaplyShaderDefaultTriScreenTex cStringUsingEncoding:NSASCIIStringEncoding])];
+    
+    // Multi-texture support
+    [self addShader:kMaplyShaderDefaultTriMultiTex
+            program:BuildDefaultTriShaderMultitex([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding])];
+    
+    // Ramp texture support
+    [self addShader:kMaplyShaderDefaultTriMultiTexRamp
+            program:BuildDefaultTriShaderRamptex([kMaplyShaderDefaultTriMultiTexRamp cStringUsingEncoding:NSASCIIStringEncoding])];
+
+    // Night/day shading for globe
+    [self addShader:kMaplyShaderDefaultTriNightDay
+            program:BuildDefaultTriShaderNightDay([kMaplyShaderDefaultTriNightDay cStringUsingEncoding:NSASCIIStringEncoding])];
+
+    // Billboards
+    [self addShader:kMaplyShaderBillboardGround program:BuildBillboardGroundProgram()];
+    [self addShader:kMaplyShaderBillboardEye program:BuildBillboardEyeProgram()];
+    // Wide vectors
+    [self addShader:kMaplyShaderDefaultWideVector program:BuildWideVectorProgram()];
+    [self addShader:kMaplyShaderDefaultWideVectorGlobe program:BuildWideVectorGlobeProgram()];
+    // Screen space
+    [self addShader:kMaplyScreenSpaceDefaultMotionProgram program:BuildScreenSpaceProgram()];
+    [self addShader:kMaplyScreenSpaceDefaultProgram program:BuildScreenSpaceMotionProgram()];
+    // Particles
+    [self addShader:kMaplyShaderParticleSystemPointDefault program:BuildParticleSystemProgram()];
 }
 
 @end

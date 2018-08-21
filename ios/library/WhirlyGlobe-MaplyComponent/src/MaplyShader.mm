@@ -88,6 +88,26 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (instancetype)initWithProgram:(OpenGLES2Program *)program viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC
+{
+    if (!program)
+        return nil;
+    MaplyRenderController *renderControl = [baseViewC getRenderControl];
+    if (!renderControl)
+        return nil;
+
+    self = [super init];
+    _program = program;
+    viewC = baseViewC;
+    scene = renderControl->scene;
+    renderer = renderControl->sceneRenderer;
+    
+    if (renderControl->scene)
+        renderControl->scene->addProgram(_program);
+    
+    return self;
+}
+
 - (bool)delayedSetupWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg
 {
     if (!vertexProg || !fragProg)
