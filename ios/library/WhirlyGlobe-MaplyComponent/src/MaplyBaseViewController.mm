@@ -1195,7 +1195,7 @@ static const float PerfOutputDelay = 15.0;
     return false;
 }
 
-- (void)removeLayer:(MaplyViewControllerLayer *)layer
+- (void)removeLayer:(MaplyViewControllerLayer *)layer wait:(bool)wait
 {
     if (!renderControl)
         return;
@@ -1226,15 +1226,22 @@ static const float PerfOutputDelay = 15.0;
             [layerThread addThingToRelease:theLayer];
             [layerThread cancel];
 
-            // We also have to make sure it actually does finish
-            bool finished = true;
-            do {
-                finished = [layerThread isFinished];
-                if (!finished)
-                    [NSThread sleepForTimeInterval:0.0001];
-            } while (!finished);
+            if (wait) {
+                // We also have to make sure it actually does finish
+                bool finished = true;
+                do {
+                    finished = [layerThread isFinished];
+                    if (!finished)
+                        [NSThread sleepForTimeInterval:0.0001];
+                } while (!finished);
+            }
         }
     }
+}
+
+- (void)removeLayer:(MaplyViewControllerLayer *)layer
+{
+    [self removeLayer:layer wait:false];
 }
 
 - (void)removeLayers:(NSArray *)layers
@@ -1303,7 +1310,7 @@ static const float PerfOutputDelay = 15.0;
     [layer removeBuilderDelegate:userObj];
     
     if (layer.numClients == 0) {
-        [self removeLayer:layer];
+        [self removeLayer:layer wait:false];
         samplingLayers.erase(std::find(samplingLayers.begin(),samplingLayers.end(),layer));
     }
 }
