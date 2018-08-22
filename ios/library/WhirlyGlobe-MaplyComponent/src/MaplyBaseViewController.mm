@@ -1311,7 +1311,9 @@ static const float PerfOutputDelay = 15.0;
     
     if (layer.numClients == 0) {
         [self removeLayer:layer wait:false];
-        samplingLayers.erase(std::find(samplingLayers.begin(),samplingLayers.end(),layer));
+        auto it = std::find(samplingLayers.begin(),samplingLayers.end(),layer);
+        if (it != samplingLayers.end())
+            samplingLayers.erase(it);
     }
 }
 
