@@ -97,6 +97,7 @@ using namespace WhirlyKit;
     std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> builderDelegates;
     double importance;
     bool builderStarted;
+    bool valid;
 }
 
 - (nullable instancetype)initWithParams:(MaplySamplingParams * __nonnull)params
@@ -105,6 +106,7 @@ using namespace WhirlyKit;
     _params = params;
     _debugMode = false;
     builderStarted = false;
+    valid = true;
     
     return self;
 }
@@ -116,6 +118,9 @@ using namespace WhirlyKit;
 
 - (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)inRenderer viewC:(MaplyBaseViewController *)inViewC
 {
+    if (!valid)
+        return false;
+    
     viewC = inViewC;
     super.layerThread = inLayerThread;
     scene = inScene;
@@ -145,7 +150,11 @@ using namespace WhirlyKit;
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
-    [inLayerThread removeLayer:quadLayer];
+    valid = false;
+    builder = nil;
+    if (quadLayer)
+        [inLayerThread removeLayer:quadLayer];
+    quadLayer = nil;
 }
 
 - (WhirlyKit::CoordSystem *)coordSystem
