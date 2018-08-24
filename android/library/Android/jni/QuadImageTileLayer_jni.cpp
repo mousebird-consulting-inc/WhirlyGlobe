@@ -1178,11 +1178,43 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_startReloadFo
         QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
         if (!adapter || !adapter->tileLoader)
             return;
-        adapter->tileLoader->reloadAllTilesForFrame(frameNum);
+        if (frameNum < adapter->imageDepth && frameNum > -1) {
+            adapter->tileLoader->reloadAllTilesForFrame(frameNum);
+        }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::reloadFrame()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::startReloadForFrame()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageTileLayer_startReloadForFrames
+(JNIEnv *env, jobject obj, jintArray arr)
+{
+    try
+    {
+        QILAdapterClassInfo *classInfo = QILAdapterClassInfo::getClassInfo();
+        QuadImageLayerAdapter *adapter = classInfo->getObject(env,obj);
+        if (!adapter || !adapter->tileLoader)
+            return;
+        
+        jsize len = env->GetArrayLength(arr);
+        jint *body = env->GetIntArrayElements(arr, 0);
+        std::vector<int> frames;
+        
+        for (int i=0; i < len; i++)
+        {
+            int frameNum = body[i];
+            if (frameNum < adapter->imageDepth && frameNum > -1) {
+                frames.push_back(frameNum);
+            }
+        }
+        adapter->tileLoader->reloadAllTilesForFrames(frames);
+        env->ReleaseIntArrayElements(arr, body, 0);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageTileLayer::startReloadForFrames()");
     }
 }
 

@@ -134,6 +134,21 @@ void QuadTileLoader::reloadAllTilesForFrame(int frame)
     control->decrementLoadingCounterForFrame(frame);
     
 }
+    
+void QuadTileLoader::reloadAllTilesForFrames(std::vector<int> frames)
+{
+    for (std::vector<int>::iterator it = frames.begin(); it != frames.end(); ++it)
+    {
+        int frame = *it;
+        control->incrementLoadingCounterForFrame(frame);
+        reloadAllTilesForFrame(frame);
+    }
+    
+    for (std::vector<int>::iterator it = frames.begin(); it != frames.end(); ++it)
+    {
+        control->decrementLoadingCounterForFrame(*it);
+    }
+}
 
 // Make all the various parents update their child geometry
 void QuadTileLoader::refreshParents()

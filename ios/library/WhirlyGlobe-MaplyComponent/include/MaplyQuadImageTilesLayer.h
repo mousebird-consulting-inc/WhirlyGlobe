@@ -528,6 +528,11 @@
 - (void) reloadFrame:(int)frame;
 
 /**
+ Reloads the tiles for the requested frames.
+ */
+- (void) reloadFrames: (NSArray *__nonnull)frames;
+
+/**
  Checks to see if all the tiles are loaded for a requested frame.
  */
 - (bool) isFrameLoaded:(int)frame;

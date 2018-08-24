@@ -638,6 +638,34 @@ using namespace WhirlyKit;
     [tileLoader reloadAllTilesForFrame:[frameNum integerValue] layer:quadLayer];
 }
 
+- (void) reloadFrames: (NSArray *)frames
+{
+    if ([NSThread currentThread] != super.layerThread)
+    {
+        [self performSelector:@selector(reloadFrames:) onThread:super.layerThread withObject:frames waitUntilDone:NO];
+        return;
+    }
+    
+    if (frames.count > 0)
+    {
+        std::vector<int> validFrames;
+        for (id frameID in frames)
+        {
+            int frame = [frameID integerValue];
+            if (frame < _imageDepth && frame > -1) {
+                validFrames.push_back(frame);
+                [quadLayer incrementLoadingCounterForFrame:frame];
+                [tileLoader reloadAllTilesForFrame:frame layer:quadLayer];
+            }
+        }
+        
+        for (std::vector<int>::iterator it = validFrames.begin(); it != validFrames.end(); ++it)
+        {
+            [quadLayer decrementLoadingCounterForFrame:*it];
+        }
+    }
+}
+
 - (bool) isFrameLoaded:(int)frame
 {
     return [quadLayer isFrameLoaded:frame];

@@ -813,6 +813,20 @@ public class QuadImageTileLayer extends Layer implements LayerThread.ViewWatcher
 
 	native void startReloadForFrame(int frameNum);
 
+	public void reloadFrames(final int[] frames)
+	{
+		if (layerThread != null) {
+			layerThread.addTask(new Runnable() {
+				@Override
+				public void run() {
+					startReloadForFrames(frames);
+				}
+			});
+		}
+	}
+
+	native void startReloadForFrames(int[] frameNum);
+
 	public native boolean isFrameLoaded(int frame);
 
 	public native boolean allFramesLoaded();

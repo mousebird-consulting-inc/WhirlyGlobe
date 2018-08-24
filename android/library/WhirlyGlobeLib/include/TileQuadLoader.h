@@ -125,6 +125,9 @@ public:
     
     /// Call this method to start fetches for all the tiles in a frame
     virtual void reloadAllTilesForFrame(int frame);
+    
+    /// Call this method to start fetches for all the tiles in a frame
+    virtual void reloadAllTilesForFrames(std::vector<int> frames);
 
     /// Set up the change requests to make the given image layer the active one
     /// The call is thread safe
