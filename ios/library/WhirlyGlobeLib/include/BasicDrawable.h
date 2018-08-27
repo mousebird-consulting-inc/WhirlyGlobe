@@ -89,6 +89,9 @@ public:
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff);
     
+    /// Check if this has been set up and (more importantly) hasn't been torn down
+    virtual bool isSetupInGL() { return isSetupGL; }
+    
     /// Set the time range for enable
     void setEnableTimeRange(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable) { startEnable = inStartEnable;  endEnable = inEndEnable; }
     
@@ -332,6 +335,7 @@ public:
     // Set up the standard vertex attributes we use
     virtual void setupStandardAttributes(int numReserve=0);
     
+    bool isSetupGL;  // Is setup to draw with GL (needed by the instances)
     bool on;  // If set, draw.  If not, not
     NSTimeInterval startEnable,endEnable;
     SimpleIdentity programId;    // Program to use for rendering

@@ -534,7 +534,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     // Put together a request for the fetcher
     MaplyTileFetchRequest *request = [[MaplyTileFetchRequest alloc] init];
     MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
-    NSMutableURLRequest *urlReq = [tileInfo requestForTile:tileID];
+    NSMutableURLRequest *urlReq = [[tileInfo requestForTile:tileID] mutableCopy];
     urlReq.timeoutInterval = _timeOut;
     request.urlReq = urlReq;
     request.cacheFile = [tileInfo fileNameForTile:tileID];

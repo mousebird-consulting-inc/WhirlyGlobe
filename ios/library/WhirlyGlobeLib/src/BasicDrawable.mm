@@ -36,6 +36,7 @@ void BasicDrawable::basicDrawableInit()
     colorEntry = -1;
     normalEntry = -1;
     
+    isSetupGL = false;
     on = true;
     startEnable = 0.0;
     endEnable = 0.0;
@@ -783,6 +784,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
         vertexAttributes[ii]->clear();
     
     usingBuffers = true;
+    isSetupGL = true;
 }
 
 // Instead of copying data to an OpenGL buffer, we'll just put it in an NSData
@@ -1019,6 +1021,7 @@ void BasicDrawable::convertToTriStrip()
 // Tear down the VBOs we set up
 void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
 {
+    isSetupGL = false;
     if (vertArrayObj)
         glDeleteVertexArraysOES(1,&vertArrayObj);
     vertArrayObj = 0;
