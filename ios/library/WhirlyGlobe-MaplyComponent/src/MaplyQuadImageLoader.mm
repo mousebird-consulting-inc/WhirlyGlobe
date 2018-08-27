@@ -363,6 +363,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     _importanceCutoff = 0.0;
     _imageFormat = MaplyImageIntRGBA;
     _borderTexel = 0;
+    _timeOut = 20.0;
     texType = GL_UNSIGNED_BYTE;
 
     // Start things out after a delay
@@ -533,7 +534,9 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     // Put together a request for the fetcher
     MaplyTileFetchRequest *request = [[MaplyTileFetchRequest alloc] init];
     MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
-    request.urlReq = [tileInfo requestForTile:tileID];
+    NSMutableURLRequest *urlReq = [tileInfo requestForTile:tileID];
+    urlReq.timeoutInterval = _timeOut;
+    request.urlReq = urlReq;
     request.cacheFile = [tileInfo fileNameForTile:tileID];
     request.tileSource = tileInfo;
     request.priority = 0;

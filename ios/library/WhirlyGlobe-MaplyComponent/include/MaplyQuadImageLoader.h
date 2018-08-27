@@ -110,7 +110,8 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 /// Set the interpreter for the data coming back.  If you're just getting images, don't set this.
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp;
 
-// Note: We need a variant that takes just a tile source
+/// Timeout applied to the URL Requests.  20s by default
+@property (nonatomic) NSTimeInterval timeOut;
 
 // Set the draw priority values for produced tiles
 @property (nonatomic) int baseDrawPriority;
