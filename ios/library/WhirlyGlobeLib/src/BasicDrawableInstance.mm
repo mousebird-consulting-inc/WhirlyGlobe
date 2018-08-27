@@ -336,6 +336,10 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
 
 void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
+    // Happens if we're deleting things out of order
+    if (!basicDraw || !basicDraw->isSetupInGL())
+        return;
+    
     // The old style where we reuse the basic drawable
     if (instanceStyle == ReuseStyle)
     {
