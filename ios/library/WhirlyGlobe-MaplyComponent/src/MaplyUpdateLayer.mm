@@ -67,6 +67,7 @@ using namespace WhirlyKit;
     delegate = inDelegate;
     _moveDist = moveDist;
     _minTime = minTime;
+    _maxLag = 0.0;
     
     return self;
 }
@@ -77,7 +78,7 @@ using namespace WhirlyKit;
     
     // We want view updates, but only occasionally
     if (layerThread.viewWatcher)
-        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime minDist:0.0 maxLagTime:0.0];
+        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime minDist:0.0 maxLagTime:_maxLag];
     
     [self performSelector:@selector(startOnThread) onThread:layerThread withObject:nil waitUntilDone:NO];
     
