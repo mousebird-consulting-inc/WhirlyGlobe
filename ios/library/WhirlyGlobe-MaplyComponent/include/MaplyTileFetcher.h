@@ -128,6 +128,10 @@
 /// Use the object returned by the startTileFetch call
 - (void)cancelTileFetch:(id __nonnull)requestRet;
 
+/// Cancel a group of requests at once
+/// Use the object returned by the startTileFetch call (which is just a Request object)
+- (void)cancelTileFetches:(NSArray * __nonnull)requestRets;
+
 /// Return the fetching stats since the beginning or since the last reset
 - (MaplyTileFetcherStats * __nullable)getStats:(bool)allTime;
 
