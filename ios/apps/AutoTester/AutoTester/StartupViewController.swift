@@ -15,8 +15,8 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         
 		GeographyClassTestCase(),
 		StamenWatercolorRemote(),
-		CartoDBLightTestCase(),
-		ImageSingleLevelTestCase(),
+//        CartoDBLightTestCase(),
+//        ImageSingleLevelTestCase(),
 
 		AnimatedBasemapTestCase(),
 		ScreenLabelsTestCase(),
@@ -26,7 +26,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		VectorsTestCase(),
 		VectorStyleTestCase(),
 		VectorHoleTestCase(),
-		ShapefileTestCase(),
+//        ShapefileTestCase(),
 		WideVectorsTestCase(),
 		WideVectorGlobeTestCase(),
 		TextureVectorTestCase(),
