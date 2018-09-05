@@ -196,7 +196,8 @@ void subdivideToSurfaceRecurse(const Point2f &p0,const Point2f &p1,VectorRing &o
         subdivideToSurfaceRecurse(p0, midPt, outPts, adapter, eps);
         subdivideToSurfaceRecurse(midPt, p1, outPts, adapter, eps);
     }
-    outPts.push_back(p1);
+    if (outPts.empty() || outPts.back() != p1)
+        outPts.push_back(p1);
 }
 
 void subdivideToSurfaceRecurse(const Point3d &p0,const Point3d &p1,VectorRing3d &outPts,CoordSystemDisplayAdapter *adapter,float eps)
@@ -226,7 +227,8 @@ void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool clo
     {
         const Point2f &p0 = inPts[ii];
         const Point2f &p1 = inPts[(ii+1)%inPts.size()];
-        outPts.push_back(p0);
+        if (outPts.empty() || outPts.back() != p0)
+            outPts.push_back(p0);
         subdivideToSurfaceRecurse(p0,p1,outPts,adapter,eps);
     }
 }
