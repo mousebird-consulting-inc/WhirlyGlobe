@@ -35,9 +35,12 @@ static const float ClipGridSize = 2.0/180.0*M_PI;
     NSMutableArray *tessObjs = [NSMutableArray array];
     
     NSArray * paths = [[NSBundle mainBundle] pathsForResourcesOfType:@"geojson" inDirectory:nil];
+    int count = 0;
     // Work through the individual GeoJSON files
     for (NSString* fileName  in paths) {
 		NSLog(@"Loading %@...", fileName);
+        if (count++ > 20)
+            break;
         NSData *jsonData = [NSData dataWithContentsOfFile:fileName];
         if (jsonData) {
             MaplyVectorObject *countryVec = [MaplyVectorObject VectorObjectFromGeoJSON:jsonData];

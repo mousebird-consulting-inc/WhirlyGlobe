@@ -27,7 +27,7 @@
     NSString * baseCacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     NSString * cartodbTilesCacheDir = [NSString stringWithFormat:@"%@/cartodbtiles/", baseCacheDir];
     int maxZoom = 22;
-    MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://light_all.basemaps.cartocdn.com/light_all/" ext:@"png" minZoom:0 maxZoom:maxZoom];
+    MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithBaseURL:@"http://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png" ext:nil minZoom:0 maxZoom:maxZoom];
     tileSource.cacheDir = cartodbTilesCacheDir;
     MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
     if ([baseLayer isKindOfClass:[WhirlyGlobeViewController class]]) {
