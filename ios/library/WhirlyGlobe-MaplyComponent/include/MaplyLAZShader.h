@@ -6,7 +6,9 @@
 //  Copyright © 2015-2017 mousebird consulting. All rights reserved.
 //
 
-#import "WhirlyGlobeComponent.h"
+#import <UIKit/UIKit.h>
+#import "MaplyShader.h"
+#import "MaplyBaseViewController.h"
 
 // Name of the point size uniform attribute.
 extern NSString* const kMaplyLAZShaderPointSize;
