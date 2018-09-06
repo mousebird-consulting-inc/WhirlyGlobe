@@ -27,7 +27,7 @@ Pod::Spec.new do |s|
   s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'develop' }
 
   s.compiler_flags = '-D__USE_SDL_GLES__ -D__IPHONEOS__ -DSQLITE_OPEN_READONLY -DHAVE_PTHREAD=1 -DUNORDERED=1 -DLASZIPDLL_EXPORTS=1'
-  s.xcconfig = { "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/common/local_libs/eigen\" \"${PODS_ROOT}/common/local_libs/protobuf/src/\" \"${PODS_ROOT}/common/local_libs/clipper\" \"$(SDKROOT)/usr/include/libxml2\" \"${PODS_ROOT}/common/local_libs/glues/include/\" " }
+  s.xcconfig = { "HEADER_SEARCH_PATHS" => "\"${PODS_ROOT}/WhirlyGlobe/common/local_libs/eigen\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/protobuf/src/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/clipper\" \"$(SDKROOT)/usr/include/libxml2\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/glues/include/\" " }
 
   s.default_subspec = 'MaplyComponent'
 
@@ -37,16 +37,16 @@ Pod::Spec.new do |s|
         'common/local_libs/eigen/Eigen/*', 'common/local_libs/eigen/Eigen/src/*/*.h',
         'common/local_libs/laszip/include/laszip/*.h', 'common/local_libs/laszip/dll/*.c', 'common/local_libs/laszip/src/*.{cpp,hpp}',
         'common/local_libs/proj4/src/*.{c,h}',
-        'common/local_libs/protobuf/src/google/protobuf/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/*/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/*/*/*.{cc,h}',
+        'common/local_libs/protobuf/src/google/protobuf/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/io/*.{cc,h}',
         'common/local_libs/shapefile/**/*.{c,h}'
-    ll.preserve_paths = 'common/local_libs/protobuf/src/google/protobuf/*.h', 'common/local_libs/protobuf/src/google/protobuf/*/*.h', 'common/local_libs/protobuf/src/google/protobuf/*/*/*.h',
+    ll.preserve_paths = 'common/local_libs/protobuf/src/google/protobuf/*.h', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.h', 'common/local_libs/protobuf/src/google/protobuf/io/*.h',
         'common/local_libs/eigen/Eigen/*', 'common/local_libs/eigen/Eigen/src/*/*.h'
     ll.private_header_files = 'common/local_libs/aaplus/**/*.h',
         'common/local_libs/clipper/cpp/*.h',
         'common/local_libs/eigen/Eigen/src/*/*.h',
         'common/local_libs/laszip/include/laszip/*.h','common/local_libs/laszip/src/*.hpp',
         'common/local_libs/proj4/src/*.h',
-        'common/local_libs/protobuf/src/google/protobuf/*.h', 'common/local_libs/protobuf/src/google/protobuf/*/*.h', 'common/local_libs/protobuf/src/google/protobuf/*/*/*.h',
+        'common/local_libs/protobuf/src/google/protobuf/*.h', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.h', 'common/local_libs/protobuf/src/google/protobuf/io/*.h',
         'common/local_libs/shapefile/**/*.h'
   end
 
@@ -54,7 +54,6 @@ Pod::Spec.new do |s|
     gl.source_files = 'common/local_libs/glues/**/*.{c,h}'
     gl.preserve_paths = 'common/local_libs/glues/**/*.i'
     gl.private_header_files = 'common/local_libs/glues/**/*.h'
-    gl.exclude_files = 'common/local_libs/glues/source/libnurbs/nurbtess/{glimports,mystdio,mystdlib}.h', 'common/local_libs/glues/source/glu.h'
   end
 
   s.subspec 'Lib-Headers' do |lh|
