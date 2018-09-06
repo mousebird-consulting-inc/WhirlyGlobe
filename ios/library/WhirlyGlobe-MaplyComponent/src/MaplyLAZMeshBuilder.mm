@@ -7,9 +7,9 @@
 //
 
 #include "MaplyLAZMeshBuilder.h"
-#include <private/MaplyCoordinateSystem_private.h>
-#include <private/MaplyRenderController_private.h>
-#include <private/MaplyBaseViewController_private.h>
+#include <MaplyCoordinateSystem_private.h>
+#include <MaplyRenderController_private.h>
+#include <MaplyBaseViewController_private.h>
 
 using namespace WhirlyKit;
 
