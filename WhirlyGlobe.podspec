@@ -34,7 +34,7 @@ Pod::Spec.new do |s|
   s.subspec 'locallibs' do |ll|
     ll.source_files = 'common/local_libs/aaplus/**/*.{h,cpp}',
         'common/local_libs/clipper/cpp/*.{cpp,hpp}',
-        'common/local_libs/laszip/include/laszip/*.h', 'common/local_libs/laszip/dll/*.c', 'common/local_libs/laszip/src/*.{cpp,hpp}',
+        'common/local_libs/laszip/include/laszip/*.h', 'common/local_libs/laszip/src/*.{cpp,hpp}',
         'common/local_libs/protobuf/src/google/protobuf/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/io/*.{cc,h}', 'common/local_libs/protobuf/src/google/protobuf/testing/*.h',
         'common/local_libs/shapefile/**/*.{c,h}'
     ll.preserve_paths = 'common/local_libs/protobuf/src/google/protobuf/*.h', 'common/local_libs/protobuf/src/google/protobuf/stubs/*.h', 'common/local_libs/protobuf/src/google/protobuf/io/*.h',
