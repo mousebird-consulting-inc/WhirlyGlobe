@@ -119,25 +119,8 @@ using namespace Eigen;
     theClearColor = nil;
 }
 
-- (void)weirdSelectorSetup
-{
-    // Need this logic here to pull in the categories
-    static bool dummyInit = false;
-    if (!dummyInit)
-    {
-        NSDataDummyFunc();
-        NSDictionaryStyleDummyFunc();
-        DDXMLElementDummyFunc();
-        DDXMLDummyFunc();
-        
-        dummyInit = true;
-    }
-}
-
 - (void)loadSetup
-{
-    [self weirdSelectorSetup];
-    
+{    
     screenDrawPriorityOffset = 1000000;
     
     // Set up the OpenGL ES renderer
