@@ -27,7 +27,7 @@ Pod::Spec.new do |s|
   s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'develop' }
 
   s.compiler_flags = '-D__USE_SDL_GLES__ -D__IPHONEOS__ -DSQLITE_OPEN_READONLY -DHAVE_PTHREAD=1 -DUNORDERED=1 -DLASZIPDLL_EXPORTS=1'
-  s.xcconfig = { "HEADER_SEARCH_PATHS" => " \"$(PODS_ROOT)/eigen/\"  \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/protobuf/src/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/laszip/include/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/clipper\" \"$(SDKROOT)/usr/include/libxml2\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/glues/include/\" " }
+  s.xcconfig = { "HEADER_SEARCH_PATHS" => " \"$(PODS_ROOT)/eigen/\"  \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/protobuf/src/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/laszip/include/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/clipper\" \"$(SDKROOT)/usr/include/libxml2\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/glues/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/private/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/\" " }
 
   s.default_subspec = 'MaplyComponent'
 
@@ -52,44 +52,20 @@ Pod::Spec.new do |s|
     gl.private_header_files = 'common/local_libs/glues/**/*.h'
   end
 
-  s.subspec 'Lib-Headers' do |lh|
-    lh.source_files = 'ios/library/WhirlyGlobeLib/include/*.h'
-    lh.private_header_files = 'ios/library/WhirlyGlobeLib/include/*.h'
-  end
-
-  s.subspec 'Lib' do |l|
-    l.source_files = 'ios/library/WhirlyGlobeLib/src/*.{mm,m}'
-    l.dependency 'WhirlyGlobe/Lib-Headers'
-    l.dependency 'WhirlyGlobe/glues'
-    l.dependency 'WhirlyGlobe/locallibs'
-    l.dependency 'WhirlyGlobe/glues'
-    l.libraries = 'c++', 'sqlite3'
-    l.frameworks = 'UIKit', 'OpenGLES'
-  end
-
-  s.subspec 'MaplyComponent-Headers' do |mch|
-    mch.source_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h'
-    mch.public_header_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/*.h' # , "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h", "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/vector_tiles/*.h"
-    mch.private_header_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/{MaplyBridge,vector_tile.pb}.h'
-    mch.dependency 'WhirlyGlobe/Lib-Headers'
-  end
-
-  s.subspec 'Headers' do |h|
-    h.dependency 'WhirlyGlobe/MaplyComponent-Headers'
-  end
-
   s.subspec 'MaplyComponent' do |mc|
-    mc.source_files = 'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp}'
-    mc.dependency 'WhirlyGlobe/Lib'
-    mc.dependency 'WhirlyGlobe/MaplyComponent-Headers'
+    mc.source_files = 'ios/library/WhirlyGlobeLib/src/*.{mm,m}', 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp}'
+    mc.public_header_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/*.h' # , "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h", "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/vector_tiles/*.h"
+    mc.private_header_files = 'ios/library/WhirlyGlobeLib/include/*.h'
+    mc.dependency 'WhirlyGlobe/locallibs'
+    mc.dependency 'WhirlyGlobe/glues'
     mc.dependency 'SMCalloutView'
     mc.dependency 'FMDB'
     mc.dependency 'libjson'
     mc.dependency 'KissXML'
     mc.dependency 'eigen'
     mc.dependency 'proj4'
-    mc.libraries = 'z', 'xml2'
-    mc.frameworks = 'CoreLocation', 'MobileCoreServices', 'SystemConfiguration', 'CFNetwork'
+    mc.libraries = 'z', 'xml2', 'c++', 'sqlite3'
+    mc.frameworks = 'CoreLocation', 'MobileCoreServices', 'SystemConfiguration', 'CFNetwork', 'UIKit', 'OpenGLES'
   end
 
 end
