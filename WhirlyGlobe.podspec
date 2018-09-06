@@ -27,7 +27,7 @@ Pod::Spec.new do |s|
   s.source = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'develop' }
 
   s.compiler_flags = '-D__USE_SDL_GLES__ -D__IPHONEOS__ -DSQLITE_OPEN_READONLY -DHAVE_PTHREAD=1 -DUNORDERED=1 -DLASZIPDLL_EXPORTS=1'
-  s.xcconfig = { "HEADER_SEARCH_PATHS" => " \"$(PODS_ROOT)/eigen/\"  \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/protobuf/src/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/laszip/include/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/clipper\" \"$(SDKROOT)/usr/include/libxml2\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/glues/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/private/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/\" " }
+  s.xcconfig = { "HEADER_SEARCH_PATHS" => " \"$(PODS_ROOT)/eigen/\" \"$(PODS_ROOT)/KissXML/KissXML/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/protobuf/src/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/laszip/include/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/clipper\" \"$(SDKROOT)/usr/include/libxml2\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/glues/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/private/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/\" " }
 
   s.default_subspec = 'MaplyComponent'
 
@@ -55,7 +55,7 @@ Pod::Spec.new do |s|
   s.subspec 'MaplyComponent' do |mc|
     mc.source_files = 'ios/library/WhirlyGlobeLib/src/*.{mm,m}', 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp}'
     mc.public_header_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/*.h', "ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/*.h", # "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h"
-    mc.private_header_files = 'ios/library/WhirlyGlobeLib/include/*.h'
+    mc.private_header_files = 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/{MaplyBridge,vector_tile.pb}.h'
     mc.dependency 'WhirlyGlobe/locallibs'
     mc.dependency 'WhirlyGlobe/glues'
     mc.dependency 'SMCalloutView'
