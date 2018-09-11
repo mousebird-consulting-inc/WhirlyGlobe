@@ -28,7 +28,7 @@
 #import "NSString+DDXML.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
-
+#import <sys/utsname.h>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -167,10 +167,69 @@ using namespace WhirlyKit;
     return renderControl.screenObjectDrawPriorityOffset;
 }
 
+- (void)runAnalytics
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    // This is completely random.  We can't track it in any useful way
+    NSString *userID = [userDefaults stringForKey:@"wgmaplyanalyticuser"];
+    NSTimeInterval lastSent = 0.0;
+    if (!userID) {
+        userID = [[NSUUID UUID] UUIDString];
+        [userDefaults setObject:userID forKey:@"wgmaplyanalyticuser"];
+    } else {
+        lastSent = [userDefaults doubleForKey:@"wgmaplyanalytictime"];
+    }
+    
+    // Sent once a week at most
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    if (now - lastSent < 7*24*60*60.0)
+        return;
+
+    // Model number
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    NSString *model = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+    NSDictionary *infoDict = [NSBundle mainBundle].infoDictionary;
+    // Bundle ID, version and build
+    NSString *bundleID = infoDict[@"CFBundleIdentifier"];
+    NSString *build = infoDict[@"CFBundleVersion"];
+    NSString *version = infoDict[@"CFBundleShortVersionString"];
+    NSString *bundleID_version_build = [NSString stringWithFormat:@"%@_%@_%@",bundleID,version,build];
+    // WGMaply version
+    NSString *wgmaplyVersion = @"2.6.0";
+//    NSString *minOSVersion = infoDict[@"MinimumOSVersion"];
+    // OS version
+    NSOperatingSystemVersion osversionID = [[NSProcessInfo processInfo] operatingSystemVersion];
+    NSString *osversion = [NSString stringWithFormat:@"%d.%d.%d",(int)osversionID.majorVersion,(int)osversionID.minorVersion,(int) osversionID.patchVersion];
+
+    // We're not recording anything that can identify the user, just the app
+    NSString *postArgs = [NSString stringWithFormat:@"{\"requests\":[\"?idsite=1&url=http://mousebirdconsulting.com/&action_name=register&rec=1&apiv=1&_id=%@&dimension1=%@&dimension2=%@&dimension3=%@&dimension4=%@&dimension5=%@\"]}",
+                          userID,bundleID,bundleID_version_build,wgmaplyVersion,model,osversion];
+    NSMutableURLRequest *req = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://analytics.mousebirdconsulting.com/piwik.php"]];
+    [req setHTTPMethod:@"POST"];
+    [req setHTTPBody:[postArgs dataUsingEncoding:NSASCIIStringEncoding]];
+    NSLog(@"postArgs = %@",postArgs);
+    
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:req completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSString *respStr = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
+        NSHTTPURLResponse *resp = (NSHTTPURLResponse *)response;
+        NSLog(@"response = %@",response);
+        if (resp.statusCode == 200) {
+            [userDefaults setDouble:now forKey:@"wgmaplyanalytictime"];
+        }
+    }];
+    [dataTask resume];
+}
+
 // Create the Maply or Globe view.
 // For specific parts we'll call our subclasses
 - (void) loadSetup
 {
+//#ifndef TARGET_OS_SIMULATOR
+    [self runAnalytics];
+//#endif
+    
     if (!renderControl)
         renderControl = [[MaplyRenderController alloc] init];
     
