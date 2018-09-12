@@ -157,7 +157,7 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
     if (context.API < kEAGLRenderingAPIOpenGLES3)
     {
         glMem = (unsigned char *)glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-        glMemOffset = batch.offset*vertexSize*batchSize;
+        glMemOffset = batch.batchID*vertexSize*batchSize;
     } else {
         glMem = (unsigned char *)glMapBufferRange(GL_ARRAY_BUFFER, batch.batchID*vertexSize*batchSize, vertexSize*batchSize, GL_MAP_WRITE_BIT);
     }
