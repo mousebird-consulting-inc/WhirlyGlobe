@@ -52,7 +52,15 @@
             _textFontName = [textField stringByReplacingOccurrencesOfString:@" " withString:@"-"];
         }
     }
-    _textMaxWidth = [styleSet doubleValue:@"text-max-width" dict:styleEntry defVal:10.0];
+    id maxWidthEntry = styleEntry[@"text-max-width"];
+    if (maxWidthEntry)
+    {
+        if ([maxWidthEntry isKindOfClass:[NSNumber class]])
+            _textMaxWidth = [styleSet doubleValue:maxWidthEntry defVal:10.0];
+        else
+            _textMaxWidthFunc = [styleSet stopsValue:maxWidthEntry defVal:nil];
+    } else
+        _textMaxWidth = 10.0;
     id sizeEntry = styleEntry[@"text-size"];
     if (sizeEntry)
     {
@@ -260,8 +268,11 @@
                 break;
         }
         // Break it up into lines, if necessary
-        if (_layout.textMaxWidth != 0.0) {
-            label.text = [self breakUpText:label.text width:_layout.textMaxWidth * font.pointSize font:font];
+        double textMaxWidth = _layout.textMaxWidth;
+        if (_layout.textMaxWidthFunc)
+            textMaxWidth = [_layout.textMaxWidthFunc valueForZoom:tileID.level];
+        if (textMaxWidth != 0.0) {
+            label.text = [self breakUpText:label.text width:textMaxWidth * font.pointSize font:font];
         }
         
         // Point or line placement
