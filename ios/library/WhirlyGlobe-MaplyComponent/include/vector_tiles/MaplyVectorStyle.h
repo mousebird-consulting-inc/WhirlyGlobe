@@ -68,7 +68,7 @@
 @property (nonatomic) float wideVecCuttoff;
 
 /// If set, this is the shader we'll use on the areal features.
-@property (nonatomic) NSString * _Nullable arealShaderName;
+@property (nonatomic,strong) NSString * _Nullable arealShaderName;
 
 /// If set, we'll make the areal features selectable.  If not, this saves memory.
 @property (nonatomic) bool selectable;

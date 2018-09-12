@@ -332,7 +332,7 @@
 /**
     Added to the NSURLRequest as an "x-auth-token" if present.
   */
-@property (nonatomic,nullable) NSString *xAuthToken;
+@property (nonatomic,nullable,strong) NSString *xAuthToken;
 
 @end
 

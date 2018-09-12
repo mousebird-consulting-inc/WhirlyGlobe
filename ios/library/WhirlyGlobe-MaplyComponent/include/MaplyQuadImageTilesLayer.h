@@ -112,14 +112,14 @@
     
     If coverPoles is set to true, then this will be the color of the polygons.  If this is not set, we'll pull that color from the textures.
   */
-@property (nonatomic,nullable) UIColor *northPoleColor;
+@property (nonatomic,nullable,strong) UIColor *northPoleColor;
 
 /** 
     Color for polygons that make up the south pole.
  
     If coverPoles is set to true, then this will be the color of the polygons.  If this is not set, we'll pull that color from the textures.
  */
-@property (nonatomic,nullable) UIColor *southPoleColor;
+@property (nonatomic,nullable,strong) UIColor *southPoleColor;
 
 /** 
     Set the minimum viewer height the layer will be visible at.

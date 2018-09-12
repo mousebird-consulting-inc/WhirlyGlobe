@@ -269,6 +269,11 @@ using namespace WhirlyKit;
     CFRunLoopStop(self.runLoop.getCFRunLoop);
 }
 
+// Empty routine used for NSTimer selector
+- (void)noop
+{
+}
+
 // Called to start the thread
 // We'll just spend our time in here
 - (void)main
@@ -299,9 +304,10 @@ using namespace WhirlyKit;
             }
             @autoreleasepool {
                 // Add a timer so the run loop doesn't return immediately
-                NSTimer *timer = [NSTimer timerWithTimeInterval:1000000.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
-                    // Does nothing but keeps CFRunLoopRun() from returning quite so quickly
-                }];
+                NSTimer *timer = [NSTimer timerWithTimeInterval:1000000.0 target:self selector:@selector(noop) userInfo:nil repeats:NO];
+//                NSTimer *timer = [NSTimer timerWithTimeInterval:1000000.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
+//                    // Does nothing but keeps CFRunLoopRun() from returning quite so quickly
+//                }];
                 [_runLoop addTimer:timer forMode:NSDefaultRunLoopMode];
                 CFRunLoopRun();
                 [timer invalidate];

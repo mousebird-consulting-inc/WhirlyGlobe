@@ -35,12 +35,12 @@
 @property (nonatomic) float importance;
 
 /// An object representing the tile source.  Used for sorting.
-@property (nonatomic,nonnull) id tileSource;
+@property (nonatomic,nonnull,strong) id tileSource;
 
 /// URL to fetch from
-@property (nonatomic,nonnull) NSURLRequest *urlReq;
+@property (nonatomic,nonnull,strong) NSURLRequest *urlReq;
 /// File name for cached file (if present).  Save it here when fetched if set.
-@property (nonatomic,nonnull) NSString *cacheFile;
+@property (nonatomic,nonnull,strong) NSString *cacheFile;
 
 /**
     Tile Fetcher success callback.
@@ -65,7 +65,7 @@
 @property (nonatomic,readonly,weak,nullable) MaplyTileFetcher *fetcher;
 
 // Start of stats collection
-@property (nonatomic,nonnull) NSDate *startDate;
+@property (nonatomic,nonnull,strong) NSDate *startDate;
 
 // Total requests, remote and cached
 @property (nonatomic) int totalRequests;

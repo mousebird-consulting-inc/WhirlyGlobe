@@ -34,17 +34,17 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 /// If set, turn the text uppercase
 @property (nonatomic) MapboxTextTransform textTransform;
 /// @brief Field to use when displaying the text
-@property (nonatomic) NSArray<NSString *> *textFields;
+@property (nonatomic,strong) NSArray<NSString *> *textFields;
 /// @brief Font to use for display
-@property (nonatomic) NSString *textFontName;
+@property (nonatomic,strong) NSString *textFontName;
 /// @brief The maximum line width for wrapping
 @property (nonatomic) double textMaxWidth;
 /// If set, a function controlling max width
-@property (nonatomic) MaplyVectorFunctionStops *textMaxWidthFunc;
+@property (nonatomic,strong) MaplyVectorFunctionStops *textMaxWidthFunc;
 /// If set, the immutable text size
 @property (nonatomic) double textSize;
 /// If set, a function that controls text size
-@property (nonatomic) MaplyVectorFunctionStops *textSizeFunc;
+@property (nonatomic,strong) MaplyVectorFunctionStops *textSizeFunc;
 /// How the text is laid out in relation to it's attach point
 @property (nonatomic) MapboxTextAnchor textAnchor;
 
@@ -55,11 +55,11 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 @interface MapboxVectorSymbolPaint : NSObject
 
 // Default text color
-@property (nonatomic) UIColor *textColor;
+@property (nonatomic,strong) UIColor *textColor;
 // Possibly a function to describe the text color
 @property (nonatomic) MaplyVectorFunctionStops *textColorFunc;
 // If there's a halo, this is the color
-@property (nonatomic) UIColor *textHaloColor;
+@property (nonatomic,strong) UIColor *textHaloColor;
 // If there's a halo, this is the size
 @property (nonatomic) double textHaloWidth;
 
@@ -70,8 +70,8 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 /// @brief Icons and symbols
 @interface MapboxVectorLayerSymbol : MaplyMapboxVectorStyleLayer
 
-@property (nonatomic) MapboxVectorSymbolLayout *layout;
-@property (nonatomic) MapboxVectorSymbolPaint *paint;
+@property (nonatomic,strong) MapboxVectorSymbolLayout *layout;
+@property (nonatomic,strong) MapboxVectorSymbolPaint *paint;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
