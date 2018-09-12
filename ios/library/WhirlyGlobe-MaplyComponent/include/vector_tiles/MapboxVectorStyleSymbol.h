@@ -39,6 +39,8 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 @property (nonatomic) NSString *textFontName;
 /// @brief The maximum line width for wrapping
 @property (nonatomic) double textMaxWidth;
+/// If set, a function controlling max width
+@property (nonatomic) MaplyVectorFunctionStops *textMaxWidthFunc;
 /// If set, the immutable text size
 @property (nonatomic) double textSize;
 /// If set, a function that controls text size
