@@ -228,8 +228,19 @@ using namespace WhirlyKit;
 
     dispatch_async(queue,
     ^{
-        [self cancelTileFetchLocal:request];
+        [self cancelTileFetchesLocal:@[request]];
     });
+}
+
+- (void)cancelTileFetches:(NSArray *)requests
+{
+    if (!active)
+        return;
+    
+    dispatch_async(queue,
+                   ^{
+                       [self cancelTileFetchesLocal:requests];
+                   });
 }
 
 // Run on the dispatch queue
@@ -292,28 +303,30 @@ using namespace WhirlyKit;
 }
 
 // Run on the dispatch queue
-- (void)cancelTileFetchLocal:(MaplyTileFetchRequest *)request
+- (void)cancelTileFetchesLocal:(NSArray<MaplyTileFetchRequest *> *)requests
 {
     allStats.totalCancels = allStats.totalCancels + 1;
     recentStats.totalCancels = recentStats.totalCancels + 1;
 
-    auto it = tilesByFetchRequest.find(request);
-    if (it == tilesByFetchRequest.end()) {
-        // Wasn't there.  Ignore.
-        return;
+    for (MaplyTileFetchRequest *request in requests) {
+        auto it = tilesByFetchRequest.find(request);
+        if (it == tilesByFetchRequest.end()) {
+            // Wasn't there.  Ignore.
+            return;
+        }
+        TileInfoRef tile = it->second;
+        switch (tile->state) {
+            case TileInfo::Loading:
+                [tile->task cancel];
+                loading.erase(tile);
+                break;
+            case TileInfo::ToLoad:
+                toLoad.erase(tile);
+                break;
+        }
+        tile->task = nil;
+        tilesByFetchRequest.erase(it);
     }
-    TileInfoRef tile = it->second;
-    switch (tile->state) {
-        case TileInfo::Loading:
-            [tile->task cancel];
-            loading.erase(tile);
-            break;
-        case TileInfo::ToLoad:
-            toLoad.erase(tile);
-            break;
-    }
-    tile->task = nil;
-    tilesByFetchRequest.erase(it);
     
     [self updateLoading];
 }
