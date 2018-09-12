@@ -28,7 +28,7 @@
 #import "NSString+DDXML.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
-
+#import "MaplyTileFetcher_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -63,8 +63,9 @@ using namespace WhirlyKit;
     if (!renderControl->scene)
         return;
     
-    [sharedTileFetcher shutdown];
-    sharedTileFetcher = nil;
+    for (auto tileFetcher : tileFetchers)
+        [tileFetcher shutdown];
+    tileFetchers.clear();
     
     defaultClusterGenerator = nil;
     
@@ -173,9 +174,6 @@ using namespace WhirlyKit;
 {
     if (!renderControl)
         renderControl = [[MaplyRenderController alloc] init];
-    
-    sharedTileFetcher = [[MaplyTileFetcher alloc] initWithConnections:16];
-//    sharedTileFetcher.statsPeriod = 10.0;
     
     allowRepositionForAnnnotations = true;
     
@@ -380,6 +378,12 @@ static const float PerfOutputDelay = 15.0;
     
     renderControl->scene->dumpStats();
     [renderControl->interactLayer dumpStats];
+    for (MaplyTileFetcher *tileFetcher : tileFetchers) {
+        MaplyTileFetcherStats *stats = [tileFetcher getStats:false];
+        [stats dump];
+        [tileFetcher resetStats];
+    }
+    NSLog(@"Sampling layers: %lu",samplingLayers.size());
     
     [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];    
 }
@@ -1191,7 +1195,7 @@ static const float PerfOutputDelay = 15.0;
     return false;
 }
 
-- (void)removeLayer:(MaplyViewControllerLayer *)layer
+- (void)removeLayer:(MaplyViewControllerLayer *)layer wait:(bool)wait
 {
     if (!renderControl)
         return;
@@ -1222,15 +1226,22 @@ static const float PerfOutputDelay = 15.0;
             [layerThread addThingToRelease:theLayer];
             [layerThread cancel];
 
-            // We also have to make sure it actually does finish
-            bool finished = true;
-            do {
-                finished = [layerThread isFinished];
-                if (!finished)
-                    [NSThread sleepForTimeInterval:0.0001];
-            } while (!finished);
+            if (wait) {
+                // We also have to make sure it actually does finish
+                bool finished = true;
+                do {
+                    finished = [layerThread isFinished];
+                    if (!finished)
+                        [NSThread sleepForTimeInterval:0.0001];
+                } while (!finished);
+            }
         }
     }
+}
+
+- (void)removeLayer:(MaplyViewControllerLayer *)layer
+{
+    [self removeLayer:layer wait:false];
 }
 
 - (void)removeLayers:(NSArray *)layers
@@ -1299,14 +1310,32 @@ static const float PerfOutputDelay = 15.0;
     [layer removeBuilderDelegate:userObj];
     
     if (layer.numClients == 0) {
-        [self removeLayer:layer];
-        samplingLayers.erase(std::find(samplingLayers.begin(),samplingLayers.end(),layer));
+        [self removeLayer:layer wait:false];
+        auto it = std::find(samplingLayers.begin(),samplingLayers.end(),layer);
+        if (it != samplingLayers.end())
+            samplingLayers.erase(it);
     }
 }
 
-- (MaplyTileFetcher *)getSharedTileFetcher
+- (MaplyTileFetcher *)addTileFetcher:(NSString *)name
 {
-    return sharedTileFetcher;
+    for (auto tileFetcher : tileFetchers)
+        if ([tileFetcher.name isEqualToString:name])
+            return tileFetcher;
+    
+    MaplyTileFetcher *tileFetcher = [[MaplyTileFetcher alloc] initWithName:name connections:16];
+    tileFetchers.push_back(tileFetcher);
+    
+    return tileFetcher;
+}
+
+- (MaplyTileFetcher *)getTileFetcher:(NSString *)name
+{
+    for (auto tileFetcher : tileFetchers)
+        if ([tileFetcher.name isEqualToString:name])
+            return tileFetcher;
+    
+    return nil;
 }
 
 -(NSArray*)objectsAtCoord:(MaplyCoordinate)coord

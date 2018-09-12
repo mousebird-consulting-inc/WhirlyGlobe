@@ -67,6 +67,7 @@ public:
     public:
         ImportantNode() : importance(0.0) { }
         ImportantNode(const ImportantNode &that) : Node((Node)that), importance(that.importance) { }
+        ImportantNode(const Node &that,double import) : Node((Node)that), importance(import) { }
         ImportantNode(int x,int y,int level) : Node(x,y,level), importance(0.0) { }
 
         bool operator < (const ImportantNode &that) const;
@@ -78,21 +79,27 @@ public:
 
     // Calculate a set of nodes to load based on importance, but only up to the maximum
     // siblingNodes forces us to load all four children of a given parent
-    ImportantNodeSet calcCoverage(double minImportance,int maxNodes,bool siblingNodes);
+    ImportantNodeSet calcCoverageImportance(double minImportance,double minImportanceTop,int maxNodes,bool siblingNodes);
+    
+    /** Calculate the set of nodes to load based on importance.
+        First figure out the highest level we could load.
+        Try to load all visible tiles at that level.
+        If it's too many, back off a level. Repeat.
+      */
+    std::tuple<int,ImportantNodeSet> calcCoverageVisible(double minImportance,double minImportanceTop,int maxNodes,const std::vector<int> &levelLoads);
     
     // Generate a bounding box 
     MbrD generateMbrForNode(const Node &node);
     
-    // Calculate a set of nodes to load based on the input level.
-    // If it exceeds max nodes, we'll back off a level until we run out
-//    NodeSet calcCoverageToLevel(int loadLevel,int maxNodes);
-
 public:
     // Filled in by the subclass
     virtual double importance(const Node &node) = 0;
+    virtual bool visible(const Node &node) = 0;
     
     // Recursively visit the quad tree evaluating as we go
-    void evalNode(ImportantNode node,double minImport,ImportantNodeSet &importSet);
+    void evalNodeImportance(ImportantNode node,double minImport,double minImportTop,ImportantNodeSet &importSet);
+    // This version uses pure visiblity and goes down to a predefined level
+    void evalNodeVisible(ImportantNode node,double maxLevel,ImportantNodeSet &visibleSet);
     
     /// Bounding box
     MbrD mbr;

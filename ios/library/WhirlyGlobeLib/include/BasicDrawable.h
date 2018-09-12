@@ -89,6 +89,9 @@ public:
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff);
     
+    /// Check if this has been set up and (more importantly) hasn't been torn down
+    virtual bool isSetupInGL() { return isSetupGL; }
+    
     /// Set the time range for enable
     void setEnableTimeRange(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable) { startEnable = inStartEnable;  endEnable = inEndEnable; }
     
@@ -232,13 +235,19 @@ public:
     class TexInfo
     {
     public:
-        TexInfo() : texId(EmptyIdentity), texCoordEntry(0), relLevel(0), relX(0), relY(0) { }
+        TexInfo() : texId(EmptyIdentity), texCoordEntry(0),
+                    relLevel(0), relX(0), relY(0),
+                    size(0), borderTexel(0) { }
         /// Texture ID within the scene
         SimpleIdentity texId;
         /// Vertex attribute entry for this set of texture coordinates
         int texCoordEntry;
         /// Our use of this texture relative to its native resolution
         int relLevel,relX,relY;
+        /// Size of a texture side
+        int size;
+        /// Border texels to avoid.  Used for blending.
+        int borderTexel;
     };
     
     /// Return the current texture info
@@ -246,7 +255,7 @@ public:
     
     /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
     ///  it by.  The index returned is how you will access it.
-    virtual int addAttribute(BDAttributeDataType dataType,const std::string &name,int numThings = -1);
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int numThings = -1);
         
     /// Return the number of points added so far
     virtual unsigned int getNumPoints() const;
@@ -277,6 +286,7 @@ public:
     
     /// Set the uniforms to be applied to the
     virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
+    virtual SingleVertexAttributeSet getUniforms() const;
     
     /// Run the texture and texture coordinates based on a SubTexture
     virtual void applySubTexture(int which,SubTexture subTex,int startingAt=0);
@@ -309,7 +319,7 @@ public:
     virtual void setupTexCoordEntry(int which,int numReserve);
     /// Set the relative offsets for texture usage.
     /// We use these to look up parts of a texture at a higher level
-    virtual void setTexRelative(int which,int relLevel,int relX,int relY);
+    virtual void setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY);
     /// Draw routine for OpenGL 2.0
     virtual void drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     /// Add a single point to the GL Buffer.
@@ -317,12 +327,6 @@ public:
     virtual void addPointToBuffer(unsigned char *basePtr,int which,const Point3d *center);
     /// Called while a new VAO is bound.  Set up your VAO-related state here.
     virtual void setupAdditionalVAO(OpenGLES2Program *prog,GLuint vertArrayObj) { }
-    /// Called after the drawable has bound all its various data, but before it actually
-    /// renders.  This is where you would bind your own attributes and uniforms, if you
-    /// haven't already done so in setupAdditionalVAO()
-    virtual void bindAdditionalRenderObjects(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { }
-    /// Called at the end of the drawOGL2() call
-    virtual void postDrawCallback(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { }
     
     // Attributes associated with each vertex, some standard some not
     std::vector<VertexAttribute *> vertexAttributes;
@@ -331,6 +335,7 @@ public:
     // Set up the standard vertex attributes we use
     virtual void setupStandardAttributes(int numReserve=0);
     
+    bool isSetupGL;  // Is setup to draw with GL (needed by the instances)
     bool on;  // If set, draw.  If not, not
     NSTimeInterval startEnable,endEnable;
     SimpleIdentity programId;    // Program to use for rendering
@@ -364,10 +369,21 @@ public:
     // Uniforms to apply to shader
     SingleVertexAttributeSet uniforms;
     
+    // Attribute that should be applied to the given program index if using VAOs
+    class VertAttrDefault
+    {
+    public:
+        VertAttrDefault(GLuint progAttrIndex,const VertexAttribute &attr)
+        : progAttrIndex(progAttrIndex), attr(attr) { }
+        GLuint progAttrIndex;
+        VertexAttribute attr;
+    };
+    
     // Size for a single vertex w/ all its data.  Used by shared buffer
     int vertexSize;
     GLuint pointBuffer,triBuffer,sharedBuffer;
     GLuint vertArrayObj;
+    std::vector<VertAttrDefault> vertArrayDefaults;
     GLuint sharedBufferOffset;
     bool sharedBufferIsExternal;
     
@@ -462,7 +478,7 @@ class DrawTexChangeRequest : public DrawableChangeRequest
 {
 public:
     DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId);
-    DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId,int relLevel,int relX,int relY);
+    DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId,int size,int borderTexel,int relLevel,int relX,int relY);
     
     void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
     
@@ -470,6 +486,7 @@ protected:
     unsigned int which;
     SimpleIdentity newTexId;
     bool relSet;
+    int size,borderTexel;
     int relLevel,relX,relY;
 };
 
@@ -521,5 +538,16 @@ protected:
     float lineWidth;
 };
     
+/// Reset the uniforms passed into a shader for a specific drawable
+class DrawUniformsChangeRequest : public DrawableChangeRequest
+{
+public:
+    DrawUniformsChangeRequest(SimpleIdentity drawID,const SingleVertexAttributeSet &attrs);
+    
+    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    
+protected:
+    SingleVertexAttributeSet attrs;
+};
+    
 }
-

@@ -572,7 +572,7 @@ using namespace WhirlyKit;
         [_viewC useGLContext];
 
         glUseProgram(prog->getProgram());
-        prog->setUniform("u_interp", t);
+        prog->setUniform(u_interpNameID, t);
         [_renderer forceDrawNextFrame];
 
         if (oldContext)

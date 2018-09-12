@@ -83,6 +83,9 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         // Parameters describing how we want a globe broken down
         let sampleParams = MaplySamplingParams()
         sampleParams.coordSys = tileInfo.coordSys!
+        sampleParams.minImportance = 1024 * 1024
+        sampleParams.singleLevel = true
+        sampleParams.levelLoads = [-3];
         if baseVC is WhirlyGlobeViewController {
             sampleParams.coverPoles = true
             sampleParams.edgeMatching = true
@@ -90,15 +93,15 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
             sampleParams.coverPoles = false
             sampleParams.edgeMatching = false
         }
-        // Note: Need to set the tile size because we're loading too much
         sampleParams.minZoom = 0
         sampleParams.maxZoom = tileInfo.maxZoom
         
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
         }
-        // Note: Need to scale the importance for loading here
-        guard let mapboxInterp = MapboxVectorImageInterpeter(loader: imageLoader,
+//        imageLoader.debugMode = true
+
+        guard let mapboxInterp = MapboxVectorImageInterpreter(loader: imageLoader,
                                                              imageStyle: imageStyleSet,
                                                              offlineRender: offlineRender,
                                                              vectorStyle: vectorStyleSet,
@@ -111,12 +114,15 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
-        //        mapVC.performanceOutput = true
+//        mapVC.performanceOutput = true
+        mapVC.setPosition(MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height: 0.01)
         imageLoader = setupLoader(mapVC)
     }
     
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        //        globeVC.performanceOutput = true
+//        globeVC.performanceOutput = true
+        globeVC.setPosition(MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height: 0.01)
+        globeVC.heading = 0.0
 
         imageLoader = setupLoader(globeVC)
     }

@@ -9,7 +9,7 @@
 import Foundation
 
 class GlobeSamplerTestCase: MaplyTestCase {
-    
+
     override init() {
         super.init()
         
@@ -17,9 +17,9 @@ class GlobeSamplerTestCase: MaplyTestCase {
         self.captureDelay = 4
         self.implementations = [.globe,.map]
     }
-    
+
     var imageLoader : MaplyQuadImageLoader? = nil
-    
+
     // Put together a quad sampler layer
     func setupLoader(_ baseVC: MaplyBaseViewController) -> MaplyQuadImageLoader? {
         // Stamen tile source
@@ -30,7 +30,7 @@ class GlobeSamplerTestCase: MaplyTestCase {
                                                  minZoom: Int32(0),
                                                  maxZoom: Int32(maxZoom))
         tileInfo.cacheDir = thisCacheDir
-        
+
         // Parameters describing how we want a globe broken down
         let sampleParams = MaplySamplingParams()
         sampleParams.coordSys = tileInfo.coordSys!
@@ -38,19 +38,22 @@ class GlobeSamplerTestCase: MaplyTestCase {
         sampleParams.edgeMatching = true
         sampleParams.minZoom = tileInfo.minZoom
         sampleParams.maxZoom = tileInfo.maxZoom
-
+        sampleParams.singleLevel = true
+        
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
         }
-        imageLoader.debugMode = true
-        
+        imageLoader.imageFormat = .imageUShort565;
+//        imageLoader.debugMode = true
+
         return imageLoader
     }
-    
+
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
+        globeVC.clearColor = UIColor.red
         imageLoader = setupLoader(globeVC)
     }
-    
+
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         imageLoader = setupLoader(mapVC)
     }

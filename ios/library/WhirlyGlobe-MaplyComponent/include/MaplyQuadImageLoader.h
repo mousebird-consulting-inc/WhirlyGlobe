@@ -41,6 +41,9 @@
 // Data returned from a tile request.  Unparsed.
 @property (nonatomic) NSData * __nonnull tileData;
 
+// If you have more than one tileInfo, you'll get your data back here unparsed.
+@property (nonatomic) NSArray * __nullable multiTileData;
+
 // Can be a UIImage or an NSData containing an image or a MaplyImageTile
 @property (nonatomic) id __nullable image;
 
@@ -79,6 +82,9 @@
 @interface MaplyImageLoaderInterpreter : NSObject<MaplyLoaderInterpreter>
 @end
 
+/// Name of the shared MaplyTileFetcher
+extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
+
 /**
  The Maply Quad Image Loader is for paging image pyramids local or remote.
  
@@ -93,13 +99,22 @@
 @interface MaplyQuadImageLoader : NSObject
 
 /**
- Initialize with a tile source object.
+ Initialize with a single tile info object and the sampling parameters.
  
- The initialize expects a tile source.  The tile source can be one of the standard ones listed above, or it can be one of your own that conforms to the MaplyTileSource protocol. The tile source's coordinate system will be used.
- 
- @param tileSource This is an object conforming to the MaplyTileSource protocol.  There are several you can pass in, or you can write your own.
+ @param params The sampling parameters describing how to break down the data for projection onto a globe or map.
+ @param tileInfo A single tile info object describing where the data is and how to get it.
+ @param viewC the View controller (or renderer) to add objects to.
  */
 - (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfo:(MaplyRemoteTileInfo *__nonnull)tileInfo viewC:(MaplyBaseViewController * __nonnull)viewC;
+
+/**
+  Initialize with multiple tile sources and sampling parameters.
+ 
+ @param params The sampling parameters describing how to break down the data for projection onto a globe or map.
+ @param tileInfos A list of tile info objects to fetch for each tile.  If one fails, the tile fails to load.
+ @param viewC the View controller (or renderer) to add objects to.
+  */
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<MaplyRemoteTileInfo *> *__nonnull)tileInfos viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 /// Use a specific tile fetcher rather than the one shared by everyone else
 - (void)setTileFetcher:(MaplyTileFetcher * __nonnull)tileFetcher;
@@ -107,13 +122,25 @@
 /// Set the interpreter for the data coming back.  If you're just getting images, don't set this.
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp;
 
-// Note: We need a variant that takes just a tile source
+/// Timeout applied to the URL Requests.  20s by default
+@property (nonatomic) NSTimeInterval timeOut;
 
 // Set the draw priority values for produced tiles
 @property (nonatomic) int baseDrawPriority;
 
 // Offset between levels for a calculated draw priority
 @property (nonatomic) int drawPriorityPerLevel;
+
+/**
+    Scale the importance values passed to the loader and used for a loading cutoff.
+ 
+    A larger value means the tile needs to take up *more* space to be loaded.  So bigger values
+    mean less loading.  The importance values are pixels^2.
+  */
+@property (nonatomic) double importanceScale;
+
+/// Any tiles less important than this (screen area in pixels^2) won't be loaded
+@property (nonatomic) double importanceCutoff;
 
 /**
  Set the image format for the texture atlases (thus the imagery).
@@ -136,6 +163,15 @@
  | MaplyImage4Layer8Bit | 32 bits, four channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. |
  */
 @property (nonatomic) MaplyQuadImageFormat imageFormat;
+
+/**
+ Number of border texels to set up around image tiles.
+ 
+ For matching image tiles along borders in 3D (probably the globe) we resample the image slightly smaller than we get and make up a boundary around the outside.  This number controls that border size.
+ 
+ By default this is 1.  It's safe to set it to 0 for 2D maps and some overlays.
+ */
+@property (nonatomic) int borderTexel;
 
 /**
  Control how tiles are indexed, either from the lower left or the upper left.
