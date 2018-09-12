@@ -245,6 +245,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
         _maxLevel = [res intForColumn:@"maxlevel"];
         compressed = [res boolForColumn:@"compressed"];
     }
+    [res close];
     
     // Layer names
     res = [db executeQuery:@"SELECT name FROM layers"];
@@ -254,6 +255,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
         NSString *layerName = [res stringForColumn:@"name"];
         [layerNames addObject:layerName];
     }
+    [res close];
     _layerNames = layerNames;
     if ([layerNames count] == 0)
         return nil;
@@ -272,6 +274,7 @@ typedef std::map<std::string,MaplyVectorTileStyle *> StyleMap;
             return nil;
         [styles addObject:styleDict];
     }
+    [res close];
     _styles = styles;
     
     _settings = [[MaplyVectorStyleSettings alloc] init];

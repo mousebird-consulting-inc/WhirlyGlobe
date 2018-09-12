@@ -32,7 +32,9 @@ namespace WhirlyKit
 {
     
 class SceneGraphGroup;
-    
+class SceneGraphManager;
+typedef std::set<SceneGraphGroup *,WhirlyKit::IdentifiableSorter> SceneGraphNodeSet;
+
 // Base class for scenegraph nodes
 class SceneGraphNode
 {
@@ -40,6 +42,15 @@ public:
     SceneGraphNode() : parent(NULL) { }
     virtual ~SceneGraphNode() { }
     SceneGraphGroup *parent;
+    
+    // Used to build up the geometry we're to draw
+    virtual void traverseNodeDrawables(SceneGraphManager *manage,const Point3f &localPt,const std::set<SceneGraphNode *> &siblingNodes,SimpleIDSet &toDraw) { }
+    
+    // Returns all the node IDs
+    virtual void traverseAddNodeIDs(SceneGraphManager *manage,SceneGraphNodeSet &allNodes) { }
+    
+    // Removes all the node IDs and drawables
+    virtual void traverseRemNodeIDs(SceneGraphManager *manage,SceneGraphNodeSet &allNodes,ChangeSet &changes) { }
 };
     
 // Container for drawables
@@ -50,7 +61,10 @@ public:
     virtual ~SceneGraphGeometry() {  }
     
     void addDrawable(SimpleIdentity drawID) { drawIDs.insert(drawID); }
-    
+        
+    void traverseNodeDrawables(SceneGraphManager *manage,const Point3f &localPt,const std::set<SceneGraphNode *> &siblingNodes,SimpleIDSet &toDraw);
+    void traverseRemNodeIDs(SceneGraphManager *manage,SceneGraphNodeSet &allNodes,ChangeSet &changes);
+
     // Set if we're already displaying this
     bool isDisplayed;
     SimpleIDSet drawIDs;
@@ -72,7 +86,11 @@ public:
     
     void addChild(SceneGraphNode *child) { nodes.insert(child); child->parent = this; }
     void removeChild(SceneGraphNode *child) { child->parent = NULL; nodes.erase(child); }
-    
+
+    void traverseNodeDrawables(SceneGraphManager *manage,const Point3f &localPt,const std::set<SceneGraphNode *> &siblingNodes,SimpleIDSet &toDraw);
+    void traverseAddNodeIDs(SceneGraphManager *manage,SceneGraphNodeSet &allNodes);
+    void traverseRemNodeIDs(SceneGraphManager *manage,SceneGraphNodeSet &allNodes,ChangeSet &changes);
+
     int numExpectedChildren;
     std::set<SceneGraphNode *> nodes;
 };    
@@ -82,6 +100,8 @@ class SceneGraphLOD : public SceneGraphGroup
 {
 public:
     SceneGraphLOD() { numExpectedChildren = 0; }
+    
+    void traverseNodeDrawables(SceneGraphManager *manage,const Point3f &localPt,const std::set<SceneGraphNode *> &siblingNodes,SimpleIDSet &toDraw);
     
     float switchIn,switchOut;
     WhirlyKit::Point3f center;
@@ -114,24 +134,14 @@ public:
     void dumpStats();
     
 protected:
-    // Recursive traversal for a scenegraph node
-    void traverseNode(WhirlyKit::Point3f localPt,SceneGraphNode *node,std::set<SceneGraphNode *> &siblingNodes,SimpleIDSet &toDraw);
-    
-    // Recursively add Node IDs to our full set of node IDs
-    void traverseAddNodeIDs(SceneGraphNode *node);
-    
-    // Remove the various Node IDS from our full set
-    void traverseRemNodeIDs(SceneGraphNode *node,ChangeSet &changes);
-    
     // Look for a drawable by ID
     Drawable *getDrawable(SimpleIdentity drawID);
     
     // Top level nodes in the scenegraph
-    typedef std::set<SceneGraphGroup *,WhirlyKit::IdentifiableSorter> NodeSet;
-    NodeSet topNodes;
+    SceneGraphNodeSet topNodes;
     
     // All group nodes indexed by ID
-    NodeSet allNodes;
+    SceneGraphNodeSet allNodes;
     
     // All the drawables in the scenegraph (only used if we're not in atlas mode)
     std::set<BasicDrawable *,IdentifiableSorter> drawables;
