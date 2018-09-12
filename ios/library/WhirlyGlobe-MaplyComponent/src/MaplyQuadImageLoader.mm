@@ -35,7 +35,7 @@ class TileAsset
 {
 public:
     TileAsset() :
-        ourTexture(false), texID(EmptyIdentity), drawPriority(0), compObjs(nil), shouldEnable(false), enable(false), fetchHandle(nil), state(Waiting)
+        ourTexture(false), texID(EmptyIdentity), drawPriority(0), compObjs(nil), shouldEnable(false), enable(false), state(Waiting)
     { }
 
     // Tile is doing what?
@@ -99,22 +99,56 @@ public:
     }
  
     // Kick off the request and keep track of the handle for later
-    void startFetch(MaplyTileFetcher *tileFetcher,MaplyTileFetchRequest *request) {
+    void startFetch(MaplyTileFetcher *tileFetcher,NSArray<MaplyTileFetchRequest *> *requests) {
         state = Loading;
-        fetchHandle = [tileFetcher startTileFetch:request];
+        for (MaplyTileFetchRequest *request in requests)
+            fetchHandles.push_back(request);
+        [tileFetcher startTileFetches:requests];
     }
 
     // Stop trying to make Fetch happen
     void cancelFetch(MaplyTileFetcher *tileFetcher) {
-        [tileFetcher cancelTileFetch:fetchHandle];
+        NSMutableArray *toCancel = [NSMutableArray array];
+        for (unsigned int ii=0;ii<fetchHandles.size();ii++)
+            if (fetchHandles[ii]) {
+                [toCancel addObject:fetchHandles[ii]];
+                fetchHandles[ii] = nil;
+            }
+        [tileFetcher cancelTileFetches:toCancel];
         state = Waiting;
-        fetchHandle = nil;
     }
     
     // Called after a completed load
-    void setHasLoaded() {
-        state = Loaded;
-        fetchHandle = nil;
+    bool setHasLoaded(MaplyTileFetchRequest *request,NSData *loadedData) {
+        bool anyLoading = false;
+        int which = -1;
+        for (unsigned int ii=0;ii<fetchHandles.size();ii++) {
+            if (fetchHandles[ii] == request) {
+                which = ii;
+                fetchHandles[ii] = nil;
+            }
+            if (fetchHandles[ii])
+                anyLoading = true;
+        }
+        if (!anyLoading) {
+            state = Loaded;
+        }
+        
+        // Keep track of the data in case we're loading multiple sets
+        if (which >= 0) {
+            if (which >= fetchedData.size())
+                fetchedData.resize(which+1,NULL);
+            fetchedData[which] = loadedData;
+        }
+        
+        return !anyLoading;
+    }
+    
+    // Return the list of data fetched and clear it locally
+    std::vector<NSData *> getAndClearData() {
+        auto toRet = fetchedData;
+        fetchedData.clear();
+        return toRet;
     }
     
     // After a successful load, set up the texture and any other contents
@@ -289,7 +323,10 @@ protected:
     NSArray *compObjs;
     
     // Handle returned by the fetcher while it's fetching
-    id fetchHandle;
+    std::vector<id> fetchHandles;
+    
+    // Data returned by the fetcher, in case we have more than one tile info
+    std::vector<NSData *> fetchedData;
 };
 
 typedef std::map<QuadTreeNew::Node,TileAssetRef> TileAssetMap;
@@ -328,7 +365,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 @implementation MaplyQuadImageLoader
 {
     MaplySamplingParams *params;
-    MaplyRemoteTileInfo *tileInfo;
+    NSArray<MaplyRemoteTileInfo *> *tileInfos;
     WhirlyKitQuadTileBuilder * __weak builder;
     WhirlyKitQuadDisplayLayerNew * __weak layer;
     int minLevel,maxLevel;
@@ -344,10 +381,15 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     MaplyQuadSamplingLayer *samplingLayer;
 }
 
-- (nullable instancetype)initWithParams:(MaplySamplingParams *)inParams tileInfo:(MaplyRemoteTileInfo *__nonnull)inTileInfo viewC:(MaplyBaseViewController * __nonnull)inViewC
+- (instancetype)initWithParams:(MaplySamplingParams *)params tileInfo:(MaplyRemoteTileInfo *)tileInfo viewC:(MaplyBaseViewController *)viewC
+{
+    return [self initWithParams:params tileInfos:@[tileInfo] viewC:viewC];
+}
+
+- (nullable instancetype)initWithParams:(MaplySamplingParams *)inParams tileInfos:(NSArray<MaplyRemoteTileInfo *> *__nonnull)inTileInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
 {
     params = inParams;
-    tileInfo = inTileInfo;
+    tileInfos = inTileInfos;
     viewC = inViewC;
 
     _baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
@@ -357,8 +399,12 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
     _flipY = true;
     _debugMode = false;
-    minLevel = tileInfo.minZoom;
-    maxLevel = tileInfo.maxZoom;
+    minLevel = 10000;
+    maxLevel = -1;
+    for (MaplyRemoteTileInfo *tileInfo in tileInfos) {
+        minLevel = std::min(minLevel,tileInfo.minZoom);
+        maxLevel = std::max(maxLevel,tileInfo.maxZoom);
+    }
     _importanceScale = 1.0;
     _importanceCutoff = 0.0;
     _imageFormat = MaplyImageIntRGBA;
@@ -531,25 +577,32 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     if (_debugMode)
         NSLog(@"Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
     
-    // Put together a request for the fetcher
-    MaplyTileFetchRequest *request = [[MaplyTileFetchRequest alloc] init];
-    MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
-    NSMutableURLRequest *urlReq = [[tileInfo requestForTile:tileID] mutableCopy];
-    urlReq.timeoutInterval = _timeOut;
-    request.urlReq = urlReq;
-    request.cacheFile = [tileInfo fileNameForTile:tileID];
-    request.tileSource = tileInfo;
-    request.priority = 0;
-    request.importance = ident.importance * _importanceScale;
+    NSMutableArray *requests = [NSMutableArray array];
     
-    request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
-        [self fetchRequestSuccess:request tileID:tileID frame:-1 data:data];
-    };
-    request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-        [self fetchRequestFail:request tileID:tileID frame:-1 error:error];
-    };
+    for (MaplyRemoteTileInfo *tileInfo in tileInfos) {
+        if (ident.level >= tileInfo.minZoom && ident.level <= tileInfo.maxZoom) {
+            // Put together a request for the fetcher
+            MaplyTileFetchRequest *request = [[MaplyTileFetchRequest alloc] init];
+            MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
+            NSMutableURLRequest *urlReq = [[tileInfo requestForTile:tileID] mutableCopy];
+            urlReq.timeoutInterval = _timeOut;
+            request.urlReq = urlReq;
+            request.cacheFile = [tileInfo fileNameForTile:tileID];
+            request.tileSource = tileInfo;
+            request.priority = 0;
+            request.importance = ident.importance * _importanceScale;
+            
+            request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
+                [self fetchRequestSuccess:request tileID:tileID frame:-1 data:data];
+            };
+            request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
+                [self fetchRequestFail:request tileID:tileID frame:-1 error:error];
+            };
+            [requests addObject:request];
+        }
+    }
 
-    tile->startFetch(tileFetcher,request);
+    tile->startFetch(tileFetcher,requests);
 }
 
 - (TileAssetRef)addNewTile:(QuadTreeNew::ImportantNode)ident layer:(MaplyBaseInteractionLayer *)interactLayer changes:(ChangeSet &)changes
@@ -606,8 +659,49 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     loadData.tileID = tileID;
     loadData.frame = frame;
     loadData.tileData = data;
-    [self->loadInterp parseData:loadData];
-    [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
+    [self performSelector:@selector(mergeFetchRequest:) onThread:self->samplingLayer.layerThread withObject:@[loadData,request] waitUntilDone:NO];
+}
+
+// Called on the SamplingLayer.LayerThread
+- (void)mergeFetchRequest:(NSArray *)retData
+{
+    MaplyLoaderReturn *loadReturn = [retData objectAtIndex:0];
+    MaplyTileFetchRequest *request = [retData objectAtIndex:1];
+
+    QuadTreeNew::Node ident(loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.tileID.level);
+    auto it = tiles.find(ident);
+    // Failed, so clean up the objects that may have been created
+    if (it == tiles.end() || it->second->getState() != TileAsset::Loading || loadReturn.error) {
+        if (loadReturn.compObjs) {
+            [viewC removeObjects:loadReturn.compObjs mode:MaplyThreadCurrent];
+        }
+        return;
+    }
+    auto tile = it->second;
+
+    // Loaded all the requests, so parse the data
+    if (tile->setHasLoaded(request,loadReturn.tileData)) {
+        // Construct a LoaderReturn that contains all the data
+        auto allData = tile->getAndClearData();
+        if (allData.empty())
+            return;
+        
+        MaplyLoaderReturn *multiLoadData = [[MaplyLoaderReturn alloc] init];
+        multiLoadData.tileID = loadReturn.tileID;
+        multiLoadData.frame = loadReturn.frame;
+        multiLoadData.multiTileData = [NSMutableArray array];
+        for (unsigned int ii=0;ii<allData.size();ii++)
+            [(NSMutableArray *)multiLoadData.multiTileData addObject:allData[ii]];
+        multiLoadData.tileData = [multiLoadData.multiTileData objectAtIndex:0];
+
+        // Hand over to another queue to do the parsing, since that can be slow
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self->loadInterp parseData:multiLoadData];
+            
+            [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:multiLoadData waitUntilDone:NO];
+        });
+    }
+
 }
 
 // Called on SamplingLayer.layerThread
@@ -622,7 +716,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     QuadTreeNew::Node ident(loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.tileID.level);
     auto it = tiles.find(ident);
     // Failed, so clean up the objects that may have been created
-    if (it == tiles.end() || it->second->getState() != TileAsset::Loading || loadReturn.error)
+    if (it == tiles.end() || it->second->getState() != TileAsset::Loaded || loadReturn.error)
     {
         if (loadReturn.compObjs) {
             [viewC removeObjects:loadReturn.compObjs mode:MaplyThreadCurrent];
@@ -632,8 +726,6 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         return;
     }
     auto tile = it->second;
-    
-    tile->setHasLoaded();
     
     // We know the tile succeeded and is something we're looking for
     // Now put its data in place
@@ -683,6 +775,8 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error
 {
     NSLog(@"MaplyQuadImageLoader: Failed to fetch tile %d: (%d,%d) because:\n%@",tileID.level,tileID.x,tileID.y,[error localizedDescription]);
+    
+    
 }
 
 // Decide if this tile ought to be loaded
