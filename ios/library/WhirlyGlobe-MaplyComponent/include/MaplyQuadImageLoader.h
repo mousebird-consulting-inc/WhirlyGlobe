@@ -39,20 +39,20 @@
 @property (nonatomic,assign) int frame;
 
 // Data returned from a tile request.  Unparsed.
-@property (nonatomic) NSData * __nonnull tileData;
+@property (nonatomic,strong) NSData * __nonnull tileData;
 
 // If you have more than one tileInfo, you'll get your data back here unparsed.
-@property (nonatomic) NSArray * __nullable multiTileData;
+@property (nonatomic,strong) NSArray * __nullable multiTileData;
 
 // Can be a UIImage or an NSData containing an image or a MaplyImageTile
-@property (nonatomic) id __nullable image;
+@property (nonatomic,strong) id __nullable image;
 
 // If any component objects are associated with the tile, these are them.
 // They need to start disabled.  The system will enable and delete them when it is time.
-@property (nonatomic) NSArray * __nullable compObjs;
+@property (nonatomic,strong) NSArray * __nullable compObjs;
 
 // If this is set, the tile failed to parse
-@property (nonatomic) NSError * __nullable error;
+@property (nonatomic,strong) NSError * __nullable error;
 
 @end
 

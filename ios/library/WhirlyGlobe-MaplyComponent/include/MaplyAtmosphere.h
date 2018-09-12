@@ -55,7 +55,7 @@
 @property (nonatomic) float exposure;
 
 /// The ground shader we set up.  You need to apply it yourself.
-@property (nonatomic,nullable) MaplyShader *groundShader;
+@property (nonatomic,nullable,strong) MaplyShader *groundShader;
 
 /// If set we'll lock the sun direction to the camera position.  Permanent daylight.
 @property (nonatomic) bool lockToCamera;

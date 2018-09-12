@@ -113,7 +113,7 @@ public:
     /// The triangles, which reference points
     std::vector<RawTriangle> triangles;
     /// A texture ID for the geometry
-    int texId;
+    long long texId;
 };
 
 /// Represents a single Geometry Instance

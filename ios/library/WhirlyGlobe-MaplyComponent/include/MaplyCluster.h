@@ -45,7 +45,7 @@
 @interface MaplyClusterGroup : NSObject
 
 /// The image to use for the group
-@property (nonatomic) id __nonnull image;
+@property (nonatomic,strong) id __nonnull image;
 
 /// Screen size to use for the resulting marker
 @property (nonatomic,assign) CGSize size;
@@ -128,6 +128,6 @@
 
 /// The shader to use when moving objects around
 /// When warping objects to their new locations we use a motion shader.  Set this if you want to override the default.
-@property (nonatomic) MaplyShader * __nullable motionShader;
+@property (nonatomic,strong) MaplyShader * __nullable motionShader;
 
 @end
