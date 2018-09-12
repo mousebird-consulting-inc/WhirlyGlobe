@@ -41,13 +41,17 @@
 @protocol WhirlyKitQuadLoaderNew <NSObject>
 
 /// Called when the layer first starts up.  Keep this around if you need it.
-- (void)setQuadLayer:(WhirlyKitQuadDisplayLayerNew *)layer;
+- (void)setQuadLayer:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer;
 
-/// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)tiles;
+/// Load some tiles, unload others, and the rest had their importance values change
+/// Return the nodes we wanted to keep rather than delete
+- (WhirlyKit::QuadTreeNew::NodeSet)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer
+               loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)tiles
+             unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)tiles
+             updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles;
 
-/// Unload the given tiles.
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)tiles;
+/// Called right before the layer thread flushes its change requests
+- (void)quadDisplayLayerPreSceneFlush:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer;
 
 @end
 
@@ -58,31 +62,37 @@
 @interface WhirlyKitQuadDisplayLayerNew : NSObject<WhirlyKitLayer>
 
 /// Layer thread we're attached to
-@property (nonatomic,weak,readonly) WhirlyKitLayerThread *layerThread;
+@property (nonatomic,weak,readonly,nullable) WhirlyKitLayerThread *layerThread;
 /// Scene we're modifying
-@property (nonatomic,readonly) WhirlyKit::Scene *scene;
+@property (nonatomic,readonly,nullable) WhirlyKit::Scene *scene;
 /// Quad tree used for paging advice
-@property (nonatomic,readonly) WhirlyKit::QuadTreeNew *quadtree;
+@property (nonatomic,readonly,nullable) WhirlyKit::QuadTreeNew *quadtree;
 /// Coordinate system we're working in for tiling
-@property (nonatomic,readonly) WhirlyKit::CoordSystem *coordSys;
+@property (nonatomic,readonly,nullable) WhirlyKit::CoordSystem *coordSys;
 /// Valid bounding box in local coordinates (coordSys)
 @property (nonatomic,readonly) WhirlyKit::Mbr mbr;
 /// Maximum number of tiles loaded in at once
 @property (nonatomic,assign) int maxTiles;
 /// Minimum screen area to consider for a pixel
 @property (nonatomic,assign) float minImportance;
+/// Separate importance number of top level nodes
+@property (nonatomic,assign) float minImportanceTop;
 /// How often this layer gets notified of view changes.  1s by default.
 @property (nonatomic,assign) float viewUpdatePeriod;
 /// Data source for the quad tree structure
-@property (nonatomic,strong) NSObject<WhirlyKitQuadDataStructure> *dataStructure;
+@property (nonatomic,strong,nullable) NSObject<WhirlyKitQuadDataStructure> *dataStructure;
 /// Loader responds to our requests to load and unload tiles
-@property (nonatomic,strong) NSObject<WhirlyKitQuadLoaderNew> *loader;
+@property (nonatomic,strong,nullable) NSObject<WhirlyKitQuadLoaderNew> *loader;
 /// The renderer we need for frame sizes
-@property (nonatomic,weak) WhirlyKitSceneRendererES2 *renderer;
+@property (nonatomic,weak,nullable) WhirlyKitSceneRendererES2 *renderer;
 /// On by default.  If you turn this off we won't evaluate any view changes.
 @property (nonatomic,assign) bool enable;
+/// Load just the target level (and the lowest level)
+@property (nonatomic,assign) bool singleLevel;
+// Level offsets in single level mode
+@property (nonatomic,nullable) NSArray<NSNumber *> *levelLoads;
 
 /// Construct with a renderer and data source for the tiles
-- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)dataStructure loader:(NSObject<WhirlyKitQuadLoaderNew> *)loader renderer:(WhirlyKitSceneRendererES *)renderer;
+- (nonnull)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> * __nonnull)dataStructure loader:(NSObject<WhirlyKitQuadLoaderNew> * __nonnull)loader renderer:(WhirlyKitSceneRendererES * __nonnull)renderer;
 
 @end

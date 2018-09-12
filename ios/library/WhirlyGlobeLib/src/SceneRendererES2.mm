@@ -461,10 +461,22 @@ static const float ScreenOverlap = 0.1;
         if (globeView)
             baseFrameInfo.heightAboveSurface = globeView.heightAboveSurface;
         baseFrameInfo.eyePos = Vector3d(eyeVec4d.x(),eyeVec4d.y(),eyeVec4d.z()) * (1.0+baseFrameInfo.heightAboveSurface);
+        
+        if (perfInterval > 0)
+            perfTimer.startTiming("Scene preprocessing");
+
+        // Run the preprocess for the changes.  These modify things the active models need.
+        int numPreProcessChanges = scene->preProcessChanges(super.theView, self, now);
 
         if (perfInterval > 0)
-            perfTimer.startTiming("Scene processing");
-        
+            perfTimer.addCount("Preprocess Changes", numPreProcessChanges);
+
+        if (perfInterval > 0)
+            perfTimer.stopTiming("Scene preprocessing");
+
+        if (perfInterval > 0)
+            perfTimer.startTiming("Active Model Runs");
+
         // Let the active models to their thing
         // That thing had better not take too long
         for (NSObject<WhirlyKitActiveModel> *activeModel in scene->activeModels)
@@ -474,10 +486,18 @@ static const float ScreenOverlap = 0.1;
             [EAGLContext setCurrentContext:context];
         }
         if (perfInterval > 0)
+            perfTimer.addCount("Active Models", (int)[scene->activeModels count]);
+
+        if (perfInterval > 0)
+            perfTimer.stopTiming("Active Model Runs");
+
+        if (perfInterval > 0)
             perfTimer.addCount("Scene changes", (int)scene->changeRequests.size());
         
-		// Merge any outstanding changes into the scenegraph
-		// Or skip it if we don't acquire the lock
+        if (perfInterval > 0)
+            perfTimer.startTiming("Scene processing");
+
+        // Merge any outstanding changes into the scenegraph
 		scene->processChanges(super.theView,self,now);
         
         if (perfInterval > 0)
@@ -705,7 +725,7 @@ static const float ScreenOverlap = 0.1;
                         if (program->hasLights() && ([lights count] > 0))
                         program->setLights(lights, lightsLastUpdated, defaultMat, currentMvpMat);
                         // Explicitly turn the lights on
-                        program->setUniform(kWKOGLNumLights, (int)[lights count]);
+                        program->setUniform(u_numLightsNameID, (int)[lights count]);
                         
                         baseFrameInfo.program = program;
                     }
@@ -805,7 +825,7 @@ static const float ScreenOverlap = 0.1;
                             //                            [renderStateOptimizer setUseProgram:program->getProgram()];
                             glUseProgram(program->getProgram());
                             // Explicitly turn the lights off
-                            program->setUniform(kWKOGLNumLights, 0);
+                            program->setUniform(u_numLightsNameID, 0);
                             baseFrameInfo.program = program;
                         }
                     }

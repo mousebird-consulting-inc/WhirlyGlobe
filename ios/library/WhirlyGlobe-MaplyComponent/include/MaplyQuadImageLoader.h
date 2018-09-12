@@ -79,6 +79,9 @@
 @interface MaplyImageLoaderInterpreter : NSObject<MaplyLoaderInterpreter>
 @end
 
+/// Name of the shared MaplyTileFetcher
+extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
+
 /**
  The Maply Quad Image Loader is for paging image pyramids local or remote.
  
@@ -107,13 +110,25 @@
 /// Set the interpreter for the data coming back.  If you're just getting images, don't set this.
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp;
 
-// Note: We need a variant that takes just a tile source
+/// Timeout applied to the URL Requests.  20s by default
+@property (nonatomic) NSTimeInterval timeOut;
 
 // Set the draw priority values for produced tiles
 @property (nonatomic) int baseDrawPriority;
 
 // Offset between levels for a calculated draw priority
 @property (nonatomic) int drawPriorityPerLevel;
+
+/**
+    Scale the importance values passed to the loader and used for a loading cutoff.
+ 
+    A larger value means the tile needs to take up *more* space to be loaded.  So bigger values
+    mean less loading.  The importance values are pixels^2.
+  */
+@property (nonatomic) double importanceScale;
+
+/// Any tiles less important than this (screen area in pixels^2) won't be loaded
+@property (nonatomic) double importanceCutoff;
 
 /**
  Set the image format for the texture atlases (thus the imagery).
@@ -136,6 +151,15 @@
  | MaplyImage4Layer8Bit | 32 bits, four channels of 8 bits each.  Just like MaplyImageIntRGBA, but a warning not to do anything too clever in sampling. |
  */
 @property (nonatomic) MaplyQuadImageFormat imageFormat;
+
+/**
+ Number of border texels to set up around image tiles.
+ 
+ For matching image tiles along borders in 3D (probably the globe) we resample the image slightly smaller than we get and make up a boundary around the outside.  This number controls that border size.
+ 
+ By default this is 1.  It's safe to set it to 0 for 2D maps and some overlays.
+ */
+@property (nonatomic) int borderTexel;
 
 /**
  Control how tiles are indexed, either from the lower left or the upper left.

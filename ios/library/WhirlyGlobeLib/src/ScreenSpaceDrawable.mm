@@ -28,11 +28,11 @@ namespace WhirlyKit
 
 ScreenSpaceDrawable::ScreenSpaceDrawable(bool hasMotion,bool hasRotation) : BasicDrawable("ScreenSpace"), keepUpright(false), motion(hasMotion), rotation(hasRotation), offsetIndex(-1), rotIndex(-1), dirIndex(-1)
 {
-    offsetIndex = addAttribute(BDFloat2Type, "a_offset");
+    offsetIndex = addAttribute(BDFloat2Type, a_offsetNameID);
     if (hasRotation)
-        rotIndex = addAttribute(BDFloat3Type, "a_rot");
+        rotIndex = addAttribute(BDFloat3Type, a_rotNameID);
     if (hasMotion)
-        dirIndex = addAttribute(BDFloat3Type, "a_dir");
+        dirIndex = addAttribute(BDFloat3Type, a_dirNameID);
 }
     
 void ScreenSpaceDrawable::setKeepUpright(bool newVal)
@@ -91,11 +91,11 @@ void ScreenSpaceDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scen
 {
     if (frameInfo.program)
     {
-        frameInfo.program->setUniform("u_scale", Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
-        frameInfo.program->setUniform("u_upright", keepUpright);
+        frameInfo.program->setUniform(u_ScaleNameID, Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
+        frameInfo.program->setUniform(u_uprightNameID, keepUpright);
         if (motion)
-            frameInfo.program->setUniform("u_time", (float)(frameInfo.currentTime - startTime));
-        frameInfo.program->setUniform("u_activerot", (rotIndex >= 0 ? 1 : 0));
+            frameInfo.program->setUniform(u_TimeNameID, (float)(frameInfo.currentTime - startTime));
+        frameInfo.program->setUniform(u_activerotNameID, (rotIndex >= 0 ? 1 : 0));
     }
 
     BasicDrawable::draw(frameInfo,scene);

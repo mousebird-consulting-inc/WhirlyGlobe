@@ -21,13 +21,14 @@
 #import "BillboardDrawable.h"
 #import "OpenGLES2Program.h"
 #import "GLUtils.h"
+#import "SceneRendererES.h"
 
 namespace WhirlyKit
 {
 
 BillboardDrawable::BillboardDrawable() : BasicDrawable("Billboard")
 {
-    offsetIndex = addAttribute(BDFloat3Type, "a_offset");
+    offsetIndex = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_offset"));
 }
     
 void BillboardDrawable::addOffset(const Point3f &offset)
@@ -132,7 +133,7 @@ WhirlyKit::OpenGLES2Program *BuildBillboardGroundProgram()
         glUseProgram(shader->getProgram());
         CheckGLError("BuildBillboardGroundProgram() glUseProgram");
         
-        shader->setUniform("u_eyeVec", Point3f(0,0,1));
+        shader->setUniform(u_EyeVecNameID, Point3f(0,0,1));
     }
 
     
@@ -153,7 +154,7 @@ WhirlyKit::OpenGLES2Program *BuildBillboardEyeProgram()
     {
         glUseProgram(shader->getProgram());
         
-        shader->setUniform("u_eyeVec", Point3f(0,0,1));
+        shader->setUniform(u_EyeVecNameID, Point3f(0,0,1));
     }
     
     

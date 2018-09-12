@@ -49,6 +49,9 @@
 
 @optional
 
+/// Called right before we flush the change requests to the scene
+- (void)preSceneFlush:(WhirlyKitLayerThread *)layerThread;
+
 /// An optional version of teardown that's called when the whole Scene is being shut down
 /// Use this if you have non-visual objects you have to clean up
 - (void)systemTeardown;

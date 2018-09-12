@@ -34,7 +34,7 @@
  
  This tile source will render some data into images for use by the QuadImages layer and then
  */
-@interface MapboxVectorImageInterpeter : NSObject<MaplyLoaderInterpreter>
+@interface MapboxVectorImageInterpreter : NSObject<MaplyLoaderInterpreter>
 
 - (instancetype _Nullable ) initWithLoader:(MaplyQuadImageLoader *__nonnull)loader
                                 imageStyle:(MapboxVectorStyleSet *__nonnull)imageStyle
