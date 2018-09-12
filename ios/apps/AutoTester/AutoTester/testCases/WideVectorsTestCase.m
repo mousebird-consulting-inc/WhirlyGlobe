@@ -85,6 +85,7 @@
         NSData *data = [NSData dataWithContentsOfFile:path];
         MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithGeoJSON:data];
         if(vecObj) {
+            [vecObj subdivideToGlobe:0.0001];
             MaplyComponentObject *obj1 = [baseViewC addWideVectors:@[vecObj]
                                  desc: @{kMaplyColor: [UIColor colorWithRed:1 green:0 blue:0 alpha:1.0],
                                          kMaplyFilled: @NO,
@@ -220,7 +221,7 @@
     [self addGeoJson:@"track.geojson" viewC:viewC];
     [self addGeoJson:@"uturn2.geojson" dashPattern:@[@16, @16] width:40 viewC:viewC];
     
-    [self addGeoJson:@"testJson.json" viewC:viewC];
+//    [self addGeoJson:@"testJson.json" viewC:viewC];
     
     //    [self addGeoJson:@"straight.geojson"];
     //    [self addGeoJson:@"uturn.geojson"];
