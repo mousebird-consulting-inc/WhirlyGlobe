@@ -67,6 +67,7 @@
         _minZoom = [res intForColumn:@"minlevel"];
         _maxZoom = [res intForColumn:@"maxlevel"];
     }
+    [res close];
     
     queue = [FMDatabaseQueue databaseQueueWithPath:infoPath];
 
