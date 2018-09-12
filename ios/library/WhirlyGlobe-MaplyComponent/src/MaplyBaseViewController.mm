@@ -29,6 +29,7 @@
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
 #import <sys/utsname.h>
+#import <dns_sd.h>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -167,7 +168,62 @@ using namespace WhirlyKit;
     return renderControl.screenObjectDrawPriorityOffset;
 }
 
-- (void)runAnalytics
+static NSString *serverName = nil;
+
+// This is the callback to the DNS lookup.
+// We need the actual name
+static void dnsQueryCallback(DNSServiceRef sdRef,
+                             DNSServiceFlags flags,
+                             uint32_t interfaceIndex,
+                             DNSServiceErrorType errorCode,
+                             const char *fullname,
+                             uint16_t rrtype,
+                             uint16_t rrclass,
+                             uint16_t rdlen,
+                             const void *rdata,
+                             uint32_t ttl,
+                             void *context) {
+    
+    if (errorCode == kDNSServiceErr_NoError && rdlen > 1) {
+        // Parse cname into something we can use
+        NSMutableData *txtData = [NSMutableData dataWithCapacity:rdlen];
+        
+        uint16_t i = 0;
+        uint8_t period = 46;
+        while (i < rdlen) {
+            uint8_t len = 0;
+            len = (int)((unsigned char *)rdata)[i];
+            if (i > 0 && len > 0)
+                [txtData appendBytes:&period length:1];
+            [txtData appendBytes:(char *)rdata + i + 1 length:len];
+            i += len + 1;
+        }
+        
+        serverName = [[NSString alloc] initWithBytes:txtData.bytes length:txtData.length encoding:NSASCIIStringEncoding];
+    }
+}
+
+- (void) queryAnalyticsServerName {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        DNSServiceRef serviceRef;
+        DNSServiceErrorType error;
+        error = DNSServiceQueryRecord(&serviceRef, 0, 0, "analytics.mousebirdconsulting.com", kDNSServiceType_CNAME,
+                                      kDNSServiceClass_IN, dnsQueryCallback, NULL);
+        if (error != kDNSServiceErr_NoError){
+            NSLog(@"DNS Service error");
+        }
+        
+        DNSServiceProcessResult(serviceRef);
+        DNSServiceRefDeallocate(serviceRef);
+        
+        if (serverName) {
+            [self sendAnalytics:serverName];
+        }
+    });
+}
+
+// Kick off the analytics logic.  First we need the server name.
+- (void)startAnalytics
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     // This is completely random.  We can't track it in any useful way
@@ -184,6 +240,16 @@ using namespace WhirlyKit;
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
     if (now - lastSent < 7*24*60*60.0)
         return;
+
+    [self queryAnalyticsServerName];
+}
+
+// Send the actual analytics data
+// There's nothing unique in here to identify the user
+- (void)sendAnalytics:(NSString *)serverName
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *userID = [userDefaults stringForKey:@"wgmaplyanalyticuser"];
 
     // Model number
     struct utsname systemInfo;
@@ -203,21 +269,21 @@ using namespace WhirlyKit;
     NSString *osversion = [NSString stringWithFormat:@"%d.%d.%d",(int)osversionID.majorVersion,(int)osversionID.minorVersion,(int) osversionID.patchVersion];
 
     // We're not recording anything that can identify the user, just the app
-    NSString *postArgs = [NSString stringWithFormat:@"{\"requests\":[\"?idsite=1&url=http://mousebirdconsulting.com/&action_name=register&rec=1&apiv=1&_id=%@&dimension1=%@&dimension2=%@&dimension3=%@&dimension4=%@&dimension5=%@\"]}",
+    NSString *postArgs = [NSString stringWithFormat:@"{\"requests\":[\"?idsite=1&url=http://mousebirdconsulting.com/&action_name=register&rec=1&apiv=1&_id=%@&dimension6=%@&dimension7=%@&dimension8=%@&dimension9=%@&dimension10=%@\"]}",
                           userID,bundleID,bundleID_version_build,wgmaplyVersion,model,osversion];
-    NSMutableURLRequest *req = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://analytics.mousebirdconsulting.com/piwik.php"]];
+    NSMutableURLRequest *req = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@/piwik.php", serverName]]];
     [req setHTTPMethod:@"POST"];
     [req setHTTPBody:[postArgs dataUsingEncoding:NSASCIIStringEncoding]];
-    NSLog(@"postArgs = %@",postArgs);
+//    NSLog(@"postArgs = %@",postArgs);
     
     NSURLSession *session = [NSURLSession sharedSession];
     NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:req completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        NSString *respStr = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
-        NSHTTPURLResponse *resp = (NSHTTPURLResponse *)response;
-        NSLog(@"response = %@",response);
-        if (resp.statusCode == 200) {
-            [userDefaults setDouble:now forKey:@"wgmaplyanalytictime"];
-        }
+//        NSString *respStr = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
+//        NSHTTPURLResponse *resp = (NSHTTPURLResponse *)response;
+//        NSLog(@"response = %@",response);
+//        if (resp.statusCode == 200) {
+//            [userDefaults setDouble:now forKey:@"wgmaplyanalytictime"];
+//        }
     }];
     [dataTask resume];
 }
@@ -226,9 +292,9 @@ using namespace WhirlyKit;
 // For specific parts we'll call our subclasses
 - (void) loadSetup
 {
-//#ifndef TARGET_OS_SIMULATOR
-    [self runAnalytics];
-//#endif
+#ifndef TARGET_OS_SIMULATOR
+    [self startAnalytics];
+#endif
     
     if (!renderControl)
         renderControl = [[MaplyRenderController alloc] init];
