@@ -54,6 +54,7 @@ using namespace WhirlyKit;
 
     NSCondition *pauseLock;
     BOOL paused;
+    BOOL inRunAddChangeRequests;
 }
 
 - (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKitView *)inView renderer:(WhirlyKitSceneRendererES *)inRenderer mainLayerThread:(bool)mainLayerThread
@@ -64,6 +65,7 @@ using namespace WhirlyKit;
 		_scene = inScene;
         _renderer = inRenderer;
 		layers = [NSMutableArray array];
+        inRunAddChangeRequests = false;
         // Note: This could be better
         if (dynamic_cast<WhirlyGlobe::GlobeScene *>(_scene))
             _viewWatcher = [[WhirlyGlobeLayerViewWatcher alloc] initWithView:(WhirlyGlobeView *)inView thread:self];
@@ -175,7 +177,7 @@ using namespace WhirlyKit;
     pthread_mutex_lock(&changeLock);
 
     // If we don't have one coming, schedule a merge
-    if (changeRequests.empty())
+    if (!inRunAddChangeRequests && changeRequests.empty())
         [self performSelector:@selector(runAddChangeRequests) onThread:self withObject:nil waitUntilDone:NO];
     
     changeRequests.insert(changeRequests.end(), newChangeRequests.begin(), newChangeRequests.end());
@@ -185,6 +187,9 @@ using namespace WhirlyKit;
 
 - (void)flushChangeRequests
 {
+    if (inRunAddChangeRequests)
+        return;
+    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(runAddChangeRequests) object:nil];
     [self runAddChangeRequests];
 }
@@ -198,6 +203,13 @@ using namespace WhirlyKit;
 {
     [EAGLContext setCurrentContext:_glContext];
 
+    inRunAddChangeRequests = true;
+    for (NSObject<WhirlyKitLayer> *layer in layers) {
+        if ([layer respondsToSelector:@selector(preSceneFlush:)])
+            [layer preSceneFlush:self];
+    }
+    inRunAddChangeRequests = false;
+    
     std::vector<WhirlyKit::ChangeRequest *> changesToProcess;
     pthread_mutex_lock(&changeLock);
     changesToProcess = changeRequests;

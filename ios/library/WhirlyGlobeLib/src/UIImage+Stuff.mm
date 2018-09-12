@@ -32,9 +32,11 @@ using namespace WhirlyKit;
     UIImage *newImage = nil;
     
     int nrOfColorComponents = 4; //RGBA
+    if ([imageData length] == width*height*1)
+        nrOfColorComponents = 1; // Grayscale
     int bitsPerColorComponent = 8;
     int rawImageDataLength = width * height * nrOfColorComponents;
-    CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast;
+    CGBitmapInfo bitmapInfo = (nrOfColorComponents == 4) ? kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast : kCGImageAlphaNone|kCGBitmapByteOrderDefault;
     CGColorRenderingIntent renderingIntent = kCGRenderingIntentDefault;
     
     CGDataProviderRef dataProviderRef;
@@ -46,7 +48,10 @@ using namespace WhirlyKit;
         GLubyte *rawImageDataBuffer = rawImageData;
         
         dataProviderRef = CGDataProviderCreateWithData(NULL, rawImageDataBuffer, rawImageDataLength, nil);
-        colorSpaceRef = CGColorSpaceCreateDeviceRGB();
+        if (nrOfColorComponents == 4)
+            colorSpaceRef = CGColorSpaceCreateDeviceRGB();
+        else
+            colorSpaceRef = CGColorSpaceCreateDeviceGray();
         imageRef = CGImageCreate(width, height, bitsPerColorComponent, bitsPerColorComponent * nrOfColorComponents, width * nrOfColorComponents, colorSpaceRef, bitmapInfo, dataProviderRef, NULL, NO, renderingIntent);
         newImage = [UIImage imageWithCGImage:imageRef];
     }

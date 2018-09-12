@@ -20,6 +20,7 @@
 
 #import "Lighting.h"
 #import "GLUtils.h"
+#import "SceneRendererES.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -59,19 +60,12 @@ using namespace WhirlyKit;
 
 - (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program index:(int)index modelMatrix:(Eigen::Matrix4f &)modelMat
 {
-    char name[200];
-    sprintf(name,"light[%d].viewdepend",index);
-    const OpenGLESUniform *viewDependUni = program->findUniform(name);
-    sprintf(name,"light[%d].direction",index);
-    const OpenGLESUniform *dirUni = program->findUniform(name);
-    sprintf(name,"light[%d].halfplane",index);
-    const OpenGLESUniform *halfUni = program->findUniform(name);
-    sprintf(name,"light[%d].ambient",index);
-    const OpenGLESUniform *ambientUni = program->findUniform(name);
-    sprintf(name,"light[%d].diffuse",index);
-    const OpenGLESUniform *diffuseUni = program->findUniform(name);
-    sprintf(name,"light[%d].specular",index);
-    const OpenGLESUniform *specularUni = program->findUniform(name);
+    const OpenGLESUniform *viewDependUni = program->findUniform(lightViewDependNameIDs[index]);
+    const OpenGLESUniform *dirUni = program->findUniform(lightDirectionNameIDs[index]);
+    const OpenGLESUniform *halfUni = program->findUniform(lightHalfplaneNameIDs[index]);
+    const OpenGLESUniform *ambientUni = program->findUniform(lightAmbientNameIDs[index]);
+    const OpenGLESUniform *diffuseUni = program->findUniform(lightDiffuseNameIDs[index]);
+    const OpenGLESUniform *specularUni = program->findUniform(lightSpecularNameIDs[index]);
     
     Vector3f dir = _pos.normalized();
     Vector3f halfPlane = (dir + Vector3f(0,0,1)).normalized();
@@ -145,10 +139,10 @@ using namespace WhirlyKit;
 
 - (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program
 {
-    return program->setUniform("material.ambient", _ambient) &&
-           program->setUniform("material.diffuse", _diffuse) &&
-           program->setUniform("material.specular", _specular) &&
-           program->setUniform("material.specular_exponent", _specularExponent);
+    return program->setUniform(materialAmbientNameID, _ambient) &&
+           program->setUniform(materialDiffuseNameID, _diffuse) &&
+           program->setUniform(materialSpecularNameID, _specular) &&
+           program->setUniform(materialSpecularExponentNameID, _specularExponent);
 }
 
 

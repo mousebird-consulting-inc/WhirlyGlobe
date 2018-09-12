@@ -145,7 +145,7 @@ class GeomPointAttrData
 {
 public:
     GeomPointAttrData(GeomRawDataType dataType) : dataType(dataType) { }
-    std::string name;
+    StringIdentity nameID;
     GeomRawDataType dataType;
     virtual int getNumVals() = 0;
     virtual ~GeomPointAttrData() { }
@@ -250,10 +250,10 @@ public:
     void addPoint(int idx,const Eigen::Vector4f &pt);
     
     // Add an attribute type to the point geometry
-    int addAttribute(const std::string &name,GeomRawDataType dataType);
+    int addAttribute(StringIdentity nameID,GeomRawDataType dataType);
     
     // Find an attribute by name
-    int findAttribute(const std::string &name) const;
+    int findAttribute(StringIdentity nameID) const;
     
 public:
     void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,WhirlyKitGeomInfo *geomInfo) const;

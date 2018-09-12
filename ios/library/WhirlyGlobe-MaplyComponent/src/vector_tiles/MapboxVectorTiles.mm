@@ -217,7 +217,6 @@ static double MAX_EXTENT = 20037508.342789244;
                                             [vecObj addShape:lin];
                                         }
                                         lin = VectorLinear::createLinear();
-                                        lin->pts.reserve(length);
                                         firstCoord = point;
                                     }
                                     

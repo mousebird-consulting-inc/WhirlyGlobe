@@ -33,6 +33,8 @@
 // Number of clients using this sampler
 @property (nonatomic,readonly) int numClients;
 
+@property (nonatomic) bool debugMode;
+
 // Initialize with the sampling parameters
 - (nullable instancetype)initWithParams:(MaplySamplingParams * __nonnull)params;
 

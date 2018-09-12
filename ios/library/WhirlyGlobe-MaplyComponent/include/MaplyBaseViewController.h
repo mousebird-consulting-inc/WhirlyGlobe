@@ -40,6 +40,7 @@
 #import "MaplyLocationTracker.h"
 #import "MaplyRenderTarget.h"
 #import "MaplyRenderController.h"
+#import "MaplyTileFetcher.h"
 
 /** 
     When selecting multiple objects, one or more of these is returned.
@@ -1309,5 +1310,11 @@
     All layers loaded by user than are currently loaded.
  */
 -(NSArray * _Nonnull)loadedLayers;
+
+/// Return a tile fetcher we may share between loaders
+- (MaplyTileFetcher * __nonnull)addTileFetcher:(NSString * __nonnull)name;
+
+/// Return an existing tile fetcher if there is one
+- (MaplyTileFetcher * __nullable)getTileFetcher:(NSString * __nonnull)name;
 
 @end

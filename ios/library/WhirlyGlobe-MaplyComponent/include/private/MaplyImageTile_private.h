@@ -26,7 +26,7 @@ typedef enum {MaplyImgTypeImage,MaplyImgTypeData,MaplyImgTypeRawImage,MaplyImgTy
 @interface MaplyImageTile()
 {
 @public
-    int _width,_height;
+    int _width,_height,_components;
     int _targetWidth,_targetHeight;
     
     NSArray *stuff;

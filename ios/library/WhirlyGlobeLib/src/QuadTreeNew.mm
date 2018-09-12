@@ -85,7 +85,7 @@ QuadTreeNew::~QuadTreeNew()
 {
 }
 
-QuadTreeNew::ImportantNodeSet QuadTreeNew::calcCoverage(double minImportance,int maxNodes,bool siblingNodes)
+QuadTreeNew::ImportantNodeSet QuadTreeNew::calcCoverageImportance(double minImportance,double minImportanceTop,int maxNodes,bool siblingNodes)
 {
     ImportantNodeSet sortedNodes;
     
@@ -95,15 +95,18 @@ QuadTreeNew::ImportantNodeSet QuadTreeNew::calcCoverage(double minImportance,int
         for (int ix=0;ix<numX;ix++)
         {
             ImportantNode node(ix,iy,minLevel);
-            evalNode(node,minImportance,sortedNodes);
+            evalNodeImportance(node,minImportance,minImportanceTop,sortedNodes);
         }
     
     // Add the most important nodes first until we run out
     ImportantNodeSet retNodes;
     NodeSet testRetNodes;
     for (auto nodeIt = sortedNodes.rbegin();nodeIt != sortedNodes.rend();nodeIt++) {
-        retNodes.insert(*nodeIt);
-        testRetNodes.insert(*nodeIt);
+        if (testRetNodes.find(*nodeIt) == testRetNodes.end())
+        {
+            retNodes.insert(*nodeIt);
+            testRetNodes.insert(*nodeIt);
+        }
         // Make sure all the siblings are in there for some modes
         if (siblingNodes) {
             ImportantNode ident = *nodeIt;
@@ -127,28 +130,111 @@ QuadTreeNew::ImportantNodeSet QuadTreeNew::calcCoverage(double minImportance,int
     return retNodes;
 }
     
-void QuadTreeNew::evalNode(ImportantNode node,double minImport,ImportantNodeSet &importSet)
+void QuadTreeNew::evalNodeImportance(ImportantNode node,double minImport,double minImportTop,ImportantNodeSet &importSet)
 {
     node.importance = importance(node);
     
-    if (node.importance < minImport || node.level >= maxLevel)
+    if ((node.level == minLevel && node.importance < minImportTop) ||
+        (node.level > minLevel && node.importance < minImport) ||
+        node.level > maxLevel)
         return;
-
+    
     importSet.insert(node);
-
-    // Add the children
-    for (int iy=0;iy<2;iy++) {
-        int indY = 2*node.y + iy;
-        for (int ix=0;ix<2;ix++) {
-            int indX = 2*node.x + ix;
-            ImportantNode childNode(indX,indY,node.level+1);
-            evalNode(childNode,minImport,importSet);
+    
+    if (node.level < maxLevel) {
+        // Add the children
+        for (int iy=0;iy<2;iy++) {
+            int indY = 2*node.y + iy;
+            for (int ix=0;ix<2;ix++) {
+                int indX = 2*node.x + ix;
+                ImportantNode childNode(indX,indY,node.level+1);
+                evalNodeImportance(childNode,minImport,minImportTop,importSet);
+            }
         }
     }
 }
+    
+void QuadTreeNew::evalNodeVisible(ImportantNode node,double maxLevel,ImportantNodeSet &visibleSet)
+{
+    if (node.level > maxLevel || !visible(node))
+        return;
+    // These are used for sorting elsewhere, so let's keep 'em around
+    node.importance = importance(node);
 
-//QuadTreeNew::NodeSet QuadTreeNew::calcCoverageToLevel(int loadLevel,int maxNodes)
-//{
-//}
+    visibleSet.insert(node);
+    
+    // Test the children
+    if (node.level < maxLevel) {
+        for (int iy=0;iy<2;iy++) {
+            int indY = 2*node.y + iy;
+            for (int ix=0;ix<2;ix++) {
+                int indX = 2*node.x + ix;
+                ImportantNode childNode(indX,indY,node.level+1);
+                evalNodeVisible(childNode,maxLevel,visibleSet);
+            }
+        }
+    }
+}
+    
+std::tuple<int,QuadTreeNew::ImportantNodeSet> QuadTreeNew::calcCoverageVisible(double minImportance,double minImportanceTop,int maxNodes,const std::vector<int> &levelLoads)
+{
+    ImportantNodeSet sortedNodes;
+
+    // Start at the lowest level and work our way to higher resolution
+    int numX = 1<<minLevel, numY = 1<<minLevel;
+    for (int iy=0;iy<numY;iy++)
+        for (int ix=0;ix<numX;ix++)
+        {
+            ImportantNode node(ix,iy,minLevel);
+            evalNodeImportance(node,minImportance,minImportanceTop,sortedNodes);
+        }
+
+    // Max level is the one we want to load (or try anyway)
+    int targetLevel = -1;
+    for (auto node: sortedNodes)
+        targetLevel = std::max(targetLevel,node.level);
+    
+    // Uh, wha?
+    if (targetLevel < 0) {
+        return {0,ImportantNodeSet()};
+    }
+
+    // Get visibility for all the nodes down to our target level
+    ImportantNodeSet levelNodes;
+    for (int iy=0;iy<numY;iy++)
+        for (int ix=0;ix<numX;ix++)
+        {
+            ImportantNode node(ix,iy,minLevel);
+            evalNodeVisible(node,targetLevel,levelNodes);
+        }
+    
+    // Check how many visibile tiles we have at a given level
+    // Drop back if it's too many
+    int chosenLevel = targetLevel;
+    ImportantNodeSet chosenNodes;
+    while (chosenLevel >= minLevel) {
+        // Resolve the offsets and such if they are there
+        std::set<int> levelsToLoad;
+        levelsToLoad.insert(minLevel);
+        levelsToLoad.insert(chosenLevel);
+        for (int level : levelLoads) {
+            if (level < 0)
+                level = targetLevel + level;
+            if (level >= 0 && level < maxLevel)
+                levelsToLoad.insert(level);
+        }
+
+        chosenNodes.clear();
+        for (auto node: levelNodes) {
+            if (levelsToLoad.find(node.level) != levelsToLoad.end())
+                chosenNodes.insert(node);
+        }
+        if (chosenNodes.size() <= maxNodes)
+            break;
+        chosenLevel--;
+    }
+    
+    return {chosenLevel,chosenNodes};
+}
     
 }

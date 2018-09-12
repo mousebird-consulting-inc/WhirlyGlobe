@@ -43,6 +43,25 @@
     _type = MaplyImgTypeRawImage;
     
     stuff = @[data];
+    _components = 4;
+    _width = width;
+    _height = height;
+    
+    return self;
+}
+
+- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height components:(int)comp
+{
+    if (![data isKindOfClass:[NSData class]])
+        return nil;
+    if ([data length] != width*height*comp)
+        return nil;
+    
+    self = [super init];
+    _type = MaplyImgTypeRawImage;
+    
+    stuff = @[data];
+    _components = comp;
     _width = width;
     _height = height;
     
@@ -71,6 +90,7 @@
     self = [super init];
     _type = MaplyImgTypeRawImage;
     stuff = outArray;
+    _components = 4;
     _width = width;
     _height = height;
     
@@ -86,7 +106,8 @@
     _type = MaplyImgTypeImage;
     stuff = @[image];
     _width = _height = -1;
-    
+    _components = 4;
+
     return self;
 }
 
@@ -100,7 +121,8 @@
     _type = MaplyImgTypeImage;
     stuff = images;
     _width = _height = -1;
-    
+    _components = 4;
+
     return self;
 }
 
@@ -113,7 +135,8 @@
     _type = MaplyImgTypeData;
     stuff = @[data];
     _width = _height = -1;
-        
+    _components = 4;
+
     return self;
 }
 
@@ -129,7 +152,8 @@
     _type = MaplyImgTypeData;
     stuff = dataArray;
     _width = _height = -1;
-    
+    _components = 4;
+
     return self;
 }
 

@@ -272,9 +272,6 @@ bool ParticleSystemDrawable::findEmptyBatch(Batch &retBatch)
     return ret;
 }
 
-// Putting there here rather than running sprintf is a lot faster.  Really.  Oy.
-static const char *baseMapNames[WhirlyKitMaxTextures] = {"s_baseMap0","s_baseMap1","s_baseMap2","s_baseMap3","s_baseMap4","s_baseMap5","s_baseMap6","s_baseMap7"};
-
 void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
     updateBatches(frameInfo.currentTime);
@@ -294,24 +291,24 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     }
 
     // Model/View/Projection matrix
-    prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
-    prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
-    prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
-    prog->setUniform("u_mvpNormalMatrix", frameInfo.mvpNormalMat);
-    prog->setUniform("u_pMatrix", frameInfo.projMat);
-    prog->setUniform("u_scale", Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
+    prog->setUniform(mvpMatrixNameID, frameInfo.mvpMat);
+    prog->setUniform(mvMatrixNameID, frameInfo.viewAndModelMat);
+    prog->setUniform(mvNormalMatrixNameID, frameInfo.viewModelNormalMat);
+    prog->setUniform(mvpNormalMatrixNameID, frameInfo.mvpNormalMat);
+    prog->setUniform(u_pMatrixNameID, frameInfo.projMat);
+    prog->setUniform(u_ScaleNameID, Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
 
     // Size of a single pixel
     Point2f pixDispSize(frameInfo.screenSizeInDisplayCoords.x()/frameInfo.sceneRenderer.framebufferWidth,frameInfo.screenSizeInDisplayCoords.y()/frameInfo.sceneRenderer.framebufferHeight);
 
     
     // If this is present, the drawable wants to do something based where the viewer is looking
-    prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
+    prog->setUniform(u_EyeVecNameID, frameInfo.fullEyeVec);
     
-    prog->setUniform("u_size", pointSize);
-    prog->setUniform("u_time", (float)(frameInfo.currentTime-baseTime));
-    prog->setUniform("u_lifetime", (float)lifetime);
-    prog->setUniform("u_pixDispSize", pixDispSize);
+    prog->setUniform(u_SizeNameID, pointSize);
+    prog->setUniform(u_TimeNameID, (float)(frameInfo.currentTime-baseTime));
+    prog->setUniform(u_lifetimeNameID, (float)lifetime);
+    prog->setUniform(u_pixDispSizeNameID, pixDispSize);
     
     // The program itself may have some textures to bind
     bool hasTexture[WhirlyKitMaxTextures];
@@ -323,14 +320,15 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
     {
         GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
-        const OpenGLESUniform *texUni = prog->findUniform(baseMapNames[ii]);
+        auto baseMapNameID = baseMapNameIDs[ii];
+        const OpenGLESUniform *texUni = prog->findUniform(baseMapNameID);
         hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
         if (hasTexture[ii+progTexBound])
         {
             [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
             glBindTexture(GL_TEXTURE_2D, glTexID);
             CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
-            prog->setUniform(baseMapNames[ii], (int)ii+progTexBound);
+            prog->setUniform(baseMapNameID, (int)ii+progTexBound);
             CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
         }
     }
@@ -339,7 +337,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     if (rectBuffer)
     {
         glBindBuffer(GL_ARRAY_BUFFER,rectBuffer);
-        const OpenGLESAttribute *thisAttr = prog->findAttribute("a_offset");
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(a_offsetNameID);
         if (thisAttr)
         {
             glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)0);
@@ -351,7 +349,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
             glEnableVertexAttribArray(thisAttr->index);
             CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
         }
-        thisAttr = prog->findAttribute("a_texCoord");
+        thisAttr = prog->findAttribute(a_texCoordNameID);
         if (thisAttr)
         {
             glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)(2*sizeof(GLfloat)));
@@ -377,7 +375,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
         {
             int attrSize = attrInfo.size();
             
-            const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.name);
+            const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID);
             if (thisAttr)
             {
                 glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)(attrOffset+chunk.bufferStart));
@@ -410,13 +408,13 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     
     if (rectBuffer)
     {
-        const OpenGLESAttribute *thisAttr = prog->findAttribute("a_offset");
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(a_offsetNameID);
         if (thisAttr)
         {
             glDisableVertexAttribArray(thisAttr->index);
             CheckGLError("ParticleSystemDrawable glDisableVertexAttribArray");
         }
-        thisAttr = prog->findAttribute("a_texCoord");
+        thisAttr = prog->findAttribute(a_texCoordNameID);
         if (thisAttr)
         {
             glDisableVertexAttribArray(thisAttr->index);
@@ -427,7 +425,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     // Tear down the state
     for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
     {
-        const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.name);
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID);
         if (thisAttr) {
             glDisableVertexAttribArray(thisAttr->index);
         }
