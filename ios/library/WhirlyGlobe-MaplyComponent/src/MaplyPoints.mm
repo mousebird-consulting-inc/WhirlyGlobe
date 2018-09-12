@@ -74,7 +74,7 @@ using namespace WhirlyKit;
 
 - (int)addAttributeType:(NSString *__nonnull)attrName type:(MaplyShaderAttrType)type
 {
-    std::string name = [attrName cStringUsingEncoding:NSASCIIStringEncoding];
+    StringIdentity nameID = StringIndexer::getStringID([attrName cStringUsingEncoding:NSASCIIStringEncoding]);
     
     GeomRawDataType dataType = GeomRawTypeMax;
     switch (type)
@@ -99,7 +99,7 @@ using namespace WhirlyKit;
     if (dataType == GeomRawTypeMax)
         return -1;
     
-    return points.addAttribute(name, dataType);
+    return points.addAttribute(nameID, dataType);
 }
 
 - (void)addAttribute:(int)whichAttr iVal:(int)val

@@ -3110,7 +3110,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     NSLog(@"Missing attribute type in MaplyBaseInteractionLayer");
                     break;
             }
-            vertAttr.name = [it.name cStringUsingEncoding:NSASCIIStringEncoding];
+            vertAttr.nameID = StringIndexer::getStringID([it.name cStringUsingEncoding:NSASCIIStringEncoding]);
             wkPartSys.vertAttrs.push_back(vertAttr);
         }
         // Now the textures

@@ -89,7 +89,7 @@
     std::vector<MaplyQuadSamplingLayer *> samplingLayers;
     
     /// Shared tile fetcher used by default for loaders
-    MaplyTileFetcher *sharedTileFetcher;
+    std::vector<MaplyTileFetcher *> tileFetchers;
 }
 
 /// This is called by the subclasses.  Don't call it yourself.
@@ -130,8 +130,5 @@
 
 /// The given user object is done with the given sampling layer.  So we may shut it down.
 - (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(NSObject *)userObj;
-
-/// Return the tile fetcher we shared between loaders
-- (MaplyTileFetcher *)getSharedTileFetcher;
 
 @end

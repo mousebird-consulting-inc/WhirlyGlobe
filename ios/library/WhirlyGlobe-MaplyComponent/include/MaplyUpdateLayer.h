@@ -83,6 +83,9 @@
 /// The delegate will be called no more often than this amount (in seconds).
 @property (nonatomic,readonly) double minTime;
 
+/// Maximum time to go without getting an update (if things are moving)
+@property (nonatomic) double maxLag;
+
 /** 
     Initalize the update layer with a delegate and parameters.
     
