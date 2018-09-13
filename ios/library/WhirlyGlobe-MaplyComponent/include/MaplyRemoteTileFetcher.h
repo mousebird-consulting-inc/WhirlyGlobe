@@ -1,5 +1,5 @@
 /*
- *  MaplyTileFetcher_private.h
+ *  MaplyRemoteTileFetcher.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/15/18.
