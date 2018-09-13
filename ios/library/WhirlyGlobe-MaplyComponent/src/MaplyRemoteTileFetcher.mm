@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyTileFetcher_private.h"
+#import "MaplyRemoteTileFetcher.h"
 #import "MaplyRenderController_private.h"
 
 namespace WhirlyKit
@@ -67,6 +67,9 @@ public:
     // The request as it came from outside the tile fetcher
     MaplyTileFetchRequest *request;
     
+    // Specific fetchInfo from the fetch request.
+    MaplyRemoteTileFetchInfo *fetchInfo;
+    
     // If we're loading it, this is the data task associated with it
     NSURLSessionDataTask *task;
 };
@@ -85,25 +88,79 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
 
 using namespace WhirlyKit;
 
-@implementation MaplyTileFetchRequest
+@implementation MaplyRemoteTileInfoNew
+{
+    int minZoom,maxZoom;
+    NSString *baseURL;
+}
 
--(instancetype)init
+- (nonnull instancetype)initWithBaseURL:(NSString *__nonnull)inBaseURL minZoom:(int)inMinZoom maxZoom:(int)inMaxZoom
 {
     self = [super init];
-    _tileSource = nil;
-    _importance = 0.0;
-    
-    _success = nil;
-    _failure = nil;
+    baseURL = inBaseURL;
+    minZoom = inMinZoom;
+    maxZoom = inMaxZoom;
     
     return self;
 }
 
+- (NSURLRequest *)urlRequestForTile:(MaplyTileID)tileID
+{
+    int y = ((int)(1<<tileID.level)-tileID.y)-1;
+    NSMutableURLRequest *urlReq = nil;
+
+    // Fill out the replacement string
+    NSString *fullURLStr = [[[baseURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
+                             stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
+                            stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
+    urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
+    if (_timeOut != 0.0)
+        [urlReq setTimeoutInterval:_timeOut];
+    
+    for (NSString *key in _headers.allKeys) {
+        [urlReq addValue:_headers[key] forHTTPHeaderField:key];
+    }
+    
+    return urlReq;
+}
+
+- (NSString *)fileNameForTile:(MaplyTileID)tileID
+{
+    if (!_cacheDir)
+        return nil;
+    
+    NSString *localName = [NSString stringWithFormat:@"%@/%d_%d_%d",_cacheDir,tileID.level,tileID.x,tileID.y];
+    
+    return localName;
+}
+
+- (id _Nullable)fetchInfoForTile:(MaplyTileID)tileID
+{
+    MaplyRemoteTileFetchInfo *fetchInfo = [[MaplyRemoteTileFetchInfo alloc] init];
+    fetchInfo.urlReq = [self urlRequestForTile:tileID];
+    fetchInfo.cacheFile = [self fileNameForTile:tileID];
+    
+    return fetchInfo;
+}
+
+- (int)maxZoom
+{
+    return maxZoom;
+}
+
+- (int)minZoom
+{
+    return minZoom;
+}
+
 @end
 
-@implementation MaplyTileFetcherStats
+@implementation MaplyRemoteTileFetchInfo
+@end
 
--(instancetype)initWithFetcher:(MaplyTileFetcher *)fetcher
+@implementation MaplyRemoteTileFetcherStats
+
+-(instancetype)initWithFetcher:(MaplyRemoteTileFetcher *)fetcher
 {
     self = [super init];
     _fetcher = fetcher;
@@ -119,7 +176,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (void)addStats:(MaplyTileFetcherStats * __nonnull)stats
+- (void)addStats:(MaplyRemoteTileFetcherStats * __nonnull)stats
 {
     _totalRequests += stats.totalRequests;
     _remoteRequests += stats.remoteRequests;
@@ -147,9 +204,10 @@ using namespace WhirlyKit;
 
 @end
 
-@implementation MaplyTileFetcher
+@implementation MaplyRemoteTileFetcher
 {
     bool active;
+    NSString *name;
     NSURLSession *session;
     dispatch_queue_t queue;
     
@@ -158,27 +216,27 @@ using namespace WhirlyKit;
     TileInfoSet toLoad;  // Tiles sorted by importance
     
     // Keeps track of stats
-    MaplyTileFetcherStats *allStats;
-    MaplyTileFetcherStats *recentStats;
+    MaplyRemoteTileFetcherStats *allStats;
+    MaplyRemoteTileFetcherStats *recentStats;
 }
 
-- (instancetype)initWithName:(NSString *)name connections:(int)numConnections
+- (instancetype)initWithName:(NSString *)inName connections:(int)numConnections
 {
     self = [super init];
-    _name = name;
+    name = inName;
     active = true;
     _numConnections = numConnections;
     // All the internal work is done on a single queue.  Nothing significant, really.
-    queue = dispatch_queue_create("MaplyTileFetcher", nil);
+    queue = dispatch_queue_create("MaplyRemoteTileFetcher", nil);
     session = [NSURLSession sharedSession];
-    allStats = [[MaplyTileFetcherStats alloc] init];
-    recentStats = [[MaplyTileFetcherStats alloc] init];
+    allStats = [[MaplyRemoteTileFetcherStats alloc] init];
+    recentStats = [[MaplyRemoteTileFetcherStats alloc] init];
     
     return self;
 }
 
 /// Return the fetching stats since the beginning or since the last reset
-- (MaplyTileFetcherStats * __nullable)getStats:(bool)allTime
+- (MaplyRemoteTileFetcherStats * __nullable)getStats:(bool)allTime
 {
     if (allTime)
         return allStats;
@@ -186,9 +244,14 @@ using namespace WhirlyKit;
         return recentStats;
 }
 
+- (NSString * _Nonnull)name
+{
+    return name;
+}
+
 - (void)resetStats
 {
-    recentStats = [[MaplyTileFetcherStats alloc] initWithFetcher:self];
+    recentStats = [[MaplyRemoteTileFetcherStats alloc] initWithFetcher:self];
 }
 
 - (dispatch_queue_t)getQueue
@@ -196,39 +259,21 @@ using namespace WhirlyKit;
     return queue;
 }
 
-- (id)startTileFetch:(MaplyTileFetchRequest *)request
-{
-    if (!active)
-        return nil;
-    
-    dispatch_async(queue,
-    ^{
-        [self startTileFetchesLocal:@[request]];
-    });
-    
-    return request;
-}
-
 - (void)startTileFetches:(NSArray<MaplyTileFetchRequest *> *)requests
 {
     if (!active)
         return;
     
+    // Check each of the fetchInfo objects
+    for (MaplyTileFetchRequest *request in requests)
+        if (![request.fetchInfo isKindOfClass:[MaplyRemoteTileFetchInfo class]]) {
+            NSLog(@"MaplyRemoteTileFetcher is expecting MaplyRemoteTileFetchInfo objects.  Rejecting requests.");
+            return;
+        }
+    
     dispatch_async(queue,
     ^{
        [self startTileFetchesLocal:requests];
-    });
-}
-
-
-- (void)cancelTileFetch:(MaplyTileFetchRequest *)request
-{
-    if (!active)
-        return;
-
-    dispatch_async(queue,
-    ^{
-        [self cancelTileFetchesLocal:@[request]];
     });
 }
 
@@ -257,10 +302,11 @@ using namespace WhirlyKit;
         tile->priority = request.priority;
         tile->state = TileInfo::ToLoad;
         tile->request = request;
+        tile->fetchInfo = request.fetchInfo;
         tilesByFetchRequest[request] = tile;
 
         // If it's already cached, just short circuit this
-        if (request.cacheFile && [self isTileLocal:tile fileName:request.cacheFile])
+        if (tile->fetchInfo.cacheFile && [self isTileLocal:tile fileName:tile->fetchInfo.cacheFile])
             tile->isLocal = true;
 
         // Just run the normal load
@@ -365,19 +411,19 @@ using namespace WhirlyKit;
 
 - (void)writeToCache:(TileInfoRef)tileInfo tileData:(NSData *)tileData
 {
-    if (tileInfo->request.cacheFile) {
-        NSString *dir = [tileInfo->request.cacheFile stringByDeletingLastPathComponent];
+    if (tileInfo->fetchInfo.cacheFile) {
+        NSString *dir = [tileInfo->fetchInfo.cacheFile stringByDeletingLastPathComponent];
         NSError *error;
         [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&error];
-        [tileData writeToFile:tileInfo->request.cacheFile atomically:NO];
+        [tileData writeToFile:tileInfo->fetchInfo.cacheFile atomically:NO];
     }
 }
 
 - (NSData *)readFromCache:(TileInfoRef)tileInfo
 {
-    if (!tileInfo->request.cacheFile)
+    if (!tileInfo->fetchInfo.cacheFile)
         return nil;
-    return [NSData dataWithContentsOfFile:tileInfo->request.cacheFile];
+    return [NSData dataWithContentsOfFile:tileInfo->fetchInfo.cacheFile];
 }
 
 // Run on the dispatch queue
@@ -395,7 +441,7 @@ using namespace WhirlyKit;
         tile->state = TileInfo::Loading;
         loading.insert(tile);
         
-        NSURLRequest *urlReq = tile->request.urlReq;
+        NSURLRequest *urlReq = tile->fetchInfo.urlReq;
         
         NSTimeInterval fetchStartTile = CFAbsoluteTimeGetCurrent();
         
@@ -430,7 +476,7 @@ using namespace WhirlyKit;
                       }];
         
         // Look for it cached
-        if ([self isTileLocal:tile fileName:tile->request.cacheFile]) {
+        if ([self isTileLocal:tile fileName:tile->fetchInfo.cacheFile]) {
             // Do the reading somewhere else
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 NSData *data = [self readFromCache:tile];
@@ -471,7 +517,7 @@ using namespace WhirlyKit;
         // No idea what it is.  Toss it.
         return;
     
-    MaplyTileFetcher * __weak weakSelf = self;
+    MaplyRemoteTileFetcher * __weak weakSelf = self;
     
     // Do the callback on a background queue
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),

@@ -99,7 +99,7 @@ public:
     }
  
     // Kick off the request and keep track of the handle for later
-    void startFetch(MaplyTileFetcher *tileFetcher,NSArray<MaplyTileFetchRequest *> *requests) {
+    void startFetch(NSObject<MaplyTileFetcher> *tileFetcher,NSArray<MaplyTileFetchRequest *> *requests) {
         state = Loading;
         for (MaplyTileFetchRequest *request in requests)
             fetchHandles.push_back(request);
@@ -107,7 +107,7 @@ public:
     }
 
     // Stop trying to make Fetch happen
-    void cancelFetch(MaplyTileFetcher *tileFetcher) {
+    void cancelFetch(NSObject<MaplyTileFetcher> *tileFetcher) {
         NSMutableArray *toCancel = [NSMutableArray array];
         for (unsigned int ii=0;ii<fetchHandles.size();ii++)
             if (fetchHandles[ii]) {
@@ -365,13 +365,13 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 @implementation MaplyQuadImageLoader
 {
     MaplySamplingParams *params;
-    NSArray<MaplyRemoteTileInfo *> *tileInfos;
+    NSArray<MaplyRemoteTileInfoNew *> *tileInfos;
     WhirlyKitQuadTileBuilder * __weak builder;
     WhirlyKitQuadDisplayLayerNew * __weak layer;
     int minLevel,maxLevel;
     GLenum texType;
     
-    MaplyTileFetcher * __weak tileFetcher;
+    NSObject<MaplyTileFetcher> * __weak tileFetcher;
     NSObject<MaplyLoaderInterpreter> *loadInterp;
     
     // Tiles in various states of loading or loaded
@@ -381,12 +381,12 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     MaplyQuadSamplingLayer *samplingLayer;
 }
 
-- (instancetype)initWithParams:(MaplySamplingParams *)params tileInfo:(MaplyRemoteTileInfo *)tileInfo viewC:(MaplyBaseViewController *)viewC
+- (instancetype)initWithParams:(MaplySamplingParams *)params tileInfo:(MaplyRemoteTileInfoNew *)tileInfo viewC:(MaplyBaseViewController *)viewC
 {
     return [self initWithParams:params tileInfos:@[tileInfo] viewC:viewC];
 }
 
-- (nullable instancetype)initWithParams:(MaplySamplingParams *)inParams tileInfos:(NSArray<MaplyRemoteTileInfo *> *__nonnull)inTileInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
+- (nullable instancetype)initWithParams:(MaplySamplingParams *)inParams tileInfos:(NSArray<MaplyRemoteTileInfoNew *> *__nonnull)inTileInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
 {
     params = inParams;
     tileInfos = inTileInfos;
@@ -401,7 +401,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     _debugMode = false;
     minLevel = 10000;
     maxLevel = -1;
-    for (MaplyRemoteTileInfo *tileInfo in tileInfos) {
+    for (MaplyRemoteTileInfoNew *tileInfo in tileInfos) {
         minLevel = std::min(minLevel,tileInfo.minZoom);
         maxLevel = std::max(maxLevel,tileInfo.maxZoom);
     }
@@ -409,7 +409,6 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     _importanceCutoff = 0.0;
     _imageFormat = MaplyImageIntRGBA;
     _borderTexel = 0;
-    _timeOut = 20.0;
     texType = GL_UNSIGNED_BYTE;
 
     // Start things out after a delay
@@ -463,7 +462,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     return self;
 }
 
-- (void)setTileFetcher:(MaplyTileFetcher * __nonnull)inTileFetcher
+- (void)setTileFetcher:(NSObject<MaplyTileFetcher> * __nonnull)inTileFetcher
 {
     if (tileFetcher) {
         NSLog(@"Caller tried to set tile fetcher after startup in MaplyQuadImageLoader.  Ignoring.");
@@ -579,15 +578,13 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     
     NSMutableArray *requests = [NSMutableArray array];
     
-    for (MaplyRemoteTileInfo *tileInfo in tileInfos) {
+    for (MaplyRemoteTileInfoNew *tileInfo in tileInfos) {
         if (ident.level >= tileInfo.minZoom && ident.level <= tileInfo.maxZoom) {
             // Put together a request for the fetcher
             MaplyTileFetchRequest *request = [[MaplyTileFetchRequest alloc] init];
             MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
-            NSMutableURLRequest *urlReq = [[tileInfo requestForTile:tileID] mutableCopy];
-            urlReq.timeoutInterval = _timeOut;
-            request.urlReq = urlReq;
-            request.cacheFile = [tileInfo fileNameForTile:tileID];
+            id fetchInfo = [tileInfo fetchInfoForTile:tileID];
+            request.fetchInfo = fetchInfo;
             request.tileSource = tileInfo;
             request.priority = 0;
             request.importance = ident.importance * _importanceScale;

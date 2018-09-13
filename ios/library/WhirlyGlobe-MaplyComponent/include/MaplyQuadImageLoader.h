@@ -22,7 +22,7 @@
 #import "MaplyRemoteTileSource.h"
 #import "MaplyRenderController.h"
 #import "MaplyQuadSampler.h"
-#import "MaplyTileFetcher.h"
+#import "MaplyRemoteTileFetcher.h"
 
 /**
   Passed in to and returned by the Loader Interpreter.
@@ -82,7 +82,7 @@
 @interface MaplyImageLoaderInterpreter : NSObject<MaplyLoaderInterpreter>
 @end
 
-/// Name of the shared MaplyTileFetcher
+/// Name of the shared MaplyRemoteTileFetcher
 extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 
 /**
@@ -105,7 +105,7 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
  @param tileInfo A single tile info object describing where the data is and how to get it.
  @param viewC the View controller (or renderer) to add objects to.
  */
-- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfo:(MaplyRemoteTileInfo *__nonnull)tileInfo viewC:(MaplyBaseViewController * __nonnull)viewC;
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfo:(NSObject<MaplyTileInfoNew> *__nonnull)tileInfo viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 /**
   Initialize with multiple tile sources and sampling parameters.
@@ -114,16 +114,13 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
  @param tileInfos A list of tile info objects to fetch for each tile.  If one fails, the tile fails to load.
  @param viewC the View controller (or renderer) to add objects to.
   */
-- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<MaplyRemoteTileInfo *> *__nonnull)tileInfos viewC:(MaplyBaseViewController * __nonnull)viewC;
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)tileInfos viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 /// Use a specific tile fetcher rather than the one shared by everyone else
-- (void)setTileFetcher:(MaplyTileFetcher * __nonnull)tileFetcher;
+- (void)setTileFetcher:(NSObject<MaplyTileFetcher> * __nonnull)tileFetcher;
 
 /// Set the interpreter for the data coming back.  If you're just getting images, don't set this.
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp;
-
-/// Timeout applied to the URL Requests.  20s by default
-@property (nonatomic) NSTimeInterval timeOut;
 
 // Set the draw priority values for produced tiles
 @property (nonatomic) int baseDrawPriority;

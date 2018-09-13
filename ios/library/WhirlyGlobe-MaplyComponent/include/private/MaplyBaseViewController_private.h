@@ -35,7 +35,7 @@
 #import "SMCalloutView.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyRenderController_private.h"
-#import "MaplyTileFetcher.h"
+#import "MaplyRemoteTileFetcher.h"
 
 @interface MaplyBaseViewController() <SMCalloutViewDelegate>
 {
@@ -89,7 +89,7 @@
     std::vector<MaplyQuadSamplingLayer *> samplingLayers;
     
     /// Shared tile fetcher used by default for loaders
-    std::vector<MaplyTileFetcher *> tileFetchers;
+    std::vector<MaplyRemoteTileFetcher *> tileFetchers;
 }
 
 /// This is called by the subclasses.  Don't call it yourself.

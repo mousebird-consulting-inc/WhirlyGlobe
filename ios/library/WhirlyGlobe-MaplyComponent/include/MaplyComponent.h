@@ -37,7 +37,7 @@
 #import "MaplyViewController.h"
 #import "MaplyQuadPagingLayer.h"
 #import "MaplyQuadSampler.h"
-#import "MaplyTileFetcher.h"
+#import "MaplyRemoteTileFetcher.h"
 #import "MaplyUpdateLayer.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyQuadImageOfflineLayer.h"
