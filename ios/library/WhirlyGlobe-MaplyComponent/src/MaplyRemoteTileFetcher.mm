@@ -28,7 +28,8 @@ namespace WhirlyKit
 class TileInfo
 {
 public:
-    TileInfo() : state(), isLocal(false), importance(0.0), tileSource(NULL) , request(nil), task(nil) { }
+    TileInfo()
+    : state(ToLoad), isLocal(false), tileSource(NULL), priority(0), importance(0.0), request(nil), fetchInfo(nil), task(nil) { }
 
     /// Comparison based on importance, tile source, then x,y,level
     bool operator < (const TileInfo &that) const

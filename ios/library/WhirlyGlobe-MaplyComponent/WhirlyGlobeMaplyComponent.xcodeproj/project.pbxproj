@@ -26,6 +26,8 @@
 		2B3FD2C31F478F5200CA9C18 /* MaplyRenderTarget.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */; };
 		2B40DB9E214ACBFC00EF77DC /* MaplyTileSourceNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B40DB9D214ACBFC00EF77DC /* MaplyTileSourceNew.h */; };
 		2B40DBA0214ACC4500EF77DC /* MaplyTileSourceNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40DB9F214ACC4500EF77DC /* MaplyTileSourceNew.mm */; };
+		2B40DBA2214AE21F00EF77DC /* MaplyMBTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B40DBA1214AE21F00EF77DC /* MaplyMBTileFetcher.h */; };
+		2B40DBA4214AE22500EF77DC /* MaplyMBTileFetcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B40DBA3214AE22500EF77DC /* MaplyMBTileFetcher.mm */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B6001A0210FAE6400140383 /* StringIndexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B60019F210FAE6300140383 /* StringIndexer.h */; };
 		2B6001A2210FAE8600140383 /* StringIndexer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B6001A1210FAE8500140383 /* StringIndexer.mm */; };
@@ -1096,6 +1098,8 @@
 		2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRenderTarget.mm; sourceTree = "<group>"; };
 		2B40DB9D214ACBFC00EF77DC /* MaplyTileSourceNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTileSourceNew.h; sourceTree = "<group>"; };
 		2B40DB9F214ACC4500EF77DC /* MaplyTileSourceNew.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTileSourceNew.mm; sourceTree = "<group>"; };
+		2B40DBA1214AE21F00EF77DC /* MaplyMBTileFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyMBTileFetcher.h; sourceTree = "<group>"; };
+		2B40DBA3214AE22500EF77DC /* MaplyMBTileFetcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyMBTileFetcher.mm; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B60019F210FAE6300140383 /* StringIndexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringIndexer.h; sourceTree = "<group>"; };
 		2B6001A1210FAE8500140383 /* StringIndexer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringIndexer.mm; sourceTree = "<group>"; };
@@ -3224,6 +3228,7 @@
 		2BE537191D249A1200B60FAD /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B40DBA1214AE21F00EF77DC /* MaplyMBTileFetcher.h */,
 				2B40DB9D214ACBFC00EF77DC /* MaplyTileSourceNew.h */,
 				2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */,
 				2B73D6BD207D1FD300AF5095 /* MaplyQuadImageLoader.h */,
@@ -3393,6 +3398,7 @@
 		2BE537991D249A1200B60FAD /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2B40DBA3214AE22500EF77DC /* MaplyMBTileFetcher.mm */,
 				2B40DB9F214ACC4500EF77DC /* MaplyTileSourceNew.mm */,
 				2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */,
 				2B73D6BF207D1FDF00AF5095 /* MaplyQuadImageLoader.mm */,
@@ -4061,6 +4067,7 @@
 				2BE5397A1D249BEF00B60FAD /* AAPhysicalMoon.h in Headers */,
 				2BE53A0E1D249C2900B60FAD /* package_info.h in Headers */,
 				2BE5380D1D249A1200B60FAD /* MaplyIconManager.h in Headers */,
+				2B40DBA2214AE21F00EF77DC /* MaplyMBTileFetcher.h in Headers */,
 				2BE53A6C1D249C4600B60FAD /* atomicops_internals_x86_gcc.h in Headers */,
 				2B82B7041E82E24A0095FB14 /* LabelManager.h in Headers */,
 				2BE5396B1D249BEF00B60FAD /* AAMoonIlluminatedFraction.h in Headers */,
@@ -4446,6 +4453,7 @@
 				2BE53A951D249C9000B60FAD /* DDXMLDocument.m in Sources */,
 				2BE538A41D249A1200B60FAD /* MaplySun.mm in Sources */,
 				2B82B61E1E82E2490095FB14 /* libjson.cpp in Sources */,
+				2B40DBA4214AE22500EF77DC /* MaplyMBTileFetcher.mm in Sources */,
 				2BE538A81D249A1200B60FAD /* MaplyTileSource.mm in Sources */,
 				2BE539B31D249BEF00B60FAD /* AAPhysicalMars.cpp in Sources */,
 				2BE5399E1D249BEF00B60FAD /* AAInterpolate.cpp in Sources */,

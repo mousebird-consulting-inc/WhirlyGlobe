@@ -40,6 +40,7 @@
 #import "MaplyQuadPagingLayer.h"
 #import "MaplyQuadSampler.h"
 #import "MaplyRemoteTileFetcher.h"
+#import "MaplyMBTileFetcher.h"
 #import "MaplyUpdateLayer.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyQuadImageOfflineLayer.h"
