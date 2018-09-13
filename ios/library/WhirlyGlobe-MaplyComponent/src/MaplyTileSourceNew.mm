@@ -1,9 +1,9 @@
 /*
- *  MaplyTileFetcher_private.h
+ *  MaplyTileSourceNew.mm
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 6/15/18.
- *  Copyright 2011-2018 Saildrone Inc
+ *  Created by Steve Gifford on 9/13/18.
+ *  Copyright 2011-2018 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,8 +18,20 @@
  *
  */
 
-#import "MaplyTileFetcher.h"
+#import "MaplyTileSourceNew.h"
 
-@interface MaplyTileFetcher()
+@implementation MaplyTileFetchRequest
+
+-(instancetype)init
+{
+    self = [super init];
+    _tileSource = nil;
+    _importance = 0.0;
+    
+    _success = nil;
+    _failure = nil;
+    
+    return self;
+}
 
 @end

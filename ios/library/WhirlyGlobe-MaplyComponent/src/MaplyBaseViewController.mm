@@ -28,7 +28,6 @@
 #import "NSString+DDXML.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
-#import "MaplyTileFetcher_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -378,8 +377,8 @@ static const float PerfOutputDelay = 15.0;
     
     renderControl->scene->dumpStats();
     [renderControl->interactLayer dumpStats];
-    for (MaplyTileFetcher *tileFetcher : tileFetchers) {
-        MaplyTileFetcherStats *stats = [tileFetcher getStats:false];
+    for (MaplyRemoteTileFetcher *tileFetcher : tileFetchers) {
+        MaplyRemoteTileFetcherStats *stats = [tileFetcher getStats:false];
         [stats dump];
         [tileFetcher resetStats];
     }
@@ -1317,19 +1316,19 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
-- (MaplyTileFetcher *)addTileFetcher:(NSString *)name
+- (MaplyRemoteTileFetcher *)addTileFetcher:(NSString *)name
 {
     for (auto tileFetcher : tileFetchers)
         if ([tileFetcher.name isEqualToString:name])
             return tileFetcher;
     
-    MaplyTileFetcher *tileFetcher = [[MaplyTileFetcher alloc] initWithName:name connections:16];
+    MaplyRemoteTileFetcher *tileFetcher = [[MaplyRemoteTileFetcher alloc] initWithName:name connections:16];
     tileFetchers.push_back(tileFetcher);
     
     return tileFetcher;
 }
 
-- (MaplyTileFetcher *)getTileFetcher:(NSString *)name
+- (MaplyRemoteTileFetcher *)getTileFetcher:(NSString *)name
 {
     for (auto tileFetcher : tileFetchers)
         if ([tileFetcher.name isEqualToString:name])
