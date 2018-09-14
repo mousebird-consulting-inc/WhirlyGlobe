@@ -52,7 +52,7 @@
  
   If not, set we'll pick the default visual shader.
   */
-- (void)setShader:(MaplyShader *)shader;
+- (void)setShader:(MaplyShader * __nullable)shader;
 
 /** Turn off the image loader and shut things down.
  This unregisters us with the sampling layer and shuts down the various objects we created.

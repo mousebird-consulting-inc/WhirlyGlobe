@@ -43,6 +43,7 @@
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyQuadImageOfflineLayer.h"
 #import "MaplyQuadImageLoader.h"
+#import "MaplyQuadImageFrameLoader.h"
 #import "MaplyBlankTileSource.h"
 #import "MaplyTileSource.h"
 #import "MaplyWMSTileSource.h"
