@@ -24,6 +24,10 @@
 #import "MaplyQuadSampler_private.h"
 #import "MaplyBaseViewController_private.h"
 
+@interface MaplyQuadImageLoader() <WhirlyKitQuadTileBuilderDelegate>
+
+@end
+
 namespace WhirlyKit
 {
 
@@ -360,107 +364,7 @@ using namespace WhirlyKit;
 
 @end
 
-NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
-
-@implementation MaplyQuadImageLoader
-{
-    MaplySamplingParams *params;
-    NSArray<MaplyRemoteTileInfoNew *> *tileInfos;
-    WhirlyKitQuadTileBuilder * __weak builder;
-    WhirlyKitQuadDisplayLayerNew * __weak layer;
-    int minLevel,maxLevel;
-    GLenum texType;
-    
-    NSObject<MaplyTileFetcher> * __weak tileFetcher;
-    NSObject<MaplyLoaderInterpreter> *loadInterp;
-    
-    // Tiles in various states of loading or loaded
-    TileAssetMap tiles;
-    
-    MaplyBaseViewController * __weak viewC;
-    MaplyQuadSamplingLayer *samplingLayer;
-}
-
-- (instancetype)initWithParams:(MaplySamplingParams *)params tileInfo:(MaplyRemoteTileInfoNew *)tileInfo viewC:(MaplyBaseViewController *)viewC
-{
-    return [self initWithParams:params tileInfos:@[tileInfo] viewC:viewC];
-}
-
-- (nullable instancetype)initWithParams:(MaplySamplingParams *)inParams tileInfos:(NSArray<MaplyRemoteTileInfoNew *> *__nonnull)inTileInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
-{
-    params = inParams;
-    tileInfos = inTileInfos;
-    viewC = inViewC;
-
-    _baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
-    _drawPriorityPerLevel = 100;
-
-    self = [super init];
-
-    _flipY = true;
-    _debugMode = false;
-    minLevel = 10000;
-    maxLevel = -1;
-    for (MaplyRemoteTileInfoNew *tileInfo in tileInfos) {
-        minLevel = std::min(minLevel,tileInfo.minZoom);
-        maxLevel = std::max(maxLevel,tileInfo.maxZoom);
-    }
-    _importanceScale = 1.0;
-    _importanceCutoff = 0.0;
-    _imageFormat = MaplyImageIntRGBA;
-    _borderTexel = 0;
-    texType = GL_UNSIGNED_BYTE;
-
-    // Start things out after a delay
-    // This lets the caller mess with settings
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if (!self->tileFetcher) {
-            self->tileFetcher = [self->viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
-        }
-        if (!self->loadInterp) {
-            self->loadInterp = [[MaplyImageLoaderInterpreter alloc] init];
-        }
-        
-        self->samplingLayer = [self->viewC findSamplingLayer:inParams forUser:self];
-
-        // They changed it, so make sure the cutoff still works
-        if (self->_importanceScale < 1.0)
-            // Yeah, not a thing.
-            self->_importanceScale = 1.0;
-        if (self->_importanceScale != 1.0) {
-            if (self->_importanceCutoff == 0.0) {
-                self->_importanceCutoff = self->samplingLayer.params.minImportance * self->_importanceScale;
-            }
-        }
-        
-        // Sort out the texture format
-        switch (self->_imageFormat) {
-            case MaplyImageIntRGBA:
-            case MaplyImage4Layer8Bit:
-            default:
-                self->texType = GL_UNSIGNED_BYTE;
-                break;
-            case MaplyImageUShort565:
-                self->texType = GL_UNSIGNED_SHORT_5_6_5;
-                break;
-            case MaplyImageUShort4444:
-                self->texType = GL_UNSIGNED_SHORT_4_4_4_4;
-                break;
-            case MaplyImageUShort5551:
-                self->texType = GL_UNSIGNED_SHORT_5_5_5_1;
-                break;
-            case MaplyImageUByteRed:
-            case MaplyImageUByteGreen:
-            case MaplyImageUByteBlue:
-            case MaplyImageUByteAlpha:
-            case MaplyImageUByteRGB:
-                self->texType = GL_ALPHA;
-                break;
-        }
-    });
-
-    return self;
-}
+@implementation MaplyQuadImageLoaderBase
 
 - (void)setTileFetcher:(NSObject<MaplyTileFetcher> * __nonnull)inTileFetcher
 {
@@ -520,7 +424,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     }
     bounds.ll = MaplyCoordinateDMake(minPt.x(), minPt.y());
     bounds.ur = MaplyCoordinateDMake(maxPt.x(), maxPt.y());
-
+    
     return bounds;
 }
 
@@ -541,14 +445,108 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     WhirlyKitQuadDisplayLayerNew *thisQuadLayer = layer;
     if (!layer || !layer.quadtree)
         return kMaplyNullBoundingBoxD;
-
+    
     MaplyBoundingBoxD bounds;
-
+    
     MbrD mbrD = thisQuadLayer.quadtree->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
     bounds.ll = MaplyCoordinateDMake(mbrD.ll().x(), mbrD.ll().y());
     bounds.ur = MaplyCoordinateDMake(mbrD.ur().x(), mbrD.ur().y());
-
+    
     return bounds;
+}
+
+@end
+
+NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
+
+@implementation MaplyQuadImageLoader
+{
+    MaplySamplingParams *params;
+    NSArray<MaplyRemoteTileInfoNew *> *tileInfos;
+    
+    // Tiles in various states of loading or loaded
+    TileAssetMap tiles;
+}
+
+- (instancetype)initWithParams:(MaplySamplingParams *)params tileInfo:(MaplyRemoteTileInfoNew *)tileInfo viewC:(MaplyBaseViewController *)viewC
+{
+    return [self initWithParams:params tileInfos:@[tileInfo] viewC:viewC];
+}
+
+- (nullable instancetype)initWithParams:(MaplySamplingParams *)inParams tileInfos:(NSArray<MaplyRemoteTileInfoNew *> *__nonnull)inTileInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
+{
+    params = inParams;
+    tileInfos = inTileInfos;
+    self->viewC = inViewC;
+
+    self.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
+    self.drawPriorityPerLevel = 100;
+
+    self = [super init];
+
+    self.flipY = true;
+    self.debugMode = false;
+    self->minLevel = 10000;
+    self->maxLevel = -1;
+    for (MaplyRemoteTileInfoNew *tileInfo in tileInfos) {
+        self->minLevel = std::min(self->minLevel,tileInfo.minZoom);
+        self->maxLevel = std::max(self->maxLevel,tileInfo.maxZoom);
+    }
+    self.importanceScale = 1.0;
+    self.importanceCutoff = 0.0;
+    self.imageFormat = MaplyImageIntRGBA;
+    self.borderTexel = 0;
+    self->texType = GL_UNSIGNED_BYTE;
+
+    // Start things out after a delay
+    // This lets the caller mess with settings
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (!self->tileFetcher) {
+            self->tileFetcher = [self->viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
+        }
+        if (!self->loadInterp) {
+            self->loadInterp = [[MaplyImageLoaderInterpreter alloc] init];
+        }
+        
+        self->samplingLayer = [self->viewC findSamplingLayer:inParams forUser:self];
+
+        // They changed it, so make sure the cutoff still works
+        if (self.importanceScale < 1.0)
+            // Yeah, not a thing.
+            self.importanceScale = 1.0;
+        if (self.importanceScale != 1.0) {
+            if (self.importanceCutoff == 0.0) {
+                self.importanceCutoff = self->samplingLayer.params.minImportance * self.importanceScale;
+            }
+        }
+        
+        // Sort out the texture format
+        switch (self.imageFormat) {
+            case MaplyImageIntRGBA:
+            case MaplyImage4Layer8Bit:
+            default:
+                self->texType = GL_UNSIGNED_BYTE;
+                break;
+            case MaplyImageUShort565:
+                self->texType = GL_UNSIGNED_SHORT_5_6_5;
+                break;
+            case MaplyImageUShort4444:
+                self->texType = GL_UNSIGNED_SHORT_4_4_4_4;
+                break;
+            case MaplyImageUShort5551:
+                self->texType = GL_UNSIGNED_SHORT_5_5_5_1;
+                break;
+            case MaplyImageUByteRed:
+            case MaplyImageUByteGreen:
+            case MaplyImageUByteBlue:
+            case MaplyImageUByteAlpha:
+            case MaplyImageUByteRGB:
+                self->texType = GL_ALPHA;
+                break;
+        }
+    });
+
+    return self;
 }
 
 - (void)removeTile:(QuadTreeNew::Node)ident layer:(MaplyBaseInteractionLayer *)interactLayer changes:(ChangeSet &)changes
@@ -556,11 +554,11 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     auto it = tiles.find(ident);
     // If it's here, let's get rid of it.
     if (it != tiles.end()) {
-        if (_debugMode)
+        if (self.debugMode)
             NSLog(@"Unloading tile %d: (%d,%d)",ident.level,ident.x,ident.y);
 
         if (it->second->getState() == TileAsset::Loading) {
-            if (_debugMode)
+            if (self.debugMode)
                 NSLog(@"Cancelled loading %d: (%d,%d)",ident.level,ident.x,ident.y);
             
             it->second->cancelFetch(tileFetcher);
@@ -573,7 +571,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 // Go get this tile
 - (void)fetchThisTile:(TileAssetRef)tile ident:(QuadTreeNew::ImportantNode)ident
 {
-    if (_debugMode)
+    if (self.debugMode)
         NSLog(@"Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
     
     NSMutableArray *requests = [NSMutableArray array];
@@ -587,7 +585,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
             request.fetchInfo = fetchInfo;
             request.tileSource = tileInfo;
             request.priority = 0;
-            request.importance = ident.importance * _importanceScale;
+            request.importance = ident.importance * self.importanceScale;
             
             request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
                 [self fetchRequestSuccess:request tileID:tileID frame:-1 data:data];
@@ -606,7 +604,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 {
     // Set up a new tile
     auto newTile = TileAssetRef(new TileAsset());
-    int defaultDrawPriority = _baseDrawPriority + _drawPriorityPerLevel * ident.level;
+    int defaultDrawPriority = self.baseDrawPriority + self.drawPriorityPerLevel * ident.level;
     tiles[ident] = newTile;
     
     auto loadedTile = [builder getLoadedTile:ident];
@@ -648,7 +646,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 // Called on a random dispatch queue
 - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data
 {
-    if (_debugMode)
+    if (self.debugMode)
         NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
 
     // Ask the interpreter to parse it
@@ -704,7 +702,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 // Called on SamplingLayer.layerThread
 - (void)mergeLoadedTile:(MaplyLoaderReturn *)loadReturn
 {
-    if (_debugMode)
+    if (self.debugMode)
         NSLog(@"MaplyQuadImageLoader: Merging fetch for %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
 
     if (loadReturn.error)
@@ -718,7 +716,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         if (loadReturn.compObjs) {
             [viewC removeObjects:loadReturn.compObjs mode:MaplyThreadCurrent];
         }
-        if (_debugMode)
+        if (self.debugMode)
             NSLog(@"MaplyQuadImageLoader: Failed to load tile before it was erased %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
         return;
     }
@@ -742,7 +740,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         if ([loadedImage isKindOfClass:[WhirlyKitLoadedImage class]]) {
             if (loadedTile) {
                 // Build the image
-                tex = [loadedImage buildTexture:_borderTexel destWidth:loadedImage.width destHeight:loadedImage.height];
+                tex = [loadedImage buildTexture:self.borderTexel destWidth:loadedImage.width destHeight:loadedImage.height];
                 tex->setFormat(texType);
             }
         }
@@ -750,7 +748,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     
     tile->setupContents(loadedTile,tex,loadReturn.compObjs,interactLayer,changes);
 
-    if (_debugMode)
+    if (self.debugMode)
         NSLog(@"Loaded %d: (%d,%d) texID = %d",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y,(int)(tex ? tex->getId() : 0));
 
     if (tex) {
@@ -779,7 +777,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 // Decide if this tile ought to be loaded
 - (bool)shouldLoad:(QuadTreeNew::ImportantNode &)tile
 {
-    if (_importanceCutoff == 0.0 || tile.importance >= _importanceCutoff) {
+    if (self.importanceCutoff == 0.0 || tile.importance >= self.importanceCutoff) {
         return true;
     }
     
@@ -789,7 +787,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 // Clear out assets for a tile, but keep the geometry
 - (void)clearTileToBlank:(TileAssetRef &)tile ident:(QuadTreeNew::ImportantNode &)ident layer:(MaplyBaseInteractionLayer *)layer changes:(WhirlyKit::ChangeSet &)changes
 {
-    if (_debugMode)
+    if (self.debugMode)
         NSLog(@"Clear tile to blank %d: (%d,%d) texId = %d",ident.level,ident.x,ident.y,(int)tile->getTexID());
 
     tile->clearToBlank(layer, changes, TileAsset::Waiting);
@@ -913,7 +911,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         if ([self shouldLoad:ident]) {
             // If it isn't loaded, then start that process
             if (tile->getState() == TileAsset::Waiting) {
-                if (_debugMode)
+                if (self.debugMode)
                     NSLog(@"Tile switched from Wait to Fetch %d: (%d,%d) importance = %f",ident.level,ident.x,ident.y,ident.importance);
                 [self fetchThisTile:tile ident:ident];
             }
@@ -925,12 +923,12 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
                     // this is fine
                     break;
                 case TileAsset::Loaded:
-                    if (_debugMode)
+                    if (self.debugMode)
                         NSLog(@"Tile switched from Loaded to Wait %d: (%d,%d) importance = %f",ident.level,ident.x,ident.y,ident.importance);
                     [self clearTileToBlank:tile ident:ident layer:interactLayer changes:changes];
                     break;
                 case TileAsset::Loading:
-                    if (_debugMode)
+                    if (self.debugMode)
                         NSLog(@"Canceled fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
                     tile->cancelFetch(tileFetcher);
                     break;
@@ -950,7 +948,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         [self evalParentsLayer:interactLayer changes:changes];
     }
     
-    if (_debugMode)
+    if (self.debugMode)
         NSLog(@"quadBuilder:updates:changes: changeRequests: %d",(int)changes.size());
 }
 
@@ -1036,9 +1034,9 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     }
     
     if (bestTile) {
-        if (_debugMode)
+        if (self.debugMode)
             NSLog(@"Applying old cover tile %d : (%d,%d) to tile %d : (%d,%d)",bestIdent.level,bestIdent.x,bestIdent.y,tileIdent.level,tileIdent.x,tileIdent.y);
-        tile->applyCoverTile(bestIdent,bestTile,loadedTile,_flipY,changes);
+        tile->applyCoverTile(bestIdent,bestTile,loadedTile,self.flipY,changes);
     }
 }
 
@@ -1055,9 +1053,9 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
             if (tile->isBetterCoverTile(coverIdent,tileIdent)) {
                 LoadedTileNewRef loadedTile = [builder getLoadedTile:tileIdent];
                 if (loadedTile) {
-                    if (_debugMode)
+                    if (self.debugMode)
                         NSLog(@"Applying new cover tile %d : (%d,%d) to tile %d : (%d,%d)",coverIdent.level,coverIdent.x,coverIdent.y,tileIdent.level,tileIdent.x,tileIdent.y);
-                    tile->applyCoverTile(coverIdent,coverAsset,loadedTile,_flipY,changes);
+                    tile->applyCoverTile(coverIdent,coverAsset,loadedTile,self.flipY,changes);
                 }
             }
         }
