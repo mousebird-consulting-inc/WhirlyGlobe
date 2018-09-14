@@ -42,6 +42,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
         sampleParams.minZoom = 0
         sampleParams.maxZoom = 6
         sampleParams.singleLevel = true
+        sampleParams.minImportance = 1024.0*1024.0
 
         imageLayer = MaplyQuadImageFrameLoader(params: sampleParams, tileInfos: tileSources, viewC: baseVC)
     }
