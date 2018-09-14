@@ -112,7 +112,7 @@ protected:
     SimpleIdentity texID;
 };
     
-typedef std::shared_ptr<QIFFrameAsset> FrameAssetRef;
+typedef std::shared_ptr<QIFFrameAsset> QIFFrameAssetRef;
     
 class QIFTileAsset
 {
@@ -121,7 +121,7 @@ public:
     {
         frames.reserve(numFrames);
         for (unsigned int ii = 0; ii < numFrames; ii++) {
-            FrameAssetRef frame(new QIFFrameAsset());
+            QIFFrameAssetRef frame(new QIFFrameAsset());
             frames.push_back(frame);
         }
     }
@@ -129,6 +129,15 @@ public:
     typedef enum {Waiting,Active} State;
     
     State getState() { return state; }
+    
+    const std::vector<SimpleIdentity> &getInstanceDrawIDs() { return instanceDrawIDs; }
+    
+    QIFFrameAssetRef getFrame(int frameID) {
+        if (frameID < 0 || frameID >= frames.size())
+            return QIFFrameAssetRef(NULL);
+        
+        return frames[frameID];
+    }
     
     // Fetch the tile frames.  Just fetch them all for now.
     void startFetching(MaplyQuadImageFrameLoader *loader,NSMutableArray *toStart,NSArray<NSObject<MaplyTileInfoNew> *> *frameInfos) {
@@ -150,6 +159,15 @@ public:
             frame++;
         }
         
+    }
+    
+    // True if the given frame is loading
+    bool isFrameLoading(int which) {
+        if (which < 0 || which >= frames.size())
+            return false;
+        
+        auto frame = frames[which];
+        return frame->getState() == QIFFrameAsset::Loading;
     }
 
     // Importance value changed, so update the fetcher
@@ -239,13 +257,160 @@ protected:
     
     std::vector<SimpleIdentity> instanceDrawIDs;
     
-    std::vector<FrameAssetRef> frames;
+    std::vector<QIFFrameAssetRef> frames;
     
     int drawPriority;
 };
     
 typedef std::shared_ptr<QIFTileAsset> QIFTileAssetRef;
 typedef std::map<QuadTreeNew::Node,QIFTileAssetRef> QIFTileAssetMap;
+    
+// Information about a single tile and its current state
+class QIFTileState
+{
+public:
+    QuadTreeNew::Node node;
+    
+    // The geometry used to represent the tile
+    std::vector<SimpleIdentity> instanceDrawIDs;
+    
+    // Information about each frame
+    class FrameInfo {
+    public:
+        // Node we're using a texture from (could be this one)
+        QuadTreeNew::Node texNode;
+        SimpleIdentity texID;
+    };
+    
+    // A texture ID per frame
+    std::vector<FrameInfo> frames;
+};
+typedef std::shared_ptr<QIFTileState> QIFTileStateRef;
+
+// Used to track loading state and hand it over to the main thread
+class QIFRenderState
+{
+public:
+    QIFRenderState(int numFrames)
+    {
+        tilesLoaded.resize(numFrames,0);
+        topTilesLoaded.resize(numFrames,false);
+    }
+    
+    std::map<QuadTreeNew::Node,QIFTileStateRef> tiles;
+    
+    // Number of tiles loaded for each frame
+    std::vector<int> tilesLoaded;
+    // Number of tiles at the lowest level loaded for each frame
+    std::vector<bool> topTilesLoaded;
+    
+    // Note: Fix this
+    bool hasUpdate() {
+        return true;
+    }
+    
+    // Update what the scene is looking at.  Ideally not every frame.
+    void updateScene(Scene *scene,double curFrame,bool flipY,ChangeSet &changes) {
+        curFrame = std::min(std::max(0.0,curFrame),(double)tilesLoaded.size());
+        int activeFrames[2];
+        activeFrames[0] = floor(curFrame);
+        activeFrames[1] = ceil(curFrame);
+        
+        // Figure out how many valid frames we've got to look at
+        int numFrames = 2;
+        if (activeFrames[0] == activeFrames[1]) {
+            numFrames = 1;
+        }
+        // Make sure we've got full coverage on those frames
+        if (numFrames > 1 && topTilesLoaded[activeFrames[0] && topTilesLoaded[activeFrames[1]]]) {
+            // We're good
+        } else if (topTilesLoaded[activeFrames[1]]) {
+            // Just one valid frame
+            activeFrames[0] = activeFrames[1];
+            numFrames = 1;
+        } else {
+            // Hunt for a good frame
+            numFrames = 1;
+            bool foundOne = false;
+            for (int ii=0;ii<tilesLoaded.size();ii++) {
+                int testFrame[2];
+                testFrame[0] = activeFrames[0]-ii;
+                testFrame[1] = activeFrames[0]+ii+1;
+                for (int jj=0;jj<2;jj++) {
+                    int theFrame = testFrame[jj];
+                    if (theFrame >= 0 && theFrame < tilesLoaded.size()) {
+                        if (topTilesLoaded[theFrame]) {
+                            activeFrames[0] = theFrame;
+                            foundOne = true;
+                            break;
+                        }
+                    }
+                }
+                if (foundOne)
+                    break;
+            }
+        }
+        
+        bool bigEnable = numFrames > 0;
+        
+        // Work through the tiles, figure out what's to be on and off
+        for (auto tileIt : tiles) {
+            auto tileID = tileIt.first;
+            auto tile = tileIt.second;
+
+            bool enable = bigEnable;
+            if (enable) {
+                // Assign as many active textures as we've got
+                for (unsigned int ii=0;ii<numFrames;ii++) {
+                    auto frame = tile->frames[activeFrames[ii]];
+                    if (frame.texID != EmptyIdentity) {
+                        int relLevel = tileID.level - frame.texNode.level;
+                        int relX = tileID.x - frame.texNode.x * (1<<relLevel);
+                        int relY = tileID.y - frame.texNode.y * (1<<relLevel);
+                        if (flipY)
+                            relY = (1<<relLevel)-relY-1;
+                        
+                        for (auto drawID : tile->instanceDrawIDs)
+                            changes.push_back(new DrawTexChangeRequest(drawID,ii,frame.texID,0,0,relLevel,relX,relY));
+                    } else {
+                        enable = false;
+                        break;
+                    }
+                }
+                // Clear out the other texture if there is one
+                if (numFrames == 1) {
+                    for (auto drawID : tile->instanceDrawIDs) {
+                        changes.push_back(new DrawTexChangeRequest(drawID,1,EmptyIdentity));
+                    }
+                }
+                
+                // Interpolate between two frames or snap to one
+                double t = 0.0;
+                if (numFrames > 1) {
+                    t = curFrame-activeFrames[0];
+                }
+                
+                // We set the interpolation value per drawable
+                SingleVertexAttributeSet attrs;
+                attrs.insert(SingleVertexAttribute(u_interpNameID,(float)t));
+                
+                // Turn it all on
+                for (auto drawID : tile->instanceDrawIDs) {
+                    changes.push_back(new OnOffChangeRequest(drawID,true));
+                    changes.push_back(new DrawUniformsChangeRequest(drawID,attrs));
+                }
+            }
+            
+            // Just turn the geometry off if we've got nothing
+            if (!enable) {
+                for (auto drawID : tile->instanceDrawIDs) {
+                    changes.push_back(new OnOffChangeRequest(drawID,false));
+                }
+            }
+        }
+    }
+};
+
 }
 
 using namespace WhirlyKit;
@@ -361,6 +526,8 @@ using namespace WhirlyKit;
 
 - (void)shutdown
 {
+    // Note: Need to clean up tile geometry and textures
+
     [viewC releaseSamplingLayer:samplingLayer forUser:self];
 }
 
@@ -435,6 +602,10 @@ using namespace WhirlyKit;
     }
     auto tile = it->second;
     
+    // Don't actually want this one
+    if (!tile->isFrameLoading(loadReturn.frame))
+        return;
+    
     // Do the parsing on another thread since it can be slow
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self->loadInterp parseData:loadReturn];
@@ -481,6 +652,35 @@ using namespace WhirlyKit;
 - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error
 {
     NSLog(@"MaplyQuadImageLoader: Failed to fetch tile %d: (%d,%d) frame %d because:\n%@",tileID.level,tileID.x,tileID.y,frame,[error localizedDescription]);
+}
+
+// Build up the drawing state for use on the main thread
+// All the texture are assigned there
+- (void)buildRenderState:(ChangeSet &)changes
+{
+    QIFRenderState newRenderState([frameInfos count]);
+    
+    // Work through the tiles, figure out their textures as we go
+    for (auto tileIt : tiles) {
+        auto tileID = tileIt.first;
+        auto tile = tileIt.second;
+        
+        QIFTileStateRef tileState(new QIFTileState());
+        tileState->node = tileID;
+        tileState->instanceDrawIDs = tile->getInstanceDrawIDs();
+        
+        // Work through the frames
+        for (int frameID=0;frameID<[frameInfos count];frameID++) {
+            auto inFrame = tile->getFrame(frameID);
+            auto &outFrame = tileState->frames[frameID];
+            
+            // Shouldn't happen
+            if (!inFrame)
+                continue;
+            
+            // Note: Stopped here
+        }
+    }
 }
 
 // MARK: Quad Build Delegate
@@ -575,6 +775,10 @@ using namespace WhirlyKit;
 
 - (void)quadBuilderPreSceneFlush:(WhirlyKitQuadTileBuilder * _Nonnull)builder
 {
+    ChangeSet changes;
+    [self buildRenderState:changes];
+    
+    [layer.layerThread addChangeRequests:changes];
 }
 
 @end
