@@ -141,7 +141,7 @@ public:
         // Keep track of the data in case we're loading multiple sets
         if (which >= 0) {
             if (which >= fetchedData.size())
-                fetchedData.resize(which+1,NULL);
+                fetchedData.resize(which+1,nil);
             fetchedData[which] = loadedData;
         }
         
