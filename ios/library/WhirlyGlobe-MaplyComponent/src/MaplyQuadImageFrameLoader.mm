@@ -29,6 +29,7 @@
 - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error;
 - (bool)hasUpdate;
 - (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo;
+- (int)getNumFrames;
 @end
 
 namespace WhirlyKit
@@ -356,7 +357,6 @@ public:
         if (tiles.empty())
             return;
         
-        curFrame = std::min(std::max(0.0,curFrame),(double)tilesLoaded.size());
         int activeFrames[2];
         activeFrames[0] = floor(curFrame);
         activeFrames[1] = ceil(curFrame);
@@ -463,6 +463,67 @@ public:
 
 using namespace WhirlyKit;
 
+@implementation MaplyQuadImageFrameAnimator
+{
+    MaplyBaseViewController * __weak viewC;
+    MaplyQuadImageFrameLoader * __weak loader;
+    NSTimeInterval startTime;
+    int numFrames;
+}
+
+- (instancetype)initWithFrameLoader:(MaplyQuadImageFrameLoader *)inLoader viewC:(MaplyBaseViewController * __nonnull)inViewC
+{
+    self = [super init];
+    loader = inLoader;
+    viewC = inViewC;
+    startTime = CFAbsoluteTimeGetCurrent();
+    _period = 10.0;
+    _pauseLength = 0.0;
+    numFrames = [loader getNumFrames];
+    
+    [viewC addActiveObject:self];
+    
+    return self;
+}
+
+- (void)shutdown
+{
+    [viewC removeActiveObject:self];
+    loader = nil;
+    viewC = nil;
+}
+
+// MARK: ActiveObject overrides
+
+- (bool)hasUpdate
+{
+    return false;
+}
+
+- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+{
+    if (!viewC || !loader)
+        return;
+    
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    NSTimeInterval totalPeriod = _period + _pauseLength;
+    double when = fmod(now-startTime,totalPeriod);
+    if (when >= _period)
+        // Snap it to the end for a while
+        [loader setCurrentImage:numFrames-1];
+    else {
+        double where = when/totalPeriod * (numFrames-1);
+        [loader setCurrentImage:where];
+    }
+}
+
+- (void)teardown
+{
+    loader = nil;
+}
+
+@end
+
 // An active updater called every frame the by the renderer
 // We use this to process rendering state from the layer thread
 @interface MaplyQuadImageFrameLoaderUpdater : MaplyActiveObject
@@ -529,7 +590,7 @@ using namespace WhirlyKit;
     self = [super init];
     
     self.flipY = true;
-    self.debugMode = true;
+    self.debugMode = false;
     self->minLevel = 10000;
     self->maxLevel = -1;
     for (MaplyRemoteTileInfoNew *frameInfo in frameInfos) {
@@ -611,7 +672,12 @@ using namespace WhirlyKit;
 
 - (void)setCurrentImage:(double)where
 {
-    curFrame = std::min(std::max(where,0.0),(double)[frameInfos count]);
+    curFrame = std::min(std::max(where,0.0),(double)([frameInfos count]-1));
+}
+
+- (int)getNumFrames
+{
+    return [frameInfos count];
 }
 
 - (void)shutdown

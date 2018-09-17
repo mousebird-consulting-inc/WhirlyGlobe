@@ -18,6 +18,31 @@
  */
 
 #import "MaplyQuadImageLoader.h"
+#import "MaplyActiveObject.h"
+
+@class MaplyQuadImageFrameLoader;
+
+/**
+    Quad Image FrameAnimation runs through the frames in a Quad Image Frame loader over time.
+ 
+    Set this up with a MaplyQuadImageFrameLoader and it'll run through the available frames from start to finish.
+    At the end it will snap back to the beginning.
+  */
+@interface MaplyQuadImageFrameAnimator : MaplyActiveObject
+
+/// Initialize with the image frame loader and view controller
+- (nonnull instancetype)initWithFrameLoader:(MaplyQuadImageFrameLoader * __nonnull)loader viewC:(MaplyBaseViewController * __nonnull)viewC;
+
+/// How long to animate from start to finish.
+@property (nonatomic,assign) NSTimeInterval period;
+
+/// How long to pause at the end of the sequence before starting back
+@property (nonatomic,assign) NSTimeInterval pauseLength;
+
+/// Remove the animator and stop animating
+- (void)shutdown;
+
+@end
 
 /**
  The Maply Quad Image Loader is for paging image pyramids local or remote.
