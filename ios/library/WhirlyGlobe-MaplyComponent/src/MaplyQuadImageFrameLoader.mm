@@ -333,7 +333,7 @@ typedef std::shared_ptr<QIFTileState> QIFTileStateRef;
 class QIFRenderState
 {
 public:
-    QIFRenderState() { }
+    QIFRenderState() : lastCurFrame(-1.0), lastUpdate(0.0), lastRenderTime(0.0) { }
     QIFRenderState(int numFrames)
     {
         tilesLoaded.resize(numFrames,0);
@@ -347,15 +347,29 @@ public:
     // Number of tiles at the lowest level loaded for each frame
     std::vector<bool> topTilesLoaded;
     
-    // Note: Fix this
-    bool hasUpdate() {
-        return true;
+    bool hasUpdate(double curFrame) {
+        // Current frame moved
+        if (curFrame != lastCurFrame)
+            return true;
+        
+        // We got an update from the layer thread
+        if (lastUpdate > lastRenderTime)
+            return true;
+        
+        return false;
     }
     
+    double lastCurFrame;
+    NSTimeInterval lastRenderTime;
+    NSTimeInterval lastUpdate;
+    
     // Update what the scene is looking at.  Ideally not every frame.
-    void updateScene(Scene *scene,double curFrame,bool flipY,ChangeSet &changes) {
+    void updateScene(Scene *scene,double curFrame,NSTimeInterval now,bool flipY,ChangeSet &changes) {
         if (tiles.empty())
             return;
+        
+        lastRenderTime = now;
+        lastCurFrame = curFrame;
         
         int activeFrames[2];
         activeFrames[0] = floor(curFrame);
@@ -495,15 +509,11 @@ using namespace WhirlyKit;
 
 // MARK: ActiveObject overrides
 
+// Have to do the position update in the setCurrentImage so we're not messing with the rendering loop
 - (bool)hasUpdate
 {
-    return false;
-}
-
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
-{
     if (!viewC || !loader)
-        return;
+        return false;
     
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
     NSTimeInterval totalPeriod = _period + _pauseLength;
@@ -512,9 +522,15 @@ using namespace WhirlyKit;
         // Snap it to the end for a while
         [loader setCurrentImage:numFrames-1];
     else {
-        double where = when/totalPeriod * (numFrames-1);
+        double where = when/_period * (numFrames-1);
         [loader setCurrentImage:where];
     }
+
+    return false;
+}
+
+- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+{
 }
 
 - (void)teardown
@@ -1059,17 +1075,18 @@ using namespace WhirlyKit;
 // MARK: Active Object methods (called by updater)
 - (bool)hasUpdate
 {
-    return renderState.hasUpdate();
+    return renderState.hasUpdate(curFrame);
 }
 
 - (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
 {
-    if (!renderState.hasUpdate())
+    if (!renderState.hasUpdate(curFrame))
         return;
     
     ChangeSet changes;
     
-    renderState.updateScene(frameInfo.scene, curFrame, self.flipY, changes);
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    renderState.updateScene(frameInfo.scene, curFrame, now, self.flipY, changes);
     
     frameInfo.scene->addChangeRequests(changes);
 }
