@@ -27,6 +27,8 @@
 @interface MaplyQuadImageFrameLoader() <WhirlyKitQuadTileBuilderDelegate>
 - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data;
 - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error;
+- (bool)hasUpdate;
+- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo;
 @end
 
 namespace WhirlyKit
@@ -42,6 +44,7 @@ public:
     
     State getState() { return state; }
     int getPriority() { return priority; }
+    SimpleIdentity getTexID() { return texID; }
 
     // Clear out the texture and reset
     void clear(NSMutableArray *toCancel,ChangeSet &changes) {
@@ -130,6 +133,8 @@ public:
     
     State getState() { return state; }
     
+    QuadTreeNew::ImportantNode getIdent() { return ident; }
+    
     const std::vector<SimpleIdentity> &getInstanceDrawIDs() { return instanceDrawIDs; }
     
     QIFFrameAssetRef getFrame(int frameID) {
@@ -217,6 +222,7 @@ public:
             drawInst->setTexId(0, 0);
             drawInst->setDrawPriority(newDrawPriority);
             drawInst->setEnable(false);
+            drawInst->setProgram(shaderID);
             changes.push_back(new AddDrawableReq(drawInst));
             instanceDrawIDs.push_back(drawInst->getId());
         }
@@ -239,6 +245,8 @@ public:
         
         auto frame = frames[loadReturn.frame];
         frame->loadSuccess(tex);
+        
+        changes.push_back(new AddTextureReq(tex));
     }
     
     // A single frame failed to load
@@ -269,6 +277,8 @@ typedef std::map<QuadTreeNew::Node,QIFTileAssetRef> QIFTileAssetMap;
 class QIFTileState
 {
 public:
+    QIFTileState(int numFrames) { frames.resize(numFrames); }
+    
     QuadTreeNew::Node node;
     
     // The geometry used to represent the tile
@@ -277,6 +287,8 @@ public:
     // Information about each frame
     class FrameInfo {
     public:
+        FrameInfo() : texNode(0,0,-1), texID(EmptyIdentity) { }
+        
         // Node we're using a texture from (could be this one)
         QuadTreeNew::Node texNode;
         SimpleIdentity texID;
@@ -291,6 +303,7 @@ typedef std::shared_ptr<QIFTileState> QIFTileStateRef;
 class QIFRenderState
 {
 public:
+    QIFRenderState() { }
     QIFRenderState(int numFrames)
     {
         tilesLoaded.resize(numFrames,0);
@@ -311,6 +324,9 @@ public:
     
     // Update what the scene is looking at.  Ideally not every frame.
     void updateScene(Scene *scene,double curFrame,bool flipY,ChangeSet &changes) {
+        if (tiles.empty())
+            return;
+        
         curFrame = std::min(std::max(0.0,curFrame),(double)tilesLoaded.size());
         int activeFrames[2];
         activeFrames[0] = floor(curFrame);
@@ -349,6 +365,9 @@ public:
                 if (foundOne)
                     break;
             }
+            
+            if (!foundOne)
+                numFrames = 0;
         }
         
         bool bigEnable = numFrames > 0;
@@ -415,15 +434,53 @@ public:
 
 using namespace WhirlyKit;
 
+// An active updater called every frame the by the renderer
+// We use this to process rendering state from the layer thread
+@interface MaplyQuadImageFrameLoaderUpdater : MaplyActiveObject
+
+@property (nonatomic,weak) MaplyQuadImageFrameLoader *loader;
+
+@end
+
+@implementation MaplyQuadImageFrameLoaderUpdater
+
+- (bool)hasUpdate
+{
+    return [_loader hasUpdate];
+}
+
+- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+{
+    return [_loader updateForFrame:frameInfo];
+}
+
+- (void)teardown
+{
+    _loader = nil;
+}
+
+@end
+
 @implementation MaplyQuadImageFrameLoader
 {
+    bool valid;
+    
     MaplySamplingParams *params;
     NSArray<NSObject<MaplyTileInfoNew> *> *frameInfos;
+    
+    // What part of the animation we're displaying
+    double curFrame;
 
     // Tiles in various states of loading or loaded
     QIFTileAssetMap tiles;
     
     SimpleIdentity shaderID;
+    
+    // Tile rendering info supplied from the layer thread
+    QIFRenderState renderState;
+    
+    // Active updater used to updater rendering state
+    MaplyQuadImageFrameLoaderUpdater *updater;
 }
 
 - (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)inParams tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)inFrameInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
@@ -455,10 +512,14 @@ using namespace WhirlyKit;
     self.imageFormat = MaplyImageIntRGBA;
     self.borderTexel = 0;
     self->texType = GL_UNSIGNED_BYTE;
+    valid = true;
     
     // Start things out after a delay
     // This lets the caller mess with settings
     dispatch_async(dispatch_get_main_queue(), ^{
+        if (!self->valid)
+            return;
+        
         if (!self->viewC || !self->viewC->renderControl || !self->viewC->renderControl->scene)
             return;
         
@@ -521,13 +582,16 @@ using namespace WhirlyKit;
 
 - (void)setCurrentImage:(double)where
 {
-    // Note: Fill me in
+    curFrame = std::min(std::max(where,0.0),(double)[frameInfos count]);
 }
 
 - (void)shutdown
 {
-    // Note: Need to clean up tile geometry and textures
+    valid = false;
+    if (self->samplingLayer && self->samplingLayer.layerThread)
+        [self performSelector:@selector(cleanup) onThread:self->samplingLayer.layerThread withObject:nil waitUntilDone:NO];
 
+    [viewC removeActiveObject:updater];
     [viewC releaseSamplingLayer:samplingLayer forUser:self];
 }
 
@@ -658,29 +722,70 @@ using namespace WhirlyKit;
 // All the texture are assigned there
 - (void)buildRenderState:(ChangeSet &)changes
 {
-    QIFRenderState newRenderState([frameInfos count]);
+    int numFrames = [frameInfos count];
+    QIFRenderState newRenderState(numFrames);
+    for (int frameID=0;frameID<numFrames;frameID++)
+        newRenderState.topTilesLoaded[frameID] = true;
     
     // Work through the tiles, figure out their textures as we go
     for (auto tileIt : tiles) {
         auto tileID = tileIt.first;
         auto tile = tileIt.second;
         
-        QIFTileStateRef tileState(new QIFTileState());
+        QIFTileStateRef tileState(new QIFTileState(numFrames));
         tileState->node = tileID;
         tileState->instanceDrawIDs = tile->getInstanceDrawIDs();
         
         // Work through the frames
-        for (int frameID=0;frameID<[frameInfos count];frameID++) {
+        for (int frameID=0;frameID<numFrames;frameID++) {
             auto inFrame = tile->getFrame(frameID);
             auto &outFrame = tileState->frames[frameID];
             
             // Shouldn't happen
             if (!inFrame)
                 continue;
-            
-            // Note: Stopped here
+
+            // Look for a tile or parent tile that has a texture ID
+            QuadTreeNew::Node texNode = tile->getIdent();
+            do {
+                auto it = tiles.find(texNode);
+                if (it == tiles.end())
+                    break;
+                auto parentTile = it->second;
+                auto parentFrame = parentTile->getFrame(frameID);
+                if (parentFrame && parentFrame->getTexID() != EmptyIdentity) {
+                    // Got one, so stop
+                    outFrame.texID = parentFrame->getTexID();
+                    outFrame.texNode = parentTile->getIdent();
+                    break;
+                }
+                
+                // Work our way up the hierarchy
+                if (texNode.level <= 0)
+                    break;
+                texNode.level -= 1;
+                texNode.x /= 2;
+                texNode.y /= 2;
+            } while (outFrame.texID == EmptyIdentity);
+
+            // Metrics for overall loading used by the display side
+            if (outFrame.texID == EmptyIdentity) {
+                if (tile->getIdent().level == minLevel)
+                    newRenderState.topTilesLoaded[frameID] = false;
+            } else {
+                newRenderState.tilesLoaded[frameID]++;
+            }
         }
+        
+        newRenderState.tiles[tileID] = tileState;
     }
+    
+    auto mergeReq = new RunBlockReq([self,newRenderState](Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+                                          {
+                                              if (self)
+                                                  self->renderState = newRenderState;
+                                          });
+    changes.push_back(mergeReq);
 }
 
 // MARK: Quad Build Delegate
@@ -689,6 +794,14 @@ using namespace WhirlyKit;
 {
     builder = inBuilder;
     layer = inLayer;
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->updater = [[MaplyQuadImageFrameLoaderUpdater alloc] init];
+        self->updater.loader = self;
+        [self->viewC addActiveObject:self->updater];
+        
+        [self setCurrentImage:self->curFrame];
+    });
 }
 
 - (WhirlyKit::QuadTreeNew::NodeSet)quadBuilder:(WhirlyKitQuadTileBuilder * _Nonnull)builder loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles unloadTilesToCheck:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles
@@ -779,6 +892,38 @@ using namespace WhirlyKit;
     [self buildRenderState:changes];
     
     [layer.layerThread addChangeRequests:changes];
+}
+
+- (void)cleanup
+{
+    ChangeSet changes;
+    
+    NSMutableArray *toCancel = [NSMutableArray array];
+    for (auto tile : tiles) {
+        tile.second->clear(toCancel, changes);
+    }
+    
+    [tileFetcher cancelTileFetches:toCancel];
+    
+    [layer.layerThread addChangeRequests:changes];
+}
+
+// MARK: Active Object methods (called by updater)
+- (bool)hasUpdate
+{
+    return renderState.hasUpdate();
+}
+
+- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+{
+    if (!renderState.hasUpdate())
+        return;
+    
+    ChangeSet changes;
+    
+    renderState.updateScene(frameInfo.scene, curFrame, self.flipY, changes);
+    
+    frameInfo.scene->addChangeRequests(changes);
 }
 
 @end
