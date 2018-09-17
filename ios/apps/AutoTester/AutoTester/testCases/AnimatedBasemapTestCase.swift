@@ -24,6 +24,8 @@ class AnimatedBasemapTestCase: MaplyTestCase {
 
     // Note: Rather than copying the shader code in here, we should have a way to look it up
     let vertexShaderNoLightTri = """
+    precision highp float;
+
     uniform mat4  u_mvpMatrix;
     uniform float u_fade;
     attribute vec3 a_position;
@@ -44,7 +46,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
     """
     
     let fragmentShaderTriMultiTexRamp = """
-    precision mediump float;
+    precision highp float;
 
     uniform sampler2D s_baseMap0;
     uniform sampler2D s_baseMap1;
