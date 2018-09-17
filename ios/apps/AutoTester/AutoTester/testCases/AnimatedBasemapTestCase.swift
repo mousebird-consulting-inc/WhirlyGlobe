@@ -13,6 +13,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
 	let geographyClass = GeographyClassTestCase()
 	let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
     var imageLayer : MaplyQuadImageFrameLoader? = nil
+    var imageAnimator : MaplyQuadImageFrameAnimator? = nil
 
 	override init() {
 		super.init()
@@ -72,7 +73,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
         for i in 0...4 {
             let precipSource = MaplyRemoteTileInfoNew(baseURL: "http://a.tiles.mapbox.com/v3/mousebird.precip-example-layer\(i)/{z}/{x}/{y}.png",
                 minZoom: 0,
-                maxZoom: 6)
+                maxZoom: 0)
             precipSource.cacheDir = "\(cacheDir)/forecast_io_weather_layer\(i)/"
             tileSources.append(precipSource)
         }
@@ -100,6 +101,11 @@ class AnimatedBasemapTestCase: MaplyTestCase {
             imageLayer?.setShader(shader)
             shader.addTextureNamed("s_colorRamp", image: colorRamp)
         }
+        
+        // Animator
+        imageAnimator = MaplyQuadImageFrameAnimator(frameLoader: imageLayer!, viewC: baseVC)
+        imageAnimator?.period = 15.0
+        imageAnimator?.pauseLength = 2.0
     }
 
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
