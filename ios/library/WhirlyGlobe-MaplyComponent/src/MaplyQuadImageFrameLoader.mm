@@ -120,7 +120,7 @@ typedef std::shared_ptr<QIFFrameAsset> QIFFrameAssetRef;
 class QIFTileAsset
 {
 public:
-    QIFTileAsset(const QuadTreeNew::ImportantNode &ident, int numFrames) : state(Waiting), ident(ident), drawPriority(0)
+    QIFTileAsset(const QuadTreeNew::ImportantNode &ident, int numFrames) : state(Waiting), shouldEnable(false), ident(ident), drawPriority(0)
     {
         frames.reserve(numFrames);
         for (unsigned int ii = 0; ii < numFrames; ii++) {
@@ -132,6 +132,9 @@ public:
     typedef enum {Waiting,Active} State;
     
     State getState() { return state; }
+
+    bool getShouldEnable() { return shouldEnable; }
+    void setShouldEnable(bool newVal) { shouldEnable = newVal; }
     
     QuadTreeNew::ImportantNode getIdent() { return ident; }
     
@@ -198,6 +201,8 @@ public:
             changes.push_back(new RemDrawableReq(drawID));
         }
         instanceDrawIDs.clear();
+        
+        shouldEnable = false;
     }
     
     // Set up the geometry for this tile
@@ -263,6 +268,9 @@ protected:
     State state;
     QuadTreeNew::ImportantNode ident;
     
+    // Set if the sampling layer thinks this should be on
+    bool shouldEnable;
+    
     std::vector<SimpleIdentity> instanceDrawIDs;
     
     std::vector<QIFFrameAssetRef> frames;
@@ -277,9 +285,12 @@ typedef std::map<QuadTreeNew::Node,QIFTileAssetRef> QIFTileAssetMap;
 class QIFTileState
 {
 public:
-    QIFTileState(int numFrames) { frames.resize(numFrames); }
+    QIFTileState(int numFrames) : enable(false) { frames.resize(numFrames); }
     
     QuadTreeNew::Node node;
+    
+    // Set if this should be enabled
+    bool enable;
     
     // The geometry used to represent the tile
     std::vector<SimpleIdentity> instanceDrawIDs;
@@ -377,7 +388,7 @@ public:
             auto tileID = tileIt.first;
             auto tile = tileIt.second;
 
-            bool enable = bigEnable;
+            bool enable = bigEnable && tile->enable;
             if (enable) {
                 // Assign as many active textures as we've got
                 for (unsigned int ii=0;ii<numFrames;ii++) {
@@ -605,8 +616,10 @@ using namespace WhirlyKit;
     auto loadedTile = [builder getLoadedTile:ident];
     
     // Make the instance drawables we'll use to mirror the geometry
-    if (loadedTile)
+    if (loadedTile) {
         newTile->setupContents(loadedTile,defaultDrawPriority,shaderID,changes);
+        newTile->setShouldEnable(loadedTile->enabled);
+    }
     
     if ([self shouldLoad:ident]) {
         if (self.debugMode)
@@ -735,6 +748,7 @@ using namespace WhirlyKit;
         QIFTileStateRef tileState(new QIFTileState(numFrames));
         tileState->node = tileID;
         tileState->instanceDrawIDs = tile->getInstanceDrawIDs();
+        tileState->enable = tile->getShouldEnable();
         
         // Work through the frames
         for (int frameID=0;frameID<numFrames;frameID++) {
@@ -856,7 +870,8 @@ using namespace WhirlyKit;
         if (it == tiles.end())
             continue;
         auto tile = it->second;
-        
+        auto loadedTile = [builder getLoadedTile:ident];
+
         // We consider it worth loading
         if ([self shouldLoad:ident]) {
             // If it isn't loaded, then start that process
@@ -864,6 +879,8 @@ using namespace WhirlyKit;
                 if (self.debugMode)
                     NSLog(@"Tile switched from Wait to Fetch %d: (%d,%d) importance = %f",ident.level,ident.x,ident.y,ident.importance);
                 tile->startFetching(self, toStart, frameInfos);
+                if (loadedTile)
+                    tile->setShouldEnable(loadedTile->enabled);
             }
         } else {
             // We don't consider it worth loading now so drop it if we were
@@ -871,6 +888,8 @@ using namespace WhirlyKit;
             {
                 case QIFTileAsset::Waiting:
                     tile->setImportance(tileFetcher, ident.importance);
+                    if (loadedTile)
+                        tile->setShouldEnable(loadedTile->enabled);
                     break;
                 case QIFTileAsset::Active:
                     tile->clear(toCancel, changes);
