@@ -147,6 +147,24 @@ public:
         return frames[frameID];
     }
     
+    // True if any of the frames are in the process of loading
+    bool anyFramesLoading() {
+        for (auto frame : frames)
+            if (frame->getState() == QIFFrameAsset::Loading)
+                return true;
+        
+        return false;
+    }
+    
+    // True if any frames have loaded
+    bool anyFramesLoaded() {
+        for (auto frame : frames)
+            if (frame->getState() == QIFFrameAsset::Loaded)
+                return true;
+        
+        return false;
+    }
+    
     // Fetch the tile frames.  Just fetch them all for now.
     void startFetching(MaplyQuadImageFrameLoader *loader,NSMutableArray *toStart,NSArray<NSObject<MaplyTileInfoNew> *> *frameInfos) {
         state = Active;
@@ -822,8 +840,53 @@ using namespace WhirlyKit;
 {
     QuadTreeNew::NodeSet toKeep;
 
-    // Note: Fill this in
+    // List all the tiles that we're going to load or are loading
+    QuadTreeNew::NodeSet allLoads;
+    for (auto node : loadTiles)
+        allLoads.insert(node);
+    for (auto node : tiles)
+        if (node.second->anyFramesLoading())
+            allLoads.insert(node.first);
     
+    // For all those loading or will be loading nodes, nail down their parents
+    for (auto node : allLoads) {
+        auto parent = node;
+        while (parent.level > 0) {
+            parent.level -= 1; parent.x /= 2;  parent.y /= 2;
+            if (unloadTiles.find(parent) != unloadTiles.end())
+            {
+                auto it = tiles.find(parent);
+                // Nail down the parent that's loaded, but don't care otherwise
+                if (it != tiles.end() && it->second->anyFramesLoaded()) {
+                    toKeep.insert(parent);
+                    break;
+                }
+            }
+        }
+    }
+    
+    // Now check all the unloads to see if their parents are loading
+    for (auto node : unloadTiles) {
+        auto it = tiles.find(node);
+        if (it == tiles.end())
+            continue;
+        // If this tile (to be unloaded) isn't full loaded, then we don't care about it
+        if (!it->second->anyFramesLoaded())
+            continue;
+        
+        // Check that it's not already being kept around
+        if (toKeep.find(node) == toKeep.end()) {
+            auto parent = node;
+            while (parent.level > 0) {
+                parent.level -= 1; parent.x /= 2;  parent.y /= 2;
+                if (allLoads.find(parent) != allLoads.end()) {
+                    toKeep.insert(node);
+                    break;
+                }
+            }
+        }
+    }
+
     return toKeep;
 }
 
