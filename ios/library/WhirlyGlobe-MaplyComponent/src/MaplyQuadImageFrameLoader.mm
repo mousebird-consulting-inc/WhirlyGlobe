@@ -428,9 +428,13 @@ public:
                     if (frame.texID != EmptyIdentity) {
                         int relLevel = tileID.level - frame.texNode.level;
                         int relX = tileID.x - frame.texNode.x * (1<<relLevel);
-                        int relY = tileID.y - frame.texNode.y * (1<<relLevel);
-                        if (flipY)
-                            relY = (1<<relLevel)-relY-1;
+                        int tileIDY = tileID.y;
+                        int frameIdentY = frame.texNode.y;
+                        if (flipY) {
+                            tileIDY = (1<<tileIDY)-tileIDY-1;
+                            frameIdentY = (1<<frameIdentY)-frameIdentY-1;
+                        }
+                        int relY = tileIDY - frameIdentY* (1<<relLevel);
                         
                         for (auto drawID : tile->instanceDrawIDs)
                             changes.push_back(new DrawTexChangeRequest(drawID,ii,frame.texID,0,0,relLevel,relX,relY));
