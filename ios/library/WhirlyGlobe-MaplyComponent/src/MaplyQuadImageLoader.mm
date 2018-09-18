@@ -23,6 +23,7 @@
 #import "MaplyRenderController_private.h"
 #import "MaplyQuadSampler_private.h"
 #import "MaplyBaseViewController_private.h"
+#import "MaplyRenderTarget_private.h"
 
 @interface MaplyQuadImageLoader() <WhirlyKitQuadTileBuilderDelegate>
 
@@ -199,7 +200,7 @@ public:
     }
     
     // Set up the instance to the base tile's geometry
-    void setupGeom(LoadedTileNewRef loadedTile,int defaultDrawPriority,ChangeSet &changes) {
+    void setupGeom(MaplyQuadImageLoader *loader,LoadedTileNewRef loadedTile,int defaultDrawPriority,ChangeSet &changes) {
         // Assign it to the various drawables
         drawPriority = defaultDrawPriority;
         for (auto di : loadedTile->drawInfo) {
@@ -221,6 +222,8 @@ public:
             drawInst->setTexId(0, 0);
             drawInst->setDrawPriority(newDrawPriority);
             drawInst->setEnable(false);
+            if (loader->renderTarget)
+                drawInst->setRenderTarget(loader->renderTarget.renderTargetID);
             changes.push_back(new AddDrawableReq(drawInst));
             instanceDrawIDs.push_back(drawInst->getId());
         }
@@ -379,6 +382,11 @@ using namespace WhirlyKit;
     }
     
     tileFetcher = inTileFetcher;
+}
+
+- (void)setRenderTarget:(MaplyRenderTarget *__nonnull)inRenderTarget
+{
+    renderTarget = inRenderTarget;
 }
 
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp
@@ -616,7 +624,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     
     // Make the instance drawables we'll use to mirror the geometry
     if (loadedTile)
-        newTile->setupGeom(loadedTile,defaultDrawPriority,changes);
+        newTile->setupGeom(self,loadedTile,defaultDrawPriority,changes);
 
     if ([self shouldLoad:ident])
         [self fetchThisTile:newTile ident:ident];

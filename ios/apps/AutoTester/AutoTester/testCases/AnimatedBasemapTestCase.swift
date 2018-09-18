@@ -14,6 +14,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
 	let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
     var imageLayer : MaplyQuadImageFrameLoader? = nil
     var imageAnimator : MaplyQuadImageFrameAnimator? = nil
+    var varTarget : MaplyVariableTarget? = nil
 
 	override init() {
 		super.init()
@@ -23,7 +24,6 @@ class AnimatedBasemapTestCase: MaplyTestCase {
 		self.implementations = [.globe, .map]
 	}
 
-    // Note: Rather than copying the shader code in here, we should have a way to look it up
     let vertexShaderNoLightTri = """
     precision highp float;
 
@@ -34,12 +34,25 @@ class AnimatedBasemapTestCase: MaplyTestCase {
     attribute vec4 a_color;
     attribute vec3 a_normal;
 
-    varying vec2 v_texCoord;
+    uniform vec2 u_texOffset0;
+    uniform vec2 u_texScale0;
+    uniform vec2 u_texOffset1;
+    uniform vec2 u_texScale1;
+
+    varying vec2 v_texCoord0;
+    varying vec2 v_texCoord1;
     varying vec4 v_color;
 
     void main()
     {
-       v_texCoord = a_texCoord0;
+        if (u_texScale0.x != 0.0)
+            v_texCoord0 = vec2(a_texCoord0.x*u_texScale0.x,a_texCoord0.y*u_texScale0.y) + u_texOffset0;
+        else
+            v_texCoord0 = a_texCoord0;
+        if (u_texScale1.x != 0.0)
+            v_texCoord1 = vec2(a_texCoord0.x*u_texScale1.x,a_texCoord0.y*u_texScale1.y) + u_texOffset1;
+        else
+            v_texCoord1 = a_texCoord0;
        v_color = a_color * u_fade;
     
        gl_Position = u_mvpMatrix * vec4(a_position,1.0);
@@ -54,13 +67,14 @@ class AnimatedBasemapTestCase: MaplyTestCase {
     uniform sampler2D s_colorRamp;
     uniform float u_interp;
 
-    varying vec2      v_texCoord;
+    varying vec2      v_texCoord0;
+    varying vec2      v_texCoord1;
     varying vec4      v_color;
 
     void main()
     {
-      float baseVal0 = texture2D(s_baseMap0, v_texCoord).r;
-      float baseVal1 = texture2D(s_baseMap1, v_texCoord).r;
+      float baseVal0 = texture2D(s_baseMap0, v_texCoord0).r;
+      float baseVal1 = texture2D(s_baseMap1, v_texCoord1).r;
       float index = mix(baseVal0,baseVal1,u_interp);
       gl_FragColor = texture2D(s_colorRamp,vec2(index,0.5));
     }
@@ -73,23 +87,30 @@ class AnimatedBasemapTestCase: MaplyTestCase {
         for i in 0...4 {
             let precipSource = MaplyRemoteTileInfoNew(baseURL: "http://a.tiles.mapbox.com/v3/mousebird.precip-example-layer\(i)/{z}/{x}/{y}.png",
                 minZoom: 0,
-                maxZoom: 0)
+                maxZoom: 6)
             precipSource.cacheDir = "\(cacheDir)/forecast_io_weather_layer\(i)/"
             tileSources.append(precipSource)
         }
+        
+        // Set up a variable target for two pass rendering
+        varTarget = MaplyVariableTarget(type: .VariableTypeVisual, viewC: baseVC)
+        varTarget?.setScale(0.5)
+        varTarget?.drawPriority = kMaplyImageLayerDrawPriorityDefault + 1000
         
         // Parameters describing how we want a globe broken down
         let sampleParams = MaplySamplingParams()
         sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
         sampleParams.coverPoles = false
-        sampleParams.edgeMatching = true
+        sampleParams.edgeMatching = false
         sampleParams.minZoom = 0
         sampleParams.maxZoom = 6
         sampleParams.singleLevel = true
         sampleParams.minImportance = 1024.0*1024.0
 
         imageLayer = MaplyQuadImageFrameLoader(params: sampleParams, tileInfos: tileSources, viewC: baseVC)
-        imageLayer?.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault + 1000
+        if let varTarget = varTarget {
+            imageLayer?.setRenderTarget(varTarget.renderTarget)
+        }
 
         // Color ramp shader
         if let colorRamp = UIImage(named: "colorramp.png"),
@@ -105,7 +126,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
         // Animator
         imageAnimator = MaplyQuadImageFrameAnimator(frameLoader: imageLayer!, viewC: baseVC)
         imageAnimator?.period = 15.0
-        imageAnimator?.pauseLength = 2.0
+        imageAnimator?.pauseLength = 3.0
     }
 
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {

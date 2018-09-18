@@ -99,6 +99,14 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 @property (nonatomic) int drawPriorityPerLevel;
 
 /**
+ An optional render target for this loader.
+ 
+ The loader can draw to a render target rather than to the screen.
+ You use this in a multi-pass rendering setup.
+ */
+- (void)setRenderTarget:(MaplyRenderTarget *__nonnull)renderTarget;
+
+/**
  Scale the importance values passed to the loader and used for a loading cutoff.
  
  A larger value means the tile needs to take up *more* space to be loaded.  So bigger values

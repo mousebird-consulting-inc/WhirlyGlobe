@@ -24,6 +24,7 @@
 #import "MaplyVertexAttribute.h"
 #import "MaplyTexture.h"
 #import "MaplyRenderTarget.h"
+#import "MaplyVariableTarget.h"
 #import "MaplyLabel.h"
 #import "MaplyScreenLabel.h"
 #import "MaplyMarker.h"

@@ -21,6 +21,7 @@
 #import "MaplyQuadImageLoader_private.h"
 #import "MaplyBaseViewController_private.h"
 #import "MaplyShader_private.h"
+#import "MaplyRenderTarget_private.h"
 
 @class MaplyQuadImageFrameLoader;
 
@@ -41,7 +42,7 @@ class QIFFrameAsset
 public:
     typedef enum {Empty,Loaded,Loading} State;
     
-    QIFFrameAsset() : state(Empty), request(nil), priority(0), importance(0.0) { }
+    QIFFrameAsset() : state(Empty), request(nil), priority(0), importance(0.0), texID(EmptyIdentity) { }
     
     State getState() { return state; }
     int getPriority() { return priority; }
@@ -225,7 +226,7 @@ public:
     }
     
     // Set up the geometry for this tile
-    void setupContents(LoadedTileNewRef loadedTile,int defaultDrawPriority,SimpleIdentity shaderID,ChangeSet &changes) {
+    void setupContents(MaplyQuadImageFrameLoader *loader,LoadedTileNewRef loadedTile,int defaultDrawPriority,SimpleIdentity shaderID,ChangeSet &changes) {
         drawPriority = defaultDrawPriority;
         for (auto di : loadedTile->drawInfo) {
             int newDrawPriority = defaultDrawPriority;
@@ -247,6 +248,8 @@ public:
             drawInst->setDrawPriority(newDrawPriority);
             drawInst->setEnable(false);
             drawInst->setProgram(shaderID);
+            if (loader->renderTarget)
+                drawInst->setRenderTarget(loader->renderTarget.renderTargetID);
             changes.push_back(new AddDrawableReq(drawInst));
             instanceDrawIDs.push_back(drawInst->getId());
         }
@@ -268,6 +271,7 @@ public:
         }
         
         auto frame = frames[loadReturn.frame];
+
         frame->loadSuccess(tex);
         
         changes.push_back(new AddTextureReq(tex));
@@ -336,6 +340,8 @@ public:
     QIFRenderState() : lastCurFrame(-1.0), lastUpdate(0.0), lastRenderTime(0.0) { }
     QIFRenderState(int numFrames)
     {
+        lastCurFrame = -1.0;
+        lastUpdate = 0.0;
         tilesLoaded.resize(numFrames,0);
         topTilesLoaded.resize(numFrames,false);
     }
@@ -381,7 +387,7 @@ public:
             numFrames = 1;
         }
         // Make sure we've got full coverage on those frames
-        if (numFrames > 1 && topTilesLoaded[activeFrames[0] && topTilesLoaded[activeFrames[1]]]) {
+        if (numFrames > 1 && topTilesLoaded[activeFrames[0]] && topTilesLoaded[activeFrames[1]]) {
             // We're good
         } else if (topTilesLoaded[activeFrames[1]]) {
             // Just one valid frame
@@ -415,6 +421,8 @@ public:
         
         bool bigEnable = numFrames > 0;
         
+//        NSLog(@"numFrames = %d, activeFrames[0] = %d, activeFrames[1] = %d",numFrames,activeFrames[0],activeFrames[1]);
+        
         // Work through the tiles, figure out what's to be on and off
         for (auto tileIt : tiles) {
             auto tileID = tileIt.first;
@@ -431,13 +439,14 @@ public:
                         int tileIDY = tileID.y;
                         int frameIdentY = frame.texNode.y;
                         if (flipY) {
-                            tileIDY = (1<<tileIDY)-tileIDY-1;
-                            frameIdentY = (1<<frameIdentY)-frameIdentY-1;
+                            tileIDY = (1<<tileID.level)-tileIDY-1;
+                            frameIdentY = (1<<frame.texNode.level)-frameIdentY-1;
                         }
-                        int relY = tileIDY - frameIdentY* (1<<relLevel);
+                        int relY = tileIDY - frameIdentY * (1<<relLevel);
                         
                         for (auto drawID : tile->instanceDrawIDs)
                             changes.push_back(new DrawTexChangeRequest(drawID,ii,frame.texID,0,0,relLevel,relX,relY));
+//                        NSLog(@"tile %d: (%d,%d), frame = %d getting texNode %d: (%d,%d texID = %d)",tileID.level,tileID.x,tileID.y,ii,frame.texNode.level,frame.texNode.x,frame.texNode.y,frame.texID);
                     } else {
                         enable = false;
                         break;
@@ -471,6 +480,8 @@ public:
             if (!enable) {
                 for (auto drawID : tile->instanceDrawIDs) {
                     changes.push_back(new OnOffChangeRequest(drawID,false));
+                    changes.push_back(new DrawTexChangeRequest(drawID,0,EmptyIdentity));
+                    changes.push_back(new DrawTexChangeRequest(drawID,1,EmptyIdentity));
                 }
             }
         }
@@ -591,6 +602,8 @@ using namespace WhirlyKit;
     
     // Active updater used to updater rendering state
     MaplyQuadImageFrameLoaderUpdater *updater;
+    
+    bool changesSinceLastFlush;
 }
 
 - (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)inParams tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)inFrameInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
@@ -622,6 +635,7 @@ using namespace WhirlyKit;
     self.imageFormat = MaplyImageIntRGBA;
     self.borderTexel = 0;
     self->texType = GL_UNSIGNED_BYTE;
+    changesSinceLastFlush = true;
     valid = true;
     
     // Start things out after a delay
@@ -721,7 +735,7 @@ using namespace WhirlyKit;
     
     // Make the instance drawables we'll use to mirror the geometry
     if (loadedTile) {
-        newTile->setupContents(loadedTile,defaultDrawPriority,shaderID,changes);
+        newTile->setupContents(self,loadedTile,defaultDrawPriority,shaderID,changes);
         newTile->setShouldEnable(loadedTile->enabled);
     }
     
@@ -827,6 +841,8 @@ using namespace WhirlyKit;
     tile->frameLoaded(loadReturn, tex, changes);
     
     [layer.layerThread addChangeRequests:changes];
+    
+    changesSinceLastFlush = true;
 }
 
 // Called on SamplingLayer.layerThread
@@ -956,7 +972,7 @@ using namespace WhirlyKit;
         auto it = tiles.find(node);
         if (it == tiles.end())
             continue;
-        // If this tile (to be unloaded) isn't full loaded, then we don't care about it
+        // If this tile (to be unloaded) isn't loaded, then we don't care about it
         if (!it->second->anyFramesLoaded())
             continue;
         
@@ -983,6 +999,8 @@ using namespace WhirlyKit;
         return;
     auto interactLayer = control->interactLayer;
     
+    bool somethingChanged = false;
+    
     NSMutableArray *toCancel = [NSMutableArray array];
     NSMutableArray *toStart = [NSMutableArray array];
     
@@ -994,6 +1012,7 @@ using namespace WhirlyKit;
         
         // Create the new tile and put in the toLoad queue
         auto newTile = [self addNewTile:tile->ident layer:interactLayer toStart:toStart changes:changes];
+        somethingChanged = true;
     }
     
     // Remove old tiles
@@ -1011,6 +1030,7 @@ using namespace WhirlyKit;
         
         // Clear out any associated data and remove it from our list
         [self removeTile:inTile layer:interactLayer toCancel:toCancel changes:changes];
+        somethingChanged = true;
     }
     
     // Look through the importance updates
@@ -1030,6 +1050,7 @@ using namespace WhirlyKit;
                 tile->startFetching(self, toStart, frameInfos);
                 if (loadedTile)
                     tile->setShouldEnable(loadedTile->enabled);
+                somethingChanged = true;
             }
         } else {
             // We don't consider it worth loading now so drop it if we were
@@ -1039,9 +1060,11 @@ using namespace WhirlyKit;
                     tile->setImportance(tileFetcher, ident.importance);
                     if (loadedTile)
                         tile->setShouldEnable(loadedTile->enabled);
+                    somethingChanged = true;
                     break;
                 case QIFTileAsset::Active:
                     tile->clear(toCancel, changes);
+                    somethingChanged = true;
                     break;
             }
         }
@@ -1052,14 +1075,21 @@ using namespace WhirlyKit;
     
     if (self.debugMode)
         NSLog(@"quadBuilder:updates:changes: changeRequests: %d",(int)changes.size());
+    
+    changesSinceLastFlush |= somethingChanged;
 }
 
 - (void)quadBuilderPreSceneFlush:(WhirlyKitQuadTileBuilder * _Nonnull)builder
 {
+    if (!changesSinceLastFlush)
+        return;
+    
     ChangeSet changes;
     [self buildRenderState:changes];
     
     [layer.layerThread addChangeRequests:changes];
+    
+    changesSinceLastFlush = false;
 }
 
 - (void)cleanup
