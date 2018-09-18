@@ -33,6 +33,7 @@
     GLenum texType;
     
     MaplyBaseViewController * __weak viewC;
+    MaplyRenderTarget * __weak renderTarget;
     MaplyQuadSamplingLayer *samplingLayer;
 }
 
