@@ -45,6 +45,7 @@ public:
     // Tile is doing what?
     typedef enum {Waiting,Loading,Loaded} State;
     State getState() { return state; }
+    bool isOurTexture() { return ourTexture; }
 
     // Completely clear out the tile geometry
     void clear(MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
@@ -253,9 +254,13 @@ public:
     // Apply texture from a cover tile to this one
     void applyCoverTile(const QuadTreeNew::Node &coverIdent,TileAssetRef coverAsset,LoadedTileNewRef loadedTile,bool flipY,ChangeSet &changes) {
         int relLevel = loadedTile->ident.level - coverIdent.level;
-        int relX = loadedTile->ident.x - coverIdent.x * (1<<relLevel), relY = loadedTile->ident.y - coverIdent.y * (1<<relLevel);
-        if (flipY)
-            relY = (1<<relLevel)-relY-1;
+        int loadedTileY = loadedTile->ident.y;
+        int coverIdentY = coverIdent.y;
+        if (flipY) {
+            loadedTileY = (1<<loadedTile->ident.level)-loadedTileY-1;
+            coverIdentY = (1<<coverIdent.level)-coverIdentY-1;
+        }
+        int relX = loadedTile->ident.x - coverIdent.x * (1<<relLevel), relY = loadedTileY - coverIdentY * (1<<relLevel);
 
         texNode = coverIdent;
         ourTexture = false;
@@ -1025,7 +1030,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     for (auto it : tiles) {
         auto coverIdent = it.first;
         auto coverAsset = it.second;
-        if (coverAsset->getState() == TileAsset::Loaded && tile->isBetterCoverTile(coverIdent,tileIdent)) {
+        if (coverAsset->getState() == TileAsset::Loaded && coverAsset->isOurTexture() && tile->isBetterCoverTile(coverIdent,tileIdent)) {
             if (!bestTile || coverIdent.level > bestIdent.level) {
                 bestIdent = coverIdent;
                 bestTile = coverAsset;
@@ -1035,7 +1040,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     
     if (bestTile) {
         if (self.debugMode)
-            NSLog(@"Applying old cover tile %d : (%d,%d) to tile %d : (%d,%d)",bestIdent.level,bestIdent.x,bestIdent.y,tileIdent.level,tileIdent.x,tileIdent.y);
+            NSLog(@"Found old cover tile %d : (%d,%d) to tile %d : (%d,%d)",bestIdent.level,bestIdent.x,bestIdent.y,tileIdent.level,tileIdent.x,tileIdent.y);
         tile->applyCoverTile(bestIdent,bestTile,loadedTile,self.flipY,changes);
     }
 }
