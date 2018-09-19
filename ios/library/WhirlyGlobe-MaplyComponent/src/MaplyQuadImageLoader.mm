@@ -222,6 +222,7 @@ public:
             drawInst->setTexId(0, 0);
             drawInst->setDrawPriority(newDrawPriority);
             drawInst->setEnable(false);
+            drawInst->setColor([loader.color asRGBAColor]);
             if (loader->renderTarget)
                 drawInst->setRenderTarget(loader->renderTarget.renderTargetID);
             changes.push_back(new AddDrawableReq(drawInst));
@@ -509,6 +510,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     self.importanceCutoff = 0.0;
     self.imageFormat = MaplyImageIntRGBA;
     self.borderTexel = 0;
+    self.color = [UIColor whiteColor];
     self->texType = GL_UNSIGNED_BYTE;
 
     // Start things out after a delay

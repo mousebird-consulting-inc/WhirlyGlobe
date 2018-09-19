@@ -98,6 +98,9 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 // Offset between levels for a calculated draw priority
 @property (nonatomic) int drawPriorityPerLevel;
 
+// Base color for geometry produced
+@property (nonatomic,retain,nonnull) UIColor *color;
+
 /**
  An optional render target for this loader.
  

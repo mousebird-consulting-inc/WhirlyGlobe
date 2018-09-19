@@ -248,6 +248,7 @@ public:
             drawInst->setDrawPriority(newDrawPriority);
             drawInst->setEnable(false);
             drawInst->setProgram(shaderID);
+            drawInst->setColor([loader.color asRGBAColor]);
             if (loader->renderTarget)
                 drawInst->setRenderTarget(loader->renderTarget.renderTargetID);
             changes.push_back(new AddDrawableReq(drawInst));
@@ -370,9 +371,11 @@ public:
     NSTimeInterval lastUpdate;
     
     // Update what the scene is looking at.  Ideally not every frame.
-    void updateScene(Scene *scene,double curFrame,NSTimeInterval now,bool flipY,ChangeSet &changes) {
+    void updateScene(Scene *scene,double curFrame,NSTimeInterval now,bool flipY,const RGBAColor &color,ChangeSet &changes) {
         if (tiles.empty())
             return;
+        unsigned char color4[4];
+        color.asUChar4(color4);
         
         lastRenderTime = now;
         lastCurFrame = curFrame;
@@ -468,6 +471,7 @@ public:
                 // We set the interpolation value per drawable
                 SingleVertexAttributeSet attrs;
                 attrs.insert(SingleVertexAttribute(u_interpNameID,(float)t));
+                attrs.insert(SingleVertexAttribute(u_colorNameID,color4));
                 
                 // Turn it all on
                 for (auto drawID : tile->instanceDrawIDs) {
@@ -634,6 +638,7 @@ using namespace WhirlyKit;
     self.importanceCutoff = 0.0;
     self.imageFormat = MaplyImageIntRGBA;
     self.borderTexel = 0;
+    self.color = [UIColor whiteColor];
     self->texType = GL_UNSIGNED_BYTE;
     changesSinceLastFlush = true;
     valid = true;
@@ -838,7 +843,11 @@ using namespace WhirlyKit;
     }
 
     ChangeSet changes;
-    tile->frameLoaded(loadReturn, tex, changes);
+    if (tex) {
+        tile->frameLoaded(loadReturn, tex, changes);
+    } else {
+        tile->frameFailed(loadReturn, changes);
+    }
     
     [layer.layerThread addChangeRequests:changes];
     
@@ -1120,7 +1129,7 @@ using namespace WhirlyKit;
     ChangeSet changes;
     
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
-    renderState.updateScene(frameInfo.scene, curFrame, now, self.flipY, changes);
+    renderState.updateScene(frameInfo.scene, curFrame, now, self.flipY, [self.color asRGBAColor], changes);
     
     frameInfo.scene->addChangeRequests(changes);
 }
