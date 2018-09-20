@@ -78,6 +78,9 @@
     
     /// When an annotation comes up we may want to reposition the view.  This works poorly in some cases.
     bool allowRepositionForAnnnotations;
+    
+    /// Number of simultaneous tile fetcher connections (per tile fetcher)
+    int tileFetcherConnections;
   
     /// 3dtouch preview context, so we can remove it.
     id <UIViewControllerPreviewing> previewingContext;
