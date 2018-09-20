@@ -59,7 +59,11 @@ public:
              update:(const WhirlyKit::TileBuilderDelegateInfo &)updates
             changes:(WhirlyKit::ChangeSet &)changes;
 
+/// Called right before the layer thread flushes all its current changes
 - (void)quadBuilderPreSceneFlush:(WhirlyKitQuadTileBuilder *__nonnull )builder;
+
+/// Shutdown called on the layer thread if you stuff to clean up
+- (void)quadBuilderShutdown:(WhirlyKitQuadTileBuilder *__nonnull )builder;
 
 @end
 

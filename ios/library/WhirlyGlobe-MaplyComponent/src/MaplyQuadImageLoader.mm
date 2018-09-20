@@ -972,6 +972,10 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 {
 }
 
+- (void)quadBuilderShutdown:(WhirlyKitQuadTileBuilder * _Nonnull)builder
+{
+}
+
 // Look for covers that have disappeared and have to be replaced
 - (void)updateCovers:(MaplyBaseInteractionLayer *)interactLayer changes:(ChangeSet &)changes
 {
