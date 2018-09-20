@@ -264,7 +264,8 @@ public:
             loadedTileY = (1<<loadedTile->ident.level)-loadedTileY-1;
             coverIdentY = (1<<coverIdent.level)-coverIdentY-1;
         }
-        int relX = loadedTile->ident.x - coverIdent.x * (1<<relLevel), relY = loadedTileY - coverIdentY * (1<<relLevel);
+        int relX = loadedTile->ident.x - coverIdent.x * (1<<relLevel);
+        int relY = loadedTileY - coverIdentY * (1<<relLevel);
 
         texNode = coverIdent;
         ourTexture = false;
@@ -761,12 +762,12 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         }
     }
     
-    tile->setupContents(loadedTile,tex,loadReturn.compObjs,interactLayer,changes);
-
     if (self.debugMode)
         NSLog(@"Loaded %d: (%d,%d) texID = %d",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y,(int)(tex ? tex->getId() : 0));
 
     if (tex) {
+        tile->setupContents(loadedTile,tex,loadReturn.compObjs,interactLayer,changes);
+
         // See if it's useful elsewhere
         [self applyCoverTile:ident asset:tile changes:changes];
     } else {
