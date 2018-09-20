@@ -510,6 +510,16 @@ TileGeomManager::NodeChanges TileGeomManager::addRemoveTiles(const QuadTreeNew::
     
     return nodeChanges;
 }
+
+void TileGeomManager::cleanup(ChangeSet &changes)
+{
+    for (auto tileInst: tileMap) {
+        auto tile = tileInst.second;
+        tile->removeDrawables(changes);
+    }
+    
+    tileMap.clear();
+}
     
 std::vector<LoadedTileNewRef> TileGeomManager::getTiles(const QuadTreeNew::NodeSet &tiles)
 {

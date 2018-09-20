@@ -122,6 +122,8 @@ protected:
 
 - (void)teardown
 {
+    [_loader quadDisplayLayerShutdown:self];
+    
     [_dataStructure teardown];
     _dataStructure = nil;
 

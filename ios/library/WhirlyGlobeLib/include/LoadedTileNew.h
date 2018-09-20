@@ -147,6 +147,9 @@ public:
     // Turn tiles on/off based on their childen
     void updateParents(ChangeSet &changes,LoadedTileVec &enabledNodes,LoadedTileVec &disabledNodes);
     
+    // Remove all the various geometry
+    void cleanup(ChangeSet &changes);
+    
     TileGeomSettings settings;
     
     QuadTreeNew *quadTree;

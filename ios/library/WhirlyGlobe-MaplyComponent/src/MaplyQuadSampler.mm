@@ -331,4 +331,8 @@ using namespace WhirlyKit;
     }
 }
 
+- (void)quadBuilderShutdown:(WhirlyKitQuadTileBuilder * _Nonnull)builder
+{
+}
+
 @end

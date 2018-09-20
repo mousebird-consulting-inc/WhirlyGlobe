@@ -1101,6 +1101,10 @@ using namespace WhirlyKit;
     changesSinceLastFlush = false;
 }
 
+- (void)quadBuilderShutdown:(WhirlyKitQuadTileBuilder * _Nonnull)builder
+{
+}
+
 - (void)cleanup
 {
     ChangeSet changes;

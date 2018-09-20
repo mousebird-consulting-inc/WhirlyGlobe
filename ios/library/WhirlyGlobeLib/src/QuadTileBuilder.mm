@@ -160,6 +160,17 @@ using namespace WhirlyKit;
     [_delegate quadBuilderPreSceneFlush:self];
 }
 
+- (void)quadDisplayLayerShutdown:(WhirlyKitQuadDisplayLayerNew * _Nonnull)layer
+{
+    ChangeSet changes;
+    
+    geomManage.cleanup(changes);
+    [_delegate quadBuilderShutdown:self];
+
+    [layer.layerThread addChangeRequests:changes];
+}
+
+
 - (TileBuilderDelegateInfo)getLoadingState
 {
     TileBuilderDelegateInfo info;
