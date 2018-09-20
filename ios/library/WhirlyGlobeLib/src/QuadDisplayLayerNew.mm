@@ -47,7 +47,7 @@ public:
     }
 
 protected:
-    WhirlyKitQuadDisplayLayerNew *dispLayer;
+    WhirlyKitQuadDisplayLayerNew * __weak dispLayer;
     
     // Calculate importance for a given node
     double importance(const Node &node)
@@ -128,6 +128,10 @@ protected:
     _dataStructure = nil;
 
     _scene = NULL;
+
+    if (_quadtree)
+        delete _quadtree;
+    _quadtree = NULL;
 }
 
 static const float DelayPeriod = 0.1;

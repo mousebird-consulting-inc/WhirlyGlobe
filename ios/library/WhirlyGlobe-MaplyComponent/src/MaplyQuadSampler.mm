@@ -151,10 +151,11 @@ using namespace WhirlyKit;
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
     valid = false;
-    builder = nil;
     if (quadLayer)
         [inLayerThread removeLayer:quadLayer];
+    builder = nil;
     quadLayer = nil;
+    builderDelegates.clear();
 }
 
 - (WhirlyKit::CoordSystem *)coordSystem
@@ -333,6 +334,7 @@ using namespace WhirlyKit;
 
 - (void)quadBuilderShutdown:(WhirlyKitQuadTileBuilder * _Nonnull)builder
 {
+    builder = nil;
 }
 
 @end

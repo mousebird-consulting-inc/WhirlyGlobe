@@ -168,6 +168,10 @@ using namespace WhirlyKit;
     [_delegate quadBuilderShutdown:self];
 
     [layer.layerThread addChangeRequests:changes];
+    
+    layer = nil;
+    _coordSys = nil;
+    _delegate = nil;
 }
 
 
