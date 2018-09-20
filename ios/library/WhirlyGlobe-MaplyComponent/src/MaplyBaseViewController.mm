@@ -174,6 +174,7 @@ using namespace WhirlyKit;
     if (!renderControl)
         renderControl = [[MaplyRenderController alloc] init];
     
+    tileFetcherConnections = 16;
     allowRepositionForAnnnotations = true;
     
     userLayers = [NSMutableArray array];
@@ -1322,7 +1323,7 @@ static const float PerfOutputDelay = 15.0;
         if ([tileFetcher.name isEqualToString:name])
             return tileFetcher;
     
-    MaplyRemoteTileFetcher *tileFetcher = [[MaplyRemoteTileFetcher alloc] initWithName:name connections:16];
+    MaplyRemoteTileFetcher *tileFetcher = [[MaplyRemoteTileFetcher alloc] initWithName:name connections:tileFetcherConnections];
     tileFetchers.push_back(tileFetcher);
     
     return tileFetcher;
