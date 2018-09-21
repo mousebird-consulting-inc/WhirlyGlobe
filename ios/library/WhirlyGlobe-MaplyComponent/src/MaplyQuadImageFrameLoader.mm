@@ -563,7 +563,7 @@ using namespace WhirlyKit;
 // We use this to process rendering state from the layer thread
 @interface MaplyQuadImageFrameLoaderUpdater : MaplyActiveObject
 
-@property (nonatomic,weak) MaplyQuadImageFrameLoader *loader;
+@property (nonatomic,weak) MaplyQuadImageFrameLoader * __weak loader;
 
 @end
 
@@ -727,6 +727,10 @@ using namespace WhirlyKit;
 
     [viewC removeActiveObject:updater];
     [viewC releaseSamplingLayer:samplingLayer forUser:self];
+    
+    params = nil;
+    frameInfos = nil;
+    updater = nil;
 }
 
 - (QIFTileAssetRef)addNewTile:(QuadTreeNew::ImportantNode)ident layer:(MaplyBaseInteractionLayer *)interactLayer toStart:(NSMutableArray *)toStart changes:(ChangeSet &)changes
