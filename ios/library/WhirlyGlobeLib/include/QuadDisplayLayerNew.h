@@ -53,6 +53,9 @@
 /// Called right before the layer thread flushes its change requests
 - (void)quadDisplayLayerPreSceneFlush:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer;
 
+/// Called when a layer is shutting down (on the layer thread)
+- (void)quadDisplayLayerShutdown:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer;
+
 @end
 
 // Reusing WhirlyKitQuadDataStructure for the size of the quad tree

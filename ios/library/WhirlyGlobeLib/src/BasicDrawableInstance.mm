@@ -631,6 +631,13 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             }
         }
         
+        // Note: Something of a hack
+        if (hasColor) {
+            const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID);
+            if (colorAttr)
+                glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
+        }
+        
         // If there are no instances, fill in the identity
         if (!instBuffer)
         {
