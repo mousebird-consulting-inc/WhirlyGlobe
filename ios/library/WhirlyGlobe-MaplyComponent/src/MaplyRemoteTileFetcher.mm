@@ -381,7 +381,7 @@ using namespace WhirlyKit;
                 toLoad.erase(tile);
                 break;
         }
-        tile->task = nil;
+        tile->clear();
         tilesByFetchRequest.erase(it);
     }
     
@@ -463,60 +463,21 @@ using namespace WhirlyKit;
         tile->task = [session dataTaskWithRequest:urlReq completionHandler:
                       ^(NSData * _Nullable data, NSURLResponse * _Nullable inResponse, NSError * _Nullable error) {
                           NSHTTPURLResponse *response = (NSHTTPURLResponse *)inResponse;
-                          MaplyRemoteTileFetcher *hardSelf = weakSelf;
-                          tile->task = nil;
-                          if (hardSelf) {
-                              dispatch_async(hardSelf->queue,
-                                             ^{
-                                  if (error || response.statusCode != 200) {
-                                      // Cancels don't count as errors
-                                      if (!error || error.code != NSURLErrorCancelled) {
-                                          hardSelf->allStats.totalFails = hardSelf->allStats.totalFails + 1;
-                                          hardSelf->recentStats.totalFails = hardSelf->recentStats.totalFails + 1;
-                                          [hardSelf finishedLoading:tile data:nil error:error];
-                                      }
-                                  } else {
-                                      int length = [data length];
-                                      hardSelf->allStats.remoteRequests = hardSelf->allStats.remoteRequests + 1;
-                                      hardSelf->recentStats.remoteRequests = hardSelf->recentStats.remoteRequests + 1;
-                                      hardSelf->allStats.remoteData = hardSelf->allStats.remoteData + length;
-                                      hardSelf->recentStats.remoteData = hardSelf->recentStats.remoteData + length;
-                                      NSTimeInterval howLong = CFAbsoluteTimeGetCurrent() - fetchStartTile;
-                                      hardSelf->allStats.totalLatency = hardSelf->allStats.totalLatency + howLong;
-                                      hardSelf->recentStats.totalLatency = hardSelf->recentStats.totalLatency + howLong;
-                                      [hardSelf finishedLoading:tile data:data error:error];
-                                      [hardSelf writeToCache:tile tileData:data];
-                                  }
-                            });
-                          } else {
-                              tile->task = nil;
-                          }
-                      }];
+
+                          dispatch_queue_t queue = [weakSelf getQueue];
+                          if (queue)
+                              dispatch_async(queue,
+                                 ^{
+                                     if (weakSelf)
+                                         [weakSelf handleData:data response:response error:error tile:tile fetchStart:fetchStartTile];
+                                 });
+                        }];
         
         // Look for it cached
         if ([self isTileLocal:tile fileName:tile->fetchInfo.cacheFile]) {
             // Do the reading somewhere else
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                MaplyRemoteTileFetcher *hardSelf = weakSelf;
-                if (hardSelf) {
-                    NSData *data = [hardSelf readFromCache:tile];
-                    if (!data) {
-                        // It failed (which happens) so we need to fetch it after all
-                        [tile->task resume];
-                    } else {
-                        tile->task = nil;
-
-                        // It worked, but run the finished loading back on our queue
-                        dispatch_async(hardSelf->queue,^{
-                            int length = [data length];
-                            hardSelf->allStats.localData = hardSelf->allStats.localData + length;
-                            hardSelf->recentStats.localData = hardSelf->recentStats.localData + length;
-                            [hardSelf finishedLoading:tile data:data error:nil];
-                        });
-                    }
-                } else {
-                    tile->task = nil;
-                }
+                [weakSelf handleCache:tile];
             });
         } else {
             [tile->task resume];
@@ -524,14 +485,62 @@ using namespace WhirlyKit;
     }
 }
 
+- (void)handleData:(NSData *)data response:(NSHTTPURLResponse *)response error:(NSError *)error tile:(TileInfoRef)tile fetchStart:(NSTimeInterval)fetchStartTile
+{
+   if (error || response.statusCode != 200) {
+       // Cancels don't count as errors
+       if (!error || error.code != NSURLErrorCancelled) {
+           allStats.totalFails = allStats.totalFails + 1;
+           recentStats.totalFails = recentStats.totalFails + 1;
+           [self finishedLoading:tile data:nil error:error];
+       }
+   } else {
+       int length = [data length];
+       allStats.remoteRequests = allStats.remoteRequests + 1;
+       recentStats.remoteRequests = recentStats.remoteRequests + 1;
+       allStats.remoteData = allStats.remoteData + length;
+       recentStats.remoteData = recentStats.remoteData + length;
+       NSTimeInterval howLong = CFAbsoluteTimeGetCurrent() - fetchStartTile;
+       allStats.totalLatency = allStats.totalLatency + howLong;
+       recentStats.totalLatency = recentStats.totalLatency + howLong;
+       [self finishedLoading:tile data:data error:error];
+       [self writeToCache:tile tileData:data];
+   }
+}
+
+- (void)handleCache:(TileInfoRef)tile
+{
+    NSData *data = [self readFromCache:tile];
+    if (!data) {
+        // It failed (which happens) so we need to fetch it after all
+        [tile->task resume];
+    } else {
+        tile->task = nil;
+        
+        MaplyRemoteTileFetcher * __weak weakSelf = self;
+        // It worked, but run the finished loading back on our queue
+        dispatch_async(queue,^{
+            [weakSelf handleFinishLoading:data tile:tile];
+        });
+    }
+}
+
+- (void)handleFinishLoading:(NSData *)data tile:(TileInfoRef)tile
+{
+    int length = [data length];
+    allStats.localData = allStats.localData + length;
+    recentStats.localData = recentStats.localData + length;
+    [self finishedLoading:tile data:data error:nil];
+}
+
 // Called on our queue
 - (void)finishTile:(TileInfoRef)tile
 {
     auto it = tilesByFetchRequest.find(tile->request);
     if (it != tilesByFetchRequest.end()) {
-        it->second->clear();
         tilesByFetchRequest.erase(it);
     }
+    tile->clear();
     loading.erase(tile);
     toLoad.erase(tile);
 }
@@ -540,9 +549,11 @@ using namespace WhirlyKit;
 - (void)finishedLoading:(TileInfoRef)tile data:(NSData *)data error:(NSError *)error
 {
     auto it = tilesByFetchRequest.find(tile->request);
-    if (it == tilesByFetchRequest.end())
+    if (it == tilesByFetchRequest.end()) {
+        tile->clear();
         // No idea what it is.  Toss it.
         return;
+    }
     
     MaplyRemoteTileFetcher * __weak weakSelf = self;
     
@@ -557,13 +568,16 @@ using namespace WhirlyKit;
         }
 
         dispatch_queue_t theQueue = [weakSelf getQueue];
-        if (theQueue)
+        if (theQueue) {
             dispatch_async(theQueue,
             ^{
                 [weakSelf finishTile:tile];
 
                 [weakSelf updateLoading];
             });
+        } else {
+            tile->clear();
+        }
     });
 }
 
@@ -577,6 +591,9 @@ using namespace WhirlyKit;
     
     toLoad.clear();
     loading.clear();
+    for (auto it : tilesByFetchRequest) {
+        it.second->clear();
+    }
     tilesByFetchRequest.clear();
 }
 
