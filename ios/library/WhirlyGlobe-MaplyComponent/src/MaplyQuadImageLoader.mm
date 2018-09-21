@@ -476,6 +476,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
 @implementation MaplyQuadImageLoader
 {
+    bool valid;
     MaplySamplingParams *params;
     NSArray<MaplyRemoteTileInfoNew *> *tileInfos;
     
@@ -493,6 +494,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     params = inParams;
     tileInfos = inTileInfos;
     self->viewC = inViewC;
+    valid = true;
 
     self.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
     self.drawPriorityPerLevel = 100;
@@ -517,6 +519,9 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     // Start things out after a delay
     // This lets the caller mess with settings
     dispatch_async(dispatch_get_main_queue(), ^{
+        if (!valid)
+            return;
+        
         if (!self->tileFetcher) {
             self->tileFetcher = [self->viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
         }
@@ -718,6 +723,9 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 // Called on SamplingLayer.layerThread
 - (void)mergeLoadedTile:(MaplyLoaderReturn *)loadReturn
 {
+    if (!valid)
+        return;
+    
     if (self.debugMode)
         NSLog(@"MaplyQuadImageLoader: Merging fetch for %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
 
