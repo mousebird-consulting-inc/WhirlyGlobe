@@ -126,7 +126,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     drawPriority = geomSettings.baseDrawPriority + ident.level * geomSettings.drawPriorityPerLevel;
     chunk->setDrawPriority(drawPriority);
     chunk->setVisibleRange(geomSettings.minVis, geomSettings.maxVis);
-    chunk->setColor(geomSettings.color);
+//    chunk->setColor(geomSettings.color);
     chunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
     chunk->setProgram(geomSettings.programID);
     chunk->setOnOff(false);
@@ -145,7 +145,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
         poleChunk->setType(GL_TRIANGLES);
         poleChunk->setDrawPriority(drawPriority);
         poleChunk->setVisibleRange(geomSettings.minVis, geomSettings.maxVis);
-        poleChunk->setColor(geomSettings.color);
+//        poleChunk->setColor(geomSettings.color);
         poleChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
         poleChunk->setProgram(geomSettings.programID);
         poleChunk->setOnOff(false);
@@ -263,7 +263,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
             skirtChunk->setupTexCoordEntry(0, 0);
             skirtChunk->setDrawPriority(11);
             skirtChunk->setVisibleRange(geomSettings.minVis, geomSettings.maxVis);
-            skirtChunk->setColor(geomSettings.color);
+//            skirtChunk->setColor(geomSettings.color);
             skirtChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
             skirtChunk->setType(GL_TRIANGLES);
             // We need the skirts rendered with the z buffer on, even if we're doing (mostly) pure sorting
@@ -509,6 +509,16 @@ TileGeomManager::NodeChanges TileGeomManager::addRemoveTiles(const QuadTreeNew::
     updateParents(changes,nodeChanges.enabledTiles,nodeChanges.disabledTiles);
     
     return nodeChanges;
+}
+
+void TileGeomManager::cleanup(ChangeSet &changes)
+{
+    for (auto tileInst: tileMap) {
+        auto tile = tileInst.second;
+        tile->removeDrawables(changes);
+    }
+    
+    tileMap.clear();
 }
     
 std::vector<LoadedTileNewRef> TileGeomManager::getTiles(const QuadTreeNew::NodeSet &tiles)

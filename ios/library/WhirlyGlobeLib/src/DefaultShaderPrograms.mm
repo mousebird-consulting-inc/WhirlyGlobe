@@ -204,6 +204,8 @@ static const char *vertexShaderModelTri =
 ;
 
 static const char *vertexShaderTriMultiTex =
+"precision highp float;"
+"\n"
 "struct directional_light {\n"
 "  vec3 direction;\n"
 "  vec3 halfplane;\n"
@@ -227,6 +229,11 @@ static const char *vertexShaderTriMultiTex =
 "uniform material_properties material;       \n"
 "uniform float u_interp;"
 "\n"
+"uniform vec2 u_texOffset0;"
+"uniform vec2 u_texScale0;"
+"uniform vec2 u_texOffset1;"
+"uniform vec2 u_texScale1;"
+"\n"
 "attribute vec3 a_position;                  \n"
 "attribute vec2 a_texCoord0;                  \n"
 "attribute vec2 a_texCoord1;                  \n"
@@ -239,8 +246,16 @@ static const char *vertexShaderTriMultiTex =
 "\n"
 "void main()                                 \n"
 "{                                           \n"
-"   v_texCoord0 = a_texCoord0;                 \n"
-"   v_texCoord1 = a_texCoord1;                 \n"
+"   if (u_texScale0.x != 0.0)"
+"     v_texCoord0 = vec2(a_texCoord0.x*u_texScale0.x,a_texCoord0.y*u_texScale0.y) + u_texOffset0;"
+"   else"
+"     v_texCoord0 = a_texCoord0;"
+"\n"
+"   if (u_texScale1.x != 0.0)"
+"     v_texCoord1 = vec2(a_texCoord0.x*u_texScale1.x,a_texCoord0.y*u_texScale1.y) + u_texOffset1;"
+"   else"
+"     v_texCoord1 = a_texCoord0;"
+"\n"
 "   v_color = vec4(0.0,0.0,0.0,0.0);         \n"
 "   if (u_numLights > 0)                     \n"
 "   {\n"
@@ -269,7 +284,7 @@ static const char *vertexShaderTriMultiTex =
 ;
 
 static const char *fragmentShaderTriMultiTex =
-"precision mediump float;"
+"precision highp float;"
 ""
 "uniform sampler2D s_baseMap0;"
 "uniform sampler2D s_baseMap1;"
@@ -288,7 +303,7 @@ static const char *fragmentShaderTriMultiTex =
 ;
 
 static const char *fragmentShaderTriMultiTexRamp =
-"precision mediump float;\n"
+"precision highp float;\n"
 "\n"
 "uniform sampler2D s_baseMap0;\n"
 "uniform sampler2D s_baseMap1;\n"

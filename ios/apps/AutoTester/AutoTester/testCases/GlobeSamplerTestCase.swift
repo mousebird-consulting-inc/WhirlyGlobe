@@ -26,18 +26,18 @@ class GlobeSamplerTestCase: MaplyTestCase {
         let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
         let thisCacheDir = "\(cacheDir)/stamentiles/"
         let maxZoom = Int32(16)
-        let tileInfo = MaplyRemoteTileInfo(baseURL: "http://tile.stamen.com/watercolor/", ext: "jpg",
-                                                 minZoom: Int32(0),
-                                                 maxZoom: Int32(maxZoom))
+        let tileInfo = MaplyRemoteTileInfoNew(baseURL: "http://tile.stamen.com/watercolor/{z}/{x}/{y}.png",
+                                              minZoom: Int32(0),
+                                              maxZoom: Int32(maxZoom))
         tileInfo.cacheDir = thisCacheDir
 
         // Parameters describing how we want a globe broken down
         let sampleParams = MaplySamplingParams()
-        sampleParams.coordSys = tileInfo.coordSys!
+        sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
         sampleParams.coverPoles = true
         sampleParams.edgeMatching = true
-        sampleParams.minZoom = tileInfo.minZoom
-        sampleParams.maxZoom = tileInfo.maxZoom
+        sampleParams.minZoom = tileInfo.minZoom()
+        sampleParams.maxZoom = tileInfo.maxZoom()
         sampleParams.singleLevel = true
         
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {

@@ -22,7 +22,7 @@
 #import "MaplyRemoteTileSource.h"
 #import "MaplyRenderController.h"
 #import "MaplyQuadSampler.h"
-#import "MaplyTileFetcher.h"
+#import "MaplyRemoteTileFetcher.h"
 
 /**
   Passed in to and returned by the Loader Interpreter.
@@ -82,48 +82,15 @@
 @interface MaplyImageLoaderInterpreter : NSObject<MaplyLoaderInterpreter>
 @end
 
-/// Name of the shared MaplyTileFetcher
+/// Name of the shared MaplyRemoteTileFetcher
 extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 
 /**
- The Maply Quad Image Loader is for paging image pyramids local or remote.
+  Base object for Maply Quad Image loader.
  
- This layer pages image pyramids.  They can be local or remote, in any coordinate system Maply supports and you provide a MaplyTileSource conformant object to do the actual image tile fetching.
- 
- You probably don't have to implement your own tile source.  Go look at the MaplyRemoteTileSource and MaplyMBTileSource objects, as well as MaplyMultiplexTileSource.  Those will do remote, local, and sources for animation respectively.  There's also MaplyWMSTileSource, but I wouldn't expect to use that.
- @see MaplyRemoteTileSource
- @see MaplyMBTileSource
- @see MaplyMultiplexTileSource
- @see MaplyWMSTileSource
- */
-@interface MaplyQuadImageLoader : NSObject
-
-/**
- Initialize with a single tile info object and the sampling parameters.
- 
- @param params The sampling parameters describing how to break down the data for projection onto a globe or map.
- @param tileInfo A single tile info object describing where the data is and how to get it.
- @param viewC the View controller (or renderer) to add objects to.
- */
-- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfo:(MaplyRemoteTileInfo *__nonnull)tileInfo viewC:(MaplyBaseViewController * __nonnull)viewC;
-
-/**
-  Initialize with multiple tile sources and sampling parameters.
- 
- @param params The sampling parameters describing how to break down the data for projection onto a globe or map.
- @param tileInfos A list of tile info objects to fetch for each tile.  If one fails, the tile fails to load.
- @param viewC the View controller (or renderer) to add objects to.
+  Look to the subclasses for actual functionality.  This hold methods they share.
   */
-- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<MaplyRemoteTileInfo *> *__nonnull)tileInfos viewC:(MaplyBaseViewController * __nonnull)viewC;
-
-/// Use a specific tile fetcher rather than the one shared by everyone else
-- (void)setTileFetcher:(MaplyTileFetcher * __nonnull)tileFetcher;
-
-/// Set the interpreter for the data coming back.  If you're just getting images, don't set this.
-- (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp;
-
-/// Timeout applied to the URL Requests.  20s by default
-@property (nonatomic) NSTimeInterval timeOut;
+@interface MaplyQuadImageLoaderBase : NSObject
 
 // Set the draw priority values for produced tiles
 @property (nonatomic) int baseDrawPriority;
@@ -131,19 +98,30 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 // Offset between levels for a calculated draw priority
 @property (nonatomic) int drawPriorityPerLevel;
 
+// Base color for geometry produced
+@property (nonatomic,retain,nonnull) UIColor *color;
+
 /**
-    Scale the importance values passed to the loader and used for a loading cutoff.
+ An optional render target for this loader.
  
-    A larger value means the tile needs to take up *more* space to be loaded.  So bigger values
-    mean less loading.  The importance values are pixels^2.
-  */
+ The loader can draw to a render target rather than to the screen.
+ You use this in a multi-pass rendering setup.
+ */
+- (void)setRenderTarget:(MaplyRenderTarget *__nonnull)renderTarget;
+
+/**
+ Scale the importance values passed to the loader and used for a loading cutoff.
+ 
+ A larger value means the tile needs to take up *more* space to be loaded.  So bigger values
+ mean less loading.  The importance values are pixels^2.
+ */
 @property (nonatomic) double importanceScale;
 
 /// Any tiles less important than this (screen area in pixels^2) won't be loaded
 @property (nonatomic) double importanceCutoff;
 
 /**
- Set the image format for the texture atlases (thus the imagery).
+ Set the image format for internal imagery storage.
  
  OpenGL ES offers us several image formats that are more efficient than 32 bit RGBA, but they're not always appropriate.  This property lets you choose one of them.  The 16 or 8 bit ones can save a huge amount of space and will work well for some imagery, most maps, and a lot of weather overlays.
  
@@ -187,6 +165,12 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 /// Set for a lot of debugging output
 @property (nonatomic,assign) bool debugMode;
 
+/// Use a specific tile fetcher rather than the one shared by everyone else
+- (void)setTileFetcher:(NSObject<MaplyTileFetcher> * __nonnull)tileFetcher;
+
+/// Set the interpreter for the data coming back.  If you're just getting images, don't set this.
+- (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp;
+
 /**
  Calculate the bounding box for a single tile in geographic.
  
@@ -221,7 +205,7 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 - (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID;
 
 /**
- Calculate the bounding box for a single tile in the local coordinate system u sing doubles.
+ Calculate the bounding box for a single tile in the local coordinate system using doubles.
  
  This utility method calculates the bounding box for a tile in the coordinate system used for the layer.
  
@@ -230,6 +214,35 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
  @return The lower left and upper right corner of the tile in geographic coordinates.
  */
 - (MaplyBoundingBoxD)boundsForTileD:(MaplyTileID)tileID;
+
+@end
+
+/**
+ The Maply Quad Image Loader is for paging image pyramids local or remote.
+ 
+ This layer pages image pyramids.  They can be local or remote, in any coordinate system Maply supports and you provide a MaplyTileInfoNew conformant object to do the actual image tile fetching.
+ 
+ You probably don't have to implement your own tile source.  Go look at the MaplyRemoteTileInfoNew and MaplyMBTileFetcher objects.  Those will do remote and local fetching.
+ */
+@interface MaplyQuadImageLoader : MaplyQuadImageLoaderBase
+
+/**
+ Initialize with a single tile info object and the sampling parameters.
+ 
+ @param params The sampling parameters describing how to break down the data for projection onto a globe or map.
+ @param tileInfo A single tile info object describing where the data is and how to get it.
+ @param viewC the View controller (or renderer) to add objects to.
+ */
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfo:(NSObject<MaplyTileInfoNew> *__nonnull)tileInfo viewC:(MaplyBaseViewController * __nonnull)viewC;
+
+/**
+  Initialize with multiple tile sources and sampling parameters.
+ 
+ @param params The sampling parameters describing how to break down the data for projection onto a globe or map.
+ @param tileInfos A list of tile info objects to fetch for each tile.  If one fails, the tile fails to load.
+ @param viewC the View controller (or renderer) to add objects to.
+  */
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)tileInfos viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 /** Turn off the image loader and shut things down.
     This unregisters us with the sampling layer and shuts down the various objects we created.
