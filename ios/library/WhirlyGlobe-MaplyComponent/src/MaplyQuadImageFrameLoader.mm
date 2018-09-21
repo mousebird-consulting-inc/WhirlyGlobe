@@ -1117,6 +1117,7 @@ using namespace WhirlyKit;
     for (auto tile : tiles) {
         tile.second->clear(toCancel, changes);
     }
+    tiles.clear();
     
     [tileFetcher cancelTileFetches:toCancel];
     
