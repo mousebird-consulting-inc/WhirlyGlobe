@@ -97,17 +97,13 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
 using namespace WhirlyKit;
 
 @implementation MaplyRemoteTileInfoNew
-{
-    int minZoom,maxZoom;
-    NSString *baseURL;
-}
 
 - (nonnull instancetype)initWithBaseURL:(NSString *__nonnull)inBaseURL minZoom:(int)inMinZoom maxZoom:(int)inMaxZoom
 {
     self = [super init];
-    baseURL = inBaseURL;
-    minZoom = inMinZoom;
-    maxZoom = inMaxZoom;
+    _baseURL = inBaseURL;
+    _minZoom = inMinZoom;
+    _maxZoom = inMaxZoom;
     
     return self;
 }
@@ -118,7 +114,7 @@ using namespace WhirlyKit;
     NSMutableURLRequest *urlReq = nil;
 
     // Fill out the replacement string
-    NSString *fullURLStr = [[[baseURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
+    NSString *fullURLStr = [[[_baseURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
                              stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
                             stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
     urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
@@ -149,16 +145,6 @@ using namespace WhirlyKit;
     fetchInfo.cacheFile = [self fileNameForTile:tileID];
     
     return fetchInfo;
-}
-
-- (int)maxZoom
-{
-    return maxZoom;
-}
-
-- (int)minZoom
-{
-    return minZoom;
 }
 
 @end
@@ -562,9 +548,11 @@ using namespace WhirlyKit;
     ^{
         // We assume the parsing is going to take some time
         if (data) {
-           tile->request.success(tile->request,data);
+            if (tile->request)
+                tile->request.success(tile->request,data);
         } else {
-           tile->request.failure(tile->request, error);
+            if (tile->request)
+                tile->request.failure(tile->request, error);
         }
 
         dispatch_queue_t theQueue = [weakSelf getQueue];

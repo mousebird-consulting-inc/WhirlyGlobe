@@ -519,7 +519,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     // Start things out after a delay
     // This lets the caller mess with settings
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (!valid)
+        if (!self->valid)
             return;
         
         if (!self->tileFetcher) {

@@ -47,6 +47,15 @@
  */
 - (nonnull instancetype)initWithBaseURL:(NSString *__nonnull)baseURL minZoom:(int)minZoom maxZoom:(int)maxZoom;
 
+/// Base URL
+@property (nonatomic,readonly,retain,nonnull) NSString *baseURL;
+
+/// Min zoom level
+@property (nonatomic,readonly,assign) int minZoom;
+
+/// Max zoom level
+@property (nonatomic,readonly,assign) int maxZoom;
+
 /**
  The timeout assigned to the NSMutableURLRequest we're using to fetch tiles.
  
