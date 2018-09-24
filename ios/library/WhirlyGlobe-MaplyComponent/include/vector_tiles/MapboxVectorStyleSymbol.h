@@ -43,6 +43,8 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 @property (nonatomic,strong) MaplyVectorFunctionStops *textMaxWidthFunc;
 /// If set, the immutable text size
 @property (nonatomic) double textSize;
+/// Text scale from the global settings
+@property (nonatomic) double globalTextScale;
 /// If set, a function that controls text size
 @property (nonatomic,strong) MaplyVectorFunctionStops *textSizeFunc;
 /// How the text is laid out in relation to it's attach point
@@ -74,7 +76,5 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 @property (nonatomic,strong) MapboxVectorSymbolPaint *paint;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
-
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end

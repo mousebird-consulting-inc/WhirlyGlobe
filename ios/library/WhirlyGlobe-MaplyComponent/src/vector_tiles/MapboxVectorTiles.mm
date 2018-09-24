@@ -81,6 +81,10 @@ static double MAX_EXTENT = 20037508.342789244;
     double tileOriginX = bbox.ll.x;
     double tileOriginY = bbox.ur.y;
     
+    MaplyVectorTileInfo *tileInfo = [[MaplyVectorTileInfo alloc] init];
+    tileInfo.tileID = tileID;
+    tileInfo.geoBBox = {MaplyCoordinateDMake(geoBbox.ll.x, geoBbox.ll.y),MaplyCoordinateDMake(geoBbox.ur.x, geoBbox.ur.y)};
+
     double scale;
     double x;
     double y;
@@ -366,7 +370,7 @@ static double MAX_EXTENT = 20037508.342789244;
     for(id key in symbolizerKeys) {
         NSObject<MaplyVectorStyle> *symbolizer = [self.styleDelegate styleForUUID:key viewC:_viewC];
         NSArray *features = featureStyles[key];
-        [components addObjectsFromArray:[symbolizer buildObjects:features forTile:tileID viewC:_viewC]];
+        [components addObjectsFromArray:[symbolizer buildObjects:features forTile:tileInfo viewC:_viewC]];
     }
     
     if(self.debugLabel || self.debugOutline) {

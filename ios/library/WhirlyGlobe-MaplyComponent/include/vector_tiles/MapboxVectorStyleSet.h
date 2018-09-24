@@ -138,9 +138,6 @@
 /// @brief Set if this geometry is additive (e.g. sticks around) rather than replacement
 @property(nonatomic) bool geomAdditive;
 
-/// @brief Construct objects related to this style based on the input data.
-- (NSArray * __nullable)buildObjects:(NSArray * __nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> * __nullable)viewC;
-
 @end
 
 /// @brief Mapbox filter operator types

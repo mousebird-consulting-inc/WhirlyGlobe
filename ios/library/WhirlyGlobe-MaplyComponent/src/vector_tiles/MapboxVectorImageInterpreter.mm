@@ -140,7 +140,7 @@ static double MAX_EXTENT = 20037508.342789244;
         offlineRender.clearColor = backColor;
 
         for (NSData *thisTileData : tileDatas) {
-            MaplyVectorTileData *retData = [imageTileParser buildObjects:thisTileData tile:tileID bounds:imageBBox geoBounds:imageBBox];
+            MaplyVectorTileData *retData = [imageTileParser buildObjects:thisTileData tile:tileID bounds:imageBBox geoBounds:geoBBox];
             if (retData) {
                 [compObjs addObjectsFromArray:retData.compObjs];
             } else {
