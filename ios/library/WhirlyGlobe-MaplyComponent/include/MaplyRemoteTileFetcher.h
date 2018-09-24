@@ -122,6 +122,9 @@
 /// Reset the counters for one variant of stat
 - (void)resetStats;
 
+// If set, you get way too much debugging output
+@property (nonatomic,assign) bool debugMode;
+
 @end
 
 /// Stats collected by the fetcher
