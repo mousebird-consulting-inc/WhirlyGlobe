@@ -174,6 +174,9 @@ using namespace WhirlyKit;
 
 - (void)addChangeRequests:(std::vector<WhirlyKit::ChangeRequest *> &)newChangeRequests
 {
+    if (newChangeRequests.empty())
+        return;
+    
     pthread_mutex_lock(&changeLock);
 
     // If we don't have one coming, schedule a merge
