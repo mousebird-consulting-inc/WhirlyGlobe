@@ -442,7 +442,8 @@ using namespace WhirlyKit;
         
         NSTimeInterval fetchStartTile = CFAbsoluteTimeGetCurrent();
         
-//        NSLog(@"%@ priority = %d, importance = %f",urlReq.URL.absoluteString,tile->priority,tile->importance);
+        if (_debugMode)
+            NSLog(@"%@ priority = %d, importance = %f",urlReq.URL.absoluteString,tile->priority,tile->importance);
         
         // Set up the fetch task so we can use it in a couple places
         MaplyRemoteTileFetcher * __weak weakSelf = self;
@@ -481,7 +482,12 @@ using namespace WhirlyKit;
            [self finishedLoading:tile data:nil error:error];
        }
    } else {
+       
        int length = [data length];
+
+       if (_debugMode)
+           NSLog(@"Remote return for: %@, %dk",tile->fetchInfo.urlReq.URL.absoluteString,length / 1024);
+
        allStats.remoteRequests = allStats.remoteRequests + 1;
        recentStats.remoteRequests = recentStats.remoteRequests + 1;
        allStats.remoteData = allStats.remoteData + length;
@@ -502,6 +508,9 @@ using namespace WhirlyKit;
         [tile->task resume];
     } else {
         tile->task = nil;
+        
+        if (_debugMode)
+            NSLog(@"Cache for: %@, %dk",tile->fetchInfo.urlReq.URL.absoluteString,(int)[data length] / 1024);
         
         MaplyRemoteTileFetcher * __weak weakSelf = self;
         // It worked, but run the finished loading back on our queue
