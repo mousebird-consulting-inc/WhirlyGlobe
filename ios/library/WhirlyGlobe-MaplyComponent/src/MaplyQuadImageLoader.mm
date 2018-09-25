@@ -172,7 +172,7 @@ public:
             for (int which = 0; which < loadedTile->drawInfo.size(); which++) {
                 int drawInstID = instanceDrawIDs[which];
                 
-                // Draw priority for thie asset when it's loaded
+                // Draw priority for this asset when it's loaded
                 int newDrawPriority = drawPriority;
                 switch (loadedTile->drawInfo[which].kind) {
                     case WhirlyKit::LoadedTileNew::DrawableGeom:
@@ -1063,7 +1063,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     
     if (bestTile) {
         if (self.debugMode)
-            NSLog(@"Found old cover tile %d : (%d,%d) to tile %d : (%d,%d)",bestIdent.level,bestIdent.x,bestIdent.y,tileIdent.level,tileIdent.x,tileIdent.y);
+            NSLog(@"Found old cover tile %d : (%d,%d) to tile %d: (%d,%d)",bestIdent.level,bestIdent.x,bestIdent.y,tileIdent.level,tileIdent.x,tileIdent.y);
         tile->applyCoverTile(bestIdent,bestTile,loadedTile,self.flipY,changes);
     }
 }
@@ -1082,7 +1082,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
                 LoadedTileNewRef loadedTile = [builder getLoadedTile:tileIdent];
                 if (loadedTile) {
                     if (self.debugMode)
-                        NSLog(@"Applying new cover tile %d : (%d,%d) to tile %d : (%d,%d)",coverIdent.level,coverIdent.x,coverIdent.y,tileIdent.level,tileIdent.x,tileIdent.y);
+                        NSLog(@"Applying new cover tile %d : (%d,%d) to tile %d: (%d,%d)",coverIdent.level,coverIdent.x,coverIdent.y,tileIdent.level,tileIdent.x,tileIdent.y);
                     tile->applyCoverTile(coverIdent,coverAsset,loadedTile,self.flipY,changes);
                 }
             }
