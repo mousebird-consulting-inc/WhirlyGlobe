@@ -212,7 +212,7 @@
     if (_layout.textFontName) {
         UIFontDescriptor *fontDesc = [[UIFontDescriptor alloc] initWithFontAttributes:@{UIFontDescriptorNameAttribute: _layout.textFontName}];
         font = [UIFont fontWithDescriptor:fontDesc size:textSize];
-        NSLog(@"Asked for: %@,  Got: %@, %f",_layout.textFontName,font.fontName,textSize);
+//        NSLog(@"Asked for: %@,  Got: %@, %f",_layout.textFontName,font.fontName,textSize);
         if (!font)
             NSLog(@"Found unsupported font %@",fontDesc);
     }
