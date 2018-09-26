@@ -68,6 +68,11 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (NSString *)getCategory
+{
+    return nil;
+}
+
 - (void)resolveVisibility:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings desc:(NSMutableDictionary *)desc
 {
     MaplyBaseViewController *thisViewC = (MaplyBaseViewController *)self.viewC;

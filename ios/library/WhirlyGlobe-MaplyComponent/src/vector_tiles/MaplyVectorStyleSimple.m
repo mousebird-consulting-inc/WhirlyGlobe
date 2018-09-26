@@ -99,6 +99,11 @@
     return self;
 }
 
+- (NSString *)getCategory
+{
+    return nil;
+}
+
 - (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
 {
     return nil;
