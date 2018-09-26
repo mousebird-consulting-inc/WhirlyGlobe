@@ -407,6 +407,9 @@
 @end
 
 @implementation MaplyMapboxVectorStyleLayer
+{
+    NSString *category;
+}
 
 + (id)VectorStyleLayer:(MapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority
 {
@@ -488,8 +491,14 @@
     self.sourceLayer = [styleSet stringValue:@"source-layer" dict:layerDict defVal:refLayer.sourceLayer];
     self.minzoom = [styleSet intValue:@"minzoom" dict:layerDict defVal:refLayer.minzoom];
     self.maxzoom = [styleSet intValue:@"maxzoom" dict:layerDict defVal:refLayer.maxzoom];
+    category = [styleSet stringValue:@"wkcategory" dict:layerDict defVal:nil];
     
     return self;
+}
+
+- (NSString *)getCategory
+{
+    return category;
 }
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC

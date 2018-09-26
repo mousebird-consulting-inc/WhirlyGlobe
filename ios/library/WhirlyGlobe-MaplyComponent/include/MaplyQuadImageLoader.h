@@ -51,6 +51,10 @@
 // They need to start disabled.  The system will enable and delete them when it is time.
 @property (nonatomic,strong) NSArray * __nullable compObjs;
 
+// These component objects are assumed to be overlaid and so only one
+// set will be displayed at a time.
+@property (nonatomic,strong) NSArray * __nullable ovlCompObjs;
+
 // If this is set, the tile failed to parse
 @property (nonatomic,strong) NSError * __nullable error;
 

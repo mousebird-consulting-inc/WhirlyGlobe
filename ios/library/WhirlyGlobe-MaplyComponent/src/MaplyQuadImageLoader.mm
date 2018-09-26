@@ -40,7 +40,7 @@ class TileAsset
 {
 public:
     TileAsset() :
-        texID(EmptyIdentity), drawPriority(0), compObjs(nil), enable(false), state(Waiting)
+        texID(EmptyIdentity), drawPriority(0), compObjs(nil), ovlCompObjs(nil), enable(false), state(Waiting)
     { }
 
     // Tile is doing what?
@@ -62,8 +62,11 @@ public:
             changes.push_back(new RemTextureReq(texID));
         if (compObjs)
             [interactLayer removeObjects:compObjs changes:changes];
+        if (ovlCompObjs)
+            [interactLayer removeObjects:ovlCompObjs changes:changes];
         texID = EmptyIdentity;
         compObjs = nil;
+        ovlCompObjs = nil;
     }
     
     // Return the texture ID
@@ -133,9 +136,11 @@ public:
     }
     
     // After a successful load, set up the texture and any other contents
-    void setupContents(LoadedTileNewRef loadedTile,Texture *tex,NSArray *inCompObjs,MaplyBaseInteractionLayer *layer,ChangeSet &changes) {
+    void setupContents(LoadedTileNewRef loadedTile,Texture *tex,NSArray *inCompObjs,NSArray *inOvlCompObjs,
+                       MaplyBaseInteractionLayer *layer,ChangeSet &changes) {
         enable = loadedTile->enabled;
         compObjs = inCompObjs;
+        ovlCompObjs = inOvlCompObjs;
 
         // Create the texture in the renderer
         texID = tex->getId();
@@ -212,6 +217,18 @@ public:
         }
     }
     
+    // Build the change requests to enable/disable overlay data
+    void generateOverlayEnableChange(bool thisEnable,MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
+        if ([ovlCompObjs count] == 0)
+            return;
+        
+        if (thisEnable) {
+            [interactLayer enableObjects:ovlCompObjs mode:MaplyThreadCurrent];
+        } else {
+            [interactLayer disableObjects:ovlCompObjs mode:MaplyThreadCurrent];
+        }
+    }
+    
     // Assign the given texture to our geometry
     void generateTexIDChange(SimpleIdentity thisTexID,int thisDrawPriority,
                              const QuadTreeNew::Node &thisNode,WhirlyKit::LoadedTileNewRef thisLoadedTile,const QuadTreeNew::Node &texNode,
@@ -274,7 +291,7 @@ protected:
     bool enable;
     
     // Component objects owned by the tile
-    NSArray *compObjs;
+    NSArray *compObjs,*ovlCompObjs;
     
     // Handle returned by the fetcher while it's fetching
     std::vector<id> fetchHandles;
@@ -625,6 +642,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     if (it == tiles.end() || it->second->getState() != TileAsset::Loading || loadReturn.error) {
         if (loadReturn.compObjs) {
             [viewC removeObjects:loadReturn.compObjs mode:MaplyThreadCurrent];
+            [viewC removeObjects:loadReturn.ovlCompObjs mode:MaplyThreadCurrent];
         }
         return;
     }
@@ -680,6 +698,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     {
         if (loadReturn.compObjs) {
             [viewC removeObjects:loadReturn.compObjs mode:MaplyThreadCurrent];
+            [viewC removeObjects:loadReturn.ovlCompObjs mode:MaplyThreadCurrent];
         }
         if (self.debugMode)
             NSLog(@"MaplyQuadImageLoader: Failed to load tile before it was erased %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
@@ -715,7 +734,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         NSLog(@"Loaded %d: (%d,%d) texID = %d",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y,(int)(tex ? tex->getId() : 0));
 
     if (tex) {
-        tile->setupContents(loadedTile,tex,loadReturn.compObjs,interactLayer,changes);
+        tile->setupContents(loadedTile,tex,loadReturn.compObjs,loadReturn.ovlCompObjs,interactLayer,changes);
     } else {
         NSLog(@"Failed to create texture for tile %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
         // Something failed, so just clear it back to blank
@@ -908,6 +927,16 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     ChangeSet changes;
     auto control = viewC.getRenderControl;
     auto interactLayer = control->interactLayer;
+    
+    // What's the highest level we've successfully loaded?
+    int maxLoadLevel = -1;
+    for (auto it : tiles) {
+        auto tileID = it.first;
+        auto tile = it.second;
+        if (tile->getState() == TileAsset::Loaded) {
+            maxLoadLevel = std::max(maxLoadLevel,tileID.level);
+        }
+    }
 
     // Figure out the current state for each tile
     // Note: We should store the state and just send changes
@@ -935,6 +964,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
             }
         }
 
+        bool ovlEnable = false;
         if (enable) {
             if (self.debugMode) {
                 if (texNode != tileID)
@@ -944,9 +974,16 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
             if (loadedTile)
                 tile->generateTexIDChange(texID,drawPriority,it.first,loadedTile,texNode,self.flipY,interactLayer,changes);
             tile->generateEnableChange(true,interactLayer,changes);
+
+            // Turn on the overlays if we're at the highest loaded level
+            if (tileID.level == maxLoadLevel)
+                ovlEnable = true;
         } else {
             tile->generateEnableChange(false,interactLayer,changes);
         }
+                
+        // Turn any overlay data on/off
+        tile->generateOverlayEnableChange(ovlEnable,interactLayer,changes);
     }
     
     [layer.layerThread addChangeRequests:changes];

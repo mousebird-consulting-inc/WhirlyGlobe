@@ -135,6 +135,9 @@
 /// Unique Identifier for this style
 - (NSString * _Nonnull) uuid;
 
+/// Category used for sorting
+- (NSString * _Nullable) getCategory;
+
 /// Set if this geometry is additive (e.g. sticks around) rather than replacement
 - (bool) geomAdditive;
 

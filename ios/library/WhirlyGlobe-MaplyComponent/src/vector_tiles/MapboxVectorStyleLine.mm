@@ -248,14 +248,18 @@ static unsigned int NextPowOf2(unsigned int val)
     }
     if (!color)
         color = [UIColor blackColor];
-    if (_paint.opacityFunc && include)
-    {
-        double opacity = [_paint.opacityFunc valueForZoom:tileInfo.tileID.level];
-        if (opacity > 0.0)
+    if (include) {
+        if (_paint.opacityFunc)
         {
-            color = [self.styleSet color:color withOpacity:opacity];
-        } else
-            include = false;
+            double opacity = [_paint.opacityFunc valueForZoom:tileInfo.tileID.level];
+            if (opacity > 0.0)
+            {
+                color = [self.styleSet color:color withOpacity:opacity];
+            } else
+                include = false;
+        } else if (_paint.opacity < 1.0) {
+            color = [self.styleSet color:color withOpacity:_paint.opacity];
+        }
     }
     NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
     mutDesc[kMaplyColor] = color;
