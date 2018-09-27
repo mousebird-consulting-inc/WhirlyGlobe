@@ -38,6 +38,7 @@ void BasicDrawable::basicDrawableInit()
     
     isSetupGL = false;
     on = true;
+    hasOverrideColor = false;
     startEnable = 0.0;
     endEnable = 0.0;
     programId = EmptyIdentity;
@@ -319,6 +320,18 @@ void BasicDrawable::setColor(unsigned char inColor[])
 {
     color.r = inColor[0];  color.g = inColor[1];  color.b = inColor[2];  color.a = inColor[3];
     vertexAttributes[colorEntry]->setDefaultColor(color);
+}
+    
+void BasicDrawable::setOverrideColor(RGBAColor inColor)
+{
+    color = inColor;
+    hasOverrideColor = true;
+}
+
+void BasicDrawable::setOverrideColor(unsigned char inColor[])
+{
+    color.r = inColor[0];  color.g = inColor[1];  color.b = inColor[2];  color.a = inColor[3];
+    hasOverrideColor = true;
 }
 
 RGBAColor BasicDrawable::getColor() const
@@ -1324,6 +1337,14 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
         }
     }
+
+    // Color has been overriden, so don't use the embedded ones
+    if (hasOverrideColor) {
+        const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID);
+        if (colorAttr)
+            glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
+    }
+
         
     // If we're using a vertex array object, bind it and draw
     if (vertArrayObj)
@@ -1465,7 +1486,7 @@ void ColorChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *rendere
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
     {
-        basicDrawable->setColor(color);
+        basicDrawable->setOverrideColor(color);
     } else {
         BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
