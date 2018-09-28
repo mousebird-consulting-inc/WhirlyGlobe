@@ -224,6 +224,7 @@ typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
             {
                 layoutObject = new LayoutObject();
                 screenShape = layoutObject;
+                layoutObject->uniqueID = label.uniqueID;
             } else
                 screenShape = new ScreenSpaceObject();
             
