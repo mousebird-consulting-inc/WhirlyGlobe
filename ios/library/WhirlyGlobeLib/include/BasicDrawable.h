@@ -143,6 +143,10 @@ public:
     
     /// Set the color as an array.
     virtual void setColor(unsigned char inColor[]);
+
+    /// Used to override a color that's already been built in (by changeVector:)
+    virtual void setOverrideColor(RGBAColor inColor);
+    virtual void setOverrideColor(unsigned char inColor[]);
     
     /// Set what range we can see this drawable within.
     /// The units are in distance from the center of the globe and
@@ -362,6 +366,7 @@ public:
     std::vector<Eigen::Vector3f> points;
     std::vector<Triangle> tris;
     SimpleIdentity renderTargetID;
+    bool hasOverrideColor;  // If set, we've changed the default color
 
     bool hasMatrix;
     // If the drawable has a matrix, we'll transform by that before drawing
