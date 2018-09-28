@@ -154,12 +154,16 @@ void QuadTreeNew::evalNodeImportance(ImportantNode node,double minImport,double 
     }
 }
     
-void QuadTreeNew::evalNodeVisible(ImportantNode node,double maxLevel,ImportantNodeSet &visibleSet)
+void QuadTreeNew::evalNodeVisible(ImportantNode node,double minImportance,int maxLevel,ImportantNodeSet &visibleSet)
 {
     if (node.level > maxLevel || !visible(node))
         return;
     // These are used for sorting elsewhere, so let's keep 'em around
     node.importance = importance(node);
+    
+    // Skip anything we wouldn't have evaluated in the first pass
+    if (node.level < maxLevel && node.importance < minImportance)
+        return;
 
     visibleSet.insert(node);
     
@@ -170,7 +174,7 @@ void QuadTreeNew::evalNodeVisible(ImportantNode node,double maxLevel,ImportantNo
             for (int ix=0;ix<2;ix++) {
                 int indX = 2*node.x + ix;
                 ImportantNode childNode(indX,indY,node.level+1);
-                evalNodeVisible(childNode,maxLevel,visibleSet);
+                evalNodeVisible(childNode,minImportance,maxLevel,visibleSet);
             }
         }
     }
@@ -205,7 +209,7 @@ std::tuple<int,QuadTreeNew::ImportantNodeSet> QuadTreeNew::calcCoverageVisible(d
         for (int ix=0;ix<numX;ix++)
         {
             ImportantNode node(ix,iy,minLevel);
-            evalNodeVisible(node,targetLevel,levelNodes);
+            evalNodeVisible(node,minImportance,targetLevel,levelNodes);
         }
     
     // Check how many visibile tiles we have at a given level
