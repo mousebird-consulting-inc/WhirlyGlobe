@@ -74,6 +74,8 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 
 @property (nonatomic,strong) MapboxVectorSymbolLayout *layout;
 @property (nonatomic,strong) MapboxVectorSymbolPaint *paint;
+/// If set, only one label with its text will be displayed.  Sorted out by the layout manager.
+@property (nonatomic) bool uniqueLabel;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 

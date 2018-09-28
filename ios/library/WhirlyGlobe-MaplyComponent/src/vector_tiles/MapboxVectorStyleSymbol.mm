@@ -123,6 +123,7 @@
     
     _layout = [[MapboxVectorSymbolLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
     _paint = [[MapboxVectorSymbolPaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
+    _uniqueLabel = [styleSet boolValue:@"unique-label" dict:styleEntry onValue:@"yes" defVal:false];
 
     if (!_layout)
     {
@@ -249,6 +250,9 @@
             NSLog(@"Failed to find text for label");
             continue;
         }
+        if (_uniqueLabel)
+            label.uniqueID = [label.text lowercaseString];
+
         // The rank is most important, followed by the zoom level.  This keeps the countries on top.
         int rank = 100000;
         if (vecObj.attributes[@"rank"]) {
