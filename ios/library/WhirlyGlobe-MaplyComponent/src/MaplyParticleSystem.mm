@@ -65,7 +65,6 @@ using namespace WhirlyKit;
     _ident = WhirlyKit::EmptyIdentity;
     _name = name;
     _type = MaplyParticleSystemTypePoint;
-    _shader = kMaplyShaderParticleSystemPointDefault;
     _lifetime = 5.0;
     _batchSize = 2000;
     _totalParticles = 100000;
@@ -82,6 +81,15 @@ using namespace WhirlyKit;
     attr.type = type;
     
     self.attrs.insert(attr);
+}
+
+- (void)addVarying:(NSString *__nonnull)varyAttrName type:(MaplyShaderAttrType)type
+{
+    WhirlyKit::ParticleSystemAttribute attr;
+    attr.name = varyAttrName;
+    attr.type = type;
+    
+    self.varyAttrs.insert(attr);
 }
 
 - (void)addTexture:(id)image

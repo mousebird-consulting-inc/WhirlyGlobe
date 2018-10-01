@@ -108,6 +108,48 @@ typedef struct
 
 @end
 
+static const char *vertexRenderShaderTri = R"(
+uniform mat4  u_mvpMatrix;
+uniform mat4  u_mvMatrix;
+uniform mat4  u_mvNormalMatrix;
+uniform float u_size;
+uniform float u_time;
+
+attribute vec3 a_position;
+attribute vec4 a_color;
+attribute vec3 a_dir;
+attribute float a_startTime;
+
+varying vec4 v_color;
+
+void main()
+{
+   v_color = a_color;
+   vec3 thePos = normalize(a_position + (u_time-a_startTime)*a_dir);
+   // Convert from model space into display space
+   vec4 pt = u_mvMatrix * vec4(thePos,1.0);
+   pt /= pt.w;
+   // Make sure the object is facing the user
+   vec4 testNorm = u_mvNormalMatrix * vec4(thePos,0.0);
+   float dot_res = dot(-pt.xyz,testNorm.xyz);
+   // Set the point size
+   gl_PointSize = u_size;
+   // Project the point into 3-space
+   gl_Position = (dot_res > 0.0) ? u_mvpMatrix * vec4(thePos,1.0) : vec4(1000.0,1000.0,1000.0,0.0);
+}
+)";
+
+static const char *fragmentRenderShaderTri = R"(
+precision lowp float;
+
+varying vec4      v_color;
+
+void main()
+{
+  gl_FragColor = v_color;
+}
+)";
+
 @implementation ParticleTileDelegate
 {
     NSString *url;
@@ -146,10 +188,16 @@ typedef struct
     velocityColors[1].r = 0.6f;  velocityColors[1].g = 0.6f;  velocityColors[1].b = 1.f;  velocityColors[1].a = 1.f;
     velocityColors[2].r = 1.f;  velocityColors[2].g = 0.6f;  velocityColors[2].b = 0.6f;  velocityColors[2].a = 1.f;
     
+    // Render shader
+    MaplyShader *renderShader = [[MaplyShader alloc] initWithName:@"Particle Wind Test 1"
+                                                     vertex:[NSString stringWithFormat:@"%s",vertexRenderShaderTri]
+                                                   fragment:[NSString stringWithFormat:@"%s",fragmentRenderShaderTri]
+                                                      viewC:viewC];
+    
     // Set up the particle system we'll feed with particles
     partSys = [[MaplyParticleSystem alloc] initWithName:@"Particle Wind Test"];
     partSys.type = MaplyParticleSystemTypePoint;
-    partSys.shader = kMaplyShaderParticleSystemPointDefault;
+    partSys.renderShader = renderShader;
     [partSys addAttribute:@"a_position" type:MaplyShaderAttrTypeFloat3];
     [partSys addAttribute:@"a_dir" type:MaplyShaderAttrTypeFloat3];
     [partSys addAttribute:@"a_color" type:MaplyShaderAttrTypeFloat4];
@@ -319,10 +367,10 @@ static const float sqrt2 = 1.41421356237;
     int batchSize = partSys.batchSize;
     if (!locs)
     {
-        locs = malloc(sizeof(SimpleLoc)*batchSize);
-        dirs = malloc(sizeof(SimpleLoc)*batchSize);
-        colors = malloc(sizeof(SimpleColor)*batchSize);
-        times = malloc(sizeof(float)*batchSize);
+        locs = (SimpleLoc *)malloc(sizeof(SimpleLoc)*batchSize);
+        dirs = (SimpleLoc *)malloc(sizeof(SimpleLoc)*batchSize);
+        colors = (SimpleColor *)malloc(sizeof(SimpleColor)*batchSize);
+        times = (float *)malloc(sizeof(float)*batchSize);
     }
     memset(locs, 0, batchSize*sizeof(SimpleLoc));
     memset(times, 0, batchSize*sizeof(float));
@@ -350,7 +398,7 @@ static const float sqrt2 = 1.41421356237;
 #endif
 
     // Generate some screen coordinates for sampling
-    MaplyQuadTrackerPointReturn *points = malloc(sizeof(MaplyQuadTrackerPointReturn)*partSys.batchSize);
+    MaplyQuadTrackerPointReturn *points = (MaplyQuadTrackerPointReturn *)malloc(sizeof(MaplyQuadTrackerPointReturn)*partSys.batchSize);
     MaplyQuadTrackerPointReturn *pt = points;
     for (unsigned int ii=0;ii<partSys.batchSize;ii++)
     {
