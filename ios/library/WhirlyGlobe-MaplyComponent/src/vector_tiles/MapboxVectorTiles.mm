@@ -81,6 +81,10 @@ static double MAX_EXTENT = 20037508.342789244;
     double tileOriginX = bbox.ll.x;
     double tileOriginY = bbox.ur.y;
     
+    MaplyVectorTileInfo *tileInfo = [[MaplyVectorTileInfo alloc] init];
+    tileInfo.tileID = tileID;
+    tileInfo.geoBBox = {MaplyCoordinateDMake(geoBbox.ll.x, geoBbox.ll.y),MaplyCoordinateDMake(geoBbox.ur.x, geoBbox.ur.y)};
+
     double scale;
     double x;
     double y;
@@ -97,12 +101,15 @@ static double MAX_EXTENT = 20037508.342789244;
     Point2f firstCoord;
     
     NSMutableArray *components = [NSMutableArray array];
+    NSMutableArray *vecObjs = nil;
+    if (_keepVectors)
+        vecObjs = [NSMutableArray array];
     //    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
     
     unsigned featureCount = 0;
     
     NSMutableDictionary *featureStyles = [NSMutableDictionary new];
-    
+    NSMutableDictionary *categories = [NSMutableDictionary dictionary];
     
     //now attempt to open protobuf
     vector_tile::Tile tile;
@@ -113,7 +120,7 @@ static double MAX_EXTENT = 20037508.342789244;
             vector_tile::Tile_Layer const& tileLayer = tile.layers(i);
             scale = tileLayer.extent() / 256.0;
             NSString *layerName = [NSString stringWithUTF8String:tileLayer.name().c_str()];
-            if(![_styleDelegate layerShouldDisplay:layerName tile:tileID]) {
+            if(![_styleDelegate layerShouldDisplay:layerName tile:tileID] && !_parseAll) {
                 // if we dont have any styles for a layer, dont bother parsing the features
                 continue;
             }
@@ -168,7 +175,7 @@ static double MAX_EXTENT = 20037508.342789244;
                                                                              inLayer:layerName
                                                                                viewC:_viewC];
                 
-                if(!styles.count) {
+                if(!styles.count && !_parseAll) {
 //                    NSLog(@"kind = %@",attributes[@"kind"]);
                     continue; //no point parsing the geometry if we arent going to render
                 }
@@ -346,6 +353,8 @@ static double MAX_EXTENT = 20037508.342789244;
                 }
               
                 if(vecObj.shapes.size() > 0) {
+                    if (vecObjs)
+                        [vecObjs addObject:vecObj];
                     for(NSObject<MaplyVectorStyle> *style in styles) {
                         NSMutableArray *featuresForStyle = featureStyles[style.uuid];
                         if(!featuresForStyle) {
@@ -366,7 +375,18 @@ static double MAX_EXTENT = 20037508.342789244;
     for(id key in symbolizerKeys) {
         NSObject<MaplyVectorStyle> *symbolizer = [self.styleDelegate styleForUUID:key viewC:_viewC];
         NSArray *features = featureStyles[key];
-        [components addObjectsFromArray:[symbolizer buildObjects:features forTile:tileID viewC:_viewC]];
+        NSArray *theseCompObjs = [symbolizer buildObjects:features forTile:tileInfo viewC:_viewC];
+
+        // Categories used for sorting component objects (for enable/disable)
+        NSString *category = [symbolizer getCategory];
+        if (category) {
+            NSMutableArray *catArray = [categories objectForKey:category];
+            if (!catArray)
+                catArray = [NSMutableArray array];
+            [catArray addObjectsFromArray:theseCompObjs];
+            categories[category] = catArray;
+        }
+        [components addObjectsFromArray:theseCompObjs];
     }
     
     if(self.debugLabel || self.debugOutline) {
@@ -413,6 +433,9 @@ static double MAX_EXTENT = 20037508.342789244;
     
     MaplyVectorTileData *tileRet = [[MaplyVectorTileData alloc] init];
     tileRet.compObjs = components;
+    tileRet.vecObjs = vecObjs;
+    if ([categories count] > 0)
+        tileRet.categories = categories;
     
     return tileRet;
 }

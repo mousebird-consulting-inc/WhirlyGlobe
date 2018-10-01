@@ -92,7 +92,12 @@ using namespace WhirlyKit;
         }
         
         NSMutableDictionary *featureStyles = [NSMutableDictionary new];
-        MaplyTileID nullTileID = {0, 0, 0};
+        MaplyVectorTileInfo *tileInfo = [[MaplyVectorTileInfo alloc] init];
+        MaplyBoundingBoxD geoBBox;
+        geoBBox.ll.x = -M_PI;  geoBBox.ll.y = -M_PI/2.0;
+        geoBBox.ur.x = M_PI; geoBBox.ur.y = M_PI/2.0;
+        tileInfo.geoBBox = geoBBox;
+        tileInfo.tileID = {0, 0, 0};
         NSMutableArray *compObjs = [NSMutableArray array];
         
         for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it) {
@@ -116,7 +121,7 @@ using namespace WhirlyKit;
                 [self processAreal:ar andVectorObjs:vectorObjs];
             }
             
-            NSArray *styles = [self->_styleSet stylesForFeatureWithAttributes:attributes onTile:nullTileID inLayer:@"" viewC:baseVC];
+            NSArray *styles = [self->_styleSet stylesForFeatureWithAttributes:attributes onTile:tileInfo.tileID inLayer:@"" viewC:baseVC];
             
             if (!styles || styles.count == 0)
                 continue;
@@ -135,13 +140,15 @@ using namespace WhirlyKit;
             
         }
         
+        
+        
         NSArray *symbolizerKeys = [featureStyles.allKeys sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES]]];
         dispatch_async(dispatch_get_main_queue(), ^{
             
             for(id key in symbolizerKeys) {
                 NSObject<MaplyVectorStyle> *symbolizer = [self->_styleSet styleForUUID:key viewC:baseVC];
                 NSArray *features = featureStyles[key];
-                [compObjs addObjectsFromArray:[symbolizer buildObjects:features forTile:nullTileID viewC:baseVC]];
+                [compObjs addObjectsFromArray:[symbolizer buildObjects:features forTile:tileInfo viewC:baseVC]];
             }
             
             self->_compObjs = compObjs;

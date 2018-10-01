@@ -140,7 +140,7 @@ static double MAX_EXTENT = 20037508.342789244;
         offlineRender.clearColor = backColor;
 
         for (NSData *thisTileData : tileDatas) {
-            MaplyVectorTileData *retData = [imageTileParser buildObjects:thisTileData tile:tileID bounds:imageBBox geoBounds:imageBBox];
+            MaplyVectorTileData *retData = [imageTileParser buildObjects:thisTileData tile:tileID bounds:imageBBox geoBounds:geoBBox];
             if (retData) {
                 [compObjs addObjectsFromArray:retData.compObjs];
             } else {
@@ -162,10 +162,14 @@ static double MAX_EXTENT = 20037508.342789244;
     
     // Parse everything else and turn into vectors
     NSMutableArray *compObjs = [NSMutableArray array];
+    NSMutableArray *ovlCompObjs = [NSMutableArray array];
     for (NSData *thisTileData : tileDatas) {
         MaplyVectorTileData *retData = [vecTileParser buildObjects:thisTileData tile:tileID bounds:spherMercBBox geoBounds:geoBBox];
         if (retData) {
             [compObjs addObjectsFromArray:retData.compObjs];
+            NSArray *ovl = [retData.categories objectForKey:@"overlay"];
+            if (ovl)
+                [ovlCompObjs addObjectsFromArray:ovl];
         } else {
             NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
             loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to parse tile"}];
@@ -178,7 +182,12 @@ static double MAX_EXTENT = 20037508.342789244;
     MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:image];
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
     loadReturn.image = loadTile;
-    loadReturn.compObjs = compObjs;
+    if ([ovlCompObjs count] > 0) {
+        loadReturn.ovlCompObjs = ovlCompObjs;
+        [compObjs removeObjectsInArray:ovlCompObjs];
+        loadReturn.compObjs = compObjs;
+    } else
+        loadReturn.compObjs = compObjs;
 }
 
 /**

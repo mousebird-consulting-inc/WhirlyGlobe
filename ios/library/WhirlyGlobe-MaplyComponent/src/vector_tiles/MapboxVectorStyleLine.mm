@@ -106,7 +106,7 @@
         if ([dashArrayEntry isKindOfClass:[NSArray class]])
             _lineDashArray = [[MapboxVectorLineDashArray alloc] initWithStyleEntry:dashArrayEntry styleSet:styleSet viewC:viewC];
     }
-    
+
     return self;
 }
 
@@ -140,6 +140,7 @@ static unsigned int NextPowOf2(unsigned int val)
     _layout = [[MapboxVectorLineLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
     _paint = [[MapboxVectorLinePaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
     self.drawPriority = [styleSet intValue:@"drawPriority" dict:styleEntry defVal:drawPriority];
+    _linearClipToBounds = [styleSet boolValue:@"linearize-clip-to-bounds" dict:styleEntry onValue:@"yes" defVal:false];
     
     if (!_paint)
     {
@@ -207,7 +208,7 @@ static unsigned int NextPowOf2(unsigned int val)
 }
 
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID  viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo  viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
 
@@ -215,11 +216,24 @@ static unsigned int NextPowOf2(unsigned int val)
     if (!_layout.visible)
         return compObjs;
     
+    // Turn into linears (if not already) and then clip to the bounds
+    if (_linearClipToBounds) {
+        MaplyCoordinate ll = MaplyCoordinateMake(tileInfo.geoBBox.ll.x, tileInfo.geoBBox.ll.y);
+        MaplyCoordinate ur = MaplyCoordinateMake(tileInfo.geoBBox.ur.x, tileInfo.geoBBox.ur.y);
+        NSMutableArray *outVecObjs = [NSMutableArray array];
+        for (MaplyVectorObject *vecObj in vecObjs) {
+            MaplyVectorObject *linVec = [vecObj arealsToLinears];
+            MaplyVectorObject *clipVec = [linVec clipToMbr:ll upperRight:ur];
+            [outVecObjs addObject:clipVec];
+        }
+        vecObjs = outVecObjs;
+    }
+    
     NSDictionary *desc = lineDesc;
     bool include = true;
     if (_paint.widthFunc)
     {
-        double width = [_paint.widthFunc valueForZoom:tileID.level] * self.styleSet.tileStyleSettings.lineScale;
+        double width = [_paint.widthFunc valueForZoom:tileInfo.tileID.level] * self.styleSet.tileStyleSettings.lineScale;
         if (width > 0.0)
         {
             NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
@@ -230,24 +244,28 @@ static unsigned int NextPowOf2(unsigned int val)
     }
     UIColor *color = _paint.color;
     if (_paint.colorFunc) {
-        color = [_paint.colorFunc colorForZoom:tileID.level];
+        color = [_paint.colorFunc colorForZoom:tileInfo.tileID.level];
     }
     if (!color)
         color = [UIColor blackColor];
-    if (_paint.opacityFunc && include)
-    {
-        double opacity = [_paint.opacityFunc valueForZoom:tileID.level];
-        if (opacity > 0.0)
+    if (include) {
+        if (_paint.opacityFunc)
         {
-            color = [self.styleSet color:color withOpacity:opacity];
-        } else
-            include = false;
+            double opacity = [_paint.opacityFunc valueForZoom:tileInfo.tileID.level];
+            if (opacity > 0.0)
+            {
+                color = [self.styleSet color:color withOpacity:opacity];
+            } else
+                include = false;
+        } else if (_paint.opacity < 1.0) {
+            color = [self.styleSet color:color withOpacity:_paint.opacity];
+        }
     }
     NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
     mutDesc[kMaplyColor] = color;
     
     if (drawPriorityPerLevel > 0) {
-        mutDesc[kMaplyDrawPriority] = @(self.drawPriority + tileID.level * drawPriorityPerLevel);
+        mutDesc[kMaplyDrawPriority] = @(self.drawPriority + tileInfo.tileID.level * drawPriorityPerLevel);
     }
     
     desc = mutDesc;

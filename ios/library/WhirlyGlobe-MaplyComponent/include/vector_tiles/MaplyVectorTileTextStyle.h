@@ -30,8 +30,4 @@
 
 - (instancetype _Nullable)initWithStyleEntry:(NSDictionary * _Nonnull)styleEntry settings:(MaplyVectorStyleSettings * _Nonnull)settings viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC;
 
-/// Construct objects related to this style based on the input data.
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC;
-
-
 @end
