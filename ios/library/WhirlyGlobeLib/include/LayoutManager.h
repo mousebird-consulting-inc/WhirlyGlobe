@@ -68,6 +68,9 @@ public:
     // Size to use for selection
     std::vector<Point2d> selectPts;
 
+    
+    std::string uniqueID;
+    
     /// This is used to sort objects for layout.  Bigger is more important.
     float importance;
     /// If set, this is clustering group to sort into

@@ -68,6 +68,11 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (NSString *)getCategory
+{
+    return nil;
+}
+
 - (void)resolveVisibility:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings desc:(NSMutableDictionary *)desc
 {
     MaplyBaseViewController *thisViewC = (MaplyBaseViewController *)self.viewC;
@@ -100,7 +105,7 @@ using namespace WhirlyKit;
     }
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {
     return nil;
 }

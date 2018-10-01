@@ -402,6 +402,11 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
   */
 - (MaplyVectorObject * _Nonnull )linearsToAreals;
 
+/**
+    Convert any areal features into outlines.
+  */
+- (MaplyVectorObject * __nonnull)arealsToLinears;
+
 /** 
     Convert a feature to an NSArray of NSArrays of CLLocation points.
     

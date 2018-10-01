@@ -40,13 +40,12 @@ class TileAsset
 {
 public:
     TileAsset() :
-        ourTexture(false), texID(EmptyIdentity), drawPriority(0), compObjs(nil), shouldEnable(false), enable(false), state(Waiting)
+        texID(EmptyIdentity), drawPriority(0), compObjs(nil), ovlCompObjs(nil), enable(false), state(Waiting)
     { }
 
     // Tile is doing what?
     typedef enum {Waiting,Loading,Loaded} State;
     State getState() { return state; }
-    bool isOurTexture() { return ourTexture; }
 
     // Completely clear out the tile geometry
     void clear(MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
@@ -59,50 +58,27 @@ public:
     // Clear out the assets unique to this tile
     void clearToBlank(MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes,State newState) {
         state = newState;
-        if (ourTexture && texID != EmptyIdentity)
+        if (texID != EmptyIdentity)
             changes.push_back(new RemTextureReq(texID));
         if (compObjs)
             [interactLayer removeObjects:compObjs changes:changes];
-        texNode = QuadTreeNew::Node(-1,-1,-1);
+        if (ovlCompObjs)
+            [interactLayer removeObjects:ovlCompObjs changes:changes];
         texID = EmptyIdentity;
-        ourTexture = false;
         compObjs = nil;
+        ovlCompObjs = nil;
     }
     
     // Return the texture ID
     SimpleIdentity getTexID() { return texID; }
     
-    // This is what the master tile thinks
-    bool getShouldEnable() { return shouldEnable; }
+    int getDrawPriority() { return drawPriority; }
+    
+    bool getEnable() { return enable; }
     
     // Set when we decide children are loading
     bool areChildrenLoading() { return childrenLoading; }
     void setChildrenLoading(bool newVal) { childrenLoading = newVal; }
-
-    // Assign a borrowed texture from another node
-    void setBorrowedTexture(QuadTreeNew::Node borrowNode,SimpleIdentity inTexID)
-    {
-        ourTexture = false;
-        texNode = borrowNode;
-        texID = inTexID;
-    }
-    
-    // Check if this tile is using another cover texture
-    bool isUsingCoverTex() {
-        return !ourTexture && texID != EmptyIdentity;
-    }
-    
-    // Return the cover texture node
-    QuadTreeNew::Node getCoverTexNode() {
-        return texNode;
-    }
-    
-    // Check if this node is using a borrowed texture from the given one
-    bool isUsingTexFromNode(QuadTreeNew::Node borrowNode) {
-        if (ourTexture)
-            return false;
-        return texNode == borrowNode;
-    }
  
     // Kick off the request and keep track of the handle for later
     void startFetch(NSObject<MaplyTileFetcher> *tileFetcher,NSArray<MaplyTileFetchRequest *> *requests) {
@@ -125,7 +101,7 @@ public:
     }
     
     // Called after a completed load
-    bool setHasLoaded(MaplyTileFetchRequest *request,NSData *loadedData) {
+    bool dataWasLoaded(MaplyTileFetchRequest *request,NSData *loadedData) {
         bool anyLoading = false;
         int which = -1;
         for (unsigned int ii=0;ii<fetchHandles.size();ii++) {
@@ -135,9 +111,6 @@ public:
             }
             if (fetchHandles[ii])
                 anyLoading = true;
-        }
-        if (!anyLoading) {
-            state = Loaded;
         }
         
         // Keep track of the data in case we're loading multiple sets
@@ -149,6 +122,11 @@ public:
         
         return !anyLoading;
     }
+
+    // Acknowledge the load
+    void setLoaded() {
+        state = Loaded;
+    }
     
     // Return the list of data fetched and clear it locally
     std::vector<NSData *> getAndClearData() {
@@ -158,49 +136,44 @@ public:
     }
     
     // After a successful load, set up the texture and any other contents
-    void setupContents(LoadedTileNewRef loadedTile,Texture *tex,NSArray *inCompObjs,MaplyBaseInteractionLayer *layer,ChangeSet &changes) {
-        shouldEnable = loadedTile->enabled;
+    void setupContents(LoadedTileNewRef loadedTile,Texture *tex,NSArray *inCompObjs,NSArray *inOvlCompObjs,
+                       MaplyBaseInteractionLayer *layer,ChangeSet &changes) {
+        enable = loadedTile->enabled;
         compObjs = inCompObjs;
+        ovlCompObjs = inOvlCompObjs;
 
-        if (tex) {
-            // Create the texture in the renderer
-            ourTexture = true;
-            texID = tex->getId();
-            changes.push_back(new AddTextureReq(tex));
-            
-            // Assign it to the various drawables
-            for (int which = 0; which < loadedTile->drawInfo.size(); which++) {
-                int drawInstID = instanceDrawIDs[which];
-                
-                // Draw priority for thie asset when it's loaded
-                int newDrawPriority = drawPriority;
-                switch (loadedTile->drawInfo[which].kind) {
-                    case WhirlyKit::LoadedTileNew::DrawableGeom:
-                        newDrawPriority = drawPriority;
-                        break;
-                    case WhirlyKit::LoadedTileNew::DrawableSkirt:
-                        newDrawPriority = 11;
-                        break;
-                    case WhirlyKit::LoadedTileNew::DrawablePole:
-                        newDrawPriority = drawPriority;
-                        break;
-                }
-                changes.push_back(new DrawTexChangeRequest(drawInstID,0,texID));
-                changes.push_back(new DrawPriorityChangeRequest(drawInstID,newDrawPriority));
+        // Create the texture in the renderer
+        texID = tex->getId();
+        changes.push_back(new AddTextureReq(tex));
 
-                if (shouldEnable)
-                    changes.push_back(new OnOffChangeRequest(drawInstID,true));
+        // Assign it to the various drawables
+        for (int which = 0; which < loadedTile->drawInfo.size(); which++) {
+            int drawInstID = instanceDrawIDs[which];
+
+            // Draw priority for this asset when it's loaded
+            int newDrawPriority = drawPriority;
+            switch (loadedTile->drawInfo[which].kind) {
+                case WhirlyKit::LoadedTileNew::DrawableGeom:
+                    newDrawPriority = drawPriority;
+                    break;
+                case WhirlyKit::LoadedTileNew::DrawableSkirt:
+                    newDrawPriority = 11;
+                    break;
+                case WhirlyKit::LoadedTileNew::DrawablePole:
+                    newDrawPriority = drawPriority;
+                    break;
             }
-
-            if (shouldEnable) {
-                enable = true;
-                [layer enableObjects:compObjs changes:changes];
-            }
+            changes.push_back(new DrawTexChangeRequest(drawInstID,0,texID));
+            changes.push_back(new DrawPriorityChangeRequest(drawInstID,newDrawPriority));
         }
+
+        enable = true;
     }
     
     // Set up the instance to the base tile's geometry
     void setupGeom(MaplyQuadImageLoader *loader,LoadedTileNewRef loadedTile,int defaultDrawPriority,ChangeSet &changes) {
+        enable = true;
+        
         // Assign it to the various drawables
         drawPriority = defaultDrawPriority;
         for (auto di : loadedTile->drawInfo) {
@@ -229,112 +202,96 @@ public:
             instanceDrawIDs.push_back(drawInst->getId());
         }
     }
-    
-    // Is this one a better cover tile than what we have?
-    bool isBetterCoverTile(const QuadTreeNew::Node &coverIdent,const QuadTreeNew::Node &thisIdent) {
-        if (coverIdent.level >= thisIdent.level)
-            return false;
-        if (ourTexture)
-            return false;
-        
-        // Has to be above us
-        int relLevel = thisIdent.level - coverIdent.level;
-        int relX = thisIdent.x - coverIdent.x * (1<<relLevel), relY = thisIdent.y - coverIdent.y * (1<<relLevel);
-        if (!(relX >= 0 && relY >= 0 && relX < 1<<relLevel && relY < 1<<relLevel))
-            return false;
-        
-        if (texID == EmptyIdentity) {
-            return true;
+
+    // Build the change requests to turn this one off or on
+    // Separate from our enable.  Might be missing our texture
+    void generateEnableChange(bool thisEnable,MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
+        if (thisEnable) {
+            for (auto drawID : instanceDrawIDs)
+                changes.push_back(new OnOffChangeRequest(drawID,true));
+            [interactLayer enableObjects:compObjs changes:changes];
         } else {
-            // Not the same one we have
-            if (texNode == coverIdent)
-                return false;
-            // Has to be better than what we've got
-            return texNode.level < coverIdent.level;
+            for (auto drawID : instanceDrawIDs)
+                changes.push_back(new OnOffChangeRequest(drawID,false));
+            [interactLayer disableObjects:compObjs changes:changes];
         }
-        return false;
     }
     
-    // Apply texture from a cover tile to this one
-    void applyCoverTile(const QuadTreeNew::Node &coverIdent,TileAssetRef coverAsset,LoadedTileNewRef loadedTile,bool flipY,ChangeSet &changes) {
-        int relLevel = loadedTile->ident.level - coverIdent.level;
-        int loadedTileY = loadedTile->ident.y;
-        int coverIdentY = coverIdent.y;
-        if (flipY) {
-            loadedTileY = (1<<loadedTile->ident.level)-loadedTileY-1;
-            coverIdentY = (1<<coverIdent.level)-coverIdentY-1;
+    // Build the change requests to enable/disable overlay data
+    void generateOverlayEnableChange(bool thisEnable,MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
+        if ([ovlCompObjs count] == 0)
+            return;
+        
+        if (thisEnable) {
+            [interactLayer enableObjects:ovlCompObjs mode:MaplyThreadCurrent];
+        } else {
+            [interactLayer disableObjects:ovlCompObjs mode:MaplyThreadCurrent];
         }
-        int relX = loadedTile->ident.x - coverIdent.x * (1<<relLevel);
-        int relY = loadedTileY - coverIdentY * (1<<relLevel);
-
-        texNode = coverIdent;
-        ourTexture = false;
-        texID = coverAsset->texID;
-        for (int which = 0; which < loadedTile->drawInfo.size(); which++)
-        {
-            int drawInstID = instanceDrawIDs[which];
-            // Need to use the draw priority of the cover asset so we can interleave geometry
-            int newDrawPriority = coverAsset->drawPriority;
-            switch (loadedTile->drawInfo[which].kind) {
+    }
+    
+    // Assign the given texture to our geometry
+    void generateTexIDChange(SimpleIdentity thisTexID,int thisDrawPriority,
+                             const QuadTreeNew::Node &thisNode,WhirlyKit::LoadedTileNewRef thisLoadedTile,const QuadTreeNew::Node &texNode,
+                             bool flipY,MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
+        int relLevel = thisNode.level - texNode.level;
+        int relX = thisNode.x - texNode.x * (1<<relLevel);
+        int tileIDY = thisNode.y;
+        int texIdentY = texNode.y;
+        if (flipY) {
+            tileIDY = (1<<thisNode.level)-tileIDY-1;
+            texIdentY = (1<<texNode.level)-texIdentY-1;
+        }
+        int relY = tileIDY - texIdentY * (1<<relLevel);
+        for (auto drawID : instanceDrawIDs) {
+            changes.push_back(new DrawTexChangeRequest(drawID,0,thisTexID,0,0,relLevel,relX,relY));
+        }
+        // Draw priority values are trickier
+        int ii = 0;
+        for (auto di : thisLoadedTile->drawInfo) {
+            int newDrawPriority = thisDrawPriority;
+            switch (di.kind) {
                 case WhirlyKit::LoadedTileNew::DrawableGeom:
-                    newDrawPriority = coverAsset->drawPriority;
                     break;
                 case WhirlyKit::LoadedTileNew::DrawableSkirt:
                     newDrawPriority = 11;
                     break;
                 case WhirlyKit::LoadedTileNew::DrawablePole:
-                    newDrawPriority = coverAsset->drawPriority;
                     break;
             }
-            changes.push_back(new DrawTexChangeRequest(drawInstID,0,texID,0,0,relLevel,relX,relY));
-            changes.push_back(new DrawPriorityChangeRequest(drawInstID,newDrawPriority));
-            if (loadedTile->enabled)
-                changes.push_back(new OnOffChangeRequest(drawInstID,true));
+            SimpleIdentity drawID = instanceDrawIDs[ii];
+            changes.push_back(new DrawPriorityChangeRequest(drawID,newDrawPriority));
+            ii++;
         }
     }
 
     // Enable the instanced geometry and comp objects
     void enableTile(MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
-        shouldEnable = true;
         enable = true;
-        for (auto drawID : instanceDrawIDs)
-            changes.push_back(new OnOffChangeRequest(drawID,true));
-        [interactLayer enableObjects:compObjs changes:changes];
     }
-    
+
     // Disable instanced geometry and comp objects
     void disableTile(MaplyBaseInteractionLayer *interactLayer,ChangeSet &changes) {
-        shouldEnable = false;
         enable = false;
-        for (auto drawID : instanceDrawIDs)
-            changes.push_back(new OnOffChangeRequest(drawID,false));
-        [interactLayer disableObjects:compObjs changes:changes];
     }
     
 protected:
     State state;
     bool childrenLoading;
     
-    // Tile ID of the texture we're applying to this tile.
-    // Might be a lower resolution tile.
-    QuadTreeNew::Node texNode;
-    
     // IDs of the instances we created to shadow the geometry
     std::vector<SimpleIdentity> instanceDrawIDs;
 
     // The texture ID owned by this node.  Delete it when we're done.
-    bool ourTexture;
     SimpleIdentity texID;
     
     // Draw Priority assigned to this tile by default
     int drawPriority;
     
     // Set if the Tile Builder thinks this should be enabled
-    bool shouldEnable;
     bool enable;
     
     // Component objects owned by the tile
-    NSArray *compObjs;
+    NSArray *compObjs,*ovlCompObjs;
     
     // Handle returned by the fetcher while it's fetching
     std::vector<id> fetchHandles;
@@ -637,8 +594,6 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     if ([self shouldLoad:ident])
         [self fetchThisTile:newTile ident:ident];
 
-    [self findCoverTile:ident changes:changes];
-    
     return newTile;
 }
 
@@ -667,9 +622,6 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 // Called on a random dispatch queue
 - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data
 {
-    if (self.debugMode)
-        NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-
     // Ask the interpreter to parse it
     MaplyLoaderReturn *loadData = [[MaplyLoaderReturn alloc] init];
     loadData.tileID = tileID;
@@ -690,17 +642,24 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     if (it == tiles.end() || it->second->getState() != TileAsset::Loading || loadReturn.error) {
         if (loadReturn.compObjs) {
             [viewC removeObjects:loadReturn.compObjs mode:MaplyThreadCurrent];
+            [viewC removeObjects:loadReturn.ovlCompObjs mode:MaplyThreadCurrent];
         }
         return;
     }
+    auto tileID = it->first;
     auto tile = it->second;
 
+    if (self.debugMode)
+        NSLog(@"MaplyQuadImageLoader: Merging fetch for tile %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+
     // Loaded all the requests, so parse the data
-    if (tile->setHasLoaded(request,loadReturn.tileData)) {
+    if (tile->dataWasLoaded(request,loadReturn.tileData)) {
         // Construct a LoaderReturn that contains all the data
         auto allData = tile->getAndClearData();
-        if (allData.empty())
+        if (allData.empty()) {
+            tile->setLoaded();
             return;
+        }
         
         MaplyLoaderReturn *multiLoadData = [[MaplyLoaderReturn alloc] init];
         multiLoadData.tileID = loadReturn.tileID;
@@ -735,10 +694,11 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     QuadTreeNew::Node ident(loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.tileID.level);
     auto it = tiles.find(ident);
     // Failed, so clean up the objects that may have been created
-    if (it == tiles.end() || it->second->getState() != TileAsset::Loaded || loadReturn.error)
+    if (it == tiles.end() || loadReturn.error)
     {
         if (loadReturn.compObjs) {
             [viewC removeObjects:loadReturn.compObjs mode:MaplyThreadCurrent];
+            [viewC removeObjects:loadReturn.ovlCompObjs mode:MaplyThreadCurrent];
         }
         if (self.debugMode)
             NSLog(@"MaplyQuadImageLoader: Failed to load tile before it was erased %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
@@ -774,18 +734,15 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         NSLog(@"Loaded %d: (%d,%d) texID = %d",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y,(int)(tex ? tex->getId() : 0));
 
     if (tex) {
-        tile->setupContents(loadedTile,tex,loadReturn.compObjs,interactLayer,changes);
-
-        // See if it's useful elsewhere
-        [self applyCoverTile:ident asset:tile changes:changes];
+        tile->setupContents(loadedTile,tex,loadReturn.compObjs,loadReturn.ovlCompObjs,interactLayer,changes);
     } else {
         NSLog(@"Failed to create texture for tile %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
         // Something failed, so just clear it back to blank
         tile->clearToBlank(interactLayer, changes, TileAsset::Waiting);
     }
     
-    // Evaluate parents wrt to their children and enable/disable
-    [self evalParentsLayer:interactLayer changes:changes];
+    // Tile is finally loaded after we've merged the data in
+    tile->setLoaded();
     
     [layer.layerThread addChangeRequests:changes];
 }
@@ -794,8 +751,6 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error
 {
     NSLog(@"MaplyQuadImageLoader: Failed to fetch tile %d: (%d,%d) because:\n%@",tileID.level,tileID.x,tileID.y,[error localizedDescription]);
-    
-    
 }
 
 // Decide if this tile ought to be loaded
@@ -815,17 +770,6 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         NSLog(@"Clear tile to blank %d: (%d,%d) texId = %d",ident.level,ident.x,ident.y,(int)tile->getTexID());
 
     tile->clearToBlank(layer, changes, TileAsset::Waiting);
-
-    // Find a new cover texture for tile
-    [self findCoverTile:ident changes:changes];
-    
-    // If any tiles were using this as a cover, have them find a new one
-    for (auto posTile : tiles) {
-        if (posTile.second->isUsingTexFromNode(ident)) {
-            posTile.second->clearToBlank(layer, changes, posTile.second->getState());
-            [self findCoverTile:posTile.first changes:changes];
-        }
-    }
 }
 
 // MARK: Quad Build Delegate
@@ -884,6 +828,13 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
                     break;
                 }
             }
+        }
+    }
+    
+    if (self.debugMode && !toKeep.empty()) {
+        NSLog(@"Keeping: ");
+        for (auto tile : toKeep) {
+            NSLog(@" %d: (%d, %d)", tile.level, tile.x, tile.y);
         }
     }
     
@@ -965,129 +916,81 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     
     for (auto tile: updates.disableTiles)
         [self disableTile:tile->ident layer:interactLayer changes:changes];
-
-    if (params.singleLevel) {
-        [self updateCovers:interactLayer changes:changes];
-    } else {
-        [self evalParentsLayer:interactLayer changes:changes];
-    }
     
     if (self.debugMode)
         NSLog(@"quadBuilder:updates:changes: changeRequests: %d",(int)changes.size());
 }
 
+// Turns things on/off and find cover textures
 - (void)quadBuilderPreSceneFlush:(WhirlyKitQuadTileBuilder *)builder
 {
+    ChangeSet changes;
+    auto control = viewC.getRenderControl;
+    auto interactLayer = control->interactLayer;
+    
+    // What's the highest level we've successfully loaded?
+    int maxLoadLevel = -1;
+    for (auto it : tiles) {
+        auto tileID = it.first;
+        auto tile = it.second;
+        if (tile->getState() == TileAsset::Loaded) {
+            maxLoadLevel = std::max(maxLoadLevel,tileID.level);
+        }
+    }
+
+    // Figure out the current state for each tile
+    // Note: We should store the state and just send changes
+    for (auto it : tiles) {
+        auto tileID = it.first;
+        auto tile = it.second;
+        bool enable = tile->getEnable();
+        
+        SimpleIdentity texID = tile->getTexID();
+        int drawPriority = tile->getDrawPriority();
+        QuadTreeNew::Node texNode = it.first;
+        if (enable) {
+            // Borrow the texture from a parent
+            while (texID == EmptyIdentity && texNode.level > 0) {
+                texNode = QuadTreeNew::Node(texNode.x/2,texNode.y/2,texNode.level-1);
+                auto pit = tiles.find(texNode);
+                if (pit != tiles.end()) {
+                    texID = pit->second->getTexID();
+                    drawPriority = pit->second->getDrawPriority();
+                }
+            }
+            
+            if (texID == EmptyIdentity) {
+                enable = false;
+            }
+        }
+
+        bool ovlEnable = false;
+        if (enable) {
+            if (self.debugMode) {
+                if (texNode != tileID)
+                    NSLog(@"Applying parent %d: (%d,%d) to tile %d: (%d,%d)",texNode.level,texNode.x,texNode.y,tileID.level,tileID.x,tileID.y);
+            }
+            auto loadedTile = [builder getLoadedTile:it.first];
+            if (loadedTile)
+                tile->generateTexIDChange(texID,drawPriority,it.first,loadedTile,texNode,self.flipY,interactLayer,changes);
+            tile->generateEnableChange(true,interactLayer,changes);
+
+            // Turn on the overlays if we're at the highest loaded level
+            if (tileID.level == maxLoadLevel)
+                ovlEnable = true;
+        } else {
+            tile->generateEnableChange(false,interactLayer,changes);
+        }
+                
+        // Turn any overlay data on/off
+        tile->generateOverlayEnableChange(ovlEnable,interactLayer,changes);
+    }
+    
+    [layer.layerThread addChangeRequests:changes];
 }
 
 - (void)quadBuilderShutdown:(WhirlyKitQuadTileBuilder * _Nonnull)builder
 {
-}
-
-// Look for covers that have disappeared and have to be replaced
-- (void)updateCovers:(MaplyBaseInteractionLayer *)interactLayer changes:(ChangeSet &)changes
-{
-    for (auto it : tiles) {
-        auto ident = it.first;
-        auto tile = it.second;
-        
-        if (tile->isUsingCoverTex()) {
-            auto coverNode = tile->getCoverTexNode();
-            auto coverIt = tiles.find(coverNode);
-            if (coverIt == tiles.end() || coverIt->second->isUsingCoverTex()) {
-                tile->clearToBlank(interactLayer, changes, tile->getState());
-                [self findCoverTile:ident changes:changes];
-            }
-        }
-    }
-}
-
-// Evaluate parents wrt to their children and enable/disable
-- (void)evalParentsLayer:(MaplyBaseInteractionLayer *)interactLayer changes:(ChangeSet &)changes
-{
-    // Mark everything with children loading or not
-    for (auto it : tiles) {
-        it.second->setChildrenLoading(false);
-    }
-    for (auto it = tiles.rbegin(); it != tiles.rend(); it++) {
-        auto ident = it->first;
-        auto tile = it->second;
-        if ((tile->getState() == TileAsset::Loading)
-            && ident.level > minLevel) {
-            // Mark the parent as having loading children
-            QuadTreeNew::Node parentIdent(ident.x/2,ident.y/2,ident.level-1);
-            auto parentIt = tiles.find(parentIdent);
-            if (parentIt != tiles.end())
-                parentIt->second->setChildrenLoading(true);
-        }
-    }
-    
-    // If there are children loading and this is off, turn it back on
-    for (auto it : tiles) {
-        auto ident = it.first;
-        auto tile = it.second;
-        if (tile->getState() == TileAsset::Loaded) {
-            if (tile->areChildrenLoading() || tile->getShouldEnable()) {
-                tile->enableTile(interactLayer, changes);
-            } else {
-                tile->disableTile(interactLayer, changes);
-            }
-        }
-    }
-}
-
-// Look for a texture we've already loaded that could be used for this new tile
-- (void)findCoverTile:(const QuadTreeNew::Node &)tileIdent changes:(ChangeSet &)changes
-{
-    TileAssetRef bestTile;
-    QuadTreeNew::Node bestIdent;
-    auto it = tiles.find(tileIdent);
-    if (it == tiles.end())
-        return;
-    auto tile = it->second;
-    LoadedTileNewRef loadedTile = [builder getLoadedTile:tileIdent];
-    if (!loadedTile)
-        return;
-
-    // Note: Pick the cover tile and then assign it rather than reassigning each time
-    for (auto it : tiles) {
-        auto coverIdent = it.first;
-        auto coverAsset = it.second;
-        if (coverAsset->getState() == TileAsset::Loaded && coverAsset->isOurTexture() && tile->isBetterCoverTile(coverIdent,tileIdent)) {
-            if (!bestTile || coverIdent.level > bestIdent.level) {
-                bestIdent = coverIdent;
-                bestTile = coverAsset;
-            }
-        }
-    }
-    
-    if (bestTile) {
-        if (self.debugMode)
-            NSLog(@"Found old cover tile %d : (%d,%d) to tile %d : (%d,%d)",bestIdent.level,bestIdent.x,bestIdent.y,tileIdent.level,tileIdent.x,tileIdent.y);
-        tile->applyCoverTile(bestIdent,bestTile,loadedTile,self.flipY,changes);
-    }
-}
-
-// Apply the texture for a tile we just loaded
-- (void)applyCoverTile:(const QuadTreeNew::Node &)coverIdent asset:(TileAssetRef)coverAsset changes:(ChangeSet &)changes
-{
-    TileAssetRef bestTile;
-    
-    // Now see if there are any other places to use this texture
-    for (auto it : tiles) {
-        if (it.second->getState() != TileAsset::Loaded) {
-            auto tileIdent = it.first;
-            auto tile = it.second;
-            if (tile->isBetterCoverTile(coverIdent,tileIdent)) {
-                LoadedTileNewRef loadedTile = [builder getLoadedTile:tileIdent];
-                if (loadedTile) {
-                    if (self.debugMode)
-                        NSLog(@"Applying new cover tile %d : (%d,%d) to tile %d : (%d,%d)",coverIdent.level,coverIdent.x,coverIdent.y,tileIdent.level,tileIdent.x,tileIdent.y);
-                    tile->applyCoverTile(coverIdent,coverAsset,loadedTile,self.flipY,changes);
-                }
-            }
-        }
-    }
 }
 
 - (void)shutdown

@@ -1467,6 +1467,33 @@ public:
     return newVec;
 }
 
+- (MaplyVectorObject *)arealsToLinears
+{
+    MaplyVectorObject *newVec = [[MaplyVectorObject alloc] init];
+    
+    for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
+    {
+        VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+        if (ar)
+        {
+            for (auto loop : ar->loops) {
+                VectorLinearRef newLn = VectorLinear::createLinear();
+                newLn->setAttrDict(ar->getAttrDict());
+                newLn->pts = loop;
+                newVec->_shapes.insert(newLn);
+            }
+        } else {
+            VectorLinearRef ln = std::dynamic_pointer_cast<VectorLinear>(*it);
+            if (ln)
+            {
+                newVec->_shapes.insert(ln);
+            }
+        }
+    }
+    
+    return newVec;
+}
+
 - (MaplyVectorObject *) tesselate
 {
     MaplyVectorObject *newVec = [[MaplyVectorObject alloc] init];

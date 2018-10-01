@@ -127,6 +127,16 @@
  */
 @property (nonatomic,assign) int layoutPlacement;
 
+/**
+    Used to resolve to resolve labels that show the same thing.
+ 
+    By default this is nil and not used to resolve conflicts.  When you set it to
+    something, such as a string, it will be used to resolve display conflicts.
+    Only one object that has this unique ID (evaluated with isEqualToString:) will be displayed.
+    Importance is evaluated first, so the most important will be placed first.
+  */
+@property (nonatomic,retain,nullable) NSString *uniqueID;
+
 /** 
     User data object for selection
     

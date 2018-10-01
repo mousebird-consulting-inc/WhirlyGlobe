@@ -99,7 +99,12 @@
     return self;
 }
 
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+- (NSString *)getCategory
+{
+    return nil;
+}
+
+- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
 {
     return nil;
 }
@@ -119,7 +124,7 @@
     return self;
 }
 
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
 {
     NSMutableArray *tessObjs = [NSMutableArray array];
     for (MaplyVectorObject *vecObj in vecObjs)
@@ -151,7 +156,7 @@
     return self;
 }
 
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
 {
     NSMutableArray *labels = [NSMutableArray array];
     
@@ -199,7 +204,7 @@
     return self;
 }
 
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
 {
     MaplyComponentObject *compObj = [super.viewC addVectors:vecObjs desc:@{kMaplyColor: _color,
                                                                            kMaplyDrawPriority: @(self.drawPriority),
