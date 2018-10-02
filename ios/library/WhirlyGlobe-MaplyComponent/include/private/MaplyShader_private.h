@@ -27,12 +27,6 @@
 /// Internal Shader ID used below the Component level
 - (WhirlyKit::SimpleIdentity)getShaderID;
 
-/// Minimal initialization
-- (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC;
-
-/// Delayed construction.  Useful in subclasses
-- (bool)delayedSetupWithName:(NSString *)name vertex:(NSString *)vertexProg fragment:(NSString *)fragProg;
-
 /// Called by the view controller to clear out the shader program
 - (void)teardown;
 

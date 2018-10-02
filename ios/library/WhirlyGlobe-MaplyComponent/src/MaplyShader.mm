@@ -35,6 +35,7 @@ using namespace WhirlyKit;
     EAGLContext *context;
     // Texture we created for use in this shader
     SimpleIDSet texIDs;
+    std::vector<std::string> varyings;
 }
 
 - (instancetype)initWithName:(NSString *)name vertexFile:(NSString *)vertexFileName fragmentFile:(NSString *)fragFileName viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
@@ -107,7 +108,7 @@ using namespace WhirlyKit;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
     [renderControl useGLContext];
-    _program = new OpenGLES2Program(nameStr,vertexStr,fragStr);
+    _program = new OpenGLES2Program(nameStr,vertexStr,fragStr,(varyings.empty() ? NULL : &varyings));
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
     
@@ -176,6 +177,13 @@ using namespace WhirlyKit;
 {
     [self addTextureNamed:shaderAttrName image:auxImage desc:nil];
 }
+
+- (void)addVarying:(NSString *__nonnull)varyName
+{
+    std::string name = [varyName cStringUsingEncoding:NSASCIIStringEncoding];
+    varyings.push_back(name);
+}
+
 
 - (bool)setUniformFloatNamed:(NSString *)uniName val:(float)val
 {

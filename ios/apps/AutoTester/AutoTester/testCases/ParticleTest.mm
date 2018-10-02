@@ -108,39 +108,68 @@ typedef struct
 
 @end
 
+// Position calculation shader
+static const char *vertexPositionShader = R"(
+precision highp float;
+
+uniform float u_time;
+
+attribute vec3 a_position;
+attribute vec3 a_dir;
+attribute float a_startTime;
+
+varying vec3 va_position;
+
+void main()
+{
+   vec3 thePos = normalize(a_position + (u_time-a_startTime)*a_dir);
+   va_position = thePos;
+}
+)";
+
+// The fragment shader is never used for position calculation
+static const char *fragmentPositionShader = R"(
+precision highp float;
+
+void main()
+{
+}
+)";
+
 static const char *vertexRenderShaderTri = R"(
+precision highp float;
+
 uniform mat4  u_mvpMatrix;
 uniform mat4  u_mvMatrix;
 uniform mat4  u_mvNormalMatrix;
 uniform float u_size;
 uniform float u_time;
 
-attribute vec3 a_position;
+attribute vec3 va_position;
 attribute vec4 a_color;
-attribute vec3 a_dir;
 attribute float a_startTime;
 
 varying vec4 v_color;
 
 void main()
 {
-   v_color = a_color;
-   vec3 thePos = normalize(a_position + (u_time-a_startTime)*a_dir);
-   // Convert from model space into display space
-   vec4 pt = u_mvMatrix * vec4(thePos,1.0);
-   pt /= pt.w;
-   // Make sure the object is facing the user
-   vec4 testNorm = u_mvNormalMatrix * vec4(thePos,0.0);
-   float dot_res = dot(-pt.xyz,testNorm.xyz);
-   // Set the point size
-   gl_PointSize = u_size;
-   // Project the point into 3-space
-   gl_Position = (dot_res > 0.0) ? u_mvpMatrix * vec4(thePos,1.0) : vec4(1000.0,1000.0,1000.0,0.0);
+    v_color = a_color;
+    vec3 thePos = va_position;
+    // Convert from model space into display space
+    vec4 pt = u_mvMatrix * vec4(thePos,1.0);
+    pt /= pt.w;
+    // Make sure the object is facing the user
+    vec4 testNorm = u_mvNormalMatrix * vec4(thePos,0.0);
+    float dot_res = dot(-pt.xyz,testNorm.xyz);
+    // Set the point size
+    gl_PointSize = u_size;
+    // Project the point into 3-space
+    gl_Position = (dot_res > 0.0) ? u_mvpMatrix * vec4(thePos,1.0) : vec4(1000.0,1000.0,1000.0,0.0);
 }
 )";
 
 static const char *fragmentRenderShaderTri = R"(
-precision lowp float;
+precision highp float;
 
 varying vec4      v_color;
 
@@ -188,8 +217,15 @@ void main()
     velocityColors[1].r = 0.6f;  velocityColors[1].g = 0.6f;  velocityColors[1].b = 1.f;  velocityColors[1].a = 1.f;
     velocityColors[2].r = 1.f;  velocityColors[2].g = 0.6f;  velocityColors[2].b = 0.6f;  velocityColors[2].a = 1.f;
     
+    // Position calculation shader
+    MaplyShader *posShader = [[MaplyShader alloc] initWithViewC:viewC];
+    [posShader addVarying:@"va_position"];
+    [posShader delayedSetupWithName:@"Particle Wind Test Pos"
+                             vertex:[NSString stringWithFormat:@"%s",vertexPositionShader]
+                           fragment:[NSString stringWithFormat:@"%s",fragmentPositionShader]];
+    
     // Render shader
-    MaplyShader *renderShader = [[MaplyShader alloc] initWithName:@"Particle Wind Test 1"
+    MaplyShader *renderShader = [[MaplyShader alloc] initWithName:@"Particle Wind Test Render"
                                                      vertex:[NSString stringWithFormat:@"%s",vertexRenderShaderTri]
                                                    fragment:[NSString stringWithFormat:@"%s",fragmentRenderShaderTri]
                                                       viewC:viewC];
