@@ -104,7 +104,7 @@ public:
     OpenGLES2Program(SimpleIdentity theId) : Identifiable(theId), lightsLastUpdated(0.0) { }
 
     /// Initialize with both shader programs
-    OpenGLES2Program(const std::string &name,const std::string &vShaderString,const std::string &fShaderString);
+    OpenGLES2Program(const std::string &name,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varyings=NULL);
     
     /// Return true if it was built correctly
     bool isValid();
