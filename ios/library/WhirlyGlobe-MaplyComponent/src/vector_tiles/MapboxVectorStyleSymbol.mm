@@ -29,6 +29,7 @@
     if (!self)
         return nil;
     
+    _globalTextScale = styleSet.tileStyleSettings.textScale;
     _visible = [styleSet boolValue:@"visibility" dict:styleEntry onValue:@"visible" defVal:true];
     _placement = (MapboxSymbolPlacement)[styleSet enumValue:styleEntry[@"symbol-placement"] options:@[@"point",@"line"] defVal:MBPlacePoint];
     _textTransform = (MapboxTextTransform)[styleSet enumValue:styleEntry[@"text-transform"] options:@[@"none",@"uppercase",@"lowercase"] defVal:MBTextTransNone];
@@ -70,7 +71,7 @@
             _textSizeFunc = [styleSet stopsValue:sizeEntry defVal:nil];
     } else
         _textSize = 24.0;
-    
+
     id textAnchor = styleEntry[@"text-anchor"];
     _textAnchor = MBTextCenter;
     if (textAnchor)
@@ -122,6 +123,7 @@
     
     _layout = [[MapboxVectorSymbolLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
     _paint = [[MapboxVectorSymbolPaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
+    _uniqueLabel = [styleSet boolValue:@"unique-label" dict:styleEntry onValue:@"yes" defVal:false];
 
     if (!_layout)
     {
@@ -182,7 +184,7 @@
     return retStr;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
 
@@ -190,28 +192,28 @@
     if (!_layout.visible)
         return compObjs;
     
-    if (self.minzoom > tileID.level)
+    if (self.minzoom > tileInfo.tileID.level)
         return compObjs;
-    if (self.maxzoom < tileID.level)
+    if (self.maxzoom < tileInfo.tileID.level)
         return compObjs;
     
     NSDictionary *desc = symbolDesc;
     double textSize = 24.0;
     if (_layout.textSizeFunc)
     {
-        textSize = [_layout.textSizeFunc valueForZoom:tileID.level];
+        textSize = [_layout.textSizeFunc valueForZoom:tileInfo.tileID.level];
     } else {
         textSize = _layout.textSize;
     }
     // Snap to an integer.  Not clear we need to, just because.
-    textSize = (int)(textSize+0.5);
+    textSize = (int)(textSize * _layout.globalTextScale+0.5);
 
     // Note: Cache the font.
     UIFont *font = nil;
     if (_layout.textFontName) {
         UIFontDescriptor *fontDesc = [[UIFontDescriptor alloc] initWithFontAttributes:@{UIFontDescriptorNameAttribute: _layout.textFontName}];
         font = [UIFont fontWithDescriptor:fontDesc size:textSize];
-//        NSLog(@"Asked for: %@,  Got: %@",_layout.textFontName,font.fontName);
+//        NSLog(@"Asked for: %@,  Got: %@, %f",_layout.textFontName,font.fontName,textSize);
         if (!font)
             NSLog(@"Found unsupported font %@",fontDesc);
     }
@@ -220,7 +222,7 @@
     
     UIColor *textColor = _paint.textColor;
     if (_paint.textColorFunc) {
-        textColor = [_paint.textColorFunc colorForZoom:tileID.level];
+        textColor = [_paint.textColorFunc colorForZoom:tileInfo.tileID.level];
     }
     if (!textColor)
         textColor = [UIColor whiteColor];
@@ -248,12 +250,15 @@
             NSLog(@"Failed to find text for label");
             continue;
         }
+        if (_uniqueLabel)
+            label.uniqueID = [label.text lowercaseString];
+
         // The rank is most important, followed by the zoom level.  This keeps the countries on top.
         int rank = 100000;
         if (vecObj.attributes[@"rank"]) {
             rank = [vecObj.attributes[@"rank"] integerValue];
         }
-        label.layoutImportance = 1000000 - rank + (101-tileID.level)/100;
+        label.layoutImportance = 1000000 - rank + (101-tileInfo.tileID.level)/100;
 
         // Change the text if needed
         switch (_layout.textTransform)
@@ -270,9 +275,9 @@
         // Break it up into lines, if necessary
         double textMaxWidth = _layout.textMaxWidth;
         if (_layout.textMaxWidthFunc)
-            textMaxWidth = [_layout.textMaxWidthFunc valueForZoom:tileID.level];
+            textMaxWidth = [_layout.textMaxWidthFunc valueForZoom:tileInfo.tileID.level];
         if (textMaxWidth != 0.0) {
-            label.text = [self breakUpText:label.text width:textMaxWidth * font.pointSize font:font];
+            label.text = [self breakUpText:label.text width:textMaxWidth * font.pointSize * _layout.globalTextScale font:font];
         }
         
         // Point or line placement
