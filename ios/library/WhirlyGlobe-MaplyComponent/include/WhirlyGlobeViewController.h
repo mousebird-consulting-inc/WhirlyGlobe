@@ -298,6 +298,13 @@
  */
 @property(nonatomic,assign) bool pinchGesture;
 
+/**
+ Turn the rotate globe functionality for pinch gesture gesture recognizer on and off
+ 
+ On by default.
+ */
+@property(nonatomic,assign) bool zoomAroundPinch;
+
 /** 
     Turn the rotate gesture recognizer on and off
     

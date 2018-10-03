@@ -1370,6 +1370,8 @@ public:
         wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
         wgLabel.rotation = label.rotation;
         wgLabel.text = label.text;
+        if (label.uniqueID)
+            wgLabel.uniqueID = [label.uniqueID asStdString];
         wgLabel.keepUpright = label.keepUpright;
         MaplyTexture *tex = nil;
         if (label.iconImage2) {

@@ -33,17 +33,6 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitSingleLabel
 
-// Generate a key string to uniquely identify this label for reuse
-- (std::string)keyString
-{
-    std::string theStr = [_text asStdString];
-    
-    if (_desc)
-        theStr += [[_desc description] asStdString];
-    
-    return theStr;
-}
-
 - (bool)calcWidth:(float *)width height:(float *)height defaultFont:(UIFont *)font
 {
     CGSize textSize = [_text sizeWithAttributes:
