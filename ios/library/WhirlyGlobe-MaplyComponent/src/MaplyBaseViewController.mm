@@ -1052,6 +1052,13 @@ static const float PerfOutputDelay = 15.0;
     if (!theObjs)
         return;
 
+    // All objects must be MaplyComponentObject.  Yes, this happens.
+    for (id obj in theObjs)
+        if (![obj isKindOfClass:[MaplyComponentObject class]]) {
+            NSLog(@"User passed an invalid objects into removeOjbects:mode:  All objects must be MaplyComponentObject.  Ignoring.");
+            return;
+        }
+
     if (!renderControl || ![renderControl startOfWork])
         return;
     
