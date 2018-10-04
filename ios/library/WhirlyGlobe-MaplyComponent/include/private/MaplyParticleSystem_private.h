@@ -29,6 +29,7 @@ class ParticleSystemAttribute : public Identifiable
 {
 public:
     NSString *name;
+    NSString *varyName;
     MaplyShaderAttrType type;
 
     // Size of a single data value
@@ -48,7 +49,6 @@ public:
 @interface MaplyParticleSystem()
 
 @property (nonatomic,assign) WhirlyKit::ParticleSystemAttributeSet &attrs;
-@property (nonatomic,assign) WhirlyKit::ParticleSystemAttributeSet &varyAttrs;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity ident;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity renderTargetID;
 @property (nonatomic,assign) std::vector<id> &images;

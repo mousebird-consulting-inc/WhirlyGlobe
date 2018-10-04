@@ -190,10 +190,13 @@ public:
     
     /// For OpenGLES2, this is the program to use to render this drawable.
     virtual SimpleIdentity getProgram() const = 0;
+    
+    /// If present, we'll do a pre-render calculation pass with this program set
+    virtual SimpleIdentity getCalculationProgram() const { return EmptyIdentity; }
 	
 	/// We're allowed to turn drawables off completely
 	virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
-	
+    
 	/// Do any OpenGL initialization you may want.
 	/// For instance, set up VBOs.
 	/// We pass in the minimum Z buffer resolution (for offsets).
@@ -201,6 +204,9 @@ public:
 	
 	/// Clean up any OpenGL objects you may have (e.g. VBOs).
 	virtual void teardownGL(OpenGLMemManager *memManage) { };
+    
+    /// Some drawables have a pre-render phase that uses the GPU for calculation
+    virtual void calculate(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { };
 
 	/// Set up what you need in the way of context and draw.
 	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) = 0;

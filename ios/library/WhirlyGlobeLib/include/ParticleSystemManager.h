@@ -41,12 +41,14 @@ public:
     int drawPriority;
     float pointSize;
     ParticleSystemType type;
-    SimpleIdentity shaderID;
+    SimpleIdentity calcShaderID;
+    SimpleIdentity renderShaderID;
     NSTimeInterval lifetime,baseTime;
     int totalParticles,batchSize;
     bool continuousUpdate;
     SimpleIdentity renderTargetID;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
+    std::vector<SingleVertexAttributeInfo> varyingAttrs;
     std::vector<SimpleIdentity> texIDs;
 };
 

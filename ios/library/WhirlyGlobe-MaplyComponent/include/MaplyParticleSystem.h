@@ -123,7 +123,7 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
     from the position output.  Add any varying values you want to share per
     vertex from the former to the latter.
   */
-- (void)addVarying:(NSString *__nonnull)varyAttrName type:(MaplyShaderAttrType)type;
+- (void)addVarying:(NSString *__nonnull)varyAttrName inputName:(NSString *__nonnull)inputName type:(MaplyShaderAttrType)type;
 
 /** 
     Add a texture to the particle system.

@@ -533,6 +533,7 @@ static const float ScreenOverlap = 0.1;
         std::vector<Matrix4f> mvpMats4f;
         mvpMats.resize(offsetMats.size());
         mvpMats4f.resize(offsetMats.size());
+        bool calcPassDone = false;
         for (unsigned int off=0;off<offsetMats.size();off++)
         {
             WhirlyKitRendererFrameInfo *offFrameInfo = [[WhirlyKitRendererFrameInfo alloc] initWithFrameInfo:baseFrameInfo];
@@ -646,9 +647,45 @@ static const float ScreenOverlap = 0.1;
             if (perfInterval > 0)
                 perfTimer.stopTiming("Generators - generate");
         }
+        
+        if (perfInterval > 0)
+            perfTimer.startTiming("Calculation Shaders");
+        
+        // Run any calculation shaders
+        // These should be independent of screen space, so we only run them once and ignore offsets.
+        if (!calcPassDone) {
+            glEnable(GL_RASTERIZER_DISCARD);
+            
+            for (unsigned int ii=0;ii<drawList.size();ii++) {
+                DrawableContainer &drawContain = drawList[ii];
+                SimpleIdentity calcProgID = drawContain.drawable->getCalculationProgram();
+                
+                // Figure out the program to use for drawing
+                if (calcProgID == EmptyIdentity)
+                    continue;
+                OpenGLES2Program *program = scene->getProgram(calcProgID);
+                if (program)
+                {
+                    glUseProgram(program->getProgram());
+                    baseFrameInfo.program = program;
+                }
+
+                // Tweakers probably not necessary, but who knows
+                drawContain.drawable->runTweakers(baseFrameInfo);
+                
+                // Run the calculation phase
+                drawContain.drawable->calculate(baseFrameInfo,scene);
+            }
+
+            glDisable(GL_RASTERIZER_DISCARD);
+            calcPassDone = true;
+        }
+        
+        if (perfInterval > 0)
+            perfTimer.stopTiming("Calculation Shaders");
 
         if (perfInterval > 0)
-        perfTimer.startTiming("Draw Execution");
+            perfTimer.startTiming("Draw Execution");
         
         SimpleIdentity curProgramId = EmptyIdentity;
         
@@ -712,7 +749,7 @@ static const float ScreenOverlap = 0.1;
                 // Figure out the program to use for drawing
                 SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
                 if (drawProgramId == EmptyIdentity)
-                drawProgramId = defaultTriShader;
+                    drawProgramId = defaultTriShader;
                 if (drawProgramId != curProgramId)
                 {
                     curProgramId = drawProgramId;
