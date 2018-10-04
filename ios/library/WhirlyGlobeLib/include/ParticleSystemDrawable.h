@@ -45,7 +45,7 @@ public:
         const void *data;
     };
     
-    ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &vertAttrs,int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing);
+    ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &vertAttrs,const std::vector<SingleVertexAttributeInfo> &varyAttrs,int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing);
     virtual ~ParticleSystemDrawable();
     
     /// No bounding box, since these change constantly
@@ -59,9 +59,13 @@ public:
     void setDrawPriority(int newPriority) { drawPriority = newPriority; }
 
     /// Program to use for rendering
-    virtual SimpleIdentity getProgram() const { return programId; }
+    virtual SimpleIdentity getProgram() const { return renderProgramId; }
     /// Set the shader program.  Empty (default) by default
-    virtual void setProgram(SimpleIdentity newProgId) { programId = newProgId; }
+    virtual void setProgram(SimpleIdentity newProgId) { renderProgramId = newProgId; }
+    
+    /// Program to use for pre-render calculations
+    virtual SimpleIdentity getCalculationProgram() const { return calculateProgramId; }
+    virtual void setCalculationProgram(SimpleIdentity newProgId) { calculateProgramId = newProgId; }
 
     /// Whether it's currently displaying
     bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
@@ -89,7 +93,10 @@ public:
     
     /// Destroy GL buffers
     void teardownGL(OpenGLMemManager *memManager);
-    
+
+    /// Particles can calculate their positions
+    void calculate(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+
     /// Called on the rendering thread to draw
     void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
     
@@ -140,13 +147,16 @@ protected:
     int numTotalPoints,batchSize;
     int vertexSize;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
-    SimpleIdentity programId;
+    std::vector<SingleVertexAttributeInfo> varyAttrs;
+    SimpleIdentity calculateProgramId;
+    SimpleIdentity renderProgramId;
     int drawPriority;
     float pointSize;
     NSTimeInterval lifetime;
     bool requestZBuffer,writeZBuffer;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     GLuint pointBuffer,rectBuffer;
+    std::vector<GLuint> varyBuffers;
     std::vector<SimpleIdentity> texIDs;
     bool useRectangles,useInstancing;
     NSTimeInterval baseTime;
@@ -163,7 +173,12 @@ protected:
         int numVertices;
     } BufferChunk;
     
+    NSTimeInterval lastUpdateTime;
     void updateChunks();
+    
+    void drawSetupTextures(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int &progTexBound);
+    void drawTeardownTextures(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int progTexBound);
+    void drawSetupUniforms(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog);
     
     // Chunks we use for rendering
     pthread_mutex_t batchLock;

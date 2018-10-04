@@ -75,10 +75,11 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     // Note: There are devices where this won't work
     bool useInstancing = useRectangles;
     int totalParticles = newSystem.totalParticles;
-    ParticleSystemDrawable *draw = new ParticleSystemDrawable(newSystem.name,sceneRep->partSys.vertAttrs,totalParticles,sceneRep->partSys.batchSize,useRectangles,useInstancing);
+    ParticleSystemDrawable *draw = new ParticleSystemDrawable(newSystem.name,sceneRep->partSys.vertAttrs,sceneRep->partSys.varyingAttrs,totalParticles,sceneRep->partSys.batchSize,useRectangles,useInstancing);
     draw->setOnOff(true);
     draw->setPointSize(sceneRep->partSys.pointSize);
-    draw->setProgram(sceneRep->partSys.shaderID);
+    draw->setProgram(sceneRep->partSys.renderShaderID);
+    draw->setCalculationProgram(sceneRep->partSys.calcShaderID);
     draw->setupGL(NULL, scene->getMemManager());
     draw->setDrawPriority(sceneRep->partSys.drawPriority);
     draw->setBaseTime(newSystem.baseTime);

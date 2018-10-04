@@ -54,6 +54,10 @@ int ParticleSystemAttribute::dataSize()
 
 using namespace WhirlyKit;
 
+@interface MaplyParticleSystem()
+@property (nonatomic,assign) int numRegAttrs;
+@end
+
 @implementation MaplyParticleSystem
 
 - (instancetype)initWithName:(NSString *)name
@@ -70,6 +74,7 @@ using namespace WhirlyKit;
     _totalParticles = 100000;
     _baseTime = CFAbsoluteTimeGetCurrent();
     _renderTargetID = EmptyIdentity;
+    _numRegAttrs = 0;
     
     return self;
 }
@@ -81,15 +86,17 @@ using namespace WhirlyKit;
     attr.type = type;
     
     self.attrs.insert(attr);
+    _numRegAttrs++;
 }
 
-- (void)addVarying:(NSString *__nonnull)varyAttrName type:(MaplyShaderAttrType)type
+- (void)addVarying:(NSString *)varyAttrName inputName:(NSString *)inputName type:(MaplyShaderAttrType)type
 {
     WhirlyKit::ParticleSystemAttribute attr;
-    attr.name = varyAttrName;
+    attr.name = inputName;
+    attr.varyName = varyAttrName;
     attr.type = type;
     
-    self.varyAttrs.insert(attr);
+    self.attrs.insert(attr);
 }
 
 - (void)addTexture:(id)image
@@ -141,7 +148,7 @@ using namespace WhirlyKit;
 
 - (bool) isValid
 {
-    return _partSys.attrs.size() == self.attrVals.size();
+    return _partSys.numRegAttrs == self.attrVals.size();
 }
 
 @end

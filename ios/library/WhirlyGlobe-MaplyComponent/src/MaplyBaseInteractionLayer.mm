@@ -3055,9 +3055,12 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     SimpleIdentity partSysShaderID = [inDesc[kMaplyShader] intValue];
     if (partSysShaderID == EmptyIdentity)
         partSysShaderID = scene->getProgramIDBySceneName([kMaplyShaderParticleSystemPointDefault cStringUsingEncoding:NSASCIIStringEncoding]);
-    if (partSys.renderShader)
-    {
+    if (partSys.renderShader) {
         partSysShaderID = [partSys.renderShader getShaderID];
+    }
+    SimpleIdentity calcShaderID = EmptyIdentity;
+    if (partSys.positionShader) {
+        calcShaderID = [partSys.positionShader getShaderID];
     }
     
     ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
@@ -3070,7 +3073,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         wkPartSys.drawPriority = [inDesc[kMaplyDrawPriority] intValue];
         wkPartSys.pointSize = [inDesc[kMaplyPointSize] floatValue];
         wkPartSys.name = [partSys.name cStringUsingEncoding:NSASCIIStringEncoding];
-        wkPartSys.shaderID = partSysShaderID;
+        wkPartSys.renderShaderID = partSysShaderID;
+        wkPartSys.calcShaderID = calcShaderID;
         wkPartSys.lifetime = partSys.lifetime;
         wkPartSys.batchSize = partSys.batchSize;
         wkPartSys.totalParticles = partSys.totalParticles;
@@ -3113,8 +3117,15 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     break;
             }
             vertAttr.nameID = StringIndexer::getStringID([it.name cStringUsingEncoding:NSASCIIStringEncoding]);
-            wkPartSys.vertAttrs.push_back(vertAttr);
+            if (it.varyName) {
+                // This one is a varying attribute
+                SingleVertexAttributeInfo varyAttr = vertAttr;
+                wkPartSys.varyingAttrs.push_back(varyAttr);
+            } else {
+                wkPartSys.vertAttrs.push_back(vertAttr);
+            }
         }
+        for (auto it : partSys.attrs)
         // Now the textures
         for (id image : partSys.images)
         {
@@ -3187,6 +3198,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         // Copy the attributes over in the right order
         for (auto mainAttr : batch.partSys.attrs)
         {
+            if (mainAttr.varyName)
+                continue;
+            
             bool found = false;
             // Find the one that matches
             for (auto thisAttr : batch.attrVals)
