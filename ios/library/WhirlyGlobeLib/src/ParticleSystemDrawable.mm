@@ -62,7 +62,9 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
 {
     if (pointBuffer != 0)
         return;
-    
+
+    EAGLContext *context = [EAGLContext currentContext];
+
     int totalBytes = vertexSize*numTotalPoints;
     pointBuffer = memManager->getBufferID(totalBytes,GL_DYNAMIC_DRAW);
     
@@ -99,7 +101,24 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
     
     // If we have varyings we need buffers to hold them
     for (auto varyAttr : varyAttrs) {
-        GLuint buffer = memManager->getBufferID(varyAttr.size()*numTotalPoints,GL_DYNAMIC_DRAW);
+        GLuint totalSize = varyAttr.size()*numTotalPoints;
+        GLuint buffer = memManager->getBufferID(totalSize,GL_DYNAMIC_DRAW);
+
+        // Zero out the new buffers
+        // That's how we signal that they're new
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+        void *glMem = NULL;
+        if (context.API < kEAGLRenderingAPIOpenGLES3)
+            glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+        else
+            glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, totalSize, GL_MAP_WRITE_BIT);
+        memset(glMem, 0, totalSize);
+        if (context.API < kEAGLRenderingAPIOpenGLES3)
+            glUnmapBufferOES(GL_ARRAY_BUFFER);
+        else
+            glUnmapBuffer(GL_ARRAY_BUFFER);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
         varyBuffers.push_back(buffer);
     }
     
@@ -375,6 +394,61 @@ void ParticleSystemDrawable::drawSetupUniforms(WhirlyKitRendererFrameInfo *frame
     prog->setUniform(u_pixDispSizeNameID, pixDispSize);
 }
     
+void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int pointsSoFar)
+{
+    glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
+    
+    // Bind the various attributes to their offsets
+    int attrOffset = 0;
+    for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
+    {
+        int attrSize = attrInfo.size();
+        
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID);
+        if (thisAttr)
+        {
+            glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)(attrOffset+chunk.bufferStart));
+            int divisor = 0;
+            
+            if (useInstancing)
+                divisor = 1;
+            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                glVertexAttribDivisorEXT(thisAttr->index, divisor);
+            else
+                glVertexAttribDivisor(thisAttr->index, divisor);
+            glEnableVertexAttribArray(thisAttr->index);
+        }
+        
+        attrOffset += attrSize;
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
+    // Link the varying output to attribute array input
+    int varyWhich = 0;
+    for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
+        glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyWhich]);
+        
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(varyInfo.nameID);
+        if (thisAttr)
+        {
+            GLuint size = varyInfo.size();
+            glVertexAttribPointer(thisAttr->index, varyInfo.glEntryComponents(), varyInfo.glType(), varyInfo.glNormalize(), varyInfo.size(), (const GLvoid *)(long)(size*pointsSoFar));
+            int divisor = 0;
+            
+            if (useInstancing)
+                divisor = 1;
+            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                glVertexAttribDivisorEXT(thisAttr->index, divisor);
+            else
+                glVertexAttribDivisor(thisAttr->index, divisor);
+            glEnableVertexAttribArray(thisAttr->index);
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        
+        varyWhich++;
+    }
+}
+    
 void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
     CheckGLError("BasicDrawable::calculate() glBeginTransformFeedback");
@@ -399,27 +473,8 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
     int pointsSoFar = 0;
     for (const BufferChunk &chunk : chunks)
     {
-        // Bind the various attributes to their offsets
-        int attrOffset = 0;
-        for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
-        {
-            int attrSize = attrInfo.size();
-            
-            const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID);
-            if (thisAttr)
-            {
-                glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)(attrOffset+chunk.bufferStart));
-                int divisor = 0;
-                if (context.API < kEAGLRenderingAPIOpenGLES3)
-                    glVertexAttribDivisorEXT(thisAttr->index, divisor);
-                else
-                    glVertexAttribDivisor(thisAttr->index, 0);
-                glEnableVertexAttribArray(thisAttr->index);
-            }
-            
-            attrOffset += attrSize;
-        }
-
+        drawBindAttrs(context,frameInfo,scene,prog,chunk,pointsSoFar);
+        
         // Now bind the varying outputs to their buffers
         int varyIdx = 0;
         for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
@@ -511,57 +566,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     int pointsSoFar = 0;
     for (const BufferChunk &chunk : chunks)
     {
-        glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
-
-        // Bind the various attributes to their offsets
-        int attrOffset = 0;
-        for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
-        {
-            int attrSize = attrInfo.size();
-            
-            const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID);
-            if (thisAttr)
-            {
-                glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)(attrOffset+chunk.bufferStart));
-                int divisor = 0;
-                
-                if (useInstancing)
-                    divisor = 1;
-                if (context.API < kEAGLRenderingAPIOpenGLES3)
-                    glVertexAttribDivisorEXT(thisAttr->index, divisor);
-                else
-                    glVertexAttribDivisor(thisAttr->index, divisor);
-                glEnableVertexAttribArray(thisAttr->index);
-            }
-            
-            attrOffset += attrSize;
-        }
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        // Link the varying output to attribute array input
-        int varyWhich = 0;
-        for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
-            glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyWhich]);
-
-            const OpenGLESAttribute *thisAttr = prog->findAttribute(varyInfo.nameID);
-            if (thisAttr)
-            {
-                GLuint size = varyInfo.size();
-                glVertexAttribPointer(thisAttr->index, varyInfo.glEntryComponents(), varyInfo.glType(), varyInfo.glNormalize(), varyInfo.size(), (const GLvoid *)(long)(size*pointsSoFar));
-                int divisor = 0;
-                
-                if (useInstancing)
-                    divisor = 1;
-                if (context.API < kEAGLRenderingAPIOpenGLES3)
-                    glVertexAttribDivisorEXT(thisAttr->index, divisor);
-                else
-                    glVertexAttribDivisor(thisAttr->index, divisor);
-                glEnableVertexAttribArray(thisAttr->index);
-            }
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-            varyWhich++;
-        }
+        drawBindAttrs(context,frameInfo,scene,prog,chunk,pointsSoFar);
 
         if (rectBuffer)
         {
