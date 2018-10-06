@@ -168,60 +168,6 @@ using namespace WhirlyKit;
     return renderControl.screenObjectDrawPriorityOffset;
 }
 
-static NSString *serverName = nil;
-
-// This is the callback to the DNS lookup.
-// We need the actual name
-static void dnsQueryCallback(DNSServiceRef sdRef,
-                             DNSServiceFlags flags,
-                             uint32_t interfaceIndex,
-                             DNSServiceErrorType errorCode,
-                             const char *fullname,
-                             uint16_t rrtype,
-                             uint16_t rrclass,
-                             uint16_t rdlen,
-                             const void *rdata,
-                             uint32_t ttl,
-                             void *context) {
-    
-    if (errorCode == kDNSServiceErr_NoError && rdlen > 1) {
-        // Parse cname into something we can use
-        NSMutableData *txtData = [NSMutableData dataWithCapacity:rdlen];
-        
-        uint16_t i = 0;
-        uint8_t period = 46;
-        while (i < rdlen) {
-            uint8_t len = 0;
-            len = (int)((unsigned char *)rdata)[i];
-            if (i > 0 && len > 0)
-                [txtData appendBytes:&period length:1];
-            [txtData appendBytes:(char *)rdata + i + 1 length:len];
-            i += len + 1;
-        }
-        
-        serverName = [[NSString alloc] initWithBytes:txtData.bytes length:txtData.length encoding:NSASCIIStringEncoding];
-    }
-}
-
-- (void) queryAnalyticsServerName {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        DNSServiceRef serviceRef;
-        DNSServiceErrorType error;
-        error = DNSServiceQueryRecord(&serviceRef, 0, 0, "analytics.mousebirdconsulting.com", kDNSServiceType_CNAME,
-                                      kDNSServiceClass_IN, dnsQueryCallback, NULL);
-        if (error != kDNSServiceErr_NoError){
-            NSLog(@"DNS Service error");
-        }
-        
-        DNSServiceProcessResult(serviceRef);
-        DNSServiceRefDeallocate(serviceRef);
-        
-        if (serverName) {
-            [self sendAnalytics:serverName];
-        }
-    });
-}
-
 // Kick off the analytics logic.  First we need the server name.
 - (void)startAnalytics
 {
@@ -236,16 +182,17 @@ static void dnsQueryCallback(DNSServiceRef sdRef,
         lastSent = [userDefaults doubleForKey:@"wgmaplyanalytictime"];
     }
     
-    // Sent once a week at most
+    // Sent once a month at most
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
-    if (now - lastSent < 7*24*60*60.0)
+    if (now - lastSent < 30*24*60*60.0)
         return;
 
-    [self queryAnalyticsServerName];
+    [self sendAnalytics:@"analytics.mousebirdconsulting.com:8081"];
 }
 
 // Send the actual analytics data
 // There's nothing unique in here to identify the user
+// The user ID is completely made up and we don't get it more than once per week
 - (void)sendAnalytics:(NSString *)serverName
 {
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
@@ -258,32 +205,31 @@ static void dnsQueryCallback(DNSServiceRef sdRef,
     NSDictionary *infoDict = [NSBundle mainBundle].infoDictionary;
     // Bundle ID, version and build
     NSString *bundleID = infoDict[@"CFBundleIdentifier"];
+    NSString *bundleName = infoDict[@"CFBundleName"];
     NSString *build = infoDict[@"CFBundleVersion"];
-    NSString *version = infoDict[@"CFBundleShortVersionString"];
-    NSString *bundleID_version_build = [NSString stringWithFormat:@"%@_%@_%@",bundleID,version,build];
+    NSString *bundleVersion = infoDict[@"CFBundleShortVersionString"];
     // WGMaply version
     NSString *wgmaplyVersion = @"2.6.0";
-//    NSString *minOSVersion = infoDict[@"MinimumOSVersion"];
     // OS version
     NSOperatingSystemVersion osversionID = [[NSProcessInfo processInfo] operatingSystemVersion];
     NSString *osversion = [NSString stringWithFormat:@"%d.%d.%d",(int)osversionID.majorVersion,(int)osversionID.minorVersion,(int) osversionID.patchVersion];
 
     // We're not recording anything that can identify the user, just the app
-    NSString *postArgs = [NSString stringWithFormat:@"{\"requests\":[\"?idsite=1&url=http://mousebirdconsulting.com/&action_name=register&rec=1&apiv=1&_id=%@&dimension6=%@&dimension7=%@&dimension8=%@&dimension9=%@&dimension10=%@\"]}",
-                          userID,bundleID,bundleID_version_build,wgmaplyVersion,model,osversion];
-    NSMutableURLRequest *req = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@/piwik.php", serverName]]];
+    // create table register( userid VARCHAR(50), bundleid VARCHAR(100), bundlename VARCHAR(100), bundlebuild VARCHAR(100), bundleversion VARCHAR(100), osversion VARCHAR(20), model VARCHAR(100), wgmaplyversion VARCHAR(20));
+    NSString *postArgs = [NSString stringWithFormat:@"{ \"userid\":\"%@\", \"bundleid\":\"%@\", \"bundlename\":\"%@\", \"bundlebuild\":\"%@\", \"bundleversion\":\"%@\", \"osversion\":\"%@\", \"model\":\"%@\", \"wgmaplyversion\":\"%@\" }",
+                          userID,bundleID,bundleName,build,bundleVersion,osversion,model,wgmaplyVersion];
+    NSMutableURLRequest *req = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@/register", serverName]]];
+    [req setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [req setHTTPMethod:@"POST"];
     [req setHTTPBody:[postArgs dataUsingEncoding:NSASCIIStringEncoding]];
-//    NSLog(@"postArgs = %@",postArgs);
     
     NSURLSession *session = [NSURLSession sharedSession];
     NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:req completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-//        NSString *respStr = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
-//        NSHTTPURLResponse *resp = (NSHTTPURLResponse *)response;
-//        NSLog(@"response = %@",response);
-//        if (resp.statusCode == 200) {
-//            [userDefaults setDouble:now forKey:@"wgmaplyanalytictime"];
-//        }
+        NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+        NSHTTPURLResponse *resp = (NSHTTPURLResponse *)response;
+        if (resp.statusCode == 200) {
+            [userDefaults setDouble:now forKey:@"wgmaplyanalytictime"];
+        }
     }];
     [dataTask resume];
 }
