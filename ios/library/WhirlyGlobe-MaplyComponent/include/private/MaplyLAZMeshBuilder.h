@@ -10,7 +10,7 @@
 #define MeshBuilder_h
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobeComponent.h>
+#import <WhirlyGlobeViewController.h>
 #import <WhirlyGlobe.h>
 
 /** Used to build a mesh underneath a random collection of points.
