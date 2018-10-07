@@ -967,7 +967,6 @@
 		2BE53A0B1D249C2900B60FAD /* message.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE539DF1D249C2900B60FAD /* message.h */; };
 		2BE53A0C1D249C2900B60FAD /* message_lite.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE539E01D249C2900B60FAD /* message_lite.cc */; };
 		2BE53A0D1D249C2900B60FAD /* message_lite.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE539E11D249C2900B60FAD /* message_lite.h */; };
-		2BE53A0E1D249C2900B60FAD /* package_info.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE539E21D249C2900B60FAD /* package_info.h */; };
 		2BE53A0F1D249C2900B60FAD /* reflection_ops.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE539E31D249C2900B60FAD /* reflection_ops.cc */; };
 		2BE53A101D249C2900B60FAD /* reflection_ops.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE539E41D249C2900B60FAD /* reflection_ops.h */; };
 		2BE53A111D249C2900B60FAD /* repeated_field.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE539E51D249C2900B60FAD /* repeated_field.cc */; };
@@ -990,7 +989,6 @@
 		2BE53A361D249C3D00B60FAD /* coded_stream_inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53A241D249C3D00B60FAD /* coded_stream_inl.h */; };
 		2BE53A371D249C3D00B60FAD /* gzip_stream.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53A251D249C3D00B60FAD /* gzip_stream.cc */; };
 		2BE53A381D249C3D00B60FAD /* gzip_stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53A261D249C3D00B60FAD /* gzip_stream.h */; };
-		2BE53A391D249C3D00B60FAD /* package_info.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53A271D249C3D00B60FAD /* package_info.h */; };
 		2BE53A3A1D249C3D00B60FAD /* printer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53A281D249C3D00B60FAD /* printer.cc */; };
 		2BE53A3B1D249C3D00B60FAD /* printer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53A291D249C3D00B60FAD /* printer.h */; };
 		2BE53A3C1D249C3D00B60FAD /* tokenizer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53A2A1D249C3D00B60FAD /* tokenizer.cc */; };
@@ -2047,7 +2045,6 @@
 		2BE539DF1D249C2900B60FAD /* message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = message.h; sourceTree = "<group>"; };
 		2BE539E01D249C2900B60FAD /* message_lite.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = message_lite.cc; sourceTree = "<group>"; };
 		2BE539E11D249C2900B60FAD /* message_lite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = message_lite.h; sourceTree = "<group>"; };
-		2BE539E21D249C2900B60FAD /* package_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = package_info.h; sourceTree = "<group>"; };
 		2BE539E31D249C2900B60FAD /* reflection_ops.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = reflection_ops.cc; sourceTree = "<group>"; };
 		2BE539E41D249C2900B60FAD /* reflection_ops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = reflection_ops.h; sourceTree = "<group>"; };
 		2BE539E51D249C2900B60FAD /* repeated_field.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = repeated_field.cc; sourceTree = "<group>"; };
@@ -2070,7 +2067,6 @@
 		2BE53A241D249C3D00B60FAD /* coded_stream_inl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = coded_stream_inl.h; path = io/coded_stream_inl.h; sourceTree = "<group>"; };
 		2BE53A251D249C3D00B60FAD /* gzip_stream.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gzip_stream.cc; path = io/gzip_stream.cc; sourceTree = "<group>"; };
 		2BE53A261D249C3D00B60FAD /* gzip_stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gzip_stream.h; path = io/gzip_stream.h; sourceTree = "<group>"; };
-		2BE53A271D249C3D00B60FAD /* package_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = package_info.h; path = io/package_info.h; sourceTree = "<group>"; };
 		2BE53A281D249C3D00B60FAD /* printer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = printer.cc; path = io/printer.cc; sourceTree = "<group>"; };
 		2BE53A291D249C3D00B60FAD /* printer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = printer.h; path = io/printer.h; sourceTree = "<group>"; };
 		2BE53A2A1D249C3D00B60FAD /* tokenizer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tokenizer.cc; path = io/tokenizer.cc; sourceTree = "<group>"; };
@@ -3705,7 +3701,6 @@
 				2BE539DF1D249C2900B60FAD /* message.h */,
 				2BE539E01D249C2900B60FAD /* message_lite.cc */,
 				2BE539E11D249C2900B60FAD /* message_lite.h */,
-				2BE539E21D249C2900B60FAD /* package_info.h */,
 				2BE539E31D249C2900B60FAD /* reflection_ops.cc */,
 				2BE539E41D249C2900B60FAD /* reflection_ops.h */,
 				2BE539E51D249C2900B60FAD /* repeated_field.cc */,
@@ -3736,7 +3731,6 @@
 				2BE53A241D249C3D00B60FAD /* coded_stream_inl.h */,
 				2BE53A251D249C3D00B60FAD /* gzip_stream.cc */,
 				2BE53A261D249C3D00B60FAD /* gzip_stream.h */,
-				2BE53A271D249C3D00B60FAD /* package_info.h */,
 				2BE53A281D249C3D00B60FAD /* printer.cc */,
 				2BE53A291D249C3D00B60FAD /* printer.h */,
 				2BE53A2A1D249C3D00B60FAD /* tokenizer.cc */,
@@ -3894,7 +3888,6 @@
 				2B82B6F21E82E24A0095FB14 /* BasicDrawableInstance.h in Headers */,
 				2BE5386F1D249A1200B60FAD /* vector_tile.pb.h in Headers */,
 				2B82B6DA1E82E24A0095FB14 /* NSDictionary+Stuff.h in Headers */,
-				2BE53A391D249C3D00B60FAD /* package_info.h in Headers */,
 				2B82B6141E82E2490095FB14 /* JSONSharedString.h in Headers */,
 				2BE538311D249A1200B60FAD /* MaplyViewControllerLayer.h in Headers */,
 				2BE53A861D249C8300B60FAD /* NSString+DDXML.h in Headers */,
@@ -4084,7 +4077,6 @@
 				2B82B5E71E82E2490095FB14 /* memalloc.h in Headers */,
 				2B82B5EF1E82E2490095FB14 /* priorityq.h in Headers */,
 				2BE5397A1D249BEF00B60FAD /* AAPhysicalMoon.h in Headers */,
-				2BE53A0E1D249C2900B60FAD /* package_info.h in Headers */,
 				2BE5380D1D249A1200B60FAD /* MaplyIconManager.h in Headers */,
 				2B40DBA2214AE21F00EF77DC /* MaplyMBTileFetcher.h in Headers */,
 				2BE53A6C1D249C4600B60FAD /* atomicops_internals_x86_gcc.h in Headers */,
