@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DDXML.h"
+@class DDXMLNode;
+@class DDXMLElement;
 #import "MaplyVectorTileStyle.h"
 
 /** @brief Base class for Symbolizer elements

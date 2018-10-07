@@ -77,7 +77,7 @@
 #import "MaplyVectorTiles.h"
 #import "MapboxVectorTiles.h"
 #import "MapboxVectorTilesPagingDelegate.h"
-#import "MapboxVectorImageInterpeter.h"
+#import "MapboxVectorImageInterpreter.h"
 #import "MapnikStyleSet.h"
 #import "MapboxMultiSourceTileInfo.h"
 #import "MaplyVectorStyleSimple.h"

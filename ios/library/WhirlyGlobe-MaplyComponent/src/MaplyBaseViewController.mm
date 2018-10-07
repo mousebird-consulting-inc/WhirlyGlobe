@@ -24,8 +24,6 @@
 #import "MaplyTexture_private.h"
 #import "MaplyAnnotation_private.h"
 #import "NSDictionary+StyleRules.h"
-#import "DDXMLElementAdditions.h"
-#import "NSString+DDXML.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
 

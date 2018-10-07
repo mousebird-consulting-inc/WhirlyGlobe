@@ -10,6 +10,7 @@
 #import "SLDWellKnownMarkers.h"
 #import "MaplyVectorTiles.h"
 #import "MaplyScreenLabel.h"
+#import "DDXML.h"
 
 @implementation SLDSymbolizer
 
