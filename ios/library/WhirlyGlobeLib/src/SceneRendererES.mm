@@ -499,7 +499,7 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
 }
 
 - (void)setScene:(WhirlyKit::Scene *)newScene
-{
+{    
     _scene = newScene;
     if (_scene)
     {

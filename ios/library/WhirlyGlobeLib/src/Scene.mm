@@ -48,6 +48,8 @@ Scene::Scene()
     
 void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr,unsigned int depth)
 {
+    SetupDrawableStrings();
+
     pthread_mutex_init(&coordAdapterLock,NULL);
     pthread_mutex_init(&changeRequestLock,NULL);
     pthread_mutex_init(&subTexLock, NULL);
@@ -129,12 +131,12 @@ Scene::~Scene()
     pthread_mutex_destroy(&generatorLock);
     pthread_mutex_destroy(&programLock);
     
-    auto theChangeRuquests = changeRequests;
+    auto theChangeRequests = changeRequests;
     changeRequests.clear();
-    for (unsigned int ii=0;ii<theChangeRuquests.size();ii++)
+    for (unsigned int ii=0;ii<theChangeRequests.size();ii++)
     {
         // Note: Tear down change requests?
-        delete theChangeRuquests[ii];
+        delete theChangeRequests[ii];
     }
     
     activeModels = nil;
@@ -368,41 +370,64 @@ const DrawableRefSet &Scene::getDrawables()
 {
     return drawables;
 }
+    
+int Scene::preProcessChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
+{
+    ChangeSet preRequests;
+    
+    pthread_mutex_lock(&changeRequestLock);
+    // Just doing the ones that require a pre-process
+    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+    {
+        ChangeRequest *req = changeRequests[ii];
+        if (req && req->needPreExecute()) {
+            preRequests.push_back(req);
+            changeRequests[ii] = NULL;
+        }
+    }
+    
+    pthread_mutex_unlock(&changeRequestLock);
+
+    // Run these outside of the lock, since they might use the lock
+    for (auto req : preRequests) {
+        req->execute(this,renderer,view);
+        delete req;
+    }
+    
+    return preRequests.size();
+}
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
 void Scene::processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
 {
-    // We're not willing to wait in the rendering thread
-    if (!pthread_mutex_trylock(&changeRequestLock))
+    pthread_mutex_lock(&changeRequestLock);
+    // See if any of the timed changes are ready
+    std::vector<ChangeRequest *> toMove;
+    for (ChangeRequest *req : timedChangeRequests)
     {
-        // See if any of the timed changes are ready
-        std::vector<ChangeRequest *> toMove;
-        for (ChangeRequest *req : timedChangeRequests)
-        {
-            if (now >= req->when)
-                toMove.push_back(req);
-            else
-                break;
-        }
-        for (ChangeRequest *req : toMove)
-        {
-            timedChangeRequests.erase(req);
-            changeRequests.push_back(req);
-        }
-        
-        for (unsigned int ii=0;ii<changeRequests.size();ii++)
-        {
-            ChangeRequest *req = changeRequests[ii];
-            if (req) {
-                req->execute(this,renderer,view);
-                delete req;
-            }
-        }
-        changeRequests.clear();
-        
-        pthread_mutex_unlock(&changeRequestLock);
+        if (now >= req->when)
+            toMove.push_back(req);
+        else
+            break;
     }
+    for (ChangeRequest *req : toMove)
+    {
+        timedChangeRequests.erase(req);
+        changeRequests.push_back(req);
+    }
+    
+    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+    {
+        ChangeRequest *req = changeRequests[ii];
+        if (req) {
+            req->execute(this,renderer,view);
+            delete req;
+        }
+    }
+    changeRequests.clear();
+        
+    pthread_mutex_unlock(&changeRequestLock);
 }
     
 bool Scene::hasChanges(NSTimeInterval now)
@@ -760,6 +785,19 @@ void NotificationReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Wh
                    ^{
                        [[NSNotificationCenter defaultCenter] postNotificationName:theNoteName object:theNoteObj];
                    });
+}
+    
+RunBlockReq::RunBlockReq(BlockFunc newFunc) : func(newFunc)
+{
+}
+    
+RunBlockReq::~RunBlockReq()
+{
+}
+    
+void RunBlockReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+{
+    func(scene,renderer,view);
 }
     
 }

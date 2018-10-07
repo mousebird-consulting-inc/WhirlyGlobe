@@ -152,12 +152,14 @@ void BasicDrawableInstance::setupTexCoordEntry(int which,int numReserve)
     }
 }
 
-void BasicDrawableInstance::setTexRelative(int which,int relLevel,int relX,int relY)
+void BasicDrawableInstance::setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY)
 {
     if (which >= texInfo.size())
         return;
     
     TexInfo &ti = texInfo[which];
+    ti.size = size;
+    ti.borderTexel = borderTexel;
     ti.relLevel = relLevel;
     ti.relX = relX;
     ti.relY = relY;
@@ -242,6 +244,7 @@ void BasicDrawableInstance::teardownGL(OpenGLMemManager *memManage)
 GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
 {
     vertArrayObj = basicDraw->setupVAO(prog);
+    vertArrayDefaults = basicDraw->vertArrayDefaults;
     
     EAGLContext *context = [EAGLContext currentContext];
     
@@ -249,7 +252,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
 
     glBindBuffer(GL_ARRAY_BUFFER,instBuffer);
     {
-        const OpenGLESAttribute *centerAttr = prog->findAttribute("a_modelCenter");
+        const OpenGLESAttribute *centerAttr = prog->findAttribute(a_modelCenterNameID);
         if (centerAttr)
         {
             glVertexAttribPointer(centerAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(0));
@@ -263,7 +266,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
         }
     }
     {
-        const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+        const OpenGLESAttribute *matAttr = prog->findAttribute(a_SingleMatrixNameID);
         if (matAttr)
         {
             for (unsigned int im=0;im<4;im++)
@@ -280,7 +283,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
         }
     }
     {
-        const OpenGLESAttribute *useColorAttr = prog->findAttribute("a_useInstanceColor");
+        const OpenGLESAttribute *useColorAttr = prog->findAttribute(a_useInstanceColorNameID);
         if (useColorAttr)
         {
             glVertexAttribPointer(useColorAttr->index, 1, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+matSize));
@@ -294,7 +297,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
         }
     }
     {
-        const OpenGLESAttribute *colorAttr = prog->findAttribute("a_instanceColor");
+        const OpenGLESAttribute *colorAttr = prog->findAttribute(a_instanceColorNameID);
         if (colorAttr)
         {
             glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, instSize, (const GLvoid *)(long)(centerSize+matSize+colorInstSize));
@@ -308,7 +311,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
         }
     }
     {
-        const OpenGLESAttribute *dirAttr = prog->findAttribute("a_modelDir");
+        const OpenGLESAttribute *dirAttr = prog->findAttribute(a_modelDirNameID);
         if (moving && dirAttr)
         {
             glVertexAttribPointer(dirAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+matSize+colorInstSize+colorSize));
@@ -328,15 +331,15 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
     return vertArrayObj;
 }
     
-// Putting there here rather than running sprintf is a lot faster.  Really.  Oy.
-static const char *baseMapNames[WhirlyKitMaxTextures] = {"s_baseMap0","s_baseMap1","s_baseMap2","s_baseMap3","s_baseMap4","s_baseMap5","s_baseMap6","s_baseMap7"};
-
-    
 // Used to pass in buffer offsets
 #define CALCBUFOFF(base,off) ((char *)((long)(base) + (off)))
 
 void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
+    // Happens if we're deleting things out of order
+    if (!basicDraw || !basicDraw->isSetupInGL())
+        return;
+    
     // The old style where we reuse the basic drawable
     if (instanceStyle == ReuseStyle)
     {
@@ -345,6 +348,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         float oldLineWidth = basicDraw->getLineWidth();
         float oldMinVis,oldMaxVis;
         basicDraw->getVisibleRange(oldMinVis, oldMaxVis);
+        auto oldUniforms = basicDraw->getUniforms();
         std::vector<BasicDrawable::TexInfo> oldTexInfo = basicDraw->getTexInfo();
         
         // Change the drawable
@@ -354,6 +358,9 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             basicDraw->setColor(color);
         if (hasLineWidth)
             basicDraw->setLineWidth(lineWidth);
+        if (!uniforms.empty()) {
+            basicDraw->setUniforms(uniforms);
+        }
         if (!texInfo.empty())
         {
             if (basicDraw->texInfo.size() < texInfo.size())
@@ -365,6 +372,8 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                     auto &newEntry = texInfo[ii];
                     auto &entry = basicDraw->texInfo[ii];
                     entry.texId = newEntry.texId;
+                    entry.size = newEntry.size;
+                    entry.borderTexel = newEntry.borderTexel;
                     entry.relX = newEntry.relX;
                     entry.relY = newEntry.relY;
                     entry.relLevel = newEntry.relLevel;
@@ -425,6 +434,8 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             basicDraw->setLineWidth(oldLineWidth);
         if (!texInfo.empty())
             basicDraw->texInfo = oldTexInfo;
+        if (!uniforms.empty())
+            basicDraw->setUniforms(oldUniforms);
         basicDraw->setVisibleRange(oldMinVis, oldMaxVis);
         
     } else {
@@ -458,42 +469,69 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         
         // Time for motion
         if (moving)
-            frameInfo.program->setUniform("u_time", (float)(frameInfo.currentTime - startTime));
+            frameInfo.program->setUniform(u_TimeNameID, (float)(frameInfo.currentTime - startTime));
         
         // GL Texture IDs
         bool anyTextures = false;
         std::vector<GLuint> glTexIDs;
-        for (unsigned int ii=0;ii<basicDraw->texInfo.size();ii++)
-        {
-            const BasicDrawable::TexInfo &thisTexInfo = basicDraw->texInfo[ii];
-            GLuint glTexID = EmptyIdentity;
-            if (thisTexInfo.texId != EmptyIdentity)
+        if (texInfo.empty()) {
+            // Just run the ones from the basic drawable
+            for (unsigned int ii=0;ii<basicDraw->texInfo.size();ii++)
             {
-                glTexID = scene->getGLTexture(thisTexInfo.texId);
-                anyTextures = true;
+                const BasicDrawable::TexInfo &thisTexInfo = basicDraw->texInfo[ii];
+                GLuint glTexID = EmptyIdentity;
+                if (thisTexInfo.texId != EmptyIdentity)
+                {
+                    glTexID = scene->getGLTexture(thisTexInfo.texId);
+                    anyTextures = true;
+                }
+                glTexIDs.push_back(glTexID);
             }
-            glTexIDs.push_back(glTexID);
+        } else {
+            // We have our own tex info to set up, but it does depend on the base drawable
+            for (int ii=0;ii<texInfo.size();ii++)
+            {
+                SimpleIdentity texID = texInfo[ii].texId;
+                
+                GLuint glTexID = EmptyIdentity;
+                if (texID != EmptyIdentity)
+                {
+                    glTexID = scene->getGLTexture(texID);
+                    anyTextures = true;
+                }
+                glTexIDs.push_back(glTexID);
+            }
         }
         
         // Model/View/Projection matrix
-        prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
-        prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
-        prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
-        prog->setUniform("u_mvpNormalMatrix", frameInfo.mvpNormalMat);
-        prog->setUniform("u_pMatrix", frameInfo.projMat);
-        
-        // Fade is always mixed in
-        prog->setUniform("u_fade", fade);
-        
-        // Let the shaders know if we even have a texture
-        prog->setUniform("u_hasTexture", anyTextures);
-        
-        // If this is present, the drawable wants to do something based where the viewer is looking
-        prog->setUniform("u_eyeVec", frameInfo.fullEyeVec);
+        if (basicDraw->clipCoords)
+        {
+            Matrix4f identMatrix = Matrix4f::Identity();
+            prog->setUniform(mvpMatrixNameID, identMatrix);
+            prog->setUniform(mvMatrixNameID, identMatrix);
+            prog->setUniform(mvNormalMatrixNameID, identMatrix);
+            prog->setUniform(mvpNormalMatrixNameID, identMatrix);
+            prog->setUniform(u_pMatrixNameID, identMatrix);
+        } else {
+            prog->setUniform(mvpMatrixNameID, frameInfo.mvpMat);
+            prog->setUniform(mvMatrixNameID, frameInfo.viewAndModelMat);
+            prog->setUniform(mvNormalMatrixNameID, frameInfo.viewModelNormalMat);
+            prog->setUniform(mvpNormalMatrixNameID, frameInfo.mvpNormalMat);
+            prog->setUniform(u_pMatrixNameID, frameInfo.projMat);
+        }
         
         // Any uniforms we may want to apply to the shader
         for (auto const &attr : uniforms)
             prog->setUniform(attr);
+
+        // Fade is always mixed in
+        prog->setUniform(u_FadeNameID, fade);
+        
+        // Let the shaders know if we even have a texture
+        prog->setUniform(u_HasTextureNameID, anyTextures);
+        
+        // If this is present, the drawable wants to do something based where the viewer is looking
+        prog->setUniform(u_EyeVecNameID, frameInfo.fullEyeVec);
         
         // The program itself may have some textures to bind
         bool hasTexture[WhirlyKitMaxTextures];
@@ -505,15 +543,35 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
         {
             GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
-            const char *baseMapName = baseMapNames[ii];
-            const OpenGLESUniform *texUni = prog->findUniform(baseMapName);
+            auto baseMapNameID = baseMapNameIDs[ii];
+            auto texScaleNameID = texScaleNameIDs[ii];
+            auto texOffsetNameID = texOffsetNameIDs[ii];
+            const OpenGLESUniform *texUni = prog->findUniform(baseMapNameID);
             hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
             if (hasTexture[ii+progTexBound])
             {
                 [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
                 glBindTexture(GL_TEXTURE_2D, glTexID);
-                CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
-                prog->setUniform(baseMapName, (int)ii+progTexBound);
+                CheckGLError("BasicDrawableInstance::drawVBO2() glBindTexture");
+                prog->setUniform(baseMapNameID, (int)ii+progTexBound);
+                CheckGLError("BasicDrawableInstance::drawVBO2() glUniform1i");
+                
+                float texScale = 1.0;
+                Vector2f texOffset(0.0,0.0);
+                // Adjust for border pixels
+                auto thisTexInfo = texInfo[ii];
+                if (thisTexInfo.borderTexel > 0 && thisTexInfo.size > 0) {
+                    texScale = (thisTexInfo.size - 2 * thisTexInfo.borderTexel) / (double)thisTexInfo.size;
+                    float offset = thisTexInfo.borderTexel / (double)thisTexInfo.size;
+                    texOffset = Vector2f(offset,offset);
+                }
+                // Adjust for a relative texture lookup (using lower zoom levels)
+                if (thisTexInfo.relLevel > 0) {
+                    texScale = texScale/(1<<thisTexInfo.relLevel);
+                    texOffset = Vector2f(texScale*thisTexInfo.relX,texScale*thisTexInfo.relY) + texOffset;
+                }
+                prog->setUniform(texScaleNameID, Vector2f(texScale, texScale));
+                prog->setUniform(texOffsetNameID, texOffset);
                 CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
             }
         }
@@ -523,7 +581,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             setupVAO(prog);
         
         // Figure out what we're using
-        const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
+        const OpenGLESAttribute *vertAttr = prog->findAttribute(a_PositionNameID);
         
         // Vertex array
         bool usedLocalVertices = false;
@@ -537,44 +595,54 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         }
         
         // Other vertex attributes
-        const OpenGLESAttribute *progAttrs[basicDraw->vertexAttributes.size()];
-        for (unsigned int ii=0;ii<basicDraw->vertexAttributes.size();ii++)
-        {
-            VertexAttribute *attr = basicDraw->vertexAttributes[ii];
-            const OpenGLESAttribute *progAttr = prog->findAttribute(attr->name);
-            progAttrs[ii] = NULL;
-            if (progAttr)
+        std::vector<const OpenGLESAttribute *> progAttrs;
+        if (!vertArrayObj) {
+            progAttrs.resize(basicDraw->vertexAttributes.size(),NULL);
+            for (unsigned int ii=0;ii<basicDraw->vertexAttributes.size();ii++)
             {
-                // The data hasn't been downloaded, so hook it up directly here
-                if (attr->buffer == 0)
+                VertexAttribute *attr = basicDraw->vertexAttributes[ii];
+                const OpenGLESAttribute *progAttr = prog->findAttribute(attr->nameID);
+                progAttrs[ii] = NULL;
+                if (progAttr)
                 {
-                    // We have a data array for it, so hand that over
-                    if (attr->numElements() != 0)
+                    // The data hasn't been downloaded, so hook it up directly here
+                    if (attr->buffer == 0)
                     {
-                        glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
-                        CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
-                        glEnableVertexAttribArray ( progAttr->index );
-                        CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
-                        
-                        progAttrs[ii] = progAttr;
-                    } else {
-                        // The program is expecting it, so we need a default
-                        // Note: Could be doing this in the VAO
-                        attr->glSetDefault(progAttr->index);
-                        CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
+                        // We have a data array for it, so hand that over
+                        if (attr->numElements() != 0)
+                        {
+                            glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
+                            CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+                            glEnableVertexAttribArray ( progAttr->index );
+                            CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
+                            
+                            progAttrs[ii] = progAttr;
+                        }
                     }
                 }
             }
+        } else {
+            // Vertex Array Objects can't hold the defaults, so we build them earlier
+            // Note: We should override these that we need to from our own settings
+            for (auto attrDef : vertArrayDefaults) {
+                // The program is expecting it, so we need a default
+                attrDef.attr.glSetDefault(attrDef.progAttrIndex);
+                CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
+            }
         }
         
-        // Let a subclass bind anything additional
-        basicDraw->bindAdditionalRenderObjects(frameInfo,scene);
+        // Note: Something of a hack
+        if (hasColor) {
+            const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID);
+            if (colorAttr)
+                glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
+        }
         
         // If there are no instances, fill in the identity
         if (!instBuffer)
         {
             // Set the singleMatrix attribute to identity
-            const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+            const OpenGLESAttribute *matAttr = prog->findAttribute(a_SingleMatrixNameID);
             if (matAttr)
             {
                 glVertexAttrib4f(matAttr->index,1.0,0.0,0.0,0.0);
@@ -586,7 +654,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         // No direction data, so provide an empty default
         if (!instBuffer || modelDirSize == 0)
         {
-            const OpenGLESAttribute *dirAttr = prog->findAttribute("a_modelDir");
+            const OpenGLESAttribute *dirAttr = prog->findAttribute(a_modelDirNameID);
             if (dirAttr)
                 glVertexAttrib3f(dirAttr->index, 0.0, 0.0, 0.0);
         }
@@ -712,41 +780,38 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         // Tear down the various arrays, if we stood them up
         if (usedLocalVertices)
             glDisableVertexAttribArray(vertAttr->index);
-        for (unsigned int ii=0;ii<basicDraw->vertexAttributes.size();ii++)
+        for (unsigned int ii=0;ii<progAttrs.size();ii++)
             if (progAttrs[ii])
                 glDisableVertexAttribArray(progAttrs[ii]->index);
         
         if (instBuffer)
         {
-            const OpenGLESAttribute *centerAttr = prog->findAttribute("a_modelCenter");
+            const OpenGLESAttribute *centerAttr = prog->findAttribute(a_modelCenterNameID);
             if (centerAttr)
             {
                 glDisableVertexAttribArray(centerAttr->index);
                 CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
             }
-            const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+            const OpenGLESAttribute *matAttr = prog->findAttribute(a_SingleMatrixNameID);
             if (matAttr)
             {
                 for (unsigned int im=0;im<4;im++)
                     glDisableVertexAttribArray(matAttr->index+im);
                 CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
             }
-            const OpenGLESAttribute *colorAttr = prog->findAttribute("a_color");
+            const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID);
             if (colorAttr)
             {
                 glDisableVertexAttribArray(colorAttr->index);
                 CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
             }
-            const OpenGLESAttribute *dirAttr = prog->findAttribute("a_modelDir");
+            const OpenGLESAttribute *dirAttr = prog->findAttribute(a_modelDirNameID);
             if (dirAttr)
             {
                 glDisableVertexAttribArray(dirAttr->index);
                 CheckGLError("BasicDrawableInstance::draw() glDisableVertexAttribArray");
             }
         }
-        
-        // Let a subclass clean up any remaining state
-        basicDraw->postDrawCallback(frameInfo,scene);
     }
 }
     

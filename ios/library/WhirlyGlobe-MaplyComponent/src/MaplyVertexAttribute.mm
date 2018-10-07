@@ -28,7 +28,7 @@ using namespace WhirlyKit;
 {
     self = [super init];
     attr.type = BDFloatType;
-    attr.name = [name cStringUsingEncoding:NSASCIIStringEncoding];
+    attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
     attr.data.floatVal = val;
     
     return self;
@@ -38,7 +38,7 @@ using namespace WhirlyKit;
 {
     self = [super init];
     attr.type = BDFloat2Type;
-    attr.name = [name cStringUsingEncoding:NSASCIIStringEncoding];
+    attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
     attr.data.vec2[0] = x;
     attr.data.vec2[1] = y;
     
@@ -49,7 +49,7 @@ using namespace WhirlyKit;
 {
     self = [super init];
     attr.type = BDFloat3Type;
-    attr.name = [name cStringUsingEncoding:NSASCIIStringEncoding];
+    attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
     attr.data.vec3[0] = x;
     attr.data.vec3[1] = y;
     attr.data.vec3[2] = z;
@@ -61,7 +61,7 @@ using namespace WhirlyKit;
 {
     self = [super init];
     attr.type = BDChar4Type;
-    attr.name = [name cStringUsingEncoding:NSASCIIStringEncoding];
+    attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
     WhirlyKit::RGBAColor rgbaColor = [color asRGBAColor];
     attr.data.color[0] = rgbaColor.r;
     attr.data.color[1] = rgbaColor.g;
@@ -75,7 +75,7 @@ using namespace WhirlyKit;
 {
     self = [super init];
     attr.type = BDIntType;
-    attr.name = [name cStringUsingEncoding:NSASCIIStringEncoding];
+    attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
     attr.data.intVal = val;
     
     return self;

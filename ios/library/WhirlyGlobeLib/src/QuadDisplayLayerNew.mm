@@ -25,6 +25,7 @@ using namespace WhirlyKit;
 @interface WhirlyKitQuadDisplayLayerNew()
 
 - (double)importanceFor:(const QuadTreeNew::Node &)node;
+- (double)visibility:(const QuadTreeNew::Node &)node;
 
 @end
 
@@ -46,12 +47,17 @@ public:
     }
 
 protected:
-    WhirlyKitQuadDisplayLayerNew *dispLayer;
+    WhirlyKitQuadDisplayLayerNew * __weak dispLayer;
     
     // Calculate importance for a given node
     double importance(const Node &node)
     {
         return [dispLayer importanceFor:node];
+    }
+    
+    // Pure visibility check
+    virtual bool visible(const Node &node) {
+        return [dispLayer visibility:node];
     }
 };
 
@@ -62,6 +68,7 @@ protected:
     int minZoom,maxZoom;
     WhirlyKitViewState *viewState;
     QuadTreeNew::ImportantNodeSet currentNodes;
+    std::vector<int> levelsToLoad;
 }
 
 - (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoaderNew> *)loader renderer:(WhirlyKitSceneRendererES *)inRenderer
@@ -77,11 +84,14 @@ protected:
         maxZoom = [_dataStructure maxZoom];
         _maxTiles = 128;
         _minImportance = 1.0;
+        _minImportanceTop = 0.0;
         _viewUpdatePeriod = 0.1;
         Mbr mbr = [_dataStructure totalExtents];
         MbrD mbrD(mbr);
         _quadtree = new DispLayerQuadTree(mbrD,minZoom,maxZoom,self);
         _renderer = (WhirlyKitSceneRendererES2 *)inRenderer;
+        _singleLevel = false;
+        _levelLoads = nil;
         _enable = true;
     }
 
@@ -105,14 +115,34 @@ protected:
         [_layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_viewUpdatePeriod minDist:0.0 maxLagTime:10.0];
     
     [_loader setQuadLayer:self];
+
+    for (NSNumber *num in _levelLoads)
+        levelsToLoad.push_back([num intValue]);
 }
 
 - (void)teardown
 {
+    [_loader quadDisplayLayerShutdown:self];
+    
     [_dataStructure teardown];
     _dataStructure = nil;
 
     _scene = NULL;
+
+    if (_quadtree)
+        delete _quadtree;
+    _quadtree = NULL;
+}
+
+static const float DelayPeriod = 0.1;
+
+// Called after some period to sweep up removes
+- (void)delayCheck
+{
+    if (!viewState)
+        return;
+
+    [self viewUpdate:viewState];
 }
 
 // Called periodically when the user moves, but not too often
@@ -138,11 +168,18 @@ protected:
 
     viewState = inViewState;
 
-    // What should be present
-    auto newNodes = _quadtree->calcCoverage(_minImportance,_maxTiles,true);
-    QuadTreeNew::ImportantNodeSet toAdd;
+    // Nodes to load are different for single level vs regular loading
+    QuadTreeNew::ImportantNodeSet newNodes;
+    if (_singleLevel) {
+        int targetLevel;
+        std::tie(targetLevel,newNodes) = _quadtree->calcCoverageVisible(_minImportance,_minImportanceTop, _maxTiles, levelsToLoad);
+    } else {
+        newNodes = _quadtree->calcCoverageImportance(_minImportance,_minImportanceTop,_maxTiles,true);
+    }
+
+    QuadTreeNew::ImportantNodeSet toAdd,toUpdate;
     QuadTreeNew::NodeSet toRemove;
-    
+
     // Need a version of new and old that has no importance values, since those change
     QuadTreeNew::NodeSet testNewNodes;
     for (auto node : newNodes)
@@ -150,23 +187,36 @@ protected:
     QuadTreeNew::NodeSet testCurrentNodes;
     for (auto node : currentNodes)
         testCurrentNodes.insert(node);
-    
+
     // Nodes to remove
     for (auto node : currentNodes)
         if (testNewNodes.find(node) == testNewNodes.end())
             toRemove.insert(node);
-    
-    // Nodes to add
+
+    // Nodes to add and nodes to update importance for
     for (auto node : newNodes)
         if (testCurrentNodes.find(node) == testCurrentNodes.end())
             toAdd.insert(node);
+        else
+            toUpdate.insert(node);
+    
+    QuadTreeNew::NodeSet removesToKeep;
+    removesToKeep = [_loader quadDisplayLayer:self loadTiles:toAdd unLoadTiles:toRemove updateTiles:toUpdate];
 
-    if (!toRemove.empty())
-        [_loader quadDisplayLayer:self unLoadTiles:toRemove];
-    if (!toAdd.empty())
-        [_loader quadDisplayLayer:self loadTiles:toAdd];
+    // If the load is sitting on unloads, check back with it in a bit
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
+    if (!removesToKeep.empty())
+        [self performSelector:@selector(delayCheck) withObject:nil afterDelay:DelayPeriod];
     
     currentNodes = newNodes;
+    for (auto node : removesToKeep) {
+        currentNodes.insert(QuadTreeNew::ImportantNode(node,0.0));
+    }
+}
+
+- (void)preSceneFlush:(WhirlyKitLayerThread *)layerThread
+{
+    [_loader quadDisplayLayerPreSceneFlush:self];
 }
 
 - (double)importanceFor:(const QuadTreeNew::Node &)node
@@ -176,9 +226,31 @@ protected:
     Point2d ll,ur;
     MbrD mbrD = _quadtree->generateMbrForNode(node);
     Mbr mbr(mbrD);
+    
+    // Is this a valid tile?
+    if (!_mbr.inside(mbr.mid())) {
+        return 0.0;
+    }
 
     // Note: Add back the mutable attributes?
     return [_dataStructure importanceForTile:ident mbr:mbr viewInfo:viewState frameSize:Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight) attrs:nil];
+}
+
+- (double)visibility:(const QuadTreeNew::Node &)node
+{
+    Quadtree::Identifier ident;
+    ident.level = node.level;  ident.x = node.x;  ident.y = node.y;
+    Point2d ll,ur;
+    MbrD mbrD = _quadtree->generateMbrForNode(node);
+    Mbr mbr(mbrD);
+    
+    // Is this a valid tile?
+    if (!_mbr.inside(mbr.mid())) {
+        return 0.0;
+    }
+    
+    // Note: Add back the mutable attributes?
+    return [_dataStructure visibilityForTile:ident mbr:mbr viewInfo:viewState frameSize:Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight) attrs:nil];
 }
 
 @end

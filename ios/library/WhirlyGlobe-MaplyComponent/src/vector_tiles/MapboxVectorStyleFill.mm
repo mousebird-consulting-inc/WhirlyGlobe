@@ -115,7 +115,7 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
     
@@ -138,7 +138,7 @@
         bool include = true;
         if (_paint.opacityFunc)
         {
-            double opacity = [_paint.opacityFunc valueForZoom:tileID.level];
+            double opacity = [_paint.opacityFunc valueForZoom:tileInfo.tileID.level];
             if (opacity > 0.0)
             {
                 UIColor *color = [self.styleSet color:_paint.color withOpacity:opacity];
@@ -165,7 +165,7 @@
         // Note: Does opacity apply here?
         if (_paint.opacityFunc)
         {
-            double opacity = [_paint.opacityFunc valueForZoom:tileID.level];
+            double opacity = [_paint.opacityFunc valueForZoom:tileInfo.tileID.level];
             if (opacity > 0.0)
             {
                 UIColor *color = [self.styleSet color:_paint.outlineColor withOpacity:opacity];

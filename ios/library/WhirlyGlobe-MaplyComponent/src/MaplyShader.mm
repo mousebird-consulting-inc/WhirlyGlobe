@@ -163,7 +163,7 @@ using namespace WhirlyKit;
     OpenGLES2Program *prog = scene->getProgramBySceneName([_name cStringUsingEncoding:NSASCIIStringEncoding]);
     if (prog)
     {
-        prog->setTexture([shaderAttrName cStringUsingEncoding:NSASCIIStringEncoding], (int)glTexId);
+        prog->setTexture(StringIndexer::getStringID([shaderAttrName cStringUsingEncoding:NSASCIIStringEncoding]), (int)glTexId);
     }
     
     texIDs.insert(auxTexId);
@@ -188,7 +188,7 @@ using namespace WhirlyKit;
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
-    bool ret = _program->setUniform(name, val);
+    bool ret = _program->setUniform(StringIndexer::getStringID(name), val);
 
     if (oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
@@ -207,7 +207,7 @@ using namespace WhirlyKit;
     glUseProgram(_program->getProgram());
     
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
-    bool ret = _program->setUniform(name, val, idx);
+    bool ret = _program->setUniform(StringIndexer::getStringID(name), val, idx);
     
     if (oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
@@ -226,7 +226,7 @@ using namespace WhirlyKit;
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
-    bool ret = _program->setUniform(name, val);
+    bool ret = _program->setUniform(StringIndexer::getStringID(name), val);
     
     if (oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
@@ -246,7 +246,7 @@ using namespace WhirlyKit;
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     Point2f val(x,y);
-    bool ret = _program->setUniform(name, val);
+    bool ret = _program->setUniform(StringIndexer::getStringID(name), val);
 
     if (oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
@@ -266,7 +266,7 @@ using namespace WhirlyKit;
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     Point3f val(x,y,z);
-    bool ret = _program->setUniform(name, val);
+    bool ret = _program->setUniform(StringIndexer::getStringID(name), val);
 
     if (oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
@@ -286,7 +286,7 @@ using namespace WhirlyKit;
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     Eigen::Vector4f val;
     val.x() = x;  val.y() = y;  val.z() = z;  val.w() = w;
-    bool ret = _program->setUniform(name, val);
+    bool ret = _program->setUniform(StringIndexer::getStringID(name), val);
 
     if (oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];
@@ -306,7 +306,7 @@ using namespace WhirlyKit;
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     Eigen::Vector4f val;
     val.x() = x;  val.y() = y;  val.z() = z;  val.w() = w;
-    bool ret = _program->setUniform(name, val, which);
+    bool ret = _program->setUniform(StringIndexer::getStringID(name), val, which);
     
     if (oldContext != [EAGLContext currentContext])
         [EAGLContext setCurrentContext:oldContext];

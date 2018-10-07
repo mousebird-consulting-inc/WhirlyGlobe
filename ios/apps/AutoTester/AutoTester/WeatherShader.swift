@@ -10,10 +10,10 @@ import UIKit
 
 class WeatherShader {
 
-	class func setupWeatherShader(_ viewC: MaplyBaseViewController) -> String? {
+	class func setupWeatherShader(_ viewC: MaplyBaseViewController) -> MaplyShader? {
 		let shaderName = "Weather Shader"
 		if viewC.getShaderByName(shaderName) != nil {
-			return shaderName
+			return viewC.getShaderByName(shaderName)
 		}
 
 		let shader = MaplyShader(
@@ -24,7 +24,7 @@ class WeatherShader {
 
 		if (shader != nil) && shader!.valid() {
 			viewC.addShaderProgram(shader!, sceneName: shaderName)
-			return shaderName
+			return shader
 		}
 
 		print("Shader failed to compile: \(shader?.getError() ?? "")\n")
@@ -114,5 +114,5 @@ let fragmentShaderTriMultiTex =
     "  vec4 baseColor0 = texture2D(s_baseMap0, v_texCoord0);" +
     "  vec4 baseColor1 = texture2D(s_baseMap1, v_texCoord1);" +
     // If you're using 32 bit textures here, change these .a's to .r's
-    "  gl_FragColor = v_color * mix(vec4(baseColor0.a,baseColor0.a,baseColor0.a,baseColor0.a),vec4(baseColor1.a,baseColor1.a,baseColor1.a,baseColor1.a),u_interp);" +
+    "  gl_FragColor = v_color * mix(vec4(baseColor0.r,baseColor0.r,baseColor0.r,baseColor0.r),vec4(baseColor1.r,baseColor1.r,baseColor1.r,baseColor1.r),u_interp);" +
 "}"

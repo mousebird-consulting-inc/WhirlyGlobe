@@ -109,19 +109,19 @@
 @property (nonatomic,weak,nullable) MapboxVectorStyleSet *styleSet;
 
 /// @brief ID on the layer style entry
-@property (nonatomic,nullable) NSString *ident;
+@property (nonatomic,nullable,strong) NSString *ident;
 
 /// @brief Source from layer defn
-@property (nonatomic,nullable) NSString *source;
+@property (nonatomic,nullable,strong) NSString *source;
 
 /// @brief Source layer from layer defn
-@property (nonatomic,nullable) NSString *sourceLayer;
+@property (nonatomic,nullable,strong) NSString *sourceLayer;
 
 /// @brief Min/max zoom levels
 @property (nonatomic) int minzoom,maxzoom;
 
 /// @brief Filter this layer uses to match up to data
-@property (nonatomic,nullable) MapboxVectorFilter *filter;
+@property (nonatomic,nullable,strong) MapboxVectorFilter *filter;
 
 /// @brief DrawPriority based on location in the style sheet
 @property (nonatomic) int drawPriority;
@@ -138,9 +138,6 @@
 /// @brief Set if this geometry is additive (e.g. sticks around) rather than replacement
 @property(nonatomic) bool geomAdditive;
 
-/// @brief Construct objects related to this style based on the input data.
-- (NSArray * __nullable)buildObjects:(NSArray * __nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> * __nullable)viewC;
-
 @end
 
 /// @brief Mapbox filter operator types
@@ -156,19 +153,19 @@ typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVecto
 @property (nonatomic) MapboxVectorFilterType filterType;
 
 /// @brief Attribute name for all the types that take two arguments
-@property (nonatomic,nullable) NSString *attrName;
+@property (nonatomic,nullable,strong) NSString *attrName;
 
 /// @brief Set if we're comparing geometry type instead of an attribute
 @property (nonatomic) MapboxVectorGeometryType geomType;
 
 /// @brief Attribute value to compare for all the type that take two arguments
-@property (nonatomic,nullable) id attrVal;
+@property (nonatomic,nullable,strong) id attrVal;
 
 /// @brief Attribute values for the in and !in operators
-@property (nonatomic,nullable) NSArray *attrVals;
+@property (nonatomic,nullable,strong) NSArray *attrVals;
 
 /// @brief For All and Any these are the MapboxVectorFilters to evaluate
-@property (nonatomic,nullable) NSArray *subFilters;
+@property (nonatomic,nullable,strong) NSArray *subFilters;
 
 /// @brief Parse the filter info out of the style entry
 - (id _Nullable)initWithArray:(NSArray * __nonnull)styleEntry styleSet:(MapboxVectorStyleSet * __nonnull)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
@@ -188,7 +185,7 @@ typedef enum {MBGeomPoint,MBGeomLineString,MBGeomPolygon,MBGeomNone} MapboxVecto
 @property (nonatomic) double val;
 
 /// @brief Could also just be a color
-@property (nonatomic,nullable) UIColor *color;
+@property (nonatomic,nullable,strong) UIColor *color;
 
 @end
 

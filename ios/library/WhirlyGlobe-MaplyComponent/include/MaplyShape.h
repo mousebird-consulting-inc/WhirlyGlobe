@@ -212,7 +212,7 @@ typedef MaplyShapeCylinder WGShapeCylinder;
 @property (nonatomic,assign) MaplyCoordinate3dD ur;
 
 /// If set, the textures to stretch across the rectangle.
-@property (nonatomic,nullable) NSMutableArray *textures;
+@property (nonatomic,nullable,strong) NSMutableArray *textures;
 
 /// Add a texture to stretch across the rectangle
 - (void)addTexture:(MaplyTexture * __nonnull)texture;

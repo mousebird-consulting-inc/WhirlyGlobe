@@ -32,9 +32,9 @@
 
 @property (nonatomic) double opacity;
 @property (nonatomic) double opacityBase;
-@property (nonatomic) MaplyVectorFunctionStops *opacityFunc;
-@property (nonatomic) UIColor *color;
-@property (nonatomic) UIColor *outlineColor;
+@property (nonatomic,strong) MaplyVectorFunctionStops *opacityFunc;
+@property (nonatomic,strong) UIColor *color;
+@property (nonatomic,strong) UIColor *outlineColor;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
@@ -43,11 +43,9 @@
 /// @brief The fill (e.g. fill polygon) style
 @interface MapboxVectorLayerFill : MaplyMapboxVectorStyleLayer
 
-@property (nonatomic) MapboxVectorFillLayout *layout;
-@property (nonatomic) MapboxVectorFillPaint *paint;
+@property (nonatomic,strong) MapboxVectorFillLayout *layout;
+@property (nonatomic,strong) MapboxVectorFillPaint *paint;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
-
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end
