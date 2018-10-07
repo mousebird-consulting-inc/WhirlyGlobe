@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DDXML.h"
 #import "SLDExpressions.h"
 
 /** @brief Base class for elements of ogc:comparisonOps or ogc:logicOps.

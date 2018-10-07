@@ -7,7 +7,7 @@
 //
 
 #import "SLDOperators.h"
-
+#import "DDXML.h"
 
 @implementation SLDOperator
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {

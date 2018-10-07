@@ -22,8 +22,6 @@
 #import "MaplyBaseInteractionLayer_private.h"
 #import "NSData+Zlib.h"
 #import "NSDictionary+StyleRules.h"
-#import "DDXMLElementAdditions.h"
-#import "NSString+DDXML.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
