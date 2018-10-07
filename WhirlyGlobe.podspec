@@ -55,7 +55,7 @@ Pod::Spec.new do |s|
   s.subspec 'MaplyComponent' do |mc|
     mc.source_files = 'ios/library/WhirlyGlobeLib/src/*.{mm,m}', 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp}'
     mc.public_header_files = 'ios/library/WhirlyGlobe-MaplyComponent/include/*.h', "ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/*.h", # "WhirlyGlobeSrc/WhirlyGlobe-MaplyComponent/include/private/*.h"
-    mc.public_header_files.exclude_files = 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/vector_tile.pb.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/MaplyBridge.h'
+    mc.private_header_files = 'ios/library/WhirlyGlobeLib/include/*.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/vector_tile.pb.h', 'ios/library/WhirlyGlobe-MaplyComponent/include/MaplyBridge.h'
     mc.dependency 'WhirlyGlobe/locallibs'
     mc.dependency 'WhirlyGlobe/glues'
     mc.dependency 'SMCalloutView'
