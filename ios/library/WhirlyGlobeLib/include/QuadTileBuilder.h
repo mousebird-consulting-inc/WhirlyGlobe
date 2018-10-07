@@ -23,6 +23,24 @@
 
 @class WhirlyKitQuadTileBuilder;
 
+namespace WhirlyKit
+{
+    
+/**
+    Tile Builder Delegate Info
+ 
+    This is passed to a Tile Builder Delegate when changes are being made in the Tile Builder;
+  */
+class TileBuilderDelegateInfo {
+public:
+    LoadedTileVec loadTiles;
+    QuadTreeNew::NodeSet unloadTiles;
+    LoadedTileVec enableTiles,disableTiles;
+    QuadTreeNew::ImportantNodeSet changeTiles;
+};
+    
+}
+
 /// Protocol used by the tile builder to notify an interested party about what's
 ///  loaded.  If, for example, you want to attach textures to things.
 @protocol WhirlyKitQuadTileBuilderDelegate<NSObject>
@@ -30,17 +48,22 @@
 /// Called when the builder first starts up.  Keep this around if you need it.
 - (void)setQuadBuilder:(WhirlyKitQuadTileBuilder * __nonnull)builder layer:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer;
 
+/// Before we tell the delegate to unload tiles, see if they want to keep them around
+/// Returns the tiles we want to preserve after all
+- (WhirlyKit::QuadTreeNew::NodeSet)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder
+   loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles
+    unloadTilesToCheck:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles;
+
 /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder loadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder
+             update:(const WhirlyKit::TileBuilderDelegateInfo &)updates
+            changes:(WhirlyKit::ChangeSet &)changes;
 
-/// The given tiles should be enabled
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder enableTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
+/// Called right before the layer thread flushes all its current changes
+- (void)quadBuilderPreSceneFlush:(WhirlyKitQuadTileBuilder *__nonnull )builder;
 
-/// The given tiles should be disabled
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder disableTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
-
-/// Unload the given tiles.
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder unLoadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes;
+/// Shutdown called on the layer thread if you stuff to clean up
+- (void)quadBuilderShutdown:(WhirlyKitQuadTileBuilder *__nonnull )builder;
 
 @end
 
@@ -64,6 +87,9 @@
 // Offset between levels for a calculated draw priority
 @property (nonatomic) int drawPriorityPerLevel;
 
+// Set if we're using single level loading logic
+@property (nonatomic) bool singleLevel;
+
 // If set, we'll print too much information
 @property (nonatomic) bool debugMode;
 
@@ -74,5 +100,8 @@
 
 // Return a tile, if there is one
 - (WhirlyKit::LoadedTileNewRef)getLoadedTile:(WhirlyKit::QuadTreeNew::Node)ident;
+
+// Return all the tiles that should be loaded
+- (WhirlyKit::TileBuilderDelegateInfo)getLoadingState;
 
 @end

@@ -68,7 +68,7 @@
 @property (nonatomic) float wideVecCuttoff;
 
 /// If set, this is the shader we'll use on the areal features.
-@property (nonatomic) NSString * _Nullable arealShaderName;
+@property (nonatomic,strong) NSString * _Nullable arealShaderName;
 
 /// If set, we'll make the areal features selectable.  If not, this saves memory.
 @property (nonatomic) bool selectable;
@@ -108,6 +108,22 @@
 
 @end
 
+/**
+    Vector Tile Info
+ 
+    Information about a single vector tile being parsed.  This is passe dinto the buildObjects:
+    method of a MaplyVectorStyle
+  */
+@interface MaplyVectorTileInfo : NSObject
+
+/// Tile ID for this tile
+@property (nonatomic) MaplyTileID tileID;
+
+/// Bounding box in geographic
+@property (nonatomic,assign) MaplyBoundingBoxD geoBBox;
+
+@end
+
 /** 
     Base protocol for the vector styles.
     
@@ -119,11 +135,14 @@
 /// Unique Identifier for this style
 - (NSString * _Nonnull) uuid;
 
+/// Category used for sorting
+- (NSString * _Nullable) getCategory;
+
 /// Set if this geometry is additive (e.g. sticks around) rather than replacement
 - (bool) geomAdditive;
 
 /// Construct objects related to this style based on the input data.
-- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC;
+- (NSArray * __nullable )buildObjects:(NSArray * _Nonnull)vecObjs forTile:(MaplyVectorTileInfo * __nonnull)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC;
 
 @end
 

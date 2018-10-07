@@ -43,6 +43,7 @@ using namespace WhirlyKit;
     geomSettings.topSampleX = 30;
     geomSettings.topSampleY = 40;
     geomSettings.enableGeom = false;
+    geomSettings.singleLevel = false;
 
     return self;
 }
@@ -72,6 +73,11 @@ using namespace WhirlyKit;
     geomSettings.drawPriorityPerLevel = drawPriorityPerLevel;
 }
 
+- (void)setSingleLevel:(bool)singleLevel
+{
+    geomSettings.singleLevel = singleLevel;
+}
+
 - (bool)edgeMatching
 {
     return geomManage.buildSkirts;
@@ -93,24 +99,43 @@ using namespace WhirlyKit;
     [_delegate setQuadBuilder:self layer:layer];
 }
 
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const QuadTreeNew::ImportantNodeSet &)tiles
+- (WhirlyKit::QuadTreeNew::NodeSet)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles
 {
     ChangeSet changes;
     
-    // Have the geometry manager add the tiles and deal with changes
-    auto tileChanges = geomManage.addTiles(tiles, changes);
+    TileBuilderDelegateInfo info;
+    info.unloadTiles = unloadTiles;
+    info.changeTiles = updateTiles;
+
+    QuadTreeNew::NodeSet toKeep;
+    if (!unloadTiles.empty()) {
+        toKeep = [_delegate quadBuilder:self loadTiles:loadTiles unloadTilesToCheck:unloadTiles];
+        // Remove the keep nodes and add them to update with very little importance
+        for (const QuadTreeNew::Node &node: toKeep) {
+            info.unloadTiles.erase(node);
+            info.changeTiles.insert(QuadTreeNew::ImportantNode(node,0.0));
+        }
+    }
     
-    // Tell the delegate to start loading those tiles
-    [_delegate quadBuilder:self loadTiles:tileChanges.addedTiles changes:changes];
-    
-    // Enable/disable any tiles as a result
-    [_delegate quadBuilder:self enableTiles:tileChanges.enabledTiles changes:changes];
-    [_delegate quadBuilder:self disableTiles:tileChanges.disabledTiles changes:changes];
+    // Have the geometry manager add/remove the tiles and deal with changes
+    auto tileChanges = geomManage.addRemoveTiles(loadTiles,info.unloadTiles,changes);
+
+    // Tell the delegate what we're up to
+    info.loadTiles = tileChanges.addedTiles;
+    info.enableTiles = tileChanges.enabledTiles;
+    info.disableTiles = tileChanges.disabledTiles;
+    [_delegate quadBuilder:self update:info changes:changes];
     
     if (_debugMode)
     {
         NSLog(@"----- Tiles to add ------");
-        for (auto tile : tiles)
+        for (auto tile : loadTiles)
+            NSLog(@"  %d: (%d,%d)",tile.level,tile.x,tile.y);
+        NSLog(@"----- Tiles to remove ------");
+        for (auto tile : unloadTiles)
+            NSLog(@"  %d: (%d,%d)",tile.level,tile.x,tile.y);
+        NSLog(@"----- Tiles that changed importance ------");
+        for (auto tile : updateTiles)
             NSLog(@"  %d: (%d,%d)",tile.level,tile.x,tile.y);
         NSLog(@"----- Nodes to enable ------");
         for (auto tile : tileChanges.enabledTiles)
@@ -118,43 +143,45 @@ using namespace WhirlyKit;
         NSLog(@"----- Nodes to disable ------");
         for (auto tile : tileChanges.disabledTiles)
             NSLog(@"  %d: (%d,%d)",tile->ident.level,tile->ident.x,tile->ident.y);
+        NSLog(@"----- Tiles to keep -----");
+        for (auto tile : toKeep)
+            NSLog(@"  %d: (%d,%d)",tile.level,tile.x,tile.y);
         NSLog(@"----- ------------- ------");
     }
-
+    
     // Flush out any visual changes
     [layer.layerThread addChangeRequests:changes];
+    
+    return toKeep;
 }
 
-- (void)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer unLoadTiles:(const QuadTreeNew::NodeSet &)tiles
+- (void)quadDisplayLayerPreSceneFlush:(WhirlyKitQuadDisplayLayerNew *)layer
+{
+    [_delegate quadBuilderPreSceneFlush:self];
+}
+
+- (void)quadDisplayLayerShutdown:(WhirlyKitQuadDisplayLayerNew * _Nonnull)layer
 {
     ChangeSet changes;
-
-    // Remove the old tiles
-    auto oldTiles = geomManage.getTiles(tiles);
-    [_delegate quadBuilder:self unLoadTiles:oldTiles changes:changes];
-    auto tileChanges = geomManage.removeTiles(tiles, changes);
     
-    // Enable/disable any tiles as a result
-    [_delegate quadBuilder:self enableTiles:tileChanges.enabledTiles changes:changes];
-    [_delegate quadBuilder:self disableTiles:tileChanges.disabledTiles changes:changes];
-    
-    if (_debugMode)
-    {
-        NSLog(@"----- Tiles to remove ------");
-        for (auto tile : tiles)
-            NSLog(@"  %d: (%d,%d)",tile.level,tile.x,tile.y);
-        NSLog(@"----- Nodes to enable ------");
-        for (auto tile : tileChanges.enabledTiles)
-            NSLog(@"  %d: (%d,%d)",tile->ident.level,tile->ident.x,tile->ident.y);
-        NSLog(@"----- Nodes to disable ------");
-        for (auto tile : tileChanges.disabledTiles)
-            NSLog(@"  %d: (%d,%d)",tile->ident.level,tile->ident.x,tile->ident.y);
-        NSLog(@"----- ------------- ------");
-        NSLog(@"Tiles currently loaded %lu",geomManage.tileMap.size());
-    }
+    geomManage.cleanup(changes);
+    [_delegate quadBuilderShutdown:self];
 
     [layer.layerThread addChangeRequests:changes];
+    
+    layer = nil;
+    _coordSys = nil;
+    _delegate = nil;
+}
 
+
+- (TileBuilderDelegateInfo)getLoadingState
+{
+    TileBuilderDelegateInfo info;
+    
+    info.loadTiles = geomManage.getAllTiles();
+    
+    return info;
 }
 
 @end

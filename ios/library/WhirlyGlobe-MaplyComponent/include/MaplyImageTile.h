@@ -46,6 +46,21 @@
  */
 - (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height;
 
+/**
+ Initialize with an NSData object containing 32 bit pixels.
+ 
+ This sets up the tile with an NSData object containing raw pixels.  The pixels are 32 bit RGBA even if you're targeting a smaller pixel format.
+ 
+ @param data The NSData object containing 32 bit RGBA pixels.
+ 
+ @param width The width of the raw image contained in the data object.
+ 
+ @param height The height of the raw image contained in the data object.
+ 
+ @param comp The number of components (1, 2 or 4)
+ */
+- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height components:(int)comp;
+
 /** 
     Initialize with an array of NSData objects containing 32 bit pixels.
     

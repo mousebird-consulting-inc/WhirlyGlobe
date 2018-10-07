@@ -38,18 +38,48 @@ using namespace WhirlyKit;
     _edgeMatching = true;
     _tessX = 10;
     _tessY = 10;
-    
+    _singleLevel = false;
+    _minImportance = 256*256;
+    _minImportanceTop = 0.0;
+    _levelLoads = nil;
+    _hasClipBounds = false;
+
     return self;
+}
+
+- (bool)isClipEqualTo:(MaplySamplingParams *__nonnull)other
+{
+    if (_hasClipBounds != other.hasClipBounds)
+        return false;
+    
+    MaplyBoundingBoxD otherClipBounds = other.clipBounds;
+    if (_clipBounds.ll.x != otherClipBounds.ll.x ||
+        _clipBounds.ll.y != otherClipBounds.ll.y ||
+        _clipBounds.ur.x != otherClipBounds.ur.x ||
+        _clipBounds.ur.y != otherClipBounds.ur.y)
+        return false;
+    
+    return true;
 }
 
 - (bool)isEqualTo:(MaplySamplingParams *__nonnull)other
 {
     if (_minZoom != other.minZoom || _maxZoom != other.maxZoom ||
         _coverPoles != other.coverPoles || _edgeMatching != other.edgeMatching ||
-        _tessX != other.tessX || _tessY != other.tessY)
+        _tessX != other.tessX || _tessY != other.tessY ||
+        _minImportance != other.minImportance ||
+        _minImportanceTop != other.minImportanceTop ||
+        _singleLevel != other.singleLevel ||
+        ![self isClipEqualTo:other])
         return false;
     
     return _coordSys->coordSystem->isSameAs(other.coordSys->coordSystem);
+}
+
+- (void)setClipBounds:(MaplyBoundingBoxD)clipBounds
+{
+    _hasClipBounds = true;
+    _clipBounds = clipBounds;
 }
 
 @end
@@ -65,45 +95,67 @@ using namespace WhirlyKit;
     WhirlyKitQuadTileBuilder *builder;
     WhirlyKitSceneRendererES * __weak renderer;
     std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> builderDelegates;
+    double importance;
+    bool builderStarted;
+    bool valid;
 }
 
 - (nullable instancetype)initWithParams:(MaplySamplingParams * __nonnull)params
 {
     self = [super init];
     _params = params;
+    _debugMode = false;
+    builderStarted = false;
+    valid = true;
     
     return self;
 }
 
+- (void)setMinImportance:(double)inImportance
+{
+    importance = inImportance;
+}
+
 - (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)inRenderer viewC:(MaplyBaseViewController *)inViewC
 {
+    if (!valid)
+        return false;
+    
     viewC = inViewC;
     super.layerThread = inLayerThread;
     scene = inScene;
     renderer = inRenderer;
-    
+
     builder = [[WhirlyKitQuadTileBuilder alloc] initWithCoordSys:[_params.coordSys getCoordSystem]];
     builder.coverPoles = _params.coverPoles;
     builder.edgeMatching = _params.edgeMatching;
     builder.baseDrawPriority = 0;
     builder.drawPriorityPerLevel = 0;
+    builder.singleLevel = _params.singleLevel;
     builder.delegate = self;
     quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithDataSource:self loader:builder renderer:renderer];
-    // Note: Should get this from the loaders
-    quadLayer.minImportance = 256*256;
+    quadLayer.singleLevel = _params.singleLevel;
+    quadLayer.levelLoads = _params.levelLoads;
+    quadLayer.minImportanceTop = _params.minImportanceTop;
+    quadLayer.minImportance = _params.minImportance;
     [super.layerThread addLayer:quadLayer];
-    
+
     return true;
 }
 
-- (int)getNumClients
+- (int)numClients
 {
     return builderDelegates.size();
 }
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
-    [inLayerThread removeLayer:quadLayer];
+    valid = false;
+    if (quadLayer)
+        [inLayerThread removeLayer:quadLayer];
+    builder = nil;
+    quadLayer = nil;
+    builderDelegates.clear();
 }
 
 - (WhirlyKit::CoordSystem *)coordSystem
@@ -122,7 +174,15 @@ using namespace WhirlyKit;
 
 - (WhirlyKit::Mbr)validExtents
 {
-    return [self totalExtents];
+    if (_params.hasClipBounds) {
+        MaplyCoordinateD ll,ur;
+        ll = _params.clipBounds.ll;
+        ur = _params.clipBounds.ur;
+        
+        Mbr mbr(Point2f(ll.x,ll.y),Point2f(ur.x,ur.y));
+        return mbr;
+    } else
+        return [self totalExtents];
 }
 
 - (int)minZoom
@@ -141,12 +201,22 @@ using namespace WhirlyKit;
 
 - (double)importanceForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
-    if (ident.level == 0)
+    // World spanning level 0 nodes sometimes have problems evaluating
+    if (_params.minImportanceTop == 0.0 && ident.level == 0)
         return MAXFLOAT;
     
     double import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [_params.coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
     
     return import;
+}
+
+/// Return true if the tile is visible, false otherwise
+- (bool)visibilityForTile:(WhirlyKit::Quadtree::Identifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+{
+    if (ident.level == 0)
+        return true;
+    
+    return TileIsOnScreen(viewState, frameSize,  [_params.coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
 }
 
 - (void)teardown
@@ -157,10 +227,33 @@ using namespace WhirlyKit;
 // Add a new builder delegate to watch tile related events
 - (void)addBuilderDelegate:(NSObject<WhirlyKitQuadTileBuilderDelegate> * __nonnull)delegate
 {
+    bool notifyDelegate = false;
+
     @synchronized(self)
     {
         builderDelegates.push_back(delegate);
+        notifyDelegate = builderStarted;
     }
+    
+    if (notifyDelegate) {
+        // Let the caller finish its setup and then do the notification on the layer thread
+        // Otherwise this can happen before they're ready
+        dispatch_async(dispatch_get_main_queue(),
+                       ^{
+                           [self performSelector:@selector(notifyDelegateStartup:) onThread:self->quadLayer.layerThread withObject:delegate waitUntilDone:NO];
+                       });
+    }
+}
+
+- (void)notifyDelegateStartup:(NSObject<WhirlyKitQuadTileBuilderDelegate> * __nonnull)delegate
+{
+    [delegate setQuadBuilder:builder layer:quadLayer];
+    
+    // Pretend we just loaded everything (to the delegate)
+    WhirlyKit::ChangeSet changes;
+    WhirlyKit::TileBuilderDelegateInfo updates = [builder getLoadingState];
+    [delegate quadBuilder:builder update:updates changes:changes];
+    [quadLayer.layerThread addChangeRequests:changes];
 }
 
 // Remove the given builder delegate that was watching tile related events
@@ -178,6 +271,8 @@ using namespace WhirlyKit;
 
 - (void)setQuadBuilder:(WhirlyKitQuadTileBuilder * __nonnull)builder layer:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer
 {
+    builderStarted = true;
+    
     std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> delegates;
     @synchronized(self)
     {
@@ -189,59 +284,57 @@ using namespace WhirlyKit;
     }
 }
 
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder loadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes
+- (WhirlyKit::QuadTreeNew::NodeSet)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder
+            loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles
+            unloadTilesToCheck:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles
+{
+    QuadTreeNew::NodeSet toKeep;
+    for (auto delegate : builderDelegates) {
+        auto thisToKeep = [delegate quadBuilder:builder loadTiles:loadTiles unloadTilesToCheck:unloadTiles];
+        toKeep.insert(thisToKeep.begin(),thisToKeep.end());
+    }
+    
+    return toKeep;
+}
+
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *)builder update:(const WhirlyKit::TileBuilderDelegateInfo &)updates changes:(WhirlyKit::ChangeSet &)changes
 {
     std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> delegates;
     @synchronized(self) {
         delegates = builderDelegates;
     }
-    
+
     // Disable the tiles.  The delegates will instance them.
-    for (auto tile : tiles) {
+    for (auto tile : updates.loadTiles) {
         for (auto di : tile->drawInfo) {
             changes.push_back(new OnOffChangeRequest(di.drawID,false));
         }
     }
 
     for (auto delegate : delegates) {
-        [delegate quadBuilder:builder loadTiles:tiles changes:changes];
+        [delegate quadBuilder:builder update:updates changes:changes];
+    }
+    
+    if (_debugMode) {
+        NSLog(@"SamplingLayer quadBuilder:update changes = %d",(int)changes.size());
     }
 }
 
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder enableTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes
+- (void)quadBuilderPreSceneFlush:(WhirlyKitQuadTileBuilder *)builder
 {
     std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> delegates;
     @synchronized(self) {
         delegates = builderDelegates;
     }
-
+    
     for (auto delegate : delegates) {
-        [delegate quadBuilder:builder enableTiles:tiles changes:changes];
+        [delegate quadBuilderPreSceneFlush:builder];
     }
 }
 
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder disableTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes
+- (void)quadBuilderShutdown:(WhirlyKitQuadTileBuilder * _Nonnull)builder
 {
-    std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> delegates;
-    @synchronized(self) {
-        delegates = builderDelegates;
-    }
-
-    for (auto delegate : delegates) {
-        [delegate quadBuilder:builder disableTiles:tiles changes:changes];
-    }
-}
-
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull)builder unLoadTiles:(const std::vector<WhirlyKit::LoadedTileNewRef> &)tiles changes:(WhirlyKit::ChangeSet &)changes
-{
-    std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> delegates;
-    @synchronized(self) {
-        delegates = builderDelegates;
-    }
-
-    for (auto delegate : delegates) {
-        [delegate quadBuilder:builder unLoadTiles:tiles changes:changes];
-    }
+    builder = nil;
 }
 
 @end

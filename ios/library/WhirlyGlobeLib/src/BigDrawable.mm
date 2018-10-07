@@ -195,15 +195,13 @@ void BigDrawable::setOnOff(bool onOff)
     enable = onOff;
 }
     
-// Putting there here rather than running sprintf is a lot faster.  Really.  Oy.
-static const char *baseMapNames[WhirlyKitMaxTextures] = {"s_baseMap0","s_baseMap1","s_baseMap2","s_baseMap3","s_baseMap4","s_baseMap5","s_baseMap6","s_baseMap7"};
-
-    
 // Used to pass in buffer offsets
 #define CALCBUFOFF(base,off) ((char *)(base) + (off))
 
 void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
+    SetupDrawableStrings();
+    
     if (frameInfo.oglVersion < kEAGLRenderingAPIOpenGLES2)
         return;
     
@@ -260,12 +258,12 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         return;
 
     // Model/View/Projection matrix
-    prog->setUniform("u_mvpMatrix", frameInfo.mvpMat);
-    prog->setUniform("u_mvMatrix", frameInfo.viewAndModelMat);
-    prog->setUniform("u_mvNormalMatrix", frameInfo.viewModelNormalMat);
+    prog->setUniform(mvpMatrixNameID, frameInfo.mvpMat);
+    prog->setUniform(mvMatrixNameID, frameInfo.viewAndModelMat);
+    prog->setUniform(mvNormalMatrixNameID, frameInfo.viewModelNormalMat);
     
     // Fill the a_singleMatrix attribute with default values
-    const OpenGLESAttribute *matAttr = prog->findAttribute("a_singleMatrix");
+    const OpenGLESAttribute *matAttr = prog->findAttribute(a_SingleMatrixNameID);
     if (matAttr)
     {
         glVertexAttrib4f(matAttr->index,1.0,0.0,0.0,0.0);
@@ -275,10 +273,10 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     }
     
     // Fade is always mixed in
-    prog->setUniform("u_fade", theFade);
+    prog->setUniform(u_FadeNameID, theFade);
     
     // Let the shaders know if we even have a texture
-    prog->setUniform("u_hasTexture", anyTextures);
+    prog->setUniform(u_HasTextureNameID, anyTextures);
 
     // The program itself may have some textures to bind
     bool hasTexture[WhirlyKitMaxTextures];
@@ -290,21 +288,21 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
     {
         GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
-        const char *baseMapName = baseMapNames[ii];
-        const OpenGLESUniform *texUni = prog->findUniform(baseMapName);
+        auto baseMapNameID = baseMapNameIDs[ii];
+        const OpenGLESUniform *texUni = prog->findUniform(baseMapNameID);
         hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
         if (hasTexture[ii+progTexBound])
         {
             [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
             glBindTexture(GL_TEXTURE_2D, glTexID);
             CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
-            prog->setUniform(baseMapName, (int)ii+progTexBound);
+            prog->setUniform(baseMapNameID, (int)ii+progTexBound);
             CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
         }
     }
 
     // Figure out what we're using
-    const OpenGLESAttribute *vertAttr = prog->findAttribute("a_position");
+    const OpenGLESAttribute *vertAttr = prog->findAttribute(a_PositionNameID);
         
     // Set up a VAO for this buffer, if there isn't one
     if (theBuffer.vertexArrayObj == 0)
@@ -330,7 +328,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         {
             progAttrs[ii] = NULL;
             VertexAttribute &attr = vertexAttributes[ii];
-            const OpenGLESAttribute *progAttr = prog->findAttribute(attr.name);
+            const OpenGLESAttribute *progAttr = prog->findAttribute(attr.nameID);
             // The program is looking for this one, so we need to set up something
             if (progAttr)
             {
@@ -367,7 +365,7 @@ void BigDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
     {
         VertexAttribute &attr = vertexAttributes[ii];
-        const OpenGLESAttribute *progAttr = prog->findAttribute(attr.name);
+        const OpenGLESAttribute *progAttr = prog->findAttribute(attr.nameID);
         if (progAttr && attr.buffer == 0)
             attr.glSetDefault(progAttr->index);
     }

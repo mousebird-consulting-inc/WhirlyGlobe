@@ -36,7 +36,7 @@
 - (__nonnull id)initWithNumPoints:(int)numPoints;
 
 /// Transform to apply to the point locations.  A center is good.
-@property (nonatomic) MaplyMatrix * __nullable transform;
+@property (nonatomic,strong) MaplyMatrix * __nullable transform;
 
 /// Add a geocoordinate in lon/lat and Z (meters).
 - (void)addGeoCoordLon:(float)x lat:(float)y z:(float)z;

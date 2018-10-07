@@ -1,9 +1,9 @@
 /*
- *  MaplyTileFetcher_private.h
+ *  MaplyVariableTarget_private.h
  *  WhirlyGlobe-MaplyComponent
  *
- *  Created by Steve Gifford on 6/15/18.
- *  Copyright 2011-2018 Saildrone Inc
+ *  Created by Steve Gifford on 9/18/18.
+ *  Copyright 2011-2018 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,8 +18,11 @@
  *
  */
 
-#import "MaplyTileFetcher.h"
+#import "MaplyVariableTarget.h"
 
-@interface MaplyTileFetcher()
+@interface MaplyVariableTarget()
+
+@property (nonatomic,assign) MaplyVariableType type;
+@property (nonatomic,strong) MaplyTexture *renderTex;
 
 @end

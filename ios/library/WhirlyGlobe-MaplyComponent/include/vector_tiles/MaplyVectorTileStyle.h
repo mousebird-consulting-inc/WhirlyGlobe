@@ -44,9 +44,6 @@
 /// Turn the min/maxscaledenom into height ranges for minVis/maxVis
 - (void)resolveVisibility:(NSDictionary *)styleEntry settings:(MaplyVectorStyleSettings *)settings desc:(NSMutableDictionary *)desc;
 
-/// Construct objects related to this style based on the input data.
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
-
 /// parse a mapnik style template string
 - (NSString*)formatText:(NSString*)formatString forObject:(MaplyVectorObject*)vec;
 

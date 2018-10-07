@@ -63,6 +63,8 @@ public:
     // If set, we'll enable/disable geometry associated with tiles.
     // Otherwise we'll just always leave it off, assuming someone else is instancing it
     bool enableGeom;
+    // If set, we're building single level geometry, so no parent logic
+    bool singleLevel;
 };
 
 class TileGeomManager;
@@ -128,7 +130,7 @@ public:
     };
     
     // Add the tiles list in the node set
-    NodeChanges addTiles(const QuadTreeNew::ImportantNodeSet &tiles,ChangeSet &changes);
+    NodeChanges addRemoveTiles(const QuadTreeNew::ImportantNodeSet &addTiles,const QuadTreeNew::NodeSet &removeTiles,ChangeSet &changes);
     
     // Return a list of tiles corresponding to the IDs
     std::vector<LoadedTileNewRef> getTiles(const QuadTreeNew::NodeSet &tiles);
@@ -136,11 +138,17 @@ public:
     // Return a single node
     LoadedTileNewRef getTile(QuadTreeNew::Node &ident);
     
+    // Return all the nodes we have geometry for
+    LoadedTileVec getAllTiles();
+    
     // Remove the tiles given, if they're being represented
     NodeChanges removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
     
     // Turn tiles on/off based on their childen
     void updateParents(ChangeSet &changes,LoadedTileVec &enabledNodes,LoadedTileVec &disabledNodes);
+    
+    // Remove all the various geometry
+    void cleanup(ChangeSet &changes);
     
     TileGeomSettings settings;
     

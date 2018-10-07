@@ -35,7 +35,7 @@
 #import "SMCalloutView.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyRenderController_private.h"
-#import "MaplyTileFetcher.h"
+#import "MaplyRemoteTileFetcher.h"
 
 @interface MaplyBaseViewController() <SMCalloutViewDelegate>
 {
@@ -78,6 +78,9 @@
     
     /// When an annotation comes up we may want to reposition the view.  This works poorly in some cases.
     bool allowRepositionForAnnnotations;
+    
+    /// Number of simultaneous tile fetcher connections (per tile fetcher)
+    int tileFetcherConnections;
   
     /// 3dtouch preview context, so we can remove it.
     id <UIViewControllerPreviewing> previewingContext;
@@ -89,7 +92,7 @@
     std::vector<MaplyQuadSamplingLayer *> samplingLayers;
     
     /// Shared tile fetcher used by default for loaders
-    MaplyTileFetcher *sharedTileFetcher;
+    std::vector<MaplyRemoteTileFetcher *> tileFetchers;
 }
 
 /// This is called by the subclasses.  Don't call it yourself.
@@ -130,8 +133,5 @@
 
 /// The given user object is done with the given sampling layer.  So we may shut it down.
 - (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(NSObject *)userObj;
-
-/// Return the tile fetcher we shared between loaders
-- (MaplyTileFetcher *)getSharedTileFetcher;
 
 @end

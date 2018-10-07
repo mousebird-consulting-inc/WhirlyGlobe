@@ -42,6 +42,6 @@
 @property (nonatomic) int maxZoom;
 
 /// The data source for elevation data
-@property (nonatomic,nullable) id<MaplyElevationSourceDelegate> elevSource;
+@property (nonatomic,nullable,strong) id<MaplyElevationSourceDelegate> elevSource;
 
 @end

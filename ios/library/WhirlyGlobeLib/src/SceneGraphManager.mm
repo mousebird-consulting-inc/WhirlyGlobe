@@ -25,6 +25,73 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
+    
+void SceneGraphGeometry::traverseNodeDrawables(SceneGraphManager *manage,const Point3f &localPt,const std::set<SceneGraphNode *> &siblingNodes,SimpleIDSet &toDraw)
+{
+    // Add it to the drawables
+    // Note: Need to replace the isOn check
+    toDraw.insert(drawIDs.begin(), drawIDs.end());
+}
+
+void SceneGraphGeometry::traverseRemNodeIDs(SceneGraphManager *manage,SceneGraphNodeSet &allNodes,ChangeSet &changes)
+{
+    for (auto drawID: drawIDs)
+        manage->removeDrawable(drawID,changes);
+}
+    
+void SceneGraphGroup::traverseNodeDrawables(SceneGraphManager *manage,const Point3f &localPt,const std::set<SceneGraphNode *> &siblingNodes,SimpleIDSet &toDraw)
+{
+    for (auto node : nodes)
+        node->traverseNodeDrawables(manage, localPt, nodes, toDraw);
+}
+
+void SceneGraphGroup::traverseAddNodeIDs(SceneGraphManager *manage,SceneGraphNodeSet &allNodes)
+{
+    allNodes.insert(this);
+    for (auto node : nodes)
+        node->traverseAddNodeIDs(manage, allNodes);
+}
+
+void SceneGraphGroup::traverseRemNodeIDs(SceneGraphManager *manage,SceneGraphNodeSet &allNodes,ChangeSet &changes)
+{
+    allNodes.erase(this);
+    for (auto node : nodes)
+        node->traverseRemNodeIDs(manage, allNodes, changes);
+}
+    
+void SceneGraphLOD::traverseNodeDrawables(SceneGraphManager *manage,const Point3f &localPt,const std::set<SceneGraphNode *> &siblingNodes,SimpleIDSet &toDraw)
+{
+    bool doTraverse = false;
+    
+    // Basic LOD test
+    float dist = (localPt-center).norm();
+    if (switchOut < dist && dist < switchIn)
+        doTraverse = true;
+    else
+        doTraverse = false;
+    
+    // If we're missing children, don't traverse
+    if (nodes.size() < numExpectedChildren)
+        doTraverse = false;
+    else {
+        // Only nodes with pageable children are marked with expectedChildren
+        if (numExpectedChildren == 0 && dist < switchOut)
+        {
+            // If a sibling node is missing children, lock this LOD on
+            for (std::set<SceneGraphNode *>::iterator siblingIt = siblingNodes.begin();
+                 siblingIt != siblingNodes.end(); ++siblingIt)
+            {
+                SceneGraphLOD *siblingLod = dynamic_cast<SceneGraphLOD *>(*siblingIt);
+                if (siblingLod && siblingLod != this &&
+                    (siblingLod->nodes.size() < siblingLod->numExpectedChildren))
+                    doTraverse = true;
+            }
+        }
+    }
+    
+    if (doTraverse)
+        SceneGraphGroup::traverseNodeDrawables(manage, localPt, nodes, toDraw);
+}
 
 SceneGraphManager::SceneGraphManager(DynamicDrawableAtlas *drawAtlas) : drawAtlas(drawAtlas)
 {
@@ -33,8 +100,8 @@ SceneGraphManager::SceneGraphManager(DynamicDrawableAtlas *drawAtlas) : drawAtla
 SceneGraphManager::~SceneGraphManager()
 {
     drawAtlas = NULL;
-    for (NodeSet::iterator it = topNodes.begin(); it != topNodes.end(); ++it)
-        delete *it;
+    for (auto node : topNodes)
+        delete node;
     topNodes.clear();
     allNodes.clear();
     for (std::set<BasicDrawable *,IdentifiableSorter>::iterator it = drawables.begin();
@@ -42,96 +109,7 @@ SceneGraphManager::~SceneGraphManager()
         delete *it;
     drawables.clear();
 }
-    
-void SceneGraphManager::traverseNode(Point3f localPt,SceneGraphNode *node,std::set<SceneGraphNode *> &siblingNodes,SimpleIDSet &toDraw)
-{
-    SceneGraphGeometry *geom = dynamic_cast<SceneGraphGeometry *>(node);
-    if (geom)
-    {
-        // Add it to the drawables
-        // Note: Need to replace the isOn check
-        toDraw.insert(geom->drawIDs.begin(), geom->drawIDs.end());
-    } else {
-        SceneGraphGroup *group = dynamic_cast<SceneGraphGroup *>(node);
-        if (group)
-        {
-            bool doTraverse = true;
-            SceneGraphLOD *lod = dynamic_cast<SceneGraphLOD *>(node);
-            if (lod)
-            {
-                // Basic LOD test
-                float dist = (localPt-lod->center).norm();
-                if (lod->switchOut < dist && dist < lod->switchIn)
-                    doTraverse = true;
-                else
-                    doTraverse = false;
-                
-                // If we're missing children, don't traverse
-                if (lod->nodes.size() < lod->numExpectedChildren)
-                    doTraverse = false;
-                else {
-                    // Only nodes with pageable children are marked with expectedChildren
-                    if (lod->numExpectedChildren == 0 && dist < lod->switchOut)
-                    {
-                        // If a sibling node is missing children, lock this LOD on
-                        for (std::set<SceneGraphNode *>::iterator siblingIt = siblingNodes.begin();
-                             siblingIt != siblingNodes.end(); ++siblingIt)                            
-                        {
-                            SceneGraphLOD *siblingLod = dynamic_cast<SceneGraphLOD *>(*siblingIt);
-                            if (siblingLod && siblingLod != lod &&
-                                (siblingLod->nodes.size() < siblingLod->numExpectedChildren))
-                                doTraverse = true;
-                        }
-                    }
-                }
-            }
-            
-            // Traverse the children
-            if (doTraverse)
-            {
-                for (std::set<SceneGraphNode *>::iterator it = group->nodes.begin();
-                     it != group->nodes.end(); ++it)
-                    traverseNode(localPt, *it, group->nodes, toDraw);
-            }
-        }
-    }
-}
-    
-void SceneGraphManager::traverseAddNodeIDs(SceneGraphNode *node)
-{
-    SceneGraphGroup *group = dynamic_cast<SceneGraphGroup *>(node);
-    
-    if (group)
-    {
-        allNodes.insert(group);
-        for (std::set<SceneGraphNode *>::iterator it = group->nodes.begin();
-                it != group->nodes.end(); ++it)
-            traverseAddNodeIDs(*it);
-    }
-}
-    
-void SceneGraphManager::traverseRemNodeIDs(SceneGraphNode *node,ChangeSet &changes)
-{
-    SceneGraphGroup *group = dynamic_cast<SceneGraphGroup *>(node);
-    
-    if (group)
-    {
-        allNodes.erase(group);
-        for (std::set<SceneGraphNode *>::iterator it = group->nodes.begin();
-             it != group->nodes.end(); ++it)
-            traverseRemNodeIDs(*it,changes);
-        
-    } else {
-        // If this is a geometry node, get rid of the drawables too
-        SceneGraphGeometry *geom = dynamic_cast<SceneGraphGeometry *>(node);
-        if (geom)
-        {
-            for (SimpleIDSet::iterator it = geom->drawIDs.begin(); it != geom->drawIDs.end(); ++it)
-                removeDrawable(*it,changes);
-        }
-    }
-}
-    
+
 Drawable *SceneGraphManager::getDrawable(SimpleIdentity drawID)
 {
     if (drawAtlas)
@@ -186,10 +164,10 @@ void SceneGraphManager::update(WhirlyKitViewState *viewState,ChangeSet &changes)
     SimpleIDSet shouldBeOn;
     
     // Traverse the various top level nodes, gathering drawables that should be on
-    for (NodeSet::iterator it = topNodes.begin(); it != topNodes.end(); ++it)
+    for (auto topNode : topNodes)
     {
         std::set<SceneGraphNode *> emptySet;
-        traverseNode(localPt,*it,emptySet,shouldBeOn);
+        topNode->traverseNodeDrawables(this,localPt,emptySet,shouldBeOn);
     }
         
     // Figure out which ones to remove
@@ -237,7 +215,7 @@ void SceneGraphManager::attachSceneFragment(SimpleIdentity attachID,SceneGraphNo
     if (attachID != EmptyIdentity)
     {
         SceneGraphGroup groupRep(attachID);
-        NodeSet::iterator it = allNodes.find(&groupRep);
+        SceneGraphNodeSet::iterator it = allNodes.find(&groupRep);
         // Find where it's supposed to go
         if (it != allNodes.end())
         {
@@ -255,20 +233,20 @@ void SceneGraphManager::attachSceneFragment(SimpleIdentity attachID,SceneGraphNo
     }
 
     // Index all the various IDs (for future attach points)
-    traverseAddNodeIDs(node);
+    node->traverseAddNodeIDs(this, allNodes);
 }
     
 void SceneGraphManager::removeSceneFragment(SimpleIdentity nodeID,ChangeSet &changes)
 {
     SceneGraphGroup top(nodeID);
-    NodeSet::iterator it = allNodes.find(&top);
+    SceneGraphNodeSet::iterator it = allNodes.find(&top);
     if (it != allNodes.end())
     {
         SceneGraphGroup *group = *it;
         if (group->parent)
             group->parent->removeChild(group);
         
-        traverseRemNodeIDs(group,changes);
+        group->traverseRemNodeIDs(this,allNodes,changes);
         topNodes.erase(group);
         delete group;
     }

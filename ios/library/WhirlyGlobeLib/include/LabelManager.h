@@ -81,9 +81,8 @@ static const unsigned int LabelTextureAtlasSizeDefault = 512;
 @property (nonatomic,assign) CGSize iconSize;
 /// If set, this moves the label if displayed in screen (2D) mode
 @property (nonatomic,assign) CGSize screenOffset;
-
-/// Generates a string we can use for indexing.  Note: Don't use this yourself.
-- (std::string)keyString;
+/// If non-null, used to identify a set of labels of which only one should be displayed
+@property (nonatomic,assign) std::string uniqueID;
 
 /// This is used to sort out width and height from the defaults.  Pass
 ///  in the value of one and zero for the other and it will fill in the
