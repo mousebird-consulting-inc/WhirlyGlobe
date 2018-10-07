@@ -18,7 +18,7 @@
  *
  */
 
-#import "WhirlyGlobeComponent.h"
+#import "WhirlyGlobeViewController.h"
 #import "MaplyVectorTilePolygonStyle.h"
 
 // Filled polygons styles
