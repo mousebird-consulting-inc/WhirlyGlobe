@@ -514,9 +514,14 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
     for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
     {
         const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID);
-        if (thisAttr) {
+        if (thisAttr)
             glDisableVertexAttribArray(thisAttr->index);
-        }
+    }
+    for (SingleVertexAttributeInfo &varyInfo : varyAttrs)
+    {
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(varyInfo.nameID);
+        if (thisAttr)
+            glDisableVertexAttribArray(thisAttr->index);
     }
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -621,6 +626,12 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
         if (thisAttr) {
             glDisableVertexAttribArray(thisAttr->index);
         }
+    }
+    for (SingleVertexAttributeInfo &varyInfo : varyAttrs)
+    {
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(varyInfo.nameID);
+        if (thisAttr)
+            glDisableVertexAttribArray(thisAttr->index);
     }
 }
     

@@ -234,6 +234,11 @@ using namespace Eigen;
     if (!shader)
         return;
     
+    if (!shader.program) {
+        NSLog(@"Shader %@ didn't compile.  Not adding to scene.",shader.name);
+        return;
+    }
+    
     if (!shaders)
         shaders = [NSMutableArray array];
     
