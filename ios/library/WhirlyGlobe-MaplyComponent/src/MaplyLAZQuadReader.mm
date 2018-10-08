@@ -21,8 +21,8 @@
 #import "laszip_api.h"
 #import "WhirlyGlobe.h"
 #import "MaplyLAZMeshBuilder.h"
-#import "private/WhirlyGlobeViewController_private.h"
-#import "private/MaplyCoordinateSystem_private.h"
+#import "WhirlyGlobeViewController_private.h"
+#import "MaplyCoordinateSystem_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

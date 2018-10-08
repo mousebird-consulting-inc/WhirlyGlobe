@@ -7,6 +7,7 @@
 //
 
 #import "SLDExpressions.h"
+#import "DDXML.h"
 
 @implementation SLDExpression
 + (BOOL)matchesElementNamed:(NSString * _Nonnull)elementName {
