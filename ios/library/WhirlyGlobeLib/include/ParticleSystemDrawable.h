@@ -143,6 +143,11 @@ public:
     SimpleIdentity getRenderTarget() { return renderTargetID; }
 
 protected:
+    class VaryBufferPair {
+    public:
+        GLuint buffers[2];
+    };
+    
     bool enable;
     int numTotalPoints,batchSize;
     int vertexSize;
@@ -156,7 +161,8 @@ protected:
     bool requestZBuffer,writeZBuffer;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     GLuint pointBuffer,rectBuffer;
-    std::vector<GLuint> varyBuffers;
+    int activeVaryBuffer;  // 0 or 1
+    std::vector<VaryBufferPair> varyBuffers;
     std::vector<SimpleIdentity> texIDs;
     bool useRectangles,useInstancing;
     NSTimeInterval baseTime;
@@ -170,6 +176,7 @@ protected:
     typedef struct
     {
         int bufferStart;
+        int vertexStart;
         int numVertices;
     } BufferChunk;
     

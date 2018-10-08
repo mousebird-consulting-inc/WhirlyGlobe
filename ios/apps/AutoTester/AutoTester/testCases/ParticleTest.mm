@@ -125,15 +125,13 @@ varying float va_startTime;
 
 void main()
 {
-//    vec3 thePos = normalize(a_position + (u_time-a_startTime)*a_dir);
     // Nudge it forward for 1/30th of a second
     // Doing this to test the saving
     vec3 thePos;
-    if (a_savedStartTime != a_startTime)
+    if (a_savedStartTime < a_startTime)
         thePos = a_position;
     else
-        thePos = normalize(a_position + (u_time-a_startTime)*a_dir);
-//        thePos = normalize(a_savedPosition + 1.0/30.0*a_dir);
+        thePos = normalize(a_savedPosition + 1.0/30.0*a_dir);
 
     va_startTime = a_startTime;
     va_position = thePos;
