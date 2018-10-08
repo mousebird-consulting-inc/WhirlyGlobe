@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DDXML.h"
+@class DDXMLNode;
+@class DDXMLElement;
 
 /** @brief Base class for elements derived from the ogc:expression abstract element.
  @see http://schemas.opengis.net/filter/1.1.0/expr.xsd for SLD v1.1.0

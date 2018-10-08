@@ -22,8 +22,6 @@
 #import "MaplyBaseInteractionLayer_private.h"
 #import "NSData+Zlib.h"
 #import "NSDictionary+StyleRules.h"
-#import "DDXMLElementAdditions.h"
-#import "NSString+DDXML.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -119,25 +117,8 @@ using namespace Eigen;
     theClearColor = nil;
 }
 
-- (void)weirdSelectorSetup
-{
-    // Need this logic here to pull in the categories
-    static bool dummyInit = false;
-    if (!dummyInit)
-    {
-        NSDataDummyFunc();
-        NSDictionaryStyleDummyFunc();
-        DDXMLElementDummyFunc();
-        DDXMLDummyFunc();
-        
-        dummyInit = true;
-    }
-}
-
 - (void)loadSetup
-{
-    [self weirdSelectorSetup];
-    
+{    
     screenDrawPriorityOffset = 1000000;
     
     // Set up the OpenGL ES renderer

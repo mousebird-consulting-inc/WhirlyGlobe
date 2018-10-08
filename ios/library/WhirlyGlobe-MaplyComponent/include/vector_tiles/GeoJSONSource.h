@@ -6,8 +6,8 @@
 //  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import "MaplyComponent.h"
+#import <UIKit/UIKit.h>
+#import "MaplyBaseViewController.h"
 
 #define GEOJSON_MAX_POINTS 4096
 

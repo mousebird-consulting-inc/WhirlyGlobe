@@ -596,6 +596,7 @@
 		2B884A771E3803170027C397 /* laszipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A3F1E3803170027C397 /* laszipper.cpp */; };
 		2B884A781E3803170027C397 /* laszipper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A401E3803170027C397 /* laszipper.hpp */; };
 		2B884A791E3803170027C397 /* mydefs.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A411E3803170027C397 /* mydefs.hpp */; };
+		2B8BD17A216A72C400078602 /* MaplyLAZMeshBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8BD179216A72C400078602 /* MaplyLAZMeshBuilder.h */; };
 		2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */; };
 		2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */; };
 		2B8E608F20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */; };
@@ -966,7 +967,6 @@
 		2BE53A0B1D249C2900B60FAD /* message.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE539DF1D249C2900B60FAD /* message.h */; };
 		2BE53A0C1D249C2900B60FAD /* message_lite.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE539E01D249C2900B60FAD /* message_lite.cc */; };
 		2BE53A0D1D249C2900B60FAD /* message_lite.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE539E11D249C2900B60FAD /* message_lite.h */; };
-		2BE53A0E1D249C2900B60FAD /* package_info.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE539E21D249C2900B60FAD /* package_info.h */; };
 		2BE53A0F1D249C2900B60FAD /* reflection_ops.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE539E31D249C2900B60FAD /* reflection_ops.cc */; };
 		2BE53A101D249C2900B60FAD /* reflection_ops.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE539E41D249C2900B60FAD /* reflection_ops.h */; };
 		2BE53A111D249C2900B60FAD /* repeated_field.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE539E51D249C2900B60FAD /* repeated_field.cc */; };
@@ -989,7 +989,6 @@
 		2BE53A361D249C3D00B60FAD /* coded_stream_inl.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53A241D249C3D00B60FAD /* coded_stream_inl.h */; };
 		2BE53A371D249C3D00B60FAD /* gzip_stream.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53A251D249C3D00B60FAD /* gzip_stream.cc */; };
 		2BE53A381D249C3D00B60FAD /* gzip_stream.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53A261D249C3D00B60FAD /* gzip_stream.h */; };
-		2BE53A391D249C3D00B60FAD /* package_info.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53A271D249C3D00B60FAD /* package_info.h */; };
 		2BE53A3A1D249C3D00B60FAD /* printer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53A281D249C3D00B60FAD /* printer.cc */; };
 		2BE53A3B1D249C3D00B60FAD /* printer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53A291D249C3D00B60FAD /* printer.h */; };
 		2BE53A3C1D249C3D00B60FAD /* tokenizer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53A2A1D249C3D00B60FAD /* tokenizer.cc */; };
@@ -1672,6 +1671,7 @@
 		2B884A3F1E3803170027C397 /* laszipper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = laszipper.cpp; path = ../../../common/local_libs/laszip/src/laszipper.cpp; sourceTree = "<group>"; };
 		2B884A401E3803170027C397 /* laszipper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = laszipper.hpp; path = ../../../common/local_libs/laszip/src/laszipper.hpp; sourceTree = "<group>"; };
 		2B884A411E3803170027C397 /* mydefs.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = mydefs.hpp; path = ../../../common/local_libs/laszip/src/mydefs.hpp; sourceTree = "<group>"; };
+		2B8BD179216A72C400078602 /* MaplyLAZMeshBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyLAZMeshBuilder.h; path = private/MaplyLAZMeshBuilder.h; sourceTree = "<group>"; };
 		2B8E608820D458A500FB96F0 /* MaplyQuadSampler_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadSampler_private.h; sourceTree = "<group>"; };
 		2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRemoteTileFetcher.h; sourceTree = "<group>"; };
 		2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRemoteTileFetcher.mm; sourceTree = "<group>"; };
@@ -2045,7 +2045,6 @@
 		2BE539DF1D249C2900B60FAD /* message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = message.h; sourceTree = "<group>"; };
 		2BE539E01D249C2900B60FAD /* message_lite.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = message_lite.cc; sourceTree = "<group>"; };
 		2BE539E11D249C2900B60FAD /* message_lite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = message_lite.h; sourceTree = "<group>"; };
-		2BE539E21D249C2900B60FAD /* package_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = package_info.h; sourceTree = "<group>"; };
 		2BE539E31D249C2900B60FAD /* reflection_ops.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = reflection_ops.cc; sourceTree = "<group>"; };
 		2BE539E41D249C2900B60FAD /* reflection_ops.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = reflection_ops.h; sourceTree = "<group>"; };
 		2BE539E51D249C2900B60FAD /* repeated_field.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = repeated_field.cc; sourceTree = "<group>"; };
@@ -2068,7 +2067,6 @@
 		2BE53A241D249C3D00B60FAD /* coded_stream_inl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = coded_stream_inl.h; path = io/coded_stream_inl.h; sourceTree = "<group>"; };
 		2BE53A251D249C3D00B60FAD /* gzip_stream.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gzip_stream.cc; path = io/gzip_stream.cc; sourceTree = "<group>"; };
 		2BE53A261D249C3D00B60FAD /* gzip_stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gzip_stream.h; path = io/gzip_stream.h; sourceTree = "<group>"; };
-		2BE53A271D249C3D00B60FAD /* package_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = package_info.h; path = io/package_info.h; sourceTree = "<group>"; };
 		2BE53A281D249C3D00B60FAD /* printer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = printer.cc; path = io/printer.cc; sourceTree = "<group>"; };
 		2BE53A291D249C3D00B60FAD /* printer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = printer.h; path = io/printer.h; sourceTree = "<group>"; };
 		2BE53A2A1D249C3D00B60FAD /* tokenizer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tokenizer.cc; path = io/tokenizer.cc; sourceTree = "<group>"; };
@@ -3238,6 +3236,7 @@
 		2BE537191D249A1200B60FAD /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B8BD179216A72C400078602 /* MaplyLAZMeshBuilder.h */,
 				2B40DBA5214B10B800EF77DC /* MaplyQuadImageFrameLoader.h */,
 				2B40DBA1214AE21F00EF77DC /* MaplyMBTileFetcher.h */,
 				2B40DB9D214ACBFC00EF77DC /* MaplyTileSourceNew.h */,
@@ -3702,7 +3701,6 @@
 				2BE539DF1D249C2900B60FAD /* message.h */,
 				2BE539E01D249C2900B60FAD /* message_lite.cc */,
 				2BE539E11D249C2900B60FAD /* message_lite.h */,
-				2BE539E21D249C2900B60FAD /* package_info.h */,
 				2BE539E31D249C2900B60FAD /* reflection_ops.cc */,
 				2BE539E41D249C2900B60FAD /* reflection_ops.h */,
 				2BE539E51D249C2900B60FAD /* repeated_field.cc */,
@@ -3733,7 +3731,6 @@
 				2BE53A241D249C3D00B60FAD /* coded_stream_inl.h */,
 				2BE53A251D249C3D00B60FAD /* gzip_stream.cc */,
 				2BE53A261D249C3D00B60FAD /* gzip_stream.h */,
-				2BE53A271D249C3D00B60FAD /* package_info.h */,
 				2BE53A281D249C3D00B60FAD /* printer.cc */,
 				2BE53A291D249C3D00B60FAD /* printer.h */,
 				2BE53A2A1D249C3D00B60FAD /* tokenizer.cc */,
@@ -3891,7 +3888,6 @@
 				2B82B6F21E82E24A0095FB14 /* BasicDrawableInstance.h in Headers */,
 				2BE5386F1D249A1200B60FAD /* vector_tile.pb.h in Headers */,
 				2B82B6DA1E82E24A0095FB14 /* NSDictionary+Stuff.h in Headers */,
-				2BE53A391D249C3D00B60FAD /* package_info.h in Headers */,
 				2B82B6141E82E2490095FB14 /* JSONSharedString.h in Headers */,
 				2BE538311D249A1200B60FAD /* MaplyViewControllerLayer.h in Headers */,
 				2BE53A861D249C8300B60FAD /* NSString+DDXML.h in Headers */,
@@ -4081,7 +4077,6 @@
 				2B82B5E71E82E2490095FB14 /* memalloc.h in Headers */,
 				2B82B5EF1E82E2490095FB14 /* priorityq.h in Headers */,
 				2BE5397A1D249BEF00B60FAD /* AAPhysicalMoon.h in Headers */,
-				2BE53A0E1D249C2900B60FAD /* package_info.h in Headers */,
 				2BE5380D1D249A1200B60FAD /* MaplyIconManager.h in Headers */,
 				2B40DBA2214AE21F00EF77DC /* MaplyMBTileFetcher.h in Headers */,
 				2BE53A6C1D249C4600B60FAD /* atomicops_internals_x86_gcc.h in Headers */,
@@ -4288,6 +4283,7 @@
 				2B884A501E3803170027C397 /* bytestreamout_nil.hpp in Headers */,
 				2B82B6D71E82E24A0095FB14 /* Proj4CoordSystem.h in Headers */,
 				2B82B7341E82E24A0095FB14 /* GlobeLayerViewWatcher.h in Headers */,
+				2B8BD17A216A72C400078602 /* MaplyLAZMeshBuilder.h in Headers */,
 				2BE5394F1D249BEF00B60FAD /* AA2DCoordinate.h in Headers */,
 				2BE539531D249BEF00B60FAD /* AABinaryStar.h in Headers */,
 				2B82B5FB1E82E2490095FB14 /* mempool.h in Headers */,
@@ -5158,7 +5154,6 @@
 					"DEBUG=1",
 					"$(inherited)",
 					"HAVE_PTHREAD=1",
-					"NOTPODSPECWG=1",
 					"UNORDERED=1",
 					"LASZIPDLL_EXPORTS=1",
 					__IPHONEOS__,
@@ -5211,7 +5206,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"HAVE_PTHREAD=1",
-					"NOTPODSPECWG=1",
 					"UNORDERED=1",
 					"LASZIPDLL_EXPORTS=1",
 					__USE_SDL_GLES__,

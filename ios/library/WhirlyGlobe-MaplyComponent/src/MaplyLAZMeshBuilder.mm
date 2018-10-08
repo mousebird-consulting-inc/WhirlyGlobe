@@ -6,10 +6,10 @@
 //  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
-#include "MaplyLAZMeshBuilder.h"
-#include <private/MaplyCoordinateSystem_private.h>
-#include <private/MaplyRenderController_private.h>
-#include <private/MaplyBaseViewController_private.h>
+#import "MaplyLAZMeshBuilder.h"
+#import <MaplyCoordinateSystem_private.h>
+#import <MaplyRenderController_private.h>
+#import <MaplyBaseViewController_private.h>
 
 using namespace WhirlyKit;
 
