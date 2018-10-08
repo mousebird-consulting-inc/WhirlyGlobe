@@ -179,7 +179,7 @@ protected:
     void drawSetupTextures(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int &progTexBound);
     void drawTeardownTextures(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int progTexBound);
     void drawSetupUniforms(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog);
-    void drawBindAttrs(EAGLContext *context,WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int pointsSoFar);
+    void drawBindAttrs(EAGLContext *context,WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int pointsSoFar,bool useInstancingHere);
     
     // Chunks we use for rendering
     pthread_mutex_t batchLock;
