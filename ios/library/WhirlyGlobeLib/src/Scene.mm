@@ -592,6 +592,11 @@ void Scene::addProgram(OpenGLES2Program *prog)
 
 void Scene::addProgram(const std::string &sceneName,OpenGLES2Program *prog)
 {
+    if (!prog) {
+        NSLog(@"Tried to all NULL program to scene.  Ignoring.");
+        return;
+    }
+    
     pthread_mutex_lock(&programLock);
 
     if (glPrograms.find(prog) == glPrograms.end())

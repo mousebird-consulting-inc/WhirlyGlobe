@@ -654,30 +654,44 @@ static const float ScreenOverlap = 0.1;
         // Run any calculation shaders
         // These should be independent of screen space, so we only run them once and ignore offsets.
         if (!calcPassDone) {
-            glEnable(GL_RASTERIZER_DISCARD);
-            
-            for (unsigned int ii=0;ii<drawList.size();ii++) {
-                DrawableContainer &drawContain = drawList[ii];
-                SimpleIdentity calcProgID = drawContain.drawable->getCalculationProgram();
-                
-                // Figure out the program to use for drawing
-                if (calcProgID == EmptyIdentity)
-                    continue;
-                OpenGLES2Program *program = scene->getProgram(calcProgID);
-                if (program)
-                {
-                    glUseProgram(program->getProgram());
-                    baseFrameInfo.program = program;
+            // But do we have any
+            bool haveCalcShader = false;
+            for (unsigned int ii=0;ii<drawList.size();ii++)
+                if (drawList[ii].drawable->getCalculationProgram() != EmptyIdentity) {
+                    haveCalcShader = true;
+                    break;
                 }
 
-                // Tweakers probably not necessary, but who knows
-                drawContain.drawable->runTweakers(baseFrameInfo);
+            if (haveCalcShader) {
+                // Have to set an active framebuffer for our empty fragment shaders to write to
+                renderTargets[0].setActiveFramebuffer(self);
                 
-                // Run the calculation phase
-                drawContain.drawable->calculate(baseFrameInfo,scene);
-            }
+                glEnable(GL_RASTERIZER_DISCARD);
+                
+                for (unsigned int ii=0;ii<drawList.size();ii++) {
+                    DrawableContainer &drawContain = drawList[ii];
+                    SimpleIdentity calcProgID = drawContain.drawable->getCalculationProgram();
+                    
+                    // Figure out the program to use for drawing
+                    if (calcProgID == EmptyIdentity)
+                        continue;
+                    OpenGLES2Program *program = scene->getProgram(calcProgID);
+                    if (program)
+                    {
+                        glUseProgram(program->getProgram());
+                        baseFrameInfo.program = program;
+                    }
 
-            glDisable(GL_RASTERIZER_DISCARD);
+                    // Tweakers probably not necessary, but who knows
+                    drawContain.drawable->runTweakers(baseFrameInfo);
+                    
+                    // Run the calculation phase
+                    drawContain.drawable->calculate(baseFrameInfo,scene);
+                }
+
+                glDisable(GL_RASTERIZER_DISCARD);
+            }
+            
             calcPassDone = true;
         }
         
