@@ -125,13 +125,14 @@ varying float va_startTime;
 
 void main()
 {
-    vec3 thePos = normalize(a_position + (u_time-a_startTime)*a_dir);
+//    vec3 thePos = normalize(a_position + (u_time-a_startTime)*a_dir);
     // Nudge it forward for 1/30th of a second
     // Doing this to test the saving
-//    vec3 thePos;
-//    if (a_savedStartTime < a_startTime)
-//        thePos = a_position;
-//    else
+    vec3 thePos;
+    if (a_savedStartTime != a_startTime)
+        thePos = a_position;
+    else
+        thePos = normalize(a_position + (u_time-a_startTime)*a_dir);
 //        thePos = normalize(a_savedPosition + 1.0/30.0*a_dir);
 
     va_startTime = a_startTime;
@@ -159,7 +160,6 @@ uniform float u_time;
 
 attribute vec3 a_savedPosition;
 attribute vec4 a_color;
-attribute float a_startTime;
 
 varying vec4 v_color;
 
@@ -231,8 +231,8 @@ void main()
     
     // Position calculation shader
     MaplyShader *posShader = [[MaplyShader alloc] initWithViewC:viewC];
-    [posShader addVarying:@"va_startTime"];
     [posShader addVarying:@"va_position"];
+    [posShader addVarying:@"va_startTime"];
     [posShader delayedSetupWithName:@"Particle Wind Test Pos"
                              vertex:[NSString stringWithFormat:@"%s",vertexPositionShader]
                            fragment:[NSString stringWithFormat:@"%s",fragmentPositionShader]];
@@ -250,12 +250,13 @@ void main()
     partSys.type = MaplyParticleSystemTypePoint;
     partSys.positionShader = posShader;
     partSys.renderShader = renderShader;
+    partSys.continuousUpdate = true;
     [partSys addAttribute:@"a_position" type:MaplyShaderAttrTypeFloat3];
     [partSys addAttribute:@"a_dir" type:MaplyShaderAttrTypeFloat3];
     [partSys addAttribute:@"a_color" type:MaplyShaderAttrTypeFloat4];
     [partSys addAttribute:@"a_startTime" type:MaplyShaderAttrTypeFloat];
-    [partSys addVarying:@"va_startTime" inputName:@"a_savedStartTime" type:MaplyShaderAttrTypeFloat];
     [partSys addVarying:@"va_position" inputName:@"a_savedPosition" type:MaplyShaderAttrTypeFloat3];
+    [partSys addVarying:@"va_startTime" inputName:@"a_savedStartTime" type:MaplyShaderAttrTypeFloat];
 
     // Used to keep track of the tiles for fast lookup
     tileTrack = [[MaplyQuadTracker alloc] initWithViewC:(WhirlyGlobeViewController *)inViewC];

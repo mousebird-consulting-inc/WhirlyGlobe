@@ -394,7 +394,7 @@ void ParticleSystemDrawable::drawSetupUniforms(WhirlyKitRendererFrameInfo *frame
     prog->setUniform(u_pixDispSizeNameID, pixDispSize);
 }
     
-void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int pointsSoFar)
+void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int pointsSoFar,bool useInstancingHere)
 {
     glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
     
@@ -408,14 +408,16 @@ void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendere
         if (thisAttr)
         {
             glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)(attrOffset+chunk.bufferStart));
-            int divisor = 0;
             
-            if (useInstancing)
-                divisor = 1;
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
-                glVertexAttribDivisorEXT(thisAttr->index, divisor);
-            else
-                glVertexAttribDivisor(thisAttr->index, divisor);
+            if (useInstancingHere) {
+                int divisor = 0;
+                if (useInstancing)
+                    divisor = 1;
+                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                    glVertexAttribDivisorEXT(thisAttr->index, divisor);
+                else
+                    glVertexAttribDivisor(thisAttr->index, divisor);
+            }
             glEnableVertexAttribArray(thisAttr->index);
         }
         
@@ -433,14 +435,16 @@ void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendere
         {
             GLuint size = varyInfo.size();
             glVertexAttribPointer(thisAttr->index, varyInfo.glEntryComponents(), varyInfo.glType(), varyInfo.glNormalize(), varyInfo.size(), (const GLvoid *)(long)(size*pointsSoFar));
-            int divisor = 0;
             
-            if (useInstancing)
-                divisor = 1;
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
-                glVertexAttribDivisorEXT(thisAttr->index, divisor);
-            else
-                glVertexAttribDivisor(thisAttr->index, divisor);
+            if (useInstancingHere) {
+                int divisor = 0;
+                if (useInstancing)
+                    divisor = 1;
+                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                    glVertexAttribDivisorEXT(thisAttr->index, divisor);
+                else
+                    glVertexAttribDivisor(thisAttr->index, divisor);
+            }
             glEnableVertexAttribArray(thisAttr->index);
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -473,7 +477,7 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
     int pointsSoFar = 0;
     for (const BufferChunk &chunk : chunks)
     {
-        drawBindAttrs(context,frameInfo,scene,prog,chunk,pointsSoFar);
+        drawBindAttrs(context,frameInfo,scene,prog,chunk,pointsSoFar,false);
         
         // Now bind the varying outputs to their buffers
         int varyIdx = 0;
@@ -566,7 +570,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     int pointsSoFar = 0;
     for (const BufferChunk &chunk : chunks)
     {
-        drawBindAttrs(context,frameInfo,scene,prog,chunk,pointsSoFar);
+        drawBindAttrs(context,frameInfo,scene,prog,chunk,pointsSoFar,true);
 
         if (rectBuffer)
         {
