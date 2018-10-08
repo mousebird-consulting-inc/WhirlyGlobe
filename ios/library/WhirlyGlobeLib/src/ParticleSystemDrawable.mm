@@ -33,7 +33,7 @@ ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name,
                                                const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
                                                const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
                                                int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)
-    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), calculateProgramId(0), renderProgramId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startb(0), endb(0), chunksDirty(true), usingContinuousRender(true), renderTargetID(EmptyIdentity), lastUpdateTime(0.0)
+    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), calculateProgramId(0), renderProgramId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startb(0), endb(0), chunksDirty(true), usingContinuousRender(true), renderTargetID(EmptyIdentity), lastUpdateTime(0.0), activeVaryBuffer(0)
 {
     pthread_mutex_init(&batchLock, NULL);
     
@@ -102,24 +102,28 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
     // If we have varyings we need buffers to hold them
     for (auto varyAttr : varyAttrs) {
         GLuint totalSize = varyAttr.size()*numTotalPoints;
-        GLuint buffer = memManager->getBufferID(totalSize,GL_DYNAMIC_DRAW);
+        
+        VaryBufferPair bufferPair;
+        for (unsigned int ii=0;ii<2;ii++) {
+            bufferPair.buffers[ii] = memManager->getBufferID(totalSize,GL_DYNAMIC_DRAW);
 
-        // Zero out the new buffers
-        // That's how we signal that they're new
-        glBindBuffer(GL_ARRAY_BUFFER, buffer);
-        void *glMem = NULL;
-        if (context.API < kEAGLRenderingAPIOpenGLES3)
-            glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-        else
-            glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, totalSize, GL_MAP_WRITE_BIT);
-        memset(glMem, 0, totalSize);
-        if (context.API < kEAGLRenderingAPIOpenGLES3)
-            glUnmapBufferOES(GL_ARRAY_BUFFER);
-        else
-            glUnmapBuffer(GL_ARRAY_BUFFER);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+            // Zero out the new buffers
+            // That's how we signal that they're new
+            glBindBuffer(GL_ARRAY_BUFFER, bufferPair.buffers[ii]);
+            void *glMem = NULL;
+            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+            else
+                glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, totalSize, GL_MAP_WRITE_BIT);
+            memset(glMem, 0, totalSize);
+            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                glUnmapBufferOES(GL_ARRAY_BUFFER);
+            else
+                glUnmapBuffer(GL_ARRAY_BUFFER);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        varyBuffers.push_back(buffer);
+        }
+        varyBuffers.push_back(bufferPair);
     }
     
     // Set up the batches
@@ -163,8 +167,9 @@ void ParticleSystemDrawable::teardownGL(OpenGLMemManager *memManager)
     pointBuffer = 0;
     if (rectBuffer)
         memManager->removeBufferID(rectBuffer);
-    for (GLuint bufferID : varyBuffers)
-        memManager->removeBufferID(bufferID);
+    for (auto bufferPair : varyBuffers)
+        for (unsigned int ii=0;ii<2;ii++)
+            memManager->removeBufferID(bufferPair.buffers[ii]);
     varyBuffers.clear();
     rectBuffer = 0;
     batches.clear();
@@ -276,6 +281,7 @@ void ParticleSystemDrawable::updateChunks()
                 {
                     BufferChunk chunk;
                     chunk.bufferStart = (start % batches.size()) * batchSize * vertexSize;
+                    chunk.vertexStart = (start % batches.size()) * batchSize;
                     chunk.numVertices = (end-start) * batchSize;
                     chunks.push_back(chunk);
                 }
@@ -394,7 +400,7 @@ void ParticleSystemDrawable::drawSetupUniforms(WhirlyKitRendererFrameInfo *frame
     prog->setUniform(u_pixDispSizeNameID, pixDispSize);
 }
     
-void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int pointsSoFar,bool useInstancingHere)
+void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int vertexOffset,bool useInstancingHere)
 {
     glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
     
@@ -428,13 +434,13 @@ void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendere
     // Link the varying output to attribute array input
     int varyWhich = 0;
     for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
-        glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyWhich]);
+        glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyWhich].buffers[activeVaryBuffer]);
         
         const OpenGLESAttribute *thisAttr = prog->findAttribute(varyInfo.nameID);
         if (thisAttr)
         {
             GLuint size = varyInfo.size();
-            glVertexAttribPointer(thisAttr->index, varyInfo.glEntryComponents(), varyInfo.glType(), varyInfo.glNormalize(), varyInfo.size(), (const GLvoid *)(long)(size*pointsSoFar));
+            glVertexAttribPointer(thisAttr->index, varyInfo.glEntryComponents(), varyInfo.glType(), varyInfo.glNormalize(), varyInfo.size(), (const GLvoid *)(long)(size*vertexOffset));
             
             if (useInstancingHere) {
                 int divisor = 0;
@@ -461,6 +467,9 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
     updateChunks();
     lastUpdateTime = frameInfo.currentTime;
     
+    if (chunks.empty())
+        return;
+    
     EAGLContext *context = [EAGLContext currentContext];
     OpenGLES2Program *prog = frameInfo.program;
     
@@ -474,16 +483,16 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
     glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
     
     // Work through the batches to assign vertex arrays
-    int pointsSoFar = 0;
     for (const BufferChunk &chunk : chunks)
     {
-        drawBindAttrs(context,frameInfo,scene,prog,chunk,pointsSoFar,false);
+        drawBindAttrs(context,frameInfo,scene,prog,chunk,chunk.vertexStart,false);
         
         // Now bind the varying outputs to their buffers
         int varyIdx = 0;
+        int outputVaryBuffer = (activeVaryBuffer == 0) ? 1 : 0;
         for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
             GLint attrSize = varyInfo.size();
-            glBindBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, varyIdx, varyBuffers[varyIdx], pointsSoFar*attrSize, chunk.numVertices*attrSize);
+            glBindBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, varyIdx, varyBuffers[varyIdx].buffers[outputVaryBuffer], chunk.vertexStart*attrSize, chunk.numVertices*attrSize);
             varyIdx++;
         }
         
@@ -495,8 +504,6 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
 
         glEndTransformFeedback();
         CheckGLError("BasicDrawable::calculate() glEndTransformFeedback");
-
-        pointsSoFar += chunk.numVertices;
     }
 
 
@@ -514,7 +521,8 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
-    CheckGLError("BasicDrawable::calculate() glEndTransformFeedback");
+    // Switch off the active vary buffers (if we're using them)
+    activeVaryBuffer = (activeVaryBuffer == 0) ? 1 : 0;
 }
 
 void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
@@ -524,6 +532,9 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
         updateChunks();
         lastUpdateTime = frameInfo.currentTime;
     }
+
+    if (chunks.empty())
+        return;
     
     EAGLContext *context = [EAGLContext currentContext];
     OpenGLES2Program *prog = frameInfo.program;
@@ -567,10 +578,9 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     }
 
     // Work through the batches
-    int pointsSoFar = 0;
     for (const BufferChunk &chunk : chunks)
     {
-        drawBindAttrs(context,frameInfo,scene,prog,chunk,pointsSoFar,true);
+        drawBindAttrs(context,frameInfo,scene,prog,chunk,chunk.vertexStart,true);
 
         if (rectBuffer)
         {
@@ -583,8 +593,6 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
             glDrawArrays(GL_POINTS, 0, chunk.numVertices);
             CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
         }
-        
-        pointsSoFar += chunk.numVertices;
     }
     
     if (rectBuffer)
