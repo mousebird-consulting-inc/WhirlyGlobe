@@ -47,13 +47,13 @@ class ScreenLabelsTestCase: MaplyTestCase {
 				label.text = str
 				label.loc = object.center()
 				label.selectable = true
-				label.layoutImportance = 10
                 label.userObject = label.text;
                 label.layoutPlacement = kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow
 //                label.rotation = Float(M_PI/2.0)
 //                label.offset = CGPoint(x: 100.0, y: 0.0)
 
 				if (i % 2 == 0) {
+                    label.layoutImportance = 10
 					// Some with text shadow
 					if let comp = theViewC.addScreenLabels([label], desc: [
 							kMaplyFont: UIFont.boldSystemFont(ofSize: 12.0),
@@ -65,6 +65,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 					}
 				}
 				else {
+                    label.layoutImportance = 20
 					//Some with text outline
 					if let comp = theViewC.addScreenLabels([label], desc: [
 							kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
