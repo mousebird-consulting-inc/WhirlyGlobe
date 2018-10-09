@@ -86,6 +86,9 @@ public:
     bool operator < (const TileInfo &that) const
     {
         if (this->priority == that.priority) {
+            if (this->importance == that.importance) {
+                return this->request < that.request;
+            }
             return this->importance < that.importance;
         }
         return this->priority > that.priority;

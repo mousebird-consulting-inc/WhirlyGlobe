@@ -99,7 +99,7 @@ public:
     // Recursively visit the quad tree evaluating as we go
     void evalNodeImportance(ImportantNode node,double minImport,double minImportTop,ImportantNodeSet &importSet);
     // This version uses pure visiblity and goes down to a predefined level
-    void evalNodeVisible(ImportantNode node,double minImport,int maxLevel,ImportantNodeSet &visibleSet);
+    bool evalNodeVisible(ImportantNode node,double minImport,int maxNodes,const std::set<int> &levelsToLoad,int maxLevel,ImportantNodeSet &visibleSet);
     
     /// Bounding box
     MbrD mbr;
