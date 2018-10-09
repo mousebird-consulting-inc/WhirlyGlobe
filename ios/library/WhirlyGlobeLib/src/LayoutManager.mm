@@ -351,7 +351,7 @@ public:
     bool operator < (const LayoutObjectContainer &that) const {
         if (objs.empty())  // Never happen
             return false;
-        return objs[0]->obj.importance < that.objs[0]->obj.importance;
+        return objs[0]->obj.importance > that.objs[0]->obj.importance;
     }
 };
 typedef std::vector<LayoutObjectContainer> LayoutContainerVec;
