@@ -26,6 +26,8 @@
 #import "NSDictionary+StyleRules.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
+#import <sys/utsname.h>
+#import <dns_sd.h>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -165,10 +167,80 @@ using namespace WhirlyKit;
     return renderControl.screenObjectDrawPriorityOffset;
 }
 
+// Kick off the analytics logic.  First we need the server name.
+- (void)startAnalytics
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    // This is completely random.  We can't track it in any useful way
+    NSString *userID = [userDefaults stringForKey:@"wgmaplyanalyticuser"];
+    NSTimeInterval lastSent = 0.0;
+    if (!userID) {
+        userID = [[NSUUID UUID] UUIDString];
+        [userDefaults setObject:userID forKey:@"wgmaplyanalyticuser"];
+    } else {
+        lastSent = [userDefaults doubleForKey:@"wgmaplyanalytictime"];
+    }
+    
+    // Sent once a month at most
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    if (now - lastSent < 30*24*60*60.0)
+        return;
+
+    [self sendAnalytics:@"analytics.mousebirdconsulting.com:8081"];
+}
+
+// Send the actual analytics data
+// There's nothing unique in here to identify the user
+// The user ID is completely made up and we don't get it more than once per week
+- (void)sendAnalytics:(NSString *)serverName
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *userID = [userDefaults stringForKey:@"wgmaplyanalyticuser"];
+
+    // Model number
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    NSString *model = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+    NSDictionary *infoDict = [NSBundle mainBundle].infoDictionary;
+    // Bundle ID, version and build
+    NSString *bundleID = infoDict[@"CFBundleIdentifier"];
+    NSString *bundleName = infoDict[@"CFBundleName"];
+    NSString *build = infoDict[@"CFBundleVersion"];
+    NSString *bundleVersion = infoDict[@"CFBundleShortVersionString"];
+    // WGMaply version
+    NSString *wgmaplyVersion = @"2.6.0";
+    // OS version
+    NSOperatingSystemVersion osversionID = [[NSProcessInfo processInfo] operatingSystemVersion];
+    NSString *osversion = [NSString stringWithFormat:@"%d.%d.%d",(int)osversionID.majorVersion,(int)osversionID.minorVersion,(int) osversionID.patchVersion];
+
+    // We're not recording anything that can identify the user, just the app
+    // create table register( userid VARCHAR(50), bundleid VARCHAR(100), bundlename VARCHAR(100), bundlebuild VARCHAR(100), bundleversion VARCHAR(100), osversion VARCHAR(20), model VARCHAR(100), wgmaplyversion VARCHAR(20));
+    NSString *postArgs = [NSString stringWithFormat:@"{ \"userid\":\"%@\", \"bundleid\":\"%@\", \"bundlename\":\"%@\", \"bundlebuild\":\"%@\", \"bundleversion\":\"%@\", \"osversion\":\"%@\", \"model\":\"%@\", \"wgmaplyversion\":\"%@\" }",
+                          userID,bundleID,bundleName,build,bundleVersion,osversion,model,wgmaplyVersion];
+    NSMutableURLRequest *req = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@/register", serverName]]];
+    [req setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [req setHTTPMethod:@"POST"];
+    [req setHTTPBody:[postArgs dataUsingEncoding:NSASCIIStringEncoding]];
+    
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:req completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+        NSHTTPURLResponse *resp = (NSHTTPURLResponse *)response;
+        if (resp.statusCode == 200) {
+            [userDefaults setDouble:now forKey:@"wgmaplyanalytictime"];
+        }
+    }];
+    [dataTask resume];
+}
+
 // Create the Maply or Globe view.
 // For specific parts we'll call our subclasses
 - (void) loadSetup
 {
+#ifndef TARGET_OS_SIMULATOR
+    [self startAnalytics];
+#endif
+    
     if (!renderControl)
         renderControl = [[MaplyRenderController alloc] init];
     
