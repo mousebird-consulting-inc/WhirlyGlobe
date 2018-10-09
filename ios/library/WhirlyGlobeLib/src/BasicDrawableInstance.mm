@@ -559,19 +559,21 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                 float texScale = 1.0;
                 Vector2f texOffset(0.0,0.0);
                 // Adjust for border pixels
-                auto thisTexInfo = texInfo[ii];
-                if (thisTexInfo.borderTexel > 0 && thisTexInfo.size > 0) {
-                    texScale = (thisTexInfo.size - 2 * thisTexInfo.borderTexel) / (double)thisTexInfo.size;
-                    float offset = thisTexInfo.borderTexel / (double)thisTexInfo.size;
-                    texOffset = Vector2f(offset,offset);
+                if (ii < texInfo.size()) {
+                    auto thisTexInfo = texInfo[ii];
+                    if (thisTexInfo.borderTexel > 0 && thisTexInfo.size > 0) {
+                        texScale = (thisTexInfo.size - 2 * thisTexInfo.borderTexel) / (double)thisTexInfo.size;
+                        float offset = thisTexInfo.borderTexel / (double)thisTexInfo.size;
+                        texOffset = Vector2f(offset,offset);
+                    }
+                    // Adjust for a relative texture lookup (using lower zoom levels)
+                    if (thisTexInfo.relLevel > 0) {
+                        texScale = texScale/(1<<thisTexInfo.relLevel);
+                        texOffset = Vector2f(texScale*thisTexInfo.relX,texScale*thisTexInfo.relY) + texOffset;
+                    }
+                    prog->setUniform(texScaleNameID, Vector2f(texScale, texScale));
+                    prog->setUniform(texOffsetNameID, texOffset);
                 }
-                // Adjust for a relative texture lookup (using lower zoom levels)
-                if (thisTexInfo.relLevel > 0) {
-                    texScale = texScale/(1<<thisTexInfo.relLevel);
-                    texOffset = Vector2f(texScale*thisTexInfo.relX,texScale*thisTexInfo.relY) + texOffset;
-                }
-                prog->setUniform(texScaleNameID, Vector2f(texScale, texScale));
-                prog->setUniform(texOffsetNameID, texOffset);
                 CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
             }
         }
