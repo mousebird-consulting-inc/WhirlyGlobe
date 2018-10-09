@@ -50,7 +50,6 @@ class GlobeSamplerTestCase: MaplyTestCase {
     }
 
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        globeVC.clearColor = UIColor.red
         imageLoader = setupLoader(globeVC)
     }
 
