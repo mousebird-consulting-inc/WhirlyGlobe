@@ -27,7 +27,6 @@
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
 #import <sys/utsname.h>
-#import <dns_sd.h>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -237,7 +236,7 @@ using namespace WhirlyKit;
 // For specific parts we'll call our subclasses
 - (void) loadSetup
 {
-#ifndef TARGET_OS_SIMULATOR
+#if !TARGET_OS_SIMULATOR
     [self startAnalytics];
 #endif
     
