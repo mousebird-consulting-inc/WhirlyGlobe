@@ -24,7 +24,7 @@
 @interface MaplyQuadImageLoaderBase()
 {
 @public
-    NSObject<MaplyTileFetcher> * __weak tileFetcher;
+    NSObject<MaplyTileFetcher> *tileFetcher;
     NSObject<MaplyLoaderInterpreter> *loadInterp;
     
     WhirlyKitQuadTileBuilder * __weak builder;
