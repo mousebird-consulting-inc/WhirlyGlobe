@@ -995,6 +995,8 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
 - (void)shutdown
 {
+    tileFetcher = nil;
+    loadInterp = nil;
     [viewC releaseSamplingLayer:samplingLayer forUser:self];
 }
 
