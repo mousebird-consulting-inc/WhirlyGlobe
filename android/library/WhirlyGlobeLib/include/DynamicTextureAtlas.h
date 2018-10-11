@@ -128,7 +128,7 @@ typedef std::vector<DynamicTexture *> DynamicTextureVec;
 // Used to sort dynamic texture vectors
 typedef struct
 {
-    bool operator () (const DynamicTextureVec *a,const DynamicTextureVec *b) { return a->at(0)->getId() < b->at(0)->getId(); }
+    bool operator () (const DynamicTextureVec *a,const DynamicTextureVec *b) const { return a->at(0)->getId() < b->at(0)->getId(); }
 } DynamicTextureVecSorter;
 
 /// Copy data into a dynamic texture (on the main thread)
