@@ -337,7 +337,7 @@ public:
 typedef struct
 {
     /// Comparison operator based on node identifier
-    bool operator() (const InternalLoadedTile *a,const InternalLoadedTile *b)
+    bool operator() (const InternalLoadedTile *a,const InternalLoadedTile *b) const
     {
         return a->nodeInfo.ident < b->nodeInfo.ident;
     }

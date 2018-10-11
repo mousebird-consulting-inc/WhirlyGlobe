@@ -1,0 +1,30 @@
+cmake_minimum_required(VERSION 3.4.1)
+
+target_include_directories(
+        ${WGTARGET}
+
+        PUBLIC
+
+        "${CMAKE_CURRENT_LIST_DIR}"
+)
+
+target_sources(
+        ${WGTARGET}
+
+        PUBLIC
+
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/internalJSONNode.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/JSONAllocator.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/JSONChildren.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/JSONDebug.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/JSONIterators.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/JSONMemory.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/JSONNode_Mutex.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/JSONNode.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/JSONPreparse.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/JSONStream.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/JSONValidator.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/JSONWorker.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/JSONWriter.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/_internal/Source/libjson.cpp"
+)
