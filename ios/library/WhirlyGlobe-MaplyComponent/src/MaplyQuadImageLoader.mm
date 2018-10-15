@@ -437,6 +437,11 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     MaplySamplingParams *params;
     NSArray<MaplyRemoteTileInfoNew *> *tileInfos;
     
+    // Current overlay level
+    int curOverlayLevel;
+    int targetLevel;
+    bool hasOverlayObjects;
+    
     // Tiles in various states of loading or loaded
     TileAssetMap tiles;
 }
@@ -472,6 +477,9 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     self.borderTexel = 0;
     self.color = [UIColor whiteColor];
     self->texType = GL_UNSIGNED_BYTE;
+    curOverlayLevel = -1;
+    targetLevel = -1;
+    hasOverlayObjects = false;
 
     // Start things out after a delay
     // This lets the caller mess with settings
@@ -734,6 +742,8 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         NSLog(@"Loaded %d: (%d,%d) texID = %d",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y,(int)(tex ? tex->getId() : 0));
 
     if (tex) {
+        if ([loadReturn.ovlCompObjs count] > 0)
+            hasOverlayObjects = true;
         tile->setupContents(loadedTile,tex,loadReturn.compObjs,loadReturn.ovlCompObjs,interactLayer,changes);
     } else {
         NSLog(@"Failed to create texture for tile %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
@@ -780,7 +790,9 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     layer = inLayer;
 }
 
-- (QuadTreeNew::NodeSet)quadBuilder:(WhirlyKitQuadTileBuilder * _Nonnull)builder loadTiles:(const QuadTreeNew::ImportantNodeSet &)loadTiles unloadTilesToCheck:(const QuadTreeNew::NodeSet &)unloadTiles
+- (QuadTreeNew::NodeSet)quadBuilder:(WhirlyKitQuadTileBuilder * _Nonnull)builder
+                          loadTiles:(const QuadTreeNew::ImportantNodeSet &)loadTiles
+                 unloadTilesToCheck:(const QuadTreeNew::NodeSet &)unloadTiles
 {
     QuadTreeNew::NodeSet toKeep;
     
@@ -829,7 +841,15 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
                 }
             }
         }
+
+        // Lastly, hold anything that might be used for an overlay
+        // Note: Only do this if we're using overlays
+        if (hasOverlayObjects && node.level == curOverlayLevel) {
+            if (toKeep.find(node) == toKeep.end())
+                toKeep.insert(node);
+        }
     }
+    
     
     if (self.debugMode && !toKeep.empty()) {
         NSLog(@"Keeping: ");
@@ -841,12 +861,16 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     return toKeep;
 }
 
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder update:(const WhirlyKit::TileBuilderDelegateInfo &)updates changes:(WhirlyKit::ChangeSet &)changes
+- (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder
+             update:(const WhirlyKit::TileBuilderDelegateInfo &)updates
+            changes:(WhirlyKit::ChangeSet &)changes
 {
     auto control = viewC.getRenderControl;
     if (!control)
         return;
     auto interactLayer = control->interactLayer;
+    
+    targetLevel = updates.targetLevel;
     
     // Add new tiles
     for (auto it = updates.loadTiles.rbegin(); it != updates.loadTiles.rend(); ++it) {
@@ -928,14 +952,30 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     auto control = viewC.getRenderControl;
     auto interactLayer = control->interactLayer;
     
-    // What's the highest level we've successfully loaded?
-    int maxLoadLevel = -1;
-    for (auto it : tiles) {
-        auto tileID = it.first;
-        auto tile = it.second;
-        if (tile->getState() == TileAsset::Loaded) {
-            maxLoadLevel = std::max(maxLoadLevel,tileID.level);
+    if (hasOverlayObjects) {
+        if (curOverlayLevel == -1) {
+            curOverlayLevel = targetLevel;
+            if (self.debugMode)
+                NSLog(@"Picking new overlay level %d",curOverlayLevel);
+        } else {
+            bool allLoaded = true;
+            for (auto it : tiles) {
+                auto tileID = it.first;
+                auto tile = it.second;
+                if (tileID.level == targetLevel && tile->getState() == TileAsset::Loading) {
+                    allLoaded = false;
+                    break;
+                }
+            }
+            
+            if (allLoaded) {
+                curOverlayLevel = targetLevel;
+                if (self.debugMode)
+                    NSLog(@"Picking new overlay level %d",curOverlayLevel);
+            }
         }
+    } else {
+        curOverlayLevel = targetLevel;
     }
 
     // Figure out the current state for each tile
@@ -976,7 +1016,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
             tile->generateEnableChange(true,interactLayer,changes);
 
             // Turn on the overlays if we're at the highest loaded level
-            if (tileID.level == maxLoadLevel)
+            if (tileID.level == curOverlayLevel)
                 ovlEnable = true;
         } else {
             tile->generateEnableChange(false,interactLayer,changes);

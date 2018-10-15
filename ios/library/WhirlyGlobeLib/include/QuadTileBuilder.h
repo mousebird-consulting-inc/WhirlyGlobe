@@ -33,6 +33,7 @@ namespace WhirlyKit
   */
 class TileBuilderDelegateInfo {
 public:
+    int targetLevel;
     LoadedTileVec loadTiles;
     QuadTreeNew::NodeSet unloadTiles;
     LoadedTileVec enableTiles,disableTiles;
