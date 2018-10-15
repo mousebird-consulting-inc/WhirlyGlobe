@@ -14,9 +14,6 @@ import android.widget.TextView;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.R;
 
-import butterknife.OnClick;
-
-
 public class NavigationDrawer extends LinearLayout {
 
 	public boolean seeView = false;
@@ -53,7 +50,7 @@ public class NavigationDrawer extends LinearLayout {
 		separator_2 = (View) findViewById(R.id.separator_2);
 	}
 
-	@OnClick({R.id.runMap, R.id.runGlobe, R.id.runBoth, R.id.seeView, R.id.runInteractive, R.id.runMultiple, R.id.runSingle, R.id.selectAll, R.id.deselectAll})
+//	@OnClick({R.id.runMap, R.id.runGlobe, R.id.runBoth, R.id.seeView, R.id.runInteractive, R.id.runMultiple, R.id.runSingle, R.id.selectAll, R.id.deselectAll})
 	void onItemClick(View view) {
 		if (getContext() instanceof Listener) {
 			((Listener) getContext()).onItemClick(view.getId());
