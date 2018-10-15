@@ -455,6 +455,20 @@ void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendere
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         
+        // Note: Check the buffer
+//        if (thisAttr) {
+//            GLint attrSize = varyInfo.size();
+//            glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyWhich].buffers[activeVaryBuffer]);
+//            void *glMem = NULL;
+//            glMem = glMapBufferRange(GL_ARRAY_BUFFER, chunk.vertexStart*attrSize, chunk.numVertices*attrSize, GL_MAP_READ_BIT);
+//            float *floatData = (float *)glMem;
+//            if (isnan(floatData[0]))
+//                NSLog(@"drawBindAttrs(): Got junk data for %s", StringIndexer::getString(thisAttr->nameID).c_str());
+//            Point3f *vecData = (Point3f *)vecData;
+//            glUnmapBuffer(GL_ARRAY_BUFFER);
+//            glBindBuffer(GL_ARRAY_BUFFER, 0);
+//        }
+
         varyWhich++;
     }
 }
@@ -479,9 +493,6 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
     drawSetupTextures(frameInfo, scene, prog, hasTexture, progTexBound);
     drawSetupUniforms(frameInfo, scene, prog);
     
-    // Bind the points (only points for calculation)
-    glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
-    
     // Work through the batches to assign vertex arrays
     for (const BufferChunk &chunk : chunks)
     {
@@ -504,6 +515,30 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
 
         glEndTransformFeedback();
         CheckGLError("BasicDrawable::calculate() glEndTransformFeedback");
+        
+        // Note: Debugging
+        glFlush();
+        
+        // Note: Check the buffer
+//        varyIdx = 0;
+//        for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
+//            GLint attrSize = varyInfo.size();
+//            glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyIdx].buffers[outputVaryBuffer]);
+//            void *glMem = NULL;
+//            glMem = glMapBufferRange(GL_ARRAY_BUFFER, chunk.vertexStart*attrSize, chunk.numVertices*attrSize, GL_MAP_READ_BIT);
+//            float *floatData = (float *)glMem;
+//            Point3f *vecData = (Point3f *)vecData;
+//            if (isnan(floatData[0]))
+//                NSLog(@"calculate(): Got junk data for %s", StringIndexer::getString(varyInfo.nameID).c_str());
+//            glUnmapBuffer(GL_ARRAY_BUFFER);
+//            glBindBuffer(GL_ARRAY_BUFFER, 0);
+//            varyIdx++;
+//        }
+        
+        for (int varyIdx = 0; varyIdx < varyAttrs.size(); varyIdx++) {
+            glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
+        }
+
     }
 
 
@@ -526,7 +561,7 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
-    // Switch off the active vary buffers (if we're using them)
+    // Switch the active vary buffers (if we're using them)
     activeVaryBuffer = (activeVaryBuffer == 0) ? 1 : 0;
 }
 
@@ -579,7 +614,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
             glEnableVertexAttribArray(thisAttr->index);
             CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
         }
-//        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
     // Work through the batches
