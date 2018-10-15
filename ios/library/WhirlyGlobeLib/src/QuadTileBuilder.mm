@@ -99,7 +99,7 @@ using namespace WhirlyKit;
     [_delegate setQuadBuilder:self layer:layer];
 }
 
-- (WhirlyKit::QuadTreeNew::NodeSet)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles
+- (WhirlyKit::QuadTreeNew::NodeSet)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles targetLevel:(int)targetLevel
 {
     ChangeSet changes;
     
@@ -121,6 +121,7 @@ using namespace WhirlyKit;
     auto tileChanges = geomManage.addRemoveTiles(loadTiles,info.unloadTiles,changes);
 
     // Tell the delegate what we're up to
+    info.targetLevel = targetLevel;
     info.loadTiles = tileChanges.addedTiles;
     info.enableTiles = tileChanges.enabledTiles;
     info.disableTiles = tileChanges.disabledTiles;

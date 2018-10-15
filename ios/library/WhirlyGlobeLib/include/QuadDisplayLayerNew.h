@@ -48,7 +48,8 @@
 - (WhirlyKit::QuadTreeNew::NodeSet)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer
                loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)tiles
              unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)tiles
-             updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles;
+             updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles
+             targetLevel:(int)targetLevel;
 
 /// Called right before the layer thread flushes its change requests
 - (void)quadDisplayLayerPreSceneFlush:(WhirlyKitQuadDisplayLayerNew * __nonnull)layer;
