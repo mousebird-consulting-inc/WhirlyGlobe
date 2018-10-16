@@ -528,8 +528,14 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
 //            glMem = glMapBufferRange(GL_ARRAY_BUFFER, chunk.vertexStart*attrSize, chunk.numVertices*attrSize, GL_MAP_READ_BIT);
 //            float *floatData = (float *)glMem;
 //            Point3f *vecData = (Point3f *)vecData;
-//            if (isnan(floatData[0]))
-//                NSLog(@"calculate(): Got junk data for %s", StringIndexer::getString(varyInfo.nameID).c_str());
+//            int numBad = 0;
+//            for (int ix=0;ix<chunk.numVertices*(attrSize/4);ix++)
+//                if (isnan(floatData[ix]))
+//                    numBad++;
+//            if (numBad > 1)
+//                NSLog(@"calculate(): Got junk data for %s, vertexStart = %d, numVertex = %d, bad = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart,chunk.numVertices,numBad);
+////            else
+////                NSLog(@"calculate(): Got good data for %s, vertexStart = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart);
 //            glUnmapBuffer(GL_ARRAY_BUFFER);
 //            glBindBuffer(GL_ARRAY_BUFFER, 0);
 //            varyIdx++;
