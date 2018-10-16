@@ -115,10 +115,11 @@ precision highp float;
 uniform float u_time;
 
 attribute vec3 a_position;
-attribute vec3 a_savedPosition;
 attribute vec3 a_dir;
 attribute float a_startTime;
+
 attribute float a_savedStartTime;
+attribute vec3 a_savedPosition;
 
 varying vec3 va_position;
 varying float va_startTime;
@@ -130,8 +131,13 @@ void main()
     vec3 thePos;
     if (a_savedStartTime < a_startTime)
         thePos = a_position;
-    else
-        thePos = normalize(a_savedPosition + 1.0/30.0*a_dir);
+    else {
+        // An empty particle.  We'll just discard it.
+        if (a_position == vec3(0.0,0.0,0.0))
+            thePos = vec3(0.0,0.0,0.0);
+        else
+            thePos = normalize(a_savedPosition + 1.0/30.0*a_dir);
+    }
 
     va_startTime = a_startTime;
     va_position = thePos;
@@ -174,7 +180,7 @@ void main()
     // Set the point size
     gl_PointSize = u_size;
     // Project the point into 3-space
-    gl_Position = (dot_res > 0.0) ? u_mvpMatrix * vec4(thePos,1.0) : vec4(1000.0,1000.0,1000.0,0.0);
+    gl_Position = (dot_res > 0.0 && thePos != vec3(0.0,0.0,0.0)) ? u_mvpMatrix * vec4(thePos,1.0) : vec4(1000.0,1000.0,1000.0,0.0);
 }
 )";
 
@@ -229,8 +235,8 @@ void main()
     
     // Position calculation shader
     MaplyShader *posShader = [[MaplyShader alloc] initWithViewC:viewC];
-    [posShader addVarying:@"va_position"];
     [posShader addVarying:@"va_startTime"];
+    [posShader addVarying:@"va_position"];
     [posShader delayedSetupWithName:@"Particle Wind Test Pos"
                              vertex:[NSString stringWithFormat:@"%s",vertexPositionShader]
                            fragment:[NSString stringWithFormat:@"%s",fragmentPositionShader]];
@@ -253,8 +259,8 @@ void main()
     [partSys addAttribute:@"a_dir" type:MaplyShaderAttrTypeFloat3];
     [partSys addAttribute:@"a_color" type:MaplyShaderAttrTypeFloat4];
     [partSys addAttribute:@"a_startTime" type:MaplyShaderAttrTypeFloat];
-    [partSys addVarying:@"va_position" inputName:@"a_savedPosition" type:MaplyShaderAttrTypeFloat3];
     [partSys addVarying:@"va_startTime" inputName:@"a_savedStartTime" type:MaplyShaderAttrTypeFloat];
+    [partSys addVarying:@"va_position" inputName:@"a_savedPosition" type:MaplyShaderAttrTypeFloat3];
 
     // Used to keep track of the tiles for fast lookup
     tileTrack = [[MaplyQuadTracker alloc] initWithViewC:(WhirlyGlobeViewController *)inViewC];
@@ -314,7 +320,7 @@ void main()
         NSString *zStr = [NSString stringWithFormat:@"%d",tileID.level];
         NSString *urlStr = [[[[url stringByReplacingOccurrencesOfString:@"{dir}" withString:uOrV] stringByReplacingOccurrencesOfString:@"{z}" withString:zStr] stringByReplacingOccurrencesOfString:@"{x}" withString:xStr] stringByReplacingOccurrencesOfString:@"{y}" withString:yStr];
 
-		// TODO if insecure certificated need to be supported, follow this:
+		// TODO if insecure certificates need to be supported, follow this:
 		// http://stackoverflow.com/questions/20230169/nsurlsession-server-with-self-signed-cert
 
 		[[[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:urlStr]
@@ -427,6 +433,8 @@ static const float sqrt2 = 1.41421356237;
     }
     memset(locs, 0, batchSize*sizeof(SimpleLoc));
     memset(times, 0, batchSize*sizeof(float));
+    memset(dirs, 0, batchSize*sizeof(SimpleLoc));
+    memset(colors, 0, batchSize*sizeof(SimpleColor));
 
     // Make up some random particles
 #if 0
