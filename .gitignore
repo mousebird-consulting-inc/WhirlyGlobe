@@ -31,3 +31,5 @@ ios/library/WhirlyGlobe-MaplyComponent/build
 ios/library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.framework
 
 podlint\.txt
+
+android/library/maply/\.externalNativeBuild/
