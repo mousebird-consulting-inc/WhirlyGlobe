@@ -222,16 +222,11 @@ varying vec4 v_color;
 
 void main()
 {
-//    v_color = a_color;
     vec3 thePos = a_savedPosition;
-//    vec3 thePos = a_position;
-//    vec3 dir = a_dir;
-    vec3 dir = vec3(1.0,0.0,0.0);
+    vec3 dir = normalize(a_dir);
     float pixDispScale = min(u_pixDispSize.x,u_pixDispSize.y);
-//    vec4 color = a_color;
-    float size = 8.0;
-    float len = 20.0;
-    vec4 color = vec4(1.0,0.0,0.0,1.0);
+    float size = 2.0;
+    float len = 8.0;
 
     // Convert from model space into display space
     // We'll use this for testing, rather than the actual point
@@ -247,7 +242,7 @@ void main()
     vec3 adjPos = a_offset.x * dir0 * pixDispScale * size + a_offset.y * dir * pixDispScale * len + thePos;
     
     // Output color and position
-    v_color = color;
+    v_color = a_color;
     gl_Position = (dot_res > 0.0 && thePos != vec3(0.0,0.0,0.0)) ? u_mvpMatrix * vec4(adjPos,1.0) : vec4(1000.0,1000.0,1000.0,-1000.0);
 }
 )";
@@ -283,7 +278,7 @@ void main()
     // These govern how the particles are structured
     _updateInterval = 0.05;
     _particleLifetime = 2.0;
-    _numParticles = 100000;
+    _numParticles = 100000/10;
     velocityScale = 0.01f;
     
     // Colors we'll use
