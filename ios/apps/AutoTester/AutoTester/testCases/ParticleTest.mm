@@ -213,7 +213,7 @@ uniform vec2 u_pixDispSize;
 attribute vec2 a_texCoord;
 attribute vec2 a_offset;
 
-//attribute vec3 a_savedPosition;
+attribute vec3 a_savedPosition;
 attribute vec3 a_position;
 attribute vec3 a_dir;
 attribute vec4 a_color;
@@ -223,8 +223,8 @@ varying vec4 v_color;
 void main()
 {
 //    v_color = a_color;
-//    vec3 thePos = a_savedPosition;
-    vec3 thePos = a_position;
+    vec3 thePos = a_savedPosition;
+//    vec3 thePos = a_position;
 //    vec3 dir = a_dir;
     vec3 dir = vec3(1.0,0.0,0.0);
     float pixDispScale = min(u_pixDispSize.x,u_pixDispSize.y);
@@ -278,7 +278,7 @@ void main()
     _coordSys = [[MaplySphericalMercator alloc] initWebStandard];
     viewC = inViewC;
     
-    MaplyParticleSystemType partSysType = MaplyParticleSystemTypePoint;
+    MaplyParticleSystemType partSysType = MaplyParticleSystemTypeRectangle;
     
     // These govern how the particles are structured
     _updateInterval = 0.05;
