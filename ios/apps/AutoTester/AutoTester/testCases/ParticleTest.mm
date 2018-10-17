@@ -153,7 +153,8 @@ void main()
 }
 )";
 
-static const char *vertexRenderShaderTri = R"(
+// Vertex shader for point version of particles
+static const char *vertexRenderShaderPoint = R"(
 precision highp float;
 
 uniform mat4  u_mvpMatrix;
@@ -184,7 +185,7 @@ void main()
 }
 )";
 
-static const char *fragmentRenderShaderTri = R"(
+static const char *fragmentRenderShader = R"(
 precision highp float;
 
 varying vec4      v_color;
@@ -192,6 +193,62 @@ varying vec4      v_color;
 void main()
 {
   gl_FragColor = v_color;
+}
+)";
+
+// Vertex shader for rectangle version of particles
+static const char *vertexRenderShaderRect = R"(
+precision highp float;
+
+uniform mat4  u_mvpMatrix;
+uniform mat4  u_mvMatrix;
+uniform mat4  u_mvNormalMatrix;
+uniform float u_size;
+uniform float u_len;
+
+// Pixel size in model coordinates
+uniform vec2 u_pixDispSize;
+
+// Texture coordinate and offset for vertices within a rectangle
+attribute vec2 a_texCoord;
+attribute vec2 a_offset;
+
+//attribute vec3 a_savedPosition;
+attribute vec3 a_position;
+attribute vec3 a_dir;
+attribute vec4 a_color;
+
+varying vec4 v_color;
+
+void main()
+{
+//    v_color = a_color;
+//    vec3 thePos = a_savedPosition;
+    vec3 thePos = a_position;
+//    vec3 dir = a_dir;
+    vec3 dir = vec3(1.0,0.0,0.0);
+    float pixDispScale = min(u_pixDispSize.x,u_pixDispSize.y);
+//    vec4 color = a_color;
+    float size = 8.0;
+    float len = 20.0;
+    vec4 color = vec4(1.0,0.0,0.0,1.0);
+
+    // Convert from model space into display space
+    // We'll use this for testing, rather than the actual point
+    // This ensures we drop the whole particle at once
+    vec4 pt = u_mvMatrix * vec4(thePos,1.0);
+    pt /= pt.w;
+    
+    // Make sure the object is facing the user
+    vec4 testNorm = u_mvNormalMatrix * vec4(thePos,0.0);
+    float dot_res = dot(-pt.xyz,testNorm.xyz);
+    
+    vec3 dir0 = normalize(cross(dir,thePos));
+    vec3 adjPos = a_offset.x * dir0 * pixDispScale * size + a_offset.y * dir * pixDispScale * len + thePos;
+    
+    // Output color and position
+    v_color = color;
+    gl_Position = (dot_res > 0.0 && thePos != vec3(0.0,0.0,0.0)) ? u_mvpMatrix * vec4(adjPos,1.0) : vec4(1000.0,1000.0,1000.0,-1000.0);
 }
 )";
 
@@ -221,6 +278,8 @@ void main()
     _coordSys = [[MaplySphericalMercator alloc] initWebStandard];
     viewC = inViewC;
     
+    MaplyParticleSystemType partSysType = MaplyParticleSystemTypePoint;
+    
     // These govern how the particles are structured
     _updateInterval = 0.05;
     _particleLifetime = 2.0;
@@ -243,15 +302,24 @@ void main()
     [viewC addShaderProgram:posShader sceneName:posShader.name];
     
     // Render shader
-    MaplyShader *renderShader = [[MaplyShader alloc] initWithName:@"Particle Wind Test Render"
-                                                     vertex:[NSString stringWithFormat:@"%s",vertexRenderShaderTri]
-                                                   fragment:[NSString stringWithFormat:@"%s",fragmentRenderShaderTri]
+    MaplyShader *renderShader = nil;
+    if (partSysType == MaplyParticleSystemTypeRectangle) {
+        renderShader = [[MaplyShader alloc] initWithName:@"Particle Wind Test Render Rects"
+                                                  vertex:[NSString stringWithFormat:@"%s",vertexRenderShaderRect]
+                                                fragment:[NSString stringWithFormat:@"%s",fragmentRenderShader]
+                                                   viewC:viewC];
+        [renderShader setUniformFloatNamed:@"u_len" val:8.0];
+    } else {
+        renderShader = [[MaplyShader alloc] initWithName:@"Particle Wind Test Render Points"
+                                                     vertex:[NSString stringWithFormat:@"%s",vertexRenderShaderPoint]
+                                                   fragment:[NSString stringWithFormat:@"%s",fragmentRenderShader]
                                                       viewC:viewC];
+    }
     [viewC addShaderProgram:renderShader sceneName:renderShader.name];
     
     // Set up the particle system we'll feed with particles
     partSys = [[MaplyParticleSystem alloc] initWithName:@"Particle Wind Test"];
-    partSys.type = MaplyParticleSystemTypePoint;
+    partSys.type = partSysType;
     partSys.positionShader = posShader;
     partSys.renderShader = renderShader;
     partSys.continuousUpdate = true;

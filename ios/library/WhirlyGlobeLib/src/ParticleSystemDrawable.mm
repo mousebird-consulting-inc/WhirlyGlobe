@@ -455,19 +455,24 @@ void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendere
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         
-        // Note: Check the buffer
-//        if (thisAttr) {
-//            GLint attrSize = varyInfo.size();
-//            glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyWhich].buffers[activeVaryBuffer]);
-//            void *glMem = NULL;
-//            glMem = glMapBufferRange(GL_ARRAY_BUFFER, chunk.vertexStart*attrSize, chunk.numVertices*attrSize, GL_MAP_READ_BIT);
-//            float *floatData = (float *)glMem;
-//            if (isnan(floatData[0]))
-//                NSLog(@"drawBindAttrs(): Got junk data for %s", StringIndexer::getString(thisAttr->nameID).c_str());
-//            Point3f *vecData = (Point3f *)vecData;
-//            glUnmapBuffer(GL_ARRAY_BUFFER);
-//            glBindBuffer(GL_ARRAY_BUFFER, 0);
-//        }
+        {
+            GLint attrSize = varyInfo.size();
+            glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyWhich].buffers[activeVaryBuffer]);
+            void *glMem = NULL;
+            glMem = glMapBufferRange(GL_ARRAY_BUFFER, chunk.vertexStart*attrSize, chunk.numVertices*attrSize, GL_MAP_READ_BIT);
+            float *floatData = (float *)glMem;
+            Point3f *vecData = (Point3f *)vecData;
+            int numBad = 0;
+            for (int ix=0;ix<chunk.numVertices*(attrSize/4);ix++)
+                if (isnan(floatData[ix]))
+                    numBad++;
+            if (numBad > 1)
+                NSLog(@"calculate(): Got junk data for %s, vertexStart = %d, numVertex = %d, bad = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart,chunk.numVertices,numBad);
+            //            else
+            //                NSLog(@"calculate(): Got good data for %s, vertexStart = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart);
+            glUnmapBuffer(GL_ARRAY_BUFFER);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
 
         varyWhich++;
     }
@@ -520,26 +525,26 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
         glFlush();
         
         // Note: Check the buffer
-//        varyIdx = 0;
-//        for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
-//            GLint attrSize = varyInfo.size();
-//            glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyIdx].buffers[outputVaryBuffer]);
-//            void *glMem = NULL;
-//            glMem = glMapBufferRange(GL_ARRAY_BUFFER, chunk.vertexStart*attrSize, chunk.numVertices*attrSize, GL_MAP_READ_BIT);
-//            float *floatData = (float *)glMem;
-//            Point3f *vecData = (Point3f *)vecData;
-//            int numBad = 0;
-//            for (int ix=0;ix<chunk.numVertices*(attrSize/4);ix++)
-//                if (isnan(floatData[ix]))
-//                    numBad++;
-//            if (numBad > 1)
-//                NSLog(@"calculate(): Got junk data for %s, vertexStart = %d, numVertex = %d, bad = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart,chunk.numVertices,numBad);
-////            else
-////                NSLog(@"calculate(): Got good data for %s, vertexStart = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart);
-//            glUnmapBuffer(GL_ARRAY_BUFFER);
-//            glBindBuffer(GL_ARRAY_BUFFER, 0);
-//            varyIdx++;
-//        }
+        varyIdx = 0;
+        for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
+            GLint attrSize = varyInfo.size();
+            glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyIdx].buffers[outputVaryBuffer]);
+            void *glMem = NULL;
+            glMem = glMapBufferRange(GL_ARRAY_BUFFER, chunk.vertexStart*attrSize, chunk.numVertices*attrSize, GL_MAP_READ_BIT);
+            float *floatData = (float *)glMem;
+            Point3f *vecData = (Point3f *)vecData;
+            int numBad = 0;
+            for (int ix=0;ix<chunk.numVertices*(attrSize/4);ix++)
+                if (isnan(floatData[ix]))
+                    numBad++;
+            if (numBad > 1)
+                NSLog(@"calculate(): Got junk data for %s, vertexStart = %d, numVertex = %d, bad = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart,chunk.numVertices,numBad);
+//            else
+//                NSLog(@"calculate(): Got good data for %s, vertexStart = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart);
+            glUnmapBuffer(GL_ARRAY_BUFFER);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            varyIdx++;
+        }
         
         for (int varyIdx = 0; varyIdx < varyAttrs.size(); varyIdx++) {
             glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
