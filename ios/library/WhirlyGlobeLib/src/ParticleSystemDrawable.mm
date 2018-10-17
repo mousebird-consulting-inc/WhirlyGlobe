@@ -467,7 +467,7 @@ void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendere
                 if (isnan(floatData[ix]))
                     numBad++;
             if (numBad > 1)
-                NSLog(@"calculate(): Got junk data for %s, vertexStart = %d, numVertex = %d, bad = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart,chunk.numVertices,numBad);
+                NSLog(@"bindAttrs(): Got junk data for %s, vertexStart = %d, numVertex = %d, bad = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart,chunk.numVertices,numBad);
             //            else
             //                NSLog(@"calculate(): Got good data for %s, vertexStart = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart);
             glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -475,6 +475,27 @@ void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendere
         }
 
         varyWhich++;
+    }
+}
+    
+void ParticleSystemDrawable::drawUnbindAttrs(OpenGLES2Program *prog)
+{
+    // Tear down the state
+    for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
+    {
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID);
+        if (thisAttr) {
+            glDisableVertexAttribArray(thisAttr->index);
+            glVertexAttribDivisor(thisAttr->index, 0);
+        }
+    }
+    for (SingleVertexAttributeInfo &varyInfo : varyAttrs)
+    {
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(varyInfo.nameID);
+        if (thisAttr) {
+            glDisableVertexAttribArray(thisAttr->index);
+            glVertexAttribDivisor(thisAttr->index, 0);
+        }
     }
 }
     
@@ -501,6 +522,8 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
     // Work through the batches to assign vertex arrays
     for (const BufferChunk &chunk : chunks)
     {
+//        NSLog(@"Calculating chunk vertexStart = %d, numVertex = %d",chunk.vertexStart,chunk.numVertices);
+
         drawBindAttrs(context,frameInfo,scene,prog,chunk,chunk.vertexStart,false);
         
         // Now bind the varying outputs to their buffers
@@ -521,6 +544,10 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
         glEndTransformFeedback();
         CheckGLError("BasicDrawable::calculate() glEndTransformFeedback");
         
+        for (int varyIdx = 0; varyIdx < varyAttrs.size(); varyIdx++) {
+            glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, varyIdx, 0);
+        }
+
         // Note: Debugging
         glFlush();
         
@@ -546,31 +573,11 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
             varyIdx++;
         }
         
-        for (int varyIdx = 0; varyIdx < varyAttrs.size(); varyIdx++) {
-            glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
-        }
-
+        drawUnbindAttrs(prog);
     }
-
 
     // Tear down textures we may have set up
     drawTeardownTextures(frameInfo, scene, prog, hasTexture, progTexBound);
-    
-    // Tear down the state
-    for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
-    {
-        const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID);
-        if (thisAttr)
-            glDisableVertexAttribArray(thisAttr->index);
-    }
-    for (SingleVertexAttributeInfo &varyInfo : varyAttrs)
-    {
-        const OpenGLESAttribute *thisAttr = prog->findAttribute(varyInfo.nameID);
-        if (thisAttr)
-            glDisableVertexAttribArray(thisAttr->index);
-    }
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     // Switch the active vary buffers (if we're using them)
     activeVaryBuffer = (activeVaryBuffer == 0) ? 1 : 0;
@@ -583,7 +590,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
         updateChunks();
         lastUpdateTime = frameInfo.currentTime;
     }
-
+    
     if (chunks.empty())
         return;
     
@@ -597,40 +604,42 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     drawSetupTextures(frameInfo, scene, prog, hasTexture, progTexBound);
     drawSetupUniforms(frameInfo, scene, prog);
 
-    // Use the rectangle buffer for instancing
-    if (rectBuffer)
-    {
-        glBindBuffer(GL_ARRAY_BUFFER,rectBuffer);
-        const OpenGLESAttribute *thisAttr = prog->findAttribute(a_offsetNameID);
-        if (thisAttr)
-        {
-            glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)0);
-            CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
-                glVertexAttribDivisorEXT(thisAttr->index, 0);
-            else
-                glVertexAttribDivisor(thisAttr->index, 0);
-            glEnableVertexAttribArray(thisAttr->index);
-            CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
-        }
-        thisAttr = prog->findAttribute(a_texCoordNameID);
-        if (thisAttr)
-        {
-            glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)(2*sizeof(GLfloat)));
-            CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
-                glVertexAttribDivisorEXT(thisAttr->index, 0);
-            else
-                glVertexAttribDivisor(thisAttr->index, 0);
-            glEnableVertexAttribArray(thisAttr->index);
-            CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
-        }
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
-
     // Work through the batches
     for (const BufferChunk &chunk : chunks)
     {
+//        NSLog(@"Drawing chunk vertexStart = %d, numVertex = %d",chunk.vertexStart,chunk.numVertices);
+        
+        // Use the rectangle buffer for instancing
+        if (rectBuffer)
+        {
+            glBindBuffer(GL_ARRAY_BUFFER,rectBuffer);
+            const OpenGLESAttribute *thisAttr = prog->findAttribute(a_offsetNameID);
+            if (thisAttr)
+            {
+                glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)0);
+                CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
+                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                    glVertexAttribDivisorEXT(thisAttr->index, 0);
+                else
+                    glVertexAttribDivisor(thisAttr->index, 0);
+                glEnableVertexAttribArray(thisAttr->index);
+                CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
+            }
+            thisAttr = prog->findAttribute(a_texCoordNameID);
+            if (thisAttr)
+            {
+                glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)(2*sizeof(GLfloat)));
+                CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
+                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                    glVertexAttribDivisorEXT(thisAttr->index, 0);
+                else
+                    glVertexAttribDivisor(thisAttr->index, 0);
+                glEnableVertexAttribArray(thisAttr->index);
+                CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
+            }
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+
         drawBindAttrs(context,frameInfo,scene,prog,chunk,chunk.vertexStart,true);
 
         if (rectBuffer)
@@ -644,41 +653,28 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
             glDrawArrays(GL_POINTS, 0, chunk.numVertices);
             CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
         }
-    }
     
-    if (rectBuffer)
-    {
-        const OpenGLESAttribute *thisAttr = prog->findAttribute(a_offsetNameID);
-        if (thisAttr)
+        if (rectBuffer)
         {
-            glDisableVertexAttribArray(thisAttr->index);
-            CheckGLError("ParticleSystemDrawable glDisableVertexAttribArray");
+            const OpenGLESAttribute *thisAttr = prog->findAttribute(a_offsetNameID);
+            if (thisAttr)
+            {
+                glDisableVertexAttribArray(thisAttr->index);
+                CheckGLError("ParticleSystemDrawable glDisableVertexAttribArray");
+            }
+            thisAttr = prog->findAttribute(a_texCoordNameID);
+            if (thisAttr)
+            {
+                glDisableVertexAttribArray(thisAttr->index);
+                CheckGLError("ParticleSystemDrawable glDisableVertexAttribArray");
+            }
         }
-        thisAttr = prog->findAttribute(a_texCoordNameID);
-        if (thisAttr)
-        {
-            glDisableVertexAttribArray(thisAttr->index);
-            CheckGLError("ParticleSystemDrawable glDisableVertexAttribArray");
-        }
+
+        drawUnbindAttrs(prog);
     }
     
     // Tear down any textures we set up
     drawTeardownTextures(frameInfo, scene, prog, hasTexture, progTexBound);
-
-    // Tear down the state
-    for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
-    {
-        const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID);
-        if (thisAttr) {
-            glDisableVertexAttribArray(thisAttr->index);
-        }
-    }
-    for (SingleVertexAttributeInfo &varyInfo : varyAttrs)
-    {
-        const OpenGLESAttribute *thisAttr = prog->findAttribute(varyInfo.nameID);
-        if (thisAttr)
-            glDisableVertexAttribArray(thisAttr->index);
-    }
 }
     
 static const char *vertexShaderTri =
