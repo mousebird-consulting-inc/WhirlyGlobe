@@ -479,6 +479,12 @@ using namespace WhirlyKit;
        if (!error || error.code != NSURLErrorCancelled) {
            allStats.totalFails = allStats.totalFails + 1;
            recentStats.totalFails = recentStats.totalFails + 1;
+           // Build an NSError around the status code
+           if (!error) {
+               error = [[NSError alloc] initWithDomain:@"MaplyRemoteTileFetcher"
+                                                  code:response.statusCode
+                                              userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"Server response: %d",(int)response.statusCode]}];
+           }
            [self finishedLoading:tile data:nil error:error];
        }
    } else {
