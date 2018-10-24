@@ -186,7 +186,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         // Now we know how much of the original polygon made it out to the screen
         // We can scale its importance accordingly.
         // This gets rid of small slices of big tiles not getting loaded
-        double scale = backArea / origArea;
+        double scale = (backArea == 0.0) ? 1.0 : origArea / backArea;
 
         double newImport =  std::abs(screenArea) * scale;
         if (newImport > import)
@@ -205,7 +205,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
 - (double)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
 {
     Point3d eyePos = viewState.eyePos;
-    eyePos.normalize();
+//    eyePos.normalize();
     
     if (!viewState.coordAdapter->isFlat())
     {
