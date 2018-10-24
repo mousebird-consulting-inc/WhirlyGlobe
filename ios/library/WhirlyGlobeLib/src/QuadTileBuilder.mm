@@ -149,7 +149,11 @@ using namespace WhirlyKit;
             NSLog(@"  %d: (%d,%d)",tile.level,tile.x,tile.y);
         NSLog(@"----- ------------- ------");
     }
-    
+
+    // We need the layer flush to run if we're holding on to nodes
+    if (!toKeep.empty() && changes.empty())
+        changes.push_back(NULL);
+
     // Flush out any visual changes
     [layer.layerThread addChangeRequests:changes];
     
