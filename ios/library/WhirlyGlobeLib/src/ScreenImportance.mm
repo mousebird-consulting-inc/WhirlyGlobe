@@ -164,9 +164,11 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         }
         
         double screenArea = CalcLoopArea(screenPts);
-        screenArea = std::abs(screenArea);
         if (std::isnan(screenArea))
             screenArea = 0.0;
+        // The polygon came out backwards, so toss it
+        if (screenArea <= 0.0)
+            continue;
         
         // Now project the screen points back into model space
         std::vector<Point3d> backPts;
@@ -184,9 +186,8 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         // Now we know how much of the original polygon made it out to the screen
         // We can scale its importance accordingly.
         // This gets rid of small slices of big tiles not getting loaded
-        double scale = (backArea == 0.0) ? 1.0 : origArea / backArea;
+        double scale = backArea / origArea;
 
-        // Note: Turned off for the moment
         double newImport =  std::abs(screenArea) * scale;
         if (newImport > import)
             import = newImport;
@@ -204,6 +205,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
 - (double)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
 {
     Point3d eyePos = viewState.eyePos;
+    eyePos.normalize();
     
     if (!viewState.coordAdapter->isFlat())
     {

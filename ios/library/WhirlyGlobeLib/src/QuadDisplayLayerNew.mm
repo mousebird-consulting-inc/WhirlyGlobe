@@ -180,9 +180,9 @@ static const float DelayPeriod = 0.1;
             targetLevel = std::max(targetLevel,node.level);
     }
     
-    NSLog(@"Selected level %d for %d nodes",targetLevel,(int)newNodes.size());
+//    NSLog(@"Selected level %d for %d nodes",targetLevel,(int)newNodes.size());
 //    for (auto node: newNodes) {
-//        NSLog(@" %d: (%d,%d)",node.level,node.x,node.y);
+//        NSLog(@" %d: (%d,%d), import = %f",node.level,node.x,node.y,node.importance);
 //    }
 
     QuadTreeNew::ImportantNodeSet toAdd,toUpdate;
