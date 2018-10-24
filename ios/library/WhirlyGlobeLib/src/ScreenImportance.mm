@@ -241,7 +241,6 @@ static float const BoundsEps = 10.0 / EarthRadius;
         }
         // Then top and bottom
         dispSolid.polys.push_back(topCorners);
-        std::reverse(botCorners.begin(),botCorners.end());
         dispSolid.polys.push_back(botCorners);
     }
     
@@ -381,8 +380,10 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
     double totalImport = 0.0;
     for (unsigned int ii=0;ii<_polys.size();ii++)
     {
-        double import = PolyImportance(_polys[ii], _normals[ii], viewState, frameSize);
-        totalImport += import;
+        if (_normals[ii].dot(eyePos) >= 0.0) {
+            double import = PolyImportance(_polys[ii], _normals[ii], viewState, frameSize);
+            totalImport += import;
+        }
     }
     
     // The flat map case is optimized to only evaluate one poly, since there's no curvature
