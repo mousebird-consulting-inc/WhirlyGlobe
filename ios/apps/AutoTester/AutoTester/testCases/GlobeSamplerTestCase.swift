@@ -51,11 +51,7 @@ class GlobeSamplerTestCase: MaplyTestCase {
         return imageLoader
     }
 
-    override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        globeVC.setPosition(MaplyCoordinateMakeWithDegrees(0.0, 0.0))
-        globeVC.height = 0.14
-        globeVC.keepNorthUp = true
-        
+    override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {        
         imageLoader = setupLoader(globeVC)
     }
 
