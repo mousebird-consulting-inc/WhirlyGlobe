@@ -82,7 +82,7 @@ protected:
         _mbr = [_dataStructure validExtents];
         minZoom = [_dataStructure minZoom];
         maxZoom = [_dataStructure maxZoom];
-        _maxTiles = 128;
+        _maxTiles = 64;
         _minImportance = 1.0;
         _minImportanceTop = 0.0;
         _viewUpdatePeriod = 0.1;
@@ -178,6 +178,12 @@ static const float DelayPeriod = 0.1;
         // Just take the highest level as target
         for (auto node : newNodes)
             targetLevel = std::max(targetLevel,node.level);
+    }
+    
+    // Note: Debugging
+    NSLog(@"Selected level %d for %d nodes",targetLevel,(int)newNodes.size());
+    for (auto node: newNodes) {
+        NSLog(@" %d: (%d,%d)",node.level,node.x,node.y);
     }
 
     QuadTreeNew::ImportantNodeSet toAdd,toUpdate;

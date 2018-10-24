@@ -139,6 +139,9 @@ void QuadTreeNew::evalNodeImportance(ImportantNode node,double minImport,double 
         node.level > maxLevel)
         return;
     
+    // Note: Debugging
+    double import = importance(node);
+    
     importSet.insert(node);
     
     if (node.level < maxLevel) {

@@ -24,6 +24,7 @@
 #import "MaplyQuadSampler_private.h"
 #import "MaplyBaseViewController_private.h"
 #import "MaplyRenderTarget_private.h"
+#import "MaplyScreenLabel.h"
 
 @interface MaplyQuadImageLoader() <WhirlyKitQuadTileBuilderDelegate>
 
@@ -327,6 +328,55 @@ using namespace WhirlyKit;
     int borderPixel = 0;
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:borderPixel convertToRaw:true];
     loadReturn.image = loadTile;
+}
+
+@end
+
+@implementation MaplyDebugImageLoaderInterpreter
+{
+    MaplyBaseViewController * __weak viewC;
+    MaplyQuadImageLoaderBase * __weak loader;
+    UIFont *font;
+}
+
+- (id)initWithLoader:(MaplyQuadImageLoaderBase *)inLoader viewC:(MaplyBaseViewController *)inViewC
+{
+    self = [super init];
+    loader = inLoader;
+    viewC = inViewC;
+    font = [UIFont systemFontOfSize:12.0];
+    
+    return self;
+}
+
+- (void)parseData:(MaplyLoaderReturn * __nonnull)loadReturn
+{
+    [super parseData:loadReturn];
+    
+    MaplyBoundingBox bbox = [loader geoBoundsForTile:loadReturn.tileID];
+    MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+    MaplyCoordinate center;
+    center.x = (bbox.ll.x+bbox.ur.x)/2.0;  center.y = (bbox.ll.y+bbox.ur.y)/2.0;
+    label.loc = center;
+    label.text = [NSString stringWithFormat:@"%d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y];
+    label.layoutImportance = MAXFLOAT;
+    
+    MaplyComponentObject *labelObj = [viewC addScreenLabels:@[label] desc:
+                                     @{kMaplyFont: font,
+                                       kMaplyTextColor: UIColor.blackColor,
+                                       kMaplyTextOutlineColor: UIColor.whiteColor,
+                                       kMaplyTextOutlineSize: @(2.0)
+                                       }];
+    
+    MaplyCoordinate coords[5];
+    coords[0] = bbox.ll;  coords[1] = MaplyCoordinateMake(bbox.ur.x, bbox.ll.y);
+    coords[2] = bbox.ur;  coords[3] = MaplyCoordinateMake(bbox.ll.x, bbox.ur.y);
+    coords[4] = coords[0];
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:5 attributes:nil];
+    [vecObj subdivideToGlobe:0.001];
+    MaplyComponentObject *outlineObj = [viewC addVectors:@[vecObj] desc:nil];
+    
+    loadReturn.compObjs = @[labelObj,outlineObj];
 }
 
 @end

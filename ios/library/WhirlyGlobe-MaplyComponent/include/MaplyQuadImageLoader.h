@@ -86,6 +86,19 @@
 @interface MaplyImageLoaderInterpreter : NSObject<MaplyLoaderInterpreter>
 @end
 
+@class MaplyQuadImageLoaderBase;
+
+/**
+    This loader interpreter sticks a designator in the middle of tiles
+    and a line around the edge.  Nice for debugging.
+  */
+@interface MaplyDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
+
+// Intialize with the loader we're using.  Need this for extents of tiles
+- (instancetype __nonnull)initWithLoader:(MaplyQuadImageLoaderBase * __nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
+
+@end
+
 /// Name of the shared MaplyRemoteTileFetcher
 extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 
