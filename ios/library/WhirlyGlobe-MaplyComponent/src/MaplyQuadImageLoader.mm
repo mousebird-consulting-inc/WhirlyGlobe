@@ -366,7 +366,8 @@ using namespace WhirlyKit;
                                        kMaplyTextColor: UIColor.blackColor,
                                        kMaplyTextOutlineColor: UIColor.whiteColor,
                                        kMaplyTextOutlineSize: @(2.0)
-                                       }];
+                                       }
+                                                       mode:MaplyThreadCurrent];
     
     MaplyCoordinate coords[5];
     coords[0] = bbox.ll;  coords[1] = MaplyCoordinateMake(bbox.ur.x, bbox.ll.y);
@@ -374,7 +375,7 @@ using namespace WhirlyKit;
     coords[4] = coords[0];
     MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:5 attributes:nil];
     [vecObj subdivideToGlobe:0.001];
-    MaplyComponentObject *outlineObj = [viewC addVectors:@[vecObj] desc:nil];
+    MaplyComponentObject *outlineObj = [viewC addVectors:@[vecObj] desc:nil mode:MaplyThreadCurrent];
     
     loadReturn.compObjs = @[labelObj,outlineObj];
 }
