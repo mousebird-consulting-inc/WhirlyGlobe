@@ -237,7 +237,7 @@ static const float DelayPeriod = 0.1;
     
     // Is this a valid tile?
     if (!_mbr.inside(mbr.mid())) {
-        return 0.0;
+        return -1.0;
     }
 
     // Note: Add back the mutable attributes?

@@ -109,7 +109,7 @@ using namespace WhirlyKit;
 
     QuadTreeNew::NodeSet toKeep;
     if (!unloadTiles.empty()) {
-        toKeep = [_delegate quadBuilder:self loadTiles:loadTiles unloadTilesToCheck:unloadTiles];
+        toKeep = [_delegate quadBuilder:self loadTiles:loadTiles unloadTilesToCheck:unloadTiles targetLevel:targetLevel];
         // Remove the keep nodes and add them to update with very little importance
         for (const QuadTreeNew::Node &node: toKeep) {
             info.unloadTiles.erase(node);

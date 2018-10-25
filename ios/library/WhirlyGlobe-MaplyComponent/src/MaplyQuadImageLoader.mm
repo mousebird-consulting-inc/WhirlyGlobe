@@ -844,6 +844,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 - (QuadTreeNew::NodeSet)quadBuilder:(WhirlyKitQuadTileBuilder * _Nonnull)builder
                           loadTiles:(const QuadTreeNew::ImportantNodeSet &)loadTiles
                  unloadTilesToCheck:(const QuadTreeNew::NodeSet &)unloadTiles
+                        targetLevel:(int)targetLevel
 {
     QuadTreeNew::NodeSet toKeep;
     
@@ -895,9 +896,11 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
         // Lastly, hold anything that might be used for an overlay
         // Note: Only do this if we're using overlays
-        if (hasOverlayObjects && node.level == curOverlayLevel) {
-            if (toKeep.find(node) == toKeep.end())
-                toKeep.insert(node);
+        if (curOverlayLevel != targetLevel) {
+            if (hasOverlayObjects && node.level == curOverlayLevel) {
+                if (toKeep.find(node) == toKeep.end())
+                    toKeep.insert(node);
+            }
         }
     }
     
@@ -1007,7 +1010,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         if (curOverlayLevel == -1) {
             curOverlayLevel = targetLevel;
             if (self.debugMode)
-                NSLog(@"Picking new overlay level %d",curOverlayLevel);
+                NSLog(@"Picking new overlay level %d, targetLevel = %d",curOverlayLevel,targetLevel);
         } else {
             bool allLoaded = true;
             for (auto it : tiles) {
@@ -1022,7 +1025,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
             if (allLoaded) {
                 curOverlayLevel = targetLevel;
                 if (self.debugMode)
-                    NSLog(@"Picking new overlay level %d",curOverlayLevel);
+                    NSLog(@"Picking new overlay level %d, targetLevel = %d",curOverlayLevel,targetLevel);
             }
         }
     } else {
