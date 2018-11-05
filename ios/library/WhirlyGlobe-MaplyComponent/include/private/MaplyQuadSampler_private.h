@@ -21,6 +21,12 @@
 #import "MaplyQuadSampler.h"
 #import "QuadTileBuilder.h"
 
+@interface MaplySamplingParams()
+    
+@property (nonatomic,assign) std::vector<double> importancePerLevel;
+
+@end
+
 /** The Quad Sampling Layer runs a quad tree which determines what
  tiles to load.  We hook up other things to this to actually do
  the loading.
