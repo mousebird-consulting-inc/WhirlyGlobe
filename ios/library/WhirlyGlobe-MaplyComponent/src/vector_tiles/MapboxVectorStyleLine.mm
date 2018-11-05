@@ -141,6 +141,7 @@ static unsigned int NextPowOf2(unsigned int val)
     _paint = [[MapboxVectorLinePaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
     self.drawPriority = [styleSet intValue:@"drawPriority" dict:styleEntry defVal:drawPriority];
     _linearClipToBounds = [styleSet boolValue:@"linearize-clip-to-bounds" dict:styleEntry onValue:@"yes" defVal:false];
+    _subdivToGlobe = [styleSet doubleValue:@"subdiv-to-globe" dict:styleEntry defVal:0.0];
     
     if (!_paint)
     {
@@ -227,6 +228,13 @@ static unsigned int NextPowOf2(unsigned int val)
             [outVecObjs addObject:clipVec];
         }
         vecObjs = outVecObjs;
+    }
+
+    // Subdivide long-ish lines to the globe, if set
+    if (_subdivToGlobe > 0.0) {
+        for (MaplyVectorObject *vecObj in vecObjs) {
+            [vecObj subdivideToGlobe:_subdivToGlobe];
+        }
     }
     
     NSDictionary *desc = lineDesc;
