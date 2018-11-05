@@ -47,6 +47,14 @@ using namespace WhirlyKit;
 
     return self;
 }
+    
+- (void)setMinImportance:(double)minImportance forLevel:(int)level
+{
+    if (level >= _importancePerLevel.size()) {
+        _importancePerLevel.resize(level+1,-2.0);
+    }
+    _importancePerLevel[level] = minImportance;
+}
 
 - (bool)isClipEqualTo:(MaplySamplingParams *__nonnull)other
 {
