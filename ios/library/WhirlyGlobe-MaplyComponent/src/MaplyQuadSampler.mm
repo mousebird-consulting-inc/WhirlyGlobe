@@ -146,8 +146,16 @@ using namespace WhirlyKit;
     quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithDataSource:self loader:builder renderer:renderer];
     quadLayer.singleLevel = _params.singleLevel;
     quadLayer.levelLoads = _params.levelLoads;
-    quadLayer.minImportanceTop = _params.minImportanceTop;
-    quadLayer.minImportance = _params.minImportance;
+    std::vector<double> importance(_params.maxZoom+1);
+    for (int ii=0;ii<=_params.maxZoom;ii++) {
+        double import = _params.minImportance;
+        if (ii < _params.importancePerLevel.size() && _params.importancePerLevel[ii] > -2.0)
+            import = _params.importancePerLevel[ii];
+        importance[ii] = import;
+    }
+    if (_params.minImportanceTop != _params.minImportance)
+        importance[_params.minZoom] = _params.minImportanceTop;
+    quadLayer.minImportancePerLevel = importance;
     quadLayer.maxTiles = _params.maxTiles;
     [super.layerThread addLayer:quadLayer];
 
