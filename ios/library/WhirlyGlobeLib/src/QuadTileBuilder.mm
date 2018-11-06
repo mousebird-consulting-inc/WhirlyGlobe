@@ -109,7 +109,7 @@ using namespace WhirlyKit;
 
     QuadTreeNew::NodeSet toKeep;
     if (!unloadTiles.empty()) {
-        toKeep = [_delegate quadBuilder:self loadTiles:loadTiles unloadTilesToCheck:unloadTiles];
+        toKeep = [_delegate quadBuilder:self loadTiles:loadTiles unloadTilesToCheck:unloadTiles targetLevel:targetLevel];
         // Remove the keep nodes and add them to update with very little importance
         for (const QuadTreeNew::Node &node: toKeep) {
             info.unloadTiles.erase(node);
@@ -149,7 +149,11 @@ using namespace WhirlyKit;
             NSLog(@"  %d: (%d,%d)",tile.level,tile.x,tile.y);
         NSLog(@"----- ------------- ------");
     }
-    
+
+    // We need the layer flush to run if we're holding on to nodes
+    if (!toKeep.empty() && changes.empty())
+        changes.push_back(NULL);
+
     // Flush out any visual changes
     [layer.layerThread addChangeRequests:changes];
     

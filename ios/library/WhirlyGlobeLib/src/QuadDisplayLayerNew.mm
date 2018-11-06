@@ -179,6 +179,11 @@ static const float DelayPeriod = 0.1;
         for (auto node : newNodes)
             targetLevel = std::max(targetLevel,node.level);
     }
+    
+//    NSLog(@"Selected level %d for %d nodes",targetLevel,(int)newNodes.size());
+//    for (auto node: newNodes) {
+//        NSLog(@" %d: (%d,%d), import = %f",node.level,node.x,node.y,node.importance);
+//    }
 
     QuadTreeNew::ImportantNodeSet toAdd,toUpdate;
     QuadTreeNew::NodeSet toRemove;
@@ -232,7 +237,7 @@ static const float DelayPeriod = 0.1;
     
     // Is this a valid tile?
     if (!_mbr.inside(mbr.mid())) {
-        return 0.0;
+        return -1.0;
     }
 
     // Note: Add back the mutable attributes?

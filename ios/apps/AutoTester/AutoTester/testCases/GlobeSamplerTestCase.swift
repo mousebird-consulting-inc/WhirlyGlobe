@@ -43,13 +43,15 @@ class GlobeSamplerTestCase: MaplyTestCase {
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
         }
+        let interp = MaplyDebugImageLoaderInterpreter(loader: imageLoader, viewC: baseVC)
+        imageLoader.setInterpreter(interp)
         imageLoader.imageFormat = .imageUShort565;
 //        imageLoader.debugMode = true
 
         return imageLoader
     }
 
-    override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
+    override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {        
         imageLoader = setupLoader(globeVC)
     }
 
