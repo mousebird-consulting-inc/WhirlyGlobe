@@ -39,6 +39,7 @@ using namespace WhirlyKit;
     _tessX = 10;
     _tessY = 10;
     _singleLevel = false;
+    _maxTiles = 128;
     _minImportance = 256*256;
     _minImportanceTop = 0.0;
     _levelLoads = nil;
@@ -70,6 +71,7 @@ using namespace WhirlyKit;
         _minImportance != other.minImportance ||
         _minImportanceTop != other.minImportanceTop ||
         _singleLevel != other.singleLevel ||
+        _maxTiles != other.maxTiles ||
         ![self isClipEqualTo:other])
         return false;
     
@@ -138,6 +140,7 @@ using namespace WhirlyKit;
     quadLayer.levelLoads = _params.levelLoads;
     quadLayer.minImportanceTop = _params.minImportanceTop;
     quadLayer.minImportance = _params.minImportance;
+    quadLayer.maxTiles = _params.maxTiles;
     [super.layerThread addLayer:quadLayer];
 
     return true;
@@ -287,10 +290,11 @@ using namespace WhirlyKit;
 - (WhirlyKit::QuadTreeNew::NodeSet)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder
             loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles
             unloadTilesToCheck:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles
+            targetLevel:(int)targetLevel
 {
     QuadTreeNew::NodeSet toKeep;
     for (auto delegate : builderDelegates) {
-        auto thisToKeep = [delegate quadBuilder:builder loadTiles:loadTiles unloadTilesToCheck:unloadTiles];
+        auto thisToKeep = [delegate quadBuilder:builder loadTiles:loadTiles unloadTilesToCheck:unloadTiles targetLevel:targetLevel];
         toKeep.insert(thisToKeep.begin(),thisToKeep.end());
     }
     

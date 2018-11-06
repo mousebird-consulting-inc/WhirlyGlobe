@@ -40,6 +40,9 @@
 /// Max zoom level for sampling
 @property (nonatomic) int maxZoom;
 
+/// Maximum number of tiles to load
+@property (nonatomic) int maxTiles;
+
 /// Cutoff for loading tiles.  This is size in screen space (pixels^2)
 @property (nonatomic) double minImportance;
 
