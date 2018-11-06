@@ -42,4 +42,7 @@
                                  vectorStyle:(MapboxVectorStyleSet *__nonnull)vectorStyle
                                        viewC:(MaplyBaseViewController *__nonnull)viewC;
 
+// If set, we'll use an image we encounter per tile as a hill shade
+@property (nonatomic) bool imageAsHillshade;
+
 @end
