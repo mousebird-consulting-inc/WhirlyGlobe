@@ -102,6 +102,15 @@
     } else {
         _textColor = [UIColor whiteColor];
     }
+    id textOpacityEntry = styleEntry[@"text-opacity"];
+    if (textOpacityEntry) {
+        if ([textOpacityEntry isKindOfClass:[NSNumber class]])
+            _textOpacity = [styleSet doubleValue:@"text-opacity" dict:styleEntry defVal:1.0];
+        else
+            _textOpacityFunc = [styleSet stopsValue:textOpacityEntry defVal:nil];
+    } else {
+        _textOpacity = 1.0;
+    }
     _textHaloColor = [styleSet colorValue:@"text-halo-color" val:nil dict:styleEntry defVal:nil multiplyAlpha:false];
     _textHaloWidth = [styleSet doubleValue:@"text-halo-width" dict:styleEntry defVal:0.0];
 
@@ -143,7 +152,7 @@
                     kMaplyEnable: @(NO)
                     }];
     if (_paint.textColor)
-        symbolDesc[kMaplyTextColor] = _paint.textColor;
+        symbolDesc[kMaplyTextColor] = [_paint.textColor colorWithAlphaComponent:_paint.textOpacity];
     if (_paint.textHaloColor && _paint.textHaloWidth > 0.0)
     {
         symbolDesc[kMaplyTextOutlineColor] = _paint.textHaloColor;
@@ -180,6 +189,9 @@
         [retStr appendString:lineStr];
         started = true;
     }];
+    
+//    CGSize size = [textAttrStr size];
+//    NSLog(@"Input: %@, output: %@, size = (%f,%f)",text,retStr,size.width,size.height);
     
     return retStr;
 }
@@ -226,6 +238,11 @@
     }
     if (!textColor)
         textColor = [UIColor whiteColor];
+    double opacity = _paint.textOpacity;
+    if (_paint.textOpacityFunc) {
+        opacity = [_paint.textOpacityFunc valueForZoom:tileInfo.tileID.level];
+    }
+    textColor = [textColor colorWithAlphaComponent:opacity];
 
     NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
     mutDesc[kMaplyFont] = font;
@@ -254,7 +271,7 @@
             label.uniqueID = [label.text lowercaseString];
 
         // The rank is most important, followed by the zoom level.  This keeps the countries on top.
-        int rank = 100000;
+        int rank = 0;
         if (vecObj.attributes[@"rank"]) {
             rank = [vecObj.attributes[@"rank"] integerValue];
         }

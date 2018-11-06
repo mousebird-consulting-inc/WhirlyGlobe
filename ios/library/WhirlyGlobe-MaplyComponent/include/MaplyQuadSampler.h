@@ -74,6 +74,13 @@
  */
 @property (nonatomic,nullable,strong) NSArray *levelLoads;
 
+/**
+ Set the min importance for just one level.
+ 
+ This is useful if you want your lower levels loaded more aggressively.
+ */
+- (void)setMinImportance:(double)minImportance forLevel:(int)level;
+
 /// Decide if these sampling params are the same as others
 - (bool)isEqualTo:(MaplySamplingParams *__nonnull)other;
 

@@ -83,8 +83,6 @@ protected:
         minZoom = [_dataStructure minZoom];
         maxZoom = [_dataStructure maxZoom];
         _maxTiles = 128;
-        _minImportance = 1.0;
-        _minImportanceTop = 0.0;
         _viewUpdatePeriod = 0.1;
         Mbr mbr = [_dataStructure totalExtents];
         MbrD mbrD(mbr);
@@ -172,9 +170,9 @@ static const float DelayPeriod = 0.1;
     QuadTreeNew::ImportantNodeSet newNodes;
     int targetLevel = -1;
     if (_singleLevel) {
-        std::tie(targetLevel,newNodes) = _quadtree->calcCoverageVisible(_minImportance,_minImportanceTop, _maxTiles, levelsToLoad);
+        std::tie(targetLevel,newNodes) = _quadtree->calcCoverageVisible(_minImportancePerLevel, _maxTiles, levelsToLoad);
     } else {
-        newNodes = _quadtree->calcCoverageImportance(_minImportance,_minImportanceTop,_maxTiles,true);
+        newNodes = _quadtree->calcCoverageImportance(_minImportancePerLevel,_maxTiles,true);
         // Just take the highest level as target
         for (auto node : newNodes)
             targetLevel = std::max(targetLevel,node.level);
