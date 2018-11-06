@@ -1,0 +1,73 @@
+cmake_minimum_required(VERSION 3.4.1)
+
+target_include_directories(
+        ${WGTARGET}
+
+        PUBLIC
+
+        "${CMAKE_CURRENT_LIST_DIR}"
+)
+
+target_sources(
+        ${WGTARGET}
+
+        PUBLIC
+
+        "${CMAKE_CURRENT_LIST_DIR}/AAAberration.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAAngularSeparation.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AABinaryStar.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AACoordinateTransformation.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AADate.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AADiameters.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AADynamicalTime.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAEarth.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAEaster.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAEclipses.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAEclipticalElements.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAElementsPlanetaryOrbit.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAElliptical.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAEquationOfTime.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAEquinoxesAndSolstices.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAFK5.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAGalileanMoons.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAGlobe.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAIlluminatedFraction.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAInterpolate.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAJewishCalendar.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAJupiter.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAKepler.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAMars.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAMercury.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAMoon.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAMoonIlluminatedFraction.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAMoonMaxDeclinations.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAMoonNodes.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAMoonPerigeeApogee.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAMoonPhases.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAMoslemCalendar.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AANearParabolic.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AANeptune.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AANodes.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AANutation.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAParabolic.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAParallactic.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAParallax.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAPhysicalJupiter.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAPhysicalMars.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAPhysicalMoon.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAPhysicalSun.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAPlanetaryPhenomena.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAPlanetPerihelionAphelion.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAPluto.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAPrecession.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AARefraction.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AARiseTransitSet.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AASaturn.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AASaturnMoons.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AASaturnRings.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AASidereal.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAStellarMagnitudes.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AASun.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAUranus.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/AAVenus.cpp"
+)

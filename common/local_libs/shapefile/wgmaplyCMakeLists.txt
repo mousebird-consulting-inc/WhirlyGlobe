@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 3.4.1)
+
+target_include_directories(
+        ${WGTARGET}
+
+        PUBLIC
+
+        "${CMAKE_CURRENT_LIST_DIR}"
+)
+
+target_sources(
+        ${WGTARGET}
+
+        PUBLIC
+
+        "${CMAKE_CURRENT_LIST_DIR}/dbfopen.c"
+        "${CMAKE_CURRENT_LIST_DIR}/safileio.c"
+        "${CMAKE_CURRENT_LIST_DIR}/shpopen.c"
+        "${CMAKE_CURRENT_LIST_DIR}/shptree.c"
+)

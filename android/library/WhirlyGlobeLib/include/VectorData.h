@@ -80,7 +80,7 @@ typedef Point3dVector VectorRing3d;
 /// This is here to ensure we don't put in the same pointer twice
 struct VectorShapeRefCmp
 {
-    bool operator()(const VectorShapeRef &a,const VectorShapeRef &b)
+    bool operator()(const VectorShapeRef &a,const VectorShapeRef &b) const
     { return a.get() < b.get(); }
 };
   

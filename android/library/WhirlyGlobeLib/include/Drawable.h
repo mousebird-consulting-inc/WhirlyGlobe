@@ -129,7 +129,7 @@ public:
 typedef std::vector<ChangeRequest *> ChangeSet;
 typedef struct
 {
-    bool operator () (const ChangeRequest *a,const ChangeRequest *b)
+    bool operator () (const ChangeRequest *a,const ChangeRequest *b) const
     {
         if (a->when == b->when)
             return a < b;

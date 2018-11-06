@@ -25,17 +25,10 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
-
 public class MainActivity extends AppCompatActivity implements NavigationDrawer.Listener {
 
-	@BindView(R.id.toolbar)
 	Toolbar toolbar;
-	@BindView(R.id.drawer_layout)
 	DrawerLayout drawerLayout; //Drawerlayout
-	@BindView(R.id.navigation_drawer)
 	NavigationDrawer navigationDrawer;
 	private Menu menu;
 	private TestListFragment testList;
@@ -46,8 +39,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 	private boolean executing = false;
 
 	private ArrayList<MaplyTestResult> testResults;
-
-	private Unbinder unbinder;
 
 	Handler memHandler = new Handler();
 	private Runnable runnableCode = new Runnable() {
@@ -60,15 +51,17 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		System.loadLibrary("gnustl_shared");
+//		System.loadLibrary("gnustl_shared");
 
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_main);
-		unbinder = ButterKnife.bind(this);
+		toolbar = findViewById(R.id.toolbar);
+		drawerLayout = findViewById(R.id.drawer_layout);
+		navigationDrawer = findViewById(R.id.navigation_drawer);
 
 		// Force a load of the library
-		System.loadLibrary("Maply");
+		System.loadLibrary("whirlyglobemaply");
 
 		//Create toolbar
 		configureToolbar();
@@ -120,9 +113,11 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 
 		//Add home button
 		android.support.v7.app.ActionBar actionBar = getSupportActionBar();
-		actionBar.setDisplayHomeAsUpEnabled(true);
-		actionBar.setDisplayShowTitleEnabled(true);
-		actionBar.setHomeAsUpIndicator(R.drawable.ic_options_action);
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+			actionBar.setDisplayShowTitleEnabled(true);
+			actionBar.setHomeAsUpIndicator(R.drawable.ic_options_action);
+		}
 	}
 
 	private void configureNavigationDrawer() {
@@ -407,7 +402,6 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		unbinder.unbind();
 	}
 
 	private void stopTests() {
