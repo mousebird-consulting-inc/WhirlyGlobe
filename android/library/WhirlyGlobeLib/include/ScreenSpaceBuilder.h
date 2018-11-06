@@ -138,7 +138,7 @@ protected:
     // Comparitor for drawable wrapper set
     typedef struct
     {
-        bool operator()(const DrawableWrap *a,const DrawableWrap *b)
+        bool operator()(const DrawableWrap *a,const DrawableWrap *b) const
         {
             return *a < *b;
         }

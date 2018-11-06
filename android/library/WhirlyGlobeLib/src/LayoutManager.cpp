@@ -195,7 +195,7 @@ bool LayoutManager::hasChanges()
 // Sort more important things to the front
 typedef struct
 {
-    bool operator () (const LayoutObjectEntry *a,const LayoutObjectEntry *b)
+    bool operator () (const LayoutObjectEntry *a,const LayoutObjectEntry *b) const
     {
         if (a->obj.importance == b->obj.importance)
             return a > b;

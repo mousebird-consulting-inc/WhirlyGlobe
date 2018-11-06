@@ -72,7 +72,7 @@ public:
     
     typedef struct
     {
-        bool operator () (const GlyphInfo *a,const GlyphInfo *b) { return a->glyph < b->glyph; }
+        bool operator () (const GlyphInfo *a,const GlyphInfo *b) const { return a->glyph < b->glyph; }
     } GlyphInfoSorter;
     
     bool empty() { return glyphs.empty(); }
@@ -107,7 +107,7 @@ protected:
 // Used to order a set of these
 typedef struct
 {
-    bool operator () (const FontManager *a,const FontManager *b) { return *a < *b; }
+    bool operator () (const FontManager *a,const FontManager *b) const { return *a < *b; }
 } FontManagerSorter;
 
 typedef std::map<SimpleIdentity,GlyphSet> SimpleIDGlyphMap;
