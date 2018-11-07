@@ -622,18 +622,22 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
             MaplyTileFetchRequest *request = [[MaplyTileFetchRequest alloc] init];
             MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
             id fetchInfo = [tileInfo fetchInfoForTile:tileID];
-            request.fetchInfo = fetchInfo;
-            request.tileSource = tileInfo;
-            request.priority = 0;
-            request.importance = ident.importance * self.importanceScale;
-            
-            request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
-                [self fetchRequestSuccess:request tileID:tileID frame:-1 data:data];
-            };
-            request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-                [self fetchRequestFail:request tileID:tileID frame:-1 error:error];
-            };
-            [requests addObject:request];
+            // If there's no fetch info, then there's no data to fetch
+            // Note: What happens if this is true for all data sources?
+            if (fetchInfo) {
+                request.fetchInfo = fetchInfo;
+                request.tileSource = tileInfo;
+                request.priority = 0;
+                request.importance = ident.importance * self.importanceScale;
+                
+                request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
+                    [self fetchRequestSuccess:request tileID:tileID frame:-1 data:data];
+                };
+                request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
+                    [self fetchRequestFail:request tileID:tileID frame:-1 error:error];
+                };
+                [requests addObject:request];
+            }
         }
     }
 
