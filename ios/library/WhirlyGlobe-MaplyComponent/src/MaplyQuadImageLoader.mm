@@ -131,7 +131,10 @@ public:
     
     // Return the list of data fetched and clear it locally
     std::vector<NSData *> getAndClearData() {
-        auto toRet = fetchedData;
+        std::vector<NSData *> toRet;
+        for (auto data : fetchedData)
+            if (data)
+                toRet.push_back(data);
         fetchedData.clear();
         return toRet;
     }
@@ -689,6 +692,38 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     [self performSelector:@selector(mergeFetchRequest:) onThread:self->samplingLayer.layerThread withObject:@[loadData,request] waitUntilDone:NO];
 }
 
+// Deal with returned tile data (or not)
+- (void)mergeFetchedData:(MaplyLoaderReturn *)loadReturn forTile:(TileAssetRef)tile tileID:(const QuadTreeNew::Node &)tileID request:(MaplyTileFetchRequest *)request
+{
+    // May get nil data, which means we just clean out the request
+    NSData *tileData = loadReturn ? loadReturn.tileData : nil;
+    
+    // Loaded all the requests, so parse the data
+    if (tile->dataWasLoaded(request,tileData)) {
+        // Construct a LoaderReturn that contains all the data
+        auto allData = tile->getAndClearData();
+        if (allData.empty()) {
+            tile->setLoaded();
+            return;
+        }
+        
+        MaplyLoaderReturn *multiLoadData = [[MaplyLoaderReturn alloc] init];
+        multiLoadData.tileID = loadReturn.tileID;
+        multiLoadData.frame = loadReturn.frame;
+        multiLoadData.multiTileData = [NSMutableArray array];
+        for (unsigned int ii=0;ii<allData.size();ii++)
+            [(NSMutableArray *)multiLoadData.multiTileData addObject:allData[ii]];
+        multiLoadData.tileData = [multiLoadData.multiTileData objectAtIndex:0];
+        
+        // Hand over to another queue to do the parsing, since that can be slow
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self->loadInterp parseData:multiLoadData];
+            
+            [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:multiLoadData waitUntilDone:NO];
+        });
+    }
+}
+
 // Called on the SamplingLayer.LayerThread
 - (void)mergeFetchRequest:(NSArray *)retData
 {
@@ -710,32 +745,8 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
     if (self.debugMode)
         NSLog(@"MaplyQuadImageLoader: Merging fetch for tile %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-
-    // Loaded all the requests, so parse the data
-    if (tile->dataWasLoaded(request,loadReturn.tileData)) {
-        // Construct a LoaderReturn that contains all the data
-        auto allData = tile->getAndClearData();
-        if (allData.empty()) {
-            tile->setLoaded();
-            return;
-        }
-        
-        MaplyLoaderReturn *multiLoadData = [[MaplyLoaderReturn alloc] init];
-        multiLoadData.tileID = loadReturn.tileID;
-        multiLoadData.frame = loadReturn.frame;
-        multiLoadData.multiTileData = [NSMutableArray array];
-        for (unsigned int ii=0;ii<allData.size();ii++)
-            [(NSMutableArray *)multiLoadData.multiTileData addObject:allData[ii]];
-        multiLoadData.tileData = [multiLoadData.multiTileData objectAtIndex:0];
-
-        // Hand over to another queue to do the parsing, since that can be slow
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [self->loadInterp parseData:multiLoadData];
-            
-            [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:multiLoadData waitUntilDone:NO];
-        });
-    }
-
+    
+    [self mergeFetchedData:loadReturn forTile:tile tileID:tileID request:request];
 }
 
 // Called on SamplingLayer.layerThread
@@ -812,6 +823,17 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error
 {
     NSLog(@"MaplyQuadImageLoader: Failed to fetch tile %d: (%d,%d) because:\n%@",tileID.level,tileID.x,tileID.y,[error localizedDescription]);
+    
+    QuadTreeNew::Node ident(tileID.x,tileID.y,tileID.level);
+    auto it = tiles.find(ident);
+    // Failed, so clean up the objects that may have been created
+    if (it == tiles.end() || it->second->getState() != TileAsset::Loading) {
+        return;
+    }
+    auto thisTileID = it->first;
+    auto tile = it->second;
+        
+    [self mergeFetchedData:nil forTile:tile tileID:thisTileID request:request];
 }
 
 // Decide if this tile ought to be loaded
