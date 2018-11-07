@@ -97,6 +97,10 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
 using namespace WhirlyKit;
 
 @implementation MaplyRemoteTileInfoNew
+{
+    MbrD validMbr;
+    MaplyCoordinateSystem *bboxCoordSys;
+}
 
 - (nonnull instancetype)initWithBaseURL:(NSString *__nonnull)inBaseURL minZoom:(int)inMinZoom maxZoom:(int)inMaxZoom
 {
@@ -108,8 +112,53 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (void)addValidBounds:(MaplyBoundingBoxD)bbox coordSystem:(MaplyCoordinateSystem *)coordSys
+{
+    validMbr.addPoint(Point2d(bbox.ll.x,bbox.ll.y));
+    validMbr.addPoint(Point2d(bbox.ur.x,bbox.ur.y));
+    bboxCoordSys = coordSys;
+}
+
+- (bool)tileIsValid:(MaplyTileID)tileID
+{
+    if (!_coordSys || !bboxCoordSys)
+        return true;
+
+    // Bounding box for the whole coordinate system
+    MaplyBoundingBox wholeBBox = [_coordSys getBounds];
+    MbrD wholeMbr;
+    wholeMbr.addPoint(Point2f(wholeBBox.ll.x,wholeBBox.ll.y));
+    wholeMbr.addPoint(Point2f(wholeBBox.ur.x,wholeBBox.ur.y));
+
+    // Make the bounding box for this particular tile (in the native coord system)
+    int numLevel = 1<<tileID.level;
+    double spanX = wholeBBox.ur.x - wholeBBox.ll.x;
+    double spanY = wholeBBox.ur.y - wholeBBox.ll.y;
+    double dx = spanX/numLevel, dy = spanY/numLevel;
+    Point3d pts[4];
+    pts[0] = Point3d(wholeBBox.ll.x+dx*tileID.x,wholeBBox.ll.y+dy*tileID.y,0.0);
+    pts[1] = Point3d(wholeBBox.ll.x+dx*(tileID.x+1),wholeBBox.ll.y+dy*tileID.y,0.0);
+    pts[2] = Point3d(wholeBBox.ll.x+dx*(tileID.x+1),wholeBBox.ll.y+dy*(tileID.y+1),0.0);
+    pts[3] = Point3d(wholeBBox.ll.x+dx*tileID.x,wholeBBox.ll.y+dy*(tileID.y+1),0.0);
+
+    // Project the corners into
+    MbrD tileMbr;
+    for (unsigned int ii=0;ii<4;ii++) {
+        Point3d validPt = CoordSystemConvert3d([_coordSys getCoordSystem], [bboxCoordSys getCoordSystem], pts[ii]);
+        tileMbr.addPoint(Point2d(validPt.x(),validPt.y()));
+    }
+    
+    if (tileMbr.overlaps(validMbr))
+        return true;
+    else
+        return false;
+}
+
 - (NSURLRequest *)urlRequestForTile:(MaplyTileID)tileID
 {
+    if (![self tileIsValid:tileID])
+        return nil;
+    
     int y = ((int)(1<<tileID.level)-tileID.y)-1;
     NSMutableURLRequest *urlReq = nil;
 
@@ -143,6 +192,9 @@ using namespace WhirlyKit;
     MaplyRemoteTileFetchInfo *fetchInfo = [[MaplyRemoteTileFetchInfo alloc] init];
     fetchInfo.urlReq = [self urlRequestForTile:tileID];
     fetchInfo.cacheFile = [self fileNameForTile:tileID];
+    
+    if (!fetchInfo.urlReq)
+        return nil;
     
     return fetchInfo;
 }
