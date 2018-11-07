@@ -33,7 +33,7 @@ using namespace WhirlyKit;
 @implementation WhirlyKitDisplaySolid
 
 // Let's not support tiles less than 10m on a side
-static float const BoundsEps = 10.0 / EarthRadius;
+//static float const BoundsEps = 10.0 / EarthRadius;
 
 // Calculate the number of samples required to represent the given line to a tolerance
 int calcNumSamples(const Point3d &p0,const Point3d &p1,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter,int level)
