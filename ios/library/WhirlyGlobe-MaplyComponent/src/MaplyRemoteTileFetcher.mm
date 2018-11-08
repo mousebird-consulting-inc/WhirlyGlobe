@@ -29,7 +29,7 @@ class TileInfo
 {
 public:
     TileInfo()
-    : state(ToLoad), isLocal(false), tileSource(NULL), priority(0), importance(0.0), request(nil), fetchInfo(nil), task(nil) { }
+    : state(ToLoad), isLocal(false), tileSource(NULL), priority(0), importance(0.0), group(0), request(nil), fetchInfo(nil), task(nil) { }
 
     /// Comparison based on importance, tile source, then x,y,level
     bool operator < (const TileInfo &that) const
@@ -37,10 +37,14 @@ public:
         if (this->isLocal == that.isLocal) {
             if (this->priority == that.priority) {
                 if (this->importance == that.importance) {
-                    if (tileSource == that.tileSource) {
-                        return request < that.request;
+                    if (group == that.group)
+                    {
+                        if (tileSource == that.tileSource) {
+                            return request < that.request;
+                        }
+                        return tileSource < that.tileSource;
                     }
-                    return tileSource < that.tileSource;
+                    return group < that.group;
                 }
                 return this->importance < that.importance;
             }
@@ -72,6 +76,9 @@ public:
     // Importance of this tile request as passed in by the fetch request
     double importance;
     
+    // Group last.  Used for tiles with multiple sources.
+    int group;
+
     // The request as it came from outside the tile fetcher
     MaplyTileFetchRequest *request;
     
@@ -348,6 +355,7 @@ using namespace WhirlyKit;
         tile->tileSource = request.tileSource;
         tile->importance = request.importance;
         tile->priority = request.priority;
+        tile->group = request.group;
         tile->state = TileInfo::ToLoad;
         tile->request = request;
         tile->fetchInfo = request.fetchInfo;
@@ -462,9 +470,14 @@ using namespace WhirlyKit;
 {
     if (tileInfo->fetchInfo.cacheFile) {
         NSString *dir = [tileInfo->fetchInfo.cacheFile stringByDeletingLastPathComponent];
-        NSError *error;
-        [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&error];
-        [tileData writeToFile:tileInfo->fetchInfo.cacheFile atomically:NO];
+        NSString *cacheFile = tileInfo->fetchInfo.cacheFile;
+        
+        // Do the actual writing somewhere else
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSError *error;
+            [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&error];
+            [tileData writeToFile:cacheFile atomically:NO];
+        });
     }
 }
 
@@ -495,7 +508,7 @@ using namespace WhirlyKit;
         NSTimeInterval fetchStartTile = CFAbsoluteTimeGetCurrent();
         
         if (_debugMode)
-            NSLog(@"%@ priority = %d, importance = %f",urlReq.URL.absoluteString,tile->priority,tile->importance);
+            NSLog(@"Started load: %@ priority = %d, importance = %f, group = %d",urlReq.URL.absoluteString,tile->priority,tile->importance,tile->group);
         
         // Set up the fetch task so we can use it in a couple places
         MaplyRemoteTileFetcher * __weak weakSelf = self;

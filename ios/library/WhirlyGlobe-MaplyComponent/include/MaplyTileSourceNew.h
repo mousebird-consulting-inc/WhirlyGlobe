@@ -73,6 +73,9 @@
 @property (nonatomic) int priority;
 /// How important this is to us.  Probably screen space.
 @property (nonatomic) float importance;
+/// If all other values are equal, sort by this.
+/// It keeps requests we're waiting for grouped together
+@property (nonatomic) int group;
 
 /// An object representing the tile source.  Used for sorting.  Not accessed by the fetcher.
 @property (nonatomic,nonnull,strong) id tileSource;
