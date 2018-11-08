@@ -626,6 +626,9 @@ using namespace WhirlyKit;
     // Do the callback on a background queue
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
     ^{
+        if (!tile)
+            return;
+        
         // We assume the parsing is going to take some time
         if (data) {
             if (tile->request)
