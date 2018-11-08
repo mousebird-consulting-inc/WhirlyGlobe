@@ -2094,6 +2094,36 @@ public class MaplyBaseController
 		addTask(run, mode);
 	}
 
+	/**
+	 * This version of removeTexture takes texture IDs.  Thus you don't
+	 * have to keep the MaplyTexture around.
+	 *
+	 * @param texIDs Textures to remove
+	 * @param mode Remove immediately (current thread) or elsewhere.
+	 */
+	public void removeTexturesByID(final List<Long> texIDs,ThreadMode mode)
+	{
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+						for (Long texID : texIDs)
+							changes.removeTexture(texID);
+
+						// Flush the texture changes
+						if (scene != null)
+							changes.process(scene);
+					}
+				};
+
+		addTask(run, mode);
+	}
+
 	/** Add a render target to the system
 	 * <br>
      * Sets up a render target and will start rendering to it on the next frame.
