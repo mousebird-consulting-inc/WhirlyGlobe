@@ -23,6 +23,7 @@ package com.mousebird.maply;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Fill in this protocol to provide images when individual markers/labels are clustered.
@@ -32,7 +33,7 @@ import java.util.ArrayList;
 public class ClusterGenerator
 {
     public MaplyBaseController baseController = null;
-    ArrayList<MaplyTexture> oldTextures,currentTextures;
+    private HashSet<Long> currentTextures,oldTextures;
 
     /**
      * Called at the start of clustering.
@@ -42,12 +43,12 @@ public class ClusterGenerator
     public void startClusterGroup()
     {
         if (oldTextures != null) {
-            baseController.removeTextures(oldTextures, MaplyBaseController.ThreadMode.ThreadCurrent);
+            baseController.removeTexturesByID(new ArrayList<Long>(oldTextures), MaplyBaseController.ThreadMode.ThreadCurrent);
             oldTextures = null;
         }
 
         oldTextures = currentTextures;
-        currentTextures = new ArrayList<MaplyTexture>();
+        currentTextures = new HashSet<Long>();
     }
 
     /**
@@ -68,7 +69,7 @@ public class ClusterGenerator
         ClusterInfo clusterInfo = new ClusterInfo(num);
         ClusterGroup newGroup = makeClusterGroup(clusterInfo);
 
-        currentTextures.add(newGroup.tex);
+        currentTextures.add(newGroup.tex.texID);
 
         return newGroup.tex.texID;
     }
