@@ -33,3 +33,5 @@ ios/library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.framework
 podlint\.txt
 
 android/library/maply/\.externalNativeBuild/
+
+android/apps/AutoTesterAndroid/app/release/
