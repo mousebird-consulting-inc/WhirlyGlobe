@@ -616,6 +616,10 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     
     NSMutableArray *requests = [NSMutableArray array];
     
+    // Unique number for grouping these requests together
+    // This way they're not processed out of order
+    int thisGroup = (int)random();
+    
     for (MaplyRemoteTileInfoNew *tileInfo in tileInfos) {
         if (ident.level >= tileInfo.minZoom && ident.level <= tileInfo.maxZoom) {
             // Put together a request for the fetcher
@@ -628,6 +632,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
                 request.fetchInfo = fetchInfo;
                 request.tileSource = tileInfo;
                 request.priority = 0;
+                request.group = thisGroup;
                 request.importance = ident.importance * self.importanceScale;
                 
                 request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
