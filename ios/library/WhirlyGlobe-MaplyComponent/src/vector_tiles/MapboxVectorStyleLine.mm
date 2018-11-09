@@ -203,6 +203,10 @@ static unsigned int NextPowOf2(unsigned int val)
         lineDesc[kMaplyColor] = _paint.color;
     }
     
+    double fade = [styleSet doubleValue:@"fade" dict:styleEntry defVal:0.0];
+    if (fade != 0.0)
+        lineDesc[kMaplyFade] = @(fade);
+    
     drawPriorityPerLevel = styleSet.tileStyleSettings.drawPriorityPerLevel;
 
     return self;

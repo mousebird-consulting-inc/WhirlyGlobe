@@ -178,7 +178,7 @@ MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat);
  
     @return A 2D MaplyCoordinate in radians (if representing a lon/lat value).
  */
-MaplyCoordinateD MaplyCoordinateDMakeWithDegrees(float degLon,float degLat);
+MaplyCoordinateD MaplyCoordinateDMakeWithDegrees(double degLon,double degLat);
 
 /** 
     Construct a MaplyCoordinateD with a MaplyCoordinate.

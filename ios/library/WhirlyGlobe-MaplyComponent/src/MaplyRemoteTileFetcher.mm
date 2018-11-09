@@ -29,7 +29,7 @@ class TileInfo
 {
 public:
     TileInfo()
-    : state(ToLoad), isLocal(false), tileSource(NULL), priority(0), importance(0.0), request(nil), fetchInfo(nil), task(nil) { }
+    : state(ToLoad), isLocal(false), tileSource(NULL), priority(0), importance(0.0), group(0), request(nil), fetchInfo(nil), task(nil) { }
 
     /// Comparison based on importance, tile source, then x,y,level
     bool operator < (const TileInfo &that) const
@@ -37,10 +37,14 @@ public:
         if (this->isLocal == that.isLocal) {
             if (this->priority == that.priority) {
                 if (this->importance == that.importance) {
-                    if (tileSource == that.tileSource) {
-                        return request < that.request;
+                    if (group == that.group)
+                    {
+                        if (tileSource == that.tileSource) {
+                            return request < that.request;
+                        }
+                        return tileSource < that.tileSource;
                     }
-                    return tileSource < that.tileSource;
+                    return group < that.group;
                 }
                 return this->importance < that.importance;
             }
@@ -72,6 +76,9 @@ public:
     // Importance of this tile request as passed in by the fetch request
     double importance;
     
+    // Group last.  Used for tiles with multiple sources.
+    int group;
+
     // The request as it came from outside the tile fetcher
     MaplyTileFetchRequest *request;
     
@@ -97,6 +104,10 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
 using namespace WhirlyKit;
 
 @implementation MaplyRemoteTileInfoNew
+{
+    MbrD validMbr;
+    MaplyCoordinateSystem *bboxCoordSys;
+}
 
 - (nonnull instancetype)initWithBaseURL:(NSString *__nonnull)inBaseURL minZoom:(int)inMinZoom maxZoom:(int)inMaxZoom
 {
@@ -108,8 +119,53 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (void)addValidBounds:(MaplyBoundingBoxD)bbox coordSystem:(MaplyCoordinateSystem *)coordSys
+{
+    validMbr.addPoint(Point2d(bbox.ll.x,bbox.ll.y));
+    validMbr.addPoint(Point2d(bbox.ur.x,bbox.ur.y));
+    bboxCoordSys = coordSys;
+}
+
+- (bool)tileIsValid:(MaplyTileID)tileID
+{
+    if (!_coordSys || !bboxCoordSys)
+        return true;
+
+    // Bounding box for the whole coordinate system
+    MaplyBoundingBox wholeBBox = [_coordSys getBounds];
+    MbrD wholeMbr;
+    wholeMbr.addPoint(Point2f(wholeBBox.ll.x,wholeBBox.ll.y));
+    wholeMbr.addPoint(Point2f(wholeBBox.ur.x,wholeBBox.ur.y));
+
+    // Make the bounding box for this particular tile (in the native coord system)
+    int numLevel = 1<<tileID.level;
+    double spanX = wholeBBox.ur.x - wholeBBox.ll.x;
+    double spanY = wholeBBox.ur.y - wholeBBox.ll.y;
+    double dx = spanX/numLevel, dy = spanY/numLevel;
+    Point3d pts[4];
+    pts[0] = Point3d(wholeBBox.ll.x+dx*tileID.x,wholeBBox.ll.y+dy*tileID.y,0.0);
+    pts[1] = Point3d(wholeBBox.ll.x+dx*(tileID.x+1),wholeBBox.ll.y+dy*tileID.y,0.0);
+    pts[2] = Point3d(wholeBBox.ll.x+dx*(tileID.x+1),wholeBBox.ll.y+dy*(tileID.y+1),0.0);
+    pts[3] = Point3d(wholeBBox.ll.x+dx*tileID.x,wholeBBox.ll.y+dy*(tileID.y+1),0.0);
+
+    // Project the corners into
+    MbrD tileMbr;
+    for (unsigned int ii=0;ii<4;ii++) {
+        Point3d validPt = CoordSystemConvert3d([_coordSys getCoordSystem], [bboxCoordSys getCoordSystem], pts[ii]);
+        tileMbr.addPoint(Point2d(validPt.x(),validPt.y()));
+    }
+    
+    if (tileMbr.overlaps(validMbr))
+        return true;
+    else
+        return false;
+}
+
 - (NSURLRequest *)urlRequestForTile:(MaplyTileID)tileID
 {
+    if (![self tileIsValid:tileID])
+        return nil;
+    
     int y = ((int)(1<<tileID.level)-tileID.y)-1;
     NSMutableURLRequest *urlReq = nil;
 
@@ -143,6 +199,9 @@ using namespace WhirlyKit;
     MaplyRemoteTileFetchInfo *fetchInfo = [[MaplyRemoteTileFetchInfo alloc] init];
     fetchInfo.urlReq = [self urlRequestForTile:tileID];
     fetchInfo.cacheFile = [self fileNameForTile:tileID];
+    
+    if (!fetchInfo.urlReq)
+        return nil;
     
     return fetchInfo;
 }
@@ -296,6 +355,7 @@ using namespace WhirlyKit;
         tile->tileSource = request.tileSource;
         tile->importance = request.importance;
         tile->priority = request.priority;
+        tile->group = request.group;
         tile->state = TileInfo::ToLoad;
         tile->request = request;
         tile->fetchInfo = request.fetchInfo;
@@ -410,9 +470,14 @@ using namespace WhirlyKit;
 {
     if (tileInfo->fetchInfo.cacheFile) {
         NSString *dir = [tileInfo->fetchInfo.cacheFile stringByDeletingLastPathComponent];
-        NSError *error;
-        [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&error];
-        [tileData writeToFile:tileInfo->fetchInfo.cacheFile atomically:NO];
+        NSString *cacheFile = tileInfo->fetchInfo.cacheFile;
+        
+        // Do the actual writing somewhere else
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSError *error;
+            [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&error];
+            [tileData writeToFile:cacheFile atomically:NO];
+        });
     }
 }
 
@@ -443,7 +508,7 @@ using namespace WhirlyKit;
         NSTimeInterval fetchStartTile = CFAbsoluteTimeGetCurrent();
         
         if (_debugMode)
-            NSLog(@"%@ priority = %d, importance = %f",urlReq.URL.absoluteString,tile->priority,tile->importance);
+            NSLog(@"Started load: %@ priority = %d, importance = %f, group = %d",urlReq.URL.absoluteString,tile->priority,tile->importance,tile->group);
         
         // Set up the fetch task so we can use it in a couple places
         MaplyRemoteTileFetcher * __weak weakSelf = self;
@@ -561,6 +626,9 @@ using namespace WhirlyKit;
     // Do the callback on a background queue
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
     ^{
+        if (!tile)
+            return;
+        
         // We assume the parsing is going to take some time
         if (data) {
             if (tile->request)
