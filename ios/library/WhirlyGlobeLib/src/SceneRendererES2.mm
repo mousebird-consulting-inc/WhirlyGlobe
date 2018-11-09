@@ -589,8 +589,8 @@ static const float ScreenOverlap = 0.1;
                         const Matrix4d *localMat = theDrawable->getMatrix();
                         if (localMat)
                         {
-                            Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                            Eigen::Matrix4d newMvMat = viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                            Eigen::Matrix4d newMvpMat = thisMvpMat * (*localMat);
+                            Eigen::Matrix4d newMvMat = modelAndViewMat4d * (*localMat);
                             Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
                             drawList.push_back(DrawableContainer(theDrawable,newMvpMat,newMvMat,newMvNormalMat));
                         } else
@@ -609,8 +609,8 @@ static const float ScreenOverlap = 0.1;
                         const Matrix4d *localMat = theDrawable->getMatrix();
                         if (localMat)
                         {
-                            Eigen::Matrix4d newMvpMat = projMat4d * viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
-                            Eigen::Matrix4d newMvMat = viewTrans4d * offsetMats[off] * modelTrans4d * (*localMat);
+                            Eigen::Matrix4d newMvpMat = thisMvpMat * (*localMat);
+                            Eigen::Matrix4d newMvMat = modelAndViewMat4d * (*localMat);
                             Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
                             drawList.push_back(DrawableContainer(theDrawable,newMvpMat,newMvMat,newMvNormalMat));
                         } else
