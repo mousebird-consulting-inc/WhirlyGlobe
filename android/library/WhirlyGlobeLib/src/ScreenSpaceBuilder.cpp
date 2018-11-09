@@ -71,41 +71,49 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
 }
     
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap()
-    : draw(NULL), center(0,0,0)
+    : locDraw(NULL), center(0,0,0)
 {
 }
     
 ScreenSpaceBuilder::DrawableWrap::~DrawableWrap()
 {
-    if (draw)
-        delete draw;
+    if (locDraw)
+        delete locDraw;
+}
+
+ScreenSpaceDrawable* ScreenSpaceBuilder::DrawableWrap::getDrawable()
+{
+    if (!locDraw) {
+        locDraw = new ScreenSpaceDrawable(state.motion,state.rotation);
+        locDraw->setType(GL_TRIANGLES);
+        // A max of two textures per
+        for (unsigned int ii=0;ii<state.texIDs.size() && ii<2;ii++)
+            locDraw->setTexId(ii, state.texIDs[ii]);
+        locDraw->setProgram(state.progID);
+        locDraw->setDrawPriority(state.drawPriority);
+        locDraw->setFade(state.fadeDown, state.fadeUp);
+        locDraw->setVisibleRange(state.minVis, state.maxVis);
+        locDraw->setRequestZBuffer(false);
+        locDraw->setWriteZBuffer(false);
+        locDraw->setVertexAttributes(state.vertexAttrs);
+        locDraw->setOnOff(state.enable);
+        locDraw->setEnableTimeRange(state.startEnable, state.endEnable);
+
+        // If we've got more than one texture ID and a period, we need a tweaker
+        if (state.texIDs.size() > 1 && state.period != 0.0)
+        {
+            TimeInterval now = TimeGetCurrent();
+            BasicDrawableTexTweaker *tweak = new BasicDrawableTexTweaker(state.texIDs,now,state.period);
+            locDraw->addTweaker(DrawableTweakerRef(tweak));
+        }
+    }
+
+    return locDraw;
 }
     
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
-    : state(state), center(0,0,0)
+    : state(state), center(0,0,0), locDraw(NULL)
 {
-    draw = new ScreenSpaceDrawable(state.motion,state.rotation);
-    draw->setType(GL_TRIANGLES);
-    // A max of two textures per
-    for (unsigned int ii=0;ii<state.texIDs.size() && ii<2;ii++)
-        draw->setTexId(ii, state.texIDs[ii]);
-    draw->setProgram(state.progID);
-    draw->setDrawPriority(state.drawPriority);
-    draw->setFade(state.fadeDown, state.fadeUp);
-    draw->setVisibleRange(state.minVis, state.maxVis);
-    draw->setRequestZBuffer(false);
-    draw->setWriteZBuffer(false);
-    draw->setVertexAttributes(state.vertexAttrs);
-    draw->setOnOff(state.enable);
-    draw->setEnableTimeRange(state.startEnable, state.endEnable);
-    
-    // If we've got more than one texture ID and a period, we need a tweaker
-    if (state.texIDs.size() > 1 && state.period != 0.0)
-    {
-        TimeInterval now = TimeGetCurrent();
-        BasicDrawableTexTweaker *tweak = new BasicDrawableTexTweaker(state.texIDs,now,state.period);
-        draw->addTweaker(DrawableTweakerRef(tweak));
-    }
 }
     
 bool ScreenSpaceBuilder::DrawableWrap::operator < (const DrawableWrap &that) const
@@ -139,6 +147,8 @@ Point3d ScreenSpaceBuilder::CalcRotationVec(CoordSystemDisplayAdapter *coordAdap
      
 void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3d &worldLoc,const Point3f *dir,float rot,const Point2d &inVert,const TexCoord *texCoord,const RGBAColor *color,const SingleVertexAttributeSet *vertAttrs)
 {
+    ScreenSpaceDrawable *draw = getDrawable();
+
     draw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
     Point3d norm = coordAdapter->isFlat() ? Point3d(0,0,1) : worldLoc.normalized();
     draw->addNormal(norm);
@@ -158,6 +168,8 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
 
 void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
 {
+    ScreenSpaceDrawable *draw = getDrawable();
+
     if (!draw)
         return;
     
@@ -233,15 +245,16 @@ ScreenSpaceBuilder::DrawableWrap *ScreenSpaceBuilder::findOrAddDrawWrap(const Dr
         drawWrap->center = center;
         Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
         Eigen::Matrix4d transMat = trans.matrix();
-        drawWrap->draw->setMatrix(&transMat);
+        ScreenSpaceDrawable *draw = drawWrap->getDrawable();
+        draw->setMatrix(&transMat);
         if (state.motion)
-            drawWrap->draw->setStartTime(TimeGetCurrent());
+            drawWrap->getDrawable()->setStartTime(TimeGetCurrent());
         drawables.insert(drawWrap);
     } else {
         drawWrap = *it;
         
         // Make sure this one isn't too large
-        if (drawWrap->draw->getNumPoints() + numVerts >= MaxDrawablePoints || drawWrap->draw->getNumTris() >= MaxDrawableTriangles)
+        if (drawWrap->getDrawable()->getNumPoints() + numVerts >= MaxDrawablePoints || drawWrap->getDrawable()->getNumTris() >= MaxDrawableTriangles)
         {
             // It is, so we need to flush it and create a new one
             fullDrawables.push_back(drawWrap);
@@ -258,7 +271,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coo
 {
     DrawableWrap *drawWrap = findOrAddDrawWrap(curState,4,2,worldLoc);
     
-    int baseVert = drawWrap->draw->getNumPoints();
+    int baseVert = drawWrap->getDrawable()->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point2d coord(coords[ii].x(),coords[ii].y());
@@ -274,7 +287,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,bo
     DrawableWrap *drawWrap = findOrAddDrawWrap(curState,4,2,worldLoc);
     
     // Note: Do something with keepUpright
-    int baseVert = drawWrap->draw->getNumPoints();
+    int baseVert = drawWrap->getDrawable()->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point2d coord(coords[ii].x(),coords[ii].y());
@@ -320,12 +333,12 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
             double dur = ssObj.endTime - ssObj.startTime;
             dir = (ssObj.endWorldLoc - ssObj.worldLoc)/dur;
             // May need to knock the start back a bit
-            double dt = drawWrap->draw->getStartTime() - ssObj.startTime;
+            double dt = drawWrap->getDrawable()->getStartTime() - ssObj.startTime;
             startLoc3d = dir * dt + startLoc3d;
         }
         Point3d startLoc(startLoc3d.x(),startLoc3d.y(),startLoc3d.z());
 
-        int baseVert = drawWrap->draw->getNumPoints();
+        int baseVert = drawWrap->getDrawable()->getNumPoints();
         for (unsigned int jj=0;jj<geom.coords.size();jj++)
         {
             Point2d coord = geom.coords[jj] + ssObj.offset;
@@ -347,8 +360,8 @@ void ScreenSpaceBuilder::buildDrawables(std::vector<ScreenSpaceDrawable *> &draw
     for (unsigned int ii=0;ii<fullDrawables.size();ii++)
     {
         DrawableWrap *drawWrap = fullDrawables[ii];
-        draws.push_back(drawWrap->draw);
-        drawWrap->draw = NULL;
+        draws.push_back(drawWrap->getDrawable());
+        drawWrap->locDraw = NULL;
         delete drawWrap;
     }
     fullDrawables.clear();
@@ -356,8 +369,8 @@ void ScreenSpaceBuilder::buildDrawables(std::vector<ScreenSpaceDrawable *> &draw
     for (DrawableWrapSet::iterator it = drawables.begin(); it != drawables.end(); ++it)
     {
         DrawableWrap *drawWrap = *it;
-        draws.push_back(drawWrap->draw);
-        drawWrap->draw = NULL;
+        draws.push_back(drawWrap->getDrawable());
+        drawWrap->locDraw = NULL;
         delete drawWrap;
     }
     drawables.clear();

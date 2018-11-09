@@ -130,8 +130,10 @@ protected:
         
         Point3d center;
         DrawableState state;
-        ScreenSpaceDrawable *draw;
-        
+
+        ScreenSpaceDrawable *getDrawable();
+        ScreenSpaceDrawable *locDraw;
+
     protected:
     };
 
