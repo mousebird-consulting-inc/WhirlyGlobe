@@ -96,7 +96,8 @@ static double MAX_EXTENT = 20037508.342789244;
 - (void)parseData:(MaplyLoaderReturn * __nonnull)loadReturn
 {
     MaplyTileID tileID = loadReturn.tileID;
-    std::vector<NSData *> tileDatas;
+    std::vector<NSData *> pbfDatas;
+    std::vector<UIImage *> images;
     
     // Uncompress any of the data we recieved
     for (unsigned int ii=0;ii<[loadReturn.multiTileData count];ii++) {
@@ -109,10 +110,18 @@ static double MAX_EXTENT = 20037508.342789244;
               }
           }
         }
-        tileDatas.push_back(thisTileData);
+        // Might be an image
+        UIImage *image = nil;
+        if (_imageAsHillshade) {
+            image = [UIImage imageWithData:thisTileData];
+        }
+        if (image)
+            images.push_back(image);
+        else
+            pbfDatas.push_back(thisTileData);
     }
     
-    if (tileDatas.empty()) {
+    if (pbfDatas.empty() && images.empty()) {
         loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Tile data was nil after decompression"}];
         return;
     }
@@ -139,7 +148,7 @@ static double MAX_EXTENT = 20037508.342789244;
         NSMutableArray *compObjs = [NSMutableArray array];
         offlineRender.clearColor = backColor;
 
-        for (NSData *thisTileData : tileDatas) {
+        for (NSData *thisTileData : pbfDatas) {
             MaplyVectorTileData *retData = [imageTileParser buildObjects:thisTileData tile:tileID bounds:imageBBox geoBounds:geoBBox];
             if (retData) {
                 [compObjs addObjectsFromArray:retData.compObjs];
@@ -163,7 +172,7 @@ static double MAX_EXTENT = 20037508.342789244;
     // Parse everything else and turn into vectors
     NSMutableArray *compObjs = [NSMutableArray array];
     NSMutableArray *ovlCompObjs = [NSMutableArray array];
-    for (NSData *thisTileData : tileDatas) {
+    for (NSData *thisTileData : pbfDatas) {
         MaplyVectorTileData *retData = [vecTileParser buildObjects:thisTileData tile:tileID bounds:spherMercBBox geoBounds:geoBBox];
         if (retData) {
             [compObjs addObjectsFromArray:retData.compObjs];
@@ -177,6 +186,27 @@ static double MAX_EXTENT = 20037508.342789244;
     }
 
     [viewC endChanges];
+    
+    // Merge the hillshade in with the background image
+    if (!images.empty() && image) {
+        UIGraphicsBeginImageContext(image.size);
+        CGContextRef ctx = UIGraphicsGetCurrentContext();
+
+        CGAffineTransform flipVertical = CGAffineTransformMake(1, 0, 0, -1, 0, image.size.height);
+        CGContextConcatCTM(ctx, flipVertical);
+        
+        [[UIColor blackColor] setFill];
+        CGContextDrawImage(ctx, CGRectMake(0.0, 0.0, image.size.width, image.size.height), image.CGImage);
+
+        CGContextSetBlendMode(ctx, kCGBlendModeMultiply);
+        for (UIImage *shadeImage : images)
+            CGContextDrawImage(ctx, CGRectMake(0.0, 0.0, image.size.width, image.size.height), shadeImage.CGImage);
+        
+        UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+
+        image = resultImage;
+    }
     
     // Successful load
     MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:image];

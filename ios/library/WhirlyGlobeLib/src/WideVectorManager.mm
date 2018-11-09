@@ -655,12 +655,16 @@ public:
         if (drawables.empty())
             return NULL;
         
+        NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+
         WideVectorSceneRep *sceneRep = new WideVectorSceneRep();
         sceneRep->fade = vecInfo.fade;
         for (unsigned int ii=0;ii<drawables.size();ii++)
         {
-            Drawable *drawable = drawables[ii];
+            BasicDrawable *drawable = drawables[ii];
             sceneRep->drawIDs.insert(drawable->getId());
+            if (vecInfo.fade > 0.0)
+                drawable->setFade(curTime,curTime+vecInfo.fade);
             changes.push_back(new AddDrawableReq(drawable));
         }
         
