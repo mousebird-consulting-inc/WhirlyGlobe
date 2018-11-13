@@ -251,6 +251,7 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
     _viewAndModelMat = info.viewAndModelMat;
     _viewAndModelMat4d = info.viewAndModelMat4d;
     _mvpMat = info.mvpMat;
+    _mvpInvMat = info.mvpInvMat;
     _mvpNormalMat = info.mvpNormalMat;
     _viewModelNormalMat = info.viewModelNormalMat;
     _pvMat = info.pvMat;

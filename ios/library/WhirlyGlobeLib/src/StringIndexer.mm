@@ -76,6 +76,7 @@ StringIdentity materialDiffuseNameID;
 StringIdentity materialSpecularNameID;
 StringIdentity materialSpecularExponentNameID;
 StringIdentity mvpMatrixNameID;
+StringIdentity mvpInvMatrixNameID;
 StringIdentity mvMatrixNameID;
 StringIdentity mvNormalMatrixNameID;
 StringIdentity mvpNormalMatrixNameID;
@@ -86,6 +87,7 @@ StringIdentity u_HasTextureNameID;
 StringIdentity a_SingleMatrixNameID;
 StringIdentity a_PositionNameID;
 StringIdentity u_EyeVecNameID;
+StringIdentity u_EyePosNameID;
 StringIdentity u_SizeNameID;
 StringIdentity u_TimeNameID;
 StringIdentity u_lifetimeNameID;
@@ -148,6 +150,7 @@ void SetupDrawableStrings()
     materialSpecularExponentNameID = StringIndexer::getStringID("material.specular_exponent");
     
     mvpMatrixNameID = StringIndexer::getStringID("u_mvpMatrix");
+    mvpInvMatrixNameID = StringIndexer::getStringID("u_mvpInvMatrix");
     mvMatrixNameID = StringIndexer::getStringID("u_mvMatrix");
     mvNormalMatrixNameID = StringIndexer::getStringID("u_mvNormalMatrix");
     mvpNormalMatrixNameID = StringIndexer::getStringID("u_mvpNormalMatrix");
@@ -158,6 +161,7 @@ void SetupDrawableStrings()
     a_SingleMatrixNameID = StringIndexer::getStringID("a_singleMatrix");
     a_PositionNameID = StringIndexer::getStringID("a_position");
     u_EyeVecNameID = StringIndexer::getStringID("u_eyeVec");
+    u_EyePosNameID = StringIndexer::getStringID("u_eyePos");
     u_SizeNameID = StringIndexer::getStringID("u_size");
     u_TimeNameID = StringIndexer::getStringID("u_time");
     u_lifetimeNameID = StringIndexer::getStringID("u_lifetime");
