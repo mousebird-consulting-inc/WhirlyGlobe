@@ -382,6 +382,7 @@ void ParticleSystemDrawable::drawSetupUniforms(WhirlyKitRendererFrameInfo *frame
 {
     // Model/View/Projection matrix
     prog->setUniform(mvpMatrixNameID, frameInfo.mvpMat);
+    prog->setUniform(mvpInvMatrixNameID, frameInfo.mvpInvMat);
     prog->setUniform(mvMatrixNameID, frameInfo.viewAndModelMat);
     prog->setUniform(mvNormalMatrixNameID, frameInfo.viewModelNormalMat);
     prog->setUniform(mvpNormalMatrixNameID, frameInfo.mvpNormalMat);
@@ -393,7 +394,8 @@ void ParticleSystemDrawable::drawSetupUniforms(WhirlyKitRendererFrameInfo *frame
     
     // If this is present, the drawable wants to do something based where the viewer is looking
     prog->setUniform(u_EyeVecNameID, frameInfo.fullEyeVec);
-    
+    prog->setUniform(u_EyePosNameID, Vector3dToVector3f(frameInfo.eyePos));
+
     prog->setUniform(u_SizeNameID, pointSize);
     prog->setUniform(u_TimeNameID, (float)(frameInfo.currentTime-baseTime));
     prog->setUniform(u_lifetimeNameID, (float)lifetime);

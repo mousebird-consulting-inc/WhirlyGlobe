@@ -432,6 +432,8 @@ static const float ScreenOverlap = 0.1;
         baseFrameInfo.projMat = projMat;
         baseFrameInfo.projMat4d = projMat4d;
         baseFrameInfo.mvpMat = mvpMat;
+        Eigen::Matrix4f mvpInvMat = mvpMat.inverse();
+        baseFrameInfo.mvpInvMat = mvpInvMat;
         baseFrameInfo.mvpNormalMat = mvpNormalMat4f;
         baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
         baseFrameInfo.viewAndModelMat = modelAndViewMat;
@@ -530,9 +532,13 @@ static const float ScreenOverlap = 0.1;
         std::vector<DrawableRef> screenDrawables;
         std::vector<DrawableRef> generatedDrawables;
         std::vector<Matrix4d> mvpMats;
+        std::vector<Matrix4d> mvpInvMats;
         std::vector<Matrix4f> mvpMats4f;
+        std::vector<Matrix4f> mvpInvMats4f;
         mvpMats.resize(offsetMats.size());
+        mvpInvMats.resize(offsetMats.size());
         mvpMats4f.resize(offsetMats.size());
+        mvpInvMats4f.resize(offsetMats.size());
         bool calcPassDone = false;
         for (unsigned int off=0;off<offsetMats.size();off++)
         {
@@ -542,11 +548,15 @@ static const float ScreenOverlap = 0.1;
             pvMat = projMat4d * viewTrans4d * offsetMats[off];
             modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
             mvpMats[off] = projMat4d * modelAndViewMat4d;
+            mvpInvMats[off] = (Eigen::Matrix4d)mvpMats[off].inverse();
             mvpMats4f[off] = Matrix4dToMatrix4f(mvpMats[off]);
+            mvpInvMats4f[off] = Matrix4dToMatrix4f(mvpInvMats[off]);
             modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
             modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
             Matrix4d &thisMvpMat = mvpMats[off];
+            Matrix4d &thisMvpInvMat = mvpInvMats[off];
             offFrameInfo.mvpMat = mvpMats4f[off];
+            offFrameInfo.mvpInvMat = mvpInvMats4f[off];
             mvpNormalMat4f = Matrix4dToMatrix4f(mvpMats[off].inverse().transpose());
             offFrameInfo.mvpNormalMat = mvpNormalMat4f;
             offFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
@@ -754,9 +764,11 @@ static const float ScreenOverlap = 0.1;
 
                 // Set up transforms to use right now
                 Matrix4f currentMvpMat = Matrix4dToMatrix4f(drawContain.mvpMat);
+                Matrix4f currentMvpInvMat = Matrix4dToMatrix4f(drawContain.mvpMat.inverse());
                 Matrix4f currentMvMat = Matrix4dToMatrix4f(drawContain.mvMat);
                 Matrix4f currentMvNormalMat = Matrix4dToMatrix4f(drawContain.mvNormalMat);
                 baseFrameInfo.mvpMat = currentMvpMat;
+                baseFrameInfo.mvpInvMat = currentMvpInvMat;
                 baseFrameInfo.viewAndModelMat = currentMvMat;
                 baseFrameInfo.viewModelNormalMat = currentMvNormalMat;
                 
