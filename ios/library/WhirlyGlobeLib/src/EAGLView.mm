@@ -146,9 +146,9 @@
     if (resizeFail)
         [self layoutSubviews];
 
-    if (_animating)
-        [_renderer render:displayLink.duration*displayLink.frameInterval];
-    else
+    if (_animating) {
+        [_renderer render:displayLink.frameInterval * 1/60.0];
+    } else
         [_renderer processScene];
 }
 

@@ -400,6 +400,7 @@ void ParticleSystemDrawable::drawSetupUniforms(WhirlyKitRendererFrameInfo *frame
     prog->setUniform(u_TimeNameID, (float)(frameInfo.currentTime-baseTime));
     prog->setUniform(u_lifetimeNameID, (float)lifetime);
     prog->setUniform(u_pixDispSizeNameID, pixDispSize);
+    prog->setUniform(u_frameLenID, (float)frameInfo.frameLen);
 }
     
 void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int vertexOffset,bool useInstancingHere)
