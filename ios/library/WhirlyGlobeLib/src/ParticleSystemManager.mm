@@ -165,6 +165,29 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
     pthread_mutex_unlock(&partSysLock);
 }
     
+void ParticleSystemManager::changeRenderTarget(SimpleIdentity sysID,SimpleIdentity targetID,ChangeSet &changes)
+{
+    pthread_mutex_lock(&partSysLock);
+    
+    ParticleSystemSceneRep *sceneRep = NULL;
+    ParticleSystemSceneRep dummyRep(sysID);
+    auto it = sceneReps.find(&dummyRep);
+    if (it != sceneReps.end())
+        sceneRep = *it;
+    
+    if (sceneRep) {
+        ParticleSystemDrawable *draw = NULL;
+        if (sceneRep->draws.size() == 1)
+            draw = *(sceneRep->draws.begin());
+        
+        if (draw) {
+            changes.push_back(new RenderTargetChangeRequest(draw->getId(),targetID));
+        }
+    }
+    
+    pthread_mutex_unlock(&partSysLock);
+}
+    
 void ParticleSystemManager::housekeeping(NSTimeInterval now,ChangeSet &changes)
 {
     pthread_mutex_lock(&partSysLock);

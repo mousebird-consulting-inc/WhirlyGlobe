@@ -197,4 +197,7 @@ protected:
     std::vector<BufferChunk> chunks;
 };
 
+/// Reference counted version of ParticleSystemDrawable
+typedef std::shared_ptr<ParticleSystemDrawable> ParticleSystemDrawableRef;
+
 }

@@ -667,6 +667,21 @@ static const float PerfOutputDelay = 15.0;
     return compObj;
 }
 
+- (void)changeParticleSystem:(MaplyComponentObject *__nonnull)compObj renderTarget:(MaplyRenderTarget *__nullable)target
+{
+    if ([NSThread currentThread] != [NSThread mainThread]) {
+        NSLog(@"MaplyBaseViewController: changeParticleSystem:renderTarget: must be called on main thread");
+        return;
+    }
+    
+    if (![renderControl startOfWork])
+        return;
+    
+    [renderControl->interactLayer changeParticleSystem:compObj renderTarget:target];
+
+    [renderControl endOfWork];
+}
+
 - (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode
 {
     if (![batch isValid])
