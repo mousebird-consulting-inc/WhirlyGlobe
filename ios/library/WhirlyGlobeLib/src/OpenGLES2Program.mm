@@ -286,7 +286,7 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
 }
 
 // Construct the program, compile and link
-    OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varying)
+OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varying)
     : name(inName), lightsLastUpdated(0.0)
 {
     program = glCreateProgram();
@@ -314,6 +314,9 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
             strcpy(names[ii], name.c_str());
         }
         glTransformFeedbackVaryings(program, varying->size(), names, GL_SEPARATE_ATTRIBS);
+        
+        CheckGLError("OpenGLES2Program: Error setting up varyings in");
+        
         for (unsigned int ii=0;ii<varying->size();ii++) {
             free(names[ii]);
         }

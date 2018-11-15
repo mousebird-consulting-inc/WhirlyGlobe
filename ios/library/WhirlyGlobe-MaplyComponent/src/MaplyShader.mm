@@ -23,6 +23,7 @@
 #import <WhirlyGlobe.h>
 #import "MaplyShader_private.h"
 #import "MaplyRenderController_private.h"
+#import "GLUtils.h"
 
 using namespace WhirlyKit;
 
@@ -111,6 +112,8 @@ using namespace WhirlyKit;
     _program = new OpenGLES2Program(nameStr,vertexStr,fragStr,(varyings.empty() ? NULL : &varyings));
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
+    
+    CheckGLError("MaplyShader: delayedSetupWithName");
     
     if (!_program->isValid())
     {
