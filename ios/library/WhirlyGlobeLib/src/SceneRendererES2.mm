@@ -270,11 +270,11 @@ static const float ScreenOverlap = 0.1;
         
         dispatch_async(contextQueue,
                        ^{
-                           [self renderAsync];
+                           [self renderAsync:duration];
                            dispatch_semaphore_signal(self->frameRenderingSemaphore);
                        });
     } else
-        [self renderAsync];
+        [self renderAsync:duration];
 }
 
 - (void)processScene
@@ -294,7 +294,7 @@ static const float ScreenOverlap = 0.1;
         [EAGLContext setCurrentContext:oldContext];
 }
 
-- (void) renderAsync
+- (void) renderAsync:(double)duration
 {
     Scene *scene = super.scene;
     
@@ -427,7 +427,7 @@ static const float ScreenOverlap = 0.1;
         baseFrameInfo.modelTrans = modelTrans;
         baseFrameInfo.modelTrans4d = modelTrans4d;
         baseFrameInfo.scene = scene;
-//        baseFrameInfo.frameLen = duration;
+        baseFrameInfo.frameLen = duration;
         baseFrameInfo.currentTime = CFAbsoluteTimeGetCurrent();
         baseFrameInfo.projMat = projMat;
         baseFrameInfo.projMat4d = projMat4d;
