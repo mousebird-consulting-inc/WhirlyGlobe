@@ -21,6 +21,7 @@
 #import "GLUtils.h"
 #import "BasicDrawable.h"
 #import "BasicDrawableInstance.h"
+#import "ParticleSystemDrawable.h"
 #import "GlobeScene.h"
 #import "UIImage+Stuff.h"
 #import "SceneRendererES.h"
@@ -1657,6 +1658,28 @@ void DrawUniformsChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *
         BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setUniforms(attrs);
+    }
+}
+
+RenderTargetChangeRequest::RenderTargetChangeRequest(SimpleIdentity drawID,SimpleIdentity targetID)
+: WhirlyKit::DrawableChangeRequest(drawID), targetID(targetID)
+{
+}
+    
+void RenderTargetChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+{
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
+    if (basicDrawable)
+        basicDrawable->setRenderTarget(targetID);
+    else {
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (basicDrawInst)
+            basicDrawInst->setRenderTarget(targetID);
+        else {
+            ParticleSystemDrawableRef partDrawable = std::dynamic_pointer_cast<ParticleSystemDrawable>(draw);
+            if (partDrawable)
+                partDrawable->setRenderTarget(targetID);
+        }
     }
 }
 

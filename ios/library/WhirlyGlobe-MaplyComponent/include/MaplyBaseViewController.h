@@ -646,6 +646,15 @@
   */
 - (MaplyComponentObject *__nullable)addParticleSystem:(MaplyParticleSystem *__nonnull)partSys desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
+/**
+    Change the render target for a particle system.
+
+    This changes the render target for an existing particle system that's already been created.
+    Can pass in nil, which means the particles are rendered to the screen directly.
+    This change takes place immediately, so call it on the main thread.
+ */
+- (void)changeParticleSystem:(MaplyComponentObject *__nonnull)compObj renderTarget:(MaplyRenderTarget *__nullable)target;
+
 /** 
     Add a batch of particles to the current scene.
     

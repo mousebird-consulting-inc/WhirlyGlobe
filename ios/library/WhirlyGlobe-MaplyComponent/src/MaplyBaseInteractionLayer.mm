@@ -3176,6 +3176,22 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     return compObj;
 }
 
+- (void)changeParticleSystem:(MaplyComponentObject *)compObj renderTarget:(MaplyRenderTarget *)target
+{
+    ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
+
+    if (partSysManager) {
+        ChangeSet changes;
+
+        SimpleIdentity targetID = target ? target.renderTargetID : EmptyIdentity;
+        for (SimpleIdentity partSysID : compObj.partSysIDs) {
+            partSysManager->changeRenderTarget(partSysID,targetID,changes);
+        }
+
+        [self flushChanges:changes mode:MaplyThreadCurrent];
+    }
+}
+
 - (void)addParticleSystemBatchRun:(NSArray *)argArray
 {
     if (isShuttingDown || (!layerThread && !offlineMode))
