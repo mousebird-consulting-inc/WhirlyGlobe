@@ -554,7 +554,6 @@ static const float ScreenOverlap = 0.1;
             modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
             modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
             Matrix4d &thisMvpMat = mvpMats[off];
-            Matrix4d &thisMvpInvMat = mvpInvMats[off];
             offFrameInfo.mvpMat = mvpMats4f[off];
             offFrameInfo.mvpInvMat = mvpInvMats4f[off];
             mvpNormalMat4f = Matrix4dToMatrix4f(mvpMats[off].inverse().transpose());
