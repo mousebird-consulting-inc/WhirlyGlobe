@@ -21,6 +21,7 @@ package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.BitmapFactory;
 
 import com.mousebird.maply.GlobeController;
@@ -31,6 +32,7 @@ import com.mousebird.maply.Point2d;
 import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.VectorObject;
 import com.mousebird.maply.MaplyTexture;
+import com.mousebird.maply.BasicClusterGenerator;
 import com.mousebird.maply.MaplyBaseController.TextureSettings;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
@@ -76,6 +78,8 @@ public class ClusteredMarkersTestCase extends MaplyTestCase {
         Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
         MaplyTexture tex = inController.addTexture(icon,new TextureSettings(),MaplyBaseController.ThreadMode.ThreadCurrent);
 
+//        inController.addClusterGenerator(new BasicClusterGenerator(new int[]{Color.argb(165, 255, 255, 0)}, 1, new Point2d(64, 64), inController, inController.getActivity()));
+
         for (VectorObject v : vectors) {
             for (int ii=0;ii<10;ii++) {
                 ScreenMarker marker = new ScreenMarker();
@@ -91,6 +95,7 @@ public class ClusteredMarkersTestCase extends MaplyTestCase {
 
         MarkerInfo info = new MarkerInfo();
         info.setLayoutImportance(1.f);
+//        info.setClusterGroup(1);
         info.setClusterGroup(0);
 
         inController.addScreenMarkers(markers, info, MaplyBaseController.ThreadMode.ThreadAny);
