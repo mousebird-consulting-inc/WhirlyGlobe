@@ -1047,6 +1047,44 @@ public:
     if (!clusterGen)
         return;
     
+    
+    if ([clusterGen showMarkerWithHighestImportance])
+    {
+        [self setupLayoutObject:retObj asBestOfLayoutObjects:layoutObjects];
+    } else {
+        [self setupLayoutObject:retObj asAverageOfLayoutObjects:layoutObjects withClusterGenerator:clusterGen];
+    }
+}
+
+- (void)setupLayoutObject:(LayoutObject &)retObj asBestOfLayoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects
+{
+    LayoutObjectEntry *topObject = nullptr;
+    LayoutEntrySorter sorter;
+    
+    for (auto obj : layoutObjects)
+        if (topObject == nullptr || sorter(obj, topObject))
+            topObject = obj;
+    
+    if (topObject == nullptr || topObject->obj.getGeometry().empty())
+        return;
+    
+    retObj.setWorldLoc(topObject->obj.getWorldLoc());
+    retObj.setDrawPriority(topObject->obj.getDrawPriority());
+    
+    std::vector<ScreenSpaceObject::ConvexGeometry> allGeometry = topObject->obj.getGeometry();
+    
+    if (allGeometry.empty())
+        return;
+    
+    retObj.layoutPts = allGeometry.back().coords;
+    retObj.selectPts = allGeometry.back().coords;
+    
+    for (auto geometry : allGeometry)
+        retObj.addGeometry(geometry);
+}
+
+- (void)setupLayoutObject:(LayoutObject &)retObj asAverageOfLayoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects withClusterGenerator:(NSObject<MaplyClusterGenerator> *)clusterGen
+{
     // Pick a representive screen object
     int drawPriority = -1;
     LayoutObject *sampleObj = NULL;
