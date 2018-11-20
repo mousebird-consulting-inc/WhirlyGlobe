@@ -80,6 +80,7 @@ public class ClusteredMarkersTestCase extends MaplyTestCase {
 
 //        inController.addClusterGenerator(new BasicClusterGenerator(new int[]{Color.argb(165, 255, 255, 0)}, 1, new Point2d(64, 64), inController, inController.getActivity()));
 
+        int which = 0;
         for (VectorObject v : vectors) {
             for (int ii=0;ii<10;ii++) {
                 ScreenMarker marker = new ScreenMarker();
@@ -91,6 +92,7 @@ public class ClusteredMarkersTestCase extends MaplyTestCase {
                 if (marker.loc != null)
                     markers.add(marker);
             }
+            which++;
         }
 
         MarkerInfo info = new MarkerInfo();
