@@ -207,6 +207,7 @@ public:
     void setPeriod(NSTimeInterval period);
     
     void addGeometry(const ConvexGeometry &geom);
+    std::vector<ConvexGeometry> getGeometry() { return geometry; }
     
     // Get a program ID either from the drawable state or geometry
     SimpleIdentity getTypicalProgramID();
