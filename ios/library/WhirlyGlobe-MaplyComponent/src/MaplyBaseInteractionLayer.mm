@@ -1067,20 +1067,8 @@ public:
     
     if (topObject == nullptr || topObject->obj.getGeometry().empty())
         return;
-    
-    retObj.setWorldLoc(topObject->obj.getWorldLoc());
-    retObj.setDrawPriority(topObject->obj.getDrawPriority());
-    
-    std::vector<ScreenSpaceObject::ConvexGeometry> allGeometry = topObject->obj.getGeometry();
-    
-    if (allGeometry.empty())
-        return;
-    
-    retObj.layoutPts = allGeometry.back().coords;
-    retObj.selectPts = allGeometry.back().coords;
-    
-    for (auto geometry : allGeometry)
-        retObj.addGeometry(geometry);
+	
+	retObj = topObject->obj;
 }
 
 - (void)setupLayoutObject:(LayoutObject &)retObj asAverageOfLayoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects withClusterGenerator:(NSObject<MaplyClusterGenerator> *)clusterGen
