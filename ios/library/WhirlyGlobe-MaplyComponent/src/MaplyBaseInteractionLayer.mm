@@ -1070,6 +1070,8 @@ public:
     
     retObj.setWorldLoc(topObject->obj.getWorldLoc());
     retObj.setDrawPriority(topObject->obj.getDrawPriority());
+    if (topObject->obj.hasRotation())
+        retObj.setRotation(topObject->obj.getRotation());
     
     std::vector<ScreenSpaceObject::ConvexGeometry> allGeometry = topObject->obj.getGeometry();
     
