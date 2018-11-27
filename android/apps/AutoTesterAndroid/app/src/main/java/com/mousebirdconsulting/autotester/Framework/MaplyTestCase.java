@@ -130,8 +130,8 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		// Note: Turn this off for testing GLTextureView
 //		settings.useSurfaceView = false;
 		settings.clearColor = clearColor;
-//		settings.width = 512;
-//		settings.height = 512;
+		settings.width = 700;
+		settings.height = 2560;
 		GlobeController globeControl = new GlobeController(activity,settings);
 		globeControl.gestureDelegate = this;
 

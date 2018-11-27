@@ -36,7 +36,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		RemoteTileSource remoteTileSource = new RemoteTileSource(baseController,new RemoteTileInfo("http://tile.stamen.com/watercolor/", "png", 0, 18));
 		remoteTileSource.setCacheDir(cacheDir);
 		// Note: Turn this on to get more information from the tile source
-//		remoteTileSource.debugOutput = true;
+		remoteTileSource.debugOutput = true;
 		SphericalMercatorCoordSystem coordSystem = new SphericalMercatorCoordSystem();
 		final QuadImageTileLayer baseLayer = new QuadImageTileLayer(baseController, coordSystem, remoteTileSource);
 		if (testType == ConfigOptions.TestType.MapTest)
