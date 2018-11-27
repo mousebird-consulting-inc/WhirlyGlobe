@@ -76,7 +76,7 @@ class RenderTarget : public Identifiable
 {
 public:
     RenderTarget();
-    RenderTarget(SimpleIdentity newID) : Identifiable(newID) { }
+    RenderTarget(SimpleIdentity newID) : Identifiable(newID),framebuffer(0),colorbuffer(0),depthbuffer(0) { }
     
     // Set up the render target
     bool init(Scene *scene,SimpleIdentity targetTexID);

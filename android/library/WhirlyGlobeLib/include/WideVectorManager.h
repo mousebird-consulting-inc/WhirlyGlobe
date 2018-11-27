@@ -50,13 +50,14 @@ public:
     WideVectorInfo();
     WideVectorInfo(const Dictionary &dict);
 
+    SimpleIdentity cornerProgramID;
     RGBAColor color;
     float width;
     float repeatSize;
     float edgeSize;
     WideVectorCoordsType coordType;
     WideVectorLineJoinType joinType;
-    WideVectorLineCapType capType;
+    WideVectorLineCapType startCapType,endCapType;
     SimpleIdentity texID;
     float miterLimit;
 };

@@ -24,12 +24,17 @@ namespace WhirlyKit
 {
     
 // Shader name
-#define kWideVectorShaderName "Wide Vector Shader"
-#define kWideVectorGlobeShaderName "Wide Vector Shader Globe"
+#define kWideVectorAngleShaderName "Wide Vector Shader"
+#define kWideVectorCurveShaderName "Wide Vector Curve Shader"
+//#define kWideVectorAngleGlobeShaderName "Wide Vector Shader Globe"
+//#define kWideVectorCurveGlobeShaderName "Wide Vector Curve Shader Globe"
     
 /// Construct and return the Billboard shader program
-OpenGLES2Program *BuildWideVectorProgram();
-OpenGLES2Program *BuildWideVectorGlobeProgram();
+OpenGLES2Program *BuildWideVectorAngleProgram();
+OpenGLES2Program *BuildWideVectorCurveProgram();
+/// This version is for the 3D globe
+//OpenGLES2Program *BuildWideVectorAngleGlobeProgram();
+//OpenGLES2Program *BuildWideVectorCurveGlobeProgram();
 
 // Used to debug the wide vectors
 //#define WIDEVECDEBUG 1
@@ -41,7 +46,7 @@ class WideVectorDrawable : public BasicDrawable
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    WideVectorDrawable(const std::string &name,unsigned int numVert,unsigned int numTri,bool globeMode);
+    WideVectorDrawable(const std::string &name,unsigned int numVert,unsigned int numTri,bool useAnchors,bool globeMode);
     
     virtual unsigned int addPoint(const Point3f &pt);
     // Next point, for calculating p1 - p0
@@ -52,6 +57,10 @@ public:
     void add_n0(const Point3f &vec);
     // Complex constant we multiply by width for t
     void add_c0(float c);
+    // Anchor point for rounded corners
+    void add_anchor(const Point3f &pt);
+    // Edge falloff value
+    void add_edgeFalloff(float edge_val);
     // Optional normal
     void addNormal(const Point3f &norm);
     void addNormal(const Point3d &norm);
@@ -82,6 +91,8 @@ protected:
     int n0_index;
     int c0_index;
     int tex_index;
+    int anchor_index;
+    int edge_index;
     
 #ifdef WIDEVECDEBUG
     Point3fVector locPts;

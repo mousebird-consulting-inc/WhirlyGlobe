@@ -44,7 +44,7 @@ class VectorSceneRep : public Identifiable
 {
 public:
     VectorSceneRep() : fade(0.0) { }
-    VectorSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
+    VectorSceneRep(SimpleIdentity theId) : Identifiable(theId), fade(0.0) { }
     
     // Clean out the representation
     void clear(ChangeSet &changes);

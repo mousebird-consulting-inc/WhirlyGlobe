@@ -161,16 +161,14 @@
 
 /// For wide vectors we can control the ends
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
-//#define kMaplyWideVecLineCapType @"wideveclinecaptype"
-
-// Note: These are not currently implemented
+#define kMaplyWideVecLineCapType WKString("wideveclinecaptype")
 
 /// Widened vector ends are flush
-//#define kMaplyWideVecButtCap @"butt"
+#define kMaplyWideVecButtCap WKString("butt")
 /// Widened vector ends are round (e.g. hot dog roads)
-//#define kMaplyWideVecRoundCap @"round"
+#define kMaplyWideVecRoundCap WKString("round")
 /// Widened vector ends are extended a bit and then flush
-//#define kMaplyWideVecSquareCap @"square"
+#define kMaplyWideVecSquareCap WKString("square")
 
 /// Miter joins will turn to bevel joins past this number of degrees
 #define MaplyWideVecMiterLimit WKString("miterLimit")
