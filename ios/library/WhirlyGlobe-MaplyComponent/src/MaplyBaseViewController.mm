@@ -498,6 +498,11 @@ static const float PerfOutputDelay = 15.0;
     return [renderControl getShaderByName:name];
 }
 
+- (void)removeShaderProgram:(MaplyShader *__nonnull)shader
+{
+    [renderControl removeShaderProgram:shader];
+}
+
 #pragma mark - Defaults and descriptions
 
 // Set new hints and update any related settings

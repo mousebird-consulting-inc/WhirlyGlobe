@@ -249,6 +249,24 @@ using namespace Eigen;
     scene->addProgram(theSceneName, shader.program);
 }
 
+- (void)removeShaderProgram:(MaplyShader *__nonnull)shaderToRemove
+{
+    bool found = false;
+    for (MaplyShader *shader in shaders) {
+        if (shader == shaderToRemove) {
+            found = true;
+            break;
+        }
+    }
+    
+    if (!found)
+        return;
+    [shaders removeObject:shaderToRemove];
+    
+    if (shaderToRemove.program)
+        scene->removeProgram(shaderToRemove.program->getId());
+}
+
 - (MaplyShader *__nullable)getShaderByName:(NSString *__nonnull)name
 {
     for (MaplyShader *shader in shaders)
