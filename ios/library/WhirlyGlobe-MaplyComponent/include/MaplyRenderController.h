@@ -790,6 +790,11 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 - (MaplyShader *__nullable)getShaderByName:(NSString *__nonnull)name;
 
 /**
+ Remove a shader that was added earlier.
+ */
+- (void)removeShaderProgram:(MaplyShader *__nonnull)shader;
+
+/**
  Return the coordinate system being used for the display.
  
  This returns the local coordinate system, which is used to unroll the earth (for the globe) or via a scaling factor (for the flat map).

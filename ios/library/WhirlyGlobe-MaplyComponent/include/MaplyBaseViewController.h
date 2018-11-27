@@ -1165,6 +1165,11 @@
   */
 - (MaplyShader *__nullable)getShaderByName:(NSString *__nonnull)name;
 
+/**
+    Remove a shader that was added earlier.
+  */
+- (void)removeShaderProgram:(MaplyShader *__nonnull)shader;
+
 /** 
     Return the current map scale from the viewpoint.
     
