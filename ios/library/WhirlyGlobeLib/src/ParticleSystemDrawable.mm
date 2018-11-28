@@ -516,6 +516,9 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
     EAGLContext *context = [EAGLContext currentContext];
     OpenGLES2Program *prog = frameInfo.program;
     
+    if (!prog)
+        return;
+    
     // Setup the textures for use and set the uniforms
     bool hasTexture[WhirlyKitMaxTextures];
     int progTexBound = 0;
