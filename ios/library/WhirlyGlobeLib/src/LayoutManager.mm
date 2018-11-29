@@ -186,18 +186,6 @@ bool LayoutManager::hasChanges()
     
     return ret;
 }
-    
-// Sort more important things to the front
-typedef struct
-{
-    bool operator () (const LayoutObjectEntry *a,const LayoutObjectEntry *b) const
-    {
-        if (a->obj.importance == b->obj.importance)
-            return a > b;
-        return a->obj.importance > b->obj.importance;
-    }
-} LayoutEntrySorter;
-typedef std::set<LayoutObjectEntry *,LayoutEntrySorter> LayoutSortingSet;
 
 // Return the screen space objects in a form the selection manager can understand
 void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs)
