@@ -63,6 +63,7 @@ typedef enum {MBLineJoinBevel,MBLineJoinRound,MBLineJoinMiter} MapboxVectorLineJ
 @property (nonatomic,strong) MapboxVectorLineLayout *layout;
 @property (nonatomic,strong) MapboxVectorLinePaint *paint;
 @property (nonatomic) bool linearClipToBounds;
+@property (nonatomic) bool dropGridLines;
 // If non-zero we'll subdivide the line along a globe to the given tolerance
 @property (nonatomic) double subdivToGlobe;
 
