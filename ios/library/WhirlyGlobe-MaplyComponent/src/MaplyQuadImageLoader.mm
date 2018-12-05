@@ -142,6 +142,12 @@ public:
     // After a successful load, set up the texture and any other contents
     void setupContents(LoadedTileNewRef loadedTile,Texture *tex,NSArray *inCompObjs,NSArray *inOvlCompObjs,
                        MaplyBaseInteractionLayer *layer,ChangeSet &changes) {
+        // Sometimes we can end up loading/unloading/reloading a tile
+        if ([compObjs count] > 0)
+            [layer removeObjects:compObjs changes:changes];
+        if ([ovlCompObjs count] > 0)
+            [layer removeObjects:ovlCompObjs changes:changes];
+        
         enable = loadedTile->enabled;
         compObjs = inCompObjs;
         ovlCompObjs = inOvlCompObjs;
@@ -702,7 +708,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 }
 
 // Deal with returned tile data (or not)
-- (void)mergeFetchedData:(MaplyLoaderReturn *)loadReturn forTile:(TileAssetRef)tile tileID:(const QuadTreeNew::Node &)tileID request:(MaplyTileFetchRequest *)request
+- (void)mergeFetchedData:(MaplyLoaderReturn *)loadReturn forTile:(TileAssetRef)tile tileID:(const QuadTreeNew::Node &)tileID frame:(int)frame request:(MaplyTileFetchRequest *)request
 {
     // May get nil data, which means we just clean out the request
     NSData *tileData = loadReturn ? loadReturn.tileData : nil;
@@ -717,8 +723,9 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         }
         
         MaplyLoaderReturn *multiLoadData = [[MaplyLoaderReturn alloc] init];
-        multiLoadData.tileID = loadReturn.tileID;
-        multiLoadData.frame = loadReturn.frame;
+        MaplyTileID thisTileID;  thisTileID.level = tileID.level;  thisTileID.x = tileID.x;  thisTileID.y = tileID.y;
+        multiLoadData.tileID = thisTileID;
+        multiLoadData.frame = frame;
         multiLoadData.multiTileData = [NSMutableArray array];
         for (unsigned int ii=0;ii<allData.size();ii++)
             [(NSMutableArray *)multiLoadData.multiTileData addObject:allData[ii]];
@@ -754,8 +761,8 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
     if (self.debugMode)
         NSLog(@"MaplyQuadImageLoader: Merging fetch for tile %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-    
-    [self mergeFetchedData:loadReturn forTile:tile tileID:tileID request:request];
+
+    [self mergeFetchedData:loadReturn forTile:tile tileID:ident frame:loadReturn.frame request:request];
 }
 
 // Called on SamplingLayer.layerThread
@@ -775,7 +782,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     // Failed, so clean up the objects that may have been created
     if (it == tiles.end() || loadReturn.error)
     {
-        if (loadReturn.compObjs) {
+        if (loadReturn.compObjs || loadReturn.ovlCompObjs) {
             [viewC removeObjects:loadReturn.compObjs mode:MaplyThreadCurrent];
             [viewC removeObjects:loadReturn.ovlCompObjs mode:MaplyThreadCurrent];
         }
@@ -815,6 +822,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     if (tex) {
         if ([loadReturn.ovlCompObjs count] > 0)
             hasOverlayObjects = true;
+        
         tile->setupContents(loadedTile,tex,loadReturn.compObjs,loadReturn.ovlCompObjs,interactLayer,changes);
     } else {
         NSLog(@"Failed to create texture for tile %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
@@ -841,8 +849,8 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     }
     auto thisTileID = it->first;
     auto tile = it->second;
-        
-    [self mergeFetchedData:nil forTile:tile tileID:thisTileID request:request];
+    
+    [self mergeFetchedData:nil forTile:tile tileID:thisTileID frame:frame request:request];
 }
 
 // Decide if this tile ought to be loaded
