@@ -196,6 +196,22 @@
     return retStr;
 }
 
+// Calculate a value [0.0,1.0] for this string
+- (float)calcStringHash:(NSString *)str
+{
+    unsigned int len = [str length];
+    unichar buffer[len];
+    
+    [str getCharacters:buffer range:NSMakeRange(0, len)];
+    float val = 0.0;
+    for (int ii=0;ii<len;ii++) {
+        val += buffer[ii] / 256.0;
+    }
+    val /= len;
+    
+    return val;
+}
+
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
@@ -275,8 +291,10 @@
         if (vecObj.attributes[@"rank"]) {
             rank = [vecObj.attributes[@"rank"] integerValue];
         }
-        label.layoutImportance = 1000000 - rank + (101-tileInfo.tileID.level)/100;
-
+        // Random tweak to cut down on flashing
+        float strHash = [self calcStringHash:label.text];
+        label.layoutImportance = 1000000 - rank + (101-tileInfo.tileID.level)/100.0 + strHash/1000.0;
+        
         // Change the text if needed
         switch (_layout.textTransform)
         {
