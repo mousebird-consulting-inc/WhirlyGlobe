@@ -186,44 +186,47 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
 {
     if (attrData.size() != vertAttrs.size())
         return;
-    
-    glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
-    unsigned char *glMem = NULL;
-    EAGLContext *context = [EAGLContext currentContext];
-    int glMemOffset = 0;
-    if (context.API < kEAGLRenderingAPIOpenGLES3)
-    {
-        glMem = (unsigned char *)glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-        glMemOffset = batch.batchID*vertexSize*batchSize;
-    } else {
-        glMem = (unsigned char *)glMapBufferRange(GL_ARRAY_BUFFER, batch.batchID*vertexSize*batchSize, vertexSize*batchSize, GL_MAP_WRITE_BIT);
-    }
-    
-    // Work through the attribute blocks
-    int attrOffset = 0;
-    for (unsigned int ai=0;ai<vertAttrs.size();ai++)
-    {
-        const AttributeData &thisAttrData = attrData[ai];
-        SingleVertexAttributeInfo &attrInfo = vertAttrs[ai];
-        int attrSize = attrInfo.size();
-        unsigned char *rawAttrData = (unsigned char *)thisAttrData.data;
-        unsigned char *ptr = glMem + attrOffset + glMemOffset;
-        // Copy into each vertex
-        for (unsigned int ii=0;ii<batchSize;ii++)
+
+    // When the particles initialize themselves we don't have vertex data
+    if (vertexSize > 0) {
+        glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
+        unsigned char *glMem = NULL;
+        EAGLContext *context = [EAGLContext currentContext];
+        int glMemOffset = 0;
+        if (context.API < kEAGLRenderingAPIOpenGLES3)
         {
-            memcpy(ptr, rawAttrData, attrSize);
-            ptr += vertexSize;
-            rawAttrData += attrSize;
+            glMem = (unsigned char *)glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+            glMemOffset = batch.batchID*vertexSize*batchSize;
+        } else {
+            glMem = (unsigned char *)glMapBufferRange(GL_ARRAY_BUFFER, batch.batchID*vertexSize*batchSize, vertexSize*batchSize, GL_MAP_WRITE_BIT);
         }
         
-        attrOffset += attrSize;
+        // Work through the attribute blocks
+        int attrOffset = 0;
+        for (unsigned int ai=0;ai<vertAttrs.size();ai++)
+        {
+            const AttributeData &thisAttrData = attrData[ai];
+            SingleVertexAttributeInfo &attrInfo = vertAttrs[ai];
+            int attrSize = attrInfo.size();
+            unsigned char *rawAttrData = (unsigned char *)thisAttrData.data;
+            unsigned char *ptr = glMem + attrOffset + glMemOffset;
+            // Copy into each vertex
+            for (unsigned int ii=0;ii<batchSize;ii++)
+            {
+                memcpy(ptr, rawAttrData, attrSize);
+                ptr += vertexSize;
+                rawAttrData += attrSize;
+            }
+            
+            attrOffset += attrSize;
+        }
+        
+        if (context.API < kEAGLRenderingAPIOpenGLES3)
+            glUnmapBufferOES(GL_ARRAY_BUFFER);
+        else
+            glUnmapBuffer(GL_ARRAY_BUFFER);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
-    
-    if (context.API < kEAGLRenderingAPIOpenGLES3)
-        glUnmapBufferOES(GL_ARRAY_BUFFER);
-    else
-        glUnmapBuffer(GL_ARRAY_BUFFER);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     pthread_mutex_lock(&batchLock);
     batches[batch.batchID] = batch;
