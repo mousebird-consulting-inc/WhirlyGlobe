@@ -222,9 +222,7 @@
     if ([retStr length] > 0)
         [retStr appendString:@"\n"];
     [retStr appendString:soFar];
-    
-    NSLog(@"Input: %@, output: %@",text,retStr);
-    
+        
     return retStr;
 }
 
