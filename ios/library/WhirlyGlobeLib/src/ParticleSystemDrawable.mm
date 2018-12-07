@@ -600,6 +600,10 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     EAGLContext *context = [EAGLContext currentContext];
     OpenGLES2Program *prog = frameInfo.program;
     
+    // Sometimes the program is deleted before the drawable (oops)
+    if (!prog)
+        return;
+    
     bool hasTexture[WhirlyKitMaxTextures];
     int progTexBound = 0;
 

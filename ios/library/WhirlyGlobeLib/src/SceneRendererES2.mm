@@ -331,6 +331,7 @@ static const float ScreenOverlap = 0.1;
     if (perfInterval > 0)
         perfTimer.startTiming("Render Setup");
     
+    CheckGLError("SceneRendererES2: pre setCurrentContext");
     EAGLContext *context = super.context;
     EAGLContext *oldContext = [EAGLContext currentContext];
     if (oldContext != context)
