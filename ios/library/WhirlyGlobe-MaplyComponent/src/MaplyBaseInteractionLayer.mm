@@ -471,7 +471,7 @@ public:
         {
             if (*theImageTex)
             {
-                if ((*theImageTex).image == image)
+                if ((*theImageTex).image == image && !(*theImageTex).isBeingRemoved)
                 {
                     maplyTex = *theImageTex;
                     break;
@@ -658,9 +658,10 @@ public:
     // If it's associated with the view controller, it exists outside us, so we just let it clean itself up
     //  when it gets dealloc'ed.
     // Note: This time is a hack.  Should look at the fade out.
-    if (tex.interactLayer)
+    if (tex.interactLayer) {
+        tex.isBeingRemoved = true;
         [self performSelector:@selector(delayedRemoveTexture:) withObject:tex afterDelay:2.0];
-    else {
+    } else {
         // If we created it in this object, we'll clean it up
         if (tex.texID != EmptyIdentity)
         {
@@ -3165,7 +3166,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 wkPartSys.vertAttrs.push_back(vertAttr);
             }
         }
-        for (auto it : partSys.attrs)
         // Now the textures
         for (id image : partSys.images)
         {
