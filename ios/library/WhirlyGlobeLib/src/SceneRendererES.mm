@@ -510,8 +510,11 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
 
 - (void)useContext
 {
-	if (_context && [EAGLContext currentContext] != _context)
-		[EAGLContext setCurrentContext:_context];
+    if (_context && [EAGLContext currentContext] != _context) {
+		if (![EAGLContext setCurrentContext:_context])
+            NSLog(@"Failed to set context in SceneRendererES::useContext");
+        CheckGLError("SceneRendererES::useContext setCurrentContext");
+    }
 }
 
 - (BOOL) resizeFromLayer:(CAEAGLLayer *)layer
