@@ -1195,6 +1195,14 @@
   */
 - (UIImage *__nullable)snapshot;
 
+/**
+    Return the raw data for a render target.
+
+    Copies the pixels for a render target out after rendering and returns them in an NSData object.
+    This is not fast.  Don't call it often.
+  */
+- (NSData * __nullable)shapshotRenderTarget:(MaplyRenderTarget * __nonnull)renderTarget;
+
 /** 
     Return the current map zoom from the viewpoint.
  
