@@ -101,6 +101,9 @@ public:
     /// Set the GL texture directly
     void setTargetTexture(TextureBase *tex);
     
+    /// Copy the data out of the destination texture and return it
+    NSData *snapshot();
+    
     /// OpenGL ES Name for the frame buffer
     GLuint framebuffer;
     /// OpenGL ES Name for the color buffer

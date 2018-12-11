@@ -483,10 +483,16 @@ using namespace Eigen;
     return CGSizeMake(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
 }
 
-// Snapshot protocol
+// MARK: Snapshot protocol
 
-- (void)snapshot:(UIImage *)image
-{
+- (WhirlyKit::SimpleIdentity)renderTargetID {
+    return EmptyIdentity;
+}
+
+- (void)snapshotData:(NSData *)data {
+}
+
+- (void)snapshotImage:(UIImage *)image {
     snapshotImage = image;
 }
 

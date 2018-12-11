@@ -26,6 +26,7 @@
 #import "NSDictionary+StyleRules.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
+#import "MaplyRenderTarget_private.h"
 #import <sys/utsname.h>
 
 using namespace Eigen;
@@ -37,13 +38,29 @@ using namespace WhirlyKit;
 // Target for screen snapshot
 @interface SnapshotTarget : NSObject<WhirlyKitSnapshot>
 @property (nonatomic) UIImage *image;
+@property (nonatomic) NSData *data;
+@property (nonatomic) SimpleIdentity renderTargetID;
 @end
 
 @implementation SnapshotTarget
 
-- (void)snapshot:(UIImage *)image
+- (instancetype)init
 {
-    _image = image;
+    self = [super init];
+    
+    _image = nil;
+    _data = nil;
+    _renderTargetID = EmptyIdentity;
+    
+    return self;
+}
+
+- (void)snapshotData:(NSData *)snapshotData {
+    _data = snapshotData;
+}
+
+- (void)snapshotImage:(UIImage *)snapshotImage {
+    _image = snapshotImage;
 }
 
 @end
@@ -1508,6 +1525,21 @@ static const float PerfOutputDelay = 15.0;
     [renderControl->sceneRenderer render:0.0];
     
     return target.image;
+}
+
+- (NSData *)shapshotRenderTarget:(MaplyRenderTarget *)renderTarget
+{
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return NULL;
+
+    SnapshotTarget *target = [[SnapshotTarget alloc] init];
+    target.renderTargetID = renderTarget.renderTargetID;
+    renderControl->sceneRenderer.snapshotDelegate = target;
+    
+    [renderControl->sceneRenderer forceDrawNextFrame];
+    [renderControl->sceneRenderer render:0.0];
+    
+    return target.data;
 }
 
 - (float)currentMapZoom:(MaplyCoordinate)coordinate

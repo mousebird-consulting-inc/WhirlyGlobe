@@ -130,6 +130,25 @@ void RenderTarget::setTargetTexture(TextureBase *tex)
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+    
+NSData *RenderTarget::snapshot()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    CheckGLError("SceneRendererES2: glBindFramebuffer");
+    glViewport(0, 0, width, height);
+    CheckGLError("SceneRendererES2: glViewport");
+
+    // Note: We're just assuming this format from the texture.  Should check
+    int len = width * height * sizeof(GLubyte) * 4;
+    GLubyte* pixels = (GLubyte*) malloc(len);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    
+    NSData *data = [[NSData alloc] initWithBytesNoCopy:pixels length:len];
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    return data;
+}
 
 void RenderTarget::clear()
 {
