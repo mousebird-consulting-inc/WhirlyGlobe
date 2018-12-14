@@ -292,17 +292,23 @@
         }
 
         int red,green,blue;
+        int alpha = 255;
         if ([str length] == 4)
         {
             red = (iVal >> 8) & 0xf;  red |= red << 4;
             green = (iVal >> 4) & 0xf;  green |= green << 4;
             blue = iVal & 0xf;  blue |= blue << 4;
+        } else if ([str length] > 7) {
+            red = (iVal >> 24) & 0xff;
+            green = (iVal >> 16) & 0xff;
+            blue = (iVal >> 8) & 0xff;
+            alpha = iVal & 0xff;
         } else {
             red = (iVal >> 16) & 0xff;
             green = (iVal >> 8) & 0xff;
             blue = iVal & 0xff;
         }
-        return [UIColor colorWithRed:(double)red/255.0 green:(double)green/255.0 blue:(double)blue/255.0 alpha:1.0];
+        return [UIColor colorWithRed:(double)red/255.0 green:(double)green/255.0 blue:(double)blue/255.0 alpha:alpha/255.0];
     } else if ([str rangeOfString:@"rgb("].location == 0)
     {
         NSScanner *scanner = [NSScanner scannerWithString:str];
