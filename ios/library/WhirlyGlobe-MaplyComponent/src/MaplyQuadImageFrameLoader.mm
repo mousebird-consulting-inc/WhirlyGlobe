@@ -599,8 +599,6 @@ using namespace WhirlyKit;
     // Tiles in various states of loading or loaded
     QIFTileAssetMap tiles;
     
-    SimpleIdentity shaderID;
-    
     // Tile rendering info supplied from the layer thread
     QIFRenderState renderState;
     

@@ -824,4 +824,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
 /// If set up in offline mode, this is how we draw
 - (UIImage * __nullable)renderToImage;
 
+/// Return the raw RGBA pixels from the rendered image rather than a UIImage
+- (NSData * __nullable)renderToImageData;
+
 @end

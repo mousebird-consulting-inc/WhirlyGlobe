@@ -49,6 +49,7 @@ using namespace WhirlyKit;
 
 static double MAX_EXTENT = 20037508.342789244;
 
+
 @implementation MapboxVectorImageInterpreter
 {
     MaplyQuadImageLoader * __weak loader;
@@ -91,6 +92,25 @@ static double MAX_EXTENT = 20037508.342789244;
     backColor = backLayer.paint.color;
     
     return self;
+}
+
+// Flip data in an NSData object that we know to be an image
+- (NSData *)flipVertically:(NSData *)data width:(int)width height:(int)height
+{
+    NSMutableData *retData = [[NSMutableData alloc] initWithData:data];
+
+    int rowSize = 4*width;
+    unsigned char tmpData[rowSize];
+    unsigned char *rawData = (unsigned char *)[retData mutableBytes];
+    for (unsigned int iy=0;iy<height/2;iy++) {
+        unsigned char *rowA = &rawData[iy*rowSize];
+        unsigned char *rowB = &rawData[(height-iy-1)*rowSize];
+        memcpy(tmpData, rowA, rowSize);
+        memcpy(rowA, rowB, rowSize);
+        memcpy(rowB, tmpData, rowSize);
+    }
+    
+    return retData;
 }
 
 - (void)parseData:(MaplyLoaderReturn * __nonnull)loadReturn
@@ -136,7 +156,7 @@ static double MAX_EXTENT = 20037508.342789244;
     spherMercBBox.ll = [self toMerc:geoBBox.ll];
     spherMercBBox.ur = [self toMerc:geoBBox.ur];
     
-    UIImage *image = nil;
+    NSData *imageData = nil;
     
     [viewC startChanges];
     
@@ -162,7 +182,9 @@ static double MAX_EXTENT = 20037508.342789244;
             // Turn all those objects on
             [offlineRender enableObjects:compObjs mode:MaplyThreadCurrent];
             
-            image = [offlineRender renderToImage];
+            imageData = [self flipVertically:[offlineRender renderToImageData]
+                                       width:offlineRender.getFramebufferSize.width
+                                      height:offlineRender.getFramebufferSize.height];
             
             // And then remove them all
             [offlineRender removeObjects:compObjs mode:MaplyThreadCurrent];
@@ -187,29 +209,8 @@ static double MAX_EXTENT = 20037508.342789244;
 
     [viewC endChanges];
     
-    // Merge the hillshade in with the background image
-    if (!images.empty() && image) {
-        UIGraphicsBeginImageContext(image.size);
-        CGContextRef ctx = UIGraphicsGetCurrentContext();
-
-        CGAffineTransform flipVertical = CGAffineTransformMake(1, 0, 0, -1, 0, image.size.height);
-        CGContextConcatCTM(ctx, flipVertical);
-        
-        CGContextSetBlendMode(ctx, kCGBlendModeCopy);
-        CGContextDrawImage(ctx, CGRectMake(0.0, 0.0, image.size.width, image.size.height), image.CGImage);
-
-        CGContextSetBlendMode(ctx, kCGBlendModeMultiply);
-        for (UIImage *shadeImage : images)
-            CGContextDrawImage(ctx, CGRectMake(0.0, 0.0, image.size.width, image.size.height), shadeImage.CGImage);
-        
-        UIImage *resultImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-
-        image = resultImage;
-    }
-    
     // Successful load
-    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:image];
+    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height];
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
     loadReturn.image = loadTile;
     if ([ovlCompObjs count] > 0) {

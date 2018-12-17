@@ -206,6 +206,10 @@ public:
             drawInst->setDrawPriority(newDrawPriority);
             drawInst->setEnable(false);
             drawInst->setColor([loader.color asRGBAColor]);
+            drawInst->setRequestZBuffer(loader.zBufferRead);
+            drawInst->setWriteZBuffer(loader.zBufferWrite);
+            if (loader->shaderID != EmptyIdentity)
+                drawInst->setProgram(loader->shaderID);
             if (loader->renderTarget)
                 drawInst->setRenderTarget(loader->renderTarget.renderTargetID);
             changes.push_back(new AddDrawableReq(drawInst));
@@ -408,6 +412,11 @@ using namespace WhirlyKit;
     renderTarget = inRenderTarget;
 }
 
+- (void)setShader:(MaplyShader *)shader
+{
+    shaderID = [shader getShaderID];
+}
+
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp
 {
     if (loadInterp) {
@@ -496,6 +505,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     bool valid;
     MaplySamplingParams *params;
     NSArray<MaplyRemoteTileInfoNew *> *tileInfos;
+    SimpleIdentity shaderID;
     
     // Current overlay level
     int curOverlayLevel;
@@ -540,6 +550,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     curOverlayLevel = -1;
     targetLevel = -1;
     hasOverlayObjects = false;
+    shaderID = EmptyIdentity;
 
     // Start things out after a delay
     // This lets the caller mess with settings
