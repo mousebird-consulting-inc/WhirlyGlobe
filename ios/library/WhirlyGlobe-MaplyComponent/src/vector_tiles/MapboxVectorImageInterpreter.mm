@@ -195,7 +195,7 @@ static double MAX_EXTENT = 20037508.342789244;
         CGAffineTransform flipVertical = CGAffineTransformMake(1, 0, 0, -1, 0, image.size.height);
         CGContextConcatCTM(ctx, flipVertical);
         
-        [[UIColor blackColor] setFill];
+        CGContextSetBlendMode(ctx, kCGBlendModeCopy);
         CGContextDrawImage(ctx, CGRectMake(0.0, 0.0, image.size.width, image.size.height), image.CGImage);
 
         CGContextSetBlendMode(ctx, kCGBlendModeMultiply);
