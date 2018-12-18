@@ -46,6 +46,7 @@ public:
     NSTimeInterval lifetime,baseTime;
     int totalParticles,batchSize;
     bool continuousUpdate;
+    bool zBufferRead,zBufferWrite;
     SimpleIdentity renderTargetID;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
     std::vector<SingleVertexAttributeInfo> varyingAttrs;
