@@ -830,7 +830,7 @@ using namespace WhirlyKit;
     auto tile = it->second;
     
     // Build the texture
-    WhirlyKitLoadedTile *loadTile = loadReturn.image;
+    WhirlyKitLoadedTile *loadTile = [loadReturn.images count] > 0 ? [loadReturn.images objectAtIndex:0] : nil;
     Texture *tex = NULL;
     LoadedTileNewRef loadedTile = [builder getLoadedTile:ident];
     if ([loadTile.images count] > 0) {
