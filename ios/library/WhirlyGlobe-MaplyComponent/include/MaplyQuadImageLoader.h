@@ -44,8 +44,8 @@
 // If you have more than one tileInfo, you'll get your data back here unparsed.
 @property (nonatomic,strong) NSArray * __nullable multiTileData;
 
-// Can be a UIImage or an NSData containing an image or a MaplyImageTile
-@property (nonatomic,strong) id __nullable image;
+// Can be zero or more UIImage or an NSData containing an image or a MaplyImageTile
+@property (nonatomic,strong) NSArray *__nullable images;
 
 // If any component objects are associated with the tile, these are them.
 // They need to start disabled.  The system will enable and delete them when it is time.

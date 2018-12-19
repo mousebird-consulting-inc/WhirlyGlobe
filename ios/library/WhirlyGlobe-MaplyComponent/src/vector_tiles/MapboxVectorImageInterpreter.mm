@@ -131,10 +131,7 @@ static double MAX_EXTENT = 20037508.342789244;
           }
         }
         // Might be an image
-        UIImage *image = nil;
-        if (_imageAsHillshade) {
-            image = [UIImage imageWithData:thisTileData];
-        }
+        UIImage *image = [UIImage imageWithData:thisTileData];
         if (image)
             images.push_back(image);
         else
@@ -208,11 +205,22 @@ static double MAX_EXTENT = 20037508.342789244;
     }
 
     [viewC endChanges];
-    
-    // Successful load
+
+    // Rendered image goes in first
+    NSMutableArray *outImages = [NSMutableArray array];
     MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height];
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
-    loadReturn.image = loadTile;
+    [outImages addObject:loadTile];
+    
+    // Any additional images are tacked on
+    for (UIImage *image : images) {
+        MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithImage:image];
+        WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
+        if (loadTile)
+            [outImages addObject:loadTile];
+    }
+    loadReturn.images = outImages;
+
     if ([ovlCompObjs count] > 0) {
         loadReturn.ovlCompObjs = ovlCompObjs;
         [compObjs removeObjectsInArray:ovlCompObjs];
