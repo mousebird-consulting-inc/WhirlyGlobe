@@ -335,6 +335,7 @@ void ParticleSystemDrawable::drawSetupTextures(WhirlyKitRendererFrameInfo *frame
     {
         GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
         auto baseMapNameID = baseMapNameIDs[ii];
+        auto hasBaseMapNameID = hasBaseMapNameIDs[ii];
         const OpenGLESUniform *texUni = prog->findUniform(baseMapNameID);
         hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
         if (hasTexture[ii+progTexBound])
@@ -344,28 +345,9 @@ void ParticleSystemDrawable::drawSetupTextures(WhirlyKitRendererFrameInfo *frame
             CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
             prog->setUniform(baseMapNameID, (int)ii+progTexBound);
             CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
-        }
-    }
-    
-    // The program itself may have some textures to bind
-    progTexBound = prog->bindTextures();
-    for (unsigned int ii=0;ii<progTexBound;ii++)
-        hasTexture[ii] = true;
-    
-    // Zero or more textures in the drawable
-    for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
-    {
-        GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
-        auto baseMapNameID = baseMapNameIDs[ii];
-        const OpenGLESUniform *texUni = prog->findUniform(baseMapNameID);
-        hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
-        if (hasTexture[ii+progTexBound])
-        {
-            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
-            glBindTexture(GL_TEXTURE_2D, glTexID);
-            CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
-            prog->setUniform(baseMapNameID, (int)ii+progTexBound);
-            CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
+            prog->setUniform(hasBaseMapNameID, 1);
+        } else {
+            prog->setUniform(hasBaseMapNameID, 0);
         }
     }
 }

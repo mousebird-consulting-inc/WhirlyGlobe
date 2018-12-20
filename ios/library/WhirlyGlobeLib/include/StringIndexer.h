@@ -36,6 +36,7 @@ extern void SetupDrawableStrings();
 
 // Names used for indexing into shaders
 extern StringIdentity baseMapNameIDs[];
+extern StringIdentity hasBaseMapNameIDs[];
 extern StringIdentity texOffsetNameIDs[];
 extern StringIdentity texScaleNameIDs[];
 extern StringIdentity lightViewDependNameIDs[];

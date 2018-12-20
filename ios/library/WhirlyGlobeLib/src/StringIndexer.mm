@@ -62,6 +62,7 @@ std::string StringIndexer::getString(StringIdentity strID)
     
 // Shared global string IDs speed things up a lot
 StringIdentity baseMapNameIDs[WhirlyKitMaxTextures];
+StringIdentity hasBaseMapNameIDs[WhirlyKitMaxTextures];
 StringIdentity texOffsetNameIDs[WhirlyKitMaxTextures];
 StringIdentity texScaleNameIDs[WhirlyKitMaxTextures];
 StringIdentity lightViewDependNameIDs[8];
@@ -124,6 +125,8 @@ void SetupDrawableStrings()
     for (unsigned int ii=0;ii<8;ii++) {
         std::string baseMapName = "s_baseMap" + std::to_string(ii);
         baseMapNameIDs[ii] = StringIndexer::getStringID(baseMapName);
+        std::string hasBaseMapName = "u_has_baseMap" + std::to_string(ii);
+        hasBaseMapNameIDs[ii] = StringIndexer::getStringID(hasBaseMapName);
         std::string texOffsetName = "u_texOffset" + std::to_string(ii);
         texOffsetNameIDs[ii] = StringIndexer::getStringID(texOffsetName);
         std::string texScaleName = "u_texScale" + std::to_string(ii);
