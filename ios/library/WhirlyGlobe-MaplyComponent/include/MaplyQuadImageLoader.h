@@ -118,7 +118,7 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 // Base color for geometry produced
 @property (nonatomic,retain,nonnull) UIColor *color;
 
-// Write to the z buffer when rendering.  Off by default
+// Write to the z buffer when rendering.  On by default
 @property (nonatomic,assign) bool zBufferWrite;
 
 // Read from the z buffer when rendering.  Off by default
