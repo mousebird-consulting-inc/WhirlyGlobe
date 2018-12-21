@@ -464,6 +464,9 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
             case GL_COMPRESSED_RGB8_ETC2:
                 glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB8_ETC2, width, height, 0, (GLsizei)[convertedData length], [convertedData bytes]);
                 break;
+            case GL_DEPTH_COMPONENT16:
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, [convertedData bytes]);
+                break;
         }
         CheckGLError("Texture::createInGL() glTexImage2D()");
 	}	

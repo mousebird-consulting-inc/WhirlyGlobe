@@ -33,233 +33,89 @@ using namespace WhirlyKit;
 @implementation WhirlyKitDisplaySolid
 
 // Let's not support tiles less than 10m on a side
-static float const BoundsEps = 10.0 / EarthRadius;
+//static float const BoundsEps = 10.0 / EarthRadius;
+
+// Calculate the number of samples required to represent the given line to a tolerance
+int calcNumSamples(const Point3d &p0,const Point3d &p1,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter,int level)
+{
+    switch (level) {
+    case 0:
+        return 10;
+    case 1:
+        return 4;
+    case 2:
+        return 4;
+    case 3:
+        return 4;
+    case 4:
+        return 4;
+    case 5:
+        return 3;
+    case 6:
+        return 2;
+    default:
+        return 1;
+    }
+}
 
 + (WhirlyKitDisplaySolid *)displaySolidWithNodeIdent:(WhirlyKit::Quadtree::Identifier &)nodeIdent mbr:(WhirlyKit::Mbr)nodeMbr minZ:(float)inMinZ maxZ:(float)inMaxZ srcSystem:(WhirlyKit::CoordSystem *)srcSystem adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
 {
     WhirlyKitDisplaySolid *dispSolid = [[WhirlyKitDisplaySolid alloc] init];
-    
-    // Start with the outline in the source coordinate system
+
+    // Start with the corner points in the source
     WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
     std::vector<Point3d> srcBounds;
     srcBounds.push_back(Point3d(nodeMbr.ll().x(),nodeMbr.ll().y(),inMinZ));
     srcBounds.push_back(Point3d(nodeMbr.ur().x(),nodeMbr.ll().y(),inMinZ));
     srcBounds.push_back(Point3d(nodeMbr.ur().x(),nodeMbr.ur().y(),inMinZ));
     srcBounds.push_back(Point3d(nodeMbr.ll().x(),nodeMbr.ur().y(),inMinZ));
-    srcBounds.push_back(Point3d((nodeMbr.ll().x()+nodeMbr.ur().x())/2.0,(nodeMbr.ll().y()+nodeMbr.ur().y())/2.0,inMinZ));
-    if (inMinZ != inMaxZ)
-    {
-        srcBounds.push_back(Point3d(nodeMbr.ll().x(),nodeMbr.ll().y(),inMaxZ));
-        srcBounds.push_back(Point3d(nodeMbr.ur().x(),nodeMbr.ll().y(),inMaxZ));
-        srcBounds.push_back(Point3d(nodeMbr.ur().x(),nodeMbr.ur().y(),inMaxZ));
-        srcBounds.push_back(Point3d(nodeMbr.ll().x(),nodeMbr.ur().y(),inMaxZ));
-        srcBounds.push_back(Point3d((nodeMbr.ll().x()+nodeMbr.ur().x())/2.0,(nodeMbr.ll().y()+nodeMbr.ur().y())/2.0,inMaxZ));
-    }
-    
-    // Figure out where the bounds drop in display space
-    std::vector<Point3d> dispBounds;
-    std::vector<Point3d> localBounds;
-    std::vector<Point2d> geoBounds;
-    dispBounds.reserve(srcBounds.size());
-    localBounds.reserve(srcBounds.size());
-    geoBounds.reserve(srcBounds.size());
-    std::vector<Point3d> srcPts;
-    srcPts.reserve(srcBounds.size());
-    Point2d geoLL,geoUR;
-    bool hasValidArea = coordAdapter->getGeoBounds(geoLL,geoUR);
-    for (unsigned int ii=0;ii<srcBounds.size();ii++)
-    {
-        Point3d srcPt = srcBounds[ii];
-        Point3d localPt;
-        // For display systems that don't work everywhere, we have to go through geo coordinates to check
-        if (hasValidArea)
-        {
-            Point2d geoPt = srcSystem->localToGeographicD(srcPt);
-            geoBounds.push_back(geoPt);
-        }
-        localPt = CoordSystemConvert3d(srcSystem, displaySystem, srcPt);
-        Point3d dispPt = coordAdapter->localToDisplay(localPt);
-        Point3d dispNorm = coordAdapter->normalForLocal(localPt);
-        dispSolid.surfNormals.push_back(dispNorm);
-        // If the previous one is too close, ditch this one
-        if (ii > 0)
-        {
-            double dist2 = (dispBounds[dispBounds.size()-1] - dispPt).squaredNorm();
-            if (dist2 > BoundsEps*BoundsEps)
-            {
-                dispBounds.push_back(dispPt);
-                srcPts.push_back(srcBounds[ii]);
-                localBounds.push_back(localPt);
-            }
-        } else {
-            dispBounds.push_back(dispPt);
-            srcPts.push_back(srcBounds[ii]);
-            localBounds.push_back(localPt);
+
+    // Number of samples in X and Y we need for a decent surface
+    int numSamplesX = std::max(calcNumSamples(srcBounds[0],srcBounds[1],srcSystem,coordAdapter,nodeIdent.level),
+                               calcNumSamples(srcBounds[3],srcBounds[2],srcSystem,coordAdapter,nodeIdent.level))+1;
+    int numSamplesY = std::max(calcNumSamples(srcBounds[0],srcBounds[3],srcSystem,coordAdapter,nodeIdent.level),
+                               calcNumSamples(srcBounds[1],srcBounds[2],srcSystem,coordAdapter,nodeIdent.level))+1;
+
+    // Build a grid of samples
+    std::vector<Point3d> dispPoints;
+    dispPoints.reserve(numSamplesX*numSamplesY);
+    for (int ix=0;ix<numSamplesX;ix++) {
+        double xt = ix/(double)(numSamplesX-1);
+        Point3d srcPtx0 = (srcBounds[1] - srcBounds[0]) * xt + srcBounds[0];
+        Point3d srcPtx1 = (srcBounds[2] - srcBounds[3]) * xt + srcBounds[3];
+        for (int iy=0;iy<numSamplesY;iy++) {
+            double yt = iy/(double)(numSamplesY-1);
+            Point3d srcPt = (srcPtx1 - srcPtx0) * yt + srcPtx0;
+            Point3d localPt = CoordSystemConvert3d(srcSystem, displaySystem, srcPt);
+            Point3d dispPt = coordAdapter->localToDisplay(localPt);
+            dispPoints.push_back(dispPt);
         }
     }
     
-    // If there's a lon/lat boundary, make sure we at least overlap it
-    if (hasValidArea)
-    {
-        if (geoBounds.empty())
-            return nil;
-        Mbr geoValidMbr,geoMbr;
-        geoMbr.addPoints(geoBounds);
-        geoValidMbr.addPoint(geoLL);
-        geoValidMbr.addPoint(geoUR);
-        if (!geoValidMbr.overlaps(geoMbr))
-            return nil;
-    }
-        
-    // If we didn't get enough boundary points, this is degenerate
-    if (dispBounds.size() < 3)
-        return nil;
-    
-    // We'll set up a plane and start working in that space
-    Point3d localMidPt = CoordSystemConvert3d(srcSystem, displaySystem, (srcBounds[0]+srcBounds[2])/2.0);
-    Point3d dispMidPt = coordAdapter->localToDisplay(localMidPt);
-    Point3d zAxis = coordAdapter->normalForLocal(localMidPt);  zAxis.normalize();
-    Point3d xAxis = dispBounds[1] - dispBounds[0];  xAxis.normalize();
-    Point3d yAxis = zAxis.cross(xAxis); yAxis.normalize();
-    Point3d org = dispMidPt;
-    
-    // Project the corner points onto the plane
-    // We'll collect height at the same time
-    std::vector<Point2d> planePts;
-    planePts.reserve(dispBounds.size());
-    double minZ=MAXFLOAT,maxZ =-MAXFLOAT;
-    Point2d minPt,maxPt;
-    for (unsigned int ii=0;ii<dispBounds.size();ii++)
-    {
-        Point3d dir = dispBounds[ii]-org;
-        Point3d planePt(dir.dot(xAxis),dir.dot(yAxis),dir.dot(zAxis));
-        minZ = std::min(minZ,planePt.z());
-        maxZ = std::max(maxZ,planePt.z());
-        planePts.push_back(Point2d(planePt.x(),planePt.y()));
-        if (ii == 0)
-        {
-            minPt = maxPt = Point2d(planePt.x(),planePt.y());
-        } else {
-            minPt.x() = std::min(minPt.x(),planePt.x());
-            minPt.y() = std::min(minPt.y(),planePt.y());
-            maxPt.x() = std::max(maxPt.x(),planePt.x());
-            maxPt.y() = std::max(maxPt.y(),planePt.y());
-        }
-    }
-    
-    // Now sample the edges back in the source coordinate system
-    //  and see where they land in here
-    
-    // Surface normals only make sense if there is a surface, but there are other important
-    //  calculations below
-    if (inMinZ == inMaxZ)
-        dispSolid.surfNormals.reserve(srcPts.size());
-    
-    for (unsigned int ii=0;ii<srcPts.size();ii++)
-    {
-        //        Point2f &planePt0 = planePts[ii], &planePt1 = planePts[(ii+1)%planePts.size()];
-        // Project the test point all the way into our plane
-        Point3d edgeSrcPt = (srcPts[ii]+srcPts[(ii+1)%srcPts.size()])/2.0;
-        Point3d localPt = CoordSystemConvert3d(srcSystem, displaySystem, edgeSrcPt);
-        Point3d edgeDispPt = coordAdapter->localToDisplay(localPt);
-        Point3d dir = edgeDispPt-org;
-        Point3d planePt(dir.dot(xAxis),dir.dot(yAxis),dir.dot(zAxis));
-        // Update the min and max
-        minZ = std::min(minZ,planePt.z());
-        maxZ = std::max(maxZ,planePt.z());
-        // Note: Trying MBR
-        minPt.x() = std::min(minPt.x(),planePt.x());
-        minPt.y() = std::min(minPt.y(),planePt.y());
-        maxPt.x() = std::max(maxPt.x(),planePt.x());
-        maxPt.y() = std::max(maxPt.y(),planePt.y());
-        
-        // And throw in another normal for the biggest tiles
-        Point3d dispNorm = coordAdapter->normalForLocal(localPt);
-        if (inMinZ == inMaxZ)
-            dispSolid.surfNormals.push_back(Vector3d(dispNorm.x(),dispNorm.y(),dispNorm.z()));
-        
-#if 0
-        // See if the plane pt is on the right of the two sample points
-        if ((planePt1.x()-planePt0.x())*(planePt.y()-planePt0.y()) - (planePt1.y()-planePt0.y())*(planePt.x()-planePt0.x()) < 0.0)
-        {
-            // If it is, we need to nudge the line outward
-            // Need the point previous to 0 and the one after 1
-            Point2f &planePt_1 = planePts[(ii-1+srcPts.size())%srcPts.size()];
-            Point2f &planePt2 = planePts[(ii+2)%srcPts.size()];
-            Point2f dir = planePt1 - planePt0;
-            Point2f ePt0 = Point2f(planePt.x(),planePt.y());
-            Point2f ePt1 = ePt0 + dir;
-            
-            // Find the various intersections
-            Point2f new_planePt0,new_planePt1;
-            if (IntersectLines(ePt0, ePt1, planePt_1, planePt0, &new_planePt0))
-                planePt0 = new_planePt0;
-            if (IntersectLines(ePt0, ePt1, planePt1, planePt2, &new_planePt1))
-                planePt1 = new_planePt1;
-        }
-#endif
-    }
-    
-    // Now convert the plane points back into display space for the volume
-    std::vector<WhirlyKit::Point3d> botCorners;
-    std::vector<WhirlyKit::Point3d> topCorners;
-    std::vector<WhirlyKit::Point2d> planeMbrPts;  planeMbrPts.reserve(4);
-    planeMbrPts.push_back(minPt);
-    planeMbrPts.push_back(Point2d(maxPt.x(),minPt.y()));
-    planeMbrPts.push_back(maxPt);
-    planeMbrPts.push_back(Point2d(minPt.x(),maxPt.y()));
-    botCorners.reserve(planeMbrPts.size());
-    topCorners.reserve(planeMbrPts.size());
-    //    for (unsigned int ii=0;ii<planePts.size();ii++)
-    for (unsigned int ii=0;ii<planeMbrPts.size();ii++)
-    {
-        Point2d planePt = planeMbrPts[ii];
-        Point3d dispPt0 = xAxis * planePt.x() + yAxis * planePt.y() + zAxis * minZ + org;
-        Point3d dispPt1 = xAxis * planePt.x() + yAxis * planePt.y() + zAxis * maxZ + org;
-        botCorners.push_back(Point3d(dispPt0.x(),dispPt0.y(),dispPt0.z()));
-        topCorners.push_back(Point3d(dispPt1.x(),dispPt1.y(),dispPt1.z()));
-    }
-    
-    // If we've got a flat coord adapter and no height, one poly will do
-    if (coordAdapter->isFlat() && minZ == maxZ)
-    {
-        dispSolid.polys.push_back(topCorners);
-    } else {
-        // Now let's go ahead and form the polygons for the planes
-        // First the ones around the outside
-        dispSolid.polys.reserve(planeMbrPts.size()+2);
-        for (unsigned int ii=0;ii<planeMbrPts.size();ii++)
-        {
-            int thisPt = ii;
-            int nextPt = (ii+1)%planeMbrPts.size();
-            std::vector<Point3d> poly;  poly.reserve(4);
-            poly.push_back(botCorners[thisPt]);
-            poly.push_back(botCorners[nextPt]);
-            poly.push_back(topCorners[nextPt]);
-            poly.push_back(topCorners[thisPt]);
+    // Build polygons out of those samples (in display space)
+    dispSolid.polys.reserve(numSamplesX*numSamplesY);
+    for (int ix=0;ix<numSamplesX-1;ix++) {
+        for (int iy=0;iy<numSamplesY-1;iy++) {
+            // Surface polygon
+            std::vector<Point3d> poly;
+            poly.reserve(4);
+            poly.push_back(dispPoints[iy*numSamplesX+ix]);
+            poly.push_back(dispPoints[(iy+1)*numSamplesX+ix]);
+            poly.push_back(dispPoints[(iy+1)*numSamplesX+(ix+1)]);
+            poly.push_back(dispPoints[iy*numSamplesX+(ix+1)]);
             dispSolid.polys.push_back(poly);
-        }
-        // Then top and bottom
-        dispSolid.polys.push_back(topCorners);
-        std::reverse(botCorners.begin(),botCorners.end());
-        dispSolid.polys.push_back(botCorners);
-    }
-    
-    // Now calculate normals for each of those
-    dispSolid.normals.reserve(dispSolid.polys.size());
-    for (unsigned int ii=0;ii<dispSolid.polys.size();ii++)
-    {
-        if (coordAdapter->isFlat())
-            dispSolid.normals.push_back(Vector3d(0,0,1));
-        else {
-            std::vector<std::vector<WhirlyKit::Point3d> > &polys = dispSolid.polys;
-            std::vector<Point3d> &poly = polys[ii];
-            Point3d &p0 = poly[0];
-            Point3d &p1 = poly[1];
-            Point3d &p2 = poly[poly.size()-1];
-            Vector3d norm = (p1-p0).cross(p2-p0);
-            norm.normalize();
-            dispSolid.normals.push_back(norm);
+            
+            // And a normal
+            if (coordAdapter->isFlat())
+                dispSolid.normals.push_back(Vector3d(0,0,1));
+            else {
+                Point3d &p0 = poly[0];
+                Point3d &p1 = poly[1];
+                Point3d &p2 = poly[poly.size()-1];
+                Vector3d norm = (p1-p0).cross(p2-p0);
+                norm.normalize();
+                dispSolid.normals.push_back(norm);
+            }
         }
     }
     
@@ -308,9 +164,11 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         }
         
         double screenArea = CalcLoopArea(screenPts);
-        screenArea = std::abs(screenArea);
         if (std::isnan(screenArea))
             screenArea = 0.0;
+        // The polygon came out backwards, so toss it
+        if (screenArea <= 0.0)
+            continue;
         
         // Now project the screen points back into model space
         std::vector<Point3d> backPts;
@@ -330,7 +188,6 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         // This gets rid of small slices of big tiles not getting loaded
         double scale = (backArea == 0.0) ? 1.0 : origArea / backArea;
 
-        // Note: Turned off for the moment
         double newImport =  std::abs(screenArea) * scale;
         if (newImport > import)
             import = newImport;
@@ -341,48 +198,30 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
 
 - (bool)isInside:(WhirlyKit::Point3d)pt
 {
-    // We should be on the inside of each plane
-    for (unsigned int ii=0;ii<_polys.size();ii++)
-    {
-        Point3d org = (_polys[ii])[0];
-        if ((pt-org).dot(_normals[ii]) > 0.0)
-            return false;
-    }
-    
-    return true;
+    // Note: Fix this.  This will do weird things when we're very close.
+    return false;
 }
 
 - (double)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
 {
     Point3d eyePos = viewState.eyePos;
+//    eyePos.normalize();
     
     if (!viewState.coordAdapter->isFlat())
     {
         // If the viewer is inside the bounds, the node is maximimally important (duh)
         if ([self isInside:eyePos])
             return MAXFLOAT;
-        
-        // Make sure that we're pointed toward the eye, even a bit
-        if (!_surfNormals.empty())
-        {
-            bool isFacing = false;
-            for (unsigned int ii=0;ii<_surfNormals.size();ii++)
-            {
-                const Vector3d &surfNorm = _surfNormals[ii];
-                if ((isFacing |= (surfNorm.dot(eyePos) >= 0.0)))
-                    break;
-            }
-            if (!isFacing)
-                return 0.0;
-        }
     }
     
     // Now work through the polygons and project each to the screen
     double totalImport = 0.0;
     for (unsigned int ii=0;ii<_polys.size();ii++)
     {
-        double import = PolyImportance(_polys[ii], _normals[ii], viewState, frameSize);
-        totalImport += import;
+        if (_normals[ii].dot(eyePos) >= 0.0) {
+            double import = PolyImportance(_polys[ii], _normals[ii], viewState, frameSize);
+            totalImport += import;
+        }
     }
     
     // The flat map case is optimized to only evaluate one poly, since there's no curvature
@@ -398,20 +237,6 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         // If the viewer is inside the bounds, the node is maximimally important (duh)
         if ([self isInside:viewState.eyePos])
             return MAXFLOAT;
-        
-        // Make sure that we're pointed toward the eye, even a bit
-        if (!_surfNormals.empty())
-        {
-            bool isFacing = false;
-            for (unsigned int ii=0;ii<_surfNormals.size();ii++)
-            {
-                const Vector3d &surfNorm = _surfNormals[ii];
-                if ((isFacing |= (surfNorm.dot(viewState.eyePos) >= 0.0)))
-                    break;
-            }
-            if (!isFacing)
-                return false;
-        }
     }
     
     for (unsigned int offi=0;offi<viewState.viewMatrices.size();offi++)

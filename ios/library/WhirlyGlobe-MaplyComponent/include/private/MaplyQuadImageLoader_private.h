@@ -31,6 +31,7 @@
     WhirlyKitQuadDisplayLayerNew * __weak layer;
     int minLevel,maxLevel;
     GLenum texType;
+    WhirlyKit::SimpleIdentity shaderID;
     
     MaplyBaseViewController * __weak viewC;
     MaplyRenderTarget * __weak renderTarget;

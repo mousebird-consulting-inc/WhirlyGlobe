@@ -44,8 +44,8 @@
 // If you have more than one tileInfo, you'll get your data back here unparsed.
 @property (nonatomic,strong) NSArray * __nullable multiTileData;
 
-// Can be a UIImage or an NSData containing an image or a MaplyImageTile
-@property (nonatomic,strong) id __nullable image;
+// Can be zero or more UIImage or an NSData containing an image or a MaplyImageTile
+@property (nonatomic,strong) NSArray *__nullable images;
 
 // If any component objects are associated with the tile, these are them.
 // They need to start disabled.  The system will enable and delete them when it is time.
@@ -86,6 +86,19 @@
 @interface MaplyImageLoaderInterpreter : NSObject<MaplyLoaderInterpreter>
 @end
 
+@class MaplyQuadImageLoaderBase;
+
+/**
+    This loader interpreter sticks a designator in the middle of tiles
+    and a line around the edge.  Nice for debugging.
+  */
+@interface MaplyDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
+
+// Intialize with the loader we're using.  Need this for extents of tiles
+- (instancetype __nonnull)initWithLoader:(MaplyQuadImageLoaderBase * __nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
+
+@end
+
 /// Name of the shared MaplyRemoteTileFetcher
 extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 
@@ -104,6 +117,19 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 
 // Base color for geometry produced
 @property (nonatomic,retain,nonnull) UIColor *color;
+
+// Write to the z buffer when rendering.  On by default
+@property (nonatomic,assign) bool zBufferWrite;
+
+// Read from the z buffer when rendering.  Off by default
+@property (nonatomic,assign) bool zBufferRead;
+
+/**
+ Shader to use for rendering the image frames.
+ 
+ If not, set we'll pick the default visual shader.
+ */
+- (void)setShader:(MaplyShader * __nullable)shader;
 
 /**
  An optional render target for this loader.

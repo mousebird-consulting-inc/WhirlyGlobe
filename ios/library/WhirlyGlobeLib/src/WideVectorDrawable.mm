@@ -259,6 +259,7 @@ uniform bool  u_hasTexture;
 uniform float u_w2;
 uniform float u_edge;
 uniform vec4 u_color;
+uniform float u_fade;
 
 varying vec2      v_texCoord;
 
@@ -271,7 +272,7 @@ void main()
     alpha = across/u_edge;
   if (across > u_w2-u_edge)
     alpha = (u_w2-across)/u_edge;
-  gl_FragColor = u_color * alpha * patternVal;
+  gl_FragColor = u_color * alpha * patternVal * u_fade;
 }
 )";
 
@@ -283,6 +284,7 @@ uniform bool  u_hasTexture;
 uniform float u_w2;
 uniform float u_edge;
 uniform vec4 u_color;
+uniform float u_fade;
 
 varying vec2      v_texCoord;
 varying float      v_dot;
@@ -297,7 +299,7 @@ void main()
     alpha = across/u_edge;
   if (across > u_w2-u_edge)
     alpha = (u_w2-across)/u_edge;
-  gl_FragColor = (v_dot > 0.0 ? u_color * alpha * patternVal : vec4(0.0,0.0,0.0,0.0));
+  gl_FragColor = (v_dot > 0.0 ? u_color * alpha * patternVal * u_fade : vec4(0.0,0.0,0.0,0.0));
 }
 )";
 

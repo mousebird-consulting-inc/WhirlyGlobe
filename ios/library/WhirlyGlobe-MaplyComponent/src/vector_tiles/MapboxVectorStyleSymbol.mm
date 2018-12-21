@@ -102,6 +102,15 @@
     } else {
         _textColor = [UIColor whiteColor];
     }
+    id textOpacityEntry = styleEntry[@"text-opacity"];
+    if (textOpacityEntry) {
+        if ([textOpacityEntry isKindOfClass:[NSNumber class]])
+            _textOpacity = [styleSet doubleValue:@"text-opacity" dict:styleEntry defVal:1.0];
+        else
+            _textOpacityFunc = [styleSet stopsValue:textOpacityEntry defVal:nil];
+    } else {
+        _textOpacity = 1.0;
+    }
     _textHaloColor = [styleSet colorValue:@"text-halo-color" val:nil dict:styleEntry defVal:nil multiplyAlpha:false];
     _textHaloWidth = [styleSet doubleValue:@"text-halo-width" dict:styleEntry defVal:0.0];
 
@@ -143,7 +152,7 @@
                     kMaplyEnable: @(NO)
                     }];
     if (_paint.textColor)
-        symbolDesc[kMaplyTextColor] = _paint.textColor;
+        symbolDesc[kMaplyTextColor] = [_paint.textColor colorWithAlphaComponent:_paint.textOpacity];
     if (_paint.textHaloColor && _paint.textHaloWidth > 0.0)
     {
         symbolDesc[kMaplyTextOutlineColor] = _paint.textHaloColor;
@@ -161,27 +170,76 @@
         return text;
     
     NSMutableString *retStr = [[NSMutableString alloc] init];
+
+    // Unfortunately this stuff will break long names across character boundaries which is completely awful
+//    NSAttributedString *textAttrStr = [[NSAttributedString alloc] initWithString:text attributes:@{NSFontAttributeName:font}];
+//    NSTextContainer *textCon = [[NSTextContainer alloc] initWithSize:CGSizeMake(maxWidth,CGFLOAT_MAX)];
+//    textCon.lineBreakMode = NSLineBreakByWordWrapping;
+//    NSLayoutManager *layoutMan = [[NSLayoutManager alloc] init];
+//    NSTextStorage *textStore = [[NSTextStorage alloc] initWithAttributedString:textAttrStr];
+//    [textStore addLayoutManager:layoutMan];
+//    [layoutMan addTextContainer:textCon];
+//    bool __block started = false;
+//    [layoutMan enumerateLineFragmentsForGlyphRange:NSMakeRange(0, layoutMan.numberOfGlyphs)
+//                                        usingBlock:^(CGRect rect, CGRect usedRect, NSTextContainer * _Nonnull textContainer, NSRange glyphRange, BOOL * _Nonnull stop)
+//    {
+//        NSRange r = [layoutMan characterRangeForGlyphRange:glyphRange  actualGlyphRange:nil];
+//        NSString *lineStr = [textAttrStr.string substringWithRange:r];
+//        if (started)
+//            [retStr appendString:@"\n"];
+//        [retStr appendString:lineStr];
+//        started = true;
+//    }];
+//
+//    CGSize size = [textAttrStr size];
+//    NSLog(@"Input: %@, output: %@, size = (%f,%f)",text,retStr,size.width,size.height);
     
-    NSAttributedString *textAttrStr = [[NSAttributedString alloc] initWithString:text attributes:@{NSFontAttributeName:font}];
-    NSTextContainer *textCon = [[NSTextContainer alloc] initWithSize:CGSizeMake(maxWidth,CGFLOAT_MAX)];
-    textCon.lineBreakMode = NSLineBreakByWordWrapping;
-    NSLayoutManager *layoutMan = [[NSLayoutManager alloc] init];
-    NSTextStorage *textStore = [[NSTextStorage alloc] initWithAttributedString:textAttrStr];
-    [textStore addLayoutManager:layoutMan];
-    [layoutMan addTextContainer:textCon];
-    bool __block started = false;
-    [layoutMan enumerateLineFragmentsForGlyphRange:NSMakeRange(0, layoutMan.numberOfGlyphs)
-                                        usingBlock:^(CGRect rect, CGRect usedRect, NSTextContainer * _Nonnull textContainer, NSRange glyphRange, BOOL * _Nonnull stop)
-    {
-        NSRange r = [layoutMan characterRangeForGlyphRange:glyphRange  actualGlyphRange:nil];
-        NSString *lineStr = [textAttrStr.string substringWithRange:r];
-        if (started)
-            [retStr appendString:@"\n"];
-        [retStr appendString:lineStr];
-        started = true;
-    }];
-    
+    // Work through the string chunk by chunk
+    NSArray *pieces = [text componentsSeparatedByString:@" "];
+    NSString *soFar = nil;
+    for (NSString *chunk in pieces) {
+        if ([soFar length] == 0) {
+            soFar = chunk;
+            continue;
+        }
+        
+        // Try the string with the next chunk
+        NSString *testStr = [[NSString alloc] initWithFormat:@"%@ %@",soFar,chunk];
+        NSAttributedString *testAttrStr = [[NSAttributedString alloc] initWithString:testStr attributes:@{NSFontAttributeName:font}];
+        CGSize size = [testAttrStr size];
+        
+        // Flush out what we have so far and start with this new chunk
+        if (size.width > maxWidth) {
+            if ([retStr length] > 0)
+                [retStr appendString:@"\n"];
+            [retStr appendString:soFar];
+            soFar = chunk;
+        } else {
+            // Keep adding to this string
+            soFar = testStr;
+        }
+    }
+    if ([retStr length] > 0)
+        [retStr appendString:@"\n"];
+    [retStr appendString:soFar];
+        
     return retStr;
+}
+
+// Calculate a value [0.0,1.0] for this string
+- (float)calcStringHash:(NSString *)str
+{
+    unsigned int len = [str length];
+    unichar buffer[len];
+    
+    [str getCharacters:buffer range:NSMakeRange(0, len)];
+    float val = 0.0;
+    for (int ii=0;ii<len;ii++) {
+        val += buffer[ii] / 256.0;
+    }
+    val /= len;
+    
+    return val;
 }
 
 - (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
@@ -226,6 +284,11 @@
     }
     if (!textColor)
         textColor = [UIColor whiteColor];
+    double opacity = _paint.textOpacity;
+    if (_paint.textOpacityFunc) {
+        opacity = [_paint.textOpacityFunc valueForZoom:tileInfo.tileID.level];
+    }
+    textColor = [textColor colorWithAlphaComponent:opacity];
 
     NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
     mutDesc[kMaplyFont] = font;
@@ -254,12 +317,14 @@
             label.uniqueID = [label.text lowercaseString];
 
         // The rank is most important, followed by the zoom level.  This keeps the countries on top.
-        int rank = 100000;
+        int rank = 0;
         if (vecObj.attributes[@"rank"]) {
             rank = [vecObj.attributes[@"rank"] integerValue];
         }
-        label.layoutImportance = 1000000 - rank + (101-tileInfo.tileID.level)/100;
-
+        // Random tweak to cut down on flashing
+        float strHash = [self calcStringHash:label.text];
+        label.layoutImportance = 1000000 - rank + (101-tileInfo.tileID.level)/100.0 + strHash/1000.0;
+        
         // Change the text if needed
         switch (_layout.textTransform)
         {

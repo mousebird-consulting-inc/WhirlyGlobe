@@ -202,11 +202,14 @@ public:
     int getDrawPriority() { return state.drawPriority; }
     void setKeepUpright(bool keepUpright);
     void setRotation(double rotation);
+    double getRotation() const { return rotation; }
+    bool hasRotation() const { return state.rotation; };
     void setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown);
     void setOffset(const Point2d &offset);
     void setPeriod(NSTimeInterval period);
     
     void addGeometry(const ConvexGeometry &geom);
+    std::vector<ConvexGeometry> getGeometry() const { return geometry; }
     
     // Get a program ID either from the drawable state or geometry
     SimpleIdentity getTypicalProgramID();

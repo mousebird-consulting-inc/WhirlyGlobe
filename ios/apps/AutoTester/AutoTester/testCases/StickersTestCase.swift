@@ -65,7 +65,7 @@ class StickersTestCase: MaplyTestCase {
         let baseLayer = VectorsTestCase()
         baseLayer.setUpWithGlobe(globeVC)
 
-        addStickers(baseLayer.compList, baseViewC: globeVC)
+        addStickers(baseLayer.vecList, baseViewC: globeVC)
         
         addTestSticker(baseViewC: globeVC)
 	}
@@ -74,7 +74,7 @@ class StickersTestCase: MaplyTestCase {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithMap(mapVC)
 
-        addStickers(baseLayer.compList, baseViewC: mapVC)
+        addStickers(baseLayer.vecList, baseViewC: mapVC)
         
         addTestSticker(baseViewC: mapVC)
 	}

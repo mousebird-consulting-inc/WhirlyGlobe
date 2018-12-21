@@ -141,6 +141,8 @@ static unsigned int NextPowOf2(unsigned int val)
     _paint = [[MapboxVectorLinePaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
     self.drawPriority = [styleSet intValue:@"drawPriority" dict:styleEntry defVal:drawPriority];
     _linearClipToBounds = [styleSet boolValue:@"linearize-clip-to-bounds" dict:styleEntry onValue:@"yes" defVal:false];
+    _dropGridLines = [styleSet boolValue:@"drop-grid-lines" dict:styleEntry onValue:@"yes" defVal:false];
+    _subdivToGlobe = [styleSet doubleValue:@"subdiv-to-globe" dict:styleEntry defVal:0.0];
     
     if (!_paint)
     {
@@ -202,6 +204,10 @@ static unsigned int NextPowOf2(unsigned int val)
         lineDesc[kMaplyColor] = _paint.color;
     }
     
+    double fade = [styleSet doubleValue:@"fade" dict:styleEntry defVal:0.0];
+    if (fade != 0.0)
+        lineDesc[kMaplyFade] = @(fade);
+    
     drawPriorityPerLevel = styleSet.tileStyleSettings.drawPriorityPerLevel;
 
     return self;
@@ -222,11 +228,22 @@ static unsigned int NextPowOf2(unsigned int val)
         MaplyCoordinate ur = MaplyCoordinateMake(tileInfo.geoBBox.ur.x, tileInfo.geoBBox.ur.y);
         NSMutableArray *outVecObjs = [NSMutableArray array];
         for (MaplyVectorObject *vecObj in vecObjs) {
-            MaplyVectorObject *linVec = [vecObj arealsToLinears];
+            MaplyVectorObject *linVec = nil;
+            if (_dropGridLines)
+                linVec = [vecObj filterClippedEdges];
+            else
+                linVec = [vecObj arealsToLinears];
             MaplyVectorObject *clipVec = [linVec clipToMbr:ll upperRight:ur];
             [outVecObjs addObject:clipVec];
         }
         vecObjs = outVecObjs;
+    }
+
+    // Subdivide long-ish lines to the globe, if set
+    if (_subdivToGlobe > 0.0) {
+        for (MaplyVectorObject *vecObj in vecObjs) {
+            [vecObj subdivideToGlobe:_subdivToGlobe];
+        }
     }
     
     NSDictionary *desc = lineDesc;

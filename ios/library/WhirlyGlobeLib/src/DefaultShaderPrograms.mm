@@ -30,6 +30,8 @@ namespace WhirlyKit
 {
 
 static const char *vertexShaderTri =
+"precision highp float;"
+""
 "struct directional_light {"
 "  vec3 direction;"
 "  vec3 halfplane;"
@@ -97,8 +99,8 @@ static const char *vertexShaderTri =
 ;
 
 static const char *fragmentShaderTri =
-"precision mediump float;\n"
-"\n"
+"precision highp float;"
+""
 "uniform sampler2D s_baseMap0;\n"
 "uniform bool  u_hasTexture;\n"
 "\n"
@@ -134,6 +136,8 @@ static const char *fragmentShaderTri =
 ;*/
 
 static const char *vertexShaderModelTri =
+"precision highp float;"
+""
 "struct directional_light {"
 "  vec3 direction;"
 "  vec3 halfplane;"
@@ -324,6 +328,8 @@ static const char *fragmentShaderTriMultiTexRamp =
 ;
     
 static const char *vertexShaderScreenTexTri =
+"precision highp float;"
+""
 "struct directional_light {"
 "  vec3 direction;"
 "  vec3 halfplane;"
@@ -394,6 +400,8 @@ static const char *vertexShaderScreenTexTri =
 
     
 static const char *vertexShaderTriNightDay =
+"precision highp float;"
+""
 "struct directional_light {\n"
 "  vec3 direction;\n"
 "  vec3 halfplane;\n"
@@ -443,8 +451,8 @@ static const char *vertexShaderTriNightDay =
 ;
 
 static const char *fragmentShaderTriNightDay =
-"precision mediump float;"
-"\n"
+"precision highp float;"
+""
 "uniform sampler2D s_baseMap0;\n"
 "uniform sampler2D s_baseMap1;\n"
 "\n"
@@ -468,6 +476,8 @@ static const char *fragmentShaderTriNightDay =
     
     
 static const char *vertexShaderLine =
+"precision highp float;"
+""
 "uniform mat4  u_mvpMatrix;"
 "uniform mat4  u_mvMatrix;"
 "uniform mat4  u_mvNormalMatrix;"
@@ -492,7 +502,7 @@ static const char *vertexShaderLine =
 ;
 
 static const char *fragmentShaderLine =
-"precision mediump float;"
+"precision highp float;"
 ""
 "varying vec4      v_color;"
 "varying float      v_dot;"
@@ -504,6 +514,8 @@ static const char *fragmentShaderLine =
 ;
     
 static const char *vertexShaderLineNoBack =
+"precision highp float;"
+""
 "uniform mat4  u_mvpMatrix;"
 "uniform mat4  u_mvMatrix;"
 "uniform mat4  u_mvNormalMatrix;"
@@ -523,7 +535,7 @@ static const char *vertexShaderLineNoBack =
 ;
 
 static const char *fragmentShaderLineNoBack =
-"precision mediump float;"
+"precision highp float;"
 ""
 "varying vec4      v_color;"
 ""
@@ -534,6 +546,8 @@ static const char *fragmentShaderLineNoBack =
 ;
     
 static const char *vertexShaderNoLightTri =
+"precision highp float;"
+""
 "uniform mat4  u_mvpMatrix;                   \n"
 "uniform float u_fade;                        \n"
 "attribute vec3 a_position;                  \n"
@@ -554,7 +568,7 @@ static const char *vertexShaderNoLightTri =
 ;
 
 static const char *fragmentShaderNoLightTri =
-"precision mediump float;                            \n"
+"precision highp float;                            \n"
 "\n"
 "uniform sampler2D s_baseMap0;                        \n"
 "uniform bool  u_hasTexture;                         \n"

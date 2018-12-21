@@ -7,7 +7,7 @@
 //
 
 #import "ActiveObjectTestCase.h"
-#import "CartoDBLightTestCase.h"
+#import "AutoTester-Swift.h"
 
 @interface SimpleActiveObject : MaplyActiveObject
 @end

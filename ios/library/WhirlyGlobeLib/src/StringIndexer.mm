@@ -62,6 +62,7 @@ std::string StringIndexer::getString(StringIdentity strID)
     
 // Shared global string IDs speed things up a lot
 StringIdentity baseMapNameIDs[WhirlyKitMaxTextures];
+StringIdentity hasBaseMapNameIDs[WhirlyKitMaxTextures];
 StringIdentity texOffsetNameIDs[WhirlyKitMaxTextures];
 StringIdentity texScaleNameIDs[WhirlyKitMaxTextures];
 StringIdentity lightViewDependNameIDs[8];
@@ -76,6 +77,7 @@ StringIdentity materialDiffuseNameID;
 StringIdentity materialSpecularNameID;
 StringIdentity materialSpecularExponentNameID;
 StringIdentity mvpMatrixNameID;
+StringIdentity mvpInvMatrixNameID;
 StringIdentity mvMatrixNameID;
 StringIdentity mvNormalMatrixNameID;
 StringIdentity mvpNormalMatrixNameID;
@@ -86,10 +88,12 @@ StringIdentity u_HasTextureNameID;
 StringIdentity a_SingleMatrixNameID;
 StringIdentity a_PositionNameID;
 StringIdentity u_EyeVecNameID;
+StringIdentity u_EyePosNameID;
 StringIdentity u_SizeNameID;
 StringIdentity u_TimeNameID;
 StringIdentity u_lifetimeNameID;
 StringIdentity u_pixDispSizeNameID;
+StringIdentity u_frameLenID;
 StringIdentity a_offsetNameID;
 StringIdentity u_uprightNameID;
 StringIdentity u_activerotNameID;
@@ -121,6 +125,8 @@ void SetupDrawableStrings()
     for (unsigned int ii=0;ii<8;ii++) {
         std::string baseMapName = "s_baseMap" + std::to_string(ii);
         baseMapNameIDs[ii] = StringIndexer::getStringID(baseMapName);
+        std::string hasBaseMapName = "u_has_baseMap" + std::to_string(ii);
+        hasBaseMapNameIDs[ii] = StringIndexer::getStringID(hasBaseMapName);
         std::string texOffsetName = "u_texOffset" + std::to_string(ii);
         texOffsetNameIDs[ii] = StringIndexer::getStringID(texOffsetName);
         std::string texScaleName = "u_texScale" + std::to_string(ii);
@@ -148,6 +154,7 @@ void SetupDrawableStrings()
     materialSpecularExponentNameID = StringIndexer::getStringID("material.specular_exponent");
     
     mvpMatrixNameID = StringIndexer::getStringID("u_mvpMatrix");
+    mvpInvMatrixNameID = StringIndexer::getStringID("u_mvpInvMatrix");
     mvMatrixNameID = StringIndexer::getStringID("u_mvMatrix");
     mvNormalMatrixNameID = StringIndexer::getStringID("u_mvNormalMatrix");
     mvpNormalMatrixNameID = StringIndexer::getStringID("u_mvpNormalMatrix");
@@ -158,10 +165,12 @@ void SetupDrawableStrings()
     a_SingleMatrixNameID = StringIndexer::getStringID("a_singleMatrix");
     a_PositionNameID = StringIndexer::getStringID("a_position");
     u_EyeVecNameID = StringIndexer::getStringID("u_eyeVec");
+    u_EyePosNameID = StringIndexer::getStringID("u_eyePos");
     u_SizeNameID = StringIndexer::getStringID("u_size");
     u_TimeNameID = StringIndexer::getStringID("u_time");
     u_lifetimeNameID = StringIndexer::getStringID("u_lifetime");
     u_pixDispSizeNameID = StringIndexer::getStringID("u_pixDispSize");
+    u_frameLenID = StringIndexer::getStringID("u_frameLen");
     a_offsetNameID = StringIndexer::getStringID("a_offset");
     u_uprightNameID = StringIndexer::getStringID("u_upright");
     u_activerotNameID = StringIndexer::getStringID("u_activerot");

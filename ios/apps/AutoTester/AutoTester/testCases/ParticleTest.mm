@@ -115,10 +115,11 @@ precision highp float;
 uniform float u_time;
 
 attribute vec3 a_position;
-attribute vec3 a_savedPosition;
 attribute vec3 a_dir;
 attribute float a_startTime;
+
 attribute float a_savedStartTime;
+attribute vec3 a_savedPosition;
 
 varying vec3 va_position;
 varying float va_startTime;
@@ -130,8 +131,13 @@ void main()
     vec3 thePos;
     if (a_savedStartTime < a_startTime)
         thePos = a_position;
-    else
-        thePos = normalize(a_savedPosition + 1.0/30.0*a_dir);
+    else {
+        // An empty particle.  We'll just discard it.
+        if (a_position == vec3(0.0,0.0,0.0))
+            thePos = vec3(0.0,0.0,0.0);
+        else
+            thePos = normalize(a_savedPosition + 1.0/30.0*a_dir);
+    }
 
     va_startTime = a_startTime;
     va_position = thePos;
@@ -147,7 +153,8 @@ void main()
 }
 )";
 
-static const char *vertexRenderShaderTri = R"(
+// Vertex shader for point version of particles
+static const char *vertexRenderShaderPoint = R"(
 precision highp float;
 
 uniform mat4  u_mvpMatrix;
@@ -174,11 +181,11 @@ void main()
     // Set the point size
     gl_PointSize = u_size;
     // Project the point into 3-space
-    gl_Position = (dot_res > 0.0) ? u_mvpMatrix * vec4(thePos,1.0) : vec4(1000.0,1000.0,1000.0,0.0);
+    gl_Position = (dot_res > 0.0 && thePos != vec3(0.0,0.0,0.0)) ? u_mvpMatrix * vec4(thePos,1.0) : vec4(1000.0,1000.0,1000.0,0.0);
 }
 )";
 
-static const char *fragmentRenderShaderTri = R"(
+static const char *fragmentRenderShader = R"(
 precision highp float;
 
 varying vec4      v_color;
@@ -186,6 +193,57 @@ varying vec4      v_color;
 void main()
 {
   gl_FragColor = v_color;
+}
+)";
+
+// Vertex shader for rectangle version of particles
+static const char *vertexRenderShaderRect = R"(
+precision highp float;
+
+uniform mat4  u_mvpMatrix;
+uniform mat4  u_mvMatrix;
+uniform mat4  u_mvNormalMatrix;
+uniform float u_size;
+uniform float u_len;
+
+// Pixel size in model coordinates
+uniform vec2 u_pixDispSize;
+
+// Texture coordinate and offset for vertices within a rectangle
+attribute vec2 a_texCoord;
+attribute vec2 a_offset;
+
+attribute vec3 a_savedPosition;
+attribute vec3 a_position;
+attribute vec3 a_dir;
+attribute vec4 a_color;
+
+varying vec4 v_color;
+
+void main()
+{
+    vec3 thePos = a_savedPosition;
+    vec3 dir = normalize(a_dir);
+    float pixDispScale = min(u_pixDispSize.x,u_pixDispSize.y);
+    float size = 2.0;
+    float len = 8.0;
+
+    // Convert from model space into display space
+    // We'll use this for testing, rather than the actual point
+    // This ensures we drop the whole particle at once
+    vec4 pt = u_mvMatrix * vec4(thePos,1.0);
+    pt /= pt.w;
+    
+    // Make sure the object is facing the user
+    vec4 testNorm = u_mvNormalMatrix * vec4(thePos,0.0);
+    float dot_res = dot(-pt.xyz,testNorm.xyz);
+    
+    vec3 dir0 = normalize(cross(dir,thePos));
+    vec3 adjPos = a_offset.x * dir0 * pixDispScale * size + a_offset.y * dir * pixDispScale * len + thePos;
+    
+    // Output color and position
+    v_color = a_color;
+    gl_Position = (dot_res > 0.0 && thePos != vec3(0.0,0.0,0.0)) ? u_mvpMatrix * vec4(adjPos,1.0) : vec4(1000.0,1000.0,1000.0,-1000.0);
 }
 )";
 
@@ -215,10 +273,12 @@ void main()
     _coordSys = [[MaplySphericalMercator alloc] initWebStandard];
     viewC = inViewC;
     
+    MaplyParticleSystemType partSysType = MaplyParticleSystemTypeRectangle;
+    
     // These govern how the particles are structured
     _updateInterval = 0.05;
     _particleLifetime = 2.0;
-    _numParticles = 100000;
+    _numParticles = 100000/10;
     velocityScale = 0.01f;
     
     // Colors we'll use
@@ -229,23 +289,32 @@ void main()
     
     // Position calculation shader
     MaplyShader *posShader = [[MaplyShader alloc] initWithViewC:viewC];
-    [posShader addVarying:@"va_position"];
     [posShader addVarying:@"va_startTime"];
+    [posShader addVarying:@"va_position"];
     [posShader delayedSetupWithName:@"Particle Wind Test Pos"
                              vertex:[NSString stringWithFormat:@"%s",vertexPositionShader]
                            fragment:[NSString stringWithFormat:@"%s",fragmentPositionShader]];
     [viewC addShaderProgram:posShader sceneName:posShader.name];
     
     // Render shader
-    MaplyShader *renderShader = [[MaplyShader alloc] initWithName:@"Particle Wind Test Render"
-                                                     vertex:[NSString stringWithFormat:@"%s",vertexRenderShaderTri]
-                                                   fragment:[NSString stringWithFormat:@"%s",fragmentRenderShaderTri]
+    MaplyShader *renderShader = nil;
+    if (partSysType == MaplyParticleSystemTypeRectangle) {
+        renderShader = [[MaplyShader alloc] initWithName:@"Particle Wind Test Render Rects"
+                                                  vertex:[NSString stringWithFormat:@"%s",vertexRenderShaderRect]
+                                                fragment:[NSString stringWithFormat:@"%s",fragmentRenderShader]
+                                                   viewC:viewC];
+        [renderShader setUniformFloatNamed:@"u_len" val:8.0];
+    } else {
+        renderShader = [[MaplyShader alloc] initWithName:@"Particle Wind Test Render Points"
+                                                     vertex:[NSString stringWithFormat:@"%s",vertexRenderShaderPoint]
+                                                   fragment:[NSString stringWithFormat:@"%s",fragmentRenderShader]
                                                       viewC:viewC];
+    }
     [viewC addShaderProgram:renderShader sceneName:renderShader.name];
     
     // Set up the particle system we'll feed with particles
     partSys = [[MaplyParticleSystem alloc] initWithName:@"Particle Wind Test"];
-    partSys.type = MaplyParticleSystemTypePoint;
+    partSys.type = partSysType;
     partSys.positionShader = posShader;
     partSys.renderShader = renderShader;
     partSys.continuousUpdate = true;
@@ -253,8 +322,8 @@ void main()
     [partSys addAttribute:@"a_dir" type:MaplyShaderAttrTypeFloat3];
     [partSys addAttribute:@"a_color" type:MaplyShaderAttrTypeFloat4];
     [partSys addAttribute:@"a_startTime" type:MaplyShaderAttrTypeFloat];
-    [partSys addVarying:@"va_position" inputName:@"a_savedPosition" type:MaplyShaderAttrTypeFloat3];
     [partSys addVarying:@"va_startTime" inputName:@"a_savedStartTime" type:MaplyShaderAttrTypeFloat];
+    [partSys addVarying:@"va_position" inputName:@"a_savedPosition" type:MaplyShaderAttrTypeFloat3];
 
     // Used to keep track of the tiles for fast lookup
     tileTrack = [[MaplyQuadTracker alloc] initWithViewC:(WhirlyGlobeViewController *)inViewC];
@@ -314,7 +383,7 @@ void main()
         NSString *zStr = [NSString stringWithFormat:@"%d",tileID.level];
         NSString *urlStr = [[[[url stringByReplacingOccurrencesOfString:@"{dir}" withString:uOrV] stringByReplacingOccurrencesOfString:@"{z}" withString:zStr] stringByReplacingOccurrencesOfString:@"{x}" withString:xStr] stringByReplacingOccurrencesOfString:@"{y}" withString:yStr];
 
-		// TODO if insecure certificated need to be supported, follow this:
+		// TODO if insecure certificates need to be supported, follow this:
 		// http://stackoverflow.com/questions/20230169/nsurlsession-server-with-self-signed-cert
 
 		[[[NSURLSession sharedSession] dataTaskWithURL:[NSURL URLWithString:urlStr]
@@ -427,6 +496,8 @@ static const float sqrt2 = 1.41421356237;
     }
     memset(locs, 0, batchSize*sizeof(SimpleLoc));
     memset(times, 0, batchSize*sizeof(float));
+    memset(dirs, 0, batchSize*sizeof(SimpleLoc));
+    memset(colors, 0, batchSize*sizeof(SimpleColor));
 
     // Make up some random particles
 #if 0

@@ -647,6 +647,8 @@ void Scene::removeProgram(SimpleIdentity progId)
         
         // And get rid of it in the list of programs
         glPrograms.erase(it);
+        
+        prog->cleanUp();
     }
     
     pthread_mutex_unlock(&programLock);

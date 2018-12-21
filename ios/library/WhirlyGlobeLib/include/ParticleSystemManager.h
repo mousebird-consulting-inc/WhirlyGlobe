@@ -46,6 +46,7 @@ public:
     NSTimeInterval lifetime,baseTime;
     int totalParticles,batchSize;
     bool continuousUpdate;
+    bool zBufferRead,zBufferWrite;
     SimpleIdentity renderTargetID;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
     std::vector<SingleVertexAttributeInfo> varyingAttrs;
@@ -97,6 +98,9 @@ public:
     
     /// Remove a particle system referred to by the given ID
     void removeParticleSystem(SimpleIdentity sysID,ChangeSet &changes);
+    
+    /// Change the render target
+    void changeRenderTarget(SimpleIdentity sysID,SimpleIdentity targetID,ChangeSet &changes);
 
     /// Clean out old particle system batches as needed
     void housekeeping(NSTimeInterval now,ChangeSet &changes);
