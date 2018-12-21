@@ -407,6 +407,16 @@ using namespace WhirlyKit;
 
 @implementation MaplyQuadImageLoaderBase
 
+- (instancetype)init
+{
+    self = [super init];
+    
+    _zBufferRead = false;
+    _zBufferWrite = true;
+    
+    return self;
+}
+
 - (void)setTileFetcher:(NSObject<MaplyTileFetcher> * __nonnull)inTileFetcher
 {
     if (tileFetcher) {
