@@ -53,6 +53,15 @@
         return;
     
     CGSize screenSize = [viewC getFramebufferSize];
+
+    // Can get into a race on framebuffer setup
+    if (screenSize.width == 0.0) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self delayedSetup];
+        });
+        return;
+    }
+
     screenSize.width *= scale;
     screenSize.height *= scale;
     

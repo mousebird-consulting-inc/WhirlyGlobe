@@ -28,7 +28,8 @@
 	if (self = [super init]) {
 		self.name = @"Vectors";
 		self.captureDelay = 5;
-		self.compList = [[NSMutableArray alloc] init];
+		self.compObjs = [[NSMutableArray alloc] init];
+        self.vecList = [[NSMutableArray alloc] init];
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 
 	}
@@ -53,8 +54,11 @@
                     NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
                     wgVecObj.userObject = vecName;
                     wgVecObj.selectable = true;
-                    [self.compList addObject:wgVecObj];
-                    [baseVC addVectors:[NSArray arrayWithObject:wgVecObj] desc:vectorDict];
+                    [self.vecList addObject:wgVecObj];
+                    MaplyComponentObject *compObj = [baseVC addVectors:@[wgVecObj] desc:vectorDict];
+                    if (compObj) {
+                        [self.compObjs addObject:compObj];
+                    }
                     [baseVC addSelectionVectors:[NSArray arrayWithObject:wgVecObj]];
                     if ([vecName isEqualToString:@"Spain"]) {
                         self.selectedCountry = wgVecObj;
@@ -84,22 +88,16 @@
 }
 
 - (void) tearDownWithMap:(MaplyViewController *)mapVC {
-    for (MaplyComponentObject __strong *comp in self.compList){
-        [mapVC removeObject: comp];
-        comp = nil;
-    }
-    [self.compList removeAllObjects ];
+    [mapVC removeObjects:self.compObjs];
+    self.compObjs = nil;
     self.baseView = nil;
     
 }
 
 - (void)tearDownWithGlobe:(WhirlyGlobeViewController *)globeVC{
     
-    for (MaplyComponentObject __strong *comp in self.compList){
-        [globeVC removeObject: comp];
-        comp = nil;
-    }
-    [self.compList removeAllObjects ];
+    [globeVC removeObjects:self.compObjs];
+    self.compObjs = nil;
     self.baseView = nil;
 }
 - (void) handleSelection:(MaplyBaseViewController *)viewC

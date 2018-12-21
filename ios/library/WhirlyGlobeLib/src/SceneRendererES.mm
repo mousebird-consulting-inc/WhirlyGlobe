@@ -163,11 +163,13 @@ void RenderTarget::clear()
 void RenderTarget::setActiveFramebuffer(WhirlyKitSceneRendererES *renderer)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    CheckGLError("SceneRendererES2: glBindFramebuffer");
+    CheckGLError("RenderTarget::setActiveFramebuffer: glBindFramebuffer");
     glViewport(0, 0, width, height);
-    CheckGLError("SceneRendererES2: glViewport");
-    if (colorbuffer)
+    CheckGLError("RenderTarget::setActiveFramebuffer: glViewport");
+    if (colorbuffer) {
         glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
+        CheckGLError("RenderTarget::setActiveFramebuffer: glBindRenderbuffer");
+    }
     
     // Note: Have to run this all the time for some reason
 //    if (!isSetup)
@@ -181,7 +183,7 @@ void RenderTarget::setActiveFramebuffer(WhirlyKitSceneRendererES *renderer)
         }
         glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
         
-        CheckGLError("SceneRendererES2: glClearColor");
+        CheckGLError("RenderTarget::setActiveFramebuffer: glClearColor");
         isSetup = true;
     }
 }
