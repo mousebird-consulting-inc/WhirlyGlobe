@@ -431,12 +431,15 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
         RenderTarget defaultTarget(EmptyIdentity);
         defaultTarget.width = (int)size.width;
         defaultTarget.height = (int)size.height;
-        if (framebufferTex)
+        if (framebufferTex) {
             defaultTarget.setTargetTexture(framebufferTex);
-        else
+            // Note: Should make this optional
+            defaultTarget.blendEnable = false;
+        } else {
             defaultTarget.init(NULL,EmptyIdentity);
+            defaultTarget.blendEnable = true;
+        }
         defaultTarget.clearEveryFrame = true;
-        defaultTarget.blendEnable = true;
         renderTargets.push_back(defaultTarget);
         
         // All the animations should work now, except for particle systems

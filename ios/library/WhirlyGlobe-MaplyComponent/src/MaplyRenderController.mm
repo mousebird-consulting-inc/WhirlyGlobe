@@ -34,6 +34,7 @@ using namespace Eigen;
     MaplyFlatView *flatView;
     bool offlineMode;
     UIImage *snapshotImage;
+    NSData *snapshotData;
 }
 
 - (instancetype)initWithSize:(CGSize)size
@@ -154,7 +155,23 @@ using namespace Eigen;
     sceneRenderer.snapshotDelegate = self;
     [sceneRenderer render:0.0];
     
-    return snapshotImage;
+    UIImage *toRet = snapshotImage;
+    snapshotImage = nil;
+    snapshotData = nil;
+    
+    return toRet;
+}
+
+- (NSData *)renderToImageData
+{
+    sceneRenderer.snapshotDelegate = self;
+    [sceneRenderer render:0.0];
+    
+    NSData *toRet = snapshotData;
+    snapshotImage = nil;
+    snapshotData = nil;
+    
+    return toRet;
 }
 
 - (void) useGLContext
@@ -490,6 +507,7 @@ using namespace Eigen;
 }
 
 - (void)snapshotData:(NSData *)data {
+    snapshotData = data;
 }
 
 - (void)snapshotImage:(UIImage *)image {

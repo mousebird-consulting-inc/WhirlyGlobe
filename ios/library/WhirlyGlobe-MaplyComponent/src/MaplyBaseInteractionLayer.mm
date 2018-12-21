@@ -3121,6 +3121,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         wkPartSys.totalParticles = partSys.totalParticles;
         wkPartSys.baseTime = partSys.baseTime;
         wkPartSys.continuousUpdate = partSys.continuousUpdate;
+        wkPartSys.zBufferRead = [inDesc[kMaplyZBufferRead] boolValue];
+        wkPartSys.zBufferWrite = [inDesc[kMaplyZBufferWrite] boolValue];
         wkPartSys.renderTargetID = partSys.renderTargetID;
         // Type
         switch (partSys.type)
