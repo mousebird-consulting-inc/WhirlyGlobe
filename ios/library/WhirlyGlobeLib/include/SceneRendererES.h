@@ -101,6 +101,9 @@ public:
     /// Set the GL texture directly
     void setTargetTexture(TextureBase *tex);
     
+    /// Copy the data out of the destination texture and return it
+    NSData *snapshot();
+    
     /// OpenGL ES Name for the frame buffer
     GLuint framebuffer;
     /// OpenGL ES Name for the color buffer
@@ -231,6 +234,8 @@ protected:
 @property (nonatomic,assign) Eigen::Matrix4d &viewAndModelMat4d;
 /// The model, view, and projection matrix all rolled into one
 @property (nonatomic,assign) Eigen::Matrix4f &mvpMat;
+/// Inverse of the model/view/projection matrix
+@property (nonatomic,assign) Eigen::Matrix4f &mvpInvMat;
 /// Normal matrix for model/view/projection
 @property (nonatomic,assign) Eigen::Matrix4f &mvpNormalMat;
 /// Model, and view matrix but for normal transformation

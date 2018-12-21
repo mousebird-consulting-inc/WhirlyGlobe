@@ -60,6 +60,10 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 @property (nonatomic,strong) UIColor *textColor;
 // Possibly a function to describe the text color
 @property (nonatomic) MaplyVectorFunctionStops *textColorFunc;
+// Opacity
+@property (nonatomic,assign) double textOpacity;
+// Optional function to describe text opacity
+@property (nonatomic) MaplyVectorFunctionStops *textOpacityFunc;
 // If there's a halo, this is the color
 @property (nonatomic,strong) UIColor *textHaloColor;
 // If there's a halo, this is the size

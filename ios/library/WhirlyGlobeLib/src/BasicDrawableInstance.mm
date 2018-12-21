@@ -544,6 +544,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         {
             GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
             auto baseMapNameID = baseMapNameIDs[ii];
+            auto hasBaseMapNameID = hasBaseMapNameIDs[ii];
             auto texScaleNameID = texScaleNameIDs[ii];
             auto texOffsetNameID = texOffsetNameIDs[ii];
             const OpenGLESUniform *texUni = prog->findUniform(baseMapNameID);
@@ -555,6 +556,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                 CheckGLError("BasicDrawableInstance::drawVBO2() glBindTexture");
                 prog->setUniform(baseMapNameID, (int)ii+progTexBound);
                 CheckGLError("BasicDrawableInstance::drawVBO2() glUniform1i");
+                prog->setUniform(hasBaseMapNameID, 1);
                 
                 float texScale = 1.0;
                 Vector2f texOffset(0.0,0.0);
@@ -575,6 +577,8 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                     prog->setUniform(texOffsetNameID, texOffset);
                 }
                 CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
+            } else {
+                prog->setUniform(hasBaseMapNameID, 0);
             }
         }
         

@@ -23,7 +23,7 @@
 /** 
     The View Controller Layer is a base class for other display layers.
     
-    You don't create these directory.  This is a base class for things like the MaplyQuadPagingLayer and the MaplyQuadImageTilesLayer.
+    You don't create these directly.  This is a base class for things like the MaplyQuadPagingLayer and the MaplyQuadImageTilesLayer.
   */
 @interface MaplyViewControllerLayer : NSObject
 

@@ -15,7 +15,7 @@
 
 - (id _Nullable)initWithViewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)baseVC GeoJSONURL:(NSURL * _Nonnull)geoJSONURL sldURL:(NSURL * _Nonnull)sldURL relativeDrawPriority:(int)relativeDrawPriority ;
 
-- (void)startParseWithCompletion:(nonnull void (^)()) completionBlock;
+- (void)startParseWithCompletion:(nonnull void (^)(void)) completionBlock;
 
 - (void)startParse;
 

@@ -36,6 +36,7 @@ extern void SetupDrawableStrings();
 
 // Names used for indexing into shaders
 extern StringIdentity baseMapNameIDs[];
+extern StringIdentity hasBaseMapNameIDs[];
 extern StringIdentity texOffsetNameIDs[];
 extern StringIdentity texScaleNameIDs[];
 extern StringIdentity lightViewDependNameIDs[];
@@ -50,6 +51,7 @@ extern StringIdentity materialDiffuseNameID;
 extern StringIdentity materialSpecularNameID;
 extern StringIdentity materialSpecularExponentNameID;
 extern StringIdentity mvpMatrixNameID;
+extern StringIdentity mvpInvMatrixNameID;
 extern StringIdentity mvMatrixNameID;
 extern StringIdentity mvNormalMatrixNameID;
 extern StringIdentity mvpNormalMatrixNameID;
@@ -60,10 +62,12 @@ extern StringIdentity u_HasTextureNameID;
 extern StringIdentity a_SingleMatrixNameID;
 extern StringIdentity a_PositionNameID;
 extern StringIdentity u_EyeVecNameID;
+extern StringIdentity u_EyePosNameID;
 extern StringIdentity u_SizeNameID;
 extern StringIdentity u_TimeNameID;
 extern StringIdentity u_lifetimeNameID;
 extern StringIdentity u_pixDispSizeNameID;
+extern StringIdentity u_frameLenID;
 extern StringIdentity a_offsetNameID;
 extern StringIdentity u_uprightNameID;
 extern StringIdentity u_activerotNameID;

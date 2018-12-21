@@ -81,6 +81,24 @@
  */
 @property (nonatomic, retain) NSDictionary * __nullable headers;
 
+/**
+ Optional coordinate system describing the tile set.
+ 
+ This coordinate system is required if the tile info will need
+ to evaluate valid tiles as defined by the addValidBounds:coordSystem: call.
+ This is the coordinate system of the tiles et.
+  */
+@property (nonatomic, retain) MaplyCoordinateSystem * __nullable coordSys;
+
+/**
+ Add a bounding box that defined validity for any tile before it's fetched.
+ 
+ Not all data sources cover all possible tiles.  If you know your data source does not,
+ you can specify what area is valid ahead of times.  Tiles that do not overlap that area
+ will not be loaded.
+  */
+- (void)addValidBounds:(MaplyBoundingBoxD)bbox coordSystem:(MaplyCoordinateSystem * __nonnull)coordSys;
+
 @end
 
 /**

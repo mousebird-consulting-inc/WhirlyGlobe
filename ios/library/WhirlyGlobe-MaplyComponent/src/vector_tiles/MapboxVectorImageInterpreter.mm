@@ -49,6 +49,7 @@ using namespace WhirlyKit;
 
 static double MAX_EXTENT = 20037508.342789244;
 
+
 @implementation MapboxVectorImageInterpreter
 {
     MaplyQuadImageLoader * __weak loader;
@@ -93,10 +94,30 @@ static double MAX_EXTENT = 20037508.342789244;
     return self;
 }
 
+// Flip data in an NSData object that we know to be an image
+- (NSData *)flipVertically:(NSData *)data width:(int)width height:(int)height
+{
+    NSMutableData *retData = [[NSMutableData alloc] initWithData:data];
+
+    int rowSize = 4*width;
+    unsigned char tmpData[rowSize];
+    unsigned char *rawData = (unsigned char *)[retData mutableBytes];
+    for (unsigned int iy=0;iy<height/2;iy++) {
+        unsigned char *rowA = &rawData[iy*rowSize];
+        unsigned char *rowB = &rawData[(height-iy-1)*rowSize];
+        memcpy(tmpData, rowA, rowSize);
+        memcpy(rowA, rowB, rowSize);
+        memcpy(rowB, tmpData, rowSize);
+    }
+    
+    return retData;
+}
+
 - (void)parseData:(MaplyLoaderReturn * __nonnull)loadReturn
 {
     MaplyTileID tileID = loadReturn.tileID;
-    std::vector<NSData *> tileDatas;
+    std::vector<NSData *> pbfDatas;
+    std::vector<UIImage *> images;
     
     // Uncompress any of the data we recieved
     for (unsigned int ii=0;ii<[loadReturn.multiTileData count];ii++) {
@@ -109,10 +130,15 @@ static double MAX_EXTENT = 20037508.342789244;
               }
           }
         }
-        tileDatas.push_back(thisTileData);
+        // Might be an image
+        UIImage *image = [UIImage imageWithData:thisTileData];
+        if (image)
+            images.push_back(image);
+        else
+            pbfDatas.push_back(thisTileData);
     }
     
-    if (tileDatas.empty()) {
+    if (pbfDatas.empty() && images.empty()) {
         loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Tile data was nil after decompression"}];
         return;
     }
@@ -127,7 +153,7 @@ static double MAX_EXTENT = 20037508.342789244;
     spherMercBBox.ll = [self toMerc:geoBBox.ll];
     spherMercBBox.ur = [self toMerc:geoBBox.ur];
     
-    UIImage *image = nil;
+    NSData *imageData = nil;
     
     [viewC startChanges];
     
@@ -139,7 +165,7 @@ static double MAX_EXTENT = 20037508.342789244;
         NSMutableArray *compObjs = [NSMutableArray array];
         offlineRender.clearColor = backColor;
 
-        for (NSData *thisTileData : tileDatas) {
+        for (NSData *thisTileData : pbfDatas) {
             MaplyVectorTileData *retData = [imageTileParser buildObjects:thisTileData tile:tileID bounds:imageBBox geoBounds:geoBBox];
             if (retData) {
                 [compObjs addObjectsFromArray:retData.compObjs];
@@ -153,7 +179,9 @@ static double MAX_EXTENT = 20037508.342789244;
             // Turn all those objects on
             [offlineRender enableObjects:compObjs mode:MaplyThreadCurrent];
             
-            image = [offlineRender renderToImage];
+            imageData = [self flipVertically:[offlineRender renderToImageData]
+                                       width:offlineRender.getFramebufferSize.width
+                                      height:offlineRender.getFramebufferSize.height];
             
             // And then remove them all
             [offlineRender removeObjects:compObjs mode:MaplyThreadCurrent];
@@ -163,7 +191,7 @@ static double MAX_EXTENT = 20037508.342789244;
     // Parse everything else and turn into vectors
     NSMutableArray *compObjs = [NSMutableArray array];
     NSMutableArray *ovlCompObjs = [NSMutableArray array];
-    for (NSData *thisTileData : tileDatas) {
+    for (NSData *thisTileData : pbfDatas) {
         MaplyVectorTileData *retData = [vecTileParser buildObjects:thisTileData tile:tileID bounds:spherMercBBox geoBounds:geoBBox];
         if (retData) {
             [compObjs addObjectsFromArray:retData.compObjs];
@@ -177,11 +205,22 @@ static double MAX_EXTENT = 20037508.342789244;
     }
 
     [viewC endChanges];
-    
-    // Successful load
-    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:image];
+
+    // Rendered image goes in first
+    NSMutableArray *outImages = [NSMutableArray array];
+    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height];
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
-    loadReturn.image = loadTile;
+    [outImages addObject:loadTile];
+    
+    // Any additional images are tacked on
+    for (UIImage *image : images) {
+        MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithImage:image];
+        WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
+        if (loadTile)
+            [outImages addObject:loadTile];
+    }
+    loadReturn.images = outImages;
+
     if ([ovlCompObjs count] > 0) {
         loadReturn.ovlCompObjs = ovlCompObjs;
         [compObjs removeObjectsInArray:ovlCompObjs];

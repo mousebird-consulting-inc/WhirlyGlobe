@@ -26,6 +26,7 @@
 #import "NSDictionary+StyleRules.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
+#import "MaplyRenderTarget_private.h"
 #import <sys/utsname.h>
 
 using namespace Eigen;
@@ -37,13 +38,29 @@ using namespace WhirlyKit;
 // Target for screen snapshot
 @interface SnapshotTarget : NSObject<WhirlyKitSnapshot>
 @property (nonatomic) UIImage *image;
+@property (nonatomic) NSData *data;
+@property (nonatomic) SimpleIdentity renderTargetID;
 @end
 
 @implementation SnapshotTarget
 
-- (void)snapshot:(UIImage *)image
+- (instancetype)init
 {
-    _image = image;
+    self = [super init];
+    
+    _image = nil;
+    _data = nil;
+    _renderTargetID = EmptyIdentity;
+    
+    return self;
+}
+
+- (void)snapshotData:(NSData *)snapshotData {
+    _data = snapshotData;
+}
+
+- (void)snapshotImage:(UIImage *)snapshotImage {
+    _image = snapshotImage;
 }
 
 @end
@@ -498,6 +515,11 @@ static const float PerfOutputDelay = 15.0;
     return [renderControl getShaderByName:name];
 }
 
+- (void)removeShaderProgram:(MaplyShader *__nonnull)shader
+{
+    [renderControl removeShaderProgram:shader];
+}
+
 #pragma mark - Defaults and descriptions
 
 // Set new hints and update any related settings
@@ -665,6 +687,21 @@ static const float PerfOutputDelay = 15.0;
     [renderControl endOfWork];
     
     return compObj;
+}
+
+- (void)changeParticleSystem:(MaplyComponentObject *__nonnull)compObj renderTarget:(MaplyRenderTarget *__nullable)target
+{
+    if ([NSThread currentThread] != [NSThread mainThread]) {
+        NSLog(@"MaplyBaseViewController: changeParticleSystem:renderTarget: must be called on main thread");
+        return;
+    }
+    
+    if (![renderControl startOfWork])
+        return;
+    
+    [renderControl->interactLayer changeParticleSystem:compObj renderTarget:target];
+
+    [renderControl endOfWork];
 }
 
 - (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode
@@ -1488,6 +1525,21 @@ static const float PerfOutputDelay = 15.0;
     [renderControl->sceneRenderer render:0.0];
     
     return target.image;
+}
+
+- (NSData *)shapshotRenderTarget:(MaplyRenderTarget *)renderTarget
+{
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return NULL;
+
+    SnapshotTarget *target = [[SnapshotTarget alloc] init];
+    target.renderTargetID = renderTarget.renderTargetID;
+    renderControl->sceneRenderer.snapshotDelegate = target;
+    
+    [renderControl->sceneRenderer forceDrawNextFrame];
+    [renderControl->sceneRenderer render:0.0];
+    
+    return target.data;
 }
 
 - (float)currentMapZoom:(MaplyCoordinate)coordinate

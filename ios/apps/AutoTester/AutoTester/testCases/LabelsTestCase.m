@@ -67,14 +67,14 @@
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC {
 	VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
 	[baseView setUpWithGlobe:globeVC];
-	[self insertLabels: baseView.compList theView:(MaplyBaseViewController*)globeVC];
+	[self insertLabels: baseView.vecList theView:(MaplyBaseViewController*)globeVC];
 	[globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
 }
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC {
 	VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
 	[baseView setUpWithMap:mapVC];
-	[self insertLabels: baseView.compList theView:(MaplyBaseViewController*)mapVC];
+	[self insertLabels: baseView.vecList theView:(MaplyBaseViewController*)mapVC];
 	[mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
 }
 @end

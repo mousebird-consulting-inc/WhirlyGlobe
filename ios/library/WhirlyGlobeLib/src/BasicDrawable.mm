@@ -21,6 +21,7 @@
 #import "GLUtils.h"
 #import "BasicDrawable.h"
 #import "BasicDrawableInstance.h"
+#import "ParticleSystemDrawable.h"
 #import "GlobeScene.h"
 #import "UIImage+Stuff.h"
 #import "SceneRendererES.h"
@@ -1250,6 +1251,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     {
         GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
         auto baseMapNameID = baseMapNameIDs[ii];
+        auto hasBaseMapNameID = hasBaseMapNameIDs[ii];
         auto texScaleNameID = texScaleNameIDs[ii];
         auto texOffsetNameID = texOffsetNameIDs[ii];
         const OpenGLESUniform *texUni = prog->findUniform(baseMapNameID);
@@ -1261,6 +1263,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             glBindTexture(GL_TEXTURE_2D, glTexID);
             CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
             prog->setUniform(baseMapNameID, (int)ii+progTexBound);
+            prog->setUniform(hasBaseMapNameID, 1);
             float texScale = 1.0;
             Vector2f texOffset(0.0,0.0);
             // Adjust for border pixels
@@ -1277,6 +1280,8 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             prog->setUniform(texScaleNameID, Vector2f(texScale, texScale));
             prog->setUniform(texOffsetNameID, texOffset);
             CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
+        } else {
+            prog->setUniform(hasBaseMapNameID, 0);
         }
     }
     
@@ -1657,6 +1662,28 @@ void DrawUniformsChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *
         BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setUniforms(attrs);
+    }
+}
+
+RenderTargetChangeRequest::RenderTargetChangeRequest(SimpleIdentity drawID,SimpleIdentity targetID)
+: WhirlyKit::DrawableChangeRequest(drawID), targetID(targetID)
+{
+}
+    
+void RenderTargetChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+{
+    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
+    if (basicDrawable)
+        basicDrawable->setRenderTarget(targetID);
+    else {
+        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+        if (basicDrawInst)
+            basicDrawInst->setRenderTarget(targetID);
+        else {
+            ParticleSystemDrawableRef partDrawable = std::dynamic_pointer_cast<ParticleSystemDrawable>(draw);
+            if (partDrawable)
+                partDrawable->setRenderTarget(targetID);
+        }
     }
 }
 

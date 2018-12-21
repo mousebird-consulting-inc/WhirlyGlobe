@@ -34,6 +34,7 @@ using namespace Eigen;
     MaplyFlatView *flatView;
     bool offlineMode;
     UIImage *snapshotImage;
+    NSData *snapshotData;
 }
 
 - (instancetype)initWithSize:(CGSize)size
@@ -154,7 +155,23 @@ using namespace Eigen;
     sceneRenderer.snapshotDelegate = self;
     [sceneRenderer render:0.0];
     
-    return snapshotImage;
+    UIImage *toRet = snapshotImage;
+    snapshotImage = nil;
+    snapshotData = nil;
+    
+    return toRet;
+}
+
+- (NSData *)renderToImageData
+{
+    sceneRenderer.snapshotDelegate = self;
+    [sceneRenderer render:0.0];
+    
+    NSData *toRet = snapshotData;
+    snapshotImage = nil;
+    snapshotData = nil;
+    
+    return toRet;
 }
 
 - (void) useGLContext
@@ -247,6 +264,24 @@ using namespace Eigen;
     
     std::string theSceneName = [sceneName cStringUsingEncoding:NSASCIIStringEncoding];
     scene->addProgram(theSceneName, shader.program);
+}
+
+- (void)removeShaderProgram:(MaplyShader *__nonnull)shaderToRemove
+{
+    bool found = false;
+    for (MaplyShader *shader in shaders) {
+        if (shader == shaderToRemove) {
+            found = true;
+            break;
+        }
+    }
+    
+    if (!found)
+        return;
+    [shaders removeObject:shaderToRemove];
+    
+    if (shaderToRemove.program)
+        scene->removeProgram(shaderToRemove.program->getId());
 }
 
 - (MaplyShader *__nullable)getShaderByName:(NSString *__nonnull)name
@@ -465,10 +500,17 @@ using namespace Eigen;
     return CGSizeMake(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
 }
 
-// Snapshot protocol
+// MARK: Snapshot protocol
 
-- (void)snapshot:(UIImage *)image
-{
+- (WhirlyKit::SimpleIdentity)renderTargetID {
+    return EmptyIdentity;
+}
+
+- (void)snapshotData:(NSData *)data {
+    snapshotData = data;
+}
+
+- (void)snapshotImage:(UIImage *)image {
     snapshotImage = image;
 }
 

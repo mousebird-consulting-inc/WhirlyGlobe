@@ -33,6 +33,7 @@ namespace WhirlyKit
   */
 class TileBuilderDelegateInfo {
 public:
+    int targetLevel;
     LoadedTileVec loadTiles;
     QuadTreeNew::NodeSet unloadTiles;
     LoadedTileVec enableTiles,disableTiles;
@@ -52,7 +53,8 @@ public:
 /// Returns the tiles we want to preserve after all
 - (WhirlyKit::QuadTreeNew::NodeSet)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder
    loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles
-    unloadTilesToCheck:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles;
+    unloadTilesToCheck:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles
+    targetLevel:(int)targetLevel;
 
 /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
 - (void)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder

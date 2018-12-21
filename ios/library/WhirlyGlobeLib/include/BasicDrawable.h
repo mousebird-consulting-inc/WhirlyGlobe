@@ -554,5 +554,17 @@ public:
 protected:
     SingleVertexAttributeSet attrs;
 };
+
+/// Change the render target (or clear it)
+class RenderTargetChangeRequest : public DrawableChangeRequest
+{
+public:
+    RenderTargetChangeRequest(SimpleIdentity drawId,SimpleIdentity );
+    
+    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    
+protected:
+    SimpleIdentity targetID;
+};
     
 }

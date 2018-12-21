@@ -130,6 +130,25 @@ void RenderTarget::setTargetTexture(TextureBase *tex)
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+    
+NSData *RenderTarget::snapshot()
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    CheckGLError("SceneRendererES2: glBindFramebuffer");
+    glViewport(0, 0, width, height);
+    CheckGLError("SceneRendererES2: glViewport");
+
+    // Note: We're just assuming this format from the texture.  Should check
+    int len = width * height * sizeof(GLubyte) * 4;
+    GLubyte* pixels = (GLubyte*) malloc(len);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    
+    NSData *data = [[NSData alloc] initWithBytesNoCopy:pixels length:len];
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    return data;
+}
 
 void RenderTarget::clear()
 {
@@ -144,11 +163,13 @@ void RenderTarget::clear()
 void RenderTarget::setActiveFramebuffer(WhirlyKitSceneRendererES *renderer)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    CheckGLError("SceneRendererES2: glBindFramebuffer");
+    CheckGLError("RenderTarget::setActiveFramebuffer: glBindFramebuffer");
     glViewport(0, 0, width, height);
-    CheckGLError("SceneRendererES2: glViewport");
-    if (colorbuffer)
+    CheckGLError("RenderTarget::setActiveFramebuffer: glViewport");
+    if (colorbuffer) {
         glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
+        CheckGLError("RenderTarget::setActiveFramebuffer: glBindRenderbuffer");
+    }
     
     // Note: Have to run this all the time for some reason
 //    if (!isSetup)
@@ -162,7 +183,7 @@ void RenderTarget::setActiveFramebuffer(WhirlyKitSceneRendererES *renderer)
         }
         glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
         
-        CheckGLError("SceneRendererES2: glClearColor");
+        CheckGLError("RenderTarget::setActiveFramebuffer: glClearColor");
         isSetup = true;
     }
 }
@@ -251,6 +272,7 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
     _viewAndModelMat = info.viewAndModelMat;
     _viewAndModelMat4d = info.viewAndModelMat4d;
     _mvpMat = info.mvpMat;
+    _mvpInvMat = info.mvpInvMat;
     _mvpNormalMat = info.mvpNormalMat;
     _viewModelNormalMat = info.viewModelNormalMat;
     _pvMat = info.pvMat;
@@ -411,12 +433,15 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
         RenderTarget defaultTarget(EmptyIdentity);
         defaultTarget.width = (int)size.width;
         defaultTarget.height = (int)size.height;
-        if (framebufferTex)
+        if (framebufferTex) {
             defaultTarget.setTargetTexture(framebufferTex);
-        else
+            // Note: Should make this optional
+            defaultTarget.blendEnable = false;
+        } else {
             defaultTarget.init(NULL,EmptyIdentity);
+            defaultTarget.blendEnable = true;
+        }
         defaultTarget.clearEveryFrame = true;
-        defaultTarget.blendEnable = true;
         renderTargets.push_back(defaultTarget);
         
         // All the animations should work now, except for particle systems
@@ -509,8 +534,11 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
 
 - (void)useContext
 {
-	if (_context && [EAGLContext currentContext] != _context)
-		[EAGLContext setCurrentContext:_context];
+    if (_context && [EAGLContext currentContext] != _context) {
+		if (![EAGLContext setCurrentContext:_context])
+            NSLog(@"Failed to set context in SceneRendererES::useContext");
+        CheckGLError("SceneRendererES::useContext setCurrentContext");
+    }
 }
 
 - (BOOL) resizeFromLayer:(CAEAGLLayer *)layer

@@ -195,7 +195,7 @@ bool LayoutManager::hasChanges()
 // Sort more important things to the front
 typedef struct
 {
-    bool operator () (const LayoutObjectEntry *a,const LayoutObjectEntry *b)
+    bool operator () (const LayoutObjectEntry *a,const LayoutObjectEntry *b) const
     {
         if (a->obj.importance == b->obj.importance)
             return a > b;
@@ -750,21 +750,18 @@ void LayoutManager::updateLayout(WhirlyKit::ViewState *viewState,ChangeSet &chan
         // Generate the drawables
         ScreenSpaceBuilder ssBuild(coordAdapter,renderer->getScale());
         for (LayoutEntrySet::iterator it = layoutObjects.begin();
-             it != layoutObjects.end(); ++it)
-        {
-            LayoutObjectEntry *layoutObj = *it;
+             it != layoutObjects.end(); ++it) {
+			LayoutObjectEntry *layoutObj = *it;
 
-            layoutObj->obj.offset = Point2d(layoutObj->offset.x(),layoutObj->offset.y());
-            if (!layoutObj->currentEnable)
-            {
-                layoutObj->obj.state.fadeDown = curTime;
-                layoutObj->obj.state.fadeUp = curTime+DisappearFade;
-            }
+			layoutObj->obj.offset = Point2d(layoutObj->offset.x(), layoutObj->offset.y());
+			if (!layoutObj->currentEnable) {
+				layoutObj->obj.state.fadeDown = curTime;
+				layoutObj->obj.state.fadeUp = curTime + DisappearFade;
+			}
 			// Note: The animation below doesn't handle offsets
 
 			// Just moved into a cluster
-			if (layoutObj->currentEnable && !layoutObj->newEnable && layoutObj->newCluster > -1)
-			{
+			if (layoutObj->currentEnable && !layoutObj->newEnable && layoutObj->newCluster > -1) {
 //                ClusterEntry *cluster = &clusters[layoutObj->newCluster];
 //                ClusterGenerator::ClusterClassParams &params = oldClusterParams[cluster->clusterParamID];
 //
@@ -776,8 +773,8 @@ void LayoutManager::updateLayout(WhirlyKit::ViewState *viewState,ChangeSet &chan
 //                for (auto &geom : animObj.geometry)
 //                    geom.progID = params.motionShaderID;
 //                ssBuild.addScreenObject(animObj);
-			} else if (!layoutObj->currentEnable && layoutObj->newEnable && layoutObj->currentCluster > -1 && layoutObj->newCluster == -1)
-			{
+			} else if (!layoutObj->currentEnable && layoutObj->newEnable &&
+					   layoutObj->currentCluster > -1 && layoutObj->newCluster == -1) {
 				// Just moved out of a cluster
 				ClusterEntry *oldCluster = NULL;
 				if (layoutObj->currentCluster < oldClusters.size())
@@ -790,6 +787,48 @@ void LayoutManager::updateLayout(WhirlyKit::ViewState *viewState,ChangeSet &chan
 
 				// Animate from the old cluster position to the new real position
 				ScreenSpaceObject animObj = layoutObj->obj;
+				animObj.setMovingLoc(animObj.worldLoc, curTime,
+									 curTime + params.markerAnimationTime);
+				animObj.worldLoc = oldCluster->layoutObj.worldLoc;
+				animObj.setEnableTime(curTime, curTime + params.markerAnimationTime);
+				animObj.state.progID = params.motionShaderID;
+				for (auto &geom : animObj.geometry)
+					geom.progID = params.motionShaderID;
+				ssBuild.addScreenObject(animObj);
+
+				// And hold off on adding it
+				ScreenSpaceObject shortObj = layoutObj->obj;
+				shortObj.setEnableTime(curTime + params.markerAnimationTime, curTime + 1e10);
+				ssBuild.addScreenObject(shortObj);
+			} else {
+				// It's boring, just add it
+				if (layoutObj->newEnable)
+					ssBuild.addScreenObject(layoutObj->obj);
+			}
+
+			layoutObj->currentEnable = layoutObj->newEnable;
+			layoutObj->currentCluster = layoutObj->newCluster;
+
+			layoutObj->changed = false;
+		}
+
+		// Add in the clusters
+		for (auto &cluster : clusters)
+		{
+			// Animate from the old cluster if there is one
+			if (cluster.childOfCluster > -1)
+			{
+				ClusterEntry *oldCluster = NULL;
+				if (cluster.childOfCluster < oldClusters.size()) {
+					oldCluster = &oldClusters[cluster.childOfCluster];
+				} else {
+					//NSLog(@"Cluster ID mismatch");
+					continue;
+				}
+				ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster->clusterParamID];
+
+				// Animate from the old cluster to the new one
+				ScreenSpaceObject animObj = cluster.layoutObj;
 				animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
 				animObj.worldLoc = oldCluster->layoutObj.worldLoc;
 				animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
@@ -798,56 +837,16 @@ void LayoutManager::updateLayout(WhirlyKit::ViewState *viewState,ChangeSet &chan
 					geom.progID = params.motionShaderID;
 				ssBuild.addScreenObject(animObj);
 
-				// And hold off on adding it
-				ScreenSpaceObject shortObj = layoutObj->obj;
+				// Hold off on adding the new one
+				ScreenSpaceObject shortObj = cluster.layoutObj;
 				shortObj.setEnableTime(curTime+params.markerAnimationTime, curTime+1e10);
 				ssBuild.addScreenObject(shortObj);
+
 			} else {
-				// It's boring, just add it
-				if (layoutObj->newEnable)
-					ssBuild.addScreenObject(layoutObj->obj);
-			}
-
-            layoutObj->currentEnable = layoutObj->newEnable;
-			layoutObj->currentCluster = layoutObj->newCluster;
-
-            layoutObj->changed = false;
-
-			// Add in the clusters
-			for (auto &cluster : clusters)
-			{
-				// Animate from the old cluster if there is one
-				if (cluster.childOfCluster > -1)
-				{
-					ClusterEntry *oldCluster = NULL;
-					if (cluster.childOfCluster < oldClusters.size()) {
-						oldCluster = &oldClusters[cluster.childOfCluster];
-					} else {
-						//NSLog(@"Cluster ID mismatch");
-						continue;
-					}
-					ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster->clusterParamID];
-
-					// Animate from the old cluster to the new one
-					ScreenSpaceObject animObj = cluster.layoutObj;
-					animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
-					animObj.worldLoc = oldCluster->layoutObj.worldLoc;
-					animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
-					animObj.state.progID = params.motionShaderID;
-					for (auto &geom : animObj.geometry)
-						geom.progID = params.motionShaderID;
-					ssBuild.addScreenObject(animObj);
-
-					// Hold off on adding the new one
-					ScreenSpaceObject shortObj = cluster.layoutObj;
-					shortObj.setEnableTime(curTime+params.markerAnimationTime, curTime+1e10);
-					ssBuild.addScreenObject(shortObj);
-
-				} else {
-					ssBuild.addScreenObject(cluster.layoutObj);
-				}
+				ssBuild.addScreenObject(cluster.layoutObj);
 			}
 		}
+
         ssBuild.flushChanges(changes, drawIDs);
     }
 

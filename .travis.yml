@@ -1,0 +1,5 @@
+language: swift
+osx_image: xcode10.1
+xcode_project: ios/apps/AutoTester/AutoTester.xcodeproj
+xcode_scheme: AutoTester
+xcode_destination: platform=iOS Simulator,OS=12.1,name=iPhone X

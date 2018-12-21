@@ -187,6 +187,7 @@ protected:
     void drawTeardownTextures(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int progTexBound);
     void drawSetupUniforms(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog);
     void drawBindAttrs(EAGLContext *context,WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int pointsSoFar,bool useInstancingHere);
+    void drawUnbindAttrs(OpenGLES2Program *prog);
     
     // Chunks we use for rendering
     pthread_mutex_t batchLock;
@@ -195,5 +196,8 @@ protected:
     bool chunksDirty;
     std::vector<BufferChunk> chunks;
 };
+
+/// Reference counted version of ParticleSystemDrawable
+typedef std::shared_ptr<ParticleSystemDrawable> ParticleSystemDrawableRef;
 
 }

@@ -23,6 +23,7 @@
 #import <WhirlyGlobe.h>
 #import "MaplyShader_private.h"
 #import "MaplyRenderController_private.h"
+#import "GLUtils.h"
 
 using namespace WhirlyKit;
 
@@ -106,11 +107,15 @@ using namespace WhirlyKit;
     if (!renderControl)
         return false;
     
+    CheckGLError("MaplyShader: delayedSetupWithName pre setCurrentContext");
+
     EAGLContext *oldContext = [EAGLContext currentContext];
     [renderControl useGLContext];
     _program = new OpenGLES2Program(nameStr,vertexStr,fragStr,(varyings.empty() ? NULL : &varyings));
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
+    
+    CheckGLError("MaplyShader: delayedSetupWithName setCurrentContext");
     
     if (!_program->isValid())
     {
@@ -189,11 +194,13 @@ using namespace WhirlyKit;
 {
     if (!_program)
         return false;
-    
+    CheckGLError("MaplyShader::setUniformFloatNamed: pre anything");
+
     EAGLContext *oldContext = [EAGLContext currentContext];
     [renderer useContext];
     [renderer forceDrawNextFrame];
     glUseProgram(_program->getProgram());
+    CheckGLError("MaplyShader::setUniformFloatNamed: glUseProgram");
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
     bool ret = _program->setUniform(StringIndexer::getStringID(name), val);
