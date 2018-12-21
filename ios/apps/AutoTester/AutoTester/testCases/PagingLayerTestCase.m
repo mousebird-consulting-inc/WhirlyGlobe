@@ -7,7 +7,7 @@
 //
 
 #import "PagingLayerTestCase.h"
-#import "CartoDBLightTestCase.h"
+#import "AutoTester-Swift.h"
 
 @implementation PagingLayerTestCase
 {

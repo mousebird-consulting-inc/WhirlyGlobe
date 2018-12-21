@@ -11,7 +11,7 @@
 #import "MaplyRemoteTileSource.h"
 #import "WhirlyGlobeViewController.h"
 #import "CartoDBLayer.h"
-#import "CartoDBLightTestCase.h"
+#import "AutoTester-Swift.h"
 
 @implementation CartoDBTestCase
 
