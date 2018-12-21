@@ -37,14 +37,14 @@ class MarkersTestCase: MaplyTestCase {
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
 		let baseLayer  = VectorsTestCase()
 		baseLayer.setUpWithGlobe(globeVC)
-		insertMarkers(baseLayer.compList!, theViewC: globeVC)
+		insertMarkers(baseLayer.vecList!, theViewC: globeVC)
 		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
 		let baseLayer = VectorsTestCase()
 		baseLayer.setUpWithMap(mapVC)
-		insertMarkers(baseLayer.compList!, theViewC: mapVC)
+		insertMarkers(baseLayer.vecList!, theViewC: mapVC)
 		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 

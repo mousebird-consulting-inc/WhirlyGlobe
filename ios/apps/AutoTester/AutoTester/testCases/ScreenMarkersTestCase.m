@@ -30,7 +30,7 @@
 {
     VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
     [baseView setUpWithGlobe:globeVC];
-    [self insertMarker:baseView.compList theView:(MaplyBaseViewController*)globeVC];
+    [self insertMarker:baseView.vecList theView:(MaplyBaseViewController*)globeVC];
     [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
 }
 
@@ -38,7 +38,7 @@
 {
     VectorsTestCase * baseView = [[VectorsTestCase alloc]init];
     [baseView setUpWithMap:mapVC];
-    [self insertMarker:baseView.compList theView:(MaplyBaseViewController*)mapVC];
+    [self insertMarker:baseView.vecList theView:(MaplyBaseViewController*)mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
 }
 
