@@ -89,6 +89,9 @@ public:
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff);
     
+    /// Check if this has been set up and (more importantly) hasn't been torn down
+    virtual bool isSetupInGL() { return isSetupGL; }
+    
     /// Set the time range for enable
     void setEnableTimeRange(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable) { startEnable = inStartEnable;  endEnable = inEndEnable; }
     
@@ -140,6 +143,10 @@ public:
     
     /// Set the color as an array.
     virtual void setColor(unsigned char inColor[]);
+
+    /// Used to override a color that's already been built in (by changeVector:)
+    virtual void setOverrideColor(RGBAColor inColor);
+    virtual void setOverrideColor(unsigned char inColor[]);
     
     /// Set what range we can see this drawable within.
     /// The units are in distance from the center of the globe and
@@ -332,6 +339,7 @@ public:
     // Set up the standard vertex attributes we use
     virtual void setupStandardAttributes(int numReserve=0);
     
+    bool isSetupGL;  // Is setup to draw with GL (needed by the instances)
     bool on;  // If set, draw.  If not, not
     NSTimeInterval startEnable,endEnable;
     SimpleIdentity programId;    // Program to use for rendering
@@ -358,6 +366,7 @@ public:
     std::vector<Eigen::Vector3f> points;
     std::vector<Triangle> tris;
     SimpleIdentity renderTargetID;
+    bool hasOverrideColor;  // If set, we've changed the default color
 
     bool hasMatrix;
     // If the drawable has a matrix, we'll transform by that before drawing
@@ -544,6 +553,18 @@ public:
     
 protected:
     SingleVertexAttributeSet attrs;
+};
+
+/// Change the render target (or clear it)
+class RenderTargetChangeRequest : public DrawableChangeRequest
+{
+public:
+    RenderTargetChangeRequest(SimpleIdentity drawId,SimpleIdentity );
+    
+    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    
+protected:
+    SimpleIdentity targetID;
 };
     
 }

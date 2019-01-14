@@ -135,7 +135,7 @@
             // If we're not using wide vectors, figure out the width
             desc[kMaplyVecWidth] = @(settings.lineScale * strokeWidth * settings.oldVecWidthScale);
         }
-        
+                
         desc[kMaplySelectable] = @(settings.selectable);
 
         [self resolveVisibility:styleEntry settings:settings desc:desc];
@@ -147,7 +147,7 @@
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 {
     MaplyComponentObject *baseWideObj = nil;
     MaplyComponentObject *baseRegObj = nil;
@@ -158,14 +158,14 @@
         MaplyComponentObject *compObj = nil;
         if (wideVecs[which])
         {
-            if (!baseWideObj)
+            if (!baseWideObj) {
                 baseWideObj = compObj = [viewC addWideVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
-            else
+            } else
                 compObj = [viewC instanceVectors:baseWideObj desc:desc mode:MaplyThreadCurrent];
         } else {
-            if (!baseRegObj)
+            if (!baseRegObj) {
                 baseRegObj = compObj = [viewC addVectors:vecObjs desc:desc mode:MaplyThreadCurrent];
-            else
+            } else
                 compObj = [viewC instanceVectors:baseRegObj desc:desc mode:MaplyThreadCurrent];
         }
 

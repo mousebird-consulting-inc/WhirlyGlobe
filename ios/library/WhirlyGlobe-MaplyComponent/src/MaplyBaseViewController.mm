@@ -24,11 +24,10 @@
 #import "MaplyTexture_private.h"
 #import "MaplyAnnotation_private.h"
 #import "NSDictionary+StyleRules.h"
-#import "DDXMLElementAdditions.h"
-#import "NSString+DDXML.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
-#import "MaplyTileFetcher_private.h"
+#import "MaplyRenderTarget_private.h"
+#import <sys/utsname.h>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -39,13 +38,29 @@ using namespace WhirlyKit;
 // Target for screen snapshot
 @interface SnapshotTarget : NSObject<WhirlyKitSnapshot>
 @property (nonatomic) UIImage *image;
+@property (nonatomic) NSData *data;
+@property (nonatomic) SimpleIdentity renderTargetID;
 @end
 
 @implementation SnapshotTarget
 
-- (void)snapshot:(UIImage *)image
+- (instancetype)init
 {
-    _image = image;
+    self = [super init];
+    
+    _image = nil;
+    _data = nil;
+    _renderTargetID = EmptyIdentity;
+    
+    return self;
+}
+
+- (void)snapshotData:(NSData *)snapshotData {
+    _data = snapshotData;
+}
+
+- (void)snapshotImage:(UIImage *)snapshotImage {
+    _image = snapshotImage;
 }
 
 @end
@@ -169,13 +184,84 @@ using namespace WhirlyKit;
     return renderControl.screenObjectDrawPriorityOffset;
 }
 
+// Kick off the analytics logic.  First we need the server name.
+- (void)startAnalytics
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    // This is completely random.  We can't track it in any useful way
+    NSString *userID = [userDefaults stringForKey:@"wgmaplyanalyticuser"];
+    NSTimeInterval lastSent = 0.0;
+    if (!userID) {
+        userID = [[NSUUID UUID] UUIDString];
+        [userDefaults setObject:userID forKey:@"wgmaplyanalyticuser"];
+    } else {
+        lastSent = [userDefaults doubleForKey:@"wgmaplyanalytictime"];
+    }
+    
+    // Sent once a month at most
+    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    if (now - lastSent < 30*24*60*60.0)
+        return;
+
+    [self sendAnalytics:@"analytics.mousebirdconsulting.com:8081"];
+}
+
+// Send the actual analytics data
+// There's nothing unique in here to identify the user
+// The user ID is completely made up and we don't get it more than once per week
+- (void)sendAnalytics:(NSString *)serverName
+{
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString *userID = [userDefaults stringForKey:@"wgmaplyanalyticuser"];
+
+    // Model number
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    NSString *model = [NSString stringWithCString:systemInfo.machine encoding:NSUTF8StringEncoding];
+    NSDictionary *infoDict = [NSBundle mainBundle].infoDictionary;
+    // Bundle ID, version and build
+    NSString *bundleID = infoDict[@"CFBundleIdentifier"];
+    NSString *bundleName = infoDict[@"CFBundleName"];
+    NSString *build = infoDict[@"CFBundleVersion"];
+    NSString *bundleVersion = infoDict[@"CFBundleShortVersionString"];
+    // WGMaply version
+    NSString *wgmaplyVersion = @"2.6.0";
+    // OS version
+    NSOperatingSystemVersion osversionID = [[NSProcessInfo processInfo] operatingSystemVersion];
+    NSString *osversion = [NSString stringWithFormat:@"%d.%d.%d",(int)osversionID.majorVersion,(int)osversionID.minorVersion,(int) osversionID.patchVersion];
+
+    // We're not recording anything that can identify the user, just the app
+    // create table register( userid VARCHAR(50), bundleid VARCHAR(100), bundlename VARCHAR(100), bundlebuild VARCHAR(100), bundleversion VARCHAR(100), osversion VARCHAR(20), model VARCHAR(100), wgmaplyversion VARCHAR(20));
+    NSString *postArgs = [NSString stringWithFormat:@"{ \"userid\":\"%@\", \"bundleid\":\"%@\", \"bundlename\":\"%@\", \"bundlebuild\":\"%@\", \"bundleversion\":\"%@\", \"osversion\":\"%@\", \"model\":\"%@\", \"wgmaplyversion\":\"%@\" }",
+                          userID,bundleID,bundleName,build,bundleVersion,osversion,model,wgmaplyVersion];
+    NSMutableURLRequest *req = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://%@/register", serverName]]];
+    [req setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [req setHTTPMethod:@"POST"];
+    [req setHTTPBody:[postArgs dataUsingEncoding:NSASCIIStringEncoding]];
+    
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:req completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+        NSHTTPURLResponse *resp = (NSHTTPURLResponse *)response;
+        if (resp.statusCode == 200) {
+            [userDefaults setDouble:now forKey:@"wgmaplyanalytictime"];
+        }
+    }];
+    [dataTask resume];
+}
+
 // Create the Maply or Globe view.
 // For specific parts we'll call our subclasses
 - (void) loadSetup
 {
+#if !TARGET_OS_SIMULATOR
+    [self startAnalytics];
+#endif
+    
     if (!renderControl)
         renderControl = [[MaplyRenderController alloc] init];
     
+    tileFetcherConnections = 16;
     allowRepositionForAnnnotations = true;
     
     userLayers = [NSMutableArray array];
@@ -382,8 +468,8 @@ static const float PerfOutputDelay = 15.0;
     
     renderControl->scene->dumpStats();
     [renderControl->interactLayer dumpStats];
-    for (MaplyTileFetcher *tileFetcher : tileFetchers) {
-        MaplyTileFetcherStats *stats = [tileFetcher getStats:false];
+    for (MaplyRemoteTileFetcher *tileFetcher : tileFetchers) {
+        MaplyRemoteTileFetcherStats *stats = [tileFetcher getStats:false];
         [stats dump];
         [tileFetcher resetStats];
     }
@@ -431,6 +517,11 @@ static const float PerfOutputDelay = 15.0;
 - (MaplyShader *)getShaderByName:(NSString *)name
 {
     return [renderControl getShaderByName:name];
+}
+
+- (void)removeShaderProgram:(MaplyShader *__nonnull)shader
+{
+    [renderControl removeShaderProgram:shader];
 }
 
 #pragma mark - Defaults and descriptions
@@ -600,6 +691,21 @@ static const float PerfOutputDelay = 15.0;
     [renderControl endOfWork];
     
     return compObj;
+}
+
+- (void)changeParticleSystem:(MaplyComponentObject *__nonnull)compObj renderTarget:(MaplyRenderTarget *__nullable)target
+{
+    if ([NSThread currentThread] != [NSThread mainThread]) {
+        NSLog(@"MaplyBaseViewController: changeParticleSystem:renderTarget: must be called on main thread");
+        return;
+    }
+    
+    if (![renderControl startOfWork])
+        return;
+    
+    [renderControl->interactLayer changeParticleSystem:compObj renderTarget:target];
+
+    [renderControl endOfWork];
 }
 
 - (void)addParticleBatch:(MaplyParticleBatch *)batch mode:(MaplyThreadMode)threadMode
@@ -1069,6 +1175,13 @@ static const float PerfOutputDelay = 15.0;
     if (!theObjs)
         return;
 
+    // All objects must be MaplyComponentObject.  Yes, this happens.
+    for (id obj in theObjs)
+        if (![obj isKindOfClass:[MaplyComponentObject class]]) {
+            NSLog(@"User passed an invalid objects into removeOjbects:mode:  All objects must be MaplyComponentObject.  Ignoring.");
+            return;
+        }
+
     if (!renderControl || ![renderControl startOfWork])
         return;
     
@@ -1214,7 +1327,7 @@ static const float PerfOutputDelay = 15.0;
     return false;
 }
 
-- (void)removeLayer:(MaplyViewControllerLayer *)layer
+- (void)removeLayer:(MaplyViewControllerLayer *)layer wait:(bool)wait
 {
     if (!renderControl)
         return;
@@ -1245,15 +1358,22 @@ static const float PerfOutputDelay = 15.0;
             [layerThread addThingToRelease:theLayer];
             [layerThread cancel];
 
-            // We also have to make sure it actually does finish
-            bool finished = true;
-            do {
-                finished = [layerThread isFinished];
-                if (!finished)
-                    [NSThread sleepForTimeInterval:0.0001];
-            } while (!finished);
+            if (wait) {
+                // We also have to make sure it actually does finish
+                bool finished = true;
+                do {
+                    finished = [layerThread isFinished];
+                    if (!finished)
+                        [NSThread sleepForTimeInterval:0.0001];
+                } while (!finished);
+            }
         }
     }
+}
+
+- (void)removeLayer:(MaplyViewControllerLayer *)layer
+{
+    [self removeLayer:layer wait:false];
 }
 
 - (void)removeLayers:(NSArray *)layers
@@ -1322,24 +1442,26 @@ static const float PerfOutputDelay = 15.0;
     [layer removeBuilderDelegate:userObj];
     
     if (layer.numClients == 0) {
-        [self removeLayer:layer];
-        samplingLayers.erase(std::find(samplingLayers.begin(),samplingLayers.end(),layer));
+        [self removeLayer:layer wait:false];
+        auto it = std::find(samplingLayers.begin(),samplingLayers.end(),layer);
+        if (it != samplingLayers.end())
+            samplingLayers.erase(it);
     }
 }
 
-- (MaplyTileFetcher *)addTileFetcher:(NSString *)name
+- (MaplyRemoteTileFetcher *)addTileFetcher:(NSString *)name
 {
     for (auto tileFetcher : tileFetchers)
         if ([tileFetcher.name isEqualToString:name])
             return tileFetcher;
     
-    MaplyTileFetcher *tileFetcher = [[MaplyTileFetcher alloc] initWithName:name connections:16];
+    MaplyRemoteTileFetcher *tileFetcher = [[MaplyRemoteTileFetcher alloc] initWithName:name connections:tileFetcherConnections];
     tileFetchers.push_back(tileFetcher);
     
     return tileFetcher;
 }
 
-- (MaplyTileFetcher *)getTileFetcher:(NSString *)name
+- (MaplyRemoteTileFetcher *)getTileFetcher:(NSString *)name
 {
     for (auto tileFetcher : tileFetchers)
         if ([tileFetcher.name isEqualToString:name])
@@ -1422,6 +1544,21 @@ static const float PerfOutputDelay = 15.0;
     [renderControl->sceneRenderer render:0.0];
     
     return target.image;
+}
+
+- (NSData *)shapshotRenderTarget:(MaplyRenderTarget *)renderTarget
+{
+    if ([NSThread currentThread] != [NSThread mainThread])
+        return NULL;
+
+    SnapshotTarget *target = [[SnapshotTarget alloc] init];
+    target.renderTargetID = renderTarget.renderTargetID;
+    renderControl->sceneRenderer.snapshotDelegate = target;
+    
+    [renderControl->sceneRenderer forceDrawNextFrame];
+    [renderControl->sceneRenderer render:0.0];
+    
+    return target.data;
 }
 
 - (float)currentMapZoom:(MaplyCoordinate)coordinate

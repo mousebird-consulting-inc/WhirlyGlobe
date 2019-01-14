@@ -135,6 +135,19 @@ These are the per vertex attributes provided to each vertex shader.
  */
 - (nullable instancetype)initWithName:(NSString *__nonnull)name vertex:(NSString *__nonnull)vertexProg fragment:(NSString *__nonnull)fragProg viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)baseViewC;
 
+/**
+    Minimal initialized used in conjuction with delayed setup.
+  */
+- (instancetype __nonnull)initWithViewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC;
+
+/**
+    Delayed construction of the shader.
+ 
+    Instead of calling the full init methods you can do a simple init and then call this delayed setup.
+    This is useful if you need to set up one or more varyings, which have to be done at link time.
+  */
+- (bool)delayedSetupWithName:(NSString * __nonnull)name vertex:(NSString * __nonnull)vertexProg fragment:(NSString * __nonnull)fragProg;
+
 /** 
     Name of the shader program.
     
@@ -174,6 +187,14 @@ These are the per vertex attributes provided to each vertex shader.
  |kMaplyTexAtlas|NSNumber boolean|If set, the texture goes into an appropriate atlas.  If not set, it's a standalone texture (default).|
  */
 - (void)addTextureNamed:(NSString *__nonnull)shaderAttrName image:(UIImage *__nonnull)image desc:(NSDictionary * _Nullable)desc;
+
+/**
+    Add a varying for transform feedback.
+ 
+    Using transform feedback we can pull one or more varying values out of a shader
+    and feed them into another one.  These have to designated up front.
+  */
+- (void)addVarying:(NSString *__nonnull)varyName;
 
 /** 
     Set a float uniform in the shader with the given name.

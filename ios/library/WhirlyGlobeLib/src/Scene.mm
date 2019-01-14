@@ -463,6 +463,11 @@ OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
 
 void Scene::addProgram(OpenGLES2Program *prog)
 {
+    if (!prog) {
+        NSLog(@"Tried to add NULL program to scene.  Ignoring.");
+        return;
+    }
+
     pthread_mutex_lock(&programLock);
     
     if (glPrograms.find(prog) == glPrograms.end())
@@ -470,7 +475,7 @@ void Scene::addProgram(OpenGLES2Program *prog)
     
     pthread_mutex_unlock(&programLock);
 }
-    
+
 void Scene::removeProgram(SimpleIdentity progId)
 {
     pthread_mutex_lock(&programLock);
@@ -478,8 +483,12 @@ void Scene::removeProgram(SimpleIdentity progId)
     OpenGLES2Program *prog = NULL;
     OpenGLES2Program dummy(progId);
     OpenGLES2ProgramSet::iterator it = glPrograms.find(&dummy);
-    if (it != glPrograms.end())
+    if (it != glPrograms.end()) {
         prog = *it;
+        glPrograms.erase(it);
+        
+        prog->cleanUp();
+    }
         
     pthread_mutex_unlock(&programLock);
 }

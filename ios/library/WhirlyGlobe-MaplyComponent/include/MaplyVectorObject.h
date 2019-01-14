@@ -402,6 +402,21 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
   */
 - (MaplyVectorObject * _Nonnull )linearsToAreals;
 
+/**
+    Convert any areal features into outlines.
+  */
+- (MaplyVectorObject * __nonnull)arealsToLinears;
+
+/**
+    Filter out edges created from clipping areal features on the server.
+ 
+    In some very specific cases (OSM water) we get polygons that are obviously clipped
+    along internal boundaries.  We can clear this up with some very, very specific logic.
+ 
+    Input must be closed areals and output is linears.
+  */
+- (MaplyVectorObject *__nonnull)filterClippedEdges;
+
 /** 
     Convert a feature to an NSArray of NSArrays of CLLocation points.
     

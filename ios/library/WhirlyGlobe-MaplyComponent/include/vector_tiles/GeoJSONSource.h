@@ -6,8 +6,8 @@
 //  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import "MaplyComponent.h"
+#import <UIKit/UIKit.h>
+#import "MaplyBaseViewController.h"
 
 #define GEOJSON_MAX_POINTS 4096
 
@@ -15,7 +15,7 @@
 
 - (id _Nullable)initWithViewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)baseVC GeoJSONURL:(NSURL * _Nonnull)geoJSONURL sldURL:(NSURL * _Nonnull)sldURL relativeDrawPriority:(int)relativeDrawPriority ;
 
-- (void)startParseWithCompletion:(nonnull void (^)()) completionBlock;
+- (void)startParseWithCompletion:(nonnull void (^)(void)) completionBlock;
 
 - (void)startParse;
 

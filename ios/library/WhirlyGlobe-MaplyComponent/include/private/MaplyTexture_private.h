@@ -42,6 +42,9 @@
 // If set, the texture ID associated with this texture
 @property (nonatomic) WhirlyKit::SimpleIdentity texID;
 
+// Set while we're waiting for the texture to go away
+@property (nonatomic) bool isBeingRemoved;
+
 // Clear out the texture we're holding
 - (void)clear;
 

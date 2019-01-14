@@ -186,18 +186,6 @@ bool LayoutManager::hasChanges()
     
     return ret;
 }
-    
-// Sort more important things to the front
-typedef struct
-{
-    bool operator () (const LayoutObjectEntry *a,const LayoutObjectEntry *b) const
-    {
-        if (a->obj.importance == b->obj.importance)
-            return a > b;
-        return a->obj.importance > b->obj.importance;
-    }
-} LayoutEntrySorter;
-typedef std::set<LayoutObjectEntry *,LayoutEntrySorter> LayoutSortingSet;
 
 // Return the screen space objects in a form the selection manager can understand
 void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs)
@@ -336,6 +324,28 @@ Matrix2d LayoutManager::calcScreenRot(float &screenRot,WhirlyKitViewState *viewS
     return screenRotMat;
 }
 
+// Used for sorting layout objects
+class LayoutObjectContainer
+{
+public:
+    LayoutObjectContainer() { }
+    LayoutObjectContainer(LayoutObjectEntry *entry) {
+        objs.push_back(entry);
+    }
+    
+    // Objects that share the same unique ID
+    std::vector<LayoutObjectEntry *> objs;
+    
+    bool operator < (const LayoutObjectContainer &that) const {
+        if (objs.empty())  // Never happen
+            return false;
+        return objs[0]->obj.importance > that.objs[0]->obj.importance;
+    }
+};
+typedef std::vector<LayoutObjectContainer> LayoutContainerVec;
+    
+typedef std::map<std::string,LayoutObjectContainer> UniqueLayoutObjectMap;
+
 // Do the actual layout logic.  We'll modify the offset and on value in place.
 bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams)
 {
@@ -345,7 +355,9 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
     bool hadChanges = false;
     
     ClusteredObjectsSet clusterObjs;
-    LayoutSortingSet layoutObjs;
+    LayoutContainerVec layoutObjs;
+    // Special snowflake layout objects (with unique names)
+    UniqueLayoutObjectMap uniqueLayoutObjs;
     
     // The globe has some special requirements
     WhirlyGlobeViewState *globeViewState = nil;
@@ -413,7 +425,17 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
                         obj->newCluster = -1;
                     } else {
                         // Not a cluster
-                        layoutObjs.insert(layoutObj);
+                        if (layoutObj->obj.uniqueID.empty())
+                            layoutObjs.push_back(LayoutObjectContainer(layoutObj));
+                        else {
+                            // Add it to a container for its unique name
+                            auto it = uniqueLayoutObjs.find(layoutObj->obj.uniqueID);
+                            LayoutObjectContainer dest;
+                            if (it != uniqueLayoutObjs.end())
+                                dest = it->second;
+                            dest.objs.push_back(layoutObj);
+                            uniqueLayoutObjs[layoutObj->obj.uniqueID] = dest;
+                        }
                     }
                 } else {
                     obj->newEnable = false;
@@ -500,7 +522,7 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
             for (auto obj : clusterHelper.simpleObjects)
                 if (obj.parentObject < 0)
                 {
-                    layoutObjs.insert(obj.objEntry);
+                    layoutObjs.push_back(LayoutObjectContainer(obj.objEntry));
                     obj.objEntry->newEnable = true;
                     obj.objEntry->newCluster = -1;
                 }
@@ -575,12 +597,16 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
     // Set up the overlap sampler
     OverlapHelper overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
     
+    // Add in the unique objects and then sort them all
+    for (auto it : uniqueLayoutObjs) {
+        layoutObjs.push_back(it.second);
+    }
+    std::sort(layoutObjs.begin(),layoutObjs.end());
+    
     // Lay out the various objects that are active
     int numSoFar = 0;
-    for (LayoutSortingSet::iterator it = layoutObjs.begin();
-         it != layoutObjs.end(); ++it)
+    for (auto container : layoutObjs)
     {
-        LayoutObjectEntry *layoutObj = *it;
         bool isActive;
         Point2d objOffset(0.0,0.0);
         std::vector<Point2d> objPts(4);
@@ -590,124 +616,139 @@ bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<Clu
         if (maxDisplayObjects != 0 && (numSoFar >= maxDisplayObjects))
             isActive = false;
         
-        // Figure out the rotation situation
-        float screenRot = 0.0;
-        Matrix2d screenRotMat;
-        if (isActive)
-        {
-            CGPoint objPt;
-            bool isInside = calcScreenPt(objPt,layoutObj,viewState,screenMbr,frameBufferSize);
+        // Sort the objects by importance within their container
+        std::sort(container.objs.begin(),container.objs.end(),
+                  [](const LayoutObjectEntry *a,LayoutObjectEntry *b) -> bool
+                  {
+                      return a->obj.importance > b->obj.importance;
+                  });
+
+        // Some of these may share unique IDs
+        bool pickedOne = false;
+        for (auto layoutObj : container.objs) {
+            // Figure out the rotation situation
+            float screenRot = 0.0;
+            Matrix2d screenRotMat;
+            if (pickedOne)
+                isActive = false;
             
-            isActive &= isInside;
-            
-            // Deal with the rotation
-            if (layoutObj->obj.rotation != 0.0)
-                screenRotMat = calcScreenRot(screenRot,viewState,globeViewState,&layoutObj->obj,objPt,modelTrans,normalMat,frameBufferSize);
-            
-            // Now for the overlap checks
             if (isActive)
             {
-                // Try the four different orientations
-                if (!layoutObj->obj.layoutPts.empty())
+                CGPoint objPt;
+                bool isInside = calcScreenPt(objPt,layoutObj,viewState,screenMbr,frameBufferSize);
+                
+                isActive &= isInside;
+                
+                // Deal with the rotation
+                if (layoutObj->obj.rotation != 0.0)
+                    screenRotMat = calcScreenRot(screenRot,viewState,globeViewState,&layoutObj->obj,objPt,modelTrans,normalMat,frameBufferSize);
+                
+                // Now for the overlap checks
+                if (isActive)
                 {
-                    bool validOrient = false;
-                    for (unsigned int orient=0;orient<6;orient++)
+                    // Try the four different orientations
+                    if (!layoutObj->obj.layoutPts.empty())
                     {
-                        // May only want to be placed certain ways.  Fair enough.
-                        if (!(layoutObj->obj.acceptablePlacement & (1<<orient)))
-                            continue;
-                        const std::vector<Point2d> &layoutPts = layoutObj->obj.layoutPts;
-                        Mbr layoutMbr;
-                        for (unsigned int li=0;li<layoutPts.size();li++)
-                            layoutMbr.addPoint(layoutPts[li]);
-                        Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
-                        Point2d layoutOrg(layoutMbr.ll().x(),layoutMbr.ll().y());
-                        
-                        // Set up the offset for this orientation
-                        switch (orient)
+                        bool validOrient = false;
+                        for (unsigned int orient=0;orient<6;orient++)
                         {
-                            // Don't move at all
-                            case 0:
-                                objOffset = Point2d(0,0);
-                                break;
-                            // Center
-                            case 1:
-                                objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y()/2.0);
-                                break;
-                            // Right
-                            case 2:
-                                objOffset = Point2d(0.0,layoutSpan.y()/2.0);
-                                break;
-                            // Left
-                            case 3:
-                                objOffset = Point2d(-(layoutSpan.x()),layoutSpan.y()/2.0);
-                                break;
-                            // Above
-                            case 4:
-                                objOffset = Point2d(-layoutSpan.x()/2.0,0);
-                                break;
-                            // Below
-                            case 5:
-                                objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y());
-                                break;
-                        }
-                        
-                        // Rotate the rectangle
-                        if (screenRot == 0.0) 
-                        {
-                            objPts[0] = Point2d(objPt.x,objPt.y) + (objOffset + layoutOrg)*resScale;
-                            objPts[1] = objPts[0] + Point2d(layoutSpan.x()*resScale,0.0);
-                            objPts[2] = objPts[0] + Point2d(layoutSpan.x()*resScale,layoutSpan.y()*resScale);
-                            objPts[3] = objPts[0] + Point2d(0.0,layoutSpan.y()*resScale);
-                        } else {
-                            Point2d center(objPt.x,objPt.y);
-                            objPts[0] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg;
-                            objPts[1] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),0.0);
-                            objPts[2] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),layoutSpan.y());
-                            objPts[3] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(0.0,layoutSpan.y());
-                            for (unsigned int oi=0;oi<4;oi++)
+                            // May only want to be placed certain ways.  Fair enough.
+                            if (!(layoutObj->obj.acceptablePlacement & (1<<orient)))
+                                continue;
+                            const std::vector<Point2d> &layoutPts = layoutObj->obj.layoutPts;
+                            Mbr layoutMbr;
+                            for (unsigned int li=0;li<layoutPts.size();li++)
+                                layoutMbr.addPoint(layoutPts[li]);
+                            Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
+                            Point2d layoutOrg(layoutMbr.ll().x(),layoutMbr.ll().y());
+                            
+                            // Set up the offset for this orientation
+                            switch (orient)
                             {
-                                Point2d &thisObjPt = objPts[oi];
-                                Point2d offPt = screenRotMat * Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale);
-                                thisObjPt = Point2d(offPt.x(),-offPt.y()) + center;
+                                // Don't move at all
+                                case 0:
+                                    objOffset = Point2d(0,0);
+                                    break;
+                                // Center
+                                case 1:
+                                    objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y()/2.0);
+                                    break;
+                                // Right
+                                case 2:
+                                    objOffset = Point2d(0.0,layoutSpan.y()/2.0);
+                                    break;
+                                // Left
+                                case 3:
+                                    objOffset = Point2d(-(layoutSpan.x()),layoutSpan.y()/2.0);
+                                    break;
+                                // Above
+                                case 4:
+                                    objOffset = Point2d(-layoutSpan.x()/2.0,0);
+                                    break;
+                                // Below
+                                case 5:
+                                    objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y());
+                                    break;
                             }
-                        }
-                        
+                            
+                            // Rotate the rectangle
+                            if (screenRot == 0.0)
+                            {
+                                objPts[0] = Point2d(objPt.x,objPt.y) + (objOffset + layoutOrg)*resScale;
+                                objPts[1] = objPts[0] + Point2d(layoutSpan.x()*resScale,0.0);
+                                objPts[2] = objPts[0] + Point2d(layoutSpan.x()*resScale,layoutSpan.y()*resScale);
+                                objPts[3] = objPts[0] + Point2d(0.0,layoutSpan.y()*resScale);
+                            } else {
+                                Point2d center(objPt.x,objPt.y);
+                                objPts[0] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg;
+                                objPts[1] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),0.0);
+                                objPts[2] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),layoutSpan.y());
+                                objPts[3] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(0.0,layoutSpan.y());
+                                for (unsigned int oi=0;oi<4;oi++)
+                                {
+                                    Point2d &thisObjPt = objPts[oi];
+                                    Point2d offPt = screenRotMat * Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale);
+                                    thisObjPt = Point2d(offPt.x(),-offPt.y()) + center;
+                                }
+                            }
+                            
 //                        NSLog(@"Center pt = (%f,%f), orient = %d",objPt.x,objPt.y,orient);
 //                        NSLog(@"Layout Pts");
 //                        for (unsigned int xx=0;xx<objPts.size();xx++)
 //                           NSLog(@"  (%f,%f)\n",objPts[xx].x(),objPts[xx].y());
-                        
-                        // Now try it
-                        if (overlapMan.addObject(objPts))
-                        {
-                            validOrient = true;
-                            break;
+                            
+                            // Now try it
+                            if (overlapMan.addObject(objPts))
+                            {
+                                validOrient = true;
+                                pickedOne = true;
+                                break;
+                            }
                         }
+                        
+                        isActive = validOrient;
                     }
-                    
-                    isActive = validOrient;
                 }
-            }
 
 //            NSLog(@" Valid (%s): %@, pos = (%f,%f), size = (%f, %f), offset = (%f,%f)",(isActive ? "yes" : "no"),layoutObj->obj.hint,objPt.x,objPt.y,layoutObj->obj.size.x(),layoutObj->obj.size.y(),
 //                  layoutObj->offset.x(),layoutObj->offset.y());
+            }
+            
+            if (isActive)
+                numSoFar++;
+            
+            // See if we've changed any of the state
+            layoutObj->changed = (layoutObj->currentEnable != isActive);
+            if (!layoutObj->changed && (layoutObj->newEnable ||
+                (layoutObj->offset.x() != objOffset.x() || layoutObj->offset.y() != -objOffset.y())))
+            {
+                layoutObj->changed = true;
+            }
+            hadChanges |= layoutObj->changed;
+            layoutObj->newEnable = isActive;
+            layoutObj->newCluster = -1;
+            layoutObj->offset = Point2d(objOffset.x(),-objOffset.y());
         }
-        
-        if (isActive)
-            numSoFar++;
-        
-        // See if we've changed any of the state
-        layoutObj->changed = (layoutObj->currentEnable != isActive);
-        if (!layoutObj->changed && (layoutObj->newEnable ||
-            (layoutObj->offset.x() != objOffset.x() || layoutObj->offset.y() != -objOffset.y())))
-        {
-            layoutObj->changed = true;
-        }
-        hadChanges |= layoutObj->changed;
-        layoutObj->newEnable = isActive;
-        layoutObj->newCluster = -1;
-        layoutObj->offset = Point2d(objOffset.x(),-objOffset.y());
     }
     
 //    NSLog(@"----Finished layout----");

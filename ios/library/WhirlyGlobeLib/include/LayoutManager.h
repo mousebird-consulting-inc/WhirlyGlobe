@@ -68,6 +68,9 @@ public:
     // Size to use for selection
     std::vector<Point2d> selectPts;
 
+    
+    std::string uniqueID;
+    
     /// This is used to sort objects for layout.  Bigger is more important.
     float importance;
     /// If set, this is clustering group to sort into
@@ -154,6 +157,18 @@ public:
     // Pointer into cluster parameters
     int clusterParamID;
 };
+    
+// Sort more important things to the front
+typedef struct
+{
+    bool operator () (const LayoutObjectEntry *a,const LayoutObjectEntry *b) const
+    {
+        if (a->obj.importance == b->obj.importance)
+            return a > b;
+        return a->obj.importance > b->obj.importance;
+    }
+} LayoutEntrySorter;
+typedef std::set<LayoutObjectEntry *,LayoutEntrySorter> LayoutSortingSet;
 
 /** The layout manager handles 2D text and marker layout.  We feed it objects
     we want to be drawn and it will figure out which ones should be visible

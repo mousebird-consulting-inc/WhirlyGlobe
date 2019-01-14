@@ -99,7 +99,7 @@ using namespace WhirlyKit;
     [_delegate setQuadBuilder:self layer:layer];
 }
 
-- (WhirlyKit::QuadTreeNew::NodeSet)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles
+- (WhirlyKit::QuadTreeNew::NodeSet)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles targetLevel:(int)targetLevel
 {
     ChangeSet changes;
     
@@ -109,7 +109,7 @@ using namespace WhirlyKit;
 
     QuadTreeNew::NodeSet toKeep;
     if (!unloadTiles.empty()) {
-        toKeep = [_delegate quadBuilder:self loadTiles:loadTiles unloadTilesToCheck:unloadTiles];
+        toKeep = [_delegate quadBuilder:self loadTiles:loadTiles unloadTilesToCheck:unloadTiles targetLevel:targetLevel];
         // Remove the keep nodes and add them to update with very little importance
         for (const QuadTreeNew::Node &node: toKeep) {
             info.unloadTiles.erase(node);
@@ -121,6 +121,7 @@ using namespace WhirlyKit;
     auto tileChanges = geomManage.addRemoveTiles(loadTiles,info.unloadTiles,changes);
 
     // Tell the delegate what we're up to
+    info.targetLevel = targetLevel;
     info.loadTiles = tileChanges.addedTiles;
     info.enableTiles = tileChanges.enabledTiles;
     info.disableTiles = tileChanges.disabledTiles;
@@ -148,7 +149,11 @@ using namespace WhirlyKit;
             NSLog(@"  %d: (%d,%d)",tile.level,tile.x,tile.y);
         NSLog(@"----- ------------- ------");
     }
-    
+
+    // We need the layer flush to run if we're holding on to nodes
+    if (!toKeep.empty() && changes.empty())
+        changes.push_back(NULL);
+
     // Flush out any visual changes
     [layer.layerThread addChangeRequests:changes];
     
@@ -159,6 +164,21 @@ using namespace WhirlyKit;
 {
     [_delegate quadBuilderPreSceneFlush:self];
 }
+
+- (void)quadDisplayLayerShutdown:(WhirlyKitQuadDisplayLayerNew * _Nonnull)layer
+{
+    ChangeSet changes;
+    
+    geomManage.cleanup(changes);
+    [_delegate quadBuilderShutdown:self];
+
+    [layer.layerThread addChangeRequests:changes];
+    
+    layer = nil;
+    _coordSys = nil;
+    _delegate = nil;
+}
+
 
 - (TileBuilderDelegateInfo)getLoadingState
 {

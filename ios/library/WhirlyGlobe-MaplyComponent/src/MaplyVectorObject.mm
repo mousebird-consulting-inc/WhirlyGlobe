@@ -1467,6 +1467,92 @@ public:
     return newVec;
 }
 
+- (MaplyVectorObject *)arealsToLinears
+{
+    MaplyVectorObject *newVec = [[MaplyVectorObject alloc] init];
+    
+    for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
+    {
+        VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+        if (ar)
+        {
+            for (auto loop : ar->loops) {
+                VectorLinearRef newLn = VectorLinear::createLinear();
+                newLn->setAttrDict(ar->getAttrDict());
+                newLn->pts = loop;
+                newVec->_shapes.insert(newLn);
+            }
+        } else {
+            VectorLinearRef ln = std::dynamic_pointer_cast<VectorLinear>(*it);
+            if (ln)
+            {
+                newVec->_shapes.insert(ln);
+            }
+        }
+    }
+    
+    return newVec;
+}
+
+- (MaplyVectorObject *__nonnull)filterClippedEdges
+{
+    MaplyVectorObject *newVec = [[MaplyVectorObject alloc] init];
+    
+    for (ShapeSet::iterator it = _shapes.begin();it!=_shapes.end();it++)
+    {
+        VectorArealRef ar = std::dynamic_pointer_cast<VectorAreal>(*it);
+        if (ar)
+        {
+            for (auto loop : ar->loops) {
+                if (loop.empty())
+                    continue;
+                
+                // Compare segments against the bounding box
+                Mbr mbr;
+                mbr.addPoints(loop);
+                
+                int which = 0;
+                while (which < loop.size()) {
+                    VectorRing pts;
+                    while (which < loop.size()) {
+                        auto p0 = loop[which];
+                        auto p1 = loop[(which+1)%loop.size()];
+                        
+                        which++;
+                        if (p0 == p1)
+                            continue;
+                        
+                        if ((p0.x() == p1.x() && (p0.x() == mbr.ll().x() || p0.x() == mbr.ur().x())) ||
+                            (p0.y() == p1.y() && (p0.y() == mbr.ll().y() || p0.y() == mbr.ur().y()))) {
+                            break;
+                        } else {
+                            if (pts.empty() || pts.back() != p0)
+                                pts.push_back(p0);
+                            if (pts.empty() || pts.back() != p1)
+                                pts.push_back(p1);
+                        }
+                    }
+                    
+                    if (!pts.empty()) {
+                        VectorLinearRef newLn = VectorLinear::createLinear();
+                        newLn->setAttrDict(ar->getAttrDict());
+                        newLn->pts = pts;
+                        newVec->_shapes.insert(newLn);
+                    }
+                }
+            }
+        } else {
+            VectorLinearRef ln = std::dynamic_pointer_cast<VectorLinear>(*it);
+            if (ln)
+            {
+                newVec->_shapes.insert(ln);
+            }
+        }
+    }
+    
+    return newVec;
+}
+
 - (MaplyVectorObject *) tesselate
 {
     MaplyVectorObject *newVec = [[MaplyVectorObject alloc] init];

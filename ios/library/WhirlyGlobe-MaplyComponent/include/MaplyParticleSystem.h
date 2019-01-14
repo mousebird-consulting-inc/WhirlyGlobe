@@ -51,12 +51,21 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
   */
 @property (nonatomic,assign) MaplyParticleSystemType type;
 
-/** 
-    Name of the shader to use for the particles.
-    
-    This should be a shader already registered with the toolkit.
+/**
+    Position shader for two stage particles.
+ 
+    If there is a position shader then it is run first and particle data is then
+    shared between this shader and the regular shader.
   */
-@property (nonatomic,strong) NSString * __nullable shader;
+@property (nonatomic,strong) MaplyShader * __nullable positionShader;
+
+/**
+    Shader to use for rendering particles.
+ 
+    This can either be a single stage shader or it can be part of a two stage shader with
+    the positionShader.
+  */
+@property (nonatomic,strong) MaplyShader * __nullable renderShader;
 
 /** 
     Individual particle lifetime.
@@ -106,6 +115,15 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
     Adds an attribute name and type which will be present in each batch.
   */
 - (void)addAttribute:(NSString *__nonnull)attrName type:(MaplyShaderAttrType)type;
+
+/**
+    For two stage shaders, these are the varying outputs from one shader to the next.
+ 
+    Two stage shaders run a position shader and then a regular render shader
+    from the position output.  Add any varying values you want to share per
+    vertex from the former to the latter.
+  */
+- (void)addVarying:(NSString *__nonnull)varyAttrName inputName:(NSString *__nonnull)inputName type:(MaplyShaderAttrType)type;
 
 /** 
     Add a texture to the particle system.

@@ -229,6 +229,7 @@ using namespace WhirlyGlobe;
     // These will activate the appropriate gesture
     self.panGesture = true;
     self.pinchGesture = true;
+    self.zoomAroundPinch = true;
     self.rotateGesture = true;
     self.tiltGesture = false;
 
@@ -357,6 +358,12 @@ using namespace WhirlyGlobe;
     pinchDelegate.allowPan = enabled;
 }
 
+- (void)setZoomAroundPinch:(bool)zoomAroundPinch {
+    _zoomAroundPinch = zoomAroundPinch;
+    if (pinchDelegate) {
+        pinchDelegate.zoomAroundPinch = self.zoomAroundPinch;
+    }
+}
 
 - (void)setPinchGesture:(bool)pinchGesture
 {
@@ -365,7 +372,7 @@ using namespace WhirlyGlobe;
         if (!pinchDelegate)
         {
             pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:globeView];
-            pinchDelegate.zoomAroundPinch = true;
+            pinchDelegate.zoomAroundPinch = self.zoomAroundPinch;
             pinchDelegate.doRotation = false;
             pinchDelegate.northUp = panDelegate.northUp;
             pinchDelegate.rotateDelegate = rotateDelegate;

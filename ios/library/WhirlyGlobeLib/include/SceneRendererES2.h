@@ -57,8 +57,12 @@
 
 /// Fill this in to get a view snapshot on the next draw
 @protocol WhirlyKitSnapshot
-/// Called when the snapshot is take.  Use the UIImage.
-- (void)snapshot:(UIImage *)image;
+/// Rerturn the render target to snapshot.  EmptyIdentity for the screen.
+- (WhirlyKit::SimpleIdentity)renderTargetID;
+/// Called when the snapshot is taken
+- (void)snapshotImage:(UIImage *)image;
+/// Called with the raw image data
+- (void)snapshotData:(NSData *)data;
 @end
 
 /** Scene Renderer for OpenGL ES2.

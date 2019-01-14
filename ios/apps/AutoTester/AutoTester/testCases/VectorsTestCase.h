@@ -13,6 +13,7 @@
 
 @interface VectorsTestCase : MaplyTestCase
 
-@property (nonatomic, strong) NSMutableArray<MaplyVectorObject*> *compList;
+@property (nonatomic, strong) NSMutableArray<MaplyVectorObject*> *vecList;
+@property (nonatomic, strong) NSMutableArray<MaplyComponentObject*> *compObjs;
 @property (nonatomic) GeographyClassTestCase *baseView;
 @end

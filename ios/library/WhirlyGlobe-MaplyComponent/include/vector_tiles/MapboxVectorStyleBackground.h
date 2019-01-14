@@ -22,7 +22,7 @@
 
 @interface MapboxVectorBackgroundPaint : NSObject
 
-@property (nonatomic) UIColor *color;
+@property (nonatomic,strong) UIColor *color;
 @property (nonatomic) double opacity;
 
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
@@ -33,10 +33,8 @@
 @interface MapboxVectorLayerBackground : MaplyMapboxVectorStyleLayer
 
 //@property (nonatomic) MapboxVectorLayoutBackground *layout;
-@property (nonatomic) MapboxVectorBackgroundPaint *paint;
+@property (nonatomic,strong) MapboxVectorBackgroundPaint *paint;
 
 - (id)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
-
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end

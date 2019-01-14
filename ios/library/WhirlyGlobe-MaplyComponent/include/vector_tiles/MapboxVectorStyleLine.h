@@ -46,12 +46,12 @@ typedef enum {MBLineJoinBevel,MBLineJoinRound,MBLineJoinMiter} MapboxVectorLineJ
 @interface MapboxVectorLinePaint : NSObject
 
 @property (nonatomic) double opacity;
-@property (nonatomic) MaplyVectorFunctionStops *opacityFunc;
-@property (nonatomic) UIColor *color;
-@property (nonatomic) MaplyVectorFunctionStops *colorFunc;
+@property (nonatomic,strong) MaplyVectorFunctionStops *opacityFunc;
+@property (nonatomic,strong) UIColor *color;
+@property (nonatomic,strong) MaplyVectorFunctionStops *colorFunc;
 @property (nonatomic) double width;
-@property (nonatomic) MaplyVectorFunctionStops *widthFunc;
-@property (nonatomic) MapboxVectorLineDashArray *lineDashArray;
+@property (nonatomic,strong) MaplyVectorFunctionStops *widthFunc;
+@property (nonatomic,strong) MapboxVectorLineDashArray *lineDashArray;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry styleSet:(MapboxVectorStyleSet *)styleSet viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
@@ -60,11 +60,13 @@ typedef enum {MBLineJoinBevel,MBLineJoinRound,MBLineJoinMiter} MapboxVectorLineJ
 /// @brief The line style
 @interface MapboxVectorLayerLine : MaplyMapboxVectorStyleLayer
 
-@property (nonatomic) MapboxVectorLineLayout *layout;
-@property (nonatomic) MapboxVectorLinePaint *paint;
+@property (nonatomic,strong) MapboxVectorLineLayout *layout;
+@property (nonatomic,strong) MapboxVectorLinePaint *paint;
+@property (nonatomic) bool linearClipToBounds;
+@property (nonatomic) bool dropGridLines;
+// If non-zero we'll subdivide the line along a globe to the given tolerance
+@property (nonatomic) double subdivToGlobe;
 
 - (instancetype)initWithStyleEntry:(NSDictionary *)styleEntry parent:(MaplyMapboxVectorStyleLayer *)refLayer styleSet:(MapboxVectorStyleSet *)styleSet drawPriority:(int)drawPriority viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
-
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 @end

@@ -39,12 +39,21 @@ using namespace WhirlyKit;
     _tessX = 10;
     _tessY = 10;
     _singleLevel = false;
+    _maxTiles = 128;
     _minImportance = 256*256;
     _minImportanceTop = 0.0;
     _levelLoads = nil;
     _hasClipBounds = false;
 
     return self;
+}
+    
+- (void)setMinImportance:(double)minImportance forLevel:(int)level
+{
+    if (level >= _importancePerLevel.size()) {
+        _importancePerLevel.resize(level+1,-2.0);
+    }
+    _importancePerLevel[level] = minImportance;
 }
 
 - (bool)isClipEqualTo:(MaplySamplingParams *__nonnull)other
@@ -70,6 +79,7 @@ using namespace WhirlyKit;
         _minImportance != other.minImportance ||
         _minImportanceTop != other.minImportanceTop ||
         _singleLevel != other.singleLevel ||
+        _maxTiles != other.maxTiles ||
         ![self isClipEqualTo:other])
         return false;
     
@@ -97,6 +107,7 @@ using namespace WhirlyKit;
     std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> builderDelegates;
     double importance;
     bool builderStarted;
+    bool valid;
 }
 
 - (nullable instancetype)initWithParams:(MaplySamplingParams * __nonnull)params
@@ -105,6 +116,7 @@ using namespace WhirlyKit;
     _params = params;
     _debugMode = false;
     builderStarted = false;
+    valid = true;
     
     return self;
 }
@@ -116,6 +128,9 @@ using namespace WhirlyKit;
 
 - (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)inRenderer viewC:(MaplyBaseViewController *)inViewC
 {
+    if (!valid)
+        return false;
+    
     viewC = inViewC;
     super.layerThread = inLayerThread;
     scene = inScene;
@@ -131,8 +146,17 @@ using namespace WhirlyKit;
     quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithDataSource:self loader:builder renderer:renderer];
     quadLayer.singleLevel = _params.singleLevel;
     quadLayer.levelLoads = _params.levelLoads;
-    quadLayer.minImportanceTop = _params.minImportanceTop;
-    quadLayer.minImportance = _params.minImportance;
+    std::vector<double> importance(_params.maxZoom+1);
+    for (int ii=0;ii<=_params.maxZoom;ii++) {
+        double import = _params.minImportance;
+        if (ii < _params.importancePerLevel.size() && _params.importancePerLevel[ii] > -2.0)
+            import = _params.importancePerLevel[ii];
+        importance[ii] = import;
+    }
+    if (_params.minImportanceTop != _params.minImportance)
+        importance[_params.minZoom] = _params.minImportanceTop;
+    quadLayer.minImportancePerLevel = importance;
+    quadLayer.maxTiles = _params.maxTiles;
     [super.layerThread addLayer:quadLayer];
 
     return true;
@@ -145,7 +169,12 @@ using namespace WhirlyKit;
 
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
-    [inLayerThread removeLayer:quadLayer];
+    valid = false;
+    if (quadLayer)
+        [inLayerThread removeLayer:quadLayer];
+    builder = nil;
+    quadLayer = nil;
+    builderDelegates.clear();
 }
 
 - (WhirlyKit::CoordSystem *)coordSystem
@@ -277,10 +306,11 @@ using namespace WhirlyKit;
 - (WhirlyKit::QuadTreeNew::NodeSet)quadBuilder:(WhirlyKitQuadTileBuilder *__nonnull )builder
             loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles
             unloadTilesToCheck:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles
+            targetLevel:(int)targetLevel
 {
     QuadTreeNew::NodeSet toKeep;
     for (auto delegate : builderDelegates) {
-        auto thisToKeep = [delegate quadBuilder:builder loadTiles:loadTiles unloadTilesToCheck:unloadTiles];
+        auto thisToKeep = [delegate quadBuilder:builder loadTiles:loadTiles unloadTilesToCheck:unloadTiles targetLevel:targetLevel];
         toKeep.insert(thisToKeep.begin(),thisToKeep.end());
     }
     
@@ -320,6 +350,11 @@ using namespace WhirlyKit;
     for (auto delegate : delegates) {
         [delegate quadBuilderPreSceneFlush:builder];
     }
+}
+
+- (void)quadBuilderShutdown:(WhirlyKitQuadTileBuilder * _Nonnull)builder
+{
+    builder = nil;
 }
 
 @end

@@ -29,6 +29,7 @@ class ParticleSystemAttribute : public Identifiable
 {
 public:
     NSString *name;
+    NSString *varyName;
     MaplyShaderAttrType type;
 
     // Size of a single data value

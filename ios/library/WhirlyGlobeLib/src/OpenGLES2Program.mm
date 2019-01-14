@@ -68,9 +68,6 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,float val,int index)
     if (uni->type != GL_FLOAT)
         return false;
     
-    if (uni->isSet && uni->val.fVals[0] == val)
-        return true;
-    
     glUniform1f(uni->index+index,val);
     CheckGLError("OpenGLES2Program::setUniform() glUniform1f");
     uni->isSet = true;
@@ -185,9 +182,6 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector4f &v
     
     if (uni->type != GL_FLOAT_VEC4)
         return false;
-    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() &&
-        uni->val.fVals[2] == vec.z() && uni->val.fVals[3] == vec.w())
-        return true;
     
     glUniform4f(uni->index+index, vec.x(), vec.y(), vec.z(), vec.w());
     CheckGLError("OpenGLES2Program::setUniform() glUniform4f");
@@ -292,7 +286,7 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
 }
 
 // Construct the program, compile and link
-OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &vShaderString,const std::string &fShaderString)
+OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varying)
     : name(inName), lightsLastUpdated(0.0)
 {
     program = glCreateProgram();
@@ -302,19 +296,42 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         cleanUp();
         return;
     }
+    CheckGLError("OpenGLES2Program: compileShader() vertex");
     if (!compileShader(name,"fragment",&fragShader,GL_FRAGMENT_SHADER,fShaderString))
     {
         cleanUp();
         return;
     }
+    CheckGLError("OpenGLES2Program: compileShader() fragment");
 
     glAttachShader(program, vertShader);
+    CheckGLError("OpenGLES2Program: glAttachShader() vertex");
     glAttachShader(program, fragShader);
+    CheckGLError("OpenGLES2Program: glAttachShader() fragment");
+
+    // Designate the varyings that we want out of the shader
+    if (varying) {
+        GLchar **names = (GLchar **)malloc(sizeof(GLchar *)*varying->size());
+        for (unsigned int ii=0;ii<varying->size();ii++) {
+            const std::string &name = (*varying)[ii];
+            names[ii] = (GLchar *)malloc(sizeof(GLchar)*(name.size()+1));
+            strcpy(names[ii], name.c_str());
+        }
+        glTransformFeedbackVaryings(program, varying->size(), names, GL_SEPARATE_ATTRIBS);
+        
+        CheckGLError("OpenGLES2Program: Error setting up varyings in");
+        
+        for (unsigned int ii=0;ii<varying->size();ii++) {
+            free(names[ii]);
+        }
+        free(names);
+    }
     
     // Now link it
     GLint status;
     glLinkProgram(program);
-    
+    CheckGLError("OpenGLES2Program: glLinkProgram");
+
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if (status == GL_FALSE)
     {
@@ -356,7 +373,8 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         uni->index = glGetUniformLocation(program, thingName);
         uniforms[uni->nameID] = uni;
     }
-    
+    CheckGLError("OpenGLES2Program: glGetActiveUniform");
+
     // Convert the attributes into a more useful form
     GLint numAttr;
     glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &numAttr);
@@ -370,6 +388,7 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         attr->nameID = StringIndexer::getStringID(thingName);
         attrs[attr->nameID] = attr;
     }
+    CheckGLError("OpenGLES2Program: glGetActiveAttrib");
 }
     
 // Clean up oustanding OpenGL resources
@@ -378,16 +397,19 @@ void OpenGLES2Program::cleanUp()
     if (program)
     {
         glDeleteProgram(program);
+        CheckGLError("OpenGLES2Program::cleanup() glDeleteProgram");
         program = 0;
     }
     if (vertShader)
     {
         glDeleteShader(vertShader);
+        CheckGLError("OpenGLES2Program::cleanup() glDeleteShader vertShader");
         vertShader = 0;
     }
     if (fragShader)
     {
         glDeleteShader(fragShader);
+        CheckGLError("OpenGLES2Program::cleanup() glDeleteShader fragShader");
         fragShader = 0;
     }
     

@@ -29,6 +29,7 @@
     if (!self)
         return nil;
     
+    _globalTextScale = styleSet.tileStyleSettings.textScale;
     _visible = [styleSet boolValue:@"visibility" dict:styleEntry onValue:@"visible" defVal:true];
     _placement = (MapboxSymbolPlacement)[styleSet enumValue:styleEntry[@"symbol-placement"] options:@[@"point",@"line"] defVal:MBPlacePoint];
     _textTransform = (MapboxTextTransform)[styleSet enumValue:styleEntry[@"text-transform"] options:@[@"none",@"uppercase",@"lowercase"] defVal:MBTextTransNone];
@@ -52,7 +53,15 @@
             _textFontName = [textField stringByReplacingOccurrencesOfString:@" " withString:@"-"];
         }
     }
-    _textMaxWidth = [styleSet doubleValue:@"text-max-width" dict:styleEntry defVal:10.0];
+    id maxWidthEntry = styleEntry[@"text-max-width"];
+    if (maxWidthEntry)
+    {
+        if ([maxWidthEntry isKindOfClass:[NSNumber class]])
+            _textMaxWidth = [styleSet doubleValue:maxWidthEntry defVal:10.0];
+        else
+            _textMaxWidthFunc = [styleSet stopsValue:maxWidthEntry defVal:nil];
+    } else
+        _textMaxWidth = 10.0;
     id sizeEntry = styleEntry[@"text-size"];
     if (sizeEntry)
     {
@@ -62,7 +71,7 @@
             _textSizeFunc = [styleSet stopsValue:sizeEntry defVal:nil];
     } else
         _textSize = 24.0;
-    
+
     id textAnchor = styleEntry[@"text-anchor"];
     _textAnchor = MBTextCenter;
     if (textAnchor)
@@ -93,6 +102,15 @@
     } else {
         _textColor = [UIColor whiteColor];
     }
+    id textOpacityEntry = styleEntry[@"text-opacity"];
+    if (textOpacityEntry) {
+        if ([textOpacityEntry isKindOfClass:[NSNumber class]])
+            _textOpacity = [styleSet doubleValue:@"text-opacity" dict:styleEntry defVal:1.0];
+        else
+            _textOpacityFunc = [styleSet stopsValue:textOpacityEntry defVal:nil];
+    } else {
+        _textOpacity = 1.0;
+    }
     _textHaloColor = [styleSet colorValue:@"text-halo-color" val:nil dict:styleEntry defVal:nil multiplyAlpha:false];
     _textHaloWidth = [styleSet doubleValue:@"text-halo-width" dict:styleEntry defVal:0.0];
 
@@ -114,6 +132,7 @@
     
     _layout = [[MapboxVectorSymbolLayout alloc] initWithStyleEntry:styleEntry[@"layout"] styleSet:styleSet viewC:viewC];
     _paint = [[MapboxVectorSymbolPaint alloc] initWithStyleEntry:styleEntry[@"paint"] styleSet:styleSet viewC:viewC];
+    _uniqueLabel = [styleSet boolValue:@"unique-label" dict:styleEntry onValue:@"yes" defVal:false];
 
     if (!_layout)
     {
@@ -133,7 +152,7 @@
                     kMaplyEnable: @(NO)
                     }];
     if (_paint.textColor)
-        symbolDesc[kMaplyTextColor] = _paint.textColor;
+        symbolDesc[kMaplyTextColor] = [_paint.textColor colorWithAlphaComponent:_paint.textOpacity];
     if (_paint.textHaloColor && _paint.textHaloWidth > 0.0)
     {
         symbolDesc[kMaplyTextOutlineColor] = _paint.textHaloColor;
@@ -151,30 +170,79 @@
         return text;
     
     NSMutableString *retStr = [[NSMutableString alloc] init];
+
+    // Unfortunately this stuff will break long names across character boundaries which is completely awful
+//    NSAttributedString *textAttrStr = [[NSAttributedString alloc] initWithString:text attributes:@{NSFontAttributeName:font}];
+//    NSTextContainer *textCon = [[NSTextContainer alloc] initWithSize:CGSizeMake(maxWidth,CGFLOAT_MAX)];
+//    textCon.lineBreakMode = NSLineBreakByWordWrapping;
+//    NSLayoutManager *layoutMan = [[NSLayoutManager alloc] init];
+//    NSTextStorage *textStore = [[NSTextStorage alloc] initWithAttributedString:textAttrStr];
+//    [textStore addLayoutManager:layoutMan];
+//    [layoutMan addTextContainer:textCon];
+//    bool __block started = false;
+//    [layoutMan enumerateLineFragmentsForGlyphRange:NSMakeRange(0, layoutMan.numberOfGlyphs)
+//                                        usingBlock:^(CGRect rect, CGRect usedRect, NSTextContainer * _Nonnull textContainer, NSRange glyphRange, BOOL * _Nonnull stop)
+//    {
+//        NSRange r = [layoutMan characterRangeForGlyphRange:glyphRange  actualGlyphRange:nil];
+//        NSString *lineStr = [textAttrStr.string substringWithRange:r];
+//        if (started)
+//            [retStr appendString:@"\n"];
+//        [retStr appendString:lineStr];
+//        started = true;
+//    }];
+//
+//    CGSize size = [textAttrStr size];
+//    NSLog(@"Input: %@, output: %@, size = (%f,%f)",text,retStr,size.width,size.height);
     
-    NSAttributedString *textAttrStr = [[NSAttributedString alloc] initWithString:text attributes:@{NSFontAttributeName:font}];
-    NSTextContainer *textCon = [[NSTextContainer alloc] initWithSize:CGSizeMake(maxWidth,CGFLOAT_MAX)];
-    textCon.lineBreakMode = NSLineBreakByWordWrapping;
-    NSLayoutManager *layoutMan = [[NSLayoutManager alloc] init];
-    NSTextStorage *textStore = [[NSTextStorage alloc] initWithAttributedString:textAttrStr];
-    [textStore addLayoutManager:layoutMan];
-    [layoutMan addTextContainer:textCon];
-    bool __block started = false;
-    [layoutMan enumerateLineFragmentsForGlyphRange:NSMakeRange(0, layoutMan.numberOfGlyphs)
-                                        usingBlock:^(CGRect rect, CGRect usedRect, NSTextContainer * _Nonnull textContainer, NSRange glyphRange, BOOL * _Nonnull stop)
-    {
-        NSRange r = [layoutMan characterRangeForGlyphRange:glyphRange  actualGlyphRange:nil];
-        NSString *lineStr = [textAttrStr.string substringWithRange:r];
-        if (started)
-            [retStr appendString:@"\n"];
-        [retStr appendString:lineStr];
-        started = true;
-    }];
-    
+    // Work through the string chunk by chunk
+    NSArray *pieces = [text componentsSeparatedByString:@" "];
+    NSString *soFar = nil;
+    for (NSString *chunk in pieces) {
+        if ([soFar length] == 0) {
+            soFar = chunk;
+            continue;
+        }
+        
+        // Try the string with the next chunk
+        NSString *testStr = [[NSString alloc] initWithFormat:@"%@ %@",soFar,chunk];
+        NSAttributedString *testAttrStr = [[NSAttributedString alloc] initWithString:testStr attributes:@{NSFontAttributeName:font}];
+        CGSize size = [testAttrStr size];
+        
+        // Flush out what we have so far and start with this new chunk
+        if (size.width > maxWidth) {
+            if ([retStr length] > 0)
+                [retStr appendString:@"\n"];
+            [retStr appendString:soFar];
+            soFar = chunk;
+        } else {
+            // Keep adding to this string
+            soFar = testStr;
+        }
+    }
+    if ([retStr length] > 0)
+        [retStr appendString:@"\n"];
+    [retStr appendString:soFar];
+        
     return retStr;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+// Calculate a value [0.0,1.0] for this string
+- (float)calcStringHash:(NSString *)str
+{
+    unsigned int len = [str length];
+    unichar buffer[len];
+    
+    [str getCharacters:buffer range:NSMakeRange(0, len)];
+    float val = 0.0;
+    for (int ii=0;ii<len;ii++) {
+        val += buffer[ii] / 256.0;
+    }
+    val /= len;
+    
+    return val;
+}
+
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     NSMutableArray *compObjs = [NSMutableArray array];
 
@@ -182,28 +250,28 @@
     if (!_layout.visible)
         return compObjs;
     
-    if (self.minzoom > tileID.level)
+    if (self.minzoom > tileInfo.tileID.level)
         return compObjs;
-    if (self.maxzoom < tileID.level)
+    if (self.maxzoom < tileInfo.tileID.level)
         return compObjs;
     
     NSDictionary *desc = symbolDesc;
     double textSize = 24.0;
     if (_layout.textSizeFunc)
     {
-        textSize = [_layout.textSizeFunc valueForZoom:tileID.level];
+        textSize = [_layout.textSizeFunc valueForZoom:tileInfo.tileID.level];
     } else {
         textSize = _layout.textSize;
     }
     // Snap to an integer.  Not clear we need to, just because.
-    textSize = (int)(textSize+0.5);
+    textSize = (int)(textSize * _layout.globalTextScale+0.5);
 
     // Note: Cache the font.
     UIFont *font = nil;
     if (_layout.textFontName) {
         UIFontDescriptor *fontDesc = [[UIFontDescriptor alloc] initWithFontAttributes:@{UIFontDescriptorNameAttribute: _layout.textFontName}];
         font = [UIFont fontWithDescriptor:fontDesc size:textSize];
-//        NSLog(@"Asked for: %@,  Got: %@",_layout.textFontName,font.fontName);
+//        NSLog(@"Asked for: %@,  Got: %@, %f",_layout.textFontName,font.fontName,textSize);
         if (!font)
             NSLog(@"Found unsupported font %@",fontDesc);
     }
@@ -212,10 +280,15 @@
     
     UIColor *textColor = _paint.textColor;
     if (_paint.textColorFunc) {
-        textColor = [_paint.textColorFunc colorForZoom:tileID.level];
+        textColor = [_paint.textColorFunc colorForZoom:tileInfo.tileID.level];
     }
     if (!textColor)
         textColor = [UIColor whiteColor];
+    double opacity = _paint.textOpacity;
+    if (_paint.textOpacityFunc) {
+        opacity = [_paint.textOpacityFunc valueForZoom:tileInfo.tileID.level];
+    }
+    textColor = [textColor colorWithAlphaComponent:opacity];
 
     NSMutableDictionary *mutDesc = [NSMutableDictionary dictionaryWithDictionary:desc];
     mutDesc[kMaplyFont] = font;
@@ -240,13 +313,18 @@
             NSLog(@"Failed to find text for label");
             continue;
         }
+        if (_uniqueLabel)
+            label.uniqueID = [label.text lowercaseString];
+
         // The rank is most important, followed by the zoom level.  This keeps the countries on top.
-        int rank = 100000;
+        int rank = 0;
         if (vecObj.attributes[@"rank"]) {
             rank = [vecObj.attributes[@"rank"] integerValue];
         }
-        label.layoutImportance = 1000000 - rank + (101-tileID.level)/100;
-
+        // Random tweak to cut down on flashing
+        float strHash = [self calcStringHash:label.text];
+        label.layoutImportance = 1000000 - rank + (101-tileInfo.tileID.level)/100.0 + strHash/1000.0;
+        
         // Change the text if needed
         switch (_layout.textTransform)
         {
@@ -260,8 +338,11 @@
                 break;
         }
         // Break it up into lines, if necessary
-        if (_layout.textMaxWidth != 0.0) {
-            label.text = [self breakUpText:label.text width:_layout.textMaxWidth * font.pointSize font:font];
+        double textMaxWidth = _layout.textMaxWidth;
+        if (_layout.textMaxWidthFunc)
+            textMaxWidth = [_layout.textMaxWidthFunc valueForZoom:tileInfo.tileID.level];
+        if (textMaxWidth != 0.0) {
+            label.text = [self breakUpText:label.text width:textMaxWidth * font.pointSize * _layout.globalTextScale font:font];
         }
         
         // Point or line placement

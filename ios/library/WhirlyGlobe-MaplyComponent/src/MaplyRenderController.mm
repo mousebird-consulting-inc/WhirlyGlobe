@@ -38,6 +38,7 @@ using namespace Eigen;
     MaplyFlatView *flatView;
     bool offlineMode;
     UIImage *snapshotImage;
+    NSData *snapshotData;
 }
 
 - (instancetype)initWithSize:(CGSize)size
@@ -119,31 +120,14 @@ using namespace Eigen;
     theClearColor = nil;
 }
 
-- (void)weirdSelectorSetup
-{
-    // Need this logic here to pull in the categories
-    static bool dummyInit = false;
-    if (!dummyInit)
-    {
-        NSDataDummyFunc();
-        NSDictionaryStyleDummyFunc();
-        DDXMLElementDummyFunc();
-        DDXMLDummyFunc();
-        
-        dummyInit = true;
-    }
-}
-
 - (void)loadSetup
-{
-    [self weirdSelectorSetup];
-    
+{    
     screenDrawPriorityOffset = 1000000;
     
     // Set up the OpenGL ES renderer
     sceneRenderer = [[WhirlyKitSceneRendererES3 alloc] init];
     if (!sceneRenderer)
-        sceneRenderer = [[WhirlyKitSceneRendererES3 alloc] init];
+        sceneRenderer = [[WhirlyKitSceneRendererES2 alloc] init];
     sceneRenderer.zBufferMode = zBufferOffDefault;
     // Switch to that context for any assets we create
     // Note: Should be switching back at the end
@@ -175,7 +159,23 @@ using namespace Eigen;
     sceneRenderer.snapshotDelegate = self;
     [sceneRenderer render:0.0];
     
-    return snapshotImage;
+    UIImage *toRet = snapshotImage;
+    snapshotImage = nil;
+    snapshotData = nil;
+    
+    return toRet;
+}
+
+- (NSData *)renderToImageData
+{
+    sceneRenderer.snapshotDelegate = self;
+    [sceneRenderer render:0.0];
+    
+    NSData *toRet = snapshotData;
+    snapshotImage = nil;
+    snapshotData = nil;
+    
+    return toRet;
 }
 
 - (void) useGLContext
@@ -258,6 +258,11 @@ using namespace Eigen;
     if (!interactLayer)
         return;
     
+    if (!shader.program) {
+        NSLog(@"Shader %@ didn't compile.  Not adding to scene.",shader.name);
+        return;
+    }
+    
     if (!interactLayer->shaders)
         interactLayer->shaders = [NSMutableArray array];
     
@@ -266,6 +271,24 @@ using namespace Eigen;
     
     std::string theSceneName = [sceneName cStringUsingEncoding:NSASCIIStringEncoding];
     interactLayer->shaderMap[theSceneName] = shader;
+}
+
+- (void)removeShaderProgram:(MaplyShader *__nonnull)shaderToRemove
+{
+    bool found = false;
+    for (MaplyShader *shader in shaders) {
+        if (shader == shaderToRemove) {
+            found = true;
+            break;
+        }
+    }
+    
+    if (!found)
+        return;
+    [shaders removeObject:shaderToRemove];
+    
+    if (shaderToRemove.program)
+        scene->removeProgram(shaderToRemove.program->getId());
 }
 
 - (MaplyShader *__nullable)getShaderByName:(NSString *__nonnull)name
@@ -487,10 +510,17 @@ using namespace Eigen;
     return CGSizeMake(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
 }
 
-// Snapshot protocol
+// MARK: Snapshot protocol
 
-- (void)snapshot:(UIImage *)image
-{
+- (WhirlyKit::SimpleIdentity)renderTargetID {
+    return EmptyIdentity;
+}
+
+- (void)snapshotData:(NSData *)data {
+    snapshotData = data;
+}
+
+- (void)snapshotImage:(UIImage *)image {
     snapshotImage = image;
 }
 

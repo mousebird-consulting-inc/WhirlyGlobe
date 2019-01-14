@@ -59,6 +59,12 @@ typedef NS_ENUM(NSInteger, MapnikCommandType) {
 /// If there were any raster layers, they're here by name
 @property (nonatomic,strong,nullable) NSDictionary *rasterLayers;
 
+/// If we asked to preserve the vector objects, these are them
+@property (nonatomic,strong,nullable) NSArray *vecObjs;
+
+/// If there are any wkcategory tags, we'll sort the component objects into groups
+@property (nonatomic,strong,nullable) NSDictionary *categories;
+
 @end
 
 /** 
@@ -79,6 +85,12 @@ typedef NS_ENUM(NSInteger, MapnikCommandType) {
 
 /// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
 @property (nonatomic, assign) bool localCoords;
+
+/// Keep the vector objects around as we parse them
+@property (nonatomic, assign) bool keepVectors;
+
+/// Parse everything, even if there's no style for it
+@property (nonatomic, assign) bool parseAll;
 
 @property (nonatomic, assign) BOOL debugLabel;
 @property (nonatomic, assign) BOOL debugOutline;

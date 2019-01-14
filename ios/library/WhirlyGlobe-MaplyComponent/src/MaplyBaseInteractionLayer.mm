@@ -477,7 +477,7 @@ public:
         {
             if (*theImageTex)
             {
-                if ((*theImageTex).image == image)
+                if ((*theImageTex).image == image && !(*theImageTex).isBeingRemoved)
                 {
                     maplyTex = *theImageTex;
                     break;
@@ -664,9 +664,10 @@ public:
     // If it's associated with the view controller, it exists outside us, so we just let it clean itself up
     //  when it gets dealloc'ed.
     // Note: This time is a hack.  Should look at the fade out.
-    if (tex.interactLayer)
+    if (tex.interactLayer) {
+        tex.isBeingRemoved = true;
         [self performSelector:@selector(delayedRemoveTexture:) withObject:tex afterDelay:2.0];
-    else {
+    } else {
         // If we created it in this object, we'll clean it up
         if (tex.texID != EmptyIdentity)
         {
@@ -1053,6 +1054,46 @@ public:
     if (!clusterGen)
         return;
     
+    
+    if ([clusterGen showMarkerWithHighestImportance])
+    {
+        [self setupLayoutObject:retObj asBestOfLayoutObjects:layoutObjects];
+    } else {
+        [self setupLayoutObject:retObj asAverageOfLayoutObjects:layoutObjects withClusterGenerator:clusterGen];
+    }
+}
+
+- (void)setupLayoutObject:(LayoutObject &)retObj asBestOfLayoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects
+{
+    LayoutObjectEntry *topObject = nullptr;
+    LayoutEntrySorter sorter;
+    
+    for (auto obj : layoutObjects)
+        if (topObject == nullptr || sorter(obj, topObject))
+            topObject = obj;
+    
+    if (topObject == nullptr || topObject->obj.getGeometry().empty())
+        return;
+    
+    retObj.setWorldLoc(topObject->obj.getWorldLoc());
+    retObj.setDrawPriority(topObject->obj.getDrawPriority());
+    if (topObject->obj.hasRotation())
+        retObj.setRotation(topObject->obj.getRotation());
+    
+    std::vector<ScreenSpaceObject::ConvexGeometry> allGeometry = topObject->obj.getGeometry();
+    
+    if (allGeometry.empty())
+        return;
+    
+    retObj.layoutPts = allGeometry.back().coords;
+    retObj.selectPts = allGeometry.back().coords;
+    
+    for (auto geometry : allGeometry)
+        retObj.addGeometry(geometry);
+}
+
+- (void)setupLayoutObject:(LayoutObject &)retObj asAverageOfLayoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects withClusterGenerator:(NSObject<MaplyClusterGenerator> *)clusterGen
+{
     // Pick a representive screen object
     int drawPriority = -1;
     LayoutObject *sampleObj = NULL;
@@ -1384,6 +1425,8 @@ public:
         wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
         wgLabel.rotation = label.rotation;
         wgLabel.text = label.text;
+        if (label.uniqueID)
+            wgLabel.uniqueID = [label.uniqueID asStdString];
         wgLabel.keepUpright = label.keepUpright;
         MaplyTexture *tex = nil;
         if (label.iconImage2) {
@@ -3076,6 +3119,10 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     {
         partSysShaderID = [self getProgramID:partSys.shader];
     }
+    SimpleIdentity calcShaderID = EmptyIdentity;
+    if (partSys.positionShader) {
+        calcShaderID = [partSys.positionShader getShaderID];
+    }
     
     ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
 
@@ -3087,12 +3134,15 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         wkPartSys.drawPriority = [inDesc[kMaplyDrawPriority] intValue];
         wkPartSys.pointSize = [inDesc[kMaplyPointSize] floatValue];
         wkPartSys.name = [partSys.name cStringUsingEncoding:NSASCIIStringEncoding];
-        wkPartSys.shaderID = partSysShaderID;
+        wkPartSys.renderShaderID = partSysShaderID;
+        wkPartSys.calcShaderID = calcShaderID;
         wkPartSys.lifetime = partSys.lifetime;
         wkPartSys.batchSize = partSys.batchSize;
         wkPartSys.totalParticles = partSys.totalParticles;
         wkPartSys.baseTime = partSys.baseTime;
         wkPartSys.continuousUpdate = partSys.continuousUpdate;
+        wkPartSys.zBufferRead = [inDesc[kMaplyZBufferRead] boolValue];
+        wkPartSys.zBufferWrite = [inDesc[kMaplyZBufferWrite] boolValue];
         wkPartSys.renderTargetID = partSys.renderTargetID;
         // Type
         switch (partSys.type)
@@ -3130,7 +3180,13 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     break;
             }
             vertAttr.nameID = StringIndexer::getStringID([it.name cStringUsingEncoding:NSASCIIStringEncoding]);
-            wkPartSys.vertAttrs.push_back(vertAttr);
+            if (it.varyName) {
+                // This one is a varying attribute
+                SingleVertexAttributeInfo varyAttr = vertAttr;
+                wkPartSys.varyingAttrs.push_back(varyAttr);
+            } else {
+                wkPartSys.vertAttrs.push_back(vertAttr);
+            }
         }
         // Now the textures
         for (id image : partSys.images)
@@ -3182,6 +3238,22 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     return compObj;
 }
 
+- (void)changeParticleSystem:(MaplyComponentObject *)compObj renderTarget:(MaplyRenderTarget *)target
+{
+    ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
+
+    if (partSysManager) {
+        ChangeSet changes;
+
+        SimpleIdentity targetID = target ? target.renderTargetID : EmptyIdentity;
+        for (SimpleIdentity partSysID : compObj.partSysIDs) {
+            partSysManager->changeRenderTarget(partSysID,targetID,changes);
+        }
+
+        [self flushChanges:changes mode:MaplyThreadCurrent];
+    }
+}
+
 - (void)addParticleSystemBatchRun:(NSArray *)argArray
 {
     if (isShuttingDown || (!layerThread && !offlineMode))
@@ -3204,6 +3276,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         // Copy the attributes over in the right order
         for (auto mainAttr : batch.partSys.attrs)
         {
+            if (mainAttr.varyName)
+                continue;
+            
             bool found = false;
             // Find the one that matches
             for (auto thisAttr : batch.attrVals)

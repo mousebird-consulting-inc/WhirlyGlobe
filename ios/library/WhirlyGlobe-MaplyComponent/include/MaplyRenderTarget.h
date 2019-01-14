@@ -38,7 +38,7 @@
     
     This is the texture we'll draw into.  Use createTexture to set it up.
   */
-@property (nonatomic) MaplyTexture *texture;
+@property (nonatomic,strong) MaplyTexture *texture;
 
 /**
     If set, we'll clear the target textures every frame before rendering to it.
@@ -54,7 +54,7 @@
  
     Default is clear black.
   */
-@property (nonatomic) UIColor *clearColor;
+@property (nonatomic,strong) UIColor *clearColor;
 
 /**
     If set, anything rendered to this render target will blend with what's there.

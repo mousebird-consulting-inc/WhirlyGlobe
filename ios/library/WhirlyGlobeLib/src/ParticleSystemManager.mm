@@ -75,16 +75,19 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     // Note: There are devices where this won't work
     bool useInstancing = useRectangles;
     int totalParticles = newSystem.totalParticles;
-    ParticleSystemDrawable *draw = new ParticleSystemDrawable("Particle System",sceneRep->partSys.vertAttrs,totalParticles,sceneRep->partSys.batchSize,useRectangles,useInstancing);
+    ParticleSystemDrawable *draw = new ParticleSystemDrawable(newSystem.name,sceneRep->partSys.vertAttrs,sceneRep->partSys.varyingAttrs,totalParticles,sceneRep->partSys.batchSize,useRectangles,useInstancing);
     draw->setOnOff(true);
     draw->setPointSize(sceneRep->partSys.pointSize);
-    draw->setProgram(sceneRep->partSys.shaderID);
+    draw->setProgram(sceneRep->partSys.renderShaderID);
+    draw->setCalculationProgram(sceneRep->partSys.calcShaderID);
     draw->setupGL(NULL, scene->getMemManager());
     draw->setDrawPriority(sceneRep->partSys.drawPriority);
     draw->setBaseTime(newSystem.baseTime);
     draw->setLifetime(sceneRep->partSys.lifetime);
     draw->setTexIDs(sceneRep->partSys.texIDs);
     draw->setContinuousUpdate(sceneRep->partSys.continuousUpdate);
+    draw->setRequestZBuffer(sceneRep->partSys.zBufferRead);
+    draw->setWriteZbuffer(sceneRep->partSys.zBufferWrite);
     draw->setRenderTarget(sceneRep->partSys.renderTargetID);
     changes.push_back(new AddDrawableReq(draw));
     sceneRep->draws.insert(draw);
@@ -158,6 +161,29 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
                 theBatch.startTime = CFAbsoluteTimeGetCurrent();
                 draw->addAttributeData(attrData,theBatch);
             }
+        }
+    }
+    
+    pthread_mutex_unlock(&partSysLock);
+}
+    
+void ParticleSystemManager::changeRenderTarget(SimpleIdentity sysID,SimpleIdentity targetID,ChangeSet &changes)
+{
+    pthread_mutex_lock(&partSysLock);
+    
+    ParticleSystemSceneRep *sceneRep = NULL;
+    ParticleSystemSceneRep dummyRep(sysID);
+    auto it = sceneReps.find(&dummyRep);
+    if (it != sceneReps.end())
+        sceneRep = *it;
+    
+    if (sceneRep) {
+        ParticleSystemDrawable *draw = NULL;
+        if (sceneRep->draws.size() == 1)
+            draw = *(sceneRep->draws.begin());
+        
+        if (draw) {
+            changes.push_back(new RenderTargetChangeRequest(draw->getId(),targetID));
         }
     }
     

@@ -45,7 +45,7 @@
 @interface MaplyClusterGroup : NSObject
 
 /// The image to use for the group
-@property (nonatomic) id __nonnull image;
+@property (nonatomic,strong) id __nonnull image;
 
 /// Screen size to use for the resulting marker
 @property (nonatomic,assign) CGSize size;
@@ -70,6 +70,8 @@
     Generate a cluster group for a given collection of markers.
     
     Generate an image and size to represent the number of marker/labels we're consolidating.
+ 
+    @note Will not be called if @c -showMarkerWithHighestImportance returns @c true.
   */
 - (MaplyClusterGroup *__nonnull) makeClusterGroup:(MaplyClusterInfo *__nonnull)clusterInfo;
 
@@ -86,6 +88,9 @@
 /// The size of the cluster that will be created.
 /// This is the biggest cluster you're likely to create.  We use it to figure overlaps between clusters.
 - (CGSize) clusterLayoutSize;
+
+/// Use appearance and coordinate of cluster group marker with highest importance. If not set then an average of coordinates will be used
+- (bool) showMarkerWithHighestImportance;
 
 /// Set this if you want cluster to be user selectable.  On by default.
 - (bool) selectable;
@@ -120,6 +125,9 @@
 /// This is the biggest cluster you're likely to create.  We use it to figure overlaps between clusters.
 @property (nonatomic) CGSize clusterLayoutSize;
 
+/// Set to use appearance and coordinate of cluster group marker with highest importance. Off by default.
+@property (nonatomic) bool showMarkerWithHighestImportance;
+
 /// Set this if you want cluster to be user selectable.  On by default.
 @property (nonatomic) bool selectable;
 
@@ -128,6 +136,6 @@
 
 /// The shader to use when moving objects around
 /// When warping objects to their new locations we use a motion shader.  Set this if you want to override the default.
-@property (nonatomic) MaplyShader * __nullable motionShader;
+@property (nonatomic,strong) MaplyShader * __nullable motionShader;
 
 @end

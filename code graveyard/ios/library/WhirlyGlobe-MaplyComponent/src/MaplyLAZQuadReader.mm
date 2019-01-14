@@ -21,8 +21,8 @@
 #import "laszip_api.h"
 #import "WhirlyGlobe.h"
 #import "MaplyLAZMeshBuilder.h"
-#import "private/WhirlyGlobeViewController_private.h"
-#import "private/MaplyCoordinateSystem_private.h"
+#import "WhirlyGlobeViewController_private.h"
+#import "MaplyCoordinateSystem_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -133,9 +133,11 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
         _maxTilePoints = [res intForColumn:@"maxpoints"];
         srs = [res stringForColumn:@"srs"];
     }
+    [res close];
     res = [db executeQuery:@"SELECT pointtype from manifest"];
     if ([res next])
         pointType = [res intForColumn:@"pointtype"];
+    [res close];
     res = [db executeQuery:@"SELECT maxcolor from manifest"];
     if ([res next])
     {
@@ -143,6 +145,7 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
         if (maxColor > 300)
             colorScale = (1<<16)-1;
     }
+    [res close];
 
     // Override the coordinate system
     if (desc[kMaplyLAZReaderCoordSys])
@@ -426,9 +429,8 @@ typedef std::set<TileBoundsInfo> TileBoundsSet;
                    hasColors = header->point_data_format > 1;
                    count = header->number_of_point_records;
                }
-
-               [res close];
            }
+           [res close];
        }];
        
        if (thisReader)

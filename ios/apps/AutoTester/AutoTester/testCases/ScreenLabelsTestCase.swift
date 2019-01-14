@@ -25,14 +25,14 @@ class ScreenLabelsTestCase: MaplyTestCase {
         globeVC.keepNorthUp = true
 		let vectorTestCase = VectorsTestCase()
 		vectorTestCase.setUpWithGlobe(globeVC)
-		insertLabels(vectorTestCase.compList! as NSArray as! [MaplyVectorObject], theViewC: globeVC)
+		insertLabels(vectorTestCase.vecList! as NSArray as! [MaplyVectorObject], theViewC: globeVC)
 		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
 		let vectorTestCase = VectorsTestCase()
 		vectorTestCase.setUpWithMap(mapVC)
-		insertLabels(vectorTestCase.compList! as NSArray as! [MaplyVectorObject], theViewC: mapVC)
+		insertLabels(vectorTestCase.vecList! as NSArray as! [MaplyVectorObject], theViewC: mapVC)
 		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 
@@ -47,13 +47,13 @@ class ScreenLabelsTestCase: MaplyTestCase {
 				label.text = str
 				label.loc = object.center()
 				label.selectable = true
-				label.layoutImportance = 10
                 label.userObject = label.text;
                 label.layoutPlacement = kMaplyLayoutRight | kMaplyLayoutLeft | kMaplyLayoutAbove | kMaplyLayoutBelow
 //                label.rotation = Float(M_PI/2.0)
 //                label.offset = CGPoint(x: 100.0, y: 0.0)
 
 				if (i % 2 == 0) {
+                    label.layoutImportance = 10
 					// Some with text shadow
 					if let comp = theViewC.addScreenLabels([label], desc: [
 							kMaplyFont: UIFont.boldSystemFont(ofSize: 12.0),
@@ -65,6 +65,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 					}
 				}
 				else {
+                    label.layoutImportance = 20
 					//Some with text outline
 					if let comp = theViewC.addScreenLabels([label], desc: [
 							kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),

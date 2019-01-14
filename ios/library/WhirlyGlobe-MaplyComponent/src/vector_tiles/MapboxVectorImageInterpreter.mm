@@ -47,6 +47,7 @@ using namespace WhirlyKit;
 
 static double MAX_EXTENT = 20037508.342789244;
 
+
 @implementation MapboxVectorImageInterpreter
 {
     MaplyQuadImageLoader * __weak loader;
@@ -91,21 +92,56 @@ static double MAX_EXTENT = 20037508.342789244;
     return self;
 }
 
+// Flip data in an NSData object that we know to be an image
+- (NSData *)flipVertically:(NSData *)data width:(int)width height:(int)height
+{
+    NSMutableData *retData = [[NSMutableData alloc] initWithData:data];
+
+    int rowSize = 4*width;
+    unsigned char tmpData[rowSize];
+    unsigned char *rawData = (unsigned char *)[retData mutableBytes];
+    for (unsigned int iy=0;iy<height/2;iy++) {
+        unsigned char *rowA = &rawData[iy*rowSize];
+        unsigned char *rowB = &rawData[(height-iy-1)*rowSize];
+        memcpy(tmpData, rowA, rowSize);
+        memcpy(rowA, rowB, rowSize);
+        memcpy(rowB, tmpData, rowSize);
+    }
+    
+    return retData;
+}
+
 - (void)parseData:(MaplyLoaderReturn * __nonnull)loadReturn
 {
     MaplyTileID tileID = loadReturn.tileID;
+    std::vector<NSData *> pbfDatas;
+    std::vector<UIImage *> images;
     
-    NSData *thisTileData = nil;
-    if(loadReturn.tileData) {
-      if([loadReturn.tileData isCompressed]) {
-          thisTileData = [loadReturn.tileData uncompressGZip];
-          if(!thisTileData.length) {
-              loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Tile data was nil after decompression"}];
-              return;
+    // Uncompress any of the data we recieved
+    for (unsigned int ii=0;ii<[loadReturn.multiTileData count];ii++) {
+        NSData *thisTileData = [loadReturn.multiTileData objectAtIndex:ii];
+        if(thisTileData) {
+          if([thisTileData isCompressed]) {
+              thisTileData = [thisTileData uncompressGZip];
+              if(!thisTileData.length) {
+                  continue;
+              }
           }
-      }
+        }
+        // Might be an image
+        UIImage *image = [UIImage imageWithData:thisTileData];
+        if (image)
+            images.push_back(image);
+        else
+            pbfDatas.push_back(thisTileData);
     }
     
+    if (pbfDatas.empty() && images.empty()) {
+        loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Tile data was nil after decompression"}];
+        return;
+    }
+    
+    // Coordinates for the coming data
     MaplyBoundingBox imageBBox;
     imageBBox.ll = MaplyCoordinateMake(0,0);  imageBBox.ur = MaplyCoordinateMake(offlineRender.getFramebufferSize.width,offlineRender.getFramebufferSize.height);
     MaplyBoundingBox localBBox,geoBBox;
@@ -115,51 +151,80 @@ static double MAX_EXTENT = 20037508.342789244;
     spherMercBBox.ll = [self toMerc:geoBBox.ll];
     spherMercBBox.ur = [self toMerc:geoBBox.ur];
     
-    UIImage *image = nil;
+    NSData *imageData = nil;
     
     [viewC startChanges];
     
     // Parse the polygons and draw into an image
-    // Note: Can we use multiple of these?
+    // Note: Can we use multiple of these for speed?
     @synchronized(offlineRender)
     {
         // Build the vector objects for use in the image tile
-        MaplyVectorTileData *retData = nil;
+        NSMutableArray *compObjs = [NSMutableArray array];
         offlineRender.clearColor = backColor;
-        if ((retData = [imageTileParser buildObjects:thisTileData tile:tileID bounds:imageBBox geoBounds:imageBBox]))
-        {
+
+        for (NSData *thisTileData : pbfDatas) {
+            MaplyVectorTileData *retData = [imageTileParser buildObjects:thisTileData tile:tileID bounds:imageBBox geoBounds:geoBBox];
+            if (retData) {
+                [compObjs addObjectsFromArray:retData.compObjs];
+            } else {
+                NSString *errMsg = [NSString stringWithFormat:@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y];
+                loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: errMsg}];
+            }
+        }
+        
+        if (!loadReturn.error) {
             // Turn all those objects on
-            [offlineRender enableObjects:retData.compObjs mode:MaplyThreadCurrent];
+            [offlineRender enableObjects:compObjs mode:MaplyThreadCurrent];
             
-            image = [offlineRender renderToImage];
+            imageData = [self flipVertically:[offlineRender renderToImageData]
+                                       width:offlineRender.getFramebufferSize.width
+                                      height:offlineRender.getFramebufferSize.height];
             
             // And then remove them all
-            [offlineRender removeObjects:retData.compObjs mode:MaplyThreadCurrent];
-        } else {
-            NSString *errMsg = [NSString stringWithFormat:@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y];
-            loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: errMsg}];
+            [offlineRender removeObjects:compObjs mode:MaplyThreadCurrent];
         }
     }
     
     // Parse everything else and turn into vectors
-    MaplyVectorTileData *retData = nil;
-    if ((retData = [vecTileParser buildObjects:thisTileData tile:tileID bounds:spherMercBBox geoBounds:geoBBox]))
-    {
-        // Success!
-        [viewC endChanges];
-    } else {
-        [viewC endChanges];
-        
-        NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
-        loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to parse tile"}];
-        return;
+    NSMutableArray *compObjs = [NSMutableArray array];
+    NSMutableArray *ovlCompObjs = [NSMutableArray array];
+    for (NSData *thisTileData : pbfDatas) {
+        MaplyVectorTileData *retData = [vecTileParser buildObjects:thisTileData tile:tileID bounds:spherMercBBox geoBounds:geoBBox];
+        if (retData) {
+            [compObjs addObjectsFromArray:retData.compObjs];
+            NSArray *ovl = [retData.categories objectForKey:@"overlay"];
+            if (ovl)
+                [ovlCompObjs addObjectsFromArray:ovl];
+        } else {
+            NSLog(@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y);
+            loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Failed to parse tile"}];
+        }
     }
-    
-    // Successful load
-    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:image];
+
+    [viewC endChanges];
+
+    // Rendered image goes in first
+    NSMutableArray *outImages = [NSMutableArray array];
+    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height];
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
-    loadReturn.image = loadTile;
-    loadReturn.compObjs = retData.compObjs;
+    [outImages addObject:loadTile];
+    
+    // Any additional images are tacked on
+    for (UIImage *image : images) {
+        MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithImage:image];
+        WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
+        if (loadTile)
+            [outImages addObject:loadTile];
+    }
+    loadReturn.images = outImages;
+
+    if ([ovlCompObjs count] > 0) {
+        loadReturn.ovlCompObjs = ovlCompObjs;
+        [compObjs removeObjectsInArray:ovlCompObjs];
+        loadReturn.compObjs = compObjs;
+    } else
+        loadReturn.compObjs = compObjs;
 }
 
 /**

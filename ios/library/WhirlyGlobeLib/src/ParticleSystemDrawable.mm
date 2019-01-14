@@ -28,8 +28,11 @@
 namespace WhirlyKit
 {
 
-ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name,const std::vector<SingleVertexAttributeInfo> &inVertAttrs,int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)
-    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), programId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startb(0), endb(0), chunksDirty(true), usingContinuousRender(true), renderTargetID(EmptyIdentity)
+ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name,
+                                               const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
+                                               const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
+                                               int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)
+    : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), calculateProgramId(0), renderProgramId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startb(0), endb(0), chunksDirty(true), usingContinuousRender(true), renderTargetID(EmptyIdentity), lastUpdateTime(0.0), activeVaryBuffer(0)
 {
     pthread_mutex_init(&batchLock, NULL);
     
@@ -38,6 +41,7 @@ ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name,const std
         vertexSize += attr.size();
         vertAttrs.push_back(attr);
     }
+    varyAttrs = inVaryAttrs;
 }
     
 ParticleSystemDrawable::~ParticleSystemDrawable()
@@ -52,12 +56,14 @@ bool ParticleSystemDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
     
     return true;
 }
-    
+
 void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager)
 {
     if (pointBuffer != 0)
         return;
-    
+
+    EAGLContext *context = [EAGLContext currentContext];
+
     int totalBytes = vertexSize*numTotalPoints;
     pointBuffer = memManager->getBufferID(totalBytes,GL_DYNAMIC_DRAW);
     
@@ -90,6 +96,33 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
         } else {
             NSLog(@"ParticleSystemDrawable: Can only do instanced rectangles at present.  This system can't handle instancing.");
         }
+    }
+    
+    // If we have varyings we need buffers to hold them
+    for (auto varyAttr : varyAttrs) {
+        GLuint totalSize = varyAttr.size()*numTotalPoints;
+        
+        VaryBufferPair bufferPair;
+        for (unsigned int ii=0;ii<2;ii++) {
+            bufferPair.buffers[ii] = memManager->getBufferID(totalSize,GL_DYNAMIC_DRAW);
+
+            // Zero out the new buffers
+            // That's how we signal that they're new
+            glBindBuffer(GL_ARRAY_BUFFER, bufferPair.buffers[ii]);
+            void *glMem = NULL;
+            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+            else
+                glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, totalSize, GL_MAP_WRITE_BIT);
+            memset(glMem, 0, totalSize);
+            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                glUnmapBufferOES(GL_ARRAY_BUFFER);
+            else
+                glUnmapBuffer(GL_ARRAY_BUFFER);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        }
+        varyBuffers.push_back(bufferPair);
     }
     
     // Set up the batches
@@ -133,6 +166,10 @@ void ParticleSystemDrawable::teardownGL(OpenGLMemManager *memManager)
     pointBuffer = 0;
     if (rectBuffer)
         memManager->removeBufferID(rectBuffer);
+    for (auto bufferPair : varyBuffers)
+        for (unsigned int ii=0;ii<2;ii++)
+            memManager->removeBufferID(bufferPair.buffers[ii]);
+    varyBuffers.clear();
     rectBuffer = 0;
     batches.clear();
     chunks.clear();
@@ -148,44 +185,47 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
 {
     if (attrData.size() != vertAttrs.size())
         return;
-    
-    glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
-    unsigned char *glMem = NULL;
-    EAGLContext *context = [EAGLContext currentContext];
-    int glMemOffset = 0;
-    if (context.API < kEAGLRenderingAPIOpenGLES3)
-    {
-        glMem = (unsigned char *)glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-        glMemOffset = batch.offset*vertexSize*batchSize;
-    } else {
-        glMem = (unsigned char *)glMapBufferRange(GL_ARRAY_BUFFER, batch.batchID*vertexSize*batchSize, vertexSize*batchSize, GL_MAP_WRITE_BIT);
-    }
-    
-    // Work through the attribute blocks
-    int attrOffset = 0;
-    for (unsigned int ai=0;ai<vertAttrs.size();ai++)
-    {
-        const AttributeData &thisAttrData = attrData[ai];
-        SingleVertexAttributeInfo &attrInfo = vertAttrs[ai];
-        int attrSize = attrInfo.size();
-        unsigned char *rawAttrData = (unsigned char *)thisAttrData.data;
-        unsigned char *ptr = glMem + attrOffset + glMemOffset;
-        // Copy into each vertex
-        for (unsigned int ii=0;ii<batchSize;ii++)
+
+    // When the particles initialize themselves we don't have vertex data
+    if (vertexSize > 0) {
+        glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
+        unsigned char *glMem = NULL;
+        EAGLContext *context = [EAGLContext currentContext];
+        int glMemOffset = 0;
+        if (context.API < kEAGLRenderingAPIOpenGLES3)
         {
-            memcpy(ptr, rawAttrData, attrSize);
-            ptr += vertexSize;
-            rawAttrData += attrSize;
+            glMem = (unsigned char *)glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+            glMemOffset = batch.batchID*vertexSize*batchSize;
+        } else {
+            glMem = (unsigned char *)glMapBufferRange(GL_ARRAY_BUFFER, batch.batchID*vertexSize*batchSize, vertexSize*batchSize, GL_MAP_WRITE_BIT);
         }
         
-        attrOffset += attrSize;
+        // Work through the attribute blocks
+        int attrOffset = 0;
+        for (unsigned int ai=0;ai<vertAttrs.size();ai++)
+        {
+            const AttributeData &thisAttrData = attrData[ai];
+            SingleVertexAttributeInfo &attrInfo = vertAttrs[ai];
+            int attrSize = attrInfo.size();
+            unsigned char *rawAttrData = (unsigned char *)thisAttrData.data;
+            unsigned char *ptr = glMem + attrOffset + glMemOffset;
+            // Copy into each vertex
+            for (unsigned int ii=0;ii<batchSize;ii++)
+            {
+                memcpy(ptr, rawAttrData, attrSize);
+                ptr += vertexSize;
+                rawAttrData += attrSize;
+            }
+            
+            attrOffset += attrSize;
+        }
+        
+        if (context.API < kEAGLRenderingAPIOpenGLES3)
+            glUnmapBufferOES(GL_ARRAY_BUFFER);
+        else
+            glUnmapBuffer(GL_ARRAY_BUFFER);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
-    
-    if (context.API < kEAGLRenderingAPIOpenGLES3)
-        glUnmapBufferOES(GL_ARRAY_BUFFER);
-    else
-        glUnmapBuffer(GL_ARRAY_BUFFER);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     pthread_mutex_lock(&batchLock);
     batches[batch.batchID] = batch;
@@ -243,6 +283,7 @@ void ParticleSystemDrawable::updateChunks()
                 {
                     BufferChunk chunk;
                     chunk.bufferStart = (start % batches.size()) * batchSize * vertexSize;
+                    chunk.vertexStart = (start % batches.size()) * batchSize;
                     chunk.numVertices = (end-start) * batchSize;
                     chunks.push_back(chunk);
                 }
@@ -270,15 +311,9 @@ bool ParticleSystemDrawable::findEmptyBatch(Batch &retBatch)
     
     return ret;
 }
-
-void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+    
+void ParticleSystemDrawable::drawSetupTextures(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int &progTexBound)
 {
-    updateBatches(frameInfo.currentTime);
-    updateChunks();
-    
-    EAGLContext *context = [EAGLContext currentContext];
-    OpenGLES2Program *prog = frameInfo.program;
-    
     // GL Texture IDs
     bool anyTextures = false;
     std::vector<GLuint> glTexIDs;
@@ -288,30 +323,9 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
         anyTextures = true;
         glTexIDs.push_back(glTexID);
     }
-
-    // Model/View/Projection matrix
-    prog->setUniform(mvpMatrixNameID, frameInfo.mvpMat);
-    prog->setUniform(mvMatrixNameID, frameInfo.viewAndModelMat);
-    prog->setUniform(mvNormalMatrixNameID, frameInfo.viewModelNormalMat);
-    prog->setUniform(mvpNormalMatrixNameID, frameInfo.mvpNormalMat);
-    prog->setUniform(u_pMatrixNameID, frameInfo.projMat);
-    prog->setUniform(u_ScaleNameID, Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
-
-    // Size of a single pixel
-    Point2f pixDispSize(frameInfo.screenSizeInDisplayCoords.x()/frameInfo.sceneRenderer.framebufferWidth,frameInfo.screenSizeInDisplayCoords.y()/frameInfo.sceneRenderer.framebufferHeight);
-
-    
-    // If this is present, the drawable wants to do something based where the viewer is looking
-    prog->setUniform(u_EyeVecNameID, frameInfo.fullEyeVec);
-    
-    prog->setUniform(u_SizeNameID, pointSize);
-    prog->setUniform(u_TimeNameID, (float)(frameInfo.currentTime-baseTime));
-    prog->setUniform(u_lifetimeNameID, (float)lifetime);
-    prog->setUniform(u_pixDispSizeNameID, pixDispSize);
     
     // The program itself may have some textures to bind
-    bool hasTexture[WhirlyKitMaxTextures];
-    int progTexBound = prog->bindTextures();
+    progTexBound = prog->bindTextures();
     for (unsigned int ii=0;ii<progTexBound;ii++)
         hasTexture[ii] = true;
     
@@ -320,6 +334,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     {
         GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
         auto baseMapNameID = baseMapNameIDs[ii];
+        auto hasBaseMapNameID = hasBaseMapNameIDs[ii];
         const OpenGLESUniform *texUni = prog->findUniform(baseMapNameID);
         hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
         if (hasTexture[ii+progTexBound])
@@ -329,68 +344,294 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
             CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
             prog->setUniform(baseMapNameID, (int)ii+progTexBound);
             CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
+            prog->setUniform(hasBaseMapNameID, 1);
+        } else {
+            prog->setUniform(hasBaseMapNameID, 0);
         }
     }
-
-    // Use the rectangle buffer for instancing
-    if (rectBuffer)
-    {
-        glBindBuffer(GL_ARRAY_BUFFER,rectBuffer);
-        const OpenGLESAttribute *thisAttr = prog->findAttribute(a_offsetNameID);
-        if (thisAttr)
+}
+    
+void ParticleSystemDrawable::drawTeardownTextures(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int progTexBound)
+{
+    // Unbind any textures
+    for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
+        if (hasTexture[ii])
         {
-            glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)0);
-            CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
-                glVertexAttribDivisorEXT(thisAttr->index, 0);
-            else
-                glVertexAttribDivisor(thisAttr->index, 0);
-            glEnableVertexAttribArray(thisAttr->index);
-            CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
+            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii)];
+            glBindTexture(GL_TEXTURE_2D, 0);
         }
-        thisAttr = prog->findAttribute(a_texCoordNameID);
-        if (thisAttr)
-        {
-            glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)(2*sizeof(GLfloat)));
-            CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
-                glVertexAttribDivisorEXT(thisAttr->index, 0);
-            else
-                glVertexAttribDivisor(thisAttr->index, 0);
-            glEnableVertexAttribArray(thisAttr->index);
-            CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
-        }
-//        glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }
+}
+    
+void ParticleSystemDrawable::drawSetupUniforms(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog)
+{
+    // Model/View/Projection matrix
+    prog->setUniform(mvpMatrixNameID, frameInfo.mvpMat);
+    prog->setUniform(mvpInvMatrixNameID, frameInfo.mvpInvMat);
+    prog->setUniform(mvMatrixNameID, frameInfo.viewAndModelMat);
+    prog->setUniform(mvNormalMatrixNameID, frameInfo.viewModelNormalMat);
+    prog->setUniform(mvpNormalMatrixNameID, frameInfo.mvpNormalMat);
+    prog->setUniform(u_pMatrixNameID, frameInfo.projMat);
+    prog->setUniform(u_ScaleNameID, Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
+    
+    // Size of a single pixel
+    Point2f pixDispSize(frameInfo.screenSizeInDisplayCoords.x()/frameInfo.sceneRenderer.framebufferWidth,frameInfo.screenSizeInDisplayCoords.y()/frameInfo.sceneRenderer.framebufferHeight);
+    
+    // If this is present, the drawable wants to do something based where the viewer is looking
+    prog->setUniform(u_EyeVecNameID, frameInfo.fullEyeVec);
+    prog->setUniform(u_EyePosNameID, Vector3dToVector3f(frameInfo.eyePos));
 
+    prog->setUniform(u_SizeNameID, pointSize);
+    prog->setUniform(u_TimeNameID, (float)(frameInfo.currentTime-baseTime));
+    prog->setUniform(u_lifetimeNameID, (float)lifetime);
+    prog->setUniform(u_pixDispSizeNameID, pixDispSize);
+    prog->setUniform(u_frameLenID, (float)frameInfo.frameLen);
+}
+    
+void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int vertexOffset,bool useInstancingHere)
+{
     glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
-
-    // Work through the batches
-    for (const BufferChunk &chunk : chunks)
+    
+    // Bind the various attributes to their offsets
+    int attrOffset = 0;
+    for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
     {
-        // Bind the various attributes to their offsets
-        int attrOffset = 0;
-        for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
+        int attrSize = attrInfo.size();
+        
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID);
+        if (thisAttr)
         {
-            int attrSize = attrInfo.size();
+            glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)(attrOffset+chunk.bufferStart));
             
-            const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID);
-            if (thisAttr)
-            {
-                glVertexAttribPointer(thisAttr->index, attrInfo.glEntryComponents(), attrInfo.glType(), attrInfo.glNormalize(), vertexSize, (const GLvoid *)(long)(attrOffset+chunk.bufferStart));
+            if (useInstancingHere) {
                 int divisor = 0;
-                
                 if (useInstancing)
                     divisor = 1;
                 if (context.API < kEAGLRenderingAPIOpenGLES3)
                     glVertexAttribDivisorEXT(thisAttr->index, divisor);
                 else
                     glVertexAttribDivisor(thisAttr->index, divisor);
-                glEnableVertexAttribArray(thisAttr->index);
             }
-            
-            attrOffset += attrSize;
+            glEnableVertexAttribArray(thisAttr->index);
         }
+        
+        attrOffset += attrSize;
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
+    // Link the varying output to attribute array input
+    int varyWhich = 0;
+    for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
+        glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyWhich].buffers[activeVaryBuffer]);
+        
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(varyInfo.nameID);
+        if (thisAttr)
+        {
+            GLuint size = varyInfo.size();
+            glVertexAttribPointer(thisAttr->index, varyInfo.glEntryComponents(), varyInfo.glType(), varyInfo.glNormalize(), varyInfo.size(), (const GLvoid *)(long)(size*vertexOffset));
+            
+            if (useInstancingHere) {
+                int divisor = 0;
+                if (useInstancing)
+                    divisor = 1;
+                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                    glVertexAttribDivisorEXT(thisAttr->index, divisor);
+                else
+                    glVertexAttribDivisor(thisAttr->index, divisor);
+            }
+            glEnableVertexAttribArray(thisAttr->index);
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        
+//        {
+//            GLint attrSize = varyInfo.size();
+//            glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyWhich].buffers[activeVaryBuffer]);
+//            void *glMem = NULL;
+//            glMem = glMapBufferRange(GL_ARRAY_BUFFER, chunk.vertexStart*attrSize, chunk.numVertices*attrSize, GL_MAP_READ_BIT);
+//            float *floatData = (float *)glMem;
+//            Point3f *vecData = (Point3f *)vecData;
+//            int numBad = 0;
+//            for (int ix=0;ix<chunk.numVertices*(attrSize/4);ix++)
+//                if (isnan(floatData[ix]))
+//                    numBad++;
+//            if (numBad > 1)
+//                NSLog(@"bindAttrs(): Got junk data for %s, vertexStart = %d, numVertex = %d, bad = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart,chunk.numVertices,numBad);
+//            //            else
+//            //                NSLog(@"calculate(): Got good data for %s, vertexStart = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart);
+//            glUnmapBuffer(GL_ARRAY_BUFFER);
+//            glBindBuffer(GL_ARRAY_BUFFER, 0);
+//        }
+
+        varyWhich++;
+    }
+}
+    
+void ParticleSystemDrawable::drawUnbindAttrs(OpenGLES2Program *prog)
+{
+    // Tear down the state
+    for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
+    {
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID);
+        if (thisAttr) {
+            glDisableVertexAttribArray(thisAttr->index);
+            glVertexAttribDivisor(thisAttr->index, 0);
+        }
+    }
+    for (SingleVertexAttributeInfo &varyInfo : varyAttrs)
+    {
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(varyInfo.nameID);
+        if (thisAttr) {
+            glDisableVertexAttribArray(thisAttr->index);
+            glVertexAttribDivisor(thisAttr->index, 0);
+        }
+    }
+}
+    
+void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+{
+    CheckGLError("BasicDrawable::calculate() glBeginTransformFeedback");
+
+    updateBatches(frameInfo.currentTime);
+    updateChunks();
+    lastUpdateTime = frameInfo.currentTime;
+    
+    if (chunks.empty())
+        return;
+    
+    EAGLContext *context = [EAGLContext currentContext];
+    OpenGLES2Program *prog = frameInfo.program;
+    
+    if (!prog)
+        return;
+    
+    // Setup the textures for use and set the uniforms
+    bool hasTexture[WhirlyKitMaxTextures];
+    int progTexBound = 0;
+    drawSetupTextures(frameInfo, scene, prog, hasTexture, progTexBound);
+    drawSetupUniforms(frameInfo, scene, prog);
+    
+    // Work through the batches to assign vertex arrays
+    for (const BufferChunk &chunk : chunks)
+    {
+//        NSLog(@"Calculating chunk vertexStart = %d, numVertex = %d",chunk.vertexStart,chunk.numVertices);
+
+        drawBindAttrs(context,frameInfo,scene,prog,chunk,chunk.vertexStart,false);
+        
+        // Now bind the varying outputs to their buffers
+        int varyIdx = 0;
+        int outputVaryBuffer = (activeVaryBuffer == 0) ? 1 : 0;
+        for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
+            GLint attrSize = varyInfo.size();
+            glBindBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, varyIdx, varyBuffers[varyIdx].buffers[outputVaryBuffer], chunk.vertexStart*attrSize, chunk.numVertices*attrSize);
+            varyIdx++;
+        }
+        
+        glBeginTransformFeedback(GL_POINTS);
+        CheckGLError("BasicDrawable::calculate() glBeginTransformFeedback");
+
+        glDrawArrays(GL_POINTS, 0, chunk.numVertices);
+        CheckGLError("BasicDrawable::calculate() glDrawArrays");
+
+        glEndTransformFeedback();
+        CheckGLError("BasicDrawable::calculate() glEndTransformFeedback");
+        
+        for (int varyIdx = 0; varyIdx < varyAttrs.size(); varyIdx++) {
+            glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, varyIdx, 0);
+        }
+
+//        // Note: Check the buffer
+//        varyIdx = 0;
+//        for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
+//            GLint attrSize = varyInfo.size();
+//            glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyIdx].buffers[outputVaryBuffer]);
+//            void *glMem = NULL;
+//            glMem = glMapBufferRange(GL_ARRAY_BUFFER, chunk.vertexStart*attrSize, chunk.numVertices*attrSize, GL_MAP_READ_BIT);
+//            float *floatData = (float *)glMem;
+//            Point3f *vecData = (Point3f *)vecData;
+//            int numBad = 0;
+//            for (int ix=0;ix<chunk.numVertices*(attrSize/4);ix++)
+//                if (isnan(floatData[ix]))
+//                    numBad++;
+//            if (numBad > 1)
+//                NSLog(@"calculate(): Got junk data for %s, vertexStart = %d, numVertex = %d, bad = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart,chunk.numVertices,numBad);
+////            else
+////                NSLog(@"calculate(): Got good data for %s, vertexStart = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart);
+//            glUnmapBuffer(GL_ARRAY_BUFFER);
+//            glBindBuffer(GL_ARRAY_BUFFER, 0);
+//            varyIdx++;
+//        }
+        
+        drawUnbindAttrs(prog);
+    }
+
+    // Tear down textures we may have set up
+    drawTeardownTextures(frameInfo, scene, prog, hasTexture, progTexBound);
+    
+    // Switch the active vary buffers (if we're using them)
+    activeVaryBuffer = (activeVaryBuffer == 0) ? 1 : 0;
+}
+
+void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+{
+    if (lastUpdateTime < frameInfo.currentTime) {
+        updateBatches(frameInfo.currentTime);
+        updateChunks();
+        lastUpdateTime = frameInfo.currentTime;
+    }
+    
+    if (chunks.empty())
+        return;
+    
+    EAGLContext *context = [EAGLContext currentContext];
+    OpenGLES2Program *prog = frameInfo.program;
+    
+    // Sometimes the program is deleted before the drawable (oops)
+    if (!prog)
+        return;
+    
+    bool hasTexture[WhirlyKitMaxTextures];
+    int progTexBound = 0;
+
+    // Setup the textures for use and set the uniforms
+    drawSetupTextures(frameInfo, scene, prog, hasTexture, progTexBound);
+    drawSetupUniforms(frameInfo, scene, prog);
+
+    // Work through the batches
+    for (const BufferChunk &chunk : chunks)
+    {
+//        NSLog(@"Drawing chunk vertexStart = %d, numVertex = %d",chunk.vertexStart,chunk.numVertices);
+        
+        // Use the rectangle buffer for instancing
+        if (rectBuffer)
+        {
+            glBindBuffer(GL_ARRAY_BUFFER,rectBuffer);
+            const OpenGLESAttribute *thisAttr = prog->findAttribute(a_offsetNameID);
+            if (thisAttr)
+            {
+                glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)0);
+                CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
+                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                    glVertexAttribDivisorEXT(thisAttr->index, 0);
+                else
+                    glVertexAttribDivisor(thisAttr->index, 0);
+                glEnableVertexAttribArray(thisAttr->index);
+                CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
+            }
+            thisAttr = prog->findAttribute(a_texCoordNameID);
+            if (thisAttr)
+            {
+                glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)(2*sizeof(GLfloat)));
+                CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
+                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                    glVertexAttribDivisorEXT(thisAttr->index, 0);
+                else
+                    glVertexAttribDivisor(thisAttr->index, 0);
+                glEnableVertexAttribArray(thisAttr->index);
+                CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
+            }
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        }
+
+        drawBindAttrs(context,frameInfo,scene,prog,chunk,chunk.vertexStart,true);
 
         if (rectBuffer)
         {
@@ -403,42 +644,28 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
             glDrawArrays(GL_POINTS, 0, chunk.numVertices);
             CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
         }
+    
+        if (rectBuffer)
+        {
+            const OpenGLESAttribute *thisAttr = prog->findAttribute(a_offsetNameID);
+            if (thisAttr)
+            {
+                glDisableVertexAttribArray(thisAttr->index);
+                CheckGLError("ParticleSystemDrawable glDisableVertexAttribArray");
+            }
+            thisAttr = prog->findAttribute(a_texCoordNameID);
+            if (thisAttr)
+            {
+                glDisableVertexAttribArray(thisAttr->index);
+                CheckGLError("ParticleSystemDrawable glDisableVertexAttribArray");
+            }
+        }
+
+        drawUnbindAttrs(prog);
     }
     
-    if (rectBuffer)
-    {
-        const OpenGLESAttribute *thisAttr = prog->findAttribute(a_offsetNameID);
-        if (thisAttr)
-        {
-            glDisableVertexAttribArray(thisAttr->index);
-            CheckGLError("ParticleSystemDrawable glDisableVertexAttribArray");
-        }
-        thisAttr = prog->findAttribute(a_texCoordNameID);
-        if (thisAttr)
-        {
-            glDisableVertexAttribArray(thisAttr->index);
-            CheckGLError("ParticleSystemDrawable glDisableVertexAttribArray");
-        }
-    }
-
-    // Tear down the state
-    for (SingleVertexAttributeInfo &attrInfo : vertAttrs)
-    {
-        const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID);
-        if (thisAttr) {
-            glDisableVertexAttribArray(thisAttr->index);
-        }
-    }
-
-    // Unbind any textures
-    for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
-        if (hasTexture[ii])
-        {
-            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii)];
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // Tear down any textures we set up
+    drawTeardownTextures(frameInfo, scene, prog, hasTexture, progTexBound);
 }
     
 static const char *vertexShaderTri =

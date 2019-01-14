@@ -76,13 +76,15 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         }
         
         // Set up the tile info (where the data is) and the tile source to interpet it
-        let tileInfo = MaplyRemoteTileInfo.init(baseURL: "http://public-mobile-data-stage-saildrone-com.s3-us-west-1.amazonaws.com/openmaptiles/{z}/{x}/{y}.png", ext: nil, minZoom: 0, maxZoom: 14)
+        let tileInfo = MaplyRemoteTileInfoNew(baseURL: "http://public-mobile-data-stage-saildrone-com.s3-us-west-1.amazonaws.com/openmaptiles/{z}/{x}/{y}.png",
+                                              minZoom: 0,
+                                              maxZoom: 14)
         let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
         tileInfo.cacheDir = "\(cacheDir)/openmaptiles_saildrone/"
 
         // Parameters describing how we want a globe broken down
         let sampleParams = MaplySamplingParams()
-        sampleParams.coordSys = tileInfo.coordSys!
+        sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
         sampleParams.minImportance = 1024 * 1024
         sampleParams.singleLevel = true
         sampleParams.levelLoads = [-3];
@@ -94,7 +96,7 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
             sampleParams.edgeMatching = false
         }
         sampleParams.minZoom = 0
-        sampleParams.maxZoom = tileInfo.maxZoom
+        sampleParams.maxZoom = tileInfo.maxZoom()
         
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil

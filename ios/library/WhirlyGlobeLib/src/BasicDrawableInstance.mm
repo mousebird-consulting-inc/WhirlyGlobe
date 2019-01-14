@@ -335,6 +335,10 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
 
 void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
 {
+    // Happens if we're deleting things out of order
+    if (!basicDraw || !basicDraw->isSetupInGL())
+        return;
+    
     // The old style where we reuse the basic drawable
     if (instanceStyle == ReuseStyle)
     {
@@ -539,6 +543,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         {
             GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
             auto baseMapNameID = baseMapNameIDs[ii];
+            auto hasBaseMapNameID = hasBaseMapNameIDs[ii];
             auto texScaleNameID = texScaleNameIDs[ii];
             auto texOffsetNameID = texOffsetNameIDs[ii];
             const OpenGLESUniform *texUni = prog->findUniform(baseMapNameID);
@@ -550,24 +555,29 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                 CheckGLError("BasicDrawableInstance::drawVBO2() glBindTexture");
                 prog->setUniform(baseMapNameID, (int)ii+progTexBound);
                 CheckGLError("BasicDrawableInstance::drawVBO2() glUniform1i");
+                prog->setUniform(hasBaseMapNameID, 1);
                 
                 float texScale = 1.0;
                 Vector2f texOffset(0.0,0.0);
                 // Adjust for border pixels
-                auto thisTexInfo = texInfo[ii];
-                if (thisTexInfo.borderTexel > 0 && thisTexInfo.size > 0) {
-                    texScale = (thisTexInfo.size - 2 * thisTexInfo.borderTexel) / (double)thisTexInfo.size;
-                    float offset = thisTexInfo.borderTexel / (double)thisTexInfo.size;
-                    texOffset = Vector2f(offset,offset);
+                if (ii < texInfo.size()) {
+                    auto thisTexInfo = texInfo[ii];
+                    if (thisTexInfo.borderTexel > 0 && thisTexInfo.size > 0) {
+                        texScale = (thisTexInfo.size - 2 * thisTexInfo.borderTexel) / (double)thisTexInfo.size;
+                        float offset = thisTexInfo.borderTexel / (double)thisTexInfo.size;
+                        texOffset = Vector2f(offset,offset);
+                    }
+                    // Adjust for a relative texture lookup (using lower zoom levels)
+                    if (thisTexInfo.relLevel > 0) {
+                        texScale = texScale/(1<<thisTexInfo.relLevel);
+                        texOffset = Vector2f(texScale*thisTexInfo.relX,texScale*thisTexInfo.relY) + texOffset;
+                    }
+                    prog->setUniform(texScaleNameID, Vector2f(texScale, texScale));
+                    prog->setUniform(texOffsetNameID, texOffset);
                 }
-                // Adjust for a relative texture lookup (using lower zoom levels)
-                if (thisTexInfo.relLevel > 0) {
-                    texScale = texScale/(1<<thisTexInfo.relLevel);
-                    texOffset = Vector2f(texScale*thisTexInfo.relX,texScale*thisTexInfo.relY) + texOffset;
-                }
-                prog->setUniform(texScaleNameID, Vector2f(texScale, texScale));
-                prog->setUniform(texOffsetNameID, texOffset);
                 CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
+            } else {
+                prog->setUniform(hasBaseMapNameID, 0);
             }
         }
         
@@ -624,6 +634,13 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                 attrDef.attr.glSetDefault(attrDef.progAttrIndex);
                 CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
             }
+        }
+        
+        // Note: Something of a hack
+        if (hasColor) {
+            const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID);
+            if (colorAttr)
+                glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
         }
         
         // If there are no instances, fill in the identity

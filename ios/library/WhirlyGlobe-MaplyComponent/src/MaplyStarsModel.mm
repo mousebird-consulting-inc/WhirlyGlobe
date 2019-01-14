@@ -144,7 +144,7 @@ typedef struct
     partSys.totalParticles = (int)stars.size();
     partSys.batchSize = (int)stars.size();
     partSys.continuousUpdate = false;
-    partSys.shader = shader.name;
+    partSys.renderShader = shader;
     if (starTex)
         [partSys addTexture:starTex];
     [partSys addAttribute:@"a_position" type:MaplyShaderAttrTypeFloat3];

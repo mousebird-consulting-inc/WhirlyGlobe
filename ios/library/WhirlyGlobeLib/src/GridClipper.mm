@@ -19,7 +19,7 @@
  */
 
 #import "GridClipper.h"
-#import "cpp/clipper.hpp"
+#import "clipper.hpp"
 
 namespace WhirlyKit
 {

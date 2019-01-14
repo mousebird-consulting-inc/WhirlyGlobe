@@ -292,17 +292,23 @@
         }
 
         int red,green,blue;
+        int alpha = 255;
         if ([str length] == 4)
         {
             red = (iVal >> 8) & 0xf;  red |= red << 4;
             green = (iVal >> 4) & 0xf;  green |= green << 4;
             blue = iVal & 0xf;  blue |= blue << 4;
+        } else if ([str length] > 7) {
+            red = (iVal >> 24) & 0xff;
+            green = (iVal >> 16) & 0xff;
+            blue = (iVal >> 8) & 0xff;
+            alpha = iVal & 0xff;
         } else {
             red = (iVal >> 16) & 0xff;
             green = (iVal >> 8) & 0xff;
             blue = iVal & 0xff;
         }
-        return [UIColor colorWithRed:(double)red/255.0 green:(double)green/255.0 blue:(double)blue/255.0 alpha:1.0];
+        return [UIColor colorWithRed:(double)red/255.0 green:(double)green/255.0 blue:(double)blue/255.0 alpha:alpha/255.0];
     } else if ([str rangeOfString:@"rgb("].location == 0)
     {
         NSScanner *scanner = [NSScanner scannerWithString:str];
@@ -407,6 +413,9 @@
 @end
 
 @implementation MaplyMapboxVectorStyleLayer
+{
+    NSString *category;
+}
 
 + (id)VectorStyleLayer:(MapboxVectorStyleSet *)styleSet JSON:(NSDictionary *)layerDict drawPriority:(int)drawPriority
 {
@@ -488,11 +497,17 @@
     self.sourceLayer = [styleSet stringValue:@"source-layer" dict:layerDict defVal:refLayer.sourceLayer];
     self.minzoom = [styleSet intValue:@"minzoom" dict:layerDict defVal:refLayer.minzoom];
     self.maxzoom = [styleSet intValue:@"maxzoom" dict:layerDict defVal:refLayer.maxzoom];
+    category = [styleSet stringValue:@"wkcategory" dict:layerDict defVal:nil];
     
     return self;
 }
 
-- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyTileID)tileID viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (NSString *)getCategory
+{
+    return category;
+}
+
+- (NSArray *)buildObjects:(NSArray *)vecObjs forTile:(MaplyVectorTileInfo *)tileInfo viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     return nil;
 }

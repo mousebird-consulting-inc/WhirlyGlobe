@@ -39,7 +39,7 @@
 #import "MaplyLocationTracker.h"
 #import "MaplyRenderTarget.h"
 #import "MaplyRenderController.h"
-#import "MaplyTileFetcher.h"
+#import "MaplyRemoteTileFetcher.h"
 
 /** 
     When selecting multiple objects, one or more of these is returned.
@@ -645,6 +645,15 @@
   */
 - (MaplyComponentObject *__nullable)addParticleSystem:(MaplyParticleSystem *__nonnull)partSys desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
+/**
+    Change the render target for a particle system.
+
+    This changes the render target for an existing particle system that's already been created.
+    Can pass in nil, which means the particles are rendered to the screen directly.
+    This change takes place immediately, so call it on the main thread.
+ */
+- (void)changeParticleSystem:(MaplyComponentObject *__nonnull)compObj renderTarget:(MaplyRenderTarget *__nullable)target;
+
 /** 
     Add a batch of particles to the current scene.
     
@@ -1155,6 +1164,11 @@
   */
 - (MaplyShader *__nullable)getShaderByName:(NSString *__nonnull)name;
 
+/**
+    Remove a shader that was added earlier.
+  */
+- (void)removeShaderProgram:(MaplyShader *__nonnull)shader;
+
 /** 
     Return the current map scale from the viewpoint.
     
@@ -1179,6 +1193,14 @@
     Takes a snapshot of the current OpenGL view and returns it.
   */
 - (UIImage *__nullable)snapshot;
+
+/**
+    Return the raw data for a render target.
+
+    Copies the pixels for a render target out after rendering and returns them in an NSData object.
+    This is not fast.  Don't call it often.
+  */
+- (NSData * __nullable)shapshotRenderTarget:(MaplyRenderTarget * __nonnull)renderTarget;
 
 /** 
     Return the current map zoom from the viewpoint.
@@ -1311,9 +1333,9 @@
 -(NSArray * _Nonnull)loadedLayers;
 
 /// Return a tile fetcher we may share between loaders
-- (MaplyTileFetcher * __nonnull)addTileFetcher:(NSString * __nonnull)name;
+- (MaplyRemoteTileFetcher * __nonnull)addTileFetcher:(NSString * __nonnull)name;
 
 /// Return an existing tile fetcher if there is one
-- (MaplyTileFetcher * __nullable)getTileFetcher:(NSString * __nonnull)name;
+- (MaplyRemoteTileFetcher * __nullable)getTileFetcher:(NSString * __nonnull)name;
 
 @end
