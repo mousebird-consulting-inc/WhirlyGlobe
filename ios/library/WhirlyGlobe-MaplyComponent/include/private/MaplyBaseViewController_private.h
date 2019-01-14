@@ -33,7 +33,6 @@
 #import "SMCalloutView.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyRenderController_private.h"
-#import "MaplyTileFetcher.h"
 #import "ParticleSystemLayer.h"
 #import "ViewPlacementActiveModel.h"
 

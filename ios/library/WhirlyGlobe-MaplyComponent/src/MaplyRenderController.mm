@@ -275,8 +275,11 @@ using namespace Eigen;
 
 - (void)removeShaderProgram:(MaplyShader *__nonnull)shaderToRemove
 {
+    if (!interactLayer)
+        return;
+
     bool found = false;
-    for (MaplyShader *shader in shaders) {
+    for (MaplyShader *shader in interactLayer->shaders) {
         if (shader == shaderToRemove) {
             found = true;
             break;
@@ -285,7 +288,7 @@ using namespace Eigen;
     
     if (!found)
         return;
-    [shaders removeObject:shaderToRemove];
+    [interactLayer->shaders removeObject:shaderToRemove];
     
     if (shaderToRemove.program)
         scene->removeProgram(shaderToRemove.program->getId());

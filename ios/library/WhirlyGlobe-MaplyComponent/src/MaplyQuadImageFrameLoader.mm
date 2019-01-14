@@ -695,7 +695,8 @@ using namespace WhirlyKit;
         }
 
         if (self->shaderID == EmptyIdentity) {
-            self->shaderID = self->viewC->renderControl->scene->getProgramIDBySceneName(kToolkitDefaultTriangleMultiTex);
+            MaplyShader *theShader = [self->viewC getShaderByName:kMaplyShaderDefaultTriMultiTex];
+            self->shaderID = [theShader getShaderID];
         }
     });
     

@@ -20,7 +20,6 @@
 
 #import "MapnikStyleSet.h"
 #import "MaplyVectorTileStyle.h"
-#import "MaplyVectorTiles.h"
 
 #import "MaplyTileSource.h"
 #import "MapnikStyle.h"

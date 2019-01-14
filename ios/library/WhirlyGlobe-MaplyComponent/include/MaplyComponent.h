@@ -59,10 +59,8 @@
 #import "MaplyAerisTiles.h"
 
 #import "MapboxVectorTiles.h"
-#import "MapboxVectorTilesPagingDelegate.h"
 #import "MapboxVectorImageInterpreter.h"
 #import "MapnikStyleSet.h"
-#import "MapboxMultiSourceTileInfo.h"
 #import "MaplyVectorStyleSimple.h"
 #import "SLDStyleSet.h"
 #import "MapboxVectorStyleSet.h"

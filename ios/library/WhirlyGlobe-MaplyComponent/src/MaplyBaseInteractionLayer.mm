@@ -3115,9 +3115,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     SimpleIdentity partSysShaderID = [inDesc[kMaplyShader] intValue];
     if (partSysShaderID == EmptyIdentity)
         partSysShaderID = [self getProgramID:kMaplyShaderParticleSystemPointDefault];
-    if (partSys.shader)
-    {
-        partSysShaderID = [self getProgramID:partSys.shader];
+    if (partSys.renderShader) {
+        partSysShaderID = [partSys.renderShader getShaderID];
     }
     SimpleIdentity calcShaderID = EmptyIdentity;
     if (partSys.positionShader) {
