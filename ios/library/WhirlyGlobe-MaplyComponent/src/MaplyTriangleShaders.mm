@@ -25,6 +25,8 @@ namespace WhirlyKit
 {
     
 static const char *vertexShaderTri = R"(
+precision highp float;
+
 struct directional_light {
   vec3 direction;
   vec3 halfplane;
@@ -92,7 +94,7 @@ void main()
 )";
 
 static const char *fragmentShaderTri = R"(
-precision mediump float;
+precision highp float;
 
 uniform sampler2D s_baseMap0;
 uniform bool  u_hasTexture;
@@ -124,6 +126,8 @@ OpenGLES2Program *BuildDefaultTriShaderLighting(const std::string &name)
 }
 
 static const char *vertexShaderNoLightTri = R"(
+precision highp float;
+    
 uniform mat4  u_mvpMatrix;
 uniform float u_fade;
 attribute vec3 a_position;
@@ -131,12 +135,18 @@ attribute vec2 a_texCoord0;
 attribute vec4 a_color;
 attribute vec3 a_normal;
 
+uniform vec2 u_texOffset0;
+uniform vec2 u_texScale0;
+
 varying vec2 v_texCoord;
 varying vec4 v_color;
 
 void main()
 {
-   v_texCoord = a_texCoord0;
+    if (u_texScale0.x != 0.0)
+        v_texCoord = vec2(a_texCoord0.x*u_texScale0.x,a_texCoord0.y*u_texScale0.y) + u_texOffset0;
+    else
+        v_texCoord = a_texCoord0;
    v_color = a_color * u_fade;
 
    gl_Position = u_mvpMatrix * vec4(a_position,1.0);
@@ -144,7 +154,7 @@ void main()
 )";
 
 static const char *fragmentShaderNoLightTri = R"(
-precision mediump float;
+precision highp float;
 
 uniform sampler2D s_baseMap0;
 uniform bool  u_hasTexture;
@@ -176,6 +186,8 @@ OpenGLES2Program *BuildDefaultTriShaderNoLighting(const std::string &name)
 }
     
 static const char *vertexShaderModelTri = R"(
+precision highp float;
+    
 struct directional_light {
   vec3 direction;
   vec3 halfplane;
@@ -259,6 +271,8 @@ OpenGLES2Program *BuildDefaultTriShaderModel(const std::string &name)
 }
 
 static const char *vertexShaderScreenTexTri = R"(
+precision highp float;
+
 struct directional_light {
   vec3 direction;
   vec3 halfplane;
@@ -341,6 +355,8 @@ OpenGLES2Program *BuildDefaultTriShaderScreenTexture(const std::string &name)
 }
 
 static const char *vertexShaderTriMultiTex = R"(
+precision highp float;
+
 struct directional_light {
   vec3 direction;
   vec3 halfplane;
@@ -363,6 +379,11 @@ uniform int u_numLights;
 uniform directional_light light[8];
 uniform material_properties material;
 uniform float u_interp;
+    
+uniform vec2 u_texOffset0;
+uniform vec2 u_texScale0;
+uniform vec2 u_texOffset1;
+uniform vec2 u_texScale1;
 
 attribute vec3 a_position;
 attribute vec2 a_texCoord0;
@@ -376,9 +397,17 @@ varying vec4 v_color;
 
 void main()
 {
-   v_texCoord0 = a_texCoord0;
-   v_texCoord1 = a_texCoord1;
-   v_color = vec4(0.0,0.0,0.0,0.0);
+    if (u_texScale0.x != 0.0)
+        v_texCoord0 = vec2(a_texCoord0.x*u_texScale0.x,a_texCoord0.y*u_texScale0.y) + u_texOffset0;
+    else
+        v_texCoord0 = a_texCoord0;
+
+    if (u_texScale1.x != 0.0)
+        v_texCoord1 = vec2(a_texCoord0.x*u_texScale1.x,a_texCoord0.y*u_texScale1.y) + u_texOffset1;
+    else
+        v_texCoord1 = a_texCoord0;
+
+    v_color = vec4(0.0,0.0,0.0,0.0);
    if (u_numLights > 0)
    {
      vec4 ambient = vec4(0.0,0.0,0.0,0.0);
@@ -406,7 +435,7 @@ void main()
 )";
     
 static const char *fragmentShaderTriMultiTex = R"(
-precision mediump float;
+precision highp float;
 
 uniform sampler2D s_baseMap0;
 uniform sampler2D s_baseMap1;
@@ -438,7 +467,7 @@ OpenGLES2Program *BuildDefaultTriShaderMultitex(const std::string &name)
 }
 
 static const char *fragmentShaderTriMultiTexRamp = R"(
-precision mediump float;
+precision highp float;
 
 uniform sampler2D s_baseMap0;
 uniform sampler2D s_baseMap1;
@@ -521,7 +550,7 @@ void main()
 )";
 
 static const char *fragmentShaderTriNightDay = R"(
-precision mediump float;
+precision highp float;
 
 uniform sampler2D s_baseMap0;
 uniform sampler2D s_baseMap1;

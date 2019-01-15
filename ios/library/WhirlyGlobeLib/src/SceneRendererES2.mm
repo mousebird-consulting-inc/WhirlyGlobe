@@ -571,6 +571,10 @@ public:
                 }
             }
         }
+
+        // Sort the drawables (possibly multiple of the same if we have offset matrices)
+        bool sortLinesToEnd = (super.zBufferMode == zBufferOffDefault);
+        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(super.sortAlphaToEnd,sortLinesToEnd,baseFrameInfo));
         
         if (perfInterval > 0)
             perfTimer.startTiming("Calculation Shaders");
@@ -746,75 +750,7 @@ public:
         // Anything generated needs to be cleaned up
         generatedDrawables.clear();
         drawList.clear();
-        
-        if (perfInterval > 0)
-        perfTimer.startTiming("Generators - Draw 2D");
-        
-        // Now for the 2D display
-        if (!screenDrawables.empty())
-        {
-            curProgramId = EmptyIdentity;
-            
-            [renderStateOptimizer setEnableDepthTest:false];
-            // Sort by draw priority (and alpha, I guess)
-            for (unsigned int ii=0;ii<screenDrawables.size();ii++)
-            {
-                Drawable *theDrawable = screenDrawables[ii].get();
-                if (theDrawable)
-                    drawList.push_back(DrawableContainer(theDrawable));
-                else
-                    NSLog(@"Bad drawable coming from generator.");
-            }
-            std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(false,false,baseFrameInfo));
-            
-            // Build an orthographic projection
-            // We flip the vertical axis and spread the window out (0,0)->(width,height)
-            Eigen::Matrix4f orthoMat = Matrix4f::Identity();
-            Vector3f delta(framebufferWidth,-framebufferHeight,2.0);
-            orthoMat(0,0) = 2.0f / delta.x();
-            orthoMat(0,3) = -(framebufferWidth) / delta.x();
-            orthoMat(1,1) = 2.0f / delta.y();
-            orthoMat(1,3) = -framebufferHeight / delta.y();
-            orthoMat(2,2) = -2.0f / delta.z();
-            orthoMat(2,3) = 0.0f;
-            baseFrameInfo.mvpMat = orthoMat;
-            // Turn off lights
-            baseFrameInfo.lights = nil;
-            
-            for (unsigned int ii=0;ii<drawList.size();ii++)
-            {
-                DrawableContainer &drawContain = drawList[ii];
-                
-                if (drawContain.drawable->isOn(baseFrameInfo))
-                {
-                    // Figure out the program to use for drawing
-                    SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
-                    if (drawProgramId != curProgramId)
-                    {
-                        curProgramId = drawProgramId;
-                        OpenGLES2Program *program = scene->getProgram(drawProgramId);
-                        if (program)
-                        {
-                            //                            [renderStateOptimizer setUseProgram:program->getProgram()];
-                            glUseProgram(program->getProgram());
-                            // Explicitly turn the lights off
-                            program->setUniform(u_numLightsNameID, 0);
-                            baseFrameInfo.program = program;
-                        }
-                    }
-                    
-                    drawContain.drawable->draw(baseFrameInfo,scene);
-                    numDrawables++;
-                }
-            }
-            
-            screenDrawables.clear();
-            drawList.clear();
-        }
     }
-
-    if (perfInterval > 0)
-        perfTimer.stopTiming("Generators - Draw 2D");
 
 //    if (perfInterval > 0)
 //        perfTimer.startTiming("glFinish");

@@ -25,6 +25,8 @@ namespace WhirlyKit
 {
 
 static const char *vertexShaderLine = R"(
+precision highp float;
+    
 uniform mat4  u_mvpMatrix;
 uniform mat4  u_mvMatrix;
 uniform mat4  u_mvNormalMatrix;
@@ -49,7 +51,7 @@ void main()
 )";
 
 static const char *fragmentShaderLine = R"(
-precision mediump float;
+precision highp float;
 
 varying vec4      v_color;
 varying float      v_dot;
@@ -73,6 +75,8 @@ WhirlyKit::OpenGLES2Program *BuildDefautLineShaderCulling(const std::string &nam
 }
 
 static const char *vertexShaderLineNoBack = R"(
+precision highp float;
+    
 uniform mat4  u_mvpMatrix;
 uniform mat4  u_mvMatrix;
 uniform mat4  u_mvNormalMatrix;
@@ -92,7 +96,7 @@ void main()
 )";
 
 static const char *fragmentShaderLineNoBack = R"(
-precision mediump float;
+precision highp float;
 
 varying vec4      v_color;
 

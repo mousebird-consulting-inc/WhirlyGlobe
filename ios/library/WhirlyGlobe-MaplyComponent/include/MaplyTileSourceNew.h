@@ -82,7 +82,7 @@
 
 /** This is requested from a TileInfo object by a loader and then passed
  along to the TileFetcher.  TileFetchers expect certain objects.
- The RemoteTileFetcher wans a RemoteFetchInfo object and will check.
+ The RemoteTileFetcher wants a RemoteFetchInfo object and will check.
  Other fetchers will want other things.
  */
 @property (nonatomic,nonnull,strong) id fetchInfo;
@@ -128,4 +128,3 @@
 - (void)shutdown;
 
 @end
-
