@@ -19,7 +19,6 @@
  */
 
 #import "MaplyLineAndPointShaders_private.h"
-#import "GLUtils.h"
 
 namespace WhirlyKit
 {

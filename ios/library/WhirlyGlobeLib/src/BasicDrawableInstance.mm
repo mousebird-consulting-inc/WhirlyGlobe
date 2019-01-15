@@ -18,7 +18,6 @@
  *
  */
 
-#import "GLUtils.h"
 #import "BasicDrawableInstance.h"
 #import "GlobeScene.h"
 #import "UIImage+Stuff.h"

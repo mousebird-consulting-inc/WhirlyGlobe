@@ -18,7 +18,6 @@
  *
  */
 
-#import "GLUtils.h"
 #import "BasicDrawable.h"
 #import "BasicDrawableInstance.h"
 #import "ParticleSystemDrawable.h"

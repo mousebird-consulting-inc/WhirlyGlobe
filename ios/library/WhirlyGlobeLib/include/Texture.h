@@ -19,7 +19,6 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "GLUtils.h"
 
 #import "Identifiable.h"
 #import "WhirlyVector.h"

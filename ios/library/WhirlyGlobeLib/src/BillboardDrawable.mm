@@ -20,7 +20,6 @@
 
 #import "BillboardDrawable.h"
 #import "OpenGLES2Program.h"
-#import "GLUtils.h"
 #import "SceneRendererES.h"
 
 namespace WhirlyKit

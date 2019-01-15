@@ -19,7 +19,6 @@
  */
 
 #import "MaplyTriangleShaders_private.h"
-#import "GLUtils.h"
 
 namespace WhirlyKit
 {

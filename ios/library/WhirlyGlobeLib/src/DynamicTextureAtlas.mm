@@ -19,7 +19,6 @@
  */
 
 #import "DynamicTextureAtlas.h"
-#import "GLUtils.h"
 
 using namespace Eigen;
 
