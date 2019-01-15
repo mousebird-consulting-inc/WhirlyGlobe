@@ -8,7 +8,6 @@
 
 #import "CartoDBTestCase.h"
 #import "MaplyBaseViewController.h"
-#import "MaplyRemoteTileSource.h"
 #import "WhirlyGlobeViewController.h"
 #import "CartoDBLayer.h"
 #import "AutoTester-Swift.h"

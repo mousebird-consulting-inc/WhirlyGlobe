@@ -57,16 +57,12 @@
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
 		^{
 			// Add the vectors at three different levels
-
-			MaplyVectorDatabase *vecDb = [[MaplyVectorDatabase alloc] initWithShape:@"tl_2013_06075_roads"];
-			if (vecDb) {
-				MaplyVectorObject *vecObj = [vecDb fetchAllVectors];
-				if (vecObj) {
-					[self addWideVectors:vecObj baseViewC:baseViewC
-						   dashedLineTex:dashedLineTex
-						   filledLineTex:filledLineTex];
-				}
-			}
+            MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithShapeFile:@"tl_2013_06075_roads"];
+            if (vecObj) {
+                [self addWideVectors:vecObj baseViewC:baseViewC
+                       dashedLineTex:dashedLineTex
+                       filledLineTex:filledLineTex];
+            }
 		});
 }
 

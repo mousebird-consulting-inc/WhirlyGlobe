@@ -7,13 +7,13 @@
 //
 
 #import "AerisWeatherTestCase.h"
-#import "CartoDBTestCase.h"
 #import "MaplyAerisTiles.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyBaseViewController.h"
 #import "MaplyViewController.h"
 #import "WhirlyGlobeViewController.h"
 #import "MaplyMultiplexTileSource.h"
+#import "AutoTester-Swift.h"
 
 @implementation AerisWeatherTestCase {
     NSString *aerisID;      // The ID for the Aeris account.
@@ -78,7 +78,7 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
+    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
     [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
@@ -92,7 +92,7 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
+    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];

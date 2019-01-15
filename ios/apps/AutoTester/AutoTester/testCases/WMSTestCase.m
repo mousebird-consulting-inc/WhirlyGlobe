@@ -10,10 +10,10 @@
 #import "MaplyBaseViewController.h"
 #import "MaplyViewController.h"
 #import "WhirlyGlobeViewController.h"
-#import "CartoDBTestCase.h"
 
 #import "MaplyWMSTileSource.h"
 #import "DDXML.h"
+#import "AutoTester-Swift.h"
 
 @implementation WMSTestCase {
     MaplyBaseViewController *_baseVC;
@@ -42,7 +42,7 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
+    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithGlobe:globeVC];
     globeVC.height = 0.25;
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
@@ -57,7 +57,7 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    CartoDBTestCase *baseView = [[CartoDBTestCase alloc] init];
+    CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
     mapVC.height = 0.25;
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];

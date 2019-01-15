@@ -7,7 +7,7 @@
 //
 
 #import "RunwayBuilderTestCase.h"
-#import "CartoDBTestCase.h"
+#import "AutoTester-Swift.h"
 
 @implementation RunwayBuilderTestCase
 
@@ -154,33 +154,7 @@
     return [wholeBuilder makeGeomModel:MaplyThreadCurrent];
 }
 
-- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC {
-    NSString *cacheDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES)  objectAtIndex:0];
-    NSString *jsonTileSpec = @"http://a.tiles.mapbox.com/v3/examples.map-zyt2v9k2.json";
-    NSString *thisCacheDir = [NSString stringWithFormat:@"%@/mbtilessat1/",cacheDir];
-
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:jsonTileSpec]];
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:
-    ^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        NSError *jsonError;
-        NSDictionary *tileSourceDict;
-        if (!error)
-            tileSourceDict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonError];
-        if (!error && !jsonError) {
-            MaplyRemoteTileSource *tileSource = [[MaplyRemoteTileSource alloc] initWithTilespec:tileSourceDict];
-            tileSource.cacheDir = thisCacheDir;
-            
-            MaplyQuadImageTilesLayer *layer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:tileSource.coordSys tileSource:tileSource];
-            layer.handleEdges = true;
-            [globeVC addLayer:layer];
-            
-        } else {
-            NSLog(@"Failed to reach JSON tile spec at: %@",jsonTileSpec);
-        }
-    }];
-    [task resume];
-    
+- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC {    
     // Build the model
     MaplyGeomModel *geomModel = [self buildRunwayModel:globeVC];
     

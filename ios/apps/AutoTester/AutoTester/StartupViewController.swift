@@ -36,22 +36,22 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 //        LabelsTestCase(),
 		StickersTestCase(),
 
-		PagingLayerTestCase(),
-		VectorMBTilesTestCase(),
-        OpenMapTilesTestCase(),
+//        PagingLayerTestCase(),
+//        VectorMBTilesTestCase(),
+//        OpenMapTilesTestCase(),
         OpenMapTilesHybridTestCase(),
 
-		StarsSunTestCase(),
+//        StarsSunTestCase(),
 		ShapesTestCase(),
 		LoftedPolysTestCase(),
 
-		CartoDBTestCase(),
+//        CartoDBTestCase(),
 
-		BNGCustomMapTestCase(),
-		BNGTestCase(),
-		ElevationLocalDatabase(),
-		ParticleTestCase(),
-		RunwayBuilderTestCase(),
+//        BNGCustomMapTestCase(),
+//        BNGTestCase(),
+//        ElevationLocalDatabase(),
+//        ParticleTestCase(),
+//        RunwayBuilderTestCase(),
 
 //        AnimatedColorRampTestCase(),
 		ExtrudedModelTestCase(),
@@ -59,7 +59,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		GreatCircleTestCase(),
 		
 		LabelAnimationTestCase(),
-		WMSTestCase(),
+//        WMSTestCase(),
 		FindHeightTestCase(),
 		FullAnimationTest(),
 		ActiveObjectTestCase(),
@@ -67,7 +67,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		LocationTrackingSimTestCase(),
 		LocationTrackingRealTestCase(),
 
-		LIDARTestCase()
+//        LIDARTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!
