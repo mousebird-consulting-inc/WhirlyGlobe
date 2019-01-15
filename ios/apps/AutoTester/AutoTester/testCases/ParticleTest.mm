@@ -294,7 +294,7 @@ void main()
     [posShader delayedSetupWithName:@"Particle Wind Test Pos"
                              vertex:[NSString stringWithFormat:@"%s",vertexPositionShader]
                            fragment:[NSString stringWithFormat:@"%s",fragmentPositionShader]];
-    [viewC addShaderProgram:posShader sceneName:posShader.name];
+    [viewC addShaderProgram:posShader];
     
     // Render shader
     MaplyShader *renderShader = nil;
@@ -310,7 +310,7 @@ void main()
                                                    fragment:[NSString stringWithFormat:@"%s",fragmentRenderShader]
                                                       viewC:viewC];
     }
-    [viewC addShaderProgram:renderShader sceneName:renderShader.name];
+    [viewC addShaderProgram:renderShader];
     
     // Set up the particle system we'll feed with particles
     partSys = [[MaplyParticleSystem alloc] initWithName:@"Particle Wind Test"];

@@ -118,7 +118,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
                                      vertex: vertexShaderNoLightTri,
                                      fragment: fragmentShaderTriMultiTexRamp,
                                      viewC: baseVC) {
-            baseVC.addShaderProgram(shader, sceneName: "AnimatedBasemap Shader")
+            baseVC.addShaderProgram(shader)
             imageLayer?.setShader(shader)
             shader.addTextureNamed("s_colorRamp", image: colorRamp)
         }

@@ -58,10 +58,7 @@
     
     /// Active shaders
     NSMutableArray *shaders;
-    
-    /// Mapping from shader names to shaders
-    std::map<std::string,MaplyShader *> shaderMap;
-    
+        
     pthread_mutex_t tempContextLock;
     // We keep a set of temporary OpenGL ES contexts around for threads that don't have them
     std::set<EAGLContext *> tempContexts;

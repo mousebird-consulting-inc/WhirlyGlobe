@@ -138,8 +138,6 @@ using namespace Eigen;
     
     // Turn on the model matrix optimization for drawing
     sceneRenderer.useViewChanged = true;
-
-    [self setupShaders];
 }
 
 - (void)setScreenObjectDrawPriorityOffset:(int)drawPriorityOffset
@@ -251,7 +249,7 @@ using namespace Eigen;
     }
 }
 
-- (void)addShaderProgram:(MaplyShader *__nonnull)shader sceneName:(NSString *__nonnull)sceneName
+- (void)addShaderProgram:(MaplyShader *__nonnull)shader
 {
     if (!shader)
         return;
@@ -263,14 +261,10 @@ using namespace Eigen;
         return;
     }
     
-    if (!interactLayer->shaders)
-        interactLayer->shaders = [NSMutableArray array];
-    
-    if (![interactLayer->shaders containsObject:shader])
-        [interactLayer->shaders addObject:shader];
-    
-    std::string theSceneName = [sceneName cStringUsingEncoding:NSASCIIStringEncoding];
-    interactLayer->shaderMap[theSceneName] = shader;
+    @synchronized (interactLayer->shaders) {
+        if (![interactLayer->shaders containsObject:shader])
+            [interactLayer->shaders addObject:shader];
+    }
 }
 
 - (void)removeShaderProgram:(MaplyShader *__nonnull)shaderToRemove
@@ -278,17 +272,20 @@ using namespace Eigen;
     if (!interactLayer)
         return;
 
-    bool found = false;
-    for (MaplyShader *shader in interactLayer->shaders) {
-        if (shader == shaderToRemove) {
-            found = true;
-            break;
+    @synchronized (interactLayer->shaders) {
+        bool found = false;
+
+        for (MaplyShader *shader in interactLayer->shaders) {
+            if (shader == shaderToRemove) {
+                found = true;
+                break;
+            }
         }
+
+        if (!found)
+            return;
+        [interactLayer->shaders removeObject:shaderToRemove];
     }
-    
-    if (!found)
-        return;
-    [interactLayer->shaders removeObject:shaderToRemove];
     
     if (shaderToRemove.program)
         scene->removeProgram(shaderToRemove.program->getId());
@@ -299,9 +296,11 @@ using namespace Eigen;
     if (!interactLayer)
         return nil;
 
-    for (MaplyShader *shader in interactLayer->shaders)
-        if (![shader.name compare:name])
-            return shader;
+    @synchronized (interactLayer->shaders) {
+        for (MaplyShader *shader in interactLayer->shaders)
+            if (![shader.name compare:name])
+                return shader;
+    }
     
     return nil;
 }
@@ -529,15 +528,20 @@ using namespace Eigen;
 
 - (void)addShader:(NSString *)inName program:(OpenGLES2Program *)program
 {
+    if (!interactLayer)
+        return;
+    
     if (!program) {
         NSLog(@"Default shader setup:  Failed to create %@",inName);
         return;
     }
-
+    
     std::string name = [inName cStringUsingEncoding:NSASCIIStringEncoding];
     MaplyShader *shader = [[MaplyShader alloc] initWithProgram:program viewC:self];
-    [interactLayer->shaders addObject:shader];
-    interactLayer->shaderMap[name] = shader;
+    shader.name = inName;
+    @synchronized (interactLayer->shaders) {
+        [interactLayer->shaders addObject:shader];
+    }
 }
 
 // Install the various shaders we expect to be running

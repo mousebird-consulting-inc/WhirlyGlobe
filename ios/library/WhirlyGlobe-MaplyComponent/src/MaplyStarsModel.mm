@@ -126,7 +126,7 @@ typedef struct
 
     // Really simple shader
     MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Star Shader" vertex:[NSString stringWithFormat:@"%s",vertexShaderTriPoint] fragment:[NSString stringWithFormat:@"%s",(image ? fragmentShaderTexTriPoint : fragmentShaderTriPoint)] viewC:viewC];
-    [viewC addShaderProgram:shader sceneName:@"Star Shader"];
+    [viewC addShaderProgram:shader];
     [shader setUniformFloatNamed:@"u_radius" val:6.0];
     
     NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];

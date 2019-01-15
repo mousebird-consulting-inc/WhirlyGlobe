@@ -63,6 +63,7 @@
 
 // Setup
 - (void)loadSetup;
+- (void)setupShaders;
 
 // Used in shutting down controls
 - (void)teardown;

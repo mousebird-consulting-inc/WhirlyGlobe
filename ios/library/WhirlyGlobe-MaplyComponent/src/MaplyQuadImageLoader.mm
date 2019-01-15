@@ -525,7 +525,6 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     bool valid;
     MaplySamplingParams *params;
     NSArray<MaplyRemoteTileInfoNew *> *tileInfos;
-    SimpleIdentity shaderID;
     
     // Current overlay level
     int curOverlayLevel;
@@ -620,6 +619,11 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
             case MaplyImageUByteRGB:
                 self->texType = GL_ALPHA;
                 break;
+        }
+        
+        if (self->shaderID == EmptyIdentity) {
+            MaplyShader *theShader = [self->viewC getShaderByName:kMaplyShaderDefaultTriNoLighting];
+            self->shaderID = [theShader getShaderID];
         }
     });
 

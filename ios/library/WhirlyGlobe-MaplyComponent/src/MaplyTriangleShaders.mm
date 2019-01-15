@@ -32,7 +32,7 @@ struct directional_light {
   vec4 diffuse;
   vec4 specular;
   float viewdepend;
-};"
+};
 
 struct material_properties {
   vec4 ambient;
@@ -362,7 +362,7 @@ uniform float u_fade;
 uniform int u_numLights;
 uniform directional_light light[8];
 uniform material_properties material;
-uniform float u_interp;"
+uniform float u_interp;
 
 attribute vec3 a_position;
 attribute vec2 a_texCoord0;
@@ -493,7 +493,7 @@ uniform float u_fade;
 uniform int u_numLights;
 uniform directional_light light[1];
 uniform material_properties material;
-uniform float u_interp;"
+uniform float u_interp;
 
 attribute vec3 a_position;
 attribute vec2 a_texCoord0;
@@ -521,7 +521,7 @@ void main()
 )";
 
 static const char *fragmentShaderTriNightDay = R"(
-precision mediump float;"
+precision mediump float;
 
 uniform sampler2D s_baseMap0;
 uniform sampler2D s_baseMap1;

@@ -250,6 +250,8 @@ public:
     pthread_mutex_lock(&tempContextLock);
     pthread_mutex_lock(&workLock);
     
+    shaders = [NSMutableArray array];
+    
     return self;
 }
 
@@ -312,7 +314,6 @@ public:
     
     for (MaplyShader *shader in shaders)
         [shader teardown];
-    shaderMap.clear();
 
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
@@ -1168,9 +1169,13 @@ public:
 
 - (SimpleIdentity) getProgramID:(NSString *)name
 {
-    auto shaderIt = shaderMap.find([name cStringUsingEncoding:NSASCIIStringEncoding]);
-    if (shaderIt != shaderMap.end())
-        return [shaderIt->second getShaderID];
+    @synchronized (shaders) {
+        for (int ii=[shaders count]-1;ii>=0;ii--) {
+            MaplyShader *shader = [shaders objectAtIndex:ii];
+            if (![shader.name isEqualToString:name])
+                return [shader getShaderID];
+        }
+    }
     
     return EmptyIdentity;
 }

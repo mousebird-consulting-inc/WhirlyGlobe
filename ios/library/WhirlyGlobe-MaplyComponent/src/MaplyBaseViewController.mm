@@ -312,6 +312,8 @@ using namespace WhirlyKit;
 	    
     viewTrackers = [NSMutableArray array];
     annotations = [NSMutableArray array];
+    
+    [renderControl setupShaders];
 	
 	// Kick off the layer thread
 	// This will start loading things
@@ -509,9 +511,9 @@ static const float PerfOutputDelay = 15.0;
     [renderControl removeLight:light];
 }
 
-- (void)addShaderProgram:(MaplyShader *)shader sceneName:(NSString *)sceneName
+- (void)addShaderProgram:(MaplyShader *)shader
 {
-    [renderControl addShaderProgram:shader sceneName:sceneName];
+    [renderControl addShaderProgram:shader];
 }
 
 - (MaplyShader *)getShaderByName:(NSString *)name

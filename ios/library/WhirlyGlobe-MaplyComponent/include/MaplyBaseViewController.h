@@ -1143,8 +1143,6 @@
     
     @param shader The working shader (be sure valid is true) to add to the scene.
     
-    @param sceneName How we'll refer to it in the scene. If you use one of the well known scene names, you can replace the default shader.  The well known scene names are as follows.
- 
  |Scene Name|Purpose|
  |:---------|:------|
  |kMaplyShaderDefaultTri|The shader used on triangles by default when there is lighting.|
@@ -1153,7 +1151,7 @@
  |kMaplyShaderDefaultLine|The shader used for line drawing on the globe.  This does a tricky bit of backface culling.|
  |kMaplyShaderDefaultLineNoBackface|The shader used for line drawing on the map.  This does no backface culling.|
   */
-- (void)addShaderProgram:(MaplyShader *__nonnull)shader sceneName:(NSString *__nonnull)sceneName;
+- (void)addShaderProgram:(MaplyShader *__nonnull)shader;
 
 /** 
     Look for a shader with the given name.  

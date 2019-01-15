@@ -23,7 +23,7 @@ class WeatherShader {
 			viewC: viewC)
 
 		if (shader != nil) && shader!.valid() {
-			viewC.addShaderProgram(shader!, sceneName: shaderName)
+			viewC.addShaderProgram(shader!)
 			return shader
 		}
 

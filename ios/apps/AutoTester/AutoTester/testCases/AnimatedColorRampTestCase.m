@@ -129,7 +129,7 @@ static NSString *fragmentShaderTriMultiTexCubicRamp =
     baseVC = viewC;
     UIImage *colorRamp = [UIImage imageNamed:@"colorramp.png"];
     MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Color Ramp Test Shader" vertex:vertexShaderNoLightTri fragment:fragmentShaderTriMultiTexRamp viewC:viewC];
-    [viewC addShaderProgram:shader sceneName:@"Color Ramp Test Shader"];
+    [viewC addShaderProgram:shader];
     [shader addTextureNamed:@"s_colorRamp" image:colorRamp];
     
     // For network paging layers, where we'll store temp files

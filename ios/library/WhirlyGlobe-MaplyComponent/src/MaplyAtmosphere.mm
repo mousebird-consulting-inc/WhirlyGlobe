@@ -535,7 +535,7 @@ static StringIdentity fExposureNameID;
     if (!theShader.valid)
         return nil;
     if (theShader)
-        [viewC addShaderProgram:theShader sceneName:kAtmosphereGroundShader];
+        [viewC addShaderProgram:theShader];
     
     return theShader;
 }
@@ -553,7 +553,7 @@ static StringIdentity fExposureNameID;
     if (!theShader.valid)
         return nil;
     if (theShader)
-        [viewC addShaderProgram:theShader sceneName:kAtmosphereShader];
+        [viewC addShaderProgram:theShader];
     
     return theShader;
 }

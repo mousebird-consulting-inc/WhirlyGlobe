@@ -38,7 +38,7 @@ typedef NS_ENUM(NSInteger, MaplyShaderAttrType){
     
     You can set your own shader programs in the toolkit!  Yeah, that's as complex as it sounds.
     
-    The underyling toolkit makes a distinction between the name of the shader and the scene name.  The scene name is used as a way to replace the default shaders we use for triangles and lines.  This would let you replace the shaders you're already using with your own.  See the addShaderProgram:sceneName: method in the MaplyBaseViewController.
+    The underyling toolkit makes a distinction between the name of the shader and the scene name.  The scene name is used as a way to replace the default shaders we use for triangles and lines.  This would let you replace the shaders you're already using with your own.  See the addShaderProgram: method in the MaplyBaseViewController.
     
     You can also add your own shader and hook it up to any features that can call out a specific shader, such as the MaplyQuadImageTilesLayer.
     
