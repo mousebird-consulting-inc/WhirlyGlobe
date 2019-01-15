@@ -1227,7 +1227,7 @@ public:
             hasMultiTex = true;
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:(hasMultiTex ? kMaplyShaderDefaultTriMultiTex : nil)];
+    [self resolveShader:inDesc defaultShader:(hasMultiTex ? kMaplyShaderDefaultTriMultiTex : kMaplyShaderDefaultTri)];
     
     // Convert to WG markers
     NSMutableArray *wgMarkers = [NSMutableArray array];
@@ -1556,7 +1556,7 @@ public:
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
 
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    [self resolveShader:inDesc defaultShader:kMaplyShaderDefaultTri];
 
     // Convert to WG labels
     NSMutableArray *wgLabels = [NSMutableArray array];
@@ -1938,7 +1938,7 @@ public:
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyVectorDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    [self resolveShader:inDesc defaultShader:kMaplyDefaultTriangleShader];
     
     // Look for a texture and add it
     if (inDesc[kMaplyVecTexture])
@@ -2112,7 +2112,7 @@ public:
     [self applyDefaultName:kMaplyShapeSampleY value:@(10) toDict:inDesc];
 
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    [self resolveShader:inDesc defaultShader:kMaplyDefaultTriangleShader];
     [self resolveRenderTarget:inDesc];
 
     // Need to convert shapes to the form the API is expecting
@@ -2534,7 +2534,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyModelDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    [self resolveShader:inDesc defaultShader:kMaplyDefaultTriangleShader];
     
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
     
@@ -2642,7 +2642,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyStickerDrawPriorityDefault) toDict:inDesc];
 
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    [self resolveShader:inDesc defaultShader:kMaplyDefaultTriangleShader];
 
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     
@@ -2865,7 +2865,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyLoftedPolysDrawPriorityDefault) toDict:inDesc];
     
     // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    [self resolveShader:inDesc defaultShader:kMaplyDefaultTriangleShader];
     
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
