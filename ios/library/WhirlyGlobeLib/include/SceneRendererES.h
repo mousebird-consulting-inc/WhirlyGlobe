@@ -19,6 +19,7 @@
  */
 
 #import <QuartzCore/QuartzCore.h>
+#import "GLUtils.h"
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/EAGLDrawable.h>
 

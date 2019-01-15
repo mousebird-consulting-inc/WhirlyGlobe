@@ -20,9 +20,6 @@
 
 #import "SceneRendererES2.h"
 
-#import <OpenGLES/ES3/gl.h>
-#import <OpenGLES/ES3/glext.h>
-
 /** OpenGL ES 3.0 support.
   */
 @interface WhirlyKitSceneRendererES3 : WhirlyKitSceneRendererES2
