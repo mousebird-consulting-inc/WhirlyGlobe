@@ -27,230 +27,230 @@
 using namespace WhirlyKit;
 using namespace Eigen;
 
-static const char *vertexShaderAtmosTri =
-"precision highp float;\n"
-"\n"
-"uniform mat4  u_mvpMatrix;\n"
-"uniform vec3 u_v3CameraPos;\n"
-"uniform float u_fCameraHeight2;\n"
-"uniform vec3 u_v3LightPos;\n"
-"\n"
-"uniform float u_fInnerRadius;\n"
-"uniform float u_fInnerRadius2;\n"
-"uniform float u_fOuterRadius;\n"
-"uniform float u_fOuterRadius2;\n"
-"uniform float u_fScale;\n"
-"uniform float u_fScaleDepth;\n"
-"uniform float u_fScaleOverScaleDepth;\n"
-"\n"
-"uniform float u_Kr;\n"
-"uniform float u_Kr4PI;\n"
-"uniform float u_Km;\n"
-"uniform float u_Km4PI;\n"
-"uniform float u_ESun;\n"
-"uniform float u_KmESun;\n"
-"uniform float u_KrESun;\n"
-"uniform vec3 u_v3InvWavelength ;\n"
-"uniform float u_fSamples;\n"
-"uniform int u_nSamples;\n"
-"\n"
-"attribute vec3 a_position;\n"
-"\n"
-"varying highp vec3 v3Direction;"
-"varying highp vec3 v3RayleighColor;\n"
-"varying highp vec3 v3MieColor;\n"
-"\n"
-"float scale(float fCos)\n"
-"{\n"
-"  float x = 1.0 - fCos;\n"
-"  return u_fScaleDepth * exp(-0.00287 + x*(0.459 + x*(3.83 + x*(-6.80 + x*5.25))));\n"
-"}\n"
-"\n"
-"void main()\n"
-"{"
-"   vec3 v3Pos = a_position.xyz;\n"
-"   vec3 v3Ray = v3Pos - u_v3CameraPos;\n"
-"   float fFar = length(v3Ray);\n"
-"   v3Ray /= fFar;\n"
-"\n"
-"  float B = 2.0 * dot(u_v3CameraPos, v3Ray);\n"
-"  float C = u_fCameraHeight2 - u_fOuterRadius2;\n"
-"  float fDet = max(0.0, B*B - 4.0 * C);\n"
-"  float fNear = 0.5 * (-B - sqrt(fDet));\n"
-"\n"
-"   vec3 v3Start = u_v3CameraPos + v3Ray * fNear;\n"
-"   fFar -= fNear;\n"
-"\n"
-"   float fStartAngle = dot(v3Ray, v3Start) / u_fOuterRadius;\n"
-"   float fStartDepth = exp(-1.0/u_fScaleDepth);\n"
-"   float fStartOffset = fStartDepth * scale(fStartAngle);\n"
-"\n"
-"   float fSampleLength = fFar / u_fSamples;\n"
-"   float fScaledLength = fSampleLength * u_fScale;\n"
-"   vec3 v3SampleRay = v3Ray * fSampleLength;\n"
-"   vec3 v3SamplePoint = v3Start + v3SampleRay * 0.5;\n"
-"\n"
-"   vec3 v3FrontColor = vec3(0.0, 0.0, 0.0);\n"
-"   vec3 v3Attenuate;\n"
-"   for (int i=0; i<u_nSamples; i++)\n"
-"   {\n"
-"     float fHeight = length(v3SamplePoint);\n"
-"     float fDepth = exp(u_fScaleOverScaleDepth * (u_fInnerRadius - fHeight));\n"
-"     float fLightAngle = dot(u_v3LightPos, v3SamplePoint) / fHeight;\n"
-"     float fCameraAngle = dot(v3Ray, v3SamplePoint) / fHeight;\n"
-"     float fScatter = (fStartOffset + fDepth *(scale(fLightAngle) - scale(fCameraAngle)));\n"
-"     v3Attenuate = exp(-fScatter * (u_v3InvWavelength * u_Kr4PI + u_Km4PI));\n"
-"     v3FrontColor += v3Attenuate * (fDepth * fScaledLength);\n"
-"     v3SamplePoint += v3SampleRay;\n"
-"   }\n"
-"\n"
-"   v3MieColor = v3FrontColor * u_KmESun;\n"
-"   v3RayleighColor = v3FrontColor * (u_v3InvWavelength * u_KrESun + u_Km4PI);\n"
-"   v3Direction = u_v3CameraPos - v3Pos;\n"
-"\n"
-"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);\n"
-"}\n"
-;
+static const char *vertexShaderAtmosTri = R"(
+precision highp float;
+
+uniform mat4  u_mvpMatrix;
+uniform vec3 u_v3CameraPos;
+uniform float u_fCameraHeight2;
+uniform vec3 u_v3LightPos;
+
+uniform float u_fInnerRadius;
+uniform float u_fInnerRadius2;
+uniform float u_fOuterRadius;
+uniform float u_fOuterRadius2;
+uniform float u_fScale;
+uniform float u_fScaleDepth;
+uniform float u_fScaleOverScaleDepth;
+
+uniform float u_Kr;
+uniform float u_Kr4PI;
+uniform float u_Km;
+uniform float u_Km4PI;
+uniform float u_ESun;
+uniform float u_KmESun;
+uniform float u_KrESun;
+uniform vec3 u_v3InvWavelength;
+uniform float u_fSamples;
+uniform int u_nSamples;
+
+attribute vec3 a_position;
+
+varying highp vec3 v3Direction;
+varying highp vec3 v3RayleighColor;
+varying highp vec3 v3MieColor;
+
+float scale(float fCos)
+{
+  float x = 1.0 - fCos;
+  return u_fScaleDepth * exp(-0.00287 + x*(0.459 + x*(3.83 + x*(-6.80 + x*5.25))));
+}
+
+void main()
+{
+   vec3 v3Pos = a_position.xyz;
+   vec3 v3Ray = v3Pos - u_v3CameraPos;
+   float fFar = length(v3Ray);
+   v3Ray /= fFar;
+
+  float B = 2.0 * dot(u_v3CameraPos, v3Ray);
+  float C = u_fCameraHeight2 - u_fOuterRadius2;
+  float fDet = max(0.0, B*B - 4.0 * C);
+  float fNear = 0.5 * (-B - sqrt(fDet));
+
+   vec3 v3Start = u_v3CameraPos + v3Ray * fNear;
+   fFar -= fNear;
+
+   float fStartAngle = dot(v3Ray, v3Start) / u_fOuterRadius;
+   float fStartDepth = exp(-1.0/u_fScaleDepth);
+   float fStartOffset = fStartDepth * scale(fStartAngle);
+
+   float fSampleLength = fFar / u_fSamples;
+   float fScaledLength = fSampleLength * u_fScale;
+   vec3 v3SampleRay = v3Ray * fSampleLength;
+   vec3 v3SamplePoint = v3Start + v3SampleRay * 0.5;
+
+   vec3 v3FrontColor = vec3(0.0, 0.0, 0.0);
+   vec3 v3Attenuate;
+   for (int i=0; i<u_nSamples; i++)
+   {
+     float fHeight = length(v3SamplePoint);
+     float fDepth = exp(u_fScaleOverScaleDepth * (u_fInnerRadius - fHeight));
+     float fLightAngle = dot(u_v3LightPos, v3SamplePoint) / fHeight;
+     float fCameraAngle = dot(v3Ray, v3SamplePoint) / fHeight;
+     float fScatter = (fStartOffset + fDepth *(scale(fLightAngle) - scale(fCameraAngle)));
+     v3Attenuate = exp(-fScatter * (u_v3InvWavelength * u_Kr4PI + u_Km4PI));
+     v3FrontColor += v3Attenuate * (fDepth * fScaledLength);
+     v3SamplePoint += v3SampleRay;
+   }
+
+   v3MieColor = v3FrontColor * u_KmESun;
+   v3RayleighColor = v3FrontColor * (u_v3InvWavelength * u_KrESun + u_Km4PI);
+   v3Direction = u_v3CameraPos - v3Pos;
+
+   gl_Position = u_mvpMatrix * vec4(a_position,1.0);
+}
+)";
 
 
-static const char *fragmentShaderAtmosTri =
-"precision highp float;\n"
-"\n"
-"uniform float g;\n"
-"uniform float g2;\n"
-"uniform float fExposure;\n"
-"uniform vec3 u_v3LightPos;\n"
-"\n"
-"varying highp vec3 v3Direction;"
-"varying highp vec3 v3RayleighColor;\n"
-"varying highp vec3 v3MieColor;\n"
-"\n"
-"void main()\n"
-"{\n"
-"  float fCos = dot(u_v3LightPos, normalize(v3Direction)) / length(v3Direction);\n"
-"  float fCos2 = fCos*fCos;\n"
-"  float rayPhase = 0.75 + 0.75*fCos2;\n"
-"  float miePhase = 1.5 * ((1.0 - g2) / (2.0 + g2)) * (1.0 + fCos2) / pow(1.0 + g2 - 2.0*g*fCos, 1.5);\n"
-"  vec3 color = rayPhase * v3RayleighColor + miePhase * v3MieColor;\n"
-"  color = 1.0 - exp(color * -fExposure);"
-"  gl_FragColor = vec4(color,color.b);\n"
-"}\n"
-;
+static const char *fragmentShaderAtmosTri = R"(
+precision highp float;
+
+uniform float g;
+uniform float g2;
+uniform float fExposure;
+uniform vec3 u_v3LightPos;
+
+varying highp vec3 v3Direction;
+varying highp vec3 v3RayleighColor;
+varying highp vec3 v3MieColor;
+
+void main()
+{
+  float fCos = dot(u_v3LightPos, normalize(v3Direction)) / length(v3Direction);
+  float fCos2 = fCos*fCos;
+  float rayPhase = 0.75 + 0.75*fCos2;
+  float miePhase = 1.5 * ((1.0 - g2) / (2.0 + g2)) * (1.0 + fCos2) / pow(1.0 + g2 - 2.0*g*fCos, 1.5);
+  vec3 color = rayPhase * v3RayleighColor + miePhase * v3MieColor;
+  color = 1.0 - exp(color * -fExposure);
+  gl_FragColor = vec4(color,color.b);
+}
+)";
 
 #define kAtmosphereShader @"Atmosphere Shader"
 
-static const char *vertexShaderGroundTri =
-"precision highp float;\n"
-"\n"
-"uniform mat4  u_mvpMatrix;\n"
-"uniform vec3 u_v3CameraPos;\n"
-"uniform float u_fCameraHeight2;\n"
-"uniform vec3 u_v3LightPos;\n"
-"\n"
-"uniform float u_fInnerRadius;\n"
-"uniform float u_fInnerRadius2;\n"
-"uniform float u_fOuterRadius;\n"
-"uniform float u_fOuterRadius2;\n"
-"uniform float u_fScale;\n"
-"uniform float u_fScaleDepth;\n"
-"uniform float u_fScaleOverScaleDepth;\n"
-"\n"
-"uniform float u_Kr;\n"
-"uniform float u_Kr4PI;\n"
-"uniform float u_Km;\n"
-"uniform float u_Km4PI;\n"
-"uniform float u_ESun;\n"
-"uniform float u_KmESun;\n"
-"uniform float u_KrESun;\n"
-"uniform vec3 u_v3InvWavelength ;\n"
-"uniform float u_fSamples;\n"
-"uniform int u_nSamples;\n"
-"\n"
-"attribute vec3 a_position;\n"
-"attribute vec3 a_normal;\n"
-"attribute vec2 a_texCoord0;\n"
-"attribute vec2 a_texCoord1;\n"
-"\n"
-"varying mediump vec3 v_color;\n"
-"varying mediump vec3 v_v3attenuate;\n"
-"varying mediump vec2 v_texCoord0;"
-"varying mediump vec2 v_texCoord1;\n"
-"\n"
-"float scale(float fCos)\n"
-"{\n"
-"  float x = 1.0 - fCos;\n"
-"  return u_fScaleDepth * exp(-0.00287 + x*(0.459 + x*(3.83 + x*(-6.80 + x*5.25))));\n"
-"}\n"
-"\n"
-"void main()\n"
-"{"
-"   vec3 v3Pos = a_normal.xyz;\n"
-"   vec3 v3Ray = v3Pos - u_v3CameraPos;\n"
-"   float fFar = length(v3Ray);\n"
-"   v3Ray /= fFar;\n"
-"\n"
-"  float B = 2.0 * dot(u_v3CameraPos, v3Ray);\n"
-"  float C = u_fCameraHeight2 - u_fOuterRadius2;\n"
-"  float fDet = max(0.0, B*B - 4.0 * C);\n"
-"  float fNear = 0.5 * (-B - sqrt(fDet));\n"
-"\n"
-"   vec3 v3Start = u_v3CameraPos + v3Ray * fNear;\n"
-"   fFar -= fNear;\n"
-"\n"
-"   float fDepth = exp((u_fInnerRadius - u_fOuterRadius) / u_fScaleDepth);\n"
-"   float fCameraAngle = dot(-v3Ray, v3Pos) / length (v3Pos);\n"
-"   float fLightAngle = dot(u_v3LightPos, v3Pos) / length(v3Pos);\n"
-"   float fCameraScale = scale(fCameraAngle);\n"
-"   float fLightScale = scale(fLightAngle);\n"
-"   float fCameraOffset = fDepth*fCameraScale;\n"
-"   float fTemp = (fLightScale + fCameraScale);\n"
-"\n"
-"   float fSampleLength = fFar / u_fSamples;\n"
-"   float fScaledLength = fSampleLength * u_fScale;\n"
-"   vec3 v3SampleRay = v3Ray * fSampleLength;\n"
-"   vec3 v3SamplePoint = v3Start + v3SampleRay * 0.5;\n"
-"\n"
-"   vec3 v3FrontColor = vec3(0.0, 0.0, 0.0);\n"
-"   vec3 v3Attenuate;\n"
-"   for (int i=0; i<u_nSamples; i++)\n"
-"   {\n"
-"     float fHeight = length(v3SamplePoint);\n"
-"     float fDepth = exp(u_fScaleOverScaleDepth * (u_fInnerRadius - fHeight));\n"
-"     float fScatter = fDepth*fTemp - fCameraOffset;\n"
-"     v3Attenuate = exp(-fScatter * (u_v3InvWavelength * u_Kr4PI + u_Km4PI));\n"
-"     v3FrontColor += v3Attenuate * (fDepth * fScaledLength);\n"
-"     v3SamplePoint += v3SampleRay;\n"
-"   }\n"
-"\n"
-"   v_v3attenuate = v3Attenuate;\n"
-"   v_color = v3FrontColor * (u_v3InvWavelength * u_KrESun + u_KmESun);\n"
-"   v_texCoord0 = a_texCoord0;\n"
-"   v_texCoord1 = a_texCoord1;\n"
-"\n"
-"   gl_Position = u_mvpMatrix * vec4(a_position,1.0);\n"
-"}\n"
-;
+static const char *vertexShaderGroundTri = R"(
+precision highp float;
+
+uniform mat4  u_mvpMatrix;
+uniform vec3 u_v3CameraPos;
+uniform float u_fCameraHeight2;
+uniform vec3 u_v3LightPos;
+
+uniform float u_fInnerRadius;
+uniform float u_fInnerRadius2;
+uniform float u_fOuterRadius;
+uniform float u_fOuterRadius2;
+uniform float u_fScale;
+uniform float u_fScaleDepth;
+uniform float u_fScaleOverScaleDepth;
+
+uniform float u_Kr;
+uniform float u_Kr4PI;
+uniform float u_Km;
+uniform float u_Km4PI;
+uniform float u_ESun;
+uniform float u_KmESun;
+uniform float u_KrESun;
+uniform vec3 u_v3InvWavelength;
+uniform float u_fSamples;
+uniform int u_nSamples;
+
+attribute vec3 a_position;
+attribute vec3 a_normal;
+attribute vec2 a_texCoord0;
+attribute vec2 a_texCoord1;
+
+varying mediump vec3 v_color;
+varying mediump vec3 v_v3attenuate;
+varying mediump vec2 v_texCoord0;
+varying mediump vec2 v_texCoord1;
+
+float scale(float fCos)
+{
+  float x = 1.0 - fCos;
+  return u_fScaleDepth * exp(-0.00287 + x*(0.459 + x*(3.83 + x*(-6.80 + x*5.25))));
+}
+
+void main()
+{
+   vec3 v3Pos = a_normal.xyz;
+   vec3 v3Ray = v3Pos - u_v3CameraPos;
+   float fFar = length(v3Ray);
+   v3Ray /= fFar;
+
+  float B = 2.0 * dot(u_v3CameraPos, v3Ray);
+  float C = u_fCameraHeight2 - u_fOuterRadius2;
+  float fDet = max(0.0, B*B - 4.0 * C);
+  float fNear = 0.5 * (-B - sqrt(fDet));
+
+   vec3 v3Start = u_v3CameraPos + v3Ray * fNear;
+   fFar -= fNear;
+
+   float fDepth = exp((u_fInnerRadius - u_fOuterRadius) / u_fScaleDepth);
+   float fCameraAngle = dot(-v3Ray, v3Pos) / length (v3Pos);
+   float fLightAngle = dot(u_v3LightPos, v3Pos) / length(v3Pos);
+   float fCameraScale = scale(fCameraAngle);
+   float fLightScale = scale(fLightAngle);
+   float fCameraOffset = fDepth*fCameraScale;
+   float fTemp = (fLightScale + fCameraScale);
+
+   float fSampleLength = fFar / u_fSamples;
+   float fScaledLength = fSampleLength * u_fScale;
+   vec3 v3SampleRay = v3Ray * fSampleLength;
+   vec3 v3SamplePoint = v3Start + v3SampleRay * 0.5;
+
+   vec3 v3FrontColor = vec3(0.0, 0.0, 0.0);
+   vec3 v3Attenuate;
+   for (int i=0; i<u_nSamples; i++)
+   {
+     float fHeight = length(v3SamplePoint);
+     float fDepth = exp(u_fScaleOverScaleDepth * (u_fInnerRadius - fHeight));
+     float fScatter = fDepth*fTemp - fCameraOffset;
+     v3Attenuate = exp(-fScatter * (u_v3InvWavelength * u_Kr4PI + u_Km4PI));
+     v3FrontColor += v3Attenuate * (fDepth * fScaledLength);
+     v3SamplePoint += v3SampleRay;
+   }
+
+   v_v3attenuate = v3Attenuate;
+   v_color = v3FrontColor * (u_v3InvWavelength * u_KrESun + u_KmESun);
+   v_texCoord0 = a_texCoord0;
+   v_texCoord1 = a_texCoord1;
+
+   gl_Position = u_mvpMatrix * vec4(a_position,1.0);
+}
+)";
 
 // Note: Not finished with these
 
-static const char *fragmentShaderGroundTri =
-"precision mediump float;\n"
-"\n"
-"uniform sampler2D s_baseMap0;\n"
-"uniform sampler2D s_baseMap1;\n"
-"\n"
-"varying vec3      v_color;\n"
-"varying vec2      v_texCoord0;\n"
-"varying vec2      v_texCoord1;\n"
-"varying vec3      v_v3attenuate;\n"
-"\n"
-"void main()\n"
-"{\n"
-"  vec3 dayColor = texture2D(s_baseMap0, v_texCoord0).xyz * v_v3attenuate;\n"
-"  vec3 nightColor = texture2D(s_baseMap1, v_texCoord1).xyz * (1.0 - v_v3attenuate);\n"
-"  gl_FragColor = vec4(v_color, 1.0) + vec4(dayColor + nightColor, 1.0);\n"
-"}\n"
-;
+static const char *fragmentShaderGroundTri = R"(
+precision highp float;
+
+uniform sampler2D s_baseMap0;
+uniform sampler2D s_baseMap1;
+
+varying vec3      v_color;
+varying vec2      v_texCoord0;
+varying vec2      v_texCoord1;
+varying vec3      v_v3attenuate;
+
+void main()
+{
+  vec3 dayColor = texture2D(s_baseMap0, v_texCoord0).xyz * v_v3attenuate;
+  vec3 nightColor = texture2D(s_baseMap1, v_texCoord1).xyz * (1.0 - v_v3attenuate);
+  gl_FragColor = vec4(v_color, 1.0) + vec4(dayColor + nightColor, 1.0);
+}
+)";
 
 #define kAtmosphereGroundShader @"Atmosphere Ground Shader"
 

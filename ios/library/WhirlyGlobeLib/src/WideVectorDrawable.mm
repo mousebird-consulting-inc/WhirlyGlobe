@@ -185,7 +185,7 @@ uniform vec4 u_color;
 attribute vec3 a_position;
 attribute vec3 a_normal;
 attribute vec4 a_texinfo;
-//"attribute vec4 a_color;
+//attribute vec4 a_color;
 attribute vec3 a_p1;
 attribute vec3 a_n0;
 attribute float a_c0;
@@ -195,7 +195,7 @@ varying vec2 v_texCoord;
 
 void main()
 {
-//"   v_color = a_color;\n"
+//   v_color = a_color;\n"
 //  Position along the line
    float t0 = a_c0 * u_real_w2;
    t0 = clamp(t0,0.0,1.0);
@@ -223,18 +223,18 @@ uniform vec4 u_color;
 attribute vec3 a_position;
 attribute vec3 a_normal;
 attribute vec4 a_texinfo;
-//"attribute vec4 a_color;
+//attribute vec4 a_color;
 attribute vec3 a_p1;
 attribute vec3 a_n0;
 attribute float a_c0;
 
 varying vec2 v_texCoord;
-//"varying vec4 v_color;
+//varying vec4 v_color;
 varying float      v_dot;
 
 void main()
 {
-//"   v_color = a_color;
+//   v_color = a_color;
 //  Position along the line
    float t0 = a_c0 * u_real_w2;
    t0 = clamp(t0,0.0,1.0);

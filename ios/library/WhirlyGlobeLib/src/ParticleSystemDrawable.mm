@@ -668,47 +668,49 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     drawTeardownTextures(frameInfo, scene, prog, hasTexture, progTexBound);
 }
     
-static const char *vertexShaderTri =
-"uniform mat4  u_mvpMatrix;"
-"uniform mat4  u_mvMatrix;"
-"uniform mat4  u_mvNormalMatrix;"
-"uniform float u_size;"
-"uniform float u_time;"
-""
-"attribute vec3 a_position;"
-"attribute vec4 a_color;"
-"attribute vec3 a_dir;"
-"attribute float a_startTime;"
-""
-"varying vec4 v_color;"
-""
-"void main()"
-"{"
-"   v_color = a_color;"
-"   vec3 thePos = normalize(a_position + (u_time-a_startTime)*a_dir);"
-// Convert from model space into display space
-"   vec4 pt = u_mvMatrix * vec4(thePos,1.0);"
-"   pt /= pt.w;"
-// Make sure the object is facing the user
-"   vec4 testNorm = u_mvNormalMatrix * vec4(thePos,0.0);"
-"   float dot_res = dot(-pt.xyz,testNorm.xyz);"
-// Set the point size
-"   gl_PointSize = u_size;"
-// Project the point into 3-space
-    "   gl_Position = (dot_res > 0.0) ? u_mvpMatrix * vec4(thePos,1.0) : vec4(1000.0,1000.0,1000.0,0.0);"
-"}"
-;
+static const char *vertexShaderTri = R"(
+precision highp float;
 
-static const char *fragmentShaderTri =
-"precision lowp float;"
-""
-"varying vec4      v_color;"
-""
-"void main()"
-"{"
-    "  gl_FragColor = v_color;"
-"}"
-;
+uniform mat4  u_mvpMatrix;
+uniform mat4  u_mvMatrix;
+uniform mat4  u_mvNormalMatrix;
+uniform float u_size;
+uniform float u_time;
+
+attribute vec3 a_position;
+attribute vec4 a_color;
+attribute vec3 a_dir;
+attribute float a_startTime;
+
+varying vec4 v_color;
+
+void main()
+{
+   v_color = a_color;
+   vec3 thePos = normalize(a_position + (u_time-a_startTime)*a_dir);
+   // Convert from model space into display space
+   vec4 pt = u_mvMatrix * vec4(thePos,1.0);
+   pt /= pt.w;
+   // Make sure the object is facing the user
+   vec4 testNorm = u_mvNormalMatrix * vec4(thePos,0.0);
+   float dot_res = dot(-pt.xyz,testNorm.xyz);
+   // Set the point size
+   gl_PointSize = u_size;
+   // Project the point into 3-space
+   gl_Position = (dot_res > 0.0) ? u_mvpMatrix * vec4(thePos,1.0) : vec4(1000.0,1000.0,1000.0,0.0);
+}
+)";
+
+static const char *fragmentShaderTri = R"(
+precision highp float;
+
+varying vec4      v_color;
+
+void main()
+{
+    gl_FragColor = v_color;
+}
+)";
     
 OpenGLES2Program *BuildParticleSystemProgram()
 {
