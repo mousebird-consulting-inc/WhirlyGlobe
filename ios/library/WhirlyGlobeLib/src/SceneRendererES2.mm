@@ -101,7 +101,6 @@ public:
     WhirlyKitMaterial *defaultMat;
     dispatch_queue_t contextQueue;
     dispatch_semaphore_t frameRenderingSemaphore;
-    WhirlyKitOpenGLStateOptimizer *renderStateOptimizer;
     std::set<__weak NSObject<WhirlyKitFrameBoundaryObserver> *> frameObservers;
 }
 
@@ -304,9 +303,6 @@ public:
         return;
     }
 
-    if (!renderStateOptimizer)
-        renderStateOptimizer = [[WhirlyKitOpenGLStateOptimizer alloc] init];
-
 	[super.theView animate];
     
     NSTimeInterval now = CFAbsoluteTimeGetCurrent();
@@ -377,18 +373,18 @@ public:
     switch (super.zBufferMode)
     {
         case zBufferOn:
-            [renderStateOptimizer setDepthMask:GL_TRUE];
-            [renderStateOptimizer setEnableDepthTest:true];
-            [renderStateOptimizer setDepthFunc:GL_LESS];
+            glDepthMask(GL_TRUE);
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LESS);
             break;
         case zBufferOff:
-            [renderStateOptimizer setDepthMask:GL_FALSE];
-            [renderStateOptimizer setEnableDepthTest:false];
+            glDepthMask(GL_FALSE);
+            glDisable(GL_DEPTH_TEST);
             break;
         case zBufferOffDefault:
-            [renderStateOptimizer setDepthMask:GL_TRUE];
-            [renderStateOptimizer setEnableDepthTest:true];
-            [renderStateOptimizer setDepthFunc:GL_ALWAYS];
+            glDepthMask(GL_TRUE);
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_ALWAYS);
             break;
     }
     
@@ -432,7 +428,6 @@ public:
         Point2d screenSize = [super.theView screenSizeInDisplayCoords:frameSize];
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         baseFrameInfo.lights = lights;
-        baseFrameInfo.stateOpt = renderStateOptimizer;
 
         // We need a reverse of the eye vector in model space
         // We'll use this to determine what's pointed away
@@ -652,7 +647,7 @@ public:
                     if (depthMaskOn && super.depthBufferOffForAlpha && drawContain.drawable->hasAlpha(baseFrameInfo))
                     {
                         depthMaskOn = false;
-                        [renderStateOptimizer setEnableDepthTest:false];
+                        glDisable(GL_DEPTH_TEST);
                     }
                 }
                 
@@ -661,10 +656,10 @@ public:
                 {
                     if (drawContain.drawable->getRequestZBuffer())
                     {
-                        [renderStateOptimizer setDepthFunc:GL_LESS];
+                        glDepthFunc(GL_LESS);
                         depthMaskOn = true;
                     } else {
-                        [renderStateOptimizer setDepthFunc:GL_ALWAYS];
+                        glDepthFunc(GL_ALWAYS);
                     }
                 }
                 
@@ -672,9 +667,9 @@ public:
                 if (super.zBufferMode != zBufferOff)
                 {
                     if (drawContain.drawable->getWriteZbuffer())
-                        [renderStateOptimizer setDepthMask:GL_TRUE];
+                        glDepthMask(GL_TRUE);
                     else
-                        [renderStateOptimizer setDepthMask:GL_FALSE];
+                        glDepthMask(GL_FALSE);
                 }
 
                 // Set up transforms to use right now

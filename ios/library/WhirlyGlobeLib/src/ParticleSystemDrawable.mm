@@ -339,7 +339,7 @@ void ParticleSystemDrawable::drawSetupTextures(WhirlyKitRendererFrameInfo *frame
         hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
         if (hasTexture[ii+progTexBound])
         {
-            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
+            glActiveTexture(GL_TEXTURE0+ii+progTexBound);
             glBindTexture(GL_TEXTURE_2D, glTexID);
             CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
             prog->setUniform(baseMapNameID, (int)ii+progTexBound);
@@ -357,7 +357,7 @@ void ParticleSystemDrawable::drawTeardownTextures(WhirlyKitRendererFrameInfo *fr
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
         if (hasTexture[ii])
         {
-            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii)];
+            glActiveTexture(GL_TEXTURE0+ii);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 }

@@ -183,33 +183,6 @@ protected:
 
 }
 
-/// OpenGL ES state optimizer.  This short circuits many of the OGL state
-///  changes that would otherwise be redundant.
-@interface WhirlyKitOpenGLStateOptimizer : NSObject
-
-/// Calls glActiveTextures
-- (void)setActiveTexture:(GLenum)activeTexture;
-
-/// Calls glDepthMask
-- (void)setDepthMask:(bool)depthMask;
-
-/// Calls glEnable(GL_DEPTH_TEST) or glDisable(GL_DEPTH_TEST)
-- (void)setEnableDepthTest:(bool)enable;
-
-/// Calls glDepthFunc
-- (void)setDepthFunc:(GLenum)depthFuncVal;
-
-/// Calls glUseProgram
-- (void)setUseProgram:(GLuint)progId;
-
-/// Calls glLineWidth
-- (void)setLineWidth:(GLfloat)lineWidth;
-
-/// Called by the render to clear state
-- (void)reset;
-
-@end
-
 /** Renderer Frame Info.
  Data about the current frame, passed around by the renderer.
  */
@@ -266,8 +239,6 @@ protected:
 @property (nonatomic,assign) WhirlyKit::OpenGLES2Program *program;
 /// Lights, if applicableNSArray *lights;
 @property (nonatomic,strong) NSArray *lights;
-/// State optimizer.  Used when setting state for drawing
-@property (nonatomic,strong) WhirlyKitOpenGLStateOptimizer *stateOpt;
 
 // Make a copy of the frame info
 - (id)initWithFrameInfo:(WhirlyKitRendererFrameInfo *)info;

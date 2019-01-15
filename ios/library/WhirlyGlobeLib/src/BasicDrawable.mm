@@ -1250,7 +1250,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         if (hasTexture[ii+progTexBound])
         {
             auto thisTexInfo = texInfo[ii];
-            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
+            glActiveTexture(GL_TEXTURE0+ii+progTexBound);
             glBindTexture(GL_TEXTURE_2D, glTexID);
             CheckGLError("BasicDrawable::drawVBO2() glBindTexture");
             prog->setUniform(baseMapNameID, (int)ii+progTexBound);
@@ -1356,7 +1356,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             case GL_LINES:
             case GL_LINE_STRIP:
             case GL_LINE_LOOP:
-                [frameInfo.stateOpt setLineWidth:lineWidth];
+                glLineWidth(lineWidth);
                 glDrawArrays(type, 0, numPoints);
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
@@ -1389,7 +1389,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             case GL_LINES:
             case GL_LINE_STRIP:
             case GL_LINE_LOOP:
-                [frameInfo.stateOpt setLineWidth:lineWidth];
+                glLineWidth(lineWidth);
                 CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
                 glDrawArrays(type, 0, numPoints);
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
@@ -1405,7 +1405,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
         if (hasTexture[ii])
         {
-            [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii)];
+            glActiveTexture(GL_TEXTURE0+ii);
             glBindTexture(GL_TEXTURE_2D, 0);
         }
     

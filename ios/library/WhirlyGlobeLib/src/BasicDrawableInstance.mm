@@ -550,7 +550,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
             if (hasTexture[ii+progTexBound])
             {
-                [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii+progTexBound)];
+                glActiveTexture(GL_TEXTURE0+ii+progTexBound);
                 glBindTexture(GL_TEXTURE_2D, glTexID);
                 CheckGLError("BasicDrawableInstance::drawVBO2() glBindTexture");
                 prog->setUniform(baseMapNameID, (int)ii+progTexBound);
@@ -686,7 +686,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                 case GL_LINES:
                 case GL_LINE_STRIP:
                 case GL_LINE_LOOP:
-                    [frameInfo.stateOpt setLineWidth:lineWidth];
+                    glLineWidth(lineWidth);
                     if (instBuffer)
                     {
                         if (context.API < kEAGLRenderingAPIOpenGLES3)
@@ -748,7 +748,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                 case GL_LINES:
                 case GL_LINE_STRIP:
                 case GL_LINE_LOOP:
-                    [frameInfo.stateOpt setLineWidth:lineWidth];
+                    glLineWidth(lineWidth);
                     CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
                     if (instBuffer)
                     {
@@ -778,7 +778,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
             if (hasTexture[ii])
             {
-                [frameInfo.stateOpt setActiveTexture:(GL_TEXTURE0+ii)];
+                glActiveTexture(GL_TEXTURE0+ii);
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
         
