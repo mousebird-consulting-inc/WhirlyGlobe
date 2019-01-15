@@ -79,6 +79,8 @@ using namespace Eigen;
     interactLayer = [[MaplyBaseInteractionLayer alloc] initWithView:flatView];
     [interactLayer startWithThread:nil scene:scene];
     
+    [self setupShaders];
+    
     if (oldContext)
         [EAGLContext setCurrentContext:oldContext];
     
