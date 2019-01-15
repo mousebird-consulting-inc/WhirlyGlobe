@@ -101,107 +101,111 @@ void ScreenSpaceDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scen
     BasicDrawable::draw(frameInfo,scene);
 }
 
-static const char *vertexShaderTri =
-"uniform mat4  u_mvpMatrix;"
-"uniform mat4  u_mvMatrix;"
-"uniform mat4  u_mvNormalMatrix;"
-"uniform float u_fade;"
-"uniform vec2  u_scale;"
-"uniform bool  u_activerot;"
-""
-"attribute vec3 a_position;"
-"attribute vec3 a_normal;"
-"attribute vec2 a_texCoord0;"
-"attribute vec4 a_color;"
-"attribute vec2 a_offset;"
-"attribute vec3 a_rot;"
-""
-"varying vec2 v_texCoord;"
-"varying vec4 v_color;"
-""
-"void main()"
-"{"
-"   v_texCoord = a_texCoord0;"
-"   v_color = a_color * u_fade;"
-""
-// Convert from model space into display space
-"   vec4 pt = u_mvMatrix * vec4(a_position,1.0);"
-"   pt /= pt.w;"
-// Make sure the object is facing the user
-"   vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);"
-"   float dot_res = dot(-pt.xyz,testNorm.xyz);"
-// Project the point all the way to screen space
-"   vec4 screenPt = (u_mvpMatrix * vec4(a_position,1.0));"
-"   screenPt /= screenPt.w;"
-// Project the rotation into display space and drop the Z
-"   vec4 projRot = u_mvNormalMatrix * vec4(a_rot,0.0);"
-"   vec2 rotY = normalize(projRot.xy);"
-"   vec2 rotX = vec2(rotY.y,-rotY.x);"
-"   vec2 screenOffset = (u_activerot ? a_offset.x*rotX + a_offset.y*rotY : a_offset);"
-"   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(screenOffset.x*u_scale.x,screenOffset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
-"}"
-;
-    
-static const char *vertexShaderMotionTri =
-"uniform mat4  u_mvpMatrix;"
-"uniform mat4  u_mvMatrix;"
-"uniform mat4  u_mvNormalMatrix;"
-"uniform float u_fade;"
-"uniform vec2  u_scale;"
-"uniform float u_time;"
-"uniform bool  u_activerot;"
-""
-"attribute vec3 a_position;"
-"attribute vec3 a_dir;"
-"attribute vec3 a_normal;"
-"attribute vec2 a_texCoord0;"
-"attribute vec4 a_color;"
-"attribute vec2 a_offset;"
-"attribute vec3 a_rot;"
-""
-"varying vec2 v_texCoord;"
-"varying vec4 v_color;"
-""
-"void main()"
-"{"
-"   v_texCoord = a_texCoord0;"
-"   v_color = a_color * u_fade;"
-""
-// Position can be modified over time
-"   vec3 thePos = a_position + u_time * a_dir;"
-// Convert from model space into display space
-"   vec4 pt = u_mvMatrix * vec4(thePos,1.0);"
-"   pt /= pt.w;"
-// Make sure the object is facing the user
-"   vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);"
-"   float dot_res = dot(-pt.xyz,testNorm.xyz);"
-// Project the point all the way to screen space
-"   vec4 screenPt = (u_mvpMatrix * vec4(thePos,1.0));"
-"   screenPt /= screenPt.w;"
-// Project the rotation into display space and drop the Z
-"   vec4 projRot = u_mvNormalMatrix * vec4(a_rot,0.0);"
-"   vec2 rotY = normalize(projRot.xy);"
-"   vec2 rotX = vec2(rotY.y,-rotY.x);"
-"   vec2 screenOffset = (u_activerot ? a_offset.x*rotX + a_offset.y*rotY : a_offset);"
-"   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(screenOffset.x*u_scale.x,screenOffset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);"
-"}"
-;
+static const char *vertexShaderTri = R"(
+precision highp float;
 
-static const char *fragmentShaderTri =
-"precision lowp float;\n"
-"\n"
-"uniform sampler2D s_baseMap0;\n"
-"uniform bool  u_hasTexture;\n"
-"\n"
-"varying vec2      v_texCoord;\n"
-"varying vec4      v_color;\n"
-"\n"
-"void main()\n"
-"{\n"
-"  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0);\n"
-"  gl_FragColor = v_color * baseColor;\n"
-"}\n"
-;
+uniform mat4  u_mvpMatrix;
+uniform mat4  u_mvMatrix;
+uniform mat4  u_mvNormalMatrix;
+uniform float u_fade;
+uniform vec2  u_scale;
+uniform bool  u_activerot;
+
+attribute vec3 a_position;
+attribute vec3 a_normal;
+attribute vec2 a_texCoord0;
+attribute vec4 a_color;
+attribute vec2 a_offset;
+attribute vec3 a_rot;
+
+varying vec2 v_texCoord;
+varying vec4 v_color;
+
+void main()
+{
+   v_texCoord = a_texCoord0;
+   v_color = a_color * u_fade;
+
+   // Convert from model space into display space
+   vec4 pt = u_mvMatrix * vec4(a_position,1.0);
+   pt /= pt.w;
+   // Make sure the object is facing the user
+   vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);
+   float dot_res = dot(-pt.xyz,testNorm.xyz);
+   // Project the point all the way to screen space
+   vec4 screenPt = (u_mvpMatrix * vec4(a_position,1.0));
+   screenPt /= screenPt.w;
+   // Project the rotation into display space and drop the Z
+   vec4 projRot = u_mvNormalMatrix * vec4(a_rot,0.0);
+   vec2 rotY = normalize(projRot.xy);
+   vec2 rotX = vec2(rotY.y,-rotY.x);
+   vec2 screenOffset = (u_activerot ? a_offset.x*rotX + a_offset.y*rotY : a_offset);
+   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(screenOffset.x*u_scale.x,screenOffset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);
+}
+)";
+    
+static const char *vertexShaderMotionTri = R"(
+precision highp float;
+
+uniform mat4  u_mvpMatrix;
+uniform mat4  u_mvMatrix;
+uniform mat4  u_mvNormalMatrix;
+uniform float u_fade;
+uniform vec2  u_scale;
+uniform float u_time;
+uniform bool  u_activerot;
+
+attribute vec3 a_position;
+attribute vec3 a_dir;
+attribute vec3 a_normal;
+attribute vec2 a_texCoord0;
+attribute vec4 a_color;
+attribute vec2 a_offset;
+attribute vec3 a_rot;
+
+varying vec2 v_texCoord;
+varying vec4 v_color;
+
+void main()
+{
+   v_texCoord = a_texCoord0;
+   v_color = a_color * u_fade;
+
+   // Position can be modified over time
+   vec3 thePos = a_position + u_time * a_dir;
+   // Convert from model space into display space
+   vec4 pt = u_mvMatrix * vec4(thePos,1.0);
+   pt /= pt.w;
+   // Make sure the object is facing the user
+   vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);
+   float dot_res = dot(-pt.xyz,testNorm.xyz);
+   // Project the point all the way to screen space
+   vec4 screenPt = (u_mvpMatrix * vec4(thePos,1.0));
+   screenPt /= screenPt.w;
+   // Project the rotation into display space and drop the Z
+   vec4 projRot = u_mvNormalMatrix * vec4(a_rot,0.0);
+   vec2 rotY = normalize(projRot.xy);
+   vec2 rotX = vec2(rotY.y,-rotY.x);
+   vec2 screenOffset = (u_activerot ? a_offset.x*rotX + a_offset.y*rotY : a_offset);
+   gl_Position = (dot_res > 0.0 && pt.z <= 0.0) ? vec4(screenPt.xy + vec2(screenOffset.x*u_scale.x,screenOffset.y*u_scale.y),0.0,1.0) : vec4(0.0,0.0,0.0,0.0);
+}
+)";
+
+static const char *fragmentShaderTri = R"(
+precision highp float;
+
+uniform sampler2D s_baseMap0;
+uniform bool  u_hasTexture;
+
+varying vec2      v_texCoord;
+varying vec4      v_color;
+
+void main()
+{
+  vec4 baseColor = u_hasTexture ? texture2D(s_baseMap0, v_texCoord) : vec4(1.0,1.0,1.0,1.0);
+  gl_FragColor = v_color * baseColor;
+}
+)";
 
 WhirlyKit::OpenGLES2Program *BuildScreenSpaceProgram()
 {

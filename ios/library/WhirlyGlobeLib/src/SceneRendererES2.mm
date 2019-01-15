@@ -492,9 +492,6 @@ public:
         if (perfInterval > 0)
             perfTimer.stopTiming("Scene processing");
         
-        if (perfInterval > 0)
-            perfTimer.startTiming("Culling");
-        
         // Calculate a good center point for the generated drawables
         CGPoint screenPt = CGPointMake(frameSize.x(), frameSize.y());
         if (globeView)

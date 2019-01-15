@@ -241,18 +241,8 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
     labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : nil);
     labelRenderer.scale = renderer.scale;
     labelRenderer.strs = labels;
-    
-    // Can't use fancy strings on ios5 and we can't use dynamic texture atlases in a block
-    bool oldiOS = [[[UIDevice currentDevice] systemVersion] floatValue] < 6.0;
-    if (!oldiOS && !labelRenderer.fontTexManager)
-    {
-        [labelRenderer render];
-    } else {
-        // For old iOS versions and for font texture rendering, we'll do the work on this thread.
-        // The former can't handle it and the latter is fast enough to not need it
-        labelRenderer.useAttributedString = !oldiOS;
-        [labelRenderer render];
-    }
+    labelRenderer.useAttributedString = true;
+    [labelRenderer render];
 
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);

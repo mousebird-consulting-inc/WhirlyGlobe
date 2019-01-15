@@ -1172,7 +1172,7 @@ public:
     @synchronized (shaders) {
         for (int ii=[shaders count]-1;ii>=0;ii--) {
             MaplyShader *shader = [shaders objectAtIndex:ii];
-            if (![shader.name isEqualToString:name])
+            if ([shader.name isEqualToString:name])
                 return [shader getShaderID];
         }
     }
