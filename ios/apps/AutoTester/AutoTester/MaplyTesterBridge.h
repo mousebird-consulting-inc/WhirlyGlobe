@@ -27,7 +27,7 @@
 #import "LoftedPolysTestCase.h"
 //#import "CartoDBTestCase.h"
 //#import "ElevationLocalDatabase.h"
-//#import "RunwayBuilderTestCase.h"
+#import "RunwayBuilderTestCase.h"
 //#import "ParticleTest.h"
 //#import "AnimatedColorRampTestCase.h"
 //#import "VectorMBTilesTestCase.h"

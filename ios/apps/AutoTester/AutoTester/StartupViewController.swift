@@ -51,7 +51,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 //        BNGTestCase(),
 //        ElevationLocalDatabase(),
 //        ParticleTestCase(),
-//        RunwayBuilderTestCase(),
+        RunwayBuilderTestCase(),
 
 //        AnimatedColorRampTestCase(),
 		ExtrudedModelTestCase(),
