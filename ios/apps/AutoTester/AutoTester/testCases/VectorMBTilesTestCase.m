@@ -20,8 +20,7 @@
 {
     if (self = [super init]) {
         self.name = @"Vector MBTiles";
-        self.captureDelay = 20;
-        self.implementations = MaplyTestCaseOptionMap;
+        self.implementations = MaplyTestCaseImplementationMap;
     }
     
     return self;

@@ -14,7 +14,6 @@ class BNGCustomMapTestCase: MaplyTestCase {
 	override init() {
 		super.init()
 		self.name = "British National Grid (custom map)"
-		self.captureDelay = 20
 		self.implementations = [.map]
 	}
 	

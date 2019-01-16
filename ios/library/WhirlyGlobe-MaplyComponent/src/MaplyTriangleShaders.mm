@@ -500,6 +500,8 @@ OpenGLES2Program *BuildDefaultTriShaderRamptex(const std::string &name)
 }
 
 static const char *vertexShaderTriNightDay = R"(
+precision highp float;
+
 struct directional_light {
   vec3 direction;
   vec3 halfplane;
@@ -523,6 +525,11 @@ uniform directional_light light[1];
 uniform material_properties material;
 uniform float u_interp;
 
+uniform vec2 u_texOffset0;
+uniform vec2 u_texScale0;
+uniform vec2 u_texOffset1;
+uniform vec2 u_texScale1;
+
 attribute vec3 a_position;
 attribute vec2 a_texCoord0;
 attribute vec2 a_texCoord1;
@@ -537,8 +544,16 @@ varying mediump vec3 v_lightDir;
 
 void main()
 {
-   v_texCoord0 = a_texCoord0;
-   v_texCoord1 = a_texCoord1;
+    if (u_texScale0.x != 0.0)
+        v_texCoord0 = vec2(a_texCoord0.x*u_texScale0.x,a_texCoord0.y*u_texScale0.y) + u_texOffset0;
+    else
+        v_texCoord0 = a_texCoord0;
+    
+    if (u_texScale1.x != 0.0)
+        v_texCoord1 = vec2(a_texCoord0.x*u_texScale1.x,a_texCoord0.y*u_texScale1.y) + u_texOffset1;
+    else
+        v_texCoord1 = a_texCoord0;
+
    v_color = a_color;
    v_adjNorm = light[0].viewdepend > 0.0 ? normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz) : a_normal.xzy;
    v_lightDir = (u_numLights > 0) ? light[0].direction : vec3(1,0,0);
