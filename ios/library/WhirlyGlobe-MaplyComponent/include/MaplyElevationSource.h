@@ -20,7 +20,7 @@
 
 #import "MaplyComponentObject.h"
 #import "MaplyCoordinateSystem.h"
-#import "MaplyTileSource.h"
+#import "MaplyTileSourceNew.h"
 
 /** 
     The elevation chunk is a base class for representing elevation data in Maply.

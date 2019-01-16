@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyTileSource.h"
+#import "MaplyTileSourceNew.h"
 #import "MaplyCoordinateSystem.h"
 
 /** A bounding box for a specific CRS in that coordinate
@@ -125,7 +125,7 @@
     efficient way to access remote image data, but there
     are still a few places that use it.
   */
-@interface MaplyWMSTileSource : NSObject<MaplyTileSource>
+@interface MaplyWMSTileSource : NSObject<MaplyTileInfoNew>
 
 /// Base URL for the Map Service
 @property (nonatomic,strong,nullable) NSString *baseURL;

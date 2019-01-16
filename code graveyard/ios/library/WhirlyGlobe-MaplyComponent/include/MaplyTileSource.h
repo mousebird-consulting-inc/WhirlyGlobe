@@ -36,27 +36,6 @@
 
 @end
 
-/** 
-    This represents the indentifier for a unique tile in the pyramid.
-    
-    Each tile in an image (or vector tile) pyramid can be uniquely
-    identified by an x, y, and level.  The levels start at zero and run to
-    a maximum.  x and y also start at zero and run to 2^level-1.
- 
-    
-    How these are interpreted is up to the tile source itself.  For example, some tile sources start at the lower left for (0,0) and run to the upper left.  Others do it the opposite way.  There's a flipY option in the MaplyQuadImageTileLayer to deal with this, but the system doesn't care all that much as long as you are consistent.
-    @see MaplyTileSource
-    @see MaplyQuadPagingLayer
-    @see MaplyQuadImageTilesLayer
-  */
-typedef struct
-{
-    int x, y, level;
-} MaplyTileID;
-
-/// Convert a MaplyTileID to an NSString
-NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
-
 /** The remote tile info encapsulates settings for a remote tile source.
  It describes where the tile source is and presents URLs for getting the data,
  and information about local caching.

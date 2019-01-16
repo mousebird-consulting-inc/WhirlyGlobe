@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyTileSource.h"
+#import "MaplyTileSourceNew.h"
 #import "MaplyBaseViewController.h"
 
 /** 

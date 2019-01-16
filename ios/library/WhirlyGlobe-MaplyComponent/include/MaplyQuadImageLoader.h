@@ -19,7 +19,7 @@
 
 #import "MaplyViewControllerLayer.h"
 #import "MaplyCoordinateSystem.h"
-#import "MaplyTileSource.h"
+#import "MaplyTileSourceNew.h"
 #import "MaplyRenderController.h"
 #import "MaplyQuadSampler.h"
 #import "MaplyRemoteTileFetcher.h"

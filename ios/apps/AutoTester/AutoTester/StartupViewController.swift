@@ -11,19 +11,23 @@ import UIKit
 class StartupViewController: UITableViewController, UIPopoverPresentationControllerDelegate {
 
 	let tests = [
-        GlobeSamplerTestCase(),
-        
+        StamenWatercolorRemote(),
 		GeographyClassTestCase(),
-//        StamenWatercolorRemote(),
-//        CartoDBLightTestCase(),
         NASAGIBSTestCase(),
-
 		AnimatedBasemapTestCase(),
-		ScreenLabelsTestCase(),
+//        BNGCustomMapTestCase(),
+//        BNGTestCase(),
+        WMSTestCase(),
+
+        ScreenLabelsTestCase(),
 		ScreenMarkersTestCase(),
 		MarkersTestCase(),
 		AnimatedMarkersTestCase(),
-		VectorsTestCase(),
+        ClusteredMarkersTestCase(),
+        LabelAnimationTestCase(),
+
+        VectorsTestCase(),
+        GreatCircleTestCase(),
 		VectorStyleTestCase(),
 		VectorHoleTestCase(),
         ShapefileTestCase(),
@@ -31,8 +35,9 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		WideVectorGlobeTestCase(),
 		TextureVectorTestCase(),
 		GeoJSONStyleTestCase(),
-		
-		ClusteredMarkersTestCase(),
+        LoftedPolysTestCase(),
+
+        // Note: 3D labels are currently broken
 //        LabelsTestCase(),
 		StickersTestCase(),
 
@@ -40,35 +45,23 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 //        VectorMBTilesTestCase(),
 //        OpenMapTilesTestCase(),
         OpenMapTilesHybridTestCase(),
-
-        StarsSunTestCase(),
-		ShapesTestCase(),
-		LoftedPolysTestCase(),
-
 //        CartoDBTestCase(),
 
-//        BNGCustomMapTestCase(),
-//        BNGTestCase(),
+		ShapesTestCase(),
+        ExtrudedModelTestCase(),
+        ModelsTestCase(),
 //        ElevationLocalDatabase(),
-//        ParticleTestCase(),
         RunwayBuilderTestCase(),
+        StarsSunTestCase(),
+//        ParticleTestCase(),
+//        LIDARTestCase()
 
-//        AnimatedColorRampTestCase(),
-		ExtrudedModelTestCase(),
-		ModelsTestCase(),
-		GreatCircleTestCase(),
-		
-		LabelAnimationTestCase(),
-        
-//        WMSTestCase(),
 		FindHeightTestCase(),
 		FullAnimationTest(),
 		ActiveObjectTestCase(),
 		AnimationDelegateTestCase(),
 		LocationTrackingSimTestCase(),
 		LocationTrackingRealTestCase(),
-        
-//        LIDARTestCase()
 	]
 
 	@IBOutlet weak var testsTable: UITableView!

@@ -20,7 +20,7 @@
 
 #import "MapboxVectorImageInterpreter.h"
 #import "MapboxVectorTiles.h"
-#import "MaplyTileSource.h"
+#import "MaplyTileSourceNew.h"
 #import "MapboxVectorStyleSet.h"
 #import "MapboxVectorStyleBackground.h"
 #import "MaplyQuadImageLoader.h"

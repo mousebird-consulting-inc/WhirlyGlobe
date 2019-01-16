@@ -22,14 +22,6 @@
 #import "WhirlyGlobe.h"
 #import "MaplyCoordinateSystem_private.h"
 
-using namespace Eigen;
-using namespace WhirlyKit;
-
-NSString *MaplyTileIDString(MaplyTileID tileID)
-{
-    return [NSString stringWithFormat:@"%d_%d_%d",tileID.x,tileID.y,tileID.level];
-}
-
 @implementation MaplyFrameStatus
 @end
 

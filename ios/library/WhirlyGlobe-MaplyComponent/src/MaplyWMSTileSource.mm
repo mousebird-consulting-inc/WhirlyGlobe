@@ -21,6 +21,7 @@
 #import "MaplyWMSTileSource.h"
 #import "DDXMLElementAdditions.h"
 #import "DDXML.h"
+#import "MaplyRemoteTileFetcher.h"
 
 @implementation MaplyWMSLayerBoundingBox
 
@@ -274,9 +275,10 @@
 @implementation MaplyWMSTileSource
 {
     bool cacheInit;
+    int minZoom,maxZoom;
 }
 
-- (instancetype)initWithBaseURL:(NSString *)baseURL capabilities:(MaplyWMSCapabilities *)cap layer:(MaplyWMSLayer *)layer style:(MaplyWMSStyle *)style coordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)minZoom maxZoom:(int)maxZoom tileSize:(int)tileSize
+- (instancetype)initWithBaseURL:(NSString *)baseURL capabilities:(MaplyWMSCapabilities *)cap layer:(MaplyWMSLayer *)layer style:(MaplyWMSStyle *)style coordSys:(MaplyCoordinateSystem *)coordSys minZoom:(int)inMinZoom maxZoom:(int)inMaxZoom tileSize:(int)tileSize
 {
     self = [super init];
     
@@ -285,8 +287,8 @@
     
     _capabilities = cap;
     _baseURL = baseURL;
-    _minZoom = minZoom;
-    _maxZoom = maxZoom;
+    minZoom = inMinZoom;
+    maxZoom = inMaxZoom;
     _coordSys = coordSys;
     _layer = layer;
     _style = style;
@@ -297,6 +299,16 @@
     // Note: Should check the image type is there
     
     return self;
+}
+
+- (int)minZoom
+{
+    return minZoom;
+}
+
+- (int)maxZoom
+{
+    return maxZoom;
 }
 
 // Figure out the name for the tile, if it's local
@@ -329,70 +341,39 @@
     return false;
 }
 
-/// Return the image for a given tile
-- (id)imageForTile:(MaplyTileID)tileID
+- (id)fetchInfoForTile:(MaplyTileID)tileID
 {
-    NSData *imgData = nil;
-    bool wasCached = false;
-    NSString *fileName = nil;
+    MaplyRemoteTileFetchInfo *info = [[MaplyRemoteTileFetchInfo alloc] init];
+    
     // Look for the image in the cache first
     if (_cacheDir)
-    {
-        fileName = [self cacheFileForTile:tileID];
-        imgData = [NSData dataWithContentsOfFile:fileName];
-        wasCached = true;
-    }
+        info.cacheFile = [self cacheFileForTile:tileID];
     
-    if (!imgData)
-    {
-        // SRS string for the coordinate system
-        NSString *srsStr = [_coordSys getSRS];
-
-        // Coordinates of the tile we're asking for
-        MaplyCoordinate ll,ur;
-        [self getBoundsLL:&ll ur:&ur];
-        MaplyCoordinate tileLL,tileUR;
-        int numSide = 1<<tileID.level;
-        tileLL.x = tileID.x * (ur.x-ll.x)/numSide + ll.x;
-        tileLL.y = tileID.y * (ur.y-ll.y)/numSide + ll.y;
-        tileUR.x = (tileID.x+1) * (ur.x-ll.x)/numSide + ll.x;
-        tileUR.y = (tileID.y+1) * (ur.y-ll.y)/numSide + ll.y;
-        
-        // Put the layer request together
-        NSMutableString *layerStr = [NSMutableString string];
-        [layerStr appendString:_layer.name];
-        
-        NSMutableString *reqStr = [NSMutableString stringWithFormat:@"%@?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=%@&STYLES=&SRS=%@&BBOX=%f,%f,%f,%f&WIDTH=%d&HEIGHT=%d&FORMAT=%@&TRANSPARENT=%@",_baseURL,layerStr,srsStr,tileLL.x,tileLL.y,tileUR.x,tileUR.y,_tileSize,_tileSize,_imageType,(_transparent ? @"true" : @"false")];
-        if (_style)
-            [reqStr appendFormat:@"&STYLES=%@",_style.name];
-        NSString *fullReqStr = [reqStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        NSURLRequest *urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullReqStr]];
-        
-        // Fetch the image synchronously
-        NSURLResponse *resp = nil;
-        NSError *error = nil;
-        imgData = [NSURLConnection sendSynchronousRequest:urlReq returningResponse:&resp error:&error];
-        if (error || !imgData)
-        {
-            NSLog(@"Failed to fetch image at: %@",reqStr);
-            return nil;
-        }
-        
-        // some wms servers will response with 200 OK, but with text error.
-        if (![[resp MIMEType] hasPrefix:@"image/"])
-        {
-            NSLog(@"Failed to fetch image at: %@. Got mime type %@ - expected %@",
-                  reqStr, [resp MIMEType], _imageType);
-            return nil;
-        }
-        
-    }
+    // SRS string for the coordinate system
+    NSString *srsStr = [_coordSys getSRS];
     
-    // Let's also write it back out for the cache
-    if (_cacheDir && !wasCached)
-        [imgData writeToFile:fileName atomically:YES];
+    // Coordinates of the tile we're asking for
+    MaplyCoordinate ll,ur;
+    [self getBoundsLL:&ll ur:&ur];
+    MaplyCoordinate tileLL,tileUR;
+    int numSide = 1<<tileID.level;
+    tileLL.x = tileID.x * (ur.x-ll.x)/numSide + ll.x;
+    tileLL.y = tileID.y * (ur.y-ll.y)/numSide + ll.y;
+    tileUR.x = (tileID.x+1) * (ur.x-ll.x)/numSide + ll.x;
+    tileUR.y = (tileID.y+1) * (ur.y-ll.y)/numSide + ll.y;
     
-    return imgData;
+    // Put the layer request together
+    NSMutableString *layerStr = [NSMutableString string];
+    [layerStr appendString:_layer.name];
+    
+    NSMutableString *reqStr = [NSMutableString stringWithFormat:@"%@?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&LAYERS=%@&STYLES=&SRS=%@&BBOX=%f,%f,%f,%f&WIDTH=%d&HEIGHT=%d&FORMAT=%@&TRANSPARENT=%@",_baseURL,layerStr,srsStr,tileLL.x,tileLL.y,tileUR.x,tileUR.y,_tileSize,_tileSize,_imageType,(_transparent ? @"true" : @"false")];
+    if (_style)
+        [reqStr appendFormat:@"&STYLES=%@",_style.name];
+    
+    NSString *fullReqStr = [reqStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    info.urlReq = [NSURLRequest requestWithURL:[NSURL URLWithString:fullReqStr]];
+    
+    return info;
 }
 
 // get the bounds of the most common tiling schema for the coordSys in units usable for WMS BBOX

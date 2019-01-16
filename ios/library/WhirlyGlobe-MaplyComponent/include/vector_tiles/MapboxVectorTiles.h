@@ -21,7 +21,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MaplyVectorTileStyle.h"
-#import "MaplyTileSource.h"
+#import "MaplyTileSourceNew.h"
 #import "MaplyCoordinate.h"
 #import "MaplyVectorStyle.h"
 

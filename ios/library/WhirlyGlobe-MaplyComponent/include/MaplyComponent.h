@@ -42,7 +42,7 @@
 #import "MaplyUpdateLayer.h"
 #import "MaplyQuadImageLoader.h"
 #import "MaplyQuadImageFrameLoader.h"
-#import "MaplyTileSource.h"
+#import "MaplyTileSourceNew.h"
 #import "MaplyElevationSource.h"
 #import "MaplyElevationDatabase.h"
 #import "MaplyIconManager.h"

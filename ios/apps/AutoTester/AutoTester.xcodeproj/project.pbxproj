@@ -11,6 +11,7 @@
 		2B1C26531C91037100C71B0A /* France.mbtiles in Resources */ = {isa = PBXBuildFile; fileRef = 2B1C26511C9100A500C71B0A /* France.mbtiles */; };
 		2B2A417E1D83454900098E12 /* ActiveObjectTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */; };
 		2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */; };
+		2B446AAE21EFE29B0078A975 /* WMSTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F451CB72DE800369A15 /* WMSTestCase.m */; };
 		2B4BA6CE1C83A22000DC1562 /* leftbend.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C21C83A22000DC1562 /* leftbend.geojson */; };
 		2B4BA6CF1C83A22000DC1562 /* leftv.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C31C83A22000DC1562 /* leftv.geojson */; };
 		2B4BA6D01C83A22000DC1562 /* mowing-lawn.geojson in Resources */ = {isa = PBXBuildFile; fileRef = 2B4BA6C41C83A22000DC1562 /* mowing-lawn.geojson */; };
@@ -2354,6 +2355,7 @@
 				E5679F4A1CB72DE800369A15 /* FindHeightTestCase.m in Sources */,
 				2B158BEF1D5D19E900103E04 /* VectorHoleTestCase.m in Sources */,
 				D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.m in Sources */,
+				2B446AAE21EFE29B0078A975 /* WMSTestCase.m in Sources */,
 				2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */,
 				D8200CA11BE9563F00B22CF5 /* StickersTestCase.swift in Sources */,
 				E5941DC11E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift in Sources */,

@@ -21,7 +21,7 @@
 #import "MapnikStyleSet.h"
 #import "MaplyVectorTileStyle.h"
 
-#import "MaplyTileSource.h"
+#import "MaplyTileSourceNew.h"
 #import "MapnikStyle.h"
 #import "MapnikStyleRule.h"
 #import "NSDictionary+StyleRules.h"
