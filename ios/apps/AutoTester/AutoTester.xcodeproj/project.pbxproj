@@ -28,6 +28,8 @@
 		2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */; };
 		2B73D6AF207C0D5F00AF5095 /* NotoSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3256201021CF006DDE27 /* NotoSans-Regular.ttf */; };
 		2B73D6B4207C106C00AF5095 /* GlobeSamplerTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B73D6B2207C106C00AF5095 /* GlobeSamplerTestCase.swift */; };
+		2B753DDB21EEB41700DE98BA /* NASAGIBSTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84433E61C14A46100A52117 /* NASAGIBSTestCase.swift */; };
+		2B753DDC21EEB41800DE98BA /* NASAGIBSTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84433E61C14A46100A52117 /* NASAGIBSTestCase.swift */; };
 		2B7787CA21CDA47F006ABF5D /* CartoDBLightTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7787C921CDA47F006ABF5D /* CartoDBLightTestCase.swift */; };
 		2B7E288B200EC109007E2965 /* SE_PolygonsLines.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B7E2889200EC109007E2965 /* SE_PolygonsLines.json */; };
 		2B7E288C200EC109007E2965 /* SE_Basic.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B7E288A200EC109007E2965 /* SE_Basic.json */; };
@@ -3336,6 +3338,7 @@
 				D8200C9F1BE9516300B22CF5 /* ShapesTestCase.m in Sources */,
 				2B93D9671D41433500EAD280 /* WideVectorGlobeTestCase.m in Sources */,
 				8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */,
+				2B753DDB21EEB41700DE98BA /* NASAGIBSTestCase.swift in Sources */,
 				2BC0FB781DCAA18A004125F1 /* TextureVectorTestCase.m in Sources */,
 				D8F2FE291BE7C2000058A310 /* MarkersTestCase.swift in Sources */,
 			);
@@ -3382,6 +3385,7 @@
 				8FDB56F81ECB9C0700993B7D /* ShapesTestCase.m in Sources */,
 				8FDB56FA1ECB9C0700993B7D /* WideVectorGlobeTestCase.m in Sources */,
 				8FDB56FC1ECB9C0700993B7D /* Issue721TestCase.swift in Sources */,
+				2B753DDC21EEB41800DE98BA /* NASAGIBSTestCase.swift in Sources */,
 				8FDB56FD1ECB9C0700993B7D /* TextureVectorTestCase.m in Sources */,
 				8FDB56FF1ECB9C0700993B7D /* MarkersTestCase.swift in Sources */,
 			);

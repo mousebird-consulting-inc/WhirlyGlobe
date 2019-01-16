@@ -52,10 +52,10 @@ public:
     {
     }
     DrawListSortStruct2() { }
-    DrawListSortStruct2(const DrawListSortStruct &that) : useAlpha(that.useAlpha), useZBuffer(that.useZBuffer), frameInfo(that.frameInfo)
+    DrawListSortStruct2(const DrawListSortStruct2 &that) : useAlpha(that.useAlpha), useZBuffer(that.useZBuffer), frameInfo(that.frameInfo)
     {
     }
-    DrawListSortStruct2 & operator = (const DrawListSortStruct &that)
+    DrawListSortStruct2 & operator = (const DrawListSortStruct2 &that)
     {
         useAlpha = that.useAlpha;
         useZBuffer= that.useZBuffer;
