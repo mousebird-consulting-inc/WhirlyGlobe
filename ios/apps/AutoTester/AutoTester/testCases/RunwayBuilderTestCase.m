@@ -14,10 +14,8 @@
 - (instancetype)init
 {
     if (self = [super init]) {
-        // Note: Debugging
-        self.captureDelay = 100000;
         self.name = @"Runway Builder";
-        self.implementations = MaplyTestCaseOptionGlobe;
+        self.implementations = MaplyTestCaseImplementationGlobe;
 
     }
     return self;

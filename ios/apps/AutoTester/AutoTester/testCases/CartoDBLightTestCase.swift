@@ -14,7 +14,6 @@ class CartoDBLightTestCase: MaplyTestCase {
         super.init()
         
         self.name = "CartoDB Light Test Case"
-        self.captureDelay = 4
         self.implementations = [.globe,.map]
     }
     

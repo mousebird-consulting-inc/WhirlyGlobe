@@ -20,9 +20,8 @@
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.captureDelay = 5;
 		self.name = @"Lofted Polys";
-        self.implementations = MaplyTestCaseOptionGlobe;
+        self.implementations = MaplyTestCaseImplementationGlobe;
 	}
 	return self;
 }

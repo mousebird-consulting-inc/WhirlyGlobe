@@ -23,7 +23,7 @@
 	if (self = [super init]) {
 		self.name = @"Celsium Elevation";
 		self.captureDelay = 5;
-        self.implementations = MaplyTestCaseOptionGlobe;
+        self.implementations = MaplyTestCaseImplementationGlobe;
 	}
 
 	return self;

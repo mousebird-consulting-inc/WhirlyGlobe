@@ -20,16 +20,12 @@
 {
     if (self = [super init]) {
         self.name = @"Animating Position";
-        self.captureDelay = 2;
 		self.implementations = MaplyTestCaseImplementationGlobe;
     }
     return self;
 }
 
 - (void)setupWithBaseVC:(MaplyBaseViewController *)vc {
-}
-
-- (void)teardownWithBaseVC:(MaplyBaseViewController *)vc {
 }
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
@@ -42,12 +38,6 @@
 //    globeVC.heading = 0.0;
     globeVC.height = 0.5;
     [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222) height:0.1 heading:45.0/180.0*M_PI time:10.0];
-}
-
-- (void)tearDownWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC
-{
-    [self teardownWithBaseVC:(MaplyBaseViewController *)globeVC];
-    
 }
 
 @end

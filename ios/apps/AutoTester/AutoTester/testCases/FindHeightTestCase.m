@@ -20,16 +20,12 @@
 {
     if (self = [super init]) {
         self.name = @"Find Height";
-        self.captureDelay = 2;
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
     }
     return self;
 }
 
 - (void)setupWithBaseVC:(MaplyBaseViewController *)vc {
-}
-
-- (void)teardownWithBaseVC:(MaplyBaseViewController *)vc {
 }
 
 - (void)addBoundingBox:(MaplyBoundingBox)bbox baseVC:(MaplyBaseViewController *)baseVC
@@ -67,12 +63,6 @@
     });
 }
 
-- (void)tearDownWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC
-{
-    [self teardownWithBaseVC:(MaplyBaseViewController *)globeVC];
-    
-}
-
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
     CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
@@ -93,12 +83,6 @@
         
         [self addBoundingBox:bbox baseVC:mapVC];
     });
-}
-
-- (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC
-{
-    [self teardownWithBaseVC:(MaplyBaseViewController *)mapVC];
-    
 }
 
 @end

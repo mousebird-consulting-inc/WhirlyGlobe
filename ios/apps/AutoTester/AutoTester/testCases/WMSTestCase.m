@@ -37,9 +37,6 @@
     [self fetchWMSLayer:@"http://129.206.228.72/cached/osm" layer:@"osm_auto:all" style:nil cacheDir:cacheDir];
 }
 
-- (void)teardownWithBaseVC:(MaplyBaseViewController *)vc {
-}
-
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
     CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
@@ -49,12 +46,6 @@
     [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
 }
 
-- (void)tearDownWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC
-{
-    [self teardownWithBaseVC:(MaplyBaseViewController *)globeVC];
-    
-}
-
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
     CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
@@ -62,12 +53,6 @@
     mapVC.height = 0.25;
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];
-}
-
-- (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC
-{
-    [self teardownWithBaseVC:(MaplyBaseViewController *)mapVC];
-    
 }
 
 // Try to fetch the given WMS layer

@@ -14,7 +14,6 @@ class MovingScreenLabelsTestCase: MaplyTestCase {
 		super.init()
 
 		self.name = "Moving Screen Labels"
-		self.captureDelay = 3
 		self.implementations = []
 	}
 

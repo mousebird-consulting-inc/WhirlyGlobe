@@ -21,7 +21,6 @@
 {
     if (self = [super init]) {
         self.name = @"Vectors with Holes";
-        self.captureDelay = 5;
         self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }

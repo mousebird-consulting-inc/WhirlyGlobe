@@ -19,7 +19,6 @@
 {
     if (self = [super init]) {
         self.name = @"Screen Markers";
-        self.captureDelay = 4;
         self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
     }
     return self;

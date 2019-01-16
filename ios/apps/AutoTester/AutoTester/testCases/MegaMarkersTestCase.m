@@ -17,7 +17,6 @@
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.captureDelay = 3;
 		self.name = @"Mega Markers";
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 	}

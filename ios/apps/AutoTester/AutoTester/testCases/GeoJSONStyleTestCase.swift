@@ -27,7 +27,6 @@ class GeoJSONStyleTestCase: MaplyTestCase {
         super.init()
         
         self.name = "GeoJSON SLD Style Test Case"
-        self.captureDelay = 4
         self.implementations = [.globe, .map]
     }
     
@@ -124,19 +123,6 @@ class GeoJSONStyleTestCase: MaplyTestCase {
     
     @objc func onSwitchAmenities() {
         self.amenitiesSource!.enabled = !(self.amenitiesSource!.enabled)
-    }
-
-    
-    func teardownCommon(baseVC: MaplyBaseViewController) {
-        
-    }
-    
-    override func tearDown(withMap mapVC: MaplyViewController) {
-        teardownCommon(baseVC: mapVC)
-    }
-    
-    override func tearDown(withGlobe globeVC: WhirlyGlobeViewController) {
-        teardownCommon(baseVC: globeVC)
     }
     
     func setupMenuWithFrameView(frameView: UIView) {

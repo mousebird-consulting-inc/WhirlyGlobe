@@ -14,7 +14,6 @@ class StickersTestCase: MaplyTestCase {
 		super.init()
 		
 		self.name = "Stickers"
-		self.captureDelay = 4
 		self.implementations = [.globe, .map]
 	}
 

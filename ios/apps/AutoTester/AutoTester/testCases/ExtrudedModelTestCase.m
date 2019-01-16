@@ -18,8 +18,7 @@ static const float EarthRadius = 6371000;
 {
     if (self = [super init]) {
         self.name = @"Extruded Model (Arrows)";
-        self.captureDelay = 20;
-        self.implementations = MaplyTestCaseOptionGlobe;
+        self.implementations = MaplyTestCaseImplementationGlobe;
 
     }
     

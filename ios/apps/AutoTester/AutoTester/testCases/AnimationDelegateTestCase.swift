@@ -13,7 +13,6 @@ class AnimationDelegateTestCase: MaplyTestCase {
         super.init()
         
         self.name = "Animation Delegate Test Case"
-        self.captureDelay = 4
         self.implementations = [.globe, .map]
     }
    

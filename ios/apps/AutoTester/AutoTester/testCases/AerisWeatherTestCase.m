@@ -71,11 +71,6 @@
     }];
 }
 
-- (void)teardownWithBaseVC:(MaplyBaseViewController *)vc {
-    if (aerisLayer)
-        [vc removeLayer:aerisLayer];
-}
-
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
     CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
@@ -84,23 +79,12 @@
     [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) height:1.5];
 }
 
-- (void)tearDownWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC
-{
-    [self teardownWithBaseVC:(MaplyBaseViewController *)globeVC];
-    
-}
-
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
     CartoDBLightTestCase *baseView = [[CartoDBLightTestCase alloc] init];
     [baseView setUpWithMap:mapVC];
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-98.58, 39.83) time:0.0];
-}
-
-- (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC
-{
-    [self teardownWithBaseVC:(MaplyBaseViewController *)mapVC];
 }
 
 @end

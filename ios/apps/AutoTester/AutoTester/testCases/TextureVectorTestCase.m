@@ -18,7 +18,6 @@
 {
     if (self = [super init]) {
         self.name = @"Textured Vectors";
-        self.captureDelay = 5;
         self.implementations = MaplyTestCaseImplementationGlobe;
     }
     

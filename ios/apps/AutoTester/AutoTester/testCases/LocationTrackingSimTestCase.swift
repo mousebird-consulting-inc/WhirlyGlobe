@@ -18,7 +18,6 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate {
         super.init()
         
         self.name = "Location Tracking Simulated Test Case"
-        self.captureDelay = 4
         self.implementations = [.globe, .map]
     }
     

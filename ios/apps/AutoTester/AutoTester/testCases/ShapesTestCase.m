@@ -64,7 +64,6 @@ LocationInfo locations[NumLocations] =
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.captureDelay = 5;
 		self.name = @"Shapes";
 		self.implementations = MaplyTestCaseImplementationGlobe | MaplyTestCaseImplementationMap;
 

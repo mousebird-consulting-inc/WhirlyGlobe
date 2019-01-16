@@ -12,7 +12,6 @@
 #import "MaplyBridge.h"
 
 #import "MaplyTestCase.h"
-#import "MaplyTestResult.h"
 #import "GeographyClassTestCase.h"
 #import "CesiumElevationTestCase.h"
 #import "VectorsTestCase.h"
@@ -38,7 +37,6 @@
 //#import "WMSTestCase.h"
 #import "FindHeightTestCase.h"
 #import "FullAnimationTest.h"
-#import "DownloadResourceOperation.h"
 //#import "PagingLayerTestCase.h"
 #import "VectorHoleTestCase.h"
 #import "VectorStyleTestCase.h"

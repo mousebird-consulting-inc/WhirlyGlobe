@@ -23,7 +23,6 @@
 {
     if (self = [super init]) {
         self.name = @"Label Animation";
-        self.captureDelay = 2;
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }

@@ -19,7 +19,6 @@
 {
     if (self = [super init]) {
         self.name = @"Vector Style Test";
-        self.captureDelay = 5;
         self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }

@@ -14,7 +14,6 @@ class GlobeSamplerTestCase: MaplyTestCase {
         super.init()
         
         self.name = "GlobeSampler Test Case"
-        self.captureDelay = 4
         self.implementations = [.globe,.map]
     }
 

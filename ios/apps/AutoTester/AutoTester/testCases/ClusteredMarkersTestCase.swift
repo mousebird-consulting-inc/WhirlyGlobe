@@ -14,7 +14,6 @@ class ClusteredMarkersTestCase: MaplyTestCase {
 		super.init()
 
 		self.name = "Clustered Markers"
-		self.captureDelay = 3
 		self.implementations = [.globe, .map]
 	}
 

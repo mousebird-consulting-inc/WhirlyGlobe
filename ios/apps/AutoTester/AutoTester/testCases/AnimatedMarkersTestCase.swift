@@ -14,7 +14,6 @@ class AnimatedMarkersTestCase: MaplyTestCase {
         super.init()
         
         self.name = "Animated Markers"
-        self.captureDelay = 4
         self.implementations = [.globe, .map]
     }
     

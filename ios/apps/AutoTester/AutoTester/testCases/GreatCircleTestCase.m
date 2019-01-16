@@ -15,8 +15,7 @@
 {
     if (self = [super init]) {
         self.name = @"Great Circles";
-        self.captureDelay = 20;
-        self.implementations = MaplyTestCaseOptionGlobe | MaplyTestCaseOptionMap;
+        self.implementations = MaplyTestCaseImplementationGlobe | MaplyTestCaseImplementationMap;
 
     }
     

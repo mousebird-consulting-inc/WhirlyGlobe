@@ -14,7 +14,6 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         super.init()
         
         self.name = "OpenMapTiles Hybrid Test Case"
-        self.captureDelay = 4
         self.implementations = [.map, .globe]
     }
     

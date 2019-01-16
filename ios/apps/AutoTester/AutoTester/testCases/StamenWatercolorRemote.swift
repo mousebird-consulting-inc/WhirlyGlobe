@@ -14,7 +14,6 @@ class StamenWatercolorRemote: MaplyTestCase {
 		super.init()
 
 		self.name = "Stamen Watercolor Remote"
-		self.captureDelay = 4
 		self.implementations = [.globe, .map]
 	}
     

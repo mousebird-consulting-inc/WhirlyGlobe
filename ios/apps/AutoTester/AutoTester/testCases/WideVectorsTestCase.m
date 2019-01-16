@@ -19,7 +19,6 @@
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.captureDelay = 20;
 		self.name = @"Wide Vectors";
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 	}

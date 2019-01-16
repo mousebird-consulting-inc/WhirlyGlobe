@@ -20,7 +20,6 @@
 {
     if (self = [super init]) {
         self.name = @"Shapefile";
-        self.captureDelay = 5;
         self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }
@@ -64,13 +63,6 @@
                    });
 }
 
-- (void) tearDownWithMap:(MaplyViewController *)mapVC {
-    [baseViewC removeObject:compObj];
-}
-
-- (void)tearDownWithGlobe:(WhirlyGlobeViewController *)globeVC{
-    [baseViewC removeObject:compObj];
-}
 - (void) handleSelection:(MaplyBaseViewController *)viewC
                 selected:(NSObject *)selectedObj
 {

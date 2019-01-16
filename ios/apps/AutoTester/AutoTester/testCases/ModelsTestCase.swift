@@ -33,7 +33,6 @@ class ModelsTestCase: MaplyTestCase {
 		super.init()
 		
 		self.name = "Models"
-		self.captureDelay = 4
 		self.implementations = [.globe]
 	}
 

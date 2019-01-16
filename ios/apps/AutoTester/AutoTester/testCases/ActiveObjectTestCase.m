@@ -60,7 +60,6 @@
 {
     if (self = [super init]) {
         self.name = @"Active Object Test Case";
-        self.captureDelay = 5;
         self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
     }
     

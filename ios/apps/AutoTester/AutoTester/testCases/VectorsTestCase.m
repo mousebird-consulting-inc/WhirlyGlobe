@@ -27,7 +27,6 @@
 {
 	if (self = [super init]) {
 		self.name = @"Vectors";
-		self.captureDelay = 5;
 		self.compObjs = [[NSMutableArray alloc] init];
         self.vecList = [[NSMutableArray alloc] init];
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
@@ -87,19 +86,6 @@
 	[self overlayCountries:(MaplyBaseViewController*)mapVC];
 }
 
-- (void) tearDownWithMap:(MaplyViewController *)mapVC {
-    [mapVC removeObjects:self.compObjs];
-    self.compObjs = nil;
-    self.baseView = nil;
-    
-}
-
-- (void)tearDownWithGlobe:(WhirlyGlobeViewController *)globeVC{
-    
-    [globeVC removeObjects:self.compObjs];
-    self.compObjs = nil;
-    self.baseView = nil;
-}
 - (void) handleSelection:(MaplyBaseViewController *)viewC
 				selected:(NSObject *)selectedObj
 {

@@ -20,7 +20,6 @@ class AnimatedBasemapTestCase: MaplyTestCase {
 		super.init()
 
 		self.name = "Animated basemap"
-		self.captureDelay = 2
 		self.implementations = [.globe, .map]
 	}
 
