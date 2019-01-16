@@ -59,6 +59,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		GreatCircleTestCase(),
 		
 		LabelAnimationTestCase(),
+        
 //        WMSTestCase(),
 		FindHeightTestCase(),
 		FullAnimationTest(),
@@ -66,7 +67,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		AnimationDelegateTestCase(),
 		LocationTrackingSimTestCase(),
 		LocationTrackingRealTestCase(),
-
+        
 //        LIDARTestCase()
 	]
 

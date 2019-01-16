@@ -8,11 +8,9 @@
 
 #import "AerisWeatherTestCase.h"
 #import "MaplyAerisTiles.h"
-#import "MaplyQuadImageTilesLayer.h"
 #import "MaplyBaseViewController.h"
 #import "MaplyViewController.h"
 #import "WhirlyGlobeViewController.h"
-#import "MaplyMultiplexTileSource.h"
 #import "AutoTester-Swift.h"
 
 @implementation AerisWeatherTestCase {
@@ -20,17 +18,16 @@
     NSString *aerisKey;     // The secret key for the Aeris account.
     NSString *layerCode;    // The code that Aeris uses to identify the layer.
     float importanceScale;
-    __block MaplyQuadImageTilesLayer *aerisLayer;
     MaplyAerisLayerInfo *layerInfo;
     MaplyAerisTileSet *layerTileSet;
-    
+    MaplyQuadImageFrameLoader *frameLoader;
+    MaplyQuadImageFrameAnimator *animator;
 }
 
 - (instancetype)init
 {
     if (self = [super init]) {
         self.name = @"Aeris Weather";
-        self.captureDelay = 2;
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         aerisID = @"2kDDnD7Q1XFfFm4CwH17C";
         aerisKey = @"FQmadjUccN3CnB4KG6kKeurUpxHSKM0xbCd6TlVi";
@@ -55,18 +52,23 @@
     
     // Start the MaplyAerisTileSet fetch, providing custom code in the success block for adding the imagery to the map or globe.
     [layerTileSet startFetchWithSuccess:^(NSArray *tileSources) {
+        if ([tileSources count] == 0)
+            return;
         
-        MaplyMultiplexTileSource *multiSource = [[MaplyMultiplexTileSource alloc] initWithSources:tileSources];
-       
-        self->aerisLayer = [[MaplyQuadImageTilesLayer alloc] initWithCoordSystem:multiSource.coordSys tileSource:multiSource];
-        self->aerisLayer.imageDepth = (int)[tileSources count];
-        self->aerisLayer.imageFormat = MaplyImageUShort5551;
-        self->aerisLayer.drawPriority = 1000;
-        self->aerisLayer.importanceScale = self->importanceScale;
-        self->aerisLayer.animationPeriod = 5.0;
+        MaplyRemoteTileInfoNew *firstSource = [tileSources objectAtIndex:0];
         
-        [vc addLayer:self->aerisLayer];
+        // Parameters describing how we want a globe broken down
+        MaplySamplingParams *sampleParams = [[MaplySamplingParams alloc] init];
+        sampleParams.coordSys = [[MaplySphericalMercator alloc] initWebStandard];
+        sampleParams.coverPoles = true;
+        sampleParams.edgeMatching = true;
+        sampleParams.minZoom = firstSource.minZoom;
+        sampleParams.maxZoom = firstSource.maxZoom;
+        sampleParams.singleLevel = true;
         
+        self->frameLoader = [[MaplyQuadImageFrameLoader alloc] initWithParams:sampleParams tileInfos:tileSources viewC:vc];
+        self->animator = [[MaplyQuadImageFrameAnimator alloc] initWithFrameLoader:self->frameLoader viewC:vc];
+        self->animator.period = 5.0;
     } failure:^(NSError *error) {
     }];
 }

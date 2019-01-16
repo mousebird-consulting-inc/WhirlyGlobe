@@ -32,7 +32,6 @@
 //#import "VectorMBTilesTestCase.h"
 #import "ExtrudedModelTestCase.h"
 #import "GreatCircleTestCase.h"
-//#import "AerisWeatherTestCase.h"
 #import "LabelAnimationTestCase.h"
 //#import "WMSTestCase.h"
 #import "FindHeightTestCase.h"

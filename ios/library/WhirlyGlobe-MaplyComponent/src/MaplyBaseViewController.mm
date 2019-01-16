@@ -225,7 +225,7 @@ using namespace WhirlyKit;
     NSString *build = infoDict[@"CFBundleVersion"];
     NSString *bundleVersion = infoDict[@"CFBundleShortVersionString"];
     // WGMaply version
-    NSString *wgmaplyVersion = @"2.6.0";
+    NSString *wgmaplyVersion = @"3.0dev";
     // OS version
     NSOperatingSystemVersion osversionID = [[NSProcessInfo processInfo] operatingSystemVersion];
     NSString *osversion = [NSString stringWithFormat:@"%d.%d.%d",(int)osversionID.majorVersion,(int)osversionID.minorVersion,(int) osversionID.patchVersion];

@@ -56,7 +56,6 @@
 #import "MaplyPoints.h"
 #import "MaplyGeomBuilder.h"
 #import "MaplyColorRampGenerator.h"
-#import "MaplyAerisTiles.h"
 
 #import "MapboxVectorTiles.h"
 #import "MapboxVectorImageInterpreter.h"

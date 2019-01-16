@@ -1052,8 +1052,6 @@
 		E5679F471CB72DE800369A15 /* FindHeightTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FindHeightTestCase.m; sourceTree = "<group>"; };
 		E5679F4C1CB7669400369A15 /* FullAnimationTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FullAnimationTest.h; sourceTree = "<group>"; };
 		E5679F4D1CB7669400369A15 /* FullAnimationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FullAnimationTest.m; sourceTree = "<group>"; };
-		E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AerisWeatherTestCase.m; sourceTree = "<group>"; };
-		E57E78C91C936B8400C468C6 /* AerisWeatherTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AerisWeatherTestCase.h; sourceTree = "<group>"; };
 		E5941DB61E0CEC8600E1C8B3 /* belfast_ireland_buildings.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = belfast_ireland_buildings.geojson; sourceTree = "<group>"; };
 		E5941DB71E0CEC8600E1C8B3 /* belfast_ireland_landusages.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = belfast_ireland_landusages.geojson; sourceTree = "<group>"; };
 		E5941DB81E0CEC8600E1C8B3 /* belfast_ireland_roads.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = belfast_ireland_roads.geojson; sourceTree = "<group>"; };
@@ -1144,8 +1142,6 @@
 				E5679F451CB72DE800369A15 /* WMSTestCase.m */,
 				E5679F461CB72DE800369A15 /* FindHeightTestCase.h */,
 				E5679F471CB72DE800369A15 /* FindHeightTestCase.m */,
-				E57E78C91C936B8400C468C6 /* AerisWeatherTestCase.h */,
-				E57E78C81C936B8400C468C6 /* AerisWeatherTestCase.m */,
 				D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */,
 				D84AA5931C1A1C9700413B76 /* BNGCustomMapTestCase.swift */,
 				D84AA5981C1A2B9800413B76 /* BNGTestCase.swift */,
