@@ -355,7 +355,7 @@ using namespace WhirlyKit;
 
 @end
 
-@implementation MaplyDebugImageLoaderInterpreter
+@implementation MaplyOvlDebugImageLoaderInterpreter
 {
     MaplyBaseViewController * __weak viewC;
     MaplyQuadImageLoaderBase * __weak loader;
@@ -401,6 +401,72 @@ using namespace WhirlyKit;
     MaplyComponentObject *outlineObj = [viewC addVectors:@[vecObj] desc:nil mode:MaplyThreadCurrent];
     
     loadReturn.compObjs = @[labelObj,outlineObj];
+}
+
+@end
+
+@implementation MaplyDebugImageLoaderInterpreter
+{
+    MaplyBaseViewController * __weak viewC;
+}
+
+- (instancetype)initWithLoader:(MaplyQuadImageLoaderBase *)inLoader viewC:(MaplyBaseViewController *)inViewC
+{
+    self = [super init];
+    
+    viewC = inViewC;
+    
+    return self;
+}
+
+static const int MaxDebugColors = 10;
+static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x4F256F, 0xD89CDE, 0x773B28, 0x333D99, 0x862D52, 0xC2C653, 0xB8583D};
+
+- (void)parseData:(MaplyLoaderReturn * __nonnull)loadReturn
+{
+    MaplyTileID tileID = loadReturn.tileID;
+    
+    CGSize size;  size = CGSizeMake(128,128);
+    UIGraphicsBeginImageContext(size);
+    
+    // Draw into the image context
+    int hexColor = debugColors[loadReturn.tileID.level % MaxDebugColors];
+    float red = (((hexColor) >> 16) & 0xFF)/255.0;
+    float green = (((hexColor) >> 8) & 0xFF)/255.0;
+    float blue = (((hexColor) >> 0) & 0xFF)/255.0;
+    UIColor *backColor = nil;
+    UIColor *fillColor = [UIColor whiteColor];
+    backColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.7];
+    fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:0.7];
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    
+    // Draw a rectangle around the edges for testing
+    [backColor setFill];
+    CGContextFillRect(ctx, CGRectMake(0, 0, size.width, size.height));
+    [fillColor setStroke];
+    CGContextStrokeRect(ctx, CGRectMake(0, 0, size.width-1, size.height-1));
+    
+    [fillColor setStroke];
+    [fillColor setFill];
+    CGContextSetTextDrawingMode(ctx, kCGTextFill);
+    NSString *textStr = nil;
+    if (loadReturn.frame == -1) {
+        textStr = [NSString stringWithFormat:@"%d: (%d,%d)",tileID.level,tileID.x,tileID.y];
+    }
+    else
+        textStr = [NSString stringWithFormat:@"%d: (%d,%d); %d",tileID.level,tileID.x,tileID.y,loadReturn.frame];
+    [[UIColor whiteColor] setStroke];
+    [[UIColor whiteColor] setFill];
+    [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:24.0]}];
+    
+    // Grab the image and shut things down
+    UIImage *retImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:retImage];
+    WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
+
+    loadReturn.images = @[loadTile];
 }
 
 @end
@@ -537,10 +603,13 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
 - (instancetype)initWithParams:(MaplySamplingParams *)params tileInfo:(MaplyRemoteTileInfoNew *)tileInfo viewC:(MaplyBaseViewController *)viewC
 {
-    return [self initWithParams:params tileInfos:@[tileInfo] viewC:viewC];
+    if (tileInfo)
+        return [self initWithParams:params tileInfos:@[tileInfo] viewC:viewC];
+    else
+        return [self initWithParams:params tileInfos:@[] viewC:viewC];
 }
 
-- (nullable instancetype)initWithParams:(MaplySamplingParams *)inParams tileInfos:(NSArray<MaplyRemoteTileInfoNew *> *__nonnull)inTileInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
+- (nullable instancetype)initWithParams:(MaplySamplingParams *)inParams tileInfos:(NSArray<MaplyRemoteTileInfoNew *> *)inTileInfos viewC:(MaplyBaseViewController *)inViewC
 {
     params = inParams;
     tileInfos = inTileInfos;
@@ -661,30 +730,42 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     // This way they're not processed out of order
     int thisGroup = (int)random();
     
-    for (MaplyRemoteTileInfoNew *tileInfo in tileInfos) {
-        if (ident.level >= tileInfo.minZoom && ident.level <= tileInfo.maxZoom) {
-            // Put together a request for the fetcher
-            MaplyTileFetchRequest *request = [[MaplyTileFetchRequest alloc] init];
-            MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
-            id fetchInfo = [tileInfo fetchInfoForTile:tileID];
-            // If there's no fetch info, then there's no data to fetch
-            // Note: What happens if this is true for all data sources?
-            if (fetchInfo) {
-                request.fetchInfo = fetchInfo;
-                request.tileSource = tileInfo;
-                request.priority = 0;
-                request.group = thisGroup;
-                request.importance = ident.importance * self.importanceScale;
-                
-                request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
-                    [self fetchRequestSuccess:request tileID:tileID frame:-1 data:data];
-                };
-                request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-                    [self fetchRequestFail:request tileID:tileID frame:-1 error:error];
-                };
-                [requests addObject:request];
+    MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
+    
+    if ([tileInfos count] > 0) {
+        for (MaplyRemoteTileInfoNew *tileInfo in tileInfos) {
+            if (ident.level >= tileInfo.minZoom && ident.level <= tileInfo.maxZoom) {
+                // Put together a request for the fetcher
+                MaplyTileFetchRequest *request = [[MaplyTileFetchRequest alloc] init];
+                id fetchInfo = [tileInfo fetchInfoForTile:tileID];
+                // If there's no fetch info, then there's no data to fetch
+                // Note: What happens if this is true for all data sources?
+                if (fetchInfo) {
+                    request.fetchInfo = fetchInfo;
+                    request.tileSource = tileInfo;
+                    request.priority = 0;
+                    request.group = thisGroup;
+                    request.importance = ident.importance * self.importanceScale;
+                    
+                    request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
+                        [self fetchRequestSuccess:request tileID:tileID frame:-1 data:data];
+                    };
+                    request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
+                        [self fetchRequestFail:request tileID:tileID frame:-1 error:error];
+                    };
+                    [requests addObject:request];
+                }
             }
         }
+    } else {
+        // This means we're not fetching anything, it's being generated by the interpreter
+        // Ask the interpreter to parse it
+        MaplyLoaderReturn *loadData = [[MaplyLoaderReturn alloc] init];
+        loadData.tileID = tileID;
+        loadData.frame = -1;
+        loadData.tileData = nil;
+        MaplyTileFetchRequest *request = [[MaplyTileFetchRequest alloc] init];
+        [self performSelector:@selector(mergeFetchRequest:) onThread:self->samplingLayer.layerThread withObject:@[loadData,request] waitUntilDone:NO];
     }
 
     tile->startFetch(tileFetcher,requests);
@@ -752,7 +833,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     if (tile->dataWasLoaded(request,tileData)) {
         // Construct a LoaderReturn that contains all the data
         auto allData = tile->getAndClearData();
-        if (allData.empty()) {
+        if (allData.empty() && [tileInfos count] > 0) {
             tile->setLoaded();
             return;
         }
@@ -764,7 +845,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         multiLoadData.multiTileData = [NSMutableArray array];
         for (unsigned int ii=0;ii<allData.size();ii++)
             [(NSMutableArray *)multiLoadData.multiTileData addObject:allData[ii]];
-        multiLoadData.tileData = [multiLoadData.multiTileData objectAtIndex:0];
+        multiLoadData.tileData = [multiLoadData.multiTileData firstObject];
         
         // Hand over to another queue to do the parsing, since that can be slow
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{

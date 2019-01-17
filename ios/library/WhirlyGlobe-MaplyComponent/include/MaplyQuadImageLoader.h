@@ -39,7 +39,7 @@
 @property (nonatomic,assign) int frame;
 
 // Data returned from a tile request.  Unparsed.
-@property (nonatomic,strong) NSData * __nonnull tileData;
+@property (nonatomic,strong) NSData * __nullable tileData;
 
 // If you have more than one tileInfo, you'll get your data back here unparsed.
 @property (nonatomic,strong) NSArray * __nullable multiTileData;
@@ -92,10 +92,20 @@
     This loader interpreter sticks a designator in the middle of tiles
     and a line around the edge.  Nice for debugging.
   */
-@interface MaplyDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
+@interface MaplyOvlDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
 
 // Intialize with the loader we're using.  Need this for extents of tiles
 - (instancetype __nonnull)initWithLoader:(MaplyQuadImageLoaderBase * __nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
+
+@end
+
+/**
+    This loader interpreter makes up an image for the given frame/tile
+    and returns that.  It doesn't use any returned data.
+  */
+@interface MaplyDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
+
+- (instancetype __nonnull)initWithLoader:(MaplyQuadImageLoaderBase *__nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 @end
 
@@ -263,7 +273,7 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
  @param tileInfo A single tile info object describing where the data is and how to get it.
  @param viewC the View controller (or renderer) to add objects to.
  */
-- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfo:(NSObject<MaplyTileInfoNew> *__nonnull)tileInfo viewC:(MaplyBaseViewController * __nonnull)viewC;
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfo:(NSObject<MaplyTileInfoNew> *__nullable)tileInfo viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 /**
   Initialize with multiple tile sources and sampling parameters.

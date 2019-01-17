@@ -50,31 +50,29 @@ class BNGCustomMapTestCase: MaplyTestCase {
 
 		return coordSys
 	}
+    
+    var imageLoader : MaplyQuadImageLoader? = nil
+    var debugInterp : MaplyDebugImageLoaderInterpreter? = nil
 	
-	func createBritishNationalOverlayLocal(_ baseView: MaplyBaseViewController, maplyMap: Bool) {
+	func createBritishNationalOverlayLocal(_ baseViewC: MaplyBaseViewController, maplyMap: Bool) {
 		let bngCoordSys = buildBritishNationalGrid(false)
-		let tileSource = MaplyAnimationTestTileSource(
-			coordSys: bngCoordSys,
-			minZoom: 0,
-			maxZoom: 22,
-			depth: 1)
-		tileSource.pixelsPerSide = 128
-		tileSource.transparentMode = true
-		let layer = MaplyQuadImageTilesLayer(
-			coordSystem: tileSource.coordSys,
-			tileSource: tileSource)
-		layer?.maxTiles = 256
-		layer?.handleEdges = false
-		layer?.flipY = true
-		layer?.coverPoles = false
-		if maplyMap {
-			layer?.useTargetZoomLevel = true
-			layer?.singleLevelLoading = true
-			layer?.multiLevelLoads = [-2]
-		}
-		baseView.add(layer!)
-		layer?.importanceScale = 4.0
-		layer?.drawPriority = 10000
+        
+        // Parameters describing how we want the tiles broken down
+        let sampleParams = MaplySamplingParams()
+        sampleParams.coordSys = bngCoordSys
+        sampleParams.coverPoles = false
+        sampleParams.edgeMatching = false
+        sampleParams.minZoom = 0
+        sampleParams.maxZoom = 22
+        sampleParams.singleLevel = true
+
+        imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: nil, viewC: baseViewC)
+        
+        if let imageLoader = imageLoader {
+            debugInterp = MaplyDebugImageLoaderInterpreter(loader: imageLoader, viewC: baseViewC)
+            imageLoader.setInterpreter(debugInterp!)
+            imageLoader.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault+1000
+        }
 	}
 
 }
