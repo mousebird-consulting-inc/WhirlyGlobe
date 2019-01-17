@@ -29,7 +29,6 @@
 #import "MaplyLight.h"
 #import "MaplyShader.h"
 #import "MaplyActiveObject.h"
-#import "MaplyElevationSource.h"
 #import "MaplyTexture.h"
 #import "MaplyAnnotation.h"
 #import "MaplyParticleSystem.h"
@@ -105,16 +104,16 @@
   */
 @property (nonatomic,assign) int frameInterval;
 
-/** 
-    The elevation delegate that will provide elevation data per tile.
-    
-    We break the image tiles out from the elevation tiles.  The data is often coming from different sources, but in the end this is a probably a hack.  It's a hack that's going to be in place for a while.
-    
-    To provide elevation for your compatible MaplyTileSource objects, you fill out the MaplyElevationSourceDelegate protocol and assign the resulting object here.  When an image layer needs elevation, it will check for the delegate and then query for the respective file.
-    
-    At present there is no checking for coordinate system compatibility, so be aware.
-  */
-@property (nonatomic,weak) NSObject<MaplyElevationSourceDelegate> *__nullable elevDelegate;
+///** 
+//    The elevation delegate that will provide elevation data per tile.
+//    
+//    We break the image tiles out from the elevation tiles.  The data is often coming from different sources, but in the end this is a probably a hack.  It's a hack that's going to be in place for a while.
+//    
+//    To provide elevation for your compatible MaplyTileSource objects, you fill out the MaplyElevationSourceDelegate protocol and assign the resulting object here.  When an image layer needs elevation, it will check for the delegate and then query for the respective file.
+//    
+//    At present there is no checking for coordinate system compatibility, so be aware.
+//  */
+//@property (nonatomic,weak) NSObject<MaplyElevationSourceDelegate> *__nullable elevDelegate;
 
 /** 
     If set we'll create a new thread for every layer the user adds.

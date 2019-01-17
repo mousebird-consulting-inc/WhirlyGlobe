@@ -556,7 +556,6 @@
 		2BB8A3D021ED43A40025DA98 /* MaplyQuadImageFrameLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8A3CC21ED43A40025DA98 /* MaplyQuadImageFrameLoader.h */; };
 		2BB8A3D721ED43C00025DA98 /* MaplyVariableTarget_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8A3D121ED43BF0025DA98 /* MaplyVariableTarget_private.h */; };
 		2BB8A3D821ED43C00025DA98 /* MaplyLineAndPointShaders_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8A3D221ED43BF0025DA98 /* MaplyLineAndPointShaders_private.h */; };
-		2BB8A3D921ED43C00025DA98 /* MaplyElevationSource_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8A3D321ED43C00025DA98 /* MaplyElevationSource_private.h */; };
 		2BB8A3DA21ED43C00025DA98 /* MaplyTriangleShaders_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8A3D421ED43C00025DA98 /* MaplyTriangleShaders_private.h */; };
 		2BB8A3DB21ED43C00025DA98 /* ViewPlacementActiveModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8A3D521ED43C00025DA98 /* ViewPlacementActiveModel.h */; };
 		2BB8A3DC21ED43C00025DA98 /* MaplyZoomGestureDelegate_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8A3D621ED43C00025DA98 /* MaplyZoomGestureDelegate_private.h */; };
@@ -594,8 +593,6 @@
 		2BE538051D249A1200B60FAD /* MaplyComponentObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537291D249A1200B60FAD /* MaplyComponentObject.h */; };
 		2BE538061D249A1200B60FAD /* MaplyCoordinate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE5372A1D249A1200B60FAD /* MaplyCoordinate.h */; };
 		2BE538071D249A1200B60FAD /* MaplyCoordinateSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE5372B1D249A1200B60FAD /* MaplyCoordinateSystem.h */; };
-		2BE538081D249A1200B60FAD /* MaplyElevationDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE5372C1D249A1200B60FAD /* MaplyElevationDatabase.h */; };
-		2BE538091D249A1200B60FAD /* MaplyElevationSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE5372D1D249A1200B60FAD /* MaplyElevationSource.h */; };
 		2BE5380B1D249A1200B60FAD /* MaplyGeomBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE5372F1D249A1200B60FAD /* MaplyGeomBuilder.h */; };
 		2BE5380C1D249A1200B60FAD /* MaplyGeomModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537301D249A1200B60FAD /* MaplyGeomModel.h */; };
 		2BE5380D1D249A1200B60FAD /* MaplyIconManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537311D249A1200B60FAD /* MaplyIconManager.h */; };
@@ -680,8 +677,6 @@
 		2BE5387F1D249A1200B60FAD /* MaplyComponentObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A61D249A1200B60FAD /* MaplyComponentObject.mm */; };
 		2BE538801D249A1200B60FAD /* MaplyCoordinate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A71D249A1200B60FAD /* MaplyCoordinate.mm */; };
 		2BE538811D249A1200B60FAD /* MaplyCoordinateSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A81D249A1200B60FAD /* MaplyCoordinateSystem.mm */; };
-		2BE538821D249A1200B60FAD /* MaplyElevationDatabase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A91D249A1200B60FAD /* MaplyElevationDatabase.mm */; };
-		2BE538831D249A1200B60FAD /* MaplyElevationSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537AA1D249A1200B60FAD /* MaplyElevationSource.mm */; };
 		2BE538851D249A1200B60FAD /* MaplyGeomBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537AC1D249A1200B60FAD /* MaplyGeomBuilder.mm */; };
 		2BE538861D249A1200B60FAD /* MaplyGeomModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537AD1D249A1200B60FAD /* MaplyGeomModel.mm */; };
 		2BE538871D249A1200B60FAD /* MaplyIconManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537AE1D249A1200B60FAD /* MaplyIconManager.mm */; };
@@ -946,17 +941,6 @@
 		2BE53A971D249C9000B60FAD /* DDXMLElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53A901D249C9000B60FAD /* DDXMLElement.m */; };
 		2BE53A981D249C9000B60FAD /* DDXMLNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53A911D249C9000B60FAD /* DDXMLNode.h */; };
 		2BE53A991D249C9000B60FAD /* DDXMLNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53A921D249C9000B60FAD /* DDXMLNode.m */; };
-		2BE53AA61D249C9F00B60FAD /* FMDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53A9B1D249C9F00B60FAD /* FMDatabase.h */; };
-		2BE53AA71D249C9F00B60FAD /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53A9C1D249C9F00B60FAD /* FMDatabase.m */; };
-		2BE53AA81D249C9F00B60FAD /* FMDatabaseAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53A9D1D249C9F00B60FAD /* FMDatabaseAdditions.h */; };
-		2BE53AA91D249C9F00B60FAD /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53A9E1D249C9F00B60FAD /* FMDatabaseAdditions.m */; };
-		2BE53AAA1D249C9F00B60FAD /* FMDatabasePool.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53A9F1D249C9F00B60FAD /* FMDatabasePool.h */; };
-		2BE53AAB1D249C9F00B60FAD /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53AA01D249C9F00B60FAD /* FMDatabasePool.m */; };
-		2BE53AAC1D249C9F00B60FAD /* FMDatabaseQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53AA11D249C9F00B60FAD /* FMDatabaseQueue.h */; };
-		2BE53AAD1D249C9F00B60FAD /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53AA21D249C9F00B60FAD /* FMDatabaseQueue.m */; };
-		2BE53AAE1D249C9F00B60FAD /* FMDB.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53AA31D249C9F00B60FAD /* FMDB.h */; };
-		2BE53AAF1D249C9F00B60FAD /* FMResultSet.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53AA41D249C9F00B60FAD /* FMResultSet.h */; };
-		2BE53AB01D249C9F00B60FAD /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53AA51D249C9F00B60FAD /* FMResultSet.m */; };
 		2BE53AB41D249CAF00B60FAD /* SMCalloutView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE53AB21D249CAF00B60FAD /* SMCalloutView.h */; };
 		2BE53AB51D249CAF00B60FAD /* SMCalloutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE53AB31D249CAF00B60FAD /* SMCalloutView.m */; };
 		2BE53AC71D249E1500B60FAD /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AC61D249E1500B60FAD /* CoreLocation.framework */; };
@@ -1538,7 +1522,6 @@
 		2BB8A3CC21ED43A40025DA98 /* MaplyQuadImageFrameLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadImageFrameLoader.h; sourceTree = "<group>"; };
 		2BB8A3D121ED43BF0025DA98 /* MaplyVariableTarget_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyVariableTarget_private.h; sourceTree = "<group>"; };
 		2BB8A3D221ED43BF0025DA98 /* MaplyLineAndPointShaders_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyLineAndPointShaders_private.h; sourceTree = "<group>"; };
-		2BB8A3D321ED43C00025DA98 /* MaplyElevationSource_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyElevationSource_private.h; sourceTree = "<group>"; };
 		2BB8A3D421ED43C00025DA98 /* MaplyTriangleShaders_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTriangleShaders_private.h; sourceTree = "<group>"; };
 		2BB8A3D521ED43C00025DA98 /* ViewPlacementActiveModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewPlacementActiveModel.h; sourceTree = "<group>"; };
 		2BB8A3D621ED43C00025DA98 /* MaplyZoomGestureDelegate_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyZoomGestureDelegate_private.h; sourceTree = "<group>"; };
@@ -1579,8 +1562,6 @@
 		2BE537291D249A1200B60FAD /* MaplyComponentObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyComponentObject.h; sourceTree = "<group>"; };
 		2BE5372A1D249A1200B60FAD /* MaplyCoordinate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyCoordinate.h; sourceTree = "<group>"; };
 		2BE5372B1D249A1200B60FAD /* MaplyCoordinateSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyCoordinateSystem.h; sourceTree = "<group>"; };
-		2BE5372C1D249A1200B60FAD /* MaplyElevationDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyElevationDatabase.h; sourceTree = "<group>"; };
-		2BE5372D1D249A1200B60FAD /* MaplyElevationSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyElevationSource.h; sourceTree = "<group>"; };
 		2BE5372F1D249A1200B60FAD /* MaplyGeomBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyGeomBuilder.h; sourceTree = "<group>"; };
 		2BE537301D249A1200B60FAD /* MaplyGeomModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyGeomModel.h; sourceTree = "<group>"; };
 		2BE537311D249A1200B60FAD /* MaplyIconManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyIconManager.h; sourceTree = "<group>"; };
@@ -1665,8 +1646,6 @@
 		2BE537A61D249A1200B60FAD /* MaplyComponentObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyComponentObject.mm; sourceTree = "<group>"; };
 		2BE537A71D249A1200B60FAD /* MaplyCoordinate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyCoordinate.mm; sourceTree = "<group>"; };
 		2BE537A81D249A1200B60FAD /* MaplyCoordinateSystem.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyCoordinateSystem.mm; sourceTree = "<group>"; };
-		2BE537A91D249A1200B60FAD /* MaplyElevationDatabase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyElevationDatabase.mm; sourceTree = "<group>"; };
-		2BE537AA1D249A1200B60FAD /* MaplyElevationSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyElevationSource.mm; sourceTree = "<group>"; };
 		2BE537AC1D249A1200B60FAD /* MaplyGeomBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyGeomBuilder.mm; sourceTree = "<group>"; };
 		2BE537AD1D249A1200B60FAD /* MaplyGeomModel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyGeomModel.mm; sourceTree = "<group>"; };
 		2BE537AE1D249A1200B60FAD /* MaplyIconManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyIconManager.mm; sourceTree = "<group>"; };
@@ -1932,17 +1911,6 @@
 		2BE53A901D249C9000B60FAD /* DDXMLElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDXMLElement.m; path = ../../../common/local_libs/KissXML/DDXMLElement.m; sourceTree = "<group>"; };
 		2BE53A911D249C9000B60FAD /* DDXMLNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DDXMLNode.h; path = ../../../common/local_libs/KissXML/DDXMLNode.h; sourceTree = "<group>"; };
 		2BE53A921D249C9000B60FAD /* DDXMLNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DDXMLNode.m; path = ../../../common/local_libs/KissXML/DDXMLNode.m; sourceTree = "<group>"; };
-		2BE53A9B1D249C9F00B60FAD /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabase.h; path = ../../../common/local_libs/fmdb/src/fmdb/FMDatabase.h; sourceTree = "<group>"; };
-		2BE53A9C1D249C9F00B60FAD /* FMDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMDatabase.m; path = ../../../common/local_libs/fmdb/src/fmdb/FMDatabase.m; sourceTree = "<group>"; };
-		2BE53A9D1D249C9F00B60FAD /* FMDatabaseAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabaseAdditions.h; path = ../../../common/local_libs/fmdb/src/fmdb/FMDatabaseAdditions.h; sourceTree = "<group>"; };
-		2BE53A9E1D249C9F00B60FAD /* FMDatabaseAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMDatabaseAdditions.m; path = ../../../common/local_libs/fmdb/src/fmdb/FMDatabaseAdditions.m; sourceTree = "<group>"; };
-		2BE53A9F1D249C9F00B60FAD /* FMDatabasePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabasePool.h; path = ../../../common/local_libs/fmdb/src/fmdb/FMDatabasePool.h; sourceTree = "<group>"; };
-		2BE53AA01D249C9F00B60FAD /* FMDatabasePool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMDatabasePool.m; path = ../../../common/local_libs/fmdb/src/fmdb/FMDatabasePool.m; sourceTree = "<group>"; };
-		2BE53AA11D249C9F00B60FAD /* FMDatabaseQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDatabaseQueue.h; path = ../../../common/local_libs/fmdb/src/fmdb/FMDatabaseQueue.h; sourceTree = "<group>"; };
-		2BE53AA21D249C9F00B60FAD /* FMDatabaseQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMDatabaseQueue.m; path = ../../../common/local_libs/fmdb/src/fmdb/FMDatabaseQueue.m; sourceTree = "<group>"; };
-		2BE53AA31D249C9F00B60FAD /* FMDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMDB.h; path = ../../../common/local_libs/fmdb/src/fmdb/FMDB.h; sourceTree = "<group>"; };
-		2BE53AA41D249C9F00B60FAD /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FMResultSet.h; path = ../../../common/local_libs/fmdb/src/fmdb/FMResultSet.h; sourceTree = "<group>"; };
-		2BE53AA51D249C9F00B60FAD /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FMResultSet.m; path = ../../../common/local_libs/fmdb/src/fmdb/FMResultSet.m; sourceTree = "<group>"; };
 		2BE53AB21D249CAF00B60FAD /* SMCalloutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SMCalloutView.h; path = ../../../common/local_libs/SMCalloutView/SMCalloutView.h; sourceTree = "<group>"; };
 		2BE53AB31D249CAF00B60FAD /* SMCalloutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SMCalloutView.m; path = ../../../common/local_libs/SMCalloutView/SMCalloutView.m; sourceTree = "<group>"; };
 		2BE53ABC1D249DA400B60FAD /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
@@ -2894,15 +2862,12 @@
 				2BB8A3EB21ED43D10025DA98 /* MaplyTwoFingerTapDelegate.h */,
 				2BB8A3E321ED43D10025DA98 /* MaplyZoomGestureDelegate.h */,
 			);
-			name = gestures;
-			path = "New Group";
+			path = gestures;
 			sourceTree = "<group>";
 		};
 		2BC41C8A21F0FF2C002926B7 /* data_sources */ = {
 			isa = PBXGroup;
 			children = (
-				2BE5372C1D249A1200B60FAD /* MaplyElevationDatabase.h */,
-				2BE5372D1D249A1200B60FAD /* MaplyElevationSource.h */,
 				2B446AAF21EFE5DA0078A975 /* MaplyWMSTileSource.h */,
 				2BB8A3CA21ED43A30025DA98 /* MaplyMBTileFetcher.h */,
 			);
@@ -3049,7 +3014,6 @@
 				2B82B36E1E82E2080095FB14 /* WhirlyGlobeLib */,
 				2BE537011D2499E500B60FAD /* WhirlyGlobeMaplyComponent */,
 				2BE53AB11D249CA200B60FAD /* SMCalloutView */,
-				2BE53A9A1D249C9600B60FAD /* fmdb */,
 				2BE538D71D249BD800B60FAD /* astronomy */,
 				2BE539C41D249C0B00B60FAD /* google */,
 				2B884A091E3802EE0027C397 /* laszip */,
@@ -3117,7 +3081,6 @@
 			isa = PBXGroup;
 			children = (
 				2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */,
-				2BB8A3D321ED43C00025DA98 /* MaplyElevationSource_private.h */,
 				2BB8A3D221ED43BF0025DA98 /* MaplyLineAndPointShaders_private.h */,
 				2BB8A3D421ED43C00025DA98 /* MaplyTriangleShaders_private.h */,
 				2BB8A3D121ED43BF0025DA98 /* MaplyVariableTarget_private.h */,
@@ -3202,8 +3165,6 @@
 				2BE537A81D249A1200B60FAD /* MaplyCoordinateSystem.mm */,
 				2B361DE721233CBE0074D06D /* MaplyDoubleTapDelegate.mm */,
 				2B361DEB21233CBE0074D06D /* MaplyDoubleTapDragDelegate.mm */,
-				2BE537A91D249A1200B60FAD /* MaplyElevationDatabase.mm */,
-				2BE537AA1D249A1200B60FAD /* MaplyElevationSource.mm */,
 				2BE537AC1D249A1200B60FAD /* MaplyGeomBuilder.mm */,
 				2BE537AD1D249A1200B60FAD /* MaplyGeomModel.mm */,
 				2BE537AE1D249A1200B60FAD /* MaplyIconManager.mm */,
@@ -3581,24 +3542,6 @@
 			name = Private;
 			sourceTree = "<group>";
 		};
-		2BE53A9A1D249C9600B60FAD /* fmdb */ = {
-			isa = PBXGroup;
-			children = (
-				2BE53A9B1D249C9F00B60FAD /* FMDatabase.h */,
-				2BE53A9C1D249C9F00B60FAD /* FMDatabase.m */,
-				2BE53A9D1D249C9F00B60FAD /* FMDatabaseAdditions.h */,
-				2BE53A9E1D249C9F00B60FAD /* FMDatabaseAdditions.m */,
-				2BE53A9F1D249C9F00B60FAD /* FMDatabasePool.h */,
-				2BE53AA01D249C9F00B60FAD /* FMDatabasePool.m */,
-				2BE53AA11D249C9F00B60FAD /* FMDatabaseQueue.h */,
-				2BE53AA21D249C9F00B60FAD /* FMDatabaseQueue.m */,
-				2BE53AA31D249C9F00B60FAD /* FMDB.h */,
-				2BE53AA41D249C9F00B60FAD /* FMResultSet.h */,
-				2BE53AA51D249C9F00B60FAD /* FMResultSet.m */,
-			);
-			name = fmdb;
-			sourceTree = "<group>";
-		};
 		2BE53AB11D249CA200B60FAD /* SMCalloutView */ = {
 			isa = PBXGroup;
 			children = (
@@ -3650,7 +3593,6 @@
 				2BE539551D249BEF00B60FAD /* AADate.h in Headers */,
 				2BE539681D249BEF00B60FAD /* AAMars.h in Headers */,
 				2BB8A3F921ED43D10025DA98 /* GlobeTiltDelegate.h in Headers */,
-				2BE53AAE1D249C9F00B60FAD /* FMDB.h in Headers */,
 				2BB476762000486F006AAACB /* MapboxVectorStyleSymbol.h in Headers */,
 				2B82B6E81E82E24A0095FB14 /* sqlhelpers.h in Headers */,
 				2BE53A361D249C3D00B60FAD /* coded_stream_inl.h in Headers */,
@@ -3691,7 +3633,6 @@
 				2BE539721D249BEF00B60FAD /* AANeptune.h in Headers */,
 				2BE5380B1D249A1200B60FAD /* MaplyGeomBuilder.h in Headers */,
 				2BE539881D249BEF00B60FAD /* AAUranus.h in Headers */,
-				2BE53AAF1D249C9F00B60FAD /* FMResultSet.h in Headers */,
 				2B82B7121E82E24A0095FB14 /* WideVectorManager.h in Headers */,
 				2B8E608B20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h in Headers */,
 				2BB8A3CD21ED43A40025DA98 /* MaplyTileSourceNew.h in Headers */,
@@ -3781,7 +3722,6 @@
 				2BE539521D249BEF00B60FAD /* AAAngularSeparation.h in Headers */,
 				2B82B5FD1E82E2490095FB14 /* internalJSONNode.h in Headers */,
 				2BE538391D249A1200B60FAD /* MaplyBaseInteractionLayer_private.h in Headers */,
-				2BE538091D249A1200B60FAD /* MaplyElevationSource.h in Headers */,
 				2BE538241D249A1200B60FAD /* MaplyShape.h in Headers */,
 				2BE538411D249A1200B60FAD /* MaplyInteractionLayer_private.h in Headers */,
 				2B82B6051E82E2490095FB14 /* GNU_C.h in Headers */,
@@ -3836,7 +3776,6 @@
 				2BE538631D249A1200B60FAD /* MapboxVectorTiles.h in Headers */,
 				2B884A591E3803170027C397 /* lasindex.hpp in Headers */,
 				2B82B7491E82E24A0095FB14 /* MaplyLayerViewWatcher.h in Headers */,
-				2BE53AAC1D249C9F00B60FAD /* FMDatabaseQueue.h in Headers */,
 				2B884A5C1E3803170027C397 /* laspoint.hpp in Headers */,
 				2B446AB021EFE5DA0078A975 /* MaplyWMSTileSource.h in Headers */,
 				2B82B5E51E82E2490095FB14 /* geom.h in Headers */,
@@ -3881,14 +3820,12 @@
 				2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */,
 				2BE538581D249A1200B60FAD /* WGInteractionLayer_private.h in Headers */,
 				2BB8A3FD21ED43D10025DA98 /* MaplyDoubleTapDelegate.h in Headers */,
-				2BE53AA81D249C9F00B60FAD /* FMDatabaseAdditions.h in Headers */,
 				2BE53A0D1D249C2900B60FAD /* message_lite.h in Headers */,
 				2BE537F81D249A1200B60FAD /* Maply3dTouchPreviewDelegate.h in Headers */,
 				2B884A4B1E3803170027C397 /* bytestreamin.hpp in Headers */,
 				2BE53A0B1D249C2900B60FAD /* message.h in Headers */,
 				2BE539651D249BEF00B60FAD /* AAJewishCalendar.h in Headers */,
 				2B82B71B1E82E24A0095FB14 /* ShapeDrawableBuilder.h in Headers */,
-				2BE53AA61D249C9F00B60FAD /* FMDatabase.h in Headers */,
 				2BE53A1C1D249C2900B60FAD /* wire_format_lite.h in Headers */,
 				2BE538421D249A1200B60FAD /* MaplyMatrix_private.h in Headers */,
 				2BE53A661D249C4600B60FAD /* atomicops_internals_arm_qnx.h in Headers */,
@@ -4008,7 +3945,6 @@
 				2BB8A3FC21ED43D10025DA98 /* MaplyTwoFingerTapDelegate.h in Headers */,
 				2B82B6841E82E24A0095FB14 /* pj_list.h in Headers */,
 				2B884A6E1E3803170027C397 /* laswriteitemcompressed_v2.hpp in Headers */,
-				2BE538081D249A1200B60FAD /* MaplyElevationDatabase.h in Headers */,
 				2BE5382B1D249A1200B60FAD /* MaplyTextureBuilder.h in Headers */,
 				2BE53A651D249C4600B60FAD /* atomicops_internals_arm_gcc.h in Headers */,
 				2BE539791D249BEF00B60FAD /* AAPhysicalMars.h in Headers */,
@@ -4016,7 +3952,6 @@
 				2BE538011D249A1200B60FAD /* MaplyBridge.h in Headers */,
 				2B82B6101E82E2490095FB14 /* JSONNode.h in Headers */,
 				2B82B6E41E82E24A0095FB14 /* SceneRendererES3.h in Headers */,
-				2BE53AAA1D249C9F00B60FAD /* FMDatabasePool.h in Headers */,
 				2BE539F81D249C2900B60FAD /* arenastring.h in Headers */,
 				2BE5384D1D249A1200B60FAD /* MaplyTexture_private.h in Headers */,
 				2B7B84D821223F0300D11447 /* MaplyTextureAtlas_private.h in Headers */,
@@ -4050,7 +3985,6 @@
 				2B884A4D1E3803170027C397 /* bytestreaminout.hpp in Headers */,
 				2BE5384A1D249A1200B60FAD /* MaplyShader_private.h in Headers */,
 				2B7B84DA2122403700D11447 /* MaplyTapMessage.h in Headers */,
-				2BB8A3D921ED43C00025DA98 /* MaplyElevationSource_private.h in Headers */,
 				2BE53A7C1D249C4700B60FAD /* template_util.h in Headers */,
 				2BE53A6E1D249C4600B60FAD /* atomicops_internals_x86_msvc.h in Headers */,
 				2BE538021D249A1200B60FAD /* MaplyCluster.h in Headers */,
@@ -4211,7 +4145,6 @@
 				2B82B67B1E82E24A0095FB14 /* PJ_labrd.c in Sources */,
 				E56E02AA1E11F9AD00C1DD85 /* GeoJSONSource.mm in Sources */,
 				2BE53A6B1D249C4600B60FAD /* atomicops_internals_x86_gcc.cc in Sources */,
-				2BE538821D249A1200B60FAD /* MaplyElevationDatabase.mm in Sources */,
 				2BE539F21D249C2900B60FAD /* any.cc in Sources */,
 				2BE538891D249A1200B60FAD /* MaplyInteractionLayer.mm in Sources */,
 				2BE539A11D249BEF00B60FAD /* AAKepler.cpp in Sources */,
@@ -4288,7 +4221,6 @@
 				2BE53A971D249C9000B60FAD /* DDXMLElement.m in Sources */,
 				2B82B6AA1E82E24A0095FB14 /* PJ_robin.c in Sources */,
 				2B82B63A1E82E2490095FB14 /* geod_set.c in Sources */,
-				2BE53AA71D249C9F00B60FAD /* FMDatabase.m in Sources */,
 				2B82B6C71E82E24A0095FB14 /* proj_mdist.c in Sources */,
 				2B82B62B1E82E2490095FB14 /* pj_gc_reader.c in Sources */,
 				2B82B6A51E82E24A0095FB14 /* PJ_putp4p.c in Sources */,
@@ -4323,7 +4255,6 @@
 				2B82B6AF1E82E24A0095FB14 /* PJ_sterea.c in Sources */,
 				2BE539B51D249BEF00B60FAD /* AAPhysicalSun.cpp in Sources */,
 				2B446AB221EFE5E50078A975 /* MaplyWMSTileSource.mm in Sources */,
-				2BE53AAD1D249C9F00B60FAD /* FMDatabaseQueue.m in Sources */,
 				2B82B74F1E82E24A0095FB14 /* WhirlyOctEncoding.mm in Sources */,
 				2B361DF021233CBE0074D06D /* MaplyTapDelegate.mm in Sources */,
 				2B82B6B51E82E24A0095FB14 /* PJ_tpeqd.c in Sources */,
@@ -4429,7 +4360,6 @@
 				2B82B7861E82E24A0095FB14 /* Scene.mm in Sources */,
 				2BE53A621D249C4600B60FAD /* status.cc in Sources */,
 				2B82B6B31E82E24A0095FB14 /* PJ_tcea.c in Sources */,
-				2BE53AB01D249C9F00B60FAD /* FMResultSet.m in Sources */,
 				2B82B79A1E82E24B0095FB14 /* IntersectionManager.mm in Sources */,
 				2B82B69C1E82E24A0095FB14 /* PJ_omerc.c in Sources */,
 				2B82B6BB1E82E24A0095FB14 /* pj_utils.c in Sources */,
@@ -4454,7 +4384,6 @@
 				2B82B5D91E82E2490095FB14 /* glues_project.c in Sources */,
 				2BE53A371D249C3D00B60FAD /* gzip_stream.cc in Sources */,
 				2B82B6A21E82E24A0095FB14 /* pj_pr_list.c in Sources */,
-				2BE538831D249A1200B60FAD /* MaplyElevationSource.mm in Sources */,
 				2B82B6671E82E24A0095FB14 /* pj_gauss.c in Sources */,
 				E5EF69FD1D6B938800A2A660 /* SLDExpressions.m in Sources */,
 				2B82B7A41E82E24B0095FB14 /* SphericalEarthChunkManager.mm in Sources */,
@@ -4469,7 +4398,6 @@
 				2B82B6761E82E24A0095FB14 /* pj_init.c in Sources */,
 				2B82B6321E82E2490095FB14 /* bch2bps.c in Sources */,
 				2B82B6381E82E2490095FB14 /* geocent.c in Sources */,
-				2BE53AAB1D249C9F00B60FAD /* FMDatabasePool.m in Sources */,
 				2BE539B01D249BEF00B60FAD /* AAParallactic.cpp in Sources */,
 				2B82B78A1E82E24A0095FB14 /* AnimateViewMomentum.mm in Sources */,
 				2BE53A0F1D249C2900B60FAD /* reflection_ops.cc in Sources */,
@@ -4612,7 +4540,6 @@
 				2B361DEF21233CBE0074D06D /* MaplyDoubleTapDelegate.mm in Sources */,
 				2BE5399F1D249BEF00B60FAD /* AAJewishCalendar.cpp in Sources */,
 				2BE539FE1D249C2900B60FAD /* descriptor_database.cc in Sources */,
-				2BE53AA91D249C9F00B60FAD /* FMDatabaseAdditions.m in Sources */,
 				2BB8A3C521ED43780025DA98 /* MaplyTriangleShaders.mm in Sources */,
 				2BE539981D249BEF00B60FAD /* AAEquationOfTime.cpp in Sources */,
 				2BE5388B1D249A1200B60FAD /* MaplyLight.m in Sources */,

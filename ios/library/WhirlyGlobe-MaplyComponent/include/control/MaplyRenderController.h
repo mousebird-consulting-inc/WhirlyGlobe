@@ -25,7 +25,6 @@
 #import "MaplySharedAttributes.h"
 #import "MaplyLight.h"
 #import "MaplyShader.h"
-#import "MaplyElevationSource.h"
 #import "MaplyTexture.h"
 #import "MaplyParticleSystem.h"
 #import "MaplyPoints.h"
