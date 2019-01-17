@@ -22,8 +22,6 @@
 #import "MaplyBaseInteractionLayer_private.h"
 #import "NSData+Zlib.h"
 #import "NSDictionary+StyleRules.h"
-#import "DDXMLElementAdditions.h"
-#import "NSString+DDXML.h"
 #import "MaplyLineAndPointShaders_private.h"
 #import "MaplyTriangleShaders_private.h"
 

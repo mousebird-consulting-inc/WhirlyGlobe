@@ -426,7 +426,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 {
     MaplyTileID tileID = loadReturn.tileID;
     
-    CGSize size;  size = CGSizeMake(128,128);
+    CGSize size;  size = CGSizeMake(256,256);
     UIGraphicsBeginImageContext(size);
     
     // Draw into the image context
