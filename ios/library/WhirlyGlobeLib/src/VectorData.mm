@@ -21,7 +21,7 @@
 #import <string>
 #import "VectorData.h"
 #import "ShapeReader.h"
-//#import "libjson.h"
+#import "libjson.h"
 #import "NSString+Stuff.h"
 
 namespace WhirlyKit
