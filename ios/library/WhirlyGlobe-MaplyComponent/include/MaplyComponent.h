@@ -49,13 +49,14 @@
 #import "MaplyTextureBuilder.h"
 #import "MaplyGeomModel.h"
 #import "MaplyVertexAttribute.h"
+#import "MaplyPoints.h"
+#import "MaplyGeomBuilder.h"
+#import "MaplyColorRampGenerator.h"
+
 #import "MaplyStarsModel.h"
 #import "MaplySun.h"
 #import "MaplyAtmosphere.h"
 #import "MaplyMoon.h"
-#import "MaplyPoints.h"
-#import "MaplyGeomBuilder.h"
-#import "MaplyColorRampGenerator.h"
 
 #import "MapboxVectorTiles.h"
 #import "MapboxVectorImageInterpreter.h"
