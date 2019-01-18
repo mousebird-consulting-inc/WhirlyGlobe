@@ -26,6 +26,8 @@ namespace WhirlyKit {
 
 BillboardInfo_iOS::BillboardInfo_iOS(NSDictionary *desc)
 {
+    BaseInfoSetup(*this,desc);
+
     UIColor *theColor = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
     color = [theColor asRGBAColor];
     billboardId = Identifiable::genId();

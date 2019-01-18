@@ -1,5 +1,5 @@
 /*
- *  MaplyBillboardInfo_iOS_private.h
+ *  MaplyGeometryInfo_iOS_private.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/18/19.
@@ -26,6 +26,8 @@ namespace WhirlyKit {
     
 GeometryInfo_iOS::GeometryInfo_iOS(NSDictionary *desc)
 {
+    BaseInfoSetup(*this,desc);
+
     UIColor *theColor = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
     if (theColor) {
         colorOverride = true;

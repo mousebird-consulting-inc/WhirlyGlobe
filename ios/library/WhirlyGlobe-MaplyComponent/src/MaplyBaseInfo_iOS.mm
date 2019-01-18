@@ -19,10 +19,11 @@
  */
 
 #import "MaplyBaseInfo_iOS_private.h"
+#import "NSDictionary+Stuff.h"
 
 namespace WhirlyKit {
 
-void BaseInfoSetup(BaseInfo &baseInfo,NSDictionary *dict)
+void BaseInfoSetup(BaseInfo &baseInfo,NSDictionary *desc)
 {
     baseInfo.minVis = [desc doubleForKey:@"minVis" default:DrawVisibleInvalid];
     baseInfo.maxVis = [desc doubleForKey:@"maxVis" default:DrawVisibleInvalid];

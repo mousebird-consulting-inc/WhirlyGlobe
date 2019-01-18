@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,205 +21,37 @@
 #import "LabelRenderer.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
-#import "NSString+Stuff.h"
-#import "NSDictionary+Stuff.h"
 #import "ScreenSpaceBuilder.h"
 #import "FontTextureManager.h"
 
 #import "LabelManager.h"
 
 using namespace Eigen;
-using namespace WhirlyKit;
-
-@implementation WhirlyKitSingleLabel
-
-- (bool)calcWidth:(float *)width height:(float *)height defaultFont:(UIFont *)font
-{
-    CGSize textSize = [_text sizeWithAttributes:
-                       @{NSFontAttributeName: font}];
-    if (textSize.width == 0 || textSize.height == 0)
-        return false;
-    
-    if (*width != 0.0)
-        *height = *width * textSize.height / ((float)textSize.width);
-    else
-        *width = *height * textSize.width / ((float)textSize.height);
-    
-    return true;
-}
-
-// Calculate the corners in this order:  (ll,lr,ur,ul)
-- (void)calcExtents2:(float)width2 height2:(float)height2 iconSize:(Point2f)theIconSize justify:(WhirlyKitLabelJustify)justify corners:(Point3f *)pts norm:(Point3f *)norm iconCorners:(Point3f *)iconPts coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter
-{
-    Point3f center = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(_loc));
-    Point3f up(0,0,1);
-    Point3f horiz,vert;
-    if (coordAdapter->isFlat())
-    {
-        *norm = up;
-        horiz = Point3f(1,0,0);
-        vert = Point3f(0,1,0);
-    } else {
-        *norm = center;
-        horiz = up.cross(*norm).normalized();
-        vert = norm->cross(horiz).normalized();;
-    }
-    Point3f ll;
-    
-    switch (justify)
-    {
-        case WhirlyKitLabelLeft:
-            ll = center + theIconSize.x() * horiz - height2 * vert;
-            break;
-        case WhirlyKitLabelMiddle:
-            ll = center - (width2 + theIconSize.x()/2) * horiz - height2 * vert;
-            break;
-        case WhirlyKitLabelRight:
-            ll = center - 2*width2 * horiz - height2 * vert;
-            break;
-    }
-    pts[0] = ll;
-    pts[1] = ll + 2*width2 * horiz;
-    pts[2] = ll + 2*width2 * horiz + 2 * height2 * vert;
-    pts[3] = ll + 2 * height2 * vert;
-    
-    // Now add the quad for the icon
-    switch (justify)
-    {
-        case WhirlyKitLabelLeft:
-            ll = center - height2*vert;
-            break;
-        case WhirlyKitLabelMiddle:
-            ll = center - (width2 + theIconSize.x()) * horiz - height2*vert;
-            break;
-        case WhirlyKitLabelRight:
-            ll = center - (2*width2 + theIconSize.x()) * horiz - height2*vert;
-            break;
-    }
-    iconPts[0] = ll;
-    iconPts[1] = ll + theIconSize.x()*horiz;
-    iconPts[2] = ll + theIconSize.x()*horiz + theIconSize.y()*vert;
-    iconPts[3] = ll + theIconSize.y()*vert;
-}
-
-// This version calculates extents for a screen space label
-- (void)calcScreenExtents2:(float)width2 height2:(float)height2 iconSize:(Point2f)theIconSize justify:(WhirlyKitLabelJustify)justify corners:(Point3f *)pts iconCorners:(Point3f *)iconPts useIconOffset:(bool)useIconOffset
-{
-    Point3f center(0,0,0);
-    Point3f ll;
-    Point3f horiz = Point3f(1,0,0);
-    Point3f vert = Point3f(0,1,0);
-    
-    Point2f iconSizeForLabel = (useIconOffset ? theIconSize : Point2f(0,0));
-    switch (justify)
-    {
-        case WhirlyKitLabelLeft:
-            ll = center + iconSizeForLabel.x() * horiz - height2 * vert;
-            break;
-        case WhirlyKitLabelMiddle:
-            ll = center - (width2 + iconSizeForLabel.x()/2) * horiz - height2 * vert;
-            break;
-        case WhirlyKitLabelRight:
-            ll = center - 2*width2 * horiz - height2 * vert;
-            break;
-    }
-    pts[0] = ll;
-    pts[1] = ll + 2*width2 * horiz;
-    pts[2] = ll + 2*width2 * horiz + 2 * height2 * vert;
-    pts[3] = ll + 2 * height2 * vert;
-    
-    // Now add the quad for the icon
-    switch (justify)
-    {
-        case WhirlyKitLabelLeft:
-            ll = center - height2*vert;
-            break;
-        case WhirlyKitLabelMiddle:
-            ll = center - (width2 + iconSizeForLabel.x()) * horiz - height2*vert;
-            break;
-        case WhirlyKitLabelRight:
-            ll = center - (2*width2 + iconSizeForLabel.x()) * horiz - height2*vert;
-            break;
-    }
-    iconPts[0] = ll;
-    iconPts[1] = ll + iconSizeForLabel.x()*horiz;
-    iconPts[2] = ll + iconSizeForLabel.x()*horiz + iconSizeForLabel.y()*vert;
-    iconPts[3] = ll + iconSizeForLabel.y()*vert;
-}
-
-- (void)calcExtents:(NSDictionary *)topDesc corners:(Point3f *)pts norm:(Point3f *)norm coordAdapter:(CoordSystemDisplayAdapter *)coordAdapter
-{
-    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithDesc:topDesc];
-    
-    
-    // Width and height can be overriden per label
-    float theWidth = labelInfo.width;
-    float theHeight = labelInfo.height;
-    if (_desc)
-    {
-        theWidth = [_desc floatForKey:@"width" default:theWidth];
-        theHeight = [_desc floatForKey:@"height" default:theHeight];
-    }
-    
-    CGSize textSize = [_text sizeWithAttributes:
-                       @{NSFontAttributeName: labelInfo.font}];
-    
-    float width2,height2;
-    if (theWidth != 0.0)
-    {
-        height2 = theWidth * textSize.height / ((float)2.0 * textSize.width);
-        width2 = theWidth/2.0;
-    } else {
-        width2 = theHeight * textSize.width / ((float)2.0 * textSize.height);
-        height2 = theHeight/2.0;
-    }
-    
-    // If there's an icon, we need to offset the label
-    Point2f theIconSize = (_iconTexture==EmptyIdentity ? Point2f(0,0) : Point2f(2*height2,2*height2));
-    
-    Point3f corners[4],iconCorners[4];
-    [self calcExtents2:width2 height2:height2 iconSize:theIconSize justify:labelInfo.labelJustify corners:corners norm:norm iconCorners:iconCorners coordAdapter:coordAdapter];
-    
-    // If we have an icon, we need slightly different corners
-    if (_iconTexture)
-    {
-        pts[0] = iconCorners[0];
-        pts[1] = corners[1];
-        pts[2] = corners[2];
-        pts[3] = iconCorners[3];
-    } else {
-        pts[0] = corners[0];
-        pts[1] = corners[1];
-        pts[2] = corners[2];
-        pts[3] = corners[3];
-    }
-}
-
-@end
 
 namespace WhirlyKit
 {
-    
+
+SingleLabel::SingleLabel()
+    : isSelectable(true), selectID(EmptyIdentity), loc(0,0), rotation(0), iconTexture(EmptyIdentity),
+    iconSize(0,0), screenOffset(0,0), layoutImportance(0.0)
+{
+}
+
 LabelManager::LabelManager()
-    : useFontManager(true), textureAtlasSize(LabelTextureAtlasSizeDefault)
+    : textureAtlasSize(LabelTextureAtlasSizeDefault)
 {
     pthread_mutex_init(&labelLock, NULL);
 }
     
 LabelManager::~LabelManager()
 {
-    for (LabelSceneRepSet::iterator it = labelReps.begin();
-         it != labelReps.end(); ++it)
-        delete *it;
-    labelReps.clear();
     pthread_mutex_destroy(&labelLock);
 }
     
-SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,ChangeSet &changes)
+SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const LabelInfo &labelInfo,ChangeSet &changes)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithDesc:desc];
-    
+
     // Set up the representation (but then hand it off)
     LabelSceneRep *labelRep = new LabelSceneRep();
     if (labelInfo.fadeOut > 0.0 && labelInfo.fadeOutTime != 0.0)
@@ -227,35 +59,30 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
     else
         labelRep->fadeOut = 0.0;
 
-    WhirlyKitFontTextureManager *fontTexManager = nil;
-    if (useFontManager)
-        fontTexManager = scene->getFontTextureManager();
+    FontTextureManager *fontTexManager = scene->getFontTextureManager();
     
     // Set up the label renderer
-    WhirlyKitLabelRenderer *labelRenderer = [[WhirlyKitLabelRenderer alloc] init];
-    labelRenderer.labelInfo = labelInfo;
+    LabelRenderer labelRenderer(scene,fontTexManager,&labelInfo);
     labelRenderer.textureAtlasSize = textureAtlasSize;
     labelRenderer.coordAdapter = scene->getCoordAdapter();
     labelRenderer.labelRep = labelRep;
     labelRenderer.scene = scene;
-    labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : nil);
-    labelRenderer.scale = renderer.scale;
-    labelRenderer.strs = labels;
-    labelRenderer.useAttributedString = true;
-    [labelRenderer render];
+    labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : NULL);
+    labelRenderer.scale = renderer->getScale();
+   
+    labelRenderer.render(labels, changes);
+    
+    changes.insert(changes.end(),labelRenderer.changeRequests.begin(), labelRenderer.changeRequests.end());
 
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-
-    // New drawables created for labels
-    changes.insert(changes.end(),labelRenderer.changeRequests.begin(), labelRenderer.changeRequests.end());
-
+    
     // Create screen shapes
     if (!labelRenderer.screenObjects.empty())
     {
-        ScreenSpaceBuilder ssBuild(coordAdapter,renderer.scale);
+        ScreenSpaceBuilder ssBuild(coordAdapter,renderer->getScale());
         for (unsigned int ii=0;ii<labelRenderer.screenObjects.size();ii++)
-            ssBuild.addScreenObject(*(labelRenderer.screenObjects[ii]));
+            ssBuild.addScreenObject(labelRenderer.screenObjects[ii]);
         ssBuild.flushChanges(changes, labelRep->drawIDs);
     }
     
@@ -263,7 +90,7 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
     if (layoutManager && !labelRenderer.layoutObjects.empty())
     {
         for (unsigned int ii=0;ii<labelRenderer.layoutObjects.size();ii++)
-            labelRep->layoutIDs.insert(labelRenderer.layoutObjects[ii]->getId());
+            labelRep->layoutIDs.insert(labelRenderer.layoutObjects[ii].getId());
         layoutManager->addLayoutObjects(labelRenderer.layoutObjects);
     }
     
@@ -301,29 +128,29 @@ SimpleIdentity LabelManager::addLabels(NSArray *labels,NSDictionary *desc,Change
     return labelID;
 }
 
-void LabelManager::changeLabel(SimpleIdentity labelID,NSDictionary *desc,ChangeSet &changes)
-{
-    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithDesc:desc];
-    
-    pthread_mutex_lock(&labelLock);
-    
-    LabelSceneRep dummyRep(labelID);
-    LabelSceneRepSet::iterator it = labelReps.find(&dummyRep);
-    
-    if (it != labelReps.end())
-    {
-        LabelSceneRep *sceneRep = *it;
-        
-        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-             idIt != sceneRep->drawIDs.end(); ++idIt)
-        {
-            // Changed visibility
-            changes.push_back(new VisibilityChangeRequest(*idIt, labelInfo.minVis, labelInfo.maxVis));
-        }
-    }
-
-    pthread_mutex_unlock(&labelLock);
-}
+//void LabelManager::changeLabel(SimpleIdentity labelID,NSDictionary *desc,ChangeSet &changes)
+//{
+//    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:nil desc:desc];
+//    
+//    pthread_mutex_lock(&labelLock);
+//    
+//    LabelSceneRep dummyRep(labelID);
+//    LabelSceneRepSet::iterator it = labelReps.find(&dummyRep);
+//    
+//    if (it != labelReps.end())
+//    {
+//        LabelSceneRep *sceneRep = *it;
+//        
+//        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
+//             idIt != sceneRep->drawIDs.end(); ++idIt)
+//        {
+//            // Changed visibility
+//            changes.push_back(new VisibilityChangeRequest(*idIt, labelInfo.minVis, labelInfo.maxVis));
+//        }
+//    }
+//
+//    pthread_mutex_unlock(&labelLock);
+//}
     
 void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &changes)
 {
@@ -357,10 +184,11 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    WhirlyKitFontTextureManager *fontTexManager = scene->getFontTextureManager();
+    FontTextureManager *fontTexManager = scene->getFontTextureManager();
     
     pthread_mutex_lock(&labelLock);
     
+    TimeInterval curTime = TimeGetCurrent();
     for (SimpleIDSet::iterator lit = labelIDs.begin(); lit != labelIDs.end(); ++lit)
     {
         LabelSceneRep dummyRep(*lit);
@@ -369,15 +197,14 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
         {
             LabelSceneRep *labelRep = *it;
             
-            NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-            NSTimeInterval removeTime = 0.0;
+            TimeInterval removeTime = 0.0;
             // We need to fade them out, then delete
             if (labelRep->fadeOut > 0.0)
             {
                 for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
                      idIt != labelRep->drawIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fadeOut));
-
+                
                 removeTime = curTime+labelRep->fadeOut;
             }
             
@@ -390,15 +217,13 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
             for (SimpleIDSet::iterator idIt = labelRep->drawStrIDs.begin();
                  idIt != labelRep->drawStrIDs.end(); ++idIt)
             {
+                // Give the layout manager a little extra time so we don't pull the
+                // textures out from underneath it
+                TimeInterval fontRemoveTime = removeTime;
+                if (layoutManager && !labelRep->layoutIDs.empty())
+                    fontRemoveTime = curTime+2.0;
                 if (fontTexManager)
-                {
-                    // Give the layout manager a little extra time so we don't pull the
-                    // textures out from underneath it
-                    NSTimeInterval fontRemoveTime = removeTime;
-                    if (layoutManager && !labelRep->layoutIDs.empty())
-                        fontRemoveTime = curTime+2.0;
-                    [fontTexManager removeString:*idIt changes:changes when:fontRemoveTime];
-                }
+                    fontTexManager->removeString(*idIt, changes, fontRemoveTime);
             }
             
             if (selectManager && !labelRep->selectIDs.empty())

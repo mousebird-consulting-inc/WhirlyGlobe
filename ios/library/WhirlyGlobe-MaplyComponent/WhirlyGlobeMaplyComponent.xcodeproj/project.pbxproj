@@ -56,6 +56,8 @@
 		2B446ADC21F26E280078A975 /* MaplyVectorInfo_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AD421F26E280078A975 /* MaplyVectorInfo_iOS.mm */; };
 		2B446ADD21F26E280078A975 /* MaplyBillboardInfo_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AD521F26E280078A975 /* MaplyBillboardInfo_iOS.mm */; };
 		2B446ADE21F26E280078A975 /* MaplyGeometryInfo_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AD621F26E280078A975 /* MaplyGeometryInfo_iOS.mm */; };
+		2B446AE121F288090078A975 /* LabelRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AE021F288080078A975 /* LabelRenderer.h */; };
+		2B446AE321F288220078A975 /* LabelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AE221F288220078A975 /* LabelRenderer.cpp */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B6001A0210FAE6400140383 /* StringIndexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B60019F210FAE6300140383 /* StringIndexer.h */; };
 		2B6001A2210FAE8600140383 /* StringIndexer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B6001A1210FAE8500140383 /* StringIndexer.mm */; };
@@ -324,7 +326,6 @@
 		2B82B7151E82E24A0095FB14 /* DataLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B5021E82E2490095FB14 /* DataLayer.h */; };
 		2B82B7181E82E24A0095FB14 /* LayoutLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B5051E82E2490095FB14 /* LayoutLayer.h */; };
 		2B82B7191E82E24A0095FB14 /* FontTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B5071E82E2490095FB14 /* FontTextureManager.h */; };
-		2B82B71A1E82E24A0095FB14 /* LabelRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B5081E82E2490095FB14 /* LabelRenderer.h */; };
 		2B82B71B1E82E24A0095FB14 /* ShapeDrawableBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B5091E82E2490095FB14 /* ShapeDrawableBuilder.h */; };
 		2B82B71C1E82E24A0095FB14 /* LayerViewWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B50A1E82E2490095FB14 /* LayerViewWatcher.h */; };
 		2B82B71D1E82E24A0095FB14 /* LayerThread.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B50B1E82E2490095FB14 /* LayerThread.h */; };
@@ -394,7 +395,6 @@
 		2B82B7A61E82E24B0095FB14 /* WideVectorDrawable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5AC1E82E2490095FB14 /* WideVectorDrawable.mm */; };
 		2B82B7A81E82E24B0095FB14 /* BillboardDrawable.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5AF1E82E2490095FB14 /* BillboardDrawable.mm */; };
 		2B82B7AB1E82E24B0095FB14 /* FontTextureManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5B21E82E2490095FB14 /* FontTextureManager.mm */; };
-		2B82B7AC1E82E24B0095FB14 /* LabelRenderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5B31E82E2490095FB14 /* LabelRenderer.mm */; };
 		2B82B7AD1E82E24B0095FB14 /* ShapeDrawableBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5B41E82E2490095FB14 /* ShapeDrawableBuilder.mm */; };
 		2B82B7AE1E82E24B0095FB14 /* MaplyLayerViewWatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5B51E82E2490095FB14 /* MaplyLayerViewWatcher.mm */; };
 		2B82B7AF1E82E24B0095FB14 /* MaplyScene.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5B61E82E2490095FB14 /* MaplyScene.mm */; };
@@ -1028,6 +1028,8 @@
 		2B446AD421F26E280078A975 /* MaplyVectorInfo_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyVectorInfo_iOS.mm; sourceTree = "<group>"; };
 		2B446AD521F26E280078A975 /* MaplyBillboardInfo_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyBillboardInfo_iOS.mm; sourceTree = "<group>"; };
 		2B446AD621F26E280078A975 /* MaplyGeometryInfo_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyGeometryInfo_iOS.mm; sourceTree = "<group>"; };
+		2B446AE021F288080078A975 /* LabelRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LabelRenderer.h; path = ../../../../common/WhirlyGlobeLib/include/LabelRenderer.h; sourceTree = "<group>"; };
+		2B446AE221F288220078A975 /* LabelRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LabelRenderer.cpp; path = ../../../../common/WhirlyGlobeLib/src/LabelRenderer.cpp; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B60019F210FAE6300140383 /* StringIndexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringIndexer.h; sourceTree = "<group>"; };
 		2B6001A1210FAE8500140383 /* StringIndexer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringIndexer.mm; sourceTree = "<group>"; };
@@ -1317,7 +1319,6 @@
 		2B82B5021E82E2490095FB14 /* DataLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DataLayer.h; sourceTree = "<group>"; };
 		2B82B5051E82E2490095FB14 /* LayoutLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayoutLayer.h; sourceTree = "<group>"; };
 		2B82B5071E82E2490095FB14 /* FontTextureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontTextureManager.h; sourceTree = "<group>"; };
-		2B82B5081E82E2490095FB14 /* LabelRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelRenderer.h; sourceTree = "<group>"; };
 		2B82B5091E82E2490095FB14 /* ShapeDrawableBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapeDrawableBuilder.h; sourceTree = "<group>"; };
 		2B82B50A1E82E2490095FB14 /* LayerViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayerViewWatcher.h; sourceTree = "<group>"; };
 		2B82B50B1E82E2490095FB14 /* LayerThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayerThread.h; sourceTree = "<group>"; };
@@ -1387,7 +1388,6 @@
 		2B82B5AC1E82E2490095FB14 /* WideVectorDrawable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WideVectorDrawable.mm; sourceTree = "<group>"; };
 		2B82B5AF1E82E2490095FB14 /* BillboardDrawable.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BillboardDrawable.mm; sourceTree = "<group>"; };
 		2B82B5B21E82E2490095FB14 /* FontTextureManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FontTextureManager.mm; sourceTree = "<group>"; };
-		2B82B5B31E82E2490095FB14 /* LabelRenderer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LabelRenderer.mm; sourceTree = "<group>"; };
 		2B82B5B41E82E2490095FB14 /* ShapeDrawableBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ShapeDrawableBuilder.mm; sourceTree = "<group>"; };
 		2B82B5B51E82E2490095FB14 /* MaplyLayerViewWatcher.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyLayerViewWatcher.mm; sourceTree = "<group>"; };
 		2B82B5B61E82E2490095FB14 /* MaplyScene.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyScene.mm; sourceTree = "<group>"; };
@@ -2434,7 +2434,6 @@
 				2B0387F12069BC2E00DD5C40 /* QuadDisplayLayerNew.h */,
 				2B2B4700206D931300570F97 /* QuadTileBuilder.h */,
 				2B82B5071E82E2490095FB14 /* FontTextureManager.h */,
-				2B82B5081E82E2490095FB14 /* LabelRenderer.h */,
 				2B82B5091E82E2490095FB14 /* ShapeDrawableBuilder.h */,
 				2B82B50A1E82E2490095FB14 /* LayerViewWatcher.h */,
 				2B82B50B1E82E2490095FB14 /* LayerThread.h */,
@@ -2654,7 +2653,6 @@
 				2B0387F32069BC3800DD5C40 /* QuadDisplayLayerNew.mm */,
 				2B82B5AF1E82E2490095FB14 /* BillboardDrawable.mm */,
 				2B82B5B21E82E2490095FB14 /* FontTextureManager.mm */,
-				2B82B5B31E82E2490095FB14 /* LabelRenderer.mm */,
 				2B82B5B41E82E2490095FB14 /* ShapeDrawableBuilder.mm */,
 				2B82B5B51E82E2490095FB14 /* MaplyLayerViewWatcher.mm */,
 				2B82B5B61E82E2490095FB14 /* MaplyScene.mm */,
@@ -2741,6 +2739,7 @@
 				2B846F0221F158E100EF2A82 /* BillboardManager.h */,
 				2B846EFC21F158E000EF2A82 /* GeometryManager.h */,
 				2B846F0321F158E100EF2A82 /* IntersectionManager.h */,
+				2B446AE021F288080078A975 /* LabelRenderer.h */,
 				2B846F0021F158E000EF2A82 /* LabelManager.h */,
 				2B846F0121F158E100EF2A82 /* LayoutManager.h */,
 				2B846EF821F158E000EF2A82 /* LoftManager.h */,
@@ -2763,6 +2762,7 @@
 				2B846F1421F158EA00EF2A82 /* BillboardManager.cpp */,
 				2B846F1921F158EB00EF2A82 /* GeometryManager.cpp */,
 				2B846F2121F158EC00EF2A82 /* IntersectionManager.cpp */,
+				2B446AE221F288220078A975 /* LabelRenderer.cpp */,
 				2B846F1D21F158EB00EF2A82 /* LabelManager.cpp */,
 				2B846F1C21F158EB00EF2A82 /* LayoutManager.cpp */,
 				2B846F1721F158EB00EF2A82 /* LoftManager.cpp */,
@@ -3873,7 +3873,6 @@
 				2B82B7461E82E24A0095FB14 /* MaplyView.h in Headers */,
 				2B82B71C1E82E24A0095FB14 /* LayerViewWatcher.h in Headers */,
 				E56E02A71E11F99500C1DD85 /* GeoJSONSource.h in Headers */,
-				2B82B71A1E82E24A0095FB14 /* LabelRenderer.h in Headers */,
 				2BE538041D249A1200B60FAD /* MaplyComponent.h in Headers */,
 				2B82B6D61E82E24A0095FB14 /* SphericalMercator.h in Headers */,
 				2B82B5EC1E82E2490095FB14 /* priorityq-heap.h in Headers */,
@@ -3934,6 +3933,7 @@
 				2BE538051D249A1200B60FAD /* MaplyComponentObject.h in Headers */,
 				2BB8A3F721ED43D10025DA98 /* GlobePanDelegate.h in Headers */,
 				2B846F0F21F158E100EF2A82 /* LabelManager.h in Headers */,
+				2B446AE121F288090078A975 /* LabelRenderer.h in Headers */,
 				2B884A671E3803170027C397 /* lasreadpoint.hpp in Headers */,
 				2B82B5F81E82E2490095FB14 /* JSONOptions.h in Headers */,
 				2BE538371D249A1200B60FAD /* MaplyActiveObject_private.h in Headers */,
@@ -4329,6 +4329,7 @@
 				2B82B6B51E82E24A0095FB14 /* PJ_tpeqd.c in Sources */,
 				2B82B6681E82E24A0095FB14 /* pj_geocent.c in Sources */,
 				2B82B6011E82E2490095FB14 /* JSONChildren.cpp in Sources */,
+				2B446AE321F288220078A975 /* LabelRenderer.cpp in Sources */,
 				2B82B7621E82E24A0095FB14 /* SceneRendererES3.mm in Sources */,
 				2BE538BD1D249A1200B60FAD /* MaplyVectorStyle.mm in Sources */,
 				2BE538931D249A1200B60FAD /* MaplyParticleSystem.mm in Sources */,
@@ -4638,7 +4639,6 @@
 				2B82B7021E82E24A0095FB14 /* GeometryOBJReader.mm in Sources */,
 				2B82B7881E82E24A0095FB14 /* GlobeView.mm in Sources */,
 				2B846EE221F1370800EF2A82 /* PJ_urm5.c in Sources */,
-				2B82B7AC1E82E24B0095FB14 /* LabelRenderer.mm in Sources */,
 				2BB8A3C221ED43780025DA98 /* GlobePinchDelegate.mm in Sources */,
 				2B82B6AC1E82E24A0095FB14 /* PJ_sconics.c in Sources */,
 				2BE539941D249BEF00B60FAD /* AAEclipses.cpp in Sources */,
