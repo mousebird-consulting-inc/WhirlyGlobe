@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/6/15.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,41 +21,50 @@
 #import <math.h>
 #import <set>
 #import <map>
+#import <string>
 #import "Identifiable.h"
 #import "WhirlyVector.h"
+#import "Dictionary.h"
 #import "Drawable.h"
 
 namespace WhirlyKit
 {
-    class BasicDrawable;
-    class BasicDrawableInstance;
-}
+class BasicDrawable;
+class BasicDrawableInstance;
 
 /** Object use as the base for parsing description dictionaries.
-  */
-@interface WhirlyKitBaseInfo : NSObject
+ */
+class BaseInfo
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-@property (nonatomic,assign) double minVis,maxVis;
-@property (nonatomic) double minViewerDist,maxViewerDist;
-@property (nonatomic,assign) WhirlyKit::Point3d &viewerCenter;
-@property (nonatomic,assign) double drawOffset;
-@property (nonatomic,assign) int drawPriority;
-@property (nonatomic,assign) bool enable;
-@property (nonatomic) double fade;
-@property (nonatomic) double fadeIn;
-@property (nonatomic) double fadeOut;
-@property (nonatomic) NSTimeInterval fadeOutTime;
-@property (nonatomic) NSTimeInterval startEnable,endEnable;
-@property (nonatomic) WhirlyKit::SimpleIdentity programID;
-@property (nonatomic) WhirlyKit::SingleVertexAttributeSet &uniforms;
+    BaseInfo();
+    
+    // Convert contents to a string for debugging
+    virtual std::string toString();
+    
+    /// Set the various parameters on a basic drawable
+    void setupBasicDrawable(BasicDrawable *drawable) const;
 
-/// Initialize with an NSDictionary
-- (id)initWithDesc:(NSDictionary *)desc;
+    /// Set the various parameters on a basic drawable instance
+    void setupBasicDrawableInstance(BasicDrawableInstance *drawable);
+    
+    double minVis,maxVis;
+    double minVisBand,maxVisBand;
+    double minViewerDist,maxViewerDist;
+    Point3d viewerCenter;
+    double drawOffset;
+    int drawPriority;
+    bool enable;
+    double fade;
+    double fadeIn;
+    double fadeOut;
+    TimeInterval fadeOutTime;
+    TimeInterval startEnable,endEnable;
+    SimpleIdentity programID;
+    
+    SingleVertexAttributeSet uniforms;
+};
 
-/// Set the various parameters on a basic drawable
-- (void)setupBasicDrawable:(WhirlyKit::BasicDrawable *)drawable;
-
-/// Set the various parameters on a basic drawable instance
-- (void)setupBasicDrawableInstance:(WhirlyKit::BasicDrawableInstance *)drawable;
-
-@end
+}

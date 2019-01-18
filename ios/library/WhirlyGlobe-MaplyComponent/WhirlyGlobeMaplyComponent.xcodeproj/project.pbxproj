@@ -427,7 +427,7 @@
 		2B846F1321F158E100EF2A82 /* BaseInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B846F0421F158E100EF2A82 /* BaseInfo.h */; };
 		2B846F2221F158EC00EF2A82 /* BillboardManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1421F158EA00EF2A82 /* BillboardManager.mm */; };
 		2B846F2321F158EC00EF2A82 /* MarkerManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1521F158EA00EF2A82 /* MarkerManager.mm */; };
-		2B846F2421F158EC00EF2A82 /* BaseInfo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1621F158EA00EF2A82 /* BaseInfo.mm */; };
+		2B846F2421F158EC00EF2A82 /* BaseInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1621F158EA00EF2A82 /* BaseInfo.cpp */; };
 		2B846F2521F158EC00EF2A82 /* LoftManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1721F158EB00EF2A82 /* LoftManager.mm */; };
 		2B846F2621F158EC00EF2A82 /* ParticleSystemManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1821F158EB00EF2A82 /* ParticleSystemManager.mm */; };
 		2B846F2721F158EC00EF2A82 /* GeometryManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1921F158EB00EF2A82 /* GeometryManager.mm */; };
@@ -1379,7 +1379,7 @@
 		2B846F0421F158E100EF2A82 /* BaseInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseInfo.h; path = ../../../../common/WhirlyGlobeLib/include/BaseInfo.h; sourceTree = "<group>"; };
 		2B846F1421F158EA00EF2A82 /* BillboardManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = BillboardManager.mm; path = ../../../../common/WhirlyGlobeLib/src/BillboardManager.mm; sourceTree = "<group>"; };
 		2B846F1521F158EA00EF2A82 /* MarkerManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MarkerManager.mm; path = ../../../../common/WhirlyGlobeLib/src/MarkerManager.mm; sourceTree = "<group>"; };
-		2B846F1621F158EA00EF2A82 /* BaseInfo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = BaseInfo.mm; path = ../../../../common/WhirlyGlobeLib/src/BaseInfo.mm; sourceTree = "<group>"; };
+		2B846F1621F158EA00EF2A82 /* BaseInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BaseInfo.cpp; path = ../../../../common/WhirlyGlobeLib/src/BaseInfo.cpp; sourceTree = "<group>"; };
 		2B846F1721F158EB00EF2A82 /* LoftManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = LoftManager.mm; path = ../../../../common/WhirlyGlobeLib/src/LoftManager.mm; sourceTree = "<group>"; };
 		2B846F1821F158EB00EF2A82 /* ParticleSystemManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ParticleSystemManager.mm; path = ../../../../common/WhirlyGlobeLib/src/ParticleSystemManager.mm; sourceTree = "<group>"; };
 		2B846F1921F158EB00EF2A82 /* GeometryManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GeometryManager.mm; path = ../../../../common/WhirlyGlobeLib/src/GeometryManager.mm; sourceTree = "<group>"; };
@@ -2714,7 +2714,7 @@
 		2B846F3121F1597D00EF2A82 /* managers */ = {
 			isa = PBXGroup;
 			children = (
-				2B846F1621F158EA00EF2A82 /* BaseInfo.mm */,
+				2B846F1621F158EA00EF2A82 /* BaseInfo.cpp */,
 				2B846F1421F158EA00EF2A82 /* BillboardManager.mm */,
 				2B846F1921F158EB00EF2A82 /* GeometryManager.mm */,
 				2B846F2121F158EC00EF2A82 /* IntersectionManager.mm */,
@@ -4297,7 +4297,7 @@
 				2B82B7521E82E24A0095FB14 /* GridClipper.mm in Sources */,
 				2BE539C31D249BEF00B60FAD /* AAVenus.cpp in Sources */,
 				2B82B7AE1E82E24B0095FB14 /* MaplyLayerViewWatcher.mm in Sources */,
-				2B846F2421F158EC00EF2A82 /* BaseInfo.mm in Sources */,
+				2B846F2421F158EC00EF2A82 /* BaseInfo.cpp in Sources */,
 				2BB8A3C621ED43780025DA98 /* MaplyVariableTarget.mm in Sources */,
 				2B82B78D1E82E24A0095FB14 /* DynamicTextureAtlas.mm in Sources */,
 				2B82B6C31E82E24A0095FB14 /* PJ_wink2.c in Sources */,
