@@ -12,10 +12,6 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-    
-IntersectionManager::Intersectable::~Intersectable()
-{
-}
 
 IntersectionManager::IntersectionManager(Scene *scene)
 : scene(scene)
@@ -40,16 +36,16 @@ void IntersectionManager::removeIntersectable(Intersectable *intersect)
 }
 
 /// Look for the nearest intersection and return the point (in display coordinates)
-bool IntersectionManager::findIntersection(WhirlyKitSceneRendererES *renderer,WhirlyKitView *view,const Point2f &frameSize,const Point2f &touchPt,Point3d &iPt,double &dist)
+bool IntersectionManager::findIntersection(SceneRendererES *renderer,View *view,const Point2f &frameSize,const Point2f &touchPt,Point3d &iPt,double &dist)
 {
     Point3d minPt;
     double minDist = std::numeric_limits<double>::max();
 
-    Eigen::Matrix4d fullMat = [view calcFullMatrix];
+    Eigen::Matrix4d fullMat = view->calcFullMatrix();
     Matrix4d invFullMat = fullMat.inverse();
 
     // Back project the point from screen space into model space
-    Point3d tapPt = [view pointUnproject:touchPt width:frameSize.x() height:frameSize.y() clip:true];
+    Point3d tapPt = view->pointUnproject(touchPt,frameSize.x(),frameSize.y(),true);
 
     // Run the screen point and the eye point (origin) back through
     //  the model matrix to get a direction and origin in model space

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/29/16.
- *  Copyright 2011-2017 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2016 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public:
         virtual ~Intersectable();
 
         // Ray is in display coordinates
-        virtual bool findClosestIntersection(WhirlyKitSceneRendererES *renderer,WhirlyKitView *theView,const Point2f &frameSize,const Point2f &touchPt,const Point3d &org,const Point3d &dir,Point3d &iPt,double &dist) = 0;
+        virtual bool findClosestIntersection(SceneRendererES *renderer,View *theView,const Point2f &frameSize,const Point2f &touchPt,const Point3d &org,const Point3d &dir,Point3d &iPt,double &dist) = 0;
     };
     
     /// Add an intersectable object
@@ -63,7 +63,7 @@ public:
     void removeIntersectable(Intersectable *intersect);
 
     /// Look for the nearest intersection and return the point (in display coordinates)
-    bool findIntersection(WhirlyKitSceneRendererES *renderer,WhirlyKitView *theView,const Point2f &frameSize,const Point2f &touchPt,Point3d &iPt,double &dist);
+    bool findIntersection(SceneRendererES *renderer,View *theView,const Point2f &frameSize,const Point2f &touchPt,Point3d &iPt,double &dist);
 
 protected:
     pthread_mutex_t mutex;
