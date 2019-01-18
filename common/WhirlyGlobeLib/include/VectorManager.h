@@ -29,6 +29,30 @@
 #import "GlobeMath.h"
 #import "LayerThread.h"
 
+
+// Used to describe the drawable we'll construct for a given vector
+@interface WhirlyKitVectorInfo : WhirlyKitBaseInfo
+{
+@public
+    // For creation request, the shapes
+    ShapeSet                    shapes;
+    float                       drawOffset;
+    BOOL                        filled;
+    float                       sample;
+    SimpleIdentity              texId;
+    Point2f                     texScale;
+    float                       subdivEps;
+    BOOL                        gridSubdiv;
+    TextureProjections          texProj;
+}
+
+@property (nonatomic) UIColor *color;
+@property (nonatomic,assign) float lineWidth;
+
+- (void)parseDict:(NSDictionary *)dict;
+
+@end
+
 namespace WhirlyKit
 {
 

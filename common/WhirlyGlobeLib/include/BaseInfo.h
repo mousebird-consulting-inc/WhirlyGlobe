@@ -24,7 +24,7 @@
 #import <string>
 #import "Identifiable.h"
 #import "WhirlyVector.h"
-#import "Dictionary.h"
+#import "WhirlyTypes.h"
 #import "Drawable.h"
 
 namespace WhirlyKit

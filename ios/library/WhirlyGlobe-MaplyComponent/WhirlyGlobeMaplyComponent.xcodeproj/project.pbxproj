@@ -36,6 +36,10 @@
 		2B3FD2C31F478F5200CA9C18 /* MaplyRenderTarget.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */; };
 		2B446AB021EFE5DA0078A975 /* MaplyWMSTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AAF21EFE5DA0078A975 /* MaplyWMSTileSource.h */; };
 		2B446AB221EFE5E50078A975 /* MaplyWMSTileSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AB121EFE5E50078A975 /* MaplyWMSTileSource.mm */; };
+		2B446AB621F2584B0078A975 /* MaplyBaseInfo_iOS_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AB521F2584B0078A975 /* MaplyBaseInfo_iOS_private.h */; };
+		2B446AB821F25A750078A975 /* MaplyBaseInfo_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AB721F25A740078A975 /* MaplyBaseInfo_iOS.mm */; };
+		2B446ABB21F25C330078A975 /* WhirlyKitLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AB921F25C330078A975 /* WhirlyKitLog.h */; };
+		2B446ABC21F25C330078A975 /* WhirlyTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446ABA21F25C330078A975 /* WhirlyTypes.h */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B6001A0210FAE6400140383 /* StringIndexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B60019F210FAE6300140383 /* StringIndexer.h */; };
 		2B6001A2210FAE8600140383 /* StringIndexer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B6001A1210FAE8500140383 /* StringIndexer.mm */; };
@@ -425,20 +429,20 @@
 		2B846F1121F158E100EF2A82 /* BillboardManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B846F0221F158E100EF2A82 /* BillboardManager.h */; };
 		2B846F1221F158E100EF2A82 /* IntersectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B846F0321F158E100EF2A82 /* IntersectionManager.h */; };
 		2B846F1321F158E100EF2A82 /* BaseInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B846F0421F158E100EF2A82 /* BaseInfo.h */; };
-		2B846F2221F158EC00EF2A82 /* BillboardManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1421F158EA00EF2A82 /* BillboardManager.mm */; };
-		2B846F2321F158EC00EF2A82 /* MarkerManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1521F158EA00EF2A82 /* MarkerManager.mm */; };
+		2B846F2221F158EC00EF2A82 /* BillboardManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1421F158EA00EF2A82 /* BillboardManager.cpp */; };
+		2B846F2321F158EC00EF2A82 /* MarkerManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1521F158EA00EF2A82 /* MarkerManager.cpp */; };
 		2B846F2421F158EC00EF2A82 /* BaseInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1621F158EA00EF2A82 /* BaseInfo.cpp */; };
-		2B846F2521F158EC00EF2A82 /* LoftManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1721F158EB00EF2A82 /* LoftManager.mm */; };
-		2B846F2621F158EC00EF2A82 /* ParticleSystemManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1821F158EB00EF2A82 /* ParticleSystemManager.mm */; };
-		2B846F2721F158EC00EF2A82 /* GeometryManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1921F158EB00EF2A82 /* GeometryManager.mm */; };
-		2B846F2821F158EC00EF2A82 /* WideVectorManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1A21F158EB00EF2A82 /* WideVectorManager.mm */; };
-		2B846F2921F158EC00EF2A82 /* SelectionManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1B21F158EB00EF2A82 /* SelectionManager.mm */; };
-		2B846F2A21F158EC00EF2A82 /* LayoutManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1C21F158EB00EF2A82 /* LayoutManager.mm */; };
-		2B846F2B21F158EC00EF2A82 /* LabelManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1D21F158EB00EF2A82 /* LabelManager.mm */; };
-		2B846F2C21F158EC00EF2A82 /* ShapeManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1E21F158EB00EF2A82 /* ShapeManager.mm */; };
-		2B846F2D21F158EC00EF2A82 /* VectorManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1F21F158EB00EF2A82 /* VectorManager.mm */; };
-		2B846F2E21F158EC00EF2A82 /* SphericalEarthChunkManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F2021F158EB00EF2A82 /* SphericalEarthChunkManager.mm */; };
-		2B846F2F21F158EC00EF2A82 /* IntersectionManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F2121F158EC00EF2A82 /* IntersectionManager.mm */; };
+		2B846F2521F158EC00EF2A82 /* LoftManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1721F158EB00EF2A82 /* LoftManager.cpp */; };
+		2B846F2621F158EC00EF2A82 /* ParticleSystemManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1821F158EB00EF2A82 /* ParticleSystemManager.cpp */; };
+		2B846F2721F158EC00EF2A82 /* GeometryManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1921F158EB00EF2A82 /* GeometryManager.cpp */; };
+		2B846F2821F158EC00EF2A82 /* WideVectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1A21F158EB00EF2A82 /* WideVectorManager.cpp */; };
+		2B846F2921F158EC00EF2A82 /* SelectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1B21F158EB00EF2A82 /* SelectionManager.cpp */; };
+		2B846F2A21F158EC00EF2A82 /* LayoutManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1C21F158EB00EF2A82 /* LayoutManager.cpp */; };
+		2B846F2B21F158EC00EF2A82 /* LabelManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1D21F158EB00EF2A82 /* LabelManager.cpp */; };
+		2B846F2C21F158EC00EF2A82 /* ShapeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1E21F158EB00EF2A82 /* ShapeManager.cpp */; };
+		2B846F2D21F158EC00EF2A82 /* VectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1F21F158EB00EF2A82 /* VectorManager.cpp */; };
+		2B846F2E21F158EC00EF2A82 /* SphericalEarthChunkManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F2021F158EB00EF2A82 /* SphericalEarthChunkManager.cpp */; };
+		2B846F2F21F158EC00EF2A82 /* IntersectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F2121F158EC00EF2A82 /* IntersectionManager.cpp */; };
 		2B84ED131F83FC5A00B34D73 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED121F83FC5A00B34D73 /* CoreGraphics.framework */; };
 		2B84ED151F83FC6000B34D73 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED141F83FC6000B34D73 /* OpenGLES.framework */; };
 		2B84ED171F83FC7000B34D73 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED161F83FC7000B34D73 /* QuartzCore.framework */; };
@@ -988,6 +992,10 @@
 		2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRenderTarget.mm; sourceTree = "<group>"; };
 		2B446AAF21EFE5DA0078A975 /* MaplyWMSTileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyWMSTileSource.h; sourceTree = "<group>"; };
 		2B446AB121EFE5E50078A975 /* MaplyWMSTileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyWMSTileSource.mm; sourceTree = "<group>"; };
+		2B446AB521F2584B0078A975 /* MaplyBaseInfo_iOS_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyBaseInfo_iOS_private.h; sourceTree = "<group>"; };
+		2B446AB721F25A740078A975 /* MaplyBaseInfo_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyBaseInfo_iOS.mm; sourceTree = "<group>"; };
+		2B446AB921F25C330078A975 /* WhirlyKitLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyKitLog.h; path = ../../../../common/WhirlyGlobeLib/include/WhirlyKitLog.h; sourceTree = "<group>"; };
+		2B446ABA21F25C330078A975 /* WhirlyTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyTypes.h; path = ../../../../common/WhirlyGlobeLib/include/WhirlyTypes.h; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B60019F210FAE6300140383 /* StringIndexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringIndexer.h; sourceTree = "<group>"; };
 		2B6001A1210FAE8500140383 /* StringIndexer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringIndexer.mm; sourceTree = "<group>"; };
@@ -1377,20 +1385,20 @@
 		2B846F0221F158E100EF2A82 /* BillboardManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BillboardManager.h; path = ../../../../common/WhirlyGlobeLib/include/BillboardManager.h; sourceTree = "<group>"; };
 		2B846F0321F158E100EF2A82 /* IntersectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IntersectionManager.h; path = ../../../../common/WhirlyGlobeLib/include/IntersectionManager.h; sourceTree = "<group>"; };
 		2B846F0421F158E100EF2A82 /* BaseInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BaseInfo.h; path = ../../../../common/WhirlyGlobeLib/include/BaseInfo.h; sourceTree = "<group>"; };
-		2B846F1421F158EA00EF2A82 /* BillboardManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = BillboardManager.mm; path = ../../../../common/WhirlyGlobeLib/src/BillboardManager.mm; sourceTree = "<group>"; };
-		2B846F1521F158EA00EF2A82 /* MarkerManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = MarkerManager.mm; path = ../../../../common/WhirlyGlobeLib/src/MarkerManager.mm; sourceTree = "<group>"; };
+		2B846F1421F158EA00EF2A82 /* BillboardManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BillboardManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/BillboardManager.cpp; sourceTree = "<group>"; };
+		2B846F1521F158EA00EF2A82 /* MarkerManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MarkerManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/MarkerManager.cpp; sourceTree = "<group>"; };
 		2B846F1621F158EA00EF2A82 /* BaseInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BaseInfo.cpp; path = ../../../../common/WhirlyGlobeLib/src/BaseInfo.cpp; sourceTree = "<group>"; };
-		2B846F1721F158EB00EF2A82 /* LoftManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = LoftManager.mm; path = ../../../../common/WhirlyGlobeLib/src/LoftManager.mm; sourceTree = "<group>"; };
-		2B846F1821F158EB00EF2A82 /* ParticleSystemManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ParticleSystemManager.mm; path = ../../../../common/WhirlyGlobeLib/src/ParticleSystemManager.mm; sourceTree = "<group>"; };
-		2B846F1921F158EB00EF2A82 /* GeometryManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GeometryManager.mm; path = ../../../../common/WhirlyGlobeLib/src/GeometryManager.mm; sourceTree = "<group>"; };
-		2B846F1A21F158EB00EF2A82 /* WideVectorManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = WideVectorManager.mm; path = ../../../../common/WhirlyGlobeLib/src/WideVectorManager.mm; sourceTree = "<group>"; };
-		2B846F1B21F158EB00EF2A82 /* SelectionManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SelectionManager.mm; path = ../../../../common/WhirlyGlobeLib/src/SelectionManager.mm; sourceTree = "<group>"; };
-		2B846F1C21F158EB00EF2A82 /* LayoutManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = LayoutManager.mm; path = ../../../../common/WhirlyGlobeLib/src/LayoutManager.mm; sourceTree = "<group>"; };
-		2B846F1D21F158EB00EF2A82 /* LabelManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = LabelManager.mm; path = ../../../../common/WhirlyGlobeLib/src/LabelManager.mm; sourceTree = "<group>"; };
-		2B846F1E21F158EB00EF2A82 /* ShapeManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ShapeManager.mm; path = ../../../../common/WhirlyGlobeLib/src/ShapeManager.mm; sourceTree = "<group>"; };
-		2B846F1F21F158EB00EF2A82 /* VectorManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = VectorManager.mm; path = ../../../../common/WhirlyGlobeLib/src/VectorManager.mm; sourceTree = "<group>"; };
-		2B846F2021F158EB00EF2A82 /* SphericalEarthChunkManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SphericalEarthChunkManager.mm; path = ../../../../common/WhirlyGlobeLib/src/SphericalEarthChunkManager.mm; sourceTree = "<group>"; };
-		2B846F2121F158EC00EF2A82 /* IntersectionManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IntersectionManager.mm; path = ../../../../common/WhirlyGlobeLib/src/IntersectionManager.mm; sourceTree = "<group>"; };
+		2B846F1721F158EB00EF2A82 /* LoftManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoftManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/LoftManager.cpp; sourceTree = "<group>"; };
+		2B846F1821F158EB00EF2A82 /* ParticleSystemManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParticleSystemManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/ParticleSystemManager.cpp; sourceTree = "<group>"; };
+		2B846F1921F158EB00EF2A82 /* GeometryManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GeometryManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/GeometryManager.cpp; sourceTree = "<group>"; };
+		2B846F1A21F158EB00EF2A82 /* WideVectorManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WideVectorManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/WideVectorManager.cpp; sourceTree = "<group>"; };
+		2B846F1B21F158EB00EF2A82 /* SelectionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SelectionManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/SelectionManager.cpp; sourceTree = "<group>"; };
+		2B846F1C21F158EB00EF2A82 /* LayoutManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LayoutManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/LayoutManager.cpp; sourceTree = "<group>"; };
+		2B846F1D21F158EB00EF2A82 /* LabelManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LabelManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/LabelManager.cpp; sourceTree = "<group>"; };
+		2B846F1E21F158EB00EF2A82 /* ShapeManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ShapeManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/ShapeManager.cpp; sourceTree = "<group>"; };
+		2B846F1F21F158EB00EF2A82 /* VectorManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/VectorManager.cpp; sourceTree = "<group>"; };
+		2B846F2021F158EB00EF2A82 /* SphericalEarthChunkManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SphericalEarthChunkManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/SphericalEarthChunkManager.cpp; sourceTree = "<group>"; };
+		2B846F2121F158EC00EF2A82 /* IntersectionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IntersectionManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/IntersectionManager.cpp; sourceTree = "<group>"; };
 		2B84ED121F83FC5A00B34D73 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		2B84ED141F83FC6000B34D73 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		2B84ED161F83FC7000B34D73 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -1931,6 +1939,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2B446ABE21F268360078A975 /* external */ = {
+			isa = PBXGroup;
+			children = (
+				2B82B7C01E82E6780095FB14 /* clipper */,
+				2B82B3D11E82E2490095FB14 /* glu */,
+				2B82B3FF1E82E2490095FB14 /* libjson */,
+				2B82B4AD1E82E2490095FB14 /* proj4 */,
+			);
+			name = external;
+			sourceTree = "<group>";
+		};
 		2B82B36E1E82E2080095FB14 /* WhirlyGlobeLib */ = {
 			isa = PBXGroup;
 			children = (
@@ -1977,6 +1996,7 @@
 				2B82B3D01E82E2490095FB14 /* libtess */,
 			);
 			name = glu;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		2B82B3D51E82E2490095FB14 /* libbase64++ */ = {
@@ -2066,7 +2086,7 @@
 				2B82B3FE1E82E2490095FB14 /* Source */,
 			);
 			name = libjson;
-			path = ../../../common/local_libs/libjson;
+			path = ../../../../common/local_libs/libjson;
 			sourceTree = "<group>";
 		};
 		2B82B4041E82E2490095FB14 /* shapelib-1.3.0b2 */ = {
@@ -2248,7 +2268,7 @@
 				2B82B4AC1E82E2490095FB14 /* vector1.c */,
 			);
 			name = proj4;
-			path = "../../../common/local_libs/proj-4/src";
+			path = "../../../../common/local_libs/proj-4/src";
 			sourceTree = "<group>";
 		};
 		2B82B4B51E82E2490095FB14 /* geometry utils */ = {
@@ -2458,7 +2478,6 @@
 		2B82B5461E82E2490095FB14 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				2B846EF021F158A500EF2A82 /* common */,
 				2B82B4AE1E82E2490095FB14 /* WhirlyGlobe.h */,
 				2B82B5141E82E2490095FB14 /* WhirlyKit */,
 				2B82B52E1E82E2490095FB14 /* WhirlyGlobe */,
@@ -2635,10 +2654,6 @@
 		2B82B5C91E82E2490095FB14 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				2B82B7C01E82E6780095FB14 /* clipper */,
-				2B82B3D11E82E2490095FB14 /* glu */,
-				2B82B3FF1E82E2490095FB14 /* libjson */,
-				2B82B4AD1E82E2490095FB14 /* proj4 */,
 				2B82B4041E82E2490095FB14 /* shapelib-1.3.0b2 */,
 				2B82B5461E82E2490095FB14 /* include */,
 				2B82B5C81E82E2490095FB14 /* src */,
@@ -2654,14 +2669,17 @@
 				2B82B7C21E82E68E0095FB14 /* clipper.hpp */,
 			);
 			name = clipper;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		2B846EF021F158A500EF2A82 /* common */ = {
 			isa = PBXGroup;
 			children = (
+				2B446ABE21F268360078A975 /* external */,
 				2B846EF321F158C200EF2A82 /* WhirlyGlobeLib */,
 			);
 			name = common;
+			path = ../WhirlyGlobeLib/include;
 			sourceTree = "<group>";
 		};
 		2B846EF321F158C200EF2A82 /* WhirlyGlobeLib */ = {
@@ -2676,6 +2694,8 @@
 		2B846EF421F158CD00EF2A82 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B446AB921F25C330078A975 /* WhirlyKitLog.h */,
+				2B446ABA21F25C330078A975 /* WhirlyTypes.h */,
 				2B846F3021F1592400EF2A82 /* managers */,
 			);
 			name = include;
@@ -2715,19 +2735,19 @@
 			isa = PBXGroup;
 			children = (
 				2B846F1621F158EA00EF2A82 /* BaseInfo.cpp */,
-				2B846F1421F158EA00EF2A82 /* BillboardManager.mm */,
-				2B846F1921F158EB00EF2A82 /* GeometryManager.mm */,
-				2B846F2121F158EC00EF2A82 /* IntersectionManager.mm */,
-				2B846F1D21F158EB00EF2A82 /* LabelManager.mm */,
-				2B846F1C21F158EB00EF2A82 /* LayoutManager.mm */,
-				2B846F1721F158EB00EF2A82 /* LoftManager.mm */,
-				2B846F1521F158EA00EF2A82 /* MarkerManager.mm */,
-				2B846F1821F158EB00EF2A82 /* ParticleSystemManager.mm */,
-				2B846F1B21F158EB00EF2A82 /* SelectionManager.mm */,
-				2B846F1E21F158EB00EF2A82 /* ShapeManager.mm */,
-				2B846F2021F158EB00EF2A82 /* SphericalEarthChunkManager.mm */,
-				2B846F1F21F158EB00EF2A82 /* VectorManager.mm */,
-				2B846F1A21F158EB00EF2A82 /* WideVectorManager.mm */,
+				2B846F1421F158EA00EF2A82 /* BillboardManager.cpp */,
+				2B846F1921F158EB00EF2A82 /* GeometryManager.cpp */,
+				2B846F2121F158EC00EF2A82 /* IntersectionManager.cpp */,
+				2B846F1D21F158EB00EF2A82 /* LabelManager.cpp */,
+				2B846F1C21F158EB00EF2A82 /* LayoutManager.cpp */,
+				2B846F1721F158EB00EF2A82 /* LoftManager.cpp */,
+				2B846F1521F158EA00EF2A82 /* MarkerManager.cpp */,
+				2B846F1821F158EB00EF2A82 /* ParticleSystemManager.cpp */,
+				2B846F1B21F158EB00EF2A82 /* SelectionManager.cpp */,
+				2B846F1E21F158EB00EF2A82 /* ShapeManager.cpp */,
+				2B846F2021F158EB00EF2A82 /* SphericalEarthChunkManager.cpp */,
+				2B846F1F21F158EB00EF2A82 /* VectorManager.cpp */,
+				2B846F1A21F158EB00EF2A82 /* WideVectorManager.cpp */,
 			);
 			name = managers;
 			sourceTree = "<group>";
@@ -3007,6 +3027,7 @@
 				2BE53AC01D249DCA00B60FAD /* libc++.tbd */,
 				2BE53ABE1D249DC500B60FAD /* libstdc++.tbd */,
 				2BE53ABC1D249DA400B60FAD /* libxml2.tbd */,
+				2B846EF021F158A500EF2A82 /* common */,
 				2B82B36E1E82E2080095FB14 /* WhirlyGlobeLib */,
 				2BE537011D2499E500B60FAD /* WhirlyGlobeMaplyComponent */,
 				2BE53AB11D249CA200B60FAD /* SMCalloutView */,
@@ -3076,6 +3097,7 @@
 		2BE5375A1D249A1200B60FAD /* private */ = {
 			isa = PBXGroup;
 			children = (
+				2B446AB521F2584B0078A975 /* MaplyBaseInfo_iOS_private.h */,
 				2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */,
 				2BB8A3D221ED43BF0025DA98 /* MaplyLineAndPointShaders_private.h */,
 				2BB8A3D421ED43C00025DA98 /* MaplyTriangleShaders_private.h */,
@@ -3130,6 +3152,7 @@
 		2BE537991D249A1200B60FAD /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2B446AB721F25A740078A975 /* MaplyBaseInfo_iOS.mm */,
 				2B446AB121EFE5E50078A975 /* MaplyWMSTileSource.mm */,
 				2BB8A3B021ED43780025DA98 /* GlobeDoubleTapDelegate.mm */,
 				2BB8A3B421ED43780025DA98 /* GlobeDoubleTapDragDelegate.mm */,
@@ -3713,6 +3736,7 @@
 				2BE539761D249BEF00B60FAD /* AAParallactic.h in Headers */,
 				2BE5397B1D249BEF00B60FAD /* AAPhysicalSun.h in Headers */,
 				2BE538361D249A1200B60FAD /* ImageTexture_private.h in Headers */,
+				2B446ABB21F25C330078A975 /* WhirlyKitLog.h in Headers */,
 				2B82B6E61E82E24A0095FB14 /* ElevationCesiumFormat.h in Headers */,
 				2BE5397D1D249BEF00B60FAD /* AAPlanetPerihelionAphelion.h in Headers */,
 				2B2B4701206D931300570F97 /* QuadTileBuilder.h in Headers */,
@@ -3808,6 +3832,7 @@
 				2B82B5EC1E82E2490095FB14 /* priorityq-heap.h in Headers */,
 				2BE537FC1D249A1200B60FAD /* MaplyAnnotation.h in Headers */,
 				2BB8A3FE21ED43D10025DA98 /* MaplyTouchCancelAnimationDelegate.h in Headers */,
+				2B446AB621F2584B0078A975 /* MaplyBaseInfo_iOS_private.h in Headers */,
 				2BE537FD1D249A1200B60FAD /* MaplyAtmosphere.h in Headers */,
 				2B127BF92012A12B0099F405 /* MaplyRenderController_private.h in Headers */,
 				2BE539871D249BEF00B60FAD /* AASun.h in Headers */,
@@ -3968,6 +3993,7 @@
 				2B82B6391E82E2490095FB14 /* geocent.h in Headers */,
 				2BE5394E1D249BEF00B60FAD /* AA+.h in Headers */,
 				2BE538711D249A1200B60FAD /* WhirlyGlobeComponent.h in Headers */,
+				2B446ABC21F25C330078A975 /* WhirlyTypes.h in Headers */,
 				2B82B6D81E82E24A0095FB14 /* GLUtils.h in Headers */,
 				2B127C03201911D40099F405 /* MapboxVectorImageInterpreter.h in Headers */,
 				2BE539771D249BEF00B60FAD /* AAParallax.h in Headers */,
@@ -4105,7 +4131,7 @@
 				2B82B6431E82E2490095FB14 /* PJ_airy.c in Sources */,
 				2B82B6921E82E24A0095FB14 /* pj_mutex.c in Sources */,
 				2BE538A01D249A1200B60FAD /* MaplySharedAttributes.m in Sources */,
-				2B846F2521F158EC00EF2A82 /* LoftManager.mm in Sources */,
+				2B846F2521F158EC00EF2A82 /* LoftManager.cpp in Sources */,
 				2B82B6351E82E2490095FB14 /* dmstor.c in Sources */,
 				2BE5398B1D249BEF00B60FAD /* AAAberration.cpp in Sources */,
 				2B82B67C1E82E24A0095FB14 /* PJ_laea.c in Sources */,
@@ -4133,7 +4159,7 @@
 				2B82B6771E82E24A0095FB14 /* pj_initcache.c in Sources */,
 				2B82B67B1E82E24A0095FB14 /* PJ_labrd.c in Sources */,
 				E56E02AA1E11F9AD00C1DD85 /* GeoJSONSource.mm in Sources */,
-				2B846F2F21F158EC00EF2A82 /* IntersectionManager.mm in Sources */,
+				2B846F2F21F158EC00EF2A82 /* IntersectionManager.cpp in Sources */,
 				2BE53A6B1D249C4600B60FAD /* atomicops_internals_x86_gcc.cc in Sources */,
 				2BE539F21D249C2900B60FAD /* any.cc in Sources */,
 				2BE538891D249A1200B60FAD /* MaplyInteractionLayer.mm in Sources */,
@@ -4142,7 +4168,7 @@
 				2BE539AF1D249BEF00B60FAD /* AAParabolic.cpp in Sources */,
 				2B82B7611E82E24A0095FB14 /* EAGLView.mm in Sources */,
 				2B82B6881E82E24A0095FB14 /* pj_malloc.c in Sources */,
-				2B846F2221F158EC00EF2A82 /* BillboardManager.mm in Sources */,
+				2B846F2221F158EC00EF2A82 /* BillboardManager.cpp in Sources */,
 				2B82B69F1E82E24A0095FB14 /* pj_param.c in Sources */,
 				2B82B64E1E82E2490095FB14 /* PJ_cc.c in Sources */,
 				2BE538CC1D249A1200B60FAD /* WGViewControllerLayer.mm in Sources */,
@@ -4156,7 +4182,7 @@
 				2B82B65F1E82E24A0095FB14 /* PJ_eqc.c in Sources */,
 				2BE538AA1D249A1200B60FAD /* MaplyVectorObject.mm in Sources */,
 				2B82B64D1E82E2490095FB14 /* PJ_cass.c in Sources */,
-				2B846F2321F158EC00EF2A82 /* MarkerManager.mm in Sources */,
+				2B846F2321F158EC00EF2A82 /* MarkerManager.cpp in Sources */,
 				2B82B77B1E82E24A0095FB14 /* ParticleSystemDrawable.mm in Sources */,
 				2B82B6B41E82E24A0095FB14 /* PJ_tmerc.c in Sources */,
 				2B361E1B212340620074D06D /* MaplyTextureBuilder.mm in Sources */,
@@ -4204,6 +4230,7 @@
 				2B846ED721F1359200EF2A82 /* PJ_calcofi.c in Sources */,
 				2B846EE421F1377600EF2A82 /* pj_auth.c in Sources */,
 				2BE539B61D249BEF00B60FAD /* AAPlanetaryPhenomena.cpp in Sources */,
+				2B446AB821F25A750078A975 /* MaplyBaseInfo_iOS.mm in Sources */,
 				2B82B6961E82E24A0095FB14 /* PJ_nocol.c in Sources */,
 				2BE539AE1D249BEF00B60FAD /* AANutation.cpp in Sources */,
 				2BE539BB1D249BEF00B60FAD /* AARiseTransitSet.cpp in Sources */,
@@ -4216,7 +4243,7 @@
 				2B82B62E1E82E2490095FB14 /* PJ_sch.c in Sources */,
 				2B82B65E1E82E24A0095FB14 /* pj_ellps.c in Sources */,
 				2BB8A3BE21ED43780025DA98 /* GlobeTwoFingerTapDelegate.mm in Sources */,
-				2B846F2921F158EC00EF2A82 /* SelectionManager.mm in Sources */,
+				2B846F2921F158EC00EF2A82 /* SelectionManager.cpp in Sources */,
 				2B127BFD2012ACA20099F405 /* MaplyRenderController.mm in Sources */,
 				2B82B67F1E82E24A0095FB14 /* PJ_lask.c in Sources */,
 				2B82B7781E82E24A0095FB14 /* MaplyAnimateTranslation.mm in Sources */,
@@ -4230,7 +4257,7 @@
 				2BE539B21D249BEF00B60FAD /* AAPhysicalJupiter.cpp in Sources */,
 				2BE53A6F1D249C4600B60FAD /* common.cc in Sources */,
 				2B361DF321233CBE0074D06D /* MaplyDoubleTapDragDelegate.mm in Sources */,
-				2B846F2C21F158EC00EF2A82 /* ShapeManager.mm in Sources */,
+				2B846F2C21F158EC00EF2A82 /* ShapeManager.cpp in Sources */,
 				2B82B6C11E82E24A0095FB14 /* PJ_wag7.c in Sources */,
 				2BE539B81D249BEF00B60FAD /* AAPluto.cpp in Sources */,
 				2BE539A51D249BEF00B60FAD /* AAMoonIlluminatedFraction.cpp in Sources */,
@@ -4240,7 +4267,7 @@
 				2BE53A131D249C2900B60FAD /* service.cc in Sources */,
 				2B82B66F1E82E24A0095FB14 /* pj_gridlist.c in Sources */,
 				2B82B6AF1E82E24A0095FB14 /* PJ_sterea.c in Sources */,
-				2B846F2A21F158EC00EF2A82 /* LayoutManager.mm in Sources */,
+				2B846F2A21F158EC00EF2A82 /* LayoutManager.cpp in Sources */,
 				2BE539B51D249BEF00B60FAD /* AAPhysicalSun.cpp in Sources */,
 				2B446AB221EFE5E50078A975 /* MaplyWMSTileSource.mm in Sources */,
 				2B82B74F1E82E24A0095FB14 /* WhirlyOctEncoding.mm in Sources */,
@@ -4285,7 +4312,7 @@
 				2B82B6711E82E24A0095FB14 /* PJ_hammer.c in Sources */,
 				2B846EE121F136F700EF2A82 /* pj_pr_list.c in Sources */,
 				2BE5399A1D249BEF00B60FAD /* AAFK5.cpp in Sources */,
-				2B846F2621F158EC00EF2A82 /* ParticleSystemManager.mm in Sources */,
+				2B846F2621F158EC00EF2A82 /* ParticleSystemManager.cpp in Sources */,
 				2BE5389D1D249A1200B60FAD /* MaplyScreenObject.mm in Sources */,
 				2BE53A041D249C2900B60FAD /* extension_set_heavy.cc in Sources */,
 				2BE53A171D249C2900B60FAD /* unknown_field_set.cc in Sources */,
@@ -4322,7 +4349,7 @@
 				2BE5389E1D249A1200B60FAD /* MaplyShader.mm in Sources */,
 				2B82B74D1E82E24A0095FB14 /* UIColor+Stuff.mm in Sources */,
 				2B82B6561E82E2490095FB14 /* PJ_denoy.c in Sources */,
-				2B846F2D21F158EC00EF2A82 /* VectorManager.mm in Sources */,
+				2B846F2D21F158EC00EF2A82 /* VectorManager.cpp in Sources */,
 				2B82B7571E82E24A0095FB14 /* GlobeMath.mm in Sources */,
 				2BE5398C1D249BEF00B60FAD /* AAAngularSeparation.cpp in Sources */,
 				2BE538AD1D249A1200B60FAD /* MaplyViewControllerLayer.mm in Sources */,
@@ -4343,13 +4370,13 @@
 				2B82B5EA1E82E2490095FB14 /* normal.c in Sources */,
 				2BE539FB1D249C2900B60FAD /* descriptor.pb.cc in Sources */,
 				2B361E18212340620074D06D /* MaplyZoomGestureDelegate.mm in Sources */,
-				2B846F2721F158EC00EF2A82 /* GeometryManager.mm in Sources */,
+				2B846F2721F158EC00EF2A82 /* GeometryManager.cpp in Sources */,
 				2B82B5FF1E82E2490095FB14 /* JSONAllocator.cpp in Sources */,
 				2BE5387E1D249A1200B60FAD /* MaplyColorRampGenerator.m in Sources */,
 				2B82B7861E82E24A0095FB14 /* Scene.mm in Sources */,
 				2BE53A621D249C4600B60FAD /* status.cc in Sources */,
 				2B82B6B31E82E24A0095FB14 /* PJ_tcea.c in Sources */,
-				2B846F2E21F158EC00EF2A82 /* SphericalEarthChunkManager.mm in Sources */,
+				2B846F2E21F158EC00EF2A82 /* SphericalEarthChunkManager.cpp in Sources */,
 				2B82B69C1E82E24A0095FB14 /* PJ_omerc.c in Sources */,
 				2BE539A61D249BEF00B60FAD /* AAMoonMaxDeclinations.cpp in Sources */,
 				2B82B75A1E82E24A0095FB14 /* Proj4CoordSystem.mm in Sources */,
@@ -4376,7 +4403,7 @@
 				2BE5389B1D249A1200B60FAD /* MaplyScreenLabel.m in Sources */,
 				2B361DF521233CBE0074D06D /* MaplyPinchDelegate.mm in Sources */,
 				2B82B6541E82E2490095FB14 /* pj_datum_set.c in Sources */,
-				2B846F2B21F158EC00EF2A82 /* LabelManager.mm in Sources */,
+				2B846F2B21F158EC00EF2A82 /* LabelManager.cpp in Sources */,
 				2B82B6C61E82E24A0095FB14 /* proj_etmerc.c in Sources */,
 				2BE539911D249BEF00B60FAD /* AADynamicalTime.cpp in Sources */,
 				2B82B7871E82E24A0095FB14 /* GlobeScene.mm in Sources */,
@@ -4492,7 +4519,7 @@
 				2BE539A41D249BEF00B60FAD /* AAMoon.cpp in Sources */,
 				2B82B5E61E82E2490095FB14 /* memalloc.c in Sources */,
 				2BB8A3C421ED43780025DA98 /* GlobeDoubleTapDragDelegate.mm in Sources */,
-				2B846F2821F158EC00EF2A82 /* WideVectorManager.mm in Sources */,
+				2B846F2821F158EC00EF2A82 /* WideVectorManager.cpp in Sources */,
 				2BE539901D249BEF00B60FAD /* AADiameters.cpp in Sources */,
 				2BE538A91D249A1200B60FAD /* MaplyUpdateLayer.mm in Sources */,
 				2BE53A0C1D249C2900B60FAD /* message_lite.cc in Sources */,

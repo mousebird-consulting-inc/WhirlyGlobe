@@ -22,8 +22,17 @@
 #import "WhirlyVector.h"
 #import "Scene.h"
 #import "SelectionManager.h"
+#import "BaseInfo.h"
 
-@class WhirlyKitGeomInfo;
+// Used to pass geometry around internally
+@interface WhirlyKitGeomInfo : WhirlyKitBaseInfo
+@property (nonatomic) UIColor *color;
+@property (nonatomic,assign) int boundingBox;
+@property (nonatomic) float pointSize;
+@property (nonatomic) bool zBufferRead;
+@property (nonatomic) bool zBufferWrite;
+- (id)initWithDesc:(NSDictionary *)desc;
+@end
 
 namespace WhirlyKit
 {
