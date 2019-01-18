@@ -59,7 +59,7 @@
 		2B446AE121F288090078A975 /* LabelRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AE021F288080078A975 /* LabelRenderer.h */; };
 		2B446AE321F288220078A975 /* LabelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AE221F288220078A975 /* LabelRenderer.cpp */; };
 		2B446AE621F299E50078A975 /* ShapeDrawableBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AE521F299E50078A975 /* ShapeDrawableBuilder.h */; };
-		2B446AE821F299FA0078A975 /* ShapeDrawableBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AE721F299FA0078A975 /* ShapeDrawableBuilder.mm */; };
+		2B446AE821F299FA0078A975 /* ShapeDrawableBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AE721F299FA0078A975 /* ShapeDrawableBuilder.cpp */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B6001A0210FAE6400140383 /* StringIndexer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B60019F210FAE6300140383 /* StringIndexer.h */; };
 		2B6001A2210FAE8600140383 /* StringIndexer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B6001A1210FAE8500140383 /* StringIndexer.mm */; };
@@ -1031,7 +1031,7 @@
 		2B446AE021F288080078A975 /* LabelRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LabelRenderer.h; path = ../../../../common/WhirlyGlobeLib/include/LabelRenderer.h; sourceTree = "<group>"; };
 		2B446AE221F288220078A975 /* LabelRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LabelRenderer.cpp; path = ../../../../common/WhirlyGlobeLib/src/LabelRenderer.cpp; sourceTree = "<group>"; };
 		2B446AE521F299E50078A975 /* ShapeDrawableBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ShapeDrawableBuilder.h; path = ../../../../common/WhirlyGlobeLib/include/ShapeDrawableBuilder.h; sourceTree = "<group>"; };
-		2B446AE721F299FA0078A975 /* ShapeDrawableBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ShapeDrawableBuilder.mm; path = ../../../../common/WhirlyGlobeLib/src/ShapeDrawableBuilder.mm; sourceTree = "<group>"; };
+		2B446AE721F299FA0078A975 /* ShapeDrawableBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ShapeDrawableBuilder.cpp; path = ../../../../common/WhirlyGlobeLib/src/ShapeDrawableBuilder.cpp; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B60019F210FAE6300140383 /* StringIndexer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringIndexer.h; sourceTree = "<group>"; };
 		2B6001A1210FAE8500140383 /* StringIndexer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringIndexer.mm; sourceTree = "<group>"; };
@@ -2768,7 +2768,7 @@
 				2B846F1521F158EA00EF2A82 /* MarkerManager.cpp */,
 				2B846F1821F158EB00EF2A82 /* ParticleSystemManager.cpp */,
 				2B846F1B21F158EB00EF2A82 /* SelectionManager.cpp */,
-				2B446AE721F299FA0078A975 /* ShapeDrawableBuilder.mm */,
+				2B446AE721F299FA0078A975 /* ShapeDrawableBuilder.cpp */,
 				2B846F1E21F158EB00EF2A82 /* ShapeManager.cpp */,
 				2B846F2021F158EB00EF2A82 /* SphericalEarthChunkManager.cpp */,
 				2B846F1F21F158EB00EF2A82 /* VectorManager.cpp */,
@@ -4527,7 +4527,7 @@
 				2B82B6281E82E2490095FB14 /* geodesic.c in Sources */,
 				2B82B6991E82E24A0095FB14 /* PJ_ob_tran.c in Sources */,
 				2B82B6941E82E24A0095FB14 /* PJ_nell_h.c in Sources */,
-				2B446AE821F299FA0078A975 /* ShapeDrawableBuilder.mm in Sources */,
+				2B446AE821F299FA0078A975 /* ShapeDrawableBuilder.cpp in Sources */,
 				2BB8A3BC21ED43780025DA98 /* MaplyQuadImageFrameLoader.mm in Sources */,
 				2B82B6CB1E82E24A0095FB14 /* vector1.c in Sources */,
 				2BE538851D249A1200B60FAD /* MaplyGeomBuilder.mm in Sources */,
