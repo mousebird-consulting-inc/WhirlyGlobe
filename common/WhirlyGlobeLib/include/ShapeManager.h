@@ -2,8 +2,8 @@
  *  ShapeManager.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 7/16/13.
- *  Copyright 2011-2017 mousebird consulting
+ *  Created by jmnavarro
+ *  Copyright 2011-2016 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,184 +17,155 @@
  *  limitations under the License.
  *
  */
-
 #import "Identifiable.h"
 #import "WhirlyVector.h"
-#import "DataLayer.h"
-#import "LayerThread.h"
 #import "SelectionManager.h"
 #import "Scene.h"
+#import "ShapeDrawableBuilder.h"
+#include <vector>
+#include <set>
 
-namespace WhirlyKit
-{
-    
+
+namespace WhirlyKit {
+
 /// Used internally to track shape related resources
 class ShapeSceneRep : public Identifiable
 {
 public:
-    ShapeSceneRep();
-    ShapeSceneRep(SimpleIdentity inId);
-    ~ShapeSceneRep();
-    
+    ShapeSceneRep(){};
+    ShapeSceneRep(SimpleIdentity inId): Identifiable(inId){};
+    ~ShapeSceneRep(){};
+
     // Enable/disable the contents
-    void enableContents(WhirlyKit::SelectionManager *selectManager,bool enable,ChangeSet &changeRequests);
-    
+    void enableContents(WhirlyKit::SelectionManager *selectManager,bool enable,ChangeSet &changes);
+
     // Clear the contents out of the scene
-    void clearContents(WhirlyKit::SelectionManager *selectManager,ChangeSet &changeRequests,NSTimeInterval when);
-    
+    void clearContents(WhirlyKit::SelectionManager *selectManager,ChangeSet &changes,TimeInterval when);
+
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs in the selection layer
     float fade;  // Time to fade away for removal
 };
-
+    
 typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
     
-}
+/** The base class for simple shapes we'll draw on top of a globe or map.
+  */
+class WhirlyKitShape
+{
+public:
+    WhirlyKitShape();
+    virtual ~WhirlyKitShape();
 
-/** The base class for simple shapes we'll draw on top of a globe or
- map.
- */
-@interface WhirlyKitShape : NSObject
+	void setSelectable(bool value) { isSelectable = value; }
+	bool getSelectable() { return isSelectable; }
 
-/// If set, this shape should be made selectable
-///  and it will be if the selection layer has been set
-@property (nonatomic,assign) bool isSelectable;
-/// If the shape is selectable, this is the unique identifier
-///  for it.  You should set this ahead of time
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity selectID;
-/// If set, we'll use the local color
-@property (nonatomic,assign) bool useColor;
-/// Local color, which will override the default
-@property (nonatomic,assign) WhirlyKit::RGBAColor &color;
-/// If set the shape is already in clip coordinates and shouldn't be transformed
-@property (nonatomic,assign) bool clipCoords;
+	void setSelectID(WhirlyKit::SimpleIdentity value) { selectID = value; }
+	WhirlyKit::SimpleIdentity getSelectID() { return selectID; }
 
-@end
+	void setUseColor(bool value) { useColor = value; }
+	bool getUseColor() { return useColor; }
 
-/// This will display a circle around the location as defined by the base class
-@interface WhirlyKitCircle : WhirlyKitShape
+	void setColor(WhirlyKit::RGBAColor value) { color = value; }
+	WhirlyKit::RGBAColor getColor() { return color; }
 
-/// The location for the origin of the shape
-@property (nonatomic,assign) WhirlyKit::GeoCoord &loc;
-/// Radius is in display units
-@property (nonatomic,assign) float radius;
-/// An offset from the globe in display units (radius of the globe = 1.0)
-@property (nonatomic,assign) float height;
-/// Number of samples to use in the circle
-@property (nonatomic,assign) int sampleX;
+    void setClipCoords(bool newVal) { clipCoords = newVal; }
+    bool getClipCoords() { return clipCoords; }
 
-@end
+	virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
+
+private:
+    bool isSelectable;
+    WhirlyKit::SimpleIdentity selectID;
+    bool useColor;
+    WhirlyKit::RGBAColor color;
+    bool clipCoords;
+};
 
 /// This puts a sphere around the location
-@interface WhirlyKitSphere : WhirlyKitShape
+class WhirlyKitSphere : public WhirlyKitShape
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
+    WhirlyKitSphere();
+    virtual ~WhirlyKitSphere();
 
-/// The location for the origin of the shape
-@property (nonatomic,assign) WhirlyKit::GeoCoord &loc;
-/// An offset in terms of display units (sphere is radius=1.0)
-@property (nonatomic,assign) float height;
-/// Radius is in display units
-@property (nonatomic,assign) float radius;
-/// Samples in X and Y
-@property (nonatomic,assign) int sampleX,sampleY;
+	void setLoc(WhirlyKit::GeoCoord value) { loc = value; }
+	WhirlyKit::GeoCoord getLoc() { return loc; }
 
-@end
+	void setHeight(float value) { height = value; }
+	float getHeight() { return height; }
 
-/// This puts a cylinder with its base at the locaton
-@interface WhirlyKitCylinder : WhirlyKitShape
+	void setRadius(float value) { radius = value; }
+	float getRadius() { return radius; }
 
-/// The location for the origin of the shape
-@property (nonatomic,assign) WhirlyKit::GeoCoord &loc;
-/// Height offset from the ground (in display units)
-@property (nonatomic,assign) float baseHeight;
-/// Radius in display units
-@property (nonatomic,assign) float radius;
-/// Height in display units
-@property (nonatomic,assign) float height;
-/// Samples around the outside
-@property (nonatomic,assign) int sampleX;
+	void setSampleX(int value) { sampleX = value; }
+	int getSampleX() { return sampleX; }
+	void setSampleY(int value) { sampleY = value; }
+	int getSampleY() { return sampleY; }
 
-@end
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
 
-/** A linear feature (with width) that we'll draw on
- top of a globe or map.  This is different from the
- vector layer features in that it has exact locations.
- */
-@interface WhirlyKitShapeLinear : WhirlyKitShape
-
-/// Bounding box in local coordinates.
-/// Note: Doesn't take height into account
-@property (nonatomic,assign) WhirlyKit::Mbr mbr;
-/// These locations are in display coordinates
-@property (nonatomic,assign) std::vector<WhirlyKit::Point3f> &pts;
-/// Line width in pixels
-@property (nonatomic,assign) float lineWidth;
-
-@end
-
-/** An extruded shape
-  */
-@interface WhirlyKitShapeExtruded : WhirlyKitShape
-
-/// The location for the origin of the shape
-@property (nonatomic,assign) WhirlyKit::Point3d &loc;
-
-/// Points around the origin defining the shape
-@property (nonatomic,assign) std::vector<WhirlyKit::Point2d> &pts;
-
-/// Thickness of the shape
-@property (nonatomic,assign) double thickness;
-
-/// Transform to apply to this extruded shape before placement
-@property (nonatomic,assign) Eigen::Matrix4d &transform;
-
-@end
+private:
+    WhirlyKit::GeoCoord loc;
+    float height;
+    float radius;
+    int sampleX, sampleY;
+};
 
 /** A simple rectangle.
-  */
-@interface WhirlyKitShapeRectangle : WhirlyKitShape
-
-/// Lower left corner
-@property (nonatomic,assign) WhirlyKit::Point3d &ll;
-
-/// Upper right corner
-@property (nonatomic,assign) WhirlyKit::Point3d &ur;
-
-/// Textures to stretch across the whole thing
-@property (nonatomic,assign) std::vector<WhirlyKit::SimpleIdentity> &texIDs;
-
-@end
-
-namespace WhirlyKit
+ */
+class WhirlyKitRectangle : public WhirlyKitShape
 {
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
+    WhirlyKitRectangle();
+    virtual ~WhirlyKitRectangle();
+
+	void setLL(const Point3d &inLL) { ll = inLL; }
+	Point3d getLL() { return ll; }
+
+	void setUR(const Point3d &inUR) { ur = inUR; }
+	Point3d getUR() { return ur; }
+	
+    void setTexIDs(std::vector<SimpleIdentity> inTexIDs) { texIDs = inTexIDs; }
+
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
+
+private:
+    Point3d ll,ur;
+    std::vector<WhirlyKit::SimpleIdentity> texID;
+};
+
 #define kWKShapeManager "WKShapeManager"
-    
-class GeometryRaw;
+
 
 /** The Shape Manager is used to create and destroy geometry for shapes like circles, cylinders,
-    and so forth.  It's entirely thread safe (except for destruction).
-  */
+ and so forth.  It's entirely thread safe (except for destruction).
+ */
 class ShapeManager : public SceneManager
 {
 public:
     ShapeManager();
     virtual ~ShapeManager();
-    
-    /// Convert shape to raw geometry
-    void convertShape(WhirlyKitShape *shape,std::vector<WhirlyKit::GeometryRaw> &rawGeom);
-    
+
     /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
-    SimpleIdentity addShapes(NSArray *shapes,NSDictionary * desc,ChangeSet &changes);
-    
+    SimpleIdentity addShapes(std::vector<WhirlyKitShape*> shapes, WhirlyKitShapeInfo * shapeInfo,ChangeSet &changes);
+
     /// Remove a group of shapes named by the given ID
     void removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes);
-    
+
     /// Enable/disable a group of shapes
     void enableShapes(SimpleIDSet &shapeIDs,bool enable,ChangeSet &changes);
-    
+
 protected:
     pthread_mutex_t shapeLock;
     ShapeSceneRepSet shapeReps;
 };
-    
+
 }
