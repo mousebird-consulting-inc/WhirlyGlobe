@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/28/11.
- *  Copyright 2011-2017 mousebird consulting. All rights reserved.
+ *  Copyright 2011-2016 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,12 +18,11 @@
  *
  */
 
-#import "NSDictionary+Stuff.h"
-#import "UIColor+Stuff.h"
 #import "GlobeMath.h"
 #import "VectorData.h"
 #import "ShapeDrawableBuilder.h"
 #import "Tesselator.h"
+#import "Scene.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -31,66 +30,37 @@ using namespace WhirlyKit;
 /// Maximum number of triangles we'll stick in a drawable
 //static const int MaxShapeDrawableTris=1<<15/3;
 
-
-@implementation WhirlyKitShapeInfo
-
-// Initialize with an array of shapes and parse out parameters
-- (id)initWithShapes:(NSArray *)inShapes desc:(NSDictionary *)desc;
-{
-    self = [super initWithDesc:desc];
-    
-    if (self)
-    {
-        self.shapes = inShapes;
-        [self parseDesc:desc];
-        
-        _shapeId = Identifiable::genId();
-    }
-    
-    return self;
-}
-
-
-- (void)parseDesc:(NSDictionary *)desc
-{
-    self.color = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    _lineWidth = [desc floatForKey:@"width" default:1.0];
-    _zBufferRead = [desc floatForKey:@"zbufferread" default:true];
-    _zBufferWrite = [desc floatForKey:@"zbufferwrite" default:true];
-    _insideOut = [desc boolForKey:@"shapeinsideout" default:NO];
-    _hasCenter = false;
-    if (desc[@"shapecenterx"] || desc[@"shapecentery"] || desc[@"shapecenterz"])
-    {
-        _hasCenter = true;
-        _center.x() = [desc doubleForKey:@"shapecenterx" default:0.0];
-        _center.y() = [desc doubleForKey:@"shapecentery" default:0.0];
-        _center.z() = [desc doubleForKey:@"shapecenterz" default:0.0];
-    }
-    _renderTargetId = [desc intForKey:@"rendertarget" default:EmptyIdentity];
-}
-
-@end
-
-
 namespace WhirlyKit
 {
-    
-ShapeDrawableBuilder::ShapeDrawableBuilder(CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo,bool linesOrPoints,const Point3d &center)
-        : coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center)
+
+WhirlyKitShapeInfo::WhirlyKitShapeInfo()
+    : color(255,255,255,255), lineWidth(1.0), shapeId(EmptyIdentity), insideOut(false),
+    zBufferRead(true), zBufferWrite(true), hasCenter(false), center(0.0,0.0,0.0)
+{
+    shapeId = Identifiable::genId();
+}
+
+WhirlyKitShapeInfo::~WhirlyKitShapeInfo()
+{
+}
+
+
+ShapeDrawableBuilder::ShapeDrawableBuilder(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo, bool linesOrPoints, const Point3d &center)
+    : coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center)
 {
     primType = (linesOrPoints ? GL_LINES : GL_POINTS);
 }
-    
+
 ShapeDrawableBuilder::~ShapeDrawableBuilder()
 {
     for (unsigned int ii=0;ii<drawables.size();ii++)
         delete drawables[ii];
 }
 
-void ShapeDrawableBuilder::addPoints(std::vector<Point3f> &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed)
+void ShapeDrawableBuilder::addPoints(Point3fVector &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed)
 {
     Point3f center3f(center.x(),center.y(),center.z());
-    
+
     // Decide if we'll appending to an existing drawable or
     //  create a new one
     int ptCount = (int)(2*(pts.size()+1));
@@ -99,19 +69,19 @@ void ShapeDrawableBuilder::addPoints(std::vector<Point3f> &pts,RGBAColor color,M
         // We're done with it, toss it to the scene
         if (drawable)
             flush();
-        
+
         drawable = new BasicDrawable("Shape Manager");
-        [shapeInfo setupBasicDrawable:drawable];
+        shapeInfo->setupBasicDrawable(drawable);
         drawMbr.reset();
         drawable->setType(primType);
         // Adjust according to the vector info
         //            drawable->setColor([shapeInfo.color asRGBAColor]);
         drawable->setLineWidth(lineWidth);
-        drawable->setRequestZBuffer(shapeInfo.zBufferRead);
-        drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
-        drawable->setProgram(shapeInfo.programID);
-        if (shapeInfo.renderTargetId != EmptyIdentity)
-            drawable->setRenderTarget(shapeInfo.renderTargetId);
+        drawable->setRequestZBuffer(shapeInfo->getZBufferRead());
+        drawable->setWriteZBuffer(shapeInfo->getZBufferWrite());
+        drawable->setProgram(shapeInfo->programID);
+        if (shapeInfo->getRenderTarget() != EmptyIdentity)
+            drawable->setRenderTarget(shapeInfo->getRenderTarget());
         if (center.x() != 0.0 || center.y() != 0.0 || center.z() != 0.0)
         {
             Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
@@ -120,7 +90,7 @@ void ShapeDrawableBuilder::addPoints(std::vector<Point3f> &pts,RGBAColor color,M
         }
     }
     drawMbr.expand(mbr);
-    
+
     Point3f prevPt,prevNorm,firstPt,firstNorm;
     for (unsigned int jj=0;jj<pts.size();jj++)
     {
@@ -128,7 +98,7 @@ void ShapeDrawableBuilder::addPoints(std::vector<Point3f> &pts,RGBAColor color,M
         Point3f pt = pts[jj];
         Point3f localPt = coordAdapter->displayToLocal(pt);
         Point3f norm = coordAdapter->normalForLocal(localPt);
-        
+
         // Add to drawable
         // Depending on the type, we do this differently
         if (primType == GL_POINTS)
@@ -152,7 +122,7 @@ void ShapeDrawableBuilder::addPoints(std::vector<Point3f> &pts,RGBAColor color,M
             prevNorm = norm;
         }
     }
-    
+
     // Close the loop
     if (closed && primType == GL_LINES)
     {
@@ -172,11 +142,11 @@ void ShapeDrawableBuilder::flush()
         if (drawable->getNumPoints() > 0)
         {
             drawable->setLocalMbr(drawMbr);
-            
-            if (shapeInfo.fade > 0.0)
+
+            if (shapeInfo->fade > 0.0)
             {
-                NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-                drawable->setFade(curTime,curTime+shapeInfo.fade);
+                TimeInterval curTime = time_t();
+                drawable->setFade(curTime,curTime+shapeInfo->fade);
             }
             drawables.push_back(drawable);
         } else
@@ -185,43 +155,43 @@ void ShapeDrawableBuilder::flush()
     }
 }
 
-void ShapeDrawableBuilder::getChanges(ChangeSet &changeRequests,SimpleIDSet &drawIDs)
+void ShapeDrawableBuilder::getChanges(WhirlyKit::ChangeSet &changes,SimpleIDSet &drawIDs)
 {
     flush();
     for (unsigned int ii=0;ii<drawables.size();ii++)
     {
         BasicDrawable *draw = drawables[ii];
-        changeRequests.push_back(new AddDrawableReq(draw));
+        changes.push_back(new AddDrawableReq(draw));
         drawIDs.insert(draw->getId());
     }
     drawables.clear();
 }
 
 
-ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo,const Point3d &center)
-: coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false)
+ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo, const Point3d &center)
+    : coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false), texID(EmptyIdentity)
 {
 }
-    
+
 ShapeDrawableBuilderTri::~ShapeDrawableBuilderTri()
 {
     for (unsigned int ii=0;ii<drawables.size();ii++)
         delete drawables[ii];
 }
-    
+
 void ShapeDrawableBuilderTri::setupNewDrawable()
 {
     drawable = new BasicDrawable("Shape Layer");
-    [shapeInfo setupBasicDrawable:drawable];
+    shapeInfo->setupBasicDrawable(drawable);
     if (clipCoords)
         drawable->setClipCoords(true);
     drawMbr.reset();
     drawable->setType(GL_TRIANGLES);
     // Adjust according to the vector info
-    drawable->setColor([shapeInfo.color asRGBAColor]);
-    drawable->setRequestZBuffer(shapeInfo.zBufferRead);
-    drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
-    drawable->setProgram(shapeInfo.programID);
+    drawable->setColor(shapeInfo->getColor());
+    drawable->setRequestZBuffer(shapeInfo->getZBufferRead());
+    drawable->setWriteZBuffer(shapeInfo->getZBufferWrite());
+    drawable->setProgram(shapeInfo->programID);
     if (shapeInfo.renderTargetId != EmptyIdentity)
         drawable->setRenderTarget(shapeInfo.renderTargetId);
     int which = 0;
@@ -237,7 +207,7 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
         drawable->setMatrix(&transMat);
     }
 }
-    
+
 void ShapeDrawableBuilderTri::setClipCoords(bool newClipCoords)
 {
     if (clipCoords != newClipCoords)
@@ -260,12 +230,12 @@ void ShapeDrawableBuilderTri::setTexIDs(const std::vector<SimpleIdentity> &newTe
     
     texIDs = newTexIDs;
 }
-    
+
 // Add a triangle with normals
 void ShapeDrawableBuilderTri::addTriangle(Point3f p0,Point3f n0,RGBAColor c0,Point3f p1,Point3f n1,RGBAColor c1,Point3f p2,Point3f n2,RGBAColor c2,Mbr shapeMbr)
 {
     Point3f center3f(center.x(),center.y(),center.z());
-    
+
     if (!drawable ||
         (drawable->getNumPoints()+3 > MaxDrawablePoints) ||
         (drawable->getNumTris()+1 > MaxDrawableTriangles))
@@ -273,7 +243,7 @@ void ShapeDrawableBuilderTri::addTriangle(Point3f p0,Point3f n0,RGBAColor c0,Poi
         // We're done with it, toss it to the scene
         if (drawable)
             flush();
-        
+
         setupNewDrawable();
     }
     Mbr mbr = drawable->getLocalMbr();
@@ -289,13 +259,13 @@ void ShapeDrawableBuilderTri::addTriangle(Point3f p0,Point3f n0,RGBAColor c0,Poi
     drawable->addPoint((Point3f)(p2-center3f));
     drawable->addNormal(n2);
     drawable->addColor(c2);
-    
+
     drawable->addTriangle(BasicDrawable::Triangle(0+baseVert,2+baseVert,1+baseVert));
     drawMbr.expand(shapeMbr);
 }
 
 // Add a triangle with normals and texture coords
-void ShapeDrawableBuilderTri::addTriangle(Point3d p0,Point3d n0,RGBAColor c0,TexCoord tx0,Point3d p1,Point3d n1,RGBAColor c1,TexCoord tx1,Point3d p2,Point3d n2,RGBAColor c2,TexCoord tx2,Mbr shapeMbr)
+void ShapeDrawableBuilderTri::addTriangle(const Point3d &p0,const Point3d &n0,RGBAColor c0,const TexCoord &tx0,const Point3d &p1,const Point3d &n1,RGBAColor c1,const TexCoord &tx1,const Point3d &p2,const Point3d &n2,RGBAColor c2,const TexCoord &tx2,Mbr shapeMbr)
 {
     if (!drawable ||
         (drawable->getNumPoints()+3 > MaxDrawablePoints) ||
@@ -338,7 +308,7 @@ void ShapeDrawableBuilderTri::addTriangle(Point3d p0,Point3d n0,RGBAColor c0,Poi
         // We're done with it, toss it to the scene
         if (drawable)
             flush();
-        
+
         setupNewDrawable();
     }
     Mbr mbr = drawable->getLocalMbr();
@@ -354,13 +324,13 @@ void ShapeDrawableBuilderTri::addTriangle(Point3d p0,Point3d n0,RGBAColor c0,Poi
     drawable->addPoint((Point3d)(p2-center));
     drawable->addNormal(n2);
     drawable->addColor(c2);
-    
+
     drawable->addTriangle(BasicDrawable::Triangle(0+baseVert,2+baseVert,1+baseVert));
     drawMbr.expand(shapeMbr);
 }
 
 // Add a group of pre-build triangles
-void ShapeDrawableBuilderTri::addTriangles(std::vector<Point3f> &pts,std::vector<Point3f> &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris)
+void ShapeDrawableBuilderTri::addTriangles(Point3fVector &pts,Point3fVector &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris)
 {
     if (!drawable ||
         (drawable->getNumPoints()+pts.size() > MaxDrawablePoints) ||
@@ -368,10 +338,10 @@ void ShapeDrawableBuilderTri::addTriangles(std::vector<Point3f> &pts,std::vector
     {
         if (drawable)
             flush();
-        
+
         setupNewDrawable();
     }
-    
+
     int baseVert = drawable->getNumPoints();
     for (unsigned int ii=0;ii<pts.size();ii++)
     {
@@ -379,7 +349,7 @@ void ShapeDrawableBuilderTri::addTriangles(std::vector<Point3f> &pts,std::vector
         drawable->addPoint(Point3d(pt.x()-center.x(),pt.y()-center.y(),pt.z()-center.z()));
         drawable->addNormal(norms[ii]);
         drawable->addColor(colors[ii]);
-    }
+	}
     for (unsigned int ii=0;ii<tris.size();ii++)
     {
         BasicDrawable::Triangle tri = tris[ii];
@@ -388,9 +358,9 @@ void ShapeDrawableBuilderTri::addTriangles(std::vector<Point3f> &pts,std::vector
         drawable->addTriangle(tri);
     }
 }
-    
+
 // Add a convex outline, triangulated
-void ShapeDrawableBuilderTri::addConvexOutline(std::vector<Point3f> &pts,Point3f norm,RGBAColor color,Mbr shapeMbr)
+void ShapeDrawableBuilderTri::addConvexOutline(Point3fVector &pts,Point3f norm,RGBAColor color,Mbr shapeMbr)
 {
     // It's convex, so we'll just triangulate it dumb style
     for (unsigned int ii = 2;ii<pts.size();ii++)
@@ -398,7 +368,7 @@ void ShapeDrawableBuilderTri::addConvexOutline(std::vector<Point3f> &pts,Point3f
 }
 
 // Add a convex outline, triangulated
-void ShapeDrawableBuilderTri::addConvexOutline(std::vector<Point3d> &pts,Point3d norm,RGBAColor color,Mbr shapeMbr)
+void ShapeDrawableBuilderTri::addConvexOutline(Point3dVector &pts,Point3d norm,RGBAColor color,Mbr shapeMbr)
 {
     // It's convex, so we'll just triangulate it dumb style
     for (unsigned int ii = 2;ii<pts.size();ii++)
@@ -406,17 +376,17 @@ void ShapeDrawableBuilderTri::addConvexOutline(std::vector<Point3d> &pts,Point3d
 }
 
 // Add a convex outline with tex coords, triangulated
-void ShapeDrawableBuilderTri::addConvexOutline(std::vector<Point3d> &pts,std::vector<TexCoord> &texCoords,Point3d norm,RGBAColor color,Mbr shapeMbr)
+void ShapeDrawableBuilderTri::addConvexOutline(Point3dVector &pts,std::vector<TexCoord> &texCoords,Point3d norm,RGBAColor color,Mbr shapeMbr)
 {
     // It's convex, so we'll just triangulate it dumb style
     for (unsigned int ii = 2;ii<pts.size();ii++)
         addTriangle(pts[0], norm, color, texCoords[0], pts[ii-1], norm, color, texCoords[ii-1], pts[ii], norm, color, texCoords[ii], shapeMbr);
 }
 
-void ShapeDrawableBuilderTri::addComplexOutline(std::vector<Point3d> &pts,Point3d norm,RGBAColor color,Mbr shapeMbr)
+void ShapeDrawableBuilderTri::addComplexOutline(Point3dVector &pts,Point3d norm,RGBAColor color,Mbr shapeMbr)
 {
     Point3f norm3f(norm.x(),norm.y(),norm.z());
-    
+
     // Note: Deal with doubles
     VectorRing ring;
     ring.resize(pts.size());
@@ -425,7 +395,7 @@ void ShapeDrawableBuilderTri::addComplexOutline(std::vector<Point3d> &pts,Point3
         const Point3d &pt = pts[ii];
         ring[ii] = Point2f(pt.x()-center.x(),pt.y()-center.y());
     }
-    
+
     VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
     TesselateRing(ring,trisRef);
 
@@ -447,11 +417,11 @@ void ShapeDrawableBuilderTri::flush()
         if (drawable->getNumPoints() > 0)
         {
             drawable->setLocalMbr(drawMbr);
-            
-            if (shapeInfo.fade > 0.0)
+
+            if (shapeInfo->fade > 0.0)
             {
-                NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-                drawable->setFade(curTime,curTime+shapeInfo.fade);
+                TimeInterval curTime = time_t(NULL);
+                drawable->setFade(curTime,curTime+shapeInfo->fade);
             }
             drawables.push_back(drawable);
         } else
@@ -459,7 +429,7 @@ void ShapeDrawableBuilderTri::flush()
         drawable = NULL;
     }
 }
-    
+
 void ShapeDrawableBuilderTri::getChanges(ChangeSet &changeRequests,SimpleIDSet &drawIDs)
 {
     flush();
@@ -471,6 +441,5 @@ void ShapeDrawableBuilderTri::getChanges(ChangeSet &changeRequests,SimpleIDSet &
     }
     drawables.clear();
 }
-    
-    
+
 }
