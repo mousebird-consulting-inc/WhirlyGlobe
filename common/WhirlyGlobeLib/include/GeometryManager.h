@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 11/25/14.
- *  Copyright 2012-2017 mousebird consulting
+ *  Copyright 2012-2015 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,18 +24,26 @@
 #import "SelectionManager.h"
 #import "BaseInfo.h"
 
-// Used to pass geometry around internally
-@interface WhirlyKitGeomInfo : WhirlyKitBaseInfo
-@property (nonatomic) UIColor *color;
-@property (nonatomic,assign) int boundingBox;
-@property (nonatomic) float pointSize;
-@property (nonatomic) bool zBufferRead;
-@property (nonatomic) bool zBufferWrite;
-- (id)initWithDesc:(NSDictionary *)desc;
-@end
-
 namespace WhirlyKit
 {
+    
+    typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} GeometryBoundingBox;
+    
+// Used to pass geometry around internally
+class GeometryInfo : public BaseInfo
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
+    GeometryInfo();
+
+    bool colorOverride;
+    RGBAColor color;
+    int boundingBox;
+    float pointSize;
+    bool zBufferRead;
+    bool zBufferWrite;
+};
     
 /** The geometry scene representation keeps track of drawables and other
  resources we've created to represent generic geometry passed in by the
@@ -44,6 +52,8 @@ namespace WhirlyKit
 class GeomSceneRep : public Identifiable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     GeomSceneRep() : fade(0.0) { }
     GeomSceneRep(SimpleIdentity theID) : Identifiable(theID) { }
     
@@ -60,7 +70,7 @@ public:
     float fade;
     
     // Remove the contents of this scene rep
-    void clearContents(SelectionManager *selectManager,ChangeSet &changes,NSTimeInterval removeTime);
+    void clearContents(SelectionManager *selectManager,ChangeSet &changes,TimeInterval when);
     
     // Enable/disable contents
     void enableContents(SelectionManager *selectManager,bool enable,ChangeSet &changes);
@@ -105,7 +115,7 @@ public:
     void calcBounds(Point3d &ll,Point3d &ur);
     
     // Build geometry into a drawable, using the given transform
-    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,WhirlyKitGeomInfo *geomInfo);
+    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,const RGBAColor *colorOverride,GeometryInfo *geomInfo);
 
 public:
     /// What sort of geometry this is
@@ -121,13 +131,15 @@ public:
     /// The triangles, which reference points
     std::vector<RawTriangle> triangles;
     /// A texture ID for the geometry
-    long long texId;
+    int texId;
 };
 
 /// Represents a single Geometry Instance
 class GeometryInstance : public Identifiable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     GeometryInstance() : mat(mat.Identity()), colorOverride(false), selectable(false), duration(0.0) { }
     
     // Center for the instance
@@ -135,7 +147,7 @@ public:
     // End center for the instance
     Point3d endCenter;
     // Duration for the animation
-    NSTimeInterval duration;
+    TimeInterval duration;
     // Rotation etc... for the instance
     Eigen::Matrix4d mat;
     // Set if we're forcing the colors in an instance
@@ -152,6 +164,8 @@ typedef enum {GeomRawIntType,GeomRawFloatType,GeomRawFloat2Type,GeomRawFloat3Typ
 class GeomPointAttrData
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     GeomPointAttrData(GeomRawDataType dataType) : dataType(dataType) { }
     StringIdentity nameID;
     GeomRawDataType dataType;
@@ -241,21 +255,27 @@ public:
     
     // Add an integer to the list of attributes
     void addValue(int idx,int val);
+    void addValues(int idx,const std::vector<int> &vals);
     
     // Add a single float to a list of attributes
     void addValue(int idx,float val);
+    void addValues(int idx,const std::vector<float> &vals);
     
     // Add two floats to a list of attributes
     void addPoint(int idx,const Point2f &pt);
+    void addPoints(int idx,const std::vector<Point2f> &pts);
     
     // Add three floats to a list of attributes
     void addPoint(int idx,const Point3f &pt);
+    void addPoints(int idx,const std::vector<Point3f> &pts);
     
     // Add three doubles to a list of attributes
     void addPoint(int idx,const Point3d &pt);
+    void addPoints(int idx,const std::vector<Point3d> &pts);
     
     // Add four floats to a list of attributes
     void addPoint(int idx,const Eigen::Vector4f &pt);
+    void addPoints(int idx,const std::vector<Eigen::Vector4f> &pts);
     
     // Add an attribute type to the point geometry
     int addAttribute(StringIdentity nameID,GeomRawDataType dataType);
@@ -264,7 +284,7 @@ public:
     int findAttribute(StringIdentity nameID) const;
     
 public:
-    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,WhirlyKitGeomInfo *geomInfo) const;
+    void buildDrawables(std::vector<BasicDrawable *> &draws,const Eigen::Matrix4d &mat,GeometryInfo *geomInfo) const;
     
     std::vector<WhirlyKit::GeomPointAttrData *> attrData;
 };
@@ -278,19 +298,20 @@ class GeometryManager : public SceneManager
 {
 public:
     GeometryManager();
-    ~GeometryManager();
+    virtual ~GeometryManager();
     
     /// Add raw geometry at the given location
-    SimpleIdentity addGeometry(std::vector<GeometryRaw> &geom,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes);
+    SimpleIdentity addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<GeometryInstance *> &instances,GeometryInfo &geomInfo,ChangeSet &changes);
     
     /// Add geometry we're planning to reuse (as a model, for example)
-    SimpleIdentity addBaseGeometry(std::vector<GeometryRaw> &geom,ChangeSet &changes);
+    SimpleIdentity addBaseGeometry(std::vector<GeometryRaw *> &geom,ChangeSet &changes);
+    SimpleIdentity addBaseGeometry(std::vector<GeometryRaw> &inGeom,ChangeSet &changes);
     
     /// Add instances that reuse base geometry
-    SimpleIdentity addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,NSDictionary *desc,ChangeSet &changes);
+    SimpleIdentity addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance *> &instances,GeometryInfo &geomInfo,ChangeSet &changes);
     
     /// Add raw geometry points.
-    SimpleIdentity addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,NSDictionary *desc,ChangeSet &changes);
+    SimpleIdentity addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,GeometryInfo &geomInfo,ChangeSet &changes);
 
     /// Enable/disable active billboards
     void enableGeometry(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);
