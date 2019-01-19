@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/26/11.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,68 +18,56 @@
  *
  */
 
+#import "WhirlyKitLog.h"
 #import "VectorManager.h"
 #import "WhirlyGeometry.h"
-#import "NSDictionary+Stuff.h"
-#import "UIColor+Stuff.h"
 #import "Tesselator.h"
 #import "GridClipper.h"
-#import "BaseInfo.h"
+#import "SharedAttributes.h"
+#import "Platform.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
-typedef enum {TextureProjectionNone,TextureProjectionTanPlane,TextureProjectionScreen} TextureProjections;
-
-@implementation WhirlyKitVectorInfo
-
-- (id)initWithShapes:(ShapeSet *)inShapes desc:(NSDictionary *)desc
-{
-    if ((self = [super initWithDesc:desc]))
-    {
-        if (inShapes)
-            shapes = *inShapes;
-        [self parseDict:desc];
-    }
-    
-    return self;
-}
-
-- (id)initWithDesc:(NSDictionary *)dict
-{
-    if ((self = [super initWithDesc:dict]))
-    {
-        [self parseDict:dict];
-    }
-    
-    return self;
-}
-
-- (void)parseDict:(NSDictionary *)dict
-{
-    drawOffset = [dict floatForKey:@"drawOffset" default:0];
-    self.color = [dict objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    _lineWidth = [dict floatForKey:@"width" default:1.0];
-    filled = [dict boolForKey:@"filled" default:false];
-    sample = [dict floatForKey:@"sample" default:false];
-    texId = [dict intForKey:@"texture" default:EmptyIdentity];
-    texScale.x() = [dict floatForKey:@"texscalex" default:1.0];
-    texScale.y() = [dict floatForKey:@"texscaley" default:1.0];
-    subdivEps = [dict floatForKey:@"subdivisionepsilon" default:0.0];
-    NSString *subdivType = [dict stringForKey:@"subdivisiontype" default:nil];
-    gridSubdiv = [subdivType isEqualToString:@"grid"];
-    NSString *texProjStr = [dict stringForKey:@"texprojection" default:nil];
-    texProj = TextureProjectionNone;
-    if ([texProjStr isEqualToString:@"texprojectiontanplane"])
-        texProj = TextureProjectionTanPlane;
-    else if ([texProjStr isEqualToString:@"texprojectionscreen"])
-        texProj = TextureProjectionScreen;
-}
-
-@end
 
 namespace WhirlyKit
 {
+    
+VectorInfo::VectorInfo()
+: BaseInfo(),     filled(false), sample(0.0), texId(EmptyIdentity), texScale(1.0,1.0), subdivEps(1.0), gridSubdiv(false),
+texProj(TextureProjectionNone), color(255,255,255,255), lineWidth(1.0)
+{    
+}
+    
+// Really Android?  Really?
+template <typename T>
+std::string to_string(T value)
+{
+    std::ostringstream os ;
+    os << value ;
+    return os.str() ;
+}
+
+std::string VectorInfo::toString()
+{
+    std::string outStr = BaseInfo::toString();
+    
+    outStr +=
+    (std::string)"filled = " + (filled ? "yes" : "no") + ";" +
+    " sample = " + to_string(sample) + ";" +
+    " texId = " + to_string(texId) + ";" +
+    " texScale = (" + to_string(texScale.x()) + "," + to_string(texScale.x()) + ");" +
+    " subdivEps = " + to_string(subdivEps) + ";" +
+    " gridSubdiv = " + (gridSubdiv ? "yes" : "no") + ";" +
+    " texProj = " + to_string(texProj) + ";" +
+    " color = (" + to_string((int)color.r) + "," + to_string((int)color.g) + "," + to_string((int)color.b) + "," + to_string((int)color.a) + ");" +
+    " lineWidth = " + to_string(lineWidth) + ";" +
+    " centered = " + (centered ? "yes" : "no") + ";" +
+    " vecCenterSet = " + (vecCenterSet ? "yes" : "no") + ";" +
+    " vecCenter = (" + to_string(vecCenter.x()) + "," + to_string(vecCenter.y()) + ");";
+    
+    return outStr;
+}
     
 void VectorSceneRep::clear(ChangeSet &changes)
 {
@@ -95,8 +83,8 @@ class VectorDrawableBuilder
 {
 public:
     VectorDrawableBuilder(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
-                          WhirlyKitVectorInfo *vecInfo,bool linesOrPoints,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), doColor(doColor), centerValid(false), center(0,0,0), geoCenter(0,0)
+                          const VectorInfo *vecInfo,bool linesOrPoints,bool doColor)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), geoCenter(0,0), doColor(doColor)
     {
         primType = (linesOrPoints ? GL_LINES : GL_POINTS);
     }
@@ -113,7 +101,7 @@ public:
         geoCenter = inGeoCenter;
     }
     
-    void addPoints(VectorRing3d &inPts,bool closed,NSDictionary *attrs)
+    void addPoints(VectorRing3d &inPts,bool closed,Dictionary *attrs)
     {
         VectorRing pts;
         pts.reserve(pts.size());
@@ -122,14 +110,11 @@ public:
         
         addPoints(pts,closed,attrs);
     }
-    
-    void addPoints(VectorRing &pts,bool closed,NSDictionary *attrs)
+
+    void addPoints(VectorRing &pts,bool closed,Dictionary *attrs)
     {
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-        RGBAColor baseColor = [vecInfo.color asRGBAColor];
-        UIColor *ringColor = attrs[@"color"];
-        if ([ringColor isKindOfClass:[UIColor class]])
-            baseColor = [ringColor asRGBAColor];
+        RGBAColor ringColor = attrs->getColor(MaplyColor, vecInfo->color);
         
         // Decide if we'll appending to an existing drawable or
         //  create a new one
@@ -143,10 +128,10 @@ public:
             drawable = new BasicDrawable("Vector Layer");
             drawMbr.reset();
             drawable->setType(primType);
+            vecInfo->setupBasicDrawable(drawable);
             // Adjust according to the vector info
-            [vecInfo setupBasicDrawable:drawable];
-            drawable->setColor(baseColor);
-            drawable->setLineWidth(vecInfo.lineWidth);
+            drawable->setColor(ringColor);
+            drawable->setLineWidth(vecInfo->lineWidth);
         }
         drawMbr.addPoints(pts);
         
@@ -168,7 +153,7 @@ public:
             {
                 drawable->addPoint(pt);
                 if (doColor)
-                    drawable->addColor(baseColor);
+                   drawable->addColor(ringColor);
                 drawable->addNormal(norm);
             } else {
                 if (jj > 0)
@@ -177,8 +162,8 @@ public:
                     drawable->addPoint(pt);
                     if (doColor)
                     {
-                        drawable->addColor(baseColor);
-                        drawable->addColor(baseColor);
+                        drawable->addColor(ringColor);
+                        drawable->addColor(ringColor);
                     }
                     drawable->addNormal(prevNorm);
                     drawable->addNormal(norm);
@@ -198,8 +183,8 @@ public:
             drawable->addPoint(firstPt);
             if (doColor)
             {
-                drawable->addColor(baseColor);
-                drawable->addColor(baseColor);
+                drawable->addColor(ringColor);
+                drawable->addColor(ringColor);
             }
             drawable->addNormal(prevNorm);
             drawable->addNormal(firstNorm);
@@ -221,10 +206,10 @@ public:
                     drawable->setMatrix(&transMat);
                 }
                 
-                if (vecInfo.fade > 0.0)
+                if (vecInfo->fade > 0.0)
                 {
-                    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-                    drawable->setFade(curTime,curTime+vecInfo.fade);
+                    TimeInterval curTime = TimeGetCurrent();
+                    drawable->setFade(curTime,curTime+vecInfo->fade);
                 }
                 changeRequests.push_back(new AddDrawableReq(drawable));
             } else
@@ -240,10 +225,9 @@ protected:
     VectorSceneRep *sceneRep;
     Mbr drawMbr;
     BasicDrawable *drawable;
-    WhirlyKitVectorInfo *vecInfo;
+    const VectorInfo *vecInfo;
     Point3d center;
     Point2d geoCenter;
-    bool applyCenter;
     bool centerValid;
     GLenum primType;
 };
@@ -256,8 +240,8 @@ class VectorDrawableBuilderTri
 {
 public:
     VectorDrawableBuilderTri(Scene *scene,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
-                             WhirlyKitVectorInfo *vecInfo,bool doColor)
-    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), doColor(doColor), centerValid(false), center(0,0,0), geoCenter(0,0)
+                             const VectorInfo *vecInfo,bool doColor)
+    : changeRequests(changeRequests), scene(scene), sceneRep(sceneRep), vecInfo(vecInfo), drawable(NULL), centerValid(false), center(0,0,0), doColor(doColor), geoCenter(0,0)
     {
     }
     
@@ -274,7 +258,7 @@ public:
     }
     
     // This version converts a ring into a mesh (chopping, tesselating, etc...)
-    void addPoints(VectorRing &ring,NSDictionary *attrs)
+    void addPoints(VectorRing &ring,Dictionary *attrs)
     {
         // Grid subdivision is done here
         std::vector<VectorRing> inRings;
@@ -290,7 +274,7 @@ public:
     }
 
     // This version converts a ring into a mesh (chopping, tesselating, etc...)
-    void addPoints(VectorRing3d &inRing,NSDictionary *attrs)
+    void addPoints(VectorRing3d &inRing,Dictionary *attrs)
     {
         VectorRing ring;
         ring.reserve(inRing.size());
@@ -310,20 +294,33 @@ public:
         addPoints(mesh, attrs);
     }
 
-    // If it's a mesh, we're assuming it's been fully processed (triangulated, chopped, and so on)
-    void addPoints(VectorTrianglesRef mesh,NSDictionary *attrs)
+    // This version converts a ring into a mesh (chopping, tesselating, etc...)
+    void addPoints(std::vector<VectorRing> &rings,Dictionary *attrs)
     {
-        RGBAColor baseColor = [vecInfo.color asRGBAColor];
-        UIColor *ringColor = attrs[@"color"];
-        if ([ringColor isKindOfClass:[UIColor class]])
-            baseColor = [ringColor asRGBAColor];
+        // Grid subdivision is done here
+        std::vector<VectorRing> inRings;
+        if (vecInfo->subdivEps > 0.0 && vecInfo->gridSubdiv)
+            for (unsigned int ii=0;ii<rings.size();ii++)
+                ClipLoopToGrid(rings[ii], Point2f(0.0,0.0), Point2f(vecInfo->subdivEps,vecInfo->subdivEps), inRings);
+        else
+            inRings = rings;
+        VectorTrianglesRef mesh(VectorTriangles::createTriangles());
+        TesselateLoops(inRings, mesh);
+        
+        addPoints(mesh, attrs);
+    }
+
+    // If it's a mesh, we're assuming it's been fully processed (triangulated, chopped, and so on)
+    void addPoints(VectorTrianglesRef mesh,Dictionary *attrs)
+    {
+        RGBAColor ringColor = attrs->getColor(MaplyColor, vecInfo->color);
 
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         Point2f centroid(0,0);
-        if (attrs[@"veccenterx"] && attrs[@"veccentery"])
+        if (attrs->hasField(MaplyVecCenterX) && attrs->hasField(MaplyVecCenterY))
         {
-            centroid.x() = [attrs[@"veccenterx"] floatValue];
-            centroid.y() = [attrs[@"veccentery"] floatValue];
+            centroid.x() = attrs->getDouble(MaplyVecCenterX);
+            centroid.y() = attrs->getDouble(MaplyVecCenterY);
         }
         
         for (unsigned int ir=0;ir<mesh->tris.size();ir++)
@@ -345,15 +342,12 @@ public:
                 drawable = new BasicDrawable("Vector Layer");
                 drawMbr.reset();
                 drawable->setType(GL_TRIANGLES);
-                // Adjust according to the vector info
-                [vecInfo setupBasicDrawable:drawable];
-                drawable->setDrawOffset(vecInfo->drawOffset);
-                drawable->setColor([vecInfo.color asRGBAColor]);
+                vecInfo->setupBasicDrawable(drawable);
+                drawable->setColor(ringColor);
                 if (vecInfo->texId != EmptyIdentity)
                     drawable->setTexId(0, vecInfo->texId);
-                if (vecInfo.programID != EmptyIdentity)
-                    drawable->setProgram(vecInfo.programID);
-                //                drawable->setForceZBufferOn(true);
+                if (vecInfo->programID != EmptyIdentity)
+                    drawable->setProgram(vecInfo->programID);
             }
             int baseVert = drawable->getNumPoints();
             drawMbr.addPoints(pts);
@@ -436,7 +430,7 @@ public:
                 
                 drawable->addPoint(pt);
                 if (doColor)
-                    drawable->addColor(baseColor);
+                    drawable->addColor(ringColor);
                 drawable->addNormal(norm);
                 if (doTexCoords)
                 {
@@ -476,10 +470,10 @@ public:
                 }
                 sceneRep->drawIDs.insert(drawable->getId());
                 
-                if (vecInfo.fade > 0.0)
+                if (vecInfo->fade > 0.0)
                 {
-                    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-                    drawable->setFade(curTime,curTime+vecInfo.fade);
+                    TimeInterval curTime = TimeGetCurrent();
+                    drawable->setFade(curTime,curTime+vecInfo->fade);
                 }
                 
                 changeRequests.push_back(new AddDrawableReq(drawable));
@@ -489,7 +483,7 @@ public:
         }
     }
     
-protected:
+protected:   
     bool doColor;
     Scene *scene;
     ChangeSet &changeRequests;
@@ -499,7 +493,7 @@ protected:
     Point2d geoCenter;
     bool centerValid;
     BasicDrawable *drawable;
-    WhirlyKitVectorInfo *vecInfo;
+    const VectorInfo *vecInfo;
 };
 
 VectorManager::VectorManager()
@@ -517,13 +511,9 @@ VectorManager::~VectorManager()
     pthread_mutex_destroy(&vectorLock);
 }
 
-SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, ChangeSet &changes)
+SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vecInfo, ChangeSet &changes)
 {
-    WhirlyKitVectorInfo *vecInfo = [[WhirlyKitVectorInfo alloc] initWithShapes:shapes desc:desc];
-
-    // All the shape types should be the same
-    ShapeSet::iterator first = vecInfo->shapes.begin();
-    if (first == vecInfo->shapes.end())
+    if (shapes->empty())
         return EmptyIdentity;
     
     VectorSceneRep *sceneRep = new VectorSceneRep();
@@ -535,10 +525,9 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     
     // Look for per vector colors
     bool doColors = false;
-    for (ShapeSet::iterator it = vecInfo->shapes.begin();
-         it != vecInfo->shapes.end(); ++it)
+    for (ShapeSet::iterator it = shapes->begin();it != shapes->end(); ++it)
     {
-        if (((*it)->getAttrDict())[@"color"])
+        if ((*it)->getAttrDict()->hasField("color"))
         {
             doColors = true;
             break;
@@ -551,51 +540,55 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     Point3d center(0,0,0);
     bool centerValid = false;
     Point2d geoCenter(0,0);
-    if (desc[@"centered"] && [desc[@"centered"] boolValue])
+    // Note: Should work for the globe, but doesn't
+    if (vecInfo.centered && coordAdapter->isFlat())
     {
         // We might pass in a center
-        if (desc[@"veccenterx"] && desc[@"veccentery"])
+        if (vecInfo.vecCenterSet)
         {
-            geoCenter.x() = [desc[@"veccenterx"] doubleValue];
-            geoCenter.y() = [desc[@"veccentery"] doubleValue];
+            geoCenter.x() = vecInfo.vecCenter.x();
+            geoCenter.y() = vecInfo.vecCenter.y();
             Point3d dispPt = coordAdapter->localToDisplay(coordSys->geographicToLocal(geoCenter));
             center = dispPt;
             centerValid = true;
         } else {
-            // Calculate the center
-            GeoMbr geoMbr;
-            for (ShapeSet::iterator it = vecInfo->shapes.begin();
-                 it != vecInfo->shapes.end(); ++it)
-                geoMbr.expand((*it)->calcGeoMbr());
-            if (geoMbr.valid())
-            {
-                Point3d p0 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ll()));
-                Point3d p1 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ur()));
-                center = (p0+p1)/2.0;
-                centerValid = true;
-            }
+          // Calculate the center
+          GeoMbr geoMbr;
+          for (ShapeSet::iterator it = shapes->begin();it != shapes->end(); ++it)
+              geoMbr.expand((*it)->calcGeoMbr());
+          if (geoMbr.valid())
+          {
+              Point3d p0 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ll()));
+              Point3d p1 = coordAdapter->localToDisplay(coordSys->geographicToLocal3d(geoMbr.ur()));
+              center = (p0+p1)/2.0;
+              centerValid = true;
+          }
         }
     }
     
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
-    VectorDrawableBuilder drawBuild(scene,changes,sceneRep,vecInfo,true,doColors);
+    VectorDrawableBuilder drawBuild(scene,changes,sceneRep,&vecInfo,true,doColors);
     if (centerValid)
         drawBuild.setCenter(center,geoCenter);
-    VectorDrawableBuilderTri drawBuildTri(scene,changes,sceneRep,vecInfo,doColors);
+    VectorDrawableBuilderTri drawBuildTri(scene,changes,sceneRep,&vecInfo,doColors);
     if (centerValid)
         drawBuildTri.setCenter(center,geoCenter);
-    
-    for (ShapeSet::iterator it = vecInfo->shapes.begin();
-         it != vecInfo->shapes.end(); ++it)
+        
+    for (ShapeSet::iterator it = shapes->begin();
+         it != shapes->end(); ++it)
     {
         VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
         if (theAreal.get())
         {
-            if (vecInfo->filled)
+            // Note: Debugging
+//            std::string tileID = (*it)->getAttrDict()->getString("tile");
+//            GeoMbr mbr = theAreal->calcGeoMbr();
+
+            if (vecInfo.filled)
             {
-                // Triangulate the outside
-                drawBuildTri.addPoints(theAreal->loops[0],theAreal->getAttrDict());
+                // Trianglate outside and loops
+                drawBuildTri.addPoints(theAreal->loops,theAreal->getAttrDict());
             } else {
                 // Work through the loops
                 for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
@@ -603,10 +596,10 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                     VectorRing &ring = theAreal->loops[ri];
                     
                     // Break the edges around the globe (presumably)
-                    if (vecInfo->sample > 0.0)
+                    if (vecInfo.sample > 0.0)
                     {
                         VectorRing newPts;
-                        SubdivideEdges(ring, newPts, false, vecInfo->sample);
+                        SubdivideEdges(ring, newPts, false, vecInfo.sample);
                         drawBuild.addPoints(newPts,true,theAreal->getAttrDict());
                     } else
                         drawBuild.addPoints(ring,true,theAreal->getAttrDict());
@@ -616,15 +609,15 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
             VectorLinearRef theLinear = std::dynamic_pointer_cast<VectorLinear>(*it);
             if (theLinear.get())
             {
-                if (vecInfo->filled)
+                if (vecInfo.filled)
                 {
                     // Triangulate the outside
                     drawBuildTri.addPoints(theLinear->pts,theLinear->getAttrDict());
                 } else {
-                    if (vecInfo->sample > 0.0)
+                    if (vecInfo.sample > 0.0)
                     {
                         VectorRing newPts;
-                        SubdivideEdges(theLinear->pts, newPts, false, vecInfo->sample);
+                        SubdivideEdges(theLinear->pts, newPts, false, vecInfo.sample);
                         drawBuild.addPoints(newPts,false,theLinear->getAttrDict());
                     } else
                         drawBuild.addPoints(theLinear->pts,false,theLinear->getAttrDict());
@@ -633,15 +626,15 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                 VectorLinear3dRef theLinear3d = std::dynamic_pointer_cast<VectorLinear3d>(*it);
                 if (theLinear3d.get())
                 {
-                    if (vecInfo->filled)
+                    if (vecInfo.filled)
                     {
                         // Triangulate the outside
                         drawBuildTri.addPoints(theLinear3d->pts,theLinear3d->getAttrDict());
                     } else {
-                        if (vecInfo->sample > 0.0)
+                        if (vecInfo.sample > 0.0)
                         {
                             VectorRing3d newPts;
-                            SubdivideEdges(theLinear3d->pts, newPts, false, vecInfo->sample);
+                            SubdivideEdges(theLinear3d->pts, newPts, false, vecInfo.sample);
                             drawBuild.addPoints(newPts,false,theLinear3d->getAttrDict());
                         } else
                             drawBuild.addPoints(theLinear3d->pts,false,theLinear3d->getAttrDict());
@@ -650,7 +643,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
                     VectorTrianglesRef theMesh = std::dynamic_pointer_cast<VectorTriangles>(*it);
                     if (theMesh.get())
                     {
-                        if (vecInfo->filled)
+                        if (vecInfo.filled)
                             drawBuildTri.addPoints(theMesh,theMesh->getAttrDict());
                         else {
                             for (unsigned int ti=0;ti<theMesh->tris.size();ti++)
@@ -683,8 +676,8 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, NSDictionary *desc, C
     
     return vecID;
 }
-    
-SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes)
+
+SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes)
 {
     SimpleIdentity newId = EmptyIdentity;
     
@@ -704,33 +697,17 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,NSDictionary 
             BasicDrawableInstance *drawInst = new BasicDrawableInstance("VectorManager",*idIt,BasicDrawableInstance::ReuseStyle);
             
             // Changed color
-            if ([desc objectForKey:@"color"]) {
-                RGBAColor newColor = [[desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]] asRGBAColor];
-                drawInst->setColor(newColor);
-            }
-            
+            drawInst->setColor(vecInfo.color);
+
             // Changed visibility
-            if ([desc objectForKey:@"minVis"] || [desc objectForKey:@"maxVis"]) {
-                float minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-                float maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
-                drawInst->setVisibleRange(minVis, maxVis);
-            }
+            drawInst->setVisibleRange(vecInfo.minVis, vecInfo.maxVis);
             
             // Changed line width
-            if ([desc objectForKey:@"width"]) {
-                float lineWidth = [desc floatForKey:@"width" default:1.0];
-                drawInst->setLineWidth(lineWidth);
-            }
+            drawInst->setLineWidth(vecInfo.lineWidth);
             
             // Changed draw priority
-            if ([desc objectForKey:@"drawPriority"] || [desc objectForKey:@"priority"]) {
-                int priority = [desc intForKey:@"drawPriority" default:0];
-                // This looks like an old bug
-                priority = [desc intForKey:@"priority" default:priority];
-                drawInst->setDrawPriority(priority);
-            }
+            drawInst->setDrawPriority(vecInfo.drawPriority);
 
-            // Note: Should set fade
             newSceneRep->instIDs.insert(drawInst->getId());
             changes.push_back(new AddDrawableReq(drawInst));
         }
@@ -744,7 +721,7 @@ SimpleIdentity VectorManager::instanceVectors(SimpleIdentity vecID,NSDictionary 
     return newId;
 }
 
-void VectorManager::changeVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes)
+void VectorManager::changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes)
 {
     pthread_mutex_lock(&vectorLock);
     
@@ -760,36 +737,17 @@ void VectorManager::changeVectors(SimpleIdentity vecID,NSDictionary *desc,Change
 
         for (SimpleIDSet::iterator idIt = allIDs.begin();idIt != allIDs.end(); ++idIt)
         {
-            // Turned it on or off
-            if ([desc objectForKey:@"enable"])
-                changes.push_back(new OnOffChangeRequest(*idIt, [desc boolForKey:@"enable" default:YES]));
-            
             // Changed color
-            if ([desc objectForKey:@"color"]) {
-                RGBAColor newColor = [[desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]] asRGBAColor];
-                changes.push_back(new ColorChangeRequest(*idIt, newColor));
-            }
+            changes.push_back(new ColorChangeRequest(*idIt, vecInfo.color));
             
             // Changed visibility
-            if ([desc objectForKey:@"minVis"] || [desc objectForKey:@"maxVis"]) {
-                float minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-                float maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
-                changes.push_back(new VisibilityChangeRequest(*idIt, minVis, maxVis));
-            }
+            changes.push_back(new VisibilityChangeRequest(*idIt, vecInfo.minVis, vecInfo.maxVis));
             
             // Changed line width
-            if ([desc objectForKey:@"width"]) {
-                float lineWidth = [desc floatForKey:@"width" default:1.0];
-                changes.push_back(new LineWidthChangeRequest(*idIt, lineWidth));
-            }
+            changes.push_back(new LineWidthChangeRequest(*idIt, vecInfo.lineWidth));
             
             // Changed draw priority
-            if ([desc objectForKey:@"drawPriority"] || [desc objectForKey:@"priority"]) {
-                int priority = [desc intForKey:@"drawPriority" default:0];
-                // This looks like an old bug
-                priority = [desc intForKey:@"priority" default:priority];
-                changes.push_back(new DrawPriorityChangeRequest(*idIt, priority));
-            }
+            changes.push_back(new DrawPriorityChangeRequest(*idIt, vecInfo.drawPriority));
         }
     }
     
@@ -800,12 +758,12 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
     pthread_mutex_lock(&vectorLock);
     
+    TimeInterval curTime = TimeGetCurrent();
     for (SimpleIDSet::iterator vit = vecIDs.begin(); vit != vecIDs.end(); ++vit)
     {
         VectorSceneRep dummyRep(*vit);
         VectorSceneRepSet::iterator it = vectorReps.find(&dummyRep);
         
-        NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
         if (it != vectorReps.end())
         {
             VectorSceneRep *sceneRep = *it;
@@ -813,20 +771,21 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
             SimpleIDSet allIDs = sceneRep->drawIDs;
             allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
 
-            NSTimeInterval removeTime = 0.0;
+            TimeInterval removeTime = 0.0;
             if (sceneRep->fade > 0.0)
             {
                 for (SimpleIDSet::iterator idIt = allIDs.begin();
                      idIt != allIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+sceneRep->fade));
-
+                
                 removeTime = curTime + sceneRep->fade;
             }
             
             for (SimpleIDSet::iterator idIt = allIDs.begin();
                  idIt != allIDs.end(); ++idIt)
-                changes.push_back(new RemDrawableReq(*idIt,removeTime));
+                changes.push_back(new RemDrawableReq(*idIt));
             vectorReps.erase(it);
+            
             delete sceneRep;
         }
     }

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/22/13.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,36 +22,12 @@
 #import <vector>
 #import <set>
 #import <map>
-#import <Foundation/Foundation.h>
 #import "BasicDrawable.h"
-#import "DataLayer.h"
 #import "VectorData.h"
 #import "GlobeMath.h"
-#import "LayerThread.h"
-
-
-// Used to describe the drawable we'll construct for a given vector
-@interface WhirlyKitVectorInfo : WhirlyKitBaseInfo
-{
-@public
-    // For creation request, the shapes
-    ShapeSet                    shapes;
-    float                       drawOffset;
-    BOOL                        filled;
-    float                       sample;
-    SimpleIdentity              texId;
-    Point2f                     texScale;
-    float                       subdivEps;
-    BOOL                        gridSubdiv;
-    TextureProjections          texProj;
-}
-
-@property (nonatomic) UIColor *color;
-@property (nonatomic,assign) float lineWidth;
-
-- (void)parseDict:(NSDictionary *)dict;
-
-@end
+#import "Dictionary.h"
+#import "Scene.h"
+#import "BaseInfo.h"
 
 namespace WhirlyKit
 {
@@ -79,8 +55,36 @@ public:
 };
 typedef std::set<VectorSceneRep *,IdentifiableSorter> VectorSceneRepSet;
 
-#define kWKVectorManager "WKVectorManager"
+typedef enum {TextureProjectionNone,TextureProjectionTanPlane,TextureProjectionScreen} TextureProjections;
+
+// Used to describe the drawable we'll construct for a given vector
+class VectorInfo : public BaseInfo
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
+    VectorInfo();
+    VectorInfo(const Dictionary &dict);
+    
+    // Convert contents to a string for debugging
+    virtual std::string toString();
+    
+    bool                        filled;
+    float                       sample;
+    SimpleIdentity              texId;
+    Point2f                     texScale;
+    float                       subdivEps;
+    bool                        gridSubdiv;
+    TextureProjections          texProj;
+    RGBAColor                   color;
+    float                       lineWidth;
+    bool                        centered;
+    bool                        vecCenterSet;
+    Point2f                     vecCenter;
+};
+
+#define kWKVectorManager "WKVectorManager"
+
 /** The Vector Manager is used to create and destroy geometry associated with
     vector display.  It's entirely thread safe (except for destruction).
   */
@@ -91,14 +95,14 @@ public:
     virtual ~VectorManager();
     
     /// Add an array of vectors.  The returned ID can be used for removal.
-    SimpleIdentity addVectors(ShapeSet *shapes,NSDictionary *desc,ChangeSet &changes);
+    SimpleIdentity addVectors(ShapeSet *shapes,const VectorInfo &desc,ChangeSet &changes);
     
     /// Change the vector(s) represented by the given ID
-    void changeVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes);
+    void changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes);
     
-    /// Make an instance of the give vectors with the given attributes and return an ID to identify them.
-    SimpleIdentity instanceVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes);
-    
+    /// Make an instance of the given vectors with the given attributes and return an ID to identify them.
+    SimpleIdentity instanceVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes);
+
     /// Remove a group of vectors associated with the given ID
     void removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes);
     
@@ -109,5 +113,5 @@ protected:
     pthread_mutex_t vectorLock;
     VectorSceneRepSet vectorReps;
 };
-    
+
 }
