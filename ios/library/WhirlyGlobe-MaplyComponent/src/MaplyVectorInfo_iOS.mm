@@ -1,5 +1,5 @@
 /*
- *  MaplyVectorChunkInfo_iOS_private.h
+ *  MaplyVectorInfo_iOS_private.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/18/19.

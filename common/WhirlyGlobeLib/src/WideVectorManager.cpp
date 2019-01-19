@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/29/14.
- *  Copyright 2011-2017 mousebird consulting.
+ *  Copyright 2011-2016 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,41 +19,20 @@
  */
 
 #import "WideVectorManager.h"
-#import "NSDictionary+Stuff.h"
-#import "UIColor+Stuff.h"
 #import "FlatMath.h"
+#import "SharedAttributes.h"
+#import "WhirlyKitLog.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
 
-@implementation WhirlyKitWideVectorInfo
-
-- (id)initWithDesc:(NSDictionary *)desc
-{
-    self = [super initWithDesc:desc];
-    [self parseDesc:desc];
-    
-    return self;
-}
-
-- (void)parseDesc:(NSDictionary *)desc
-{
-    _color = [desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]];
-    _width = [desc floatForKey:@"width" default:2.0];
-    _coordType = (WhirlyKit::WideVectorCoordsType)[desc enumForKey:@"wideveccoordtype" values:@[@"real",@"screen"] default:WideVecCoordScreen];
-    _joinType = (WhirlyKit::WideVectorLineJoinType)[desc enumForKey:@"wideveclinejointype" values:@[@"miter",@"round",@"bevel"] default:WideVecMiterJoin];
-    _capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
-    _texID = [desc intForKey:@"texture" default:EmptyIdentity];
-    _repeatSize = [desc floatForKey:@"repeatSize" default:(_coordType == WideVecCoordScreen ? 32 : 6371000.0 / 20)];
-    _edgeSize = [desc floatForKey:@"edgefalloff" default:1.0];
-    _miterLimit = [desc floatForKey:@"miterLimit" default:2.0];
-    _texSnap = [desc boolForKey:@"texsnap" default:false];
-}
-
-@end
-
 namespace WhirlyKit
 {
+WideVectorInfo::WideVectorInfo()
+    : BaseInfo(), color(255,255,255,255),width(2.0),repeatSize(32),edgeSize(1.0),coordType(WideVecCoordScreen),joinType(WideVecMiterJoin),
+    capType(WideVecButtCap),texID(EmptyIdentity),miterLimit(2.0)
+{
+}
 
 // Turn this on for smaller texture lengths
 //#define TEXTURE_RESET 1
@@ -61,7 +40,7 @@ namespace WhirlyKit
 class WideVectorBuilder
 {
 public:
-    WideVectorBuilder(WhirlyKitWideVectorInfo *vecInfo,const Point3d &localCenter,const Point3d &dispCenter,const RGBAColor inColor,bool makeTurns,CoordSystemDisplayAdapter *coordAdapter)
+    WideVectorBuilder(const WideVectorInfo *vecInfo,const Point3d &localCenter,const Point3d &dispCenter,const RGBAColor inColor,bool makeTurns,CoordSystemDisplayAdapter *coordAdapter)
     : vecInfo(vecInfo), angleCutoff(DegToRad(30.0)), texOffset(0.0), edgePointsValid(false), coordAdapter(coordAdapter), localCenter(localCenter), dispCenter(dispCenter), makeDistinctTurn(makeTurns)
     {
 //        color = [vecInfo.color asRGBAColor];
@@ -321,9 +300,9 @@ public:
         // Note: Always doing bevel case (sort of)
         if (iPtsValid && buildJunction)
         {
-            WideVectorLineJoinType joinType = vecInfo.joinType;
+            WideVectorLineJoinType joinType = vecInfo->joinType;
             // Switch to a miter join if the angle is too great for a bevel
-            if (joinType == WideVecMiterJoin && angleBetween < (M_PI-vecInfo.miterLimit*M_PI/180.0))
+            if (joinType == WideVecMiterJoin && angleBetween < (M_PI-vecInfo->miterLimit*M_PI/180.0))
                 joinType = WideVecBevelJoin;
             
             switch (joinType)
@@ -468,7 +447,7 @@ public:
         }
     }
 
-    WhirlyKitWideVectorInfo *vecInfo;
+    const WideVectorInfo *vecInfo;
     CoordSystemDisplayAdapter *coordAdapter;
     RGBAColor color;
     Point3d localCenter,dispCenter;
@@ -477,7 +456,7 @@ public:
     
     double texOffset;
 
-    std::vector<Point3d> pts;
+    Point3dVector pts;
     Point3d lastUp;
     
     bool edgePointsValid;
@@ -489,7 +468,7 @@ public:
 class WideVectorDrawableBuilder
 {
 public:
-    WideVectorDrawableBuilder(Scene *scene,WhirlyKitWideVectorInfo *vecInfo)
+    WideVectorDrawableBuilder(Scene *scene,const WideVectorInfo *vecInfo)
     : scene(scene), vecInfo(vecInfo), drawable(NULL), centerValid(false), localCenter(0,0,0), dispCenter(0,0,0)
     {
         coordAdapter = scene->getCoordAdapter();
@@ -521,19 +500,19 @@ public:
             int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
             WideVectorDrawable *wideDrawable = new WideVectorDrawable("Widen Vector",ptAlloc,triAlloc,!scene->getCoordAdapter()->isFlat());
             drawable = wideDrawable;
-            drawable->setProgram(vecInfo.programID);
-            wideDrawable->setTexRepeat(vecInfo.repeatSize);
-            wideDrawable->setEdgeSize(vecInfo.edgeSize);
-            wideDrawable->setLineWidth(vecInfo.width);
-            if (vecInfo.coordType == WideVecCoordReal)
-                wideDrawable->setRealWorldWidth(vecInfo.width);
+            drawable->setProgram(vecInfo->programID);
+            wideDrawable->setTexRepeat(vecInfo->repeatSize);
+            wideDrawable->setEdgeSize(vecInfo->edgeSize);
+            wideDrawable->setLineWidth(vecInfo->width);
+            if (vecInfo->coordType == WideVecCoordReal)
+                wideDrawable->setRealWorldWidth(vecInfo->width);
             
 //            drawMbr.reset();
             drawable->setType(GL_TRIANGLES);
-            [vecInfo setupBasicDrawable:drawable];
-            drawable->setColor([vecInfo.color asRGBAColor]);
-            if (vecInfo.texID != EmptyIdentity)
-                drawable->setTexId(0, vecInfo.texID);
+            vecInfo->setupBasicDrawable(drawable);
+            drawable->setColor(vecInfo->color);
+            if (vecInfo->texID != EmptyIdentity)
+                drawable->setTexId(0, vecInfo->texID);
             if (centerValid)
             {
                 Eigen::Affine3d trans(Eigen::Translation3d(dispCenter.x(),dispCenter.y(),dispCenter.z()));
@@ -568,10 +547,10 @@ public:
                 }
             }
         }
-
-        RGBAColor color = [vecInfo.color asRGBAColor];
+ 
+        RGBAColor color = vecInfo->color;
         WideVectorBuilder vecBuilder(vecInfo,localCenter,dispCenter,color,makeDistinctTurns,coordAdapter);
-        
+
         // Guess at how many points and triangles we'll need
         int totalTriCount = (int)(5*pts.size());
         int totalPtCount = totalTriCount * 3;
@@ -625,7 +604,7 @@ public:
         pts.push_back(GeoCoord(0,0));
         pts.push_back(GeoCoord(1,0));
         
-        RGBAColor color = [vecInfo.color asRGBAColor];
+        RGBAColor color = vecInfo->color;
         WideVectorBuilder vecBuilder(vecInfo,Point3d(0,0,0),Point3d(0,0,0),color,false,coordAdapter);
         
         for (unsigned int ii=0;ii<pts.size();ii++)
@@ -656,9 +635,9 @@ public:
             return NULL;
         
         NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
-
+        
         WideVectorSceneRep *sceneRep = new WideVectorSceneRep();
-        sceneRep->fade = vecInfo.fade;
+        sceneRep->fade = vecInfo->fade;
         for (unsigned int ii=0;ii<drawables.size();ii++)
         {
             BasicDrawable *drawable = drawables[ii];
@@ -691,7 +670,7 @@ protected:
     Scene *scene;
     CoordSystemDisplayAdapter *coordAdapter;
     CoordSystem *coordSys;
-    WhirlyKitWideVectorInfo *vecInfo;
+    const WideVectorInfo *vecInfo;
     BasicDrawable *drawable;
     std::vector<BasicDrawable *> drawables;
 };
@@ -719,7 +698,7 @@ void WideVectorSceneRep::enableContents(bool enable,ChangeSet &changes)
         changes.push_back(new OnOffChangeRequest(*it,enable));
 }
 
-void WideVectorSceneRep::clearContents(ChangeSet &changes,NSTimeInterval when)
+void WideVectorSceneRep::clearContents(ChangeSet &changes,TimeInterval when)
 {
     SimpleIDSet allIDs = drawIDs;
     allIDs.insert(instIDs.begin(),instIDs.end());
@@ -742,11 +721,9 @@ WideVectorManager::~WideVectorManager()
     sceneReps.clear();
 }
     
-SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,NSDictionary *desc,ChangeSet &changes)
+SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,const WideVectorInfo &vecInfo,ChangeSet &changes)
 {
-    WhirlyKitWideVectorInfo *vecInfo = [[WhirlyKitWideVectorInfo alloc] initWithDesc:desc];
-    
-    WideVectorDrawableBuilder builder(scene,vecInfo);
+    WideVectorDrawableBuilder builder(scene,&vecInfo);
     
     // Calculate a center for this geometry
     GeoMbr geoMbr;
@@ -829,7 +806,7 @@ void WideVectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet 
     pthread_mutex_unlock(&vecLock);
 }
     
-SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes)
+SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const WideVectorInfo &vecInfo,ChangeSet &changes)
 {
     SimpleIdentity newId = EmptyIdentity;
     
@@ -847,33 +824,21 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,NSDiction
         {
             // Make up a BasicDrawableInstance
             BasicDrawableInstance *drawInst = new BasicDrawableInstance("WideVectorManager",*idIt,BasicDrawableInstance::ReuseStyle);
+
+            // Changed enable
+            drawInst->setEnable(vecInfo.enable);
             
             // Changed color
-            if ([desc objectForKey:@"color"]) {
-                RGBAColor newColor = [[desc objectForKey:@"color" checkType:[UIColor class] default:[UIColor whiteColor]] asRGBAColor];
-                drawInst->setColor(newColor);
-            }
+            drawInst->setColor(vecInfo.color);
             
             // Changed visibility
-            if ([desc objectForKey:@"minVis"] || [desc objectForKey:@"maxVis"]) {
-                float minVis = [desc floatForKey:@"minVis" default:DrawVisibleInvalid];
-                float maxVis = [desc floatForKey:@"maxVis" default:DrawVisibleInvalid];
-                drawInst->setVisibleRange(minVis, maxVis);
-            }
+            drawInst->setVisibleRange(vecInfo.minVis, vecInfo.maxVis);
             
             // Changed line width
-            if ([desc objectForKey:@"width"]) {
-                float lineWidth = [desc floatForKey:@"width" default:1.0];
-                drawInst->setLineWidth(lineWidth);
-            }
+            drawInst->setLineWidth(vecInfo.width);
             
             // Changed draw priority
-            if ([desc objectForKey:@"drawPriority"] || [desc objectForKey:@"priority"]) {
-                int priority = [desc intForKey:@"drawPriority" default:0];
-                // This looks like an old bug
-                priority = [desc intForKey:@"priority" default:priority];
-                drawInst->setDrawPriority(priority);
-            }
+            drawInst->setDrawPriority(vecInfo.drawPriority);
             
             // Note: Should set fade
             newSceneRep->instIDs.insert(drawInst->getId());
@@ -893,16 +858,16 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
     pthread_mutex_lock(&vecLock);
     
+    TimeInterval curTime = TimeGetCurrent();
     for (SimpleIDSet::iterator vit = vecIDs.begin();vit != vecIDs.end();++vit)
     {
         WideVectorSceneRep dummyRep(*vit);
         WideVectorSceneRepSet::iterator it = sceneReps.find(&dummyRep);
-        NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
         if (it != sceneReps.end())
         {
             WideVectorSceneRep *sceneRep = *it;
-            
-            NSTimeInterval removeTime = 0.0;
+
+            TimeInterval removeTime = 0.0;
             if (sceneRep->fade > 0.0)
             {
                 SimpleIDSet allIDs = sceneRep->drawIDs;
@@ -910,7 +875,7 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
                 for (SimpleIDSet::iterator it = allIDs.begin();
                      it != allIDs.end(); ++it)
                     changes.push_back(new FadeChangeRequest(*it, curTime, curTime+sceneRep->fade));
-
+                
                 removeTime = curTime + sceneRep->fade;
             }
             

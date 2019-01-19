@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/29/14.
- *  Copyright 2011-2017 mousebird consulting.
+ *  Copyright 2011-2016 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
 #import "Scene.h"
 #import "SelectionManager.h"
 #import "VectorData.h"
+#import "Dictionary.h"
 #import "BaseInfo.h"
 
 namespace WhirlyKit
@@ -41,30 +42,23 @@ typedef enum {WideVecMiterJoin,WideVecRoundJoin,WideVecBevelJoin} WideVectorLine
 /// How the lines begin and end.  See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
 typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCapType;
     
-}
-
 /** Used to pass parameters for the wide vectors around.
   */
-@interface WhirlyKitWideVectorInfo : WhirlyKitBaseInfo
-
-@property (nonatomic) UIColor *color;
-@property (nonatomic,assign) float width;
-@property (nonatomic,assign) float repeatSize;
-@property (nonatomic,assign) float edgeSize;
-@property (nonatomic,assign) WhirlyKit::WideVectorCoordsType coordType;
-@property (nonatomic,assign) WhirlyKit::WideVectorLineJoinType joinType;
-@property (nonatomic,assign) WhirlyKit::WideVectorLineCapType capType;
-@property (nonatomic,assign) WhirlyKit::SimpleIdentity texID;
-@property (nonatomic,assign) float miterLimit;
-@property (nonatomic,assign) bool texSnap;
-
-- (void)parseDesc:(NSDictionary *)desc;
-
-@end
-
-
-namespace WhirlyKit
+class WideVectorInfo : public BaseInfo
 {
+public:
+    WideVectorInfo();
+
+    RGBAColor color;
+    float width;
+    float repeatSize;
+    float edgeSize;
+    WideVectorCoordsType coordType;
+    WideVectorLineJoinType joinType;
+    WideVectorLineCapType capType;
+    SimpleIdentity texID;
+    float miterLimit;
+};
     
 /// Used to track the
 class WideVectorSceneRep : public Identifiable
@@ -75,7 +69,7 @@ public:
     ~WideVectorSceneRep();
     
     void enableContents(bool enable,ChangeSet &changes);
-    void clearContents(ChangeSet &changes,NSTimeInterval when);
+    void clearContents(ChangeSet &changes,TimeInterval when);
     
     SimpleIDSet drawIDs;
     SimpleIDSet instIDs;    // Instances if we're doing that
@@ -96,13 +90,13 @@ public:
     virtual ~WideVectorManager();
 
     /// Add widened vectors for display
-    SimpleIdentity addVectors(ShapeSet *shapes,NSDictionary *desc,ChangeSet &changes);
+    SimpleIdentity addVectors(ShapeSet *shapes,const WideVectorInfo &desc,ChangeSet &changes);
 
     /// Enable/disable active vectors
     void enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes);
     
     /// Make an instance of the give vectors with the given attributes and return an ID to identify them.
-    SimpleIdentity instanceVectors(SimpleIdentity vecID,NSDictionary *desc,ChangeSet &changes);
+    SimpleIdentity instanceVectors(SimpleIdentity vecID,const WideVectorInfo &desc,ChangeSet &changes);
     
     /// Remove a gruop of vectors named by the given ID
     void removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes);
