@@ -28,10 +28,6 @@
 #import "Scene.h"
 #import "ScreenSpaceBuilder.h"
 
-@class WhirlyKitSceneRendererES;
-@class WhirlyGlobeViewState;
-@class MaplyViewState;
-
 namespace WhirlyKit
 {
     
@@ -57,7 +53,9 @@ public:
   */
 class RectSelectable3D : public Selectable
 {
-public:    
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     RectSelectable3D() : Selectable() { }
     RectSelectable3D(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
@@ -74,6 +72,8 @@ typedef std::set<WhirlyKit::RectSelectable3D> RectSelectable3DSet;
 class PolytopeSelectable : public Selectable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     PolytopeSelectable() : Selectable() { }
     PolytopeSelectable(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
@@ -90,6 +90,8 @@ typedef std::set<WhirlyKit::PolytopeSelectable> PolytopeSelectableSet;
 class MovingPolytopeSelectable : public PolytopeSelectable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     MovingPolytopeSelectable() : PolytopeSelectable() { }
     MovingPolytopeSelectable(SimpleIdentity theID) : PolytopeSelectable(theID) { }
     // Comparison operator for sorting
@@ -107,6 +109,8 @@ typedef std::set<WhirlyKit::MovingPolytopeSelectable> MovingPolytopeSelectableSe
 class LinearSelectable : public Selectable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     LinearSelectable() : Selectable() { }
     LinearSelectable(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
@@ -122,6 +126,8 @@ typedef std::set<WhirlyKit::LinearSelectable> LinearSelectableSet;
 class RectSelectable2D : public Selectable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     RectSelectable2D() : Selectable() { }
     RectSelectable2D(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
@@ -138,6 +144,8 @@ typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
 class MovingRectSelectable2D : public RectSelectable2D
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     MovingRectSelectable2D() : RectSelectable2D() { }
     MovingRectSelectable2D(SimpleIdentity theID) : RectSelectable2D(theID) { }
     
@@ -154,6 +162,8 @@ typedef std::set<WhirlyKit::MovingRectSelectable2D> MovingRectSelectable2DSet;
 class BillboardSelectable : public Selectable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     BillboardSelectable() : Selectable() { }
     BillboardSelectable(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
@@ -182,6 +192,8 @@ typedef std::set<WhirlyKit::BillboardSelectable> BillboardSelectableSet;
 class SelectionManager : public SceneManager
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Pass in the content scaling (not 1.0 if we're on retina)
     SelectionManager(Scene *scene,float viewScale);
     ~SelectionManager();
@@ -192,10 +204,10 @@ public:
     public:
         SelectedObject(SimpleIdentity selectID,double distIn3D,double screenDist) : distIn3D(distIn3D), screenDist(screenDist) { selectIDs.push_back(selectID); }
         SelectedObject(const std::vector<SimpleIdentity> &selectIDs,double distIn3D,double screenDist) : selectIDs(selectIDs), distIn3D(distIn3D), screenDist(screenDist) { }
-        bool isCluster;             // Set if this is a cluster
         std::vector<SimpleIdentity> selectIDs;    // What we selected.  If it was a cluster, could be more than one
         double distIn3D;            // 3D distance from eye
         double screenDist;          // 2D distance in screen space
+        bool isCluster;             // Set if this is a cluster
     };
 
     /// Add a rectangle (in 3-space) for selection
@@ -256,13 +268,16 @@ public:
     class PlacementInfo
     {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
         PlacementInfo(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer);
         
         WhirlyGlobeView *globeView;
         MaplyView *mapView;
         WhirlyKitViewState *viewState;
-        WhirlyGlobeViewState *globeViewState;
-        MaplyViewState *mapViewState;
+        // Note: Put these back
+//        WhirlyGlobe::GlobeViewState *globeViewState;
+//        Maply::MapViewState *mapViewState;
         
         double heightAboveSurface;
         Eigen::Matrix4d viewMat,modelMat,viewAndModelMat,viewAndModelInvMat,viewModelNormalMat,projMat,modelInvMat;
