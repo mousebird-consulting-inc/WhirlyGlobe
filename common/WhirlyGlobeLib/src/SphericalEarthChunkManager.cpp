@@ -1,9 +1,9 @@
 /*
- *  SphericalEarthChunkManager.mm
+ *  SphericalEarthChunkManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/23/13.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,37 +20,27 @@
 
 #import <queue>
 #import <set>
-#import "UIColor+stuff.h"
+#import "DynamicTextureAtlas.h"
+#import "DynamicDrawableAtlas.h"
 #import "SphericalEarthChunkManager.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
-using namespace WhirlyKit;
 
-@implementation WhirlyKitSphericalChunk
-
-- (id)init
+namespace WhirlyKit
 {
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    // Adaptive sample is the default
-    _sampleX = _sampleY = 12;
-    _minSampleX = _minSampleY = 1;
-    _eps = 0.0005;
-    _color = [UIColor whiteColor];
-    _minVis = DrawVisibleInvalid;
-    _maxVis = DrawVisibleInvalid;
-    _readZBuffer = false;
-    _writeZBuffer = true;
-    
-    return self;
+
+SphericalChunk::SphericalChunk()
+    : imageFormat(WKTileIntRGBA),loadImage(NULL),programID(EmptyIdentity),
+    sampleX(12), sampleY(12), minSampleX(1), minSampleY(1), eps(0.0005),
+    rotation(0.0), coordSys(NULL)
+{
 }
 
 static const float SkirtFactor = 0.95;
 
 // Helper routine for constructing the skirt around a tile
-- (void)buildSkirt:(BasicDrawable *)draw pts:(std::vector<Point3f> &)pts tex:(std::vector<TexCoord> &)texCoords
+void SphericalChunk::buildSkirt(BasicDrawable *draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo)
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {
@@ -70,8 +60,7 @@ static const float SkirtFactor = 0.95;
         for (unsigned int jj=0;jj<4;jj++)
         {
             draw->addPoint(corners[jj]);
-            Point3f norm = (pts[ii]+pts[ii+1])/2.0;
-            draw->addNormal(norm);
+            draw->addNormal((Point3f)((pts[ii]+pts[ii+1])/2.f));
             TexCoord texCoord = cornerTex[jj];
             draw->addTexCoord(0,texCoord);
         }
@@ -83,14 +72,14 @@ static const float SkirtFactor = 0.95;
 }
 
 // Calculate a reasonable sample size based on the four corners passed in
-- (void)calcSampleX:(int &)thisSampleX sampleY:(int &)thisSampleY fromPoints:(Point3f *)dispPts
+void SphericalChunk::calcSampleX(int &thisSampleX,int &thisSampleY,Point3f *dispPts)
 {
     // Default to the sample passed in
-    thisSampleX = _sampleX;
-    thisSampleY = _sampleY;
+    thisSampleX = sampleX;
+    thisSampleY = sampleY;
     
     // If there's an epsilon, look at that
-    if (_eps > 0.0)
+    if (eps > 0.0)
     {
         float angBot = acos(dispPts[0].dot(dispPts[1]));
         float angTop = acos(dispPts[3].dot(dispPts[2]));
@@ -99,31 +88,32 @@ static const float SkirtFactor = 0.95;
         float angX = std::max(angBot,angTop);
         float angY = std::max(angLeft,angRight);
         
-        float minAng = acosf(1.0-_eps) * 2.0;
+        float minAng = acosf(1.0-eps) * 2.0;
         if (minAng < angX)
             thisSampleX = angX/minAng;
         if (minAng < angY)
             thisSampleY = angY/minAng;
-        thisSampleX = std::max(_minSampleX,thisSampleX);
-        thisSampleY = std::max(_minSampleY,thisSampleY);
-        if (_sampleX > 0)
-            thisSampleX = std::min(thisSampleX,_sampleX);
-        if (_sampleY > 0)
-            thisSampleY = std::min(thisSampleY,_sampleY);
+        thisSampleX = std::max(minSampleX,thisSampleX);
+        thisSampleY = std::max(minSampleY,thisSampleY);
+        if (sampleX > 0)
+            thisSampleX = std::min(thisSampleX,sampleX);
+        if (sampleY > 0)
+            thisSampleY = std::min(thisSampleY,sampleY);
     }
     
+    // Note: Debugging
     //    NSLog(@"Sampling: (%d,%d)",thisSampleX,thisSampleY);
 }
 
-- (void)buildDrawable:(BasicDrawable **)draw skirtDraw:(BasicDrawable **)skirtDraw enabled:(bool)enable adapter:(CoordSystemDisplayAdapter *)coordAdapter
+void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDraw,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo)
 {
     CoordSystem *localSys = coordAdapter->getCoordSystem();
 
-    CoordSystem *srcSystem = nil;
+    CoordSystem *srcSystem = NULL;
     GeoCoordSystem geoSystem;
-    if (_coordSys)
+    if (coordSys)
     {
-        srcSystem = _coordSys;
+        srcSystem = coordSys;
     } else {
         srcSystem = &geoSystem;
     }
@@ -131,22 +121,22 @@ static const float SkirtFactor = 0.95;
     BasicDrawable *drawable = new BasicDrawable("Spherical Earth Chunk");
     drawable->setType(GL_TRIANGLES);
 //    drawable->setLocalMbr(_mbr);
-    drawable->setDrawPriority(_drawPriority);
-    drawable->setDrawOffset(_drawOffset);
-    drawable->setTexIDs(_texIDs);
+    drawable->setDrawPriority(chunkInfo.drawPriority);
+    drawable->setDrawOffset(chunkInfo.drawOffset);
+    drawable->setColor(chunkInfo.color);
+    drawable->setTexIDs(texIDs);
     drawable->setOnOff(enable);
-    drawable->setVisibleRange(_minVis, _maxVis, _minVisBand, _maxVisBand);
-    drawable->setRequestZBuffer(self.readZBuffer);
-    drawable->setWriteZBuffer(self.writeZBuffer);
-    drawable->setColor([_color asRGBAColor]);
-    drawable->setProgram(_programID);
+    drawable->setVisibleRange(chunkInfo.minVis, chunkInfo.maxVis, chunkInfo.minVisBand, chunkInfo.maxVisBand);
+    drawable->setRequestZBuffer(chunkInfo.readZBuffer);
+    drawable->setWriteZBuffer(chunkInfo.writeZBuffer);
+    drawable->setProgram(chunkInfo.programID);
     
-    int thisSampleX = _sampleX, thisSampleY = _sampleY;
+    int thisSampleX = sampleX, thisSampleY = sampleY;
     
     Mbr localMbr;
     Point3f dispPts[4];
-    std::vector<Point2f> pts;
-    _mbr.asPoints(pts);
+    Point2fVector pts;
+    mbr.asPoints(pts);
     std::vector<GeoCoord> geoCoords(4);
     for (unsigned int ii=0;ii<4;ii++)
     {
@@ -154,19 +144,19 @@ static const float SkirtFactor = 0.95;
         dispPts[ii] = coordAdapter->localToDisplay(localSys->geographicToLocal(geoCoords[ii]));
     }
     
-    std::vector<Point3f> locs;
+    Point3fVector locs;
     std::vector<TexCoord> texCoords;
     
     Point2f texIncr;
     // Without rotation, we'll just follow the boundaries
-    if (_rotation == 0.0)
+    if (rotation == 0.0)
     {
         Point3f srcLL,srcUR;
         srcLL = Point3f(pts[0].x(),pts[0].y(),0.0);
         srcUR = Point3f(pts[2].x(),pts[2].y(),0.0);
         
         // Calculate a reasonable sample size
-        [self calcSampleX:thisSampleX sampleY:thisSampleY fromPoints:dispPts];
+        calcSampleX(thisSampleX, thisSampleY, dispPts);
         locs.resize((thisSampleX+1)*(thisSampleY+1));
         texCoords.resize((thisSampleX+1)*(thisSampleY+1));
         texIncr = Point2f(1.0/thisSampleX,1.0/thisSampleY);
@@ -191,20 +181,21 @@ static const float SkirtFactor = 0.95;
                 drawable->addNormal(dispLoc3f);
             }
     } else {
+        // Note: Not sure this works with specific coordinate systems
         // With rotation, we need to handle this differently
         // Convert the four corners into place
         // Rotate around the center
         Point3f center = (dispPts[0] + dispPts[1] + dispPts[2] + dispPts[3])/4.0;
-        
+
         Eigen::Matrix4f mat;
         if (coordAdapter->isFlat())
         {
             Eigen::Affine3f trans1(Translation3f(-center.x(),-center.y(),0.0));
-            Eigen::Affine3f rot(AngleAxisf(_rotation,Point3f(0.0,0.0,1.0)));
+            Eigen::Affine3f rot(AngleAxisf(rotation,Point3f(0.0,0.0,1.0)));
             Eigen::Affine3f trans2(Translation3f(center.x(),center.y(),0.0));
             mat = trans2.matrix() * rot.matrix() * trans1.matrix();
         } else {
-            Eigen::Affine3f rot(AngleAxisf(_rotation,center));
+            Eigen::Affine3f rot(AngleAxisf(rotation,center));
             mat = rot.matrix();
         }
         
@@ -217,7 +208,7 @@ static const float SkirtFactor = 0.95;
         }
         
         // Calculate a reasonable sample size in both directions
-        [self calcSampleX:thisSampleX sampleY:thisSampleY fromPoints:dispPts];
+        calcSampleX(thisSampleX, thisSampleY, dispPts);
         locs.resize((thisSampleX+1)*(thisSampleY+1));
         texCoords.resize((thisSampleX+1)*(thisSampleY+1));
         texIncr = Point2f(1.0/thisSampleX,1.0/thisSampleY);
@@ -271,26 +262,25 @@ static const float SkirtFactor = 0.95;
     {
         BasicDrawable *skirtDrawable = new BasicDrawable("Spherical Earth Chunk Skirts");
         skirtDrawable->setType(GL_TRIANGLES);
-        skirtDrawable->setLocalMbr(_mbr);
+        skirtDrawable->setLocalMbr(mbr);
         skirtDrawable->setDrawPriority(0);
-        skirtDrawable->setDrawOffset(_drawOffset);
-        skirtDrawable->setColor([_color asRGBAColor]);
-        skirtDrawable->setTexIDs(_texIDs);
+        skirtDrawable->setDrawOffset(chunkInfo.drawOffset);
+        skirtDrawable->setTexIDs(texIDs);
         skirtDrawable->setOnOff(enable);
-        skirtDrawable->setVisibleRange(_minVis, _maxVis);
+        skirtDrawable->setVisibleRange(chunkInfo.minVis, chunkInfo.maxVis);
         skirtDrawable->setRequestZBuffer(true);
         skirtDrawable->setWriteZBuffer(false);
-        skirtDrawable->setProgram(_programID);
+        skirtDrawable->setProgram(programID);
         
         // Bottom skirt
-        std::vector<Point3f> skirtLocs;
+        Point3fVector skirtLocs;
         std::vector<TexCoord> skirtTexCoords;
         for (unsigned int ix=0;ix<=thisSampleX;ix++)
         {
             skirtLocs.push_back(locs[ix]);
             skirtTexCoords.push_back(texCoords[ix]);
         }
-        [self buildSkirt:skirtDrawable pts:skirtLocs tex:skirtTexCoords];
+        buildSkirt(skirtDrawable, skirtLocs, skirtTexCoords, chunkInfo);
         // Top skirt
         skirtLocs.clear();
         skirtTexCoords.clear();
@@ -299,7 +289,7 @@ static const float SkirtFactor = 0.95;
             skirtLocs.push_back(locs[(thisSampleY)*(thisSampleX+1)+ix]);
             skirtTexCoords.push_back(texCoords[(thisSampleY)*(thisSampleX+1)+ix]);
         }
-        [self buildSkirt:skirtDrawable pts:skirtLocs tex:skirtTexCoords];
+        buildSkirt(skirtDrawable,skirtLocs,skirtTexCoords, chunkInfo);
         // Left skirt
         skirtLocs.clear();
         skirtTexCoords.clear();
@@ -308,7 +298,7 @@ static const float SkirtFactor = 0.95;
             skirtLocs.push_back(locs[(thisSampleX+1)*iy+0]);
             skirtTexCoords.push_back(texCoords[(thisSampleX+1)*iy+0]);
         }
-        [self buildSkirt:skirtDrawable pts:skirtLocs tex:skirtTexCoords];
+        buildSkirt(skirtDrawable,skirtLocs,skirtTexCoords, chunkInfo);
         // right skirt
         skirtLocs.clear();
         skirtTexCoords.clear();
@@ -317,85 +307,101 @@ static const float SkirtFactor = 0.95;
             skirtLocs.push_back(locs[(thisSampleX+1)*iy+(thisSampleX)]);
             skirtTexCoords.push_back(texCoords[(thisSampleX+1)*iy+(thisSampleX)]);
         }
-        [self buildSkirt:skirtDrawable pts:skirtLocs tex:skirtTexCoords];
+        buildSkirt(skirtDrawable,skirtLocs,skirtTexCoords, chunkInfo);
         
         *skirtDraw = skirtDrawable;
     }
 }
 
-@end
-
-@implementation WhirlyKitSphericalChunkInfo
-
-@end
-
-namespace WhirlyKit
-{
-     
 // Used to track scene data associated with a chunk
 class ChunkSceneRep : public Identifiable
 {
 public:
     ChunkSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
-    ChunkSceneRep() { }
+    ChunkSceneRep() : usesAtlas(false) { subTex.texId = EmptyIdentity; }
     SimpleIDSet drawIDs;
     SimpleIDSet texIDs;
+    bool usesAtlas;
+    // Set if we're using a dynamic texture atlas
+    SubTexture subTex;
     
     // Remove elements from the scene
-    void clear(Scene *scene,ChangeSet &changeRequests)
+    void clear(Scene *scene,DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changeRequests)
     {
-        for (SimpleIDSet::iterator it = drawIDs.begin();
-             it != drawIDs.end(); ++it)
-            changeRequests.push_back(new RemDrawableReq(*it));
-        for (SimpleIDSet::iterator it = texIDs.begin();
-             it != texIDs.end(); ++it)
-            changeRequests.push_back(new RemTextureReq(*it));
+        if (usesAtlas && drawAtlas)
+        {
+            for (SimpleIDSet::iterator it = drawIDs.begin();
+                 it != drawIDs.end(); ++it)
+                drawAtlas->removeDrawable(*it, changeRequests);
+        } else {
+            for (SimpleIDSet::iterator it = drawIDs.begin();
+                 it != drawIDs.end(); ++it)
+                changeRequests.push_back(new RemDrawableReq(*it));
+        }
+        if (usesAtlas && texAtlas)
+        {
+            if (subTex.texId != EmptyIdentity)
+                texAtlas->removeTexture(subTex, changeRequests, 0.0);
+        } else {
+            for (SimpleIDSet::iterator it = texIDs.begin();
+                 it != texIDs.end(); ++it)
+                changeRequests.push_back(new RemTextureReq(*it));
+        }
     }
     
     // Enable drawables
-    void enable(ChangeSet &changes)
+    void enable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changes)
     {
-        for (SimpleIDSet::iterator it = drawIDs.begin();
-             it != drawIDs.end(); ++it)
-            changes.push_back(new OnOffChangeRequest(*it, true));
+        if (usesAtlas && drawAtlas)
+        {
+            for (SimpleIDSet::iterator it = drawIDs.begin();
+                 it != drawIDs.end(); ++it)
+                drawAtlas->setEnableDrawable(*it, true);
+        } else {
+            for (SimpleIDSet::iterator it = drawIDs.begin();
+                 it != drawIDs.end(); ++it)
+                changes.push_back(new OnOffChangeRequest(*it, true));
+        }
     }
     
     // Disable drawables
-    void disable(ChangeSet &changes)
+    void disable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changes)
     {
-        for (SimpleIDSet::iterator it = drawIDs.begin();
-             it != drawIDs.end(); ++it)
-            changes.push_back(new OnOffChangeRequest(*it, false));
+        if (usesAtlas && drawAtlas)
+        {
+            for (SimpleIDSet::iterator it = drawIDs.begin();
+                 it != drawIDs.end(); ++it)
+                drawAtlas->setEnableDrawable(*it, false);
+        } else {
+            for (SimpleIDSet::iterator it = drawIDs.begin();
+                 it != drawIDs.end(); ++it)
+                changes.push_back(new OnOffChangeRequest(*it, false));
+        }
     }
 };
     
 SphericalChunkManager::SphericalChunkManager()
-    : borderTexel(0)
+    : borderTexel(0), texAtlas(NULL), drawAtlas(NULL)
 {
     pthread_mutex_init(&repLock,NULL);
     pthread_mutex_init(&requestLock,NULL);
+    pthread_mutex_init(&atlasLock,NULL);
 }
     
 SphericalChunkManager::~SphericalChunkManager()
 {
     pthread_mutex_destroy(&repLock);
     pthread_mutex_destroy(&requestLock);
+    pthread_mutex_destroy(&atlasLock);
 }
     
 /// Add the given chunk (enabled or disabled)
-SimpleIdentity SphericalChunkManager::addChunk(WhirlyKitSphericalChunk *chunk,bool doEdgeMatching,bool enable,ChangeSet &changes)
+SimpleIdentity SphericalChunkManager::addChunk(SphericalChunk *chunk,const SphericalChunkInfo &chunkInfo,ChangeSet &changes)
 {
-    SimpleIdentity chunkID = EmptyIdentity;
-    WhirlyKitSphericalChunkInfo *chunkInfo = [[WhirlyKitSphericalChunkInfo alloc] initWithDesc:nil];
-    chunkInfo->enable = enable;
-    chunkInfo->chunk = chunk;
-    chunkInfo->chunkId = Identifiable::genId();
-    chunkID = chunkInfo->chunkId;
-
-    ChunkRequest request(ChunkAdd,chunkInfo,chunkInfo->chunk);
-    request.doEdgeMatching = doEdgeMatching;
+    ChunkRequest request(ChunkAdd,chunkInfo,chunk);
+    request.doEdgeMatching = chunkInfo.doEdgeMatching;
     // If it needs the altases, just queue it up
-    if (chunkInfo->chunk.loadImage)
+    if (chunk->loadImage)
     {
         pthread_mutex_lock(&requestLock);
         requests.push(request);
@@ -411,13 +417,13 @@ SimpleIdentity SphericalChunkManager::addChunk(WhirlyKitSphericalChunk *chunk,bo
     // And possibly run the outstanding request queue
 //    processRequests(changes);
     
-    return chunkID;
+    return chunk->getId();
 }
     
 bool SphericalChunkManager::modifyChunkTextures(SimpleIdentity chunkID,const std::vector<SimpleIdentity> &texIDs,ChangeSet &changes)
 {
     SimpleIDSet drawIDs;
-//    SimpleIDSet oldTexIDs;
+    SimpleIDSet oldTexIDs;
     
     pthread_mutex_lock(&repLock);
     ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
@@ -425,16 +431,35 @@ bool SphericalChunkManager::modifyChunkTextures(SimpleIdentity chunkID,const std
     if (it != chunkReps.end())
     {
         drawIDs = (*it)->drawIDs;
-//        oldTexIDs = (*it)->texIDs;
+        oldTexIDs = (*it)->texIDs;
     }
     pthread_mutex_unlock(&repLock);
 
     // Make sure we have the same number of textures
-//    if (oldTexIDs.size() != texIDs.size())
-//        return false;
+    //    if (oldTexIDs.size() != texIDs.size())
+    //        return false;
     
     for (SimpleIDSet::iterator it = drawIDs.begin(); it != drawIDs.end(); ++it)
         changes.push_back(new DrawTexturesChangeRequest(*it,texIDs));
+    
+    return true;
+}
+    
+bool SphericalChunkManager::modifyDrawPriority(SimpleIdentity chunkID,int drawPriority,ChangeSet &changes)
+{
+    SimpleIDSet drawIDs;
+
+    pthread_mutex_lock(&repLock);
+    ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
+    ChunkRepSet::iterator it = chunkReps.find(dummyRef);
+    if (it != chunkReps.end())
+    {
+        drawIDs = (*it)->drawIDs;
+    }
+    pthread_mutex_unlock(&repLock);
+    
+    for (SimpleIDSet::iterator it = drawIDs.begin(); it != drawIDs.end(); ++it)
+        changes.push_back(new DrawPriorityChangeRequest(*it,drawPriority));
     
     return true;
 }
@@ -442,51 +467,55 @@ bool SphericalChunkManager::modifyChunkTextures(SimpleIdentity chunkID,const std
 /// Enable or disable the given chunk
 void SphericalChunkManager::enableChunk(SimpleIdentity chunkID,bool enable,ChangeSet &changes)
 {
+    Dictionary dict;
+    SphericalChunkInfo chunkInfo(dict);
+    
     pthread_mutex_lock(&requestLock);
     if (enable)
-        requests.push(ChunkRequest(ChunkEnable,chunkID));
+        requests.push(ChunkRequest(ChunkEnable,chunkInfo,chunkID));
     else
-        requests.push(ChunkRequest(ChunkDisable,chunkID));
+        requests.push(ChunkRequest(ChunkDisable,chunkInfo,chunkID));
     pthread_mutex_unlock(&requestLock);
     
-    processRequests(changes);
+    if (!texAtlas)
+        processRequests(changes);
 }
 
 /// Remove the given chunks
 void SphericalChunkManager::removeChunks(SimpleIDSet &chunkIDs,ChangeSet &changes)
 {
+    Dictionary dict;
+    SphericalChunkInfo chunkInfo(dict);
+
     pthread_mutex_lock(&requestLock);
     for (SimpleIDSet::iterator it = chunkIDs.begin(); it != chunkIDs.end(); ++it)
-        requests.push(ChunkRequest(ChunkRemove,*it));
+        requests.push(ChunkRequest(ChunkRemove,chunkInfo,*it));
     pthread_mutex_unlock(&requestLock);
     
-    processRequests(changes);
+    if (!texAtlas)
+        processRequests(changes);
 }
 
 int SphericalChunkManager::getNumChunks()
 {
     int numChunks = 0;
     pthread_mutex_lock(&repLock);
-    numChunks = (int)chunkReps.size();
+    numChunks = chunkReps.size();
     pthread_mutex_unlock(&repLock);
     
-    return (int)chunkReps.size();
+    return chunkReps.size();
 }
     
 /// Process outstanding requests
 void SphericalChunkManager::processRequests(ChangeSet &changes)
 {
-    pthread_mutex_lock(&requestLock);
-    std::queue<ChunkRequest> theRequests = requests;
-    std::queue<ChunkRequest> empty;
-    std::swap( requests, empty );
-    pthread_mutex_unlock(&requestLock);
-    
     // Process the changes and then flush them out
-    while (!theRequests.empty())
+    while (!requests.empty())
     {
-        ChunkRequest request = theRequests.front();
-        theRequests.pop();
+        pthread_mutex_lock(&requestLock);
+        ChunkRequest request = requests.front();
+        requests.pop();
+        pthread_mutex_unlock(&requestLock);
         processChunkRequest(request,changes);
     }    
 }
@@ -499,32 +528,47 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
         case ChunkAdd:
         {
             CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-            ChunkSceneRepRef chunkRep(new ChunkSceneRep(request.chunkInfo->chunkId));
-            WhirlyKitSphericalChunk *chunk = request.chunk;
+            ChunkSceneRepRef chunkRep(new ChunkSceneRep(request.chunkId));
+            SphericalChunk *chunk = request.chunk;
             
             // May need to set up the texture
             SimpleIdentity texId = EmptyIdentity;
+            chunkRep->usesAtlas = false;
             Texture *newTex = NULL;
-            if (chunk.loadImage)
+            if (chunk->loadImage)
             {
                 // Let's just deal with square images
-                int square = std::max(chunk.loadImage.width,chunk.loadImage.height);
-                newTex = [chunk.loadImage buildTexture:borderTexel destWidth:square destHeight:square];
+                int square = std::max(chunk->loadImage->getWidth(),chunk->loadImage->getHeight());
+                newTex = chunk->loadImage->buildTexture(borderTexel,square,square);
             }
-            if (newTex)
+            if (texAtlas)
             {
-                chunk.texIDs.push_back(newTex->getId());
-                chunkRep->texIDs.insert(newTex->getId());
-                changes.push_back(new AddTextureReq(newTex));
+                if (newTex)
+                {
+                    pthread_mutex_lock(&atlasLock);
+                    std::vector<Texture *> newTexs;
+                    texAtlas->addTexture(newTexs, -1, NULL, NULL, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
+                    chunkRep->usesAtlas = true;
+                    delete newTex;
+                    pthread_mutex_unlock(&atlasLock);
+                }
+            } else {
+                if (newTex)
+                {
+                    chunk->texIDs.push_back(newTex->getId());
+                    chunkRep->texIDs.insert(newTex->getId());
+                    changes.push_back(new AddTextureReq(newTex));
+                }
+                texId = EmptyIdentity;
+                if (!chunk->texIDs.empty())
+                    texId = chunk->texIDs.at(0);
             }
-            texId = EmptyIdentity;
-            if (!chunk.texIDs.empty())
-                texId = chunk.texIDs.at(0);
             
             // Build the main drawable and possibly skirt
-            BasicDrawable *drawable = nil,*skirtDraw = nil;
-            [chunk buildDrawable:&drawable skirtDraw:(request.doEdgeMatching ? &skirtDraw : nil) enabled:request.chunkInfo->enable adapter:coordAdapter];
+            BasicDrawable *drawable = NULL,*skirtDraw = NULL;
+            chunk->buildDrawable(&drawable,(request.doEdgeMatching ? &skirtDraw : NULL),request.chunkInfo.enable,coordAdapter,request.chunkInfo);
             
+            // Note: Debugging
             //            int color = drand48()*50+205;
             //            RGBAColor randomColor(color/4,color/4,color/4,255/4);
             //            drawable->setColor(randomColor);
@@ -532,13 +576,37 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             if (skirtDraw)
             {
                 chunkRep->drawIDs.insert(skirtDraw->getId());
-                skirtDraw->setTexId(0,texId);
-                changes.push_back(new AddDrawableReq(skirtDraw));
+                if (chunkRep->usesAtlas && drawAtlas)
+                {
+                    pthread_mutex_lock(&atlasLock);
+                    skirtDraw->applySubTexture(0,chunkRep->subTex);
+                    drawAtlas->addDrawable(skirtDraw, changes);
+                    delete skirtDraw;
+                    pthread_mutex_unlock(&atlasLock);
+                } else {
+                    if (texAtlas)
+                        skirtDraw->applySubTexture(0,chunkRep->subTex);
+                    else
+                        skirtDraw->setTexId(0,texId);
+                        changes.push_back(new AddDrawableReq(skirtDraw));
+                }
             }
             
             chunkRep->drawIDs.insert(drawable->getId());
-            drawable->setTexId(0,texId);
-            changes.push_back(new AddDrawableReq(drawable));
+            if (chunkRep->usesAtlas && drawAtlas)
+            {
+                pthread_mutex_lock(&atlasLock);
+                drawable->applySubTexture(0,chunkRep->subTex);
+                drawAtlas->addDrawable(drawable, changes);
+                delete drawable;
+                pthread_mutex_unlock(&atlasLock);
+            } else {
+                if (texAtlas)
+                    drawable->applySubTexture(0,chunkRep->subTex);
+                else
+                    drawable->setTexId(0,texId);
+                changes.push_back(new AddDrawableReq(drawable));
+            }
             
             pthread_mutex_lock(&repLock);
             chunkReps.insert(chunkRep);
@@ -551,7 +619,7 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
             ChunkRepSet::iterator it = chunkReps.find(dummyRef);
             if (it != chunkReps.end())
-                (*it)->enable(changes);
+                (*it)->enable(texAtlas,drawAtlas,changes);
             pthread_mutex_unlock(&repLock);
         }
             break;
@@ -561,7 +629,7 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
             ChunkRepSet::iterator it = chunkReps.find(dummyRef);
             if (it != chunkReps.end())
-                (*it)->disable(changes);
+                (*it)->disable(texAtlas,drawAtlas,changes);
             pthread_mutex_unlock(&repLock);
         }
             break;
@@ -571,8 +639,10 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
             ChunkRepSet::iterator it = chunkReps.find(dummyRef);
             if (it != chunkReps.end())
-                (*it)->clear(scene,changes);
-            chunkReps.erase(it);
+	      {
+                (*it)->clear(scene,texAtlas,drawAtlas,changes);
+		chunkReps.erase(it);
+	      }
             pthread_mutex_unlock(&repLock);
         }
             break;

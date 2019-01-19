@@ -20,6 +20,7 @@
 
 #import "MaplyBaseInfo_iOS_private.h"
 #import "NSDictionary+Stuff.h"
+#import "UIColor+Stuff.h"
 
 namespace WhirlyKit {
 
@@ -35,11 +36,11 @@ void BaseInfoSetup(BaseInfo &baseInfo,NSDictionary *desc)
     baseInfo.fade = [desc doubleForKey:@"fade" default:0.0];
     baseInfo.fadeIn = baseInfo.fade;
     baseInfo.fadeOut = baseInfo.fade;
-    baseInfo.fadeIn = [desc doubleForKey:@"fadein" default:_fadeIn];
-    baseInfo.fadeOut = [desc doubleForKey:@"fadeout" default:_fadeOut];
+    baseInfo.fadeIn = [desc doubleForKey:@"fadein" default:fadeIn];
+    baseInfo.fadeOut = [desc doubleForKey:@"fadeout" default:fadeOut];
     baseInfo.fadeOutTime = [desc doubleForKey:@"fadeouttime" default:0.0];
     baseInfo.drawPriority = [desc intForKey:@"priority" default:0];
-    baseInfo.drawPriority = [desc intForKey:@"drawPriority" default:_drawPriority];
+    baseInfo.drawPriority = [desc intForKey:@"drawPriority" default:drawPriority];
     baseInfo.drawOffset = [desc doubleForKey:@"drawOffset" default:0.0];
     baseInfo.enable = [desc boolForKey:@"enable" default:true];
     baseInfo.startEnable = [desc doubleForKey:@"enablestart" default:0.0];
