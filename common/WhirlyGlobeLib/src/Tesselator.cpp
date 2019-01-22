@@ -31,7 +31,7 @@ namespace WhirlyKit
     
 typedef struct
 {
-    std::vector<Point3f> pts;
+    Point3fVector pts;
     std::vector<std::vector<int>> tris;
 //    std::vector<int> vertIDs;
     bool newVert;

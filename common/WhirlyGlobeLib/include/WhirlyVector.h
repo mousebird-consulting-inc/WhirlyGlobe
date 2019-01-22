@@ -33,6 +33,11 @@ typedef Eigen::Vector3d Point3d;
 typedef Eigen::Vector2d Point2d;
 typedef Eigen::Vector2f Point2f;
     
+typedef std::vector<Point2f,Eigen::aligned_allocator<Point2f> > Point2fVector;
+typedef std::vector<Point2d,Eigen::aligned_allocator<Point2d> > Point2dVector;
+typedef std::vector<Point3f,Eigen::aligned_allocator<Point3f> > Point3fVector;
+typedef std::vector<Point3d,Eigen::aligned_allocator<Point3d> > Point3dVector;
+typedef std::vector<Eigen::Vector4d,Eigen::aligned_allocator<Eigen::Vector4d> > Vector4dVector;
 	
 /// Convenience wrapper for texture coordinate
 class TexCoord : public Eigen::Vector2f
@@ -50,6 +55,8 @@ public:
 class GeoCoord : public Eigen::Vector2f
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
 	GeoCoord() { }
 	GeoCoord(float lon,float lat) : Eigen::Vector2f(lon,lat) { }
     /// Longitude
@@ -66,6 +73,8 @@ public:
     static GeoCoord CoordFromDegrees(float lon,float lat);
 };
 	
+typedef std::vector<GeoCoord,Eigen::aligned_allocator<GeoCoord> > GeoCoordVector;
+
 /// Color. RGBA, 8 bits per
 class RGBAColor
 {
@@ -76,6 +85,9 @@ public:
     
     /// Returns an an array of 4 floats
     void asUnitFloats(float *ret) const { ret[0] = (float)r / 255.0;  ret[1] = (float)g / 255.0; ret[2] = (float)b / 255.0; ret[3] = (float)a / 255.0; }
+    
+    /// Convert to a 32 bit integer (ala Android)
+    int asInt() const { return a << 24 | r << 16 | g << 8 | b; }
     
     /// Returns as a 4 component array of unsigned chars
     void asUChar4(unsigned char *ret) const { ret[0] = r; ret[1] = g; ret[2] = b; ret[3] = a; }
@@ -94,6 +106,8 @@ class MbrD;
 class Mbr
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Construct empty, which is marked as invalid
 	Mbr() : pt_ll(0.f,0.f), pt_ur(-1.f,-1.f) { }
     /// Construct with a lower left and upper right point
@@ -101,7 +115,7 @@ public:
     /// Construct from the double version
     Mbr(const MbrD &inMbr);
 	/// Construct from the MBR of a vector of points
-	Mbr(const std::vector<Point2f> &pts);
+	Mbr(const Point2fVector &pts);
     
     /// Resets back to invalid
     void reset() { pt_ll = Point2f(0.f,0.f);  pt_ur = Point2f(-1.f,-1.f); }
@@ -135,10 +149,10 @@ public:
 	void addPoint(Point2d pt);
 
     /// Extend the MBR by the given points
-    void addPoints(const std::vector<Point2f> &coords);
+    void addPoints(const Point2fVector &coords);
 
     /// Extend the MBR by the given points
-    void addPoints(const std::vector<Point2d> &coords);
+    void addPoints(const Point2dVector &coords);
 
 	/// See if this Mbr overlaps the other one
 	bool overlaps(const Mbr &that) const;
@@ -156,8 +170,8 @@ public:
     Mbr intersect(const Mbr &that) const;
     
     /// Return a list of points, for those routines that need just a list of points
-    void asPoints(std::vector<Point2f> &pts) const;
-    void asPoints(std::vector<Point2d> &pts) const;
+    void asPoints(Point2fVector &pts) const;
+    void asPoints(Point2dVector &pts) const;
     
     /// Expand with the given MBR
     void expand(const Mbr &that);
@@ -253,17 +267,19 @@ protected:
 class BBox
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     BBox() : pt_ll(0,0,0), pt_ur(-1,-1,-1) { }
     
     /// Add a point to the bounding box
     void addPoint(const Point3d &pt);
     
     /// Add a vector of points to the bounding box
-    void addPoints(const std::vector<Point3d> &pts);
+    void addPoints(const Point3dVector &pts);
     
     /// Copy the corners into a vector of points
-    void asPoints(std::vector<Point3d> &pts) const;
-    void asPoints(std::vector<Point3f> &pts) const;
+    void asPoints(Point3dVector &pts) const;
+    void asPoints(Point3fVector &pts) const;
     
     // Check if the given bounding box is valid
     bool isValid() { return pt_ur.x() >= pt_ll.x(); }
@@ -281,6 +297,8 @@ protected:
 class GeoMbr
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Construct invalid
 	GeoMbr() : pt_ll(-1000,-1000), pt_ur(-1000,-1000) { }
     /// Construct with two coordinates to start
@@ -288,7 +306,7 @@ public:
 	/// Construct from a list of geo coordinates
 	GeoMbr(const std::vector<GeoCoord> &coords);
 	/// Construct with a list of 2d coordinates.  X is lon, Y is lat
-	GeoMbr(const std::vector<Point2f> &pts);
+	GeoMbr(const Point2fVector &pts);
 
     /// Resets back to invalid
     void reset() { pt_ll = GeoCoord(-1000,-1000);  pt_ur = GeoCoord(-1000,-1000); }
@@ -316,13 +334,14 @@ public:
 	
 	/// Expand the MBR by this amount
 	void addGeoCoord(const GeoCoord &coord);
-    void addGeoCoord(const Point3d &coord);
+        void addGeoCoord(const Point3d &coord);
 	
 	/// Expand by the vector of geo coords
 	void addGeoCoords(const std::vector<GeoCoord> &coords);
-    /// Expand by a vector of 2d coordinates.  x is lon, y is lat.
-	void addGeoCoords(const std::vector<Point2f> &coords);
-    void addGeoCoords(const std::vector<Point3d> &coords);
+        /// Expand by a vector of 2d coordinates.  x is lon, y is lat.
+	void addGeoCoords(const Point2fVector &coords);
+        void addGeoCoords(const Point3dVector &coords);
+        void addGeoCoords(const GeoCoordVector &coords);
 	
 	/// Determine overlap.
 	/// This takes into account MBRs that wrap over -180/+180
@@ -353,6 +372,11 @@ Eigen::Matrix4d Matrix4fToMatrix4d(const Eigen::Matrix4f &inMat);
 
 /// Convert a 4d matrix to a 4f matrix
 Eigen::Matrix4f Matrix4dToMatrix4f(const Eigen::Matrix4d &inMat);
+    
+/// Floats to doubles
+Eigen::Vector2d Vector2fToVector2d(const Eigen::Vector2f &inVec);
+/// Doubles to floats
+Eigen::Vector2f Vector2dToVector2f(const Eigen::Vector2d &inVec);
     
 /// Floats to doubles
 Eigen::Vector3d Vector3fToVector3d(const Eigen::Vector3f &inVec);

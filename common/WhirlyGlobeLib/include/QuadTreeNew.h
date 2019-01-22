@@ -29,6 +29,8 @@ namespace WhirlyKit
 class QuadTreeIdentifier
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     QuadTreeIdentifier() { }
     /// Construct with the cell coordinates and level.
     QuadTreeIdentifier(int x,int y,int level) : x(x), y(y), level(level) { }
@@ -54,6 +56,8 @@ public:
 class QuadTreeNew
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     QuadTreeNew(const MbrD &mbr,int minLevel,int maxLevel);
     virtual ~QuadTreeNew();
     

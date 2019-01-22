@@ -22,7 +22,6 @@
 #import <unordered_map>
 #import <string>
 #import <mutex>
-#import "StringIndexer.h"
 
 namespace WhirlyKit
 {

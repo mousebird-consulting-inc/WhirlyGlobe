@@ -31,6 +31,8 @@ namespace WhirlyKit
 class SphericalMercatorCoordSystem : public WhirlyKit::CoordSystem
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Construct with an optional origin for the projection in radians
     /// The equator is default
     SphericalMercatorCoordSystem(float originLon=0.0);
@@ -64,6 +66,8 @@ protected:
 class SphericalMercatorDisplayAdapter : public CoordSystemDisplayAdapter
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Construct with the origin longitude for the projection and the
     ///  bounding box for the constraints.  The latter are in geographic (WGS84)
     SphericalMercatorDisplayAdapter(float originLon,GeoCoord ll,GeoCoord ur);

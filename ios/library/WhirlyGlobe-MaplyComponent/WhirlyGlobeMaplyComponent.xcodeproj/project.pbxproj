@@ -87,7 +87,6 @@
 		2B446B2721F7A0D70078A975 /* Platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B2621F7A0D70078A975 /* Platform.h */; };
 		2B446B2B21F7A4820078A975 /* Platform.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B2A21F7A4820078A975 /* Platform.mm */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
-		2B6001A2210FAE8600140383 /* StringIndexer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B6001A1210FAE8500140383 /* StringIndexer.mm */; };
 		2B73D6BE207D1FD300AF5095 /* MaplyQuadImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6BD207D1FD300AF5095 /* MaplyQuadImageLoader.h */; };
 		2B73D6C0207D1FDF00AF5095 /* MaplyQuadImageLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B73D6BF207D1FDF00AF5095 /* MaplyQuadImageLoader.mm */; };
 		2B73D6C2207D224100AF5095 /* MaplyQuadImageLoader_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */; };
@@ -1063,7 +1062,6 @@
 		2B446B2621F7A0D70078A975 /* Platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Platform.h; path = ../../../../common/WhirlyGlobeLib/include/Platform.h; sourceTree = "<group>"; };
 		2B446B2A21F7A4820078A975 /* Platform.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Platform.mm; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
-		2B6001A1210FAE8500140383 /* StringIndexer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringIndexer.mm; sourceTree = "<group>"; };
 		2B73D6BD207D1FD300AF5095 /* MaplyQuadImageLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadImageLoader.h; sourceTree = "<group>"; };
 		2B73D6BF207D1FDF00AF5095 /* MaplyQuadImageLoader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyQuadImageLoader.mm; sourceTree = "<group>"; };
 		2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadImageLoader_private.h; sourceTree = "<group>"; };
@@ -2613,7 +2611,6 @@
 			isa = PBXGroup;
 			children = (
 				2B7B84D521223E9F00D11447 /* TextureAtlas.mm */,
-				2B6001A1210FAE8500140383 /* StringIndexer.mm */,
 				2B82B57E1E82E2490095FB14 /* ParticleSystemDrawable.mm */,
 				2B82B57F1E82E2490095FB14 /* GlobeAnimateHeight.mm */,
 				2B82B5801E82E2490095FB14 /* WhirlyKitView.mm */,
@@ -4378,7 +4375,6 @@
 				2B82B75E1E82E24A0095FB14 /* PerformanceTimer.mm in Sources */,
 				2B446B1E21F79AE40078A975 /* GlobeMath.cpp in Sources */,
 				2B446ADD21F26E280078A975 /* MaplyBillboardInfo_iOS.mm in Sources */,
-				2B6001A2210FAE8600140383 /* StringIndexer.mm in Sources */,
 				2BE538C41D249A1200B60FAD /* MaplyVectorTileTextStyle.mm in Sources */,
 				2BE538941D249A1200B60FAD /* MaplyPoints.mm in Sources */,
 				2BE538861D249A1200B60FAD /* MaplyGeomModel.mm in Sources */,
