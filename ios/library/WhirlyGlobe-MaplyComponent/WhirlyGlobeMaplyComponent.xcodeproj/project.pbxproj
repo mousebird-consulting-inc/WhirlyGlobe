@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2B0387EE20699DD900DD5C40 /* QuadTreeNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0387ED20699DD900DD5C40 /* QuadTreeNew.h */; };
-		2B0387F02069A9EF00DD5C40 /* QuadTreeNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387EF2069A9EF00DD5C40 /* QuadTreeNew.mm */; };
 		2B0387F22069BC2E00DD5C40 /* QuadDisplayLayerNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B0387F12069BC2E00DD5C40 /* QuadDisplayLayerNew.h */; };
 		2B0387F42069BC3800DD5C40 /* QuadDisplayLayerNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387F32069BC3800DD5C40 /* QuadDisplayLayerNew.mm */; };
 		2B0387F6206ABD7400DD5C40 /* MaplyQuadSampler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387F5206ABD7400DD5C40 /* MaplyQuadSampler.mm */; };
@@ -84,6 +82,8 @@
 		2B446B1D21F79AE40078A975 /* SphericalMercator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B1821F79AE30078A975 /* SphericalMercator.cpp */; };
 		2B446B1E21F79AE40078A975 /* GlobeMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B1921F79AE30078A975 /* GlobeMath.cpp */; };
 		2B446B1F21F79AE40078A975 /* Proj4CoordSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B1A21F79AE30078A975 /* Proj4CoordSystem.cpp */; };
+		2B446B2321F79BDF0078A975 /* QuadTreeNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B2221F79BDF0078A975 /* QuadTreeNew.h */; };
+		2B446B2521F79BF30078A975 /* QuadTreeNew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B2421F79BF30078A975 /* QuadTreeNew.cpp */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B6001A2210FAE8600140383 /* StringIndexer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B6001A1210FAE8500140383 /* StringIndexer.mm */; };
 		2B73D6BE207D1FD300AF5095 /* MaplyQuadImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6BD207D1FD300AF5095 /* MaplyQuadImageLoader.h */; };
@@ -979,8 +979,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		2B0387ED20699DD900DD5C40 /* QuadTreeNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadTreeNew.h; sourceTree = "<group>"; };
-		2B0387EF2069A9EF00DD5C40 /* QuadTreeNew.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadTreeNew.mm; sourceTree = "<group>"; };
 		2B0387F12069BC2E00DD5C40 /* QuadDisplayLayerNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadDisplayLayerNew.h; sourceTree = "<group>"; };
 		2B0387F32069BC3800DD5C40 /* QuadDisplayLayerNew.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadDisplayLayerNew.mm; sourceTree = "<group>"; };
 		2B0387F5206ABD7400DD5C40 /* MaplyQuadSampler.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyQuadSampler.mm; sourceTree = "<group>"; };
@@ -1058,6 +1056,8 @@
 		2B446B1821F79AE30078A975 /* SphericalMercator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SphericalMercator.cpp; path = ../../../../common/WhirlyGlobeLib/src/SphericalMercator.cpp; sourceTree = "<group>"; };
 		2B446B1921F79AE30078A975 /* GlobeMath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeMath.cpp; path = ../../../../common/WhirlyGlobeLib/src/GlobeMath.cpp; sourceTree = "<group>"; };
 		2B446B1A21F79AE30078A975 /* Proj4CoordSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Proj4CoordSystem.cpp; path = ../../../../common/WhirlyGlobeLib/src/Proj4CoordSystem.cpp; sourceTree = "<group>"; };
+		2B446B2221F79BDF0078A975 /* QuadTreeNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuadTreeNew.h; path = ../../../../common/WhirlyGlobeLib/include/QuadTreeNew.h; sourceTree = "<group>"; };
+		2B446B2421F79BF30078A975 /* QuadTreeNew.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadTreeNew.cpp; path = ../../../../common/WhirlyGlobeLib/src/QuadTreeNew.cpp; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B6001A1210FAE8500140383 /* StringIndexer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringIndexer.mm; sourceTree = "<group>"; };
 		2B73D6BD207D1FD300AF5095 /* MaplyQuadImageLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadImageLoader.h; sourceTree = "<group>"; };
@@ -1992,6 +1992,7 @@
 			children = (
 				2B446AF821F79A600078A975 /* GridClipper.h */,
 				2B446AEF21F79A5F0078A975 /* OverlapHelper.h */,
+				2B446B2221F79BDF0078A975 /* QuadTreeNew.h */,
 				2B446AF521F79A5F0078A975 /* Tesselator.h */,
 				2B446AF221F79A5F0078A975 /* WhirlyGeometry.h */,
 				2B446AF621F79A5F0078A975 /* WhirlyOctEncoding.h */,
@@ -2005,6 +2006,7 @@
 			children = (
 				2B446B0921F79AD00078A975 /* GridClipper.cpp */,
 				2B446B0C21F79AD00078A975 /* OverlapHelper.cpp */,
+				2B446B2421F79BF30078A975 /* QuadTreeNew.cpp */,
 				2B446B0821F79AD00078A975 /* Tesselator.cpp */,
 				2B446B0D21F79AD00078A975 /* WhirlyGeometry.cpp */,
 				2B446B0A21F79AD00078A975 /* WhirlyOctEncoding.cpp */,
@@ -2375,14 +2377,6 @@
 			path = "../../../../common/local_libs/proj-4/src";
 			sourceTree = "<group>";
 		};
-		2B82B4B51E82E2490095FB14 /* geometry utils */ = {
-			isa = PBXGroup;
-			children = (
-				2B0387ED20699DD900DD5C40 /* QuadTreeNew.h */,
-			);
-			name = "geometry utils";
-			sourceTree = "<group>";
-		};
 		2B82B4BD1E82E2490095FB14 /* OpenGL Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -2496,7 +2490,6 @@
 		2B82B5141E82E2490095FB14 /* WhirlyKit */ = {
 			isa = PBXGroup;
 			children = (
-				2B82B4B51E82E2490095FB14 /* geometry utils */,
 				2B82B4BD1E82E2490095FB14 /* OpenGL Utils */,
 				2B82B4C21E82E2490095FB14 /* Cocoa Utils */,
 				2B82B4CB1E82E2490095FB14 /* rendering */,
@@ -2586,14 +2579,6 @@
 				2B82B54C1E82E2490095FB14 /* NSString+Stuff.mm */,
 			);
 			name = "Cocoa Utils";
-			sourceTree = "<group>";
-		};
-		2B82B5551E82E2490095FB14 /* geometry utils */ = {
-			isa = PBXGroup;
-			children = (
-				2B0387EF2069A9EF00DD5C40 /* QuadTreeNew.mm */,
-			);
-			name = "geometry utils";
 			sourceTree = "<group>";
 		};
 		2B82B5641E82E2490095FB14 /* rendering */ = {
@@ -2703,7 +2688,6 @@
 			children = (
 				2B82B5481E82E2490095FB14 /* OpenGL Utils */,
 				2B82B54D1E82E2490095FB14 /* Cocoa Utils */,
-				2B82B5551E82E2490095FB14 /* geometry utils */,
 				2B82B5641E82E2490095FB14 /* rendering */,
 				2B82B57C1E82E2490095FB14 /* interaction */,
 				2B82B5951E82E2490095FB14 /* scene & view */,
@@ -3881,6 +3865,7 @@
 				2BE53A7D1D249C4700B60FAD /* type_traits.h in Headers */,
 				2BE538631D249A1200B60FAD /* MapboxVectorTiles.h in Headers */,
 				2B884A591E3803170027C397 /* lasindex.hpp in Headers */,
+				2B446B2321F79BDF0078A975 /* QuadTreeNew.h in Headers */,
 				2B82B7491E82E24A0095FB14 /* MaplyLayerViewWatcher.h in Headers */,
 				2B884A5C1E3803170027C397 /* laspoint.hpp in Headers */,
 				2B446AB021EFE5DA0078A975 /* MaplyWMSTileSource.h in Headers */,
@@ -3949,7 +3934,6 @@
 				2BE5382E1D249A1200B60FAD /* MaplyVectorObject.h in Headers */,
 				2B7B84E42122475200D11447 /* LoadedImage.h in Headers */,
 				2BE5386D1D249A1200B60FAD /* MapnikStyleRule.h in Headers */,
-				2B0387EE20699DD900DD5C40 /* QuadTreeNew.h in Headers */,
 				2B82B6EB1E82E24A0095FB14 /* ShapeReader.h in Headers */,
 				2BE53A741D249C4700B60FAD /* stl_util.h in Headers */,
 				2BE537F71D249A1200B60FAD /* Maply3DTouchPreviewDatasource.h in Headers */,
@@ -4314,6 +4298,7 @@
 				E56DB3D81D6B1B5A007000D2 /* SLDStyleSet.m in Sources */,
 				2B446ADE21F26E280078A975 /* MaplyGeometryInfo_iOS.mm in Sources */,
 				2BE538C91D249A1200B60FAD /* WGCoordinate.mm in Sources */,
+				2B446B2521F79BF30078A975 /* QuadTreeNew.cpp in Sources */,
 				2B82B6521E82E2490095FB14 /* PJ_crast.c in Sources */,
 				2B884A551E3803170027C397 /* integercompressor.cpp in Sources */,
 				2B82B6A31E82E24A0095FB14 /* PJ_putp2.c in Sources */,
@@ -4434,7 +4419,6 @@
 				2B8E609620DC175E00FB96F0 /* MapboxVectorImageInterpreter.mm in Sources */,
 				2BE539BC1D249BEF00B60FAD /* AASaturn.cpp in Sources */,
 				2B82B7AB1E82E24B0095FB14 /* FontTextureManager.mm in Sources */,
-				2B0387F02069A9EF00DD5C40 /* QuadTreeNew.mm in Sources */,
 				2B82B65B1E82E2490095FB14 /* PJ_eck4.c in Sources */,
 				2B7B84DC2122404200D11447 /* MaplyTapMessage.mm in Sources */,
 				2B82B6A61E82E24A0095FB14 /* PJ_putp5.c in Sources */,
