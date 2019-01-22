@@ -18,7 +18,7 @@
  *
  */
 
-#import "WhirlyVector.h"
+#import <memory>
 #import "WhirlyGeometry.h"
 
 namespace WhirlyKit
@@ -42,16 +42,22 @@ namespace WhirlyKit
 class DelayedDeletable
 {
 public:
-    virtual ~DelayedDeletable() { }
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+    virtual ~DelayedDeletable();
 };
+    
+typedef std::shared_ptr<DelayedDeletable> DelayedDeletableRef;
 
 /// Base class for the various coordinate systems
 ///  we use in the toolkits.
 class CoordSystem : public DelayedDeletable
 {
 public:
-    CoordSystem() { }
-    virtual ~CoordSystem() { }
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+    CoordSystem();
+    virtual ~CoordSystem();
     
     /// Convert from the local coordinate system to lat/lon
     virtual WhirlyKit::GeoCoord localToGeographic(WhirlyKit::Point3f) = 0;
@@ -85,6 +91,8 @@ Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3
 class CoordSystemDisplayAdapter : public DelayedDeletable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     CoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d center) : coordSys(coordSys), center(0.0,0.0,0.0), scale(1.0,1.0,1.0) { }
     virtual ~CoordSystemDisplayAdapter() { }
     
@@ -103,10 +111,10 @@ public:
     Point3d getCenter() { return center; }
     
     /// Set the scale for coordinates going to/from display space
-    void setScale(const Point3d &scale);
+    void setScale(const Point3d &inScale) { scale = inScale; }
     
     /// Return the display space scale
-    Point3d getScale();
+    Point3d getScale() { return scale; }
 
     /// Convert from the system's local coordinates to display coordinates
     virtual WhirlyKit::Point3f localToDisplay(WhirlyKit::Point3f) = 0;
@@ -122,7 +130,6 @@ public:
 
     /// Get a reference to the coordinate system
     virtual CoordSystem *getCoordSystem() = 0;
-    
     
     /// Return true if this is a projected coordinate system.
     /// False for others, like geographic.
@@ -140,6 +147,8 @@ protected:
 class GeneralCoordSystemDisplayAdapter : public CoordSystemDisplayAdapter
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &ll,const Point3d &ur,const Point3d &center,const Point3d &scale);
     ~GeneralCoordSystemDisplayAdapter();
 
