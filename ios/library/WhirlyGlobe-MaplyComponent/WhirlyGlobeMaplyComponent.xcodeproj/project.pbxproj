@@ -84,6 +84,8 @@
 		2B446B1F21F79AE40078A975 /* Proj4CoordSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B1A21F79AE30078A975 /* Proj4CoordSystem.cpp */; };
 		2B446B2321F79BDF0078A975 /* QuadTreeNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B2221F79BDF0078A975 /* QuadTreeNew.h */; };
 		2B446B2521F79BF30078A975 /* QuadTreeNew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B2421F79BF30078A975 /* QuadTreeNew.cpp */; };
+		2B446B2721F7A0D70078A975 /* Platform.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B2621F7A0D70078A975 /* Platform.h */; };
+		2B446B2B21F7A4820078A975 /* Platform.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B2A21F7A4820078A975 /* Platform.mm */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B6001A2210FAE8600140383 /* StringIndexer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B6001A1210FAE8500140383 /* StringIndexer.mm */; };
 		2B73D6BE207D1FD300AF5095 /* MaplyQuadImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6BD207D1FD300AF5095 /* MaplyQuadImageLoader.h */; };
@@ -1058,6 +1060,8 @@
 		2B446B1A21F79AE30078A975 /* Proj4CoordSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Proj4CoordSystem.cpp; path = ../../../../common/WhirlyGlobeLib/src/Proj4CoordSystem.cpp; sourceTree = "<group>"; };
 		2B446B2221F79BDF0078A975 /* QuadTreeNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuadTreeNew.h; path = ../../../../common/WhirlyGlobeLib/include/QuadTreeNew.h; sourceTree = "<group>"; };
 		2B446B2421F79BF30078A975 /* QuadTreeNew.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadTreeNew.cpp; path = ../../../../common/WhirlyGlobeLib/src/QuadTreeNew.cpp; sourceTree = "<group>"; };
+		2B446B2621F7A0D70078A975 /* Platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Platform.h; path = ../../../../common/WhirlyGlobeLib/include/Platform.h; sourceTree = "<group>"; };
+		2B446B2A21F7A4820078A975 /* Platform.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Platform.mm; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B6001A1210FAE8500140383 /* StringIndexer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = StringIndexer.mm; sourceTree = "<group>"; };
 		2B73D6BD207D1FD300AF5095 /* MaplyQuadImageLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadImageLoader.h; sourceTree = "<group>"; };
@@ -2686,6 +2690,7 @@
 		2B82B5C81E82E2490095FB14 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2B446B2A21F7A4820078A975 /* Platform.mm */,
 				2B82B5481E82E2490095FB14 /* OpenGL Utils */,
 				2B82B54D1E82E2490095FB14 /* Cocoa Utils */,
 				2B82B5641E82E2490095FB14 /* rendering */,
@@ -2731,6 +2736,7 @@
 		2B846EF421F158CD00EF2A82 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2B446B2621F7A0D70078A975 /* Platform.h */,
 				2B446AB921F25C330078A975 /* WhirlyKitLog.h */,
 				2B446ABA21F25C330078A975 /* WhirlyTypes.h */,
 				2B446AEC21F79A390078A975 /* geometry utils */,
@@ -3829,6 +3835,7 @@
 				2B82B6D91E82E24A0095FB14 /* UIImage+Stuff.h in Headers */,
 				2B82B6FB1E82E24A0095FB14 /* ActiveModel.h in Headers */,
 				2B884A511E3803170027C397 /* bytestreamout_ostream.hpp in Headers */,
+				2B446B2721F7A0D70078A975 /* Platform.h in Headers */,
 				2B82B5E71E82E2490095FB14 /* memalloc.h in Headers */,
 				2B82B5EF1E82E2490095FB14 /* priorityq.h in Headers */,
 				2BB8A3F121ED43D10025DA98 /* GlobeTwoFingerTapDelegate.h in Headers */,
@@ -4500,6 +4507,7 @@
 				2B73D6C0207D1FDF00AF5095 /* MaplyQuadImageLoader.mm in Sources */,
 				2B82B77E1E82E24A0095FB14 /* Identifiable.mm in Sources */,
 				2B82B6581E82E2490095FB14 /* PJ_eck1.c in Sources */,
+				2B446B2B21F7A4820078A975 /* Platform.mm in Sources */,
 				2B884A421E3803170027C397 /* arithmeticdecoder.cpp in Sources */,
 				2B82B6221E82E2490095FB14 /* dbfopen.c in Sources */,
 				2BE53A3A1D249C3D00B60FAD /* printer.cc in Sources */,
