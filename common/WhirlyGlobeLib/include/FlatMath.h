@@ -31,6 +31,8 @@ namespace WhirlyKit
 class PlateCarreeCoordSystem : public WhirlyKit::CoordSystem
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Convert from the local coordinate system to lat/lon
     GeoCoord localToGeographic(Point3f);
     GeoCoord localToGeographic(Point3d);
@@ -57,6 +59,8 @@ public:
 class FlatEarthCoordSystem : public WhirlyKit::CoordSystem
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     FlatEarthCoordSystem(const GeoCoord &origin);
 
     /// Convert from the local coordinate system to lat/lon
@@ -95,6 +99,8 @@ static const float EarthRadius = 6371000;
 class PassThroughCoordSystem : public WhirlyKit::CoordSystem
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     PassThroughCoordSystem();
     
     /// Convert from the local coordinate system to lat/lon

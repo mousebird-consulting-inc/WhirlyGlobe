@@ -25,9 +25,11 @@
 #import "BasicDrawable.h"
 #import "Scene.h"
 #import "SceneRendererES.h"
-#import "GlobeLayerViewWatcher.h"
+#import "GlobeViewState.h"
 #import "ScreenSpaceBuilder.h"
 #import "SelectionManager.h"
+#import "WhirlyVector.h"
+
 
 namespace WhirlyKit
 {
@@ -38,10 +40,12 @@ class LayoutObject;
 class OverlapHelper
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     OverlapHelper(const Mbr &mbr,int sizeX,int sizeY);
     
     // Try to add an object.  Might fail (kind of the whole point).
-    bool addObject(const std::vector<Point2d> &pts);
+    bool addObject(const Point2dVector &pts);
     
 protected:
     // Object and its bounds
@@ -49,7 +53,7 @@ protected:
     {
     public:
         ~BoundedObject() { }
-        std::vector<Point2d> pts;
+        Point2dVector pts;
     };
     
     Mbr mbr;
@@ -63,10 +67,12 @@ protected:
 class ClusterHelper
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     ClusterHelper(const Mbr &mbr,int sizeX, int sizeY, float resScale, const Point2d &clusterMarkerSize);
     
     // Add an object, possibly forming a group
-    void addObject(LayoutObjectEntry *objEntry,const std::vector<Point2d> &pts);
+    void addObject(LayoutObjectEntry *objEntry,const Point2dVector pts);
 
     // Deal with cluster to cluster overlap
     void resolveClusters();
@@ -76,7 +82,7 @@ public:
     {
     public:
         ObjectWithBounds();
-        std::vector<Point2d> pts;
+        Point2dVector pts;
         Point2d center;
     };
     

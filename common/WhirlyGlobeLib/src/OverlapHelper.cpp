@@ -19,10 +19,11 @@
  */
 
 #import "OverlapHelper.h"
-#import "LayoutManager.h"
+#import "WhirlyGeometry.h"
 #import "VectorData.h"
 
 using namespace Eigen;
+using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
@@ -35,7 +36,7 @@ OverlapHelper::OverlapHelper(const Mbr &mbr,int sizeX,int sizeY)
 }
 
 // Try to add an object.  Might fail (kind of the whole point).
-bool OverlapHelper::addObject(const std::vector<Point2d> &pts)
+bool OverlapHelper::addObject(const Point2dVector &pts)
 {
     Mbr objMbr;
     for (unsigned int ii=0;ii<pts.size();ii++)
@@ -153,7 +154,7 @@ void ClusterHelper::findObjectsWithin(const Mbr &mbr,std::set<int> &objSet)
 }
 
 // Try to add an object.  Might fail (kind of the whole point).
-void ClusterHelper::addObject(LayoutObjectEntry *objEntry,const std::vector<Point2d> &pts)
+void ClusterHelper::addObject(LayoutObjectEntry *objEntry,const Point2dVector pts)
 {
     // We'll add this one way or another
     simpleObjects.resize(simpleObjects.size()+1);

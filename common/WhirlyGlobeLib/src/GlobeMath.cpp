@@ -19,7 +19,6 @@
  */
 
 
-#import <UIKit/UIKit.h>
 #import "GlobeMath.h"
 #import "FlatMath.h"
 #import "proj_api.h"
@@ -33,17 +32,16 @@ static projPJ pj_latlon=NULL,pj_geocentric=NULL;
 
 namespace WhirlyKit
 {
+
+std::once_flag globeMathFlag;
     
 // Initialize the Proj-4 objects
 void InitProj4()
 {
-    static dispatch_once_t once=0;
-    dispatch_once(&once, ^ {
-        if (!pj_latlon || !pj_geocentric)
-        {
+    std::call_once(globeMathFlag, []()
+    { 
             pj_latlon = pj_init_plus("+proj=latlong +datum=WGS84");
             pj_geocentric = pj_init_plus("+proj=geocent +datum=WGS84");
-        }
     });
 }
     
