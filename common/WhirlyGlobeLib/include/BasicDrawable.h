@@ -18,8 +18,7 @@
  *
  */
 
-#import "GLUtils.h"
-
+#import "glwrapper.h"
 #import <vector>
 #import <set>
 #import <map>
@@ -45,6 +44,8 @@ protected:
     BasicDrawable() { }
     
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Construct empty
     BasicDrawable(const std::string &name);
     /// Construct with some idea how big things are.
@@ -74,13 +75,13 @@ public:
     virtual GLuint setupVAO(OpenGLES2Program *prog);
     
     /// Fill this in to draw the basic drawable
-    virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    virtual void draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);
     
     /// Draw priority
     virtual unsigned int getDrawPriority() const;
     
     /// We use the on/off flag as well as a visibility check
-    virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
+    virtual bool isOn(WhirlyKit::RendererFrameInfo *frameInfo) const;
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff);
     
@@ -88,10 +89,10 @@ public:
     virtual bool isSetupInGL() { return isSetupGL; }
     
     /// Set the time range for enable
-    void setEnableTimeRange(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable) { startEnable = inStartEnable;  endEnable = inEndEnable; }
+    void setEnableTimeRange(TimeInterval inStartEnable,TimeInterval inEndEnable) { startEnable = inStartEnable;  endEnable = inEndEnable; }
     
     /// Used for alpha sorting
-    virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const;
+    virtual bool hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const;
     /// Set the alpha sorting on or off
     void setAlpha(bool onOff);
     
@@ -159,7 +160,7 @@ public:
     virtual void getViewerVisibility(double &minViewerDist,double &maxViewerDist,Point3d &viewerCenter);
     
     /// Set the fade in and out
-    virtual void setFade(NSTimeInterval inFadeDown,NSTimeInterval inFadeUp);
+    virtual void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
     
     /// Set the line width (if using lines)
     virtual void setLineWidth(float inWidth);
@@ -210,16 +211,16 @@ public:
     void addVertexAttributes(const SingleVertexAttributeSet &attrs);
     
     /// Add a 2D vector to the given attribute array
-    virtual void addAttributeValue(int attrId,Eigen::Vector2f vec);
+    virtual void addAttributeValue(int attrId,const Eigen::Vector2f &vec);
     
     /// Add a 3D vector to the given attribute array
-    virtual void addAttributeValue(int attrId,Eigen::Vector3f vec);
+    virtual void addAttributeValue(int attrId,const Eigen::Vector3f &vec);
     
     /// Add a 4D vector to the given attribute array
-    virtual void addAttributeValue(int attrId,Eigen::Vector4f vec);
+    virtual void addAttributeValue(int attrId,const Eigen::Vector4f &vec);
     
     /// Add a 4 component char array to the given attribute array
-    virtual void addAttributeValue(int attrId,RGBAColor color);
+    virtual void addAttributeValue(int attrId,const RGBAColor &color);
     
     /// Add a float to the given attribute array
     virtual void addAttributeValue(int attrId,float val);
@@ -297,13 +298,13 @@ public:
     SimpleIdentity getRenderTarget() { return renderTargetID; }
 
     /// Update fade up/down times in renderer (i.e. keep the renderer rendering)
-    virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
+    virtual void updateRenderer(WhirlyKit::SceneRendererES *renderer);
     
     /// Copy the vertex data into an NSData object and return it
-    virtual NSData *asData(bool dupStart,bool dupEnd);
+    virtual RawDataRef asData(bool dupStart,bool dupEnd);
     
     /// Copy vertex and element data into appropriate NSData objects
-    virtual void asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize,const Point3d *center);
+    virtual void asVertexAndElementData(MutableRawDataRef &retVertData,NSMutableData &retElementData,int singleElementSize,const Point3d *center);
     
     /// Assuming this is a set of triangles, convert to a triangle strip
     //    virtual void convertToTriStrip();
@@ -320,7 +321,7 @@ public:
     /// We use these to look up parts of a texture at a higher level
     virtual void setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY);
     /// Draw routine for OpenGL 2.0
-    virtual void drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    virtual void drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);
     /// Add a single point to the GL Buffer.
     /// Override this to add your own data to interleaved vertex buffers.
     virtual void addPointToBuffer(unsigned char *basePtr,int which,const Point3d *center);
@@ -397,13 +398,13 @@ public:
 class BasicDrawableTexTweaker : public DrawableTweaker
 {
 public:
-    BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,NSTimeInterval startTime,double period);
+    BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,TimeInterval startTime,double period);
     
     /// Modify the active texture IDs
-    void tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame);
+    void tweakForFrame(Drawable *draw,WhirlyKit::RendererFrameInfo *frame);
 protected:
     std::vector<SimpleIdentity> texIDs;
-    NSTimeInterval startTime;
+    TimeInterval startTime;
     double period;
 };
 
@@ -413,10 +414,12 @@ protected:
 class BasicDrawableScreenTexTweaker : public DrawableTweaker
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     BasicDrawableScreenTexTweaker(const Point3d &centerPt,const Point2d &texScale);
     
     /// Modify the active shader
-    void tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame);
+    void tweakForFrame(Drawable *draw,WhirlyKit::RendererFrameInfo *frame);
 protected:
     Point3d centerPt;
     Point2d texScale;
@@ -431,7 +434,7 @@ class ColorChangeRequest : public DrawableChangeRequest
 public:
     ColorChangeRequest(SimpleIdentity drawId,RGBAColor color);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     unsigned char color[4];
@@ -443,7 +446,7 @@ class OnOffChangeRequest : public DrawableChangeRequest
 public:
     OnOffChangeRequest(SimpleIdentity drawId,bool OnOff);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     bool newOnOff;
@@ -455,7 +458,7 @@ class VisibilityChangeRequest : public DrawableChangeRequest
 public:
     VisibilityChangeRequest(SimpleIdentity drawId,float minVis,float maxVis);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     float minVis,maxVis;
@@ -465,12 +468,12 @@ protected:
 class FadeChangeRequest : public DrawableChangeRequest
 {
 public:
-    FadeChangeRequest(SimpleIdentity drawId,NSTimeInterval fadeUp,NSTimeInterval fadeDown);
+    FadeChangeRequest(SimpleIdentity drawId,TimeInterval fadeUp,TimeInterval fadeDown);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
-    NSTimeInterval fadeUp,fadeDown;
+    TimeInterval fadeUp,fadeDown;
 };
 
 /// Change the texture used by a drawable
@@ -480,7 +483,7 @@ public:
     DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId);
     DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId,int size,int borderTexel,int relLevel,int relX,int relY);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     unsigned int which;
@@ -496,7 +499,7 @@ class DrawTexturesChangeRequest : public DrawableChangeRequest
 public:
     DrawTexturesChangeRequest(SimpleIdentity drawId,const std::vector<SimpleIdentity> &newTexIDs);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     const std::vector<SimpleIdentity> newTexIDs;
@@ -506,9 +509,11 @@ protected:
 class TransformChangeRequest : public DrawableChangeRequest
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     TransformChangeRequest(SimpleIdentity drawId,const Eigen::Matrix4d *newMat);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     Eigen::Matrix4d newMat;
@@ -520,7 +525,7 @@ class DrawPriorityChangeRequest : public DrawableChangeRequest
 public:
     DrawPriorityChangeRequest(SimpleIdentity drawId,int drawPriority);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     int drawPriority;
@@ -532,7 +537,7 @@ class LineWidthChangeRequest : public DrawableChangeRequest
 public:
     LineWidthChangeRequest(SimpleIdentity drawId,float lineWidth);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     float lineWidth;
@@ -544,7 +549,7 @@ class DrawUniformsChangeRequest : public DrawableChangeRequest
 public:
     DrawUniformsChangeRequest(SimpleIdentity drawID,const SingleVertexAttributeSet &attrs);
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     SingleVertexAttributeSet attrs;
@@ -556,7 +561,7 @@ class RenderTargetChangeRequest : public DrawableChangeRequest
 public:
     RenderTargetChangeRequest(SimpleIdentity drawId,SimpleIdentity );
     
-    void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw);
+    void execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw);
     
 protected:
     SimpleIdentity targetID;

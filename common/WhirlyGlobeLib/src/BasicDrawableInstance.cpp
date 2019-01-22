@@ -18,10 +18,11 @@
  *
  */
 
+#import "GLUtils.h"
 #import "BasicDrawableInstance.h"
 #import "GlobeScene.h"
-#import "UIImage+Stuff.h"
 #import "SceneRendererES.h"
+#import "TextureAtlas.h"
 
 using namespace Eigen;
 
@@ -53,19 +54,19 @@ SimpleIdentity BasicDrawableInstance::getProgram() const
     return basicDraw->getProgram();
 }
 
-bool BasicDrawableInstance::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
+bool BasicDrawableInstance::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
 {
     if (startEnable != endEnable)
     {
-        if (frameInfo.currentTime < startEnable ||
-            endEnable < frameInfo.currentTime)
+        if (frameInfo->currentTime < startEnable ||
+            endEnable < frameInfo->currentTime)
             return false;
     }
     
     if (!enable)
         return false;
     
-    double visVal = [frameInfo.theView heightAboveSurface];
+    double visVal = frameInfo->theView->heightAboveSurface();
     
     // Height based check
     if (minVis != DrawVisibleInvalid && maxVis != DrawVisibleInvalid)
@@ -79,7 +80,7 @@ bool BasicDrawableInstance::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
     if (minViewerDist != DrawVisibleInvalid && maxViewerDist != DrawVisibleInvalid &&
         viewerCenter.x() != DrawVisibleInvalid)
     {
-        double dist2 = (viewerCenter - frameInfo.eyePos).squaredNorm();
+        double dist2 = (viewerCenter - frameInfo->eyePos).squaredNorm();
         if (!(minViewerDist*minViewerDist < dist2 && dist2 <= maxViewerDist*maxViewerDist))
             return false;
     }
@@ -92,17 +93,17 @@ GLenum BasicDrawableInstance::getType() const
     return basicDraw->getType();
 }
 
-bool BasicDrawableInstance::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
+bool BasicDrawableInstance::hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const
 {
     return basicDraw->hasAlpha(frameInfo);
 }
 
-void BasicDrawableInstance::updateRenderer(WhirlyKitSceneRendererES *renderer)
+void BasicDrawableInstance::updateRenderer(WhirlyKit::SceneRendererES *renderer)
 {
     if (moving)
     {
         // Motion requires continuous rendering
-        [renderer addContinuousRenderRequest:getId()];
+        renderer->addContinuousRenderRequest(getId());
     }
     
     return basicDraw->updateRenderer(renderer);
@@ -191,11 +192,16 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
     instBuffer = memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, instBuffer);
     void *glMem = NULL;
-    EAGLContext *context = [EAGLContext currentContext];
-    if (context.API < kEAGLRenderingAPIOpenGLES3)
-        glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-    else
-        glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
+    if (hasMapBufferSupport)
+    {
+      EAGLContext *context = [EAGLContext currentContext];
+      if (context.API < kEAGLRenderingAPIOpenGLES3)
+          glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+      else
+          glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
+    } else {
+        glMem = (void *)malloc(bufferSize);
+    }
     unsigned char *basePtr = (unsigned char *)glMem;
     for (unsigned int ii=0;ii<instances.size();ii++,basePtr+=instSize)
     {
@@ -216,10 +222,16 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
         }
     }
     
-    if (context.API < kEAGLRenderingAPIOpenGLES3)
-        glUnmapBufferOES(GL_ARRAY_BUFFER);
-    else
-        glUnmapBuffer(GL_ARRAY_BUFFER);
+    if (hasMapBufferSupport)
+    {
+      if (context.API < kEAGLRenderingAPIOpenGLES3)
+          glUnmapBufferOES(GL_ARRAY_BUFFER);
+      else
+          glUnmapBuffer(GL_ARRAY_BUFFER);
+    } else {
+        glBufferData(GL_ARRAY_BUFFER, bufferSize, glMem, GL_STATIC_DRAW);
+        free(glMem);
+    }
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
@@ -234,7 +246,7 @@ void BasicDrawableInstance::teardownGL(OpenGLMemManager *memManage)
     
     if (vertArrayObj)
     {
-        glDeleteVertexArraysOES(1, &vertArrayObj);
+        glDeleteVertexArrays(1, &vertArrayObj);
         vertArrayObj = 0;
     }
 }
@@ -403,17 +415,17 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                 }
                 
                 // Note: Ignoring offsets, so won't work reliably in 2D
-                Eigen::Matrix4d newMvpMat = frameInfo.projMat4d * frameInfo.viewTrans4d * frameInfo.modelTrans4d * singleInst.mat;
-                Eigen::Matrix4d newMvMat = frameInfo.viewTrans4d * frameInfo.modelTrans4d * singleInst.mat;
+                Eigen::Matrix4d newMvpMat = frameInfo->projMat4d * frameInfo->viewTrans4d * frameInfo->modelTrans4d * singleInst.mat;
+                Eigen::Matrix4d newMvMat = frameInfo->viewTrans4d * frameInfo->modelTrans4d * singleInst.mat;
                 Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
                 
                 // Inefficient, but effective
                 Matrix4f mvpMat4f = Matrix4dToMatrix4f(newMvpMat);
                 Matrix4f mvMat4f = Matrix4dToMatrix4f(newMvpMat);
                 Matrix4f mvNormalMat4f = Matrix4dToMatrix4f(newMvNormalMat);
-                frameInfo.mvpMat = mvpMat4f;
-                frameInfo.viewAndModelMat = mvMat4f;
-                frameInfo.viewModelNormalMat = mvNormalMat4f;
+                frameInfo->mvpMat = mvpMat4f;
+                frameInfo->viewAndModelMat = mvMat4f;
+                frameInfo->viewModelNormalMat = mvNormalMat4f;
                 
                 basicDraw->draw(frameInfo,scene);
             }
@@ -446,18 +458,18 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         // Note: Time based fade isn't represented in the instance.  Probably should be.
         
         // Deal with the range based fade
-        if (frameInfo.heightAboveSurface > 0.0)
+        if (frameInfo->heightAboveSurface > 0.0)
         {
             float factor = 1.0;
             if (basicDraw->minVisibleFadeBand != 0.0)
             {
-                float a = (frameInfo.heightAboveSurface - minVis)/basicDraw->minVisibleFadeBand;
+                float a = (frameInfo->heightAboveSurface - minVis)/basicDraw->minVisibleFadeBand;
                 if (a >= 0.0 && a < 1.0)
                     factor = a;
             }
             if (basicDraw->maxVisibleFadeBand != 0.0)
             {
-                float b = (maxVis - frameInfo.heightAboveSurface)/basicDraw->maxVisibleFadeBand;
+                float b = (maxVis - frameInfo->heightAboveSurface)/basicDraw->maxVisibleFadeBand;
                 if (b >= 0.0 && b < 1.0)
                     factor = b;
             }
@@ -467,7 +479,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         
         // Time for motion
         if (moving)
-            frameInfo.program->setUniform(u_TimeNameID, (float)(frameInfo.currentTime - startTime));
+            frameInfo.program->setUniform(u_TimeNameID, (float)(frameInfo->currentTime - startTime));
         
         // GL Texture IDs
         bool anyTextures = false;
@@ -666,7 +678,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         // If we're using a vertex array object, bind it and draw
         if (vertArrayObj)
         {
-            glBindVertexArrayOES(vertArrayObj);
+            glBindVertexArray(vertArrayObj);
             
             switch (basicDraw->type)
             {

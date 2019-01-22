@@ -22,9 +22,9 @@
 #import "BasicDrawableInstance.h"
 #import "ParticleSystemDrawable.h"
 #import "GlobeScene.h"
-#import "UIImage+Stuff.h"
 #import "SceneRendererES.h"
 #import "TextureAtlas.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -156,19 +156,19 @@ unsigned int BasicDrawable::getDrawPriority() const
     return drawPriority;
 }
 
-bool BasicDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
+bool BasicDrawable::isOn(WhirlyKit::RendererFrameInfo *frameInfo) const
 {
     if (startEnable != endEnable)
     {
-        if (frameInfo.currentTime < startEnable ||
-            endEnable < frameInfo.currentTime)
+        if (frameInfo->currentTime < startEnable ||
+            endEnable < frameInfo->currentTime)
             return false;
     }
     
     if (!on)
         return false;
     
-    double visVal = [frameInfo.theView heightAboveSurface];
+    double visVal = frameInfo->theView->heightAboveSurface();
 
     // Height based check
     if (minVisible != DrawVisibleInvalid && maxVisible != DrawVisibleInvalid)
@@ -182,7 +182,7 @@ bool BasicDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
     if (minViewerDist != DrawVisibleInvalid && maxViewerDist != DrawVisibleInvalid &&
         viewerCenter.x() != DrawVisibleInvalid)
     {
-        double dist2 = (viewerCenter - frameInfo.eyePos).squaredNorm();
+        double dist2 = (viewerCenter - frameInfo->eyePos).squaredNorm();
         if (!(minViewerDist*minViewerDist < dist2 && dist2 <= maxViewerDist*maxViewerDist))
             return false;
     }
@@ -195,7 +195,7 @@ void BasicDrawable::setOnOff(bool onOff)
     on = onOff;
 }
 
-bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
+bool BasicDrawable::hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const
 {
     if (isAlpha)
         return true;
@@ -207,10 +207,10 @@ bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
     if (fadeDown < fadeUp)
     {
         // Heading to 1
-        if (frameInfo.currentTime < fadeDown)
+        if (frameInfo->currentTime < fadeDown)
             return false;
         else
-            if (frameInfo.currentTime > fadeUp)
+            if (frameInfo->currentTime > fadeUp)
                 return false;
             else
                 return true;
@@ -218,21 +218,20 @@ bool BasicDrawable::hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const
         if (fadeUp < fadeDown)
         {
             // Heading to 0
-            if (frameInfo.currentTime < fadeUp)
+            if (frameInfo->currentTime < fadeUp)
                 return false;
             else
-                if (frameInfo.currentTime > fadeDown)
+                if (frameInfo->currentTime > fadeDown)
                     return false;
                 else
                     return true;
         }
     
     // Note: Need to move this elsewhere
-    if ((minVisibleFadeBand != 0.0 || maxVisibleFadeBand != 0.0) &&
-        [frameInfo.theView isKindOfClass:[WhirlyGlobeView class]])
+    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(frameInfo->theView);
+    if ((minVisibleFadeBand != 0.0 || maxVisibleFadeBand != 0.0) && globeView)
     {
-        WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
-        float height = globeView.heightAboveGlobe;
+        float height = globeView->heightAboveSurface();
         if (height > minVisible && height < minVisible + minVisibleFadeBand)
         {
             return true;
@@ -361,8 +360,7 @@ void BasicDrawable::getViewerVisibility(double &outMinViewerDist,double &outMaxV
     outMaxViewerDist = maxViewerDist;
     outViewerCenter = viewerCenter;
 }
-
-void BasicDrawable::setFade(NSTimeInterval inFadeDown,NSTimeInterval inFadeUp)
+void BasicDrawable::setFade(TimeInterval inFadeDown,TimeInterval inFadeUp)
 { fadeUp = inFadeUp;  fadeDown = inFadeDown; }
 
 void BasicDrawable::setLineWidth(float inWidth)
@@ -431,16 +429,16 @@ void BasicDrawable::addNormal(const Point3f &norm)
 void BasicDrawable::addNormal(const Point3d &norm)
 { vertexAttributes[normalEntry]->addVector3f(Point3f(norm.x(),norm.y(),norm.z())); }
 
-void BasicDrawable::addAttributeValue(int attrId,Eigen::Vector2f vec)
+void BasicDrawable::addAttributeValue(int attrId,const Eigen::Vector2f &vec)
 { vertexAttributes[attrId]->addVector2f(vec); }
 
-void BasicDrawable::addAttributeValue(int attrId,Eigen::Vector3f vec)
+void BasicDrawable::addAttributeValue(int attrId,const Eigen::Vector3f &vec)
 { vertexAttributes[attrId]->addVector3f(vec); }
 
-void BasicDrawable::addAttributeValue(int attrId,Eigen::Vector4f vec)
+void BasicDrawable::addAttributeValue(int attrId,const Eigen::Vector4f &vec)
 { vertexAttributes[attrId]->addVector4f(vec); }
 
-void BasicDrawable::addAttributeValue(int attrId,RGBAColor color)
+void BasicDrawable::addAttributeValue(int attrId,const  RGBAColor &color)
 { vertexAttributes[attrId]->addColor(color); }
 
 void BasicDrawable::addAttributeValue(int attrId,float val)
@@ -554,10 +552,10 @@ SimpleIdentity BasicDrawable::getTexId(unsigned int which)
 }
 
 // If we're fading in or out, update the rendering window
-void BasicDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
+void BasicDrawable::updateRenderer(WhirlyKit::SceneRendererES *renderer)
 {
-    [renderer setRenderUntil:fadeUp];
-    [renderer setRenderUntil:fadeDown];    
+    renderer->setRenderUntil(fadeUp);
+    renderer->setRenderUntil(fadeDown);
 }
 
 // Move the texture coordinates around and apply a new texture
@@ -715,7 +713,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     if (drawOffset != 0 && (points.size() == vertexAttributes[normalEntry]->numElements()))
     {
         float scale = setupInfo->minZres*drawOffset;
-        std::vector<Point3f> &norms = *(std::vector<Point3f> *)vertexAttributes[normalEntry]->data;
+        Point3fVector &norms = *(Point3fVector *)vertexAttributes[normalEntry]->data;
         
         for (unsigned int ii=0;ii<points.size();ii++)
         {
@@ -754,28 +752,46 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     
     // Now copy in the data
     glBindBuffer(GL_ARRAY_BUFFER, sharedBuffer);
-    void *glMem = NULL;
-    EAGLContext *context = [EAGLContext currentContext];
-    if (context.API < kEAGLRenderingAPIOpenGLES3)
-        glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-    else
-        glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
-    unsigned char *basePtr = (unsigned char *)glMem + sharedBufferOffset;
-    for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
-        addPointToBuffer(basePtr,ii,NULL);
-    
-    // And copy in the element buffer
-    if (tris.size())
-    {
-        triBuffer = vertexSize*numVerts;
-        unsigned char *basePtr = (unsigned char *)glMem + triBuffer + sharedBufferOffset;
+    if (hasMapBufferSupport) {
+      void *glMem = NULL;
+      EAGLContext *context = [EAGLContext currentContext];
+      if (context.API < kEAGLRenderingAPIOpenGLES3)
+          glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
+      else
+          glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
+      unsigned char *basePtr = (unsigned char *)glMem + sharedBufferOffset;
+      for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
+          addPointToBuffer(basePtr,ii,NULL);
+      
+      // And copy in the element buffer
+      if (tris.size())
+      {
+          triBuffer = vertexSize*numVerts;
+          unsigned char *basePtr = (unsigned char *)glMem + triBuffer + sharedBufferOffset;
+          for (unsigned int ii=0;ii<tris.size();ii++,basePtr+=sizeof(Triangle))
+              memcpy(basePtr, &tris[ii], sizeof(Triangle));
+      }
+      if (context.API < kEAGLRenderingAPIOpenGLES3)
+          glUnmapBufferOES(GL_ARRAY_BUFFER);
+      else
+          glUnmapBuffer(GL_ARRAY_BUFFER);
+    } else {
+        bufferSize = numVerts*vertexSize+tris.size()*sizeof(Triangle);
+        
+        // Gotta do this the hard way
+        unsigned char *glMem = (unsigned char *)malloc(bufferSize);
+        unsigned char *basePtr = glMem;
+        for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
+            addPointToBuffer(basePtr, ii,NULL);
+        
+        // Now the element buffer
+        triBuffer = numVerts*vertexSize;
         for (unsigned int ii=0;ii<tris.size();ii++,basePtr+=sizeof(Triangle))
             memcpy(basePtr, &tris[ii], sizeof(Triangle));
+        
+        glBufferData(GL_ARRAY_BUFFER, bufferSize, glMem, GL_STATIC_DRAW);
+        free(glMem);
     }
-    if (context.API < kEAGLRenderingAPIOpenGLES3)
-        glUnmapBufferOES(GL_ARRAY_BUFFER);
-    else
-        glUnmapBuffer(GL_ARRAY_BUFFER);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
@@ -792,10 +808,11 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
 }
 
 // Instead of copying data to an OpenGL buffer, we'll just put it in an NSData
-NSData *BasicDrawable::asData(bool dupStart,bool dupEnd)
+RawDataRef BasicDrawable::asData(bool dupStart,bool dupEnd)
 {
+    MutableRawDataRef retData;
     if (points.empty())
-        return nil;
+        return retData;
     
     // Verify that everything else (that has data) has the same amount)
     int numElements = (int)points.size();
@@ -804,18 +821,16 @@ NSData *BasicDrawable::asData(bool dupStart,bool dupEnd)
         VertexAttribute *attr = vertexAttributes[ii];
         int theseElements = attr->numElements();
         if (theseElements != 0 && theseElements != numElements)
-            return nil;
+            return retData;
     }
     
-    NSData *retData = nil;
     if (type == GL_TRIANGLE_STRIP || type == GL_POINTS || type == GL_LINES || type == GL_LINE_STRIP)
     {
         vertexSize = singleVertexSize();
         int numVerts = (int)(points.size() + (dupStart ? 2 : 0) + (dupEnd ? 2 : 0));
         
-        unsigned char *buffer = (unsigned char *)malloc(vertexSize * numVerts);
-        retData = [[NSData alloc] initWithBytesNoCopy:buffer length:vertexSize*numVerts freeWhenDone:YES];
-        unsigned char *basePtr = buffer;
+        retData = MutableRawDataRef(new MutableRawData(vertexSize*numVerts));
+        unsigned char *basePtr = (unsigned char *)retData->getRawData();
         if (dupStart)
         {
             addPointToBuffer(basePtr, 0, NULL);
@@ -837,10 +852,8 @@ NSData *BasicDrawable::asData(bool dupStart,bool dupEnd)
     return retData;
 }
 
-void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutableData **retElementData,int singleElementSize,const Point3d *center)
+void BasicDrawable::asVertexAndElementData(MutableRawDataRef &vertData,MutableRawDataRef &elementData,int singleElementSize,const Point3d *center)
 {
-    *retVertData = nil;
-    *retElementData = nil;
     if (type != GL_TRIANGLES)
         return;
     if (points.empty() || tris.empty())
@@ -859,8 +872,8 @@ void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutable
     // Build up the vertices
     vertexSize = singleVertexSize();
     int numVerts = (int)points.size();
-    NSMutableData *vertData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(vertexSize * numVerts)) length:vertexSize*numVerts freeWhenDone:YES];
-    unsigned char *basePtr = (unsigned char *)[vertData mutableBytes];
+    vertData = MutableRawDataRef(new MutableRawData(vertexSize * numVerts));
+    unsigned char *basePtr = (unsigned char *)vertData->getRawData();
     for (unsigned int ii=0;ii<points.size();ii++,basePtr+=vertexSize)
         addPointToBuffer(basePtr, ii, center);
     
@@ -868,8 +881,8 @@ void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutable
     int triSize = singleElementSize * 3;
     int numTris = (int)tris.size();
     int totSize = numTris*triSize;
-    NSMutableData *elementData = [[NSMutableData alloc] initWithBytesNoCopy:(malloc(totSize)) length:totSize freeWhenDone:YES];
-    GLushort *elPtr = (GLushort *)[elementData mutableBytes];
+    elementData = MutableRawDataRef(new MutableRawData(totSize));
+    GLushort *elPtr = (GLushort *)elementData->getRawData();
     for (unsigned int ii=0;ii<tris.size();ii++,elPtr+=3)
     {
         Triangle &tri = tris[ii];
@@ -879,9 +892,6 @@ void BasicDrawable::asVertexAndElementData(NSMutableData **retVertData,NSMutable
             elPtr[jj] = vertId;
         }
     }
-    
-    *retVertData = vertData;
-    *retElementData = elementData;
 }
 
 const std::vector<VertexAttribute *> &BasicDrawable::getVertexAttributes()
@@ -889,145 +899,12 @@ const std::vector<VertexAttribute *> &BasicDrawable::getVertexAttributes()
     return vertexAttributes;
 }
 
-// Note: Closed for repaiars
-#if 0
-// Combined vertex used in triangle stripping
-struct TmpVert
-{
-    TmpVert() { }
-    TmpVert(BasicDrawable *draw,int which)
-    {
-        vert = draw->getPoint(which);
-        texCoord = draw->getTexCoord(which);
-        norm = draw->getNormal(which);
-        color = draw->getColor(which);
-    }
-    bool operator == (const TmpVert &that)
-    {
-        return vert.x() == that.vert.x() && vert.y() == that.vert.y() && vert.z() == that.vert.z() &&
-        texCoord.x() == that.texCoord.x() && texCoord.y() && that.texCoord.y() &&
-        norm.x() == that.norm.x() && norm.y() == that.norm.y() && norm.z() == that.norm.z() &&
-        color.r == that.color.r && color.g == that.color.g && color.b == that.color.b && color.a == that.color.a;
-    }
-    Point3f vert;
-    Point2f texCoord;
-    Point3f norm;
-    RGBAColor color;
-};
-
-class TriStripBuilder
-{
-public:
-    TriStripBuilder(BasicDrawable *draw) : draw(draw), flip(false) { }
-    
-    void addTriangle(TmpVert verts[3])
-    {
-        if (lastVerts.empty())
-        {
-            addVert(verts[0]);
-            addVert(verts[1]);
-            addVert(verts[2]);
-            lastVerts.push_back(verts[1]);
-            lastVerts.push_back(verts[2]);
-        } else {
-            // See if this triangle shares two vertices with the last one
-            int matchOffset = 3;
-            if (lastVerts.size() == 2)
-            {
-                // Try rotating the vertices until we find a match
-                for (matchOffset=0;matchOffset<3;matchOffset++)
-                    if (verts[matchOffset] == lastVerts[(flip ? 1 : 0)] &&
-                        verts[(matchOffset+1)%3] == lastVerts[(flip ? 0 : 1)])
-                        break;
-            }
-            
-            // Found one that worked
-            if (matchOffset != 3)
-            {
-                addVert(verts[(matchOffset+2)%3]);
-                lastVerts[0] = lastVerts[1];
-                lastVerts[1] = verts[(matchOffset+2)%3];
-            } else {
-                // Otherwise, repeat the last vertex and the first vertex of the new triangle
-                addVert(lastVerts[1]);
-                lastVerts.clear();
-                if (flip)
-                {
-                    addVert(verts[2]);
-                    addVert(verts[2]);
-                    addVert(verts[1]);
-                    addVert(verts[0]);
-                    lastVerts.push_back(verts[1]);
-                    lastVerts.push_back(verts[0]);
-                } else {
-                    addVert(verts[0]);
-                    addVert(verts[0]);
-                    addVert(verts[1]);
-                    addVert(verts[2]);
-                    lastVerts.push_back(verts[1]);
-                    lastVerts.push_back(verts[2]);
-                }
-            }
-        }
-        
-        flip = !flip;
-    }
-    
-    void addVert(TmpVert vert)
-    {
-        draw->addPoint(vert.vert);
-        draw->addTexCoord(TexCoord(vert.texCoord.x(),vert.texCoord.y()));
-        draw->addNormal(vert.norm);
-        draw->addColor(vert.color);
-    }
-    
-    BasicDrawable *draw;
-    bool flip;
-    std::vector<TmpVert> lastVerts;
-};
-
-void BasicDrawable::convertToTriStrip()
-{
-    if (type != GL_TRIANGLES)
-        return;
-    
-    if (points.empty() || tris.empty() ||
-        points.size() != texCoords.size() || points.size() != norms.size())
-        return;
-    
-    // Set up a temporary drawable to capture the data
-    BasicDrawable tmpDraw("tmp");
-    tmpDraw.setType(GL_TRIANGLE_STRIP);
-    
-    TriStripBuilder stripBuilder(&tmpDraw);
-    
-    // Add the triangles one by one and let the
-    for (unsigned int ii=0;ii<tris.size();ii++)
-    {
-        Triangle &tri = tris[ii];
-        TmpVert verts[3];
-        for (unsigned int jj=0;jj<3;jj++)
-            verts[jj] = TmpVert(this,tri.verts[jj]);
-        stripBuilder.addTriangle(verts);
-    }
-    
-    setType(GL_TRIANGLE_STRIP);
-    numPoints = 0;
-    numTris = 0;
-    points = tmpDraw.points;
-    colors = tmpDraw.colors;
-    texCoords = tmpDraw.texCoords;
-    norms = tmpDraw.norms;
-    tris.clear();
-}
-#endif
-
 // Tear down the VBOs we set up
 void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
 {
     isSetupGL = false;
     if (vertArrayObj)
-        glDeleteVertexArraysOES(1,&vertArrayObj);
+        glDeleteVertexArrays(1,&vertArrayObj);
     vertArrayObj = 0;
     
     if (sharedBuffer && !sharedBufferIsExternal)
@@ -1046,13 +923,13 @@ void BasicDrawable::teardownGL(OpenGLMemManager *memManager)
         vertexAttributes[ii]->buffer = 0;
 }
 
-void BasicDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+void BasicDrawable::draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
 {
     drawOGL2(frameInfo,scene);
 }
 
 // Used to pass in buffer offsets
-#define CALCBUFOFF(base,off) ((char *)((long)(base) + (off)))
+#define CALCBUFOFF(base,off) ((char *)((uintptr_t)(base)) + (off))
 
 
 // Called once to set up a Vertex Array Object
@@ -1061,8 +938,8 @@ GLuint BasicDrawable::setupVAO(OpenGLES2Program *prog)
     GLuint theVertArrayObj;
     const OpenGLESAttribute *vertAttr = prog->findAttribute(a_PositionNameID);
     
-    glGenVertexArraysOES(1, &theVertArrayObj);
-    glBindVertexArrayOES(theVertArrayObj);
+    glGenVertexArrays(1, &theVertArrayObj);
+    glBindVertexArray(theVertArrayObj);
     
     // We're using a single buffer for all of our vertex attributes
     if (sharedBuffer)
@@ -1106,7 +983,7 @@ GLuint BasicDrawable::setupVAO(OpenGLES2Program *prog)
         CheckGLError("BasicDrawable::setupVAO() glBindBuffer");
     }
     
-    glBindVertexArrayOES(0);
+    glBindVertexArray(0);
     
     // Let a subclass set up their own VAO state
     setupAdditionalVAO(prog,theVertArrayObj);
@@ -1126,48 +1003,48 @@ GLuint BasicDrawable::setupVAO(OpenGLES2Program *prog)
 }
 
 // Draw Vertex Buffer Objects, OpenGL 2.0
-void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene)
 {
-    OpenGLES2Program *prog = frameInfo.program;
+    OpenGLES2Program *prog = frameInfo->program;
     
     // Figure out if we're fading in or out
     float fade = 1.0;
     if (fadeDown < fadeUp)
     {
         // Heading to 1
-        if (frameInfo.currentTime < fadeDown)
+        if (frameInfo->currentTime < fadeDown)
             fade = 0.0;
         else
-            if (frameInfo.currentTime > fadeUp)
+            if (frameInfo->currentTime > fadeUp)
                 fade = 1.0;
             else
-                fade = (frameInfo.currentTime - fadeDown)/(fadeUp - fadeDown);
+                fade = (frameInfo->currentTime - fadeDown)/(fadeUp - fadeDown);
     } else {
         if (fadeUp < fadeDown)
         {
             // Heading to 0
-            if (frameInfo.currentTime < fadeUp)
+            if (frameInfo->currentTime < fadeUp)
                 fade = 1.0;
             else
-                if (frameInfo.currentTime > fadeDown)
+                if (frameInfo->currentTime > fadeDown)
                     fade = 0.0;
                 else
-                    fade = 1.0-(frameInfo.currentTime - fadeUp)/(fadeDown - fadeUp);
+                    fade = 1.0-(frameInfo->currentTime - fadeUp)/(fadeDown - fadeUp);
         }
     }
     // Deal with the range based fade
-    if (frameInfo.heightAboveSurface > 0.0)
+    if (frameInfo->heightAboveSurface > 0.0)
     {
         float factor = 1.0;
         if (minVisibleFadeBand != 0.0)
         {
-            float a = (frameInfo.heightAboveSurface - minVisible)/minVisibleFadeBand;
+            float a = (frameInfo->heightAboveSurface - minVisible)/minVisibleFadeBand;
             if (a >= 0.0 && a < 1.0)
                 factor = a;
         }
         if (maxVisibleFadeBand != 0.0)
         {
-            float b = (maxVisible - frameInfo.heightAboveSurface)/maxVisibleFadeBand;
+            float b = (maxVisible - frameInfo->heightAboveSurface)/maxVisibleFadeBand;
             if (b >= 0.0 && b < 1.0)
                 factor = b;
         }
@@ -1275,61 +1152,114 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
         }
     }
     
-    // If necessary, set up the VAO (once)
-    if (vertArrayObj == 0 && sharedBuffer != 0)
-        vertArrayObj = setupVAO(prog);
-    
-    // Figure out what we're using
-    const OpenGLESAttribute *vertAttr = prog->findAttribute(a_PositionNameID);
-    
-    // Vertex array
-    bool usedLocalVertices = false;
-    if (vertAttr && !(sharedBuffer || pointBuffer))
+    if (hasVertexArraySupport)
     {
+      // If necessary, set up the VAO (once)
+      if (vertArrayObj == 0 && sharedBuffer != 0)
+          vertArrayObj = setupVAO(prog);
+      
+      // Figure out what we're using
+      const OpenGLESAttribute *vertAttr = prog->findAttribute(a_PositionNameID);
+      
+      // Vertex array
+      bool usedLocalVertices = false;
+      if (vertAttr && !(sharedBuffer || pointBuffer))
+      {
+          usedLocalVertices = true;
+          glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &points[0]);
+          CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+          glEnableVertexAttribArray ( vertAttr->index );
+          CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
+      }
+      
+      // Other vertex attributes
+      std::vector<const OpenGLESAttribute *> progAttrs;
+      if (!vertArrayObj) {
+          progAttrs.resize(vertexAttributes.size(),NULL);
+  
+          for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+          {
+              VertexAttribute *attr = vertexAttributes[ii];
+              const OpenGLESAttribute *progAttr = prog->findAttribute(attr->nameID);
+              if (progAttr)
+              {
+                  // The data hasn't been downloaded, so hook it up directly here
+                  if (attr->buffer == 0)
+                  {
+                      // We have a data array for it, so hand that over
+                      if (attr->numElements() != 0)
+                      {
+                          glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
+                          CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
+                          glEnableVertexAttribArray ( progAttr->index );
+                          CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
+                          
+                          progAttrs[ii] = progAttr;
+                      } else {
+                          // The program is expecting it, so we need a default
+                          attr->glSetDefault(progAttr->index);
+                          CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
+                      }
+                  }
+              }
+          }
+      } else {
+          // Vertex Array Objects can't hold the defaults, so we build them earlier
+          for (auto attrDef : vertArrayDefaults) {
+              // The program is expecting it, so we need a default
+              attrDef.attr.glSetDefault(attrDef.progAttrIndex);
+              CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
+          }
+      }
+    } else {
+            // Note: Porting.  Move this into a shared function
+        vertAttr = prog->findAttribute(a_PositionNameID);
+        
+        // We're using a single buffer for all of our vertex attributes
+        if (sharedBuffer)
+        {
+            glBindBuffer(GL_ARRAY_BUFFER,sharedBuffer);
+            CheckGLError("BasicDrawable::drawVBO2() shared glBindBuffer");
+            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, CALCBUFOFF(sharedBufferOffset,0));
+        } else {
+            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &points[0]);
+        }
         usedLocalVertices = true;
-        glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &points[0]);
-        CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
         glEnableVertexAttribArray ( vertAttr->index );
-        CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
-    }
-    
-    // Other vertex attributes
-    std::vector<const OpenGLESAttribute *> progAttrs;
-    if (!vertArrayObj) {
-        progAttrs.resize(vertexAttributes.size(),NULL);
-
+//        WHIRLYKIT_LOGD("BasicDrawable glEnableVertexAttribArray %d",vertAttr->index);
+        
+        // All the rest of the attributes
         for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
         {
+            progAttrs[ii] = NULL;
             VertexAttribute *attr = vertexAttributes[ii];
-            const OpenGLESAttribute *progAttr = prog->findAttribute(attr->nameID);
-            if (progAttr)
+            const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->name);
+            if (thisAttr)
             {
-                // The data hasn't been downloaded, so hook it up directly here
-                if (attr->buffer == 0)
+                if (attr->buffer != 0 || attr->numElements() != 0)
                 {
-                    // We have a data array for it, so hand that over
-                    if (attr->numElements() != 0)
-                    {
-                        glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
-                        CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
-                        glEnableVertexAttribArray ( progAttr->index );
-                        CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
-                        
-                        progAttrs[ii] = progAttr;
-                    } else {
-                        // The program is expecting it, so we need a default
-                        attr->glSetDefault(progAttr->index);
-                        CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
-                    }
+                    if (attr->buffer)
+                        glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), vertexSize, CALCBUFOFF(sharedBufferOffset,attr->buffer));
+                    else
+                        glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
+                    glEnableVertexAttribArray(thisAttr->index);
+//                    WHIRLYKIT_LOGD("BasicDrawable glEnableVertexAttribArray %d",thisAttr->index);
+                    progAttrs[ii] = thisAttr;
+                } else {
+                    // The program is expecting it, so we need a default
+                    attr->glSetDefault(thisAttr->index);
+                    CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
                 }
             }
         }
-    } else {
-        // Vertex Array Objects can't hold the defaults, so we build them earlier
-        for (auto attrDef : vertArrayDefaults) {
-            // The program is expecting it, so we need a default
-            attrDef.attr.glSetDefault(attrDef.progAttrIndex);
-            CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
+        
+        // Bind the element array
+        if (type == GL_TRIANGLES && sharedBuffer)
+        {
+            boundElements = true;
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedBuffer);
+//            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer %d",sharedBuffer);
+            CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
         }
     }
 
@@ -1344,7 +1274,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
     // If we're using a vertex array object, bind it and draw
     if (vertArrayObj)
     {
-        glBindVertexArrayOES(vertArrayObj);
+        glBindVertexArray(vertArrayObj);
         switch (type)
         {
             case GL_TRIANGLES:
@@ -1364,7 +1294,7 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
                 CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                 break;
         }
-        glBindVertexArrayOES(0);
+        glBindVertexArray(0);
     } else {
         // Draw without a VAO
         switch (type)
@@ -1373,13 +1303,17 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             {
                 if (triBuffer)
                 {
-                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
+                    if (!boundElements)
+                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
                     CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
-                    glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
+                    glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, (void *)((uintptr_t)triBuffer));
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
                 } else {
-                    glDrawElements(GL_TRIANGLES, (GLsizei)tris.size()*3, GL_UNSIGNED_SHORT, &tris[0]);
+                    if (!boundElements)
+                        glDrawElements(GL_TRIANGLES, (GLsizei)tris.size()*3, GL_UNSIGNED_SHORT, &tris[0]);
+                    else
+                        glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                 }
             }
@@ -1416,14 +1350,39 @@ void BasicDrawable::drawOGL2(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
             if (progAttrs[ii])
                 glDisableVertexAttribArray(progAttrs[ii]->index);
     }
+    
+    if (!hasVertexArraySupport)
+    {
+        // Now tear down all that state
+        if (vertAttr)
+        {
+            glDisableVertexAttribArray(vertAttr->index);
+//            WHIRLYKIT_LOGD("BasicDrawable glDisableVertexAttribArray %d",vertAttr->index);
+        }
+        for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+            if (progAttrs[ii])
+            {
+                glDisableVertexAttribArray(progAttrs[ii]->index);
+//                WHIRLYKIT_LOGD("BasicDrawable glDisableVertexAttribArray %d",progAttrs[ii]->index);
+            }
+        if (boundElements) {
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer 0");
+        }
+        if (sharedBuffer)
+        {
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+//            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer 0");
+        }
+    }
 }
 
-BasicDrawableTexTweaker::BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,NSTimeInterval startTime,double period)
+BasicDrawableTexTweaker::BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,TimeInterval startTime,double period)
 : texIDs(texIDs), startTime(startTime), period(period)
 {
 }
 
-void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame)
+void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *frame)
 {
     BasicDrawable *basicDraw = (BasicDrawable *)draw;
     
@@ -1436,8 +1395,8 @@ void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,WhirlyKitRendererFram
     basicDraw->setTexId(1, texIDs[next]);
     
     // Interpolation as well
-    if (frame.program)
-        frame.program->setUniform(u_interpNameID, (float)interp);
+    if (frame->program)
+        frame->program->setUniform(u_interpNameID, (float)interp);
     
     // This forces a redraw every frame
     // Note: There has to be a better way
@@ -1449,21 +1408,21 @@ BasicDrawableScreenTexTweaker::BasicDrawableScreenTexTweaker(const Point3d &cent
 {
 }
     
-void BasicDrawableScreenTexTweaker::tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frameInfo)
+void BasicDrawableScreenTexTweaker::tweakForFrame(Drawable *draw,WhirlyKit::RendererFrameInfo *frameInfo)
 {
-    if (frameInfo.program)
+    if (frameInfo->program)
     {
-        Vector4f screenPt = frameInfo.mvpMat * Vector4f(centerPt.x(),centerPt.y(),centerPt.z(),1.0);
+        Vector4f screenPt = frameInfo->mvpMat * Vector4f(centerPt.x(),centerPt.y(),centerPt.z(),1.0);
         screenPt /= screenPt.w();
         
-        Point2f u_scale = Point2f(frameInfo.sceneRenderer.framebufferWidth/2.f,frameInfo.sceneRenderer.framebufferHeight/2.f);
+        Point2f u_scale = frameInfo->sceneRenderer->getFramebufferSize() / 2.f;
         Point2f newScreenPt(fmod(-screenPt.x()*texScale.x()*u_scale.x(),1.0),fmod(-screenPt.y()*texScale.y()*u_scale.y(),1.0));
         newScreenPt.x() /= texScale.x()*u_scale.x();
         newScreenPt.y() /= texScale.y()*u_scale.y();
         
-        frameInfo.program->setUniform(u_screenOriginNameID, Point2f(newScreenPt.x(),newScreenPt.y()));
-        frameInfo.program->setUniform(u_ScaleNameID, u_scale);
-        frameInfo.program->setUniform(u_texScaleNameID, Point2f(texScale.x(),texScale.y()));
+        frameInfo->program->setUniform(u_screenOriginNameID, Point2f(newScreenPt.x(),newScreenPt.y()));
+        frameInfo->program->setUniform(u_ScaleNameID, u_scale);
+        frameInfo->program->setUniform(u_texScaleNameID, Point2f(texScale.x(),texScale.y()));
     }
 }
 
@@ -1476,7 +1435,7 @@ ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
     color[3] = inColor.a;
 }
 
-void ColorChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+void ColorChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
@@ -1495,7 +1454,7 @@ OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
     
 }
 
-void OnOffChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+void OnOffChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable) {
@@ -1513,7 +1472,7 @@ VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float min
 {
 }
 
-void VisibilityChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+void VisibilityChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
@@ -1524,13 +1483,13 @@ void VisibilityChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *re
     }
 }
 
-FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,NSTimeInterval fadeUp,NSTimeInterval fadeDown)
+FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,TimeInterval fadeUp,TimeInterval fadeDown)
 : DrawableChangeRequest(drawId), fadeUp(fadeUp), fadeDown(fadeDown)
 {
     
 }
 
-void FadeChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+void FadeChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     // Fade it out, then remove it
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
@@ -1540,8 +1499,8 @@ void FadeChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer
     }
     
     // And let the renderer know
-    [renderer setRenderUntil:fadeDown];
-    [renderer setRenderUntil:fadeUp];
+    renderer->setRenderUntil(fadeDown);
+    renderer->setRenderUntil(fadeUp);
 }
 
 DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId)
@@ -1554,7 +1513,7 @@ DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,unsigned int wh
 {
 }
     
-void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+void DrawTexChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable) {
@@ -1585,7 +1544,7 @@ DrawTexturesChangeRequest::DrawTexturesChangeRequest(SimpleIdentity drawId,const
 {
 }
 
-void DrawTexturesChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+void DrawTexturesChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
@@ -1597,7 +1556,7 @@ TransformChangeRequest::TransformChangeRequest(SimpleIdentity drawId,const Matri
 {
 }
 
-void TransformChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+void TransformChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDraw = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDraw.get())
@@ -1609,7 +1568,7 @@ DrawPriorityChangeRequest::DrawPriorityChangeRequest(SimpleIdentity drawId,int d
 {
 }
 
-void DrawPriorityChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+void DrawPriorityChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
@@ -1626,7 +1585,7 @@ LineWidthChangeRequest::LineWidthChangeRequest(SimpleIdentity drawId,float lineW
 {
 }
 
-void LineWidthChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+void LineWidthChangeRequest::execute2(Scene *scene,WhirlyKit::SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)

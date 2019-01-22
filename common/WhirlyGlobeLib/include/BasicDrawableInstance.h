@@ -18,8 +18,6 @@
  *
  */
 
-#import "GLUtils.h"
-
 #import <vector>
 #import <set>
 #import <map>
@@ -38,6 +36,8 @@ namespace WhirlyKit
 class BasicDrawableInstance : public Drawable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Either the old style where we reuse drawables or the new style, largely for models
     typedef enum {ReuseStyle,LocalStyle} Style;
     
@@ -57,7 +57,7 @@ public:
     void setProgram(SimpleIdentity progID) { programID = progID; }
     
     /// We're allowed to turn drawables off completely
-    virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
+    virtual bool isOn(WhirlyKit::RendererFrameInfo *frameInfo) const;
     
     /// Do any OpenGL initialization you may want.
     virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager);
@@ -72,7 +72,7 @@ public:
     virtual GLenum getType() const;
     
     /// Return true if the drawable has alpha.  These will be sorted last.
-    virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const;
+    virtual bool hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const;
     
     /// We can ask to use the z buffer
     virtual void setRequestZBuffer(bool val) { requestZBuffer = val; }
@@ -84,16 +84,16 @@ public:
     virtual bool getWriteZbuffer() const { return writeZBuffer; }
     
     /// Update anything associated with the renderer.  Probably renderUntil.
-    virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
+    virtual void updateRenderer(WhirlyKit::SceneRendererES *renderer);
     
     /// Fill this in to draw the basic drawable
-    virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    virtual void draw(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scene);
     
     /// Set the enable on/off
     void setEnable(bool newEnable) { enable = newEnable; }
     
     /// Set the time range for enable
-    void setEnableTimeRange(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable) { startEnable = inStartEnable;  endEnable = inEndEnable; }
+    void setEnableTimeRange(TimeInterval inStartEnable,TimeInterval inEndEnable) { startEnable = inStartEnable;  endEnable = inEndEnable; }
     
     /// Set the min/max visible range
     void setVisibleRange(float inMinVis,float inMaxVis) { minVis = inMinVis;   maxVis = inMaxVis; }
@@ -126,9 +126,9 @@ public:
     bool isMoving() const { return moving; }
 
     // Time we start counting from for motion
-    void setStartTime(NSTimeInterval inStartTime) { startTime = inStartTime; }
+    void setStartTime(TimeInterval inStartTime) { startTime = inStartTime; }
     // Time we start counting from for motion
-    NSTimeInterval getStartTime() { return startTime; }
+    TimeInterval getStartTime() { return startTime; }
 
     /// Set the uniforms to be applied to the geometry
     virtual void setUniforms(const SingleVertexAttributeSet &uniforms);
@@ -149,7 +149,7 @@ public:
         
         // End center and duration for moving models
         Point3d endCenter;
-        NSTimeInterval duration;
+        TimeInterval duration;
     };
     
     /// Add a instance to the stack of instances this instance represents (mmm, noun overload)
@@ -193,7 +193,7 @@ protected:
     SimpleIdentity masterID;
     BasicDrawableRef basicDraw;
     bool enable;
-    NSTimeInterval startEnable,endEnable;
+    TimeInterval startEnable,endEnable;
     bool hasDrawPriority;
     int drawPriority;
     bool hasColor;
@@ -210,7 +210,7 @@ protected:
     std::vector<BasicDrawable::VertAttrDefault> vertArrayDefaults;
     
     int centerSize,matSize,colorInstSize,colorSize,instSize,modelDirSize;
-    NSTimeInterval startTime;
+    TimeInterval startTime;
     bool moving;
     // Uniforms to apply to shader
     SingleVertexAttributeSet uniforms;
