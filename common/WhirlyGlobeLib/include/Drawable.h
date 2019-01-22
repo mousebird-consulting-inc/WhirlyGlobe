@@ -18,36 +18,32 @@
  *
  */
 
+#import "glwrapper.h"
 #import <vector>
 #import <set>
 #import <map>
+#import "RawData.h"
 #import "Identifiable.h"
 #import "StringIndexer.h"
 #import "WhirlyVector.h"
-#import "GlobeView.h"
-#import "GLUtils.h"
+#import "WhirlyKitView.h"
 
-@class WhirlyKitSceneRendererES;
-
-
-
-@class WhirlyKitRendererFrameInfo;
-/// @endcon
+namespace WhirlyKit
+{
+class RendererFrameInfo;
+class SceneRendererES;
 
 /** This is the configuration info passed to setupGL for each
     drawable.  Sometimes this will be render thread side, sometimes
     layer thread side.  The defaults should be valid.
   */
-@interface WhirlyKitGLSetupInfo : NSObject
+class WhirlyKitGLSetupInfo
 {
-@public
+public:
+    WhirlyKitGLSetupInfo();
     /// If we're using drawOffset, this is the units
     float minZres;
-}
-@end
-
-namespace WhirlyKit
-{
+};
 	
 class Scene;
 class OpenGLES2Program;
@@ -115,7 +111,7 @@ class ChangeRequest
 {
 public:
     ChangeRequest() : when(0.0) { }
-	virtual ~ChangeRequest() { }
+    virtual ~ChangeRequest();
 		
     /// Return true if this change requires a GL Flush in the thread it was executed in
     virtual bool needsFlush() { return false; }
@@ -124,13 +120,13 @@ public:
     virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { };
 		
 	/// Make a change to the scene.  For the renderer.  Never call this.
-	virtual void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view) = 0;
+    virtual void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view) = 0;
     
     /// Set this if you need to be run before the active models are run
     virtual bool needPreExecute() { return false; }
     
     /// If non-zero we'll execute this request after the given absolute time
-    NSTimeInterval when;
+    TimeInterval when;
 };
     
 /// Representation of a list of changes.  Might get more complex in the future.
@@ -156,7 +152,7 @@ class DrawableTweaker : public Identifiable
 public:
     virtual ~DrawableTweaker() { }
     /// Do your tweaking here
-    virtual void tweakForFrame(Drawable *draw,WhirlyKitRendererFrameInfo *frame) = 0;
+    virtual void tweakForFrame(Drawable *draw,RendererFrameInfo *frame) = 0;
 };
     
 typedef std::shared_ptr<DrawableTweaker> DrawableTweakerRef;
@@ -171,6 +167,8 @@ protected:
     /// Used in special cases
     Drawable() { }
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Construct empty
 	Drawable(const std::string &name);
 	virtual ~Drawable();
@@ -187,28 +185,28 @@ public:
     /// If present, we'll do a pre-render calculation pass with this program set
     virtual SimpleIdentity getCalculationProgram() const { return EmptyIdentity; }
 	
-	/// We're allowed to turn drawables off completely
-	virtual bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
+    /// We're allowed to turn drawables off completely
+    virtual bool isOn(RendererFrameInfo *frameInfo) const = 0;
     
-	/// Do any OpenGL initialization you may want.
-	/// For instance, set up VBOs.
-	/// We pass in the minimum Z buffer resolution (for offsets).
-	virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { };
-	
-	/// Clean up any OpenGL objects you may have (e.g. VBOs).
-	virtual void teardownGL(OpenGLMemManager *memManage) { };
+    /// Do any OpenGL initialization you may want.
+    /// For instance, set up VBOs.
+    /// We pass in the minimum Z buffer resolution (for offsets).
+    virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { };
+    
+    /// Clean up any OpenGL objects you may have (e.g. VBOs).
+    virtual void teardownGL(OpenGLMemManager *memManage) { };
     
     /// Some drawables have a pre-render phase that uses the GPU for calculation
-    virtual void calculate(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) { };
+    virtual void calculate(RendererFrameInfo *frameInfo,Scene *scene) { };
 
-	/// Set up what you need in the way of context and draw.
-	virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene) = 0;
+    /// Set up what you need in the way of context and draw.
+    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene) = 0;
     
     /// Return the type (or an approximation thereof).  We use this for sorting.
     virtual GLenum getType() const = 0;
     
     /// Return true if the drawable has alpha.  These will be sorted last.
-    virtual bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const = 0;
+    virtual bool hasAlpha(RendererFrameInfo *frameInfo) const = 0;
     
     /// Return the Matrix if there is an active one (ideally not)
     virtual const Eigen::Matrix4d *getMatrix() const { return NULL; }
@@ -223,7 +221,7 @@ public:
     virtual SimpleIdentity getRenderTarget() { return EmptyIdentity; }
     
     /// Update anything associated with the renderer.  Probably renderUntil.
-    virtual void updateRenderer(WhirlyKitSceneRendererES *renderer) = 0;
+    virtual void updateRenderer(SceneRendererES *renderer) = 0;
     
     /// Add a tweaker to this list to be run each frame
     virtual void addTweaker(DrawableTweakerRef tweakRef) { tweakers.insert(tweakRef); }
@@ -232,7 +230,7 @@ public:
     virtual void removeTweaker(DrawableTweakerRef tweakRef) { tweakers.erase(tweakRef); }
     
     /// Run the tweakers
-    virtual void runTweakers(WhirlyKitRendererFrameInfo *frame);
+    virtual void runTweakers(RendererFrameInfo *frame);
     
 protected:
     std::string name;
@@ -249,19 +247,21 @@ typedef std::shared_ptr<Drawable> DrawableRef;
 class DrawableChangeRequest : public ChangeRequest
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Construct with the ID of the Drawable we'll be changing
-	DrawableChangeRequest(SimpleIdentity drawId) : drawId(drawId) { }
-	virtual ~DrawableChangeRequest() { }
+    DrawableChangeRequest(SimpleIdentity drawId) : drawId(drawId) { }
+    virtual ~DrawableChangeRequest() { }
 	
-	/// This will look for the drawable by ID and then call execute2()
-	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    /// This will look for the drawable by ID and then call execute2()
+    void execute(Scene *scene,SceneRendererES *renderer,WhirlyKitView *view);
 	
-	/// This is called by execute if there's a drawable to modify.
+    /// This is called by execute if there's a drawable to modify.
     /// This is the one you override.
-	virtual void execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw) = 0;
+    virtual void execute2(Scene *scene,SceneRendererES *renderer,DrawableRef draw) = 0;
 	
 protected:
-	SimpleIdentity drawId;
+    SimpleIdentity drawId;
 };
 
 /// Turn off visibility checking
@@ -276,7 +276,15 @@ static const unsigned int MaxDrawableTriangles = (MaxDrawablePoints / 3);
 class SubTexture;
 
 /// Data types we'll accept for attributes
-typedef enum {BDFloat4Type,BDFloat3Type,BDChar4Type,BDFloat2Type,BDFloatType,BDIntType,BDDataTypeMax} BDAttributeDataType;
+typedef enum {
+	BDFloat4Type = 0,
+	BDFloat3Type = 1,
+	BDChar4Type  = 2,
+	BDFloat2Type = 3,
+	BDFloatType  = 4,
+	BDIntType    = 5,
+    BDDataTypeMax
+} BDAttributeDataType;
     
     
 /// Used to keep track of attributes (other than points)

@@ -19,11 +19,18 @@
  */
 
 #import "DynamicTextureAtlas.h"
+#import "GLUtils.h"
+#import "Scene.h"
 
 using namespace Eigen;
 
 namespace WhirlyKit
 {
+ 
+DynamicTexture::Region::Region()
+  : sx(0), sy(0), ex(0), ey(0)
+{
+}
  
 DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,GLenum inFormat,bool clearTextures)
     : TextureBase(name), texSize(texSize), cellSize(cellSize), numCell(0), numRegions(0), compressed(false), layoutGrid(NULL), clearTextures(clearTextures), interpType(GL_LINEAR)
@@ -112,6 +119,9 @@ DynamicTexture::~DynamicTexture()
     pthread_mutex_destroy(&regionLock);
 }
 
+// If set we'll try to clear the images when we're not using them.
+static const bool ClearImages = false;
+
 // Create the OpenGL texture, empty
 bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
 {
@@ -153,17 +163,15 @@ bool DynamicTexture::createInGL(OpenGLMemManager *memManager)
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, type, texSize, texSize, 0, (GLsizei)size, NULL);
     } else {
         // Turn this on to provide glTexImage2D with empty memory so Instruments doesn't complain
-//        size_t size = texSize*texSize*4;
-//        unsigned char *zeroMem = (unsigned char *)malloc(size);
-//        unsigned int *intMem = (unsigned int *)zeroMem;
-//        for (unsigned int ii=0;ii<texSize*texSize;ii++)
-//        {
-//            intMem[ii] = 0x000000ff;
-//        }
-//        memset(zeroMem, 255, size);
-//        glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, GL_RGBA, type, zeroMem);
-//        free(zeroMem);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, type, NULL);
+        if (ClearImages)
+        {
+            size_t size = texSize*texSize*4;
+            unsigned char *zeroMem = (unsigned char *)malloc(size);
+            memset(zeroMem, 0, size);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, type, zeroMem);
+            free(zeroMem);
+        } else
+            glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, type, NULL);
     }
     CheckGLError("DynamicTexture::createInGL() glTexImage2D()");
     
@@ -186,11 +194,11 @@ void DynamicTexture::addTexture(Texture *tex,const Region &region)
     int width = tex->getWidth();
     int height = tex->getHeight();
     
-    NSData *data = tex->processData();
+    RawDataRef data = tex->processData();
     addTextureData(startX,startY,width,height,data);
 }
     
-void DynamicTexture::addTextureData(int startX,int startY,int width,int height,NSData *data)
+void DynamicTexture::addTextureData(int startX,int startY,int width,int height,RawDataRef data)
 {
     if (data)
     {
@@ -209,13 +217,13 @@ void DynamicTexture::addTextureData(int startX,int startY,int width,int height,N
             else
                 glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
         } else
-            glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, [data bytes]);
+            glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, data->getRawData());
         CheckGLError("DynamicTexture::addTexture() glTexSubImage2D()");
         glBindTexture(GL_TEXTURE_2D, 0);
     }    
 }
     
-void DynamicTexture::clearTextureData(int startX,int startY,int width,int height)
+void DynamicTexture::clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData)
 {
     if (!clearTextures)
         return;
@@ -233,8 +241,16 @@ void DynamicTexture::clearTextureData(int startX,int startY,int width,int height
 //        else
 //            glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
     } else {
-        std::vector<unsigned char> emptyPixels(width*height*4,0);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, emptyPixels.data());
+        if (ClearImages)
+        {
+            if (mainThreadMerge) {
+                RawDataRef clearData(new RawDataWrapper(emptyData,width*height*4,false));
+                changes.push_back(new DynamicTextureAddRegion(getId(),
+                                                        startX, startY, width, height,
+                                                        clearData));
+            } else
+                glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, type, emptyData);
+        }
     }
     
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -252,13 +268,13 @@ void DynamicTexture::setRegion(const Region &region, bool enable)
         }
 }
     
-void DynamicTexture::clearRegion(const Region &clearRegion)
+void DynamicTexture::clearRegion(const Region &clearRegion,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData)
 {
     int startX = clearRegion.sx * cellSize;
     int startY = clearRegion.sy * cellSize;
     int width = (clearRegion.ex - clearRegion.sx + 1) * cellSize;
     int height = (clearRegion.ey - clearRegion.sy + 1) * cellSize;
-    clearTextureData(startX,startY,width,height);
+    clearTextureData(startX,startY,width,height,changes,mainThreadMerge,emptyData);
 }
     
 void DynamicTexture::getReleasedRegions(std::vector<DynamicTexture::Region> &toClear)
@@ -335,7 +351,7 @@ void DynamicTexture::getUtilization(int &outNumCell,int &usedCell)
     }
 }
     
-void DynamicTextureClearRegion::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void DynamicTextureClearRegion::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
     TextureBase *tex = scene->getTexture(texId);
     DynamicTexture *dynTex = dynamic_cast<DynamicTexture *>(tex);
@@ -345,7 +361,7 @@ void DynamicTextureClearRegion::execute(Scene *scene,WhirlyKitSceneRendererES *r
     }
 }
     
-void DynamicTextureAddRegion::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void DynamicTextureAddRegion::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
     TextureBase *tex = scene->getTexture(texId);
     DynamicTexture *dynTex = dynamic_cast<DynamicTexture *>(tex);
@@ -354,10 +370,33 @@ void DynamicTextureAddRegion::execute(Scene *scene,WhirlyKitSceneRendererES *ren
         dynTex->addTextureData(startX, startY, width, height, data);
     }    
 }
-    
-DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth)
-    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth), clearTextures(imageDepth>1), interpType(GL_LINEAR)
+   
+DynamicTextureAtlas::TextureRegion::TextureRegion()
+  : dynTexId(EmptyIdentity)
 {
+}
+
+// If set, we ask the main thread to do the sub texture loads
+#if TARGET_IPHONE_SIMULATOR
+    static const bool MainThreadMerge = true;
+#else
+#ifdef __ANDROID__
+// Note: Porting
+// On some devices we're seeing a lot of texture problems when trying to merge
+    static const bool MainThreadMerge = true;
+#else
+    static const bool MainThreadMerge = false;
+#endif
+#endif
+
+    
+DynamicTextureAtlas::DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth,bool mainThreadMerge)
+    : texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth),  pixelFudge(0.0), mainThreadMerge(mainThreadMerge), clearTextures(imageDepth>1), interpType(GL_LINEAR)
+{
+    if (mainThreadMerge || MainThreadMerge)
+    {
+        emptyPixelBuffer.resize(texSize*texSize*4,0);
+    }
 }
     
 DynamicTextureAtlas::~DynamicTextureAtlas()
@@ -368,14 +407,12 @@ DynamicTextureAtlas::~DynamicTextureAtlas()
 
     textures.clear();
 }
-    
-// If set, we ask the main thread to do the sub texture loads
-#if TARGET_IPHONE_SIMULATOR
-static const bool MainThreadMerge = true;
-#else
-static const bool MainThreadMerge = false;
-#endif
-    
+
+void DynamicTextureAtlas::setPixelFudgeFactor(float pixFudge)
+{
+    pixelFudge = pixFudge;
+}
+        
 bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels,TextureRegion *outTexRegion)
 {
     if (newTextures.size() != imageDepth && frame < 0)
@@ -399,7 +436,7 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
             for (unsigned int ii=0;ii<dynTexVec->size();ii++)
             {
                 DynamicTextureRef dynTex = dynTexVec->at(ii);
-                dynTex->clearRegion(clearRegion);
+                dynTex->clearRegion(clearRegion,changes,MainThreadMerge || mainThreadMerge,&emptyPixelBuffer[0]);
             }
     }
     
@@ -468,7 +505,7 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
             DynamicTextureRef dynTex = dynTexVec->at(which);
             //        NSLog(@"Region: (%d,%d)->(%d,%d)  texture: %ld",texRegion.region.sx,texRegion.region.sy,texRegion.region.ex,texRegion.region.ey,dynTex->getId());
             // Make the main thread do the merge
-            if (MainThreadMerge)
+            if (MainThreadMerge || mainThreadMerge)
                 changes.push_back(new DynamicTextureAddRegion(dynTex->getId(),
                                                               texRegion.region.sx * cellSize, texRegion.region.sy * cellSize, tex->getWidth(), tex->getHeight(),
                                                               tex->processData()));
@@ -489,11 +526,14 @@ bool DynamicTextureAtlas::addTexture(const std::vector<Texture *> &newTextures,i
         // Use the size they passed in specifically for this calculation
         Point2f inTexSize = realSize ? *realSize : Point2f(firstTex->getWidth(),firstTex->getHeight());
         Point2f offset = realOffset ? *realOffset : Point2f(0,0);
-        TexCoord tex0(org.x() + (borderPixels + offset.x()) / (float)texSize ,
-                     org.y() + (borderPixels + offset.y()) / (float)texSize);
-        TexCoord tex1(tex0.x()+(inTexSize.x()-2*borderPixels) / (float)texSize,
-                      tex0.y()+(inTexSize.y()-2*borderPixels) / (float)texSize);
-        texRegion.subTex.setFromTex(tex0,tex1);
+        if (borderPixels == 0)
+            boundaryPix = Point2f(pixelFudge/texSize,pixelFudge/texSize);
+        else
+//            boundaryPix = Point2f((borderPixels-0.5) / texSize, (borderPixels-0.5) / texSize);
+            boundaryPix = Point2f((borderPixels) / (float)texSize, (borderPixels) / (float)texSize);
+        texRegion.subTex.setFromTex(TexCoord(org.x() + boundaryPix.x() + offset.x() / (float)texSize ,org.y() + boundaryPix.y() + offset.y() / (float)texSize),
+                                    TexCoord(org.x() + inTexSize.x() / (float)texSize - boundaryPix.x(),
+                                             org.y() + inTexSize.y() / (float)texSize - boundaryPix.y()));
         texRegion.subTex.texId = dynTexVec->at(0)->getId();
         
         subTex = texRegion.subTex;
@@ -539,7 +579,7 @@ bool DynamicTextureAtlas::updateTexture(Texture *tex,int frame,const TextureRegi
     return false;
 }
     
-void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &changes,NSTimeInterval when)
+void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &changes,TimeInterval when)
 {
     TextureRegion texRegion;
     texRegion.subTex.setId(subTex.getId());

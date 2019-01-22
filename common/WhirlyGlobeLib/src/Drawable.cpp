@@ -21,30 +21,20 @@
 #import "GLUtils.h"
 #import "BasicDrawable.h"
 #import "GlobeScene.h"
-#import "UIImage+Stuff.h"
 #import "SceneRendererES.h"
+#import "TextureAtlas.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
-@implementation WhirlyKitGLSetupInfo
-
-- (id)init
-{
-    self = [super init];
-    if (!self)
-        return nil;
-    minZres = 0.0;
-    
-    return self;
-}
-
-@end
-
-using namespace WhirlyGlobe;
-
 namespace WhirlyKit
 {
-    
+
+WhirlyKitGLSetupInfo::WhirlyKitGLSetupInfo()
+{
+    minZres = 0.0;
+}
+
 OpenGLMemManager::OpenGLMemManager()
 {
     pthread_mutex_init(&idLock,NULL);
@@ -196,8 +186,8 @@ void OpenGLMemManager::clearTextureIDs()
 
 void OpenGLMemManager::dumpStats()
 {
-    NSLog(@"MemCache: %ld buffers",buffIDs.size());
-    NSLog(@"MemCache: %ld textures",texIDs.size());
+    WHIRLYKIT_LOGV("MemCache: %ld buffers",(long int)buffIDs.size());
+    WHIRLYKIT_LOGV("MemCache: %ld textures",(long int)texIDs.size());
 }
 		
 void OpenGLMemManager::lock()
@@ -210,6 +200,9 @@ void OpenGLMemManager::unlock()
     pthread_mutex_unlock(&idLock);
 }
 
+ChangeRequest::~ChangeRequest()
+{
+}
 		
 Drawable::Drawable(const std::string &name)
     : name(name)
@@ -220,14 +213,14 @@ Drawable::~Drawable()
 {
 }
     
-void Drawable::runTweakers(WhirlyKitRendererFrameInfo *frame)
+void Drawable::runTweakers(RendererFrameInfo *frame)
 {
     for (DrawableTweakerRefSet::iterator it = tweakers.begin();
          it != tweakers.end(); ++it)
         (*it)->tweakForFrame(this,frame);
 }
 	
-void DrawableChangeRequest::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void DrawableChangeRequest::execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view)
 {
 	DrawableRef theDrawable = scene->getDrawable(drawId);
 	if (theDrawable)

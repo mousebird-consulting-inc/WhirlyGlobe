@@ -20,7 +20,6 @@
 
 #import <vector>
 #import <set>
-#import <UIKit/UIKit.h>
 
 #import "Identifiable.h"
 #import "WhirlyVector.h"
@@ -46,6 +45,7 @@ public:
     class Region
     {
     public:
+        Region();
         int sx,sy,ex,ey;
     };
     
@@ -64,11 +64,11 @@ public:
     void addTexture(Texture *tex,const Region &region);
     
     /// Add the data at a given location in the texture
-    void addTextureData(int startX,int startY,int width,int height,NSData *data);
+    void addTextureData(int startX,int startY,int width,int height,RawDataRef data);
     
     /// Clear out the area given
-    void clearRegion(const Region &region);
-    void clearTextureData(int startX,int startY,int width,int height);
+    void clearRegion(const Region &region,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData);
+    void clearTextureData(int startX,int startY,int width,int height,ChangeSet &changes,bool mainThreadMerge,unsigned char *emptyData);
     
     /// Set or clear a given region
     void setRegion(const Region &region,bool enable);
@@ -93,6 +93,9 @@ public:
     void getUtilization(int &numCell,int &usedCell);
     
 protected:
+    /// Used for debugging
+    std::string name;
+    
     /// If set, this is a compressed format (assume PVRTC4)
     bool compressed;
     /// Interpolation type
@@ -134,16 +137,16 @@ typedef struct
 class DynamicTextureAddRegion : public ChangeRequest
 {
 public:
-    DynamicTextureAddRegion(SimpleIdentity texId,int startX,int startY,int width,int height,NSData *data)
+    DynamicTextureAddRegion(SimpleIdentity texId,int startX,int startY,int width,int height,RawDataRef data)
     : texId(texId), startX(startX), startY(startY), width(width), height(height), data(data) { }
 
     /// Add the region.  Never call this.
-	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view);
     
 protected:
     SimpleIdentity texId;
     int startX,startY,width,height;
-    NSData *data;
+    RawDataRef data;
 };
     
 /// Tell a dynamic texture that a region has been released for use
@@ -153,10 +156,10 @@ public:
     /// Construct with the dynamic texture ID and the region to clear
     DynamicTextureClearRegion(SimpleIdentity texId,const DynamicTexture::Region &region) : texId(texId), region(region) { }
     /// This version takes a time
-    DynamicTextureClearRegion(SimpleIdentity texId,const DynamicTexture::Region &region,NSTimeInterval inWhen) : texId(texId), region(region) { when = inWhen; }
+    DynamicTextureClearRegion(SimpleIdentity texId,const DynamicTexture::Region &region,TimeInterval inWhen) : texId(texId), region(region) { when = inWhen; }
 
     /// Clear the region from the given dynamic texture.  Never call this.
-	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view);
 
 protected:
     SimpleIdentity texId;
@@ -175,6 +178,7 @@ public:
     class TextureRegion
     {
     public:
+        TextureRegion();
         bool operator < (const TextureRegion &that) const { return subTex.getId() < that.subTex.getId(); }
         
         SubTexture subTex;
@@ -183,21 +187,25 @@ public:
     };
 
     /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
-    DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1);
+    DynamicTextureAtlas(int texSize,int cellSize,GLenum format,int imageDepth=1,bool mainThreadMerge=false);
     virtual ~DynamicTextureAtlas();
     
     /// Set the interpolation type used for min and mag
     void setInterpType(GLenum inType) { interpType = inType; }
     GLenum getInterpType() { return interpType; }
 
+    /// Fudge factor for border pixels.  We'll add this/pixelSize to the lower left
+    ///  and subtract this/pixelSize from the upper right for each texture application.
+    void setPixelFudgeFactor(float pixFudge);
+
     /// Try to add the texture to one of our dynamic textures, or create one.
-    bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *texRegion=NULL);
+    bool addTexture(const std::vector<Texture *> &textures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,OpenGLMemManager *memManager,ChangeSet &changes,int borderPixels,int bufferPixels=0,TextureRegion *outTexRegion=NULL);
     
     /// Update one of the frames of a multi-frame texture atlas
     bool updateTexture(Texture *,int frame,const TextureRegion &texRegion,ChangeSet &changes);
     
     /// Free up the space for a texture from one of the dynamic textures
-    void removeTexture(const SubTexture &subTex,ChangeSet &changes,NSTimeInterval when);
+    void removeTexture(const SubTexture &subTex,ChangeSet &changes,TimeInterval when);
     
     /// Return the IDs for the dynamic textures we're using
     void getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which);
@@ -232,10 +240,16 @@ protected:
     GLenum format;
     /// Interpolation type
     GLenum interpType;
+    float pixelFudge;
+    bool mainThreadMerge;
     
     /// If set, overwrite texture data with empty pixels
     bool clearTextures;
     
+    
+    // On some devices we can't clear with a NULL, we have to use an actual buffer
+    std::vector<unsigned char> emptyPixelBuffer;
+
     typedef std::set<TextureRegion> TextureRegionSet;
     TextureRegionSet regions;
     typedef std::set<DynamicTextureVec *,DynamicTextureVecSorter> DynamicTextureSet;
