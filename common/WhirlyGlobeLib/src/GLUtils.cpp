@@ -1,5 +1,5 @@
 /*
- *  GLUtils.h
+ *  GLUtils.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/21/11.
@@ -18,12 +18,30 @@
  *
  */
 
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
-#import <OpenGLES/ES3/gl.h>
-#import <OpenGLES/ES3/glext.h>
+#import <stdio.h>
+#import "GLUtils.h"
 
-/// Check for a GL error and print (NSLog) a message
-bool CheckGLError(const char *msg);
+// Turn this off for a little performance gain
+#if DEBUG || __ANDROID__
+static bool ErrorsOn = true;
+#else
+static bool ErrorsOn = false;
+#endif
+bool CheckGLError(const char *msg)
+{
+    if (!ErrorsOn)
+        return true;
+    GLenum theError = glGetError();
+    if (theError != GL_NO_ERROR)
+    {
+#ifdef __ANDROID__
+      __android_log_print(ANDROID_LOG_ERROR, "Maply", "GL Error: %d - %s",theError,msg);
+#else
+        fprintf(stderr,"GL Error: %d - %s",theError,msg);
+#endif
+//        NSLog(@"GL Error: %d - %s",theError,msg);
+        return false;
+    }
+    
+    return true;
+}

@@ -1,5 +1,5 @@
 /*
- *  GLUtils.cpp
+ *  GLUtils.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/21/11.
@@ -18,25 +18,7 @@
  *
  */
 
-#import <UIKit/UIKit.h>
-#import "GLUtils.h"
+#import "glwrapper.h"
 
-// Turn this off for a little performance gain
-#ifdef DEBUG
-static bool ErrorsOn = true;
-#else
-static bool ErrorsOn = false;
-#endif
-bool CheckGLError(const char *msg)
-{
-    if (!ErrorsOn)
-        return true;
-    GLenum theError = glGetError();
-    if (theError != GL_NO_ERROR)
-    {
-        NSLog(@"GL Error: %d - %s",theError,msg);
-        return false;
-    }
-    
-    return true;
-}
+/// Check for a GL error and print (NSLog) a message
+bool CheckGLError(const char *msg);
