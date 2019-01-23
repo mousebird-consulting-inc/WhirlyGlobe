@@ -37,6 +37,8 @@ OpenGLES2Program *BuildParticleSystemProgram();
 class ParticleSystemDrawable : public Drawable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     // A group of attribute data passed in at once
     class AttributeData
     {
@@ -124,7 +126,7 @@ public:
         unsigned int batchID;
         unsigned int offset,len;
         bool active;
-        NSTimeInterval startTime;
+        TimeInterval startTime;
     };
     
     /// Add the vertex data (all of it) at once
@@ -134,7 +136,7 @@ public:
     bool findEmptyBatch(Batch &retBatch);
     
     /// Invalidate old batches
-    void updateBatches(NSTimeInterval now);
+    void updateBatches(TimeInterval now);
 
     // If set, we'll render this data where directed
     void setRenderTarget(SimpleIdentity newRenderTarget) { renderTargetID = newRenderTarget; }
@@ -157,7 +159,7 @@ protected:
     SimpleIdentity renderProgramId;
     int drawPriority;
     float pointSize;
-    NSTimeInterval lifetime;
+    TimeInterval lifetime;
     bool requestZBuffer,writeZBuffer;
     float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
     GLuint pointBuffer,rectBuffer;
@@ -165,7 +167,7 @@ protected:
     std::vector<VaryBufferPair> varyBuffers;
     std::vector<SimpleIdentity> texIDs;
     bool useRectangles,useInstancing;
-    NSTimeInterval baseTime;
+    TimeInterval baseTime;
     bool usingContinuousRender;
     SimpleIdentity renderTargetID;
 
@@ -180,7 +182,7 @@ protected:
         int numVertices;
     } BufferChunk;
     
-    NSTimeInterval lastUpdateTime;
+    TimeInterval lastUpdateTime;
     void updateChunks();
     
     void drawSetupTextures(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int &progTexBound);

@@ -22,8 +22,10 @@
 #import "GLUtils.h"
 #import "BasicDrawable.h"
 #import "GlobeScene.h"
-#import "UIImage+Stuff.h"
 #import "SceneRendererES.h"
+#import "TextureAtlas.h"
+#import "WhirlyKitLog.h"
+
 
 namespace WhirlyKit
 {
@@ -186,6 +188,7 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
     if (attrData.size() != vertAttrs.size())
         return;
 
+    // Note: Android.  Needs hasMapBufferSupport check
     // When the particles initialize themselves we don't have vertex data
     if (vertexSize > 0) {
         glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
