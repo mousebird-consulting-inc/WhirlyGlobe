@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,69 +18,67 @@
  *
  */
 
+#import "Platform.h"
 #import "MaplyView.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
-@implementation MaplyView
-
-- (id)initWithView:(MaplyView *)inMapView
+namespace Maply
 {
-    if (![self isKindOfClass:[MaplyView class]])
-        return nil;
+
+MapView::MapView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
+{
+    coordAdapter = inCoordAdapter;
+    fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
+    nearPlane = 0.00001;
+    imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
+    farPlane = 5.0;
+    lastChangedTime = TimeGetCurrent();
+    continuousZoom = false;
+    loc = Point3d(0,0,4);
+    rotAngle = 0.0;
+    wrap = true;
+}
     
-    self = [super initWithView:inMapView];
-    _loc = inMapView.loc;
-    _rotAngle = inMapView.rotAngle;
+MapView::MapView(const MapView &that)
+    : View(that), loc(that.loc), rotAngle(that.rotAngle)
+{
+}
     
-    return self;
+MapView::~MapView()
+{    
 }
 
-- (id)initWithCoordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)inCoordAdapter
+// Note: Porting
+//void MapView::setDelegate(NSObject<MaplyAnimationDelegate> *inDelegate)
+//{
+//    if (!delegate)
+//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+//    else {
+//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:self];
+//    }
+//    
+//    delegate = inDelegate;
+//}
+
+void MapView::cancelAnimation()
 {
-    if (self = [super init])
-    {
-        super.coordAdapter = inCoordAdapter;
-        super.fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
-		super.nearPlane = 0.00001;
-		super.imagePlaneSize = super.nearPlane * tanf(super.fieldOfView / 2.0);
-		super.farPlane = 5.0;
-        super.lastChangedTime = CFAbsoluteTimeGetCurrent();
-        super.continuousZoom = false;
-        _loc = Point3d(0,0,4);
-        _rotAngle = 0.0;
-    }
-    
-    return self;
+    // Note: Porting
+//    if (_delegate)
+//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
+//    
+//    delegate = nil;
 }
 
-- (void)setDelegate:(NSObject<MaplyAnimationDelegate> *)delegate
+void MapView::animate()
 {
-    if (!delegate)
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
-    else {
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:self];
-    }
-    
-    _delegate = delegate;
+    // Note: Porting
+//    if (delegate)
+//        [delegate updateView:this];
 }
 
-- (void)cancelAnimation
-{
-    if (_delegate)
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
-    
-    _delegate = nil;
-}
-
-- (void)animate
-{
-    if (_delegate)
-        [_delegate updateView:self];
-}
-
-- (float)calcZbufferRes
+float MapView::calcZbufferRes()
 {
     // Note: Not right
     double delta = 0.0001;
@@ -88,30 +86,33 @@ using namespace WhirlyKit;
     return delta;
 }
 
-- (Eigen::Matrix4d)calcModelMatrix
+Eigen::Matrix4d MapView::calcModelMatrix()
 {
-    Eigen::Affine3d trans(Eigen::Translation3d(-_loc.x(),-_loc.y(),-_loc.z()));
+    Point3d scale = coordAdapter->getScale();
+    Eigen::Affine3d trans(Eigen::Translation3d(-loc.x()*scale.x(),-loc.y()*scale.y(),-loc.z()*scale.z()));
 //    Eigen::Affine3d rot(Eigen::AngleAxisd(-_rotAngle, Vector3d::UnitZ()).toRotationMatrix());
 //    return (rot * trans).matrix();
     return trans.matrix();
 }
 
-- (Eigen::Matrix4d)calcViewMatrix
+Eigen::Matrix4d MapView::calcViewMatrix()
 {
-    Eigen::Affine3d rot(Eigen::AngleAxisd(-_rotAngle, Vector3d::UnitZ()).toRotationMatrix());
+    Eigen::Affine3d rot(Eigen::AngleAxisd(-rotAngle, Vector3d::UnitZ()).toRotationMatrix());
     return rot.matrix();
 }
 
-- (void) getOffsetMatrices:(std::vector<Eigen::Matrix4d> &)offsetMatrices frameBuffer:(WhirlyKit::Point2f)frameBufferSize buffer:(float)bufferSizeX
+void MapView::getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferSizeX)
 {
+    Point3d scale = coordAdapter->getScale();
+    
     Point3f ll,ur;
-    if (_wrap && super.coordAdapter && super.coordAdapter->getBounds(ll, ur))
+    if (wrap && coordAdapter && coordAdapter->getBounds(ll, ur))
     {
         // Figure out where we are, first off
-        GeoCoord geoLL = super.coordAdapter->getCoordSystem()->localToGeographic(ll);
-        GeoCoord geoUR = super.coordAdapter->getCoordSystem()->localToGeographic(ur);
+        GeoCoord geoLL = coordAdapter->getCoordSystem()->localToGeographic(ll);
+        GeoCoord geoUR = coordAdapter->getCoordSystem()->localToGeographic(ur);
         float spanX = geoUR.x()-geoLL.x();
-        float offX = _loc.x()-geoLL.x();
+        float offX = loc.x()*scale.x()-geoLL.x();
         int num = floorf(offX/spanX);
         std::vector<int> nums;
         nums.push_back(num);
@@ -121,11 +122,11 @@ using namespace WhirlyKit;
         float localSpanX = ur.x()-ll.x();
         
         // See if the framebuffer lands in any of the potential matrices
-        Eigen::Matrix4d modelTrans = [self calcViewMatrix] * [self calcModelMatrix];
+        Eigen::Matrix4d modelTrans = calcViewMatrix() * calcModelMatrix();
         Mbr screenMbr;
         screenMbr.addPoint(Point2f(-1.0,-1.0));
         screenMbr.addPoint(Point2f(1.0,1.0));
-        Matrix4d projMat = [self calcProjectionMatrix:frameBufferSize margin:0.0];
+        Matrix4d projMat = calcProjectionMatrix(frameBufferSize,0.0);
         for (unsigned int ii=0;ii<nums.size();ii++)
         {
             int thisNum = nums[ii];
@@ -157,15 +158,17 @@ using namespace WhirlyKit;
     }
 }
 
-- (WhirlyKit::Point2f)unwrapCoordinate:(WhirlyKit::Point2f)pt
+WhirlyKit::Point2f MapView::unwrapCoordinate(const WhirlyKit::Point2f &inPt)
 {
-    if (_wrap)
+    Point2f pt = inPt;
+    
+    if (wrap)
     {
         Point3f ll,ur;
-        if (super.coordAdapter->getBounds(ll, ur))
+        if (coordAdapter->getBounds(ll, ur))
         {
-            GeoCoord geoLL = super.coordAdapter->getCoordSystem()->localToGeographic(ll);
-            GeoCoord geoUR = super.coordAdapter->getCoordSystem()->localToGeographic(ur);
+            GeoCoord geoLL = coordAdapter->getCoordSystem()->localToGeographic(ll);
+            GeoCoord geoUR = coordAdapter->getCoordSystem()->localToGeographic(ur);
             float spanX = geoUR.x()-geoLL.x();
             float offX = pt.x()-geoLL.x();
             int num = floorf(offX/spanX);
@@ -176,55 +179,50 @@ using namespace WhirlyKit;
     return pt;
 }
 
-- (double)heightAboveSurface
+double MapView::heightAboveSurface()
 {
-    return _loc.z();
+    return loc.z();
 }
 
-- (double)minHeightAboveSurface
+double MapView::minHeightAboveSurface()
 {
-    return super.nearPlane;
+    return nearPlane;
 }
 
-- (double)maxHeightAboveSurface
+double MapView::maxHeightAboveSurface()
 {
-    return super.farPlane;
+    return farPlane;
 }
 
-- (void)setLoc:(WhirlyKit::Point3d)newLoc
+void MapView::setLoc(WhirlyKit::Point3d newLoc)
 {
-    [self setLoc:newLoc runUpdates:true];
+    setLoc(newLoc,true);
 }
 
-- (void)setLoc:(WhirlyKit::Point3d &)newLoc runUpdates:(bool)runUpdates
+void MapView::setLoc(WhirlyKit::Point3d &newLoc,bool runUpdates)
 {
-    _loc = newLoc;
+    loc = newLoc;
     if (runUpdates)
-        [self runViewUpdates];
+        runViewUpdates();
 }
 
-- (void)setRotAngle:(double)newRotAngle
+void MapView::setRotAngle(double newRotAngle,bool runUpdates)
 {
-    [self setRotAngle:newRotAngle runViewUpdates:true];
+    rotAngle = newRotAngle;
+    runViewUpdates();
+    if (runUpdates)
+        runViewUpdates();
 }
 
-- (void)setRotAngle:(double)newRotAngle runViewUpdates:(bool)runViewUpdates
+Eigen::Matrix4d MapView::calcFullMatrix()
 {
-    _rotAngle = newRotAngle;
-    if (runViewUpdates)
-        [self runViewUpdates];
+    return calcViewMatrix() * calcModelMatrix();
 }
 
-- (Eigen::Matrix4d)calcFullMatrix
-{
-    return [self calcViewMatrix] * [self calcModelMatrix];
-}
-
-
-- (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit clip:(bool)clip
+bool MapView::pointOnPlaneFromScreen(Point2f pt,const Eigen::Matrix4d *transform,const Point2f &frameSize,Point3d *hit,bool clip)
 {
     // Back Project the screen point into model space
-    Point3d screenPt = [self pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:clip];
+    Point3d screenPt = pointUnproject(Point2f(pt.x(),pt.y()),frameSize.x(),frameSize.y(),clip);
     
     // Run the screen point and the eye point (origin) back through
     //  the model matrix to get a direction and origin in model space
@@ -248,7 +246,7 @@ using namespace WhirlyKit;
     return true;
 }
 
-- (CGPoint)pointOnScreenFromPlane:(const Point3d &)inWorldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize
+Point2f MapView::pointOnScreenFromPlane(const Point3d &inWorldLoc,const Eigen::Matrix4d *transform,const Point2f &frameSize)
 {
     Point3d worldLoc(inWorldLoc.x(),inWorldLoc.y(),inWorldLoc.z());
     
@@ -261,29 +259,29 @@ using namespace WhirlyKit;
     // Intersection with near gives us the same plane as the screen 
     Point3d ray;
     ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
-    ray *= -super.nearPlane/ray.z();
+    ray *= -nearPlane/ray.z();
     
     // Now we need to scale that to the frame
     Point2d ll,ur;
     double near,far;
-    [self calcFrustumWidth:frameSize.x() height:frameSize.y() ll:ll ur:ur near:near far:far];
+    calcFrustumWidth(frameSize.x(),frameSize.y(),ll,ur,near,far);
     double u = (ray.x() - ll.x()) / (ur.x() - ll.x());
     double v = (ray.y() - ll.y()) / (ur.y() - ll.y());
     v = 1.0 - v;
     
-    CGPoint retPt;
-    retPt.x = u * frameSize.x();
-    retPt.y = v * frameSize.y();
+    Point2f retPt;
+    retPt.x() = u * frameSize.x();
+    retPt.y() = v * frameSize.y();
     
     return retPt;    
 }
 
-- (Eigen::Vector3d)eyePos
+Eigen::Vector3d MapView::eyePos()
 {
-    Eigen::Matrix4d modelMat = [self calcModelMatrix].inverse();
+    Eigen::Matrix4d modelMat = calcModelMatrix().inverse();
     
     Vector4d newUp = modelMat * Vector4d(0,0,1,1);
     return Vector3d(newUp.x(),newUp.y(),newUp.z());
 }
 
-@end
+}
