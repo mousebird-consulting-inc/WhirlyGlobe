@@ -27,6 +27,8 @@
 		2B23132921F8DD7F006AA344 /* GlobeViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132321F8DD7E006AA344 /* GlobeViewState.cpp */; };
 		2B23132A21F8DD7F006AA344 /* MaplyView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132421F8DD7E006AA344 /* MaplyView.cpp */; };
 		2B23132B21F8DD7F006AA344 /* MaplyViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132521F8DD7E006AA344 /* MaplyViewState.cpp */; };
+		2B23132E21F93661006AA344 /* RawData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23132D21F93660006AA344 /* RawData.h */; };
+		2B23133021F936CD006AA344 /* RawData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132F21F936CD006AA344 /* RawData.cpp */; };
 		2B2B46FA206C000500570F97 /* LoadedTileNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2B46F9206C000500570F97 /* LoadedTileNew.h */; };
 		2B2B46FC206C001900570F97 /* LoadedTileNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B46FB206C001900570F97 /* LoadedTileNew.mm */; };
 		2B2B4701206D931300570F97 /* QuadTileBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2B4700206D931300570F97 /* QuadTileBuilder.h */; };
@@ -1006,6 +1008,8 @@
 		2B23132321F8DD7E006AA344 /* GlobeViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeViewState.cpp; path = ../../../../common/WhirlyGlobeLib/src/GlobeViewState.cpp; sourceTree = "<group>"; };
 		2B23132421F8DD7E006AA344 /* MaplyView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyView.cpp; path = ../../../../common/WhirlyGlobeLib/src/MaplyView.cpp; sourceTree = "<group>"; };
 		2B23132521F8DD7E006AA344 /* MaplyViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyViewState.cpp; path = ../../../../common/WhirlyGlobeLib/src/MaplyViewState.cpp; sourceTree = "<group>"; };
+		2B23132D21F93660006AA344 /* RawData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RawData.h; path = ../../../../common/WhirlyGlobeLib/include/RawData.h; sourceTree = "<group>"; };
+		2B23132F21F936CD006AA344 /* RawData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RawData.cpp; path = ../../../../common/WhirlyGlobeLib/src/RawData.cpp; sourceTree = "<group>"; };
 		2B2B46F9206C000500570F97 /* LoadedTileNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTileNew.h; sourceTree = "<group>"; };
 		2B2B46FB206C001900570F97 /* LoadedTileNew.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadedTileNew.mm; sourceTree = "<group>"; };
 		2B2B4700206D931300570F97 /* QuadTileBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadTileBuilder.h; sourceTree = "<group>"; };
@@ -2743,6 +2747,7 @@
 			isa = PBXGroup;
 			children = (
 				2B446B2621F7A0D70078A975 /* Platform.h */,
+				2B23132D21F93660006AA344 /* RawData.h */,
 				2B446AB921F25C330078A975 /* WhirlyKitLog.h */,
 				2B446ABA21F25C330078A975 /* WhirlyTypes.h */,
 				2B446AEC21F79A390078A975 /* geometry utils */,
@@ -2759,6 +2764,7 @@
 		2B846EF521F158D200EF2A82 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2B23132F21F936CD006AA344 /* RawData.cpp */,
 				2B446B0521F79A680078A975 /* geometry utils */,
 				2B446B0721F79AA40078A975 /* coord systems */,
 				2B846F3121F1597D00EF2A82 /* managers */,
@@ -3970,6 +3976,7 @@
 				2BE538641D249A1200B60FAD /* MaplyVectorStyle.h in Headers */,
 				2B884A4C1E3803170027C397 /* bytestreaminout_file.hpp in Headers */,
 				2B884A721E3803170027C397 /* laszip_common_v1.hpp in Headers */,
+				2B23132E21F93661006AA344 /* RawData.h in Headers */,
 				2B82B72F1E82E24A0095FB14 /* GlobeAnimateHeight.h in Headers */,
 				2B82B7191E82E24A0095FB14 /* FontTextureManager.h in Headers */,
 				2BE538281D249A1200B60FAD /* MaplySticker.h in Headers */,
@@ -4449,6 +4456,7 @@
 				2BB476842000488D006AAACB /* MapboxVectorStyleBackground.mm in Sources */,
 				2B82B6501E82E2490095FB14 /* PJ_chamb.c in Sources */,
 				2B82B7931E82E24B0095FB14 /* ElevationCesiumChunk.mm in Sources */,
+				2B23133021F936CD006AA344 /* RawData.cpp in Sources */,
 				2B82B6741E82E24A0095FB14 /* PJ_igh.c in Sources */,
 				2B846EE921F1380D00EF2A82 /* aasincos.c in Sources */,
 				2B446B6C21F7E7E00078A975 /* BasicDrawableInstance.cpp in Sources */,
