@@ -89,6 +89,8 @@
 		2B446B2F21F7CE670078A975 /* GLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B2D21F7CE670078A975 /* GLUtils.h */; };
 		2B446B3021F7CE670078A975 /* glwrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B2E21F7CE670078A975 /* glwrapper.h */; };
 		2B446B3321F7CE8D0078A975 /* GLUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B3221F7CE8D0078A975 /* GLUtils.cpp */; };
+		2B446B3721F7E6780078A975 /* Lighting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B3621F7E6770078A975 /* Lighting.h */; };
+		2B446B3921F7E6860078A975 /* Lighting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B3821F7E6850078A975 /* Lighting.cpp */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B73D6BE207D1FD300AF5095 /* MaplyQuadImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6BD207D1FD300AF5095 /* MaplyQuadImageLoader.h */; };
 		2B73D6C0207D1FDF00AF5095 /* MaplyQuadImageLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B73D6BF207D1FDF00AF5095 /* MaplyQuadImageLoader.mm */; };
@@ -312,7 +314,6 @@
 		2B82B6DA1E82E24A0095FB14 /* NSDictionary+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4BF1E82E2490095FB14 /* NSDictionary+Stuff.h */; };
 		2B82B6DB1E82E24A0095FB14 /* UIColor+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C01E82E2490095FB14 /* UIColor+Stuff.h */; };
 		2B82B6DC1E82E24A0095FB14 /* NSString+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C11E82E2490095FB14 /* NSString+Stuff.h */; };
-		2B82B6DE1E82E24A0095FB14 /* Lighting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C41E82E2490095FB14 /* Lighting.h */; };
 		2B82B6DF1E82E24A0095FB14 /* OpenGLES2Program.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C51E82E2490095FB14 /* OpenGLES2Program.h */; };
 		2B82B6E01E82E24A0095FB14 /* PerformanceTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C61E82E2490095FB14 /* PerformanceTimer.h */; };
 		2B82B6E11E82E24A0095FB14 /* SceneRendererES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C71E82E2490095FB14 /* SceneRendererES.h */; };
@@ -362,7 +363,6 @@
 		2B82B74C1E82E24A0095FB14 /* NSDictionary+Stuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54A1E82E2490095FB14 /* NSDictionary+Stuff.m */; };
 		2B82B74D1E82E24A0095FB14 /* UIColor+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54B1E82E2490095FB14 /* UIColor+Stuff.mm */; };
 		2B82B74E1E82E24A0095FB14 /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54C1E82E2490095FB14 /* NSString+Stuff.mm */; };
-		2B82B75C1E82E24A0095FB14 /* Lighting.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B55D1E82E2490095FB14 /* Lighting.mm */; };
 		2B82B75D1E82E24A0095FB14 /* OpenGLES2Program.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B55E1E82E2490095FB14 /* OpenGLES2Program.mm */; };
 		2B82B75E1E82E24A0095FB14 /* PerformanceTimer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B55F1E82E2490095FB14 /* PerformanceTimer.mm */; };
 		2B82B75F1E82E24A0095FB14 /* SceneRendererES.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5601E82E2490095FB14 /* SceneRendererES.mm */; };
@@ -1065,6 +1065,8 @@
 		2B446B2D21F7CE670078A975 /* GLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GLUtils.h; path = ../../../../common/WhirlyGlobeLib/include/GLUtils.h; sourceTree = "<group>"; };
 		2B446B2E21F7CE670078A975 /* glwrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glwrapper.h; path = ../../../../common/WhirlyGlobeLib/include/glwrapper.h; sourceTree = "<group>"; };
 		2B446B3221F7CE8D0078A975 /* GLUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GLUtils.cpp; path = ../../../../common/WhirlyGlobeLib/src/GLUtils.cpp; sourceTree = "<group>"; };
+		2B446B3621F7E6770078A975 /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Lighting.h; path = ../../../../common/WhirlyGlobeLib/include/Lighting.h; sourceTree = "<group>"; };
+		2B446B3821F7E6850078A975 /* Lighting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Lighting.cpp; path = ../../../../common/WhirlyGlobeLib/src/Lighting.cpp; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B73D6BD207D1FD300AF5095 /* MaplyQuadImageLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadImageLoader.h; sourceTree = "<group>"; };
 		2B73D6BF207D1FDF00AF5095 /* MaplyQuadImageLoader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyQuadImageLoader.mm; sourceTree = "<group>"; };
@@ -1309,7 +1311,6 @@
 		2B82B4BF1E82E2490095FB14 /* NSDictionary+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "NSDictionary+Stuff.h"; sourceTree = "<group>"; };
 		2B82B4C01E82E2490095FB14 /* UIColor+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "UIColor+Stuff.h"; sourceTree = "<group>"; };
 		2B82B4C11E82E2490095FB14 /* NSString+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Stuff.h"; sourceTree = "<group>"; };
-		2B82B4C41E82E2490095FB14 /* Lighting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Lighting.h; sourceTree = "<group>"; };
 		2B82B4C51E82E2490095FB14 /* OpenGLES2Program.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLES2Program.h; sourceTree = "<group>"; };
 		2B82B4C61E82E2490095FB14 /* PerformanceTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerformanceTimer.h; sourceTree = "<group>"; };
 		2B82B4C71E82E2490095FB14 /* SceneRendererES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES.h; sourceTree = "<group>"; };
@@ -1359,7 +1360,6 @@
 		2B82B54A1E82E2490095FB14 /* NSDictionary+Stuff.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = "NSDictionary+Stuff.m"; sourceTree = "<group>"; };
 		2B82B54B1E82E2490095FB14 /* UIColor+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = "UIColor+Stuff.mm"; sourceTree = "<group>"; };
 		2B82B54C1E82E2490095FB14 /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
-		2B82B55D1E82E2490095FB14 /* Lighting.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Lighting.mm; sourceTree = "<group>"; };
 		2B82B55E1E82E2490095FB14 /* OpenGLES2Program.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenGLES2Program.mm; sourceTree = "<group>"; };
 		2B82B55F1E82E2490095FB14 /* PerformanceTimer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PerformanceTimer.mm; sourceTree = "<group>"; };
 		2B82B5601E82E2490095FB14 /* SceneRendererES.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererES.mm; sourceTree = "<group>"; };
@@ -2076,6 +2076,22 @@
 			name = opengl;
 			sourceTree = "<group>";
 		};
+		2B446B3421F7E6480078A975 /* render */ = {
+			isa = PBXGroup;
+			children = (
+				2B446B3621F7E6770078A975 /* Lighting.h */,
+			);
+			name = render;
+			sourceTree = "<group>";
+		};
+		2B446B3521F7E6580078A975 /* render */ = {
+			isa = PBXGroup;
+			children = (
+				2B446B3821F7E6850078A975 /* Lighting.cpp */,
+			);
+			name = render;
+			sourceTree = "<group>";
+		};
 		2B82B36E1E82E2080095FB14 /* WhirlyGlobeLib */ = {
 			isa = PBXGroup;
 			children = (
@@ -2419,7 +2435,6 @@
 		2B82B4CB1E82E2490095FB14 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
-				2B82B4C41E82E2490095FB14 /* Lighting.h */,
 				2B82B4C51E82E2490095FB14 /* OpenGLES2Program.h */,
 				2B82B4C61E82E2490095FB14 /* PerformanceTimer.h */,
 				2B82B4C71E82E2490095FB14 /* SceneRendererES.h */,
@@ -2603,7 +2618,6 @@
 		2B82B5641E82E2490095FB14 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
-				2B82B55D1E82E2490095FB14 /* Lighting.mm */,
 				2B82B55E1E82E2490095FB14 /* OpenGLES2Program.mm */,
 				2B82B55F1E82E2490095FB14 /* PerformanceTimer.mm */,
 				2B82B5601E82E2490095FB14 /* SceneRendererES.mm */,
@@ -2759,6 +2773,7 @@
 				2B446B2C21F7CE490078A975 /* opengl */,
 				2B846F3021F1592400EF2A82 /* managers */,
 				2B446B2021F79B130078A975 /* scene */,
+				2B446B3421F7E6480078A975 /* render */,
 			);
 			name = include;
 			sourceTree = "<group>";
@@ -2770,6 +2785,7 @@
 				2B446B0721F79AA40078A975 /* coord systems */,
 				2B846F3121F1597D00EF2A82 /* managers */,
 				2B446B2121F79B3C0078A975 /* scene */,
+				2B446B3521F7E6580078A975 /* render */,
 			);
 			name = src;
 			sourceTree = "<group>";
@@ -3846,7 +3862,6 @@
 				2BE5383B1D249A1200B60FAD /* MaplyComponentObject_private.h in Headers */,
 				2BE5384B1D249A1200B60FAD /* MaplyShape_private.h in Headers */,
 				2BB4767A2000486F006AAACB /* MapboxVectorStyleRaster.h in Headers */,
-				2B82B6DE1E82E24A0095FB14 /* Lighting.h in Headers */,
 				2B82B6001E82E2490095FB14 /* JSONAllocator.h in Headers */,
 				2BE538671D249A1200B60FAD /* MaplyVectorTileMarkerStyle.h in Headers */,
 				2B82B6D91E82E24A0095FB14 /* UIImage+Stuff.h in Headers */,
@@ -4087,6 +4102,7 @@
 				2BE539591D249BEF00B60FAD /* AAEaster.h in Headers */,
 				2B82B6391E82E2490095FB14 /* geocent.h in Headers */,
 				2BE5394E1D249BEF00B60FAD /* AA+.h in Headers */,
+				2B446B3721F7E6780078A975 /* Lighting.h in Headers */,
 				2BE538711D249A1200B60FAD /* WhirlyGlobeComponent.h in Headers */,
 				2B446ABC21F25C330078A975 /* WhirlyTypes.h in Headers */,
 				2B127C03201911D40099F405 /* MapboxVectorImageInterpreter.h in Headers */,
@@ -4229,6 +4245,7 @@
 				2BE538A01D249A1200B60FAD /* MaplySharedAttributes.m in Sources */,
 				2B846F2521F158EC00EF2A82 /* LoftManager.cpp in Sources */,
 				2B82B6351E82E2490095FB14 /* dmstor.c in Sources */,
+				2B446B3921F7E6860078A975 /* Lighting.cpp in Sources */,
 				2BE5398B1D249BEF00B60FAD /* AAAberration.cpp in Sources */,
 				2B82B67C1E82E24A0095FB14 /* PJ_laea.c in Sources */,
 				2B446AD721F26E280078A975 /* MaplyMarkerInfo_iOS.mm in Sources */,
@@ -4288,7 +4305,6 @@
 				2B884A6D1E3803170027C397 /* laswriteitemcompressed_v2.cpp in Sources */,
 				2B884A751E3803170027C397 /* laszip.cpp in Sources */,
 				2B3FD2C31F478F5200CA9C18 /* MaplyRenderTarget.mm in Sources */,
-				2B82B75C1E82E24A0095FB14 /* Lighting.mm in Sources */,
 				2B884A741E3803170027C397 /* laszip_dll.cpp in Sources */,
 				2B82B64C1E82E2490095FB14 /* PJ_bonne.c in Sources */,
 				2B82B6111E82E2490095FB14 /* JSONNode_Mutex.cpp in Sources */,

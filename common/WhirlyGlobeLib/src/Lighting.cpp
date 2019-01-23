@@ -1,9 +1,9 @@
 /*
- *  Lighting.mm
+ *  Lighting.cpp
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 11/6/12.
- *  Copyright 2011-2017 mousebird consulting
+ *  Created by jmnavarro
+ *  Copyright 2011-2016 mousebird consulting. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,62 +17,43 @@
  *  limitations under the License.
  *
  */
-
-#import "Lighting.h"
-#import "GLUtils.h"
-#import "SceneRendererES.h"
+#include "Lighting.h"
+#include "GLUtils.h"
+#include "OpenGLES2Program.h"
 
 using namespace Eigen;
-using namespace WhirlyKit;
 
-@implementation WhirlyKitDirectionalLight
-
-- (id)init
+namespace WhirlyKit
 {
-    self = [super init];
-    if (!self)
-        return nil;
     
-    _viewDependent = true;
-    
-    return self;
+WhirlyKitDirectionalLight::WhirlyKitDirectionalLight()
+{
+    viewDependent = true;
+    pos = Eigen::Vector3f(0,0,0);
+    ambient = Eigen::Vector4f(1,1,1,1);
+    diffuse = Eigen::Vector4f(1,1,1,1);
+    specular = Eigen::Vector4f(0,0,0,0);
 }
 
-- (void)setPos:(Eigen::Vector3f)pos
+WhirlyKitDirectionalLight::~WhirlyKitDirectionalLight()
 {
-    _pos = pos;
 }
 
-- (void)setAmbient:(Eigen::Vector4f)ambient
-{
-    _ambient = ambient;
-}
-
-- (void)setDiffuse:(Eigen::Vector4f)diffuse
-{
-    _diffuse = diffuse;
-}
-
-- (void)setSpecular:(Eigen::Vector4f)specular
-{
-    _specular = specular;
-}
-
-- (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program index:(int)index modelMatrix:(Eigen::Matrix4f &)modelMat
-{
+bool WhirlyKitDirectionalLight::bindToProgram(OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat) const
+    {
     const OpenGLESUniform *viewDependUni = program->findUniform(lightViewDependNameIDs[index]);
     const OpenGLESUniform *dirUni = program->findUniform(lightDirectionNameIDs[index]);
     const OpenGLESUniform *halfUni = program->findUniform(lightHalfplaneNameIDs[index]);
     const OpenGLESUniform *ambientUni = program->findUniform(lightAmbientNameIDs[index]);
     const OpenGLESUniform *diffuseUni = program->findUniform(lightDiffuseNameIDs[index]);
     const OpenGLESUniform *specularUni = program->findUniform(lightSpecularNameIDs[index]);
-    
-    Vector3f dir = _pos.normalized();
-    Vector3f halfPlane = (dir + Vector3f(0,0,1)).normalized();
-    
+
+    Eigen::Vector3f dir = pos.normalized();
+    Eigen::Vector3f halfPlane = (dir + Eigen::Vector3f(0,0,1)).normalized();
+
     if (viewDependUni)
     {
-        glUniform1f(viewDependUni->index, (_viewDependent ? 0.0 : 1.0));
+        glUniform1f(viewDependUni->index, (viewDependent ? 0.0 : 1.0));
         CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform1f");
     }
     if (dirUni)
@@ -83,67 +64,47 @@ using namespace WhirlyKit;
     if (halfUni)
     {
         glUniform3f(halfUni->index, halfPlane.x(), halfPlane.y(), halfPlane.z());
-        CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform3f");        
+        CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform3f");
     }
     if (ambientUni)
     {
-        glUniform4f(ambientUni->index, _ambient.x(), _ambient.y(), _ambient.z(), _ambient.w());
+        glUniform4f(ambientUni->index, ambient.x(), ambient.y(), ambient.z(), ambient.w());
         CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform4f");
     }
     if (diffuseUni)
     {
-        glUniform4f(diffuseUni->index, _diffuse.x(), _diffuse.y(), _diffuse.z(), _diffuse.w());
+        glUniform4f(diffuseUni->index, diffuse.x(), diffuse.y(), diffuse.z(), diffuse.w());
         CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform4f");
     }
     if (specularUni)
     {
-        glUniform4f(specularUni->index, _specular.x(), _specular.y(), _specular.z(), _specular.w());
+        glUniform4f(specularUni->index, specular.x(), specular.y(), specular.z(), specular.w());
         CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform4f");
     }
-    
+
     return (dirUni && halfUni && ambientUni && diffuseUni && specularUni);
 }
 
-@end
 
-@implementation WhirlyKitMaterial
-
-- (id)init
+WhirlyKitMaterial::WhirlyKitMaterial() :
+    ambient(Eigen::Vector4f(1,1,1,1)),
+    diffuse(Eigen::Vector4f(1,1,1,1)),
+    specular(Eigen::Vector4f(1,1,1,1)),
+    specularExponent(1)
 {
-    self = [super init];
-    
-    _ambient = Vector4f(1.0,1.0,1.0,1.0);
-    _diffuse = Vector4f(1.0,1.0,1.0,1.0);
-//    specular = Vector4f(1.0,1.0,1.0,1.0);
-//    specularExponent = 100.0;
-    _specular = Vector4f(0.0,0.0,0.0,0.0);
-    _specularExponent = 1.0;
-    
-    return self;
 }
 
-- (void)setAmbient:(Eigen::Vector4f)ambient
+WhirlyKitMaterial::~WhirlyKitMaterial()
 {
-    _ambient = ambient;
 }
 
-- (void)setDiffuse:(Eigen::Vector4f)diffuse
-{
-    _diffuse = diffuse;
-}
-
-- (void)setSpecular:(Eigen::Vector4f)specular
-{
-    _specular = specular;
-}
-
-- (bool)bindToProgram:(WhirlyKit::OpenGLES2Program *)program
+bool WhirlyKitMaterial::bindToProgram(OpenGLES2Program *program)
 {
     return program->setUniform(materialAmbientNameID, _ambient) &&
-           program->setUniform(materialDiffuseNameID, _diffuse) &&
-           program->setUniform(materialSpecularNameID, _specular) &&
-           program->setUniform(materialSpecularExponentNameID, _specularExponent);
+    program->setUniform(materialDiffuseNameID, _diffuse) &&
+    program->setUniform(materialSpecularNameID, _specular) &&
+    program->setUniform(materialSpecularExponentNameID, _specularExponent);
 }
 
+}
 
-@end

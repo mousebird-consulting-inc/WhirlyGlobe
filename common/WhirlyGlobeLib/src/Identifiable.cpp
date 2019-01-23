@@ -18,40 +18,26 @@
  *
  */
 
-#import <UIKit/UIKit.h>
 #import "Identifiable.h"
 #include <pthread.h>
 
-static dispatch_once_t onceToken;
+std::mutex identMutex;
 
 namespace WhirlyKit
 {
 	
 static unsigned long curId = 0;
-static pthread_mutex_t curIdMut;
 
 Identifiable::Identifiable()
 {
-    dispatch_once(&onceToken,
-                  ^{
-                      pthread_mutex_init(&curIdMut, NULL);
-                  });
-    
-    pthread_mutex_lock(&curIdMut);
+    std::lock_guard<std::mutex> lock(identMutex);
 	myId = ++curId;
-    pthread_mutex_unlock(&curIdMut);
 }
 	
 SimpleIdentity Identifiable::genId()
 {
-    dispatch_once(&onceToken,
-                  ^{
-                      pthread_mutex_init(&curIdMut, NULL);
-                  });
-
-    pthread_mutex_lock(&curIdMut);
+    std::lock_guard<std::mutex> lock(identMutex);
     SimpleIdentity retId = ++curId;
-    pthread_mutex_unlock(&curIdMut);
     
     return retId;
 }
