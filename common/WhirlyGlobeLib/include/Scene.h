@@ -36,16 +36,13 @@
 /// How the scene refers to the default line shader (and how you replace it)
 #define kSceneDefaultLineShader "Default Line Shader"
 
-
-@class WhirlyKitSceneRendererES;
-@class WhirlyKitFontTextureManager;
-
-
 namespace WhirlyKit
 {
     
+class SceneRendererES;
 class Scene;
 class SubTexture;
+class ScreenSpaceGenerator;
 class ViewPlacementGenerator;
 
 /// Request that the renderer add the given texture.
@@ -67,7 +64,7 @@ public:
     virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (texRef) texRef->createInGL(memManager); };
 
 	/// Add to the renderer.  Never call this.
-	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,SceneRendererES *renderer,WhirlyKitView *view);
 	
     /// Only use this if you've thought it out
     TextureBase *getTex() { return texRef.get(); }
@@ -83,10 +80,10 @@ public:
     /// Construct with the ID
     RemTextureReq(SimpleIdentity texId) : texture(texId) { }
     /// This version is a time deletion
-    RemTextureReq(SimpleIdentity texId,NSTimeInterval inWhen) : texture(texId) { when = inWhen; }
+    RemTextureReq(SimpleIdentity texId,TimeInterval inWhen) : texture(texId) { when = inWhen; }
 
     /// Remove from the renderer.  Never call this.
-	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view);
 	
 protected:
 	SimpleIdentity texture;
@@ -122,10 +119,10 @@ public:
     /// Construct with the drawable ID and an optional fade interval
 	RemDrawableReq(SimpleIdentity drawId) : drawable(drawId) { }
     /// This version is a timed delete
-    RemDrawableReq(SimpleIdentity drawId,NSTimeInterval inWhen) : drawable(drawId) { when = inWhen; }
+    RemDrawableReq(SimpleIdentity drawId,TimeInterval inWhen) : drawable(drawId) { when = inWhen; }
 
     /// Remove the drawable.  Never call this
-	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view);
 	
 protected:	
 	SimpleIdentity drawable;
@@ -140,7 +137,7 @@ public:
     ~AddProgramReq() { if (program) delete program; program = NULL; }
     
     /// Remove from the renderer.  Never call this.
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view);
 
 protected:
     std::string sceneName;
@@ -155,42 +152,26 @@ public:
     RemProgramReq(SimpleIdentity progId) : programId(progId) { }
     
     /// Remove from the renderer.  Never call this.
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view);
 
 protected:
     SimpleIdentity programId;
 };
-    
-/// Remove a GL buffer ID, presumably because we needed other things cleaned up first
-class RemBufferReq : public ChangeRequest
+
+// Set a program value, but go through the scene to do it
+class SetProgramValueReq : public ChangeRequest
 {
 public:
-    /// Construct with the buffer we want to delete
-    RemBufferReq(GLuint bufID) : bufID(bufID) { }
+    /// Construct with the drawable ID and an optional fade interval
+    SetProgramValueReq(SimpleIdentity progID,const std::string &name,float u_val) : progID(progID), u_name(name), u_val(u_val) { }
     
-    /// Actually run the remove.  Never call this.
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
-    
-protected:
-    GLuint bufID;
-};
-    
-/// Send out a notification (on the main thread) when
-///  we get this request.  Used to figure out when something
-///  has been completely loaded.  Do not overuse.
-class NotificationReq : public ChangeRequest
-{
-public:
-    /// The notification name is required, the object optional
-    NotificationReq(NSString *noteName,NSObject *noteObj);
-    virtual ~NotificationReq();
-    
-    /// Send out the notification
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    /// Remove the drawable.  Never call this
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
     
 protected:
-    NSString * __strong noteName;
-    NSObject * __strong noteObj;
+    SimpleIdentity progID;
+    std::string u_name;
+    float u_val;
 };
     
 /// Run a block of code when this change request is executed
@@ -232,10 +213,13 @@ public:
     virtual ~SceneManager() { };
     
     /// Set (or reset) the current renderer
-    virtual void setRenderer(WhirlyKitSceneRendererES *inRenderer) { renderer = inRenderer; }
+    virtual void setRenderer(SceneRendererES *inRenderer) { renderer = inRenderer; }
 
     /// Set the scene we're part of
     virtual void setScene(Scene *inScene) { scene = inScene; }
+    
+    /// Return the scene this is part of
+    Scene *getScene() { return scene; }
     
 protected:
     Scene *scene;
@@ -243,39 +227,41 @@ protected:
 };
 
 /** This is the top level scene object for WhirlyKit.
-    It keeps track of the drawables by and it handles the change requests, which
+    It keeps track of the drawables and the change requests, which
      consist of pretty much everything that can happen.
  */
 class Scene : public DelayedDeletable
 {
 	friend class ChangeRequest;
 public:
-	virtual ~Scene();
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
+    virtual ~Scene();
     
     /// Return the coordinate system adapter we're using.
     /// You can get the coordinate system we're using from that.
     WhirlyKit::CoordSystemDisplayAdapter *getCoordAdapter();
     
-	/// Add a single change request.  You can call this from any thread, it locks.
+    /// Add a single change request.  You can call this from any thread, it locks.
     /// If you have more than one, don't iterate, use the other version.
-	void addChangeRequest(ChangeRequest *newChange);
+    void addChangeRequest(ChangeRequest *newChange);
     /// Add a list of change requets.  You can call this from any thread.
     /// This is the faster option if you have more than one change request
-	void addChangeRequests(const ChangeSet &newchanges);
-	
-	/// Look for a valid texture
+    void addChangeRequests(const ChangeSet &newchanges);
+    
+    /// Look for a valid texture
     /// If it's missing, we probably won't draw the associated geometry
-	GLuint getGLTexture(SimpleIdentity texIdent);
-	
-	/// Process change requests
-	/// Only the renderer should call this in the rendering thread
-	void processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now);
+    GLuint getGLTexture(SimpleIdentity texIdent);
+    
+    /// Process change requests
+    /// Only the renderer should call this in the rendering thread
+    void processChanges(WhirlyKit::View *view,SceneRendererES *renderer,TimeInterval now);
     
     /// Some changes generate other changes, so they go first
-    int preProcessChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now);
+    int preProcessChanges(WhirlyKit::View *view,SceneRendererES *renderer,TimeInterval now);
     
     /// True if there are pending updates
-    bool hasChanges(NSTimeInterval now);
+    bool hasChanges(TimeInterval now);
     
     /// Add sub texture mappings.
     /// These are mappings from images to parts of texture atlases.
@@ -287,6 +273,9 @@ public:
     /// Remove a subtexture mapping
     void removeSubTexture(SimpleIdentity subTexID);
     
+    /// Remove several subtexture mappings
+    void removeSubTextures(const std::vector<SimpleIdentity> &subTexIDs);
+
     /// Return a sub texture by ID.  The idea being we can use these
     ///  the same way we use full texture IDs.
     SubTexture getSubTexture(SimpleIdentity subTexId);
@@ -300,7 +289,7 @@ public:
     virtual void remDrawable(DrawableRef drawable) = 0;
 
     /// Called once by the renderer so we can reset any managers that care
-    void setRenderer(WhirlyKitSceneRendererES *renderer);
+    void setRenderer(SceneRendererES *renderer);
     
     /// Return the given manager.  This is thread safe;
     SceneManager *getManager(const char *name);
@@ -345,54 +334,57 @@ public:
     ///  to display coordinates.
     WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
     
-	/// Look for a Drawable by ID
-	DrawableRef getDrawable(SimpleIdentity drawId);
-	
-	/// Look for a Texture by ID
-	TextureBase *getTexture(SimpleIdentity texId);
+    /// Look for a Drawable by ID
+    DrawableRef getDrawable(SimpleIdentity drawId);
+    
+    /// Look for a Texture by ID
+    TextureBase *getTexture(SimpleIdentity texId);
+    
+    /// Add a texture to the scene
+    void addTexture(TextureBase *tex);
     
     /// All the active models
     NSMutableArray *activeModels;
     
-	/// All the drawables we've been handed, sorted by ID
-	DrawableRefSet drawables;
-	
+    /// All the drawables we've been handed, sorted by ID
+    DrawableRefSet drawables;
+    
     typedef std::unordered_map<SimpleIdentity,TextureBaseRef> TextureRefSet;
-	/// Textures, sorted by ID
-	TextureRefSet textures;
+    /// Textures, sorted by ID
+    TextureRefSet textures;
     
     /// Mutex for accessing textures
     pthread_mutex_t textureLock;
-	
-	pthread_mutex_t changeRequestLock;
-	/// We keep a list of change requests to execute
-	/// This can be accessed in multiple threads, so we lock it
-	ChangeSet changeRequests;
+    
+    pthread_mutex_t changeRequestLock;
+    /// We keep a list of change requests to execute
+    /// This can be accessed in multiple threads, so we lock it
+    ChangeSet changeRequests;
     SortedChangeSet timedChangeRequests;
     
     pthread_mutex_t subTexLock;
     typedef std::set<SubTexture> SubTextureSet;
     /// Mappings from images to parts of texture atlases
     SubTextureSet subTextureMap;
-        
+    
     /// Memory manager, really buffer and texture ID manager
     OpenGLMemManager memManager;
     
     /// Dispatch queue(s) we'll use for... things
     dispatch_queue_t dispatchQueue;
-        
+    
     /// Lock for accessing managers
     pthread_mutex_t managerLock;
-
+    
     /// Managers for various functionality
     std::map<std::string,SceneManager *> managers;
     
     /// Returns the font texture manager, which is thread safe
-    WhirlyKitFontTextureManager *getFontTextureManager() { return fontTexManager; }
+    FontTextureManager *getFontTextureManager() { return fontTexManager; }
     
-    /// Font texture manager (created on startup)
-    WhirlyKitFontTextureManager *fontTexManager;
-    
+    /// Set up the font texture manager.  Don't call this yourself.
+    void setFontTextureManager(FontTextureManager *newManager) { if (fontTextureManager)  delete fontTextureManager; fontTextureManager = newManager; }
+        
     /// Lock for accessing programs
     pthread_mutex_t programLock;
     
@@ -408,7 +400,7 @@ public:
     
     /// For 2D maps we have an overlap margin based on what drawables may overlap the edges
     double getOverlapMargin() { return overlapMargin; }
-        
+    
 protected:
     /// Only the subclasses are allowed to create these
     Scene();
@@ -425,6 +417,9 @@ protected:
     
     /// Used for 2D overlap testing
     double overlapMargin;
+    
+        // The font texture manager is created at startup
+    FontTextureManager *fontTextureManager;
 };
 	
 }

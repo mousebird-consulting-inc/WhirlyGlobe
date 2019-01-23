@@ -18,9 +18,12 @@
  *
  */
 
+#import "WhirlyKitLog.h"
 #import "Scene.h"
 #import "GlobeView.h"
 #import "GlobeMath.h"
+#import "TextureAtlas.h"
+#import "Platform.h"
 #import "FontTextureManager.h"
 #import "SelectionManager.h"
 #import "IntersectionManager.h"
@@ -29,6 +32,7 @@
 #import "MarkerManager.h"
 #import "LabelManager.h"
 #import "VectorManager.h"
+#import "WideVectorManager.h"
 #import "SphericalEarthChunkManager.h"
 #import "LoftManager.h"
 #import "ParticleSystemManager.h"
@@ -85,9 +89,6 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr)
     // Raw Geometry
     addManager(kWKGeometryManager, new GeometryManager());
     
-    // Font Texture manager is used from any thread
-    fontTexManager = [[WhirlyKitFontTextureManager alloc] initWithScene:this];
-    
     activeModels = [NSMutableArray array];
     
     overlapMargin = 0.0;
@@ -103,9 +104,7 @@ Scene::~Scene()
          it != managers.end(); ++it)
         delete it->second;
     managers.clear();
-    
-    fontTexManager = nil;
-    
+        
     pthread_mutex_destroy(&managerLock);
     pthread_mutex_destroy(&changeRequestLock);
     pthread_mutex_destroy(&subTexLock);
@@ -129,6 +128,11 @@ Scene::~Scene()
          it != glPrograms.end(); ++it)
         delete *it;
     glPrograms.clear();
+    
+    if (fontTexManager) {
+       delete fontTexManager;
+       fontTexManager = nil;
+    }
 }
     
 CoordSystemDisplayAdapter *Scene::getCoordAdapter()
@@ -306,7 +310,7 @@ const DrawableRefSet &Scene::getDrawables()
     return drawables;
 }
     
-int Scene::preProcessChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
+int Scene::preProcessChanges(WhirlyKit::View *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
 {
     ChangeSet preRequests;
     
@@ -334,7 +338,7 @@ int Scene::preProcessChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *rende
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
-void Scene::processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
+void Scene::processChanges(WhirlyKit::View *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
 {
     pthread_mutex_lock(&changeRequestLock);
     // See if any of the timed changes are ready
@@ -365,7 +369,7 @@ void Scene::processChanges(WhirlyKitView *view,WhirlyKitSceneRendererES *rendere
     pthread_mutex_unlock(&changeRequestLock);
 }
     
-bool Scene::hasChanges(NSTimeInterval now)
+bool Scene::hasChanges(TimeInterval now)
 {
     bool changes = false;
     if (!pthread_mutex_trylock(&changeRequestLock))
@@ -415,6 +419,20 @@ void Scene::removeSubTexture(SimpleIdentity subTexID)
     pthread_mutex_unlock(&subTexLock);
 }
 
+void Scene::removeSubTextures(const std::vector<SimpleIdentity> &subTexIDs)
+{
+    pthread_mutex_lock(&subTexLock);
+    SubTexture dummySubTex;
+    for (auto texID : subTexIDs)
+    {
+        dummySubTex.setId(texID);
+        auto it = subTextureMap.find(dummySubTex);
+        if (it != subTextureMap.end())
+            subTextureMap.erase(it);
+    }
+    pthread_mutex_unlock(&subTexLock);
+}
+
 // Look for a sub texture by ID
 SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
 {
@@ -437,10 +455,10 @@ SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
     
 void Scene::dumpStats()
 {
-    NSLog(@"Scene: %ld drawables",drawables.size());
-    NSLog(@"Scene: %d active models",(int)[activeModels count]);
-    NSLog(@"Scene: %ld textures",textures.size());
-    NSLog(@"Scene: %ld sub textures",subTextureMap.size());
+    WHIRLYKIT_LOGV("Scene: %ld drawables",drawables.size());
+    WHIRLYKIT_LOGV("Scene: %d active models",(int)[activeModels count]);
+    WHIRLYKIT_LOGV("Scene: %ld textures",textures.size());
+    WHIRLYKIT_LOGV("Scene: %ld sub textures",subTextureMap.size());
     memManager.dumpStats();
 }
 
@@ -498,7 +516,7 @@ AddTextureReq::~AddTextureReq()
     texRef = NULL;
 }
     
-void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void AddTextureReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
 {
     if (!texRef->getGLId())
         texRef->createInGL(scene->getMemManager());
@@ -506,7 +524,7 @@ void AddTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whir
     texRef = NULL;
 }
 
-void RemTextureReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void RemTextureReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
 {
     pthread_mutex_lock(&scene->textureLock);
     auto it = scene->textures.find(texture);
@@ -525,7 +543,7 @@ AddDrawableReq::~AddDrawableReq()
     drawRef = NULL;
 }
 
-void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void AddDrawableReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
 {
     // If this is an instance, deal with that madness
     BasicDrawableInstance *drawInst = dynamic_cast<BasicDrawableInstance *>(drawRef.get());
@@ -555,13 +573,12 @@ void AddDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
     drawRef = NULL;
 }
 
-void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void RemDrawableReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
 {
     auto it = scene->drawables.find(drawable);
     if (it != scene->drawables.end())
     {
-        [renderer removeContinuousRenderRequest:it->second->getId()];
-        
+        renderer->removeContinuousRenderRequest((*it)->getId());
         // Teardown OpenGL foo
         it->second->teardownGL(scene->getMemManager());
 
@@ -570,45 +587,15 @@ void RemDrawableReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,Whi
         NSLog(@"Missing drawable for RemDrawableReq: %llu", drawable);
 }
 
-void AddProgramReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void AddProgramReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
 {
     scene->addProgram(program);
     program = NULL;
 }
 
-void RemProgramReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void RemProgramReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
 {
     scene->removeProgram(programId);
-}
-    
-void RemBufferReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
-{
-    scene->getMemManager()->removeBufferID(bufID);
-    bufID = 0;
-}
-    
-NotificationReq::NotificationReq(NSString *inNoteName,NSObject *inNoteObj)
-{
-    noteName = inNoteName;
-    noteObj = inNoteObj;
-}
-
-NotificationReq::~NotificationReq()
-{
-    noteName = nil;
-    noteObj = nil;
-}
-
-void NotificationReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
-{
-    NSString *theNoteName = noteName;
-    NSObject *theNoteObj = noteObj;
-    
-    // Send out the notification on the main thread
-    dispatch_async(dispatch_get_main_queue(),
-                   ^{
-                       [[NSNotificationCenter defaultCenter] postNotificationName:theNoteName object:theNoteObj];
-                   });
 }
     
 RunBlockReq::RunBlockReq(BlockFunc newFunc) : func(newFunc)
@@ -619,7 +606,7 @@ RunBlockReq::~RunBlockReq()
 {
 }
     
-void RunBlockReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void RunBlockReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKit::View *view)
 {
     func(scene,renderer,view);
 }
