@@ -27,11 +27,11 @@ using namespace Eigen;
 
 // Convert a buffer in RGBA to 2-byte 565
 // Code courtesy: http://stackoverflow.com/questions/7930148/opengl-es-on-ios-texture-loading-how-do-i-get-from-a-rgba8888-png-file-to-a-r
-NSData *ConvertRGBATo565(NSData *inData)
+RawData *ConvertRGBATo565(RawDataRef inData)
 {
-    uint32_t pixelCount = (uint32_t)[inData length]/4;
+    uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
-    uint32_t *inPixel32  = (uint32_t *)[inData bytes];
+    const uint32_t *inPixel32  = (uint32_t *)inData->getRawData();
     uint16_t *outPixel16 = (uint16_t *)temp;
     
     for(uint32_t i=0; i<pixelCount; i++, inPixel32++)
@@ -43,16 +43,16 @@ NSData *ConvertRGBATo565(NSData *inData)
         *outPixel16++ = (r << 11) | (g << 5) | (b << 0);
     }
     
-    return [NSData dataWithBytesNoCopy:temp length:pixelCount*2 freeWhenDone:YES];
+    return new RawDataWrapper(temp,pixelCount*2,true);
 }
 
 
 // Convert a buffer in RGBA to 2-byte 4444
-NSData *ConvertRGBATo4444(NSData *inData)
+RawData *ConvertRGBATo4444(RawDataRef inData)
 {
-    uint32_t pixelCount = (uint32_t)[inData length]/4;
+    uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
-    uint32_t *inPixel32  = (uint32_t *)[inData bytes];
+    const uint32_t *inPixel32  = (uint32_t *)inData->getRawData();
     uint16_t *outPixel16 = (uint16_t *)temp;
     
     for(uint32_t i=0; i<pixelCount; i++, inPixel32++)
@@ -65,15 +65,15 @@ NSData *ConvertRGBATo4444(NSData *inData)
         *outPixel16++ = (r << 12) | (g << 8) | (b << 4) | (a<< 0);
     }
     
-    return [NSData dataWithBytesNoCopy:temp length:pixelCount*2 freeWhenDone:YES];
+    return new RawDataWrapper(temp,pixelCount*2,true);
 }
 
 // Convert a buffer in RGBA to 2-byte 5551
-NSData *ConvertRGBATo5551(NSData *inData)
+RawData *ConvertRGBATo5551(RawDataRef inData)
 {
-    uint32_t pixelCount = (uint32_t)[inData length]/4;
+    uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
-    uint32_t *inPixel32  = (uint32_t *)[inData bytes];
+    uint32_t *inPixel32  = (uint32_t *)inData->getRawData();
     uint16_t *outPixel16 = (uint16_t *)temp;
     
     for(uint32_t i=0; i<pixelCount; i++, inPixel32++)
@@ -86,11 +86,11 @@ NSData *ConvertRGBATo5551(NSData *inData)
         *outPixel16++ = (r << 11) | (g << 6) | (b << 1) | (a << 0);
     }
     
-    return [NSData dataWithBytesNoCopy:temp length:pixelCount*2 freeWhenDone:YES];
+    return new RawDataWrapper(temp,pixelCount*2,true);
 }
 
 // Convert a buffer in A to 1-byte alpha but align it to 32 bits
-NSData *ConvertAToA(NSData *inData,int width,int height)
+RawDataRef ConvertAToA(RawDataRef inData,int width,int height)
 {
     if (width % 4 == 0)
         return inData;
@@ -101,7 +101,8 @@ NSData *ConvertAToA(NSData *inData,int width,int height)
     
     unsigned char *temp = (unsigned char *)malloc(outWidth*height);
     
-    const unsigned char *inBytes = (const unsigned char *)[inData bytes];
+    uint32_t *inPixel32  = (uint32_t *)inData->getRawData();
+    const unsigned char *inBytes = (const unsigned char *)inData->getRawData();
     unsigned char *outBytes = (unsigned char *)temp;
     for (int32_t h=0;h<height;h++) {
         bzero(&outBytes[width], extra);
@@ -110,11 +111,11 @@ NSData *ConvertAToA(NSData *inData,int width,int height)
         outBytes += outWidth;
     }
 
-    return [NSData dataWithBytesNoCopy:temp length:outWidth*height freeWhenDone:YES];
+    return RawDataRef(new RawDataWrapper(temp,outWidth*height,true));
 }
 
 // Convert a buffer in RG to a 2-byte RG but align it to 32 bits
-NSData *ConvertRGToRG(NSData *inData,int width,int height)
+RawDataRef ConvertRGToRG(RawDataRef inData,int width,int height)
 {
     if (width % 2 == 0)
         return inData;
@@ -125,7 +126,7 @@ NSData *ConvertRGToRG(NSData *inData,int width,int height)
     
     unsigned char *temp = (unsigned char *)malloc(outWidth*height*2);
     
-    const unsigned char *inBytes = (const unsigned char *)[inData bytes];
+    const unsigned char *inBytes = (const unsigned char *)inData->getRawData();
     unsigned char *outBytes = (unsigned char *)temp;
     for (int32_t h=0;h<height;h++) {
         bzero(&outBytes[width], 2*extra);
@@ -134,10 +135,10 @@ NSData *ConvertRGToRG(NSData *inData,int width,int height)
         outBytes += 2*outWidth;
     }
     
-    return [NSData dataWithBytesNoCopy:temp length:outWidth*height*2 freeWhenDone:YES];
+    return RawDataRef(new RawDataWrapper(temp,outWidth*height*2,true));
 }
 
-NSData *ConvertRGBATo16(NSData *inData,int width,int height)
+RawDataRef ConvertRGBATo16(RawDataRef inData,int width,int height)
 {
     int extra = 2 - (width % 2);
     if (extra == 2) extra = 0;
@@ -146,7 +147,7 @@ NSData *ConvertRGBATo16(NSData *inData,int width,int height)
     unsigned char *temp = (unsigned char *)malloc(outWidth*height*2);
     bzero(temp,outWidth*height*2);
     
-    uint32_t *inPixel32row  = (uint32_t *)[inData bytes];
+    uint32_t *inPixel32row  = (uint32_t *)inData->getRawData();
     uint8_t *outPixel8row = (uint8_t *)temp;
     for (int32_t h=0;h<height;h++) {
         uint32_t *inPixel32 = inPixel32row;
@@ -165,15 +166,15 @@ NSData *ConvertRGBATo16(NSData *inData,int width,int height)
         outPixel8row += 2*outWidth;
     }
     
-    return [NSData dataWithBytesNoCopy:temp length:outWidth*height*2 freeWhenDone:YES];
+    return RawDataRef(new RawDataWrapper(temp,outWidth*height*2,true));
 }
 
 // Convert a buffer in RGBA to 1-byte alpha
-NSData *ConvertRGBATo8(NSData *inData,WKSingleByteSource source)
+RawData *ConvertRGBATo8(RawDataRef inData,WKSingleByteSource source)
 {
-    uint32_t pixelCount = (uint32_t)[inData length]/4;
+    uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount);
-    uint32_t *inPixel32  = (uint32_t *)[inData bytes];
+    uint32_t *inPixel32  = (uint32_t *)inData->getRawData();
     uint8_t *outPixel8 = (uint8_t *)temp;
     
     for(uint32_t i=0; i<pixelCount; i++, inPixel32++)
@@ -204,23 +205,28 @@ NSData *ConvertRGBATo8(NSData *inData,WKSingleByteSource source)
         *outPixel8++ = (uint8_t)sum;
     }
     
-    return [NSData dataWithBytesNoCopy:temp length:pixelCount freeWhenDone:YES];
+    return new RawDataWrapper(temp,pixelCount,true);
 }
 
 namespace WhirlyKit
 {
 	
 Texture::Texture(const std::string &name)
-	: TextureBase(name), texData(NULL), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
+	: TextureBase(name), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
 {
 }
 	
 // Construct with raw texture data
-Texture::Texture(const std::string &name,NSData *texData,bool isPVRTC)
+Texture::Texture(const std::string &name,RawDataRef texData,bool isPVRTC)
 	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
 { 
 }
 
+Texture::~Texture()
+{
+}
+
+#if 0
 // Set up the texture from a filename
 Texture::Texture(const std::string &name,NSString *baseName,NSString *ext)
     : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
@@ -267,16 +273,12 @@ Texture::Texture(const std::string &name,UIImage *inImage,int inWidth,int inHeig
     texData = [inImage rawDataScaleWidth:inWidth height:inHeight border:0];
     width = inWidth;  height = inHeight;
 }
+#endif
 
-Texture::~Texture()
-{
-	texData = nil;
-}
-
-NSData *Texture::processData()
+RawDataRef Texture::processData()
 {
     if (!texData)
-        return nil;
+        return NULL;
     
 	if (isPVRTC || isPKM)
 	{
@@ -317,17 +319,17 @@ NSData *Texture::processData()
         }
 	}
     
-    return nil;
+    return RawDataRef();
 }
     
-void Texture::setPKMData(NSData *inData)
+void Texture::setPKMData(RawDataRef inData)
 {
     texData = inData;
     isPKM = true;
 }
 
 // Figure out the PKM data
-unsigned char *Texture::ResolvePKM(NSData *texData,int &pkmType,int &size,int &width,int &height)
+unsigned char *Texture::ResolvePKM(RawDataRef texData,int &pkmType,int &size,int &width,int &height)
 {
     if ([texData length] < 16)
         return NULL;
@@ -424,7 +426,7 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
 
     CheckGLError("Texture::createInGL() glTexParameteri()");
     
-    NSData *convertedData = processData();
+    RawDataRef convertedData = processData();
 	
 	// If it's in an optimized form, we can use that more efficiently
 	if (isPVRTC)
@@ -476,7 +478,7 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
         glGenerateMipmap(GL_TEXTURE_2D);
 	
     // Once we've moved it over to OpenGL, let's get rid of this copy
-    texData = nil;
+    texData.reset();
 	
 	return true;
 }

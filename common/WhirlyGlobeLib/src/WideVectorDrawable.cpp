@@ -105,26 +105,26 @@ void WideVectorDrawable::add_c0(float val)
 #endif
 }
 
-void WideVectorDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo, Scene *scene)
+void WideVectorDrawable::draw(RendererFrameInfo *frameInfo, Scene *scene)
 {
     if (frameInfo.program)
     {
-        float scale = std::max(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight);
-        float screenSize = frameInfo.screenSizeInDisplayCoords.x();
-        float pixDispSize = std::min(frameInfo.screenSizeInDisplayCoords.x(),frameInfo.screenSizeInDisplayCoords.y()) / scale;
+        float scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
+        float screenSize = frameInfo->screenSizeInDisplayCoords.x();
+        float pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
         if (realWidthSet)
         {
-            frameInfo.program->setUniform(u_w2NameID, (float)(realWidth / pixDispSize));
-            frameInfo.program->setUniform(u_Realw2NameID, (float)realWidth);
-            frameInfo.program->setUniform(u_EdgeNameID, edgeSize);
+            frameInfo->program->setUniform(u_w2NameID, (float)(realWidth / pixDispSize));
+            frameInfo->program->setUniform(u_Realw2NameID, (float)realWidth);
+            frameInfo->program->setUniform(u_EdgeNameID, edgeSize);
         } else {
-            frameInfo.program->setUniform(u_w2NameID, lineWidth);
-            frameInfo.program->setUniform(u_Realw2NameID, pixDispSize * lineWidth);
-            frameInfo.program->setUniform(u_EdgeNameID, edgeSize);
+            frameInfo->program->setUniform(u_w2NameID, lineWidth);
+            frameInfo->program->setUniform(u_Realw2NameID, pixDispSize * lineWidth);
+            frameInfo->program->setUniform(u_EdgeNameID, edgeSize);
         }
         float texScale = scale/(screenSize*texRepeat);
-        frameInfo.program->setUniform(u_texScaleNameID, texScale);
-        frameInfo.program->setUniform(u_colorNameID, Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
+        frameInfo->program->setUniform(u_texScaleNameID, texScale);
+        frameInfo->program->setUniform(u_colorNameID, Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
         
         // Note: This calculation is out of date with respect to the shader
         // Redo the calculation for debugging
