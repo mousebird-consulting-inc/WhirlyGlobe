@@ -71,14 +71,14 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
 }
     
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap()
-    : draw(NULL), center(0,0,0)
+    : locDraw(NULL), center(0,0,0)
 {
 }
     
 ScreenSpaceBuilder::DrawableWrap::~DrawableWrap()
 {
-    if (draw)
-        delete draw;
+    if (locDraw)
+        delete locDraw;
 }
     
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
@@ -107,6 +107,8 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
         draw->addTweaker(DrawableTweakerRef(tweak));
     }
 }
+
+
     
 bool ScreenSpaceBuilder::DrawableWrap::operator < (const DrawableWrap &that) const
 {
@@ -192,7 +194,7 @@ void ScreenSpaceBuilder::setProgramID(SimpleIdentity progID)
     curState.progID = progID;
 }
 
-void ScreenSpaceBuilder::setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown)
+void ScreenSpaceBuilder::setFade(TimeInterval fadeUp,TimeInterval fadeDown)
 {
     curState.fadeUp = fadeUp;
     curState.fadeDown = fadeDown;
@@ -214,7 +216,7 @@ void ScreenSpaceBuilder::setEnable(bool inEnable)
     curState.enable = inEnable;
 }
 
-void ScreenSpaceBuilder::setEnableRange(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable)
+void ScreenSpaceBuilder::setEnableRange(TimeInterval inStartEnable,TimeInterval inEndEnable)
 {
     curState.startEnable = inStartEnable;
     curState.endEnable = inEndEnable;
@@ -258,7 +260,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coo
 {
     DrawableWrap *drawWrap = findOrAddDrawWrap(curState,4,2,worldLoc);
     
-    int baseVert = drawWrap->draw->getNumPoints();
+    int baseVert = drawWrap->getDrawable()->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point2d coord(coords[ii].x(),coords[ii].y());
@@ -274,7 +276,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,bo
     DrawableWrap *drawWrap = findOrAddDrawWrap(curState,4,2,worldLoc);
     
     // Note: Do something with keepUpright
-    int baseVert = drawWrap->draw->getNumPoints();
+    int baseVert = drawWrap->getDrawable()->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point2d coord(coords[ii].x(),coords[ii].y());
@@ -330,9 +332,13 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
         for (unsigned int jj=0;jj<geom.coords.size();jj++)
         {
             Point2d coord = geom.coords[jj] + ssObj.offset;
-            Point3f *dir3f = (state.motion ? &dir : NULL);
             const TexCoord *texCoord = geom.texCoords.size() > jj ? &geom.texCoords[jj] : NULL;
-            drawWrap->addVertex(coordAdapter,scale,startLoc, dir3f, ssObj.rotation, Point2d(coord.x(),coord.y()), texCoord, &geom.color, &geom.vertexAttrs);
+            if (state.motion)
+            {
+                Point3f dir3f(dir.x(),dir.y(),dir.z());
+                drawWrap->addVertex(coordAdapter,scale,startLoc, &dir3f, ssObj.rotation, Point2d(coord.x(),coord.y()), texCoord, &geom.color, &geom.vertexAttrs);
+            } else
+                drawWrap->addVertex(coordAdapter,scale,startLoc, NULL, ssObj.rotation, Point2d(coord.x(),coord.y()), texCoord, &geom.color, &geom.vertexAttrs);
         }
         for (unsigned int jj=0;jj<geom.coords.size()-2;jj++)
             drawWrap->addTri(0+baseVert, jj+1+baseVert, jj+2+baseVert);
@@ -344,8 +350,8 @@ void ScreenSpaceBuilder::buildDrawables(std::vector<ScreenSpaceDrawable *> &draw
     for (unsigned int ii=0;ii<fullDrawables.size();ii++)
     {
         DrawableWrap *drawWrap = fullDrawables[ii];
-        draws.push_back(drawWrap->draw);
-        drawWrap->draw = NULL;
+        draws.push_back(drawWrap->getDrawable());
+        drawWrap->locDraw = NULL;
         delete drawWrap;
     }
     fullDrawables.clear();
@@ -353,8 +359,8 @@ void ScreenSpaceBuilder::buildDrawables(std::vector<ScreenSpaceDrawable *> &draw
     for (DrawableWrapSet::iterator it = drawables.begin(); it != drawables.end(); ++it)
     {
         DrawableWrap *drawWrap = *it;
-        draws.push_back(drawWrap->draw);
-        drawWrap->draw = NULL;
+        draws.push_back(drawWrap->getDrawable());
+        drawWrap->locDraw = NULL;
         delete drawWrap;
     }
     drawables.clear();
@@ -397,7 +403,7 @@ void ScreenSpaceObject::setEnable(bool inEnable)
     enable = inEnable;
 }
     
-void ScreenSpaceObject::setEnableTime(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable)
+void ScreenSpaceObject::setEnableTime(TimeInterval inStartEnable,TimeInterval inEndEnable)
 {
     startEnable = inStartEnable;
     endEnable = inEndEnable;
@@ -408,7 +414,7 @@ void ScreenSpaceObject::setWorldLoc(const Point3d &inWorldLoc)
     worldLoc = inWorldLoc;
 }
     
-void ScreenSpaceObject::setMovingLoc(const Point3d &worldLoc,NSTimeInterval inStartTime,NSTimeInterval inEndTime)
+void ScreenSpaceObject::setMovingLoc(const Point3d &worldLoc,TimeInterval inStartTime,TimeInterval inEndTime)
 {
     state.motion = true;
     endWorldLoc = worldLoc;
@@ -421,12 +427,12 @@ Point3d ScreenSpaceObject::getEndWorldLoc()
     return endWorldLoc;
 }
 
-NSTimeInterval ScreenSpaceObject::getStartTime()
+TimeInterval ScreenSpaceObject::getStartTime()
 {
     return startTime;
 }
 
-NSTimeInterval ScreenSpaceObject::getEndTime()
+TimeInterval ScreenSpaceObject::getEndTime()
 {
     return endTime;
 }
@@ -458,7 +464,7 @@ void ScreenSpaceObject::setRotation(double inRot)
     rotation = inRot;
 }
 
-void ScreenSpaceObject::setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown)
+void ScreenSpaceObject::setFade(TimeInterval fadeUp,TimeInterval fadeDown)
 {
     state.fadeUp = fadeUp;
     state.fadeDown = fadeDown;
@@ -469,7 +475,7 @@ void ScreenSpaceObject::setOffset(const Point2d &inOffset)
     offset = inOffset;
 }
     
-void ScreenSpaceObject::setPeriod(NSTimeInterval period)
+void ScreenSpaceObject::setPeriod(TimeInterval period)
 {
     state.period = period;
 }
@@ -490,6 +496,11 @@ SimpleIdentity ScreenSpaceObject::getTypicalProgramID()
     return state.progID;
 }
     
+int ScreenSpaceObject::getDrawPriority()
+{
+    return state.drawPriority;
+}
+
 ScreenSpaceObjectLocation::ScreenSpaceObjectLocation()
 : isCluster(false), dispLoc(0,0,0), offset(0,0), keepUpright(false), rotation(0.0)
 {

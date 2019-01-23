@@ -25,11 +25,15 @@ namespace WhirlyKit
     
 // Shader name
 #define kScreenSpaceShaderName "Screen Space Shader"
+#define kScreenSpaceShader2DName "Screen Space Shader 2D"
 #define kScreenSpaceShaderMotionName "Screen Space Shader Motion"
+#define kScreenSpaceShader2DMotionName "Screen Space Shader 2D Motion"
     
 /// Construct and return the Screen Space shader program
 OpenGLES2Program *BuildScreenSpaceProgram();
 OpenGLES2Program *BuildScreenSpaceMotionProgram();
+OpenGLES2Program *BuildScreenSpace2DProgram();
+OpenGLES2Program *BuildScreenSpaceMotion2DProgram();
 
 /// Wrapper for building screen space drawables
 class ScreenSpaceDrawable : public BasicDrawable
@@ -42,9 +46,9 @@ public:
     //  probably because it's text.
     void setKeepUpright(bool keepUpright);
     // Time we start counting from for motion
-    void setStartTime(NSTimeInterval inStartTime) { startTime = inStartTime; }
+    void setStartTime(TimeInterval inStartTime) { startTime = inStartTime; }
     // Time we start counting from for motion
-    NSTimeInterval getStartTime() { return startTime; }
+    TimeInterval getStartTime() { return startTime; }
     
     // Each vertex has an offset on the screen
     void addOffset(const Point2f &offset);
@@ -59,10 +63,10 @@ public:
     void addRot(const Point3d &dir);
 
     /// If we have motion we need to force the render to keep rendering
-    virtual void updateRenderer(WhirlyKitSceneRendererES *renderer);
+    virtual void updateRenderer(SceneRendererES *renderer);
     
     /// We override draw so we can set our own values
-    virtual void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    virtual void draw(RendererFrameInfo *frameInfo,Scene *scene);
 
 protected:
     bool motion,rotation;
@@ -70,7 +74,7 @@ protected:
     int offsetIndex;
     int dirIndex;
     int rotIndex;
-    NSTimeInterval startTime;
+    TimeInterval startTime;
 };
     
 }

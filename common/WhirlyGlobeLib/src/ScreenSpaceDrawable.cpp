@@ -70,20 +70,21 @@ void ScreenSpaceDrawable::addRot(const Point3f &rotDir)
     addAttributeValue(rotIndex, rotDir);
 }
 
-void ScreenSpaceDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
+void ScreenSpaceDrawable::updateRenderer(SceneRendererES *renderer)
 {
-    [renderer setRenderUntil:fadeUp];
-    [renderer setRenderUntil:fadeDown];
+    renderer->setRenderUntil(fadeUp);
+    renderer->setRenderUntil(fadeDown);
 
     if (motion)
     {
         if (startEnable != endEnable)
         {
             // Note: This still means we'll render until startEnable
-            [renderer setRenderUntil:endEnable];
-        } else
+            renderer->setRenderUntil(endEnable);
+        } else {
             // Motion requires continuous rendering
-            [renderer addContinuousRenderRequest:getId()];
+            renderer->addContinuousRenderRequest(getId());
+        }
     }
 }
 
@@ -91,10 +92,11 @@ void ScreenSpaceDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scen
 {
     if (frameInfo.program)
     {
-        frameInfo.program->setUniform(u_ScaleNameID, Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
+        Point2f fbSize = frameInfo->sceneRenderer->getFramebufferSize();
+        frameInfo.program->setUniform(u_ScaleNameID, Point2f(2.f/fbSize.x(),2.f/(float)fbSize.y()));
         frameInfo.program->setUniform(u_uprightNameID, keepUpright);
         if (motion)
-            frameInfo.program->setUniform(u_TimeNameID, (float)(frameInfo.currentTime - startTime));
+            frameInfo.program->setUniform(u_TimeNameID, (float)(frameInfo->currentTime - startTime));
         frameInfo.program->setUniform(u_activerotNameID, (rotIndex >= 0 ? 1 : 0));
     }
 
@@ -222,9 +224,39 @@ WhirlyKit::OpenGLES2Program *BuildScreenSpaceProgram()
     return shader;
 }
 
+WhirlyKit::OpenGLES2Program *BuildScreenSpace2DProgram()
+{
+    OpenGLES2Program *shader = new OpenGLES2Program(kScreenSpaceShader2DName,vertexShaderTri2d,fragmentShaderTri);
+    if (!shader->isValid())
+    {
+        delete shader;
+        shader = NULL;
+    }
+    
+    if (shader)
+        glUseProgram(shader->getProgram());
+    
+    return shader;
+}
+
 WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotionProgram()
 {
     OpenGLES2Program *shader = new OpenGLES2Program(kScreenSpaceShaderMotionName,vertexShaderMotionTri,fragmentShaderTri);
+    if (!shader->isValid())
+    {
+        delete shader;
+        shader = NULL;
+    }
+    
+    if (shader)
+        glUseProgram(shader->getProgram());
+    
+    return shader;
+}
+
+WhirlyKit::OpenGLES2Program *BuildScreenSpaceMotion2DProgram()
+{
+    OpenGLES2Program *shader = new OpenGLES2Program(kScreenSpaceShader2DMotionName,vertexShader2dMotionTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;

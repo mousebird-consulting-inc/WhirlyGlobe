@@ -23,8 +23,7 @@
 #import <map>
 #import "Identifiable.h"
 #import "BasicDrawable.h"
-#import "DataLayer.h"
-#import "LayerThread.h"
+#import "TextureAtlas.h"
 #import "ScreenSpaceDrawable.h"
 #import "Scene.h"
 
@@ -40,6 +39,8 @@ class ScreenSpaceObjectLocation;
 class ScreenSpaceBuilder
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter,float scale,float centerDist=10e2);
     virtual ~ScreenSpaceBuilder();
     
@@ -48,6 +49,8 @@ public:
     class DrawableState
     {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+        
         DrawableState();
         
         // Comparison operator for set
@@ -56,9 +59,9 @@ public:
         std::vector<SimpleIdentity> texIDs;
         double period;
         SimpleIdentity progID;
-        NSTimeInterval fadeUp,fadeDown;
+        TimeInterval fadeUp,fadeDown;
         bool enable;
-        NSTimeInterval startEnable,endEnable;
+        TimeInterval startEnable,endEnable;
         int drawPriority;
         float minVis,maxVis;
         bool motion;
@@ -77,7 +80,7 @@ public:
     /// Set the active program ID
     void setProgramID(SimpleIdentity progID);
     /// Set the fade in/out
-    void setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown);
+    void setFade(TimeInterval fadeUp,TimeInterval fadeDown);
     /// Set the draw priority
     void setDrawPriority(int drawPriority);
     /// Set the visibility range
@@ -85,7 +88,7 @@ public:
     /// Set the start enable
     void setEnable(bool enable);
     /// Set the enable time range
-    void setEnableRange(NSTimeInterval inStartEnable,NSTimeInterval inEndEnable);
+    void setEnableRange(TimeInterval inStartEnable,TimeInterval inEndEnable);
 
     /// Add a single rectangle with no rotation
     void addRectangle(const Point3d &worldLoc,const Point2d *coords,const TexCoord *texCoords,const RGBAColor &color);
@@ -112,6 +115,8 @@ protected:
     class DrawableWrap
     {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+        
         DrawableWrap();
         DrawableWrap(const DrawableState &state);
         ~DrawableWrap();
@@ -124,8 +129,10 @@ protected:
         
         Point3d center;
         DrawableState state;
-        ScreenSpaceDrawable *draw;
         
+        ScreenSpaceDrawable *getDrawable() { return locDraw; }
+        ScreenSpaceDrawable *locDraw;
+
     protected:
     };
 
@@ -156,9 +163,11 @@ protected:
 class ScreenSpaceObject : public Identifiable
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     friend class LayoutManager;
     friend class SelectionManager;
-    friend ScreenSpaceBuilder;
+    friend class ScreenSpaceBuilder;
     
     ScreenSpaceObject();
     ScreenSpaceObject(SimpleIdentity theId);
@@ -181,7 +190,7 @@ public:
         /// Vertex attributes applied to this piece of geometry
         SingleVertexAttributeSet vertexAttrs;
         
-        std::vector<Point2d> coords;
+        Point2dVector coords;
         std::vector<TexCoord> texCoords;
     };
     
@@ -189,23 +198,24 @@ public:
     void setWorldLoc(const Point3d &worldLoc);
     Point3d getWorldLoc();
     Point3d getEndWorldLoc();
-    NSTimeInterval getStartTime(),getEndTime();
+    TimeInterval getStartTime();
+    TimeInterval getEndTime();
     
     /// Set up the end location and timing
-    void setMovingLoc(const Point3d &worldLoc,NSTimeInterval startTime,NSTimeInterval endTime);
+    void setMovingLoc(const Point3d &worldLoc,TimeInterval startTime,TimeInterval endTime);
     
     void setEnable(bool enable);
-    void setEnableTime(NSTimeInterval startEnable,NSTimeInterval endEnable);
+    void setEnableTime(TimeInterval startEnable,TimeInterval endEnable);
     void setVisibility(float minVis,float maxVis);
     void setDrawPriority(int drawPriority);
-    int getDrawPriority() { return state.drawPriority; }
+    int getDrawPriority();
     void setKeepUpright(bool keepUpright);
     void setRotation(double rotation);
     double getRotation() const { return rotation; }
     bool hasRotation() const { return state.rotation; };
-    void setFade(NSTimeInterval fadeUp,NSTimeInterval fadeDown);
+    void setFade(TimeInterval fadeUp,TimeInterval fadeDown);
     void setOffset(const Point2d &offset);
-    void setPeriod(NSTimeInterval period);
+    void setPeriod(TimeInterval period);
     
     void addGeometry(const ConvexGeometry &geom);
     std::vector<ConvexGeometry> getGeometry() const { return geometry; }
@@ -215,9 +225,9 @@ public:
     
 protected:
     bool enable;
-    NSTimeInterval startEnable,endEnable;
+    TimeInterval startEnable,endEnable;
     Point3d worldLoc,endWorldLoc;
-    NSTimeInterval startTime,endTime;
+    TimeInterval startTime,endTime;
     Point2d offset;
     double rotation;
     bool keepUpright;
@@ -231,6 +241,8 @@ protected:
 class ScreenSpaceObjectLocation
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     ScreenSpaceObjectLocation();
 
     // IDs for selected objects (one if regular, more than one for cluster)
@@ -246,7 +258,7 @@ public:
     // Rotation if there is one
     double rotation;
     // Size of the object in screen space
-    std::vector<Point2d> pts;
+    Point2dVector pts;
     // Bounding box, for quick testing
     Mbr mbr;
 };
