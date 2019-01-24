@@ -29,6 +29,8 @@
 		2B23132B21F8DD7F006AA344 /* MaplyViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132521F8DD7E006AA344 /* MaplyViewState.cpp */; };
 		2B23132E21F93661006AA344 /* RawData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23132D21F93660006AA344 /* RawData.h */; };
 		2B23133021F936CD006AA344 /* RawData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132F21F936CD006AA344 /* RawData.cpp */; };
+		2B23133421F9395F006AA344 /* RawData_NSData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133321F9395E006AA344 /* RawData_NSData.h */; };
+		2B23133621F93969006AA344 /* RawData_NSData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133521F93969006AA344 /* RawData_NSData.mm */; };
 		2B2B46FA206C000500570F97 /* LoadedTileNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2B46F9206C000500570F97 /* LoadedTileNew.h */; };
 		2B2B46FC206C001900570F97 /* LoadedTileNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B46FB206C001900570F97 /* LoadedTileNew.mm */; };
 		2B2B4701206D931300570F97 /* QuadTileBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2B4700206D931300570F97 /* QuadTileBuilder.h */; };
@@ -1010,6 +1012,8 @@
 		2B23132521F8DD7E006AA344 /* MaplyViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyViewState.cpp; path = ../../../../common/WhirlyGlobeLib/src/MaplyViewState.cpp; sourceTree = "<group>"; };
 		2B23132D21F93660006AA344 /* RawData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RawData.h; path = ../../../../common/WhirlyGlobeLib/include/RawData.h; sourceTree = "<group>"; };
 		2B23132F21F936CD006AA344 /* RawData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RawData.cpp; path = ../../../../common/WhirlyGlobeLib/src/RawData.cpp; sourceTree = "<group>"; };
+		2B23133321F9395E006AA344 /* RawData_NSData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RawData_NSData.h; sourceTree = "<group>"; };
+		2B23133521F93969006AA344 /* RawData_NSData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RawData_NSData.mm; sourceTree = "<group>"; };
 		2B2B46F9206C000500570F97 /* LoadedTileNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTileNew.h; sourceTree = "<group>"; };
 		2B2B46FB206C001900570F97 /* LoadedTileNew.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadedTileNew.mm; sourceTree = "<group>"; };
 		2B2B4700206D931300570F97 /* QuadTileBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadTileBuilder.h; sourceTree = "<group>"; };
@@ -2015,6 +2019,25 @@
 			name = view;
 			sourceTree = "<group>";
 		};
+		2B23133121F9371F006AA344 /* util */ = {
+			isa = PBXGroup;
+			children = (
+				2B446B2621F7A0D70078A975 /* Platform.h */,
+				2B23132D21F93660006AA344 /* RawData.h */,
+				2B446AB921F25C330078A975 /* WhirlyKitLog.h */,
+				2B446ABA21F25C330078A975 /* WhirlyTypes.h */,
+			);
+			name = util;
+			sourceTree = "<group>";
+		};
+		2B23133221F9373A006AA344 /* util */ = {
+			isa = PBXGroup;
+			children = (
+				2B23132F21F936CD006AA344 /* RawData.cpp */,
+			);
+			name = util;
+			sourceTree = "<group>";
+		};
 		2B446ABE21F268360078A975 /* external */ = {
 			isa = PBXGroup;
 			children = (
@@ -2476,6 +2499,7 @@
 		2B82B4C21E82E2490095FB14 /* Cocoa Utils */ = {
 			isa = PBXGroup;
 			children = (
+				2B23133321F9395E006AA344 /* RawData_NSData.h */,
 				2B82B4BE1E82E2490095FB14 /* UIImage+Stuff.h */,
 				2B82B4BF1E82E2490095FB14 /* NSDictionary+Stuff.h */,
 				2B82B4C01E82E2490095FB14 /* UIColor+Stuff.h */,
@@ -2618,6 +2642,7 @@
 		2B82B54D1E82E2490095FB14 /* Cocoa Utils */ = {
 			isa = PBXGroup;
 			children = (
+				2B23133521F93969006AA344 /* RawData_NSData.mm */,
 				2B82B5491E82E2490095FB14 /* UIImage+Stuff.mm */,
 				2B82B54A1E82E2490095FB14 /* NSDictionary+Stuff.m */,
 				2B82B54B1E82E2490095FB14 /* UIColor+Stuff.mm */,
@@ -2746,10 +2771,7 @@
 		2B846EF421F158CD00EF2A82 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				2B446B2621F7A0D70078A975 /* Platform.h */,
-				2B23132D21F93660006AA344 /* RawData.h */,
-				2B446AB921F25C330078A975 /* WhirlyKitLog.h */,
-				2B446ABA21F25C330078A975 /* WhirlyTypes.h */,
+				2B23133121F9371F006AA344 /* util */,
 				2B446AEC21F79A390078A975 /* geometry utils */,
 				2B446B0621F79A8B0078A975 /* coord systems */,
 				2B446B2C21F7CE490078A975 /* opengl */,
@@ -2764,7 +2786,7 @@
 		2B846EF521F158D200EF2A82 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				2B23132F21F936CD006AA344 /* RawData.cpp */,
+				2B23133221F9373A006AA344 /* util */,
 				2B446B0521F79A680078A975 /* geometry utils */,
 				2B446B0721F79AA40078A975 /* coord systems */,
 				2B846F3121F1597D00EF2A82 /* managers */,
@@ -3669,6 +3691,7 @@
 				2BE538441D249A1200B60FAD /* MaplyPoints_private.h in Headers */,
 				2BE53A8A1D249C8900B60FAD /* DDXMLElementAdditions.h in Headers */,
 				2BE538111D249A1200B60FAD /* MaplyMarker.h in Headers */,
+				2B23133421F9395F006AA344 /* RawData_NSData.h in Headers */,
 				2BE53A941D249C9000B60FAD /* DDXMLDocument.h in Headers */,
 				2BE5396F1D249BEF00B60FAD /* AAMoonPhases.h in Headers */,
 				2B846F0A21F158E100EF2A82 /* VectorManager.h in Headers */,
@@ -4643,6 +4666,7 @@
 				2B82B6651E82E24A0095FB14 /* pj_fwd.c in Sources */,
 				2B82B6BD1E82E24A0095FB14 /* PJ_vandg2.c in Sources */,
 				2BE539A21D249BEF00B60FAD /* AAMars.cpp in Sources */,
+				2B23133621F93969006AA344 /* RawData_NSData.mm in Sources */,
 				2BE53A3E1D249C3D00B60FAD /* zero_copy_stream.cc in Sources */,
 				2B361DEF21233CBE0074D06D /* MaplyDoubleTapDelegate.mm in Sources */,
 				2BE5399F1D249BEF00B60FAD /* AAJewishCalendar.cpp in Sources */,
