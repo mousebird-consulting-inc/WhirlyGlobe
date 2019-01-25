@@ -18,8 +18,17 @@
  *
  */
 
-#import "PerformanceTimer.h"
+#import <math.h>
 #import <vector>
+#import <algorithm>
+#import "PerformanceTimer.h"
+#import "Platform.h"
+#if defined(__ANDROID__)
+#import <android/log.h>
+#else
+// Note: Porting
+//#import <Foundation/Foundation.h>
+#endif
 
 namespace WhirlyKit
 {
@@ -50,7 +59,7 @@ bool PerformanceTimer::TimeEntry::operator<(const WhirlyKit::PerformanceTimer::T
     return name < that.name;
 }
 
-void PerformanceTimer::TimeEntry::addTime(NSTimeInterval dur)
+void PerformanceTimer::TimeEntry::addTime(TimeInterval dur)
 {
     minDur = std::min(minDur,dur);
     maxDur = std::max(maxDur,dur);
@@ -82,23 +91,23 @@ void PerformanceTimer::CountEntry::addCount(int count)
 
 void PerformanceTimer::startTiming(const std::string &what)
 {
-    actives[what] = CFAbsoluteTimeGetCurrent();
+    actives[what] = TimeGetCurrent();
 }
 
 void PerformanceTimer::stopTiming(const std::string &what)
 {
-    std::map<std::string,NSTimeInterval>::iterator it = actives.find(what);
+    std::map<std::string,TimeInterval>::iterator it = actives.find(what);
     if (it == actives.end())
         return;
-    NSTimeInterval start = it->second;
+    TimeInterval start = it->second;
     actives.erase(it);
     
     std::map<std::string,TimeEntry>::iterator eit = timeEntries.find(what);
     if (eit != timeEntries.end())
-        eit->second.addTime(CFAbsoluteTimeGetCurrent()-start);
+        eit->second.addTime(TimeGetCurrent()-start);
     else {
         TimeEntry newEntry;
-        newEntry.addTime(CFAbsoluteTimeGetCurrent()-start);
+        newEntry.addTime(TimeGetCurrent()-start);
         newEntry.name = what;
         timeEntries[what] = newEntry;
     }
@@ -129,6 +138,16 @@ static bool TimeEntryByMax (const PerformanceTimer::TimeEntry &a,const Performan
     return a.avgDur > b.avgDur;
 }
     
+void PerformanceTimer::report(const std::string &what)
+{
+#if defined(__ANDROID__)
+    __android_log_print(ANDROID_LOG_VERBOSE, "Maply Performance", "%s", what.c_str());
+#else
+    // Note: Porting
+//    NSLog("%s",what.c_str());
+#endif
+}
+    
 void PerformanceTimer::log()
 {
     std::vector<TimeEntry> sortedEntries;
@@ -142,14 +161,21 @@ void PerformanceTimer::log()
     {
         TimeEntry &entry = sortedEntries[ii];
         if (entry.numRuns > 0)
-            NSLog(@"  %s: min, max, avg = (%.2f,%.2f,%.2f) ms",entry.name.c_str(),1000*entry.minDur,1000*entry.maxDur,1000*entry.avgDur / entry.numRuns);
+        {
+            char line[1024];
+            sprintf(line,"%s: min, max, avg = (%.2f,%.2f,%.2f) ms",entry.name.c_str(),1000*entry.minDur,1000*entry.maxDur,1000*entry.avgDur / entry.numRuns);
+            report(line);
+        }
     }
     for (std::map<std::string,CountEntry>::iterator it = countEntries.begin();
          it != countEntries.end(); ++it)
     {
         CountEntry &entry = it->second;
         if (entry.numRuns > 0)
-            NSLog(@"  %s: min, max, avg = (%d,%d,%2.f,  %d) count",entry.name.c_str(),entry.minCount,entry.maxCount,(float)entry.avgCount / (float)entry.numRuns,entry.avgCount);
+        {
+            char line[1024];
+            sprintf(line,"%s: min, max, avg = (%d,%d,%2.f,  %d) count",entry.name.c_str(),entry.minCount,entry.maxCount,(float)entry.avgCount / (float)entry.numRuns,entry.avgCount);
+        }
     }
 }
     

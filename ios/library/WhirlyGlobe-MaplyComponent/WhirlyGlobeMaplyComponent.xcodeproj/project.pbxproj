@@ -153,6 +153,8 @@
 		2B446B9421FBA8340078A975 /* FontTextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B9321FBA8340078A975 /* FontTextureManager.cpp */; };
 		2B446B9621FBA8520078A975 /* OpenGLES2Program.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B9521FBA8520078A975 /* OpenGLES2Program.h */; };
 		2B446B9821FBA8690078A975 /* OpenGLES2Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B9721FBA8690078A975 /* OpenGLES2Program.cpp */; };
+		2B446B9A21FBA9D50078A975 /* PerformanceTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B9921FBA9D50078A975 /* PerformanceTimer.h */; };
+		2B446B9C21FBA9E90078A975 /* PerformanceTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B9B21FBA9E90078A975 /* PerformanceTimer.cpp */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B73D6BE207D1FD300AF5095 /* MaplyQuadImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6BD207D1FD300AF5095 /* MaplyQuadImageLoader.h */; };
 		2B73D6C0207D1FDF00AF5095 /* MaplyQuadImageLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B73D6BF207D1FDF00AF5095 /* MaplyQuadImageLoader.mm */; };
@@ -1136,6 +1138,8 @@
 		2B446B9321FBA8340078A975 /* FontTextureManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FontTextureManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/FontTextureManager.cpp; sourceTree = "<group>"; };
 		2B446B9521FBA8520078A975 /* OpenGLES2Program.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpenGLES2Program.h; path = ../../../../common/WhirlyGlobeLib/include/OpenGLES2Program.h; sourceTree = "<group>"; };
 		2B446B9721FBA8690078A975 /* OpenGLES2Program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OpenGLES2Program.cpp; path = ../../../../common/WhirlyGlobeLib/src/OpenGLES2Program.cpp; sourceTree = "<group>"; };
+		2B446B9921FBA9D50078A975 /* PerformanceTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PerformanceTimer.h; path = ../../../../common/WhirlyGlobeLib/include/PerformanceTimer.h; sourceTree = "<group>"; };
+		2B446B9B21FBA9E90078A975 /* PerformanceTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PerformanceTimer.cpp; path = ../../../../common/WhirlyGlobeLib/src/PerformanceTimer.cpp; sourceTree = "<group>"; };
 		2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyRenderTarget.h; sourceTree = "<group>"; };
 		2B73D6BD207D1FD300AF5095 /* MaplyQuadImageLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadImageLoader.h; sourceTree = "<group>"; };
 		2B73D6BF207D1FDF00AF5095 /* MaplyQuadImageLoader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyQuadImageLoader.mm; sourceTree = "<group>"; };
@@ -2168,6 +2172,7 @@
 			children = (
 				2B446B3621F7E6770078A975 /* Lighting.h */,
 				2B446B9521FBA8520078A975 /* OpenGLES2Program.h */,
+				2B446B9921FBA9D50078A975 /* PerformanceTimer.h */,
 			);
 			name = render;
 			sourceTree = "<group>";
@@ -2178,6 +2183,7 @@
 				2B446B6621F7E7E00078A975 /* GLUtils.cpp */,
 				2B446B3821F7E6850078A975 /* Lighting.cpp */,
 				2B446B9721FBA8690078A975 /* OpenGLES2Program.cpp */,
+				2B446B9B21FBA9E90078A975 /* PerformanceTimer.cpp */,
 			);
 			name = render;
 			sourceTree = "<group>";
@@ -3834,6 +3840,7 @@
 				2B446ACB21F26E0E0078A975 /* MaplyVectorInfo_iOS_private.h in Headers */,
 				2BE53A051D249C2900B60FAD /* generated_enum_reflection.h in Headers */,
 				2BB8A3F521ED43D10025DA98 /* MaplyPanDelegate.h in Headers */,
+				2B446B9A21FBA9D50078A975 /* PerformanceTimer.h in Headers */,
 				2BB8A3F321ED43D10025DA98 /* MaplyTapDelegate.h in Headers */,
 				2BE539751D249BEF00B60FAD /* AAParabolic.h in Headers */,
 				2BE53A3F1D249C3D00B60FAD /* zero_copy_stream.h in Headers */,
@@ -4455,6 +4462,7 @@
 				2BE5389D1D249A1200B60FAD /* MaplyScreenObject.mm in Sources */,
 				2BE53A041D249C2900B60FAD /* extension_set_heavy.cc in Sources */,
 				2BE53A171D249C2900B60FAD /* unknown_field_set.cc in Sources */,
+				2B446B9C21FBA9E90078A975 /* PerformanceTimer.cpp in Sources */,
 				2B884A461E3803170027C397 /* arithmeticmodel.cpp in Sources */,
 				2B82B6691E82E24A0095FB14 /* PJ_geos.c in Sources */,
 				2BE539AB1D249BEF00B60FAD /* AANearParabolic.cpp in Sources */,

@@ -18,9 +18,9 @@
  *
  */
 
-#import <Foundation/Foundation.h>
 #import <string>
 #import <map>
+#import "WhirlyTypes.h"
 
 namespace WhirlyKit
 {
@@ -37,10 +37,10 @@ public:
         TimeEntry & operator = (const TimeEntry &that);
         bool operator < (const TimeEntry &that) const;
         
-        void addTime(NSTimeInterval dur);
+        void addTime(TimeInterval dur);
         
         std::string name;
-        NSTimeInterval minDur,maxDur,avgDur;
+        TimeInterval minDur,maxDur,avgDur;
         int numRuns;
     };
     
@@ -67,6 +67,9 @@ public:
     /// Add a count for a particular instance
     void addCount(const std::string &what,int count);
     
+    /// Print out a string
+    void report(const std::string &what);
+    
     /// Clean out existing timings
     void clear();
     
@@ -74,7 +77,7 @@ public:
     void log();
     
 protected:
-    std::map<std::string,NSTimeInterval> actives;
+    std::map<std::string,TimeInterval> actives;
     std::map<std::string,TimeEntry> timeEntries;
     std::map<std::string,CountEntry> countEntries;
 };
