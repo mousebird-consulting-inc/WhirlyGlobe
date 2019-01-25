@@ -374,7 +374,6 @@
 		2B82B6DA1E82E24A0095FB14 /* NSDictionary+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4BF1E82E2490095FB14 /* NSDictionary+Stuff.h */; };
 		2B82B6DB1E82E24A0095FB14 /* UIColor+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C01E82E2490095FB14 /* UIColor+Stuff.h */; };
 		2B82B6DC1E82E24A0095FB14 /* NSString+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C11E82E2490095FB14 /* NSString+Stuff.h */; };
-		2B82B6E01E82E24A0095FB14 /* PerformanceTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C61E82E2490095FB14 /* PerformanceTimer.h */; };
 		2B82B6E11E82E24A0095FB14 /* SceneRendererES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C71E82E2490095FB14 /* SceneRendererES.h */; };
 		2B82B6E21E82E24A0095FB14 /* SceneRendererES2.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C81E82E2490095FB14 /* SceneRendererES2.h */; };
 		2B82B6E31E82E24A0095FB14 /* EAGLView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C91E82E2490095FB14 /* EAGLView.h */; };
@@ -398,7 +397,6 @@
 		2B82B74C1E82E24A0095FB14 /* NSDictionary+Stuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54A1E82E2490095FB14 /* NSDictionary+Stuff.m */; };
 		2B82B74D1E82E24A0095FB14 /* UIColor+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54B1E82E2490095FB14 /* UIColor+Stuff.mm */; };
 		2B82B74E1E82E24A0095FB14 /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54C1E82E2490095FB14 /* NSString+Stuff.mm */; };
-		2B82B75E1E82E24A0095FB14 /* PerformanceTimer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B55F1E82E2490095FB14 /* PerformanceTimer.mm */; };
 		2B82B75F1E82E24A0095FB14 /* SceneRendererES.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5601E82E2490095FB14 /* SceneRendererES.mm */; };
 		2B82B7601E82E24A0095FB14 /* SceneRendererES2.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5611E82E2490095FB14 /* SceneRendererES2.mm */; };
 		2B82B7611E82E24A0095FB14 /* EAGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5621E82E2490095FB14 /* EAGLView.mm */; };
@@ -1380,7 +1378,6 @@
 		2B82B4BF1E82E2490095FB14 /* NSDictionary+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "NSDictionary+Stuff.h"; sourceTree = "<group>"; };
 		2B82B4C01E82E2490095FB14 /* UIColor+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "UIColor+Stuff.h"; sourceTree = "<group>"; };
 		2B82B4C11E82E2490095FB14 /* NSString+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Stuff.h"; sourceTree = "<group>"; };
-		2B82B4C61E82E2490095FB14 /* PerformanceTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PerformanceTimer.h; sourceTree = "<group>"; };
 		2B82B4C71E82E2490095FB14 /* SceneRendererES.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES.h; sourceTree = "<group>"; };
 		2B82B4C81E82E2490095FB14 /* SceneRendererES2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES2.h; sourceTree = "<group>"; };
 		2B82B4C91E82E2490095FB14 /* EAGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = EAGLView.h; sourceTree = "<group>"; };
@@ -1404,7 +1401,6 @@
 		2B82B54A1E82E2490095FB14 /* NSDictionary+Stuff.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = "NSDictionary+Stuff.m"; sourceTree = "<group>"; };
 		2B82B54B1E82E2490095FB14 /* UIColor+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = "UIColor+Stuff.mm"; sourceTree = "<group>"; };
 		2B82B54C1E82E2490095FB14 /* NSString+Stuff.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSString+Stuff.mm"; sourceTree = "<group>"; };
-		2B82B55F1E82E2490095FB14 /* PerformanceTimer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PerformanceTimer.mm; sourceTree = "<group>"; };
 		2B82B5601E82E2490095FB14 /* SceneRendererES.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererES.mm; sourceTree = "<group>"; };
 		2B82B5611E82E2490095FB14 /* SceneRendererES2.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererES2.mm; sourceTree = "<group>"; };
 		2B82B5621E82E2490095FB14 /* EAGLView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = EAGLView.mm; sourceTree = "<group>"; };
@@ -2542,7 +2538,6 @@
 		2B82B4CB1E82E2490095FB14 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
-				2B82B4C61E82E2490095FB14 /* PerformanceTimer.h */,
 				2B82B4C71E82E2490095FB14 /* SceneRendererES.h */,
 				2B82B4C81E82E2490095FB14 /* SceneRendererES2.h */,
 				2B82B4C91E82E2490095FB14 /* EAGLView.h */,
@@ -2678,7 +2673,6 @@
 		2B82B5641E82E2490095FB14 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
-				2B82B55F1E82E2490095FB14 /* PerformanceTimer.mm */,
 				2B82B5601E82E2490095FB14 /* SceneRendererES.mm */,
 				2B82B5611E82E2490095FB14 /* SceneRendererES2.mm */,
 				2B82B5621E82E2490095FB14 /* EAGLView.mm */,
@@ -3797,7 +3791,6 @@
 				2B446B4921F7E7B80078A975 /* ScreenSpaceDrawable.h in Headers */,
 				2B82B6091E82E2490095FB14 /* JSONDefs.h in Headers */,
 				2BE539781D249BEF00B60FAD /* AAPhysicalJupiter.h in Headers */,
-				2B82B6E01E82E24A0095FB14 /* PerformanceTimer.h in Headers */,
 				2BE53A071D249C2900B60FAD /* generated_message_reflection.h in Headers */,
 				2B446B4D21F7E7B80078A975 /* TextureAtlas.h in Headers */,
 				2BE538401D249A1200B60FAD /* MaplyImageTile_private.h in Headers */,
@@ -4436,7 +4429,6 @@
 				2B361DEE21233CBE0074D06D /* MaplyTwoFingerTapDelegate.mm in Sources */,
 				2B82B69A1E82E24A0095FB14 /* PJ_ocea.c in Sources */,
 				2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */,
-				2B82B75E1E82E24A0095FB14 /* PerformanceTimer.mm in Sources */,
 				2B446B1E21F79AE40078A975 /* GlobeMath.cpp in Sources */,
 				2B446ADD21F26E280078A975 /* MaplyBillboardInfo_iOS.mm in Sources */,
 				2BE538C41D249A1200B60FAD /* MaplyVectorTileTextStyle.mm in Sources */,
