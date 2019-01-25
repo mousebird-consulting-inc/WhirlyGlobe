@@ -18,7 +18,7 @@
  *
  */
 
-#import "SceneRendererES3.h"
+#import "SceneRendererES2.h"
 #import "UIColor+Stuff.h"
 #import "GLUtils.h"
 #import "UIImage+Stuff.h"
@@ -89,47 +89,11 @@ public:
     WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
 };
     
-}
-
-@implementation WhirlyKitFrameMessage
-@end
-
-@implementation WhirlyKitSceneRendererES2
+SceneRendererES2::SceneRendererES2()
+    : SceneRendererES(2), renderStateOptimizer(NULL), extraFrameDrawn(false)
 {
-    NSMutableArray *lights;
-    CFTimeInterval lightsLastUpdated;
-    WhirlyKitMaterial *defaultMat;
-    dispatch_queue_t contextQueue;
-    dispatch_semaphore_t frameRenderingSemaphore;
-    std::set<__weak NSObject<WhirlyKitFrameBoundaryObserver> *> frameObservers;
-}
-
-- (id) init
-{
-    return [self initWithVersion:kEAGLRenderingAPIOpenGLES2 size:CGSizeZero];
-}
-
-- (id) initWithVersion:(EAGLRenderingAPI)apiVersion size:(CGSize)size
-{
-    // We do this to pull in the categories without the -ObjC flag.
-    // It's dumb, but it works
-    static bool dummyInit = false;
-    if (!dummyInit)
-    {
-        UIImageDummyFunc();
-        NSDictionaryDummyFunc();
-        UIColorDummyFunc();
-        NSStringDummyFunc();
-        dummyInit = true;
-    }
-
-    self = [super initWithOpenGLESVersion:apiVersion size:(CGSize)size];
-    if (!self)
-        return nil;
-    lights = [NSMutableArray array];
-
     // Add a simple default light
-    WhirlyKitDirectionalLight *light = [[WhirlyKitDirectionalLight alloc] init];
+    WhirlyKitDirectionalLight *light = new WhirlyKitDirectionalLight();
     [light setPos:Vector3f(0.75, 0.5, -1.0)];
     light.viewDependent = true;
     light.ambient = Vector4f(0.6, 0.6, 0.6, 1.0);
@@ -138,156 +102,89 @@ public:
     [self addLight:light];
 
     // And a basic material
-    [self setDefaultMaterial:[[WhirlyKitMaterial alloc] init]];
+    setDefaultMaterial(new WhirlyKit::Material());
 
-    lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-
-    frameRenderingSemaphore = dispatch_semaphore_create(1);
-    contextQueue = dispatch_queue_create("rendering queue",DISPATCH_QUEUE_SERIAL);
-
-    // Note: Try to turn this back on at some point
-    _dispatchRendering = false;
-
-    return self;
+    lightsLastUpdated = TimeGetCurrent();
 }
 
-- (void) dealloc
+SceneRendererES2::~SceneRendererES2()
 {
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
-    dispatch_release(contextQueue);
-#endif
 }
 
-- (void)forceRenderSetup
+void SceneRendererES2::forceRenderSetup()
 {
     for (auto &renderTarget : renderTargets)
         renderTarget.isSetup = false;
 }
 
-// When the scene is set, we'll compile our shaders
-- (void)setScene:(WhirlyKit::Scene *)inScene
+void SceneRendererES2::setScene(WhirlyKit::Scene *inScene)
 {
-    [super setScene:inScene];
-    super.scene = inScene;
-
-    if (!super.scene)
-        return;
-    
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    if (oldContext != super.context)
-        [EAGLContext setCurrentContext:super.context];
-    CheckGLError("Scene::setScene() setCurrentContext");
-        
-    lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-
-    if (oldContext != super.context)
-        [EAGLContext setCurrentContext:oldContext];
+    SceneRendererES::setScene(inScene);
+    scene = inScene;
 }
 
 /// Add a light to the existing set
-- (void)addLight:(WhirlyKitDirectionalLight *)light
+    void SceneRendererES2::addLight(const WhirlyKitDirectionalLight *light)
 {
-    if (!lights)
-        lights = [NSMutableArray array];
-    [lights addObject:light];
-    lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-    super.triggerDraw = true;
+    lights.push_back(*light);
+    lightsLastUpdated = TimeGetCurrent();
+    triggerDraw = true;
 }
 
 /// Replace all the lights at once. nil turns off lighting
-- (void)replaceLights:(NSArray *)inLights
+void SceneRendererES2::replaceLights(const std::vector<WhirlyKitDirectionalLight> &newLights)
 {
-    lights = [NSMutableArray arrayWithArray:inLights];
-    lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-    super.triggerDraw = true;
+    lights.clear();
+    for (auto light : newLights)
+        lights.push_back(light);
+    
+    lightsLastUpdated = TimeGetCurrent();
+    triggerDraw = true;
 }
 
-- (void)setDefaultMaterial:(WhirlyKitMaterial *)mat
+void SceneRendererES2::setDefaultMaterial(WhirlyKitMaterial *mat)
 {
     defaultMat = mat;
-    lightsLastUpdated = CFAbsoluteTimeGetCurrent();
-    super.triggerDraw = true;
+    lightsLastUpdated = TimeGetCurrent();
+    triggerDraw = true;
 }
 
-- (void) setClearColor:(UIColor *)color
+void SceneRendererES2::setClearColor(const RGBAColor &color)
 {
-    [super setClearColor:color];
-    [self forceRenderSetup];
+    clearColor = color;
+    forceRenderSetup();
 }
 
-- (BOOL)resizeFromLayer:(CAEAGLLayer *)layer
-{
-    [self forceRenderSetup];
-    bool ret = [super resizeFromLayer:layer];
+    // Note: Put in iOS version
+//- (BOOL)resizeFromLayer:(CAEAGLLayer *)layer
+//{
+//    [self forceRenderSetup];
+//    bool ret = [super resizeFromLayer:layer];
+//
+//    return ret;
+//}
     
-    return ret;
-}
-
-- (void)addFrameObserver:(NSObject<WhirlyKitFrameBoundaryObserver> *)observer
+void SceneRendererES2::processScene()
 {
-    @synchronized(self)
-    {
-        frameObservers.insert(observer);
-    }
-}
-
-- (void)removeFrameObserver:(NSObject<WhirlyKitFrameBoundaryObserver> *)observer
-{
-    @synchronized(self)
-    {
-        auto it = frameObservers.find(observer);
-        if (it != frameObservers.end())
-            frameObservers.erase(it);
-    }
-}
-
-- (void) render:(CFTimeInterval)duration
-{
-    // Let anyone who cares know the frame draw is starting
-    WhirlyKitFrameMessage *frameMsg = [[WhirlyKitFrameMessage alloc] init];
-    frameMsg.frameStart = CFAbsoluteTimeGetCurrent();
-    frameMsg.frameInterval = duration;
-    frameMsg.renderer = self;
-    @synchronized(self)
-    {
-        for (auto it : frameObservers)
-        {
-            [it frameStart:frameMsg];
-        }
-    }
-
-    if (_dispatchRendering)
-    {
-        if (dispatch_semaphore_wait(frameRenderingSemaphore, DISPATCH_TIME_NOW) != 0)
-            return;
-        
-        dispatch_async(contextQueue,
-                       ^{
-                           [self renderAsync:duration];
-                           dispatch_semaphore_signal(self->frameRenderingSemaphore);
-                       });
-    } else
-        [self renderAsync:duration];
-}
-
-- (void)processScene
-{
-    Scene *scene = super.scene;
-
     if (!scene)
         return;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
     if (oldContext != super.context)
         [EAGLContext setCurrentContext:super.context];
-    
-    scene->processChanges(super.theView,self,CFAbsoluteTimeGetCurrent());
+
+    scene->processChanges(theView,this,TimeGetCurrent());
     
     if (oldContext != super.context)
         [EAGLContext setCurrentContext:oldContext];
 }
+    
+bool SceneRendererES2::hasChanges()
+{
+    return scene->hasChanges(TimeGetCurrent()) || viewDidChange() || !contRenderRequests.empty();
+}
 
-- (void) renderAsync:(double)duration
+void SceneRendererES2::render()
 {
     Scene *scene = super.scene;
     
@@ -299,19 +196,26 @@ public:
     if (super.framebufferWidth <= 0 || super.framebufferHeight <= 0)
     {
         // Process the scene even if the window isn't up
-        [self processScene];
+        processScene();
         return;
     }
 
-	[super.theView animate];
+    theView->animate();
     
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    TimeInterval now = TimeGetCurrent();
 
     // Decide if we even need to draw
-    if (!scene->hasChanges(now) && ![self viewDidChange] && contRenderRequests.empty())
-        return;
-    
-    NSTimeInterval perfInterval = super.perfInterval;
+    if (!hasChanges())
+    {
+        if (!extraFrameMode)
+            return;
+        if (extraFrameDrawn)
+            return;
+        extraFrameDrawn = true;
+    } else
+        extraFrameDrawn = false;
+
+    TimeInterval perfInterval = perfInterval;
     
     lastDraw = now;
         
@@ -335,31 +239,23 @@ public:
         glEnable(GL_BLEND);
     }
 
-    // See if we're dealing with a globe view
-    WhirlyGlobeView *globeView = nil;
-    MaplyView *mapView = nil;
+    // See if we're dealing with a globe or map view
+    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(theView);
+    Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(theView);
     float overlapMarginX = 0.0;
-    if ([super.theView isKindOfClass:[WhirlyGlobeView class]])
-        globeView = (WhirlyGlobeView *)super.theView;
-    if ([super.theView isKindOfClass:[MaplyView class]]) {
+    if (mapView) {
         overlapMarginX = scene->getOverlapMargin();
-        mapView = (MaplyView *)super.theView;
     }
 
-    GLint framebufferWidth = super.framebufferWidth;
-    GLint framebufferHeight = super.framebufferHeight;
-//    if (!renderSetup && renderTargets.size() == 1)
-//        renderTargets[0].setActiveFramebuffer();
-
     // Get the model and view matrices
-    Eigen::Matrix4d modelTrans4d = [super.theView calcModelMatrix];
+    Eigen::Matrix4d modelTrans4d = theView->calcModelMatrix();
     Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
-    Eigen::Matrix4d viewTrans4d = [super.theView calcViewMatrix];
+    Eigen::Matrix4d viewTrans4d = theView->calcViewMatrix();
     Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
     
     // Set up a projection matrix
     Point2f frameSize(framebufferWidth,framebufferHeight);
-    Eigen::Matrix4d projMat4d = [super.theView calcProjectionMatrix:frameSize margin:0.0];
+    Eigen::Matrix4d projMat4d = theView=>calcProjectionMatrix(frameSize,0.0);
     
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
@@ -401,7 +297,7 @@ public:
 	{
 		int numDrawables = 0;
         
-        WhirlyKitRendererFrameInfo *baseFrameInfo = [[WhirlyKitRendererFrameInfo alloc] init];
+        RendererFrameInfo baseFrameInfo();
         baseFrameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;
         baseFrameInfo.sceneRenderer = self;
         baseFrameInfo.theView = super.theView;
@@ -424,8 +320,8 @@ public:
         Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
         baseFrameInfo.pvMat = pvMat4f;
         baseFrameInfo.pvMat4d = pvMat;
-        [super.theView getOffsetMatrices:baseFrameInfo.offsetMatrices frameBuffer:frameSize buffer:overlapMarginX];
-        Point2d screenSize = [super.theView screenSizeInDisplayCoords:frameSize];
+        theView->getOffsetMatrix(baseFrameInfo.offsetMatrices,frameSize,overlapMarginX);
+        Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         baseFrameInfo.lights = lights;
 
@@ -443,7 +339,7 @@ public:
         baseFrameInfo.heightAboveSurface = 0.0;
         // Note: Should deal with map view as well
         if (globeView)
-            baseFrameInfo.heightAboveSurface = globeView.heightAboveSurface;
+            baseFrameInfo.heightAboveSurface = globeView->heightAboveSurface;
         baseFrameInfo.eyePos = Vector3d(eyeVec4d.x(),eyeVec4d.y(),eyeVec4d.z()) * (1.0+baseFrameInfo.heightAboveSurface);
         
         if (perfInterval > 0)
@@ -463,12 +359,13 @@ public:
 
         // Let the active models to their thing
         // That thing had better not take too long
-        for (NSObject<WhirlyKitActiveModel> *activeModel in scene->activeModels)
-        {
-            [activeModel updateForFrame:baseFrameInfo];
-            // Sometimes this gets reset
-            [EAGLContext setCurrentContext:context];
-        }
+        // Note: Put this back
+//        for (NSObject<WhirlyKitActiveModel> *activeModel in scene->activeModels)
+//        {
+//            [activeModel updateForFrame:baseFrameInfo];
+//            // Sometimes this gets reset
+//            [EAGLContext setCurrentContext:context];
+//        }
         if (perfInterval > 0)
             perfTimer.addCount("Active Models", (int)[scene->activeModels count]);
 
@@ -492,13 +389,13 @@ public:
         if (globeView)
         {
             Point3d hit;
-            if ([globeView pointOnSphereFromScreen:screenPt transform:&modelAndViewMat4d frameSize:frameSize hit:&hit normalized:true])
+            if (globeView->pointOnSphereFromScreen(screenPt,&modelAndViewMat4d,frameSize,&hit,true))
                 baseFrameInfo.dispCenter = hit;
             else
                 baseFrameInfo.dispCenter = Point3d(0,0,0);
         } else {
             Point3d hit;
-            if ([mapView pointOnPlaneFromScreen:screenPt transform:&modelAndViewMat4d frameSize:frameSize hit:&hit clip:false])
+            if (mapView->pointOnPlaneFromScreen(screenPt,&modelAndViewMat4d,frameSize,&hit,false))
                 baseFrameInfo.dispCenter = hit;
             else
                 baseFrameInfo.dispCenter = Point3d(0,0,0);
@@ -521,7 +418,7 @@ public:
         bool calcPassDone = false;
         for (unsigned int off=0;off<offsetMats.size();off++)
         {
-            WhirlyKitRendererFrameInfo *offFrameInfo = [[WhirlyKitRendererFrameInfo alloc] initWithFrameInfo:baseFrameInfo];
+            RendererFrameInfo offFrameInfo(baseFrameInfo);
             // Tweak with the appropriate offset matrix
             modelAndViewMat4d = viewTrans4d * offsetMats[off] * modelTrans4d;
             pvMat = projMat4d * viewTrans4d * offsetMats[off];
@@ -544,7 +441,6 @@ public:
             offFrameInfo.pvMat = pvMat4f;
             offFrameInfo.pvMat4d = pvMat;
             
-
             DrawableRefSet rawDrawables = scene->getDrawables();
             for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
             {
@@ -757,6 +653,7 @@ public:
         perfTimer.startTiming("Present Renderbuffer");
 
     // Explicitly discard the depth buffer
+    // Note: move this to iOS version
     const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
     if (context.API < kEAGLRenderingAPIOpenGLES3)
         glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
@@ -764,6 +661,8 @@ public:
         glInvalidateFramebuffer(GL_FRAMEBUFFER,1,discards);
     CheckGLError("SceneRendererES2: glDiscardFramebufferEXT");
 
+#if 0
+    // Note: Move this to iOS version
     // The user wants help with a screen snapshot
     if (_snapshotDelegate)
     {
@@ -835,6 +734,7 @@ public:
         
         _snapshotDelegate = nil;
     }
+#endif
 
     if (!framebufferTex)
     {
@@ -867,4 +767,4 @@ public:
         [EAGLContext setCurrentContext:oldContext];
 }
 
-@end
+}

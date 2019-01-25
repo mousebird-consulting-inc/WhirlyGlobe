@@ -44,6 +44,7 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
 }
     
 RenderTarget::RenderTarget()
+    : framebuffer(0), colorbuffer(0), depthbuffer(0), width(0), height(0), isSetup(false)
 {
     init();
 }
@@ -150,6 +151,19 @@ NSData *RenderTarget::snapshot()
     return data;
 }
 
+bool RenderTarget::initFromState(int inWidth,int inHeight)
+{
+    width = inWidth;
+    height = inHeight;
+    GLint iVal;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING,&iVal);    framebuffer = iVal;
+    glGetIntegerv(GL_RENDERBUFFER_BINDING,&iVal);   colorbuffer = iVal;
+    
+//    WHIRLYKIT_LOGD("RenderTarget initFromState: framebuffer = %d colorbuffer = %d width = %d, height = %d",framebuffer,colorbuffer,width,height);
+    
+    return true;
+}
+
 void RenderTarget::clear()
 {
     if (colorbuffer)
@@ -252,149 +266,78 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
     }
 }
 
-}
-
-@implementation WhirlyKitRendererFrameInfo
-
-- (id)initWithFrameInfo:(WhirlyKitRendererFrameInfo *)info
+RendererFrameInfo::RendererFrameInfo()
+    : oglVersion(0), sceneRenderer(NULL), theView(NULL), scene(NULL), frameLen(0), currentTime(0),
+    heightAboveSurface(0), screenSizeInDisplayCoords(0,0), program(NULL), stateOpt(NULL)
+    // Note: Porting
+//,lights(NULL)
 {
-    self = [super init];
+}
     
-    _oglVersion = info.oglVersion;
-    _sceneRenderer = info.sceneRenderer;
-    _theView = info.theView;
-    _modelTrans = info.modelTrans;
-    _modelTrans4d = info.modelTrans4d;
-    _viewTrans = info.viewTrans;
-    _viewTrans4d = info.viewTrans4d;
-    _projMat = info.projMat;
-    _projMat4d = info.projMat4d;
-    _viewAndModelMat = info.viewAndModelMat;
-    _viewAndModelMat4d = info.viewAndModelMat4d;
-    _mvpMat = info.mvpMat;
-    _mvpInvMat = info.mvpInvMat;
-    _mvpNormalMat = info.mvpNormalMat;
-    _viewModelNormalMat = info.viewModelNormalMat;
-    _pvMat = info.pvMat;
-    _pvMat4d = info.pvMat4d;
-    _offsetMatrices = info.offsetMatrices;
-    _scene = info.scene;
-    _frameLen = info.frameLen;
-    _currentTime = info.currentTime;
-    _eyeVec = info.eyeVec;
-    _fullEyeVec = info.fullEyeVec;
-    _eyePos = info.eyePos;
-    _dispCenter = info.dispCenter;
-    _heightAboveSurface = info.heightAboveSurface;
-    _screenSizeInDisplayCoords = info.screenSizeInDisplayCoords;
-    _program = info.program;
-    _lights = info.lights;
+RendererFrameInfo::RendererFrameInfo(const RendererFrameInfo &that)
+{
+    *this = that;
+}
+
+SceneRendererES::SceneRendererES(int apiVersion)
+{
+    frameCount = 0;
+    framesPerSec = 0.0;
+    numDrawables = 0;
+    frameCountStart = 0.0;
+    frameCountStart = 0.0;
+    zBufferMode = zBufferOn;
+    doCulling = false;
+    // Note: Debugging
+    clearColor.r = 0;  clearColor.g = 0;  clearColor.b = 0;  clearColor.a = 0;
+    perfInterval = -1;
+    scale = 1.0;
+    scene = NULL;
+    theView = NULL;
     
-    return self;
-}
+    // All the animations should work now, except for particle systems
+    useViewChanged = true;
 
-@end
-
-@implementation WhirlyKitSceneRendererES
-{
-    // View state from the last render, for comparison
-    Eigen::Matrix4d modelMat,viewMat,projMat;    
-}
-
-- (id) initWithOpenGLESVersion:(EAGLRenderingAPI)apiVersion size:(CGSize)size
-{
-	if ((self = [super init]))
-	{
-		frameCount = 0;
-		_framesPerSec = 0.0;
-        _numDrawables = 0;
-		frameCountStart = 0.0;
-        _zBufferMode = zBufferOn;
-        _doCulling = true;
-        _clearColor.r = 0.0;  _clearColor.g = 0.0;  _clearColor.b = 0.0;  _clearColor.a = 1.0;
-        _perfInterval = -1;
-        _scale = [[UIScreen mainScreen] scale];
-		
-		_context = [[EAGLContext alloc] initWithAPI:apiVersion];
-        
-        _framebufferWidth = (int)size.width;
-        _framebufferHeight = (int)size.height;
-        
-        EAGLContext *oldContext = [EAGLContext currentContext];
-        if (!_context || ![EAGLContext setCurrentContext:_context])
-		{
-            return nil;
-        }
-        CheckGLError("SceneRendererES::initWithOpenGLESVersion() setCurrentContext");
-        
-        // We need a texture to draw to in this case
-        if (_framebufferWidth > 0)
-        {
-            framebufferTex = new Texture("Framebuffer Texture");
-            framebufferTex->setWidth(_framebufferWidth);
-            framebufferTex->setHeight(_framebufferHeight);
-            framebufferTex->setIsEmptyTexture(true);
-            framebufferTex->setFormat(GL_UNSIGNED_BYTE);
-            framebufferTex->createInGL(NULL);
-        }
-
-        RenderTarget defaultTarget(EmptyIdentity);
-        defaultTarget.width = (int)size.width;
-        defaultTarget.height = (int)size.height;
-        if (framebufferTex) {
-            defaultTarget.setTargetTexture(framebufferTex);
-            // Note: Should make this optional
-            defaultTarget.blendEnable = false;
-        } else {
-            defaultTarget.init(NULL,EmptyIdentity);
-            defaultTarget.blendEnable = true;
-        }
-        defaultTarget.clearEveryFrame = true;
-        renderTargets.push_back(defaultTarget);
-        
-        // All the animations should work now, except for particle systems
-        _useViewChanged = true;
-
-        // No longer really ncessary
-        _sortAlphaToEnd = false;
-        
-        // Off by default.  Because duh.
-        _depthBufferOffForAlpha = false;
-        
-        [EAGLContext setCurrentContext:oldContext];        
-	}
-	
-	return self;
-}
-
-- (void) dealloc
-{
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    if (oldContext != _context)
-        [EAGLContext setCurrentContext:_context];
+    // No longer really ncessary
+    sortAlphaToEnd = false;
     
-    for (auto &target : renderTargets)
+    // Off by default.  Because duh.
+    depthBufferOffForAlpha = false;
+    
+    extraFrameMode = false;
+}
+    
+void SceneRendererES::setup()
+{
+    lastDraw = 0;
+
+//    if (view)
+//        view->runViewUpdates();
+}
+
+SceneRendererES::~SceneRendererES()
+{
+    // Note: Porting
+//    EAGLContext *oldContext = [EAGLContext currentContext];
+//    if (oldContext != context)
+//        [EAGLContext setCurrentContext:context];
+
+   for (auto &target : renderTargets)
         target.clear();
-    
-    if (framebufferTex) {
-        framebufferTex->destroyInGL(_scene->getMemManager());
-        delete framebufferTex;
-        framebufferTex = NULL;
-    }
-    
-	if (oldContext != _context)
-        [EAGLContext setCurrentContext:oldContext];
-	_context = nil;	
+        
+	
+    // Note: Porting
+//	if (oldContext != context)
+//        [EAGLContext setCurrentContext:oldContext];
+//	context = NULL;
 }
 
-/// Add the given rendering target and, you know, render to it
-- (void) addRenderTarget:(RenderTarget &)newTarget
+void SceneRendererES::addRenderTarget(RenderTarget &newTarget)
 {
-    renderTargets.insert(renderTargets.begin(),newTarget);
+  renderTargets.insert(renderTargets.begin(),newTarget);
 }
 
-/// Clear out the given render target
-- (void) removeRenderTarget:(SimpleIdentity)targetID
+void SceneRendererES::clearRenderTarget(SimpleIdentity targetID)
 {
     for (int ii=0;ii<renderTargets.size();ii++)
     {
@@ -409,116 +352,64 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
 }
 
 // We'll take the maximum requested time
-- (void)setRenderUntil:(NSTimeInterval)newRenderUntil
+void SceneRendererES::setRenderUntil(TimeInterval newRenderUntil)
 {
     renderUntil = std::max(renderUntil,newRenderUntil);
 }
 
-- (void)addContinuousRenderRequest:(SimpleIdentity)drawID
+void SceneRendererES::setTriggerDraw()
+{
+    triggerDraw = true;
+}
+    
+void SceneRendererES::addContinuousRenderRequest(SimpleIdentity drawID)
 {
     contRenderRequests.insert(drawID);
 }
 
-- (void)removeContinuousRenderRequest:(SimpleIdentity)drawID
+void SceneRendererES::removeContinuousRenderRequest(SimpleIdentity drawID)
 {
     SimpleIDSet::iterator it = contRenderRequests.find(drawID);
     if (it != contRenderRequests.end())
         contRenderRequests.erase(it);
 }
 
-- (void)setTriggerDraw
-{
-    _triggerDraw = true;
-}
 
-- (void)setScene:(WhirlyKit::Scene *)newScene
-{    
-    _scene = newScene;
-    if (_scene)
+void SceneRendererES::setScene(WhirlyKit::Scene *newScene)
+{
+    scene = newScene;
+    if (scene)
     {
-        _scene->setRenderer(self);
+        scene->setRenderer(this);
     }
 }
 
-- (void)useContext
+void SceneRendererES::setClearColor(const RGBAColor &color)
 {
-    if (_context && [EAGLContext currentContext] != _context) {
-		if (![EAGLContext setCurrentContext:_context])
-            NSLog(@"Failed to set context in SceneRendererES::useContext");
-        CheckGLError("SceneRendererES::useContext setCurrentContext");
-    }
+    clearColor = color;
 }
 
-- (BOOL) resizeFromLayer:(CAEAGLLayer *)layer
+RGBAColor SceneRendererES::getClearColor()
 {
-    if (renderTargets.empty())
-        return false;
-    
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    if (oldContext != _context)
-        [EAGLContext setCurrentContext:_context];
-    
-    RenderTarget &renderTarget = renderTargets.back();
-    
-    glBindFramebuffer(GL_FRAMEBUFFER, renderTarget.framebuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, renderTarget.colorbuffer);
-    CheckGLError("SceneRendererES: glBindRenderbuffer");
-	if (![_context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer])
-        NSLog(@"SCeneRendererES: Failure in renderbufferStorage");
-    CheckGLError("SceneRendererES: resizeFromLayer");
-	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &_framebufferWidth);
-	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &_framebufferHeight);
-    renderTarget.width = _framebufferWidth;
-    renderTarget.height = _framebufferHeight;
-    
-	// For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
-	glBindRenderbuffer(GL_RENDERBUFFER, renderTarget.depthbuffer);
-    CheckGLError("SceneRendererES: glBindRenderbuffer");
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, _framebufferWidth, _framebufferHeight);
-    CheckGLError("SceneRendererES: glRenderbufferStorage");
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderTarget.depthbuffer);
-    CheckGLError("SceneRendererES: glFramebufferRenderbuffer");
-	
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
-		NSLog(@"Failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-        if (oldContext != _context)
-            [EAGLContext setCurrentContext:oldContext];
-		return NO;
-	}
-		
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    lastDraw = 0;
-	
-    if (oldContext != _context)
-        [EAGLContext setCurrentContext:oldContext];
-    
-    // If we've resized, we're looking at different content
-    if (_theView)
-        [_theView runViewUpdates];
-    
-	return YES;
+    return clearColor;
 }
 
-- (void) setClearColor:(UIColor *)color
+// Calculate an acceptable MBR from world coords
+Mbr SceneRendererES::calcCurvedMBR(Point3f *corners,WhirlyGlobe::GlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize)
 {
-    _clearColor = [color asRGBAColor];
+    Mbr localScreenMbr;
     
-    for (auto &target : renderTargets)
+    for (unsigned int ii=0;ii<WhirlyKitCullableCorners;ii++)
     {
-        // This is the default render target
-        if (target.getId() == EmptyIdentity)
-        {
-            target.clearColor[0] = _clearColor.r / 255.0;
-            target.clearColor[1] = _clearColor.g / 255.0;
-            target.clearColor[2] = _clearColor.b / 255.0;
-            target.clearColor[3] = _clearColor.a / 255.0;
-            break;
-        }
+        Point3d cornerPt = Point3d(corners[ii].x(),corners[ii].y(),corners[ii].z());
+        Point2f screenPt = globeView->pointOnScreenFromSphere(cornerPt,modelTrans,frameSize);
+        localScreenMbr.addPoint(Point2f(screenPt.x(),screenPt.y()));
     }
+    
+    return localScreenMbr;
 }
 
-- (void) mergeDrawableSet:(const std::set<DrawableRef,IdentifiableRefSorter> &)newDrawables globeView:(WhirlyGlobeView *)globeView frameSize:(Point2f)frameSize modelTrans:(Eigen::Matrix4d *)modelTrans frameInfo:(WhirlyKitRendererFrameInfo *)frameInfo screenMbr:(Mbr)screenMbr toDraw:(std::set<DrawableRef> *) toDraw considered:(int *)drawablesConsidered
+void SceneRendererES::mergeDrawableSet(const std::set<DrawableRef,IdentifiableRefSorter> &newDrawables,WhirlyGlobe::GlobeView *globeView,Point2f frameSize,Eigen::Matrix4d *modelTrans,WhirlyKit::RendererFrameInfo *frameInfo,Mbr screenMbr,std::set<DrawableRef> *toDraw,int *drawablesConsidered)
 {
     // Grab any drawables that live just at this level
     *drawablesConsidered += newDrawables.size();
@@ -534,10 +425,64 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
     }
 }
 
-// Check if the view changed from the last frame
-- (bool) viewDidChange
+void SceneRendererES::findDrawables(WhirlyKit::Cullable *cullable,WhirlyGlobe::GlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered)
 {
-    if (!_useViewChanged)
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    
+    // Check the four corners of the cullable to see if they're pointed away
+    // But just for the globe case
+    bool inView = false;
+    if (coordAdapter->isFlat() || isTopLevel)
+    {
+        inView = true;
+    } else {
+        for (unsigned int ii=0;ii<WhirlyKitCullableCornerNorms;ii++)
+        {
+            Vector3f norm = cullable->cornerNorms[ii];
+            if (norm.dot(eyeVec) > 0)
+            {
+                inView = true;
+                break;
+            }
+        }
+    }
+    if (doCulling && !inView)
+        return;
+    
+    Mbr localScreenMbr;
+    if (globeView)
+        localScreenMbr = calcCurvedMBR(&cullable->cornerPoints[0],globeView,modelTrans,frameSize);
+    
+    // If this doesn't overlap what we're viewing, we're done
+    if (doCulling && !screenMbr.overlaps(localScreenMbr))
+        return;
+    
+    // If the footprint of this level on the screen is larger than
+    //  the screen area, keep going down (if we can).
+    float localScreenArea = localScreenMbr.area();
+    float screenArea = screenMbr.area();
+    if (isTopLevel || (localScreenArea > screenArea/4 && cullable->hasChildren()))
+    {
+        // Grab the drawables at this level
+        mergeDrawableSet(cullable->getDrawables(),globeView,frameSize,modelTrans,frameInfo,screenMbr,toDraw,drawablesConsidered);
+        
+        // And recurse downward for the rest
+        for (unsigned int ii=0;ii<4;ii++)
+        {
+            Cullable *child = cullable->getChild(ii);
+            if (child)
+                findDrawables(child,globeView,frameSize,modelTrans,eyeVec,frameInfo,screenMbr,false,toDraw,drawablesConsidered);
+        }
+    } else {
+        // If not, then just return what we found here
+        mergeDrawableSet(cullable->getChildDrawables(),globeView,frameSize,modelTrans,frameInfo,screenMbr,toDraw,drawablesConsidered);
+    }
+}
+
+// Check if the view changed from the last frame
+bool SceneRendererES::viewDidChange()
+{
+    if (!useViewChanged)
         return true;
     
     // First time through
@@ -545,9 +490,9 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
         return true;
     
     // Something wants to be sure we draw on the next frame
-    if (_triggerDraw)
+    if (triggerDraw)
     {
-        _triggerDraw = false;
+        triggerDraw = false;
         return true;
     }
     
@@ -556,9 +501,9 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
     if (lastDraw < renderUntil)
         return true;
     
-    Matrix4d newModelMat = [_theView calcModelMatrix];
-    Matrix4d newViewMat = [_theView calcViewMatrix];
-    Matrix4d newProjMat = [_theView calcProjectionMatrix:Point2f(_framebufferWidth,_framebufferHeight) margin:0.0];
+    Matrix4d newModelMat = theView->calcModelMatrix();
+    Matrix4d newViewMat = theView->calcViewMatrix();
+    Matrix4d newProjMat = theView->calcProjectionMatrix(Point2f(framebufferWidth,framebufferHeight),0.0);
     
     // Should be exactly the same
     if (matrixAisSameAsB(newModelMat,modelMat) && matrixAisSameAsB(newViewMat,viewMat) && matrixAisSameAsB(newProjMat, projMat))
@@ -570,21 +515,11 @@ void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *render
     return true;
 }
 
-- (void)forceDrawNextFrame
+void SceneRendererES::forceDrawNextFrame()
 {
-    lastDraw = 0;
+    triggerDraw = true;
 }
 
-- (void)render:(NSTimeInterval)duration
-{
-    return;
 }
-
-- (void)processScene
-{
-    return;
-}
-
-@end
 
 
