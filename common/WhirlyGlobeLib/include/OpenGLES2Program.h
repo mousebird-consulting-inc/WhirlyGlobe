@@ -25,8 +25,6 @@
 #import "WhirlyVector.h"
 #import "Drawable.h"
 
-@class WhirlyKitMaterial;
-
 namespace WhirlyKit
 {
 
@@ -130,7 +128,7 @@ public:
     
     /// Set the attributes associated with lighting.
     /// We'll check their last updated time against ours.
-    bool setLights(NSArray *lights,CFTimeInterval lastUpdated,WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat);
+    bool setLights(const std::vector<WhirlyKitDirectionalLight> &lights, TimeInterval lastUpdated, WhirlyKitMaterial *mat, Eigen::Matrix4f &modelMat);
         
     /// Search for the given attribute name and return the info.  NULL on failure.
     const OpenGLESAttribute *findAttribute(StringIdentity nameID);
@@ -158,6 +156,20 @@ protected:
     std::unordered_map<StringIdentity,std::shared_ptr<OpenGLESUniform>> uniforms;
     // Attributes sorted for fast lookup
     std::unordered_map<StringIdentity,std::shared_ptr<OpenGLESAttribute>> attrs;
+};
+
+/// Set a texture ID by name in a Shader (Program)
+class ShaderAddTextureReq : public ChangeRequest
+{
+public:
+    ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID);
+    
+    void execute(Scene *scene,WhirlyKit::SceneRendererES *renderer,WhirlyKit::View *view);
+
+protected:
+    SimpleIdentity shaderID;
+    SimpleIdentity nameID;
+    SimpleIdentity texID;
 };
 
 }

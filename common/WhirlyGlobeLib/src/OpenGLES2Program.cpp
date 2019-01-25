@@ -182,6 +182,9 @@ bool OpenGLES2Program::setUniform(StringIdentity nameID,const Eigen::Vector4f &v
     
     if (uni->type != GL_FLOAT_VEC4)
         return false;
+    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() &&
+        uni->val.fVals[2] == vec.z() && uni->val.fVals[3] == vec.w())
+        return true;
     
     glUniform4f(uni->index+index, vec.x(), vec.y(), vec.z(), vec.w());
     CheckGLError("OpenGLES2Program::setUniform() glUniform4f");
@@ -274,7 +277,7 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
         {
             GLchar *logStr = (GLchar *)malloc(len);
             glGetShaderInfoLog(*shaderId, len, &len, logStr);
-            NSLog(@"Compile error for %s shader %s:\n%s",shaderTypeStr,name.c_str(),logStr);
+            WHIRLYKIT_LOGE("Compile error for %s shader %s:\n%s",shaderTypeStr,name.c_str(),logStr);
             free(logStr);
         }
         
@@ -341,7 +344,7 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         {
             GLchar *logStr = (GLchar *)malloc(len);
             glGetProgramInfoLog(program, len, &len, logStr);
-            NSLog(@"Link error for shader program %s:\n%s",name.c_str(),logStr);
+            WHIRLYKIT_LOGE("Link error for shader program %s:\n%s",name.c_str(),logStr);
             free(logStr);
         }
         cleanUp();
@@ -487,6 +490,21 @@ int OpenGLES2Program::bindTextures()
     }
     
     return numTextures;
+}
+
+ShaderAddTextureReq::ShaderAddTextureReq(SimpleIdentity shaderID,const std::string &name,SimpleIdentity texID)
+: shaderID(shaderID), name(name), texID(texID)
+{
+}
+
+void ShaderAddTextureReq::execute(Scene *scene, SceneRendererES *renderer, View *view)
+{
+    OpenGLES2Program *prog = scene->getProgram(shaderID);
+    TextureBase *tex = scene->getTexture(texID);
+    if (prog && tex)
+    {
+        prog->setTexture(name,tex->getGLId());
+    }
 }
 
 }
