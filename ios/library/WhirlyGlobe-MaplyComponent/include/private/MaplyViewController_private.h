@@ -31,7 +31,7 @@
 #import "MaplyDoubleTapDragDelegate.h"
 #import "MaplyTouchCancelAnimationDelegate.h"
 
-@interface MaplyViewController()<WhirlyKitViewWatcherDelegate>
+@interface MaplyViewController()<ViewWatcherDelegate>
 {
     /// Custom map scene
     Maply::MapScene *mapScene;
@@ -69,7 +69,7 @@
     
     // Used for the outside animation interface
     NSObject<MaplyViewControllerAnimationDelegate> *animationDelegate;
-    NSTimeInterval animationDelegateEnd;
+    TimeInterval animationDelegateEnd;
 
     bool delegateRespondsToViewUpdate;
 }

@@ -43,7 +43,7 @@ public:
     ParticleSystemType type;
     SimpleIdentity calcShaderID;
     SimpleIdentity renderShaderID;
-    NSTimeInterval lifetime,baseTime;
+    TimeInterval lifetime,baseTime;
     int totalParticles,batchSize;
     bool continuousUpdate;
     bool zBufferRead,zBufferWrite;
@@ -103,7 +103,7 @@ public:
     void changeRenderTarget(SimpleIdentity sysID,SimpleIdentity targetID,ChangeSet &changes);
 
     /// Clean out old particle system batches as needed
-    void housekeeping(NSTimeInterval now,ChangeSet &changes);
+    void housekeeping(TimeInterval now,ChangeSet &changes);
 
 protected:
     pthread_mutex_t partSysLock;

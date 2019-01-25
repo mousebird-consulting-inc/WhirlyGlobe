@@ -93,7 +93,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 
 - (void)loadXmlData:(NSData *)docData
 {
-    startTime = CFAbsoluteTimeGetCurrent();
+    startTime = TimeGetCurrent();
     self.styleDictionary = [NSMutableDictionary dictionary];
     NSXMLParser *parser = [[NSXMLParser alloc] initWithData:docData];
     docData = nil;
@@ -407,7 +407,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 
 
 - (void)parserDidEndDocument:(NSXMLParser *)parser {
-  //NSLog(@"Parse time:%f, %d styles", CFAbsoluteTimeGetCurrent() - startTime, self.styles.count);
+  //NSLog(@"Parse time:%f, %d styles", TimeGetCurrent() - startTime, self.styles.count);
 //  [self generateStyles];
   self.success = YES;
   [self cleanup];

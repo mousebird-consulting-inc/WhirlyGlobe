@@ -847,7 +847,7 @@
  
     @param howLong How long in seconds to take getting there.
  */
-- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(TimeInterval)howLong;
 
 /** 
     Add an image as a texture and return a MaplyTexture to track it.

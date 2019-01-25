@@ -634,7 +634,7 @@ public:
         if (drawables.empty())
             return NULL;
         
-        NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+        TimeInterval curTime = TimeGetCurrent();
         
         WideVectorSceneRep *sceneRep = new WideVectorSceneRep();
         sceneRep->fade = vecInfo->fade;

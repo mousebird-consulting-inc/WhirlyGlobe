@@ -26,7 +26,7 @@ namespace WhirlyKit
 
 TimeInterval TimeGetCurrent()
 {
-    return CFAbsoluteTimeGetCurrent();
+    return TimeGetCurrent();
 }
     
 float DeviceScreenScale()

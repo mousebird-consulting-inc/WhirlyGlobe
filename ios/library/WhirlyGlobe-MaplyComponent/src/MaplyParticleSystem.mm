@@ -72,7 +72,7 @@ using namespace WhirlyKit;
     _lifetime = 5.0;
     _batchSize = 2000;
     _totalParticles = 100000;
-    _baseTime = CFAbsoluteTimeGetCurrent();
+    _baseTime = TimeGetCurrent();
     _renderTargetID = EmptyIdentity;
     _numRegAttrs = 0;
     
@@ -119,7 +119,7 @@ using namespace WhirlyKit;
     if (!self)
         return nil;
     _partSys = partSys;
-    _time = CFAbsoluteTimeGetCurrent();
+    _time = TimeGetCurrent();
     
     return self;
 }

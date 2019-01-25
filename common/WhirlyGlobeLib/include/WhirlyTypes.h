@@ -21,10 +21,6 @@
 namespace WhirlyKit
 {
 
-#ifdef ANDROID
 typedef double TimeInterval;
-#else
-typedef NSTimeInterval TimeInterval;
-#endif
 
 }

@@ -268,7 +268,7 @@ static const int OverlapSampleY = 60;
 // Now much around the screen we'll take into account
 static const float ScreenBuffer = 0.1;
     
-bool LayoutManager::calcScreenPt(CGPoint &objPt,LayoutObjectEntry *layoutObj,WhirlyKitViewState *viewState,const Mbr &screenMbr,const Point2f &frameBufferSize)
+bool LayoutManager::calcScreenPt(CGPoint &objPt,LayoutObjectEntry *layoutObj,ViewState *viewState,const Mbr &screenMbr,const Point2f &frameBufferSize)
 {
     // Figure out where this will land
     bool isInside = false;
@@ -286,7 +286,7 @@ bool LayoutManager::calcScreenPt(CGPoint &objPt,LayoutObjectEntry *layoutObj,Whi
     return isInside;
 }
 
-Matrix2d LayoutManager::calcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
+Matrix2d LayoutManager::calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
 {
     // Switch from counter-clockwise to clockwise
     double rot = 2*M_PI-ssObj->rotation;
@@ -347,7 +347,7 @@ typedef std::vector<LayoutObjectContainer> LayoutContainerVec;
 typedef std::map<std::string,LayoutObjectContainer> UniqueLayoutObjectMap;
 
 // Do the actual layout logic.  We'll modify the offset and on value in place.
-bool LayoutManager::runLayoutRules(WhirlyKitViewState *viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams)
+bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams)
 {
     if (layoutObjects.empty())
         return false;
@@ -761,13 +761,13 @@ static float const NewObjectFadeIn = 0.0;
 //static float const OldObjectFadeOut = 0.0;
 
 // Layout all the objects we're tracking
-void LayoutManager::updateLayout(WhirlyKitViewState *viewState,ChangeSet &changes)
+void LayoutManager::updateLayout(ViewState *viewState,ChangeSet &changes)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
     pthread_mutex_lock(&layoutLock);
 
-    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+    TimeInterval curTime = TimeGetCurrent();
     
     std::vector<ClusterEntry> oldClusters = clusters;
     clusters.clear();

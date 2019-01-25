@@ -304,7 +304,7 @@ public:
     virtual RawDataRef asData(bool dupStart,bool dupEnd);
     
     /// Copy vertex and element data into appropriate NSData objects
-    virtual void asVertexAndElementData(MutableRawDataRef &retVertData,NSMutableData &retElementData,int singleElementSize,const Point3d *center);
+    virtual void asVertexAndElementData(MutableRawDataRef &retVertData,RawDataRef retElementData,int singleElementSize,const Point3d *center);
     
     /// Assuming this is a set of triangles, convert to a triangle strip
     //    virtual void convertToTriStrip();
@@ -337,10 +337,10 @@ public:
     
     bool isSetupGL;  // Is setup to draw with GL (needed by the instances)
     bool on;  // If set, draw.  If not, not
-    NSTimeInterval startEnable,endEnable;
+    TimeInterval startEnable,endEnable;
     SimpleIdentity programId;    // Program to use for rendering
     bool usingBuffers;  // If set, we've downloaded the buffers already
-    NSTimeInterval fadeUp,fadeDown;  // Controls fade in and fade out
+    TimeInterval fadeUp,fadeDown;  // Controls fade in and fade out
     unsigned int drawPriority;  // Used to sort drawables
     float drawOffset;    // Number of units of Z buffer resolution to offset upward (by the normal)
     bool isAlpha;  // Set if we want to be drawn last

@@ -43,7 +43,7 @@ bool RectSelectable2D::operator < (const RectSelectable2D &that) const
     return selectID < that.selectID;
 }
 
-Point3d MovingRectSelectable2D::centerForTime(NSTimeInterval now) const
+Point3d MovingRectSelectable2D::centerForTime(TimeInterval now) const
 {
     double t = (now-startTime)/(endTime-startTime);
     return (endCenter-center)*t + center;
@@ -139,7 +139,7 @@ void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,const Poi
 }
 
 /// Add a screen space rectangle (2D) for selection, between the given visibilities
-void SelectionManager::addSelectableMovingScreenRect(SimpleIdentity selectId,const Point3d &startCenter,const Point3d &endCenter,NSTimeInterval startTime,NSTimeInterval endTime,Point2f *pts,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableMovingScreenRect(SimpleIdentity selectId,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval endTime,Point2f *pts,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -281,7 +281,7 @@ void SelectionManager::addPolytopeFromBox(SimpleIdentity selectId,const Point3d 
     addPolytope(selectId, polys, minVis, maxVis, enable);
 }
 
-void SelectionManager::addMovingPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,const Point3d &startCenter,const Point3d &endCenter,NSTimeInterval startTime, NSTimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable)
+void SelectionManager::addMovingPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime, TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -313,7 +313,7 @@ void SelectionManager::addMovingPolytope(SimpleIdentity selectId,const std::vect
     pthread_mutex_unlock(&mutex);
 }
 
-void SelectionManager::addMovingPolytopeFromBox(SimpleIdentity selectID, const Point3d &ll, const Point3d &ur, const Point3d &startCenter, const Point3d &endCenter,NSTimeInterval startTime,NSTimeInterval duration, const Eigen::Matrix4d &mat, float minVis, float maxVis, bool enable)
+void SelectionManager::addMovingPolytopeFromBox(SimpleIdentity selectID, const Point3d &ll, const Point3d &ur, const Point3d &startCenter, const Point3d &endCenter,TimeInterval startTime,TimeInterval duration, const Eigen::Matrix4d &mat, float minVis, float maxVis, bool enable)
 {
     // Corners of the box
     Point3d pts[8];
@@ -642,7 +642,7 @@ void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
     pthread_mutex_unlock(&mutex);
 }
 
-void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenPts,NSTimeInterval now)
+void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenPts,TimeInterval now)
 {
     for (RectSelectable2DSet::iterator it = rect2Dselectables.begin();
          it != rect2Dselectables.end(); ++it)
@@ -693,7 +693,7 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
     }
 }
 
-SelectionManager::PlacementInfo::PlacementInfo(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer)
+SelectionManager::PlacementInfo::PlacementInfo(View *view,SceneRendererES *renderer)
 : globeView(NULL), mapView(NULL)
 {
     float scale = [UIScreen mainScreen].scale;
@@ -781,7 +781,7 @@ struct selectedsorter
 } SelectedSorter;
 
 // Return a list of objects that pass the selection criteria
-void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,std::vector<SelectedObject> &selObjs)
+void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,std::vector<SelectedObject> &selObjs)
 {
     pickObjects(touchPt, maxDist, theView, true, selObjs);
 
@@ -789,7 +789,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
 }
 
 // Look for the single closest object
-SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView)
+SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,View *theView)
 {
     std::vector<SelectedObject> selObjs;
     pickObjects(touchPt, maxDist, theView, false, selObjs);
@@ -801,7 +801,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,Whirly
     return selObjs[0].selectIDs[0];
 }
 
-Matrix2d SelectionManager::calcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
+Matrix2d SelectionManager::calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
 {
     // Switch from counter-clockwise to clockwise
     double rot = 2*M_PI-ssObj->rotation;
@@ -840,7 +840,7 @@ Matrix2d SelectionManager::calcScreenRot(float &screenRot,WhirlyKitViewState *vi
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
 // Note: Should switch to a view state, rather than a view
-void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,bool multi,std::vector<SelectedObject> &selObjs)
+void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,bool multi,std::vector<SelectedObject> &selObjs)
 {
     if (!renderer)
         return;
@@ -851,7 +851,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *
     if (!pInfo.globeView && !pInfo.mapView)
         return;
     
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    TimeInterval now = TimeGetCurrent();
 
     // And the eye vector for billboards
     Vector4d eyeVec4 = pInfo.viewAndModelInvMat * Vector4d(0,0,1,0);

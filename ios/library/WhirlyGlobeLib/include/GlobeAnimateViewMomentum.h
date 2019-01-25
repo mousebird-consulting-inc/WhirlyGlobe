@@ -30,7 +30,7 @@
 @property (nonatomic,readonly) WhirlyGlobeView *globeView;
 
 /// When this animation will end
-@property (nonatomic,readonly) NSTimeInterval endTime;
+@property (nonatomic,readonly) TimeInterval endTime;
 
 /// Rotation at the end of this animation
 @property (nonatomic,readonly) Eigen::Quaterniond rot;

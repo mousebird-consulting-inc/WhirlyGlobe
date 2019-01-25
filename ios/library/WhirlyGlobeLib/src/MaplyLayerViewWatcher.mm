@@ -26,7 +26,7 @@ using namespace Eigen;
 
 @implementation MaplyViewState
 
-- (id)initWithView:(MaplyView *)mapView renderer:(WhirlyKitSceneRendererES *)renderer
+- (id)initWithView:(MaplyView *)mapView renderer:(SceneRendererES *)renderer
 {
     self = [super initWithView:mapView renderer:renderer];
     

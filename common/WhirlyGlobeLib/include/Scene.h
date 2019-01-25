@@ -44,6 +44,7 @@ class Scene;
 class SubTexture;
 class ScreenSpaceGenerator;
 class ViewPlacementGenerator;
+class FontTextureManager;
 
 /// Request that the renderer add the given texture.
 /// This will make it available for use, referenced by ID.
@@ -64,7 +65,7 @@ public:
     virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (texRef) texRef->createInGL(memManager); };
 
 	/// Add to the renderer.  Never call this.
-	void execute(Scene *scene,SceneRendererES *renderer,WhirlyKitView *view);
+	void execute(Scene *scene,SceneRendererES *renderer,View *view);
 	
     /// Only use this if you've thought it out
     TextureBase *getTex() { return texRef.get(); }
@@ -106,7 +107,7 @@ public:
     virtual void setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *memManager) { if (drawRef) drawRef->setupGL(setupInfo, memManager); };
 
 	/// Add to the renderer.  Never call this
-	void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);	
+	void execute(Scene *scene,SceneRendererES *renderer,View *view);
 	
 protected:
     DrawableRef drawRef;
@@ -179,7 +180,7 @@ protected:
 class RunBlockReq : public ChangeRequest
 {
 public:
-    typedef std::function<void(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)> BlockFunc;
+    typedef std::function<void(Scene *scene,SceneRendererES *renderer,View *view)> BlockFunc;
 
     // Set up with the function to run
     RunBlockReq(BlockFunc newFunc);
@@ -189,7 +190,7 @@ public:
     bool needPreExecute() { return true; }
     
     // Run the block of code
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,SceneRendererES *renderer,View *view);
     
 protected:
     BlockFunc func;
@@ -223,7 +224,7 @@ public:
     
 protected:
     Scene *scene;
-    WhirlyKitSceneRendererES * __weak renderer;
+    SceneRendererES *renderer;
 };
 
 /** This is the top level scene object for WhirlyKit.
@@ -298,10 +299,10 @@ public:
     void addManager(const char *name,SceneManager *manager);
     
     /// Add an active model.  Only call this on the main thread.
-    void addActiveModel(NSObject<WhirlyKitActiveModel> *);
+    void addActiveModel(ActiveModelRef);
     
     /// Remove an active model (if it's in here).  Only call this on the main thread.
-    void removeActiveModel(NSObject<WhirlyKitActiveModel> *);
+    void removeActiveModel(ActiveModelRef);
     
     /// Explicitly tear everything down in OpenGL ES.
     /// We're assuming the context has been set.
@@ -313,7 +314,7 @@ public:
     
     /// Return a dispatch queue that we can use for... stuff.
     /// The idea here is we'll wait for these to drain when we tear down.
-    dispatch_queue_t getDispatchQueue() { return dispatchQueue; }
+//    dispatch_queue_t getDispatchQueue() { return dispatchQueue; }
     
     // Return all the drawables in a list.  Only call this on the main thread.
     const DrawableRefSet &getDrawables();
@@ -344,7 +345,7 @@ public:
     void addTexture(TextureBase *tex);
     
     /// All the active models
-    NSMutableArray *activeModels;
+    std::vector<ActiveModelRef> activeModels;
     
     /// All the drawables we've been handed, sorted by ID
     DrawableRefSet drawables;
@@ -371,7 +372,7 @@ public:
     OpenGLMemManager memManager;
     
     /// Dispatch queue(s) we'll use for... things
-    dispatch_queue_t dispatchQueue;
+//    dispatch_queue_t dispatchQueue;
     
     /// Lock for accessing managers
     pthread_mutex_t managerLock;
@@ -380,10 +381,10 @@ public:
     std::map<std::string,SceneManager *> managers;
     
     /// Returns the font texture manager, which is thread safe
-    FontTextureManager *getFontTextureManager() { return fontTexManager; }
+    FontTextureManager *getFontTextureManager() { return fontTextureManager; }
     
     /// Set up the font texture manager.  Don't call this yourself.
-    void setFontTextureManager(FontTextureManager *newManager) { if (fontTextureManager)  delete fontTextureManager; fontTextureManager = newManager; }
+    void setFontTextureManager(FontTextureManager *newManager);
         
     /// Lock for accessing programs
     pthread_mutex_t programLock;
@@ -418,7 +419,7 @@ protected:
     /// Used for 2D overlap testing
     double overlapMargin;
     
-        // The font texture manager is created at startup
+    // The font texture manager is created at startup
     FontTextureManager *fontTextureManager;
 };
 	

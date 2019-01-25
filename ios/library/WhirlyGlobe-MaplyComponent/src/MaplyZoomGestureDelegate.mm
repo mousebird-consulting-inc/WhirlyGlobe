@@ -54,7 +54,7 @@ using namespace WhirlyKit;
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
     return MaplyGestureWithinBounds(bounds,loc,view,sceneRender,testMapView,newCenter);
 }
@@ -64,7 +64,7 @@ using namespace WhirlyKit;
 {
     UITapGestureRecognizer *tap = sender;
     WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-    WhirlyKitSceneRendererES *sceneRenderer = glView.renderer;
+    SceneRendererES *sceneRenderer = glView.renderer;
 	
     Point3d curLoc = _mapView.loc;
 //    NSLog(@"curLoc x:%f y:%f z:%f", curLoc.x(), curLoc.y(), curLoc.z());

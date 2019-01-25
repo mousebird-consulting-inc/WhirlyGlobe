@@ -153,7 +153,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
     // Note: Probably not complete
 	char attrTitle[12];
 	int attrWidth, numDecimals;
-    Dictionary *attrDict = theShape->getAttrDict();
+    DictionaryRef attrDict = theShape->getAttrDict();
 	DBFHandle dbfHandle = (DBFHandle)dbf;
 	int numDbfRecord = DBFGetRecordCount(dbfHandle);
 	if (vecIndex < numDbfRecord)

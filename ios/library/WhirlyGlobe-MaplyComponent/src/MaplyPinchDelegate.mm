@@ -48,7 +48,7 @@ using namespace WhirlyKit;
 	UIPinchGestureRecognizer *pinch = sender;
 	UIGestureRecognizerState theState = pinch.state;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pinch.view;
-	WhirlyKitSceneRendererES *sceneRenderer = glView.renderer;
+	SceneRendererES *sceneRenderer = glView.renderer;
     
 	switch (theState)
 	{

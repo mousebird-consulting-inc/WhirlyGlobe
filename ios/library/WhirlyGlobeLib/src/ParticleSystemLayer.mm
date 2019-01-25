@@ -46,7 +46,7 @@ using namespace WhirlyKit;
     if (!scene)
         return;
     
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    TimeInterval now = TimeGetCurrent();
     
     ChangeSet changes;
     partSysManager->housekeeping(now,changes);

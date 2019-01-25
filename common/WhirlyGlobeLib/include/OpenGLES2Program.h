@@ -27,6 +27,9 @@
 
 namespace WhirlyKit
 {
+    
+class DirectionalLight;
+class Material;
 
 /// Used to track a uniform within an OpenGL ES 2.0 shader program
 class OpenGLESUniform
@@ -128,7 +131,7 @@ public:
     
     /// Set the attributes associated with lighting.
     /// We'll check their last updated time against ours.
-    bool setLights(const std::vector<WhirlyKitDirectionalLight> &lights, TimeInterval lastUpdated, WhirlyKitMaterial *mat, Eigen::Matrix4f &modelMat);
+    bool setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated, Material *mat, Eigen::Matrix4f &modelMat);
         
     /// Search for the given attribute name and return the info.  NULL on failure.
     const OpenGLESAttribute *findAttribute(StringIdentity nameID);
@@ -151,7 +154,7 @@ protected:
     GLuint program;
     GLuint vertShader;
     GLuint fragShader;
-    CFTimeInterval lightsLastUpdated;
+    TimeInterval lightsLastUpdated;
     // Uniforms sorted for fast lookup
     std::unordered_map<StringIdentity,std::shared_ptr<OpenGLESUniform>> uniforms;
     // Attributes sorted for fast lookup

@@ -29,7 +29,6 @@ namespace WhirlyKit
 /// Data types in dictionary
 typedef enum {DictTypeNone,DictTypeString,DictTypeInt,DictTypeIdentity,DictTypeDouble,DictTypeObject} DictionaryType;
 
-// Note: Need to add 64 bit SimpleIdentity
 /// The Dictionary is my cross platform replacement for NSDictionary
 class Dictionary
 {
@@ -62,6 +61,8 @@ public:
     virtual std::string getString(const std::string &name,const std::string &defVal) const = 0;
 };
     
+typedef std::shared_ptr<Dictionary> DictionaryRef;
+    
 /// This version of the dictionary can be modified
 class MutableDictionary : public Dictionary
 {
@@ -86,5 +87,10 @@ public:
     // Merge in key-value pairs from another dictionary
     virtual void addEntries(const Dictionary *other) = 0;
 };
+    
+typedef std::shared_ptr<MutableDictionary> MutableDictionaryRef;
+
+/// Builds a platform appropriate mutable dictionary
+extern MutableDictionaryRef MutableDictionaryMake();
     
 }

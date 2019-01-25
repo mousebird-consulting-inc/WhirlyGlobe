@@ -39,6 +39,7 @@
 #import "BillboardManager.h"
 #import "WideVectorManager.h"
 #import "GeometryManager.h"
+#import "FontTextureManager.h"
 
 namespace WhirlyKit
 {
@@ -60,10 +61,10 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr)
 
     coordAdapter = adapter;
     
-    dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
+//    dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
 
     // Selection manager is used for object selection from any thread
-    addManager(kWKSelectionManager,new SelectionManager(this,[UIScreen mainScreen].scale));
+    addManager(kWKSelectionManager,new SelectionManager(this,DeviceScreenScale()));
     // Intersection handling
     addManager(kWKIntersectionManager, new IntersectionManager(this));
     // Layout manager handles text and icon layout
@@ -220,7 +221,7 @@ void Scene::addLocalMbr(const Mbr &localMbr)
     }
 }
     
-void Scene::setRenderer(WhirlyKitSceneRendererES *renderer)
+void Scene::setRenderer(SceneRendererES *renderer)
 {
     pthread_mutex_lock(&managerLock);
     
@@ -260,14 +261,15 @@ void Scene::addManager(const char *name,SceneManager *manager)
     pthread_mutex_unlock(&managerLock);
 }
 
-void Scene::addActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
+void Scene::addActiveModel(ActiveModelRef activeModel)
 {
-    [activeModels addObject:activeModel];
-    [activeModel startWithScene:this];
+    activeModels.push_back(activeModel);
+    activeModel->startWithScene(this);
 }
     
-void Scene::removeActiveModel(NSObject<WhirlyKitActiveModel> *activeModel)
+void Scene::removeActiveModel(ActiveModelRef activeModel)
 {
+    if (a)
     if ([activeModels containsObject:activeModel])
     {
         [activeModels removeObject:activeModel];
@@ -310,7 +312,7 @@ const DrawableRefSet &Scene::getDrawables()
     return drawables;
 }
     
-int Scene::preProcessChanges(WhirlyKit::View *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
+int Scene::preProcessChanges(WhirlyKit::View *view,SceneRendererES *renderer,TimeInterval now)
 {
     ChangeSet preRequests;
     
@@ -338,7 +340,7 @@ int Scene::preProcessChanges(WhirlyKit::View *view,WhirlyKitSceneRendererES *ren
 
 // Process outstanding changes.
 // We'll grab the lock and we're only expecting to be called in the rendering thread
-void Scene::processChanges(WhirlyKit::View *view,WhirlyKitSceneRendererES *renderer,NSTimeInterval now)
+void Scene::processChanges(WhirlyKit::View *view,SceneRendererES *renderer,TimeInterval now)
 {
     pthread_mutex_lock(&changeRequestLock);
     // See if any of the timed changes are ready
@@ -460,6 +462,13 @@ void Scene::dumpStats()
     WHIRLYKIT_LOGV("Scene: %ld textures",textures.size());
     WHIRLYKIT_LOGV("Scene: %ld sub textures",subTextureMap.size());
     memManager.dumpStats();
+}
+    
+void Scene::setFontTextureManager(FontTextureManager *newManager)
+{
+    if (fontTextureManager)
+        delete fontTextureManager;
+    fontTextureManager = newManager;    
 }
 
 OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
@@ -606,7 +615,7 @@ RunBlockReq::~RunBlockReq()
 {
 }
     
-void RunBlockReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKit::View *view)
+void RunBlockReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
 {
     func(scene,renderer,view);
 }

@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// when delaying our popup in order to scroll content into view, you can use this amount to match the
 /// animation duration of UIScrollView when using @c -setContentOffset:animated.
-extern NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView;
+extern TimeInterval const kSMCalloutViewRepositionDelayForUIScrollView;
 
 @protocol SMCalloutViewDelegate;
 @class SMCalloutBackgroundView;
@@ -185,9 +185,9 @@ extern NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView;
  
  @param calloutView the @c SMCalloutView to reposition
  @param offset caluclated offset necessary to make everything visible
- @returns @c NSTimeInterval to delay the repositioning
+ @returns @c TimeInterval to delay the repositioning
  */
-- (NSTimeInterval)calloutView:(SMCalloutView *)calloutView delayForRepositionWithSize:(CGSize)offset;
+- (TimeInterval)calloutView:(SMCalloutView *)calloutView delayForRepositionWithSize:(CGSize)offset;
 
 /// Called before the callout view appears on screen, or before the appearance animation will start.
 - (void)calloutViewWillAppear:(SMCalloutView *)calloutView;

@@ -75,14 +75,14 @@ public:
     void setOnOff(bool onOff) { enable = onOff; }
     
     /// Set the base time
-    void setBaseTime(NSTimeInterval inBaseTime) { baseTime = inBaseTime; }
+    void setBaseTime(TimeInterval inBaseTime) { baseTime = inBaseTime; }
     
     /// Set the point size
     void setPointSize(float inPointSize) { pointSize = inPointSize; }
     
     /// Set the lifetime
-    void setLifetime(NSTimeInterval inLifetime) { lifetime = inLifetime; }
-    NSTimeInterval getLifetime() { return lifetime; }
+    void setLifetime(TimeInterval inLifetime) { lifetime = inLifetime; }
+    TimeInterval getLifetime() { return lifetime; }
     
     /// Set whether we're doing continuous renders (the default)
     void setContinuousUpdate(bool newVal) { usingContinuousRender = newVal; }
@@ -109,7 +109,7 @@ public:
     bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const { return false; }
     
     /// Don't need to update the renderer particularly
-    void updateRenderer(WhirlyKitSceneRendererES *renderer);
+    void updateRenderer(SceneRendererES *renderer);
 
     /// If set, we want to use the z buffer
     bool getRequestZBuffer() const { return requestZBuffer; }

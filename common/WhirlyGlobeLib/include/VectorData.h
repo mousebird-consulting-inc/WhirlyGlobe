@@ -30,17 +30,17 @@
 
 namespace WhirlyKit
 {
-	
+    
 /// The base class for vector shapes.  All shapes
 ///  have attribute and an MBR.
 class VectorShape : public Identifiable
 {
 public:	
 	/// Set the attribute dictionary
-	void setAttrDict(const Dictionary &newDict);
+	void setAttrDict(MutableDictionaryRef newDict);
 	
 	/// Return the attr dict
-	Dictionary *getAttrDict();
+	DictionaryRef getAttrDict();
     /// Return the geoMbr
     virtual GeoMbr calcGeoMbr() = 0;
 	
@@ -48,7 +48,7 @@ protected:
 	VectorShape();
 	virtual ~VectorShape();
 
-	Dictionary attrDict;
+	MutableDictionaryRef attrDict;
 };
 
 class VectorAreal;

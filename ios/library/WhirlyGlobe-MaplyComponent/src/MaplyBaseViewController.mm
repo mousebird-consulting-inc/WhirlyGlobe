@@ -142,7 +142,7 @@ using namespace WhirlyKit;
         [self teardown];
 }
 
-- (WhirlyKitView *) loadSetup_view
+- (View *) loadSetup_view
 {
     return nil;
 }
@@ -163,7 +163,7 @@ using namespace WhirlyKit;
 - (void) loadSetup_lighting
 {
     [renderControl resetLights];
-    if (![renderControl->sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
+    if (![renderControl->sceneRenderer isKindOfClass:[SceneRendererES2 class]])
         return;
     
     [self resetLights];
@@ -190,7 +190,7 @@ using namespace WhirlyKit;
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     // This is completely random.  We can't track it in any useful way
     NSString *userID = [userDefaults stringForKey:@"wgmaplyanalyticuser"];
-    NSTimeInterval lastSent = 0.0;
+    TimeInterval lastSent = 0.0;
     if (!userID) {
         userID = [[NSUUID UUID] UUIDString];
         [userDefaults setObject:userID forKey:@"wgmaplyanalyticuser"];
@@ -199,7 +199,7 @@ using namespace WhirlyKit;
     }
     
     // Sent once a month at most
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    TimeInterval now = TimeGetCurrent();
     if (now - lastSent < 30*24*60*60.0)
         return;
 
@@ -241,7 +241,7 @@ using namespace WhirlyKit;
     
     NSURLSession *session = [NSURLSession sharedSession];
     NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:req completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+        TimeInterval now = TimeGetCurrent();
         NSHTTPURLResponse *resp = (NSHTTPURLResponse *)response;
         if (resp.statusCode == 200) {
             [userDefaults setDouble:now forKey:@"wgmaplyanalytictime"];
@@ -324,7 +324,7 @@ using namespace WhirlyKit;
     [self addClusterGenerator:defaultClusterGenerator];
     
     // View Placement active model
-    viewPlacementModel = [[WhirlyKitViewPlacementActiveModel alloc] init];
+    viewPlacementModel = [[ViewPlacementActiveModel alloc] init];
     
     // Set up defaults for the hints
     NSDictionary *newHints = [NSDictionary dictionary];
@@ -920,7 +920,7 @@ static const float PerfOutputDelay = 15.0;
 }
 
 // Overridden by the subclasses
-- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(TimeInterval)howLong
 {
     return false;
 }
@@ -971,9 +971,9 @@ static const float PerfOutputDelay = 15.0;
 
 // Delegate callback for annotation placement
 // Note: Not doing anything with this yet
-- (NSTimeInterval)calloutView:(SMCalloutView *)calloutView delayForRepositionWithSize:(CGSize)offset
+- (TimeInterval)calloutView:(SMCalloutView *)calloutView delayForRepositionWithSize:(CGSize)offset
 {
-    NSTimeInterval delay = 0.0;
+    TimeInterval delay = 0.0;
     
     // Need to find the annotation this belongs to
     for (MaplyAnnotation *annotation in annotations)

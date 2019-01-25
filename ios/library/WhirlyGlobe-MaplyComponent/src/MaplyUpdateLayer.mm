@@ -26,7 +26,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyViewerState
 
-- (instancetype)initWithViewState:(WhirlyKitViewState *)inViewState
+- (instancetype)initWithViewState:(ViewState *)inViewState
 {
     self = [super init];
     if (!self)
@@ -55,7 +55,7 @@ using namespace WhirlyKit;
 {
     NSObject<MaplyUpdateDelegate> *delegate;
     WhirlyKitLayerThread __weak *layerThread;
-    WhirlyKitViewState *viewState;
+    ViewState *viewState;
 }
 
 - (instancetype)initWithDelegate:(NSObject<MaplyUpdateDelegate> *)inDelegate moveDist:(double)moveDist minTime:(double)minTime
@@ -72,7 +72,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)renderer viewC:(MaplyBaseViewController *)inViewC
+- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(SceneRendererES *)renderer viewC:(MaplyBaseViewController *)inViewC
 {
     layerThread = inLayerThread;
     
@@ -90,10 +90,10 @@ using namespace WhirlyKit;
     [delegate start:self];
 }
 
-- (void)viewUpdate:(WhirlyKitViewState *)inViewState
+- (void)viewUpdate:(ViewState *)inViewState
 {
-    WhirlyKitViewState *lastViewState = viewState;
-    WhirlyKitViewState *newViewState = inViewState;
+    ViewState *lastViewState = viewState;
+    ViewState *newViewState = inViewState;
     
     // See how far we've moved
     float dist2 = 0.0;

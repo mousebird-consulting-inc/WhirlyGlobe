@@ -22,8 +22,8 @@
 
 @implementation WhirlyGlobeAnimateViewHeight
 {
-    NSTimeInterval startDate;
-    NSTimeInterval endDate;
+    TimeInterval startDate;
+    TimeInterval endDate;
     double startHeight,endHeight;
 }
 
@@ -31,7 +31,7 @@
 {
     if ((self = [super init]))
     {
-        startDate = CFAbsoluteTimeGetCurrent();
+        startDate = TimeGetCurrent();
         endDate = startDate+howLong;
         startHeight = globeView.heightAboveGlobe;
         endHeight = height;
@@ -48,7 +48,7 @@
     if (startDate == 0.0)
         return;
 	
-	CFTimeInterval now = CFAbsoluteTimeGetCurrent();
+	CFTimeInterval now = TimeGetCurrent();
     float span = endDate-startDate;
     float remain = endDate - now;
     

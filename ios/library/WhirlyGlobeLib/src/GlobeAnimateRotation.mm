@@ -27,8 +27,8 @@
 {
     if ((self = [super init]))
     {
-        _startDate = CFAbsoluteTimeGetCurrent();
-        _endDate = CFAbsoluteTimeGetCurrent() + howLong;
+        _startDate = TimeGetCurrent();
+        _endDate = TimeGetCurrent() + howLong;
         _startRot = [globeView rotQuat];
         _endRot = newRot;
     }
@@ -43,7 +43,7 @@
 	if (!self.startDate)
 		return;
 	
-	CFTimeInterval now = CFAbsoluteTimeGetCurrent();
+	CFTimeInterval now = TimeGetCurrent();
         float span = _endDate-_startDate;
         float remain = _endDate - now;
     

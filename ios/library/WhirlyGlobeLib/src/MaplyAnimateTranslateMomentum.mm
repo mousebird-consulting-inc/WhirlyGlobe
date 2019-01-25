@@ -29,7 +29,7 @@ using namespace WhirlyKit;
 {
     MaplyView *mapView;
     UIView *glView;
-    WhirlyKitSceneRendererES * __weak sceneRenderer;
+    SceneRendererES * __weak sceneRenderer;
 
     float velocity,acceleration;
     Eigen::Vector3d dir;
@@ -39,14 +39,14 @@ using namespace WhirlyKit;
     std::vector<WhirlyKit::Point2d> bounds;
 }
 
-- (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2d> &)inBounds view:(UIView *)inView renderer:(WhirlyKitSceneRendererES *)inSceneRenderer
+- (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2d> &)inBounds view:(UIView *)inView renderer:(SceneRendererES *)inSceneRenderer
 {
     if ((self = [super init]))
     {
         velocity = inVel;
         acceleration = inAcc;
         dir = Vector3fToVector3d(inDir.normalized());
-        startDate = CFAbsoluteTimeGetCurrent();
+        startDate = TimeGetCurrent();
         mapView = inMapView;
         org = mapView.loc;
         glView = inView;
@@ -72,7 +72,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
     return MaplyGestureWithinBounds(bounds,loc,view,sceneRender,testMapView,newCenter);
 }
@@ -83,7 +83,7 @@ using namespace WhirlyKit;
     if (startDate == 0.0)
         return;
     
-	float sinceStart = CFAbsoluteTimeGetCurrent() - startDate;
+	float sinceStart = TimeGetCurrent() - startDate;
     
     if (sinceStart > maxTime)
     {

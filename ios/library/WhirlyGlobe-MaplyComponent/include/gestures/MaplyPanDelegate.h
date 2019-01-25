@@ -22,7 +22,7 @@
 #import <vector>
 #import "MaplyView.h"
 
-@class WhirlyKitSceneRendererES;
+@class SceneRendererES;
 
 // Sent out when the pan delegate takes control
 #define kPanDelegateDidStart @"WKPanDelegateStarted"

@@ -65,7 +65,7 @@ using namespace WhirlyGlobe;
 {
     UIPanGestureRecognizer *pan = sender;
     WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)pan.view;
-//    WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+//    SceneRendererES *sceneRender = glView.renderer;
     
     if (pan.state == UIGestureRecognizerStateCancelled)
     {

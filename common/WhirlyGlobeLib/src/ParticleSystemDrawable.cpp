@@ -177,7 +177,7 @@ void ParticleSystemDrawable::teardownGL(OpenGLMemManager *memManager)
     chunks.clear();
 }
     
-void ParticleSystemDrawable::updateRenderer(WhirlyKitSceneRendererES *renderer)
+void ParticleSystemDrawable::updateRenderer(SceneRendererES *renderer)
 {
     if (usingContinuousRender)
         [renderer addContinuousRenderRequest:getId()];
@@ -237,7 +237,7 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
     pthread_mutex_unlock(&batchLock);
 }
     
-void ParticleSystemDrawable::updateBatches(NSTimeInterval now)
+void ParticleSystemDrawable::updateBatches(TimeInterval now)
 {
     pthread_mutex_lock(&batchLock);
     // Check the batches to see if any have gone off

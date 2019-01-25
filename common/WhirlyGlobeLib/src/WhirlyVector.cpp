@@ -133,7 +133,7 @@ void Mbr::expandByFraction(double bufferZone)
 }
     
     
-void Mbr::asPoints(std::vector<Point2f> &pts) const
+void Mbr::asPoints(Point2fVector &pts) const
 {
     pts.push_back(pt_ll);
     pts.push_back(Point2f(pt_ur.x(),pt_ll.y()));
@@ -141,7 +141,7 @@ void Mbr::asPoints(std::vector<Point2f> &pts) const
     pts.push_back(Point2f(pt_ll.x(),pt_ur.y()));
 }
 
-void Mbr::asPoints(std::vector<Point2d> &pts) const
+void Mbr::asPoints(Point2dVector &pts) const
 {
     pts.push_back(Point2d(pt_ll.x(),pt_ll.y()));
     pts.push_back(Point2d(pt_ur.x(),pt_ll.y()));
@@ -284,7 +284,7 @@ GeoMbr::GeoMbr(const std::vector<GeoCoord> &coords)
 		addGeoCoord(coords[ii]);
 }
 	
-GeoMbr::GeoMbr(const std::vector<Point2f> &pts)
+GeoMbr::GeoMbr(const Point2fVector &pts)
 	: pt_ll(-1000,-1000), pt_ur(-1000,-1000)
 {
 	for (unsigned int ii=0;ii<pts.size();ii++)

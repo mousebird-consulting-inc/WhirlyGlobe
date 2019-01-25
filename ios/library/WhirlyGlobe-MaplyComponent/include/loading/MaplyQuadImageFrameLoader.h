@@ -34,10 +34,10 @@
 - (nonnull instancetype)initWithFrameLoader:(MaplyQuadImageFrameLoader * __nonnull)loader viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 /// How long to animate from start to finish.
-@property (nonatomic,assign) NSTimeInterval period;
+@property (nonatomic,assign) TimeInterval period;
 
 /// How long to pause at the end of the sequence before starting back
-@property (nonatomic,assign) NSTimeInterval pauseLength;
+@property (nonatomic,assign) TimeInterval pauseLength;
 
 /// Remove the animator and stop animating
 - (void)shutdown;

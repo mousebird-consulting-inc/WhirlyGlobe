@@ -172,7 +172,7 @@
 @property (nonatomic) int localData;
 
 // Total time spent waiting for successful remote data requests
-@property (nonatomic) NSTimeInterval totalLatency;
+@property (nonatomic) TimeInterval totalLatency;
 
 // Add the given stats to ours
 - (void)addStats:(MaplyRemoteTileFetcherStats * __nonnull)stats;

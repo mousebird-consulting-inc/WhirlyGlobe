@@ -221,7 +221,7 @@ public:
     bool empty();
     
     /// Look for any textures that should be cleaned up
-    void cleanup(ChangeSet &changes,NSTimeInterval when);
+    void cleanup(ChangeSet &changes,TimeInterval when);
 
     /// Clear out the active dynamic textures.  Caller deals with the
     ///  change requests.

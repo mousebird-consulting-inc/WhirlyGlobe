@@ -34,7 +34,7 @@
 
 /// This is the private interface to WhirlyGlobeViewController.
 /// Only pull this in if you're subclassing
-@interface WhirlyGlobeViewController()<WhirlyKitViewWatcherDelegate>
+@interface WhirlyGlobeViewController()<ViewWatcherDelegate>
 {
 @public    
     WhirlyGlobe::GlobeScene *globeScene;
@@ -62,7 +62,7 @@
     
     // Used for the outside animation interface
     NSObject<WhirlyGlobeViewControllerAnimationDelegate> *animationDelegate;
-    NSTimeInterval animationDelegateEnd;
+    TimeInterval animationDelegateEnd;
     Eigen::Quaterniond startQuat;
     Eigen::Vector3d startUp;
     bool delegateRespondsToViewUpdate;

@@ -102,7 +102,7 @@ static double MAX_EXTENT = 20037508.342789244;
     NSMutableArray *vecObjs = nil;
     if (_keepVectors)
         vecObjs = [NSMutableArray array];
-    //    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
+    //    CFAbsoluteTime start = TimeGetCurrent();
     
     unsigned featureCount = 0;
     

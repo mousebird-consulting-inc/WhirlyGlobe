@@ -24,7 +24,7 @@
 
 @class WhirlyKitLayerThread;
 @class WhirlyKitViewState;
-@class WhirlyKitSceneRendererES;
+@class SceneRendererES;
 
 
 /** The layer view watcher is a base class.  We subclass it for specific
@@ -41,7 +41,7 @@
 
 /// Add the given target/selector combo as a watcher.
 /// Will get called at most the given frequency.
-- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(NSTimeInterval)minTime minDist:(float)minDist maxLagTime:(NSTimeInterval)maxLagTime;
+- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(TimeInterval)minTime minDist:(float)minDist maxLagTime:(TimeInterval)maxLagTime;
 
 /// Remove the given target/selector combo
 - (void)removeWatcherTarget:(id)target selector:(SEL)selector;
@@ -70,7 +70,7 @@
 @property (nonatomic,readonly) WhirlyKit::Point3d eyePos;
 
 /// Called by the subclasses
-- (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKitSceneRendererES *)renderer;
+- (id)initWithView:(WhirlyKitView *)view renderer:(SceneRendererES *)renderer;
 
 /// Calculate the viewing frustum (which is also the image plane)
 /// Need the framebuffer size in pixels as input

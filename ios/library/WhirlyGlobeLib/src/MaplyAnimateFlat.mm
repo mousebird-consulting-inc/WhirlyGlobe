@@ -38,7 +38,7 @@ using namespace WhirlyKit;
         return nil;
     
     flatView = inFlatView;
-    startDate = CFAbsoluteTimeGetCurrent();
+    startDate = TimeGetCurrent();
     endDate = startDate + howLong;
     windowSize = flatView.windowSize;
     destWindowSize = inWindowSize;
@@ -53,7 +53,7 @@ using namespace WhirlyKit;
     if (startDate == 0.0)
         return;
  
-    CFTimeInterval now = CFAbsoluteTimeGetCurrent();
+    CFTimeInterval now = TimeGetCurrent();
     float span = endDate - startDate;
     float remain = endDate - now;
     

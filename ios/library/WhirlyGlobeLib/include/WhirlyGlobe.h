@@ -58,7 +58,7 @@
 #import "GlobeLayerViewWatcher.h"
 #import "UpdateDisplayLayer.h"
 #import "WideVectorManager.h"
-#import "ActiveModel.h"
+//#import "ActiveModel.h"
 #import "MaplyScene.h"
 #import "ShapeDrawableBuilder.h"
 #import "LayoutLayer.h"

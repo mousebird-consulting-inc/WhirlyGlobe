@@ -19,7 +19,8 @@
  */
 
 #import "Identifiable.h"
-#include <pthread.h>
+#import <pthread.h>
+#import <mutex>
 
 std::mutex identMutex;
 

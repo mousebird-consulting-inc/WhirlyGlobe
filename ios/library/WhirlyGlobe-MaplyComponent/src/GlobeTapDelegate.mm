@@ -63,7 +63,7 @@ using namespace WhirlyKit;
 	UITapGestureRecognizer *tap = sender;
     
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	SceneRendererES *sceneRender = glView.renderer;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
 
 	// Translate that to the sphere

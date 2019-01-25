@@ -66,7 +66,7 @@ using namespace WhirlyGlobe;
 {
     WhirlyGlobeViewControllerAnimationState *startState;
     WhirlyGlobeViewControllerAnimationState *endState;
-    NSTimeInterval startTime,endTime;
+    TimeInterval startTime,endTime;
 }
 
 - (instancetype)initWithState:(WhirlyGlobeViewControllerAnimationState *)inEndState
@@ -77,7 +77,7 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (void)globeViewController:(WhirlyGlobeViewController *)viewC startState:(WhirlyGlobeViewControllerAnimationState *)inStartState startTime:(NSTimeInterval)inStartTime endTime:(NSTimeInterval)inEndTime
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC startState:(WhirlyGlobeViewControllerAnimationState *)inStartState startTime:(TimeInterval)inStartTime endTime:(TimeInterval)inEndTime
 {
     startState = inStartState;
     if (!endState)
@@ -93,7 +93,7 @@ using namespace WhirlyGlobe;
     endTime = inEndTime;
 }
 
-- (WhirlyGlobeViewControllerAnimationState *)globeViewController:(WhirlyGlobeViewController *)viewC stateForTime:(NSTimeInterval)currentTime
+- (WhirlyGlobeViewControllerAnimationState *)globeViewController:(WhirlyGlobeViewController *)viewC stateForTime:(TimeInterval)currentTime
 {
     WhirlyGlobeViewControllerAnimationState *state = [[WhirlyGlobeViewControllerAnimationState alloc] init];
     double t = (currentTime-startTime)/(endTime-startTime);
@@ -183,7 +183,7 @@ using namespace WhirlyGlobe;
 }
 
 // Called by the globe view when something changes
-- (void)viewUpdated:(WhirlyKitView *)view
+- (void)viewUpdated:(View *)view
 {
     if (delegateRespondsToViewUpdate)
     {
@@ -194,7 +194,7 @@ using namespace WhirlyGlobe;
 }
 
 // Create the globe view
-- (WhirlyKitView *) loadSetup_view
+- (View *) loadSetup_view
 {
 	globeView = [[WhirlyGlobeView alloc] init];
     globeView.continuousZoom = true;
@@ -664,7 +664,7 @@ using namespace WhirlyGlobe;
 #pragma mark - Interaction
 
 // Rotate to the given location over time
-- (void)rotateToPoint:(GeoCoord)whereGeo time:(NSTimeInterval)howLong
+- (void)rotateToPoint:(GeoCoord)whereGeo time:(TimeInterval)howLong
 {
     // If we were rotating from one point to another, stop
     [globeView cancelAnimation];
@@ -678,7 +678,7 @@ using namespace WhirlyGlobe;
     globeView.delegate = animateRotation;        
 }
 
-- (void)rotateToPointD:(Point2d)whereGeo time:(NSTimeInterval)howLong
+- (void)rotateToPointD:(Point2d)whereGeo time:(TimeInterval)howLong
 {
     // If we were rotating from one point to another, stop
     [globeView cancelAnimation];
@@ -693,7 +693,7 @@ using namespace WhirlyGlobe;
 }
 
 // External facing version of rotateToPoint
-- (void)animateToPosition:(WGCoordinate)newPos time:(NSTimeInterval)howLong
+- (void)animateToPosition:(WGCoordinate)newPos time:(TimeInterval)howLong
 {
     if (isnan(newPos.x) || isnan(newPos.y))
     {
@@ -705,7 +705,7 @@ using namespace WhirlyGlobe;
 }
 
 // Figure out how to get the geolocation to the given point on the screen
-- (bool)animateToPosition:(WGCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
+- (bool)animateToPosition:(WGCoordinate)newPos onScreen:(CGPoint)loc time:(TimeInterval)howLong
 {
     if (!renderControl)
         return false;
@@ -758,7 +758,7 @@ using namespace WhirlyGlobe;
         return false;
 }
 
-- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong
+- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(TimeInterval)howLong
 {
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
     {
@@ -779,7 +779,7 @@ using namespace WhirlyGlobe;
     return true;
 }
 
-- (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(NSTimeInterval)howLong
+- (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(TimeInterval)howLong
 {
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
     {
@@ -800,7 +800,7 @@ using namespace WhirlyGlobe;
     return true;
 }
 
-- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong {
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(TimeInterval)howLong {
     
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
     {
@@ -1465,7 +1465,7 @@ using namespace WhirlyGlobe;
 // Called every frame from within the globe view
 - (void)updateView:(WhirlyGlobeView *)inGlobeView
 {
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    TimeInterval now = TimeGetCurrent();
     if (!animationDelegate)
     {
         [globeView cancelAnimation];
@@ -1490,9 +1490,9 @@ using namespace WhirlyGlobe;
     }
 }
 
-- (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *)inAnimationDelegate time:(NSTimeInterval)howLong
+- (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *)inAnimationDelegate time:(TimeInterval)howLong
 {
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    TimeInterval now = TimeGetCurrent();
     animationDelegate = inAnimationDelegate;
     animationDelegateEnd = now+howLong;
 

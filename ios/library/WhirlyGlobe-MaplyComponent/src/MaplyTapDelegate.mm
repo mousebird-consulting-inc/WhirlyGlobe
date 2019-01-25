@@ -62,7 +62,7 @@ using namespace WhirlyKit;
 {
 	UITapGestureRecognizer *tap = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	SceneRendererES *sceneRender = glView.renderer;
     CoordSystemDisplayAdapter *coordAdapter = mapView.coordAdapter;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
     

@@ -82,7 +82,7 @@ using namespace WhirlyGlobe;
 // Try to auto-spin every so often
 -(void)processAutoSpin:(id)sender
 {
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    TimeInterval now = TimeGetCurrent();
     
     if (autoSpinner && globeView.delegate != autoSpinner)
         autoSpinner = nil;
@@ -108,7 +108,7 @@ using namespace WhirlyGlobe;
 // Runs in the layer thread
 - (void) userDidTapLayerThread:(WhirlyGlobeTapMessage *)msg
 {
-    lastTouched = CFAbsoluteTimeGetCurrent();
+    lastTouched = TimeGetCurrent();
     if (autoSpinner)
     {
         if (globeView.delegate == autoSpinner)

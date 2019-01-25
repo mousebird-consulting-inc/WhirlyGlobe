@@ -367,11 +367,11 @@ public:
     }
     
     double lastCurFrame;
-    NSTimeInterval lastRenderTime;
-    NSTimeInterval lastUpdate;
+    TimeInterval lastRenderTime;
+    TimeInterval lastUpdate;
     
     // Update what the scene is looking at.  Ideally not every frame.
-    void updateScene(Scene *scene,double curFrame,NSTimeInterval now,bool flipY,const RGBAColor &color,ChangeSet &changes) {
+    void updateScene(Scene *scene,double curFrame,TimeInterval now,bool flipY,const RGBAColor &color,ChangeSet &changes) {
         if (tiles.empty())
             return;
         unsigned char color4[4];
@@ -500,7 +500,7 @@ using namespace WhirlyKit;
 {
     MaplyBaseViewController * __weak viewC;
     MaplyQuadImageFrameLoader * __weak loader;
-    NSTimeInterval startTime;
+    TimeInterval startTime;
     int numFrames;
 }
 
@@ -509,7 +509,7 @@ using namespace WhirlyKit;
     self = [super init];
     loader = inLoader;
     viewC = inViewC;
-    startTime = CFAbsoluteTimeGetCurrent();
+    startTime = TimeGetCurrent();
     _period = 10.0;
     _pauseLength = 0.0;
     numFrames = [loader getNumFrames];
@@ -534,8 +534,8 @@ using namespace WhirlyKit;
     if (!viewC || !loader)
         return false;
     
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
-    NSTimeInterval totalPeriod = _period + _pauseLength;
+    TimeInterval now = TimeGetCurrent();
+    TimeInterval totalPeriod = _period + _pauseLength;
     double when = fmod(now-startTime,totalPeriod);
     if (when >= _period)
         // Snap it to the end for a while
@@ -926,7 +926,7 @@ using namespace WhirlyKit;
         newRenderState.tiles[tileID] = tileState;
     }
     
-    auto mergeReq = new RunBlockReq([self,newRenderState](Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+    auto mergeReq = new RunBlockReq([self,newRenderState](Scene *scene,SceneRendererES *renderer,View *view)
                                           {
                                               if (self)
                                                   self->renderState = newRenderState;
@@ -1136,7 +1136,7 @@ using namespace WhirlyKit;
     
     ChangeSet changes;
     
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    TimeInterval now = TimeGetCurrent();
     renderState.updateScene(frameInfo.scene, curFrame, now, self.flipY, [self.color asRGBAColor], changes);
     
     frameInfo.scene->addChangeRequests(changes);

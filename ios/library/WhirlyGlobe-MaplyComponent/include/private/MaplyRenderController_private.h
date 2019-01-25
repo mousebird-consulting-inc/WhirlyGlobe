@@ -37,7 +37,7 @@
 {
 @public
     // Scene renderer... renders the scene
-    WhirlyKitSceneRendererES2 *sceneRenderer;
+    SceneRendererES2 *sceneRenderer;
     
     // Our own interaction layer does most of the work
     MaplyBaseInteractionLayer *interactLayer;

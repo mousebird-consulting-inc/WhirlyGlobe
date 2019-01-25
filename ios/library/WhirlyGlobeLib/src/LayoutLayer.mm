@@ -40,13 +40,13 @@ namespace WhirlyKit
     // Set if we haven't moved for a while
     bool stopped;
     // Last view state we've seen
-    WhirlyKitViewState *viewState;
+    ViewState *viewState;
     // Used for sizing info
-    WhirlyKitSceneRendererES * __weak renderer;
-    NSTimeInterval lastUpdate;
+    SceneRendererES * __weak renderer;
+    TimeInterval lastUpdate;
 }
 
-- (id)initWithRenderer:(WhirlyKitSceneRendererES *)inRenderer
+- (id)initWithRenderer:(SceneRendererES *)inRenderer
 {
     self = [super init];
     if (!self)
@@ -86,17 +86,17 @@ static const float DelayPeriod = 0.2;
 static const float MaxDelay = 1.0;
 
 // We're getting called for absolutely every update here
-- (void)viewUpdate:(WhirlyKitViewState *)inViewState
+- (void)viewUpdate:(ViewState *)inViewState
 {
     if (!scene)
         return;
     
-    if (viewState && [viewState isKindOfClass:[WhirlyKitViewState class]] && [inViewState isSameAs:viewState])
+    if (viewState && [viewState isKindOfClass:[ViewState class]] && [inViewState isSameAs:viewState])
         return;
     viewState = inViewState;
     
     // If it's been too long since an update, force the next one
-    if (CFAbsoluteTimeGetCurrent() - lastUpdate > MaxDelay)
+    if (TimeGetCurrent() - lastUpdate > MaxDelay)
     {
         [self updateLayout];
         return;
@@ -154,7 +154,7 @@ static const float MaxDelay = 1.0;
 - (void)updateLayout
 {
 //    NSLog(@"UpdateLayout called");
-    lastUpdate = CFAbsoluteTimeGetCurrent();
+    lastUpdate = TimeGetCurrent();
 
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     if (layoutManager)

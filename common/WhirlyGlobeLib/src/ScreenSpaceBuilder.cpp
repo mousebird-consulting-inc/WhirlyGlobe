@@ -102,7 +102,7 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
     // If we've got more than one texture ID and a period, we need a tweaker
     if (state.texIDs.size() > 1 && state.period != 0.0)
     {
-        NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+        TimeInterval now = TimeGetCurrent();
         BasicDrawableTexTweaker *tweak = new BasicDrawableTexTweaker(state.texIDs,now,state.period);
         draw->addTweaker(DrawableTweakerRef(tweak));
     }
@@ -237,7 +237,7 @@ ScreenSpaceBuilder::DrawableWrap *ScreenSpaceBuilder::findOrAddDrawWrap(const Dr
         Eigen::Matrix4d transMat = trans.matrix();
         drawWrap->draw->setMatrix(&transMat);
         if (state.motion)
-            drawWrap->draw->setStartTime(CFAbsoluteTimeGetCurrent());
+            drawWrap->draw->setStartTime(TimeGetCurrent());
         drawables.insert(drawWrap);
     } else {
         drawWrap = *it;

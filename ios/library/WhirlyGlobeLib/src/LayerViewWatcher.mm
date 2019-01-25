@@ -31,10 +31,10 @@ using namespace WhirlyKit;
 @public
     id __weak target;
     SEL selector;
-    NSTimeInterval minTime,maxLagTime;
+    TimeInterval minTime,maxLagTime;
     Point3d lastEyePos;
     float minDist;
-    NSTimeInterval lastUpdated;
+    TimeInterval lastUpdated;
 }
 @end
 
@@ -46,22 +46,22 @@ using namespace WhirlyKit;
     /// Layer we're attached to
     WhirlyKitLayerThread * __weak layerThread;
     /// The view we're following for upates
-    WhirlyKitView * __weak view;
+    View * __weak view;
     /// Watchers we'll call back for updates
     NSMutableArray *watchers;
     
     /// When the last update was run
-    NSTimeInterval lastUpdate;
+    TimeInterval lastUpdate;
     
     /// You should know the type here.  A globe or a map view state.
-    WhirlyKitViewState *lastViewState;
+    ViewState *lastViewState;
     
-    WhirlyKitViewState *newViewState;
+    ViewState *newViewState;
     bool kickoffScheduled;
     bool sweepLaggardsScheduled;
 }
 
-- (id)initWithView:(WhirlyKitView *)inView thread:(WhirlyKitLayerThread *)inLayerThread
+- (id)initWithView:(View *)inView thread:(WhirlyKitLayerThread *)inLayerThread
 {
     self = [super init];
     if (self)
@@ -74,7 +74,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(NSTimeInterval)minTime minDist:(float)minDist maxLagTime:(NSTimeInterval)maxLagTime
+- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(TimeInterval)minTime minDist:(float)minDist maxLagTime:(TimeInterval)maxLagTime
 {
     LocalWatcher *watch = [[LocalWatcher alloc] init];
     watch->target = target;
@@ -90,7 +90,7 @@ using namespace WhirlyKit;
     // Note: This is running in the layer thread, yet we're accessing the view.  Might be a problem.
     if (!lastViewState && layerThread.renderer.framebufferWidth != 0)
     {
-        WhirlyKitViewState *viewState = [[_viewStateClass alloc] initWithView:view renderer:layerThread.renderer ];
+        ViewState *viewState = [[_viewStateClass alloc] initWithView:view renderer:layerThread.renderer ];
         lastViewState = viewState;
     }
     
@@ -135,7 +135,7 @@ using namespace WhirlyKit;
 }
 
 // This is called in the main thread
-- (void)viewUpdated:(WhirlyKitView *)inView
+- (void)viewUpdated:(View *)inView
 {
     if (layerThread.renderer == nil)
         return;
@@ -149,7 +149,7 @@ using namespace WhirlyKit;
         return;
     }
 
-    WhirlyKitViewState *viewState = [[_viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
+    ViewState *viewState = [[_viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
     
 //    lastViewState = viewState;
     @synchronized(self)
@@ -173,7 +173,7 @@ using namespace WhirlyKit;
         kickoffScheduled = false;
     }
     [self viewUpdateLayerThread:lastViewState];
-    lastUpdate = CFAbsoluteTimeGetCurrent();
+    lastUpdate = TimeGetCurrent();
 }
 
 // We're in the main thread here
@@ -204,7 +204,7 @@ using namespace WhirlyKit;
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [watch->target performSelector:watch->selector withObject:lastViewState];
 #pragma clang diagnostic pop
-        watch->lastUpdated = CFAbsoluteTimeGetCurrent();
+        watch->lastUpdated = TimeGetCurrent();
         watch->lastEyePos = [lastViewState eyePos];
     } else
         NSLog(@"Missing last view state");
@@ -215,27 +215,27 @@ class LayerPriorityOrder
 {
 public:
     bool operator < (const LayerPriorityOrder &that) const { return sinceLastUpdate > that.sinceLastUpdate; }
-    LayerPriorityOrder(NSTimeInterval sinceLastUpdate,LocalWatcher *watch) : sinceLastUpdate(sinceLastUpdate), watch(watch) { }
+    LayerPriorityOrder(TimeInterval sinceLastUpdate,LocalWatcher *watch) : sinceLastUpdate(sinceLastUpdate), watch(watch) { }
     LayerPriorityOrder(const LayerPriorityOrder &that) : sinceLastUpdate(that.sinceLastUpdate), watch(that.watch) { }
-    NSTimeInterval sinceLastUpdate;
+    TimeInterval sinceLastUpdate;
     LocalWatcher *watch;
 };
 
 // This version is called in the layer thread
 // We can dispatch things from here
-- (void)viewUpdateLayerThread:(WhirlyKitViewState *)viewState
+- (void)viewUpdateLayerThread:(ViewState *)viewState
 {
-    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+    TimeInterval curTime = TimeGetCurrent();
     
     // Look for anything that hasn't been updated in a while
     std::set<LayerPriorityOrder> orderedLayers;
-    NSTimeInterval minNextUpdate = 100;
-    NSTimeInterval maxLayerDelay = 0.0;
+    TimeInterval minNextUpdate = 100;
+    TimeInterval maxLayerDelay = 0.0;
     @synchronized(self)
     {
         for (LocalWatcher *watch in watchers)
         {
-            NSTimeInterval minTest = curTime - watch->lastUpdated;
+            TimeInterval minTest = curTime - watch->lastUpdated;
             if (minTest > watch->minTime)
             {
                 bool runUpdate = false;
@@ -299,14 +299,14 @@ public:
         sweepLaggardsScheduled = false;
     }
     
-    [self viewUpdateLayerThread:(WhirlyKitViewState *)lastViewState];
+    [self viewUpdateLayerThread:(ViewState *)lastViewState];
 }
 
 @end
 
-@implementation WhirlyKitViewState
+@implementation ViewState
 
-- (id)initWithView:(WhirlyKitView *)view renderer:(WhirlyKitSceneRendererES *)renderer
+- (id)initWithView:(View *)view renderer:(SceneRendererES *)renderer
 {
     self = [super init];
     if (!self)
@@ -419,7 +419,7 @@ public:
     return retPt;
 }
 
-- (bool)isSameAs:(WhirlyKitViewState *)other
+- (bool)isSameAs:(ViewState *)other
 {
     if (_fieldOfView != other->_fieldOfView || _imagePlaneSize != other->_imagePlaneSize ||
         _nearPlane != other->_nearPlane || _farPlane != other->_farPlane)

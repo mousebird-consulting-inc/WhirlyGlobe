@@ -127,7 +127,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
     return false;
 }
 
-- (void)removeTexture:(WhirlyKit::SimpleIdentity)subTexID changes:(WhirlyKit::ChangeSet &)changes when:(NSTimeInterval)when
+- (void)removeTexture:(WhirlyKit::SimpleIdentity)subTexID changes:(WhirlyKit::ChangeSet &)changes when:(TimeInterval)when
 {
     @synchronized(self)
     {

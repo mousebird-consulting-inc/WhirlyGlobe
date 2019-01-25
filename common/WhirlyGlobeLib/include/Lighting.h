@@ -28,13 +28,13 @@ class OpenGLES2Program;
     
 /** This implements a simple directional light source
 */
-class WhirlyKitDirectionalLight
+class DirectionalLight
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    WhirlyKitDirectionalLight();
-    virtual ~WhirlyKitDirectionalLight();
+    DirectionalLight();
+    virtual ~DirectionalLight();
 
     /// If set, we won't process the light position through the model matrix
     bool getViewDependent() { return viewDependent; }
@@ -71,13 +71,13 @@ private:
 
 /** This is a simple material definition.
  */
-class WhirlyKitMaterial
+class Material
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    WhirlyKitMaterial();
-    virtual ~WhirlyKitMaterial();
+    Material();
+    virtual ~Material();
 
     /// Ambient material color
     void setAmbient(const Eigen::Vector4f& value){ ambient = value; }

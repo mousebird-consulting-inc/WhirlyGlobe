@@ -39,7 +39,7 @@
     float autoRotateInterval,autoRotateDegrees;
 
     // Last time something was tapped
-    NSTimeInterval lastTouched;
+    TimeInterval lastTouched;
 }
 
 // The view controller, for various callbacks

@@ -226,7 +226,7 @@ public:
     bool offlineMode;
 }
 
-- (instancetype)initWithView:(WhirlyKitView *)inVisualView
+- (instancetype)initWithView:(View *)inVisualView
 {
     self = [super init];
     if (!self)
@@ -601,7 +601,7 @@ public:
 }
 
 // Called by the texture dealloc
-- (void)clearTexture:(MaplyTexture *)tex when:(NSTimeInterval)when
+- (void)clearTexture:(MaplyTexture *)tex when:(TimeInterval)when
 {
     if (!layerThread || isShuttingDown)
         return;
@@ -867,7 +867,7 @@ public:
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    TimeInterval now = TimeGetCurrent();
     
     bool isMotionMarkers = false;
     if ([[markers objectAtIndex:0] isKindOfClass:[MaplyMovingScreenMarker class]])
@@ -1407,7 +1407,7 @@ public:
     // May need a temporary context when setting up screen label textures
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
 
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    TimeInterval now = TimeGetCurrent();
     
     bool isMotionLabels = false;
     if ([[labels objectAtIndex:0] isKindOfClass:[MaplyMovingScreenLabel class]])
@@ -3515,7 +3515,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     // Note: Giving the fonts 2s to stick around
                     //       This avoids problems with texture being laid out.
                     //       Without this we lose the textures before we're done with them
-                    NSTimeInterval when = CFAbsoluteTimeGetCurrent() + 2.0;
+                    TimeInterval when = TimeGetCurrent() + 2.0;
                     for (SimpleIdentity dStrID : userObj.drawStringIDs)
                         [fontTexManager removeString:dStrID changes:changes when:when];
                 }

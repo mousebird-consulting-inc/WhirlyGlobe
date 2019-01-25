@@ -192,7 +192,7 @@ using namespace WhirlyKit;
 	UIPinchGestureRecognizer *pinch = sender;
 	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView  *)pinch.view;
 	UIGestureRecognizerState theState = pinch.state;
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	SceneRendererES *sceneRender = glView.renderer;
     
     if (theState == UIGestureRecognizerStateCancelled)
     {

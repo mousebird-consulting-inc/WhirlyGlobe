@@ -174,7 +174,7 @@ void RenderTarget::clear()
         glDeleteFramebuffers(1,&framebuffer);
 }
     
-void RenderTarget::setActiveFramebuffer(WhirlyKitSceneRendererES *renderer)
+void RenderTarget::setActiveFramebuffer(SceneRendererES *renderer)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     CheckGLError("RenderTarget::setActiveFramebuffer: glBindFramebuffer");
@@ -208,7 +208,7 @@ AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,i
 }
 
 // Set up a render target
-void AddRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void AddRenderTargetReq::execute(Scene *scene,SceneRendererES *renderer,View *view)
 {
     RenderTarget renderTarget(renderTargetID);
     renderTarget.width = width;
@@ -229,7 +229,7 @@ ChangeRenderTargetReq::ChangeRenderTargetReq(SimpleIdentity renderTargetID,Simpl
 {
 }
     
-void ChangeRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void ChangeRenderTargetReq::execute(Scene *scene,SceneRendererES *renderer,View *view)
 {
     for (RenderTarget &renderTarget : renderer->renderTargets)
     {
@@ -245,7 +245,7 @@ RemRenderTargetReq::RemRenderTargetReq(SimpleIdentity targetID)
 {
 }
     
-void RemRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void RemRenderTargetReq::execute(Scene *scene,SceneRendererES *renderer,View *view)
 {
     [renderer removeRenderTarget:targetID];
 }
@@ -255,7 +255,7 @@ ClearRenderTargetReq::ClearRenderTargetReq(SimpleIdentity targetID)
 {
 }
 
-void ClearRenderTargetReq::execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view)
+void ClearRenderTargetReq::execute(Scene *scene,SceneRendererES *renderer,View *view)
 {
     for (RenderTarget &renderTarget : renderer->renderTargets)
     {
@@ -425,7 +425,7 @@ void SceneRendererES::mergeDrawableSet(const std::set<DrawableRef,IdentifiableRe
     }
 }
 
-void SceneRendererES::findDrawables(WhirlyKit::Cullable *cullable,WhirlyGlobe::GlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered)
+void SceneRendererES::findDrawables(WhirlyGlobe::GlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     

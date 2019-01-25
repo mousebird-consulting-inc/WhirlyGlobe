@@ -480,7 +480,7 @@ public:
                 }
                 if (polyInfo.fade > 0)
                 {
-                    NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+                    TimeInterval curTime = TimeGetCurrent();
                     drawable->setFade(curTime,curTime+polyInfo.fade);
                 }
                 sceneRep->drawIDs.insert(drawable->getId());
@@ -720,10 +720,10 @@ void LoftManager::removeLoftedPolys(SimpleIDSet &polyIDs,ChangeSet &changes)
         {
             LoftedPolySceneRep *sceneRep = *it;
 
-            NSTimeInterval removeTime = 0.0;
+            TimeInterval removeTime = 0.0;
             if (sceneRep->fade > 0.0)
             {
-                NSTimeInterval curTime = CFAbsoluteTimeGetCurrent();
+                TimeInterval curTime = TimeGetCurrent();
                                 
                 for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
                      idIt != sceneRep->drawIDs.end(); ++idIt)

@@ -58,7 +58,7 @@
     NSMutableArray *annotations;
     
     /// A pointer to the 3D view.  The subclasses are keeping points with the right subclass.
-    WhirlyKitView *visualView;
+    View *visualView;
     
     /// Active models
     NSMutableArray *activeObjects;
@@ -67,7 +67,7 @@
     MaplyBasicClusterGenerator *defaultClusterGenerator;
     
     /// View Placement logic used to move annotations around
-    WhirlyKitViewPlacementActiveModel *viewPlacementModel;
+    ViewPlacementActiveModel *viewPlacementModel;
     
     /// Current draw priority if we're assigning them ourselves
     int layerDrawPriority;
@@ -108,7 +108,7 @@
 - (void) loadSetup_glView;
 
 /// If you have your own WhirlyGlobeView or MaplyView subclass, set it up here
-- (WhirlyKitView *) loadSetup_view;
+- (View *) loadSetup_view;
 
 /// For loading the Maply or Globe view.  The subclasses call this, but you shouldn't
 - (WhirlyKit::Scene *) loadSetup_scene;

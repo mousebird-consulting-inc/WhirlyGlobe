@@ -107,7 +107,7 @@ void WideVectorDrawable::add_c0(float val)
 
 void WideVectorDrawable::draw(RendererFrameInfo *frameInfo, Scene *scene)
 {
-    if (frameInfo.program)
+    if (frameInfo->program)
     {
         float scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
         float screenSize = frameInfo->screenSizeInDisplayCoords.x();

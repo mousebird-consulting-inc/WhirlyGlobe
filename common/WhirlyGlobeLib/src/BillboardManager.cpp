@@ -162,7 +162,7 @@ void BillboardDrawableBuilder::flush()
 // TODO Port (fade isn't supported yet)
 //           if (billInfo.fade > 0.0)
 //           {
-//                TimeInterval curTime = CFAbsoluteTimeGetCurrent();
+//                TimeInterval curTime = TimeGetCurrent();
 //                drawable->setFade(curTime, curTime+billInfo.fade);
 //            }
             changes.push_back(new AddDrawableReq(drawable));

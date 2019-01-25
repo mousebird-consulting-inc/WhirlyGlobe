@@ -31,12 +31,12 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 @implementation MinDelayPanGestureRecognizer
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    startTime = CFAbsoluteTimeGetCurrent();
+    startTime = TimeGetCurrent();
     [super touchesBegan:touches withEvent:event];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (CFAbsoluteTimeGetCurrent() - startTime >= kPanDelegateMinTime)
+    if (TimeGetCurrent() - startTime >= kPanDelegateMinTime)
         [super touchesEnded:touches withEvent:event];
     else
         self.state = UIGestureRecognizerStateFailed;
@@ -106,14 +106,14 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 }
 
 // Save the initial rotation state and let us rotate after this
-- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(WhirlyKitSceneRendererES *)sceneRender glView:(WhirlyKitEAGLView *)glView
+- (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(SceneRendererES *)sceneRender glView:(WhirlyKitEAGLView *)glView
 {
     // Save the first place we touched
     startTransform = [view calcFullMatrix];
     startQuat = view.rotQuat;
     spinQuat = view.rotQuat;
     startPoint = [pan locationInView:glView];
-    spinDate = CFAbsoluteTimeGetCurrent();
+    spinDate = TimeGetCurrent();
     lastTouch = [pan locationInView:glView];
     
     IntersectionManager *intManager = (IntersectionManager *)sceneRender.scene->getManager(kWKIntersectionManager);
@@ -176,7 +176,7 @@ static const float MomentumAnimLen = 1.0;
 {
 	UIPanGestureRecognizer *pan = sender;
 	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)pan.view;
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	SceneRendererES *sceneRender = glView.renderer;
     
     if (pan.state == UIGestureRecognizerStateCancelled)
     {
@@ -292,7 +292,7 @@ static const float MomentumAnimLen = 1.0;
                 [view setRotQuat:(newRotQuat)];
 
                 // If our spin sample is too old, grab a new one
-                spinDate = CFAbsoluteTimeGetCurrent();
+                spinDate = TimeGetCurrent();
                 spinQuat = view.rotQuat;
 			}
 		}

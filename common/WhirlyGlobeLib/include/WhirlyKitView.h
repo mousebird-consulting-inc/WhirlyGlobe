@@ -1,5 +1,5 @@
 /*
- *  WhirlyKitView.h
+ *  View.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.

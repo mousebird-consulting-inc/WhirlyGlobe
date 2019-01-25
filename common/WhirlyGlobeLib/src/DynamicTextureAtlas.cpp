@@ -21,6 +21,7 @@
 #import "DynamicTextureAtlas.h"
 #import "GLUtils.h"
 #import "Scene.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -213,7 +214,7 @@ void DynamicTexture::addTextureData(int startX,int startY,int width,int height,R
             int size,thisWidth,thisHeight;
             unsigned char *pixData = Texture::ResolvePKM(data,pkmType, size, thisWidth, thisHeight);
             if (!pixData || pkmType != type || thisWidth != width || thisHeight != height)
-                NSLog(@"Compressed texture doesn't match atlas.");
+                WHIRLYKIT_LOGW("Compressed texture doesn't match atlas.");
             else
                 glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
         } else
@@ -605,7 +606,7 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
             tex->getNumRegions()--;
         }
     } else
-        NSLog(@"DynamicTextureAtlas: Request to remove non-existent texture.");
+        WHIRLYKIT_LOGW("DynamicTextureAtlas: Request to remove non-existent texture.");
 }
     
 bool DynamicTextureAtlas::empty()
@@ -613,7 +614,7 @@ bool DynamicTextureAtlas::empty()
     return textures.empty();
 }
     
-void DynamicTextureAtlas::cleanup(ChangeSet &changes,NSTimeInterval when)
+void DynamicTextureAtlas::cleanup(ChangeSet &changes,TimeInterval when)
 {
     DynamicTextureSet::iterator itNext;
     for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); it = itNext)
@@ -715,9 +716,9 @@ void DynamicTextureAtlas::log()
             
     }
     
-    NSLog(@"DynamicTextureAtlas: %ld textures, (%.2f MB)",textures.size(),textures.size() * texSize*texSize*texelSize/(float)(1024*1024));
+    WHIRLYKIT_LOGW("DynamicTextureAtlas: %ld textures, (%.2f MB)",textures.size(),textures.size() * texSize*texSize*texelSize/(float)(1024*1024));
     if (numCells > 0)
-        NSLog(@"DynamicTextureAtlas: using %.2f%% of the cells",100 * usedCells / (float)numCells);
+        WHIRLYKIT_LOGW("DynamicTextureAtlas: using %.2f%% of the cells",100 * usedCells / (float)numCells);
 }
 
 }

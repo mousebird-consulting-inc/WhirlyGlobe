@@ -56,7 +56,7 @@ using namespace WhirlyKit;
 {
     UILongPressGestureRecognizer *press = sender;
     WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)press.view;
-	WhirlyKitSceneRendererES *sceneRenderer = glView.renderer;
+	SceneRendererES *sceneRenderer = glView.renderer;
 
 	switch (press.state)
     {

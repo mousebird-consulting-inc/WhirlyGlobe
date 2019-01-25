@@ -66,12 +66,12 @@ protected:
 @implementation WhirlyKitQuadDisplayLayerNew
 {
     int minZoom,maxZoom;
-    WhirlyKitViewState *viewState;
+    ViewState *viewState;
     QuadTreeNew::ImportantNodeSet currentNodes;
     std::vector<int> levelsToLoad;
 }
 
-- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoaderNew> *)loader renderer:(WhirlyKitSceneRendererES *)inRenderer
+- (id)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> *)inDataStructure loader:(NSObject<WhirlyKitQuadLoaderNew> *)loader renderer:(SceneRendererES *)inRenderer
 {
     self = [super init];
     if (self)
@@ -87,7 +87,7 @@ protected:
         Mbr mbr = [_dataStructure totalExtents];
         MbrD mbrD(mbr);
         _quadtree = new DispLayerQuadTree(mbrD,minZoom,maxZoom,self);
-        _renderer = (WhirlyKitSceneRendererES2 *)inRenderer;
+        _renderer = (SceneRendererES2 *)inRenderer;
         _singleLevel = false;
         _levelLoads = nil;
         _enable = true;
@@ -144,7 +144,7 @@ static const float DelayPeriod = 0.1;
 }
 
 // Called periodically when the user moves, but not too often
-- (void)viewUpdate:(WhirlyKitViewState *)inViewState
+- (void)viewUpdate:(ViewState *)inViewState
 {
     if (!_scene)
         return;

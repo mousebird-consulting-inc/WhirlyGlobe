@@ -26,7 +26,7 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-WhirlyKitDirectionalLight::WhirlyKitDirectionalLight()
+DirectionalLight::DirectionalLight()
 {
     viewDependent = true;
     pos = Eigen::Vector3f(0,0,0);
@@ -35,12 +35,12 @@ WhirlyKitDirectionalLight::WhirlyKitDirectionalLight()
     specular = Eigen::Vector4f(0,0,0,0);
 }
 
-WhirlyKitDirectionalLight::~WhirlyKitDirectionalLight()
+DirectionalLight::~DirectionalLight()
 {
 }
 
-bool WhirlyKitDirectionalLight::bindToProgram(OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat) const
-    {
+bool DirectionalLight::bindToProgram(OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat) const
+{
     const OpenGLESUniform *viewDependUni = program->findUniform(lightViewDependNameIDs[index]);
     const OpenGLESUniform *dirUni = program->findUniform(lightDirectionNameIDs[index]);
     const OpenGLESUniform *halfUni = program->findUniform(lightHalfplaneNameIDs[index]);
@@ -86,7 +86,7 @@ bool WhirlyKitDirectionalLight::bindToProgram(OpenGLES2Program *program, int ind
 }
 
 
-WhirlyKitMaterial::WhirlyKitMaterial() :
+Material::Material() :
     ambient(Eigen::Vector4f(1,1,1,1)),
     diffuse(Eigen::Vector4f(1,1,1,1)),
     specular(Eigen::Vector4f(1,1,1,1)),
@@ -94,16 +94,16 @@ WhirlyKitMaterial::WhirlyKitMaterial() :
 {
 }
 
-WhirlyKitMaterial::~WhirlyKitMaterial()
+Material::~Material()
 {
 }
 
-bool WhirlyKitMaterial::bindToProgram(OpenGLES2Program *program)
+bool Material::bindToProgram(OpenGLES2Program *program)
 {
-    return program->setUniform(materialAmbientNameID, _ambient) &&
-    program->setUniform(materialDiffuseNameID, _diffuse) &&
-    program->setUniform(materialSpecularNameID, _specular) &&
-    program->setUniform(materialSpecularExponentNameID, _specularExponent);
+    return program->setUniform(materialAmbientNameID, ambient) &&
+    program->setUniform(materialDiffuseNameID, diffuse) &&
+    program->setUniform(materialSpecularNameID, specular) &&
+    program->setUniform(materialSpecularExponentNameID, specularExponent);
 }
 
 }

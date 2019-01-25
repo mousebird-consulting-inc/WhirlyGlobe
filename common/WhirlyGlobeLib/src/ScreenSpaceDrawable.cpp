@@ -88,16 +88,16 @@ void ScreenSpaceDrawable::updateRenderer(SceneRendererES *renderer)
     }
 }
 
-void ScreenSpaceDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+void ScreenSpaceDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
 {
-    if (frameInfo.program)
+    if (frameInfo->program)
     {
         Point2f fbSize = frameInfo->sceneRenderer->getFramebufferSize();
-        frameInfo.program->setUniform(u_ScaleNameID, Point2f(2.f/fbSize.x(),2.f/(float)fbSize.y()));
-        frameInfo.program->setUniform(u_uprightNameID, keepUpright);
+        frameInfo->program->setUniform(u_ScaleNameID, Point2f(2.f/fbSize.x(),2.f/(float)fbSize.y()));
+        frameInfo->program->setUniform(u_uprightNameID, keepUpright);
         if (motion)
-            frameInfo.program->setUniform(u_TimeNameID, (float)(frameInfo->currentTime - startTime));
-        frameInfo.program->setUniform(u_activerotNameID, (rotIndex >= 0 ? 1 : 0));
+            frameInfo->program->setUniform(u_TimeNameID, (float)(frameInfo->currentTime - startTime));
+        frameInfo->program->setUniform(u_activerotNameID, (rotIndex >= 0 ? 1 : 0));
     }
 
     BasicDrawable::draw(frameInfo,scene);

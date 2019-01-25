@@ -25,10 +25,10 @@
 
 /** View State related to the map view.
   */
-@interface MaplyViewState : WhirlyKitViewState
+@interface MaplyViewState : ViewState
 
 /// Initialize with the maply view and renderer
-- (id)initWithView:(MaplyView *)mapView renderer:(WhirlyKitSceneRendererES *)renderer;
+- (id)initWithView:(MaplyView *)mapView renderer:(SceneRendererES *)renderer;
 
 /// Height above globe at this view state
 @property (nonatomic,assign) double heightAboveSurface;

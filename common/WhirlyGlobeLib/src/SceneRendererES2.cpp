@@ -307,7 +307,7 @@ void SceneRendererES2::render()
         baseFrameInfo.modelTrans4d = modelTrans4d;
         baseFrameInfo.scene = scene;
         baseFrameInfo.frameLen = duration;
-        baseFrameInfo.currentTime = CFAbsoluteTimeGetCurrent();
+        baseFrameInfo.currentTime = TimeGetCurrent();
         baseFrameInfo.projMat = projMat;
         baseFrameInfo.projMat4d = projMat4d;
         baseFrameInfo.mvpMat = mvpMat;
@@ -751,8 +751,8 @@ void SceneRendererES2::render()
 	// Update the frames per sec
 	if (super.perfInterval > 0 && frameCount > perfInterval)
 	{
-        CFTimeInterval now = CFAbsoluteTimeGetCurrent();
-		NSTimeInterval howLong =  now - frameCountStart;;
+        CFTimeInterval now = TimeGetCurrent();
+		TimeInterval howLong =  now - frameCountStart;;
 		super.framesPerSec = frameCount / howLong;
 		frameCountStart = now;
 		frameCount = 0;

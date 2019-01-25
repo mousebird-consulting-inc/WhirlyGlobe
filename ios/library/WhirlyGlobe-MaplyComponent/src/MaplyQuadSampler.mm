@@ -103,7 +103,7 @@ using namespace WhirlyKit;
     WhirlyKit::Scene *scene;
     WhirlyKitQuadDisplayLayerNew *quadLayer;
     WhirlyKitQuadTileBuilder *builder;
-    WhirlyKitSceneRendererES * __weak renderer;
+    SceneRendererES * __weak renderer;
     std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> builderDelegates;
     double importance;
     bool builderStarted;
@@ -126,7 +126,7 @@ using namespace WhirlyKit;
     importance = inImportance;
 }
 
-- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(WhirlyKitSceneRendererES *)inRenderer viewC:(MaplyBaseViewController *)inViewC
+- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(SceneRendererES *)inRenderer viewC:(MaplyBaseViewController *)inViewC
 {
     if (!valid)
         return false;
@@ -214,11 +214,11 @@ using namespace WhirlyKit;
     return _params.maxZoom;
 }
 
-- (void)newViewState:(WhirlyKitViewState *)viewState
+- (void)newViewState:(ViewState *)viewState
 {
 }
 
-- (double)importanceForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+- (double)importanceForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(ViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     // World spanning level 0 nodes sometimes have problems evaluating
     if (_params.minImportanceTop == 0.0 && ident.level == 0)
@@ -230,7 +230,7 @@ using namespace WhirlyKit;
 }
 
 /// Return true if the tile is visible, false otherwise
-- (bool)visibilityForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+- (bool)visibilityForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(ViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     if (ident.level == 0)
         return true;

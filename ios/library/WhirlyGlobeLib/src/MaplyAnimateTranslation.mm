@@ -41,7 +41,7 @@ using namespace Eigen;
     {
         glView = (WhirlyKitEAGLView  *)inView;
         globeView = inGlobeView;
-        _startDate = CFAbsoluteTimeGetCurrent();
+        _startDate = TimeGetCurrent();
         _endDate = _startDate + howLong;
         _startLoc = globeView.loc;
         _endLoc = newLoc;
@@ -59,7 +59,7 @@ using namespace Eigen;
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
     return MaplyGestureWithinBounds(bounds,loc,view,sceneRender,testMapView,newCenter);
 }
@@ -69,7 +69,7 @@ using namespace Eigen;
     if (_startDate == 0.0)
         return;
 
-    CFTimeInterval now = CFAbsoluteTimeGetCurrent();
+    CFTimeInterval now = TimeGetCurrent();
     float span = _endDate - _startDate;
     float remain = _endDate - now;
     
@@ -102,7 +102,7 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-bool MaplyGestureWithinBounds(const std::vector<WhirlyKit::Point2d> &bounds,const Point3d &loc,UIView *view,WhirlyKitSceneRendererES *sceneRender,MaplyView *testMapView,Point3d *newCenter)
+bool MaplyGestureWithinBounds(const std::vector<WhirlyKit::Point2d> &bounds,const Point3d &loc,UIView *view,SceneRendererES *sceneRender,MaplyView *testMapView,Point3d *newCenter)
 {
     if (newCenter)
         *newCenter = loc;

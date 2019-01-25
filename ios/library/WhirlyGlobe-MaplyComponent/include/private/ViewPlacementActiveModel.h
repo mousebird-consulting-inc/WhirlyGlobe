@@ -104,7 +104,7 @@ protected:
 }
 
 // Active Model runs right before the scene updates
-@interface WhirlyKitViewPlacementActiveModel : NSObject<WhirlyKitActiveModel>
+@interface ViewPlacementActiveModel : NSObject<WhirlyKitActiveModel>
 
 // Used externally to add and remove views
 - (WhirlyKit::ViewPlacementManager *)getManager;

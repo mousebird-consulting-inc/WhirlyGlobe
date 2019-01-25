@@ -18,31 +18,39 @@
  *
  */
 
-#import <UIKit/UIKit.h>
 #import <map>
 #import <list>
 #import "Texture.h"
 #import "BasicDrawable.h"
 #import "GlobeView.h"
 
+namespace WhirlyKit {
+
 /** Fill in the active model protocol to provide an active model to
-    the scene.  Active models are called before rendering and can update
-    their associated objects.  Use this sparingly, for things like viewer
-    controlled models (e.g. things that move every frame).
-  */
-@protocol WhirlyKitActiveModel
-
-/// Create the stuff you need to manipulate in the scene
-- (void)startWithScene:(WhirlyKit::Scene *)scene;
-
-/// Return true if you have an update that needs to be processed.
-/// Return false if you don't, otherwise we'll be constantly rendering.
-- (bool)hasUpdate;
-
-/// Update your stuff for display, but be quick!
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo;
-
-/// Time to clean up your toys
-- (void)teardown;
+ the scene.  Active models are called before rendering and can update
+ their associated objects.  Use this sparingly, for things like viewer
+ controlled models (e.g. things that move every frame).
+ */
+class ActiveModel : public Identifiable
+{
+public:
+    ActiveModel() { };
+    virtual ~ActiveModel() { };
     
-@end
+    /// Create the stuff you need to manipulate in the scene
+    virtual void startWithScene(Scene *scene) { }
+
+    /// Return true if you have an update that needs to be processed.
+    /// Return false if you don't, otherwise we'll be constantly rendering.
+    virtual bool hasUpdate() { return false; }
+
+    /// Update your stuff for display, but be quick!
+    virtual void updateForFrame(RendererFrameInfo *frameInfo) { }
+
+    /// Time to clean up your toys
+    virtual void teardown() { }
+};
+    
+typedef std::shared_ptr<ActiveModel> ActiveModelRef;
+    
+}

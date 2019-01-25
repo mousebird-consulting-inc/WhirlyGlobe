@@ -20,8 +20,6 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import "GLUtils.h"
-#import <OpenGLES/EAGL.h>
-#import <OpenGLES/EAGLDrawable.h>
 
 #import "WhirlyVector.h"
 #import "WhirlyKitView.h"
@@ -63,7 +61,7 @@ public:
     void setTargetTexture(TextureBase *tex);
     
     /// Copy the data out of the destination texture and return it
-    NSData *snapshot();
+//    NSData *snapshot();
     
     /// OpenGL ES Name for the frame buffer
     GLuint framebuffer;
@@ -92,7 +90,7 @@ public:
     AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor);
     
     /// Add the render target to the renderer
-    void execute(Scene *scene,SceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,SceneRendererES *renderer,View *view);
     
 protected:
     int width,height;
@@ -110,7 +108,7 @@ public:
     ChangeRenderTargetReq(SimpleIdentity renderTargetID,SimpleIdentity texID);
     
     /// Add the render target to the renderer
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,SceneRendererES *renderer,View *view);
     
 protected:
     SimpleIdentity renderTargetID;
@@ -124,7 +122,7 @@ public:
     ClearRenderTargetReq(SimpleIdentity renderTargetID);
     
     /// Add the render target to the renderer
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,SceneRendererES *renderer,View *view);
     
 protected:
     SimpleIdentity renderTargetID;
@@ -137,7 +135,7 @@ public:
     RemRenderTargetReq(SimpleIdentity targetID);
     
     /// Remove the render target from the renderer
-    void execute(Scene *scene,WhirlyKitSceneRendererES *renderer,WhirlyKitView *view);
+    void execute(Scene *scene,SceneRendererES *renderer,View *view);
     
 protected:
     SimpleIdentity targetID;
@@ -202,9 +200,7 @@ public:
     /// If using OpenGL ES 2.x, this is the shader
     OpenGLES2Program *program;
     /// Lights, if applicableNSArray *lights;
-    std::vector<WhirlyKitDirectionalLight> *lights;
-    /// State optimizer.  Used when setting state for drawing
-    OpenGLStateOptimizer *stateOpt;
+    std::vector<DirectionalLight> *lights;
 };
 
 /** We support three different ways of using z buffer.  (1) Regular mode where it's on.
@@ -262,7 +258,7 @@ public:
     float getScale() { return scale; }
     
     /// Used by the subclasses for culling
-    virtual void findDrawables(WhirlyKit::Cullable *cullable,WhirlyGlobe::GlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered);
+    virtual void findDrawables(WhirlyGlobe::GlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered);
     
     /// Used by the subclasses to determine if the view changed and needs to be updated
     virtual bool viewDidChange();

@@ -74,7 +74,7 @@ using namespace WhirlyKit;
 
 - (void)updateWithCenter:(CGPoint)center touch:(CGPoint)touch glView:(WhirlyKitEAGLView *)glView
 {
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	SceneRendererES *sceneRender = glView.renderer;
 
     if (valid)
     {
@@ -122,7 +122,7 @@ using namespace WhirlyKit;
 {
 	UIRotationGestureRecognizer *rotate = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)rotate.view;
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	SceneRendererES *sceneRender = glView.renderer;
     
     // Turn off rotation if we fall below two fingers
     if ([rotate numberOfTouches] < 2)

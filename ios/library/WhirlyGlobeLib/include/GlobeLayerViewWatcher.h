@@ -25,10 +25,10 @@
 /** View State related to the Globe view.  This adds
     more parameters relating to the globe.
   */
-@interface WhirlyGlobeViewState : WhirlyKitViewState
+@interface WhirlyGlobeViewState : ViewState
 
 /// Initialize from the globe view and the renderer
-- (id)initWithView:(WhirlyGlobeView *)globeView renderer:(WhirlyKitSceneRendererES *)renderer;
+- (id)initWithView:(WhirlyGlobeView *)globeView renderer:(SceneRendererES *)renderer;
 
 /// Rotation, etc, at this view state
 @property (nonatomic,assign) Eigen::Quaterniond &rotQuat;

@@ -25,7 +25,7 @@ using namespace Eigen;
 
 @implementation AnimateViewMomentumMessage
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)globeView rot:(Quaterniond &)endRot time:(NSTimeInterval)endTime
+- (id)initWithGlobeView:(WhirlyGlobeView *)globeView rot:(Quaterniond &)endRot time:(TimeInterval)endTime
 {
     self = [super init];
     _globeView = globeView;
@@ -55,7 +55,7 @@ using namespace Eigen;
         axis = Vector3d(inAxis.x(),inAxis.y(),inAxis.z());
         startQuat = [globeView rotQuat];
         
-        startDate = CFAbsoluteTimeGetCurrent();
+        startDate = TimeGetCurrent();
         
         // Let's calculate the maximum time, so we know when to stop
         if (_acceleration != 0.0)
@@ -81,7 +81,7 @@ using namespace Eigen;
     return self;
 }
 
-- (Quaterniond)rotForTime:(NSTimeInterval)sinceStart
+- (Quaterniond)rotForTime:(TimeInterval)sinceStart
 {
     // Calculate the offset based on angle
     float totalAng = (_velocity + 0.5 * _acceleration * sinceStart) * sinceStart;
@@ -123,7 +123,7 @@ using namespace Eigen;
     if (startDate == 0.0)
         return;
     
-	float sinceStart = CFAbsoluteTimeGetCurrent()-startDate;
+	float sinceStart = TimeGetCurrent()-startDate;
     
     if (sinceStart > maxTime)
     {

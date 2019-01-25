@@ -50,5 +50,5 @@
 namespace WhirlyKit
 {
 // Bounds check that adjusts the center to try and compensate
-bool MaplyGestureWithinBounds(const std::vector<WhirlyKit::Point2d> &bounds,const WhirlyKit::Point3d &loc,UIView *view,WhirlyKitSceneRendererES *sceneRender,MaplyView *testMapView,WhirlyKit::Point3d *newCenter);
+bool MaplyGestureWithinBounds(const std::vector<WhirlyKit::Point2d> &bounds,const WhirlyKit::Point3d &loc,UIView *view,SceneRendererES *sceneRender,MaplyView *testMapView,WhirlyKit::Point3d *newCenter);
 }

@@ -1602,7 +1602,7 @@ DrawUniformsChangeRequest::DrawUniformsChangeRequest(SimpleIdentity drawID,const
 {
 }
     
-void DrawUniformsChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+void DrawUniformsChangeRequest::execute2(Scene *scene,SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)
@@ -1619,7 +1619,7 @@ RenderTargetChangeRequest::RenderTargetChangeRequest(SimpleIdentity drawID,Simpl
 {
 }
     
-void RenderTargetChangeRequest::execute2(Scene *scene,WhirlyKitSceneRendererES *renderer,DrawableRef draw)
+void RenderTargetChangeRequest::execute2(Scene *scene,SceneRendererES *renderer,DrawableRef draw)
 {
     BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
     if (basicDrawable)

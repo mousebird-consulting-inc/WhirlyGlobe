@@ -53,7 +53,7 @@
 - (int)maxZoom;
 
 /// Return an importance value for the given tile
-- (double)importanceForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState * __nonnull) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary * __nullable)attrs;
+- (double)importanceForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(ViewState * __nonnull) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary * __nullable)attrs;
 
 /// Called when the layer is shutting down.  Clean up any drawable data and clear out caches.
 - (void)teardown;
@@ -61,10 +61,10 @@
 @optional
 
 /// Called when the view state changes.  If you're caching info, do it here.
-- (void)newViewState:(WhirlyKitViewState * __nonnull)viewState;
+- (void)newViewState:(ViewState * __nonnull)viewState;
 
 /// Return true if the tile is visible, false otherwise
-- (bool)visibilityForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(WhirlyKitViewState * __nonnull) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary * __nullable)attrs;
+- (bool)visibilityForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(ViewState * __nonnull) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary * __nullable)attrs;
 
 @end
 
@@ -121,7 +121,7 @@
 /// Loader responds to our requests to load and unload tiles
 @property (nonatomic,strong,nullable) NSObject<WhirlyKitQuadLoaderNew> *loader;
 /// The renderer we need for frame sizes
-@property (nonatomic,weak,nullable) WhirlyKitSceneRendererES2 *renderer;
+@property (nonatomic,weak,nullable) SceneRendererES2 *renderer;
 /// On by default.  If you turn this off we won't evaluate any view changes.
 @property (nonatomic,assign) bool enable;
 /// Load just the target level (and the lowest level)
@@ -130,6 +130,6 @@
 @property (nonatomic,nullable) NSArray<NSNumber *> *levelLoads;
 
 /// Construct with a renderer and data source for the tiles
-- (nonnull)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> * __nonnull)dataStructure loader:(NSObject<WhirlyKitQuadLoaderNew> * __nonnull)loader renderer:(WhirlyKitSceneRendererES * __nonnull)renderer;
+- (nonnull)initWithDataSource:(NSObject<WhirlyKitQuadDataStructure> * __nonnull)dataStructure loader:(NSObject<WhirlyKitQuadLoaderNew> * __nonnull)loader renderer:(SceneRendererES * __nonnull)renderer;
 
 @end

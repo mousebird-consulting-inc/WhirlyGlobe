@@ -505,7 +505,7 @@ using namespace WhirlyKit;
         
         NSURLRequest *urlReq = tile->fetchInfo.urlReq;
         
-        NSTimeInterval fetchStartTile = CFAbsoluteTimeGetCurrent();
+        TimeInterval fetchStartTile = TimeGetCurrent();
         
         if (_debugMode)
             NSLog(@"Started load: %@ priority = %d, importance = %f, group = %d",urlReq.URL.absoluteString,tile->priority,tile->importance,tile->group);
@@ -537,7 +537,7 @@ using namespace WhirlyKit;
     }
 }
 
-- (void)handleData:(NSData *)data response:(NSHTTPURLResponse *)response error:(NSError *)error tile:(TileInfoRef)tile fetchStart:(NSTimeInterval)fetchStartTile
+- (void)handleData:(NSData *)data response:(NSHTTPURLResponse *)response error:(NSError *)error tile:(TileInfoRef)tile fetchStart:(TimeInterval)fetchStartTile
 {
    if (error || response.statusCode != 200) {
        // Cancels don't count as errors
@@ -563,7 +563,7 @@ using namespace WhirlyKit;
        recentStats.remoteRequests = recentStats.remoteRequests + 1;
        allStats.remoteData = allStats.remoteData + length;
        recentStats.remoteData = recentStats.remoteData + length;
-       NSTimeInterval howLong = CFAbsoluteTimeGetCurrent() - fetchStartTile;
+       TimeInterval howLong = TimeGetCurrent() - fetchStartTile;
        allStats.totalLatency = allStats.totalLatency + howLong;
        recentStats.totalLatency = recentStats.totalLatency + howLong;
        [self finishedLoading:tile data:data error:error];

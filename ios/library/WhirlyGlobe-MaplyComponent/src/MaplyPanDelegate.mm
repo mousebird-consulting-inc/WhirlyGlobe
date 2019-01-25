@@ -30,12 +30,12 @@ using namespace WhirlyKit;
 @implementation MinDelay2DPanGestureRecognizer
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    startTime = CFAbsoluteTimeGetCurrent();
+    startTime = TimeGetCurrent();
     [super touchesBegan:touches withEvent:event];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    if (CFAbsoluteTimeGetCurrent() - startTime >= kPanDelegateMinTime)
+    if (TimeGetCurrent() - startTime >= kPanDelegateMinTime)
         [super touchesEnded:touches withEvent:event];
     else
         self.state = UIGestureRecognizerStateFailed;
@@ -107,7 +107,7 @@ using namespace WhirlyKit;
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
     return MaplyGestureWithinBounds(bounds,loc,view,sceneRender,testMapView,newCenter);
 }
@@ -120,7 +120,7 @@ static const float AnimLen = 1.0;
 {
     UIPanGestureRecognizer *pan = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)pan.view;
-	WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+	SceneRendererES *sceneRender = glView.renderer;
 
     if (pan.numberOfTouches > 1)
     {

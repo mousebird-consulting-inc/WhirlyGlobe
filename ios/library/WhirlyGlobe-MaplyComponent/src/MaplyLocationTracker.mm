@@ -370,7 +370,7 @@
         marker.images = markerImages;
         marker.layoutImportance = MAXFLOAT;
         
-        NSTimeInterval ti = [NSDate timeIntervalSinceReferenceDate]+0.5;
+        TimeInterval ti = [NSDate timeIntervalSinceReferenceDate]+0.5;
         _markerDesc[kMaplyEnableStart] = _movingMarkerDesc[kMaplyEnableEnd] = @(ti);
         
         _movingMarkerObj = [_theViewC addScreenMarkers:@[movingMarker] desc:_movingMarkerDesc];

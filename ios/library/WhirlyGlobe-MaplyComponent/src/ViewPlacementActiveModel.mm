@@ -268,7 +268,7 @@ void ViewPlacementManager::dumpStats()
 
 }
 
-@implementation WhirlyKitViewPlacementActiveModel
+@implementation ViewPlacementActiveModel
 {
     ViewPlacementManager *manager;
 }

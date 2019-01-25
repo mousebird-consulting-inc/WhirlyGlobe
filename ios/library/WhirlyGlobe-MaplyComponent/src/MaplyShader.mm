@@ -31,7 +31,7 @@ using namespace WhirlyKit;
 {
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
     WhirlyKit::Scene *scene;
-    WhirlyKitSceneRendererES * __weak renderer;
+    SceneRendererES * __weak renderer;
     NSString *buildError;
     EAGLContext *context;
     // Texture we created for use in this shader

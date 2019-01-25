@@ -83,7 +83,7 @@
     
     @param endTime When the animation ends.  This is an absolute value.
   */
-- (void)globeViewController:(WhirlyGlobeViewController *__nonnull)viewC startState:(WhirlyGlobeViewControllerAnimationState *__nonnull)startState startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime;
+- (void)globeViewController:(WhirlyGlobeViewController *__nonnull)viewC startState:(WhirlyGlobeViewControllerAnimationState *__nonnull)startState startTime:(TimeInterval)startTime endTime:(TimeInterval)endTime;
 
 /** 
     This method is called at the beginning of every frame draw to position the viewer.
@@ -96,7 +96,7 @@
     
     @return The WhirlyGlobeViewControllerAnimationState expressing where you want the viewer to be and where they are looking.
   */
-- (nonnull WhirlyGlobeViewControllerAnimationState *)globeViewController:(WhirlyGlobeViewController *__nonnull)viewC stateForTime:(NSTimeInterval)currentTime;
+- (nonnull WhirlyGlobeViewControllerAnimationState *)globeViewController:(WhirlyGlobeViewController *__nonnull)viewC stateForTime:(TimeInterval)currentTime;
 
 @optional
 
@@ -482,7 +482,7 @@
     
     @param howLong A time interval in seconds.
  */
-- (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong;
+- (void)animateToPosition:(MaplyCoordinate)newPos time:(TimeInterval)howLong;
 
 /** 
     Animate the given position to the screen position over time.
@@ -497,7 +497,7 @@
     
     @param howLong How long in seconds to take getting there.
  */
-- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(TimeInterval)howLong;
 
 /** 
     Animate to the given position, heading and height over time.
@@ -510,7 +510,7 @@
     
     @param howLong A time interval in seconds.
  */
-- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong;
+- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(TimeInterval)howLong;
 
 /** 
     Animate to the given position, heading and height over time.
@@ -523,7 +523,7 @@
     
     @param howLong A time interval in seconds.
  */
-- (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(NSTimeInterval)howLong;
+- (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(TimeInterval)howLong;
 
 /** 
     Animate to the given position, screen position, heading and height over time.
@@ -540,7 +540,7 @@
     
     @param howLong A time interval in seconds.
  */
-- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong;
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(TimeInterval)howLong;
 
 /** 
     Animate with a delegate over time.
@@ -553,7 +553,7 @@
     
     @param howLong How long the animation will run from the present time.
   */
-- (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *__nonnull)animationDelegate time:(NSTimeInterval)howLong;
+- (void)animateWithDelegate:(NSObject<WhirlyGlobeViewControllerAnimationDelegate> *__nonnull)animationDelegate time:(TimeInterval)howLong;
 
 /** 
     Set the center of the screen to the given position immediately.

@@ -24,6 +24,8 @@
 #import "Identifiable.h"
 #import "WhirlyGeometry.h"
 #import "WhirlyKitView.h"
+#import "GlobeViewState.h"
+#import "MaplyViewState.h"
 #import "MaplyView.h"
 #import "Scene.h"
 #import "ScreenSpaceBuilder.h"
@@ -98,7 +100,7 @@ public:
     bool operator < (const MovingPolytopeSelectable &that) const;
     
     Point3d endCenterPt;
-    NSTimeInterval startTime;
+    TimeInterval startTime;
     double duration;
 };
     
@@ -150,10 +152,10 @@ public:
     MovingRectSelectable2D(SimpleIdentity theID) : RectSelectable2D(theID) { }
     
     // Calculate the center based on the time
-    Point3d centerForTime(NSTimeInterval now) const;
+    Point3d centerForTime(TimeInterval now) const;
     
     Point3d endCenter;                  // Location at the end of the time period
-    NSTimeInterval startTime,endTime;   // Start and end time
+    TimeInterval startTime,endTime;   // Start and end time
 };
 
 typedef std::set<WhirlyKit::MovingRectSelectable2D> MovingRectSelectable2DSet;
@@ -220,7 +222,7 @@ public:
     void addSelectableScreenRect(SimpleIdentity selectId,const Point3d &center,Point2f *pts,float minVis,float maxVis,bool enable);
 
     /// Add a screen space rectangle (2D) for selection, between the given visibilities, and it's moving
-    void addSelectableMovingScreenRect(SimpleIdentity selectId,const Point3d &startCenter,const Point3d &endCenter,NSTimeInterval startTime,NSTimeInterval endTime,Point2f *pts,float minVis,float maxVis,bool enable);
+    void addSelectableMovingScreenRect(SimpleIdentity selectId,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval endTime,Point2f *pts,float minVis,float maxVis,bool enable);
     
     /// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
     void addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
@@ -235,10 +237,10 @@ public:
     void addPolytopeFromBox(SimpleIdentity selectId,const Point3d &ll,const Point3d &ur,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
     
     /// Add a polytope that moves over time
-    void addMovingPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,const Point3d &startCenter,const Point3d &endCenter,NSTimeInterval startTime,NSTimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
+    void addMovingPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
     
     /// Add a moving polytop from a box
-    void addMovingPolytopeFromBox(SimpleIdentity selectID,const Point3d &ll,const Point3d &ur,const Point3d &startCenter,const Point3d &endCenter,NSTimeInterval startTime,NSTimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
+    void addMovingPolytopeFromBox(SimpleIdentity selectID,const Point3d &ll,const Point3d &ur,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
 
     /// Add a linear in 3-space for selection.
     void addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable);
@@ -259,10 +261,10 @@ public:
     void enableSelectables(const SimpleIDSet &selectIDs,bool enable);
     
     /// Pass in the view point where the user touched.  This returns the closest hit within the given distance
-    SimpleIdentity pickObject(Point2f touchPt,float maxDist,WhirlyKitView *theView);
+    SimpleIdentity pickObject(Point2f touchPt,float maxDist,View *theView);
     
     /// Find all the objects within a given distance and return them, sorted by distance
-    void pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,std::vector<SelectedObject> &selObjs);
+    void pickObjects(Point2f touchPt,float maxDist,View *theView,std::vector<SelectedObject> &selObjs);
     
     // Everything we need to project a world coordinate to one or more screen locations
     class PlacementInfo
@@ -270,11 +272,11 @@ public:
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-        PlacementInfo(WhirlyKitView *view,WhirlyKitSceneRendererES *renderer);
+        PlacementInfo(View *view,SceneRendererES *renderer);
         
-        WhirlyGlobeView *globeView;
-        MaplyView *mapView;
-        WhirlyKitViewState *viewState;
+        WhirlyGlobe::GlobeView *globeView;
+        Maply::MapView *mapView;
+        ViewState *viewState;
         // Note: Put these back
 //        WhirlyGlobe::GlobeViewState *globeViewState;
 //        Maply::MapViewState *mapViewState;
@@ -292,7 +294,7 @@ protected:
     // Projects a world coordinate to one or more points on the screen (wrapping)
     void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts,float scale);
     // Convert rect selectables into more generic screen space objects
-    void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs,NSTimeInterval now);
+    void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs,TimeInterval now);
     // Internal object picking method
     void pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,bool multi,std::vector<SelectedObject> &selObjs);
 

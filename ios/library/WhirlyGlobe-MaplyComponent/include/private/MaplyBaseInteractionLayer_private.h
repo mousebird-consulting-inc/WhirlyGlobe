@@ -30,7 +30,7 @@
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
 @public
-    WhirlyKitView * __weak visualView;
+    View * __weak visualView;
     WhirlyKitGLSetupInfo *glSetupInfo;
 
     pthread_mutex_t selectLock;
@@ -74,7 +74,7 @@
 @property (nonatomic,assign) int screenObjectDrawPriorityOffset;
 
 // Initialize with the view we'll be using
-- (instancetype)initWithView:(WhirlyKitView *)visualView;
+- (instancetype)initWithView:(View *)visualView;
 
 // Add screen space (2D) markers
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
@@ -207,7 +207,7 @@
 - (void)lockingShutdown;
 
 // Clean up a given texture
-- (void)clearTexture:(MaplyTexture *)tex when:(NSTimeInterval)when;
+- (void)clearTexture:(MaplyTexture *)tex when:(TimeInterval)when;
 
 // Write out usage stats
 - (void)dumpStats;

@@ -62,7 +62,7 @@ using namespace Eigen;
     scene = new Maply::MapScene(coordAdapter);
 
     // Set up the renderer with a target size
-    sceneRenderer = [[WhirlyKitSceneRendererES3 alloc] initWithSize:size];
+    sceneRenderer = [[SceneRendererES3 alloc] initWithSize:size];
     sceneRenderer.zBufferMode = zBufferOffDefault;
     sceneRenderer.scene = scene;
     sceneRenderer.theView = flatView;
@@ -125,9 +125,9 @@ using namespace Eigen;
     screenDrawPriorityOffset = 1000000;
     
     // Set up the OpenGL ES renderer
-    sceneRenderer = [[WhirlyKitSceneRendererES3 alloc] init];
+    sceneRenderer = [[SceneRendererES3 alloc] init];
     if (!sceneRenderer)
-        sceneRenderer = [[WhirlyKitSceneRendererES2 alloc] init];
+        sceneRenderer = [[SceneRendererES2 alloc] init];
     sceneRenderer.zBufferMode = zBufferOffDefault;
     // Switch to that context for any assets we create
     // Note: Should be switching back at the end
@@ -242,9 +242,9 @@ using namespace Eigen;
     }
     if ([theLights count] == 0)
         theLights = nil;
-    if ([sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
+    if ([sceneRenderer isKindOfClass:[SceneRendererES2 class]])
     {
-        WhirlyKitSceneRendererES2 *rendererES2 = (WhirlyKitSceneRendererES2 *)sceneRenderer;
+        SceneRendererES2 *rendererES2 = (SceneRendererES2 *)sceneRenderer;
         [rendererES2 replaceLights:theLights];
     }
 }

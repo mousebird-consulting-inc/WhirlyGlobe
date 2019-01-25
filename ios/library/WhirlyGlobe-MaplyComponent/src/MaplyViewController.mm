@@ -80,7 +80,7 @@ using namespace Maply;
 {
     MaplyViewControllerAnimationState *startState;
     MaplyViewControllerAnimationState *endState;
-    NSTimeInterval startTime,endTime;
+    TimeInterval startTime,endTime;
 }
 
 - (instancetype)initWithState:(MaplyViewControllerAnimationState *)inEndState
@@ -91,7 +91,7 @@ using namespace Maply;
     return self;
 }
 
-- (void)mapViewController:(MaplyViewController *__nonnull)viewC startState:(MaplyViewControllerAnimationState *__nonnull)inStartState startTime:(NSTimeInterval)inStartTime endTime:(NSTimeInterval)inEndTime
+- (void)mapViewController:(MaplyViewController *__nonnull)viewC startState:(MaplyViewControllerAnimationState *__nonnull)inStartState startTime:(TimeInterval)inStartTime endTime:(TimeInterval)inEndTime
 {
     startState = inStartState;
     if (!endState)
@@ -105,7 +105,7 @@ using namespace Maply;
     endTime = inEndTime;
 }
 
-- (nonnull MaplyViewControllerAnimationState *)mapViewController:(MaplyViewController *__nonnull)viewC stateForTime:(NSTimeInterval)currentTime
+- (nonnull MaplyViewControllerAnimationState *)mapViewController:(MaplyViewController *__nonnull)viewC stateForTime:(TimeInterval)currentTime
 {
     MaplyViewControllerAnimationState *state = [[MaplyViewControllerAnimationState alloc] init];
     double t = (currentTime-startTime)/(endTime-startTime);
@@ -291,7 +291,7 @@ using namespace Maply;
 }
 
 // Called by the globe view when something changes
-- (void)viewUpdated:(WhirlyKitView *)view
+- (void)viewUpdated:(View *)view
 {
     if (delegateRespondsToViewUpdate)
     {
@@ -328,7 +328,7 @@ using namespace Maply;
 
 - (void) loadSetup_lighting
 {
-    if (![renderControl->sceneRenderer isKindOfClass:[WhirlyKitSceneRendererES2 class]])
+    if (![renderControl->sceneRenderer isKindOfClass:[SceneRendererES2 class]])
         return;
    
     NSString *lightingType = renderControl->hints[kWGRendererLightingMode];
@@ -362,7 +362,7 @@ using namespace Maply;
 //        renderControl->scene->setSceneProgram(kSceneDefaultLineShader, lineNoBackface);
 }
 
-- (WhirlyKitView *) loadSetup_view
+- (View *) loadSetup_view
 {
     if (_coordSys)
     {
@@ -837,7 +837,7 @@ using namespace Maply;
 }
 
 // Internal animation handler
-- (void)animateToPoint:(Point3d)newLoc time:(NSTimeInterval)howLong
+- (void)animateToPoint:(Point3d)newLoc time:(TimeInterval)howLong
 {
     if (_tetheredMode)
         return;
@@ -852,7 +852,7 @@ using namespace Maply;
 }
 
 // External facing version of rotateToPoint
-- (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong
+- (void)animateToPosition:(MaplyCoordinate)newPos time:(TimeInterval)howLong
 {
     if (_tetheredMode)
         return;
@@ -869,7 +869,7 @@ using namespace Maply;
 }
 
 // Note: This may not work with a tilt
-- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(TimeInterval)howLong
 {
     if (_tetheredMode)
         return false;
@@ -893,7 +893,7 @@ using namespace Maply;
 }
 
 // This version takes a height as well
-- (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(NSTimeInterval)howLong
+- (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(TimeInterval)howLong
 {
     if (_tetheredMode)
         return;
@@ -918,7 +918,7 @@ using namespace Maply;
     [self animateToPoint:loc time:howLong];
 }
 
-- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong
+- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(TimeInterval)howLong
 {
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
     {
@@ -937,7 +937,7 @@ using namespace Maply;
     return true;
 }
 
-- (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(NSTimeInterval)howLong
+- (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(TimeInterval)howLong
 {
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
     {
@@ -957,7 +957,7 @@ using namespace Maply;
     return true;
 }
 
-- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong {
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(TimeInterval)howLong {
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
     {
         NSLog(@"MaplyViewController: Invalid location passed to animationToPosition:");
@@ -1005,7 +1005,7 @@ using namespace Maply;
 }
 
 // Only used for a flat view
-- (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(NSTimeInterval)howLong
+- (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(TimeInterval)howLong
 {
     if (!flatView)
         return;
@@ -1018,7 +1018,7 @@ using namespace Maply;
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(WhirlyKitSceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
+- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
 {
     if (bounds.empty())
         return true;
@@ -1159,9 +1159,9 @@ using namespace Maply;
 }
 
 
-- (void)animateWithDelegate:(NSObject<MaplyViewControllerAnimationDelegate> *)inAnimationDelegate time:(NSTimeInterval)howLong
+- (void)animateWithDelegate:(NSObject<MaplyViewControllerAnimationDelegate> *)inAnimationDelegate time:(TimeInterval)howLong
 {
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    TimeInterval now = TimeGetCurrent();
     animationDelegate = inAnimationDelegate;
     animationDelegateEnd = now+howLong;
     
@@ -1178,7 +1178,7 @@ using namespace Maply;
     if (!renderControl)
         return;
     
-    NSTimeInterval now = CFAbsoluteTimeGetCurrent();
+    TimeInterval now = TimeGetCurrent();
     if (!animationDelegate)
     {
         [theMapView cancelAnimation];
@@ -1553,7 +1553,7 @@ using namespace Maply;
 
 - (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point {
   	Point3d hit;
-    WhirlyKitSceneRendererES *sceneRender = glView.renderer;
+    SceneRendererES *sceneRender = glView.renderer;
     Eigen::Matrix4d theTransform = [mapView calcFullMatrix];
     if ([mapView pointOnPlaneFromScreen:point transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
     {

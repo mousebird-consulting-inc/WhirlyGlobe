@@ -83,7 +83,7 @@
  
     @param endTime When the animation ends.  This is an absolute value.
  */
-- (void)mapViewController:(MaplyViewController *__nonnull)viewC startState:(MaplyViewControllerAnimationState *__nonnull)startState startTime:(NSTimeInterval)startTime endTime:(NSTimeInterval)endTime;
+- (void)mapViewController:(MaplyViewController *__nonnull)viewC startState:(MaplyViewControllerAnimationState *__nonnull)startState startTime:(TimeInterval)startTime endTime:(TimeInterval)endTime;
 
 /** 
     This method is called at the beginning of every frame draw to position the viewer.
@@ -96,7 +96,7 @@
  
     @return The MaplyViewControllerAnimationState expressing where you want the viewer to be and where they are looking.
  */
-- (nonnull MaplyViewControllerAnimationState *)mapViewController:(MaplyViewController *__nonnull)viewC stateForTime:(NSTimeInterval)currentTime;
+- (nonnull MaplyViewControllerAnimationState *)mapViewController:(MaplyViewController *__nonnull)viewC stateForTime:(TimeInterval)currentTime;
 
 @optional
 
@@ -439,7 +439,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
     
     @param howLong A time in seconds.
   */
-- (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong;
+- (void)animateToPosition:(MaplyCoordinate)newPos time:(TimeInterval)howLong;
 
 /** 
     Animate to new window extents over time.
@@ -452,7 +452,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
     
     @param howLong The length of time to take getting there.
   */
-- (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(NSTimeInterval)howLong;
+- (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(TimeInterval)howLong;
 
 /** 
     Animate the given position to the screen position over time.
@@ -467,7 +467,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
     
     @param howLong How long in seconds to take getting there.
   */
-- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(NSTimeInterval)howLong;
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc time:(TimeInterval)howLong;
 
 /** 
     Animate the given position and height to the screen position over time.
@@ -480,7 +480,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
  
     @param howLong How long in seconds to take getting there.
  */
-- (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(NSTimeInterval)howLong;
+- (void)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight time:(TimeInterval)howLong;
 
 /** 
     Animate to the given position, heading and height over time.
@@ -493,7 +493,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
  
     @param howLong A time interval in seconds.
  */
-- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong;
+- (bool)animateToPosition:(MaplyCoordinate)newPos height:(float)newHeight heading:(float)newHeading time:(TimeInterval)howLong;
 
 /** 
     Animate to the given position, heading and height over time.
@@ -506,7 +506,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
  
     @param howLong A time interval in seconds.
  */
-- (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(NSTimeInterval)howLong;
+- (bool)animateToPositionD:(MaplyCoordinateD)newPos height:(double)newHeight heading:(double)newHeading time:(TimeInterval)howLong;
 
 /** 
     Animate to the given position, screen position, heading and height over time.
@@ -523,7 +523,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
  
     @param howLong A time interval in seconds.
  */
-- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(NSTimeInterval)howLong;
+- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(TimeInterval)howLong;
 
 /** 
     Set the center of the screen to the given position immediately.

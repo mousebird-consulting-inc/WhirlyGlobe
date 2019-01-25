@@ -47,7 +47,7 @@ using namespace WhirlyKit;
 {
     UITapGestureRecognizer *tap = sender;
     WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
-    WhirlyKitSceneRendererES *sceneRenderer = glView.renderer;
+    SceneRendererES *sceneRenderer = glView.renderer;
 	
     Point3d curLoc = self.mapView.loc;
     // Just figure out where we tapped

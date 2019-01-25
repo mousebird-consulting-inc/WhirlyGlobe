@@ -128,7 +128,7 @@ public:
     
     /// Run the position calculations and update what we'll display.
     /// The changes need to be flushed by the caller
-    void update(WhirlyKitViewState *viewState,ChangeSet &changes);
+    void update(ViewState *viewState,ChangeSet &changes);
     
     /// Print out stats for debugging
     void dumpStats();

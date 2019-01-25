@@ -299,21 +299,21 @@ void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3dVector &outPts,boo
     
 VectorShape::VectorShape()
 {
-    attrDict = nil;
+    attrDict = MutableDictionaryMake();
 }
    
 VectorShape::~VectorShape()
 {
 }
     
-void VectorShape::setAttrDict(const Dictionary &newDict)
+void VectorShape::setAttrDict(MutableDictionaryRef newDict)
 {
-    attrDict = newDict;
+    *attrDict = *newDict;
 }
     
 Dictionary *VectorShape::getAttrDict()
 {
-    return &attrDict;
+    return attrDict;
 }
     
 VectorTriangles::VectorTriangles()
