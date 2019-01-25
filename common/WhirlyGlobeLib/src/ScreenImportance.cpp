@@ -30,10 +30,8 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-@implementation WhirlyKitDisplaySolid
-
-// Let's not support tiles less than 10m on a side
-//static float const BoundsEps = 10.0 / EarthRadius;
+namespace WhirlyKit
+{
 
 // Calculate the number of samples required to represent the given line to a tolerance
 int calcNumSamples(const Point3d &p0,const Point3d &p1,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter,int level)
@@ -58,10 +56,8 @@ int calcNumSamples(const Point3d &p0,const Point3d &p1,CoordSystem *srcSystem,Co
     }
 }
 
-+ (WhirlyKitDisplaySolid *)displaySolidWithNodeIdent:(WhirlyKit::QuadTreeIdentifier &)nodeIdent mbr:(WhirlyKit::Mbr)nodeMbr minZ:(float)inMinZ maxZ:(float)inMaxZ srcSystem:(WhirlyKit::CoordSystem *)srcSystem adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &nodeMbr,float minZ,float maxZ,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter)
 {
-    WhirlyKitDisplaySolid *dispSolid = [[WhirlyKitDisplaySolid alloc] init];
-
     // Start with the corner points in the source
     WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
     std::vector<Point3d> srcBounds;
@@ -118,11 +114,9 @@ int calcNumSamples(const Point3d &p0,const Point3d &p1,CoordSystem *srcSystem,Co
             }
         }
     }
-    
-    return dispSolid;
 }
 
-double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize)
+double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,ViewState *viewState,WhirlyKit::Point2f frameSize)
 {
     double import = 0.0;
     
@@ -196,13 +190,13 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
     return import;
 }
 
-- (bool)isInside:(WhirlyKit::Point3d)pt
+bool DisplaySolid::isInside(const Point3d &pt)
 {
     // Note: Fix this.  This will do weird things when we're very close.
     return false;
 }
 
-- (double)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
+double DisplaySolid::importanceForViewState(ViewState *viewState,const Point2f &frameSize)
 {
     Point3d eyePos = viewState.eyePos;
 //    eyePos.normalize();
@@ -230,7 +224,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
     return totalImport*scaleFactor;
 }
 
-- (bool)isOnScreenForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize
+bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &frameSize)
 {
     if (!viewState.coordAdapter->isFlat())
     {
@@ -273,48 +267,40 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
     return false;
 }
 
-@end
-
-namespace WhirlyKit
+bool TileIsOnScreen(ViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::QuadTreeIdentifier &nodeIdent,NSMutableDictionary *attrs)
 {
-    
-bool TileIsOnScreen(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::QuadTreeIdentifier &nodeIdent,NSMutableDictionary *attrs)
-{
-    WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
+    DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
+    DisplaySolidRef dispSolid = std::dynamic_pointer_cast<DisplaySolid>(objRef);
     if (!dispSolid)
     {
-        dispSolid = [WhirlyKitDisplaySolid displaySolidWithNodeIdent:nodeIdent mbr:nodeMbr minZ:0.0 maxZ:0.0 srcSystem:srcSystem adapter:coordAdapter];
-        if (dispSolid)
-        attrs[@"DisplaySolid"] = dispSolid;
-        else
-        attrs[@"DisplaySolid"] = [NSNull null];
+        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter));
+        attrs->setObject("DisplaySolid",dispSolid);
     }
     
     // This means the tile is degenerate (as far as we're concerned)
-    if ([dispSolid isKindOfClass:[NSNull null]])
+    if (!dispSolid->valid)
         return false;
-
-    return [dispSolid isOnScreenForViewState:viewState frameSize:frameSize];
+    
+    return dispSolid->isOnScreenForViewState(viewState,frameSize);
 }
 
 
 // Calculate the max pixel size for a tile
-double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::QuadTreeIdentifier &nodeIdent,NSMutableDictionary *attrs)
+double ScreenImportance(ViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::QuadTreeIdentifier &nodeIdent,NSMutableDictionary *attrs)
 {
-    WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
+    DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
+    DisplaySolidRef dispSolid = std::dynamic_pointer_cast<DisplaySolid>(objRef);
     if (!dispSolid)
     {
-        dispSolid = [WhirlyKitDisplaySolid displaySolidWithNodeIdent:nodeIdent mbr:nodeMbr minZ:0.0 maxZ:0.0 srcSystem:srcSystem adapter:coordAdapter];
-        if (!dispSolid)
-            dispSolid = (WhirlyKitDisplaySolid *)[NSNull null];
-        attrs[@"DisplaySolid"] = dispSolid;
+        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter));
+        attrs->setObject("DisplaySolid",dispSolid);
     }
     
     // This means the tile is degenerate (as far as we're concerned)
-    if ([dispSolid isKindOfClass:[NSNull class]])
+    if (!dispSolid->valid)
         return 0.0;
     
-    double import = [dispSolid importanceForViewState:viewState frameSize:frameSize];
+    double import = dispSolid->importanceForViewState(viewState,frameSize);
     // The system is expecting an estimate of pixel size on screen
     import = import/(pixelsSquare * pixelsSquare);
     
@@ -324,23 +310,21 @@ double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSi
 }
 
 // This version is for volumes with height
-double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::QuadTreeIdentifier &nodeIdent,NSMutableDictionary *attrs)
+double ScreenImportance(ViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::QuadTreeIdentifier &nodeIdent,MutableDictionary *attrs)
 {
-    WhirlyKitDisplaySolid *dispSolid = attrs[@"DisplaySolid"];
+    DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
+    DisplaySolidRef dispSolid = std::dynamic_pointer_cast<DisplaySolid>(objRef);
     if (!dispSolid)
     {
-        dispSolid = [WhirlyKitDisplaySolid displaySolidWithNodeIdent:nodeIdent mbr:nodeMbr minZ:minZ maxZ:maxZ srcSystem:srcSystem adapter:coordAdapter];
-        if (dispSolid)
-            attrs[@"DisplaySolid"] = dispSolid;
-        else
-            attrs[@"DisplaySolid"] = [NSNull null];
+        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,minZ,maxZ,srcSystem,coordAdapter));
+        attrs->setObject("DisplaySolid",dispSolid);
     }
     
     // This means the tile is degenerate (as far as we're concerned)
-    if ([dispSolid isKindOfClass:[NSNull class]])
+    if (!dispSolid->valid)
         return 0.0;
     
-    double import = [dispSolid importanceForViewState:viewState frameSize:frameSize];
+    double import = dispSolid->importanceForViewState(viewState,frameSize);
     // The system is expecting an estimate of pixel size on screen
     import = import/(pixelsSquare * pixelsSquare);
     
