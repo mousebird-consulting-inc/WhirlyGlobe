@@ -31,6 +31,10 @@
 		2B23133021F936CD006AA344 /* RawData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132F21F936CD006AA344 /* RawData.cpp */; };
 		2B23133421F9395F006AA344 /* RawData_NSData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133321F9395E006AA344 /* RawData_NSData.h */; };
 		2B23133621F93969006AA344 /* RawData_NSData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133521F93969006AA344 /* RawData_NSData.mm */; };
+		2B23133821F942D2006AA344 /* Dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133721F942D1006AA344 /* Dictionary.h */; };
+		2B23133A21F942E2006AA344 /* Dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133921F942E1006AA344 /* Dictionary.cpp */; };
+		2B23133C21FA919E006AA344 /* Dictionary_NSDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133B21FA919D006AA344 /* Dictionary_NSDictionary.h */; };
+		2B23133E21FA91A4006AA344 /* Dictinary_NSDictionary.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133D21FA91A4006AA344 /* Dictinary_NSDictionary.mm */; };
 		2B2B46FA206C000500570F97 /* LoadedTileNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2B46F9206C000500570F97 /* LoadedTileNew.h */; };
 		2B2B46FC206C001900570F97 /* LoadedTileNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B46FB206C001900570F97 /* LoadedTileNew.mm */; };
 		2B2B4701206D931300570F97 /* QuadTileBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2B4700206D931300570F97 /* QuadTileBuilder.h */; };
@@ -1014,6 +1018,10 @@
 		2B23132F21F936CD006AA344 /* RawData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RawData.cpp; path = ../../../../common/WhirlyGlobeLib/src/RawData.cpp; sourceTree = "<group>"; };
 		2B23133321F9395E006AA344 /* RawData_NSData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RawData_NSData.h; sourceTree = "<group>"; };
 		2B23133521F93969006AA344 /* RawData_NSData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RawData_NSData.mm; sourceTree = "<group>"; };
+		2B23133721F942D1006AA344 /* Dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Dictionary.h; path = ../../../../common/WhirlyGlobeLib/include/Dictionary.h; sourceTree = "<group>"; };
+		2B23133921F942E1006AA344 /* Dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dictionary.cpp; path = ../../../../common/WhirlyGlobeLib/src/Dictionary.cpp; sourceTree = "<group>"; };
+		2B23133B21FA919D006AA344 /* Dictionary_NSDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dictionary_NSDictionary.h; sourceTree = "<group>"; };
+		2B23133D21FA91A4006AA344 /* Dictinary_NSDictionary.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Dictinary_NSDictionary.mm; sourceTree = "<group>"; };
 		2B2B46F9206C000500570F97 /* LoadedTileNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTileNew.h; sourceTree = "<group>"; };
 		2B2B46FB206C001900570F97 /* LoadedTileNew.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadedTileNew.mm; sourceTree = "<group>"; };
 		2B2B4700206D931300570F97 /* QuadTileBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadTileBuilder.h; sourceTree = "<group>"; };
@@ -2022,6 +2030,7 @@
 		2B23133121F9371F006AA344 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				2B23133721F942D1006AA344 /* Dictionary.h */,
 				2B446B2621F7A0D70078A975 /* Platform.h */,
 				2B23132D21F93660006AA344 /* RawData.h */,
 				2B446AB921F25C330078A975 /* WhirlyKitLog.h */,
@@ -2033,6 +2042,7 @@
 		2B23133221F9373A006AA344 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				2B23133921F942E1006AA344 /* Dictionary.cpp */,
 				2B23132F21F936CD006AA344 /* RawData.cpp */,
 			);
 			name = util;
@@ -2499,6 +2509,7 @@
 		2B82B4C21E82E2490095FB14 /* Cocoa Utils */ = {
 			isa = PBXGroup;
 			children = (
+				2B23133B21FA919D006AA344 /* Dictionary_NSDictionary.h */,
 				2B23133321F9395E006AA344 /* RawData_NSData.h */,
 				2B82B4BE1E82E2490095FB14 /* UIImage+Stuff.h */,
 				2B82B4BF1E82E2490095FB14 /* NSDictionary+Stuff.h */,
@@ -2642,6 +2653,7 @@
 		2B82B54D1E82E2490095FB14 /* Cocoa Utils */ = {
 			isa = PBXGroup;
 			children = (
+				2B23133D21FA91A4006AA344 /* Dictinary_NSDictionary.mm */,
 				2B23133521F93969006AA344 /* RawData_NSData.mm */,
 				2B82B5491E82E2490095FB14 /* UIImage+Stuff.mm */,
 				2B82B54A1E82E2490095FB14 /* NSDictionary+Stuff.m */,
@@ -3689,6 +3701,7 @@
 				2BE539661D249BEF00B60FAD /* AAJupiter.h in Headers */,
 				2B884A541E3803170027C397 /* endian.hpp in Headers */,
 				2BE538441D249A1200B60FAD /* MaplyPoints_private.h in Headers */,
+				2B23133821F942D2006AA344 /* Dictionary.h in Headers */,
 				2BE53A8A1D249C8900B60FAD /* DDXMLElementAdditions.h in Headers */,
 				2BE538111D249A1200B60FAD /* MaplyMarker.h in Headers */,
 				2B23133421F9395F006AA344 /* RawData_NSData.h in Headers */,
@@ -3734,6 +3747,7 @@
 				2B82B6E11E82E24A0095FB14 /* SceneRendererES.h in Headers */,
 				2BE539511D249BEF00B60FAD /* AAAberration.h in Headers */,
 				2BE538221D249A1200B60FAD /* MaplyScreenObject.h in Headers */,
+				2B23133C21FA919E006AA344 /* Dictionary_NSDictionary.h in Headers */,
 				2B82B71D1E82E24A0095FB14 /* LayerThread.h in Headers */,
 				2B884A5F1E3803170027C397 /* lasquantizer.hpp in Headers */,
 				2BE53A721D249C4600B60FAD /* once.h in Headers */,
@@ -4355,6 +4369,7 @@
 				2BE539AE1D249BEF00B60FAD /* AANutation.cpp in Sources */,
 				2BE539BB1D249BEF00B60FAD /* AARiseTransitSet.cpp in Sources */,
 				2BE53A971D249C9000B60FAD /* DDXMLElement.m in Sources */,
+				2B23133E21FA91A4006AA344 /* Dictinary_NSDictionary.mm in Sources */,
 				2B82B6AA1E82E24A0095FB14 /* PJ_robin.c in Sources */,
 				2B82B6C71E82E24A0095FB14 /* proj_mdist.c in Sources */,
 				2B82B6A51E82E24A0095FB14 /* PJ_putp4p.c in Sources */,
@@ -4638,6 +4653,7 @@
 				2BE539F31D249C2900B60FAD /* map_field.cc in Sources */,
 				2B446B1D21F79AE40078A975 /* SphericalMercator.cpp in Sources */,
 				2BE53A401D249C3D00B60FAD /* zero_copy_stream_impl.cc in Sources */,
+				2B23133A21F942E2006AA344 /* Dictionary.cpp in Sources */,
 				2B82B6551E82E2490095FB14 /* pj_datums.c in Sources */,
 				2BE53A8B1D249C8900B60FAD /* DDXMLElementAdditions.m in Sources */,
 				2BE539A41D249BEF00B60FAD /* AAMoon.cpp in Sources */,
