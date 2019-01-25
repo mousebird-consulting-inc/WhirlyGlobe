@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/2/11.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,13 +25,16 @@
 namespace WhirlyKit
 {
 
-ShapeReader::ShapeReader(NSString *fileName)
+ShapeReader::ShapeReader(const std::string &fileName)
+    : shp(NULL), dbf(NULL)
 {
-	const char *cFile =  [fileName cStringUsingEncoding:NSASCIIStringEncoding];
+	const char *cFile =  fileName.c_str();
 	shp = SHPOpen(cFile, "rb");
 	if (!shp)
 		return;
 	dbf = DBFOpen(cFile, "rb");
+    if (!dbf)
+        return;
 	where = 0;	
 	SHPGetInfo((SHPInfo *)shp, &numEntity, &shapeType, minBound, maxBound);
 }
@@ -150,8 +153,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
     // Note: Probably not complete
 	char attrTitle[12];
 	int attrWidth, numDecimals;
-	NSMutableDictionary *attrDict = [[NSMutableDictionary alloc] init];
-	theShape->setAttrDict(attrDict);
+    Dictionary *attrDict = theShape->getAttrDict();
 	DBFHandle dbfHandle = (DBFHandle)dbf;
 	int numDbfRecord = DBFGetRecordCount(dbfHandle);
 	if (vecIndex < numDbfRecord)
@@ -162,7 +164,6 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
             // If we have a set of filter attrs, skip this one if it's not there
             if (filterAttrs && (filterAttrs->find(attrTitle) == filterAttrs->end()))
                 continue;
-			NSString *attrTitleStr = [NSString stringWithFormat:@"%s",attrTitle];
 			
 			if (!DBFIsAttributeNULL(dbfHandle, vecIndex, ii))
 			{
@@ -171,22 +172,18 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
 					case FTString:
 					{
 						const char *str = DBFReadStringAttribute(dbfHandle, vecIndex, ii);
-                        NSString *newStr = [NSString stringWithCString:str encoding:NSASCIIStringEncoding];
-                        if (newStr)
-                            [attrDict setObject:newStr forKey:attrTitleStr];
-                        //						[attrDict setObject:[NSString stringWithFormat:@"%s",str] forKey:attrTitleStr];
+                        if (str)
+                            attrDict->setString(attrTitle, str);
 					}
 						break;
 					case FTInteger:
 					{
-						NSNumber *num = [NSNumber numberWithInt:DBFReadIntegerAttribute(dbfHandle, vecIndex, ii)];
-						[attrDict setObject:num forKey:attrTitleStr];
+                        attrDict->setInt(attrTitle, DBFReadIntegerAttribute(dbfHandle, vecIndex, ii));
 					}
 						break;
 					case FTDouble:
 					{
-						NSNumber *num = [NSNumber numberWithDouble:DBFReadDoubleAttribute(dbfHandle, vecIndex, ii)];
-						[attrDict setObject:num forKey:attrTitleStr];
+                        attrDict->setDouble(attrTitle, DBFReadDoubleAttribute(dbfHandle, vecIndex, ii));
 					}
 						break;
                     default:
@@ -197,7 +194,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
 	}
     
     // Let the user know what index this is
-    [attrDict setObject:[NSNumber numberWithInt:vecIndex] forKey:@"wgshapefileidx"];
+    attrDict->setInt("wgshapefileidx", vecIndex);
 	
 	return theShape;    
 }
