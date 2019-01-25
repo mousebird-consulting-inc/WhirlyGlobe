@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/7/11.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,8 +21,10 @@
 #import <string>
 #import "VectorData.h"
 #import "ShapeReader.h"
+#import "WhirlyKitLog.h"
+#ifndef MAPLYMINIMAL
 #import "libjson.h"
-#import "NSString+Stuff.h"
+#endif
 
 namespace WhirlyKit
 {
@@ -41,7 +43,7 @@ float CalcLoopArea(const VectorRing &loop)
     return area;
 }
     
-double CalcLoopArea(const std::vector<Point2d> &loop)
+double CalcLoopArea(const Point2dVector &loop)
 {
     double area = 0.0;
     for (unsigned int ii=0;ii<loop.size();ii++)
@@ -82,7 +84,7 @@ Point2f CalcLoopCentroid(const VectorRing &loop)
     return centroid;
 }
 
-Point2d CalcLoopCentroid(const std::vector<Point2d> &loop)
+Point2d CalcLoopCentroid(const Point2dVector &loop)
 {
     Point2d centroid(0,0);
     
@@ -109,21 +111,21 @@ Point2d CalcLoopCentroid(const std::vector<Point2d> &loop)
     
     return centroid;
 }
-    
-Point2d CalcCenterOfMass(const std::vector<Point2d> &loop)
+
+Point2d CalcCenterOfMass(const Point2dVector &loop)
 {
     Point2d center(0,0);
-    
+
     if (loop.empty())
         return center;
-    
+        
     for (auto &pt : loop)
         center += pt;
     center /= loop.size();
-    
+
     return center;
 }
-    
+
 // Break any edge longer than the given length
 // Returns true if it broke anything.  If it didn't, doesn't fill in outPts
 void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float maxLen)
@@ -197,7 +199,7 @@ void subdivideToSurfaceRecurse(const Point2f &p0,const Point2f &p1,VectorRing &o
         subdivideToSurfaceRecurse(midPt, p1, outPts, adapter, eps);
     }
     if (outPts.empty() || outPts.back() != p1)
-        outPts.push_back(p1);
+         outPts.push_back(p1);
 }
 
 void subdivideToSurfaceRecurse(const Point3d &p0,const Point3d &p1,VectorRing3d &outPts,CoordSystemDisplayAdapter *adapter,float eps)
@@ -219,8 +221,8 @@ void subdivideToSurfaceRecurse(const Point3d &p0,const Point3d &p1,VectorRing3d 
         subdivideToSurfaceRecurse(midPt, p1, outPts, adapter, eps);
     }
     outPts.push_back(p1);
-}
-
+}    
+            
 void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps)
 {
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
@@ -243,16 +245,16 @@ void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool
         subdivideToSurfaceRecurse(p0,p1,outPts,adapter,eps);
     }
 }
-
+            
 // Great circle version
-void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,VectorRing3d &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
+void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,Point3dVector &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
     // If the difference is greater than 180, then this is probably crossing the date line
     //  in which case we'll just leave it alone.
     // Note: Probably not right
 //    if (std::abs(p0.x() - p1.x()) > M_PI)
 //        return;
-    
+
     Point3d midP = (p0+p1)/2.0;
     Point3d midOnSphere = midP;
     if (adapter && !adapter->isFlat())
@@ -267,7 +269,7 @@ void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,VectorRing3
         outPts.push_back(p1);
 }
 
-void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3dVector &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
     if (!adapter || inPts.empty())
         return;
@@ -285,10 +287,10 @@ void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,VectorRing3d &outPts,bool
         const Point2f &p1 = inPts[(ii+1)%inPts.size()];
         Point3d dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
         if (adapter && !adapter->isFlat())
-            dp0 = dp0.normalized() * (1.0 + surfOffset);
+           dp0 = dp0.normalized() * (1.0 + surfOffset);
         Point3d dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p1.x(),p1.y())));
         if (adapter && !adapter->isFlat())
-            dp1 = dp1.normalized() * (1.0 + surfOffset);
+           dp1 = dp1.normalized() * (1.0 + surfOffset);
         outPts.push_back(dp0);
         subdivideToSurfaceRecurseGC(dp0,dp1,outPts,adapter,eps,surfOffset,minPts);
     }    
@@ -304,14 +306,14 @@ VectorShape::~VectorShape()
 {
 }
     
-void VectorShape::setAttrDict(NSMutableDictionary *newDict)
-{ 
-    attrDict = newDict;  
+void VectorShape::setAttrDict(const Dictionary &newDict)
+{
+    attrDict = newDict;
 }
     
-NSMutableDictionary *VectorShape::getAttrDict()    
+Dictionary *VectorShape::getAttrDict()
 {
-    return attrDict;
+    return &attrDict;
 }
     
 VectorTriangles::VectorTriangles()
@@ -351,7 +353,6 @@ bool VectorTriangles::pointInside(GeoCoord coord)
     return false;
 }
 
-    
 void VectorTriangles::getTriangle(int which,VectorRing &ring)
 {
     if (which < 0 || which >= tris.size())
@@ -441,7 +442,7 @@ GeoMbr VectorAreal::calcGeoMbr()
 { 
     if (!geoMbr.valid())
         initGeoMbr();
-    return geoMbr;
+    return geoMbr; 
 }
     
 void VectorAreal::initGeoMbr()
@@ -477,7 +478,7 @@ GeoMbr VectorLinear::calcGeoMbr()
 { 
     if (!geoMbr.valid())
         initGeoMbr();
-    return geoMbr;
+    return geoMbr; 
 }
 
 void VectorLinear::initGeoMbr()
@@ -491,7 +492,7 @@ void VectorLinear::subdivide(float maxLen)
     SubdivideEdges(pts, newPts, false, maxLen);
     pts = newPts;
 }
-
+    
 VectorLinear3d::VectorLinear3d()
 {
 }
@@ -541,7 +542,7 @@ void VectorPoints::initGeoMbr()
 {
     geoMbr.addGeoCoords(pts);
 }
-    
+
 typedef enum {FileVecPoints=20,FileVecLinear,FileVecAreal,FileVecMesh} VectorIdentType;
     
 bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes)
@@ -560,12 +561,14 @@ bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes)
             VectorShapeRef shape = *it;
             
             // They all have a dictionary
-            NSData *dictData = [NSKeyedArchiver archivedDataWithRootObject:shape->getAttrDict()];
-            int dataLen = (int)[dictData length];
+            Dictionary *dict = shape->getAttrDict();
+            MutableRawData dictData;
+            dict->asRawData(&dictData);
+            int dataLen = (int)dictData.getLen();
             if (fwrite(&dataLen,sizeof(int),1,fp) != 1)
                 throw 1;
             if (dataLen > 0)
-                if (fwrite([dictData bytes],[dictData length],1,fp) != 1)
+                if (fwrite(dictData.getRawData(),dataLen,1,fp) != 1)
                     throw 1;
             
             VectorPointsRef pts = std::dynamic_pointer_cast<VectorPoints>(shape);
@@ -632,7 +635,7 @@ bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes)
                 if (fwrite(&mesh->tris[0],3*sizeof(unsigned int),numTri,fp) != numTri)
                     throw 1;
             } else {
-                NSLog(@"Tried to write unknown object in VectorWriteFile");
+//                NSLog(@"Tried to write unknown object in VectorWriteFile");
                 throw 1;
             }
         }
@@ -664,13 +667,14 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
             int dataLen;
             if (fread(&dataLen, sizeof(int), 1, fp) != 1)
                 throw 1;
-            NSMutableDictionary *dict = nil;
+            Dictionary *dict = NULL;
             if (dataLen > 0)
             {
-                NSMutableData *dictData = [[NSMutableData alloc] initWithLength:dataLen];
-                if (fread([dictData mutableBytes],dataLen,1,fp) != 1)
+                RawDataWrapper *rawData = RawDataFromFile(fp, dataLen);
+                if (!rawData)
                     throw 1;
-                dict = (NSMutableDictionary*) [NSKeyedUnarchiver unarchiveObjectWithData:dictData];
+                dict = new Dictionary(rawData);
+                delete rawData;
             }
             
             // Now for the type
@@ -683,7 +687,8 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
                 case FileVecPoints:
                 {
                     VectorPointsRef pts(VectorPoints::createPoints());
-                    pts->setAttrDict(dict);
+                    if (dict)
+                    	pts->setAttrDict(*dict);
 
                     unsigned int numPts;
                     if (fread(&numPts,sizeof(unsigned int),1,fp) != 1)
@@ -699,7 +704,8 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
                 case FileVecLinear:
                 {
                     VectorLinearRef lin(VectorLinear::createLinear());
-                    lin->setAttrDict(dict);
+                    if (dict)
+                    	lin->setAttrDict(*dict);
 
                     unsigned int numPts;
                     if (fread(&numPts,sizeof(unsigned int),1,fp) != 1)
@@ -715,7 +721,8 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
                 case FileVecAreal:
                 {
                     VectorArealRef ar(VectorAreal::createAreal());
-                    ar->setAttrDict(dict);
+                    if (dict)
+                    	ar->setAttrDict(*dict);
 
                     unsigned int numLoops;
                     if (fread(&numLoops,sizeof(unsigned int),1,fp) != 1)
@@ -740,7 +747,8 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
                 case FileVecMesh:
                 {
                     VectorTrianglesRef mesh(VectorTriangles::createTriangles());
-                    mesh->setAttrDict(dict);
+                    if (dict)
+                    	mesh->setAttrDict(*dict);
                     
                     unsigned int numPts;
                     if (fread(&numPts,sizeof(unsigned int),1,fp) != 1)
@@ -761,10 +769,13 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
                 }
                     break;
                 default:
-                    NSLog(@"Unknown data type in VectorReadFile()");
+//                    NSLog(@"Unknown data type in VectorReadFile()");
                     throw 1;
                     break;
             }
+            
+            if (dict)
+                delete dict;
         }
     }
     catch (...)
@@ -778,277 +789,250 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
 }
 
 
-// Parse a single coordinate out of an array
-bool VectorParseCoord(Point2f &coord,NSArray *coords)
-{
-    if (![coords isKindOfClass:[NSArray class]] || [coords count] < 2)
-        return false;
-    coord.x() = DegToRad([[coords objectAtIndex:0] floatValue]);
-    coord.y() = DegToRad([[coords objectAtIndex:1] floatValue]);
+//// Parse a single coordinate out of an array
+//bool VectorParseCoord(Point2f &coord,NSArray *coords)
+//{
+//    if (![coords isKindOfClass:[NSArray class]] || ([coords count] != 2 && [coords count] != 3))
+//        return false;
+//    coord.x() = DegToRad([[coords objectAtIndex:0] floatValue]);
+//    coord.y() = DegToRad([[coords objectAtIndex:1] floatValue]);
+//    
+//    return true;
+//}
+//    
+//// Parse coordinates out of a coordinate string
+//bool VectorParseCoords(VectorRing &coords,NSArray *coordArray)
+//{
+//    if (![coordArray isKindOfClass:[NSArray class]])
+//        return false;
+//    
+//    // Look at the type of the first object.  If it's not an array, we've got a coord.
+//    NSObject *firstObj = [coordArray objectAtIndex:0];
+//    if (![firstObj isKindOfClass:[NSArray class]])
+//    {
+//        coords.resize(1);
+//        if (!VectorParseCoord(coords[0], coordArray))
+//            return false;
+//    } else {
+//        coords.resize([coordArray count]);
+//        int ci = 0;
+//        for (NSArray *coord in coordArray)
+//        {
+//            if (!VectorParseCoord(coords[ci], coord))
+//                return false;
+//            ci++;
+//        }
+//    }
+//    
+//    return true;
+//}
+//
+//// Parse geometry objects out of the JSON
+//bool VectorParseGeometry(ShapeSet &shapes,NSDictionary *jsonDict)
+//{
+//    NSString *type = [jsonDict objectForKey:@"type"];
+//    if (![type isKindOfClass:[NSString class]])
+//        return false;
+//
+//    if (![type compare:@"Point"])
+//    {
+//        VectorRing coords;
+//        if (!VectorParseCoords(coords,[jsonDict objectForKey:@"coordinates"]))
+//            return false;
+//        if (coords.size() != 1)
+//            return false;
+//        VectorPointsRef pts = VectorPoints::createPoints();
+//        pts->pts.push_back(coords[0]);
+//        pts->initGeoMbr();
+//        shapes.insert(pts);
+//    } else if (![type compare:@"LineString"])
+//    {
+//        VectorRing coords;
+//        if (!VectorParseCoords(coords,[jsonDict objectForKey:@"coordinates"]))
+//            return false;
+//        if (coords.empty())
+//            return false;
+//        VectorLinearRef lin = VectorLinear::createLinear();
+//        lin->pts = coords;
+//        lin->initGeoMbr();
+//        shapes.insert(lin);
+//    } else if (![type compare:@"Polygon"])
+//    {
+//        NSArray *coordsArray = [jsonDict objectForKey:@"coordinates"];
+//        if (![coordsArray isKindOfClass:[NSArray class]])
+//            return false;
+//        VectorArealRef ar = VectorAreal::createAreal();
+//        for (NSArray *coordsEntry in coordsArray)
+//        {
+//            VectorRing coords;
+//            if (!VectorParseCoords(coords, coordsEntry))
+//                return false;
+//            if (coords.empty())
+//                return false;
+//            ar->loops.push_back(coords);
+//        }
+//        ar->initGeoMbr();
+//        shapes.insert(ar);
+//    } else if (![type compare:@"MultiPoint"])
+//    {
+//        VectorRing coords;
+//        if (!VectorParseCoords(coords,[jsonDict objectForKey:@"coordinates"]))
+//            return false;
+//        if (coords.empty())
+//            return false;
+//        VectorPointsRef pts = VectorPoints::createPoints();
+//        pts->pts = coords;
+//        pts->initGeoMbr();
+//        shapes.insert(pts);
+//    } else if (![type compare:@"MultiLineString"])
+//    {
+//        NSArray *coordsArray = [jsonDict objectForKey:@"coordinates"];
+//        if (![coordsArray isKindOfClass:[NSArray class]])
+//            return false;
+//        for (NSArray *coordsEntry in coordsArray)
+//        {
+//            VectorRing coords;
+//            if (!VectorParseCoords(coords, coordsEntry) || coords.empty())
+//                return false;
+//            VectorLinearRef lin = VectorLinear::createLinear();
+//            lin->pts = coords;
+//            lin->initGeoMbr();
+//            shapes.insert(lin);
+//        }
+//    } else if (![type compare:@"MultiPolygon"])
+//    {
+//        NSArray *polyArray = [jsonDict objectForKey:@"coordinates"];
+//        if (![polyArray isKindOfClass:[NSArray class]])
+//            return false;
+//        for (NSArray *polyEntry in polyArray)
+//        {
+//            if ([polyEntry isKindOfClass:[NSArray class]])
+//            {
+//                VectorArealRef ar = VectorAreal::createAreal();
+//                for (NSArray *coordsEntry in polyEntry)
+//                {
+//                    VectorRing coords;
+//                    if (!VectorParseCoords(coords, coordsEntry) || coords.empty())
+//                        return false;
+//                    ar->loops.push_back(coords);
+//                }
+//                ar->initGeoMbr();
+//                shapes.insert(ar);                
+//            } else
+//                return false;
+//        }
+//    } else if (![type compare:@"GeometryCollection"])
+//    {
+//        // Recurse down for the other geometry
+//        NSArray *geom = [jsonDict objectForKey:@"geometries"];
+//        if (![geom isKindOfClass:[NSArray class]])
+//            return false;
+//        for (NSDictionary *geomDict in geom)
+//        {
+//            if (![geomDict isKindOfClass:[NSDictionary class]])
+//                return false;
+//            if (!VectorParseGeometry(shapes, geomDict))
+//                return false;
+//        }
+//    } else
+//        return false;
+//    
+//    return true;
+//}
+//    
+//// Parse a single feature out of geoJSON
+//bool VectorParseFeature(ShapeSet &shapes,NSDictionary *jsonDict)
+//{
+//    NSString *idStr = [jsonDict objectForKey:@"id"];
+//    NSDictionary *geom = [jsonDict objectForKey:@"geometry"];
+//    NSDictionary *prop = [jsonDict objectForKey:@"properties"];
+//
+//    if (![geom isKindOfClass:[NSDictionary class]])
+//        return false;
+//
+//    // Parse out the geometry.  May result in multiple shapes
+//    if (!VectorParseGeometry(shapes, geom))
+//        return false;
+//    
+//    // Apply the attributes if there are any
+//    if ([prop isKindOfClass:[NSDictionary class]])
+//        for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it)
+//            (*it)->setAttrDict([NSMutableDictionary dictionaryWithDictionary:prop]);
+//    
+//    // Apply the identity if there is one
+//    if ([idStr isKindOfClass:[NSString class]])
+//        for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it)
+//            [(*it)->getAttrDict() setObject:idStr forKey:@"id"];
+//    
+//    return true;
+//}
+//    
+//// Parse a set of features out of GeoJSON using an NSDictionary
+//bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict)
+//{
+//    NSString *type = [jsonDict objectForKey:@"type"];
+//    if (![type isKindOfClass:[NSString class]])
+//        return false;
+//    
+//    if (![type compare:@"FeatureCollection"])
+//    {
+//        NSArray *features = [jsonDict objectForKey:@"features"];
+//        if (![features isKindOfClass:[NSArray class]])
+//            return false;
+//        
+//        for (NSDictionary *featDict in features)
+//        {
+//            if (![featDict isKindOfClass:[NSDictionary class]])
+//                return false;
+//            
+//            ShapeSet featShapes;
+//            if (VectorParseFeature(featShapes,featDict))
+//                shapes.insert(featShapes.begin(),featShapes.end());
+//            else
+//                return false;
+//        }
+//    } 
+//        
+//    return true;
+//}
     
-    return true;
-}
-    
-// Parse coordinates out of a coordinate string
-bool VectorParseCoords(VectorRing &coords,NSArray *coordArray)
-{
-    if (![coordArray isKindOfClass:[NSArray class]])
-        return false;
-    
-    // Look at the type of the first object.  If it's not an array, we've got a coord.
-    NSObject *firstObj = [coordArray objectAtIndex:0];
-    if (![firstObj isKindOfClass:[NSArray class]])
-    {
-        coords.resize(1);
-        if (!VectorParseCoord(coords[0], coordArray))
-            return false;
-    } else {
-        coords.resize([coordArray count]);
-        int ci = 0;
-        for (NSArray *coord in coordArray)
-        {
-            if (!VectorParseCoord(coords[ci], coord))
-                return false;
-            ci++;
-        }
-    }
-    
-    return true;
-}
-
-// Parse geometry objects out of the JSON
-bool VectorParseGeometry(ShapeSet &shapes,NSDictionary *jsonDict)
-{
-    NSString *type = [jsonDict objectForKey:@"type"];
-    if (![type isKindOfClass:[NSString class]])
-        return false;
-
-    if (![type compare:@"Point"])
-    {
-        VectorRing coords;
-        if (!VectorParseCoords(coords,[jsonDict objectForKey:@"coordinates"]))
-            return false;
-        if (coords.size() != 1)
-            return false;
-        VectorPointsRef pts = VectorPoints::createPoints();
-        pts->pts.push_back(coords[0]);
-        pts->initGeoMbr();
-        shapes.insert(pts);
-    } else if (![type compare:@"LineString"])
-    {
-        VectorRing coords;
-        if (!VectorParseCoords(coords,[jsonDict objectForKey:@"coordinates"]))
-            return false;
-        if (coords.empty())
-            return false;
-        VectorLinearRef lin = VectorLinear::createLinear();
-        lin->pts = coords;
-        lin->initGeoMbr();
-        shapes.insert(lin);
-    } else if (![type compare:@"Polygon"])
-    {
-        NSArray *coordsArray = [jsonDict objectForKey:@"coordinates"];
-        if (![coordsArray isKindOfClass:[NSArray class]])
-            return false;
-        VectorArealRef ar = VectorAreal::createAreal();
-        for (NSArray *coordsEntry in coordsArray)
-        {
-            VectorRing coords;
-            if (!VectorParseCoords(coords, coordsEntry))
-                return false;
-            if (coords.empty())
-                return false;
-            ar->loops.push_back(coords);
-        }
-        ar->initGeoMbr();
-        shapes.insert(ar);
-    } else if (![type compare:@"MultiPoint"])
-    {
-        VectorRing coords;
-        if (!VectorParseCoords(coords,[jsonDict objectForKey:@"coordinates"]))
-            return false;
-        if (coords.empty())
-            return false;
-        VectorPointsRef pts = VectorPoints::createPoints();
-        pts->pts = coords;
-        pts->initGeoMbr();
-        shapes.insert(pts);
-    } else if (![type compare:@"MultiLineString"])
-    {
-        NSArray *coordsArray = [jsonDict objectForKey:@"coordinates"];
-        if (![coordsArray isKindOfClass:[NSArray class]])
-            return false;
-        for (NSArray *coordsEntry in coordsArray)
-        {
-            VectorRing coords;
-            if (!VectorParseCoords(coords, coordsEntry) || coords.empty())
-                return false;
-            VectorLinearRef lin = VectorLinear::createLinear();
-            lin->pts = coords;
-            lin->initGeoMbr();
-            shapes.insert(lin);
-        }
-    } else if (![type compare:@"MultiPolygon"])
-    {
-        NSArray *polyArray = [jsonDict objectForKey:@"coordinates"];
-        if (![polyArray isKindOfClass:[NSArray class]])
-            return false;
-        for (NSArray *polyEntry in polyArray)
-        {
-            if ([polyEntry isKindOfClass:[NSArray class]])
-            {
-                VectorArealRef ar = VectorAreal::createAreal();
-                for (NSArray *coordsEntry in polyEntry)
-                {
-                    VectorRing coords;
-                    if (!VectorParseCoords(coords, coordsEntry) || coords.empty())
-                        return false;
-                    ar->loops.push_back(coords);
-                }
-                ar->initGeoMbr();
-                shapes.insert(ar);                
-            } else
-                return false;
-        }
-    } else if (![type compare:@"GeometryCollection"])
-    {
-        // Recurse down for the other geometry
-        NSArray *geom = [jsonDict objectForKey:@"geometries"];
-        if (![geom isKindOfClass:[NSArray class]])
-            return false;
-        for (NSDictionary *geomDict in geom)
-        {
-            if (![geomDict isKindOfClass:[NSDictionary class]])
-                return false;
-            if (!VectorParseGeometry(shapes, geomDict))
-                return false;
-        }
-    } else
-        return false;
-    
-    return true;
-}
-    
-// Parse a single feature out of geoJSON
-bool VectorParseFeature(ShapeSet &shapes,NSDictionary *jsonDict)
-{
-    NSString *idStr = [jsonDict objectForKey:@"id"];
-    NSDictionary *geom = [jsonDict objectForKey:@"geometry"];
-    NSDictionary *prop = [jsonDict objectForKey:@"properties"];
-
-    if (![geom isKindOfClass:[NSDictionary class]])
-        return false;
-
-    // Parse out the geometry.  May result in multiple shapes
-    if (!VectorParseGeometry(shapes, geom))
-        return false;
-    
-    // Apply the attributes if there are any
-    if ([prop isKindOfClass:[NSDictionary class]])
-        for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it)
-            (*it)->setAttrDict([NSMutableDictionary dictionaryWithDictionary:prop]);
-    
-    // Apply the identity if there is one
-    if ([idStr isKindOfClass:[NSString class]])
-        for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it)
-            [(*it)->getAttrDict() setObject:idStr forKey:@"id"];
-    
-    return true;
-}
-    
-// Parse a set of features out of GeoJSON using an NSDictionary
-bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict)
-{
-    NSString *type = [jsonDict objectForKey:@"type"];
-    if (![type isKindOfClass:[NSString class]])
-        return false;
-    
-    if (![type compare:@"FeatureCollection"])
-    {
-        NSArray *features = [jsonDict objectForKey:@"features"];
-        if (![features isKindOfClass:[NSArray class]])
-            return false;
-        
-        for (NSDictionary *featDict in features)
-        {
-            if (![featDict isKindOfClass:[NSDictionary class]])
-                return false;
-            
-            ShapeSet featShapes;
-            if (VectorParseFeature(featShapes,featDict))
-                shapes.insert(featShapes.begin(),featShapes.end());
-            else
-                return false;
-        }
-    } else if (![type compare:@"Feature"]) {
-        ShapeSet featShapes;
-        if (VectorParseFeature(featShapes,jsonDict))
-            shapes.insert(featShapes.begin(),featShapes.end());
-        else
-            return false;
-    } else {
-        // Sometimes they just include geometry
-        ShapeSet rawShapes;
-        if (VectorParseGeometry(rawShapes,jsonDict))
-            shapes.insert(rawShapes.begin(),rawShapes.end());
-        else
-            return false;
-    }
-    
-    return true;
-}
-    
+#ifndef MAPLYMINIMAL
 using namespace libjson;
     
 // Parse properties out of a node
-NSMutableDictionary *VectorParseProperties(JSONNode node)
+bool VectorParseProperties(JSONNode node,Dictionary &dict)
 {
-    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
-    
     for (JSONNode::const_iterator it = node.begin();
          it != node.end(); ++it)
     {
         json_string name = it->name();
         if (!name.empty())
         {
-            NSString *nameStr = [NSString stringWithCString:name.c_str() encoding:NSUTF8StringEncoding];
             switch (it->type())
             {
                 case JSON_STRING:
                 {
                     json_string val = it->as_string();
-                    NSString *valStr = nil;
-                    @try {
-                        valStr = [NSString stringWithCString:val.c_str() encoding:NSUTF8StringEncoding];
-                    }
-                    @catch (NSException *exception) {
-                        @try {
-                            valStr = [NSString stringWithCString:val.c_str() encoding:NSUnicodeStringEncoding];
-                        }
-                        @catch (NSException *exception) {
-                        }
-                    }
-                    if (valStr)
-                        dict[nameStr] = valStr;
+                    dict.setString(name,val);
                 }
                     break;
                 case JSON_NUMBER:
                 {
                     double val = it->as_float();
-                    dict[nameStr] = @(val);
+                    dict.setDouble(name, val);
                 }
                     break;
                 case JSON_BOOL:
                 {
                     bool val = it->as_bool();
-                    dict[nameStr] = @(val);
+                    dict.setInt(name, (int)val);
                 }
                     break;
             }
         }
     }
     
-    return dict;
+    return true;
 }
     
 // Parse coordinate list out of a node
@@ -1063,7 +1047,7 @@ bool VectorParseCoordinates(JSONNode node,VectorRing &pts, bool subCall=false)
                 return false;
             continue;
         }
-
+        
         // We're expecting two numbers here
         if (it->type() == JSON_NUMBER)
         {
@@ -1073,12 +1057,12 @@ bool VectorParseCoordinates(JSONNode node,VectorRing &pts, bool subCall=false)
             float lon = it->as_float();  ++it;
             float lat = it->as_float();
             pts.push_back(GeoCoord::CoordFromDegrees(lon,lat));
-
+            
             // There might be a Z value or even other junk.  We just want the first two coordinates
             //  in this particular case.
             if (subCall)
                 return true;
-
+            
             continue;
         }
         
@@ -1256,7 +1240,8 @@ bool VectorParseFeature(JSONNode node,ShapeSet &shapes)
         return false;
 
     // Parse the properties, then the geometry
-    NSMutableDictionary *properties = VectorParseProperties(*propIt);
+    Dictionary properties;
+    VectorParseProperties(*propIt,properties);
     ShapeSet newShapes;
     if (!VectorParseGeometry(*geomIt,newShapes))
         return false;
@@ -1318,7 +1303,7 @@ bool VectorParseTopNode(JSONNode node,ShapeSet &shapes,JSONNode &crs)
 
     return false;
 }
-    
+
 // Parse the name out of a CRS in a GeoJSON file
 bool VectorParseGeoJSONCRS(JSONNode node,std::string &crsName)
 {
@@ -1361,37 +1346,31 @@ bool VectorParseGeoJSONCRS(JSONNode node,std::string &crsName)
 }
     
 // Parse a set of features out of GeoJSON, using libjson
-bool VectorParseGeoJSON(ShapeSet &shapes,NSData *data,NSString **crs)
+bool VectorParseGeoJSON(ShapeSet &shapes,const std::string &str,std::string &crs)
 {
-    // Note: Kind of an extra step here
-    NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    json_string json = [str UTF8String];
-    
+    json_string json = str;
     JSONNode topNode = libjson::parse(json);
 
     JSONNode crsNode;
     if (!VectorParseTopNode(topNode,shapes,crsNode))
     {
-        NSLog(@"Failed to parse JSON in VectorParseGeoJSON");
+//        NSLog(@"Failed to parse JSON in VectorParseGeoJSON");
         return false;
     }
 
     std::string crsName;
-    *crs = nil;
     if (VectorParseGeoJSONCRS(crsNode,crsName))
     {
         if (!crsName.empty())
-            *crs = [NSString stringWithFormat:@"%s",crsName.c_str()];
+            crs = crsName;
     }
     
     return true;
 }
     
-bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &shapes)
+bool VectorParseGeoJSONAssembly(const std::string &str,std::map<std::string,ShapeSet> &shapes)
 {
-    // Note: Kind of an extra step here
-    NSString *str = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    json_string json = [str UTF8String];
+    json_string json = str;
     
     JSONNode topNode = libjson::parse(json);
     JSONNode crsNode;
@@ -1415,4 +1394,5 @@ bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &sha
     return true;
 }
     
+#endif
 }

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/7/11.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
  *
  */
 
-#import <UIKit/UIKit.h>
 #import <math.h>
 #import <vector>
 #import <set>
@@ -27,6 +26,7 @@
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "CoordSystem.h"
+#import "Dictionary.h"
 
 namespace WhirlyKit
 {
@@ -37,10 +37,10 @@ class VectorShape : public Identifiable
 {
 public:	
 	/// Set the attribute dictionary
-	void setAttrDict(NSMutableDictionary *newDict);
+	void setAttrDict(const Dictionary &newDict);
 	
 	/// Return the attr dict
-	NSMutableDictionary *getAttrDict();    
+	Dictionary *getAttrDict();
     /// Return the geoMbr
     virtual GeoMbr calcGeoMbr() = 0;
 	
@@ -48,7 +48,7 @@ protected:
 	VectorShape();
 	virtual ~VectorShape();
 
-	__strong NSMutableDictionary *attrDict;
+	Dictionary attrDict;
 };
 
 class VectorAreal;
@@ -71,10 +71,10 @@ typedef std::shared_ptr<VectorPoints> VectorPointsRef;
 typedef std::shared_ptr<VectorTriangles> VectorTrianglesRef;
 
 /// Vector Ring is just a vector of 2D points
-typedef std::vector<Point2f> VectorRing;
-    
+typedef Point2fVector VectorRing;
+
 /// Vector Ring of 3D doubles
-typedef std::vector<Point3d> VectorRing3d;
+typedef Point3dVector VectorRing3d;
 
 /// Comparison function for the vector shape.
 /// This is here to ensure we don't put in the same pointer twice
@@ -92,7 +92,7 @@ typedef std::set<VectorShapeRef,VectorShapeRefCmp> ShapeSet;
 /// Calculate area of a loop
 float CalcLoopArea(const VectorRing &);
 /// Calculate area of a loop
-double CalcLoopArea(const std::vector<Point2d> &);
+double CalcLoopArea(const Point2dVector &);
 /// Calculate the centroid of a loop
 Point2f CalcLoopCentroid(const VectorRing &loop);
 /// Calculate the centroid of a bunch of points
@@ -104,6 +104,8 @@ Point2d CalcCenterOfMass(const std::vector<Point2d> &loop);
 class VectorTriangles : public VectorShape
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Creation function.  Use this instead of new.
     static VectorTrianglesRef createTriangles();
     ~VectorTriangles();
@@ -128,7 +130,7 @@ public:
 	GeoMbr geoMbr;
 
     // Shared points
-    std::vector<Point3f> pts;
+    Point3fVector pts;
     // Triangles
     std::vector<Triangle> tris;
     
@@ -144,6 +146,8 @@ bool VectorTrianglesRayIntersect(const Point3d &org,const Point3d &dir,const Vec
 class VectorAreal : public VectorShape
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Creation function.  Use this instead of new
     static VectorArealRef createAreal();
     ~VectorAreal();
@@ -170,6 +174,8 @@ protected:
 class VectorLinear : public VectorShape
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Creation function.  Use instead of new
     static VectorLinearRef createLinear();
     ~VectorLinear();
@@ -192,6 +198,8 @@ protected:
 class VectorLinear3d : public VectorShape
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     /// Creation function.  Use instead of new
     static VectorLinear3dRef createLinear();
     ~VectorLinear3d();
@@ -212,6 +220,8 @@ protected:
 class VectorPoints : public VectorShape
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
     /// Creation function.  Use instead of new
     static VectorPointsRef createPoints();
     ~VectorPoints();
@@ -231,6 +241,8 @@ protected:
     
 /// A set of strings
 typedef std::set<std::string> StringSet;
+    
+Point2d CalcCenterOfMass(const Point2dVector &loop);
     
 /// Break any edge longer than the given length.
 /// Returns true if it broke anything
@@ -280,19 +292,20 @@ public:
     We don't know for sure what we'll get back, so you have to go
     looking through it.  Return false on parse failure.
  */
-bool VectorParseGeoJSON(ShapeSet &shapes,NSData *jsonData,NSString **crs);
+bool VectorParseGeoJSON(ShapeSet &shapes,const std::string &str,std::string &crs);
  
 /** Helper routine to parse geoJSON into a collection of vectors.
     We don't know for sure what we'll get back, so you have to go
     looking through it.  Return false on parse failure.
  */
-bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict);
+// Note: Porting
+//bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict);
     
 /** Helper routine to parse a GeoJSON assembly into an array of
     collections of vectors.  This format is returned by the experimental
     OSM server for vectors.
   */
-bool VectorParseGeoJSONAssembly(NSData *data,std::map<std::string,ShapeSet> &shapes);
+bool VectorParseGeoJSONAssembly(const std::string &str,std::map<std::string,ShapeSet> &shapes);
     
 bool VectorReadFile(const std::string &fileName,ShapeSet &shapes);
 bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes);
