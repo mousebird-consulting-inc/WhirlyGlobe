@@ -88,7 +88,7 @@ public:
     void removeView(UIView *view);
 
     /// Rather than generate drawables here, we update our locations
-    void updateLocations(WhirlyKitRendererFrameInfo *frameInfo);
+    void updateLocations(RendererFrameInfo *frameInfo);
     
     /// Print out stats for debugging
     void dumpStats();

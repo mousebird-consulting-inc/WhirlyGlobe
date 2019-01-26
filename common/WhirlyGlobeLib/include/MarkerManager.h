@@ -160,10 +160,6 @@ protected:
     pthread_mutex_t markerLock;
     /// Resources associated with given markers
     MarkerSceneRepSet markerReps;
-    /// ID for the marker generator
-    WhirlyKit::SimpleIdentity generatorId;
-    /// Screen space generator on the render side
-    WhirlyKit::SimpleIdentity screenGenId;
 };
 
 }

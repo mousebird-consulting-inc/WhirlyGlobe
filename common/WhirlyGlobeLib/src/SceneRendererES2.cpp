@@ -19,11 +19,7 @@
  */
 
 #import "SceneRendererES2.h"
-#import "UIColor+Stuff.h"
 #import "GLUtils.h"
-#import "UIImage+Stuff.h"
-#import "NSDictionary+Stuff.h"
-#import "NSString+Stuff.h"
 #import "MaplyView.h"
 
 using namespace Eigen;
@@ -48,7 +44,7 @@ public:
 class DrawListSortStruct2
 {
 public:
-    DrawListSortStruct2(bool useAlpha,bool useZBuffer,WhirlyKitRendererFrameInfo *frameInfo) : useAlpha(useAlpha), useZBuffer(useZBuffer), frameInfo(frameInfo)
+    DrawListSortStruct2(bool useAlpha,bool useZBuffer,RendererFrameInfo *frameInfo) : useAlpha(useAlpha), useZBuffer(useZBuffer), frameInfo(frameInfo)
     {
     }
     DrawListSortStruct2() { }
@@ -86,23 +82,20 @@ public:
     }
     
     bool useAlpha,useZBuffer;
-    WhirlyKitRendererFrameInfo * __unsafe_unretained frameInfo;
+    RendererFrameInfo *frameInfo;
 };
     
 SceneRendererES2::SceneRendererES2()
-    : SceneRendererES(2), renderStateOptimizer(NULL), extraFrameDrawn(false)
+    : SceneRendererES(2), extraFrameDrawn(false)
 {
     // Add a simple default light
-    WhirlyKitDirectionalLight *light = new WhirlyKitDirectionalLight();
-    [light setPos:Vector3f(0.75, 0.5, -1.0)];
-    light.viewDependent = true;
-    light.ambient = Vector4f(0.6, 0.6, 0.6, 1.0);
-    light.diffuse = Vector4f(0.5, 0.5, 0.5, 1.0);
-    light.specular = Vector4f(0, 0, 0, 0);
-    [self addLight:light];
-
-    // And a basic material
-    setDefaultMaterial(new WhirlyKit::Material());
+    DirectionalLight light;
+    light.setPos(Vector3f(0.75, 0.5, -1.0));
+    light.setViewDependent(true);
+    light.setAmbient(Vector4f(0.6, 0.6, 0.6, 1.0));
+    light.setDiffuse(Vector4f(0.5, 0.5, 0.5, 1.0));
+    light.setSpecular(Vector4f(0, 0, 0, 0));
+    addLight(light);
 
     lightsLastUpdated = TimeGetCurrent();
 }
@@ -124,15 +117,15 @@ void SceneRendererES2::setScene(WhirlyKit::Scene *inScene)
 }
 
 /// Add a light to the existing set
-    void SceneRendererES2::addLight(const WhirlyKitDirectionalLight *light)
+void SceneRendererES2::addLight(const DirectionalLight &light)
 {
-    lights.push_back(*light);
+    lights.push_back(light);
     lightsLastUpdated = TimeGetCurrent();
     triggerDraw = true;
 }
 
 /// Replace all the lights at once. nil turns off lighting
-void SceneRendererES2::replaceLights(const std::vector<WhirlyKitDirectionalLight> &newLights)
+void SceneRendererES2::replaceLights(const std::vector<DirectionalLight> &newLights)
 {
     lights.clear();
     for (auto light : newLights)
@@ -142,7 +135,7 @@ void SceneRendererES2::replaceLights(const std::vector<WhirlyKitDirectionalLight
     triggerDraw = true;
 }
 
-void SceneRendererES2::setDefaultMaterial(WhirlyKitMaterial *mat)
+void SceneRendererES2::setDefaultMaterial(const Material &mat)
 {
     defaultMat = mat;
     lightsLastUpdated = TimeGetCurrent();
@@ -169,14 +162,15 @@ void SceneRendererES2::processScene()
     if (!scene)
         return;
     
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    if (oldContext != super.context)
-        [EAGLContext setCurrentContext:super.context];
+    // Note: Move this up a level
+//    EAGLContext *oldContext = [EAGLContext currentContext];
+//    if (oldContext != super.context)
+//        [EAGLContext setCurrentContext:super.context];
 
     scene->processChanges(theView,this,TimeGetCurrent());
     
-    if (oldContext != super.context)
-        [EAGLContext setCurrentContext:oldContext];
+//    if (oldContext != super.context)
+//        [EAGLContext setCurrentContext:oldContext];
 }
     
 bool SceneRendererES2::hasChanges()
@@ -186,14 +180,12 @@ bool SceneRendererES2::hasChanges()
 
 void SceneRendererES2::render()
 {
-    Scene *scene = super.scene;
-    
     if (!scene)
         return;
     
     frameCount++;
     
-    if (super.framebufferWidth <= 0 || super.framebufferHeight <= 0)
+    if (framebufferWidth <= 0 || framebufferHeight <= 0)
     {
         // Process the scene even if the window isn't up
         processScene();
@@ -224,13 +216,14 @@ void SceneRendererES2::render()
     	
     if (perfInterval > 0)
         perfTimer.startTiming("Render Setup");
-    
-    CheckGLError("SceneRendererES2: pre setCurrentContext");
-    EAGLContext *context = super.context;
-    EAGLContext *oldContext = [EAGLContext currentContext];
-    if (oldContext != context)
-        [EAGLContext setCurrentContext:context];
-    CheckGLError("SceneRendererES2: setCurrentContext");
+
+    // Note: Move this up a level
+//    CheckGLError("SceneRendererES2: pre setCurrentContext");
+//    EAGLContext *context = super.context;
+//    EAGLContext *oldContext = [EAGLContext currentContext];
+//    if (oldContext != context)
+//        [EAGLContext setCurrentContext:context];
+//    CheckGLError("SceneRendererES2: setCurrentContext");
     
 //    if (!renderSetup)
     {
@@ -255,7 +248,7 @@ void SceneRendererES2::render()
     
     // Set up a projection matrix
     Point2f frameSize(framebufferWidth,framebufferHeight);
-    Eigen::Matrix4d projMat4d = theView=>calcProjectionMatrix(frameSize,0.0);
+    Eigen::Matrix4d projMat4d = theView->calcProjectionMatrix(frameSize,0.0);
     
     Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
@@ -266,7 +259,7 @@ void SceneRendererES2::render()
     Eigen::Matrix4d modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
     Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
 
-    switch (super.zBufferMode)
+    switch (zBufferMode)
     {
         case zBufferOn:
             glDepthMask(GL_TRUE);
@@ -297,11 +290,11 @@ void SceneRendererES2::render()
 	{
 		int numDrawables = 0;
         
-        RendererFrameInfo baseFrameInfo();
+        RendererFrameInfo baseFrameInfo;
         // Note: Set This properly
         baseFrameInfo.glesVersion = 3;
-        baseFrameInfo.sceneRenderer = self;
-        baseFrameInfo.theView = super.theView;
+        baseFrameInfo.sceneRenderer = this;
+        baseFrameInfo.theView = theView;
         baseFrameInfo.viewTrans = viewTrans;
         baseFrameInfo.viewTrans4d = viewTrans4d;
         baseFrameInfo.modelTrans = modelTrans;

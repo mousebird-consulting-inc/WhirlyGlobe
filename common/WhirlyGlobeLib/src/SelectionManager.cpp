@@ -690,41 +690,33 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
     }
 }
 
-SelectionManager::PlacementInfo::PlacementInfo(View *view,SceneRendererES *renderer)
+SelectionManager::PlacementInfo::PlacementInfo(ViewState *viewState,SceneRendererES *renderer)
 : globeView(NULL), mapView(NULL)
 {
-    float scale = [UIScreen mainScreen].scale;
+    float scale = DeviceScreenScale();
     
     // Sort out what kind of view it is
-    if ([view isKindOfClass:[WhirlyGlobeView class]])
-    {
-        globeView = (WhirlyGlobeView *)view;
-        globeViewState = [[WhirlyGlobeViewState alloc] initWithView:globeView renderer:renderer];
-        viewState = globeViewState;
-    } else if ([view isKindOfClass:[MaplyView class]])
-    {
-        mapView = (MaplyView *)view;
-        mapViewState = [[MaplyViewState alloc] initWithView:mapView renderer:renderer];
-        viewState = mapViewState;
-    }
-    heightAboveSurface = view.heightAboveSurface;
+    WhirlyGlobe::GlobeViewState *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState);
+    Maply::MapViewState *mapViewState = dynamic_cast<Maply::MapViewState *>(viewState);
+    heightAboveSurface = globeViewState ? globeViewState->heightAboveGlobe : mapViewState->heightAboveSurface;
     
     // Calculate a slightly bigger framebuffer to grab nearby features
-    frameSize = Point2f(renderer.framebufferWidth,renderer.framebufferHeight);
-    frameSizeScale = Point2f(renderer.framebufferWidth/scale,renderer.framebufferHeight/scale);
+    frameSize = Point2f(renderer->framebufferWidth,renderer->framebufferHeight);
+    frameSizeScale = Point2f(renderer->framebufferWidth/scale,renderer->framebufferHeight/scale);
     float marginX = frameSize.x() * 0.25;
     float marginY = frameSize.y() * 0.25;
     frameMbr.ll() = Point2f(0 - marginX,0 - marginY);
     frameMbr.ur() = Point2f(frameSize.x() + marginX,frameSize.y() + marginY);
 
     // Now for the various matrices
-    viewMat = [view calcViewMatrix];
-    modelMat = [view calcModelMatrix];
+    viewMat = viewState->viewMatrices[0];
+    modelMat = viewState->modelMatrix;
     modelInvMat = modelMat.inverse();
     viewAndModelMat = viewMat * modelMat;
     viewAndModelInvMat = viewAndModelMat.inverse();
     viewModelNormalMat = viewAndModelMat.inverse().transpose();
-    projMat = [view calcProjectionMatrix:frameSizeScale margin:0.0];
+    projMat = viewState->projMatrix;
+    
     [view getOffsetMatrices:offsetMatrices frameBuffer:frameSize buffer:0.0];
 }
 

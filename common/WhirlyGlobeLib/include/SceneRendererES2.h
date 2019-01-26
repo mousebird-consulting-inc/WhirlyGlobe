@@ -39,13 +39,13 @@ public:
     virtual ~SceneRendererES2();
     
     /// Add a light to the existing set
-    void addLight(const WhirlyKitDirectionalLight *light);
+    void addLight(const DirectionalLight &light);
     
     /// Replace all the lights at once. nil turns off lighting
-    void replaceLights(const std::vector<WhirlyKitDirectionalLight> &lights);
+    void replaceLights(const std::vector<DirectionalLight> &lights);
     
     /// Set the default material
-    void setDefaultMaterial(WhirlyKitMaterial *mat);
+    void setDefaultMaterial(const Material &mat);
     
     /// The next time through we'll redo the render setup.
     /// We might need this if the view has switched away and then back.
@@ -62,15 +62,11 @@ public:
     bool hasChanges();
     
 protected:
-    OpenGLStateOptimizer *renderStateOptimizer;
-    
     TimeInterval lightsLastUpdated;
-    WhirlyKitMaterial *defaultMat;
+    Material defaultMat;
     
     bool extraFrameDrawn;
-    std::vector<WhirlyKitDirectionalLight> lights;
-    TimeInterval lightsLastUpdated;
-    WhirlyKit::Material *defaultMat;
+    std::vector<DirectionalLight> lights;
 };
         
 }

@@ -230,23 +230,19 @@ using namespace Eigen;
 
 - (void)updateLights
 {
-    NSMutableArray *theLights = [NSMutableArray array];
+    std::vector<DirectionalLight> newLights;
     for (MaplyLight *light in lights)
     {
-        WhirlyKitDirectionalLight *theLight = [[WhirlyKitDirectionalLight alloc] init];
+        DirectionalLight theLight;
         theLight.pos = Vector3f(light.pos.x,light.pos.y,light.pos.z);
         theLight.ambient = [light.ambient asVec4];
         theLight.diffuse = [light.diffuse asVec4];
         theLight.viewDependent = light.viewDependent;
+        newLights.push_back(theLight);
         [theLights addObject:theLight];
     }
-    if ([theLights count] == 0)
-        theLights = nil;
-    if ([sceneRenderer isKindOfClass:[SceneRendererES2 class]])
-    {
-        SceneRendererES2 *rendererES2 = (SceneRendererES2 *)sceneRenderer;
-        [rendererES2 replaceLights:theLights];
-    }
+    SceneRendererES2 *rendererES2 = (SceneRendererES2 *)sceneRenderer;
+    sceneRendererES2->replaceLights(newLights);
 }
 
 - (void)addShaderProgram:(MaplyShader *__nonnull)shader

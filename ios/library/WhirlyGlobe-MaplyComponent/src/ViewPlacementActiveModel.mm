@@ -131,7 +131,7 @@ void ViewPlacementManager::removeView(UIView *view)
 }
     
 // Work through the list of views, moving things around and/or hiding as needed
-void ViewPlacementManager::updateLocations(WhirlyKitRendererFrameInfo *frameInfo)
+void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
 {
     CoordSystemDisplayAdapter *coordAdapter = frameInfo.scene->getCoordAdapter();
     
@@ -291,7 +291,7 @@ void ViewPlacementManager::dumpStats()
     return manager->getChangedSinceUpdate();
 }
 
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+- (void)updateForFrame:(RendererFrameInfo *)frameInfo
 {
     manager->updateLocations(frameInfo);
 }

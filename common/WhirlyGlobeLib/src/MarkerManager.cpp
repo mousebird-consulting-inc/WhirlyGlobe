@@ -434,8 +434,6 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
 void MarkerManager::setScene(Scene *inScene)
 {
     SceneManager::setScene(inScene);
-
-    screenGenId = scene->getScreenSpaceGeneratorID();
 }
 
 }

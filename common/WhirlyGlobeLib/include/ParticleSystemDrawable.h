@@ -70,7 +70,7 @@ public:
     virtual void setCalculationProgram(SimpleIdentity newProgId) { calculateProgramId = newProgId; }
 
     /// Whether it's currently displaying
-    bool isOn(WhirlyKitRendererFrameInfo *frameInfo) const;
+    bool isOn(RendererFrameInfo *frameInfo) const;
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff) { enable = onOff; }
     
@@ -97,16 +97,16 @@ public:
     void teardownGL(OpenGLMemManager *memManager);
 
     /// Particles can calculate their positions
-    void calculate(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    void calculate(RendererFrameInfo *frameInfo,Scene *scene);
 
     /// Called on the rendering thread to draw
-    void draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene);
+    void draw(RendererFrameInfo *frameInfo,Scene *scene);
     
     /// Just points for now
     GLenum getType() const { return GL_POINTS; }
     
     /// Not using this mechanism
-    bool hasAlpha(WhirlyKitRendererFrameInfo *frameInfo) const { return false; }
+    bool hasAlpha(RendererFrameInfo *frameInfo) const { return false; }
     
     /// Don't need to update the renderer particularly
     void updateRenderer(SceneRendererES *renderer);
@@ -185,10 +185,10 @@ protected:
     TimeInterval lastUpdateTime;
     void updateChunks();
     
-    void drawSetupTextures(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int &progTexBound);
-    void drawTeardownTextures(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int progTexBound);
-    void drawSetupUniforms(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog);
-    void drawBindAttrs(EAGLContext *context,WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int pointsSoFar,bool useInstancingHere);
+    void drawSetupTextures(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int &progTexBound);
+    void drawTeardownTextures(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int progTexBound);
+    void drawSetupUniforms(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog);
+    void drawBindAttrs(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int pointsSoFar,bool useInstancingHere);
     void drawUnbindAttrs(OpenGLES2Program *prog);
     
     // Chunks we use for rendering

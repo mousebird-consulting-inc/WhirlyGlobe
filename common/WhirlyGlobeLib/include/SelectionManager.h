@@ -26,7 +26,6 @@
 #import "WhirlyKitView.h"
 #import "GlobeViewState.h"
 #import "MaplyViewState.h"
-#import "MaplyView.h"
 #import "Scene.h"
 #import "ScreenSpaceBuilder.h"
 
@@ -272,14 +271,13 @@ public:
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-        PlacementInfo(View *view,SceneRendererES *renderer);
+        PlacementInfo(ViewState *view,SceneRendererES *renderer);
         
         WhirlyGlobe::GlobeView *globeView;
         Maply::MapView *mapView;
         ViewState *viewState;
-        // Note: Put these back
-//        WhirlyGlobe::GlobeViewState *globeViewState;
-//        Maply::MapViewState *mapViewState;
+        WhirlyGlobe::GlobeViewState *globeViewState;
+        Maply::MapViewState *mapViewState;
         
         double heightAboveSurface;
         Eigen::Matrix4d viewMat,modelMat,viewAndModelMat,viewAndModelInvMat,viewModelNormalMat,projMat,modelInvMat;

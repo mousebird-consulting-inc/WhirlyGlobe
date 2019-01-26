@@ -229,7 +229,7 @@ public:
     void addPoint(Point2d pt);
     
     /// Extend the MBR by the given points
-    void addPoints(const std::vector<Point2f> &coords);
+    void addPoints(const Point2fVector &coords);
     
     /// Extend the MBR by the given points
     void addPoints(const Point2dVector &coords);

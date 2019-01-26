@@ -51,7 +51,7 @@ ParticleSystemDrawable::~ParticleSystemDrawable()
     pthread_mutex_destroy(&batchLock);
 }
     
-bool ParticleSystemDrawable::isOn(WhirlyKitRendererFrameInfo *frameInfo) const
+bool ParticleSystemDrawable::isOn(RendererFrameInfo *frameInfo) const
 {
     if (!enable)
         return false;
@@ -315,7 +315,7 @@ bool ParticleSystemDrawable::findEmptyBatch(Batch &retBatch)
     return ret;
 }
     
-void ParticleSystemDrawable::drawSetupTextures(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int &progTexBound)
+void ParticleSystemDrawable::drawSetupTextures(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int &progTexBound)
 {
     // GL Texture IDs
     bool anyTextures = false;
@@ -354,7 +354,7 @@ void ParticleSystemDrawable::drawSetupTextures(WhirlyKitRendererFrameInfo *frame
     }
 }
     
-void ParticleSystemDrawable::drawTeardownTextures(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int progTexBound)
+void ParticleSystemDrawable::drawTeardownTextures(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,bool hasTexture[],int progTexBound)
 {
     // Unbind any textures
     for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
@@ -365,7 +365,7 @@ void ParticleSystemDrawable::drawTeardownTextures(WhirlyKitRendererFrameInfo *fr
         }
 }
     
-void ParticleSystemDrawable::drawSetupUniforms(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog)
+void ParticleSystemDrawable::drawSetupUniforms(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog)
 {
     // Model/View/Projection matrix
     prog->setUniform(mvpMatrixNameID, frameInfo.mvpMat);
@@ -390,7 +390,7 @@ void ParticleSystemDrawable::drawSetupUniforms(WhirlyKitRendererFrameInfo *frame
     prog->setUniform(u_frameLenID, (float)frameInfo.frameLen);
 }
     
-void ParticleSystemDrawable::drawBindAttrs(EAGLContext *context,WhirlyKitRendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int vertexOffset,bool useInstancingHere)
+void ParticleSystemDrawable::drawBindAttrs(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int vertexOffset,bool useInstancingHere)
 {
     glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
     
@@ -489,7 +489,7 @@ void ParticleSystemDrawable::drawUnbindAttrs(OpenGLES2Program *prog)
     }
 }
     
-void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+void ParticleSystemDrawable::calculate(RendererFrameInfo *frameInfo,Scene *scene)
 {
     CheckGLError("BasicDrawable::calculate() glBeginTransformFeedback");
 
@@ -573,7 +573,7 @@ void ParticleSystemDrawable::calculate(WhirlyKitRendererFrameInfo *frameInfo,Sce
     activeVaryBuffer = (activeVaryBuffer == 0) ? 1 : 0;
 }
 
-void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
 {
     if (lastUpdateTime < frameInfo.currentTime) {
         updateBatches(frameInfo.currentTime);
@@ -584,7 +584,6 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
     if (chunks.empty())
         return;
     
-    EAGLContext *context = [EAGLContext currentContext];
     OpenGLES2Program *prog = frameInfo.program;
     
     // Sometimes the program is deleted before the drawable (oops)
@@ -612,7 +611,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
             {
                 glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)0);
                 CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
-                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                if (frameInfo.glesVersion < 3)
                     glVertexAttribDivisorEXT(thisAttr->index, 0);
                 else
                     glVertexAttribDivisor(thisAttr->index, 0);
@@ -624,7 +623,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
             {
                 glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)(2*sizeof(GLfloat)));
                 CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
-                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                if (frameInfo.glesVersion < 3)
                     glVertexAttribDivisorEXT(thisAttr->index, 0);
                 else
                     glVertexAttribDivisor(thisAttr->index, 0);
@@ -638,7 +637,7 @@ void ParticleSystemDrawable::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *s
 
         if (rectBuffer)
         {
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
+            if (frameInfo.glesVersion < 3)
                 glDrawArraysInstancedEXT(GL_TRIANGLES, 0, 6, chunk.numVertices);
             else
                 glDrawArraysInstanced(GL_TRIANGLES, 0, 6, chunk.numVertices);

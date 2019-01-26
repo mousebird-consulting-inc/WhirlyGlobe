@@ -459,7 +459,7 @@ bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate,Whirl
     bool lightsSet = true;
     for (unsigned int ii=0;ii<numLights;ii++)
     {
-        WhirlyKitDirectionalLight *light = [lights objectAtIndex:ii];
+        DirectionalLight *light = [lights objectAtIndex:ii];
         lightsSet &= [light bindToProgram:this index:ii modelMatrix:modelMat];
     }
     OpenGLESUniform *lightAttr = findUniform(u_numLightsNameID);

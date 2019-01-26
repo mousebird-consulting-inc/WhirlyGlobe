@@ -360,7 +360,7 @@ static StringIdentity fExposureNameID;
 // Thanks to: http://stainlessbeer.weebly.com/planets-9-atmospheric-scattering.html
 //  for the parameter values.
 
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+- (void)updateForFrame:(RendererFrameInfo *)frameInfo
 {
     [self setupStringIndices];
     

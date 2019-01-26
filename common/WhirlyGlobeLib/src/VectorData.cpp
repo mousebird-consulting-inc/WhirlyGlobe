@@ -1001,7 +1001,7 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
 using namespace libjson;
     
 // Parse properties out of a node
-bool VectorParseProperties(JSONNode node,Dictionary &dict)
+bool VectorParseProperties(JSONNode node,MutableDictionaryRef dict)
 {
     for (JSONNode::const_iterator it = node.begin();
          it != node.end(); ++it)
@@ -1014,19 +1014,19 @@ bool VectorParseProperties(JSONNode node,Dictionary &dict)
                 case JSON_STRING:
                 {
                     json_string val = it->as_string();
-                    dict.setString(name,val);
+                    dict->setString(name,val);
                 }
                     break;
                 case JSON_NUMBER:
                 {
                     double val = it->as_float();
-                    dict.setDouble(name, val);
+                    dict->setDouble(name, val);
                 }
                     break;
                 case JSON_BOOL:
                 {
                     bool val = it->as_bool();
-                    dict.setInt(name, (int)val);
+                    dict->setInt(name, (int)val);
                 }
                     break;
             }
@@ -1241,7 +1241,7 @@ bool VectorParseFeature(JSONNode node,ShapeSet &shapes)
         return false;
 
     // Parse the properties, then the geometry
-    Dictionary properties;
+    MutableDictionaryRef properties = MutableDictionaryMake();
     VectorParseProperties(*propIt,properties);
     ShapeSet newShapes;
     if (!VectorParseGeometry(*geomIt,newShapes))

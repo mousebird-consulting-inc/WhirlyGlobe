@@ -54,32 +54,32 @@ bool DirectionalLight::bindToProgram(OpenGLES2Program *program, int index, Eigen
     if (viewDependUni)
     {
         glUniform1f(viewDependUni->index, (viewDependent ? 0.0 : 1.0));
-        CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform1f");
+        CheckGLError("DirectionalLight::bindToProgram glUniform1f");
     }
     if (dirUni)
     {
         glUniform3f(dirUni->index, dir.x(), dir.y(), dir.z());
-        CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform3f");
+        CheckGLError("DirectionalLight::bindToProgram glUniform3f");
     }
     if (halfUni)
     {
         glUniform3f(halfUni->index, halfPlane.x(), halfPlane.y(), halfPlane.z());
-        CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform3f");
+        CheckGLError("DirectionalLight::bindToProgram glUniform3f");
     }
     if (ambientUni)
     {
         glUniform4f(ambientUni->index, ambient.x(), ambient.y(), ambient.z(), ambient.w());
-        CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform4f");
+        CheckGLError("DirectionalLight::bindToProgram glUniform4f");
     }
     if (diffuseUni)
     {
         glUniform4f(diffuseUni->index, diffuse.x(), diffuse.y(), diffuse.z(), diffuse.w());
-        CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform4f");
+        CheckGLError("DirectionalLight::bindToProgram glUniform4f");
     }
     if (specularUni)
     {
         glUniform4f(specularUni->index, specular.x(), specular.y(), specular.z(), specular.w());
-        CheckGLError("WhirlyKitDirectionalLight::bindToProgram glUniform4f");
+        CheckGLError("DirectionalLight::bindToProgram glUniform4f");
     }
 
     return (dirUni && halfUni && ambientUni && diffuseUni && specularUni);

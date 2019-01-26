@@ -29,7 +29,7 @@
 - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data;
 - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error;
 - (bool)hasUpdate;
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo;
+- (void)updateForFrame:(RendererFrameInfo *)frameInfo;
 - (int)getNumFrames;
 @end
 
@@ -548,7 +548,7 @@ using namespace WhirlyKit;
     return false;
 }
 
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+- (void)updateForFrame:(RendererFrameInfo *)frameInfo
 {
 }
 
@@ -574,7 +574,7 @@ using namespace WhirlyKit;
     return [_loader hasUpdate];
 }
 
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+- (void)updateForFrame:(RendererFrameInfo *)frameInfo
 {
     return [_loader updateForFrame:frameInfo];
 }
@@ -1129,7 +1129,7 @@ using namespace WhirlyKit;
     return renderState.hasUpdate(curFrame);
 }
 
-- (void)updateForFrame:(WhirlyKitRendererFrameInfo *)frameInfo
+- (void)updateForFrame:(RendererFrameInfo *)frameInfo
 {
     if (!renderState.hasUpdate(curFrame))
         return;
