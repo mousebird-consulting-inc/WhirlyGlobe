@@ -495,7 +495,7 @@ bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry
                         screenRotMat = calcScreenRot(screenRot,viewState,globeViewState,&entry->obj,objPt,modelTrans,normalMat,frameBufferSize);
                     
                     // Rotate the rectangle
-                    std::vector<Point2d> objPts(4);
+                    Point2dVector objPts(4);
                     if (screenRot == 0.0)
                     {
                         for (unsigned int ii=0;ii<4;ii++)
@@ -609,7 +609,7 @@ bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry
     {
         bool isActive;
         Point2d objOffset(0.0,0.0);
-        std::vector<Point2d> objPts(4);
+        Point2dVector objPts(4);
         
         // Start with a max objects check
         isActive = true;
@@ -655,7 +655,7 @@ bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry
                             // May only want to be placed certain ways.  Fair enough.
                             if (!(layoutObj->obj.acceptablePlacement & (1<<orient)))
                                 continue;
-                            const std::vector<Point2d> &layoutPts = layoutObj->obj.layoutPts;
+                            const Point2dVector &layoutPts = layoutObj->obj.layoutPts;
                             Mbr layoutMbr;
                             for (unsigned int li=0;li<layoutPts.size();li++)
                                 layoutMbr.addPoint(layoutPts[li]);

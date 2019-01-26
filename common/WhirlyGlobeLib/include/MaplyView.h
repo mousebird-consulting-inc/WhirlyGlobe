@@ -20,17 +20,6 @@
 
 #import "WhirlyKitView.h"
 
-//namespace Maply
-//{
-//class MapView;
-//}
-
-// Note: Porting
-/// Animation callback
-//@protocol MaplyAnimationDelegate
-//- (void)updateView:(Maply::MapView *)mapView;
-//@end
-
 namespace Maply
 {
 

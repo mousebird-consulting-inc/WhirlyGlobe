@@ -24,24 +24,8 @@
 #import "Identifiable.h"
 #import "Scene.h"
 #import "BasicDrawable.h"
-#import "DataLayer.h"
-#import "LayerThread.h"
 #import "SelectionManager.h"
 #import "VectorData.h"
-
-/** This is the protocol for an object that can handle caching for the lofted poly
- layer.  Generating the lofted polys is expensive, so we try to cache them
- somewhere.  It's up to the object implementing this protocol to store and retrieve
- the cached data.
- */
-@protocol WhirlyKitLoftedPolyCache<NSObject>
-/// Return the NSData for the given cache name (e.g. individual object).
-- (NSData *)readLoftedPolyData:(NSString *)cacheName;
-/// Write the given NSData ...somewhere... for the given cache name (e.g. individual object)
-- (bool)writeLoftedPolyData:(NSData *)data cacheName:(NSString *)cacheName;
-@end
-
-@class WhirlyKitLoftedPolyInfo;
 
 namespace WhirlyKit
 {

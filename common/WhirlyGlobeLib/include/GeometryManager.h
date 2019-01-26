@@ -200,7 +200,7 @@ public:
     GeomPointAttrDataPoint2f() : GeomPointAttrData(GeomRawFloat2Type) { }
     int getNumVals() { return (int)vals.size(); }
     virtual ~GeomPointAttrDataPoint2f() { }
-    std::vector<Point2f> vals;
+    Point2fVector vals;
 };
 
 // Double2 geometry attribute
@@ -210,7 +210,7 @@ public:
     GeomPointAttrDataPoint2d() : GeomPointAttrData(GeomRawDouble2Type) { }
     int getNumVals() { return (int)vals.size(); }
     virtual ~GeomPointAttrDataPoint2d() { }
-    std::vector<Point2d> vals;
+    Point2dVector vals;
 };
 
 // Float3 geometry attribute
@@ -220,7 +220,7 @@ public:
     GeomPointAttrDataPoint3f() : GeomPointAttrData(GeomRawFloat3Type) { }
     int getNumVals() { return (int)vals.size(); }
     virtual ~GeomPointAttrDataPoint3f() { }
-    std::vector<Point3f> vals;
+    Point3fVector vals;
 };
 
 // Double3 geometry attribute
@@ -230,7 +230,7 @@ public:
     GeomPointAttrDataPoint3d() : GeomPointAttrData(GeomRawDouble3Type) { }
     int getNumVals() { return (int)vals.size(); }
     virtual ~GeomPointAttrDataPoint3d() { }
-    std::vector<Point3d> vals;
+    Point3dVector vals;
 };
 
 // Double4 geometry attribute
@@ -263,15 +263,15 @@ public:
     
     // Add two floats to a list of attributes
     void addPoint(int idx,const Point2f &pt);
-    void addPoints(int idx,const std::vector<Point2f> &pts);
+    void addPoints(int idx,const Point2fVector &pts);
     
     // Add three floats to a list of attributes
     void addPoint(int idx,const Point3f &pt);
-    void addPoints(int idx,const std::vector<Point3f> &pts);
+    void addPoints(int idx,const Point3fVector &pts);
     
     // Add three doubles to a list of attributes
     void addPoint(int idx,const Point3d &pt);
-    void addPoints(int idx,const std::vector<Point3d> &pts);
+    void addPoints(int idx,const Point3dVector &pts);
     
     // Add four floats to a list of attributes
     void addPoint(int idx,const Eigen::Vector4f &pt);

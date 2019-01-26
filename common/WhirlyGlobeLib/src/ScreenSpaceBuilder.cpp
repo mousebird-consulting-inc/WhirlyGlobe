@@ -84,27 +84,27 @@ ScreenSpaceBuilder::DrawableWrap::~DrawableWrap()
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap(const DrawableState &state)
     : state(state), center(0,0,0)
 {
-    draw = new ScreenSpaceDrawable(state.motion,state.rotation);
-    draw->setType(GL_TRIANGLES);
+    locDraw = new ScreenSpaceDrawable(state.motion,state.rotation);
+    locDraw->setType(GL_TRIANGLES);
     // A max of two textures per
     for (unsigned int ii=0;ii<state.texIDs.size() && ii<2;ii++)
-        draw->setTexId(ii, state.texIDs[ii]);
-    draw->setProgram(state.progID);
-    draw->setDrawPriority(state.drawPriority);
-    draw->setFade(state.fadeDown, state.fadeUp);
-    draw->setVisibleRange(state.minVis, state.maxVis);
-    draw->setRequestZBuffer(false);
-    draw->setWriteZBuffer(false);
-    draw->setVertexAttributes(state.vertexAttrs);
-    draw->setOnOff(state.enable);
-    draw->setEnableTimeRange(state.startEnable, state.endEnable);
+        locDraw->setTexId(ii, state.texIDs[ii]);
+    locDraw->setProgram(state.progID);
+    locDraw->setDrawPriority(state.drawPriority);
+    locDraw->setFade(state.fadeDown, state.fadeUp);
+    locDraw->setVisibleRange(state.minVis, state.maxVis);
+    locDraw->setRequestZBuffer(false);
+    locDraw->setWriteZBuffer(false);
+    locDraw->setVertexAttributes(state.vertexAttrs);
+    locDraw->setOnOff(state.enable);
+    locDraw->setEnableTimeRange(state.startEnable, state.endEnable);
     
     // If we've got more than one texture ID and a period, we need a tweaker
     if (state.texIDs.size() > 1 && state.period != 0.0)
     {
         TimeInterval now = TimeGetCurrent();
         BasicDrawableTexTweaker *tweak = new BasicDrawableTexTweaker(state.texIDs,now,state.period);
-        draw->addTweaker(DrawableTweakerRef(tweak));
+        locDraw->addTweaker(DrawableTweakerRef(tweak));
     }
 }
 

@@ -22,7 +22,6 @@
 #import "SelectionManager.h"
 #import "BaseInfo.h"
 #import "BasicDrawableInstance.h"
-#import "SharedAttributes.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -259,7 +258,7 @@ void GeometryRawPoints::addPoint(int idx,const Point2f &pt)
         f2Attrs->vals.push_back(pt);
 }
 
-void GeometryRawPoints::addPoints(int idx,const std::vector<Point2f> &pts)
+void GeometryRawPoints::addPoints(int idx,const Point2fVector &pts)
 {
     if (idx >= attrData.size())
         return;
@@ -281,7 +280,7 @@ void GeometryRawPoints::addPoint(int idx,const Point3f &pt)
         f3Attrs->vals.push_back(pt);
 }
 
-void GeometryRawPoints::addPoints(int idx,const std::vector<Point3f> &pts)
+void GeometryRawPoints::addPoints(int idx,const Point3fVector &pts)
 {
     if (idx >= attrData.size())
         return;
@@ -308,7 +307,7 @@ void GeometryRawPoints::addPoint(int idx,const Point3d &pt)
     }
 }
 
-void GeometryRawPoints::addPoints(int idx,const std::vector<Point3d> &pts)
+void GeometryRawPoints::addPoints(int idx,const Point3dVector &pts)
 {
     if (idx >= attrData.size())
         return;

@@ -81,7 +81,7 @@ public:
     // Comparison operator for sorting
     bool operator < (const PolytopeSelectable &that) const;
     
-    std::vector<std::vector<Point3f> > polys;
+    std::vector<Point3fVector > polys;
     Point3d centerPt;        // The polygons are offsets of this center
 };
 
@@ -118,7 +118,7 @@ public:
     // Comparison operator for sorting
     bool operator < (const LinearSelectable &that) const;
     
-    std::vector<Point3d> pts;
+    Point3dVector pts;
 };
 
 typedef std::set<WhirlyKit::LinearSelectable> LinearSelectableSet;
@@ -231,19 +231,19 @@ public:
     void addSelectableRectSolid(SimpleIdentity selectId,const BBox &bbox,float minVis,float maxVis,bool enable);
     
     /// Add a polytope, represented by a set of surfaces
-    void addPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,float minVis,float maxVis,bool enable);
+    void addPolytope(SimpleIdentity selectId,const std::vector<Point3dVector > &surfaces,float minVis,float maxVis,bool enable);
 
     /// Add a polytope
     void addPolytopeFromBox(SimpleIdentity selectId,const Point3d &ll,const Point3d &ur,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
     
     /// Add a polytope that moves over time
-    void addMovingPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
+    void addMovingPolytope(SimpleIdentity selectId,const std::vector<Point3dVector > &surfaces,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
     
     /// Add a moving polytop from a box
     void addMovingPolytopeFromBox(SimpleIdentity selectID,const Point3d &ll,const Point3d &ur,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
 
     /// Add a linear in 3-space for selection.
-    void addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable);
+    void addSelectableLinear(SimpleIdentity selectId,const Point3fVector &pts,float minVis,float maxVis,bool enable);
     
     /// Add a billboard for selection.  Pass in the middle of the base and size
     void addSelectableBillboard(SimpleIdentity selectId,const Point3d &center,const Point3d &norm,const Point2d &size,float minVis,float maxVis,bool enable);
@@ -290,13 +290,13 @@ public:
     };
 
 protected:
-    static Eigen::Matrix2d calcScreenRot(float &screenRot,WhirlyKitViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const CGPoint &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
+    static Eigen::Matrix2d calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const CGPoint &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
     // Projects a world coordinate to one or more points on the screen (wrapping)
-    void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts,float scale);
+    void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,Point2dVector &screenPts,float scale);
     // Convert rect selectables into more generic screen space objects
     void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs,TimeInterval now);
     // Internal object picking method
-    void pickObjects(Point2f touchPt,float maxDist,WhirlyKitView *theView,bool multi,std::vector<SelectedObject> &selObjs);
+    void pickObjects(Point2f touchPt,float maxDist,View *theView,bool multi,std::vector<SelectedObject> &selObjs);
 
     pthread_mutex_t mutex;
     Scene *scene;

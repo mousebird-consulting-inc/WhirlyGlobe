@@ -43,6 +43,8 @@ public:
     WhirlyKitGLSetupInfo();
     /// If we're using drawOffset, this is the units
     float minZres;
+    /// Version of OpenGL ES we're using
+    int glesVersion;
 };
 	
 class Scene;

@@ -66,7 +66,7 @@ public:
     virtual void teardownGL(OpenGLMemManager *memManage);
     
     /// Set up the vertex array object
-    GLuint setupVAO(OpenGLES2Program *prog);
+    GLuint setupVAO(RendererFrameInfo *frameInfo,OpenGLES2Program *prog);
     
     /// Return the type (or an approximation thereof).  We use this for sorting.
     virtual GLenum getType() const;

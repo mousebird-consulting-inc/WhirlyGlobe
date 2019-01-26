@@ -44,7 +44,7 @@
 #import "SelectionManager.h"
 #import "IntersectionManager.h"
 #import "LayerThread.h"
-#import "DataLayer.h"
+//#import "DataLayer.h"
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
 #import "FlatMath.h"

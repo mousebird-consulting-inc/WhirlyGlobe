@@ -195,7 +195,7 @@ public:
     /// Construct a double version from the float version
     MbrD(const Mbr &inMbr) : pt_ll(Point2d(inMbr.ll().x(),inMbr.ll().y())), pt_ur(Point2d(inMbr.ur().x(),inMbr.ur().y())) { }
     /// Construct from the MBR of a vector of points
-    MbrD(const std::vector<Point2d> &pts);
+    MbrD(const Point2dVector &pts);
     
     /// Resets back to invalid
     void reset() { pt_ll = Point2d(0.0,0.0);  pt_ur = Point2d(-1.0,-1.0); }
@@ -232,7 +232,7 @@ public:
     void addPoints(const std::vector<Point2f> &coords);
     
     /// Extend the MBR by the given points
-    void addPoints(const std::vector<Point2d> &coords);
+    void addPoints(const Point2dVector &coords);
     
     /// See if this Mbr overlaps the other one
     bool overlaps(const MbrD &that) const;
@@ -250,7 +250,7 @@ public:
     MbrD intersect(const MbrD &that) const;
     
     /// Return a list of points, for those routines that need just a list of points
-    void asPoints(std::vector<Point2d> &pts) const;
+    void asPoints(Point2dVector &pts) const;
     
     /// Expand with the given MBR
     void expand(const MbrD &that);

@@ -22,8 +22,6 @@
 #import "LabelRenderer.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
-#import "ScreenSpaceGenerator.h"
-#import "SharedAttributes.h"
 #import "LabelManager.h"
 #import "WhirlyKitLog.h"
 

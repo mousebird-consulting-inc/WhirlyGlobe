@@ -19,10 +19,8 @@
  */
 
 #import "MarkerManager.h"
-#import "ScreenSpaceGenerator.h"
 #import "LayoutManager.h"
 #import "ScreenSpaceBuilder.h"
-#import "SharedAttributes.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

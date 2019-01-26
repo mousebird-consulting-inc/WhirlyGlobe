@@ -256,7 +256,7 @@ using namespace WhirlyKit;
         newEx.transform = self.transform.mat;
     int theNumCoords = self.numCoordPairs;
     double *theCoords = self.coordData;
-    std::vector<Point2d> pts;
+    Point2dVector pts;
     pts.resize(theNumCoords);
     for (unsigned int ii=0;ii<theNumCoords;ii++)
     {

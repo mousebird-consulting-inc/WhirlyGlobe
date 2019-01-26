@@ -194,8 +194,7 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
     void *glMem = NULL;
     if (hasMapBufferSupport)
     {
-      EAGLContext *context = [EAGLContext currentContext];
-      if (context.API < kEAGLRenderingAPIOpenGLES3)
+      if (setupInfo->glesVersion < 3)
           glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
       else
           glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
@@ -224,7 +223,7 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
     
     if (hasMapBufferSupport)
     {
-      if (context.API < kEAGLRenderingAPIOpenGLES3)
+      if (setupInfo->glesVersion < 3)
           glUnmapBufferOES(GL_ARRAY_BUFFER);
       else
           glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -251,12 +250,10 @@ void BasicDrawableInstance::teardownGL(OpenGLMemManager *memManage)
     }
 }
     
-GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
+GLuint BasicDrawableInstance::setupVAO(RendererFrameInfo *frameInfo,OpenGLES2Program *prog)
 {
     vertArrayObj = basicDraw->setupVAO(prog);
     vertArrayDefaults = basicDraw->vertArrayDefaults;
-    
-    EAGLContext *context = [EAGLContext currentContext];
     
     glBindVertexArrayOES(vertArrayObj);
 
@@ -267,7 +264,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
         {
             glVertexAttribPointer(centerAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(0));
             CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
+            if (frameInfo->glesVersion < 3)
                 glVertexAttribDivisorEXT(centerAttr->index, 1);
             else
                 glVertexAttribDivisor(centerAttr->index, 1);
@@ -283,7 +280,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
             {
                 glVertexAttribPointer(matAttr->index+im, 4, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+im*(4*sizeof(GLfloat))));
                 CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                if (frameInfo->glesVersion < 3)
                     glVertexAttribDivisorEXT(matAttr->index+im, 1);
                 else
                     glVertexAttribDivisor(matAttr->index+im, 1);
@@ -298,7 +295,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
         {
             glVertexAttribPointer(useColorAttr->index, 1, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+matSize));
             CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
+            if (frameInfo->glesVersion < 3)
                 glVertexAttribDivisorEXT(useColorAttr->index, 1);
             else
                 glVertexAttribDivisor(useColorAttr->index, 1);
@@ -312,7 +309,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
         {
             glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, instSize, (const GLvoid *)(long)(centerSize+matSize+colorInstSize));
             CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
+            if (frameInfo->glesVersion < 3)
                 glVertexAttribDivisorEXT(colorAttr->index, 1);
             else
                 glVertexAttribDivisor(colorAttr->index, 1);
@@ -326,7 +323,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
         {
             glVertexAttribPointer(dirAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+matSize+colorInstSize+colorSize));
             CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
+            if (frameInfo->glesVersion < 3)
                 glVertexAttribDivisorEXT(dirAttr->index, 1);
             else
                 glVertexAttribDivisor(dirAttr->index, 1);
@@ -344,7 +341,7 @@ GLuint BasicDrawableInstance::setupVAO(OpenGLES2Program *prog)
 // Used to pass in buffer offsets
 #define CALCBUFOFF(base,off) ((char *)((long)(base) + (off)))
 
-void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *scene)
+void BasicDrawableInstance::draw(RendererFrameInfo *frameInfo,Scene *scene)
 {
     // Happens if we're deleting things out of order
     if (!basicDraw || !basicDraw->isSetupInGL())
@@ -392,9 +389,9 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         }
         basicDraw->setVisibleRange(minVis, maxVis);
         
-        Matrix4f oldMvpMat = frameInfo.mvpMat;
-        Matrix4f oldMvMat = frameInfo.viewAndModelMat;
-        Matrix4f oldMvNormalMat = frameInfo.viewModelNormalMat;
+        Matrix4f oldMvpMat = frameInfo->mvpMat;
+        Matrix4f oldMvMat = frameInfo->viewAndModelMat;
+        Matrix4f oldMvNormalMat = frameInfo->viewModelNormalMat;
         
         // No matrices, so just one instance
         if (instances.empty())
@@ -432,9 +429,9 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         }
         
         // Set it back
-        frameInfo.mvpMat = oldMvpMat;
-        frameInfo.viewAndModelMat = oldMvMat;
-        frameInfo.viewModelNormalMat = oldMvNormalMat;
+        frameInfo->mvpMat = oldMvpMat;
+        frameInfo->viewAndModelMat = oldMvMat;
+        frameInfo->viewModelNormalMat = oldMvNormalMat;
         
         if (hasDrawPriority)
             basicDraw->setDrawPriority(oldDrawPriority);
@@ -450,8 +447,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         
     } else {
         // New style makes use of OpenGL instancing and makes its own copy of the geometry
-        EAGLContext *context = [EAGLContext currentContext];
-        OpenGLES2Program *prog = frameInfo.program;
+        OpenGLES2Program *prog = frameInfo->program;
         
         // Figure out if we're fading in or out
         float fade = 1.0;
@@ -479,7 +475,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         
         // Time for motion
         if (moving)
-            frameInfo.program->setUniform(u_TimeNameID, (float)(frameInfo->currentTime - startTime));
+            frameInfo->program->setUniform(u_TimeNameID, (float)(frameInfo->currentTime - startTime));
         
         // GL Texture IDs
         bool anyTextures = false;
@@ -523,11 +519,11 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
             prog->setUniform(mvpNormalMatrixNameID, identMatrix);
             prog->setUniform(u_pMatrixNameID, identMatrix);
         } else {
-            prog->setUniform(mvpMatrixNameID, frameInfo.mvpMat);
-            prog->setUniform(mvMatrixNameID, frameInfo.viewAndModelMat);
-            prog->setUniform(mvNormalMatrixNameID, frameInfo.viewModelNormalMat);
-            prog->setUniform(mvpNormalMatrixNameID, frameInfo.mvpNormalMat);
-            prog->setUniform(u_pMatrixNameID, frameInfo.projMat);
+            prog->setUniform(mvpMatrixNameID, frameInfo->mvpMat);
+            prog->setUniform(mvMatrixNameID, frameInfo->viewAndModelMat);
+            prog->setUniform(mvNormalMatrixNameID, frameInfo->viewModelNormalMat);
+            prog->setUniform(mvpNormalMatrixNameID, frameInfo->mvpNormalMat);
+            prog->setUniform(u_pMatrixNameID, frameInfo->projMat);
         }
         
         // Any uniforms we may want to apply to the shader
@@ -541,7 +537,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         prog->setUniform(u_HasTextureNameID, anyTextures);
         
         // If this is present, the drawable wants to do something based where the viewer is looking
-        prog->setUniform(u_EyeVecNameID, frameInfo.fullEyeVec);
+        prog->setUniform(u_EyeVecNameID, frameInfo->fullEyeVec);
         
         // The program itself may have some textures to bind
         bool hasTexture[WhirlyKitMaxTextures];
@@ -594,7 +590,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
         
         // If necessary, set up the VAO (once)
         if (vertArrayObj == 0 && basicDraw->sharedBuffer !=0)
-            setupVAO(prog);
+            setupVAO(frameInfo,prog);
         
         // Figure out what we're using
         const OpenGLESAttribute *vertAttr = prog->findAttribute(a_PositionNameID);
@@ -685,7 +681,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                 case GL_TRIANGLES:
                     if (instBuffer)
                     {
-                        if (context.API < kEAGLRenderingAPIOpenGLES3)
+                        if (frameInfo->glesVersion < 3)
                             glDrawElementsInstancedEXT(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(basicDraw->sharedBufferOffset,basicDraw->triBuffer), numInstances);
                         else
                             glDrawElementsInstanced(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(basicDraw->sharedBufferOffset,basicDraw->triBuffer), numInstances);
@@ -700,7 +696,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                     glLineWidth(lineWidth);
                     if (instBuffer)
                     {
-                        if (context.API < kEAGLRenderingAPIOpenGLES3)
+                        if (frameInfo->glesVersion < 3)
                             glDrawArraysInstancedEXT(basicDraw->type, 0, basicDraw->numPoints, numInstances);
                         else
                             glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
@@ -711,7 +707,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                 case GL_TRIANGLE_STRIP:
                     if (instBuffer)
                     {
-                        if (context.API < kEAGLRenderingAPIOpenGLES3)
+                        if (frameInfo->glesVersion < 3)
                             glDrawArraysInstancedEXT(basicDraw->type, 0, basicDraw->numPoints, numInstances);
                         else
                             glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
@@ -734,7 +730,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                         CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
                         if (instBuffer)
                         {
-                            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                            if (frameInfo->glesVersion < 3)
                                 glDrawElementsInstancedEXT(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, 0, numInstances);
                             else
                                 glDrawElementsInstanced(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, 0, numInstances);
@@ -745,7 +741,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                     } else {
                         if (instBuffer)
                         {
-                            if (context.API < kEAGLRenderingAPIOpenGLES3)
+                            if (frameInfo->glesVersion < 3)
                                 glDrawElementsInstancedEXT(GL_TRIANGLES, (GLsizei)basicDraw->tris.size()*3, GL_UNSIGNED_SHORT, &basicDraw->tris[0], numInstances);
                             else
                                 glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)basicDraw->tris.size()*3, GL_UNSIGNED_SHORT, &basicDraw->tris[0], numInstances);
@@ -763,7 +759,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                     CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
                     if (instBuffer)
                     {
-                        if (context.API < kEAGLRenderingAPIOpenGLES3)
+                        if (frameInfo->glesVersion < 3)
                             glDrawArraysInstancedEXT(basicDraw->type, 0, basicDraw->numPoints, numInstances);
                         else
                             glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
@@ -774,7 +770,7 @@ void BasicDrawableInstance::draw(WhirlyKitRendererFrameInfo *frameInfo,Scene *sc
                 case GL_TRIANGLE_STRIP:
                     if (instBuffer)
                     {
-                        if (context.API < kEAGLRenderingAPIOpenGLES3)
+                        if (frameInfo->glesVersion < 3)
                             glDrawArraysInstancedEXT(basicDraw->type, 0, basicDraw->numPoints, numInstances);
                         else
                             glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);

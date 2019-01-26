@@ -22,7 +22,6 @@
 #import <math.h>
 #import "WhirlyVector.h"
 #import "Scene.h"
-#import "DataLayer.h"
 #import "LayerThread.h"
 #import "GlobeMath.h"
 #import "sqlhelpers.h"

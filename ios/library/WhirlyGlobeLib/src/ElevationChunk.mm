@@ -130,7 +130,7 @@ typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevat
     return ret;
 }
 
-- (void)buildSkirt:(BasicDrawable *)draw pts:(std::vector<Point3d> &)pts texCoord:(std::vector<TexCoord> &)texCoords skirtFactor:(float)skirtFactor haveElev:(bool)haveElev theCenter:(const Point3d &)theCenter
+- (void)buildSkirt:(BasicDrawable *)draw pts:(Point3dVector &)pts texCoord:(std::vector<TexCoord> &)texCoords skirtFactor:(float)skirtFactor haveElev:(bool)haveElev theCenter:(const Point3d &)theCenter
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {
@@ -220,7 +220,7 @@ typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevat
     
     chunk->setType(GL_TRIANGLES);
     // Generate point, texture coords, and normals
-    std::vector<Point3d> locs((sphereTessX+1)*(sphereTessY+1));
+    Point3dVector locs((sphereTessX+1)*(sphereTessY+1));
     std::vector<float> elevs;
     if (drawInfo->includeElev || drawInfo->useElevAsZ)
         elevs.resize((sphereTessX+1)*(sphereTessY+1));
@@ -360,7 +360,7 @@ typedef enum {WhirlyKitElevationFloats,WhirlyKitElevationShorts} WhirlyKitElevat
             skirtFactor = 1.0 - 0.2 / (1<<drawInfo->ident.level);
         
         // Bottom skirt
-        std::vector<Point3d> skirtLocs;
+        Point3dVector skirtLocs;
         std::vector<TexCoord> skirtTexCoords;
         for (unsigned int ix=0;ix<=sphereTessX;ix++)
         {

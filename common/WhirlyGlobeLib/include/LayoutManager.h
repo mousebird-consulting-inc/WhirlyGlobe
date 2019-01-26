@@ -25,7 +25,6 @@
 #import "BasicDrawable.h"
 #import "Scene.h"
 #import "SceneRendererES.h"
-#import "GlobeLayerViewWatcher.h"
 #import "ScreenSpaceBuilder.h"
 #import "SelectionManager.h"
 #import "OverlapHelper.h"
@@ -63,10 +62,10 @@ public:
     void setSelectSize(const Point2d &layoutSize,const Point2d &offset);
 
     // Size to use for laying out
-    std::vector<Point2d> layoutPts;
+    Point2dVector layoutPts;
     
     // Size to use for selection
-    std::vector<Point2d> selectPts;
+    Point2dVector selectPts;
 
     
     std::string uniqueID;
@@ -80,7 +79,7 @@ public:
     ///  WhirlyKitLayoutPlacementAbove, WhirlyKitLayoutPlacementBelow
     int acceptablePlacement;
     /// Debugging hint
-    NSString *hint;
+    std::string hint;
 };
 
 // Private fields we use for object layout
@@ -211,7 +210,7 @@ public:
     
 protected:
     bool calcScreenPt(CGPoint &objPt,LayoutObjectEntry *layoutObj,ViewState *viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
-    Eigen::Matrix2d calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const CGPoint &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
+    Eigen::Matrix2d calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const CGPoint &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
     bool runLayoutRules(ViewState *viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams);
     
     pthread_mutex_t layoutLock;

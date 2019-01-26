@@ -1326,7 +1326,7 @@ public:
         VectorLinearRef lin = std::dynamic_pointer_cast<VectorLinear>(*it);
         if (lin)
         {
-            std::vector<Point2f> outPts;
+            Point2fVector outPts;
             SubdivideEdgesToSurface(lin->pts, outPts, false, &adapter, epsilon);
             lin->pts = outPts;
         } else {
@@ -1342,7 +1342,7 @@ public:
                 {
                     for (unsigned int ii=0;ii<ar->loops.size();ii++)
                     {
-                        std::vector<Point2f> outPts;
+                        Point2fVector outPts;
                         SubdivideEdgesToSurface(ar->loops[ii], outPts, true, &adapter, epsilon);
                         ar->loops[ii] = outPts;
                     }

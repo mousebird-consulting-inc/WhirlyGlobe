@@ -41,7 +41,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyGeomBuilder
 {
-    std::vector<Point3d> curPts;
+    Point3dVector curPts;
 }
 
 - (id)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC

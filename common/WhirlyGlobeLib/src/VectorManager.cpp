@@ -101,7 +101,7 @@ public:
         geoCenter = inGeoCenter;
     }
     
-    void addPoints(VectorRing3d &inPts,bool closed,Dictionary *attrs)
+    void addPoints(VectorRing3d &inPts,bool closed,MutableDictionaryRef attrs)
     {
         VectorRing pts;
         pts.reserve(pts.size());
@@ -111,7 +111,7 @@ public:
         addPoints(pts,closed,attrs);
     }
 
-    void addPoints(VectorRing &pts,bool closed,Dictionary *attrs)
+    void addPoints(VectorRing &pts,bool closed,MutableDictionaryRef attrs)
     {
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         RGBAColor ringColor = attrs->getColor(MaplyColor, vecInfo->color);
@@ -258,7 +258,7 @@ public:
     }
     
     // This version converts a ring into a mesh (chopping, tesselating, etc...)
-    void addPoints(VectorRing &ring,Dictionary *attrs)
+    void addPoints(VectorRing &ring,MutableDictionaryRef attrs)
     {
         // Grid subdivision is done here
         std::vector<VectorRing> inRings;
@@ -274,7 +274,7 @@ public:
     }
 
     // This version converts a ring into a mesh (chopping, tesselating, etc...)
-    void addPoints(VectorRing3d &inRing,Dictionary *attrs)
+    void addPoints(VectorRing3d &inRing,MutableDictionaryRef attrs)
     {
         VectorRing ring;
         ring.reserve(inRing.size());
@@ -295,7 +295,7 @@ public:
     }
 
     // This version converts a ring into a mesh (chopping, tesselating, etc...)
-    void addPoints(std::vector<VectorRing> &rings,Dictionary *attrs)
+    void addPoints(std::vector<VectorRing> &rings,MutableDictionaryRef attrs)
     {
         // Grid subdivision is done here
         std::vector<VectorRing> inRings;
@@ -311,7 +311,7 @@ public:
     }
 
     // If it's a mesh, we're assuming it's been fully processed (triangulated, chopped, and so on)
-    void addPoints(VectorTrianglesRef mesh,Dictionary *attrs)
+    void addPoints(VectorTrianglesRef mesh,MutableDictionaryRef attrs)
     {
         RGBAColor ringColor = attrs->getColor(MaplyColor, vecInfo->color);
 

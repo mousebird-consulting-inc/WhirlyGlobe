@@ -20,7 +20,6 @@
 
 #import "WideVectorManager.h"
 #import "FlatMath.h"
-#import "SharedAttributes.h"
 #import "WhirlyKitLog.h"
 
 using namespace WhirlyKit;

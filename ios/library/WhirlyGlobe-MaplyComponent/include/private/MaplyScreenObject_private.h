@@ -30,7 +30,7 @@ public:
     // Texture or UIImage
     id texture;
     UIColor *color;
-    std::vector<Point2d> pts;
+    Point2dVector pts;
     std::vector<TexCoord> texCoords;
 };
 

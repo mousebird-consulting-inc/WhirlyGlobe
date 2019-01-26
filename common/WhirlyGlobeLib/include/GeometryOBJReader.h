@@ -80,9 +80,9 @@ public:
     };
     
     std::vector<Group> groups;
-    std::vector<Point3d> verts;
-    std::vector<Point2d> texCoords;
-    std::vector<Point3d> norms;
+    Point3dVector verts;
+    Point2dVector texCoords;
+    Point3dVector norms;
     std::vector<Material> materials;
 };
 

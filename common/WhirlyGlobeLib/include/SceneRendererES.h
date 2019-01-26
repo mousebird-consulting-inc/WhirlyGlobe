@@ -153,7 +153,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Renderer version (e.g. OpenGL ES 1 vs 2)
-    int oglVersion;
+    int glesVersion;
     /// Renderer itself
     WhirlyKit::SceneRendererES *sceneRenderer;
     /// View

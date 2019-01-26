@@ -311,7 +311,7 @@ void VectorShape::setAttrDict(MutableDictionaryRef newDict)
     *attrDict = *newDict;
 }
     
-Dictionary *VectorShape::getAttrDict()
+MutableDictionaryRef VectorShape::getAttrDict()
 {
     return attrDict;
 }
@@ -543,6 +543,7 @@ void VectorPoints::initGeoMbr()
     geoMbr.addGeoCoords(pts);
 }
 
+#if 0
 typedef enum {FileVecPoints=20,FileVecLinear,FileVecAreal,FileVecMesh} VectorIdentType;
     
 bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes)
@@ -561,7 +562,7 @@ bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes)
             VectorShapeRef shape = *it;
             
             // They all have a dictionary
-            Dictionary *dict = shape->getAttrDict();
+            MutableDictionaryRef dict = shape->getAttrDict();
             MutableRawData dictData;
             dict->asRawData(&dictData);
             int dataLen = (int)dictData.getLen();
@@ -787,7 +788,7 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
     fclose(fp);
     return true;
 }
-
+#endif
 
 //// Parse a single coordinate out of an array
 //bool VectorParseCoord(Point2f &coord,NSArray *coords)

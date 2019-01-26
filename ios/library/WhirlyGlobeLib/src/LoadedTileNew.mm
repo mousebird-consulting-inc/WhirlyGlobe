@@ -186,7 +186,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     } else {
         chunk->setType(GL_TRIANGLES);
         // Generate point, texture coords, and normals
-        std::vector<Point3d> locs((sphereTessX+1)*(sphereTessY+1));
+        Point3dVector locs((sphereTessX+1)*(sphereTessY+1));
         std::vector<float> elevs;
         if (geomSettings.includeElev)
             elevs.resize((sphereTessX+1)*(sphereTessY+1));
@@ -278,7 +278,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
             float skirtFactor = 1.0 - 0.2 / (1<<ident.level);
             
             // Bottom skirt
-            std::vector<Point3d> skirtLocs;
+            Point3dVector skirtLocs;
             std::vector<TexCoord> skirtTexCoords;
             for (unsigned int ix=0;ix<=sphereTessX;ix++)
             {
@@ -404,7 +404,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     }
 }
     
-void LoadedTileNew::buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std::vector<TexCoord> &texCoords,double skirtFactor,bool haveElev,const Point3d &theCenter)
+void LoadedTileNew::buildSkirt(BasicDrawable *draw,Point3dVector &pts,std::vector<TexCoord> &texCoords,double skirtFactor,bool haveElev,const Point3d &theCenter)
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {

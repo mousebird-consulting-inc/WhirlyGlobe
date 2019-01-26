@@ -33,6 +33,7 @@ namespace WhirlyKit
 WhirlyKitGLSetupInfo::WhirlyKitGLSetupInfo()
 {
     minZres = 0.0;
+    glesVersion = 3;
 }
 
 OpenGLMemManager::OpenGLMemManager()

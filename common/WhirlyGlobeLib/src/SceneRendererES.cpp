@@ -267,7 +267,7 @@ void ClearRenderTargetReq::execute(Scene *scene,SceneRendererES *renderer,View *
 }
 
 RendererFrameInfo::RendererFrameInfo()
-    : oglVersion(0), sceneRenderer(NULL), theView(NULL), scene(NULL), frameLen(0), currentTime(0),
+    : glesVersion(0), sceneRenderer(NULL), theView(NULL), scene(NULL), frameLen(0), currentTime(0),
     heightAboveSurface(0), screenSizeInDisplayCoords(0,0), program(NULL), stateOpt(NULL)
     // Note: Porting
 //,lights(NULL)

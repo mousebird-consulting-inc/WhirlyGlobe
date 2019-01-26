@@ -1261,7 +1261,7 @@ using namespace WhirlyGlobe;
 {
     [theView setHeightAboveGlobe:height updateWatchers:false];
 
-    std::vector<Point2f> pts;
+    Point2fVector pts;
     mbr.asPoints(pts);
     CGRect frame = self.view.frame;
     for (unsigned int ii=0;ii<pts.size();ii++)

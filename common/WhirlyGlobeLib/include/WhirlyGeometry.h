@@ -81,7 +81,7 @@ void BarycentricCoords(const Point2d &p,const Point2d &a,const Point2d &b,const 
 bool BoundingBoxRayIntersect(const Point3d &org,const Point3d &dir,const BBox &bbox, double *minT, double *maxT, Point3d *minPt, Point3d *maxPt);
 
 /// Look for a ray/polygon intersection
-//bool PolygonRayIntersect(const Point3d &org,const Point3d &dir,const std::vector<Point3d> &poly,Point3d *iPt);
+//bool PolygonRayIntersect(const Point3d &org,const Point3d &dir,const Point3dVector &poly,Point3d *iPt);
 
 /// Look for a ray/triangle intersection
 bool TriangleRayIntersection(const Point3d &org,const Point3d &dir,const Point3d pts[3], double *outT, Point3d *iPt);

@@ -79,7 +79,7 @@ public:
     void makeDrawables(TileGeomManager *geomManage,TileGeomSettings &geomSettings,ChangeSet &changes);
 
     // Utility routine to build skirts around the edges
-    void buildSkirt(BasicDrawable *draw,std::vector<Point3d> &pts,std::vector<TexCoord> &texCoords,double skirtFactor,bool haveElev,const Point3d &theCenter);
+    void buildSkirt(BasicDrawable *draw,Point3dVector &pts,std::vector<TexCoord> &texCoords,double skirtFactor,bool haveElev,const Point3d &theCenter);
 
     // Enable associated drawables
     void enable(TileGeomSettings &geomSettings,ChangeSet &changes);

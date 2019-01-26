@@ -40,7 +40,7 @@ public:
 	void setAttrDict(MutableDictionaryRef newDict);
 	
 	/// Return the attr dict
-	DictionaryRef getAttrDict();
+	MutableDictionaryRef getAttrDict();
     /// Return the geoMbr
     virtual GeoMbr calcGeoMbr() = 0;
 	
@@ -96,9 +96,9 @@ double CalcLoopArea(const Point2dVector &);
 /// Calculate the centroid of a loop
 Point2f CalcLoopCentroid(const VectorRing &loop);
 /// Calculate the centroid of a bunch of points
-Point2d CalcLoopCentroid(const std::vector<Point2d> &loop);
+Point2d CalcLoopCentroid(const Point2dVector &loop);
 /// Calculate the center of mass of the points
-Point2d CalcCenterOfMass(const std::vector<Point2d> &loop);
+Point2d CalcCenterOfMass(const Point2dVector &loop);
     
 /// Collection of triangles forming a mesh
 class VectorTriangles : public VectorShape
@@ -307,8 +307,10 @@ bool VectorParseGeoJSON(ShapeSet &shapes,const std::string &str,std::string &crs
   */
 bool VectorParseGeoJSONAssembly(const std::string &str,std::map<std::string,ShapeSet> &shapes);
     
+#if 0
 bool VectorReadFile(const std::string &fileName,ShapeSet &shapes);
 bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes);
+#endif
     
 }
 

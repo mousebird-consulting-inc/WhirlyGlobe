@@ -160,7 +160,7 @@ Mbr Mbr::intersect(const Mbr &that) const
     return out;
 }
 	
-MbrD::MbrD(const std::vector<Point2d> &pts)
+MbrD::MbrD(const Point2dVector &pts)
 : pt_ll(0,0), pt_ur(-1,-1)
 {
     for (unsigned int ii=0;ii<pts.size();ii++)
@@ -195,13 +195,13 @@ void MbrD::addPoint(Point2d pt)
     pt_ur.y() = std::max(pt_ur.y(),pt.y());
 }
 
-void MbrD::addPoints(const std::vector<Point2f> &coords)
+void MbrD::addPoints(const Point2fVector &coords)
 {
     for (unsigned int ii=0;ii<coords.size();ii++)
         addPoint(coords[ii]);
 }
 
-void MbrD::addPoints(const std::vector<Point2d> &coords)
+void MbrD::addPoints(const Point2dVector &coords)
 {
     for (unsigned int ii=0;ii<coords.size();ii++)
         addPoint(coords[ii]);
@@ -258,7 +258,7 @@ void MbrD::expandByFraction(double bufferZone)
 }
 
 
-void MbrD::asPoints(std::vector<Point2d> &pts) const
+void MbrD::asPoints(Point2dVector &pts) const
 {
     pts.push_back(pt_ll);
     pts.push_back(pt_ur);

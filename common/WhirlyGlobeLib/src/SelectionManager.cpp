@@ -19,8 +19,6 @@
  */
 
 #import "SelectionManager.h"
-#import "NSDictionary+Stuff.h"
-#import "UIColor+Stuff.h"
 #import "GlobeMath.h"
 #import "MaplyView.h"
 #import "WhirlyGeometry.h"
@@ -28,7 +26,6 @@
 #import "SceneRendererES.h"
 #import "ScreenSpaceBuilder.h"
 #import "LayoutManager.h"
-#import "MaplyLayerViewWatcher.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -183,7 +180,7 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
     
     for (unsigned int ii=0;ii<6;ii++)
     {
-        std::vector<Point3f> poly;
+        Point3fVector poly;
         for (unsigned int jj=0;jj<4;jj++)
         {
             Point3f pt = pts[corners[ii][jj]];
@@ -199,13 +196,13 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
 
 void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,const BBox &bbox,float minVis,float maxVis,bool enable)
 {
-    std::vector<Point3f> pts;
+    Point3fVector pts;
     pts.reserve(8);
     bbox.asPoints(pts);
     addSelectableRect(selectId,&pts[0],minVis,maxVis,enable);
 }
 
-void SelectionManager::addPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,float minVis,float maxVis,bool enable)
+void SelectionManager::addPolytope(SimpleIdentity selectId,const std::vector<Point3dVector > &surfaces,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -217,7 +214,7 @@ void SelectionManager::addPolytope(SimpleIdentity selectId,const std::vector<std
     newSelect.centerPt = Point3d(0,0,0);
     newSelect.enable = enable;
     int numPts = 0;
-    for (const std::vector<Point3d> &surface : surfaces)
+    for (const Point3dVector &surface : surfaces)
         for (const Point3d &pt : surface)
         {
             newSelect.centerPt += pt;
@@ -225,9 +222,9 @@ void SelectionManager::addPolytope(SimpleIdentity selectId,const std::vector<std
         }
     newSelect.centerPt /= numPts;
     
-    for (const std::vector<Point3d> &surface : surfaces)
+    for (const Point3dVector &surface : surfaces)
     {
-        std::vector<Point3f> surface3f;
+        Point3fVector surface3f;
         surface3f.reserve(surface.size());
         for (const Point3d &pt : surface)
         {
@@ -256,7 +253,7 @@ void SelectionManager::addPolytopeFromBox(SimpleIdentity selectId,const Point3d 
     pts[7] = Point3d(ll.x(),ur.y(),ur.z());
     
     // Turn the box into a polytope
-    std::vector<std::vector<Point3d> > polys(6);
+    std::vector<Point3dVector > polys(6);
     auto &bot = polys[0];  bot.resize(4);
     auto &side0 = polys[1];  side0.resize(4);
     auto &side1 = polys[2];  side1.resize(4);
@@ -281,7 +278,7 @@ void SelectionManager::addPolytopeFromBox(SimpleIdentity selectId,const Point3d 
     addPolytope(selectId, polys, minVis, maxVis, enable);
 }
 
-void SelectionManager::addMovingPolytope(SimpleIdentity selectId,const std::vector<std::vector<Point3d> > &surfaces,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime, TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable)
+void SelectionManager::addMovingPolytope(SimpleIdentity selectId,const std::vector<Point3dVector > &surfaces,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime, TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -296,9 +293,9 @@ void SelectionManager::addMovingPolytope(SimpleIdentity selectId,const std::vect
     newSelect.duration = duration;
     newSelect.enable = enable;
     
-    for (const std::vector<Point3d> &surface : surfaces)
+    for (const Point3dVector &surface : surfaces)
     {
-        std::vector<Point3f> surface3f;
+        Point3fVector surface3f;
         surface3f.reserve(surface.size());
         for (const Point3d &pt : surface)
         {
@@ -327,7 +324,7 @@ void SelectionManager::addMovingPolytopeFromBox(SimpleIdentity selectID, const P
     pts[7] = Point3d(ll.x(),ur.y(),ur.z());
     
     // Turn the box into a polytope
-    std::vector<std::vector<Point3d> > polys(6);
+    std::vector<Point3dVector > polys(6);
     auto &bot = polys[0];  bot.resize(4);
     auto &side0 = polys[1];  side0.resize(4);
     auto &side1 = polys[2];  side1.resize(4);
@@ -352,7 +349,7 @@ void SelectionManager::addMovingPolytopeFromBox(SimpleIdentity selectID, const P
     addMovingPolytope(selectID, polys, startCenter, endCenter, startTime, duration, mat, minVis, maxVis, enable);
 }
 
-void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const std::vector<Point3f> &pts,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const Point3fVector &pts,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -731,7 +728,7 @@ SelectionManager::PlacementInfo::PlacementInfo(View *view,SceneRendererES *rende
     [view getOffsetMatrices:offsetMatrices frameBuffer:frameSize buffer:0.0];
 }
 
-void SelectionManager::projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,std::vector<Point2d> &screenPts,float scale)
+void SelectionManager::projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,Point2dVector &screenPts,float scale)
 {
     for (unsigned int offi=0;offi<pInfo.offsetMatrices.size();offi++)
     {
@@ -879,7 +876,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
     {
         ScreenSpaceObjectLocation &screenObj = ssObjs[ii];
         
-        std::vector<Point2d> projPts;
+        Point2dVector projPts;
         projectWorldPointToScreen(screenObj.dispLoc, pInfo, projPts,scale);
         
         float closeDist2 = MAXFLOAT;
@@ -904,7 +901,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                 if (screenObj.rotation != 0.0)
                     screenRotMat = calcScreenRot(screenRot,pInfo.viewState,pInfo.globeViewState,&screenObj,objPt,modelTrans,normalMat,frameBufferSize);
 
-                std::vector<Point2f> screenPts;
+                Point2fVector screenPts;
                 if (screenRot == 0.0)
                 {
                     for (unsigned int kk=0;kk<screenObj.pts.size();kk++)
@@ -995,8 +992,8 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                     // Project each plane to the screen, including clipping
                     for (unsigned int ii=0;ii<sel.polys.size();ii++)
                     {
-                        std::vector<Point3f> &poly3f = sel.polys[ii];
-                        std::vector<Point3d> poly;
+                        Point3fVector &poly3f = sel.polys[ii];
+                        Point3fVector poly;
                         poly.reserve(poly3f.size());
                         for (unsigned int jj=0;jj<poly3f.size();jj++)
                         {
@@ -1004,7 +1001,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                             poly.push_back(Point3d(pt.x()+sel.centerPt.x(),pt.y()+sel.centerPt.y(),pt.z()+sel.centerPt.z()));
                         }
                         
-                        std::vector<Point2f> screenPts;
+                        Point2fVector screenPts;
                         ClipAndProjectPolygon(pInfo.viewAndModelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
                         
                         if (screenPts.size() > 3)
@@ -1057,7 +1054,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                     for (unsigned int ii=0;ii<sel.polys.size();ii++)
                     {
                         std::vector<Point3f> &poly3f = sel.polys[ii];
-                        std::vector<Point3d> poly;
+                        Point3dVector poly;
                         poly.reserve(poly3f.size());
                         for (unsigned int jj=0;jj<poly3f.size();jj++)
                         {
@@ -1065,7 +1062,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                             poly.push_back(Point3d(pt.x()+centerPt.x(),pt.y()+centerPt.y(),pt.z()+centerPt.z()));
                         }
                         
-                        std::vector<Point2f> screenPts;
+                        Point2fVector screenPts;
                         ClipAndProjectPolygon(pInfo.viewAndModelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
                         
                         if (screenPts.size() > 3)
@@ -1109,13 +1106,13 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                 if (sel.minVis == DrawVisibleInvalid ||
                     (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
                 {
-                    std::vector<Point2d> p0Pts;
+                    Point2dVector p0Pts;
                     projectWorldPointToScreen(sel.pts[0],pInfo,p0Pts,scale);
                     float closeDist2 = MAXFLOAT;
                     float closeDist3d = MAXFLOAT;
                     for (unsigned int ip=1;ip<sel.pts.size();ip++)
                     {
-                        std::vector<Point2d> p1Pts;
+                        Point2dVector p1Pts;
                         projectWorldPointToScreen(sel.pts[ip],pInfo,p1Pts,scale);
                         
                         if (p0Pts.size() == p1Pts.size())
@@ -1161,7 +1158,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                 if (sel.minVis == DrawVisibleInvalid ||
                     (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
                 {
-                    std::vector<Point2f> screenPts;
+                    Point2fVector screenPts;
                     
                     for (unsigned int ii=0;ii<4;ii++)
                     {
@@ -1225,7 +1222,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
             {
                 
                 // Come up with a rectangle in display space
-                std::vector<Point3d> poly(4);
+                Point3dVector poly(4);
                 Vector3d normal3d = sel.normal;
                 Point3d axisX = eyeVec.cross(normal3d);
                 Point3d center3d = sel.center;
@@ -1237,7 +1234,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                 
                 BillboardSelectable sel = *it;
 
-                std::vector<Point2f> screenPts;
+                Point2fVector screenPts;
                 ClipAndProjectPolygon(pInfo.viewAndModelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
                 
                 float closeDist2 = MAXFLOAT;

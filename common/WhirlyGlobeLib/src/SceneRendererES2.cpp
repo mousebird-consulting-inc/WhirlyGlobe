@@ -298,7 +298,8 @@ void SceneRendererES2::render()
 		int numDrawables = 0;
         
         RendererFrameInfo baseFrameInfo();
-        baseFrameInfo.oglVersion = kEAGLRenderingAPIOpenGLES2;
+        // Note: Set This properly
+        baseFrameInfo.glesVersion = 3;
         baseFrameInfo.sceneRenderer = self;
         baseFrameInfo.theView = super.theView;
         baseFrameInfo.viewTrans = viewTrans;

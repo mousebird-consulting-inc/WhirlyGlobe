@@ -60,7 +60,7 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
 {
     // Start with the corner points in the source
     WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
-    std::vector<Point3d> srcBounds;
+    Point3dVector srcBounds;
     srcBounds.push_back(Point3d(nodeMbr.ll().x(),nodeMbr.ll().y(),inMinZ));
     srcBounds.push_back(Point3d(nodeMbr.ur().x(),nodeMbr.ll().y(),inMinZ));
     srcBounds.push_back(Point3d(nodeMbr.ur().x(),nodeMbr.ur().y(),inMinZ));
@@ -73,7 +73,7 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
                                calcNumSamples(srcBounds[1],srcBounds[2],srcSystem,coordAdapter,nodeIdent.level))+1;
 
     // Build a grid of samples
-    std::vector<Point3d> dispPoints;
+    Point3dVector dispPoints;
     dispPoints.reserve(numSamplesX*numSamplesY);
     for (int ix=0;ix<numSamplesX;ix++) {
         double xt = ix/(double)(numSamplesX-1);
@@ -93,7 +93,7 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
     for (int ix=0;ix<numSamplesX-1;ix++) {
         for (int iy=0;iy<numSamplesY-1;iy++) {
             // Surface polygon
-            std::vector<Point3d> poly;
+            Point3dVector poly;
             poly.reserve(4);
             poly.push_back(dispPoints[iy*numSamplesX+ix]);
             poly.push_back(dispPoints[(iy+1)*numSamplesX+ix]);
@@ -116,7 +116,7 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
     }
 }
 
-double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,ViewState *viewState,WhirlyKit::Point2f frameSize)
+double PolyImportance(const Point3dVector &poly,const Point3d &norm,ViewState *viewState,WhirlyKit::Point2f frameSize)
 {
     double import = 0.0;
     
@@ -147,7 +147,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,ViewS
             continue;
         
         // Project to the screen
-        std::vector<Point2d> screenPts;
+        Point2dVector screenPts;
         screenPts.reserve(clipSpacePts.size());
         Point2d halfFrameSize(frameSize.x()/2.0,frameSize.y()/2.0);
         for (unsigned int ii=0;ii<clipSpacePts.size();ii++)
@@ -165,7 +165,7 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,ViewS
             continue;
         
         // Now project the screen points back into model space
-        std::vector<Point3d> backPts;
+        Point3dVector backPts;
         backPts.reserve(screenPts.size());
         for (unsigned int ii=0;ii<screenPts.size();ii++)
         {
@@ -237,7 +237,7 @@ bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &fr
     {
         for (unsigned int ii=0;ii<_polys.size();ii++)
         {
-            const std::vector<Point3d> &poly = _polys[ii];
+            const Point3dVector &poly = _polys[ii];
             double origArea = PolygonArea(poly,_normals[ii]);
             origArea = std::abs(origArea);
             

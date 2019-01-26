@@ -23,6 +23,7 @@
 #import "GlobeViewState.h"
 #import "MaplyView.h"
 #import "SceneRendererES.h"
+#import "ViewState.h"
 
 namespace Maply
 {

@@ -46,7 +46,7 @@ using namespace Eigen;
 using namespace WhirlyKit;
 
 // Sample a great circle and throw in an interpolated height at each point
-void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,std::vector<Point3f> &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,float eps)
+void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,Point3fVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,float eps)
 {
     bool isFlat = coordAdapter->isFlat();
 
@@ -100,7 +100,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 }
 
 // Sample a great circle and throw in an interpolated height at each point
-void SampleGreatCircleStatic(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,std::vector<Point3f> &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,float samples)
+void SampleGreatCircleStatic(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,Point3fVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,float samples)
 {
     bool isFlat = coordAdapter->isFlat();
     

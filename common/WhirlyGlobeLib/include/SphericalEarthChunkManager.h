@@ -21,7 +21,7 @@
 #import <math.h>
 #import <queue>
 #import "WhirlyVector.h"
-#import "TileQuadLoader.h"
+#import "TileQuadLoaderNew.h"
 #import "Scene.h"
 #import "DynamicTextureAtlas.h"
 #import "DynamicDrawableAtlas.h"

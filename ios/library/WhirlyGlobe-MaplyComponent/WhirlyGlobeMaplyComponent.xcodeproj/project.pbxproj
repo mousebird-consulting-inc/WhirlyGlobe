@@ -115,7 +115,6 @@
 		2B446B7D21FB94A00078A975 /* VectorData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B7C21FB94A00078A975 /* VectorData.cpp */; };
 		2B446B8321FB97C40078A975 /* ShapeReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B8021FB97C30078A975 /* ShapeReader.h */; };
 		2B446B8521FB97C40078A975 /* GeometryOBJReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B8221FB97C40078A975 /* GeometryOBJReader.h */; };
-		2B446B8921FB97D50078A975 /* GeometryOBJReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B8621FB97D50078A975 /* GeometryOBJReader.cpp */; };
 		2B446B8A21FB97D50078A975 /* ShapeReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B8721FB97D50078A975 /* ShapeReader.cpp */; };
 		2B446B8D21FB99C00078A975 /* ScreenImportance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B8C21FB99C00078A975 /* ScreenImportance.h */; };
 		2B446B8F21FB99D60078A975 /* ScreenImportance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B8E21FB99D60078A975 /* ScreenImportance.cpp */; };
@@ -410,7 +409,6 @@
 		2B846F2B21F158EC00EF2A82 /* LabelManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1D21F158EB00EF2A82 /* LabelManager.cpp */; };
 		2B846F2C21F158EC00EF2A82 /* ShapeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1E21F158EB00EF2A82 /* ShapeManager.cpp */; };
 		2B846F2D21F158EC00EF2A82 /* VectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1F21F158EB00EF2A82 /* VectorManager.cpp */; };
-		2B846F2E21F158EC00EF2A82 /* SphericalEarthChunkManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F2021F158EB00EF2A82 /* SphericalEarthChunkManager.cpp */; };
 		2B846F2F21F158EC00EF2A82 /* IntersectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F2121F158EC00EF2A82 /* IntersectionManager.cpp */; };
 		2B84ED131F83FC5A00B34D73 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED121F83FC5A00B34D73 /* CoreGraphics.framework */; };
 		2B84ED151F83FC6000B34D73 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED141F83FC6000B34D73 /* OpenGLES.framework */; };
@@ -514,6 +512,9 @@
 		2BB8E1B421FBB0BA00154CDC /* SceneRendererES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8E1B121FBB0BA00154CDC /* SceneRendererES.cpp */; };
 		2BB8E1B521FBB0BA00154CDC /* SceneRendererES2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8E1B221FBB0BA00154CDC /* SceneRendererES2.cpp */; };
 		2BB8E1B721FBC61C00154CDC /* ActiveModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1B621FBC61C00154CDC /* ActiveModel.h */; };
+		2BB8E1B921FBCCBF00154CDC /* ViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1B821FBCCBF00154CDC /* ViewState.h */; };
+		2BB8E1BB21FBCCD200154CDC /* ViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8E1BA21FBCCD200154CDC /* ViewState.cpp */; };
+		2BB8E1BD21FBCEA400154CDC /* SharedAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -1428,6 +1429,9 @@
 		2BB8E1B121FBB0BA00154CDC /* SceneRendererES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SceneRendererES.cpp; path = ../../../../common/WhirlyGlobeLib/src/SceneRendererES.cpp; sourceTree = "<group>"; };
 		2BB8E1B221FBB0BA00154CDC /* SceneRendererES2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SceneRendererES2.cpp; path = ../../../../common/WhirlyGlobeLib/src/SceneRendererES2.cpp; sourceTree = "<group>"; };
 		2BB8E1B621FBC61C00154CDC /* ActiveModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActiveModel.h; path = ../../../../common/WhirlyGlobeLib/include/ActiveModel.h; sourceTree = "<group>"; };
+		2BB8E1B821FBCCBF00154CDC /* ViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ViewState.h; path = ../../../../common/WhirlyGlobeLib/include/ViewState.h; sourceTree = "<group>"; };
+		2BB8E1BA21FBCCD200154CDC /* ViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ViewState.cpp; path = ../../../../common/WhirlyGlobeLib/src/ViewState.cpp; sourceTree = "<group>"; };
+		2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedAttributes.h; path = ../../../../common/WhirlyGlobeLib/include/SharedAttributes.h; sourceTree = "<group>"; };
 		2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WhirlyGlobeMaplyComponent.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeMaplyComponent.h; sourceTree = "<group>"; };
 		2BE537041D2499E500B60FAD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1859,6 +1863,7 @@
 				2B23131421F8DD60006AA344 /* MaplyFlatView.h */,
 				2B23131521F8DD60006AA344 /* MaplyView.h */,
 				2B23131821F8DD60006AA344 /* MaplyViewState.h */,
+				2BB8E1B821FBCCBF00154CDC /* ViewState.h */,
 				2B23131621F8DD60006AA344 /* WhirlyKitView.h */,
 			);
 			name = view;
@@ -1872,6 +1877,7 @@
 				2B23132221F8DD7E006AA344 /* MaplyFlatView.cpp */,
 				2B23132421F8DD7E006AA344 /* MaplyView.cpp */,
 				2B23132521F8DD7E006AA344 /* MaplyViewState.cpp */,
+				2BB8E1BA21FBCCD200154CDC /* ViewState.cpp */,
 				2B23132021F8DD7E006AA344 /* WhirlyKitView.cpp */,
 			);
 			name = view;
@@ -1880,6 +1886,7 @@
 		2B23133121F9371F006AA344 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */,
 				2B23133721F942D1006AA344 /* Dictionary.h */,
 				2B446B2621F7A0D70078A975 /* Platform.h */,
 				2B23132D21F93660006AA344 /* RawData.h */,
@@ -3760,6 +3767,7 @@
 				2BB8A3EF21ED43D10025DA98 /* MaplyRotateDelegate.h in Headers */,
 				2BB4767B2000486F006AAACB /* MapboxVectorStyleSet.h in Headers */,
 				2B846F0C21F158E100EF2A82 /* SceneGraphManager.h in Headers */,
+				2BB8E1BD21FBCEA400154CDC /* SharedAttributes.h in Headers */,
 				2B446AFC21F79A600078A975 /* FlatMath.h in Headers */,
 				2BE5380E1D249A1200B60FAD /* MaplyImageTile.h in Headers */,
 				2B846F0721F158E100EF2A82 /* LoftManager.h in Headers */,
@@ -3858,6 +3866,7 @@
 				2BE539671D249BEF00B60FAD /* AAKepler.h in Headers */,
 				2BE5385B1D249A1200B60FAD /* WhirlyGlobeViewController_private.h in Headers */,
 				2BE53A791D249C4700B60FAD /* strutil.h in Headers */,
+				2BB8E1B921FBCCBF00154CDC /* ViewState.h in Headers */,
 				2B446AF921F79A600078A975 /* GlobeMath.h in Headers */,
 				2B884A731E3803170027C397 /* laszip_common_v2.hpp in Headers */,
 				2BE538051D249A1200B60FAD /* MaplyComponentObject.h in Headers */,
@@ -4171,7 +4180,6 @@
 				2B446B1221F79AD00078A975 /* StringIndexer.cpp in Sources */,
 				2B82B6231E82E2490095FB14 /* shpopen.c in Sources */,
 				2B82B6621E82E24A0095FB14 /* pj_factors.c in Sources */,
-				2B446B8921FB97D50078A975 /* GeometryOBJReader.cpp in Sources */,
 				2BE53A6D1D249C4600B60FAD /* atomicops_internals_x86_msvc.cc in Sources */,
 				2B82B6271E82E2490095FB14 /* pj_inv3d.c in Sources */,
 				2B82B6831E82E24A0095FB14 /* pj_list.c in Sources */,
@@ -4234,6 +4242,7 @@
 				2B82B6781E82E24A0095FB14 /* pj_inv.c in Sources */,
 				2B82B6821E82E24A0095FB14 /* PJ_lcca.c in Sources */,
 				2B846EEC21F1382300EF2A82 /* pj_fileapi.c in Sources */,
+				2BB8E1BB21FBCCD200154CDC /* ViewState.cpp in Sources */,
 				2B82B69A1E82E24A0095FB14 /* PJ_ocea.c in Sources */,
 				2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */,
 				2B446B1E21F79AE40078A975 /* GlobeMath.cpp in Sources */,
@@ -4295,7 +4304,6 @@
 				2B82B5FF1E82E2490095FB14 /* JSONAllocator.cpp in Sources */,
 				2BE53A621D249C4600B60FAD /* status.cc in Sources */,
 				2B82B6B31E82E24A0095FB14 /* PJ_tcea.c in Sources */,
-				2B846F2E21F158EC00EF2A82 /* SphericalEarthChunkManager.cpp in Sources */,
 				2B82B69C1E82E24A0095FB14 /* PJ_omerc.c in Sources */,
 				2B446B7D21FB94A00078A975 /* VectorData.cpp in Sources */,
 				2BE539A61D249BEF00B60FAD /* AAMoonMaxDeclinations.cpp in Sources */,
