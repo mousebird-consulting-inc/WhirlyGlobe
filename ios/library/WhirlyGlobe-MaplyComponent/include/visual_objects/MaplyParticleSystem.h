@@ -72,14 +72,14 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
     
     The created particles will last only a certain amount of time.
   */
-@property (nonatomic,assign) TimeInterval lifetime;
+@property (nonatomic,assign) NSTimeInterval lifetime;
 
 /** 
     The base that particle time is measured from.
     
     Individual particles will measure their own lifetime against this base value.
   */
-@property (nonatomic,readonly) TimeInterval baseTime;
+@property (nonatomic,readonly) NSTimeInterval baseTime;
 
 /** 
     Total number of particles to be represented at once.
@@ -159,7 +159,7 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
     
     This will be set by default.  However, you can control what the time basis for a particle batch is.
   */
-@property (nonatomic,assign) TimeInterval time;
+@property (nonatomic,assign) NSTimeInterval time;
 
 /** 
     Initialize with the particle system.

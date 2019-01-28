@@ -92,7 +92,7 @@ bool IntersectSphereRadius(Point3d org,Vector3d dir,double radius,Point3d &hit,d
 // Point in poly routine
 // Courtesy: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
 
-bool PointInPolygon(Point2f pt,const Point2fVector &ring)
+bool PointInPolygon(const Point2f &pt,const Point2fVector &ring)
 {
 	int ii, jj;
 	bool c = false;

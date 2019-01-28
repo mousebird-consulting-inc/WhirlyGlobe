@@ -18,12 +18,6 @@
 		2B23131C21F8DD61006AA344 /* WhirlyKitView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23131621F8DD60006AA344 /* WhirlyKitView.h */; };
 		2B23131D21F8DD61006AA344 /* GlobeViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23131721F8DD60006AA344 /* GlobeViewState.h */; };
 		2B23131E21F8DD61006AA344 /* MaplyViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23131821F8DD60006AA344 /* MaplyViewState.h */; };
-		2B23132621F8DD7F006AA344 /* WhirlyKitView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132021F8DD7E006AA344 /* WhirlyKitView.cpp */; };
-		2B23132721F8DD7F006AA344 /* GlobeView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132121F8DD7E006AA344 /* GlobeView.cpp */; };
-		2B23132821F8DD7F006AA344 /* MaplyFlatView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132221F8DD7E006AA344 /* MaplyFlatView.cpp */; };
-		2B23132921F8DD7F006AA344 /* GlobeViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132321F8DD7E006AA344 /* GlobeViewState.cpp */; };
-		2B23132A21F8DD7F006AA344 /* MaplyView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132421F8DD7E006AA344 /* MaplyView.cpp */; };
-		2B23132B21F8DD7F006AA344 /* MaplyViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132521F8DD7E006AA344 /* MaplyViewState.cpp */; };
 		2B23132E21F93661006AA344 /* RawData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23132D21F93660006AA344 /* RawData.h */; };
 		2B23133021F936CD006AA344 /* RawData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132F21F936CD006AA344 /* RawData.cpp */; };
 		2B23133421F9395F006AA344 /* RawData_NSData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133321F9395E006AA344 /* RawData_NSData.h */; };
@@ -46,9 +40,7 @@
 		2B446ACD21F26E0E0078A975 /* MaplyShapeInfo_iOS_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AC521F26E0E0078A975 /* MaplyShapeInfo_iOS_private.h */; };
 		2B446ACE21F26E0E0078A975 /* MaplyMarkerInfo_iOS_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AC621F26E0E0078A975 /* MaplyMarkerInfo_iOS_private.h */; };
 		2B446AE121F288090078A975 /* LabelRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AE021F288080078A975 /* LabelRenderer.h */; };
-		2B446AE321F288220078A975 /* LabelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AE221F288220078A975 /* LabelRenderer.cpp */; };
 		2B446AE621F299E50078A975 /* ShapeDrawableBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AE521F299E50078A975 /* ShapeDrawableBuilder.h */; };
-		2B446AE821F299FA0078A975 /* ShapeDrawableBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AE721F299FA0078A975 /* ShapeDrawableBuilder.cpp */; };
 		2B446AF921F79A600078A975 /* GlobeMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AED21F79A5F0078A975 /* GlobeMath.h */; };
 		2B446AFA21F79A600078A975 /* CoordSystem.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AEE21F79A5F0078A975 /* CoordSystem.h */; };
 		2B446AFB21F79A600078A975 /* OverlapHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AEF21F79A5F0078A975 /* OverlapHelper.h */; };
@@ -64,7 +56,6 @@
 		2B446B0F21F79AD00078A975 /* Tesselator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B0821F79AD00078A975 /* Tesselator.cpp */; };
 		2B446B1021F79AD00078A975 /* GridClipper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B0921F79AD00078A975 /* GridClipper.cpp */; };
 		2B446B1121F79AD00078A975 /* WhirlyOctEncoding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B0A21F79AD00078A975 /* WhirlyOctEncoding.cpp */; };
-		2B446B1221F79AD00078A975 /* StringIndexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B0B21F79AD00078A975 /* StringIndexer.cpp */; };
 		2B446B1321F79AD00078A975 /* OverlapHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B0C21F79AD00078A975 /* OverlapHelper.cpp */; };
 		2B446B1421F79AD00078A975 /* WhirlyGeometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B0D21F79AD00078A975 /* WhirlyGeometry.cpp */; };
 		2B446B1521F79AD00078A975 /* WhirlyVector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B0E21F79AD00078A975 /* WhirlyVector.cpp */; };
@@ -79,7 +70,6 @@
 		2B446B2F21F7CE670078A975 /* GLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B2D21F7CE670078A975 /* GLUtils.h */; };
 		2B446B3021F7CE670078A975 /* glwrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B2E21F7CE670078A975 /* glwrapper.h */; };
 		2B446B3721F7E6780078A975 /* Lighting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B3621F7E6770078A975 /* Lighting.h */; };
-		2B446B3921F7E6860078A975 /* Lighting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B3821F7E6850078A975 /* Lighting.cpp */; };
 		2B446B4921F7E7B80078A975 /* ScreenSpaceDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B3A21F7E7B70078A975 /* ScreenSpaceDrawable.h */; };
 		2B446B4A21F7E7B80078A975 /* ParticleSystemDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B3B21F7E7B70078A975 /* ParticleSystemDrawable.h */; };
 		2B446B4B21F7E7B80078A975 /* Scene.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B3C21F7E7B70078A975 /* Scene.h */; };
@@ -95,35 +85,14 @@
 		2B446B5521F7E7B80078A975 /* DynamicTextureAtlas.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4621F7E7B80078A975 /* DynamicTextureAtlas.h */; };
 		2B446B5621F7E7B80078A975 /* BillboardDrawable.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4721F7E7B80078A975 /* BillboardDrawable.h */; };
 		2B446B5721F7E7B80078A975 /* BasicDrawableInstance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B4821F7E7B80078A975 /* BasicDrawableInstance.h */; };
-		2B446B6821F7E7E00078A975 /* ParticleSystemDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5821F7E7DF0078A975 /* ParticleSystemDrawable.cpp */; };
-		2B446B6921F7E7E00078A975 /* ScreenSpaceDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5921F7E7DF0078A975 /* ScreenSpaceDrawable.cpp */; };
-		2B446B6A21F7E7E00078A975 /* WideVectorDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5A21F7E7DF0078A975 /* WideVectorDrawable.cpp */; };
-		2B446B6B21F7E7E00078A975 /* BasicDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5B21F7E7DF0078A975 /* BasicDrawable.cpp */; };
-		2B446B6C21F7E7E00078A975 /* BasicDrawableInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5C21F7E7DF0078A975 /* BasicDrawableInstance.cpp */; };
-		2B446B6D21F7E7E00078A975 /* BillboardDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5D21F7E7DF0078A975 /* BillboardDrawable.cpp */; };
-		2B446B6E21F7E7E00078A975 /* Identifiable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5E21F7E7DF0078A975 /* Identifiable.cpp */; };
-		2B446B6F21F7E7E00078A975 /* ScreenSpaceBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5F21F7E7DF0078A975 /* ScreenSpaceBuilder.cpp */; };
-		2B446B7021F7E7E00078A975 /* MaplyScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6021F7E7DF0078A975 /* MaplyScene.cpp */; };
-		2B446B7121F7E7E00078A975 /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6121F7E7E00078A975 /* Scene.cpp */; };
-		2B446B7221F7E7E00078A975 /* Drawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6221F7E7E00078A975 /* Drawable.cpp */; };
-		2B446B7321F7E7E00078A975 /* DynamicTextureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6321F7E7E00078A975 /* DynamicTextureAtlas.cpp */; };
-		2B446B7421F7E7E00078A975 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6421F7E7E00078A975 /* Texture.cpp */; };
-		2B446B7521F7E7E00078A975 /* GlobeScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6521F7E7E00078A975 /* GlobeScene.cpp */; };
-		2B446B7621F7E7E00078A975 /* GLUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6621F7E7E00078A975 /* GLUtils.cpp */; };
-		2B446B7721F7E7E00078A975 /* TextureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6721F7E7E00078A975 /* TextureAtlas.cpp */; };
 		2B446B7B21FB948B0078A975 /* VectorData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B7A21FB948B0078A975 /* VectorData.h */; };
 		2B446B7D21FB94A00078A975 /* VectorData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B7C21FB94A00078A975 /* VectorData.cpp */; };
 		2B446B8321FB97C40078A975 /* ShapeReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B8021FB97C30078A975 /* ShapeReader.h */; };
-		2B446B8521FB97C40078A975 /* GeometryOBJReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B8221FB97C40078A975 /* GeometryOBJReader.h */; };
-		2B446B8A21FB97D50078A975 /* ShapeReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B8721FB97D50078A975 /* ShapeReader.cpp */; };
 		2B446B8D21FB99C00078A975 /* ScreenImportance.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B8C21FB99C00078A975 /* ScreenImportance.h */; };
 		2B446B8F21FB99D60078A975 /* ScreenImportance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B8E21FB99D60078A975 /* ScreenImportance.cpp */; };
 		2B446B9221FBA8250078A975 /* FontTextureManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B9121FBA8240078A975 /* FontTextureManager.h */; };
-		2B446B9421FBA8340078A975 /* FontTextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B9321FBA8340078A975 /* FontTextureManager.cpp */; };
 		2B446B9621FBA8520078A975 /* OpenGLES2Program.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B9521FBA8520078A975 /* OpenGLES2Program.h */; };
-		2B446B9821FBA8690078A975 /* OpenGLES2Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B9721FBA8690078A975 /* OpenGLES2Program.cpp */; };
 		2B446B9A21FBA9D50078A975 /* PerformanceTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B9921FBA9D50078A975 /* PerformanceTimer.h */; };
-		2B446B9C21FBA9E90078A975 /* PerformanceTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B9B21FBA9E90078A975 /* PerformanceTimer.cpp */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; };
 		2B73D6BE207D1FD300AF5095 /* MaplyQuadImageLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6BD207D1FD300AF5095 /* MaplyQuadImageLoader.h */; };
 		2B73D6C2207D224100AF5095 /* MaplyQuadImageLoader_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */; };
@@ -397,19 +366,6 @@
 		2B846F1121F158E100EF2A82 /* BillboardManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B846F0221F158E100EF2A82 /* BillboardManager.h */; };
 		2B846F1221F158E100EF2A82 /* IntersectionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B846F0321F158E100EF2A82 /* IntersectionManager.h */; };
 		2B846F1321F158E100EF2A82 /* BaseInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B846F0421F158E100EF2A82 /* BaseInfo.h */; };
-		2B846F2221F158EC00EF2A82 /* BillboardManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1421F158EA00EF2A82 /* BillboardManager.cpp */; };
-		2B846F2321F158EC00EF2A82 /* MarkerManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1521F158EA00EF2A82 /* MarkerManager.cpp */; };
-		2B846F2421F158EC00EF2A82 /* BaseInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1621F158EA00EF2A82 /* BaseInfo.cpp */; };
-		2B846F2521F158EC00EF2A82 /* LoftManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1721F158EB00EF2A82 /* LoftManager.cpp */; };
-		2B846F2621F158EC00EF2A82 /* ParticleSystemManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1821F158EB00EF2A82 /* ParticleSystemManager.cpp */; };
-		2B846F2721F158EC00EF2A82 /* GeometryManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1921F158EB00EF2A82 /* GeometryManager.cpp */; };
-		2B846F2821F158EC00EF2A82 /* WideVectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1A21F158EB00EF2A82 /* WideVectorManager.cpp */; };
-		2B846F2921F158EC00EF2A82 /* SelectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1B21F158EB00EF2A82 /* SelectionManager.cpp */; };
-		2B846F2A21F158EC00EF2A82 /* LayoutManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1C21F158EB00EF2A82 /* LayoutManager.cpp */; };
-		2B846F2B21F158EC00EF2A82 /* LabelManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1D21F158EB00EF2A82 /* LabelManager.cpp */; };
-		2B846F2C21F158EC00EF2A82 /* ShapeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1E21F158EB00EF2A82 /* ShapeManager.cpp */; };
-		2B846F2D21F158EC00EF2A82 /* VectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1F21F158EB00EF2A82 /* VectorManager.cpp */; };
-		2B846F2F21F158EC00EF2A82 /* IntersectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F2121F158EC00EF2A82 /* IntersectionManager.cpp */; };
 		2B84ED131F83FC5A00B34D73 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED121F83FC5A00B34D73 /* CoreGraphics.framework */; };
 		2B84ED151F83FC6000B34D73 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED141F83FC6000B34D73 /* OpenGLES.framework */; };
 		2B84ED171F83FC7000B34D73 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED161F83FC7000B34D73 /* QuartzCore.framework */; };
@@ -509,12 +465,10 @@
 		2BB8A3FE21ED43D10025DA98 /* MaplyTouchCancelAnimationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8A3ED21ED43D10025DA98 /* MaplyTouchCancelAnimationDelegate.h */; };
 		2BB8E1AD21FBB0A400154CDC /* SceneRendererES2.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1AA21FBB0A400154CDC /* SceneRendererES2.h */; };
 		2BB8E1AE21FBB0A400154CDC /* SceneRendererES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1AB21FBB0A400154CDC /* SceneRendererES.h */; };
-		2BB8E1B421FBB0BA00154CDC /* SceneRendererES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8E1B121FBB0BA00154CDC /* SceneRendererES.cpp */; };
-		2BB8E1B521FBB0BA00154CDC /* SceneRendererES2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8E1B221FBB0BA00154CDC /* SceneRendererES2.cpp */; };
 		2BB8E1B721FBC61C00154CDC /* ActiveModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1B621FBC61C00154CDC /* ActiveModel.h */; };
 		2BB8E1B921FBCCBF00154CDC /* ViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1B821FBCCBF00154CDC /* ViewState.h */; };
-		2BB8E1BB21FBCCD200154CDC /* ViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8E1BA21FBCCD200154CDC /* ViewState.cpp */; };
 		2BB8E1BD21FBCEA400154CDC /* SharedAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */; };
+		2BB8E1D921FF78A700154CDC /* Identifiable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5E21F7E7DF0078A975 /* Identifiable.cpp */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -3844,7 +3798,6 @@
 				2BB8A3D721ED43C00025DA98 /* MaplyVariableTarget_private.h in Headers */,
 				2BE53A321D249C3D00B60FAD /* strtod.h in Headers */,
 				2B884A571E3803170027C397 /* lasattributer.hpp in Headers */,
-				2B446B8521FB97C40078A975 /* GeometryOBJReader.h in Headers */,
 				2B446AFE21F79A600078A975 /* WhirlyGeometry.h in Headers */,
 				2B884A561E3803170027C397 /* integercompressor.hpp in Headers */,
 				2B446B8321FB97C40078A975 /* ShapeReader.h in Headers */,
@@ -4123,12 +4076,9 @@
 				2B82B65C1E82E24A0095FB14 /* PJ_eck5.c in Sources */,
 				2B82B6431E82E2490095FB14 /* PJ_airy.c in Sources */,
 				2B82B6921E82E24A0095FB14 /* pj_mutex.c in Sources */,
-				2B846F2521F158EC00EF2A82 /* LoftManager.cpp in Sources */,
 				2B82B6351E82E2490095FB14 /* dmstor.c in Sources */,
-				2B446B3921F7E6860078A975 /* Lighting.cpp in Sources */,
 				2BE5398B1D249BEF00B60FAD /* AAAberration.cpp in Sources */,
 				2B82B67C1E82E24A0095FB14 /* PJ_laea.c in Sources */,
-				2B446B9421FBA8340078A975 /* FontTextureManager.cpp in Sources */,
 				2B846EEF21F13A1D00EF2A82 /* render.c in Sources */,
 				2BE5399D1D249BEF00B60FAD /* AAIlluminatedFraction.cpp in Sources */,
 				2B82B67D1E82E24A0095FB14 /* PJ_lagrng.c in Sources */,
@@ -4139,26 +4089,18 @@
 				2BE539F51D249C2900B60FAD /* arena.cc in Sources */,
 				2B82B68E1E82E24A0095FB14 /* pj_mlfn.c in Sources */,
 				2BE53A341D249C3D00B60FAD /* coded_stream.cc in Sources */,
-				2B446B6F21F7E7E00078A975 /* ScreenSpaceBuilder.cpp in Sources */,
 				2B846EE821F1380400EF2A82 /* adjlon.c in Sources */,
 				2B82B62D1E82E2490095FB14 /* PJ_qsc.c in Sources */,
 				2B82B6971E82E24A0095FB14 /* PJ_nsper.c in Sources */,
 				2B82B6491E82E2490095FB14 /* PJ_bacon.c in Sources */,
 				2B82B6771E82E24A0095FB14 /* pj_initcache.c in Sources */,
 				2B82B67B1E82E24A0095FB14 /* PJ_labrd.c in Sources */,
-				2B446B7621F7E7E00078A975 /* GLUtils.cpp in Sources */,
-				2B446B6A21F7E7E00078A975 /* WideVectorDrawable.cpp in Sources */,
-				2B846F2F21F158EC00EF2A82 /* IntersectionManager.cpp in Sources */,
-				2B446B6921F7E7E00078A975 /* ScreenSpaceDrawable.cpp in Sources */,
 				2BE53A6B1D249C4600B60FAD /* atomicops_internals_x86_gcc.cc in Sources */,
-				2B446B6D21F7E7E00078A975 /* BillboardDrawable.cpp in Sources */,
 				2BE539F21D249C2900B60FAD /* any.cc in Sources */,
 				2BE539A11D249BEF00B60FAD /* AAKepler.cpp in Sources */,
 				2BE53A711D249C4600B60FAD /* once.cc in Sources */,
 				2BE539AF1D249BEF00B60FAD /* AAParabolic.cpp in Sources */,
 				2B82B6881E82E24A0095FB14 /* pj_malloc.c in Sources */,
-				2B846F2221F158EC00EF2A82 /* BillboardManager.cpp in Sources */,
-				2B23132621F8DD7F006AA344 /* WhirlyKitView.cpp in Sources */,
 				2B82B69F1E82E24A0095FB14 /* pj_param.c in Sources */,
 				2B82B64E1E82E2490095FB14 /* PJ_cc.c in Sources */,
 				2B82B66B1E82E24A0095FB14 /* PJ_gn_sinu.c in Sources */,
@@ -4168,7 +4110,6 @@
 				2B846EDB21F1362700EF2A82 /* pj_gridcatalog.c in Sources */,
 				2B82B65F1E82E24A0095FB14 /* PJ_eqc.c in Sources */,
 				2B82B64D1E82E2490095FB14 /* PJ_cass.c in Sources */,
-				2B846F2321F158EC00EF2A82 /* MarkerManager.cpp in Sources */,
 				2B82B6B41E82E24A0095FB14 /* PJ_tmerc.c in Sources */,
 				2B884A6D1E3803170027C397 /* laswriteitemcompressed_v2.cpp in Sources */,
 				2B884A751E3803170027C397 /* laszip.cpp in Sources */,
@@ -4177,7 +4118,6 @@
 				2B82B6111E82E2490095FB14 /* JSONNode_Mutex.cpp in Sources */,
 				2B82B6BA1E82E24A0095FB14 /* PJ_urmfps.c in Sources */,
 				2B82B6721E82E24A0095FB14 /* PJ_hatano.c in Sources */,
-				2B446B1221F79AD00078A975 /* StringIndexer.cpp in Sources */,
 				2B82B6231E82E2490095FB14 /* shpopen.c in Sources */,
 				2B82B6621E82E24A0095FB14 /* pj_factors.c in Sources */,
 				2BE53A6D1D249C4600B60FAD /* atomicops_internals_x86_msvc.cc in Sources */,
@@ -4193,7 +4133,6 @@
 				2B82B6521E82E2490095FB14 /* PJ_crast.c in Sources */,
 				2B884A551E3803170027C397 /* integercompressor.cpp in Sources */,
 				2B82B6A31E82E24A0095FB14 /* PJ_putp2.c in Sources */,
-				2B446B7021F7E7E00078A975 /* MaplyScene.cpp in Sources */,
 				2B846ED721F1359200EF2A82 /* PJ_calcofi.c in Sources */,
 				2B446B1C21F79AE40078A975 /* FlatMath.cpp in Sources */,
 				2B846EE421F1377600EF2A82 /* pj_auth.c in Sources */,
@@ -4209,16 +4148,13 @@
 				2BE53A631D249C4600B60FAD /* stringpiece.cc in Sources */,
 				2B82B62E1E82E2490095FB14 /* PJ_sch.c in Sources */,
 				2B82B65E1E82E24A0095FB14 /* pj_ellps.c in Sources */,
-				2B846F2921F158EC00EF2A82 /* SelectionManager.cpp in Sources */,
 				2B82B67F1E82E24A0095FB14 /* PJ_lask.c in Sources */,
-				2B446B7721F7E7E00078A975 /* TextureAtlas.cpp in Sources */,
 				2B884A6B1E3803170027C397 /* laswriteitemcompressed_v1.cpp in Sources */,
 				2B82B5F21E82E2490095FB14 /* sweep.c in Sources */,
 				2B82B6A81E82E24A0095FB14 /* pj_qsfn.c in Sources */,
 				2BE539971D249BEF00B60FAD /* AAElliptical.cpp in Sources */,
 				2BE539B21D249BEF00B60FAD /* AAPhysicalJupiter.cpp in Sources */,
 				2BE53A6F1D249C4600B60FAD /* common.cc in Sources */,
-				2B846F2C21F158EC00EF2A82 /* ShapeManager.cpp in Sources */,
 				2B82B6C11E82E24A0095FB14 /* PJ_wag7.c in Sources */,
 				2BE539B81D249BEF00B60FAD /* AAPluto.cpp in Sources */,
 				2BE539A51D249BEF00B60FAD /* AAMoonIlluminatedFraction.cpp in Sources */,
@@ -4227,22 +4163,18 @@
 				2BE53A131D249C2900B60FAD /* service.cc in Sources */,
 				2B82B66F1E82E24A0095FB14 /* pj_gridlist.c in Sources */,
 				2B82B6AF1E82E24A0095FB14 /* PJ_sterea.c in Sources */,
-				2B846F2A21F158EC00EF2A82 /* LayoutManager.cpp in Sources */,
 				2BE539B51D249BEF00B60FAD /* AAPhysicalSun.cpp in Sources */,
 				2B846EED21F138F600EF2A82 /* tess.c in Sources */,
 				2B82B6B51E82E24A0095FB14 /* PJ_tpeqd.c in Sources */,
 				2B82B6681E82E24A0095FB14 /* pj_geocent.c in Sources */,
 				2B82B6011E82E2490095FB14 /* JSONChildren.cpp in Sources */,
-				2B446AE321F288220078A975 /* LabelRenderer.cpp in Sources */,
 				2B446B1B21F79AE40078A975 /* CoordSystem.cpp in Sources */,
 				2BE539BA1D249BEF00B60FAD /* AARefraction.cpp in Sources */,
 				2BE539AA1D249BEF00B60FAD /* AAMoslemCalendar.cpp in Sources */,
 				2B82B6AE1E82E24A0095FB14 /* PJ_stere.c in Sources */,
-				2B446B7321F7E7E00078A975 /* DynamicTextureAtlas.cpp in Sources */,
 				2B82B6781E82E24A0095FB14 /* pj_inv.c in Sources */,
 				2B82B6821E82E24A0095FB14 /* PJ_lcca.c in Sources */,
 				2B846EEC21F1382300EF2A82 /* pj_fileapi.c in Sources */,
-				2BB8E1BB21FBCCD200154CDC /* ViewState.cpp in Sources */,
 				2B82B69A1E82E24A0095FB14 /* PJ_ocea.c in Sources */,
 				2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */,
 				2B446B1E21F79AE40078A975 /* GlobeMath.cpp in Sources */,
@@ -4258,17 +4190,13 @@
 				2B82B6711E82E24A0095FB14 /* PJ_hammer.c in Sources */,
 				2B846EE121F136F700EF2A82 /* pj_pr_list.c in Sources */,
 				2BE5399A1D249BEF00B60FAD /* AAFK5.cpp in Sources */,
-				2B846F2621F158EC00EF2A82 /* ParticleSystemManager.cpp in Sources */,
-				2B446B7221F7E7E00078A975 /* Drawable.cpp in Sources */,
 				2BE53A041D249C2900B60FAD /* extension_set_heavy.cc in Sources */,
 				2BE53A171D249C2900B60FAD /* unknown_field_set.cc in Sources */,
-				2B446B9C21FBA9E90078A975 /* PerformanceTimer.cpp in Sources */,
 				2B884A461E3803170027C397 /* arithmeticmodel.cpp in Sources */,
 				2B82B6691E82E24A0095FB14 /* PJ_geos.c in Sources */,
 				2BE539AB1D249BEF00B60FAD /* AANearParabolic.cpp in Sources */,
 				2B446B1121F79AD00078A975 /* WhirlyOctEncoding.cpp in Sources */,
 				2BE539C31D249BEF00B60FAD /* AAVenus.cpp in Sources */,
-				2B846F2421F158EC00EF2A82 /* BaseInfo.cpp in Sources */,
 				2B82B6C31E82E24A0095FB14 /* PJ_wink2.c in Sources */,
 				2B82B6121E82E2490095FB14 /* JSONPreparse.cpp in Sources */,
 				2B846EE721F137D300EF2A82 /* emess.c in Sources */,
@@ -4283,7 +4211,6 @@
 				2B82B6A61E82E24A0095FB14 /* PJ_putp5.c in Sources */,
 				2BE53A7A1D249C4700B60FAD /* substitute.cc in Sources */,
 				2B82B6561E82E2490095FB14 /* PJ_denoy.c in Sources */,
-				2B846F2D21F158EC00EF2A82 /* VectorManager.cpp in Sources */,
 				2BE5398C1D249BEF00B60FAD /* AAAngularSeparation.cpp in Sources */,
 				2B82B60B1E82E2490095FB14 /* JSONIterators.cpp in Sources */,
 				2BE539961D249BEF00B60FAD /* AAElementsPlanetaryOrbit.cpp in Sources */,
@@ -4293,14 +4220,12 @@
 				2B23133021F936CD006AA344 /* RawData.cpp in Sources */,
 				2B82B6741E82E24A0095FB14 /* PJ_igh.c in Sources */,
 				2B846EE921F1380D00EF2A82 /* aasincos.c in Sources */,
-				2B446B6C21F7E7E00078A975 /* BasicDrawableInstance.cpp in Sources */,
 				2B884A631E3803170027C397 /* lasreaditemcompressed_v2.cpp in Sources */,
 				2B82B6901E82E24A0095FB14 /* PJ_moll.c in Sources */,
 				2B82B6791E82E24A0095FB14 /* PJ_isea.c in Sources */,
 				2B446B1321F79AD00078A975 /* OverlapHelper.cpp in Sources */,
 				2B82B5EA1E82E2490095FB14 /* normal.c in Sources */,
 				2BE539FB1D249C2900B60FAD /* descriptor.pb.cc in Sources */,
-				2B846F2721F158EC00EF2A82 /* GeometryManager.cpp in Sources */,
 				2B82B5FF1E82E2490095FB14 /* JSONAllocator.cpp in Sources */,
 				2BE53A621D249C4600B60FAD /* status.cc in Sources */,
 				2B82B6B31E82E24A0095FB14 /* PJ_tcea.c in Sources */,
@@ -4320,29 +4245,25 @@
 				2B446B1521F79AD00078A975 /* WhirlyVector.cpp in Sources */,
 				2BE53A061D249C2900B60FAD /* generated_message_reflection.cc in Sources */,
 				2BE5398D1D249BEF00B60FAD /* AABinaryStar.cpp in Sources */,
-				2BB8E1B521FBB0BA00154CDC /* SceneRendererES2.cpp in Sources */,
 				2B82B5FC1E82E2490095FB14 /* internalJSONNode.cpp in Sources */,
-				2B446B9821FBA8690078A975 /* OpenGLES2Program.cpp in Sources */,
 				2BE53A371D249C3D00B60FAD /* gzip_stream.cc in Sources */,
 				2B82B6671E82E24A0095FB14 /* pj_gauss.c in Sources */,
 				2B82B6541E82E2490095FB14 /* pj_datum_set.c in Sources */,
-				2B846F2B21F158EC00EF2A82 /* LabelManager.cpp in Sources */,
 				2B82B6C61E82E24A0095FB14 /* proj_etmerc.c in Sources */,
 				2BE539911D249BEF00B60FAD /* AADynamicalTime.cpp in Sources */,
 				2B82B6761E82E24A0095FB14 /* pj_init.c in Sources */,
+				2BB8E1D921FF78A700154CDC /* Identifiable.cpp in Sources */,
 				2B846EE621F137BD00EF2A82 /* geod_set.c in Sources */,
 				2B82B6381E82E2490095FB14 /* geocent.c in Sources */,
 				2BE539B01D249BEF00B60FAD /* AAParallactic.cpp in Sources */,
 				2BE53A0F1D249C2900B60FAD /* reflection_ops.cc in Sources */,
 				2B82B66C1E82E24A0095FB14 /* PJ_gnom.c in Sources */,
-				2B446B6B21F7E7E00078A975 /* BasicDrawable.cpp in Sources */,
 				2B82B6AD1E82E24A0095FB14 /* PJ_somerc.c in Sources */,
 				2B82B6191E82E2490095FB14 /* JSONValidator.cpp in Sources */,
 				2B82B6981E82E24A0095FB14 /* PJ_nzmg.c in Sources */,
 				2B82B6861E82E24A0095FB14 /* PJ_loxim.c in Sources */,
 				2B884A681E3803170027C397 /* lasunzipper.cpp in Sources */,
 				2B82B6581E82E2490095FB14 /* PJ_eck1.c in Sources */,
-				2B23132B21F8DD7F006AA344 /* MaplyViewState.cpp in Sources */,
 				2B884A421E3803170027C397 /* arithmeticdecoder.cpp in Sources */,
 				2B82B6221E82E2490095FB14 /* dbfopen.c in Sources */,
 				2BE53A3A1D249C3D00B60FAD /* printer.cc in Sources */,
@@ -4350,7 +4271,6 @@
 				2B82B5E41E82E2490095FB14 /* geom.c in Sources */,
 				2B82B6C41E82E24A0095FB14 /* pj_zpoly1.c in Sources */,
 				2BE53A871D249C8300B60FAD /* NSString+DDXML.m in Sources */,
-				2B23132A21F8DD7F006AA344 /* MaplyView.cpp in Sources */,
 				2BE539A71D249BEF00B60FAD /* AAMoonNodes.cpp in Sources */,
 				2B82B6AB1E82E24A0095FB14 /* PJ_rpoly.c in Sources */,
 				2B82B6421E82E2490095FB14 /* PJ_aeqd.c in Sources */,
@@ -4366,7 +4286,6 @@
 				2B846EDA21F1362400EF2A82 /* pj_gc_reader.c in Sources */,
 				2BE539C01D249BEF00B60FAD /* AAStellarMagnitudes.cpp in Sources */,
 				2B846EE521F1379C00EF2A82 /* nad_init.c in Sources */,
-				2B23132921F8DD7F006AA344 /* GlobeViewState.cpp in Sources */,
 				2B82B6851E82E24A0095FB14 /* pj_log.c in Sources */,
 				2BE5398F1D249BEF00B60FAD /* AADate.cpp in Sources */,
 				2B82B69B1E82E24A0095FB14 /* PJ_oea.c in Sources */,
@@ -4380,7 +4299,6 @@
 				2B446B0F21F79AD00078A975 /* Tesselator.cpp in Sources */,
 				2B82B6991E82E24A0095FB14 /* PJ_ob_tran.c in Sources */,
 				2B82B6941E82E24A0095FB14 /* PJ_nell_h.c in Sources */,
-				2B446AE821F299FA0078A975 /* ShapeDrawableBuilder.cpp in Sources */,
 				2B82B6CB1E82E24A0095FB14 /* vector1.c in Sources */,
 				2B82B6601E82E24A0095FB14 /* PJ_eqdc.c in Sources */,
 				2B82B66A1E82E24A0095FB14 /* PJ_gins8.c in Sources */,
@@ -4394,7 +4312,6 @@
 				2B446B8F21FB99D60078A975 /* ScreenImportance.cpp in Sources */,
 				2B82B6201E82E2490095FB14 /* safileio.c in Sources */,
 				2B82B6701E82E24A0095FB14 /* PJ_gstmerc.c in Sources */,
-				2B446B7121F7E7E00078A975 /* Scene.cpp in Sources */,
 				2BE539BF1D249BEF00B60FAD /* AASidereal.cpp in Sources */,
 				2B82B6411E82E2490095FB14 /* PJ_aea.c in Sources */,
 				2B82B6CA1E82E24A0095FB14 /* rtodms.c in Sources */,
@@ -4405,7 +4322,6 @@
 				2BE53AB51D249CAF00B60FAD /* SMCalloutView.m in Sources */,
 				2B82B6BC1E82E24A0095FB14 /* PJ_vandg.c in Sources */,
 				2B846EDD21F1365000EF2A82 /* pj_apply_vgridshift.c in Sources */,
-				2B446B6821F7E7E00078A975 /* ParticleSystemDrawable.cpp in Sources */,
 				2BE539F31D249C2900B60FAD /* map_field.cc in Sources */,
 				2B446B1D21F79AE40078A975 /* SphericalMercator.cpp in Sources */,
 				2BE53A401D249C3D00B60FAD /* zero_copy_stream_impl.cc in Sources */,
@@ -4414,10 +4330,8 @@
 				2BE53A8B1D249C8900B60FAD /* DDXMLElementAdditions.m in Sources */,
 				2BE539A41D249BEF00B60FAD /* AAMoon.cpp in Sources */,
 				2B82B5E61E82E2490095FB14 /* memalloc.c in Sources */,
-				2B846F2821F158EC00EF2A82 /* WideVectorManager.cpp in Sources */,
 				2BE539901D249BEF00B60FAD /* AADiameters.cpp in Sources */,
 				2BE53A0C1D249C2900B60FAD /* message_lite.cc in Sources */,
-				2B23132821F8DD7F006AA344 /* MaplyFlatView.cpp in Sources */,
 				2B82B6B21E82E24A0095FB14 /* PJ_tcc.c in Sources */,
 				2B82B6931E82E24A0095FB14 /* PJ_natearth.c in Sources */,
 				2B82B6811E82E24A0095FB14 /* PJ_lcc.c in Sources */,
@@ -4434,7 +4348,6 @@
 				2BE539981D249BEF00B60FAD /* AAEquationOfTime.cpp in Sources */,
 				2BE539A91D249BEF00B60FAD /* AAMoonPhases.cpp in Sources */,
 				2B82B68D1E82E24A0095FB14 /* PJ_mill.c in Sources */,
-				2B446B7521F7E7E00078A975 /* GlobeScene.cpp in Sources */,
 				2B846EDE21F1366400EF2A82 /* PJ_gall.c in Sources */,
 				2BE539C21D249BEF00B60FAD /* AAUranus.cpp in Sources */,
 				2B82B6471E82E2490095FB14 /* PJ_august.c in Sources */,
@@ -4447,15 +4360,11 @@
 				2B82B68F1E82E24A0095FB14 /* PJ_mod_ster.c in Sources */,
 				2B82B6631E82E24A0095FB14 /* PJ_fahey.c in Sources */,
 				2B82B68A1E82E24A0095FB14 /* PJ_mbtfpp.c in Sources */,
-				2BB8E1B421FBB0BA00154CDC /* SceneRendererES.cpp in Sources */,
 				2BE539951D249BEF00B60FAD /* AAEclipticalElements.cpp in Sources */,
 				2BE53A191D249C2900B60FAD /* wire_format.cc in Sources */,
 				2B82B60C1E82E2490095FB14 /* JSONMemory.cpp in Sources */,
 				2B82B60F1E82E2490095FB14 /* JSONNode.cpp in Sources */,
-				2B446B7421F7E7E00078A975 /* Texture.cpp in Sources */,
 				2BE53A111D249C2900B60FAD /* repeated_field.cc in Sources */,
-				2B446B6E21F7E7E00078A975 /* Identifiable.cpp in Sources */,
-				2B23132721F8DD7F006AA344 /* GlobeView.cpp in Sources */,
 				2B846EE221F1370800EF2A82 /* PJ_urm5.c in Sources */,
 				2B82B6AC1E82E24A0095FB14 /* PJ_sconics.c in Sources */,
 				2BE539941D249BEF00B60FAD /* AAEclipses.cpp in Sources */,
@@ -4465,7 +4374,6 @@
 				2B82B67A1E82E24A0095FB14 /* PJ_krovak.c in Sources */,
 				2BE53A0A1D249C2900B60FAD /* message.cc in Sources */,
 				2BE53A331D249C3D00B60FAD /* strtod.cc in Sources */,
-				2B446B8A21FB97D50078A975 /* ShapeReader.cpp in Sources */,
 				2B82B6B11E82E24A0095FB14 /* PJ_sts.c in Sources */,
 				2B82B6611E82E24A0095FB14 /* pj_errno.c in Sources */,
 				2B82B6751E82E24A0095FB14 /* PJ_imw_p.c in Sources */,

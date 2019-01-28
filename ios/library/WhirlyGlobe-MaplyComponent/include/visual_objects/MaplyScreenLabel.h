@@ -157,7 +157,7 @@
 @property (nonatomic,assign) MaplyCoordinate endLoc;
 
 /// How long it will take the screen label to get to endLoc
-@property (nonatomic,assign) TimeInterval duration;
+@property (nonatomic,assign) NSTimeInterval duration;
 
 @end
 

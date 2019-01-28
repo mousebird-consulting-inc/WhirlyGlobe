@@ -21,6 +21,9 @@
 #import "Platform.h"
 #import <math.h>
 #import "WhirlyVector.h"
+#import "WhirlyKitView.h"
+#import "ViewState.h"
+#import "Dictionary.h"
 #import "Scene.h"
 #import "GlobeMath.h"
 #import "QuadTreeNew.h"
@@ -31,15 +34,15 @@ namespace WhirlyKit
 {
 
 /// Check if any part of the given tile is on screen
-bool TileIsOnScreen(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr,const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs);
+bool TileIsOnScreen(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr,const QuadTreeIdentifier &nodeIdent,MutableDictionaryRef attrs);
     
 /// Utility function to calculate importance based on pixel screen size.
 /// This would be used by the data source as a default.
-double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,const Point3d &notUsed, int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr, const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs);
+double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,const Point3d &notUsed, int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr, const QuadTreeIdentifier &nodeIdent,MutableDictionaryRef attrs);
 
 /// Utility function to calculate importance based on pixel screen size.
 /// This version takes a min/max height and is optimized for volumes.
-double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr, double minZ,double maxZ, const WhirlyKit::Quadtree::Identifier &nodeIdent,Dictionary *attrs);
+double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr, double minZ,double maxZ, const QuadTreeIdentifier &nodeIdent,MutableDictionaryRef attrs);
 
 /// A solid volume used to describe the display space a tile takes up.
 /// We use these for screen space calculations and cache them in the tile
@@ -50,7 +53,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Create a display solid, including height.
-    DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &nodeMbr,float minZ,float maxZ,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter);
+    DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMbr,float minZ,float maxZ,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter);
     
     /// Returns true if the given point (in display space) is inside the volume
     bool isInside(const Point3d &pt);
@@ -65,11 +68,11 @@ public:
     bool valid;
     
     /// The area sampled into representative polygons
-    std::vector<std::vector<WhirlyKit::Point3d> > polys;
+    std::vector<Point3dVector > polys;
     /// Normals for all 5 or 6 planes
-    std::vector<Eigen::Vector3d> normals;
+    Point3dVector normals;
     /// Normals for the surface.  We use these to make sure the solid is pointing towards us.
-    std::vector<Eigen::Vector3d> surfNormals;
+    Point3dVector surfNormals;
 };
     
 typedef std::shared_ptr<DisplaySolid> DisplaySolidRef;

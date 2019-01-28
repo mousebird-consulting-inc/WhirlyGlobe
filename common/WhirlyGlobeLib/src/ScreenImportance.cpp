@@ -21,9 +21,6 @@
 #import "ScreenImportance.h"
 #import "FlatMath.h"
 #import "GlobeMath.h"
-#import "GlobeLayerViewWatcher.h"
-#import "MaplyLayerViewWatcher.h"
-#import "UIImage+Stuff.h"
 #import "VectorData.h"
 #import "SceneRendererES2.h"
 
@@ -56,15 +53,15 @@ int calcNumSamples(const Point3d &p0,const Point3d &p1,CoordSystem *srcSystem,Co
     }
 }
 
-DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &nodeMbr,float minZ,float maxZ,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter)
+DisplaySolid::DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMbr,float minZ,float maxZ,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter)
 {
     // Start with the corner points in the source
     WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
     Point3dVector srcBounds;
-    srcBounds.push_back(Point3d(nodeMbr.ll().x(),nodeMbr.ll().y(),inMinZ));
-    srcBounds.push_back(Point3d(nodeMbr.ur().x(),nodeMbr.ll().y(),inMinZ));
-    srcBounds.push_back(Point3d(nodeMbr.ur().x(),nodeMbr.ur().y(),inMinZ));
-    srcBounds.push_back(Point3d(nodeMbr.ll().x(),nodeMbr.ur().y(),inMinZ));
+    srcBounds.push_back(Point3d(nodeMbr.ll().x(),nodeMbr.ll().y(),minZ));
+    srcBounds.push_back(Point3d(nodeMbr.ur().x(),nodeMbr.ll().y(),minZ));
+    srcBounds.push_back(Point3d(nodeMbr.ur().x(),nodeMbr.ur().y(),minZ));
+    srcBounds.push_back(Point3d(nodeMbr.ll().x(),nodeMbr.ur().y(),minZ));
 
     // Number of samples in X and Y we need for a decent surface
     int numSamplesX = std::max(calcNumSamples(srcBounds[0],srcBounds[1],srcSystem,coordAdapter,nodeIdent.level),
@@ -89,7 +86,7 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
     }
     
     // Build polygons out of those samples (in display space)
-    dispSolid.polys.reserve(numSamplesX*numSamplesY);
+    polys.reserve(numSamplesX*numSamplesY);
     for (int ix=0;ix<numSamplesX-1;ix++) {
         for (int iy=0;iy<numSamplesY-1;iy++) {
             // Surface polygon
@@ -99,46 +96,46 @@ DisplaySolid::DisplaySolid(const Quadtree::Identifier &nodeIdent,const Mbr &node
             poly.push_back(dispPoints[(iy+1)*numSamplesX+ix]);
             poly.push_back(dispPoints[(iy+1)*numSamplesX+(ix+1)]);
             poly.push_back(dispPoints[iy*numSamplesX+(ix+1)]);
-            dispSolid.polys.push_back(poly);
+            polys.push_back(poly);
             
             // And a normal
             if (coordAdapter->isFlat())
-                dispSolid.normals.push_back(Vector3d(0,0,1));
+                normals.push_back(Vector3d(0,0,1));
             else {
                 Point3d &p0 = poly[0];
                 Point3d &p1 = poly[1];
                 Point3d &p2 = poly[poly.size()-1];
                 Vector3d norm = (p1-p0).cross(p2-p0);
                 norm.normalize();
-                dispSolid.normals.push_back(norm);
+                normals.push_back(norm);
             }
         }
     }
 }
 
-double PolyImportance(const Point3dVector &poly,const Point3d &norm,ViewState *viewState,WhirlyKit::Point2f frameSize)
+double PolyImportance(const Point3dVector &poly,const Point3d &norm,ViewState *viewState,const WhirlyKit::Point2f &frameSize)
 {
     double import = 0.0;
     
-    for (unsigned int offi=0;offi<viewState.viewMatrices.size();offi++)
+    for (unsigned int offi=0;offi<viewState->viewMatrices.size();offi++)
     {
         double origArea = PolygonArea(poly,norm);
         origArea = std::abs(origArea);
         
-        std::vector<Eigen::Vector4d> pts;
+        Vector4dVector pts;
         pts.reserve(poly.size());
         for (unsigned int ii=0;ii<poly.size();ii++)
         {
             const Point3d &pt = poly[ii];
             // Run through the model transform
-            Vector4d modPt = viewState.fullMatrices[offi] * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+            Vector4d modPt = viewState->fullMatrices[offi] * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
             // And then the projection matrix.  Now we're in clip space
-            Vector4d projPt = viewState.projMatrix * modPt;
+            Vector4d projPt = viewState->projMatrix * modPt;
             pts.push_back(projPt);
         }
         
         // The points are in clip space, so clip!
-        std::vector<Eigen::Vector4d> clipSpacePts;
+        Vector4dVector clipSpacePts;
         clipSpacePts.reserve(2*pts.size());
         ClipHomogeneousPolygon(pts,clipSpacePts);
         
@@ -169,8 +166,8 @@ double PolyImportance(const Point3dVector &poly,const Point3d &norm,ViewState *v
         backPts.reserve(screenPts.size());
         for (unsigned int ii=0;ii<screenPts.size();ii++)
         {
-            Vector4d modelPt = viewState.invProjMatrix * clipSpacePts[ii];
-            Vector4d backPt = viewState.invFullMatrices[offi] * modelPt;
+            Vector4d modelPt = viewState->invProjMatrix * clipSpacePts[ii];
+            Vector4d backPt = viewState->invFullMatrices[offi] * modelPt;
             backPts.push_back(Point3d(backPt.x(),backPt.y(),backPt.z()));
         }
         // Then calculate the area
@@ -198,63 +195,63 @@ bool DisplaySolid::isInside(const Point3d &pt)
 
 double DisplaySolid::importanceForViewState(ViewState *viewState,const Point2f &frameSize)
 {
-    Point3d eyePos = viewState.eyePos;
+    Point3d eyePos = viewState->eyePos;
 //    eyePos.normalize();
     
-    if (!viewState.coordAdapter->isFlat())
+    if (!viewState->coordAdapter->isFlat())
     {
         // If the viewer is inside the bounds, the node is maximimally important (duh)
-        if ([self isInside:eyePos])
+        if (isInside(eyePos))
             return MAXFLOAT;
     }
     
     // Now work through the polygons and project each to the screen
     double totalImport = 0.0;
-    for (unsigned int ii=0;ii<_polys.size();ii++)
+    for (unsigned int ii=0;ii<polys.size();ii++)
     {
-        if (_normals[ii].dot(eyePos) >= 0.0) {
-            double import = PolyImportance(_polys[ii], _normals[ii], viewState, frameSize);
+        if (normals[ii].dot(eyePos) >= 0.0) {
+            double import = PolyImportance(polys[ii], normals[ii], viewState, frameSize);
             totalImport += import;
         }
     }
     
     // The flat map case is optimized to only evaluate one poly, since there's no curvature
-    double scaleFactor = (_polys.size() > 1 ? 0.5 : 1.0);
+    double scaleFactor = (polys.size() > 1 ? 0.5 : 1.0);
     
     return totalImport*scaleFactor;
 }
 
 bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &frameSize)
 {
-    if (!viewState.coordAdapter->isFlat())
+    if (!viewState->coordAdapter->isFlat())
     {
         // If the viewer is inside the bounds, the node is maximimally important (duh)
-        if ([self isInside:viewState.eyePos])
+        if (isInside(viewState->eyePos))
             return MAXFLOAT;
     }
     
-    for (unsigned int offi=0;offi<viewState.viewMatrices.size();offi++)
+    for (unsigned int offi=0;offi<viewState->viewMatrices.size();offi++)
     {
-        for (unsigned int ii=0;ii<_polys.size();ii++)
+        for (unsigned int ii=0;ii<polys.size();ii++)
         {
-            const Point3dVector &poly = _polys[ii];
-            double origArea = PolygonArea(poly,_normals[ii]);
+            const Point3dVector &poly = polys[ii];
+            double origArea = PolygonArea(poly,normals[ii]);
             origArea = std::abs(origArea);
             
-            std::vector<Eigen::Vector4d> pts;
+            Vector4dVector pts;
             pts.reserve(poly.size());
             for (unsigned int ii=0;ii<poly.size();ii++)
             {
                 const Point3d &pt = poly[ii];
                 // Run through the model transform
-                Vector4d modPt = viewState.fullMatrices[offi] * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+                Vector4d modPt = viewState->fullMatrices[offi] * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
                 // And then the projection matrix.  Now we're in clip space
-                Vector4d projPt = viewState.projMatrix * modPt;
+                Vector4d projPt = viewState->projMatrix * modPt;
                 pts.push_back(projPt);
             }
             
             // The points are in clip space, so clip!
-            std::vector<Eigen::Vector4d> clipSpacePts;
+            Vector4dVector clipSpacePts;
             clipSpacePts.reserve(2*pts.size());
             ClipHomogeneousPolygon(pts,clipSpacePts);
 
@@ -267,40 +264,28 @@ bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &fr
     return false;
 }
 
-bool TileIsOnScreen(ViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::QuadTreeIdentifier &nodeIdent,NSMutableDictionary *attrs)
+bool TileIsOnScreen(ViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::QuadTreeIdentifier &nodeIdent,MutableDictionaryRef attrs)
 {
-    DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
-    DisplaySolidRef dispSolid = std::dynamic_pointer_cast<DisplaySolid>(objRef);
-    if (!dispSolid)
-    {
-        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter));
-        attrs->setObject("DisplaySolid",dispSolid);
-    }
+    DisplaySolid dispSolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter);
     
     // This means the tile is degenerate (as far as we're concerned)
-    if (!dispSolid->valid)
+    if (!dispSolid.valid)
         return false;
     
-    return dispSolid->isOnScreenForViewState(viewState,frameSize);
+    return dispSolid.isOnScreenForViewState(viewState,frameSize);
 }
 
 
 // Calculate the max pixel size for a tile
-double ScreenImportance(ViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::QuadTreeIdentifier &nodeIdent,NSMutableDictionary *attrs)
+double ScreenImportance(ViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::QuadTreeIdentifier &nodeIdent,MutableDictionaryRef attrs)
 {
-    DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
-    DisplaySolidRef dispSolid = std::dynamic_pointer_cast<DisplaySolid>(objRef);
-    if (!dispSolid)
-    {
-        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter));
-        attrs->setObject("DisplaySolid",dispSolid);
-    }
+    DisplaySolid dispSolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter);
     
     // This means the tile is degenerate (as far as we're concerned)
-    if (!dispSolid->valid)
+    if (!dispSolid.valid)
         return 0.0;
     
-    double import = dispSolid->importanceForViewState(viewState,frameSize);
+    double import = dispSolid.importanceForViewState(viewState,frameSize);
     // The system is expecting an estimate of pixel size on screen
     import = import/(pixelsSquare * pixelsSquare);
     
@@ -310,21 +295,15 @@ double ScreenImportance(ViewState *viewState,WhirlyKit::Point2f frameSize,const 
 }
 
 // This version is for volumes with height
-double ScreenImportance(ViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::QuadTreeIdentifier &nodeIdent,MutableDictionary *attrs)
+double ScreenImportance(ViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::QuadTreeIdentifier &nodeIdent,MutableDictionaryRef attrs)
 {
-    DelayedDeletableRef objRef = attrs->getObject("DisplaySolid");
-    DisplaySolidRef dispSolid = std::dynamic_pointer_cast<DisplaySolid>(objRef);
-    if (!dispSolid)
-    {
-        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,minZ,maxZ,srcSystem,coordAdapter));
-        attrs->setObject("DisplaySolid",dispSolid);
-    }
+    DisplaySolid dispSolid(nodeIdent,nodeMbr,minZ,maxZ,srcSystem,coordAdapter);
     
     // This means the tile is degenerate (as far as we're concerned)
-    if (!dispSolid->valid)
+    if (!dispSolid.valid)
         return 0.0;
     
-    double import = dispSolid->importanceForViewState(viewState,frameSize);
+    double import = dispSolid.importanceForViewState(viewState,frameSize);
     // The system is expecting an estimate of pixel size on screen
     import = import/(pixelsSquare * pixelsSquare);
     
