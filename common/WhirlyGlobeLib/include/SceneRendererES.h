@@ -259,9 +259,6 @@ public:
     /// Return the device scale (e.g. retina vs. not)
     float getScale() { return scale; }
     
-    /// Used by the subclasses for culling
-    virtual void findDrawables(WhirlyGlobe::GlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered);
-    
     /// Used by the subclasses to determine if the view changed and needs to be updated
     virtual bool viewDidChange();
     
@@ -293,13 +290,9 @@ public:
     void addRenderTarget(RenderTarget &newTarget);
     
     /// Stop rendering to the matching render target
-    void clearRenderTarget(SimpleIdentity targetID);
+    void removeRenderTarget(SimpleIdentity targetID);
 
-// Note: Fix this
 public:
-    Mbr calcCurvedMBR(Point3f *corners,WhirlyGlobe::GlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize);
-    void mergeDrawableSet(const std::set<DrawableRef,IdentifiableRefSorter> &newDrawables,WhirlyGlobe::GlobeView *globeView,Point2f frameSize,Eigen::Matrix4d *modelTrans,WhirlyKit::RendererFrameInfo *frameInfo,Mbr screenMbr,std::set<DrawableRef> *toDraw,int *drawablesConsidered);
-    
     // OpenGL Version
     int glesVersion;
     

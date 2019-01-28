@@ -23,6 +23,7 @@
 #import "Lighting.h"
 #import "GLUtils.h"
 #import "SceneRendererES.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -448,19 +449,19 @@ bool OpenGLES2Program::hasLights()
     return lightAttr != NULL;
 }
     
-bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate,WhirlyKitMaterial *mat,Eigen::Matrix4f &modelMat)
+bool OpenGLES2Program::setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated, Material *mat, Eigen::Matrix4f &modelMat)
 {
-    if (lightsLastUpdated >= lastUpdate)
+    if (lightsLastUpdated >= lastUpdated)
         return false;
-    lightsLastUpdated = lastUpdate;
+    lightsLastUpdated = lastUpdated;
     
-    int numLights = (int)[lights count];
-    if (numLights > 8) numLights = 8;
+    int numLights = (int)lights.size();
+    numLights = std::max(numLights,8);
     bool lightsSet = true;
     for (unsigned int ii=0;ii<numLights;ii++)
     {
-        DirectionalLight *light = [lights objectAtIndex:ii];
-        lightsSet &= [light bindToProgram:this index:ii modelMatrix:modelMat];
+        const DirectionalLight &light = lights[ii];
+        lightsSet &= light.bindToProgram(this, ii, modelMat);
     }
     OpenGLESUniform *lightAttr = findUniform(u_numLightsNameID);
     if (lightAttr)
@@ -469,7 +470,7 @@ bool OpenGLES2Program::setLights(NSArray *lights,CFTimeInterval lastUpdate,Whirl
         return false;
     
     // Bind the material
-    [mat bindToProgram:this];
+    mat->bindToProgram(this);
     
     return lightsSet;
 }
@@ -492,8 +493,8 @@ int OpenGLES2Program::bindTextures()
     return numTextures;
 }
 
-ShaderAddTextureReq::ShaderAddTextureReq(SimpleIdentity shaderID,const std::string &name,SimpleIdentity texID)
-: shaderID(shaderID), name(name), texID(texID)
+ShaderAddTextureReq::ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID)
+: shaderID(shaderID), nameID(nameID), texID(texID)
 {
 }
 
@@ -503,7 +504,7 @@ void ShaderAddTextureReq::execute(Scene *scene, SceneRendererES *renderer, View 
     TextureBase *tex = scene->getTexture(texID);
     if (prog && tex)
     {
-        prog->setTexture(name,tex->getGLId());
+        prog->setTexture(nameID,tex->getGLId());
     }
 }
 

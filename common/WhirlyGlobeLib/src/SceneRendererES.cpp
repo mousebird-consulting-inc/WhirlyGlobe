@@ -19,7 +19,6 @@
  */
 
 #import "SceneRendererES.h"
-#import "UIColor+Stuff.h"
 #import "GLUtils.h"
 #import "SelectionManager.h"
 
@@ -132,6 +131,7 @@ void RenderTarget::setTargetTexture(TextureBase *tex)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
     
+#if 0
 NSData *RenderTarget::snapshot()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -150,6 +150,7 @@ NSData *RenderTarget::snapshot()
     
     return data;
 }
+#endif
 
 bool RenderTarget::initFromState(int inWidth,int inHeight)
 {
@@ -221,7 +222,7 @@ void AddRenderTargetReq::execute(Scene *scene,SceneRendererES *renderer,View *vi
     renderTarget.blendEnable = blend;
     renderTarget.init(scene,texID);
     
-    [renderer addRenderTarget:renderTarget];
+    renderer->addRenderTarget(renderTarget);
 }
     
 ChangeRenderTargetReq::ChangeRenderTargetReq(SimpleIdentity renderTargetID,SimpleIdentity texID)
@@ -247,7 +248,7 @@ RemRenderTargetReq::RemRenderTargetReq(SimpleIdentity targetID)
     
 void RemRenderTargetReq::execute(Scene *scene,SceneRendererES *renderer,View *view)
 {
-    [renderer removeRenderTarget:targetID];
+    renderer->removeRenderTarget(targetID);
 }
 
 ClearRenderTargetReq::ClearRenderTargetReq(SimpleIdentity targetID)
@@ -268,7 +269,7 @@ void ClearRenderTargetReq::execute(Scene *scene,SceneRendererES *renderer,View *
 
 RendererFrameInfo::RendererFrameInfo()
     : glesVersion(0), sceneRenderer(NULL), theView(NULL), scene(NULL), frameLen(0), currentTime(0),
-    heightAboveSurface(0), screenSizeInDisplayCoords(0,0), program(NULL), stateOpt(NULL)
+    heightAboveSurface(0), screenSizeInDisplayCoords(0,0), program(NULL)
 {
 }
     
@@ -333,10 +334,10 @@ SceneRendererES::~SceneRendererES()
 
 void SceneRendererES::addRenderTarget(RenderTarget &newTarget)
 {
-  renderTargets.insert(renderTargets.begin(),newTarget);
+    renderTargets.insert(renderTargets.begin(),newTarget);
 }
 
-void SceneRendererES::clearRenderTarget(SimpleIdentity targetID)
+void SceneRendererES::removeRenderTarget(SimpleIdentity targetID)
 {
     for (int ii=0;ii<renderTargets.size();ii++)
     {
@@ -391,91 +392,6 @@ void SceneRendererES::setClearColor(const RGBAColor &color)
 RGBAColor SceneRendererES::getClearColor()
 {
     return clearColor;
-}
-
-// Calculate an acceptable MBR from world coords
-Mbr SceneRendererES::calcCurvedMBR(Point3f *corners,WhirlyGlobe::GlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize)
-{
-    Mbr localScreenMbr;
-    
-    for (unsigned int ii=0;ii<WhirlyKitCullableCorners;ii++)
-    {
-        Point3d cornerPt = Point3d(corners[ii].x(),corners[ii].y(),corners[ii].z());
-        Point2f screenPt = globeView->pointOnScreenFromSphere(cornerPt,modelTrans,frameSize);
-        localScreenMbr.addPoint(Point2f(screenPt.x(),screenPt.y()));
-    }
-    
-    return localScreenMbr;
-}
-
-void SceneRendererES::mergeDrawableSet(const std::set<DrawableRef,IdentifiableRefSorter> &newDrawables,WhirlyGlobe::GlobeView *globeView,Point2f frameSize,Eigen::Matrix4d *modelTrans,WhirlyKit::RendererFrameInfo *frameInfo,Mbr screenMbr,std::set<DrawableRef> *toDraw,int *drawablesConsidered)
-{
-    // Grab any drawables that live just at this level
-    *drawablesConsidered += newDrawables.size();
-    for (std::set<DrawableRef,IdentifiableSorter>::const_iterator it = newDrawables.begin();
-         it != newDrawables.end(); ++it)
-    {
-        DrawableRef draw = *it;
-        // Make sure we haven't added it already and it's on
-        // Note: We're doing the on check repeatedly
-        //       And we're doing the refusal check repeatedly as well, possibly
-        if ((toDraw->find(draw) == toDraw->end()) && draw->isOn(frameInfo))
-            toDraw->insert(draw);
-    }
-}
-
-void SceneRendererES::findDrawables(WhirlyGlobe::GlobeView *globeView,WhirlyKit::Point2f frameSize,Eigen::Matrix4d *modelTrans,Eigen::Vector3f eyeVec,WhirlyKit::RendererFrameInfo *frameInfo,WhirlyKit::Mbr screenMbr,bool isTopLevel,std::set<WhirlyKit::DrawableRef> *toDraw,int *drawablesConsidered)
-{
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    
-    // Check the four corners of the cullable to see if they're pointed away
-    // But just for the globe case
-    bool inView = false;
-    if (coordAdapter->isFlat() || isTopLevel)
-    {
-        inView = true;
-    } else {
-        for (unsigned int ii=0;ii<WhirlyKitCullableCornerNorms;ii++)
-        {
-            Vector3f norm = cullable->cornerNorms[ii];
-            if (norm.dot(eyeVec) > 0)
-            {
-                inView = true;
-                break;
-            }
-        }
-    }
-    if (doCulling && !inView)
-        return;
-    
-    Mbr localScreenMbr;
-    if (globeView)
-        localScreenMbr = calcCurvedMBR(&cullable->cornerPoints[0],globeView,modelTrans,frameSize);
-    
-    // If this doesn't overlap what we're viewing, we're done
-    if (doCulling && !screenMbr.overlaps(localScreenMbr))
-        return;
-    
-    // If the footprint of this level on the screen is larger than
-    //  the screen area, keep going down (if we can).
-    float localScreenArea = localScreenMbr.area();
-    float screenArea = screenMbr.area();
-    if (isTopLevel || (localScreenArea > screenArea/4 && cullable->hasChildren()))
-    {
-        // Grab the drawables at this level
-        mergeDrawableSet(cullable->getDrawables(),globeView,frameSize,modelTrans,frameInfo,screenMbr,toDraw,drawablesConsidered);
-        
-        // And recurse downward for the rest
-        for (unsigned int ii=0;ii<4;ii++)
-        {
-            Cullable *child = cullable->getChild(ii);
-            if (child)
-                findDrawables(child,globeView,frameSize,modelTrans,eyeVec,frameInfo,screenMbr,false,toDraw,drawablesConsidered);
-        }
-    } else {
-        // If not, then just return what we found here
-        mergeDrawableSet(cullable->getChildDrawables(),globeView,frameSize,modelTrans,frameInfo,screenMbr,toDraw,drawablesConsidered);
-    }
 }
 
 // Check if the view changed from the last frame

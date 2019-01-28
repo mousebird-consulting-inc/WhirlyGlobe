@@ -21,6 +21,7 @@
 #import "SceneRendererES2.h"
 #import "GLUtils.h"
 #import "MaplyView.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -207,8 +208,6 @@ void SceneRendererES2::render(TimeInterval duration)
     } else
         extraFrameDrawn = false;
 
-    TimeInterval perfInterval = perfInterval;
-    
     lastDraw = now;
         
     if (perfInterval > 0)
@@ -314,10 +313,11 @@ void SceneRendererES2::render(TimeInterval duration)
         Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
         baseFrameInfo.pvMat = pvMat4f;
         baseFrameInfo.pvMat4d = pvMat;
-        theView->getOffsetMatrix(baseFrameInfo.offsetMatrices,frameSize,overlapMarginX);
+        if (mapView)
+            mapView->getOffsetMatrices(baseFrameInfo.offsetMatrices, frameSize, overlapMarginX);
         Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
-        baseFrameInfo.lights = lights;
+        baseFrameInfo.lights = &lights;
 
         // We need a reverse of the eye vector in model space
         // We'll use this to determine what's pointed away
@@ -333,14 +333,14 @@ void SceneRendererES2::render(TimeInterval duration)
         baseFrameInfo.heightAboveSurface = 0.0;
         // Note: Should deal with map view as well
         if (globeView)
-            baseFrameInfo.heightAboveSurface = globeView->heightAboveSurface;
+            baseFrameInfo.heightAboveSurface = globeView->heightAboveSurface();
         baseFrameInfo.eyePos = Vector3d(eyeVec4d.x(),eyeVec4d.y(),eyeVec4d.z()) * (1.0+baseFrameInfo.heightAboveSurface);
         
         if (perfInterval > 0)
             perfTimer.startTiming("Scene preprocessing");
 
         // Run the preprocess for the changes.  These modify things the active models need.
-        int numPreProcessChanges = scene->preProcessChanges(super.theView, self, now);
+        int numPreProcessChanges = scene->preProcessChanges(theView, this, now);
 
         if (perfInterval > 0)
             perfTimer.addCount("Preprocess Changes", numPreProcessChanges);
@@ -361,7 +361,7 @@ void SceneRendererES2::render(TimeInterval duration)
 //            [EAGLContext setCurrentContext:context];
 //        }
         if (perfInterval > 0)
-            perfTimer.addCount("Active Models", (int)[scene->activeModels count]);
+            perfTimer.addCount("Active Models", (int)scene->activeModels.size());
 
         if (perfInterval > 0)
             perfTimer.stopTiming("Active Model Runs");
@@ -373,28 +373,11 @@ void SceneRendererES2::render(TimeInterval duration)
             perfTimer.startTiming("Scene processing");
 
         // Merge any outstanding changes into the scenegraph
-		scene->processChanges(super.theView,self,now);
+		scene->processChanges(theView,this,now);
         
         if (perfInterval > 0)
             perfTimer.stopTiming("Scene processing");
         
-        // Calculate a good center point for the generated drawables
-        CGPoint screenPt = CGPointMake(frameSize.x(), frameSize.y());
-        if (globeView)
-        {
-            Point3d hit;
-            if (globeView->pointOnSphereFromScreen(screenPt,&modelAndViewMat4d,frameSize,&hit,true))
-                baseFrameInfo.dispCenter = hit;
-            else
-                baseFrameInfo.dispCenter = Point3d(0,0,0);
-        } else {
-            Point3d hit;
-            if (mapView->pointOnPlaneFromScreen(screenPt,&modelAndViewMat4d,frameSize,&hit,false))
-                baseFrameInfo.dispCenter = hit;
-            else
-                baseFrameInfo.dispCenter = Point3d(0,0,0);
-        }
-		      
         // Work through the available offset matrices (only 1 if we're not wrapping)
         std::vector<Matrix4d> &offsetMats = baseFrameInfo.offsetMatrices;
         // Turn these drawables in to a vector
@@ -439,7 +422,7 @@ void SceneRendererES2::render(TimeInterval duration)
             for (DrawableRefSet::iterator it = rawDrawables.begin(); it != rawDrawables.end(); ++it)
             {
                 Drawable *theDrawable = it->second.get();
-                if (theDrawable->isOn(offFrameInfo))
+                if (theDrawable->isOn(&offFrameInfo))
                 {
                     const Matrix4d *localMat = theDrawable->getMatrix();
                     if (localMat)
@@ -455,8 +438,8 @@ void SceneRendererES2::render(TimeInterval duration)
         }
 
         // Sort the drawables (possibly multiple of the same if we have offset matrices)
-        bool sortLinesToEnd = (super.zBufferMode == zBufferOffDefault);
-        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(super.sortAlphaToEnd,sortLinesToEnd,baseFrameInfo));
+        bool sortLinesToEnd = (zBufferMode == zBufferOffDefault);
+        std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortAlphaToEnd,sortLinesToEnd,&baseFrameInfo));
         
         if (perfInterval > 0)
             perfTimer.startTiming("Calculation Shaders");
@@ -474,7 +457,7 @@ void SceneRendererES2::render(TimeInterval duration)
 
             if (haveCalcShader) {
                 // Have to set an active framebuffer for our empty fragment shaders to write to
-                renderTargets[0].setActiveFramebuffer(self);
+                renderTargets[0].setActiveFramebuffer(this);
                 
                 glEnable(GL_RASTERIZER_DISCARD);
                 
@@ -493,10 +476,10 @@ void SceneRendererES2::render(TimeInterval duration)
                     }
 
                     // Tweakers probably not necessary, but who knows
-                    drawContain.drawable->runTweakers(baseFrameInfo);
+                    drawContain.drawable->runTweakers(&baseFrameInfo);
                     
                     // Run the calculation phase
-                    drawContain.drawable->calculate(baseFrameInfo,scene);
+                    drawContain.drawable->calculate(&baseFrameInfo,scene);
                 }
 
                 glDisable(GL_RASTERIZER_DISCARD);
@@ -516,7 +499,7 @@ void SceneRendererES2::render(TimeInterval duration)
         // Iterate through rendering targets here
         for (RenderTarget &renderTarget : renderTargets)
         {
-            renderTarget.setActiveFramebuffer(self);
+            renderTarget.setActiveFramebuffer(this);
 
             if (renderTarget.clearEveryFrame || renderTarget.clearOnce)
             {
@@ -525,16 +508,16 @@ void SceneRendererES2::render(TimeInterval duration)
                 CheckGLError("SceneRendererES2: glClear");
             }
             
-            bool depthMaskOn = (super.zBufferMode == zBufferOn);
+            bool depthMaskOn = (zBufferMode == zBufferOn);
             for (unsigned int ii=0;ii<drawList.size();ii++)
             {
                 DrawableContainer &drawContain = drawList[ii];
                 
                 // The first time we hit an explicitly alpha drawable
                 //  turn off the depth buffer
-                if (super.depthBufferOffForAlpha && !(super.zBufferMode == zBufferOffDefault))
+                if (depthBufferOffForAlpha && !(zBufferMode == zBufferOffDefault))
                 {
-                    if (depthMaskOn && super.depthBufferOffForAlpha && drawContain.drawable->hasAlpha(baseFrameInfo))
+                    if (depthMaskOn && depthBufferOffForAlpha && drawContain.drawable->hasAlpha(&baseFrameInfo))
                     {
                         depthMaskOn = false;
                         glDisable(GL_DEPTH_TEST);
@@ -542,7 +525,7 @@ void SceneRendererES2::render(TimeInterval duration)
                 }
                 
                 // For this mode we turn the z buffer off until we get a request to turn it on
-                if (super.zBufferMode == zBufferOffDefault)
+                if (zBufferMode == zBufferOffDefault)
                 {
                     if (drawContain.drawable->getRequestZBuffer())
                     {
@@ -554,7 +537,7 @@ void SceneRendererES2::render(TimeInterval duration)
                 }
                 
                 // If we're drawing lines or points we don't want to update the z buffer
-                if (super.zBufferMode != zBufferOff)
+                if (zBufferMode != zBufferOff)
                 {
                     if (drawContain.drawable->getWriteZbuffer())
                         glDepthMask(GL_TRUE);
@@ -583,10 +566,10 @@ void SceneRendererES2::render(TimeInterval duration)
                         //                    [renderStateOptimizer setUseProgram:program->getProgram()];
                         glUseProgram(program->getProgram());
                         // Assign the lights if we need to
-                        if (program->hasLights() && ([lights count] > 0))
-                        program->setLights(lights, lightsLastUpdated, defaultMat, currentMvpMat);
+                        if (program->hasLights() && (lights.size() > 0))
+                        program->setLights(lights, lightsLastUpdated, &defaultMat, currentMvpMat);
                         // Explicitly turn the lights on
-                        program->setUniform(u_numLightsNameID, (int)[lights count]);
+                        program->setUniform(u_numLightsNameID, (int)lights.size());
                         
                         baseFrameInfo.program = program;
                     }
@@ -599,10 +582,10 @@ void SceneRendererES2::render(TimeInterval duration)
                     continue;
                 
                 // Run any tweakers right here
-                drawContain.drawable->runTweakers(baseFrameInfo);
+                drawContain.drawable->runTweakers(&baseFrameInfo);
                 
                 // Draw using the given program
-                drawContain.drawable->draw(baseFrameInfo,scene);
+                drawContain.drawable->draw(&baseFrameInfo,scene);
                 
                 // If we had a local matrix, set the frame info back to the general one
     //            if (localMat)
@@ -649,7 +632,7 @@ void SceneRendererES2::render(TimeInterval duration)
     // Explicitly discard the depth buffer
     // Note: move this to iOS version
     const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
-    if (context.API < kEAGLRenderingAPIOpenGLES3)
+    if (glesVersion < 3)
         glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
     else
         glInvalidateFramebuffer(GL_FRAMEBUFFER,1,discards);
@@ -729,12 +712,6 @@ void SceneRendererES2::render(TimeInterval duration)
         _snapshotDelegate = nil;
     }
 #endif
-
-    if (!framebufferTex)
-    {
-        [context presentRenderbuffer:GL_RENDERBUFFER];
-        CheckGLError("SceneRendererES2: presentRenderbuffer");
-    }
     
     if (perfInterval > 0)
         perfTimer.stopTiming("Present Renderbuffer");
@@ -743,22 +720,19 @@ void SceneRendererES2::render(TimeInterval duration)
         perfTimer.stopTiming("Render Frame");
     
 	// Update the frames per sec
-	if (super.perfInterval > 0 && frameCount > perfInterval)
+	if (perfInterval > 0 && frameCount > perfInterval)
 	{
         CFTimeInterval now = TimeGetCurrent();
 		TimeInterval howLong =  now - frameCountStart;;
-		super.framesPerSec = frameCount / howLong;
+		framesPerSec = frameCount / howLong;
 		frameCountStart = now;
 		frameCount = 0;
         
-        NSLog(@"---Rendering Performance---");
-        NSLog(@" Frames per sec = %.2f",super.framesPerSec);
+        WHIRLYKIT_LOGV("---Rendering Performance---");
+        WHIRLYKIT_LOGV(" Frames per sec = %.2f",framesPerSec);
         perfTimer.log();
         perfTimer.clear();
 	}
-    
-    if (oldContext != context)
-        [EAGLContext setCurrentContext:oldContext];
 }
 
 }
