@@ -469,6 +469,7 @@
 		2BB8E1B921FBCCBF00154CDC /* ViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1B821FBCCBF00154CDC /* ViewState.h */; };
 		2BB8E1BD21FBCEA400154CDC /* SharedAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */; };
 		2BB8E1D921FF78A700154CDC /* Identifiable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5E21F7E7DF0078A975 /* Identifiable.cpp */; };
+		2BB8E1DA21FF7B7000154CDC /* Dictinary_NSDictionary.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133D21FA91A4006AA344 /* Dictinary_NSDictionary.mm */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -4257,6 +4258,7 @@
 				2B82B6381E82E2490095FB14 /* geocent.c in Sources */,
 				2BE539B01D249BEF00B60FAD /* AAParallactic.cpp in Sources */,
 				2BE53A0F1D249C2900B60FAD /* reflection_ops.cc in Sources */,
+				2BB8E1DA21FF7B7000154CDC /* Dictinary_NSDictionary.mm in Sources */,
 				2B82B66C1E82E24A0095FB14 /* PJ_gnom.c in Sources */,
 				2B82B6AD1E82E24A0095FB14 /* PJ_somerc.c in Sources */,
 				2B82B6191E82E2490095FB14 /* JSONValidator.cpp in Sources */,

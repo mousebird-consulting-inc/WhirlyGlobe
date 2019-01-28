@@ -34,7 +34,7 @@ class Dictionary
 {
 public:
     Dictionary();
-    virtual ~Dictionary() = 0;
+    virtual ~Dictionary() { };
     
     /// Clean out the contents
     virtual void clear() = 0;
@@ -69,8 +69,8 @@ class MutableDictionary : public Dictionary
 public:
     MutableDictionary();
     // Assignment operator
-    virtual MutableDictionary &operator = (const MutableDictionary &that) = 0;
-    virtual ~MutableDictionary() = 0;
+    virtual MutableDictionary &operator = (const MutableDictionary &that) { return *this; };
+    virtual ~MutableDictionary() { };
     
     /// Remove the given field by name
     virtual void removeField(const std::string &name) = 0;

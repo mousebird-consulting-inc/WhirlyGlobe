@@ -94,7 +94,7 @@
 @property (nonatomic,assign) MaplyCoordinate3d endCenter;
 
 /// How long it will take to get to the endCenter
-@property (nonatomic,assign) TimeInterval duration;
+@property (nonatomic,assign) NSTimeInterval duration;
 
 @end
 

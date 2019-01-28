@@ -32,7 +32,7 @@ public:
     iosDictionary();
     iosDictionary(NSDictionary *dict);
     // Copy constructor
-    virtual iosDictionary(const iosDictionary &that);
+    iosDictionary(const iosDictionary &that);
     virtual ~iosDictionary();
     
     /// Returns true if the field exists
@@ -56,19 +56,39 @@ public:
     /// Return a string, using the default if it's missing
     std::string getString(const std::string &name,const std::string &defVal) const;
     
-protected:
+public:
     NSDictionary *dict;
 };
 
 /// This version of the dictionary can be modified
-class iosMutableDictionary : public MutableDictionary, public Dictionary
+class iosMutableDictionary : public MutableDictionary
 {
 public:
     iosMutableDictionary();
-    iosMutableDictionary(NSMutableDictionary *);
     // Assignment operator
     virtual iosMutableDictionary &operator = (const iosMutableDictionary &that);
-    virtual ~iosMutableDictionary()
+    virtual ~iosMutableDictionary();
+
+    /// Returns true if the field exists
+    bool hasField(const std::string &name) const;
+    
+    /// Returns the field type
+    DictionaryType getType(const std::string &name) const;
+    
+    /// Return an int, using the default if it's missing
+    int getInt(const std::string &name,int defVal=0.0) const;
+    /// Return a 64 bit unique identity or 0 if missing
+    SimpleIdentity getIdentity(const std::string &name) const;
+    /// Interpret an int as a boolean
+    bool getBool(const std::string &name,bool defVal=false) const;
+    /// Interpret an int as a RGBA color
+    RGBAColor getColor(const std::string &name,const RGBAColor &defVal) const;
+    /// Return a double, using the default if it's missing
+    double getDouble(const std::string &name,double defVal=0.0) const;
+    /// Return a string, or empty if it's missing
+    std::string getString(const std::string &name) const;
+    /// Return a string, using the default if it's missing
+    std::string getString(const std::string &name,const std::string &defVal) const;
 
     /// Clean out the contents
     void clear();
@@ -88,7 +108,7 @@ public:
     // Merge in key-value pairs from another dictionary
     void addEntries(const Dictionary *other);
     
-protected:
+public:
     NSMutableDictionary *dict;
 };
     
