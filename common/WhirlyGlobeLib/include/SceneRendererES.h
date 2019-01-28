@@ -164,14 +164,16 @@ public:
     /// Current projection matrix
     Eigen::Matrix4f projMat;
     Eigen::Matrix4d projMat4d;
-    /// Normal matrix for MVP
-    Eigen::Matrix4f mvpNormalMat;
     /// What's currently in the GL model matrix.
     /// We combine view and model together
     Eigen::Matrix4f viewAndModelMat;
     Eigen::Matrix4d viewAndModelMat4d;
     /// The model, view, and projection matrix all rolled into one
     Eigen::Matrix4f mvpMat;
+    /// Inverse of the model/view/projection matrix
+    Eigen::Matrix4f mvInvMat;
+    /// Normal matrix for MVP
+    Eigen::Matrix4f mvpNormalMat;
     /// Model, and view matrix but for normal transformation
     Eigen::Matrix4f viewModelNormalMat;
     /// Projection, view, and offset matrices rolled together
@@ -199,7 +201,7 @@ public:
     Point2d screenSizeInDisplayCoords;
     /// If using OpenGL ES 2.x, this is the shader
     OpenGLES2Program *program;
-    /// Lights, if applicableNSArray *lights;
+    /// Lights, if applicable
     std::vector<DirectionalLight> *lights;
 };
 

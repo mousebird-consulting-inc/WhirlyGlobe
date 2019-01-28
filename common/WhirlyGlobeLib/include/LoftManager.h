@@ -22,6 +22,7 @@
 #import <set>
 #import <map>
 #import "Identifiable.h"
+#import "BaseInfo.h"
 #import "Scene.h"
 #import "BasicDrawable.h"
 #import "SelectionManager.h"
@@ -30,6 +31,24 @@
 namespace WhirlyKit
 {
     
+// Used to describe the drawables we want to construct for a given vector
+class LoftedPolyInfo : public BaseInfo
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
+    float       height;
+    float       base;
+    int outlineDrawPriority;
+    bool        top,side;
+    bool        layered;
+    bool        outline,outlineSide,outlineBottom;
+    RGBAColor    outlineColor;
+    float       outlineWidth;
+    bool        readZBuffer;
+    bool        writeZBuffer;
+};
+
 /** Representation of one or more lofted polygons.
  Used to keep track of the assets we create.
  */
@@ -39,10 +58,6 @@ public:
     LoftedPolySceneRep() : triMesh(VectorTriangles::createTriangles()) { }
     LoftedPolySceneRep(SimpleIdentity theId) : Identifiable(theId) { }
     ~LoftedPolySceneRep() { }
-    
-    // If we're keeping a cache of the meshes, read and write
-    bool readFromCache(NSObject<WhirlyKitLoftedPolyCache> *cache,NSString *key);
-    bool writeToCache(NSObject<WhirlyKitLoftedPolyCache> *cache,NSString *key);
     
     WhirlyKit::SimpleIDSet drawIDs;  // Drawables created for this
     WhirlyKit::ShapeSet shapes;    // The shapes for the outlines
@@ -65,16 +80,16 @@ public:
     virtual ~LoftManager();
 
     /// Add lofted polygons
-    SimpleIdentity addLoftedPolys(WhirlyKit::ShapeSet *shapes,NSDictionary *desc,NSString *cacheName,NSObject<WhirlyKitLoftedPolyCache> *cacheHandler,float gridSize,ChangeSet &changes);
+    SimpleIdentity addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Dictionary &desc,float gridSize,ChangeSet &changes);
 
     /// Enable/disable lofted polys
-    void enableLoftedPolys(SimpleIDSet &polyIDs,bool enable,ChangeSet &changes);
+    void enableLoftedPolys(const SimpleIDSet &polyIDs,bool enable,ChangeSet &changes);
     
     /// Remove lofted polygons
-    void removeLoftedPolys(SimpleIDSet &polyIDs,ChangeSet &changes);
+    void removeLoftedPolys(const SimpleIDSet &polyIDs,ChangeSet &changes);
         
 protected:
-    void addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLoftedPolyInfo *polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ChangeSet &changes);
+    void addGeometryToBuilder(LoftedPolySceneRep *sceneRep,LoftedPolyInfo *polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ChangeSet &changes);
     
     pthread_mutex_t loftLock;
     LoftedPolySceneRepSet loftReps;

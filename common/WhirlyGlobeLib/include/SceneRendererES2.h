@@ -57,7 +57,7 @@ public:
     
     void processScene();
 
-    void render();
+    void render(TimeInterval duration);
     
     bool hasChanges();
     

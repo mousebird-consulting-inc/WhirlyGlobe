@@ -178,7 +178,7 @@ bool SceneRendererES2::hasChanges()
     return scene->hasChanges(TimeGetCurrent()) || viewDidChange() || !contRenderRequests.empty();
 }
 
-void SceneRendererES2::render()
+void SceneRendererES2::render(TimeInterval duration)
 {
     if (!scene)
         return;

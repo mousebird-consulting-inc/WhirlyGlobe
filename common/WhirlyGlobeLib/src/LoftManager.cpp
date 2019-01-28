@@ -20,8 +20,6 @@
 
 #import "LoftManager.h"
 #import "VectorData.h"
-#import "NSDictionary+Stuff.h"
-#import "UIColor+Stuff.h"
 #import "GridClipper.h"
 #import "Tesselator.h"
 #import "BaseInfo.h"
@@ -32,95 +30,6 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
 
-// Read the lofted poly representation from a cache file
-// We're just saving the MBR and triangle mesh here
-bool LoftedPolySceneRep::readFromCache(NSObject<WhirlyKitLoftedPolyCache> *cache,NSString *key)
-{
-    if (!cache)
-        return false;
-    
-    // Note: Cache no longer working
-    return false;
-    
-//    NSData *data = [cache readLoftedPolyData:key];
-//    if (!data)
-//        return false;
-//    
-//    try {
-//        // MBR first
-//        float ll_x,ll_y,ur_x,ur_y;
-//        unsigned int loc = 0;
-//        [data getBytes:&ll_x range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
-//        [data getBytes:&ll_y range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
-//        [data getBytes:&ur_x range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
-//        [data getBytes:&ur_y range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
-//        shapeMbr.addGeoCoord(GeoCoord(ll_x,ll_y));
-//        shapeMbr.addGeoCoord(GeoCoord(ur_x,ur_y));
-//        
-//        // Triangle meshes
-//        unsigned int numMesh = 0;
-//        [data getBytes:&numMesh range:NSMakeRange(loc, sizeof(unsigned int))];  loc += sizeof(unsigned int);  if (loc > [data length])  throw 1;
-//        triMesh.resize(numMesh);
-//        for (unsigned int ii=0;ii<numMesh;ii++)
-//        {
-//            VectorRing &ring = triMesh[ii];
-//            unsigned int numPt = 0;
-//            [data getBytes:&numPt range:NSMakeRange(loc, sizeof(unsigned int))];  loc += sizeof(unsigned int);  if (loc > [data length])  throw 1;
-//            ring.resize(numPt);
-//            for (unsigned int jj=0;jj<numPt;jj++)
-//            {
-//                Point2f &pt = ring[jj];
-//                float x,y;
-//                [data getBytes:&x range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
-//                [data getBytes:&y range:NSMakeRange(loc, sizeof(float))];  loc += sizeof(float);  if (loc > [data length])  throw 1;
-//                pt.x() = x;
-//                pt.y() = y;
-//            }
-//        }
-//    }
-//    catch (...)
-//    {
-//        return false;
-//    }
-    
-    return true;
-}
-
-// Write the lofted poly representation to a cache
-// Just the MBR and triangle mesh
-bool LoftedPolySceneRep::writeToCache(NSObject<WhirlyKitLoftedPolyCache> *cache,NSString *key)
-{
-    // Note: Cache no longer working
-    return false;
-    
-//    NSMutableData *data = [NSMutableData dataWithCapacity:0];
-//    
-//    // MBR first
-//    GeoCoord ll = shapeMbr.ll(), ur = shapeMbr.ur();
-//    [data appendBytes:&ll.x() length:sizeof(float)];
-//    [data appendBytes:&ll.y() length:sizeof(float)];
-//    [data appendBytes:&ur.x() length:sizeof(float)];
-//    [data appendBytes:&ur.y() length:sizeof(float)];
-//    
-//    // Triangle meshes
-//    unsigned int numMesh = triMesh.size();
-//    [data appendBytes:&numMesh length:sizeof(unsigned int)];
-//    for (unsigned int ii=0;ii<numMesh;ii++)
-//    {
-//        VectorRing &ring = triMesh[ii];
-//        unsigned int numPt = ring.size();
-//        [data appendBytes:&numPt length:sizeof(unsigned int)];
-//        for (unsigned int jj=0;jj<numPt;jj++)
-//        {
-//            Point2f &pt = ring[jj];
-//            [data appendBytes:&pt.x() length:sizeof(float)];
-//            [data appendBytes:&pt.y() length:sizeof(float)];
-//        }
-//    }
-//    
-//    return [cache writeLoftedPolyData:data cacheName:key];
-}
-
 /* Drawable Builder
  Used to construct drawables with multiple shapes in them.
  Eventually, will move this out to be a more generic object.
@@ -129,7 +38,7 @@ class DrawableBuilder2
 {
 public:
     DrawableBuilder2(Scene *scene,ChangeSet &changes,LoftedPolySceneRep *sceneRep,
-                     WhirlyKitLoftedPolyInfo *polyInfo,int primType,const GeoMbr &inDrawMbr)
+                     LoftedPolyInfo *polyInfo,int primType,const GeoMbr &inDrawMbr)
     : scene(scene), sceneRep(sceneRep), polyInfo(polyInfo), drawable(NULL), primType(primType), changes(changes), centerValid(false), center(0,0,0), geoCenter(0,0)
     {
         drawMbr = inDrawMbr;
@@ -161,11 +70,11 @@ public:
             // Adjust according to the vector info
             //            drawable->setOnOff(polyInfo->enable);
             //            drawable->setDrawOffset(vecInfo->drawOffset);
-            drawable->setColor([((primType == GL_TRIANGLES) ? polyInfo.color : polyInfo->outlineColor) asRGBAColor]);
+            drawable->setColor(((primType == GL_TRIANGLES) ? polyInfo->color : polyInfo->outlineColor));
+            if (polyInfo)
+                polyInfo->setupBasicDrawable(drawable);
             if (primType == GL_LINES)
                 drawable->setLineWidth(polyInfo->outlineWidth);
-            if (polyInfo)
-                [polyInfo setupBasicDrawable:drawable];
             drawable->setRequestZBuffer(polyInfo->readZBuffer);
             drawable->setWriteZBuffer(polyInfo->writeZBuffer);
         }
@@ -422,7 +331,7 @@ protected:
     ChangeSet &changes;
     GeoMbr drawMbr;
     BasicDrawable *drawable;
-    WhirlyKitLoftedPolyInfo *polyInfo;
+    LoftedPolyInfo *polyInfo;
     GLenum primType;
     Point3d center;
     Point2d geoCenter;
@@ -446,7 +355,7 @@ LoftManager::~LoftManager()
 }
     
 // From a scene rep and a description, add the given polygons to the drawable builder
-void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLoftedPolyInfo *polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ChangeSet &changes)
+void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,LoftedPolyInfo *polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ChangeSet &changes)
 {
     int numShapes = 0;
     
@@ -506,7 +415,7 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,WhirlyKitLof
 
     
 /// Add lofted polygons
-SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,NSDictionary *desc,NSString *cacheName,NSObject<WhirlyKitLoftedPolyCache> *cacheHandler,float gridSize,ChangeSet &changes)
+SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Dictionary &desc,float gridSize,ChangeSet &changes)
 {
     WhirlyKitLoftedPolyInfo *polyInfo = [[WhirlyKitLoftedPolyInfo alloc] initWithShapes:shapes desc:desc key:([cacheName isKindOfClass:[NSNull class]] ? nil : cacheName)];
     polyInfo->cache = ([cacheHandler isKindOfClass:[NSNull class]] ? nil :cacheHandler);

@@ -20,14 +20,13 @@
 
 #import "GLUtils.h"
 #import "Texture.h"
-#import "UIImage+Stuff.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
 
 // Convert a buffer in RGBA to 2-byte 565
 // Code courtesy: http://stackoverflow.com/questions/7930148/opengl-es-on-ios-texture-loading-how-do-i-get-from-a-rgba8888-png-file-to-a-r
-RawData *ConvertRGBATo565(RawDataRef inData)
+RawDataRef ConvertRGBATo565(RawDataRef inData)
 {
     uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
@@ -43,12 +42,12 @@ RawData *ConvertRGBATo565(RawDataRef inData)
         *outPixel16++ = (r << 11) | (g << 5) | (b << 0);
     }
     
-    return new RawDataWrapper(temp,pixelCount*2,true);
+    return RawDataRef(new RawDataWrapper(temp,pixelCount*2,true));
 }
 
 
 // Convert a buffer in RGBA to 2-byte 4444
-RawData *ConvertRGBATo4444(RawDataRef inData)
+RawDataRef ConvertRGBATo4444(RawDataRef inData)
 {
     uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
@@ -65,11 +64,11 @@ RawData *ConvertRGBATo4444(RawDataRef inData)
         *outPixel16++ = (r << 12) | (g << 8) | (b << 4) | (a<< 0);
     }
     
-    return new RawDataWrapper(temp,pixelCount*2,true);
+    return RawDataRef(new RawDataWrapper(temp,pixelCount*2,true));
 }
 
 // Convert a buffer in RGBA to 2-byte 5551
-RawData *ConvertRGBATo5551(RawDataRef inData)
+RawDataRef ConvertRGBATo5551(RawDataRef inData)
 {
     uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
@@ -86,7 +85,7 @@ RawData *ConvertRGBATo5551(RawDataRef inData)
         *outPixel16++ = (r << 11) | (g << 6) | (b << 1) | (a << 0);
     }
     
-    return new RawDataWrapper(temp,pixelCount*2,true);
+    return RawDataRef(new RawDataWrapper(temp,pixelCount*2,true));
 }
 
 // Convert a buffer in A to 1-byte alpha but align it to 32 bits
@@ -101,7 +100,6 @@ RawDataRef ConvertAToA(RawDataRef inData,int width,int height)
     
     unsigned char *temp = (unsigned char *)malloc(outWidth*height);
     
-    uint32_t *inPixel32  = (uint32_t *)inData->getRawData();
     const unsigned char *inBytes = (const unsigned char *)inData->getRawData();
     unsigned char *outBytes = (unsigned char *)temp;
     for (int32_t h=0;h<height;h++) {
@@ -170,7 +168,7 @@ RawDataRef ConvertRGBATo16(RawDataRef inData,int width,int height)
 }
 
 // Convert a buffer in RGBA to 1-byte alpha
-RawData *ConvertRGBATo8(RawDataRef inData,WKSingleByteSource source)
+RawDataRef ConvertRGBATo8(RawDataRef inData,WKSingleByteSource source)
 {
     uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount);
@@ -205,7 +203,7 @@ RawData *ConvertRGBATo8(RawDataRef inData,WKSingleByteSource source)
         *outPixel8++ = (uint8_t)sum;
     }
     
-    return new RawDataWrapper(temp,pixelCount,true);
+    return RawDataRef(new RawDataWrapper(temp,pixelCount,true));
 }
 
 namespace WhirlyKit
