@@ -641,8 +641,8 @@ public:
         {
             BasicDrawable *drawable = drawables[ii];
             sceneRep->drawIDs.insert(drawable->getId());
-            if (vecInfo.fade > 0.0)
-                drawable->setFade(curTime,curTime+vecInfo.fade);
+            if (vecInfo->fade > 0.0)
+                drawable->setFade(curTime,curTime+vecInfo->fade);
             changes.push_back(new AddDrawableReq(drawable));
         }
         

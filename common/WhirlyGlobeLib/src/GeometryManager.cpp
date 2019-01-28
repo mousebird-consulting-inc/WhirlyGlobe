@@ -897,7 +897,7 @@ SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomP
         // Set the point size, at least default
         SingleVertexAttributeSet uniforms;
         SingleVertexAttribute pointAttr;
-        pointAttr.name = "u_pointSize";
+        pointAttr.nameID = StringIndexer::getStringID("u_pointSize");
         pointAttr.type = BDFloatType;
         pointAttr.data.floatVal = geomInfo.pointSize;
         uniforms.insert(pointAttr);

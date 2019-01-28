@@ -273,15 +273,11 @@ public:
 
         PlacementInfo(ViewState *view,SceneRendererES *renderer);
         
-        WhirlyGlobe::GlobeView *globeView;
-        Maply::MapView *mapView;
         ViewState *viewState;
         WhirlyGlobe::GlobeViewState *globeViewState;
         Maply::MapViewState *mapViewState;
-        
         double heightAboveSurface;
-        Eigen::Matrix4d viewMat,modelMat,viewAndModelMat,viewAndModelInvMat,viewModelNormalMat,projMat,modelInvMat;
-        std::vector<Eigen::Matrix4d> offsetMatrices;
+        
         Point2f frameSize;
         Point2f frameSizeScale;
         Mbr frameMbr;

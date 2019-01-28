@@ -85,6 +85,8 @@ public:
     /// Calculate where the eye is in model coordinates
     Point3d eyePos;
 };
-
+    
+typedef std::shared_ptr<ViewState> ViewStateRef;
+    
 }
 

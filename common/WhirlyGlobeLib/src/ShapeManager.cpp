@@ -50,35 +50,35 @@ void ShapeSceneRep::clearContents(SelectionManager *selectManager, ChangeSet &ch
     }
 }
 
-WhirlyKitShape::WhirlyKitShape()
+Shape::Shape()
     : isSelectable(false), selectID(EmptyIdentity), useColor(false), color(255,255,255,255), clipCoords(false)
 {
 }
 
-WhirlyKitShape::~WhirlyKitShape()
+Shape::~Shape()
 {
 }
 
 // Base shape doesn't make anything
-void WhirlyKitShape::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, WhirlyKit::SelectionManager *selectManager, WhirlyKit::ShapeSceneRep *sceneRep)
+void Shape::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, WhirlyKit::SelectionManager *selectManager, WhirlyKit::ShapeSceneRep *sceneRep)
 {
 }
 
-Point3d WhirlyKitShape::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo)
+Point3d Shape::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo)
 {
 	return Point3d(0,0,0);
 }
 
-WhirlyKitSphere::WhirlyKitSphere()
+Sphere::Sphere()
     : loc(0,0), height(0.0), radius(0.0), sampleX(10), sampleY(10)
 {
 }
 
-WhirlyKitSphere::~WhirlyKitSphere()
+Sphere::~Sphere()
 {
 }
 
-Point3d WhirlyKitSphere::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, WhirlyKit::WhirlyKitShapeInfo *shapeInfo)
+Point3d Sphere::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo)
 {
     if (shapeInfo->getHasCenter())
         return shapeInfo->getCenter();
@@ -91,7 +91,7 @@ Point3d WhirlyKitSphere::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coo
 
 static const float sqrt2 = 1.4142135623;
 
-void WhirlyKitSphere::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, WhirlyKit::SelectionManager *selectManager, WhirlyKit::ShapeSceneRep *sceneRep)
+void Sphere::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, WhirlyKit::SelectionManager *selectManager, WhirlyKit::ShapeSceneRep *sceneRep)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
 
@@ -177,16 +177,16 @@ void WhirlyKitSphere::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *r
     }
 }
 
-WhirlyKitRectangle::WhirlyKitRectangle()
-: ll(0,0,0), ur(0,0,0), texID(EmptyIdentity)
+Rectangle::Rectangle()
+: ll(0,0,0), ur(0,0,0)
 {
 }
     
-WhirlyKitRectangle::~WhirlyKitRectangle()
+Rectangle::~Rectangle()
 {    
 }
 
-Point3d WhirlyKitRectangle::displayCenter(CoordSystemDisplayAdapter *coordAdapter,WhirlyKitShapeInfo *shapeInfo)
+Point3d Rectangle::displayCenter(CoordSystemDisplayAdapter *coordAdapter,ShapeInfo *shapeInfo)
 {
     if (shapeInfo->getHasCenter())
         return shapeInfo->getCenter();
@@ -197,7 +197,7 @@ Point3d WhirlyKitRectangle::displayCenter(CoordSystemDisplayAdapter *coordAdapte
 }
 
 // Build the geometry for a circle in display space
-void WhirlyKitRectangle::makeGeometryWithBuilder(ShapeDrawableBuilder *regBuilder,ShapeDrawableBuilderTri *triBuilder,Scene *scene,SelectionManager *selectManager,ShapeSceneRep *sceneRep)
+void Rectangle::makeGeometryWithBuilder(ShapeDrawableBuilder *regBuilder,ShapeDrawableBuilderTri *triBuilder,Scene *scene,SelectionManager *selectManager,ShapeSceneRep *sceneRep)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
@@ -255,7 +255,7 @@ ShapeManager::~ShapeManager()
 }
 
 /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
-SimpleIdentity ShapeManager::addShapes(std::vector<WhirlyKitShape*> shapes, WhirlyKitShapeInfo *shapeInfo, ChangeSet &changes)
+SimpleIdentity ShapeManager::addShapes(std::vector<Shape*> shapes, ShapeInfo *shapeInfo, ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)getScene()->getManager(kWKSelectionManager);
 

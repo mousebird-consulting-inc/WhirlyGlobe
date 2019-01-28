@@ -376,6 +376,21 @@
 		2B84ED1E1F83FC9F00B34D73 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AC41D249E0600B60FAD /* libz.tbd */; };
 		2B8796B621FFB2A100EF801D /* glwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8796B521FFB2A100EF801D /* glwrapper.cpp */; };
 		2B8796B721FFB2DE00EF801D /* Platform.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B2A21F7A4820078A975 /* Platform.mm */; };
+		2B8796B821FFB35200EF801D /* BillboardManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1421F158EA00EF2A82 /* BillboardManager.cpp */; };
+		2B8796B921FFB36500EF801D /* FontTextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B9321FBA8340078A975 /* FontTextureManager.cpp */; };
+		2B8796BA21FFB37000EF801D /* GeometryManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1921F158EB00EF2A82 /* GeometryManager.cpp */; };
+		2B8796BB21FFB37900EF801D /* IntersectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F2121F158EC00EF2A82 /* IntersectionManager.cpp */; };
+		2B8796BC21FFB37900EF801D /* LabelRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AE221F288220078A975 /* LabelRenderer.cpp */; };
+		2B8796BD21FFB37900EF801D /* LabelManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1D21F158EB00EF2A82 /* LabelManager.cpp */; };
+		2B8796BE21FFB37900EF801D /* LayoutManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1C21F158EB00EF2A82 /* LayoutManager.cpp */; };
+		2B8796BF21FFB37900EF801D /* LoftManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1721F158EB00EF2A82 /* LoftManager.cpp */; };
+		2B8796C021FFB37900EF801D /* MarkerManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1521F158EA00EF2A82 /* MarkerManager.cpp */; };
+		2B8796C121FFB37900EF801D /* ParticleSystemManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1821F158EB00EF2A82 /* ParticleSystemManager.cpp */; };
+		2B8796C221FFB37900EF801D /* SelectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1B21F158EB00EF2A82 /* SelectionManager.cpp */; };
+		2B8796C321FFB37900EF801D /* ShapeDrawableBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446AE721F299FA0078A975 /* ShapeDrawableBuilder.cpp */; };
+		2B8796C421FFB37900EF801D /* ShapeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1E21F158EB00EF2A82 /* ShapeManager.cpp */; };
+		2B8796C621FFB37900EF801D /* VectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1F21F158EB00EF2A82 /* VectorManager.cpp */; };
+		2B8796C721FFB37900EF801D /* WideVectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1A21F158EB00EF2A82 /* WideVectorManager.cpp */; };
 		2B884A421E3803170027C397 /* arithmeticdecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0A1E3803170027C397 /* arithmeticdecoder.cpp */; };
 		2B884A431E3803170027C397 /* arithmeticdecoder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A0B1E3803170027C397 /* arithmeticdecoder.hpp */; };
 		2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0C1E3803170027C397 /* arithmeticencoder.cpp */; };
@@ -4101,6 +4116,7 @@
 				2BE53A151D249C2900B60FAD /* text_format.cc in Sources */,
 				2BE539A01D249BEF00B60FAD /* AAJupiter.cpp in Sources */,
 				2BE53A951D249C9000B60FAD /* DDXMLDocument.m in Sources */,
+				2B8796C421FFB37900EF801D /* ShapeManager.cpp in Sources */,
 				2B446B1F21F79AE40078A975 /* Proj4CoordSystem.cpp in Sources */,
 				2B82B61E1E82E2490095FB14 /* libjson.cpp in Sources */,
 				2BE539B31D249BEF00B60FAD /* AAPhysicalMars.cpp in Sources */,
@@ -4112,6 +4128,7 @@
 				2B82B6921E82E24A0095FB14 /* pj_mutex.c in Sources */,
 				2B82B6351E82E2490095FB14 /* dmstor.c in Sources */,
 				2BE5398B1D249BEF00B60FAD /* AAAberration.cpp in Sources */,
+				2B8796C321FFB37900EF801D /* ShapeDrawableBuilder.cpp in Sources */,
 				2B82B67C1E82E24A0095FB14 /* PJ_laea.c in Sources */,
 				2B846EEF21F13A1D00EF2A82 /* render.c in Sources */,
 				2BE5399D1D249BEF00B60FAD /* AAIlluminatedFraction.cpp in Sources */,
@@ -4137,6 +4154,8 @@
 				2BB8E1FD21FF93CB00154CDC /* GlobeViewState.cpp in Sources */,
 				2BB8E20821FFAAA000154CDC /* SceneRendererES2.cpp in Sources */,
 				2BE539AF1D249BEF00B60FAD /* AAParabolic.cpp in Sources */,
+				2B8796C021FFB37900EF801D /* MarkerManager.cpp in Sources */,
+				2B8796BD21FFB37900EF801D /* LabelManager.cpp in Sources */,
 				2BB8E1FF21FF93CB00154CDC /* MaplyView.cpp in Sources */,
 				2B82B6881E82E24A0095FB14 /* pj_malloc.c in Sources */,
 				2B82B69F1E82E24A0095FB14 /* pj_param.c in Sources */,
@@ -4152,11 +4171,13 @@
 				2B884A6D1E3803170027C397 /* laswriteitemcompressed_v2.cpp in Sources */,
 				2B884A751E3803170027C397 /* laszip.cpp in Sources */,
 				2B884A741E3803170027C397 /* laszip_dll.cpp in Sources */,
+				2B8796BE21FFB37900EF801D /* LayoutManager.cpp in Sources */,
 				2B82B64C1E82E2490095FB14 /* PJ_bonne.c in Sources */,
 				2B82B6111E82E2490095FB14 /* JSONNode_Mutex.cpp in Sources */,
 				2B82B6BA1E82E24A0095FB14 /* PJ_urmfps.c in Sources */,
 				2B82B6721E82E24A0095FB14 /* PJ_hatano.c in Sources */,
 				2B82B6231E82E2490095FB14 /* shpopen.c in Sources */,
+				2B8796BC21FFB37900EF801D /* LabelRenderer.cpp in Sources */,
 				2B82B6621E82E24A0095FB14 /* pj_factors.c in Sources */,
 				2BE53A6D1D249C4600B60FAD /* atomicops_internals_x86_msvc.cc in Sources */,
 				2B82B6271E82E2490095FB14 /* pj_inv3d.c in Sources */,
@@ -4186,6 +4207,7 @@
 				2BE53A631D249C4600B60FAD /* stringpiece.cc in Sources */,
 				2B82B62E1E82E2490095FB14 /* PJ_sch.c in Sources */,
 				2B82B65E1E82E24A0095FB14 /* pj_ellps.c in Sources */,
+				2B8796BF21FFB37900EF801D /* LoftManager.cpp in Sources */,
 				2B82B67F1E82E24A0095FB14 /* PJ_lask.c in Sources */,
 				2B884A6B1E3803170027C397 /* laswriteitemcompressed_v1.cpp in Sources */,
 				2BB8E1F521FF903100154CDC /* ParticleSystemDrawable.cpp in Sources */,
@@ -4194,11 +4216,13 @@
 				2BB8E20421FFAA9B00154CDC /* Lighting.cpp in Sources */,
 				2BE539971D249BEF00B60FAD /* AAElliptical.cpp in Sources */,
 				2BE539B21D249BEF00B60FAD /* AAPhysicalJupiter.cpp in Sources */,
+				2B8796C721FFB37900EF801D /* WideVectorManager.cpp in Sources */,
 				2BE53A6F1D249C4600B60FAD /* common.cc in Sources */,
 				2B82B6C11E82E24A0095FB14 /* PJ_wag7.c in Sources */,
 				2BE539B81D249BEF00B60FAD /* AAPluto.cpp in Sources */,
 				2BB8E20121FF93CB00154CDC /* ViewState.cpp in Sources */,
 				2BE539A51D249BEF00B60FAD /* AAMoonIlluminatedFraction.cpp in Sources */,
+				2B8796B921FFB36500EF801D /* FontTextureManager.cpp in Sources */,
 				2BE5399B1D249BEF00B60FAD /* AAGalileanMoons.cpp in Sources */,
 				2B82B6A71E82E24A0095FB14 /* PJ_putp6.c in Sources */,
 				2BE53A131D249C2900B60FAD /* service.cc in Sources */,
@@ -4208,6 +4232,7 @@
 				2B846EED21F138F600EF2A82 /* tess.c in Sources */,
 				2B82B6B51E82E24A0095FB14 /* PJ_tpeqd.c in Sources */,
 				2B82B6681E82E24A0095FB14 /* pj_geocent.c in Sources */,
+				2B8796BA21FFB37000EF801D /* GeometryManager.cpp in Sources */,
 				2BB8E1EE21FF8FE900154CDC /* StringIndexer.cpp in Sources */,
 				2B82B6011E82E2490095FB14 /* JSONChildren.cpp in Sources */,
 				2B446B1B21F79AE40078A975 /* CoordSystem.cpp in Sources */,
@@ -4257,6 +4282,7 @@
 				2B82B6911E82E24A0095FB14 /* pj_msfn.c in Sources */,
 				2BE539B71D249BEF00B60FAD /* AAPlanetPerihelionAphelion.cpp in Sources */,
 				2BE539BC1D249BEF00B60FAD /* AASaturn.cpp in Sources */,
+				2B8796C221FFB37900EF801D /* SelectionManager.cpp in Sources */,
 				2B82B65B1E82E2490095FB14 /* PJ_eck4.c in Sources */,
 				2B82B6A61E82E24A0095FB14 /* PJ_putp5.c in Sources */,
 				2BE53A7A1D249C4700B60FAD /* substitute.cc in Sources */,
@@ -4384,11 +4410,14 @@
 				2B846EDD21F1365000EF2A82 /* pj_apply_vgridshift.c in Sources */,
 				2BE539F31D249C2900B60FAD /* map_field.cc in Sources */,
 				2B446B1D21F79AE40078A975 /* SphericalMercator.cpp in Sources */,
+				2B8796C121FFB37900EF801D /* ParticleSystemManager.cpp in Sources */,
 				2BE53A401D249C3D00B60FAD /* zero_copy_stream_impl.cc in Sources */,
 				2B23133A21F942E2006AA344 /* Dictionary.cpp in Sources */,
 				2BB8E1FE21FF93CB00154CDC /* MaplyFlatView.cpp in Sources */,
+				2B8796C621FFB37900EF801D /* VectorManager.cpp in Sources */,
 				2B82B6551E82E2490095FB14 /* pj_datums.c in Sources */,
 				2BE53A8B1D249C8900B60FAD /* DDXMLElementAdditions.m in Sources */,
+				2B8796BB21FFB37900EF801D /* IntersectionManager.cpp in Sources */,
 				2BB8E1DB21FF7FDE00154CDC /* BaseInfo.cpp in Sources */,
 				2BE539A41D249BEF00B60FAD /* AAMoon.cpp in Sources */,
 				2B82B5E61E82E2490095FB14 /* memalloc.c in Sources */,
@@ -4441,6 +4470,7 @@
 				2BE53A0A1D249C2900B60FAD /* message.cc in Sources */,
 				2BE53A331D249C3D00B60FAD /* strtod.cc in Sources */,
 				2B82B6B11E82E24A0095FB14 /* PJ_sts.c in Sources */,
+				2B8796B821FFB35200EF801D /* BillboardManager.cpp in Sources */,
 				2B82B6611E82E24A0095FB14 /* pj_errno.c in Sources */,
 				2B82B6751E82E24A0095FB14 /* PJ_imw_p.c in Sources */,
 				2B82B6C81E82E24A0095FB14 /* proj_rouss.c in Sources */,

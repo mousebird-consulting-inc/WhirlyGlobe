@@ -138,6 +138,9 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
     if (it != sceneReps.end())
         sceneRep = *it;
     
+    WhirlyKitGLSetupInfo setupInfo;
+    setupInfo.glesVersion = 3;
+    setupInfo.minZres = 0.0;
     if (sceneRep)
     {
         // Should be one drawable in there
@@ -159,7 +162,7 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
                 }
                 // Note: Should pick this up from the batch
                 theBatch.startTime = TimeGetCurrent();
-                draw->addAttributeData(attrData,theBatch);
+                draw->addAttributeData(&setupInfo,attrData,theBatch);
             }
         }
     }

@@ -46,7 +46,13 @@ LoftedPolyInfo::LoftedPolyInfo(const Dictionary &dict)
     outlineSide = dict.getBool(MaplyLoftedPolyOutlineSide,false);
     outlineBottom = dict.getBool(MaplyLoftedPolyOutlineBottom,false);
     readZBuffer = dict.getBool(MaplyZBufferRead,true);
-    writeZBuffer dict.getBool(MaplyZBufferWrite,true);
+    writeZBuffer = dict.getBool(MaplyZBufferWrite,true);
+    centered = dict.getBool(MaplyVecCentered,false);
+    if (centered) {
+        hasCenter = dict.hasField(MaplyVecCenterX) && dict.hasField(MaplyVecCenterY);
+        center.x() = dict.getDouble(MaplyVecCenterX,0.0);
+        center.y() = dict.getDouble(MaplyVecCenterY,0.0);
+    }
 }
 
 /* Drawable Builder
@@ -331,10 +337,10 @@ public:
                     Matrix4d transMat = trans.matrix();
                     drawable->setMatrix(&transMat);
                 }
-                if (polyInfo.fade > 0)
+                if (polyInfo->fade > 0)
                 {
                     TimeInterval curTime = TimeGetCurrent();
-                    drawable->setFade(curTime,curTime+polyInfo.fade);
+                    drawable->setFade(curTime,curTime+polyInfo->fade);
                 }
                 sceneRep->drawIDs.insert(drawable->getId());
                 changes.push_back(new AddDrawableReq(drawable));
@@ -434,40 +440,32 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,LoftedPolyIn
 
     
 /// Add lofted polygons
-SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Dictionary &desc,float gridSize,ChangeSet &changes)
+SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,LoftedPolyInfo *polyInfo,float gridSize,ChangeSet &changes)
 {
-    WhirlyKitLoftedPolyInfo *polyInfo = [[WhirlyKitLoftedPolyInfo alloc] initWithShapes:shapes desc:desc key:([cacheName isKindOfClass:[NSNull class]] ? nil : cacheName)];
-    polyInfo->cache = ([cacheHandler isKindOfClass:[NSNull class]] ? nil :cacheHandler);
-    polyInfo->sceneRepId = Identifiable::genId();
-    
     SimpleIdentity loftID = EmptyIdentity;
 
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     CoordSystem *coordSys = coordAdapter->getCoordSystem();
     LoftedPolySceneRep *sceneRep = new LoftedPolySceneRep();
-    sceneRep->setId(polyInfo->sceneRepId);
-    loftID = polyInfo->sceneRepId;
-    sceneRep->fade = polyInfo.fade;    
-    sceneRep->shapes = polyInfo->shapes;
+    loftID = sceneRep->getId();
+    sceneRep->fade = polyInfo->fade;
     
     Point3d center(0,0,0);
     bool centerValid = false;
     Point2d geoCenter(0,0);
-    if (desc[@"centered"] && [desc[@"centered"] boolValue])
+    if (polyInfo->centered)
     {
         // We might pass in a center
-        if (desc[@"veccenterx"] && desc[@"veccentery"])
+        if (polyInfo->hasCenter)
         {
-            geoCenter.x() = [desc[@"veccenterx"] doubleValue];
-            geoCenter.y() = [desc[@"veccentery"] doubleValue];
+            geoCenter = polyInfo->center;
             Point3d dispPt = coordAdapter->localToDisplay(coordSys->geographicToLocal(geoCenter));
             center = dispPt;
             centerValid = true;
         } else {
             // Calculate the center
             GeoMbr geoMbr;
-            for (ShapeSet::iterator it = polyInfo->shapes.begin();
-                 it != polyInfo->shapes.end(); ++it)
+            for (ShapeSet::iterator it = shapes->begin();it != shapes->end(); ++it)
                 geoMbr.expand((*it)->calcGeoMbr());
             if (geoMbr.valid())
             {
@@ -480,52 +478,42 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Dic
     }
 
     
-    // Try reading from the cache
-    if (!polyInfo.key || !sceneRep->readFromCache(polyInfo->cache,polyInfo.key))
+    for (ShapeSet::iterator it = shapes->begin();it != shapes->end(); ++it)
     {
-        // If that fails, we'll regenerate everything
-        for (ShapeSet::iterator it = polyInfo->shapes.begin();
-             it != polyInfo->shapes.end(); ++it)
+        VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
+        if (theAreal.get())
         {
-            VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
-            if (theAreal.get())
+            // Work through the loops
+            for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
             {
-                // Work through the loops
-                for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
+                VectorRing &ring = theAreal->loops[ri];
+                
+                sceneRep->shapeMbr.addGeoCoords(ring);
+                
+                if (coordAdapter->isFlat())
                 {
-                    VectorRing &ring = theAreal->loops[ri];
+                    // No grid to worry about, just tesselate
+                    TesselateRing(ring, sceneRep->triMesh);
+                } else {
+                    // Clip the polys for the top
+                    std::vector<VectorRing> clippedMesh;
+                    ClipLoopToGrid(ring,Point2f(0.f,0.f),Point2f(gridSize,gridSize),clippedMesh);
                     
-                    sceneRep->shapeMbr.addGeoCoords(ring);
+                    // May need to add the outline as well
+                    if (polyInfo->outline)
+                        sceneRep->outlines.push_back(ring);
                     
-                    if (coordAdapter->isFlat())
+                    for (unsigned int ii=0;ii<clippedMesh.size();ii++)
                     {
-                        // No grid to worry about, just tesselate
-                        TesselateRing(ring, sceneRep->triMesh);
-                    } else {
-                        // Clip the polys for the top
-                        std::vector<VectorRing> clippedMesh;
-                        ClipLoopToGrid(ring,Point2f(0.f,0.f),Point2f(gridSize,gridSize),clippedMesh);
-                        
-                        // May need to add the outline as well
-                        if (polyInfo->outline)
-                            sceneRep->outlines.push_back(ring);
-                        
-                        for (unsigned int ii=0;ii<clippedMesh.size();ii++)
-                        {
-                            VectorRing &ring = clippedMesh[ii];
-                            // Tesselate the ring, even if it's concave (it's concave a lot)
-                            TesselateRing(ring,sceneRep->triMesh);
-                        }
+                        VectorRing &ring = clippedMesh[ii];
+                        // Tesselate the ring, even if it's concave (it's concave a lot)
+                        TesselateRing(ring,sceneRep->triMesh);
                     }
                 }
             }
         }
-        
-        // And save out to the cache if we're doing that
-        if (polyInfo->cache)
-            sceneRep->writeToCache(polyInfo->cache, polyInfo.key);
     }
-    
+            
     //    printf("runAddPoly: handing off %d clipped loops to addGeometry\n",(int)sceneRep->triMesh.size());
     
     addGeometryToBuilder(sceneRep, polyInfo, sceneRep->shapeMbr, center, centerValid, geoCenter, changes);
@@ -540,7 +528,7 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Dic
 }
 
 /// Enable/disable lofted polys
-void LoftManager::enableLoftedPolys(SimpleIDSet &polyIDs,bool enable,ChangeSet &changes)
+void LoftManager::enableLoftedPolys(const SimpleIDSet &polyIDs,bool enable,ChangeSet &changes)
 {
     pthread_mutex_lock(&loftLock);
     
@@ -561,7 +549,7 @@ void LoftManager::enableLoftedPolys(SimpleIDSet &polyIDs,bool enable,ChangeSet &
 }
 
 /// Remove lofted polygons
-void LoftManager::removeLoftedPolys(SimpleIDSet &polyIDs,ChangeSet &changes)
+void LoftManager::removeLoftedPolys(const SimpleIDSet &polyIDs,ChangeSet &changes)
 {
     pthread_mutex_lock(&loftLock);
     

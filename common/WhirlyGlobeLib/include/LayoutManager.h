@@ -209,8 +209,8 @@ public:
     void addClusterGenerator(ClusterGenerator *clusterGen);
     
 protected:
-    bool calcScreenPt(CGPoint &objPt,LayoutObjectEntry *layoutObj,ViewState *viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
-    Eigen::Matrix2d calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const CGPoint &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
+    bool calcScreenPt(Point2f &objPt,LayoutObjectEntry *layoutObj,ViewState *viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
+    Eigen::Matrix2d calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
     bool runLayoutRules(ViewState *viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams);
     
     pthread_mutex_t layoutLock;

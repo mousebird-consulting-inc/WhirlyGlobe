@@ -23,6 +23,7 @@
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
 #import "LabelManager.h"
+#import "SharedAttributes.h"
 #import "WhirlyKitLog.h"
 
 using namespace Eigen;
@@ -65,14 +66,14 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         RGBAColor theBackColor = labelInfo->backColor;
         RGBAColor theShadowColor = labelInfo->shadowColor;
         float theShadowSize = labelInfo->shadowSize;
-        if (label->desc.numFields() > 0)
+        if (label->desc)
         {
-            theTextColor = label->desc.getColor(MaplyTextColor,theTextColor);
-            theBackColor = label->desc.getColor(MaplyBackgroundColor,theBackColor);
+            theTextColor = label->desc->getColor(MaplyTextColor,theTextColor);
+            theBackColor = label->desc->getColor(MaplyBackgroundColor,theBackColor);
             // Note: Porting
 //            theFont = [label->desc objectForKey:@"font" checkType:[UIFont class] default:theFont];
-            theShadowColor = label->desc.getColor(MaplyShadowColor,theShadowColor);
-            theShadowSize = label->desc.getDouble(MaplyShadowSize,theShadowSize);
+            theShadowColor = label->desc->getColor(MaplyShadowColor,theShadowColor);
+            theShadowSize = label->desc->getDouble(MaplyShadowSize,theShadowSize);
         }
         // Note: Porting
 //        if (theShadowColor == nil)
@@ -106,10 +107,10 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         }
 
         // Set if we're letting the layout engine control placement
-        bool layoutEngine = (labelInfo->layoutEngine || label->desc.getBool("layout",false));
+        bool layoutEngine = labelInfo->layoutEngine;
         float layoutImportance = label->layoutImportance;
         if (layoutImportance == 0.0)
-            layoutImportance = label->desc.getDouble("layoutImportance",layoutImportance);
+            layoutImportance = label->desc->getDouble(MaplyLayoutImportance,layoutImportance);
         if (layoutImportance == 0.0)
             layoutImportance = labelInfo->layoutImportance;
         if (layoutImportance != 0.0 && layoutImportance != MAXFLOAT)
@@ -118,7 +119,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
             layoutEngine = false;
         
         ScreenSpaceObject *screenShape = NULL;
-        ScreenSpaceObject *backScreenShape = NULL;
+//        ScreenSpaceObject *backScreenShape = NULL;
         LayoutObject *layoutObject = NULL;
 
         // Portions of the label that are shared between substrings
@@ -199,8 +200,8 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
             if (layoutEngine)
             {
                 int layoutPlacement = labelInfo->layoutPlacement;
-                if (label->desc.hasField("layoutPlacement"))
-                layoutPlacement = label->desc.getInt("layoutPlacement",(int)(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow));
+                if (label->desc->hasField(MaplyLayoutImportance))
+                layoutPlacement = label->desc->getInt(MaplyLayoutImportance,(int)(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow));
                 
                 // Put together the layout info
                 //                    layoutObject->hint = label->text;

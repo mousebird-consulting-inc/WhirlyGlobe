@@ -691,13 +691,12 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
 }
 
 SelectionManager::PlacementInfo::PlacementInfo(ViewState *viewState,SceneRendererES *renderer)
-: globeView(NULL), mapView(NULL)
 {
     float scale = DeviceScreenScale();
     
     // Sort out what kind of view it is
-    WhirlyGlobe::GlobeViewState *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState);
-    Maply::MapViewState *mapViewState = dynamic_cast<Maply::MapViewState *>(viewState);
+    globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState);
+    mapViewState = dynamic_cast<Maply::MapViewState *>(viewState);
     heightAboveSurface = globeViewState ? globeViewState->heightAboveGlobe : mapViewState->heightAboveSurface;
     
     // Calculate a slightly bigger framebuffer to grab nearby features
@@ -707,50 +706,38 @@ SelectionManager::PlacementInfo::PlacementInfo(ViewState *viewState,SceneRendere
     float marginY = frameSize.y() * 0.25;
     frameMbr.ll() = Point2f(0 - marginX,0 - marginY);
     frameMbr.ur() = Point2f(frameSize.x() + marginX,frameSize.y() + marginY);
-
-    // Now for the various matrices
-    viewMat = viewState->viewMatrices[0];
-    modelMat = viewState->modelMatrix;
-    modelInvMat = modelMat.inverse();
-    viewAndModelMat = viewMat * modelMat;
-    viewAndModelInvMat = viewAndModelMat.inverse();
-    viewModelNormalMat = viewAndModelMat.inverse().transpose();
-    projMat = viewState->projMatrix;
-    
-    [view getOffsetMatrices:offsetMatrices frameBuffer:frameSize buffer:0.0];
 }
 
 void SelectionManager::projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,Point2dVector &screenPts,float scale)
 {
-    for (unsigned int offi=0;offi<pInfo.offsetMatrices.size();offi++)
+    for (unsigned int offi=0;offi<pInfo.viewState->fullMatrices.size();offi++)
     {
         // Project the world location to the screen
-        CGPoint screenPt;
-        const Eigen::Matrix4d &offMatrix = pInfo.offsetMatrices[offi];
-        Eigen::Matrix4d modelAndViewMat = pInfo.viewMat * offMatrix * pInfo.modelMat;
+        Point2f screenPt;
+        const Eigen::Matrix4d &modelAndViewMat = pInfo.viewState->fullMatrices[offi];
+        const Eigen::Matrix4d &viewModelNormalMat = pInfo.viewState->fullNormalMatrices[offi];
         
-        if (pInfo.globeView)
+        if (pInfo.globeViewState)
         {
             // Make sure this one is facing toward the viewer
-            if (CheckPointAndNormFacing(worldLoc,worldLoc.normalized(),pInfo.viewAndModelMat,pInfo.viewModelNormalMat) < 0.0)
+            if (CheckPointAndNormFacing(worldLoc,worldLoc.normalized(),modelAndViewMat,viewModelNormalMat) < 0.0)
                 return;
             
-            // Note: Should just use
-            screenPt = [pInfo.globeView pointOnScreenFromSphere:worldLoc transform:&modelAndViewMat frameSize:pInfo.frameSize];
+            screenPt = pInfo.globeViewState->pointOnScreenFromDisplay(worldLoc, &modelAndViewMat, pInfo.frameSize);
         } else {
-            if (pInfo.mapView)
-                screenPt = [pInfo.mapView pointOnScreenFromPlane:worldLoc transform:&modelAndViewMat frameSize:pInfo.frameSize];
+            if (pInfo.mapViewState)
+                screenPt = pInfo.mapViewState->pointOnScreenFromDisplay(worldLoc, &modelAndViewMat, pInfo.frameSize);
             else
                 // No idea what this could be
                 return;
         }
 
         // Isn't on the screen
-        if (screenPt.x < pInfo.frameMbr.ll().x() || screenPt.y < pInfo.frameMbr.ll().y() ||
-            screenPt.x > pInfo.frameMbr.ur().x() || screenPt.y > pInfo.frameMbr.ur().y())
+        if (screenPt.x() < pInfo.frameMbr.ll().x() || screenPt.y() < pInfo.frameMbr.ll().y() ||
+            screenPt.x() > pInfo.frameMbr.ur().x() || screenPt.y() > pInfo.frameMbr.ur().y())
             continue;
         
-        screenPts.push_back(Point2d(screenPt.x/scale,screenPt.y/scale));
+        screenPts.push_back(Point2d(screenPt.x()/scale,screenPt.y()/scale));
     }
 }
 
@@ -790,7 +777,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,View *
     return selObjs[0].selectIDs[0];
 }
 
-Matrix2d SelectionManager::calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
+Matrix2d SelectionManager::calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
 {
     // Switch from counter-clockwise to clockwise
     double rot = 2*M_PI-ssObj->rotation;
@@ -835,22 +822,35 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
         return;
     float maxDist2 = maxDist * maxDist;
     
+    // Make a view state
+    ViewStateRef viewState;
+    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(theView);
+    if (globeView) {
+        WhirlyGlobe::GlobeViewStateFactory factory;
+        viewState = ViewStateRef(factory.makeViewState(theView, renderer));
+    }
+    Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(theView);
+    if (mapView) {
+        Maply::MapViewStateFactory factory;
+        viewState = ViewStateRef(factory.makeViewState(theView, renderer));
+    }
+    
     // All the various parameters we need to evalute... stuff
-    PlacementInfo pInfo(theView,renderer);
-    if (!pInfo.globeView && !pInfo.mapView)
+    PlacementInfo pInfo(viewState.get(),renderer);
+    if (!pInfo.globeViewState && !pInfo.mapViewState)
         return;
     
     TimeInterval now = TimeGetCurrent();
 
     // And the eye vector for billboards
-    Vector4d eyeVec4 = pInfo.viewAndModelInvMat * Vector4d(0,0,1,0);
+    Vector4d eyeVec4 = pInfo.viewState->fullMatrices[0].inverse() * Vector4d(0,0,1,0);
     Vector3d eyeVec(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
-    Matrix4d modelTrans = pInfo.viewState.fullMatrices[0];
-    Matrix4d normalMat = pInfo.viewState.fullMatrices[0].inverse().transpose();
+    Matrix4d modelTrans = pInfo.viewState->fullMatrices[0];
+    Matrix4d normalMat = pInfo.viewState->fullMatrices[0].inverse().transpose();
 
     Point2f frameBufferSize;
-    frameBufferSize.x() = renderer.framebufferWidth;
-    frameBufferSize.y() = renderer.framebufferHeight;
+    frameBufferSize.x() = renderer->framebufferWidth;
+    frameBufferSize.y() = renderer->framebufferHeight;
 
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     
@@ -963,10 +963,10 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
     }
 
     Point3d eyePos;
-    if (pInfo.globeView)
-        eyePos = pInfo.globeView.eyePos;
+    if (pInfo.globeViewState)
+        eyePos = pInfo.globeViewState->eyePos;
     else
-        eyePos = pInfo.mapView.eyePos;
+        eyePos = pInfo.mapViewState->eyePos;
 
     if (!polytopeSelectables.empty())
     {
@@ -978,14 +978,14 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
             if (sel.selectID != EmptyIdentity && sel.enable)
             {
                 if (sel.minVis == DrawVisibleInvalid ||
-                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                    (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
                 {
                     float closeDist2 = MAXFLOAT;
                     // Project each plane to the screen, including clipping
                     for (unsigned int ii=0;ii<sel.polys.size();ii++)
                     {
                         Point3fVector &poly3f = sel.polys[ii];
-                        Point3fVector poly;
+                        Point3dVector poly;
                         poly.reserve(poly3f.size());
                         for (unsigned int jj=0;jj<poly3f.size();jj++)
                         {
@@ -994,7 +994,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                         }
                         
                         Point2fVector screenPts;
-                        ClipAndProjectPolygon(pInfo.viewAndModelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
+                        ClipAndProjectPolygon(pInfo.viewState->fullMatrices[0],pInfo.viewState->projMatrix,pInfo.frameSizeScale,poly,screenPts);
                         
                         if (screenPts.size() > 3)
                         {
@@ -1035,7 +1035,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
             if (sel.selectID != EmptyIdentity && sel.enable)
             {
                 if (sel.minVis == DrawVisibleInvalid ||
-                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                    (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
                 {
                     // Current center
                     double t = (now-sel.startTime)/sel.duration;
@@ -1045,7 +1045,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                     // Project each plane to the screen, including clipping
                     for (unsigned int ii=0;ii<sel.polys.size();ii++)
                     {
-                        std::vector<Point3f> &poly3f = sel.polys[ii];
+                        Point3fVector &poly3f = sel.polys[ii];
                         Point3dVector poly;
                         poly.reserve(poly3f.size());
                         for (unsigned int jj=0;jj<poly3f.size();jj++)
@@ -1055,7 +1055,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                         }
                         
                         Point2fVector screenPts;
-                        ClipAndProjectPolygon(pInfo.viewAndModelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
+                        ClipAndProjectPolygon(pInfo.viewState->fullMatrices[0],pInfo.viewState->projMatrix,pInfo.frameSizeScale,poly,screenPts);
                         
                         if (screenPts.size() > 3)
                         {
@@ -1096,7 +1096,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
             if (sel.selectID != EmptyIdentity && sel.enable)
             {
                 if (sel.minVis == DrawVisibleInvalid ||
-                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                    (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
                 {
                     Point2dVector p0Pts;
                     projectWorldPointToScreen(sel.pts[0],pInfo,p0Pts,scale);
@@ -1148,19 +1148,19 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
             if (sel.selectID != EmptyIdentity && sel.enable)
             {
                 if (sel.minVis == DrawVisibleInvalid ||
-                    (sel.minVis < [theView heightAboveSurface] && [theView heightAboveSurface] < sel.maxVis))
+                    (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
                 {
                     Point2fVector screenPts;
                     
                     for (unsigned int ii=0;ii<4;ii++)
                     {
-                        CGPoint screenPt;
+                        Point2f screenPt;
                         Point3d pt3d(sel.pts[ii].x(),sel.pts[ii].y(),sel.pts[ii].z());
-                        if (pInfo.globeView)
-                            screenPt = [pInfo.globeView pointOnScreenFromSphere:pt3d transform:&pInfo.viewAndModelMat frameSize:pInfo.frameSizeScale];
+                        if (pInfo.globeViewState)
+                            screenPt = pInfo.globeViewState->pointOnScreenFromDisplay(pt3d, &pInfo.viewState->fullMatrices[0], pInfo.frameSizeScale);
                         else
-                            screenPt = [pInfo.mapView pointOnScreenFromPlane:pt3d transform:&pInfo.viewAndModelMat frameSize:pInfo.frameSizeScale];
-                        screenPts.push_back(Point2f(screenPt.x,screenPt.y));
+                            screenPt = pInfo.mapViewState->pointOnScreenFromDisplay(pt3d, &pInfo.viewState->fullMatrices[0], pInfo.frameSizeScale);
+                        screenPts.push_back(screenPt);
                     }
                     
                     float closeDist2 = MAXFLOAT;
@@ -1227,7 +1227,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                 BillboardSelectable sel = *it;
 
                 Point2fVector screenPts;
-                ClipAndProjectPolygon(pInfo.viewAndModelMat,pInfo.projMat,pInfo.frameSizeScale,poly,screenPts);
+                ClipAndProjectPolygon(pInfo.viewState->fullMatrices[0],pInfo.viewState->projMatrix,pInfo.frameSizeScale,poly,screenPts);
                 
                 float closeDist2 = MAXFLOAT;
                 float closeDist3d = MAXFLOAT;

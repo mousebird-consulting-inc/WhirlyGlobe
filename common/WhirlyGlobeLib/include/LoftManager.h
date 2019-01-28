@@ -51,6 +51,9 @@ public:
     float       outlineWidth;
     bool        readZBuffer;
     bool        writeZBuffer;
+    bool        centered;
+    bool        hasCenter;
+    Point2d     center;
 };
 
 /** Representation of one or more lofted polygons.
@@ -84,7 +87,7 @@ public:
     virtual ~LoftManager();
 
     /// Add lofted polygons
-    SimpleIdentity addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Dictionary &desc,float gridSize,ChangeSet &changes);
+    SimpleIdentity addLoftedPolys(WhirlyKit::ShapeSet *shapes,LoftedPolyInfo *polyInfo,float gridSize,ChangeSet &changes);
 
     /// Enable/disable lofted polys
     void enableLoftedPolys(const SimpleIDSet &polyIDs,bool enable,ChangeSet &changes);

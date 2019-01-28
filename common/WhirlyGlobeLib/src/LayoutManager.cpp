@@ -22,6 +22,7 @@
 #import "SceneRendererES2.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -267,15 +268,15 @@ static const int OverlapSampleY = 60;
 // Now much around the screen we'll take into account
 static const float ScreenBuffer = 0.1;
     
-bool LayoutManager::calcScreenPt(CGPoint &objPt,LayoutObjectEntry *layoutObj,ViewState *viewState,const Mbr &screenMbr,const Point2f &frameBufferSize)
+bool LayoutManager::calcScreenPt(Point2f &objPt,LayoutObjectEntry *layoutObj,ViewState *viewState,const Mbr &screenMbr,const Point2f &frameBufferSize)
 {
     // Figure out where this will land
     bool isInside = false;
-    for (unsigned int offi=0;offi<viewState.viewMatrices.size();offi++)
+    for (unsigned int offi=0;offi<viewState->viewMatrices.size();offi++)
     {
-        Eigen::Matrix4d modelTrans = viewState.fullMatrices[offi];
-        CGPoint thisObjPt = [viewState pointOnScreenFromDisplay:layoutObj->obj.worldLoc transform:&modelTrans frameSize:frameBufferSize];
-        if (screenMbr.inside(Point2f(thisObjPt.x,thisObjPt.y)))
+        Eigen::Matrix4d modelTrans = viewState->fullMatrices[offi];
+        Point2f thisObjPt = viewState->pointOnScreenFromDisplay(layoutObj->obj.worldLoc,&modelTrans,frameBufferSize);
+        if (screenMbr.inside(Point2f(thisObjPt.x(),thisObjPt.y())))
         {
             isInside = true;
             objPt = thisObjPt;
@@ -285,7 +286,7 @@ bool LayoutManager::calcScreenPt(CGPoint &objPt,LayoutObjectEntry *layoutObj,Vie
     return isInside;
 }
 
-Matrix2d LayoutManager::calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
+    Matrix2d LayoutManager::calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
 {
     // Switch from counter-clockwise to clockwise
     double rot = 2*M_PI-ssObj->rotation;
@@ -359,18 +360,14 @@ bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry
     UniqueLayoutObjectMap uniqueLayoutObjs;
     
     // The globe has some special requirements
-    WhirlyGlobeViewState *globeViewState = nil;
-    MaplyViewState *mapViewState = nil;
-    if ([viewState isKindOfClass:[WhirlyGlobeViewState class]])
-        globeViewState = (WhirlyGlobeViewState *)viewState;
-    else
-        mapViewState = (MaplyViewState *)viewState;
+    WhirlyGlobe::GlobeViewState *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState);
+    Maply::MapView *mapViewState = dynamic_cast<Maply::MapView *>(viewState);
 
     // View related matrix stuff
-    Matrix4d modelTrans = viewState.fullMatrices[0];
-    Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState.fullMatrices[0]);
-    Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState.fullNormalMatrices[0]);
-    Matrix4d normalMat = viewState.fullMatrices[0].inverse().transpose();
+    Matrix4d modelTrans = viewState->fullMatrices[0];
+    Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState->fullMatrices[0]);
+    Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState->fullNormalMatrices[0]);
+    Matrix4d normalMat = viewState->fullMatrices[0].inverse().transpose();
     
     // Turn everything off and sort by importance
     for (LayoutEntrySet::iterator it = layoutObjects.begin();
@@ -384,11 +381,11 @@ bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry
             if (globeViewState)
             {
                 if (obj->obj.state.minVis == DrawVisibleInvalid || obj->obj.state.maxVis == DrawVisibleInvalid ||
-                    (obj->obj.state.minVis < globeViewState.heightAboveGlobe && globeViewState.heightAboveGlobe < obj->obj.state.maxVis))
+                    (obj->obj.state.minVis < globeViewState->heightAboveGlobe && globeViewState->heightAboveGlobe < obj->obj.state.maxVis))
                     use = true;
             } else {
                 if (obj->obj.state.minVis == DrawVisibleInvalid || obj->obj.state.maxVis == DrawVisibleInvalid ||
-                    (obj->obj.state.minVis < mapViewState.heightAboveSurface && mapViewState.heightAboveSurface < obj->obj.state.maxVis))
+                    (obj->obj.state.minVis < mapViewState->heightAboveSurface() && mapViewState->heightAboveSurface() < obj->obj.state.maxVis))
                     use = true;
             }
             if (use) {
@@ -452,12 +449,12 @@ bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry
     
     // Extents for the layout helpers
     Point2f frameBufferSize;
-    frameBufferSize.x() = renderer.framebufferWidth;
-    frameBufferSize.y() = renderer.framebufferHeight;
+    frameBufferSize.x() = renderer->framebufferWidth;
+    frameBufferSize.y() = renderer->framebufferHeight;
     Mbr screenMbr(Point2f(-ScreenBuffer * frameBufferSize.x(),-ScreenBuffer * frameBufferSize.y()),frameBufferSize * (1.0 + ScreenBuffer));
 
     // Need to scale for retina displays
-    float resScale = renderer.scale;
+    float resScale = renderer->getScale();
 
     if (clusterGen)
     {
@@ -480,7 +477,7 @@ bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry
                 
                 // Project the point and figure out the rotation
                 bool isActive = true;
-                CGPoint objPt;
+                Point2f objPt;
                 bool isInside = calcScreenPt(objPt,entry,viewState,screenMbr,frameBufferSize);
                 
                 isActive &= isInside;
@@ -498,9 +495,9 @@ bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry
                     if (screenRot == 0.0)
                     {
                         for (unsigned int ii=0;ii<4;ii++)
-                            objPts[ii] = Point2d(objPt.x,objPt.y) + entry->obj.layoutPts[ii] * resScale;
+                            objPts[ii] = Point2d(objPt.x(),objPt.y()) + entry->obj.layoutPts[ii] * resScale;
                     } else {
-                        Point2d center(objPt.x,objPt.y);
+                        Point2d center(objPt.x(),objPt.y());
                         for (unsigned int ii=0;ii<4;ii++)
                         {
                             Point2d thisObjPt = entry->obj.layoutPts[ii];
@@ -543,9 +540,9 @@ bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry
                     bool dispPtValid = false;
                     if (globeViewState)
                     {
-                        dispPtValid = [globeViewState pointOnSphereFromScreen:CGPointMake(clusterObj.center.x(),clusterObj.center.y()) transform:&modelTrans frameSize:frameBufferSize hit:&dispPt];
+                        dispPtValid = globeViewState->pointOnSphereFromScreen(Point2f(clusterObj.center.x(),clusterObj.center.y()),&modelTrans,frameBufferSize,&dispPt);
                     } else {
-                        dispPtValid = [mapViewState pointOnPlaneFromScreen:CGPointMake(clusterObj.center.x(),clusterObj.center.y()) transform:&modelTrans frameSize:frameBufferSize hit:&dispPt clip:false];
+                        dispPtValid = mapViewState->pointOnPlaneFromScreen(Point2f(clusterObj.center.x(),clusterObj.center.y()),&modelTrans,frameBufferSize,&dispPt,false);
                     }
 
                     // Note: What happens if the display point isn't valid?
@@ -633,7 +630,7 @@ bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry
             
             if (isActive)
             {
-                CGPoint objPt;
+                Point2f objPt;
                 bool isInside = calcScreenPt(objPt,layoutObj,viewState,screenMbr,frameBufferSize);
                 
                 isActive &= isInside;
@@ -693,12 +690,12 @@ bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry
                             // Rotate the rectangle
                             if (screenRot == 0.0)
                             {
-                                objPts[0] = Point2d(objPt.x,objPt.y) + (objOffset + layoutOrg)*resScale;
+                                objPts[0] = Point2d(objPt.x(),objPt.y()) + (objOffset + layoutOrg)*resScale;
                                 objPts[1] = objPts[0] + Point2d(layoutSpan.x()*resScale,0.0);
                                 objPts[2] = objPts[0] + Point2d(layoutSpan.x()*resScale,layoutSpan.y()*resScale);
                                 objPts[3] = objPts[0] + Point2d(0.0,layoutSpan.y()*resScale);
                             } else {
-                                Point2d center(objPt.x,objPt.y);
+                                Point2d center(objPt.x(),objPt.y());
                                 objPts[0] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg;
                                 objPts[1] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),0.0);
                                 objPts[2] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),layoutSpan.y());
@@ -793,7 +790,7 @@ void LayoutManager::updateLayout(ViewState *viewState,ChangeSet &changes)
         drawIDs.clear();
 
         // Generate the drawables
-        ScreenSpaceBuilder ssBuild(coordAdapter,renderer.scale);
+        ScreenSpaceBuilder ssBuild(coordAdapter,renderer->scale);
         for (LayoutEntrySet::iterator it = layoutObjects.begin();
              it != layoutObjects.end(); ++it)
         {
@@ -829,7 +826,7 @@ void LayoutManager::updateLayout(ViewState *viewState,ChangeSet &changes)
                 if (layoutObj->currentCluster < oldClusters.size())
                     oldCluster = &oldClusters[layoutObj->currentCluster];
                 else {
-                    NSLog(@"Cluster ID mismatch");
+                    WHIRLYKIT_LOGW("Cluster ID mismatch");
                     continue;
                 }
                 ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster->clusterParamID];
@@ -872,7 +869,7 @@ void LayoutManager::updateLayout(ViewState *viewState,ChangeSet &changes)
                 if (cluster.childOfCluster < oldClusters.size())
                     oldCluster = &oldClusters[cluster.childOfCluster];
                 else {
-                    NSLog(@"Cluster ID mismatch");
+                    WHIRLYKIT_LOGW("Cluster ID mismatch");
                     continue;
                 }
                 ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster->clusterParamID];

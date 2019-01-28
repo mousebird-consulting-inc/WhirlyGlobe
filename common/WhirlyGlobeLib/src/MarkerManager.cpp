@@ -33,7 +33,7 @@ MarkerSceneRep::MarkerSceneRep()
 {
 }
     
-void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,bool enable,ChangeSet &changes)
+void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManager *layoutManager,bool enable,ChangeSet &changes)
 {
     for (SimpleIDSet::iterator idIt = drawIDs.begin();
          idIt != drawIDs.end(); ++idIt)
@@ -46,7 +46,7 @@ void MarkerSceneRep::enableContents(SelectionManager *selectManager,LayoutManage
         layoutManager->enableLayoutObjects(screenShapeIDs, enable);
 }
     
-void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,SimpleIdentity generatorId,SimpleIdentity screenGenId,ChangeSet &changes,TimeInterval when)
+void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,ChangeSet &changes,TimeInterval when)
 {
     // Just delete everything
     for (SimpleIDSet::iterator idIt = drawIDs.begin();
@@ -385,7 +385,7 @@ void MarkerManager::enableMarkers(SimpleIDSet &markerIDs,bool enable,ChangeSet &
         if (it != markerReps.end())
         {
             MarkerSceneRep *markerRep = *it;
-            markerRep->enableContents(selectManager, layoutManager, generatorId, screenGenId, enable, changes);
+            markerRep->enableContents(selectManager, layoutManager, enable, changes);
         }
     }
     
@@ -421,7 +421,7 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
             }
             
             
-            markerRep->clearContents(selectManager, layoutManager, generatorId, screenGenId, changes, removeTime);
+            markerRep->clearContents(selectManager, layoutManager, changes, removeTime);
             
             markerReps.erase(it);
             delete markerRep;
