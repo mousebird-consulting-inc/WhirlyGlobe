@@ -101,7 +101,7 @@ void GlobeView::setRoll(double newRoll,bool updateWatchers)
     roll = newRoll;
 
     lastChangedTime = TimeGetCurrent();
-    rotQuat = newRotQuat;
+    roll = newRoll;
     if (updateWatchers)
         runViewUpdates();
 }
@@ -225,7 +225,7 @@ Eigen::Matrix4d GlobeView::calcViewMatrix()
 {
     // Note: Porting.  Have a lock in the iOS version
 
-    Eigen::Quaterniond selfRotPitch(AngleAxisd(_tilt, Vector3d::UnitX()));
+    Eigen::Quaterniond selfRotPitch(AngleAxisd(tilt, Vector3d::UnitX()));
     Eigen::Quaterniond selfRoll(AngleAxisd(roll, Vector3d::UnitZ()));
     Eigen::Quaterniond combo = selfRoll * selfRotPitch;
     

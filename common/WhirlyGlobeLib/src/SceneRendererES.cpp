@@ -278,6 +278,7 @@ RendererFrameInfo::RendererFrameInfo(const RendererFrameInfo &that)
 }
 
 SceneRendererES::SceneRendererES(int apiVersion)
+    : glesVersion(apiVersion)
 {
     frameCount = 0;
     framesPerSec = 0.0;

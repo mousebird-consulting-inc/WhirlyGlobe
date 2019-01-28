@@ -235,15 +235,15 @@ ScreenSpaceBuilder::DrawableWrap *ScreenSpaceBuilder::findOrAddDrawWrap(const Dr
         drawWrap->center = center;
         Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
         Eigen::Matrix4d transMat = trans.matrix();
-        drawWrap->draw->setMatrix(&transMat);
+        drawWrap->locDraw->setMatrix(&transMat);
         if (state.motion)
-            drawWrap->draw->setStartTime(TimeGetCurrent());
+            drawWrap->locDraw->setStartTime(TimeGetCurrent());
         drawables.insert(drawWrap);
     } else {
         drawWrap = *it;
         
         // Make sure this one isn't too large
-        if (drawWrap->draw->getNumPoints() + numVerts >= MaxDrawablePoints || drawWrap->draw->getNumTris() >= MaxDrawableTriangles)
+        if (drawWrap->locDraw->getNumPoints() + numVerts >= MaxDrawablePoints || drawWrap->locDraw->getNumTris() >= MaxDrawableTriangles)
         {
             // It is, so we need to flush it and create a new one
             fullDrawables.push_back(drawWrap);
@@ -322,13 +322,13 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
             double dur = ssObj.endTime - ssObj.startTime;
             Point3d dir3d = (ssObj.endWorldLoc - ssObj.worldLoc)/dur;
             // May need to knock the start back a bit
-            double dt = drawWrap->draw->getStartTime() - ssObj.startTime;
+            double dt = drawWrap->locDraw->getStartTime() - ssObj.startTime;
             startLoc3d = dir3d * dt + startLoc3d;
             dir = Point3f(dir3d.x(),dir3d.y(),dir3d.z());
         }
         Point3d startLoc(startLoc3d.x(),startLoc3d.y(),startLoc3d.z());
 
-        int baseVert = drawWrap->draw->getNumPoints();
+        int baseVert = drawWrap->locDraw->getNumPoints();
         for (unsigned int jj=0;jj<geom.coords.size();jj++)
         {
             Point2d coord = geom.coords[jj] + ssObj.offset;

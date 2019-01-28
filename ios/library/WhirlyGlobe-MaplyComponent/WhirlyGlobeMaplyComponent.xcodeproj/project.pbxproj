@@ -486,6 +486,13 @@
 		2BB8E1F921FF903100154CDC /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6421F7E7E00078A975 /* Texture.cpp */; };
 		2BB8E1FA21FF903100154CDC /* TextureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6721F7E7E00078A975 /* TextureAtlas.cpp */; };
 		2BB8E1FB21FF903100154CDC /* WideVectorDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5A21F7E7DF0078A975 /* WideVectorDrawable.cpp */; };
+		2BB8E1FC21FF93CB00154CDC /* GlobeView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132121F8DD7E006AA344 /* GlobeView.cpp */; };
+		2BB8E1FD21FF93CB00154CDC /* GlobeViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132321F8DD7E006AA344 /* GlobeViewState.cpp */; };
+		2BB8E1FE21FF93CB00154CDC /* MaplyFlatView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132221F8DD7E006AA344 /* MaplyFlatView.cpp */; };
+		2BB8E1FF21FF93CB00154CDC /* MaplyView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132421F8DD7E006AA344 /* MaplyView.cpp */; };
+		2BB8E20021FF93CB00154CDC /* MaplyViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132521F8DD7E006AA344 /* MaplyViewState.cpp */; };
+		2BB8E20121FF93CB00154CDC /* ViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8E1BA21FBCCD200154CDC /* ViewState.cpp */; };
+		2BB8E20221FF93CB00154CDC /* WhirlyKitView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132021F8DD7E006AA344 /* WhirlyKitView.cpp */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -4116,7 +4123,9 @@
 				2BE539F21D249C2900B60FAD /* any.cc in Sources */,
 				2BE539A11D249BEF00B60FAD /* AAKepler.cpp in Sources */,
 				2BE53A711D249C4600B60FAD /* once.cc in Sources */,
+				2BB8E1FD21FF93CB00154CDC /* GlobeViewState.cpp in Sources */,
 				2BE539AF1D249BEF00B60FAD /* AAParabolic.cpp in Sources */,
+				2BB8E1FF21FF93CB00154CDC /* MaplyView.cpp in Sources */,
 				2B82B6881E82E24A0095FB14 /* pj_malloc.c in Sources */,
 				2B82B69F1E82E24A0095FB14 /* pj_param.c in Sources */,
 				2B82B64E1E82E2490095FB14 /* PJ_cc.c in Sources */,
@@ -4175,6 +4184,7 @@
 				2BE53A6F1D249C4600B60FAD /* common.cc in Sources */,
 				2B82B6C11E82E24A0095FB14 /* PJ_wag7.c in Sources */,
 				2BE539B81D249BEF00B60FAD /* AAPluto.cpp in Sources */,
+				2BB8E20121FF93CB00154CDC /* ViewState.cpp in Sources */,
 				2BE539A51D249BEF00B60FAD /* AAMoonIlluminatedFraction.cpp in Sources */,
 				2BE5399B1D249BEF00B60FAD /* AAGalileanMoons.cpp in Sources */,
 				2B82B6A71E82E24A0095FB14 /* PJ_putp6.c in Sources */,
@@ -4266,6 +4276,7 @@
 				2B846EEE21F1393900EF2A82 /* dict.c in Sources */,
 				2BE539AC1D249BEF00B60FAD /* AANeptune.cpp in Sources */,
 				2BE539B41D249BEF00B60FAD /* AAPhysicalMoon.cpp in Sources */,
+				2BB8E1FC21FF93CB00154CDC /* GlobeView.cpp in Sources */,
 				2B82B6641E82E24A0095FB14 /* PJ_fouc_s.c in Sources */,
 				2B446B1521F79AD00078A975 /* WhirlyVector.cpp in Sources */,
 				2BE53A061D249C2900B60FAD /* generated_message_reflection.cc in Sources */,
@@ -4332,6 +4343,7 @@
 				2B82B6CB1E82E24A0095FB14 /* vector1.c in Sources */,
 				2B82B6601E82E24A0095FB14 /* PJ_eqdc.c in Sources */,
 				2B82B66A1E82E24A0095FB14 /* PJ_gins8.c in Sources */,
+				2BB8E20221FF93CB00154CDC /* WhirlyKitView.cpp in Sources */,
 				2BE53A751D249C4700B60FAD /* stringprintf.cc in Sources */,
 				2B884A5A1E3803170027C397 /* lasinterval.cpp in Sources */,
 				2BE539AD1D249BEF00B60FAD /* AANodes.cpp in Sources */,
@@ -4357,6 +4369,7 @@
 				2B446B1D21F79AE40078A975 /* SphericalMercator.cpp in Sources */,
 				2BE53A401D249C3D00B60FAD /* zero_copy_stream_impl.cc in Sources */,
 				2B23133A21F942E2006AA344 /* Dictionary.cpp in Sources */,
+				2BB8E1FE21FF93CB00154CDC /* MaplyFlatView.cpp in Sources */,
 				2B82B6551E82E2490095FB14 /* pj_datums.c in Sources */,
 				2BE53A8B1D249C8900B60FAD /* DDXMLElementAdditions.m in Sources */,
 				2BB8E1DB21FF7FDE00154CDC /* BaseInfo.cpp in Sources */,
@@ -4392,6 +4405,7 @@
 				2BE539991D249BEF00B60FAD /* AAEquinoxesAndSolstices.cpp in Sources */,
 				2B82B64B1E82E2490095FB14 /* PJ_boggs.c in Sources */,
 				2B82B68F1E82E24A0095FB14 /* PJ_mod_ster.c in Sources */,
+				2BB8E20021FF93CB00154CDC /* MaplyViewState.cpp in Sources */,
 				2B82B6631E82E24A0095FB14 /* PJ_fahey.c in Sources */,
 				2B82B68A1E82E24A0095FB14 /* PJ_mbtfpp.c in Sources */,
 				2BE539951D249BEF00B60FAD /* AAEclipticalElements.cpp in Sources */,

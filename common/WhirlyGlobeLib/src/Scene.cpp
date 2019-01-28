@@ -78,7 +78,7 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr)
     // Vector manager handes vector features
     addManager(kWKVectorManager, new VectorManager());
     // Chunk manager handles geographic chunks that cover a large chunk of the globe
-    addManager(kWKSphericalChunkManager, new SphericalChunkManager());
+//    addManager(kWKSphericalChunkManager, new SphericalChunkManager());
     // Loft manager handles lofted polygon geometry
     addManager(kWKLoftedPolyManager, new LoftManager());
     // Particle system manager
@@ -89,8 +89,6 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr)
     addManager(kWKWideVectorManager, new WideVectorManager());
     // Raw Geometry
     addManager(kWKGeometryManager, new GeometryManager());
-    
-    activeModels = [NSMutableArray array];
     
     overlapMargin = 0.0;
 }
@@ -120,7 +118,7 @@ Scene::~Scene()
         delete theChangeRequests[ii];
     }
     
-    activeModels = nil;
+    activeModels.clear();
     
     subTextureMap.clear();
 
@@ -130,9 +128,9 @@ Scene::~Scene()
         delete *it;
     glPrograms.clear();
     
-    if (fontTexManager) {
-       delete fontTexManager;
-       fontTexManager = nil;
+    if (fontTextureManager) {
+       delete fontTextureManager;
+       fontTextureManager = nil;
     }
 }
     
@@ -269,11 +267,17 @@ void Scene::addActiveModel(ActiveModelRef activeModel)
     
 void Scene::removeActiveModel(ActiveModelRef activeModel)
 {
-    if (a)
-    if ([activeModels containsObject:activeModel])
-    {
-        [activeModels removeObject:activeModel];
-        [activeModel teardown];
+    int which = 0;
+
+    for (auto theModel : activeModels) {
+        if (theModel == activeModel) {
+            break;
+        }
+        which++;
+    }
+    if (which < activeModels.size()) {
+        activeModels.erase(activeModels.begin() + which);
+        activeModel->teardown();
     }
 }
     
@@ -388,8 +392,8 @@ bool Scene::hasChanges(TimeInterval now)
         return true;
     
     // How about the active models?
-    for (NSObject<WhirlyKitActiveModel> *model in activeModels)
-        if ([model hasUpdate])
+    for (auto model : activeModels)
+        if (model->hasUpdate())
             return true;
     
     return changes;
@@ -458,7 +462,7 @@ SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
 void Scene::dumpStats()
 {
     WHIRLYKIT_LOGV("Scene: %ld drawables",drawables.size());
-    WHIRLYKIT_LOGV("Scene: %d active models",(int)[activeModels count]);
+    WHIRLYKIT_LOGV("Scene: %d active models",(int)activeModels.size());
     WHIRLYKIT_LOGV("Scene: %ld textures",textures.size());
     WHIRLYKIT_LOGV("Scene: %ld sub textures",subTextureMap.size());
     memManager.dumpStats();
@@ -491,7 +495,7 @@ OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
 void Scene::addProgram(OpenGLES2Program *prog)
 {
     if (!prog) {
-        NSLog(@"Tried to add NULL program to scene.  Ignoring.");
+        WHIRLYKIT_LOGW("Tried to add NULL program to scene.  Ignoring.");
         return;
     }
 
@@ -543,7 +547,7 @@ void RemTextureReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::Vi
         tex->destroyInGL(scene->getMemManager());
         scene->textures.erase(it);
     } else
-        NSLog(@"RemTextureReq: No such texture.");
+        WHIRLYKIT_LOGW("RemTextureReq: No such texture.");
     pthread_mutex_unlock(&scene->textureLock);
 }
 
@@ -573,9 +577,10 @@ void AddDrawableReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::V
         scene->addLocalMbr(drawRef->getLocalMbr());
     
     // Initialize any OpenGL foo
-    WhirlyKitGLSetupInfo *setupInfo = [[WhirlyKitGLSetupInfo alloc] init];
-    setupInfo->minZres = [view calcZbufferRes];
-    drawRef->setupGL(setupInfo,scene->getMemManager());
+    WhirlyKitGLSetupInfo setupInfo;
+    setupInfo.minZres = view->calcZbufferRes();
+    setupInfo.glesVersion = renderer->glesVersion;
+    drawRef->setupGL(&setupInfo,scene->getMemManager());
     
     drawRef->updateRenderer(renderer);
         
@@ -587,13 +592,13 @@ void RemDrawableReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::V
     auto it = scene->drawables.find(drawable);
     if (it != scene->drawables.end())
     {
-        renderer->removeContinuousRenderRequest((*it)->getId());
+        renderer->removeContinuousRenderRequest(it->second->getId());
         // Teardown OpenGL foo
         it->second->teardownGL(scene->getMemManager());
 
         scene->remDrawable(it->second);
     } else
-        NSLog(@"Missing drawable for RemDrawableReq: %llu", drawable);
+        WHIRLYKIT_LOGW("Missing drawable for RemDrawableReq: %llu", drawable);
 }
 
 void AddProgramReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)

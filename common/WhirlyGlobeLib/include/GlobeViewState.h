@@ -18,9 +18,8 @@
  *
  */
 
-#import "MaplyViewState.h"
-#import "GlobeViewState.h"
 #import "GlobeView.h"
+#import "ViewState.h"
 
 namespace WhirlyKit
 {

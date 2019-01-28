@@ -300,6 +300,9 @@ public:
     Mbr calcCurvedMBR(Point3f *corners,WhirlyGlobe::GlobeView *globeView,Eigen::Matrix4d *modelTrans,Point2f frameSize);
     void mergeDrawableSet(const std::set<DrawableRef,IdentifiableRefSorter> &newDrawables,WhirlyGlobe::GlobeView *globeView,Point2f frameSize,Eigen::Matrix4d *modelTrans,WhirlyKit::RendererFrameInfo *frameInfo,Mbr screenMbr,std::set<DrawableRef> *toDraw,int *drawablesConsidered);
     
+    // OpenGL Version
+    int glesVersion;
+    
     /// Scene we're drawing.  This is set from outside
     WhirlyKit::Scene *scene;
     /// The view controls how we're looking at the scene
