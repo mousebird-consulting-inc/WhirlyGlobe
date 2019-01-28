@@ -130,7 +130,7 @@ public:
     };
     
     /// Add the vertex data (all of it) at once
-    void addAttributeData(const std::vector<AttributeData> &attrData,const Batch &batch);
+    void addAttributeData(WhirlyKitGLSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch);
     
     /// Look for an empty batch to reuse
     bool findEmptyBatch(Batch &retBatch);

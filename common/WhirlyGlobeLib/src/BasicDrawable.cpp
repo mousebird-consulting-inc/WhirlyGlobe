@@ -754,8 +754,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     glBindBuffer(GL_ARRAY_BUFFER, sharedBuffer);
     if (hasMapBufferSupport) {
       void *glMem = NULL;
-      EAGLContext *context = [EAGLContext currentContext];
-      if (context.API < kEAGLRenderingAPIOpenGLES3)
+      if (setupInfo->glesVersion < 3)
           glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
       else
           glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
@@ -771,7 +770,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
           for (unsigned int ii=0;ii<tris.size();ii++,basePtr+=sizeof(Triangle))
               memcpy(basePtr, &tris[ii], sizeof(Triangle));
       }
-      if (context.API < kEAGLRenderingAPIOpenGLES3)
+      if (setupInfo->glesVersion < 3)
           glUnmapBufferOES(GL_ARRAY_BUFFER);
       else
           glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -852,7 +851,7 @@ RawDataRef BasicDrawable::asData(bool dupStart,bool dupEnd)
     return retData;
 }
 
-void BasicDrawable::asVertexAndElementData(MutableRawDataRef &vertData,MutableRawDataRef &elementData,int singleElementSize,const Point3d *center)
+void BasicDrawable::asVertexAndElementData(MutableRawDataRef vertData,RawDataRef elementData,int singleElementSize,const Point3d *center)
 {
     if (type != GL_TRIANGLES)
         return;
@@ -1077,11 +1076,11 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
         prog->setUniform(mvpNormalMatrixNameID, identMatrix);
         prog->setUniform(u_pMatrixNameID, identMatrix);
     } else {
-        prog->setUniform(mvpMatrixNameID, frameInfo.mvpMat);
-        prog->setUniform(mvMatrixNameID, frameInfo.viewAndModelMat);
-        prog->setUniform(mvNormalMatrixNameID, frameInfo.viewModelNormalMat);
-        prog->setUniform(mvpNormalMatrixNameID, frameInfo.mvpNormalMat);
-        prog->setUniform(u_pMatrixNameID, frameInfo.projMat);
+        prog->setUniform(mvpMatrixNameID, frameInfo->mvpMat);
+        prog->setUniform(mvMatrixNameID, frameInfo->viewAndModelMat);
+        prog->setUniform(mvNormalMatrixNameID, frameInfo->viewModelNormalMat);
+        prog->setUniform(mvpNormalMatrixNameID, frameInfo->mvpNormalMat);
+        prog->setUniform(u_pMatrixNameID, frameInfo->projMat);
     }
     
     // Any uniforms we may want to apply to the shader
@@ -1105,7 +1104,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
     prog->setUniform(u_HasTextureNameID, anyTextures);
     
     // If this is present, the drawable wants to do something based where the viewer is looking
-    prog->setUniform(u_EyeVecNameID, frameInfo.fullEyeVec);
+    prog->setUniform(u_EyeVecNameID, frameInfo->fullEyeVec);
     
     // The program itself may have some textures to bind
     bool hasTexture[WhirlyKitMaxTextures];
@@ -1152,6 +1151,11 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
         }
     }
     
+    const OpenGLESAttribute *vertAttr = NULL;
+    bool boundElements = false;
+    bool usedLocalVertices = false;
+    std::vector<const OpenGLESAttribute *> progAttrs;
+
     if (hasVertexArraySupport)
     {
       // If necessary, set up the VAO (once)
@@ -1159,7 +1163,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
           vertArrayObj = setupVAO(prog);
       
       // Figure out what we're using
-      const OpenGLESAttribute *vertAttr = prog->findAttribute(a_PositionNameID);
+      vertAttr = prog->findAttribute(a_PositionNameID);
       
       // Vertex array
       bool usedLocalVertices = false;
@@ -1173,7 +1177,6 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
       }
       
       // Other vertex attributes
-      std::vector<const OpenGLESAttribute *> progAttrs;
       if (!vertArrayObj) {
           progAttrs.resize(vertexAttributes.size(),NULL);
   
@@ -1212,9 +1215,9 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
           }
       }
     } else {
-            // Note: Porting.  Move this into a shared function
         vertAttr = prog->findAttribute(a_PositionNameID);
-        
+        progAttrs.resize(vertexAttributes.size(),NULL);
+
         // We're using a single buffer for all of our vertex attributes
         if (sharedBuffer)
         {
@@ -1233,7 +1236,7 @@ void BasicDrawable::drawOGL2(WhirlyKit::RendererFrameInfo *frameInfo,Scene *scen
         {
             progAttrs[ii] = NULL;
             VertexAttribute *attr = vertexAttributes[ii];
-            const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->name);
+            const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->nameID);
             if (thisAttr)
             {
                 if (attr->buffer != 0 || attr->numElements() != 0)
@@ -1386,7 +1389,7 @@ void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *fr
 {
     BasicDrawable *basicDraw = (BasicDrawable *)draw;
     
-    double t = fmod(frame.currentTime-startTime,period)/period;
+    double t = fmod(frame->currentTime-startTime,period)/period;
     int base = floor(t * texIDs.size());
     int next = (base+1)%texIDs.size();
     double interp = t*texIDs.size()-base;
@@ -1400,7 +1403,7 @@ void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *fr
     
     // This forces a redraw every frame
     // Note: There has to be a better way
-    frame.scene->addChangeRequest(NULL);
+    frame->scene->addChangeRequest(NULL);
 }
     
 BasicDrawableScreenTexTweaker::BasicDrawableScreenTexTweaker(const Point3d &centerPt,const Point2d &texScale)

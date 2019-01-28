@@ -23,12 +23,31 @@
 #import "GridClipper.h"
 #import "Tesselator.h"
 #import "BaseInfo.h"
+#import "SharedAttributes.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
+    
+LoftedPolyInfo::LoftedPolyInfo(const Dictionary &dict)
+    : BaseInfo(dict)
+{
+    color = dict.getColor(MaplyColor, RGBAColor(255,255,255,255));
+    height = dict.getDouble(MaplyLoftedPolyHeight, 0.01);
+    base = dict.getDouble(MaplyLoftedPolyBase, 0.0);
+    top = dict.getBool(MaplyLoftedPolyTop, true);
+    side = dict.getBool(MaplyLoftedPolySide, true);
+    outline = dict.getBool(MaplyLoftedPolyOutline, true);
+    outlineColor = dict.getColor(MaplyLoftedPolyOutlineColor, RGBAColor(255,255,255,255));
+    outlineWidth = dict.getDouble(MaplyLoftedPolyOutlineWidth, 1.0);
+    outlineDrawPriority = dict.getInt(MaplyLoftedPolyOutlineDrawPriority,drawPriority+1);
+    outlineSide = dict.getBool(MaplyLoftedPolyOutlineSide,false);
+    outlineBottom = dict.getBool(MaplyLoftedPolyOutlineBottom,false);
+    readZBuffer = dict.getBool(MaplyZBufferRead,true);
+    writeZBuffer dict.getBool(MaplyZBufferWrite,true);
+}
 
 /* Drawable Builder
  Used to construct drawables with multiple shapes in them.

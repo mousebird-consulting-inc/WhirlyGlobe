@@ -23,6 +23,7 @@
 #import <map>
 #import <string>
 #import "Identifiable.h"
+#import "Dictionary.h"
 #import "WhirlyVector.h"
 #import "WhirlyTypes.h"
 #import "Drawable.h"
@@ -40,6 +41,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     BaseInfo();
+    BaseInfo(const Dictionary &dict);
     
     // Convert contents to a string for debugging
     virtual std::string toString();

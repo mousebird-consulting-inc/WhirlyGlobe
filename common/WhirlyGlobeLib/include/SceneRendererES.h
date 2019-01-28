@@ -171,7 +171,7 @@ public:
     /// The model, view, and projection matrix all rolled into one
     Eigen::Matrix4f mvpMat;
     /// Inverse of the model/view/projection matrix
-    Eigen::Matrix4f mvInvMat;
+    Eigen::Matrix4f mvpInvMat;
     /// Normal matrix for MVP
     Eigen::Matrix4f mvpNormalMat;
     /// Model, and view matrix but for normal transformation

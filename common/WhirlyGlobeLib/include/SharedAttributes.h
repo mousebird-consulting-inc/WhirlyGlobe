@@ -40,10 +40,29 @@
 #define MaplyMinVis WKString("minVis")
 /// Maximum point at which a feature is visible.  Takes an NSNumber float.  The radius of the globe is 1.0
 #define MaplyMaxVis WKString("maxVis")
+#define MaplyMinVisBand WKString("minVisBand")
+#define MaplyMaxVisBand WKString("maxVisBand")
+/// Some geometry supports level of detailing based on distance
+#define MaplyMinViewerDist WKString("minviewerdist")
+#define MaplyMaxViewerDist WKString("maxviewerdist")
+/// Viewable center if using geometry offsets
+#define MaplyViewableCenterX WKString("viewablecenterx")
+#define MaplyViewableCenterY WKString("viewablecentery")
+#define MaplyViewableCenterZ WKString("viewablecenterz")
 /// The amount of time for a feature to fade in or out.  Takes an NSNumber float for seconds.
 #define MaplyFade WKString("fade")
+/// How long to fade something in
+#define MaplyFadeIn WKString("fadein")
+/// How long to fade something back out
+#define MaplyFadeOut WKString("fadeout")
+/// If set, when an object will begin to fade out
+#define MaplyFadeOutTime WKString("fadeouttime")
 /// Enable or disable an object.  This can be used to create an object disabled.
 #define MaplyEnable WKString("enable")
+/// If set, a specific time to enable an object
+#define MaplyEnableStart WKString("enablestart")
+/// If set, a specific time to disable an object
+#define MaplyEnableEnd WKString("enableend")
 /// Request a given object take the z buffer into account
 #define MaplyZBufferRead WKString("zbufferread")
 /// Have a given object write itself to the z buffer
@@ -206,12 +225,26 @@
 
 /// Height above the ground
 #define MaplyLoftedPolyHeight WKString("height")
+/// Height of the base (usually 0)
+#define MaplyLoftedPolyBase WKString("base")
 /// Boolean that turns on/off top (on by default)
 #define MaplyLoftedPolyTop WKString("top")
 /// Boolean that turns on/off sides (on by default)
 #define MaplyLoftedPolySide WKString("side")
 /// Grid size we used to chop the lofted polygons up (10 degress by default)
 #define MaplyLoftedPolyGridSize WKString("gridsize")
+/// If set, we'll do the outline in lines as well
+#define MaplyLoftedPolyOutline WKString("outline")
+/// Color of the outline lines
+#define MaplyLoftedPolyOutlineColor WKString("outlineColor")
+/// Width of the outline lines
+#define MaplyLoftedPolyOutlineWidth WKString("outlineWidth")
+/// Draw Priority for the outline lines
+#define MaplyLoftedPolyOutlineDrawPriority WKString("outlineDrawPriority")
+/// Whether to include sides in the outline lines
+#define MaplyLoftedPolyOutlineSide WKString("outlineSide")
+/// Whether to include the bottom in the outline lines
+#define MaplyLoftedPolyOutlineBottom WKString("outlineBottom")
 
 /// These are used by active vector objects
 #define MaplyVecHeight WKString("height")

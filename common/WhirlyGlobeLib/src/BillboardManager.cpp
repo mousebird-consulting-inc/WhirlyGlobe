@@ -18,8 +18,9 @@
  *
  */
 
-#include "BillboardManager.h"
-#include "WhirlyKitLog.h"
+#import "BillboardManager.h"
+#import "WhirlyKitLog.h"
+#import "SharedAttributes.h"
 
 using namespace Eigen;
 
@@ -32,12 +33,18 @@ SingleBillboardPoly::SingleBillboardPoly() :
 }
 
 BillboardInfo::BillboardInfo() :
-    billboardId(EmptyIdentity),
     color(RGBAColor()),
     zBufferRead(false),
     zBufferWrite(false)
 {
+}
 
+BillboardInfo::BillboardInfo(const Dictionary &dict)
+: BaseInfo(dict)
+{
+    color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
+    zBufferRead = dict.getBool(MaplyZBufferRead,false);
+    zBufferWrite = dict.getBool(MaplyZBufferWrite, false);
 }
 
 Billboard::Billboard() :
@@ -47,7 +54,7 @@ Billboard::Billboard() :
     selectID(EmptyIdentity)
 {
 }
-
+    
 BillboardSceneRep::BillboardSceneRep()
 {
 }

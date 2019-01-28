@@ -22,6 +22,7 @@
 #import "Drawable.h"
 #import "BasicDrawable.h"
 #import "BasicDrawableInstance.h"
+#import "SharedAttributes.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -33,6 +34,72 @@ BaseInfo::BaseInfo()
     minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid), viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid), fade(0.0), fadeIn(0.0), fadeOut(0.0), fadeOutTime(0.0), drawPriority(0), drawOffset(0.0),
     enable(true), startEnable(0.0), endEnable(0.0), programID(EmptyIdentity)
 {
+}
+    
+BaseInfo::BaseInfo(const Dictionary &dict)
+{
+    minVis = dict.getDouble(MaplyMinVis,DrawVisibleInvalid);
+    maxVis = dict.getDouble(MaplyMaxVis,DrawVisibleInvalid);
+    minVisBand = dict.getDouble(MaplyMinVisBand,DrawVisibleInvalid);
+    maxVisBand = dict.getDouble(MaplyMaxVisBand,DrawVisibleInvalid);
+    minViewerDist = dict.getDouble(MaplyMinViewerDist,DrawVisibleInvalid);
+    maxViewerDist = dict.getDouble(MaplyMaxViewerDist,DrawVisibleInvalid);
+    viewerCenter.x() = dict.getDouble(MaplyViewableCenterX,DrawVisibleInvalid);
+    viewerCenter.y() = dict.getDouble(MaplyViewableCenterY,DrawVisibleInvalid);
+    viewerCenter.z() = dict.getDouble(MaplyViewableCenterZ,DrawVisibleInvalid);
+    fade = dict.getDouble(MaplyFade,0.0);
+    fadeIn = fade;
+    fadeOut = fade;
+    fadeIn = dict.getDouble(MaplyFadeIn,fadeIn);
+    fadeOut = dict.getDouble(MaplyFadeOut,fadeOut);
+    fadeOutTime = dict.getDouble(MaplyFadeOutTime,0.0);
+    drawPriority = dict.getInt("priority",0);
+    drawPriority = dict.getInt(MaplyDrawPriority,drawPriority);
+    drawOffset = dict.getDouble(MaplyDrawOffset,0.0);
+    enable = dict.getBool(MaplyEnable,true);
+    startEnable = dict.getDouble(MaplyEnableStart,0.0);
+    endEnable = dict.getDouble(MaplyEnableEnd,0.0);
+    SimpleIdentity shaderID = dict.getInt(MaplyShaderString,EmptyIdentity);
+    programID = dict.getInt("program",shaderID);
+    
+    // Note: Porting
+    // Uniforms to be passed to shader
+#if 0
+    // Note: Should add the rest of the types
+    NSDictionary *uniformDict = desc[@"shaderuniforms"];
+    if (uniformDict)
+    {
+        for (NSString *key in uniformDict.allKeys)
+        {
+            id val = uniformDict[key];
+            if ([val isKindOfClass:[NSNumber class]])
+            {
+                SingleVertexAttribute valAttr;
+                valAttr.name = [key cStringUsingEncoding:NSASCIIStringEncoding];
+                
+                NSNumber *num = val;
+                valAttr.type = BDFloatType;
+                valAttr.data.floatVal = [val floatValue];
+                
+                _uniforms.insert(valAttr);
+            } else if ([val isKindOfClass:[UIColor class]])
+            {
+                SingleVertexAttribute valAttr;
+                valAttr.name = [key cStringUsingEncoding:NSASCIIStringEncoding];
+                
+                UIColor *col = val;
+                valAttr.type = BDChar4Type;
+                RGBAColor color = [col asRGBAColor];
+                valAttr.data.color[0] = color.r;
+                valAttr.data.color[1] = color.g;
+                valAttr.data.color[2] = color.b;
+                valAttr.data.color[3] = color.a;
+                
+                _uniforms.insert(valAttr);
+            }
+        }
+    }
+#endif
 }
     
 // Really Android?  Really?

@@ -304,7 +304,7 @@ public:
     virtual RawDataRef asData(bool dupStart,bool dupEnd);
     
     /// Copy vertex and element data into appropriate NSData objects
-    virtual void asVertexAndElementData(MutableRawDataRef &retVertData,RawDataRef retElementData,int singleElementSize,const Point3d *center);
+    virtual void asVertexAndElementData(MutableRawDataRef retVertData,RawDataRef retElementData,int singleElementSize,const Point3d *center);
     
     /// Assuming this is a set of triangles, convert to a triangle strip
     //    virtual void convertToTriStrip();

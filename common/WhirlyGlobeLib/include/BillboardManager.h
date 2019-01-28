@@ -84,9 +84,9 @@ class BillboardInfo : public BaseInfo
 {
 public:
     BillboardInfo();
+    BillboardInfo(const Dictionary &);
     ~BillboardInfo(){};
-
-    WhirlyKit::SimpleIdentity billboardId;
+    
     RGBAColor color;
     bool zBufferRead, zBufferWrite;
 };

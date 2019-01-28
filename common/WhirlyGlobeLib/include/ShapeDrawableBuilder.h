@@ -61,6 +61,7 @@ public:
     void setCenter(Point3d value) { center = value; }
     Point3d getCenter() { return center; }
     
+    SimpleIdentity getRenderTarget() { return renderTargetID; }
     void setRenderTarget(SimpleIdentity targetID) { renderTargetID = targetID; }
 
 public:

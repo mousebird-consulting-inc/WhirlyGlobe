@@ -33,7 +33,7 @@
 #import "LabelManager.h"
 #import "VectorManager.h"
 #import "WideVectorManager.h"
-#import "SphericalEarthChunkManager.h"
+//#import "SphericalEarthChunkManager.h"
 #import "LoftManager.h"
 #import "ParticleSystemManager.h"
 #import "BillboardManager.h"
@@ -468,7 +468,7 @@ void Scene::setFontTextureManager(FontTextureManager *newManager)
 {
     if (fontTextureManager)
         delete fontTextureManager;
-    fontTextureManager = newManager;    
+    fontTextureManager = newManager;
 }
 
 OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)

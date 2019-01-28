@@ -33,19 +33,19 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
 
-WhirlyKitShapeInfo::WhirlyKitShapeInfo()
+ShapeInfo::ShapeInfo()
     : color(255,255,255,255), lineWidth(1.0), shapeId(EmptyIdentity), insideOut(false),
     zBufferRead(true), zBufferWrite(true), hasCenter(false), center(0.0,0.0,0.0)
 {
     shapeId = Identifiable::genId();
 }
 
-WhirlyKitShapeInfo::~WhirlyKitShapeInfo()
+ShapeInfo::~ShapeInfo()
 {
 }
 
 
-ShapeDrawableBuilder::ShapeDrawableBuilder(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo, bool linesOrPoints, const Point3d &center)
+ShapeDrawableBuilder::ShapeDrawableBuilder(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo, bool linesOrPoints, const Point3d &center)
     : coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center)
 {
     primType = (linesOrPoints ? GL_LINES : GL_POINTS);
@@ -168,8 +168,8 @@ void ShapeDrawableBuilder::getChanges(WhirlyKit::ChangeSet &changes,SimpleIDSet 
 }
 
 
-ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo, const Point3d &center)
-    : coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false), texID(EmptyIdentity)
+ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo, const Point3d &center)
+    : coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false)
 {
 }
 
@@ -192,8 +192,8 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
     drawable->setRequestZBuffer(shapeInfo->getZBufferRead());
     drawable->setWriteZBuffer(shapeInfo->getZBufferWrite());
     drawable->setProgram(shapeInfo->programID);
-    if (shapeInfo.renderTargetId != EmptyIdentity)
-        drawable->setRenderTarget(shapeInfo.renderTargetId);
+    if (shapeInfo->renderTargetID != EmptyIdentity)
+        drawable->setRenderTarget(shapeInfo->renderTargetID);
     int which = 0;
     for (auto texID : texIDs)
     {

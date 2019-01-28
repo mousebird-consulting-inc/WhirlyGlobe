@@ -64,8 +64,6 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
     if (pointBuffer != 0)
         return;
 
-    EAGLContext *context = [EAGLContext currentContext];
-
     int totalBytes = vertexSize*numTotalPoints;
     pointBuffer = memManager->getBufferID(totalBytes,GL_DYNAMIC_DRAW);
     
@@ -96,7 +94,7 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
             glBufferData(GL_ARRAY_BUFFER, rectSize, (const GLvoid *)&verts[0], GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         } else {
-            NSLog(@"ParticleSystemDrawable: Can only do instanced rectangles at present.  This system can't handle instancing.");
+            WHIRLYKIT_LOGE("ParticleSystemDrawable: Can only do instanced rectangles at present.  This system can't handle instancing.");
         }
     }
     
@@ -112,12 +110,12 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
             // That's how we signal that they're new
             glBindBuffer(GL_ARRAY_BUFFER, bufferPair.buffers[ii]);
             void *glMem = NULL;
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
+            if (setupInfo->glesVersion < 3)
                 glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
             else
                 glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, totalSize, GL_MAP_WRITE_BIT);
             memset(glMem, 0, totalSize);
-            if (context.API < kEAGLRenderingAPIOpenGLES3)
+            if (setupInfo->glesVersion < 3)
                 glUnmapBufferOES(GL_ARRAY_BUFFER);
             else
                 glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -180,10 +178,10 @@ void ParticleSystemDrawable::teardownGL(OpenGLMemManager *memManager)
 void ParticleSystemDrawable::updateRenderer(SceneRendererES *renderer)
 {
     if (usingContinuousRender)
-        [renderer addContinuousRenderRequest:getId()];
+        renderer->addContinuousRenderRequest(getId());
 }
     
-void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &attrData,const Batch &batch)
+void ParticleSystemDrawable::addAttributeData(WhirlyKitGLSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch)
 {
     if (attrData.size() != vertAttrs.size())
         return;
@@ -193,9 +191,8 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
     if (vertexSize > 0) {
         glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
         unsigned char *glMem = NULL;
-        EAGLContext *context = [EAGLContext currentContext];
         int glMemOffset = 0;
-        if (context.API < kEAGLRenderingAPIOpenGLES3)
+        if (setupInfo->glesVersion < 3)
         {
             glMem = (unsigned char *)glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
             glMemOffset = batch.batchID*vertexSize*batchSize;
@@ -223,7 +220,7 @@ void ParticleSystemDrawable::addAttributeData(const std::vector<AttributeData> &
             attrOffset += attrSize;
         }
         
-        if (context.API < kEAGLRenderingAPIOpenGLES3)
+        if (setupInfo->glesVersion < 3)
             glUnmapBufferOES(GL_ARRAY_BUFFER);
         else
             glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -368,26 +365,26 @@ void ParticleSystemDrawable::drawTeardownTextures(RendererFrameInfo *frameInfo,S
 void ParticleSystemDrawable::drawSetupUniforms(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog)
 {
     // Model/View/Projection matrix
-    prog->setUniform(mvpMatrixNameID, frameInfo.mvpMat);
-    prog->setUniform(mvpInvMatrixNameID, frameInfo.mvpInvMat);
-    prog->setUniform(mvMatrixNameID, frameInfo.viewAndModelMat);
-    prog->setUniform(mvNormalMatrixNameID, frameInfo.viewModelNormalMat);
-    prog->setUniform(mvpNormalMatrixNameID, frameInfo.mvpNormalMat);
-    prog->setUniform(u_pMatrixNameID, frameInfo.projMat);
-    prog->setUniform(u_ScaleNameID, Point2f(2.f/(float)frameInfo.sceneRenderer.framebufferWidth,2.f/(float)frameInfo.sceneRenderer.framebufferHeight));
+    prog->setUniform(mvpMatrixNameID, frameInfo->mvpMat);
+    prog->setUniform(mvpInvMatrixNameID, frameInfo->mvpInvMat);
+    prog->setUniform(mvMatrixNameID, frameInfo->viewAndModelMat);
+    prog->setUniform(mvNormalMatrixNameID, frameInfo->viewModelNormalMat);
+    prog->setUniform(mvpNormalMatrixNameID, frameInfo->mvpNormalMat);
+    prog->setUniform(u_pMatrixNameID, frameInfo->projMat);
+    prog->setUniform(u_ScaleNameID, Point2f(2.f/(float)frameInfo->sceneRenderer->framebufferWidth,2.f/(float)frameInfo->sceneRenderer->framebufferHeight));
     
     // Size of a single pixel
-    Point2f pixDispSize(frameInfo.screenSizeInDisplayCoords.x()/frameInfo.sceneRenderer.framebufferWidth,frameInfo.screenSizeInDisplayCoords.y()/frameInfo.sceneRenderer.framebufferHeight);
+    Point2f pixDispSize(frameInfo->screenSizeInDisplayCoords.x()/frameInfo->sceneRenderer->framebufferWidth,frameInfo->screenSizeInDisplayCoords.y()/frameInfo->sceneRenderer->framebufferHeight);
     
     // If this is present, the drawable wants to do something based where the viewer is looking
-    prog->setUniform(u_EyeVecNameID, frameInfo.fullEyeVec);
-    prog->setUniform(u_EyePosNameID, Vector3dToVector3f(frameInfo.eyePos));
+    prog->setUniform(u_EyeVecNameID, frameInfo->fullEyeVec);
+    prog->setUniform(u_EyePosNameID, Vector3dToVector3f(frameInfo->eyePos));
 
     prog->setUniform(u_SizeNameID, pointSize);
-    prog->setUniform(u_TimeNameID, (float)(frameInfo.currentTime-baseTime));
+    prog->setUniform(u_TimeNameID, (float)(frameInfo->currentTime-baseTime));
     prog->setUniform(u_lifetimeNameID, (float)lifetime);
     prog->setUniform(u_pixDispSizeNameID, pixDispSize);
-    prog->setUniform(u_frameLenID, (float)frameInfo.frameLen);
+    prog->setUniform(u_frameLenID, (float)frameInfo->frameLen);
 }
     
 void ParticleSystemDrawable::drawBindAttrs(RendererFrameInfo *frameInfo,Scene *scene,OpenGLES2Program *prog,const BufferChunk &chunk,int vertexOffset,bool useInstancingHere)
@@ -409,7 +406,7 @@ void ParticleSystemDrawable::drawBindAttrs(RendererFrameInfo *frameInfo,Scene *s
                 int divisor = 0;
                 if (useInstancing)
                     divisor = 1;
-                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                if (frameInfo->glesVersion < 3)
                     glVertexAttribDivisorEXT(thisAttr->index, divisor);
                 else
                     glVertexAttribDivisor(thisAttr->index, divisor);
@@ -436,7 +433,7 @@ void ParticleSystemDrawable::drawBindAttrs(RendererFrameInfo *frameInfo,Scene *s
                 int divisor = 0;
                 if (useInstancing)
                     divisor = 1;
-                if (context.API < kEAGLRenderingAPIOpenGLES3)
+                if (frameInfo->glesVersion < 3)
                     glVertexAttribDivisorEXT(thisAttr->index, divisor);
                 else
                     glVertexAttribDivisor(thisAttr->index, divisor);
@@ -493,15 +490,14 @@ void ParticleSystemDrawable::calculate(RendererFrameInfo *frameInfo,Scene *scene
 {
     CheckGLError("BasicDrawable::calculate() glBeginTransformFeedback");
 
-    updateBatches(frameInfo.currentTime);
+    updateBatches(frameInfo->currentTime);
     updateChunks();
-    lastUpdateTime = frameInfo.currentTime;
+    lastUpdateTime = frameInfo->currentTime;
     
     if (chunks.empty())
         return;
     
-    EAGLContext *context = [EAGLContext currentContext];
-    OpenGLES2Program *prog = frameInfo.program;
+    OpenGLES2Program *prog = frameInfo->program;
     
     if (!prog)
         return;
@@ -517,7 +513,7 @@ void ParticleSystemDrawable::calculate(RendererFrameInfo *frameInfo,Scene *scene
     {
 //        NSLog(@"Calculating chunk vertexStart = %d, numVertex = %d",chunk.vertexStart,chunk.numVertices);
 
-        drawBindAttrs(context,frameInfo,scene,prog,chunk,chunk.vertexStart,false);
+        drawBindAttrs(frameInfo,scene,prog,chunk,chunk.vertexStart,false);
         
         // Now bind the varying outputs to their buffers
         int varyIdx = 0;
@@ -575,16 +571,16 @@ void ParticleSystemDrawable::calculate(RendererFrameInfo *frameInfo,Scene *scene
 
 void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
 {
-    if (lastUpdateTime < frameInfo.currentTime) {
-        updateBatches(frameInfo.currentTime);
+    if (lastUpdateTime < frameInfo->currentTime) {
+        updateBatches(frameInfo->currentTime);
         updateChunks();
-        lastUpdateTime = frameInfo.currentTime;
+        lastUpdateTime = frameInfo->currentTime;
     }
     
     if (chunks.empty())
         return;
     
-    OpenGLES2Program *prog = frameInfo.program;
+    OpenGLES2Program *prog = frameInfo->program;
     
     // Sometimes the program is deleted before the drawable (oops)
     if (!prog)
@@ -611,7 +607,7 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
             {
                 glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)0);
                 CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
-                if (frameInfo.glesVersion < 3)
+                if (frameInfo->glesVersion < 3)
                     glVertexAttribDivisorEXT(thisAttr->index, 0);
                 else
                     glVertexAttribDivisor(thisAttr->index, 0);
@@ -623,7 +619,7 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
             {
                 glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)(2*sizeof(GLfloat)));
                 CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
-                if (frameInfo.glesVersion < 3)
+                if (frameInfo->glesVersion < 3)
                     glVertexAttribDivisorEXT(thisAttr->index, 0);
                 else
                     glVertexAttribDivisor(thisAttr->index, 0);
@@ -633,11 +629,11 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
 
-        drawBindAttrs(context,frameInfo,scene,prog,chunk,chunk.vertexStart,true);
+        drawBindAttrs(frameInfo,scene,prog,chunk,chunk.vertexStart,true);
 
         if (rectBuffer)
         {
-            if (frameInfo.glesVersion < 3)
+            if (frameInfo->glesVersion < 3)
                 glDrawArraysInstancedEXT(GL_TRIANGLES, 0, 6, chunk.numVertices);
             else
                 glDrawArraysInstanced(GL_TRIANGLES, 0, 6, chunk.numVertices);

@@ -20,6 +20,7 @@
 
 #import "GLUtils.h"
 #import "Texture.h"
+#import "WhirlyKitLog.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -299,16 +300,16 @@ RawDataRef Texture::processData()
                 return ConvertRGBATo5551(texData);
                 break;
             case GL_ALPHA:
-                if ([texData length] == width * height)
+                if (texData->getLen() == width * height)
                     return ConvertAToA(texData,width,height);
                 return ConvertRGBATo8(texData,byteSource);
                 break;
             case GL_RG:
-                if ([texData length] == width * height * 2)
+                if (texData->getLen()  == width * height * 2)
                     return ConvertRGToRG(texData,width,height);
-                else if ([texData length] == width * height * 4)
+                else if (texData->getLen() == width * height * 4)
                     return ConvertRGBATo16(texData,width,height);
-                NSLog(@"Texture: Not handling RG conversion case.");
+                WHIRLYKIT_LOGE("Texture: Not handling RG conversion case.");
                 break;
             case GL_COMPRESSED_RGB8_ETC2:
                 // Can't convert this (for now)
@@ -329,9 +330,9 @@ void Texture::setPKMData(RawDataRef inData)
 // Figure out the PKM data
 unsigned char *Texture::ResolvePKM(RawDataRef texData,int &pkmType,int &size,int &width,int &height)
 {
-    if ([texData length] < 16)
+    if (texData->getLen() < 16)
         return NULL;
-    const unsigned char *header = (const unsigned char *)[texData bytes];
+    const unsigned char *header = (const unsigned char *)texData->getRawData();
 //    unsigned short *version = (unsigned short *)&header[4];
     const unsigned char *type = &header[7];
     
@@ -430,7 +431,7 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
 	if (isPVRTC)
 	{
 		// Will always be 4 bits per pixel and RGB
-		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, width, height, 0, (GLsizei)[convertedData length], [convertedData bytes]);
+		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, width, height, 0, (GLsizei)convertedData->getLen(), convertedData->getRawData());
         CheckGLError("Texture::createInGL() glCompressedTexImage2D()");
 	} else if (isPKM)
     {
@@ -445,28 +446,28 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
         {
             case GL_UNSIGNED_BYTE:
             default:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, [convertedData bytes]);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, convertedData->getRawData());
                 break;
             case GL_UNSIGNED_SHORT_5_6_5:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, [convertedData bytes]);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, convertedData->getRawData());
                 break;
             case GL_UNSIGNED_SHORT_4_4_4_4:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, [convertedData bytes]);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, convertedData->getRawData());
                 break;
             case GL_UNSIGNED_SHORT_5_5_5_1:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, [convertedData bytes]);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, convertedData->getRawData());
                 break;
             case GL_ALPHA:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, [convertedData bytes]);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, convertedData->getRawData());
                 break;
             case GL_RG:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, [convertedData bytes]);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, convertedData->getRawData());
                 break;
             case GL_COMPRESSED_RGB8_ETC2:
-                glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB8_ETC2, width, height, 0, (GLsizei)[convertedData length], [convertedData bytes]);
+                glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB8_ETC2, width, height, 0, (GLsizei)convertedData->getLen(), convertedData->getRawData());
                 break;
             case GL_DEPTH_COMPONENT16:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, [convertedData bytes]);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, convertedData->getRawData());
                 break;
         }
         CheckGLError("Texture::createInGL() glTexImage2D()");

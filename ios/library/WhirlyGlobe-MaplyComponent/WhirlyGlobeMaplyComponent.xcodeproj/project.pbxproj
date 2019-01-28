@@ -470,6 +470,22 @@
 		2BB8E1BD21FBCEA400154CDC /* SharedAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */; };
 		2BB8E1D921FF78A700154CDC /* Identifiable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5E21F7E7DF0078A975 /* Identifiable.cpp */; };
 		2BB8E1DA21FF7B7000154CDC /* Dictinary_NSDictionary.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133D21FA91A4006AA344 /* Dictinary_NSDictionary.mm */; };
+		2BB8E1DB21FF7FDE00154CDC /* BaseInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1621F158EA00EF2A82 /* BaseInfo.cpp */; };
+		2BB8E1ED21FF8DD600154CDC /* BasicDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5B21F7E7DF0078A975 /* BasicDrawable.cpp */; };
+		2BB8E1EE21FF8FE900154CDC /* StringIndexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B0B21F79AD00078A975 /* StringIndexer.cpp */; };
+		2BB8E1EF21FF900600154CDC /* BasicDrawableInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5C21F7E7DF0078A975 /* BasicDrawableInstance.cpp */; };
+		2BB8E1F021FF901900154CDC /* BillboardDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5D21F7E7DF0078A975 /* BillboardDrawable.cpp */; };
+		2BB8E1F121FF902500154CDC /* Drawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6221F7E7E00078A975 /* Drawable.cpp */; };
+		2BB8E1F221FF903000154CDC /* DynamicTextureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6321F7E7E00078A975 /* DynamicTextureAtlas.cpp */; };
+		2BB8E1F321FF903100154CDC /* GlobeScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6521F7E7E00078A975 /* GlobeScene.cpp */; };
+		2BB8E1F421FF903100154CDC /* MaplyScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6021F7E7DF0078A975 /* MaplyScene.cpp */; };
+		2BB8E1F521FF903100154CDC /* ParticleSystemDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5821F7E7DF0078A975 /* ParticleSystemDrawable.cpp */; };
+		2BB8E1F621FF903100154CDC /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6121F7E7E00078A975 /* Scene.cpp */; };
+		2BB8E1F721FF903100154CDC /* ScreenSpaceBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5F21F7E7DF0078A975 /* ScreenSpaceBuilder.cpp */; };
+		2BB8E1F821FF903100154CDC /* ScreenSpaceDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5921F7E7DF0078A975 /* ScreenSpaceDrawable.cpp */; };
+		2BB8E1F921FF903100154CDC /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6421F7E7E00078A975 /* Texture.cpp */; };
+		2BB8E1FA21FF903100154CDC /* TextureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6721F7E7E00078A975 /* TextureAtlas.cpp */; };
+		2BB8E1FB21FF903100154CDC /* WideVectorDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5A21F7E7DF0078A975 /* WideVectorDrawable.cpp */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -4151,6 +4167,7 @@
 				2B82B65E1E82E24A0095FB14 /* pj_ellps.c in Sources */,
 				2B82B67F1E82E24A0095FB14 /* PJ_lask.c in Sources */,
 				2B884A6B1E3803170027C397 /* laswriteitemcompressed_v1.cpp in Sources */,
+				2BB8E1F521FF903100154CDC /* ParticleSystemDrawable.cpp in Sources */,
 				2B82B5F21E82E2490095FB14 /* sweep.c in Sources */,
 				2B82B6A81E82E24A0095FB14 /* pj_qsfn.c in Sources */,
 				2BE539971D249BEF00B60FAD /* AAElliptical.cpp in Sources */,
@@ -4168,10 +4185,13 @@
 				2B846EED21F138F600EF2A82 /* tess.c in Sources */,
 				2B82B6B51E82E24A0095FB14 /* PJ_tpeqd.c in Sources */,
 				2B82B6681E82E24A0095FB14 /* pj_geocent.c in Sources */,
+				2BB8E1EE21FF8FE900154CDC /* StringIndexer.cpp in Sources */,
 				2B82B6011E82E2490095FB14 /* JSONChildren.cpp in Sources */,
 				2B446B1B21F79AE40078A975 /* CoordSystem.cpp in Sources */,
+				2BB8E1ED21FF8DD600154CDC /* BasicDrawable.cpp in Sources */,
 				2BE539BA1D249BEF00B60FAD /* AARefraction.cpp in Sources */,
 				2BE539AA1D249BEF00B60FAD /* AAMoslemCalendar.cpp in Sources */,
+				2BB8E1F921FF903100154CDC /* Texture.cpp in Sources */,
 				2B82B6AE1E82E24A0095FB14 /* PJ_stere.c in Sources */,
 				2B82B6781E82E24A0095FB14 /* pj_inv.c in Sources */,
 				2B82B6821E82E24A0095FB14 /* PJ_lcca.c in Sources */,
@@ -4186,6 +4206,7 @@
 				2B82B63F1E82E2490095FB14 /* nad_intr.c in Sources */,
 				2B82B6A41E82E24A0095FB14 /* PJ_putp3.c in Sources */,
 				2BE539A31D249BEF00B60FAD /* AAMercury.cpp in Sources */,
+				2BB8E1F321FF903100154CDC /* GlobeScene.cpp in Sources */,
 				2BE53A991D249C9000B60FAD /* DDXMLNode.m in Sources */,
 				2B82B6BF1E82E24A0095FB14 /* PJ_wag2.c in Sources */,
 				2B82B6711E82E24A0095FB14 /* PJ_hammer.c in Sources */,
@@ -4198,6 +4219,8 @@
 				2BE539AB1D249BEF00B60FAD /* AANearParabolic.cpp in Sources */,
 				2B446B1121F79AD00078A975 /* WhirlyOctEncoding.cpp in Sources */,
 				2BE539C31D249BEF00B60FAD /* AAVenus.cpp in Sources */,
+				2BB8E1F821FF903100154CDC /* ScreenSpaceDrawable.cpp in Sources */,
+				2BB8E1FB21FF903100154CDC /* WideVectorDrawable.cpp in Sources */,
 				2B82B6C31E82E24A0095FB14 /* PJ_wink2.c in Sources */,
 				2B82B6121E82E2490095FB14 /* JSONPreparse.cpp in Sources */,
 				2B846EE721F137D300EF2A82 /* emess.c in Sources */,
@@ -4211,6 +4234,7 @@
 				2B82B65B1E82E2490095FB14 /* PJ_eck4.c in Sources */,
 				2B82B6A61E82E24A0095FB14 /* PJ_putp5.c in Sources */,
 				2BE53A7A1D249C4700B60FAD /* substitute.cc in Sources */,
+				2BB8E1F121FF902500154CDC /* Drawable.cpp in Sources */,
 				2B82B6561E82E2490095FB14 /* PJ_denoy.c in Sources */,
 				2BE5398C1D249BEF00B60FAD /* AAAngularSeparation.cpp in Sources */,
 				2B82B60B1E82E2490095FB14 /* JSONIterators.cpp in Sources */,
@@ -4255,11 +4279,13 @@
 				2B82B6761E82E24A0095FB14 /* pj_init.c in Sources */,
 				2BB8E1D921FF78A700154CDC /* Identifiable.cpp in Sources */,
 				2B846EE621F137BD00EF2A82 /* geod_set.c in Sources */,
+				2BB8E1F721FF903100154CDC /* ScreenSpaceBuilder.cpp in Sources */,
 				2B82B6381E82E2490095FB14 /* geocent.c in Sources */,
 				2BE539B01D249BEF00B60FAD /* AAParallactic.cpp in Sources */,
 				2BE53A0F1D249C2900B60FAD /* reflection_ops.cc in Sources */,
 				2BB8E1DA21FF7B7000154CDC /* Dictinary_NSDictionary.mm in Sources */,
 				2B82B66C1E82E24A0095FB14 /* PJ_gnom.c in Sources */,
+				2BB8E1F221FF903000154CDC /* DynamicTextureAtlas.cpp in Sources */,
 				2B82B6AD1E82E24A0095FB14 /* PJ_somerc.c in Sources */,
 				2B82B6191E82E2490095FB14 /* JSONValidator.cpp in Sources */,
 				2B82B6981E82E24A0095FB14 /* PJ_nzmg.c in Sources */,
@@ -4275,8 +4301,10 @@
 				2BE53A871D249C8300B60FAD /* NSString+DDXML.m in Sources */,
 				2BE539A71D249BEF00B60FAD /* AAMoonNodes.cpp in Sources */,
 				2B82B6AB1E82E24A0095FB14 /* PJ_rpoly.c in Sources */,
+				2BB8E1F021FF901900154CDC /* BillboardDrawable.cpp in Sources */,
 				2B82B6421E82E2490095FB14 /* PJ_aeqd.c in Sources */,
 				2B846EE321F1372600EF2A82 /* pj_open_lib.c in Sources */,
+				2BB8E1F621FF903100154CDC /* Scene.cpp in Sources */,
 				2BE53A611D249C4600B60FAD /* int128.cc in Sources */,
 				2B884A771E3803170027C397 /* laszipper.cpp in Sources */,
 				2B846EE021F136E100EF2A82 /* pj_tsfn.c in Sources */,
@@ -4321,6 +4349,7 @@
 				2B82B6801E82E24A0095FB14 /* pj_latlong.c in Sources */,
 				2B82B6A01E82E24A0095FB14 /* pj_phi2.c in Sources */,
 				2B884A5D1E3803170027C397 /* lasquadtree.cpp in Sources */,
+				2BB8E1EF21FF900600154CDC /* BasicDrawableInstance.cpp in Sources */,
 				2BE53AB51D249CAF00B60FAD /* SMCalloutView.m in Sources */,
 				2B82B6BC1E82E24A0095FB14 /* PJ_vandg.c in Sources */,
 				2B846EDD21F1365000EF2A82 /* pj_apply_vgridshift.c in Sources */,
@@ -4330,6 +4359,7 @@
 				2B23133A21F942E2006AA344 /* Dictionary.cpp in Sources */,
 				2B82B6551E82E2490095FB14 /* pj_datums.c in Sources */,
 				2BE53A8B1D249C8900B60FAD /* DDXMLElementAdditions.m in Sources */,
+				2BB8E1DB21FF7FDE00154CDC /* BaseInfo.cpp in Sources */,
 				2BE539A41D249BEF00B60FAD /* AAMoon.cpp in Sources */,
 				2B82B5E61E82E2490095FB14 /* memalloc.c in Sources */,
 				2BE539901D249BEF00B60FAD /* AADiameters.cpp in Sources */,
@@ -4342,6 +4372,7 @@
 				2BE53A021D249C2900B60FAD /* extension_set.cc in Sources */,
 				2B82B6511E82E2490095FB14 /* PJ_collg.c in Sources */,
 				2B82B6651E82E24A0095FB14 /* pj_fwd.c in Sources */,
+				2BB8E1F421FF903100154CDC /* MaplyScene.cpp in Sources */,
 				2B82B6BD1E82E24A0095FB14 /* PJ_vandg2.c in Sources */,
 				2BE539A21D249BEF00B60FAD /* AAMars.cpp in Sources */,
 				2BE53A3E1D249C3D00B60FAD /* zero_copy_stream.cc in Sources */,
@@ -4357,6 +4388,7 @@
 				2B846ED521F1356E00EF2A82 /* geod_interface.c in Sources */,
 				2BE53A781D249C4700B60FAD /* strutil.cc in Sources */,
 				2B82B6731E82E24A0095FB14 /* PJ_healpix.c in Sources */,
+				2BB8E1FA21FF903100154CDC /* TextureAtlas.cpp in Sources */,
 				2BE539991D249BEF00B60FAD /* AAEquinoxesAndSolstices.cpp in Sources */,
 				2B82B64B1E82E2490095FB14 /* PJ_boggs.c in Sources */,
 				2B82B68F1E82E24A0095FB14 /* PJ_mod_ster.c in Sources */,

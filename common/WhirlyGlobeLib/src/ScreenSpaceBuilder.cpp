@@ -141,29 +141,29 @@ Point3d ScreenSpaceBuilder::CalcRotationVec(CoordSystemDisplayAdapter *coordAdap
 
 void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3d &worldLoc,const Point3f *dir,float rot,const Point2d &inVert,const TexCoord *texCoord,const RGBAColor *color,const SingleVertexAttributeSet *vertAttrs)
 {
-    draw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
+    locDraw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
     Point3d norm = coordAdapter->isFlat() ? Point3d(0,0,1) : worldLoc.normalized();
-    draw->addNormal(norm);
+    locDraw->addNormal(norm);
     Point2d vert = inVert * scale;
-    draw->addOffset(vert);
+    locDraw->addOffset(vert);
     if (texCoord)
-        draw->addTexCoord(0, *texCoord);
+        locDraw->addTexCoord(0, *texCoord);
     if (color)
-        draw->addColor(*color);
+        locDraw->addColor(*color);
     if (dir)
-        draw->addDir(*dir);
+        locDraw->addDir(*dir);
     if (vertAttrs && !vertAttrs->empty())
-        draw->addVertexAttributes(*vertAttrs);
+        locDraw->addVertexAttributes(*vertAttrs);
     if (state.rotation)
-        draw->addRot(ScreenSpaceBuilder::CalcRotationVec(coordAdapter,worldLoc,rot));
+        locDraw->addRot(ScreenSpaceBuilder::CalcRotationVec(coordAdapter,worldLoc,rot));
 }
 
 void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
 {
-    if (!draw)
+    if (!locDraw)
         return;
     
-    draw->addTriangle(BasicDrawable::Triangle(v0,v1,v2));
+    locDraw->addTriangle(BasicDrawable::Triangle(v0,v1,v2));
 }
     
 ScreenSpaceBuilder::ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter,float scale,float centerDist)

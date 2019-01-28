@@ -51,11 +51,11 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
     
 /** The base class for simple shapes we'll draw on top of a globe or map.
   */
-class WhirlyKitShape
+class Shape
 {
 public:
-    WhirlyKitShape();
-    virtual ~WhirlyKitShape();
+    Shape();
+    virtual ~Shape();
 
 	void setSelectable(bool value) { isSelectable = value; }
 	bool getSelectable() { return isSelectable; }
@@ -73,7 +73,7 @@ public:
     bool getClipCoords() { return clipCoords; }
 
 	virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
-    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
 
 private:
     bool isSelectable;
@@ -84,13 +84,13 @@ private:
 };
 
 /// This puts a sphere around the location
-class WhirlyKitSphere : public WhirlyKitShape
+class Sphere : public Shape
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    WhirlyKitSphere();
-    virtual ~WhirlyKitSphere();
+    Sphere();
+    virtual ~Sphere();
 
 	void setLoc(WhirlyKit::GeoCoord value) { loc = value; }
 	WhirlyKit::GeoCoord getLoc() { return loc; }
@@ -107,7 +107,7 @@ public:
 	int getSampleY() { return sampleY; }
 
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
-    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
 
 private:
     WhirlyKit::GeoCoord loc;
@@ -118,13 +118,13 @@ private:
 
 /** A simple rectangle.
  */
-class WhirlyKitRectangle : public WhirlyKitShape
+class Rectangle : public Shape
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    WhirlyKitRectangle();
-    virtual ~WhirlyKitRectangle();
+    Rectangle();
+    virtual ~Rectangle();
 
 	void setLL(const Point3d &inLL) { ll = inLL; }
 	Point3d getLL() { return ll; }
@@ -135,11 +135,11 @@ public:
     void setTexIDs(std::vector<SimpleIdentity> inTexIDs) { texIDs = inTexIDs; }
 
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
-    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, WhirlyKitShapeInfo *shapeInfo);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
 
 private:
     Point3d ll,ur;
-    std::vector<WhirlyKit::SimpleIdentity> texID;
+    std::vector<WhirlyKit::SimpleIdentity> texIDs;
 };
 
 #define kWKShapeManager "WKShapeManager"
@@ -155,7 +155,7 @@ public:
     virtual ~ShapeManager();
 
     /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
-    SimpleIdentity addShapes(std::vector<WhirlyKitShape*> shapes, WhirlyKitShapeInfo * shapeInfo,ChangeSet &changes);
+    SimpleIdentity addShapes(std::vector<Shape*> shapes, ShapeInfo * shapeInfo,ChangeSet &changes);
 
     /// Remove a group of shapes named by the given ID
     void removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes);

@@ -23,6 +23,7 @@
 #import <map>
 #import "Identifiable.h"
 #import "BaseInfo.h"
+#import "Dictionary.h"
 #import "Scene.h"
 #import "BasicDrawable.h"
 #import "SelectionManager.h"
@@ -37,13 +38,16 @@ class LoftedPolyInfo : public BaseInfo
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
+    LoftedPolyInfo();
+    LoftedPolyInfo(const Dictionary &dict);
+    
     float       height;
     float       base;
-    int outlineDrawPriority;
+    int         outlineDrawPriority;
     bool        top,side;
     bool        layered;
     bool        outline,outlineSide,outlineBottom;
-    RGBAColor    outlineColor;
+    RGBAColor   color,outlineColor;
     float       outlineWidth;
     bool        readZBuffer;
     bool        writeZBuffer;
