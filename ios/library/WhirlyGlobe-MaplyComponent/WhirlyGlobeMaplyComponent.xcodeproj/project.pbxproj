@@ -401,6 +401,9 @@
 		2B8796DE21FFCC0D00EF801D /* EAGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5621E82E2490095FB14 /* EAGLView.mm */; };
 		2B8796E021FFD59100EF801D /* SceneRendererES_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8796DF21FFD59000EF801D /* SceneRendererES_iOS.h */; };
 		2B8796E221FFD5B900EF801D /* SceneRendererES_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8796E121FFD5B900EF801D /* SceneRendererES_iOS.mm */; };
+		2B8796E321FFDA1800EF801D /* MaplyAnimateFlat.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5681E82E2490095FB14 /* MaplyAnimateFlat.mm */; };
+		2B8796E421FFDA1800EF801D /* MaplyAnimateTranslateMomentum.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5791E82E2490095FB14 /* MaplyAnimateTranslateMomentum.mm */; };
+		2B8796E521FFDA1800EF801D /* MaplyAnimateTranslation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B57A1E82E2490095FB14 /* MaplyAnimateTranslation.mm */; };
 		2B884A421E3803170027C397 /* arithmeticdecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0A1E3803170027C397 /* arithmeticdecoder.cpp */; };
 		2B884A431E3803170027C397 /* arithmeticdecoder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A0B1E3803170027C397 /* arithmeticdecoder.hpp */; };
 		2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0C1E3803170027C397 /* arithmeticencoder.cpp */; };
@@ -4149,7 +4152,9 @@
 				2B82B67D1E82E24A0095FB14 /* PJ_lagrng.c in Sources */,
 				2B82B6571E82E2490095FB14 /* pj_deriv.c in Sources */,
 				2BB8E20321FFAA8F00154CDC /* GLUtils.cpp in Sources */,
+				2B8796E521FFDA1800EF801D /* MaplyAnimateTranslation.mm in Sources */,
 				2BE539B91D249BEF00B60FAD /* AAPrecession.cpp in Sources */,
+				2B8796E421FFDA1800EF801D /* MaplyAnimateTranslateMomentum.mm in Sources */,
 				2B446B1021F79AD00078A975 /* GridClipper.cpp in Sources */,
 				2B82B5E81E82E2490095FB14 /* mesh.c in Sources */,
 				2BE539F51D249C2900B60FAD /* arena.cc in Sources */,
@@ -4326,6 +4331,7 @@
 				2B82B69C1E82E24A0095FB14 /* PJ_omerc.c in Sources */,
 				2B446B7D21FB94A00078A975 /* VectorData.cpp in Sources */,
 				2BE539A61D249BEF00B60FAD /* AAMoonMaxDeclinations.cpp in Sources */,
+				2B8796E321FFDA1800EF801D /* MaplyAnimateFlat.mm in Sources */,
 				2B884A661E3803170027C397 /* lasreadpoint.cpp in Sources */,
 				2B82B7C31E82E68E0095FB14 /* clipper.cpp in Sources */,
 				2B82B5EE1E82E2490095FB14 /* priorityq.c in Sources */,

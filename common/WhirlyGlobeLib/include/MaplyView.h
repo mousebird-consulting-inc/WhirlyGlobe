@@ -22,6 +22,10 @@
 
 namespace Maply
 {
+    
+    class MapViewAnimationDelegate {
+        
+    }
 
 /** Parameters associated with viewing the map.
     Modify the location to change the current view location.

@@ -39,10 +39,6 @@ public:
     GlobeView(const GlobeView &that);
     virtual ~GlobeView();
     
-    /// Used to update position based on time (or whatever other factor you like)
-    // Note: Porting
-//    NSObject<WhirlyGlobeAnimationDelegate> *delegate;
-
     /// Return min/max valid heights above globe
     double minHeightAboveGlobe();
     double maxHeightAboveGlobe();
@@ -125,12 +121,6 @@ public:
 
     // Construct a rotation to given location and heading
     Eigen::Quaterniond makeRotationToGeoCoord(const WhirlyKit::GeoCoord &worldCoord,double heading);
-
-    /// Cancel any outstanding animation
-    void cancelAnimation();
-
-    /// Renderer calls this every update
-    void animate();
 
     /// Calculate the Z buffer resolution
     float calcZbufferRes();

@@ -358,36 +358,6 @@ Point2f GlobeView::pointOnScreenFromSphere(const Point3d &worldLoc,const Eigen::
     return retPt;
 }
 
-// Note: Porting.  Need to wrap 'this' in an object
-//void GlobeView::setDelegate(NSObject<WhirlyGlobeAnimationDelegate> *inDelegate)
-//{
-//    if (!inDelegate)
-//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
-//    else {
-//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:self];
-//    }
-//    
-//    delegate = inDelegate;
-//}
-
-void GlobeView::cancelAnimation()
-{
-    // Note: Porting.  Need to wrap 'this' in an object
-//    if (delegate)
-//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
-
-    // Note: Porting
-//    delegate = nil;
-}
-
-// Run the rotation animation
-void GlobeView::animate()
-{
-    // Note: Porting
-//    if (delegate)
-//        [delegate updateView:this];
-}
-
 // Calculate the Z buffer resolution
 float GlobeView::calcZbufferRes()
 {
