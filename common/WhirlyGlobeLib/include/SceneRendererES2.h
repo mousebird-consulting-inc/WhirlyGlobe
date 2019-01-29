@@ -55,6 +55,8 @@ public:
     
     void setClearColor(const RGBAColor &color);
     
+    void resizeFromLayer();
+    
     void processScene();
 
     void render(TimeInterval duration);

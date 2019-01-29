@@ -143,13 +143,22 @@
     if (resizeFail && resizeFailRetry <= 0)
         return;
     
+    if (!_renderer)
+        return;
+    
     if (resizeFail)
         [self layoutSubviews];
 
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    if (oldContext != _renderer->context)
+        [EAGLContext setCurrentContext:_renderer->context];
+
     if (_animating) {
-        [_renderer render:displayLink.frameInterval * 1/60.0];
+        _renderer->render(displayLink.frameInterval * 1/60.0);
     } else
-        [_renderer processScene];
+        _renderer->processScene();
+    
+    [EAGLContext setCurrentContext:oldContext];
 }
 
 - (void) setFrame:(CGRect)newFrame
@@ -169,7 +178,7 @@
     }
     
     // Try to resize the renderer, multiple times if necessary
-	if (![_renderer resizeFromLayer:(CAEAGLLayer*)self.layer])
+	if (!_renderer->resize((int)self.frame.size.width,(int)self.frame.size.height))
     {
         if (!resizeFail)
         {

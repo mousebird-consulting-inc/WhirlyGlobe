@@ -216,13 +216,16 @@ typedef enum {zBufferOn,zBufferOff,zBufferOffDefault} WhirlyKitSceneRendererZBuf
 class SceneRendererES : public DelayedDeletable
 {
 public:
-    SceneRendererES(int apiVersion);
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+    SceneRendererES();
     virtual ~SceneRendererES();
     
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    
     /// Called right after the constructor
-    virtual void setup();
+    virtual bool setup(int apiVersion,int sizeX,int sizeY);
+    
+    /// Resize framebuffer because something changed
+    virtual bool resize(int sizeX,int sizeY);
             
     /// Set the render until time.  This is used by things like fade to keep
     ///  the rendering optimization from cutting off animation.
@@ -271,9 +274,6 @@ public:
     /// Assign a new scene.  Just at startup
     virtual void setScene(WhirlyKit::Scene *newScene);
     
-    /// To cull or not to cull (generally not)
-    virtual void setDoCulling(bool newCull) { doCulling = newCull; }
-    
     /// Set the performance counting interval (0 is off)
     virtual void setPerfInterval(int howLong) { perfInterval = howLong; }
     
@@ -285,7 +285,7 @@ public:
     
     /// If set, we'll draw one more frame than needed after updates stop
     virtual void setExtraFrameMode(bool newMode) { extraFrameMode = newMode; }
-
+    
     /// Add a render target to start rendering too
     void addRenderTarget(RenderTarget &newTarget);
     
@@ -302,9 +302,6 @@ public:
     WhirlyKit::View *theView;
     /// Set this mode to modify how Z buffering is used (if at all)
     WhirlyKitSceneRendererZBufferMode zBufferMode;
-    /// Set this to turn culling on or off.
-    /// By default it's on, so leave it alone unless you know you want it off.
-    bool doCulling;
     
     /// The pixel width of the CAEAGLLayer.
     GLint framebufferWidth;
@@ -357,6 +354,9 @@ public:
     bool extraFrameMode;
     
     std::vector<RenderTarget> renderTargets;
+
+    // If we're an offline renderer, the texture we're rendering into
+    WhirlyKit::Texture *framebufferTex;
 };
 
 }

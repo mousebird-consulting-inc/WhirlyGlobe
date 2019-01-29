@@ -68,7 +68,8 @@ void RenderTarget::init()
     
 bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
 {
-    glGenFramebuffers(1, &framebuffer);
+    if (framebuffer == 0)
+        glGenFramebuffers(1, &framebuffer);
     
     // Our destination is a texture in this case
     if (targetTexID)
@@ -79,14 +80,16 @@ bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
         // Generate our own color buffer
-        glGenRenderbuffers(1, &colorbuffer);
+        if (colorbuffer == 0)
+            glGenRenderbuffers(1, &colorbuffer);
         CheckGLError("RenderTarget: glGenRenderbuffers");
         glBindRenderbuffer(GL_RENDERBUFFER, colorbuffer);
         CheckGLError("RenderTarget: glBindRenderbuffer");
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorbuffer);
         CheckGLError("RenderTarget: glFramebufferRenderbuffer");
 
-        glGenRenderbuffers(1, &depthbuffer);
+        if (depthbuffer == 0)
+            glGenRenderbuffers(1, &depthbuffer);
         CheckGLError("RenderTarget: glGenRenderbuffers");
         glBindRenderbuffer(GL_RENDERBUFFER, depthbuffer);
         CheckGLError("RenderTarget: glBindRenderbuffer");
@@ -277,21 +280,23 @@ RendererFrameInfo::RendererFrameInfo(const RendererFrameInfo &that)
 {
     *this = that;
 }
-
-SceneRendererES::SceneRendererES(int apiVersion)
-    : glesVersion(apiVersion)
+    
+SceneRendererES::SceneRendererES()
 {
+}
+
+bool SceneRendererES::setup(int apiVersion,int sizeX,int sizeY)
+{
+    glesVersion = apiVersion;
     frameCount = 0;
     framesPerSec = 0.0;
     numDrawables = 0;
     frameCountStart = 0.0;
     frameCountStart = 0.0;
     zBufferMode = zBufferOn;
-    doCulling = false;
-    // Note: Debugging
     clearColor.r = 0;  clearColor.g = 0;  clearColor.b = 0;  clearColor.a = 0;
     perfInterval = -1;
-    scale = 1.0;
+    scale = DeviceScreenScale();
     scene = NULL;
     theView = NULL;
     
@@ -305,14 +310,52 @@ SceneRendererES::SceneRendererES(int apiVersion)
     depthBufferOffForAlpha = false;
     
     extraFrameMode = false;
+    
+    framebufferWidth = sizeX;
+    framebufferHeight = sizeY;
+    
+    // We need a texture to draw to in this case
+    if (framebufferWidth > 0)
+    {
+        framebufferTex = new Texture("Framebuffer Texture");
+        framebufferTex->setWidth(framebufferWidth);
+        framebufferTex->setHeight(framebufferHeight);
+        framebufferTex->setIsEmptyTexture(true);
+        framebufferTex->setFormat(GL_UNSIGNED_BYTE);
+        framebufferTex->createInGL(NULL);
+    }
+    
+    RenderTarget defaultTarget(EmptyIdentity);
+    defaultTarget.width = sizeX;
+    defaultTarget.height = sizeY;
+    if (framebufferTex) {
+        defaultTarget.setTargetTexture(framebufferTex);
+        // Note: Should make this optional
+        defaultTarget.blendEnable = false;
+    } else {
+        defaultTarget.init(NULL,EmptyIdentity);
+        defaultTarget.blendEnable = true;
+    }
+    defaultTarget.clearEveryFrame = true;
+    renderTargets.push_back(defaultTarget);
+    
+    return true;
 }
     
-void SceneRendererES::setup()
+bool SceneRendererES::resize(int sizeX,int sizeY)
 {
-    lastDraw = 0;
-
-//    if (view)
-//        view->runViewUpdates();
+    // Don't want to deal with it for offscreen rendering
+    if (framebufferTex)
+        return false;
+    
+    framebufferWidth = sizeX;
+    framebufferHeight = sizeY;
+    
+    auto defaultTarget = renderTargets.back();
+    defaultTarget.init(NULL, EmptyIdentity);
+    
+    // Note: Check this
+    return true;
 }
 
 SceneRendererES::~SceneRendererES()

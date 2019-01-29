@@ -87,7 +87,7 @@ public:
 };
     
 SceneRendererES2::SceneRendererES2()
-    : SceneRendererES(2), extraFrameDrawn(false)
+    : extraFrameDrawn(false)
 {
     // Add a simple default light
     DirectionalLight light;
@@ -148,15 +148,6 @@ void SceneRendererES2::setClearColor(const RGBAColor &color)
     clearColor = color;
     forceRenderSetup();
 }
-
-    // Note: Put in iOS version
-//- (BOOL)resizeFromLayer:(CAEAGLLayer *)layer
-//{
-//    [self forceRenderSetup];
-//    bool ret = [super resizeFromLayer:layer];
-//
-//    return ret;
-//}
     
 void SceneRendererES2::processScene()
 {
@@ -172,6 +163,11 @@ void SceneRendererES2::processScene()
     
 //    if (oldContext != super.context)
 //        [EAGLContext setCurrentContext:oldContext];
+}
+    
+void SceneRendererES2::resizeFromLayer()
+{
+    
 }
     
 bool SceneRendererES2::hasChanges()

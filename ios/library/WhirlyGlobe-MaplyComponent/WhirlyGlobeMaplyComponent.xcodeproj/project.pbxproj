@@ -374,7 +374,6 @@
 		2B84ED1B1F83FC8F00B34D73 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED1A1F83FC8F00B34D73 /* UIKit.framework */; };
 		2B84ED1D1F83FC9B00B34D73 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B84ED1C1F83FC9B00B34D73 /* CoreText.framework */; };
 		2B84ED1E1F83FC9F00B34D73 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AC41D249E0600B60FAD /* libz.tbd */; };
-		2B8796B621FFB2A100EF801D /* glwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8796B521FFB2A100EF801D /* glwrapper.cpp */; };
 		2B8796B721FFB2DE00EF801D /* Platform.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B2A21F7A4820078A975 /* Platform.mm */; };
 		2B8796B821FFB35200EF801D /* BillboardManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1421F158EA00EF2A82 /* BillboardManager.cpp */; };
 		2B8796B921FFB36500EF801D /* FontTextureManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B9321FBA8340078A975 /* FontTextureManager.cpp */; };
@@ -391,6 +390,17 @@
 		2B8796C421FFB37900EF801D /* ShapeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1E21F158EB00EF2A82 /* ShapeManager.cpp */; };
 		2B8796C621FFB37900EF801D /* VectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1F21F158EB00EF2A82 /* VectorManager.cpp */; };
 		2B8796C721FFB37900EF801D /* WideVectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1A21F158EB00EF2A82 /* WideVectorManager.cpp */; };
+		2B8796C821FFC57700EF801D /* ShapeReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B8721FB97D50078A975 /* ShapeReader.cpp */; };
+		2B8796CE21FFC59D00EF801D /* Dictinary_NSDictionary.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133D21FA91A4006AA344 /* Dictinary_NSDictionary.mm */; };
+		2B8796CF21FFC59D00EF801D /* RawData_NSData.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133521F93969006AA344 /* RawData_NSData.mm */; };
+		2B8796D021FFC59D00EF801D /* UIImage+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5491E82E2490095FB14 /* UIImage+Stuff.mm */; };
+		2B8796D121FFC59D00EF801D /* NSDictionary+Stuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54A1E82E2490095FB14 /* NSDictionary+Stuff.m */; };
+		2B8796D221FFC59D00EF801D /* UIColor+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54B1E82E2490095FB14 /* UIColor+Stuff.mm */; };
+		2B8796D321FFC59D00EF801D /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54C1E82E2490095FB14 /* NSString+Stuff.mm */; };
+		2B8796DD21FFCBF600EF801D /* glwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8796B521FFB2A100EF801D /* glwrapper.cpp */; };
+		2B8796DE21FFCC0D00EF801D /* EAGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5621E82E2490095FB14 /* EAGLView.mm */; };
+		2B8796E021FFD59100EF801D /* SceneRendererES_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8796DF21FFD59000EF801D /* SceneRendererES_iOS.h */; };
+		2B8796E221FFD5B900EF801D /* SceneRendererES_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8796E121FFD5B900EF801D /* SceneRendererES_iOS.mm */; };
 		2B884A421E3803170027C397 /* arithmeticdecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0A1E3803170027C397 /* arithmeticdecoder.cpp */; };
 		2B884A431E3803170027C397 /* arithmeticdecoder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A0B1E3803170027C397 /* arithmeticdecoder.hpp */; };
 		2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0C1E3803170027C397 /* arithmeticencoder.cpp */; };
@@ -486,7 +496,6 @@
 		2BB8E1B921FBCCBF00154CDC /* ViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1B821FBCCBF00154CDC /* ViewState.h */; };
 		2BB8E1BD21FBCEA400154CDC /* SharedAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */; };
 		2BB8E1D921FF78A700154CDC /* Identifiable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5E21F7E7DF0078A975 /* Identifiable.cpp */; };
-		2BB8E1DA21FF7B7000154CDC /* Dictinary_NSDictionary.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133D21FA91A4006AA344 /* Dictinary_NSDictionary.mm */; };
 		2BB8E1DB21FF7FDE00154CDC /* BaseInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1621F158EA00EF2A82 /* BaseInfo.cpp */; };
 		2BB8E1ED21FF8DD600154CDC /* BasicDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5B21F7E7DF0078A975 /* BasicDrawable.cpp */; };
 		2BB8E1EE21FF8FE900154CDC /* StringIndexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B0B21F79AD00078A975 /* StringIndexer.cpp */; };
@@ -1314,6 +1323,8 @@
 		2B84ED1A1F83FC8F00B34D73 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2B84ED1C1F83FC9B00B34D73 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		2B8796B521FFB2A100EF801D /* glwrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glwrapper.cpp; sourceTree = "<group>"; };
+		2B8796DF21FFD59000EF801D /* SceneRendererES_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES_iOS.h; sourceTree = "<group>"; };
+		2B8796E121FFD5B900EF801D /* SceneRendererES_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererES_iOS.mm; sourceTree = "<group>"; };
 		2B884A0A1E3803170027C397 /* arithmeticdecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arithmeticdecoder.cpp; path = ../../../common/local_libs/laszip/src/arithmeticdecoder.cpp; sourceTree = "<group>"; };
 		2B884A0B1E3803170027C397 /* arithmeticdecoder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = arithmeticdecoder.hpp; path = ../../../common/local_libs/laszip/src/arithmeticdecoder.hpp; sourceTree = "<group>"; };
 		2B884A0C1E3803170027C397 /* arithmeticencoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arithmeticencoder.cpp; path = ../../../common/local_libs/laszip/src/arithmeticencoder.cpp; sourceTree = "<group>"; };
@@ -2412,6 +2423,7 @@
 		2B82B4CB1E82E2490095FB14 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
+				2B8796DF21FFD59000EF801D /* SceneRendererES_iOS.h */,
 				2B82B4C91E82E2490095FB14 /* EAGLView.h */,
 			);
 			name = rendering;
@@ -2543,6 +2555,7 @@
 		2B82B5641E82E2490095FB14 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
+				2B8796E121FFD5B900EF801D /* SceneRendererES_iOS.mm */,
 				2B8796B521FFB2A100EF801D /* glwrapper.cpp */,
 				2B82B5621E82E2490095FB14 /* EAGLView.mm */,
 			);
@@ -3877,6 +3890,7 @@
 				2B846F0F21F158E100EF2A82 /* LabelManager.h in Headers */,
 				2B446B5421F7E7B80078A975 /* BasicDrawable.h in Headers */,
 				2B446AE121F288090078A975 /* LabelRenderer.h in Headers */,
+				2B8796E021FFD59100EF801D /* SceneRendererES_iOS.h in Headers */,
 				2B884A671E3803170027C397 /* lasreadpoint.hpp in Headers */,
 				2B82B5F81E82E2490095FB14 /* JSONOptions.h in Headers */,
 				2BE538371D249A1200B60FAD /* MaplyActiveObject_private.h in Headers */,
@@ -4169,6 +4183,7 @@
 				2B82B64D1E82E2490095FB14 /* PJ_cass.c in Sources */,
 				2B82B6B41E82E24A0095FB14 /* PJ_tmerc.c in Sources */,
 				2B884A6D1E3803170027C397 /* laswriteitemcompressed_v2.cpp in Sources */,
+				2B8796D321FFC59D00EF801D /* NSString+Stuff.mm in Sources */,
 				2B884A751E3803170027C397 /* laszip.cpp in Sources */,
 				2B884A741E3803170027C397 /* laszip_dll.cpp in Sources */,
 				2B8796BE21FFB37900EF801D /* LayoutManager.cpp in Sources */,
@@ -4200,6 +4215,7 @@
 				2BE539AE1D249BEF00B60FAD /* AANutation.cpp in Sources */,
 				2BE539BB1D249BEF00B60FAD /* AARiseTransitSet.cpp in Sources */,
 				2BE53A971D249C9000B60FAD /* DDXMLElement.m in Sources */,
+				2B8796D221FFC59D00EF801D /* UIColor+Stuff.mm in Sources */,
 				2B82B6AA1E82E24A0095FB14 /* PJ_robin.c in Sources */,
 				2B82B6C71E82E24A0095FB14 /* proj_mdist.c in Sources */,
 				2B82B6A51E82E24A0095FB14 /* PJ_putp4p.c in Sources */,
@@ -4208,6 +4224,7 @@
 				2B82B62E1E82E2490095FB14 /* PJ_sch.c in Sources */,
 				2B82B65E1E82E24A0095FB14 /* pj_ellps.c in Sources */,
 				2B8796BF21FFB37900EF801D /* LoftManager.cpp in Sources */,
+				2B8796C821FFC57700EF801D /* ShapeReader.cpp in Sources */,
 				2B82B67F1E82E24A0095FB14 /* PJ_lask.c in Sources */,
 				2B884A6B1E3803170027C397 /* laswriteitemcompressed_v1.cpp in Sources */,
 				2BB8E1F521FF903100154CDC /* ParticleSystemDrawable.cpp in Sources */,
@@ -4224,6 +4241,7 @@
 				2BE539A51D249BEF00B60FAD /* AAMoonIlluminatedFraction.cpp in Sources */,
 				2B8796B921FFB36500EF801D /* FontTextureManager.cpp in Sources */,
 				2BE5399B1D249BEF00B60FAD /* AAGalileanMoons.cpp in Sources */,
+				2B8796DD21FFCBF600EF801D /* glwrapper.cpp in Sources */,
 				2B82B6A71E82E24A0095FB14 /* PJ_putp6.c in Sources */,
 				2BE53A131D249C2900B60FAD /* service.cc in Sources */,
 				2B82B66F1E82E24A0095FB14 /* pj_gridlist.c in Sources */,
@@ -4241,7 +4259,6 @@
 				2B8796B721FFB2DE00EF801D /* Platform.mm in Sources */,
 				2BE539AA1D249BEF00B60FAD /* AAMoslemCalendar.cpp in Sources */,
 				2BB8E1F921FF903100154CDC /* Texture.cpp in Sources */,
-				2B8796B621FFB2A100EF801D /* glwrapper.cpp in Sources */,
 				2B82B6AE1E82E24A0095FB14 /* PJ_stere.c in Sources */,
 				2B82B6781E82E24A0095FB14 /* pj_inv.c in Sources */,
 				2B82B6821E82E24A0095FB14 /* PJ_lcca.c in Sources */,
@@ -4331,12 +4348,12 @@
 				2BE539911D249BEF00B60FAD /* AADynamicalTime.cpp in Sources */,
 				2B82B6761E82E24A0095FB14 /* pj_init.c in Sources */,
 				2BB8E1D921FF78A700154CDC /* Identifiable.cpp in Sources */,
+				2B8796E221FFD5B900EF801D /* SceneRendererES_iOS.mm in Sources */,
 				2B846EE621F137BD00EF2A82 /* geod_set.c in Sources */,
 				2BB8E1F721FF903100154CDC /* ScreenSpaceBuilder.cpp in Sources */,
 				2B82B6381E82E2490095FB14 /* geocent.c in Sources */,
 				2BE539B01D249BEF00B60FAD /* AAParallactic.cpp in Sources */,
 				2BE53A0F1D249C2900B60FAD /* reflection_ops.cc in Sources */,
-				2BB8E1DA21FF7B7000154CDC /* Dictinary_NSDictionary.mm in Sources */,
 				2B82B66C1E82E24A0095FB14 /* PJ_gnom.c in Sources */,
 				2BB8E1F221FF903000154CDC /* DynamicTextureAtlas.cpp in Sources */,
 				2B82B6AD1E82E24A0095FB14 /* PJ_somerc.c in Sources */,
@@ -4378,6 +4395,8 @@
 				2BE5399C1D249BEF00B60FAD /* AAGlobe.cpp in Sources */,
 				2B82B6441E82E2490095FB14 /* PJ_aitoff.c in Sources */,
 				2B446B1421F79AD00078A975 /* WhirlyGeometry.cpp in Sources */,
+				2B8796CE21FFC59D00EF801D /* Dictinary_NSDictionary.mm in Sources */,
+				2B8796D121FFC59D00EF801D /* NSDictionary+Stuff.m in Sources */,
 				2B82B6281E82E2490095FB14 /* geodesic.c in Sources */,
 				2B446B0F21F79AD00078A975 /* Tesselator.cpp in Sources */,
 				2B82B6991E82E24A0095FB14 /* PJ_ob_tran.c in Sources */,
@@ -4409,6 +4428,7 @@
 				2B82B6BC1E82E24A0095FB14 /* PJ_vandg.c in Sources */,
 				2B846EDD21F1365000EF2A82 /* pj_apply_vgridshift.c in Sources */,
 				2BE539F31D249C2900B60FAD /* map_field.cc in Sources */,
+				2B8796D021FFC59D00EF801D /* UIImage+Stuff.mm in Sources */,
 				2B446B1D21F79AE40078A975 /* SphericalMercator.cpp in Sources */,
 				2B8796C121FFB37900EF801D /* ParticleSystemManager.cpp in Sources */,
 				2BE53A401D249C3D00B60FAD /* zero_copy_stream_impl.cc in Sources */,
@@ -4444,6 +4464,7 @@
 				2BE539C21D249BEF00B60FAD /* AAUranus.cpp in Sources */,
 				2B82B6471E82E2490095FB14 /* PJ_august.c in Sources */,
 				2BE53A001D249C2900B60FAD /* dynamic_message.cc in Sources */,
+				2B8796DE21FFCC0D00EF801D /* EAGLView.mm in Sources */,
 				2B846ED521F1356E00EF2A82 /* geod_interface.c in Sources */,
 				2BE53A781D249C4700B60FAD /* strutil.cc in Sources */,
 				2B82B6731E82E24A0095FB14 /* PJ_healpix.c in Sources */,
@@ -4454,6 +4475,7 @@
 				2BB8E20021FF93CB00154CDC /* MaplyViewState.cpp in Sources */,
 				2B82B6631E82E24A0095FB14 /* PJ_fahey.c in Sources */,
 				2B82B68A1E82E24A0095FB14 /* PJ_mbtfpp.c in Sources */,
+				2B8796CF21FFC59D00EF801D /* RawData_NSData.mm in Sources */,
 				2BE539951D249BEF00B60FAD /* AAEclipticalElements.cpp in Sources */,
 				2BE53A191D249C2900B60FAD /* wire_format.cc in Sources */,
 				2B82B60C1E82E2490095FB14 /* JSONMemory.cpp in Sources */,
