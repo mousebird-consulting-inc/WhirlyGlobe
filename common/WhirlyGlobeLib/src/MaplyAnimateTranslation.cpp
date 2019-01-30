@@ -18,91 +18,15 @@
  *
  */
 
-#import "EAGLView.h"
 #import "SceneRendererES.h"
 #import "MaplyAnimateTranslation.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
 
-@implementation MaplyAnimateViewTranslation
-{
-    /// Boundary quad that we're to stay within
-    std::vector<WhirlyKit::Point2d> bounds;
-    MaplyView __weak *globeView;
-    WhirlyKitEAGLView *glView;
-}
-
-- (id)initWithView:(MaplyView *)inGlobeView view:(UIView *)inView translate:(Point3d &)newLoc howLong:(float)howLong
-{
-    self = [super init];
+namespace Maply {
     
-    if (self)
-    {
-        glView = (WhirlyKitEAGLView  *)inView;
-        globeView = inGlobeView;
-        _startDate = TimeGetCurrent();
-        _endDate = _startDate + howLong;
-        _startLoc = globeView.loc;
-        _endLoc = newLoc;
-        _userMotion = true;
-    }
-    
-    return self;
-}
-
-- (void)setBounds:(WhirlyKit::Point2d *)inBounds
-{
-    bounds.clear();
-    for (unsigned int ii=0;ii<4;ii++)
-        bounds.push_back(Point2d(inBounds[ii].x(),inBounds[ii].y()));
-}
-
-// Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
-{
-    return MaplyGestureWithinBounds(bounds,loc,view,sceneRender,testMapView,newCenter);
-}
-
-- (void)updateView:(MaplyView *)mapView
-{
-    if (_startDate == 0.0)
-        return;
-
-    CFTimeInterval now = TimeGetCurrent();
-    float span = _endDate - _startDate;
-    float remain = _endDate - now;
-    
-    Point3d newLoc;
-    
-    // All done, snap to end
-    if (remain < 0)
-    {
-        newLoc = _endLoc;
-        _startDate = 0;
-        _endDate = 0;
-        [mapView cancelAnimation];
-    } else {
-        // Interpolate in the middle
-        float t = (span-remain)/span;
-        Point3d midLoc = _startLoc + (_endLoc-_startLoc)*t;
-        newLoc = midLoc;
-    }
-    
-    // Test the prospective point first
-    Point3d newCenter;
-    MaplyView *testMapView = [[MaplyView alloc] initWithView:mapView];
-    if ([self withinBounds:newLoc view:glView renderer:glView.renderer mapView:testMapView newCenter:&newCenter])
-    {
-        [mapView setLoc:newCenter];
-    }
-}
-
-@end
-
-namespace WhirlyKit
-{
-bool MaplyGestureWithinBounds(const std::vector<WhirlyKit::Point2d> &bounds,const Point3d &loc,UIView *view,SceneRendererES *sceneRender,MaplyView *testMapView,Point3d *newCenter)
+bool MaplyGestureWithinBounds(const Point2dVector &bounds,const Point3d &loc,SceneRendererES *sceneRender,MapView *testMapView,Point3d *newCenter)
 {
     if (newCenter)
         *newCenter = loc;
@@ -111,27 +35,26 @@ bool MaplyGestureWithinBounds(const std::vector<WhirlyKit::Point2d> &bounds,cons
         return true;
     
     // The corners of the view should be within the bounds
-    CGPoint corners[4];
-    corners[0] = CGPointMake(0,0);
-    corners[1] = CGPointMake(view.frame.size.width, 0.0);
-    corners[2] = CGPointMake(view.frame.size.width, view.frame.size.height);
-    corners[3] = CGPointMake(0.0, view.frame.size.height);
+    Point2f corners[4];
+    corners[0] = Point2f(0,0);
+    corners[1] = Point2f(sceneRender->framebufferWidth, 0.0);
+    corners[2] = Point2f(sceneRender->framebufferWidth, sceneRender->framebufferHeight);
+    corners[3] = Point2f(0.0, sceneRender->framebufferHeight);
     
     bool isValid = false;
     Point2d locOffset(0,0);
+    Point2f frameSize(sceneRender->framebufferWidth,sceneRender->framebufferHeight);
     for (unsigned tests=0;tests<4;tests++)
     {
         Point3d newLoc = loc+Point3d(locOffset.x(),locOffset.y(),0.0);
-        [testMapView setLoc:newLoc runUpdates:false];
-        Eigen::Matrix4d fullMatrix = [testMapView calcFullMatrix];
+        testMapView->setLoc(newLoc,false);
+        Eigen::Matrix4d fullMatrix = testMapView->calcFullMatrix();
         
         bool checkOkay = true;
         for (unsigned int ii=0;ii<4;ii++)
         {
             Point3d planePt;
-            [testMapView pointOnPlaneFromScreen:corners[ii] transform:&fullMatrix
-                                      frameSize:Point2f(sceneRender.framebufferWidth/view.contentScaleFactor,sceneRender.framebufferHeight/view.contentScaleFactor)
-                                            hit:&planePt clip:false];
+            testMapView->pointOnPlaneFromScreen(corners[ii], &fullMatrix, frameSize, &planePt, false);
             if (!PointInPolygon(Point2d(planePt.x(),planePt.y()), bounds))
             {
                 Point2d closePt;
@@ -156,4 +79,62 @@ bool MaplyGestureWithinBounds(const std::vector<WhirlyKit::Point2d> &bounds,cons
     
     return isValid;
 }
+    
+AnimateViewTranslation::AnimateViewTranslation(MapView *inMapView,WhirlyKit::SceneRendererES *inRenderer,Point3d &newLoc,float howLong)
+{
+    mapView = inMapView;
+    renderer = inRenderer;
+    startDate = TimeGetCurrent();
+    endDate = startDate + howLong;
+    startLoc = mapView->getLoc();
+    endLoc = newLoc;
+    userMotion = true;
+}
+    
+void AnimateViewTranslation::setBounds(Point2d *inBounds)
+{
+    bounds.clear();
+    for (unsigned int ii=0;ii<4;ii++)
+        bounds.push_back(Point2d(inBounds[ii].x(),inBounds[ii].y()));
+}
+
+// Bounds check on a single point
+bool AnimateViewTranslation::withinBounds(const Point3d &loc,MapView * testMapView,Point3d *newCenter)
+{
+    return MaplyGestureWithinBounds(bounds,loc,renderer,testMapView,newCenter);
+}
+
+void AnimateViewTranslation::updateView(MapView *mapView)
+{
+    if (startDate == 0.0)
+        return;
+
+    TimeInterval now = TimeGetCurrent();
+    TimeInterval span = endDate - startDate;
+    TimeInterval remain = endDate - now;
+    
+    Point3d newLoc;
+    
+    // All done, snap to end
+    if (remain < 0)
+    {
+        newLoc = endLoc;
+        startDate = 0;
+        endDate = 0;
+        mapView->cancelAnimation();
+    } else {
+        // Interpolate in the middle
+        float t = (span-remain)/span;
+        Point3d midLoc = startLoc + (endLoc-startLoc)*t;
+        newLoc = midLoc;
+    }
+    
+    // Test the prospective point first
+    Point3d newCenter;
+    MapView testMapView(*mapView);
+    if (withinBounds(newLoc, &testMapView, &newCenter)) {
+        mapView->setLoc(newCenter);
+    }
+}
+
 }

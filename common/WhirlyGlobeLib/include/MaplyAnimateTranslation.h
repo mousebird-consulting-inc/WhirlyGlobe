@@ -18,37 +18,50 @@
  *
  */
 
-#import <UIKit/UIKit.h>
+#import "WhirlyTypes.h"
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "MaplyView.h"
 #import "SceneRendererES.h"
 
-/// Maply translation from one location to another.
-@interface MaplyAnimateViewTranslation : NSObject<MaplyAnimationDelegate>
+namespace Maply {
 
-/// When to start the animation.  Can be in the past
-@property (nonatomic,assign) CFTimeInterval startDate;
-/// When to finish the animation.
-@property (nonatomic,assign) CFTimeInterval endDate;
-/// Where to start the translation.  This is probably where you are when you starting.
-@property (nonatomic,assign) WhirlyKit::Point3d startLoc;
-/// Where to end the translation.  We'll interpolate from the start to here.
-@property (nonatomic,assign) WhirlyKit::Point3d endLoc;
-/// Set if a user kicked this off (true by default)
-@property (nonatomic) bool userMotion;
-
-/// Kick off a translate to the given position over the given time
-/// Assign this to the globe view's delegate and it'll do the rest
-- (id)initWithView:(MaplyView *)globeView view:(UIView *)inView translate:(WhirlyKit::Point3d &)newLoc howLong:(float)howLong;
-
-/// Set the bounding rectangle
-- (void)setBounds:(WhirlyKit::Point2d *)bounds;
-
-@end
-
-namespace WhirlyKit
-{
 // Bounds check that adjusts the center to try and compensate
-bool MaplyGestureWithinBounds(const std::vector<WhirlyKit::Point2d> &bounds,const WhirlyKit::Point3d &loc,UIView *view,SceneRendererES *sceneRender,MaplyView *testMapView,WhirlyKit::Point3d *newCenter);
+    bool MaplyGestureWithinBounds(const WhirlyKit::Point2dVector &bounds,const WhirlyKit::Point3d &loc,WhirlyKit::SceneRendererES *sceneRender,WhirlyKit::Point3d *newCenter);
+
+/// Maply translation from one location to another.
+class AnimateViewTranslation : public MapViewAnimationDelegate
+{
+public:
+    /// Kick off a translate to the given position over the given time
+    /// Assign this to the globe view's delegate and it'll do the rest
+    AnimateViewTranslation(MapView *mapView,WhirlyKit::SceneRendererES *renderer,WhirlyKit::Point3d &newLoc,float howLong);
+    
+    /// Set the bounding rectangle
+    void setBounds(WhirlyKit::Point2d *bounds);
+    
+    /// Update the map view
+    virtual void updateView(MapView *mapView);
+
+    /// When to start the animation.  Can be in the past
+    WhirlyKit::TimeInterval startDate;
+    /// When to finish the animation.
+    WhirlyKit::TimeInterval endDate;
+    /// Where to start the translation.  This is probably where you are when you starting.
+    WhirlyKit::Point3d startLoc;
+    /// Where to end the translation.  We'll interpolate from the start to here.
+    WhirlyKit::Point3d endLoc;
+    /// Set if a user kicked this off (true by default)
+    bool userMotion;
+
+protected:
+    WhirlyKit::SceneRendererES *renderer;
+    
+    bool withinBounds(const WhirlyKit::Point3d &loc,MapView * testMapView,WhirlyKit::Point3d *newCenter);
+    
+    /// Boundary quad that we're to stay within
+    WhirlyKit::Point2dVector bounds;
+    MapView *mapView;
+};
+    
 }

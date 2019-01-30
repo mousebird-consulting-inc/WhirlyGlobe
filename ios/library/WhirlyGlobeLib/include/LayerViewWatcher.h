@@ -24,7 +24,6 @@
 
 @class WhirlyKitLayerThread;
 @class WhirlyKitViewState;
-@class SceneRendererES;
 
 
 /** The layer view watcher is a base class.  We subclass it for specific

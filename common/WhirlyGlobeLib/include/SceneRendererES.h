@@ -27,10 +27,9 @@
 #import "PerformanceTimer.h"
 #import "Lighting.h"
 
-class SceneRendererES;
-
 namespace WhirlyKit
 {
+class SceneRendererES;    
 
 /** What and where we're rendering.  This can be a regular framebuffer
  to the screen or to a texture.

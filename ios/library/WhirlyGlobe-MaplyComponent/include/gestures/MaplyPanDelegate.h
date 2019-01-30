@@ -22,8 +22,6 @@
 #import <vector>
 #import "MaplyView.h"
 
-@class SceneRendererES;
-
 // Sent out when the pan delegate takes control
 #define kPanDelegateDidStart @"WKPanDelegateStarted"
 // Sent out when the pan delegate finished (but hands off to momentum)

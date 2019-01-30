@@ -531,6 +531,7 @@
 		2BC3D6C22202538700CE91D0 /* GlobeView_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6C12202538700CE91D0 /* GlobeView_iOS.mm */; };
 		2BC3D6C4220255E500CE91D0 /* MapView_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6C3220255E500CE91D0 /* MapView_iOS.h */; };
 		2BC3D6C6220255EA00CE91D0 /* MapView_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6C5220255EA00CE91D0 /* MapView_iOS.mm */; };
+		2BC3D6C722025CAC00CE91D0 /* MaplyAnimateTranslation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6B422024ECE00CE91D0 /* MaplyAnimateTranslation.cpp */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -4343,6 +4344,7 @@
 				2B82B6261E82E2490095FB14 /* pj_fwd3d.c in Sources */,
 				2B82B6891E82E24A0095FB14 /* PJ_mbt_fps.c in Sources */,
 				2B846EEA21F1381400EF2A82 /* pj_strtod.c in Sources */,
+				2BC3D6C722025CAC00CE91D0 /* MaplyAnimateTranslation.cpp in Sources */,
 				2BE5399C1D249BEF00B60FAD /* AAGlobe.cpp in Sources */,
 				2B82B6441E82E2490095FB14 /* PJ_aitoff.c in Sources */,
 				2B446B1421F79AD00078A975 /* WhirlyGeometry.cpp in Sources */,
