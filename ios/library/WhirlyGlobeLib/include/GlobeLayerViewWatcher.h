@@ -22,31 +22,6 @@
 #import "GlobeView.h"
 #import "LayerViewWatcher.h"
 
-/** View State related to the Globe view.  This adds
-    more parameters relating to the globe.
-  */
-@interface WhirlyGlobeViewState : ViewState
-
-/// Initialize from the globe view and the renderer
-- (id)initWithView:(WhirlyGlobeView *)globeView renderer:(SceneRendererES *)renderer;
-
-/// Rotation, etc, at this view state
-@property (nonatomic,assign) Eigen::Quaterniond &rotQuat;
-
-/// Height above globe at this view state
-@property (nonatomic,assign) double heightAboveGlobe;
-
-/// Return where up (0,0,1) is after model rotation
-- (Eigen::Vector3d)currentUp;
-
-/** Given a location on the screen and the screen size, figure out where we touched the sphere
- Returns true if we hit and where
- Returns false if not and the closest point on the sphere
- */
-- (bool)pointOnSphereFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const WhirlyKit::Point2f &)frameSize hit:(WhirlyKit::Point3d *)hit;
-
-@end
-
 /** The Globe Layer View watcher is a subclass of the layer view
     watcher that takes globe specific parameters into account.
   */
