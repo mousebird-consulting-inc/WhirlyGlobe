@@ -50,34 +50,6 @@ MapView::~MapView()
 {    
 }
 
-// Note: Porting
-//void MapView::setDelegate(NSObject<MaplyAnimationDelegate> *inDelegate)
-//{
-//    if (!delegate)
-//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
-//    else {
-//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:self];
-//    }
-//    
-//    delegate = inDelegate;
-//}
-
-void MapView::cancelAnimation()
-{
-    // Note: Porting
-//    if (_delegate)
-//        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:self];
-//    
-//    delegate = nil;
-}
-
-void MapView::animate()
-{
-    // Note: Porting
-//    if (delegate)
-//        [delegate updateView:this];
-}
-
 float MapView::calcZbufferRes()
 {
     // Note: Not right
@@ -282,6 +254,25 @@ Eigen::Vector3d MapView::eyePos()
     
     Vector4d newUp = modelMat * Vector4d(0,0,1,1);
     return Vector3d(newUp.x(),newUp.y(),newUp.z());
+}
+
+/// Set the change delegate
+void MapView::setDelegate(MapViewAnimationDelegateRef inDelegate)
+{
+    delegate = inDelegate;
+}
+
+/// Called to cancel a running animation
+void MapView::cancelAnimation()
+{
+    delegate = NULL;
+}
+
+/// Renderer calls this every update.
+void MapView::animate()
+{
+    if (delegate)
+        delegate->updateView(this);
 }
 
 }

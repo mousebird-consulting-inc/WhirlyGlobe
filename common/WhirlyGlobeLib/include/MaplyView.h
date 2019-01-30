@@ -22,10 +22,17 @@
 
 namespace Maply
 {
-    
-    class MapViewAnimationDelegate {
-        
-    }
+
+class MapView;
+
+/// Animation callback
+class MapViewAnimationDelegate
+{
+public:
+    /// Called every tick to update the map position
+    virtual void updateView(MapView *mapView) = 0;
+};
+typedef std::shared_ptr<MapViewAnimationDelegate> MapViewAnimationDelegateRef;
 
 /** Parameters associated with viewing the map.
     Modify the location to change the current view location.
@@ -40,16 +47,6 @@ public:
     /// Copy constructor
     MapView(const MapView &that);
     virtual ~MapView();
-
-    /// Set the callback delegate
-    // Note: Porting
-//    void setDelegate(NSObject<MaplyAnimationDelegate> *delegate);
-
-    /// Cancel any outstanding animation
-    void cancelAnimation();
-
-    /// Renderer calls this every update
-    void animate();
 
     /// Calculate the Z buffer resolution
     float calcZbufferRes();
@@ -113,6 +110,15 @@ public:
     /// Eye position in model coordinates
     Eigen::Vector3d eyePos();
     
+    /// Set the change delegate
+    virtual void setDelegate(MapViewAnimationDelegateRef delegate);
+    
+    /// Cancel any outstanding animation
+    virtual void cancelAnimation();
+    
+    /// Renderer calls this every update
+    virtual void animate();
+
 protected:
     /// Viewer location
     WhirlyKit::Point3d loc;
@@ -120,9 +126,8 @@ protected:
     double rotAngle;
     /// If set, we're wrapping across the date line
     bool wrap;
-    /// Used to update position based on time (or whatever)
-    // Note: Porting
-//    NSObject<MaplyAnimationDelegate> *delegate;
+    /// Used to update position based on time
+    MapViewAnimationDelegateRef delegate;
 };
 
 }

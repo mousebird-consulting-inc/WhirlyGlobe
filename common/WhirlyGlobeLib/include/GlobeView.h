@@ -23,6 +23,17 @@
 
 namespace WhirlyGlobe
 {
+    
+class GlobeView;
+    
+/// Animation callback
+class GlobeViewAnimationDelegate
+{
+public:
+    /// Called every tick to update the globe position
+    virtual void updateView(GlobeView *globeView) = 0;
+};
+typedef std::shared_ptr<GlobeViewAnimationDelegate> GlobeViewAnimationDelegateRef;
 
 /** Parameters associated with viewing the globe.
     Modify the rotation quaternion to change the current
@@ -129,9 +140,14 @@ public:
     double heightAboveSurface();
     
     /// Set the change delegate
-    // Note: Porting
-//    void setDelegate(NSObject<WhirlyGlobeAnimationDelegate> *delegate);
+    virtual void setDelegate(GlobeViewAnimationDelegateRef delegate);
+
+    /// Called to cancel a running animation
+    virtual void cancelAnimation();
     
+    /// Renderer calls this every update.
+    virtual void animate();
+
     // These are all for continuous zoom mode
     double absoluteMinHeight;
     double heightInflection;
@@ -154,6 +170,8 @@ protected:
     /// Roll around an axis pointed straight out of the front
     double roll;
     WhirlyKit::FakeGeocentricDisplayAdapter fakeGeoC;
+    /// Animation delegate
+    GlobeViewAnimationDelegateRef delegate;
 };
 
 }

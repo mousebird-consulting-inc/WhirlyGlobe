@@ -423,4 +423,23 @@ Eigen::Vector3d GlobeView::eyePos()
 	return Vector3d(newUp.x(),newUp.y(),newUp.z());
 }
 
+/// Set the change delegate
+void GlobeView::setDelegate(GlobeViewAnimationDelegateRef inDelegate)
+{
+    delegate = inDelegate;
+}
+
+/// Called to cancel a running animation
+void GlobeView::cancelAnimation()
+{
+    delegate = NULL;
+}
+
+/// Renderer calls this every update.
+void GlobeView::animate()
+{
+    if (delegate)
+        delegate->updateView(this);
+}
+    
 }

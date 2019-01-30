@@ -23,13 +23,6 @@
 #import "WhirlyVector.h"
 #import "CoordSystem.h"
 
-// Sent when a WhirlyKit::View animation starts
-#define kWKViewAnimationStarted @"WKViewAnimationStarted"
-// Sent when a WhirlyKit::View animation is cancelled
-#define kWKViewAnimationEnded @"WKViewAnimationEnded"
-
-
-
 namespace WhirlyKit
 {
     
