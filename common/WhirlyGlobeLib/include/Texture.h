@@ -76,13 +76,6 @@ public:
 	Texture(const std::string &name);
 	/// Construct with raw texture data.  PVRTC is preferred.
 	Texture(const std::string &name,RawDataRef texData,bool isPVRTC);
-	/// Construct with a file name and extension
-//	Texture(const std::string &name,NSString *baseName,NSString *ext);
-	/// Construct with a UIImage.  Expecting this to be a power of 2 on each side.
-    /// If it's not we'll round up or down, depending on the flag
-//	Texture(const std::string &name,UIImage *inImage, bool roundUp=true);
-    /// Construct by scaling the image to the given size
-//    Texture(const std::string &name,UIImage *inImage,int width,int height);
     /// Construct from a FILE, presumably because it was cached
     Texture(const std::string &name,FILE *fp);
 	
@@ -136,7 +129,10 @@ public:
     RawDataRef texData;
 
 protected:
-	/// Need to know how we're going to load it
+    /// Used by subclass
+    Texture();
+
+    /// Need to know how we're going to load it
 	bool isPVRTC;
     /// This one has a header
     bool isPKM;

@@ -20,7 +20,6 @@
 
 #import "LoadedImage.h"
 #import "GlobeMath.h"
-#import "GlobeLayerViewWatcher.h"
 #import "UIImage+Stuff.h"
 #import "DynamicTextureAtlas.h"
 
@@ -109,7 +108,7 @@ using namespace WhirlyKit;
 
 - (WhirlyKit::Texture *)textureFromRawData:(NSData *)theData width:(int)theWidth height:(int)theHeight
 {
-    Texture *newTex = new Texture("Tile Quad Loader",theData,false);
+    Texture_iOS *newTex = new Texture_iOS("Tile Quad Loader",theData,false);
     newTex->setWidth(theWidth);
     newTex->setHeight(theHeight);
     
@@ -118,7 +117,7 @@ using namespace WhirlyKit;
 
 - (WhirlyKit::Texture *)textureFromPKMData:(NSData *)theData width:(int)theWidth height:(int)theHeight
 {
-    Texture *newTex = new Texture("LoadedTile");
+    Texture_iOS *newTex = new Texture_iOS("LoadedTile");
     newTex->setPKMData(theData);
     newTex->setWidth(theWidth);
     newTex->setHeight(theHeight);
@@ -161,7 +160,7 @@ using namespace WhirlyKit;
         case WKLoadedImagePVRTC4:
             if ([_imageData isKindOfClass:[NSData class]])
             {
-                newTex = new Texture("Tile Quad Loader", (NSData *)_imageData,true);
+                newTex = new Texture_iOS("Tile Quad Loader", (NSData *)_imageData,true);
                 newTex->setWidth(_width);
                 newTex->setHeight(_height);
             }

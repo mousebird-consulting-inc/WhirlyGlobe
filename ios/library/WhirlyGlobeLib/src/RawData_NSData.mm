@@ -32,12 +32,12 @@ RawNSDataReader::~RawNSDataReader()
     data = nil;
 }
     
-const unsigned char *RawNSDataReader::getRawData()
+const unsigned char *RawNSDataReader::getRawData() const
 {
     return (unsigned char *)[data bytes];
 }
 
-unsigned long RawNSDataReader::getLen()
+unsigned long RawNSDataReader::getLen() const
 {
     return [data length];
 }

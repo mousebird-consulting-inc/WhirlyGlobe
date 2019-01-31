@@ -401,6 +401,11 @@
 		2B8796FE22038DF200EF801D /* ParticleSystemLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361E3D21237D320074D06D /* ParticleSystemLayer.mm */; };
 		2B8796FF22038DF200EF801D /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5BB1E82E2490095FB14 /* UpdateDisplayLayer.mm */; };
 		2B87970022038DF200EF801D /* LayoutLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5C51E82E2490095FB14 /* LayoutLayer.mm */; };
+		2B87970122038FB800EF801D /* QuadTileBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361E43212398440074D06D /* QuadTileBuilder.mm */; };
+		2B879702220390AB00EF801D /* LoadedImage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7B84E52122475900D11447 /* LoadedImage.mm */; };
+		2B879703220390B600EF801D /* LoadedTileNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B46FB206C001900570F97 /* LoadedTileNew.mm */; };
+		2B87970522039D6300EF801D /* Texture_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B87970422039D6300EF801D /* Texture_iOS.h */; };
+		2B87970722039D7000EF801D /* Texture_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B87970622039D6F00EF801D /* Texture_iOS.mm */; };
 		2B884A421E3803170027C397 /* arithmeticdecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0A1E3803170027C397 /* arithmeticdecoder.cpp */; };
 		2B884A431E3803170027C397 /* arithmeticdecoder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A0B1E3803170027C397 /* arithmeticdecoder.hpp */; };
 		2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0C1E3803170027C397 /* arithmeticencoder.cpp */; };
@@ -1312,6 +1317,8 @@
 		2B8796B521FFB2A100EF801D /* glwrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glwrapper.cpp; sourceTree = "<group>"; };
 		2B8796DF21FFD59000EF801D /* SceneRendererES_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES_iOS.h; sourceTree = "<group>"; };
 		2B8796E121FFD5B900EF801D /* SceneRendererES_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererES_iOS.mm; sourceTree = "<group>"; };
+		2B87970422039D6300EF801D /* Texture_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture_iOS.h; sourceTree = "<group>"; };
+		2B87970622039D6F00EF801D /* Texture_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Texture_iOS.mm; sourceTree = "<group>"; };
 		2B884A0A1E3803170027C397 /* arithmeticdecoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arithmeticdecoder.cpp; path = ../../../common/local_libs/laszip/src/arithmeticdecoder.cpp; sourceTree = "<group>"; };
 		2B884A0B1E3803170027C397 /* arithmeticdecoder.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = arithmeticdecoder.hpp; path = ../../../common/local_libs/laszip/src/arithmeticdecoder.hpp; sourceTree = "<group>"; };
 		2B884A0C1E3803170027C397 /* arithmeticencoder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arithmeticencoder.cpp; path = ../../../common/local_libs/laszip/src/arithmeticencoder.cpp; sourceTree = "<group>"; };
@@ -2424,6 +2431,7 @@
 		2B82B4CB1E82E2490095FB14 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
+				2B87970422039D6300EF801D /* Texture_iOS.h */,
 				2B8796DF21FFD59000EF801D /* SceneRendererES_iOS.h */,
 				2B82B4C91E82E2490095FB14 /* EAGLView.h */,
 			);
@@ -2503,6 +2511,7 @@
 		2B82B5641E82E2490095FB14 /* rendering */ = {
 			isa = PBXGroup;
 			children = (
+				2B87970622039D6F00EF801D /* Texture_iOS.mm */,
 				2B8796E121FFD5B900EF801D /* SceneRendererES_iOS.mm */,
 				2B8796B521FFB2A100EF801D /* glwrapper.cpp */,
 				2B82B5621E82E2490095FB14 /* EAGLView.mm */,
@@ -2537,8 +2546,8 @@
 				2B82B5C51E82E2490095FB14 /* LayoutLayer.mm */,
 				2B361E43212398440074D06D /* QuadTileBuilder.mm */,
 				2B7B84E52122475900D11447 /* LoadedImage.mm */,
-				2B0387F32069BC3800DD5C40 /* QuadDisplayLayerNew.mm */,
 				2B2B46FB206C001900570F97 /* LoadedTileNew.mm */,
+				2B0387F32069BC3800DD5C40 /* QuadDisplayLayerNew.mm */,
 			);
 			name = "layers & loaders";
 			sourceTree = "<group>";
@@ -3815,6 +3824,7 @@
 				2B446AE121F288090078A975 /* LabelRenderer.h in Headers */,
 				2B8796E021FFD59100EF801D /* SceneRendererES_iOS.h in Headers */,
 				2B884A671E3803170027C397 /* lasreadpoint.hpp in Headers */,
+				2B87970522039D6300EF801D /* Texture_iOS.h in Headers */,
 				2B82B5F81E82E2490095FB14 /* JSONOptions.h in Headers */,
 				2BE538371D249A1200B60FAD /* MaplyActiveObject_private.h in Headers */,
 				2BB8A3DB21ED43C00025DA98 /* ViewPlacementActiveModel.h in Headers */,
@@ -4069,6 +4079,7 @@
 				2B846EEF21F13A1D00EF2A82 /* render.c in Sources */,
 				2BE5399D1D249BEF00B60FAD /* AAIlluminatedFraction.cpp in Sources */,
 				2B82B67D1E82E24A0095FB14 /* PJ_lagrng.c in Sources */,
+				2B879702220390AB00EF801D /* LoadedImage.mm in Sources */,
 				2B82B6571E82E2490095FB14 /* pj_deriv.c in Sources */,
 				2BB8E20321FFAA8F00154CDC /* GLUtils.cpp in Sources */,
 				2BE539B91D249BEF00B60FAD /* AAPrecession.cpp in Sources */,
@@ -4299,6 +4310,7 @@
 				2BE539A71D249BEF00B60FAD /* AAMoonNodes.cpp in Sources */,
 				2B82B6AB1E82E24A0095FB14 /* PJ_rpoly.c in Sources */,
 				2BB8E1F021FF901900154CDC /* BillboardDrawable.cpp in Sources */,
+				2B87970122038FB800EF801D /* QuadTileBuilder.mm in Sources */,
 				2B82B6421E82E2490095FB14 /* PJ_aeqd.c in Sources */,
 				2B846EE321F1372600EF2A82 /* pj_open_lib.c in Sources */,
 				2BB8E1F621FF903100154CDC /* Scene.cpp in Sources */,
@@ -4322,6 +4334,7 @@
 				2BC3D6C722025CAC00CE91D0 /* MaplyAnimateTranslation.cpp in Sources */,
 				2BE5399C1D249BEF00B60FAD /* AAGlobe.cpp in Sources */,
 				2B82B6441E82E2490095FB14 /* PJ_aitoff.c in Sources */,
+				2B87970722039D7000EF801D /* Texture_iOS.mm in Sources */,
 				2B446B1421F79AD00078A975 /* WhirlyGeometry.cpp in Sources */,
 				2B8796CE21FFC59D00EF801D /* Dictinary_NSDictionary.mm in Sources */,
 				2B8796D121FFC59D00EF801D /* NSDictionary+Stuff.m in Sources */,
@@ -4421,6 +4434,7 @@
 				2B82B67A1E82E24A0095FB14 /* PJ_krovak.c in Sources */,
 				2BE53A0A1D249C2900B60FAD /* message.cc in Sources */,
 				2BE53A331D249C3D00B60FAD /* strtod.cc in Sources */,
+				2B879703220390B600EF801D /* LoadedTileNew.mm in Sources */,
 				2B82B6B11E82E24A0095FB14 /* PJ_sts.c in Sources */,
 				2B8796B821FFB35200EF801D /* BillboardManager.cpp in Sources */,
 				2B82B6611E82E24A0095FB14 /* pj_errno.c in Sources */,

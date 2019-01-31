@@ -35,9 +35,9 @@ public:
     ~RawNSDataReader();
     
     // Return a pointer to the raw data we're keeping
-    virtual const unsigned char *getRawData();
+    virtual const unsigned char *getRawData() const;
     // Length of the buffer
-    virtual unsigned long getLen();
+    virtual unsigned long getLen() const;
 
 protected:
     NSData *data;

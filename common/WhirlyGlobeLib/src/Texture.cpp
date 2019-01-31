@@ -209,6 +209,11 @@ RawDataRef ConvertRGBATo8(RawDataRef inData,WKSingleByteSource source)
 
 namespace WhirlyKit
 {
+    
+Texture::Texture()
+: TextureBase(""), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
+{    
+}
 	
 Texture::Texture(const std::string &name)
 	: TextureBase(name), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
@@ -224,55 +229,6 @@ Texture::Texture(const std::string &name,RawDataRef texData,bool isPVRTC)
 Texture::~Texture()
 {
 }
-
-#if 0
-// Set up the texture from a filename
-Texture::Texture(const std::string &name,NSString *baseName,NSString *ext)
-    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
-{	
-	if (![ext compare:@"pvrtc"])
-	{
-		isPVRTC = true;
-
-		// Look for an absolute version or one from the bundle
-		// Only for pvrtc, though		
-		NSString* path = [NSString stringWithFormat:@"%@.%@",baseName,ext];
-		
-		if (![[NSFileManager defaultManager] fileExistsAtPath:path])
-			path = [[NSBundle mainBundle] pathForResource:baseName ofType:ext];
-
-		if (!path)
-			return;
-		texData = [[NSData alloc] initWithContentsOfFile:path];
-		if (!texData)
-			return;
-	} else {
-		// Otherwise load it the normal way
-		UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"%@.%@",baseName,ext]];
-		if (!image)
-        {
-            image = [[UIImage alloc] initWithContentsOfFile:[NSString stringWithFormat:@"%@.%@",baseName,ext]];
-            if (!image)
-                return;
-        }
-		texData = [image rawDataRetWidth:&width height:&height roundUp:true];
-	}
-}
-
-// Construct with a UIImage
-Texture::Texture(const std::string &name,UIImage *inImage,bool roundUp)
-    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
-{
-	texData = [inImage rawDataRetWidth:&width height:&height roundUp:roundUp];
-}
-
-Texture::Texture(const std::string &name,UIImage *inImage,int inWidth,int inHeight)
-    : TextureBase(name), texData(nil), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(GL_UNSIGNED_BYTE), byteSource(WKSingleRGB), interpType(GL_LINEAR), isEmptyTexture(false)
-{
-    texData = [inImage rawDataScaleWidth:inWidth height:inHeight border:0];
-    width = inWidth;  height = inHeight;
-}
-#endif
 
 RawDataRef Texture::processData()
 {
