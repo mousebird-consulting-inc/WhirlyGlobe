@@ -526,12 +526,12 @@
 		2BC3D6AC22024EB300CE91D0 /* MaplyAnimateTranslation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A622024EB300CE91D0 /* MaplyAnimateTranslation.h */; };
 		2BC3D6AD22024EB300CE91D0 /* GlobeAnimateViewMomentum.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A722024EB300CE91D0 /* GlobeAnimateViewMomentum.h */; };
 		2BC3D6AE22024EB300CE91D0 /* GlobeAnimateHeight.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A822024EB300CE91D0 /* GlobeAnimateHeight.h */; };
-		2BC3D6AF22024EB300CE91D0 /* MaplyAnimateFlat.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A922024EB300CE91D0 /* MaplyAnimateFlat.h */; };
 		2BC3D6BF2202537600CE91D0 /* GlobeView_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6BE2202537600CE91D0 /* GlobeView_iOS.h */; };
 		2BC3D6C22202538700CE91D0 /* GlobeView_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6C12202538700CE91D0 /* GlobeView_iOS.mm */; };
 		2BC3D6C4220255E500CE91D0 /* MapView_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6C3220255E500CE91D0 /* MapView_iOS.h */; };
 		2BC3D6C6220255EA00CE91D0 /* MapView_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6C5220255EA00CE91D0 /* MapView_iOS.mm */; };
 		2BC3D6C722025CAC00CE91D0 /* MaplyAnimateTranslation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6B422024ECE00CE91D0 /* MaplyAnimateTranslation.cpp */; };
+		2BC3D6C8220278BB00CE91D0 /* MaplyAnimateTranslateMomentum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6B322024ECE00CE91D0 /* MaplyAnimateTranslateMomentum.cpp */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -1445,10 +1445,8 @@
 		2BC3D6A622024EB300CE91D0 /* MaplyAnimateTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyAnimateTranslation.h; path = ../../../../common/WhirlyGlobeLib/include/MaplyAnimateTranslation.h; sourceTree = "<group>"; };
 		2BC3D6A722024EB300CE91D0 /* GlobeAnimateViewMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlobeAnimateViewMomentum.h; path = ../../../../common/WhirlyGlobeLib/include/GlobeAnimateViewMomentum.h; sourceTree = "<group>"; };
 		2BC3D6A822024EB300CE91D0 /* GlobeAnimateHeight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlobeAnimateHeight.h; path = ../../../../common/WhirlyGlobeLib/include/GlobeAnimateHeight.h; sourceTree = "<group>"; };
-		2BC3D6A922024EB300CE91D0 /* MaplyAnimateFlat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyAnimateFlat.h; path = ../../../../common/WhirlyGlobeLib/include/MaplyAnimateFlat.h; sourceTree = "<group>"; };
 		2BC3D6B022024ECE00CE91D0 /* GlobeAnimateHeight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeAnimateHeight.cpp; path = ../../../../common/WhirlyGlobeLib/src/GlobeAnimateHeight.cpp; sourceTree = "<group>"; };
 		2BC3D6B122024ECE00CE91D0 /* GlobeAnimateRotation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeAnimateRotation.cpp; path = ../../../../common/WhirlyGlobeLib/src/GlobeAnimateRotation.cpp; sourceTree = "<group>"; };
-		2BC3D6B222024ECE00CE91D0 /* MaplyAnimateFlat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyAnimateFlat.cpp; path = ../../../../common/WhirlyGlobeLib/src/MaplyAnimateFlat.cpp; sourceTree = "<group>"; };
 		2BC3D6B322024ECE00CE91D0 /* MaplyAnimateTranslateMomentum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyAnimateTranslateMomentum.cpp; path = ../../../../common/WhirlyGlobeLib/src/MaplyAnimateTranslateMomentum.cpp; sourceTree = "<group>"; };
 		2BC3D6B422024ECE00CE91D0 /* MaplyAnimateTranslation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyAnimateTranslation.cpp; path = ../../../../common/WhirlyGlobeLib/src/MaplyAnimateTranslation.cpp; sourceTree = "<group>"; };
 		2BC3D6B522024ECE00CE91D0 /* GlobeAnimateViewMomentum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeAnimateViewMomentum.cpp; path = ../../../../common/WhirlyGlobeLib/src/GlobeAnimateViewMomentum.cpp; sourceTree = "<group>"; };
@@ -1883,7 +1881,6 @@
 				2BC3D6A822024EB300CE91D0 /* GlobeAnimateHeight.h */,
 				2BC3D6A522024EB300CE91D0 /* GlobeAnimateRotation.h */,
 				2BC3D6A722024EB300CE91D0 /* GlobeAnimateViewMomentum.h */,
-				2BC3D6A922024EB300CE91D0 /* MaplyAnimateFlat.h */,
 				2BC3D6A422024EB200CE91D0 /* MaplyAnimateTranslateMomentum.h */,
 				2BC3D6A622024EB300CE91D0 /* MaplyAnimateTranslation.h */,
 				2B23131321F8DD60006AA344 /* GlobeView.h */,
@@ -1910,7 +1907,6 @@
 				2B23132521F8DD7E006AA344 /* MaplyViewState.cpp */,
 				2BC3D6B422024ECE00CE91D0 /* MaplyAnimateTranslation.cpp */,
 				2BC3D6B322024ECE00CE91D0 /* MaplyAnimateTranslateMomentum.cpp */,
-				2BC3D6B222024ECE00CE91D0 /* MaplyAnimateFlat.cpp */,
 				2BB8E1BA21FBCCD200154CDC /* ViewState.cpp */,
 				2B23132021F8DD7E006AA344 /* WhirlyKitView.cpp */,
 			);
@@ -3816,7 +3812,6 @@
 				2B446B8321FB97C40078A975 /* ShapeReader.h in Headers */,
 				2B446B4E21F7E7B80078A975 /* Drawable.h in Headers */,
 				2BE538071D249A1200B60FAD /* MaplyCoordinateSystem.h in Headers */,
-				2BC3D6AF22024EB300CE91D0 /* MaplyAnimateFlat.h in Headers */,
 				2BE539711D249BEF00B60FAD /* AANearParabolic.h in Headers */,
 				2B361E3C21237D1E0074D06D /* ParticleSystemLayer.h in Headers */,
 				2BE5382E1D249A1200B60FAD /* MaplyVectorObject.h in Headers */,
@@ -4244,6 +4239,7 @@
 				2B82B6121E82E2490095FB14 /* JSONPreparse.cpp in Sources */,
 				2B846EE721F137D300EF2A82 /* emess.c in Sources */,
 				2B884A581E3803170027C397 /* lasindex.cpp in Sources */,
+				2BC3D6C8220278BB00CE91D0 /* MaplyAnimateTranslateMomentum.cpp in Sources */,
 				2B82B6A91E82E24A0095FB14 /* pj_release.c in Sources */,
 				2BE53A081D249C2900B60FAD /* generated_message_util.cc in Sources */,
 				2B884A611E3803170027C397 /* lasreaditemcompressed_v1.cpp in Sources */,

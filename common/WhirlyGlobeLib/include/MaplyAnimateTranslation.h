@@ -27,7 +27,7 @@
 namespace Maply {
 
 // Bounds check that adjusts the center to try and compensate
-    bool MaplyGestureWithinBounds(const WhirlyKit::Point2dVector &bounds,const WhirlyKit::Point3d &loc,WhirlyKit::SceneRendererES *sceneRender,WhirlyKit::Point3d *newCenter);
+bool MaplyGestureWithinBounds(const WhirlyKit::Point2dVector &bounds,const WhirlyKit::Point3d &loc,WhirlyKit::SceneRendererES *sceneRender,MapView *testMapView,WhirlyKit::Point3d *newCenter);
 
 /// Maply translation from one location to another.
 class AnimateViewTranslation : public MapViewAnimationDelegate

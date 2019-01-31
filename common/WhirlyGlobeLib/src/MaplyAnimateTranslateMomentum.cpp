@@ -20,65 +20,49 @@
 
 #import "MaplyAnimateTranslation.h"
 #import "MaplyAnimateTranslateMomentum.h"
-#import "MaplyPanDelegate.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
-@implementation MaplyAnimateTranslateMomentum
-{
-    MaplyView *mapView;
-    UIView *glView;
-    SceneRendererES * __weak sceneRenderer;
+namespace Maply {
 
-    float velocity,acceleration;
-    Eigen::Vector3d dir;
-    float maxTime;
-    CFTimeInterval startDate;
-    WhirlyKit::Point3d org;
-    std::vector<WhirlyKit::Point2d> bounds;
-}
-
-- (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(Vector3f)inDir bounds:(std::vector<WhirlyKit::Point2d> &)inBounds view:(UIView *)inView renderer:(SceneRendererES *)inSceneRenderer
+AnimateTranslateMomentum::AnimateTranslateMomentum(MapView *inMapView,
+                         float inVel,float inAcc,const WhirlyKit::Point3f &inDir,
+                         const Point2dVector &inBounds,
+                         SceneRendererES *inSceneRenderer)
 {
-    if ((self = [super init]))
+    velocity = inVel;
+    acceleration = inAcc;
+    dir = Vector3fToVector3d(inDir.normalized());
+    startDate = TimeGetCurrent();
+    mapView = inMapView;
+    org = mapView->getLoc();
+    renderer = inSceneRenderer;
+    userMotion = true;
+        
+    // Let's calculate the maximum time, so we know when to stop
+    if (acceleration != 0.0)
     {
-        velocity = inVel;
-        acceleration = inAcc;
-        dir = Vector3fToVector3d(inDir.normalized());
-        startDate = TimeGetCurrent();
-        mapView = inMapView;
-        org = mapView.loc;
-        glView = inView;
-        sceneRenderer = inSceneRenderer;
-        _userMotion = true;
-        
-        // Let's calculate the maximum time, so we know when to stop
+        maxTime = 0.0;
         if (acceleration != 0.0)
-        {
-            maxTime = 0.0;
-            if (acceleration != 0.0)
-                maxTime = -velocity / acceleration;
-            maxTime = std::max(0.f,maxTime);
-            
-            if (maxTime == 0.0)
-                startDate = 0;
-        } else
-            maxTime = MAXFLOAT;
+            maxTime = -velocity / acceleration;
+        maxTime = std::max(0.f,maxTime);
         
-        bounds = inBounds;
-    }
+        if (maxTime == 0.0)
+            startDate = 0;
+    } else
+        maxTime = MAXFLOAT;
     
-    return self;
+    bounds = inBounds;
 }
 
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
+bool AnimateTranslateMomentum::withinBounds(const Point3d &loc,MapView *testMapView,Point3d *newCenter)
 {
-    return MaplyGestureWithinBounds(bounds,loc,view,sceneRender,testMapView,newCenter);
+    return MaplyGestureWithinBounds(bounds,loc,renderer,testMapView,newCenter);
 }
 
 // Called by the view when it's time to update
-- (void)updateView:(MaplyView *)theMapView
+void AnimateTranslateMomentum::updateView(MapView *mapView)
 {
     if (startDate == 0.0)
         return;
@@ -90,28 +74,26 @@ using namespace WhirlyKit;
         // This will snap us to the end and then we stop
         sinceStart = maxTime;
         startDate = 0;
-        [mapView cancelAnimation];
+        mapView->cancelAnimation();
     }
     
     // Calculate the distance
-    Point3d oldLoc = mapView.loc;
     double dist = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
     Point3d newLoc = org + dir * dist;
-    [theMapView setLoc:newLoc runUpdates:false];
+    mapView->setLoc(newLoc,false);
     
     Point3d newCenter;
     
-    MaplyView *testMapView = [[MaplyView alloc] initWithView:theMapView];
+    MapView testMapView(*mapView);
 
     // We'll do a hard stop if we're not within the bounds
     // Note: We're trying this location out, then backing off if it failed.
-    if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
+    if (withinBounds(newLoc, &testMapView, &newCenter))
     {
-        [theMapView setLoc:newCenter runUpdates:true];
+        mapView->setLoc(newCenter,true);
     } else {
         startDate = 0.0;
     }
 }
-
-
-@end
+    
+}

@@ -18,21 +18,46 @@
  *
  */
 
-#import <Foundation/Foundation.h>
+#import "WhirlyTypes.h"
+#import "WhirlyVector.h"
+#import "WhirlyGeometry.h"
 #import "MaplyView.h"
 #import "SceneRendererES.h"
+
+namespace Maply {
 
 /** Animate Translate Momentum is a Maply animation delegate
     that will animate from a starting point forward in time with
     an acceleration.  We use this to simulate momentum.  Giving it
     a negative acceleration will slow it down.
   */
-@interface MaplyAnimateTranslateMomentum : NSObject<MaplyAnimationDelegate>
+class AnimateTranslateMomentum : public MapViewAnimationDelegate
+{
+public:
+    /// Initialize with a velocity and negative acceleration (to slow down)
+    AnimateTranslateMomentum(MapView *inMapView,
+                             float inVel,float inAcc,const WhirlyKit::Point3f &inDir,
+                             const WhirlyKit::Point2dVector &inBounds,
+                             WhirlyKit::SceneRendererES *inSceneRenderer);
 
-/// Set if a user kicked this off (true by default)
-@property (nonatomic) bool userMotion;
+    /// Update the map view
+    virtual void updateView(MapView *mapView);
 
-/// Initialize with a velocity and negative acceleration (to slow down)
-- (id)initWithView:(MaplyView *)inMapView velocity:(float)inVel accel:(float)inAcc dir:(WhirlyKit::Point3f)inDir bounds:(std::vector<WhirlyKit::Point2d> &)inBounds view:(UIView *)inView renderer:(SceneRendererES *)inSceneRenderer;
+    /// Set if a user kicked this off (true by default)
+    bool userMotion;
+    
+protected:
+    bool withinBounds(const WhirlyKit::Point3d &loc,MapView * testMapView,WhirlyKit::Point3d *newCenter);
 
-@end
+    MapView *mapView;
+    WhirlyKit::SceneRendererES *renderer;
+    
+    float velocity,acceleration;
+    Eigen::Vector3d dir;
+    float maxTime;
+    WhirlyKit::TimeInterval startDate;
+    WhirlyKit::Point3d org;
+    WhirlyKit::Point2dVector bounds;
+};
+
+}
