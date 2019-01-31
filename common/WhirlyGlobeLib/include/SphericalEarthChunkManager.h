@@ -35,7 +35,6 @@ class SphericalChunkInfo : public BaseInfo
 {
 public:
     RGBAColor color;
-    bool readZBuffer,writeZBuffer;
     bool doEdgeMatching;
     std::vector<SimpleIdentity> texIDs;
 };

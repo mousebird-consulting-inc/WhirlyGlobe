@@ -167,7 +167,9 @@
 /// The projection to use when generating texture coordinates
 #define MaplyVecTextureProjection WKString("texprojection")
 /// Tangent plane projection for texture coordinates
-#define MaplyProjectionTangentPlane WKString("texprojectiontanplane")
+#define MaplyVecProjectionTangentPlane WKString("texprojectiontanplane")
+/// Screen projection for texture coordinates
+#define MaplyVecProjectionScreen WKString("texprojectionscreen")
 
 /// Center of the feature, to use for texture calculations
 #define MaplyVecCenterX WKString("veccenterx")

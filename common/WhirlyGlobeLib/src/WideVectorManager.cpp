@@ -21,16 +21,35 @@
 #import "WideVectorManager.h"
 #import "FlatMath.h"
 #import "WhirlyKitLog.h"
+#import "SharedAttributes.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
 
 namespace WhirlyKit
 {
-WideVectorInfo::WideVectorInfo()
-    : BaseInfo(), color(255,255,255,255),width(2.0),repeatSize(32),edgeSize(1.0),coordType(WideVecCoordScreen),joinType(WideVecMiterJoin),
-    capType(WideVecButtCap),texID(EmptyIdentity),miterLimit(2.0)
+WideVectorInfo::WideVectorInfo(const Dictionary &dict)
+    : BaseInfo(dict)
 {
+    color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
+    width = dict.getDouble(MaplyVecWidth,2.0);
+    std::string coordTypeStr = dict.getString(MaplyWideVecCoordType);
+    coordType = WideVecCoordScreen;
+    if (!coordTypeStr.compare(MaplyWideVecCoordTypeReal))
+        coordType = WideVecCoordReal;
+    else if (!coordTypeStr.compare(MaplyWideVecCoordTypeScreen))
+        coordType = WideVecCoordScreen;
+    joinType = WideVecMiterJoin;
+    std::string jointTypeStr = dict.getString(MaplyWideVecJoinType);
+    capType = WideVecButtCap;
+    // Note: Not supporting this right now
+    //    _joinType = (WhirlyKit::WideVectorLineJoinType)[desc enumForKey:@"wideveclinejointype" values:@[@"miter",@"round",@"bevel"] default:WideVecMiterJoin];
+    //    std::String capTypeStr = dict.getString(MaplyWideVecCapType);
+    //    _capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
+    texID = dict.getInt(MaplyVecTexture,EmptyIdentity);
+    repeatSize = dict.getDouble(MaplyWideVecTexRepeatLen,32);
+    edgeSize = dict.getDouble(MaplyWideVecEdgeFalloff,1.0);
+    miterLimit = dict.getDouble(MaplyWideVecMiterLimit,2.0);
 }
 
 // Turn this on for smaller texture lengths

@@ -32,11 +32,33 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
-    
-VectorInfo::VectorInfo()
-: BaseInfo(),     filled(false), sample(0.0), texId(EmptyIdentity), texScale(1.0,1.0), subdivEps(1.0), gridSubdiv(false),
-texProj(TextureProjectionNone), color(255,255,255,255), lineWidth(1.0)
-{    
+
+VectorInfo::VectorInfo(const Dictionary &dict)
+: BaseInfo(dict)
+{
+    filled = dict.getBool(MaplyFilled,false);
+    sample = dict.getBool("sample",false);
+    texId = dict.getInt(MaplyVecTexture,EmptyIdentity);
+    texScale.x() = dict.getDouble(MaplyVecTexScaleX,1.0);
+    texScale.y() = dict.getDouble(MaplyVecTexScaleY,1.0);
+    subdivEps = dict.getDouble(MaplySubdivEpsilon,0.0);
+    std::string subdivType = dict.getString(MaplySubdivType);
+    gridSubdiv = !subdivType.compare(MaplySubdivGrid);
+    texProj = TextureProjectionNone;
+    std::string texProjStr = dict.getString(MaplyVecTextureProjection,"");
+    if (!texProjStr.compare(MaplyVecProjectionTangentPlane))
+        texProj = TextureProjectionTanPlane;
+    else if (!texProjStr.compare(MaplyVecProjectionScreen))
+        texProj = TextureProjectionScreen;
+    color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
+    lineWidth = dict.getDouble(MaplyVecWidth,1.0);
+    centered = dict.getBool(MaplyVecCentered,true);
+    if (dict.hasField(MaplyVecCenterX) && dict.hasField(MaplyVecCenterY))
+    {
+        vecCenterSet = true;
+        vecCenter.x() = dict.getDouble(MaplyVecCenterX);
+        vecCenter.x() = dict.getDouble(MaplyVecCenterY);
+    }
 }
     
 // Really Android?  Really?
