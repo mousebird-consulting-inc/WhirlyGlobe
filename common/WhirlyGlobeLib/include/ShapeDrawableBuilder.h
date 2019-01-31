@@ -34,17 +34,13 @@ class ShapeInfo : public BaseInfo
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    ShapeInfo();
-    ~ShapeInfo();
+    ShapeInfo(const Dictionary &);
 
     void setColor(RGBAColor value) { color = value; }
     RGBAColor getColor() { return color; }
 
     void setLineWidth(float value) { lineWidth = value; }
     float getLineWidth() { return lineWidth; }
-
-    void setShapeId(WhirlyKit::SimpleIdentity value) { shapeId = value; }
-    WhirlyKit::SimpleIdentity getShapeId() { return shapeId; }
 
     void setInsideOut(bool value) { insideOut = value; }
     bool getInsideOut() { return insideOut; }
@@ -67,16 +63,11 @@ public:
 public:
     RGBAColor color;
     float lineWidth;
-    SimpleIdentity shapeId;
     bool insideOut;
-    bool zBufferRead;
-    bool zBufferWrite;
     bool hasCenter;
     WhirlyKit::Point3d center;
     SimpleIdentity renderTargetID;
 };
-
-
 
 /** This drawable builder is associated with the shape layer.  It's
     exposed so it can be used by the active model version as well.

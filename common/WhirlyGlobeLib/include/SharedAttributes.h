@@ -109,8 +109,20 @@
 /// Justification for label placement.  This takes an NSString with one of:
 ///  middle, left, right
 #define MaplyLabelJustify WKString("justify")
+/// Justify label in the middle
+#define MaplyLabelJustifyMiddle WKString("middle")
+/// Justify label to the left
+#define MaplyLabelJustifyLeft WKString("left")
+/// Justify label to the right
+#define MaplyLabelJustifyRight WKString("right")
 /// Text justification within multi-line strings
 #define MaplyTextJustify WKString("textjustify")
+/// Justify text to the center
+#define MaplyTextJustifyCenter WKString("center")
+/// Justify text to the left
+#define MaplyTextJustifyLeft WKString("left")
+/// Justify text to the right
+#define MaplyTextJustifyRight WKString("right")
 /// If set, we'll draw a shadow behind each label with this as the stroke size
 #define MaplyShadowSize WKString("shadowSize")
 /// If shadow size is being used, we can control the shadow color like so
@@ -119,8 +131,14 @@
 #define MaplyTextOutlineSize WKString("outlineSize")
 /// If outline is being used, we can control the stroke size
 #define MaplyTextOutlineColor WKString("outlineColor")
+/// If set, we'll use layout logic.  You can just set layoutImportance instead.
+#define MaplyLayout WKString("layout")
 /// If set, the importance passed to the layout engine
 #define MaplyLayoutImportance WKString("layoutImportance")
+/// If set, we'll pass a bit field on to the layout placement rules
+#define MaplyLayoutPlacement WKString("layoutPlacement")
+/// Custom line height for multi-line text
+#define MaplyTextLineHeight WKString("lineHeight")
 
 /// These are used for screen and regular markers.
 #define MaplyClusterGroup WKString("clusterGroup")
@@ -260,6 +278,17 @@
 #define MaplyGeomBoundingBoxTriangle WKString("triangle")
 /// No bounding box for geometry
 #define MaplyGeomBoundingBoxNone WKString("none")
+
+/// These are used by Shapes
+
+/// Turn the shape inside out (used for spheres and atmosphere)
+#define MaplyShapeInsideOut WKString("shapeinsideout")
+#define MaplyShapeCenterX WKString("shapecenterx")
+#define MaplyShapeCenterY WKString("shapecentery")
+#define MaplyShapeCenterZ WKString("shapecenterz")
+
+/// Used to designate a non-default render target by ID
+#define MaplyRenderTargetDesc WKString("rendertarget")
 
 /// These are the various shader programs we set up by default
 #define MaplyShaderDefaultTri WKString("Default Triangle;lighting=yes")

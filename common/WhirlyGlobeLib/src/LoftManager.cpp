@@ -45,9 +45,8 @@ LoftedPolyInfo::LoftedPolyInfo(const Dictionary &dict)
     outlineDrawPriority = dict.getInt(MaplyLoftedPolyOutlineDrawPriority,drawPriority+1);
     outlineSide = dict.getBool(MaplyLoftedPolyOutlineSide,false);
     outlineBottom = dict.getBool(MaplyLoftedPolyOutlineBottom,false);
-    readZBuffer = dict.getBool(MaplyZBufferRead,true);
-    writeZBuffer = dict.getBool(MaplyZBufferWrite,true);
     centered = dict.getBool(MaplyVecCentered,false);
+    hasCenter = false;
     if (centered) {
         hasCenter = dict.hasField(MaplyVecCenterX) && dict.hasField(MaplyVecCenterY);
         center.x() = dict.getDouble(MaplyVecCenterX,0.0);
@@ -100,8 +99,8 @@ public:
                 polyInfo->setupBasicDrawable(drawable);
             if (primType == GL_LINES)
                 drawable->setLineWidth(polyInfo->outlineWidth);
-            drawable->setRequestZBuffer(polyInfo->readZBuffer);
-            drawable->setWriteZBuffer(polyInfo->writeZBuffer);
+            drawable->setRequestZBuffer(polyInfo->zBufferRead);
+            drawable->setWriteZBuffer(polyInfo->zBufferWrite);
         }
     }
     

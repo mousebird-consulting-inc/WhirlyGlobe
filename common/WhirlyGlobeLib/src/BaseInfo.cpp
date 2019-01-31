@@ -32,7 +32,7 @@ namespace WhirlyKit
 BaseInfo::BaseInfo()
     : minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisBand(DrawVisibleInvalid), maxVisBand(DrawVisibleInvalid),
     minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid), viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid), fade(0.0), fadeIn(0.0), fadeOut(0.0), fadeOutTime(0.0), drawPriority(0), drawOffset(0.0),
-    enable(true), startEnable(0.0), endEnable(0.0), programID(EmptyIdentity)
+    enable(true), startEnable(0.0), endEnable(0.0), programID(EmptyIdentity), zBufferRead(false), zBufferWrite(false)
 {
 }
     
@@ -61,7 +61,10 @@ BaseInfo::BaseInfo(const Dictionary &dict)
     endEnable = dict.getDouble(MaplyEnableEnd,0.0);
     SimpleIdentity shaderID = dict.getInt(MaplyShaderString,EmptyIdentity);
     programID = dict.getInt("program",shaderID);
-    
+    zBufferRead = dict.getBool(MaplyZBufferRead,false);
+    zBufferWrite = dict.getBool(MaplyZBufferWrite, false);
+    renderTargetID = dict.getInt(MaplyRenderTargetDesc,EmptyIdentity);
+
     // Note: Porting
     // Uniforms to be passed to shader
 #if 0

@@ -23,6 +23,7 @@
 #import "ShapeDrawableBuilder.h"
 #import "Tesselator.h"
 #import "Scene.h"
+#import "SharedAttributes.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -33,17 +34,22 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
 
-ShapeInfo::ShapeInfo()
-    : color(255,255,255,255), lineWidth(1.0), shapeId(EmptyIdentity), insideOut(false),
-    zBufferRead(true), zBufferWrite(true), hasCenter(false), center(0.0,0.0,0.0)
+ShapeInfo::ShapeInfo(const Dictionary &dict)
+    : BaseInfo(dict)
 {
-    shapeId = Identifiable::genId();
+    color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
+    lineWidth = dict.getDouble(MaplyVecWidth,1.0);
+    insideOut = dict.getBool(MaplyShapeInsideOut,false);
+    hasCenter = false;
+    center = Point3d(0.0,0.0,0.0);
+    if (dict.hasField(MaplyShapeCenterX) || dict.hasField(MaplyShapeCenterY) || dict.hasField(MaplyShapeCenterZ))
+    {
+        hasCenter = true;
+        center.x() = dict.getDouble(MaplyShapeCenterX, center.x());
+        center.y() = dict.getDouble(MaplyShapeCenterY, center.y());
+        center.z() = dict.getDouble(MaplyShapeCenterZ, center.z());
+    }
 }
-
-ShapeInfo::~ShapeInfo()
-{
-}
-
 
 ShapeDrawableBuilder::ShapeDrawableBuilder(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo, bool linesOrPoints, const Point3d &center)
     : coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center)

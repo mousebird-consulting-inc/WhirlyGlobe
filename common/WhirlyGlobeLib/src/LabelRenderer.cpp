@@ -31,6 +31,47 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
+    
+LabelInfo::LabelInfo(const Dictionary &dict)
+{
+    textColor = dict.getColor(MaplyTextColor, RGBAColor(255,255,255,255));
+    backColor = dict.getColor(MaplyBackgroundColor, RGBAColor(0,0,0,0));
+    // Note: Get font support working. Unique IDs?
+    //    self.font = [desc objectForKey:@"font" checkType:[UIFont class] default:[UIFont systemFontOfSize:32.0]];
+    screenObject = dict.getBool("screen",false);
+    layoutEngine = dict.getBool(MaplyLayout,false);
+    layoutImportance = dict.getDouble(MaplyLayoutImportance,0.0);
+    layoutPlacement = dict.getInt(MaplyLayoutPlacement,-1);
+    width = dict.getDouble(MaplyLabelWidth,0.0);
+    height = dict.getDouble(MaplyLabelHeight,screenObject ? 16.0 : 0.001);
+    std::string labelJustifyStr = dict.getString(MaplyLabelJustify);
+    std::string textJustifyStr = dict.getString(MaplyTextJustify);
+    shadowColor = dict.getColor(MaplyShadowColor, RGBAColor(0,0,0,255));
+    shadowSize = dict.getDouble(MaplyShadowSize, 0.0);
+    outlineSize = dict.getDouble(MaplyTextOutlineSize,0.0);
+    outlineColor = dict.getColor(MaplyShadowColor, RGBAColor(0,0,0,255));
+    if (!labelJustifyStr.compare(MaplyLabelJustifyMiddle))
+        labelJustify = WhirlyKitLabelMiddle;
+    else {
+        if (!labelJustifyStr.compare(MaplyLabelJustifyLeft))
+            labelJustify = WhirlyKitLabelLeft;
+        else {
+            if (!labelJustifyStr.compare(MaplyLabelJustifyRight))
+                labelJustify = WhirlyKitLabelRight;
+        }
+    }
+    if (!textJustifyStr.compare(MaplyTextJustifyCenter))
+        textJustify = WhirlyKitTextCenter;
+    else {
+        if (!textJustifyStr.compare(MaplyTextJustifyLeft))
+            textJustify = WhirlyKitTextLeft;
+        else {
+            if (!textJustifyStr.compare(MaplyTextJustifyRight))
+                textJustify = WhirlyKitTextRight;
+        }
+    }
+    lineHeight = dict.getDouble(MaplyTextLineHeight,0.0);
+}
 
 LabelSceneRep::LabelSceneRep()
 {

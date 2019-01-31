@@ -22,6 +22,7 @@
 #import "SelectionManager.h"
 #import "BaseInfo.h"
 #import "BasicDrawableInstance.h"
+#import "SharedAttributes.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -30,8 +31,25 @@ namespace WhirlyKit
 {
 
 GeometryInfo::GeometryInfo()
-: color(255,255,255,255), boundingBox(GeometryBBoxSingle), pointSize(4.0), zBufferRead(true), zBufferWrite(true)
+: color(255,255,255,255), boundingBox(GeometryBBoxSingle), pointSize(4.0)
 {
+}
+    
+GeometryInfo::GeometryInfo(const Dictionary &dict)
+    : BaseInfo(dict)
+{
+    colorOverride = dict.hasField(MaplyColor);
+    color = dict.getColor(MaplyColor, RGBAColor(255,255,255,255));
+    std::string bboxVal = dict.getString(MaplyGeomBoundingBox,"");
+    if (bboxVal == MaplyGeomBoundingBoxSingle)
+    {
+        boundingBox = GeometryBBoxSingle;
+    } else if (bboxVal == MaplyGeomBoundingBoxTriangle) {
+        boundingBox = GeometryBBoxTriangle;
+    } else {
+        boundingBox = GeometryBBoxNone;
+    }
+    pointSize = dict.getDouble(MaplyGeomPointSize);
 }
 
 void GeomSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &changes,TimeInterval when)

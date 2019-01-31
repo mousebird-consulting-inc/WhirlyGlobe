@@ -21,12 +21,25 @@
 #import "MarkerManager.h"
 #import "LayoutManager.h"
 #import "ScreenSpaceBuilder.h"
+#import "SharedAttributes.h"
+#import "CoordSystem.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
+    
+MarkerInfo::MarkerInfo(const Dictionary &dict)
+: BaseInfo(dict)
+{
+    color = dict.getColor(MaplyColor, RGBAColor(255,255,255,255));
+    screenObject = dict.getBool("screen",false);
+    width = dict.getDouble(MaplyLabelWidth,(screenObject ? 16.0 : 0.001));
+    height = dict.getDouble(MaplyLabelHeight,(screenObject ? 16.0 : 0.001));
+    layoutImportance = dict.getDouble(MaplyLayoutImportance,MAXFLOAT);
+    clusterGroup = dict.getInt(MaplyClusterGroup,-1);
+}
     
 MarkerSceneRep::MarkerSceneRep()
     : useLayout(false)
@@ -95,15 +108,13 @@ typedef std::map<SimpleIDSet,BasicDrawable *> DrawableMap;
 
 SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,const MarkerInfo &markerInfo,ChangeSet &changes)
 {
-
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     TimeInterval curTime = TimeGetCurrent();
-    
+
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     MarkerSceneRep *markerRep = new MarkerSceneRep();
     markerRep->fadeOut = markerInfo.fadeOut;
-    markerRep->setId(markerInfo.markerId);
     
     // For static markers, sort by texture
     DrawableMap drawables;
@@ -363,11 +374,12 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
     for (unsigned int ii=0;ii<layoutObjects.size();ii++)
         delete layoutObjects[ii];
     
+    SimpleIdentity markerID = markerRep->getId();
     pthread_mutex_lock(&markerLock);
     markerReps.insert(markerRep);
     pthread_mutex_unlock(&markerLock);
     
-    return markerInfo.markerId;
+    return markerID;
 }
 
 void MarkerManager::enableMarkers(SimpleIDSet &markerIDs,bool enable,ChangeSet &changes)

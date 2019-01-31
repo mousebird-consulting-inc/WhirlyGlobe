@@ -36,13 +36,12 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     GeometryInfo();
+    GeometryInfo(const Dictionary &);
 
     bool colorOverride;
     RGBAColor color;
     int boundingBox;
     float pointSize;
-    bool zBufferRead;
-    bool zBufferWrite;
 };
     
 /** The geometry scene representation keeps track of drawables and other

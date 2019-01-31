@@ -88,7 +88,6 @@ public:
     ~BillboardInfo(){};
     
     RGBAColor color;
-    bool zBufferRead, zBufferWrite;
 };
 
 

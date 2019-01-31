@@ -43,14 +43,12 @@ public:
     
     float       height;
     float       base;
-    int         outlineDrawPriority;
     bool        top,side;
     bool        layered;
     bool        outline,outlineSide,outlineBottom;
+    int         outlineDrawPriority;
     RGBAColor   color,outlineColor;
     float       outlineWidth;
-    bool        readZBuffer;
-    bool        writeZBuffer;
     bool        centered;
     bool        hasCenter;
     Point2d     center;

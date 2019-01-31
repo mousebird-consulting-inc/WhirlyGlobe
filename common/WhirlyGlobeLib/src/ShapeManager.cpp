@@ -259,7 +259,7 @@ SimpleIdentity ShapeManager::addShapes(std::vector<Shape*> shapes, ShapeInfo *sh
 {
     SelectionManager *selectManager = (SelectionManager *)getScene()->getManager(kWKSelectionManager);
 
-    ShapeSceneRep *sceneRep = new ShapeSceneRep(shapeInfo->getShapeId());
+    ShapeSceneRep *sceneRep = new ShapeSceneRep();
     sceneRep->fade = shapeInfo->fade;
 
     // Figure out a good center
@@ -290,11 +290,12 @@ SimpleIdentity ShapeManager::addShapes(std::vector<Shape*> shapes, ShapeInfo *sh
     drawBuildTri.flush();
     drawBuildTri.getChanges(changes, sceneRep->drawIDs);
 
+    SimpleIdentity shapeID = sceneRep->getId();
     pthread_mutex_lock(&shapeLock);
     shapeReps.insert(sceneRep);
     pthread_mutex_unlock(&shapeLock);
 
-    return shapeInfo->getShapeId();
+    return shapeID;
 }
 
 void ShapeManager::enableShapes(SimpleIDSet &shapeIDs,bool enable,ChangeSet &changes)

@@ -65,6 +65,8 @@ public:
     TimeInterval fadeOutTime;
     TimeInterval startEnable,endEnable;
     SimpleIdentity programID;
+    bool zBufferRead,zBufferWrite;
+    SimpleIdentity renderTargetID;
     
     SingleVertexAttributeSet uniforms;
 };
