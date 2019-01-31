@@ -20,7 +20,6 @@
 
 #import <map>
 #import "LayoutLayer.h"
-#import "GlobeLayerViewWatcher.h"
 #import "GlobeMath.h"
 
 using namespace Eigen;
@@ -40,9 +39,8 @@ namespace WhirlyKit
     // Set if we haven't moved for a while
     bool stopped;
     // Last view state we've seen
-    ViewState *viewState;
+    ViewStateRef viewState;
     // Used for sizing info
-    SceneRendererES * __weak renderer;
     TimeInterval lastUpdate;
 }
 
@@ -51,7 +49,6 @@ namespace WhirlyKit
     self = [super init];
     if (!self)
         return nil;
-    renderer = inRenderer;
     _maxDisplayObjects = 0;
     lastUpdate = 0.0;
     
@@ -86,12 +83,12 @@ static const float DelayPeriod = 0.2;
 static const float MaxDelay = 1.0;
 
 // We're getting called for absolutely every update here
-- (void)viewUpdate:(ViewState *)inViewState
+- (void)viewUpdate:(ViewStateRef)inViewState
 {
     if (!scene)
         return;
     
-    if (viewState && [viewState isKindOfClass:[ViewState class]] && [inViewState isSameAs:viewState])
+    if (viewState && inViewState->isSameAs(viewState.get()))
         return;
     viewState = inViewState;
     

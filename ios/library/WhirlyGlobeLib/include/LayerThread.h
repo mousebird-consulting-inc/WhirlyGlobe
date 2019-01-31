@@ -23,7 +23,7 @@
 #import "Scene.h"
 #import "DataLayer.h"
 #import "LayerViewWatcher.h"
-#import "SceneRendererES.h"
+#import "SceneRendererES_iOS.h"
 
 /** The Layer Thread manages the objects that put data into a scene
     and take it out later.  These objects also handle the interaction
@@ -41,7 +41,7 @@
 /// Our own EAGLContext, connected by a share group to the main one
 @property (nonatomic,readonly) EAGLContext *glContext;
 /// The renderer we're working with
-@property (nonatomic,weak) SceneRendererES *renderer;
+@property (nonatomic) WhirlyKit::SceneRendererES_iOS *renderer;
 /// Turn this off to disable flushes to GL on the layer thread.
 /// The only reason to do this is going to background.  This is a temporary fix
 @property (nonatomic,assign) bool allowFlush;
@@ -49,7 +49,7 @@
 @property (nonatomic,assign) bool mainLayerThread;
 
 /// Set up with a scene and a view
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(View *)inView renderer:(SceneRendererES *)renderer mainLayerThread:(bool)mainLayerThread;
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKit::View *)inView renderer:(WhirlyKit::SceneRendererES_iOS *)renderer mainLayerThread:(bool)mainLayerThread;
 
 /// Add these before you kick off the thread
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer;

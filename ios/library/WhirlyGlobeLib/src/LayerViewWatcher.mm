@@ -25,15 +25,97 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-namespace WhirlyKit {
+@implementation WhirlyKitViewStateWrapper
 
-LayerViewWatcher::LayerViewWatcher(View *inView,WhirlyKitLayerThread *inLayerThread)
+- (id)initWithViewState:(ViewStateRef)viewState
 {
-    layerThread = inLayerThread;
-    lastViewState = inView->makeViewState();
+    self = [super init];
+    _viewState = viewState;
+    
+    return self;
 }
 
-void LayerViewWatcher::addWatcherTarget(id target,SEL selector,TimeInterval minTime,float minDist,TimeInterval maxLagTime)
+@end
+
+// Keep track of what our watchers are up to
+@interface LocalWatcher : NSObject
+{
+@public
+    id __weak target;
+    SEL selector;
+    TimeInterval minTime,maxLagTime;
+    Point3d lastEyePos;
+    float minDist;
+    TimeInterval lastUpdated;
+}
+@end
+
+@implementation LocalWatcher
+@end
+
+@interface WhirlyKitLayerViewWatcher()
+- (void)viewUpdated:(View *)inView;
+@end
+
+namespace WhirlyKit {
+
+// Interface with C++ View
+class ViewWatcherWrapper : public ViewWatcher
+{
+public:
+    WhirlyKitLayerViewWatcher *viewWatcher;
+    
+    // View has been updated so we'll just hand that over to the watcher
+    virtual void viewUpdated(View *view)
+    {
+        [viewWatcher viewUpdated:view];
+    }
+};
+
+}
+
+@implementation WhirlyKitLayerViewWatcher
+{
+    /// Layer we're attached to
+    WhirlyKitLayerThread * __weak layerThread;
+    View *view;
+    /// Watchers we'll call back for updates
+    NSMutableArray *watchers;
+    
+    /// When the last update was run
+    TimeInterval lastUpdate;
+    
+    /// You should know the type here.  A globe or a map view state.
+    ViewStateRef lastViewState;
+    
+    ViewStateRef newViewState;
+    bool kickoffScheduled;
+    bool sweepLaggardsScheduled;
+    
+    ViewWatcherWrapper viewWatchWrapper;
+}
+
+- (id)initWithView:(View *)inView thread:(WhirlyKitLayerThread *)inLayerThread
+{
+    self = [super init];
+    if (self)
+    {
+        layerThread = inLayerThread;
+        view = inView;
+        watchers = [NSMutableArray array];
+        lastViewState = inView->makeViewState(layerThread.renderer);
+        inView->addWatcher(&viewWatchWrapper);
+    }
+    
+    return self;
+}
+
+- (void)stop
+{
+    view->removeWatcher(&viewWatchWrapper);
+}
+
+- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(TimeInterval)minTime minDist:(double)minDist maxLagTime:(TimeInterval)maxLagTime
 {
     LocalWatcher *watch = [[LocalWatcher alloc] init];
     watch->target = target;
@@ -41,7 +123,7 @@ void LayerViewWatcher::addWatcherTarget(id target,SEL selector,TimeInterval minT
     watch->minTime = minTime;
     watch->minDist = minDist;
     watch->maxLagTime = maxLagTime;
-    @synchronized(watchers)
+    @synchronized(self)
     {
         [watchers addObject:watch];
     }
@@ -49,8 +131,7 @@ void LayerViewWatcher::addWatcherTarget(id target,SEL selector,TimeInterval minT
     // Note: This is running in the layer thread, yet we're accessing the view.  Might be a problem.
     if (!lastViewState && layerThread.renderer->framebufferWidth != 0)
     {
-        ViewState *viewState = [[_viewStateClass alloc] initWithView:view renderer:layerThread.renderer ];
-        lastViewState = viewState;
+        lastViewState = view->makeViewState(layerThread.renderer);
     }
     
     // Make sure it gets a starting update
@@ -100,17 +181,17 @@ void LayerViewWatcher::addWatcherTarget(id target,SEL selector,TimeInterval minT
         return;
     
     // The view has to be valid first
-    if (layerThread.renderer.framebufferWidth <= 0.0)
+    if (layerThread.renderer->framebufferWidth <= 0.0)
     {
         // Let's check back every so often
-        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(viewUpdated:) object:inView];
-        [self performSelector:@selector(viewUpdated:) withObject:inView afterDelay:0.1];
+        [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(viewUpdated:) object:nil];
+        [self performSelector:@selector(viewUpdated:) withObject:nil afterDelay:0.1];
         return;
     }
 
-    ViewState *viewState = [[_viewStateClass alloc] initWithView:inView renderer:layerThread.renderer];
+    ViewStateRef viewState = view->makeViewState(layerThread.renderer);
     
-//    lastViewState = viewState;
+    //    lastViewState = viewState;
     @synchronized(self)
     {
         newViewState = viewState;
@@ -152,7 +233,7 @@ void LayerViewWatcher::addWatcherTarget(id target,SEL selector,TimeInterval minT
         // This can happen with dangling selectors
         if (![watchers containsObject:watch])
         {
-    //        NSLog(@"Whoa! Tried to call a watcher that's no longer there.");
+            //        NSLog(@"Whoa! Tried to call a watcher that's no longer there.");
             return;
         }
     }
@@ -161,10 +242,10 @@ void LayerViewWatcher::addWatcherTarget(id target,SEL selector,TimeInterval minT
     {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        [watch->target performSelector:watch->selector withObject:lastViewState];
+        [watch->target performSelector:watch->selector withObject:[[WhirlyKitViewStateWrapper alloc] initWithViewState:lastViewState]];
 #pragma clang diagnostic pop
         watch->lastUpdated = TimeGetCurrent();
-        watch->lastEyePos = [lastViewState eyePos];
+        watch->lastEyePos = lastViewState->eyePos;
     } else
         NSLog(@"Missing last view state");
 }
@@ -182,7 +263,7 @@ public:
 
 // This version is called in the layer thread
 // We can dispatch things from here
-- (void)viewUpdateLayerThread:(ViewState *)viewState
+- (void)viewUpdateLayerThread:(ViewStateRef)viewState
 {
     TimeInterval curTime = TimeGetCurrent();
     
@@ -203,7 +284,7 @@ public:
                 if (watch->minDist > 0.0)
                 {
                     // If we haven't moved past the trigger, don't update this time
-                    double thisDist2 = ([viewState eyePos] - watch->lastEyePos).squaredNorm();
+                    double thisDist2 = (viewState->eyePos - watch->lastEyePos).squaredNorm();
                     if (thisDist2 > watch->minDist*watch->minDist)
                         runUpdate = true;
                     else {
@@ -215,7 +296,7 @@ public:
                     }
                 } else
                     runUpdate = true;
-
+                
                 if (runUpdate)
                     orderedLayers.insert(LayerPriorityOrder(minTest,watch));
             } else {
@@ -225,9 +306,9 @@ public:
         }
     }
     
-//    static int count = 0;
-//    if (count++ % 20 == 0)
-//        NSLog(@"Max layer delay = %f, %f, layerThread = %x",maxLayerDelay,minNextUpdate,(unsigned int)layerThread);
+    //    static int count = 0;
+    //    if (count++ % 20 == 0)
+    //        NSLog(@"Max layer delay = %f, %f, layerThread = %x",maxLayerDelay,minNextUpdate,(unsigned int)layerThread);
     
     // Update the layers by priority
     // Note: What happens if this takes a really long time?
@@ -258,7 +339,7 @@ public:
         sweepLaggardsScheduled = false;
     }
     
-    [self viewUpdateLayerThread:(ViewState *)lastViewState];
+    [self viewUpdateLayerThread:lastViewState];
 }
 
 @end

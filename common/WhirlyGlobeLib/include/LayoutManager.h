@@ -197,7 +197,7 @@ public:
     void enableLayoutObjects(const SimpleIDSet &layoutObjects,bool enable);
     
     /// Run the layout logic for everything we're aware of (thread safe)
-    void updateLayout(ViewState *viewState,ChangeSet &changes);
+    void updateLayout(ViewStateRef viewState,ChangeSet &changes);
     
     /// True if we've got changes since the last update
     bool hasChanges();
@@ -209,9 +209,9 @@ public:
     void addClusterGenerator(ClusterGenerator *clusterGen);
     
 protected:
-    bool calcScreenPt(Point2f &objPt,LayoutObjectEntry *layoutObj,ViewState *viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
-    Eigen::Matrix2d calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
-    bool runLayoutRules(ViewState *viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams);
+    bool calcScreenPt(Point2f &objPt,LayoutObjectEntry *layoutObj,ViewStateRef viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
+    Eigen::Matrix2d calcScreenRot(float &screenRot,ViewStateRef viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
+    bool runLayoutRules(ViewStateRef viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams);
     
     pthread_mutex_t layoutLock;
     /// If non-zero the maximum number of objects we'll display at once

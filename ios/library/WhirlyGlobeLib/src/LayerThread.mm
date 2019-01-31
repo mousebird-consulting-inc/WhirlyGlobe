@@ -19,11 +19,10 @@
  */
 
 #import "LayerThread.h"
-#import "GlobeLayerViewWatcher.h"
-#import "MaplyLayerViewWatcher.h"
 #import "GlobeScene.h"
 #import "MaplyScene.h"
 #import "GlobeView.h"
+#import "Platform.h"
 
 using namespace WhirlyKit;
 
@@ -57,7 +56,7 @@ using namespace WhirlyKit;
     BOOL inRunAddChangeRequests;
 }
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(View *)inView renderer:(SceneRendererES *)inRenderer mainLayerThread:(bool)mainLayerThread
+- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(View *)inView renderer:(SceneRendererES_iOS *)inRenderer mainLayerThread:(bool)mainLayerThread
 {
 	if ((self = [super init]))
 	{
@@ -66,21 +65,17 @@ using namespace WhirlyKit;
         _renderer = inRenderer;
 		layers = [NSMutableArray array];
         inRunAddChangeRequests = false;
-        // Note: This could be better
-        if (dynamic_cast<WhirlyGlobe::GlobeScene *>(_scene))
-            _viewWatcher = [[WhirlyGlobeLayerViewWatcher alloc] initWithView:(WhirlyGlobeView *)inView thread:self];
-        else
-            if (dynamic_cast<Maply::MapScene *>(_scene))
-                _viewWatcher = [[MaplyLayerViewWatcher alloc] initWithView:(MaplyView *)inView thread:self];
+        _viewWatcher = [[WhirlyKitLayerViewWatcher alloc] initWithView:inView thread:self];
         
         // We'll create the context here and set it in the layer thread, always
-        _glContext = [[EAGLContext alloc] initWithAPI:_renderer.context.API sharegroup:_renderer.context.sharegroup];
+        _glContext = [[EAGLContext alloc] initWithAPI:_renderer->context.API sharegroup:_renderer->context.sharegroup];
 
         thingsToRelease = [NSMutableArray array];
         threadsToShutdown = [NSMutableArray array];
         
-        glSetupInfo = [[WhirlyKitGLSetupInfo alloc] init];
-        glSetupInfo->minZres = [inView calcZbufferRes];
+        WhirlyKit::WhirlyKitGLSetupInfo glSetupInfo;
+        glSetupInfo.minZres = inView->calcZbufferRes();
+        glSetupInfo.glesVersion = inRenderer->context.API;
         _allowFlush = true;
         
         pthread_mutex_init(&changeLock,NULL);
@@ -370,12 +365,6 @@ using namespace WhirlyKit;
                 pthread_mutex_lock(&otherLayerThread->existenceLock);
             }
         }
-
-        // This should block until the queue is empty
-        dispatch_sync(_scene->getDispatchQueue(), ^{ } );
-#if __IPHONE_OS_VERSION_MIN_REQUIRED < 60000
-        dispatch_release(dispatchQueue);
-#endif
 
         // Tear the scene down.  It's unsafe to do it elsewhere
         _scene->teardownGL();

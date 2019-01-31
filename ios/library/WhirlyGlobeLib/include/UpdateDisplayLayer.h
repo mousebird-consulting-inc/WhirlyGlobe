@@ -25,9 +25,8 @@
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "GlobeMath.h"
-#import "sqlhelpers.h"
 #import "SceneRendererES.h"
-#import "GlobeLayerViewWatcher.h"
+#import "LayerViewWatcher.h"
 
 /// Fill in this protocol to be called 
 @protocol WhirlyGlobeUpdateDataSource <NSObject>
@@ -36,7 +35,7 @@
 - (void)start;
 
 /// The update display layer will call this when the viewer has moved sufficiently
-- (void)viewerDidUpdate:(WhirlyGlobeViewState *)viewState scene:(WhirlyKit::Scene *)scene;
+- (void)viewerDidUpdate:(WhirlyKit::ViewStateRef)viewState scene:(WhirlyKit::Scene *)scene;
 
 /// Called when the layer needs to shutdown.  Clean up your objects.
 - (void)teardown;

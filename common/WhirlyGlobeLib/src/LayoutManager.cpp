@@ -268,7 +268,7 @@ static const int OverlapSampleY = 60;
 // Now much around the screen we'll take into account
 static const float ScreenBuffer = 0.1;
     
-bool LayoutManager::calcScreenPt(Point2f &objPt,LayoutObjectEntry *layoutObj,ViewState *viewState,const Mbr &screenMbr,const Point2f &frameBufferSize)
+bool LayoutManager::calcScreenPt(Point2f &objPt,LayoutObjectEntry *layoutObj,ViewStateRef viewState,const Mbr &screenMbr,const Point2f &frameBufferSize)
 {
     // Figure out where this will land
     bool isInside = false;
@@ -286,7 +286,7 @@ bool LayoutManager::calcScreenPt(Point2f &objPt,LayoutObjectEntry *layoutObj,Vie
     return isInside;
 }
 
-    Matrix2d LayoutManager::calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
+    Matrix2d LayoutManager::calcScreenRot(float &screenRot,ViewStateRef viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
 {
     // Switch from counter-clockwise to clockwise
     double rot = 2*M_PI-ssObj->rotation;
@@ -347,7 +347,7 @@ typedef std::vector<LayoutObjectContainer> LayoutContainerVec;
 typedef std::map<std::string,LayoutObjectContainer> UniqueLayoutObjectMap;
 
 // Do the actual layout logic.  We'll modify the offset and on value in place.
-bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams)
+bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams)
 {
     if (layoutObjects.empty())
         return false;
@@ -360,8 +360,8 @@ bool LayoutManager::runLayoutRules(ViewState *viewState,std::vector<ClusterEntry
     UniqueLayoutObjectMap uniqueLayoutObjs;
     
     // The globe has some special requirements
-    WhirlyGlobe::GlobeViewState *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState);
-    Maply::MapView *mapViewState = dynamic_cast<Maply::MapView *>(viewState);
+    WhirlyGlobe::GlobeViewState *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState.get());
+    Maply::MapView *mapViewState = dynamic_cast<Maply::MapView *>(viewState.get());
 
     // View related matrix stuff
     Matrix4d modelTrans = viewState->fullMatrices[0];
@@ -757,7 +757,7 @@ static float const NewObjectFadeIn = 0.0;
 //static float const OldObjectFadeOut = 0.0;
 
 // Layout all the objects we're tracking
-void LayoutManager::updateLayout(ViewState *viewState,ChangeSet &changes)
+void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
