@@ -26,17 +26,8 @@
 		2B2B4701206D931300570F97 /* QuadTileBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2B4700206D931300570F97 /* QuadTileBuilder.h */; };
 		2B361E3C21237D1E0074D06D /* ParticleSystemLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B361E3B21237D1E0074D06D /* ParticleSystemLayer.h */; };
 		2B446AB021EFE5DA0078A975 /* MaplyWMSTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AAF21EFE5DA0078A975 /* MaplyWMSTileSource.h */; };
-		2B446AB621F2584B0078A975 /* MaplyBaseInfo_iOS_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AB521F2584B0078A975 /* MaplyBaseInfo_iOS_private.h */; };
 		2B446ABB21F25C330078A975 /* WhirlyKitLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AB921F25C330078A975 /* WhirlyKitLog.h */; };
 		2B446ABC21F25C330078A975 /* WhirlyTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446ABA21F25C330078A975 /* WhirlyTypes.h */; };
-		2B446AC721F26E0E0078A975 /* MaplyGeometryInfo_iOS_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446ABF21F26E0D0078A975 /* MaplyGeometryInfo_iOS_private.h */; };
-		2B446AC821F26E0E0078A975 /* MaplyBillboardInfo_iOS_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AC021F26E0D0078A975 /* MaplyBillboardInfo_iOS_private.h */; };
-		2B446AC921F26E0E0078A975 /* MaplySphericalChunkInfo_iOS_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AC121F26E0D0078A975 /* MaplySphericalChunkInfo_iOS_private.h */; };
-		2B446ACA21F26E0E0078A975 /* MaplyWideVectorInfo_iOS_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AC221F26E0D0078A975 /* MaplyWideVectorInfo_iOS_private.h */; };
-		2B446ACB21F26E0E0078A975 /* MaplyVectorInfo_iOS_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AC321F26E0D0078A975 /* MaplyVectorInfo_iOS_private.h */; };
-		2B446ACC21F26E0E0078A975 /* MaplyLabelInfo_iOS_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AC421F26E0D0078A975 /* MaplyLabelInfo_iOS_private.h */; };
-		2B446ACD21F26E0E0078A975 /* MaplyShapeInfo_iOS_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AC521F26E0E0078A975 /* MaplyShapeInfo_iOS_private.h */; };
-		2B446ACE21F26E0E0078A975 /* MaplyMarkerInfo_iOS_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AC621F26E0E0078A975 /* MaplyMarkerInfo_iOS_private.h */; };
 		2B446AE121F288090078A975 /* LabelRenderer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AE021F288080078A975 /* LabelRenderer.h */; };
 		2B446AE621F299E50078A975 /* ShapeDrawableBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AE521F299E50078A975 /* ShapeDrawableBuilder.h */; };
 		2B446AF921F79A600078A975 /* GlobeMath.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AED21F79A5F0078A975 /* GlobeMath.h */; };
@@ -913,26 +904,8 @@
 		2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRenderTarget.mm; sourceTree = "<group>"; };
 		2B446AAF21EFE5DA0078A975 /* MaplyWMSTileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyWMSTileSource.h; sourceTree = "<group>"; };
 		2B446AB121EFE5E50078A975 /* MaplyWMSTileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyWMSTileSource.mm; sourceTree = "<group>"; };
-		2B446AB521F2584B0078A975 /* MaplyBaseInfo_iOS_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyBaseInfo_iOS_private.h; sourceTree = "<group>"; };
-		2B446AB721F25A740078A975 /* MaplyBaseInfo_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyBaseInfo_iOS.mm; sourceTree = "<group>"; };
 		2B446AB921F25C330078A975 /* WhirlyKitLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyKitLog.h; path = ../../../../common/WhirlyGlobeLib/include/WhirlyKitLog.h; sourceTree = "<group>"; };
 		2B446ABA21F25C330078A975 /* WhirlyTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyTypes.h; path = ../../../../common/WhirlyGlobeLib/include/WhirlyTypes.h; sourceTree = "<group>"; };
-		2B446ABF21F26E0D0078A975 /* MaplyGeometryInfo_iOS_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyGeometryInfo_iOS_private.h; sourceTree = "<group>"; };
-		2B446AC021F26E0D0078A975 /* MaplyBillboardInfo_iOS_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyBillboardInfo_iOS_private.h; sourceTree = "<group>"; };
-		2B446AC121F26E0D0078A975 /* MaplySphericalChunkInfo_iOS_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplySphericalChunkInfo_iOS_private.h; sourceTree = "<group>"; };
-		2B446AC221F26E0D0078A975 /* MaplyWideVectorInfo_iOS_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyWideVectorInfo_iOS_private.h; sourceTree = "<group>"; };
-		2B446AC321F26E0D0078A975 /* MaplyVectorInfo_iOS_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyVectorInfo_iOS_private.h; sourceTree = "<group>"; };
-		2B446AC421F26E0D0078A975 /* MaplyLabelInfo_iOS_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyLabelInfo_iOS_private.h; sourceTree = "<group>"; };
-		2B446AC521F26E0E0078A975 /* MaplyShapeInfo_iOS_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyShapeInfo_iOS_private.h; sourceTree = "<group>"; };
-		2B446AC621F26E0E0078A975 /* MaplyMarkerInfo_iOS_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyMarkerInfo_iOS_private.h; sourceTree = "<group>"; };
-		2B446ACF21F26E270078A975 /* MaplyMarkerInfo_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyMarkerInfo_iOS.mm; sourceTree = "<group>"; };
-		2B446AD021F26E270078A975 /* MaplyWideVectorInfo_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyWideVectorInfo_iOS.mm; sourceTree = "<group>"; };
-		2B446AD121F26E270078A975 /* MaplySphericalChunkInfo_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplySphericalChunkInfo_iOS.mm; sourceTree = "<group>"; };
-		2B446AD221F26E270078A975 /* MaplyLabelInfo_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyLabelInfo_iOS.mm; sourceTree = "<group>"; };
-		2B446AD321F26E280078A975 /* MaplyShapeInfo_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyShapeInfo_iOS.mm; sourceTree = "<group>"; };
-		2B446AD421F26E280078A975 /* MaplyVectorInfo_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyVectorInfo_iOS.mm; sourceTree = "<group>"; };
-		2B446AD521F26E280078A975 /* MaplyBillboardInfo_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyBillboardInfo_iOS.mm; sourceTree = "<group>"; };
-		2B446AD621F26E280078A975 /* MaplyGeometryInfo_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyGeometryInfo_iOS.mm; sourceTree = "<group>"; };
 		2B446AE021F288080078A975 /* LabelRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LabelRenderer.h; path = ../../../../common/WhirlyGlobeLib/include/LabelRenderer.h; sourceTree = "<group>"; };
 		2B446AE221F288220078A975 /* LabelRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LabelRenderer.cpp; path = ../../../../common/WhirlyGlobeLib/src/LabelRenderer.cpp; sourceTree = "<group>"; };
 		2B446AE521F299E50078A975 /* ShapeDrawableBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ShapeDrawableBuilder.h; path = ../../../../common/WhirlyGlobeLib/include/ShapeDrawableBuilder.h; sourceTree = "<group>"; };
@@ -2688,6 +2661,150 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		2B8797092203B40900EF801D /* UIKit */ = {
+			isa = PBXGroup;
+			children = (
+				2BE537D71D249A1200B60FAD /* NSData+Zlib.m */,
+				2BE537D81D249A1200B60FAD /* NSDictionary+StyleRules.m */,
+			);
+			path = UIKit;
+			sourceTree = "<group>";
+		};
+		2B87970A2203B48300EF801D /* rendering */ = {
+			isa = PBXGroup;
+			children = (
+				2B7B84DD2122404A00D11447 /* MaplyTextureAtlas.mm */,
+				2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */,
+				2BE5379F1D249A1200B60FAD /* MaplyAtmosphere.mm */,
+				2BB8A3AB21ED43770025DA98 /* ViewPlacementActiveModel.mm */,
+				2BB8A3A921ED43770025DA98 /* MaplyLineAndPointShaders.mm */,
+				2BB8A3B521ED43780025DA98 /* MaplyTriangleShaders.mm */,
+				2BB8A3B621ED43780025DA98 /* MaplyVariableTarget.mm */,
+				2BE537C51D249A1200B60FAD /* MaplyShader.mm */,
+			);
+			path = rendering;
+			sourceTree = "<group>";
+		};
+		2B87970B2203B48C00EF801D /* gestures */ = {
+			isa = PBXGroup;
+			children = (
+				2B361E13212340610074D06D /* MaplyZoomGestureDelegate.mm */,
+				2B361DEA21233CBE0074D06D /* MaplyTouchCancelAnimationDelegate.mm */,
+				2B361DE621233CBE0074D06D /* MaplyTwoFingerTapDelegate.mm */,
+				2B361DED21233CBE0074D06D /* MaplyPinchDelegate.mm */,
+				2B361DEC21233CBE0074D06D /* MaplyPanDelegate.mm */,
+				2B361DE721233CBE0074D06D /* MaplyDoubleTapDelegate.mm */,
+				2B361DEB21233CBE0074D06D /* MaplyDoubleTapDragDelegate.mm */,
+				2BE5379A1D249A1200B60FAD /* Maply3dTouchPreviewDelegate.mm */,
+				2BB8A3B021ED43780025DA98 /* GlobeDoubleTapDelegate.mm */,
+				2BB8A3B421ED43780025DA98 /* GlobeDoubleTapDragDelegate.mm */,
+				2BB8A3AA21ED43770025DA98 /* GlobePanDelegate.mm */,
+				2BB8A3B221ED43780025DA98 /* GlobePinchDelegate.mm */,
+				2BB8A3AF21ED43780025DA98 /* GlobeRotateDelegate.mm */,
+				2BB8A3B721ED43780025DA98 /* GlobeTapDelegate.mm */,
+				2BB8A3B121ED43780025DA98 /* GlobeTapMessage.mm */,
+				2BB8A3B821ED43780025DA98 /* GlobeTiltDelegate.mm */,
+				2BB8A3AE21ED43780025DA98 /* GlobeTwoFingerTapDelegate.mm */,
+				2B361DE921233CBE0074D06D /* MaplyRotateDelegate.mm */,
+				2B361DE821233CBE0074D06D /* MaplyTapDelegate.mm */,
+				2B7B84DB2122404200D11447 /* MaplyTapMessage.mm */,
+			);
+			path = gestures;
+			sourceTree = "<group>";
+		};
+		2B87970C2203B4AF00EF801D /* loading */ = {
+			isa = PBXGroup;
+			children = (
+				2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */,
+				2BE537AF1D249A1200B60FAD /* MaplyImageTile.mm */,
+				2B73D6BF207D1FDF00AF5095 /* MaplyQuadImageLoader.mm */,
+				2BB8A3AC21ED43770025DA98 /* MaplyQuadImageFrameLoader.mm */,
+				2BB8A3AD21ED43770025DA98 /* MaplyTileSourceNew.mm */,
+			);
+			path = loading;
+			sourceTree = "<group>";
+		};
+		2B87970D2203B50400EF801D /* control */ = {
+			isa = PBXGroup;
+			children = (
+				2BE537D01D249A1200B60FAD /* MaplyUpdateLayer.mm */,
+				2BE537C71D249A1200B60FAD /* MaplySharedAttributes.m */,
+				2BE537B01D249A1200B60FAD /* MaplyInteractionLayer.mm */,
+				2BE537A41D249A1200B60FAD /* MaplyCluster.mm */,
+				2BE537A01D249A1200B60FAD /* MaplyBaseInteractionLayer.mm */,
+				2BE537A11D249A1200B60FAD /* MaplyBaseViewController.mm */,
+				2BE5379B1D249A1200B60FAD /* MaplyActiveObject.mm */,
+				2BE5379E1D249A1200B60FAD /* MaplyAnnotation.mm */,
+				2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */,
+				2BE537D31D249A1200B60FAD /* MaplyViewController.mm */,
+				2BE537D41D249A1200B60FAD /* MaplyViewControllerLayer.mm */,
+				2BE537D51D249A1200B60FAD /* MaplyViewTracker.m */,
+				2BE537F21D249A1200B60FAD /* WGInteractionLayer.mm */,
+				2BE537F41D249A1200B60FAD /* WGViewControllerLayer.mm */,
+				2BE537F51D249A1200B60FAD /* WhirlyGlobeViewController.mm */,
+			);
+			path = control;
+			sourceTree = "<group>";
+		};
+		2B87970E2203B55700EF801D /* data_sources */ = {
+			isa = PBXGroup;
+			children = (
+				2B446AB121EFE5E50078A975 /* MaplyWMSTileSource.mm */,
+				2BB8A3B321ED43780025DA98 /* MaplyMBTileFetcher.mm */,
+			);
+			path = data_sources;
+			sourceTree = "<group>";
+		};
+		2B87970F2203B58000EF801D /* visual_objects */ = {
+			isa = PBXGroup;
+			children = (
+				2BE537B31D249A1200B60FAD /* MaplyMarker.m */,
+				2BE537B11D249A1200B60FAD /* MaplyLabel.m */,
+				2BE537B21D249A1200B60FAD /* MaplyLight.m */,
+				2BE537A21D249A1200B60FAD /* MaplyBillboard.mm */,
+				2BE537A61D249A1200B60FAD /* MaplyComponentObject.mm */,
+				2BE537AD1D249A1200B60FAD /* MaplyGeomModel.mm */,
+				2BE537BB1D249A1200B60FAD /* MaplyPoints.mm */,
+				2BE537B61D249A1200B60FAD /* MaplyMoon.mm */,
+				2BE537BA1D249A1200B60FAD /* MaplyParticleSystem.mm */,
+				2BE537C21D249A1200B60FAD /* MaplyScreenLabel.m */,
+				2BE537C31D249A1200B60FAD /* MaplyScreenMarker.m */,
+				2BE537C41D249A1200B60FAD /* MaplyScreenObject.mm */,
+				2BE537C61D249A1200B60FAD /* MaplyShape.mm */,
+				2BE537C91D249A1200B60FAD /* MaplyStarsModel.mm */,
+				2BE537CA1D249A1200B60FAD /* MaplySticker.mm */,
+				2BE537CB1D249A1200B60FAD /* MaplySun.mm */,
+				2BE537CC1D249A1200B60FAD /* MaplyTexture.mm */,
+				2BE537D11D249A1200B60FAD /* MaplyVectorObject.mm */,
+				2BE537D21D249A1200B60FAD /* MaplyVertexAttribute.mm */,
+			);
+			path = visual_objects;
+			sourceTree = "<group>";
+		};
+		2B8797102203B5A400EF801D /* helpers */ = {
+			isa = PBXGroup;
+			children = (
+				2BE537AE1D249A1200B60FAD /* MaplyIconManager.mm */,
+				2BE537A51D249A1200B60FAD /* MaplyColorRampGenerator.m */,
+				2BE537AC1D249A1200B60FAD /* MaplyGeomBuilder.mm */,
+				E5D2D6651DE67CF600E02305 /* MaplyLocationTracker.mm */,
+				2B0387F5206ABD7400DD5C40 /* MaplyQuadSampler.mm */,
+				2B361E16212340620074D06D /* MaplyTextureBuilder.mm */,
+			);
+			path = helpers;
+			sourceTree = "<group>";
+		};
+		2B8797112203B5C700EF801D /* math */ = {
+			isa = PBXGroup;
+			children = (
+				2BE537F11D249A1200B60FAD /* WGCoordinate.mm */,
+				2BE537B41D249A1200B60FAD /* MaplyMatrix.mm */,
+				2BE537A71D249A1200B60FAD /* MaplyCoordinate.mm */,
+				2BE537A81D249A1200B60FAD /* MaplyCoordinateSystem.mm */,
+			);
+			path = math;
+			sourceTree = "<group>";
+		};
 		2B884A091E3802EE0027C397 /* laszip */ = {
 			isa = PBXGroup;
 			children = (
@@ -3011,15 +3128,6 @@
 		2BE5375A1D249A1200B60FAD /* private */ = {
 			isa = PBXGroup;
 			children = (
-				2B446AC021F26E0D0078A975 /* MaplyBillboardInfo_iOS_private.h */,
-				2B446ABF21F26E0D0078A975 /* MaplyGeometryInfo_iOS_private.h */,
-				2B446AC421F26E0D0078A975 /* MaplyLabelInfo_iOS_private.h */,
-				2B446AC621F26E0E0078A975 /* MaplyMarkerInfo_iOS_private.h */,
-				2B446AC521F26E0E0078A975 /* MaplyShapeInfo_iOS_private.h */,
-				2B446AC121F26E0D0078A975 /* MaplySphericalChunkInfo_iOS_private.h */,
-				2B446AC321F26E0D0078A975 /* MaplyVectorInfo_iOS_private.h */,
-				2B446AC221F26E0D0078A975 /* MaplyWideVectorInfo_iOS_private.h */,
-				2B446AB521F2584B0078A975 /* MaplyBaseInfo_iOS_private.h */,
 				2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */,
 				2BB8A3D221ED43BF0025DA98 /* MaplyLineAndPointShaders_private.h */,
 				2BB8A3D421ED43C00025DA98 /* MaplyTriangleShaders_private.h */,
@@ -3074,97 +3182,16 @@
 		2BE537991D249A1200B60FAD /* src */ = {
 			isa = PBXGroup;
 			children = (
-				2B446AD521F26E280078A975 /* MaplyBillboardInfo_iOS.mm */,
-				2B446AD621F26E280078A975 /* MaplyGeometryInfo_iOS.mm */,
-				2B446AD221F26E270078A975 /* MaplyLabelInfo_iOS.mm */,
-				2B446ACF21F26E270078A975 /* MaplyMarkerInfo_iOS.mm */,
-				2B446AD321F26E280078A975 /* MaplyShapeInfo_iOS.mm */,
-				2B446AD121F26E270078A975 /* MaplySphericalChunkInfo_iOS.mm */,
-				2B446AD421F26E280078A975 /* MaplyVectorInfo_iOS.mm */,
-				2B446AD021F26E270078A975 /* MaplyWideVectorInfo_iOS.mm */,
-				2B446AB721F25A740078A975 /* MaplyBaseInfo_iOS.mm */,
-				2B446AB121EFE5E50078A975 /* MaplyWMSTileSource.mm */,
-				2BB8A3B021ED43780025DA98 /* GlobeDoubleTapDelegate.mm */,
-				2BB8A3B421ED43780025DA98 /* GlobeDoubleTapDragDelegate.mm */,
-				2BB8A3AA21ED43770025DA98 /* GlobePanDelegate.mm */,
-				2BB8A3B221ED43780025DA98 /* GlobePinchDelegate.mm */,
-				2BB8A3AF21ED43780025DA98 /* GlobeRotateDelegate.mm */,
-				2BB8A3B721ED43780025DA98 /* GlobeTapDelegate.mm */,
-				2BB8A3B121ED43780025DA98 /* GlobeTapMessage.mm */,
-				2BB8A3B821ED43780025DA98 /* GlobeTiltDelegate.mm */,
-				2BB8A3AE21ED43780025DA98 /* GlobeTwoFingerTapDelegate.mm */,
-				2BB8A3A921ED43770025DA98 /* MaplyLineAndPointShaders.mm */,
-				2BB8A3B321ED43780025DA98 /* MaplyMBTileFetcher.mm */,
-				2BB8A3AC21ED43770025DA98 /* MaplyQuadImageFrameLoader.mm */,
-				2BB8A3AD21ED43770025DA98 /* MaplyTileSourceNew.mm */,
-				2BB8A3B521ED43780025DA98 /* MaplyTriangleShaders.mm */,
-				2BB8A3B621ED43780025DA98 /* MaplyVariableTarget.mm */,
-				2BB8A3AB21ED43770025DA98 /* ViewPlacementActiveModel.mm */,
-				2BE5379A1D249A1200B60FAD /* Maply3dTouchPreviewDelegate.mm */,
-				2BE5379B1D249A1200B60FAD /* MaplyActiveObject.mm */,
-				2BE5379E1D249A1200B60FAD /* MaplyAnnotation.mm */,
-				2BE5379F1D249A1200B60FAD /* MaplyAtmosphere.mm */,
-				2BE537A01D249A1200B60FAD /* MaplyBaseInteractionLayer.mm */,
-				2BE537A11D249A1200B60FAD /* MaplyBaseViewController.mm */,
-				2BE537A21D249A1200B60FAD /* MaplyBillboard.mm */,
-				2BE537A41D249A1200B60FAD /* MaplyCluster.mm */,
-				2BE537A51D249A1200B60FAD /* MaplyColorRampGenerator.m */,
-				2BE537A61D249A1200B60FAD /* MaplyComponentObject.mm */,
-				2BE537A71D249A1200B60FAD /* MaplyCoordinate.mm */,
-				2BE537A81D249A1200B60FAD /* MaplyCoordinateSystem.mm */,
-				2B361DE721233CBE0074D06D /* MaplyDoubleTapDelegate.mm */,
-				2B361DEB21233CBE0074D06D /* MaplyDoubleTapDragDelegate.mm */,
-				2BE537AC1D249A1200B60FAD /* MaplyGeomBuilder.mm */,
-				2BE537AD1D249A1200B60FAD /* MaplyGeomModel.mm */,
-				2BE537AE1D249A1200B60FAD /* MaplyIconManager.mm */,
-				2BE537AF1D249A1200B60FAD /* MaplyImageTile.mm */,
-				2BE537B01D249A1200B60FAD /* MaplyInteractionLayer.mm */,
-				2BE537B11D249A1200B60FAD /* MaplyLabel.m */,
-				2BE537B21D249A1200B60FAD /* MaplyLight.m */,
-				E5D2D6651DE67CF600E02305 /* MaplyLocationTracker.mm */,
-				2BE537B31D249A1200B60FAD /* MaplyMarker.m */,
-				2BE537B41D249A1200B60FAD /* MaplyMatrix.mm */,
-				2BE537B61D249A1200B60FAD /* MaplyMoon.mm */,
-				2B361DEC21233CBE0074D06D /* MaplyPanDelegate.mm */,
-				2BE537BA1D249A1200B60FAD /* MaplyParticleSystem.mm */,
-				2B361DED21233CBE0074D06D /* MaplyPinchDelegate.mm */,
-				2BE537BB1D249A1200B60FAD /* MaplyPoints.mm */,
-				2B73D6BF207D1FDF00AF5095 /* MaplyQuadImageLoader.mm */,
-				2B0387F5206ABD7400DD5C40 /* MaplyQuadSampler.mm */,
-				2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */,
-				2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */,
-				2B361DE921233CBE0074D06D /* MaplyRotateDelegate.mm */,
-				2BE537C21D249A1200B60FAD /* MaplyScreenLabel.m */,
-				2BE537C31D249A1200B60FAD /* MaplyScreenMarker.m */,
-				2BE537C41D249A1200B60FAD /* MaplyScreenObject.mm */,
-				2BE537C51D249A1200B60FAD /* MaplyShader.mm */,
-				2BE537C61D249A1200B60FAD /* MaplyShape.mm */,
-				2BE537C71D249A1200B60FAD /* MaplySharedAttributes.m */,
-				2BE537C91D249A1200B60FAD /* MaplyStarsModel.mm */,
-				2BE537CA1D249A1200B60FAD /* MaplySticker.mm */,
-				2BE537CB1D249A1200B60FAD /* MaplySun.mm */,
-				2B361DE821233CBE0074D06D /* MaplyTapDelegate.mm */,
-				2B7B84DB2122404200D11447 /* MaplyTapMessage.mm */,
-				2BE537CC1D249A1200B60FAD /* MaplyTexture.mm */,
-				2B7B84DD2122404A00D11447 /* MaplyTextureAtlas.mm */,
-				2B361E16212340620074D06D /* MaplyTextureBuilder.mm */,
-				2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */,
-				2B361DEA21233CBE0074D06D /* MaplyTouchCancelAnimationDelegate.mm */,
-				2B361DE621233CBE0074D06D /* MaplyTwoFingerTapDelegate.mm */,
-				2BE537D01D249A1200B60FAD /* MaplyUpdateLayer.mm */,
-				2BE537D11D249A1200B60FAD /* MaplyVectorObject.mm */,
-				2BE537D21D249A1200B60FAD /* MaplyVertexAttribute.mm */,
-				2BE537D31D249A1200B60FAD /* MaplyViewController.mm */,
-				2BE537D41D249A1200B60FAD /* MaplyViewControllerLayer.mm */,
-				2BE537D51D249A1200B60FAD /* MaplyViewTracker.m */,
-				2B361E13212340610074D06D /* MaplyZoomGestureDelegate.mm */,
-				2BE537D71D249A1200B60FAD /* NSData+Zlib.m */,
-				2BE537D81D249A1200B60FAD /* NSDictionary+StyleRules.m */,
+				2B8797092203B40900EF801D /* UIKit */,
+				2B8797102203B5A400EF801D /* helpers */,
+				2B8797112203B5C700EF801D /* math */,
+				2B87970F2203B58000EF801D /* visual_objects */,
+				2B87970B2203B48C00EF801D /* gestures */,
+				2B87970C2203B4AF00EF801D /* loading */,
+				2B87970D2203B50400EF801D /* control */,
+				2B87970E2203B55700EF801D /* data_sources */,
+				2B87970A2203B48300EF801D /* rendering */,
 				2BE537DC1D249A1200B60FAD /* vector_tiles */,
-				2BE537F11D249A1200B60FAD /* WGCoordinate.mm */,
-				2BE537F21D249A1200B60FAD /* WGInteractionLayer.mm */,
-				2BE537F41D249A1200B60FAD /* WGViewControllerLayer.mm */,
-				2BE537F51D249A1200B60FAD /* WhirlyGlobeViewController.mm */,
 			);
 			name = src;
 			path = ../src;
@@ -3532,9 +3559,7 @@
 				2B446AE621F299E50078A975 /* ShapeDrawableBuilder.h in Headers */,
 				2B846F1121F158E100EF2A82 /* BillboardManager.h in Headers */,
 				2BE5386F1D249A1200B60FAD /* vector_tile.pb.h in Headers */,
-				2B446ACA21F26E0E0078A975 /* MaplyWideVectorInfo_iOS_private.h in Headers */,
 				2B82B6DA1E82E24A0095FB14 /* NSDictionary+Stuff.h in Headers */,
-				2B446ACE21F26E0E0078A975 /* MaplyMarkerInfo_iOS_private.h in Headers */,
 				2B82B6141E82E2490095FB14 /* JSONSharedString.h in Headers */,
 				2BE538311D249A1200B60FAD /* MaplyViewControllerLayer.h in Headers */,
 				2BE53A861D249C8300B60FAD /* NSString+DDXML.h in Headers */,
@@ -3564,7 +3589,6 @@
 				2BE539811D249BEF00B60FAD /* AARiseTransitSet.h in Headers */,
 				2BE5395B1D249BEF00B60FAD /* AAEclipticalElements.h in Headers */,
 				2B82B63B1E82E2490095FB14 /* geodesic.h in Headers */,
-				2B446AC921F26E0E0078A975 /* MaplySphericalChunkInfo_iOS_private.h in Headers */,
 				2BE539511D249BEF00B60FAD /* AAAberration.h in Headers */,
 				2BE538221D249A1200B60FAD /* MaplyScreenObject.h in Headers */,
 				2B23133C21FA919E006AA344 /* Dictionary_NSDictionary.h in Headers */,
@@ -3651,7 +3675,6 @@
 				2B2B46FA206C000500570F97 /* LoadedTileNew.h in Headers */,
 				2B0387F8206ABD7B00DD5C40 /* MaplyQuadSampler.h in Headers */,
 				2BE5398A1D249BEF00B60FAD /* stdafx.h in Headers */,
-				2B446ACB21F26E0E0078A975 /* MaplyVectorInfo_iOS_private.h in Headers */,
 				2BE53A051D249C2900B60FAD /* generated_enum_reflection.h in Headers */,
 				2BB8A3F521ED43D10025DA98 /* MaplyPanDelegate.h in Headers */,
 				2B446B9A21FBA9D50078A975 /* PerformanceTimer.h in Headers */,
@@ -3686,7 +3709,6 @@
 				2BE538241D249A1200B60FAD /* MaplyShape.h in Headers */,
 				2BE538411D249A1200B60FAD /* MaplyInteractionLayer_private.h in Headers */,
 				2B82B6051E82E2490095FB14 /* GNU_C.h in Headers */,
-				2B446AC721F26E0E0078A975 /* MaplyGeometryInfo_iOS_private.h in Headers */,
 				2BE5395C1D249BEF00B60FAD /* AAElementsPlanetaryOrbit.h in Headers */,
 				2BE539F41D249C2900B60FAD /* map_field.h in Headers */,
 				2BE537FE1D249A1200B60FAD /* MaplyBaseViewController.h in Headers */,
@@ -3743,7 +3765,6 @@
 				2BE539701D249BEF00B60FAD /* AAMoslemCalendar.h in Headers */,
 				2B82B5F91E82E2490095FB14 /* libjson.h in Headers */,
 				2BE53A961D249C9000B60FAD /* DDXMLElement.h in Headers */,
-				2B446ACD21F26E0E0078A975 /* MaplyShapeInfo_iOS_private.h in Headers */,
 				2BE538191D249A1200B60FAD /* MaplyPoints.h in Headers */,
 				2BB8A3EE21ED43D10025DA98 /* MaplyDoubleTapDragDelegate.h in Headers */,
 				2BE538661D249A1200B60FAD /* MaplyVectorTileLineStyle.h in Headers */,
@@ -3764,7 +3785,6 @@
 				2B82B5EC1E82E2490095FB14 /* priorityq-heap.h in Headers */,
 				2BE537FC1D249A1200B60FAD /* MaplyAnnotation.h in Headers */,
 				2BB8A3FE21ED43D10025DA98 /* MaplyTouchCancelAnimationDelegate.h in Headers */,
-				2B446AB621F2584B0078A975 /* MaplyBaseInfo_iOS_private.h in Headers */,
 				2BE537FD1D249A1200B60FAD /* MaplyAtmosphere.h in Headers */,
 				2B127BF92012A12B0099F405 /* MaplyRenderController_private.h in Headers */,
 				2BE539871D249BEF00B60FAD /* AASun.h in Headers */,
@@ -3870,7 +3890,6 @@
 				2BB476772000486F006AAACB /* MapboxVectorStyleBackground.h in Headers */,
 				2BE53A931D249C9000B60FAD /* DDXML.h in Headers */,
 				2B884A4A1E3803170027C397 /* bytestreamin_istream.hpp in Headers */,
-				2B446AC821F26E0E0078A975 /* MaplyBillboardInfo_iOS_private.h in Headers */,
 				2B82B6161E82E2490095FB14 /* JSONStats.h in Headers */,
 				2B446B0321F79A600078A975 /* WhirlyVector.h in Headers */,
 				2BE538301D249A1200B60FAD /* MaplyViewController.h in Headers */,
@@ -3900,7 +3919,6 @@
 				2B82B6841E82E24A0095FB14 /* pj_list.h in Headers */,
 				2B884A6E1E3803170027C397 /* laswriteitemcompressed_v2.hpp in Headers */,
 				2BC3D6AA22024EB300CE91D0 /* MaplyAnimateTranslateMomentum.h in Headers */,
-				2B446ACC21F26E0E0078A975 /* MaplyLabelInfo_iOS_private.h in Headers */,
 				2BE5382B1D249A1200B60FAD /* MaplyTextureBuilder.h in Headers */,
 				2BE53A651D249C4600B60FAD /* atomicops_internals_arm_gcc.h in Headers */,
 				2BE539791D249BEF00B60FAD /* AAPhysicalMars.h in Headers */,
