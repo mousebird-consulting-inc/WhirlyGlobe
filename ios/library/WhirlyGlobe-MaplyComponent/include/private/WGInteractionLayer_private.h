@@ -33,20 +33,20 @@
  */
 @interface WGInteractionLayer : MaplyBaseInteractionLayer
 {
-    WhirlyGlobeView * __weak globeView;
+    WhirlyGlobe::GlobeView *globeView;
 
     // If set, we'll autorotate after a certain amount of time
     float autoRotateInterval,autoRotateDegrees;
 
     // Last time something was tapped
-    TimeInterval lastTouched;
+    NSTimeInterval lastTouched;
 }
 
 // The view controller, for various callbacks
 @property (nonatomic,weak) NSObject<WGInteractionLayerDelegate> * viewController;
 
 // Initialize with the globeView
--(id)initWithGlobeView:(WhirlyGlobeView *)globeView;
+-(id)initWithGlobeView:(WhirlyGlobe::GlobeView *)globeView;
 
 // Set the autorotate values
 - (void)setAutoRotateInterval:(float)autoRotateInterval degrees:(float)autoRotateDegrees;

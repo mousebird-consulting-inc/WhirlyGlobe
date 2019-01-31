@@ -23,10 +23,16 @@
 #import "MaplyBaseViewController.h"
 
 // Fill in the Active Model protocol from the API
-@interface MaplyActiveObject() <WhirlyKitActiveModel>
+@interface MaplyActiveObject()
 {
 @public
     WhirlyKit::Scene *scene;
 }
+
+// Wire in the active object
+- (void)registerWithScene;
+
+// Get rid of the scene hooks
+- (void)removeFromScene;
 
 @end

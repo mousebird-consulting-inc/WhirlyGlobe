@@ -30,8 +30,8 @@
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
 @public
-    View * __weak visualView;
-    WhirlyKitGLSetupInfo *glSetupInfo;
+    WhirlyKit::View *visualView;
+    WhirlyKit::WhirlyKitGLSetupInfo glSetupInfo;
 
     pthread_mutex_t selectLock;
     // Use to map IDs in the selection layer to objects the user passed in
@@ -74,7 +74,7 @@
 @property (nonatomic,assign) int screenObjectDrawPriorityOffset;
 
 // Initialize with the view we'll be using
-- (instancetype)initWithView:(View *)visualView;
+- (instancetype)initWithView:(WhirlyKit::View *)visualView;
 
 // Add screen space (2D) markers
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
@@ -122,7 +122,7 @@
 - (void)changeSticker:(MaplyComponentObject *)compObj desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Add lofted polys
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 
 // Add billboards
 - (MaplyComponentObject *)addBillboards:(NSArray *)billboards desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
@@ -207,7 +207,7 @@
 - (void)lockingShutdown;
 
 // Clean up a given texture
-- (void)clearTexture:(MaplyTexture *)tex when:(TimeInterval)when;
+- (void)clearTexture:(MaplyTexture *)tex when:(NSTimeInterval)when;
 
 // Write out usage stats
 - (void)dumpStats;

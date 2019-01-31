@@ -103,7 +103,7 @@ using namespace WhirlyKit;
     WhirlyKit::Scene *scene;
     WhirlyKitQuadDisplayLayerNew *quadLayer;
     WhirlyKitQuadTileBuilder *builder;
-    SceneRendererES * __weak renderer;
+    SceneRendererES *renderer;
     std::vector<NSObject<WhirlyKitQuadTileBuilderDelegate> *> builderDelegates;
     double importance;
     bool builderStarted;
@@ -214,11 +214,11 @@ using namespace WhirlyKit;
     return _params.maxZoom;
 }
 
-- (void)newViewState:(ViewState *)viewState
+- (void)newViewState:(ViewStateRef)viewState
 {
 }
 
-- (double)importanceForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(ViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+- (double)importanceForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(ViewStateRef)viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     // World spanning level 0 nodes sometimes have problems evaluating
     if (_params.minImportanceTop == 0.0 && ident.level == 0)
@@ -230,7 +230,7 @@ using namespace WhirlyKit;
 }
 
 /// Return true if the tile is visible, false otherwise
-- (bool)visibilityForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(ViewState *) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
+- (bool)visibilityForTile:(WhirlyKit::QuadTreeIdentifier)ident mbr:(WhirlyKit::Mbr)mbr viewInfo:(ViewStateRef) viewState frameSize:(WhirlyKit::Point2f)frameSize attrs:(NSMutableDictionary *)attrs
 {
     if (ident.level == 0)
         return true;

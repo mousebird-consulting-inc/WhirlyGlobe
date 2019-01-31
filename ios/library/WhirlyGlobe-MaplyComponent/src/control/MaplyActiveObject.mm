@@ -20,8 +20,32 @@
 
 #import "MaplyActiveObject_private.h"
 
-@implementation MaplyActiveObject
+namespace WhirlyKit {
+    
+// Interface between the c++ and Obj-C sides
+class ActiveModelInterface : public ActiveModel {
+public:
+    virtual bool hasUpdate() {
+        return [activeObject hasUpdate];
+    }
+    
+    virtual void updateForFrame(RendererFrameInfo *frameInfo) {
+        [activeObject updateForFrame:frameInfo];
+    }
+    
+    virtual void teardown() {
+        [activeObject teardown];
+    }
+    
+    MaplyActiveObject *activeObject;
+};
+    
+}
 
+@implementation MaplyActiveObject
+{
+    ActiveModelInterface activeInter;
+}
 
 /// Default initialization.  Updates will happen on the main queue.
 - (instancetype)initWithViewController:(NSObject<MaplyRenderControllerProtocol> *)inViewC
@@ -30,6 +54,16 @@
     _viewC = inViewC;
     
     return self;
+}
+
+- (void)registerWithScene
+{
+    scene->addActiveModel(&activeInter);
+}
+
+- (void)removeFromScene
+{
+    scene->removeActiveModel(&activeInter);
 }
 
 - (void)startWithScene:(WhirlyKit::Scene *)inScene

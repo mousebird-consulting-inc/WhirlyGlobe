@@ -46,7 +46,3 @@ public:
 - (void)addShape:(WhirlyKit::VectorShapeRef)shape;
 
 @end
-
-@interface MaplyVectorDatabase() <WhirlyKitLoftedPolyCache>
-
-@end
