@@ -23,30 +23,30 @@
 
 @interface MaplyShapeCircle()
 
-- (WhirlyKitCircle *)asWKShape:(NSDictionary *)desc;
+- (WhirlyKit::Shape *)asWKShape:(NSDictionary *)desc;
 
 @end
 
 @interface MaplyShapeSphere()
 
-- (WhirlyKitSphere *)asWKShape:(NSDictionary *)desc;
+- (WhirlyKit::Shape *)asWKShape:(NSDictionary *)desc;
 
 @end
 
 @interface MaplyShapeCylinder()
 
-- (WhirlyKitCylinder *)asWKShape:(NSDictionary *)desc;
+- (WhirlyKit::Shape *)asWKShape:(NSDictionary *)desc;
 
 @end
 
 @interface MaplyShapeRectangle()
 
-- (WhirlyKitShapeRectangle *)asWKShape:(NSDictionary *)desc;
+- (WhirlyKit::Shape *)asWKShape:(NSDictionary *)desc;
 
 @end
 
 @interface MaplyShapeExtruded()
 
-- (WhirlyKitShapeExtruded *)asWKShape:(NSDictionary *)desc;
+- (WhirlyKit::Shape *)asWKShape:(NSDictionary *)desc;
 
 @end

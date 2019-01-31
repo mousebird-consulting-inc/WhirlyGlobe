@@ -85,7 +85,7 @@ using namespace Eigen;
 }
 
 // Return the ID for or generate a base model in the Geometry Manager
-- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKitFontTextureManager *)fontTexManager compObj:(MaplyComponentObject *)compObj mode:(MaplyThreadMode)threadMode
+- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKit::FontTextureManager *)fontTexManager compObj:(MaplyComponentObject *)compObj mode:(MaplyThreadMode)threadMode
 {
     @synchronized(self)
     {
@@ -104,7 +104,7 @@ using namespace Eigen;
         {
             ShapeManager *shapeManager = (ShapeManager *)layer->scene->getManager(kWKShapeManager);
 
-            WhirlyKitShape *wkShape = nil;
+            WhirlyKit::Shape *wkShape = nil;
             if ([shape isKindOfClass:[MaplyShapeCircle class]])
                 wkShape = [(MaplyShapeCircle *)shape asWKShape:nil];
             else if ([shape isKindOfClass:[MaplyShapeSphere class]])
@@ -113,9 +113,10 @@ using namespace Eigen;
                 wkShape = [(MaplyShapeCylinder *)shape asWKShape:nil];
             else if ([shape isKindOfClass:[MaplyShapeExtruded class]])
                 wkShape = [(MaplyShapeExtruded *)shape asWKShape:nil];
-            
-            if (wkShape)
-                shapeManager->convertShape(wkShape,procGeom);
+
+            // Note: Turned off for porting
+//            if (wkShape)
+//                shapeManager->convertShape(wkShape,procGeom);
         } else {
             // Add the textures
             std::vector<std::string> texFileNames;
@@ -145,7 +146,7 @@ using namespace Eigen;
         for (const GeomStringWrapper &strWrap : strings)
         {
             // Convert the string to polygons
-            DrawableString *drawStr = [fontTexManager addString:strWrap.str changes:changes];
+            DrawableString *drawStr = fontTexManager->addString(strWrap.str,changes);
             for (const DrawableString::Rect &rect : drawStr->glyphPolys)
             {
                 // Find the appropriate geometry bucket

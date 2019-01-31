@@ -27,7 +27,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyShape
 
-- (WhirlyKitShape *)asWKShape:(NSDictionary *)desc
+- (Shape *)asWKShape:(NSDictionary *)desc
 {
     return nil;
 }
@@ -36,9 +36,11 @@ using namespace WhirlyKit;
 
 @implementation MaplyShapeCircle
 
-- (WhirlyKitCircle *)asWKShape:(NSDictionary *)desc
+// Note: Add the missing shapes back
+- (Shape *)asWKShape:(NSDictionary *)desc
 {
-    WhirlyKitCircle *newCircle = [[WhirlyKitCircle alloc] init];\
+#if 0
+    WhirlyKit::Circle *newCircle = WhirlyKit::Circle;
     
     newCircle.loc.lon() = _center.x;
     newCircle.loc.lat() = _center.y;
@@ -56,21 +58,23 @@ using namespace WhirlyKit;
     }
     
     return newCircle;
+#endif
+    return NULL;
 }
 
 @end
 
 @implementation MaplyShapeSphere
 
-- (WhirlyKitSphere *)asWKShape:(NSDictionary *)desc
+- (Sphere *)asWKShape:(NSDictionary *)desc
 {
-    WhirlyKitSphere *newSphere = [[WhirlyKitSphere alloc] init];
-    newSphere.loc.lon() = _center.x;
-    newSphere.loc.lat() = _center.y;
-    newSphere.radius = _radius;
-    newSphere.height = _height;
-    newSphere.sampleX = [desc[kMaplyShapeSampleX] intValue];
-    newSphere.sampleY = [desc[kMaplyShapeSampleY] intValue];
+    Sphere *newSphere = new Sphere();
+    newSphere->loc.lon() = _center.x;
+    newSphere->loc.lat() = _center.y;
+    newSphere->radius = _radius;
+    newSphere->height = _height;
+    newSphere->sampleX = [desc[kMaplyShapeSampleX] intValue];
+    newSphere->sampleY = [desc[kMaplyShapeSampleY] intValue];
     if (self.color)
     {
         newSphere.useColor = true;
@@ -85,7 +89,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyShapeCylinder
 
-- (WhirlyKitCylinder *)asWKShape:(NSDictionary *)desc
+- (Shape *)asWKShape:(NSDictionary *)desc
 {
     WhirlyKitCylinder *newCyl = [[WhirlyKitCylinder alloc] init];
     newCyl.loc.lon() = _baseCenter.x;

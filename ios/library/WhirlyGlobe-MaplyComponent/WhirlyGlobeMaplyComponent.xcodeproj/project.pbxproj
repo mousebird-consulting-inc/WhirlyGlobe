@@ -409,6 +409,24 @@
 		2B87971C2203BF2E00EF801D /* MaplyMatrix.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537B41D249A1200B60FAD /* MaplyMatrix.mm */; };
 		2B87971D2203BF2E00EF801D /* MaplyCoordinate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A71D249A1200B60FAD /* MaplyCoordinate.mm */; };
 		2B87971E2203BF2E00EF801D /* MaplyCoordinateSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A81D249A1200B60FAD /* MaplyCoordinateSystem.mm */; };
+		2B87971F2203BF7900EF801D /* MaplyMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537B31D249A1200B60FAD /* MaplyMarker.m */; };
+		2B8797202203BF7900EF801D /* MaplyLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537B11D249A1200B60FAD /* MaplyLabel.m */; };
+		2B8797212203BF7900EF801D /* MaplyLight.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537B21D249A1200B60FAD /* MaplyLight.m */; };
+		2B8797222203BF7900EF801D /* MaplyBillboard.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A21D249A1200B60FAD /* MaplyBillboard.mm */; };
+		2B8797232203BF7900EF801D /* MaplyComponentObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A61D249A1200B60FAD /* MaplyComponentObject.mm */; };
+		2B8797242203BF7900EF801D /* MaplyGeomModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537AD1D249A1200B60FAD /* MaplyGeomModel.mm */; };
+		2B8797252203BF7900EF801D /* MaplyPoints.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537BB1D249A1200B60FAD /* MaplyPoints.mm */; };
+		2B8797262203BF7900EF801D /* MaplyMoon.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537B61D249A1200B60FAD /* MaplyMoon.mm */; };
+		2B8797272203BF7900EF801D /* MaplyParticleSystem.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537BA1D249A1200B60FAD /* MaplyParticleSystem.mm */; };
+		2B8797282203BF7900EF801D /* MaplyScreenLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537C21D249A1200B60FAD /* MaplyScreenLabel.m */; };
+		2B8797292203BF7900EF801D /* MaplyScreenMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537C31D249A1200B60FAD /* MaplyScreenMarker.m */; };
+		2B87972A2203BF7900EF801D /* MaplyScreenObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537C41D249A1200B60FAD /* MaplyScreenObject.mm */; };
+		2B87972C2203BF7900EF801D /* MaplyStarsModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537C91D249A1200B60FAD /* MaplyStarsModel.mm */; };
+		2B87972D2203BF7900EF801D /* MaplySticker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537CA1D249A1200B60FAD /* MaplySticker.mm */; };
+		2B87972E2203BF7900EF801D /* MaplySun.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537CB1D249A1200B60FAD /* MaplySun.mm */; };
+		2B87972F2203BF7900EF801D /* MaplyTexture.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537CC1D249A1200B60FAD /* MaplyTexture.mm */; };
+		2B8797302203BF7900EF801D /* MaplyVectorObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537D11D249A1200B60FAD /* MaplyVectorObject.mm */; };
+		2B8797312203BF7900EF801D /* MaplyVertexAttribute.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537D21D249A1200B60FAD /* MaplyVertexAttribute.mm */; };
 		2B884A421E3803170027C397 /* arithmeticdecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0A1E3803170027C397 /* arithmeticdecoder.cpp */; };
 		2B884A431E3803170027C397 /* arithmeticdecoder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A0B1E3803170027C397 /* arithmeticdecoder.hpp */; };
 		2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0C1E3803170027C397 /* arithmeticencoder.cpp */; };
@@ -4097,6 +4115,7 @@
 				2B446B1F21F79AE40078A975 /* Proj4CoordSystem.cpp in Sources */,
 				2B82B61E1E82E2490095FB14 /* libjson.cpp in Sources */,
 				2BE539B31D249BEF00B60FAD /* AAPhysicalMars.cpp in Sources */,
+				2B87971F2203BF7900EF801D /* MaplyMarker.m in Sources */,
 				2BE5399E1D249BEF00B60FAD /* AAInterpolate.cpp in Sources */,
 				2B82B6591E82E2490095FB14 /* PJ_eck2.c in Sources */,
 				2BE53A421D249C3D00B60FAD /* zero_copy_stream_impl_lite.cc in Sources */,
@@ -4147,13 +4166,18 @@
 				2BE539BD1D249BEF00B60FAD /* AASaturnMoons.cpp in Sources */,
 				2B846EDB21F1362700EF2A82 /* pj_gridcatalog.c in Sources */,
 				2B82B65F1E82E24A0095FB14 /* PJ_eqc.c in Sources */,
+				2B8797212203BF7900EF801D /* MaplyLight.m in Sources */,
 				2B87971E2203BF2E00EF801D /* MaplyCoordinateSystem.mm in Sources */,
 				2B82B64D1E82E2490095FB14 /* PJ_cass.c in Sources */,
 				2B82B6B41E82E24A0095FB14 /* PJ_tmerc.c in Sources */,
 				2B884A6D1E3803170027C397 /* laswriteitemcompressed_v2.cpp in Sources */,
+				2B87972A2203BF7900EF801D /* MaplyScreenObject.mm in Sources */,
 				2B8796D321FFC59D00EF801D /* NSString+Stuff.mm in Sources */,
+				2B8797222203BF7900EF801D /* MaplyBillboard.mm in Sources */,
 				2B884A751E3803170027C397 /* laszip.cpp in Sources */,
 				2B884A741E3803170027C397 /* laszip_dll.cpp in Sources */,
+				2B8797292203BF7900EF801D /* MaplyScreenMarker.m in Sources */,
+				2B8797312203BF7900EF801D /* MaplyVertexAttribute.mm in Sources */,
 				2B8796BE21FFB37900EF801D /* LayoutManager.cpp in Sources */,
 				2B82B64C1E82E2490095FB14 /* PJ_bonne.c in Sources */,
 				2B82B6111E82E2490095FB14 /* JSONNode_Mutex.cpp in Sources */,
@@ -4180,6 +4204,7 @@
 				2B846EE421F1377600EF2A82 /* pj_auth.c in Sources */,
 				2BE539B61D249BEF00B60FAD /* AAPlanetaryPhenomena.cpp in Sources */,
 				2B82B6961E82E24A0095FB14 /* PJ_nocol.c in Sources */,
+				2B8797202203BF7900EF801D /* MaplyLabel.m in Sources */,
 				2BE539AE1D249BEF00B60FAD /* AANutation.cpp in Sources */,
 				2BE539BB1D249BEF00B60FAD /* AARiseTransitSet.cpp in Sources */,
 				2BE53A971D249C9000B60FAD /* DDXMLElement.m in Sources */,
@@ -4189,6 +4214,7 @@
 				2B82B6A51E82E24A0095FB14 /* PJ_putp4p.c in Sources */,
 				2B82B6C01E82E24A0095FB14 /* PJ_wag3.c in Sources */,
 				2BE53A631D249C4600B60FAD /* stringpiece.cc in Sources */,
+				2B8797272203BF7900EF801D /* MaplyParticleSystem.mm in Sources */,
 				2B82B62E1E82E2490095FB14 /* PJ_sch.c in Sources */,
 				2B82B65E1E82E24A0095FB14 /* pj_ellps.c in Sources */,
 				2B8796BF21FFB37900EF801D /* LoftManager.cpp in Sources */,
@@ -4237,6 +4263,7 @@
 				2B446B1E21F79AE40078A975 /* GlobeMath.cpp in Sources */,
 				2B82B6B01E82E24A0095FB14 /* pj_strerrno.c in Sources */,
 				2B82B69E1E82E24A0095FB14 /* PJ_ortho.c in Sources */,
+				2B8797252203BF7900EF801D /* MaplyPoints.mm in Sources */,
 				2B82B64F1E82E2490095FB14 /* PJ_cea.c in Sources */,
 				2BE53A1B1D249C2900B60FAD /* wire_format_lite.cc in Sources */,
 				2B82B63F1E82E2490095FB14 /* nad_intr.c in Sources */,
@@ -4252,6 +4279,7 @@
 				2BE53A041D249C2900B60FAD /* extension_set_heavy.cc in Sources */,
 				2B8796FD22038B9D00EF801D /* LayerThread.mm in Sources */,
 				2BE53A171D249C2900B60FAD /* unknown_field_set.cc in Sources */,
+				2B8797242203BF7900EF801D /* MaplyGeomModel.mm in Sources */,
 				2B8796FC2203861200EF801D /* LayerViewWatcher.mm in Sources */,
 				2B884A461E3803170027C397 /* arithmeticmodel.cpp in Sources */,
 				2B82B6691E82E24A0095FB14 /* PJ_geos.c in Sources */,
@@ -4272,6 +4300,7 @@
 				2BC3D6C22202538700CE91D0 /* GlobeView_iOS.mm in Sources */,
 				2B82B6911E82E24A0095FB14 /* pj_msfn.c in Sources */,
 				2BE539B71D249BEF00B60FAD /* AAPlanetPerihelionAphelion.cpp in Sources */,
+				2B8797302203BF7900EF801D /* MaplyVectorObject.mm in Sources */,
 				2BE539BC1D249BEF00B60FAD /* AASaturn.cpp in Sources */,
 				2B8797142203B76000EF801D /* NSDictionary+StyleRules.m in Sources */,
 				2B8796C221FFB37900EF801D /* SelectionManager.cpp in Sources */,
@@ -4298,7 +4327,11 @@
 				2B82B5FF1E82E2490095FB14 /* JSONAllocator.cpp in Sources */,
 				2BE53A621D249C4600B60FAD /* status.cc in Sources */,
 				2B82B6B31E82E24A0095FB14 /* PJ_tcea.c in Sources */,
+				2B8797282203BF7900EF801D /* MaplyScreenLabel.m in Sources */,
 				2B82B69C1E82E24A0095FB14 /* PJ_omerc.c in Sources */,
+				2B87972D2203BF7900EF801D /* MaplySticker.mm in Sources */,
+				2B87972C2203BF7900EF801D /* MaplyStarsModel.mm in Sources */,
+				2B8797232203BF7900EF801D /* MaplyComponentObject.mm in Sources */,
 				2B446B7D21FB94A00078A975 /* VectorData.cpp in Sources */,
 				2BE539A61D249BEF00B60FAD /* AAMoonMaxDeclinations.cpp in Sources */,
 				2B884A661E3803170027C397 /* lasreadpoint.cpp in Sources */,
@@ -4324,6 +4357,7 @@
 				2B82B6C61E82E24A0095FB14 /* proj_etmerc.c in Sources */,
 				2BE539911D249BEF00B60FAD /* AADynamicalTime.cpp in Sources */,
 				2B82B6761E82E24A0095FB14 /* pj_init.c in Sources */,
+				2B87972F2203BF7900EF801D /* MaplyTexture.mm in Sources */,
 				2BB8E1D921FF78A700154CDC /* Identifiable.cpp in Sources */,
 				2B8796E221FFD5B900EF801D /* SceneRendererES_iOS.mm in Sources */,
 				2B846EE621F137BD00EF2A82 /* geod_set.c in Sources */,
@@ -4433,6 +4467,7 @@
 				2B82B6811E82E24A0095FB14 /* PJ_lcc.c in Sources */,
 				2B82B68C1E82E24A0095FB14 /* PJ_merc.c in Sources */,
 				2B82B61B1E82E2490095FB14 /* JSONWorker.cpp in Sources */,
+				2B87972E2203BF7900EF801D /* MaplySun.mm in Sources */,
 				2BE53A021D249C2900B60FAD /* extension_set.cc in Sources */,
 				2B8797082203A27B00EF801D /* QuadDisplayLayerNew.mm in Sources */,
 				2B82B6511E82E2490095FB14 /* PJ_collg.c in Sources */,
@@ -4476,6 +4511,7 @@
 				2B82B67A1E82E24A0095FB14 /* PJ_krovak.c in Sources */,
 				2BE53A0A1D249C2900B60FAD /* message.cc in Sources */,
 				2BE53A331D249C3D00B60FAD /* strtod.cc in Sources */,
+				2B8797262203BF7900EF801D /* MaplyMoon.mm in Sources */,
 				2B879703220390B600EF801D /* LoadedTileNew.mm in Sources */,
 				2B82B6B11E82E24A0095FB14 /* PJ_sts.c in Sources */,
 				2B8796B821FFB35200EF801D /* BillboardManager.cpp in Sources */,
