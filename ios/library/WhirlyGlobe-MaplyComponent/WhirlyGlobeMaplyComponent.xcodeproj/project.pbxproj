@@ -398,6 +398,8 @@
 		2B8796E021FFD59100EF801D /* SceneRendererES_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8796DF21FFD59000EF801D /* SceneRendererES_iOS.h */; };
 		2B8796E221FFD5B900EF801D /* SceneRendererES_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8796E121FFD5B900EF801D /* SceneRendererES_iOS.mm */; };
 		2B8796EE2203734600EF801D /* GlobeAnimateHeight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6B022024ECE00CE91D0 /* GlobeAnimateHeight.cpp */; };
+		2B8796EF220375E900EF801D /* GlobeAnimateRotation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6B122024ECE00CE91D0 /* GlobeAnimateRotation.cpp */; };
+		2B8796F022037A1A00EF801D /* GlobeAnimateViewMomentum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6B522024ECE00CE91D0 /* GlobeAnimateViewMomentum.cpp */; };
 		2B884A421E3803170027C397 /* arithmeticdecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0A1E3803170027C397 /* arithmeticdecoder.cpp */; };
 		2B884A431E3803170027C397 /* arithmeticdecoder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A0B1E3803170027C397 /* arithmeticdecoder.hpp */; };
 		2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0C1E3803170027C397 /* arithmeticencoder.cpp */; };
@@ -4116,6 +4118,7 @@
 				2BB8E20821FFAAA000154CDC /* SceneRendererES2.cpp in Sources */,
 				2BE539AF1D249BEF00B60FAD /* AAParabolic.cpp in Sources */,
 				2B8796C021FFB37900EF801D /* MarkerManager.cpp in Sources */,
+				2B8796EF220375E900EF801D /* GlobeAnimateRotation.cpp in Sources */,
 				2B8796BD21FFB37900EF801D /* LabelManager.cpp in Sources */,
 				2BB8E1FF21FF93CB00154CDC /* MaplyView.cpp in Sources */,
 				2B82B6881E82E24A0095FB14 /* pj_malloc.c in Sources */,
@@ -4192,6 +4195,7 @@
 				2B8796DD21FFCBF600EF801D /* glwrapper.cpp in Sources */,
 				2B82B6A71E82E24A0095FB14 /* PJ_putp6.c in Sources */,
 				2BE53A131D249C2900B60FAD /* service.cc in Sources */,
+				2B8796F022037A1A00EF801D /* GlobeAnimateViewMomentum.cpp in Sources */,
 				2B82B66F1E82E24A0095FB14 /* pj_gridlist.c in Sources */,
 				2B82B6AF1E82E24A0095FB14 /* PJ_sterea.c in Sources */,
 				2BE539B51D249BEF00B60FAD /* AAPhysicalSun.cpp in Sources */,

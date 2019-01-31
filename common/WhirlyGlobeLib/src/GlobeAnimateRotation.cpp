@@ -18,47 +18,45 @@
  *
  */
 
+#import "Platform.h"
 #import "GlobeAnimateRotation.h"
 
-@implementation WhirlyGlobeAnimateViewRotation
+using namespace WhirlyKit;
+using namespace Eigen;
 
-
-- (id)initWithView:(WhirlyGlobeView *)globeView rot:(Eigen::Quaterniond &)newRot howLong:(float)howLong
+namespace WhirlyGlobe
 {
-    if ((self = [super init]))
-    {
-        _startDate = TimeGetCurrent();
-        _endDate = TimeGetCurrent() + howLong;
-        _startRot = [globeView rotQuat];
-        _endRot = newRot;
-    }
-    
-    return self;
+
+AnimateViewRotation::AnimateViewRotation(GlobeView *globeView,const Eigen::Quaterniond &newRot,TimeInterval howLong)
+{
+    startDate = TimeGetCurrent();
+    endDate = TimeGetCurrent() + howLong;
+    startRot = globeView->getRotQuat();
+    endRot = newRot;
 }
-
-
+    
 // Called by the view when it's time to update
-- (void)updateView:(WhirlyGlobeView *)globeView
+void AnimateViewRotation::updateView(GlobeView *globeView)
 {
-	if (!self.startDate)
+	if (startDate == 0.0)
 		return;
 	
-	CFTimeInterval now = TimeGetCurrent();
-        float span = _endDate-_startDate;
-        float remain = _endDate - now;
+	TimeInterval now = TimeGetCurrent();
+    double span = endDate-startDate;
+    double remain = endDate - now;
     
 	// All done.  Snap to the end
 	if (remain < 0)
 	{
-		[globeView setRotQuat:_endRot];
-        _startDate = 0;
-        _endDate = 0;
-        [globeView cancelAnimation];
+        globeView->setRotQuat(endRot);
+        startDate = 0;
+        endDate = 0;
+        globeView->cancelAnimation();
 	} else {
 		// Interpolate somewhere along the path
-		float t = (span-remain)/span;
-		[globeView setRotQuat:_startRot.slerp(t,_endRot)];
+		double t = (span-remain)/span;
+		globeView->setRotQuat(startRot.slerp(t,endRot));
 	}
 }
 
-@end
+}

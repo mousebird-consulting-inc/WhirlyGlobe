@@ -20,76 +20,47 @@
 
 #import <algorithm>
 #import "GlobeAnimateViewMomentum.h"
+#import "Platform.h"
 
 using namespace Eigen;
+using namespace WhirlyKit;
 
-@implementation AnimateViewMomentumMessage
-
-- (id)initWithGlobeView:(WhirlyGlobeView *)globeView rot:(Quaterniond &)endRot time:(TimeInterval)endTime
+namespace WhirlyGlobe
 {
-    self = [super init];
-    _globeView = globeView;
-    _rot = endRot;
-    _endTime = endTime;
+
+AnimateViewMomentum::AnimateViewMomentum(GlobeView *globeView,double inVel,double inAcc,const Eigen::Vector3f &inAxis,bool inNorthUp)
+{
+    velocity = inVel;
+    acceleration = inAcc;
+    northUp = inNorthUp;
+    axis = Vector3d(inAxis.x(),inAxis.y(),inAxis.z());
+    startQuat = globeView->getRotQuat();
     
-    return self;
-}
-
-@end
-
-@implementation AnimateViewMomentum
-{
-    Eigen::Quaterniond startQuat;
-    Eigen::Vector3d axis;
-    float maxTime;
-    CFTimeInterval startDate;
-}
-
-- (id)initWithView:(WhirlyGlobeView *)globeView velocity:(float)inVel accel:(float)inAcc axis:(Vector3f)inAxis northUp:(bool)northUp
-{
-    if ((self = [super init]))
+    startDate = TimeGetCurrent();
+    
+    // Let's calculate the maximum time, so we know when to stop
+    if (acceleration != 0.0)
     {
-        _velocity = inVel;
-        _acceleration = inAcc;
-        _northUp = northUp;
-        axis = Vector3d(inAxis.x(),inAxis.y(),inAxis.z());
-        startQuat = [globeView rotQuat];
+        maxTime = 0.0;
+        if (acceleration != 0.0)
+            maxTime = -velocity / acceleration;
+        maxTime = std::max(0.0,maxTime);
         
-        startDate = TimeGetCurrent();
-        
-        // Let's calculate the maximum time, so we know when to stop
-        if (_acceleration != 0.0)
-        {
-            maxTime = 0.0;
-            if (_acceleration != 0.0)
-                maxTime = -_velocity / _acceleration;
-            maxTime = std::max(0.f,maxTime);
-            
-            if (maxTime == 0.0)
-                startDate = 0;
-        } else
-            maxTime = MAXFLOAT;
-        
-        // If this is going to end, let people know when
-        if (maxTime != MAXFLOAT)
-        {
-//            Quaterniond endRot = [self rotForTime:maxTime];
-//            AnimateViewMomentumMessage *msg = [[AnimateViewMomentumMessage alloc] initWithGlobeView:globeView rot:endRot time:startDate+maxTime];
-        }
-    }
-    
-    return self;
+        if (maxTime == 0.0)
+            startDate = 0;
+    } else
+        maxTime = MAXFLOAT;
 }
 
-- (Quaterniond)rotForTime:(TimeInterval)sinceStart
+Quaterniond AnimateViewMomentum::rotForTime(GlobeView *globeView,TimeInterval sinceStart)
 {
     // Calculate the offset based on angle
-    float totalAng = (_velocity + 0.5 * _acceleration * sinceStart) * sinceStart;
+    float totalAng = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
     Eigen::Quaterniond diffRot(Eigen::AngleAxisd(totalAng,axis));
     Eigen::Quaterniond newQuat;
     newQuat = startQuat * diffRot;
 
-    if (_northUp)
+    if (northUp)
     {
         // We'd like to keep the north pole pointed up
         // So we look at where the north pole is going
@@ -98,7 +69,7 @@ using namespace Eigen;
         {
             // We need to know where up (facing the user) will be
             //  so we can rotate around that
-            Vector3d newUp = [WhirlyGlobeView prospectiveUp:newQuat];
+            Vector3d newUp = globeView->prospectiveUp(newQuat);
             
             // Then rotate it back on to the YZ axis
             // This will keep it upward
@@ -118,7 +89,7 @@ using namespace Eigen;
 }
 
 // Called by the view when it's time to update
-- (void)updateView:(WhirlyGlobeView *)globeView
+void AnimateViewMomentum::updateView(GlobeView *globeView)
 {
     if (startDate == 0.0)
         return;
@@ -132,12 +103,12 @@ using namespace Eigen;
         startDate = 0;
     }
     
-    Quaterniond newQuat = [self rotForTime:sinceStart];
-    [globeView setRotQuat:newQuat];
+    Quaterniond newQuat = rotForTime(globeView,sinceStart);
+    globeView->setRotQuat(newQuat);
     
     // Make sure to cancel the animation *after* we set the new rotation (duh)
     if (startDate == 0)
-        [globeView cancelAnimation];
+        globeView->cancelAnimation();
 }
 
-@end
+}

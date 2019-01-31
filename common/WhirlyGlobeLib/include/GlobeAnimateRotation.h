@@ -18,28 +18,36 @@
  *
  */
 
-#import <UIKit/UIKit.h>
+#import "WhirlyTypes.h"
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "GlobeView.h"
+
+namespace WhirlyGlobe
+{
 
 /** Animate View Rotation is WhirlyGlobe Animation Delegate
     that will animate rotation from one point to another over
     time.
  */
-@interface WhirlyGlobeAnimateViewRotation : NSObject<WhirlyGlobeAnimationDelegate>
+class AnimateViewRotation : public GlobeViewAnimationDelegate
+{
+    /// Kick off a rotate to the given position over the given time
+    /// Assign this to the globe view's delegate and it'll do the rest
+    AnimateViewRotation(GlobeView *globeView,const Eigen::Quaterniond &newRot,WhirlyKit::TimeInterval howLong);
 
-/// When to start the animation.  Can be in the past
-@property (nonatomic,assign) TimeInterval startDate;
-/// When to finish the animation.
-@property (nonatomic,assign) TimeInterval endDate;
-/// Where to start rotating.  This is probably where you are when you start
-@property (nonatomic,assign) Eigen::Quaterniond startRot;
-/// Where to end the rotation.  We'll interpolate from the start to here
-@property (nonatomic,assign) Eigen::Quaterniond endRot;
+    /// Update the globe view
+    virtual void updateView(GlobeView *globeView);
 
-/// Kick off a rotate to the given position over the given time
-/// Assign this to the globe view's delegate and it'll do the rest
-- (id)initWithView:(WhirlyGlobeView *)globeView rot:(Eigen::Quaterniond &)newRot howLong:(float)howLong;
+protected:
+    /// When to start the animation.  Can be in the past
+    WhirlyKit::TimeInterval startDate;
+    /// When to finish the animation.
+    WhirlyKit::TimeInterval endDate;
+    /// Where to start rotating.  This is probably where you are when you start
+    Eigen::Quaterniond startRot;
+    /// Where to end the rotation.  We'll interpolate from the start to here
+    Eigen::Quaterniond endRot;
+};
 
-@end
+}

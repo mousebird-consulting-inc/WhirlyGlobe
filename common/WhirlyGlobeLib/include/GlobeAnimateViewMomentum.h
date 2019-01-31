@@ -18,40 +18,35 @@
  *
  */
 
-#import <Foundation/Foundation.h>
+#import "WhirlyTypes.h"
+#import "WhirlyVector.h"
+#import "WhirlyGeometry.h"
 #import "GlobeView.h"
 
-/** The animate view momentum message is sent out when the animation starts.
-    You can use this to calculate where it will end.
-  */
-@interface AnimateViewMomentumMessage : NSObject
-
-/// The globe view this related to
-@property (nonatomic,readonly) WhirlyGlobeView *globeView;
-
-/// When this animation will end
-@property (nonatomic,readonly) TimeInterval endTime;
-
-/// Rotation at the end of this animation
-@property (nonatomic,readonly) Eigen::Quaterniond rot;
-
-@end
-
-// Sent out when the animation view momentum delegate starts
-#define kAnimateViewMomentum @"WKAnimationViewMomentumStarted"
-
+namespace WhirlyGlobe
+{
 /** Animate View Momentum is a WhirlyGlobe Animation Delegate
     that will animate from a starting point forward in time with
     an acceleration.  Basically, we use this to simulate momentum.
     We might assign it after a tap and drag is finished.
  */
-@interface AnimateViewMomentum : NSObject<WhirlyGlobeAnimationDelegate> 
+class AnimateViewMomentum : public GlobeViewAnimationDelegate
+{
+public:
+    AnimateViewMomentum(GlobeView *globeView,double velocity,double acceleration,const Eigen::Vector3f &axis,bool northUp);
+    
+    /// Update the globe view
+    virtual void updateView(GlobeView *globeView);
 
-@property (nonatomic,assign) float velocity;
-@property (nonatomic,assign) float acceleration;
-@property (nonatomic,assign) bool northUp;
+protected:
+    Eigen::Quaterniond rotForTime(GlobeView *globeView,WhirlyKit::TimeInterval sinceStart);
+    
+    double velocity,acceleration;
+    bool northUp;
+    Eigen::Quaterniond startQuat;
+    Eigen::Vector3d axis;
+    double maxTime;
+    WhirlyKit::TimeInterval startDate;
+};
 
-/// Initialize with an angular velocity and a negative acceleration (to slow down)
-- (id)initWithView:(WhirlyGlobeView *)globeView velocity:(float)velocity accel:(float)acceleration axis:(Eigen::Vector3f)axis northUp:(bool)northUp;
-
-@end
+}
