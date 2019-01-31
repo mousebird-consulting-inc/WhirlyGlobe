@@ -18,6 +18,7 @@
  *
  */
 
+#import "WhirlyTypes.h"
 #import "WhirlyVector.h"
 #import "WhirlyGeometry.h"
 #import "GlobeView.h"
@@ -25,19 +26,74 @@
 namespace WhirlyGlobe
 {
 
+/** Protocol for a delegate that handles tilt calculation.
+ */
+class TiltCalculator
+{
+public:
+    TiltCalculator();
+
+    /// If this is called, the pan delegate will vary the tilt between the given values for the
+    ///  given height range.
+    virtual void setContraints(double minTilt,double maxTilt,double minHeight,double maxHeight);
+
+    /// Returns true if the tilt zoom mode is set and the appropriate values
+    virtual bool getConstraints(double &retMinTilt,double &retMaxTilt,double &retMinHeight,double &retMaxHeight);
+
+    /// Return a calculated tilt
+    virtual double tiltFromHeight(double height) = 0;
+
+    /// Called by an actual tilt gesture.  We're setting the tilt as given
+    virtual void setTilt(double newTilt) = 0;
+    
+protected:
+    bool active;
+    double tilt;
+    double minTilt,maxTilt,minHeight,maxHeight;
+};
+    
+typedef std::shared_ptr<TiltCalculator> TiltCalculatorRef;
+    
+/** A simple tilt delegate that varies tilt by height for a given range.
+ */
+class StandardTiltDelegate : public TiltCalculator
+{
+public:
+    StandardTiltDelegate(GlobeView *globeView);
+
+    /// Return a calculated tilt
+    virtual double tiltFromHeight(double height);
+    
+    /// Return the maximum allowable tilt
+    virtual double getMaxTilt();
+    
+    /// Called by an actual tilt gesture.  We're setting the tilt as given
+    virtual void setTilt(double newTilt);
+
+protected:
+    GlobeView *globeView;
+    double outsideTilt;
+};
+
 /// Animate height for a globe view over time
-class WhirlyGlobeAnimateViewHeight : public GlobeViewAnimationDelegate
+class AnimateViewHeight : public GlobeViewAnimationDelegate
 {
 public:
     /// Start interpolating height immediately for the given time period
-    WhirlyGlobeAnimateViewHeight(GlobeView *globeView,double toHeight,TimeInterval howLong,WhirlyGlobeTiltCalculatorDelegateRef tiltDelegate);
+    AnimateViewHeight(GlobeView *globeView,double toHeight,WhirlyKit::TimeInterval howLong);
     
-    virtual void updateView(GlobeView *globeView) = 0;
+    /// Update the globe view
+    virtual void updateView(GlobeView *globeView);
+    
+    /// If set, we're constraining the tilt based on height
+    void setTiltDelegate(TiltCalculatorRef newDelegate);
+    
+protected:
+    GlobeView *globeView;
+    WhirlyKit::TimeInterval startDate;
+    WhirlyKit::TimeInterval endDate;
+    double startHeight,endHeight;
+    TiltCalculatorRef tiltDelegate;
+};
+
 }
-
-- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong delegate:(NSObject<WhirlyGlobeTiltCalculatorDelegate> *)tiltDelegate;
-
-// If set, we calculate the tilt every time we update
-@property (nonatomic,weak) NSObject<WhirlyGlobeTiltCalculatorDelegate> *tiltDelegate;
-
-@end

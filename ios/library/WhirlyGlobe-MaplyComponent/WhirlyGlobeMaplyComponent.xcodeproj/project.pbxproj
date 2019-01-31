@@ -397,6 +397,7 @@
 		2B8796DE21FFCC0D00EF801D /* EAGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5621E82E2490095FB14 /* EAGLView.mm */; };
 		2B8796E021FFD59100EF801D /* SceneRendererES_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8796DF21FFD59000EF801D /* SceneRendererES_iOS.h */; };
 		2B8796E221FFD5B900EF801D /* SceneRendererES_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8796E121FFD5B900EF801D /* SceneRendererES_iOS.mm */; };
+		2B8796EE2203734600EF801D /* GlobeAnimateHeight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6B022024ECE00CE91D0 /* GlobeAnimateHeight.cpp */; };
 		2B884A421E3803170027C397 /* arithmeticdecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0A1E3803170027C397 /* arithmeticdecoder.cpp */; };
 		2B884A431E3803170027C397 /* arithmeticdecoder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A0B1E3803170027C397 /* arithmeticdecoder.hpp */; };
 		2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0C1E3803170027C397 /* arithmeticencoder.cpp */; };
@@ -4120,6 +4121,7 @@
 				2B82B6881E82E24A0095FB14 /* pj_malloc.c in Sources */,
 				2B82B69F1E82E24A0095FB14 /* pj_param.c in Sources */,
 				2B82B64E1E82E2490095FB14 /* PJ_cc.c in Sources */,
+				2B8796EE2203734600EF801D /* GlobeAnimateHeight.cpp in Sources */,
 				2B82B66B1E82E24A0095FB14 /* PJ_gn_sinu.c in Sources */,
 				2B82B6C21E82E24A0095FB14 /* PJ_wink1.c in Sources */,
 				2B82B6171E82E2490095FB14 /* JSONStream.cpp in Sources */,

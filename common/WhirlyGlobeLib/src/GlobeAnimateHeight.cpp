@@ -19,57 +19,117 @@
  */
 
 #import "GlobeAnimateHeight.h"
+#import "Platform.h"
 
-@implementation WhirlyGlobeAnimateViewHeight
+using namespace WhirlyKit;
+
+namespace WhirlyGlobe
 {
-    TimeInterval startDate;
-    TimeInterval endDate;
-    double startHeight,endHeight;
+    
+TiltCalculator::TiltCalculator()
+    : minTilt(0.0), maxTilt(0.0), minHeight(0.0), maxHeight(0.0)
+{
+}
+    
+void TiltCalculator::setContraints(double inMinTilt,double inMaxTilt,double inMinHeight,double inMaxHeight)
+{
+    active = true;
+    minTilt = inMinTilt;
+    maxTilt = inMaxTilt;
+    minHeight = inMinHeight;
+    maxHeight = inMaxHeight;
 }
 
-- (id)initWithView:(WhirlyGlobeView *)globeView toHeight:(double)height howLong:(float)howLong delegate:(NSObject<WhirlyGlobeTiltCalculatorDelegate> *)tiltDelegate
+bool TiltCalculator::getConstraints(double &retMinTilt,double &retMaxTilt,double &retMinHeight,double &retMaxHeight)
 {
-    if ((self = [super init]))
+    retMinTilt = minTilt;
+    retMaxTilt = maxTilt;
+    retMinHeight = minHeight;
+    retMaxHeight = maxHeight;
+    
+    return active;
+}
+    
+StandardTiltDelegate::StandardTiltDelegate(GlobeView *inGlobeView)
+{
+    globeView = inGlobeView;
+}
+
+double StandardTiltDelegate::tiltFromHeight(double height)
+{
+    double maxValidTilt = getMaxTilt();
+    if (!active)
     {
-        startDate = TimeGetCurrent();
-        endDate = startDate+howLong;
-        startHeight = globeView.heightAboveGlobe;
-        endHeight = height;
-        _tiltDelegate = tiltDelegate;
+        return std::min(outsideTilt,maxValidTilt);
     }
     
-    return self;
+    double newTilt = 0.0;
+    
+    // Now the tilt, if we're in that mode
+    double newHeight = height;
+    if (newHeight <= minHeight)
+        newTilt = minTilt;
+        else if (newHeight >= maxHeight)
+            newTilt = maxTilt;
+            else {
+                float t = (newHeight-minHeight)/(maxHeight - minHeight);
+                if (t != 0.0)
+                    newTilt = t * (maxTilt - minTilt) + minTilt;
+                    }
+    
+    return std::min(newTilt,maxValidTilt);
 }
 
+/// Return the maximum allowable tilt
+double StandardTiltDelegate::getMaxTilt()
+{
+    return asin(1.0/(1.0+globeView->getHeightAboveGlobe()));
+}
+
+/// Called by an actual tilt gesture.  We're setting the tilt as given
+void StandardTiltDelegate::setTilt(double newTilt)
+{
+    active = false;
+    outsideTilt = newTilt;
+}
+
+AnimateViewHeight::AnimateViewHeight(GlobeView *inGlobeView,double toHeight,TimeInterval howLong)
+{
+    globeView = inGlobeView;
+    startDate = TimeGetCurrent();
+    endDate = startDate+howLong;
+    startHeight = globeView->getHeightAboveGlobe();
+    endHeight = toHeight;
+}
 
 // Called by the view when it's time to update
-- (void)updateView:(WhirlyGlobeView *)globeView
+void AnimateViewHeight::updateView(GlobeView *globeView)
 {
     if (startDate == 0.0)
         return;
 	
-	CFTimeInterval now = TimeGetCurrent();
-    float span = endDate-startDate;
-    float remain = endDate - now;
+	TimeInterval now = TimeGetCurrent();
+    double span = endDate-startDate;
+    double remain = endDate - now;
     
 	// All done.  Snap to the end
 	if (remain < 0)
 	{
-        globeView.heightAboveGlobe = endHeight;
+        globeView->setHeightAboveGlobe(endHeight,false);
         startDate = 0;
         endDate = 0;
-        [globeView cancelAnimation];
+        globeView->cancelAnimation();
 	} else {
 		// Interpolate somewhere along the path
-		float t = (span-remain)/span;
-        globeView.heightAboveGlobe = startHeight + (endHeight-startHeight)*t;
+		double t = (span-remain)/span;
+        globeView->setHeightAboveGlobe(startHeight + (endHeight-startHeight)*t,false);
 
-        if (_tiltDelegate)
+        if (tiltDelegate)
         {
-            float newTilt = [_tiltDelegate tiltFromHeight:globeView.heightAboveGlobe];
-            [globeView setTilt:newTilt];
+            double newTilt = tiltDelegate->tiltFromHeight(globeView->getHeightAboveGlobe());
+            globeView->setTilt(newTilt);
         }
     }
 }
 
-@end
+}
