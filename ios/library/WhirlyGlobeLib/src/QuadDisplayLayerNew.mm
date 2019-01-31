@@ -66,7 +66,7 @@ protected:
 @implementation WhirlyKitQuadDisplayLayerNew
 {
     int minZoom,maxZoom;
-    ViewState *viewState;
+    ViewStateRef viewState;
     QuadTreeNew::ImportantNodeSet currentNodes;
     std::vector<int> levelsToLoad;
 }
@@ -144,7 +144,7 @@ static const float DelayPeriod = 0.1;
 }
 
 // Called periodically when the user moves, but not too often
-- (void)viewUpdate:(ViewState *)inViewState
+- (void)viewUpdate:(ViewStateRef)inViewState
 {
     if (!_scene)
         return;
@@ -239,7 +239,7 @@ static const float DelayPeriod = 0.1;
     }
 
     // Note: Add back the mutable attributes?
-    return [_dataStructure importanceForTile:ident mbr:mbr viewInfo:viewState frameSize:Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight) attrs:nil];
+    return [_dataStructure importanceForTile:ident mbr:mbr viewInfo:viewState frameSize:Point2f(_renderer->framebufferWidth,_renderer->framebufferHeight) attrs:nil];
 }
 
 - (double)visibility:(const QuadTreeNew::Node &)node
@@ -256,7 +256,7 @@ static const float DelayPeriod = 0.1;
     }
     
     // Note: Add back the mutable attributes?
-    return [_dataStructure visibilityForTile:ident mbr:mbr viewInfo:viewState frameSize:Point2f(_renderer.framebufferWidth,_renderer.framebufferHeight) attrs:nil];
+    return [_dataStructure visibilityForTile:ident mbr:mbr viewInfo:viewState frameSize:Point2f(_renderer->framebufferWidth,_renderer->framebufferHeight) attrs:nil];
 }
 
 @end

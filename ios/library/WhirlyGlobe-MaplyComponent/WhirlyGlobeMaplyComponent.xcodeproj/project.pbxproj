@@ -406,6 +406,7 @@
 		2B879703220390B600EF801D /* LoadedTileNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B46FB206C001900570F97 /* LoadedTileNew.mm */; };
 		2B87970522039D6300EF801D /* Texture_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B87970422039D6300EF801D /* Texture_iOS.h */; };
 		2B87970722039D7000EF801D /* Texture_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B87970622039D6F00EF801D /* Texture_iOS.mm */; };
+		2B8797082203A27B00EF801D /* QuadDisplayLayerNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387F32069BC3800DD5C40 /* QuadDisplayLayerNew.mm */; };
 		2B884A421E3803170027C397 /* arithmeticdecoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0A1E3803170027C397 /* arithmeticdecoder.cpp */; };
 		2B884A431E3803170027C397 /* arithmeticdecoder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 2B884A0B1E3803170027C397 /* arithmeticdecoder.hpp */; };
 		2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B884A0C1E3803170027C397 /* arithmeticencoder.cpp */; };
@@ -4393,6 +4394,7 @@
 				2B82B68C1E82E24A0095FB14 /* PJ_merc.c in Sources */,
 				2B82B61B1E82E2490095FB14 /* JSONWorker.cpp in Sources */,
 				2BE53A021D249C2900B60FAD /* extension_set.cc in Sources */,
+				2B8797082203A27B00EF801D /* QuadDisplayLayerNew.mm in Sources */,
 				2B82B6511E82E2490095FB14 /* PJ_collg.c in Sources */,
 				2B82B6651E82E24A0095FB14 /* pj_fwd.c in Sources */,
 				2BB8E1F421FF903100154CDC /* MaplyScene.cpp in Sources */,
