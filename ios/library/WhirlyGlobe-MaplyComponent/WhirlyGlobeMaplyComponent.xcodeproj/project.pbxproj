@@ -16,8 +16,6 @@
 		2B23131A21F8DD61006AA344 /* MaplyFlatView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23131421F8DD60006AA344 /* MaplyFlatView.h */; };
 		2B23131B21F8DD61006AA344 /* MaplyView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23131521F8DD60006AA344 /* MaplyView.h */; };
 		2B23131C21F8DD61006AA344 /* WhirlyKitView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23131621F8DD60006AA344 /* WhirlyKitView.h */; };
-		2B23131D21F8DD61006AA344 /* GlobeViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23131721F8DD60006AA344 /* GlobeViewState.h */; };
-		2B23131E21F8DD61006AA344 /* MaplyViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23131821F8DD60006AA344 /* MaplyViewState.h */; };
 		2B23132E21F93661006AA344 /* RawData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23132D21F93660006AA344 /* RawData.h */; };
 		2B23133021F936CD006AA344 /* RawData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132F21F936CD006AA344 /* RawData.cpp */; };
 		2B23133421F9395F006AA344 /* RawData_NSData.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133321F9395E006AA344 /* RawData_NSData.h */; };
@@ -492,7 +490,6 @@
 		2BB8E1AD21FBB0A400154CDC /* SceneRendererES2.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1AA21FBB0A400154CDC /* SceneRendererES2.h */; };
 		2BB8E1AE21FBB0A400154CDC /* SceneRendererES.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1AB21FBB0A400154CDC /* SceneRendererES.h */; };
 		2BB8E1B721FBC61C00154CDC /* ActiveModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1B621FBC61C00154CDC /* ActiveModel.h */; };
-		2BB8E1B921FBCCBF00154CDC /* ViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1B821FBCCBF00154CDC /* ViewState.h */; };
 		2BB8E1BD21FBCEA400154CDC /* SharedAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */; };
 		2BB8E1D921FF78A700154CDC /* Identifiable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5E21F7E7DF0078A975 /* Identifiable.cpp */; };
 		2BB8E1DB21FF7FDE00154CDC /* BaseInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F1621F158EA00EF2A82 /* BaseInfo.cpp */; };
@@ -512,11 +509,8 @@
 		2BB8E1FA21FF903100154CDC /* TextureAtlas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6721F7E7E00078A975 /* TextureAtlas.cpp */; };
 		2BB8E1FB21FF903100154CDC /* WideVectorDrawable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5A21F7E7DF0078A975 /* WideVectorDrawable.cpp */; };
 		2BB8E1FC21FF93CB00154CDC /* GlobeView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132121F8DD7E006AA344 /* GlobeView.cpp */; };
-		2BB8E1FD21FF93CB00154CDC /* GlobeViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132321F8DD7E006AA344 /* GlobeViewState.cpp */; };
 		2BB8E1FE21FF93CB00154CDC /* MaplyFlatView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132221F8DD7E006AA344 /* MaplyFlatView.cpp */; };
 		2BB8E1FF21FF93CB00154CDC /* MaplyView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132421F8DD7E006AA344 /* MaplyView.cpp */; };
-		2BB8E20021FF93CB00154CDC /* MaplyViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132521F8DD7E006AA344 /* MaplyViewState.cpp */; };
-		2BB8E20121FF93CB00154CDC /* ViewState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8E1BA21FBCCD200154CDC /* ViewState.cpp */; };
 		2BB8E20221FF93CB00154CDC /* WhirlyKitView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23132021F8DD7E006AA344 /* WhirlyKitView.cpp */; };
 		2BB8E20321FFAA8F00154CDC /* GLUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B6621F7E7E00078A975 /* GLUtils.cpp */; };
 		2BB8E20421FFAA9B00154CDC /* Lighting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B3821F7E6850078A975 /* Lighting.cpp */; };
@@ -879,14 +873,10 @@
 		2B23131421F8DD60006AA344 /* MaplyFlatView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyFlatView.h; path = ../../../../common/WhirlyGlobeLib/include/MaplyFlatView.h; sourceTree = "<group>"; };
 		2B23131521F8DD60006AA344 /* MaplyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyView.h; path = ../../../../common/WhirlyGlobeLib/include/MaplyView.h; sourceTree = "<group>"; };
 		2B23131621F8DD60006AA344 /* WhirlyKitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyKitView.h; path = ../../../../common/WhirlyGlobeLib/include/WhirlyKitView.h; sourceTree = "<group>"; };
-		2B23131721F8DD60006AA344 /* GlobeViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlobeViewState.h; path = ../../../../common/WhirlyGlobeLib/include/GlobeViewState.h; sourceTree = "<group>"; };
-		2B23131821F8DD60006AA344 /* MaplyViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyViewState.h; path = ../../../../common/WhirlyGlobeLib/include/MaplyViewState.h; sourceTree = "<group>"; };
 		2B23132021F8DD7E006AA344 /* WhirlyKitView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WhirlyKitView.cpp; path = ../../../../common/WhirlyGlobeLib/src/WhirlyKitView.cpp; sourceTree = "<group>"; };
 		2B23132121F8DD7E006AA344 /* GlobeView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeView.cpp; path = ../../../../common/WhirlyGlobeLib/src/GlobeView.cpp; sourceTree = "<group>"; };
 		2B23132221F8DD7E006AA344 /* MaplyFlatView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyFlatView.cpp; path = ../../../../common/WhirlyGlobeLib/src/MaplyFlatView.cpp; sourceTree = "<group>"; };
-		2B23132321F8DD7E006AA344 /* GlobeViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GlobeViewState.cpp; path = ../../../../common/WhirlyGlobeLib/src/GlobeViewState.cpp; sourceTree = "<group>"; };
 		2B23132421F8DD7E006AA344 /* MaplyView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyView.cpp; path = ../../../../common/WhirlyGlobeLib/src/MaplyView.cpp; sourceTree = "<group>"; };
-		2B23132521F8DD7E006AA344 /* MaplyViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaplyViewState.cpp; path = ../../../../common/WhirlyGlobeLib/src/MaplyViewState.cpp; sourceTree = "<group>"; };
 		2B23132D21F93660006AA344 /* RawData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RawData.h; path = ../../../../common/WhirlyGlobeLib/include/RawData.h; sourceTree = "<group>"; };
 		2B23132F21F936CD006AA344 /* RawData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RawData.cpp; path = ../../../../common/WhirlyGlobeLib/src/RawData.cpp; sourceTree = "<group>"; };
 		2B23133321F9395E006AA344 /* RawData_NSData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RawData_NSData.h; sourceTree = "<group>"; };
@@ -1440,8 +1430,6 @@
 		2BB8E1B121FBB0BA00154CDC /* SceneRendererES.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SceneRendererES.cpp; path = ../../../../common/WhirlyGlobeLib/src/SceneRendererES.cpp; sourceTree = "<group>"; };
 		2BB8E1B221FBB0BA00154CDC /* SceneRendererES2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SceneRendererES2.cpp; path = ../../../../common/WhirlyGlobeLib/src/SceneRendererES2.cpp; sourceTree = "<group>"; };
 		2BB8E1B621FBC61C00154CDC /* ActiveModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActiveModel.h; path = ../../../../common/WhirlyGlobeLib/include/ActiveModel.h; sourceTree = "<group>"; };
-		2BB8E1B821FBCCBF00154CDC /* ViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ViewState.h; path = ../../../../common/WhirlyGlobeLib/include/ViewState.h; sourceTree = "<group>"; };
-		2BB8E1BA21FBCCD200154CDC /* ViewState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ViewState.cpp; path = ../../../../common/WhirlyGlobeLib/src/ViewState.cpp; sourceTree = "<group>"; };
 		2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedAttributes.h; path = ../../../../common/WhirlyGlobeLib/include/SharedAttributes.h; sourceTree = "<group>"; };
 		2BC3D6A422024EB200CE91D0 /* MaplyAnimateTranslateMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyAnimateTranslateMomentum.h; path = ../../../../common/WhirlyGlobeLib/include/MaplyAnimateTranslateMomentum.h; sourceTree = "<group>"; };
 		2BC3D6A522024EB300CE91D0 /* GlobeAnimateRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlobeAnimateRotation.h; path = ../../../../common/WhirlyGlobeLib/include/GlobeAnimateRotation.h; sourceTree = "<group>"; };
@@ -1887,11 +1875,8 @@
 				2BC3D6A422024EB200CE91D0 /* MaplyAnimateTranslateMomentum.h */,
 				2BC3D6A622024EB300CE91D0 /* MaplyAnimateTranslation.h */,
 				2B23131321F8DD60006AA344 /* GlobeView.h */,
-				2B23131721F8DD60006AA344 /* GlobeViewState.h */,
 				2B23131421F8DD60006AA344 /* MaplyFlatView.h */,
 				2B23131521F8DD60006AA344 /* MaplyView.h */,
-				2B23131821F8DD60006AA344 /* MaplyViewState.h */,
-				2BB8E1B821FBCCBF00154CDC /* ViewState.h */,
 				2B23131621F8DD60006AA344 /* WhirlyKitView.h */,
 			);
 			name = view;
@@ -1901,16 +1886,13 @@
 			isa = PBXGroup;
 			children = (
 				2B23132121F8DD7E006AA344 /* GlobeView.cpp */,
-				2B23132321F8DD7E006AA344 /* GlobeViewState.cpp */,
 				2BC3D6B122024ECE00CE91D0 /* GlobeAnimateRotation.cpp */,
 				2BC3D6B022024ECE00CE91D0 /* GlobeAnimateHeight.cpp */,
 				2BC3D6B522024ECE00CE91D0 /* GlobeAnimateViewMomentum.cpp */,
 				2B23132221F8DD7E006AA344 /* MaplyFlatView.cpp */,
 				2B23132421F8DD7E006AA344 /* MaplyView.cpp */,
-				2B23132521F8DD7E006AA344 /* MaplyViewState.cpp */,
 				2BC3D6B422024ECE00CE91D0 /* MaplyAnimateTranslation.cpp */,
 				2BC3D6B322024ECE00CE91D0 /* MaplyAnimateTranslateMomentum.cpp */,
-				2BB8E1BA21FBCCD200154CDC /* ViewState.cpp */,
 				2B23132021F8DD7E006AA344 /* WhirlyKitView.cpp */,
 			);
 			name = view;
@@ -3712,7 +3694,6 @@
 				2BE538671D249A1200B60FAD /* MaplyVectorTileMarkerStyle.h in Headers */,
 				2B82B6D91E82E24A0095FB14 /* UIImage+Stuff.h in Headers */,
 				2B884A511E3803170027C397 /* bytestreamout_ostream.hpp in Headers */,
-				2B23131D21F8DD61006AA344 /* GlobeViewState.h in Headers */,
 				2B446B2721F7A0D70078A975 /* Platform.h in Headers */,
 				2B82B5E71E82E2490095FB14 /* memalloc.h in Headers */,
 				2B82B5EF1E82E2490095FB14 /* priorityq.h in Headers */,
@@ -3805,7 +3786,6 @@
 				2B446AFD21F79A600078A975 /* StringIndexer.h in Headers */,
 				2B884A641E3803170027C397 /* lasreaditemcompressed_v2.hpp in Headers */,
 				2BE53A3D1D249C3D00B60FAD /* tokenizer.h in Headers */,
-				2B23131E21F8DD61006AA344 /* MaplyViewState.h in Headers */,
 				2BE53A671D249C4600B60FAD /* atomicops_internals_atomicword_compat.h in Headers */,
 				2BB8A3D721ED43C00025DA98 /* MaplyVariableTarget_private.h in Headers */,
 				2BE53A321D249C3D00B60FAD /* strtod.h in Headers */,
@@ -3831,7 +3811,6 @@
 				2BE539671D249BEF00B60FAD /* AAKepler.h in Headers */,
 				2BE5385B1D249A1200B60FAD /* WhirlyGlobeViewController_private.h in Headers */,
 				2BE53A791D249C4700B60FAD /* strutil.h in Headers */,
-				2BB8E1B921FBCCBF00154CDC /* ViewState.h in Headers */,
 				2B446AF921F79A600078A975 /* GlobeMath.h in Headers */,
 				2B884A731E3803170027C397 /* laszip_common_v2.hpp in Headers */,
 				2BE538051D249A1200B60FAD /* MaplyComponentObject.h in Headers */,
@@ -4114,7 +4093,6 @@
 				2BE539F21D249C2900B60FAD /* any.cc in Sources */,
 				2BE539A11D249BEF00B60FAD /* AAKepler.cpp in Sources */,
 				2BE53A711D249C4600B60FAD /* once.cc in Sources */,
-				2BB8E1FD21FF93CB00154CDC /* GlobeViewState.cpp in Sources */,
 				2BB8E20821FFAAA000154CDC /* SceneRendererES2.cpp in Sources */,
 				2BE539AF1D249BEF00B60FAD /* AAParabolic.cpp in Sources */,
 				2B8796C021FFB37900EF801D /* MarkerManager.cpp in Sources */,
@@ -4188,7 +4166,6 @@
 				2BE53A6F1D249C4600B60FAD /* common.cc in Sources */,
 				2B82B6C11E82E24A0095FB14 /* PJ_wag7.c in Sources */,
 				2BE539B81D249BEF00B60FAD /* AAPluto.cpp in Sources */,
-				2BB8E20121FF93CB00154CDC /* ViewState.cpp in Sources */,
 				2BE539A51D249BEF00B60FAD /* AAMoonIlluminatedFraction.cpp in Sources */,
 				2B8796B921FFB36500EF801D /* FontTextureManager.cpp in Sources */,
 				2BE5399B1D249BEF00B60FAD /* AAGalileanMoons.cpp in Sources */,
@@ -4428,7 +4405,6 @@
 				2BE539991D249BEF00B60FAD /* AAEquinoxesAndSolstices.cpp in Sources */,
 				2B82B64B1E82E2490095FB14 /* PJ_boggs.c in Sources */,
 				2B82B68F1E82E24A0095FB14 /* PJ_mod_ster.c in Sources */,
-				2BB8E20021FF93CB00154CDC /* MaplyViewState.cpp in Sources */,
 				2B82B6631E82E24A0095FB14 /* PJ_fahey.c in Sources */,
 				2B82B68A1E82E24A0095FB14 /* PJ_mbtfpp.c in Sources */,
 				2B8796CF21FFC59D00EF801D /* RawData_NSData.mm in Sources */,

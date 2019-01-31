@@ -26,7 +26,10 @@
 namespace WhirlyKit
 {
     
+class SceneRendererES;
 class View;
+class ViewState;
+typedef std::shared_ptr<ViewState> ViewStateRef;
 
 /// Watcher Callback
 class ViewWatcher
@@ -107,6 +110,9 @@ public:
     
     /// Return the screen size in display coordinates
     virtual WhirlyKit::Point2d screenSizeInDisplayCoords(WhirlyKit::Point2f &frameSize);
+    
+    /// Generate a ViewState corresponding to this view
+    virtual ViewStateRef makeViewState(SceneRendererES *renderer) = 0;
 
     /// Add a watcher delegate.  Call this on the main thread.
     virtual void addWatcher(ViewWatcher *delegate);
@@ -128,6 +134,57 @@ public:
     
     /// Called when positions are updated
     ViewWatcherSet watchers;
+};
+
+/** Representation of the view state.  This is the base
+ class for specific view state info for the various view
+ types.
+ */
+class ViewState
+{
+public:
+    ViewState() : near(0), far(0) { }
+    ViewState(View *view,WhirlyKit::SceneRendererES *renderer);
+    virtual ~ViewState();
+    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
+    /// Calculate the viewing frustum (which is also the image plane)
+    /// Need the framebuffer size in pixels as input
+    /// This will cache the values in the view state for later use
+    void calcFrustumWidth(unsigned int frameWidth,unsigned int frameHeight);
+    
+    /// From a screen point calculate the corresponding point in 3-space
+    Point3d pointUnproject(Point2d screenPt,unsigned int frameWidth,unsigned int frameHeight,bool clip);
+    
+    /// From a world location (3D), figure out the projection to the screen
+    ///  Returns a point within the frame
+    Point2f pointOnScreenFromDisplay(const Point3d &worldLoc,const Eigen::Matrix4d *transform,const Point2f &frameSize);
+    
+    /// Compare this view state to the other one.  Returns true if they're identical.
+    bool isSameAs(WhirlyKit::ViewState *other);
+    
+    /// Return true if the view state has been set to something
+    bool isValid() { return near != far; }
+    
+    /// Dump out info about the view state
+    void log();
+    
+    Eigen::Matrix4d modelMatrix,projMatrix;
+    std::vector<Eigen::Matrix4d> viewMatrices,invViewMatrices,fullMatrices,fullNormalMatrices,invFullMatrices;
+    Eigen::Matrix4d invModelMatrix,invProjMatrix;
+    double fieldOfView;
+    double imagePlaneSize;
+    double nearPlane;
+    double farPlane;
+    Point3d eyeVec;
+    Point3d eyeVecModel;
+    Point2d ll,ur;
+    double near,far;
+    CoordSystemDisplayAdapter *coordAdapter;
+    
+    /// Calculate where the eye is in model coordinates
+    Point3d eyePos;
 };
 
 }

@@ -24,8 +24,8 @@
 #import "Identifiable.h"
 #import "WhirlyGeometry.h"
 #import "WhirlyKitView.h"
-#import "GlobeViewState.h"
-#import "MaplyViewState.h"
+#import "MaplyView.h"
+#import "GlobeView.h"
 #import "Scene.h"
 #import "ScreenSpaceBuilder.h"
 
@@ -260,10 +260,10 @@ public:
     void enableSelectables(const SimpleIDSet &selectIDs,bool enable);
     
     /// Pass in the view point where the user touched.  This returns the closest hit within the given distance
-    SimpleIdentity pickObject(Point2f touchPt,float maxDist,View *theView);
+    SimpleIdentity pickObject(Point2f touchPt,float maxDist,ViewStateRef viewState);
     
     /// Find all the objects within a given distance and return them, sorted by distance
-    void pickObjects(Point2f touchPt,float maxDist,View *theView,std::vector<SelectedObject> &selObjs);
+    void pickObjects(Point2f touchPt,float maxDist,ViewStateRef viewState,std::vector<SelectedObject> &selObjs);
     
     // Everything we need to project a world coordinate to one or more screen locations
     class PlacementInfo
@@ -271,9 +271,9 @@ public:
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-        PlacementInfo(ViewState *view,SceneRendererES *renderer);
+        PlacementInfo(ViewStateRef viewState,SceneRendererES *renderer);
         
-        ViewState *viewState;
+        ViewStateRef viewState;
         WhirlyGlobe::GlobeViewState *globeViewState;
         Maply::MapViewState *mapViewState;
         double heightAboveSurface;
@@ -284,13 +284,13 @@ public:
     };
 
 protected:
-    static Eigen::Matrix2d calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const CGPoint &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
+    static Eigen::Matrix2d calcScreenRot(float &screenRot,ViewStateRef viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const Point2f &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
     // Projects a world coordinate to one or more points on the screen (wrapping)
     void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,Point2dVector &screenPts,float scale);
     // Convert rect selectables into more generic screen space objects
     void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs,TimeInterval now);
     // Internal object picking method
-    void pickObjects(Point2f touchPt,float maxDist,View *theView,bool multi,std::vector<SelectedObject> &selObjs);
+    void pickObjects(Point2f touchPt,float maxDist,ViewStateRef viewState,bool multi,std::vector<SelectedObject> &selObjs);
 
     pthread_mutex_t mutex;
     Scene *scene;

@@ -25,7 +25,6 @@
 #import "BasicDrawable.h"
 #import "Scene.h"
 #import "SceneRendererES.h"
-#import "GlobeViewState.h"
 #import "ScreenSpaceBuilder.h"
 #import "SelectionManager.h"
 #import "WhirlyVector.h"

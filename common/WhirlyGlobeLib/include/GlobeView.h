@@ -139,6 +139,9 @@ public:
     /// Height above the globe
     double heightAboveSurface();
     
+    /// Make a globe view state from the current globe view
+    virtual WhirlyKit::ViewStateRef makeViewState(WhirlyKit::SceneRendererES *renderer);
+    
     /// Set the change delegate
     virtual void setDelegate(GlobeViewAnimationDelegateRef delegate);
 
@@ -156,7 +159,8 @@ public:
     double defaultFarPlane;
     double absoluteMinFarPlane;
     
-    double getHeightAboveGlobe();
+    /// Return the current height
+    double getHeightAboveGlobe() { return heightAboveGlobe; }
     
 protected:
     void privateSetHeightAboveGlobe(double newH,bool updateWatchers);
@@ -172,6 +176,33 @@ protected:
     WhirlyKit::FakeGeocentricDisplayAdapter fakeGeoC;
     /// Animation delegate
     GlobeViewAnimationDelegateRef delegate;
+};
+
+/** View State related to the Globe view.  This adds
+ more parameters relating to the globe.
+ */
+class GlobeViewState : public WhirlyKit::ViewState
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
+    GlobeViewState(GlobeView *globeView,WhirlyKit::SceneRendererES *renderer);
+    virtual ~GlobeViewState();
+    
+    /// Rotation, etc, at this view state
+    Eigen::Quaterniond rotQuat;
+    
+    /// Height above globe at this view state
+    double heightAboveGlobe;
+    
+    /// Return where up (0,0,1) is after model rotation
+    Eigen::Vector3d currentUp();
+    
+    /** Given a location on the screen and the screen size, figure out where we touched the sphere
+     Returns true if we hit and where
+     Returns false if not and the closest point on the sphere
+     */
+    bool pointOnSphereFromScreen(WhirlyKit::Point2f pt,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d *hit);
 };
 
 }

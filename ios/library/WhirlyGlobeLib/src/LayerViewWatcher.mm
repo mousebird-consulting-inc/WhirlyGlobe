@@ -25,56 +25,15 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-// Keep track of what our watchers are up to
-@interface LocalWatcher : NSObject
-{
-@public
-    id __weak target;
-    SEL selector;
-    TimeInterval minTime,maxLagTime;
-    Point3d lastEyePos;
-    float minDist;
-    TimeInterval lastUpdated;
-}
-@end
+namespace WhirlyKit {
 
-@implementation LocalWatcher
-@end
-
-@implementation WhirlyKitLayerViewWatcher
+LayerViewWatcher::LayerViewWatcher(View *inView,WhirlyKitLayerThread *inLayerThread)
 {
-    /// Layer we're attached to
-    WhirlyKitLayerThread * __weak layerThread;
-    /// The view we're following for upates
-    View * __weak view;
-    /// Watchers we'll call back for updates
-    NSMutableArray *watchers;
-    
-    /// When the last update was run
-    TimeInterval lastUpdate;
-    
-    /// You should know the type here.  A globe or a map view state.
-    ViewState *lastViewState;
-    
-    ViewState *newViewState;
-    bool kickoffScheduled;
-    bool sweepLaggardsScheduled;
+    layerThread = inLayerThread;
+    lastViewState = inView->makeViewState();
 }
 
-- (id)initWithView:(View *)inView thread:(WhirlyKitLayerThread *)inLayerThread
-{
-    self = [super init];
-    if (self)
-    {
-        layerThread = inLayerThread;
-        view = inView;
-        watchers = [NSMutableArray array];
-    }
-    
-    return self;
-}
-
-- (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(TimeInterval)minTime minDist:(float)minDist maxLagTime:(TimeInterval)maxLagTime
+void LayerViewWatcher::addWatcherTarget(id target,SEL selector,TimeInterval minTime,float minDist,TimeInterval maxLagTime)
 {
     LocalWatcher *watch = [[LocalWatcher alloc] init];
     watch->target = target;
@@ -82,13 +41,13 @@ using namespace WhirlyKit;
     watch->minTime = minTime;
     watch->minDist = minDist;
     watch->maxLagTime = maxLagTime;
-    @synchronized(self)
+    @synchronized(watchers)
     {
         [watchers addObject:watch];
     }
     
     // Note: This is running in the layer thread, yet we're accessing the view.  Might be a problem.
-    if (!lastViewState && layerThread.renderer.framebufferWidth != 0)
+    if (!lastViewState && layerThread.renderer->framebufferWidth != 0)
     {
         ViewState *viewState = [[_viewStateClass alloc] initWithView:view renderer:layerThread.renderer ];
         lastViewState = viewState;
@@ -300,150 +259,6 @@ public:
     }
     
     [self viewUpdateLayerThread:(ViewState *)lastViewState];
-}
-
-@end
-
-@implementation ViewState
-
-- (id)initWithView:(View *)view renderer:(SceneRendererES *)renderer
-{
-    self = [super init];
-    if (!self)
-        return nil;
-    
-    _modelMatrix = [view calcModelMatrix];
-    _invModelMatrix = _modelMatrix.inverse();
-    std::vector<Eigen::Matrix4d> offMatrices;
-    Point2f frameSize(renderer.framebufferWidth,renderer.framebufferHeight);
-    [view getOffsetMatrices:offMatrices frameBuffer:frameSize buffer:0.0];
-    _viewMatrices.resize(offMatrices.size());
-    _invViewMatrices.resize(offMatrices.size());
-    _fullMatrices.resize(offMatrices.size());
-    _invFullMatrices.resize(offMatrices.size());
-    _fullNormalMatrices.resize(offMatrices.size());
-    _projMatrix = [view calcProjectionMatrix:Point2f(renderer.framebufferWidth,renderer.framebufferHeight) margin:0.0];
-    _invProjMatrix = _projMatrix.inverse();
-    Eigen::Matrix4d baseViewMatrix = [view calcViewMatrix];
-    for (unsigned int ii=0;ii<offMatrices.size();ii++)
-    {
-        _viewMatrices[ii] = baseViewMatrix * offMatrices[ii];
-        _invViewMatrices[ii] = _viewMatrices[ii].inverse();
-        _fullMatrices[ii] = _viewMatrices[ii] * _modelMatrix;
-        _invFullMatrices[ii] = _fullMatrices[ii].inverse();
-        _fullNormalMatrices[ii] = _fullMatrices[ii].inverse().transpose();
-    }
-    
-    _fieldOfView = view.fieldOfView;
-    _imagePlaneSize = view.imagePlaneSize;
-    _nearPlane = view.nearPlane;
-    _farPlane = view.farPlane;
-    
-    // Need the eye point for backface checking
-    Vector4d eyeVec4 = _invFullMatrices[0] * Vector4d(0,0,1,0);
-    _eyeVec = Vector3d(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
-    // Also a version for the model matrix (e.g. just location, not direction)
-    eyeVec4 = _invModelMatrix * Vector4d(0,0,1,0);
-    _eyeVecModel = Vector3d(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
-    // And calculate where the eye actually is
-    Vector4d eyePos4 = _invFullMatrices[0] * Vector4d(0,0,0,1);
-    _eyePos = Vector3d(eyePos4.x(),eyePos4.y(),eyePos4.z());
-    
-    _ll.x() = _ur.x() = 0.0;
-    
-    _coordAdapter = view.coordAdapter;
-    
-    return self;
-}
-
-- (void)calcFrustumWidth:(unsigned int)frameWidth height:(unsigned int)frameHeight
-{
-	_ll.x() = -_imagePlaneSize;
-	_ur.x() = _imagePlaneSize;
-	float ratio =  ((float)frameHeight / (float)frameWidth);
-	_ll.y() = -_imagePlaneSize * ratio;
-	_ur.y() = _imagePlaneSize * ratio ;
-	_near = _nearPlane;
-	_far = _farPlane;
-}
-
-- (Point3d)pointUnproject:(Point2d)screenPt width:(unsigned int)frameWidth height:(unsigned int)frameHeight clip:(bool)clip
-{
-    if (_ll.x() == _ur.x())
-        [self calcFrustumWidth:frameWidth height:frameHeight];
-	
-	// Calculate a parameteric value and flip the y/v
-	double u = screenPt.x() / frameWidth;
-    if (clip)
-    {
-        u = std::max(0.0,u);	u = std::min(1.0,u);
-    }
-	double v = screenPt.y() / frameHeight;
-    if (clip)
-    {
-        v = std::max(0.0,v);	v = std::min(1.0,v);
-    }
-	v = 1.0 - v;
-	
-	// Now come up with a point in 3 space between ll and ur
-	Point2d mid(u * (_ur.x()-_ll.x()) + _ll.x(), v * (_ur.y()-_ll.y()) + _ll.y());
-	return Point3d(mid.x(),mid.y(),-_near);
-}
-
-- (CGPoint)pointOnScreenFromDisplay:(const Point3d &)worldLoc transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize
-{
-    // Run the model point through the model transform (presumably what they passed in)
-    Eigen::Matrix4d modelMat = *transform;
-    Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
-    
-    // Intersection with near gives us the same plane as the screen
-    Vector3d ray;
-    ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
-    ray *= -_nearPlane/ray.z();
-    
-    // Now we need to scale that to the frame
-    if (_ll.x() == _ur.x())
-        [self calcFrustumWidth:frameSize.x() height:frameSize.y()];
-    double u = (ray.x() - _ll.x()) / (_ur.x() - _ll.x());
-    double v = (ray.y() - _ll.y()) / (_ur.y() - _ll.y());
-    v = 1.0 - v;
-    
-    CGPoint retPt;
-    if (ray.z() < 0.0)
-    {
-       retPt.x = u * frameSize.x();
-       retPt.y = v * frameSize.y();
-    } else
-        retPt = CGPointMake(-100000, -100000);
-    
-    return retPt;
-}
-
-- (bool)isSameAs:(ViewState *)other
-{
-    if (_fieldOfView != other->_fieldOfView || _imagePlaneSize != other->_imagePlaneSize ||
-        _nearPlane != other->_nearPlane || _farPlane != other->_farPlane)
-        return false;
-    
-    // Matrix comparison
-    double *floatsA = _fullMatrices[0].data();
-    double *floatsB = other->_fullMatrices[0].data();
-    for (unsigned int ii=0;ii<16;ii++)
-        if (floatsA[ii] != floatsB[ii])
-            return false;
-
-    return true;
-}
-
-- (void)log
-{
-    NSLog(@"--- ViewState ---");
-    NSLog(@"eyeVec = (%f,%f,%f), eyeVecModel = (%f,%f,%f)",_eyeVec.x(),_eyeVec.y(),_eyeVec.z(),_eyeVecModel.x(),_eyeVecModel.y(),_eyeVecModel.z());
-    NSMutableString *matStr = [NSMutableString string];
-    for (unsigned int ii=0;ii<16;ii++)
-        [matStr appendFormat:@" %f",_fullMatrices[0].data()[ii]];
-    NSLog(@"fullMatrix = %@",matStr);
-    NSLog(@"---     ---   ---");
 }
 
 @end

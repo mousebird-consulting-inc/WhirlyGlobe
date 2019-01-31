@@ -442,4 +442,59 @@ void GlobeView::animate()
         delegate->updateView(this);
 }
     
+ViewStateRef GlobeView::makeViewState(SceneRendererES *renderer)
+{
+    return ViewStateRef(new GlobeViewState(this,renderer));
+}
+
+GlobeViewState::GlobeViewState(WhirlyGlobe::GlobeView *globeView,WhirlyKit::SceneRendererES *renderer)
+: ViewState(globeView,renderer)
+{
+    heightAboveGlobe = globeView->heightAboveSurface();
+    rotQuat = globeView->getRotQuat();
+}
+
+GlobeViewState::~GlobeViewState()
+{
+}
+
+Eigen::Vector3d GlobeViewState::currentUp()
+{
+    Eigen::Matrix4d modelMat = invModelMatrix;
+    
+    Vector4d newUp = modelMat * Vector4d(0,0,1,0);
+    return Vector3d(newUp.x(),newUp.y(),newUp.z());
+}
+
+
+bool GlobeViewState::pointOnSphereFromScreen(Point2f pt,const Eigen::Matrix4d *transform,const Point2f &frameSize,Point3d *hit)
+{
+    // Back project the point from screen space into model space
+    Point3d screenPt = pointUnproject(Point2d(pt.x(),pt.y()),frameSize.x(),frameSize.y(),true);
+    
+    // Run the screen point and the eye point (origin) back through
+    //  the model matrix to get a direction and origin in model space
+    Eigen::Matrix4d modelTrans = *transform;
+    Matrix4d invModelMat = modelTrans.inverse();
+    Point3d eyePt(0,0,0);
+    Vector4d modelEye = invModelMat * Vector4d(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
+    Vector4d modelScreenPt = invModelMat * Vector4d(screenPt.x(),screenPt.y(),screenPt.z(),1.0);
+    
+    // Now intersect that with a unit sphere to see where we hit
+    Vector4d dir4 = modelScreenPt - modelEye;
+    Vector3d dir(dir4.x(),dir4.y(),dir4.z());
+    if (IntersectUnitSphere(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, *hit))
+        return true;
+    
+    // We need the closest pass, if that didn't work out
+    Vector3d orgDir(-modelEye.x(),-modelEye.y(),-modelEye.z());
+    orgDir.normalize();
+    dir.normalize();
+    Vector3d tmpDir = orgDir.cross(dir);
+    Vector3d resVec = dir.cross(tmpDir);
+    *hit = -resVec.normalized();
+    
+    return false;
+}
+    
 }

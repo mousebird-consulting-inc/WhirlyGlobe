@@ -20,6 +20,11 @@
 
 #import "WhirlyKitView.h"
 
+namespace WhirlyKit
+{
+class SceneRendererES;
+}
+
 namespace Maply
 {
 
@@ -110,6 +115,9 @@ public:
     /// Eye position in model coordinates
     Eigen::Vector3d eyePos();
     
+    /// Make a map view state from the current globe view
+    virtual WhirlyKit::ViewStateRef makeViewState(WhirlyKit::SceneRendererES *renderer);
+
     /// Set the change delegate
     virtual void setDelegate(MapViewAnimationDelegateRef delegate);
     
@@ -128,6 +136,21 @@ protected:
     bool wrap;
     /// Used to update position based on time
     MapViewAnimationDelegateRef delegate;
+};
+
+/** View State related to the map view.
+ */
+class MapViewState : public WhirlyKit::ViewState
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
+    MapViewState(MapView *mapView,WhirlyKit::SceneRendererES *renderer);
+    
+    /// Height above globe at this view state
+    double heightAboveSurface;
+    
+    bool pointOnPlaneFromScreen(WhirlyKit::Point2d pt, Eigen::Matrix4d transform, WhirlyKit::Point2f frameSize, WhirlyKit::Point3d &hit, bool clip);
 };
 
 }

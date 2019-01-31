@@ -22,7 +22,6 @@
 #import <math.h>
 #import "WhirlyVector.h"
 #import "WhirlyKitView.h"
-#import "ViewState.h"
 #import "Dictionary.h"
 #import "Scene.h"
 #import "GlobeMath.h"

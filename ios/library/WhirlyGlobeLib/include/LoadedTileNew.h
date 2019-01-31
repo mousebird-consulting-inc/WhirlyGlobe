@@ -25,7 +25,6 @@
 #import "DataLayer.h"
 #import "LayerThread.h"
 #import "GlobeMath.h"
-#import "sqlhelpers.h"
 #import "QuadTreeNew.h"
 #import "SceneRendererES.h"
 

@@ -690,13 +690,13 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
     }
 }
 
-SelectionManager::PlacementInfo::PlacementInfo(ViewState *viewState,SceneRendererES *renderer)
+SelectionManager::PlacementInfo::PlacementInfo(ViewStateRef viewState,SceneRendererES *renderer)
 {
     float scale = DeviceScreenScale();
     
     // Sort out what kind of view it is
-    globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState);
-    mapViewState = dynamic_cast<Maply::MapViewState *>(viewState);
+    globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState.get());
+    mapViewState = dynamic_cast<Maply::MapViewState *>(viewState.get());
     heightAboveSurface = globeViewState ? globeViewState->heightAboveGlobe : mapViewState->heightAboveSurface;
     
     // Calculate a slightly bigger framebuffer to grab nearby features
@@ -757,7 +757,7 @@ struct selectedsorter
 } SelectedSorter;
 
 // Return a list of objects that pass the selection criteria
-void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,std::vector<SelectedObject> &selObjs)
+void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef theView,std::vector<SelectedObject> &selObjs)
 {
     pickObjects(touchPt, maxDist, theView, true, selObjs);
 
@@ -765,7 +765,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,s
 }
 
 // Look for the single closest object
-SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,View *theView)
+SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,ViewStateRef theView)
 {
     std::vector<SelectedObject> selObjs;
     pickObjects(touchPt, maxDist, theView, false, selObjs);
@@ -777,7 +777,7 @@ SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,View *
     return selObjs[0].selectIDs[0];
 }
 
-Matrix2d SelectionManager::calcScreenRot(float &screenRot,ViewState *viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const CGPoint &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
+Matrix2d SelectionManager::calcScreenRot(float &screenRot,ViewStateRef viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const Point2f &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
 {
     // Switch from counter-clockwise to clockwise
     double rot = 2*M_PI-ssObj->rotation;
@@ -816,27 +816,14 @@ Matrix2d SelectionManager::calcScreenRot(float &screenRot,ViewState *viewState,W
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
 // Note: Should switch to a view state, rather than a view
-void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,bool multi,std::vector<SelectedObject> &selObjs)
+void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef viewState,bool multi,std::vector<SelectedObject> &selObjs)
 {
     if (!renderer)
         return;
     float maxDist2 = maxDist * maxDist;
     
-    // Make a view state
-    ViewStateRef viewState;
-    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(theView);
-    if (globeView) {
-        WhirlyGlobe::GlobeViewStateFactory factory;
-        viewState = ViewStateRef(factory.makeViewState(theView, renderer));
-    }
-    Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(theView);
-    if (mapView) {
-        Maply::MapViewStateFactory factory;
-        viewState = ViewStateRef(factory.makeViewState(theView, renderer));
-    }
-    
     // All the various parameters we need to evalute... stuff
-    PlacementInfo pInfo(viewState.get(),renderer);
+    PlacementInfo pInfo(viewState,renderer);
     if (!pInfo.globeViewState && !pInfo.mapViewState)
         return;
     
@@ -888,8 +875,8 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
             {
                 Matrix2d screenRotMat;
                 float screenRot = 0.0;
-                CGPoint objPt;
-                objPt.x = projPt.x();  objPt.y = projPt.y();
+                Point2f objPt;
+                objPt.x() = projPt.x();  objPt.y() = projPt.y();
                 if (screenObj.rotation != 0.0)
                     screenRotMat = calcScreenRot(screenRot,pInfo.viewState,pInfo.globeViewState,&screenObj,objPt,modelTrans,normalMat,frameBufferSize);
 
@@ -903,7 +890,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,View *theView,b
                         screenPts.push_back(Point2f(theScreenPt.x(),theScreenPt.y()));
                     }
                 } else {
-                    Point2d center(objPt.x,objPt.y);
+                    Point2d center(objPt.x(),objPt.y());
                     for (unsigned int kk=0;kk<screenObj.pts.size();kk++)
                     {
                         const Point2d screenObjPt = screenRotMat * (screenObj.pts[kk] + Point2d(screenObj.offset.x(),screenObj.offset.y()));
