@@ -29,7 +29,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyZoomGestureDelegate
 
-- (instancetype)initWithMapView:(MaplyView *)inView
+- (instancetype)initWithMapView:(Maply::MapView *)inView
 {
 	if ((self = [super init]))
 	{
@@ -53,12 +53,6 @@ using namespace WhirlyKit;
         bounds.push_back(inBounds[ii]);
 }
 
-// Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRendererES *)sceneRender mapView:(MaplyView *)testMapView newCenter:(Point3d *)newCenter
-{
-    return MaplyGestureWithinBounds(bounds,loc,view,sceneRender,testMapView,newCenter);
-}
-
 // Called for double tap actions
 - (void)tapGesture:(id)sender
 {
@@ -66,24 +60,25 @@ using namespace WhirlyKit;
     WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
     SceneRendererES *sceneRenderer = glView.renderer;
 	
-    Point3d curLoc = _mapView.loc;
+    Point3d curLoc = _mapView->getLoc();
 //    NSLog(@"curLoc x:%f y:%f z:%f", curLoc.x(), curLoc.y(), curLoc.z());
     // Just figure out where we tapped
 	Point3d hit;
-    Eigen::Matrix4d theTransform = [_mapView calcFullMatrix];
+    Eigen::Matrix4d theTransform = _mapView->calcFullMatrix();
     CGPoint touchLoc = [tap locationInView:tap.view];
-    if ([_mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
+    Point2f touchLoc2f(touchLoc.x,touchLoc.y);
+    if (_mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, Point2f(sceneRenderer->framebufferWidth/glView.contentScaleFactor,sceneRenderer->framebufferHeight/glView.contentScaleFactor), &hit, true))
     {
         double newZ = curLoc.z() - (curLoc.z() - _minZoom)/2.0;
         Point2d newCenter;
         if (_minZoom >= _maxZoom || (_minZoom < newZ && newZ < _maxZoom))
         {
-            MaplyView *testMapView = [[MaplyView alloc] initWithView:_mapView];
-            [testMapView setLoc:Point3d(hit.x(),hit.y(),newZ)];
+            Maply::MapView testMapView(*_mapView);
+            testMapView.setLoc(Point3d(hit.x(),hit.y(),newZ));
             Point3d newCenter;
-            if ([self withinBounds:_mapView.loc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
+            if (MaplyGestureWithinBounds(bounds,_mapView->getLoc(),sceneRenderer,&testMapView,&newCenter))
             {
-                [_mapView setLoc:newCenter];
+                _mapView->setLoc(newCenter);
             }
         }
     } else {

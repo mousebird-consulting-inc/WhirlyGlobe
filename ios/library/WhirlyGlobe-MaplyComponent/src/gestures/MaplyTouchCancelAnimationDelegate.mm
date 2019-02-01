@@ -23,7 +23,7 @@
 
 @implementation MaplyTouchCancelAnimationDelegate
 
-+ (MaplyTouchCancelAnimationDelegate*)touchDelegateForView:(UIView *)view mapView:(MaplyView*)mapView
++ (MaplyTouchCancelAnimationDelegate*)touchDelegateForView:(UIView *)view mapView:(Maply::MapView *)mapView
 {
     MaplyTouchCancelAnimationDelegate *touchDelegate = [[MaplyTouchCancelAnimationDelegate alloc] initWithMapView:mapView];
     touchDelegate.gestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:touchDelegate
@@ -36,7 +36,7 @@
 }
 
 
-- (instancetype)initWithMapView:(MaplyView *)inView
+- (instancetype)initWithMapView:(Maply::MapView *)inView
 {
     self = [super init];
     if(self)
@@ -51,10 +51,7 @@
 {
     UIGestureRecognizer *recognizer = sender;
     if(recognizer.state == UIGestureRecognizerStateBegan) {
-        if(self.mapView.delegate)
-        {
-            [self.mapView cancelAnimation];
-        }
+        _mapView->cancelAnimation();
     }
     
     //Disable and reenable so other gesture recognizers will work

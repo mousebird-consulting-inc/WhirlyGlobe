@@ -18,7 +18,7 @@
  *
  */
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "MaplyView.h"
 
 #define kZoomGestureDelegateDidStart @"WKZoomDelegateStarted"
@@ -28,7 +28,7 @@
 @interface MaplyZoomGestureDelegate : NSObject <UIGestureRecognizerDelegate>
 {
   /// Boundary quad that we're to stay within
-  std::vector<WhirlyKit::Point2d> bounds;
+    WhirlyKit::Point2dVector bounds;
 }
 
 /// Minimum allowable zoom level
@@ -37,11 +37,11 @@
 @property (nonatomic,assign) float maxZoom;
 //The gesture recognizer
 @property (nonatomic,strong) UIGestureRecognizer *gestureRecognizer;
-@property (nonatomic,weak) MaplyView *mapView;
+@property (nonatomic) Maply::MapView *mapView;
 
 /// Set the bounding rectangle
 - (void)setBounds:(WhirlyKit::Point2d *)bounds;
 
-- (instancetype)initWithMapView:(MaplyView *)inView;
+- (instancetype)initWithMapView:(Maply::MapView *)inView;
 
 @end

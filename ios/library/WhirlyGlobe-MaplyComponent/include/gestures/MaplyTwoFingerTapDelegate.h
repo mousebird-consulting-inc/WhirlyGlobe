@@ -18,14 +18,14 @@
  *
  */
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "MaplyView.h"
 #import "MaplyZoomGestureDelegate.h"
 
 @interface MaplyTwoFingerTapDelegate : MaplyZoomGestureDelegate
 
 /// Create a 2 finger tap gesture and a delegate and wire them up to the given UIView
-+ (MaplyTwoFingerTapDelegate *)twoFingerTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
++ (MaplyTwoFingerTapDelegate *)twoFingerTapDelegateForView:(UIView *)view mapView:(Maply::MapView *)mapView;
 
 // How long we animate from one place to the next
 @property (nonatomic) float animTime;

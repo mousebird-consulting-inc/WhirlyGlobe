@@ -18,18 +18,18 @@
  *
  */
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "MaplyView.h"
 
 @interface MaplyTouchCancelAnimationDelegate : NSObject <UIGestureRecognizerDelegate>
 
 /// The gesture recognizer
 @property (nonatomic,strong) UIGestureRecognizer *gestureRecognizer;
-@property (nonatomic,weak) MaplyView *mapView;
+@property (nonatomic) Maply::MapView *mapView;
 
 /// Create a touch gesture and a delegate and wire them up to the given UIView
-+ (MaplyTouchCancelAnimationDelegate*)touchDelegateForView:(UIView *)view mapView:(MaplyView*)mapView;
++ (MaplyTouchCancelAnimationDelegate*)touchDelegateForView:(UIView *)view mapView:(Maply::MapView*)mapView;
 
-- (instancetype)initWithMapView:(MaplyView *)inView;
+- (instancetype)initWithMapView:(Maply::MapView *)inView;
 
 @end
