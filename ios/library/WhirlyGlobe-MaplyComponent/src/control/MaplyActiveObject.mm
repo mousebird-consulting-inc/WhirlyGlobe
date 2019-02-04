@@ -40,11 +40,15 @@ public:
     MaplyActiveObject *activeObject;
 };
     
+typedef std::shared_ptr<ActiveModelInterface> ActiveModelInterfaceRef;
+    
 }
+
+using namespace WhirlyKit;
 
 @implementation MaplyActiveObject
 {
-    ActiveModelInterface activeInter;
+    WhirlyKit::ActiveModelInterfaceRef activeInter;
 }
 
 /// Default initialization.  Updates will happen on the main queue.
@@ -52,18 +56,19 @@ public:
 {
     self = [super init];
     _viewC = inViewC;
+    activeInter = ActiveModelInterfaceRef(new ActiveModelInterface());
     
     return self;
 }
 
 - (void)registerWithScene
 {
-    scene->addActiveModel(&activeInter);
+    scene->addActiveModel(activeInter);
 }
 
 - (void)removeFromScene
 {
-    scene->removeActiveModel(&activeInter);
+    scene->removeActiveModel(activeInter);
 }
 
 - (void)startWithScene:(WhirlyKit::Scene *)inScene
@@ -76,7 +81,7 @@ public:
     return false;
 }
 
-- (void)updateForFrame:(RendererFrameInfo *)frameInfo
+- (void)updateForFrame:(void *)frameInfo
 {
     
 }

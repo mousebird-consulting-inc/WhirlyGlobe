@@ -26,7 +26,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyViewerState
 
-- (instancetype)initWithViewState:(ViewState *)inViewState
+- (instancetype)initWithViewState:(ViewStateRef)inViewState
 {
     self = [super init];
     if (!self)
@@ -39,7 +39,7 @@ using namespace WhirlyKit;
 
 - (MaplyCoordinate3d) eyePos
 {
-    Point3d pt = [_viewState eyePos];
+    Point3d pt = _viewState->eyePos;
     
     MaplyCoordinate3d ret;
     ret.x = pt.x();
@@ -55,7 +55,7 @@ using namespace WhirlyKit;
 {
     NSObject<MaplyUpdateDelegate> *delegate;
     WhirlyKitLayerThread __weak *layerThread;
-    ViewState *viewState;
+    ViewStateRef viewState;
 }
 
 - (instancetype)initWithDelegate:(NSObject<MaplyUpdateDelegate> *)inDelegate moveDist:(double)moveDist minTime:(double)minTime
@@ -78,7 +78,7 @@ using namespace WhirlyKit;
     
     // We want view updates, but only occasionally
     if (layerThread.viewWatcher)
-        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime minDist:0.0 maxLagTime:_maxLag];
+        [layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:_minTime minDist:0.0 maxLagTime:_maxLag];
     
     [self performSelector:@selector(startOnThread) onThread:layerThread withObject:nil waitUntilDone:NO];
     
@@ -90,17 +90,17 @@ using namespace WhirlyKit;
     [delegate start:self];
 }
 
-- (void)viewUpdate:(ViewState *)inViewState
+- (void)viewUpdate:(ViewStateRef)inViewState
 {
-    ViewState *lastViewState = viewState;
-    ViewState *newViewState = inViewState;
+    ViewStateRef lastViewState = viewState;
+    ViewStateRef newViewState = inViewState;
     
     // See how far we've moved
     float dist2 = 0.0;
     if (lastViewState)
     {
-        Vector3d eye0 = [lastViewState eyePos];
-        Vector3d eye1 = [newViewState eyePos];
+        Vector3d eye0 = lastViewState->eyePos;
+        Vector3d eye1 = newViewState->eyePos;
         
         dist2 = (eye0-eye1).squaredNorm();
     }
@@ -118,7 +118,7 @@ using namespace WhirlyKit;
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
     if (layerThread.viewWatcher)
-        [(WhirlyGlobeLayerViewWatcher *)layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+        [layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
     
     [delegate teardown:self];
 }

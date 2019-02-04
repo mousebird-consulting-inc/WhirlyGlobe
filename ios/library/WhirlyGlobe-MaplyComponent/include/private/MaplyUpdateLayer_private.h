@@ -22,5 +22,5 @@
 #import <WhirlyGlobe.h>
 
 @interface MaplyViewerState()
-@property (nonatomic,strong) ViewState *viewState;
+@property (nonatomic) WhirlyKit::ViewStateRef viewState;
 @end

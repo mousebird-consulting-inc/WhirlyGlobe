@@ -21,6 +21,7 @@
 #import <Foundation/Foundation.h>
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyTapMessage.h"
+#import "MapView_iOS.h"
 
 // The view controller fills this in
 @protocol MaplyInteractionLayerDelegate <NSObject>
@@ -37,7 +38,7 @@
 @property (nonatomic,weak) NSObject<MaplyInteractionLayerDelegate> * viewController;
 
 // Create with the map view
-- (instancetype)initWithMapView:(MaplyView *)inMapView;
+- (instancetype)initWithMapView:(Maply::MapView *)inMapView;
 
 // Call this to process a tap with the selection layer
 // It will call the given selector if there was no selection

@@ -581,6 +581,12 @@
 		2BE1E74C2208E8D500815D9C /* MaplyQuadImageLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B73D6BF207D1FDF00AF5095 /* MaplyQuadImageLoader.mm */; };
 		2BE1E74D2208E8D500815D9C /* MaplyQuadImageFrameLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3AC21ED43770025DA98 /* MaplyQuadImageFrameLoader.mm */; };
 		2BE1E74E2208E8D500815D9C /* MaplyTileSourceNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3AD21ED43770025DA98 /* MaplyTileSourceNew.mm */; };
+		2BE1E74F2208EAEB00815D9C /* MaplyUpdateLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537D01D249A1200B60FAD /* MaplyUpdateLayer.mm */; };
+		2BE1E7502208EC7900815D9C /* MaplySharedAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537C71D249A1200B60FAD /* MaplySharedAttributes.m */; };
+		2BE1E7512208ECA700815D9C /* MaplyCluster.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A41D249A1200B60FAD /* MaplyCluster.mm */; };
+		2BE1E7522208ECA700815D9C /* MaplyActiveObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5379B1D249A1200B60FAD /* MaplyActiveObject.mm */; };
+		2BE1E7532208ECA700815D9C /* MaplyAnnotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5379E1D249A1200B60FAD /* MaplyAnnotation.mm */; };
+		2BE1E7542208ECAC00815D9C /* MaplyViewTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537D51D249A1200B60FAD /* MaplyViewTracker.m */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -2781,18 +2787,18 @@
 			children = (
 				2BE537D01D249A1200B60FAD /* MaplyUpdateLayer.mm */,
 				2BE537C71D249A1200B60FAD /* MaplySharedAttributes.m */,
-				2BE537B01D249A1200B60FAD /* MaplyInteractionLayer.mm */,
 				2BE537A41D249A1200B60FAD /* MaplyCluster.mm */,
-				2BE537A01D249A1200B60FAD /* MaplyBaseInteractionLayer.mm */,
-				2BE537A11D249A1200B60FAD /* MaplyBaseViewController.mm */,
 				2BE5379B1D249A1200B60FAD /* MaplyActiveObject.mm */,
 				2BE5379E1D249A1200B60FAD /* MaplyAnnotation.mm */,
-				2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */,
-				2BE537D31D249A1200B60FAD /* MaplyViewController.mm */,
-				2BE537D41D249A1200B60FAD /* MaplyViewControllerLayer.mm */,
 				2BE537D51D249A1200B60FAD /* MaplyViewTracker.m */,
+				2BE537A01D249A1200B60FAD /* MaplyBaseInteractionLayer.mm */,
+				2BE537B01D249A1200B60FAD /* MaplyInteractionLayer.mm */,
 				2BE537F21D249A1200B60FAD /* WGInteractionLayer.mm */,
+				2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */,
+				2BE537D41D249A1200B60FAD /* MaplyViewControllerLayer.mm */,
 				2BE537F41D249A1200B60FAD /* WGViewControllerLayer.mm */,
+				2BE537A11D249A1200B60FAD /* MaplyBaseViewController.mm */,
+				2BE537D31D249A1200B60FAD /* MaplyViewController.mm */,
 				2BE537F51D249A1200B60FAD /* WhirlyGlobeViewController.mm */,
 			);
 			path = control;
@@ -4151,6 +4157,7 @@
 				2BE5398B1D249BEF00B60FAD /* AAAberration.cpp in Sources */,
 				2B8796C321FFB37900EF801D /* ShapeDrawableBuilder.cpp in Sources */,
 				2B82B67C1E82E24A0095FB14 /* PJ_laea.c in Sources */,
+				2BE1E7522208ECA700815D9C /* MaplyActiveObject.mm in Sources */,
 				2B846EEF21F13A1D00EF2A82 /* render.c in Sources */,
 				2BE5399D1D249BEF00B60FAD /* AAIlluminatedFraction.cpp in Sources */,
 				2B82B67D1E82E24A0095FB14 /* PJ_lagrng.c in Sources */,
@@ -4222,6 +4229,7 @@
 				2B446B2521F79BF30078A975 /* QuadTreeNew.cpp in Sources */,
 				2B82B6521E82E2490095FB14 /* PJ_crast.c in Sources */,
 				2B884A551E3803170027C397 /* integercompressor.cpp in Sources */,
+				2BE1E74F2208EAEB00815D9C /* MaplyUpdateLayer.mm in Sources */,
 				2B82B6A31E82E24A0095FB14 /* PJ_putp2.c in Sources */,
 				2BC3D6D02203EA3700CE91D0 /* MaplyStarsModel.mm in Sources */,
 				2B846ED721F1359200EF2A82 /* PJ_calcofi.c in Sources */,
@@ -4255,6 +4263,7 @@
 				2B8796C721FFB37900EF801D /* WideVectorManager.cpp in Sources */,
 				2BE53A6F1D249C4600B60FAD /* common.cc in Sources */,
 				2B82B6C11E82E24A0095FB14 /* PJ_wag7.c in Sources */,
+				2BE1E7512208ECA700815D9C /* MaplyCluster.mm in Sources */,
 				2BE539B81D249BEF00B60FAD /* AAPluto.cpp in Sources */,
 				2BE1E7392208A97100815D9C /* MaplyPinchDelegate.mm in Sources */,
 				2BE539A51D249BEF00B60FAD /* AAMoonIlluminatedFraction.cpp in Sources */,
@@ -4323,6 +4332,7 @@
 				2B82B6121E82E2490095FB14 /* JSONPreparse.cpp in Sources */,
 				2B846EE721F137D300EF2A82 /* emess.c in Sources */,
 				2B884A581E3803170027C397 /* lasindex.cpp in Sources */,
+				2BE1E7502208EC7900815D9C /* MaplySharedAttributes.m in Sources */,
 				2BC3D6C8220278BB00CE91D0 /* MaplyAnimateTranslateMomentum.cpp in Sources */,
 				2B82B6A91E82E24A0095FB14 /* pj_release.c in Sources */,
 				2BE1E7402208BE1400815D9C /* MaplyTapMessage.mm in Sources */,
@@ -4486,6 +4496,7 @@
 				2B82B6BC1E82E24A0095FB14 /* PJ_vandg.c in Sources */,
 				2B846EDD21F1365000EF2A82 /* pj_apply_vgridshift.c in Sources */,
 				2B8796FE22038DF200EF801D /* ParticleSystemLayer.mm in Sources */,
+				2BE1E7532208ECA700815D9C /* MaplyAnnotation.mm in Sources */,
 				2BE539F31D249C2900B60FAD /* map_field.cc in Sources */,
 				2B8796D021FFC59D00EF801D /* UIImage+Stuff.mm in Sources */,
 				2BE1E74E2208E8D500815D9C /* MaplyTileSourceNew.mm in Sources */,
@@ -4531,6 +4542,7 @@
 				2BE1E7422208C35100815D9C /* GlobePinchDelegate.mm in Sources */,
 				2B82B6471E82E2490095FB14 /* PJ_august.c in Sources */,
 				2BE53A001D249C2900B60FAD /* dynamic_message.cc in Sources */,
+				2BE1E7542208ECAC00815D9C /* MaplyViewTracker.m in Sources */,
 				2B8796DE21FFCC0D00EF801D /* EAGLView.mm in Sources */,
 				2B846ED521F1356E00EF2A82 /* geod_interface.c in Sources */,
 				2BE53A781D249C4700B60FAD /* strutil.cc in Sources */,

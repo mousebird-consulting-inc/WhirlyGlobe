@@ -31,7 +31,7 @@
 #import "MaplyDoubleTapDragDelegate.h"
 #import "MaplyTouchCancelAnimationDelegate.h"
 
-@interface MaplyViewController()<ViewWatcherDelegate>
+@interface MaplyViewController()
 {
     /// Custom map scene
     Maply::MapScene *mapScene;
@@ -40,9 +40,9 @@
     /// Coordinate system and display adapter
     WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
     /// Maply view
-    MaplyView *mapView;
+    Maply::MapView *mapView;
     // Flat view for 2D mode
-    MaplyFlatView * flatView;
+    Maply::FlatView * flatView;
     // Scroll view for tethered mode
     UIScrollView * __weak scrollView;
 
@@ -69,7 +69,7 @@
     
     // Used for the outside animation interface
     NSObject<MaplyViewControllerAnimationDelegate> *animationDelegate;
-    TimeInterval animationDelegateEnd;
+    NSTimeInterval animationDelegateEnd;
 
     bool delegateRespondsToViewUpdate;
 }
