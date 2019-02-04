@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyView.h"
+#import "MapView_iOS.h"
 
 #define kZoomGestureDelegateDidStart @"WKZoomDelegateStarted"
 // Sent out when the pan delegate finished (but hands off to momentum)
@@ -37,11 +37,11 @@
 @property (nonatomic,assign) float maxZoom;
 //The gesture recognizer
 @property (nonatomic,strong) UIGestureRecognizer *gestureRecognizer;
-@property (nonatomic) Maply::MapView *mapView;
+@property (nonatomic) Maply::MapView_iOS *mapView;
 
 /// Set the bounding rectangle
 - (void)setBounds:(WhirlyKit::Point2d *)bounds;
 
-- (instancetype)initWithMapView:(Maply::MapView *)inView;
+- (instancetype)initWithMapView:(Maply::MapView_iOS *)inView;
 
 @end

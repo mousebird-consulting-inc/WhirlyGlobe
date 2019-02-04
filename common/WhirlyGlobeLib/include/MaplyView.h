@@ -115,6 +115,9 @@ public:
     /// Eye position in model coordinates
     Eigen::Vector3d eyePos();
     
+    /// Return the coord adapter
+    WhirlyKit::CoordSystemDisplayAdapter *getCoordAdapter() { return coordAdapter; }
+    
     /// Make a map view state from the current globe view
     virtual WhirlyKit::ViewStateRef makeViewState(WhirlyKit::SceneRendererES *renderer);
 

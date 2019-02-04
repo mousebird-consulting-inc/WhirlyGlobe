@@ -18,9 +18,8 @@
  *
  */
 
-#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "MaplyView.h"
+#import "MapView_iOS.h"
 
 
 namespace Maply
@@ -31,6 +30,6 @@ namespace Maply
 
 @interface MaplyRotateDelegate : NSObject <UIGestureRecognizerDelegate>
 
-+ (MaplyRotateDelegate *)rotateDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
++ (MaplyRotateDelegate *)rotateDelegateForView:(UIView *)view mapView:(Maply::MapView_iOS *)mapView;
 
 @end

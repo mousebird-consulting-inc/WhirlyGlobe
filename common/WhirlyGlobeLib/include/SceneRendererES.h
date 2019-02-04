@@ -249,8 +249,11 @@ public:
     /// Return the current clear color
     RGBAColor getClearColor();
     
-    /// Get the framebuffer size
-    Point2f getFramebufferSize() { return Point2f(framebufferWidth,framebufferHeight); }
+    /// Get the framebuffer size (in pixels)
+    Point2f getFramebufferSize();
+    
+    /// Get the framebuffer size (divided by scale)
+    Point2f getFramebufferSizeScaled();
     
     /// Return the attached Scene
     Scene *getScene() { return scene; }

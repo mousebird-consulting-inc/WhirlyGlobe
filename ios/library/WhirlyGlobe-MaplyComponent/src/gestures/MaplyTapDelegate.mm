@@ -25,13 +25,14 @@
 #import "GlobeMath.h"
 
 using namespace WhirlyKit;
+using namespace Maply;
 
 @implementation MaplyTapDelegate
 {
-    MaplyView *mapView;
+    MapView_iOS *mapView;
 }
 
-- (id)initWithMapView:(MaplyView *)inView
+- (id)initWithMapView:(MapView_iOS *)inView
 {
     self = [super init];
     if (self)
@@ -42,7 +43,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-+ (MaplyTapDelegate *)tapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
++ (MaplyTapDelegate *)tapDelegateForView:(UIView *)view mapView:(MapView_iOS *)mapView
 {
 	MaplyTapDelegate *tapDelegate = [[MaplyTapDelegate alloc] initWithMapView:mapView];
     UITapGestureRecognizer *gestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)];
@@ -63,14 +64,15 @@ using namespace WhirlyKit;
 	UITapGestureRecognizer *tap = sender;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
 	SceneRendererES *sceneRender = glView.renderer;
-    CoordSystemDisplayAdapter *coordAdapter = mapView.coordAdapter;
-//    WhirlyKit::Scene *scene = sceneRender.scene;
+    CoordSystemDisplayAdapter *coordAdapter = mapView->getCoordAdapter();
     
     // Just figure out where we tapped
 	Point3d hit;
-    Eigen::Matrix4d theTransform = [mapView calcFullMatrix];
+    Eigen::Matrix4d theTransform = mapView->calcFullMatrix();
     CGPoint touchLoc = [tap locationInView:tap.view];
-    if ([mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
+    Point2f touchLoc2f(touchLoc.x,touchLoc.y);
+    auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
+    if (mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, frameSizeScaled, &hit, true))
     {
         MaplyTapMessage *msg = [[MaplyTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];

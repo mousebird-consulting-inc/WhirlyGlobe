@@ -23,15 +23,21 @@
 
 namespace WhirlyGlobe
 {
+    
+GlobeView_iOS::GlobeView_iOS(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter)
+    : GlobeView(coordAdapter)
+{
+    tag = [[NSObject alloc] init];
+}
 
 void GlobeView_iOS::setDelegate(GlobeViewAnimationDelegateRef delegate)
 {
     GlobeView::setDelegate(delegate);
     
     if (!delegate)
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:tag];
     else {
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:tag];
     }
 }
 
@@ -40,7 +46,7 @@ void GlobeView_iOS::cancelAnimation()
     GlobeView::cancelAnimation();
     
     if (delegate)
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:tag];
     
     delegate = nil;
 }

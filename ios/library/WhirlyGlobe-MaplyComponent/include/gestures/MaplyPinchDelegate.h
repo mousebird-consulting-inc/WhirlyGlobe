@@ -24,6 +24,6 @@
 @interface MaplyPinchDelegate : MaplyZoomGestureDelegate
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
-+ (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
++ (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(Maply::MapView_iOS *)mapView;
 
 @end

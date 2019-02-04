@@ -32,10 +32,15 @@ namespace WhirlyGlobe
 class GlobeView_iOS : public GlobeView
 {
 public:
+    GlobeView_iOS(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
+    
     /// Set the change delegate
     virtual void setDelegate(GlobeViewAnimationDelegateRef delegate);
     
     /// Called to cancel a running animation
     virtual void cancelAnimation();
+    
+    /// Used to mark notifications belonging to this view
+    id tag;
 };
 }

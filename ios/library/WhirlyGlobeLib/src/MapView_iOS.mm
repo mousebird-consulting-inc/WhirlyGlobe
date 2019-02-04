@@ -24,14 +24,20 @@
 
 namespace Maply {
     
+MapView_iOS::MapView_iOS(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter)
+    : MapView(coordAdapter)
+{
+    tag = [[NSObject alloc] init];
+}
+    
 void MapView_iOS::setDelegate(MapViewAnimationDelegateRef delegate)
 {
     MapView::setDelegate(delegate);
     
     if (!delegate)
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:tag];
     else {
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:tag];
     }
 }
 
@@ -40,7 +46,7 @@ void MapView_iOS::cancelAnimation()
     MapView::cancelAnimation();
     
     if (delegate)
-        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:tag];
     
     delegate = nil;
 }

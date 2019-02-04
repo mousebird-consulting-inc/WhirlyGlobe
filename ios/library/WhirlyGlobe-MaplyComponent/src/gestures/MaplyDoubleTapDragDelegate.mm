@@ -19,13 +19,13 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "MaplyView.h"
 #import "MaplyZoomGestureDelegate.h"
 #import "MaplyZoomGestureDelegate_private.h"
 #import "MaplyDoubleTapDragDelegate.h"
 #import "MaplyAnimateTranslation.h"
 
 using namespace WhirlyKit;
+using namespace Maply;
 
 @implementation MaplyDoubleTapDragDelegate
 {
@@ -33,7 +33,7 @@ using namespace WhirlyKit;
     float startZ;
 }
 
-+ (MaplyDoubleTapDragDelegate *)doubleTapDragDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
++ (MaplyDoubleTapDragDelegate *)doubleTapDragDelegateForView:(UIView *)view mapView:(MapView_iOS *)mapView;
 {
     MaplyDoubleTapDragDelegate *pressDelegate = [[MaplyDoubleTapDragDelegate alloc] initWithMapView:mapView];
     UILongPressGestureRecognizer *pressRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:pressDelegate action:@selector(pressGesture:)];
@@ -62,38 +62,39 @@ using namespace WhirlyKit;
     {
         case UIGestureRecognizerStateBegan:
             screenPt = [press locationInView:glView];
-            startZ = self.mapView.loc.z();
-            [self.mapView cancelAnimation];
-            [[NSNotificationCenter defaultCenter] postNotificationName:kMaplyDoubleTapDragDidStart object:self.mapView];
+            startZ = self.mapView->getLoc().z();
+            self.mapView->cancelAnimation();
+            [[NSNotificationCenter defaultCenter] postNotificationName:kMaplyDoubleTapDragDidStart object:self.mapView->tag];
             break;
         case UIGestureRecognizerStateFailed:
-            [[NSNotificationCenter defaultCenter] postNotificationName:kMaplyDoubleTapDragDidEnd object:self.mapView];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kMaplyDoubleTapDragDidEnd object:self.mapView->tag];
             break;
         case UIGestureRecognizerStateChanged:
         {
-            Point3d curLoc = self.mapView.loc;
+            Point3d curLoc = self.mapView->getLoc();
             CGPoint curPt = [press locationInView:glView];
             float diffY = screenPt.y-curPt.y;
-            float height = sceneRenderer.framebufferHeight / glView.contentScaleFactor;
+            float height = sceneRenderer->getFramebufferSizeScaled().y();
             float scale = powf(2.0,2*diffY/(height/2));
             float newZ = startZ * scale;
             Point2d newCenter;
             if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
             {
-                MaplyView *testMapView = [[MaplyView alloc] initWithView:self.mapView];
+                MapView_iOS testMapView(*(self.mapView));
                 Point3d newLoc(curLoc.x(),curLoc.y(),newZ);
                 Point3d newCenter;
                 // Check if we're still within bounds
-                if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
+                
+                if (MaplyGestureWithinBounds(bounds,newLoc,sceneRenderer,&testMapView,&newCenter))
                 {
                     newLoc = newCenter;
-                    [self.mapView setLoc:newLoc];
+                    self.mapView->setLoc(newLoc);
                 }
             }
         }
             break;
         case UIGestureRecognizerStateEnded:
-            [[NSNotificationCenter defaultCenter] postNotificationName:kMaplyDoubleTapDragDidEnd object:self.mapView];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kMaplyDoubleTapDragDidEnd object:self.mapView->tag];
             break;
         default:
             break;

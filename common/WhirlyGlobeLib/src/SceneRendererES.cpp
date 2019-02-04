@@ -342,6 +342,17 @@ bool SceneRendererES::setup(int apiVersion,int sizeX,int sizeY)
     return true;
 }
     
+Point2f SceneRendererES::getFramebufferSize()
+{
+    return Point2f(framebufferWidth,framebufferHeight);
+}
+
+Point2f SceneRendererES::getFramebufferSizeScaled()
+{
+    auto scale = DeviceScreenScale();
+    return Point2f(framebufferWidth/scale,framebufferHeight/scale);
+}
+
 bool SceneRendererES::resize(int sizeX,int sizeY)
 {
     // Don't want to deal with it for offscreen rendering

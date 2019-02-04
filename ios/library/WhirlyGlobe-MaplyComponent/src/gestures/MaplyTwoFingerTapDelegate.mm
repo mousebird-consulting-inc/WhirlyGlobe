@@ -23,13 +23,11 @@
 #import "MaplyAnimateTranslation.h"
 
 using namespace WhirlyKit;
+using namespace Maply;
 
 @implementation MaplyTwoFingerTapDelegate
-{
-    Maply::AnimateViewTranslation *animation;
-}
 
-+ (MaplyTwoFingerTapDelegate *)twoFingerTapDelegateForView:(UIView *)view mapView:(Maply::MapView *)mapView
++ (MaplyTwoFingerTapDelegate *)twoFingerTapDelegateForView:(UIView *)view mapView:(Maply::MapView_iOS *)mapView
 {
     MaplyTwoFingerTapDelegate *tapDelegate = [[MaplyTwoFingerTapDelegate alloc] initWithMapView:mapView];
     UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapGesture:)];
@@ -63,12 +61,12 @@ using namespace WhirlyKit;
             Point3d newLoc(hit.x(),hit.y(),newZ);
             Point3f newLoc3f(newLoc.x(),newLoc.y(),newLoc.z());
             Point3d newCenter;
-            
+            Maply::MapView testMapView(*(self.mapView));
+
             // Check if we're still within bounds
-            if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:[[MaplyView alloc] initWithView:self.mapView] newCenter:&newCenter])
-            {
-                animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView view:glView translate:newCenter howLong:_animTime];
-                self.mapView.delegate = animation;
+            if (MaplyGestureWithinBounds(bounds,newLoc,sceneRenderer,&testMapView,&newCenter)) {
+                Maply::AnimateViewTranslationRef animation = AnimateViewTranslationRef(new AnimateViewTranslation(self.mapView,sceneRenderer,newCenter,_animTime));
+                self.mapView->setDelegate(animation);
             }
         }
     } else {

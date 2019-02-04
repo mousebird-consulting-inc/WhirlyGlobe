@@ -19,7 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "MaplyView.h"
+#import "MapView_iOS.h"
 #import "MaplyZoomGestureDelegate.h"
 
 // Sent out when the double tap delegate takes control
@@ -30,7 +30,6 @@
 @interface MaplyDoubleTapDragDelegate : MaplyZoomGestureDelegate
 
 /// Create a 2 finger tap gesture and a delegate and wire them up to the given UIView
-+ (MaplyDoubleTapDragDelegate *)doubleTapDragDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
-
++ (MaplyDoubleTapDragDelegate *)doubleTapDragDelegateForView:(UIView *)view mapView:(Maply::MapView_iOS *)mapView;
 
 @end

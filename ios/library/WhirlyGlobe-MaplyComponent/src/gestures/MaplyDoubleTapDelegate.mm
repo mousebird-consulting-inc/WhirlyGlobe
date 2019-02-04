@@ -23,13 +23,11 @@
 #import "MaplyAnimateTranslation.h"
 
 using namespace WhirlyKit;
+using namespace Maply;
 
 @implementation MaplyDoubleTapDelegate
-{
-    MaplyAnimateViewTranslation *animation;
-}
 
-+ (MaplyDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
++ (MaplyDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view mapView:(MapView_iOS *)mapView
 {
     MaplyDoubleTapDelegate *tapDelegate = [[MaplyDoubleTapDelegate alloc] initWithMapView:mapView];
     UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapGesture:)];
@@ -49,13 +47,15 @@ using namespace WhirlyKit;
     WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
     SceneRendererES *sceneRenderer = glView.renderer;
 	
-    Point3d curLoc = self.mapView.loc;
+    Point3d curLoc = self.mapView->getLoc();
     // Just figure out where we tapped
 	Point3d hit;
-    Eigen::Matrix4d theTransform = [self.mapView calcFullMatrix];
+    Eigen::Matrix4d theTransform = self.mapView->calcFullMatrix();
     CGPoint touchLoc = [tap locationInView:tap.view];
+    Point2f touchLoc2f(touchLoc.x,touchLoc.y);
     Point2d newCenter;
-    if ([self.mapView pointOnPlaneFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit clip:true])
+    auto frameSizeScaled = sceneRenderer->getFramebufferSizeScaled();
+    if (self.mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, frameSizeScaled, &hit, true))
     {
         double newZ = curLoc.z() - (curLoc.z() - self.minZoom)/2.0;
         
@@ -63,11 +63,12 @@ using namespace WhirlyKit;
         {
             Point3d newLoc(hit.x(),hit.y(),newZ);
             Point3d newCenter;
+            MapView testMapView(*(self.mapView));
             // Check if we're still within bounds
-            if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:[[MaplyView alloc] initWithView:self.mapView] newCenter:&newCenter])
+            if (MaplyGestureWithinBounds(bounds, newLoc, sceneRenderer, &testMapView, &newCenter))
             {
-                animation = [[MaplyAnimateViewTranslation alloc] initWithView:self.mapView view:glView translate:newCenter howLong:_animTime];
-                self.mapView.delegate = animation;
+                MapViewAnimationDelegateRef animation(new AnimateViewTranslation(self.mapView,sceneRenderer,newCenter,_animTime));
+                self.mapView->setDelegate(animation);
             }
         }
     } else {

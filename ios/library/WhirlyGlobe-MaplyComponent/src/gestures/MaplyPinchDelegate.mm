@@ -18,22 +18,23 @@
  *
  */
 
-#import "EAGLView.h"
 #import "MaplyPinchDelegate.h"
 #import "SceneRendererES.h"
 #import "MaplyZoomGestureDelegate_private.h"
+#import "MaplyAnimateTranslation.h"
 
 using namespace WhirlyKit;
+using namespace Maply;
 
 @implementation MaplyPinchDelegate
 {
     /// If we're zooming, where we started
     float startZ;
-    CGPoint startingMidPoint;
+    Point2f startingMidPoint;
     Point3d startingGeoPoint;
 }
 
-+ (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
++ (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MapView_iOS *)mapView
 {
     MaplyPinchDelegate *pinchDelegate = [[MaplyPinchDelegate alloc] initWithMapView:mapView];
     pinchDelegate.gestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
@@ -55,65 +56,58 @@ using namespace WhirlyKit;
 		case UIGestureRecognizerStateBegan:
         {
 			// Store the starting Z for comparison
-            startZ = self.mapView.loc.z();
+            startZ = self.mapView->getLoc().z();
             
             //calculate center between touches, in screen and map coords
             CGPoint t0 = [pinch locationOfTouch:0 inView:pinch.view];
             CGPoint t1 = [pinch locationOfTouch:1 inView:pinch.view];
-            startingMidPoint.x = (t0.x + t1.x) / 2.0;
-            startingMidPoint.y = (t0.y + t1.y) / 2.0;
-            Eigen::Matrix4d modelTrans = [self.mapView calcFullMatrix];
-            [self.mapView pointOnPlaneFromScreen:startingMidPoint
-                                       transform:&modelTrans
-                                       frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)
-                                             hit:&startingGeoPoint
-                                            clip:true];
-            
-            [self.mapView cancelAnimation];
-            [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:self.mapView];
+            startingMidPoint.x() = (t0.x + t1.x) / 2.0;
+            startingMidPoint.y() = (t0.y + t1.y) / 2.0;
+            Eigen::Matrix4d modelTrans = self.mapView->calcFullMatrix();
+            Point2f frameSize = sceneRenderer->getFramebufferSizeScaled();
+            self.mapView->pointOnPlaneFromScreen(startingMidPoint, &modelTrans, frameSize, &startingGeoPoint, true);
+
+            self.mapView->cancelAnimation();
+            [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:self.mapView->tag];
         }
 			break;
 		case UIGestureRecognizerStateChanged:
         {
-            Point3d curLoc = self.mapView.loc;
+            Point3d curLoc = self.mapView->getLoc();
             double newZ = startZ/pinch.scale;
             if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
             {
-                MaplyView *testMapView = [[MaplyView alloc] initWithView:self.mapView];
+                MapView testMapView(*(self.mapView));
 
                 Point3d newLoc(curLoc.x(), curLoc.y(), newZ);
-                [testMapView setLoc:newLoc runUpdates:NO];
+                
+                testMapView.setLoc(newLoc,false);
 
-                //calculatute scalepoint offset in screenspace
-                Eigen::Matrix4d modelTrans = [testMapView calcFullMatrix];
-                CGPoint currentScalePointScreenLoc = [testMapView pointOnScreenFromPlane:startingGeoPoint
-                                                                               transform:&modelTrans
-                                                                               frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
-                CGPoint screenOffset = {startingMidPoint.x - currentScalePointScreenLoc.x,
-                    startingMidPoint.y - currentScalePointScreenLoc.y};
+                // calculate scalepoint offset in screenspace
+                Eigen::Matrix4d modelTrans = testMapView.calcFullMatrix();
+                auto frameSizeScaled = sceneRenderer->getFramebufferSizeScaled();
+                Point2f currentScalePointScreenLoc = testMapView.pointOnScreenFromPlane(startingGeoPoint, &modelTrans, frameSizeScaled);
+                Point2f screenOffset(startingMidPoint.x() - currentScalePointScreenLoc.x(),
+                    startingMidPoint.y() - currentScalePointScreenLoc.y());
 
                 //calculate a new map center to maintain scalepoint in place on screen
-                CGPoint newMapCenterPoint = {static_cast<CGFloat>((glView.frame.size.width/2.0) - screenOffset.x),
-                    static_cast<CGFloat>((glView.frame.size.height/2.0) - screenOffset.y)};
+                Point2f newMapCenterPoint((glView.frame.size.width/2.0) - screenOffset.x(),
+                    (glView.frame.size.height/2.0) - screenOffset.y());
                 Point3d newCenterGeoPoint;
-                [testMapView pointOnPlaneFromScreen:newMapCenterPoint
-                                           transform:&modelTrans
-                                           frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor)
-                                                 hit:&newLoc
-                                                clip:true];
+                testMapView.pointOnPlaneFromScreen(newMapCenterPoint, &modelTrans, frameSizeScaled, &newLoc, true);
                 newLoc.z() = newZ;
-                
-                [testMapView setLoc:newLoc runUpdates:YES];
+
+                testMapView.setLoc(newLoc, false);
                 Point3d newCenter;
-                if ([self withinBounds:newLoc view:glView renderer:sceneRenderer mapView:testMapView newCenter:&newCenter])
+                if (MaplyGestureWithinBounds(bounds,newLoc,sceneRenderer,&testMapView,&newCenter))
                 {
-                    [self.mapView setLoc:newCenter runUpdates:YES];
+                    self.mapView->setLoc(newCenter, true);
                 }
             }
         }
 			break;
         case UIGestureRecognizerStateEnded:
-            [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidEnd object:self.mapView];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidEnd object:self.mapView->tag];
             break;
         default:
             break;

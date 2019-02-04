@@ -27,11 +27,16 @@ namespace Maply
 class MapView_iOS : public MapView
 {
 public:
+    MapView_iOS(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
+    
     /// Set the change delegate
     virtual void setDelegate(MapViewAnimationDelegateRef delegate);
     
     /// Called to cancel a running animation
     virtual void cancelAnimation();
+    
+    /// Used in notifications for identifying a particular view
+    id tag;
 };
     
 }

@@ -20,7 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import "WhirlyVector.h"
-#import "MaplyView.h"
+#import "MapView_iOS.h"
 #import "MaplyTapMessage.h"
 
 /** Maply tap gesture delegate responds to a tap
@@ -29,7 +29,7 @@
 @interface MaplyTapDelegate : NSObject <UIGestureRecognizerDelegate>
 
 /// Create a tap gesture recognizer and a delegate, then wire them up to the given UIView
-+ (MaplyTapDelegate *)tapDelegateForView:(UIView *)view mapView:(MaplyView *)mapView;
++ (MaplyTapDelegate *)tapDelegateForView:(UIView *)view mapView:(Maply::MapView_iOS *)mapView;
 
 /// Gesture recognizer created for the delegate
 @property (nonatomic,weak) UITapGestureRecognizer *gestureRecognizer;

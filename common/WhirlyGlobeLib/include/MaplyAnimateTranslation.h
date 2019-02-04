@@ -64,4 +64,6 @@ protected:
     MapView *mapView;
 };
     
+typedef std::shared_ptr<AnimateViewTranslation> AnimateViewTranslationRef;
+    
 }

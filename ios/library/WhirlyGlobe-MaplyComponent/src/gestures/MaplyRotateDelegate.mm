@@ -21,17 +21,18 @@
 #import "MaplyRotateDelegate.h"
 
 using namespace WhirlyKit;
+using namespace Maply;
 
 @implementation MaplyRotateDelegate
 {
     Maply::RotationType rotType;
-    MaplyView *mapView;
+    MapView_iOS *mapView;
     double startRotationAngle;
 }
 
 using namespace Maply;
 
-- (id)initWithMapView:(MaplyView *)inView
+- (id)initWithMapView:(MapView_iOS *)inView
 {
 	if ((self = [super init]))
 	{
@@ -43,7 +44,7 @@ using namespace Maply;
 }
 
 
-+ (MaplyRotateDelegate *)rotateDelegateForView:(UIView *)view mapView:(MaplyView *)mapView
++ (MaplyRotateDelegate *)rotateDelegateForView:(UIView *)view mapView:(MapView_iOS *)mapView
 {
 	MaplyRotateDelegate *rotateDelegate = [[MaplyRotateDelegate alloc] initWithMapView:mapView];
 	UIRotationGestureRecognizer *rotationRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:rotateDelegate action:@selector(rotateAction:)];
@@ -70,15 +71,15 @@ using namespace Maply;
     switch (rotate.state)
     {
         case UIGestureRecognizerStateBegan:
-            [mapView cancelAnimation];
+            mapView->cancelAnimation();
             rotType = RotFree;
-            startRotationAngle = [mapView rotAngle];
+            startRotationAngle = mapView->getRotAngle();
             break;
         case UIGestureRecognizerStateChanged:
-            [mapView cancelAnimation];
+            mapView->cancelAnimation();
             if (rotType == RotFree)
             {
-                [mapView setRotAngle:(startRotationAngle + rotate.rotation)];
+                mapView->setRotAngle(startRotationAngle + rotate.rotation, true);
 	        }
             break;
         case UIGestureRecognizerStateFailed:
