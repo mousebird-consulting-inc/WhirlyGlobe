@@ -268,39 +268,40 @@ void ViewPlacementManager::dumpStats()
 
 }
 
-@implementation ViewPlacementActiveModel
+namespace WhirlyKit
 {
-    ViewPlacementManager *manager;
+ViewPlacementActiveModel::ViewPlacementActiveModel()
+: manager(NULL)
+{
 }
 
-- (WhirlyKit::ViewPlacementManager *)getManager
+ViewPlacementManager *ViewPlacementActiveModel::getManager()
 {
     return manager;
 }
 
-- (void)startWithScene:(WhirlyKit::Scene *)scene
-{
+virtual void ViewPlacementActiveModel::startWithScene(Scene *scene) {
     manager = new ViewPlacementManager();
 }
 
-- (bool)hasUpdate
-{
+virtual bool ViewPlacementActiveModel::hasUpdate() {
     if (!manager)
         return false;
     
     return manager->getChangedSinceUpdate();
 }
 
-- (void)updateForFrame:(RendererFrameInfo *)frameInfo
-{
+/// Update your stuff for display, but be quick!
+virtual void ViewPlacementActiveModel::updateForFrame(RendererFrameInfo *frameInfo) {
     manager->updateLocations(frameInfo);
+
 }
 
-- (void)teardown
-{
+/// Time to clean up your toys
+virtual void ViewPlacementActiveModel::teardown() {
     if (manager)
         delete manager;
     manager = NULL;
 }
 
-@end
+}

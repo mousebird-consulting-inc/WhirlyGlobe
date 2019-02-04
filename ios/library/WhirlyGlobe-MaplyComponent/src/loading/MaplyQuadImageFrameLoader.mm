@@ -23,6 +23,8 @@
 #import "MaplyShader_private.h"
 #import "MaplyRenderTarget_private.h"
 
+using namespace WhirlyKit;
+
 @class MaplyQuadImageFrameLoader;
 
 @interface MaplyQuadImageFrameLoader() <WhirlyKitQuadTileBuilderDelegate>
@@ -548,7 +550,7 @@ using namespace WhirlyKit;
     return false;
 }
 
-- (void)updateForFrame:(RendererFrameInfo *)frameInfo
+- (void)updateForFrame:(void *)frameInfo
 {
 }
 
@@ -574,9 +576,9 @@ using namespace WhirlyKit;
     return [_loader hasUpdate];
 }
 
-- (void)updateForFrame:(RendererFrameInfo *)frameInfo
+- (void)updateForFrame:(void *)frameInfo
 {
-    return [_loader updateForFrame:frameInfo];
+    return [_loader updateForFrame:(RendererFrameInfo *)frameInfo];
 }
 
 - (void)teardown
@@ -1137,9 +1139,9 @@ using namespace WhirlyKit;
     ChangeSet changes;
     
     TimeInterval now = TimeGetCurrent();
-    renderState.updateScene(frameInfo.scene, curFrame, now, self.flipY, [self.color asRGBAColor], changes);
+    renderState.updateScene(frameInfo->scene, curFrame, now, self.flipY, [self.color asRGBAColor], changes);
     
-    frameInfo.scene->addChangeRequests(changes);
+    frameInfo->scene->addChangeRequests(changes);
 }
 
 @end

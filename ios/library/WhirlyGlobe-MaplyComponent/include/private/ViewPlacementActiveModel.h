@@ -102,10 +102,17 @@ protected:
     
 }
 
+namespace WhirlyKit
+{
 // Active Model runs right before the scene updates
-@interface ViewPlacementActiveModel : NSObject<WhirlyKitActiveModel>
-
-// Used externally to add and remove views
-- (WhirlyKit::ViewPlacementManager *)getManager;
-
-@end
+class ViewPlacementActiveModel : ActiveModel
+{
+public:
+    ViewPlacementActiveModel();
+    
+    ViewPlacementManager *getManager();
+protected:
+    ViewPlacementManager *manager;
+};
+    
+}

@@ -576,6 +576,11 @@
 		2BE1E7472208CEA300815D9C /* GlobeTapMessage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3B121ED43780025DA98 /* GlobeTapMessage.mm */; };
 		2BE1E7482208CF3300815D9C /* GlobeTiltDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3B821ED43780025DA98 /* GlobeTiltDelegate.mm */; };
 		2BE1E7492208D04C00815D9C /* GlobeTwoFingerTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3AE21ED43780025DA98 /* GlobeTwoFingerTapDelegate.mm */; };
+		2BE1E74A2208E8C500815D9C /* MaplyRemoteTileFetcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */; };
+		2BE1E74B2208E8D500815D9C /* MaplyImageTile.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537AF1D249A1200B60FAD /* MaplyImageTile.mm */; };
+		2BE1E74C2208E8D500815D9C /* MaplyQuadImageLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B73D6BF207D1FDF00AF5095 /* MaplyQuadImageLoader.mm */; };
+		2BE1E74D2208E8D500815D9C /* MaplyQuadImageFrameLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3AC21ED43770025DA98 /* MaplyQuadImageFrameLoader.mm */; };
+		2BE1E74E2208E8D500815D9C /* MaplyTileSourceNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3AD21ED43770025DA98 /* MaplyTileSourceNew.mm */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -4253,6 +4258,7 @@
 				2BE539B81D249BEF00B60FAD /* AAPluto.cpp in Sources */,
 				2BE1E7392208A97100815D9C /* MaplyPinchDelegate.mm in Sources */,
 				2BE539A51D249BEF00B60FAD /* AAMoonIlluminatedFraction.cpp in Sources */,
+				2BE1E74C2208E8D500815D9C /* MaplyQuadImageLoader.mm in Sources */,
 				2B8796B921FFB36500EF801D /* FontTextureManager.cpp in Sources */,
 				2BE5399B1D249BEF00B60FAD /* AAGalileanMoons.cpp in Sources */,
 				2B8796DD21FFCBF600EF801D /* glwrapper.cpp in Sources */,
@@ -4301,6 +4307,7 @@
 				2BE5399A1D249BEF00B60FAD /* AAFK5.cpp in Sources */,
 				2BE53A041D249C2900B60FAD /* extension_set_heavy.cc in Sources */,
 				2B8796FD22038B9D00EF801D /* LayerThread.mm in Sources */,
+				2BE1E74D2208E8D500815D9C /* MaplyQuadImageFrameLoader.mm in Sources */,
 				2BE53A171D249C2900B60FAD /* unknown_field_set.cc in Sources */,
 				2B8796FC2203861200EF801D /* LayerViewWatcher.mm in Sources */,
 				2B884A461E3803170027C397 /* arithmeticmodel.cpp in Sources */,
@@ -4337,6 +4344,7 @@
 				2B82B60B1E82E2490095FB14 /* JSONIterators.cpp in Sources */,
 				2BE539961D249BEF00B60FAD /* AAElementsPlanetaryOrbit.cpp in Sources */,
 				2B846EDF21F136D700EF2A82 /* pj_units.c in Sources */,
+				2BE1E74A2208E8C500815D9C /* MaplyRemoteTileFetcher.mm in Sources */,
 				2B82B6531E82E2490095FB14 /* pj_ctx.c in Sources */,
 				2B82B6501E82E2490095FB14 /* PJ_chamb.c in Sources */,
 				2B23133021F936CD006AA344 /* RawData.cpp in Sources */,
@@ -4345,6 +4353,7 @@
 				2B884A631E3803170027C397 /* lasreaditemcompressed_v2.cpp in Sources */,
 				2B82B6901E82E24A0095FB14 /* PJ_moll.c in Sources */,
 				2B82B6791E82E24A0095FB14 /* PJ_isea.c in Sources */,
+				2BE1E74B2208E8D500815D9C /* MaplyImageTile.mm in Sources */,
 				2B446B1321F79AD00078A975 /* OverlapHelper.cpp in Sources */,
 				2B82B5EA1E82E2490095FB14 /* normal.c in Sources */,
 				2BE539FB1D249C2900B60FAD /* descriptor.pb.cc in Sources */,
@@ -4479,6 +4488,7 @@
 				2B8796FE22038DF200EF801D /* ParticleSystemLayer.mm in Sources */,
 				2BE539F31D249C2900B60FAD /* map_field.cc in Sources */,
 				2B8796D021FFC59D00EF801D /* UIImage+Stuff.mm in Sources */,
+				2BE1E74E2208E8D500815D9C /* MaplyTileSourceNew.mm in Sources */,
 				2B446B1D21F79AE40078A975 /* SphericalMercator.cpp in Sources */,
 				2B8796C121FFB37900EF801D /* ParticleSystemManager.cpp in Sources */,
 				2BE53A401D249C3D00B60FAD /* zero_copy_stream_impl.cc in Sources */,
