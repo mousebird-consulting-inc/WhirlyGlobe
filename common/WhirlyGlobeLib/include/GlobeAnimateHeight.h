@@ -42,6 +42,9 @@ public:
 
     /// Return a calculated tilt
     virtual double tiltFromHeight(double height) = 0;
+    
+    /// Return the maximum allowable tilt
+    virtual double getMaxTilt() { return maxTilt; }
 
     /// Called by an actual tilt gesture.  We're setting the tilt as given
     virtual void setTilt(double newTilt) = 0;
@@ -63,10 +66,10 @@ public:
 
     /// Return a calculated tilt
     virtual double tiltFromHeight(double height);
-    
+
     /// Return the maximum allowable tilt
     virtual double getMaxTilt();
-    
+
     /// Called by an actual tilt gesture.  We're setting the tilt as given
     virtual void setTilt(double newTilt);
 

@@ -26,25 +26,25 @@ using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeTiltDelegate
 {
-    WhirlyGlobeView * __weak view;
+    GlobeView_iOS *globeView;
     CGPoint startTouch;
     double startTilt;
     bool active;
     bool turnedOffPinch;
 }
 
-- (instancetype)initWithGlobeView:(WhirlyGlobeView *)inView
+- (instancetype)initWithGlobeView:(GlobeView_iOS *)inView
 {
     if ((self = [super init]))
     {
-        view = inView;
+        globeView = inView;
     }
     
     return self;
 }
 
 
-+ (WhirlyGlobeTiltDelegate *)tiltDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
++ (WhirlyGlobeTiltDelegate *)tiltDelegateForView:(UIView *)view globeView:(GlobeView_iOS *)globeView
 {
     WhirlyGlobeTiltDelegate *tiltDelegate = [[WhirlyGlobeTiltDelegate alloc] initWithGlobeView:globeView];
     UIPanGestureRecognizer *tiltRecog = [[UIPanGestureRecognizer alloc] initWithTarget:tiltDelegate action:@selector(panAction:)];
@@ -69,7 +69,7 @@ using namespace WhirlyGlobe;
     
     if (pan.state == UIGestureRecognizerStateCancelled)
     {
-        [[NSNotificationCenter defaultCenter] postNotificationName:kTiltDelegateDidEnd object:view];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kTiltDelegateDidEnd object:globeView->tag];
         active = false;
         if (turnedOffPinch && !_pinchDelegate.gestureRecognizer.enabled)
             _pinchDelegate.gestureRecognizer.enabled = true;
@@ -90,8 +90,8 @@ using namespace WhirlyGlobe;
     {
         case UIGestureRecognizerStateBegan:
         {
-            [view cancelAnimation];
-            startTilt = view.tilt;
+            globeView->cancelAnimation();
+            startTilt = globeView->getTilt();
             startTouch = [pan locationInView:glView];
             active = true;
             if (_pinchDelegate.gestureRecognizer.enabled)
@@ -100,7 +100,7 @@ using namespace WhirlyGlobe;
                 _pinchDelegate.gestureRecognizer.enabled = false;
             }
             
-            [[NSNotificationCenter defaultCenter] postNotificationName:kTiltDelegateDidStart object:view];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kTiltDelegateDidStart object:globeView->tag];
         }
             break;
         case UIGestureRecognizerStateChanged:
@@ -112,17 +112,17 @@ using namespace WhirlyGlobe;
             // This tilt plants the horizon right in the middle
             double maxTilt=M_PI/2.0;
             if (_tiltCalcDelegate)
-                maxTilt = [_tiltCalcDelegate maxTilt];
+                maxTilt = _tiltCalcDelegate->getMaxTilt();
             else
-                maxTilt = asin(1.0/(1.0+view.heightAboveGlobe));
+                maxTilt = asin(1.0/(1.0+globeView->getHeightAboveGlobe()));
             double newTilt = move + startTilt;
-            view.tilt = std::min(std::max(0.0,newTilt),maxTilt);
+            globeView->setTilt(std::min(std::max(0.0,newTilt),maxTilt));
             if (_tiltCalcDelegate)
-                [_tiltCalcDelegate setTilt:view.tilt];
+                _tiltCalcDelegate->setTilt(globeView->getTilt());
         }
             break;
         case UIGestureRecognizerStateFailed:
-            [[NSNotificationCenter defaultCenter] postNotificationName:kTiltDelegateDidEnd object:view];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kTiltDelegateDidEnd object:globeView->tag];
             active = false;
             if (turnedOffPinch)
             {
@@ -133,7 +133,7 @@ using namespace WhirlyGlobe;
             break;
         case UIGestureRecognizerStateEnded:
         {
-            [[NSNotificationCenter defaultCenter] postNotificationName:kTiltDelegateDidEnd object:view];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kTiltDelegateDidEnd object:globeView->tag];
             active = false;
             if (turnedOffPinch)
             {

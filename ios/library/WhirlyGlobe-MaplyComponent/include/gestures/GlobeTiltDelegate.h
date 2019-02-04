@@ -20,6 +20,7 @@
 #import <Foundation/Foundation.h>
 #import "WhirlyGlobe.h"
 #import "GlobePinchDelegate.h"
+#import "GlobeView_iOS.h"
 
 // Sent out when the tilt delegate takes control
 #define kTiltDelegateDidStart @"WKTiltDelegateStarted"
@@ -29,7 +30,7 @@
 // The tilt delegate handle the 3D camera tilt
 @interface WhirlyGlobeTiltDelegate : NSObject<UIGestureRecognizerDelegate>
 
-+ (WhirlyGlobeTiltDelegate *)tiltDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
++ (WhirlyGlobeTiltDelegate *)tiltDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView_iOS *)globeView;
 
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 
@@ -37,6 +38,6 @@
 @property (nonatomic,weak) WhirlyGlobePinchDelegate *pinchDelegate;
 
 // Calculator delegate for tilt constraints
-@property (nonatomic,weak) NSObject<WhirlyGlobeTiltCalculatorDelegate> *tiltCalcDelegate;
+@property (nonatomic) WhirlyGlobe::TiltCalculatorRef tiltCalcDelegate;
 
 @end

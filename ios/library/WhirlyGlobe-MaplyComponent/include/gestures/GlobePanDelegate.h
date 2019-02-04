@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "WhirlyGlobe.h"
+#import "GlobeView_iOS.h"
 
 // Sent out when the pan delegate takes control
 #define kPanDelegateDidStart @"WKPanDelegateStarted"
@@ -44,7 +45,7 @@
 
 @property(nonatomic,assign) bool northUp;
 
-+ (WhirlyGlobePanDelegate *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView useCustomPanRecognizer:(bool)useCustomPanRecognizer;
++ (WhirlyGlobePanDelegate *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView_iOS *)globeView useCustomPanRecognizer:(bool)useCustomPanRecognizer;
 
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 

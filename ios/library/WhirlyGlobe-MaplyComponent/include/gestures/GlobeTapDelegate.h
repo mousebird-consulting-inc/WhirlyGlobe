@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "GlobeView.h"
+#import "GlobeView_iOS.h"
 #import "GlobeTapMessage.h"
 
 /** WhirlyGlobe tap gesture delegate
@@ -28,7 +28,7 @@
 @interface WhirlyGlobeTapDelegate : NSObject <UIGestureRecognizerDelegate>
 
 /// Create a tap gesture recognizer and a delegate and wire them up to the given UIView
-+ (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
++ (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView_iOS *)globeView;
 
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 

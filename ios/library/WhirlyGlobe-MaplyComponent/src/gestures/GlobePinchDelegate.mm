@@ -19,12 +19,12 @@
  */
 
 #import "GlobePinchDelegate.h"
-#import "EAGLView.h"
 #import "GlobeRotateDelegate.h"
 #import "GlobeTiltDelegate.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
+using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobePinchDelegate
 {
@@ -37,7 +37,7 @@ using namespace WhirlyKit;
 	/// Rotation when we started
 	Eigen::Quaterniond startQuat;
     bool valid;
-	WhirlyGlobeView *globeView;
+	GlobeView_iOS *globeView;
     double startRot;
     Point3d startRotAxis;
     double sphereRadius;
@@ -47,14 +47,14 @@ using namespace WhirlyKit;
     bool sentRotStartMsg;
 }
 
-- (instancetype)initWithGlobeView:(WhirlyGlobeView *)inView
+- (instancetype)initWithGlobeView:(GlobeView_iOS *)inView
 {
 	if ((self = [super init]))
 	{
 		globeView = inView;
 		startZ = 0.0;
-        _minHeight = globeView.minHeightAboveGlobe;
-        _maxHeight = globeView.maxHeightAboveGlobe;
+        _minHeight = globeView->minHeightAboveGlobe();
+        _maxHeight = globeView->maxHeightAboveGlobe();
         _zoomAroundPinch = true;
         _doRotation = false;
         _northUp = false;
@@ -67,7 +67,7 @@ using namespace WhirlyKit;
 	return self;
 }
 
-+ (WhirlyGlobePinchDelegate *)pinchDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
++ (WhirlyGlobePinchDelegate *)pinchDelegateForView:(UIView *)view globeView:(GlobeView_iOS *)globeView
 {
 	WhirlyGlobePinchDelegate *pinchDelegate = [[WhirlyGlobePinchDelegate alloc] initWithGlobeView:globeView];
     UIPinchGestureRecognizer *pinchRecog = [[UIPinchGestureRecognizer alloc] initWithTarget:pinchDelegate action:@selector(pinchGesture:)];
@@ -122,16 +122,19 @@ using namespace WhirlyKit;
     
     if (theState == UIGestureRecognizerStateCancelled)
     {
-        [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidEnd object:globeView];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidEnd object:globeView->tag];
         valid = false;
         return;
     }
 
-    IntersectionManager *intManager = (IntersectionManager *)sceneRender.scene->getManager(kWKIntersectionManager);
+    IntersectionManager *intManager = (IntersectionManager *)sceneRender->scene->getManager(kWKIntersectionManager);
+    if (!intManager)
+        return;
     
     if (pinch.numberOfTouches != 2)
         valid = false;
 	
+    auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
 	switch (theState)
 	{
 		case UIGestureRecognizerStateBegan:
@@ -139,34 +142,33 @@ using namespace WhirlyKit;
 //            NSLog(@"Pinch started");
             startRotAxisValid = false;
             sentRotStartMsg = false;
-			startTransform = [globeView calcFullMatrix];
-			startQuat = [globeView rotQuat];
+			startTransform = globeView->calcFullMatrix();
+			startQuat = globeView->getRotQuat();
 			// Store the starting Z and pinch center for comparison
-			startZ = globeView.heightAboveGlobe;
+			startZ = globeView->getHeightAboveGlobe();
             CGPoint startPoint = [pinch locationInView:glView];
+            Point2f startPoint2f(startPoint.x,startPoint.y);
             
             if (_zoomAroundPinch)
             {
                 // Look for an intersection with grabbable objects
                 Point3d interPt;
                 double interDist;
-                if (intManager->findIntersection(sceneRender, globeView, Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor), Point2f(startPoint.x,startPoint.y), interPt, interDist))
+                if (intManager->findIntersection(sceneRender, globeView, frameSizeScaled, Point2f(startPoint.x,startPoint.y), interPt, interDist))
                 {
                     sphereRadius = interPt.norm();
                     startOnSphere = interPt.normalized();
                     valid = true;
                 } else {
                     sphereRadius = 1.0;
-                    if ([globeView pointOnSphereFromScreen:startPoint transform:&startTransform
-                                                 frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                                       hit:&startOnSphere normalized:true])
+                    if (globeView->pointOnSphereFromScreen(startPoint2f, &startTransform, frameSizeScaled, &startOnSphere, true))
                         valid = true;
                     else
                         valid = false;
                 }
                 
                 if (valid)
-                    [globeView cancelAnimation];
+                    globeView->cancelAnimation();
                 
             } else
                 valid = true;
@@ -175,22 +177,21 @@ using namespace WhirlyKit;
             if (valid && _doRotation)
             {
                 CGPoint center = [pinch locationInView:glView];
+                Point2f center2f(center.x,center.y);
                 CGPoint touch0 = [pinch locationOfTouch:0 inView:glView];
                 float dx = touch0.x-center.x,dy=touch0.y-center.y;
                 startRot = atan2(dy, dx);
                 Point3d hit;
                 Point3d interPt;
                 double interDist;
-                if (intManager->findIntersection(sceneRender, globeView, Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor), Point2f(startPoint.x,startPoint.y), interPt, interDist))
+                if (intManager->findIntersection(sceneRender, globeView, frameSizeScaled, Point2f(startPoint.x,startPoint.y), interPt, interDist))
                 {
                     sphereRadius = interPt.norm();
                     startOnSphere = interPt.normalized();
                     startRotAxisValid = true;
                     startRotAxis = hit;
                 } else {
-                    if ([globeView pointOnSphereFromScreen:center transform:&startTransform
-                                                 frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                                       hit:&hit normalized:true])
+                    if (globeView->pointOnSphereFromScreen(center2f, &startTransform, frameSizeScaled, &hit, true))
                     {
                         startRotAxisValid = true;
                         startRotAxis = hit;
@@ -198,7 +199,7 @@ using namespace WhirlyKit;
                 }
             }
 
-            [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidStart object:globeView];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidStart object:globeView->tag];
         }
 			break;
 		case UIGestureRecognizerStateChanged:
@@ -206,7 +207,7 @@ using namespace WhirlyKit;
             {
                 bool onSphere = true;
 //                NSLog(@"Pinch updated");
-                [globeView cancelAnimation];
+                globeView->cancelAnimation();
                 
                 float heightRun = (startZ+1.0)-sphereRadius;
                 
@@ -214,11 +215,11 @@ using namespace WhirlyKit;
                 float newH = heightRun/pinch.scale + sphereRadius - 1.0;
                 
                 if (_minHeight <= newH && newH <= _maxHeight)
-                    [globeView setHeightAboveGlobe:newH updateWatchers:false];
+                    globeView->setHeightAboveGlobe(newH, false);
                 
-                Eigen::Quaterniond newRotQuat = globeView.rotQuat;
-                Point3d axis = [globeView currentUp];
-                Eigen::Quaterniond oldQuat = globeView.rotQuat;
+                Eigen::Quaterniond newRotQuat = globeView->getRotQuat();
+                Point3d axis = globeView->currentUp();
+                Eigen::Quaterniond oldQuat = globeView->getRotQuat();
                 if (_doRotation && startRotAxisValid && !(_northUp || _trackUp))
                     newRotQuat = startQuat;
                 if (_allowPan || _zoomAroundPinch)
@@ -229,11 +230,11 @@ using namespace WhirlyKit;
                         // We have to roll back to the original transform with the current height
                         //  to get the rotation we want
                         Point3d hit;
-                        [globeView setRotQuat:startQuat updateWatchers:false];
-                        Eigen::Matrix4d curTransform = [globeView calcFullMatrix];
-                        if ([globeView pointOnSphereFromScreen:[pinch locationInView:glView] transform:&curTransform
-                                                     frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor)
-                                                           hit:&hit normalized:true radius:sphereRadius])
+                        globeView->setRotQuat(startQuat, false);
+                        Eigen::Matrix4d curTransform = globeView->calcFullMatrix();
+                        CGPoint pinchPt = [pinch locationInView:glView];
+                        Point2f pinchPt2f(pinchPt.x,pinchPt.y);
+                        if (globeView->pointOnSphereFromScreen(pinchPt2f, &curTransform, frameSizeScaled, &hit, true, sphereRadius))
                         {
                             // This gives us a direction to rotate around
                             // And how far to rotate
@@ -266,7 +267,7 @@ using namespace WhirlyKit;
                         if (!sentRotStartMsg)
                         {
                             sentRotStartMsg = true;
-                            [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidStart object:globeView];
+                            [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidStart object:globeView->tag];
                         }
                     }
                 }
@@ -281,7 +282,7 @@ using namespace WhirlyKit;
                     {
                         // We need to know where up (facing the user) will be
                         //  so we can rotate around that
-                        Vector3d newUp = [WhirlyGlobeView prospectiveUp:newRotQuat];
+                        Vector3d newUp = GlobeView::prospectiveUp(newRotQuat);
                         
                         // Then rotate it back on to the YZ axis
                         // This will keep it upward
@@ -303,36 +304,36 @@ using namespace WhirlyKit;
                 }
                 
                 // This does strange things when we've got a serious tilt and we're off the globe
-                if (!onSphere && globeView.tilt != 0.0)
+                if (!onSphere && globeView->getTilt() != 0.0)
                 {
-                    globeView.rotQuat = oldQuat;
+                    globeView->setRotQuat(oldQuat);
                     self.gestureRecognizer.enabled = NO;
                     self.gestureRecognizer.enabled = YES;
                     return;
                 }
                 
                 if (_allowPan || _doRotation || _zoomAroundPinch)
-                    [globeView setRotQuat:(newRotQuat) updateWatchers:false];
+                    globeView->setRotQuat(newRotQuat,false);
                 if (_tiltDelegate)
                 {
-                    float newTilt = [_tiltDelegate tiltFromHeight:newH];
-                    [globeView setTilt:newTilt];
+                    float newTilt = _tiltDelegate->tiltFromHeight(newH);
+                    globeView->setTilt(newTilt);
                 }
 
                 if (_rotateDelegate)
                     [_rotateDelegate updateWithCenter:[pinch locationInView:glView] touch:[pinch locationOfTouch:0 inView:glView ] glView:glView];
                 
-                [globeView runViewUpdates];
+                globeView->runViewUpdates();
             }
 			break;
         case UIGestureRecognizerStateCancelled:
         case UIGestureRecognizerStateEnded:
 //            NSLog(@"Pinch ended");
-            [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidEnd object:globeView];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kPinchDelegateDidEnd object:globeView->tag];
             if (sentRotStartMsg)
             {
                 sentRotStartMsg = false;
-                [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidStart object:globeView];
+                [[NSNotificationCenter defaultCenter] postNotificationName:kRotateDelegateDidStart object:globeView->tag];
             }
             valid = false;
             

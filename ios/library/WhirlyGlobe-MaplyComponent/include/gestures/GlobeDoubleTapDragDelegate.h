@@ -30,7 +30,7 @@
 @interface WhirlyGlobeDoubleTapDragDelegate : NSObject<UIGestureRecognizerDelegate>
 
 /// Create a double tap gesture and a delegate and wire them up to the given UIView
-+ (WhirlyGlobeDoubleTapDragDelegate *)doubleTapDragDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
++ (WhirlyGlobeDoubleTapDragDelegate *)doubleTapDragDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView_iOS *)globeView;
 
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 
@@ -38,6 +38,6 @@
 @property (nonatomic) float minZoom,maxZoom;
 
 // If set, we calculate the tilt every time we update
-@property (nonatomic,weak) NSObject<WhirlyGlobeTiltCalculatorDelegate> *tiltDelegate;
+@property (nonatomic) WhirlyGlobe::TiltCalculatorRef tiltDelegate;
 
 @end

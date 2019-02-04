@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "GlobeView.h"
+#import "GlobeView_iOS.h"
 
 @class WhirlyKitEAGLView;
 
@@ -43,7 +43,7 @@ typedef enum {RotNone,RotFree} RotationType;
 @interface WhirlyGlobeRotateDelegate : NSObject <UIGestureRecognizerDelegate> 
 
 /// Create a rotation gesture and a delegate and write them up to the given UIView
-+ (WhirlyGlobeRotateDelegate *)rotateDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
++ (WhirlyGlobeRotateDelegate *)rotateDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView_iOS *)globeView;
 
 /// If set, the rotation will occur around the center between the two fingers rather than the current viewpoint
 @property (nonatomic) bool rotateAroundCenter;

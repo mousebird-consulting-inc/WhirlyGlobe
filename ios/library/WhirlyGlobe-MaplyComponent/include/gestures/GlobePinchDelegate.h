@@ -19,8 +19,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "GlobeView.h"
-#import "GlobePinchDelegate.h"
+#import "GlobeView_iOS.h"
+#import "GlobeAnimateHeight.h"
 
 @class WhirlyGlobeRotateDelegate;
 
@@ -43,7 +43,7 @@
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
 /// Also need the view parameters in WhirlyGlobeView
-+ (WhirlyGlobePinchDelegate *)pinchDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
++ (WhirlyGlobePinchDelegate *)pinchDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView_iOS *)globeView;
 
 /// If set, we'll zoom around the pinch, rather than the center of the view
 @property (nonatomic,assign) bool zoomAroundPinch;
@@ -60,7 +60,7 @@
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 
 // If set, we calculate the tilt every time we update
-@property (nonatomic,weak) NSObject<WhirlyGlobeTiltCalculatorDelegate> *tiltDelegate;
+@property (nonatomic) WhirlyGlobe::TiltCalculatorRef tiltDelegate;
 
 // If set, we'll keep track up rather than north up
 - (void)setTrackUp:(double)trackUp;

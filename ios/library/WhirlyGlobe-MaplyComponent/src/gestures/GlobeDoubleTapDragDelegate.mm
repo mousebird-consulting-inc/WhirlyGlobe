@@ -25,15 +25,16 @@
 #import "EAGLView.h"
 
 using namespace WhirlyKit;
+using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeDoubleTapDragDelegate
 {
-    WhirlyGlobeView * __weak globeView;
+    GlobeView_iOS *globeView;
     CGPoint screenPt;
     float startZ;
 }
 
-+ (WhirlyGlobeDoubleTapDragDelegate *)doubleTapDragDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView;
++ (WhirlyGlobeDoubleTapDragDelegate *)doubleTapDragDelegateForView:(UIView *)view globeView:(GlobeView_iOS *)globeView;
 {
     WhirlyGlobeDoubleTapDragDelegate *pressDelegate = [[WhirlyGlobeDoubleTapDragDelegate alloc] init];
     pressDelegate->globeView = globeView;
@@ -63,30 +64,31 @@ using namespace WhirlyKit;
     {
         case UIGestureRecognizerStateBegan:
             screenPt = [press locationInView:glView];
-            startZ = globeView.heightAboveGlobe;
-            [globeView cancelAnimation];
-            [[NSNotificationCenter defaultCenter] postNotificationName:kGlobeDoubleTapDragDidStart object:globeView];
+            startZ = globeView->getHeightAboveGlobe();
+            globeView->cancelAnimation();
+            [[NSNotificationCenter defaultCenter] postNotificationName:kGlobeDoubleTapDragDidStart object:globeView->tag];
             break;
         case UIGestureRecognizerStateCancelled:
-            [[NSNotificationCenter defaultCenter] postNotificationName:kGlobeDoubleTapDragDidEnd object:globeView];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kGlobeDoubleTapDragDidEnd object:globeView->tag];
             break;
         case UIGestureRecognizerStateChanged:
         {
             CGPoint curPt = [press locationInView:glView];
             float diffY = screenPt.y-curPt.y;
-            float height = sceneRenderer.framebufferHeight / glView.contentScaleFactor;
+            float height = sceneRenderer->getFramebufferSizeScaled().y();
             float scale = powf(2.0,2*diffY/(height/2));
             float newZ = startZ * scale;
             if (_minZoom < newZ && newZ < _maxZoom)
             {
-                globeView.heightAboveGlobe = newZ;
+                globeView->setHeightAboveGlobe(newZ, false);
                 if (_tiltDelegate)
-                    globeView.tilt = [_tiltDelegate tiltFromHeight:newZ];
+                    globeView->setTilt(_tiltDelegate->tiltFromHeight(newZ));
+                globeView->runViewUpdates();
             }
         }
             break;
         case UIGestureRecognizerStateEnded:
-            [[NSNotificationCenter defaultCenter] postNotificationName:kGlobeDoubleTapDragDidEnd object:globeView];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kGlobeDoubleTapDragDidEnd object:globeView->tag];
         break;
         default:
             break;

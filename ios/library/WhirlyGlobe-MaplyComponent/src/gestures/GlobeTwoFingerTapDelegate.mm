@@ -19,18 +19,18 @@
  */
 
 #import "GlobeTwoFingerTapDelegate.h"
-#import "EAGLView.h"
 #import "GlobeAnimateHeight.h"
+#import "EAGLView.h"
 
 using namespace WhirlyKit;
+using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeTwoFingerTapDelegate
 {
-    WhirlyGlobeAnimateViewHeight *animate;
-    WhirlyGlobeView *globeView;
+    WhirlyGlobe::GlobeView_iOS *globeView;
 }
 
-+ (WhirlyGlobeTwoFingerTapDelegate *)twoFingerTapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
++ (WhirlyGlobeTwoFingerTapDelegate *)twoFingerTapDelegateForView:(UIView *)view globeView:(GlobeView_iOS *)globeView
 {
     WhirlyGlobeTwoFingerTapDelegate *tapDelegate = [[WhirlyGlobeTwoFingerTapDelegate alloc] init];
     tapDelegate->globeView = globeView;
@@ -51,20 +51,23 @@ using namespace WhirlyKit;
 	UITapGestureRecognizer *tap = sender;
 	WhirlyKitEAGLView *glView = (WhirlyKitEAGLView *)tap.view;
 	SceneRendererES *sceneRenderer = glView.renderer;
+    auto frameSizeScaled = sceneRenderer->getFramebufferSizeScaled();
 	
     // Just figure out where we tapped
 	Point3d hit;
-    Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
+    Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
     CGPoint touchLoc = [tap locationInView:tap.view];
-    if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+    Point2f touchLoc2f(touchLoc.x,touchLoc.y);
+    if (globeView->pointOnSphereFromScreen(touchLoc2f, &theTransform, frameSizeScaled, &hit, true))
     {
-        double curH = globeView.heightAboveGlobe;
+        double curH = globeView->getHeightAboveGlobe();
         double newH = curH * _zoomTapFactor;
         newH = std::min(newH,(double)_maxZoom);
         if (_minZoom < newH && newH <= _maxZoom)
         {
-            animate = [[WhirlyGlobeAnimateViewHeight alloc] initWithView:globeView toHeight:newH howLong:_zoomAnimationDuration delegate:self.tiltDelegate];
-            globeView.delegate = animate;
+            AnimateViewHeight *anim = new AnimateViewHeight(globeView,newH,_zoomAnimationDuration);
+            anim->setTiltDelegate(self.tiltDelegate);
+            globeView->setDelegate(GlobeViewAnimationDelegateRef(anim));
         }
     }
 }

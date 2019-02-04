@@ -24,13 +24,14 @@
 #import "GlobeMath.h"
 
 using namespace WhirlyKit;
+using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeTapDelegate
 {
-	WhirlyGlobeView *globeView;
+	GlobeView_iOS *globeView;
 }
 
-- (id)initWithGlobeView:(WhirlyGlobeView *)inView
+- (id)initWithGlobeView:(GlobeView_iOS *)inView
 {
 	if ((self = [super init]))
 	{
@@ -40,7 +41,7 @@ using namespace WhirlyKit;
 	return self;
 }
 
-+ (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
++ (WhirlyGlobeTapDelegate *)tapDelegateForView:(UIView *)view globeView:(GlobeView_iOS *)globeView
 {
 	WhirlyGlobeTapDelegate *tapDelegate = [[WhirlyGlobeTapDelegate alloc] initWithGlobeView:globeView];
     
@@ -65,13 +66,15 @@ using namespace WhirlyKit;
 	WhirlyKitEAGLView  *glView = (WhirlyKitEAGLView  *)tap.view;
 	SceneRendererES *sceneRender = glView.renderer;
 //    WhirlyKit::Scene *scene = sceneRender.scene;
+    auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
 
 	// Translate that to the sphere
 	// If we hit, then we'll generate a message
 	Point3d hit;
-	Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
+	Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
     CGPoint touchLoc = [tap locationInView:glView];
-    if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+    Point2f touchLoc2f(touchLoc.x,touchLoc.y);
+    if (globeView->pointOnSphereFromScreen(touchLoc2f, &theTransform, frameSizeScaled, &hit, true))
     {
 		WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];
@@ -79,7 +82,7 @@ using namespace WhirlyKit;
 		[msg setWorldLocD:hit];
         Point3d localCoord = FakeGeocentricDisplayAdapter::DisplayToLocal(hit);
 		[msg setWhereGeo:GeoCoord(localCoord.x(),localCoord.y())];
-        msg.heightAboveSurface = globeView.heightAboveGlobe;
+        msg.heightAboveSurface = globeView->getHeightAboveGlobe();
 		
 		[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:WhirlyGlobeTapMsg object:msg]];
     } else {

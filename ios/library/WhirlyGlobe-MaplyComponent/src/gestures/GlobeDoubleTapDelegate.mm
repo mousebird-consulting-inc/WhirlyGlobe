@@ -23,14 +23,14 @@
 #import "GlobeAnimateHeight.h"
 
 using namespace WhirlyKit;
+using namespace WhirlyGlobe;
 
 @implementation WhirlyGlobeDoubleTapDelegate
 {
-    WhirlyGlobeView *globeView;
-    WhirlyGlobeAnimateViewHeight *animate;
+    GlobeView_iOS *globeView;
 }
 
-+ (WhirlyGlobeDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView
++ (WhirlyGlobeDoubleTapDelegate *)doubleTapDelegateForView:(UIView *)view globeView:(GlobeView_iOS *)globeView
 {
     WhirlyGlobeDoubleTapDelegate *tapDelegate = [[WhirlyGlobeDoubleTapDelegate alloc] init];
     tapDelegate->globeView = globeView;
@@ -54,16 +54,19 @@ using namespace WhirlyKit;
 	
     // Just figure out where we tapped
 	Point3d hit;
-    Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
+    Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
     CGPoint touchLoc = [tap locationInView:tap.view];
-    if ([globeView pointOnSphereFromScreen:touchLoc transform:&theTransform frameSize:Point2f(sceneRenderer.framebufferWidth/glView.contentScaleFactor,sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+    Point2f touchLoc2f(touchLoc.x,touchLoc.y);
+    auto frameSizeScaled = sceneRenderer->getFramebufferSizeScaled();
+    if (globeView->pointOnSphereFromScreen(touchLoc2f, &theTransform, frameSizeScaled, &hit, true))
     {
-        double curH = globeView.heightAboveGlobe;
+        double curH = globeView->getHeightAboveGlobe();
         double newH = curH / _zoomTapFactor;
         if (_minZoom < newH && newH < _maxZoom)
         {
-            animate = [[WhirlyGlobeAnimateViewHeight alloc] initWithView:globeView toHeight:newH howLong:_zoomAnimationDuration delegate:self.tiltDelegate];
-            globeView.delegate = animate;
+            auto animate = new AnimateViewHeight(globeView,newH,_zoomAnimationDuration);
+            animate->setTiltDelegate(_tiltDelegate);
+            globeView->setDelegate(GlobeViewAnimationDelegateRef(animate));
         }
     }
 }

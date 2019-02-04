@@ -567,6 +567,15 @@
 		2BE1E73E2208BD9000815D9C /* MaplyRotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DE921233CBE0074D06D /* MaplyRotateDelegate.mm */; };
 		2BE1E73F2208BE0F00815D9C /* MaplyTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DE821233CBE0074D06D /* MaplyTapDelegate.mm */; };
 		2BE1E7402208BE1400815D9C /* MaplyTapMessage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7B84DB2122404200D11447 /* MaplyTapMessage.mm */; };
+		2BE1E7412208C03900815D9C /* GlobeDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3B021ED43780025DA98 /* GlobeDoubleTapDelegate.mm */; };
+		2BE1E7422208C35100815D9C /* GlobePinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3B221ED43780025DA98 /* GlobePinchDelegate.mm */; };
+		2BE1E7432208C75200815D9C /* GlobeDoubleTapDragDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3B421ED43780025DA98 /* GlobeDoubleTapDragDelegate.mm */; };
+		2BE1E7442208C96A00815D9C /* GlobePanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3AA21ED43770025DA98 /* GlobePanDelegate.mm */; };
+		2BE1E7452208CCB400815D9C /* GlobeRotateDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3AF21ED43780025DA98 /* GlobeRotateDelegate.mm */; };
+		2BE1E7462208CEA300815D9C /* GlobeTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3B721ED43780025DA98 /* GlobeTapDelegate.mm */; };
+		2BE1E7472208CEA300815D9C /* GlobeTapMessage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3B121ED43780025DA98 /* GlobeTapMessage.mm */; };
+		2BE1E7482208CF3300815D9C /* GlobeTiltDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3B821ED43780025DA98 /* GlobeTiltDelegate.mm */; };
+		2BE1E7492208D04C00815D9C /* GlobeTwoFingerTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3AE21ED43780025DA98 /* GlobeTwoFingerTapDelegate.mm */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -2737,15 +2746,15 @@
 				2B361DE921233CBE0074D06D /* MaplyRotateDelegate.mm */,
 				2B361DE821233CBE0074D06D /* MaplyTapDelegate.mm */,
 				2B7B84DB2122404200D11447 /* MaplyTapMessage.mm */,
+				2BB8A3B221ED43780025DA98 /* GlobePinchDelegate.mm */,
 				2BB8A3B021ED43780025DA98 /* GlobeDoubleTapDelegate.mm */,
 				2BB8A3B421ED43780025DA98 /* GlobeDoubleTapDragDelegate.mm */,
+				2BB8A3AE21ED43780025DA98 /* GlobeTwoFingerTapDelegate.mm */,
 				2BB8A3AA21ED43770025DA98 /* GlobePanDelegate.mm */,
-				2BB8A3B221ED43780025DA98 /* GlobePinchDelegate.mm */,
 				2BB8A3AF21ED43780025DA98 /* GlobeRotateDelegate.mm */,
 				2BB8A3B721ED43780025DA98 /* GlobeTapDelegate.mm */,
 				2BB8A3B121ED43780025DA98 /* GlobeTapMessage.mm */,
 				2BB8A3B821ED43780025DA98 /* GlobeTiltDelegate.mm */,
-				2BB8A3AE21ED43780025DA98 /* GlobeTwoFingerTapDelegate.mm */,
 			);
 			path = gestures;
 			sourceTree = "<group>";
@@ -4143,6 +4152,7 @@
 				2B879702220390AB00EF801D /* LoadedImage.mm in Sources */,
 				2B82B6571E82E2490095FB14 /* pj_deriv.c in Sources */,
 				2BB8E20321FFAA8F00154CDC /* GLUtils.cpp in Sources */,
+				2BE1E7452208CCB400815D9C /* GlobeRotateDelegate.mm in Sources */,
 				2BE539B91D249BEF00B60FAD /* AAPrecession.cpp in Sources */,
 				2B446B1021F79AD00078A975 /* GridClipper.cpp in Sources */,
 				2B82B5E81E82E2490095FB14 /* mesh.c in Sources */,
@@ -4217,6 +4227,7 @@
 				2B8797202203BF7900EF801D /* MaplyLabel.m in Sources */,
 				2BE539AE1D249BEF00B60FAD /* AANutation.cpp in Sources */,
 				2BE539BB1D249BEF00B60FAD /* AARiseTransitSet.cpp in Sources */,
+				2BE1E7462208CEA300815D9C /* GlobeTapDelegate.mm in Sources */,
 				2BE53A971D249C9000B60FAD /* DDXMLElement.m in Sources */,
 				2B8796D221FFC59D00EF801D /* UIColor+Stuff.mm in Sources */,
 				2B82B6AA1E82E24A0095FB14 /* PJ_robin.c in Sources */,
@@ -4255,6 +4266,7 @@
 				2B846EED21F138F600EF2A82 /* tess.c in Sources */,
 				2B82B6B51E82E24A0095FB14 /* PJ_tpeqd.c in Sources */,
 				2B82B6681E82E24A0095FB14 /* pj_geocent.c in Sources */,
+				2BE1E7482208CF3300815D9C /* GlobeTiltDelegate.mm in Sources */,
 				2B8796BA21FFB37000EF801D /* GeometryManager.cpp in Sources */,
 				2BB8E1EE21FF8FE900154CDC /* StringIndexer.cpp in Sources */,
 				2B82B6011E82E2490095FB14 /* JSONChildren.cpp in Sources */,
@@ -4383,7 +4395,9 @@
 				2B82B6981E82E24A0095FB14 /* PJ_nzmg.c in Sources */,
 				2B82B6861E82E24A0095FB14 /* PJ_loxim.c in Sources */,
 				2B884A681E3803170027C397 /* lasunzipper.cpp in Sources */,
+				2BE1E7432208C75200815D9C /* GlobeDoubleTapDragDelegate.mm in Sources */,
 				2B82B6581E82E2490095FB14 /* PJ_eck1.c in Sources */,
+				2BE1E7492208D04C00815D9C /* GlobeTwoFingerTapDelegate.mm in Sources */,
 				2B884A421E3803170027C397 /* arithmeticdecoder.cpp in Sources */,
 				2B82B6221E82E2490095FB14 /* dbfopen.c in Sources */,
 				2BE53A3A1D249C3D00B60FAD /* printer.cc in Sources */,
@@ -4435,6 +4449,7 @@
 				2B82B6601E82E24A0095FB14 /* PJ_eqdc.c in Sources */,
 				2BE1E73F2208BE0F00815D9C /* MaplyTapDelegate.mm in Sources */,
 				2B82B66A1E82E24A0095FB14 /* PJ_gins8.c in Sources */,
+				2BE1E7412208C03900815D9C /* GlobeDoubleTapDelegate.mm in Sources */,
 				2BB8E20221FF93CB00154CDC /* WhirlyKitView.cpp in Sources */,
 				2BE53A751D249C4700B60FAD /* stringprintf.cc in Sources */,
 				2B884A5A1E3803170027C397 /* lasinterval.cpp in Sources */,
@@ -4485,6 +4500,7 @@
 				2B82B68C1E82E24A0095FB14 /* PJ_merc.c in Sources */,
 				2B82B61B1E82E2490095FB14 /* JSONWorker.cpp in Sources */,
 				2BC3D6D52203EA9C00CE91D0 /* MaplyZoomGestureDelegate.mm in Sources */,
+				2BE1E7472208CEA300815D9C /* GlobeTapMessage.mm in Sources */,
 				2BE53A021D249C2900B60FAD /* extension_set.cc in Sources */,
 				2B8797082203A27B00EF801D /* QuadDisplayLayerNew.mm in Sources */,
 				2B82B6511E82E2490095FB14 /* PJ_collg.c in Sources */,
@@ -4502,6 +4518,7 @@
 				2B82B68D1E82E24A0095FB14 /* PJ_mill.c in Sources */,
 				2B846EDE21F1366400EF2A82 /* PJ_gall.c in Sources */,
 				2BE539C21D249BEF00B60FAD /* AAUranus.cpp in Sources */,
+				2BE1E7422208C35100815D9C /* GlobePinchDelegate.mm in Sources */,
 				2B82B6471E82E2490095FB14 /* PJ_august.c in Sources */,
 				2BE53A001D249C2900B60FAD /* dynamic_message.cc in Sources */,
 				2B8796DE21FFCC0D00EF801D /* EAGLView.mm in Sources */,
@@ -4509,6 +4526,7 @@
 				2BE53A781D249C4700B60FAD /* strutil.cc in Sources */,
 				2B82B6731E82E24A0095FB14 /* PJ_healpix.c in Sources */,
 				2BB8E1FA21FF903100154CDC /* TextureAtlas.cpp in Sources */,
+				2BE1E7442208C96A00815D9C /* GlobePanDelegate.mm in Sources */,
 				2BE539991D249BEF00B60FAD /* AAEquinoxesAndSolstices.cpp in Sources */,
 				2B82B64B1E82E2490095FB14 /* PJ_boggs.c in Sources */,
 				2B82B68F1E82E24A0095FB14 /* PJ_mod_ster.c in Sources */,

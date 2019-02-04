@@ -50,7 +50,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 
 @implementation WhirlyGlobePanDelegate
 {
-    WhirlyGlobeView * __weak view;
+    GlobeView_iOS *globeView;
     UITouch *startTouch;  // The touch we're following
     CGPoint startPoint;
     // Used to keep track of what sort of rotation we're doing
@@ -72,11 +72,11 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     bool runEndMomentum;
 }
 
-- (instancetype)initWithGlobeView:(WhirlyGlobeView *)inView
+- (instancetype)initWithGlobeView:(GlobeView_iOS *)inView
 {
 	if ((self = [super init]))
 	{
-		view = inView;
+		globeView = inView;
         panType = PanNone;
         runEndMomentum = true;
 	}
@@ -85,7 +85,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 }
 
 
-+ (WhirlyGlobePanDelegate *)panDelegateForView:(UIView *)view globeView:(WhirlyGlobeView *)globeView useCustomPanRecognizer:(bool)useCustomPanRecognizer
++ (WhirlyGlobePanDelegate *)panDelegateForView:(UIView *)view globeView:(GlobeView_iOS *)globeView useCustomPanRecognizer:(bool)useCustomPanRecognizer
 {
 	WhirlyGlobePanDelegate *panDelegate = [[WhirlyGlobePanDelegate alloc] initWithGlobeView:globeView];
     UIPanGestureRecognizer *panRecog;
@@ -109,27 +109,28 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
 - (void)startRotateManipulation:(UIPanGestureRecognizer *)pan sceneRender:(SceneRendererES *)sceneRender glView:(WhirlyKitEAGLView *)glView
 {
     // Save the first place we touched
-    startTransform = [view calcFullMatrix];
-    startQuat = view.rotQuat;
-    spinQuat = view.rotQuat;
+    startTransform = globeView->calcFullMatrix();
+    startQuat = globeView->getRotQuat();
+    spinQuat = globeView->getRotQuat();
     startPoint = [pan locationInView:glView];
+    Point2f startPt2f(startPoint.x,startPoint.y);
     spinDate = TimeGetCurrent();
     lastTouch = [pan locationInView:glView];
     
-    IntersectionManager *intManager = (IntersectionManager *)sceneRender.scene->getManager(kWKIntersectionManager);
+    IntersectionManager *intManager = (IntersectionManager *)sceneRender->scene->getManager(kWKIntersectionManager);
 
     // Look for an intersection with grabbable objects
     Point3d interPt;
     double interDist;
-    if (intManager->findIntersection(sceneRender, view, Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor), Point2f(startPoint.x,startPoint.y), interPt, interDist))
+    auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
+    if (intManager->findIntersection(sceneRender, globeView, frameSizeScaled, Point2f(startPoint.x,startPoint.y), interPt, interDist))
     {
         sphereRadius = interPt.norm();
         startOnSphere = interPt.normalized();
         panType = PanFree;        
     } else {
         sphereRadius = 1.0;
-        if ([view pointOnSphereFromScreen:startPoint transform:&startTransform
-                                frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&startOnSphere normalized:true])
+        if (globeView->pointOnSphereFromScreen(startPt2f, &startTransform, frameSizeScaled, &startOnSphere, true))
         {
             // We'll start out letting them play with both axes
             panType = PanFree;                
@@ -144,12 +145,12 @@ static const float MomentumAnimLen = 1.0;
 - (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize hit:(Point3d *)hit
 {
     // Back Project the screen point into model space
-    Point3d screenPt = [view pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:false];
-        
+    Point3d screenPt = globeView->pointUnproject(Point2f(pt.x,pt.y), frameSize.x(), frameSize.y(), false);
+    
     screenPt.normalize();
     if (screenPt.z() == 0.0)
         return false;
-    float t = - view.heightAboveGlobe / screenPt.z();
+    float t = - globeView->getHeightAboveGlobe() / screenPt.z();
     
     *hit = screenPt * t;
     
@@ -159,12 +160,12 @@ static const float MomentumAnimLen = 1.0;
 - (bool)pointOnPlaneFromScreen:(CGPoint)pt transform:(const Eigen::Matrix4d *)transform frameSize:(const Point2f &)frameSize height:(float)height hit:(Point3d *)hit
 {
     // Back Project the screen point into model space
-    Point3d screenPt = [view pointUnproject:Point2f(pt.x,pt.y) width:frameSize.x() height:frameSize.y() clip:false];
+    Point3d screenPt = globeView->pointUnproject(Point2f(pt.x,pt.y), frameSize.x(), frameSize.y(), false);
     
     screenPt.normalize();
     if (screenPt.z() == 0.0)
         return false;
-    float t = - (view.heightAboveGlobe-height) / screenPt.z();
+    float t = - (globeView->getHeightAboveGlobe()-height) / screenPt.z();
     
     *hit = screenPt * t;
     
@@ -181,10 +182,12 @@ static const float MomentumAnimLen = 1.0;
     if (pan.state == UIGestureRecognizerStateCancelled)
     {
         if (panType != PanNone)
-            [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:globeView->tag];
         panType = PanNone;
         return;
     }
+    
+    auto frameSize = sceneRender->getFramebufferSizeScaled();
 
     // End for more than one finger
     if ([pan numberOfTouches] > 1)
@@ -209,7 +212,7 @@ static const float MomentumAnimLen = 1.0;
 	{
 		case UIGestureRecognizerStateBegan:
 		{
-			[view cancelAnimation];
+            globeView->cancelAnimation();
             runEndMomentum = true;
             
             [self startRotateManipulation:pan sceneRender:sceneRender glView:glView];
@@ -222,14 +225,14 @@ static const float MomentumAnimLen = 1.0;
                 self.gestureRecognizer.enabled = YES;
                 return;
             }
-            [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidStart object:view];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidStart object:globeView->tag];
 		}
 			break;
 		case UIGestureRecognizerStateChanged:
 		{
             if (panType == PanSuspended)
             {
-                [view cancelAnimation];
+                globeView->cancelAnimation();
                 
                 // We were suspended, probably because the user dropped another finger
                 // So now restart the process
@@ -240,19 +243,19 @@ static const float MomentumAnimLen = 1.0;
             }
 			if (panType != PanNone)
 			{
-				[view cancelAnimation];
+                globeView->cancelAnimation();
                 
 				// Figure out where we are now
 				Point3d hit;
                 CGPoint touchPt = [pan locationInView:glView];
+                Point2f touchPt2f(touchPt.x,touchPt.y);
                 lastTouch = touchPt;
-				bool onSphere = [view pointOnSphereFromScreen:touchPt transform:&startTransform
-                                                    frameSize:Point2f(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true radius:sphereRadius];
+                bool onSphere = globeView->pointOnSphereFromScreen(touchPt2f, &startTransform, frameSize, &hit, true, sphereRadius);
                 hit.normalize();
                 
                 // The math breaks down when we have a significant tilt
                 // Cancel when they do that
-                if (!onSphere && view.tilt != 0.0)
+                if (!onSphere && globeView->getTilt() != 0.0)
                 {
                     self.gestureRecognizer.enabled = NO;
                     self.gestureRecognizer.enabled = YES;
@@ -274,7 +277,7 @@ static const float MomentumAnimLen = 1.0;
                     {
                         // We need to know where up (facing the user) will be
                         //  so we can rotate around that
-                        Vector3d newUp = [WhirlyGlobeView prospectiveUp:newRotQuat];
+                        Vector3d newUp = GlobeView::prospectiveUp(newRotQuat);
                         
                         // Then rotate it back on to the YZ axis
                         // This will keep it upward
@@ -289,17 +292,17 @@ static const float MomentumAnimLen = 1.0;
                 }
  
                 // Keep track of the last rotation
-                [view setRotQuat:(newRotQuat)];
+                globeView->setRotQuat(newRotQuat);
 
                 // If our spin sample is too old, grab a new one
                 spinDate = TimeGetCurrent();
-                spinQuat = view.rotQuat;
+                spinQuat = globeView->getRotQuat();
 			}
 		}
 			break;
         case UIGestureRecognizerStateFailed:
             if (panType != PanNone)
-                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
+                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:globeView->tag];
             panType = PanNone;
             break;
 		case UIGestureRecognizerStateEnded:
@@ -312,9 +315,9 @@ static const float MomentumAnimLen = 1.0;
                 CGPoint vel = [pan velocityInView:glView];
                 CGPoint touch0 = lastTouch;
                 CGPoint touch1 = touch0;  touch1.x += MomentumAnimLen*vel.x; touch1.y += MomentumAnimLen*vel.y;
-                Point3d p0 = [view pointUnproject:Point2f(touch0.x,touch0.y) width:sceneRender.framebufferWidth/glView.contentScaleFactor height:sceneRender.framebufferHeight/glView.contentScaleFactor clip:false];
-                Point3d p1 = [view pointUnproject:Point2f(touch1.x,touch1.y) width:sceneRender.framebufferWidth/glView.contentScaleFactor height:sceneRender.framebufferHeight/glView.contentScaleFactor clip:false];
-                Eigen::Matrix4d modelMat = [view calcFullMatrix];
+                Point3d p0 = globeView->pointUnproject(Point2f(touch0.x,touch0.y), frameSize.x(), frameSize.y(), false);
+                Point3d p1 = globeView->pointUnproject(Point2f(touch1.x,touch1.y), frameSize.x(), frameSize.y(), false);
+                Eigen::Matrix4d modelMat = globeView->calcFullMatrix();
                 Eigen::Matrix4d invModelMat = modelMat.inverse();
                 Vector4d model_p0 = invModelMat * Vector4d(p0.x(),p0.y(),p0.z(),1.0);
                 Vector4d model_p1 = invModelMat * Vector4d(p1.x(),p1.y(),p1.z(),1.0);
@@ -322,7 +325,6 @@ static const float MomentumAnimLen = 1.0;
                 model_p1.x() /= model_p1.w();  model_p1.y() /= model_p1.w();  model_p1.z() /= model_p1.w();
                 
                 Point3d hit0,hit1;
-                Point2f frameSize(sceneRender.framebufferWidth/glView.contentScaleFactor,sceneRender.framebufferHeight/glView.contentScaleFactor);
                 if ([self pointOnPlaneFromScreen:touch0 transform:&modelMat frameSize:frameSize height:sphereRadius-1.0 hit:&hit0] &&
                     [self pointOnPlaneFromScreen:touch1 transform:&modelMat frameSize:frameSize height:sphereRadius-1.0 hit:&hit1])
                 {
@@ -350,15 +352,15 @@ static const float MomentumAnimLen = 1.0;
                     // Keep going in that direction for a while
                     if (angVel > 0.0)
                     {
-                        viewAnimation = [[AnimateViewMomentum alloc] initWithView:view velocity:angVel accel:accel axis:upVector northUp:_northUp];
-                        view.delegate = viewAnimation;
+                        AnimateViewMomentum *anim = new AnimateViewMomentum(globeView,angVel,accel,upVector,_northUp);
+                        globeView->setDelegate(GlobeViewAnimationDelegateRef(anim));
                     }
                 }
                
             }
             
             if (doNotifyEnd)
-                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:view];
+                [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:globeView->tag];
         }
 			break;
         default:
