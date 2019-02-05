@@ -194,7 +194,7 @@ using namespace WhirlyGlobe;
 }
 
 // Create the globe view
-- (View *) loadSetup_view
+- (ViewRef) loadSetup_view
 {
 	globeView = [[WhirlyGlobeView alloc] init];
     globeView.continuousZoom = true;

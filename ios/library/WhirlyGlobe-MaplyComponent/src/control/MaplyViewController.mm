@@ -362,7 +362,7 @@ using namespace Maply;
 //        renderControl->scene->setSceneProgram(kSceneDefaultLineShader, lineNoBackface);
 }
 
-- (View *) loadSetup_view
+- (ViewRef) loadSetup_view
 {
     if (_coordSys)
     {

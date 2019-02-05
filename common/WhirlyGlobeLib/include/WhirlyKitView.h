@@ -135,6 +135,8 @@ public:
     /// Called when positions are updated
     ViewWatcherSet watchers;
 };
+    
+typedef std::shared_ptr<View> ViewRef;
 
 /** Representation of the view state.  This is the base
  class for specific view state info for the various view

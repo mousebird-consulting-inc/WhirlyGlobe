@@ -597,6 +597,9 @@
 		2BE1E763220A43FD00815D9C /* MaplyInteractionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537B01D249A1200B60FAD /* MaplyInteractionLayer.mm */; };
 		2BE1E764220A43FD00815D9C /* WGInteractionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537F21D249A1200B60FAD /* WGInteractionLayer.mm */; };
 		2BE1E765220A47D200815D9C /* MaplyRenderController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */; };
+		2BE1E766220A567100815D9C /* MaplyViewControllerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537D41D249A1200B60FAD /* MaplyViewControllerLayer.mm */; };
+		2BE1E767220A567500815D9C /* WGViewControllerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537F41D249A1200B60FAD /* WGViewControllerLayer.mm */; };
+		2BE1E768220A56CB00815D9C /* MaplyBaseViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A11D249A1200B60FAD /* MaplyBaseViewController.mm */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -4248,6 +4251,7 @@
 				2B884A751E3803170027C397 /* laszip.cpp in Sources */,
 				2B884A741E3803170027C397 /* laszip_dll.cpp in Sources */,
 				2B8796BE21FFB37900EF801D /* LayoutManager.cpp in Sources */,
+				2BE1E766220A567100815D9C /* MaplyViewControllerLayer.mm in Sources */,
 				2B82B64C1E82E2490095FB14 /* PJ_bonne.c in Sources */,
 				2B82B6111E82E2490095FB14 /* JSONNode_Mutex.cpp in Sources */,
 				2B82B6BA1E82E24A0095FB14 /* PJ_urmfps.c in Sources */,
@@ -4398,6 +4402,7 @@
 				2B846EDF21F136D700EF2A82 /* pj_units.c in Sources */,
 				2BE1E74A2208E8C500815D9C /* MaplyRemoteTileFetcher.mm in Sources */,
 				2B82B6531E82E2490095FB14 /* pj_ctx.c in Sources */,
+				2BE1E768220A56CB00815D9C /* MaplyBaseViewController.mm in Sources */,
 				2B82B6501E82E2490095FB14 /* PJ_chamb.c in Sources */,
 				2B23133021F936CD006AA344 /* RawData.cpp in Sources */,
 				2B82B6741E82E24A0095FB14 /* PJ_igh.c in Sources */,
@@ -4582,6 +4587,7 @@
 				2BE539A91D249BEF00B60FAD /* AAMoonPhases.cpp in Sources */,
 				2B82B68D1E82E24A0095FB14 /* PJ_mill.c in Sources */,
 				2B846EDE21F1366400EF2A82 /* PJ_gall.c in Sources */,
+				2BE1E767220A567500815D9C /* WGViewControllerLayer.mm in Sources */,
 				2BE539C21D249BEF00B60FAD /* AAUranus.cpp in Sources */,
 				2BE1E7422208C35100815D9C /* GlobePinchDelegate.mm in Sources */,
 				2B82B6471E82E2490095FB14 /* PJ_august.c in Sources */,
