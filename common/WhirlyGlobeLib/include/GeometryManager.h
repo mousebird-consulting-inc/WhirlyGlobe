@@ -307,7 +307,7 @@ public:
     SimpleIdentity addBaseGeometry(std::vector<GeometryRaw> &inGeom,ChangeSet &changes);
     
     /// Add instances that reuse base geometry
-    SimpleIdentity addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance *> &instances,GeometryInfo &geomInfo,ChangeSet &changes);
+    SimpleIdentity addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,GeometryInfo &geomInfo,ChangeSet &changes);
     
     /// Add raw geometry points.
     SimpleIdentity addGeometryPoints(const GeometryRawPoints &geomPoints,const Eigen::Matrix4d &mat,GeometryInfo &geomInfo,ChangeSet &changes);

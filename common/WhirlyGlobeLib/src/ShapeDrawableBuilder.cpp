@@ -57,7 +57,7 @@ ShapeInfo::ShapeInfo(const Dictionary &dict)
     }
 }
 
-ShapeDrawableBuilder::ShapeDrawableBuilder(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo, bool linesOrPoints, const Point3d &center)
+ShapeDrawableBuilder::ShapeDrawableBuilder(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo, bool linesOrPoints, const Point3d &center)
     : coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center)
 {
     primType = (linesOrPoints ? GL_LINES : GL_POINTS);
@@ -81,17 +81,17 @@ void ShapeDrawableBuilder::addPoints(Point3dVector &pts,RGBAColor color,Mbr mbr,
             flush();
 
         drawable = new BasicDrawable("Shape Manager");
-        shapeInfo->setupBasicDrawable(drawable);
+        shapeInfo.setupBasicDrawable(drawable);
         drawMbr.reset();
         drawable->setType(primType);
         // Adjust according to the vector info
         //            drawable->setColor([shapeInfo.color asRGBAColor]);
         drawable->setLineWidth(lineWidth);
-        drawable->setRequestZBuffer(shapeInfo->zBufferRead);
-        drawable->setWriteZBuffer(shapeInfo->zBufferWrite);
-        drawable->setProgram(shapeInfo->programID);
-        if (shapeInfo->renderTargetID != EmptyIdentity)
-            drawable->setRenderTarget(shapeInfo->renderTargetID);
+        drawable->setRequestZBuffer(shapeInfo.zBufferRead);
+        drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
+        drawable->setProgram(shapeInfo.programID);
+        if (shapeInfo.renderTargetID != EmptyIdentity)
+            drawable->setRenderTarget(shapeInfo.renderTargetID);
         if (center.x() != 0.0 || center.y() != 0.0 || center.z() != 0.0)
         {
             Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
@@ -153,10 +153,10 @@ void ShapeDrawableBuilder::flush()
         {
             drawable->setLocalMbr(drawMbr);
 
-            if (shapeInfo->fade > 0.0)
+            if (shapeInfo.fade > 0.0)
             {
                 TimeInterval curTime = time_t();
-                drawable->setFade(curTime,curTime+shapeInfo->fade);
+                drawable->setFade(curTime,curTime+shapeInfo.fade);
             }
             drawables.push_back(drawable);
         } else
@@ -178,7 +178,7 @@ void ShapeDrawableBuilder::getChanges(WhirlyKit::ChangeSet &changes,SimpleIDSet 
 }
 
 
-ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo, const Point3d &center)
+ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo, const Point3d &center)
     : coordAdapter(coordAdapter), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false)
 {
 }
@@ -192,18 +192,18 @@ ShapeDrawableBuilderTri::~ShapeDrawableBuilderTri()
 void ShapeDrawableBuilderTri::setupNewDrawable()
 {
     drawable = new BasicDrawable("Shape Layer");
-    shapeInfo->setupBasicDrawable(drawable);
+    shapeInfo.setupBasicDrawable(drawable);
     if (clipCoords)
         drawable->setClipCoords(true);
     drawMbr.reset();
     drawable->setType(GL_TRIANGLES);
     // Adjust according to the vector info
-    drawable->setColor(shapeInfo->color);
-    drawable->setRequestZBuffer(shapeInfo->zBufferRead);
-    drawable->setWriteZBuffer(shapeInfo->zBufferWrite);
-    drawable->setProgram(shapeInfo->programID);
-    if (shapeInfo->renderTargetID != EmptyIdentity)
-        drawable->setRenderTarget(shapeInfo->renderTargetID);
+    drawable->setColor(shapeInfo.color);
+    drawable->setRequestZBuffer(shapeInfo.zBufferRead);
+    drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
+    drawable->setProgram(shapeInfo.programID);
+    if (shapeInfo.renderTargetID != EmptyIdentity)
+        drawable->setRenderTarget(shapeInfo.renderTargetID);
     int which = 0;
     for (auto texID : texIDs)
     {
@@ -428,10 +428,10 @@ void ShapeDrawableBuilderTri::flush()
         {
             drawable->setLocalMbr(drawMbr);
 
-            if (shapeInfo->fade > 0.0)
+            if (shapeInfo.fade > 0.0)
             {
                 TimeInterval curTime = time_t(NULL);
-                drawable->setFade(curTime,curTime+shapeInfo->fade);
+                drawable->setFade(curTime,curTime+shapeInfo.fade);
             }
             drawables.push_back(drawable);
         } else

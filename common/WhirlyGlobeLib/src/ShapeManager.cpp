@@ -67,7 +67,7 @@ void Shape::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder,
 {
 }
 
-Point3d Shape::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo)
+Point3d Shape::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo)
 {
 	return Point3d(0,0,0);
 }
@@ -80,10 +80,10 @@ Circle::~Circle()
 {
 }
     
-Point3d Circle::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo)
+Point3d Circle::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo)
 {
-    if (shapeInfo->hasCenter)
-        return shapeInfo->center;
+    if (shapeInfo.hasCenter)
+        return shapeInfo.center;
     
     Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(loc);
     Point3d dispPt = coordAdapter->localToDisplay(localPt);
@@ -173,10 +173,10 @@ Sphere::~Sphere()
 {
 }
 
-Point3d Sphere::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo)
+Point3d Sphere::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo)
 {
-    if (shapeInfo->hasCenter)
-        return shapeInfo->center;
+    if (shapeInfo.hasCenter)
+        return shapeInfo.center;
 
     Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(loc);
     Point3d dispPt = coordAdapter->localToDisplay(localPt);
@@ -229,7 +229,7 @@ void Sphere::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder
 	for (unsigned int iy=0;iy<sampleY;iy++) {
         for (unsigned int ix=0;ix<sampleX;ix++) {
             BasicDrawable::Triangle triA,triB;
-            if (regBuilder->shapeInfo->insideOut) {
+            if (regBuilder->shapeInfo.insideOut) {
                 // Flip the triangles
                 triA.verts[0] = iy*(sampleX+1)+ix;
                 triA.verts[2] = iy*(sampleX+1)+(ix+1);
@@ -278,10 +278,10 @@ Cylinder::~Cylinder()
 {
 }
     
-Point3d Cylinder::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo)
+Point3d Cylinder::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo)
 {
-    if (shapeInfo->hasCenter)
-        return shapeInfo->center;
+    if (shapeInfo.hasCenter)
+        return shapeInfo.center;
     
     Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(loc);
     Point3d dispPt = coordAdapter->localToDisplay(localPt);
@@ -389,10 +389,10 @@ Linear::~Linear()
 {
 }
 
-Point3d Linear::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo)
+Point3d Linear::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo)
 {
-    if (shapeInfo->hasCenter)
-        return shapeInfo->center;
+    if (shapeInfo.hasCenter)
+        return shapeInfo.center;
     
     if (!pts.empty())
     {
@@ -425,10 +425,10 @@ Extruded::~Extruded()
 {
 }
 
-Point3d Extruded::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo)
+Point3d Extruded::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo)
 {
-    if (shapeInfo->hasCenter)
-        return shapeInfo->center;
+    if (shapeInfo.hasCenter)
+        return shapeInfo.center;
     
     Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(loc.x(),loc.y()));
     Point3d dispPt = coordAdapter->localToDisplay(localPt);
@@ -559,10 +559,10 @@ Rectangle::~Rectangle()
 {    
 }
 
-Point3d Rectangle::displayCenter(CoordSystemDisplayAdapter *coordAdapter,ShapeInfo *shapeInfo)
+Point3d Rectangle::displayCenter(CoordSystemDisplayAdapter *coordAdapter,const ShapeInfo &shapeInfo)
 {
-    if (shapeInfo->hasCenter)
-        return shapeInfo->center;
+    if (shapeInfo.hasCenter)
+        return shapeInfo.center;
 
     // Note: Do a proper center at some point
     
@@ -632,8 +632,8 @@ void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw>
     ShapeInfo shapeInfo;
     
     Point3d center(0,0,0);
-    ShapeDrawableBuilderTri drawBuildTri(scene->getCoordAdapter(),&shapeInfo,center);
-    ShapeDrawableBuilder drawBuildReg(scene->getCoordAdapter(),&shapeInfo,true,center);
+    ShapeDrawableBuilderTri drawBuildTri(scene->getCoordAdapter(),shapeInfo,center);
+    ShapeDrawableBuilder drawBuildReg(scene->getCoordAdapter(),shapeInfo,true,center);
     
     // Some special shapes are already in OpenGL clip space
     if (shape.clipCoords)
@@ -681,12 +681,12 @@ void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw>
 }
 
 /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
-SimpleIdentity ShapeManager::addShapes(std::vector<Shape*> shapes, ShapeInfo *shapeInfo, ChangeSet &changes)
+SimpleIdentity ShapeManager::addShapes(std::vector<Shape*> shapes, const ShapeInfo &shapeInfo, ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)getScene()->getManager(kWKSelectionManager);
 
     ShapeSceneRep *sceneRep = new ShapeSceneRep();
-    sceneRep->fade = shapeInfo->fade;
+    sceneRep->fade = shapeInfo.fade;
 
     // Figure out a good center
     Point3d center(0,0,0);

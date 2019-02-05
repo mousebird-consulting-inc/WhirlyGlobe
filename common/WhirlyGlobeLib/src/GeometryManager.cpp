@@ -796,7 +796,7 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &inGeom
 }
 
 /// Add instances that reuse base geometry
-SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance *> &instances,GeometryInfo &geomInfo,ChangeSet &changes)
+SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,GeometryInfo &geomInfo,ChangeSet &changes)
 {
     pthread_mutex_lock(&geomLock);
     TimeInterval startTime = TimeGetCurrent();
@@ -819,43 +819,43 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     
     // Check for moving models
     bool hasMotion = false;
-    for (const GeometryInstance *inst : instances)
-        if (inst->duration > 0.0)
+    for (const GeometryInstance &inst : instances)
+        if (inst.duration > 0.0)
             hasMotion = true;
     
     // Work through the model instances
     std::vector<BasicDrawableInstance::SingleInstance> singleInsts;
     for (unsigned int ii=0;ii<instances.size();ii++)
     {
-        const GeometryInstance *inst = instances[ii];
+        const GeometryInstance &inst = instances[ii];
         BasicDrawableInstance::SingleInstance singleInst;
         if (geomInfo.colorOverride)
         {
             singleInst.colorOverride = true;
             singleInst.color = geomInfo.color;
         }
-        if (inst->colorOverride)
+        if (inst.colorOverride)
         {
             singleInst.colorOverride = true;
-            singleInst.color = inst->color;
+            singleInst.color = inst.color;
         }
-        singleInst.center = inst->center;
-        singleInst.mat = inst->mat;
+        singleInst.center = inst.center;
+        singleInst.mat = inst.mat;
         if (hasMotion)
         {
-            singleInst.endCenter = inst->endCenter;
-            singleInst.duration = inst->duration;
+            singleInst.endCenter = inst.endCenter;
+            singleInst.duration = inst.duration;
         }
         singleInsts.push_back(singleInst);
         
         // Add a selection box for each instance
-        if (inst->selectable)
+        if (inst.selectable)
         {
             if (hasMotion)
-                selectManager->addMovingPolytopeFromBox(inst->getId(), baseSceneRep->ll, baseSceneRep->ur, inst->center, inst->endCenter, startTime, inst->duration, inst->mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
+                selectManager->addMovingPolytopeFromBox(inst.getId(), baseSceneRep->ll, baseSceneRep->ur, inst.center, inst.endCenter, startTime, inst.duration, inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
             else
-                selectManager->addPolytopeFromBox(inst->getId(), baseSceneRep->ll, baseSceneRep->ur, inst->mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
-            sceneRep->selectIDs.insert(inst->getId());
+                selectManager->addPolytopeFromBox(inst.getId(), baseSceneRep->ll, baseSceneRep->ur, inst.mat, geomInfo.minVis, geomInfo.maxVis, geomInfo.enable);
+            sceneRep->selectIDs.insert(inst.getId());
         }
     }
 

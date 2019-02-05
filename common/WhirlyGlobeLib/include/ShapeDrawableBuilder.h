@@ -56,7 +56,7 @@ public:
     
     /// Construct the builder with the fade value for each created drawable and
     ///  whether we're doing lines or points
-    ShapeDrawableBuilder(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,ShapeInfo *shapeInfo,bool linesOrPoints,const Point3d &center);
+    ShapeDrawableBuilder(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const ShapeInfo &shapeInfo,bool linesOrPoints,const Point3d &center);
     virtual ~ShapeDrawableBuilder();
 
     /// A group of points (in display space) all at once
@@ -68,12 +68,12 @@ public:
     /// Retrieve the scene changes and the list of drawable IDs for later
     void getChanges(WhirlyKit::ChangeSet &changeRequests,SimpleIDSet &drawIDs);
 
-    ShapeInfo *getShapeInfo() { return shapeInfo; }
+    const ShapeInfo *getShapeInfo() { return &shapeInfo; }
 
 public:
     CoordSystemDisplayAdapter *coordAdapter;
     GLenum primType;
-    ShapeInfo *shapeInfo;
+    const ShapeInfo &shapeInfo;
     Mbr drawMbr;
     BasicDrawable *drawable;
     std::vector<BasicDrawable *> drawables;
@@ -89,7 +89,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Construct with the visual description
-    ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,ShapeInfo *shapeInfo,const Point3d &center);
+    ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const ShapeInfo &shapeInfo,const Point3d &center);
     virtual ~ShapeDrawableBuilderTri();
 
     // If set the geometry is already in OpenGL clip coordinates, so we don't transform it
@@ -128,7 +128,7 @@ public:
     /// Retrieve the scene changes and the list of drawable IDs for later
     void getChanges(ChangeSet &changeRequests,SimpleIDSet &drawIDs);
 
-    ShapeInfo *getShapeInfo() { return shapeInfo; }
+    const ShapeInfo *getShapeInfo() { return &shapeInfo; }
 
 public:
     // Creates a new local drawable with all the appropriate settings
@@ -136,7 +136,7 @@ public:
 
     CoordSystemDisplayAdapter *coordAdapter;    
     Mbr drawMbr;
-    ShapeInfo *shapeInfo;
+    const ShapeInfo &shapeInfo;
     BasicDrawable *drawable;
     std::vector<BasicDrawable *> drawables;
     std::vector<SimpleIdentity> texIDs;

@@ -118,7 +118,7 @@ public:
     /// This is rotation clockwise from north in radians
     float rotation;
     /// Offset in points
-    WhirlyKit::Point2f offset;
+    WhirlyKit::Point2d offset;
     /// The period over which we'll switch textures
     TimeInterval period;
     /// For markers with more than one texture, this is the offset

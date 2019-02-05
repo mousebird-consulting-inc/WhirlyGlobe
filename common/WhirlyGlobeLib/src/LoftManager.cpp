@@ -62,7 +62,7 @@ class DrawableBuilder2
 {
 public:
     DrawableBuilder2(Scene *scene,ChangeSet &changes,LoftedPolySceneRep *sceneRep,
-                     LoftedPolyInfo *polyInfo,int primType,const GeoMbr &inDrawMbr)
+                     const LoftedPolyInfo &polyInfo,int primType,const GeoMbr &inDrawMbr)
     : scene(scene), sceneRep(sceneRep), polyInfo(polyInfo), drawable(NULL), primType(primType), changes(changes), centerValid(false), center(0,0,0), geoCenter(0,0)
     {
         drawMbr = inDrawMbr;
@@ -92,15 +92,14 @@ public:
             drawable = new BasicDrawable("Lofted Poly");
             drawable->setType(primType);
             // Adjust according to the vector info
-            //            drawable->setOnOff(polyInfo->enable);
+            //            drawable->setOnOff(polyInfo.enable);
             //            drawable->setDrawOffset(vecInfo->drawOffset);
-            drawable->setColor(((primType == GL_TRIANGLES) ? polyInfo->color : polyInfo->outlineColor));
-            if (polyInfo)
-                polyInfo->setupBasicDrawable(drawable);
+            drawable->setColor(((primType == GL_TRIANGLES) ? polyInfo.color : polyInfo.outlineColor));
+            polyInfo.setupBasicDrawable(drawable);
             if (primType == GL_LINES)
-                drawable->setLineWidth(polyInfo->outlineWidth);
-            drawable->setRequestZBuffer(polyInfo->zBufferRead);
-            drawable->setWriteZBuffer(polyInfo->zBufferWrite);
+                drawable->setLineWidth(polyInfo.outlineWidth);
+            drawable->setRequestZBuffer(polyInfo.zBufferRead);
+            drawable->setWriteZBuffer(polyInfo.zBufferWrite);
         }
     }
     
@@ -144,13 +143,13 @@ public:
             {
                 Point2f verts[3];
                 verts[2] = tri[0];  verts[1] = tri[1];  verts[0] = tri[2];
-                addLoftTriangle(verts,polyInfo->height);
+                addLoftTriangle(verts,polyInfo.height);
                 // If they've got a base, we want to see it from the underside, probably
-                if (polyInfo->base > 0.0)
+                if (polyInfo.base > 0.0)
                 {
                     Point2f verts[3];
                     verts[1] = tri[0];  verts[2] = tri[1];  verts[0] = tri[2];
-                    addLoftTriangle(verts,polyInfo->base);                    
+                    addLoftTriangle(verts,polyInfo.base);
                 }
             }
         }
@@ -161,7 +160,7 @@ public:
     {
         if (primType != GL_LINES)
             return;
-        double height = (useHeight ? polyInfo->height : 0.0);
+        double height = (useHeight ? polyInfo.height : 0.0);
         
         setupDrawable(0);
         CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
@@ -224,9 +223,9 @@ public:
             Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD);
             Point3d norm = coordAdapter->normalForLocal(localPt);
             Point3d pt0 = coordAdapter->localToDisplay(localPt);
-            Point3d pt1 = pt0 + norm * polyInfo->height;
-            if (polyInfo->base > 0.0)
-                pt0 = pt0 + norm * polyInfo->base;
+            Point3d pt1 = pt0 + norm * polyInfo.height;
+            if (polyInfo.base > 0.0)
+                pt0 = pt0 + norm * polyInfo.base;
             
             // Add to drawable
             if (jj > 0)
@@ -311,9 +310,9 @@ public:
             Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal(geoCoordD);
             Point3d norm = coordAdapter->normalForLocal(localPt);
             Point3d pt0 = coordAdapter->localToDisplay(localPt);
-            Point3d pt1 = pt0 + norm * polyInfo->height;
-            if (polyInfo->base > 0.0)
-                pt0 = pt0 + norm * polyInfo->base;
+            Point3d pt1 = pt0 + norm * polyInfo.height;
+            if (polyInfo.base > 0.0)
+                pt0 = pt0 + norm * polyInfo.base;
             
             // Just do the uprights as lines
             drawable->addPoint(pt0);
@@ -336,10 +335,10 @@ public:
                     Matrix4d transMat = trans.matrix();
                     drawable->setMatrix(&transMat);
                 }
-                if (polyInfo->fade > 0)
+                if (polyInfo.fade > 0)
                 {
                     TimeInterval curTime = TimeGetCurrent();
-                    drawable->setFade(curTime,curTime+polyInfo->fade);
+                    drawable->setFade(curTime,curTime+polyInfo.fade);
                 }
                 sceneRep->drawIDs.insert(drawable->getId());
                 changes.push_back(new AddDrawableReq(drawable));
@@ -355,7 +354,7 @@ protected:
     ChangeSet &changes;
     GeoMbr drawMbr;
     BasicDrawable *drawable;
-    LoftedPolyInfo *polyInfo;
+    const LoftedPolyInfo &polyInfo;
     GLenum primType;
     Point3d center;
     Point2d geoCenter;
@@ -379,7 +378,7 @@ LoftManager::~LoftManager()
 }
     
 // From a scene rep and a description, add the given polygons to the drawable builder
-void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,LoftedPolyInfo *polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ChangeSet &changes)
+void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const LoftedPolyInfo &polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ChangeSet &changes)
 {
     int numShapes = 0;
     
@@ -390,7 +389,7 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,LoftedPolyIn
         drawBuild.setCenter(center,geoCenter);
     
     // Toss in the polygons for the sides
-    if (polyInfo->height != 0.0)
+    if (polyInfo.height != 0.0)
     {
         DrawableBuilder2 drawBuild2(scene,changes,sceneRep,polyInfo,GL_LINES,drawMbr);
 
@@ -402,13 +401,13 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,LoftedPolyIn
             {
                 for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
                 {
-                    if (polyInfo->side)
+                    if (polyInfo.side)
                     {
                         drawBuild.addSkirtPoints(theAreal->loops[ri]);
                         numShapes++;
                         
                         // Do the uprights around the side
-                        if (polyInfo->outlineSide)
+                        if (polyInfo.outlineSide)
                             drawBuild2.addUprights(theAreal->loops[ri]);
                     }
                 }
@@ -417,18 +416,18 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,LoftedPolyIn
     }
     
     // Tweak the mesh polygons and toss 'em in
-    if (polyInfo->top)
+    if (polyInfo.top)
         drawBuild.addPolyGroup(sceneRep->triMesh);
         
     // And do the top outline if it's there
-    if (polyInfo->outline || polyInfo->outlineBottom)
+    if (polyInfo.outline || polyInfo.outlineBottom)
     {
         DrawableBuilder2 drawBuild2(scene,changes,sceneRep,polyInfo,GL_LINES,drawMbr);
         if (centerValid)
             drawBuild2.setCenter(center,geoCenter);
-        if (polyInfo->outline)
+        if (polyInfo.outline)
             drawBuild2.addOutline(sceneRep->outlines,true);
-        if (polyInfo->outlineBottom)
+        if (polyInfo.outlineBottom)
             drawBuild2.addOutline(sceneRep->outlines,false);
         
         sceneRep->outlines.clear();
@@ -439,7 +438,7 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,LoftedPolyIn
 
     
 /// Add lofted polygons
-SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,LoftedPolyInfo *polyInfo,float gridSize,ChangeSet &changes)
+SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const LoftedPolyInfo &polyInfo,float gridSize,ChangeSet &changes)
 {
     SimpleIdentity loftID = EmptyIdentity;
 
@@ -447,17 +446,17 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,LoftedPol
     CoordSystem *coordSys = coordAdapter->getCoordSystem();
     LoftedPolySceneRep *sceneRep = new LoftedPolySceneRep();
     loftID = sceneRep->getId();
-    sceneRep->fade = polyInfo->fade;
+    sceneRep->fade = polyInfo.fade;
     
     Point3d center(0,0,0);
     bool centerValid = false;
     Point2d geoCenter(0,0);
-    if (polyInfo->centered)
+    if (polyInfo.centered)
     {
         // We might pass in a center
-        if (polyInfo->hasCenter)
+        if (polyInfo.hasCenter)
         {
-            geoCenter = polyInfo->center;
+            geoCenter = polyInfo.center;
             Point3d dispPt = coordAdapter->localToDisplay(coordSys->geographicToLocal(geoCenter));
             center = dispPt;
             centerValid = true;
@@ -499,7 +498,7 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,LoftedPol
                     ClipLoopToGrid(ring,Point2f(0.f,0.f),Point2f(gridSize,gridSize),clippedMesh);
                     
                     // May need to add the outline as well
-                    if (polyInfo->outline)
+                    if (polyInfo.outline)
                         sceneRep->outlines.push_back(ring);
                     
                     for (unsigned int ii=0;ii<clippedMesh.size();ii++)

@@ -113,7 +113,7 @@ typedef std::set<BillboardSceneRep *,IdentifiableSorter> BillboardSceneRepSet;
 class BillboardDrawableBuilder
 {
 public:
-    BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,BillboardInfo *billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId);
+    BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,const BillboardInfo &billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId);
     ~BillboardDrawableBuilder();
 
     void addBillboard(Point3d center,const Point2dVector &pts,const std::vector<WhirlyKit::TexCoord> &texCoords, const RGBAColor *inColor,const SingleVertexAttributeSet &vertAttrs);
@@ -125,7 +125,7 @@ protected:
     ChangeSet &changes;
     Mbr drawMbr;
     BillboardDrawable *drawable;
-    BillboardInfo *billInfo;
+    const BillboardInfo &billInfo;
     BillboardSceneRep *sceneRep;
     SimpleIdentity billboardProgram;
     SimpleIdentity texId;
@@ -143,7 +143,7 @@ public:
     virtual ~BillboardManager();
 
     /// Add billboards for display
-    SimpleIdentity addBillboards(std::vector<Billboard*> billboards,BillboardInfo *billboardInfo,SimpleIdentity billShader,ChangeSet &changes);
+    SimpleIdentity addBillboards(std::vector<Billboard*> billboards,const BillboardInfo &billboardInfo,SimpleIdentity billShader,ChangeSet &changes);
 
     /// Enable/disable active billboards
     void enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);

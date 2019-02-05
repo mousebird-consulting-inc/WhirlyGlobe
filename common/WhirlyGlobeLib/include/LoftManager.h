@@ -85,7 +85,7 @@ public:
     virtual ~LoftManager();
 
     /// Add lofted polygons
-    SimpleIdentity addLoftedPolys(WhirlyKit::ShapeSet *shapes,LoftedPolyInfo *polyInfo,float gridSize,ChangeSet &changes);
+    SimpleIdentity addLoftedPolys(WhirlyKit::ShapeSet *shapes,const LoftedPolyInfo &polyInfo,float gridSize,ChangeSet &changes);
 
     /// Enable/disable lofted polys
     void enableLoftedPolys(const SimpleIDSet &polyIDs,bool enable,ChangeSet &changes);
@@ -94,7 +94,7 @@ public:
     void removeLoftedPolys(const SimpleIDSet &polyIDs,ChangeSet &changes);
         
 protected:
-    void addGeometryToBuilder(LoftedPolySceneRep *sceneRep,LoftedPolyInfo *polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ChangeSet &changes);
+    void addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const LoftedPolyInfo &polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ChangeSet &changes);
     
     pthread_mutex_t loftLock;
     LoftedPolySceneRepSet loftReps;

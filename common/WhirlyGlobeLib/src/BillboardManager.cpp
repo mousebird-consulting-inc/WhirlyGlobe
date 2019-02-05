@@ -74,7 +74,7 @@ void BillboardSceneRep::clearContents(SelectionManager *selectManager,ChangeSet 
     }
 }
 
-BillboardDrawableBuilder::BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,BillboardInfo *billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId) :
+BillboardDrawableBuilder::BillboardDrawableBuilder(Scene *scene,ChangeSet &changes,BillboardSceneRep *sceneRep,const BillboardInfo &billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId) :
     scene(scene),
     changes(changes),
     sceneRep(sceneRep),
@@ -112,12 +112,12 @@ void BillboardDrawableBuilder::addBillboard(Point3d center, const Point2dVector 
         drawable = new BillboardDrawable();
         //        drawMbr.reset();
         drawable->setType(GL_TRIANGLES);
-        billInfo->setupBasicDrawable(drawable);
+        billInfo.setupBasicDrawable(drawable);
         drawable->setProgram(billboardProgram);
         drawable->setTexId(0,texId);
-        drawable->setRequestZBuffer(billInfo->zBufferRead);
-        drawable->setWriteZBuffer(billInfo->zBufferWrite);
-        drawable->setDrawPriority(billInfo->drawPriority);
+        drawable->setRequestZBuffer(billInfo.zBufferRead);
+        drawable->setWriteZBuffer(billInfo.zBufferWrite);
+        drawable->setDrawPriority(billInfo.drawPriority);
         if (!vertAttrs.empty())
         {
             SingleVertexAttributeInfoSet vertInfoSet;
@@ -127,7 +127,7 @@ void BillboardDrawableBuilder::addBillboard(Point3d center, const Point2dVector 
         //        drawable->setForceZBufferOn(true);
     }
         
-    RGBAColor color = (inColor ? *inColor : billInfo->color);
+    RGBAColor color = (inColor ? *inColor : billInfo.color);
     
     Point3d centerOnSphere = center;
     double len = sqrt(centerOnSphere.x()*centerOnSphere.x() + centerOnSphere.y()*centerOnSphere.y() + centerOnSphere.z()*centerOnSphere.z());
@@ -192,13 +192,13 @@ BillboardManager::~BillboardManager()
 typedef std::map<SimpleIdentity,BillboardDrawableBuilder *> BuilderMap;
 
 /// Add billboards for display
-SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboards,BillboardInfo *billboardInfo,SimpleIdentity billShader,ChangeSet &changes)
+SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboards,const BillboardInfo &billboardInfo,SimpleIdentity billShader,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
 
 
     BillboardSceneRep *sceneRep = new BillboardSceneRep();
-    sceneRep->fade = billboardInfo->fade;
+    sceneRep->fade = billboardInfo.fade;
         
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
         
@@ -237,7 +237,7 @@ SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboard
             Point3d localPt = coordAdapter->displayToLocal(billboard->center);
             Point3d axisY = coordAdapter->normalForLocal(localPt);
                 
-            selectManager->addSelectableBillboard(billboard->selectID, billboard->center, axisY, billboard->size, billboardInfo->minVis, billboardInfo->maxVis, billboardInfo->enable);
+            selectManager->addSelectableBillboard(billboard->selectID, billboard->center, axisY, billboard->size, billboardInfo.minVis, billboardInfo.maxVis, billboardInfo.enable);
         }
     }
         

@@ -62,7 +62,7 @@ public:
     virtual ~Shape();
 
 	virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
-    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
 
 public:
     bool isSelectable;
@@ -82,7 +82,7 @@ public:
     virtual ~Circle();
     
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
-    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
     
 public:
     /// The location for the origin of the shape
@@ -105,7 +105,7 @@ public:
     virtual ~Sphere();
 
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
-    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
 
 public:
     WhirlyKit::GeoCoord loc;
@@ -124,7 +124,7 @@ public:
     virtual ~Cylinder();
     
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
-    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
 
 public:
     /// The location for the origin of the shape
@@ -152,7 +152,7 @@ public:
     virtual ~Linear();
     
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
-    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
 
 public:
     /// Bounding box in local coordinates.
@@ -175,7 +175,7 @@ public:
     virtual ~Extruded();
     
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
-    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
 
 public:
     /// The location for the origin of the shape
@@ -207,7 +207,7 @@ public:
     void setTexIDs(std::vector<SimpleIdentity> inTexIDs) { texIDs = inTexIDs; }
 
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
-    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
 
 public:
     Point3d ll,ur;
@@ -230,7 +230,7 @@ public:
     void convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw> &rawGeom);
 
     /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
-    SimpleIdentity addShapes(std::vector<Shape*> shapes, ShapeInfo * shapeInfo,ChangeSet &changes);
+    SimpleIdentity addShapes(std::vector<Shape*> shapes, const ShapeInfo &shapeInfo,ChangeSet &changes);
 
     /// Remove a group of shapes named by the given ID
     void removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes);

@@ -42,6 +42,7 @@
 #import "MaplyRenderTarget_private.h"
 #import "Dictionary_NSDictionary.h"
 #import "SingleLabel_iOS.h"
+#import "FontTextureManager_iOS.h"
 //#import "SphericalEarthChunkManager.h"
 
 using namespace Eigen;
@@ -56,20 +57,15 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
     if (isFlat)
     {
         pts.resize(2);
-        pts[0] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(startPt.x,startPt.y)));
-        pts[1] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(endPt.x,endPt.y)));
+        pts[0] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(startPt.x,startPt.y)));
+        pts[1] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(endPt.x,endPt.y)));
     } else {
         VectorRing inPts;
         inPts.push_back(Point2f(startPt.x,startPt.y));
         inPts.push_back(Point2f(endPt.x,endPt.y));
         VectorRing3d tmpPts;
         SubdivideEdgesToSurfaceGC(inPts, tmpPts, false, coordAdapter, eps);
-        pts.resize(tmpPts.size());
-        for (int ii=0;ii<tmpPts.size();ii++)
-        {
-            const Point3d &tmpPt = tmpPts[ii];
-            pts[ii] = Point3f(tmpPt.x(),tmpPt.y(),tmpPt.z());
-        }
+        pts = tmpPts;
 
         // To apply the height, we'll need the total length
         float totLen = 0;
@@ -110,20 +106,15 @@ void SampleGreatCircleStatic(MaplyCoordinate startPt,MaplyCoordinate endPt,float
     if (isFlat)
     {
         pts.resize(2);
-        pts[0] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(startPt.x,startPt.y)));
-        pts[1] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(endPt.x,endPt.y)));
+        pts[0] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(startPt.x,startPt.y)));
+        pts[1] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(endPt.x,endPt.y)));
     } else {
         VectorRing inPts;
-        inPts.push_back(Point2d(startPt.x,startPt.y));
-        inPts.push_back(Point2d(endPt.x,endPt.y));
+        inPts.push_back(Point2f(startPt.x,startPt.y));
+        inPts.push_back(Point2f(endPt.x,endPt.y));
         VectorRing3d tmpPts;
         SubdivideEdgesToSurfaceGC(inPts, tmpPts, false, coordAdapter, 1.0, 0.0, samples);
-        pts.resize(tmpPts.size());
-        for (int ii=0;ii<tmpPts.size();ii++)
-        {
-            const Point3d &tmpPt = tmpPts[ii];
-            pts[ii] = Point3f(tmpPt.x(),tmpPt.y(),tmpPt.z());
-        }
+        pts = tmpPts;
         
         // To apply the height, we'll need the total length
         float totLen = 0;
@@ -1457,7 +1448,7 @@ public:
         {
             desc[@"lineSpacing"] = [inDesc objectForKey:@"lineSpacing"];
         }
-        wgLabel->screenOffset = Point2f(label.offset.x,label.offset.y);
+        wgLabel->screenOffset = Point2d(label.offset.x,label.offset.y);
         if (label.selectable)
         {
             wgLabel->isSelectable = true;
@@ -2237,7 +2228,7 @@ public:
         {
             iosDictionary dictWrap(inDesc);
             ShapeInfo shapeInfo(dictWrap);
-            SimpleIdentity shapeID = shapeManager->addShapes(ourShapes, &shapeInfo, changes);
+            SimpleIdentity shapeID = shapeManager->addShapes(ourShapes, shapeInfo, changes);
             if (shapeID != EmptyIdentity)
                 compObj.shapeIDs.insert(shapeID);
         }
@@ -2253,7 +2244,7 @@ public:
             }
             iosDictionary dictWrap(newDesc);
             ShapeInfo shapeInfo(dictWrap);
-            SimpleIdentity shapeID = shapeManager->addShapes(specialShapes, &shapeInfo, changes);
+            SimpleIdentity shapeID = shapeManager->addShapes(specialShapes, shapeInfo, changes);
             if (shapeID != EmptyIdentity)
                 compObj.shapeIDs.insert(shapeID);
         }
@@ -2341,7 +2332,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
 
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
-    WhirlyKitFontTextureManager *fontTexManager = scene->getFontTextureManager();
+    FontTextureManager_iOS *fontTexManager = (FontTextureManager_iOS *)scene->getFontTextureManager();
 
     // Sort the instances with their models
     GeomModelInstancesSet instSort;
@@ -2466,7 +2457,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     matInst.push_back(thisInst);
                 }
                 
-                SimpleIdentity geomID = geomManager->addGeometryInstances(baseModelID, matInst, inDesc, changes);
+                iosDictionary dictWrap(inDesc);
+                GeometryInfo geomInfo(dictWrap);
+                SimpleIdentity geomID = geomManager->addGeometryInstances(baseModelID, matInst, geomInfo, changes);
                 if (geomID != EmptyIdentity)
                     compObj.geomIDs.insert(geomID);
             }
@@ -2612,6 +2605,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     // Might be a custom shader on these
     [self resolveShader:inDesc defaultShader:kMaplyDefaultTriangleShader];
 
+#if 0
+    // Note: Turned off for porting
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     
     for (MaplySticker *sticker in stickers)
@@ -2687,6 +2682,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         [userObjects addObject:compObj];
         compObj.underConstruction = false;
     }
+#endif
 }
 
 // Add stickers
@@ -2731,6 +2727,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSDictionary *desc = [argArray objectAtIndex:1];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
     
+#if 0
+    // Note: Porting
     @synchronized(stickerObj)
     {
         bool isHere = false;
@@ -2785,6 +2783,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             }
         }
     }
+#endif
 }
 
 // Change stickers
@@ -2824,11 +2823,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     compObj.vectors = vectors;
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
-    NSString *key = argArray[3];
-    if ([key isKindOfClass:[NSNull class]])
-        key = nil;
-    NSObject<WhirlyKitLoftedPolyCache> *cache = argArray[4];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:5] intValue];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
     
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyLoftedPolysDrawPriorityDefault) toDict:inDesc];
     
@@ -2847,7 +2842,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         float gridSize = 10.0 / 180.0 * M_PI;
         if (inDesc[kMaplyLoftedPolyGridSize])
             gridSize = [inDesc[kMaplyLoftedPolyGridSize] floatValue];
-        SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes, inDesc, key, cache, gridSize, changes);
+        iosDictionary dictWrap(inDesc);
+        LoftedPolyInfo loftInfo(dictWrap);
+        SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes, loftInfo, gridSize, changes);
         compObj.loftIDs.insert(loftID);
         compObj.isSelectable = false;
     }
@@ -2878,7 +2875,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         return compObj;
     }
     
-    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], (key ? key : [NSNull null]), (cache ? cache : [NSNull null]), @(threadMode)];
+    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -2903,7 +2900,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSMutableDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    CoordSystemDisplayAdapter *coordAdapter = visualView.coordAdapter;
+    CoordSystemDisplayAdapter *coordAdapter = visualView->coordAdapter;
     CoordSystem *coordSys = coordAdapter->getCoordSystem();
     
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyBillboardDrawPriorityDefault) toDict:inDesc];
@@ -2926,26 +2923,26 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     ChangeSet changes;
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
-    WhirlyKitFontTextureManager *fontTexManager = scene->getFontTextureManager();
+    FontTextureManager_iOS *fontTexManager = (FontTextureManager_iOS *)scene->getFontTextureManager();
     if (billManager && fontTexManager)
     {
-        NSMutableArray *wkBills = [NSMutableArray array];
+        std::vector<Billboard *> wkBills;
         for (MaplyBillboard *bill in bills)
         {
-            WhirlyKitBillboard *wkBill = [[WhirlyKitBillboard alloc] init];
+            Billboard *wkBill = new Billboard();
             Point3d localPt = coordSys->geographicToLocal3d(GeoCoord(bill.center.x,bill.center.y));
             Point3d dispPt = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),bill.center.z));
-            wkBill.center = dispPt;
-            wkBill.isSelectable = bill.selectable;
-            if (wkBill.isSelectable)
-                wkBill.selectID = Identifiable::genId();
+            wkBill->center = dispPt;
+            wkBill->isSelectable = bill.selectable;
+            if (wkBill->isSelectable)
+                wkBill->selectID = Identifiable::genId();
             
             if (bill.selectable)
             {
                 pthread_mutex_lock(&selectLock);
-                selectObjectSet.insert(SelectObject(wkBill.selectID,bill));
+                selectObjectSet.insert(SelectObject(wkBill->selectID,bill));
                 pthread_mutex_unlock(&selectLock);
-                compObj.selectIDs.insert(wkBill.selectID);
+                compObj.selectIDs.insert(wkBill->selectID);
             }
 
             MaplyScreenObject *screenObj = bill.screenObj;
@@ -2953,7 +2950,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 continue;
             MaplyBoundingBox size = [screenObj getSize];
             Point2d size2d = Point2d(size.ur.x-size.ll.x,size.ur.y-size.ll.y);
-            wkBill.size = size2d;
+            wkBill->size = size2d;
 
             // Work through the individual polygons in a billboard
             for (const SimplePoly &poly : screenObj->polys)
@@ -2961,7 +2958,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 SingleBillboardPoly billPoly;
                 billPoly.pts = poly.pts;
                 billPoly.texCoords = poly.texCoords;
-                billPoly.color = poly.color;
+                billPoly.color = [poly.color asRGBAColor];
                 if (bill.vertexAttributes)
                     [self resolveVertexAttrs:billPoly.vertexAttrs from:bill.vertexAttributes];
                 if (poly.texture)
@@ -2980,14 +2977,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                         billPoly.texId = tex.texID;
                     }
                 }
-                wkBill.polys.push_back(billPoly);
+                wkBill->polys.push_back(billPoly);
             }
             
             // Now for the strings
             for (const StringWrapper &strWrap : screenObj->strings)
             {
                 // Convert the string to polygons
-                DrawableString *drawStr = [fontTexManager addString:strWrap.str changes:changes];
+                DrawableString *drawStr = fontTexManager->addString(strWrap.str,changes);
                 for (const DrawableString::Rect &rect : drawStr->glyphPolys)
                 {
                     SingleBillboardPoly billPoly;
@@ -3009,17 +3006,19 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                         billPoly.pts[ip] = Point2d(newPt.x(),newPt.y());
                     }
                     
-                    wkBill.polys.push_back(billPoly);
+                    wkBill->polys.push_back(billPoly);
                 }
                 
                 compObj.drawStringIDs.insert(drawStr->getId());
                 delete drawStr;
             }
             
-            [wkBills addObject:wkBill];
+            wkBills.push_back(wkBill);
         }
         
-        SimpleIdentity billId = billManager->addBillboards(wkBills, inDesc, billShaderID, changes);
+        iosDictionary dictWrap(inDesc);
+        BillboardInfo billInfo(dictWrap);
+        SimpleIdentity billId = billManager->addBillboards(wkBills, billInfo, billShaderID, changes);
         compObj.billIDs.insert(billId);
         compObj.isSelectable = false;
     }
@@ -3327,7 +3326,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             {
                 mat = points.transform.mat;
             }
-            SimpleIdentity geomID = geomManager->addGeometryPoints(points->points, mat, inDesc, changes);
+            iosDictionary dictWrap(inDesc);
+            GeometryInfo geomInfo(dictWrap);
+            SimpleIdentity geomID = geomManager->addGeometryPoints(points->points, mat, geomInfo, changes);
             if (geomID != EmptyIdentity)
                 compObj.geomIDs.insert(geomID);
         }
@@ -3436,11 +3437,12 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
     WideVectorManager *wideVectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
-    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+    // Note: Turned off chunk manager
+//    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
-    WhirlyKitFontTextureManager *fontTexManager = scene->getFontTextureManager();
+    FontTextureManager *fontTexManager = scene->getFontTextureManager();
     ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
 
     // First, let's make sure we're representing it
@@ -3472,8 +3474,9 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     shapeManager->removeShapes(userObj.shapeIDs, changes);
                 if (loftManager && !userObj.loftIDs.empty())
                     loftManager->removeLoftedPolys(userObj.loftIDs, changes);
-                if (chunkManager && !userObj.chunkIDs.empty())
-                    chunkManager->removeChunks(userObj.chunkIDs, changes);
+                // Note: Turned off chunk manager
+//                if (chunkManager && !userObj.chunkIDs.empty())
+//                    chunkManager->removeChunks(userObj.chunkIDs, changes);
                 if (billManager && !userObj.billIDs.empty())
                     billManager->removeBillboards(userObj.billIDs, changes);
                 if (geomManager && !userObj.geomIDs.empty())
@@ -3485,7 +3488,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     //       Without this we lose the textures before we're done with them
                     TimeInterval when = TimeGetCurrent() + 2.0;
                     for (SimpleIdentity dStrID : userObj.drawStringIDs)
-                        [fontTexManager removeString:dStrID changes:changes when:when];
+                        fontTexManager->removeString(dStrID, changes, when);
                 }
                 if (partSysManager && !userObj.partSysIDs.empty())
                 {
@@ -3593,7 +3596,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
     LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
     ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
-    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
+    // Note: Turned off chunk manager
+//    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
     LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
@@ -3625,12 +3629,13 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 loftManager->enableLoftedPolys(compObj.loftIDs, enable, changes);
             if (geomManager && !compObj.geomIDs.empty())
                 geomManager->enableGeometry(compObj.geomIDs, enable, changes);
-            if (chunkManager && !compObj.chunkIDs.empty())
-            {
-                for (SimpleIDSet::iterator it = compObj.chunkIDs.begin();
-                     it != compObj.chunkIDs.end(); ++it)
-                    chunkManager->enableChunk(*it, enable, changes);
-            }
+            // Note: Disabled chunk manager
+//            if (chunkManager && !compObj.chunkIDs.empty())
+//            {
+//                for (SimpleIDSet::iterator it = compObj.chunkIDs.begin();
+//                     it != compObj.chunkIDs.end(); ++it)
+//                    chunkManager->enableChunk(*it, enable, changes);
+//            }
         }
     }
 }
@@ -3724,7 +3729,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     NSMutableArray *foundObjs = [NSMutableArray array];
     
-    pt = [visualView unwrapCoordinate:pt];
+    pt = visualView->unwrapCoordinate(pt);
     
     @synchronized(userObjects)
     {
