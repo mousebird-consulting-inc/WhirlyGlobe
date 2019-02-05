@@ -40,7 +40,9 @@
 #import "MaplyShape_private.h"
 #import "MaplyPoints_private.h"
 #import "MaplyRenderTarget_private.h"
-#import "SphericalEarthChunkManager.h"
+#import "Dictionary_NSDictionary.h"
+#import "SingleLabel_iOS.h"
+//#import "SphericalEarthChunkManager.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -277,8 +279,8 @@ public:
     userObjects = [NSMutableSet set];
     atlasGroup = [[MaplyTextureAtlasGroup alloc] initWithScene:scene];
     
-    glSetupInfo = [[WhirlyKitGLSetupInfo alloc] init];
-    glSetupInfo->minZres = [visualView calcZbufferRes];
+    glSetupInfo.minZres = visualView->calcZbufferRes();
+    glSetupInfo.glesVersion = layerThread.renderer->glesVersion;
     
     if (layerThread)
     {
@@ -306,7 +308,6 @@ public:
     [userObjects removeAllObjects];
     userObjects = nil;
     atlasGroup = nil;
-    glSetupInfo = nil;
     layerThreads = nil;
     ourClusterGen.layer = nil;
     clusterGens.clear();
@@ -410,7 +411,7 @@ public:
     // Add it and download it
     Texture *tex;
     if (image)
-        tex = new Texture("MaplyBaseInteraction",image,imgWidth,imgHeight);
+        tex = new Texture_iOS("MaplyBaseInteraction",image,imgWidth,imgHeight);
     else {
         tex = new Texture("MaplyBaseInteraction");
         tex->setWidth(imgWidth);
@@ -565,7 +566,7 @@ public:
             if (change)
             {
                 requiresFlush |= change->needsFlush();
-                change->setupGL(glSetupInfo, scene->getMemManager());
+                change->setupGL(&glSetupInfo, scene->getMemManager());
                 changesToAdd.push_back(change);
             } else
                 // A NULL change request is just a flush request
@@ -781,7 +782,7 @@ public:
         if (currentThread != [NSThread mainThread])
             for (auto &change : theseChanges.changes) {
                 if (change)
-                    change->setupGL(glSetupInfo, scene->getMemManager());
+                    change->setupGL(&glSetupInfo, scene->getMemManager());
             }
         scene->addChangeRequests(theseChanges.changes);
         perThreadChanges.erase(it);
@@ -882,11 +883,11 @@ public:
     [self resolveDrawPriority:inDesc offset:_screenObjectDrawPriorityOffset];
     
     // Convert to WG markers
-    NSMutableArray *wgMarkers = [NSMutableArray array];
+    std::vector<WhirlyKit::Marker *> wgMarkers;
     for (MaplyScreenMarker *marker in markers)
     {
-        WhirlyKitMarker *wgMarker = [[WhirlyKitMarker alloc] init];
-        wgMarker.loc = GeoCoord(marker.loc.x,marker.loc.y);
+        WhirlyKit::Marker *wgMarker = new WhirlyKit::Marker();
+        wgMarker->loc = GeoCoord(marker.loc.x,marker.loc.y);
         std::vector<MaplyTexture *> texs;
         if (marker.image)
         {
@@ -912,59 +913,59 @@ public:
             }
         }
         if (texs.size() > 1)
-            wgMarker.period = marker.period;
+            wgMarker->period = marker.period;
         compObj.textures.insert(texs.begin(),texs.end());
-        wgMarker.color = marker.color;
+        wgMarker->color = [marker.color asRGBAColor];
         if (!texs.empty())
         {
             for (unsigned int ii=0;ii<texs.size();ii++)
-                wgMarker.texIDs.push_back(texs[ii].texID);
+                wgMarker->texIDs.push_back(texs[ii].texID);
         }
-        wgMarker.width = marker.size.width;
-        wgMarker.height = marker.size.height;
+        wgMarker->width = marker.size.width;
+        wgMarker->height = marker.size.height;
         if (marker.rotation != 0.0)
         {
-            wgMarker.rotation = marker.rotation;
-            wgMarker.lockRotation = true;
+            wgMarker->rotation = marker.rotation;
+            wgMarker->lockRotation = true;
         }
         if (marker.selectable)
         {
-            wgMarker.isSelectable = true;
-            wgMarker.selectID = Identifiable::genId();
+            wgMarker->isSelectable = true;
+            wgMarker->selectID = Identifiable::genId();
         }
-        wgMarker.layoutImportance = marker.layoutImportance;
+        wgMarker->layoutImportance = marker.layoutImportance;
 
         if (marker.vertexAttributes)
-            [self resolveVertexAttrs:wgMarker.vertexAttrs from:marker.vertexAttributes];
+            [self resolveVertexAttrs:wgMarker->vertexAttrs from:marker.vertexAttributes];
         
         if (marker.layoutSize.width >= 0.0)
         {
-            wgMarker.layoutWidth = marker.layoutSize.width;
-            wgMarker.layoutHeight = marker.layoutSize.height;
+            wgMarker->layoutWidth = marker.layoutSize.width;
+            wgMarker->layoutHeight = marker.layoutSize.height;
         } else {
-            wgMarker.layoutWidth = wgMarker.width;
-            wgMarker.layoutHeight = wgMarker.height;
+            wgMarker->layoutWidth = wgMarker->width;
+            wgMarker->layoutHeight = wgMarker->height;
         }
-        wgMarker.offset = Point2d(marker.offset.x,marker.offset.y);
+        wgMarker->offset = Point2d(marker.offset.x,marker.offset.y);
         
         // Now for the motion related fields
         if ([marker isKindOfClass:[MaplyMovingScreenMarker class]])
         {
             MaplyMovingScreenMarker *movingMarker = (MaplyMovingScreenMarker *)marker;
-            wgMarker.hasMotion = true;
-            wgMarker.endLoc = GeoCoord(movingMarker.endLoc.x,movingMarker.endLoc.y);
-            wgMarker.startTime = now;
-            wgMarker.endTime = now + movingMarker.duration;
+            wgMarker->hasMotion = true;
+            wgMarker->endLoc = GeoCoord(movingMarker.endLoc.x,movingMarker.endLoc.y);
+            wgMarker->startTime = now;
+            wgMarker->endTime = now + movingMarker.duration;
         }
-
-        [wgMarkers addObject:wgMarker];
+        
+        wgMarkers.push_back(wgMarker);
         
         if (marker.selectable)
         {
             pthread_mutex_lock(&selectLock);
-            selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+            selectObjectSet.insert(SelectObject(wgMarker->selectID,marker));
             pthread_mutex_unlock(&selectLock);
-            compObj.selectIDs.insert(wgMarker.selectID);
+            compObj.selectIDs.insert(wgMarker->selectID);
         }
     }
     
@@ -976,7 +977,9 @@ public:
         NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
         [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
         ChangeSet changes;
-        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, desc, changes);
+        iosDictionary dictWrap(desc);
+        MarkerInfo markerInfo(dictWrap);
+        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, markerInfo, changes);
         if (markerID != EmptyIdentity)
             compObj.markerIDs.insert(markerID);
         [self flushChanges:changes mode:threadMode];
@@ -1230,11 +1233,11 @@ public:
     [self resolveShader:inDesc defaultShader:(hasMultiTex ? kMaplyShaderDefaultTriMultiTex : kMaplyShaderDefaultTri)];
     
     // Convert to WG markers
-    NSMutableArray *wgMarkers = [NSMutableArray array];
+    std::vector<Marker *> wgMarkers;
     for (MaplyMarker *marker in markers)
     {
-        WhirlyKitMarker *wgMarker = [[WhirlyKitMarker alloc] init];
-        wgMarker.loc = GeoCoord(marker.loc.x,marker.loc.y);
+        Marker *wgMarker = new Marker();
+        wgMarker->loc = GeoCoord(marker.loc.x,marker.loc.y);
 
         std::vector<MaplyTexture *> texs;
         if (marker.image)
@@ -1257,30 +1260,30 @@ public:
             }
         }
         if (texs.size() > 1)
-            wgMarker.period = marker.period;
+            wgMarker->period = marker.period;
         compObj.textures.insert(texs.begin(),texs.end());
         if (!texs.empty())
         {
             for (unsigned int ii=0;ii<texs.size();ii++)
-                wgMarker.texIDs.push_back(texs[ii].texID);
+                wgMarker->texIDs.push_back(texs[ii].texID);
         }
 
-        wgMarker.width = marker.size.width;
-        wgMarker.height = marker.size.height;
+        wgMarker->width = marker.size.width;
+        wgMarker->height = marker.size.height;
         if (marker.selectable)
         {
-            wgMarker.isSelectable = true;
-            wgMarker.selectID = Identifiable::genId();
+            wgMarker->isSelectable = true;
+            wgMarker->selectID = Identifiable::genId();
         }
         
-        [wgMarkers addObject:wgMarker];
+        wgMarkers.push_back(wgMarker);
         
         if (marker.selectable)
         {
             pthread_mutex_lock(&selectLock);
-            selectObjectSet.insert(SelectObject(wgMarker.selectID,marker));
+            selectObjectSet.insert(SelectObject(wgMarker->selectID,marker));
             pthread_mutex_unlock(&selectLock);
-            compObj.selectIDs.insert(wgMarker.selectID);
+            compObj.selectIDs.insert(wgMarker->selectID);
         }
     }
     
@@ -1289,7 +1292,8 @@ public:
     if (markerManager)
     {
         ChangeSet changes;
-        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, inDesc, changes);
+        iosDictionary dictWrap(inDesc);
+        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, dictWrap, changes);
         if (markerID != EmptyIdentity)
             compObj.markerIDs.insert(markerID);
         [self flushChanges:changes mode:threadMode];
@@ -1345,7 +1349,7 @@ public:
     // Use the renderer's context
     if (threadMode == MaplyThreadCurrent && [NSThread mainThread] == [NSThread currentThread])
     {
-        tmpContext = layerThread.renderer.context;
+        tmpContext = layerThread.renderer->context;
         [EAGLContext setCurrentContext:tmpContext];
     }
     
@@ -1356,7 +1360,7 @@ public:
         // See if we need to create a new one
         if (tempContexts.empty())
         {
-            tmpContext = [[EAGLContext alloc] initWithAPI:layerThread.renderer.context.API sharegroup:layerThread.renderer.context.sharegroup];
+            tmpContext = [[EAGLContext alloc] initWithAPI:layerThread.renderer->context.API sharegroup:layerThread.renderer->context.sharegroup];
         } else {
             // We can use an existing one
             std::set<EAGLContext *>::iterator it = tempContexts.begin();
@@ -1374,7 +1378,7 @@ public:
 // This just releases the context, but we may want to keep a queue of these in future
 - (void)clearTempContext:(EAGLContext *)context
 {
-    if ([NSThread mainThread] == [NSThread currentThread] && context == layerThread.renderer.context)
+    if ([NSThread mainThread] == [NSThread currentThread] && context == layerThread.renderer->context)
     {
         [EAGLContext setCurrentContext:nil];
         return;
@@ -1422,25 +1426,25 @@ public:
     [self resolveDrawPriority:inDesc offset:_screenObjectDrawPriorityOffset];
 
     // Convert to WG screen labels
-    NSMutableArray *wgLabels = [NSMutableArray array];
+    std::vector<SingleLabel *> wgLabels;
     for (MaplyScreenLabel *label in labels)
     {
-        WhirlyKitSingleLabel *wgLabel = [[WhirlyKitSingleLabel alloc] init];
+        SingleLabel_iOS *wgLabel = new SingleLabel_iOS();
         NSMutableDictionary *desc = [NSMutableDictionary dictionary];
-        wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
-        wgLabel.rotation = label.rotation;
-        wgLabel.text = label.text;
+        wgLabel->loc = GeoCoord(label.loc.x,label.loc.y);
+        wgLabel->rotation = label.rotation;
+        wgLabel->text = [label.text cStringUsingEncoding:NSASCIIStringEncoding];
         if (label.uniqueID)
-            wgLabel.uniqueID = [label.uniqueID asStdString];
-        wgLabel.keepUpright = label.keepUpright;
+            wgLabel->uniqueID = [label.uniqueID asStdString];
+        wgLabel->keepUpright = label.keepUpright;
         MaplyTexture *tex = nil;
         if (label.iconImage2) {
             tex = [self addImage:label.iconImage2 imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj.textures.insert(tex);
         }
         if (tex)
-            wgLabel.iconTexture = tex.texID;
-        wgLabel.iconSize = label.iconSize;
+            wgLabel->iconTexture = tex.texID;
+        wgLabel->iconSize = Point2f(label.iconSize.width,label.iconSize.height);
         if (label.color)
             [desc setObject:label.color forKey:@"textColor"];
         if (label.layoutImportance != MAXFLOAT)
@@ -1453,33 +1457,33 @@ public:
         {
             desc[@"lineSpacing"] = [inDesc objectForKey:@"lineSpacing"];
         }
-        wgLabel.screenOffset = CGSizeMake(label.offset.x,label.offset.y);
+        wgLabel->screenOffset = Point2f(label.offset.x,label.offset.y);
         if (label.selectable)
         {
-            wgLabel.isSelectable = true;
-            wgLabel.selectID = Identifiable::genId();
+            wgLabel->isSelectable = true;
+            wgLabel->selectID = Identifiable::genId();
         }
         if ([desc count] > 0)
-            wgLabel.desc = desc;
+            wgLabel->desc = DictionaryRef(new iosDictionary(desc));
 
         // Now for the motion related fields
         if ([label isKindOfClass:[MaplyMovingScreenLabel class]])
         {
             MaplyMovingScreenLabel *movingLabel = (MaplyMovingScreenLabel *)label;
-            wgLabel.hasMotion = true;
-            wgLabel.endLoc = GeoCoord(movingLabel.endLoc.x,movingLabel.endLoc.y);
-            wgLabel.startTime = now;
-            wgLabel.endTime = now + movingLabel.duration;
+            wgLabel->hasMotion = true;
+            wgLabel->endLoc = GeoCoord(movingLabel.endLoc.x,movingLabel.endLoc.y);
+            wgLabel->startTime = now;
+            wgLabel->endTime = now + movingLabel.duration;
         }
 
-        [wgLabels addObject:wgLabel];
+        wgLabels.push_back(wgLabel);
         
         if (label.selectable)
         {
             pthread_mutex_lock(&selectLock);
-            selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+            selectObjectSet.insert(SelectObject(wgLabel->selectID,label));
             pthread_mutex_unlock(&selectLock);
-            compObj.selectIDs.insert(wgLabel.selectID);
+            compObj.selectIDs.insert(wgLabel->selectID);
         }
     }
     
@@ -1490,7 +1494,9 @@ public:
         NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
         [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
         ChangeSet changes;
-        SimpleIdentity labelID = labelManager->addLabels(wgLabels, desc, changes);
+        iosDictionary dictWrap(desc);
+        LabelInfo_iOS labelInfo(desc,dictWrap);
+        SimpleIdentity labelID = labelManager->addLabels(wgLabels, labelInfo, changes);
         [self flushChanges:changes mode:threadMode];
         if (labelID != EmptyIdentity)
             compObj.labelIDs.insert(labelID);
@@ -2893,7 +2899,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 }
 
 // Add lofted polys
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc key:(NSString *)key cache:(NSObject<WhirlyKitLoftedPolyCache> *)cache mode:(MaplyThreadMode)threadMode
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     threadMode = [self resolveThreadMode:threadMode];
 

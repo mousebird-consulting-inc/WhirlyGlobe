@@ -587,6 +587,11 @@
 		2BE1E7522208ECA700815D9C /* MaplyActiveObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5379B1D249A1200B60FAD /* MaplyActiveObject.mm */; };
 		2BE1E7532208ECA700815D9C /* MaplyAnnotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5379E1D249A1200B60FAD /* MaplyAnnotation.mm */; };
 		2BE1E7542208ECAC00815D9C /* MaplyViewTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537D51D249A1200B60FAD /* MaplyViewTracker.m */; };
+		2BE1E7552208EDBA00815D9C /* MaplyBaseInteractionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A01D249A1200B60FAD /* MaplyBaseInteractionLayer.mm */; };
+		2BE1E7582208F32900815D9C /* SingleLabel_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE1E7572208F32900815D9C /* SingleLabel_iOS.h */; };
+		2BE1E75B2208F33900815D9C /* SingleLabel_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E75A2208F33900815D9C /* SingleLabel_iOS.mm */; };
+		2BE1E75D2208F43200815D9C /* FontTextureManager_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE1E75C2208F43200815D9C /* FontTextureManager_iOS.h */; };
+		2BE1E75F2208F43A00815D9C /* FontTextureManager_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E75E2208F43A00815D9C /* FontTextureManager_iOS.mm */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -1483,6 +1488,10 @@
 		2BC3D6C12202538700CE91D0 /* GlobeView_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GlobeView_iOS.mm; sourceTree = "<group>"; };
 		2BC3D6C3220255E500CE91D0 /* MapView_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapView_iOS.h; sourceTree = "<group>"; };
 		2BC3D6C5220255EA00CE91D0 /* MapView_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MapView_iOS.mm; sourceTree = "<group>"; };
+		2BE1E7572208F32900815D9C /* SingleLabel_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleLabel_iOS.h; sourceTree = "<group>"; };
+		2BE1E75A2208F33900815D9C /* SingleLabel_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SingleLabel_iOS.mm; sourceTree = "<group>"; };
+		2BE1E75C2208F43200815D9C /* FontTextureManager_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontTextureManager_iOS.h; sourceTree = "<group>"; };
+		2BE1E75E2208F43A00815D9C /* FontTextureManager_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FontTextureManager_iOS.mm; sourceTree = "<group>"; };
 		2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WhirlyGlobeMaplyComponent.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeMaplyComponent.h; sourceTree = "<group>"; };
 		2BE537041D2499E500B60FAD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -2512,6 +2521,7 @@
 				2B82B4CB1E82E2490095FB14 /* rendering */,
 				2BC3D6BD2202536900CE91D0 /* view */,
 				2B82B4D41E82E2490095FB14 /* data */,
+				2BE1E7562208F31700815D9C /* managers */,
 				2B82B5131E82E2490095FB14 /* layers & generators */,
 			);
 			name = WhirlyKit;
@@ -2592,6 +2602,7 @@
 				2B82B54D1E82E2490095FB14 /* Cocoa Utils */,
 				2B82B5641E82E2490095FB14 /* rendering */,
 				2B82B59D1E82E2490095FB14 /* data */,
+				2BE1E7592208F32E00815D9C /* managers */,
 				2B82B5C71E82E2490095FB14 /* layers & loaders */,
 			);
 			name = src;
@@ -3105,6 +3116,24 @@
 				2BE537941D249A1200B60FAD /* MapnikStyleSet.h */,
 			);
 			path = vector_styles;
+			sourceTree = "<group>";
+		};
+		2BE1E7562208F31700815D9C /* managers */ = {
+			isa = PBXGroup;
+			children = (
+				2BE1E75C2208F43200815D9C /* FontTextureManager_iOS.h */,
+				2BE1E7572208F32900815D9C /* SingleLabel_iOS.h */,
+			);
+			name = managers;
+			sourceTree = "<group>";
+		};
+		2BE1E7592208F32E00815D9C /* managers */ = {
+			isa = PBXGroup;
+			children = (
+				2BE1E75E2208F43A00815D9C /* FontTextureManager_iOS.mm */,
+				2BE1E75A2208F33900815D9C /* SingleLabel_iOS.mm */,
+			);
+			name = managers;
 			sourceTree = "<group>";
 		};
 		2BE536F51D2499E500B60FAD = {
@@ -3757,6 +3786,7 @@
 				2B446ABB21F25C330078A975 /* WhirlyKitLog.h in Headers */,
 				2B446AFF21F79A600078A975 /* SphericalMercator.h in Headers */,
 				2B82B6E61E82E24A0095FB14 /* ElevationCesiumFormat.h in Headers */,
+				2BE1E75D2208F43200815D9C /* FontTextureManager_iOS.h in Headers */,
 				2BE5397D1D249BEF00B60FAD /* AAPlanetPerihelionAphelion.h in Headers */,
 				2B2B4701206D931300570F97 /* QuadTileBuilder.h in Headers */,
 				2BE5383C1D249A1200B60FAD /* MaplyCoordinateSystem_private.h in Headers */,
@@ -4011,6 +4041,7 @@
 				2B446B3721F7E6780078A975 /* Lighting.h in Headers */,
 				2BE538711D249A1200B60FAD /* WhirlyGlobeComponent.h in Headers */,
 				2B446ABC21F25C330078A975 /* WhirlyTypes.h in Headers */,
+				2BE1E7582208F32900815D9C /* SingleLabel_iOS.h in Headers */,
 				2B127C03201911D40099F405 /* MapboxVectorImageInterpreter.h in Headers */,
 				2BE539771D249BEF00B60FAD /* AAParallax.h in Headers */,
 				2BE538251D249A1200B60FAD /* MaplySharedAttributes.h in Headers */,
@@ -4261,6 +4292,7 @@
 				2BE539971D249BEF00B60FAD /* AAElliptical.cpp in Sources */,
 				2BE539B21D249BEF00B60FAD /* AAPhysicalJupiter.cpp in Sources */,
 				2B8796C721FFB37900EF801D /* WideVectorManager.cpp in Sources */,
+				2BE1E75B2208F33900815D9C /* SingleLabel_iOS.mm in Sources */,
 				2BE53A6F1D249C4600B60FAD /* common.cc in Sources */,
 				2B82B6C11E82E24A0095FB14 /* PJ_wag7.c in Sources */,
 				2BE1E7512208ECA700815D9C /* MaplyCluster.mm in Sources */,
@@ -4321,6 +4353,7 @@
 				2B8796FC2203861200EF801D /* LayerViewWatcher.mm in Sources */,
 				2B884A461E3803170027C397 /* arithmeticmodel.cpp in Sources */,
 				2B82B6691E82E24A0095FB14 /* PJ_geos.c in Sources */,
+				2BE1E75F2208F43A00815D9C /* FontTextureManager_iOS.mm in Sources */,
 				2B8797182203B77900EF801D /* MaplyLocationTracker.mm in Sources */,
 				2BE539AB1D249BEF00B60FAD /* AANearParabolic.cpp in Sources */,
 				2BC3D6D42203EA6900CE91D0 /* MaplyVertexAttribute.mm in Sources */,
@@ -4545,6 +4578,7 @@
 				2BE1E7542208ECAC00815D9C /* MaplyViewTracker.m in Sources */,
 				2B8796DE21FFCC0D00EF801D /* EAGLView.mm in Sources */,
 				2B846ED521F1356E00EF2A82 /* geod_interface.c in Sources */,
+				2BE1E7552208EDBA00815D9C /* MaplyBaseInteractionLayer.mm in Sources */,
 				2BE53A781D249C4700B60FAD /* strutil.cc in Sources */,
 				2B82B6731E82E24A0095FB14 /* PJ_healpix.c in Sources */,
 				2BB8E1FA21FF903100154CDC /* TextureAtlas.cpp in Sources */,

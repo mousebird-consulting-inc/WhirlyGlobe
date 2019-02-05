@@ -52,7 +52,6 @@ public:
     ///  for it.  You should set this ahead of time
     SimpleIdentity selectID;
     /// The text we want to see
-//    NSString *text;
     std::string text;
     // Sometimes rather than strings, we pass around the code points
     std::vector<std::vector<int>> codePointsLines;
@@ -73,7 +72,7 @@ public:
     /// This dictionary contains overrides for certain attributes
     ///  for just this label.  Only width, height, icon, text color, and
     ///  background color supported.
-    MutableDictionaryRef desc;
+    DictionaryRef desc;
     /// If non-zero, this is the texture to use as an icon
     SimpleIdentity iconTexture;
     /// If the texture is set and this is non-zero the size of the image

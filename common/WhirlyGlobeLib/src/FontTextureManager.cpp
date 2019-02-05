@@ -28,7 +28,7 @@ namespace WhirlyKit
 {
     
 FontManager::FontManager()
-: refCount(0),color(255,255,255,255),outlineColor(0,0,0,0),outlineSize(0.0)
+: refCount(0),color(255,255,255,255),outlineColor(0,0,0,0),backColor(0,0,0,0),outlineSize(0.0)
 {
 }
 

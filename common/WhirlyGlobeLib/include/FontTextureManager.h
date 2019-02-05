@@ -91,8 +91,7 @@ public:
     
     int refCount;
     RGBAColor color;
-    // Note: Porting
-//    RGBAColor backColor;
+    RGBAColor backColor;
     std::string fontName;
     RGBAColor outlineColor;
     float outlineSize;

@@ -36,9 +36,6 @@ public:
     Dictionary();
     virtual ~Dictionary() { };
     
-    /// Clean out the contents
-    virtual void clear() = 0;
-    
     /// Returns true if the field exists
     virtual bool hasField(const std::string &name) const = 0;
     
@@ -71,7 +68,10 @@ public:
     // Assignment operator
     virtual MutableDictionary &operator = (const MutableDictionary &that) { return *this; };
     virtual ~MutableDictionary() { };
-    
+
+    /// Clean out the contents
+    virtual void clear() = 0;
+
     /// Remove the given field by name
     virtual void removeField(const std::string &name) = 0;
 
