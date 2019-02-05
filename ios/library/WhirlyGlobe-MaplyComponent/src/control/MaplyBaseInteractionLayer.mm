@@ -1491,11 +1491,10 @@ public:
     if (labelManager)
     {
         // Set up a description and create the markers in the marker layer
-        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
-        [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
         ChangeSet changes;
-        iosDictionary dictWrap(desc);
-        LabelInfo_iOS labelInfo(desc,dictWrap);
+        iosDictionary dictWrap(inDesc);
+        LabelInfo_iOS labelInfo(inDesc,dictWrap);
+        labelInfo.screenObject = true;
         SimpleIdentity labelID = labelManager->addLabels(wgLabels, labelInfo, changes);
         [self flushChanges:changes mode:threadMode];
         if (labelID != EmptyIdentity)
@@ -1565,19 +1564,19 @@ public:
     [self resolveShader:inDesc defaultShader:kMaplyShaderDefaultTri];
 
     // Convert to WG labels
-    NSMutableArray *wgLabels = [NSMutableArray array];
+    std::vector<SingleLabel *> wgLabels;
     for (MaplyLabel *label in labels)
     {
-        WhirlyKitSingleLabel *wgLabel = [[WhirlyKitSingleLabel alloc] init];
+        SingleLabel_iOS *wgLabel = new SingleLabel_iOS();
         NSMutableDictionary *desc = [NSMutableDictionary dictionary];
-        wgLabel.loc = GeoCoord(label.loc.x,label.loc.y);
-        wgLabel.text = label.text;
+        wgLabel->loc = GeoCoord(label.loc.x,label.loc.y);
+        wgLabel->text = [label.text cStringUsingEncoding:NSASCIIStringEncoding];
         MaplyTexture *tex = nil;
         if (label.iconImage2) {
             tex = [self addImage:label.iconImage2 imageFormat:MaplyImageIntRGBA mode:threadMode];
             compObj.textures.insert(tex);
         }
-        wgLabel.iconTexture = tex.texID;
+        wgLabel->iconTexture = tex.texID;
         if (label.size.width > 0.0)
             [desc setObject:[NSNumber numberWithFloat:label.size.width] forKey:@"width"];
         if (label.size.height > 0.0)
@@ -1586,8 +1585,8 @@ public:
             [desc setObject:label.color forKey:@"textColor"];
         if (label.selectable)
         {
-            wgLabel.isSelectable = true;
-            wgLabel.selectID = Identifiable::genId();
+            wgLabel->isSelectable = true;
+            wgLabel->selectID = Identifiable::genId();
         }
         switch (label.justify)
         {
@@ -1601,16 +1600,16 @@ public:
                 [desc setObject:@"right" forKey:@"justify"];
                 break;
         }
-        wgLabel.desc = desc;
+        wgLabel->desc = DictionaryRef(new iosDictionary(desc));
         
-        [wgLabels addObject:wgLabel];
+        wgLabels.push_back(wgLabel);
         
         if (label.selectable)
         {
             pthread_mutex_lock(&selectLock);
-            selectObjectSet.insert(SelectObject(wgLabel.selectID,label));
+            selectObjectSet.insert(SelectObject(wgLabel->selectID,label));
             pthread_mutex_unlock(&selectLock);
-            compObj.selectIDs.insert(wgLabel.selectID);
+            compObj.selectIDs.insert(wgLabel->selectID);
         }
     }
     
@@ -1619,8 +1618,10 @@ public:
     if (labelManager)
     {
         ChangeSet changes;
+        iosDictionary dictWrap(inDesc);
+        LabelInfo_iOS labelInfo(inDesc,dictWrap);
         // Set up a description and create the markers in the marker layer
-        SimpleIdentity labelID = labelManager->addLabels(wgLabels, inDesc, changes);
+        SimpleIdentity labelID = labelManager->addLabels(wgLabels, labelInfo, changes);
         [self flushChanges:changes mode:threadMode];
         if (labelID != EmptyIdentity)
             compObj.labelIDs.insert(labelID);
@@ -1740,8 +1741,10 @@ public:
         
         if (vectorManager)
         {
+            iosDictionary dictWrap(inDesc);
+            VectorInfo vectorInfo(dictWrap);
             ChangeSet changes;
-            SimpleIdentity vecID = vectorManager->addVectors(&shapes, inDesc, changes);
+            SimpleIdentity vecID = vectorManager->addVectors(&shapes, vectorInfo, changes);
             [self flushChanges:changes mode:threadMode];
             if (vecID != EmptyIdentity)
                 compObj.vectorIDs.insert(vecID);
@@ -1877,8 +1880,10 @@ public:
     
     if (vectorManager)
     {
+        iosDictionary dictWrap(inDesc);
+        WideVectorInfo vectorInfo(dictWrap);
         ChangeSet changes;
-        SimpleIdentity vecID = vectorManager->addVectors(&shapes, inDesc, changes);
+        SimpleIdentity vecID = vectorManager->addVectors(&shapes, vectorInfo, changes);
         [self flushChanges:changes mode:threadMode];
         if (vecID != EmptyIdentity)
             compObj.wideVectorIDs.insert(vecID);
@@ -1965,22 +1970,28 @@ public:
     {
         VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
         WideVectorManager *wideVectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
-        
+
         ChangeSet changes;
-        if (vectorManager)
+        if (vectorManager && !baseObj.vectorIDs.empty())
         {
+            iosDictionary dictWrap(inDesc);
+            VectorInfo vectorInfo(dictWrap);
+
             for (SimpleIDSet::iterator it = baseObj.vectorIDs.begin();it != baseObj.vectorIDs.end(); ++it)
             {
-                SimpleIdentity instID = vectorManager->instanceVectors(*it, inDesc, changes);
+                SimpleIdentity instID = vectorManager->instanceVectors(*it, vectorInfo, changes);
                 if (instID != EmptyIdentity)
                     compObj.vectorIDs.insert(instID);
             }
         }
-        if (wideVectorManager)
+        if (wideVectorManager && !baseObj.wideVectorIDs.empty())
         {
+            iosDictionary dictWrap(inDesc);
+            WideVectorInfo vectorInfo(dictWrap);
+
             for (SimpleIDSet::iterator it = baseObj.wideVectorIDs.begin();it != baseObj.wideVectorIDs.end(); ++it)
             {
-                SimpleIdentity instID = wideVectorManager->instanceVectors(*it, inDesc, changes);
+                SimpleIdentity instID = wideVectorManager->instanceVectors(*it, vectorInfo, changes);
                 if (instID != EmptyIdentity)
                     compObj.wideVectorIDs.insert(instID);
             }
@@ -2064,10 +2075,13 @@ public:
 
         if (vectorManager)
         {
+            iosDictionary dictWrap(desc);
+            VectorInfo vectorInfo(dictWrap);
+
             ChangeSet changes;
             for (SimpleIDSet::iterator it = vecObj.vectorIDs.begin();
                  it != vecObj.vectorIDs.end(); ++it)
-                vectorManager->changeVectors(*it, desc, changes);
+                vectorManager->changeVectors(*it, vectorInfo, changes);
             [self flushChanges:changes mode:threadMode];
         }
     }
@@ -2122,15 +2136,15 @@ public:
     [self resolveRenderTarget:inDesc];
 
     // Need to convert shapes to the form the API is expecting
-    NSMutableArray *ourShapes = [NSMutableArray array];
-    NSMutableArray *specialShapes = [NSMutableArray array];
+    std::vector<Shape *> ourShapes,specialShapes;
     std::set<MaplyTexture *> textures;
     for (NSObject *shape in shapes)
     {
+#if 0
         if ([shape isKindOfClass:[MaplyShapeCircle class]])
         {
             MaplyShapeCircle *circle = (MaplyShapeCircle *)shape;
-            WhirlyKitCircle *newCircle = [circle asWKShape:inDesc];
+            Circle *newCircle = [circle asWKShape:inDesc];
             
             if (circle.selectable)
             {
@@ -2141,16 +2155,18 @@ public:
                 pthread_mutex_unlock(&selectLock);
                 compObj.selectIDs.insert(newCircle.selectID);
             }
-            [ourShapes addObject:newCircle];
-        } else if ([shape isKindOfClass:[MaplyShapeSphere class]])
+            outShapes.push_back(newCircle);
+        } else
+#endif
+        if ([shape isKindOfClass:[MaplyShapeSphere class]])
         {
             MaplyShapeSphere *sphere = (MaplyShapeSphere *)shape;
-            WhirlyKitSphere *newSphere = [sphere asWKShape:inDesc];
+            Sphere *newSphere = (Sphere *)[sphere asWKShape:inDesc];
             
             if (sphere.selectable)
             {
-                newSphere.isSelectable = true;
-                newSphere.selectID = Identifiable::genId();
+                newSphere->isSelectable = true;
+                newSphere->selectID = Identifiable::genId();
                 pthread_mutex_lock(&selectLock);
                 selectObjectSet.insert(SelectObject(newSphere.selectID,sphere));
                 pthread_mutex_unlock(&selectLock);
@@ -2160,7 +2176,7 @@ public:
         } else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
         {
             MaplyShapeCylinder *cyl = (MaplyShapeCylinder *)shape;
-            WhirlyKitCylinder *newCyl = [cyl asWKShape:inDesc];
+            Cylinder *newCyl = (Cylinder *)[cyl asWKShape:inDesc];
             
             if (cyl.selectable)
             {
@@ -2175,7 +2191,7 @@ public:
         } else if ([shape isKindOfClass:[MaplyShapeGreatCircle class]])
         {
             MaplyShapeGreatCircle *gc = (MaplyShapeGreatCircle *)shape;
-            WhirlyKitShapeLinear *lin = [[WhirlyKitShapeLinear alloc] init];
+            Linear *lin = [[WhirlyKitShapeLinear alloc] init];
             float eps = 0.001;
             if ([inDesc[kMaplySubdivEpsilon] isKindOfClass:[NSNumber class]])
                 eps = [inDesc[kMaplySubdivEpsilon] floatValue];
@@ -2204,7 +2220,7 @@ public:
         } else if ([shape isKindOfClass:[MaplyShapeRectangle class]])
         {
             MaplyShapeRectangle *rc = (MaplyShapeRectangle *)shape;
-            WhirlyKitShapeRectangle *rect = [rc asWKShape:inDesc];
+            Rectangle *rect = [rc asWKShape:inDesc];
             if (rc.color)
             {
                 rect.useColor = true;
