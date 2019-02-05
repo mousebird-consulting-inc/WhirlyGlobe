@@ -48,7 +48,7 @@ using namespace Eigen;
 using namespace WhirlyKit;
 
 // Sample a great circle and throw in an interpolated height at each point
-void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,Point3fVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,float eps)
+void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,float eps)
 {
     bool isFlat = coordAdapter->isFlat();
 
@@ -83,7 +83,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
         float lenSoFar = 0.0;
         for (unsigned int ii=0;ii<pts.size();ii++)
         {
-            Point3f &pt = pts[ii];
+            Point3d &pt = pts[ii];
             float len = (pts[ii+1]-pt).norm();
             float t = lenSoFar/totLen;
             lenSoFar += len;
@@ -102,7 +102,7 @@ void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float heigh
 }
 
 // Sample a great circle and throw in an interpolated height at each point
-void SampleGreatCircleStatic(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,Point3fVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,float samples)
+void SampleGreatCircleStatic(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,float samples)
 {
     bool isFlat = coordAdapter->isFlat();
     
@@ -114,8 +114,8 @@ void SampleGreatCircleStatic(MaplyCoordinate startPt,MaplyCoordinate endPt,float
         pts[1] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(endPt.x,endPt.y)));
     } else {
         VectorRing inPts;
-        inPts.push_back(Point2f(startPt.x,startPt.y));
-        inPts.push_back(Point2f(endPt.x,endPt.y));
+        inPts.push_back(Point2d(startPt.x,startPt.y));
+        inPts.push_back(Point2d(endPt.x,endPt.y));
         VectorRing3d tmpPts;
         SubdivideEdgesToSurfaceGC(inPts, tmpPts, false, coordAdapter, 1.0, 0.0, samples);
         pts.resize(tmpPts.size());
@@ -137,7 +137,7 @@ void SampleGreatCircleStatic(MaplyCoordinate startPt,MaplyCoordinate endPt,float
         float lenSoFar = 0.0;
         for (unsigned int ii=0;ii<pts.size();ii++)
         {
-            Point3f &pt = pts[ii];
+            Point3d &pt = pts[ii];
             float len = (pts[ii+1]-pt).norm();
             float t = lenSoFar/totLen;
             lenSoFar += len;
@@ -2138,150 +2138,92 @@ public:
     // Need to convert shapes to the form the API is expecting
     std::vector<Shape *> ourShapes,specialShapes;
     std::set<MaplyTexture *> textures;
-    for (NSObject *shape in shapes)
+    for (MaplyShape *shape in shapes)
     {
-#if 0
+        Shape *baseShape = NULL;
         if ([shape isKindOfClass:[MaplyShapeCircle class]])
         {
             MaplyShapeCircle *circle = (MaplyShapeCircle *)shape;
-            Circle *newCircle = [circle asWKShape:inDesc];
-            
-            if (circle.selectable)
-            {
-                newCircle.isSelectable = true;
-                newCircle.selectID = Identifiable::genId();
-                pthread_mutex_lock(&selectLock);
-                selectObjectSet.insert(SelectObject(newCircle.selectID,circle));
-                pthread_mutex_unlock(&selectLock);
-                compObj.selectIDs.insert(newCircle.selectID);
-            }
-            outShapes.push_back(newCircle);
+            Circle *newCircle = (Circle *)[circle asWKShape:inDesc];
+            baseShape = newCircle;
+            ourShapes.push_back(baseShape);
         } else
-#endif
         if ([shape isKindOfClass:[MaplyShapeSphere class]])
         {
             MaplyShapeSphere *sphere = (MaplyShapeSphere *)shape;
             Sphere *newSphere = (Sphere *)[sphere asWKShape:inDesc];
-            
-            if (sphere.selectable)
-            {
-                newSphere->isSelectable = true;
-                newSphere->selectID = Identifiable::genId();
-                pthread_mutex_lock(&selectLock);
-                selectObjectSet.insert(SelectObject(newSphere.selectID,sphere));
-                pthread_mutex_unlock(&selectLock);
-                compObj.selectIDs.insert(newSphere.selectID);
-            }
-            [ourShapes addObject:newSphere];
+            baseShape = newSphere;
+            ourShapes.push_back(baseShape);
         } else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
         {
             MaplyShapeCylinder *cyl = (MaplyShapeCylinder *)shape;
             Cylinder *newCyl = (Cylinder *)[cyl asWKShape:inDesc];
-            
-            if (cyl.selectable)
-            {
-                newCyl.isSelectable = true;
-                newCyl.selectID = Identifiable::genId();
-                pthread_mutex_lock(&selectLock);
-                selectObjectSet.insert(SelectObject(newCyl.selectID,cyl));
-                pthread_mutex_unlock(&selectLock);
-                compObj.selectIDs.insert(newCyl.selectID);
-            }
-            [ourShapes addObject:newCyl];
+            baseShape = newCyl;
+            ourShapes.push_back(baseShape);
         } else if ([shape isKindOfClass:[MaplyShapeGreatCircle class]])
         {
             MaplyShapeGreatCircle *gc = (MaplyShapeGreatCircle *)shape;
-            Linear *lin = [[WhirlyKitShapeLinear alloc] init];
+            Linear *lin = new Linear();
             float eps = 0.001;
             if ([inDesc[kMaplySubdivEpsilon] isKindOfClass:[NSNumber class]])
                 eps = [inDesc[kMaplySubdivEpsilon] floatValue];
             bool isStatic = [inDesc[kMaplySubdivType] isEqualToString:kMaplySubdivStatic];
             if (isStatic)
-                SampleGreatCircleStatic(gc.startPt,gc.endPt,gc.height,lin.pts,visualView.coordAdapter,eps);
+                SampleGreatCircleStatic(gc.startPt,gc.endPt,gc.height,lin->pts,visualView->coordAdapter,eps);
             else
-                SampleGreatCircle(gc.startPt,gc.endPt,gc.height,lin.pts,visualView.coordAdapter,eps);
-            lin.lineWidth = gc.lineWidth;
+                SampleGreatCircle(gc.startPt,gc.endPt,gc.height,lin->pts,visualView->coordAdapter,eps);
+            lin->lineWidth = gc.lineWidth;
             if (gc.color)
             {
-                lin.useColor = true;
+                lin->useColor = true;
                 RGBAColor color = [gc.color asRGBAColor];
-                lin.color = color;
+                lin->color = color;
             }
-            if (gc.selectable)
-            {
-                lin.isSelectable = true;
-                lin.selectID = Identifiable::genId();
-                pthread_mutex_lock(&selectLock);
-                selectObjectSet.insert(SelectObject(lin.selectID,gc));
-                pthread_mutex_unlock(&selectLock);
-                compObj.selectIDs.insert(lin.selectID);
-            }
-            [specialShapes addObject:lin];
+            baseShape = lin;
+            specialShapes.push_back(lin);
         } else if ([shape isKindOfClass:[MaplyShapeRectangle class]])
         {
             MaplyShapeRectangle *rc = (MaplyShapeRectangle *)shape;
-            Rectangle *rect = [rc asWKShape:inDesc];
+            Rectangle *rect = (Rectangle *)[rc asWKShape:inDesc];
             if (rc.color)
             {
-                rect.useColor = true;
+                rect->useColor = true;
                 RGBAColor color = [rc.color asRGBAColor];
-                rect.color = color;
+                rect->color = color;
             }
             for (MaplyTexture *tex in rc.textures)
             {
                 textures.insert(tex);
-                rect.texIDs.push_back(tex.texID);
+                rect->texIDs.push_back(tex.texID);
             }
             // Note: Selectability
-            [ourShapes addObject:rect];
+            ourShapes.push_back(rect);
         } else if ([shape isKindOfClass:[MaplyShapeLinear class]])
         {
             MaplyShapeLinear *lin = (MaplyShapeLinear *)shape;
-            WhirlyKitShapeLinear *newLin = [[WhirlyKitShapeLinear alloc] init];
-            MaplyCoordinate3d *coords = NULL;
-            int numCoords = [lin getCoords:&coords];
-            for (unsigned int ii=0;ii<numCoords;ii++)
-            {
-                MaplyCoordinate3d &coord = coords[ii];
-                Point3f pt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(coord.x,coord.y)));
-                if (coordAdapter->isFlat())
-                    pt.z() = coord.z;
-                else
-                    pt *= (1.0+coord.z);
-                newLin.pts.push_back(pt);
-            }
-            newLin.lineWidth = lin.lineWidth;
-            if (lin.color)
-            {
-                newLin.useColor = true;
-                RGBAColor color = [lin.color asRGBAColor];
-                newLin.color = color;
-            }
-            if (lin.selectable)
-            {
-                newLin.isSelectable = true;
-                newLin.selectID = Identifiable::genId();
-                pthread_mutex_lock(&selectLock);
-                selectObjectSet.insert(SelectObject(newLin.selectID,lin));
-                pthread_mutex_unlock(&selectLock);
-                compObj.selectIDs.insert(newLin.selectID);
-            }
-            [ourShapes addObject:newLin];
+            Linear *newLin = (Linear *)[lin asWKShape:inDesc coordAdapter:coordAdapter];
+            baseShape = newLin;
+            ourShapes.push_back(newLin);
         } else if ([shape isKindOfClass:[MaplyShapeExtruded class]])
         {
             MaplyShapeExtruded *ex = (MaplyShapeExtruded *)shape;
-            WhirlyKitShapeExtruded *newEx = [ex asWKShape:inDesc];
+            Extruded *newEx = (Extruded *)[ex asWKShape:inDesc];
+            baseShape = newEx;
 
-            if (ex.selectable)
+            ourShapes.push_back(newEx);
+        }
+        
+        // Handle selection
+        if (baseShape) {
+            if (shape.selectable)
             {
-                newEx.isSelectable = true;
-                newEx.selectID = Identifiable::genId();
+                baseShape->isSelectable = true;
+                baseShape->selectID = Identifiable::genId();
                 pthread_mutex_lock(&selectLock);
-                selectObjectSet.insert(SelectObject(newEx.selectID,ex));
+                selectObjectSet.insert(SelectObject(baseShape->selectID,shape));
                 pthread_mutex_unlock(&selectLock);
-                compObj.selectIDs.insert(newEx.selectID);
+                compObj.selectIDs.insert(baseShape->selectID);
             }
-            [ourShapes addObject:newEx];
         }
     }
     
@@ -2291,13 +2233,15 @@ public:
     if (shapeManager)
     {
         ChangeSet changes;
-        if ([ourShapes count] > 0)
+        if (!ourShapes.empty())
         {
-            SimpleIdentity shapeID = shapeManager->addShapes(ourShapes, inDesc, changes);
+            iosDictionary dictWrap(inDesc);
+            ShapeInfo shapeInfo(dictWrap);
+            SimpleIdentity shapeID = shapeManager->addShapes(ourShapes, &shapeInfo, changes);
             if (shapeID != EmptyIdentity)
                 compObj.shapeIDs.insert(shapeID);
         }
-        if ([specialShapes count] > 0)
+        if (!specialShapes.empty())
         {
             // If they haven't overrided the shader already, we need the non-backface one for these objects
             NSMutableDictionary *newDesc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
@@ -2307,7 +2251,9 @@ public:
                 if (shaderID != EmptyIdentity)
                     newDesc[kMaplyShader] = @(shaderID);
             }
-            SimpleIdentity shapeID = shapeManager->addShapes(specialShapes, newDesc, changes);
+            iosDictionary dictWrap(newDesc);
+            ShapeInfo shapeInfo(dictWrap);
+            SimpleIdentity shapeID = shapeManager->addShapes(specialShapes, &shapeInfo, changes);
             if (shapeID != EmptyIdentity)
                 compObj.shapeIDs.insert(shapeID);
         }

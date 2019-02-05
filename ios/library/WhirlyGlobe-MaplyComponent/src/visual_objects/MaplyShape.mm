@@ -202,6 +202,32 @@ using namespace WhirlyKit;
     return numCoords;
 }
 
+- (Shape *)asWKShape:(NSDictionary *)desc coordAdapter:(CoordSystemDisplayAdapter *)coordAdapter
+{
+    Linear *newLin = new Linear();
+    MaplyCoordinate3d *coords = NULL;
+    int numCoords = [self getCoords:&coords];
+    for (unsigned int ii=0;ii<numCoords;ii++)
+    {
+        MaplyCoordinate3d &coord = coords[ii];
+        Point3d pt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(coord.x,coord.y)));
+        if (coordAdapter->isFlat())
+            pt.z() = coord.z;
+        else
+            pt *= (1.0+coord.z);
+        newLin->pts.push_back(pt);
+    }
+    newLin->lineWidth = _lineWidth;
+    if (self.color)
+    {
+        newLin->useColor = true;
+        RGBAColor color = [self.color asRGBAColor];
+        newLin->color = color;
+    }
+    
+    return newLin;
+}
+
 @end
 
 @implementation MaplyShapeExtruded

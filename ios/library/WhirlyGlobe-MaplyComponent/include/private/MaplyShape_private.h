@@ -50,3 +50,10 @@
 - (WhirlyKit::Shape *)asWKShape:(NSDictionary *)desc;
 
 @end
+
+@interface MaplyShapeLinear()
+
+- (WhirlyKit::Shape *)asWKShape:(NSDictionary *)desc coordAdapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;
+
+@end
+

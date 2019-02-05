@@ -593,6 +593,7 @@
 		2BE1E75F2208F43A00815D9C /* FontTextureManager_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E75E2208F43A00815D9C /* FontTextureManager_iOS.mm */; };
 		2BE1E760220A166300815D9C /* MaplyGeomModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537AD1D249A1200B60FAD /* MaplyGeomModel.mm */; };
 		2BE1E761220A1A2700815D9C /* MaplyShape.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537C61D249A1200B60FAD /* MaplyShape.mm */; };
+		2BE1E762220A1FA300815D9C /* MaplyBaseInteractionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A01D249A1200B60FAD /* MaplyBaseInteractionLayer.mm */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -4233,6 +4234,7 @@
 				2B846EDB21F1362700EF2A82 /* pj_gridcatalog.c in Sources */,
 				2B82B65F1E82E24A0095FB14 /* PJ_eqc.c in Sources */,
 				2B8797212203BF7900EF801D /* MaplyLight.m in Sources */,
+				2BE1E762220A1FA300815D9C /* MaplyBaseInteractionLayer.mm in Sources */,
 				2B87971E2203BF2E00EF801D /* MaplyCoordinateSystem.mm in Sources */,
 				2B82B64D1E82E2490095FB14 /* PJ_cass.c in Sources */,
 				2B82B6B41E82E24A0095FB14 /* PJ_tmerc.c in Sources */,
