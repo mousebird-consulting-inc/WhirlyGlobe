@@ -349,13 +349,10 @@ void SceneRendererES2::render(TimeInterval duration)
 
         // Let the active models to their thing
         // That thing had better not take too long
-        // Note: Put this back
-//        for (NSObject<WhirlyKitActiveModel> *activeModel in scene->activeModels)
-//        {
-//            [activeModel updateForFrame:baseFrameInfo];
-//            // Sometimes this gets reset
-//            [EAGLContext setCurrentContext:context];
-//        }
+        for (auto activeModel : scene->activeModels) {
+            activeModel->updateForFrame(&baseFrameInfo);
+            // Note: We were setting the GL context here.  Do we need to?
+        }
         if (perfInterval > 0)
             perfTimer.addCount("Active Models", (int)scene->activeModels.size());
 

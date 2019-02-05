@@ -226,6 +226,9 @@ public:
     /// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
     void addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
 
+    /// This verison takes Point3d
+    void addSelectableRectSolid(SimpleIdentity selectId,Point3d *pts,float minVis,float maxVis,bool enable);
+
     /// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
     void addSelectableRectSolid(SimpleIdentity selectId,const BBox &bbox,float minVis,float maxVis,bool enable);
     
@@ -242,7 +245,7 @@ public:
     void addMovingPolytopeFromBox(SimpleIdentity selectID,const Point3d &ll,const Point3d &ur,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
 
     /// Add a linear in 3-space for selection.
-    void addSelectableLinear(SimpleIdentity selectId,const Point3fVector &pts,float minVis,float maxVis,bool enable);
+    void addSelectableLinear(SimpleIdentity selectId,const Point3dVector &pts,float minVis,float maxVis,bool enable);
     
     /// Add a billboard for selection.  Pass in the middle of the base and size
     void addSelectableBillboard(SimpleIdentity selectId,const Point3d &center,const Point3d &norm,const Point2d &size,float minVis,float maxVis,bool enable);

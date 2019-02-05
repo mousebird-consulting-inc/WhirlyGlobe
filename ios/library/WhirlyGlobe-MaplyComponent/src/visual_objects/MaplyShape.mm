@@ -36,30 +36,26 @@ using namespace WhirlyKit;
 
 @implementation MaplyShapeCircle
 
-// Note: Add the missing shapes back
 - (Shape *)asWKShape:(NSDictionary *)desc
 {
-#if 0
-    WhirlyKit::Circle *newCircle = WhirlyKit::Circle;
+    Circle *newCircle = new Circle();
     
-    newCircle.loc.lon() = _center.x;
-    newCircle.loc.lat() = _center.y;
-    newCircle.radius = _radius;
-    newCircle.height = _height;
+    newCircle->loc.lon() = _center.x;
+    newCircle->loc.lat() = _center.y;
+    newCircle->radius = _radius;
+    newCircle->height = _height;
     if (desc[kMaplyShapeSampleX] != nil)
-        newCircle.sampleX = (int)[desc[kMaplyShapeSampleX] integerValue];
+        newCircle->sampleX = (int)[desc[kMaplyShapeSampleX] integerValue];
     else if (desc[kMaplySampleX] != nil)
-        newCircle.sampleX = (int)[desc[kMaplySampleX] integerValue];
+        newCircle->sampleX = (int)[desc[kMaplySampleX] integerValue];
     if (self.color)
     {
-        newCircle.useColor = true;
+        newCircle->useColor = true;
         RGBAColor color = [self.color asRGBAColor];
-        newCircle.color = color;
+        newCircle->color = color;
     }
     
     return newCircle;
-#endif
-    return NULL;
 }
 
 @end
@@ -77,9 +73,9 @@ using namespace WhirlyKit;
     newSphere->sampleY = [desc[kMaplyShapeSampleY] intValue];
     if (self.color)
     {
-        newSphere.useColor = true;
+        newSphere->useColor = true;
         RGBAColor color = [self.color asRGBAColor];
-        newSphere.color = color;
+        newSphere->color = color;
     }
     
     return newSphere;
@@ -91,18 +87,18 @@ using namespace WhirlyKit;
 
 - (Shape *)asWKShape:(NSDictionary *)desc
 {
-    WhirlyKitCylinder *newCyl = [[WhirlyKitCylinder alloc] init];
-    newCyl.loc.lon() = _baseCenter.x;
-    newCyl.loc.lat() = _baseCenter.y;
-    newCyl.baseHeight = _baseHeight;
-    newCyl.radius = _radius;
-    newCyl.height = _height;
-    newCyl.sampleX = (int)[desc[kMaplyShapeSampleX] integerValue];
+    Cylinder *newCyl = new Cylinder();
+    newCyl->loc.lon() = _baseCenter.x;
+    newCyl->loc.lat() = _baseCenter.y;
+    newCyl->baseHeight = _baseHeight;
+    newCyl->radius = _radius;
+    newCyl->height = _height;
+    newCyl->sampleX = (int)[desc[kMaplyShapeSampleX] integerValue];
     if (self.color)
     {
-        newCyl.useColor = true;
+        newCyl->useColor = true;
         RGBAColor color = [self.color asRGBAColor];
-        newCyl.color = color;
+        newCyl->color = color;
     }
     
     return newCyl;
@@ -159,12 +155,12 @@ using namespace WhirlyKit;
     [_textures addObject:texture];
 }
 
-- (WhirlyKitShapeRectangle *)asWKShape:(NSDictionary *)desc
+- (Rectangle *)asWKShape:(NSDictionary *)desc
 {
-    WhirlyKitShapeRectangle *newRect = [[WhirlyKitShapeRectangle alloc] init];
-    newRect.ll.x() = _ll.x;  newRect.ll.y() = _ll.y;  newRect.ll.z() = _ll.z;
-    newRect.ur.x() = _ur.x;  newRect.ur.y() = _ur.y;  newRect.ur.z() = _ur.z;
-    newRect.clipCoords = self.clipCoords;
+    Rectangle *newRect = new Rectangle();
+    newRect->ll.x() = _ll.x;  newRect->ll.y() = _ll.y;  newRect->ll.z() = _ll.z;
+    newRect->ur.x() = _ur.x;  newRect->ur.y() = _ur.y;  newRect->ur.z() = _ur.z;
+    newRect->clipCoords = self.clipCoords;
     
     return newRect;
 }
@@ -250,14 +246,14 @@ using namespace WhirlyKit;
     return (double *)[coords bytes];
 }
 
-- (WhirlyKitShapeExtruded *)asWKShape:(NSDictionary *)desc
+- (Shape *)asWKShape:(NSDictionary *)desc
 {
-    WhirlyKitShapeExtruded *newEx = [[WhirlyKitShapeExtruded alloc] init];
+    Extruded *newEx = new Extruded();
     Point3d loc(self.center.x,self.center.y,self.height*self.scale);
-    newEx.loc = loc;
-    newEx.thickness = self.thickness*self.scale;
+    newEx->loc = loc;
+    newEx->thickness = self.thickness*self.scale;
     if (self.transform)
-        newEx.transform = self.transform.mat;
+        newEx->transform = self.transform.mat;
     int theNumCoords = self.numCoordPairs;
     double *theCoords = self.coordData;
     Point2dVector pts;
@@ -267,12 +263,12 @@ using namespace WhirlyKit;
         Point2d pt(theCoords[2*ii]*self.scale,theCoords[2*ii+1]*self.scale);
         pts[ii] = pt;
     }
-    newEx.pts = pts;
+    newEx->pts = pts;
     if (self.color)
     {
-        newEx.useColor = true;
+        newEx->useColor = true;
         RGBAColor color = [self.color asRGBAColor];
-        newEx.color = color;
+        newEx->color = color;
     }
     
     return newEx;

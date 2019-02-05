@@ -33,6 +33,12 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
+    
+    ShapeInfo::ShapeInfo()
+    : BaseInfo()
+    {
+        
+    }
 
 ShapeInfo::ShapeInfo(const Dictionary &dict)
     : BaseInfo(dict)
@@ -63,10 +69,8 @@ ShapeDrawableBuilder::~ShapeDrawableBuilder()
         delete drawables[ii];
 }
 
-void ShapeDrawableBuilder::addPoints(Point3fVector &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed)
+void ShapeDrawableBuilder::addPoints(Point3dVector &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed)
 {
-    Point3f center3f(center.x(),center.y(),center.z());
-
     // Decide if we'll appending to an existing drawable or
     //  create a new one
     int ptCount = (int)(2*(pts.size()+1));
@@ -83,11 +87,11 @@ void ShapeDrawableBuilder::addPoints(Point3fVector &pts,RGBAColor color,Mbr mbr,
         // Adjust according to the vector info
         //            drawable->setColor([shapeInfo.color asRGBAColor]);
         drawable->setLineWidth(lineWidth);
-        drawable->setRequestZBuffer(shapeInfo->getZBufferRead());
-        drawable->setWriteZBuffer(shapeInfo->getZBufferWrite());
+        drawable->setRequestZBuffer(shapeInfo->zBufferRead);
+        drawable->setWriteZBuffer(shapeInfo->zBufferWrite);
         drawable->setProgram(shapeInfo->programID);
-        if (shapeInfo->getRenderTarget() != EmptyIdentity)
-            drawable->setRenderTarget(shapeInfo->getRenderTarget());
+        if (shapeInfo->renderTargetID != EmptyIdentity)
+            drawable->setRenderTarget(shapeInfo->renderTargetID);
         if (center.x() != 0.0 || center.y() != 0.0 || center.z() != 0.0)
         {
             Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
@@ -97,27 +101,27 @@ void ShapeDrawableBuilder::addPoints(Point3fVector &pts,RGBAColor color,Mbr mbr,
     }
     drawMbr.expand(mbr);
 
-    Point3f prevPt,prevNorm,firstPt,firstNorm;
+    Point3d prevPt,prevNorm,firstPt,firstNorm;
     for (unsigned int jj=0;jj<pts.size();jj++)
     {
         // The point is already in display coordinates, so we have to project back
-        Point3f pt = pts[jj];
-        Point3f localPt = coordAdapter->displayToLocal(pt);
-        Point3f norm = coordAdapter->normalForLocal(localPt);
+        Point3d pt = pts[jj];
+        Point3d localPt = coordAdapter->displayToLocal(pt);
+        Point3d norm = coordAdapter->normalForLocal(localPt);
 
         // Add to drawable
         // Depending on the type, we do this differently
         if (primType == GL_POINTS)
         {
-            drawable->addPoint((Point3f)(pt-center3f));
+            drawable->addPoint(Point3d(pt-center));
             drawable->addNormal(norm);
         } else {
             if (jj > 0)
             {
-                drawable->addPoint((Point3f)(prevPt-center3f));
+                drawable->addPoint(Point3d(prevPt-center));
                 drawable->addNormal(prevNorm);
                 drawable->addColor(color);
-                drawable->addPoint((Point3f)(pt-center3f));
+                drawable->addPoint(Point3d(pt-center));
                 drawable->addNormal(norm);
                 drawable->addColor(color);
             } else {
@@ -132,10 +136,10 @@ void ShapeDrawableBuilder::addPoints(Point3fVector &pts,RGBAColor color,Mbr mbr,
     // Close the loop
     if (closed && primType == GL_LINES)
     {
-        drawable->addPoint((Point3f)(prevPt-center3f));
+        drawable->addPoint(Point3d(prevPt-center));
         drawable->addNormal(prevNorm);
         drawable->addColor(color);
-        drawable->addPoint((Point3f)(firstPt-center3f));
+        drawable->addPoint(Point3d(firstPt-center));
         drawable->addNormal(firstNorm);
         drawable->addColor(color);
     }
@@ -194,9 +198,9 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
     drawMbr.reset();
     drawable->setType(GL_TRIANGLES);
     // Adjust according to the vector info
-    drawable->setColor(shapeInfo->getColor());
-    drawable->setRequestZBuffer(shapeInfo->getZBufferRead());
-    drawable->setWriteZBuffer(shapeInfo->getZBufferWrite());
+    drawable->setColor(shapeInfo->color);
+    drawable->setRequestZBuffer(shapeInfo->zBufferRead);
+    drawable->setWriteZBuffer(shapeInfo->zBufferWrite);
     drawable->setProgram(shapeInfo->programID);
     if (shapeInfo->renderTargetID != EmptyIdentity)
         drawable->setRenderTarget(shapeInfo->renderTargetID);
@@ -336,7 +340,7 @@ void ShapeDrawableBuilderTri::addTriangle(Point3d p0,Point3d n0,RGBAColor c0,Poi
 }
 
 // Add a group of pre-build triangles
-void ShapeDrawableBuilderTri::addTriangles(Point3fVector &pts,Point3fVector &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris)
+void ShapeDrawableBuilderTri::addTriangles(Point3dVector &pts,Point3dVector &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris)
 {
     if (!drawable ||
         (drawable->getNumPoints()+pts.size() > MaxDrawablePoints) ||
@@ -351,7 +355,7 @@ void ShapeDrawableBuilderTri::addTriangles(Point3fVector &pts,Point3fVector &nor
     int baseVert = drawable->getNumPoints();
     for (unsigned int ii=0;ii<pts.size();ii++)
     {
-        const Point3f &pt = pts[ii];
+        const Point3d &pt = pts[ii];
         drawable->addPoint(Point3d(pt.x()-center.x(),pt.y()-center.y(),pt.z()-center.z()));
         drawable->addNormal(norms[ii]);
         drawable->addColor(colors[ii]);

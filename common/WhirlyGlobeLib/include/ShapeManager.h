@@ -27,6 +27,8 @@
 
 
 namespace WhirlyKit {
+    
+class GeometryRaw;
 
 /// Used internally to track shape related resources
 class ShapeSceneRep : public Identifiable
@@ -54,33 +56,43 @@ typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;
 class Shape
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     Shape();
     virtual ~Shape();
-
-	void setSelectable(bool value) { isSelectable = value; }
-	bool getSelectable() { return isSelectable; }
-
-	void setSelectID(WhirlyKit::SimpleIdentity value) { selectID = value; }
-	WhirlyKit::SimpleIdentity getSelectID() { return selectID; }
-
-	void setUseColor(bool value) { useColor = value; }
-	bool getUseColor() { return useColor; }
-
-	void setColor(WhirlyKit::RGBAColor value) { color = value; }
-	WhirlyKit::RGBAColor getColor() { return color; }
-
-    void setClipCoords(bool newVal) { clipCoords = newVal; }
-    bool getClipCoords() { return clipCoords; }
 
 	virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
 
-private:
+public:
     bool isSelectable;
     WhirlyKit::SimpleIdentity selectID;
     bool useColor;
     WhirlyKit::RGBAColor color;
     bool clipCoords;
+};
+
+
+/// Ground hugging circle at a given location
+class Circle : public Shape {
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+    Circle();
+    virtual ~Circle();
+    
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
+    
+public:
+    /// The location for the origin of the shape
+    GeoCoord loc;
+    /// Radius is in display units
+    double radius;
+    /// An offset from the globe in display units (radius of the globe = 1.0)
+    double height;
+    /// Number of samples to use in the circle
+    int sampleX;
 };
 
 /// This puts a sphere around the location
@@ -92,28 +104,88 @@ public:
     Sphere();
     virtual ~Sphere();
 
-	void setLoc(WhirlyKit::GeoCoord value) { loc = value; }
-	WhirlyKit::GeoCoord getLoc() { return loc; }
-
-	void setHeight(float value) { height = value; }
-	float getHeight() { return height; }
-
-	void setRadius(float value) { radius = value; }
-	float getRadius() { return radius; }
-
-	void setSampleX(int value) { sampleX = value; }
-	int getSampleX() { return sampleX; }
-	void setSampleY(int value) { sampleY = value; }
-	int getSampleY() { return sampleY; }
-
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
 
-private:
+public:
     WhirlyKit::GeoCoord loc;
     float height;
     float radius;
     int sampleX, sampleY;
+};
+    
+/// This puts a cylinder with its base at the locaton
+class Cylinder : public Shape
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+    Cylinder();
+    virtual ~Cylinder();
+    
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
+
+public:
+    /// The location for the origin of the shape
+    GeoCoord loc;
+    /// Height offset from the ground (in display units)
+    double baseHeight;
+    /// Radius in display units
+    double radius;
+    /// Height in display units
+    double height;
+    /// Samples around the outside
+    int sampleX;
+};
+
+/** A linear feature (with width) that we'll draw on
+ top of a globe or map.  This is different from the
+ vector layer features in that it has exact locations.
+ */
+class Linear : public Shape
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+    Linear();
+    virtual ~Linear();
+    
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
+
+public:
+    /// Bounding box in local coordinates.
+    /// Note: Doesn't take height into account
+    Mbr mbr;
+    /// These locations are in display coordinates
+    Point3dVector pts;
+    /// Line width in pixels
+    float lineWidth;
+};
+    
+/** An extruded shape
+ */
+class Extruded : public Shape
+{
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
+    Extruded();
+    virtual ~Extruded();
+    
+    virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
+    virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
+
+public:
+    /// The location for the origin of the shape
+    Point3d loc;
+    /// Points around the origin defining the shape
+    Point2dVector pts;
+    /// Thickness of the shape
+    double thickness;
+    /// Transform to apply to this extruded shape before placement
+    Eigen::Matrix4d transform;
 };
 
 /** A simple rectangle.
@@ -137,7 +209,7 @@ public:
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManager *selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, ShapeInfo *shapeInfo);
 
-private:
+public:
     Point3d ll,ur;
     std::vector<WhirlyKit::SimpleIdentity> texIDs;
 };
@@ -153,6 +225,9 @@ class ShapeManager : public SceneManager
 public:
     ShapeManager();
     virtual ~ShapeManager();
+    
+    /// Convert shape to raw geometry
+    void convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw> &rawGeom);
 
     /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
     SimpleIdentity addShapes(std::vector<Shape*> shapes, ShapeInfo * shapeInfo,ChangeSet &changes);

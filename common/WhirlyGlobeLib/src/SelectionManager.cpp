@@ -194,6 +194,40 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
     pthread_mutex_unlock(&mutex);
 }
 
+void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3d *pts,float minVis,float maxVis,bool enable)
+{
+    if (selectId == EmptyIdentity)
+        return;
+    
+    PolytopeSelectable newSelect;
+    newSelect.selectID = selectId;
+    newSelect.minVis = minVis;
+    newSelect.maxVis = maxVis;
+    newSelect.centerPt = Point3d(0,0,0);
+    newSelect.enable = enable;
+    for (unsigned int ii=0;ii<8;ii++)
+    {
+        const Point3d &pt = pts[ii];
+        newSelect.centerPt += Point3d(pt.x(),pt.y(),pt.z());
+    }
+    newSelect.centerPt /= 8;
+    
+    for (unsigned int ii=0;ii<6;ii++)
+    {
+        Point3fVector poly;
+        for (unsigned int jj=0;jj<4;jj++)
+        {
+            Point3d pt = pts[corners[ii][jj]];
+            poly.push_back(Point3f(pt.x()-newSelect.centerPt.x(),pt.y()-newSelect.centerPt.y(),pt.z()-newSelect.centerPt.z()));
+        }
+        newSelect.polys.push_back(poly);
+    }
+    
+    pthread_mutex_lock(&mutex);
+    polytopeSelectables.insert(newSelect);
+    pthread_mutex_unlock(&mutex);
+}
+
 void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,const BBox &bbox,float minVis,float maxVis,bool enable)
 {
     Point3fVector pts;
@@ -349,7 +383,7 @@ void SelectionManager::addMovingPolytopeFromBox(SimpleIdentity selectID, const P
     addMovingPolytope(selectID, polys, startCenter, endCenter, startTime, duration, mat, minVis, maxVis, enable);
 }
 
-void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const Point3fVector &pts,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const Point3dVector &pts,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -362,7 +396,7 @@ void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const Point3f
     newSelect.pts.resize(pts.size());
     for (unsigned int ii=0;ii<pts.size();ii++)
     {
-        const Point3f &pt = pts[ii];
+        const Point3d &pt = pts[ii];
         newSelect.pts[ii] = Point3d(pt.x(),pt.y(),pt.z());
     }
 

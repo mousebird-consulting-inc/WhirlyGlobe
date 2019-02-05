@@ -29,10 +29,20 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
+
 BaseInfo::BaseInfo()
-    : minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), minVisBand(DrawVisibleInvalid), maxVisBand(DrawVisibleInvalid),
-    minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid), viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid), fade(0.0), fadeIn(0.0), fadeOut(0.0), fadeOutTime(0.0), drawPriority(0), drawOffset(0.0),
-    enable(true), startEnable(0.0), endEnable(0.0), programID(EmptyIdentity), zBufferRead(false), zBufferWrite(false)
+    : minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
+    minVisBand(DrawVisibleInvalid), maxVisBand(DrawVisibleInvalid),
+    minViewerDist(DrawVisibleInvalid), maxViewerDist(DrawVisibleInvalid),
+    viewerCenter(DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid),
+    drawOffset(0.0),
+    drawPriority(0),
+    enable(true),
+    fade(0.0), fadeIn(0.0), fadeOut(0.0), fadeOutTime(0.0),
+    startEnable(0.0), endEnable(0.0),
+    programID(EmptyIdentity),
+    zBufferRead(false), zBufferWrite(false),
+    renderTargetID(EmptyIdentity)
 {
 }
     

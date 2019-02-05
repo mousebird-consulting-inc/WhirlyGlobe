@@ -23,6 +23,7 @@
 #import "MaplyBaseInteractionLayer_private.h"
 #import "MaplyShape_private.h"
 #import "MaplyComponentObject_private.h"
+#import "FontTextureManager_iOS.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -85,7 +86,7 @@ using namespace Eigen;
 }
 
 // Return the ID for or generate a base model in the Geometry Manager
-- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKit::FontTextureManager *)fontTexManager compObj:(MaplyComponentObject *)compObj mode:(MaplyThreadMode)threadMode
+- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(WhirlyKit::FontTextureManager_iOS *)fontTexManager compObj:(MaplyComponentObject *)compObj mode:(MaplyThreadMode)threadMode
 {
     @synchronized(self)
     {
@@ -114,9 +115,8 @@ using namespace Eigen;
             else if ([shape isKindOfClass:[MaplyShapeExtruded class]])
                 wkShape = [(MaplyShapeExtruded *)shape asWKShape:nil];
 
-            // Note: Turned off for porting
-//            if (wkShape)
-//                shapeManager->convertShape(wkShape,procGeom);
+            if (wkShape)
+                shapeManager->convertShape(*wkShape,procGeom);
         } else {
             // Add the textures
             std::vector<std::string> texFileNames;

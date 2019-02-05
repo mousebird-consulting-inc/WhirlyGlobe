@@ -34,31 +34,8 @@ class ShapeInfo : public BaseInfo
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
+    ShapeInfo();
     ShapeInfo(const Dictionary &);
-
-    void setColor(RGBAColor value) { color = value; }
-    RGBAColor getColor() { return color; }
-
-    void setLineWidth(float value) { lineWidth = value; }
-    float getLineWidth() { return lineWidth; }
-
-    void setInsideOut(bool value) { insideOut = value; }
-    bool getInsideOut() { return insideOut; }
-
-    void setZBufferRead(bool value) { zBufferRead = value; }
-    bool getZBufferRead() { return zBufferRead; }
-
-    void setZBufferWrite(bool value) { zBufferWrite = value; }
-    bool getZBufferWrite() { return zBufferWrite; }
-
-    void setHasCenter(bool value) { hasCenter = value; }
-    bool getHasCenter() { return hasCenter; }
-
-    void setCenter(Point3d value) { center = value; }
-    Point3d getCenter() { return center; }
-    
-    SimpleIdentity getRenderTarget() { return renderTargetID; }
-    void setRenderTarget(SimpleIdentity targetID) { renderTargetID = targetID; }
 
 public:
     RGBAColor color;
@@ -83,7 +60,7 @@ public:
     virtual ~ShapeDrawableBuilder();
 
     /// A group of points (in display space) all at once
-    void addPoints(Point3fVector &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed);
+    void addPoints(Point3dVector &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed);
 
     /// Flush out the current drawable (if there is one) to the list of finished ones
     void flush();
@@ -131,7 +108,7 @@ public:
     void addTriangle(const Point3d &p0,const Point3d &n0,RGBAColor c0,const TexCoord &tx0,const Point3d &p1,const Point3d &n1,RGBAColor c1,const TexCoord &tx1,const Point3d &p2,const Point3d &n2,RGBAColor c2,const TexCoord &tx2,Mbr shapeMbr);
     
     // Add a group of pre-build triangles
-    void addTriangles(Point3fVector &pts,Point3fVector &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris);
+    void addTriangles(Point3dVector &pts,Point3dVector &norms,std::vector<RGBAColor> &colors,std::vector<BasicDrawable::Triangle> &tris);
 
     // Add a convex outline, triangulated
     void addConvexOutline(Point3fVector &pts,Point3f norm,RGBAColor color,Mbr shapeMbr);
