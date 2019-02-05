@@ -25,6 +25,7 @@
 #import "MaplyShader_private.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyQuadSampler_private.h"
+#import "SceneRendererES_iOS.h"
 
 @class MaplyBaseInteractionLayer;
 
@@ -38,7 +39,7 @@
 {
 @public
     // Scene renderer... renders the scene
-    WhirlyKit::SceneRendererES2 *sceneRenderer;
+    WhirlyKit::SceneRendererES_iOSRef sceneRenderer;
     
     // Our own interaction layer does most of the work
     MaplyBaseInteractionLayer *interactLayer;

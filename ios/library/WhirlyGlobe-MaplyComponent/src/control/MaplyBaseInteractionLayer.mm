@@ -1340,8 +1340,7 @@ public:
     // Use the renderer's context
     if (threadMode == MaplyThreadCurrent && [NSThread mainThread] == [NSThread currentThread])
     {
-        tmpContext = layerThread.renderer->context;
-        [EAGLContext setCurrentContext:tmpContext];
+        layerThread.renderer->useContext();
     }
     
     if (threadMode == MaplyThreadCurrent && ![EAGLContext currentContext])
@@ -1351,7 +1350,7 @@ public:
         // See if we need to create a new one
         if (tempContexts.empty())
         {
-            tmpContext = [[EAGLContext alloc] initWithAPI:layerThread.renderer->context.API sharegroup:layerThread.renderer->context.sharegroup];
+            tmpContext = [[EAGLContext alloc] initWithAPI:layerThread.renderer->getContext().API sharegroup:layerThread.renderer->getContext().sharegroup];
         } else {
             // We can use an existing one
             std::set<EAGLContext *>::iterator it = tempContexts.begin();
@@ -1369,7 +1368,7 @@ public:
 // This just releases the context, but we may want to keep a queue of these in future
 - (void)clearTempContext:(EAGLContext *)context
 {
-    if ([NSThread mainThread] == [NSThread currentThread] && context == layerThread.renderer->context)
+    if ([NSThread mainThread] == [NSThread currentThread] && context == layerThread.renderer->getContext())
     {
         [EAGLContext setCurrentContext:nil];
         return;

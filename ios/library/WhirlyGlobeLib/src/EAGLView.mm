@@ -150,8 +150,7 @@
         [self layoutSubviews];
 
     EAGLContext *oldContext = [EAGLContext currentContext];
-    if (oldContext != _renderer->context)
-        [EAGLContext setCurrentContext:_renderer->context];
+    _renderer->useContext();
 
     if (_animating) {
         _renderer->render(displayLink.frameInterval * 1/60.0);

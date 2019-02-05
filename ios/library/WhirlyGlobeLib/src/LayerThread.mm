@@ -68,14 +68,14 @@ using namespace WhirlyKit;
         _viewWatcher = [[WhirlyKitLayerViewWatcher alloc] initWithView:inView thread:self];
         
         // We'll create the context here and set it in the layer thread, always
-        _glContext = [[EAGLContext alloc] initWithAPI:_renderer->context.API sharegroup:_renderer->context.sharegroup];
+        _glContext = [[EAGLContext alloc] initWithAPI:_renderer->getContext().API sharegroup:_renderer->getContext().sharegroup];
 
         thingsToRelease = [NSMutableArray array];
         threadsToShutdown = [NSMutableArray array];
         
         WhirlyKit::WhirlyKitGLSetupInfo glSetupInfo;
         glSetupInfo.minZres = inView->calcZbufferRes();
-        glSetupInfo.glesVersion = inRenderer->context.API;
+        glSetupInfo.glesVersion = inRenderer->getContext().API;
         _allowFlush = true;
         
         pthread_mutex_init(&changeLock,NULL);

@@ -29,15 +29,19 @@ namespace Maply
 FlatView::FlatView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter)
 : MapView(coordAdapter)
 {
+    loc = Point3d(0,0,0);
     nearPlane = 1;
     farPlane = -1;
-    ll = Point2d(-1,-1);
-    ur = Point2d(1,1);
+    extents = MbrD(Point2d(-M_PI,-M_PI/2.0),Point2d(M_PI,M_PI/2.0));
+    windowSize = Point2d(1.0,1.0);
+    contentOffset = Point2d(0,0);
 }
 
 Eigen::Matrix4d FlatView::calcModelMatrix()
 {
-    return Eigen::Matrix4d::Identity();
+    Eigen::Affine3d scale(Eigen::AlignedScaling3d(2.0 / (extents.ur().x() - extents.ll().x()),2.0 / (extents.ur().y() - extents.ll().y()),1.0));
+    
+    return scale.matrix();
 }
 
 Eigen::Matrix4d FlatView::calcProjectionMatrix(Point2f frameBufferSize,float margin)
@@ -51,10 +55,11 @@ Eigen::Matrix4d FlatView::calcProjectionMatrix(Point2f frameBufferSize,float mar
     }
     
     double left,right,top,bot,near,far;
-    left = ll.x();
-    right = ur.x();
-    top = ur.y();
-    bot = ll.y();
+    double contentOffsetY = windowSize.y() - frameBufferSize.y() - contentOffset.y();
+    left = 2.0 * contentOffset.x() / (windowSize.x()) - 1.0;
+    right = 2.0 * (contentOffset.x() + frameBufferSize.x()) / windowSize.x() - 1.0;
+    top = 2.0 * (contentOffsetY + frameBufferSize.y()) / windowSize.y() - 1.0;
+    bot = 2.0 * contentOffsetY / windowSize.y() - 1.0;
     near = nearPlane;
     far = farPlane;
     
@@ -88,6 +93,25 @@ double FlatView::maxHeightAboveSurface()
     return 0.0;
 }
     
+void FlatView::setLoc(const WhirlyKit::Point3d &newLoc)
+{
+    loc = newLoc;
+    loc.z() = 0.0;
+}
+    
+void FlatView::setExtents(const WhirlyKit::MbrD &inExtents)
+{
+    extents = inExtents;
+}
+
+void FlatView::setWindow(const WhirlyKit::Point2d &inWindowSize,const WhirlyKit::Point2d &inContentOffset)
+{
+    windowSize = inWindowSize;
+    contentOffset = inContentOffset;
+
+    runViewUpdates();
+}
+
 Point2d FlatView::screenSizeInDisplayCoords(Point2f &frameSize)
 {
     Point2d screenSize(0,0);
@@ -97,17 +121,6 @@ Point2d FlatView::screenSizeInDisplayCoords(Point2f &frameSize)
     screenSize = ur-ll;
     
     return screenSize;
-}
-
-void FlatView::setWindow(const WhirlyKit::Point2d &inLL,const WhirlyKit::Point2d &inUR)
-{
-    Point3d scale = coordAdapter->getScale();
-    Point3d center = coordAdapter->getCenter();
-    
-    ll = Point2d((inLL.x()-center.x())*scale.x(),(inLL.y()-center.y())*scale.y());
-    ur = Point2d((inUR.x()-center.x())*scale.x(),(inUR.y()-center.y())*scale.y());
-
-    runViewUpdates();
 }
 
 }

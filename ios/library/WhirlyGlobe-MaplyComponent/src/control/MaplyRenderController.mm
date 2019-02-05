@@ -28,12 +28,13 @@
 using namespace WhirlyKit;
 using namespace Eigen;
 
+
 @implementation MaplyRenderController
 {
     // This view is used when we're doing an offline renderer
-    PassThroughCoordSystem *coordSys;
-    GeneralCoordSystemDisplayAdapter *coordAdapter;
-    MaplyFlatView *flatView;
+    PassThroughCoordSystemRef coordSys;
+    GeneralCoordSystemDisplayAdapterRef coordAdapter;
+    Maply::FlatViewRef flatView;
     bool offlineMode;
     UIImage *snapshotImage;
     NSData *snapshotData;
@@ -48,33 +49,33 @@ using namespace Eigen;
     EAGLContext *oldContext = [EAGLContext currentContext];
     
     // Coordinate system and view that just pass coordinates through
-    coordSys = new PassThroughCoordSystem();
+    coordSys = PassThroughCoordSystemRef(new PassThroughCoordSystem());
     Point3d ll(0.0,0.0,0.0),ur(size.width,size.height,0.0);
     Point3d scale(1.0,1.0,1.0);
     Point3d center = (ll+ur)/2.0;
-    coordAdapter = new GeneralCoordSystemDisplayAdapter(coordSys,ll,ur,center,scale);
-    flatView = [[MaplyFlatView alloc] initWithCoordAdapter:coordAdapter];
+    coordAdapter = GeneralCoordSystemDisplayAdapterRef(new GeneralCoordSystemDisplayAdapter(coordSys.get(),ll,ur,center,scale));
+    flatView = Maply::FlatViewRef(new Maply::FlatView(coordAdapter.get()));
     Mbr extents;
     extents.addPoint(Point2f(ll.x(),ll.y()));
     extents.addPoint(Point2f(ur.x(),ur.y()));
-    [flatView setExtents:extents];
-    [flatView setWindowSize:Point2f(size.width,size.height) contentOffset:Point2f(0.0,0.0)];
-    scene = new Maply::MapScene(coordAdapter);
+    flatView->setExtents(extents);
+    flatView->setWindow(Point2d(size.width,size.height),Point2d(0.0,0.0));
+    scene = new Maply::MapScene(coordAdapter.get());
 
     // Set up the renderer with a target size
-    sceneRenderer = [[SceneRendererES3 alloc] initWithSize:size];
-    sceneRenderer.zBufferMode = zBufferOffDefault;
-    sceneRenderer.scene = scene;
-    sceneRenderer.theView = flatView;
-    sceneRenderer.doCulling = false;
+    sceneRenderer = SceneRendererES_iOSRef(new SceneRendererES_iOS());
+    sceneRenderer->setup(3,size.width,size.height);
+    sceneRenderer->zBufferMode = zBufferOffDefault;
+    sceneRenderer->scene = scene;
+    sceneRenderer->theView = flatView.get();
 
-    theClearColor = [UIColor blackColor];
-    [sceneRenderer setClearColor:theClearColor];
+    // Note: Should this be black or purely clear?
+    sceneRenderer->setClearColor([[UIColor blackColor] asRGBAColor]);
     
     // Turn on the model matrix optimization for drawing
-    sceneRenderer.useViewChanged = true;
+    sceneRenderer->useViewChanged = true;
     
-    interactLayer = [[MaplyBaseInteractionLayer alloc] initWithView:flatView];
+    interactLayer = [[MaplyBaseInteractionLayer alloc] initWithView:flatView.get()];
     [interactLayer startWithThread:nil scene:scene];
     
     [self setupShaders];
@@ -88,7 +89,7 @@ using namespace Eigen;
 - (void)teardown
 {
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [sceneRenderer useContext];
+    sceneRenderer->useContext();
     // This stuff is our responsibility if we created it
     if (offlineMode)
     {
@@ -97,15 +98,9 @@ using namespace Eigen;
         interactLayer = nil;
         if (flatView)
             flatView = nil;
-        if (coordAdapter) {
-            delete coordAdapter;
-            coordAdapter = NULL;
-        }
-        if (coordSys) {
-            delete coordSys;
-            coordSys = NULL;
-        }
-        scene = nil;
+        coordAdapter = NULL;
+        coordSys = NULL;
+        scene = NULL;
     }
     sceneRenderer = nil;
     if (oldContext)
@@ -115,7 +110,7 @@ using namespace Eigen;
 - (void)clear
 {
     scene = nil;
-    sceneRenderer.scene = nil;
+    sceneRenderer->scene = NULL;
     interactLayer = nil;
     theClearColor = nil;
 }
@@ -125,19 +120,15 @@ using namespace Eigen;
     screenDrawPriorityOffset = 1000000;
     
     // Set up the OpenGL ES renderer
-    sceneRenderer = [[SceneRendererES3 alloc] init];
-    if (!sceneRenderer)
-        sceneRenderer = [[SceneRendererES2 alloc] init];
-    sceneRenderer.zBufferMode = zBufferOffDefault;
+    sceneRenderer = SceneRendererES_iOSRef(new SceneRendererES_iOS());
+    sceneRenderer->zBufferMode = zBufferOffDefault;
     // Switch to that context for any assets we create
     // Note: Should be switching back at the end
-    [sceneRenderer useContext];
-    
-    theClearColor = [UIColor blackColor];
-    [sceneRenderer setClearColor:theClearColor];
+    sceneRenderer->useContext();
+    sceneRenderer->setClearColor([[UIColor blackColor] asRGBAColor]);
     
     // Turn on the model matrix optimization for drawing
-    sceneRenderer.useViewChanged = true;
+    sceneRenderer->useViewChanged = true;
 }
 
 - (void)setScreenObjectDrawPriorityOffset:(int)drawPriorityOffset
@@ -152,6 +143,7 @@ using namespace Eigen;
     return screenDrawPriorityOffset;
 }
 
+#if 0
 - (UIImage *)renderToImage
 {
     sceneRenderer.snapshotDelegate = self;
@@ -175,10 +167,11 @@ using namespace Eigen;
     
     return toRet;
 }
+#endif
 
 - (void) useGLContext
 {
-    [sceneRenderer useContext];
+    sceneRenderer->useContext();
 }
 
 - (void)clearLights
@@ -239,10 +232,8 @@ using namespace Eigen;
         theLight.diffuse = [light.diffuse asVec4];
         theLight.viewDependent = light.viewDependent;
         newLights.push_back(theLight);
-        [theLights addObject:theLight];
     }
-    SceneRendererES2 *rendererES2 = (SceneRendererES2 *)sceneRenderer;
-    sceneRendererES2->replaceLights(newLights);
+    sceneRenderer->replaceLights(newLights);
 }
 
 - (void)addShaderProgram:(MaplyShader *__nonnull)shader
@@ -328,9 +319,7 @@ using namespace Eigen;
     
     // Settings we store in the hints
     BOOL zBuffer = [hints boolForKey:kWGRenderHintZBuffer default:false];
-    sceneRenderer.zBufferMode = (zBuffer ? zBufferOn : zBufferOffDefault);
-    BOOL culling = [hints boolForKey:kWGRenderHintCulling default:false];
-    sceneRenderer.doCulling = culling;
+    sceneRenderer->zBufferMode = (zBuffer ? zBufferOn : zBufferOffDefault);
 }
 
 - (bool)startOfWork
@@ -413,10 +402,12 @@ using namespace Eigen;
     return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
 }
 
+#if 0
 - (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys key:(NSString *__nullable)key cache:(MaplyVectorDatabase *__nullable)cacheDb desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
     return [interactLayer addLoftedPolys:polys desc:desc key:key cache:cacheDb mode:threadMode];
 }
+#endif
 
 - (MaplyComponentObject *__nullable)addPoints:(NSArray * __nonnull)points desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
@@ -484,7 +475,7 @@ using namespace Eigen;
 - (void)setClearColor:(UIColor *)clearColor
 {
     theClearColor = clearColor;
-    [sceneRenderer setClearColor:clearColor];
+    sceneRenderer->setClearColor([clearColor asRGBAColor]);
 }
 
 - (MaplyRenderController * __nullable)getRenderControl
@@ -505,7 +496,7 @@ using namespace Eigen;
     if (!sceneRenderer)
         return CGSizeZero;
     
-    return CGSizeMake(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
+    return CGSizeMake(sceneRenderer->framebufferWidth,sceneRenderer->framebufferHeight);
 }
 
 // MARK: Snapshot protocol

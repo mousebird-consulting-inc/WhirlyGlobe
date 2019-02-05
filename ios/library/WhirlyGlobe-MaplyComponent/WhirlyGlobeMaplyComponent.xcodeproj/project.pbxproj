@@ -594,6 +594,9 @@
 		2BE1E760220A166300815D9C /* MaplyGeomModel.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537AD1D249A1200B60FAD /* MaplyGeomModel.mm */; };
 		2BE1E761220A1A2700815D9C /* MaplyShape.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537C61D249A1200B60FAD /* MaplyShape.mm */; };
 		2BE1E762220A1FA300815D9C /* MaplyBaseInteractionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A01D249A1200B60FAD /* MaplyBaseInteractionLayer.mm */; };
+		2BE1E763220A43FD00815D9C /* MaplyInteractionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537B01D249A1200B60FAD /* MaplyInteractionLayer.mm */; };
+		2BE1E764220A43FD00815D9C /* WGInteractionLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537F21D249A1200B60FAD /* WGInteractionLayer.mm */; };
+		2BE1E765220A47D200815D9C /* MaplyRenderController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B127BFC2012ACA20099F405 /* MaplyRenderController.mm */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -4171,6 +4174,7 @@
 				2B87971D2203BF2E00EF801D /* MaplyCoordinate.mm in Sources */,
 				2BE5398E1D249BEF00B60FAD /* AACoordinateTransformation.cpp in Sources */,
 				2BE53A151D249C2900B60FAD /* text_format.cc in Sources */,
+				2BE1E765220A47D200815D9C /* MaplyRenderController.mm in Sources */,
 				2BE539A01D249BEF00B60FAD /* AAJupiter.cpp in Sources */,
 				2BE53A951D249C9000B60FAD /* DDXMLDocument.m in Sources */,
 				2B8796C421FFB37900EF801D /* ShapeManager.cpp in Sources */,
@@ -4357,6 +4361,7 @@
 				2B8796FC2203861200EF801D /* LayerViewWatcher.mm in Sources */,
 				2B884A461E3803170027C397 /* arithmeticmodel.cpp in Sources */,
 				2B82B6691E82E24A0095FB14 /* PJ_geos.c in Sources */,
+				2BE1E763220A43FD00815D9C /* MaplyInteractionLayer.mm in Sources */,
 				2BE1E75F2208F43A00815D9C /* FontTextureManager_iOS.mm in Sources */,
 				2B8797182203B77900EF801D /* MaplyLocationTracker.mm in Sources */,
 				2BE539AB1D249BEF00B60FAD /* AANearParabolic.cpp in Sources */,
@@ -4558,6 +4563,7 @@
 				2B82B6811E82E24A0095FB14 /* PJ_lcc.c in Sources */,
 				2B82B68C1E82E24A0095FB14 /* PJ_merc.c in Sources */,
 				2B82B61B1E82E2490095FB14 /* JSONWorker.cpp in Sources */,
+				2BE1E764220A43FD00815D9C /* WGInteractionLayer.mm in Sources */,
 				2BC3D6D52203EA9C00CE91D0 /* MaplyZoomGestureDelegate.mm in Sources */,
 				2BE1E7472208CEA300815D9C /* GlobeTapMessage.mm in Sources */,
 				2BE53A021D249C2900B60FAD /* extension_set.cc in Sources */,

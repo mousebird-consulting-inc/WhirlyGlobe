@@ -31,7 +31,16 @@ class SceneRendererES_iOS : public SceneRendererES2 {
 public:
     SceneRendererES_iOS();
 
+    /// Set the current OpenGL ES context if there is one
+    void useContext();
+    
+    /// Return the associated context
+    EAGLContext *getContext();
+    
+protected:
     EAGLContext *context;
 };
+    
+typedef std::shared_ptr<SceneRendererES_iOS> SceneRendererES_iOSRef;
     
 }

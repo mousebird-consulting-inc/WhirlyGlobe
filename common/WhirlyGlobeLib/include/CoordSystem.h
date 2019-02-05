@@ -187,4 +187,6 @@ protected:
     CoordSystem *coordSys;
 };
 
+typedef std::shared_ptr<GeneralCoordSystemDisplayAdapter> GeneralCoordSystemDisplayAdapterRef;
+
 }

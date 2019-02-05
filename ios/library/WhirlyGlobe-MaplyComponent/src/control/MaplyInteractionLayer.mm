@@ -35,10 +35,10 @@ using namespace WhirlyGlobe;
 @implementation MaplyInteractionLayer
 {
     Maply::MapScene *mapScene;
-    MaplyView *mapView;
+    Maply::MapView *mapView;
 }
 
-- (instancetype)initWithMapView:(MaplyView *)inMapView
+- (instancetype)initWithMapView:(Maply::MapView *)inMapView
 {
     self = [super initWithView:inMapView];
     if (!self)
@@ -100,7 +100,7 @@ using namespace WhirlyGlobe;
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     std::vector<SelectionManager::SelectedObject> selectedObjs;
-    selectManager->pickObjects(Point2f(screenPoint.x,screenPoint.y),10.0,mapView,selectedObjs);
+    selectManager->pickObjects(Point2f(screenPoint.x,screenPoint.y),10.0,mapView->makeViewState(layerThread.renderer),selectedObjs);
     
     NSMutableArray *retSelectArr = [NSMutableArray array];
     if (!selectedObjs.empty())

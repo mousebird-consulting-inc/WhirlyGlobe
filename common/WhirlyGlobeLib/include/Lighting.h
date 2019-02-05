@@ -60,7 +60,7 @@ public:
     /// Don't call this yourself.
     bool bindToProgram(OpenGLES2Program *program, int index, Eigen::Matrix4f modelMat) const;
 
-private:
+public:
     Eigen::Vector4f ambient;
     Eigen::Vector4f diffuse;
     Eigen::Vector4f specular;

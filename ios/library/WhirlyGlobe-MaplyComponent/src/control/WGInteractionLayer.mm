@@ -34,11 +34,11 @@ using namespace WhirlyGlobe;
 
 @implementation WGInteractionLayer
 {
-    AnimateViewMomentum *autoSpinner;
+    AnimateViewMomentumRef autoSpinner;
 }
 
 // Initialize with the globeView
--(id)initWithGlobeView:(WhirlyGlobeView *)inGlobeView
+-(id)initWithGlobeView:(WhirlyGlobe::GlobeView *)inGlobeView
 {
     self = [super initWithView:inGlobeView];
     if (!self)
@@ -71,11 +71,12 @@ using namespace WhirlyGlobe;
     {
         if (autoRotateInterval == 0.0 || autoRotateDegrees == 0)
         {
-            [globeView cancelAnimation];
+            globeView->cancelAnimation();
             autoSpinner = nil;
         } else
             // Update the spin
-            autoSpinner.velocity = autoRotateDegrees / 180.0 * M_PI;
+            if (autoSpinner)
+                autoSpinner->setVelocity(autoRotateDegrees / 180.0 * M_PI);
     }
 }
 
@@ -84,20 +85,20 @@ using namespace WhirlyGlobe;
 {
     TimeInterval now = TimeGetCurrent();
     
-    if (autoSpinner && globeView.delegate != autoSpinner)
-        autoSpinner = nil;
+    if (autoSpinner && globeView->getDelegate() != autoSpinner)
+        autoSpinner = NULL;
     
     if (autoRotateInterval > 0.0 && !autoSpinner)
     {
-        if (now - globeView.lastChangedTime > autoRotateInterval &&
+        if (now - globeView->lastChangedTime > autoRotateInterval &&
             now - lastTouched > autoRotateInterval)
         {
             float anglePerSec = autoRotateDegrees / 180.0 * M_PI;
             
             // Keep going in that direction
             Vector3f upVector(0,0,1);
-            autoSpinner = [[AnimateViewMomentum alloc] initWithView:globeView velocity:anglePerSec accel:0.0 axis:upVector northUp:false];
-            globeView.delegate = autoSpinner;
+            autoSpinner = AnimateViewMomentumRef(new AnimateViewMomentum(globeView,anglePerSec,0.0,upVector,false));
+            globeView->setDelegate(autoSpinner);
         }
     }
     
@@ -111,10 +112,10 @@ using namespace WhirlyGlobe;
     lastTouched = TimeGetCurrent();
     if (autoSpinner)
     {
-        if (globeView.delegate == autoSpinner)
+        if (globeView->getDelegate() == autoSpinner)
         {
-            autoSpinner = nil;
-            globeView.delegate = nil;
+            autoSpinner = NULL;
+            globeView->cancelAnimation();
         }
     }
     
@@ -158,7 +159,7 @@ using namespace WhirlyGlobe;
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     std::vector<SelectionManager::SelectedObject> selectedObjs;
-    selectManager->pickObjects(Point2f(screenPoint.x,screenPoint.y),10.0,globeView,selectedObjs);
+    selectManager->pickObjects(Point2f(screenPoint.x,screenPoint.y),10.0,globeView->makeViewState(layerThread.renderer),selectedObjs);
     
     NSMutableArray *retSelectArr = [NSMutableArray array];
     if (!selectedObjs.empty())

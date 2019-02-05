@@ -162,6 +162,9 @@ public:
     /// Return the current height
     double getHeightAboveGlobe() { return heightAboveGlobe; }
     
+    /// Return the current delegate (use for comparison)
+    GlobeViewAnimationDelegateRef getDelegate() { return delegate; }
+    
 protected:
     void privateSetHeightAboveGlobe(double newH,bool updateWatchers);
     

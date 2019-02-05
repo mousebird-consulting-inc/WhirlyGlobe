@@ -360,5 +360,7 @@ public:
     // If we're an offline renderer, the texture we're rendering into
     WhirlyKit::Texture *framebufferTex;
 };
+    
+typedef std::shared_ptr<SceneRendererES> SceneRendererESRef;
 
 }

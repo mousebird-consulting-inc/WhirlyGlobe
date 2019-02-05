@@ -70,6 +70,8 @@ protected:
     bool extraFrameDrawn;
     std::vector<DirectionalLight> lights;
 };
-        
+
+typedef std::shared_ptr<SceneRendererES2> SceneRendererES2Ref;
+    
 }
 

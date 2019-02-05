@@ -36,5 +36,17 @@ SceneRendererES_iOS::SceneRendererES_iOS()
     setup(version,0,0);
 }
     
+EAGLContext *SceneRendererES_iOS::getContext()
+{
+    return context;
+}
+
+void SceneRendererES_iOS::useContext()
+{
+    if (!context)
+        return;
+    [EAGLContext setCurrentContext:context];
+}
+    
 }
 

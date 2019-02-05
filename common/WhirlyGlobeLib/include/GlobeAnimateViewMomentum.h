@@ -37,6 +37,9 @@ public:
     
     /// Update the globe view
     virtual void updateView(GlobeView *globeView);
+    
+    /// Set the velocity while this is running (for auto-rotate)
+    void setVelocity(double newVel) { velocity = newVel; }
 
 protected:
     Eigen::Quaterniond rotForTime(GlobeView *globeView,WhirlyKit::TimeInterval sinceStart);
@@ -48,5 +51,7 @@ protected:
     double maxTime;
     WhirlyKit::TimeInterval startDate;
 };
+    
+typedef std::shared_ptr<AnimateViewMomentum> AnimateViewMomentumRef;
 
 }
