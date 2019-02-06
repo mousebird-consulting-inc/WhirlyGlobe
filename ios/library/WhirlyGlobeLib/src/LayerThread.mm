@@ -28,7 +28,7 @@ using namespace WhirlyKit;
 
 @implementation WhirlyKitLayerThread
 {
-    WhirlyKitGLSetupInfo *glSetupInfo;
+    WhirlyKitGLSetupInfo glSetupInfo;
     /// The various data layers we'll display
     NSMutableArray *layers;
     
@@ -60,6 +60,8 @@ using namespace WhirlyKit;
 {
 	if ((self = [super init]))
 	{
+        glSetupInfo.glesVersion = inRenderer->glesVersion;
+        glSetupInfo.minZres = inView->calcZbufferRes();
         _mainLayerThread = mainLayerThread;
 		_scene = inScene;
         _renderer = inRenderer;
@@ -223,7 +225,7 @@ using namespace WhirlyKit;
         if (change)
         {
             requiresFlush |= change->needsFlush();
-            change->setupGL(glSetupInfo, _scene->getMemManager());
+            change->setupGL(&glSetupInfo, _scene->getMemManager());
             changesToAdd.push_back(changesToProcess[ii]);
         } else
             // A NULL change request is just a flush request
