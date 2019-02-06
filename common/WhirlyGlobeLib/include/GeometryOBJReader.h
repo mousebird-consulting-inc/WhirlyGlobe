@@ -27,6 +27,9 @@ namespace WhirlyKit
 class GeometryModelOBJ
 {
 public:
+    // Set a directory to look for material files
+    void setResourceDir(const std::string &resourceDir);
+    
     // Parse file
     bool parse(FILE *fp);
     // Parse material library
@@ -79,6 +82,7 @@ public:
         std::vector<Face> faces;
     };
     
+    std::string resourceDir;
     std::vector<Group> groups;
     Point3dVector verts;
     Point2dVector texCoords;

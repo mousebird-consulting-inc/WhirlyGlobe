@@ -35,7 +35,7 @@ public:
     FontManager_iOS(CTFontRef font);
     ~FontManager_iOS();
     
-    virtual bool operator < (const FontManager &that) const;
+    virtual bool operator < (const FontManager_iOS &that) const;
     
     CTFontRef font;
     UIColor *colorUI;

@@ -46,6 +46,9 @@ using namespace Eigen;
     
     // Parse it out of the file
     GeometryModelOBJ objModel;
+    NSString *bundlePath = [[NSBundle mainBundle] resourcePath];
+    objModel.setResourceDir([bundlePath cStringUsingEncoding:NSASCIIStringEncoding]);
+    
     if (!objModel.parse(fp))
         return nil;
     

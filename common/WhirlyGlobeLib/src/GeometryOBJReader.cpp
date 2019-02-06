@@ -24,6 +24,11 @@
 namespace WhirlyKit
 {
     
+void GeometryModelOBJ::setResourceDir(const std::string &resourceDir)
+{
+    
+}
+    
 bool GeometryModelOBJ::parseMaterials(FILE *fp)
 {
     bool success = true;
@@ -225,8 +230,8 @@ bool GeometryModelOBJ::parse(FILE *fp)
             }
             
             // Load the model
-            NSString *fullPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:[NSString stringWithFormat:@"%s",mtlFile]];
-            FILE *mtlFP = fopen([fullPath cStringUsingEncoding:NSASCIIStringEncoding],"r");
+            std::string fullPath = resourceDir.empty() ? mtlFile : resourceDir + "/" + mtlFile;
+            FILE *mtlFP = fopen(fullPath.c_str(),"r");
             if (!mtlFP)
             {
                 success = false;

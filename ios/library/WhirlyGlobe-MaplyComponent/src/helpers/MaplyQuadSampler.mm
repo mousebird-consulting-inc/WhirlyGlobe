@@ -126,7 +126,7 @@ using namespace WhirlyKit;
     importance = inImportance;
 }
 
-- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(SceneRendererES *)inRenderer viewC:(MaplyBaseViewController *)inViewC
+- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(SceneRendererES_iOS *)inRenderer viewC:(MaplyBaseViewController *)inViewC
 {
     if (!valid)
         return false;
@@ -224,7 +224,7 @@ using namespace WhirlyKit;
     if (_params.minImportanceTop == 0.0 && ident.level == 0)
         return MAXFLOAT;
     
-    double import = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [_params.coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+    double import = ScreenImportance(viewState.get(), frameSize, viewState->eyeVec, 1, [_params.coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident);
     
     return import;
 }
@@ -235,7 +235,7 @@ using namespace WhirlyKit;
     if (ident.level == 0)
         return true;
     
-    return TileIsOnScreen(viewState, frameSize,  [_params.coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident, attrs);
+    return TileIsOnScreen(viewState.get(), frameSize,  [_params.coordSys getCoordSystem], scene->getCoordAdapter(), mbr, ident);
 }
 
 - (void)teardown

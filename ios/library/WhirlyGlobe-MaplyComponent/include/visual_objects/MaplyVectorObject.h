@@ -96,6 +96,8 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
  */
 + (MaplyVectorObject *__nullable)VectorObjectFromGeoJSONDictionary:(NSDictionary *__nonnull)geoJSON;
 
+// Note: Reader turned off
+#if 0
 /** 
     Read vector objects from the given cache file.
     
@@ -106,6 +108,7 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
     @return The vector object(s) read from the file or nil on failure.
   */
 + (MaplyVectorObject *__nullable)VectorObjectFromFile:(NSString *__nonnull)fileName;
+#endif
 
 /** 
     Read vector objects from the given shapefile.
@@ -187,6 +190,8 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
  */
 - (nullable instancetype)initWithGeoJSONDictionary:(NSDictionary *__nonnull)geoJSON;
 
+// Note: Turned off with reading
+#if 0
 /** 
     Initializes with vectors read from the given cache file.
 	
@@ -197,6 +202,7 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
     @return The vector object(s) read from the file or nil on failure.
  */
 - (nullable instancetype)initWithFile:(NSString *__nonnull)fileName;
+#endif
 
 /** 
     Initializes with vectors read from the given shapefile.

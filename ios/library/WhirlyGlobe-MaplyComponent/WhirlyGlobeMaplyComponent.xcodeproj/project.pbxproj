@@ -570,6 +570,9 @@
 		2BC3D6E0220B553100CE91D0 /* MaplyVectorObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537D11D249A1200B60FAD /* MaplyVectorObject.mm */; };
 		2BC3D6E2220B5AC200CE91D0 /* VectorData_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6E1220B5AC100CE91D0 /* VectorData_iOS.h */; };
 		2BC3D6E4220B5ACE00CE91D0 /* VectorData_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6E3220B5ACE00CE91D0 /* VectorData_iOS.mm */; };
+		2BC3D6E5220B666F00CE91D0 /* MaplyQuadSampler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387F5206ABD7400DD5C40 /* MaplyQuadSampler.mm */; };
+		2BC3D6E6220B6AB500CE91D0 /* GeometryOBJReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B8221FB97C40078A975 /* GeometryOBJReader.h */; };
+		2BC3D6E7220B6AEF00CE91D0 /* GeometryOBJReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B8621FB97D50078A975 /* GeometryOBJReader.cpp */; };
 		2BE1E7392208A97100815D9C /* MaplyPinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DED21233CBE0074D06D /* MaplyPinchDelegate.mm */; };
 		2BE1E73A2208B25F00815D9C /* MaplyPanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DEC21233CBE0074D06D /* MaplyPanDelegate.mm */; };
 		2BE1E73B2208B73C00815D9C /* MaplyDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DE721233CBE0074D06D /* MaplyDoubleTapDelegate.mm */; };
@@ -3985,6 +3988,7 @@
 				2B87970522039D6300EF801D /* Texture_iOS.h in Headers */,
 				2B82B5F81E82E2490095FB14 /* JSONOptions.h in Headers */,
 				2BE538371D249A1200B60FAD /* MaplyActiveObject_private.h in Headers */,
+				2BC3D6E6220B6AB500CE91D0 /* GeometryOBJReader.h in Headers */,
 				2BB8A3DB21ED43C00025DA98 /* ViewPlacementActiveModel.h in Headers */,
 				2BE538641D249A1200B60FAD /* MaplyVectorStyle.h in Headers */,
 				2B446B8D21FB99C00078A975 /* ScreenImportance.h in Headers */,
@@ -4304,6 +4308,7 @@
 				2B82B6111E82E2490095FB14 /* JSONNode_Mutex.cpp in Sources */,
 				2B82B6BA1E82E24A0095FB14 /* PJ_urmfps.c in Sources */,
 				2B82B6721E82E24A0095FB14 /* PJ_hatano.c in Sources */,
+				2BC3D6E7220B6AEF00CE91D0 /* GeometryOBJReader.cpp in Sources */,
 				2B82B6231E82E2490095FB14 /* shpopen.c in Sources */,
 				2B8796BC21FFB37900EF801D /* LabelRenderer.cpp in Sources */,
 				2B82B6621E82E24A0095FB14 /* pj_factors.c in Sources */,
@@ -4453,6 +4458,7 @@
 				2B82B6561E82E2490095FB14 /* PJ_denoy.c in Sources */,
 				2BE5398C1D249BEF00B60FAD /* AAAngularSeparation.cpp in Sources */,
 				2B82B60B1E82E2490095FB14 /* JSONIterators.cpp in Sources */,
+				2BC3D6E5220B666F00CE91D0 /* MaplyQuadSampler.mm in Sources */,
 				2BE539961D249BEF00B60FAD /* AAElementsPlanetaryOrbit.cpp in Sources */,
 				2B846EDF21F136D700EF2A82 /* pj_units.c in Sources */,
 				2BE1E74A2208E8C500815D9C /* MaplyRemoteTileFetcher.mm in Sources */,

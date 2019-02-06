@@ -101,6 +101,11 @@ AnimateViewHeight::AnimateViewHeight(GlobeView *inGlobeView,double toHeight,Time
     startHeight = globeView->getHeightAboveGlobe();
     endHeight = toHeight;
 }
+    
+void AnimateViewHeight::setTiltDelegate(TiltCalculatorRef newDelegate)
+{
+    tiltDelegate = newDelegate;
+}
 
 // Called by the view when it's time to update
 void AnimateViewHeight::updateView(GlobeView *globeView)

@@ -157,12 +157,12 @@ public:
 	return [[MaplyVectorObject alloc] initWithShapeFile:fileName];
 }
 
+#if 0
 + (MaplyVectorObject *)VectorObjectFromFile:(NSString *)fileName
 {
 	return [[MaplyVectorObject alloc] initWithFile:fileName];
 }
 
-#if 0
 - (bool)writeToFile:(NSString *)fileName
 {
     return VectorWriteFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes);
@@ -350,6 +350,7 @@ public:
 	return self;
 }
 
+#if 0
 - (instancetype)initWithFile:(NSString *)fileName
 {
 	if (self = [super init]) {
@@ -359,6 +360,7 @@ public:
 
 	return self;
 }
+#endif
 
 - (instancetype)initWithShapeFile:(NSString *)fileName
 {

@@ -264,7 +264,7 @@ bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &fr
     return false;
 }
 
-bool TileIsOnScreen(ViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,WhirlyKit::Mbr nodeMbr,WhirlyKit::QuadTreeIdentifier &nodeIdent,MutableDictionaryRef attrs)
+bool TileIsOnScreen(ViewState *viewState,const WhirlyKit::Point2f &frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr,const WhirlyKit::QuadTreeIdentifier &nodeIdent)
 {
     DisplaySolid dispSolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter);
     
@@ -277,7 +277,7 @@ bool TileIsOnScreen(ViewState *viewState,WhirlyKit::Point2f frameSize,WhirlyKit:
 
 
 // Calculate the max pixel size for a tile
-double ScreenImportance(ViewState *viewState,WhirlyKit::Point2f frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,WhirlyKit::QuadTreeIdentifier &nodeIdent,MutableDictionaryRef attrs)
+double ScreenImportance(ViewState *viewState,const WhirlyKit::Point2f &frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const Mbr &nodeMbr,const WhirlyKit::QuadTreeIdentifier &nodeIdent)
 {
     DisplaySolid dispSolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter);
     
@@ -295,7 +295,7 @@ double ScreenImportance(ViewState *viewState,WhirlyKit::Point2f frameSize,const 
 }
 
 // This version is for volumes with height
-double ScreenImportance(ViewState *viewState,WhirlyKit::Point2f frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,Mbr nodeMbr,double minZ,double maxZ,WhirlyKit::QuadTreeIdentifier &nodeIdent,MutableDictionaryRef attrs)
+double ScreenImportance(ViewState *viewState,const WhirlyKit::Point2f &frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const Mbr &nodeMbr,double minZ,double maxZ,const WhirlyKit::QuadTreeIdentifier &nodeIdent)
 {
     DisplaySolid dispSolid(nodeIdent,nodeMbr,minZ,maxZ,srcSystem,coordAdapter);
     
