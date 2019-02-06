@@ -124,6 +124,9 @@ public:
     /// Set the change delegate
     virtual void setDelegate(MapViewAnimationDelegateRef delegate);
     
+    /// Return the delegate for testing
+    virtual MapViewAnimationDelegateRef getDelegate();
+    
     /// Cancel any outstanding animation
     virtual void cancelAnimation();
     
@@ -140,6 +143,8 @@ protected:
     /// Used to update position based on time
     MapViewAnimationDelegateRef delegate;
 };
+    
+typedef std::shared_ptr<MapView> MapViewRef;
 
 /** View State related to the map view.
  */

@@ -39,4 +39,6 @@ public:
     id tag;
 };
     
+typedef std::shared_ptr<MapView_iOS> MapView_iOSRef;
+    
 }

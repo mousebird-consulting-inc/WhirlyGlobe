@@ -30,6 +30,7 @@
 #import "MaplyDoubleTapDelegate.h"
 #import "MaplyDoubleTapDragDelegate.h"
 #import "MaplyTouchCancelAnimationDelegate.h"
+#import "MapView_iOS.h"
 
 @interface MaplyViewController()
 {
@@ -38,13 +39,9 @@
 
 @protected
     /// Coordinate system and display adapter
-    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+    WhirlyKit::CoordSystemDisplayAdapterRef coordAdapter;
     /// Maply view
-    Maply::MapView *mapView;
-    // Flat view for 2D mode
-    Maply::FlatView * flatView;
-    // Scroll view for tethered mode
-    UIScrollView * __weak scrollView;
+    Maply::MapView_iOSRef mapView;
 
 @private    
     /// Our own interaction layer for adding and removing things
@@ -65,7 +62,7 @@
     MaplyCoordinate boundLL,boundUR;
 
     /// Current view animation (kept around so it's not released)
-    NSObject *curAnimation;
+    Maply::MapViewAnimationDelegateRef curAnimation;
     
     // Used for the outside animation interface
     NSObject<MaplyViewControllerAnimationDelegate> *animationDelegate;

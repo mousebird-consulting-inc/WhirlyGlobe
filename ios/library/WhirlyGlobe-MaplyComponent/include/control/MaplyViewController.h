@@ -262,40 +262,6 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 /// Initialize as a 3D map.
 - (nonnull instancetype)init __deprecated;
 
-/// Initialize as a 2D map.
-- (nonnull instancetype)initAsFlatMap __deprecated;
-
-/** 
-    Initialize as a 2D map tied to a UIScrollView.
-    
-    In this mode we disable all the the gestures.
-    
-    @param scrollView The UIScrollView to track.
-    
-    @param tetherView If set, we assume the scroll view is manipulating a blank UIView which we'll watch.
-  */
-- (nonnull instancetype)initAsTetheredFlatMap:(UIScrollView *__nonnull)scrollView tetherView:(UIView *__nullable)tetherView;
-
-/** 
-    Reset the UIScrollView for tethered mode.
-    
-    Occasionally we need to reset the UIScrollView and tether view.  This will do that.
-    
-    @param scrollView The UIScrollView to track.
-    
-    @param tetherView If set, we assume the scroll view is manipulating a blank UIView which we'll watch.
-  */
-- (void)resetTetheredFlatMap:(UIScrollView *__nonnull)scrollView tetherView:(UIView *__nullable)tetherView;
-
-/// Set if we're in 2D mode.
-@property (nonatomic,readonly) bool flatMode;
-
-/// If we're in tethered flat map mode, this is the view we're monitoring for size and offset changes.
-@property(nonatomic,weak) UIView *__nullable tetherView;
-
-/// If set before startup (after init), we'll turn off all gestures and work only in tethered mode.
-@property(nonatomic,assign) bool tetheredMode;
-
 /// Set the coordinate system to use in display.
 /// The coordinate system needs to be valid in flat mode.  The extents, if present, will be used to define the coordinate system origin.
 /// nil is the default and will result in a full web style Spherical Mercator.
@@ -440,19 +406,6 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
     @param howLong A time in seconds.
   */
 - (void)animateToPosition:(MaplyCoordinate)newPos time:(NSTimeInterval)howLong;
-
-/** 
-    Animate to new window extents over time.
-    
-    This method is similar to animateToPosition:time: but only works in 2D flat map mode.
-    
-    @param windowSize The new window size we're matching.
-    
-    @param contentOffset The contentOffset from the UIScrollView.
-    
-    @param howLong The length of time to take getting there.
-  */
-- (void)animateToExtentsWindowSize:(CGSize)windowSize contentOffset:(CGPoint)contentOffset time:(NSTimeInterval)howLong;
 
 /** 
     Animate the given position to the screen position over time.

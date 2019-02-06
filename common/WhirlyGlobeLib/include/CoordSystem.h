@@ -140,7 +140,9 @@ protected:
     Point3d scale;
     CoordSystem *coordSys;
 };
-    
+
+typedef std::shared_ptr<CoordSystemDisplayAdapter> CoordSystemDisplayAdapterRef;
+
 /** The general coord system display adapter is used by flat maps to encapsulate a general coordinate system.
     This needs to be one which is flat, but is otherwise unconstrained.  The bounding box is where the coordinate system is valid and the center will be the center of display coordinates.
   */

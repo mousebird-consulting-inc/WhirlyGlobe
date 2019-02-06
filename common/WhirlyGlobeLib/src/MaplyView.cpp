@@ -261,6 +261,11 @@ void MapView::setDelegate(MapViewAnimationDelegateRef inDelegate)
 {
     delegate = inDelegate;
 }
+    
+MapViewAnimationDelegateRef MapView::getDelegate()
+{
+    return delegate;
+}
 
 /// Called to cancel a running animation
 void MapView::cancelAnimation()

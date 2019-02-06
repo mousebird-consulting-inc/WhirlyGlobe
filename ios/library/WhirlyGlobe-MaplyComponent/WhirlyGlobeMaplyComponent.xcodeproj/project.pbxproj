@@ -600,6 +600,7 @@
 		2BE1E766220A567100815D9C /* MaplyViewControllerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537D41D249A1200B60FAD /* MaplyViewControllerLayer.mm */; };
 		2BE1E767220A567500815D9C /* WGViewControllerLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537F41D249A1200B60FAD /* WGViewControllerLayer.mm */; };
 		2BE1E768220A56CB00815D9C /* MaplyBaseViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537A11D249A1200B60FAD /* MaplyBaseViewController.mm */; };
+		2BE1E769220A59BE00815D9C /* MaplyViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537D31D249A1200B60FAD /* MaplyViewController.mm */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -4560,6 +4561,7 @@
 				2BB8E1DB21FF7FDE00154CDC /* BaseInfo.cpp in Sources */,
 				2BE539A41D249BEF00B60FAD /* AAMoon.cpp in Sources */,
 				2B82B5E61E82E2490095FB14 /* memalloc.c in Sources */,
+				2BE1E769220A59BE00815D9C /* MaplyViewController.mm in Sources */,
 				2BE539901D249BEF00B60FAD /* AADiameters.cpp in Sources */,
 				2BC3D6CE2203EA1500CE91D0 /* MaplyScreenMarker.m in Sources */,
 				2BE53A0C1D249C2900B60FAD /* message_lite.cc in Sources */,
