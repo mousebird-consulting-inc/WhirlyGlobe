@@ -21,6 +21,7 @@
 #import "MaplyMBTileFetcher.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "WhirlyGlobe.h"
+#import "sqlhelpers.h"
 
 using namespace WhirlyKit;
 
