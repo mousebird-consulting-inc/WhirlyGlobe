@@ -93,7 +93,7 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
 
 - (void)loadXmlData:(NSData *)docData
 {
-    startTime = TimeGetCurrent();
+    startTime = CFAbsoluteTimeGetCurrent();
     self.styleDictionary = [NSMutableDictionary dictionary];
     NSXMLParser *parser = [[NSXMLParser alloc] initWithData:docData];
     docData = nil;
