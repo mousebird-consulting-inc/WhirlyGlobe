@@ -282,6 +282,17 @@ RendererFrameInfo::RendererFrameInfo(const RendererFrameInfo &that)
 }
     
 SceneRendererES::SceneRendererES()
+    : scene(NULL),
+    theView(NULL),
+    zBufferMode(zBufferOff),
+    framebufferWidth(0), framebufferHeight(0), scale(1.0),
+    framesPerSec(0.0), numDrawables(0),  perfInterval(0.0),
+    useViewChanged(true), sortAlphaToEnd(false), depthBufferOffForAlpha(false),
+    triggerDraw(true),
+    frameCount(0),frameCountStart(0.0),lastDraw(0.0),renderUntil(0.0),
+    clearColor(0,0,0,0),
+    extraFrameMode(false),
+    framebufferTex(NULL)
 {
 }
 
