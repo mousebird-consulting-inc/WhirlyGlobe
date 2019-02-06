@@ -31,7 +31,7 @@
     return true;
 }
 
-- (void)updateForFrame:(id)frameInfo
+- (void)updateForFrame:(void *)frameInfo
 {
     // Delete it
     if (compObj)

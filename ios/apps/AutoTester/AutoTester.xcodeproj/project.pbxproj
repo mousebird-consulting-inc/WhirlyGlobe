@@ -44,6 +44,9 @@
 		2BC0FB781DCAA18A004125F1 /* TextureVectorTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC0FB771DCAA18A004125F1 /* TextureVectorTestCase.m */; };
 		2BC0FB7A1DCAA574004125F1 /* dots.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB791DCAA574004125F1 /* dots.png */; };
 		2BC2DCCD1D1F4CE20088D350 /* ShapefileTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */; };
+		2BC3D6F0220B900A00CE91D0 /* StartupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */; };
+		2BC3D6F2220B900D00CE91D0 /* TestCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FE129181CDFB3B8004744FC /* TestCell.swift */; };
+		2BC3D6F3220B901000CE91D0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */; };
 		2BC41C8321F00AA6002926B7 /* BNGCustomMapTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84AA5931C1A1C9700413B76 /* BNGCustomMapTestCase.swift */; };
 		2BC41C8521F00AA9002926B7 /* BNGTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84AA5981C1A2B9800413B76 /* BNGTestCase.swift */; };
 		2BD358F31DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */; };
@@ -2357,6 +2360,8 @@
 				2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */,
 				2BC41C8321F00AA6002926B7 /* BNGCustomMapTestCase.swift in Sources */,
 				D8200CA11BE9563F00B22CF5 /* StickersTestCase.swift in Sources */,
+				2BC3D6F3220B901000CE91D0 /* AppDelegate.swift in Sources */,
+				2BC3D6F2220B900D00CE91D0 /* TestCell.swift in Sources */,
 				E5941DC11E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift in Sources */,
 				2BB8A40021ED46E10025DA98 /* StamenWatercolorRemote.swift in Sources */,
 				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
@@ -2371,6 +2376,7 @@
 				D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
 				2B753DE221EEB7F900DE98BA /* StarsSunTestCase.swift in Sources */,
+				2BC3D6F0220B900A00CE91D0 /* StartupViewController.swift in Sources */,
 				2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */,
 				D8200C9F1BE9516300B22CF5 /* ShapesTestCase.m in Sources */,
 				2B93D9671D41433500EAD280 /* WideVectorGlobeTestCase.m in Sources */,
