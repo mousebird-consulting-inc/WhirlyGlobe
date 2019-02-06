@@ -32,7 +32,7 @@ namespace WhirlyGlobe
 class GlobeView_iOS : public GlobeView
 {
 public:
-    GlobeView_iOS(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
+    GlobeView_iOS();
     
     /// Set the change delegate
     virtual void setDelegate(GlobeViewAnimationDelegateRef delegate);
@@ -42,5 +42,10 @@ public:
     
     /// Used to mark notifications belonging to this view
     id tag;
+    
+    WhirlyKit::FakeGeocentricDisplayAdapter fakeGeoC;
 };
+    
+typedef std::shared_ptr<GlobeView_iOS> GlobeView_iOSRef;
+    
 }

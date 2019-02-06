@@ -32,6 +32,7 @@ namespace WhirlyGlobe
  */
 class AnimateViewRotation : public GlobeViewAnimationDelegate
 {
+public:
     /// Kick off a rotate to the given position over the given time
     /// Assign this to the globe view's delegate and it'll do the rest
     AnimateViewRotation(GlobeView *globeView,const Eigen::Quaterniond &newRot,WhirlyKit::TimeInterval howLong);

@@ -36,8 +36,6 @@
 			NSString *vecName = [[wgVecObj attributes] objectForKey:@"ADMIN"];
 			wgVecObj.userObject = vecName;
 			[globeVC addLoftedPolys:@[wgVecObj]
-				key:nil
-				cache:nil
 				desc:@{
 					kMaplyLoftedPolyHeight: @(0.1),
 					kMaplyLoftedPolyOutlineColor: [UIColor redColor],

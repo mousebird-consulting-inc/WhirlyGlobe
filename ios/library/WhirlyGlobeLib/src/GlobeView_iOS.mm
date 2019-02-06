@@ -24,8 +24,8 @@
 namespace WhirlyGlobe
 {
     
-GlobeView_iOS::GlobeView_iOS(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter)
-    : GlobeView(coordAdapter)
+GlobeView_iOS::GlobeView_iOS()
+    : GlobeView(&fakeGeoC)
 {
     tag = [[NSObject alloc] init];
 }

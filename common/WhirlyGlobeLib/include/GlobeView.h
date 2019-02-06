@@ -180,6 +180,8 @@ protected:
     /// Animation delegate
     GlobeViewAnimationDelegateRef delegate;
 };
+    
+typedef std::shared_ptr<GlobeView> GlobeViewRef;
 
 /** View State related to the Globe view.  This adds
  more parameters relating to the globe.

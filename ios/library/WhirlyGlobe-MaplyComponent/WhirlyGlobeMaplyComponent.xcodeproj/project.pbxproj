@@ -578,6 +578,7 @@
 		2BC3D6EA220B701500CE91D0 /* MaplyMBTileFetcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3B321ED43780025DA98 /* MaplyMBTileFetcher.mm */; };
 		2BC3D6EC220B713700CE91D0 /* sqlhelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6EB220B713700CE91D0 /* sqlhelpers.h */; };
 		2BC3D6EE220B714100CE91D0 /* sqlhelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6ED220B714100CE91D0 /* sqlhelpers.mm */; };
+		2BC3D6EF220B71D900CE91D0 /* WhirlyGlobeViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537F51D249A1200B60FAD /* WhirlyGlobeViewController.mm */; };
 		2BE1E7392208A97100815D9C /* MaplyPinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DED21233CBE0074D06D /* MaplyPinchDelegate.mm */; };
 		2BE1E73A2208B25F00815D9C /* MaplyPanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DEC21233CBE0074D06D /* MaplyPanDelegate.mm */; };
 		2BE1E73B2208B73C00815D9C /* MaplyDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DE721233CBE0074D06D /* MaplyDoubleTapDelegate.mm */; };
@@ -4407,6 +4408,7 @@
 				2B82B6781E82E24A0095FB14 /* pj_inv.c in Sources */,
 				2B82B6821E82E24A0095FB14 /* PJ_lcca.c in Sources */,
 				2B846EEC21F1382300EF2A82 /* pj_fileapi.c in Sources */,
+				2BC3D6EF220B71D900CE91D0 /* WhirlyGlobeViewController.mm in Sources */,
 				2B82B69A1E82E24A0095FB14 /* PJ_ocea.c in Sources */,
 				2B884A441E3803170027C397 /* arithmeticencoder.cpp in Sources */,
 				2B446B1E21F79AE40078A975 /* GlobeMath.cpp in Sources */,

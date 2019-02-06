@@ -34,11 +34,11 @@
 
 /// This is the private interface to WhirlyGlobeViewController.
 /// Only pull this in if you're subclassing
-@interface WhirlyGlobeViewController()<ViewWatcherDelegate>
+@interface WhirlyGlobeViewController()
 {
 @public    
     WhirlyGlobe::GlobeScene *globeScene;
-    WhirlyGlobeView *globeView;
+    WhirlyGlobe::GlobeView_iOSRef globeView;
     
     // Local interaction layer
     WGInteractionLayer *globeInteractLayer;
@@ -49,11 +49,10 @@
     WhirlyGlobeTiltDelegate *tiltDelegate;
     WhirlyGlobeTapDelegate *tapDelegate;
     WhirlyGlobeRotateDelegate *rotateDelegate;
-    WhirlyGlobeAnimateViewRotation *animateRotation;
     WhirlyGlobeDoubleTapDelegate *doubleTapDelegate;
     WhirlyGlobeTwoFingerTapDelegate *twoFingerTapDelegate;
     WhirlyGlobeDoubleTapDragDelegate *doubleTapDragDelegate;
-    WhirlyGlobeStandardTiltDelegate *tiltControlDelegate;
+    WhirlyGlobe::StandardTiltDelegateRef tiltControlDelegate;
 
     // Set when we're animating the view point but we know where it's going
     bool knownAnimateEndRot;
@@ -62,7 +61,7 @@
     
     // Used for the outside animation interface
     NSObject<WhirlyGlobeViewControllerAnimationDelegate> *animationDelegate;
-    TimeInterval animationDelegateEnd;
+    NSTimeInterval animationDelegateEnd;
     Eigen::Quaterniond startQuat;
     Eigen::Vector3d startUp;
     bool delegateRespondsToViewUpdate;

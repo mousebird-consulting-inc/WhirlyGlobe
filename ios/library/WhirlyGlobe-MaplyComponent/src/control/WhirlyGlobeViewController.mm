@@ -125,12 +125,41 @@ using namespace WhirlyGlobe;
 
 @end
 
-@interface WhirlyGlobeViewController() <WGInteractionLayerDelegate,WhirlyGlobeAnimationDelegate>
+@interface WhirlyGlobeViewController() <WGInteractionLayerDelegate>
+- (void)updateView:(WhirlyGlobe::GlobeView *)theGlobeView;
+- (void)viewUpdated:(View *)view;
 @end
+
+// Interface object between Obj-C and C++ for animation callbacks
+// Also used to catch view geometry updates
+class WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, public ViewWatcher
+{
+public:
+    WhirlyGlobeViewWrapper()
+    : control(nil)
+    {
+    }
+    
+    // Called by the View to set up view state per frame
+    void updateView(WhirlyGlobe::GlobeView *globeView)
+    {
+        [control updateView:globeView];
+    }
+    
+    // Called by the view when things are changed
+    virtual void viewUpdated(View *view)
+    {
+        [control viewUpdated:view];
+    }
+    
+public:
+    WhirlyGlobeViewController __weak * control;
+};
 
 @implementation WhirlyGlobeViewController
 {
     bool isPanning,isRotating,isZooming,isAnimating,isTilting;
+    WhirlyGlobeViewWrapper viewWrapper;
 }
 
 - (id) init
@@ -145,6 +174,7 @@ using namespace WhirlyGlobe;
     _doubleTapDragGesture = true;
     _zoomTapFactor = 2.0;
     _zoomTapAnimationDuration = 0.1;
+    viewWrapper.control = self;
     
     return self;
 }
@@ -163,7 +193,6 @@ using namespace WhirlyGlobe;
     tiltDelegate = nil;
     tapDelegate = nil;
     rotateDelegate = nil;
-    animateRotation = nil;    
 
     doubleTapDelegate = nil;
     twoFingerTapDelegate = nil;
@@ -188,7 +217,7 @@ using namespace WhirlyGlobe;
     if (delegateRespondsToViewUpdate)
     {
         MaplyCoordinate corners[4];
-        [self corners:corners forRot:globeView.rotQuat viewMat:[globeView calcViewMatrix]];
+        [self corners:corners forRot:globeView->getRotQuat() viewMat:globeView->calcViewMatrix()];
         [_delegate globeViewController:self didMove:corners];
     }
 }
@@ -196,24 +225,23 @@ using namespace WhirlyGlobe;
 // Create the globe view
 - (ViewRef) loadSetup_view
 {
-	globeView = [[WhirlyGlobeView alloc] init];
-    globeView.continuousZoom = true;
-    [globeView addWatcherDelegate:self];
+    globeView = GlobeView_iOSRef(new GlobeView_iOS());
+    globeView->continuousZoom = true;
+    globeView->addWatcher(&viewWrapper);
     
     return globeView;
 }
 
 - (Scene *) loadSetup_scene
 {
-    globeScene = new WhirlyGlobe::GlobeScene(globeView.coordAdapter);
-    renderControl->sceneRenderer.theView = globeView;
+    globeScene = new WhirlyGlobe::GlobeScene(globeView->coordAdapter);
     
     return globeScene;
 }
 
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer
 {
-    globeInteractLayer = [[WGInteractionLayer alloc] initWithGlobeView:globeView];
+    globeInteractLayer = [[WGInteractionLayer alloc] initWithGlobeView:globeView.get()];
     globeInteractLayer.viewController = self;
     return globeInteractLayer;
 }
@@ -224,8 +252,8 @@ using namespace WhirlyGlobe;
     [super loadSetup];
     
     // Wire up the gesture recognizers
-    panDelegate = [WhirlyGlobePanDelegate panDelegateForView:glView globeView:globeView useCustomPanRecognizer:self.inScrollView];
-    tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:globeView];
+    panDelegate = [WhirlyGlobePanDelegate panDelegateForView:glView globeView:globeView.get() useCustomPanRecognizer:self.inScrollView];
+    tapDelegate = [WhirlyGlobeTapDelegate tapDelegateForView:glView globeView:globeView.get()];
     // These will activate the appropriate gesture
     self.panGesture = true;
     self.pinchGesture = true;
@@ -237,7 +265,7 @@ using namespace WhirlyGlobe;
     
     if(_doubleTapZoomGesture)
     {
-        doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView];
+        doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView.get()];
         doubleTapDelegate.minZoom = pinchDelegate.minHeight;
         doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
         doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
@@ -245,7 +273,7 @@ using namespace WhirlyGlobe;
     }
     if(_twoFingerTapGesture)
     {
-        twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView];
+        twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView.get()];
         twoFingerTapDelegate.minZoom = pinchDelegate.minHeight;
         twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
         twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
@@ -256,7 +284,7 @@ using namespace WhirlyGlobe;
     }
     if (_doubleTapDragGesture)
     {
-        doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView];
+        doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView.get()];
         doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
         doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
         [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
@@ -276,7 +304,7 @@ using namespace WhirlyGlobe;
     [super viewDidAppear:animated];
     
     // Let's kick off a view update in case the renderer just got set up
-    [globeView runViewUpdates];
+    globeView->runViewUpdates();
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -306,7 +334,6 @@ using namespace WhirlyGlobe;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rotateDidEnd:) name:kRotateDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidStart:) name:kWKViewAnimationStarted object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationDidEnd:) name:kWKViewAnimationEnded object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(animationWillEnd:) name:kAnimateViewMomentum object:nil];
 }
 
 - (void)unregisterForEvents
@@ -325,7 +352,6 @@ using namespace WhirlyGlobe;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kRotateDelegateDidEnd object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationStarted object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:kWKViewAnimationEnded object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:kAnimateViewMomentum object:nil];
 }
 
 #pragma mark - Properties
@@ -371,7 +397,7 @@ using namespace WhirlyGlobe;
     {
         if (!pinchDelegate)
         {
-            pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:globeView];
+            pinchDelegate = [WhirlyGlobePinchDelegate pinchDelegateForView:glView globeView:globeView.get()];
             pinchDelegate.zoomAroundPinch = self.zoomAroundPinch;
             pinchDelegate.doRotation = false;
             pinchDelegate.northUp = panDelegate.northUp;
@@ -402,7 +428,7 @@ using namespace WhirlyGlobe;
     {
         if (!rotateDelegate)
         {
-            rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:globeView];
+            rotateDelegate = [WhirlyGlobeRotateDelegate rotateDelegateForView:glView globeView:globeView.get()];
             rotateDelegate.rotateAroundCenter = true;
             pinchDelegate.rotateDelegate = rotateDelegate;
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:rotateDelegate.gestureRecognizer];
@@ -433,7 +459,7 @@ using namespace WhirlyGlobe;
     {
         if (!tiltDelegate)
         {
-            tiltDelegate = [WhirlyGlobeTiltDelegate tiltDelegateForView:glView globeView:globeView];
+            tiltDelegate = [WhirlyGlobeTiltDelegate tiltDelegateForView:glView globeView:globeView.get()];
             tiltDelegate.pinchDelegate = pinchDelegate;
             tiltDelegate.tiltCalcDelegate = tiltControlDelegate;
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
@@ -461,12 +487,12 @@ using namespace WhirlyGlobe;
 
 - (float)height
 {
-    return globeView.heightAboveGlobe;
+    return globeView->getHeightAboveGlobe();
 }
 
 - (void)setHeight:(float)height
 {
-    globeView.heightAboveGlobe = height;
+    globeView->setHeightAboveGlobe(height);
 }
 
 - (float)getZoomLimitsMin
@@ -495,10 +521,11 @@ using namespace WhirlyGlobe;
     {
         pinchDelegate.minHeight = minHeight;
         pinchDelegate.maxHeight = maxHeight;
-        if (globeView.heightAboveGlobe < minHeight)
-            globeView.heightAboveGlobe = minHeight;
-        if (globeView.heightAboveGlobe > maxHeight)
-            globeView.heightAboveGlobe = maxHeight;
+        auto heightAboveGlobe = globeView->getHeightAboveGlobe();
+        if (heightAboveGlobe < minHeight)
+            globeView->setHeightAboveGlobe(minHeight);
+        if (heightAboveGlobe > maxHeight)
+            globeView->setHeightAboveGlobe(maxHeight);
 
         if (doubleTapDelegate)
         {
@@ -540,13 +567,13 @@ using namespace WhirlyGlobe;
 
 - (void)setFarClipPlane:(double)farClipPlane
 {
-    [globeView setFarClippingPlane:farClipPlane];
+    globeView->setFarClippingPlane(farClipPlane);
 }
 
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
 {
-    tiltControlDelegate = [[WhirlyGlobeStandardTiltDelegate alloc] initWithGlobeView:globeView];
-    [tiltControlDelegate setMinTilt:minTilt maxTilt:maxTilt minHeight:minHeight maxHeight:maxHeight];
+    tiltControlDelegate = StandardTiltDelegateRef(new StandardTiltDelegate(globeView.get()));
+    tiltControlDelegate->setContraints(minTilt, maxTilt, minHeight, maxHeight);
     if (pinchDelegate)
         pinchDelegate.tiltDelegate = tiltControlDelegate;
     if (doubleTapDelegate)
@@ -567,27 +594,27 @@ using namespace WhirlyGlobe;
     if (twoFingerTapDelegate)
         twoFingerTapDelegate.tiltDelegate = nil;
     tiltControlDelegate = nil;
-    globeView.tilt = 0.0;
+    globeView->setTilt(0.0);
 }
 
 - (float)tilt
 {
-    return globeView.tilt;
+    return globeView->getTilt();
 }
 
 - (void)setTilt:(float)newTilt
 {
-    globeView.tilt = newTilt;
+    globeView->setTilt(newTilt);
 }
 
 - (double)roll
 {
-    return globeView.roll;
+    return globeView->getRoll();
 }
 
 - (void)setRoll:(double)newRoll
 {
-    globeView.roll = newRoll;
+    globeView->setRoll(newRoll, true);
 }
 
 - (void)setDoubleTapZoomGesture:(bool)doubleTapZoomGesture
@@ -597,7 +624,7 @@ using namespace WhirlyGlobe;
     {
         if (!doubleTapDelegate)
         {
-            doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView];
+            doubleTapDelegate = [WhirlyGlobeDoubleTapDelegate doubleTapDelegateForView:glView globeView:globeView.get()];
             doubleTapDelegate.minZoom = pinchDelegate.minHeight;
             doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
             doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
@@ -620,7 +647,7 @@ using namespace WhirlyGlobe;
     {
         if (!twoFingerTapDelegate)
         {
-            twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView];
+            twoFingerTapDelegate = [WhirlyGlobeTwoFingerTapDelegate twoFingerTapDelegateForView:glView globeView:globeView.get()];
             twoFingerTapDelegate.minZoom = pinchDelegate.minHeight;
             twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
             twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
@@ -645,7 +672,7 @@ using namespace WhirlyGlobe;
     {
         if (!doubleTapDragDelegate)
         {
-            doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView];
+            doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:glView globeView:globeView.get()];
             doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
             doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
             [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
@@ -667,29 +694,29 @@ using namespace WhirlyGlobe;
 - (void)rotateToPoint:(GeoCoord)whereGeo time:(TimeInterval)howLong
 {
     // If we were rotating from one point to another, stop
-    [globeView cancelAnimation];
+    globeView->cancelAnimation();
     
     // Construct a quaternion to rotate from where we are to where
     //  the user tapped
-    Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoord:whereGeo keepNorthUp:panDelegate.northUp];
+    Eigen::Quaterniond newRotQuat = globeView->makeRotationToGeoCoord(whereGeo, panDelegate.northUp);
     
     // Rotate to the given position over time
-    animateRotation = [[WhirlyGlobeAnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
-    globeView.delegate = animateRotation;        
+    AnimateViewRotation *anim = new AnimateViewRotation(globeView.get(),newRotQuat,howLong);
+    globeView->setDelegate(GlobeViewAnimationDelegateRef(anim));
 }
 
 - (void)rotateToPointD:(Point2d)whereGeo time:(TimeInterval)howLong
 {
     // If we were rotating from one point to another, stop
-    [globeView cancelAnimation];
+    globeView->cancelAnimation();
     
     // Construct a quaternion to rotate from where we are to where
     //  the user tapped
-    Eigen::Quaterniond newRotQuat = [globeView makeRotationToGeoCoordD:whereGeo keepNorthUp:panDelegate.northUp];
+    Eigen::Quaterniond newRotQuat = globeView->makeRotationToGeoCoord(whereGeo, panDelegate.northUp);
     
     // Rotate to the given position over time
-    animateRotation = [[WhirlyGlobeAnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
-    globeView.delegate = animateRotation;
+    AnimateViewRotation *anim = new AnimateViewRotation(globeView.get(),newRotQuat,howLong);
+    globeView->setDelegate(GlobeViewAnimationDelegateRef(anim));
 }
 
 // External facing version of rotateToPoint
@@ -716,18 +743,20 @@ using namespace WhirlyGlobe;
         return false;
     }
 
-    [globeView cancelAnimation];
+    globeView->cancelAnimation();
     
     // Figure out where that point lands on the globe
-    Eigen::Matrix4d modelTrans = [globeView calcFullMatrix];
+    Eigen::Matrix4d modelTrans = globeView->calcFullMatrix();
     Point3d whereLoc;
-    if ([globeView pointOnSphereFromScreen:loc transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&whereLoc normalized:true])
+    Point2f loc2f(loc.x,loc.y);
+    auto frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
+    if (globeView->pointOnSphereFromScreen(loc2f, &modelTrans, frameSizeScaled, &whereLoc, true))
     {
-        CoordSystemDisplayAdapter *coordAdapter = globeView.coordAdapter;
+        CoordSystemDisplayAdapter *coordAdapter = globeView->coordAdapter;
         Vector3d destPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
         Eigen::Quaterniond endRot;
         endRot = QuatFromTwoVectors(destPt, whereLoc);
-        Eigen::Quaterniond curRotQuat = globeView.rotQuat;
+        Eigen::Quaterniond curRotQuat = globeView->getRotQuat();
         Eigen::Quaterniond newRotQuat = curRotQuat * endRot;
         
         if (panDelegate.northUp)
@@ -750,8 +779,8 @@ using namespace WhirlyGlobe;
         }
         
         // Rotate to the given position over time
-        animateRotation = [[WhirlyGlobeAnimateViewRotation alloc] initWithView:globeView rot:newRotQuat howLong:howLong];
-        globeView.delegate = animateRotation;
+        AnimateViewRotation *anim = new AnimateViewRotation(globeView.get(),newRotQuat,howLong);
+        globeView->setDelegate(GlobeViewAnimationDelegateRef(anim));
         
         return true;
     } else
@@ -766,7 +795,7 @@ using namespace WhirlyGlobe;
         return false;
     }
 
-    [globeView cancelAnimation];
+    globeView->cancelAnimation();
 
     WhirlyGlobeViewControllerSimpleAnimationDelegate *anim = [[WhirlyGlobeViewControllerSimpleAnimationDelegate alloc] init];
     anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
@@ -787,7 +816,7 @@ using namespace WhirlyGlobe;
         return false;
     }
     
-    [globeView cancelAnimation];
+    globeView->cancelAnimation();
     
     WhirlyGlobeViewControllerSimpleAnimationDelegate *anim = [[WhirlyGlobeViewControllerSimpleAnimationDelegate alloc] init];
     anim.loc = newPos;
@@ -808,7 +837,7 @@ using namespace WhirlyGlobe;
         return false;
     }
     
-    [globeView cancelAnimation];
+    globeView->cancelAnimation();
 
     // save current view state
     WhirlyGlobeViewControllerAnimationState *curState = [self getViewState];
@@ -857,8 +886,9 @@ using namespace WhirlyGlobe;
     // Note: This might conceivably be a problem, though I'm not sure how.
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
     // If there's a pinch delegate, ask it to calculate the height.
-    if (tiltControlDelegate)
-        self.tilt = [tiltControlDelegate tiltFromHeight:globeView.heightAboveGlobe];
+    if (tiltControlDelegate) {
+        self.tilt = tiltControlDelegate->tiltFromHeight(globeView->getHeightAboveGlobe());
+    }
  }
 
 - (void)setPosition:(WGCoordinate)newPos height:(float)height
@@ -870,7 +900,7 @@ using namespace WhirlyGlobe;
     }
 
     [self setPosition:newPos];
-    globeView.heightAboveGlobe = height;
+    globeView->setHeightAboveGlobe(height);
 }
 
 - (void)setPositionD:(MaplyCoordinateD)newPos height:(double)height
@@ -883,10 +913,10 @@ using namespace WhirlyGlobe;
     
     // Note: This might conceivably be a problem, though I'm not sure how.
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
-    globeView.heightAboveGlobe = height;
+    globeView->setHeightAboveGlobe(height);
     // If there's a pinch delegate, ask it to calculate the height.
     if (tiltControlDelegate)
-        self.tilt = [tiltControlDelegate tiltFromHeight:globeView.heightAboveGlobe];
+        self.tilt = tiltControlDelegate->tiltFromHeight(globeView->getHeightAboveGlobe());
 }
 
 - (void)setHeading:(float)heading
@@ -898,9 +928,10 @@ using namespace WhirlyGlobe;
     }
 
     // Undo the current heading
-    Point3d localPt = [globeView currentUp];
-    Vector3d northPole = (globeView.rotQuat * Vector3d(0,0,1)).normalized();
-    Quaterniond posQuat = globeView.rotQuat;
+    Point3d localPt = globeView->currentUp();
+    auto oldRotQuat = globeView->getRotQuat();
+    Vector3d northPole = (oldRotQuat * Vector3d(0,0,1)).normalized();
+    Quaterniond posQuat = oldRotQuat;
     if (northPole.y() != 0.0)
     {
         // Then rotate it back on to the YZ axis
@@ -917,7 +948,7 @@ using namespace WhirlyGlobe;
     Eigen::AngleAxisd rot(heading,localPt);
     Quaterniond newRotQuat = posQuat * rot;
     
-    globeView.rotQuat = newRotQuat;
+    globeView->setRotQuat(newRotQuat);
 }
 
 - (float)heading
@@ -925,7 +956,7 @@ using namespace WhirlyGlobe;
     float retHeading = 0.0;
 
     // Figure out where the north pole went
-    Vector3d northPole = (globeView.rotQuat * Vector3d(0,0,1)).normalized();
+    Vector3d northPole = (globeView->getRotQuat() * Vector3d(0,0,1)).normalized();
     if (northPole.y() != 0.0)
         retHeading = atan2(-northPole.x(),northPole.y());
     
@@ -934,36 +965,36 @@ using namespace WhirlyGlobe;
 
 - (MaplyCoordinate)getPosition
 {
-	GeoCoord geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographic(globeView.coordAdapter->displayToLocal([globeView currentUp]));
+	GeoCoord geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographic(globeView->coordAdapter->displayToLocal(globeView->currentUp()));
 
 	return {.x = geoCoord.lon(), .y = geoCoord.lat()};
 }
 
 - (MaplyCoordinateD)getPositionD
 {
-	Point2d geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographicD(globeView.coordAdapter->displayToLocal([globeView currentUp]));
+	Point2d geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographicD(globeView->coordAdapter->displayToLocal(globeView->currentUp()));
 
 	return {.x = geoCoord.x(), .y = geoCoord.y()};
 }
 
 - (double)getHeight
 {
-	return globeView.heightAboveGlobe;
+	return globeView->getHeightAboveGlobe();
 }
 
 - (void)getPosition:(WGCoordinate *)pos height:(float *)height
 {
-    *height = globeView.heightAboveGlobe;
-    Point3d localPt = [globeView currentUp];
-    GeoCoord geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographic(globeView.coordAdapter->displayToLocal(localPt));
+    *height = globeView->getHeightAboveGlobe();
+    Point3d localPt = globeView->currentUp();
+    GeoCoord geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographic(globeView->coordAdapter->displayToLocal(localPt));
     pos->x = geoCoord.lon();  pos->y = geoCoord.lat();
 }
 
 - (void)getPositionD:(MaplyCoordinateD *)pos height:(double *)height
 {
-    *height = globeView.heightAboveGlobe;
-    Point3d localPt = [globeView currentUp];
-    Point2d geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographicD(globeView.coordAdapter->displayToLocal(localPt));
+    *height = globeView->getHeightAboveGlobe();
+    Point3d localPt = globeView->currentUp();
+    Point2d geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographicD(globeView->coordAdapter->displayToLocal(localPt));
     pos->x = geoCoord.x();  pos->y = geoCoord.y();
 }
 
@@ -1073,24 +1104,25 @@ using namespace WhirlyGlobe;
     if (!renderControl)
         return;
     
-    CGPoint screenCorners[4];
-    screenCorners[0] = CGPointMake(0.0, 0.0);
-    screenCorners[1] = CGPointMake(renderControl->sceneRenderer.framebufferWidth,0.0);
-    screenCorners[2] = CGPointMake(renderControl->sceneRenderer.framebufferWidth,renderControl->sceneRenderer.framebufferHeight);
-    screenCorners[3] = CGPointMake(0.0, renderControl->sceneRenderer.framebufferHeight);
+    Point2f screenCorners[4];
+    screenCorners[0] = Point2f(0.0, 0.0);
+    screenCorners[1] = Point2f(renderControl->sceneRenderer->framebufferWidth,0.0);
+    screenCorners[2] = Point2f(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
+    screenCorners[3] = Point2f(0.0, renderControl->sceneRenderer->framebufferHeight);
     
     Eigen::Matrix4d modelTrans;
     // Note: Pulled this calculation out of the globe view.
-    Eigen::Affine3d trans(Eigen::Translation3d(0,0,-[globeView calcEarthZOffset]));
+    Eigen::Affine3d trans(Eigen::Translation3d(0,0,-globeView->calcEarthZOffset()));
     Eigen::Affine3d rot(theRot);
     Eigen::Matrix4d modelMat = (trans * rot).matrix();
     
     modelTrans = viewMat * modelMat;
 
+    auto frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point3d hit;
-        if ([globeView pointOnSphereFromScreen:screenCorners[ii] transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth,renderControl->sceneRenderer.framebufferHeight) hit:&hit normalized:true])
+        if (globeView->pointOnSphereFromScreen(screenCorners[ii], &modelTrans, frameSizeScaled, &hit, true))
         {
             Point3d geoHit = renderControl->scene->getCoordAdapter()->displayToLocal(hit);
             corners[ii].x = geoHit.x();  corners[ii].y = geoHit.y();
@@ -1110,7 +1142,7 @@ using namespace WhirlyGlobe;
         return;
     
     MaplyCoordinate corners[4];
-    [self corners:corners forRot:globeView.rotQuat viewMat:[globeView calcViewMatrix]];
+    [self corners:corners forRot:globeView->getRotQuat() viewMat:globeView->calcViewMatrix()];
 
     [_delegate globeViewController:self didStopMoving:corners userMotion:userMotion];
 }
@@ -1118,7 +1150,7 @@ using namespace WhirlyGlobe;
 // Called when the tilt delegate starts moving
 - (void) tiltDidStart:(NSNotification *)note
 {
-    if (note.object != globeView)
+    if (note.object != globeView->tag)
         return;
     
     [self handleStartMoving:true];
@@ -1128,7 +1160,7 @@ using namespace WhirlyGlobe;
 // Called when the tilt delegate stops moving
 - (void) tiltDidEnd:(NSNotification *)note
 {
-    if (note.object != globeView)
+    if (note.object != globeView->tag)
         return;
     
     isTilting = false;
@@ -1138,7 +1170,7 @@ using namespace WhirlyGlobe;
 // Called when the pan delegate starts moving
 - (void) panDidStart:(NSNotification *)note
 {
-    if (note.object != globeView)
+    if (note.object != globeView->tag)
         return;
     
 //    NSLog(@"Pan started");
@@ -1150,7 +1182,7 @@ using namespace WhirlyGlobe;
 // Called when the pan delegate stops moving
 - (void) panDidEnd:(NSNotification *)note
 {
-    if (note.object != globeView)
+    if (note.object != globeView->tag)
         return;
     
 //    NSLog(@"Pan ended");
@@ -1161,7 +1193,7 @@ using namespace WhirlyGlobe;
 
 - (void) pinchDidStart:(NSNotification *)note
 {
-    if (note.object != globeView)
+    if (note.object != globeView->tag)
         return;
     
 //    NSLog(@"Pinch started");
@@ -1172,7 +1204,7 @@ using namespace WhirlyGlobe;
 
 - (void) pinchDidEnd:(NSNotification *)note
 {
-    if (note.object != globeView)
+    if (note.object != globeView->tag)
         return;
     
 //    NSLog(@"Pinch ended");
@@ -1183,7 +1215,7 @@ using namespace WhirlyGlobe;
 
 - (void) rotateDidStart:(NSNotification *)note
 {
-    if (note.object != globeView)
+    if (note.object != globeView->tag)
         return;
     
 //    NSLog(@"Rotate started");
@@ -1194,7 +1226,7 @@ using namespace WhirlyGlobe;
 
 - (void) rotateDidEnd:(NSNotification *)note
 {
-    if (note.object != globeView)
+    if (note.object != globeView->tag)
         return;
     
 //    NSLog(@"Rotate ended");
@@ -1205,7 +1237,7 @@ using namespace WhirlyGlobe;
 
 - (void) animationDidStart:(NSNotification *)note
 {
-    if (note.object != globeView)
+    if (note.object != globeView->tag)
         return;
     
 //    NSLog(@"Animation started");
@@ -1216,14 +1248,14 @@ using namespace WhirlyGlobe;
 
 - (void) animationDidEnd:(NSNotification *)note
 {
-    if (note.object != globeView)
+    if (note.object != globeView->tag)
         return;
     
 //    NSLog(@"Animation ended");
     
     // Momentum animation is only kicked off by the pan delegate.
     bool userMotion = false;
-    if ([globeView.delegate isKindOfClass:[AnimateViewMomentum class]])
+    if (dynamic_cast<AnimateViewRotation *>(globeView->getDelegate().get()))
         userMotion = true;
     
     isAnimating = false;
@@ -1231,35 +1263,10 @@ using namespace WhirlyGlobe;
     [self handleStopMoving:userMotion];
 }
 
-- (void) animationWillEnd:(NSNotification *)note
-{
-    AnimateViewMomentumMessage *info = note.object;
-    if (![info isKindOfClass:[AnimateViewMomentumMessage class]])
-        return;
-
-//    NSLog(@"Animation will end");
-
-    knownAnimateEndRot = true;
-    animateEndRot = info.rot;
-
-    if (!isRotating && !isZooming)
-    {
-        if ([_delegate respondsToSelector:@selector(globeViewController:willStopMoving:userMotion:)])
-        {
-            MaplyCoordinate corners[4];
-            if (knownAnimateEndRot)
-            {
-                [self corners:corners forRot:animateEndRot viewMat:[globeView calcViewMatrix]];
-                [_delegate globeViewController:self willStopMoving:corners userMotion:true];
-            }
-        }
-    }
-}
-
 // See if the given bounding box is all on sreen
-- (bool)checkCoverage:(Mbr &)mbr globeView:(WhirlyGlobeView *)theView height:(float)height
+- (bool)checkCoverage:(Mbr &)mbr globeView:(WhirlyGlobe::GlobeView *)theView height:(float)height
 {
-    [theView setHeightAboveGlobe:height updateWatchers:false];
+    theView->setHeightAboveGlobe(height, false);
 
     Point2fVector pts;
     mbr.asPoints(pts);
@@ -1279,28 +1286,28 @@ using namespace WhirlyGlobe;
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos
 {
-    WhirlyGlobeView *tempGlobe = [[WhirlyGlobeView alloc] initWithView:globeView];
+    GlobeView tempGlobe(*globeView.get());
     
-    float oldHeight = globeView.heightAboveGlobe;
-    Eigen::Quaterniond newRotQuat = [tempGlobe makeRotationToGeoCoord:GeoCoord(pos.x,pos.y) keepNorthUp:YES];
-    [tempGlobe setRotQuat:newRotQuat updateWatchers:false];
+    float oldHeight = globeView->getHeightAboveGlobe();
+    Eigen::Quaterniond newRotQuat = tempGlobe.makeRotationToGeoCoord(GeoCoord(pos.x,pos.y), true);
+    tempGlobe.setRotQuat(newRotQuat,false);
 
     Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
     
-    float minHeight = tempGlobe.minHeightAboveGlobe;
-    float maxHeight = tempGlobe.maxHeightAboveGlobe;
+    double minHeight = tempGlobe.minHeightAboveGlobe();
+    double maxHeight = tempGlobe.maxHeightAboveGlobe();
     if (pinchDelegate)
     {
-        minHeight = std::max(minHeight,pinchDelegate.minHeight);
-        maxHeight = std::min(maxHeight,pinchDelegate.maxHeight);
+        minHeight = std::max(minHeight,(double)pinchDelegate.minHeight);
+        maxHeight = std::min(maxHeight,(double)pinchDelegate.maxHeight);
     }
 
     // Check that we can at least see it
-    bool minOnScreen = [self checkCoverage:mbr globeView:tempGlobe height:minHeight];
-    bool maxOnScreen = [self checkCoverage:mbr globeView:tempGlobe height:maxHeight];
+    bool minOnScreen = [self checkCoverage:mbr globeView:&tempGlobe height:minHeight];
+    bool maxOnScreen = [self checkCoverage:mbr globeView:&tempGlobe height:maxHeight];
     if (!minOnScreen && !maxOnScreen)
     {
-        [tempGlobe setHeightAboveGlobe:oldHeight updateWatchers:false];
+        tempGlobe.setHeightAboveGlobe(oldHeight,false);
         return oldHeight;
     }
     
@@ -1310,7 +1317,7 @@ using namespace WhirlyGlobe;
     do
     {
         float midHeight = (minHeight + maxHeight)/2.0;
-        bool midOnScreen = [self checkCoverage:mbr globeView:tempGlobe height:midHeight];
+        bool midOnScreen = [self checkCoverage:mbr globeView:&tempGlobe height:midHeight];
         
         if (!minOnScreen && midOnScreen)
         {
@@ -1334,18 +1341,20 @@ using namespace WhirlyGlobe;
 
 - (CGPoint)pointOnScreenFromGeo:(MaplyCoordinate)geoCoord
 {
-    return [self pointOnScreenFromGeo:geoCoord globeView:globeView];
+    return [self pointOnScreenFromGeo:geoCoord globeView:globeView.get()];
 }
 
-- (CGPoint)pointOnScreenFromGeo:(MaplyCoordinate)geoCoord globeView:(WhirlyGlobeView *)theView
+- (CGPoint)pointOnScreenFromGeo:(MaplyCoordinate)geoCoord globeView:(GlobeView *)theView
 {
     if (!renderControl)
         return CGPointMake(0.0, 0.0);
     
-    Point3d pt = theView.coordAdapter->localToDisplay(theView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
+    Point3d pt = theView->coordAdapter->localToDisplay(theView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
     
-    Eigen::Matrix4d modelTrans = [theView calcFullMatrix];
-    return [theView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+    Eigen::Matrix4d modelTrans = theView->calcFullMatrix();
+    
+    auto screenPt = theView->pointOnScreenFromSphere(pt, &modelTrans, renderControl->sceneRenderer->getFramebufferSizeScaled());
+    return CGPointMake(screenPt.x(),screenPt.y());
 }
 
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
@@ -1364,11 +1373,11 @@ using namespace WhirlyGlobe;
     if (!renderControl)
         return false;
     
-    Point3d pt = visualView.coordAdapter->localToDisplay(visualView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
+    Point3d pt = visualView->coordAdapter->localToDisplay(visualView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
     Point3f pt3f(pt.x(),pt.y(),pt.z());
     
-    Eigen::Matrix4d modelTrans4d = [visualView calcModelMatrix];
-    Eigen::Matrix4d viewTrans4d = [visualView calcViewMatrix];
+    Eigen::Matrix4d modelTrans4d = visualView->calcModelMatrix();
+    Eigen::Matrix4d viewTrans4d = visualView->calcViewMatrix();
     Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
     Eigen::Matrix4f modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
     Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
@@ -1376,9 +1385,10 @@ using namespace WhirlyGlobe;
     if (CheckPointAndNormFacing(pt3f,pt3f.normalized(),modelAndViewMat,modelAndViewNormalMat) < 0.0)
         return false;
     
-    *screenPt =  [globeView pointOnScreenFromSphere:pt transform:&modelAndViewMat4d frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+    auto screenPt2f = globeView->pointOnScreenFromSphere(pt, &modelAndViewMat4d, renderControl->sceneRenderer->getFramebufferSizeScaled());
+    screenPt->x = screenPt2f.x();  screenPt->y = screenPt2f.y();
     
-    if (screenPt->x < 0 || screenPt->y < 0 || screenPt->x > renderControl->sceneRenderer.framebufferWidth || screenPt->y > renderControl->sceneRenderer.framebufferHeight)
+    if (screenPt->x < 0 || screenPt->y < 0 || screenPt->x > renderControl->sceneRenderer->framebufferWidth || screenPt->y > renderControl->sceneRenderer->framebufferHeight)
         return false;
     
     return true;
@@ -1390,10 +1400,11 @@ using namespace WhirlyGlobe;
         return false;
     
 	Point3d hit;
-	Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
-    if ([globeView pointOnSphereFromScreen:screenPt transform:&theTransform frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+    Point2f screenPt2f(screenPt.x,screenPt.y);
+	Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
+    if (globeView->pointOnSphereFromScreen(screenPt2f, &theTransform, renderControl->sceneRenderer->getFramebufferSizeScaled(), &hit, true))
     {
-        GeoCoord geoCoord = visualView.coordAdapter->getCoordSystem()->localToGeographic(visualView.coordAdapter->displayToLocal(hit));
+        GeoCoord geoCoord = visualView->coordAdapter->getCoordSystem()->localToGeographic(visualView->coordAdapter->displayToLocal(hit));
         retCoord->x = geoCoord.x();
         retCoord->y = geoCoord.y();
         
@@ -1420,10 +1431,10 @@ using namespace WhirlyGlobe;
         return false;
     
 	Point3d hit;
-	Eigen::Matrix4d theTransform = [globeView calcFullMatrix];
-    if ([globeView pointOnSphereFromScreen:screenPt transform:&theTransform frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+	Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
+    if (globeView->pointOnSphereFromScreen(Point2f(screenPt.x,screenPt.y), &theTransform, renderControl->sceneRenderer->getFramebufferSizeScaled(), &hit, true))
     {
-        Point3d geoC = visualView.coordAdapter->getCoordSystem()->localToGeocentric(visualView.coordAdapter->displayToLocal(hit));
+        Point3d geoC = visualView->coordAdapter->getCoordSystem()->localToGeocentric(visualView->coordAdapter->displayToLocal(hit));
         retCoords[0] = geoC.x();  retCoords[1] = geoC.y();  retCoords[2] = geoC.z();
         
         // Note: Obviously doing something stupid here
@@ -1443,7 +1454,7 @@ using namespace WhirlyGlobe;
     
     // Look for the object, returns an ID
     SelectionManager *selectManager = (SelectionManager *)renderControl->scene->getManager(kWKSelectionManager);
-    SimpleIdentity objId = selectManager->pickObject(Point2f(screenPt.x,screenPt.y), 10.0, globeView);
+    SimpleIdentity objId = selectManager->pickObject(Point2f(screenPt.x,screenPt.y), 10.0, globeView->makeViewState(renderControl->sceneRenderer.get()));
     
     if (objId != EmptyIdentity)
     {
@@ -1463,12 +1474,12 @@ using namespace WhirlyGlobe;
 #pragma mark - WhirlyGlobeAnimationDelegate
 
 // Called every frame from within the globe view
-- (void)updateView:(WhirlyGlobeView *)inGlobeView
+- (void)updateView:(GlobeView *)inGlobeView
 {
     TimeInterval now = TimeGetCurrent();
     if (!animationDelegate)
     {
-        [globeView cancelAnimation];
+        globeView->cancelAnimation();
         return;
     }
     
@@ -1483,7 +1494,7 @@ using namespace WhirlyGlobe;
     
     if (lastOne)
     {
-        [globeView cancelAnimation];
+        globeView->cancelAnimation();
         if ([animationDelegate respondsToSelector:@selector(globeViewControllerDidFinishAnimation:)])
             [animationDelegate globeViewControllerDidFinishAnimation:self];
         animationDelegate = nil;
@@ -1503,7 +1514,9 @@ using namespace WhirlyGlobe;
     // Tell the delegate what we're up to
     [animationDelegate globeViewController:self startState:stateStart startTime:now endTime:animationDelegateEnd];
     
-    globeView.delegate = self;
+    WhirlyGlobeViewWrapper *delegate = new WhirlyGlobeViewWrapper();
+    delegate->control = self;
+    globeView->setDelegate(GlobeViewAnimationDelegateRef(delegate));
 }
 
 - (void)setViewState:(WhirlyGlobeViewControllerAnimationState *)animState
@@ -1513,7 +1526,7 @@ using namespace WhirlyGlobe;
 
 - (void)setViewState:(WhirlyGlobeViewControllerAnimationState *)animState updateWatchers:(bool)updateWatchers
 {
-    [globeView cancelAnimation];
+    globeView->cancelAnimation();
     [self setViewStateInternal:animState updateWatchers:updateWatchers];
 }
 
@@ -1530,16 +1543,16 @@ using namespace WhirlyGlobe;
     
     if (animState.screenPos.x >= 0.0 && animState.screenPos.y >= 0.0)
     {
-        Matrix4d heightTrans = Eigen::Affine3d(Eigen::Translation3d(0,0,-[globeView calcEarthZOffset])).matrix();
+        Matrix4d heightTrans = Eigen::Affine3d(Eigen::Translation3d(0,0,-globeView->calcEarthZOffset())).matrix();
         Point3d hit;
-        if ([globeView pointOnSphereFromScreen:animState.screenPos transform:&heightTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor) hit:&hit normalized:true])
+        if (globeView->pointOnSphereFromScreen(Point2f(animState.screenPos.x,animState.screenPos.y), &heightTrans, renderControl->sceneRenderer->getFramebufferSizeScaled(), &hit, true))
         {
             startLoc = hit;
         }
     }
     
     // Start with a rotation from the clean start state to the location
-    Point3d worldLoc = globeView.coordAdapter->localToDisplay(globeView.coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
+    Point3d worldLoc = globeView->coordAdapter->localToDisplay(globeView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
     Eigen::Quaterniond posRot = QuatFromTwoVectors(worldLoc, startLoc);
     
     // Orient with north up.  Either because we want that or we're about do do a heading
@@ -1572,24 +1585,24 @@ using namespace WhirlyGlobe;
     }
     
     // Set the height (easy)
-    [globeView setHeightAboveGlobe:animState.height updateWatchers:false];
+    globeView->setHeightAboveGlobe(animState.height,false);
     
     // Set the tilt either directly or as a consequence of the height
     if (animState.tilt == MAXFLOAT)
-        globeView.tilt = [tiltControlDelegate tiltFromHeight:globeView.heightAboveGlobe];
+        globeView->setTilt(tiltControlDelegate->tiltFromHeight(globeView->getHeightAboveGlobe()));
     else
-        globeView.tilt = animState.tilt;
-    [globeView setRoll:animState.roll updateWatchers:false];
-    
-    [globeView setRotQuat:finalQuat updateWatchers:updateWatchers];
+        globeView->setTilt(animState.tilt);
+    globeView->setRoll(animState.roll, false);
+
+    globeView->setRotQuat(finalQuat, updateWatchers);
 }
 
 - (WhirlyGlobeViewControllerAnimationState *)getViewState
 {
     // Figure out the current state
     WhirlyGlobeViewControllerAnimationState *state = [[WhirlyGlobeViewControllerAnimationState alloc] init];
-    startQuat = globeView.rotQuat;
-    startUp = [globeView currentUp];
+    startQuat = globeView->getRotQuat();
+    startUp = globeView->currentUp();
     state.heading = self.heading;
     state.tilt = self.tilt;
     state.roll = self.roll;
@@ -1605,7 +1618,7 @@ using namespace WhirlyGlobe;
 - (WhirlyGlobeViewControllerAnimationState *)viewStateForLookAt:(MaplyCoordinate)coord tilt:(float)tilt heading:(float)heading altitude:(float)alt range:(float)range
 {
     Vector3f north(0,0,1);
-    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter = globeView.coordAdapter;
+    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter = globeView->coordAdapter;
     WhirlyKit::CoordSystem *coordSys = coordAdapter->getCoordSystem();
     Vector3f p0norm = coordAdapter->localToDisplay(coordSys->geographicToLocal(WhirlyKit::GeoCoord(coord.x,coord.y)));
     // Position we're looking at in display coords
@@ -1651,7 +1664,7 @@ using namespace WhirlyGlobe;
 
     if (tiltControlDelegate)
     {
-        viewState.tilt = [tiltControlDelegate tiltFromHeight:viewState.height];
+        viewState.tilt = tiltControlDelegate->tiltFromHeight(viewState.height);
     }
 }
 
@@ -1707,13 +1720,14 @@ static const float FullExtentEps = 1e-5;
     
     float extentEps = visualBoxes ? FullExtentEps : 0.0;
     
-    CGPoint screenCorners[4];
-    screenCorners[0] = CGPointMake(0.0, 0.0);
-    screenCorners[1] = CGPointMake(renderControl->sceneRenderer.framebufferWidth,0.0);
-    screenCorners[2] = CGPointMake(renderControl->sceneRenderer.framebufferWidth,renderControl->sceneRenderer.framebufferHeight);
-    screenCorners[3] = CGPointMake(0.0, renderControl->sceneRenderer.framebufferHeight);
+    Point2f screenCorners[4];
+    screenCorners[0] = Point2f(0.0, 0.0);
+    screenCorners[1] = Point2f(renderControl->sceneRenderer->framebufferWidth,0.0);
+    screenCorners[2] = Point2f(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
+    screenCorners[3] = Point2f(0.0, renderControl->sceneRenderer->framebufferHeight);
     
-    Eigen::Matrix4d modelTrans = [globeView calcFullMatrix];
+    Eigen::Matrix4d modelTrans = globeView->calcFullMatrix();
+    auto frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
 
     Point3d corners[4];
     bool cornerValid[4];
@@ -1721,7 +1735,7 @@ static const float FullExtentEps = 1e-5;
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point3d hit;
-        if ([globeView pointOnSphereFromScreen:screenCorners[ii] transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth,renderControl->sceneRenderer.framebufferHeight) hit:&hit normalized:true])
+        if (globeView->pointOnSphereFromScreen(screenCorners[ii], &modelTrans, frameSizeScaled, &hit, true))
         {
             corners[ii] = renderControl->scene->getCoordAdapter()->displayToLocal(hit);
             cornerValid[ii] = true;
@@ -1732,8 +1746,8 @@ static const float FullExtentEps = 1e-5;
     }
     
     // Current location the user is over
-    Point3d localPt = [globeView currentUp];
-    GeoCoord currentLoc = globeView.coordAdapter->getCoordSystem()->localToGeographic(globeView.coordAdapter->displayToLocal(localPt));
+    Point3d localPt = globeView->currentUp();
+    GeoCoord currentLoc = globeView->coordAdapter->getCoordSystem()->localToGeographic(globeView->coordAdapter->displayToLocal(localPt));
 
     // Toss in the current location
     std::vector<Mbr> mbrs(1);
@@ -1835,9 +1849,9 @@ static const float FullExtentEps = 1e-5;
                 int numSamples = 8;
                 for (unsigned int bi=1;bi<numSamples-1;bi++)
                 {
-                    CGPoint screenPt = CGPointMake(bi*(screenCorners[a].x+screenCorners[b].x)/numSamples, bi*(screenCorners[a].y+screenCorners[b].y)/numSamples);
+                    Point2f screenPt(bi*(screenCorners[a].x()+screenCorners[b].x())/numSamples, bi*(screenCorners[a].y()+screenCorners[b].y())/numSamples);
                     Point3d hit;
-                    if ([globeView pointOnSphereFromScreen:screenPt transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth,renderControl->sceneRenderer.framebufferHeight) hit:&hit normalized:true]) {
+                    if (globeView->pointOnSphereFromScreen(screenPt, &modelTrans, frameSizeScaled, &hit, true)) {
                         Point3d midPt3d = renderControl->scene->getCoordAdapter()->displayToLocal(hit);
                         if (mbrs.size() > 1)
                         {
@@ -1861,7 +1875,7 @@ static const float FullExtentEps = 1e-5;
                 if ((cornerValid[a] && !cornerValid[b]) ||
                     (!cornerValid[a] && cornerValid[b]))
                 {
-                    CGPoint testPts[2];
+                    Point2f testPts[2];
                     if (cornerValid[a])
                     {
                         testPts[0] = screenCorners[a];
@@ -1874,9 +1888,9 @@ static const float FullExtentEps = 1e-5;
                     // Do a binary search for a few iterations
                     for (unsigned int bi=0;bi<8;bi++)
                     {
-                        CGPoint midPt = CGPointMake((testPts[0].x+testPts[1].x)/2, (testPts[0].y+testPts[1].y)/2);
+                        Point2f midPt((testPts[0].x()+testPts[1].x())/2, (testPts[0].y()+testPts[1].y())/2);
                         Point3d hit;
-                        if ([globeView pointOnSphereFromScreen:midPt transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth,renderControl->sceneRenderer.framebufferHeight) hit:&hit normalized:true])
+                        if (globeView->pointOnSphereFromScreen(midPt, &modelTrans, frameSizeScaled, &hit, true))
                         {
                             testPts[0] = midPt;
                         } else {
@@ -1886,7 +1900,7 @@ static const float FullExtentEps = 1e-5;
                     
                     // The first test point is valid, so let's convert that back
                     Point3d hit;
-                    if ([globeView pointOnSphereFromScreen:testPts[0] transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth,renderControl->sceneRenderer.framebufferHeight) hit:&hit normalized:true])
+                    if (globeView->pointOnSphereFromScreen(testPts[0], &modelTrans, frameSizeScaled, &hit, true))
                     {
                         Point3d midPt3d = renderControl->scene->getCoordAdapter()->displayToLocal(hit);
                         if (mbrs.size() > 1)
@@ -1914,9 +1928,9 @@ static const float FullExtentEps = 1e-5;
                 if (CheckPointAndNormFacing(pt,pt.normalized(),modelTrans,modelAndViewNormalMat) < 0.0)
                     continue;
                 
-                CGPoint screenPt = [globeView pointOnScreenFromSphere:pt transform:&modelTrans frameSize:Point2f(renderControl->sceneRenderer.framebufferWidth/glView.contentScaleFactor,renderControl->sceneRenderer.framebufferHeight/glView.contentScaleFactor)];
+                Point2f screenPt = globeView->pointOnScreenFromSphere(pt, &modelTrans, frameSizeScaled);
             
-                if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > renderControl->sceneRenderer.framebufferWidth || screenPt.y > renderControl->sceneRenderer.framebufferHeight)
+                if (screenPt.x() < 0 || screenPt.y() < 0 || screenPt.x() > renderControl->sceneRenderer->framebufferWidth || screenPt.y() > renderControl->sceneRenderer->framebufferHeight)
                     continue;
 
                 // Include the pole and just do the whole area

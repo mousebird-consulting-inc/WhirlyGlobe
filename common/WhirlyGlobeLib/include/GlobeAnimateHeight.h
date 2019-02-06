@@ -77,6 +77,8 @@ protected:
     GlobeView *globeView;
     double outsideTilt;
 };
+    
+typedef std::shared_ptr<StandardTiltDelegate> StandardTiltDelegateRef;
 
 /// Animate height for a globe view over time
 class AnimateViewHeight : public GlobeViewAnimationDelegate
