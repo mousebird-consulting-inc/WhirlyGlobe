@@ -360,23 +360,23 @@ static StringIdentity fExposureNameID;
 // Thanks to: http://stainlessbeer.weebly.com/planets-9-atmospheric-scattering.html
 //  for the parameter values.
 
-- (void)updateForFrame:(RendererFrameInfo *)frameInfo
+- (void)updateForFrame:(void *)frameInfoVoid
 {
+    RendererFrameInfo *frameInfo = (RendererFrameInfo *)frameInfoVoid;
     [self setupStringIndices];
     
     if (!changed && started)
     {
         // Check the camera position
-        Vector3d cameraPos = frameInfo.eyePos;
+        Vector3d cameraPos = frameInfo->eyePos;
         if (cameraPos == lastCameraPos)
             return;
     }
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [frameInfo.sceneRenderer useContext];
-    [frameInfo.sceneRenderer forceDrawNextFrame];
+    frameInfo->sceneRenderer->forceDrawNextFrame();
     
-    Vector3d cameraPos = frameInfo.eyePos;
+    Vector3d cameraPos = frameInfo->eyePos;
     Vector4d sunDir4d = Vector4d(sunPos.x,sunPos.y,sunPos.z,1.0);
     sunDir4d /= sunDir4d.w();
     Vector3d sunDir3d(sunDir4d.x(),sunDir4d.y(),sunDir4d.z());

@@ -210,6 +210,8 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
 - (nullable instancetype)initWithShapeFile:(NSString *__nonnull)fileName;
 
 
+// Note: Vector writing turnd off
+#if 0
 /** 
     Write the vector object to the given file on the device.
     
@@ -220,6 +222,7 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
     @return Returns true on succes, false on failure.
   */
 - (bool)writeToFile:(NSString *__nonnull)fileName;
+#endif
 
 /** 
     Make a deep copy of the vector object and return it.
@@ -494,58 +497,3 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
 @end
 
 typedef MaplyVectorObject WGVectorObject;
-
-/** 
-    The Maply Vector Database holds reference to a group of features that you can query.
-    
-    This object wraps more complex database-like objects that contain geometric features.  Primarily, that's just shapefiles.
-    
-    You can set this up and then query the database for features you'd like back.  There's an option to make a SQL query or you can just fetch all the vectors at once.
-    
-    The point of this object is to keep most features out of memory until needed.  However, a better way of doing that is probably using the MaplyPagingLayer.
-  */
-@interface MaplyVectorDatabase : NSObject
-
-/** 
-    Construct from a shapefile in the bundle
-    
-    Construct a MaplyVectorDatabase form a shapefile found in the app's bundle.  This will create a bounding box cache file and a sqlite database for the attributes to speed later lookups.
-  */
-+ (MaplyVectorDatabase *__nonnull) vectorDatabaseWithShape:(NSString *__nonnull)shapeName __deprecated;
-
-/** 
-    Construct from a shapefile in the bundle
-    
-    Construct a MaplyVectorDatabase form a shapefile found in the app's bundle.  This will create a bounding box cache file and a sqlite database for the attributes to speed later lookups.
- */
-- (nonnull instancetype)initWithShape:(NSString *__nonnull)shapeName;
-
-/** 
-    Construct from a shapfile in the apps documents
-    
-    Construct a MaplyVectorDabase from a shapefile found in the app's bundle. This will create a bounding box cache file and a sqlite database for the attributes to speed later lookups.
- */
-- (nonnull instancetype)initWithShapefileInDocuments:(NSString *__nonnull)shapeName;
-
-/** 
-    Return vectors that match the given SQL query
-    
-    Run a SQL query on the data, looking for vectors that match.  These will be returned in a single MaplyVectorObject, or nil if there are none.
-  */
-- (MaplyVectorObject *__nullable)fetchMatchingVectors:(NSString *__nonnull)sqlQuery;
-
-/** 
-    Search for all the areals that surround the given point (geographic)
-    
-    First this method does a bounding box check to eliminate areal features that won't overlap at all.  Then it runs a point in poly test on each feature that might.  Every areal feature that overlaps is returned in the MaplyVectorObject.
-  */
-- (MaplyVectorObject *__nullable)fetchArealsForPoint:(MaplyCoordinate)coord;
-
-/** 
-    Return all the vectors in the database.
-    
-    This method reads all the vectors in the database sequentially and returns them all in a MaplyVectorObject.  This is basically how you read a shapefile in WhirlyGlobe-Maply.
-  */
-- (MaplyVectorObject *__nullable)fetchAllVectors;
-
-@end

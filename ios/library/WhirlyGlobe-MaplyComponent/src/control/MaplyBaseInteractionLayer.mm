@@ -2591,6 +2591,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Called in the layer thread
 - (void)addStickersRun:(NSArray *)argArray
 {
+#if 0
     if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
@@ -2604,7 +2605,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     // Might be a custom shader on these
     [self resolveShader:inDesc defaultShader:kMaplyDefaultTriangleShader];
 
-#if 0
     // Note: Turned off for porting
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     
@@ -2719,6 +2719,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Actually do the sticker change
 - (void)changeStickerRun:(NSArray *)argArray
 {
+#if 0
     if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
@@ -2726,7 +2727,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSDictionary *desc = [argArray objectAtIndex:1];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
     
-#if 0
     // Note: Porting
     @synchronized(stickerObj)
     {

@@ -598,7 +598,7 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
  
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
-- (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys key:(NSString *__nullable)key cache:(MaplyVectorDatabase *__nullable)cacheDb desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
 
 /**
  Add a group of points to the display.

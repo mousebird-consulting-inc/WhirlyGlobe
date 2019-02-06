@@ -29,6 +29,8 @@
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyViewController.h"
+#import "VectorData_iOS.h"
+#import "Dictionary_NSDictionary.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -110,8 +112,13 @@ public:
 {
     if ([geoJSON length] > 0)
     {
+        NSString *nsStr = [[NSString alloc] initWithData:geoJSON encoding:NSUTF8StringEncoding];
+        if (!nsStr)
+            return nil;
+        std::string str = [nsStr UTF8String];
+        
         std::map<std::string,ShapeSet> shapes;
-        if (!VectorParseGeoJSONAssembly(geoJSON, shapes))
+        if (!VectorParseGeoJSONAssembly(str, shapes))
             return nil;
         
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
@@ -155,10 +162,12 @@ public:
 	return [[MaplyVectorObject alloc] initWithFile:fileName];
 }
 
+#if 0
 - (bool)writeToFile:(NSString *)fileName
 {
     return VectorWriteFile([fileName cStringUsingEncoding:NSASCIIStringEncoding], _shapes);
 }
+#endif
 
 - (NSMutableDictionary *)attributes
 {
@@ -166,14 +175,17 @@ public:
         return nil;
     
     VectorShapeRef vec = *(_shapes.begin());
-    return vec->getAttrDict();
+    iosMutableDictionary *dict = (iosMutableDictionary *)vec->getAttrDict().get();
+    return dict ? dict->dict : nil;
 }
 
 - (void)setAttributes:(NSDictionary *)attributes
 {
     for (ShapeSet::iterator it = _shapes.begin();
-         it != _shapes.end(); ++it)
-        (*it)->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attributes]);
+         it != _shapes.end(); ++it) {
+        iosMutableDictionary *dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:attributes]);
+        (*it)->setAttrDict(MutableDictionaryRef(dict));
+    }
 }
 
 - (instancetype)init
@@ -202,7 +214,8 @@ public:
     {
         VectorPointsRef pts = VectorPoints::createPoints();
         pts->pts.push_back(GeoCoord(coord->x,coord->y));
-        pts->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
+        iosMutableDictionary *dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:attr]);
+        pts->setAttrDict(MutableDictionaryRef(dict));
         pts->initGeoMbr();
         _shapes.insert(pts);
         
@@ -240,7 +253,8 @@ public:
         VectorLinearRef lin = VectorLinear::createLinear();
         for (unsigned int ii=0;ii<numCoords;ii++)
             lin->pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
-        lin->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
+        iosMutableDictionary *dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:attr]);
+        lin->setAttrDict(MutableDictionaryRef(dict));
         lin->initGeoMbr();
         _shapes.insert(lin);
         
@@ -262,7 +276,8 @@ public:
         for (unsigned int ii=0;ii<numCoords;ii++)
             pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
         areal->loops.push_back(pts);
-        areal->setAttrDict([NSMutableDictionary dictionaryWithDictionary:attr]);
+        iosMutableDictionary *dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:attr]);
+        areal->setAttrDict(MutableDictionaryRef(dict));
         areal->initGeoMbr();
         _shapes.insert(areal);
         
@@ -280,8 +295,12 @@ public:
 
 	self = [super init];
 
-	NSString *crs = nil;
-	if (!VectorParseGeoJSON(_shapes, geoJSON, &crs))
+    NSString *nsStr = [[NSString alloc] initWithData:geoJSON encoding:NSUTF8StringEncoding];
+    if (!nsStr)
+        return nil;
+    std::string str = [nsStr UTF8String];
+    std::string crs = "";
+    if (!VectorParseGeoJSON(_shapes, str, crs))
 		return nil;
 
 	// Reproject to a destination system
@@ -349,7 +368,7 @@ public:
 	if (!fileName)
 		return nil;
 
-	ShapeReader shapeReader(fileName);
+	ShapeReader shapeReader([fileName cStringUsingEncoding:NSASCIIStringEncoding]);
 	if (!shapeReader.isValid())
 		return nil;
 
@@ -500,7 +519,7 @@ public:
         {
             VectorPointsRef newPts = VectorPoints::createPoints();
             newPts->pts = points->pts;
-            newPts->setAttrDict([NSMutableDictionary dictionaryWithDictionary:points->getAttrDict()]);
+            newPts->setAttrDict(MutableDictionaryRef(new iosMutableDictionary(points->getAttrDict())));
             newPts->initGeoMbr();
             newVecObj.shapes.insert(newPts);
         } else {
@@ -509,7 +528,7 @@ public:
             {
                 VectorLinearRef newLin = VectorLinear::createLinear();
                 newLin->pts = lin->pts;
-                newLin->setAttrDict([NSMutableDictionary dictionaryWithDictionary:lin->getAttrDict()]);
+                newLin->setAttrDict(MutableDictionaryRef(new iosMutableDictionary(lin->getAttrDict())));
                 newLin->initGeoMbr();
                 newVecObj.shapes.insert(newLin);
             } else {
@@ -518,7 +537,7 @@ public:
                 {
                     VectorLinear3dRef newLin3d = VectorLinear3d::createLinear();
                     newLin3d->pts = lin3d->pts;
-                    newLin3d->setAttrDict([NSMutableDictionary dictionaryWithDictionary:lin3d->getAttrDict()]);
+                    newLin3d->setAttrDict(MutableDictionaryRef(new iosMutableDictionary(lin3d->getAttrDict())));
                     newLin3d->initGeoMbr();
                     newVecObj.shapes.insert(newLin3d);
                 } else {
@@ -527,7 +546,7 @@ public:
                     {
                         VectorArealRef newAr = VectorAreal::createAreal();
                         newAr->loops = ar->loops;
-                        newAr->setAttrDict([NSMutableDictionary dictionaryWithDictionary:ar->getAttrDict()]);
+                        newAr->setAttrDict(MutableDictionaryRef(new iosMutableDictionary(ar->getAttrDict())));
                         newAr->initGeoMbr();
                         newVecObj.shapes.insert(newAr);
                     } else {
@@ -538,7 +557,7 @@ public:
                             newTri->geoMbr = tri->geoMbr;
                             newTri->pts = tri->pts;
                             newTri->tris = tri->tris;
-                            newTri->setAttrDict([NSMutableDictionary dictionaryWithDictionary:tri->getAttrDict()]);
+                            newTri->setAttrDict(MutableDictionaryRef(new iosMutableDictionary(tri->getAttrDict())));
                             newTri->initGeoMbr();
                             newVecObj.shapes.insert(newTri);
                         }
@@ -1656,155 +1675,6 @@ public:
     
     return newVec;
 }
-
-
-// Read from the raw vector format in the Vector DB
-// Note: Put this somewhere else.
-// Note: Bullet proof this if we start getting these over the network
-+ (MaplyVectorObject *)VectorObjectFromVectorDBRaw:(NSData *)data
-{
-    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] init];
-    
-    try
-    {
-        // Wrap a reader around the NSData
-        Maply::DataReader dataReader(data);
-        
-        // String table first
-        std::vector<NSString *> strings;
-        int numStrings = dataReader.getInt();
-        dataReader.rangeCheck(numStrings, 0, 1000000);
-        strings.resize(numStrings,nil);
-        for (unsigned int ii=0;ii<numStrings;ii++)
-            strings[ii] = dataReader.getString();
-        
-        // Each chunk has a group of shared attributes
-        int numChunks = dataReader.getInt();
-        dataReader.rangeCheck(numChunks, 0, 1000000);
-        for (int ii=0;ii<numChunks;ii++)
-        {
-            // All the attributes are shared within the chunk
-            NSMutableDictionary *attrDict = [NSMutableDictionary dictionary];
-            int numAttrs = dataReader.getInt();
-            dataReader.rangeCheck(numAttrs, 0, 10000);
-            for (unsigned int jj=0;jj<numAttrs;jj++)
-            {
-                // Name is index into the string table
-                int nameIdx = dataReader.getInt();
-                dataReader.rangeCheck(nameIdx, 0, (int)strings.size());
-                NSString *name = strings[nameIdx];
-                
-                // Type
-                int type = dataReader.getInt();
-                switch (type)
-                {
-                    case 0:
-                        attrDict[name] = @(dataReader.getInt());
-                        break;
-                    case 1:
-                        attrDict[name] = @(dataReader.getFloat());
-                        break;
-                    case 2:
-                    {
-                        int valIdx = dataReader.getInt();
-                        dataReader.rangeCheck(valIdx, 0, (int)strings.size());
-                        attrDict[name] = strings[valIdx];
-                    }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            
-            // Geometry type and number of features in chunk
-            int geomType = dataReader.getInt();
-            int numFeat = dataReader.getInt();
-            dataReader.rangeCheck(numFeat, 0, 1000000);
-            
-            // Work through the features
-            for (int jj=0;jj<numFeat;jj++)
-            {
-                VectorShapeRef shape;
-                switch (geomType)
-                {
-                        // Point
-                    case 1:
-                    {
-                        VectorPointsRef pts = VectorPoints::createPoints();
-                        shape = pts;
-                        Point2f pt;
-                        pt.x() = dataReader.getFloat();
-                        pt.y() = dataReader.getFloat();
-                        pts->pts.push_back(pt);
-                        pts->initGeoMbr();
-                    }
-                        break;
-                        // Line string
-                    case 2:
-                    {
-                        int numPts = dataReader.getInt();
-                        dataReader.rangeCheck(numPts, 0, 100000);
-                        VectorLinearRef lin = VectorLinear::createLinear();
-                        shape = lin;
-                        lin->pts.reserve(numPts);
-                        for (int pi=0;pi<numPts;pi++)
-                        {
-                            Point2f pt;
-                            pt.x() = dataReader.getFloat();
-                            pt.y() = dataReader.getFloat();
-                            lin->pts.push_back(pt);
-                        }
-                        lin->initGeoMbr();
-                    }
-                        break;
-                        // Polygon
-                    case 3:
-                    {
-                        int numLoops = dataReader.getInt();
-                        dataReader.rangeCheck(numLoops, 0, 100000);
-                        VectorArealRef ar = VectorAreal::createAreal();
-                        shape = ar;
-                        ar->loops.resize(numLoops);
-                        for (int li=0;li<numLoops;li++)
-                        {
-                            VectorRing &ring = ar->loops[li];
-                            int numPts = dataReader.getInt();
-                            dataReader.rangeCheck(numPts, 0, 100000);
-                            ring.reserve(numPts);
-                            for (int pi=0;pi<numPts;pi++)
-                            {
-                                Point2f pt;
-                                pt.x() = dataReader.getFloat();
-                                pt.y() = dataReader.getFloat();
-                                ring.push_back(pt);
-                            }
-                        }
-                        ar->initGeoMbr();
-                    }
-                        break;
-                    default:
-                        throw 1;
-                        break;
-                }
-                
-                // Note: Might want to copy this if we're going to mess with it later
-                shape->setAttrDict(attrDict);
-                vecObj.shapes.insert(shape);
-            }
-        }
-
-        if (dataReader.pos < dataReader.len-1)
-            NSLog(@"Failed to read full tile.");
-    }
-    catch (...)
-    {
-        NSLog(@"Failed to read VectorDB tile.");
-        return nil;
-    }
-    
-    return vecObj;
-}
-
 
 - (void)addShape:(WhirlyKit::VectorShapeRef)shape {
   self.shapes.insert(shape);

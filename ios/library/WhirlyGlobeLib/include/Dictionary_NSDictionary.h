@@ -65,6 +65,8 @@ class iosMutableDictionary : public MutableDictionary
 {
 public:
     iosMutableDictionary();
+    iosMutableDictionary(NSMutableDictionary *dict);
+    iosMutableDictionary(MutableDictionaryRef dict);
     // Assignment operator
     virtual iosMutableDictionary &operator = (const iosMutableDictionary &that);
     virtual ~iosMutableDictionary();

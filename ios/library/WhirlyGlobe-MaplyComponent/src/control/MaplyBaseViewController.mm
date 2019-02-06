@@ -816,20 +816,20 @@ static const float PerfOutputDelay = 15.0;
     [renderControl endOfWork];
 }
 
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     if (![renderControl startOfWork])
         return nil;
     
-    MaplyComponentObject *compObj = [renderControl addLoftedPolys:polys key:key cache:cacheDb desc:desc mode:threadMode];
+    MaplyComponentObject *compObj = [renderControl addLoftedPolys:polys desc:desc mode:threadMode];
     [renderControl endOfWork];
     
     return compObj;
 }
 
-- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys key:(NSString *)key cache:(MaplyVectorDatabase *)cacheDb desc:(NSDictionary *)desc
+- (MaplyComponentObject *)addLoftedPolys:(NSArray *)polys desc:(NSDictionary *)desc
 {
-    return [self addLoftedPolys:polys key:key cache:cacheDb desc:desc mode:MaplyThreadAny];
+    return [self addLoftedPolys:polys desc:desc mode:MaplyThreadAny];
 }
 
 - (MaplyComponentObject *)addPoints:(NSArray *)points desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode

@@ -71,6 +71,4 @@
     bool delegateRespondsToViewUpdate;
 }
 
-- (void)setupFlatView;
-
 @end

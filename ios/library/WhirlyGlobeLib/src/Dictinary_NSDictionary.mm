@@ -143,7 +143,19 @@ iosMutableDictionary::iosMutableDictionary()
 {
     dict = [[NSMutableDictionary alloc] init];
 }
+
+iosMutableDictionary::iosMutableDictionary(NSMutableDictionary *inDict)
+{
+    dict = inDict;
+}
     
+iosMutableDictionary::iosMutableDictionary(MutableDictionaryRef inDict)
+{
+    iosMutableDictionary *other = dynamic_cast<iosMutableDictionary *>(inDict.get());
+    if (other)
+        dict = [[NSMutableDictionary alloc] initWithDictionary:other->dict];
+}
+
 // Assignment operator
 iosMutableDictionary & iosMutableDictionary::operator = (const iosMutableDictionary &that)
 {

@@ -133,31 +133,26 @@ void ViewPlacementManager::removeView(UIView *view)
 // Work through the list of views, moving things around and/or hiding as needed
 void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
 {
-    CoordSystemDisplayAdapter *coordAdapter = frameInfo.scene->getCoordAdapter();
+    CoordSystemDisplayAdapter *coordAdapter = frameInfo->scene->getCoordAdapter();
     
-    // Note: Make this work for generic 3D views
-    WhirlyGlobeView *globeView = (WhirlyGlobeView *)frameInfo.theView;
-    if (![globeView isKindOfClass:[WhirlyGlobeView class]])
-        globeView = nil;
-    MaplyView *mapView = (MaplyView *)frameInfo.theView;
-    if (![mapView isKindOfClass:[MaplyView class]])
-        mapView = nil;
+    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(frameInfo->theView);
+    Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(frameInfo->theView);
     if (!globeView && !mapView)
         return;
 
     // Overall extents we'll look at.  Everything else is tossed.
     // Note: This is too simple
     Mbr frameMbr;
-    float marginX = frameInfo.sceneRenderer.framebufferWidth * 1.1;
-    float marginY = frameInfo.sceneRenderer.framebufferHeight * 1.1;
+    float marginX = frameInfo->sceneRenderer->framebufferWidth * 1.1;
+    float marginY = frameInfo->sceneRenderer->framebufferHeight * 1.1;
     frameMbr.ll() = Point2f(0 - marginX,0 - marginY);
-    frameMbr.ur() = Point2f(frameInfo.sceneRenderer.framebufferWidth + marginX,frameInfo.sceneRenderer.framebufferHeight + marginY);
+    frameMbr.ur() = Point2f(frameInfo->sceneRenderer->framebufferWidth + marginX,frameInfo->sceneRenderer->framebufferHeight + marginY);
     
     std::vector<Eigen::Matrix4d> modelAndViewMats; // modelAndViewNormalMats;
-    for (unsigned int offi=0;offi<frameInfo.offsetMatrices.size();offi++)
+    for (unsigned int offi=0;offi<frameInfo->offsetMatrices.size();offi++)
     {
         // Project the world location to the screen
-        Eigen::Matrix4d modelAndViewMat = frameInfo.viewTrans4d * frameInfo.offsetMatrices[offi] * frameInfo.modelTrans4d;
+        Eigen::Matrix4d modelAndViewMat = frameInfo->viewTrans4d * frameInfo->offsetMatrices[offi] * frameInfo->modelTrans4d;
 //        Eigen::Matrix4d modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
         modelAndViewMats.push_back(modelAndViewMat);
 //        modelAndViewNormalMats.push_back(modelAndViewNormalMat);
@@ -168,18 +163,20 @@ void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
     changedSinceUpdate = false;
     pthread_mutex_unlock(&viewInstanceLock);
     
+    auto frameSizeScaled = frameInfo->sceneRenderer->getFramebufferSizeScaled();
+    
     for (std::set<ViewInstance>::iterator it = localViewSet.begin();
          it != localViewSet.end(); ++it)
     {
         const ViewInstance &viewInst = *it;
         bool hidden = NO;
-        CGPoint screenPt;
+        Point2f screenPt;
         
         if (!it->active)
             continue;
         
         // Height above globe test
-        float visVal = [frameInfo.theView heightAboveSurface];
+        float visVal = frameInfo->theView->heightAboveSurface();
         if (!(viewInst.minVis == DrawVisibleInvalid || viewInst.maxVis == DrawVisibleInvalid ||
               ((viewInst.minVis <= visVal && visVal <= viewInst.maxVis) ||
                (viewInst.maxVis <= visVal && visVal <= viewInst.minVis))))
@@ -195,7 +192,7 @@ void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
             {
                 // Make sure this one is facing toward the viewer
                 Point3f worldLoc3f(worldLoc.x(),worldLoc.y(),worldLoc.z());
-                if (CheckPointAndNormFacing(worldLoc3f,worldLoc3f.normalized(),frameInfo.viewAndModelMat,frameInfo.viewModelNormalMat) < 0.0)
+                if (CheckPointAndNormFacing(worldLoc3f,worldLoc3f.normalized(),frameInfo->viewAndModelMat,frameInfo->viewModelNormalMat) < 0.0)
                     hidden = YES;
             }
 
@@ -206,15 +203,15 @@ void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
                 {
                     // Project the world location to the screen
                     Eigen::Matrix4d &modelTrans = modelAndViewMats[offi];
-                    CGPoint thisScreenPt;
+                    Point2f thisScreenPt;
                     if (globeView)
-                        thisScreenPt = [globeView pointOnScreenFromSphere:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+                        thisScreenPt = globeView->pointOnScreenFromSphere(worldLoc, &modelTrans, frameSizeScaled);
                     else
-                        thisScreenPt = [mapView pointOnScreenFromPlane:worldLoc transform:&modelTrans frameSize:Point2f(frameInfo.sceneRenderer.framebufferWidth,frameInfo.sceneRenderer.framebufferHeight)];
+                        thisScreenPt = mapView->pointOnScreenFromPlane(worldLoc, &modelTrans, frameSizeScaled);
                     
                     // Note: This check is too simple
-                    if ((thisScreenPt.x >= frameMbr.ll().x() && thisScreenPt.y >= frameMbr.ll().y() &&
-                         thisScreenPt.x <= frameMbr.ur().x() && thisScreenPt.y <= frameMbr.ur().y()))
+                    if ((thisScreenPt.x() >= frameMbr.ll().x() && thisScreenPt.y() >= frameMbr.ll().y() &&
+                         thisScreenPt.x() <= frameMbr.ur().x() && thisScreenPt.y() <= frameMbr.ur().y()))
                     {
                         visible = true;
                         screenPt = thisScreenPt;
@@ -238,11 +235,11 @@ void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
                 dispatch_async(dispatch_get_main_queue(),
                                ^{
                                    viewInst.view.hidden = false;
-                                   viewInst.view.frame = CGRectMake(screenPt.x / scale + viewInst.offset.x() + viewInst.offset2.x(), screenPt.y / scale + viewInst.offset.y() + viewInst.offset2.y(), size.width, size.height);
+                                   viewInst.view.frame = CGRectMake(screenPt.x() / scale + viewInst.offset.x() + viewInst.offset2.x(), screenPt.y() / scale + viewInst.offset.y() + viewInst.offset2.y(), size.width, size.height);
                                });
             } else {
                 viewInst.view.hidden = false;
-                viewInst.view.frame = CGRectMake(screenPt.x / scale + viewInst.offset.x() + viewInst.offset2.x(), screenPt.y / scale + viewInst.offset.y() + viewInst.offset2.y(), size.width, size.height);
+                viewInst.view.frame = CGRectMake(screenPt.x() / scale + viewInst.offset.x() + viewInst.offset2.x(), screenPt.y() / scale + viewInst.offset.y() + viewInst.offset2.y(), size.width, size.height);
             }
         } else {
             if ([NSThread currentThread] != [NSThread mainThread])
@@ -280,11 +277,11 @@ ViewPlacementManager *ViewPlacementActiveModel::getManager()
     return manager;
 }
 
-virtual void ViewPlacementActiveModel::startWithScene(Scene *scene) {
+void ViewPlacementActiveModel::startWithScene(Scene *scene) {
     manager = new ViewPlacementManager();
 }
 
-virtual bool ViewPlacementActiveModel::hasUpdate() {
+bool ViewPlacementActiveModel::hasUpdate() {
     if (!manager)
         return false;
     
@@ -292,13 +289,13 @@ virtual bool ViewPlacementActiveModel::hasUpdate() {
 }
 
 /// Update your stuff for display, but be quick!
-virtual void ViewPlacementActiveModel::updateForFrame(RendererFrameInfo *frameInfo) {
+void ViewPlacementActiveModel::updateForFrame(RendererFrameInfo *frameInfo) {
     manager->updateLocations(frameInfo);
 
 }
 
 /// Time to clean up your toys
-virtual void ViewPlacementActiveModel::teardown() {
+void ViewPlacementActiveModel::teardown() {
     if (manager)
         delete manager;
     manager = NULL;

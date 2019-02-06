@@ -31,7 +31,7 @@ using namespace WhirlyKit;
 {
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
     WhirlyKit::Scene *scene;
-    SceneRendererES * __weak renderer;
+    SceneRendererES_iOS *renderer;
     NSString *buildError;
     EAGLContext *context;
     // Texture we created for use in this shader
@@ -102,7 +102,7 @@ using namespace WhirlyKit;
     _program = program;
     viewC = baseViewC;
     scene = renderControl->scene;
-    renderer = renderControl->sceneRenderer;
+    renderer = renderControl->sceneRenderer.get();
     
     if (renderControl->scene)
         renderControl->scene->addProgram(_program);
@@ -146,7 +146,7 @@ using namespace WhirlyKit;
     }
     
     scene = renderControl->scene;
-    renderer = renderControl->sceneRenderer;
+    renderer = renderControl->sceneRenderer.get();
     
     if (renderControl->scene)
         renderControl->scene->addProgram(_program);
@@ -174,10 +174,10 @@ using namespace WhirlyKit;
         return;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
-    [renderer forceDrawNextFrame];
+    renderer->useContext();
+    renderer->forceDrawNextFrame();
     
-    Texture *auxTex = new Texture([_name cStringUsingEncoding:NSASCIIStringEncoding],auxImage);
+    Texture *auxTex = new Texture_iOS([_name cStringUsingEncoding:NSASCIIStringEncoding],auxImage);
     if ([desc[kMaplyTexMinFilter] isEqualToString:kMaplyMinFilterNearest])
         auxTex->setInterpType(GL_NEAREST);
     else if ([desc[kMaplyTexMinFilter] isEqualToString:kMaplyMinFilterLinear])
@@ -216,8 +216,8 @@ using namespace WhirlyKit;
     CheckGLError("MaplyShader::setUniformFloatNamed: pre anything");
 
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
-    [renderer forceDrawNextFrame];
+    renderer->useContext();
+    renderer->forceDrawNextFrame();
     glUseProgram(_program->getProgram());
     CheckGLError("MaplyShader::setUniformFloatNamed: glUseProgram");
 
@@ -236,8 +236,8 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
-    [renderer forceDrawNextFrame];
+    renderer->useContext();
+    renderer->forceDrawNextFrame();
     glUseProgram(_program->getProgram());
     
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -255,8 +255,8 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
-    [renderer forceDrawNextFrame];
+    renderer->useContext();
+    renderer->forceDrawNextFrame();
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -274,8 +274,8 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
-    [renderer forceDrawNextFrame];
+    renderer->useContext();
+    renderer->forceDrawNextFrame();
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -294,8 +294,8 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
-    [renderer forceDrawNextFrame];
+    renderer->useContext();
+    renderer->forceDrawNextFrame();
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -314,7 +314,8 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
+    renderer->useContext();
+    renderer->forceDrawNextFrame();
     glUseProgram(_program->getProgram());
 
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -334,7 +335,8 @@ using namespace WhirlyKit;
         return false;
     
     EAGLContext *oldContext = [EAGLContext currentContext];
-    [renderer useContext];
+    renderer->useContext();
+    renderer->forceDrawNextFrame();
     glUseProgram(_program->getProgram());
     
     std::string name = [uniName cStringUsingEncoding:NSASCIIStringEncoding];

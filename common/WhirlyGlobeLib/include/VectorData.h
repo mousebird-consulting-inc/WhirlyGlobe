@@ -258,19 +258,19 @@ void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool
 ///  the display adapter.  But rather than using lat lon values, we'll output in
 ///  display coordinates and build points along the great circle.
 void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float sphereOffset = 0.0,int minPts = 0);
-
+    
 /** Base class for loading a vector data file.
-    Fill this into hand data over to whomever wants it.
+ Fill this into hand data over to whomever wants it.
  */
 class VectorReader
 {
 public:
     VectorReader() { }
     virtual ~VectorReader() { }
-	
+    
     /// Return false if we failed to load
     virtual bool isValid() = 0;
-	
+    
     /// Returns one of the vector types.
     /// Keep enough state to figure out what the next one is.
     /// You can skip any attributes not named in the filter.  Or just ignore it.
@@ -288,29 +288,20 @@ public:
     virtual VectorShapeRef getObjectByIndex(unsigned int vecIndex,const StringSet *filter)  { return VectorShapeRef(); }
 };
 
-/** Helper routine to parse geoJSON into a collection of vectors.
-    We don't know for sure what we'll get back, so you have to go
-    looking through it.  Return false on parse failure.
- */
-bool VectorParseGeoJSON(ShapeSet &shapes,const std::string &str,std::string &crs);
- 
-/** Helper routine to parse geoJSON into a collection of vectors.
-    We don't know for sure what we'll get back, so you have to go
-    looking through it.  Return false on parse failure.
- */
-// Note: Porting
-//bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict);
-    
-/** Helper routine to parse a GeoJSON assembly into an array of
-    collections of vectors.  This format is returned by the experimental
-    OSM server for vectors.
-  */
-bool VectorParseGeoJSONAssembly(const std::string &str,std::map<std::string,ShapeSet> &shapes);
-    
-#if 0
 bool VectorReadFile(const std::string &fileName,ShapeSet &shapes);
 bool VectorWriteFile(const std::string &fileName,ShapeSet &shapes);
-#endif
-    
+
+/** Helper routine to parse geoJSON into a collection of vectors.
+ We don't know for sure what we'll get back, so you have to go
+ looking through it.  Return false on parse failure.
+ */
+bool VectorParseGeoJSON(ShapeSet &shapes,const std::string &str,std::string &crs);
+
+/** Helper routine to parse a GeoJSON assembly into an array of
+ collections of vectors.  This format is returned by the experimental
+ OSM server for vectors.
+ */
+bool VectorParseGeoJSONAssembly(const std::string &str,std::map<std::string,ShapeSet> &shapes);
+
 }
 

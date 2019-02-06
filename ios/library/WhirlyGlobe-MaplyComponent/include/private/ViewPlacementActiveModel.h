@@ -111,6 +111,20 @@ public:
     ViewPlacementActiveModel();
     
     ViewPlacementManager *getManager();
+    
+    /// Create the stuff you need to manipulate in the scene
+    void startWithScene(Scene *scene);
+    
+    /// Return true if you have an update that needs to be processed.
+    /// Return false if you don't, otherwise we'll be constantly rendering.
+    bool hasUpdate();
+    
+    /// Update your stuff for display, but be quick!
+    void updateForFrame(RendererFrameInfo *frameInfo);
+    
+    /// Time to clean up your toys
+    void teardown();
+
 protected:
     ViewPlacementManager *manager;
 };

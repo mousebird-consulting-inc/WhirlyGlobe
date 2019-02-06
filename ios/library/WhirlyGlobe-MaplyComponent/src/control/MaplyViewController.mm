@@ -291,15 +291,6 @@ public:
     }
 }
 
-// Called when something changes the tethered view's frame
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
-{
-//    NSLog(@"Changed: %@",keyPath);
-
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(setupFlatView) object:nil];
-    [self performSelector:@selector(setupFlatView) withObject:nil afterDelay:0.0 inModes:[NSArray arrayWithObject:NSRunLoopCommonModes]];
-}
-
 - (void) loadSetup_lighting
 {
     NSString *lightingType = renderControl->hints[kWGRendererLightingMode];
