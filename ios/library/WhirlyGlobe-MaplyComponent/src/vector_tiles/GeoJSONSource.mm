@@ -6,10 +6,12 @@
 //  Copyright © 2016-2017 mousebird consulting. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import "GeoJSONSource.h"
 #import "SLDStyleSet.h"
 #import "MaplyVectorObject_private.h"
 #import "VectorData.h"
+#import "Dictionary_NSDictionary.h"
 
 using namespace WhirlyKit;
 
@@ -81,8 +83,13 @@ using namespace WhirlyKit;
 
         ShapeSet shapes;
         NSData *geoJSONData = [NSData dataWithContentsOfURL:self->_geoJSONURL];
-        NSString *crs;
-        bool parsed = VectorParseGeoJSON(shapes, geoJSONData, &crs);
+        NSString *nsStr = [[NSString alloc] initWithData:geoJSONData encoding:NSUTF8StringEncoding];
+        if (!nsStr)
+            return;
+        std::string geoJSONStr = [nsStr UTF8String];
+
+        std::string crs;
+        bool parsed = VectorParseGeoJSON(shapes, geoJSONStr, crs);
         
         if (!parsed  || shapes.empty()) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -102,7 +109,7 @@ using namespace WhirlyKit;
         
         for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it) {
             
-            NSMutableDictionary *attributes = (*it)->getAttrDict();
+            NSMutableDictionary *attributes = ((iosMutableDictionary *)(*it)->getAttrDict().get())->dict;
             
             NSMutableArray *vectorObjs = [NSMutableArray array];
             

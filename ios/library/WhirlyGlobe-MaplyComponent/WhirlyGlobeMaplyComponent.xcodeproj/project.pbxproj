@@ -573,6 +573,7 @@
 		2BC3D6E5220B666F00CE91D0 /* MaplyQuadSampler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387F5206ABD7400DD5C40 /* MaplyQuadSampler.mm */; };
 		2BC3D6E6220B6AB500CE91D0 /* GeometryOBJReader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446B8221FB97C40078A975 /* GeometryOBJReader.h */; };
 		2BC3D6E7220B6AEF00CE91D0 /* GeometryOBJReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B8621FB97D50078A975 /* GeometryOBJReader.cpp */; };
+		2BC3D6E8220B6D8400CE91D0 /* GeoJSONSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = E56E02A91E11F9AD00C1DD85 /* GeoJSONSource.mm */; };
 		2BE1E7392208A97100815D9C /* MaplyPinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DED21233CBE0074D06D /* MaplyPinchDelegate.mm */; };
 		2BE1E73A2208B25F00815D9C /* MaplyPanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DEC21233CBE0074D06D /* MaplyPanDelegate.mm */; };
 		2BE1E73B2208B73C00815D9C /* MaplyDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DE721233CBE0074D06D /* MaplyDoubleTapDelegate.mm */; };
@@ -4420,6 +4421,7 @@
 				2BE1E77F220A6B6700815D9C /* SLDStyleSet.m in Sources */,
 				2BE53A171D249C2900B60FAD /* unknown_field_set.cc in Sources */,
 				2B8796FC2203861200EF801D /* LayerViewWatcher.mm in Sources */,
+				2BC3D6E8220B6D8400CE91D0 /* GeoJSONSource.mm in Sources */,
 				2B884A461E3803170027C397 /* arithmeticmodel.cpp in Sources */,
 				2B82B6691E82E24A0095FB14 /* PJ_geos.c in Sources */,
 				2BE1E763220A43FD00815D9C /* MaplyInteractionLayer.mm in Sources */,
