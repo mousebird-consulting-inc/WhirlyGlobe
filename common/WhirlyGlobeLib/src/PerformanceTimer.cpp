@@ -21,14 +21,9 @@
 #import <math.h>
 #import <vector>
 #import <algorithm>
+#import "WhirlyKitLog.h"
 #import "PerformanceTimer.h"
 #import "Platform.h"
-#if defined(__ANDROID__)
-#import <android/log.h>
-#else
-// Note: Porting
-//#import <Foundation/Foundation.h>
-#endif
 
 namespace WhirlyKit
 {
@@ -140,12 +135,7 @@ static bool TimeEntryByMax (const PerformanceTimer::TimeEntry &a,const Performan
     
 void PerformanceTimer::report(const std::string &what)
 {
-#if defined(__ANDROID__)
-    __android_log_print(ANDROID_LOG_VERBOSE, "Maply Performance", "%s", what.c_str());
-#else
-    // Note: Porting
-//    NSLog("%s",what.c_str());
-#endif
+    wkLogLevel(Verbose,"Maply Performance: %s",what.c_str());    
 }
     
 void PerformanceTimer::log()

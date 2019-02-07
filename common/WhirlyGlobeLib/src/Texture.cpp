@@ -265,7 +265,7 @@ RawDataRef Texture::processData()
                     return ConvertRGToRG(texData,width,height);
                 else if (texData->getLen() == width * height * 4)
                     return ConvertRGBATo16(texData,width,height);
-                WHIRLYKIT_LOGE("Texture: Not handling RG conversion case.");
+                wkLogLevel(Error,"Texture: Not handling RG conversion case.");
                 break;
             case GL_COMPRESSED_RGB8_ETC2:
                 // Can't convert this (for now)

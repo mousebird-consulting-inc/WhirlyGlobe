@@ -54,9 +54,7 @@ public:
     virtual void setScene(Scene *inScene);
     
     void setClearColor(const RGBAColor &color);
-    
-    void resizeFromLayer();
-    
+        
     void processScene();
 
     void render(TimeInterval duration);

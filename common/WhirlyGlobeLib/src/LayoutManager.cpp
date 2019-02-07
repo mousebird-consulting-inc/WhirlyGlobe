@@ -826,7 +826,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
                 if (layoutObj->currentCluster < oldClusters.size())
                     oldCluster = &oldClusters[layoutObj->currentCluster];
                 else {
-                    WHIRLYKIT_LOGW("Cluster ID mismatch");
+                    wkLogLevel(Warn,"Cluster ID mismatch");
                     continue;
                 }
                 ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster->clusterParamID];
@@ -869,7 +869,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
                 if (cluster.childOfCluster < oldClusters.size())
                     oldCluster = &oldClusters[cluster.childOfCluster];
                 else {
-                    WHIRLYKIT_LOGW("Cluster ID mismatch");
+                    wkLogLevel(Warn,"Cluster ID mismatch");
                     continue;
                 }
                 ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster->clusterParamID];

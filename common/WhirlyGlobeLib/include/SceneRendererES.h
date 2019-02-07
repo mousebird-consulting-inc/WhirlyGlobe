@@ -42,7 +42,7 @@ public:
     void init();
     
     // Set up the render target
-    bool init(Scene *scene,SimpleIdentity targetTexID);
+    bool init(SceneRendererES *renderer,Scene *scene,SimpleIdentity targetTexID);
     
     // Pull in framebuffer info from the current OpenGL State
     bool initFromState(int inWidth,int inHeight);
@@ -81,6 +81,7 @@ public:
     // Control how the blending into a destination works
     bool blendEnable;
 };
+typedef std::shared_ptr<RenderTarget> RenderTargetRef;
 
 // Add a new render target
 class AddRenderTargetReq : public ChangeRequest
@@ -289,12 +290,18 @@ public:
     virtual void setExtraFrameMode(bool newMode) { extraFrameMode = newMode; }
     
     /// Add a render target to start rendering too
-    void addRenderTarget(RenderTarget &newTarget);
+    void addRenderTarget(RenderTargetRef newTarget);
     
     /// Stop rendering to the matching render target
     void removeRenderTarget(SimpleIdentity targetID);
 
 public:
+    // Possible post-target creation init
+    virtual void defaultTargetInit(RenderTarget *) { };
+    
+    // Presentation, if required
+    virtual void presentRender() { };
+    
     // OpenGL Version
     int glesVersion;
     
@@ -355,7 +362,7 @@ public:
     // If set we draw one extra frame after updates stop
     bool extraFrameMode;
     
-    std::vector<RenderTarget> renderTargets;
+    std::vector<RenderTargetRef> renderTargets;
 
     // If we're an offline renderer, the texture we're rendering into
     WhirlyKit::Texture *framebufferTex;

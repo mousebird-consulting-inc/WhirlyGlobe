@@ -187,8 +187,8 @@ void OpenGLMemManager::clearTextureIDs()
 
 void OpenGLMemManager::dumpStats()
 {
-    WHIRLYKIT_LOGV("MemCache: %ld buffers",(long int)buffIDs.size());
-    WHIRLYKIT_LOGV("MemCache: %ld textures",(long int)texIDs.size());
+    wkLogLevel(Verbose,"MemCache: %ld buffers",(long int)buffIDs.size());
+    wkLogLevel(Verbose,"MemCache: %ld textures",(long int)texIDs.size());
 }
 		
 void OpenGLMemManager::lock()

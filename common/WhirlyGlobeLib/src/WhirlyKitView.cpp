@@ -19,6 +19,7 @@
  */
 
 #import "Platform.h"
+#import "WhirlyKitLog.h"
 #import "WhirlyVector.h"
 #import "WhirlyKitView.h"
 #import "WhirlyGeometry.h"
@@ -393,14 +394,16 @@ bool ViewState::isSameAs(WhirlyKit::ViewState *other)
 
 void ViewState::log()
 {
-    // Note: Porting
-    //    NSLog(@"--- ViewState ---");
-    //    NSLog(@"eyeVec = (%f,%f,%f), eyeVecModel = (%f,%f,%f)",eyeVec.x(),eyeVec.y(),eyeVec.z(),eyeVecModel.x(),eyeVecModel.y(),eyeVecModel.z());
-    //    NSMutableString *matStr = [NSMutableString string];
-    //    for (unsigned int ii=0;ii<16;ii++)
-    //        [matStr appendFormat:@" %f",fullMatrix.data()[ii]];
-    //    NSLog(@"fullMatrix = %@",matStr);
-    //    NSLog(@"---     ---   ---");
+    wkLogLevel(Verbose,"--- ViewState ---");
+    wkLogLevel(Verbose,"eyeVec = (%f,%f,%f), eyeVecModel = (%f,%f,%f)",eyeVec.x(),eyeVec.y(),eyeVec.z(),eyeVecModel.x(),eyeVecModel.y(),eyeVecModel.z());
+    for (unsigned int mm=0;mm<fullMatrices.size();mm++)
+    {
+        std::stringstream strStrm;
+        for (unsigned int ii=0;ii<16;ii++)
+            strStrm << fullMatrices[mm].data()[ii];
+        wkLogLevel(Verbose,"fullMatrix = %@",strStrm.str().c_str());
+    }
+    wkLogLevel(Verbose,"---     ---   ---");
 }
     
 }

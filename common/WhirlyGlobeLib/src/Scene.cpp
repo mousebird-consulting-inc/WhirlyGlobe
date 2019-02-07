@@ -461,10 +461,10 @@ SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
     
 void Scene::dumpStats()
 {
-    WHIRLYKIT_LOGV("Scene: %ld drawables",drawables.size());
-    WHIRLYKIT_LOGV("Scene: %d active models",(int)activeModels.size());
-    WHIRLYKIT_LOGV("Scene: %ld textures",textures.size());
-    WHIRLYKIT_LOGV("Scene: %ld sub textures",subTextureMap.size());
+    wkLogLevel(Verbose,"Scene: %ld drawables",drawables.size());
+    wkLogLevel(Verbose,"Scene: %d active models",(int)activeModels.size());
+    wkLogLevel(Verbose,"Scene: %ld textures",textures.size());
+    wkLogLevel(Verbose,"Scene: %ld sub textures",subTextureMap.size());
     memManager.dumpStats();
 }
     
@@ -495,7 +495,7 @@ OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
 void Scene::addProgram(OpenGLES2Program *prog)
 {
     if (!prog) {
-        WHIRLYKIT_LOGW("Tried to add NULL program to scene.  Ignoring.");
+        wkLogLevel(Warn,"Tried to add NULL program to scene.  Ignoring.");
         return;
     }
 
@@ -547,7 +547,7 @@ void RemTextureReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::Vi
         tex->destroyInGL(scene->getMemManager());
         scene->textures.erase(it);
     } else
-        WHIRLYKIT_LOGW("RemTextureReq: No such texture.");
+        wkLogLevel(Warn,"RemTextureReq: No such texture.");
     pthread_mutex_unlock(&scene->textureLock);
 }
 
@@ -598,7 +598,7 @@ void RemDrawableReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::V
 
         scene->remDrawable(it->second);
     } else
-        WHIRLYKIT_LOGW("Missing drawable for RemDrawableReq: %llu", drawable);
+        wkLogLevel(Warn,"Missing drawable for RemDrawableReq: %llu", drawable);
 }
 
 void AddProgramReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)

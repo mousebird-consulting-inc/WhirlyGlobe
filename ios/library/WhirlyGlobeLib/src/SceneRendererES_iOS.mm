@@ -33,7 +33,26 @@ SceneRendererES_iOS::SceneRendererES_iOS()
         version = kEAGLRenderingAPIOpenGLES2;
     }
     
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    useContext();
+    
     setup(version,0,0);
+    
+    [EAGLContext setCurrentContext:oldContext];
+}
+    
+SceneRendererES_iOS::~SceneRendererES_iOS()
+{
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    [EAGLContext setCurrentContext:context];
+
+    // Have to clear these out here so we can set the context
+    for (RenderTargetRef target : renderTargets)
+        target->clear();
+    
+    renderTargets.clear();
+
+    [EAGLContext setCurrentContext:oldContext];
 }
     
 EAGLContext *SceneRendererES_iOS::getContext()
@@ -47,6 +66,27 @@ void SceneRendererES_iOS::useContext()
         return;
     [EAGLContext setCurrentContext:context];
 }
+
+void SceneRendererES_iOS::defaultTargetInit(RenderTarget *renderTarget)
+{
+    if (!layer)
+        return;
+    
+    if (![context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)layer])
+        NSLog(@"SceneRendererES: Failure in renderbufferStorage");
+}
+    
+void SceneRendererES_iOS::setLayer(CAEAGLLayer *inLayer)
+{
+    layer = inLayer;
+}
+    
+void SceneRendererES_iOS::presentRender()
+{
+    if (!layer)
+        return;
+    
+    [context presentRenderbuffer:GL_RENDERBUFFER];
+}
     
 }
-

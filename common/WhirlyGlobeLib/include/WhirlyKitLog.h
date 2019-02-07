@@ -1,5 +1,5 @@
 /*
- *  WhirlyKitLogs.h
+ *  WhirlyKitLog.h
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
@@ -17,29 +17,14 @@
  *  limitations under the License.
  *
  */
+
 #ifndef WhirlyKitLog_h
 #define WhirlyKitLog_h
 
-#define  LOG_TAG    "WhirlyKit"
+typedef enum {Verbose,Debug,Info,Warn,Error} WKLogLevel;
 
-#ifdef ANDROID
-	#include <android/log.h>
-	#define WHIRLYKIT_LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG,__VA_ARGS__)
-	#define WHIRLYKIT_LOGD(...) __android_log_print(ANDROID_LOG_DEBUG  , LOG_TAG,__VA_ARGS__)
-	#define WHIRLYKIT_LOGI(...) __android_log_print(ANDROID_LOG_INFO   , LOG_TAG,__VA_ARGS__)
-	#define WHIRLYKIT_LOGW(...) __android_log_print(ANDROID_LOG_WARN   , LOG_TAG,__VA_ARGS__)
-	#define WHIRLYKIT_LOGE(...) __android_log_print(ANDROID_LOG_ERROR  , LOG_TAG,__VA_ARGS__)
-	#define WHIRLYKIT_LOGSIMPLE LOGSIMPLE
-#else
-	#include <stdio.h>
-    // Note: Convert over to NSLog
-	#define WHIRLYKIT_LOGV(...) do { printf("  ");printf(__VA_ARGS__); printf("\t -  <%s> \n", LOG_TAG); } while (0)
-	#define WHIRLYKIT_LOGD(...) do { printf("  ");printf(__VA_ARGS__); printf("\t -  <%s> \n", LOG_TAG); } while (0)
-	#define WHIRLYKIT_LOGI(...) do { printf("  ");printf(__VA_ARGS__); printf("\t -  <%s> \n", LOG_TAG); } while (0)
-	#define WHIRLYKIT_LOGW(...) do { printf("  * Warning: "); printf(__VA_ARGS__); printf("\t -  <%s> \n", LOG_TAG); } while (0)
-	#define WHIRLYKIT_LOGE(...) do { printf("  *** Error:  ");printf(__VA_ARGS__); printf("\t -  <%s> \n", LOG_TAG); } while (0)
-	#define WHIRLYKIT_LOG(...) do { printf(" ");printf(__VA_ARGS__); } while (0)
-#endif
-
+// Wrapper around NSLog on iOS.  Other things on other platforms
+extern void wkLog(const char *formatStr,...);
+extern void wkLogLevel(WKLogLevel level,const char *formatStr,...);
 
 #endif

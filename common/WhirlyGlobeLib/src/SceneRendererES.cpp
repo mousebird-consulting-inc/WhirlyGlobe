@@ -20,6 +20,7 @@
 
 #import "SceneRendererES.h"
 #import "GLUtils.h"
+#import "WhirlyKitLog.h"
 #import "SelectionManager.h"
 
 using namespace Eigen;
@@ -66,7 +67,7 @@ void RenderTarget::init()
     clearOnce = false;
 }
     
-bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
+bool RenderTarget::init(SceneRendererES *renderer,Scene *scene,SimpleIdentity targetTexID)
 {
     if (framebuffer == 0)
         glGenFramebuffers(1, &framebuffer);
@@ -87,6 +88,9 @@ bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
         CheckGLError("RenderTarget: glBindRenderbuffer");
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorbuffer);
         CheckGLError("RenderTarget: glFramebufferRenderbuffer");
+        
+        // There may be an extra set pin the 
+        renderer->defaultTargetInit(this);
 
         if (depthbuffer == 0)
             glGenRenderbuffers(1, &depthbuffer);
@@ -98,16 +102,15 @@ bool RenderTarget::init(Scene *scene,SimpleIdentity targetTexID)
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthbuffer);
         CheckGLError("RenderTarget: glFramebufferRenderbuffer");
 
+        GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
+        if(status != GL_FRAMEBUFFER_COMPLETE) {
+            wkLogLevel(Error,"Failed to build valid render target: %x", status);
+            return false;
+        }
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         CheckGLError("RenderTarget: glBindFramebuffer");
     }
-    
-//    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
-//    if(status != GL_FRAMEBUFFER_COMPLETE) {
-//        NSLog(@"Failed to build valid render target: %x", status);
-//        return false;
-//    }
-    
     
     isSetup = false;
     return true;
@@ -214,16 +217,16 @@ AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,i
 // Set up a render target
 void AddRenderTargetReq::execute(Scene *scene,SceneRendererES *renderer,View *view)
 {
-    RenderTarget renderTarget(renderTargetID);
-    renderTarget.width = width;
-    renderTarget.height = height;
-    renderTarget.clearEveryFrame = clearEveryFrame;
-    renderTarget.clearColor[0] = clearColor.r;
-    renderTarget.clearColor[1] = clearColor.g;
-    renderTarget.clearColor[2] = clearColor.b;
-    renderTarget.clearColor[3] = clearColor.a;
-    renderTarget.blendEnable = blend;
-    renderTarget.init(scene,texID);
+    RenderTargetRef renderTarget = RenderTargetRef(new RenderTarget(renderTargetID));
+    renderTarget->width = width;
+    renderTarget->height = height;
+    renderTarget->clearEveryFrame = clearEveryFrame;
+    renderTarget->clearColor[0] = clearColor.r;
+    renderTarget->clearColor[1] = clearColor.g;
+    renderTarget->clearColor[2] = clearColor.b;
+    renderTarget->clearColor[3] = clearColor.a;
+    renderTarget->blendEnable = blend;
+    renderTarget->init(renderer,scene,texID);
     
     renderer->addRenderTarget(renderTarget);
 }
@@ -235,10 +238,10 @@ ChangeRenderTargetReq::ChangeRenderTargetReq(SimpleIdentity renderTargetID,Simpl
     
 void ChangeRenderTargetReq::execute(Scene *scene,SceneRendererES *renderer,View *view)
 {
-    for (RenderTarget &renderTarget : renderer->renderTargets)
+    for (RenderTargetRef renderTarget : renderer->renderTargets)
     {
-        if (renderTarget.getId() == renderTargetID) {
-            renderTarget.setTargetTexture(scene,texID);
+        if (renderTarget->getId() == renderTargetID) {
+            renderTarget->setTargetTexture(scene,texID);
             break;
         }
     }
@@ -261,10 +264,10 @@ ClearRenderTargetReq::ClearRenderTargetReq(SimpleIdentity targetID)
 
 void ClearRenderTargetReq::execute(Scene *scene,SceneRendererES *renderer,View *view)
 {
-    for (RenderTarget &renderTarget : renderer->renderTargets)
+    for (RenderTargetRef renderTarget : renderer->renderTargets)
     {
-        if (renderTarget.getId() == renderTargetID) {
-            renderTarget.clearOnce = true;
+        if (renderTarget->getId() == renderTargetID) {
+            renderTarget->clearOnce = true;
             break;
         }
     }
@@ -336,18 +339,19 @@ bool SceneRendererES::setup(int apiVersion,int sizeX,int sizeY)
         framebufferTex->createInGL(NULL);
     }
     
-    RenderTarget defaultTarget(EmptyIdentity);
-    defaultTarget.width = sizeX;
-    defaultTarget.height = sizeY;
+    RenderTargetRef defaultTarget = RenderTargetRef(new RenderTarget(EmptyIdentity));
+    defaultTarget->width = sizeX;
+    defaultTarget->height = sizeY;
     if (framebufferTex) {
-        defaultTarget.setTargetTexture(framebufferTex);
+        defaultTarget->setTargetTexture(framebufferTex);
         // Note: Should make this optional
-        defaultTarget.blendEnable = false;
+        defaultTarget->blendEnable = false;
     } else {
-        defaultTarget.init(NULL,EmptyIdentity);
-        defaultTarget.blendEnable = true;
+        if (sizeX > 0 && sizeY > 0)
+            defaultTarget->init(this,NULL,EmptyIdentity);
+        defaultTarget->blendEnable = true;
     }
-    defaultTarget.clearEveryFrame = true;
+    defaultTarget->clearEveryFrame = true;
     renderTargets.push_back(defaultTarget);
     
     return true;
@@ -373,8 +377,10 @@ bool SceneRendererES::resize(int sizeX,int sizeY)
     framebufferWidth = sizeX;
     framebufferHeight = sizeY;
     
-    auto defaultTarget = renderTargets.back();
-    defaultTarget.init(NULL, EmptyIdentity);
+    RenderTargetRef defaultTarget = renderTargets.back();
+    defaultTarget->width = sizeX;
+    defaultTarget->height = sizeY;
+    defaultTarget->init(this, NULL, EmptyIdentity);
     
     // Note: Check this
     return true;
@@ -382,22 +388,9 @@ bool SceneRendererES::resize(int sizeX,int sizeY)
 
 SceneRendererES::~SceneRendererES()
 {
-    // Note: Porting
-//    EAGLContext *oldContext = [EAGLContext currentContext];
-//    if (oldContext != context)
-//        [EAGLContext setCurrentContext:context];
-
-   for (auto &target : renderTargets)
-        target.clear();
-        
-	
-    // Note: Porting
-//	if (oldContext != context)
-//        [EAGLContext setCurrentContext:oldContext];
-//	context = NULL;
 }
 
-void SceneRendererES::addRenderTarget(RenderTarget &newTarget)
+void SceneRendererES::addRenderTarget(RenderTargetRef newTarget)
 {
     renderTargets.insert(renderTargets.begin(),newTarget);
 }
@@ -406,10 +399,10 @@ void SceneRendererES::removeRenderTarget(SimpleIdentity targetID)
 {
     for (int ii=0;ii<renderTargets.size();ii++)
     {
-        RenderTarget &target = renderTargets[ii];
-        if (target.getId() == targetID)
+        RenderTargetRef target = renderTargets[ii];
+        if (target->getId() == targetID)
         {
-            target.clear();
+            target->clear();
             renderTargets.erase(renderTargets.begin()+ii);
             break;
         }

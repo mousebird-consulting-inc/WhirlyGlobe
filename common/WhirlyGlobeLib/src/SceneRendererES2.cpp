@@ -108,7 +108,7 @@ SceneRendererES2::~SceneRendererES2()
 void SceneRendererES2::forceRenderSetup()
 {
     for (auto &renderTarget : renderTargets)
-        renderTarget.isSetup = false;
+        renderTarget->isSetup = false;
 }
 
 void SceneRendererES2::setScene(WhirlyKit::Scene *inScene)
@@ -145,6 +145,12 @@ void SceneRendererES2::setDefaultMaterial(const Material &mat)
 
 void SceneRendererES2::setClearColor(const RGBAColor &color)
 {
+    if (renderTargets.empty())
+        return;
+    
+    RenderTargetRef defaultTarget = renderTargets.back();
+    color.asUnitFloats(defaultTarget->clearColor);
+    
     clearColor = color;
     forceRenderSetup();
 }
@@ -164,12 +170,7 @@ void SceneRendererES2::processScene()
 //    if (oldContext != super.context)
 //        [EAGLContext setCurrentContext:oldContext];
 }
-    
-void SceneRendererES2::resizeFromLayer()
-{
-    
-}
-    
+        
 bool SceneRendererES2::hasChanges()
 {
     return scene->hasChanges(TimeGetCurrent()) || viewDidChange() || !contRenderRequests.empty();
@@ -450,7 +451,7 @@ void SceneRendererES2::render(TimeInterval duration)
 
             if (haveCalcShader) {
                 // Have to set an active framebuffer for our empty fragment shaders to write to
-                renderTargets[0].setActiveFramebuffer(this);
+                renderTargets[0]->setActiveFramebuffer(this);
                 
                 glEnable(GL_RASTERIZER_DISCARD);
                 
@@ -490,13 +491,13 @@ void SceneRendererES2::render(TimeInterval duration)
         SimpleIdentity curProgramId = EmptyIdentity;
         
         // Iterate through rendering targets here
-        for (RenderTarget &renderTarget : renderTargets)
+        for (RenderTargetRef renderTarget : renderTargets)
         {
-            renderTarget.setActiveFramebuffer(this);
+            renderTarget->setActiveFramebuffer(this);
 
-            if (renderTarget.clearEveryFrame || renderTarget.clearOnce)
+            if (renderTarget->clearEveryFrame || renderTarget->clearOnce)
             {
-                renderTarget.clearOnce = false;
+                renderTarget->clearOnce = false;
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
                 CheckGLError("SceneRendererES2: glClear");
             }
@@ -571,7 +572,7 @@ void SceneRendererES2::render(TimeInterval duration)
                     continue;
                 
                 // Only draw drawables that are active for the current render target
-                if (drawContain.drawable->getRenderTarget() != renderTarget.getId())
+                if (drawContain.drawable->getRenderTarget() != renderTarget->getId())
                     continue;
                 
                 // Run any tweakers right here
@@ -621,15 +622,17 @@ void SceneRendererES2::render(TimeInterval duration)
 
     if (perfInterval > 0)
         perfTimer.startTiming("Present Renderbuffer");
-
+    
     // Explicitly discard the depth buffer
-    // Note: move this to iOS version
     const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
     if (glesVersion < 3)
         glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
     else
         glInvalidateFramebuffer(GL_FRAMEBUFFER,1,discards);
     CheckGLError("SceneRendererES2: glDiscardFramebufferEXT");
+
+    // Subclass with do the presentation
+    presentRender();
 
 #if 0
     // Note: Move this to iOS version
@@ -721,8 +724,8 @@ void SceneRendererES2::render(TimeInterval duration)
 		frameCountStart = now;
 		frameCount = 0;
         
-        WHIRLYKIT_LOGV("---Rendering Performance---");
-        WHIRLYKIT_LOGV(" Frames per sec = %.2f",framesPerSec);
+        wkLogLevel(Verbose,"---Rendering Performance---");
+        wkLogLevel(Verbose," Frames per sec = %.2f",framesPerSec);
         perfTimer.log();
         perfTimer.clear();
 	}

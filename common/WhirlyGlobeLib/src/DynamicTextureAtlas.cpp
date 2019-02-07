@@ -214,7 +214,7 @@ void DynamicTexture::addTextureData(int startX,int startY,int width,int height,R
             int size,thisWidth,thisHeight;
             unsigned char *pixData = Texture::ResolvePKM(data,pkmType, size, thisWidth, thisHeight);
             if (!pixData || pkmType != type || thisWidth != width || thisHeight != height)
-                WHIRLYKIT_LOGW("Compressed texture doesn't match atlas.");
+                wkLogLevel(Warn,"Compressed texture doesn't match atlas.");
             else
                 glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
         } else
@@ -606,7 +606,7 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
             tex->getNumRegions()--;
         }
     } else
-        WHIRLYKIT_LOGW("DynamicTextureAtlas: Request to remove non-existent texture.");
+        wkLogLevel(Warn,"DynamicTextureAtlas: Request to remove non-existent texture.");
 }
     
 bool DynamicTextureAtlas::empty()
@@ -716,9 +716,9 @@ void DynamicTextureAtlas::log()
             
     }
     
-    WHIRLYKIT_LOGW("DynamicTextureAtlas: %ld textures, (%.2f MB)",textures.size(),textures.size() * texSize*texSize*texelSize/(float)(1024*1024));
+    wkLogLevel(Warn,"DynamicTextureAtlas: %ld textures, (%.2f MB)",textures.size(),textures.size() * texSize*texSize*texelSize/(float)(1024*1024));
     if (numCells > 0)
-        WHIRLYKIT_LOGW("DynamicTextureAtlas: using %.2f%% of the cells",100 * usedCells / (float)numCells);
+        wkLogLevel(Warn,"DynamicTextureAtlas: using %.2f%% of the cells",100 * usedCells / (float)numCells);
 }
 
 }

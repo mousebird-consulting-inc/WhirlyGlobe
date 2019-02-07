@@ -278,7 +278,7 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
         {
             GLchar *logStr = (GLchar *)malloc(len);
             glGetShaderInfoLog(*shaderId, len, &len, logStr);
-            WHIRLYKIT_LOGE("Compile error for %s shader %s:\n%s",shaderTypeStr,name.c_str(),logStr);
+            wkLogLevel(Error,"Compile error for %s shader %s:\n%s",shaderTypeStr,name.c_str(),logStr);
             free(logStr);
         }
         
@@ -345,7 +345,7 @@ OpenGLES2Program::OpenGLES2Program(const std::string &inName,const std::string &
         {
             GLchar *logStr = (GLchar *)malloc(len);
             glGetProgramInfoLog(program, len, &len, logStr);
-            WHIRLYKIT_LOGE("Link error for shader program %s:\n%s",name.c_str(),logStr);
+            wkLogLevel(Error,"Link error for shader program %s:\n%s",name.c_str(),logStr);
             free(logStr);
         }
         cleanUp();

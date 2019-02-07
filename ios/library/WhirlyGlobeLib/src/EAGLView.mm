@@ -176,8 +176,11 @@
         return;
     }
     
+    EAGLContext *oldContext = [EAGLContext currentContext];
+    _renderer->useContext();
+
     // Try to resize the renderer, multiple times if necessary
-	if (!_renderer->resize((int)self.frame.size.width,(int)self.frame.size.height))
+	if (!_renderer->resize((int)self.frame.size.width*self.contentScaleFactor,(int)self.frame.size.height*self.contentScaleFactor))
     {
         if (!resizeFail)
         {
@@ -186,10 +189,14 @@
         } else
             resizeFailRetry--;
         
+        [EAGLContext setCurrentContext:oldContext];
+
         return;
     }
     resizeFail = false;
     resizeFailRetry = 0;
+
+    [EAGLContext setCurrentContext:oldContext];
 
     [self drawView:nil];
 }

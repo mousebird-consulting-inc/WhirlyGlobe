@@ -20,6 +20,7 @@
 
 #import <stdio.h>
 #import "GLUtils.h"
+#import "WhirlyKitLog.h"
 
 // Turn this off for a little performance gain
 #if DEBUG || __ANDROID__
@@ -34,12 +35,7 @@ bool CheckGLError(const char *msg)
     GLenum theError = glGetError();
     if (theError != GL_NO_ERROR)
     {
-#ifdef __ANDROID__
-      __android_log_print(ANDROID_LOG_ERROR, "Maply", "GL Error: %d - %s",theError,msg);
-#else
-        fprintf(stderr,"GL Error: %d - %s",theError,msg);
-#endif
-//        NSLog(@"GL Error: %d - %s",theError,msg);
+        wkLog("GL Error: %d - %s",theError,msg);
         return false;
     }
     

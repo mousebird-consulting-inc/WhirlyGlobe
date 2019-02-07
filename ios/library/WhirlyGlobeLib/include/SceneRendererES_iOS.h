@@ -30,6 +30,7 @@ namespace WhirlyKit {
 class SceneRendererES_iOS : public SceneRendererES2 {
 public:
     SceneRendererES_iOS();
+    virtual ~SceneRendererES_iOS();
 
     /// Set the current OpenGL ES context if there is one
     void useContext();
@@ -37,7 +38,17 @@ public:
     /// Return the associated context
     EAGLContext *getContext();
     
+    /// Used to attach the storage to a render target
+    virtual void defaultTargetInit(RenderTarget *);
+    
+    /// If this associated with an OpenGL layer, set that up.
+    void setLayer(CAEAGLLayer *layer);
+    
+    /// Present the render buffer
+    virtual void presentRender();
+    
 protected:
+    CAEAGLLayer * __weak layer;
     EAGLContext *context;
 };
     

@@ -94,7 +94,7 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
             glBufferData(GL_ARRAY_BUFFER, rectSize, (const GLvoid *)&verts[0], GL_STATIC_DRAW);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         } else {
-            WHIRLYKIT_LOGE("ParticleSystemDrawable: Can only do instanced rectangles at present.  This system can't handle instancing.");
+            wkLogLevel(Error,"ParticleSystemDrawable: Can only do instanced rectangles at present.  This system can't handle instancing.");
         }
     }
     

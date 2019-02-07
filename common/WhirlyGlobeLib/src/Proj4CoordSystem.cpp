@@ -96,7 +96,7 @@ Point3d Proj4CoordSystem::geographicToLocal3d(GeoCoord geo)
     Point3d coord;
     double x = geo.x(),y = geo.y(),z = 0.0;
     if (pj_transform(pj_latlon, pj, 1, 1, &x, &y, &z))
-        WHIRLYKIT_LOGV("Proj4CoordSystem::geographicToLocal3d error converting to local");
+        wkLogLevel(Error,"Proj4CoordSystem::geographicToLocal3d error converting to local");
 
     coord.x() = x;  coord.y() = y;  coord.z() = z;
     

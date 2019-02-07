@@ -267,6 +267,7 @@ using namespace WhirlyKit;
     [self loadSetup_glView];
     
     [renderControl loadSetup];
+    renderControl->sceneRenderer->setLayer((CAEAGLLayer *)glView.layer);
 
     // Set up the GL View to display it in
 	glView.renderer = renderControl->sceneRenderer.get();
