@@ -110,7 +110,8 @@ using namespace Eigen;
 - (void)clear
 {
     scene = nil;
-    sceneRenderer->scene = NULL;
+    if (sceneRenderer)
+        sceneRenderer->scene = NULL;
     interactLayer = nil;
     theClearColor = nil;
 }

@@ -160,15 +160,7 @@ void SceneRendererES2::processScene()
     if (!scene)
         return;
     
-    // Note: Move this up a level
-//    EAGLContext *oldContext = [EAGLContext currentContext];
-//    if (oldContext != super.context)
-//        [EAGLContext setCurrentContext:super.context];
-
     scene->processChanges(theView,this,TimeGetCurrent());
-    
-//    if (oldContext != super.context)
-//        [EAGLContext setCurrentContext:oldContext];
 }
         
 bool SceneRendererES2::hasChanges()
@@ -212,14 +204,6 @@ void SceneRendererES2::render(TimeInterval duration)
     	
     if (perfInterval > 0)
         perfTimer.startTiming("Render Setup");
-
-    // Note: Move this up a level
-//    CheckGLError("SceneRendererES2: pre setCurrentContext");
-//    EAGLContext *context = super.context;
-//    EAGLContext *oldContext = [EAGLContext currentContext];
-//    if (oldContext != context)
-//        [EAGLContext setCurrentContext:context];
-//    CheckGLError("SceneRendererES2: setCurrentContext");
     
 //    if (!renderSetup)
     {
@@ -310,8 +294,7 @@ void SceneRendererES2::render(TimeInterval duration)
         Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
         baseFrameInfo.pvMat = pvMat4f;
         baseFrameInfo.pvMat4d = pvMat;
-        if (mapView)
-            mapView->getOffsetMatrices(baseFrameInfo.offsetMatrices, frameSize, overlapMarginX);
+        theView->getOffsetMatrices(baseFrameInfo.offsetMatrices, frameSize, overlapMarginX);
         Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         baseFrameInfo.lights = &lights;

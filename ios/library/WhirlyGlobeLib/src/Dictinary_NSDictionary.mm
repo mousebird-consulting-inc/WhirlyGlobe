@@ -35,6 +35,8 @@ static NSString *StdStringToString(const std::string &str)
     
 static std::string StringToStdString(NSString *str)
 {
+    if (!str)
+        return "";
     return std::string([str cStringUsingEncoding:NSASCIIStringEncoding]);
 }
     
