@@ -63,7 +63,7 @@ namespace WhirlyKit {
 class ViewWatcherWrapper : public ViewWatcher
 {
 public:
-    WhirlyKitLayerViewWatcher *viewWatcher;
+    WhirlyKitLayerViewWatcher * __weak viewWatcher;
     
     // View has been updated so we'll just hand that over to the watcher
     virtual void viewUpdated(View *view)
@@ -104,6 +104,7 @@ public:
         view = inView;
         watchers = [NSMutableArray array];
         lastViewState = inView->makeViewState(layerThread.renderer);
+        viewWatchWrapper.viewWatcher = self;
         inView->addWatcher(&viewWatchWrapper);
     }
     

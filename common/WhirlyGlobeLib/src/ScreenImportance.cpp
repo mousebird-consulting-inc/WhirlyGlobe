@@ -54,6 +54,7 @@ int calcNumSamples(const Point3d &p0,const Point3d &p1,CoordSystem *srcSystem,Co
 }
 
 DisplaySolid::DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMbr,float minZ,float maxZ,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter)
+    : valid(false)
 {
     // Start with the corner points in the source
     WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
@@ -111,6 +112,8 @@ DisplaySolid::DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMb
             }
         }
     }
+    
+    valid = true;
 }
 
 double PolyImportance(const Point3dVector &poly,const Point3d &norm,ViewState *viewState,const WhirlyKit::Point2f &frameSize)

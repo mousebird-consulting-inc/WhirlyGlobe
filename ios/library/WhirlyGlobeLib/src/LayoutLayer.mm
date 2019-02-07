@@ -83,14 +83,14 @@ static const float DelayPeriod = 0.2;
 static const float MaxDelay = 1.0;
 
 // We're getting called for absolutely every update here
-- (void)viewUpdate:(ViewStateRef)inViewState
+- (void)viewUpdate:(WhirlyKitViewStateWrapper *)inViewState
 {
     if (!scene)
         return;
     
-    if (viewState && inViewState->isSameAs(viewState.get()))
+    if (viewState && viewState->isSameAs(inViewState.viewState.get()))
         return;
-    viewState = inViewState;
+    viewState = inViewState.viewState;
     
     // If it's been too long since an update, force the next one
     if (TimeGetCurrent() - lastUpdate > MaxDelay)

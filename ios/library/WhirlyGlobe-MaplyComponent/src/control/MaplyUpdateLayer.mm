@@ -90,10 +90,10 @@ using namespace WhirlyKit;
     [delegate start:self];
 }
 
-- (void)viewUpdate:(ViewStateRef)inViewState
+- (void)viewUpdate:(WhirlyKitViewStateWrapper *)inViewState
 {
     ViewStateRef lastViewState = viewState;
-    ViewStateRef newViewState = inViewState;
+    ViewStateRef newViewState = inViewState.viewState;
     
     // See how far we've moved
     float dist2 = 0.0;

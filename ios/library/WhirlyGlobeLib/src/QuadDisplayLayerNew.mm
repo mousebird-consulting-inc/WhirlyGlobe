@@ -140,11 +140,11 @@ static const float DelayPeriod = 0.1;
     if (!viewState)
         return;
 
-    [self viewUpdate:viewState];
+    [self viewUpdate:[[WhirlyKitViewStateWrapper alloc] initWithViewState:viewState]];
 }
 
 // Called periodically when the user moves, but not too often
-- (void)viewUpdate:(ViewStateRef)inViewState
+- (void)viewUpdate:(WhirlyKitViewStateWrapper *)inViewState
 {
     if (!_scene)
         return;
@@ -157,14 +157,14 @@ static const float DelayPeriod = 0.1;
     if (!_enable)
     {
         // We do need an initial view state, though
-        viewState = inViewState;
+        viewState = inViewState.viewState;
         return;
     }
     
     if ([_dataStructure respondsToSelector:@selector(newViewState:)])
-        [_dataStructure newViewState:inViewState];
+        [_dataStructure newViewState:inViewState.viewState];
 
-    viewState = inViewState;
+    viewState = inViewState.viewState;
 
     // Nodes to load are different for single level vs regular loading
     QuadTreeNew::ImportantNodeSet newNodes;
