@@ -217,6 +217,9 @@ public:
     // Last frame (layout frame, not screen frame)
     std::vector<MaplyTexture *> currentClusterTex,oldClusterTex;
     bool offlineMode;
+    
+    // Pre-fetched IDs for the various programs
+    SimpleIdentity screenSpaceMotionProgram,screenSpaceDefaultProgram;
 }
 
 - (instancetype)initWithView:(View *)inVisualView
@@ -783,8 +786,9 @@ public:
     pthread_mutex_unlock(&changeLock);
 }
 
-// We can refer to shaders by ID or by name.  Figure that out.
-- (void)resolveShader:(NSMutableDictionary *)inDesc defaultShader:(NSString *)defaultShaderName
+// Solved render target and shader names
+// Have to do the shaders here because users are allowed to change the shaders as they run
+- (void)resolveInfoDefaults:(NSDictionary *)inDesc info:(BaseInfo *)info defaultShader:(NSString *)defaultShaderName
 {
     NSObject *shader = inDesc[kMaplyShader];
     if (shader)
@@ -794,29 +798,19 @@ public:
         {
             NSString *shaderName = (NSString *)shader;
             SimpleIdentity shaderID = [self getProgramID:shaderName];
-            if (shaderID == EmptyIdentity)
-                [inDesc removeObjectForKey:@"shader"];
-            else
-                inDesc[kMaplyShader] = @(shaderID);
+            info->programID = shaderID;
         }
-    } else if (defaultShaderName)
-    {
-        SimpleIdentity shaderID = [self getProgramID:defaultShaderName];
-        if (shaderID != EmptyIdentity)
-            inDesc[kMaplyShader] = @(shaderID);
     }
-}
+    
+    if (info->programID == EmptyIdentity)
+        info->programID = [self getProgramID:defaultShaderName];
+     
 
-// Turn a MaplyRenderTarget object into an ID the engine recognizes
-- (void)resolveRenderTarget:(NSMutableDictionary *)desc
-{
     // Look for a render target
-    SimpleIdentity renderTargetID = EmptyIdentity;
-    MaplyRenderTarget *renderTarget = desc[@"rendertarget"];
+    MaplyRenderTarget *renderTarget = inDesc[@"rendertarget"];
     if ([renderTarget isKindOfClass:[MaplyRenderTarget class]])
     {
-        renderTargetID = renderTarget.renderTargetID;
-        desc[@"rendertarget"] = @(renderTargetID);
+        info->renderTargetID = renderTarget.renderTargetID;
     }
 }
 
@@ -827,23 +821,17 @@ public:
         destAttrs.insert(attr->attr);
 }
 
-// Apply a default value to the dictionary
--(void) applyDefaultName:(NSString *)key value:(NSObject *)val toDict:(NSMutableDictionary *)dict
-{
-    if (!dict[key])
-        dict[key] = val;
-}
-
-- (void)resolveDrawPriority:(NSMutableDictionary *)desc offset:(int)offsetPriority
+- (void)resolveDrawPriority:(NSDictionary *)desc info:(BaseInfo *)info drawPriority:(int)drawPriority offset:(int)offsetPriority
 {
     NSNumber *setting = desc[@"drawPriority"];
     int iVal = 0;
     if ([setting isKindOfClass:[NSNumber class]])
     {
         iVal = [setting intValue];
+        info->drawPriority = iVal + offsetPriority;
+    } else {
+        info->drawPriority = drawPriority + offsetPriority;
     }
-    iVal += offsetPriority;
-    desc[@"drawPriority"] = @(iVal);
 }
 
 // Actually add the markers.
@@ -864,12 +852,16 @@ public:
     if ([[markers objectAtIndex:0] isKindOfClass:[MaplyMovingScreenMarker class]])
         isMotionMarkers = true;
     
+    iosDictionary dictWrap(inDesc);
+    MarkerInfo markerInfo(dictWrap);
+    markerInfo.screenObject = true;
+
     // Might be a custom shader on these
     if (isMotionMarkers)
-        [self resolveShader:inDesc defaultShader:kMaplyScreenSpaceDefaultMotionProgram];
+        [self resolveInfoDefaults:inDesc info:&markerInfo defaultShader:kMaplyScreenSpaceDefaultMotionProgram];
     else
-        [self resolveShader:inDesc defaultShader:kMaplyScreenSpaceDefaultProgram];
-    [self resolveDrawPriority:inDesc offset:_screenObjectDrawPriorityOffset];
+        [self resolveInfoDefaults:inDesc info:&markerInfo defaultShader:kMaplyScreenSpaceDefaultProgram];
+    [self resolveDrawPriority:inDesc info:&markerInfo drawPriority:kMaplyLabelDrawPriorityDefault offset:_screenObjectDrawPriorityOffset];
     
     // Convert to WG markers
     std::vector<WhirlyKit::Marker *> wgMarkers;
@@ -963,11 +955,7 @@ public:
     if (markerManager)
     {
         // Set up a description and create the markers in the marker layer
-        NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
-        [desc setObject:[NSNumber numberWithBool:YES] forKey:@"screen"];
         ChangeSet changes;
-        iosDictionary dictWrap(desc);
-        MarkerInfo markerInfo(dictWrap);
         SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, markerInfo, changes);
         if (markerID != EmptyIdentity)
             compObj.markerIDs.insert(markerID);
@@ -1209,17 +1197,17 @@ public:
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyMarkerDrawPriorityDefault) toDict:inDesc];
-
+    
     // Note: This assumes everything has images
     bool hasMultiTex = false;
     for (MaplyMarker *marker in markers)
         if (marker.images)
             hasMultiTex = true;
-    
-    // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:(hasMultiTex ? kMaplyShaderDefaultTriMultiTex : kMaplyShaderDefaultTri)];
+
+    iosDictionary dictWrap(inDesc);
+    MarkerInfo markerInfo(dictWrap);
+    [self resolveInfoDefaults:inDesc info:&markerInfo defaultShader:(hasMultiTex ? kMaplyShaderDefaultTriMultiTex : kMaplyShaderDefaultTri)];
+    [self resolveDrawPriority:inDesc info:&markerInfo drawPriority:kMaplyMarkerDrawPriorityDefault offset:0];
     
     // Convert to WG markers
     std::vector<Marker *> wgMarkers;
@@ -1281,8 +1269,7 @@ public:
     if (markerManager)
     {
         ChangeSet changes;
-        iosDictionary dictWrap(inDesc);
-        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, dictWrap, changes);
+        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, markerInfo, changes);
         if (markerID != EmptyIdentity)
             compObj.markerIDs.insert(markerID);
         [self flushChanges:changes mode:threadMode];
@@ -1405,12 +1392,12 @@ public:
     if ([[labels objectAtIndex:0] isKindOfClass:[MaplyMovingScreenLabel class]])
         isMotionLabels = true;
 
-    // Might be a custom shader on these
-    if (isMotionLabels)
-        [self resolveShader:inDesc defaultShader:kMaplyScreenSpaceDefaultMotionProgram];
-    else
-        [self resolveShader:inDesc defaultShader:kMaplyScreenSpaceDefaultProgram];
-    [self resolveDrawPriority:inDesc offset:_screenObjectDrawPriorityOffset];
+    iosDictionary dictWrap(inDesc);
+    LabelInfo_iOS labelInfo(inDesc,dictWrap);
+    labelInfo.screenObject = true;
+    [self resolveInfoDefaults:inDesc info:&labelInfo
+                defaultShader:(isMotionLabels ? kMaplyScreenSpaceDefaultMotionProgram : kMaplyScreenSpaceDefaultProgram)];
+    [self resolveDrawPriority:inDesc info:&labelInfo drawPriority:kMaplyLabelDrawPriorityDefault offset:_screenObjectDrawPriorityOffset];
 
     // Convert to WG screen labels
     std::vector<SingleLabel *> wgLabels;
@@ -1479,9 +1466,6 @@ public:
     {
         // Set up a description and create the markers in the marker layer
         ChangeSet changes;
-        iosDictionary dictWrap(inDesc);
-        LabelInfo_iOS labelInfo(inDesc,dictWrap);
-        labelInfo.screenObject = true;
         SimpleIdentity labelID = labelManager->addLabels(wgLabels, labelInfo, changes);
         [self flushChanges:changes mode:threadMode];
         if (labelID != EmptyIdentity)
@@ -1541,14 +1525,15 @@ public:
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyLabelDrawPriorityDefault) toDict:inDesc];
+    
+    iosDictionary dictWrap(inDesc);
+    LabelInfo_iOS labelInfo(inDesc,dictWrap);
+    labelInfo.screenObject = false;
+    [self resolveInfoDefaults:inDesc info:&labelInfo defaultShader:kMaplyShaderDefaultTri];
+    [self resolveDrawPriority:inDesc info:&labelInfo drawPriority:kMaplyLabelDrawPriorityDefault offset:0];
 
     // May need a temporary context when setting up label textures
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
-
-    // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:kMaplyShaderDefaultTri];
 
     // Convert to WG labels
     std::vector<SingleLabel *> wgLabels;
@@ -1605,8 +1590,6 @@ public:
     if (labelManager)
     {
         ChangeSet changes;
-        iosDictionary dictWrap(inDesc);
-        LabelInfo_iOS labelInfo(inDesc,dictWrap);
         // Set up a description and create the markers in the marker layer
         SimpleIdentity labelID = labelManager->addLabels(wgLabels, labelInfo, changes);
         [self flushChanges:changes mode:threadMode];
@@ -1669,13 +1652,15 @@ public:
     bool makeVisible = [[argArray objectAtIndex:3] boolValue];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
     
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyVectorDrawPriorityDefault) toDict:inDesc];
-    
+    iosDictionary dictWrap(inDesc);
+    VectorInfo vectorInfo(dictWrap);
+
     // Might be a custom shader on these
-    NSString *shaderName = (![inDesc[kMaplyFilled] boolValue]) ? kMaplyShaderDefaultLine : kMaplyDefaultTriangleShader;
-    if ([inDesc[kMaplyVecTextureProjection] isEqualToString:kMaplyProjectionScreen])
+    NSString *shaderName = !vectorInfo.filled ? kMaplyShaderDefaultLine : kMaplyDefaultTriangleShader;
+    if (vectorInfo.texProj == TextureProjectionScreen)
         shaderName = kMaplyShaderDefaultTriScreenTex;
-    [self resolveShader:inDesc defaultShader:shaderName];
+    [self resolveInfoDefaults:inDesc info:&vectorInfo defaultShader:shaderName];
+    [self resolveDrawPriority:inDesc info:&vectorInfo drawPriority:kMaplyVectorDrawPriorityDefault offset:0];
     
     // Look for a texture and add it
     if (inDesc[kMaplyVecTexture])
@@ -1687,23 +1672,23 @@ public:
         else if ([theImage isKindOfClass:[MaplyTexture class]])
             tex = (MaplyTexture *)theImage;
         if (tex.texID)
-            inDesc[kMaplyVecTexture] = @(tex.texID);
-        else
-            [inDesc removeObjectForKey:kMaplyVecTexture];        
+            vectorInfo.texId = tex.texID;
     }
 
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
     {
         // Maybe need to make a copy if we're going to sample
-        if (inDesc[kMaplySubdivEpsilon])
+        if (vectorInfo.subdivEps != 0.0)
         {
-            float eps = [inDesc[kMaplySubdivEpsilon] floatValue];
+            float eps = vectorInfo.subdivEps;
             NSString *subdivType = inDesc[kMaplySubdivType];
             bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
             bool grid = ![subdivType compare:kMaplySubdivGrid];
             bool staticSubdiv = ![subdivType compare:kMaplySubdivStatic];
             MaplyVectorObject *newVecObj = [vecObj deepCopy2];
+            // Note: This logic needs to be moved down a level
+            //       Along with the subdivision routines above
             if (greatCircle)
                 [newVecObj subdivideToGlobeGreatCircle:eps];
             else if (grid)
@@ -1728,8 +1713,6 @@ public:
         
         if (vectorManager)
         {
-            iosDictionary dictWrap(inDesc);
-            VectorInfo vectorInfo(dictWrap);
             ChangeSet changes;
             SimpleIdentity vecID = vectorManager->addVectors(&shapes, vectorInfo, changes);
             [self flushChanges:changes mode:threadMode];
@@ -1803,10 +1786,10 @@ public:
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyVectorDrawPriorityDefault) toDict:inDesc];
-    
-    // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    iosDictionary dictWrap(inDesc);
+    WideVectorInfo vectorInfo(dictWrap);
+    [self resolveInfoDefaults:inDesc info:&vectorInfo defaultShader:kMaplyShaderDefaultWideVector];
+    [self resolveDrawPriority:inDesc info:&vectorInfo drawPriority:kMaplyVectorDrawPriorityDefault offset:0];
     
     // If there's no shader, we'll apply the default one
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
@@ -1867,8 +1850,6 @@ public:
     
     if (vectorManager)
     {
-        iosDictionary dictWrap(inDesc);
-        WideVectorInfo vectorInfo(dictWrap);
         ChangeSet changes;
         SimpleIdentity vecID = vectorManager->addVectors(&shapes, vectorInfo, changes);
         [self flushChanges:changes mode:threadMode];
@@ -1933,10 +1914,10 @@ public:
     bool makeVisible = [[argArray objectAtIndex:3] boolValue];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
     
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyVectorDrawPriorityDefault) toDict:inDesc];
-    
-    // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:kMaplyDefaultTriangleShader];
+    iosDictionary dictWrap(inDesc);
+    VectorInfo vectorInfo(dictWrap);
+    [self resolveInfoDefaults:inDesc info:&vectorInfo defaultShader:kMaplyDefaultTriangleShader];
+    [self resolveDrawPriority:inDesc info:&vectorInfo drawPriority:kMaplyVectorDrawPriorityDefault offset:0];
     
     // Look for a texture and add it
     if (inDesc[kMaplyVecTexture])
@@ -1961,9 +1942,6 @@ public:
         ChangeSet changes;
         if (vectorManager && !baseObj.vectorIDs.empty())
         {
-            iosDictionary dictWrap(inDesc);
-            VectorInfo vectorInfo(dictWrap);
-
             for (SimpleIDSet::iterator it = baseObj.vectorIDs.begin();it != baseObj.vectorIDs.end(); ++it)
             {
                 SimpleIdentity instID = vectorManager->instanceVectors(*it, vectorInfo, changes);
@@ -2113,15 +2091,12 @@ public:
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyShapeDrawPriorityDefault) toDict:inDesc];
-    [self applyDefaultName:kMaplyShapeInsideOut value:@(NO) toDict:inDesc];
-    [self applyDefaultName:kMaplyShapeSampleX value:@(10) toDict:inDesc];
-    [self applyDefaultName:kMaplyShapeSampleY value:@(10) toDict:inDesc];
-
-    // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:kMaplyDefaultTriangleShader];
-    [self resolveRenderTarget:inDesc];
-
+    iosDictionary dictWrap(inDesc);
+    ShapeInfo shapeInfo(dictWrap);
+    shapeInfo.insideOut = false;
+    [self resolveInfoDefaults:inDesc info:&shapeInfo defaultShader:kMaplyDefaultTriangleShader];
+    [self resolveDrawPriority:inDesc info:&shapeInfo drawPriority:kMaplyShapeDrawPriorityDefault offset:0];
+    
     // Need to convert shapes to the form the API is expecting
     std::vector<Shape *> ourShapes,specialShapes;
     std::set<MaplyTexture *> textures;
@@ -2222,8 +2197,6 @@ public:
         ChangeSet changes;
         if (!ourShapes.empty())
         {
-            iosDictionary dictWrap(inDesc);
-            ShapeInfo shapeInfo(dictWrap);
             SimpleIdentity shapeID = shapeManager->addShapes(ourShapes, shapeInfo, changes);
             if (shapeID != EmptyIdentity)
                 compObj.shapeIDs.insert(shapeID);
@@ -2234,12 +2207,8 @@ public:
             NSMutableDictionary *newDesc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
             if (!newDesc[kMaplyShader])
             {
-                SimpleIdentity shaderID = [self getProgramID:kMaplyShaderDefaultLineNoBackface];
-                if (shaderID != EmptyIdentity)
-                    newDesc[kMaplyShader] = @(shaderID);
+                shapeInfo.programID = [self getProgramID:kMaplyShaderDefaultLineNoBackface];
             }
-            iosDictionary dictWrap(newDesc);
-            ShapeInfo shapeInfo(dictWrap);
             SimpleIdentity shapeID = shapeManager->addShapes(specialShapes, shapeInfo, changes);
             if (shapeID != EmptyIdentity)
                 compObj.shapeIDs.insert(shapeID);
@@ -2318,11 +2287,11 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MaplyComponentObject *compObj = argArray[1];
     NSMutableDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyModelDrawPriorityDefault) toDict:inDesc];
     
-    // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:kMaplyShaderDefaultModelTri];
+    iosDictionary dictWrap(inDesc);
+    GeometryInfo geomInfo(dictWrap);
+    [self resolveInfoDefaults:inDesc info:&geomInfo defaultShader:kMaplyShaderDefaultModelTri];
+    [self resolveDrawPriority:inDesc info:&geomInfo drawPriority:kMaplyModelDrawPriorityDefault offset:0];
 
     // May need a temporary context when setting up label textures
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
@@ -2453,8 +2422,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     matInst.push_back(thisInst);
                 }
                 
-                iosDictionary dictWrap(inDesc);
-                GeometryInfo geomInfo(dictWrap);
                 SimpleIdentity geomID = geomManager->addGeometryInstances(baseModelID, matInst, geomInfo, changes);
                 if (geomID != EmptyIdentity)
                     compObj.geomIDs.insert(geomID);
@@ -2485,13 +2452,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     NSArray *geom = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
-    NSMutableDictionary *inDesc = argArray[2];
+//    NSMutableDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-    
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyModelDrawPriorityDefault) toDict:inDesc];
-    
-    // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:kMaplyDefaultTriangleShader];
     
     GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
     
@@ -2821,10 +2783,10 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
     
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyLoftedPolysDrawPriorityDefault) toDict:inDesc];
-    
-    // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:kMaplyDefaultTriangleShader];
+    iosDictionary dictWrap(inDesc);
+    LoftedPolyInfo loftInfo(dictWrap);
+    [self resolveInfoDefaults:inDesc info:&loftInfo defaultShader:kMaplyDefaultTriangleShader];
+    [self resolveDrawPriority:inDesc info:&loftInfo drawPriority:kMaplyLoftedPolysDrawPriorityDefault offset:0];
     
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
@@ -2838,8 +2800,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         float gridSize = 10.0 / 180.0 * M_PI;
         if (inDesc[kMaplyLoftedPolyGridSize])
             gridSize = [inDesc[kMaplyLoftedPolyGridSize] floatValue];
-        iosDictionary dictWrap(inDesc);
-        LoftedPolyInfo loftInfo(dictWrap);
         SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes, loftInfo, gridSize, changes);
         compObj.loftIDs.insert(loftID);
         compObj.isSelectable = false;
@@ -2899,23 +2859,15 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     CoordSystemDisplayAdapter *coordAdapter = visualView->coordAdapter;
     CoordSystem *coordSys = coordAdapter->getCoordSystem();
     
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyBillboardDrawPriorityDefault) toDict:inDesc];
-    [self applyDefaultName:kMaplyBillboardOrient value:kMaplyBillboardOrientGround toDict:inDesc];
-
-    // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:nil];
+    iosDictionary dictWrap(inDesc);
+    BillboardInfo billInfo(dictWrap);
+    
+    [self resolveInfoDefaults:inDesc info:&billInfo
+                defaultShader:(billInfo.orient == WhirlyKit::BillboardInfo::Eye ? kMaplyBillboardOrientEye : kMaplyBillboardOrientGround)];
+    [self resolveDrawPriority:inDesc info:&billInfo drawPriority:kMaplyBillboardDrawPriorityDefault offset:0];
 
     // May need a temporary context when setting up label textures
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
-
-    SimpleIdentity billShaderID = [inDesc[kMaplyShader] intValue];
-    if (billShaderID == EmptyIdentity)
-    {
-        if ([inDesc[kMaplyBillboardOrient] isEqualToString:kMaplyBillboardOrientEye])
-            billShaderID = [self getProgramID:kMaplyShaderBillboardEye];
-        else
-            billShaderID = [self getProgramID:kMaplyShaderBillboardGround];
-    }
     
     ChangeSet changes;
     BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
@@ -3012,9 +2964,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             wkBills.push_back(wkBill);
         }
         
-        iosDictionary dictWrap(inDesc);
-        BillboardInfo billInfo(dictWrap);
-        SimpleIdentity billId = billManager->addBillboards(wkBills, billInfo, billShaderID, changes);
+        SimpleIdentity billId = billManager->addBillboards(wkBills, billInfo, changes);
         compObj.billIDs.insert(billId);
         compObj.isSelectable = false;
     }
@@ -3071,11 +3021,10 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSMutableDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyParticleSystemDrawPriorityDefault) toDict:inDesc];
-    [self applyDefaultName:kMaplyPointSize value:@(kMaplyPointSizeDefault) toDict:inDesc];
-    
-    // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:kMaplyShaderParticleSystemPointDefault];
+    iosDictionary dictWrap(inDesc);
+    BaseInfo partInfo(dictWrap);
+    [self resolveInfoDefaults:inDesc info:&partInfo defaultShader:kMaplyShaderParticleSystemPointDefault];
+    [self resolveDrawPriority:inDesc info:&partInfo drawPriority:kMaplyParticleSystemDrawPriorityDefault offset:0];
     
     // May need a temporary context
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
@@ -3298,12 +3247,13 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MaplyComponentObject *compObj = argArray[1];
     NSMutableDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
-
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyParticleSystemDrawPriorityDefault) toDict:inDesc];
-    [self applyDefaultName:kMaplyPointSize value:@(kMaplyPointSizeDefault) toDict:inDesc];
     
-    // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:kMaplyShaderParticleSystemPointDefault];
+    iosDictionary dictWrap(inDesc);
+    GeometryInfo geomInfo(dictWrap);
+    if (geomInfo.pointSize == 0.0)
+        geomInfo.pointSize = kMaplyPointSizeDefault;
+    [self resolveInfoDefaults:inDesc info:&geomInfo defaultShader:kMaplyShaderParticleSystemPointDefault];
+    [self resolveDrawPriority:inDesc info:&geomInfo drawPriority:kMaplyParticleSystemDrawPriorityDefault offset:0];
 
     compObj.isSelectable = false;
 
@@ -3322,8 +3272,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             {
                 mat = points.transform.mat;
             }
-            iosDictionary dictWrap(inDesc);
-            GeometryInfo geomInfo(dictWrap);
             SimpleIdentity geomID = geomManager->addGeometryPoints(points->points, mat, geomInfo, changes);
             if (geomID != EmptyIdentity)
                 compObj.geomIDs.insert(geomID);

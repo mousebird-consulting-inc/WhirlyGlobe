@@ -34,11 +34,10 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
     
-    ShapeInfo::ShapeInfo()
-    : BaseInfo()
-    {
-        
-    }
+ShapeInfo::ShapeInfo()
+: BaseInfo()
+{    
+}
 
 ShapeInfo::ShapeInfo(const Dictionary &dict)
     : BaseInfo(dict)

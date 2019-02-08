@@ -45,6 +45,7 @@ namespace WhirlyKit
 {
     
 Scene::Scene()
+    : fontTextureManager(NULL)
 {
 }
     

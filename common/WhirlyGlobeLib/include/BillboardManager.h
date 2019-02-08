@@ -87,6 +87,8 @@ public:
     BillboardInfo(const Dictionary &);
     ~BillboardInfo(){};
     
+    typedef enum {Eye,Ground} Orient;
+    Orient orient;
     RGBAColor color;
 };
 
@@ -143,7 +145,7 @@ public:
     virtual ~BillboardManager();
 
     /// Add billboards for display
-    SimpleIdentity addBillboards(std::vector<Billboard*> billboards,const BillboardInfo &billboardInfo,SimpleIdentity billShader,ChangeSet &changes);
+    SimpleIdentity addBillboards(std::vector<Billboard*> billboards,const BillboardInfo &billboardInfo,ChangeSet &changes);
 
     /// Enable/disable active billboards
     void enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);

@@ -41,6 +41,11 @@ BillboardInfo::BillboardInfo(const Dictionary &dict)
 : BaseInfo(dict)
 {
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
+    std::string orientStr = dict.getString(MaplyBillboardOrient, "");
+    if (orientStr == MaplyBillboardOrientEye)
+        orient = Eye;
+    else
+        orient = Ground;
 }
 
 Billboard::Billboard() :
@@ -189,7 +194,7 @@ BillboardManager::~BillboardManager()
 typedef std::map<SimpleIdentity,BillboardDrawableBuilder *> BuilderMap;
 
 /// Add billboards for display
-SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboards,const BillboardInfo &billboardInfo,SimpleIdentity billShader,ChangeSet &changes)
+SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboards,const BillboardInfo &billboardInfo,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
 
@@ -213,7 +218,7 @@ SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboard
             // Need a new one
             if (it == drawBuilders.end())
             {
-                drawBuilder = new BillboardDrawableBuilder(scene,changes,sceneRep,billboardInfo,billShader,billPoly.texId);
+                drawBuilder = new BillboardDrawableBuilder(scene,changes,sceneRep,billboardInfo,billboardInfo.programID,billPoly.texId);
                 drawBuilders[billPoly.texId] = drawBuilder;
             } else
                 drawBuilder = it->second;

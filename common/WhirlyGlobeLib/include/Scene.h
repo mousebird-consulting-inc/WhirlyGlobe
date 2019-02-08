@@ -371,9 +371,6 @@ public:
     /// Memory manager, really buffer and texture ID manager
     OpenGLMemManager memManager;
     
-    /// Dispatch queue(s) we'll use for... things
-//    dispatch_queue_t dispatchQueue;
-    
     /// Lock for accessing managers
     pthread_mutex_t managerLock;
     

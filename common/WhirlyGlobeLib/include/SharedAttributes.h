@@ -80,6 +80,12 @@
 #define MaplyNoBackfaceLineShader WKString("Default Line;backface=no")
 /// The default billboard shader
 #define MaplyBillboardShader WKString("Default Billboard")
+/// Billboard orientation
+#define MaplyBillboardOrient WKString("billboardorient")
+/// Billboards are oriented toward the eye, but rotate on the ground
+#define MaplyBillboardOrientGround WKString("billboardorientground")
+/// Billboards are oriented only towards the eye
+#define MaplyBillboardOrientEye WKString("billboardorienteye")
 
 /// Where we start image layer draw priorities
 #define MaplyImageLayerDrawPriorityDefault 100

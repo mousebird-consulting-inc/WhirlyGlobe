@@ -18,7 +18,6 @@
  *
  */
 
-#import <Foundation/Foundation.h>
 #import <math.h>
 #import "WhirlyVector.h"
 #import "Scene.h"
