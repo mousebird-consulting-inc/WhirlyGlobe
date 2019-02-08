@@ -43,7 +43,6 @@ public:
     bool insideOut;
     bool hasCenter;
     WhirlyKit::Point3d center;
-    SimpleIdentity renderTargetID;
 };
 
 /** This drawable builder is associated with the shape layer.  It's

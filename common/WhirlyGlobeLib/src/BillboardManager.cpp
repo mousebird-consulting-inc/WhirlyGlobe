@@ -115,9 +115,6 @@ void BillboardDrawableBuilder::addBillboard(Point3d center, const Point2dVector 
         billInfo.setupBasicDrawable(drawable);
         drawable->setProgram(billboardProgram);
         drawable->setTexId(0,texId);
-        drawable->setRequestZBuffer(billInfo.zBufferRead);
-        drawable->setWriteZBuffer(billInfo.zBufferWrite);
-        drawable->setDrawPriority(billInfo.drawPriority);
         if (!vertAttrs.empty())
         {
             SingleVertexAttributeInfoSet vertInfoSet;

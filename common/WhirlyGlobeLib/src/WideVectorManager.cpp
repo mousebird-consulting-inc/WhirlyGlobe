@@ -518,7 +518,6 @@ public:
             int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
             WideVectorDrawable *wideDrawable = new WideVectorDrawable("Widen Vector",ptAlloc,triAlloc,!scene->getCoordAdapter()->isFlat());
             drawable = wideDrawable;
-            drawable->setProgram(vecInfo->programID);
             wideDrawable->setTexRepeat(vecInfo->repeatSize);
             wideDrawable->setEdgeSize(vecInfo->edgeSize);
             wideDrawable->setLineWidth(vecInfo->width);

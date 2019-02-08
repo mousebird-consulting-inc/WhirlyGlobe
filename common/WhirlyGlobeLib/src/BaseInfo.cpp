@@ -157,6 +157,11 @@ void BaseInfo::setupBasicDrawable(BasicDrawable *drawable) const
     drawable->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
     drawable->setProgram(programID);
     drawable->setUniforms(uniforms);
+    drawable->setRequestZBuffer(zBufferRead);
+    drawable->setWriteZBuffer(zBufferWrite);
+    drawable->setProgram(programID);
+    if (renderTargetID != EmptyIdentity)
+        drawable->setRenderTarget(renderTargetID);
 }
 
 void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstance *drawInst)
@@ -167,6 +172,11 @@ void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstance *drawInst)
     drawInst->setVisibleRange(minVis,maxVis);
     drawInst->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
     drawInst->setUniforms(uniforms);
+    drawInst->setRequestZBuffer(zBufferRead);
+    drawInst->setWriteZBuffer(zBufferWrite);
+    drawInst->setProgram(programID);
+    if (renderTargetID != EmptyIdentity)
+        drawInst->setRenderTarget(renderTargetID);
 }
     
 }

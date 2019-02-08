@@ -33,6 +33,8 @@ namespace WhirlyKit
 GeometryInfo::GeometryInfo()
 : color(255,255,255,255), boundingBox(GeometryBBoxSingle), pointSize(4.0)
 {
+    zBufferRead = true;
+    zBufferWrite = true;
 }
     
 GeometryInfo::GeometryInfo(const Dictionary &dict)
@@ -683,13 +685,9 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,con
                 for (unsigned int ll=0;ll<draws.size();ll++)
                 {
                     BasicDrawable *draw = draws[ll];
+                    geomInfo.setupBasicDrawable(draw);
                     draw->setType((raw->type == WhirlyKitGeometryLines ? GL_LINES : GL_TRIANGLES));
-                    draw->setOnOff(geomInfo.enable);
 //                    draw->setColor([geomInfo.color asRGBAColor]);
-                    draw->setVisibleRange(geomInfo.minVis, geomInfo.maxVis);
-                    draw->setDrawPriority(geomInfo.drawPriority);
-                    draw->setRequestZBuffer(true);
-                    draw->setWriteZBuffer(true);
                     Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
                     Matrix4d transMat = trans.matrix();
                     draw->setMatrix(&transMat);
@@ -868,8 +866,6 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
         drawInst->setRequestZBuffer(true);
         drawInst->setWriteZBuffer(true);
         drawInst->addInstances(singleInsts);
-        if (geomInfo.programID != EmptyIdentity)
-            drawInst->setProgram(geomInfo.programID);
         if (hasMotion)
         {
             drawInst->setStartTime(startTime);
@@ -907,10 +903,6 @@ SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomP
         draw->setColor(geomInfo.color);
         draw->setVisibleRange(geomInfo.minVis, geomInfo.maxVis);
         draw->setDrawPriority(geomInfo.drawPriority);
-        draw->setRequestZBuffer(geomInfo.zBufferRead);
-        draw->setRequestZBuffer(geomInfo.zBufferWrite);
-        if (geomInfo.programID != EmptyIdentity)
-            draw->setProgram(geomInfo.programID);
         
         // Set the point size, at least default
         SingleVertexAttributeSet uniforms;

@@ -368,8 +368,6 @@ public:
                 drawable->setColor(ringColor);
                 if (vecInfo->texId != EmptyIdentity)
                     drawable->setTexId(0, vecInfo->texId);
-                if (vecInfo->programID != EmptyIdentity)
-                    drawable->setProgram(vecInfo->programID);
             }
             int baseVert = drawable->getNumPoints();
             drawMbr.addPoints(pts);

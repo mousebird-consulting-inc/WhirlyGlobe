@@ -301,8 +301,6 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                     markerInfo.setupBasicDrawable(draw);
                     draw->setColor(markerInfo.color);
                     draw->setTexId(0,*(texIDs.begin()));
-                    if (markerInfo.programID != EmptyIdentity)
-                       draw->setProgram(markerInfo.programID);
                     drawables[texIDs] = draw;
                     markerRep->drawIDs.insert(draw->getId());
 

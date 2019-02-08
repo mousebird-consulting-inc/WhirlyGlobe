@@ -120,15 +120,8 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
     BasicDrawable *drawable = new BasicDrawable("Spherical Earth Chunk");
     drawable->setType(GL_TRIANGLES);
 //    drawable->setLocalMbr(_mbr);
-    drawable->setDrawPriority(chunkInfo.drawPriority);
-    drawable->setDrawOffset(chunkInfo.drawOffset);
     drawable->setColor(chunkInfo.color);
     drawable->setTexIDs(texIDs);
-    drawable->setOnOff(enable);
-    drawable->setVisibleRange(chunkInfo.minVis, chunkInfo.maxVis, chunkInfo.minVisBand, chunkInfo.maxVisBand);
-    drawable->setRequestZBuffer(chunkInfo.readZBuffer);
-    drawable->setWriteZBuffer(chunkInfo.writeZBuffer);
-    drawable->setProgram(chunkInfo.programID);
     
     int thisSampleX = sampleX, thisSampleY = sampleY;
     
@@ -262,14 +255,7 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
         BasicDrawable *skirtDrawable = new BasicDrawable("Spherical Earth Chunk Skirts");
         skirtDrawable->setType(GL_TRIANGLES);
         skirtDrawable->setLocalMbr(mbr);
-        skirtDrawable->setDrawPriority(0);
-        skirtDrawable->setDrawOffset(chunkInfo.drawOffset);
         skirtDrawable->setTexIDs(texIDs);
-        skirtDrawable->setOnOff(enable);
-        skirtDrawable->setVisibleRange(chunkInfo.minVis, chunkInfo.maxVis);
-        skirtDrawable->setRequestZBuffer(true);
-        skirtDrawable->setWriteZBuffer(false);
-        skirtDrawable->setProgram(programID);
         
         // Bottom skirt
         Point3fVector skirtLocs;

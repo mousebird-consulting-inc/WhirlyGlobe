@@ -87,11 +87,6 @@ void ShapeDrawableBuilder::addPoints(Point3dVector &pts,RGBAColor color,Mbr mbr,
         // Adjust according to the vector info
         //            drawable->setColor([shapeInfo.color asRGBAColor]);
         drawable->setLineWidth(lineWidth);
-        drawable->setRequestZBuffer(shapeInfo.zBufferRead);
-        drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
-        drawable->setProgram(shapeInfo.programID);
-        if (shapeInfo.renderTargetID != EmptyIdentity)
-            drawable->setRenderTarget(shapeInfo.renderTargetID);
         if (center.x() != 0.0 || center.y() != 0.0 || center.z() != 0.0)
         {
             Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
@@ -199,11 +194,6 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
     drawable->setType(GL_TRIANGLES);
     // Adjust according to the vector info
     drawable->setColor(shapeInfo.color);
-    drawable->setRequestZBuffer(shapeInfo.zBufferRead);
-    drawable->setWriteZBuffer(shapeInfo.zBufferWrite);
-    drawable->setProgram(shapeInfo.programID);
-    if (shapeInfo.renderTargetID != EmptyIdentity)
-        drawable->setRenderTarget(shapeInfo.renderTargetID);
     int which = 0;
     for (auto texID : texIDs)
     {
