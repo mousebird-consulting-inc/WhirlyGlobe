@@ -129,7 +129,6 @@ public:
         [watchers addObject:watch];
     }
     
-    // Note: This is running in the layer thread, yet we're accessing the view.  Might be a problem.
     if (!lastViewState && layerThread.renderer->framebufferWidth != 0)
     {
         lastViewState = view->makeViewState(layerThread.renderer);

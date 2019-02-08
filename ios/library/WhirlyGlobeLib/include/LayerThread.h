@@ -31,6 +31,12 @@
     It starts its own thread, obviously, and does all the work there.
  */
 @interface WhirlyKitLayerThread : NSThread
+{
+@public
+    /// We lock this in the main loop.  If anyone else can lock it, that means we're gone.
+    /// Yes, I'm certain there's a better way to do this.
+    pthread_mutex_t existenceLock;
+}
 
 /// Scene we're messing with
 @property (nonatomic,readonly) WhirlyKit::Scene *scene;

@@ -245,7 +245,6 @@ public:
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [self stopAnimation];
     
-    [baseLayerThread addThingToDelete:coordAdapter.get()];
     if (_coordSys)
         [baseLayerThread addThingToRelease:_coordSys];
     

@@ -91,9 +91,8 @@ using namespace WhirlyKit;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
 
     [glView stopAnimation];
-    [glView teardown];
     
-    [renderControl teardown];
+//    NSLog(@"BaseViewController: Shutting down layers");
     
     if (baseLayerThread)
     {
@@ -101,15 +100,24 @@ using namespace WhirlyKit;
         for (unsigned int ii=1;ii<[layerThreads count];ii++)
         {
             WhirlyKitLayerThread *layerThread = [layerThreads objectAtIndex:ii];
-            [baseLayerThread addThreadToShutdown:layerThread];
+            if (layerThread != baseLayerThread)
+                [baseLayerThread addThreadToShutdown:layerThread];
         }
 
         [baseLayerThread addThingToDelete:renderControl->scene];
         [baseLayerThread addThingToRelease:baseLayerThread];
         [baseLayerThread addThingToRelease:glView];
         [baseLayerThread cancel];
+        
+        // Wait for the base layer thread to finish
+        pthread_mutex_lock(&baseLayerThread->existenceLock);
     }
+    [glView teardown];
+    
+    [renderControl teardown];
+
     layerThreads = nil;
+//    NSLog(@"BaseViewController: Layers shut down");
     visualView = NULL;
 
     glView = nil;

@@ -3578,9 +3578,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     }
 }
 
+// This is called directly from outside.
+// Not great, but it means we need the start/work calls in here to catch locking shutdowns
 - (void)enableObjects:(NSArray *)userObjs changes:(ChangeSet &)changes
 {
+    if (![self startOfWork])
+        return;
     [self enableObjectsImpl:userObjs enable:true changes:changes];
+    [self endOfWork];
 }
 
 - (void)disableObjects:(NSArray *)userObjs changes:(ChangeSet &)changes

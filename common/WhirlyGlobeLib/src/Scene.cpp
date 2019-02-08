@@ -95,6 +95,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr)
 
 Scene::~Scene()
 {
+//    wkLogLevel(Verbose,"Shutting down scene");
+    
     pthread_mutex_destroy(&coordAdapterLock);
 
     textures.clear();

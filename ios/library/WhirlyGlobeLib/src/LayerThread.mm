@@ -47,10 +47,6 @@ using namespace WhirlyKit;
     /// We can get change requests from other threads (!)
     pthread_mutex_t changeLock;
     
-    /// We lock this in the main loop.  If anyone else can lock it, that means we're gone.
-    /// Yes, I'm certain there's a better way to do this.
-    pthread_mutex_t existenceLock;
-
     NSCondition *pauseLock;
     BOOL paused;
     BOOL inRunAddChangeRequests;
@@ -278,8 +274,12 @@ using namespace WhirlyKit;
 // We'll just spend our time in here
 - (void)main
 {
+    if ([self isCancelled]) {
+        return;
+    }
+
     pthread_mutex_lock(&existenceLock);
-    
+
     // This should be the default context.  If you change it yourself, change it back
     [EAGLContext setCurrentContext:_glContext];
 
@@ -352,24 +352,22 @@ using namespace WhirlyKit;
         layers = nil;
     }
     
-    // Okay, we're shutting down, so release the existence lock
-    pthread_mutex_unlock(&existenceLock);
+//    NSLog(@"Layer thread shutting down");
     
     if (_mainLayerThread)
     {
         // If any of the things we're to release are other layer threads
         //  we need to wait for them to shut down.
-        for (NSObject *thing in thingsToRelease)
+        for (WhirlyKitLayerThread *otherLayerThread in threadsToShutdown)
         {
-            if ([thing isKindOfClass:[WhirlyKitLayerThread class]])
-            {
-                WhirlyKitLayerThread *otherLayerThread = (WhirlyKitLayerThread *)thing;
-                pthread_mutex_lock(&otherLayerThread->existenceLock);
-            }
+            pthread_mutex_lock(&otherLayerThread->existenceLock);
         }
 
         // Tear the scene down.  It's unsafe to do it elsewhere
         _scene->teardownGL();
+    } else {
+        // Okay, we're shutting down, so release the existence lock
+        pthread_mutex_unlock(&existenceLock);
     }
     
     // Delete outstanding change requests
@@ -385,6 +383,12 @@ using namespace WhirlyKit;
         [thingsToRelease removeObject:[thingsToRelease objectAtIndex:0]];
     
     _glContext = nil;
+    
+    // If this is the main thread, we are well and truly done
+    if (_mainLayerThread) {
+        // Okay, we're shutting down, so release the existence lock
+        pthread_mutex_unlock(&existenceLock);
+    }
 }
 
 
