@@ -401,28 +401,37 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
         {
             case GL_UNSIGNED_BYTE:
             default:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, convertedData->getRawData());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                             (convertedData ? convertedData->getRawData() : NULL));
                 break;
             case GL_UNSIGNED_SHORT_5_6_5:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5, convertedData->getRawData());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5,
+                             (convertedData ? convertedData->getRawData() : NULL));
                 break;
             case GL_UNSIGNED_SHORT_4_4_4_4:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4, convertedData->getRawData());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4,
+                             (convertedData ? convertedData->getRawData() : NULL));
                 break;
             case GL_UNSIGNED_SHORT_5_5_5_1:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1, convertedData->getRawData());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1,
+                             (convertedData ? convertedData->getRawData() : NULL));
                 break;
             case GL_ALPHA:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE, convertedData->getRawData());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE,
+                             (convertedData ? convertedData->getRawData() : NULL));
                 break;
             case GL_RG:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, convertedData->getRawData());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, width, height, 0, GL_RG, GL_UNSIGNED_BYTE,
+                             (convertedData ? convertedData->getRawData() : NULL));
                 break;
             case GL_COMPRESSED_RGB8_ETC2:
-                glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB8_ETC2, width, height, 0, (GLsizei)convertedData->getLen(), convertedData->getRawData());
+                glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB8_ETC2, width, height, 0,
+                                       (GLsizei)(convertedData ? convertedData->getLen() : 0),
+                                       (convertedData ? convertedData->getRawData() : NULL));
                 break;
             case GL_DEPTH_COMPONENT16:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, convertedData->getRawData());
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT,
+                             (convertedData ? convertedData->getRawData() : NULL));
                 break;
         }
         CheckGLError("Texture::createInGL() glTexImage2D()");

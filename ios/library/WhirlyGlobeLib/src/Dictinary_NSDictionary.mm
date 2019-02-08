@@ -18,6 +18,8 @@
  *
  */
 
+#import <UIKit/UIKit.h>
+#import "UIColor+Stuff.h"
 #import "Dictionary_NSDictionary.h"
 #import "NSDictionary+Stuff.h"
 
@@ -109,10 +111,13 @@ bool iosDictionary::getBool(const std::string &name,bool defVal) const
 /// Interpret an int as a RGBA color
 RGBAColor iosDictionary::getColor(const std::string &name,const RGBAColor &defVal) const
 {
-//    NSString *theName = StdStringToString(name);
-
-    throw "Not implemented";
-    return RGBAColor();
+    NSString *theName = StdStringToString(name);
+    
+    UIColor *color = [dict objectForKey:theName];
+    if (![color isKindOfClass:[UIColor class]])
+        return defVal;
+    
+    return [color asRGBAColor];
 }
 
 /// Return a double, using the default if it's missing

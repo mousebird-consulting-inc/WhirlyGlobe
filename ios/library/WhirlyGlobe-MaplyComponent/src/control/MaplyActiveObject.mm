@@ -56,19 +56,23 @@ using namespace WhirlyKit;
 {
     self = [super init];
     _viewC = inViewC;
-    activeInter = ActiveModelInterfaceRef(new ActiveModelInterface());
+    if (activeInter)
+        activeInter = ActiveModelInterfaceRef(new ActiveModelInterface());
     
     return self;
 }
 
 - (void)registerWithScene
 {
+    if (!activeInter)
+        activeInter = ActiveModelInterfaceRef(new ActiveModelInterface());
     scene->addActiveModel(activeInter);
 }
 
 - (void)removeFromScene
 {
-    scene->removeActiveModel(activeInter);
+    if (activeInter)
+        scene->removeActiveModel(activeInter);
 }
 
 - (void)startWithScene:(WhirlyKit::Scene *)inScene
