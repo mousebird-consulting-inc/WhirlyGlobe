@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 1/24/17.
-//  Copyright © 2017 mousebird consulting. All rights reserved.
+//  Copyright © 2017 mousebird consulting.
 //
 
 #import "LIDARTestCase.h"
