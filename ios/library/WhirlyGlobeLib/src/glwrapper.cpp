@@ -27,7 +27,6 @@ bool hasVertexArraySupport = false;
 bool hasMapBufferSupport = false;
 bool hasInstanceSupport = false;
 
-// Note: Porting
 PFNGLBINDVERTEXARRAYOESPROC glBindVertexArrayEXT = NULL;
 PFNGLDELETEVERTEXARRAYSOESPROC glDeleteVertexArraysEXT = NULL;
 PFNGLGENVERTEXARRAYSOESPROC glGenVertexArraysEXT = NULL;
@@ -42,7 +41,7 @@ bool SetupGLESExtensions()
 {
 	const char *cap = (const char *)glGetString(GL_EXTENSIONS);
 
-    // Note: Porting
+    // Note: What was I trying to do here?
 //	if (strstr(cap,"GL_OES_vertex_array_object"))
 //		hasVertexArraySupport = true;
 //	if (strstr(cap,"GL_OES_mapbuffer"))
@@ -106,7 +105,7 @@ bool SetupGLESExtensions()
 //    return (*glUnmapBufferEXT)(target);
 //}
 
-// Note: There are here to make the linker happy.
+// There are here to make the linker happy.
 
 void glBindVertexArray (GLuint array)
 {

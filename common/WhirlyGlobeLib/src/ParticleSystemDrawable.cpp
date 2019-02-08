@@ -143,7 +143,6 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
     chunksDirty = true;
     
     // Zero it out to avoid warnings
-    // Note: Don't actually have to do this
 //    glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
 //    void *glMem = NULL;
 //    EAGLContext *context = [EAGLContext currentContext];
@@ -537,7 +536,7 @@ void ParticleSystemDrawable::calculate(RendererFrameInfo *frameInfo,Scene *scene
             glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, varyIdx, 0);
         }
 
-//        // Note: Check the buffer
+        // Check the buffer for debugging
 //        varyIdx = 0;
 //        for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
 //            GLint attrSize = varyInfo.size();

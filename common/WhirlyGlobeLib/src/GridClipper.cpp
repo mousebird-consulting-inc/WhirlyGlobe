@@ -212,7 +212,6 @@ bool ClipLoopsToMbr(const std::vector<VectorRing> &rings,const Mbr &mbr, bool cl
 
 // Clip the given loop to the given grid (org and spacing)
 // Return true on success and the new polygons in the rets
-// Note: Not deeply efficient
 bool ClipLoopToGrid(const VectorRing &ring,Point2f org,Point2f spacing,std::vector<VectorRing> &rets)
 {
     Mbr mbr(ring);

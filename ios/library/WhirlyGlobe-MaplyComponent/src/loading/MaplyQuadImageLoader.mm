@@ -1054,7 +1054,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         }
 
         // Lastly, hold anything that might be used for an overlay
-        // Note: Only do this if we're using overlays
+        // Only do this if we're using overlays
         if (curOverlayLevel != targetLevel) {
             if (hasOverlayObjects && node.level == curOverlayLevel) {
                 if (toKeep.find(node) == toKeep.end())

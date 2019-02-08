@@ -285,8 +285,6 @@ void Scene::removeActiveModel(ActiveModelRef activeModel)
     
 void Scene::teardownGL()
 {
-    // Note: Tear down generators
-    // Note: Tear down active models
     for (auto it : drawables)
         it.second->teardownGL(&memManager);
     drawables.clear();

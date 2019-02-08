@@ -68,8 +68,6 @@ using namespace Eigen;
     sceneRenderer->zBufferMode = zBufferOffDefault;
     sceneRenderer->scene = scene;
     sceneRenderer->theView = flatView.get();
-
-    // Note: Should this be black or purely clear?
     sceneRenderer->setClearColor([[UIColor blackColor] asRGBAColor]);
     
     // Turn on the model matrix optimization for drawing

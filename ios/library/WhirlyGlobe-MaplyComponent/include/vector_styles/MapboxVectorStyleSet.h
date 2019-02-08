@@ -104,7 +104,6 @@
     @details This is a single layer from the Mapbox style sheet.  It's also used to build visible objects.
   */
 @interface MaplyMapboxVectorStyleLayer : NSObject<MaplyVectorStyle>
-// Note: Need a better base class than MaplyVectorTileStyle
 
 @property (nonatomic,weak,nullable) MapboxVectorStyleSet *styleSet;
 

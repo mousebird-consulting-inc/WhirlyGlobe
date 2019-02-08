@@ -249,12 +249,6 @@ void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool
 // Great circle version
 void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,Point3dVector &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
-    // If the difference is greater than 180, then this is probably crossing the date line
-    //  in which case we'll just leave it alone.
-    // Note: Probably not right
-//    if (std::abs(p0.x() - p1.x()) > M_PI)
-//        return;
-
     Point3d midP = (p0+p1)/2.0;
     Point3d midOnSphere = midP;
     if (adapter && !adapter->isFlat())
@@ -340,7 +334,6 @@ bool VectorTriangles::pointInside(GeoCoord coord)
 {
     if (geoMbr.inside(coord))
     {
-        // Note: Could be made much faster
         for (unsigned int ti=0;ti<tris.size();ti++)
         {
             VectorRing ring;

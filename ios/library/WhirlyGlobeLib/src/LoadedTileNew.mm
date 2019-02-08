@@ -258,8 +258,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
             changes.push_back(new AddDrawableReq(skirtChunk));
             if (geomSettings.useTileCenters)
                 skirtChunk->setMatrix(&transMat);
-            // Note: We hardwire this to appear after the atmosphere
-            //       Would be wiser to make this configurable... sort of
+            // We hardwire this to appear after the atmosphere.  A bit hacky.
             skirtChunk->setupTexCoordEntry(0, 0);
             skirtChunk->setDrawPriority(11);
             skirtChunk->setVisibleRange(geomSettings.minVis, geomSettings.maxVis);

@@ -309,7 +309,6 @@ using namespace WhirlyKit;
     // Lastly, an interaction layer of our own
     renderControl->interactLayer = [self loadSetup_interactionLayer];
     renderControl->interactLayer.screenObjectDrawPriorityOffset = renderControl.screenObjectDrawPriorityOffset;
-    renderControl->interactLayer.glView = glView;
     renderControl->interactLayer->layerThreads = layerThreads;
     [baseLayerThread addLayer:renderControl->interactLayer];
     
@@ -973,7 +972,6 @@ static const float PerfOutputDelay = 15.0;
 }
 
 // Delegate callback for annotation placement
-// Note: Not doing anything with this yet
 - (TimeInterval)calloutView:(SMCalloutView *)calloutView delayForRepositionWithSize:(CGSize)offset
 {
     TimeInterval delay = 0.0;

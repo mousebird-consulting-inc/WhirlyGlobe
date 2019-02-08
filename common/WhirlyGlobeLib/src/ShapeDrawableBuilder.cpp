@@ -387,7 +387,6 @@ void ShapeDrawableBuilderTri::addComplexOutline(Point3dVector &pts,Point3d norm,
 {
     Point3f norm3f(norm.x(),norm.y(),norm.z());
 
-    // Note: Deal with doubles
     VectorRing ring;
     ring.resize(pts.size());
     for (unsigned int ii=0;ii<pts.size();ii++)

@@ -56,7 +56,7 @@ bool OverlapHelper::addObject(const Point2dVector &pts)
             for (unsigned int ii=0;ii<objList.size();ii++)
             {
                 BoundedObject &testObj = objects[objList[ii]];
-                // Note: This will result in testing the same thing multiple times
+                // This will result in testing the same thing multiple times
                 if (ConvexPolyIntersect(testObj.pts,pts))
                     return false;
             }

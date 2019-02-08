@@ -160,7 +160,7 @@ static const float AnimLen = 1.0;
                 bool validLoc = false;
                 
                 // We'll do a hard stop if we're not within the bounds
-                // Note: We're trying this location out, then backing off if it failed.
+                // We're trying this location out, then backing off if it failed.
                 if (!MaplyGestureWithinBounds(bounds, newLoc, sceneRender, &testMapView, &newCenter))
                 {
                     // How about if we leave the x alone?

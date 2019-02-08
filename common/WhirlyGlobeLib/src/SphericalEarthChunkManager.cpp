@@ -99,9 +99,6 @@ void SphericalChunk::calcSampleX(int &thisSampleX,int &thisSampleY,Point3f *disp
         if (sampleY > 0)
             thisSampleY = std::min(thisSampleY,sampleY);
     }
-    
-    // Note: Debugging
-    //    NSLog(@"Sampling: (%d,%d)",thisSampleX,thisSampleY);
 }
 
 void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDraw,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo)
@@ -173,7 +170,6 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
                 drawable->addNormal(dispLoc3f);
             }
     } else {
-        // Note: Not sure this works with specific coordinate systems
         // With rotation, we need to handle this differently
         // Convert the four corners into place
         // Rotate around the center
@@ -531,11 +527,6 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             // Build the main drawable and possibly skirt
             BasicDrawable *drawable = NULL,*skirtDraw = NULL;
             chunk->buildDrawable(&drawable,(request.doEdgeMatching ? &skirtDraw : NULL),request.chunkInfo.enable,coordAdapter,request.chunkInfo);
-            
-            // Note: Debugging
-            //            int color = drand48()*50+205;
-            //            RGBAColor randomColor(color/4,color/4,color/4,255/4);
-            //            drawable->setColor(randomColor);
             
             if (skirtDraw)
             {

@@ -697,8 +697,6 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,con
             }
         }
         
-        // Note: Not sharing drawables between instances
-        
         // Add a selection box for each instance
         if (inst->selectable)
         {

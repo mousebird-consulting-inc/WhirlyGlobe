@@ -213,7 +213,6 @@ void SceneRendererES2::render(TimeInterval duration)
     }
 
     // See if we're dealing with a globe or map view
-    WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(theView);
     Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(theView);
     float overlapMarginX = 0.0;
     if (mapView) {
@@ -271,8 +270,7 @@ void SceneRendererES2::render(TimeInterval duration)
 		int numDrawables = 0;
         
         RendererFrameInfo baseFrameInfo;
-        // Note: Set This properly
-        baseFrameInfo.glesVersion = 3;
+        baseFrameInfo.glesVersion = glesVersion;
         baseFrameInfo.sceneRenderer = this;
         baseFrameInfo.theView = theView;
         baseFrameInfo.viewTrans = viewTrans;
@@ -311,9 +309,7 @@ void SceneRendererES2::render(TimeInterval duration)
         baseFrameInfo.fullEyeVec = -fullEyeVec3;
         Vector4d eyeVec4d = modelTrans4d.inverse() * Vector4d(0,0,1,0.0);
         baseFrameInfo.heightAboveSurface = 0.0;
-        // Note: Should deal with map view as well
-        if (globeView)
-            baseFrameInfo.heightAboveSurface = globeView->heightAboveSurface();
+        baseFrameInfo.heightAboveSurface = theView->heightAboveSurface();
         baseFrameInfo.eyePos = Vector3d(eyeVec4d.x(),eyeVec4d.y(),eyeVec4d.z()) * (1.0+baseFrameInfo.heightAboveSurface);
         
         if (perfInterval > 0)
@@ -569,18 +565,7 @@ void SceneRendererES2::render(TimeInterval duration)
     //                offFrameInfo.mvpMat = mvpMat;
                 
                 numDrawables++;
-                if (perfInterval > 0)
-                {
-                    // Note: Need a better way to track buffer ID growth
-                    //                BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(drawable);
-                    //                if (basicDraw)
-                    //                    perfTimer.addCount("Buffer IDs", basicDraw->getPointBuffer());
-                }
             }
-            
-            // Note: Added this for render target
-//            if (renderTargets.size() > 1)
-//                glFinish();
         }
         
         if (perfInterval > 0)

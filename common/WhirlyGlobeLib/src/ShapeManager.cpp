@@ -199,7 +199,6 @@ void Sphere::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder
     dispPt = dispPt + norm * height;
 
     // It's lame, but we'll use lat/lon coordinates to tesselate the sphere
-    // Note: Replace this with something less lame
     Point3dVector locs,norms;
     locs.reserve((sampleX+1)*(sampleY+1));
     norms.reserve((sampleX+1)*(sampleY+1));
@@ -359,7 +358,6 @@ void Cylinder::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuild
         triBuilder->addConvexOutline(pts, thisNorm, theColor, shapeMbr);
     }
     
-    // Note: Would be nice to keep these around
     circleSamples.clear();
     
     // Add a selection region
@@ -490,7 +488,6 @@ void Extruded::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuild
     
     
     // Run around the outline, building top and bottom lists
-    // Note: Should deal with doubles rather than floats
     VectorRing ring(pts.size());
     for (unsigned int ii=0;ii<pts.size();ii++)
     {

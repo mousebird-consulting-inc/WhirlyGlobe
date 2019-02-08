@@ -213,8 +213,6 @@ void GlobeView::privateSetHeightAboveGlobe(double newH,bool updateWatchers)
 	
 Eigen::Matrix4d GlobeView::calcModelMatrix()
 {
-    // Note: Porting.  Have a lock in the iOS version
-
     Eigen::Affine3d trans(Eigen::Translation3d(0,0,-calcEarthZOffset()));
 	Eigen::Affine3d rot(rotQuat);
 	
@@ -223,8 +221,6 @@ Eigen::Matrix4d GlobeView::calcModelMatrix()
 
 Eigen::Matrix4d GlobeView::calcViewMatrix()
 {
-    // Note: Porting.  Have a lock in the iOS version
-
     Eigen::Quaterniond selfRotPitch(AngleAxisd(tilt, Vector3d::UnitX()));
     Eigen::Quaterniond selfRoll(AngleAxisd(roll, Vector3d::UnitZ()));
     Eigen::Quaterniond combo = selfRoll * selfRotPitch;

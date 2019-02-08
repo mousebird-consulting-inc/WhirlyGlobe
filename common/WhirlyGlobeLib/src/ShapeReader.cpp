@@ -150,7 +150,6 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
 	SHPDestroyObject(thisShape);
 	
 	// Attributes
-    // Note: Probably not complete
 	char attrTitle[12];
 	int attrWidth, numDecimals;
     MutableDictionaryRef attrDict = theShape->getAttrDict();

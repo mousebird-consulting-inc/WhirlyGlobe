@@ -95,7 +95,6 @@
 
 - (UIImage *)makeImage:(CGSize)size
 {
-    // Note: If OpenGL ES doesn't like this size, just bump it up
     int width = size.width;
     int height = size.height;
     CGSize imgSize = size;

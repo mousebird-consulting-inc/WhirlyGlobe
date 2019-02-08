@@ -346,7 +346,6 @@ unsigned char *Texture::ResolvePKM(RawDataRef texData,int &pkmType,int &size,int
 }
     
 // Define the texture in OpenGL
-// Note: Should load the texture from disk elsewhere
 bool Texture::createInGL(OpenGLMemManager *memManager)
 {
 	if (!texData && !isEmptyTexture)

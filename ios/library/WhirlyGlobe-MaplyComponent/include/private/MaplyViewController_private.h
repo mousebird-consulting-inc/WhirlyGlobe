@@ -48,7 +48,6 @@
     MaplyInteractionLayer *mapInteractLayer;
     
     /// Gesture recognizers
-    // Note: Porting
     MaplyTapDelegate *tapDelegate;
     MaplyPanDelegate *panDelegate;
     MaplyPinchDelegate *pinchDelegate;

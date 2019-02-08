@@ -849,7 +849,6 @@ Matrix2d SelectionManager::calcScreenRot(float &screenRot,ViewStateRef viewState
 }
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
-// Note: Should switch to a view state, rather than a view
 void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef viewState,bool multi,std::vector<SelectedObject> &selObjs)
 {
     if (!renderer)
@@ -932,16 +931,6 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
                         screenPts.push_back(Point2f(theScreenPt.x(),theScreenPt.y()));
                     }
                 }
-                
-                // Note: Debugging
-//                {
-//                    NSMutableString *str = [NSMutableString string];
-//                    [str appendFormat:@"Selectable object %d pts: ",screenPts.size()];
-//                    for (auto pt : screenPts)
-//                        [str appendFormat:@" [%d,%d]",(int)(pt.x()),(int)(pt.y())];
-//                    NSLog(@"%@",str);
-//                }
-
                 
                 // See if we fall within that polygon
                 if (PointInPolygon(touchPt, screenPts))
@@ -1191,7 +1180,6 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
                     if (PointInPolygon(touchPt, screenPts))
                     {
                         closeDist2 = 0.0;
-                        // Note: Lame way to calculate distance
                         Point3d midPt(0,0,0);
                         for (unsigned int ii=0;ii<4;ii++)
                             midPt += Vector3fToVector3d(sel.pts[ii]);

@@ -87,7 +87,7 @@ void AnimateTranslateMomentum::updateView(MapView *mapView)
     MapView testMapView(*mapView);
 
     // We'll do a hard stop if we're not within the bounds
-    // Note: We're trying this location out, then backing off if it failed.
+    // We're trying this location out, then backing off if it failed.
     if (withinBounds(newLoc, &testMapView, &newCenter))
     {
         mapView->setLoc(newCenter,true);

@@ -88,8 +88,8 @@ FlatEarthCoordSystem::FlatEarthCoordSystem(const GeoCoord &origin)
 {
     converge = cosf(origin.lat());    
 }
-    
-// Note: This is completely bogus
+
+// Works for flat earth, but not ideal
 static const float MetersPerRadian = 111120.0 * 180.0 / M_PI;
 
 GeoCoord FlatEarthCoordSystem::localToGeographic(Point3f pt)

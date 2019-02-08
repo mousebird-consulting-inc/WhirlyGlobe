@@ -36,8 +36,6 @@ LabelInfo::LabelInfo(const Dictionary &dict)
 {
     textColor = dict.getColor(MaplyTextColor, RGBAColor(255,255,255,255));
     backColor = dict.getColor(MaplyBackgroundColor, RGBAColor(0,0,0,0));
-    // Note: Get font support working. Unique IDs?
-    //    self.font = [desc objectForKey:@"font" checkType:[UIFont class] default:[UIFont systemFontOfSize:32.0]];
     screenObject = dict.getBool("screen",false);
     layoutEngine = dict.getBool(MaplyLayout,false);
     layoutImportance = dict.getDouble(MaplyLayoutImportance,0.0);
@@ -233,7 +231,6 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                 
                 smGeom.drawPriority = labelInfo->drawPriority;
                 smGeom.color = backColor;
-                // Note: This would be a great place for a texture
                 screenShape->addGeometry(smGeom);
             }
 

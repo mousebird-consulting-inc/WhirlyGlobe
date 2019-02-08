@@ -227,7 +227,6 @@ bool BasicDrawable::hasAlpha(WhirlyKit::RendererFrameInfo *frameInfo) const
                     return true;
         }
     
-    // Note: Need to move this elsewhere
     WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(frameInfo->theView);
     if ((minVisibleFadeBand != 0.0 || maxVisibleFadeBand != 0.0) && globeView)
     {
@@ -635,7 +634,6 @@ SingleVertexAttributeSet BasicDrawable::getUniforms() const
 }
 
 // Size of a single vertex in an interleaved buffer
-// Note: We're resetting the buffers for no good reason
 GLuint BasicDrawable::singleVertexSize()
 {
     GLuint singleVertSize = 0;
@@ -709,7 +707,6 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     
     // Offset the geometry upward by minZres units along the normals
     // Only do this once, obviously
-    // Note: Probably replace this with a shader program at some point
     if (drawOffset != 0 && (points.size() == vertexAttributes[normalEntry]->numElements()))
     {
         float scale = setupInfo->minZres*drawOffset;

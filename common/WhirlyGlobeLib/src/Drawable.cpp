@@ -91,7 +91,7 @@ void OpenGLMemManager::removeBufferID(GLuint bufID)
     
     pthread_mutex_lock(&idLock);
 
-    // Clear out the data to save memory (Note: not sure we need this)
+    // Clear out the data to save memory
     glBindBuffer(GL_ARRAY_BUFFER, bufID);
     glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);

@@ -311,7 +311,6 @@ public:
     //        NSLog(@"Max layer delay = %f, %f, layerThread = %x",maxLayerDelay,minNextUpdate,(unsigned int)layerThread);
     
     // Update the layers by priority
-    // Note: What happens if this takes a really long time?
     for (std::set<LayerPriorityOrder>::iterator it = orderedLayers.begin();
          it != orderedLayers.end(); ++it)
         [self updateSingleWatcher:it->watch];

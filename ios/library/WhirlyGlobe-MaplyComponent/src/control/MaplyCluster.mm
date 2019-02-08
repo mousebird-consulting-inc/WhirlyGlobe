@@ -71,7 +71,6 @@
     UIImage *image = imagesByNumber[@(clusterInfo.numObjects)];
     if (!image)
     {
-        // Note: Pick the color based on number of markers
         UIColor *color = [colors objectAtIndex:0];
         
         CGSize scaleSize = CGSizeMake(size.width * scale, size.height * scale);

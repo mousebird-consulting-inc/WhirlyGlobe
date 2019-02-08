@@ -59,7 +59,6 @@
     if (size == 0)
         return nil;
     
-    // Note: If OpenGL ES doesn't like this size, just bump it up
     int width = 1;
     CGSize imgSize = CGSizeMake(width, size);
     UIGraphicsBeginImageContext(imgSize);

@@ -546,7 +546,6 @@ public:
     // If we're making changes in this thread, do the flushes
     if (threadMode == MaplyThreadCurrent)
     {
-        // Note: Borrowed from layer thread
         bool requiresFlush = false;
         
         // Set up anything that needs to be set up
@@ -864,7 +863,6 @@ public:
     bool isMotionMarkers = false;
     if ([[markers objectAtIndex:0] isKindOfClass:[MaplyMovingScreenMarker class]])
         isMotionMarkers = true;
-    // Note: Check that the caller isn't mixing in regular markers
     
     // Might be a custom shader on these
     if (isMotionMarkers)
@@ -1406,7 +1404,6 @@ public:
     bool isMotionLabels = false;
     if ([[labels objectAtIndex:0] isKindOfClass:[MaplyMovingScreenLabel class]])
         isMotionLabels = true;
-    // Note: Check that the caller isn't mixing in regular markers
 
     // Might be a custom shader on these
     if (isMotionLabels)
@@ -2591,6 +2588,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Called in the layer thread
 - (void)addStickersRun:(NSArray *)argArray
 {
+// Note: Turned off for porting
 #if 0
     if (isShuttingDown || (!layerThread && !offlineMode))
         return;
@@ -2605,7 +2603,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     // Might be a custom shader on these
     [self resolveShader:inDesc defaultShader:kMaplyDefaultTriangleShader];
 
-    // Note: Turned off for porting
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     
     for (MaplySticker *sticker in stickers)
@@ -2719,6 +2716,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Actually do the sticker change
 - (void)changeStickerRun:(NSArray *)argArray
 {
+// Note: Porting
 #if 0
     if (isShuttingDown || (!layerThread && !offlineMode))
         return;
@@ -2727,7 +2725,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSDictionary *desc = [argArray objectAtIndex:1];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
     
-    // Note: Porting
     @synchronized(stickerObj)
     {
         bool isHere = false;
@@ -3482,8 +3479,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     geomManager->removeGeometry(userObj.geomIDs, changes);
                 if (fontTexManager && !userObj.drawStringIDs.empty())
                 {
-                    // Note: Giving the fonts 2s to stick around
-                    //       This avoids problems with texture being laid out.
+                    // Giving the fonts 2s to stick around
+                    //       This avoids problems with texture being paged out.
                     //       Without this we lose the textures before we're done with them
                     TimeInterval when = TimeGetCurrent() + 2.0;
                     for (SimpleIdentity dStrID : userObj.drawStringIDs)

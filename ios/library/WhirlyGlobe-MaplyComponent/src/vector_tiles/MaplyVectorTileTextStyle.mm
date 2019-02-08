@@ -324,8 +324,6 @@ typedef enum {
                 label.layoutPlacement = [subStyle->layoutPlacement intValue];
         }
 
-        // Note: This should be MaplyThreadCurrent, but...
-        //   We need a GL context present for the text rendering
         MaplyComponentObject *compObj = [viewC addScreenLabels:labels desc:subStyle->desc mode:MaplyThreadCurrent];
         if (compObj)
             [compObjs addObject:compObj];

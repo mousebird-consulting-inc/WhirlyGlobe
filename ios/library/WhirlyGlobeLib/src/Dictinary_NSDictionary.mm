@@ -76,7 +76,6 @@ DictionaryType iosDictionary::getType(const std::string &name) const
     if ([obj isKindOfClass:[NSString class]])
         return DictTypeString;
     else if ([obj isKindOfClass:[NSNumber class]]) {
-        // Note: Can't tell the difference between the types
         return DictTypeDouble;
     }
     
@@ -187,7 +186,6 @@ DictionaryType iosMutableDictionary::getType(const std::string &name) const
     if ([obj isKindOfClass:[NSString class]])
         return DictTypeString;
     else if ([obj isKindOfClass:[NSNumber class]]) {
-        // Note: Can't tell the difference between the types
         return DictTypeDouble;
     }
     

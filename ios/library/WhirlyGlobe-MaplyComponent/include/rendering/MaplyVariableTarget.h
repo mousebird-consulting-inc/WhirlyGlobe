@@ -25,10 +25,7 @@
 
 typedef NS_ENUM(NSInteger, MaplyVariableType) {
     // Rendering 4 component images to the target
-    VariableTypeVisual,
-    // Rendering 1 component data to the target
-    // Note: Not currently supported
-    VariableTypeSingleData
+    VariableTypeVisual
 };
 
 /**

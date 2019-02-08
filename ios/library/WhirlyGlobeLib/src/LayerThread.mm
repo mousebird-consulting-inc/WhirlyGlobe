@@ -88,9 +88,6 @@ using namespace WhirlyKit;
 {
     pthread_mutex_destroy(&changeLock);
     pthread_mutex_destroy(&existenceLock);
-    // Note: It's not clear why we'd do this here.
-    //       What run loop would it be referring to?
-//    [NSObject cancelPreviousPerformRequestsWithTarget:self];    
 }
 
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer

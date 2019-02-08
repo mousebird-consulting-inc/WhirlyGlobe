@@ -539,7 +539,6 @@ public:
 }
 
 // Register for interesting tap events and others
-// Note: Fill this in
 - (void)registerForEvents
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tapOnMap:) name:MaplyTapMsg object:nil];
@@ -1540,7 +1539,6 @@ public:
         }
     }
 
-    // Note: Old version of name
     if([self.delegate respondsToSelector:@selector(maplyViewController:didClickAnnotation:)]) {
         for(MaplyAnnotation *annotation in self.annotations) {
             if(annotation.calloutView == calloutView) {

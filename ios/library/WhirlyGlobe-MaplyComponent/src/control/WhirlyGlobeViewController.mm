@@ -883,7 +883,6 @@ public:
         return;
     }
     
-    // Note: This might conceivably be a problem, though I'm not sure how.
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
     // If there's a pinch delegate, ask it to calculate the height.
     if (tiltControlDelegate) {
@@ -911,7 +910,6 @@ public:
         return;
     }
     
-    // Note: This might conceivably be a problem, though I'm not sure how.
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
     globeView->setHeightAboveGlobe(height);
     // If there's a pinch delegate, ask it to calculate the height.
@@ -1111,7 +1109,6 @@ public:
     screenCorners[3] = Point2f(0.0, renderControl->sceneRenderer->framebufferHeight);
     
     Eigen::Matrix4d modelTrans;
-    // Note: Pulled this calculation out of the globe view.
     Eigen::Affine3d trans(Eigen::Translation3d(0,0,-globeView->calcEarthZOffset()));
     Eigen::Affine3d rot(theRot);
     Eigen::Matrix4d modelMat = (trans * rot).matrix();
@@ -1312,7 +1309,6 @@ public:
     }
     
     // Now for the binary search
-    // Note: I'd rather make a copy of the view first
     float minRange = 1e-5;
     do
     {
@@ -1706,7 +1702,6 @@ public:
     
 }
 
-// Note: Should base this on the 
 static const float LonAng = 2*M_PI/5.0;
 static const float LatAng = M_PI/4.0;
 

@@ -382,7 +382,6 @@ DynamicTextureAtlas::TextureRegion::TextureRegion()
     static const bool MainThreadMerge = true;
 #else
 #ifdef __ANDROID__
-// Note: Porting
 // On some devices we're seeing a lot of texture problems when trying to merge
     static const bool MainThreadMerge = true;
 #else

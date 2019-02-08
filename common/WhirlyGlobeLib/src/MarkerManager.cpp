@@ -136,9 +136,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
         
         Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(marker->loc);
         norm = coordAdapter->normalForLocal(localPt);
-        
-        // Note: Not supporting more than one texture at the moment
-        
+                
         // Look for a texture sub mapping
         std::vector<SubTexture> subTexs;
         for (unsigned int ii=0; ii<marker->texIDs.size();ii++)

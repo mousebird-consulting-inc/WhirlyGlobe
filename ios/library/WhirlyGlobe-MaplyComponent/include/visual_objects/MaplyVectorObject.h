@@ -216,7 +216,7 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
 - (nullable instancetype)initWithShapeFile:(NSString *__nonnull)fileName;
 
 
-// Note: Vector writing turnd off
+// Note: Vector writing turned off
 #if 0
 /** 
     Write the vector object to the given file on the device.

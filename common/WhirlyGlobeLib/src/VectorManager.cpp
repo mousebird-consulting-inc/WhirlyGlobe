@@ -425,7 +425,6 @@ public:
                     minCoord.y() = std::min(minCoord.y(),texCoord.y());
                 }
                 // Essentially do a mod, since texture coordinates repeat
-                // Note: Should make sure that's true here
                 int minS = floorf(minCoord.x());
                 int minT = floorf(minCoord.y());
                 for (unsigned int jj=0;jj<pts.size();jj++)
@@ -601,7 +600,6 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
         VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
         if (theAreal.get())
         {
-            // Note: Debugging
 //            std::string tileID = (*it)->getAttrDict()->getString("tile");
 //            GeoMbr mbr = theAreal->calcGeoMbr();
 
@@ -674,12 +672,7 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
                             }
                         }
                     } else {
-                        // Note: Points are.. pointless
-                        //                    VectorPointsRef thePoints = std::dynamic_pointer_cast<VectorPoints>(*it);
-                        //                    if (thePoints.get())
-                        //                    {
-                        //                        drawBuild.addPoints(thePoints->pts,false);
-                        //                    }
+                        // Points are... pointless for display
                     }
                 }
             }

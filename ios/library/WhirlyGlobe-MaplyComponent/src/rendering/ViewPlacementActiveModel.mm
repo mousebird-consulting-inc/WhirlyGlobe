@@ -184,7 +184,6 @@ void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
 
         if (!hidden)
         {
-            // Note: Calculate this ahead of time
             Point3d worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(viewInst.loc));
      
             // Check that it's not behind the globe
@@ -227,7 +226,6 @@ void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
         if (!hidden)
         {
             CGSize size = viewInst.view.frame.size;
-            // Note: We should really be passing this in
             float scale = [UIScreen mainScreen].scale;
             // We can only modify UIViews on the main thread
             if ([NSThread currentThread] != [NSThread mainThread])

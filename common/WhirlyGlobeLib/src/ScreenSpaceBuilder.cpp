@@ -21,16 +21,13 @@
 #import "ScreenSpaceBuilder.h"
 #import "ScreenSpaceDrawable.h"
 
-// Note: This was replaced at the component level
-static int ScreenSpaceDrawPriorityOffset = 0;
-
 namespace WhirlyKit
 {
 
 ScreenSpaceBuilder::DrawableState::DrawableState()
     : period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
     enable(true), startEnable(0.0), endEnable(0.0),
-    drawPriority(ScreenSpaceDrawPriorityOffset), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), motion(false), rotation(false), keepUpright(false)
+    drawPriority(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), motion(false), rotation(false), keepUpright(false)
 {
 }
     
@@ -167,7 +164,7 @@ void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
 }
     
 ScreenSpaceBuilder::ScreenSpaceBuilder(CoordSystemDisplayAdapter *coordAdapter,float scale,float centerDist)
-    : coordAdapter(coordAdapter), scale(scale), drawPriorityOffset(ScreenSpaceDrawPriorityOffset), centerDist(centerDist)
+    : coordAdapter(coordAdapter), scale(scale), drawPriorityOffset(0), centerDist(centerDist)
 {
 }
 
@@ -202,7 +199,7 @@ void ScreenSpaceBuilder::setFade(TimeInterval fadeUp,TimeInterval fadeDown)
 
 void ScreenSpaceBuilder::setDrawPriority(int drawPriority)
 {
-    curState.drawPriority = ScreenSpaceDrawPriorityOffset+drawPriority;
+    curState.drawPriority = drawPriority;
 }
 
 void ScreenSpaceBuilder::setVisibility(float minVis,float maxVis)
@@ -450,7 +447,7 @@ void ScreenSpaceObject::setVisibility(float minVis,float maxVis)
 
 void ScreenSpaceObject::setDrawPriority(int drawPriority)
 {
-    state.drawPriority = ScreenSpaceDrawPriorityOffset+drawPriority;
+    state.drawPriority = drawPriority;
 }
 
 void ScreenSpaceObject::setKeepUpright(bool inKeepUpright)

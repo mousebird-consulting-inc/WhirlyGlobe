@@ -78,7 +78,6 @@ BaseInfo::BaseInfo(const Dictionary &dict)
     // Note: Porting
     // Uniforms to be passed to shader
 #if 0
-    // Note: Should add the rest of the types
     NSDictionary *uniformDict = desc[@"shaderuniforms"];
     if (uniformDict)
     {
