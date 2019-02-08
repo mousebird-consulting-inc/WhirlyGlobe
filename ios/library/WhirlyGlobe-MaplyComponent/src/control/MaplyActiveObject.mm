@@ -25,6 +25,11 @@ namespace WhirlyKit {
 // Interface between the c++ and Obj-C sides
 class ActiveModelInterface : public ActiveModel {
 public:
+    ActiveModelInterface(MaplyActiveObject *activeObject)
+    : activeObject(activeObject)
+    {
+    }
+    
     virtual bool hasUpdate() {
         return [activeObject hasUpdate];
     }
@@ -57,7 +62,7 @@ using namespace WhirlyKit;
     self = [super init];
     _viewC = inViewC;
     if (activeInter)
-        activeInter = ActiveModelInterfaceRef(new ActiveModelInterface());
+        activeInter = ActiveModelInterfaceRef(new ActiveModelInterface(self));
     
     return self;
 }
@@ -65,7 +70,7 @@ using namespace WhirlyKit;
 - (void)registerWithScene
 {
     if (!activeInter)
-        activeInter = ActiveModelInterfaceRef(new ActiveModelInterface());
+        activeInter = ActiveModelInterfaceRef(new ActiveModelInterface(self));
     scene->addActiveModel(activeInter);
 }
 
