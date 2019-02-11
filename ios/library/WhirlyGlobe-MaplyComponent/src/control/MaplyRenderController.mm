@@ -75,7 +75,8 @@ using namespace Eigen;
     
     interactLayer = [[MaplyBaseInteractionLayer alloc] initWithView:flatView.get()];
     [interactLayer startWithThread:nil scene:scene];
-    
+    interactLayer->glSetupInfo.glesVersion = sceneRenderer->glesVersion;
+
     [self setupShaders];
     
     if (oldContext)

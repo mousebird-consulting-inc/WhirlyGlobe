@@ -33,15 +33,17 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
-    
 ShapeInfo::ShapeInfo()
-: BaseInfo()
-{    
+    : color(RGBAColor(255,255,255,255)), lineWidth(1.0), insideOut(false), hasCenter(false), center(0.0,0.0,0.0)
+{
+    zBufferRead = true;
 }
-
+    
 ShapeInfo::ShapeInfo(const Dictionary &dict)
     : BaseInfo(dict)
 {
+    if (!dict.hasField(MaplyZBufferRead))
+        zBufferRead = true;
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
     lineWidth = dict.getDouble(MaplyVecWidth,1.0);
     insideOut = dict.getBool(MaplyShapeInsideOut,false);

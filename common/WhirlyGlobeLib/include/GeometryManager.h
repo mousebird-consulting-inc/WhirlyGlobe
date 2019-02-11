@@ -35,7 +35,6 @@ class GeometryInfo : public BaseInfo
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    GeometryInfo();
     GeometryInfo(const Dictionary &);
 
     bool colorOverride;

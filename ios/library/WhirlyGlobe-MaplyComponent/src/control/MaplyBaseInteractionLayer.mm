@@ -269,12 +269,13 @@ public:
 {
     layerThread = inLayerThread;
     offlineMode = layerThread == nil;
-    scene = (WhirlyGlobe::GlobeScene *)inScene;
+    scene = inScene;
     userObjects = [NSMutableSet set];
     atlasGroup = [[MaplyTextureAtlasGroup alloc] initWithScene:scene];
     
     glSetupInfo.minZres = visualView->calcZbufferRes();
-    glSetupInfo.glesVersion = layerThread.renderer->glesVersion;
+    if (layerThread)
+        glSetupInfo.glesVersion = layerThread.renderer->glesVersion;
     
     if (layerThread)
     {
@@ -1401,6 +1402,8 @@ public:
     [self resolveInfoDefaults:inDesc info:&labelInfo
                 defaultShader:(isMotionLabels ? kMaplyScreenSpaceDefaultMotionProgram : kMaplyScreenSpaceDefaultProgram)];
     [self resolveDrawPriority:inDesc info:&labelInfo drawPriority:kMaplyLabelDrawPriorityDefault offset:_screenObjectDrawPriorityOffset];
+    if (!labelInfo.font)
+        labelInfo.font = [UIFont systemFontOfSize:32.0];
 
     // Convert to WG screen labels
     std::vector<SingleLabel *> wgLabels;
@@ -2083,7 +2086,7 @@ public:
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     NSArray *shapes = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);

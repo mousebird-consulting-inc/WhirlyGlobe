@@ -24,9 +24,9 @@
 namespace WhirlyKit
 {
     
-void GeometryModelOBJ::setResourceDir(const std::string &resourceDir)
+void GeometryModelOBJ::setResourceDir(const std::string &inResourceDir)
 {
-    
+    resourceDir = inResourceDir;
 }
     
 bool GeometryModelOBJ::parseMaterials(FILE *fp)

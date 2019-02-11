@@ -30,16 +30,14 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
 
-GeometryInfo::GeometryInfo()
-: color(255,255,255,255), boundingBox(GeometryBBoxSingle), pointSize(4.0)
-{
-    zBufferRead = true;
-    zBufferWrite = true;
-}
-    
 GeometryInfo::GeometryInfo(const Dictionary &dict)
     : BaseInfo(dict)
 {
+    // Shapes typically need to interact with the Z buffer
+    if (!dict.hasField(MaplyZBufferRead))
+        zBufferRead = true;
+    if (!dict.hasField(MaplyZBufferWrite))
+        zBufferWrite = false;
     colorOverride = dict.hasField(MaplyColor);
     color = dict.getColor(MaplyColor, RGBAColor(255,255,255,255));
     std::string bboxVal = dict.getString(MaplyGeomBoundingBox,"");
@@ -784,7 +782,7 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom
     
 SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &inGeom,ChangeSet &changes)
 {
-    std::vector<GeometryRaw *> geoms(inGeom.size());
+    std::vector<GeometryRaw *> geoms;
     for (GeometryRaw &rawGeom : inGeom)
         geoms.push_back(&rawGeom);
     
@@ -861,8 +859,6 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
         BasicDrawableInstance *drawInst = new BasicDrawableInstance("GeometryManager",baseDrawID,BasicDrawableInstance::LocalStyle);
         geomInfo.setupBasicDrawableInstance(drawInst);
         //                    draw->setColor([geomInfo.color asRGBAColor]);
-        drawInst->setRequestZBuffer(true);
-        drawInst->setWriteZBuffer(true);
         drawInst->addInstances(singleInsts);
         if (hasMotion)
         {

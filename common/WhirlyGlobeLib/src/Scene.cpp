@@ -229,7 +229,7 @@ void Scene::setRenderer(SceneRendererES *renderer)
     
     pthread_mutex_unlock(&managerLock);
 }
-
+    
 SceneManager *Scene::getManager(const char *name)
 {
     SceneManager *ret = NULL;
