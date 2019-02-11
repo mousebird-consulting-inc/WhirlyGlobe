@@ -1785,23 +1785,15 @@ public:
 
     NSArray *vectors = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     iosDictionary dictWrap(inDesc);
     WideVectorInfo vectorInfo(dictWrap);
-    [self resolveInfoDefaults:inDesc info:&vectorInfo defaultShader:kMaplyShaderDefaultWideVector];
+    [self resolveInfoDefaults:inDesc info:&vectorInfo defaultShader:(coordAdapter->isFlat() ? kMaplyShaderDefaultWideVector : kMaplyShaderDefaultWideVectorGlobe)];
     [self resolveDrawPriority:inDesc info:&vectorInfo drawPriority:kMaplyVectorDrawPriorityDefault offset:0];
     
-    // If there's no shader, we'll apply the default one
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    if (!inDesc[kMaplyShader]) {
-        if (coordAdapter->isFlat())
-            inDesc[kMaplyShader] = @([self getProgramID:kMaplyShaderDefaultWideVector]);
-        else
-            inDesc[kMaplyShader] = @([self getProgramID:kMaplyShaderDefaultWideVectorGlobe]);
-    }
-
     // Look for a texture and add it
     if (inDesc[kMaplyVecTexture])
     {
@@ -1812,24 +1804,25 @@ public:
         else if ([theImage isKindOfClass:[MaplyTexture class]])
             tex = (MaplyTexture *)theImage;
         if (tex.texID) {
-            inDesc[kMaplyVecTexture] = @(tex.texID);
+            vectorInfo.texID = tex.texID;
             compObj.textures.insert(tex);
-        } else
-            [inDesc removeObjectForKey:kMaplyVecTexture];
+        }
     }
     
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
     {
         // Maybe need to make a copy if we're going to sample
-        if (inDesc[kMaplySubdivEpsilon])
+        if (vectorInfo.subdivEps != 0.0)
         {
-            float eps = [inDesc[kMaplySubdivEpsilon] floatValue];
+            float eps = vectorInfo.subdivEps;
             NSString *subdivType = inDesc[kMaplySubdivType];
             bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
             bool grid = ![subdivType compare:kMaplySubdivGrid];
             bool staticSubdiv = ![subdivType compare:kMaplySubdivStatic];
             MaplyVectorObject *newVecObj = [vecObj deepCopy2];
+            // Note: This logic needs to be moved down a level
+            //       Along with the subdivision routines above
             if (greatCircle)
                 [newVecObj subdivideToGlobeGreatCircle:eps];
             else if (grid)
@@ -1841,7 +1834,7 @@ public:
                 // Note: Fill this in
             } else
                 [newVecObj subdivideToGlobe:eps];
-            
+
             shapes.insert(newVecObj.shapes.begin(),newVecObj.shapes.end());
         } else
             // We'll just reference it
@@ -2783,7 +2776,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     compObj.vectors = vectors;
     NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
-    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:2] intValue];
+    MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);
     LoftedPolyInfo loftInfo(dictWrap);
@@ -2798,11 +2791,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
     if (loftManager)
     {
-        // 10 degress by default
-        float gridSize = 10.0 / 180.0 * M_PI;
-        if (inDesc[kMaplyLoftedPolyGridSize])
-            gridSize = [inDesc[kMaplyLoftedPolyGridSize] floatValue];
-        SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes, loftInfo, gridSize, changes);
+        SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes, loftInfo, changes);
         compObj.loftIDs.insert(loftID);
         compObj.isSelectable = false;
     }

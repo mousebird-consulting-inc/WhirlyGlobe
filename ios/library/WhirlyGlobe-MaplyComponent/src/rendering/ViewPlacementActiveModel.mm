@@ -32,6 +32,7 @@ namespace WhirlyKit
 ViewPlacementManager::ViewPlacementManager()
     : changedSinceUpdate(true)
 {
+    pthread_mutex_init(&viewInstanceLock, NULL);
 }
     
 ViewPlacementManager::~ViewPlacementManager()

@@ -31,6 +31,7 @@ namespace WhirlyKit
 WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     : BaseInfo(dict)
 {
+    subdivEps = dict.getDouble(MaplySubdivEpsilon,0.0);
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
     width = dict.getDouble(MaplyVecWidth,2.0);
     std::string coordTypeStr = dict.getString(MaplyWideVecCoordType);
@@ -61,7 +62,6 @@ public:
     WideVectorBuilder(const WideVectorInfo *vecInfo,const Point3d &localCenter,const Point3d &dispCenter,const RGBAColor inColor,bool makeTurns,CoordSystemDisplayAdapter *coordAdapter)
     : vecInfo(vecInfo), angleCutoff(DegToRad(30.0)), texOffset(0.0), edgePointsValid(false), coordAdapter(coordAdapter), localCenter(localCenter), dispCenter(dispCenter), makeDistinctTurn(makeTurns)
     {
-//        color = [vecInfo.color asRGBAColor];
         color = inColor;
     }
 

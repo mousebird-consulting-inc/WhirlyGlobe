@@ -401,12 +401,10 @@ using namespace Eigen;
     return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
 }
 
-#if 0
-- (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys key:(NSString *__nullable)key cache:(MaplyVectorDatabase *__nullable)cacheDb desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
+- (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
-    return [interactLayer addLoftedPolys:polys desc:desc key:key cache:cacheDb mode:threadMode];
+    return [interactLayer addLoftedPolys:polys desc:desc mode:threadMode];
 }
-#endif
 
 - (MaplyComponentObject *__nullable)addPoints:(NSArray * __nonnull)points desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {

@@ -52,6 +52,8 @@ LoftedPolyInfo::LoftedPolyInfo(const Dictionary &dict)
         center.x() = dict.getDouble(MaplyVecCenterX,0.0);
         center.y() = dict.getDouble(MaplyVecCenterY,0.0);
     }
+    // 10 degress by default
+    gridSize = dict.getDouble(MaplyLoftedPolyGridSize,10.0 / 180.0 * M_PI);
 }
 
 /* Drawable Builder
@@ -378,7 +380,7 @@ LoftManager::~LoftManager()
 }
     
 // From a scene rep and a description, add the given polygons to the drawable builder
-void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const LoftedPolyInfo &polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ChangeSet &changes)
+void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const LoftedPolyInfo &polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ShapeSet &shapes, VectorTrianglesRef triMesh,std::vector<WhirlyKit::VectorRing> &outlines,ChangeSet &changes)
 {
     int numShapes = 0;
     
@@ -393,8 +395,7 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const Lofted
     {
         DrawableBuilder2 drawBuild2(scene,changes,sceneRep,polyInfo,GL_LINES,drawMbr);
 
-        for (ShapeSet::iterator it = sceneRep->shapes.begin();
-             it != sceneRep->shapes.end(); ++it)
+        for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it)
         {
             VectorArealRef theAreal = std::dynamic_pointer_cast<VectorAreal>(*it);
             if (theAreal.get())
@@ -417,8 +418,8 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const Lofted
     
     // Tweak the mesh polygons and toss 'em in
     if (polyInfo.top)
-        drawBuild.addPolyGroup(sceneRep->triMesh);
-        
+        drawBuild.addPolyGroup(triMesh);
+
     // And do the top outline if it's there
     if (polyInfo.outline || polyInfo.outlineBottom)
     {
@@ -426,11 +427,9 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const Lofted
         if (centerValid)
             drawBuild2.setCenter(center,geoCenter);
         if (polyInfo.outline)
-            drawBuild2.addOutline(sceneRep->outlines,true);
+            drawBuild2.addOutline(outlines,true);
         if (polyInfo.outlineBottom)
-            drawBuild2.addOutline(sceneRep->outlines,false);
-        
-        sceneRep->outlines.clear();
+            drawBuild2.addOutline(outlines,false);
     }
     
     //    printf("Added %d shapes and %d triangles from mesh\n",(int)numShapes,(int)sceneRep->triMesh.size());        
@@ -438,7 +437,7 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const Lofted
 
     
 /// Add lofted polygons
-SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const LoftedPolyInfo &polyInfo,float gridSize,ChangeSet &changes)
+SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const LoftedPolyInfo &polyInfo,ChangeSet &changes)
 {
     SimpleIdentity loftID = EmptyIdentity;
 
@@ -475,6 +474,9 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Lof
         }
     }
 
+    VectorTrianglesRef triMesh(VectorTriangles::createTriangles());
+    GeoMbr shapeMbr;
+    std::vector<WhirlyKit::VectorRing> outlines;
     
     for (ShapeSet::iterator it = shapes->begin();it != shapes->end(); ++it)
     {
@@ -486,26 +488,26 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Lof
             {
                 VectorRing &ring = theAreal->loops[ri];
                 
-                sceneRep->shapeMbr.addGeoCoords(ring);
+                shapeMbr.addGeoCoords(ring);
                 
                 if (coordAdapter->isFlat())
                 {
                     // No grid to worry about, just tesselate
-                    TesselateRing(ring, sceneRep->triMesh);
+                    TesselateRing(ring, triMesh);
                 } else {
                     // Clip the polys for the top
                     std::vector<VectorRing> clippedMesh;
-                    ClipLoopToGrid(ring,Point2f(0.f,0.f),Point2f(gridSize,gridSize),clippedMesh);
+                    ClipLoopToGrid(ring,Point2f(0.f,0.f),Point2f(polyInfo.gridSize,polyInfo.gridSize),clippedMesh);
                     
                     // May need to add the outline as well
                     if (polyInfo.outline)
-                        sceneRep->outlines.push_back(ring);
+                        outlines.push_back(ring);
                     
                     for (unsigned int ii=0;ii<clippedMesh.size();ii++)
                     {
                         VectorRing &ring = clippedMesh[ii];
                         // Tesselate the ring, even if it's concave (it's concave a lot)
-                        TesselateRing(ring,sceneRep->triMesh);
+                        TesselateRing(ring,triMesh);
                     }
                 }
             }
@@ -514,7 +516,7 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Lof
             
     //    printf("runAddPoly: handing off %d clipped loops to addGeometry\n",(int)sceneRep->triMesh.size());
     
-    addGeometryToBuilder(sceneRep, polyInfo, sceneRep->shapeMbr, center, centerValid, geoCenter, changes);
+    addGeometryToBuilder(sceneRep, polyInfo, shapeMbr, center, centerValid, geoCenter, *shapes, triMesh, outlines, changes);
     
     pthread_mutex_lock(&loftLock);
 

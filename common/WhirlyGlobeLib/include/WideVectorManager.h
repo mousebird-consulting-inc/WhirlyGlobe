@@ -53,6 +53,7 @@ public:
     float width;
     float repeatSize;
     float edgeSize;
+    float subdivEps;
     WideVectorCoordsType coordType;
     WideVectorLineJoinType joinType;
     WideVectorLineCapType capType;

@@ -52,6 +52,7 @@ public:
     bool        centered;
     bool        hasCenter;
     Point2d     center;
+    double      gridSize;
 };
 
 /** Representation of one or more lofted polygons.
@@ -60,16 +61,12 @@ public:
 class LoftedPolySceneRep : public WhirlyKit::Identifiable
 {
 public:
-    LoftedPolySceneRep() : triMesh(VectorTriangles::createTriangles()) { }
+    LoftedPolySceneRep() { }
     LoftedPolySceneRep(SimpleIdentity theId) : Identifiable(theId) { }
     ~LoftedPolySceneRep() { }
     
     WhirlyKit::SimpleIDSet drawIDs;  // Drawables created for this
-    WhirlyKit::ShapeSet shapes;    // The shapes for the outlines
-    std::vector<WhirlyKit::VectorRing>  outlines;  // If we're displaying outlines, the shapes for that
-    WhirlyKit::GeoMbr shapeMbr;       // Overall bounding box
     float fade;            // Fade out, used for delete
-    VectorTrianglesRef triMesh;  // The post-clip triangle mesh, pre-loft
 };
 typedef std::set<LoftedPolySceneRep *,IdentifiableSorter> LoftedPolySceneRepSet;
 
@@ -85,7 +82,7 @@ public:
     virtual ~LoftManager();
 
     /// Add lofted polygons
-    SimpleIdentity addLoftedPolys(WhirlyKit::ShapeSet *shapes,const LoftedPolyInfo &polyInfo,float gridSize,ChangeSet &changes);
+    SimpleIdentity addLoftedPolys(WhirlyKit::ShapeSet *shapes,const LoftedPolyInfo &polyInfo,ChangeSet &changes);
 
     /// Enable/disable lofted polys
     void enableLoftedPolys(const SimpleIDSet &polyIDs,bool enable,ChangeSet &changes);
@@ -94,7 +91,7 @@ public:
     void removeLoftedPolys(const SimpleIDSet &polyIDs,ChangeSet &changes);
         
 protected:
-    void addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const LoftedPolyInfo &polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ChangeSet &changes);
+    void addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const LoftedPolyInfo &polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ShapeSet &shapes, VectorTrianglesRef triMesh,std::vector<WhirlyKit::VectorRing> &outlines,ChangeSet &changes);
     
     pthread_mutex_t loftLock;
     LoftedPolySceneRepSet loftReps;

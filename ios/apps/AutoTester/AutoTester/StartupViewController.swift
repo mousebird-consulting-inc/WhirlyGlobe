@@ -94,12 +94,8 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
 		cell.testName.text = test.name
 		cell.selectionStyle = .none
 		cell.implementations = test.implementations
-        if test.implementations.contains(.globe) {
-            cell.globeButton.isHidden = false
-        }
-        if test.implementations.contains(.map) {
-            cell.mapButton.isHidden = false
-        }
+        cell.globeButton.isHidden = !test.implementations.contains(.globe)
+        cell.mapButton.isHidden = !test.implementations.contains(.map)
         cell.globeTestExecution = {
             self.lastInteractiveTestSelected = test
             test.startGlobe(self.navigationController!)
