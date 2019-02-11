@@ -45,6 +45,7 @@ class SubTexture;
 class ScreenSpaceGenerator;
 class ViewPlacementGenerator;
 class FontTextureManager;
+typedef std::shared_ptr<FontTextureManager> FontTextureManagerRef;
 
 /// Request that the renderer add the given texture.
 /// This will make it available for use, referenced by ID.
@@ -378,10 +379,10 @@ public:
     std::map<std::string,SceneManager *> managers;
     
     /// Returns the font texture manager, which is thread safe
-    FontTextureManager *getFontTextureManager() { return fontTextureManager; }
+    FontTextureManager *getFontTextureManager() { return fontTextureManager.get(); }
     
     /// Set up the font texture manager.  Don't call this yourself.
-    void setFontTextureManager(FontTextureManager *newManager);
+    void setFontTextureManager(FontTextureManagerRef newManager);
         
     /// Lock for accessing programs
     pthread_mutex_t programLock;
@@ -417,7 +418,7 @@ protected:
     double overlapMargin;
     
     // The font texture manager is created at startup
-    FontTextureManager *fontTextureManager;
+    FontTextureManagerRef fontTextureManager;
 };
 	
 }

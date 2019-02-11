@@ -49,6 +49,7 @@ class FontTextureManager_iOS : public FontTextureManager
 {
 public:
     FontTextureManager_iOS(Scene *scene);
+    virtual ~FontTextureManager_iOS();
     
     /// Add the given string.  Caller is responsible for deleting the DrawableString
     WhirlyKit::DrawableString *addString(NSAttributedString *str,ChangeSet &changes);

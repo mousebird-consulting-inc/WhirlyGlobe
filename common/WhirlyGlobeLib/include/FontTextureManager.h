@@ -188,4 +188,6 @@ protected:
     pthread_mutex_t lock;    
 };
     
+typedef std::shared_ptr<FontTextureManager> FontTextureManagerRef;
+    
 }

@@ -295,7 +295,7 @@ using namespace WhirlyKit;
 
     // Set up a Font Texture Manager
     fontTexManager = FontTextureManager_iOSRef(new FontTextureManager_iOS(renderControl->scene));
-    renderControl->scene->setFontTextureManager(fontTexManager.get());
+    renderControl->scene->setFontTextureManager(fontTexManager);
 
     [self loadSetup_lighting];
     

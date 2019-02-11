@@ -131,10 +131,7 @@ Scene::~Scene()
         delete *it;
     glPrograms.clear();
     
-    if (fontTextureManager) {
-       delete fontTextureManager;
-       fontTextureManager = nil;
-    }
+    fontTextureManager = NULL;
 }
     
 CoordSystemDisplayAdapter *Scene::getCoordAdapter()
@@ -469,10 +466,8 @@ void Scene::dumpStats()
     memManager.dumpStats();
 }
     
-void Scene::setFontTextureManager(FontTextureManager *newManager)
+void Scene::setFontTextureManager(FontTextureManagerRef newManager)
 {
-    if (fontTextureManager)
-        delete fontTextureManager;
     fontTextureManager = newManager;
 }
 
