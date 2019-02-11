@@ -750,7 +750,7 @@ public:
     Point3d whereLoc;
     Point2f loc2f(loc.x,loc.y);
     auto frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
-    if (globeView->pointOnSphereFromScreen(loc2f, &modelTrans, frameSizeScaled, &whereLoc, true))
+    if (globeView->pointOnSphereFromScreen(loc2f, modelTrans, frameSizeScaled, whereLoc, true))
     {
         CoordSystemDisplayAdapter *coordAdapter = globeView->coordAdapter;
         Vector3d destPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
@@ -1119,7 +1119,7 @@ public:
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point3d hit;
-        if (globeView->pointOnSphereFromScreen(screenCorners[ii], &modelTrans, frameSizeScaled, &hit, true))
+        if (globeView->pointOnSphereFromScreen(screenCorners[ii], modelTrans, frameSizeScaled, hit, true))
         {
             Point3d geoHit = renderControl->scene->getCoordAdapter()->displayToLocal(hit);
             corners[ii].x = geoHit.x();  corners[ii].y = geoHit.y();
@@ -1398,7 +1398,7 @@ public:
 	Point3d hit;
     Point2f screenPt2f(screenPt.x,screenPt.y);
 	Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
-    if (globeView->pointOnSphereFromScreen(screenPt2f, &theTransform, renderControl->sceneRenderer->getFramebufferSizeScaled(), &hit, true))
+    if (globeView->pointOnSphereFromScreen(screenPt2f, theTransform, renderControl->sceneRenderer->getFramebufferSizeScaled(), hit, true))
     {
         GeoCoord geoCoord = visualView->coordAdapter->getCoordSystem()->localToGeographic(visualView->coordAdapter->displayToLocal(hit));
         retCoord->x = geoCoord.x();
@@ -1428,7 +1428,7 @@ public:
     
 	Point3d hit;
 	Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
-    if (globeView->pointOnSphereFromScreen(Point2f(screenPt.x,screenPt.y), &theTransform, renderControl->sceneRenderer->getFramebufferSizeScaled(), &hit, true))
+    if (globeView->pointOnSphereFromScreen(Point2f(screenPt.x,screenPt.y), theTransform, renderControl->sceneRenderer->getFramebufferSizeScaled(), hit, true))
     {
         Point3d geoC = visualView->coordAdapter->getCoordSystem()->localToGeocentric(visualView->coordAdapter->displayToLocal(hit));
         retCoords[0] = geoC.x();  retCoords[1] = geoC.y();  retCoords[2] = geoC.z();
@@ -1541,7 +1541,7 @@ public:
     {
         Matrix4d heightTrans = Eigen::Affine3d(Eigen::Translation3d(0,0,-globeView->calcEarthZOffset())).matrix();
         Point3d hit;
-        if (globeView->pointOnSphereFromScreen(Point2f(animState.screenPos.x,animState.screenPos.y), &heightTrans, renderControl->sceneRenderer->getFramebufferSizeScaled(), &hit, true))
+        if (globeView->pointOnSphereFromScreen(Point2f(animState.screenPos.x,animState.screenPos.y), heightTrans, renderControl->sceneRenderer->getFramebufferSizeScaled(), hit, true))
         {
             startLoc = hit;
         }
@@ -1730,7 +1730,7 @@ static const float FullExtentEps = 1e-5;
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point3d hit;
-        if (globeView->pointOnSphereFromScreen(screenCorners[ii], &modelTrans, frameSizeScaled, &hit, true))
+        if (globeView->pointOnSphereFromScreen(screenCorners[ii], modelTrans, frameSizeScaled, hit, true))
         {
             corners[ii] = renderControl->scene->getCoordAdapter()->displayToLocal(hit);
             cornerValid[ii] = true;
@@ -1846,7 +1846,7 @@ static const float FullExtentEps = 1e-5;
                 {
                     Point2f screenPt(bi*(screenCorners[a].x()+screenCorners[b].x())/numSamples, bi*(screenCorners[a].y()+screenCorners[b].y())/numSamples);
                     Point3d hit;
-                    if (globeView->pointOnSphereFromScreen(screenPt, &modelTrans, frameSizeScaled, &hit, true)) {
+                    if (globeView->pointOnSphereFromScreen(screenPt, modelTrans, frameSizeScaled, hit, true)) {
                         Point3d midPt3d = renderControl->scene->getCoordAdapter()->displayToLocal(hit);
                         if (mbrs.size() > 1)
                         {
@@ -1885,7 +1885,7 @@ static const float FullExtentEps = 1e-5;
                     {
                         Point2f midPt((testPts[0].x()+testPts[1].x())/2, (testPts[0].y()+testPts[1].y())/2);
                         Point3d hit;
-                        if (globeView->pointOnSphereFromScreen(midPt, &modelTrans, frameSizeScaled, &hit, true))
+                        if (globeView->pointOnSphereFromScreen(midPt, modelTrans, frameSizeScaled, hit, true))
                         {
                             testPts[0] = midPt;
                         } else {
@@ -1895,7 +1895,7 @@ static const float FullExtentEps = 1e-5;
                     
                     // The first test point is valid, so let's convert that back
                     Point3d hit;
-                    if (globeView->pointOnSphereFromScreen(testPts[0], &modelTrans, frameSizeScaled, &hit, true))
+                    if (globeView->pointOnSphereFromScreen(testPts[0], modelTrans, frameSizeScaled, hit, true))
                     {
                         Point3d midPt3d = renderControl->scene->getCoordAdapter()->displayToLocal(hit);
                         if (mbrs.size() > 1)

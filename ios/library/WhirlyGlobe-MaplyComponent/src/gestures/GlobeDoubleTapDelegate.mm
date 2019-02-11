@@ -58,7 +58,7 @@ using namespace WhirlyGlobe;
     CGPoint touchLoc = [tap locationInView:tap.view];
     Point2f touchLoc2f(touchLoc.x,touchLoc.y);
     auto frameSizeScaled = sceneRenderer->getFramebufferSizeScaled();
-    if (globeView->pointOnSphereFromScreen(touchLoc2f, &theTransform, frameSizeScaled, &hit, true))
+    if (globeView->pointOnSphereFromScreen(touchLoc2f, theTransform, frameSizeScaled, hit, true))
     {
         double curH = globeView->getHeightAboveGlobe();
         double newH = curH / _zoomTapFactor;

@@ -158,7 +158,7 @@ public:
     /// Height above globe at this view state
     double heightAboveSurface;
     
-    bool pointOnPlaneFromScreen(WhirlyKit::Point2d pt, Eigen::Matrix4d transform, WhirlyKit::Point2f frameSize, WhirlyKit::Point3d &hit, bool clip);
+    bool pointOnPlaneFromScreen(const WhirlyKit::Point2f &pt,const Eigen::Matrix4d &transform,const WhirlyKit::Point2f &frameSize, WhirlyKit::Point3d &hit, bool clip);
 };
 
 }

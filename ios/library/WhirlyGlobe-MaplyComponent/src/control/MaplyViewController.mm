@@ -379,8 +379,8 @@ public:
     boundLL.x = ll.x();  boundLL.y = ll.y();
     boundUR.x = ur.x();  boundUR.y = ur.y();
 
-    // Let them move E/W infinitely
-    if (_viewWrap)
+    // Let them move E/W infinitely, but only with the default coordinate system
+    if (_viewWrap && !_coordSys)
     {
         boundLL.x = -MAXFLOAT;
         boundUR.x = MAXFLOAT;

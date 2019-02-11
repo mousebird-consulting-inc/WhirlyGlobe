@@ -130,7 +130,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
         panType = PanFree;        
     } else {
         sphereRadius = 1.0;
-        if (globeView->pointOnSphereFromScreen(startPt2f, &startTransform, frameSizeScaled, &startOnSphere, true))
+        if (globeView->pointOnSphereFromScreen(startPt2f, startTransform, frameSizeScaled, startOnSphere, true))
         {
             // We'll start out letting them play with both axes
             panType = PanFree;                
@@ -250,7 +250,7 @@ static const float MomentumAnimLen = 1.0;
                 CGPoint touchPt = [pan locationInView:glView];
                 Point2f touchPt2f(touchPt.x,touchPt.y);
                 lastTouch = touchPt;
-                bool onSphere = globeView->pointOnSphereFromScreen(touchPt2f, &startTransform, frameSize, &hit, true, sphereRadius);
+                bool onSphere = globeView->pointOnSphereFromScreen(touchPt2f, startTransform, frameSize, hit, true, sphereRadius);
                 hit.normalize();
                 
                 // The math breaks down when we have a significant tilt

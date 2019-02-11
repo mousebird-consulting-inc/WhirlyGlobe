@@ -291,14 +291,13 @@ MapViewState::MapViewState(MapView *mapView,WhirlyKit::SceneRendererES *renderer
     heightAboveSurface = mapView->getLoc().z();
 }
 
-bool MapViewState::pointOnPlaneFromScreen(WhirlyKit::Point2d pt, Eigen::Matrix4d transform, WhirlyKit::Point2f frameSize, WhirlyKit::Point3d &hit, bool clip)
+bool MapViewState::pointOnPlaneFromScreen(const WhirlyKit::Point2f &pt,const Eigen::Matrix4d &modelTrans,const WhirlyKit::Point2f &frameSize, WhirlyKit::Point3d &hit, bool clip)
 {
     // Back Project the screen point into model space
-    Point3d screenPt = pointUnproject(pt, frameSize.x(), frameSize.y(), clip);
+    Point3d screenPt = pointUnproject(Point2d(pt.x(),pt.y()), frameSize.x(), frameSize.y(), clip);
     
     // Run the screen point and the eye point (origin) back through
     //  the model matrix to get a direction and origin in model space
-    Eigen::Matrix4d modelTrans = transform;
     Eigen::Matrix4d invModelMat = modelTrans.inverse();
     Point3d eyePt(0,0,0);
     Eigen::Vector4d modelEye = invModelMat * Eigen::Vector4d(eyePt.x(),eyePt.y(),eyePt.z(),1.0);

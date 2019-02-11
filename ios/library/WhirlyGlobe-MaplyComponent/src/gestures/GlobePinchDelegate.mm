@@ -161,7 +161,7 @@ using namespace WhirlyGlobe;
                     valid = true;
                 } else {
                     sphereRadius = 1.0;
-                    if (globeView->pointOnSphereFromScreen(startPoint2f, &startTransform, frameSizeScaled, &startOnSphere, true))
+                    if (globeView->pointOnSphereFromScreen(startPoint2f, startTransform, frameSizeScaled, startOnSphere, true))
                         valid = true;
                     else
                         valid = false;
@@ -191,7 +191,7 @@ using namespace WhirlyGlobe;
                     startRotAxisValid = true;
                     startRotAxis = hit;
                 } else {
-                    if (globeView->pointOnSphereFromScreen(center2f, &startTransform, frameSizeScaled, &hit, true))
+                    if (globeView->pointOnSphereFromScreen(center2f, startTransform, frameSizeScaled, hit, true))
                     {
                         startRotAxisValid = true;
                         startRotAxis = hit;
@@ -234,7 +234,7 @@ using namespace WhirlyGlobe;
                         Eigen::Matrix4d curTransform = globeView->calcFullMatrix();
                         CGPoint pinchPt = [pinch locationInView:glView];
                         Point2f pinchPt2f(pinchPt.x,pinchPt.y);
-                        if (globeView->pointOnSphereFromScreen(pinchPt2f, &curTransform, frameSizeScaled, &hit, true, sphereRadius))
+                        if (globeView->pointOnSphereFromScreen(pinchPt2f, curTransform, frameSizeScaled, hit, true, sphereRadius))
                         {
                             // This gives us a direction to rotate around
                             // And how far to rotate

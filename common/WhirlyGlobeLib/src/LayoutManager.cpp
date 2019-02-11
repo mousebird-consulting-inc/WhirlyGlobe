@@ -361,7 +361,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
     
     // The globe has some special requirements
     WhirlyGlobe::GlobeViewState *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState.get());
-    Maply::MapView *mapViewState = dynamic_cast<Maply::MapView *>(viewState.get());
+    Maply::MapViewState *mapViewState = dynamic_cast<Maply::MapViewState *>(viewState.get());
 
     // View related matrix stuff
     Matrix4d modelTrans = viewState->fullMatrices[0];
@@ -385,7 +385,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                     use = true;
             } else {
                 if (obj->obj.state.minVis == DrawVisibleInvalid || obj->obj.state.maxVis == DrawVisibleInvalid ||
-                    (obj->obj.state.minVis < mapViewState->heightAboveSurface() && mapViewState->heightAboveSurface() < obj->obj.state.maxVis))
+                    (obj->obj.state.minVis < mapViewState->heightAboveSurface && mapViewState->heightAboveSurface < obj->obj.state.maxVis))
                     use = true;
             }
             if (use) {
@@ -540,9 +540,9 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                     bool dispPtValid = false;
                     if (globeViewState)
                     {
-                        dispPtValid = globeViewState->pointOnSphereFromScreen(Point2f(clusterObj.center.x(),clusterObj.center.y()),&modelTrans,frameBufferSize,&dispPt);
+                        dispPtValid = globeViewState->pointOnSphereFromScreen(Point2f(clusterObj.center.x(),clusterObj.center.y()),modelTrans,frameBufferSize,dispPt);
                     } else {
-                        dispPtValid = mapViewState->pointOnPlaneFromScreen(Point2f(clusterObj.center.x(),clusterObj.center.y()),&modelTrans,frameBufferSize,&dispPt,false);
+                        dispPtValid = mapViewState->pointOnPlaneFromScreen(Point2f(clusterObj.center.x(),clusterObj.center.y()),modelTrans,frameBufferSize,dispPt,false);
                     }
 
                     // Note: What happens if the display point isn't valid?

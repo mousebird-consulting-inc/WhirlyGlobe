@@ -74,7 +74,7 @@ using namespace WhirlyGlobe;
 	Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
     CGPoint touchLoc = [tap locationInView:glView];
     Point2f touchLoc2f(touchLoc.x,touchLoc.y);
-    if (globeView->pointOnSphereFromScreen(touchLoc2f, &theTransform, frameSizeScaled, &hit, true))
+    if (globeView->pointOnSphereFromScreen(touchLoc2f, theTransform, frameSizeScaled, hit, true))
     {
 		WhirlyGlobeTapMessage *msg = [[WhirlyGlobeTapMessage alloc] init];
         [msg setTouchLoc:touchLoc];

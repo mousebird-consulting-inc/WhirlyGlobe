@@ -94,7 +94,7 @@ using namespace WhirlyGlobe;
             Eigen::Quaterniond oldQuat = globeView->getRotQuat();
             globeView->setRotQuat(startQuat,false);
             Eigen::Matrix4d curTransform = globeView->calcFullMatrix();
-            if (globeView->pointOnSphereFromScreen(center2f, &curTransform, frameSizeScaled, &hit, true, sphereRadius))
+            if (globeView->pointOnSphereFromScreen(center2f, curTransform, frameSizeScaled, hit, true, sphereRadius))
             {
                 // This gives us a direction to rotate around
                 // And how far to rotate
@@ -161,7 +161,7 @@ using namespace WhirlyGlobe;
             } else {
                 CGPoint pt = [rotate locationInView:glView];
                 Point2f pt2f(pt.x,pt.y);
-                if (globeView->pointOnSphereFromScreen(pt2f, &startTransform, frameSizeScaled, &startOnSphere, true))
+                if (globeView->pointOnSphereFromScreen(pt2f, startTransform, frameSizeScaled, startOnSphere, true))
                     valid = true;
                 else
                     valid = false;
@@ -198,7 +198,7 @@ using namespace WhirlyGlobe;
                     Eigen::Matrix4d curTransform = globeView->calcFullMatrix();
                     CGPoint pt = [rotate locationInView:glView];
                     Point2f pt2f(pt.x,pt.y);
-                    if (globeView->pointOnSphereFromScreen(pt2f, &curTransform, frameSizeScaled, &hit, true, sphereRadius))
+                    if (globeView->pointOnSphereFromScreen(pt2f, curTransform, frameSizeScaled, hit, true, sphereRadius))
                     {
                         // This gives us a direction to rotate around
                         // And how far to rotate

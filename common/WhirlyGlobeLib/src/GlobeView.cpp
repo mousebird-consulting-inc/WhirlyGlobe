@@ -244,14 +244,13 @@ Vector3d GlobeView::prospectiveUp(Eigen::Quaterniond &prospectiveRot)
     return Vector3d(newUp.x(),newUp.y(),newUp.z());
 }
     
-bool GlobeView::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d *transform,const Point2f &frameSize,Point3d *hit,bool normalized,double radius)
+bool GlobeView::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d &modelTrans,const Point2f &frameSize,Point3d &hit,bool normalized,double radius)
 {
     // Back project the point from screen space into model space
     Point3d screenPt = pointUnproject(Point2f(pt.x(),pt.y()),frameSize.x(),frameSize.y(),true);
     
     // Run the screen point and the eye point (origin) back through
     //  the model matrix to get a direction and origin in model space
-    Eigen::Matrix4d modelTrans = *transform;
     Matrix4d invModelMat = modelTrans.inverse();
     Point3d eyePt(0,0,0);
     Vector4d modelEye = invModelMat * Vector4d(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
@@ -261,7 +260,7 @@ bool GlobeView::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d 
     Vector4d dir4 = modelScreenPt - modelEye;
     Vector3d dir(dir4.x(),dir4.y(),dir4.z());
     double t;
-    if (IntersectSphereRadius(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, radius, *hit, &t) && t > 0.0)
+    if (IntersectSphereRadius(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, radius, hit, &t) && t > 0.0)
         return true;
     
     // We need the closest pass, if that didn't work out
@@ -272,27 +271,26 @@ bool GlobeView::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d 
         dir.normalize();
         Vector3d tmpDir = orgDir.cross(dir);
         Vector3d resVec = dir.cross(tmpDir);
-        *hit = -resVec.normalized();
+        hit = -resVec.normalized();
     } else {
         double len2 = dir.squaredNorm();
         double top = dir.dot(Vector3d(modelScreenPt.x(),modelScreenPt.y(),modelScreenPt.z()));
         double t = 0.0;
         if (len2 > 0.0)
             t = top/len2;
-            *hit = Vector3d(modelEye.x(),modelEye.y(),modelEye.z()) + dir*t;
-            }
+        hit = Vector3d(modelEye.x(),modelEye.y(),modelEye.z()) + dir*t;
+    }
     
     return false;    
 }
 	
-bool GlobeView::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d *transform,const Point2f &frameSize,Point3d *hit,bool normalized)
+bool GlobeView::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d &modelTrans,const Point2f &frameSize,Point3d &hit,bool normalized)
 {
 	// Back project the point from screen space into model space
 	Point3d screenPt = pointUnproject(Point2f(pt.x(),pt.y()),frameSize.x(),frameSize.y(),true);
 	
 	// Run the screen point and the eye point (origin) back through
 	//  the model matrix to get a direction and origin in model space
-	Eigen::Matrix4d modelTrans = *transform;
 	Matrix4d invModelMat = modelTrans.inverse();
 	Point3d eyePt(0,0,0);
 	Vector4d modelEye = invModelMat * Vector4d(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
@@ -302,7 +300,7 @@ bool GlobeView::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d 
 	Vector4d dir4 = modelScreenPt - modelEye;
 	Vector3d dir(dir4.x(),dir4.y(),dir4.z());
         double t;
-	if (IntersectUnitSphere(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, *hit, &t) && t > 0.0)
+	if (IntersectUnitSphere(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, hit, &t) && t > 0.0)
 		return true;
 	
 	// We need the closest pass, if that didn't work out
@@ -313,14 +311,14 @@ bool GlobeView::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d 
 	dir.normalize();
 	Vector3d tmpDir = orgDir.cross(dir);
 	Vector3d resVec = dir.cross(tmpDir);
-	*hit = -resVec.normalized();
+	hit = -resVec.normalized();
     } else {
         double len2 = dir.squaredNorm();
         double top = dir.dot(Vector3d(modelScreenPt.x(),modelScreenPt.y(),modelScreenPt.z()));
         double t = 0.0;
         if (len2 > 0.0)
             t = top/len2;
-        *hit = Vector3d(modelEye.x(),modelEye.y(),modelEye.z()) + dir*t;
+        hit = Vector3d(modelEye.x(),modelEye.y(),modelEye.z()) + dir*t;
     }
 	
 	return false;
@@ -463,14 +461,13 @@ Eigen::Vector3d GlobeViewState::currentUp()
 }
 
 
-bool GlobeViewState::pointOnSphereFromScreen(Point2f pt,const Eigen::Matrix4d *transform,const Point2f &frameSize,Point3d *hit)
+bool GlobeViewState::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d &modelTrans,const Point2f &frameSize,Point3d &hit)
 {
     // Back project the point from screen space into model space
     Point3d screenPt = pointUnproject(Point2d(pt.x(),pt.y()),frameSize.x(),frameSize.y(),true);
     
     // Run the screen point and the eye point (origin) back through
     //  the model matrix to get a direction and origin in model space
-    Eigen::Matrix4d modelTrans = *transform;
     Matrix4d invModelMat = modelTrans.inverse();
     Point3d eyePt(0,0,0);
     Vector4d modelEye = invModelMat * Vector4d(eyePt.x(),eyePt.y(),eyePt.z(),1.0);
@@ -479,7 +476,7 @@ bool GlobeViewState::pointOnSphereFromScreen(Point2f pt,const Eigen::Matrix4d *t
     // Now intersect that with a unit sphere to see where we hit
     Vector4d dir4 = modelScreenPt - modelEye;
     Vector3d dir(dir4.x(),dir4.y(),dir4.z());
-    if (IntersectUnitSphere(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, *hit))
+    if (IntersectUnitSphere(Vector3d(modelEye.x(),modelEye.y(),modelEye.z()), dir, hit))
         return true;
     
     // We need the closest pass, if that didn't work out
@@ -488,7 +485,7 @@ bool GlobeViewState::pointOnSphereFromScreen(Point2f pt,const Eigen::Matrix4d *t
     dir.normalize();
     Vector3d tmpDir = orgDir.cross(dir);
     Vector3d resVec = dir.cross(tmpDir);
-    *hit = -resVec.normalized();
+    hit = -resVec.normalized();
     
     return false;
 }
