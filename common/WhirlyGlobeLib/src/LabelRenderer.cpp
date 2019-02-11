@@ -32,11 +32,11 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
     
-LabelInfo::LabelInfo(const Dictionary &dict)
+LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject)
+    : screenObject(screenObject)
 {
     textColor = dict.getColor(MaplyTextColor, RGBAColor(255,255,255,255));
     backColor = dict.getColor(MaplyBackgroundColor, RGBAColor(0,0,0,0));
-    screenObject = dict.getBool("screen",false);
     layoutEngine = dict.getBool(MaplyLayout,false);
     layoutImportance = dict.getDouble(MaplyLayoutImportance,0.0);
     layoutPlacement = dict.getInt(MaplyLayoutPlacement,-1);

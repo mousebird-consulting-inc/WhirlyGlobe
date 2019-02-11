@@ -66,7 +66,7 @@ using namespace Eigen;
     sceneRenderer = SceneRendererES_iOSRef(new SceneRendererES_iOS());
     sceneRenderer->setup(3,size.width,size.height);
     sceneRenderer->zBufferMode = zBufferOffDefault;
-    sceneRenderer->scene = scene;
+    sceneRenderer->setScene(scene);
     sceneRenderer->theView = flatView.get();
     sceneRenderer->setClearColor([[UIColor blackColor] asRGBAColor]);
     

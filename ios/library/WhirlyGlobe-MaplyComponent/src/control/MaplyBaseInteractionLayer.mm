@@ -853,8 +853,7 @@ public:
         isMotionMarkers = true;
     
     iosDictionary dictWrap(inDesc);
-    MarkerInfo markerInfo(dictWrap);
-    markerInfo.screenObject = true;
+    MarkerInfo markerInfo(dictWrap,true);
 
     // Might be a custom shader on these
     if (isMotionMarkers)
@@ -918,6 +917,11 @@ public:
 
         if (marker.vertexAttributes)
             [self resolveVertexAttrs:wgMarker->vertexAttrs from:marker.vertexAttributes];
+        
+        if (wgMarker->width <= 0.0) {
+            wgMarker->width = markerInfo.width;
+            wgMarker->height = markerInfo.height;
+        }
         
         if (marker.layoutSize.width >= 0.0)
         {
@@ -1205,7 +1209,7 @@ public:
             hasMultiTex = true;
 
     iosDictionary dictWrap(inDesc);
-    MarkerInfo markerInfo(dictWrap);
+    MarkerInfo markerInfo(dictWrap,false);
     [self resolveInfoDefaults:inDesc info:&markerInfo defaultShader:(hasMultiTex ? kMaplyShaderDefaultTriMultiTex : kMaplyShaderDefaultTri)];
     [self resolveDrawPriority:inDesc info:&markerInfo drawPriority:kMaplyMarkerDrawPriorityDefault offset:0];
     
@@ -1393,8 +1397,7 @@ public:
         isMotionLabels = true;
 
     iosDictionary dictWrap(inDesc);
-    LabelInfo_iOS labelInfo(inDesc,dictWrap);
-    labelInfo.screenObject = true;
+    LabelInfo_iOS labelInfo(inDesc,dictWrap,true);
     [self resolveInfoDefaults:inDesc info:&labelInfo
                 defaultShader:(isMotionLabels ? kMaplyScreenSpaceDefaultMotionProgram : kMaplyScreenSpaceDefaultProgram)];
     [self resolveDrawPriority:inDesc info:&labelInfo drawPriority:kMaplyLabelDrawPriorityDefault offset:_screenObjectDrawPriorityOffset];
@@ -1527,8 +1530,7 @@ public:
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);
-    LabelInfo_iOS labelInfo(inDesc,dictWrap);
-    labelInfo.screenObject = false;
+    LabelInfo_iOS labelInfo(inDesc,dictWrap,false);
     [self resolveInfoDefaults:inDesc info:&labelInfo defaultShader:kMaplyShaderDefaultTri];
     [self resolveDrawPriority:inDesc info:&labelInfo drawPriority:kMaplyLabelDrawPriorityDefault offset:0];
 

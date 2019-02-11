@@ -289,7 +289,7 @@ using namespace WhirlyKit;
 	// Need an empty scene and view
     visualView = [self loadSetup_view];
     renderControl->scene = [self loadSetup_scene];
-    renderControl->sceneRenderer->scene = renderControl->scene;
+    renderControl->sceneRenderer->setScene(renderControl->scene);
     [self loadSetup_lighting];
     
     layerThreads = [NSMutableArray array];

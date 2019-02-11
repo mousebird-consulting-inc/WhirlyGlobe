@@ -71,7 +71,7 @@ typedef enum {WhirlyKitTextCenter,WhirlyKitTextLeft,WhirlyKitTextRight} TextJust
 class LabelInfo : public BaseInfo
 {
 public:
-    LabelInfo(const Dictionary &dict);
+    LabelInfo(const Dictionary &dict,bool screenObject);
 
     RGBAColor textColor,backColor;
     bool screenObject;

@@ -36,7 +36,7 @@ public:
 class LabelInfo_iOS: public LabelInfo
 {
 public:
-    LabelInfo_iOS(NSDictionary *iosDict,const Dictionary &dict);
+    LabelInfo_iOS(NSDictionary *iosDict,const Dictionary &dict,bool screenObject);
     
     UIFont *font;
 };

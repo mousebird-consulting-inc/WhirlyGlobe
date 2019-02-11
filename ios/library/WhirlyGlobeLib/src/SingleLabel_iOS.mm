@@ -24,8 +24,8 @@
 namespace WhirlyKit
 {
     
-LabelInfo_iOS::LabelInfo_iOS(NSDictionary *iosDict,const Dictionary &dict)
-    : LabelInfo(dict)
+LabelInfo_iOS::LabelInfo_iOS(NSDictionary *iosDict,const Dictionary &dict,bool screenObject)
+    : LabelInfo(dict,screenObject)
 {
     font = [iosDict objectForKey:@"font"];
 }

@@ -51,6 +51,7 @@
         marker.loc = object.center;
         marker.userObject = object.userObject;
         marker.selectable = true;
+        marker.layoutImportance = 1.0;
         [markers addObject:marker];
     }
     self.markersObj = [theView addScreenMarkers:markers desc:nil];

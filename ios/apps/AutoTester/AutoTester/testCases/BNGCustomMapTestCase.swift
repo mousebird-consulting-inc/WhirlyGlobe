@@ -18,6 +18,8 @@ class BNGCustomMapTestCase: MaplyTestCase {
 	}
 	
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
+        mapVC.clearColor = UIColor.red
+        
 		StamenWatercolorRemote().setUpWithMap(mapVC)
 		createBritishNationalOverlayLocal(mapVC, maplyMap: true)
 		mapVC.setPosition(MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height: 0.3)

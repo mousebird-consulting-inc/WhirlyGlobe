@@ -30,11 +30,10 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
     
-MarkerInfo::MarkerInfo(const Dictionary &dict)
-: BaseInfo(dict)
+MarkerInfo::MarkerInfo(const Dictionary &dict,bool screenObject)
+: BaseInfo(dict), screenObject(screenObject)
 {
     color = dict.getColor(MaplyColor, RGBAColor(255,255,255,255));
-    screenObject = dict.getBool("screen",false);
     width = dict.getDouble(MaplyLabelWidth,(screenObject ? 16.0 : 0.001));
     height = dict.getDouble(MaplyLabelHeight,(screenObject ? 16.0 : 0.001));
     layoutImportance = dict.getDouble(MaplyLayoutImportance,MAXFLOAT);
@@ -77,9 +76,14 @@ void MarkerSceneRep::clearContents(SelectionManager *selectManager,LayoutManager
 }
 
 Marker::Marker()
-    : isSelectable(false), selectID(EmptyIdentity), loc(0,0), hasMotion(false), endLoc(0,0), startTime(0), endTime(0),
+    : isSelectable(false), selectID(EmptyIdentity),
+    loc(0,0), hasMotion(false), endLoc(0,0),
+    startTime(0), endTime(0),
     color(255,255,255,255), colorSet(false),
-    lockRotation(false), height(0), width(0), layoutHeight(-1.0), layoutWidth(-1.0), rotation(0), offset(0,0), period(0),
+    lockRotation(false),
+    height(0), width(0),
+    layoutHeight(-1.0), layoutWidth(-1.0),
+    rotation(0), offset(0,0), period(0),
     timeOffset(0), layoutImportance(MAXFLOAT)
 {
 }
@@ -136,7 +140,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
         
         Point3d localPt = coordAdapter->getCoordSystem()->geographicToLocal3d(marker->loc);
         norm = coordAdapter->normalForLocal(localPt);
-                
+        
         // Look for a texture sub mapping
         std::vector<SubTexture> subTexs;
         for (unsigned int ii=0; ii<marker->texIDs.size();ii++)
