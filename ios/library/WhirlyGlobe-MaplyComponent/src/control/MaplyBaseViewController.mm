@@ -27,6 +27,7 @@
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
 #import "MaplyRenderTarget_private.h"
+#import "FontTextureManager_iOS.h"
 #import <sys/utsname.h>
 
 using namespace Eigen;
@@ -120,6 +121,7 @@ using namespace WhirlyKit;
 //    NSLog(@"BaseViewController: Layers shut down");
     visualView = NULL;
 
+    fontTexManager = NULL;
     glView = nil;
     renderControl->scene = NULL;
     renderControl->sceneRenderer = NULL;
@@ -290,6 +292,11 @@ using namespace WhirlyKit;
     visualView = [self loadSetup_view];
     renderControl->scene = [self loadSetup_scene];
     renderControl->sceneRenderer->setScene(renderControl->scene);
+
+    // Set up a Font Texture Manager
+    fontTexManager = FontTextureManager_iOSRef(new FontTextureManager_iOS(renderControl->scene));
+    renderControl->scene->setFontTextureManager(fontTexManager.get());
+
     [self loadSetup_lighting];
     
     layerThreads = [NSMutableArray array];

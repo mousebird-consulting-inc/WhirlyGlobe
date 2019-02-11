@@ -48,6 +48,8 @@ public:
 class FontTextureManager_iOS : public FontTextureManager
 {
 public:
+    FontTextureManager_iOS(Scene *scene);
+    
     /// Add the given string.  Caller is responsible for deleting the DrawableString
     WhirlyKit::DrawableString *addString(NSAttributedString *str,ChangeSet &changes);
     
@@ -55,5 +57,7 @@ protected:
     NSData *renderGlyph(CGGlyph glyph,FontManager_iOS *fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset);
     FontManager_iOS *findFontManagerForFont(UIFont *uiFont,UIColor *colorUI,UIColor *backColorUI,UIColor *outlineColorUI,float outlinesize);
 };
+    
+typedef std::shared_ptr<FontTextureManager_iOS> FontTextureManager_iOSRef;
 
 }

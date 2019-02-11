@@ -35,6 +35,7 @@
 #import "MaplyRenderController_private.h"
 #import "ParticleSystemLayer.h"
 #import "ViewPlacementActiveModel.h"
+#import "FontTextureManager_iOS.h"
 
 @interface MaplyBaseViewController() <SMCalloutViewDelegate>
 {
@@ -68,6 +69,9 @@
     
     /// View Placement logic used to move annotations around
     WhirlyKit::ViewPlacementActiveModelRef viewPlacementModel;
+    
+    /// Used to render font glyphs on this platform
+    WhirlyKit::FontTextureManager_iOSRef fontTexManager;
     
     /// Current draw priority if we're assigning them ourselves
     int layerDrawPriority;

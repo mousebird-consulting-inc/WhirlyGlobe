@@ -47,6 +47,11 @@ bool FontManager_iOS::operator < (const FontManager_iOS &that) const
     return font < that.font;
 }
     
+FontTextureManager_iOS::FontTextureManager_iOS(Scene *scene)
+: FontTextureManager(scene)
+{
+}
+    
 // Look for an existing font that will match the UIFont given
 FontManager_iOS *FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont,UIColor *colorUI,UIColor *backColorUI,UIColor *outlineColorUI,float outlineSize)
 {
