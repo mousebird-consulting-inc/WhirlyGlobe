@@ -725,6 +725,7 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
 }
 
 SelectionManager::PlacementInfo::PlacementInfo(ViewStateRef viewState,SceneRendererES *renderer)
+: viewState(viewState)
 {
     float scale = DeviceScreenScale();
     

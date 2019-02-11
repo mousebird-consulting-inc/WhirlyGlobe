@@ -67,7 +67,7 @@
     MaplyBasicClusterGenerator *defaultClusterGenerator;
     
     /// View Placement logic used to move annotations around
-    WhirlyKit::ViewPlacementActiveModel viewPlacementModel;
+    WhirlyKit::ViewPlacementActiveModelRef viewPlacementModel;
     
     /// Current draw priority if we're assigning them ourselves
     int layerDrawPriority;

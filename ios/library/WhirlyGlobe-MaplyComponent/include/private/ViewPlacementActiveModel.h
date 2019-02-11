@@ -99,13 +99,13 @@ protected:
     pthread_mutex_t viewInstanceLock;
     std::set<ViewInstance> viewInstanceSet;
 };
-    
+
 }
 
 namespace WhirlyKit
 {
 // Active Model runs right before the scene updates
-class ViewPlacementActiveModel : ActiveModel
+class ViewPlacementActiveModel : public ActiveModel
 {
 public:
     ViewPlacementActiveModel();
@@ -126,7 +126,9 @@ public:
     void teardown();
 
 protected:
-    ViewPlacementManager *manager;
+    ViewPlacementManager manager;
 };
+    
+typedef std::shared_ptr<ViewPlacementActiveModel> ViewPlacementActiveModelRef;
     
 }

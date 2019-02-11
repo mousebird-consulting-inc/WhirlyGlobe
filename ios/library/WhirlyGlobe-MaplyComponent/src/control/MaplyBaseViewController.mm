@@ -328,6 +328,10 @@ using namespace WhirlyKit;
     defaultClusterGenerator = [[MaplyBasicClusterGenerator alloc] initWithColors:@[[UIColor orangeColor]] clusterNumber:0 size:CGSizeMake(32,32) viewC:self];
     [self addClusterGenerator:defaultClusterGenerator];
     
+    // View placement manager
+    viewPlacementModel = ViewPlacementActiveModelRef(new ViewPlacementActiveModel());
+    renderControl->scene->addActiveModel(viewPlacementModel);
+    
     // Set up defaults for the hints
     NSDictionary *newHints = [NSDictionary dictionary];
     [self setHints:newHints];
@@ -866,7 +870,7 @@ static const float PerfOutputDelay = 15.0;
     }
     
     // Hook it into the renderer
-    ViewPlacementManager *vpManage = viewPlacementModel.getManager();
+    ViewPlacementManager *vpManage = viewPlacementModel->getManager();
     if (vpManage) {
         vpManage->addView(GeoCoord(viewTrack.loc.x,viewTrack.loc.y),Point2d(viewTrack.offset.x,viewTrack.offset.y),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
     }
@@ -880,7 +884,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)moveViewTracker:(MaplyViewTracker *)viewTrack moveTo:(MaplyCoordinate)newPos
 {
-    ViewPlacementManager *vpManage = viewPlacementModel.getManager();
+    ViewPlacementManager *vpManage = viewPlacementModel->getManager();
     if (vpManage) {
         vpManage->moveView(GeoCoord(newPos.x,newPos.y),Point2d(0,0),viewTrack.view,viewTrack.minVis,viewTrack.maxVis);
     }
@@ -904,7 +908,7 @@ static const float PerfOutputDelay = 15.0;
         if (theTracker)
         {
             [viewTrackers removeObject:theTracker];
-            ViewPlacementManager *vpManage = viewPlacementModel.getManager();
+            ViewPlacementManager *vpManage = viewPlacementModel->getManager();
             if (vpManage) {
                 vpManage->removeView(theTracker.view);
             }
@@ -958,7 +962,7 @@ static const float PerfOutputDelay = 15.0;
     CGRect frame = annotate.calloutView.frame;
     annotate.calloutView.frame = CGRectMake(frame.origin.x-pt.x+offset.x, frame.origin.y-pt.y+offset.y, frame.size.width, frame.size.height);
 
-    ViewPlacementManager *vpManage = viewPlacementModel.getManager();
+    ViewPlacementManager *vpManage = viewPlacementModel->getManager();
     if (vpManage) {
         if (alreadyHere)
         {
@@ -998,7 +1002,7 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return;
     
-    ViewPlacementManager *vpManage = viewPlacementModel.getManager();
+    ViewPlacementManager *vpManage = viewPlacementModel->getManager();
     if (vpManage) {
         vpManage->removeView(annotate.calloutView);
     }
@@ -1013,7 +1017,7 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return;
     
-    ViewPlacementManager *vpManage = viewPlacementModel.getManager();
+    ViewPlacementManager *vpManage = viewPlacementModel->getManager();
     if (vpManage) {
         for (MaplyAnnotation *annotation in annotations)
             if (annotate == annotation)
@@ -1028,7 +1032,7 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return;
     
-    ViewPlacementManager *vpManage = viewPlacementModel.getManager();
+    ViewPlacementManager *vpManage = viewPlacementModel->getManager();
     if (vpManage) {
         for (MaplyAnnotation *annotation in annotations)
             if (annotate == annotation)

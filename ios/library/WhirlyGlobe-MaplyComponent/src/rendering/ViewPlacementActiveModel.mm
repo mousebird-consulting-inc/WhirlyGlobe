@@ -163,7 +163,7 @@ void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
     changedSinceUpdate = false;
     pthread_mutex_unlock(&viewInstanceLock);
     
-    auto frameSizeScaled = frameInfo->sceneRenderer->getFramebufferSizeScaled();
+    auto frameSizeScaled = frameInfo->sceneRenderer->getFramebufferSize();
     
     for (std::set<ViewInstance>::iterator it = localViewSet.begin();
          it != localViewSet.end(); ++it)
@@ -266,37 +266,28 @@ void ViewPlacementManager::dumpStats()
 namespace WhirlyKit
 {
 ViewPlacementActiveModel::ViewPlacementActiveModel()
-: manager(NULL)
 {
 }
 
 ViewPlacementManager *ViewPlacementActiveModel::getManager()
 {
-    return manager;
+    return &manager;
 }
 
 void ViewPlacementActiveModel::startWithScene(Scene *scene) {
-    manager = new ViewPlacementManager();
 }
 
 bool ViewPlacementActiveModel::hasUpdate() {
-    if (!manager)
-        return false;
-    
-    return manager->getChangedSinceUpdate();
+    return manager.getChangedSinceUpdate();
 }
 
 /// Update your stuff for display, but be quick!
 void ViewPlacementActiveModel::updateForFrame(RendererFrameInfo *frameInfo) {
-    manager->updateLocations(frameInfo);
-
+    manager.updateLocations(frameInfo);
 }
 
 /// Time to clean up your toys
 void ViewPlacementActiveModel::teardown() {
-    if (manager)
-        delete manager;
-    manager = NULL;
 }
 
 }

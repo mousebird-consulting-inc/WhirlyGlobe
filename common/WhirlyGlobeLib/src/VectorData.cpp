@@ -302,7 +302,7 @@ VectorShape::~VectorShape()
     
 void VectorShape::setAttrDict(MutableDictionaryRef newDict)
 {
-    *attrDict = *newDict;
+    attrDict = newDict;
 }
     
 MutableDictionaryRef VectorShape::getAttrDict()
