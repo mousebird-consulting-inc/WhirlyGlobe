@@ -37,3 +37,5 @@ android/library/maply/\.externalNativeBuild/
 android/apps/AutoTesterAndroid/app/release/
 
 ~\$TestCaseStatus\.xlsx
+
+~\$CodeBreakdown\.xlsx
