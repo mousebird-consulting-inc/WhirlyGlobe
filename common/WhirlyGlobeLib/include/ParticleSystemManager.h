@@ -106,7 +106,7 @@ public:
     void housekeeping(TimeInterval now,ChangeSet &changes);
 
 protected:
-    pthread_mutex_t partSysLock;
+    std::mutex partSysLock;
     ParticleSystemSceneRepSet sceneReps;
 };
     

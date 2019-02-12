@@ -103,7 +103,7 @@ public:
     void removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes);
     
 protected:
-    pthread_mutex_t vecLock;
+    std::mutex vecLock;
     WideVectorSceneRepSet sceneReps;
 };
     

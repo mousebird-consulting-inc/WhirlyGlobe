@@ -121,7 +121,6 @@ void FontManager::removeGlyphRefs(const GlyphSet &usedGlyphs,std::vector<SubText
 FontTextureManager::FontTextureManager(Scene *scene)
 : scene(scene), texAtlas(NULL)
 {
-    pthread_mutex_init(&lock, NULL);
 }
 
 FontTextureManager::~FontTextureManager()
@@ -137,7 +136,6 @@ FontTextureManager::~FontTextureManager()
          it != fontManagers.end(); ++it)
         delete *it;
     fontManagers.clear();
-    pthread_mutex_destroy(&lock);
 }
     
 void FontTextureManager::init()
@@ -153,7 +151,7 @@ void FontTextureManager::init()
             
 void FontTextureManager::clear(ChangeSet &changes)
 {
-    pthread_mutex_lock(&lock);
+    std::lock_guard<std::mutex> guardLock(lock);
     
     if (texAtlas)
     {
@@ -167,20 +165,17 @@ void FontTextureManager::clear(ChangeSet &changes)
     for (FontManagerSet::iterator it = fontManagers.begin();
          it != fontManagers.end(); ++it)
         delete *it;
-    fontManagers.clear();
-    
-    pthread_mutex_unlock(&lock);
+    fontManagers.clear();    
 }
 
 void FontTextureManager::removeString(SimpleIdentity drawStringId,ChangeSet &changes,TimeInterval when)
 {
-    pthread_mutex_lock(&lock);
-    
+    std::lock_guard<std::mutex> guardLock(lock);
+
     DrawStringRep dummyRep(drawStringId);
     DrawStringRepSet::iterator it = drawStringReps.find(&dummyRep);
     if (it == drawStringReps.end())
     {
-        pthread_mutex_unlock(&lock);
         return;
     }
     
@@ -214,8 +209,6 @@ void FontTextureManager::removeString(SimpleIdentity drawStringId,ChangeSet &cha
         }
     }
     
-    pthread_mutex_unlock(&lock);
-
     delete theRep;
 }
 

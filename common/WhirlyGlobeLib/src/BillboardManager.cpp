@@ -180,12 +180,10 @@ void BillboardDrawableBuilder::flush()
 
 BillboardManager::BillboardManager()
 {
-    pthread_mutex_init(&billLock, NULL);
 }
 
 BillboardManager::~BillboardManager()
 {
-    pthread_mutex_destroy(&billLock);
     for (BillboardSceneRepSet::iterator it = sceneReps.begin(); it != sceneReps.end(); ++it)
         delete *it;
     sceneReps.clear();
@@ -254,10 +252,9 @@ SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboard
         
     SimpleIdentity billID = sceneRep->getId();
         
-    pthread_mutex_lock(&billLock);
+    std::lock_guard<std::mutex> guardLock(billLock);
     sceneReps.insert(sceneRep);
-    pthread_mutex_unlock(&billLock);
-        
+    
     return billID;
 }
 
@@ -265,8 +262,8 @@ void BillboardManager::enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeS
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
         
-    pthread_mutex_lock(&billLock);
-        
+    std::lock_guard<std::mutex> guardLock(billLock);
+
     for (SimpleIDSet::iterator bit = billIDs.begin();bit != billIDs.end();++bit)
     {
         BillboardSceneRep dummyRep(*bit);
@@ -281,8 +278,6 @@ void BillboardManager::enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeS
                 selectManager->enableSelectables(billRep->selectIDs, enable);
         }
     }
-        
-    pthread_mutex_unlock(&billLock);
 }
 
 /// Remove a group of billboards named by the given ID
@@ -290,8 +285,8 @@ void BillboardManager::removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
         
-    pthread_mutex_lock(&billLock);
-        
+    std::lock_guard<std::mutex> guardLock(billLock);
+
     TimeInterval curTime = TimeGetCurrent();
     for (SimpleIDSet::iterator bit = billIDs.begin();bit != billIDs.end();++bit)
     {
@@ -315,8 +310,6 @@ void BillboardManager::removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes)
             delete sceneRep;
         }
     }
-        
-    pthread_mutex_unlock(&billLock);
 }
 
 }

@@ -22,7 +22,7 @@
 #import <pthread.h>
 #import <mutex>
 
-std::mutex identMutex;
+static std::mutex identMutex;
 
 namespace WhirlyKit
 {

@@ -86,15 +86,9 @@ public:
     
     /// Print out stats about what's in the cache
     void dumpStats();
-        
-    /// Locks the mutex.  Don't be using this.
-    void lock();
-    
-    /// Unlocks the mutix.  Seriously, not for you.  Don't call this.
-    void unlock();
-        
+                
 protected:
-    pthread_mutex_t idLock;
+    std::mutex idLock;
 
     std::set<GLuint> buffIDs;
     std::set<GLuint> texIDs;

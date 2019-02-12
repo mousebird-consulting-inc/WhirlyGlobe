@@ -111,7 +111,7 @@ using namespace WhirlyKit;
         [baseLayerThread cancel];
         
         // Wait for the base layer thread to finish
-        pthread_mutex_lock(&baseLayerThread->existenceLock);
+        baseLayerThread->existenceLock.lock();
     }
     [glView teardown];
     

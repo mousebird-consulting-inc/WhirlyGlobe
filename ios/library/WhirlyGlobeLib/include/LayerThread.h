@@ -35,7 +35,7 @@
 @public
     /// We lock this in the main loop.  If anyone else can lock it, that means we're gone.
     /// Yes, I'm certain there's a better way to do this.
-    pthread_mutex_t existenceLock;
+    std::mutex existenceLock;
 }
 
 /// Scene we're messing with

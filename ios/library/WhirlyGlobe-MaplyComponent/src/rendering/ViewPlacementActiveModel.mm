@@ -32,12 +32,10 @@ namespace WhirlyKit
 ViewPlacementManager::ViewPlacementManager()
     : changedSinceUpdate(true)
 {
-    pthread_mutex_init(&viewInstanceLock, NULL);
 }
     
 ViewPlacementManager::~ViewPlacementManager()
 {
-    pthread_mutex_destroy(&viewInstanceLock);
     viewInstanceSet.clear();
 }
 
@@ -53,15 +51,16 @@ void ViewPlacementManager::addView(GeoCoord loc,const Point2d &offset2,UIView *v
     viewInst.offset = Point2d(frame.origin.x,frame.origin.y);
     viewInst.offset2 = offset2;
     
-    pthread_mutex_lock(&viewInstanceLock);
-    viewInstanceSet.insert(viewInst);
+    {
+        std::lock_guard<std::mutex> guardLock(viewInstanceLock);
+        viewInstanceSet.insert(viewInst);
+    }
     changedSinceUpdate = true;
-    pthread_mutex_unlock(&viewInstanceLock);
 }
 
 void ViewPlacementManager::moveView(GeoCoord loc,const Point2d &offset2,UIView *view,float minVis,float maxVis)
 {
-    pthread_mutex_lock(&viewInstanceLock);
+    std::lock_guard<std::mutex> guardLock(viewInstanceLock);
 
     // Look for the old one.  We need the offset
     Point2d offset(0,0);
@@ -79,13 +78,11 @@ void ViewPlacementManager::moveView(GeoCoord loc,const Point2d &offset2,UIView *
     viewInst.offset2 = offset2;
     viewInstanceSet.insert(viewInst);
     changedSinceUpdate = true;
-
-    pthread_mutex_unlock(&viewInstanceLock);
 }
     
 void ViewPlacementManager::freezeView(UIView *view)
 {
-    pthread_mutex_lock(&viewInstanceLock);
+    std::lock_guard<std::mutex> guardLock(viewInstanceLock);
 
     ViewInstance newVI(view);
     std::set<ViewInstance>::iterator it = viewInstanceSet.find(newVI);
@@ -97,13 +94,11 @@ void ViewPlacementManager::freezeView(UIView *view)
         viewInstanceSet.insert(newVI);
     }
     changedSinceUpdate = true;
-
-    pthread_mutex_unlock(&viewInstanceLock);
 }
 
 void ViewPlacementManager::unfreezeView(UIView *view)
 {
-    pthread_mutex_lock(&viewInstanceLock);
+    std::lock_guard<std::mutex> guardLock(viewInstanceLock);
 
     ViewInstance newVI(view);
     std::set<ViewInstance>::iterator it = viewInstanceSet.find(newVI);
@@ -115,20 +110,16 @@ void ViewPlacementManager::unfreezeView(UIView *view)
         viewInstanceSet.insert(newVI);
     }
     changedSinceUpdate = true;
-
-    pthread_mutex_unlock(&viewInstanceLock);
 }
     
 void ViewPlacementManager::removeView(UIView *view)
 {
-    pthread_mutex_lock(&viewInstanceLock);
+    std::lock_guard<std::mutex> guardLock(viewInstanceLock);
 
     std::set<ViewInstance>::iterator it = viewInstanceSet.find(ViewInstance(view));
     if (it != viewInstanceSet.end())
         viewInstanceSet.erase(it);
     changedSinceUpdate = true;
-
-    pthread_mutex_unlock(&viewInstanceLock);
 }
     
 // Work through the list of views, moving things around and/or hiding as needed
@@ -159,10 +150,12 @@ void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
 //        modelAndViewNormalMats.push_back(modelAndViewNormalMat);
     }
     
-    pthread_mutex_lock(&viewInstanceLock);
-    std::set<ViewInstance> localViewSet = viewInstanceSet;
-    changedSinceUpdate = false;
-    pthread_mutex_unlock(&viewInstanceLock);
+    std::set<ViewInstance> localViewSet;
+    {
+        std::lock_guard<std::mutex> guardLock(viewInstanceLock);
+        localViewSet = viewInstanceSet;
+        changedSinceUpdate = false;
+    }
     
     auto frameSizeScaled = frameInfo->sceneRenderer->getFramebufferSize();
     
@@ -257,9 +250,8 @@ void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
 
 void ViewPlacementManager::dumpStats()
 {
-    pthread_mutex_lock(&viewInstanceLock);
+    std::lock_guard<std::mutex> guardLock(viewInstanceLock);
     NSLog(@"ViewPlacement Generator: %ld",viewInstanceSet.size());
-    pthread_mutex_unlock(&viewInstanceLock);
 }
 
 }

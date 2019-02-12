@@ -95,7 +95,6 @@ void Marker::addTexID(SimpleIdentity texID)
 
 MarkerManager::MarkerManager()
 {
-    pthread_mutex_init(&markerLock,NULL);
 }
 
 MarkerManager::~MarkerManager()
@@ -104,8 +103,6 @@ MarkerManager::~MarkerManager()
          it != markerReps.end(); ++it)
         delete *it;
     markerReps.clear();
-    
-    pthread_mutex_destroy(&markerLock);
 }
 
 typedef std::map<SimpleIDSet,BasicDrawable *> DrawableMap;
@@ -375,9 +372,11 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
         delete layoutObjects[ii];
     
     SimpleIdentity markerID = markerRep->getId();
-    pthread_mutex_lock(&markerLock);
-    markerReps.insert(markerRep);
-    pthread_mutex_unlock(&markerLock);
+    
+    {
+        std::lock_guard<std::mutex> guardLock(markerLock);
+        markerReps.insert(markerRep);
+    }
     
     return markerID;
 }
@@ -387,8 +386,8 @@ void MarkerManager::enableMarkers(SimpleIDSet &markerIDs,bool enable,ChangeSet &
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
 
-    pthread_mutex_lock(&markerLock);
-    
+    std::lock_guard<std::mutex> guardLock(markerLock);
+
     for (SimpleIDSet::iterator mit = markerIDs.begin();mit != markerIDs.end(); ++mit)
     {
         MarkerSceneRep dummyRep;
@@ -400,8 +399,6 @@ void MarkerManager::enableMarkers(SimpleIDSet &markerIDs,bool enable,ChangeSet &
             markerRep->enableContents(selectManager, layoutManager, enable, changes);
         }
     }
-    
-    pthread_mutex_unlock(&markerLock);
 }
 
 void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
@@ -409,8 +406,8 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
 
-    pthread_mutex_lock(&markerLock);
-    
+    std::lock_guard<std::mutex> guardLock(markerLock);
+
     TimeInterval curTime = TimeGetCurrent();
     for (SimpleIDSet::iterator mit = markerIDs.begin();mit != markerIDs.end(); ++mit)
     {
@@ -439,8 +436,6 @@ void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
             delete markerRep;
         }
     }
-    
-    pthread_mutex_unlock(&markerLock);
 }
 
 void MarkerManager::setScene(Scene *inScene)

@@ -53,13 +53,6 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr)
 {
     SetupDrawableStrings();
 
-    pthread_mutex_init(&coordAdapterLock,NULL);
-    pthread_mutex_init(&changeRequestLock,NULL);
-    pthread_mutex_init(&subTexLock, NULL);
-    pthread_mutex_init(&textureLock,NULL);
-    pthread_mutex_init(&programLock,NULL);
-    pthread_mutex_init(&managerLock,NULL);
-
     coordAdapter = adapter;
     
 //    dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
@@ -98,20 +91,12 @@ Scene::~Scene()
 {
 //    wkLogLevel(Verbose,"Shutting down scene");
     
-    pthread_mutex_destroy(&coordAdapterLock);
-
     textures.clear();
     
     for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
          it != managers.end(); ++it)
         delete it->second;
     managers.clear();
-        
-    pthread_mutex_destroy(&managerLock);
-    pthread_mutex_destroy(&changeRequestLock);
-    pthread_mutex_destroy(&subTexLock);
-    pthread_mutex_destroy(&textureLock);
-    pthread_mutex_destroy(&programLock);
     
     auto theChangeRequests = changeRequests;
     changeRequests.clear();
@@ -141,15 +126,14 @@ CoordSystemDisplayAdapter *Scene::getCoordAdapter()
     
 void Scene::setDisplayAdapter(CoordSystemDisplayAdapter *newCoordAdapter)
 {
-    pthread_mutex_lock(&coordAdapterLock);
+    std::lock_guard<std::mutex> guardLock(coordAdapterLock);
     coordAdapter = newCoordAdapter;
-    pthread_mutex_unlock(&coordAdapterLock);
 }
     
 // Add change requests to our list
 void Scene::addChangeRequests(const ChangeSet &newChanges)
 {
-    pthread_mutex_lock(&changeRequestLock);
+    std::lock_guard<std::mutex> guardLock(changeRequestLock);
     
     for (ChangeRequest *change : newChanges)
     {
@@ -158,21 +142,17 @@ void Scene::addChangeRequests(const ChangeSet &newChanges)
         else
             changeRequests.push_back(change);
     }
-    
-    pthread_mutex_unlock(&changeRequestLock);
 }
 
 // Add a single change request
 void Scene::addChangeRequest(ChangeRequest *newChange)
 {
-    pthread_mutex_lock(&changeRequestLock);
-    
+    std::lock_guard<std::mutex> guardLock(changeRequestLock);
+
     if (newChange && newChange->when > 0.0)
         timedChangeRequests.insert(newChange);
     else
         changeRequests.push_back(newChange);
-    
-    pthread_mutex_unlock(&changeRequestLock);
 }
 
 GLuint Scene::getGLTexture(SimpleIdentity texIdent)
@@ -182,15 +162,13 @@ GLuint Scene::getGLTexture(SimpleIdentity texIdent)
     
     GLuint ret = 0;
     
-    pthread_mutex_lock(&textureLock);
+    std::lock_guard<std::mutex> guardLock(textureLock);
     // Might be a texture ref
     auto it = textures.find(texIdent);
     if (it != textures.end())
     {
         ret = it->second->getGLId();
     }
-    
-    pthread_mutex_unlock(&textureLock);
     
     return ret;
 }
@@ -221,33 +199,29 @@ void Scene::addLocalMbr(const Mbr &localMbr)
     
 void Scene::setRenderer(SceneRendererES *renderer)
 {
-    pthread_mutex_lock(&managerLock);
+    std::lock_guard<std::mutex> guardLock(managerLock);
     
     for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
          it != managers.end(); ++it)
         it->second->setRenderer(renderer);
-    
-    pthread_mutex_unlock(&managerLock);
 }
     
 SceneManager *Scene::getManager(const char *name)
 {
     SceneManager *ret = NULL;
     
-    pthread_mutex_lock(&managerLock);
-    
+    std::lock_guard<std::mutex> guardLock(managerLock);
+
     std::map<std::string,SceneManager *>::iterator it = managers.find((std::string)name);
     if (it != managers.end())
         ret = it->second;
-    
-    pthread_mutex_unlock(&managerLock);
     
     return ret;
 }
 
 void Scene::addManager(const char *name,SceneManager *manager)
 {
-    pthread_mutex_lock(&managerLock);
+    std::lock_guard<std::mutex> guardLock(managerLock);
 
     // If there's one here, we'll clear it out first
     std::map<std::string,SceneManager *>::iterator it = managers.find((std::string)name);
@@ -255,8 +229,6 @@ void Scene::addManager(const char *name,SceneManager *manager)
         managers.erase(it);
     managers[(std::string)name] = manager;
     manager->setScene(this);
-    
-    pthread_mutex_unlock(&managerLock);
 }
 
 void Scene::addActiveModel(ActiveModelRef activeModel)
@@ -297,14 +269,12 @@ void Scene::teardownGL()
 
 TextureBase *Scene::getTexture(SimpleIdentity texId)
 {
-    pthread_mutex_lock(&textureLock);
+    std::lock_guard<std::mutex> guardLock(textureLock);
     
     TextureBase *retTex = NULL;
     auto it = textures.find(texId);
     if (it != textures.end())
         retTex = it->second.get();
-    
-    pthread_mutex_unlock(&textureLock);
     
     return retTex;
 }
@@ -317,19 +287,19 @@ const DrawableRefSet &Scene::getDrawables()
 int Scene::preProcessChanges(WhirlyKit::View *view,SceneRendererES *renderer,TimeInterval now)
 {
     ChangeSet preRequests;
-    
-    pthread_mutex_lock(&changeRequestLock);
-    // Just doing the ones that require a pre-process
-    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+
     {
-        ChangeRequest *req = changeRequests[ii];
-        if (req && req->needPreExecute()) {
-            preRequests.push_back(req);
-            changeRequests[ii] = NULL;
+        std::lock_guard<std::mutex> guardLock(changeRequestLock);
+        // Just doing the ones that require a pre-process
+        for (unsigned int ii=0;ii<changeRequests.size();ii++)
+        {
+            ChangeRequest *req = changeRequests[ii];
+            if (req && req->needPreExecute()) {
+                preRequests.push_back(req);
+                changeRequests[ii] = NULL;
+            }
         }
     }
-    
-    pthread_mutex_unlock(&changeRequestLock);
 
     // Run these outside of the lock, since they might use the lock
     for (auto req : preRequests) {
@@ -344,7 +314,7 @@ int Scene::preProcessChanges(WhirlyKit::View *view,SceneRendererES *renderer,Tim
 // We'll grab the lock and we're only expecting to be called in the rendering thread
 void Scene::processChanges(WhirlyKit::View *view,SceneRendererES *renderer,TimeInterval now)
 {
-    pthread_mutex_lock(&changeRequestLock);
+    std::lock_guard<std::mutex> guardLock(changeRequestLock);
     // See if any of the timed changes are ready
     std::vector<ChangeRequest *> toMove;
     for (ChangeRequest *req : timedChangeRequests)
@@ -369,23 +339,21 @@ void Scene::processChanges(WhirlyKit::View *view,SceneRendererES *renderer,TimeI
         }
     }
     changeRequests.clear();
-        
-    pthread_mutex_unlock(&changeRequestLock);
 }
     
 bool Scene::hasChanges(TimeInterval now)
 {
     bool changes = false;
-    if (!pthread_mutex_trylock(&changeRequestLock))
+    if (changeRequestLock.try_lock())
     {
         changes = !changeRequests.empty();
         
         if (!changes)
             if (timedChangeRequests.size() > 0)
                 changes = now >= (*timedChangeRequests.begin())->when;
-        
-        pthread_mutex_unlock(&changeRequestLock);            
-    }        
+
+        changeRequestLock.unlock();
+    }
     if (changes)
         return true;
     
@@ -400,32 +368,29 @@ bool Scene::hasChanges(TimeInterval now)
 // Add a single sub texture map
 void Scene::addSubTexture(const SubTexture &subTex)
 {
-    pthread_mutex_lock(&subTexLock);
+    std::lock_guard<std::mutex> guardLock(subTexLock);
     subTextureMap.insert(subTex);
-    pthread_mutex_unlock(&subTexLock);
 }
 
 // Add a whole group of sub textures maps
 void Scene::addSubTextures(const std::vector<SubTexture> &subTexes)
 {
-    pthread_mutex_lock(&subTexLock);
+    std::lock_guard<std::mutex> guardLock(subTexLock);
     subTextureMap.insert(subTexes.begin(),subTexes.end());
-    pthread_mutex_unlock(&subTexLock);
 }
     
 void Scene::removeSubTexture(SimpleIdentity subTexID)
 {
-    pthread_mutex_lock(&subTexLock);
+    std::lock_guard<std::mutex> guardLock(subTexLock);
     SubTexture dumbTex(subTexID);
     SubTextureSet::iterator it = subTextureMap.find(dumbTex);
     if (it != subTextureMap.end())
         subTextureMap.erase(it);
-    pthread_mutex_unlock(&subTexLock);
 }
 
 void Scene::removeSubTextures(const std::vector<SimpleIdentity> &subTexIDs)
 {
-    pthread_mutex_lock(&subTexLock);
+    std::lock_guard<std::mutex> guardLock(subTexLock);
     SubTexture dummySubTex;
     for (auto texID : subTexIDs)
     {
@@ -434,13 +399,12 @@ void Scene::removeSubTextures(const std::vector<SimpleIdentity> &subTexIDs)
         if (it != subTextureMap.end())
             subTextureMap.erase(it);
     }
-    pthread_mutex_unlock(&subTexLock);
 }
 
 // Look for a sub texture by ID
 SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
 {
-    pthread_mutex_lock(&subTexLock);
+    std::lock_guard<std::mutex> guardLock(subTexLock);
     SubTexture dumbTex;
     dumbTex.setId(subTexId);
     SubTextureSet::iterator it = subTextureMap.find(dumbTex);
@@ -449,11 +413,9 @@ SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
         SubTexture passTex;
         passTex.trans = passTex.trans.Identity();
         passTex.texId = subTexId;
-        pthread_mutex_unlock(&subTexLock);
         return passTex;
     }
     
-    pthread_mutex_unlock(&subTexLock);
     return *it;
 }
     
@@ -473,7 +435,7 @@ void Scene::setFontTextureManager(FontTextureManagerRef newManager)
 
 OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
 {
-    pthread_mutex_lock(&programLock);
+    std::lock_guard<std::mutex> guardLock(programLock);
 
     OpenGLES2Program *prog = NULL;
     OpenGLES2Program dummy(progId);
@@ -483,8 +445,6 @@ OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
         prog = *it;
     }
     
-    pthread_mutex_unlock(&programLock);
-        
     return prog;
 }
 
@@ -495,18 +455,16 @@ void Scene::addProgram(OpenGLES2Program *prog)
         return;
     }
 
-    pthread_mutex_lock(&programLock);
-    
+    std::lock_guard<std::mutex> guardLock(programLock);
+
     if (glPrograms.find(prog) == glPrograms.end())
         glPrograms.insert(prog);
-    
-    pthread_mutex_unlock(&programLock);
 }
 
 void Scene::removeProgram(SimpleIdentity progId)
 {
-    pthread_mutex_lock(&programLock);
-    
+    std::lock_guard<std::mutex> guardLock(programLock);
+
     OpenGLES2Program *prog = NULL;
     OpenGLES2Program dummy(progId);
     OpenGLES2ProgramSet::iterator it = glPrograms.find(&dummy);
@@ -516,8 +474,6 @@ void Scene::removeProgram(SimpleIdentity progId)
         
         prog->cleanUp();
     }
-        
-    pthread_mutex_unlock(&programLock);
 }
     
 AddTextureReq::~AddTextureReq()
@@ -535,7 +491,7 @@ void AddTextureReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::Vi
 
 void RemTextureReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::View *view)
 {
-    pthread_mutex_lock(&scene->textureLock);
+    std::lock_guard<std::mutex> guardLock(scene->textureLock);
     auto it = scene->textures.find(texture);
     if (it != scene->textures.end())
     {
@@ -544,7 +500,6 @@ void RemTextureReq::execute(Scene *scene,SceneRendererES *renderer,WhirlyKit::Vi
         scene->textures.erase(it);
     } else
         wkLogLevel(Warn,"RemTextureReq: No such texture.");
-    pthread_mutex_unlock(&scene->textureLock);
 }
 
 AddDrawableReq::~AddDrawableReq()

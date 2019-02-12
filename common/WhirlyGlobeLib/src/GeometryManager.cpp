@@ -612,12 +612,10 @@ void GeometryRawPoints::buildDrawables(std::vector<BasicDrawable *> &draws,const
     
 GeometryManager::GeometryManager()
 {
-    pthread_mutex_init(&geomLock, NULL);
 }
     
 GeometryManager::~GeometryManager()
 {
-    pthread_mutex_destroy(&geomLock);
     for (GeomSceneRepSet::iterator it = sceneReps.begin();
          it != sceneReps.end(); ++it)
         delete *it;
@@ -705,9 +703,10 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,con
     
     SimpleIdentity geomID = sceneRep->getId();
     
-    pthread_mutex_lock(&geomLock);
-    sceneReps.insert(sceneRep);
-    pthread_mutex_unlock(&geomLock);
+    {
+        std::lock_guard<std::mutex> guardLock(geomLock);
+        sceneReps.insert(sceneRep);
+    }
     
     return geomID;
 }
@@ -773,9 +772,10 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom
     
     SimpleIdentity geomID = sceneRep->getId();
     
-    pthread_mutex_lock(&geomLock);
-    sceneReps.insert(sceneRep);
-    pthread_mutex_unlock(&geomLock);
+    {
+        std::lock_guard<std::mutex> guardLock(geomLock);
+        sceneReps.insert(sceneRep);
+    }
     
     return geomID;
 }
@@ -792,7 +792,7 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &inGeom
 /// Add instances that reuse base geometry
 SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,GeometryInfo &geomInfo,ChangeSet &changes)
 {
-    pthread_mutex_lock(&geomLock);
+    std::lock_guard<std::mutex> guardLock(geomLock);
     TimeInterval startTime = TimeGetCurrent();
 
     // Look for the scene rep we're basing this on
@@ -804,7 +804,6 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     
     if (!baseSceneRep)
     {
-        pthread_mutex_unlock(&geomLock);
         return EmptyIdentity;
     }
     
@@ -873,7 +872,6 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     SimpleIdentity geomID = sceneRep->getId();
     
     sceneReps.insert(sceneRep);
-    pthread_mutex_unlock(&geomLock);
     
     return geomID;
 }
@@ -915,9 +913,10 @@ SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomP
     
     SimpleIdentity geomID = sceneRep->getId();
     
-    pthread_mutex_lock(&geomLock);
-    sceneReps.insert(sceneRep);
-    pthread_mutex_unlock(&geomLock);
+    {
+        std::lock_guard<std::mutex> guardLock(geomLock);
+        sceneReps.insert(sceneRep);
+    }
     
     return geomID;
 }
@@ -926,8 +925,8 @@ void GeometryManager::enableGeometry(SimpleIDSet &geomIDs,bool enable,ChangeSet 
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     
-    pthread_mutex_lock(&geomLock);
-    
+    std::lock_guard<std::mutex> guardLock(geomLock);
+
     for (SimpleIDSet::iterator git = geomIDs.begin(); git != geomIDs.end(); ++git)
     {
         GeomSceneRep dummyRep(*git);
@@ -938,16 +937,14 @@ void GeometryManager::enableGeometry(SimpleIDSet &geomIDs,bool enable,ChangeSet 
             geomRep->enableContents(selectManager,enable,changes);
         }
     }
-    
-    pthread_mutex_unlock(&geomLock);
 }
 
 void GeometryManager::removeGeometry(SimpleIDSet &geomIDs,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
 
-    pthread_mutex_lock(&geomLock);
-    
+    std::lock_guard<std::mutex> guardLock(geomLock);
+
     TimeInterval curTime = TimeGetCurrent();
     for (SimpleIDSet::iterator git = geomIDs.begin(); git != geomIDs.end(); ++git)
     {
@@ -973,8 +970,6 @@ void GeometryManager::removeGeometry(SimpleIDSet &geomIDs,ChangeSet &changes)
             delete sceneRep;
         }
     }
-
-    pthread_mutex_unlock(&geomLock);
 }
 
 }

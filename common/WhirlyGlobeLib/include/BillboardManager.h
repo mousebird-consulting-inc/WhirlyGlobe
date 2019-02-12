@@ -154,7 +154,7 @@ public:
     void removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes);
 
 protected:
-    pthread_mutex_t billLock;
+    std::mutex billLock;
     BillboardSceneRepSet sceneReps;
 };
 

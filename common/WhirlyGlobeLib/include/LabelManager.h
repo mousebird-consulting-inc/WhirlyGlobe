@@ -84,7 +84,7 @@ public:
     LabelInfoRef infoOverride;
 
     // Used to build the drawable string on specific platforms
-    virtual std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *,FontTextureManager *fontTexManager,float &lineHeight,ChangeSet &changes) = 0;    
+    virtual std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *,FontTextureManager *fontTexManager,float &lineHeight,ChangeSet &changes) = 0;
 };
     
 #define kWKLabelManager "WKLabelManager"
@@ -111,7 +111,7 @@ public:
     void enableLabels(SimpleIDSet labelID,bool enable,ChangeSet &changes);
     
 protected:
-    pthread_mutex_t labelLock;
+    std::mutex labelLock;
     
     /// Keep track of labels (or groups of labels) by ID for deletion
     WhirlyKit::LabelSceneRepSet labelReps;

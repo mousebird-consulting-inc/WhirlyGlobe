@@ -16,12 +16,10 @@ namespace WhirlyKit
 IntersectionManager::IntersectionManager(Scene *scene)
 : scene(scene)
 {
-    pthread_mutex_init(&mutex, NULL);
 }
     
 IntersectionManager::~IntersectionManager()
 {
-    pthread_mutex_destroy(&mutex);
 }
     
 void IntersectionManager::addIntersectable(Intersectable *intersect)
@@ -58,8 +56,8 @@ bool IntersectionManager::findIntersection(SceneRendererES *renderer,View *view,
     Vector3d dir(dir4.x(),dir4.y(),dir4.z());
     dir.normalize();
     
-    pthread_mutex_lock(&mutex);
-    
+    std::lock_guard<std::mutex> guardLock(mutex);
+
     for (auto inter : intersectables)
     {
         Point3d thisPt;
@@ -73,9 +71,7 @@ bool IntersectionManager::findIntersection(SceneRendererES *renderer,View *view,
             }
         }
     }
-    
-    pthread_mutex_unlock(&mutex);
-    
+        
     if (minDist != std::numeric_limits<double>::max())
     {
         iPt = minPt;

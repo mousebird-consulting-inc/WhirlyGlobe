@@ -40,12 +40,10 @@ SingleLabel::SingleLabel()
 LabelManager::LabelManager()
     : textureAtlasSize(LabelTextureAtlasSizeDefault)
 {
-    pthread_mutex_init(&labelLock, NULL);
 }
     
 LabelManager::~LabelManager()
 {
-    pthread_mutex_destroy(&labelLock);
 }
     
 SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const LabelInfo &labelInfo,ChangeSet &changes)
@@ -121,9 +119,10 @@ SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const 
     }
 
     SimpleIdentity labelID = labelRep->getId();
-    pthread_mutex_lock(&labelLock);
-    labelReps.insert(labelRep);
-    pthread_mutex_unlock(&labelLock);
+    {
+        std::lock_guard<std::mutex> guardLock(labelLock);
+        labelReps.insert(labelRep);
+    }
     
     return labelID;
 }
@@ -157,7 +156,7 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
     SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     
-    pthread_mutex_lock(&labelLock);
+    std::lock_guard<std::mutex> guardLock(labelLock);
 
     for (SimpleIDSet::iterator lit = labelIDs.begin(); lit != labelIDs.end(); ++lit)
     {
@@ -175,8 +174,6 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
                 layoutManager->enableLayoutObjects(sceneRep->layoutIDs,enable);
         }
     }
-    
-    pthread_mutex_unlock(&labelLock);
 }
 
 
@@ -186,8 +183,8 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
     LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
     FontTextureManager *fontTexManager = scene->getFontTextureManager();
     
-    pthread_mutex_lock(&labelLock);
-    
+    std::lock_guard<std::mutex> guardLock(labelLock);
+
     TimeInterval curTime = TimeGetCurrent();
     for (SimpleIDSet::iterator lit = labelIDs.begin(); lit != labelIDs.end(); ++lit)
     {
@@ -237,8 +234,6 @@ void LabelManager::removeLabels(SimpleIDSet &labelIDs,ChangeSet &changes)
             delete labelRep;
         }
     }
-
-    pthread_mutex_unlock(&labelLock);
 }
 
 }

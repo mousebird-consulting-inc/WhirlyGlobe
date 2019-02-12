@@ -153,13 +153,13 @@ public:
 protected:
     void processChunkRequest(ChunkRequest &request,ChangeSet &changes);
     
-    pthread_mutex_t repLock;
+    std::mutex repLock;
     ChunkRepSet chunkReps;
-    pthread_mutex_t requestLock;
+    std::mutex requestLock;
     // Outstanding requests to process
     std::queue<ChunkRequest> requests;
     int borderTexel;
-    pthread_mutex_t atlasLock;
+    std::mutex atlasLock;
     DynamicTextureAtlas *texAtlas;
     DynamicDrawableAtlas *drawAtlas;
 };

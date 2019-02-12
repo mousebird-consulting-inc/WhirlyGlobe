@@ -185,7 +185,7 @@ protected:
     Scene *scene;
     DynamicTextureAtlas *texAtlas;
     DrawStringRepSet drawStringReps;
-    pthread_mutex_t lock;    
+    std::mutex lock;    
 };
     
 typedef std::shared_ptr<FontTextureManager> FontTextureManagerRef;

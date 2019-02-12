@@ -239,7 +239,7 @@ public:
     void enableShapes(SimpleIDSet &shapeIDs,bool enable,ChangeSet &changes);
 
 protected:
-    pthread_mutex_t shapeLock;
+    std::mutex shapeLock;
     ShapeSceneRepSet shapeReps;
 };
 

@@ -318,7 +318,7 @@ public:
     void removeGeometry(SimpleIDSet &billIDs,ChangeSet &changes);
     
 protected:
-    pthread_mutex_t geomLock;
+    std::mutex geomLock;
     GeomSceneRepSet sceneReps;
 };
 

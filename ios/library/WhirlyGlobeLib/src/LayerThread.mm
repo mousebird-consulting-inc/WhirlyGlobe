@@ -45,7 +45,7 @@ using namespace WhirlyKit;
     std::vector<WhirlyKit::ChangeRequest *> changeRequests;
     
     /// We can get change requests from other threads (!)
-    pthread_mutex_t changeLock;
+    std::mutex changeLock;
     
     NSCondition *pauseLock;
     BOOL paused;
@@ -76,8 +76,6 @@ using namespace WhirlyKit;
         glSetupInfo.glesVersion = inRenderer->getContext().API;
         _allowFlush = true;
         
-        pthread_mutex_init(&changeLock,NULL);
-        pthread_mutex_init(&existenceLock,NULL);
         pauseLock = [[NSCondition alloc] init];
 	}
 	
@@ -86,8 +84,6 @@ using namespace WhirlyKit;
 
 - (void)dealloc
 {
-    pthread_mutex_destroy(&changeLock);
-    pthread_mutex_destroy(&existenceLock);
 }
 
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer
@@ -167,15 +163,13 @@ using namespace WhirlyKit;
     if (newChangeRequests.empty())
         return;
     
-    pthread_mutex_lock(&changeLock);
+    std::lock_guard<std::mutex> guardLock(changeLock);
 
     // If we don't have one coming, schedule a merge
     if (!inRunAddChangeRequests && changeRequests.empty())
         [self performSelector:@selector(runAddChangeRequests) onThread:self withObject:nil waitUntilDone:NO];
     
     changeRequests.insert(changeRequests.end(), newChangeRequests.begin(), newChangeRequests.end());
-    
-    pthread_mutex_unlock(&changeLock);
 }
 
 - (void)flushChangeRequests
@@ -204,10 +198,11 @@ using namespace WhirlyKit;
     inRunAddChangeRequests = false;
     
     std::vector<WhirlyKit::ChangeRequest *> changesToProcess;
-    pthread_mutex_lock(&changeLock);
-    changesToProcess = changeRequests;
-    changeRequests.clear();
-    pthread_mutex_unlock(&changeLock);
+    {
+        std::lock_guard<std::mutex> guardLock(changeLock);
+        changesToProcess = changeRequests;
+        changeRequests.clear();
+    }
 
     bool requiresFlush = false;
     // Set up anything that needs to be set up
@@ -275,7 +270,7 @@ using namespace WhirlyKit;
         return;
     }
 
-    pthread_mutex_lock(&existenceLock);
+    existenceLock.lock();
 
     // This should be the default context.  If you change it yourself, change it back
     [EAGLContext setCurrentContext:_glContext];
@@ -357,14 +352,14 @@ using namespace WhirlyKit;
         //  we need to wait for them to shut down.
         for (WhirlyKitLayerThread *otherLayerThread in threadsToShutdown)
         {
-            pthread_mutex_lock(&otherLayerThread->existenceLock);
+            otherLayerThread->existenceLock.lock();
         }
 
         // Tear the scene down.  It's unsafe to do it elsewhere
         _scene->teardownGL();
     } else {
         // Okay, we're shutting down, so release the existence lock
-        pthread_mutex_unlock(&existenceLock);
+        existenceLock.unlock();
     }
     
     // Delete outstanding change requests
@@ -384,7 +379,7 @@ using namespace WhirlyKit;
     // If this is the main thread, we are well and truly done
     if (_mainLayerThread) {
         // Okay, we're shutting down, so release the existence lock
-        pthread_mutex_unlock(&existenceLock);
+        existenceLock.unlock();
     }
 }
 

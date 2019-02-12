@@ -343,16 +343,10 @@ public:
 SphericalChunkManager::SphericalChunkManager()
     : borderTexel(0), texAtlas(NULL), drawAtlas(NULL)
 {
-    pthread_mutex_init(&repLock,NULL);
-    pthread_mutex_init(&requestLock,NULL);
-    pthread_mutex_init(&atlasLock,NULL);
 }
     
 SphericalChunkManager::~SphericalChunkManager()
 {
-    pthread_mutex_destroy(&repLock);
-    pthread_mutex_destroy(&requestLock);
-    pthread_mutex_destroy(&atlasLock);
 }
     
 /// Add the given chunk (enabled or disabled)
@@ -363,9 +357,8 @@ SimpleIdentity SphericalChunkManager::addChunk(SphericalChunk *chunk,const Spher
     // If it needs the altases, just queue it up
     if (chunk->loadImage)
     {
-        pthread_mutex_lock(&requestLock);
+        std::lock_guard<std::mutex> guardLock(requestLock);
         requests.push(request);
-        pthread_mutex_unlock(&requestLock);
     } else {
         // If it doesn't, just run it right now
         processChunkRequest(request,changes);
@@ -385,15 +378,16 @@ bool SphericalChunkManager::modifyChunkTextures(SimpleIdentity chunkID,const std
     SimpleIDSet drawIDs;
     SimpleIDSet oldTexIDs;
     
-    pthread_mutex_lock(&repLock);
-    ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
-    ChunkRepSet::iterator it = chunkReps.find(dummyRef);
-    if (it != chunkReps.end())
     {
-        drawIDs = (*it)->drawIDs;
-        oldTexIDs = (*it)->texIDs;
+        std::lock_guard<std::mutex> guardLock(repLock);
+        ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
+        ChunkRepSet::iterator it = chunkReps.find(dummyRef);
+        if (it != chunkReps.end())
+        {
+            drawIDs = (*it)->drawIDs;
+            oldTexIDs = (*it)->texIDs;
+        }
     }
-    pthread_mutex_unlock(&repLock);
 
     // Make sure we have the same number of textures
     //    if (oldTexIDs.size() != texIDs.size())
@@ -409,14 +403,15 @@ bool SphericalChunkManager::modifyDrawPriority(SimpleIdentity chunkID,int drawPr
 {
     SimpleIDSet drawIDs;
 
-    pthread_mutex_lock(&repLock);
-    ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
-    ChunkRepSet::iterator it = chunkReps.find(dummyRef);
-    if (it != chunkReps.end())
     {
-        drawIDs = (*it)->drawIDs;
+        std::lock_guard<std::mutex> guardLock(repLock);
+        ChunkSceneRepRef dummyRef(new ChunkSceneRep(chunkID));
+        ChunkRepSet::iterator it = chunkReps.find(dummyRef);
+        if (it != chunkReps.end())
+        {
+            drawIDs = (*it)->drawIDs;
+        }
     }
-    pthread_mutex_unlock(&repLock);
     
     for (SimpleIDSet::iterator it = drawIDs.begin(); it != drawIDs.end(); ++it)
         changes.push_back(new DrawPriorityChangeRequest(*it,drawPriority));
@@ -430,12 +425,13 @@ void SphericalChunkManager::enableChunk(SimpleIdentity chunkID,bool enable,Chang
     Dictionary dict;
     SphericalChunkInfo chunkInfo(dict);
     
-    pthread_mutex_lock(&requestLock);
-    if (enable)
-        requests.push(ChunkRequest(ChunkEnable,chunkInfo,chunkID));
-    else
-        requests.push(ChunkRequest(ChunkDisable,chunkInfo,chunkID));
-    pthread_mutex_unlock(&requestLock);
+    {
+        std::lock_guard<std::mutex> guardLock(requestLock);
+        if (enable)
+            requests.push(ChunkRequest(ChunkEnable,chunkInfo,chunkID));
+        else
+            requests.push(ChunkRequest(ChunkDisable,chunkInfo,chunkID));
+    }
     
     if (!texAtlas)
         processRequests(changes);
@@ -447,10 +443,11 @@ void SphericalChunkManager::removeChunks(SimpleIDSet &chunkIDs,ChangeSet &change
     Dictionary dict;
     SphericalChunkInfo chunkInfo(dict);
 
-    pthread_mutex_lock(&requestLock);
-    for (SimpleIDSet::iterator it = chunkIDs.begin(); it != chunkIDs.end(); ++it)
-        requests.push(ChunkRequest(ChunkRemove,chunkInfo,*it));
-    pthread_mutex_unlock(&requestLock);
+    {
+        std::lock_guard<std::mutex> guardLock(requestLock);
+        for (SimpleIDSet::iterator it = chunkIDs.begin(); it != chunkIDs.end(); ++it)
+            requests.push(ChunkRequest(ChunkRemove,chunkInfo,*it));
+    }
     
     if (!texAtlas)
         processRequests(changes);
@@ -458,10 +455,10 @@ void SphericalChunkManager::removeChunks(SimpleIDSet &chunkIDs,ChangeSet &change
 
 int SphericalChunkManager::getNumChunks()
 {
+    std::lock_guard<std::mutex> guardLock(repLock);
+
     int numChunks = 0;
-    pthread_mutex_lock(&repLock);
     numChunks = chunkReps.size();
-    pthread_mutex_unlock(&repLock);
     
     return chunkReps.size();
 }
@@ -472,12 +469,10 @@ void SphericalChunkManager::processRequests(ChangeSet &changes)
     // Process the changes and then flush them out
     while (!requests.empty())
     {
-        pthread_mutex_lock(&requestLock);
+        std::lock_guard<std::mutex> guardLock(requestLock);
         ChunkRequest request = requests.front();
         requests.pop();
-        pthread_mutex_unlock(&requestLock);
-        processChunkRequest(request,changes);
-    }    
+    }
 }
     
 // Process a single chunk request (add, enable, disable)
@@ -505,12 +500,11 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             {
                 if (newTex)
                 {
-                    pthread_mutex_lock(&atlasLock);
+                    std::lock_guard<std::mutex> guardLock(atlasLock);
                     std::vector<Texture *> newTexs;
                     texAtlas->addTexture(newTexs, -1, NULL, NULL, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
                     chunkRep->usesAtlas = true;
                     delete newTex;
-                    pthread_mutex_unlock(&atlasLock);
                 }
             } else {
                 if (newTex)
@@ -533,11 +527,10 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
                 chunkRep->drawIDs.insert(skirtDraw->getId());
                 if (chunkRep->usesAtlas && drawAtlas)
                 {
-                    pthread_mutex_lock(&atlasLock);
+                    std::lock_guard<std::mutex> guardLock(atlasLock);
                     skirtDraw->applySubTexture(0,chunkRep->subTex);
                     drawAtlas->addDrawable(skirtDraw, changes);
                     delete skirtDraw;
-                    pthread_mutex_unlock(&atlasLock);
                 } else {
                     if (texAtlas)
                         skirtDraw->applySubTexture(0,chunkRep->subTex);
@@ -550,11 +543,10 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             chunkRep->drawIDs.insert(drawable->getId());
             if (chunkRep->usesAtlas && drawAtlas)
             {
-                pthread_mutex_lock(&atlasLock);
+                std::lock_guard<std::mutex> guardLock(atlasLock);
                 drawable->applySubTexture(0,chunkRep->subTex);
                 drawAtlas->addDrawable(drawable, changes);
                 delete drawable;
-                pthread_mutex_unlock(&atlasLock);
             } else {
                 if (texAtlas)
                     drawable->applySubTexture(0,chunkRep->subTex);
@@ -563,42 +555,40 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
                 changes.push_back(new AddDrawableReq(drawable));
             }
             
-            pthread_mutex_lock(&repLock);
-            chunkReps.insert(chunkRep);
-            pthread_mutex_unlock(&repLock);
+            {
+                std::lock_guard<std::mutex> guardLock(repLock);
+                chunkReps.insert(chunkRep);
+            }
         }
             break;
         case ChunkEnable:
         {
-            pthread_mutex_lock(&repLock);
+            std::lock_guard<std::mutex> guardLock(repLock);
             ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
             ChunkRepSet::iterator it = chunkReps.find(dummyRef);
             if (it != chunkReps.end())
                 (*it)->enable(texAtlas,drawAtlas,changes);
-            pthread_mutex_unlock(&repLock);
         }
             break;
         case ChunkDisable:
         {
-            pthread_mutex_lock(&repLock);
+            std::lock_guard<std::mutex> guardLock(repLock);
             ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
             ChunkRepSet::iterator it = chunkReps.find(dummyRef);
             if (it != chunkReps.end())
                 (*it)->disable(texAtlas,drawAtlas,changes);
-            pthread_mutex_unlock(&repLock);
         }
             break;
         case ChunkRemove:
         {
-            pthread_mutex_lock(&repLock);
+            std::lock_guard<std::mutex> guardLock(repLock);
             ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
             ChunkRepSet::iterator it = chunkReps.find(dummyRef);
             if (it != chunkReps.end())
 	      {
                 (*it)->clear(scene,texAtlas,drawAtlas,changes);
-		chunkReps.erase(it);
+              chunkReps.erase(it);
 	      }
-            pthread_mutex_unlock(&repLock);
         }
             break;
     }

@@ -105,8 +105,6 @@ DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,
     layoutGrid = new bool[numCell * numCell];
     for (unsigned int ii=0;ii<numCell * numCell;ii++)
         layoutGrid[ii] = false;
-    
-    pthread_mutex_init(&regionLock,NULL);
 }
     
 DynamicTexture::~DynamicTexture()
@@ -116,8 +114,6 @@ DynamicTexture::~DynamicTexture()
     
     delete [] layoutGrid;
     layoutGrid = NULL;
-    
-    pthread_mutex_destroy(&regionLock);
 }
 
 // If set we'll try to clear the images when we're not using them.
@@ -280,9 +276,8 @@ void DynamicTexture::clearRegion(const Region &clearRegion,ChangeSet &changes,bo
     
 void DynamicTexture::getReleasedRegions(std::vector<DynamicTexture::Region> &toClear)
 {
-    pthread_mutex_lock(&regionLock);
+    std::lock_guard<std::mutex> guardLock(regionLock);
     toClear = releasedRegions;
-    pthread_mutex_unlock(&regionLock);
 }
     
 bool DynamicTexture::findRegion(int sizeX,int sizeY,Region &region)
@@ -290,10 +285,12 @@ bool DynamicTexture::findRegion(int sizeX,int sizeY,Region &region)
     // First thing we need to do is clear any outstanding regions
     // Don't sit on the lock, as the main thread uses it
     std::vector<Region> toClear;
-    pthread_mutex_lock(&regionLock);
-    toClear = releasedRegions;
-    releasedRegions.clear();
-    pthread_mutex_unlock(&regionLock);
+    {
+        std::lock_guard<std::mutex> guardLock(regionLock);
+        toClear = releasedRegions;
+        releasedRegions.clear();
+    }
+
     for (unsigned int ii=0;ii<toClear.size();ii++)
         setRegion(toClear[ii], false);
     
@@ -331,9 +328,8 @@ bool DynamicTexture::findRegion(int sizeX,int sizeY,Region &region)
     
 void DynamicTexture::addRegionToClear(const Region &region)
 {
-    pthread_mutex_lock(&regionLock);
+    std::lock_guard<std::mutex> guardLock(regionLock);
     releasedRegions.push_back(region);
-    pthread_mutex_unlock(&regionLock);
 }
 
 bool DynamicTexture::empty()

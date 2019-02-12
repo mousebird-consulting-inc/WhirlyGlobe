@@ -38,36 +38,34 @@ WhirlyKitGLSetupInfo::WhirlyKitGLSetupInfo()
 
 OpenGLMemManager::OpenGLMemManager()
 {
-    pthread_mutex_init(&idLock,NULL);
 }
     
 OpenGLMemManager::~OpenGLMemManager()
 {
-    pthread_mutex_destroy(&idLock);
 }
     
 GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
 {
-    pthread_mutex_lock(&idLock);
-    
-    if (buffIDs.empty())
-    {
-        GLuint newAlloc[WhirlyKitOpenGLMemCacheAllocUnit];
-        glGenBuffers(WhirlyKitOpenGLMemCacheAllocUnit, newAlloc);
-        for (unsigned int ii=0;ii<WhirlyKitOpenGLMemCacheAllocUnit;ii++)
-        {
-            buffIDs.insert(newAlloc[ii]);
-    }
-    }
-    
     GLuint which = 0;
-    if (!buffIDs.empty())
     {
-        std::set<GLuint>::iterator it = buffIDs.begin();
-        which = *it;
-        buffIDs.erase(it);
+        std::lock_guard<std::mutex> guardLock(idLock);
+        if (buffIDs.empty())
+        {
+            GLuint newAlloc[WhirlyKitOpenGLMemCacheAllocUnit];
+            glGenBuffers(WhirlyKitOpenGLMemCacheAllocUnit, newAlloc);
+            for (unsigned int ii=0;ii<WhirlyKitOpenGLMemCacheAllocUnit;ii++)
+            {
+                buffIDs.insert(newAlloc[ii]);
+        }
+        }
+        
+        if (!buffIDs.empty())
+        {
+            std::set<GLuint>::iterator it = buffIDs.begin();
+            which = *it;
+            buffIDs.erase(it);
+        }
     }
-    pthread_mutex_unlock(&idLock);
 
     if (size != 0)
     {
@@ -88,19 +86,19 @@ static const bool ReuseBuffers = true;
 void OpenGLMemManager::removeBufferID(GLuint bufID)
 {
     bool doClear = false;
-    
-    pthread_mutex_lock(&idLock);
 
-    // Clear out the data to save memory
-    glBindBuffer(GL_ARRAY_BUFFER, bufID);
-    glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    buffIDs.insert(bufID);
-    
-    if (!ReuseBuffers || buffIDs.size() > WhirlyKitOpenGLMemCacheMax)
-        doClear = true;
+    {
+        std::lock_guard<std::mutex> guardLock(idLock);
 
-    pthread_mutex_unlock(&idLock);
+        // Clear out the data to save memory
+        glBindBuffer(GL_ARRAY_BUFFER, bufID);
+        glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        buffIDs.insert(bufID);
+        
+        if (!ReuseBuffers || buffIDs.size() > WhirlyKitOpenGLMemCacheMax)
+            doClear = true;
+    }
     
     if (doClear)
         clearBufferIDs();
@@ -109,8 +107,8 @@ void OpenGLMemManager::removeBufferID(GLuint bufID)
 // Clear out any and all buffer IDs that we may have sitting around
 void OpenGLMemManager::clearBufferIDs()
 {
-    pthread_mutex_lock(&idLock);
-    
+    std::lock_guard<std::mutex> guardLock(idLock);
+
     std::vector<GLuint> toRemove;
     toRemove.reserve(buffIDs.size());
     for (std::set<GLuint>::iterator it = buffIDs.begin();
@@ -119,14 +117,12 @@ void OpenGLMemManager::clearBufferIDs()
     if (!toRemove.empty())
         glDeleteBuffers((GLsizei)toRemove.size(), &toRemove[0]);
     buffIDs.clear();
-    
-    pthread_mutex_unlock(&idLock);
 }
 
 GLuint OpenGLMemManager::getTexID()
 {
-    pthread_mutex_lock(&idLock);
-    
+    std::lock_guard<std::mutex> guardLock(idLock);
+
     if (texIDs.empty())
     {
         GLuint newAlloc[WhirlyKitOpenGLMemCacheAllocUnit];
@@ -142,7 +138,6 @@ GLuint OpenGLMemManager::getTexID()
         which = *it;
         texIDs.erase(it);
     }
-    pthread_mutex_unlock(&idLock);
     
     return which;
 }
@@ -151,19 +146,19 @@ void OpenGLMemManager::removeTexID(GLuint texID)
 {
     bool doClear = false;
     
-    pthread_mutex_lock(&idLock);
 
     // Clear out the texture data first
     glBindTexture(GL_TEXTURE_2D, texID);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
-    texIDs.insert(texID);
-    
-    if (!ReuseBuffers || texIDs.size() > WhirlyKitOpenGLMemCacheMax)
-        doClear = true;
+    {
+        std::lock_guard<std::mutex> guardLock(idLock);
+        texIDs.insert(texID);
+        
+        if (!ReuseBuffers || texIDs.size() > WhirlyKitOpenGLMemCacheMax)
+            doClear = true;
+    }
 
-    pthread_mutex_unlock(&idLock);
-    
     if (doClear)
         clearTextureIDs();
 }
@@ -171,8 +166,8 @@ void OpenGLMemManager::removeTexID(GLuint texID)
 // Clear out any and all texture IDs that we have sitting around
 void OpenGLMemManager::clearTextureIDs()
 {
-    pthread_mutex_lock(&idLock);
-    
+    std::lock_guard<std::mutex> guardLock(idLock);
+
     std::vector<GLuint> toRemove;
     toRemove.reserve(texIDs.size());
     for (std::set<GLuint>::iterator it = texIDs.begin();
@@ -181,8 +176,6 @@ void OpenGLMemManager::clearTextureIDs()
     if (!toRemove.empty())
         glDeleteTextures((GLsizei)toRemove.size(), &toRemove[0]);
     texIDs.clear();
-    
-    pthread_mutex_unlock(&idLock);    
 }
 
 void OpenGLMemManager::dumpStats()
@@ -191,16 +184,6 @@ void OpenGLMemManager::dumpStats()
     wkLogLevel(Verbose,"MemCache: %ld textures",(long int)texIDs.size());
 }
 		
-void OpenGLMemManager::lock()
-{
-    pthread_mutex_lock(&idLock);
-}
-
-void OpenGLMemManager::unlock()
-{
-    pthread_mutex_unlock(&idLock);
-}
-
 ChangeRequest::~ChangeRequest()
 {
 }

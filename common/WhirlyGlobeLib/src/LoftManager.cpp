@@ -367,12 +367,9 @@ protected:
     
 LoftManager::LoftManager()
 {
-    pthread_mutex_init(&loftLock, NULL);
 }
 LoftManager::~LoftManager()
 {
-    pthread_mutex_destroy(&loftLock);
-    
     for (LoftedPolySceneRepSet::iterator it = loftReps.begin();
          it != loftReps.end(); ++it)
         delete *it;
@@ -518,11 +515,10 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Lof
     
     addGeometryToBuilder(sceneRep, polyInfo, shapeMbr, center, centerValid, geoCenter, *shapes, triMesh, outlines, changes);
     
-    pthread_mutex_lock(&loftLock);
-
-    loftReps.insert(sceneRep);
-    
-    pthread_mutex_unlock(&loftLock);
+    {
+        std::lock_guard<std::mutex> guardLock(loftLock);
+        loftReps.insert(sceneRep);
+    }
     
     return loftID;
 }
@@ -530,8 +526,8 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Lof
 /// Enable/disable lofted polys
 void LoftManager::enableLoftedPolys(const SimpleIDSet &polyIDs,bool enable,ChangeSet &changes)
 {
-    pthread_mutex_lock(&loftLock);
-    
+    std::lock_guard<std::mutex> guardLock(loftLock);
+
     for (SimpleIDSet::iterator idIt = polyIDs.begin(); idIt != polyIDs.end(); ++idIt)
     {
         LoftedPolySceneRep dummyRep(*idIt);
@@ -544,15 +540,13 @@ void LoftManager::enableLoftedPolys(const SimpleIDSet &polyIDs,bool enable,Chang
                 changes.push_back(new OnOffChangeRequest(*dIt,enable));
         }
     }
-
-    pthread_mutex_unlock(&loftLock);
 }
 
 /// Remove lofted polygons
 void LoftManager::removeLoftedPolys(const SimpleIDSet &polyIDs,ChangeSet &changes)
 {
-    pthread_mutex_lock(&loftLock);
-    
+    std::lock_guard<std::mutex> guardLock(loftLock);
+
     for (SimpleIDSet::iterator idIt = polyIDs.begin(); idIt != polyIDs.end(); ++idIt)
     {
         LoftedPolySceneRep dummyRep(*idIt);
@@ -581,8 +575,6 @@ void LoftManager::removeLoftedPolys(const SimpleIDSet &polyIDs,ChangeSet &change
             delete sceneRep;
         }
     }
-    
-    pthread_mutex_unlock(&loftLock);
 }
     
 }

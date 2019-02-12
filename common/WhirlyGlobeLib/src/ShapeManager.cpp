@@ -611,7 +611,6 @@ void Rectangle::makeGeometryWithBuilder(ShapeDrawableBuilder *regBuilder,ShapeDr
 
 ShapeManager::ShapeManager()
 {
-    pthread_mutex_init(&shapeLock, NULL);
 }
 
 ShapeManager::~ShapeManager()
@@ -620,8 +619,6 @@ ShapeManager::~ShapeManager()
         delete *it;
 
     shapeReps.clear();
-
-    pthread_mutex_destroy(&shapeLock);
 }
     
 void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw> &rawGeom)
@@ -714,9 +711,10 @@ SimpleIdentity ShapeManager::addShapes(std::vector<Shape*> shapes, const ShapeIn
     drawBuildTri.getChanges(changes, sceneRep->drawIDs);
 
     SimpleIdentity shapeID = sceneRep->getId();
-    pthread_mutex_lock(&shapeLock);
-    shapeReps.insert(sceneRep);
-    pthread_mutex_unlock(&shapeLock);
+    {
+        std::lock_guard<std::mutex> guardLock(shapeLock);
+        shapeReps.insert(sceneRep);
+    }
 
     return shapeID;
 }
@@ -725,7 +723,7 @@ void ShapeManager::enableShapes(SimpleIDSet &shapeIDs,bool enable,ChangeSet &cha
 {
     SelectionManager *selectManager = (SelectionManager *)getScene()->getManager(kWKSelectionManager);
 
-    pthread_mutex_lock(&shapeLock);
+    std::lock_guard<std::mutex> guardLock(shapeLock);
 
     for (auto shapeID : shapeIDs) {
         ShapeSceneRep dummyRep(shapeID);
@@ -735,8 +733,6 @@ void ShapeManager::enableShapes(SimpleIDSet &shapeIDs,bool enable,ChangeSet &cha
             shapeRep->enableContents(selectManager, enable, changes);
         }
     }
-
-    pthread_mutex_unlock(&shapeLock);
 }
 
 /// Remove a group of shapes named by the given ID
@@ -744,7 +740,7 @@ void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes)
 {
     SelectionManager *selectManager = (SelectionManager *)getScene()->getManager(kWKSelectionManager);
 
-    pthread_mutex_lock(&shapeLock);
+    std::lock_guard<std::mutex> guardLock(shapeLock);
 
     TimeInterval curTime = TimeGetCurrent();
     for (auto shapeID : shapeIDs) {
@@ -764,8 +760,6 @@ void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes)
 			delete shapeRep;
         }
     }
-
-    pthread_mutex_unlock(&shapeLock);
 }
 
 }

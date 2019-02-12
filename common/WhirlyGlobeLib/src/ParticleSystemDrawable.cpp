@@ -36,8 +36,6 @@ ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name,
                                                int numTotalPoints,int batchSize,bool useRectangles,bool useInstancing)
     : Drawable(name), enable(true), numTotalPoints(numTotalPoints), batchSize(batchSize), vertexSize(0), calculateProgramId(0), renderProgramId(0), drawPriority(0), pointBuffer(0), rectBuffer(0), requestZBuffer(false), writeZBuffer(false), minVis(0.0), maxVis(10000.0), useRectangles(useRectangles), useInstancing(useInstancing), baseTime(0.0), startb(0), endb(0), chunksDirty(true), usingContinuousRender(true), renderTargetID(EmptyIdentity), lastUpdateTime(0.0), activeVaryBuffer(0)
 {
-    pthread_mutex_init(&batchLock, NULL);
-    
     for (auto attr : inVertAttrs)
     {
         vertexSize += attr.size();
@@ -48,7 +46,6 @@ ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name,
     
 ParticleSystemDrawable::~ParticleSystemDrawable()
 {
-    pthread_mutex_destroy(&batchLock);
 }
     
 bool ParticleSystemDrawable::isOn(RendererFrameInfo *frameInfo) const
@@ -226,34 +223,36 @@ void ParticleSystemDrawable::addAttributeData(WhirlyKitGLSetupInfo *setupInfo,co
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
     
-    pthread_mutex_lock(&batchLock);
-    batches[batch.batchID] = batch;
-    batches[batch.batchID].active = true;
-    chunksDirty = true;
-    pthread_mutex_unlock(&batchLock);
+    {
+        std::lock_guard<std::mutex> guardLock(batchLock);
+        batches[batch.batchID] = batch;
+        batches[batch.batchID].active = true;
+        chunksDirty = true;
+    }
 }
     
 void ParticleSystemDrawable::updateBatches(TimeInterval now)
 {
-    pthread_mutex_lock(&batchLock);
-    // Check the batches to see if any have gone off
-    for (int bi=startb;bi<endb;)
     {
-        Batch &batch = batches[bi % batches.size()];
-        if (batch.active)
+        std::lock_guard<std::mutex> guardLock(batchLock);
+        // Check the batches to see if any have gone off
+        for (int bi=startb;bi<endb;)
         {
-            if (batch.startTime + lifetime < now)
+            Batch &batch = batches[bi % batches.size()];
+            if (batch.active)
             {
-                batch.active = false;
-                chunksDirty = true;
-                startb++;
-            }
-        } else
-            break;
-        
-        bi++;
+                if (batch.startTime + lifetime < now)
+                {
+                    batch.active = false;
+                    chunksDirty = true;
+                    startb++;
+                }
+            } else
+                break;
+            
+            bi++;
+        }
     }
-    pthread_mutex_unlock(&batchLock);
     
     updateChunks();
 }
@@ -263,8 +262,8 @@ void ParticleSystemDrawable::updateChunks()
     if (!chunksDirty)
         return;
     
-    pthread_mutex_lock(&batchLock);
-    
+    std::lock_guard<std::mutex> guardLock(batchLock);
+
     chunksDirty = false;
     chunks.clear();
     if (startb != endb)
@@ -291,22 +290,19 @@ void ParticleSystemDrawable::updateChunks()
             start = end;
         } while (start < batches.size());
     }
-    
-    pthread_mutex_unlock(&batchLock);
 }
     
 bool ParticleSystemDrawable::findEmptyBatch(Batch &retBatch)
 {
     bool ret = false;
     
-    pthread_mutex_lock(&batchLock);
+    std::lock_guard<std::mutex> guardLock(batchLock);
     if (!batches[endb % batches.size()].active)
     {
         ret = true;
         retBatch = batches[endb % batches.size()];
         endb++;
     }
-    pthread_mutex_unlock(&batchLock);
     
     return ret;
 }

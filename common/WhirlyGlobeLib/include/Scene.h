@@ -331,7 +331,7 @@ public:
     /// Don't be calling this
     void setDisplayAdapter(CoordSystemDisplayAdapter *newCoordAdapter);
     
-    pthread_mutex_t coordAdapterLock;
+    std::mutex coordAdapterLock;
     /// The coordinate system display adapter converts from the local space
     ///  to display coordinates.
     WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
@@ -356,15 +356,15 @@ public:
     TextureRefSet textures;
     
     /// Mutex for accessing textures
-    pthread_mutex_t textureLock;
+    std::mutex textureLock;
     
-    pthread_mutex_t changeRequestLock;
+    std::mutex changeRequestLock;
     /// We keep a list of change requests to execute
     /// This can be accessed in multiple threads, so we lock it
     ChangeSet changeRequests;
     SortedChangeSet timedChangeRequests;
     
-    pthread_mutex_t subTexLock;
+    std::mutex subTexLock;
     typedef std::set<SubTexture> SubTextureSet;
     /// Mappings from images to parts of texture atlases
     SubTextureSet subTextureMap;
@@ -373,7 +373,7 @@ public:
     OpenGLMemManager memManager;
     
     /// Lock for accessing managers
-    pthread_mutex_t managerLock;
+    std::mutex managerLock;
     
     /// Managers for various functionality
     std::map<std::string,SceneManager *> managers;
@@ -385,7 +385,7 @@ public:
     void setFontTextureManager(FontTextureManagerRef newManager);
         
     /// Lock for accessing programs
-    pthread_mutex_t programLock;
+    std::mutex programLock;
     
     /// Search for a shader program by ID (our ID, not OpenGL's)
     OpenGLES2Program *getProgram(SimpleIdentity programId);

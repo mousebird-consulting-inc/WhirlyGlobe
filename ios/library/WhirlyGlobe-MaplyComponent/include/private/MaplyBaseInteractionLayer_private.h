@@ -33,7 +33,7 @@
     WhirlyKit::View *visualView;
     WhirlyKit::WhirlyKitGLSetupInfo glSetupInfo;
 
-    pthread_mutex_t selectLock;
+    std::mutex selectLock;
     // Use to map IDs in the selection layer to objects the user passed in
     SelectObjectSet selectObjectSet;
 
@@ -46,7 +46,7 @@
     // Pointer to the layerThreads we're using in the base view controller
     NSArray *layerThreads;
     
-    pthread_mutex_t imageLock;
+    std::mutex imageLock;
     // Used to track textures
     MaplyImageTextureList imageTextures;
 
@@ -59,7 +59,7 @@
     /// Active shaders
     NSMutableArray *shaders;
         
-    pthread_mutex_t tempContextLock;
+    std::mutex tempContextLock;
     // We keep a set of temporary OpenGL ES contexts around for threads that don't have them
     std::set<EAGLContext *> tempContexts;
     

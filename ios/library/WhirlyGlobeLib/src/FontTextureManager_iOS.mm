@@ -191,7 +191,7 @@ NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph,FontManager_iOS *fm,Po
 WhirlyKit::DrawableString *FontTextureManager_iOS::addString(NSAttributedString *str,ChangeSet &changes)
 {
     // We could make this more granular
-    pthread_mutex_lock(&lock);
+    std::lock_guard<std::mutex> guardLock(lock);
     
     if (!texAtlas)
     {
@@ -328,9 +328,7 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(NSAttributedString 
     // We need to track the glyphs we're using
     if (drawStringRep != NULL)
         drawStringReps.insert(drawStringRep);
-    
-    pthread_mutex_unlock(&lock);
-    
+        
     return drawString;
 }
 

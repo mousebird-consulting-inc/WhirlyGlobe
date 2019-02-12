@@ -112,7 +112,7 @@ protected:
     // Use to track where sub textures are
     bool *layoutGrid;
     
-    pthread_mutex_t regionLock;
+    std::mutex regionLock;
     /// These regions have been released by the renderer
     std::vector<Region> releasedRegions;
     

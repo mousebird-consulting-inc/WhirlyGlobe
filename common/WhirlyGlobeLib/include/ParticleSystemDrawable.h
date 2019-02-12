@@ -192,7 +192,7 @@ protected:
     void drawUnbindAttrs(OpenGLES2Program *prog);
     
     // Chunks we use for rendering
-    pthread_mutex_t batchLock;
+    std::mutex batchLock;
     int startb,endb;
     std::vector<Batch> batches;
     bool chunksDirty;

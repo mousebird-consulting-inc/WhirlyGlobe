@@ -158,7 +158,7 @@ public:
     virtual void setScene(Scene *inScene);
     
 protected:
-    pthread_mutex_t markerLock;
+    std::mutex markerLock;
     /// Resources associated with given markers
     MarkerSceneRepSet markerReps;
 };

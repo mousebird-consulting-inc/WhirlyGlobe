@@ -93,7 +93,7 @@ public:
 protected:
     void addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const LoftedPolyInfo &polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ShapeSet &shapes, VectorTrianglesRef triMesh,std::vector<WhirlyKit::VectorRing> &outlines,ChangeSet &changes);
     
-    pthread_mutex_t loftLock;
+    std::mutex loftLock;
     LoftedPolySceneRepSet loftReps;
 };
 

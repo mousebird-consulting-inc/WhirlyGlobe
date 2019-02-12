@@ -207,10 +207,10 @@ public:
 
 @implementation MaplyBaseInteractionLayer
 {
-    pthread_mutex_t changeLock;
+    std::mutex changeLock;
     ThreadChangeSet perThreadChanges;
-    pthread_mutex_t workLock;
-    pthread_cond_t workWait;
+    std::mutex workLock;
+    std::condition_variable workWait;
     int numActiveWorkers;
     ClusterGenMap clusterGens;
     OurClusterGenerator ourClusterGen;
@@ -231,20 +231,14 @@ public:
 //    NSLog(@"Creating interactLayer %lx",(long)self);
     
     visualView = inVisualView;
-    pthread_mutex_init(&selectLock, NULL);
-    pthread_mutex_init(&imageLock, NULL);
-    pthread_mutex_init(&changeLock,NULL);
-    pthread_mutex_init(&tempContextLock,NULL);
-    pthread_mutex_init(&workLock,NULL);
     numActiveWorkers = 0;
-    pthread_cond_init(&workWait, NULL);
     
     // Grab everything to force people to wait, hopefully
-    pthread_mutex_lock(&selectLock);
-    pthread_mutex_lock(&imageLock);
-    pthread_mutex_lock(&changeLock);
-    pthread_mutex_lock(&tempContextLock);
-    pthread_mutex_lock(&workLock);
+    selectLock.lock();
+    imageLock.lock();
+    changeLock.lock();
+    tempContextLock.lock();
+    workLock.lock();
     
     shaders = [NSMutableArray array];
     
@@ -254,13 +248,6 @@ public:
 - (void)dealloc
 {
 //    NSLog(@"Deallocing interactLayer %lx",(long)self);
-
-    pthread_mutex_destroy(&selectLock);
-    pthread_mutex_destroy(&imageLock);
-    pthread_mutex_destroy(&changeLock);
-    pthread_mutex_destroy(&tempContextLock);
-    pthread_mutex_destroy(&workLock);
-    pthread_cond_destroy(&workWait);
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 }
@@ -288,11 +275,11 @@ public:
     }
     
     // We locked these in hopes of slowing down anyone trying to race us.  Unlock 'em.
-    pthread_mutex_unlock(&selectLock);
-    pthread_mutex_unlock(&imageLock);
-    pthread_mutex_unlock(&changeLock);
-    pthread_mutex_unlock(&tempContextLock);
-    pthread_mutex_unlock(&workLock);
+    selectLock.unlock();
+    imageLock.unlock();
+    changeLock.unlock();
+    tempContextLock.unlock();
+    workLock.unlock();
 }
 
 - (void)teardown
@@ -337,14 +324,14 @@ public:
 
 //    NSLog(@"Shutting down interactLayer %lx",(long)self);
 
-    pthread_mutex_lock(&workLock);
+    std::unique_lock<std::mutex> lk(workLock);
     isShuttingDown = true;
-    while (numActiveWorkers > 0)
-        pthread_cond_wait(&workWait, &workLock);
+    while (numActiveWorkers > 0) {
+        workWait.wait(lk);
+    }
+    lk.unlock();
 
     [self teardown];
-    
-    pthread_mutex_unlock(&workLock);
 }
 
 - (bool)startOfWork
@@ -354,21 +341,19 @@ public:
     
     bool ret = true;
     
-    pthread_mutex_lock(&workLock);
+    std::lock_guard<std::mutex> guardLock(workLock);
     ret = !isShuttingDown;
     if (ret)
         numActiveWorkers++;
-    pthread_mutex_unlock(&workLock);
     
     return ret;
 }
 
 - (void)endOfWork
 {
-    pthread_mutex_lock(&workLock);
+    std::lock_guard<std::mutex> guardLock(workLock);
     numActiveWorkers--;
-    pthread_cond_signal(&workWait);
-    pthread_mutex_unlock(&workLock);
+    workWait.notify_one();
 }
 
 // If we're not running in our own thread, we're part of an offline render.
@@ -461,56 +446,55 @@ public:
 - (MaplyTexture *)addTexture:(UIImage *)image desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     threadMode = [self resolveThreadMode:threadMode];
-
-    pthread_mutex_lock(&imageLock);
-    
-    // Look for an image texture that's already representing our UIImage
-    MaplyTexture *maplyTex = nil;
-    if (image != nil)
-    {
-        std::vector<MaplyImageTextureList::iterator> toRemove;
-        for (MaplyImageTextureList::iterator theImageTex = imageTextures.begin();
-             theImageTex != imageTextures.end(); ++theImageTex)
-        {
-            if (*theImageTex)
-            {
-                if ((*theImageTex).image == image && !(*theImageTex).isBeingRemoved)
-                {
-                    maplyTex = *theImageTex;
-                    break;
-                }
-            } else
-                toRemove.push_back(theImageTex);
-        }
-        for (auto rem : toRemove)
-            imageTextures.erase(rem);
-    }
-
-    // Takes the altas path instead
-    if (!maplyTex && image && [desc boolForKey:kMaplyTexAtlas default:false])
-    {
-        pthread_mutex_unlock(&imageLock);
-        return [self addTextureToAtlas:image desc:desc mode:threadMode];
-    }
-    
     ChangeSet changes;
-    if (!maplyTex)
+    MaplyTexture *maplyTex = nil;
+
     {
-        maplyTex = [[MaplyTexture alloc] init];
+        std::lock_guard<std::mutex> guardLock(imageLock);
         
-        Texture *tex = [self createTexture:image desc:desc mode:threadMode];
-        maplyTex.texID = tex->getId();
-        maplyTex.interactLayer = self;
-        maplyTex.image = image;
-        maplyTex.width = tex->getWidth();
-        maplyTex.height = tex->getHeight();
+        // Look for an image texture that's already representing our UIImage
+        if (image != nil)
+        {
+            std::vector<MaplyImageTextureList::iterator> toRemove;
+            for (MaplyImageTextureList::iterator theImageTex = imageTextures.begin();
+                 theImageTex != imageTextures.end(); ++theImageTex)
+            {
+                if (*theImageTex)
+                {
+                    if ((*theImageTex).image == image && !(*theImageTex).isBeingRemoved)
+                    {
+                        maplyTex = *theImageTex;
+                        break;
+                    }
+                } else
+                    toRemove.push_back(theImageTex);
+            }
+            for (auto rem : toRemove)
+                imageTextures.erase(rem);
+        }
+
+        // Takes the altas path instead
+        if (!maplyTex && image && [desc boolForKey:kMaplyTexAtlas default:false])
+        {
+            return [self addTextureToAtlas:image desc:desc mode:threadMode];
+        }
         
-        changes.push_back(new AddTextureReq(tex));
-        imageTextures.push_back(maplyTex);
+        if (!maplyTex)
+        {
+            maplyTex = [[MaplyTexture alloc] init];
+            
+            Texture *tex = [self createTexture:image desc:desc mode:threadMode];
+            maplyTex.texID = tex->getId();
+            maplyTex.interactLayer = self;
+            maplyTex.image = image;
+            maplyTex.width = tex->getWidth();
+            maplyTex.height = tex->getHeight();
+            
+            changes.push_back(new AddTextureReq(tex));
+            imageTextures.push_back(maplyTex);
+        }
     }
     
-    pthread_mutex_unlock(&imageLock);
-
     if (!changes.empty())
         [self flushChanges:changes mode:threadMode];
 
@@ -541,9 +525,10 @@ public:
         maplyTex.texID = subTex.getId();
         maplyTex.isSubTex = true;
         maplyTex.interactLayer = self;
-        pthread_mutex_lock(&imageLock);
-        imageTextures.push_back(maplyTex);
-        pthread_mutex_unlock(&imageLock);
+        {
+            std::lock_guard<std::mutex> guardLock(imageLock);
+            imageTextures.push_back(maplyTex);
+        }
     }
     delete tex;
 
@@ -644,8 +629,8 @@ public:
 // Remove an image for the cache, or just decrement its reference count
 - (void)removeImageTexture:(MaplyTexture *)tex changes:(ChangeSet &)changes
 {
-    pthread_mutex_lock(&imageLock);
-    
+    std::lock_guard<std::mutex> guardLock(imageLock);
+
     // Clear up any textures that may have vanished
     std::vector<MaplyImageTextureList::iterator> toRemove;
     for (MaplyImageTextureList::iterator it = imageTextures.begin();
@@ -671,8 +656,6 @@ public:
             tex.texID = EmptyIdentity;
         }
     }
-    
-    pthread_mutex_unlock(&imageLock);
 }
 
 // Remove the given Texture ID after a delay
@@ -702,7 +685,7 @@ public:
     {
         case MaplyThreadCurrent:
         {
-            pthread_mutex_lock(&changeLock);
+            std::lock_guard<std::mutex> guardLock(changeLock);
 
             // We might be journaling changes, so let's check
             NSThread *currentThread = [NSThread currentThread];
@@ -734,8 +717,6 @@ public:
                 if (flushHere)
                     scene->addChangeRequests(changes);
             }
-
-            pthread_mutex_unlock(&changeLock);
         }
             break;
         case MaplyThreadAny:
@@ -746,7 +727,7 @@ public:
 
 - (void)startChanges
 {
-    pthread_mutex_lock(&changeLock);
+    std::lock_guard<std::mutex> guardLock(changeLock);
 
     // Look for changes in the current thread
     NSThread *currentThread = [NSThread currentThread];
@@ -755,13 +736,11 @@ public:
     // If there isn't one, we add it.  That's how we know we're doing this.
     if (it == perThreadChanges.end())
         perThreadChanges.insert(changes);
-
-    pthread_mutex_unlock(&changeLock);
 }
 
 - (void)endChanges
 {
-    pthread_mutex_lock(&changeLock);
+    std::lock_guard<std::mutex> guardLock(changeLock);
 
     // Look for outstanding changes
     NSThread *currentThread = [NSThread currentThread];
@@ -783,8 +762,6 @@ public:
         
         [self clearTempContext:tmpContext];
     }
-
-    pthread_mutex_unlock(&changeLock);
 }
 
 // Solved render target and shader names
@@ -948,9 +925,10 @@ public:
         
         if (marker.selectable)
         {
-            pthread_mutex_lock(&selectLock);
-            selectObjectSet.insert(SelectObject(wgMarker->selectID,marker));
-            pthread_mutex_unlock(&selectLock);
+            {
+                std::lock_guard<std::mutex> guardLock(selectLock);
+                selectObjectSet.insert(SelectObject(wgMarker->selectID,marker));
+            }
             compObj.selectIDs.insert(wgMarker->selectID);
         }
     }
@@ -1262,9 +1240,10 @@ public:
         
         if (marker.selectable)
         {
-            pthread_mutex_lock(&selectLock);
-            selectObjectSet.insert(SelectObject(wgMarker->selectID,marker));
-            pthread_mutex_unlock(&selectLock);
+            std::lock_guard<std::mutex> guardLock(selectLock);
+            {
+                selectObjectSet.insert(SelectObject(wgMarker->selectID,marker));
+            }
             compObj.selectIDs.insert(wgMarker->selectID);
         }
     }
@@ -1335,7 +1314,7 @@ public:
     
     if (threadMode == MaplyThreadCurrent && ![EAGLContext currentContext])
     {
-        pthread_mutex_lock(&tempContextLock);
+        std::lock_guard<std::mutex> guardLock(tempContextLock);
 
         // See if we need to create a new one
         if (tempContexts.empty())
@@ -1348,8 +1327,6 @@ public:
             tempContexts.erase(it);
         }
         [EAGLContext setCurrentContext:tmpContext];
-        
-        pthread_mutex_unlock(&tempContextLock);
     }
     
     return tmpContext;
@@ -1370,9 +1347,10 @@ public:
         [EAGLContext setCurrentContext:nil];
 
         // Put this one back for use by another thread
-        pthread_mutex_lock(&tempContextLock);
-        tempContexts.insert(context);
-        pthread_mutex_unlock(&tempContextLock);
+        {
+            std::lock_guard<std::mutex> guardLock(tempContextLock);
+            tempContexts.insert(context);
+        }
     }
 }
 
@@ -1464,9 +1442,8 @@ public:
         
         if (label.selectable)
         {
-            pthread_mutex_lock(&selectLock);
+            std::lock_guard<std::mutex> guardLock(selectLock);
             selectObjectSet.insert(SelectObject(wgLabel->selectID,label));
-            pthread_mutex_unlock(&selectLock);
             compObj.selectIDs.insert(wgLabel->selectID);
         }
     }
@@ -1586,9 +1563,8 @@ public:
         
         if (label.selectable)
         {
-            pthread_mutex_lock(&selectLock);
+            std::lock_guard<std::mutex> guardLock(selectLock);
             selectObjectSet.insert(SelectObject(wgLabel->selectID,label));
-            pthread_mutex_unlock(&selectLock);
             compObj.selectIDs.insert(wgLabel->selectID);
         }
     }
@@ -2182,9 +2158,8 @@ public:
             {
                 baseShape->isSelectable = true;
                 baseShape->selectID = Identifiable::genId();
-                pthread_mutex_lock(&selectLock);
+                std::lock_guard<std::mutex> guardLock(selectLock);
                 selectObjectSet.insert(SelectObject(baseShape->selectID,shape));
-                pthread_mutex_unlock(&selectLock);
                 compObj.selectIDs.insert(baseShape->selectID);
             }
         }
@@ -2401,9 +2376,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     if (thisInst.selectable)
                     {
                         compObj.selectIDs.insert(thisInst.getId());
-                        pthread_mutex_lock(&selectLock);
+                        std::lock_guard<std::mutex> guardLock(selectLock);
                         selectObjectSet.insert(SelectObject(thisInst.getId(),modelInst));
-                        pthread_mutex_unlock(&selectLock);
                     }
                     
                     // Motion related fields
@@ -2884,9 +2858,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             
             if (bill.selectable)
             {
-                pthread_mutex_lock(&selectLock);
+                std::lock_guard<std::mutex> guardLock(selectLock);
                 selectObjectSet.insert(SelectObject(wkBill->selectID,bill));
-                pthread_mutex_unlock(&selectLock);
                 compObj.selectIDs.insert(wkBill->selectID);
             }
 
@@ -3446,7 +3419,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 // And any references to selection objects
                 if (!userObj.selectIDs.empty())
                 {
-                    pthread_mutex_lock(&selectLock);
+                    std::lock_guard<std::mutex> guardLock(selectLock);
                     for (SimpleIDSet::iterator it = userObj.selectIDs.begin();
                          it != userObj.selectIDs.end(); ++it)
                     {
@@ -3456,7 +3429,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                         else
                             NSLog(@"Tried to delete non-existent selection ID");
                     }
-                    pthread_mutex_unlock(&selectLock);
                 }
                 
             }
@@ -3717,12 +3689,10 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 {
     NSObject *ret = nil;
     
-    pthread_mutex_lock(&selectLock);
+    std::lock_guard<std::mutex> guardLock(selectLock);
     SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(objId));
     if (sit != selectObjectSet.end())
         ret = sit->obj;
-
-    pthread_mutex_unlock(&selectLock);
     
     return ret;
 }

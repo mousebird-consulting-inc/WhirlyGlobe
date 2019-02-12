@@ -74,7 +74,6 @@ LayoutObjectEntry::LayoutObjectEntry(SimpleIdentity theId)
 LayoutManager::LayoutManager()
     : maxDisplayObjects(0), hasUpdates(false), clusterGen(NULL)
 {
-    pthread_mutex_init(&layoutLock, NULL);
 }
     
 LayoutManager::~LayoutManager()
@@ -83,22 +82,18 @@ LayoutManager::~LayoutManager()
          it != layoutObjects.end(); ++it)
         delete *it;
     layoutObjects.clear();
-    
-    pthread_mutex_destroy(&layoutLock);
 }
     
 void LayoutManager::setMaxDisplayObjects(int numObjects)
 {
-    pthread_mutex_lock(&layoutLock);
+    std::lock_guard<std::mutex> guardLock(layoutLock);
 
     maxDisplayObjects = numObjects;
-
-    pthread_mutex_unlock(&layoutLock);
 }
     
 void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects)
 {
-    pthread_mutex_lock(&layoutLock);
+    std::lock_guard<std::mutex> guardLock(layoutLock);
 
     for (unsigned int ii=0;ii<newObjects.size();ii++)
     {
@@ -108,14 +103,12 @@ void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects
         layoutObjects.insert(entry);
     }
     hasUpdates = true;
-
-    pthread_mutex_unlock(&layoutLock);
 }
 
 void LayoutManager::addLayoutObjects(const std::vector<LayoutObject *> &newObjects)
 {
-    pthread_mutex_lock(&layoutLock);
-    
+    std::lock_guard<std::mutex> guardLock(layoutLock);
+
     for (unsigned int ii=0;ii<newObjects.size();ii++)
     {
         const LayoutObject *layoutObj = newObjects[ii];
@@ -124,14 +117,12 @@ void LayoutManager::addLayoutObjects(const std::vector<LayoutObject *> &newObjec
         layoutObjects.insert(entry);
     }
     hasUpdates = true;
-    
-    pthread_mutex_unlock(&layoutLock);
 }
 
 /// Enable/disable layout objects
 void LayoutManager::enableLayoutObjects(const SimpleIDSet &theObjects,bool enable)
 {
-    pthread_mutex_lock(&layoutLock);
+    std::lock_guard<std::mutex> guardLock(layoutLock);
 
     for (SimpleIDSet::const_iterator it = theObjects.begin();
          it != theObjects.end(); ++it)
@@ -150,13 +141,11 @@ void LayoutManager::enableLayoutObjects(const SimpleIDSet &theObjects,bool enabl
         }
     }
     hasUpdates = true;    
-
-    pthread_mutex_unlock(&layoutLock);
 }
     
 void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjects)
 {
-    pthread_mutex_lock(&layoutLock);
+    std::lock_guard<std::mutex> guardLock(layoutLock);
 
     for (SimpleIDSet::const_iterator it = oldObjects.begin();
          it != oldObjects.end(); ++it)
@@ -170,19 +159,15 @@ void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjects)
         }
     }
     hasUpdates = true;
-
-    pthread_mutex_unlock(&layoutLock);
 }
     
 bool LayoutManager::hasChanges()
 {
     bool ret = false;
     
-    pthread_mutex_lock(&layoutLock);
-    
+    std::lock_guard<std::mutex> guardLock(layoutLock);
+
     ret = hasUpdates;
-    
-    pthread_mutex_unlock(&layoutLock);
     
     return ret;
 }
@@ -190,8 +175,8 @@ bool LayoutManager::hasChanges()
 // Return the screen space objects in a form the selection manager can understand
 void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs)
 {
-    pthread_mutex_lock(&layoutLock);
-    
+    std::lock_guard<std::mutex> guardLock(layoutLock);
+
     // First the regular screen space objects
     for (LayoutEntrySet::iterator it = layoutObjects.begin();
          it != layoutObjects.end(); ++it)
@@ -225,17 +210,13 @@ void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo 
 
         screenSpaceObjs.push_back(ssObj);
     }
-    
-    pthread_mutex_unlock(&layoutLock);
 }
     
 void LayoutManager::addClusterGenerator(ClusterGenerator *inClusterGen)
 {
-    pthread_mutex_lock(&layoutLock);
+    std::lock_guard<std::mutex> guardLock(layoutLock);
 
     clusterGen = inClusterGen;
-    
-    pthread_mutex_unlock(&layoutLock);
 }
 
 // Collection of objects we'll cluster together
@@ -761,7 +742,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
-    pthread_mutex_lock(&layoutLock);
+    std::lock_guard<std::mutex> guardLock(layoutLock);
 
     TimeInterval curTime = TimeGetCurrent();
     
@@ -899,8 +880,6 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
     }
     
     hasUpdates = false;
-    
-    pthread_mutex_unlock(&layoutLock);
 }
     
 }

@@ -295,7 +295,7 @@ protected:
     // Internal object picking method
     void pickObjects(Point2f touchPt,float maxDist,ViewStateRef viewState,bool multi,std::vector<SelectedObject> &selObjs);
 
-    pthread_mutex_t mutex;
+    std::mutex mutex;
     Scene *scene;
     float scale;
     /// The selectable objects themselves

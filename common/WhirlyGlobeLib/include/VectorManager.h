@@ -109,7 +109,7 @@ public:
     void enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes);
     
 protected:
-    pthread_mutex_t vectorLock;
+    std::mutex vectorLock;
     VectorSceneRepSet vectorReps;
 };
 

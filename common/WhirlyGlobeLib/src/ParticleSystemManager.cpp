@@ -51,12 +51,10 @@ void ParticleSystemSceneRep::enableContents(bool enable,ChangeSet &changes)
     
 ParticleSystemManager::ParticleSystemManager()
 {
-    pthread_mutex_init(&partSysLock, NULL);
 }
     
 ParticleSystemManager::~ParticleSystemManager()
 {
-    pthread_mutex_destroy(&partSysLock);
     for (auto it : sceneReps)
         delete it;
     sceneReps.clear();
@@ -92,29 +90,28 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     changes.push_back(new AddDrawableReq(draw));
     sceneRep->draws.insert(draw);
     
-    pthread_mutex_lock(&partSysLock);
-    sceneReps.insert(sceneRep);
-    pthread_mutex_unlock(&partSysLock);
+    {
+        std::lock_guard<std::mutex> guardLock(partSysLock);
+        sceneReps.insert(sceneRep);
+    }
     
     return partSysID;
 }
     
 void ParticleSystemManager::enableParticleSystem(SimpleIdentity sysID,bool enable,ChangeSet &changes)
 {
-    pthread_mutex_lock(&partSysLock);
-    
+    std::lock_guard<std::mutex> guardLock(partSysLock);
+
     ParticleSystemSceneRep dummyRep(sysID);
     auto it = sceneReps.find(&dummyRep);
     if (it != sceneReps.end())
         (*it)->enableContents(enable, changes);
-    
-    pthread_mutex_unlock(&partSysLock);
 }
     
 void ParticleSystemManager::removeParticleSystem(SimpleIdentity sysID,ChangeSet &changes)
 {
-    pthread_mutex_lock(&partSysLock);
-    
+    std::lock_guard<std::mutex> guardLock(partSysLock);
+
     ParticleSystemSceneRep dummyRep(sysID);
     auto it = sceneReps.find(&dummyRep);
     if (it != sceneReps.end())
@@ -122,14 +119,12 @@ void ParticleSystemManager::removeParticleSystem(SimpleIdentity sysID,ChangeSet 
         (*it)->clearContents(changes);
         sceneReps.erase(it);
     }
-    
-    pthread_mutex_unlock(&partSysLock);
 }
     
 void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const ParticleBatch &batch,ChangeSet &changes)
 {
-    pthread_mutex_lock(&partSysLock);
-    
+    std::lock_guard<std::mutex> guardLock(partSysLock);
+
 //    TimeInterval now = TimeGetCurrent();
     
     ParticleSystemSceneRep *sceneRep = NULL;
@@ -166,14 +161,12 @@ void ParticleSystemManager::addParticleBatch(SimpleIdentity sysID,const Particle
             }
         }
     }
-    
-    pthread_mutex_unlock(&partSysLock);
 }
     
 void ParticleSystemManager::changeRenderTarget(SimpleIdentity sysID,SimpleIdentity targetID,ChangeSet &changes)
 {
-    pthread_mutex_lock(&partSysLock);
-    
+    std::lock_guard<std::mutex> guardLock(partSysLock);
+
     ParticleSystemSceneRep *sceneRep = NULL;
     ParticleSystemSceneRep dummyRep(sysID);
     auto it = sceneReps.find(&dummyRep);
@@ -189,17 +182,13 @@ void ParticleSystemManager::changeRenderTarget(SimpleIdentity sysID,SimpleIdenti
             changes.push_back(new RenderTargetChangeRequest(draw->getId(),targetID));
         }
     }
-    
-    pthread_mutex_unlock(&partSysLock);
 }
     
 void ParticleSystemManager::housekeeping(TimeInterval now,ChangeSet &changes)
 {
-    pthread_mutex_lock(&partSysLock);
+    std::lock_guard<std::mutex> guardLock(partSysLock);
 
     // Note: Not clear if we need this anymore
-    
-    pthread_mutex_unlock(&partSysLock);
 }
     
 }

@@ -726,12 +726,10 @@ void WideVectorSceneRep::clearContents(ChangeSet &changes,TimeInterval when)
 
 WideVectorManager::WideVectorManager()
 {
-    pthread_mutex_init(&vecLock, NULL);
 }
 
 WideVectorManager::~WideVectorManager()
 {
-    pthread_mutex_destroy(&vecLock);
     for (WideVectorSceneRepSet::iterator it = sceneReps.begin();
          it != sceneReps.end(); ++it)
         delete *it;
@@ -794,9 +792,8 @@ SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,const WideVectorIn
     if (sceneRep)
     {
         vecID = sceneRep->getId();
-        pthread_mutex_lock(&vecLock);
+        std::lock_guard<std::mutex> guardLock(vecLock);
         sceneReps.insert(sceneRep);
-        pthread_mutex_unlock(&vecLock);
     }
     
     return vecID;
@@ -804,8 +801,8 @@ SimpleIdentity WideVectorManager::addVectors(ShapeSet *shapes,const WideVectorIn
 
 void WideVectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes)
 {
-    pthread_mutex_lock(&vecLock);
-    
+    std::lock_guard<std::mutex> guardLock(vecLock);
+
     for (SimpleIDSet::iterator vit = vecIDs.begin();vit != vecIDs.end();++vit)
     {
         WideVectorSceneRep dummyRep(*vit);
@@ -819,16 +816,14 @@ void WideVectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet 
                 changes.push_back(new OnOffChangeRequest(*idIt,enable));
         }
     }
-    
-    pthread_mutex_unlock(&vecLock);
 }
     
 SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const WideVectorInfo &vecInfo,ChangeSet &changes)
 {
     SimpleIdentity newId = EmptyIdentity;
     
-    pthread_mutex_lock(&vecLock);
-    
+    std::lock_guard<std::mutex> guardLock(vecLock);
+
     // Look for the representation
     WideVectorSceneRep dummyRep(vecID);
     WideVectorSceneRepSet::iterator it = sceneReps.find(&dummyRep);
@@ -866,15 +861,13 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
         newId = newSceneRep->getId();
     }
     
-    pthread_mutex_unlock(&vecLock);
-    
     return newId;
 }
     
 void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
-    pthread_mutex_lock(&vecLock);
-    
+    std::lock_guard<std::mutex> guardLock(vecLock);
+
     TimeInterval curTime = TimeGetCurrent();
     for (SimpleIDSet::iterator vit = vecIDs.begin();vit != vecIDs.end();++vit)
     {
@@ -901,8 +894,6 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
             delete sceneRep;
         }
     }
-    
-    pthread_mutex_unlock(&vecLock);
 }
 
 }

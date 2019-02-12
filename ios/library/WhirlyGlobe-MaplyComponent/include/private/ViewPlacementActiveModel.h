@@ -96,7 +96,7 @@ public:
             
 protected:
     bool changedSinceUpdate;
-    pthread_mutex_t viewInstanceLock;
+    std::mutex viewInstanceLock;
     std::set<ViewInstance> viewInstanceSet;
 };
 
