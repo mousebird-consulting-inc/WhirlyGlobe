@@ -94,8 +94,6 @@
 
 @end
 
-// Reusing WhirlyKitQuadDataStructure for the size of the quad tree
-
 /** This layer turns view state updates into quad tree tiles to load.
   */
 @interface WhirlyKitQuadDisplayLayerNew : NSObject<WhirlyKitLayer>
