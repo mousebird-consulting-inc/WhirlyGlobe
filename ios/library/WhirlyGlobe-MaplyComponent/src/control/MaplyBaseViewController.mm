@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2017 mousebird consulting
+ *  Copyright 2012-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -307,7 +307,7 @@ using namespace WhirlyKit;
     // Layout still needs a layer to kick it off
     layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:renderControl->sceneRenderer.get()];
     [baseLayerThread addLayer:layoutLayer];
-        
+    
     // Lastly, an interaction layer of our own
     renderControl->interactLayer = [self loadSetup_interactionLayer];
     renderControl->interactLayer.screenObjectDrawPriorityOffset = renderControl.screenObjectDrawPriorityOffset;

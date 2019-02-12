@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Ranen Ghosh on 2016-11-18.
-//  Copyright © 2016-2017 mousebird consulting.
+//  Copyright © 2016-2019 mousebird consulting.
 //
 
 #import <UIKit/UIKit.h>

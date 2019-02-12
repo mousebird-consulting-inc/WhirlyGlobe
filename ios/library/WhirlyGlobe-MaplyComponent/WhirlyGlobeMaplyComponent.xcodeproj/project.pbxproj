@@ -644,6 +644,8 @@
 		2BE1E781220A6B6700815D9C /* SLDOperators.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EF69FB1D6B938800A2A660 /* SLDOperators.m */; };
 		2BE1E782220A6B6700815D9C /* SLDSymbolizers.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EF69FC1D6B938800A2A660 /* SLDSymbolizers.m */; };
 		2BE1E783220A6B6700815D9C /* SLDWellKnownMarkers.m in Sources */ = {isa = PBXBuildFile; fileRef = E5EB67AA1D6DD19700FB3679 /* SLDWellKnownMarkers.m */; };
+		2BE1E787221381B200815D9C /* MaplyQuadLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE1E786221381B200815D9C /* MaplyQuadLoader.h */; };
+		2BE1E789221381D500815D9C /* MaplyQuadLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E788221381D500815D9C /* MaplyQuadLoader.mm */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -1547,6 +1549,8 @@
 		2BE1E75A2208F33900815D9C /* SingleLabel_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SingleLabel_iOS.mm; sourceTree = "<group>"; };
 		2BE1E75C2208F43200815D9C /* FontTextureManager_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontTextureManager_iOS.h; sourceTree = "<group>"; };
 		2BE1E75E2208F43A00815D9C /* FontTextureManager_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FontTextureManager_iOS.mm; sourceTree = "<group>"; };
+		2BE1E786221381B200815D9C /* MaplyQuadLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadLoader.h; sourceTree = "<group>"; };
+		2BE1E788221381D500815D9C /* MaplyQuadLoader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyQuadLoader.mm; sourceTree = "<group>"; };
 		2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WhirlyGlobeMaplyComponent.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeMaplyComponent.h; sourceTree = "<group>"; };
 		2BE537041D2499E500B60FAD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -2840,6 +2844,7 @@
 		2B87970C2203B4AF00EF801D /* loading */ = {
 			isa = PBXGroup;
 			children = (
+				2BE1E788221381D500815D9C /* MaplyQuadLoader.mm */,
 				2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */,
 				2BE537AF1D249A1200B60FAD /* MaplyImageTile.mm */,
 				2B73D6BF207D1FDF00AF5095 /* MaplyQuadImageLoader.mm */,
@@ -3064,6 +3069,7 @@
 		2BC41C8C21F10011002926B7 /* loading */ = {
 			isa = PBXGroup;
 			children = (
+				2BE1E786221381B200815D9C /* MaplyQuadLoader.h */,
 				2BE537321D249A1200B60FAD /* MaplyImageTile.h */,
 				2BB8A3CC21ED43A40025DA98 /* MaplyQuadImageFrameLoader.h */,
 				2BB8A3C921ED43A30025DA98 /* MaplyTileSourceNew.h */,
@@ -4019,6 +4025,7 @@
 				2B82B6DC1E82E24A0095FB14 /* NSString+Stuff.h in Headers */,
 				2BE538701D249A1200B60FAD /* WGCoordinate.h in Headers */,
 				2BE5382F1D249A1200B60FAD /* MaplyVertexAttribute.h in Headers */,
+				2BE1E787221381B200815D9C /* MaplyQuadLoader.h in Headers */,
 				2BE53A141D249C2900B60FAD /* service.h in Headers */,
 				2BE537FF1D249A1200B60FAD /* MaplyBillboard.h in Headers */,
 				2B446B0221F79A600078A975 /* WhirlyOctEncoding.h in Headers */,
@@ -4295,6 +4302,7 @@
 				2B82B64E1E82E2490095FB14 /* PJ_cc.c in Sources */,
 				2B8796EE2203734600EF801D /* GlobeAnimateHeight.cpp in Sources */,
 				2B82B66B1E82E24A0095FB14 /* PJ_gn_sinu.c in Sources */,
+				2BE1E789221381D500815D9C /* MaplyQuadLoader.mm in Sources */,
 				2B82B6C21E82E24A0095FB14 /* PJ_wink1.c in Sources */,
 				2B82B6171E82E2490095FB14 /* JSONStream.cpp in Sources */,
 				2BE539BD1D249BEF00B60FAD /* AASaturnMoons.cpp in Sources */,
