@@ -66,11 +66,6 @@ static double MAX_EXTENT = 20037508.342789244;
                                  vectorStyle:(MapboxVectorStyleSet *__nonnull)inVectorStyle
                                        viewC:(MaplyBaseViewController *__nonnull)inViewC
 {
-    if (inLoader.importanceScale != 1.0) {
-        NSLog(@"MapboxVectorImageInterpreter works poorly with an importance scale.  Failing.");
-        return nil;
-    }
-
     self = [super init];
     loader = inLoader;
     imageStyle = inImageStyle;

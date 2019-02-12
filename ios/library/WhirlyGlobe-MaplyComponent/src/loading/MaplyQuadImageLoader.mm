@@ -629,8 +629,6 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         self->minLevel = std::min(self->minLevel,tileInfo.minZoom);
         self->maxLevel = std::max(self->maxLevel,tileInfo.maxZoom);
     }
-    self.importanceScale = 1.0;
-    self.importanceCutoff = 0.0;
     self.imageFormat = MaplyImageIntRGBA;
     self.borderTexel = 0;
     self.color = [UIColor whiteColor];
@@ -654,16 +652,6 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         }
         
         self->samplingLayer = [self->viewC findSamplingLayer:inParams forUser:self];
-
-        // They changed it, so make sure the cutoff still works
-        if (self.importanceScale < 1.0)
-            // Yeah, not a thing.
-            self.importanceScale = 1.0;
-        if (self.importanceScale != 1.0) {
-            if (self.importanceCutoff == 0.0) {
-                self.importanceCutoff = self->samplingLayer.params.minImportance * self.importanceScale;
-            }
-        }
         
         // Sort out the texture format
         switch (self.imageFormat) {
@@ -745,7 +733,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
                     request.tileSource = tileInfo;
                     request.priority = 0;
                     request.group = thisGroup;
-                    request.importance = ident.importance * self.importanceScale;
+                    request.importance = ident.importance;
                     
                     request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
                         [self fetchRequestSuccess:request tileID:tileID frame:-1 data:data];
@@ -784,8 +772,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     if (loadedTile)
         newTile->setupGeom(self,loadedTile,defaultDrawPriority,changes);
 
-    if ([self shouldLoad:ident])
-        [self fetchThisTile:newTile ident:ident];
+    [self fetchThisTile:newTile ident:ident];
 
     return newTile;
 }
@@ -973,16 +960,6 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     [self mergeFetchedData:nil forTile:tile tileID:thisTileID frame:frame request:request];
 }
 
-// Decide if this tile ought to be loaded
-- (bool)shouldLoad:(QuadTreeNew::ImportantNode &)tile
-{
-    if (self.importanceCutoff == 0.0 || tile.importance >= self.importanceCutoff) {
-        return true;
-    }
-    
-    return false;
-}
-
 // Clear out assets for a tile, but keep the geometry
 - (void)clearTileToBlank:(TileAssetRef &)tile ident:(QuadTreeNew::ImportantNode &)ident layer:(MaplyBaseInteractionLayer *)layer changes:(WhirlyKit::ChangeSet &)changes
 {
@@ -1119,32 +1096,11 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
             continue;
         auto tile = it->second;
 
-        // We consider it worth loading
-        if ([self shouldLoad:ident]) {
-            // If it isn't loaded, then start that process
-            if (tile->getState() == TileAsset::Waiting) {
-                if (self.debugMode)
-                    NSLog(@"Tile switched from Wait to Fetch %d: (%d,%d) importance = %f",ident.level,ident.x,ident.y,ident.importance);
-                [self fetchThisTile:tile ident:ident];
-            }
-        } else {
-            // We don't consider it worth loading now so drop it if we were
-            switch (tile->getState())
-            {
-                case TileAsset::Waiting:
-                    // this is fine
-                    break;
-                case TileAsset::Loaded:
-                    if (self.debugMode)
-                        NSLog(@"Tile switched from Loaded to Wait %d: (%d,%d) importance = %f",ident.level,ident.x,ident.y,ident.importance);
-                    [self clearTileToBlank:tile ident:ident layer:interactLayer changes:changes];
-                    break;
-                case TileAsset::Loading:
-                    if (self.debugMode)
-                        NSLog(@"Canceled fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
-                    tile->cancelFetch(tileFetcher);
-                    break;
-            }
+        // If it isn't loaded, then start that process
+        if (tile->getState() == TileAsset::Waiting) {
+            if (self.debugMode)
+                NSLog(@"Tile switched from Wait to Fetch %d: (%d,%d) importance = %f",ident.level,ident.x,ident.y,ident.importance);
+            [self fetchThisTile:tile ident:ident];
         }
     }
  

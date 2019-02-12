@@ -176,7 +176,7 @@ public:
         int frame = 0;
         for (MaplyRemoteTileInfoNew *frameInfo in frameInfos) {
             MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
-            MaplyTileFetchRequest *request = frames[frame]->setupFetch([frameInfo fetchInfoForTile:tileID],frameInfo,0,ident.importance * loader.importanceScale);
+            MaplyTileFetchRequest *request = frames[frame]->setupFetch([frameInfo fetchInfoForTile:tileID],frameInfo,0,ident.importance);
             
             request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
                 [loader fetchRequestSuccess:request tileID:tileID frame:frame data:data];
@@ -634,8 +634,6 @@ using namespace WhirlyKit;
         self->minLevel = std::min(self->minLevel,frameInfo.minZoom);
         self->maxLevel = std::max(self->maxLevel,frameInfo.maxZoom);
     }
-    self.importanceScale = 1.0;
-    self.importanceCutoff = 0.0;
     self.imageFormat = MaplyImageIntRGBA;
     self.borderTexel = 0;
     self.color = [UIColor whiteColor];
@@ -660,16 +658,6 @@ using namespace WhirlyKit;
         }
         
         self->samplingLayer = [self->viewC findSamplingLayer:inParams forUser:self];
-        
-        // They changed it, so make sure the cutoff still works
-        if (self.importanceScale < 1.0)
-            // Yeah, not a thing.
-            self.importanceScale = 1.0;
-        if (self.importanceScale != 1.0) {
-            if (self.importanceCutoff == 0.0) {
-                self.importanceCutoff = self->samplingLayer.params.minImportance * self.importanceScale;
-            }
-        }
         
         // Sort out the texture format
         switch (self.imageFormat) {
@@ -749,11 +737,9 @@ using namespace WhirlyKit;
         newTile->setShouldEnable(loadedTile->enabled);
     }
     
-    if ([self shouldLoad:ident]) {
-        if (self.debugMode)
-            NSLog(@"Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
-        newTile->startFetching(self, toStart, frameInfos);
-    }
+    if (self.debugMode)
+        NSLog(@"Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
+    newTile->startFetching(self, toStart, frameInfos);
     
     return newTile;
 }
@@ -771,16 +757,6 @@ using namespace WhirlyKit;
 
         tiles.erase(it);
     }
-}
-
-// Decide if this tile ought to be loaded
-- (bool)shouldLoad:(QuadTreeNew::ImportantNode &)tile
-{
-    if (self.importanceCutoff == 0.0 || tile.importance >= self.importanceCutoff) {
-        return true;
-    }
-    
-    return false;
 }
 
 // Called on a random dispatch queue
@@ -1055,32 +1031,14 @@ using namespace WhirlyKit;
         auto tile = it->second;
         auto loadedTile = [builder getLoadedTile:ident];
 
-        // We consider it worth loading
-        if ([self shouldLoad:ident]) {
-            // If it isn't loaded, then start that process
-            if (tile->getState() == QIFTileAsset::Waiting) {
-                if (self.debugMode)
-                    NSLog(@"Tile switched from Wait to Fetch %d: (%d,%d) importance = %f",ident.level,ident.x,ident.y,ident.importance);
-                tile->startFetching(self, toStart, frameInfos);
-                if (loadedTile)
-                    tile->setShouldEnable(loadedTile->enabled);
-                somethingChanged = true;
-            }
-        } else {
-            // We don't consider it worth loading now so drop it if we were
-            switch (tile->getState())
-            {
-                case QIFTileAsset::Waiting:
-                    tile->setImportance(tileFetcher, ident.importance);
-                    if (loadedTile)
-                        tile->setShouldEnable(loadedTile->enabled);
-                    somethingChanged = true;
-                    break;
-                case QIFTileAsset::Active:
-                    tile->clear(toCancel, changes);
-                    somethingChanged = true;
-                    break;
-            }
+        // If it isn't loaded, then start that process
+        if (tile->getState() == QIFTileAsset::Waiting) {
+            if (self.debugMode)
+                NSLog(@"Tile switched from Wait to Fetch %d: (%d,%d) importance = %f",ident.level,ident.x,ident.y,ident.importance);
+            tile->startFetching(self, toStart, frameInfos);
+            if (loadedTile)
+                tile->setShouldEnable(loadedTile->enabled);
+            somethingChanged = true;
         }
     }
     
