@@ -19,7 +19,9 @@
  */
 
 /// Wrapper for string (Objective-C vs. other)
+#ifndef WKString
 #define WKString(str) str
+#endif
 
 /// Use this hint to turn the zbuffer on or off.  Pass in an NSNumber boolean.  Takes effect on the next frame.
 #define MaplyRenderHintZBuffer WKString("zbuffer")
@@ -297,10 +299,3 @@
 
 /// Used to designate a non-default render target by ID
 #define MaplyRenderTargetDesc WKString("rendertarget")
-
-/// These are the various shader programs we set up by default
-#define MaplyShaderDefaultTri WKString("Default Triangle;lighting=yes")
-#define MaplyShaderDefaultTriNoLighting WKString("Default Triangle;lighting=no")
-#define MaplyShaderDefaultTriMultiTex WKString("Default Triangle;multitex=yes;lighting=yes")
-#define MaplyShaderDefaultLine WKString("Default Line;backface=yes")
-#define MaplyShaderDefaultLineNoBackface WKString("Default Line;backface=no")
