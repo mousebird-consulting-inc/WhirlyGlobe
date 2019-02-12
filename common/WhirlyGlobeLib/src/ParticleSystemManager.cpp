@@ -184,11 +184,4 @@ void ParticleSystemManager::changeRenderTarget(SimpleIdentity sysID,SimpleIdenti
     }
 }
     
-void ParticleSystemManager::housekeeping(TimeInterval now,ChangeSet &changes)
-{
-    std::lock_guard<std::mutex> guardLock(partSysLock);
-
-    // Note: Not clear if we need this anymore
-}
-    
 }

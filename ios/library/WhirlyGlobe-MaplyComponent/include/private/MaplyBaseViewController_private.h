@@ -33,7 +33,6 @@
 #import "SMCalloutView.h"
 #import "Maply3dTouchPreviewDelegate.h"
 #import "MaplyRenderController_private.h"
-#import "ParticleSystemLayer.h"
 #import "ViewPlacementActiveModel.h"
 #import "FontTextureManager_iOS.h"
 
@@ -46,7 +45,6 @@
     
     WhirlyKitLayerThread *baseLayerThread;
     WhirlyKitLayoutLayer *layoutLayer;
-    WhirlyKitParticleSystemLayer *partSysLayer;
     NSMutableArray *layerThreads;
 
     // Layers (and associated data) created for the user

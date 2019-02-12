@@ -102,9 +102,6 @@ public:
     /// Change the render target
     void changeRenderTarget(SimpleIdentity sysID,SimpleIdentity targetID,ChangeSet &changes);
 
-    /// Clean out old particle system batches as needed
-    void housekeeping(TimeInterval now,ChangeSet &changes);
-
 protected:
     std::mutex partSysLock;
     ParticleSystemSceneRepSet sceneReps;
