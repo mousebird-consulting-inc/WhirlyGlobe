@@ -813,7 +813,7 @@ using namespace WhirlyKit;
     
     // Do the parsing on another thread since it can be slow
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self->loadInterp parseData:loadReturn];
+        [self->loadInterp dataForTile:loadReturn];
         
         [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
     });

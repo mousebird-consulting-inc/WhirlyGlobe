@@ -111,7 +111,7 @@ static double MAX_EXTENT = 20037508.342789244;
     return retData;
 }
 
-- (void)parseData:(MaplyLoaderReturn * __nonnull)loadReturn
+- (void)dataForTile:(MaplyLoaderReturn * __nonnull)loadReturn
 {
     MaplyTileID tileID = loadReturn.tileID;
     std::vector<NSData *> pbfDatas;

@@ -343,7 +343,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyImageLoaderInterpreter
 
-- (void)parseData:(MaplyLoaderReturn * __nonnull)loadReturn
+- (void)dataForTile:(MaplyLoaderReturn * __nonnull)loadReturn
 {
     // Create the image and tie it to the drawables
     MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRandomData:loadReturn.tileData];
@@ -372,9 +372,9 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (void)parseData:(MaplyLoaderReturn * __nonnull)loadReturn
+- (void)dataForTile:(MaplyLoaderReturn * __nonnull)loadReturn
 {
-    [super parseData:loadReturn];
+    [super dataForTile:loadReturn];
     
     MaplyBoundingBox bbox = [loader geoBoundsForTile:loadReturn.tileID];
     MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
@@ -422,7 +422,7 @@ using namespace WhirlyKit;
 static const int MaxDebugColors = 10;
 static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x4F256F, 0xD89CDE, 0x773B28, 0x333D99, 0x862D52, 0xC2C653, 0xB8583D};
 
-- (void)parseData:(MaplyLoaderReturn * __nonnull)loadReturn
+- (void)dataForTile:(MaplyLoaderReturn * __nonnull)loadReturn
 {
     MaplyTileID tileID = loadReturn.tileID;
     
@@ -849,7 +849,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         
         // Hand over to another queue to do the parsing, since that can be slow
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [self->loadInterp parseData:multiLoadData];
+            [self->loadInterp dataForTile:multiLoadData];
             
             [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:multiLoadData waitUntilDone:NO];
         });
