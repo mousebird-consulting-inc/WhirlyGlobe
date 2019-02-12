@@ -52,11 +52,11 @@ public:
     ///  for it.  You should set this ahead of time
     SimpleIdentity selectID;
     
-    // Note: Maybe move these into iOS and Android versions
-    /// The text we want to see
-    std::string text;
-    // Sometimes rather than strings, we pass around the code points
-    std::vector<std::vector<int>> codePointsLines;
+//    // Note: Maybe move these into iOS and Android versions
+//    /// The text we want to see
+//    std::string text;
+//    // Sometimes rather than strings, we pass around the code points
+//    std::vector<std::vector<int>> codePointsLines;
     
     /// A geolocation for the middle, left or right of the label
     ///  depending on the justification
@@ -84,7 +84,7 @@ public:
     LabelInfoRef infoOverride;
 
     // Used to build the drawable string on specific platforms
-    virtual std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *,FontTextureManager *fontTexManager,ChangeSet &changes) = 0;    
+    virtual std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *,FontTextureManager *fontTexManager,float &lineHeight,ChangeSet &changes) = 0;    
 };
     
 #define kWKLabelManager "WKLabelManager"

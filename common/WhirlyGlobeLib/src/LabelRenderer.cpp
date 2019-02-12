@@ -127,25 +127,19 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
 //        bool embeddedColor = (labelInfo->outlineSize > 0.0 || label->desc.hasField(MaplyTextOutlineSize));
         // Note: Porting.  Not clear if this makes sense
         bool embeddedColor = false;
-        
-        std::vector<DrawableString *> drawStrs = label->generateDrawableStrings(labelInfo,fontTexManager,changes);
+
+        // Ask the label to build the strings.  There are OS specific things in there
+        // We also need the real line height back (because it's in the font)
+        float lineHeight=0.0;
+        std::vector<DrawableString *> drawStrs = label->generateDrawableStrings(labelInfo,fontTexManager,lineHeight,changes);
         Mbr drawMbr;
         Mbr layoutMbr;
-        int whichLine = 0;
 
-        // Convert the lines
-        // Note: Pass this in
+        // Calculate total draw and layout MBRs
         for (DrawableString *drawStr : drawStrs)
         {
-            Mbr thisMbr = drawStr->mbr;
-            thisMbr.ll().y() += labelInfo->lineHeight * whichLine;
-            thisMbr.ur().y() += labelInfo->lineHeight * whichLine;
-            drawMbr.expand(thisMbr);
-            Mbr thisLayoutMbr = drawStr->mbr;
-            thisLayoutMbr.ll().y() += labelInfo->lineHeight * whichLine;
-            thisLayoutMbr.ur().y() += labelInfo->lineHeight * whichLine;
-            layoutMbr.expand(thisLayoutMbr);
-            whichLine++;
+            drawMbr.expand(drawStr->mbr);
+            layoutMbr.expand(drawStr->mbr);
         }
 
         // Set if we're letting the layout engine control placement
@@ -258,7 +252,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                 // The shape starts out disabled
                 screenShape->setEnable(labelInfo->enable);
                 if (labelInfo->startEnable != labelInfo->endEnable)
-                screenShape->setEnableTime(labelInfo->startEnable, labelInfo->endEnable);
+                    screenShape->setEnableTime(labelInfo->startEnable, labelInfo->endEnable);
                 screenShape->setOffset(Point2d(MAXFLOAT,MAXFLOAT));
             } else {
                 screenShape->setEnable(labelInfo->enable);
@@ -416,7 +410,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
                 }
             }
 
-            offsetY += labelInfo->lineHeight;
+            offsetY += lineHeight;
         }
         
         if (layoutObject)

@@ -1412,7 +1412,7 @@ public:
         SingleLabel_iOS *wgLabel = new SingleLabel_iOS();
         wgLabel->loc = GeoCoord(label.loc.x,label.loc.y);
         wgLabel->rotation = label.rotation;
-        wgLabel->text = [label.text cStringUsingEncoding:NSASCIIStringEncoding];
+        wgLabel->text = label.text;
         if (label.uniqueID)
             wgLabel->uniqueID = [label.uniqueID asStdString];
         wgLabel->keepUpright = label.keepUpright;
@@ -1551,7 +1551,7 @@ public:
         SingleLabel_iOS *wgLabel = new SingleLabel_iOS();
         NSMutableDictionary *desc = [NSMutableDictionary dictionary];
         wgLabel->loc = GeoCoord(label.loc.x,label.loc.y);
-        wgLabel->text = [label.text cStringUsingEncoding:NSASCIIStringEncoding];
+        wgLabel->text = label.text;
         MaplyTexture *tex = nil;
         if (label.iconImage2) {
             tex = [self addImage:label.iconImage2 imageFormat:MaplyImageIntRGBA mode:threadMode];
