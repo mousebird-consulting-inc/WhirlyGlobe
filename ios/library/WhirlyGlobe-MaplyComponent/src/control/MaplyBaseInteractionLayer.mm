@@ -328,8 +328,8 @@ public:
     isShuttingDown = true;
     while (numActiveWorkers > 0) {
         workWait.wait(lk);
+        lk.unlock();
     }
-    lk.unlock();
 
     [self teardown];
 }
@@ -821,7 +821,7 @@ public:
 
     NSArray *markers = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     TimeInterval now = TimeGetCurrent();
@@ -970,7 +970,7 @@ public:
         return compObj;
     }
     
-    NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[markers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     
     switch (threadMode)
     {
@@ -1178,7 +1178,7 @@ public:
 
     NSArray *markers = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     // Note: This assumes everything has images
@@ -1284,7 +1284,7 @@ public:
         return compObj;
     }
 
-    NSArray *argArray = @[markers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[markers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -1363,7 +1363,7 @@ public:
 
     NSArray *labels = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     // May need a temporary context when setting up screen label textures
@@ -1486,7 +1486,7 @@ public:
         return compObj;
     }
     
-    NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[labels, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
 
     switch (threadMode)
     {
@@ -1510,7 +1510,7 @@ public:
 
     NSArray *labels = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);
@@ -1608,7 +1608,7 @@ public:
         return compObj;
     }
     
-    NSArray *argArray = @[labels, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[labels, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
 
     switch (threadMode)
     {
@@ -1632,7 +1632,7 @@ public:
 
     NSArray *vectors = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
     bool makeVisible = [[argArray objectAtIndex:3] boolValue];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
     
@@ -1744,7 +1744,7 @@ public:
         return compObj;
     }
     
-    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
+    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -1863,7 +1863,7 @@ public:
         return compObj;
     }
     
-    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -1887,7 +1887,7 @@ public:
     MaplyComponentObject *baseObj = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     compObj.vectors = baseObj.vectors;
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
     bool makeVisible = [[argArray objectAtIndex:3] boolValue];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:4] intValue];
     
@@ -1906,9 +1906,7 @@ public:
         else if ([theImage isKindOfClass:[MaplyTexture class]])
             tex = (MaplyTexture *)theImage;
         if (tex.texID)
-            inDesc[kMaplyVecTexture] = @(tex.texID);
-        else
-            [inDesc removeObjectForKey:kMaplyVecTexture];
+            vectorInfo.texId = tex.texID;
     }
     
     if (makeVisible)
@@ -1956,7 +1954,7 @@ public:
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
-    NSArray *argArray = @[baseObj, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
+    NSArray *argArray = @[baseObj, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -1986,7 +1984,7 @@ public:
         return compObj;
     }
     
-    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:NO], @(MaplyThreadCurrent)];
+    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:NO], @(MaplyThreadCurrent)];
     [self addVectorsRun:argArray];
     
     return compObj;
@@ -2180,8 +2178,7 @@ public:
         if (!specialShapes.empty())
         {
             // If they haven't overrided the shader already, we need the non-backface one for these objects
-            NSMutableDictionary *newDesc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
-            if (!newDesc[kMaplyShader])
+            if (!inDesc[kMaplyShader])
             {
                 shapeInfo.programID = [self getProgramID:kMaplyShaderDefaultLineNoBackface];
             }
@@ -2217,7 +2214,7 @@ public:
         return compObj;
     }
     
-    NSArray *argArray = @[shapes, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[shapes, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -2261,7 +2258,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     CoordSystem *coordSys = coordAdapter->getCoordSystem();
     NSArray *modelInstances = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
-    NSMutableDictionary *inDesc = argArray[2];
+    NSDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);
@@ -2477,7 +2474,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         return compObj;
     }
     
-    NSArray *argArray = @[modelInstances, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[modelInstances, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -2508,7 +2505,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         return compObj;
     }
     
-    NSArray *argArray = @[geom, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[geom, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -2532,7 +2529,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     NSArray *stickers = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
-    NSMutableDictionary *inDesc = argArray[2];
+    NSDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyStickerDrawPriorityDefault) toDict:inDesc];
@@ -2636,7 +2633,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         return compObj;
     }
     
-    NSArray *argArray = @[stickers, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[stickers, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -2755,7 +2752,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSArray *vectors = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     compObj.vectors = vectors;
-    NSMutableDictionary *inDesc = [argArray objectAtIndex:2];
+    NSDictionary *inDesc = [argArray objectAtIndex:2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);
@@ -2802,7 +2799,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         return compObj;
     }
     
-    NSArray *argArray = @[vectors, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[vectors, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -2824,7 +2821,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     NSArray *bills = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
-    NSMutableDictionary *inDesc = argArray[2];
+    NSDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     CoordSystemDisplayAdapter *coordAdapter = visualView->coordAdapter;
@@ -2967,7 +2964,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         return compObj;
     }
     
-    NSArray *argArray = @[bboards, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[bboards, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -2988,7 +2985,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
     MaplyParticleSystem *partSys = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
-    NSMutableDictionary *inDesc = argArray[2];
+    NSDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);
@@ -3110,7 +3107,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
-    NSArray *argArray = @[partSys, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[partSys, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
@@ -3215,7 +3212,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 {
     NSArray *pointsArray = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
-    NSMutableDictionary *inDesc = argArray[2];
+    NSDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     iosDictionary dictWrap(inDesc);
@@ -3266,7 +3263,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
     compObj.underConstruction = true;
     
-    NSArray *argArray = @[points, compObj, [NSMutableDictionary dictionaryWithDictionary:desc], @(threadMode)];
+    NSArray *argArray = @[points, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
     {
         case MaplyThreadCurrent:
