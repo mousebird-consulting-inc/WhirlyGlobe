@@ -25,6 +25,7 @@
 #import "MaplyBaseViewController_private.h"
 #import "MaplyRenderTarget_private.h"
 #import "MaplyScreenLabel.h"
+#import "MaplyQuadLoader_private.h"
 
 using namespace WhirlyKit;
 
@@ -166,6 +167,79 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
     
     loadReturn.images = @[loadTile];
+}
+
+@end
+
+@implementation MaplyQuadLoaderBase
+
+- (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
+{
+    if (!layer || !layer.quadtree)
+        return kMaplyNullBoundingBox;
+    
+    MaplyBoundingBox bounds;
+    MaplyBoundingBoxD boundsD = [self geoBoundsForTileD:tileID];
+    bounds.ll = MaplyCoordinateMake(boundsD.ll.x,boundsD.ll.y);
+    bounds.ur = MaplyCoordinateMake(boundsD.ur.x,boundsD.ur.y);
+    
+    return bounds;
+}
+
+- (MaplyBoundingBoxD)geoBoundsForTileD:(MaplyTileID)tileID
+{
+    WhirlyKitQuadDisplayLayerNew *thisQuadLayer = layer;
+    if (!layer || !layer.quadtree)
+        return kMaplyNullBoundingBoxD;
+    
+    MaplyBoundingBoxD bounds;
+    MbrD mbrD = thisQuadLayer.quadtree->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
+    
+    CoordSystem *wkCoordSys = thisQuadLayer.coordSys;
+    Point2d pts[4];
+    pts[0] = wkCoordSys->localToGeographicD(Point3d(mbrD.ll().x(),mbrD.ll().y(),0.0));
+    pts[1] = wkCoordSys->localToGeographicD(Point3d(mbrD.ur().x(),mbrD.ll().y(),0.0));
+    pts[2] = wkCoordSys->localToGeographicD(Point3d(mbrD.ur().x(),mbrD.ur().y(),0.0));
+    pts[3] = wkCoordSys->localToGeographicD(Point3d(mbrD.ll().x(),mbrD.ur().y(),0.0));
+    Point2d minPt(pts[0].x(),pts[0].y()),  maxPt(pts[0].x(),pts[0].y());
+    for (unsigned int ii=1;ii<4;ii++)
+    {
+        minPt.x() = std::min(minPt.x(),pts[ii].x());
+        minPt.y() = std::min(minPt.y(),pts[ii].y());
+        maxPt.x() = std::max(maxPt.x(),pts[ii].x());
+        maxPt.y() = std::max(maxPt.y(),pts[ii].y());
+    }
+    bounds.ll = MaplyCoordinateDMake(minPt.x(), minPt.y());
+    bounds.ur = MaplyCoordinateDMake(maxPt.x(), maxPt.y());
+    
+    return bounds;
+}
+
+- (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID
+{
+    MaplyBoundingBox bounds;
+    MaplyBoundingBoxD boundsD;
+    
+    boundsD = [self boundsForTileD:tileID];
+    bounds.ll = MaplyCoordinateMake(boundsD.ll.x, boundsD.ll.y);
+    bounds.ur = MaplyCoordinateMake(boundsD.ur.x, boundsD.ur.y);
+    
+    return bounds;
+}
+
+- (MaplyBoundingBoxD)boundsForTileD:(MaplyTileID)tileID
+{
+    WhirlyKitQuadDisplayLayerNew *thisQuadLayer = layer;
+    if (!layer || !layer.quadtree)
+        return kMaplyNullBoundingBoxD;
+    
+    MaplyBoundingBoxD bounds;
+    
+    MbrD mbrD = thisQuadLayer.quadtree->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
+    bounds.ll = MaplyCoordinateDMake(mbrD.ll().x(), mbrD.ll().y());
+    bounds.ur = MaplyCoordinateDMake(mbrD.ur().x(), mbrD.ur().y());
+    
+    return bounds;
 }
 
 @end

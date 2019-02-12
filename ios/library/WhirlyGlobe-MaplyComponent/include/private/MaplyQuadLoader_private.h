@@ -1,8 +1,8 @@
 /*
  *  MaplyQuadImageLoader_private.h
  *
- *  Created by Steve Gifford on 4/10/18.
- *  Copyright 2012-2018 Saildrone Inc
+ *  Created by Steve Gifford on 2/12/19.
+ *  Copyright 2012-2019 mousebird consulting inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,14 +22,17 @@
 #import "MaplyQuadSampler_private.h"
 #import "MaplyQuadLoader_private.h"
 
-@interface MaplyQuadImageLoaderBase()
+@interface MaplyQuadLoaderBase()
 {
 @public
-    WhirlyKitQuadTileBuilder * __weak builder;
-    GLenum texType;
-    WhirlyKit::SimpleIdentity shaderID;
+    NSObject<MaplyTileFetcher> *tileFetcher;
+    NSObject<MaplyLoaderInterpreter> *loadInterp;
     
-    MaplyRenderTarget * __weak renderTarget;
+    WhirlyKitQuadDisplayLayerNew * __weak layer;
+    int minLevel,maxLevel;
+    
+    MaplyBaseViewController * __weak viewC;
+    MaplyQuadSamplingLayer *samplingLayer;
 }
 
 @end

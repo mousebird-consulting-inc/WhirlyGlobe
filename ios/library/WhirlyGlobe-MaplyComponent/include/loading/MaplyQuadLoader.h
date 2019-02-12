@@ -108,3 +108,69 @@
 - (instancetype __nonnull)initWithLoader:(MaplyQuadImageLoaderBase *__nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 @end
+
+/** Base class for the quad loaders.
+ 
+ All the quad loader (image, frame, data) implement these same bounding box methods.  No reason
+ */
+@interface MaplyQuadLoaderBase : NSObject
+
+/**
+ Control how tiles are indexed, either from the lower left or the upper left.
+ 
+ If set, we'll use the OSM approach (also Google Maps) to y indexing.  That's that default and it's normally what you're run into.
+ 
+ Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you're tile source looks odd, try setting this to false.
+ 
+ Default value is true.
+ */
+@property (nonatomic) bool flipY;
+
+/// Set for a lot of debugging output
+@property (nonatomic,assign) bool debugMode;
+
+/**
+ Calculate the bounding box for a single tile in geographic.
+ 
+ This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
+ 
+ @param tileID The ID for the tile we're interested in.
+ 
+ @return The lower left and upper right corner of the tile in geographic coordinates. Returns kMaplyNullBoundingBox in case of error
+ */
+- (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID;
+
+/**
+ Calculate the bounding box for a single tile in geographic using doubles.
+ 
+ This is a utility method for calculating the extents of a given tile in geographic (e.g. lon/lat).
+ 
+ @param tileID The ID for the tile we're interested in.
+ 
+ @return The lower left and upper right corner of the tile in geographic coordinates. Returns kMaplyNullBoundingBoxD in case of error
+ */
+- (MaplyBoundingBoxD)geoBoundsForTileD:(MaplyTileID)tileID;
+
+/**
+ Calculate the bounding box for a single tile in the local coordinate system.
+ 
+ This utility method calculates the bounding box for a tile in the coordinate system used for the layer.
+ 
+ @param tileID The ID for the tile we're interested in.
+ 
+ @return The lower left and upper right corner of the tile in geographic coordinates.
+ */
+- (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID;
+
+/**
+ Calculate the bounding box for a single tile in the local coordinate system using doubles.
+ 
+ This utility method calculates the bounding box for a tile in the coordinate system used for the layer.
+ 
+ @param tileID The ID for the tile we're interested in.
+ 
+ @return The lower left and upper right corner of the tile in geographic coordinates.
+ */
+- (MaplyBoundingBoxD)boundsForTileD:(MaplyTileID)tileID;
+
+@end
