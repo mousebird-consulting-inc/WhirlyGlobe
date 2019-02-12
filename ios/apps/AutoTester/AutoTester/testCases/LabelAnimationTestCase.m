@@ -115,7 +115,7 @@
     }
     
     
-    _labelAnimationTimer = [NSTimer scheduledTimerWithTimeInterval:1.25 target:self selector:@selector(labelAnimationCallback) userInfo:nil repeats:NO];
+    _labelAnimationTimer = [NSTimer scheduledTimerWithTimeInterval:10.0 target:self selector:@selector(labelAnimationCallback) userInfo:nil repeats:NO];
 }
 
 

@@ -1410,7 +1410,6 @@ public:
     for (MaplyScreenLabel *label in labels)
     {
         SingleLabel_iOS *wgLabel = new SingleLabel_iOS();
-        NSMutableDictionary *desc = [NSMutableDictionary dictionary];
         wgLabel->loc = GeoCoord(label.loc.x,label.loc.y);
         wgLabel->rotation = label.rotation;
         wgLabel->text = [label.text cStringUsingEncoding:NSASCIIStringEncoding];
@@ -1425,26 +1424,31 @@ public:
         if (tex)
             wgLabel->iconTexture = tex.texID;
         wgLabel->iconSize = Point2f(label.iconSize.width,label.iconSize.height);
-        if (label.color)
-            [desc setObject:label.color forKey:@"textColor"];
-        if (label.layoutImportance != MAXFLOAT)
-        {
-            [desc setObject:@(YES) forKey:@"layout"];
-            [desc setObject:@(label.layoutImportance) forKey:@"layoutImportance"];
-            [desc setObject:@(label.layoutPlacement) forKey:@"layoutPlacement"];
+        
+        LabelInfoRef thisLabelInfo;
+        if ([inDesc objectForKey:kMaplyTextColor] || label.layoutImportance != MAXFLOAT ||
+            [inDesc objectForKey:kMaplyTextLineSpacing]) {
+            thisLabelInfo = LabelInfoRef(new LabelInfo());
+
+            if (label.color) {
+                thisLabelInfo->hasTextColor = true;
+                thisLabelInfo->textColor = [label.color asRGBAColor];
+            }
+            if (label.layoutImportance != MAXFLOAT)
+            {
+                thisLabelInfo->layoutEngine = true;
+                thisLabelInfo->layoutImportance = label.layoutImportance;
+                thisLabelInfo->layoutPlacement = label.layoutPlacement;
+            }
         }
-        if ([inDesc objectForKey:@"lineSpacing"])
-        {
-            desc[@"lineSpacing"] = [inDesc objectForKey:@"lineSpacing"];
-        }
+        wgLabel->infoOverride = thisLabelInfo;
+        
         wgLabel->screenOffset = Point2d(label.offset.x,label.offset.y);
         if (label.selectable)
         {
             wgLabel->isSelectable = true;
             wgLabel->selectID = Identifiable::genId();
         }
-        if ([desc count] > 0)
-            wgLabel->desc = DictionaryRef(new iosDictionary(desc));
 
         // Now for the motion related fields
         if ([label isKindOfClass:[MaplyMovingScreenLabel class]])
@@ -1577,7 +1581,6 @@ public:
                 [desc setObject:@"right" forKey:@"justify"];
                 break;
         }
-        wgLabel->desc = DictionaryRef(new iosDictionary(desc));
         
         wgLabels.push_back(wgLabel);
         

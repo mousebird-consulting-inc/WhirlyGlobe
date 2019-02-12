@@ -51,6 +51,8 @@ public:
     /// If the marker is selectable, this is the unique identifier
     ///  for it.  You should set this ahead of time
     SimpleIdentity selectID;
+    
+    // Note: Maybe move these into iOS and Android versions
     /// The text we want to see
     std::string text;
     // Sometimes rather than strings, we pass around the code points
@@ -69,20 +71,17 @@ public:
     float rotation;
     /// Keep a label oriented upright on the screen
     bool keepUpright;
-    /// This dictionary contains overrides for certain attributes
-    ///  for just this label.  Only width, height, icon, text color, and
-    ///  background color supported.
-    DictionaryRef desc;
     /// If non-zero, this is the texture to use as an icon
     SimpleIdentity iconTexture;
     /// If the texture is set and this is non-zero the size of the image
     Point2f iconSize;
     /// If set, this moves the label if displayed in screen (2D) mode
     Point2d screenOffset;
-    /// If set, this is the layout importance for the single screen label
-    float layoutImportance;
     /// If non-empty, used to identify a set of labels of which only one should be displayed
     std::string uniqueID;
+    
+    /// Some attributes can be overridden per label
+    LabelInfoRef infoOverride;
 
     // Used to build the drawable string on specific platforms
     virtual std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *,FontTextureManager *fontTexManager,ChangeSet &changes) = 0;    

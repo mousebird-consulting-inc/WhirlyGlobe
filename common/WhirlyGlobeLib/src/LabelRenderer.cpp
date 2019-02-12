@@ -32,9 +32,16 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
     
+LabelInfo::LabelInfo()
+: hasTextColor(false), screenObject(false), layoutEngine(false), width(-1.0), height(-1.0),
+shadowSize(-1.0), outlineSize(-1.0), labelJustify(WhirlyKitLabelMiddle), lineHeight(0.0)
+{
+}
+    
 LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject)
     : screenObject(screenObject)
 {
+    hasTextColor = dict.hasField(MaplyTextColor);
     textColor = dict.getColor(MaplyTextColor, RGBAColor(255,255,255,255));
     backColor = dict.getColor(MaplyBackgroundColor, RGBAColor(0,0,0,0));
     layoutEngine = dict.getBool(MaplyLayout,false);
@@ -105,14 +112,10 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         RGBAColor theBackColor = labelInfo->backColor;
         RGBAColor theShadowColor = labelInfo->shadowColor;
         float theShadowSize = labelInfo->shadowSize;
-        if (label->desc)
+        if (label->infoOverride)
         {
-            theTextColor = label->desc->getColor(MaplyTextColor,theTextColor);
-            theBackColor = label->desc->getColor(MaplyBackgroundColor,theBackColor);
-            // Note: Porting
-//            theFont = [label->desc objectForKey:@"font" checkType:[UIFont class] default:theFont];
-            theShadowColor = label->desc->getColor(MaplyShadowColor,theShadowColor);
-            theShadowSize = label->desc->getDouble(MaplyShadowSize,theShadowSize);
+            if (label->infoOverride->hasTextColor)
+                theTextColor = label->infoOverride->textColor;
         }
         // Note: Porting
 //        if (theShadowColor == nil)
@@ -123,7 +126,7 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         // We set this if the color is embedded in the "font"
 //        bool embeddedColor = (labelInfo->outlineSize > 0.0 || label->desc.hasField(MaplyTextOutlineSize));
         // Note: Porting.  Not clear if this makes sense
-        bool embeddedColor = true;
+        bool embeddedColor = false;
         
         std::vector<DrawableString *> drawStrs = label->generateDrawableStrings(labelInfo,fontTexManager,changes);
         Mbr drawMbr;
@@ -146,16 +149,18 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
         }
 
         // Set if we're letting the layout engine control placement
-        bool layoutEngine = labelInfo->layoutEngine;
-        float layoutImportance = label->layoutImportance;
-        if (layoutImportance == 0.0)
-            layoutImportance = label->desc->getDouble(MaplyLayoutImportance,layoutImportance);
-        if (layoutImportance == 0.0)
-            layoutImportance = labelInfo->layoutImportance;
-        if (layoutImportance != 0.0 && layoutImportance != MAXFLOAT)
+        bool layoutEngine = false;
+        float layoutImportance = MAXFLOAT;
+        int layoutPlacement = 0;
+        if (labelInfo->layoutEngine) {
             layoutEngine = true;
-        else
-            layoutEngine = false;
+            layoutImportance = labelInfo->layoutImportance;
+            layoutPlacement = labelInfo->layoutPlacement;
+        } else if (label->infoOverride && label->infoOverride->layoutEngine) {
+            layoutEngine = true;
+            layoutImportance = label->infoOverride->layoutImportance;
+            layoutPlacement = label->infoOverride->layoutPlacement;
+        }
         
         ScreenSpaceObject *screenShape = NULL;
 //        ScreenSpaceObject *backScreenShape = NULL;
@@ -237,10 +242,6 @@ void LabelRenderer::render(std::vector<SingleLabel *> &labels,ChangeSet &changes
             // If it's being passed to the layout engine, do that as well
             if (layoutEngine)
             {
-                int layoutPlacement = labelInfo->layoutPlacement;
-                if (label->desc->hasField(MaplyLayoutImportance))
-                layoutPlacement = label->desc->getInt(MaplyLayoutImportance,(int)(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow));
-                
                 // Put together the layout info
                 //                    layoutObject->hint = label->text;
                 layoutObject->layoutPts.push_back(Point2d(layoutMbr.ll().x()+label->screenOffset.x(),layoutMbr.ll().y()+label->screenOffset.y())+iconOff+justifyOff);

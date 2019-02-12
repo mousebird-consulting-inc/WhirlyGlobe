@@ -71,8 +71,10 @@ typedef enum {WhirlyKitTextCenter,WhirlyKitTextLeft,WhirlyKitTextRight} TextJust
 class LabelInfo : public BaseInfo
 {
 public:
+    LabelInfo();
     LabelInfo(const Dictionary &dict,bool screenObject);
 
+    bool hasTextColor;
     RGBAColor textColor,backColor;
     bool screenObject;
     bool layoutEngine;
@@ -87,6 +89,8 @@ public:
     float outlineSize;
     float lineHeight;
 };
+
+typedef std::shared_ptr<LabelInfo> LabelInfoRef;
     
 /** Used to render a group of labels, possibly on
     a dispatch queue.  Up to you to set that up.

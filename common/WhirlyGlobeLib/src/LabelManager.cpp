@@ -33,9 +33,8 @@ namespace WhirlyKit
 
 SingleLabel::SingleLabel()
     : isSelectable(true), selectID(EmptyIdentity), loc(0,0), rotation(0), iconTexture(EmptyIdentity),
-    iconSize(0,0), screenOffset(0,0), layoutImportance(0.0)
+    iconSize(0,0), screenOffset(0,0)
 {
-    desc = MutableDictionaryMake();
 }
 
 LabelManager::LabelManager()
