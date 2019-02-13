@@ -79,10 +79,6 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 /// Return a loaded image made from an NSData object containing PVRTC
 + (WhirlyKitLoadedImage *)LoadedImageWithPVRTC:(NSData *)imageData size:(int)squareSize;
 
-/// Return a loaded image that's just an empty placeholder.
-/// This means there's nothing to display, but the children are valid
-+ (WhirlyKitLoadedImage *)PlaceholderImage;
-
 /// Return a loaded image made from an NSData object that contains a PNG or JPG.
 /// Basically somethign that UIImage will recognize if you initialize it with one.
 + (WhirlyKitLoadedImage *)LoadedImageWithNSDataAsPNGorJPG:(NSData *)imageData;
@@ -106,13 +102,4 @@ typedef enum {WKTileScaleUp,WKTileScaleDown,WKTileScaleFixed,WKTileScaleNone} Wh
 @property (nonatomic,readonly) NSMutableArray *images;
 @property (nonatomic) NSObject<WhirlyKitElevationChunk> *elevChunk;
 
-@end
-
-/** This protocol is used by the data sources to optionally tack some elevation on to a tile
- fetch.  Elevation often comes from a different source and we want to be able to reuse
- our generic image tile fetchers.
- */
-@protocol WhirlyKitElevationHelper
-/// Return the elevation data for the given tile or nil if there is none
-- (NSObject<WhirlyKitElevationChunk> *)elevForLevel:(int)level col:(int)col row:(int)row;
 @end

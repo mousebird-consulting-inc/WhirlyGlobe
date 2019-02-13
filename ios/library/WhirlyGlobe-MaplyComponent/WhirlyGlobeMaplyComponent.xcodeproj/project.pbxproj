@@ -22,8 +22,6 @@
 		2B23133821F942D2006AA344 /* Dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133721F942D1006AA344 /* Dictionary.h */; };
 		2B23133A21F942E2006AA344 /* Dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133921F942E1006AA344 /* Dictionary.cpp */; };
 		2B23133C21FA919E006AA344 /* Dictionary_NSDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133B21FA919D006AA344 /* Dictionary_NSDictionary.h */; };
-		2B2B46FA206C000500570F97 /* LoadedTileNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2B46F9206C000500570F97 /* LoadedTileNew.h */; };
-		2B2B4701206D931300570F97 /* QuadTileBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2B4700206D931300570F97 /* QuadTileBuilder.h */; };
 		2B446AB021EFE5DA0078A975 /* MaplyWMSTileSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AAF21EFE5DA0078A975 /* MaplyWMSTileSource.h */; };
 		2B446ABB21F25C330078A975 /* WhirlyKitLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446AB921F25C330078A975 /* WhirlyKitLog.h */; };
 		2B446ABC21F25C330078A975 /* WhirlyTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B446ABA21F25C330078A975 /* WhirlyTypes.h */; };
@@ -86,7 +84,6 @@
 		2B73D6C2207D224100AF5095 /* MaplyQuadImageLoader_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */; };
 		2B7B84D821223F0300D11447 /* MaplyTextureAtlas_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */; };
 		2B7B84DA2122403700D11447 /* MaplyTapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84D92122403700D11447 /* MaplyTapMessage.h */; };
-		2B7B84E42122475200D11447 /* LoadedImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84E32122475200D11447 /* LoadedImage.h */; };
 		2B82B5DF1E82E2490095FB14 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3B71E82E2490095FB14 /* glues.h */; };
 		2B82B5E11E82E2490095FB14 /* dict-list.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3B91E82E2490095FB14 /* dict-list.h */; };
 		2B82B5E31E82E2490095FB14 /* dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3BB1E82E2490095FB14 /* dict.h */; };
@@ -390,9 +387,6 @@
 		2B8796FD22038B9D00EF801D /* LayerThread.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5B91E82E2490095FB14 /* LayerThread.mm */; };
 		2B8796FF22038DF200EF801D /* UpdateDisplayLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5BB1E82E2490095FB14 /* UpdateDisplayLayer.mm */; };
 		2B87970022038DF200EF801D /* LayoutLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5C51E82E2490095FB14 /* LayoutLayer.mm */; };
-		2B87970122038FB800EF801D /* QuadTileBuilder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361E43212398440074D06D /* QuadTileBuilder.mm */; };
-		2B879702220390AB00EF801D /* LoadedImage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B7B84E52122475900D11447 /* LoadedImage.mm */; };
-		2B879703220390B600EF801D /* LoadedTileNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2B46FB206C001900570F97 /* LoadedTileNew.mm */; };
 		2B87970522039D6300EF801D /* Texture_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B87970422039D6300EF801D /* Texture_iOS.h */; };
 		2B87970722039D7000EF801D /* Texture_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B87970622039D6F00EF801D /* Texture_iOS.mm */; };
 		2B8797082203A27B00EF801D /* QuadDisplayLayerNew.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387F32069BC3800DD5C40 /* QuadDisplayLayerNew.mm */; };
@@ -647,6 +641,10 @@
 		2BE1E787221381B200815D9C /* MaplyQuadLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE1E786221381B200815D9C /* MaplyQuadLoader.h */; };
 		2BE1E789221381D500815D9C /* MaplyQuadLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E788221381D500815D9C /* MaplyQuadLoader.mm */; };
 		2BE1E78B22138A8100815D9C /* MaplyQuadLoader_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE1E78A22138A8100815D9C /* MaplyQuadLoader_private.h */; };
+		2BE1E7912213977F00815D9C /* LoadedTileNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE1E78E2213977F00815D9C /* LoadedTileNew.h */; };
+		2BE1E7922213977F00815D9C /* QuadTileBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE1E78F2213977F00815D9C /* QuadTileBuilder.h */; };
+		2BE1E7932213977F00815D9C /* LoadedImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE1E7902213977F00815D9C /* LoadedImage.h */; };
+		2BE1E7982213979900815D9C /* QuadTileBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7952213979800815D9C /* QuadTileBuilder.cpp */; };
 		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
@@ -1003,9 +1001,6 @@
 		2B23133921F942E1006AA344 /* Dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dictionary.cpp; path = ../../../../common/WhirlyGlobeLib/src/Dictionary.cpp; sourceTree = "<group>"; };
 		2B23133B21FA919D006AA344 /* Dictionary_NSDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dictionary_NSDictionary.h; sourceTree = "<group>"; };
 		2B23133D21FA91A4006AA344 /* Dictinary_NSDictionary.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Dictinary_NSDictionary.mm; sourceTree = "<group>"; };
-		2B2B46F9206C000500570F97 /* LoadedTileNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedTileNew.h; sourceTree = "<group>"; };
-		2B2B46FB206C001900570F97 /* LoadedTileNew.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadedTileNew.mm; sourceTree = "<group>"; };
-		2B2B4700206D931300570F97 /* QuadTileBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadTileBuilder.h; sourceTree = "<group>"; };
 		2B361DE621233CBE0074D06D /* MaplyTwoFingerTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTwoFingerTapDelegate.mm; sourceTree = "<group>"; };
 		2B361DE721233CBE0074D06D /* MaplyDoubleTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyDoubleTapDelegate.mm; sourceTree = "<group>"; };
 		2B361DE821233CBE0074D06D /* MaplyTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTapDelegate.mm; sourceTree = "<group>"; };
@@ -1016,7 +1011,6 @@
 		2B361DED21233CBE0074D06D /* MaplyPinchDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyPinchDelegate.mm; sourceTree = "<group>"; };
 		2B361E13212340610074D06D /* MaplyZoomGestureDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyZoomGestureDelegate.mm; sourceTree = "<group>"; };
 		2B361E16212340620074D06D /* MaplyTextureBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTextureBuilder.mm; sourceTree = "<group>"; };
-		2B361E43212398440074D06D /* QuadTileBuilder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadTileBuilder.mm; sourceTree = "<group>"; };
 		2B3FD2C21F478F5200CA9C18 /* MaplyRenderTarget.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyRenderTarget.mm; sourceTree = "<group>"; };
 		2B446AAF21EFE5DA0078A975 /* MaplyWMSTileSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyWMSTileSource.h; sourceTree = "<group>"; };
 		2B446AB121EFE5E50078A975 /* MaplyWMSTileSource.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyWMSTileSource.mm; sourceTree = "<group>"; };
@@ -1111,8 +1105,6 @@
 		2B7B84D92122403700D11447 /* MaplyTapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapMessage.h; sourceTree = "<group>"; };
 		2B7B84DB2122404200D11447 /* MaplyTapMessage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTapMessage.mm; sourceTree = "<group>"; };
 		2B7B84DD2122404A00D11447 /* MaplyTextureAtlas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTextureAtlas.mm; sourceTree = "<group>"; };
-		2B7B84E32122475200D11447 /* LoadedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoadedImage.h; sourceTree = "<group>"; };
-		2B7B84E52122475900D11447 /* LoadedImage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LoadedImage.mm; sourceTree = "<group>"; };
 		2B82B3B71E82E2490095FB14 /* glues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues.h; path = ../../../common/local_libs/glues/source/glues.h; sourceTree = "<group>"; };
 		2B82B3B91E82E2490095FB14 /* dict-list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "dict-list.h"; sourceTree = "<group>"; };
 		2B82B3BA1E82E2490095FB14 /* dict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dict.c; sourceTree = "<group>"; };
@@ -1553,6 +1545,12 @@
 		2BE1E786221381B200815D9C /* MaplyQuadLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadLoader.h; sourceTree = "<group>"; };
 		2BE1E788221381D500815D9C /* MaplyQuadLoader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyQuadLoader.mm; sourceTree = "<group>"; };
 		2BE1E78A22138A8100815D9C /* MaplyQuadLoader_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadLoader_private.h; sourceTree = "<group>"; };
+		2BE1E78E2213977F00815D9C /* LoadedTileNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LoadedTileNew.h; path = ../../../../common/WhirlyGlobeLib/include/LoadedTileNew.h; sourceTree = "<group>"; };
+		2BE1E78F2213977F00815D9C /* QuadTileBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuadTileBuilder.h; path = ../../../../common/WhirlyGlobeLib/include/QuadTileBuilder.h; sourceTree = "<group>"; };
+		2BE1E7902213977F00815D9C /* LoadedImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LoadedImage.h; path = ../../../../common/WhirlyGlobeLib/include/LoadedImage.h; sourceTree = "<group>"; };
+		2BE1E7942213979800815D9C /* LoadedTileNew.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoadedTileNew.cpp; path = ../../../../common/WhirlyGlobeLib/src/LoadedTileNew.cpp; sourceTree = "<group>"; };
+		2BE1E7952213979800815D9C /* QuadTileBuilder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadTileBuilder.cpp; path = ../../../../common/WhirlyGlobeLib/src/QuadTileBuilder.cpp; sourceTree = "<group>"; };
+		2BE1E7962213979800815D9C /* LoadedImage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LoadedImage.cpp; path = ../../../../common/WhirlyGlobeLib/src/LoadedImage.cpp; sourceTree = "<group>"; };
 		2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WhirlyGlobeMaplyComponent.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeMaplyComponent.h; sourceTree = "<group>"; };
 		2BE537041D2499E500B60FAD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -2563,14 +2561,11 @@
 			isa = PBXGroup;
 			children = (
 				2B82B52B1E82E2490095FB14 /* UpdateDisplayLayer.h */,
-				2B7B84E32122475200D11447 /* LoadedImage.h */,
 				2B82B5021E82E2490095FB14 /* DataLayer.h */,
 				2B82B5051E82E2490095FB14 /* LayoutLayer.h */,
 				2B0387F12069BC2E00DD5C40 /* QuadDisplayLayerNew.h */,
-				2B2B4700206D931300570F97 /* QuadTileBuilder.h */,
 				2B82B50A1E82E2490095FB14 /* LayerViewWatcher.h */,
 				2B82B50B1E82E2490095FB14 /* LayerThread.h */,
-				2B2B46F9206C000500570F97 /* LoadedTileNew.h */,
 			);
 			name = "layers & generators";
 			sourceTree = "<group>";
@@ -2647,9 +2642,6 @@
 				2B82B5B71E82E2490095FB14 /* LayerViewWatcher.mm */,
 				2B82B5BB1E82E2490095FB14 /* UpdateDisplayLayer.mm */,
 				2B82B5C51E82E2490095FB14 /* LayoutLayer.mm */,
-				2B361E43212398440074D06D /* QuadTileBuilder.mm */,
-				2B7B84E52122475900D11447 /* LoadedImage.mm */,
-				2B2B46FB206C001900570F97 /* LoadedTileNew.mm */,
 				2B0387F32069BC3800DD5C40 /* QuadDisplayLayerNew.mm */,
 			);
 			name = "layers & loaders";
@@ -2711,6 +2703,7 @@
 				2B23131221F8DD01006AA344 /* view */,
 				2B446B2021F79B130078A975 /* scene */,
 				2B446B3421F7E6480078A975 /* render */,
+				2BE1E78C2213974E00815D9C /* loading */,
 				2B446B7E21FB97990078A975 /* data formats */,
 			);
 			name = include;
@@ -2726,6 +2719,7 @@
 				2B23131F21F8DD68006AA344 /* view */,
 				2B446B2121F79B3C0078A975 /* scene */,
 				2B446B3521F7E6580078A975 /* render */,
+				2BE1E78D2213975A00815D9C /* loading */,
 				2B446B7F21FB97A80078A975 /* data formats */,
 			);
 			name = src;
@@ -3199,6 +3193,26 @@
 				2BE1E75A2208F33900815D9C /* SingleLabel_iOS.mm */,
 			);
 			name = managers;
+			sourceTree = "<group>";
+		};
+		2BE1E78C2213974E00815D9C /* loading */ = {
+			isa = PBXGroup;
+			children = (
+				2BE1E7902213977F00815D9C /* LoadedImage.h */,
+				2BE1E78E2213977F00815D9C /* LoadedTileNew.h */,
+				2BE1E78F2213977F00815D9C /* QuadTileBuilder.h */,
+			);
+			name = loading;
+			sourceTree = "<group>";
+		};
+		2BE1E78D2213975A00815D9C /* loading */ = {
+			isa = PBXGroup;
+			children = (
+				2BE1E7962213979800815D9C /* LoadedImage.cpp */,
+				2BE1E7942213979800815D9C /* LoadedTileNew.cpp */,
+				2BE1E7952213979800815D9C /* QuadTileBuilder.cpp */,
+			);
+			name = loading;
 			sourceTree = "<group>";
 		};
 		2BE536F51D2499E500B60FAD = {
@@ -3827,7 +3841,6 @@
 				2BE538231D249A1200B60FAD /* MaplyShader.h in Headers */,
 				2B884A651E3803170027C397 /* lasreaditemraw.hpp in Headers */,
 				2BE53A411D249C3D00B60FAD /* zero_copy_stream_impl.h in Headers */,
-				2B2B46FA206C000500570F97 /* LoadedTileNew.h in Headers */,
 				2B0387F8206ABD7B00DD5C40 /* MaplyQuadSampler.h in Headers */,
 				2BE5398A1D249BEF00B60FAD /* stdafx.h in Headers */,
 				2BE53A051D249C2900B60FAD /* generated_enum_reflection.h in Headers */,
@@ -3856,7 +3869,6 @@
 				2B82B6E61E82E24A0095FB14 /* ElevationCesiumFormat.h in Headers */,
 				2BE1E75D2208F43200815D9C /* FontTextureManager_iOS.h in Headers */,
 				2BE5397D1D249BEF00B60FAD /* AAPlanetPerihelionAphelion.h in Headers */,
-				2B2B4701206D931300570F97 /* QuadTileBuilder.h in Headers */,
 				2BE5383C1D249A1200B60FAD /* MaplyCoordinateSystem_private.h in Headers */,
 				2BE53A031D249C2900B60FAD /* extension_set.h in Headers */,
 				2BE539521D249BEF00B60FAD /* AAAngularSeparation.h in Headers */,
@@ -3978,7 +3990,6 @@
 				2BE538071D249A1200B60FAD /* MaplyCoordinateSystem.h in Headers */,
 				2BE539711D249BEF00B60FAD /* AANearParabolic.h in Headers */,
 				2BE5382E1D249A1200B60FAD /* MaplyVectorObject.h in Headers */,
-				2B7B84E42122475200D11447 /* LoadedImage.h in Headers */,
 				2BE5386D1D249A1200B60FAD /* MapnikStyleRule.h in Headers */,
 				2BE53A741D249C4700B60FAD /* stl_util.h in Headers */,
 				2BE537F71D249A1200B60FAD /* Maply3DTouchPreviewDatasource.h in Headers */,
@@ -4002,6 +4013,7 @@
 				2B8796E021FFD59100EF801D /* SceneRendererES_iOS.h in Headers */,
 				2B884A671E3803170027C397 /* lasreadpoint.hpp in Headers */,
 				2B87970522039D6300EF801D /* Texture_iOS.h in Headers */,
+				2BE1E7922213977F00815D9C /* QuadTileBuilder.h in Headers */,
 				2B82B5F81E82E2490095FB14 /* JSONOptions.h in Headers */,
 				2BE538371D249A1200B60FAD /* MaplyActiveObject_private.h in Headers */,
 				2BC3D6E6220B6AB500CE91D0 /* GeometryOBJReader.h in Headers */,
@@ -4043,6 +4055,7 @@
 				2B884A431E3803170027C397 /* arithmeticdecoder.hpp in Headers */,
 				2B82B5F51E82E2490095FB14 /* tess.h in Headers */,
 				2BE5385A1D249A1200B60FAD /* WGViewControllerLayer_private.h in Headers */,
+				2BE1E7912213977F00815D9C /* LoadedTileNew.h in Headers */,
 				2BE538651D249A1200B60FAD /* MaplyVectorStyleSimple.h in Headers */,
 				2B884A521E3803170027C397 /* bytestreamout.hpp in Headers */,
 				2BE53A701D249C4600B60FAD /* hash.h in Headers */,
@@ -4056,6 +4069,7 @@
 				2B82B60D1E82E2490095FB14 /* JSONMemory.h in Headers */,
 				2BB8A3CE21ED43A40025DA98 /* MaplyMBTileFetcher.h in Headers */,
 				2BE537F91D249A1200B60FAD /* MaplyActiveObject.h in Headers */,
+				2BE1E7932213977F00815D9C /* LoadedImage.h in Headers */,
 				2B884A711E3803170027C397 /* laswritepoint.hpp in Headers */,
 				2B884A481E3803170027C397 /* bytestreamin_array.hpp in Headers */,
 				2B82B5E91E82E2490095FB14 /* mesh.h in Headers */,
@@ -4269,7 +4283,6 @@
 				2BE1E76D220A6B6700815D9C /* MapboxVectorStyleFill.mm in Sources */,
 				2BC3D6E9220B700700CE91D0 /* MaplyWMSTileSource.mm in Sources */,
 				2B82B67D1E82E24A0095FB14 /* PJ_lagrng.c in Sources */,
-				2B879702220390AB00EF801D /* LoadedImage.mm in Sources */,
 				2B82B6571E82E2490095FB14 /* pj_deriv.c in Sources */,
 				2BB8E20321FFAA8F00154CDC /* GLUtils.cpp in Sources */,
 				2BE1E7452208CCB400815D9C /* GlobeRotateDelegate.mm in Sources */,
@@ -4574,7 +4587,6 @@
 				2BB8E1F021FF901900154CDC /* BillboardDrawable.cpp in Sources */,
 				2BE1E776220A6B6700815D9C /* MaplyVectorTileLineStyle.mm in Sources */,
 				2BC3D6EA220B701500CE91D0 /* MaplyMBTileFetcher.mm in Sources */,
-				2B87970122038FB800EF801D /* QuadTileBuilder.mm in Sources */,
 				2B82B6421E82E2490095FB14 /* PJ_aeqd.c in Sources */,
 				2B846EE321F1372600EF2A82 /* pj_open_lib.c in Sources */,
 				2BB8E1F621FF903100154CDC /* Scene.cpp in Sources */,
@@ -4641,6 +4653,7 @@
 				2BB8E1EF21FF900600154CDC /* BasicDrawableInstance.cpp in Sources */,
 				2BE53AB51D249CAF00B60FAD /* SMCalloutView.m in Sources */,
 				2B82B6BC1E82E24A0095FB14 /* PJ_vandg.c in Sources */,
+				2BE1E7982213979900815D9C /* QuadTileBuilder.cpp in Sources */,
 				2B846EDD21F1365000EF2A82 /* pj_apply_vgridshift.c in Sources */,
 				2BC3D6DF220B550400CE91D0 /* MaplyVariableTarget.mm in Sources */,
 				2BE1E7532208ECA700815D9C /* MaplyAnnotation.mm in Sources */,
@@ -4725,7 +4738,6 @@
 				2B82B67A1E82E24A0095FB14 /* PJ_krovak.c in Sources */,
 				2BE53A0A1D249C2900B60FAD /* message.cc in Sources */,
 				2BE53A331D249C3D00B60FAD /* strtod.cc in Sources */,
-				2B879703220390B600EF801D /* LoadedTileNew.mm in Sources */,
 				2BC3D6F8220CAAC700CE91D0 /* WhirlyKitLog.mm in Sources */,
 				2B82B6B11E82E24A0095FB14 /* PJ_sts.c in Sources */,
 				2B8796B821FFB35200EF801D /* BillboardManager.cpp in Sources */,
