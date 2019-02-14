@@ -930,7 +930,7 @@ public:
                 std::lock_guard<std::mutex> guardLock(selectLock);
                 selectObjectSet.insert(SelectObject(wgMarker->selectID,marker));
             }
-            compObj.selectIDs.insert(wgMarker->selectID);
+            compObj->contents->selectIDs.insert(wgMarker->selectID);
         }
     }
     
@@ -942,14 +942,14 @@ public:
         ChangeSet changes;
         SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, markerInfo, changes);
         if (markerID != EmptyIdentity)
-            compObj.markerIDs.insert(markerID);
+            compObj->contents->markerIDs.insert(markerID);
         [self flushChanges:changes mode:threadMode];
     }
     
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
 }
 
@@ -959,14 +959,14 @@ public:
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     if ([markers count] == 0)
     {
         @synchronized(userObjects)
         {
             [userObjects addObject:compObj];
-            compObj.underConstruction = false;
+            compObj->contents->underConstruction = false;
         }
         return compObj;
     }
@@ -1245,7 +1245,7 @@ public:
             {
                 selectObjectSet.insert(SelectObject(wgMarker->selectID,marker));
             }
-            compObj.selectIDs.insert(wgMarker->selectID);
+            compObj->contents->selectIDs.insert(wgMarker->selectID);
         }
     }
     
@@ -1256,14 +1256,14 @@ public:
         ChangeSet changes;
         SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, markerInfo, changes);
         if (markerID != EmptyIdentity)
-            compObj.markerIDs.insert(markerID);
+            compObj->contents->markerIDs.insert(markerID);
         [self flushChanges:changes mode:threadMode];
     }
     
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
 }
 
@@ -1273,14 +1273,14 @@ public:
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
 
     if ([markers count] == 0)
     {
         @synchronized(userObjects)
         {
             [userObjects addObject:compObj];
-            compObj.underConstruction = false;
+            compObj->contents->underConstruction = false;
         }
         return compObj;
     }
@@ -1445,7 +1445,7 @@ public:
         {
             std::lock_guard<std::mutex> guardLock(selectLock);
             selectObjectSet.insert(SelectObject(wgLabel->selectID,label));
-            compObj.selectIDs.insert(wgLabel->selectID);
+            compObj->contents->selectIDs.insert(wgLabel->selectID);
         }
     }
     
@@ -1457,13 +1457,13 @@ public:
         SimpleIdentity labelID = labelManager->addLabels(wgLabels, labelInfo, changes);
         [self flushChanges:changes mode:threadMode];
         if (labelID != EmptyIdentity)
-            compObj.labelIDs.insert(labelID);
+            compObj->contents->labelIDs.insert(labelID);
     }
 
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
     
     [self clearTempContext:tmpContext];
@@ -1475,14 +1475,14 @@ public:
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     if ([labels count] == 0)
     {
         @synchronized(userObjects)
         {
             [userObjects addObject:compObj];
-            compObj.underConstruction = false;
+            compObj->contents->underConstruction = false;
         }
         return compObj;
     }
@@ -1566,7 +1566,7 @@ public:
         {
             std::lock_guard<std::mutex> guardLock(selectLock);
             selectObjectSet.insert(SelectObject(wgLabel->selectID,label));
-            compObj.selectIDs.insert(wgLabel->selectID);
+            compObj->contents->selectIDs.insert(wgLabel->selectID);
         }
     }
     
@@ -1579,13 +1579,13 @@ public:
         SimpleIdentity labelID = labelManager->addLabels(wgLabels, labelInfo, changes);
         [self flushChanges:changes mode:threadMode];
         if (labelID != EmptyIdentity)
-            compObj.labelIDs.insert(labelID);
+            compObj->contents->labelIDs.insert(labelID);
     }
     
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
     
     [self clearTempContext:tmpContext];
@@ -1597,14 +1597,14 @@ public:
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     if ([labels count] == 0)
     {
         @synchronized(userObjects)
         {
             [userObjects addObject:compObj];
-            compObj.underConstruction = false;
+            compObj->contents->underConstruction = false;
         }
         return compObj;
     }
@@ -1702,7 +1702,7 @@ public:
             SimpleIdentity vecID = vectorManager->addVectors(&shapes, vectorInfo, changes);
             [self flushChanges:changes mode:threadMode];
             if (vecID != EmptyIdentity)
-                compObj.vectorIDs.insert(vecID);
+                compObj->contents->vectorIDs.insert(vecID);
         }
     }
     
@@ -1713,9 +1713,9 @@ public:
         if ([inDesc[kMaplyVecCentered] boolValue])
         {
             if (inDesc[kMaplyVecCenterX])
-                compObj.vectorOffset.x() = [inDesc[kMaplyVecCenterX] doubleValue];
+                compObj->contents->vectorOffset.x() = [inDesc[kMaplyVecCenterX] doubleValue];
             if (inDesc[kMaplyVecCenterY])
-                compObj.vectorOffset.y() = [inDesc[kMaplyVecCenterY] doubleValue];
+                compObj->contents->vectorOffset.y() = [inDesc[kMaplyVecCenterY] doubleValue];
         }
         compObj.vectors = vectors;
     }
@@ -1723,7 +1723,7 @@ public:
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
 }
 
@@ -1733,14 +1733,14 @@ public:
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     if ([vectors count] == 0)
     {
         @synchronized(userObjects)
         {
             [userObjects addObject:compObj];
-            compObj.underConstruction = false;
+            compObj->contents->underConstruction = false;
         }
         return compObj;
     }
@@ -1832,7 +1832,7 @@ public:
         SimpleIdentity vecID = vectorManager->addVectors(&shapes, vectorInfo, changes);
         [self flushChanges:changes mode:threadMode];
         if (vecID != EmptyIdentity)
-            compObj.wideVectorIDs.insert(vecID);
+            compObj->contents->wideVectorIDs.insert(vecID);
     }
     
     // If the vectors are selectable we want to keep them around
@@ -1843,7 +1843,7 @@ public:
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
 }
 
@@ -1852,14 +1852,14 @@ public:
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     if ([vectors count] == 0)
     {
         @synchronized(userObjects)
         {
             [userObjects addObject:compObj];
-            compObj.underConstruction = false;
+            compObj->contents->underConstruction = false;
         }
         return compObj;
     }
@@ -1916,25 +1916,25 @@ public:
         WideVectorManager *wideVectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
 
         ChangeSet changes;
-        if (vectorManager && !baseObj.vectorIDs.empty())
+        if (vectorManager && !baseObj->contents->vectorIDs.empty())
         {
-            for (SimpleIDSet::iterator it = baseObj.vectorIDs.begin();it != baseObj.vectorIDs.end(); ++it)
+            for (SimpleIDSet::iterator it = baseObj->contents->vectorIDs.begin();it != baseObj->contents->vectorIDs.end(); ++it)
             {
                 SimpleIdentity instID = vectorManager->instanceVectors(*it, vectorInfo, changes);
                 if (instID != EmptyIdentity)
-                    compObj.vectorIDs.insert(instID);
+                    compObj->contents->vectorIDs.insert(instID);
             }
         }
-        if (wideVectorManager && !baseObj.wideVectorIDs.empty())
+        if (wideVectorManager && !baseObj->contents->wideVectorIDs.empty())
         {
             iosDictionary dictWrap(inDesc);
             WideVectorInfo vectorInfo(dictWrap);
 
-            for (SimpleIDSet::iterator it = baseObj.wideVectorIDs.begin();it != baseObj.wideVectorIDs.end(); ++it)
+            for (SimpleIDSet::iterator it = baseObj->contents->wideVectorIDs.begin();it != baseObj->contents->wideVectorIDs.end(); ++it)
             {
                 SimpleIdentity instID = wideVectorManager->instanceVectors(*it, vectorInfo, changes);
                 if (instID != EmptyIdentity)
-                    compObj.wideVectorIDs.insert(instID);
+                    compObj->contents->wideVectorIDs.insert(instID);
             }
         }
         [self flushChanges:changes mode:threadMode];
@@ -1943,7 +1943,7 @@ public:
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
 }
 
@@ -1953,7 +1953,7 @@ public:
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     NSArray *argArray = @[baseObj, compObj, [NSDictionary dictionaryWithDictionary:desc], [NSNumber numberWithBool:YES], @(threadMode)];
     switch (threadMode)
@@ -1973,14 +1973,14 @@ public:
 - (MaplyComponentObject *)addSelectionVectors:(NSArray *)vectors desc:(NSDictionary *)desc
 {
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = false;
+    compObj->contents->underConstruction = false;
     
     if ([vectors count] == 0)
     {
         @synchronized(userObjects)
         {
             [userObjects addObject:compObj];
-            compObj.underConstruction = false;
+            compObj->contents->underConstruction = false;
         }
         return compObj;
     }
@@ -2020,8 +2020,8 @@ public:
             VectorInfo vectorInfo(dictWrap);
 
             ChangeSet changes;
-            for (SimpleIDSet::iterator it = vecObj.vectorIDs.begin();
-                 it != vecObj.vectorIDs.end(); ++it)
+            for (SimpleIDSet::iterator it = vecObj->contents->vectorIDs.begin();
+                 it != vecObj->contents->vectorIDs.end(); ++it)
                 vectorManager->changeVectors(*it, vectorInfo, changes);
             [self flushChanges:changes mode:threadMode];
         }
@@ -2041,7 +2041,7 @@ public:
     NSArray *argArray = @[vecObj, desc, @(threadMode)];
     
     // If the object is under construction, toss this over to the layer thread
-    if (vecObj.underConstruction)
+    if (vecObj->contents->underConstruction)
         threadMode = MaplyThreadAny;
     
     switch (threadMode)
@@ -2159,7 +2159,7 @@ public:
                 baseShape->selectID = Identifiable::genId();
                 std::lock_guard<std::mutex> guardLock(selectLock);
                 selectObjectSet.insert(SelectObject(baseShape->selectID,shape));
-                compObj.selectIDs.insert(baseShape->selectID);
+                compObj->contents->selectIDs.insert(baseShape->selectID);
             }
         }
     }
@@ -2174,7 +2174,7 @@ public:
         {
             SimpleIdentity shapeID = shapeManager->addShapes(ourShapes, shapeInfo, changes);
             if (shapeID != EmptyIdentity)
-                compObj.shapeIDs.insert(shapeID);
+                compObj->contents->shapeIDs.insert(shapeID);
         }
         if (!specialShapes.empty())
         {
@@ -2185,7 +2185,7 @@ public:
             }
             SimpleIdentity shapeID = shapeManager->addShapes(specialShapes, shapeInfo, changes);
             if (shapeID != EmptyIdentity)
-                compObj.shapeIDs.insert(shapeID);
+                compObj->contents->shapeIDs.insert(shapeID);
         }
         [self flushChanges:changes mode:threadMode];
     }
@@ -2193,7 +2193,7 @@ public:
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
 }
 
@@ -2203,14 +2203,14 @@ public:
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     if ([shapes count] == 0)
     {
         @synchronized(userObjects)
         {
             [userObjects addObject:compObj];
-            compObj.underConstruction = false;
+            compObj->contents->underConstruction = false;
         }
         return compObj;
     }
@@ -2373,7 +2373,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     thisInst.selectable = modelInst.selectable;
                     if (thisInst.selectable)
                     {
-                        compObj.selectIDs.insert(thisInst.getId());
+                        compObj->contents->selectIDs.insert(thisInst.getId());
                         std::lock_guard<std::mutex> guardLock(selectLock);
                         selectObjectSet.insert(SelectObject(thisInst.getId(),modelInst));
                     }
@@ -2397,7 +2397,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 
                 SimpleIdentity geomID = geomManager->addGeometryInstances(baseModelID, matInst, geomInfo, changes);
                 if (geomID != EmptyIdentity)
-                    compObj.geomIDs.insert(geomID);
+                    compObj->contents->geomIDs.insert(geomID);
             }
         }
         
@@ -2411,7 +2411,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
     
     [self clearTempContext:tmpContext];
@@ -2445,7 +2445,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             geomManager->enableGeometry(geomIDs, true, changes);
             
             if (geomID != EmptyIdentity)
-                compObj.geomIDs.insert(geomID);
+                compObj->contents->geomIDs.insert(geomID);
         }
         
         [self flushChanges:changes mode:threadMode];
@@ -2454,7 +2454,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
 }
 
@@ -2463,14 +2463,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     if ([modelInstances count] == 0)
     {
         @synchronized(userObjects)
         {
             [userObjects addObject:compObj];
-            compObj.underConstruction = false;
+            compObj->contents->underConstruction = false;
         }
         return compObj;
     }
@@ -2494,14 +2494,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     if ([geom count] == 0)
     {
         @synchronized(userObjects)
         {
             [userObjects addObject:compObj];
-            compObj.underConstruction = false;
+            compObj->contents->underConstruction = false;
         }
         return compObj;
     }
@@ -2603,7 +2603,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             ChangeSet changes;
             SimpleIdentity chunkID = chunkManager->addChunk(chunk, false, true, changes);
             if (chunkID != EmptyIdentity)
-                compObj.chunkIDs.insert(chunkID);
+                compObj->contents->chunkIDs.insert(chunkID);
             [self flushChanges:changes mode:threadMode];
         }
     }
@@ -2611,7 +2611,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
 #endif
 }
@@ -2622,14 +2622,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     if ([stickers count] == 0)
     {
         @synchronized(userObjects)
         {
             [userObjects addObject:compObj];
-            compObj.underConstruction = false;
+            compObj->contents->underConstruction = false;
         }
         return compObj;
     }
@@ -2730,7 +2730,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSArray *argArray = @[stickerObj, desc, @(threadMode)];
     
     // If the object is under construction, toss this over to the layer thread
-    if (stickerObj.underConstruction)
+    if (stickerObj->contents->underConstruction)
         threadMode = MaplyThreadAny;
     
     switch (threadMode)
@@ -2770,15 +2770,15 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     if (loftManager)
     {
         SimpleIdentity loftID = loftManager->addLoftedPolys(&shapes, loftInfo, changes);
-        compObj.loftIDs.insert(loftID);
-        compObj.isSelectable = false;
+        compObj->contents->loftIDs.insert(loftID);
+        compObj->contents->isSelectable = false;
     }
     [self flushChanges:changes mode:threadMode];
     
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
 }
 
@@ -2788,14 +2788,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     if ([vectors count] == 0)
     {
         @synchronized(userObjects)
         {
             [userObjects addObject:compObj];
-            compObj.underConstruction = false;
+            compObj->contents->underConstruction = false;
         }
         return compObj;
     }
@@ -2858,7 +2858,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             {
                 std::lock_guard<std::mutex> guardLock(selectLock);
                 selectObjectSet.insert(SelectObject(wkBill->selectID,bill));
-                compObj.selectIDs.insert(wkBill->selectID);
+                compObj->contents->selectIDs.insert(wkBill->selectID);
             }
 
             MaplyScreenObject *screenObj = bill.screenObj;
@@ -2925,7 +2925,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     wkBill->polys.push_back(billPoly);
                 }
                 
-                compObj.drawStringIDs.insert(drawStr->getId());
+                compObj->contents->drawStringIDs.insert(drawStr->getId());
                 delete drawStr;
             }
             
@@ -2933,15 +2933,15 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         }
         
         SimpleIdentity billId = billManager->addBillboards(wkBills, billInfo, changes);
-        compObj.billIDs.insert(billId);
-        compObj.isSelectable = false;
+        compObj->contents->billIDs.insert(billId);
+        compObj->contents->isSelectable = false;
     }
     [self flushChanges:changes mode:threadMode];
     
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
     
     [self clearTempContext:tmpContext];
@@ -2953,14 +2953,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     if ([bboards count] == 0)
     {
         @synchronized(userObjects)
         {
             [userObjects addObject:compObj];
-            compObj.underConstruction = false;
+            compObj->contents->underConstruction = false;
         }
         return compObj;
     }
@@ -3087,7 +3087,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         
         SimpleIdentity partSysID = partSysManager->addParticleSystem(wkPartSys, changes);
         partSys.ident = partSysID;
-        compObj.partSysIDs.insert(partSysID);
+        compObj->contents->partSysIDs.insert(partSysID);
     }
     
     [self flushChanges:changes mode:threadMode];
@@ -3095,7 +3095,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
     
     [self clearTempContext:tmpContext];
@@ -3106,7 +3106,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     NSArray *argArray = @[partSys, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
@@ -3130,7 +3130,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         ChangeSet changes;
 
         SimpleIdentity targetID = target ? target.renderTargetID : EmptyIdentity;
-        for (SimpleIdentity partSysID : compObj.partSysIDs) {
+        for (SimpleIdentity partSysID : compObj->contents->partSysIDs) {
             partSysManager->changeRenderTarget(partSysID,targetID,changes);
         }
 
@@ -3223,7 +3223,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     [self resolveInfoDefaults:inDesc info:&geomInfo defaultShader:kMaplyShaderParticleSystemPointDefault];
     [self resolveDrawPriority:inDesc info:&geomInfo drawPriority:kMaplyParticleSystemDrawPriorityDefault offset:0];
 
-    compObj.isSelectable = false;
+    compObj->contents->isSelectable = false;
 
     // May need a temporary context
     EAGLContext *tmpContext = [self setupTempContext:threadMode];
@@ -3242,7 +3242,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             }
             SimpleIdentity geomID = geomManager->addGeometryPoints(points->points, mat, geomInfo, changes);
             if (geomID != EmptyIdentity)
-                compObj.geomIDs.insert(geomID);
+                compObj->contents->geomIDs.insert(geomID);
         }
     }
     
@@ -3251,7 +3251,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     @synchronized(userObjects)
     {
         [userObjects addObject:compObj];
-        compObj.underConstruction = false;
+        compObj->contents->underConstruction = false;
     }
     
     [self clearTempContext:tmpContext];
@@ -3262,7 +3262,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     threadMode = [self resolveThreadMode:threadMode];
 
     MaplyComponentObject *compObj = [[MaplyComponentObject alloc] initWithDesc:desc];
-    compObj.underConstruction = true;
+    compObj->contents->underConstruction = true;
     
     NSArray *argArray = @[points, compObj, [NSDictionary dictionaryWithDictionary:desc], @(threadMode)];
     switch (threadMode)
@@ -3368,43 +3368,43 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         
         if (isHere)
         {
-            if (userObj.underConstruction)
+            if (userObj->contents->underConstruction)
                 NSLog(@"Deleting an object that's under construction");
             
             @synchronized(userObj)
             {
                 // Get rid of the various layer objects
-                if (markerManager && !userObj.markerIDs.empty())
-                    markerManager->removeMarkers(userObj.markerIDs, changes);
-                if (labelManager && !userObj.labelIDs.empty())
-                    labelManager->removeLabels(userObj.labelIDs, changes);
-                if (vectorManager && !userObj.vectorIDs.empty())
-                    vectorManager->removeVectors(userObj.vectorIDs, changes);
-                if (wideVectorManager && !userObj.wideVectorIDs.empty())
-                    wideVectorManager->removeVectors(userObj.wideVectorIDs, changes);
-                if (shapeManager && !userObj.shapeIDs.empty())
-                    shapeManager->removeShapes(userObj.shapeIDs, changes);
-                if (loftManager && !userObj.loftIDs.empty())
-                    loftManager->removeLoftedPolys(userObj.loftIDs, changes);
+                if (markerManager && !userObj->contents->markerIDs.empty())
+                    markerManager->removeMarkers(userObj->contents->markerIDs, changes);
+                if (labelManager && !userObj->contents->labelIDs.empty())
+                    labelManager->removeLabels(userObj->contents->labelIDs, changes);
+                if (vectorManager && !userObj->contents->vectorIDs.empty())
+                    vectorManager->removeVectors(userObj->contents->vectorIDs, changes);
+                if (wideVectorManager && !userObj->contents->wideVectorIDs.empty())
+                    wideVectorManager->removeVectors(userObj->contents->wideVectorIDs, changes);
+                if (shapeManager && !userObj->contents->shapeIDs.empty())
+                    shapeManager->removeShapes(userObj->contents->shapeIDs, changes);
+                if (loftManager && !userObj->contents->loftIDs.empty())
+                    loftManager->removeLoftedPolys(userObj->contents->loftIDs, changes);
                 // Note: Turned off chunk manager
 //                if (chunkManager && !userObj.chunkIDs.empty())
 //                    chunkManager->removeChunks(userObj.chunkIDs, changes);
-                if (billManager && !userObj.billIDs.empty())
-                    billManager->removeBillboards(userObj.billIDs, changes);
-                if (geomManager && !userObj.geomIDs.empty())
-                    geomManager->removeGeometry(userObj.geomIDs, changes);
-                if (fontTexManager && !userObj.drawStringIDs.empty())
+                if (billManager && !userObj->contents->billIDs.empty())
+                    billManager->removeBillboards(userObj->contents->billIDs, changes);
+                if (geomManager && !userObj->contents->geomIDs.empty())
+                    geomManager->removeGeometry(userObj->contents->geomIDs, changes);
+                if (fontTexManager && !userObj->contents->drawStringIDs.empty())
                 {
                     // Giving the fonts 2s to stick around
                     //       This avoids problems with texture being paged out.
                     //       Without this we lose the textures before we're done with them
                     TimeInterval when = TimeGetCurrent() + 2.0;
-                    for (SimpleIdentity dStrID : userObj.drawStringIDs)
+                    for (SimpleIdentity dStrID : userObj->contents->drawStringIDs)
                         fontTexManager->removeString(dStrID, changes, when);
                 }
-                if (partSysManager && !userObj.partSysIDs.empty())
+                if (partSysManager && !userObj->contents->partSysIDs.empty())
                 {
-                    for (SimpleIdentity partSysID : userObj.partSysIDs)
+                    for (SimpleIdentity partSysID : userObj->contents->partSysIDs)
                         partSysManager->removeParticleSystem(partSysID, changes);
                 }
                 
@@ -3415,11 +3415,11 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 userObj.textures.clear();
                 
                 // And any references to selection objects
-                if (!userObj.selectIDs.empty())
+                if (!userObj->contents->selectIDs.empty())
                 {
                     std::lock_guard<std::mutex> guardLock(selectLock);
-                    for (SimpleIDSet::iterator it = userObj.selectIDs.begin();
-                         it != userObj.selectIDs.end(); ++it)
+                    for (SimpleIDSet::iterator it = userObj->contents->selectIDs.begin();
+                         it != userObj->contents->selectIDs.end(); ++it)
                     {
                         SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(*it));
                         if (sit != selectObjectSet.end())
@@ -3473,7 +3473,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     {
         bool anyUnderConstruction = false;
         for (MaplyComponentObject *userObj in userObjs)
-            if (userObj.underConstruction)
+            if (userObj->contents->underConstruction)
                 anyUnderConstruction = true;
         if (anyUnderConstruction)
             threadMode = MaplyThreadAny;
@@ -3528,28 +3528,28 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         
         if (isHere)
         {
-            compObj.enable = enable;
-            if (vectorManager && !compObj.vectorIDs.empty())
-                vectorManager->enableVectors(compObj.vectorIDs, enable, changes);
-            if (wideVectorManager && !compObj.wideVectorIDs.empty())
-                wideVectorManager->enableVectors(compObj.wideVectorIDs, enable, changes);
-            if (markerManager && !compObj.markerIDs.empty())
-                markerManager->enableMarkers(compObj.markerIDs, enable, changes);
-            if (labelManager && !compObj.labelIDs.empty())
-                labelManager->enableLabels(compObj.labelIDs, enable, changes);
-            if (shapeManager && !compObj.shapeIDs.empty())
-                shapeManager->enableShapes(compObj.shapeIDs, enable, changes);
-            if (billManager && !compObj.billIDs.empty())
-                billManager->enableBillboards(compObj.billIDs, enable, changes);
-            if (loftManager && !compObj.loftIDs.empty())
-                loftManager->enableLoftedPolys(compObj.loftIDs, enable, changes);
-            if (geomManager && !compObj.geomIDs.empty())
-                geomManager->enableGeometry(compObj.geomIDs, enable, changes);
+            compObj->contents->enable = enable;
+            if (vectorManager && !compObj->contents->vectorIDs.empty())
+                vectorManager->enableVectors(compObj->contents->vectorIDs, enable, changes);
+            if (wideVectorManager && !compObj->contents->wideVectorIDs.empty())
+                wideVectorManager->enableVectors(compObj->contents->wideVectorIDs, enable, changes);
+            if (markerManager && !compObj->contents->markerIDs.empty())
+                markerManager->enableMarkers(compObj->contents->markerIDs, enable, changes);
+            if (labelManager && !compObj->contents->labelIDs.empty())
+                labelManager->enableLabels(compObj->contents->labelIDs, enable, changes);
+            if (shapeManager && !compObj->contents->shapeIDs.empty())
+                shapeManager->enableShapes(compObj->contents->shapeIDs, enable, changes);
+            if (billManager && !compObj->contents->billIDs.empty())
+                billManager->enableBillboards(compObj->contents->billIDs, enable, changes);
+            if (loftManager && !compObj->contents->loftIDs.empty())
+                loftManager->enableLoftedPolys(compObj->contents->loftIDs, enable, changes);
+            if (geomManager && !compObj->contents->geomIDs.empty())
+                geomManager->enableGeometry(compObj->contents->geomIDs, enable, changes);
             // Note: Disabled chunk manager
-//            if (chunkManager && !compObj.chunkIDs.empty())
+//            if (chunkManager && !compObj->contents->chunkIDs.empty())
 //            {
-//                for (SimpleIDSet::iterator it = compObj.chunkIDs.begin();
-//                     it != compObj.chunkIDs.end(); ++it)
+//                for (SimpleIDSet::iterator it = compObj->contents->chunkIDs.begin();
+//                     it != compObj->contents->chunkIDs.end(); ++it)
 //                    chunkManager->enableChunk(*it, enable, changes);
 //            }
         }
@@ -3583,7 +3583,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     {
         bool anyUnderConstruction = false;
         for (MaplyComponentObject *userObj in userObjs)
-            if (userObj.underConstruction)
+            if (userObj->contents->underConstruction)
                 anyUnderConstruction = true;
         if (anyUnderConstruction)
             threadMode = MaplyThreadAny;
@@ -3612,7 +3612,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     {
         bool anyUnderConstruction = false;
         for (MaplyComponentObject *userObj in userObjs)
-            if (userObj.underConstruction)
+            if (userObj->contents->underConstruction)
                 anyUnderConstruction = true;
         if (anyUnderConstruction)
             threadMode = MaplyThreadAny;
@@ -3651,16 +3651,17 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     {
         for (MaplyComponentObject *userObj in userObjects)
         {
-            if (userObj.vectors && userObj.isSelectable && userObj.enable)
+            if (userObj.vectors && userObj->contents->isSelectable && userObj->contents->enable)
             {
                 for (MaplyVectorObject *vecObj in userObj.vectors)
                 {
-                    if (vecObj.selectable && userObj.enable)
+                    if (vecObj.selectable && userObj->contents->enable)
                     {
                         // Note: Take visibility into account too
                         MaplyCoordinate coord;
-                        coord.x = pt.x()-userObj.vectorOffset.x();
-                        coord.y = pt.y()-userObj.vectorOffset.y();
+                        auto center = userObj->contents->vectorOffset;
+                        coord.x = pt.x()-center.x();
+                        coord.y = pt.y()-center.y();
                         if ([vecObj pointInAreal:coord])
                         {
                             [foundObjs addObject:vecObj];

@@ -197,7 +197,7 @@ using namespace Eigen;
                 geom->triangles.push_back(GeometryRaw::RawTriangle(basePt+0,basePt+2,basePt+3));
             }
             
-            compObj.drawStringIDs.insert(drawStr->getId());
+            compObj->contents->drawStringIDs.insert(drawStr->getId());
             delete drawStr;
         }
         

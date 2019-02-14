@@ -21,6 +21,7 @@
 #import "WhirlyVector.h"
 #import "Scene.h"
 #import "GlobeMath.h"
+#import "VectorData.h"
 
 namespace WhirlyKit
 {
@@ -34,7 +35,26 @@ public:
     ComponentObject();
     virtual ~ComponentObject();
     
-    // Note: Fill me in
+    SimpleIDSet markerIDs;
+    SimpleIDSet labelIDs;
+    SimpleIDSet vectorIDs;
+    SimpleIDSet wideVectorIDs;
+    SimpleIDSet shapeIDs;
+    SimpleIDSet chunkIDs;
+    SimpleIDSet loftIDs;
+    SimpleIDSet billIDs;
+    SimpleIDSet geomIDs;
+    SimpleIDSet partSysIDs;
+    SimpleIDSet selectIDs;
+    SimpleIDSet drawStringIDs;
+    // Note: Move vectors in here as well
+    Point2d vectorOffset;
+    bool isSelectable;
+    bool enable;
+    bool underConstruction;
+    
+    // Empty out references
+    void clear();
 };
     
 typedef std::shared_ptr<ComponentObject> ComponentObjectRef;

@@ -24,11 +24,29 @@ namespace WhirlyKit
 {
 
 ComponentObject::ComponentObject()
+    : vectorOffset(0.0,0.0), isSelectable(false),
+    enable(false), underConstruction(false)
 {
 }
 
 ComponentObject::~ComponentObject()
 {
+}
+    
+void ComponentObject::clear()
+{
+    markerIDs.clear();
+    labelIDs.clear();
+    vectorIDs.clear();
+    wideVectorIDs.clear();
+    shapeIDs.clear();
+    chunkIDs.clear();
+    loftIDs.clear();
+    billIDs.clear();
+    geomIDs.clear();
+    partSysIDs.clear();
+    selectIDs.clear();
+    drawStringIDs.clear();
 }
     
 }

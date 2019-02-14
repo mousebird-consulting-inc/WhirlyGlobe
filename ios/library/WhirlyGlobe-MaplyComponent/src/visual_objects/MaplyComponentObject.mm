@@ -25,8 +25,8 @@
 - (instancetype)init
 {
     self = [super init];
-    _isSelectable = true;
-    _enable = true;
+    contents->isSelectable = true;
+    contents->enable = true;
     
     return self;
 }
@@ -34,12 +34,11 @@
 - (instancetype)initWithDesc:(NSDictionary *)desc
 {
     self = [super init];
-    _isSelectable = true;
-    _enable = true;
+    contents->isSelectable = true;
+    contents->enable = true;
     id enable = desc[kMaplyEnable];
     if (enable)
-        _enable = [enable boolValue];
-    _vectorOffset = WhirlyKit::Point2d(0,0);
+        contents->enable = [enable boolValue];
     
     return self;
 }
