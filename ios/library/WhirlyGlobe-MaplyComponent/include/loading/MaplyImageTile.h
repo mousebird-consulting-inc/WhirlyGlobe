@@ -68,26 +68,32 @@
     Initialize with an NSData object containing PNG or JPEG data that can be interpreted by UIImage.
     
     We're expecting PNG, JPEG or another self identified format (e.g. PKM).  These we can interpret ourselves.
+
+    @param borderSize If the image already contains a border, let the ImageTile no.  Pass in 0 if it doesn't.
  */
 - (instancetype)initWithPNGorJPEGData:(NSData *)data;
 
-/** 
-    Initialize with an NSObject.  We'll try to figure out what it is from the type.
-    
-    We'll look at the data type and try to figure out what you're passing in.  In general, it's better to call one of the specific init routines.
+/**
+    Border size that was set on initialization.
+ 
+    If there's a built in border as part of the image data passed in during initialization, set it here.
+    Normally this is 0.
   */
-- (instancetype)initWithRandomData:(id)theObj;
+@property (nonatomic,assign) int borderSize;
 
-/** 
-    Target size for the image(s) represented by this tile.
-    
-    This instructs the pager to rescale the image(s) to the given target size.  This is probably faster than doing it yourself because we can extract the data and rescale in the same step.
+/**
+ Target size for the image(s) represented by this tile.
+ 
+ This instructs the pager to rescale the image(s) to the given target size.  This is probably faster than doing it yourself because we can extract the data and rescale in the same step.
  */
 @property (nonatomic) CGSize targetSize;
 
 /**
-    If this wraps a single NSData object in some form, return it, probably for storage.
+    Preprocess into a simple texture format.
+ 
+    Extracting from PNG or JPEG or whatever often requires a bit of work.  We'll do that work later,
+    if this isn't called.  But if you do call it here then you can do that work on your own thread.
   */
-- (NSData *) asNSData;
+- (void)preprocessTexture;
 
 @end

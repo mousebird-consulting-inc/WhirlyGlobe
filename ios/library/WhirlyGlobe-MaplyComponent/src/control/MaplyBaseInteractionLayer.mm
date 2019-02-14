@@ -43,6 +43,7 @@
 #import "Dictionary_NSDictionary.h"
 #import "SingleLabel_iOS.h"
 #import "FontTextureManager_iOS.h"
+#import "Texture_iOS.h"
 //#import "SphericalEarthChunkManager.h"
 
 using namespace Eigen;

@@ -201,16 +201,13 @@ static double MAX_EXTENT = 20037508.342789244;
 
     // Rendered image goes in first
     NSMutableArray *outImages = [NSMutableArray array];
-    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height];
-    WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
-    [outImages addObject:loadTile];
+    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height ];
+    [outImages addObject:tileData];
     
     // Any additional images are tacked on
     for (UIImage *image : images) {
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithImage:image];
-        WhirlyKitLoadedTile *loadTile = [tileData wkTile:0 convertToRaw:true];
-        if (loadTile)
-            [outImages addObject:loadTile];
+        [outImages addObject:tileData];
     }
     loadReturn.images = outImages;
 

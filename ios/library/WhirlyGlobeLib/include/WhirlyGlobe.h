@@ -64,4 +64,4 @@
 #import "GeometryOBJReader.h"
 #import "ParticleSystemManager.h"
 #import "BillboardManager.h"
-#import "LoadedImage.h"
+#import "ImageTile.h"

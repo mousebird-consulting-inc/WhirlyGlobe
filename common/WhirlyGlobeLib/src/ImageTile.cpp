@@ -1,9 +1,9 @@
 /*
- *  MaplyImageTile_private.h
- *  WhirlyGlobe-MaplyComponent
+ *  ImageTile.cpp
+ *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 10/18/13.
- *  Copyright 2011-2019 mousebird consulting
+ *  Created by Steve Gifford on 2/14/19.
+ *  Copyright 2011-2019 Saildrone Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,15 +18,19 @@
  *
  */
 
-#import "MaplyImageTile.h"
-#import "WhirlyGlobe.h"
-#import "ImageTile_iOS.h"
+#import "ImageTile.h"
 
-@interface MaplyImageTile()
+namespace WhirlyKit
 {
-@public
-    // All the action is in the C++ object
-    WhirlyKit::ImageTile_iOSRef imageTile;
+    
+ImageTile::ImageTile()
+    : borderSize(0),width(0), height(0), components(0),
+    targetWidth(0), targetHeight(0)
+{
 }
 
-@end
+ImageTile::~ImageTile()
+{
+}
+    
+}

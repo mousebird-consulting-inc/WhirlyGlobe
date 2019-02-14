@@ -24,6 +24,7 @@
 #import "MaplyShader_private.h"
 #import "MaplyRenderController_private.h"
 #import "GLUtils.h"
+#import "Texture_iOS.h"
 
 using namespace WhirlyKit;
 
