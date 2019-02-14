@@ -25,7 +25,7 @@
 @interface MaplyQuadImageLoaderBase()
 {
 @public
-    WhirlyKitQuadTileBuilder * __weak builder;
+    WhirlyKit::QuadTileBuilder *builder;
     GLenum texType;
     WhirlyKit::SimpleIdentity shaderID;
     

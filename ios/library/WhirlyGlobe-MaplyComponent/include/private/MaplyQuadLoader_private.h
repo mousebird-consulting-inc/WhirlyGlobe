@@ -21,6 +21,7 @@
 #import "QuadTileBuilder.h"
 #import "MaplyQuadSampler_private.h"
 #import "MaplyQuadLoader_private.h"
+#import "QuadDisplayLayerNew.h"
 
 @interface MaplyQuadLoaderBase()
 {

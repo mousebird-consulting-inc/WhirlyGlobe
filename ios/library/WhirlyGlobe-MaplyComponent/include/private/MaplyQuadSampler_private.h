@@ -45,7 +45,7 @@
 - (nullable instancetype)initWithParams:(MaplySamplingParams * __nonnull)params;
 
 // Add a new builder delegate to watch tile related events
-- (void)addBuilderDelegate:(NSObject<WhirlyKitQuadTileBuilderDelegate> * __nonnull)delegate;
+- (void)addBuilderDelegate:(WhirlyKit::QuadTileBuilderDelegateRef)delegate;
 
 // Remove the given builder delegate that was watching tile related events
 - (void)removeBuilderDelegate:(NSObject * __nonnull)delegate;

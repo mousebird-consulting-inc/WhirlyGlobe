@@ -21,7 +21,7 @@
 #import "MaplyImageTile.h"
 #import "WhirlyGlobe.h"
 
-typedef enum {MaplyImgTypeImage,MaplyImgTypeData,MaplyImgTypeRawImage,MaplyImgTypePlaceholder} MaplyImgType;
+typedef enum {MaplyImgTypeImage,MaplyImgTypeData,MaplyImgTypeRawImage} MaplyImgType;
 
 @interface MaplyImageTile()
 {

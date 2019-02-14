@@ -20,30 +20,17 @@
 
 #import <Foundation/Foundation.h>
 #import <math.h>
-#import "WhirlyVector.h"
-#import "Scene.h"
+#import "QuadDisplayControllerNew.h"
 #import "DataLayer.h"
-#import "LayerThread.h"
-#import "GlobeMath.h"
-#import "SceneRendererES2.h"
-#import "ScreenImportance.h"
-#import "WhirlyKitView.h"
-#import "QuadTreeNew.h"
-    
+
 /** This layer turns view state updates into quad tree tiles to load.
   */
 @interface WhirlyKitQuadDisplayLayerNew : NSObject<WhirlyKitLayer>
 
 /// Layer thread we're attached to
 @property (nonatomic,weak,readonly,nullable) WhirlyKitLayerThread *layerThread;
-/// Data source for the quad tree structure
-@property (nonatomic,strong,nullable) WhirlyKit::QuadDataStructure *dataStructure;
-/// Loader responds to our requests to load and unload tiles
-@property (nonatomic,strong,nullable) WhirlyKit::QuadLoaderNew *loader;
-/// On by default.  If you turn this off we won't evaluate any view changes.
-@property (nonatomic,assign) bool enable;
 
 /// Construct with a renderer and data source for the tiles
-- (nonnull)initWithDataSource:(WhirlyKit::QuadDataStructure *dataStructure loader:(WhirlyKit::QuadLoaderNew *loader renderer:(WhirlyKit::SceneRendererES * __nonnull)renderer;
+- (nonnull)initWithController:(WhirlyKit::QuadDisplayControllerNewRef)controller;
 
 @end

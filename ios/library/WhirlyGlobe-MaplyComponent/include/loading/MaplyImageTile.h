@@ -29,10 +29,6 @@
  */
 @interface MaplyImageTile : NSObject
 
-/// Initialize as a placeholder image.
-/// Placeholder images are blank, but they allow the pager to keep loading their children.
-- (instancetype)initAsPlaceholder;
-
 /** 
     Initialize with an NSData object containing 32 bit pixels.
     

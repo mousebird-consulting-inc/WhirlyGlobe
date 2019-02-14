@@ -21,8 +21,24 @@
 #import "QuadTileBuilder.h"
 #import "LoadedTileNew.h"
 
-using namespace WhirlyKit;
+namespace WhirlyKit
+{
+QuadDataStructure::QuadDataStructure()
+{
+}
 
+QuadDataStructure::~QuadDataStructure()
+{
+}
+    
+QuadDisplayInfo::QuadDisplayInfo()
+: scene(NULL), renderer(NULL), quadtree(NULL), coordSys(NULL),
+    maxTiles(0), viewUpdatePeriod(0.0), singleLevel(false)
+{
+}
+
+    QuadLoaderNew::QuadLoaderNew(QuadDisplayInfo )
+    
 @implementation WhirlyKitQuadTileBuilder
 {
     WhirlyKitQuadDisplayLayerNew * __weak layer;

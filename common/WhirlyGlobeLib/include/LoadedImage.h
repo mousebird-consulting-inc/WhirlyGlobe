@@ -38,10 +38,9 @@
  WKLoadedImageNSDataRawData - An NSData object containing raw RGBA values.
  PVRTC4 - Compressed PVRTC, 4 bit, no alpha
  PKM - ETC2 and EAC textures
- Placeholder - This is an empty image (so no visual representation)
  that is nonetheless "valid" so its children will be paged.
  */
-typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDataRawData,WKLoadedImagePVRTC4,WKLoadedImageNSDataPKM,WKLoadedImagePlaceholder,WKLoadedImageMax} WhirlyKitLoadedImageType;
+typedef enum {WKLoadedImageUIImage,WKLoadedImageNSDataAsImage,WKLoadedImageNSDataRawData,WKLoadedImagePVRTC4,WKLoadedImageNSDataPKM,WKLoadedImageMax} WhirlyKitLoadedImageType;
 
 /// Used to specify the image type for the textures we create
 typedef enum {WKTileIntRGBA,

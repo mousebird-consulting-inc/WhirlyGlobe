@@ -98,14 +98,6 @@ using namespace WhirlyKit;
     return loadImage;
 }
 
-+ (WhirlyKitLoadedImage *)PlaceholderImage
-{
-    WhirlyKitLoadedImage *loadImage = [[WhirlyKitLoadedImage alloc] init];
-    loadImage.type = WKLoadedImagePlaceholder;
-    
-    return loadImage;
-}
-
 - (WhirlyKit::Texture *)textureFromRawData:(NSData *)theData width:(int)theWidth height:(int)theHeight
 {
     Texture_iOS *newTex = new Texture_iOS("Tile Quad Loader",theData,false);
@@ -165,7 +157,6 @@ using namespace WhirlyKit;
                 newTex->setHeight(_height);
             }
             break;
-        case WKLoadedImagePlaceholder:
         default:
             break;
     }

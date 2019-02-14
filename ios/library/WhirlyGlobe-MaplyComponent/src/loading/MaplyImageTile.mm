@@ -24,14 +24,6 @@
 
 @implementation MaplyImageTile
 
-- (instancetype)initAsPlaceholder
-{
-    self = [super init];
-    _type = MaplyImgTypePlaceholder;
-    
-    return self;
-}
-
 - (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height
 {
     if (![data isKindOfClass:[NSData class]])
@@ -211,12 +203,6 @@
 {
     WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
     
-    if (_type == MaplyImgTypePlaceholder)
-    {
-        [loadTile.images addObject:[WhirlyKitLoadedImage PlaceholderImage]];
-        return loadTile;
-    }
-
     // Work through the various layers
     for (id thing in stuff)
     {

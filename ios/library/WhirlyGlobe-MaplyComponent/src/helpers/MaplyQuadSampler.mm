@@ -244,7 +244,7 @@ using namespace WhirlyKit;
 }
 
 // Add a new builder delegate to watch tile related events
-- (void)addBuilderDelegate:(NSObject<WhirlyKitQuadTileBuilderDelegate> * __nonnull)delegate
+- (void)addBuilderDelegate:(QuadTileBuilderDelegateRef)delegate
 {
     bool notifyDelegate = false;
 

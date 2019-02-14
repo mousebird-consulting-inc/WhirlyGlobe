@@ -1412,7 +1412,7 @@ static const float PerfOutputDelay = 15.0;
         [self removeLayer:theLayer];
 }
 
-- (MaplyQuadSamplingLayer *)findSamplingLayer:(MaplySamplingParams *)params forUser:(NSObject<WhirlyKitQuadTileBuilderDelegate> *)userObj
+- (MaplyQuadSamplingLayer *)findSamplingLayer:(MaplySamplingParams *)params forUser:(QuadTileBuilderDelegateRef)userObj
 {
     if (!renderControl)
         return nil;
