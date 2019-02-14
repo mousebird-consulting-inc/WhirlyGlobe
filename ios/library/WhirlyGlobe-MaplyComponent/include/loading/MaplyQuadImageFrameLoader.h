@@ -20,6 +20,72 @@
 #import "MaplyQuadImageLoader.h"
 #import "MaplyActiveObject.h"
 
+/**
+ This version of the loader return is used by the MaplyImageLoaderInterpreter.
+ 
+ When image tiles load, the interpeter fill in these contents, which can
+ include any sort of ComponentObject and, of course, images.
+ */
+@interface MaplyImageLoaderReturn : MaplyLoaderReturn
+
+/// Add an image to this loaded return.
+/// You can multiple, but the interpreter should be expecting that
+- (void)addImageTile:(MaplyImageTile * __nonnull)image;
+
+/// Add a UIImage to the loader return
+/// This just adds a MaplyImageTile wrapper around the UIImage.
+- (void)addImage:(UIImage * __nonnull)image;
+
+/// Return an array of Images
+- (NSArray<MaplyImageTile *> * __nonnull)getImages;
+
+/// If any component objects are associated with the tile, these are them.
+/// They need to start disabled.  The system will enable and delete them when it is time.
+- (void)addCompObjs:(NSArray<MaplyComponentObject *> * __nonnull)compObjs;
+
+/// Return the component objects added for this loader return
+- (NSArray<MaplyComponentObject *> *__nonnull)getCompObjs;
+
+/// These component objects are assumed to be overlaid and so only one
+/// set will be displayed at a time.
+- (void)addOvlCompObjs:(NSArray<MaplyComponentObject *> * __nonnull)compObjs;
+
+/// Return the overlay component objects added for this loader return
+- (NSArray<MaplyComponentObject *> *__nonnull)getOvlCompObjs;
+
+@end
+
+/**
+ Image loader intrepreter turns NSData objects into MaplyImageTiles.
+ 
+ This is the default interpreter used byt the MaplyQuadImageLoader.
+ */
+@interface MaplyImageLoaderInterpreter : NSObject<MaplyLoaderInterpreter>
+@end
+
+@class MaplyQuadImageLoaderBase;
+
+/**
+ This loader interpreter sticks a designator in the middle of tiles
+ and a line around the edge.  Nice for debugging.
+ */
+@interface MaplyOvlDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
+
+// Intialize with the loader we're using.  Need this for extents of tiles
+- (instancetype __nonnull)initWithLoader:(MaplyQuadImageLoaderBase * __nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
+
+@end
+
+/**
+ This loader interpreter makes up an image for the given frame/tile
+ and returns that.  It doesn't use any returned data.
+ */
+@interface MaplyDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
+
+- (instancetype __nonnull)initWithLoader:(MaplyQuadImageLoaderBase *__nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
+
+@end
+
 @class MaplyQuadImageFrameLoader;
 
 /**

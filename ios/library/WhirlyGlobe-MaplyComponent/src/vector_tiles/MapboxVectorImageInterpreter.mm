@@ -23,7 +23,7 @@
 #import "MaplyTileSourceNew.h"
 #import "MapboxVectorStyleSet.h"
 #import "MapboxVectorStyleBackground.h"
-#import "MaplyQuadImageLoader.h"
+#import "MaplyQuadImageFrameLoader.h"
 #import "MaplyImageTile_private.h"
 
 #include <iostream>
@@ -106,15 +106,16 @@ static double MAX_EXTENT = 20037508.342789244;
     return retData;
 }
 
-- (void)dataForTile:(MaplyLoaderReturn * __nonnull)loadReturn
+- (void)dataForTile:(MaplyImageLoaderReturn * __nonnull)loadReturn
 {
     MaplyTileID tileID = loadReturn.tileID;
     std::vector<NSData *> pbfDatas;
     std::vector<UIImage *> images;
     
     // Uncompress any of the data we recieved
-    for (unsigned int ii=0;ii<[loadReturn.multiTileData count];ii++) {
-        NSData *thisTileData = [loadReturn.multiTileData objectAtIndex:ii];
+    NSArray *tileData = [loadReturn getTileData];
+    for (unsigned int ii=0;ii<[tileData count];ii++) {
+        NSData *thisTileData = [tileData objectAtIndex:ii];
         if(thisTileData) {
           if([thisTileData isCompressed]) {
               thisTileData = [thisTileData uncompressGZip];
@@ -200,23 +201,21 @@ static double MAX_EXTENT = 20037508.342789244;
     [viewC endChanges];
 
     // Rendered image goes in first
-    NSMutableArray *outImages = [NSMutableArray array];
-    MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height ];
-    [outImages addObject:tileData];
+    MaplyImageTile *tileImage = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height ];
+    [loadReturn addImageTile:tileImage];
     
     // Any additional images are tacked on
     for (UIImage *image : images) {
         MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithImage:image];
-        [outImages addObject:tileData];
+        [loadReturn addImageTile:tileData];
     }
-    loadReturn.images = outImages;
 
     if ([ovlCompObjs count] > 0) {
-        loadReturn.ovlCompObjs = ovlCompObjs;
+        [loadReturn addOvlCompObjs:ovlCompObjs];
         [compObjs removeObjectsInArray:ovlCompObjs];
-        loadReturn.compObjs = compObjs;
+        [loadReturn addCompObjs:compObjs];
     } else
-        loadReturn.compObjs = compObjs;
+        [loadReturn addCompObjs:compObjs];
 }
 
 /**

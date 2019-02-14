@@ -24,7 +24,7 @@
 #import "MaplyCoordinate.h"
 #import "MaplyVectorStyle.h"
 #import "MapboxVectorTiles.h"
-#import "MaplyQuadImageLoader.h"
+#import "MaplyQuadImageFrameLoader.h"
 
 @class MapboxVectorStyleSet;
 

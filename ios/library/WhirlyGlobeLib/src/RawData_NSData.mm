@@ -41,5 +41,10 @@ unsigned long RawNSDataReader::getLen() const
 {
     return [data length];
 }
+    
+NSData *RawNSDataReader::getData()
+{
+    return data;
+}
 
 }

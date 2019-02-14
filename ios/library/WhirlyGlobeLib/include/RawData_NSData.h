@@ -38,6 +38,9 @@ public:
     virtual const unsigned char *getRawData() const;
     // Length of the buffer
     virtual unsigned long getLen() const;
+    
+    // Return the NSData object
+    NSData *getData();
 
 protected:
     NSData *data;

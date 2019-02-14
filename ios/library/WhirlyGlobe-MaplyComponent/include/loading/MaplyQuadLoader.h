@@ -17,6 +17,7 @@
  *
  */
 
+#import <Foundation/Foundation.h>
 #import "MaplyViewControllerLayer.h"
 #import "MaplyCoordinateSystem.h"
 #import "MaplyTileSourceNew.h"
@@ -32,31 +33,39 @@
  */
 @interface MaplyLoaderReturn : NSObject
 
-// Tile this is the image for
-@property (nonatomic,assign) MaplyTileID tileID;
+/// Tile this is the image for
+@property (nonatomic) MaplyTileID tileID;
 
-// If set, the frame.  -1 by default
-@property (nonatomic,assign) int frame;
+/// If set, the frame.  -1 by default
+@property (nonatomic) int frame;
 
-// Data returned from a tile request.  Unparsed.
-@property (nonatomic,strong) NSData * __nullable tileData;
+/// Data returned from a tile request.  Unparsed.
+/// You can add multiple of these, but the interpreter should be expecting that
+- (void)addTileData:(NSData *__nonnull) tileData;
 
-// If you have more than one tileInfo, you'll get your data back here unparsed.
-@property (nonatomic,strong) NSArray * __nullable multiTileData;
+/// Return the tile NSData objects as an array
+- (NSArray<NSData *> * __nonnull)getTileData;
 
-// Can be zero or more UIImage or an NSData containing an image or a MaplyImageTile
-@property (nonatomic,strong) NSArray *__nullable images;
-
-// If any component objects are associated with the tile, these are them.
-// They need to start disabled.  The system will enable and delete them when it is time.
-@property (nonatomic,strong) NSArray * __nullable compObjs;
-
-// These component objects are assumed to be overlaid and so only one
-// set will be displayed at a time.
-@property (nonatomic,strong) NSArray * __nullable ovlCompObjs;
-
-// If this is set, the tile failed to parse
+/// If this is set, the tile failed to parse
+/// You can set it and the system will deal with the results
 @property (nonatomic,strong) NSError * __nullable error;
+
+@end
+
+/**
+    This version of the loader return is used by the MaplyQuadObjectLoader.
+
+    The Object pager is only expecting Component Objects and will manage
+    those as things are loaded in and out.
+  */
+@interface MaplyObjectLoaderReturn : MaplyLoaderReturn
+
+/// If any component objects are associated with the tile, these are them.
+/// They need to start disabled.  The system will enable and delete them when it is time.
+- (void)addCompObjs:(NSArray<MaplyComponentObject *> * __nonnull)compObjs;
+
+/// Return an array of component objects that were added to this loader return
+- (NSArray * __nonnull)getCompObjs;
 
 @end
 
@@ -75,37 +84,6 @@
  Everything added should be disabled to start.
  */
 - (void)dataForTile:(MaplyLoaderReturn * __nonnull)loadReturn;
-
-@end
-
-/**
- Image loader intrepreter turns NSData objects into MaplyImageTiles.
- 
- This is the default interpreter used byt the MaplyQuadImageLoader.
- */
-@interface MaplyImageLoaderInterpreter : NSObject<MaplyLoaderInterpreter>
-@end
-
-@class MaplyQuadImageLoaderBase;
-
-/**
- This loader interpreter sticks a designator in the middle of tiles
- and a line around the edge.  Nice for debugging.
- */
-@interface MaplyOvlDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
-
-// Intialize with the loader we're using.  Need this for extents of tiles
-- (instancetype __nonnull)initWithLoader:(MaplyQuadImageLoaderBase * __nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
-
-@end
-
-/**
- This loader interpreter makes up an image for the given frame/tile
- and returns that.  It doesn't use any returned data.
- */
-@interface MaplyDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
-
-- (instancetype __nonnull)initWithLoader:(MaplyQuadImageLoaderBase *__nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 @end
 

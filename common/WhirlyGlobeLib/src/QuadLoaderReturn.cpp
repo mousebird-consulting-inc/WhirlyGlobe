@@ -1,9 +1,9 @@
 /*
- *  ImageTile.h
+ *  QuadDisplayControllerNew.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/14/19.
- *  Copyright 2011-2019 Saildrone Inc.
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,33 +18,18 @@
  *
  */
 
-#import <math.h>
-#import "WhirlyVector.h"
-#import "Texture.h"
+#import "QuadLoaderReturn.h"
 
 namespace WhirlyKit
 {
-
-/** Image Tile representation.
- 
-    Used to wrap data we're going to turn into a Texture.
-    Subclass does most of the work.
-  */
-class ImageTile
+    
+QuadLoaderReturn::QuadLoaderReturn()
 {
-public:
-    ImageTile();
-    virtual ~ImageTile();
-    
-    /// Construct and return a texture, if possible.
-    virtual Texture *buildTexture() = 0;
-    
-public:
-    int borderSize;
-    int width,height,components;
-    int targetWidth,targetHeight;
-};
-
-typedef std::shared_ptr<ImageTile> ImageTileRef;
-
 }
+
+QuadLoaderReturn::~QuadLoaderReturn()
+{
+}
+    
+}
+

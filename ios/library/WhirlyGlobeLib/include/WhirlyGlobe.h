@@ -43,7 +43,6 @@
 #import "SelectionManager.h"
 #import "IntersectionManager.h"
 #import "LayerThread.h"
-//#import "DataLayer.h"
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
 #import "FlatMath.h"
@@ -65,3 +64,4 @@
 #import "ParticleSystemManager.h"
 #import "BillboardManager.h"
 #import "ImageTile.h"
+#import "ComponentObject.h"

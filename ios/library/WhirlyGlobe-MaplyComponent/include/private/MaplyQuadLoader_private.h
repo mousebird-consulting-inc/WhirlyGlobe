@@ -17,11 +17,12 @@
  *
  */
 
-#import "MaplyQuadImageLoader.h"
+#import "MaplyQuadLoader.h"
 #import "QuadTileBuilder.h"
 #import "MaplyQuadSampler_private.h"
 #import "MaplyQuadLoader_private.h"
 #import "QuadDisplayLayerNew.h"
+#import "QuadLoaderReturn.h"
 
 @interface MaplyQuadLoaderBase()
 {
@@ -34,6 +35,15 @@
     
     MaplyBaseViewController * __weak viewC;
     MaplyQuadSamplingLayer *samplingLayer;
+}
+
+@end
+
+@interface MaplyLoaderReturn()
+{
+@public
+    // We're just wrapping the object that does the work
+    WhirlyKit::QuadLoaderReturnRef loadReturn;
 }
 
 @end
