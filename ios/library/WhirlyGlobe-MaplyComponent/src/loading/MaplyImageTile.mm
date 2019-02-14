@@ -34,7 +34,7 @@
     self = [super init];
     _type = MaplyImgTypeRawImage;
     
-    stuff = @[data];
+    imageStuff = data;
     _components = 4;
     _width = width;
     _height = height;
@@ -52,37 +52,8 @@
     self = [super init];
     _type = MaplyImgTypeRawImage;
     
-    stuff = @[data];
+    imageStuff = data;
     _components = comp;
-    _width = width;
-    _height = height;
-    
-    return self;
-}
-
-- (instancetype)initWithRawImageArray:(NSArray *)inDataArray width:(int)width height:(int)height
-{
-    NSMutableArray *outArray = [NSMutableArray array];
-    for (NSData *theData in inDataArray)
-    {
-        NSData *data = theData;
-        if ([data isKindOfClass:[MaplyImageTile class]])
-        {
-            MaplyImageTile *otherTile = (MaplyImageTile *)data;
-            data = [otherTile->stuff objectAtIndex:0];
-        } else {
-            if (![data isKindOfClass:[NSData class]])
-                return nil;
-            if ([data length] != width*height*4)
-                return nil;
-        }
-        [outArray addObject:data];
-    }
-    
-    self = [super init];
-    _type = MaplyImgTypeRawImage;
-    stuff = outArray;
-    _components = 4;
     _width = width;
     _height = height;
     
@@ -96,22 +67,7 @@
     
     self = [super init];
     _type = MaplyImgTypeImage;
-    stuff = @[image];
-    _width = _height = -1;
-    _components = 4;
-
-    return self;
-}
-
-- (instancetype)initWithImageArray:(NSArray *)images
-{
-    for (UIImage *image in images)
-        if (![image isKindOfClass:[UIImage class]])
-            return nil;
-    
-    self = [super init];
-    _type = MaplyImgTypeImage;
-    stuff = images;
+    imageStuff = image;
     _width = _height = -1;
     _components = 4;
 
@@ -125,24 +81,7 @@
     
     self = [super init];
     _type = MaplyImgTypeData;
-    stuff = @[data];
-    _width = _height = -1;
-    _components = 4;
-
-    return self;
-}
-
-- (instancetype)initWithPNGorJPEGDataArray:(NSArray *)dataArray
-{
-    for (NSData *data in dataArray)
-    {
-        if (![data isKindOfClass:[NSData class]])
-            return nil;
-    }
-    
-    self = [super init];
-    _type = MaplyImgTypeData;
-    stuff = dataArray;
+    imageStuff = data;
     _width = _height = -1;
     _components = 4;
 
@@ -170,31 +109,10 @@
     if (!theObj)
         return self;
     
-    if ([theObj isKindOfClass:[MaplyImageTile class]])
-        self = theObj;
-    else {
-        if ([theObj isKindOfClass:[UIImage class]])
-            self = [[MaplyImageTile alloc] initWithImage:theObj];
-        else if ([theObj isKindOfClass:[NSData class]])
-            self = [[MaplyImageTile alloc] initWithPNGorJPEGData:theObj];
-        else if ([theObj isKindOfClass:[NSArray class]])
-        {
-            NSArray *arr = theObj;
-            if ([arr count] > 0)
-            {
-                id firstObj = [arr objectAtIndex:0];
-                if ([firstObj isKindOfClass:[UIImage class]])
-                    self = [[MaplyImageTile alloc] initWithImageArray:arr];
-                else if ([firstObj isKindOfClass:[NSData class]])
-                    self = [[MaplyImageTile alloc] initWithPNGorJPEGDataArray:arr];
-                else if ([firstObj isKindOfClass:[MaplyImageTile class]])
-                {
-                    MaplyImageTile *otherTile = firstObj;
-                    self = [[MaplyImageTile alloc] initWithRawImageArray:arr width:otherTile->_width height:otherTile->_height];
-                }
-            }
-        }
-    }
+    if ([theObj isKindOfClass:[UIImage class]])
+        self = [[MaplyImageTile alloc] initWithImage:theObj];
+    else if ([theObj isKindOfClass:[NSData class]])
+        self = [[MaplyImageTile alloc] initWithPNGorJPEGData:theObj];
     
     return self;
 }
@@ -204,61 +122,54 @@
     WhirlyKitLoadedTile *loadTile = [[WhirlyKitLoadedTile alloc] init];
     
     // Work through the various layers
-    for (id thing in stuff)
+    WhirlyKitLoadedImage *loadImage = nil;
+    switch (_type)
     {
-        WhirlyKitLoadedImage *loadImage = nil;
-        switch (_type)
-        {
-            case MaplyImgTypeImage:
-                loadImage = [WhirlyKitLoadedImage LoadedImageWithUIImage:thing];
-                break;
-            case MaplyImgTypeData:
-                loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:thing];
-                break;
-            case MaplyImgTypeRawImage:
-                loadImage = [[WhirlyKitLoadedImage alloc] init];
-                loadImage.imageData = thing;
-                loadImage.width = _width;
-                loadImage.height = _height;
-                break;
-            default:
-                break;
-        }
-        if (!loadImage)
-            return nil;
-        if (_targetHeight > 0 && _targetWidth > 0)
-        {
-            loadImage.width = _targetWidth;
-            loadImage.height = _targetHeight;
-        } else {
-            // They have to at least be square
-            if (loadImage.width != loadImage.height)
-            {
-                int maxSize = std::max(loadImage.width,loadImage.height);
-                maxSize = WhirlyKit::NextPowOf2(maxSize);
-                loadImage.width = maxSize;
-                loadImage.height = maxSize;
-            }
-        }
-
-        // This pulls the pixels out of their weird little compressed formats
-        // Since we're on our own thread here (probably) this may save time
-        if (convertToRaw)
-            [loadImage convertToRawData:borderTexel];
-        [loadTile.images addObject:loadImage];
+        case MaplyImgTypeImage:
+            loadImage = [WhirlyKitLoadedImage LoadedImageWithUIImage:imageStuff];
+            break;
+        case MaplyImgTypeData:
+            loadImage = [WhirlyKitLoadedImage LoadedImageWithNSDataAsPNGorJPG:imageStuff];
+            break;
+        case MaplyImgTypeRawImage:
+            loadImage = [[WhirlyKitLoadedImage alloc] init];
+            loadImage.imageData = imageStuff;
+            loadImage.width = _width;
+            loadImage.height = _height;
+            break;
+        default:
+            break;
     }
+    if (!loadImage)
+        return nil;
+    if (_targetHeight > 0 && _targetWidth > 0)
+    {
+        loadImage.width = _targetWidth;
+        loadImage.height = _targetHeight;
+    } else {
+        // They have to at least be square
+        if (loadImage.width != loadImage.height)
+        {
+            int maxSize = std::max(loadImage.width,loadImage.height);
+            maxSize = WhirlyKit::NextPowOf2(maxSize);
+            loadImage.width = maxSize;
+            loadImage.height = maxSize;
+        }
+    }
+
+    // This pulls the pixels out of their weird little compressed formats
+    // Since we're on our own thread here (probably) this may save time
+    if (convertToRaw)
+        [loadImage convertToRawData:borderTexel];
+    [loadTile.images addObject:loadImage];
     
     return loadTile;
 }
 
 - (NSData *) asNSData
 {
-    if ([stuff count] > 0)
-    {
-        id obj = [stuff objectAtIndex:0];
-        if ([obj isKindOfClass:[NSData class]])
-            return obj;
-    }
+    if ([imageStuff isKindOfClass:[NSData class]])
+        return imageStuff;
 
     return nil;
 }
