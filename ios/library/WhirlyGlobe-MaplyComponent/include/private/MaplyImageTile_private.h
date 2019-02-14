@@ -29,7 +29,7 @@ typedef enum {MaplyImgTypeImage,MaplyImgTypeData,MaplyImgTypeRawImage} MaplyImgT
     int _width,_height,_components;
     int _targetWidth,_targetHeight;
     
-    NSArray *stuff;
+    id imageStuff;
 }
 
 // Generate a WhirlyKit compatible tile

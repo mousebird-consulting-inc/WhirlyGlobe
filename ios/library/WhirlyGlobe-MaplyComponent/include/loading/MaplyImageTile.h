@@ -58,30 +58,11 @@
 - (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height components:(int)comp;
 
 /** 
-    Initialize with an array of NSData objects containing 32 bit pixels.
-    
-    This does the same thng as initWithRawData:width:height: but for tiles that contain multiple return images.
-    
-    @param data The NSArray of NSData objects containing 32 bit RGBA pixels.
-    
-    @param width The width of the raw image contained in the data object.
-    
-    @param height The height of the raw image contained in the data object.
-    @see initWithRawData:width:height:
- */
-- (instancetype)initWithRawImageArray:(NSArray *)data width:(int)width height:(int)height;
-
-/** 
     Initialize with a single UIImage for the tile.
     
     This sets up the given UIImage as the return for the given tile.  You can then set targetSize and such.
  */
 - (instancetype)initWithImage:(UIImage *)image;
-
-/** 
-    Initialize with an NSArray of UIImage objects for a tile that requires multiple return images.
- */
-- (instancetype)initWithImageArray:(NSArray *)images;
 
 /** 
     Initialize with an NSData object containing PNG or JPEG data that can be interpreted by UIImage.
@@ -91,27 +72,11 @@
 - (instancetype)initWithPNGorJPEGData:(NSData *)data;
 
 /** 
-    Initialize with an NSArray of NSData objects containing PNG or JPEG data that can be interpreted by UIImage
-    
-    This is for tiles that require multiple images.
-    
-    We're expecting PNG, JPEG or another self identified format (e.g. PKM).  These we can interpret ourselves.
- */
-- (instancetype)initWithPNGorJPEGDataArray:(NSArray *)data;
-
-/** 
     Initialize with an NSObject.  We'll try to figure out what it is from the type.
     
     We'll look at the data type and try to figure out what you're passing in.  In general, it's better to call one of the specific init routines.
   */
 - (instancetype)initWithRandomData:(id)theObj;
-
-/** 
-    Optional elevation dataq provided with the image tile.
-    
-    This is an optional set of elevation data that goes with this image tile.
-  */
-@property (nonatomic,strong) MaplyElevationChunk *elevChunk;
 
 /** 
     Target size for the image(s) represented by this tile.
