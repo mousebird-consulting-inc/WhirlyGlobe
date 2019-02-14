@@ -1439,7 +1439,7 @@ static const float PerfOutputDelay = 15.0;
     return layer;
 }
 
-- (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(NSObject *)userObj
+- (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(QuadTileBuilderDelegateRef)userObj
 {
     if (!renderControl)
         return;

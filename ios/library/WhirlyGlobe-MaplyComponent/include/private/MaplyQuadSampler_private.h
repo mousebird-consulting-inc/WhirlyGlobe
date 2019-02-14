@@ -48,6 +48,6 @@
 - (void)addBuilderDelegate:(WhirlyKit::QuadTileBuilderDelegateRef)delegate;
 
 // Remove the given builder delegate that was watching tile related events
-- (void)removeBuilderDelegate:(NSObject * __nonnull)delegate;
+- (void)removeBuilderDelegate:(WhirlyKit::QuadTileBuilderDelegateRef)delegate;
 
 @end
