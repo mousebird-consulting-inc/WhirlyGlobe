@@ -89,13 +89,14 @@ public:
     virtual QuadTreeNew::NodeSet quadLoaderUpdate(const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,
                                                   const WhirlyKit::QuadTreeNew::NodeSet &unloadTiles,
                                                   const WhirlyKit::QuadTreeNew::ImportantNodeSet &updateTiles,
-                                                  int targetLevel) = 0;
+                                                  int targetLevel,
+                                                  ChangeSet &changes) = 0;
     
     /// Called right before the layer thread flushes its change requests
-    virtual void quadLoaderPreSceenFlush() = 0;
+    virtual void quadLoaderPreSceenFlush(ChangeSet &changes) = 0;
     
     /// Called when a layer is shutting down (on the layer thread)
-    virtual void quadLoaderShutdown() = 0;
+    virtual void quadLoaderShutdown(ChangeSet &changes) = 0;
     
 protected:
     QuadDisplayControllerNew *control;
@@ -133,6 +134,9 @@ public:
     /// Level offsets in single level mode
     std::vector<int> getLevelLoads();
     
+    /// Return the geometry information being used
+    QuadDataStructure *getDataStructure();
+    
     /// Return the current view state, if there is one
     ViewStateRef getViewState();
     
@@ -140,15 +144,15 @@ public:
     virtual void start();
     
     // Called when the layer thread is tearing down
-    virtual void stop();
+    virtual void stop(ChangeSet &changes);
     
     // Called when the view updates.  Does the heavy lifting.
     // Returns true if it wants to be called again in a bit
-    virtual bool viewUpdate(ViewStateRef viewState);
+    virtual bool viewUpdate(ViewStateRef viewState,ChangeSet &changes);
     
     // Called right before we flush the layer thread changes to the scene
-    virtual void preSceneFlush();
-
+    virtual void preSceneFlush(ChangeSet &changes);
+    
 protected:
     // QuadTreeNew overrides
     double importance(const Node &node);

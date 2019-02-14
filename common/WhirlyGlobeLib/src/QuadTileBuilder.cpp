@@ -20,112 +20,126 @@
 
 #import "QuadTileBuilder.h"
 #import "LoadedTileNew.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
-QuadDataStructure::QuadDataStructure()
-{
-}
-
-QuadDataStructure::~QuadDataStructure()
+    
+QuadTileBuilderDelegate::QuadTileBuilderDelegate()
 {
 }
     
-QuadDisplayInfo::QuadDisplayInfo()
-: scene(NULL), renderer(NULL), quadtree(NULL), coordSys(NULL),
-    maxTiles(0), viewUpdatePeriod(0.0), singleLevel(false)
+QuadTileBuilderDelegate::~QuadTileBuilderDelegate()
 {
 }
-
-    QuadLoaderNew::QuadLoaderNew(QuadDisplayInfo )
     
-@implementation WhirlyKitQuadTileBuilder
+QuadTileBuilder::QuadTileBuilder(CoordSystem *coordSys,QuadTileBuilderDelegateRef delegate)
+    : delegate(delegate), debugMode(false)
 {
-    WhirlyKitQuadDisplayLayerNew * __weak layer;
-    
-    TileGeomManager geomManage;
-    TileGeomSettings geomSettings;
-}
-
-- (id)initWithCoordSys:(WhirlyKit::CoordSystem *)coordSys
-{
-    self = [super init];
-    _debugMode = false;
-    _coordSys = coordSys;
-    _baseDrawPriority = 0;
-    _drawPriorityPerLevel = 1;
     geomSettings.sampleX = 20;
     geomSettings.sampleY = 20;
     geomSettings.topSampleX = 30;
     geomSettings.topSampleY = 40;
     geomSettings.enableGeom = false;
     geomSettings.singleLevel = false;
-
-    return self;
+    geomManage.coordSys = coordSys;
 }
 
-- (void)setCoverPoles:(bool)coverPoles
+TileBuilderDelegateInfo QuadTileBuilder::getLoadingState()
+{
+    TileBuilderDelegateInfo info;
+    
+    info.loadTiles = geomManage.getAllTiles();
+    
+    return info;
+}
+    
+void QuadTileBuilder::setCoverPoles(bool coverPoles)
 {
     geomManage.coverPoles = coverPoles;
 }
 
-- (bool)coverPoles
+bool QuadTileBuilder::getCoverPoles() const
 {
     return geomManage.coverPoles;
 }
 
-- (void)setEdgeMatching:(bool)edgeMatch
+void QuadTileBuilder::setEdgeMatching(bool edgeMatch)
 {
     geomManage.buildSkirts = edgeMatch;
 }
 
-- (void)setBaseDrawPriority:(int)baseDrawPriority
-{
-    geomSettings.baseDrawPriority = baseDrawPriority;
-}
-
-- (void)setDrawPriorityPerLevel:(int)drawPriorityPerLevel
-{
-    geomSettings.drawPriorityPerLevel = drawPriorityPerLevel;
-}
-
-- (void)setSingleLevel:(bool)singleLevel
-{
-    geomSettings.singleLevel = singleLevel;
-}
-
-- (bool)edgeMatching
+bool QuadTileBuilder::getEdgeMatching() const
 {
     return geomManage.buildSkirts;
 }
 
-- (WhirlyKit::LoadedTileNewRef)getLoadedTile:(WhirlyKit::QuadTreeNew::Node)ident
+void QuadTileBuilder::setBaseDrawPriority(int baseDrawPriority)
+{
+    geomSettings.baseDrawPriority = baseDrawPriority;
+}
+
+int QuadTileBuilder::getBaseDrawPriority() const
+{
+    return geomSettings.baseDrawPriority;
+}
+
+void QuadTileBuilder::setDrawPriorityPerLevel(int drawPriorityPerLevel)
+{
+    geomSettings.drawPriorityPerLevel = drawPriorityPerLevel;
+}
+
+int QuadTileBuilder::getDrawPriorityPerLevel() const
+{
+    return geomSettings.drawPriorityPerLevel;
+}
+
+void QuadTileBuilder::setSingleLevel(bool singleLevel)
+{
+    geomSettings.singleLevel = singleLevel;
+}
+
+bool QuadTileBuilder::getSingleLevel() const
+{
+    return geomSettings.singleLevel;
+}
+    
+void QuadTileBuilder::setDebugMode(bool newMode)
+{
+    debugMode = newMode;
+}
+
+bool QuadTileBuilder::getDebugMode() const
+{
+    return debugMode;
+}
+
+LoadedTileNewRef QuadTileBuilder::getLoadedTile(const QuadTreeNew::Node &ident)
 {
     return geomManage.getTile(ident);
 }
 
-// MARK: WhirlyKitQuadLoaderNew delegate
-
-- (void)setQuadLayer:(WhirlyKitQuadDisplayLayerNew *)inLayer
+void QuadTileBuilder::setController(QuadDisplayControllerNew *inControl)
 {
-    layer = inLayer;
-    MbrD mbr = MbrD([layer.dataStructure validExtents]);
-    geomManage.setup(geomSettings,layer.quadtree, layer.scene->getCoordAdapter(),_coordSys,mbr);
+    QuadLoaderNew::setController(inControl);
     
-    [_delegate setQuadBuilder:self layer:layer];
+    MbrD mbr = MbrD(control->getDataStructure()->getValidExtents());
+    geomManage.setup(geomSettings,control, control->getScene()->getCoordAdapter(),geomManage.coordSys,mbr);
+    
+    delegate->setBuilder(this,control);
 }
-
-- (WhirlyKit::QuadTreeNew::NodeSet)quadDisplayLayer:(WhirlyKitQuadDisplayLayerNew *)layer loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles unLoadTiles:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles updateTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)updateTiles targetLevel:(int)targetLevel
-{
-    ChangeSet changes;
     
+/// Load some tiles, unload others, and the rest had their importance values change
+/// Return the nodes we wanted to keep rather than delete
+QuadTreeNew::NodeSet QuadTileBuilder::quadLoaderUpdate(const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,const WhirlyKit::QuadTreeNew::NodeSet &unloadTiles,const WhirlyKit::QuadTreeNew::ImportantNodeSet &updateTiles,int targetLevel, ChangeSet &changes)
+{
     TileBuilderDelegateInfo info;
     info.unloadTiles = unloadTiles;
     info.changeTiles = updateTiles;
-
+    
     QuadTreeNew::NodeSet toKeep;
     if (!unloadTiles.empty()) {
-        toKeep = [_delegate quadBuilder:self loadTiles:loadTiles unloadTilesToCheck:unloadTiles targetLevel:targetLevel];
+        toKeep = delegate->builderUnloadCheck(this,loadTiles,unloadTiles,targetLevel);
         // Remove the keep nodes and add them to update with very little importance
         for (const QuadTreeNew::Node &node: toKeep) {
             info.unloadTiles.erase(node);
@@ -135,74 +149,59 @@ QuadDisplayInfo::QuadDisplayInfo()
     
     // Have the geometry manager add/remove the tiles and deal with changes
     auto tileChanges = geomManage.addRemoveTiles(loadTiles,info.unloadTiles,changes);
-
+    
     // Tell the delegate what we're up to
     info.targetLevel = targetLevel;
     info.loadTiles = tileChanges.addedTiles;
     info.enableTiles = tileChanges.enabledTiles;
     info.disableTiles = tileChanges.disabledTiles;
-    [_delegate quadBuilder:self update:info changes:changes];
+    delegate->builderLoad(this, info, changes);
     
-    if (_debugMode)
+    if (debugMode)
     {
-        NSLog(@"----- Tiles to add ------");
+        wkLogLevel(Verbose,"----- Tiles to add ------");
         for (auto tile : loadTiles)
-            NSLog(@"  %d: (%d,%d)",tile.level,tile.x,tile.y);
-        NSLog(@"----- Tiles to remove ------");
+            wkLogLevel(Verbose,"  %d: (%d,%d)",tile.level,tile.x,tile.y);
+        wkLogLevel(Verbose,"----- Tiles to remove ------");
         for (auto tile : unloadTiles)
-            NSLog(@"  %d: (%d,%d)",tile.level,tile.x,tile.y);
-        NSLog(@"----- Tiles that changed importance ------");
+            wkLogLevel(Verbose,"  %d: (%d,%d)",tile.level,tile.x,tile.y);
+        wkLogLevel(Verbose,"----- Tiles that changed importance ------");
         for (auto tile : updateTiles)
-            NSLog(@"  %d: (%d,%d)",tile.level,tile.x,tile.y);
-        NSLog(@"----- Nodes to enable ------");
+            wkLogLevel(Verbose,"  %d: (%d,%d)",tile.level,tile.x,tile.y);
+        wkLogLevel(Verbose,"----- Nodes to enable ------");
         for (auto tile : tileChanges.enabledTiles)
-            NSLog(@"  %d: (%d,%d)",tile->ident.level,tile->ident.x,tile->ident.y);
-        NSLog(@"----- Nodes to disable ------");
+            wkLogLevel(Verbose,"  %d: (%d,%d)",tile->ident.level,tile->ident.x,tile->ident.y);
+        wkLogLevel(Verbose,"----- Nodes to disable ------");
         for (auto tile : tileChanges.disabledTiles)
-            NSLog(@"  %d: (%d,%d)",tile->ident.level,tile->ident.x,tile->ident.y);
-        NSLog(@"----- Tiles to keep -----");
+            wkLogLevel(Verbose,"  %d: (%d,%d)",tile->ident.level,tile->ident.x,tile->ident.y);
+        wkLogLevel(Verbose,"----- Tiles to keep -----");
         for (auto tile : toKeep)
-            NSLog(@"  %d: (%d,%d)",tile.level,tile.x,tile.y);
-        NSLog(@"----- ------------- ------");
+            wkLogLevel(Verbose,"  %d: (%d,%d)",tile.level,tile.x,tile.y);
+        wkLogLevel(Verbose,"----- ------------- ------");
     }
-
+    
     // We need the layer flush to run if we're holding on to nodes
     if (!toKeep.empty() && changes.empty())
         changes.push_back(NULL);
-
-    // Flush out any visual changes
-    [layer.layerThread addChangeRequests:changes];
     
+    // Caller will flush out any visual changes
+
     return toKeep;
 }
 
-- (void)quadDisplayLayerPreSceneFlush:(WhirlyKitQuadDisplayLayerNew *)layer
+/// Called right before the layer thread flushes its change requests
+void QuadTileBuilder::quadLoaderPreSceenFlush(ChangeSet &changes)
 {
-    [_delegate quadBuilderPreSceneFlush:self];
+    delegate->builderPreSceneFlush(this,changes);
 }
 
-- (void)quadDisplayLayerShutdown:(WhirlyKitQuadDisplayLayerNew * _Nonnull)layer
+/// Called when a layer is shutting down (on the layer thread)
+void QuadTileBuilder::quadLoaderShutdown(ChangeSet &changes)
 {
-    ChangeSet changes;
-    
     geomManage.cleanup(changes);
-    [_delegate quadBuilderShutdown:self];
+    delegate->builderShutdown(this,changes);
 
-    [layer.layerThread addChangeRequests:changes];
-    
-    layer = nil;
-    _coordSys = nil;
-    _delegate = nil;
+    delegate = NULL;
 }
 
-
-- (TileBuilderDelegateInfo)getLoadingState
-{
-    TileBuilderDelegateInfo info;
-    
-    info.loadTiles = geomManage.getAllTiles();
-    
-    return info;
 }
-
-@end

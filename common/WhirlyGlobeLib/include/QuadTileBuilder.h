@@ -49,7 +49,7 @@ public:
     virtual ~QuadTileBuilderDelegate();
     
     /// Called when the builder first starts up.  Keep this around if you need it.
-    virtual void builderSet(QuadTileBuilder *builder) = 0;
+    virtual void setBuilder(QuadTileBuilder *builder,QuadDisplayControllerNew *control) = 0;
     
     /// Before we tell the delegate to unload tiles, see if they want to keep them around
     /// Returns the tiles we want to preserve after all
@@ -64,10 +64,10 @@ public:
                            ChangeSet &changes) = 0;
     
     /// Called right before the layer thread flushes all its current changes
-    virtual void builderPreSceneFlush(QuadTileBuilder *builder) = 0;
+    virtual void builderPreSceneFlush(QuadTileBuilder *builder,ChangeSet &changes) = 0;
 
     /// Shutdown called on the layer thread if you stuff to clean up
-    virtual void builderShutdown(QuadTileBuilder *builder) = 0;
+    virtual void builderShutdown(QuadTileBuilder *builder,ChangeSet &changes) = 0;
 };
     
 typedef std::shared_ptr<QuadTileBuilderDelegate> QuadTileBuilderDelegateRef;
@@ -77,7 +77,7 @@ typedef std::shared_ptr<QuadTileBuilderDelegate> QuadTileBuilderDelegateRef;
  */
 class QuadTileBuilder : public QuadLoaderNew
 {
-    QuadTileBuilder(CoordSystem *coordSys);
+    QuadTileBuilder(CoordSystem *coordSys,QuadTileBuilderDelegateRef delegate);
     virtual ~QuadTileBuilder();
     
     // Return a tile, if there is one
@@ -86,32 +86,57 @@ class QuadTileBuilder : public QuadLoaderNew
     // Return all the tiles that should be loaded
     TileBuilderDelegateInfo getLoadingState();
 
-    // Note: Fill in getters/setters
-    
-protected:
     // Coordinate system we're building the tiles in
-    CoordSystem *coordSys;
-    
+    CoordSystem *getCoordSystem();
+
     // If set, we'll cover the poles of a curved coordinate system (e.g. spherical mercator)
-    bool coverPoles;
-    
+    void setCoverPoles(bool);
+    bool getCoverPoles() const;
+
     // If set, we'll generate skirts to match between levels of detail
-    bool edgeMatching;
-    
+    void setEdgeMatching(bool);
+    bool getEdgeMatching() const;
+
     // Set the draw priority values for produced tiles
-    int baseDrawPriority;
-    
+    void setBaseDrawPriority(int);
+    int getBaseDrawPriority() const;
+
     // Offset between levels for a calculated draw priority
-    int drawPriorityPerLevel;
+    void setDrawPriorityPerLevel(int);
+    int getDrawPriorityPerLevel() const;
     
     // Set if we're using single level loading logic
-    bool singleLevel;
+    void setSingleLevel(bool);
+    bool getSingleLevel() const;
     
     // If set, we'll print too much information
+    void setDebugMode(bool);
+    bool getDebugMode() const;
+
+protected:
+    /// Called when the layer first starts up.  Keep this around if you need it.
+    virtual void setController(QuadDisplayControllerNew *inControl);
+    
+    /// Load some tiles, unload others, and the rest had their importance values change
+    /// Return the nodes we wanted to keep rather than delete
+    virtual QuadTreeNew::NodeSet quadLoaderUpdate(const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,
+                                                  const WhirlyKit::QuadTreeNew::NodeSet &unloadTiles,
+                                                  const WhirlyKit::QuadTreeNew::ImportantNodeSet &updateTiles,
+                                                  int targetLevel,
+                                                  ChangeSet &changes) = 0;
+    
+    /// Called right before the layer thread flushes its change requests
+    virtual void quadLoaderPreSceenFlush(ChangeSet &changes) = 0;
+    
+    /// Called when a layer is shutting down (on the layer thread)
+    virtual void quadLoaderShutdown(ChangeSet &changes) = 0;
+    
     bool debugMode;
     
-    // If set, we'll notify the delegate when tiles are loaded and unloaded
-    QuadTileBuilderDelegate *delegate;
+    TileGeomManager geomManage;
+    TileGeomSettings geomSettings;
+    
+    QuadTileBuilderDelegateRef delegate;
 };
     
 }

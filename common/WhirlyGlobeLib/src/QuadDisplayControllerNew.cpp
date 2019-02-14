@@ -41,16 +41,16 @@ void QuadDisplayControllerNew::start()
     loader->setController(this);
 }
     
-void QuadDisplayControllerNew::stop()
+void QuadDisplayControllerNew::stop(ChangeSet &changes)
 {
-    loader->quadLoaderShutdown();
+    loader->quadLoaderShutdown(changes);
     dataStructure = NULL;
     loader = NULL;
     
     scene = NULL;
 }
     
-bool QuadDisplayControllerNew::viewUpdate(ViewStateRef inViewState)
+bool QuadDisplayControllerNew::viewUpdate(ViewStateRef inViewState,ChangeSet &changes)
 {
     if (!scene)
         return true;
@@ -103,7 +103,7 @@ bool QuadDisplayControllerNew::viewUpdate(ViewStateRef inViewState)
             toUpdate.insert(node);
     
     QuadTreeNew::NodeSet removesToKeep;
-    removesToKeep = loader->quadLoaderUpdate(toAdd, toRemove, toUpdate, targetLevel);
+    removesToKeep = loader->quadLoaderUpdate(toAdd, toRemove, toUpdate, targetLevel,changes);
     
     bool needsDelayCheck = !removesToKeep.empty();
     
@@ -115,9 +115,9 @@ bool QuadDisplayControllerNew::viewUpdate(ViewStateRef inViewState)
     return needsDelayCheck;
 }
     
-void QuadDisplayControllerNew::preSceneFlush()
+void QuadDisplayControllerNew::preSceneFlush(ChangeSet &changes)
 {
-    loader->quadLoaderPreSceenFlush();
+    loader->quadLoaderPreSceenFlush(changes);
 }
     
 // MARK: QuadTreeNew methods

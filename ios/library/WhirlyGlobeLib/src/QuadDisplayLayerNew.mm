@@ -44,7 +44,7 @@ using namespace WhirlyKit;
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
 {
     _layerThread = inLayerThread;
-
+    
     // We want view updates, but only every so often
     if (_layerThread.viewWatcher)
         [_layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:controller->getViewUpdatePeriod() minDist:0.0 maxLagTime:10.0];
@@ -54,8 +54,12 @@ using namespace WhirlyKit;
 
 - (void)teardown
 {
-    controller->stop();
+    ChangeSet changes;
+    
+    controller->stop(changes);
     controller = NULL;
+    
+    [_layerThread addChangeRequests:changes];
 }
 
 static const float DelayPeriod = 0.1;
@@ -74,15 +78,21 @@ static const float DelayPeriod = 0.1;
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
 
+    ChangeSet changes;
     // Controller is sitting on some unloads, so call it back in a bit
-    if (controller->viewUpdate(inViewState.viewState)) {
+    if (controller->viewUpdate(inViewState.viewState,changes)) {
         [self performSelector:@selector(delayCheck) withObject:nil afterDelay:DelayPeriod];
     }
+    
+    [_layerThread addChangeRequests:changes];
 }
 
 - (void)preSceneFlush:(WhirlyKitLayerThread *)layerThread
 {
-    controller->preSceneFlush();
+    ChangeSet changes;
+    controller->preSceneFlush(changes);
+    
+    [_layerThread addChangeRequests:changes];
 }
 
 @end

@@ -952,6 +952,8 @@
 		2BE53AC71D249E1500B60FAD /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE53AC61D249E1500B60FAD /* CoreLocation.framework */; };
 		2BE7E7B12214C6DE00E4EFBA /* QuadDisplayControllerNew.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE7E7B02214C6DE00E4EFBA /* QuadDisplayControllerNew.h */; };
 		2BE7E7B32214C6EB00E4EFBA /* QuadDisplayControllerNew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7E7B22214C6EB00E4EFBA /* QuadDisplayControllerNew.cpp */; };
+		2BE7E7B42214F16A00E4EFBA /* LoadedTileNew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7942213979800815D9C /* LoadedTileNew.cpp */; };
+		2BE7E7B52214F1CF00E4EFBA /* QuadTileBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7952213979800815D9C /* QuadTileBuilder.cpp */; };
 		E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */; };
 		E56E02A71E11F99500C1DD85 /* GeoJSONSource.h in Headers */ = {isa = PBXBuildFile; fileRef = E56E02A61E11F99500C1DD85 /* GeoJSONSource.h */; };
 		E5D2D6631DE67B1400E02305 /* MaplyLocationTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = E5D2D6621DE67B1400E02305 /* MaplyLocationTracker.h */; };
@@ -3208,10 +3210,10 @@
 		2BE1E78D2213975A00815D9C /* loading */ = {
 			isa = PBXGroup;
 			children = (
-				2BE7E7B22214C6EB00E4EFBA /* QuadDisplayControllerNew.cpp */,
 				2BE1E7962213979800815D9C /* LoadedImage.cpp */,
 				2BE1E7942213979800815D9C /* LoadedTileNew.cpp */,
 				2BE1E7952213979800815D9C /* QuadTileBuilder.cpp */,
+				2BE7E7B22214C6EB00E4EFBA /* QuadDisplayControllerNew.cpp */,
 			);
 			name = loading;
 			sourceTree = "<group>";
@@ -4267,6 +4269,7 @@
 				2BE1E77D220A6B6700815D9C /* MapnikStyleSet.m in Sources */,
 				2BE539B31D249BEF00B60FAD /* AAPhysicalMars.cpp in Sources */,
 				2B87971F2203BF7900EF801D /* MaplyMarker.m in Sources */,
+				2BE7E7B42214F16A00E4EFBA /* LoadedTileNew.cpp in Sources */,
 				2BE5399E1D249BEF00B60FAD /* AAInterpolate.cpp in Sources */,
 				2B82B6591E82E2490095FB14 /* PJ_eck2.c in Sources */,
 				2BE53A421D249C3D00B60FAD /* zero_copy_stream_impl_lite.cc in Sources */,
@@ -4335,6 +4338,7 @@
 				2B8796D321FFC59D00EF801D /* NSString+Stuff.mm in Sources */,
 				2B8797222203BF7900EF801D /* MaplyBillboard.mm in Sources */,
 				2B884A751E3803170027C397 /* laszip.cpp in Sources */,
+				2BE7E7B52214F1CF00E4EFBA /* QuadTileBuilder.cpp in Sources */,
 				2B884A741E3803170027C397 /* laszip_dll.cpp in Sources */,
 				2B8796BE21FFB37900EF801D /* LayoutManager.cpp in Sources */,
 				2BE1E766220A567100815D9C /* MaplyViewControllerLayer.mm in Sources */,

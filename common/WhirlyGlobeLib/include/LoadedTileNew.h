@@ -131,7 +131,7 @@ public:
     std::vector<LoadedTileNewRef> getTiles(const QuadTreeNew::NodeSet &tiles);
     
     // Return a single node
-    LoadedTileNewRef getTile(QuadTreeNew::Node &ident);
+    LoadedTileNewRef getTile(const QuadTreeNew::Node &ident);
     
     // Return all the nodes we have geometry for
     LoadedTileVec getAllTiles();

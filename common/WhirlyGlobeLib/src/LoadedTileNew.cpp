@@ -19,6 +19,7 @@
  */
 
 #import "LoadedTileNew.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -48,7 +49,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     // Make sure this overlaps the area we care about
     if (!theMbr.overlaps(geomManage->mbr))
     {
-        NSLog(@"Building bogus tile: (%d,%d,%d)",ident.x,ident.y,ident.level);
+        wkLogLevel(Error,"Building bogus tile: (%d,%d,%d)",ident.x,ident.y,ident.level);
     }
     
     // Scale texture coordinates if we're clipping this tile
@@ -546,7 +547,7 @@ LoadedTileVec TileGeomManager::getAllTiles()
     return retTiles;
 }
     
-LoadedTileNewRef TileGeomManager::getTile(QuadTreeNew::Node &ident)
+LoadedTileNewRef TileGeomManager::getTile(const QuadTreeNew::Node &ident)
 {
     auto it = tileMap.find(ident);
     if (it != tileMap.end())
