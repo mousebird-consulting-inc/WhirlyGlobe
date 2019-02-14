@@ -44,6 +44,10 @@ QuadTileBuilder::QuadTileBuilder(CoordSystem *coordSys,QuadTileBuilderDelegateRe
     geomSettings.singleLevel = false;
     geomManage.coordSys = coordSys;
 }
+    
+QuadTileBuilder::~QuadTileBuilder()
+{
+}
 
 TileBuilderDelegateInfo QuadTileBuilder::getLoadingState()
 {

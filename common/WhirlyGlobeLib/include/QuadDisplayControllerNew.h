@@ -119,16 +119,14 @@ public:
     SceneRendererES *getRenderer();
     /// Quad tree used for paging advice
     QuadTreeNew *getQuadTree();
-    /// Coordinate system we're working in for tiling
-    CoordSystem *getCoordSys();
-    /// Valid bounding box in local coordinates (coordSys)
-    const Mbr &getMbr();
     /// Maximum number of tiles loaded in at once
     int getMaxTiles();
+    void setMaxTiles(int);
     /// Minimum screen area to consider for a tile per level
     std::vector<double> getMinImportancePerLevel();
     /// How often this layer gets notified of view changes.  1s by default.
-    float getViewUpdatePeriod();
+    TimeInterval getViewUpdatePeriod();
+    void setViewUpdatePeriod(TimeInterval);
     /// Load just the target level (and the lowest level)
     bool getSingleLevel();
     /// Level offsets in single level mode
@@ -168,7 +166,7 @@ protected:
     int maxTiles;
     std::vector<double> minImportancePerLevel;
     int minZoom,maxZoom;
-    float viewUpdatePeriod;
+    TimeInterval viewUpdatePeriod;
     bool singleLevel;
     std::vector<int> levelLoads;
 

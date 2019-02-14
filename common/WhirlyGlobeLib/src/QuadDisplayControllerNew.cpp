@@ -35,6 +35,50 @@ QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStruct
     singleLevel = false;
 }
     
+QuadDisplayControllerNew::~QuadDisplayControllerNew()
+{
+}
+    
+Scene *QuadDisplayControllerNew::getScene()
+{
+    return scene;
+}
+
+QuadTreeNew *QuadDisplayControllerNew::getQuadTree()
+{
+    return this;
+}
+    
+int QuadDisplayControllerNew::getMaxTiles()
+{
+    return maxTiles;
+}
+
+void QuadDisplayControllerNew::setMaxTiles(int newMaxTiles)
+{
+    maxTiles = newMaxTiles;
+}
+    
+TimeInterval QuadDisplayControllerNew::getViewUpdatePeriod()
+{
+    return viewUpdatePeriod;
+}
+
+void QuadDisplayControllerNew::setViewUpdatePeriod(TimeInterval newVal)
+{
+    viewUpdatePeriod = newVal;
+}
+    
+QuadDataStructure *QuadDisplayControllerNew::getDataStructure()
+{
+    return dataStructure;
+}
+
+ViewStateRef QuadDisplayControllerNew::getViewState()
+{
+    return viewState;
+}
+    
 // Called on the LayerThread
 void QuadDisplayControllerNew::start()
 {
