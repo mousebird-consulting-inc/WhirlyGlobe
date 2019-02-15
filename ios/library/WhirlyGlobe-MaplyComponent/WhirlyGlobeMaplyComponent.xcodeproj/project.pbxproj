@@ -525,6 +525,10 @@
 		2BB8E20621FFAAA000154CDC /* PerformanceTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B9B21FBA9E90078A975 /* PerformanceTimer.cpp */; };
 		2BB8E20721FFAAA000154CDC /* SceneRendererES.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8E1B121FBB0BA00154CDC /* SceneRendererES.cpp */; };
 		2BB8E20821FFAAA000154CDC /* SceneRendererES2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8E1B221FBB0BA00154CDC /* SceneRendererES2.cpp */; };
+		2BBC337B22163AE90038A229 /* QuadSamplingParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBC337922163AE90038A229 /* QuadSamplingParams.h */; };
+		2BBC337C22163AE90038A229 /* QuadSamplingController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBC337A22163AE90038A229 /* QuadSamplingController.h */; };
+		2BBC337F22163B050038A229 /* QuadSamplingController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC337D22163B050038A229 /* QuadSamplingController.cpp */; };
+		2BBC338022163B050038A229 /* QuadSamplingParams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC337E22163B050038A229 /* QuadSamplingParams.cpp */; };
 		2BC3D6AA22024EB300CE91D0 /* MaplyAnimateTranslateMomentum.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A422024EB200CE91D0 /* MaplyAnimateTranslateMomentum.h */; };
 		2BC3D6AB22024EB300CE91D0 /* GlobeAnimateRotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A522024EB300CE91D0 /* GlobeAnimateRotation.h */; };
 		2BC3D6AC22024EB300CE91D0 /* MaplyAnimateTranslation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A622024EB300CE91D0 /* MaplyAnimateTranslation.h */; };
@@ -1522,6 +1526,10 @@
 		2BB8E1B221FBB0BA00154CDC /* SceneRendererES2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SceneRendererES2.cpp; path = ../../../../common/WhirlyGlobeLib/src/SceneRendererES2.cpp; sourceTree = "<group>"; };
 		2BB8E1B621FBC61C00154CDC /* ActiveModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ActiveModel.h; path = ../../../../common/WhirlyGlobeLib/include/ActiveModel.h; sourceTree = "<group>"; };
 		2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedAttributes.h; path = ../../../../common/WhirlyGlobeLib/include/SharedAttributes.h; sourceTree = "<group>"; };
+		2BBC337922163AE90038A229 /* QuadSamplingParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuadSamplingParams.h; path = ../../../../common/WhirlyGlobeLib/include/QuadSamplingParams.h; sourceTree = "<group>"; };
+		2BBC337A22163AE90038A229 /* QuadSamplingController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuadSamplingController.h; path = ../../../../common/WhirlyGlobeLib/include/QuadSamplingController.h; sourceTree = "<group>"; };
+		2BBC337D22163B050038A229 /* QuadSamplingController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadSamplingController.cpp; path = ../../../../common/WhirlyGlobeLib/src/QuadSamplingController.cpp; sourceTree = "<group>"; };
+		2BBC337E22163B050038A229 /* QuadSamplingParams.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadSamplingParams.cpp; path = ../../../../common/WhirlyGlobeLib/src/QuadSamplingParams.cpp; sourceTree = "<group>"; };
 		2BC3D6A422024EB200CE91D0 /* MaplyAnimateTranslateMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyAnimateTranslateMomentum.h; path = ../../../../common/WhirlyGlobeLib/include/MaplyAnimateTranslateMomentum.h; sourceTree = "<group>"; };
 		2BC3D6A522024EB300CE91D0 /* GlobeAnimateRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlobeAnimateRotation.h; path = ../../../../common/WhirlyGlobeLib/include/GlobeAnimateRotation.h; sourceTree = "<group>"; };
 		2BC3D6A622024EB300CE91D0 /* MaplyAnimateTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyAnimateTranslation.h; path = ../../../../common/WhirlyGlobeLib/include/MaplyAnimateTranslation.h; sourceTree = "<group>"; };
@@ -3215,6 +3223,8 @@
 				2BE1E78F2213977F00815D9C /* QuadTileBuilder.h */,
 				2BE7E7B02214C6DE00E4EFBA /* QuadDisplayControllerNew.h */,
 				2BE1E7A422161BD600815D9C /* QuadLoaderReturn.h */,
+				2BBC337922163AE90038A229 /* QuadSamplingParams.h */,
+				2BBC337A22163AE90038A229 /* QuadSamplingController.h */,
 			);
 			name = loading;
 			sourceTree = "<group>";
@@ -3228,6 +3238,8 @@
 				2BE1E7952213979800815D9C /* QuadTileBuilder.cpp */,
 				2BE7E7B22214C6EB00E4EFBA /* QuadDisplayControllerNew.cpp */,
 				2BE1E7A622161C0200815D9C /* QuadLoaderReturn.cpp */,
+				2BBC337E22163B050038A229 /* QuadSamplingParams.cpp */,
+				2BBC337D22163B050038A229 /* QuadSamplingController.cpp */,
 			);
 			name = loading;
 			sourceTree = "<group>";
@@ -3815,6 +3827,7 @@
 				2B446B4A21F7E7B80078A975 /* ParticleSystemDrawable.h in Headers */,
 				2BE538181D249A1200B60FAD /* MaplyParticleSystem.h in Headers */,
 				2B446B4921F7E7B80078A975 /* ScreenSpaceDrawable.h in Headers */,
+				2BBC337C22163AE90038A229 /* QuadSamplingController.h in Headers */,
 				2B82B6091E82E2490095FB14 /* JSONDefs.h in Headers */,
 				2BE539781D249BEF00B60FAD /* AAPhysicalJupiter.h in Headers */,
 				2BB8E1AE21FBB0A400154CDC /* SceneRendererES.h in Headers */,
@@ -4124,6 +4137,7 @@
 				2BE5384D1D249A1200B60FAD /* MaplyTexture_private.h in Headers */,
 				2B7B84D821223F0300D11447 /* MaplyTextureAtlas_private.h in Headers */,
 				2B884A601E3803170027C397 /* lasreaditem.hpp in Headers */,
+				2BBC337B22163AE90038A229 /* QuadSamplingParams.h in Headers */,
 				2B884A621E3803170027C397 /* lasreaditemcompressed_v1.hpp in Headers */,
 				2B846F0821F158E100EF2A82 /* SelectionManager.h in Headers */,
 				2BE538561D249A1200B60FAD /* SelectObject_private.h in Headers */,
@@ -4515,6 +4529,7 @@
 				2BB8E1F121FF902500154CDC /* Drawable.cpp in Sources */,
 				2B82B6561E82E2490095FB14 /* PJ_denoy.c in Sources */,
 				2BE5398C1D249BEF00B60FAD /* AAAngularSeparation.cpp in Sources */,
+				2BBC337F22163B050038A229 /* QuadSamplingController.cpp in Sources */,
 				2B82B60B1E82E2490095FB14 /* JSONIterators.cpp in Sources */,
 				2BE539961D249BEF00B60FAD /* AAElementsPlanetaryOrbit.cpp in Sources */,
 				2B846EDF21F136D700EF2A82 /* pj_units.c in Sources */,
@@ -4636,6 +4651,7 @@
 				2B82B6441E82E2490095FB14 /* PJ_aitoff.c in Sources */,
 				2B87970722039D7000EF801D /* Texture_iOS.mm in Sources */,
 				2B446B1421F79AD00078A975 /* WhirlyGeometry.cpp in Sources */,
+				2BBC338022163B050038A229 /* QuadSamplingParams.cpp in Sources */,
 				2B8796CE21FFC59D00EF801D /* Dictinary_NSDictionary.mm in Sources */,
 				2B8796D121FFC59D00EF801D /* NSDictionary+Stuff.m in Sources */,
 				2B82B6281E82E2490095FB14 /* geodesic.c in Sources */,

@@ -46,6 +46,9 @@ public:
 
     // Overlay component objects added for a tile
     std::vector<ComponentObjectRef> ovlCompObjs;
+    
+    // Clean out references to everything
+    void clear();
 };
     
 typedef std::shared_ptr<QuadLoaderReturn> QuadLoaderReturnRef;

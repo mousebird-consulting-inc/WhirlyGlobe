@@ -1,5 +1,5 @@
 /*
- *  ImageTile.h
+ *  QuadSamplingParams.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/14/19.
@@ -18,33 +18,11 @@
  *
  */
 
-#import <math.h>
 #import "WhirlyVector.h"
-#import "Texture.h"
 
 namespace WhirlyKit
 {
 
-/** Image Tile representation.
- 
-    Used to wrap data we're going to turn into a Texture.
-    Subclass does most of the work.
-  */
-class ImageTile
-{
-public:
-    ImageTile();
-    virtual ~ImageTile();
-    
-    /// Construct and return a texture, if possible.
-    virtual Texture *buildTexture() = 0;
-    
-public:
-    int borderSize;
-    int width,height,components;
-    int targetWidth,targetHeight;
-};
 
-typedef std::shared_ptr<ImageTile> ImageTileRef;
-
+    
 }
