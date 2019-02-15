@@ -66,3 +66,4 @@
 #import "ComponentManager.h"
 #import "ImageTile.h"
 #import "QuadSamplingParams.h"
+#import "QuadSamplingController.h"

@@ -22,6 +22,14 @@
 
 namespace WhirlyKit
 {
+    
+QuadDataStructure::QuadDataStructure()
+{
+}
+
+QuadDataStructure::~QuadDataStructure()
+{
+}
 
 QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStructure,QuadLoaderNew *loader,SceneRendererES *renderer)
     : dataStructure(dataStructure), loader(loader), renderer(renderer), QuadTreeNew(MbrD(dataStructure->getTotalExtents()),dataStructure->getMinZoom(),dataStructure->getMaxZoom())
@@ -67,6 +75,36 @@ TimeInterval QuadDisplayControllerNew::getViewUpdatePeriod()
 void QuadDisplayControllerNew::setViewUpdatePeriod(TimeInterval newVal)
 {
     viewUpdatePeriod = newVal;
+}
+    
+bool QuadDisplayControllerNew::getSingleLevel()
+{
+    return singleLevel;
+}
+
+void QuadDisplayControllerNew::setSingleLevel(int newSingleLevel)
+{
+    singleLevel = newSingleLevel;
+}
+
+std::vector<int> QuadDisplayControllerNew::getLevelLoads()
+{
+    return levelLoads;
+}
+
+void QuadDisplayControllerNew::setLevelLoads(const std::vector<int> &newLoads)
+{
+    levelLoads = newLoads;
+}
+    
+std::vector<double> QuadDisplayControllerNew::getMinImportancePerLevel()
+{
+    return minImportancePerLevel;
+}
+
+void QuadDisplayControllerNew::setMinImportancePerLevel(const std::vector<double> &imports)
+{
+    minImportancePerLevel = imports;
 }
     
 QuadDataStructure *QuadDisplayControllerNew::getDataStructure()

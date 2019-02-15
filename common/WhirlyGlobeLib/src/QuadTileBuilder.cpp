@@ -33,7 +33,7 @@ QuadTileBuilderDelegate::~QuadTileBuilderDelegate()
 {
 }
     
-QuadTileBuilder::QuadTileBuilder(CoordSystem *coordSys,QuadTileBuilderDelegateRef delegate)
+QuadTileBuilder::QuadTileBuilder(CoordSystem *coordSys,QuadTileBuilderDelegate *delegate)
     : delegate(delegate), debugMode(false)
 {
     geomSettings.sampleX = 20;

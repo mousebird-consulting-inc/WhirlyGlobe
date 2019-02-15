@@ -42,7 +42,7 @@ public:
 
 /// Protocol used by the tile builder to notify an interested party about what's
 ///  loaded.  If, for example, you want to attach textures to things.
-class QuadTileBuilderDelegate
+    class QuadTileBuilderDelegate : public Identifiable
 {
 public:
     QuadTileBuilderDelegate();
@@ -77,7 +77,8 @@ typedef std::shared_ptr<QuadTileBuilderDelegate> QuadTileBuilderDelegateRef;
  */
 class QuadTileBuilder : public QuadLoaderNew
 {
-    QuadTileBuilder(CoordSystem *coordSys,QuadTileBuilderDelegateRef delegate);
+public:
+    QuadTileBuilder(CoordSystem *coordSys,QuadTileBuilderDelegate *delegate);
     virtual ~QuadTileBuilder();
     
     // Return a tile, if there is one
@@ -123,21 +124,23 @@ protected:
                                                   const WhirlyKit::QuadTreeNew::NodeSet &unloadTiles,
                                                   const WhirlyKit::QuadTreeNew::ImportantNodeSet &updateTiles,
                                                   int targetLevel,
-                                                  ChangeSet &changes) = 0;
+                                                  ChangeSet &changes);
     
     /// Called right before the layer thread flushes its change requests
-    virtual void quadLoaderPreSceenFlush(ChangeSet &changes) = 0;
+    virtual void quadLoaderPreSceenFlush(ChangeSet &changes);
     
     /// Called when a layer is shutting down (on the layer thread)
-    virtual void quadLoaderShutdown(ChangeSet &changes) = 0;
+    virtual void quadLoaderShutdown(ChangeSet &changes);
     
     bool debugMode;
     
     TileGeomManager geomManage;
     TileGeomSettings geomSettings;
     
-    QuadTileBuilderDelegateRef delegate;
+    QuadTileBuilderDelegate *delegate;
 };
+    
+typedef std::shared_ptr<QuadTileBuilder> QuadTileBuilderRef;
     
 }
 

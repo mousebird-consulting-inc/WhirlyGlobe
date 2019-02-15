@@ -527,12 +527,13 @@
 		2BB8E20821FFAAA000154CDC /* SceneRendererES2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8E1B221FBB0BA00154CDC /* SceneRendererES2.cpp */; };
 		2BBC337B22163AE90038A229 /* QuadSamplingParams.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBC337922163AE90038A229 /* QuadSamplingParams.h */; };
 		2BBC337C22163AE90038A229 /* QuadSamplingController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBC337A22163AE90038A229 /* QuadSamplingController.h */; };
-		2BBC337F22163B050038A229 /* QuadSamplingController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC337D22163B050038A229 /* QuadSamplingController.cpp */; };
 		2BBC338022163B050038A229 /* QuadSamplingParams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC337E22163B050038A229 /* QuadSamplingParams.cpp */; };
 		2BBC338322173F8A0038A229 /* ComponentManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBC338222173F8A0038A229 /* ComponentManager.h */; };
 		2BBC338522173FAA0038A229 /* ComponentManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC338422173FAA0038A229 /* ComponentManager.cpp */; };
 		2BBC3389221746850038A229 /* ComponentManager_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC3388221746850038A229 /* ComponentManager_iOS.mm */; };
 		2BBC338B221746950038A229 /* ComponentManager_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBC338A221746950038A229 /* ComponentManager_iOS.h */; };
+		2BBC338C221766D30038A229 /* MaplyQuadSampler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387F5206ABD7400DD5C40 /* MaplyQuadSampler.mm */; };
+		2BBC338D221776130038A229 /* QuadSamplingController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC337D22163B050038A229 /* QuadSamplingController.cpp */; };
 		2BC3D6AA22024EB300CE91D0 /* MaplyAnimateTranslateMomentum.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A422024EB200CE91D0 /* MaplyAnimateTranslateMomentum.h */; };
 		2BC3D6AB22024EB300CE91D0 /* GlobeAnimateRotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A522024EB300CE91D0 /* GlobeAnimateRotation.h */; };
 		2BC3D6AC22024EB300CE91D0 /* MaplyAnimateTranslation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A622024EB300CE91D0 /* MaplyAnimateTranslation.h */; };
@@ -4532,10 +4533,10 @@
 				2BB8E1F121FF902500154CDC /* Drawable.cpp in Sources */,
 				2B82B6561E82E2490095FB14 /* PJ_denoy.c in Sources */,
 				2BE5398C1D249BEF00B60FAD /* AAAngularSeparation.cpp in Sources */,
-				2BBC337F22163B050038A229 /* QuadSamplingController.cpp in Sources */,
 				2B82B60B1E82E2490095FB14 /* JSONIterators.cpp in Sources */,
 				2BE539961D249BEF00B60FAD /* AAElementsPlanetaryOrbit.cpp in Sources */,
 				2B846EDF21F136D700EF2A82 /* pj_units.c in Sources */,
+				2BBC338C221766D30038A229 /* MaplyQuadSampler.mm in Sources */,
 				2BE1E74A2208E8C500815D9C /* MaplyRemoteTileFetcher.mm in Sources */,
 				2B82B6531E82E2490095FB14 /* pj_ctx.c in Sources */,
 				2BE1E768220A56CB00815D9C /* MaplyBaseViewController.mm in Sources */,
@@ -4755,6 +4756,7 @@
 				2B82B6731E82E24A0095FB14 /* PJ_healpix.c in Sources */,
 				2BB8E1FA21FF903100154CDC /* TextureAtlas.cpp in Sources */,
 				2BE1E79D2215F4E900815D9C /* ImageTile.cpp in Sources */,
+				2BBC338D221776130038A229 /* QuadSamplingController.cpp in Sources */,
 				2BE1E7442208C96A00815D9C /* GlobePanDelegate.mm in Sources */,
 				2BE539991D249BEF00B60FAD /* AAEquinoxesAndSolstices.cpp in Sources */,
 				2B82B64B1E82E2490095FB14 /* PJ_boggs.c in Sources */,

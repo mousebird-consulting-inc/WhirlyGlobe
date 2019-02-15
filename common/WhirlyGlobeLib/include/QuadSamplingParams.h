@@ -40,6 +40,9 @@ public:
     
     /// The coordinate system we'll be sampling from.
     CoordSystem *coordSys;
+    /// Bounding box for the coordinate system
+    MbrD coordBounds;
+
     /// Min zoom level for sampling
     int minZoom;
     /// Max zoom level for sampling

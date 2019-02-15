@@ -119,18 +119,26 @@ public:
     SceneRendererES *getRenderer();
     /// Quad tree used for paging advice
     QuadTreeNew *getQuadTree();
+    
     /// Maximum number of tiles loaded in at once
     int getMaxTiles();
     void setMaxTiles(int);
-    /// Minimum screen area to consider for a tile per level
-    std::vector<double> getMinImportancePerLevel();
+    
     /// How often this layer gets notified of view changes.  1s by default.
     TimeInterval getViewUpdatePeriod();
     void setViewUpdatePeriod(TimeInterval);
+
     /// Load just the target level (and the lowest level)
     bool getSingleLevel();
+    void setSingleLevel(int);
+    
     /// Level offsets in single level mode
     std::vector<int> getLevelLoads();
+    void setLevelLoads(const std::vector<int> &);
+    
+    /// Minimum screen area to consider for a tile per level
+    std::vector<double> getMinImportancePerLevel();
+    void setMinImportancePerLevel(const std::vector<double> &imports);
     
     /// Return the geometry information being used
     QuadDataStructure *getDataStructure();
