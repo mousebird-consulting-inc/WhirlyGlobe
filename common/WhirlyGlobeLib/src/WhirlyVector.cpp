@@ -41,6 +41,11 @@ Mbr::Mbr(const Point2fVector &pts)
 	for (unsigned int ii=0;ii<pts.size();ii++)
 		addPoint(pts[ii]);
 }
+    
+bool Mbr::operator == (const Mbr &that) const
+{
+    return pt_ll == that.pt_ll && pt_ur == that.pt_ur;
+}
 	
 void Mbr::addPoint(Point2f pt)
 {
@@ -167,6 +172,11 @@ MbrD::MbrD(const Point2dVector &pts)
         addPoint(pts[ii]);
 }
 
+bool MbrD::operator == (const MbrD &that) const
+{
+    return pt_ll == that.pt_ll && pt_ur == that.pt_ur;
+}
+    
 void MbrD::addPoint(Point2f pt)
 {
     if (!valid())

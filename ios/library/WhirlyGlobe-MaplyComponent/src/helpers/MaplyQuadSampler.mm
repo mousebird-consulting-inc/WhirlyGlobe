@@ -21,7 +21,6 @@
 #import "MaplyQuadSampler_private.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyBaseViewController_private.h"
-#import "MaplyQuadImageLoader_private.h"
 #import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
@@ -31,65 +30,147 @@ using namespace WhirlyKit;
 - (instancetype)init
 {
     self = [super init];
-    _coordSys = [[MaplySphericalMercator alloc] initWebStandard];
-    _minZoom = 0;
-    _maxZoom = 0;
-    _coverPoles = true;
-    _edgeMatching = true;
-    _tessX = 10;
-    _tessY = 10;
-    _singleLevel = false;
-    _maxTiles = 128;
-    _minImportance = 256*256;
-    _minImportanceTop = 0.0;
-    _levelLoads = nil;
-    _hasClipBounds = false;
 
     return self;
 }
-    
+
+- (int)minZoom
+{
+    return params.minZoom;
+}
+
+- (void)setMinZoom:(int)minZoom
+{
+    params.minZoom = minZoom;
+}
+
+- (int)maxZoom
+{
+    return params.maxZoom;
+}
+
+- (void)setMaxZoom:(int)maxZoom
+{
+    params.maxZoom = maxZoom;
+}
+
+- (int)maxTiles
+{
+    return params.maxTiles;
+}
+
+- (void)setMaxTiles:(int)maxTiles
+{
+    params.maxTiles = maxTiles;
+}
+
+- (double)minImportance
+{
+    return params.minImportance;
+}
+
+- (void)setMinImportance:(double)minImportance
+{
+    params.minImportance = minImportance;
+}
+
 - (void)setMinImportance:(double)minImportance forLevel:(int)level
 {
-    if (level >= _importancePerLevel.size()) {
-        _importancePerLevel.resize(level+1,-2.0);
-    }
-    _importancePerLevel[level] = minImportance;
+    params.setImportanceLevel(minImportance,level);
 }
 
-- (bool)isClipEqualTo:(MaplySamplingParams *__nonnull)other
+- (double)minImportanceTop
 {
-    if (_hasClipBounds != other.hasClipBounds)
-        return false;
-    
-    MaplyBoundingBoxD otherClipBounds = other.clipBounds;
-    if (_clipBounds.ll.x != otherClipBounds.ll.x ||
-        _clipBounds.ll.y != otherClipBounds.ll.y ||
-        _clipBounds.ur.x != otherClipBounds.ur.x ||
-        _clipBounds.ur.y != otherClipBounds.ur.y)
-        return false;
-    
-    return true;
+    return params.minImportanceTop;
 }
 
-- (bool)isEqualTo:(MaplySamplingParams *__nonnull)other
+- (void)setMinImportanceTop:(double)minImportanceTop
 {
-    if (_minZoom != other.minZoom || _maxZoom != other.maxZoom ||
-        _coverPoles != other.coverPoles || _edgeMatching != other.edgeMatching ||
-        _tessX != other.tessX || _tessY != other.tessY ||
-        _minImportance != other.minImportance ||
-        _minImportanceTop != other.minImportanceTop ||
-        _singleLevel != other.singleLevel ||
-        _maxTiles != other.maxTiles ||
-        ![self isClipEqualTo:other])
-        return false;
+    params.minImportanceTop = minImportanceTop;
+}
+
+- (bool)coverPoles
+{
+    return params.coverPoles;
+}
+
+- (void)setCoverPoles:(bool)coverPoles
+{
+    params.coverPoles = coverPoles;
+}
+
+- (bool)edgeMatching
+{
+    return params.edgeMatching;
+}
+
+- (void)setEdgeMatching:(bool)edgeMatching
+{
+    params.edgeMatching = edgeMatching;
+}
+
+- (int)tessX
+{
+    return params.tessX;
+}
+
+- (void)setTessX:(int)tessX
+{
+    params.tessX = tessX;
+}
+
+- (int)tessY
+{
+    return params.tessY;
+}
+
+- (void)setTessY:(int)tessY
+{
+    params.tessY = tessY;
+}
+
+- (bool)singleLevel
+{
+    return params.singleLevel;
+}
+
+- (void)setSingleLevel:(bool)singleLevel
+{
+    params.singleLevel = singleLevel;
+}
+
+- (MaplyBoundingBoxD)clipBounds
+{
+    MaplyBoundingBoxD bbox;
+    auto mbr = params.clipBounds;
+    bbox.ll.x = mbr.ll().x();  bbox.ll.y = mbr.ll().y();
+    bbox.ur.x = mbr.ur().x();  bbox.ur.y = mbr.ur().y();
     
-    return _coordSys->coordSystem->isSameAs(other.coordSys->coordSystem);
+    return bbox;
 }
 
 - (void)setClipBounds:(MaplyBoundingBoxD)clipBounds
 {
-    _hasClipBounds = true;
-    _clipBounds = clipBounds;
+    params.clipBounds.reset();
+    params.clipBounds.addPoint(Point2d(clipBounds.ll.x,clipBounds.ll.y));
+    params.clipBounds.addPoint(Point2d(clipBounds.ur.x,clipBounds.ur.y));
+}
+
+- (bool)hasClipBounds
+{
+    return params.clipBounds.valid();
+}
+
+- (void)setLevelLoads:(NSArray *)levelLoads
+{
+    params.levelLoads.clear();
+    for (NSNumber *num in levelLoads)
+        params.levelLoads.push_back([num integerValue]);
+}
+
+- (bool)isEqualTo:(MaplySamplingParams *__nonnull)other
+{
+    return params == other->params;
 }
 
 @end

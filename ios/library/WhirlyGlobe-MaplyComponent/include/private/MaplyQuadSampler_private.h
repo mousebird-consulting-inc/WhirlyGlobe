@@ -18,12 +18,15 @@
  *
  */
 
+#import "WhirlyGlobe.h"
 #import "MaplyQuadSampler.h"
 #import "QuadTileBuilder.h"
 
 @interface MaplySamplingParams()
-    
-@property (nonatomic,assign) std::vector<double> importancePerLevel;
+{
+@public
+    WhirlyKit::SamplingParams params;
+}
 
 @end
 

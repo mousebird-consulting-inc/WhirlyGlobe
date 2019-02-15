@@ -529,6 +529,7 @@
 		2BBC337C22163AE90038A229 /* QuadSamplingController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBC337A22163AE90038A229 /* QuadSamplingController.h */; };
 		2BBC337F22163B050038A229 /* QuadSamplingController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC337D22163B050038A229 /* QuadSamplingController.cpp */; };
 		2BBC338022163B050038A229 /* QuadSamplingParams.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC337E22163B050038A229 /* QuadSamplingParams.cpp */; };
+		2BBC3381221644830038A229 /* MaplyQuadSampler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387F5206ABD7400DD5C40 /* MaplyQuadSampler.mm */; };
 		2BC3D6AA22024EB300CE91D0 /* MaplyAnimateTranslateMomentum.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A422024EB200CE91D0 /* MaplyAnimateTranslateMomentum.h */; };
 		2BC3D6AB22024EB300CE91D0 /* GlobeAnimateRotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A522024EB300CE91D0 /* GlobeAnimateRotation.h */; };
 		2BC3D6AC22024EB300CE91D0 /* MaplyAnimateTranslation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A622024EB300CE91D0 /* MaplyAnimateTranslation.h */; };
@@ -4341,6 +4342,7 @@
 				2BE53A6B1D249C4600B60FAD /* atomicops_internals_x86_gcc.cc in Sources */,
 				2BC3D6D72203EE8A00CE91D0 /* MaplyTwoFingerTapDelegate.mm in Sources */,
 				2BE539F21D249C2900B60FAD /* any.cc in Sources */,
+				2BBC3381221644830038A229 /* MaplyQuadSampler.mm in Sources */,
 				2BE539A11D249BEF00B60FAD /* AAKepler.cpp in Sources */,
 				2BE53A711D249C4600B60FAD /* once.cc in Sources */,
 				2BB8E20821FFAAA000154CDC /* SceneRendererES2.cpp in Sources */,

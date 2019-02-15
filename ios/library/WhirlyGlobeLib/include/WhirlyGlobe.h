@@ -65,3 +65,4 @@
 #import "BillboardManager.h"
 #import "ImageTile.h"
 #import "ComponentObject.h"
+#import "QuadSamplingParams.h"

@@ -19,10 +19,74 @@
  */
 
 #import "WhirlyVector.h"
+#import "CoordSystem.h"
 
 namespace WhirlyKit
 {
 
+/**
+ Sampling parameters.
+ 
+ These are used to describe how we want to break down the globe or
+ flat projection onto the globe.
+ */
+class SamplingParams
+{
+public:
+    SamplingParams();
+    virtual ~SamplingParams();
+    
+    bool operator == (const SamplingParams &) const;
+    
+    /// The coordinate system we'll be sampling from.
+    CoordSystem *coordSys;
+    /// Min zoom level for sampling
+    int minZoom;
+    /// Max zoom level for sampling
+    int maxZoom;
+    
+    /// Maximum number of tiles to load
+    int maxTiles;
+    
+    /// Cutoff for loading tiles.  This is size in screen space (pixels^2)
+    double minImportance;
+    
+    /// Normally we always load the lowest level
+    /// If this is set we only load those lowest level tiles that pass this test
+    double minImportanceTop;
+    
+    /// Generate geometry to cover the north and south poles
+    /// Only works for world-wide projections
+    bool coverPoles;
+    
+    /// If set, generate skirt geometry to hide the edges between levels
+    bool edgeMatching;
+    
+    /// Tesselation values per level for breaking down the coordinate system (e.g. globe)
+    int tessX,tessY;
+    
+    /// If set, we'll try to load a single level
+    bool singleLevel;
+    
+    /// If set, the tiles are clipped to this boundary
+    MbrD clipBounds;
+    
+    /**
+     Detail the levels you want loaded in target level mode.
+     
+     The layer calculates the optimal target level.  The entries in this array are relative to that level or absolute.  For example [0,-4,-2] means the layer will always try to load levels 0, targetLevel-4 and targetLevel-2, but only the latter two if they make sense.
+     */
+    std::vector<int> levelLoads;
+    
+    /**
+     Set the min importance for just one level.
+     
+     This is useful if you want your lower levels loaded more aggressively.
+     */
+    void setImportanceLevel(double minImportance,int level);
+    
+    std::vector<double> importancePerLevel;
+};
 
     
 }

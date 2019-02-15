@@ -117,6 +117,8 @@ public:
 	/// Construct from the MBR of a vector of points
 	Mbr(const Point2fVector &pts);
     
+    bool operator == (const Mbr &that) const;
+    
     /// Resets back to invalid
     void reset() { pt_ll = Point2f(0.f,0.f);  pt_ur = Point2f(-1.f,-1.f); }
 	
@@ -196,6 +198,8 @@ public:
     MbrD(const Mbr &inMbr) : pt_ll(Point2d(inMbr.ll().x(),inMbr.ll().y())), pt_ur(Point2d(inMbr.ur().x(),inMbr.ur().y())) { }
     /// Construct from the MBR of a vector of points
     MbrD(const Point2dVector &pts);
+    
+    bool operator == (const MbrD &that) const;
     
     /// Resets back to invalid
     void reset() { pt_ll = Point2d(0.0,0.0);  pt_ur = Point2d(-1.0,-1.0); }
