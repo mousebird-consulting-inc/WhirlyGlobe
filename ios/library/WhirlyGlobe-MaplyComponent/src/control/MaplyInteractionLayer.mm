@@ -55,7 +55,6 @@ using namespace WhirlyGlobe;
     
     layerThread = inLayerThread;
     scene = (Maply::MapScene *)inScene;
-    userObjects = [NSMutableSet set];
 }
 
 - (void)dealloc
@@ -109,13 +108,10 @@ using namespace WhirlyGlobe;
         for (unsigned int ii=0;ii<selectedObjs.size();ii++)
         {
             SelectionManager::SelectedObject &theSelObj = selectedObjs[ii];
-            MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
-            
             for (auto selectID : theSelObj.selectIDs)
             {
-                SelectObjectSet::iterator it = selectObjectSet.find(SelectObject(selectID));
-                if (it != selectObjectSet.end())
-                    selObj.selectedObj = it->obj;
+                MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
+                selObj.selectedObj = compManager->getSelectObject(selectID);
                 
                 selObj.screenDist = theSelObj.screenDist;
                 selObj.cluster = theSelObj.isCluster;

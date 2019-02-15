@@ -21,7 +21,7 @@
 #import "WhirlyVector.h"
 #import "Scene.h"
 #import "GlobeMath.h"
-#import "ComponentObject.h"
+#import "ComponentManager.h"
 #import "ImageTile.h"
 
 namespace WhirlyKit

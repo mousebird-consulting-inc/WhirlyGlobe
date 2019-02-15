@@ -63,6 +63,6 @@
 #import "GeometryOBJReader.h"
 #import "ParticleSystemManager.h"
 #import "BillboardManager.h"
+#import "ComponentManager.h"
 #import "ImageTile.h"
-#import "ComponentObject.h"
 #import "QuadSamplingParams.h"

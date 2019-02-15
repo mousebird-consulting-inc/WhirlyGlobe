@@ -44,6 +44,7 @@
 #import "SingleLabel_iOS.h"
 #import "FontTextureManager_iOS.h"
 #import "Texture_iOS.h"
+#import "ComponentManager_iOS.h"
 //#import "SphericalEarthChunkManager.h"
 
 using namespace Eigen;
@@ -218,7 +219,7 @@ public:
     // Last frame (layout frame, not screen frame)
     std::vector<MaplyTexture *> currentClusterTex,oldClusterTex;
     bool offlineMode;
-    
+        
     // Pre-fetched IDs for the various programs
     SimpleIdentity screenSpaceMotionProgram,screenSpaceDefaultProgram;
 }
@@ -235,12 +236,12 @@ public:
     numActiveWorkers = 0;
     
     // Grab everything to force people to wait, hopefully
-    selectLock.lock();
     imageLock.lock();
     changeLock.lock();
     tempContextLock.lock();
     workLock.lock();
     
+    compManager = NULL;
     shaders = [NSMutableArray array];
     
     return self;
@@ -258,7 +259,10 @@ public:
     layerThread = inLayerThread;
     offlineMode = layerThread == nil;
     scene = inScene;
-    userObjects = [NSMutableSet set];
+    
+    compManager = new ComponentManager_iOS();
+    compManager->setScene(scene);
+    
     atlasGroup = [[MaplyTextureAtlasGroup alloc] initWithScene:scene];
     
     glSetupInfo.minZres = visualView->calcZbufferRes();
@@ -267,16 +271,11 @@ public:
     
     if (layerThread)
     {
-        LayoutManager *layoutManager =(LayoutManager *)scene->getManager(kWKLayoutManager);
-        if (layoutManager)
-        {
-            ourClusterGen.layer = self;
-            layoutManager->addClusterGenerator(&ourClusterGen);
-        }
+        ourClusterGen.layer = self;
+        compManager->layoutManager->addClusterGenerator(&ourClusterGen);
     }
     
     // We locked these in hopes of slowing down anyone trying to race us.  Unlock 'em.
-    selectLock.unlock();
     imageLock.unlock();
     changeLock.unlock();
     tempContextLock.unlock();
@@ -288,13 +287,12 @@ public:
     layerThread = nil;
     scene = NULL;
     imageTextures.clear();
-    [userObjects removeAllObjects];
-    userObjects = nil;
     atlasGroup = nil;
     layerThreads = nil;
     ourClusterGen.layer = nil;
     clusterGens.clear();
     tempContexts.clear();
+    compManager->clear();
     
     for (MaplyShader *shader in shaders)
         [shader teardown];
@@ -309,6 +307,9 @@ public:
             delete threadChanges.changes[ii];
     }
     perThreadChanges.clear();
+
+    delete compManager;
+    compManager = NULL;
 }
 
 - (void)lockingShutdown
@@ -926,31 +927,20 @@ public:
         
         if (marker.selectable)
         {
-            {
-                std::lock_guard<std::mutex> guardLock(selectLock);
-                selectObjectSet.insert(SelectObject(wgMarker->selectID,marker));
-            }
+            compManager->addSelectObject(wgMarker->selectID,marker);
             compObj->contents->selectIDs.insert(wgMarker->selectID);
         }
     }
     
-    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
     
-    if (markerManager)
-    {
-        // Set up a description and create the markers in the marker layer
-        ChangeSet changes;
-        SimpleIdentity markerID = markerManager->addMarkers(wgMarkers, markerInfo, changes);
-        if (markerID != EmptyIdentity)
-            compObj->contents->markerIDs.insert(markerID);
-        [self flushChanges:changes mode:threadMode];
-    }
+    // Set up a description and create the markers in the marker layer
+    ChangeSet changes;
+    SimpleIdentity markerID = compManager->markerManager->addMarkers(wgMarkers, markerInfo, changes);
+    if (markerID != EmptyIdentity)
+        compObj->contents->markerIDs.insert(markerID);
+    [self flushChanges:changes mode:threadMode];
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
+    compManager->addComponentObject(compObj->contents);
 }
 
 // Called in the main thread.
@@ -963,11 +953,8 @@ public:
     
     if ([markers count] == 0)
     {
-        @synchronized(userObjects)
-        {
-            [userObjects addObject:compObj];
-            compObj->contents->underConstruction = false;
-        }
+        compManager->addComponentObject(compObj->contents);
+
         return compObj;
     }
     
@@ -1241,10 +1228,7 @@ public:
         
         if (marker.selectable)
         {
-            std::lock_guard<std::mutex> guardLock(selectLock);
-            {
-                selectObjectSet.insert(SelectObject(wgMarker->selectID,marker));
-            }
+            compManager->addSelectObject(wgMarker->selectID,marker);
             compObj->contents->selectIDs.insert(wgMarker->selectID);
         }
     }
@@ -1260,11 +1244,7 @@ public:
         [self flushChanges:changes mode:threadMode];
     }
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
+    compManager->addComponentObject(compObj->contents);
 }
 
 // Add 3D markers
@@ -1277,11 +1257,7 @@ public:
 
     if ([markers count] == 0)
     {
-        @synchronized(userObjects)
-        {
-            [userObjects addObject:compObj];
-            compObj->contents->underConstruction = false;
-        }
+        compManager->addComponentObject(compObj->contents);
         return compObj;
     }
 
@@ -1443,8 +1419,7 @@ public:
         
         if (label.selectable)
         {
-            std::lock_guard<std::mutex> guardLock(selectLock);
-            selectObjectSet.insert(SelectObject(wgLabel->selectID,label));
+            compManager->addSelectObject(wgLabel->selectID,label);
             compObj->contents->selectIDs.insert(wgLabel->selectID);
         }
     }
@@ -1460,12 +1435,8 @@ public:
             compObj->contents->labelIDs.insert(labelID);
     }
 
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
-    
+    compManager->addComponentObject(compObj->contents);
+
     [self clearTempContext:tmpContext];
 }
 
@@ -1479,11 +1450,7 @@ public:
     
     if ([labels count] == 0)
     {
-        @synchronized(userObjects)
-        {
-            [userObjects addObject:compObj];
-            compObj->contents->underConstruction = false;
-        }
+        compManager->addComponentObject(compObj->contents);
         return compObj;
     }
     
@@ -1564,8 +1531,7 @@ public:
         
         if (label.selectable)
         {
-            std::lock_guard<std::mutex> guardLock(selectLock);
-            selectObjectSet.insert(SelectObject(wgLabel->selectID,label));
+            compManager->addSelectObject(wgLabel->selectID,label);
             compObj->contents->selectIDs.insert(wgLabel->selectID);
         }
     }
@@ -1582,12 +1548,8 @@ public:
             compObj->contents->labelIDs.insert(labelID);
     }
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
-    
+    compManager->addComponentObject(compObj->contents);
+
     [self clearTempContext:tmpContext];
 }
 
@@ -1601,11 +1563,7 @@ public:
     
     if ([labels count] == 0)
     {
-        @synchronized(userObjects)
-        {
-            [userObjects addObject:compObj];
-            compObj->contents->underConstruction = false;
-        }
+        compManager->addComponentObject(compObj->contents);
         return compObj;
     }
     
@@ -1720,11 +1678,7 @@ public:
         compObj.vectors = vectors;
     }
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
+    compManager->addComponentObject(compObj->contents);
 }
 
 // Add vectors
@@ -1737,11 +1691,7 @@ public:
     
     if ([vectors count] == 0)
     {
-        @synchronized(userObjects)
-        {
-            [userObjects addObject:compObj];
-            compObj->contents->underConstruction = false;
-        }
+        compManager->addComponentObject(compObj->contents);
         return compObj;
     }
     
@@ -1840,11 +1790,7 @@ public:
     if (selVal && [selVal boolValue])
         compObj.vectors = vectors;
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
+    compManager->addComponentObject(compObj->contents);
 }
 
 - (MaplyComponentObject *)addWideVectors:(NSArray *)vectors desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -1856,11 +1802,7 @@ public:
     
     if ([vectors count] == 0)
     {
-        @synchronized(userObjects)
-        {
-            [userObjects addObject:compObj];
-            compObj->contents->underConstruction = false;
-        }
+        compManager->addComponentObject(compObj->contents);
         return compObj;
     }
     
@@ -1940,11 +1882,7 @@ public:
         [self flushChanges:changes mode:threadMode];
     }
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
+    compManager->addComponentObject(compObj->contents);
 }
 
 // Instance vectors
@@ -1977,11 +1915,7 @@ public:
     
     if ([vectors count] == 0)
     {
-        @synchronized(userObjects)
-        {
-            [userObjects addObject:compObj];
-            compObj->contents->underConstruction = false;
-        }
+        compManager->addComponentObject(compObj->contents);
         return compObj;
     }
     
@@ -2003,13 +1937,7 @@ public:
     
     @synchronized(vecObj)
     {
-        bool isHere = false;
-        @synchronized(userObjects)
-        {
-            isHere = [userObjects containsObject:vecObj];
-        }
-        
-        if (!isHere)
+        if (!compManager->hasComponentObject(vecObj->contents->getId()))
             return;
 
         VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
@@ -2157,8 +2085,7 @@ public:
             {
                 baseShape->isSelectable = true;
                 baseShape->selectID = Identifiable::genId();
-                std::lock_guard<std::mutex> guardLock(selectLock);
-                selectObjectSet.insert(SelectObject(baseShape->selectID,shape));
+                compManager->addSelectObject(baseShape->selectID,shape);
                 compObj->contents->selectIDs.insert(baseShape->selectID);
             }
         }
@@ -2190,11 +2117,7 @@ public:
         [self flushChanges:changes mode:threadMode];
     }
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
+    compManager->addComponentObject(compObj->contents);
 }
 
 // Add shapes
@@ -2207,11 +2130,7 @@ public:
     
     if ([shapes count] == 0)
     {
-        @synchronized(userObjects)
-        {
-            [userObjects addObject:compObj];
-            compObj->contents->underConstruction = false;
-        }
+        compManager->addComponentObject(compObj->contents);
         return compObj;
     }
     
@@ -2373,9 +2292,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     thisInst.selectable = modelInst.selectable;
                     if (thisInst.selectable)
                     {
+                        compManager->addSelectObject(thisInst.getId(),modelInst);
                         compObj->contents->selectIDs.insert(thisInst.getId());
-                        std::lock_guard<std::mutex> guardLock(selectLock);
-                        selectObjectSet.insert(SelectObject(thisInst.getId(),modelInst));
                     }
                     
                     // Motion related fields
@@ -2408,12 +2326,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     for (auto it : instSort)
         delete it;
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
-    
+    compManager->addComponentObject(compObj->contents);
+
     [self clearTempContext:tmpContext];
 }
 
@@ -2451,11 +2365,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         [self flushChanges:changes mode:threadMode];
     }
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
+    compManager->addComponentObject(compObj->contents);
 }
 
 - (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
@@ -2467,11 +2377,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     if ([modelInstances count] == 0)
     {
-        @synchronized(userObjects)
-        {
-            [userObjects addObject:compObj];
-            compObj->contents->underConstruction = false;
-        }
+        compManager->addComponentObject(compObj->contents);
         return compObj;
     }
     
@@ -2498,11 +2404,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     if ([geom count] == 0)
     {
-        @synchronized(userObjects)
-        {
-            [userObjects addObject:compObj];
-            compObj->contents->underConstruction = false;
-        }
+        compManager->addComponentObject(compObj->contents);
         return compObj;
     }
     
@@ -2608,11 +2510,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         }
     }
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
+    compManager->addComponentObject(compObj->contents);
 #endif
 }
 
@@ -2626,11 +2524,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     if ([stickers count] == 0)
     {
-        @synchronized(userObjects)
-        {
-            [userObjects addObject:compObj];
-            compObj->contents->underConstruction = false;
-        }
+        compManager->addComponentObject(compObj->contents);
         return compObj;
     }
     
@@ -2662,13 +2556,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     @synchronized(stickerObj)
     {
-        bool isHere = false;
-        @synchronized(userObjects)
-        {
-            isHere = [userObjects containsObject:stickerObj];
-        }
-        
-        if (!isHere)
+        if (!compManager->hasComponentObject(stickerObj->contents->getID()))
             return;
         
         SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
@@ -2775,11 +2663,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     }
     [self flushChanges:changes mode:threadMode];
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
+    compManager->addComponentObject(compObj->contents);
 }
 
 // Add lofted polys
@@ -2792,11 +2676,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     if ([vectors count] == 0)
     {
-        @synchronized(userObjects)
-        {
-            [userObjects addObject:compObj];
-            compObj->contents->underConstruction = false;
-        }
+        compManager->addComponentObject(compObj->contents);
         return compObj;
     }
     
@@ -2856,8 +2736,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             
             if (bill.selectable)
             {
-                std::lock_guard<std::mutex> guardLock(selectLock);
-                selectObjectSet.insert(SelectObject(wkBill->selectID,bill));
+                compManager->addSelectObject(wkBill->selectID,bill);
                 compObj->contents->selectIDs.insert(wkBill->selectID);
             }
 
@@ -2938,12 +2817,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     }
     [self flushChanges:changes mode:threadMode];
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
-    
+    compManager->addComponentObject(compObj->contents);
+
     [self clearTempContext:tmpContext];
 }
 
@@ -2957,11 +2832,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     if ([bboards count] == 0)
     {
-        @synchronized(userObjects)
-        {
-            [userObjects addObject:compObj];
-            compObj->contents->underConstruction = false;
-        }
+        compManager->addComponentObject(compObj->contents);
         return compObj;
     }
     
@@ -3092,12 +2963,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     [self flushChanges:changes mode:threadMode];
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
-    
+    compManager->addComponentObject(compObj->contents);
+
     [self clearTempContext:tmpContext];
 }
 
@@ -3248,12 +3115,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     [self flushChanges:changes mode:threadMode];
     
-    @synchronized(userObjects)
-    {
-        [userObjects addObject:compObj];
-        compObj->contents->underConstruction = false;
-    }
-    
+    compManager->addComponentObject(compObj->contents);
+
     [self clearTempContext:tmpContext];
 }
 
@@ -3344,104 +3207,21 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)removeObjects:(NSArray *)userObjs changes:(WhirlyKit::ChangeSet &)changes
 {
-    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
-    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
-    VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
-    WideVectorManager *wideVectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
-    ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
-    // Note: Turned off chunk manager
-//    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
-    LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
-    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
-    GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
-    FontTextureManager *fontTexManager = scene->getFontTextureManager();
-    ParticleSystemManager *partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
-
-    // First, let's make sure we're representing it
-    for (MaplyComponentObject *userObj in userObjs)
+    for (MaplyComponentObject *compObj in userObjs)
     {
-        bool isHere = false;
-        @synchronized(userObjects)
-        {
-            isHere = [userObjects containsObject:userObj];
-        }
-        
-        if (isHere)
-        {
-            if (userObj->contents->underConstruction)
-                NSLog(@"Deleting an object that's under construction");
-            
-            @synchronized(userObj)
-            {
-                // Get rid of the various layer objects
-                if (markerManager && !userObj->contents->markerIDs.empty())
-                    markerManager->removeMarkers(userObj->contents->markerIDs, changes);
-                if (labelManager && !userObj->contents->labelIDs.empty())
-                    labelManager->removeLabels(userObj->contents->labelIDs, changes);
-                if (vectorManager && !userObj->contents->vectorIDs.empty())
-                    vectorManager->removeVectors(userObj->contents->vectorIDs, changes);
-                if (wideVectorManager && !userObj->contents->wideVectorIDs.empty())
-                    wideVectorManager->removeVectors(userObj->contents->wideVectorIDs, changes);
-                if (shapeManager && !userObj->contents->shapeIDs.empty())
-                    shapeManager->removeShapes(userObj->contents->shapeIDs, changes);
-                if (loftManager && !userObj->contents->loftIDs.empty())
-                    loftManager->removeLoftedPolys(userObj->contents->loftIDs, changes);
-                // Note: Turned off chunk manager
-//                if (chunkManager && !userObj.chunkIDs.empty())
-//                    chunkManager->removeChunks(userObj.chunkIDs, changes);
-                if (billManager && !userObj->contents->billIDs.empty())
-                    billManager->removeBillboards(userObj->contents->billIDs, changes);
-                if (geomManager && !userObj->contents->geomIDs.empty())
-                    geomManager->removeGeometry(userObj->contents->geomIDs, changes);
-                if (fontTexManager && !userObj->contents->drawStringIDs.empty())
-                {
-                    // Giving the fonts 2s to stick around
-                    //       This avoids problems with texture being paged out.
-                    //       Without this we lose the textures before we're done with them
-                    TimeInterval when = TimeGetCurrent() + 2.0;
-                    for (SimpleIdentity dStrID : userObj->contents->drawStringIDs)
-                        fontTexManager->removeString(dStrID, changes, when);
-                }
-                if (partSysManager && !userObj->contents->partSysIDs.empty())
-                {
-                    for (SimpleIdentity partSysID : userObj->contents->partSysIDs)
-                        partSysManager->removeParticleSystem(partSysID, changes);
-                }
-                
-                // And associated textures
-                for (std::set<MaplyTexture *>::iterator it = userObj.textures.begin();
-                     it != userObj.textures.end(); ++it)
-                    [self removeImageTexture:*it changes:changes];
-                userObj.textures.clear();
-                
-                // And any references to selection objects
-                if (!userObj->contents->selectIDs.empty())
-                {
-                    std::lock_guard<std::mutex> guardLock(selectLock);
-                    for (SimpleIDSet::iterator it = userObj->contents->selectIDs.begin();
-                         it != userObj->contents->selectIDs.end(); ++it)
-                    {
-                        SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(*it));
-                        if (sit != selectObjectSet.end())
-                            selectObjectSet.erase(sit);
-                        else
-                            NSLog(@"Tried to delete non-existent selection ID");
-                    }
-                }
-                
+        @synchronized (compObj) {
+            // And associated textures
+            for (std::set<MaplyTexture *>::iterator it = compObj.textures.begin();
+                 it != compObj.textures.end(); ++it)
+                [self removeImageTexture:*it changes:changes];
+            compObj.textures.clear();
+
+            if (compObj->contents) {
+                // This does the visual and the selection data
+                compManager->removeComponentObject(compObj->contents->getId(),changes);
             }
-            
-            @synchronized(userObjects)
-            {
-                [userObjects removeObject:userObj];
-            }
-            
-            //            NSLog(@"Deleted object %lx",(unsigned long)userObj);
-        } else {
-            NSLog(@"Tried to delete object that doesn't exist");
         }
     }
-    
 }
 
 
@@ -3507,53 +3287,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)enableObjectsImpl:(NSArray *)userObjs enable:(bool)enable changes:(ChangeSet &)changes
 {
-    VectorManager *vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
-    WideVectorManager *wideVectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
-    MarkerManager *markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
-    LabelManager *labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
-    ShapeManager *shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
-    // Note: Turned off chunk manager
-//    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
-    BillboardManager *billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
-    LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
-    GeometryManager *geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
-    
     for (MaplyComponentObject *compObj in userObjs)
-    {
-        bool isHere = false;
-        @synchronized(userObjects)
-        {
-            isHere = [userObjects containsObject:compObj];
-        }
-        
-        if (isHere)
-        {
-            compObj->contents->enable = enable;
-            if (vectorManager && !compObj->contents->vectorIDs.empty())
-                vectorManager->enableVectors(compObj->contents->vectorIDs, enable, changes);
-            if (wideVectorManager && !compObj->contents->wideVectorIDs.empty())
-                wideVectorManager->enableVectors(compObj->contents->wideVectorIDs, enable, changes);
-            if (markerManager && !compObj->contents->markerIDs.empty())
-                markerManager->enableMarkers(compObj->contents->markerIDs, enable, changes);
-            if (labelManager && !compObj->contents->labelIDs.empty())
-                labelManager->enableLabels(compObj->contents->labelIDs, enable, changes);
-            if (shapeManager && !compObj->contents->shapeIDs.empty())
-                shapeManager->enableShapes(compObj->contents->shapeIDs, enable, changes);
-            if (billManager && !compObj->contents->billIDs.empty())
-                billManager->enableBillboards(compObj->contents->billIDs, enable, changes);
-            if (loftManager && !compObj->contents->loftIDs.empty())
-                loftManager->enableLoftedPolys(compObj->contents->loftIDs, enable, changes);
-            if (geomManager && !compObj->contents->geomIDs.empty())
-                geomManager->enableGeometry(compObj->contents->geomIDs, enable, changes);
-            // Note: Disabled chunk manager
-//            if (chunkManager && !compObj->contents->chunkIDs.empty())
-//            {
-//                for (SimpleIDSet::iterator it = compObj->contents->chunkIDs.begin();
-//                     it != compObj->contents->chunkIDs.end(); ++it)
-//                    chunkManager->enableChunk(*it, enable, changes);
-//            }
-        }
-    }
+        compManager->enableComponentObject(compObj->contents->getId(), enable, changes);
 }
 
 - (void)enableObjectsRun:(NSArray *)argArray
@@ -3647,6 +3382,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     pt = visualView->unwrapCoordinate(pt);
     
+#if 0
+    // Note: Need to unravel this for ComponentManager if possible
     @synchronized(userObjects)
     {
         for (MaplyComponentObject *userObj in userObjects)
@@ -3680,20 +3417,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             }
         }
     }
+#endif
 
     return foundObjs;
 }
 
 - (NSObject *)getSelectableObject:(WhirlyKit::SimpleIdentity)objId
 {
-    NSObject *ret = nil;
-    
-    std::lock_guard<std::mutex> guardLock(selectLock);
-    SelectObjectSet::iterator sit = selectObjectSet.find(SelectObject(objId));
-    if (sit != selectObjectSet.end())
-        ret = sit->obj;
-    
-    return ret;
+    return compManager->getSelectObject(objId);
 }
 
 - (NSObject*)selectLabelsAndMarkerForScreenPoint:(CGPoint)screenPoint
@@ -3703,9 +3434,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (void)dumpStats
 {
-    @synchronized (userObjects) {
-        NSLog(@"Component Objects: %d",(int)[userObjects count]);
-    }
+    if (compManager)
+        compManager->dumpStats();
     
     [atlasGroup dumpStats];
 }

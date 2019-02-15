@@ -22,20 +22,16 @@
 #import <set>
 #import <WhirlyGlobe.h>
 #import "MaplyComponentObject_private.h"
-#import "SelectObject_private.h"
 #import "ImageTexture_private.h"
 #import "MaplyBaseViewController.h"
 #import "MaplyTextureAtlas_private.h"
+#import "ComponentManager_iOS.h"
 
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
 @public
     WhirlyKit::View *visualView;
     WhirlyKit::WhirlyKitGLSetupInfo glSetupInfo;
-
-    std::mutex selectLock;
-    // Use to map IDs in the selection layer to objects the user passed in
-    SelectObjectSet selectObjectSet;
 
     // Layer thread we're part of
     WhirlyKitLayerThread * __weak layerThread;
@@ -45,14 +41,14 @@
     
     // Pointer to the layerThreads we're using in the base view controller
     NSArray *layerThreads;
-    
+
+    // Used to track groups of low level objects and vectors
+    WhirlyKit::ComponentManager_iOS *compManager;
+
     std::mutex imageLock;
     // Used to track textures
     MaplyImageTextureList imageTextures;
-
-    // Component objects created for the user
-    NSMutableSet *userObjects;
-    
+        
     // Texture atlas manager
     MaplyTextureAtlasGroup *atlasGroup;
     
