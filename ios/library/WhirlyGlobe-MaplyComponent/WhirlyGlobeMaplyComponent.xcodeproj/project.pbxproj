@@ -534,6 +534,9 @@
 		2BBC338B221746950038A229 /* ComponentManager_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBC338A221746950038A229 /* ComponentManager_iOS.h */; };
 		2BBC338C221766D30038A229 /* MaplyQuadSampler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B0387F5206ABD7400DD5C40 /* MaplyQuadSampler.mm */; };
 		2BBC338D221776130038A229 /* QuadSamplingController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC337D22163B050038A229 /* QuadSamplingController.cpp */; };
+		2BBC338E2217853E0038A229 /* MaplyQuadImageFrameLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BB8A3AC21ED43770025DA98 /* MaplyQuadImageFrameLoader.mm */; };
+		2BBC339022178AFF0038A229 /* QuadImageFrameLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BBC338F22178AFE0038A229 /* QuadImageFrameLoader.h */; };
+		2BBC339222178B130038A229 /* QuadImageFrameLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC339122178B130038A229 /* QuadImageFrameLoader.cpp */; };
 		2BC3D6AA22024EB300CE91D0 /* MaplyAnimateTranslateMomentum.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A422024EB200CE91D0 /* MaplyAnimateTranslateMomentum.h */; };
 		2BC3D6AB22024EB300CE91D0 /* GlobeAnimateRotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A522024EB300CE91D0 /* GlobeAnimateRotation.h */; };
 		2BC3D6AC22024EB300CE91D0 /* MaplyAnimateTranslation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6A622024EB300CE91D0 /* MaplyAnimateTranslation.h */; };
@@ -1536,6 +1539,8 @@
 		2BBC338422173FAA0038A229 /* ComponentManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ComponentManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/ComponentManager.cpp; sourceTree = "<group>"; };
 		2BBC3388221746850038A229 /* ComponentManager_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ComponentManager_iOS.mm; sourceTree = "<group>"; };
 		2BBC338A221746950038A229 /* ComponentManager_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentManager_iOS.h; sourceTree = "<group>"; };
+		2BBC338F22178AFE0038A229 /* QuadImageFrameLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuadImageFrameLoader.h; path = ../../../../common/WhirlyGlobeLib/include/QuadImageFrameLoader.h; sourceTree = "<group>"; };
+		2BBC339122178B130038A229 /* QuadImageFrameLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadImageFrameLoader.cpp; path = ../../../../common/WhirlyGlobeLib/src/QuadImageFrameLoader.cpp; sourceTree = "<group>"; };
 		2BC3D6A422024EB200CE91D0 /* MaplyAnimateTranslateMomentum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyAnimateTranslateMomentum.h; path = ../../../../common/WhirlyGlobeLib/include/MaplyAnimateTranslateMomentum.h; sourceTree = "<group>"; };
 		2BC3D6A522024EB300CE91D0 /* GlobeAnimateRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GlobeAnimateRotation.h; path = ../../../../common/WhirlyGlobeLib/include/GlobeAnimateRotation.h; sourceTree = "<group>"; };
 		2BC3D6A622024EB300CE91D0 /* MaplyAnimateTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaplyAnimateTranslation.h; path = ../../../../common/WhirlyGlobeLib/include/MaplyAnimateTranslation.h; sourceTree = "<group>"; };
@@ -3231,6 +3236,7 @@
 				2BE1E7A422161BD600815D9C /* QuadLoaderReturn.h */,
 				2BBC337922163AE90038A229 /* QuadSamplingParams.h */,
 				2BBC337A22163AE90038A229 /* QuadSamplingController.h */,
+				2BBC338F22178AFE0038A229 /* QuadImageFrameLoader.h */,
 			);
 			name = loading;
 			sourceTree = "<group>";
@@ -3245,6 +3251,7 @@
 				2BE1E7A622161C0200815D9C /* QuadLoaderReturn.cpp */,
 				2BBC337E22163B050038A229 /* QuadSamplingParams.cpp */,
 				2BBC337D22163B050038A229 /* QuadSamplingController.cpp */,
+				2BBC339122178B130038A229 /* QuadImageFrameLoader.cpp */,
 			);
 			name = loading;
 			sourceTree = "<group>";
@@ -4029,6 +4036,7 @@
 				2BE5382E1D249A1200B60FAD /* MaplyVectorObject.h in Headers */,
 				2BE5386D1D249A1200B60FAD /* MapnikStyleRule.h in Headers */,
 				2BE53A741D249C4700B60FAD /* stl_util.h in Headers */,
+				2BBC339022178AFF0038A229 /* QuadImageFrameLoader.h in Headers */,
 				2BE537F71D249A1200B60FAD /* Maply3DTouchPreviewDatasource.h in Headers */,
 				2BE538351D249A1200B60FAD /* NSDictionary+StyleRules.h in Headers */,
 				2B82B5F71E82E2490095FB14 /* tessmono.h in Headers */,
@@ -4643,6 +4651,7 @@
 				2B82B6BE1E82E24A0095FB14 /* PJ_vandg4.c in Sources */,
 				2B846EDA21F1362400EF2A82 /* pj_gc_reader.c in Sources */,
 				2BE539C01D249BEF00B60FAD /* AAStellarMagnitudes.cpp in Sources */,
+				2BBC338E2217853E0038A229 /* MaplyQuadImageFrameLoader.mm in Sources */,
 				2B846EE521F1379C00EF2A82 /* nad_init.c in Sources */,
 				2B82B6851E82E24A0095FB14 /* pj_log.c in Sources */,
 				2BE5398F1D249BEF00B60FAD /* AADate.cpp in Sources */,
@@ -4660,6 +4669,7 @@
 				2B8796CE21FFC59D00EF801D /* Dictinary_NSDictionary.mm in Sources */,
 				2B8796D121FFC59D00EF801D /* NSDictionary+Stuff.m in Sources */,
 				2B82B6281E82E2490095FB14 /* geodesic.c in Sources */,
+				2BBC339222178B130038A229 /* QuadImageFrameLoader.cpp in Sources */,
 				2B446B0F21F79AD00078A975 /* Tesselator.cpp in Sources */,
 				2B82B6991E82E24A0095FB14 /* PJ_ob_tran.c in Sources */,
 				2B82B6941E82E24A0095FB14 /* PJ_nell_h.c in Sources */,
