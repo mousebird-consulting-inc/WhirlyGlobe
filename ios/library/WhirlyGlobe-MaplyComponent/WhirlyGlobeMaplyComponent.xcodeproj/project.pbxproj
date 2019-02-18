@@ -969,6 +969,8 @@
 		2BE7E7B32214C6EB00E4EFBA /* QuadDisplayControllerNew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7E7B22214C6EB00E4EFBA /* QuadDisplayControllerNew.cpp */; };
 		2BE7E7B42214F16A00E4EFBA /* LoadedTileNew.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7942213979800815D9C /* LoadedTileNew.cpp */; };
 		2BE7E7B52214F1CF00E4EFBA /* QuadTileBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7952213979800815D9C /* QuadTileBuilder.cpp */; };
+		2BE7E7B9221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE7E7B8221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h */; };
+		2BE7E7BB221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7E7BA221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm */; };
 		E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */; };
 		E56E02A71E11F99500C1DD85 /* GeoJSONSource.h in Headers */ = {isa = PBXBuildFile; fileRef = E56E02A61E11F99500C1DD85 /* GeoJSONSource.h */; };
 		E5D2D6631DE67B1400E02305 /* MaplyLocationTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = E5D2D6621DE67B1400E02305 /* MaplyLocationTracker.h */; };
@@ -1955,6 +1957,8 @@
 		2BE53AC61D249E1500B60FAD /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		2BE7E7B02214C6DE00E4EFBA /* QuadDisplayControllerNew.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuadDisplayControllerNew.h; path = ../../../../common/WhirlyGlobeLib/include/QuadDisplayControllerNew.h; sourceTree = "<group>"; };
 		2BE7E7B22214C6EB00E4EFBA /* QuadDisplayControllerNew.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadDisplayControllerNew.cpp; path = ../../../../common/WhirlyGlobeLib/src/QuadDisplayControllerNew.cpp; sourceTree = "<group>"; };
+		2BE7E7B8221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadImageFrameLoader_iOS.h; sourceTree = "<group>"; };
+		2BE7E7BA221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadImageFrameLoader_iOS.mm; sourceTree = "<group>"; };
 		E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDStyleSet.h; sourceTree = "<group>"; };
 		E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDStyleSet.m; sourceTree = "<group>"; };
 		E56E02A61E11F99500C1DD85 /* GeoJSONSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoJSONSource.h; sourceTree = "<group>"; };
@@ -2578,7 +2582,6 @@
 		2B82B4D41E82E2490095FB14 /* data */ = {
 			isa = PBXGroup;
 			children = (
-				2BE1E79E2215F6FC00815D9C /* ImageTile_iOS.h */,
 				2BC3D6E1220B5AC100CE91D0 /* VectorData_iOS.h */,
 				2B82B4CF1E82E2490095FB14 /* elevation */,
 			);
@@ -2606,6 +2609,7 @@
 				2BC3D6BD2202536900CE91D0 /* view */,
 				2B82B4D41E82E2490095FB14 /* data */,
 				2BE1E7562208F31700815D9C /* managers */,
+				2BE7E7B6221B228200E4EFBA /* loading */,
 				2B82B5131E82E2490095FB14 /* layers & generators */,
 			);
 			name = WhirlyKit;
@@ -2657,7 +2661,6 @@
 		2B82B59D1E82E2490095FB14 /* data */ = {
 			isa = PBXGroup;
 			children = (
-				2BE1E7A02215F70400815D9C /* ImageTile_iOS.mm */,
 				2BC3D6E3220B5ACE00CE91D0 /* VectorData_iOS.mm */,
 				2B82B5981E82E2490095FB14 /* elevation */,
 			);
@@ -2686,6 +2689,7 @@
 				2B82B5641E82E2490095FB14 /* rendering */,
 				2B82B59D1E82E2490095FB14 /* data */,
 				2BE1E7592208F32E00815D9C /* managers */,
+				2BE7E7B7221B22C200E4EFBA /* loading */,
 				2B82B5C71E82E2490095FB14 /* layers & loaders */,
 			);
 			name = src;
@@ -3735,6 +3739,24 @@
 			name = SMCalloutView;
 			sourceTree = "<group>";
 		};
+		2BE7E7B6221B228200E4EFBA /* loading */ = {
+			isa = PBXGroup;
+			children = (
+				2BE7E7B8221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h */,
+				2BE1E79E2215F6FC00815D9C /* ImageTile_iOS.h */,
+			);
+			name = loading;
+			sourceTree = "<group>";
+		};
+		2BE7E7B7221B22C200E4EFBA /* loading */ = {
+			isa = PBXGroup;
+			children = (
+				2BE7E7BA221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm */,
+				2BE1E7A02215F70400815D9C /* ImageTile_iOS.mm */,
+			);
+			name = loading;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -4080,6 +4102,7 @@
 				2B82B6211E82E2490095FB14 /* shapefil.h in Headers */,
 				2B884A471E3803170027C397 /* arithmeticmodel.hpp in Headers */,
 				2BE53A161D249C2900B60FAD /* text_format.h in Headers */,
+				2BE7E7B9221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h in Headers */,
 				2BE53A101D249C2900B60FAD /* reflection_ops.h in Headers */,
 				2B82B6061E82E2490095FB14 /* Strings_Defs.h in Headers */,
 				2B82B7C41E82E68E0095FB14 /* clipper.hpp in Headers */,
@@ -4345,6 +4368,7 @@
 				2B82B62D1E82E2490095FB14 /* PJ_qsc.c in Sources */,
 				2B82B6971E82E24A0095FB14 /* PJ_nsper.c in Sources */,
 				2BE1E77E220A6B6700815D9C /* vector_tile.pb.cpp in Sources */,
+				2BE7E7BB221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm in Sources */,
 				2B82B6491E82E2490095FB14 /* PJ_bacon.c in Sources */,
 				2BC3D6EE220B714100CE91D0 /* sqlhelpers.mm in Sources */,
 				2B82B6771E82E24A0095FB14 /* pj_initcache.c in Sources */,

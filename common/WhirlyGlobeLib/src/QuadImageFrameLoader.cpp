@@ -19,13 +19,18 @@
  */
 
 #import "QuadImageFrameLoader.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
     
 QIFFrameAsset::QIFFrameAsset()
-: state(Empty), request(nil), priority(0), importance(0.0), texID(EmptyIdentity)
+: state(Empty), priority(0), importance(0.0), texID(EmptyIdentity)
 { }
+    
+QIFFrameAsset::~QIFFrameAsset()
+{
+}
 
 QIFFrameAsset::State QIFFrameAsset::getState()
 {
@@ -42,65 +47,37 @@ SimpleIdentity QIFFrameAsset::getTexID()
     return texID;
 }
 
-// Clear out the texture and reset
-void QIFFrameAsset::clear(NSMutableArray *toCancel,ChangeSet &changes) {
+void QIFFrameAsset::clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) {
     state = Empty;
     if (texID != EmptyIdentity)
         changes.push_back(new RemTextureReq(texID));
     texID = EmptyIdentity;
-    if (request) {
-        [toCancel addObject:request];
-        request = nil;
-    }
 }
 
-// Put together a fetch request and return it
-MaplyTileFetchRequest *QIFFrameAsset::setupFetch(id fetchInfo,id frameInfo,int priority,double importance) {
-    state = Loading;
-    
-    request = [[MaplyTileFetchRequest alloc] init];
-    request.fetchInfo = fetchInfo;
-    request.tileSource = frameInfo;
-    request.priority = priority;
-    request.importance = importance;
-    
-    return request;
-}
-
-// Update priority for an existing fetch request
-void QIFFrameAsset::updateFetching(NSObject<MaplyTileFetcher> *tileFetcher,int newPriority,double newImportance)
+bool QIFFrameAsset::updateFetching(QuadImageFrameLoader *loader,int newPriority,double newImportance)
 {
     if (priority == newPriority && importance == newImportance)
-        return;
-    if (!request)
-        return;
+        return false;
     priority = newPriority;
     importance = newImportance;
     
-    [tileFetcher updateTileFetch:request priority:priority importance:importance];
+    return true;
 }
 
-// Cancel an outstanding fetch
-void QIFFrameAsset::cancelFetch(NSMutableArray *toCancel)
+void QIFFrameAsset::cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchOps)
 {
-    if (request)
-        [toCancel addObject:request];
-    request = nil;
     state = Empty;
 }
 
-// Keep track of the texture ID
-void QIFFrameAsset::loadSuccess(Texture *tex)
+void QIFFrameAsset::loadSuccess(QuadImageFrameLoader *loader,Texture *tex)
 {
     state = Loaded;
-    request = nil;
     texID = tex->getId();
 }
 
-void QIFFrameAsset::loadFailed()
+void QIFFrameAsset::loadFailed(QuadImageFrameLoader *loader)
 {
     state = Empty;
-    request = nil;
 }
 
 
@@ -111,6 +88,10 @@ QIFTileAsset::QIFTileAsset(const QuadTreeNew::ImportantNode &ident, int numFrame
         QIFFrameAssetRef frame(new QIFFrameAsset());
         frames.push_back(frame);
     }
+}
+    
+QIFTileAsset::~QIFTileAsset()
+{
 }
 
 QIFTileAsset::State QIFTileAsset::getState()
@@ -166,29 +147,6 @@ bool QIFTileAsset::anyFramesLoaded()
     return false;
 }
 
-// Fetch the tile frames.  Just fetch them all for now.
-void QIFTileAsset::startFetching(MaplyQuadImageFrameLoader *loader,NSMutableArray *toStart,NSArray<NSObject<MaplyTileInfoNew> *> *frameInfos)
-{
-    state = Active;
-    
-    int frame = 0;
-    for (MaplyRemoteTileInfoNew *frameInfo in frameInfos) {
-        MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
-        MaplyTileFetchRequest *request = frames[frame]->setupFetch([frameInfo fetchInfoForTile:tileID],frameInfo,0,ident.importance);
-        
-        request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
-            [loader fetchRequestSuccess:request tileID:tileID frame:frame data:data];
-        };
-        request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-            [loader fetchRequestFail:request tileID:tileID frame:frame error:error];
-        };
-        [toStart addObject:request];
-        
-        frame++;
-    }
-    
-}
-
 // True if the given frame is loading
 bool QIFTileAsset::isFrameLoading(int which)
 {
@@ -199,26 +157,25 @@ bool QIFTileAsset::isFrameLoading(int which)
     return frame->getState() == QIFFrameAsset::Loading;
 }
 
-// Importance value changed, so update the fetcher
-void QIFTileAsset::setImportance(NSObject<MaplyTileFetcher> *tileFetcher,double import)
+void QIFTileAsset::setImportance(QuadImageFrameLoader *loader,double import)
 {
     for (auto frame : frames) {
-        frame->updateFetching(tileFetcher, frame->getPriority(), import);
+        frame->updateFetching(loader, frame->getPriority(), import);
     }
     ident.importance = import;
 }
 
 // Clear out the individual frames, loads and all
-void QIFTileAsset::clearFrames(NSMutableArray *toCancel,ChangeSet &changes)
+void QIFTileAsset::clearFrames(QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes)
 {
     for (auto frame : frames)
-        frame->clear(toCancel, changes);
+        frame->clear(loader,batchOps, changes);
 }
 
 // Clear out geometry and all the frame info
-void QIFTileAsset::clear(NSMutableArray *toCancel, ChangeSet &changes)
+void QIFTileAsset::clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps, ChangeSet &changes)
 {
-    clearFrames(toCancel, changes);
+    clearFrames(loader,batchOps, changes);
     
     state = Waiting;
     for (auto drawID : instanceDrawIDs) {
@@ -228,9 +185,14 @@ void QIFTileAsset::clear(NSMutableArray *toCancel, ChangeSet &changes)
     
     shouldEnable = false;
 }
+    
+void QIFTileAsset::startFetching(QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps)
+{
+    state = Active;
+}
 
 // Set up the geometry for this tile
-void QIFTileAsset::setupContents(MaplyQuadImageFrameLoader *loader,LoadedTileNewRef loadedTile,int defaultDrawPriority,SimpleIdentity shaderID,ChangeSet &changes)
+void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef loadedTile,int defaultDrawPriority,SimpleIdentity shaderID,ChangeSet &changes)
 {
     drawPriority = defaultDrawPriority;
     for (auto di : loadedTile->drawInfo) {
@@ -253,47 +215,48 @@ void QIFTileAsset::setupContents(MaplyQuadImageFrameLoader *loader,LoadedTileNew
         drawInst->setDrawPriority(newDrawPriority);
         drawInst->setEnable(false);
         drawInst->setProgram(shaderID);
-        drawInst->setColor([loader.color asRGBAColor]);
-        if (loader->renderTarget)
-            drawInst->setRenderTarget(loader->renderTarget.renderTargetID);
+        drawInst->setColor(loader->getColor());
+        SimpleIdentity renderTargetID = loader->getRenderTarget();
+        if (renderTargetID != EmptyIdentity)
+            drawInst->setRenderTarget(renderTargetID);
         changes.push_back(new AddDrawableReq(drawInst));
         instanceDrawIDs.push_back(drawInst->getId());
     }
 }
 
 // Cancel any outstanding fetches
-void QIFTileAsset::cancelFetches(NSMutableArray *toCancel)
+void QIFTileAsset::cancelFetches(QuadImageFrameLoader *loader,QIFBatchOps *batchOps)
 {
     for (auto frame : frames) {
-        frame->cancelFetch(toCancel);
+        frame->cancelFetch(loader,batchOps);
     }
 }
 
 // A single frame loaded successfully
-void QIFTileAsset::frameLoaded(MaplyLoaderReturn *loadReturn,Texture *tex,ChangeSet &changes) {
-    if (loadReturn.frame < 0 || loadReturn.frame >= frames.size())
-{
-        NSLog(@"MaplyQuadImageFrameLoader: Got frame back outside of range.");
+void QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,Texture *tex,ChangeSet &changes) {
+    if (loadReturn->frame < 0 || loadReturn->frame >= frames.size())
+    {
+        wkLogLevel(Warn,"MaplyQuadImageFrameLoader: Got frame back outside of range");
         delete tex;
         return;
     }
     
-    auto frame = frames[loadReturn.frame];
+    auto frame = frames[loadReturn->frame];
     
-    frame->loadSuccess(tex);
+    frame->loadSuccess(loader,tex);
     
     changes.push_back(new AddTextureReq(tex));
 }
 
 // A single frame failed to load
-void QIFTileAsset::frameFailed(MaplyLoaderReturn *loadReturn,ChangeSet &changes) {
-    if (loadReturn.frame < 0 || loadReturn.frame >= frames.size())
-{
-        NSLog(@"MaplyQuadImageFrameLoader: Got frame back outside of range.");
+void QIFTileAsset::frameFailed(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes) {
+    if (loadReturn->frame < 0 || loadReturn->frame >= frames.size())
+    {
+        wkLogLevel(Warn,"MaplyQuadImageFrameLoader: Got frame back outside of range.");
         return;
     }
-    auto frame = frames[loadReturn.frame];
-    frame->loadFailed();
+    auto frame = frames[loadReturn->frame];
+    frame->loadFailed(loader);
 }
 
 QIFTileState::QIFTileState(int numFrames)
@@ -453,15 +416,10 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
     }
 }
     
-    /// *** Stopped here
-    ///  These need to be merged into QuadImageFrameLoader
-    ///  Some will need to moved into an iOS version
-
-
-- (QIFTileAssetRef)addNewTile:(QuadTreeNew::ImportantNode)ident layer:(MaplyBaseInteractionLayer *)interactLayer toStart:(NSMutableArray *)toStart changes:(ChangeSet &)changes
+QIFTileAssetRef QuadImageFrameLoader::addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes)
 {
     // Set up a new tile
-    auto newTile = QIFTileAssetRef(new QIFTileAsset(ident,[frameInfos count]));
+    auto newTile = makeTileAsset();
     int defaultDrawPriority = self.baseDrawPriority + self.drawPriorityPerLevel * ident.level;
     tiles[ident] = newTile;
     
@@ -480,102 +438,109 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
         return newTile;
 }
 
-- (void)removeTile:(QuadTreeNew::Node)ident layer:(MaplyBaseInteractionLayer *)interactLayer toCancel:(NSMutableArray *)toCancel changes:(ChangeSet &)changes
+void removeTile(const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes)
 {
     auto it = tiles.find(ident);
     // If it's here, let's get rid of it.
     if (it != tiles.end()) {
         if (self.debugMode)
             NSLog(@"Unloading tile %d: (%d,%d)",ident.level,ident.x,ident.y);
-            
+        
             ChangeSet changes;
         it->second->clear(toCancel, changes);
         
         tiles.erase(it);
     }
 }
-
-// Called on a random dispatch queue
-- (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data
-{
-    if (self.debugMode)
-        NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,frame);
-        
-        // Ask the interpreter to parse it
-        MaplyLoaderReturn *loadData = [[MaplyLoaderReturn alloc] init];
-        loadData.tileID = tileID;
-        loadData.frame = frame;
-        loadData.tileData = data;
-        [self performSelector:@selector(mergeFetchRequest:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
-}
-
-// Called on the SamplingLayer.LayerThread
-- (void)mergeFetchRequest:(MaplyLoaderReturn *)loadReturn
-{
-    QuadTreeNew::Node ident(loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.tileID.level);
-    auto it = tiles.find(ident);
-    if (it == tiles.end() || loadReturn.error) {
-        return;
-    }
-    auto tile = it->second;
     
-    // Don't actually want this one
-    if (!tile->isFrameLoading(loadReturn.frame))
-        return;
-    
-    // Do the parsing on another thread since it can be slow
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self->loadInterp dataForTile:loadReturn];
-        
-        [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
-    });
-}
-
-// Called on the SamplingLayer.LayerThread
-- (void)mergeLoadedTile:(MaplyLoaderReturn *)loadReturn
-{
-    QuadTreeNew::Node ident(loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.tileID.level);
-    auto it = tiles.find(ident);
-    // Tile disappeared in the mean time, so drop it
-    if (it == tiles.end() || loadReturn.error) {
+    // Called on a random dispatch queue
+    - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data
+    {
         if (self.debugMode)
-            NSLog(@"MaplyQuadImageLoader: Failed to load tile before it was erased %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
-            return;
+            NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,frame);
+            
+            // Ask the interpreter to parse it
+            MaplyLoaderReturn *loadData = [[MaplyLoaderReturn alloc] init];
+            loadData.tileID = tileID;
+            loadData.frame = frame;
+            loadData.tileData = data;
+            [self performSelector:@selector(mergeFetchRequest:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
     }
-    auto tile = it->second;
     
-    // Build the texture
-    WhirlyKitLoadedTile *loadTile = [loadReturn.images count] > 0 ? [loadReturn.images objectAtIndex:0] : nil;
-    Texture *tex = NULL;
-    LoadedTileNewRef loadedTile = [builder getLoadedTile:ident];
-    if ([loadTile.images count] > 0) {
-        WhirlyKitLoadedImage *loadedImage = [loadTile.images objectAtIndex:0];
-        if ([loadedImage isKindOfClass:[WhirlyKitLoadedImage class]]) {
-            if (loadedTile) {
-                // Build the image
-                tex = [loadedImage buildTexture:self.borderTexel destWidth:loadedImage.width destHeight:loadedImage.height];
-                tex->setFormat(texType);
+    // Called on the SamplingLayer.LayerThread
+    - (void)mergeFetchRequest:(MaplyLoaderReturn *)loadReturn
+    {
+        QuadTreeNew::Node ident(loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.tileID.level);
+        auto it = tiles.find(ident);
+        if (it == tiles.end() || loadReturn.error) {
+            return;
+        }
+        auto tile = it->second;
+        
+        // Don't actually want this one
+        if (!tile->isFrameLoading(loadReturn.frame))
+            return;
+        
+        // Do the parsing on another thread since it can be slow
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            [self->loadInterp dataForTile:loadReturn];
+            
+            [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
+        });
+    }
+    
+    // Called on the SamplingLayer.LayerThread
+    - (void)mergeLoadedTile:(MaplyLoaderReturn *)loadReturn
+    {
+        QuadTreeNew::Node ident(loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.tileID.level);
+        auto it = tiles.find(ident);
+        // Tile disappeared in the mean time, so drop it
+        if (it == tiles.end() || loadReturn.error) {
+            if (self.debugMode)
+                NSLog(@"MaplyQuadImageLoader: Failed to load tile before it was erased %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
+                return;
+        }
+        auto tile = it->second;
+        
+        // Build the texture
+        WhirlyKitLoadedTile *loadTile = [loadReturn.images count] > 0 ? [loadReturn.images objectAtIndex:0] : nil;
+        Texture *tex = NULL;
+        LoadedTileNewRef loadedTile = [builder getLoadedTile:ident];
+        if ([loadTile.images count] > 0) {
+            WhirlyKitLoadedImage *loadedImage = [loadTile.images objectAtIndex:0];
+            if ([loadedImage isKindOfClass:[WhirlyKitLoadedImage class]]) {
+                if (loadedTile) {
+                    // Build the image
+                    tex = [loadedImage buildTexture:self.borderTexel destWidth:loadedImage.width destHeight:loadedImage.height];
+                    tex->setFormat(texType);
+                }
             }
         }
+        
+        ChangeSet changes;
+        if (tex) {
+            tile->frameLoaded(loadReturn, tex, changes);
+        } else {
+            tile->frameFailed(loadReturn, changes);
+        }
+        
+        [layer.layerThread addChangeRequests:changes];
+        
+        changesSinceLastFlush = true;
     }
     
-    ChangeSet changes;
-    if (tex) {
-        tile->frameLoaded(loadReturn, tex, changes);
-    } else {
-        tile->frameFailed(loadReturn, changes);
+    // Called on SamplingLayer.layerThread
+    - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error
+    {
+        NSLog(@"MaplyQuadImageLoader: Failed to fetch tile %d: (%d,%d) frame %d because:\n%@",tileID.level,tileID.x,tileID.y,frame,[error localizedDescription]);
     }
     
-    [layer.layerThread addChangeRequests:changes];
-    
-    changesSinceLastFlush = true;
 }
+    
+    /// *** Stopped here
+    ///  These need to be merged into QuadImageFrameLoader
+    ///  Some will need to moved into an iOS version
 
-// Called on SamplingLayer.layerThread
-- (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error
-{
-    NSLog(@"MaplyQuadImageLoader: Failed to fetch tile %d: (%d,%d) frame %d because:\n%@",tileID.level,tileID.x,tileID.y,frame,[error localizedDescription]);
-}
 
 // Build up the drawing state for use on the main thread
 // All the texture are assigned there

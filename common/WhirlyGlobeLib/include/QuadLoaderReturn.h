@@ -23,6 +23,7 @@
 #import "GlobeMath.h"
 #import "ComponentManager.h"
 #import "ImageTile.h"
+#import "QuadTreeNew.h"
 
 namespace WhirlyKit
 {
@@ -34,6 +35,12 @@ class QuadLoaderReturn
 public:
     QuadLoaderReturn();
     virtual ~QuadLoaderReturn();
+    
+    // Which node this is in the quad tree
+    QuadTreeIdentifier ident;
+    
+    // Frame, or -1 if there are no frames
+    int frame;
     
     // Unparsed data coming back from the
     std::vector<RawDataRef> tileData;

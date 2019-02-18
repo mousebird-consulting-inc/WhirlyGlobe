@@ -39,6 +39,30 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (void)setTileID:(MaplyTileID)tileID
+{
+    loadReturn->ident = QuadTreeIdentifier(tileID.x,tileID.y,tileID.level);
+}
+
+- (MaplyTileID)tileID
+{
+    MaplyTileID tileID;
+    tileID.level = loadReturn->ident.level;
+    tileID.x = loadReturn->ident.x;  tileID.y = loadReturn->ident.y;
+    
+    return tileID;
+}
+
+- (void)setFrame:(int)frame
+{
+    loadReturn->frame = frame;
+}
+
+- (int)frame
+{
+    return loadReturn->frame;
+}
+
 - (void)addTileData:(NSData *__nonnull) tileData
 {
     loadReturn->tileData.push_back(RawDataRef(new RawNSDataReader(tileData)));

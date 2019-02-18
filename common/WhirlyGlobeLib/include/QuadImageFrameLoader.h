@@ -19,9 +19,21 @@
  */
 
 #import "QuadSamplingController.h"
+#import "QuadLoaderReturn.h"
 
 namespace WhirlyKit
 {
+    
+class QuadImageFrameLoader;
+    
+// We store cancels and adss to do them all at once
+// The subclass passes its own version of this around
+class QIFBatchOps
+{
+public:
+    QIFBatchOps();
+    virtual ~QIFBatchOps();
+};
 
 // Assets and status associated with a single tile's frame
 class QIFFrameAsset
@@ -30,33 +42,35 @@ public:
     typedef enum {Empty,Loaded,Loading} State;
     
     QIFFrameAsset();
+    virtual ~QIFFrameAsset();
     
+    // What the frame is doing
     State getState();
+    
+    // Load priority
     int getPriority();
+    
+    // Texture ID (if loaded)
     SimpleIdentity getTexID();
     
     // Clear out the texture and reset
-    void clear(NSMutableArray *toCancel,ChangeSet &changes);
-    
-    // Put together a fetch request and return it
-    MaplyTileFetchRequest *setupFetch(id fetchInfo,id frameInfo,int priority,double importance);
-    
+    virtual void clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes);
+
     // Update priority for an existing fetch request
-    void updateFetching(NSObject<MaplyTileFetcher> *tileFetcher,int newPriority,double newImportance);
-    
+    virtual bool updateFetching(QuadImageFrameLoader *loader,int newPriority,double newImportance);
+
     // Cancel an outstanding fetch
-    void cancelFetch(NSMutableArray *toCancel);
-    
+    virtual void cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
+
     // Keep track of the texture ID
-    void loadSuccess(Texture *tex);
+    virtual void loadSuccess(QuadImageFrameLoader *loader,Texture *tex);
     
-    void loadFailed();
+    // Clear out state
+    virtual void loadFailed(QuadImageFrameLoader *loader);
     
 protected:
     State state;
     
-    // Returned by the TileFetcher
-    MaplyTileFetchRequest *request;
     int priority;
     double importance;
     
@@ -71,6 +85,7 @@ class QIFTileAsset
 {
 public:
     QIFTileAsset(const QuadTreeNew::ImportantNode &ident, int numFrames);
+    virtual ~QIFTileAsset();
     
     typedef enum {Waiting,Active} State;
     
@@ -91,32 +106,32 @@ public:
     // True if any frames have loaded
     bool anyFramesLoaded();
     
-    // Fetch the tile frames.  Just fetch them all for now.
-    void startFetching(MaplyQuadImageFrameLoader *loader,NSMutableArray *toStart,NSArray<NSObject<MaplyTileInfoNew> *> *frameInfos);
-    
     // True if the given frame is loading
     bool isFrameLoading(int which);
     
     // Importance value changed, so update the fetcher
-    void setImportance(NSObject<MaplyTileFetcher> *tileFetcher,double import);
+    virtual void setImportance(QuadImageFrameLoader *loader,double import);
     
     // Clear out the individual frames, loads and all
-    void clearFrames(NSMutableArray *toCancel,ChangeSet &changes);
+    virtual void clearFrames(QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes);
     
     // Clear out geometry and all the frame info
-    void clear(NSMutableArray *toCancel, ChangeSet &changes);
+    virtual void clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps, ChangeSet &changes);
     
+    // Start fetching data for this tile
+    virtual void startFetching(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
+
     // Set up the geometry for this tile
-    void setupContents(MaplyQuadImageFrameLoader *loader,LoadedTileNewRef loadedTile,int defaultDrawPriority,SimpleIdentity shaderID,ChangeSet &changes);
+    virtual void setupContents(QuadImageFrameLoader *loader,LoadedTileNewRef loadedTile,int defaultDrawPriority,SimpleIdentity shaderID,ChangeSet &changes);
     
     // Cancel any outstanding fetches
-    void cancelFetches(NSMutableArray *toCancel);
+    virtual  void cancelFetches(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
     
     // A single frame loaded successfully
-    void frameLoaded(MaplyLoaderReturn *loadReturn,Texture *tex,ChangeSet &changes);
+    virtual void frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,Texture *tex,ChangeSet &changes);
     
     // A single frame failed to load
-    void frameFailed(MaplyLoaderReturn *loadReturn,ChangeSet &changes);
+    virtual void frameFailed(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes);
     
 protected:
     State state;
@@ -152,7 +167,7 @@ public:
     // Information about each frame
     class FrameInfo {
     public:
-        FrameInfo()
+        FrameInfo();
         
         // Node we're using a texture from (could be this one)
         QuadTreeNew::Node texNode;
@@ -218,7 +233,22 @@ public:
     
     /// Shutdown called on the layer thread if you stuff to clean up
     virtual void builderShutdown(QuadTileBuilder *builder,ChangeSet &changes);
+    
+    /// Color for polygons created during loading
+    void setColor(RGBAColor &inColor);
+    const RGBAColor &getColor();
+    
+    /// Render target for the geometry being created
+    void setRenderTarget(SimpleIdentity renderTargetID);
+    SimpleIdentity getRenderTarget();
 
+protected:
+    // Construct a platform specific tile asset in the subclass
+    virtual QIFTileAssetRef makeTileAsset() = 0;
+    virtual QIFTileAssetRef addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes);
+    
+    RGBAColor color;
+    SimpleIdentity renderTargetID;
 };
 
 }
