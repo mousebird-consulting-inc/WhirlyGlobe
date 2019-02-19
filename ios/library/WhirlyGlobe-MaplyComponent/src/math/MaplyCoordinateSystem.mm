@@ -25,12 +25,11 @@ using namespace WhirlyKit;
 
 @implementation MaplyCoordinateSystem
 
-- (instancetype)initWithCoordSystem:(WhirlyKit::CoordSystem *)newCoordSystem
+- (instancetype)initWithCoordSystem:(WhirlyKit::CoordSystemRef)newCoordSystem
 {
     self = [super init];
     if (!self)
     {
-        delete newCoordSystem;
         return nil;
     }
     coordSystem = newCoordSystem;
@@ -40,14 +39,10 @@ using namespace WhirlyKit;
 
 - (void)dealloc
 {
-    if (coordSystem)
-    {
-        delete coordSystem;
-        coordSystem = NULL;
-    }
+    coordSystem = NULL;
 }
 
-- (WhirlyKit::CoordSystem *)getCoordSystem
+- (WhirlyKit::CoordSystemRef)getCoordSystem
 {
     return coordSystem;
 }
@@ -150,7 +145,7 @@ using namespace WhirlyKit;
 - (instancetype)initWithBoundingBox:(MaplyBoundingBox)bbox
 {
     PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
-    self = [super initWithCoordSystem:coordSys];
+    self = [super initWithCoordSystem:CoordSystemRef(coordSys)];
     ll.x = bbox.ll.x;
     ll.y = bbox.ll.y;
     ur.x = bbox.ur.x;
@@ -162,7 +157,7 @@ using namespace WhirlyKit;
 - (instancetype)initFullCoverage
 {
     PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
-    self = [super initWithCoordSystem:coordSys];
+    self = [super initWithCoordSystem:CoordSystemRef(coordSys)];
     Point3f pt0 = coordSys->geographicToLocal(GeoCoord::CoordFromDegrees(-180, -90));
     Point3f pt1 = coordSys->geographicToLocal(GeoCoord::CoordFromDegrees(180, 90));
     ll.x = pt0.x();  ll.y = pt0.y();
@@ -193,7 +188,7 @@ using namespace WhirlyKit;
 - (instancetype)initWebStandard
 {
     SphericalMercatorCoordSystem *coordSys = new SphericalMercatorCoordSystem();
-    self = [super initWithCoordSystem:coordSys];
+    self = [super initWithCoordSystem:CoordSystemRef(coordSys)];
     Point3d pt0 = coordSys->geographicToLocal(Point2d(-180/180.0 * M_PI,-85.05113/180.0 * M_PI));
     Point3d pt1 = coordSys->geographicToLocal(Point2d( 180/180.0 * M_PI, 85.05113/180.0 * M_PI));
     ll.x = pt0.x();  ll.y = pt0.y();
@@ -224,7 +219,7 @@ using namespace WhirlyKit;
     self = [super init];
     std::string str = [proj4Str cStringUsingEncoding:NSASCIIStringEncoding];
     p4CoordSys = new Proj4CoordSystem(str);
-    coordSystem = p4CoordSys;
+    coordSystem = CoordSystemRef(p4CoordSys);
         
     return self;
 }

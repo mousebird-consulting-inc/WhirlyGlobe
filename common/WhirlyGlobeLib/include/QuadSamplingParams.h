@@ -39,7 +39,7 @@ public:
     bool operator == (const SamplingParams &) const;
     
     /// The coordinate system we'll be sampling from.
-    CoordSystem *coordSys;
+    CoordSystemRef coordSys;
     /// Bounding box for the coordinate system
     MbrD coordBounds;
 

@@ -164,9 +164,9 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
         for (unsigned int iy=0;iy<sphereTessY;iy++)
             for (unsigned int ix=0;ix<sphereTessX;ix++)
             {
-                Point3d org3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(geomManage->coordSys,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
-                Point3d ptA_3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(geomManage->coordSys,sceneCoordSys,Point3d(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
-                Point3d ptB_3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(geomManage->coordSys,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
+                Point3d org3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(geomManage->coordSys.get(),sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                Point3d ptA_3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(geomManage->coordSys.get(),sceneCoordSys,Point3d(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                Point3d ptB_3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(geomManage->coordSys.get(),sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
                 
                 TexCoord texCoord(ix*texIncr.x(),1.0-(iy*texIncr.y()));
                 
@@ -197,7 +197,7 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
             for (unsigned int ix=0;ix<sphereTessX+1;ix++)
             {
                 float locZ = 0.0;
-                Point3d loc3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(geomManage->coordSys,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),locZ)));
+                Point3d loc3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(geomManage->coordSys.get(),sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),locZ)));
                 if (geomManage->coordAdapter->isFlat())
                     loc3D.z() = locZ;
                 
@@ -472,7 +472,7 @@ TileGeomManager::TileGeomManager()
 {
 }
     
-void TileGeomManager::setup(TileGeomSettings &geomSettings,QuadTreeNew *inQuadTree,CoordSystemDisplayAdapter *inCoordAdapter,CoordSystem *inCoordSys,MbrD inMbr)
+void TileGeomManager::setup(TileGeomSettings &geomSettings,QuadTreeNew *inQuadTree,CoordSystemDisplayAdapter *inCoordAdapter,CoordSystemRef inCoordSys,MbrD inMbr)
 {
     settings = geomSettings;
     quadTree = inQuadTree;

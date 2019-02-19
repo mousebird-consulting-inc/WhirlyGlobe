@@ -113,7 +113,7 @@ public:
     TileGeomManager();
     
     // Construct with the quad tree we're building off of, the coordinate system we're building from and the (valid) bounding box
-    void setup(TileGeomSettings &geomSettings,QuadTreeNew *quadTree,CoordSystemDisplayAdapter *coordAdapter,CoordSystem *coordSys,MbrD inMbr);
+    void setup(TileGeomSettings &geomSettings,QuadTreeNew *quadTree,CoordSystemDisplayAdapter *coordAdapter,CoordSystemRef coordSys,MbrD inMbr);
     
     // Keep track of nodes added, enabled and disabled
     class NodeChanges
@@ -151,7 +151,7 @@ public:
     CoordSystemDisplayAdapter *coordAdapter;
     
     // Coordinate system of the tiles (different from the scene)
-    CoordSystem *coordSys;
+    CoordSystemRef coordSys;
     
     // Build geometry to the poles
     bool coverPoles;

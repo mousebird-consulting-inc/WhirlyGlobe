@@ -80,6 +80,8 @@ public:
     virtual bool isSameAs(CoordSystem *coordSys) { return false; }
 };
     
+typedef std::shared_ptr<CoordSystem> CoordSystemRef;
+    
 /// Convert a point from one coordinate system to another
 Point3f CoordSystemConvert(CoordSystem *inSystem,CoordSystem *outSystem,Point3f inCoord);
 Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3d inCoord);

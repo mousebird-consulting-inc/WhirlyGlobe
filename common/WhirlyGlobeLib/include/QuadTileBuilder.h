@@ -42,7 +42,7 @@ public:
 
 /// Protocol used by the tile builder to notify an interested party about what's
 ///  loaded.  If, for example, you want to attach textures to things.
-    class QuadTileBuilderDelegate : public Identifiable
+class QuadTileBuilderDelegate : public Identifiable
 {
 public:
     QuadTileBuilderDelegate();
@@ -78,7 +78,7 @@ typedef std::shared_ptr<QuadTileBuilderDelegate> QuadTileBuilderDelegateRef;
 class QuadTileBuilder : public QuadLoaderNew
 {
 public:
-    QuadTileBuilder(CoordSystem *coordSys,QuadTileBuilderDelegate *delegate);
+    QuadTileBuilder(CoordSystemRef coordSys,QuadTileBuilderDelegate *delegate);
     virtual ~QuadTileBuilder();
     
     // Return a tile, if there is one
@@ -88,7 +88,7 @@ public:
     TileBuilderDelegateInfo getLoadingState();
 
     // Coordinate system we're building the tiles in
-    CoordSystem *getCoordSystem();
+    CoordSystemRef getCoordSystem();
 
     // If set, we'll cover the poles of a curved coordinate system (e.g. spherical mercator)
     void setCoverPoles(bool);

@@ -20,11 +20,14 @@
 
 #import "MaplyComponentObject_private.h"
 
+using namespace WhirlyKit;
+
 @implementation MaplyComponentObject
 
 - (instancetype)init
 {
     self = [super init];
+    contents = ComponentObjectRef(new ComponentObject());
     contents->isSelectable = true;
     contents->enable = true;
     
@@ -34,6 +37,7 @@
 - (instancetype)initWithDesc:(NSDictionary *)desc
 {
     self = [super init];
+    contents = ComponentObjectRef(new ComponentObject());
     contents->isSelectable = true;
     contents->enable = true;
     id enable = desc[kMaplyEnable];

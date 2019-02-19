@@ -25,15 +25,15 @@
 @interface MaplyCoordinateSystem()
 {
 @public
-    WhirlyKit::CoordSystem *coordSystem;
+    WhirlyKit::CoordSystemRef coordSystem;
     MaplyCoordinateD ll,ur;
 }
 
-- (instancetype)initWithCoordSystem:(WhirlyKit::CoordSystem *)newCoordSystem;
+- (instancetype)initWithCoordSystem:(WhirlyKit::CoordSystemRef)newCoordSystem;
 
 /// Return the low level Maply Coordinate system that represents this one.
 /// The object owns this and must clean it up.
-- (WhirlyKit::CoordSystem *)getCoordSystem;
+- (WhirlyKit::CoordSystemRef)getCoordSystem;
 
 /// Bounding box we're working within
 - (void)getBoundsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;

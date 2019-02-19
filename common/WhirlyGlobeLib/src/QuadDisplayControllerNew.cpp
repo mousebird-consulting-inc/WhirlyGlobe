@@ -41,6 +41,7 @@ QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStruct
     maxTiles = 128;
     viewUpdatePeriod = 0.1;
     singleLevel = false;
+    scene = renderer->getScene();
 }
     
 QuadDisplayControllerNew::~QuadDisplayControllerNew()

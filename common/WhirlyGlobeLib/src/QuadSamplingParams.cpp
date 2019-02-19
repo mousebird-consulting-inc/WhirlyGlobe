@@ -46,7 +46,7 @@ bool SamplingParams::operator == (const SamplingParams &that) const
         (coordSys && !that.coordSys))
         return false;
     
-    if (!coordSys->isSameAs(that.coordSys))
+    if (!coordSys->isSameAs(that.coordSys.get()))
         return false;
     
     return minZoom == that.minZoom && maxZoom == that.maxZoom &&

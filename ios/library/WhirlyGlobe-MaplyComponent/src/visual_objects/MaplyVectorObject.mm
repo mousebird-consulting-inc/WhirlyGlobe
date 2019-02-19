@@ -574,8 +574,8 @@ public:
 
 - (void)reprojectFrom:(MaplyCoordinateSystem *)srcSystem to:(MaplyCoordinateSystem *)destSystem
 {
-    CoordSystem *inSystem = srcSystem->coordSystem;
-    CoordSystem *outSystem = destSystem->coordSystem;
+    CoordSystem *inSystem = srcSystem->coordSystem.get();
+    CoordSystem *outSystem = destSystem->coordSystem.get();
 
     // Note: Heinous hack for meters to radians conversion
     double scale = 1.0;
@@ -901,7 +901,7 @@ public:
         
         if (!maplyCoordSys)
             return false;
-        WhirlyKit::CoordSystem *coordSys = maplyCoordSys->coordSystem;
+        WhirlyKit::CoordSystem *coordSys = maplyCoordSys->coordSystem.get();
         
         // Now we'll walk along, looking for the middle
         float lenSoFar = 0.0;
@@ -961,7 +961,7 @@ public:
         }
         float halfLen = totLen / 2.0;
         
-        WhirlyKit::CoordSystem *coordSys = maplyCoordSys->coordSystem;
+        WhirlyKit::CoordSystem *coordSys = maplyCoordSys->coordSystem.get();
         
         // Now we'll walk along, looking for the middle
         float lenSoFar = 0.0;

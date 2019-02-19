@@ -339,7 +339,7 @@ public:
             scaleFactor = 4.0/std::max(diff.x(),diff.y());
         }
         Point3d center3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
-        GeneralCoordSystemDisplayAdapter *genCoordAdapter = new GeneralCoordSystemDisplayAdapter([_coordSys getCoordSystem],ll3d,ur3d,center3d,Point3d(scaleFactor,scaleFactor,scaleFactor));
+        GeneralCoordSystemDisplayAdapter *genCoordAdapter = new GeneralCoordSystemDisplayAdapter([_coordSys getCoordSystem].get(),ll3d,ur3d,center3d,Point3d(scaleFactor,scaleFactor,scaleFactor));
         coordAdapter = CoordSystemDisplayAdapterRef(genCoordAdapter);
     } else {
         coordAdapter = CoordSystemDisplayAdapterRef(new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0)));

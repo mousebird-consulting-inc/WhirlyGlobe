@@ -123,7 +123,7 @@ void QuadSamplingController::removeBuilderDelegate(QuadTileBuilderDelegateRef de
 
 CoordSystem *QuadSamplingController::getCoordSystem()
 {
-    return params.coordSys;
+    return params.coordSys.get();
 }
 
 Mbr QuadSamplingController::getTotalExtents()
@@ -158,7 +158,7 @@ double QuadSamplingController::importanceForTile(const QuadTreeIdentifier &ident
     if (params.minImportanceTop == 0.0 && ident.level == 0)
         return MAXFLOAT;
     
-    double import = ScreenImportance(viewState.get(), frameSize, viewState->eyeVec, 1, params.coordSys, scene->getCoordAdapter(), mbr, ident);
+    double import = ScreenImportance(viewState.get(), frameSize, viewState->eyeVec, 1, params.coordSys.get(), scene->getCoordAdapter(), mbr, ident);
     
     return import;
 }
@@ -175,7 +175,7 @@ bool QuadSamplingController::visibilityForTile(const QuadTreeIdentifier &ident,
     if (ident.level == 0)
         return true;
     
-    return TileIsOnScreen(viewState.get(), frameSize,  params.coordSys, scene->getCoordAdapter(), mbr, ident);
+    return TileIsOnScreen(viewState.get(), frameSize,  params.coordSys.get(), scene->getCoordAdapter(), mbr, ident);
 }
 
 /// **** QuadTileBuilderDelegate methods ****

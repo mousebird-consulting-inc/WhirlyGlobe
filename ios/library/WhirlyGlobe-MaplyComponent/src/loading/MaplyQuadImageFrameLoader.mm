@@ -220,12 +220,13 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
 @implementation MaplyQuadImageFrameLoader
 
-- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)frameInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)inParams tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)frameInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
 {
-    if (!params.singleLevel) {
+    if (!inParams.singleLevel) {
         NSLog(@"MaplyQuadImageFrameLoader only supports samplers with singleLevel set to true");
         return nil;
     }
+    params = inParams;
 
     // Loader does all the work.  The Obj-C version is just a wrapper
     self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params->params,frameInfos));

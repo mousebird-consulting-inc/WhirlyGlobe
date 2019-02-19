@@ -151,7 +151,7 @@ using namespace WhirlyKit;
     // Project the corners into
     MbrD tileMbr;
     for (unsigned int ii=0;ii<4;ii++) {
-        Point3d validPt = CoordSystemConvert3d([_coordSys getCoordSystem], [bboxCoordSys getCoordSystem], pts[ii]);
+        Point3d validPt = CoordSystemConvert3d([_coordSys getCoordSystem].get(), [bboxCoordSys getCoordSystem].get(), pts[ii]);
         tileMbr.addPoint(Point2d(validPt.x(),validPt.y()));
     }
     
