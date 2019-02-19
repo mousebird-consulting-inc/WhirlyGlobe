@@ -188,6 +188,10 @@ using namespace WhirlyKit;
 
 - (void)runAddChangeRequests
 {
+    if ([self isCancelled])
+        // Note: Hey, should we be deleting these?
+        return;
+    
     [EAGLContext setCurrentContext:_glContext];
 
     inRunAddChangeRequests = true;
