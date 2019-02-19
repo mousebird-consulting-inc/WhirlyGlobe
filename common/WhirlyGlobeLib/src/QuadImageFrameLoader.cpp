@@ -427,7 +427,7 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
 QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params)
 : debugMode(false),
     params(params),
-    texType(GL_UNSIGNED_BYTE), shaderID(EmptyIdentity),
+    texType(GL_UNSIGNED_BYTE), curFrame(0.0), flipY(true), shaderID(EmptyIdentity),
     baseDrawPriority(100), drawPriorityPerLevel(1),
     color(RGBAColor(255,255,255,255)),
     renderTargetID(EmptyIdentity),
@@ -488,6 +488,16 @@ SimpleIdentity QuadImageFrameLoader::getShaderID()
 void QuadImageFrameLoader::setTexType(GLenum inTexType)
 {
     texType = inTexType;
+}
+    
+void QuadImageFrameLoader::setCurFrame(double inCurFrame)
+{
+    curFrame = inCurFrame;
+}
+    
+void QuadImageFrameLoader::setFlipY(bool newFlip)
+{
+    flipY = newFlip;
 }
     
 QIFTileAssetRef QuadImageFrameLoader::addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes)
@@ -784,7 +794,27 @@ void QuadImageFrameLoader::builderPreSceneFlush(QuadTileBuilder *builder,ChangeS
 void QuadImageFrameLoader::builderShutdown(QuadTileBuilder *builder,ChangeSet &changes)
 {
 }
+    
+/// Returns true if there's an update to process
+bool QuadImageFrameLoader::hasUpdate()
+{
+    return renderState.hasUpdate(curFrame);
+}
 
+/// Process the update
+void QuadImageFrameLoader::updateForFrame(RendererFrameInfo *frameInfo)
+{
+    if (!renderState.hasUpdate(curFrame))
+        return;
+
+    ChangeSet changes;
+
+    TimeInterval now = TimeGetCurrent();
+    renderState.updateScene(frameInfo->scene, curFrame, now, flipY, color, changes);
+
+    frameInfo->scene->addChangeRequests(changes);
+}
+    
 void QuadImageFrameLoader::cleanup(ChangeSet &changes)
 {
     QIFBatchOps *batchOps = makeBatchOps();
@@ -808,26 +838,5 @@ bool QuadImageFrameLoader::isFrameLoading(const QuadTreeIdentifier &ident,int fr
     
     return tile->isFrameLoading(frame);
 }
-    
-    // Note: Put the active object back
-
-// MARK: Active Object methods (called by updater)
-//- (bool)hasUpdate
-//{
-//    return renderState.hasUpdate(curFrame);
-//}
-//
-//- (void)updateForFrame:(RendererFrameInfo *)frameInfo
-//{
-//    if (!renderState.hasUpdate(curFrame))
-//        return;
-//
-//    ChangeSet changes;
-//
-//    TimeInterval now = TimeGetCurrent();
-//    renderState.updateScene(frameInfo->scene, curFrame, now, self.flipY, [self.color asRGBAColor], changes);
-//
-//    frameInfo->scene->addChangeRequests(changes);
-//}
 
 }

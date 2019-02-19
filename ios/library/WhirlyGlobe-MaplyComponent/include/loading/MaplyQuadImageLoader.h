@@ -31,7 +31,7 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 /**
   Base object for Maply Quad Image loader.
  
-  Look to the subclasses for actual functionality.  This hold methods they share.
+  Look to the subclasses for actual functionality.  This holds methods they share.
   */
 @interface MaplyQuadImageLoaderBase : MaplyQuadLoaderBase
 

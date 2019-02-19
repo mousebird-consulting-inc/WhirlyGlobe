@@ -92,6 +92,14 @@ using namespace WhirlyKit;
 
 @implementation MaplyQuadLoaderBase
 
+- (instancetype)init
+{
+    self = [super init];
+    _flipY = true;
+    
+    return self;
+}
+
 - (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
 {
     if (!layer)

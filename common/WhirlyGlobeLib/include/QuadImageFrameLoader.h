@@ -207,7 +207,7 @@ public:
  
     This quad loader handles the logic for a multi-frame set of images.
   */
-class QuadImageFrameLoader : public QuadTileBuilderDelegate
+class QuadImageFrameLoader : public QuadTileBuilderDelegate, public ActiveModel
 {
 public:
     QuadImageFrameLoader(const SamplingParams &params);
@@ -219,6 +219,32 @@ public:
     
     /// Set/Change the sampling parameters.
     virtual void setSamplingParams(const SamplingParams &params);
+
+    /// Color for polygons created during loading
+    void setColor(RGBAColor &inColor);
+    const RGBAColor &getColor();
+    
+    /// Render target for the geometry being created
+    void setRenderTarget(SimpleIdentity renderTargetID);
+    SimpleIdentity getRenderTarget();
+    
+    /// Shader ID for geometry being created
+    void setShaderID(SimpleIdentity shaderID);
+    SimpleIdentity getShaderID();
+    
+    /// In-memory texture type
+    void setTexType(GLenum texType);
+    
+    // What part of the animation we're displaying
+    void setCurFrame(double curFrame);
+    
+    // Need to know how we're loading the tiles to calculate the render state
+    void setFlipY(bool newFlip);
+    
+    /// Number of frames we're representing
+    virtual int getNumFrames() = 0;
+    
+    /// **** QuadTileBuilderDelegate methods ****
     
     /// Called when the builder first starts up.  Keep this around if you need it.
     virtual void setBuilder(QuadTileBuilder *builder,QuadDisplayControllerNew *control);
@@ -241,23 +267,15 @@ public:
     /// Shutdown called on the layer thread if you stuff to clean up
     virtual void builderShutdown(QuadTileBuilder *builder,ChangeSet &changes);
     
-    /// Color for polygons created during loading
-    void setColor(RGBAColor &inColor);
-    const RGBAColor &getColor();
+    /// **** Active Model methods ****
+
+    /// Returns true if there's an update to process
+    virtual bool hasUpdate();
     
-    /// Render target for the geometry being created
-    void setRenderTarget(SimpleIdentity renderTargetID);
-    SimpleIdentity getRenderTarget();
+    /// Process the update
+    virtual void updateForFrame(RendererFrameInfo *frameInfo);
     
-    /// Shader ID for geometry being created
-    void setShaderID(SimpleIdentity shaderID);
-    SimpleIdentity getShaderID();
-    
-    /// In-memory texture type
-    void setTexType(GLenum texType);
-    
-    /// Number of frames we're representing
-    virtual int getNumFrames() = 0;
+    /** ----- **/
     
     /// Shut everything down and remove our geometry and resources
     void cleanup(ChangeSet &changes);
@@ -267,7 +285,10 @@ public:
     
     /// Builds the render state *and* send it over to the main thread via the scene changes
     void buildRenderState(ChangeSet &changes);
-    
+
+    // Run on the layer thread.  Merge the loaded tile into the data.
+    virtual void mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSet &changes);
+
 protected:
     // Construct a platform specific tile asset in the subclass
     virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident) = 0;
@@ -280,8 +301,6 @@ protected:
     virtual void processBatchOps(QIFBatchOps *) = 0;
     
     virtual void removeTile(const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes);
-    // Run on the layer thread.  Merge the loaded tile into the data.
-    virtual void mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSet &changes);
     QIFTileAssetRef addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes);
     
     bool debugMode;
@@ -290,7 +309,11 @@ protected:
     
     GLenum texType;
     WhirlyKit::SimpleIdentity shaderID;
+
+    double curFrame;
     
+    bool flipY;
+
     int baseDrawPriority,drawPriorityPerLevel;
 
     RGBAColor color;

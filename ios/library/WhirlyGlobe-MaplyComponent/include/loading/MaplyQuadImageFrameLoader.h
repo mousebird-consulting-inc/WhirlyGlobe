@@ -115,7 +115,7 @@
  
  You probably don't have to implement your own tile source.  Go look at the MaplyRemoteTileInfoNew and MaplyMBTileFetcher objects.  Those will do remote and local fetching.
  */
-@interface MaplyQuadImageFrameLoader : MaplyQuadLoaderBase
+@interface MaplyQuadImageFrameLoader : MaplyQuadImageLoaderBase
 
 /**
  Initialize with multiple tile sources (one per frame).
@@ -135,6 +135,10 @@
   This value is used once per frame, so feel free to call this as much as you'd like.
   */
 - (void)setCurrentImage:(double)where;
+
+/** Number of tile sources passed in as individual frames.
+  */
+- (int)getNumFrames;
 
 /** Turn off the image loader and shut things down.
  This unregisters us with the sampling layer and shuts down the various objects we created.

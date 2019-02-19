@@ -21,10 +21,19 @@
 #import "QuadTileBuilder.h"
 #import "MaplyQuadSampler_private.h"
 #import "MaplyQuadLoader_private.h"
+#import "MaplyQuadImageLoader.h"
+#import "QuadImageFrameLoader_iOS.h"
 
 @interface MaplyQuadImageLoaderBase()
 {
 @public
+    bool valid;
+
+    // Used for initialization and then not
+    // Also need to hold on to the CoordinateSystem lest it disappear
+    MaplySamplingParams *params;
+
+    WhirlyKit::QuadImageFrameLoader_iosRef loader;
 }
 
 @end
