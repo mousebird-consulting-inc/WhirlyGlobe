@@ -50,7 +50,7 @@ void QuadSamplingController::start(const SamplingParams &inParams,Scene *inScene
     displayControl = QuadDisplayControllerNewRef(new QuadDisplayControllerNew(this,builder.get(),renderer));
     displayControl->setSingleLevel(params.singleLevel);
     displayControl->setLevelLoads(params.levelLoads);
-    std::vector<double> importance(params.maxZoom);
+    std::vector<double> importance(params.maxZoom+1);
     for (int ii=0;ii<=params.maxZoom;ii++) {
         double import = params.minImportance;
         if (ii < params.importancePerLevel.size() && params.importancePerLevel[ii] > -2.0)

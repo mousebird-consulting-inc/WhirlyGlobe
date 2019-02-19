@@ -187,7 +187,6 @@ using namespace WhirlyKit;
 {
     MaplyBaseViewController * __weak viewC;
     QuadSamplingController sampleControl;
-    WhirlyKitQuadDisplayLayerNew *quadLayer;
 }
 
 - (nullable instancetype)initWithParams:(MaplySamplingParams * __nonnull)params
@@ -205,9 +204,9 @@ using namespace WhirlyKit;
     
     sampleControl.start(_params->params,inScene,inRenderer);
     
-    quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithController:sampleControl.getDisplayControl()];
+    _quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithController:sampleControl.getDisplayControl()];
 
-    [super.layerThread addLayer:quadLayer];
+    [super.layerThread addLayer:_quadLayer];
 
     return true;
 }
@@ -220,15 +219,15 @@ using namespace WhirlyKit;
 - (void)cleanupLayers:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)scene
 {
     sampleControl.stop();
-    if (quadLayer)
-        [inLayerThread removeLayer:quadLayer];
-    quadLayer = nil;
+    if (_quadLayer)
+        [inLayerThread removeLayer:_quadLayer];
+    _quadLayer = nil;
 }
 
 - (void)teardown
 {
     sampleControl.stop();
-    quadLayer = nil;
+    _quadLayer = nil;
 }
 
 // Add a new builder delegate to watch tile related events
@@ -242,12 +241,14 @@ using namespace WhirlyKit;
     }
     
     NSNumber *whichDelegate = @(delegate->getId());
+    MaplyQuadSamplingLayer *weakSelf = self;
     if (notifyDelegate) {
         // Let the caller finish its setup and then do the notification on the layer thread
         // Otherwise this can happen before they're ready
         dispatch_async(dispatch_get_main_queue(),
                        ^{
-                           [self performSelector:@selector(notifyDelegateStartup:) onThread:self->quadLayer.layerThread withObject:whichDelegate waitUntilDone:NO];
+                           if (weakSelf)
+                               [self performSelector:@selector(notifyDelegateStartup:) onThread:weakSelf.quadLayer.layerThread withObject:whichDelegate waitUntilDone:NO];
                        });
     }
 }
@@ -257,7 +258,7 @@ using namespace WhirlyKit;
     ChangeSet changes;
     sampleControl.notifyDelegateStartup([numID longLongValue],changes);
 
-    [quadLayer.layerThread addChangeRequests:changes];
+    [_quadLayer.layerThread addChangeRequests:changes];
 }
 
 - (void)removeBuilderDelegate:(QuadTileBuilderDelegateRef)delegate

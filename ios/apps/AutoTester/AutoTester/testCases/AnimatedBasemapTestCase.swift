@@ -102,7 +102,8 @@ class AnimatedBasemapTestCase: MaplyTestCase {
         sampleParams.coverPoles = false
         sampleParams.edgeMatching = false
         sampleParams.minZoom = 0
-        sampleParams.maxZoom = 6
+        sampleParams.maxZoom = 0
+//        sampleParams.maxZoom = 6
         sampleParams.singleLevel = true
         sampleParams.minImportance = 1024.0*1024.0
 

@@ -53,4 +53,6 @@
 // Remove the given builder delegate that was watching tile related events
 - (void)removeBuilderDelegate:(WhirlyKit::QuadTileBuilderDelegateRef)delegate;
 
+@property (nonatomic) WhirlyKitQuadDisplayLayerNew * __nullable quadLayer;
+
 @end

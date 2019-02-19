@@ -30,7 +30,6 @@
     NSObject<MaplyTileFetcher> *tileFetcher;
     NSObject<MaplyLoaderInterpreter> *loadInterp;
     
-    WhirlyKitQuadDisplayLayerNew * __weak layer;
     int minLevel,maxLevel;
     
     MaplyBaseViewController * __weak viewC;

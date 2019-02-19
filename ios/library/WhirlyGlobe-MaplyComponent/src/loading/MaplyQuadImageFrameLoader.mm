@@ -456,7 +456,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     ChangeSet changes;
     loader->mergeLoadedTile(loadReturn->loadReturn.get(),changes);
 
-    [layer.layerThread addChangeRequests:changes];
+    [samplingLayer.layerThread addChangeRequests:changes];
 }
 
 - (void)cleanup
@@ -464,7 +464,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     ChangeSet changes;
 
     loader->cleanup(changes);
-    [layer.layerThread addChangeRequests:changes];
+    [samplingLayer.layerThread addChangeRequests:changes];
 
     loader = nil;
 }
