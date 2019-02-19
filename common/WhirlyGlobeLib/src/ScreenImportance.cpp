@@ -267,28 +267,30 @@ bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &fr
     return false;
 }
 
-bool TileIsOnScreen(ViewState *viewState,const WhirlyKit::Point2f &frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr,const WhirlyKit::QuadTreeIdentifier &nodeIdent)
+bool TileIsOnScreen(ViewState *viewState,const WhirlyKit::Point2f &frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr,const WhirlyKit::QuadTreeIdentifier &nodeIdent,DisplaySolidRef &dispSolid)
 {
-    DisplaySolid dispSolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter);
+    if (!dispSolid)
+        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter));
     
     // This means the tile is degenerate (as far as we're concerned)
-    if (!dispSolid.valid)
+    if (!dispSolid->valid)
         return false;
     
-    return dispSolid.isOnScreenForViewState(viewState,frameSize);
+    return dispSolid->isOnScreenForViewState(viewState,frameSize);
 }
 
 
 // Calculate the max pixel size for a tile
-double ScreenImportance(ViewState *viewState,const WhirlyKit::Point2f &frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const Mbr &nodeMbr,const WhirlyKit::QuadTreeIdentifier &nodeIdent)
+double ScreenImportance(ViewState *viewState,const WhirlyKit::Point2f &frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const Mbr &nodeMbr,const WhirlyKit::QuadTreeIdentifier &nodeIdent,DisplaySolidRef &dispSolid)
 {
-    DisplaySolid dispSolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter);
-    
+    if (!dispSolid)
+        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter));
+
     // This means the tile is degenerate (as far as we're concerned)
-    if (!dispSolid.valid)
+    if (!dispSolid->valid)
         return 0.0;
     
-    double import = dispSolid.importanceForViewState(viewState,frameSize);
+    double import = dispSolid->importanceForViewState(viewState,frameSize);
     // The system is expecting an estimate of pixel size on screen
     import = import/(pixelsSquare * pixelsSquare);
     
@@ -298,15 +300,16 @@ double ScreenImportance(ViewState *viewState,const WhirlyKit::Point2f &frameSize
 }
 
 // This version is for volumes with height
-double ScreenImportance(ViewState *viewState,const WhirlyKit::Point2f &frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const Mbr &nodeMbr,double minZ,double maxZ,const WhirlyKit::QuadTreeIdentifier &nodeIdent)
+double ScreenImportance(ViewState *viewState,const WhirlyKit::Point2f &frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const Mbr &nodeMbr,double minZ,double maxZ,const WhirlyKit::QuadTreeIdentifier &nodeIdent,DisplaySolidRef &dispSolid)
 {
-    DisplaySolid dispSolid(nodeIdent,nodeMbr,minZ,maxZ,srcSystem,coordAdapter);
+    if (!dispSolid)
+        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,minZ,maxZ,srcSystem,coordAdapter));
     
     // This means the tile is degenerate (as far as we're concerned)
-    if (!dispSolid.valid)
+    if (!dispSolid->valid)
         return 0.0;
     
-    double import = dispSolid.importanceForViewState(viewState,frameSize);
+    double import = dispSolid->importanceForViewState(viewState,frameSize);
     // The system is expecting an estimate of pixel size on screen
     import = import/(pixelsSquare * pixelsSquare);
     

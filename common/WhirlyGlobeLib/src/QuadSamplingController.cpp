@@ -158,7 +158,8 @@ double QuadSamplingController::importanceForTile(const QuadTreeIdentifier &ident
     if (params.minImportanceTop == 0.0 && ident.level == 0)
         return MAXFLOAT;
     
-    double import = ScreenImportance(viewState.get(), frameSize, viewState->eyeVec, 1, params.coordSys.get(), scene->getCoordAdapter(), mbr, ident);
+    DisplaySolidRef dispSolid;
+    double import = ScreenImportance(viewState.get(), frameSize, viewState->eyeVec, 1, params.coordSys.get(), scene->getCoordAdapter(), mbr, ident, dispSolid);
     
     return import;
 }
@@ -175,7 +176,8 @@ bool QuadSamplingController::visibilityForTile(const QuadTreeIdentifier &ident,
     if (ident.level == 0)
         return true;
     
-    return TileIsOnScreen(viewState.get(), frameSize,  params.coordSys.get(), scene->getCoordAdapter(), mbr, ident);
+    DisplaySolidRef dispSolid;
+    return TileIsOnScreen(viewState.get(), frameSize,  params.coordSys.get(), scene->getCoordAdapter(), mbr, ident, dispSolid);
 }
 
 /// **** QuadTileBuilderDelegate methods ****

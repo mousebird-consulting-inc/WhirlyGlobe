@@ -127,29 +127,25 @@ SimpleIdentity LabelManager::addLabels(std::vector<SingleLabel *> &labels,const 
     return labelID;
 }
 
-//void LabelManager::changeLabel(SimpleIdentity labelID,NSDictionary *desc,ChangeSet &changes)
-//{
-//    WhirlyKitLabelInfo *labelInfo = [[WhirlyKitLabelInfo alloc] initWithStrs:nil desc:desc];
-//    
-//    pthread_mutex_lock(&labelLock);
-//    
-//    LabelSceneRep dummyRep(labelID);
-//    LabelSceneRepSet::iterator it = labelReps.find(&dummyRep);
-//    
-//    if (it != labelReps.end())
-//    {
-//        LabelSceneRep *sceneRep = *it;
-//        
-//        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-//             idIt != sceneRep->drawIDs.end(); ++idIt)
-//        {
-//            // Changed visibility
-//            changes.push_back(new VisibilityChangeRequest(*idIt, labelInfo.minVis, labelInfo.maxVis));
-//        }
-//    }
-//
-//    pthread_mutex_unlock(&labelLock);
-//}
+void LabelManager::changeLabel(SimpleIdentity labelID,const LabelInfo &labelInfo,ChangeSet &changes)
+{
+    std::lock_guard<std::mutex> guardLock(labelLock);
+
+    LabelSceneRep dummyRep(labelID);
+    LabelSceneRepSet::iterator it = labelReps.find(&dummyRep);
+    
+    if (it != labelReps.end())
+    {
+        LabelSceneRep *sceneRep = *it;
+        
+        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
+             idIt != sceneRep->drawIDs.end(); ++idIt)
+        {
+            // Changed visibility
+            changes.push_back(new VisibilityChangeRequest(*idIt, labelInfo.minVis, labelInfo.maxVis));
+        }
+    }
+}
     
 void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &changes)
 {

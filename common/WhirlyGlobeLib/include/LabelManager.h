@@ -102,7 +102,7 @@ public:
     SimpleIdentity addLabels(std::vector<SingleLabel *> &labels,const LabelInfo &desc,ChangeSet &changes);
     
     /// Change visual attributes (just the visibility range)
-//    void changeLabel(SimpleIdentity labelID,NSDictionary *desc,ChangeSet &changes);
+    void changeLabel(SimpleIdentity labelID,const LabelInfo &desc,ChangeSet &changes);
     
     /// Remove the given label(s)
     void removeLabels(SimpleIDSet &labelID,ChangeSet &changes);
