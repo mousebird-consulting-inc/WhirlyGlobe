@@ -25,7 +25,6 @@ namespace WhirlyKit
 {
     
 /// Represents a single quad tree node in simplified form
-/// Here for historical reasons
 class QuadTreeIdentifier
 {
 public:
@@ -65,7 +64,10 @@ public:
     class Node
     {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
         Node() { }
+        Node(const QuadTreeIdentifier &that) : x(that.x), y(that.y), level(that.level) { }
         Node(const Node &that) : x(that.x), y(that.y), level(that.level) { }
         /// Construct with the cell coordinates and level.
         Node(int x,int y,int level) : x(x), y(y), level(level) { }

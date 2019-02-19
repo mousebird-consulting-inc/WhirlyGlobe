@@ -24,7 +24,7 @@ namespace WhirlyKit
 {
     
 QuadLoaderReturn::QuadLoaderReturn()
-    : frame(-1), ident(0,0,0)
+    : frame(-1), ident(0,0,0), hasError(false)
 {
 }
 

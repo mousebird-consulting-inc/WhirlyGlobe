@@ -210,8 +210,15 @@ public:
 class QuadImageFrameLoader : public QuadTileBuilderDelegate
 {
 public:
-    QuadImageFrameLoader();
+    QuadImageFrameLoader(const SamplingParams &params);
     virtual ~QuadImageFrameLoader();
+    
+    /// If set, we'll see way too much output
+    void setDebugMode(bool newMode);
+    bool getDebugMode();
+    
+    /// Set/Change the sampling parameters.
+    virtual void setSamplingParams(const SamplingParams &params);
     
     /// Called when the builder first starts up.  Keep this around if you need it.
     virtual void setBuilder(QuadTileBuilder *builder,QuadDisplayControllerNew *control);
@@ -241,14 +248,65 @@ public:
     /// Render target for the geometry being created
     void setRenderTarget(SimpleIdentity renderTargetID);
     SimpleIdentity getRenderTarget();
-
+    
+    /// Shader ID for geometry being created
+    void setShaderID(SimpleIdentity shaderID);
+    SimpleIdentity getShaderID();
+    
+    /// In-memory texture type
+    void setTexType(GLenum texType);
+    
+    /// Number of frames we're representing
+    virtual int getNumFrames() = 0;
+    
+    /// Shut everything down and remove our geometry and resources
+    void cleanup(ChangeSet &changes);
+    
+    /// Check if a frame is in the process of loading
+    bool isFrameLoading(const QuadTreeIdentifier &ident,int frame);
+    
+    /// Builds the render state *and* send it over to the main thread via the scene changes
+    void buildRenderState(ChangeSet &changes);
+    
 protected:
     // Construct a platform specific tile asset in the subclass
-    virtual QIFTileAssetRef makeTileAsset() = 0;
-    virtual QIFTileAssetRef addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes);
+    virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident) = 0;
     
+    // Contruct a platform specific BatchOps for passing to tile fetcher
+    // (we don't know about tile fetchers down here)
+    virtual QIFBatchOps *makeBatchOps() = 0;
+    
+    // Process whatever ops we batched up during the load phase
+    virtual void processBatchOps(QIFBatchOps *) = 0;
+    
+    virtual void removeTile(const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes);
+    // Run on the layer thread.  Merge the loaded tile into the data.
+    virtual void mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSet &changes);
+    QIFTileAssetRef addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes);
+    
+    bool debugMode;
+    
+    SamplingParams params;
+    
+    GLenum texType;
+    WhirlyKit::SimpleIdentity shaderID;
+    
+    int baseDrawPriority,drawPriorityPerLevel;
+
     RGBAColor color;
     SimpleIdentity renderTargetID;
-};
 
+    // Tiles in various states of loading or loaded
+    QIFTileAssetMap tiles;
+    
+    // The builder this is a delegate of
+    QuadDisplayControllerNew *control;
+    QuadTileBuilder *builder;
+    
+    // Tile rendering info supplied from the layer thread
+    QIFRenderState renderState;
+    
+    bool changesSinceLastFlush;
+};
+    
 }

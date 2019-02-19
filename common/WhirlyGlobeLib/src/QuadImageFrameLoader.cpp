@@ -416,220 +416,179 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
     }
 }
     
+//QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params)
+//: params(params), texType(GL_UNSIGNED_BYTE), shaderID(EmptyIdentity)
+//{
+//}
+    
+QuadImageFrameLoader::~QuadImageFrameLoader()
+{
+}
+    
 QIFTileAssetRef QuadImageFrameLoader::addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes)
 {
     // Set up a new tile
-    auto newTile = makeTileAsset();
-    int defaultDrawPriority = self.baseDrawPriority + self.drawPriorityPerLevel * ident.level;
+    auto newTile = makeTileAsset(ident);
+    int defaultDrawPriority = baseDrawPriority + drawPriorityPerLevel * ident.level;
     tiles[ident] = newTile;
     
-    auto loadedTile = [builder getLoadedTile:ident];
+    auto loadedTile = builder->getLoadedTile(ident);
     
     // Make the instance drawables we'll use to mirror the geometry
     if (loadedTile) {
-        newTile->setupContents(self,loadedTile,defaultDrawPriority,shaderID,changes);
+        newTile->setupContents(this,loadedTile,defaultDrawPriority,shaderID,changes);
         newTile->setShouldEnable(loadedTile->enabled);
     }
     
-    if (self.debugMode)
-        NSLog(@"Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
-        newTile->startFetching(self, toStart, frameInfos);
+    if (debugMode)
+        wkLogLevel(Debug,"Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
+    
+    newTile->startFetching(this, batchOps);
         
-        return newTile;
+    return newTile;
 }
 
-void removeTile(const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes)
+void QuadImageFrameLoader::removeTile(const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes)
 {
     auto it = tiles.find(ident);
     // If it's here, let's get rid of it.
     if (it != tiles.end()) {
-        if (self.debugMode)
-            NSLog(@"Unloading tile %d: (%d,%d)",ident.level,ident.x,ident.y);
+        if (debugMode)
+            wkLogLevel(Debug,"Unloading tile %d: (%d,%d)",ident.level,ident.x,ident.y);
         
-            ChangeSet changes;
-        it->second->clear(toCancel, changes);
+        it->second->clear(this, batchOps, changes);
         
         tiles.erase(it);
     }
 }
     
-    // Called on a random dispatch queue
-    - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data
-    {
-        if (self.debugMode)
-            NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,frame);
-            
-            // Ask the interpreter to parse it
-            MaplyLoaderReturn *loadData = [[MaplyLoaderReturn alloc] init];
-            loadData.tileID = tileID;
-            loadData.frame = frame;
-            loadData.tileData = data;
-            [self performSelector:@selector(mergeFetchRequest:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
+    
+void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSet &changes)
+{
+    QuadTreeNew::Node ident(loadReturn->ident);
+    auto it = tiles.find(ident);
+    // Tile disappeared in the mean time, so drop it
+    if (it == tiles.end() || loadReturn->hasError) {
+        if (debugMode)
+            wkLogLevel(Debug,"MaplyQuadImageLoader: Failed to load tile before it was erased %d: (%d,%d)",loadReturn->ident.level,loadReturn->ident.x,loadReturn->ident.y);
+        return;
+    }
+    auto tile = it->second;
+    
+    // Build the texture
+    ImageTileRef image = loadReturn->images.empty() ? NULL : loadReturn->images.front();
+    Texture *tex = NULL;
+    LoadedTileNewRef loadedTile = builder->getLoadedTile(ident);
+    if (image) {
+        tex = image->buildTexture();
+        tex->setFormat(texType);
     }
     
-    // Called on the SamplingLayer.LayerThread
-    - (void)mergeFetchRequest:(MaplyLoaderReturn *)loadReturn
-    {
-        QuadTreeNew::Node ident(loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.tileID.level);
-        auto it = tiles.find(ident);
-        if (it == tiles.end() || loadReturn.error) {
-            return;
-        }
-        auto tile = it->second;
-        
-        // Don't actually want this one
-        if (!tile->isFrameLoading(loadReturn.frame))
-            return;
-        
-        // Do the parsing on another thread since it can be slow
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [self->loadInterp dataForTile:loadReturn];
-            
-            [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
-        });
+    if (tex) {
+        tile->frameLoaded(this, loadReturn, tex, changes);
+    } else {
+        tile->frameFailed(this, loadReturn, changes);
     }
     
-    // Called on the SamplingLayer.LayerThread
-    - (void)mergeLoadedTile:(MaplyLoaderReturn *)loadReturn
-    {
-        QuadTreeNew::Node ident(loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.tileID.level);
-        auto it = tiles.find(ident);
-        // Tile disappeared in the mean time, so drop it
-        if (it == tiles.end() || loadReturn.error) {
-            if (self.debugMode)
-                NSLog(@"MaplyQuadImageLoader: Failed to load tile before it was erased %d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y);
-                return;
-        }
-        auto tile = it->second;
-        
-        // Build the texture
-        WhirlyKitLoadedTile *loadTile = [loadReturn.images count] > 0 ? [loadReturn.images objectAtIndex:0] : nil;
-        Texture *tex = NULL;
-        LoadedTileNewRef loadedTile = [builder getLoadedTile:ident];
-        if ([loadTile.images count] > 0) {
-            WhirlyKitLoadedImage *loadedImage = [loadTile.images objectAtIndex:0];
-            if ([loadedImage isKindOfClass:[WhirlyKitLoadedImage class]]) {
-                if (loadedTile) {
-                    // Build the image
-                    tex = [loadedImage buildTexture:self.borderTexel destWidth:loadedImage.width destHeight:loadedImage.height];
-                    tex->setFormat(texType);
-                }
-            }
-        }
-        
-        ChangeSet changes;
-        if (tex) {
-            tile->frameLoaded(loadReturn, tex, changes);
-        } else {
-            tile->frameFailed(loadReturn, changes);
-        }
-        
-        [layer.layerThread addChangeRequests:changes];
-        
-        changesSinceLastFlush = true;
-    }
-    
-    // Called on SamplingLayer.layerThread
-    - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error
-    {
-        NSLog(@"MaplyQuadImageLoader: Failed to fetch tile %d: (%d,%d) frame %d because:\n%@",tileID.level,tileID.x,tileID.y,frame,[error localizedDescription]);
-    }
-    
+    changesSinceLastFlush = true;
 }
-    
-    /// *** Stopped here
-    ///  These need to be merged into QuadImageFrameLoader
-    ///  Some will need to moved into an iOS version
-
 
 // Build up the drawing state for use on the main thread
 // All the texture are assigned there
-- (void)buildRenderState:(ChangeSet &)changes
+void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
 {
-    int numFrames = [frameInfos count];
+    int numFrames = getNumFrames();
     QIFRenderState newRenderState(numFrames);
     for (int frameID=0;frameID<numFrames;frameID++)
         newRenderState.topTilesLoaded[frameID] = true;
         
-        // Work through the tiles, figure out their textures as we go
-        for (auto tileIt : tiles) {
-            auto tileID = tileIt.first;
-            auto tile = tileIt.second;
+    // Work through the tiles, figure out their textures as we go
+    for (auto tileIt : tiles) {
+        auto tileID = tileIt.first;
+        auto tile = tileIt.second;
+        
+        QIFTileStateRef tileState(new QIFTileState(numFrames));
+        tileState->node = tileID;
+        tileState->instanceDrawIDs = tile->getInstanceDrawIDs();
+        tileState->enable = tile->getShouldEnable();
+        
+        // Work through the frames
+        for (int frameID=0;frameID<numFrames;frameID++) {
+            auto inFrame = tile->getFrame(frameID);
+            auto &outFrame = tileState->frames[frameID];
             
-            QIFTileStateRef tileState(new QIFTileState(numFrames));
-            tileState->node = tileID;
-            tileState->instanceDrawIDs = tile->getInstanceDrawIDs();
-            tileState->enable = tile->getShouldEnable();
+            // Shouldn't happen
+            if (!inFrame)
+                continue;
             
-            // Work through the frames
-            for (int frameID=0;frameID<numFrames;frameID++) {
-                auto inFrame = tile->getFrame(frameID);
-                auto &outFrame = tileState->frames[frameID];
+            // Look for a tile or parent tile that has a texture ID
+            QuadTreeNew::Node texNode = tile->getIdent();
+            do {
+                auto it = tiles.find(texNode);
+                if (it == tiles.end())
+                    break;
+                auto parentTile = it->second;
+                auto parentFrame = parentTile->getFrame(frameID);
+                if (parentFrame && parentFrame->getTexID() != EmptyIdentity) {
+                    // Got one, so stop
+                    outFrame.texID = parentFrame->getTexID();
+                    outFrame.texNode = parentTile->getIdent();
+                    break;
+                }
                 
-                // Shouldn't happen
-                if (!inFrame)
-                    continue;
-                
-                // Look for a tile or parent tile that has a texture ID
-                QuadTreeNew::Node texNode = tile->getIdent();
-                do {
-                    auto it = tiles.find(texNode);
-                    if (it == tiles.end())
-                        break;
-                    auto parentTile = it->second;
-                    auto parentFrame = parentTile->getFrame(frameID);
-                    if (parentFrame && parentFrame->getTexID() != EmptyIdentity) {
-                        // Got one, so stop
-                        outFrame.texID = parentFrame->getTexID();
-                        outFrame.texNode = parentTile->getIdent();
-                        break;
-                    }
-                    
-                    // Work our way up the hierarchy
-                    if (texNode.level <= 0)
-                        break;
-                    texNode.level -= 1;
-                    texNode.x /= 2;
-                    texNode.y /= 2;
-                } while (outFrame.texID == EmptyIdentity);
-                
-                // Metrics for overall loading used by the display side
-                if (outFrame.texID == EmptyIdentity) {
-                    if (tile->getIdent().level == minLevel)
-                        newRenderState.topTilesLoaded[frameID] = false;
-                        } else {
-                            newRenderState.tilesLoaded[frameID]++;
-                        }
+                // Work our way up the hierarchy
+                if (texNode.level <= 0)
+                    break;
+                texNode.level -= 1;
+                texNode.x /= 2;
+                texNode.y /= 2;
+            } while (outFrame.texID == EmptyIdentity);
+            
+            // Metrics for overall loading used by the display side
+            if (outFrame.texID == EmptyIdentity) {
+                if (tile->getIdent().level == params.minZoom)
+                    newRenderState.topTilesLoaded[frameID] = false;
+            } else {
+                newRenderState.tilesLoaded[frameID]++;
             }
-            
-            newRenderState.tiles[tileID] = tileState;
         }
+        
+        newRenderState.tiles[tileID] = tileState;
+    }
     
-    auto mergeReq = new RunBlockReq([self,newRenderState](Scene *scene,SceneRendererES *renderer,View *view)
-                                    {
-                                        if (self)
-                                            self->renderState = newRenderState;
-                                    });
+    auto mergeReq = new RunBlockReq([this,newRenderState](Scene *scene,SceneRendererES *renderer,View *view)
+    {
+        if (builder)
+            renderState = newRenderState;
+    });
+    
     changes.push_back(mergeReq);
 }
 
 // MARK: Quad Build Delegate
 
-- (void)setQuadBuilder:(WhirlyKitQuadTileBuilder * _Nonnull)inBuilder layer:(WhirlyKitQuadDisplayLayerNew * _Nonnull)inLayer
+/// Called when the builder first starts up.  Keep this around if you need it.
+void QuadImageFrameLoader::setBuilder(QuadTileBuilder *inBuilder,QuadDisplayControllerNew *inControl)
 {
     builder = inBuilder;
-    layer = inLayer;
+    control = inControl;
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self->updater = [[MaplyQuadImageFrameLoaderUpdater alloc] init];
-        self->updater.loader = self;
-        [self->viewC addActiveObject:self->updater];
-        
-        [self setCurrentImage:self->curFrame];
-    });
+    // Note: Put the active frame changer back
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        self->updater = [[MaplyQuadImageFrameLoaderUpdater alloc] init];
+//        self->updater.loader = self;
+//        [self->viewC addActiveObject:self->updater];
+//
+//        [self setCurrentImage:self->curFrame];
+//    });
 }
 
-- (WhirlyKit::QuadTreeNew::NodeSet)quadBuilder:(WhirlyKitQuadTileBuilder * _Nonnull)builder loadTiles:(const WhirlyKit::QuadTreeNew::ImportantNodeSet &)loadTiles unloadTilesToCheck:(const WhirlyKit::QuadTreeNew::NodeSet &)unloadTiles targetLevel:(int)targetLevel
+/// Before we tell the delegate to unload tiles, see if they want to keep them around
+/// Returns the tiles we want to preserve after all
+QuadTreeNew::NodeSet QuadImageFrameLoader::builderUnloadCheck(QuadTileBuilder *builder,
+        const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,
+        const WhirlyKit::QuadTreeNew::NodeSet &unloadTiles,
+        int targetLevel)
 {
     QuadTreeNew::NodeSet toKeep;
     
@@ -637,26 +596,26 @@ void removeTile(const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet
     QuadTreeNew::NodeSet allLoads;
     for (auto node : loadTiles)
         allLoads.insert(node);
-        for (auto node : tiles)
-            if (node.second->anyFramesLoading())
-                allLoads.insert(node.first);
-                
-                // For all those loading or will be loading nodes, nail down their parents
-                for (auto node : allLoads) {
-                    auto parent = node;
-                    while (parent.level > 0) {
-                        parent.level -= 1; parent.x /= 2;  parent.y /= 2;
-                        if (unloadTiles.find(parent) != unloadTiles.end())
-                        {
-                            auto it = tiles.find(parent);
-                            // Nail down the parent that's loaded, but don't care otherwise
-                            if (it != tiles.end() && it->second->anyFramesLoaded()) {
-                                toKeep.insert(parent);
-                                break;
-                            }
-                        }
-                    }
+    for (auto node : tiles)
+        if (node.second->anyFramesLoading())
+            allLoads.insert(node.first);
+    
+    // For all those loading or will be loading nodes, nail down their parents
+    for (auto node : allLoads) {
+        auto parent = node;
+        while (parent.level > 0) {
+            parent.level -= 1; parent.x /= 2;  parent.y /= 2;
+            if (unloadTiles.find(parent) != unloadTiles.end())
+            {
+                auto it = tiles.find(parent);
+                // Nail down the parent that's loaded, but don't care otherwise
+                if (it != tiles.end() && it->second->anyFramesLoaded()) {
+                    toKeep.insert(parent);
+                    break;
                 }
+            }
+        }
+    }
     
     // Now check all the unloads to see if their parents are loading
     for (auto node : unloadTiles) {
@@ -683,36 +642,28 @@ void removeTile(const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet
     return toKeep;
 }
 
-- (void)quadBuilder:(WhirlyKitQuadTileBuilder * _Nonnull)builder update:(const WhirlyKit::TileBuilderDelegateInfo &)updates changes:(WhirlyKit::ChangeSet &)changes
+/// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
+void QuadImageFrameLoader::builderLoad(QuadTileBuilder *builder,
+                         const WhirlyKit::TileBuilderDelegateInfo &updates,
+                         ChangeSet &changes)
 {
-    auto control = viewC.getRenderControl;
-    if (!control)
-        return;
-    auto interactLayer = control->interactLayer;
-    
     bool somethingChanged = false;
     
-    NSMutableArray *toCancel = [NSMutableArray array];
-    NSMutableArray *toStart = [NSMutableArray array];
+    QIFBatchOps *batchOps = makeBatchOps();
     
     // Add new tiles
     for (auto it = updates.loadTiles.rbegin(); it != updates.loadTiles.rend(); ++it) {
         auto tile = *it;
         // If it's already there, clear it out
-        [self removeTile:tile->ident layer:interactLayer toCancel:toCancel changes:changes];
+        removeTile(tile->ident,batchOps,changes);
         
         // Create the new tile and put in the toLoad queue
-        auto newTile = [self addNewTile:tile->ident layer:interactLayer toStart:toStart changes:changes];
+        auto newTile = addNewTile(tile->ident, batchOps, changes);
         somethingChanged = true;
     }
     
     // Remove old tiles
     for (auto inTile: updates.unloadTiles) {
-        MaplyTileID tileID;
-        tileID.level = inTile.level;
-        tileID.x = inTile.x;
-        tileID.y = inTile.y;
-        
         auto it = tiles.find(inTile);
         // Don't know about this one.  Punt
         if (it == tiles.end())
@@ -720,7 +671,7 @@ void removeTile(const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet
         auto tile = it->second;
         
         // Clear out any associated data and remove it from our list
-        [self removeTile:inTile layer:interactLayer toCancel:toCancel changes:changes];
+        removeTile(inTile, batchOps, changes);
         somethingChanged = true;
     }
     
@@ -730,77 +681,88 @@ void removeTile(const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet
         if (it == tiles.end())
             continue;
         auto tile = it->second;
-        auto loadedTile = [builder getLoadedTile:ident];
+        auto loadedTile = builder->getLoadedTile(ident);
         
         // If it isn't loaded, then start that process
         if (tile->getState() == QIFTileAsset::Waiting) {
-            if (self.debugMode)
-                NSLog(@"Tile switched from Wait to Fetch %d: (%d,%d) importance = %f",ident.level,ident.x,ident.y,ident.importance);
-            tile->startFetching(self, toStart, frameInfos);
+            if (debugMode)
+                wkLogLevel(Debug,"Tile switched from Wait to Fetch %d: (%d,%d) importance = %f",ident.level,ident.x,ident.y,ident.importance);
+            tile->startFetching(this, batchOps);
             if (loadedTile)
                 tile->setShouldEnable(loadedTile->enabled);
             somethingChanged = true;
         }
     }
-    
-    [tileFetcher cancelTileFetches:toCancel];
-    [tileFetcher startTileFetches:toStart];
-    
-    if (self.debugMode)
-        NSLog(@"quadBuilder:updates:changes: changeRequests: %d",(int)changes.size());
-        
-        changesSinceLastFlush |= somethingChanged;
-        }
 
-- (void)quadBuilderPreSceneFlush:(WhirlyKitQuadTileBuilder * _Nonnull)builder
+    // Process all the fetches and cancels at once
+    processBatchOps(batchOps);
+    delete batchOps;
+    
+    if (debugMode)
+        wkLogLevel(Debug,"quadBuilder:updates:changes: changeRequests: %d",(int)changes.size());
+    
+    changesSinceLastFlush |= somethingChanged;
+}
+
+/// Called right before the layer thread flushes all its current changes
+void QuadImageFrameLoader::builderPreSceneFlush(QuadTileBuilder *builder,ChangeSet &changes)
 {
     if (!changesSinceLastFlush)
         return;
     
-    ChangeSet changes;
-    [self buildRenderState:changes];
-    
-    [layer.layerThread addChangeRequests:changes];
+    buildRenderState(changes);
     
     changesSinceLastFlush = false;
 }
 
-- (void)quadBuilderShutdown:(WhirlyKitQuadTileBuilder * _Nonnull)builder
+/// Shutdown called on the layer thread if you stuff to clean up
+void builderShutdown(QuadTileBuilder *builder,ChangeSet &changes)
 {
 }
 
-- (void)cleanup
+void QuadImageFrameLoader::cleanup(ChangeSet &changes)
 {
-    ChangeSet changes;
+    QIFBatchOps *batchOps = makeBatchOps();
     
-    NSMutableArray *toCancel = [NSMutableArray array];
     for (auto tile : tiles) {
-        tile.second->clear(toCancel, changes);
+        tile.second->clear(this, batchOps, changes);
     }
     tiles.clear();
-    
-    [tileFetcher cancelTileFetches:toCancel];
-    
-    [layer.layerThread addChangeRequests:changes];
+
+    processBatchOps(batchOps);
+    delete batchOps;
 }
+
+bool QuadImageFrameLoader::isFrameLoading(const QuadTreeIdentifier &ident,int frame)
+{
+    auto it = tiles.find(ident);
+    if (it == tiles.end()) {
+        return false;
+    }
+    auto tile = it->second;
+    
+    return tile->isFrameLoading(frame);
+}
+    
+    // Note: Put the active object back
 
 // MARK: Active Object methods (called by updater)
-- (bool)hasUpdate
-{
-    return renderState.hasUpdate(curFrame);
-}
-
-- (void)updateForFrame:(RendererFrameInfo *)frameInfo
-{
-    if (!renderState.hasUpdate(curFrame))
-        return;
-    
-    ChangeSet changes;
-    
-    TimeInterval now = TimeGetCurrent();
-    renderState.updateScene(frameInfo->scene, curFrame, now, self.flipY, [self.color asRGBAColor], changes);
-    
-    frameInfo->scene->addChangeRequests(changes);
-}
+//- (bool)hasUpdate
+//{
+//    return renderState.hasUpdate(curFrame);
+//}
+//
+//- (void)updateForFrame:(RendererFrameInfo *)frameInfo
+//{
+//    if (!renderState.hasUpdate(curFrame))
+//        return;
+//
+//    ChangeSet changes;
+//
+//    TimeInterval now = TimeGetCurrent();
+//    renderState.updateScene(frameInfo->scene, curFrame, now, self.flipY, [self.color asRGBAColor], changes);
+//
+//    frameInfo->scene->addChangeRequests(changes);
+//}
 
 }

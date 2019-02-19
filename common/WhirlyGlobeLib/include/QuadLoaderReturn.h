@@ -54,6 +54,9 @@ public:
     // Overlay component objects added for a tile
     std::vector<ComponentObjectRef> ovlCompObjs;
     
+    // Set if something went wrong with loading
+    bool hasError;
+    
     // Clean out references to everything
     void clear();
 };

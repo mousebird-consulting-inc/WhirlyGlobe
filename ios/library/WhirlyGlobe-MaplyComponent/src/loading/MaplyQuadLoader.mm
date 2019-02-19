@@ -81,6 +81,12 @@ using namespace WhirlyKit;
     return ret;
 }
 
+- (void)setError:(NSError *)error
+{
+    _error = error;
+    loadReturn->hasError = true;
+}
+
 @end
 
 @implementation MaplyQuadLoaderBase

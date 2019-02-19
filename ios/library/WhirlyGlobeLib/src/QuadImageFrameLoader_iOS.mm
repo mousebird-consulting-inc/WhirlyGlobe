@@ -127,10 +127,10 @@ void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,QIFBatchOps 
         MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,[frameInfo fetchInfoForTile:tileID],frameInfo,0,ident.importance);
         
         request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
-            loader->fetchRequestSuccess(request,tileID,frame,data);
+            [loader->layer fetchRequestSuccess:request tileID:tileID frame:frame data:data];
         };
         request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-            loader->fetchRequestFail(request,tileID,frame,data,error);
+            [loader->layer fetchRequestFail:request tileID:tileID frame:frame error:error];
         };
         [batchOps->toStart addObject:request];
         
@@ -139,10 +139,34 @@ void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,QIFBatchOps 
     
 }
 
-QIFTileAssetRef QuadImageFrameLoader_ios::makeTileAsset()
+QIFTileAssetRef QuadImageFrameLoader_ios::makeTileAsset(const QuadTreeNew::ImportantNode &ident)
 {
-    return QIFTileAssetRef(new QIFTileAsset_iOS(ident,[frameInfos count]));
+    return QIFTileAssetRef(new QIFTileAsset_ios(ident,[frameInfos count]));
 }
+    
+int QuadImageFrameLoader_ios::getNumFrames()
+{
+    return [frameInfos count];
+}
+    
+QIFBatchOps *QuadImageFrameLoader_ios::makeBatchOps()
+{
+    QIFBatchOps_ios *batchOps = new QIFBatchOps_ios();
+    batchOps->toCancel = [NSMutableArray array];
+    batchOps->toStart = [NSMutableArray array];
+    
+    return batchOps;
+}
+    
+void QuadImageFrameLoader_ios::processBatchOps(QIFBatchOps *inBatchOps)
+{
+    QIFBatchOps_ios *batchOps = (QIFBatchOps_ios *)inBatchOps;
 
+    [tileFetcher cancelTileFetches:batchOps->toCancel];
+    [tileFetcher startTileFetches:batchOps->toStart];
+    
+    [batchOps->toCancel removeAllObjects];
+    [batchOps->toStart removeAllObjects];
+}
 
 }

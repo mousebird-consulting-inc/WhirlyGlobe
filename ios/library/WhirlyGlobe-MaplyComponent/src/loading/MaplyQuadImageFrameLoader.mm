@@ -23,6 +23,7 @@
 #import "MaplyShader_private.h"
 #import "MaplyRenderTarget_private.h"
 #import "MaplyScreenLabel.h"
+#import "QuadImageFrameLoader_iOS.h"
 
 using namespace WhirlyKit;
 
@@ -153,128 +154,127 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 
 @end
 
-@implementation MaplyQuadImageFrameAnimator
-{
-    MaplyBaseViewController * __weak viewC;
-    MaplyQuadImageFrameLoader * __weak loader;
-    TimeInterval startTime;
-    int numFrames;
-}
+// Note: Put the animator back
 
-- (instancetype)initWithFrameLoader:(MaplyQuadImageFrameLoader *)inLoader viewC:(MaplyBaseViewController * __nonnull)inViewC
-{
-    self = [super init];
-    loader = inLoader;
-    viewC = inViewC;
-    startTime = TimeGetCurrent();
-    _period = 10.0;
-    _pauseLength = 0.0;
-    numFrames = [loader getNumFrames];
-    
-    [viewC addActiveObject:self];
-    
-    return self;
-}
-
-- (void)shutdown
-{
-    [viewC removeActiveObject:self];
-    loader = nil;
-    viewC = nil;
-}
-
-// MARK: ActiveObject overrides
-
-// Have to do the position update in the setCurrentImage so we're not messing with the rendering loop
-- (bool)hasUpdate
-{
-    if (!viewC || !loader)
-        return false;
-    
-    TimeInterval now = TimeGetCurrent();
-    TimeInterval totalPeriod = _period + _pauseLength;
-    double when = fmod(now-startTime,totalPeriod);
-    if (when >= _period)
-        // Snap it to the end for a while
-        [loader setCurrentImage:numFrames-1];
-    else {
-        double where = when/_period * (numFrames-1);
-        [loader setCurrentImage:where];
-    }
-    
-    return false;
-}
-
-- (void)updateForFrame:(void *)frameInfo
-{
-}
-
-- (void)teardown
-{
-    loader = nil;
-}
-
-@end
-
-// An active updater called every frame the by the renderer
-// We use this to process rendering state from the layer thread
-@interface MaplyQuadImageFrameLoaderUpdater : MaplyActiveObject
-
-@property (nonatomic,weak) MaplyQuadImageFrameLoader * __weak loader;
-
-@end
-
-@implementation MaplyQuadImageFrameLoaderUpdater
-
-- (bool)hasUpdate
-{
-    return [_loader hasUpdate];
-}
-
-- (void)updateForFrame:(void *)frameInfo
-{
-    return [_loader updateForFrame:(RendererFrameInfo *)frameInfo];
-}
-
-- (void)teardown
-{
-    _loader = nil;
-}
-
-@end
+//@implementation MaplyQuadImageFrameAnimator
+//{
+//    MaplyBaseViewController * __weak viewC;
+//    MaplyQuadImageFrameLoader * __weak loader;
+//    TimeInterval startTime;
+//    int numFrames;
+//}
+//
+//- (instancetype)initWithFrameLoader:(MaplyQuadImageFrameLoader *)inLoader viewC:(MaplyBaseViewController * __nonnull)inViewC
+//{
+//    self = [super init];
+//    loader = inLoader;
+//    viewC = inViewC;
+//    startTime = TimeGetCurrent();
+//    _period = 10.0;
+//    _pauseLength = 0.0;
+//    numFrames = [loader getNumFrames];
+//
+//    [viewC addActiveObject:self];
+//
+//    return self;
+//}
+//
+//- (void)shutdown
+//{
+//    [viewC removeActiveObject:self];
+//    loader = nil;
+//    viewC = nil;
+//}
+//
+//// MARK: ActiveObject overrides
+//
+//// Have to do the position update in the setCurrentImage so we're not messing with the rendering loop
+//- (bool)hasUpdate
+//{
+//    if (!viewC || !loader)
+//        return false;
+//
+//    TimeInterval now = TimeGetCurrent();
+//    TimeInterval totalPeriod = _period + _pauseLength;
+//    double when = fmod(now-startTime,totalPeriod);
+//    if (when >= _period)
+//        // Snap it to the end for a while
+//        [loader setCurrentImage:numFrames-1];
+//    else {
+//        double where = when/_period * (numFrames-1);
+//        [loader setCurrentImage:where];
+//    }
+//
+//    return false;
+//}
+//
+//- (void)updateForFrame:(void *)frameInfo
+//{
+//}
+//
+//- (void)teardown
+//{
+//    loader = nil;
+//}
+//
+//@end
+//
+//// An active updater called every frame the by the renderer
+//// We use this to process rendering state from the layer thread
+//@interface MaplyQuadImageFrameLoaderUpdater : MaplyActiveObject
+//
+//@property (nonatomic,weak) MaplyQuadImageFrameLoader * __weak loader;
+//
+//@end
+//
+//@implementation MaplyQuadImageFrameLoaderUpdater
+//
+//- (bool)hasUpdate
+//{
+//    return [_loader hasUpdate];
+//}
+//
+//- (void)updateForFrame:(void *)frameInfo
+//{
+//    return [_loader updateForFrame:(RendererFrameInfo *)frameInfo];
+//}
+//
+//- (void)teardown
+//{
+//    _loader = nil;
+//}
+//
+//@end
 
 @implementation MaplyQuadImageFrameLoader
 {
     bool valid;
     
+    // Used for initialization and then not
+    // Also need to hold on to the CoordinateSystem lest it disappear
     MaplySamplingParams *params;
-    NSArray<NSObject<MaplyTileInfoNew> *> *frameInfos;
     
     // What part of the animation we're displaying
     double curFrame;
     
-    // Tiles in various states of loading or loaded
-    QIFTileAssetMap tiles;
+    // Active updater used to update rendering state
+    // Note: Put this back
+//    MaplyQuadImageFrameLoaderUpdater *updater;
     
-    // Tile rendering info supplied from the layer thread
-    QIFRenderState renderState;
-    
-    // Active updater used to updater rendering state
-    MaplyQuadImageFrameLoaderUpdater *updater;
-    
-    bool changesSinceLastFlush;
+    QuadImageFrameLoader_iosRef loader;
 }
 
-- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)inParams tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)inFrameInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)frameInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
 {
-    params = inParams;
-    frameInfos = inFrameInfos;
-    self->viewC = inViewC;
-    
     if (!params.singleLevel) {
         NSLog(@"MaplyQuadImageFrameLoader only supports samplers with singleLevel set to true");
         return nil;
     }
+
+    // Loader does all the work.  The Obj-C version is just a wrapper
+    loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params->params,frameInfos));
+
+    self->viewC = inViewC;
     
     self.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
     self.drawPriorityPerLevel = 100;
@@ -292,89 +292,154 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     self.imageFormat = MaplyImageIntRGBA;
     self.borderTexel = 0;
     self.color = [UIColor whiteColor];
-    self->texType = GL_UNSIGNED_BYTE;
-    changesSinceLastFlush = true;
     valid = true;
+    
+    MaplyQuadImageFrameLoader * __weak weakSelf = self;
     
     // Start things out after a delay
     // This lets the caller mess with settings
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (!self->valid)
-            return;
-        
-        if (!self->viewC || !self->viewC->renderControl || !self->viewC->renderControl->scene)
-            return;
-        
-        if (!self->tileFetcher) {
-            self->tileFetcher = [self->viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
-        }
-        if (!self->loadInterp) {
-            self->loadInterp = [[MaplyImageLoaderInterpreter alloc] init];
-        }
-        
-        self->samplingLayer = [self->viewC findSamplingLayer:inParams forUser:self];
-        
-        // Sort out the texture format
-        switch (self.imageFormat) {
-            case MaplyImageIntRGBA:
-            case MaplyImage4Layer8Bit:
-            default:
-                self->texType = GL_UNSIGNED_BYTE;
-                break;
-            case MaplyImageUShort565:
-                self->texType = GL_UNSIGNED_SHORT_5_6_5;
-                break;
-            case MaplyImageUShort4444:
-                self->texType = GL_UNSIGNED_SHORT_4_4_4_4;
-                break;
-            case MaplyImageUShort5551:
-                self->texType = GL_UNSIGNED_SHORT_5_5_5_1;
-                break;
-            case MaplyImageUByteRed:
-            case MaplyImageUByteGreen:
-            case MaplyImageUByteBlue:
-            case MaplyImageUByteAlpha:
-            case MaplyImageUByteRGB:
-                self->texType = GL_ALPHA;
-                break;
-        }
-        
-        if (self->shaderID == EmptyIdentity) {
-            MaplyShader *theShader = [self->viewC getShaderByName:kMaplyShaderDefaultTriMultiTex];
-            self->shaderID = [theShader getShaderID];
-        }
+        [weakSelf delayedInit];
     });
     
     return self;
 }
 
+- (void)delayedInit
+{
+    if (!valid)
+        return;
+    
+    if (!viewC || !viewC->renderControl || !viewC->renderControl->scene)
+        return;
+    
+    if (!tileFetcher) {
+        tileFetcher = [viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
+    }
+    if (!loadInterp) {
+        loadInterp = [[MaplyImageLoaderInterpreter alloc] init];
+    }
+    
+    samplingLayer = [viewC findSamplingLayer:params forUser:self->loader];
+    // Do this again in case they changed them
+    loader->setSamplingParams(params->params);
+    
+    // Sort out the texture format
+    switch (self.imageFormat) {
+        case MaplyImageIntRGBA:
+        case MaplyImage4Layer8Bit:
+        default:
+            loader->setTexType(GL_UNSIGNED_BYTE);
+            break;
+        case MaplyImageUShort565:
+            loader->setTexType(GL_UNSIGNED_SHORT_5_6_5);
+            break;
+        case MaplyImageUShort4444:
+            loader->setTexType(GL_UNSIGNED_SHORT_4_4_4_4);
+            break;
+        case MaplyImageUShort5551:
+            loader->setTexType(GL_UNSIGNED_SHORT_5_5_5_1);
+            break;
+        case MaplyImageUByteRed:
+        case MaplyImageUByteGreen:
+        case MaplyImageUByteBlue:
+        case MaplyImageUByteAlpha:
+        case MaplyImageUByteRGB:
+            loader->setTexType(GL_ALPHA);
+            break;
+    }
+    
+    if (loader->getShaderID() == EmptyIdentity) {
+        MaplyShader *theShader = [viewC getShaderByName:kMaplyShaderDefaultTriMultiTex];
+        if (theShader)
+            loader->setShaderID([theShader getShaderID]);
+    }
+}
+
 - (void)setShader:(MaplyShader *)shader
 {
-    shaderID = [shader getShaderID];
+    if (!loader)
+        return;
+    
+    loader->setShaderID([shader getShaderID]);
 }
 
 - (void)setCurrentImage:(double)where
 {
-    curFrame = std::min(std::max(where,0.0),(double)([frameInfos count]-1));
+    curFrame = std::min(std::max(where,0.0),(double)([loader->frameInfos count]-1));
 }
 
 - (int)getNumFrames
 {
-    return [frameInfos count];
+    return [loader->frameInfos count];
+}
+
+// Called on a random dispatch queue
+- (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data;
+{
+    if (loader->getDebugMode())
+        NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,frame);
+    
+    // Ask the interpreter to parse it
+    MaplyLoaderReturn *loadData = [[MaplyLoaderReturn alloc] init];
+    loadData.tileID = tileID;
+    loadData.frame = frame;
+    [loadData addTileData:data];
+    
+    [self performSelector:@selector(mergeFetchRequest:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
+}
+
+ // Called on SamplingLayer.layerThread
+ - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error
+ {
+     // Note: Need to do something more here for single frame cases
+     
+     NSLog(@"MaplyQuadImageLoader: Failed to fetch tile %d: (%d,%d) frame %d because:\n%@",tileID.level,tileID.x,tileID.y,frame,[error localizedDescription]);
+ }
+
+ // Called on the SamplingLayer.LayerThread
+ - (void)mergeFetchRequest:(MaplyLoaderReturn *)loadReturn
+ {
+     if (!loader)
+         return;
+     
+     // Don't actually want this one
+     if (!loader->isFrameLoading(loadReturn->loadReturn->ident,loadReturn->loadReturn->frame))
+         return;
+     
+     // Do the parsing on another thread since it can be slow
+     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+         [self->loadInterp dataForTile:loadReturn];
+         
+         [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
+     });
+ }
+
+
+- (void)cleanup
+{
+    ChangeSet changes;
+
+    loader->cleanup(changes);
+    [layer.layerThread addChangeRequests:changes];
+
+    loader = nil;
 }
 
 - (void)shutdown
 {
+    ChangeSet changes;
+    
     valid = false;
+    
     if (self->samplingLayer && self->samplingLayer.layerThread)
         [self performSelector:@selector(cleanup) onThread:self->samplingLayer.layerThread withObject:nil waitUntilDone:NO];
     
-    [viewC removeActiveObject:updater];
-    [viewC releaseSamplingLayer:samplingLayer forUser:self];
+    // Note: Put this back
+//    [viewC removeActiveObject:updater];
+    [viewC releaseSamplingLayer:samplingLayer forUser:loader];
     
-    params = nil;
-    frameInfos = nil;
-    updater = nil;
+//    updater = nil;
 }
 
 @end

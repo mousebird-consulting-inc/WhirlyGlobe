@@ -22,11 +22,19 @@
 #import "MaplyTileSourceNew.h"
 #import "QuadImageFrameLoader_iOS.h"
 
+// These are implemented by the layer on top of the loader
+@protocol QuadImageFrameLoaderLayer
+// Called on a random dispatch queue
+- (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data;
+// Called on a random dispatch queue
+- (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error;
+@end
+
 namespace WhirlyKit
 {
     
 class QuadImageFrameLoader_ios;
-
+    
 // We batch the cancels and other ops.
 // This is passed around to track that
 class QIFBatchOps_ios : public QIFBatchOps
@@ -88,12 +96,29 @@ protected:
 class QuadImageFrameLoader_ios : public QuadImageFrameLoader
 {
 public:
+    QuadImageFrameLoader_ios(const SamplingParams &params,NSArray<NSObject<MaplyTileInfoNew> *> *inFrameInfos);
+    
     NSObject<MaplyTileFetcher> * __weak tileFetcher;
     NSArray<NSObject<MaplyTileInfoNew> *> *frameInfos;
     
+    // Layer sitting on top of loader
+    NSObject<QuadImageFrameLoaderLayer> * __weak layer;
+
+    /// Number of frames we're representing
+    virtual int getNumFrames();
+    
+    // Contruct a platform specific BatchOps for passing to tile fetcher
+    // (we don't know about tile fetchers down here)
+    virtual QIFBatchOps *makeBatchOps();
+    
+    // Process whatever ops we batched up during the load phase
+    virtual void processBatchOps(QIFBatchOps *);
+    
 protected:
     // Make an iOS specific tile asset
-    virtual QIFTileAssetRef makeTileAsset();
+    virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident);
 };
+    
+typedef std::shared_ptr<QuadImageFrameLoader_ios> QuadImageFrameLoader_iosRef;
     
 }
