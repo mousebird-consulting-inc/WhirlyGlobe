@@ -36,6 +36,11 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (WhirlyKit::QuadDisplayControllerNewRef)getController
+{
+    return controller;
+}
+
 - (void)dealloc
 {
     controller = NULL;

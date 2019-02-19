@@ -971,6 +971,7 @@
 		2BE7E7B52214F1CF00E4EFBA /* QuadTileBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7952213979800815D9C /* QuadTileBuilder.cpp */; };
 		2BE7E7B9221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE7E7B8221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h */; };
 		2BE7E7BB221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7E7BA221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm */; };
+		2BE7E7BC221B99FA00E4EFBA /* MaplyQuadLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7A22216163A00815D9C /* MaplyQuadLoader.mm */; };
 		E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */; };
 		E56E02A71E11F99500C1DD85 /* GeoJSONSource.h in Headers */ = {isa = PBXBuildFile; fileRef = E56E02A61E11F99500C1DD85 /* GeoJSONSource.h */; };
 		E5D2D6631DE67B1400E02305 /* MaplyLocationTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = E5D2D6621DE67B1400E02305 /* MaplyLocationTracker.h */; };
@@ -4726,6 +4727,7 @@
 				2B82B6A01E82E24A0095FB14 /* pj_phi2.c in Sources */,
 				2BC3D6D62203ED9200CE91D0 /* MaplyTouchCancelAnimationDelegate.mm in Sources */,
 				2B884A5D1E3803170027C397 /* lasquadtree.cpp in Sources */,
+				2BE7E7BC221B99FA00E4EFBA /* MaplyQuadLoader.mm in Sources */,
 				2BC3D6C6220255EA00CE91D0 /* MapView_iOS.mm in Sources */,
 				2BB8E1EF21FF900600154CDC /* BasicDrawableInstance.cpp in Sources */,
 				2BE53AB51D249CAF00B60FAD /* SMCalloutView.m in Sources */,

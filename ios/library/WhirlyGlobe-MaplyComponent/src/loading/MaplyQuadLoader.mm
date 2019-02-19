@@ -34,7 +34,8 @@ using namespace WhirlyKit;
 - (id)init
 {
     self = [super init];
-    _frame = -1;
+    
+    loadReturn = QuadLoaderReturnRef(new QuadLoaderReturn());
     
     return self;
 }
@@ -93,7 +94,7 @@ using namespace WhirlyKit;
 
 - (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
 {
-    if (!layer || !layer.quadtree)
+    if (!layer)
         return kMaplyNullBoundingBox;
     
     MaplyBoundingBox bounds;
@@ -106,14 +107,13 @@ using namespace WhirlyKit;
 
 - (MaplyBoundingBoxD)geoBoundsForTileD:(MaplyTileID)tileID
 {
-    WhirlyKitQuadDisplayLayerNew *thisQuadLayer = layer;
-    if (!layer || !layer.quadtree)
+    if (!layer)
         return kMaplyNullBoundingBoxD;
     
     MaplyBoundingBoxD bounds;
-    MbrD mbrD = thisQuadLayer.quadtree->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
+    MbrD mbrD = [layer getController]->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
     
-    CoordSystem *wkCoordSys = thisQuadLayer.coordSys;
+    CoordSystem *wkCoordSys = [layer getController]->getCoordSys();
     Point2d pts[4];
     pts[0] = wkCoordSys->localToGeographicD(Point3d(mbrD.ll().x(),mbrD.ll().y(),0.0));
     pts[1] = wkCoordSys->localToGeographicD(Point3d(mbrD.ur().x(),mbrD.ll().y(),0.0));
@@ -147,13 +147,12 @@ using namespace WhirlyKit;
 
 - (MaplyBoundingBoxD)boundsForTileD:(MaplyTileID)tileID
 {
-    WhirlyKitQuadDisplayLayerNew *thisQuadLayer = layer;
-    if (!layer || !layer.quadtree)
+     if (!layer)
         return kMaplyNullBoundingBoxD;
     
     MaplyBoundingBoxD bounds;
     
-    MbrD mbrD = thisQuadLayer.quadtree->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
+    MbrD mbrD = [layer getController]->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
     bounds.ll = MaplyCoordinateDMake(mbrD.ll().x(), mbrD.ll().y());
     bounds.ur = MaplyCoordinateDMake(mbrD.ur().x(), mbrD.ur().y());
     

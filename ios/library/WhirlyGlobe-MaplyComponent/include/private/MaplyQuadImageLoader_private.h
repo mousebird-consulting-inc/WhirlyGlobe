@@ -25,7 +25,6 @@
 @interface MaplyQuadImageLoaderBase()
 {
 @public
-    MaplyQuadSamplingLayer *samplingLayer;
 }
 
 @end

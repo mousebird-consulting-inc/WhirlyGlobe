@@ -33,4 +33,6 @@
 /// Construct with a renderer and data source for the tiles
 - (nonnull)initWithController:(WhirlyKit::QuadDisplayControllerNewRef)controller;
 
+- (WhirlyKit::QuadDisplayControllerNewRef)getController;
+
 @end

@@ -57,6 +57,11 @@ QuadTreeNew *QuadDisplayControllerNew::getQuadTree()
     return this;
 }
     
+CoordSystem *QuadDisplayControllerNew::getCoordSys()
+{
+    return coordSys;
+}
+
 int QuadDisplayControllerNew::getMaxTiles()
 {
     return maxTiles;

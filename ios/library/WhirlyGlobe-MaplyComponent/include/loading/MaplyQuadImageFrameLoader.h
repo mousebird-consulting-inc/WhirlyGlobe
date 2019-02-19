@@ -63,8 +63,6 @@
 @interface MaplyImageLoaderInterpreter : NSObject<MaplyLoaderInterpreter>
 @end
 
-@class MaplyQuadImageLoaderBase;
-
 /**
  This loader interpreter sticks a designator in the middle of tiles
  and a line around the edge.  Nice for debugging.
@@ -72,7 +70,7 @@
 @interface MaplyOvlDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
 
 // Intialize with the loader we're using.  Need this for extents of tiles
-- (instancetype __nonnull)initWithLoader:(MaplyQuadImageLoaderBase * __nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
+- (instancetype __nonnull)initWithLoader:(MaplyQuadLoaderBase * __nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 @end
 
@@ -82,7 +80,7 @@
  */
 @interface MaplyDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
 
-- (instancetype __nonnull)initWithLoader:(MaplyQuadImageLoaderBase *__nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
+- (instancetype __nonnull)initWithLoader:(MaplyQuadLoaderBase *__nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
 
 @end
 
@@ -117,7 +115,7 @@
  
  You probably don't have to implement your own tile source.  Go look at the MaplyRemoteTileInfoNew and MaplyMBTileFetcher objects.  Those will do remote and local fetching.
  */
-@interface MaplyQuadImageFrameLoader : MaplyQuadImageLoaderBase
+@interface MaplyQuadImageFrameLoader : MaplyQuadLoaderBase
 
 /**
  Initialize with multiple tile sources (one per frame).

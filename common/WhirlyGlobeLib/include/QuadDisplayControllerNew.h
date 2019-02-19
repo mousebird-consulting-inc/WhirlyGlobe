@@ -119,6 +119,8 @@ public:
     SceneRendererES *getRenderer();
     /// Quad tree used for paging advice
     QuadTreeNew *getQuadTree();
+    /// Coordinate system we're using
+    CoordSystem *getCoordSys();
     
     /// Maximum number of tiles loaded in at once
     int getMaxTiles();

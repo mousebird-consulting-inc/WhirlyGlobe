@@ -97,6 +97,7 @@ class QuadImageFrameLoader_ios : public QuadImageFrameLoader
 {
 public:
     QuadImageFrameLoader_ios(const SamplingParams &params,NSArray<NSObject<MaplyTileInfoNew> *> *inFrameInfos);
+    ~QuadImageFrameLoader_ios();
     
     NSObject<MaplyTileFetcher> * __weak tileFetcher;
     NSArray<NSObject<MaplyTileInfoNew> *> *frameInfos;

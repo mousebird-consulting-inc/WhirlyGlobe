@@ -24,6 +24,7 @@
 #import "MaplyRenderTarget_private.h"
 #import "MaplyScreenLabel.h"
 #import "QuadImageFrameLoader_iOS.h"
+#import "MaplyQuadLoader_private.h"
 
 using namespace WhirlyKit;
 
@@ -44,11 +45,11 @@ using namespace WhirlyKit;
 @implementation MaplyOvlDebugImageLoaderInterpreter
 {
     MaplyBaseViewController * __weak viewC;
-    MaplyQuadImageLoaderBase * __weak loader;
+    MaplyQuadLoaderBase * __weak loader;
     UIFont *font;
 }
 
-- (id)initWithLoader:(MaplyQuadImageLoaderBase *)inLoader viewC:(MaplyBaseViewController *)inViewC
+- (id)initWithLoader:(MaplyQuadLoaderBase *)inLoader viewC:(MaplyBaseViewController *)inViewC
 {
     self = [super init];
     loader = inLoader;
@@ -96,7 +97,7 @@ using namespace WhirlyKit;
     MaplyBaseViewController * __weak viewC;
 }
 
-- (instancetype)initWithLoader:(MaplyQuadImageLoaderBase *)inLoader viewC:(MaplyBaseViewController *)inViewC
+- (instancetype)initWithLoader:(MaplyQuadLoaderBase *)inLoader viewC:(MaplyBaseViewController *)inViewC
 {
     self = [super init];
     
@@ -153,6 +154,8 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 }
 
 @end
+
+NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
 // Note: Put the animator back
 

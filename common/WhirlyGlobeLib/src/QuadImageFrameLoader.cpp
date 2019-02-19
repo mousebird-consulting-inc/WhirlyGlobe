@@ -24,6 +24,14 @@
 namespace WhirlyKit
 {
     
+QIFBatchOps::QIFBatchOps()
+{
+}
+
+QIFBatchOps::~QIFBatchOps()
+{
+}
+    
 QIFFrameAsset::QIFFrameAsset()
 : state(Empty), priority(0), importance(0.0), texID(EmptyIdentity)
 { }
@@ -416,13 +424,70 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
     }
 }
     
-//QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params)
-//: params(params), texType(GL_UNSIGNED_BYTE), shaderID(EmptyIdentity)
-//{
-//}
+QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params)
+: debugMode(false),
+    params(params),
+    texType(GL_UNSIGNED_BYTE), shaderID(EmptyIdentity),
+    baseDrawPriority(100), drawPriorityPerLevel(1),
+    color(RGBAColor(255,255,255,255)),
+    renderTargetID(EmptyIdentity),
+    control(NULL), builder(NULL),
+    changesSinceLastFlush(true)
+{
+}
     
 QuadImageFrameLoader::~QuadImageFrameLoader()
 {
+}
+    
+void QuadImageFrameLoader::setSamplingParams(const SamplingParams &inParams)
+{
+    params = inParams;
+}
+    
+void QuadImageFrameLoader::setDebugMode(bool newMode)
+{
+    debugMode = newMode;
+}
+    
+bool QuadImageFrameLoader::getDebugMode()
+{
+    return debugMode;
+}
+    
+void QuadImageFrameLoader::setColor(RGBAColor &inColor)
+{
+    color = inColor;
+}
+
+const RGBAColor &QuadImageFrameLoader::getColor()
+{
+    return color;
+}
+    
+void QuadImageFrameLoader::setRenderTarget(SimpleIdentity inRenderTargetID)
+{
+    renderTargetID = inRenderTargetID;
+}
+
+SimpleIdentity QuadImageFrameLoader::getRenderTarget()
+{
+    return renderTargetID;
+}
+    
+void QuadImageFrameLoader::setShaderID(SimpleIdentity inShaderID)
+{
+    shaderID = inShaderID;
+}
+
+SimpleIdentity QuadImageFrameLoader::getShaderID()
+{
+    return shaderID;
+}
+    
+void QuadImageFrameLoader::setTexType(GLenum inTexType)
+{
+    texType = inTexType;
 }
     
 QIFTileAssetRef QuadImageFrameLoader::addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes)
@@ -716,7 +781,7 @@ void QuadImageFrameLoader::builderPreSceneFlush(QuadTileBuilder *builder,ChangeS
 }
 
 /// Shutdown called on the layer thread if you stuff to clean up
-void builderShutdown(QuadTileBuilder *builder,ChangeSet &changes)
+void QuadImageFrameLoader::builderShutdown(QuadTileBuilder *builder,ChangeSet &changes)
 {
 }
 

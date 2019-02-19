@@ -138,6 +138,16 @@ void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,QIFBatchOps 
     }
     
 }
+    
+QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,NSArray<NSObject<MaplyTileInfoNew> *> *inFrameInfos)
+    : QuadImageFrameLoader(params), tileFetcher(nil), layer(nil)
+{
+    frameInfos = inFrameInfos;
+}
+    
+QuadImageFrameLoader_ios::~QuadImageFrameLoader_ios()
+{
+}
 
 QIFTileAssetRef QuadImageFrameLoader_ios::makeTileAsset(const QuadTreeNew::ImportantNode &ident)
 {
@@ -152,8 +162,6 @@ int QuadImageFrameLoader_ios::getNumFrames()
 QIFBatchOps *QuadImageFrameLoader_ios::makeBatchOps()
 {
     QIFBatchOps_ios *batchOps = new QIFBatchOps_ios();
-    batchOps->toCancel = [NSMutableArray array];
-    batchOps->toStart = [NSMutableArray array];
     
     return batchOps;
 }
