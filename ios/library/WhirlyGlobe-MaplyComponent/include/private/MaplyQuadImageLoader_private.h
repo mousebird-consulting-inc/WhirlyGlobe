@@ -24,7 +24,7 @@
 #import "MaplyQuadImageLoader.h"
 #import "QuadImageFrameLoader_iOS.h"
 
-@interface MaplyQuadImageLoaderBase()
+@interface MaplyQuadImageLoaderBase()<QuadImageFrameLoaderLayer>
 {
 @public
     bool valid;
@@ -38,5 +38,7 @@
 
 // We delay setup by a tick so the user can mess with settings
 - (bool)delayedInit;
+
+- (void)shutdown;
 
 @end

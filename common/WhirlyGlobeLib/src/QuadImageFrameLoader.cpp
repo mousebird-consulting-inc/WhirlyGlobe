@@ -427,8 +427,8 @@ void QIFRenderState::updateScene(Scene *scene,double curFrame,TimeInterval now,b
     }
 }
     
-QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params)
-: debugMode(false),
+QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mode)
+: mode(mode), debugMode(false),
     params(params),
     texType(GL_UNSIGNED_BYTE), curFrame(0.0), flipY(true), shaderID(EmptyIdentity),
     baseDrawPriority(100), drawPriorityPerLevel(1),
@@ -437,6 +437,11 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params)
     control(NULL), builder(NULL),
     changesSinceLastFlush(true)
 {
+}
+    
+QuadImageFrameLoader::Mode QuadImageFrameLoader::getMode()
+{
+    return mode;
 }
     
 QuadImageFrameLoader::~QuadImageFrameLoader()
@@ -569,6 +574,64 @@ void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSe
     }
     
     changesSinceLastFlush = true;
+}
+    
+// Figure out what needs to be on/off for the non-frame cases
+void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
+{
+    // Work through the tiles, figuring out textures and objects
+    for (auto tileIt : tiles) {
+        auto tileID = tileIt.first;
+        auto tile = tileIt.second;
+        
+        SimpleIdentity texID = EmptyIdentity;
+        QuadTreeNew::Node texNode = tile->getIdent();
+
+        // Look for a tile or parent tile that has a texture ID
+        do {
+            auto it = tiles.find(texNode);
+            if (it == tiles.end())
+                break;
+            auto parentTile = it->second;
+            auto parentFrame = parentTile->getFrame(0);
+            if (parentFrame && parentFrame->getTexID() != EmptyIdentity) {
+                // Got one, so stop
+                texID = parentFrame->getTexID();
+                texNode = parentTile->getIdent();
+                break;
+            }
+            
+            // Work our way up the hierarchy
+            if (texNode.level <= 0)
+                break;
+            texNode.level -= 1;
+            texNode.x /= 2;
+            texNode.y /= 2;
+        } while (texID == EmptyIdentity);
+
+        // Turn on the node and adjust the texture
+        // Note: Should cache this so we're not changing it every frame
+        if (texID) {
+            int relLevel = tileID.level - texNode.level;
+            int relX = tileID.x - texNode.x * (1<<relLevel);
+            int tileIDY = tileID.y;
+            int frameIdentY = texNode.y;
+            if (flipY) {
+                tileIDY = (1<<tileID.level)-tileIDY-1;
+                frameIdentY = (1<<texNode.level)-frameIdentY-1;
+            }
+            int relY = tileIDY - frameIdentY * (1<<relLevel);
+            
+            for (auto drawID : tile->getInstanceDrawIDs()) {
+                changes.push_back(new OnOffChangeRequest(drawID,true));
+                changes.push_back(new DrawTexChangeRequest(drawID,0,texID,0,0,relLevel,relX,relY));
+            }
+        } else {
+            for (auto drawID : tile->getInstanceDrawIDs()) {
+                changes.push_back(new OnOffChangeRequest(drawID,false));
+            }
+        }
+    }
 }
 
 // Build up the drawing state for use on the main thread
@@ -779,7 +842,14 @@ void QuadImageFrameLoader::builderPreSceneFlush(QuadTileBuilder *builder,ChangeS
     if (!changesSinceLastFlush)
         return;
     
-    buildRenderState(changes);
+    // For multi-frame we need to generate the state and hand it over to the main
+    //  thread which will pick out what it needs from the frames
+    if (mode == MultiFrame) {
+        buildRenderState(changes);
+    } else {
+        // For single frame (or object) mode we can just take action now
+        updateRenderState(changes);
+    }
     
     changesSinceLastFlush = false;
 }

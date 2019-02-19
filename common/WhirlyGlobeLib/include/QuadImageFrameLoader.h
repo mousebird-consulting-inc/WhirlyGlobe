@@ -214,8 +214,13 @@ public:
 class QuadImageFrameLoader : public QuadTileBuilderDelegate, public ActiveModel
 {
 public:
-    QuadImageFrameLoader(const SamplingParams &params);
+    typedef enum {SingleFrame,MultiFrame,Object} Mode;
+    
+    QuadImageFrameLoader(const SamplingParams &params,Mode);
     virtual ~QuadImageFrameLoader();
+
+    /// Loading mode we're currently supporting
+    Mode getMode();
     
     /// If set, we'll see way too much output
     void setDebugMode(bool newMode);
@@ -290,6 +295,9 @@ public:
     /// Builds the render state *and* send it over to the main thread via the scene changes
     void buildRenderState(ChangeSet &changes);
 
+    /// Update the rendering state from the layer thread.  Used in non-frame mode
+    void updateRenderState(ChangeSet &changes);
+    
     // Run on the layer thread.  Merge the loaded tile into the data.
     virtual void mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSet &changes);
 
@@ -306,6 +314,8 @@ protected:
     
     virtual void removeTile(const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes);
     QIFTileAssetRef addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes);
+    
+    Mode mode;
     
     bool debugMode;
     

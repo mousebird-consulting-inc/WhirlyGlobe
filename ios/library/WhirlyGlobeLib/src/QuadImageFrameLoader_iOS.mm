@@ -144,8 +144,19 @@ void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,QIFBatchOps 
     
 }
     
+QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params)
+: QuadImageFrameLoader(params,Object), frameInfos(nil)
+{
+}
+
+QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,NSObject<MaplyTileInfoNew> *inTileInfo)
+: QuadImageFrameLoader(params,SingleFrame), tileFetcher(nil), layer(nil)
+{
+    frameInfos = @[inTileInfo];
+}
+
 QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,NSArray<NSObject<MaplyTileInfoNew> *> *inFrameInfos)
-    : QuadImageFrameLoader(params), tileFetcher(nil), layer(nil)
+    : QuadImageFrameLoader(params,MultiFrame), tileFetcher(nil), layer(nil)
 {
     frameInfos = inFrameInfos;
 }
