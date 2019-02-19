@@ -262,9 +262,9 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     
     if (!tileFetcher) {
         tileFetcher = [viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
-        loader->tileFetcher = tileFetcher;
     }
-    
+    loader->tileFetcher = tileFetcher;
+
     samplingLayer = [viewC findSamplingLayer:params forUser:self->loader];
     // Do this again in case they changed them
     loader->setSamplingParams(params->params);
