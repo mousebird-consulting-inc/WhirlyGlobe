@@ -302,17 +302,16 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         NSLog(@"MaplyQuadImageFrameLoader only supports samplers with singleLevel set to true");
         return nil;
     }
+    self = [super init];
+
+    self->viewC = inViewC;
     params = inParams;
 
     // Loader does all the work.  The Obj-C version is just a wrapper
     self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params->params,frameInfos));
-
-    self->viewC = inViewC;
     
     self.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
     self.drawPriorityPerLevel = 100;
-    
-    self = [super init];
     
     self.flipY = true;
     self.debugMode = false;
@@ -322,34 +321,13 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         self->minLevel = std::min(self->minLevel,frameInfo.minZoom);
         self->maxLevel = std::max(self->maxLevel,frameInfo.maxZoom);
     }
-    self.imageFormat = MaplyImageIntRGBA;
-    self.borderTexel = 0;
-    self.color = [UIColor whiteColor];
     self->valid = true;
-    
-    MaplyQuadImageFrameLoader * __weak weakSelf = self;
-    
-    // Start things out after a delay
-    // This lets the caller mess with settings
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [weakSelf delayedInit];
-    });
     
     return self;
 }
 
-- (void)delayedInit
+- (bool)delayedInit
 {
-    if (!valid)
-        return;
-    
-    if (!viewC || !viewC->renderControl || !viewC->renderControl->scene)
-        return;
-    
-    if (!tileFetcher) {
-        tileFetcher = [viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
-        loader->tileFetcher = tileFetcher;
-    }
     if (!loadInterp) {
         loadInterp = [[MaplyImageLoaderInterpreter alloc] init];
     }
@@ -357,42 +335,11 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
     // Hook into the active updater to organize geometry for rendering
     viewC->renderControl->scene->addActiveModel(loader);
-    
-    samplingLayer = [viewC findSamplingLayer:params forUser:self->loader];
-    // Do this again in case they changed them
-    loader->setSamplingParams(params->params);
-    loader->setFlipY(self.flipY);
-    
-    // Sort out the texture format
-    switch (self.imageFormat) {
-        case MaplyImageIntRGBA:
-        case MaplyImage4Layer8Bit:
-        default:
-            loader->setTexType(GL_UNSIGNED_BYTE);
-            break;
-        case MaplyImageUShort565:
-            loader->setTexType(GL_UNSIGNED_SHORT_5_6_5);
-            break;
-        case MaplyImageUShort4444:
-            loader->setTexType(GL_UNSIGNED_SHORT_4_4_4_4);
-            break;
-        case MaplyImageUShort5551:
-            loader->setTexType(GL_UNSIGNED_SHORT_5_5_5_1);
-            break;
-        case MaplyImageUByteRed:
-        case MaplyImageUByteGreen:
-        case MaplyImageUByteBlue:
-        case MaplyImageUByteAlpha:
-        case MaplyImageUByteRGB:
-            loader->setTexType(GL_ALPHA);
-            break;
-    }
-    
-    if (loader->getShaderID() == EmptyIdentity) {
-        MaplyShader *theShader = [viewC getShaderByName:kMaplyShaderDefaultTriMultiTex];
-        if (theShader)
-            loader->setShaderID([theShader getShaderID]);
-    }
+
+    if (![super delayedInit])
+        return false;
+
+    return true;
 }
 
 - (void)setCurrentImage:(double)where

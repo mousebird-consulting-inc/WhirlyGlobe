@@ -40,10 +40,70 @@ using namespace WhirlyKit;
     _baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
     _drawPriorityPerLevel = 1;
     _color = [UIColor whiteColor];
-    _imageFormat = MaplyImage4Layer8Bit;
+    _imageFormat = MaplyImageIntRGBA;
     _borderTexel = 0;
     
+    MaplyQuadImageLoaderBase * __weak weakSelf = self;
+    
+    // Start things out after a delay
+    // This lets the caller mess with settings
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [weakSelf delayedInit];
+    });
+
     return self;
+}
+
+- (bool)delayedInit
+{
+    if (!valid)
+        return false;
+    
+    if (!viewC || !viewC->renderControl || !viewC->renderControl->scene)
+        return false;
+    
+    if (!tileFetcher) {
+        tileFetcher = [viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
+        loader->tileFetcher = tileFetcher;
+    }
+    
+    samplingLayer = [viewC findSamplingLayer:params forUser:self->loader];
+    // Do this again in case they changed them
+    loader->setSamplingParams(params->params);
+    loader->setFlipY(self.flipY);
+    
+    // Sort out the texture format
+    switch (self.imageFormat) {
+        case MaplyImageIntRGBA:
+        case MaplyImage4Layer8Bit:
+        default:
+            loader->setTexType(GL_UNSIGNED_BYTE);
+            break;
+        case MaplyImageUShort565:
+            loader->setTexType(GL_UNSIGNED_SHORT_5_6_5);
+            break;
+        case MaplyImageUShort4444:
+            loader->setTexType(GL_UNSIGNED_SHORT_4_4_4_4);
+            break;
+        case MaplyImageUShort5551:
+            loader->setTexType(GL_UNSIGNED_SHORT_5_5_5_1);
+            break;
+        case MaplyImageUByteRed:
+        case MaplyImageUByteGreen:
+        case MaplyImageUByteBlue:
+        case MaplyImageUByteAlpha:
+        case MaplyImageUByteRGB:
+            loader->setTexType(GL_ALPHA);
+            break;
+    }
+    
+    if (loader->getShaderID() == EmptyIdentity) {
+        MaplyShader *theShader = [viewC getShaderByName:kMaplyShaderDefaultTriMultiTex];
+        if (theShader)
+            loader->setShaderID([theShader getShaderID]);
+    }
+    
+    return true;
 }
 
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp
@@ -81,12 +141,12 @@ using namespace WhirlyKit;
 
 @implementation MaplyQuadImageLoader
 
-// Note: Implement these
-
 - (instancetype)initWithParams:(MaplySamplingParams *)params tileInfo:(NSObject<MaplyTileInfoNew> *)tileInfo viewC:(MaplyBaseViewController *)viewC
 {
     return nil;
 }
+
+// Note: Implement these
 
 - (instancetype)initWithParams:(MaplySamplingParams *)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *)tileInfos viewC:(MaplyBaseViewController *)viewC
 {
