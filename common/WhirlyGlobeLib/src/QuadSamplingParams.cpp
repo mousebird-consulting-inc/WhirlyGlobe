@@ -26,7 +26,7 @@ namespace WhirlyKit
 SamplingParams::SamplingParams()
     : coordSys(NULL),
     minZoom(0), maxZoom(0),
-    maxTiles(0),
+    maxTiles(128),
     minImportance(256*256), minImportanceTop(0.0),
     coverPoles(true), edgeMatching(true),
     tessX(10), tessY(10),

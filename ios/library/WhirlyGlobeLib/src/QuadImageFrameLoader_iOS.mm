@@ -104,13 +104,18 @@ void QIFFrameAsset_ios::loadFailed(QuadImageFrameLoader *loader)
     request = nil;
 }
     
-QIFTileAsset_ios::QIFTileAsset_ios(const QuadTreeNew::ImportantNode &ident, int numFrames)
-: QIFTileAsset(ident,numFrames)
+QIFTileAsset_ios::QIFTileAsset_ios(const QuadTreeNew::ImportantNode &ident)
+: QIFTileAsset(ident)
 {
 }
     
 QIFTileAsset_ios::~QIFTileAsset_ios()
 {
+}
+    
+QIFFrameAssetRef QIFTileAsset_ios::makeFrameAsset()
+{
+    return QIFFrameAssetRef(new QIFFrameAsset_ios());
 }
     
 void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps)
@@ -151,7 +156,9 @@ QuadImageFrameLoader_ios::~QuadImageFrameLoader_ios()
 
 QIFTileAssetRef QuadImageFrameLoader_ios::makeTileAsset(const QuadTreeNew::ImportantNode &ident)
 {
-    return QIFTileAssetRef(new QIFTileAsset_ios(ident,[frameInfos count]));
+    auto tileAsset = QIFTileAssetRef(new QIFTileAsset_ios(ident));
+    tileAsset->setupFrames([frameInfos count]);
+    return tileAsset;
 }
     
 int QuadImageFrameLoader_ios::getNumFrames()
@@ -173,8 +180,8 @@ void QuadImageFrameLoader_ios::processBatchOps(QIFBatchOps *inBatchOps)
     [tileFetcher cancelTileFetches:batchOps->toCancel];
     [tileFetcher startTileFetches:batchOps->toStart];
     
-    [batchOps->toCancel removeAllObjects];
-    [batchOps->toStart removeAllObjects];
+    batchOps->toCancel = nil;
+    batchOps->toStart = nil;
 }
 
 }

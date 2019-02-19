@@ -82,13 +82,15 @@ protected:
 class QIFTileAsset_ios : public QIFTileAsset
 {
 public:
-    QIFTileAsset_ios(const QuadTreeNew::ImportantNode &ident, int numFrames);;
+    QIFTileAsset_ios(const QuadTreeNew::ImportantNode &ident);;
     virtual ~QIFTileAsset_ios();
         
     // Fetch the tile frames.  Just fetch them all for now.
     virtual void startFetching(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
 
 protected:
+    // Specialized frame asset
+    virtual QIFFrameAssetRef makeFrameAsset();
 };
     
 // iOS version of the QuadFrameLoader
@@ -116,7 +118,7 @@ public:
     virtual void processBatchOps(QIFBatchOps *);
     
 protected:
-    // Make an iOS specific tile asset
+    // Make an iOS specific tile/frame assets
     virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident);
 };
     

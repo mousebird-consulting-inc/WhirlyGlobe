@@ -272,10 +272,12 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     
     if (!tileFetcher) {
         tileFetcher = [viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
+        loader->tileFetcher = tileFetcher;
     }
     if (!loadInterp) {
         loadInterp = [[MaplyImageLoaderInterpreter alloc] init];
     }
+    
 
     // Hook into the active updater to organize geometry for rendering
     viewC->renderControl->scene->addActiveModel(loader);

@@ -89,12 +89,15 @@ void QIFFrameAsset::loadFailed(QuadImageFrameLoader *loader)
 }
 
 
-QIFTileAsset::QIFTileAsset(const QuadTreeNew::ImportantNode &ident, int numFrames) : state(Waiting), shouldEnable(false), ident(ident), drawPriority(0)
+QIFTileAsset::QIFTileAsset(const QuadTreeNew::ImportantNode &ident) : state(Waiting), shouldEnable(false), ident(ident), drawPriority(0)
+{
+}
+    
+void QIFTileAsset::setupFrames(int numFrames)
 {
     frames.reserve(numFrames);
     for (unsigned int ii = 0; ii < numFrames; ii++) {
-        QIFFrameAssetRef frame(new QIFFrameAsset());
-        frames.push_back(frame);
+        frames.push_back(makeFrameAsset());
     }
 }
     
@@ -647,15 +650,6 @@ void QuadImageFrameLoader::setBuilder(QuadTileBuilder *inBuilder,QuadDisplayCont
 {
     builder = inBuilder;
     control = inControl;
-    
-    // Note: Put the active frame changer back
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        self->updater = [[MaplyQuadImageFrameLoaderUpdater alloc] init];
-//        self->updater.loader = self;
-//        [self->viewC addActiveObject:self->updater];
-//
-//        [self setCurrentImage:self->curFrame];
-//    });
 }
 
 /// Before we tell the delegate to unload tiles, see if they want to keep them around

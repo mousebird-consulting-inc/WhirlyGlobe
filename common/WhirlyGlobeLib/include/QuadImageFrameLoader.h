@@ -84,7 +84,8 @@ typedef std::shared_ptr<QIFFrameAsset> QIFFrameAssetRef;
 class QIFTileAsset
 {
 public:
-    QIFTileAsset(const QuadTreeNew::ImportantNode &ident, int numFrames);
+    QIFTileAsset(const QuadTreeNew::ImportantNode &ident);
+    void setupFrames(int numFrames);
     virtual ~QIFTileAsset();
     
     typedef enum {Waiting,Active} State;
@@ -134,6 +135,9 @@ public:
     virtual void frameFailed(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes);
     
 protected:
+    // Specialized frame asset
+    virtual QIFFrameAssetRef makeFrameAsset() = 0;
+
     State state;
     QuadTreeNew::ImportantNode ident;
     
@@ -290,7 +294,7 @@ public:
     virtual void mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSet &changes);
 
 protected:
-    // Construct a platform specific tile asset in the subclass
+    // Construct a platform specific tile/frame assets in the subclass
     virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident) = 0;
     
     // Contruct a platform specific BatchOps for passing to tile fetcher

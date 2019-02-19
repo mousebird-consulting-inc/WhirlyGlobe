@@ -107,6 +107,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
         sampleParams.minImportance = 1024.0*1024.0
 
         imageLayer = MaplyQuadImageFrameLoader(params: sampleParams, tileInfos: tileSources, viewC: baseVC)
+        imageLayer?.debugMode = true;
         if let varTarget = varTarget {
             imageLayer?.setRenderTarget(varTarget.renderTarget)
         }
