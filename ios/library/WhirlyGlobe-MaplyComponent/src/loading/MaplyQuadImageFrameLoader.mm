@@ -23,8 +23,81 @@
 #import "MaplyRenderTarget_private.h"
 #import "MaplyScreenLabel.h"
 #import "MaplyQuadImageLoader_private.h"
+#import "MaplyQuadLoader_private.h"
+#import "MaplyImageTile_private.h"
 
 using namespace WhirlyKit;
+
+@implementation MaplyImageLoaderReturn
+
+- (void)addImageTile:(MaplyImageTile *)image
+{
+    loadReturn->images.push_back(image->imageTile);
+}
+
+- (void)addImage:(UIImage *)image
+{
+    ImageTile_iOSRef imageTile = ImageTile_iOSRef(new ImageTile_iOS());
+    imageTile->type = MaplyImgTypeImage;
+    imageTile->components = 4;
+    imageTile->width = -1;
+    imageTile->height = -1;
+    imageTile->borderSize = 0;
+    imageTile->imageStuff = image;
+    
+    loadReturn->images.push_back(imageTile);
+}
+
+- (NSArray<MaplyImageTile *> *)getImages
+{
+    NSMutableArray *ret = [[NSMutableArray alloc] init];
+    for (auto imageTile : loadReturn->images) {
+        ImageTile_iOSRef imageTileiOS = std::dynamic_pointer_cast<ImageTile_iOS>(imageTile);
+        MaplyImageTile *imgTileObj = [[MaplyImageTile alloc] init];
+        imgTileObj->imageTile = imageTileiOS;
+        [ret addObject:imgTileObj];
+    }
+    
+    return ret;
+}
+
+- (void)addCompObjs:(NSArray<MaplyComponentObject *> *)compObjs
+{
+    for (MaplyComponentObject *compObj in compObjs)
+        loadReturn->compObjs.push_back(compObj->contents);
+}
+
+- (NSArray<MaplyComponentObject *> *)getCompObjs
+{
+    NSMutableArray *ret = [[NSMutableArray alloc] init];
+    for (auto compObj : loadReturn->compObjs) {
+        MaplyComponentObject *compObjWrap = [[MaplyComponentObject alloc] init];
+        compObjWrap->contents = compObj;
+        [ret addObject:compObjWrap];
+    }
+    
+    return ret;
+}
+
+- (void)addOvlCompObjs:(NSArray<MaplyComponentObject *> *)compObjs
+{
+    for (MaplyComponentObject *compObj in compObjs)
+        loadReturn->ovlCompObjs.push_back(compObj->contents);
+}
+
+- (NSArray<MaplyComponentObject *> *)getOvlCompObjs
+{
+    NSMutableArray *ret = [[NSMutableArray alloc] init];
+    for (auto compObj : loadReturn->ovlCompObjs) {
+        MaplyComponentObject *compObjWrap = [[MaplyComponentObject alloc] init];
+        compObjWrap->contents = compObj;
+        [ret addObject:compObjWrap];
+    }
+    
+    return ret;
+}
+
+@end
 
 @implementation MaplyImageLoaderInterpreter
 
@@ -218,6 +291,9 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
 @end
 
+@interface MaplyQuadImageFrameLoader()<QuadImageFrameLoaderLayer>
+@end
+
 @implementation MaplyQuadImageFrameLoader
 
 - (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)inParams tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)frameInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
@@ -277,7 +353,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     if (!loadInterp) {
         loadInterp = [[MaplyImageLoaderInterpreter alloc] init];
     }
-    
+    loader->layer = self;
 
     // Hook into the active updater to organize geometry for rendering
     viewC->renderControl->scene->addActiveModel(loader);
@@ -337,7 +413,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,frame);
     
     // Ask the interpreter to parse it
-    MaplyLoaderReturn *loadData = [[MaplyLoaderReturn alloc] init];
+    MaplyImageLoaderReturn *loadData = [[MaplyImageLoaderReturn alloc] init];
     loadData.tileID = tileID;
     loadData.frame = frame;
     [loadData addTileData:data];
