@@ -19,7 +19,7 @@ Unfortunately binary builds are currently broken for iOS.  Apple changed the sig
 
 For Android, you can use the AAR and we discuss how in [the Android tutorial](https://mousebird.github.io/WhirlyGlobe/tutorial/android/building-from-nightly.html).
 
-[Android 2.2 AAR](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_6_2.aar)
+[Android 2.6 AAR](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_6_2.aar)
 
 
 ### Version 2.5
