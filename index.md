@@ -76,35 +76,17 @@ It's big, but it's also friendly.  You develop with the native tools on each pla
 
 The iOS version, for iPhone and Android is the most mature.  Android is coming along nicely with the 2D map (Maply) ported first.
 
-## Videos
+## Video
 
-Check out what the SDK can do.  Here are a couple of short videos showing off the globe and the map, respectively.
+WhirlyGlobe-Maply is all about the apps, so check out some of the amazing apps we're in.
 
-<div class="row">
-  <div class="col-sm-6">
+<div>
     <div class="embed-responsive embed-responsive-4by3">
-      <iframe src="http://www.youtube.com/embed/rprzbSwqE2Y?feature=player_embedded" allowfullscreen></iframe>
+      <iframe src="http://www.youtube.com/embed/VNWt-DUdBiY?feature=player_embedded" allowfullscreen></iframe>
     </div>
-    <div class="video-caption">
-      <h2>WhirlyGlobe 2.2</h2>
-      <p>
-        WhirlyGlobe refers to the 3D interactive globe part of the toolkit. It shares most of its code with the Maply part.
-      </p>
-    </div>
-  </div>
-
-  <div class="col-sm-6">
-    <div class="embed-responsive embed-responsive-4by3">
-      <iframe src="https://www.youtube.com/embed/YTBSl4Cok9A?feature=player_embedded" allowfullscreen></iframe>
-    </div>
-    <div class="video-caption">
-      <h2>Maply 2.2</h2>
-      <p>
-        The Maply part of the toolkit refers to the 2D slippy map.
-      </p>
-    </div>
-  </div>
 </div>
+
+WhirlyGlobe refers to the 3D interactive globe part of the toolkit and Maply is the 2D map.  They share the same core renderer.
 
 ## Documentation and Resources
 
