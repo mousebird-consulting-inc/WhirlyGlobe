@@ -1,5 +1,5 @@
 /*
- *  MaplyLineAndPointShaders_private.h
+ *  LineAndPointShaders.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 8/21/18.
@@ -18,9 +18,7 @@
  *
  */
 
-#import <UIKit/UIKit.h>
-#import "MaplyShader.h"
-#import <WhirlyGlobe.h>
+#import "OpenGLES2Program.h"
 
 namespace WhirlyKit
 {

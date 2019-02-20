@@ -67,3 +67,5 @@
 #import "ImageTile.h"
 #import "QuadSamplingParams.h"
 #import "QuadSamplingController.h"
+#import "LineAndPointShaders.h"
+#import "TriangleShaders.h"

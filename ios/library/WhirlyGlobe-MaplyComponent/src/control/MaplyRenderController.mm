@@ -22,8 +22,6 @@
 #import "MaplyBaseInteractionLayer_private.h"
 #import "NSData+Zlib.h"
 #import "NSDictionary+StyleRules.h"
-#import "MaplyLineAndPointShaders_private.h"
-#import "MaplyTriangleShaders_private.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;

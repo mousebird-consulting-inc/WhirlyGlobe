@@ -1,5 +1,5 @@
 /*
- *  MaplyLineAndPointShaders.mm
+ *  LineAndPointShaders.cpp
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 8/21/18.
@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyLineAndPointShaders_private.h"
+#import "LineAndPointShaders.h"
 
 namespace WhirlyKit
 {

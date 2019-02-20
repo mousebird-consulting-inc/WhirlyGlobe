@@ -1,5 +1,5 @@
 /*
- *  MaplyTriangleShaders.mm
+ *  TriangleShaders.cpp
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 8/21/18.
@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyTriangleShaders_private.h"
+#import "TriangleShaders.h"
 
 namespace WhirlyKit
 {
