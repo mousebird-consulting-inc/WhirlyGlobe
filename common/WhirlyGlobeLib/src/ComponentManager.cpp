@@ -114,6 +114,7 @@ void ComponentManager::removeComponentObject(SimpleIdentity compID,ChangeSet &ch
             wkLogLevel(Warn,"Tried to delete object that doesn't exist");
             return;
         }
+        compObj = *it;
         
         if (compObj->underConstruction) {
             wkLogLevel(Warn,"Deleting an object that's under construction");
@@ -171,6 +172,7 @@ void ComponentManager::enableComponentObject(SimpleIdentity compID,bool enable,C
         wkLogLevel(Warn,"Tried to enable/disable object that doesn't exist");
         return;
     }
+    compObj = *it;
     
     if (compObj->underConstruction) {
         wkLogLevel(Warn,"Disable/enabled an object that's under construction");

@@ -60,7 +60,7 @@ public:
     void setTargetTexture(TextureBase *tex);
     
     /// Copy the data out of the destination texture and return it
-//    NSData *snapshot();
+    RawDataRef snapshot();
     
     /// OpenGL ES Name for the frame buffer
     GLuint framebuffer;
@@ -294,6 +294,9 @@ public:
     
     /// Stop rendering to the matching render target
     void removeRenderTarget(SimpleIdentity targetID);
+    
+    /// Called before we present the render buffer.  Can do snapshot logic here.
+    virtual void snapshotCallback() { };
 
 public:
     // Possible post-target creation init

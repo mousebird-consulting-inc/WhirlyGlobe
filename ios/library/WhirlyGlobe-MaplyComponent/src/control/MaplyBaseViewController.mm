@@ -36,7 +36,6 @@ using namespace WhirlyKit;
 @implementation MaplySelectedObject
 @end
 
-#if 0
 // Target for screen snapshot
 @interface SnapshotTarget : NSObject<WhirlyKitSnapshot>
 @property (nonatomic) UIImage *image;
@@ -66,7 +65,6 @@ using namespace WhirlyKit;
 }
 
 @end
-#endif
 
 @implementation MaplyBaseViewController
 {
@@ -1542,17 +1540,16 @@ static const float PerfOutputDelay = 15.0;
     return (float)visualView->heightForMapScale(scale,frameSize);
 }
 
-#if 0
 - (UIImage *)snapshot
 {
     if (!renderControl)
         return nil;
     
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
-    renderControl->sceneRenderer.snapshotDelegate = target;
+    renderControl->sceneRenderer->setSnapshotDelegate(target);
     
-    [renderControl->sceneRenderer forceDrawNextFrame];
-    [renderControl->sceneRenderer render:0.0];
+    renderControl->sceneRenderer->forceDrawNextFrame();
+    renderControl->sceneRenderer->render(0.0);
     
     return target.image;
 }
@@ -1564,14 +1561,13 @@ static const float PerfOutputDelay = 15.0;
 
     SnapshotTarget *target = [[SnapshotTarget alloc] init];
     target.renderTargetID = renderTarget.renderTargetID;
-    renderControl->sceneRenderer.snapshotDelegate = target;
+    renderControl->sceneRenderer->setSnapshotDelegate(target);
     
-    [renderControl->sceneRenderer forceDrawNextFrame];
-    [renderControl->sceneRenderer render:0.0];
-    
+    renderControl->sceneRenderer->forceDrawNextFrame();
+    renderControl->sceneRenderer->render(0.0);
+
     return target.data;
 }
-#endif
 
 - (float)currentMapZoom:(MaplyCoordinate)coordinate
 {

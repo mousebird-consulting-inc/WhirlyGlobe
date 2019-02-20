@@ -137,8 +137,7 @@ void RenderTarget::setTargetTexture(TextureBase *tex)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
     
-#if 0
-NSData *RenderTarget::snapshot()
+RawDataRef RenderTarget::snapshot()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     CheckGLError("SceneRendererES2: glBindFramebuffer");
@@ -150,13 +149,12 @@ NSData *RenderTarget::snapshot()
     GLubyte* pixels = (GLubyte*) malloc(len);
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
     
-    NSData *data = [[NSData alloc] initWithBytesNoCopy:pixels length:len];
+    RawDataWrapper *rawData = new RawDataWrapper(pixels,len,true);
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
-    return data;
+    return RawDataRef(rawData);
 }
-#endif
 
 bool RenderTarget::initFromState(int inWidth,int inHeight)
 {

@@ -743,6 +743,8 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
             bufferSize += tris.size()*sizeof(Triangle);
         }
         sharedBuffer = memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
+        if (!sharedBuffer)
+            wkLogLevel(Error, "Empty buffer in BasicDrawable::setupGL()");
         sharedBufferOffset = 0;
         sharedBufferIsExternal = false;
     }

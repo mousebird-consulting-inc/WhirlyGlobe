@@ -34,8 +34,7 @@
  
     This Render Controller is used for offline rendering.
   */
-// Note: Put Screenshot functionality back
-@interface MaplyRenderController()
+@interface MaplyRenderController()<WhirlyKitSnapshot>
 {
 @public
     // Scene renderer... renders the scene

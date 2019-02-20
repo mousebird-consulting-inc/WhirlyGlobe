@@ -21,15 +21,29 @@
 #import <UIKit/UIKit.h>
 #import "SceneRendererES2.h"
 
+/// Fill this in to get a view snapshot on the next draw
+@protocol WhirlyKitSnapshot
+/// Rerturn the render target to snapshot.  EmptyIdentity for the screen.
+- (WhirlyKit::SimpleIdentity)renderTargetID;
+/// Called when the snapshot is taken
+- (void)snapshotImage:(UIImage *)image;
+/// Called with the raw image data
+- (void)snapshotData:(NSData *)data;
+@end
+
 namespace WhirlyKit {
 
 /** SceneRenderer - iOS version
  
     This allocates and manages the context.
   */
-class SceneRendererES_iOS : public SceneRendererES2 {
+class SceneRendererES_iOS : public SceneRendererES2
+{
 public:
+    /// Create for use on the screen
     SceneRendererES_iOS();
+    /// Create for rendering to a texture
+    SceneRendererES_iOS(int width,int height);
     virtual ~SceneRendererES_iOS();
 
     /// Set the current OpenGL ES context if there is one
@@ -47,9 +61,16 @@ public:
     /// Present the render buffer
     virtual void presentRender();
     
+    /// Run the snapshot logic
+    virtual void snapshotCallback();
+    
+    /// Want a snapshot, set up this delegate
+    void setSnapshotDelegate(NSObject<WhirlyKitSnapshot> *);
+    
 protected:
     CAEAGLLayer * __weak layer;
     EAGLContext *context;
+    NSObject<WhirlyKitSnapshot> *snapshotDelegate;
 };
     
 typedef std::shared_ptr<SceneRendererES_iOS> SceneRendererES_iOSRef;

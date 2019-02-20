@@ -63,8 +63,7 @@ using namespace Eigen;
     scene = new Maply::MapScene(coordAdapter.get());
 
     // Set up the renderer with a target size
-    sceneRenderer = SceneRendererES_iOSRef(new SceneRendererES_iOS());
-    sceneRenderer->setup(3,size.width,size.height);
+    sceneRenderer = SceneRendererES_iOSRef(new SceneRendererES_iOS((int)size.width,(int)size.height));
     sceneRenderer->zBufferMode = zBufferOffDefault;
     sceneRenderer->setScene(scene);
     sceneRenderer->theView = flatView.get();
@@ -143,31 +142,41 @@ using namespace Eigen;
     return screenDrawPriorityOffset;
 }
 
-#if 0
 - (UIImage *)renderToImage
 {
-    sceneRenderer.snapshotDelegate = self;
-    [sceneRenderer render:0.0];
+    EAGLContext *oldContext = [EAGLContext currentContext];
+
+    [self useGLContext];
+
+    sceneRenderer->setSnapshotDelegate(self);
+    sceneRenderer->render(0.0);
     
     UIImage *toRet = snapshotImage;
     snapshotImage = nil;
     snapshotData = nil;
+    
+    [EAGLContext setCurrentContext:oldContext];
     
     return toRet;
 }
 
 - (NSData *)renderToImageData
 {
-    sceneRenderer.snapshotDelegate = self;
-    [sceneRenderer render:0.0];
+    EAGLContext *oldContext = [EAGLContext currentContext];
+
+    [self useGLContext];
+
+    sceneRenderer->setSnapshotDelegate(self);
+    sceneRenderer->render(0.0);
     
     NSData *toRet = snapshotData;
     snapshotImage = nil;
     snapshotData = nil;
+
+    [EAGLContext setCurrentContext:oldContext];
     
     return toRet;
 }
-#endif
 
 - (void) useGLContext
 {
