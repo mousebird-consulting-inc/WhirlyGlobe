@@ -69,3 +69,4 @@
 #import "QuadSamplingController.h"
 #import "LineAndPointShaders.h"
 #import "TriangleShaders.h"
+#import "VectorObject.h"

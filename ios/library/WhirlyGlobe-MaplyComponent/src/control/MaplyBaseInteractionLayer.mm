@@ -1644,10 +1644,10 @@ public:
             } else
                 [newVecObj subdivideToGlobe:eps];
 
-            shapes.insert(newVecObj.shapes.begin(),newVecObj.shapes.end());
+            shapes.insert(newVecObj->vObj->shapes.begin(),newVecObj->vObj->shapes.end());
         } else
             // We'll just reference it
-            shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
+            shapes.insert(vecObj->vObj->shapes.begin(),vecObj->vObj->shapes.end());
     }
     
     if (makeVisible)
@@ -1768,10 +1768,10 @@ public:
             } else
                 [newVecObj subdivideToGlobe:eps];
 
-            shapes.insert(newVecObj.shapes.begin(),newVecObj.shapes.end());
+            shapes.insert(newVecObj->vObj->shapes.begin(),newVecObj->vObj->shapes.end());
         } else
             // We'll just reference it
-            shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
+            shapes.insert(vecObj->vObj->shapes.begin(),vecObj->vObj->shapes.end());
     }
     
     WideVectorManager *vectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
@@ -2651,7 +2651,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     ShapeSet shapes;
     for (MaplyVectorObject *vecObj in vectors)
-        shapes.insert(vecObj.shapes.begin(),vecObj.shapes.end());
+        shapes.insert(vecObj->vObj->shapes.begin(),vecObj->vObj->shapes.end());
 
     ChangeSet changes;
     LoftManager *loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);

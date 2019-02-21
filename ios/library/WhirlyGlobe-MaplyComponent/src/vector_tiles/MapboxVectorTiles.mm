@@ -39,6 +39,7 @@
 #import "VectorData.h"
 #import "MapnikStyleSet.h"
 #import "MaplyRenderController_private.h"
+#import "Dictionary_NSDictionary.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -350,7 +351,7 @@ static double MAX_EXTENT = 20037508.342789244;
                     NSLog(@"Error parsing feature");
                 }
               
-                if(vecObj.shapes.size() > 0) {
+                if(vecObj->vObj->shapes.size() > 0) {
                     if (vecObjs)
                         [vecObjs addObject:vecObj];
                     for(NSObject<MaplyVectorStyle> *style in styles) {
@@ -362,7 +363,8 @@ static double MAX_EXTENT = 20037508.342789244;
                         [featuresForStyle addObject:vecObj];
                     }
                 }
-                vecObj.attributes = attributes;
+                MutableDictionaryRef dict(new iosMutableDictionary(attributes));
+                vecObj->vObj->setAttributes(dict);
             } //end of iterating features
         }//end of itterating layers
     } else {

@@ -70,6 +70,7 @@ public:
     // Assignment operator
     virtual iosMutableDictionary &operator = (const iosMutableDictionary &that);
     virtual ~iosMutableDictionary();
+    virtual MutableDictionaryRef copy();
 
     /// Returns true if the field exists
     bool hasField(const std::string &name) const;
@@ -113,5 +114,7 @@ public:
 public:
     NSMutableDictionary *dict;
 };
+    
+typedef std::shared_ptr<iosMutableDictionary> iosMutableDictionaryRef;
     
 }

@@ -35,7 +35,7 @@ class Dictionary
 public:
     Dictionary();
     virtual ~Dictionary() { };
-    
+
     /// Returns true if the field exists
     virtual bool hasField(const std::string &name) const = 0;
     
@@ -59,7 +59,10 @@ public:
 };
     
 typedef std::shared_ptr<Dictionary> DictionaryRef;
-    
+
+class MutableDictionary;
+typedef std::shared_ptr<MutableDictionary> MutableDictionaryRef;
+
 /// This version of the dictionary can be modified
 class MutableDictionary : public Dictionary
 {
@@ -68,6 +71,8 @@ public:
     // Assignment operator
     virtual MutableDictionary &operator = (const MutableDictionary &that) { return *this; };
     virtual ~MutableDictionary() { };
+    // Make a separate copy of this dictionary
+    virtual MutableDictionaryRef copy() = 0;
 
     /// Clean out the contents
     virtual void clear() = 0;
@@ -88,8 +93,6 @@ public:
     virtual void addEntries(const Dictionary *other) = 0;
 };
     
-typedef std::shared_ptr<MutableDictionary> MutableDictionaryRef;
-
 /// Builds a platform appropriate mutable dictionary
 extern MutableDictionaryRef MutableDictionaryMake();
     

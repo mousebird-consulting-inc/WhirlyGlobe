@@ -141,8 +141,9 @@ using namespace WhirlyKit;
                 }
                 [featuresForStyle addObjectsFromArray:vectorObjs];
             }
+            iosMutableDictionaryRef attrDict(new iosMutableDictionary(attributes));
             for (MaplyVectorObject *vecObj in vectorObjs) {
-                vecObj.attributes = attributes;
+                vecObj->vObj->setAttributes(attrDict);
             }
             
         }

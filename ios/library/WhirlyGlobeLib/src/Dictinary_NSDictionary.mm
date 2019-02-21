@@ -175,6 +175,11 @@ iosMutableDictionary::~iosMutableDictionary()
     dict = nil;
 }
     
+MutableDictionaryRef iosMutableDictionary::copy()
+{
+    return iosMutableDictionaryRef(new iosMutableDictionary(dict));
+}
+    
 /// Returns true if the field exists
 bool iosMutableDictionary::hasField(const std::string &name) const
 {

@@ -22,9 +22,7 @@
 #import "VectorData.h"
 #import "ShapeReader.h"
 #import "WhirlyKitLog.h"
-#ifndef MAPLYMINIMAL
 #import "libjson.h"
-#endif
 
 namespace WhirlyKit
 {
@@ -783,7 +781,6 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
 }
 #endif
 
-#ifndef MAPLYMINIMAL
 using namespace libjson;
     
 // Parse properties out of a node
@@ -1180,6 +1177,5 @@ bool VectorParseGeoJSONAssembly(const std::string &str,std::map<std::string,Shap
     
     return true;
 }
-    
-#endif
+
 }

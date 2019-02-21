@@ -83,6 +83,8 @@
 		2B73D6C2207D224100AF5095 /* MaplyQuadImageLoader_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B73D6C1207D224100AF5095 /* MaplyQuadImageLoader_private.h */; };
 		2B7B84D821223F0300D11447 /* MaplyTextureAtlas_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84D721223F0200D11447 /* MaplyTextureAtlas_private.h */; };
 		2B7B84DA2122403700D11447 /* MaplyTapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84D92122403700D11447 /* MaplyTapMessage.h */; };
+		2B810091221E07EE00CFF779 /* VectorObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B810090221E07EE00CFF779 /* VectorObject.h */; };
+		2B810093221E080700CFF779 /* VectorObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B810092221E080700CFF779 /* VectorObject.cpp */; };
 		2B82B5DF1E82E2490095FB14 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3B71E82E2490095FB14 /* glues.h */; };
 		2B82B5E11E82E2490095FB14 /* dict-list.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3B91E82E2490095FB14 /* dict-list.h */; };
 		2B82B5E31E82E2490095FB14 /* dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3BB1E82E2490095FB14 /* dict.h */; };
@@ -1122,6 +1124,8 @@
 		2B7B84D92122403700D11447 /* MaplyTapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapMessage.h; sourceTree = "<group>"; };
 		2B7B84DB2122404200D11447 /* MaplyTapMessage.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTapMessage.mm; sourceTree = "<group>"; };
 		2B7B84DD2122404A00D11447 /* MaplyTextureAtlas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTextureAtlas.mm; sourceTree = "<group>"; };
+		2B810090221E07EE00CFF779 /* VectorObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VectorObject.h; path = ../../../../common/WhirlyGlobeLib/include/VectorObject.h; sourceTree = "<group>"; };
+		2B810092221E080700CFF779 /* VectorObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorObject.cpp; path = ../../../../common/WhirlyGlobeLib/src/VectorObject.cpp; sourceTree = "<group>"; };
 		2B82B3B71E82E2490095FB14 /* glues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues.h; path = ../../../common/local_libs/glues/source/glues.h; sourceTree = "<group>"; };
 		2B82B3B91E82E2490095FB14 /* dict-list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "dict-list.h"; sourceTree = "<group>"; };
 		2B82B3BA1E82E2490095FB14 /* dict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dict.c; sourceTree = "<group>"; };
@@ -2083,6 +2087,7 @@
 				2B446B8C21FB99C00078A975 /* ScreenImportance.h */,
 				2B446AF521F79A5F0078A975 /* Tesselator.h */,
 				2B446B7A21FB948B0078A975 /* VectorData.h */,
+				2B810090221E07EE00CFF779 /* VectorObject.h */,
 				2B446AF221F79A5F0078A975 /* WhirlyGeometry.h */,
 				2B446AF621F79A5F0078A975 /* WhirlyOctEncoding.h */,
 				2B446AF721F79A5F0078A975 /* WhirlyVector.h */,
@@ -2099,6 +2104,7 @@
 				2B446B8E21FB99D60078A975 /* ScreenImportance.cpp */,
 				2B446B0821F79AD00078A975 /* Tesselator.cpp */,
 				2B446B7C21FB94A00078A975 /* VectorData.cpp */,
+				2B810092221E080700CFF779 /* VectorObject.cpp */,
 				2B446B0D21F79AD00078A975 /* WhirlyGeometry.cpp */,
 				2B446B0A21F79AD00078A975 /* WhirlyOctEncoding.cpp */,
 				2B446B0E21F79AD00078A975 /* WhirlyVector.cpp */,
@@ -4071,6 +4077,7 @@
 				2BE538351D249A1200B60FAD /* NSDictionary+StyleRules.h in Headers */,
 				2B82B5F71E82E2490095FB14 /* tessmono.h in Headers */,
 				2BB8A3F621ED43D10025DA98 /* MaplyPinchDelegate.h in Headers */,
+				2B810091221E07EE00CFF779 /* VectorObject.h in Headers */,
 				2BE5383F1D249A1200B60FAD /* MaplyGeomModel_private.h in Headers */,
 				2B884A791E3803170027C397 /* mydefs.hpp in Headers */,
 				2BE539671D249BEF00B60FAD /* AAKepler.h in Headers */,
@@ -4582,6 +4589,7 @@
 				2B82B6501E82E2490095FB14 /* PJ_chamb.c in Sources */,
 				2B23133021F936CD006AA344 /* RawData.cpp in Sources */,
 				2BBC3389221746850038A229 /* ComponentManager_iOS.mm in Sources */,
+				2B810093221E080700CFF779 /* VectorObject.cpp in Sources */,
 				2BE1E76F220A6B6700815D9C /* MapboxVectorStyleRaster.mm in Sources */,
 				2B82B6741E82E24A0095FB14 /* PJ_igh.c in Sources */,
 				2BEDE107221CDC50008C7B74 /* LineAndPointShaders.cpp in Sources */,
