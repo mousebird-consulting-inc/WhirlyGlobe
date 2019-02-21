@@ -26,7 +26,7 @@
 #import "LoftManager.h"
 #import "MarkerManager.h"
 #import "ParticleSystemManager.h"
-//#import "SceneGraphManager.h"
+#import "SceneGraphManager.h"
 #import "ShapeManager.h"
 //#import "SphericalEarthChunkManager.h"
 #import "VectorManager.h"

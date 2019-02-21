@@ -23,9 +23,6 @@
 #import "WhirlyVector.h"
 #import "Identifiable.h"
 #import "BasicDrawable.h"
-#import "Generator.h"
-#import "LayerViewWatcher.h"
-#import "DynamicDrawableAtlas.h"
 #import "Scene.h"
 
 namespace WhirlyKit
@@ -108,10 +105,10 @@ public:
 };
 
 // Manages a scene graph
-class SceneGraphManager : public WhirlyKit::Generator
+class SceneGraphManager : DelayedDeletable
 {
 public:
-    SceneGraphManager(DynamicDrawableAtlas *drawAtlas);
+    SceneGraphManager();
     virtual ~SceneGraphManager();
     
     /// Add a drawable to be referenced by the scenegraph
@@ -128,7 +125,7 @@ public:
     
     /// Run the position calculations and update what we'll display.
     /// The changes need to be flushed by the caller
-    void update(ViewState *viewState,ChangeSet &changes);
+    void update(ViewStateRef viewState,ChangeSet &changes);
     
     /// Print out stats for debugging
     void dumpStats();
@@ -147,10 +144,7 @@ protected:
     std::set<BasicDrawable *,IdentifiableSorter> drawables;
     
     // Drawables that are currently being drawn
-    SimpleIDSet activeDrawIDs;
-    
-    // Drawable atlas we used to draw this stuff
-    DynamicDrawableAtlas *drawAtlas;
+    SimpleIDSet activeDrawIDs;    
 };
 
 }

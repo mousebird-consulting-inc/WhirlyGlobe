@@ -55,8 +55,6 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr)
 
     coordAdapter = adapter;
     
-//    dispatchQueue = dispatch_queue_create("WhirlyKit Scene", 0);
-
     // Selection manager is used for object selection from any thread
     addManager(kWKSelectionManager,new SelectionManager(this,DeviceScreenScale()));
     // Intersection handling
