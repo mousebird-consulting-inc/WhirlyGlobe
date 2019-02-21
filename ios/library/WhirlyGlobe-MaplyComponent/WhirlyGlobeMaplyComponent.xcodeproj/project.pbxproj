@@ -87,6 +87,8 @@
 		2B810093221E080700CFF779 /* VectorObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B810092221E080700CFF779 /* VectorObject.cpp */; };
 		2B810095221E2C3600CFF779 /* SceneGraphManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B810094221E2C3600CFF779 /* SceneGraphManager.cpp */; };
 		2B810096221E2E2100CFF779 /* SphericalEarthChunkManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F2021F158EB00EF2A82 /* SphericalEarthChunkManager.cpp */; };
+		2B810099221F234D00CFF779 /* MaplyQuadPagingLoader.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B810098221F234D00CFF779 /* MaplyQuadPagingLoader.h */; };
+		2B81009B221F236B00CFF779 /* MaplyQuadPagingLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B81009A221F236B00CFF779 /* MaplyQuadPagingLoader.mm */; };
 		2B82B5DF1E82E2490095FB14 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3B71E82E2490095FB14 /* glues.h */; };
 		2B82B5E11E82E2490095FB14 /* dict-list.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3B91E82E2490095FB14 /* dict-list.h */; };
 		2B82B5E31E82E2490095FB14 /* dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3BB1E82E2490095FB14 /* dict.h */; };
@@ -1129,6 +1131,8 @@
 		2B810090221E07EE00CFF779 /* VectorObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VectorObject.h; path = ../../../../common/WhirlyGlobeLib/include/VectorObject.h; sourceTree = "<group>"; };
 		2B810092221E080700CFF779 /* VectorObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorObject.cpp; path = ../../../../common/WhirlyGlobeLib/src/VectorObject.cpp; sourceTree = "<group>"; };
 		2B810094221E2C3600CFF779 /* SceneGraphManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SceneGraphManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/SceneGraphManager.cpp; sourceTree = "<group>"; };
+		2B810098221F234D00CFF779 /* MaplyQuadPagingLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyQuadPagingLoader.h; sourceTree = "<group>"; };
+		2B81009A221F236B00CFF779 /* MaplyQuadPagingLoader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyQuadPagingLoader.mm; sourceTree = "<group>"; };
 		2B82B3B71E82E2490095FB14 /* glues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues.h; path = ../../../common/local_libs/glues/source/glues.h; sourceTree = "<group>"; };
 		2B82B3B91E82E2490095FB14 /* dict-list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "dict-list.h"; sourceTree = "<group>"; };
 		2B82B3BA1E82E2490095FB14 /* dict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dict.c; sourceTree = "<group>"; };
@@ -2893,6 +2897,7 @@
 			isa = PBXGroup;
 			children = (
 				2BBC3395221C6F230038A229 /* MaplyQuadImageLoader.mm */,
+				2B81009A221F236B00CFF779 /* MaplyQuadPagingLoader.mm */,
 				2BE537AF1D249A1200B60FAD /* MaplyImageTile.mm */,
 				2BB8A3AD21ED43770025DA98 /* MaplyTileSourceNew.mm */,
 				2B8E608E20D4800000FB96F0 /* MaplyRemoteTileFetcher.mm */,
@@ -3121,6 +3126,7 @@
 				2BE537321D249A1200B60FAD /* MaplyImageTile.h */,
 				2BBC3393221C6F000038A229 /* MaplyQuadImageLoader.h */,
 				2BB8A3CC21ED43A40025DA98 /* MaplyQuadImageFrameLoader.h */,
+				2B810098221F234D00CFF779 /* MaplyQuadPagingLoader.h */,
 				2BB8A3C921ED43A30025DA98 /* MaplyTileSourceNew.h */,
 				2B0387F7206ABD7B00DD5C40 /* MaplyQuadSampler.h */,
 				2B8E608A20D47FEE00FB96F0 /* MaplyRemoteTileFetcher.h */,
@@ -3905,6 +3911,7 @@
 				2BE538061D249A1200B60FAD /* MaplyCoordinate.h in Headers */,
 				2B446B9221FBA8250078A975 /* FontTextureManager.h in Headers */,
 				2B23131A21F8DD61006AA344 /* MaplyFlatView.h in Headers */,
+				2B810099221F234D00CFF779 /* MaplyQuadPagingLoader.h in Headers */,
 				2BB8A3FA21ED43D10025DA98 /* GlobeDoubleTapDelegate.h in Headers */,
 				2BE53A761D249C4700B60FAD /* stringprintf.h in Headers */,
 				2BB8A3FB21ED43D10025DA98 /* GlobeTapDelegate.h in Headers */,
@@ -4491,6 +4498,7 @@
 				2BE1E7512208ECA700815D9C /* MaplyCluster.mm in Sources */,
 				2BE539B81D249BEF00B60FAD /* AAPluto.cpp in Sources */,
 				2BE1E7392208A97100815D9C /* MaplyPinchDelegate.mm in Sources */,
+				2B81009B221F236B00CFF779 /* MaplyQuadPagingLoader.mm in Sources */,
 				2BE539A51D249BEF00B60FAD /* AAMoonIlluminatedFraction.cpp in Sources */,
 				2B8796B921FFB36500EF801D /* FontTextureManager.cpp in Sources */,
 				2BE5399B1D249BEF00B60FAD /* AAGalileanMoons.cpp in Sources */,

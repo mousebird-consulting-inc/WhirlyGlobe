@@ -53,23 +53,6 @@
 @end
 
 /**
-    This version of the loader return is used by the MaplyQuadObjectLoader.
-
-    The Object pager is only expecting Component Objects and will manage
-    those as things are loaded in and out.
-  */
-@interface MaplyObjectLoaderReturn : MaplyLoaderReturn
-
-/// If any component objects are associated with the tile, these are them.
-/// They need to start disabled.  The system will enable and delete them when it is time.
-- (void)addCompObjs:(NSArray<MaplyComponentObject *> * __nonnull)compObjs;
-
-/// Return an array of component objects that were added to this loader return
-- (NSArray * __nonnull)getCompObjs;
-
-@end
-
-/**
  Loader Interpreter converts raw data into images and objects.
  
  Converts data returned from a remote source (or cache) into images and/or
@@ -98,7 +81,7 @@
  
  If set, we'll use the OSM approach (also Google Maps) to y indexing.  That's that default and it's normally what you're run into.
  
- Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if you're tile source looks odd, try setting this to false.
+ Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if your tile source looks odd, try setting this to false.
  
  Default value is true.
  */
@@ -150,5 +133,11 @@
  @return The lower left and upper right corner of the tile in geographic coordinates.
  */
 - (MaplyBoundingBoxD)boundsForTileD:(MaplyTileID)tileID;
+
+/// Use a specific tile fetcher rather than the one shared by everyone else
+- (void)setTileFetcher:(NSObject<MaplyTileFetcher> * __nonnull)tileFetcher;
+
+/// Set the interpreter for the data coming back.  If you're just getting images, don't set this.
+- (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp;
 
 @end

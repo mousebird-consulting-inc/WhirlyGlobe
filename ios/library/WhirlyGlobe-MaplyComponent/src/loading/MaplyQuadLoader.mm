@@ -169,4 +169,19 @@ using namespace WhirlyKit;
     return bounds;
 }
 
+- (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> *)interp
+{
+    if (loadInterp) {
+        NSLog(@"Caller tried to set loader interpreter after startup in MaplyQuadImageLoader.  Ignoring.");
+        return;
+    }
+    
+    loadInterp = interp;
+}
+
+- (void)setTileFetcher:(NSObject<MaplyTileFetcher> *)inTileFetcher
+{
+    tileFetcher = inTileFetcher;
+}
+
 @end

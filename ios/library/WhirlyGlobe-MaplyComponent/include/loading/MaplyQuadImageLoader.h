@@ -160,12 +160,6 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
  */
 @property (nonatomic) int borderTexel;
 
-/// Use a specific tile fetcher rather than the one shared by everyone else
-- (void)setTileFetcher:(NSObject<MaplyTileFetcher> * __nonnull)tileFetcher;
-
-/// Set the interpreter for the data coming back.  If you're just getting images, don't set this.
-- (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp;
-
 @end
 
 /**
