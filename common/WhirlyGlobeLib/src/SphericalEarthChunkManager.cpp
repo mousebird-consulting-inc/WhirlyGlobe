@@ -23,14 +23,27 @@
 #import "DynamicTextureAtlas.h"
 #import "SphericalEarthChunkManager.h"
 #import "WhirlyKitLog.h"
+#import "SharedAttributes.h"
 
 using namespace Eigen;
 
 namespace WhirlyKit
 {
+    
+SphericalChunkInfo::SphericalChunkInfo()
+    : color(RGBAColor(255,255,255,255)), doEdgeMatching(false)
+{
+}
+    
+SphericalChunkInfo::SphericalChunkInfo(const Dictionary &dict)
+    : BaseInfo(dict)
+{
+    color = dict.getColor(MaplyColor, RGBAColor(255,255,255,255));
+    // Note: Should expose edge matching
+}
 
 SphericalChunk::SphericalChunk()
-    : imageFormat(WKTileIntRGBA),loadImage(NULL),programID(EmptyIdentity),
+    : imageFormat(GL_UNSIGNED_BYTE),loadImage(NULL),programID(EmptyIdentity),
     sampleX(12), sampleY(12), minSampleX(1), minSampleY(1), eps(0.0005),
     rotation(0.0), coordSys(NULL)
 {
@@ -299,32 +312,23 @@ class ChunkSceneRep : public Identifiable
 {
 public:
     ChunkSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
-    ChunkSceneRep() : usesAtlas(false) { subTex.texId = EmptyIdentity; }
+    ChunkSceneRep() { }
     SimpleIDSet drawIDs;
     SimpleIDSet texIDs;
-    bool usesAtlas;
-    // Set if we're using a dynamic texture atlas
-    SubTexture subTex;
     
     // Remove elements from the scene
-    void clear(Scene *scene,DynamicTextureAtlas *texAtlas,ChangeSet &changeRequests)
+    void clear(Scene *scene,ChangeSet &changeRequests)
     {
         for (SimpleIDSet::iterator it = drawIDs.begin();
              it != drawIDs.end(); ++it)
             changeRequests.push_back(new RemDrawableReq(*it));
-        if (usesAtlas && texAtlas)
-        {
-            if (subTex.texId != EmptyIdentity)
-                texAtlas->removeTexture(subTex, changeRequests, 0.0);
-        } else {
-            for (SimpleIDSet::iterator it = texIDs.begin();
-                 it != texIDs.end(); ++it)
-                changeRequests.push_back(new RemTextureReq(*it));
-        }
+        for (SimpleIDSet::iterator it = texIDs.begin();
+             it != texIDs.end(); ++it)
+            changeRequests.push_back(new RemTextureReq(*it));
     }
     
     // Enable drawables
-    void enable(DynamicTextureAtlas *texAtlas,ChangeSet &changes)
+    void enable(ChangeSet &changes)
     {
         for (SimpleIDSet::iterator it = drawIDs.begin();
              it != drawIDs.end(); ++it)
@@ -332,7 +336,7 @@ public:
     }
     
     // Disable drawables
-    void disable(DynamicTextureAtlas *texAtlas,ChangeSet &changes)
+    void disable(ChangeSet &changes)
     {
         for (SimpleIDSet::iterator it = drawIDs.begin();
              it != drawIDs.end(); ++it)
@@ -341,7 +345,7 @@ public:
 };
     
 SphericalChunkManager::SphericalChunkManager()
-    : borderTexel(0), texAtlas(NULL), drawAtlas(NULL)
+    : borderTexel(0)
 {
 }
     
@@ -422,8 +426,7 @@ bool SphericalChunkManager::modifyDrawPriority(SimpleIdentity chunkID,int drawPr
 /// Enable or disable the given chunk
 void SphericalChunkManager::enableChunk(SimpleIdentity chunkID,bool enable,ChangeSet &changes)
 {
-    Dictionary dict;
-    SphericalChunkInfo chunkInfo(dict);
+    SphericalChunkInfo chunkInfo;
     
     {
         std::lock_guard<std::mutex> guardLock(requestLock);
@@ -433,15 +436,13 @@ void SphericalChunkManager::enableChunk(SimpleIdentity chunkID,bool enable,Chang
             requests.push(ChunkRequest(ChunkDisable,chunkInfo,chunkID));
     }
     
-    if (!texAtlas)
-        processRequests(changes);
+    processRequests(changes);
 }
 
 /// Remove the given chunks
 void SphericalChunkManager::removeChunks(SimpleIDSet &chunkIDs,ChangeSet &changes)
 {
-    Dictionary dict;
-    SphericalChunkInfo chunkInfo(dict);
+    SphericalChunkInfo chunkInfo;
 
     {
         std::lock_guard<std::mutex> guardLock(requestLock);
@@ -449,8 +450,7 @@ void SphericalChunkManager::removeChunks(SimpleIDSet &chunkIDs,ChangeSet &change
             requests.push(ChunkRequest(ChunkRemove,chunkInfo,*it));
     }
     
-    if (!texAtlas)
-        processRequests(changes);
+    processRequests(changes);
 }
 
 int SphericalChunkManager::getNumChunks()
@@ -488,35 +488,21 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             
             // May need to set up the texture
             SimpleIdentity texId = EmptyIdentity;
-            chunkRep->usesAtlas = false;
             Texture *newTex = NULL;
             if (chunk->loadImage)
             {
                 // Let's just deal with square images
-                int square = std::max(chunk->loadImage->getWidth(),chunk->loadImage->getHeight());
-                newTex = chunk->loadImage->buildTexture(borderTexel,square,square);
+                newTex = chunk->loadImage->buildTexture();
             }
-            if (texAtlas)
+            if (newTex)
             {
-                if (newTex)
-                {
-                    std::lock_guard<std::mutex> guardLock(atlasLock);
-                    std::vector<Texture *> newTexs;
-                    texAtlas->addTexture(newTexs, -1, NULL, NULL, chunkRep->subTex, scene->getMemManager(), changes, borderTexel);
-                    chunkRep->usesAtlas = true;
-                    delete newTex;
-                }
-            } else {
-                if (newTex)
-                {
-                    chunk->texIDs.push_back(newTex->getId());
-                    chunkRep->texIDs.insert(newTex->getId());
-                    changes.push_back(new AddTextureReq(newTex));
-                }
-                texId = EmptyIdentity;
-                if (!chunk->texIDs.empty())
-                    texId = chunk->texIDs.at(0);
+                chunk->texIDs.push_back(newTex->getId());
+                chunkRep->texIDs.insert(newTex->getId());
+                changes.push_back(new AddTextureReq(newTex));
             }
+            texId = EmptyIdentity;
+            if (!chunk->texIDs.empty())
+                texId = chunk->texIDs.at(0);
             
             // Build the main drawable and possibly skirt
             BasicDrawable *drawable = NULL,*skirtDraw = NULL;
@@ -525,35 +511,13 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             if (skirtDraw)
             {
                 chunkRep->drawIDs.insert(skirtDraw->getId());
-                if (chunkRep->usesAtlas && drawAtlas)
-                {
-                    std::lock_guard<std::mutex> guardLock(atlasLock);
-                    skirtDraw->applySubTexture(0,chunkRep->subTex);
-                    drawAtlas->addDrawable(skirtDraw, changes);
-                    delete skirtDraw;
-                } else {
-                    if (texAtlas)
-                        skirtDraw->applySubTexture(0,chunkRep->subTex);
-                    else
-                        skirtDraw->setTexId(0,texId);
-                        changes.push_back(new AddDrawableReq(skirtDraw));
-                }
+                skirtDraw->setTexId(0,texId);
+                changes.push_back(new AddDrawableReq(skirtDraw));
             }
             
             chunkRep->drawIDs.insert(drawable->getId());
-            if (chunkRep->usesAtlas && drawAtlas)
-            {
-                std::lock_guard<std::mutex> guardLock(atlasLock);
-                drawable->applySubTexture(0,chunkRep->subTex);
-                drawAtlas->addDrawable(drawable, changes);
-                delete drawable;
-            } else {
-                if (texAtlas)
-                    drawable->applySubTexture(0,chunkRep->subTex);
-                else
-                    drawable->setTexId(0,texId);
-                changes.push_back(new AddDrawableReq(drawable));
-            }
+            drawable->setTexId(0,texId);
+            changes.push_back(new AddDrawableReq(drawable));
             
             {
                 std::lock_guard<std::mutex> guardLock(repLock);
@@ -567,7 +531,7 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
             ChunkRepSet::iterator it = chunkReps.find(dummyRef);
             if (it != chunkReps.end())
-                (*it)->enable(texAtlas,drawAtlas,changes);
+                (*it)->enable(changes);
         }
             break;
         case ChunkDisable:
@@ -576,7 +540,7 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             ChunkSceneRepRef dummyRef(new ChunkSceneRep(request.chunkId));
             ChunkRepSet::iterator it = chunkReps.find(dummyRef);
             if (it != chunkReps.end())
-                (*it)->disable(texAtlas,drawAtlas,changes);
+                (*it)->disable(changes);
         }
             break;
         case ChunkRemove:
@@ -586,7 +550,7 @@ void SphericalChunkManager::processChunkRequest(ChunkRequest &request,ChangeSet 
             ChunkRepSet::iterator it = chunkReps.find(dummyRef);
             if (it != chunkReps.end())
 	      {
-                (*it)->clear(scene,texAtlas,drawAtlas,changes);
+                (*it)->clear(scene,changes);
               chunkReps.erase(it);
 	      }
         }

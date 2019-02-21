@@ -21,11 +21,10 @@
 #import <math.h>
 #import <queue>
 #import "WhirlyVector.h"
-#import "TileQuadLoaderNew.h"
+#import "LoadedTileNew.h"
 #import "Scene.h"
-#import "DynamicTextureAtlas.h"
-#import "DynamicDrawableAtlas.h"
 #import "BaseInfo.h"
+#import "ImageTile.h"
 
 namespace WhirlyKit
 {
@@ -34,6 +33,11 @@ namespace WhirlyKit
 class SphericalChunkInfo : public BaseInfo
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
+    SphericalChunkInfo();
+    SphericalChunkInfo(const Dictionary &);
+
     RGBAColor color;
     bool doEdgeMatching;
     std::vector<SimpleIdentity> texIDs;
@@ -59,11 +63,11 @@ public:
     std::vector<SimpleIdentity> texIDs;
 
     /// Format we'll store the textures in
-    TileImageType imageFormat;
+    GLenum imageFormat;
 
     /// If no texture, we can pass in a UIImage (or NSData that contains common formats).
     /// The implication here is that we're going to stick these in an atlas.
-    LoadedImage *loadImage;
+    ImageTileRef loadImage;
 
     /// If set, the shader program we'll use to draw this
     SimpleIdentity programID;
@@ -126,7 +130,6 @@ public:
     virtual ~SphericalChunkManager();
     
     /// If we're using texture atlases, pass those in
-    void setAtlases(DynamicTextureAtlas *inTexAtlas,DynamicDrawableAtlas *inDrawAtlas) { texAtlas = inTexAtlas;  drawAtlas = inDrawAtlas; }
     void setBorderTexel(int inBorderTexel) { borderTexel = inBorderTexel; }
     
     /// Add the given chunk (enabled or disabled)
@@ -159,9 +162,6 @@ protected:
     // Outstanding requests to process
     std::queue<ChunkRequest> requests;
     int borderTexel;
-    std::mutex atlasLock;
-    DynamicTextureAtlas *texAtlas;
-    DynamicDrawableAtlas *drawAtlas;
 };
 
 }

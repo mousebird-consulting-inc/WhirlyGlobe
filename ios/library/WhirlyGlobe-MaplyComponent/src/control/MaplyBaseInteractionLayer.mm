@@ -45,7 +45,7 @@
 #import "FontTextureManager_iOS.h"
 #import "Texture_iOS.h"
 #import "ComponentManager_iOS.h"
-//#import "SphericalEarthChunkManager.h"
+#import "SphericalEarthChunkManager.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -2327,8 +2327,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Called in the layer thread
 - (void)addStickersRun:(NSArray *)argArray
 {
-// Note: Turned off for porting
-#if 0
     if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
@@ -2337,11 +2335,11 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSDictionary *inDesc = argArray[2];
     MaplyThreadMode threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    [self applyDefaultName:kMaplyDrawPriority value:@(kMaplyStickerDrawPriorityDefault) toDict:inDesc];
-
-    // Might be a custom shader on these
-    [self resolveShader:inDesc defaultShader:kMaplyDefaultTriangleShader];
-
+    iosDictionary dictWrap(inDesc);
+    SphericalChunkInfo chunkInfo(dictWrap);
+    [self resolveInfoDefaults:inDesc info:&chunkInfo defaultShader:kMaplyDefaultTriangleShader];
+    [self resolveDrawPriority:inDesc info:&chunkInfo drawPriority:kMaplyStickerDrawPriorityDefault offset:0];
+    
     SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
     
     for (MaplySticker *sticker in stickers)
@@ -2376,36 +2374,23 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 compObj.textures.insert(tex);
             }
         }
-        WhirlyKitSphericalChunk *chunk = [[WhirlyKitSphericalChunk alloc] init];
+        SphericalChunk *chunk = new SphericalChunk();
         Mbr mbr(Point2f(sticker.ll.x,sticker.ll.y), Point2f(sticker.ur.x,sticker.ur.y));
-        chunk.mbr = mbr;
-        chunk.texIDs = texIDs;
-        chunk.drawOffset = [inDesc[@"drawOffset"] floatValue];
-        chunk.drawPriority = [inDesc[@"drawPriority"] floatValue];
-        chunk.sampleX = [inDesc[@"sampleX"] intValue];
-        chunk.sampleY = [inDesc[@"sampleY"] intValue];
-        chunk.programID = [inDesc[kMaplyShader] intValue];
+        chunk->mbr = mbr;
+        chunk->texIDs = texIDs;
+        // Note: Move this over to info logic
+        chunk->sampleX = [inDesc[@"sampleX"] intValue];
+        chunk->sampleY = [inDesc[@"sampleY"] intValue];
+        chunk->programID = chunkInfo.programID;
         if (inDesc[kMaplySubdivEpsilon] != nil)
-            chunk.eps = [inDesc[kMaplySubdivEpsilon] floatValue];
+            chunk->eps = [inDesc[kMaplySubdivEpsilon] floatValue];
         if (sticker.coordSys)
-            chunk.coordSys = [sticker.coordSys getCoordSystem];
-        if ([inDesc[kMaplyColor] isKindOfClass:[UIColor class]])
-            chunk.color = inDesc[kMaplyColor];
-        if (inDesc[kMaplyMinVis] != nil)
-            chunk.minVis = [inDesc[kMaplyMinVis] floatValue];
-        if (inDesc[kMaplyMaxVis] != nil)
-            chunk.maxVis = [inDesc[kMaplyMaxVis] floatValue];
-        NSNumber *bufRead = inDesc[kMaplyZBufferRead];
-        if (bufRead)
-            chunk.readZBuffer = [bufRead boolValue];
-        NSNumber *bufWrite = inDesc[kMaplyZBufferWrite];
-        if (bufWrite)
-            chunk.writeZBuffer = [bufWrite boolValue];
-        chunk.rotation = sticker.rotation;
+            chunk->coordSys = [sticker.coordSys getCoordSystem].get();
+        chunk->rotation = sticker.rotation;
         if (chunkManager)
         {
             ChangeSet changes;
-            SimpleIdentity chunkID = chunkManager->addChunk(chunk, false, true, changes);
+            SimpleIdentity chunkID = chunkManager->addChunk(chunk, chunkInfo, changes);
             if (chunkID != EmptyIdentity)
                 compObj->contents->chunkIDs.insert(chunkID);
             [self flushChanges:changes mode:threadMode];
@@ -2413,7 +2398,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     }
     
     compManager->addComponentObject(compObj->contents);
-#endif
 }
 
 // Add stickers
@@ -2447,8 +2431,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 // Actually do the sticker change
 - (void)changeStickerRun:(NSArray *)argArray
 {
-// Note: Porting
-#if 0
     if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
@@ -2458,7 +2440,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     
     @synchronized(stickerObj)
     {
-        if (!compManager->hasComponentObject(stickerObj->contents->getID()))
+        if (!compManager->hasComponentObject(stickerObj->contents->getId()))
             return;
         
         SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
@@ -2497,14 +2479,13 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                 oldTextures.clear();
                 
                 ChangeSet changes;
-                for (SimpleIDSet::iterator it = stickerObj.chunkIDs.begin();
-                     it != stickerObj.chunkIDs.end(); ++it)
+                for (SimpleIDSet::iterator it = stickerObj->contents->chunkIDs.begin();
+                     it != stickerObj->contents->chunkIDs.end(); ++it)
                     chunkManager->modifyChunkTextures(*it, newTexIDs, changes);
                 [self flushChanges:changes mode:threadMode];
             }
         }
     }
-#endif
 }
 
 // Change stickers

@@ -85,6 +85,8 @@
 		2B7B84DA2122403700D11447 /* MaplyTapMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7B84D92122403700D11447 /* MaplyTapMessage.h */; };
 		2B810091221E07EE00CFF779 /* VectorObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B810090221E07EE00CFF779 /* VectorObject.h */; };
 		2B810093221E080700CFF779 /* VectorObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B810092221E080700CFF779 /* VectorObject.cpp */; };
+		2B810095221E2C3600CFF779 /* SceneGraphManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B810094221E2C3600CFF779 /* SceneGraphManager.cpp */; };
+		2B810096221E2E2100CFF779 /* SphericalEarthChunkManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B846F2021F158EB00EF2A82 /* SphericalEarthChunkManager.cpp */; };
 		2B82B5DF1E82E2490095FB14 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3B71E82E2490095FB14 /* glues.h */; };
 		2B82B5E11E82E2490095FB14 /* dict-list.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3B91E82E2490095FB14 /* dict-list.h */; };
 		2B82B5E31E82E2490095FB14 /* dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B3BB1E82E2490095FB14 /* dict.h */; };
@@ -1126,6 +1128,7 @@
 		2B7B84DD2122404A00D11447 /* MaplyTextureAtlas.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTextureAtlas.mm; sourceTree = "<group>"; };
 		2B810090221E07EE00CFF779 /* VectorObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VectorObject.h; path = ../../../../common/WhirlyGlobeLib/include/VectorObject.h; sourceTree = "<group>"; };
 		2B810092221E080700CFF779 /* VectorObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = VectorObject.cpp; path = ../../../../common/WhirlyGlobeLib/src/VectorObject.cpp; sourceTree = "<group>"; };
+		2B810094221E2C3600CFF779 /* SceneGraphManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SceneGraphManager.cpp; path = ../../../../common/WhirlyGlobeLib/src/SceneGraphManager.cpp; sourceTree = "<group>"; };
 		2B82B3B71E82E2490095FB14 /* glues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues.h; path = ../../../common/local_libs/glues/source/glues.h; sourceTree = "<group>"; };
 		2B82B3B91E82E2490095FB14 /* dict-list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "dict-list.h"; sourceTree = "<group>"; };
 		2B82B3BA1E82E2490095FB14 /* dict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dict.c; sourceTree = "<group>"; };
@@ -2813,6 +2816,7 @@
 				2B846F1721F158EB00EF2A82 /* LoftManager.cpp */,
 				2B846F1521F158EA00EF2A82 /* MarkerManager.cpp */,
 				2B846F1821F158EB00EF2A82 /* ParticleSystemManager.cpp */,
+				2B810094221E2C3600CFF779 /* SceneGraphManager.cpp */,
 				2B846F1B21F158EB00EF2A82 /* SelectionManager.cpp */,
 				2B446AE721F299FA0078A975 /* ShapeDrawableBuilder.cpp */,
 				2B846F1E21F158EB00EF2A82 /* ShapeManager.cpp */,
@@ -4570,6 +4574,7 @@
 				2B82B6911E82E24A0095FB14 /* pj_msfn.c in Sources */,
 				2BE539B71D249BEF00B60FAD /* AAPlanetPerihelionAphelion.cpp in Sources */,
 				2BE539BC1D249BEF00B60FAD /* AASaturn.cpp in Sources */,
+				2B810096221E2E2100CFF779 /* SphericalEarthChunkManager.cpp in Sources */,
 				2B8797142203B76000EF801D /* NSDictionary+StyleRules.m in Sources */,
 				2BC3D6CF2203EA1800CE91D0 /* MaplyScreenObject.mm in Sources */,
 				2B8796C221FFB37900EF801D /* SelectionManager.cpp in Sources */,
@@ -4619,6 +4624,7 @@
 				2BC3D6DB220B526D00CE91D0 /* ViewPlacementActiveModel.mm in Sources */,
 				2BC3D6D32203EA6300CE91D0 /* MaplyTexture.mm in Sources */,
 				2B82B6871E82E24A0095FB14 /* PJ_lsat.c in Sources */,
+				2B810095221E2C3600CFF779 /* SceneGraphManager.cpp in Sources */,
 				2BE1E76B220A6B6700815D9C /* MapboxVectorImageInterpreter.mm in Sources */,
 				2B846EEE21F1393900EF2A82 /* dict.c in Sources */,
 				2BE1E771220A6B6700815D9C /* MapboxVectorStyleSymbol.mm in Sources */,
