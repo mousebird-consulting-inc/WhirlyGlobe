@@ -68,9 +68,8 @@ using namespace WhirlyKit;
                      loadInterp:(NSObject<MaplyLoaderInterpreter> *)loadInterp
                           viewC:(MaplyBaseViewController * )inViewC
 {
-    self = [super init];
-    
-    self->viewC = inViewC;
+    self = [super initWithViewC:inViewC];
+
     params = inParams;
     
     // Loader does all the work.  The Obj-C version is just a wrapper
@@ -111,7 +110,7 @@ using namespace WhirlyKit;
     if (self->samplingLayer && self->samplingLayer.layerThread)
         [self performSelector:@selector(cleanup) onThread:self->samplingLayer.layerThread withObject:nil waitUntilDone:NO];
     
-    [viewC releaseSamplingLayer:samplingLayer forUser:loader];
+    [self.viewC releaseSamplingLayer:samplingLayer forUser:loader];
 }
 
 // Called on a random dispatch queue

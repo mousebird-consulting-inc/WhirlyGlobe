@@ -229,9 +229,9 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 
 @implementation MaplyQuadImageLoaderBase
 
-- (instancetype)init
+- (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC
 {
-    self = [super init];
+    self = [super initWithViewC:inViewC];
     
     _zBufferRead = false;
     _zBufferWrite = true;
@@ -257,15 +257,15 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     if (!valid)
         return false;
     
-    if (!viewC || !viewC->renderControl || !viewC->renderControl->scene)
+    if (!self.viewC || !self.viewC->renderControl || !self.viewC->renderControl->scene)
         return false;
     
     if (!tileFetcher) {
-        tileFetcher = [viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
+        tileFetcher = [self.viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
     }
     loader->tileFetcher = tileFetcher;
 
-    samplingLayer = [viewC findSamplingLayer:params forUser:self->loader];
+    samplingLayer = [self.viewC findSamplingLayer:params forUser:self->loader];
     // Do this again in case they changed them
     loader->setSamplingParams(params->params);
     loader->setFlipY(self.flipY);
@@ -298,7 +298,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     }
     
     if (loader->getShaderID() == EmptyIdentity) {
-        MaplyShader *theShader = [viewC getShaderByName:kMaplyShaderDefaultTriMultiTex];
+        MaplyShader *theShader = [self.viewC getShaderByName:kMaplyShaderDefaultTriMultiTex];
         if (theShader)
             loader->setShaderID([theShader getShaderID]);
     }
@@ -394,7 +394,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     if (self->samplingLayer && self->samplingLayer.layerThread)
         [self performSelector:@selector(cleanup) onThread:self->samplingLayer.layerThread withObject:nil waitUntilDone:NO];
     
-    [viewC releaseSamplingLayer:samplingLayer forUser:loader];
+    [self.viewC releaseSamplingLayer:samplingLayer forUser:loader];
 }
 
 @end
@@ -407,9 +407,8 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         NSLog(@"MaplyQuadImageLoader only supports samplers with singleLevel set to true");
         return nil;
     }
-    self = [super init];
+    self = [super initWithViewC:inViewC];
     
-    self->viewC = inViewC;
     params = inParams;
     
     // Loader does all the work.  The Obj-C version is just a wrapper

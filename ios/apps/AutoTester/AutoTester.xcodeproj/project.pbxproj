@@ -35,6 +35,8 @@
 		2B7E288B200EC109007E2965 /* SE_PolygonsLines.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B7E2889200EC109007E2965 /* SE_PolygonsLines.json */; };
 		2B7E288C200EC109007E2965 /* SE_Basic.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B7E288A200EC109007E2965 /* SE_Basic.json */; };
 		2B7FC0A71E32B67400AF253A /* testJson.json in Resources */ = {isa = PBXBuildFile; fileRef = 2B7FC0A61E32B67400AF253A /* testJson.json */; };
+		2B81009C221F4EA900CFF779 /* CartoDBInterpreter.m in Sources */ = {isa = PBXBuildFile; fileRef = D84433ED1C14E4FE00A52117 /* CartoDBInterpreter.m */; };
+		2B81009D221F4EA900CFF779 /* CartoDBTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D84433EA1C14E4E700A52117 /* CartoDBTestCase.m */; };
 		2B8849FB1E37F9B30027C397 /* stadium-utm-quad-data.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */; };
 		2B8E609520DC02D200FB96F0 /* OpenMapTilesHybridTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */; };
 		2B93D9671D41433500EAD280 /* WideVectorGlobeTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B93D9661D41433500EAD280 /* WideVectorGlobeTestCase.m */; };
@@ -1023,8 +1025,8 @@
 		D84433E61C14A46100A52117 /* NASAGIBSTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NASAGIBSTestCase.swift; sourceTree = "<group>"; };
 		D84433E91C14E4E700A52117 /* CartoDBTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CartoDBTestCase.h; sourceTree = "<group>"; };
 		D84433EA1C14E4E700A52117 /* CartoDBTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CartoDBTestCase.m; sourceTree = "<group>"; };
-		D84433EC1C14E4FE00A52117 /* CartoDBLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CartoDBLayer.h; sourceTree = "<group>"; };
-		D84433ED1C14E4FE00A52117 /* CartoDBLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CartoDBLayer.m; sourceTree = "<group>"; };
+		D84433EC1C14E4FE00A52117 /* CartoDBInterpreter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CartoDBInterpreter.h; sourceTree = "<group>"; };
+		D84433ED1C14E4FE00A52117 /* CartoDBInterpreter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CartoDBInterpreter.m; sourceTree = "<group>"; };
 		D84AA5931C1A1C9700413B76 /* BNGCustomMapTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BNGCustomMapTestCase.swift; sourceTree = "<group>"; };
 		D84AA5961C1A26C100413B76 /* OSTN02_NTv2.gsb */ = {isa = PBXFileReference; lastKnownFileType = file; name = OSTN02_NTv2.gsb; path = AutoTester/OSTN02_NTv2.gsb; sourceTree = "<group>"; };
 		D84AA5981C1A2B9800413B76 /* BNGTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BNGTestCase.swift; sourceTree = "<group>"; };
@@ -1133,8 +1135,8 @@
 			children = (
 				88BF11471BCD3DA40002205E /* MaplyTestCase.h */,
 				88BF11481BCD3DA40002205E /* MaplyTestCase.m */,
-				D84433EC1C14E4FE00A52117 /* CartoDBLayer.h */,
-				D84433ED1C14E4FE00A52117 /* CartoDBLayer.m */,
+				D84433EC1C14E4FE00A52117 /* CartoDBInterpreter.h */,
+				D84433ED1C14E4FE00A52117 /* CartoDBInterpreter.m */,
 				2B73D6B2207C106C00AF5095 /* GlobeSamplerTestCase.swift */,
 				2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */,
 				E5679F4C1CB7669400369A15 /* FullAnimationTest.h */,
@@ -2367,6 +2369,7 @@
 				88BF115D1BCDA9530002205E /* GeographyClassTestCase.m in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,
 				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,
+				2B81009C221F4EA900CFF779 /* CartoDBInterpreter.m in Sources */,
 				D8228AA81BE786BE001D6914 /* ClusteredMarkersTestCase.swift in Sources */,
 				2BC2DCCD1D1F4CE20088D350 /* ShapefileTestCase.m in Sources */,
 				D8F2FE271BE7BD630058A310 /* LabelsTestCase.m in Sources */,
@@ -2376,6 +2379,7 @@
 				D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
 				2B753DE221EEB7F900DE98BA /* StarsSunTestCase.swift in Sources */,
+				2B81009D221F4EA900CFF779 /* CartoDBTestCase.m in Sources */,
 				2BC3D6F0220B900A00CE91D0 /* StartupViewController.swift in Sources */,
 				2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */,
 				D8200C9F1BE9516300B22CF5 /* ShapesTestCase.m in Sources */,

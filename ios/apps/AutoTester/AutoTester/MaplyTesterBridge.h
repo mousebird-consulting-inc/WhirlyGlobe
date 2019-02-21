@@ -24,7 +24,7 @@
 #import "WideVectorGlobeTestCase.h"
 #import "ShapesTestCase.h"
 #import "LoftedPolysTestCase.h"
-//#import "CartoDBTestCase.h"
+#import "CartoDBTestCase.h"
 //#import "ElevationLocalDatabase.h"
 #import "RunwayBuilderTestCase.h"
 //#import "ParticleTest.h"

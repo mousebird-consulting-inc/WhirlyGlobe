@@ -46,7 +46,6 @@ typedef NS_ENUM(NSInteger, MapnikCommandType) {
 
 @class MaplyVectorTileStyle;
 @class MaplyMBTileSource;
-@class MaplyRemoteTileInfo;
 
 /** 
     Container for data parsed out of a vector tile.

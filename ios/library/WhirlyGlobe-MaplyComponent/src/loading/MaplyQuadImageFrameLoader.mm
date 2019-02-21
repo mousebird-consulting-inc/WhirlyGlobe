@@ -101,9 +101,8 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
         NSLog(@"MaplyQuadImageFrameLoader only supports samplers with singleLevel set to true");
         return nil;
     }
-    self = [super init];
+    self = [super initWithViewC:inViewC];
 
-    self->viewC = inViewC;
     params = inParams;
 
     // Loader does all the work.  The Obj-C version is just a wrapper
@@ -133,7 +132,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     loader->layer = self;
 
     // Hook into the active updater to organize geometry for rendering
-    viewC->renderControl->scene->addActiveModel(loader);
+    self.viewC->renderControl->scene->addActiveModel(loader);
 
     if (![super delayedInit])
         return false;

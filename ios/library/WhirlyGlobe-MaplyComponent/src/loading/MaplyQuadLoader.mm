@@ -82,6 +82,15 @@ using namespace WhirlyKit;
     return ret;
 }
 
+- (NSData * __nullable)getFirstData
+{
+    if (loadReturn->tileData.empty())
+        return nil;
+    
+    RawNSDataReader *theData = (RawNSDataReader *)loadReturn->tileData[0].get();
+    return theData->getData();
+}
+
 - (void)setError:(NSError *)error
 {
     _error = error;
@@ -92,10 +101,11 @@ using namespace WhirlyKit;
 
 @implementation MaplyQuadLoaderBase
 
-- (instancetype)init
+- (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC
 {
     self = [super init];
     _flipY = true;
+    _viewC = inViewC;
     
     return self;
 }

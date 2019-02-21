@@ -46,6 +46,9 @@
 /// Return the tile NSData objects as an array
 - (NSArray<NSData *> * __nonnull)getTileData;
 
+/// Return the first data object.  You're probably only expecting the one.
+- (NSData * __nullable)getFirstData;
+
 /// If this is set, the tile failed to parse
 /// You can set it and the system will deal with the results
 @property (nonatomic,strong) NSError * __nullable error;
@@ -89,6 +92,10 @@
 
 /// Set for a lot of debugging output
 @property (nonatomic,assign) bool debugMode;
+
+/// View controller this is attached to.
+/// Useful for delegate calls that might not be tracking that.
+@property (nonatomic,readonly,weak,nullable) MaplyBaseViewController *viewC;
 
 /**
  Calculate the bounding box for a single tile in geographic.

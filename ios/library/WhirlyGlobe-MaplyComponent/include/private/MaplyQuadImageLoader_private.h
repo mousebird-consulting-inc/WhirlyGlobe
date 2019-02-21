@@ -36,6 +36,8 @@
     WhirlyKit::QuadImageFrameLoader_iosRef loader;
 }
 
+- (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC;
+
 // We delay setup by a tick so the user can mess with settings
 - (bool)delayedInit;
 

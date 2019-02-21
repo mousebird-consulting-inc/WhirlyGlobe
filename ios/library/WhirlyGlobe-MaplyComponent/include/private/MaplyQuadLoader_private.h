@@ -32,9 +32,10 @@
     
     int minLevel,maxLevel;
     
-    MaplyBaseViewController * __weak viewC;
     MaplyQuadSamplingLayer *samplingLayer;
 }
+
+- (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC;
 
 @end
 
