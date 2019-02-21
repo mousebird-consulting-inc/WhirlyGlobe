@@ -41,6 +41,9 @@ public:
     // Return the Display Controller we're using
     QuadDisplayControllerNewRef getDisplayControl();
     
+    // Return the builder we're using
+    QuadTileBuilderRef getBuilder() { return builder; }
+    
     // Add a new builder delegate to watch tile related events
     // Returns true if we need to notify the delegate
     bool addBuilderDelegate(QuadTileBuilderDelegateRef delegate);
@@ -125,7 +128,7 @@ protected:
 
     QuadTileBuilderRef builder;
     std::vector<QuadTileBuilderDelegateRef> builderDelegates;
-
+    
     bool builderStarted;
     bool valid;
 };

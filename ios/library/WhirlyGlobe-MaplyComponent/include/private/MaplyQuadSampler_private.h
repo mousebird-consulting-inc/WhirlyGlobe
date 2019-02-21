@@ -35,6 +35,10 @@
  the loading.
  */
 @interface MaplyQuadSamplingLayer : MaplyViewControllerLayer
+{
+@public
+    WhirlyKit::QuadSamplingController sampleControl;
+}
 
 // Parameters this sampler is using (non changeable)
 @property (nonatomic,readonly,nonnull) MaplySamplingParams *params;

@@ -269,6 +269,8 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     // Do this again in case they changed them
     loader->setSamplingParams(params->params);
     loader->setFlipY(self.flipY);
+    loader->setBaseDrawPriority(_baseDrawPriority);
+    loader->setDrawPriorityPerLevel(_drawPriorityPerLevel);
     
     // Sort out the texture format
     switch (self.imageFormat) {

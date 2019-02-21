@@ -108,6 +108,26 @@ bool QuadTileBuilder::getSingleLevel() const
     return geomSettings.singleLevel;
 }
     
+void QuadTileBuilder::setColor(const RGBAColor &color)
+{
+    geomSettings.color = color;
+}
+
+const RGBAColor &QuadTileBuilder::getColor() const
+{
+    return geomSettings.color;
+}
+    
+void QuadTileBuilder::setShaderID(SimpleIdentity programID)
+{
+    geomSettings.programID = programID;
+}
+
+SimpleIdentity QuadTileBuilder::getProgramID() const
+{
+    return geomSettings.programID;
+}
+    
 void QuadTileBuilder::setDebugMode(bool newMode)
 {
     debugMode = newMode;

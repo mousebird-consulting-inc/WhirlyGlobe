@@ -194,20 +194,14 @@ using namespace WhirlyKit;
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     // This is completely random.  We can't track it in any useful way
     NSString *userID = [userDefaults stringForKey:@"wgmaplyanalyticuser"];
-    TimeInterval lastSent = 0.0;
     if (!userID) {
+        // This means we only send this information once
+        // As a result we know nothing about the user, not even if they've run the app again
         userID = [[NSUUID UUID] UUIDString];
         [userDefaults setObject:userID forKey:@"wgmaplyanalyticuser"];
-    } else {
-        lastSent = [userDefaults doubleForKey:@"wgmaplyanalytictime"];
-    }
-    
-    // Sent once a month at most
-    TimeInterval now = TimeGetCurrent();
-    if (now - lastSent < 30*24*60*60.0)
-        return;
 
-    [self sendAnalytics:@"analytics.mousebirdconsulting.com:8081"];
+        [self sendAnalytics:@"analytics.mousebirdconsulting.com:8081"];
+    }
 }
 
 // Send the actual analytics data

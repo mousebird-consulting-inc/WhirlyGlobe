@@ -110,6 +110,14 @@ public:
     void setSingleLevel(bool);
     bool getSingleLevel() const;
     
+    // Set the color for the underlying geometry
+    void setColor(const RGBAColor &color);
+    const RGBAColor &getColor() const;
+    
+    // Shader ID used to render the geometry
+    void setShaderID(SimpleIdentity programID);
+    SimpleIdentity getProgramID() const;
+    
     // If set, we'll print too much information
     void setDebugMode(bool);
     bool getDebugMode() const;

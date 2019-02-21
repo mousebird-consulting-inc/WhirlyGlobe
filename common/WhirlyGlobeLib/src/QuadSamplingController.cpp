@@ -43,8 +43,6 @@ void QuadSamplingController::start(const SamplingParams &inParams,Scene *inScene
     builder = QuadTileBuilderRef(new QuadTileBuilder(params.coordSys,this));
     builder->setCoverPoles(params.coverPoles);
     builder->setEdgeMatching(params.edgeMatching);
-    builder->setBaseDrawPriority(0);
-    builder->setDrawPriorityPerLevel(0);
     builder->setSingleLevel(params.singleLevel);
     
     displayControl = QuadDisplayControllerNewRef(new QuadDisplayControllerNew(this,builder.get(),renderer));

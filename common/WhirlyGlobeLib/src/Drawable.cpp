@@ -57,6 +57,8 @@ GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
             for (unsigned int ii=0;ii<WhirlyKitOpenGLMemCacheAllocUnit;ii++)
             {
                 buffIDs.insert(newAlloc[ii]);
+                
+//                wkLogLevel(Debug,"Added buffer %d",newAlloc[ii]);
             }
         }
         
@@ -78,6 +80,8 @@ GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
         CheckGLError("OpenGLMemManager::getBufferID() glBindBuffer");
     }
     
+//    wkLogLevel(Debug,"Returning buffer %d",which);
+
     return which;
 }
 
@@ -88,6 +92,7 @@ void OpenGLMemManager::removeBufferID(GLuint bufID)
 {
     bool doClear = false;
 
+//    wkLogLevel(Debug,"Releasing buffer %d",bufID);
     {
         std::lock_guard<std::mutex> guardLock(idLock);
 
@@ -113,8 +118,10 @@ void OpenGLMemManager::clearBufferIDs()
     std::vector<GLuint> toRemove;
     toRemove.reserve(buffIDs.size());
     for (std::set<GLuint>::iterator it = buffIDs.begin();
-         it != buffIDs.end(); ++it)
+         it != buffIDs.end(); ++it) {
         toRemove.push_back(*it);
+//        wkLogLevel(Debug,"Deleting buffer %d",*it);
+    }
     if (!toRemove.empty())
         glDeleteBuffers((GLsizei)toRemove.size(), &toRemove[0]);
     buffIDs.clear();

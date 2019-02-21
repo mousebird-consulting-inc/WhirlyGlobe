@@ -498,6 +498,16 @@ void QuadImageFrameLoader::setTexType(GLenum inTexType)
     texType = inTexType;
 }
     
+void QuadImageFrameLoader::setBaseDrawPriority(int newPrior)
+{
+    baseDrawPriority = newPrior;
+}
+
+void QuadImageFrameLoader::setDrawPriorityPerLevel(int newPrior)
+{
+    drawPriorityPerLevel = newPrior;
+}
+    
 void QuadImageFrameLoader::setCurFrame(double inCurFrame)
 {
     curFrame = inCurFrame;

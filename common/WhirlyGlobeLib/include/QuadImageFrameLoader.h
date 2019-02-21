@@ -244,6 +244,10 @@ public:
     /// In-memory texture type
     void setTexType(GLenum texType);
     
+    /// Control draw priority assigned to basic drawable instances
+    void setBaseDrawPriority(int newPrior);
+    void setDrawPriorityPerLevel(int newPrior);
+    
     // What part of the animation we're displaying
     void setCurFrame(double curFrame);
     

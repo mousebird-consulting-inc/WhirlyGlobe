@@ -186,7 +186,6 @@ using namespace WhirlyKit;
 @implementation MaplyQuadSamplingLayer
 {
     MaplyBaseViewController * __weak viewC;
-    QuadSamplingController sampleControl;
 }
 
 - (nullable instancetype)initWithParams:(MaplySamplingParams * __nonnull)params
