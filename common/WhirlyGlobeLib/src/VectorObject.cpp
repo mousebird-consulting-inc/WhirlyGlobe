@@ -1089,5 +1089,102 @@ VectorObjectRef VectorObject::clipToMbr(const Point2d &ll,const Point2d &ur)
 
     return newVec;
 }
+ 
     
+void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double eps)
+{
+    bool isFlat = coordAdapter->isFlat();
+    
+    // We can subdivide the great circle with this routine
+    if (isFlat)
+    {
+        pts.resize(2);
+        pts[0] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(startPt.x(),startPt.y())));
+        pts[1] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(endPt.x(),endPt.y())));
+    } else {
+        VectorRing inPts;
+        inPts.push_back(Point2f(startPt.x(),startPt.y()));
+        inPts.push_back(Point2f(endPt.x(),endPt.y()));
+        VectorRing3d tmpPts;
+        SubdivideEdgesToSurfaceGC(inPts, tmpPts, false, coordAdapter, eps);
+        pts = tmpPts;
+        
+        // To apply the height, we'll need the total length
+        float totLen = 0;
+        for (int ii=0;ii<pts.size()-1;ii++)
+        {
+            float len = (pts[ii+1]-pts[ii]).norm();
+            totLen += len;
+        }
+        
+        // Now we'll walk along, apply the height (max at the middle)
+        float lenSoFar = 0.0;
+        for (unsigned int ii=0;ii<pts.size();ii++)
+        {
+            Point3d &pt = pts[ii];
+            float len = (pts[ii+1]-pt).norm();
+            float t = lenSoFar/totLen;
+            lenSoFar += len;
+            
+            // Parabolic curve
+            float b = 4*height;
+            float a = -b;
+            float thisHeight = a*(t*t) + b*t;
+            
+            if (isFlat)
+                pt.z() = thisHeight;
+            else
+                pt *= 1.0+thisHeight;
+        }
+    }
+}
+
+void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples)
+{
+    bool isFlat = coordAdapter->isFlat();
+    
+    // We can subdivide the great circle with this routine
+    if (isFlat)
+    {
+        pts.resize(2);
+        pts[0] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(startPt.x(),startPt.y())));
+        pts[1] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(endPt.x(),endPt.y())));
+    } else {
+        VectorRing inPts;
+        inPts.push_back(Point2f(startPt.x(),startPt.y()));
+        inPts.push_back(Point2f(endPt.x(),endPt.y()));
+        VectorRing3d tmpPts;
+        SubdivideEdgesToSurfaceGC(inPts, tmpPts, false, coordAdapter, 1.0, 0.0, samples);
+        pts = tmpPts;
+        
+        // To apply the height, we'll need the total length
+        float totLen = 0;
+        for (int ii=0;ii<pts.size()-1;ii++)
+        {
+            float len = (pts[ii+1]-pts[ii]).norm();
+            totLen += len;
+        }
+        
+        // Now we'll walk along, apply the height (max at the middle)
+        float lenSoFar = 0.0;
+        for (unsigned int ii=0;ii<pts.size();ii++)
+        {
+            Point3d &pt = pts[ii];
+            float len = (pts[ii+1]-pt).norm();
+            float t = lenSoFar/totLen;
+            lenSoFar += len;
+            
+            // Parabolic curve
+            float b = 4*height;
+            float a = -b;
+            float thisHeight = a*(t*t) + b*t;
+            
+            if (isFlat)
+                pt.z() = thisHeight;
+            else
+                pt *= 1.0+thisHeight;
+        }
+    }
+}
+
 }

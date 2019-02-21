@@ -50,104 +50,6 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-// Sample a great circle and throw in an interpolated height at each point
-void SampleGreatCircle(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,float eps)
-{
-    bool isFlat = coordAdapter->isFlat();
-
-    // We can subdivide the great circle with this routine
-    if (isFlat)
-    {
-        pts.resize(2);
-        pts[0] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(startPt.x,startPt.y)));
-        pts[1] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(endPt.x,endPt.y)));
-    } else {
-        VectorRing inPts;
-        inPts.push_back(Point2f(startPt.x,startPt.y));
-        inPts.push_back(Point2f(endPt.x,endPt.y));
-        VectorRing3d tmpPts;
-        SubdivideEdgesToSurfaceGC(inPts, tmpPts, false, coordAdapter, eps);
-        pts = tmpPts;
-
-        // To apply the height, we'll need the total length
-        float totLen = 0;
-        for (int ii=0;ii<pts.size()-1;ii++)
-        {
-            float len = (pts[ii+1]-pts[ii]).norm();
-            totLen += len;
-        }
-        
-        // Now we'll walk along, apply the height (max at the middle)
-        float lenSoFar = 0.0;
-        for (unsigned int ii=0;ii<pts.size();ii++)
-        {
-            Point3d &pt = pts[ii];
-            float len = (pts[ii+1]-pt).norm();
-            float t = lenSoFar/totLen;
-            lenSoFar += len;
-            
-            // Parabolic curve
-            float b = 4*height;
-            float a = -b;
-            float thisHeight = a*(t*t) + b*t;
-            
-            if (isFlat)
-                pt.z() = thisHeight;
-            else
-                pt *= 1.0+thisHeight;        
-        }
-    }
-}
-
-// Sample a great circle and throw in an interpolated height at each point
-void SampleGreatCircleStatic(MaplyCoordinate startPt,MaplyCoordinate endPt,float height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,float samples)
-{
-    bool isFlat = coordAdapter->isFlat();
-    
-    // We can subdivide the great circle with this routine
-    if (isFlat)
-    {
-        pts.resize(2);
-        pts[0] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(startPt.x,startPt.y)));
-        pts[1] = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(endPt.x,endPt.y)));
-    } else {
-        VectorRing inPts;
-        inPts.push_back(Point2f(startPt.x,startPt.y));
-        inPts.push_back(Point2f(endPt.x,endPt.y));
-        VectorRing3d tmpPts;
-        SubdivideEdgesToSurfaceGC(inPts, tmpPts, false, coordAdapter, 1.0, 0.0, samples);
-        pts = tmpPts;
-        
-        // To apply the height, we'll need the total length
-        float totLen = 0;
-        for (int ii=0;ii<pts.size()-1;ii++)
-        {
-            float len = (pts[ii+1]-pts[ii]).norm();
-            totLen += len;
-        }
-        
-        // Now we'll walk along, apply the height (max at the middle)
-        float lenSoFar = 0.0;
-        for (unsigned int ii=0;ii<pts.size();ii++)
-        {
-            Point3d &pt = pts[ii];
-            float len = (pts[ii+1]-pt).norm();
-            float t = lenSoFar/totLen;
-            lenSoFar += len;
-            
-            // Parabolic curve
-            float b = 4*height;
-            float a = -b;
-            float thisHeight = a*(t*t) + b*t;
-            
-            if (isFlat)
-            pt.z() = thisHeight;
-            else
-            pt *= 1.0+thisHeight;
-        }
-    }
-}
-
 // We store per thread changes we may be journaling here
 class ThreadChanges
 {
@@ -2035,9 +1937,9 @@ public:
                 eps = [inDesc[kMaplySubdivEpsilon] floatValue];
             bool isStatic = [inDesc[kMaplySubdivType] isEqualToString:kMaplySubdivStatic];
             if (isStatic)
-                SampleGreatCircleStatic(gc.startPt,gc.endPt,gc.height,lin->pts,visualView->coordAdapter,eps);
+                SampleGreatCircleStatic(Point2d(gc.startPt.x,gc.startPt.y),Point2d(gc.endPt.x,gc.endPt.y),gc.height,lin->pts,visualView->coordAdapter,eps);
             else
-                SampleGreatCircle(gc.startPt,gc.endPt,gc.height,lin->pts,visualView->coordAdapter,eps);
+                SampleGreatCircle(Point2d(gc.startPt.x,gc.startPt.y),Point2d(gc.endPt.x,gc.endPt.y),gc.height,lin->pts,visualView->coordAdapter,eps);
             lin->lineWidth = gc.lineWidth;
             if (gc.color)
             {

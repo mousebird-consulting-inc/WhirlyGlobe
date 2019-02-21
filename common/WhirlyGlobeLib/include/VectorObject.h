@@ -178,5 +178,11 @@ public:
     bool selectable;
     ShapeSet shapes;
 };
+
+// Sample a great circle and throw in an interpolated height at each point
+void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double eps);
+
+// Sample a great circle and throw in an interpolated height at each point
+void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples);
     
 }
