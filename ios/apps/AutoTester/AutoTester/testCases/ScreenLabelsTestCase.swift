@@ -12,6 +12,7 @@ class ScreenLabelsTestCase: MaplyTestCase {
 
 	var labelList = [MaplyComponentObject]()
     var markerList = [MaplyComponentObject]()
+    var baseCase = VectorsTestCase()
 
 	override init() {
 		super.init()
@@ -22,16 +23,14 @@ class ScreenLabelsTestCase: MaplyTestCase {
 
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
         globeVC.keepNorthUp = true
-		let vectorTestCase = VectorsTestCase()
-		vectorTestCase.setUpWithGlobe(globeVC)
-		insertLabels(vectorTestCase.vecList! as NSArray as! [MaplyVectorObject], theViewC: globeVC)
+		baseCase.setUpWithGlobe(globeVC)
+		insertLabels(baseCase.vecList! as NSArray as! [MaplyVectorObject], theViewC: globeVC)
 		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
-		let vectorTestCase = VectorsTestCase()
-		vectorTestCase.setUpWithMap(mapVC)
-		insertLabels(vectorTestCase.vecList! as NSArray as! [MaplyVectorObject], theViewC: mapVC)
+		baseCase.setUpWithMap(mapVC)
+		insertLabels(baseCase.vecList! as NSArray as! [MaplyVectorObject], theViewC: mapVC)
 		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
 	}
 
