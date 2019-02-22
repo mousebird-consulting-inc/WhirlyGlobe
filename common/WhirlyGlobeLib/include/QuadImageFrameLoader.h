@@ -20,6 +20,7 @@
 
 #import "QuadSamplingController.h"
 #import "QuadLoaderReturn.h"
+#import "ComponentManager.h"
 
 namespace WhirlyKit
 {
@@ -98,6 +99,8 @@ public:
     QuadTreeNew::ImportantNode getIdent();
     
     const std::vector<SimpleIdentity> &getInstanceDrawIDs();
+    const SimpleIDSet &getCompObjs() { return compObjs; }
+    const SimpleIDSet &getOvlCompObjs() { return ovlCompObjs; }
     
     QIFFrameAssetRef getFrame(int frameID);
     
@@ -148,6 +151,9 @@ protected:
     
     std::vector<QIFFrameAssetRef> frames;
     
+    // Component objects associated with this tile (not frame)
+    SimpleIDSet compObjs,ovlCompObjs;
+    
     int drawPriority;
 };
 
@@ -177,6 +183,9 @@ public:
         QuadTreeNew::Node texNode;
         SimpleIdentity texID;
     };
+    
+    // Component objects associated with the tile
+    SimpleIDSet compObjs,ovlCompObjs;
     
     // A texture ID per frame
     std::vector<FrameInfo> frames;
@@ -304,6 +313,8 @@ public:
     
     // Run on the layer thread.  Merge the loaded tile into the data.
     virtual void mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSet &changes);
+
+    ComponentManager *compManager;
 
 protected:
     // Construct a platform specific tile/frame assets in the subclass

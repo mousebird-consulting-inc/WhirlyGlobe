@@ -412,7 +412,9 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     params = inParams;
     
     // Loader does all the work.  The Obj-C version is just a wrapper
-    self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params->params,tileInfo));
+    self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params->params,
+                                                                            tileInfo,
+                                                                            QuadImageFrameLoader::SingleFrame));
     
     self.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
     self.drawPriorityPerLevel = 100;

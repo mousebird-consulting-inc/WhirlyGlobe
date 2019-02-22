@@ -69,19 +69,18 @@ ComponentManager::~ComponentManager()
     
 void ComponentManager::setScene(Scene *scene)
 {
-    layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    markerManager = (MarkerManager *)scene->getManager(kWKMarkerManager);
-    labelManager = (LabelManager *)scene->getManager(kWKLabelManager);
-    vectorManager = (VectorManager *)scene->getManager(kWKVectorManager);
-    wideVectorManager = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
-    shapeManager = (ShapeManager *)scene->getManager(kWKShapeManager);
-    // Note: Turned off chunk manager
-    //    SphericalChunkManager *chunkManager = (SphericalChunkManager *)scene->getManager(kWKSphericalChunkManager);
-    loftManager = (LoftManager *)scene->getManager(kWKLoftedPolyManager);
-    billManager = (BillboardManager *)scene->getManager(kWKBillboardManager);
-    geomManager = (GeometryManager *)scene->getManager(kWKGeometryManager);
+    layoutManager = (LayoutManager *)scene->getManagerNoLock(kWKLayoutManager);
+    markerManager = (MarkerManager *)scene->getManagerNoLock(kWKMarkerManager);
+    labelManager = (LabelManager *)scene->getManagerNoLock(kWKLabelManager);
+    vectorManager = (VectorManager *)scene->getManagerNoLock(kWKVectorManager);
+    wideVectorManager = (WideVectorManager *)scene->getManagerNoLock(kWKWideVectorManager);
+    shapeManager = (ShapeManager *)scene->getManagerNoLock(kWKShapeManager);
+    chunkManager = (SphericalChunkManager *)scene->getManagerNoLock(kWKSphericalChunkManager);
+    loftManager = (LoftManager *)scene->getManagerNoLock(kWKLoftedPolyManager);
+    billManager = (BillboardManager *)scene->getManagerNoLock(kWKBillboardManager);
+    geomManager = (GeometryManager *)scene->getManagerNoLock(kWKGeometryManager);
     fontTexManager = scene->getFontTextureManager();
-    partSysManager = (ParticleSystemManager *)scene->getManager(kWKParticleSystemManager);
+    partSysManager = (ParticleSystemManager *)scene->getManagerNoLock(kWKParticleSystemManager);
 }
 
 void ComponentManager::addComponentObject(ComponentObjectRef compObj)
@@ -99,113 +98,140 @@ bool ComponentManager::hasComponentObject(SimpleIdentity compID)
     auto it = compObjs.find(ComponentObjectRef(new ComponentObject(compID)));
     return it != compObjs.end();
 }
-
-void ComponentManager::removeComponentObject(SimpleIdentity compID,ChangeSet &changes)
+    
+void ComponentManager::removeComponentObject(SimpleIdentity compID, ChangeSet &changes)
 {
-    ComponentObjectRef compObj;
+    SimpleIDSet compIDs;
+    compIDs.insert(compID);
     
-    // Lock around all component objects
-    {
-        std::lock_guard<std::mutex> guardLock(lock);
-
-        auto it = compObjs.find(ComponentObjectRef(new ComponentObject(compID)));
-        if (it == compObjs.end())
-        {
-            wkLogLevel(Warn,"Tried to delete object that doesn't exist");
-            return;
-        }
-        compObj = *it;
-        
-        if (compObj->underConstruction) {
-            wkLogLevel(Warn,"Deleting an object that's under construction");
-        }
-        compObj = *it;
-        compObjs.erase(it);
-    }
-    
-    // Get rid of the various layer objects
-    if (compObj->markerIDs.empty())
-        markerManager->removeMarkers(compObj->markerIDs, changes);
-    if (!compObj->labelIDs.empty())
-        labelManager->removeLabels(compObj->labelIDs, changes);
-    if (!compObj->vectorIDs.empty())
-        vectorManager->removeVectors(compObj->vectorIDs, changes);
-    if (!compObj->wideVectorIDs.empty())
-        wideVectorManager->removeVectors(compObj->wideVectorIDs, changes);
-    if (!compObj->shapeIDs.empty())
-        shapeManager->removeShapes(compObj->shapeIDs, changes);
-    if (!compObj->loftIDs.empty())
-        loftManager->removeLoftedPolys(compObj->loftIDs, changes);
-    // Note: Turned off chunk manager
-    //                if (chunkManager && !userObj.chunkIDs.empty())
-    //                    chunkManager->removeChunks(userObj.chunkIDs, changes);
-    if (!compObj->billIDs.empty())
-        billManager->removeBillboards(compObj->billIDs, changes);
-    if (!compObj->geomIDs.empty())
-        geomManager->removeGeometry(compObj->geomIDs, changes);
-    if (!compObj->drawStringIDs.empty())
-    {
-        // Giving the fonts 2s to stick around
-        //       This avoids problems with texture being paged out.
-        //       Without this we lose the textures before we're done with them
-        TimeInterval when = TimeGetCurrent() + 2.0;
-        for (SimpleIdentity dStrID : compObj->drawStringIDs)
-            fontTexManager->removeString(dStrID, changes, when);
-    }
-    if (!compObj->partSysIDs.empty())
-    {
-        for (SimpleIdentity partSysID : compObj->partSysIDs)
-            partSysManager->removeParticleSystem(partSysID, changes);
-    }        
+    removeComponentObjects(compIDs, changes);
 }
 
-void ComponentManager::enableComponentObject(SimpleIdentity compID,bool enable,ChangeSet &changes)
+void ComponentManager::removeComponentObjects(const SimpleIDSet &compIDs,ChangeSet &changes)
 {
-    ComponentObjectRef compObj;
+    std::vector<ComponentObjectRef> compRefs;
     
-    // Lock around all component objects
-    std::lock_guard<std::mutex> guardLock(lock);
-        
-    auto it = compObjs.find(ComponentObjectRef(new ComponentObject(compID)));
-    if (it == compObjs.end())
     {
-        wkLogLevel(Warn,"Tried to enable/disable object that doesn't exist");
-        return;
-    }
-    compObj = *it;
-    
-    if (compObj->underConstruction) {
-        wkLogLevel(Warn,"Disable/enabled an object that's under construction");
-    }
-    compObj = *it;
-    
-    compObj->enable = enable;
+        // Lock around all component objects
+        std::lock_guard<std::mutex> guardLock(lock);
 
-    // Note: Should lock just around this component object
-    //       But I'm not sure I want one std::mutex per object
-    if (!compObj->vectorIDs.empty())
-        vectorManager->enableVectors(compObj->vectorIDs, enable, changes);
-    if (!compObj->wideVectorIDs.empty())
-        wideVectorManager->enableVectors(compObj->wideVectorIDs, enable, changes);
-    if (!compObj->markerIDs.empty())
-        markerManager->enableMarkers(compObj->markerIDs, enable, changes);
-    if (!compObj->labelIDs.empty())
-        labelManager->enableLabels(compObj->labelIDs, enable, changes);
-    if (!compObj->shapeIDs.empty())
-        shapeManager->enableShapes(compObj->shapeIDs, enable, changes);
-    if (!compObj->billIDs.empty())
-        billManager->enableBillboards(compObj->billIDs, enable, changes);
-    if (!compObj->loftIDs.empty())
-        loftManager->enableLoftedPolys(compObj->loftIDs, enable, changes);
-    if (geomManager && !compObj->geomIDs.empty())
-        geomManager->enableGeometry(compObj->geomIDs, enable, changes);
-// Note: Disabled chunk manager
-//            if (chunkManager && !compObj->contents->chunkIDs.empty())
-//            {
-//                for (SimpleIDSet::iterator it = compObj->contents->chunkIDs.begin();
-//                     it != compObj->contents->chunkIDs.end(); ++it)
-//                    chunkManager->enableChunk(*it, enable, changes);
-//            }
+        for (SimpleIdentity compID : compIDs) {
+            auto it = compObjs.find(ComponentObjectRef(new ComponentObject(compID)));
+            if (it == compObjs.end())
+            {
+                wkLogLevel(Warn,"Tried to delete object that doesn't exist");
+                return;
+            }
+            ComponentObjectRef compObj = *it;
+            
+            if (compObj->underConstruction) {
+                wkLogLevel(Warn,"Deleting an object that's under construction");
+            }
+            
+            compRefs.push_back(compObj);
+            
+            compObjs.erase(it);
+        }
+    }
+    
+    for (ComponentObjectRef compObj : compRefs) {
+        // Get rid of the various layer objects
+        if (compObj->markerIDs.empty())
+            markerManager->removeMarkers(compObj->markerIDs, changes);
+        if (!compObj->labelIDs.empty())
+            labelManager->removeLabels(compObj->labelIDs, changes);
+        if (!compObj->vectorIDs.empty())
+            vectorManager->removeVectors(compObj->vectorIDs, changes);
+        if (!compObj->wideVectorIDs.empty())
+            wideVectorManager->removeVectors(compObj->wideVectorIDs, changes);
+        if (!compObj->shapeIDs.empty())
+            shapeManager->removeShapes(compObj->shapeIDs, changes);
+        if (!compObj->loftIDs.empty())
+            loftManager->removeLoftedPolys(compObj->loftIDs, changes);
+        if (compObj->chunkIDs.empty())
+            chunkManager->removeChunks(compObj->chunkIDs, changes);
+        if (!compObj->billIDs.empty())
+            billManager->removeBillboards(compObj->billIDs, changes);
+        if (!compObj->geomIDs.empty())
+            geomManager->removeGeometry(compObj->geomIDs, changes);
+        if (!compObj->drawStringIDs.empty())
+        {
+            // Giving the fonts 2s to stick around
+            //       This avoids problems with texture being paged out.
+            //       Without this we lose the textures before we're done with them
+            TimeInterval when = TimeGetCurrent() + 2.0;
+            for (SimpleIdentity dStrID : compObj->drawStringIDs)
+                fontTexManager->removeString(dStrID, changes, when);
+        }
+        if (!compObj->partSysIDs.empty())
+        {
+            for (SimpleIdentity partSysID : compObj->partSysIDs)
+                partSysManager->removeParticleSystem(partSysID, changes);
+        }
+    }
+}
+    
+void ComponentManager::enableComponentObject(SimpleIdentity compID, bool enable, ChangeSet &changes)
+{
+    SimpleIDSet compIDs;
+    compIDs.insert(compID);
+}
+
+void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes)
+{
+    std::vector<ComponentObjectRef> compRefs;
+    
+    {
+        // Lock around all component objects
+        std::lock_guard<std::mutex> guardLock(lock);
+        
+        for (SimpleIdentity compID : compIDs)
+        {
+            auto it = compObjs.find(ComponentObjectRef(new ComponentObject(compID)));
+            if (it == compObjs.end())
+            {
+                wkLogLevel(Warn,"Tried to enable/disable object that doesn't exist");
+                return;
+            }
+            ComponentObjectRef compObj = *it;
+            
+            if (compObj->underConstruction) {
+                wkLogLevel(Warn,"Disable/enabled an object that's under construction");
+            }
+            
+            compRefs.push_back(compObj);
+        }
+    }
+    
+    for (ComponentObjectRef compObj: compRefs)
+    {
+        // Note: Should lock just around this component object
+        //       But I'm not sure I want one std::mutex per object
+        compObj->enable = enable;
+
+        if (!compObj->vectorIDs.empty())
+            vectorManager->enableVectors(compObj->vectorIDs, enable, changes);
+        if (!compObj->wideVectorIDs.empty())
+            wideVectorManager->enableVectors(compObj->wideVectorIDs, enable, changes);
+        if (!compObj->markerIDs.empty())
+            markerManager->enableMarkers(compObj->markerIDs, enable, changes);
+        if (!compObj->labelIDs.empty())
+            labelManager->enableLabels(compObj->labelIDs, enable, changes);
+        if (!compObj->shapeIDs.empty())
+            shapeManager->enableShapes(compObj->shapeIDs, enable, changes);
+        if (!compObj->billIDs.empty())
+            billManager->enableBillboards(compObj->billIDs, enable, changes);
+        if (!compObj->loftIDs.empty())
+            loftManager->enableLoftedPolys(compObj->loftIDs, enable, changes);
+        if (geomManager && !compObj->geomIDs.empty())
+            geomManager->enableGeometry(compObj->geomIDs, enable, changes);
+        if (!compObj->chunkIDs.empty())
+        {
+            for (SimpleIDSet::iterator it = compObj->chunkIDs.begin();
+                 it != compObj->chunkIDs.end(); ++it)
+                chunkManager->enableChunk(*it, enable, changes);
+        }
+    }
 }
 
 }

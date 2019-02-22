@@ -24,6 +24,9 @@
 #import "MaplyBaseViewController_private.h"
 #import "QuadImageFrameLoader_iOS.h"
 
+// Note: We're sharing the image fetcher
+extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
+
 using namespace WhirlyKit;
 
 @interface MaplyQuadPagingLoader()<QuadImageFrameLoaderLayer>
@@ -65,21 +68,32 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithParams:(MaplySamplingParams *)inParams
                        tileInfo:(NSObject<MaplyTileInfoNew> *)tileInfo
-                     loadInterp:(NSObject<MaplyLoaderInterpreter> *)loadInterp
+                     loadInterp:(NSObject<MaplyLoaderInterpreter> *)inLoadInterp
                           viewC:(MaplyBaseViewController * )inViewC
 {
     self = [super initWithViewC:inViewC];
 
     params = inParams;
+    loadInterp = inLoadInterp;
     
     // Loader does all the work.  The Obj-C version is just a wrapper
-    self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params->params,tileInfo));
+    self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params->params,
+                                                                            tileInfo,
+                                                                            QuadImageFrameLoader::Object));
     
     self.flipY = true;
     self.debugMode = false;
     self->minLevel = tileInfo.minZoom;
     self->maxLevel = tileInfo.maxZoom;
     self->valid = true;
+    
+    MaplyQuadPagingLoader * __weak weakSelf = self;
+
+    // Start things out after a delay
+    // This lets the caller mess with settings
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [weakSelf delayedInit];
+    });
     
     return self;
 }
@@ -88,6 +102,16 @@ using namespace WhirlyKit;
 {
     loader->layer = self;
     
+    if (!tileFetcher) {
+        tileFetcher = [self.viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
+    }
+    loader->tileFetcher = tileFetcher;
+
+    samplingLayer = [self.viewC findSamplingLayer:params forUser:self->loader];
+    // Do this again in case they changed them
+    loader->setSamplingParams(params->params);
+    loader->setFlipY(self.flipY);
+
     return true;
 }
 

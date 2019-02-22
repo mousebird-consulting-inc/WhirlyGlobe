@@ -106,7 +106,9 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     params = inParams;
 
     // Loader does all the work.  The Obj-C version is just a wrapper
-    self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params->params,frameInfos));
+    self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params->params,
+                                                                            frameInfos,
+                                                                            QuadImageFrameLoader::MultiFrame));
     
     self.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
     self.drawPriorityPerLevel = 100;

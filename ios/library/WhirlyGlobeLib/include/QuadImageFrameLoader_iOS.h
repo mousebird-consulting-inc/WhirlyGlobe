@@ -98,12 +98,10 @@ protected:
 class QuadImageFrameLoader_ios : public QuadImageFrameLoader
 {
 public:
-    // Only displaying component objects
-    QuadImageFrameLoader_ios(const SamplingParams &params);
     // Displaying a single frame
-    QuadImageFrameLoader_ios(const SamplingParams &params,NSObject<MaplyTileInfoNew> *inTileInfo);
+    QuadImageFrameLoader_ios(const SamplingParams &params,NSObject<MaplyTileInfoNew> *inTileInfo,Mode mode);
     // Displaying multiple animated frames
-    QuadImageFrameLoader_ios(const SamplingParams &params,NSArray<NSObject<MaplyTileInfoNew> *> *inFrameInfos);
+    QuadImageFrameLoader_ios(const SamplingParams &params,NSArray<NSObject<MaplyTileInfoNew> *> *inFrameInfos,Mode mode);
     ~QuadImageFrameLoader_ios();
     
     NSObject<MaplyTileFetcher> * __weak tileFetcher;

@@ -80,7 +80,9 @@ void QIFFrameAsset::cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *batchO
 void QIFFrameAsset::loadSuccess(QuadImageFrameLoader *loader,Texture *tex)
 {
     state = Loaded;
-    texID = tex->getId();
+    texID = EmptyIdentity;
+    if (tex)
+        texID = tex->getId();
 }
 
 void QIFFrameAsset::loadFailed(QuadImageFrameLoader *loader)
@@ -194,6 +196,15 @@ void QIFTileAsset::clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps, Cha
     }
     instanceDrawIDs.clear();
     
+    if (!compObjs.empty()) {
+        loader->compManager->removeComponentObjects(compObjs,changes);
+        compObjs.clear();
+    }
+    if (!ovlCompObjs.empty()) {
+        loader->compManager->removeComponentObjects(ovlCompObjs, changes);
+        ovlCompObjs.clear();
+    }
+
     shouldEnable = false;
 }
     
@@ -252,11 +263,20 @@ void QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *lo
         return;
     }
     
+    // Component objects (if there)
+    for (ComponentObjectRef compObj : loadReturn->compObjs)
+        compObjs.insert(compObj->getId());
+    for (ComponentObjectRef ovlCompObj : loadReturn->ovlCompObjs)
+        ovlCompObjs.insert(ovlCompObj->getId());
+    
     auto frame = frames[loadReturn->frame];
     
     frame->loadSuccess(loader,tex);
     
-    changes.push_back(new AddTextureReq(tex));
+    if (tex)
+        changes.push_back(new AddTextureReq(tex));
+    else
+        changes.push_back(NULL);
 }
 
 // A single frame failed to load
@@ -435,7 +455,8 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mod
     color(RGBAColor(255,255,255,255)),
     renderTargetID(EmptyIdentity),
     control(NULL), builder(NULL),
-    changesSinceLastFlush(true)
+    changesSinceLastFlush(true),
+    compManager(NULL)
 {
 }
     
@@ -529,8 +550,11 @@ QIFTileAssetRef QuadImageFrameLoader::addNewTile(const QuadTreeNew::ImportantNod
     
     // Make the instance drawables we'll use to mirror the geometry
     if (loadedTile) {
-        newTile->setupContents(this,loadedTile,defaultDrawPriority,shaderID,changes);
+        if (mode != Object)
+            newTile->setupContents(this,loadedTile,defaultDrawPriority,shaderID,changes);
         newTile->setShouldEnable(loadedTile->enabled);
+        
+        // Note: Should we check for existing geometry?
     }
     
     if (debugMode)
@@ -576,11 +600,20 @@ void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSe
         tex = image->buildTexture();
         tex->setFormat(texType);
     }
-    
-    if (tex) {
-        tile->frameLoaded(this, loadReturn, tex, changes);
+
+    // Failure depends on what mode we're in
+    bool failed = false;
+    if (mode == Object) {
+        // In object mode, we might not get anything, but it's not a failure
+        failed = loadReturn->hasError;
     } else {
+        // In the images modes we need, ya know, and image
+        failed = (tex == NULL);
+    }
+    if (failed) {
         tile->frameFailed(this, loadReturn, changes);
+    } else {
+        tile->frameLoaded(this, loadReturn, tex, changes);
     }
     
     changesSinceLastFlush = true;
@@ -594,51 +627,65 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
         auto tileID = tileIt.first;
         auto tile = tileIt.second;
         
-        SimpleIdentity texID = EmptyIdentity;
-        QuadTreeNew::Node texNode = tile->getIdent();
+        // Enable/disable the various visual objects
+        bool enable = tile->getShouldEnable();
+        auto compObjIDs = tile->getCompObjs();
+        if (!compObjIDs.empty())
+            compManager->enableComponentObjects(compObjIDs, enable, changes);
+        auto ovlCompObjIDs = tile->getOvlCompObjs();
+        if (!ovlCompObjIDs.empty())
+            compManager->enableComponentObjects(ovlCompObjIDs, enable, changes);
 
-        // Look for a tile or parent tile that has a texture ID
-        do {
-            auto it = tiles.find(texNode);
-            if (it == tiles.end())
-                break;
-            auto parentTile = it->second;
-            auto parentFrame = parentTile->getFrame(0);
-            if (parentFrame && parentFrame->getTexID() != EmptyIdentity) {
-                // Got one, so stop
-                texID = parentFrame->getTexID();
-                texNode = parentTile->getIdent();
-                break;
-            }
+        // In object mode we just turn things on
+        if (mode != Object) {
+            // For the image modes, we try to refer to parent textures as needed
             
-            // Work our way up the hierarchy
-            if (texNode.level <= 0)
-                break;
-            texNode.level -= 1;
-            texNode.x /= 2;
-            texNode.y /= 2;
-        } while (texID == EmptyIdentity);
+            SimpleIdentity texID = EmptyIdentity;
+            QuadTreeNew::Node texNode = tile->getIdent();
 
-        // Turn on the node and adjust the texture
-        // Note: Should cache this so we're not changing it every frame
-        if (texID) {
-            int relLevel = tileID.level - texNode.level;
-            int relX = tileID.x - texNode.x * (1<<relLevel);
-            int tileIDY = tileID.y;
-            int frameIdentY = texNode.y;
-            if (flipY) {
-                tileIDY = (1<<tileID.level)-tileIDY-1;
-                frameIdentY = (1<<texNode.level)-frameIdentY-1;
-            }
-            int relY = tileIDY - frameIdentY * (1<<relLevel);
-            
-            for (auto drawID : tile->getInstanceDrawIDs()) {
-                changes.push_back(new OnOffChangeRequest(drawID,true));
-                changes.push_back(new DrawTexChangeRequest(drawID,0,texID,0,0,relLevel,relX,relY));
-            }
-        } else {
-            for (auto drawID : tile->getInstanceDrawIDs()) {
-                changes.push_back(new OnOffChangeRequest(drawID,false));
+            // Look for a tile or parent tile that has a texture ID
+            do {
+                auto it = tiles.find(texNode);
+                if (it == tiles.end())
+                    break;
+                auto parentTile = it->second;
+                auto parentFrame = parentTile->getFrame(0);
+                if (parentFrame && parentFrame->getTexID() != EmptyIdentity) {
+                    // Got one, so stop
+                    texID = parentFrame->getTexID();
+                    texNode = parentTile->getIdent();
+                    break;
+                }
+                
+                // Work our way up the hierarchy
+                if (texNode.level <= 0)
+                    break;
+                texNode.level -= 1;
+                texNode.x /= 2;
+                texNode.y /= 2;
+            } while (texID == EmptyIdentity);
+
+            // Turn on the node and adjust the texture
+            // Note: Should cache this so we're not changing it every frame
+            if (texID) {
+                int relLevel = tileID.level - texNode.level;
+                int relX = tileID.x - texNode.x * (1<<relLevel);
+                int tileIDY = tileID.y;
+                int frameIdentY = texNode.y;
+                if (flipY) {
+                    tileIDY = (1<<tileID.level)-tileIDY-1;
+                    frameIdentY = (1<<texNode.level)-frameIdentY-1;
+                }
+                int relY = tileIDY - frameIdentY * (1<<relLevel);
+                
+                for (auto drawID : tile->getInstanceDrawIDs()) {
+                    changes.push_back(new OnOffChangeRequest(drawID,true));
+                    changes.push_back(new DrawTexChangeRequest(drawID,0,texID,0,0,relLevel,relX,relY));
+                }
+            } else {
+                for (auto drawID : tile->getInstanceDrawIDs()) {
+                    changes.push_back(new OnOffChangeRequest(drawID,false));
+                }
             }
         }
     }
@@ -662,6 +709,8 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
         tileState->node = tileID;
         tileState->instanceDrawIDs = tile->getInstanceDrawIDs();
         tileState->enable = tile->getShouldEnable();
+        tileState->compObjs = tile->getCompObjs();
+        tileState->ovlCompObjs = tile->getOvlCompObjs();
         
         // Work through the frames
         for (int frameID=0;frameID<numFrames;frameID++) {
@@ -723,6 +772,7 @@ void QuadImageFrameLoader::setBuilder(QuadTileBuilder *inBuilder,QuadDisplayCont
 {
     builder = inBuilder;
     control = inControl;
+    compManager = (ComponentManager *)control->getScene()->getManager(kWKComponentManager);
 }
 
 /// Before we tell the delegate to unload tiles, see if they want to keep them around

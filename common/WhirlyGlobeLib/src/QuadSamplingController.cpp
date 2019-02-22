@@ -55,7 +55,7 @@ void QuadSamplingController::start(const SamplingParams &inParams,Scene *inScene
             import = params.importancePerLevel[ii];
         importance[ii] = import;
     }
-    if (params.minImportanceTop != params.minImportance)
+    if (params.minImportanceTop != params.minImportance && params.minImportanceTop > 0.0)
         importance[params.minZoom] = params.minImportanceTop;
     displayControl->setMinImportancePerLevel(importance);
     displayControl->setMaxTiles(params.maxTiles);

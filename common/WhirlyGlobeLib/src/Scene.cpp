@@ -40,6 +40,7 @@
 #import "WideVectorManager.h"
 #import "GeometryManager.h"
 #import "FontTextureManager.h"
+#import "ComponentManager.h"
 
 namespace WhirlyKit
 {
@@ -81,6 +82,8 @@ void Scene::Init(WhirlyKit::CoordSystemDisplayAdapter *adapter,Mbr localMbr)
     addManager(kWKWideVectorManager, new WideVectorManager());
     // Raw Geometry
     addManager(kWKGeometryManager, new GeometryManager());
+    // Components (groups of things)
+    addManager(kWKComponentManager, MakeComponentManager());
     
     overlapMargin = 0.0;
 }
@@ -206,14 +209,19 @@ void Scene::setRenderer(SceneRendererES *renderer)
     
 SceneManager *Scene::getManager(const char *name)
 {
-    SceneManager *ret = NULL;
-    
     std::lock_guard<std::mutex> guardLock(managerLock);
+
+    return getManagerNoLock(name);
+}
+    
+SceneManager *Scene::getManagerNoLock(const char *name)
+{
+    SceneManager *ret = NULL;
 
     std::map<std::string,SceneManager *>::iterator it = managers.find((std::string)name);
     if (it != managers.end())
         ret = it->second;
-    
+
     return ret;
 }
 

@@ -31,7 +31,7 @@
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
 	baseCase = [[CartoDBLightTestCase alloc] init];
-	[baseCase setUpWithGlobe:globeVC];
+//    [baseCase setUpWithGlobe:globeVC];
 
 	[self setupCartoDBLayer: globeVC];
     globeVC.height = 0.0001;
@@ -64,11 +64,11 @@
     params.coordSys = [[MaplySphericalMercator alloc] initWebStandard];
 
     interp = [[CartoDBInterpreter alloc] initWithSearch:search];
-    interp.loader = loader;
     interp.minZoom = params.minZoom;
     interp.maxZoom = params.maxZoom;
 
     loader = [[MaplyQuadPagingLoader alloc] initWithParams:params tileInfo:interp loadInterp:interp viewC:baseViewC];
+    interp.loader = loader;
 }
 
 

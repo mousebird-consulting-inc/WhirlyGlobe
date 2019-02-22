@@ -50,6 +50,13 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
+// The scene wants a component manager early in the process
+// This gives it an iOS specific one
+ComponentManager *WhirlyKit::MakeComponentManager()
+{
+    return new ComponentManager_iOS();
+}
+
 // We store per thread changes we may be journaling here
 class ThreadChanges
 {
@@ -162,8 +169,7 @@ public:
     offlineMode = layerThread == nil;
     scene = inScene;
     
-    compManager = new ComponentManager_iOS();
-    compManager->setScene(scene);
+    compManager = (ComponentManager_iOS *)scene->getManager(kWKComponentManager);
     
     atlasGroup = [[MaplyTextureAtlasGroup alloc] initWithScene:scene];
     
@@ -209,9 +215,6 @@ public:
             delete threadChanges.changes[ii];
     }
     perThreadChanges.clear();
-
-    delete compManager;
-    compManager = NULL;
 }
 
 - (void)lockingShutdown

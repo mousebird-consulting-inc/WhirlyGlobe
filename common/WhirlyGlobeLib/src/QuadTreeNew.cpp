@@ -154,11 +154,11 @@ void QuadTreeNew::evalNodeImportance(ImportantNode node,const std::vector<double
 {
     node.importance = importance(node);
     
-    if (node.level > maxLevel ||
-        (node.level > minLevel && node.importance < minImportance[node.level]))
+    if (node.level > maxLevel || node.importance < minImportance[node.level])
         return;
-    
-    importSet.insert(node);
+
+    if (node.level >= minLevel)
+        importSet.insert(node);
     
     if (node.level < maxLevel) {
         // Add the children
@@ -217,13 +217,8 @@ std::tuple<int,QuadTreeNew::ImportantNodeSet> QuadTreeNew::calcCoverageVisible(c
     ImportantNodeSet sortedNodes;
 
     // Start at the lowest level and work our way to higher resolution
-    int numX = 1<<minLevel, numY = 1<<minLevel;
-    for (int iy=0;iy<numY;iy++)
-        for (int ix=0;ix<numX;ix++)
-        {
-            ImportantNode node(ix,iy,minLevel);
-            evalNodeImportance(node,minImportance,sortedNodes);
-        }
+    ImportantNode node(0,0,0);
+    evalNodeImportance(node,minImportance,sortedNodes);
 
     // Max level is the one we want to load (or try anyway)
     int targetLevel = -1;
@@ -251,15 +246,11 @@ std::tuple<int,QuadTreeNew::ImportantNodeSet> QuadTreeNew::calcCoverageVisible(c
         // Also make sure we're not exceeding our maximum as we go
         ImportantNodeSet levelNodes;
         bool success = true;
-        for (int iy=0;iy<numY;iy++)
-            for (int ix=0;ix<numX;ix++)
-            {
-                ImportantNode node(ix,iy,minLevel);
-                if (!evalNodeVisible(node,minImportance,maxNodes,levelsToLoad,chosenLevel,levelNodes)) {
-                    success = false;
-                    break;
-                }
-            }
+        ImportantNode node(0,0,0);
+        if (!evalNodeVisible(node,minImportance,maxNodes,levelsToLoad,chosenLevel,levelNodes)) {
+            success = false;
+            break;
+        }
 
         // Kept within the limit, so return these nodes
         if (success) {

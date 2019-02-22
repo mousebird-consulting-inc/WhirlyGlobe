@@ -295,6 +295,8 @@ public:
     
     /// Return the given manager.  This is thread safe;
     SceneManager *getManager(const char *name);
+    /// This one can only be called during scene initialization
+    SceneManager *getManagerNoLock(const char *name);
     
     /// Add the given manager.  The scene is now responsible for deletion.  This is thread safe.
     void addManager(const char *name,SceneManager *manager);

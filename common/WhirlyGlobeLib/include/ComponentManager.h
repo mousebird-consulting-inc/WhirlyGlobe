@@ -28,7 +28,7 @@
 #import "ParticleSystemManager.h"
 #import "SceneGraphManager.h"
 #import "ShapeManager.h"
-//#import "SphericalEarthChunkManager.h"
+#import "SphericalEarthChunkManager.h"
 #import "VectorManager.h"
 #import "WideVectorManager.h"
 #import "SelectionManager.h"
@@ -72,12 +72,14 @@ typedef std::shared_ptr<ComponentObject> ComponentObjectRef;
     
 typedef std::set<ComponentObjectRef,IdentifiableRefSorter> ComponentObjectSet;
     
+#define kWKComponentManager "kWKComponentManager"
+    
 /** Component Object Manager
  
     Manages component objects, particular enable/disable and deletion.
     The
   */
-class ComponentManager
+class ComponentManager : public SceneManager
 {
 public:
     ComponentManager();
@@ -95,9 +97,15 @@ public:
 
     /// Remove the given Component Object and all its associated data
     virtual void removeComponentObject(SimpleIdentity compID,ChangeSet &changes);
-    
+
+    /// Remove a list of Component Objects
+    virtual void removeComponentObjects(const SimpleIDSet &compIDs,ChangeSet &changes);
+
     /// Enable/disable the contents of a Component Object
     virtual void enableComponentObject(SimpleIdentity compID,bool enable,ChangeSet &changes);
+    
+    /// Enable/disable a whole group of Component Objects
+    virtual void enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes);
     
     // These are here for convenience
     LayoutManager *layoutManager;
@@ -106,6 +114,7 @@ public:
     VectorManager *vectorManager;
     WideVectorManager *wideVectorManager;
     ShapeManager *shapeManager;
+    SphericalChunkManager *chunkManager;
     LoftManager *loftManager;
     BillboardManager *billManager;
     GeometryManager *geomManager;
@@ -118,4 +127,7 @@ protected:
     ComponentObjectSet compObjs;
 };
 
+// Make an OS specific component manager
+extern ComponentManager *MakeComponentManager();
+    
 }
