@@ -75,7 +75,7 @@
 @interface MaplyOvlDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
 
 // Intialize with the loader we're using.  Need this for extents of tiles
-- (instancetype __nonnull)initWithLoader:(MaplyQuadLoaderBase * __nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
+- (instancetype __nonnull)initWithViewC:(MaplyBaseViewController * __nonnull)viewC;
 
 @end
 
@@ -85,7 +85,7 @@
  */
 @interface MaplyDebugImageLoaderInterpreter : MaplyImageLoaderInterpreter
 
-- (instancetype __nonnull)initWithLoader:(MaplyQuadLoaderBase *__nonnull)inLoader viewC:(MaplyBaseViewController * __nonnull)viewC;
+- (instancetype __nonnull)initWithViewC:(MaplyBaseViewController * __nonnull)viewC;
 
 @end
 

@@ -132,7 +132,7 @@ public:
     virtual  void cancelFetches(QuadImageFrameLoader *loader,QIFBatchOps *batchOps);
     
     // A single frame loaded successfully
-    virtual void frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,Texture *tex,ChangeSet &changes);
+    virtual bool frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,Texture *tex,ChangeSet &changes);
     
     // A single frame failed to load
     virtual void frameFailed(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes);

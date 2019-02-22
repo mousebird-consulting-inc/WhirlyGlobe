@@ -226,7 +226,8 @@ using namespace WhirlyKit;
     MaplyLoaderReturn *loadData = [self makeLoaderReturn];
     loadData.tileID = tileID;
     loadData.frame = frame;
-    [loadData addTileData:data];
+    if (data)
+        [loadData addTileData:data];
     
     [self performSelector:@selector(mergeFetchRequest:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
 }
@@ -251,7 +252,7 @@ using namespace WhirlyKit;
     
     // Do the parsing on another thread since it can be slow
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [self->loadInterp dataForTile:loadReturn];
+        [self->loadInterp dataForTile:loadReturn loader:self];
         
         [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
     });

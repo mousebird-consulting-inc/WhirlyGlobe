@@ -102,7 +102,7 @@ using namespace WhirlyKit;
 
 @implementation MaplyImageLoaderInterpreter
 
-- (void)dataForTile:(MaplyImageLoaderReturn * __nonnull)loadReturn
+- (void)dataForTile:(MaplyImageLoaderReturn *)loadReturn loader:(MaplyQuadLoaderBase *)loader
 {
     NSArray *tileDatas = [loadReturn getTileData];
     
@@ -117,23 +117,21 @@ using namespace WhirlyKit;
 @implementation MaplyOvlDebugImageLoaderInterpreter
 {
     MaplyBaseViewController * __weak viewC;
-    MaplyQuadLoaderBase * __weak loader;
     UIFont *font;
 }
 
-- (id)initWithLoader:(MaplyQuadLoaderBase *)inLoader viewC:(MaplyBaseViewController *)inViewC
+- (id)initWithViewC:(MaplyBaseViewController *)inViewC
 {
     self = [super init];
-    loader = inLoader;
     viewC = inViewC;
     font = [UIFont systemFontOfSize:12.0];
     
     return self;
 }
 
-- (void)dataForTile:(MaplyImageLoaderReturn * __nonnull)loadReturn
+- (void)dataForTile:(MaplyImageLoaderReturn *)loadReturn loader:(MaplyQuadLoaderBase *)loader
 {
-    [super dataForTile:loadReturn];
+    [super dataForTile:loadReturn loader:loader];
     
     MaplyBoundingBox bbox = [loader geoBoundsForTile:loadReturn.tileID];
     MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
@@ -147,7 +145,8 @@ using namespace WhirlyKit;
                                       @{kMaplyFont: font,
                                         kMaplyTextColor: UIColor.blackColor,
                                         kMaplyTextOutlineColor: UIColor.whiteColor,
-                                        kMaplyTextOutlineSize: @(2.0)
+                                        kMaplyTextOutlineSize: @(2.0),
+                                        kMaplyEnable: @(false),
                                         }
                                                        mode:MaplyThreadCurrent];
     
@@ -157,7 +156,7 @@ using namespace WhirlyKit;
     coords[4] = coords[0];
     MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:5 attributes:nil];
     [vecObj subdivideToGlobe:0.001];
-    MaplyComponentObject *outlineObj = [viewC addVectors:@[vecObj] desc:nil mode:MaplyThreadCurrent];
+    MaplyComponentObject *outlineObj = [viewC addVectors:@[vecObj] desc:@{kMaplyEnable: @(false)} mode:MaplyThreadCurrent];
     
     [loadReturn addCompObjs:@[labelObj,outlineObj]];
 }
@@ -169,7 +168,7 @@ using namespace WhirlyKit;
     MaplyBaseViewController * __weak viewC;
 }
 
-- (instancetype)initWithLoader:(MaplyQuadLoaderBase *)inLoader viewC:(MaplyBaseViewController *)inViewC
+- (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC
 {
     self = [super init];
     
@@ -181,7 +180,7 @@ using namespace WhirlyKit;
 static const int MaxDebugColors = 10;
 static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x4F256F, 0xD89CDE, 0x773B28, 0x333D99, 0x862D52, 0xC2C653, 0xB8583D};
 
-- (void)dataForTile:(MaplyImageLoaderReturn *)loadReturn
+- (void)dataForTile:(MaplyImageLoaderReturn *)loadReturn loader:(MaplyQuadLoaderBase *)loader
 {
     MaplyTileID tileID = loadReturn.tileID;
     

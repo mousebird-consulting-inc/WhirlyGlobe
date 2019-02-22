@@ -255,12 +255,11 @@ void QIFTileAsset::cancelFetches(QuadImageFrameLoader *loader,QIFBatchOps *batch
 }
 
 // A single frame loaded successfully
-void QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,Texture *tex,ChangeSet &changes) {
-    if (loadReturn->frame < 0 || loadReturn->frame >= frames.size())
+bool QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,Texture *tex,ChangeSet &changes) {
+    if (frames.size() > 0 && (loadReturn->frame < 0 || loadReturn->frame >= frames.size()))
     {
         wkLogLevel(Warn,"MaplyQuadImageFrameLoader: Got frame back outside of range");
-        delete tex;
-        return;
+        return false;
     }
     
     // Component objects (if there)
@@ -269,19 +268,23 @@ void QIFTileAsset::frameLoaded(QuadImageFrameLoader *loader,QuadLoaderReturn *lo
     for (ComponentObjectRef ovlCompObj : loadReturn->ovlCompObjs)
         ovlCompObjs.insert(ovlCompObj->getId());
     
-    auto frame = frames[loadReturn->frame];
-    
-    frame->loadSuccess(loader,tex);
+    if (loadReturn->frame >= 0 && frames.size() > 0) {
+        auto frame = frames[loadReturn->frame];
+        
+        frame->loadSuccess(loader,tex);
+    }
     
     if (tex)
         changes.push_back(new AddTextureReq(tex));
     else
         changes.push_back(NULL);
+    
+    return true;
 }
 
 // A single frame failed to load
 void QIFTileAsset::frameFailed(QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes) {
-    if (loadReturn->frame < 0 || loadReturn->frame >= frames.size())
+    if (frames.size() > 0 && (loadReturn->frame < 0 || loadReturn->frame >= frames.size()))
     {
         wkLogLevel(Warn,"MaplyQuadImageFrameLoader: Got frame back outside of range.");
         return;
@@ -560,6 +563,7 @@ QIFTileAssetRef QuadImageFrameLoader::addNewTile(const QuadTreeNew::ImportantNod
     if (debugMode)
         wkLogLevel(Debug,"Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
     
+    // Normal remote data fetching
     newTile->startFetching(this, batchOps);
         
     return newTile;
@@ -582,40 +586,69 @@ void QuadImageFrameLoader::removeTile(const QuadTreeNew::Node &ident, QIFBatchOp
     
 void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSet &changes)
 {
+    bool failed = false;
+
     QuadTreeNew::Node ident(loadReturn->ident);
     auto it = tiles.find(ident);
     // Tile disappeared in the mean time, so drop it
     if (it == tiles.end() || loadReturn->hasError) {
         if (debugMode)
             wkLogLevel(Debug,"MaplyQuadImageLoader: Failed to load tile before it was erased %d: (%d,%d)",loadReturn->ident.level,loadReturn->ident.x,loadReturn->ident.y);
-        return;
-    }
-    auto tile = it->second;
-    
-    // Build the texture
-    ImageTileRef image = loadReturn->images.empty() ? NULL : loadReturn->images.front();
-    Texture *tex = NULL;
-    LoadedTileNewRef loadedTile = builder->getLoadedTile(ident);
-    if (image) {
-        tex = image->buildTexture();
-        tex->setFormat(texType);
+        failed = true;
     }
 
-    // Failure depends on what mode we're in
-    bool failed = false;
-    if (mode == Object) {
-        // In object mode, we might not get anything, but it's not a failure
-        failed = loadReturn->hasError;
-    } else {
-        // In the images modes we need, ya know, and image
-        failed = (tex == NULL);
+    ImageTileRef image;
+    Texture *tex = NULL;
+
+    if (!failed) {
+        // Build the texture
+        image = loadReturn->images.empty() ? NULL : loadReturn->images.front();
+        LoadedTileNewRef loadedTile = builder->getLoadedTile(ident);
+        if (image) {
+            tex = image->buildTexture();
+            tex->setFormat(texType);
+        }
     }
+
+    if (!failed) {
+        
+        // Failure depends on what mode we're in
+        if (mode == Object) {
+            // In object mode, we might not get anything, but it's not a failure
+            failed = loadReturn->hasError;
+        } else {
+            // In the images modes we need, ya know, and image
+            failed = (tex == NULL);
+        }
+    }
+
+    // If there is a tile, then notify it
+    if (it != tiles.end()) {
+        auto tile = it->second;
+        if (failed) {
+            tile->frameFailed(this, loadReturn, changes);
+        } else {
+            if (!tile->frameLoaded(this, loadReturn, tex, changes))
+                failed = true;
+        }
+    }
+
+    // For whatever reason, didn't correctly integrate the tile
+    // so now delete everything
     if (failed) {
-        tile->frameFailed(this, loadReturn, changes);
-    } else {
-        tile->frameLoaded(this, loadReturn, tex, changes);
+        if (tex)
+            delete tex;
+        tex = NULL;
+        SimpleIDSet compObjs;
+        for (auto compObj : loadReturn->compObjs)
+            compObjs.insert(compObj->getId());
+        for (auto compObj : loadReturn->ovlCompObjs)
+            compObjs.insert(compObj->getId());
+        compManager->removeComponentObjects(compObjs, changes);
+        loadReturn->compObjs.clear();
+        loadReturn->ovlCompObjs.clear();
     }
-    
+
     changesSinceLastFlush = true;
 }
     
@@ -960,7 +993,10 @@ bool QuadImageFrameLoader::isFrameLoading(const QuadTreeIdentifier &ident,int fr
     }
     auto tile = it->second;
     
-    return tile->isFrameLoading(frame);
+    if (getNumFrames() > 0)
+        return tile->isFrameLoading(frame);
+    else
+        return true;
 }
 
 }

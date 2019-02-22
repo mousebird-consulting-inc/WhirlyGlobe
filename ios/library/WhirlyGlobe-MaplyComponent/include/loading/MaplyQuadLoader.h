@@ -25,6 +25,8 @@
 #import "MaplyQuadSampler.h"
 #import "MaplyRemoteTileFetcher.h"
 
+@class MaplyQuadLoaderBase;
+
 /**
  Passed in to and returned by the Loader Interpreter.
  
@@ -69,7 +71,7 @@
  Convert the NSData passed in to image and component objects (e.g. add stuff to the view controller).
  Everything added should be disabled to start.
  */
-- (void)dataForTile:(MaplyLoaderReturn * __nonnull)loadReturn;
+- (void)dataForTile:(MaplyLoaderReturn * __nonnull)loadReturn loader:(MaplyQuadLoaderBase * __nonnull)loader;
 
 @end
 

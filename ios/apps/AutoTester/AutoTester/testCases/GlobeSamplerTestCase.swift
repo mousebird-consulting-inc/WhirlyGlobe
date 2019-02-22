@@ -42,7 +42,7 @@ class GlobeSamplerTestCase: MaplyTestCase {
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
         }
-        let interp = MaplyOvlDebugImageLoaderInterpreter(loader: imageLoader, viewC: baseVC)
+        let interp = MaplyOvlDebugImageLoaderInterpreter(viewC: baseVC)
         imageLoader.setInterpreter(interp)
         imageLoader.imageFormat = .imageUShort565;
 //        imageLoader.debugMode = true

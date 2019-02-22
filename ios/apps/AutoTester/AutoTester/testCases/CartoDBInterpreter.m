@@ -41,7 +41,7 @@
     return fetchInfo;
 }
 
-- (void)dataForTile:(MaplyObjectLoaderReturn *)loadReturn
+- (void)dataForTile:(MaplyObjectLoaderReturn *)loadReturn loader:(MaplyQuadLoaderBase *)loader
 {
     NSData *data = loadReturn.getFirstData;
     if (!data)

@@ -125,29 +125,37 @@ void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,QIFBatchOps 
 
     state = Active;
     
-    int frame = 0;
-    for (NSObject<MaplyTileInfoNew> *frameInfo in loader->frameInfos) {
-        MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
-        QIFFrameAsset_ios *frameAsset = (QIFFrameAsset_ios *)frames[frame].get();
-        MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,[frameInfo fetchInfoForTile:tileID],frameInfo,0,ident.importance);
-        
-        request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
-            [loader->layer fetchRequestSuccess:request tileID:tileID frame:frame data:data];
-        };
-        request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-            [loader->layer fetchRequestFail:request tileID:tileID frame:frame error:error];
-        };
-        [batchOps->toStart addObject:request];
-        
-        frame++;
+    MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
+    if (loader->frameInfos) {
+        // Normal remote (or local) fetching case
+        int frame = 0;
+        for (NSObject<MaplyTileInfoNew> *frameInfo in loader->frameInfos) {
+            QIFFrameAsset_ios *frameAsset = (QIFFrameAsset_ios *)frames[frame].get();
+            MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,[frameInfo fetchInfoForTile:tileID],frameInfo,0,ident.importance);
+            
+            request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
+                [loader->layer fetchRequestSuccess:request tileID:tileID frame:frame data:data];
+            };
+            request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
+                [loader->layer fetchRequestFail:request tileID:tileID frame:frame error:error];
+            };
+            [batchOps->toStart addObject:request];
+            
+            frame++;
+        }
+    } else {
+        // There's no data source, so we always succeed and then the interpreter does the work
+        [loader->layer fetchRequestSuccess:nil tileID:tileID frame:-1 data:nil];
     }
-    
 }
     
 QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,NSObject<MaplyTileInfoNew> *inTileInfo,Mode mode)
 : QuadImageFrameLoader(params,mode), tileFetcher(nil), layer(nil)
 {
-    frameInfos = @[inTileInfo];
+    if (inTileInfo)
+        frameInfos = @[inTileInfo];
+    else
+        frameInfos = nil;
 }
 
 QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,NSArray<NSObject<MaplyTileInfoNew> *> *inFrameInfos,Mode mode)

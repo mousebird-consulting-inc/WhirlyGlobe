@@ -36,7 +36,7 @@
 #import "WMSTestCase.h"
 #import "FindHeightTestCase.h"
 #import "FullAnimationTest.h"
-//#import "PagingLayerTestCase.h"
+#import "PagingLayerTestCase.h"
 #import "VectorHoleTestCase.h"
 #import "VectorStyleTestCase.h"
 #import "ActiveObjectTestCase.h"

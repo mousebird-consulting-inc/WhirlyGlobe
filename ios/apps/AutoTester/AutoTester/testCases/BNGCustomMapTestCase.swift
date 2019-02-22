@@ -71,7 +71,7 @@ class BNGCustomMapTestCase: MaplyTestCase {
         imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: nil, viewC: baseViewC)
         
         if let imageLoader = imageLoader {
-            debugInterp = MaplyDebugImageLoaderInterpreter(loader: imageLoader, viewC: baseViewC)
+            debugInterp = MaplyDebugImageLoaderInterpreter(viewC: baseViewC)
             imageLoader.setInterpreter(debugInterp!)
             imageLoader.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault+1000
         }
