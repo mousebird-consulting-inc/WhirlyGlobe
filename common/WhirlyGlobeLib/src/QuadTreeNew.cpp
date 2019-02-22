@@ -249,7 +249,6 @@ std::tuple<int,QuadTreeNew::ImportantNodeSet> QuadTreeNew::calcCoverageVisible(c
         ImportantNode node(0,0,0);
         if (!evalNodeVisible(node,minImportance,maxNodes,levelsToLoad,chosenLevel,levelNodes)) {
             success = false;
-            break;
         }
 
         // Kept within the limit, so return these nodes

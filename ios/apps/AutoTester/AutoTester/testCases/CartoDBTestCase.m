@@ -31,7 +31,7 @@
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
 	baseCase = [[CartoDBLightTestCase alloc] init];
-//    [baseCase setUpWithGlobe:globeVC];
+    [baseCase setUpWithGlobe:globeVC];
 
 	[self setupCartoDBLayer: globeVC];
     globeVC.height = 0.0001;
