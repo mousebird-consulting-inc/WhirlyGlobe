@@ -27,7 +27,7 @@ namespace WhirlyKit
 {
     
 TileGeomSettings::TileGeomSettings()
-: useTileCenters(true), color(RGBAColor(255,255,255,255)),
+: buildGeom(true), useTileCenters(true), color(RGBAColor(255,255,255,255)),
   programID(0), sampleX(10), sampleY(10),
     topSampleX(10), topSampleY(10),
   minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
@@ -51,6 +51,10 @@ void LoadedTileNew::makeDrawables(TileGeomManager *geomManage,TileGeomSettings &
     {
         wkLogLevel(Error,"Building bogus tile: (%d,%d,%d)",ident.x,ident.y,ident.level);
     }
+    
+    // Don't bother to actually build the geometry in this case
+    if (!geomSettings.buildGeom)
+        return;
     
     // Scale texture coordinates if we're clipping this tile
     Point2d texScale(1.0,1.0);

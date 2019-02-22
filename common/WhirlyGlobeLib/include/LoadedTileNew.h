@@ -35,6 +35,9 @@ class TileGeomSettings
 public:
     TileGeomSettings();
     
+    // Set if we actually build geometry, rather than just track space
+    bool buildGeom;
+    
     // Whether the geometry is centered in its middle with an offset
     bool useTileCenters;
     // Base color for the tiles

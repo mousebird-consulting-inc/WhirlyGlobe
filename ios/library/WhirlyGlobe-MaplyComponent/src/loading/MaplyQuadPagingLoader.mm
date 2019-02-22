@@ -63,14 +63,16 @@ using namespace WhirlyKit;
 {
     self = [super initWithViewC:inViewC];
 
-    params = inParams;
+    params = inParams->params;
+    params.generateGeom = false;
+    
     loadInterp = inLoadInterp;
     
     // Loader does all the work.  The Obj-C version is just a wrapper
-    self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params->params,
+    self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params,
                                                                             tileInfo,
                                                                             QuadImageFrameLoader::Object));
-    
+
     self.flipY = true;
     self.debugMode = false;
     self->minLevel = tileInfo.minZoom;
@@ -99,7 +101,7 @@ using namespace WhirlyKit;
 
     samplingLayer = [self.viewC findSamplingLayer:params forUser:self->loader];
     // Do this again in case they changed them
-    loader->setSamplingParams(params->params);
+    loader->setSamplingParams(params);
     loader->setFlipY(self.flipY);
 
     return true;

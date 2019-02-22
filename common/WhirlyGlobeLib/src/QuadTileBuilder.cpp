@@ -58,6 +58,16 @@ TileBuilderDelegateInfo QuadTileBuilder::getLoadingState()
     return info;
 }
     
+void QuadTileBuilder::setBuildGeom(bool newVal)
+{
+    geomSettings.buildGeom = newVal;
+}
+
+bool QuadTileBuilder::getBuildGeom() const
+{
+    return geomSettings.buildGeom;
+}
+    
 void QuadTileBuilder::setCoverPoles(bool coverPoles)
 {
     geomManage.coverPoles = coverPoles;

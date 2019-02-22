@@ -74,6 +74,9 @@ public:
     /// If set, the tiles are clipped to this boundary
     MbrD clipBounds;
     
+    /// Do we need globe geometry for this sampling set or nah?
+    bool generateGeom;
+    
     /**
      Detail the levels you want loaded in target level mode.
      

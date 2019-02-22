@@ -41,7 +41,7 @@
 }
 
 // Parameters this sampler is using (non changeable)
-@property (nonatomic,readonly,nonnull) MaplySamplingParams *params;
+@property (nonatomic) WhirlyKit::SamplingParams params;
 
 // Number of clients using this sampler
 @property (nonatomic,readonly) int numClients;
@@ -49,7 +49,7 @@
 @property (nonatomic) bool debugMode;
 
 // Initialize with the sampling parameters
-- (nullable instancetype)initWithParams:(MaplySamplingParams * __nonnull)params;
+- (nullable instancetype)initWithParams:(const WhirlyKit::SamplingParams &)params;
 
 // Add a new builder delegate to watch tile related events
 - (void)addBuilderDelegate:(WhirlyKit::QuadTileBuilderDelegateRef)delegate;

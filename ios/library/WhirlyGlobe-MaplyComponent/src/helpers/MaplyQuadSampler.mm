@@ -188,7 +188,7 @@ using namespace WhirlyKit;
     MaplyBaseViewController * __weak viewC;
 }
 
-- (nullable instancetype)initWithParams:(MaplySamplingParams * __nonnull)params
+- (instancetype)initWithParams:(const SamplingParams &)params
 {
     self = [super init];
     _params = params;
@@ -201,7 +201,7 @@ using namespace WhirlyKit;
     viewC = inViewC;
     super.layerThread = inLayerThread;
     
-    sampleControl.start(_params->params,inScene,inRenderer);
+    sampleControl.start(_params,inScene,inRenderer);
     
     _quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithController:sampleControl.getDisplayControl()];
 

@@ -35,11 +35,8 @@
     
     int minLevel,maxLevel;
     
+    WhirlyKit::SamplingParams params;
     MaplyQuadSamplingLayer *samplingLayer;
-    
-    // Used for initialization and then not
-    // Also need to hold on to the CoordinateSystem lest it disappear
-    MaplySamplingParams *params;
     
     WhirlyKit::QuadImageFrameLoader_iosRef loader;
 }

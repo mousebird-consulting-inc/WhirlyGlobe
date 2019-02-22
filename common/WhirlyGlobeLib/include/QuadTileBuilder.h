@@ -89,6 +89,11 @@ public:
 
     // Coordinate system we're building the tiles in
     CoordSystemRef getCoordSystem();
+    
+    // If set, we'll actually build geometry for the drawables
+    // The generic quad paging case doesn't use this
+    void setBuildGeom(bool);
+    bool getBuildGeom() const;
 
     // If set, we'll cover the poles of a curved coordinate system (e.g. spherical mercator)
     void setCoverPoles(bool);

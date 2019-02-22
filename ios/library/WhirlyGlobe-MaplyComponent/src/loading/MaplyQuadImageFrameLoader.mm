@@ -103,10 +103,11 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     }
     self = [super initWithViewC:inViewC];
 
-    params = inParams;
+    params = inParams->params;
+    params.generateGeom = true;
 
     // Loader does all the work.  The Obj-C version is just a wrapper
-    self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params->params,
+    self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params,
                                                                             frameInfos,
                                                                             QuadImageFrameLoader::MultiFrame));
     

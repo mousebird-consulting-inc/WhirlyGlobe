@@ -41,6 +41,7 @@ void QuadSamplingController::start(const SamplingParams &inParams,Scene *inScene
     renderer = inRenderer;
     
     builder = QuadTileBuilderRef(new QuadTileBuilder(params.coordSys,this));
+    builder->setBuildGeom(params.generateGeom);
     builder->setCoverPoles(params.coverPoles);
     builder->setEdgeMatching(params.edgeMatching);
     builder->setSingleLevel(params.singleLevel);

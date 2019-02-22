@@ -1404,7 +1404,7 @@ static const float PerfOutputDelay = 15.0;
         [self removeLayer:theLayer];
 }
 
-- (MaplyQuadSamplingLayer *)findSamplingLayer:(MaplySamplingParams *)params forUser:(QuadTileBuilderDelegateRef)userObj
+- (MaplyQuadSamplingLayer *)findSamplingLayer:(const WhirlyKit::SamplingParams &)params forUser:(QuadTileBuilderDelegateRef)userObj
 {
     if (!renderControl)
         return nil;
@@ -1416,7 +1416,7 @@ static const float PerfOutputDelay = 15.0;
 
     // Look for a matching sampler
     for (auto layer : samplingLayers) {
-        if ([layer.params isEqualTo:params]) {
+        if (layer.params == params) {
             [layer addBuilderDelegate:userObj];
             return layer;
         }
