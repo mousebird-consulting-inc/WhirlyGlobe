@@ -23,19 +23,34 @@
 #import "MaplyQuadLoader_private.h"
 #import "QuadDisplayLayerNew.h"
 #import "QuadLoaderReturn.h"
+#import "QuadImageFrameLoader_iOS.h"
 
-@interface MaplyQuadLoaderBase()
+@interface MaplyQuadLoaderBase()<QuadImageFrameLoaderLayer>
 {
 @public
+    bool valid;
+
     NSObject<MaplyTileFetcher> *tileFetcher;
     NSObject<MaplyLoaderInterpreter> *loadInterp;
     
     int minLevel,maxLevel;
     
     MaplyQuadSamplingLayer *samplingLayer;
+    
+    // Used for initialization and then not
+    // Also need to hold on to the CoordinateSystem lest it disappear
+    MaplySamplingParams *params;
+    
+    WhirlyKit::QuadImageFrameLoader_iosRef loader;
 }
 
 - (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC;
+
+// The subclasses return their own
+- (MaplyLoaderReturn *)makeLoaderReturn;
+
+// We delay setup by a tick so the user can mess with settings
+- (bool)delayedInit;
 
 @end
 

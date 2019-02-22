@@ -24,23 +24,8 @@
 #import "MaplyQuadImageLoader.h"
 #import "QuadImageFrameLoader_iOS.h"
 
-@interface MaplyQuadImageLoaderBase()<QuadImageFrameLoaderLayer>
-{
-@public
-    bool valid;
-
-    // Used for initialization and then not
-    // Also need to hold on to the CoordinateSystem lest it disappear
-    MaplySamplingParams *params;
-
-    WhirlyKit::QuadImageFrameLoader_iosRef loader;
-}
+@interface MaplyQuadImageLoaderBase()
 
 - (instancetype)initWithViewC:(MaplyBaseViewController *)inViewC;
-
-// We delay setup by a tick so the user can mess with settings
-- (bool)delayedInit;
-
-- (void)shutdown;
 
 @end

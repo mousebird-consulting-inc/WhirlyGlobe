@@ -110,6 +110,11 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (bool)delayedInit
+{
+    return true;
+}
+
 - (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
 {
     if (!samplingLayer)
@@ -192,6 +197,85 @@ using namespace WhirlyKit;
 - (void)setTileFetcher:(NSObject<MaplyTileFetcher> *)inTileFetcher
 {
     tileFetcher = inTileFetcher;
+}
+
+- (MaplyLoaderReturn *)makeLoaderReturn
+{
+    return nil;
+}
+
+// Called on a random dispatch queue
+- (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data;
+{
+    if (loader->getDebugMode())
+        NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,frame);
+    
+    MaplyLoaderReturn *loadData = [self makeLoaderReturn];
+    loadData.tileID = tileID;
+    loadData.frame = frame;
+    [loadData addTileData:data];
+    
+    [self performSelector:@selector(mergeFetchRequest:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
+}
+
+// Called on SamplingLayer.layerThread
+- (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error
+{
+    // Note: Need to do something more here for single frame cases
+    
+    NSLog(@"MaplyQuadImageLoader: Failed to fetch tile %d: (%d,%d) frame %d because:\n%@",tileID.level,tileID.x,tileID.y,frame,[error localizedDescription]);
+}
+
+// Called on the SamplingLayer.LayerThread
+- (void)mergeFetchRequest:(MaplyLoaderReturn *)loadReturn
+{
+    if (!loader)
+        return;
+    
+    // Don't actually want this one
+    if (!loader->isFrameLoading(loadReturn->loadReturn->ident,loadReturn->loadReturn->frame))
+        return;
+    
+    // Do the parsing on another thread since it can be slow
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self->loadInterp dataForTile:loadReturn];
+        
+        [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
+    });
+}
+
+// Called on the SamplingLayer.LayerThread
+- (void)mergeLoadedTile:(MaplyLoaderReturn *)loadReturn
+{
+    if (!loader)
+        return;
+    
+    ChangeSet changes;
+    loader->mergeLoadedTile(loadReturn->loadReturn.get(),changes);
+    
+    [samplingLayer.layerThread addChangeRequests:changes];
+}
+
+- (void)cleanup
+{
+    ChangeSet changes;
+    
+    loader->cleanup(changes);
+    [samplingLayer.layerThread addChangeRequests:changes];
+    
+    loader = nil;
+}
+
+- (void)shutdown
+{
+    ChangeSet changes;
+    
+    valid = false;
+    
+    if (self->samplingLayer && self->samplingLayer.layerThread)
+        [self performSelector:@selector(cleanup) onThread:self->samplingLayer.layerThread withObject:nil waitUntilDone:NO];
+    
+    [self.viewC releaseSamplingLayer:samplingLayer forUser:loader];
 }
 
 @end

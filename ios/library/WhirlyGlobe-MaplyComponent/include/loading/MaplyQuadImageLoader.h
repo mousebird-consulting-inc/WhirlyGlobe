@@ -189,9 +189,4 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
   */
 - (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)tileInfos viewC:(MaplyBaseViewController * __nonnull)viewC;
 
-/** Turn off the image loader and shut things down.
-    This unregisters us with the sampling layer and shuts down the various objects we created.
-  */
-- (void)shutdown;
-
 @end
