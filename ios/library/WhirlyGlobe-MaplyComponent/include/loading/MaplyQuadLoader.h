@@ -141,6 +141,16 @@
  */
 - (MaplyBoundingBoxD)boundsForTileD:(MaplyTileID)tileID;
 
+/**
+ Return the center of the tile in display coordinates.
+ 
+ @param tileID The ID for the tile we're interested in.
+ 
+ @return Return the center in display space for the given tile.
+ */
+- (MaplyCoordinate3d)displayCenterForTile:(MaplyTileID)tileID;
+
+
 /// Use a specific tile fetcher rather than the one shared by everyone else
 - (void)setTileFetcher:(NSObject<MaplyTileFetcher> * __nonnull)tileFetcher;
 

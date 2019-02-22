@@ -184,6 +184,19 @@ using namespace WhirlyKit;
     return bounds;
 }
 
+- (MaplyCoordinate3d)displayCenterForTile:(MaplyTileID)tileID
+{
+    QuadDisplayControllerNewRef control = [samplingLayer.quadLayer getController];
+    Mbr mbr = control->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
+    Point2d pt((mbr.ll().x()+mbr.ur().x())/2.0,(mbr.ll().y()+mbr.ur().y())/2.0);
+    Scene *scene = control->getScene();
+    Point3d locCoord = CoordSystemConvert3d(control->getCoordSys(), scene->getCoordAdapter()->getCoordSystem(), Point3d(pt.x(),pt.y(),0.0));
+    Point3d dispCoord = scene->getCoordAdapter()->localToDisplay(locCoord);
+    
+    return MaplyCoordinate3dMake(dispCoord.x(), dispCoord.y(), dispCoord.z());
+}
+
+
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> *)interp
 {
     if (loadInterp) {
