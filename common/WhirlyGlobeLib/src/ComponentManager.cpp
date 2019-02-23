@@ -175,6 +175,8 @@ void ComponentManager::enableComponentObject(SimpleIdentity compID, bool enable,
 {
     SimpleIDSet compIDs;
     compIDs.insert(compID);
+    
+    enableComponentObjects(compIDs, enable, changes);
 }
 
 void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes)
