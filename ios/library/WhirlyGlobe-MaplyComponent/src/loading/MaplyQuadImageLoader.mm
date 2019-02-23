@@ -271,9 +271,8 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     samplingLayer = [self.viewC findSamplingLayer:params forUser:self->loader];
     // Do this again in case they changed them
     loader->setSamplingParams(params);
-    loader->setFlipY(self.flipY);
-    loader->setBaseDrawPriority(_baseDrawPriority);
-    loader->setDrawPriorityPerLevel(_drawPriorityPerLevel);
+    
+    [loadInterp setLoader:self];
     
     // Sort out the texture format
     switch (self.imageFormat) {
@@ -306,8 +305,11 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
             loader->setShaderID([theShader getShaderID]);
     }
     
-    [loadInterp setLoader:self];
-    
+    // These might be changed by the setup call
+    loader->setFlipY(self.flipY);
+    loader->setBaseDrawPriority(_baseDrawPriority);
+    loader->setDrawPriorityPerLevel(_drawPriorityPerLevel);
+
     return true;
 }
 

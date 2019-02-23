@@ -82,7 +82,7 @@
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {	
 	 self.baseView = [[GeographyClassTestCase alloc]init];
-	[self.baseView setUpWithMap:mapVC];
+//	[self.baseView setUpWithMap:mapVC];
 	[self overlayCountries:(MaplyBaseViewController*)mapVC];
 }
 
