@@ -102,6 +102,10 @@ using namespace WhirlyKit;
 
 @implementation MaplyImageLoaderInterpreter
 
+- (void)setLoader:(MaplyQuadLoaderBase *)loader
+{
+}
+
 - (void)dataForTile:(MaplyImageLoaderReturn *)loadReturn loader:(MaplyQuadLoaderBase *)loader
 {
     NSArray *tileDatas = [loadReturn getTileData];
@@ -302,6 +306,8 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
             loader->setShaderID([theShader getShaderID]);
     }
     
+    [loadInterp setLoader:self];
+    
     return true;
 }
 
@@ -319,6 +325,11 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         return;
     
     loader->setRenderTarget([renderTarget renderTargetID]);
+}
+
+- (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> *)inInterp
+{
+    loadInterp = inInterp;
 }
 
 @end

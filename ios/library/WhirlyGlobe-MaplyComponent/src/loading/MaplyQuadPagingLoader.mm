@@ -104,6 +104,8 @@ using namespace WhirlyKit;
     loader->setSamplingParams(params);
     loader->setFlipY(self.flipY);
 
+    [loadInterp setLoader:self];
+
     return true;
 }
 

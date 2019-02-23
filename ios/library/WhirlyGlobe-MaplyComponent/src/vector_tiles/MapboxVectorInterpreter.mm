@@ -18,7 +18,7 @@
  *
  */
 
-#import "MapboxVectorImageInterpreter.h"
+#import "MapboxVectorInterpreter.h"
 #import "MapboxVectorTiles.h"
 #import "MaplyTileSourceNew.h"
 #import "MapboxVectorStyleSet.h"
@@ -48,11 +48,11 @@ using namespace WhirlyKit;
 static double MAX_EXTENT = 20037508.342789244;
 
 
-@implementation MapboxVectorImageInterpreter
+@implementation MapboxVectorInterpreter
 {
-    MaplyQuadImageLoader * __weak loader;
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
-    MapboxVectorStyleSet *imageStyle,*vecStyle;
+    MapboxVectorStyleSet *imageStyle;
+    NSObject<MaplyVectorStyleDelegate> *vecStyle;
     MaplySphericalMercator *coordSys;
     MaplyRenderController *offlineRender;
     UIColor *backColor;
@@ -60,19 +60,15 @@ static double MAX_EXTENT = 20037508.342789244;
     MapboxVectorTileParser *imageTileParser,*vecTileParser;
 }
 
-- (instancetype _Nullable ) initWithLoader:(MaplyQuadImageLoader *)inLoader
-                                imageStyle:(MapboxVectorStyleSet *__nonnull)inImageStyle
-                               offlineRender:(MaplyRenderController *__nonnull)inOfflineRender
-                                 vectorStyle:(MapboxVectorStyleSet *__nonnull)inVectorStyle
-                                       viewC:(MaplyBaseViewController *__nonnull)inViewC
+- (instancetype) initWithImageStyle:(MapboxVectorStyleSet *)inImageStyle
+                      offlineRender:(MaplyRenderController *)inOfflineRender
+                        vectorStyle:(NSObject<MaplyVectorStyleDelegate> *)inVectorStyle
+                              viewC:(MaplyBaseViewController *)inViewC
 {
     self = [super init];
-    loader = inLoader;
     imageStyle = inImageStyle;
     offlineRender = inOfflineRender;
     vecStyle = inVectorStyle;
-    loader.baseDrawPriority = vecStyle.tileStyleSettings.baseDrawPriority;
-    loader.drawPriorityPerLevel = vecStyle.tileStyleSettings.drawPriorityPerLevel;
     viewC = inViewC;
     coordSys = [[MaplySphericalMercator alloc] initWebStandard];
 
@@ -85,6 +81,32 @@ static double MAX_EXTENT = 20037508.342789244;
     backColor = backLayer.paint.color;
     
     return self;
+}
+
+- (instancetype) initWithVectorStyle:(NSObject<MaplyVectorStyleDelegate> *)inVectorStyle
+                               viewC:(MaplyBaseViewController *)inViewC
+{
+    self = [super init];
+    vecStyle = inVectorStyle;
+    viewC = inViewC;
+    
+    vecTileParser = [[MapboxVectorTileParser alloc] initWithStyle:vecStyle viewC:viewC];
+    
+    return self;
+}
+
+- (void)setLoader:(MaplyQuadLoaderBase *)inLoader
+{
+    if ([inLoader isKindOfClass:[MaplyQuadImageLoaderBase class]]) {
+        MaplyQuadImageLoaderBase *loader = (MaplyQuadImageLoaderBase *)inLoader;
+
+        if ([vecStyle isKindOfClass:[MapboxVectorStyleSet class]]) {
+            MapboxVectorStyleSet *mapboxVecStyle = (MapboxVectorStyleSet *)vecStyle;
+
+            loader.baseDrawPriority = mapboxVecStyle.tileStyleSettings.baseDrawPriority;
+            loader.drawPriorityPerLevel = mapboxVecStyle.tileStyleSettings.drawPriorityPerLevel;
+        }
+    }
 }
 
 // Flip data in an NSData object that we know to be an image
@@ -151,34 +173,36 @@ static double MAX_EXTENT = 20037508.342789244;
     
     [viewC startChanges];
     
-    // Parse the polygons and draw into an image
-    // Note: Can we use multiple of these for speed?
-    @synchronized(offlineRender)
-    {
-        // Build the vector objects for use in the image tile
-        NSMutableArray *compObjs = [NSMutableArray array];
-        offlineRender.clearColor = backColor;
+    if (offlineRender) {
+        // Parse the polygons and draw into an image
+        // Note: Can we use multiple of these for speed?
+        @synchronized(offlineRender)
+        {
+            // Build the vector objects for use in the image tile
+            NSMutableArray *compObjs = [NSMutableArray array];
+            offlineRender.clearColor = backColor;
 
-        for (NSData *thisTileData : pbfDatas) {
-            MaplyVectorTileData *retData = [imageTileParser buildObjects:thisTileData tile:tileID bounds:imageBBox geoBounds:geoBBox];
-            if (retData) {
-                [compObjs addObjectsFromArray:retData.compObjs];
-            } else {
-                NSString *errMsg = [NSString stringWithFormat:@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y];
-                loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: errMsg}];
+            for (NSData *thisTileData : pbfDatas) {
+                MaplyVectorTileData *retData = [imageTileParser buildObjects:thisTileData tile:tileID bounds:imageBBox geoBounds:geoBBox];
+                if (retData) {
+                    [compObjs addObjectsFromArray:retData.compObjs];
+                } else {
+                    NSString *errMsg = [NSString stringWithFormat:@"Failed to parse tile: %d: (%d,%d)",tileID.level,tileID.x,tileID.y];
+                    loadReturn.error = [[NSError alloc] initWithDomain:@"MapboxVectorTilesImageDelegate" code:0 userInfo:@{NSLocalizedDescriptionKey: errMsg}];
+                }
             }
-        }
-        
-        if (!loadReturn.error) {
-            // Turn all those objects on
-            [offlineRender enableObjects:compObjs mode:MaplyThreadCurrent];
             
-            imageData = [self flipVertically:[offlineRender renderToImageData]
-                                       width:offlineRender.getFramebufferSize.width
-                                      height:offlineRender.getFramebufferSize.height];
-            
-            // And then remove them all
-            [offlineRender removeObjects:compObjs mode:MaplyThreadCurrent];
+            if (!loadReturn.error) {
+                // Turn all those objects on
+                [offlineRender enableObjects:compObjs mode:MaplyThreadCurrent];
+                
+                imageData = [self flipVertically:[offlineRender renderToImageData]
+                                           width:offlineRender.getFramebufferSize.width
+                                          height:offlineRender.getFramebufferSize.height];
+                
+                // And then remove them all
+                [offlineRender removeObjects:compObjs mode:MaplyThreadCurrent];
+            }
         }
     }
     
@@ -200,9 +224,11 @@ static double MAX_EXTENT = 20037508.342789244;
 
     [viewC endChanges];
 
-    // Rendered image goes in first
-    MaplyImageTile *tileImage = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height ];
-    [loadReturn addImageTile:tileImage];
+    if (imageData) {
+        // Rendered image goes in first
+        MaplyImageTile *tileImage = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height ];
+        [loadReturn addImageTile:tileImage];
+    }
     
     // Any additional images are tacked on
     for (UIImage *image : images) {

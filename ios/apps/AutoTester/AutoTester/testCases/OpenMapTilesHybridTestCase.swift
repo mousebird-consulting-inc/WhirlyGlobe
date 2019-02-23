@@ -102,11 +102,10 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
         }
 //        imageLoader.debugMode = true
 
-        guard let mapboxInterp = MapboxVectorImageInterpreter(loader: imageLoader,
-                                                             imageStyle: imageStyleSet,
-                                                             offlineRender: offlineRender,
-                                                             vectorStyle: vectorStyleSet,
-                                                             viewC: baseVC) else {
+        guard let mapboxInterp = MapboxVectorInterpreter(imageStyle: imageStyleSet,
+                                                         offlineRender: offlineRender,
+                                                         vectorStyle: vectorStyleSet,
+                                                         viewC: baseVC) else {
             return nil
         }
         imageLoader.setInterpreter(mapboxInterp)

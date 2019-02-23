@@ -65,6 +65,12 @@
  */
 @protocol MaplyLoaderInterpreter<NSObject>
 
+/** Set when the loader first starts up.
+ 
+    If you need to tweak loader settings, do it here.
+  */
+- (void)setLoader:(MaplyQuadLoaderBase * __nonnull)loader;
+
 /**
  Parse the data coming back from a remote request and turn it into something we can use.
  

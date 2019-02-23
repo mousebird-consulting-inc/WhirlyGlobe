@@ -130,6 +130,15 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 - (void)setRenderTarget:(MaplyRenderTarget *__nonnull)renderTarget;
 
 /**
+  The loader interpreter converts raw data into images and geometry.
+ 
+  For the image loaders, we use the default MaplyImageLoaderInterpreter
+  but you can change that to something else as long as it returns at
+  least one image.
+  */
+- (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> *__nonnull)interp;
+
+/**
  Set the image format for internal imagery storage.
  
  OpenGL ES offers us several image formats that are more efficient than 32 bit RGBA, but they're not always appropriate.  This property lets you choose one of them.  The 16 or 8 bit ones can save a huge amount of space and will work well for some imagery, most maps, and a lot of weather overlays.

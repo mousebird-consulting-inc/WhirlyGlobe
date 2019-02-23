@@ -289,8 +289,11 @@ void QIFTileAsset::frameFailed(QuadImageFrameLoader *loader,QuadLoaderReturn *lo
         wkLogLevel(Warn,"MaplyQuadImageFrameLoader: Got frame back outside of range.");
         return;
     }
-    auto frame = frames[loadReturn->frame];
-    frame->loadFailed(loader);
+    
+    if (loadReturn->frame >= 0 && loadReturn->frame < frames.size()) {
+        auto frame = frames[loadReturn->frame];
+        frame->loadFailed(loader);
+    }
 }
 
 QIFTileState::QIFTileState(int numFrames)

@@ -60,7 +60,7 @@
 #import "MaplyMoon.h"
 
 #import "MapboxVectorTiles.h"
-#import "MapboxVectorImageInterpreter.h"
+#import "MapboxVectorInterpreter.h"
 #import "MapnikStyleSet.h"
 #import "MaplyVectorStyleSimple.h"
 #import "SLDStyleSet.h"
