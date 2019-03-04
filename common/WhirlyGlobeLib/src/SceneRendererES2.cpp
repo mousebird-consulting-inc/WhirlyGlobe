@@ -614,7 +614,7 @@ void SceneRendererES2::render(TimeInterval duration)
 	// Update the frames per sec
 	if (perfInterval > 0 && frameCount > perfInterval)
 	{
-        CFTimeInterval now = TimeGetCurrent();
+        TimeInterval now = TimeGetCurrent();
 		TimeInterval howLong =  now - frameCountStart;;
 		framesPerSec = frameCount / howLong;
 		frameCountStart = now;

@@ -251,7 +251,7 @@ void QuadSamplingController::builderPreSceneFlush(QuadTileBuilder *builder,Chang
     
 void QuadSamplingController::builderShutdown(QuadTileBuilder *builder,ChangeSet &changes)
 {
-    builder = nil;
+    builder = NULL;
 }
 
 }

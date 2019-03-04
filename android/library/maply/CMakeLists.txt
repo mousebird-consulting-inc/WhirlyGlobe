@@ -7,6 +7,7 @@ cmake_minimum_required(VERSION 3.4.1)
 
 set (WGTARGET "whirlyglobemaply")
 set (LOCALLIBS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../common/local_libs/")
+set (COMMON_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../common/")
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -21,6 +22,12 @@ add_library( # Sets the name of the library.
 
         ""
         )
+
+set_target_properties(
+        ${WGTARGET}
+
+        PROPERTIES LINKER_LANGUAGE CXX
+)
 
 target_include_directories(
         ${WGTARGET}
@@ -37,8 +44,8 @@ include("${LOCALLIBS_DIR}/clipper/wgmaplyCMakeLists.txt")
 include("${LOCALLIBS_DIR}/shapefile/wgmaplyCMakeLists.txt")
 include("${LOCALLIBS_DIR}/glues/wgmaplyCMakeLists.txt")
 include("${LOCALLIBS_DIR}/libjson/wgmaplyCMakeLists.txt")
-include("${LOCALLIBS_DIR}/laszip/wgmaplyCMakeLists.txt")
-include("${CMAKE_CURRENT_SOURCE_DIR}/../WhirlyGlobeLib/src/CMakeLists.txt")
+# include("${LOCALLIBS_DIR}/laszip/wgmaplyCMakeLists.txt")
+include("${COMMON_DIR}/WhirlyGlobeLib/src/CMakeLists.txt")
 include("${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/CMakeLists.txt")
 
 set_target_properties(

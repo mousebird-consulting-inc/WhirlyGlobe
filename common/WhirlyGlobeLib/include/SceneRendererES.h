@@ -18,7 +18,6 @@
  *
  */
 
-#import <QuartzCore/QuartzCore.h>
 #import "GLUtils.h"
 
 #import "WhirlyVector.h"
