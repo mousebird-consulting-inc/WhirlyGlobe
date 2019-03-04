@@ -593,10 +593,7 @@ void SceneRendererES2::render(TimeInterval duration)
     
     // Explicitly discard the depth buffer
     const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
-    if (glesVersion < 3)
-        glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
-    else
-        glInvalidateFramebuffer(GL_FRAMEBUFFER,1,discards);
+    glInvalidateFramebuffer(GL_FRAMEBUFFER,1,discards);
     CheckGLError("SceneRendererES2: glDiscardFramebufferEXT");
 
     // Subclass with do the presentation

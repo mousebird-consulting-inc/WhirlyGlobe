@@ -264,10 +264,7 @@ GLuint BasicDrawableInstance::setupVAO(RendererFrameInfo *frameInfo,OpenGLES2Pro
         {
             glVertexAttribPointer(centerAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(0));
             CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-            if (frameInfo->glesVersion < 3)
-                glVertexAttribDivisorEXT(centerAttr->index, 1);
-            else
-                glVertexAttribDivisor(centerAttr->index, 1);
+            glVertexAttribDivisor(centerAttr->index, 1);
             glEnableVertexAttribArray(centerAttr->index);
             CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
         }
@@ -280,10 +277,7 @@ GLuint BasicDrawableInstance::setupVAO(RendererFrameInfo *frameInfo,OpenGLES2Pro
             {
                 glVertexAttribPointer(matAttr->index+im, 4, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+im*(4*sizeof(GLfloat))));
                 CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-                if (frameInfo->glesVersion < 3)
-                    glVertexAttribDivisorEXT(matAttr->index+im, 1);
-                else
-                    glVertexAttribDivisor(matAttr->index+im, 1);
+                glVertexAttribDivisor(matAttr->index+im, 1);
                 glEnableVertexAttribArray(matAttr->index+im);
                 CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
             }
@@ -295,10 +289,7 @@ GLuint BasicDrawableInstance::setupVAO(RendererFrameInfo *frameInfo,OpenGLES2Pro
         {
             glVertexAttribPointer(useColorAttr->index, 1, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+matSize));
             CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-            if (frameInfo->glesVersion < 3)
-                glVertexAttribDivisorEXT(useColorAttr->index, 1);
-            else
-                glVertexAttribDivisor(useColorAttr->index, 1);
+            glVertexAttribDivisor(useColorAttr->index, 1);
             glEnableVertexAttribArray(useColorAttr->index);
             CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
         }
@@ -309,10 +300,7 @@ GLuint BasicDrawableInstance::setupVAO(RendererFrameInfo *frameInfo,OpenGLES2Pro
         {
             glVertexAttribPointer(colorAttr->index, 4, GL_UNSIGNED_BYTE, GL_TRUE, instSize, (const GLvoid *)(long)(centerSize+matSize+colorInstSize));
             CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-            if (frameInfo->glesVersion < 3)
-                glVertexAttribDivisorEXT(colorAttr->index, 1);
-            else
-                glVertexAttribDivisor(colorAttr->index, 1);
+            glVertexAttribDivisor(colorAttr->index, 1);
             glEnableVertexAttribArray(colorAttr->index);
             CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
         }
@@ -323,10 +311,7 @@ GLuint BasicDrawableInstance::setupVAO(RendererFrameInfo *frameInfo,OpenGLES2Pro
         {
             glVertexAttribPointer(dirAttr->index, 3, GL_FLOAT, GL_FALSE, instSize, (const GLvoid *)(long)(centerSize+matSize+colorInstSize+colorSize));
             CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
-            if (frameInfo->glesVersion < 3)
-                glVertexAttribDivisorEXT(dirAttr->index, 1);
-            else
-                glVertexAttribDivisor(dirAttr->index, 1);
+            glVertexAttribDivisor(dirAttr->index, 1);
             glEnableVertexAttribArray(dirAttr->index);
             CheckGLError("BasicDrawableInstance::setupVAO glEnableVertexAttribArray");
         }
@@ -681,10 +666,7 @@ void BasicDrawableInstance::draw(RendererFrameInfo *frameInfo,Scene *scene)
                 case GL_TRIANGLES:
                     if (instBuffer)
                     {
-                        if (frameInfo->glesVersion < 3)
-                            glDrawElementsInstancedEXT(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(basicDraw->sharedBufferOffset,basicDraw->triBuffer), numInstances);
-                        else
-                            glDrawElementsInstanced(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(basicDraw->sharedBufferOffset,basicDraw->triBuffer), numInstances);
+                        glDrawElementsInstanced(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(basicDraw->sharedBufferOffset,basicDraw->triBuffer), numInstances);
                     } else
                         glDrawElements(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, CALCBUFOFF(basicDraw->sharedBufferOffset,basicDraw->triBuffer));
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
@@ -696,10 +678,7 @@ void BasicDrawableInstance::draw(RendererFrameInfo *frameInfo,Scene *scene)
                     glLineWidth(lineWidth);
                     if (instBuffer)
                     {
-                        if (frameInfo->glesVersion < 3)
-                            glDrawArraysInstancedEXT(basicDraw->type, 0, basicDraw->numPoints, numInstances);
-                        else
-                            glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
+                        glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
                     } else
                         glDrawArrays(basicDraw->type, 0, basicDraw->numPoints);
                     CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
@@ -707,10 +686,7 @@ void BasicDrawableInstance::draw(RendererFrameInfo *frameInfo,Scene *scene)
                 case GL_TRIANGLE_STRIP:
                     if (instBuffer)
                     {
-                        if (frameInfo->glesVersion < 3)
-                            glDrawArraysInstancedEXT(basicDraw->type, 0, basicDraw->numPoints, numInstances);
-                        else
-                            glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
+                        glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
                     } else
                         glDrawArrays(basicDraw->type, 0, basicDraw->numPoints);
                     CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
@@ -730,10 +706,7 @@ void BasicDrawableInstance::draw(RendererFrameInfo *frameInfo,Scene *scene)
                         CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
                         if (instBuffer)
                         {
-                            if (frameInfo->glesVersion < 3)
-                                glDrawElementsInstancedEXT(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, 0, numInstances);
-                            else
-                                glDrawElementsInstanced(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, 0, numInstances);
+                            glDrawElementsInstanced(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, 0, numInstances);
                         } else
                             glDrawElements(GL_TRIANGLES, basicDraw->numTris*3, GL_UNSIGNED_SHORT, 0);
                         CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
@@ -741,10 +714,7 @@ void BasicDrawableInstance::draw(RendererFrameInfo *frameInfo,Scene *scene)
                     } else {
                         if (instBuffer)
                         {
-                            if (frameInfo->glesVersion < 3)
-                                glDrawElementsInstancedEXT(GL_TRIANGLES, (GLsizei)basicDraw->tris.size()*3, GL_UNSIGNED_SHORT, &basicDraw->tris[0], numInstances);
-                            else
-                                glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)basicDraw->tris.size()*3, GL_UNSIGNED_SHORT, &basicDraw->tris[0], numInstances);
+                            glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)basicDraw->tris.size()*3, GL_UNSIGNED_SHORT, &basicDraw->tris[0], numInstances);
                         } else
                             glDrawElements(GL_TRIANGLES, (GLsizei)basicDraw->tris.size()*3, GL_UNSIGNED_SHORT, &basicDraw->tris[0]);
                         CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
@@ -759,10 +729,7 @@ void BasicDrawableInstance::draw(RendererFrameInfo *frameInfo,Scene *scene)
                     CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
                     if (instBuffer)
                     {
-                        if (frameInfo->glesVersion < 3)
-                            glDrawArraysInstancedEXT(basicDraw->type, 0, basicDraw->numPoints, numInstances);
-                        else
-                            glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
+                        glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
                     } else
                         glDrawArrays(basicDraw->type, 0, basicDraw->numPoints);
                     CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
@@ -770,10 +737,7 @@ void BasicDrawableInstance::draw(RendererFrameInfo *frameInfo,Scene *scene)
                 case GL_TRIANGLE_STRIP:
                     if (instBuffer)
                     {
-                        if (frameInfo->glesVersion < 3)
-                            glDrawArraysInstancedEXT(basicDraw->type, 0, basicDraw->numPoints, numInstances);
-                        else
-                            glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
+                        glDrawArraysInstanced(basicDraw->type, 0, basicDraw->numPoints, numInstances);
                     } else
                         glDrawArrays(basicDraw->type, 0, basicDraw->numPoints);
                     CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");

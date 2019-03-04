@@ -381,7 +381,6 @@
 		2B8796D121FFC59D00EF801D /* NSDictionary+Stuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54A1E82E2490095FB14 /* NSDictionary+Stuff.m */; };
 		2B8796D221FFC59D00EF801D /* UIColor+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54B1E82E2490095FB14 /* UIColor+Stuff.mm */; };
 		2B8796D321FFC59D00EF801D /* NSString+Stuff.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54C1E82E2490095FB14 /* NSString+Stuff.mm */; };
-		2B8796DD21FFCBF600EF801D /* glwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B8796B521FFB2A100EF801D /* glwrapper.cpp */; };
 		2B8796DE21FFCC0D00EF801D /* EAGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B5621E82E2490095FB14 /* EAGLView.mm */; };
 		2B8796E021FFD59100EF801D /* SceneRendererES_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B8796DF21FFD59000EF801D /* SceneRendererES_iOS.h */; };
 		2B8796E221FFD5B900EF801D /* SceneRendererES_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8796E121FFD5B900EF801D /* SceneRendererES_iOS.mm */; };
@@ -586,6 +585,7 @@
 		2BC3D6EE220B714100CE91D0 /* sqlhelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6ED220B714100CE91D0 /* sqlhelpers.mm */; };
 		2BC3D6EF220B71D900CE91D0 /* WhirlyGlobeViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537F51D249A1200B60FAD /* WhirlyGlobeViewController.mm */; };
 		2BC3D6F8220CAAC700CE91D0 /* WhirlyKitLog.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6F7220CAAC700CE91D0 /* WhirlyKitLog.mm */; };
+		2BC90D4C222DAB3900D8B606 /* glwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90D4B222DAB3900D8B606 /* glwrapper.cpp */; };
 		2BE1E7392208A97100815D9C /* MaplyPinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DED21233CBE0074D06D /* MaplyPinchDelegate.mm */; };
 		2BE1E73A2208B25F00815D9C /* MaplyPanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DEC21233CBE0074D06D /* MaplyPanDelegate.mm */; };
 		2BE1E73B2208B73C00815D9C /* MaplyDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DE721233CBE0074D06D /* MaplyDoubleTapDelegate.mm */; };
@@ -1424,7 +1424,6 @@
 		2B84ED161F83FC7000B34D73 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		2B84ED1A1F83FC8F00B34D73 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2B84ED1C1F83FC9B00B34D73 /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
-		2B8796B521FFB2A100EF801D /* glwrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = glwrapper.cpp; sourceTree = "<group>"; };
 		2B8796DF21FFD59000EF801D /* SceneRendererES_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererES_iOS.h; sourceTree = "<group>"; };
 		2B8796E121FFD5B900EF801D /* SceneRendererES_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererES_iOS.mm; sourceTree = "<group>"; };
 		2B87970422039D6300EF801D /* Texture_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Texture_iOS.h; sourceTree = "<group>"; };
@@ -1574,6 +1573,7 @@
 		2BC3D6EB220B713700CE91D0 /* sqlhelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlhelpers.h; sourceTree = "<group>"; };
 		2BC3D6ED220B714100CE91D0 /* sqlhelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = sqlhelpers.mm; sourceTree = "<group>"; };
 		2BC3D6F7220CAAC700CE91D0 /* WhirlyKitLog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WhirlyKitLog.mm; sourceTree = "<group>"; };
+		2BC90D4B222DAB3900D8B606 /* glwrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glwrapper.cpp; path = ../../../../common/WhirlyGlobeLib/src/glwrapper.cpp; sourceTree = "<group>"; };
 		2BE1E7572208F32900815D9C /* SingleLabel_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleLabel_iOS.h; sourceTree = "<group>"; };
 		2BE1E75A2208F33900815D9C /* SingleLabel_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SingleLabel_iOS.mm; sourceTree = "<group>"; };
 		2BE1E75C2208F43200815D9C /* FontTextureManager_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontTextureManager_iOS.h; sourceTree = "<group>"; };
@@ -2216,6 +2216,7 @@
 		2B446B3521F7E6580078A975 /* render */ = {
 			isa = PBXGroup;
 			children = (
+				2BC90D4B222DAB3900D8B606 /* glwrapper.cpp */,
 				2B446B6621F7E7E00078A975 /* GLUtils.cpp */,
 				2B446B3821F7E6850078A975 /* Lighting.cpp */,
 				2B446B9721FBA8690078A975 /* OpenGLES2Program.cpp */,
@@ -2665,7 +2666,6 @@
 			children = (
 				2B87970622039D6F00EF801D /* Texture_iOS.mm */,
 				2B8796E121FFD5B900EF801D /* SceneRendererES_iOS.mm */,
-				2B8796B521FFB2A100EF801D /* glwrapper.cpp */,
 				2B82B5621E82E2490095FB14 /* EAGLView.mm */,
 			);
 			name = rendering;
@@ -4343,6 +4343,7 @@
 			files = (
 				2B87971C2203BF2E00EF801D /* MaplyMatrix.mm in Sources */,
 				2B82B65A1E82E2490095FB14 /* PJ_eck3.c in Sources */,
+				2BC90D4C222DAB3900D8B606 /* glwrapper.cpp in Sources */,
 				2B82B67E1E82E24A0095FB14 /* PJ_larr.c in Sources */,
 				2BE53A771D249C4700B60FAD /* structurally_valid.cc in Sources */,
 				2BE539C11D249BEF00B60FAD /* AASun.cpp in Sources */,
@@ -4502,7 +4503,6 @@
 				2BE539A51D249BEF00B60FAD /* AAMoonIlluminatedFraction.cpp in Sources */,
 				2B8796B921FFB36500EF801D /* FontTextureManager.cpp in Sources */,
 				2BE5399B1D249BEF00B60FAD /* AAGalileanMoons.cpp in Sources */,
-				2B8796DD21FFCBF600EF801D /* glwrapper.cpp in Sources */,
 				2B82B6A71E82E24A0095FB14 /* PJ_putp6.c in Sources */,
 				2BE53A131D249C2900B60FAD /* service.cc in Sources */,
 				2BE1E73D2208BD4500815D9C /* Maply3dTouchPreviewDelegate.mm in Sources */,

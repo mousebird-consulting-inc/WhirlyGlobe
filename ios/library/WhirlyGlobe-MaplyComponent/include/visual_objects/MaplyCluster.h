@@ -40,7 +40,7 @@
 /** 
     Visual representation for a group of markers.
     
-    Fill this in for the
+    Fill this in when you're implementing a MaplyClusterGenerator.
   */
 @interface MaplyClusterGroup : NSObject
 

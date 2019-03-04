@@ -401,10 +401,7 @@ void ParticleSystemDrawable::drawBindAttrs(RendererFrameInfo *frameInfo,Scene *s
                 int divisor = 0;
                 if (useInstancing)
                     divisor = 1;
-                if (frameInfo->glesVersion < 3)
-                    glVertexAttribDivisorEXT(thisAttr->index, divisor);
-                else
-                    glVertexAttribDivisor(thisAttr->index, divisor);
+                glVertexAttribDivisor(thisAttr->index, divisor);
             }
             glEnableVertexAttribArray(thisAttr->index);
         }
@@ -428,10 +425,7 @@ void ParticleSystemDrawable::drawBindAttrs(RendererFrameInfo *frameInfo,Scene *s
                 int divisor = 0;
                 if (useInstancing)
                     divisor = 1;
-                if (frameInfo->glesVersion < 3)
-                    glVertexAttribDivisorEXT(thisAttr->index, divisor);
-                else
-                    glVertexAttribDivisor(thisAttr->index, divisor);
+                glVertexAttribDivisor(thisAttr->index, divisor);
             }
             glEnableVertexAttribArray(thisAttr->index);
         }
@@ -602,10 +596,7 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
             {
                 glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)0);
                 CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
-                if (frameInfo->glesVersion < 3)
-                    glVertexAttribDivisorEXT(thisAttr->index, 0);
-                else
-                    glVertexAttribDivisor(thisAttr->index, 0);
+                glVertexAttribDivisor(thisAttr->index, 0);
                 glEnableVertexAttribArray(thisAttr->index);
                 CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
             }
@@ -614,10 +605,7 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
             {
                 glVertexAttribPointer(thisAttr->index, 2, GL_FLOAT, GL_FALSE, 4*sizeof(GLfloat), (const GLvoid *)(long)(2*sizeof(GLfloat)));
                 CheckGLError("ParticleSystemDrawable::setupVAO glVertexAttribPointer");
-                if (frameInfo->glesVersion < 3)
-                    glVertexAttribDivisorEXT(thisAttr->index, 0);
-                else
-                    glVertexAttribDivisor(thisAttr->index, 0);
+                glVertexAttribDivisor(thisAttr->index, 0);
                 glEnableVertexAttribArray(thisAttr->index);
                 CheckGLError("ParticleSystemDrawable::setupVAO glEnableVertexAttribArray");
             }
@@ -628,10 +616,7 @@ void ParticleSystemDrawable::draw(RendererFrameInfo *frameInfo,Scene *scene)
 
         if (rectBuffer)
         {
-            if (frameInfo->glesVersion < 3)
-                glDrawArraysInstancedEXT(GL_TRIANGLES, 0, 6, chunk.numVertices);
-            else
-                glDrawArraysInstanced(GL_TRIANGLES, 0, 6, chunk.numVertices);
+            glDrawArraysInstanced(GL_TRIANGLES, 0, 6, chunk.numVertices);
             CheckGLError("BasicDrawable::drawVBO2() glDrawArraysInstanced");
         } else {
             glDrawArrays(GL_POINTS, 0, chunk.numVertices);

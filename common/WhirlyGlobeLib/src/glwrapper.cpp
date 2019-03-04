@@ -1,5 +1,5 @@
 /*
- *  glwrapper.h
+ *  glwrapper.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 12/18/13.
@@ -18,32 +18,20 @@
  *
  */
 
-#ifdef __ANDROID__ 
+#import <string.h>
+#import "glwrapper.h"
 
-#import <jni.h>
-#import <android/log.h>
+#ifdef __ANDROID__
 
-#define GL_GLEXT_PROTOTYPES
-//#define __USE_SDL_GLES__
-#include <GLES2/gl2platform.h>
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
-#include <GLES3/gl3platform.h>
-#include <GLES3/gl3.h>
-#include <GLES3/gl3ext.h>
-#include <EGL/egl.h>
+bool hasVertexArraySupport = false;
+bool hasMapBufferSupport = false;
+bool hasInstanceSupport = false;
 
 #else
 
-// iOS
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
-#import <OpenGLES/ES3/gl.h>
-#import <OpenGLES/ES3/glext.h>
+// On ios we have both
+bool hasVertexArraySupport = true;
+bool hasMapBufferSupport = true;
 
 #endif
 
-extern bool hasVertexArraySupport;
-extern bool hasMapBufferSupport;
