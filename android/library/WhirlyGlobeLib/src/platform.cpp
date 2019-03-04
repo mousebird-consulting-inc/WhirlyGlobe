@@ -1,9 +1,9 @@
 /*
- *  WhirlyKitLog.h
+ *  platform.cpp
  *  WhirlyGlobeLib
  *
- *  Created by jmnavarro
- *  Copyright 2011-2019 mousebird consulting
+ *  Created by Steve Gifford on 12/18/13.
+ *  Copyright 2011-2013 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,13 +18,25 @@
  *
  */
 
-#ifndef WhirlyKitLog_h
-#define WhirlyKitLog_h
+#import "Platform.h"
 
-typedef enum {Verbose=0,Debug,Info,Warn,Error} WKLogLevel;
+namespace WhirlyKit
+{
 
-// Wrapper around NSLog on iOS.  Other things on other platforms
-extern void wkLog(const char *formatStr,...);
-extern void wkLogLevel(WKLogLevel level,const char *formatStr,...);
+// Return current time in seconds as a double
+TimeInterval TimeGetCurrent()
+{
+    struct timespec tp;
+    clock_gettime(CLOCK_REALTIME, &tp);
+    
+    return (double)tp.tv_sec + tp.tv_nsec * (double)1e-9;
+    
+}
 
-#endif
+// No retina on Android to mess with scale
+float DeviceScreenScale()
+{
+	return 1.0;
+}
+
+}
