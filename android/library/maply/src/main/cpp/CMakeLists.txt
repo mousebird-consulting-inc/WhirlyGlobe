@@ -13,4 +13,6 @@ target_sources(
 
         PUBLIC
 
+        "${CMAKE_CURRENT_LIST_DIR}/Maply_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/Identifiable_jni.cpp"
 )

@@ -1,0 +1,106 @@
+/*
+ *  WhirlyGlobe.h
+ *  WhirlyGlobeLib
+ *
+ *  Created by Steve Gifford on 1/12/11.
+ *  Copyright 2011-2019 mousebird consulting
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
+#import "ActiveModel.h"
+#import "BaseInfo.h"
+#import "BasicDrawable.h"
+#import "BasicDrawableInstance.h"
+#import "BillboardDrawable.h"
+#import "BillboardManager.h"
+#import "ComponentManager.h"
+#import "CoordSystem.h"
+#import "Dictionary.h"
+#import "Drawable.h"
+#import "DynamicTextureAtlas.h"
+#import "FlatMath.h"
+#import "FontTextureManager.h"
+#import "GeometryManager.h"
+#import "GeometryOBJReader.h"
+#import "GlobeAnimateHeight.h"
+#import "GlobeAnimateRotation.h"
+#import "GlobeAnimateViewMomentum.h"
+#import "GlobeMath.h"
+#import "GlobeScene.h"
+#import "GlobeView.h"
+#import "GLUtils.h"
+#import "glwrapper.h"
+#import "GridClipper.h"
+#import "Identifiable.h"
+#import "ImageTile.h"
+#import "IntersectionManager.h"
+#import "LabelManager.h"
+#import "LabelRenderer.h"
+#import "LayoutManager.h"
+#import "Lighting.h"
+#import "LineAndPointShaders.h"
+#import "LoadedTileNew.h"
+#import "LoftManager.h"
+#import "MaplyAnimateTranslateMomentum.h"
+#import "MaplyAnimateTranslation.h"
+#import "MaplyFlatView.h"
+#import "MaplyScene.h"
+#import "MaplyView.h"
+#import "MarkerManager.h"
+#import "OpenGLES2Program.h"
+#import "OverlapHelper.h"
+#import "ParticleSystemDrawable.h"
+#import "ParticleSystemManager.h"
+#import "PerformanceTimer.h"
+#import "Platform.h"
+#import "Proj4CoordSystem.h"
+#import "QuadDisplayControllerNew.h"
+#import "QuadImageFrameLoader.h"
+#import "QuadLoaderReturn.h"
+#import "QuadSamplingController.h"
+#import "QuadSamplingParams.h"
+#import "QuadTileBuilder.h"
+#import "QuadTreeNew.h"
+#import "RawData.h"
+#import "Scene.h"
+#import "SceneGraphManager.h"
+#import "SceneRendererES.h"
+#import "SceneRendererES2.h"
+#import "ScreenImportance.h"
+#import "ScreenSpaceBuilder.h"
+#import "ScreenSpaceDrawable.h"
+#import "SelectionManager.h"
+#import "ShapeDrawableBuilder.h"
+#import "ShapeManager.h"
+#import "ShapeReader.h"
+#import "SharedAttributes.h"
+#import "SphericalEarthChunkManager.h"
+#import "SphericalMercator.h"
+#import "StringIndexer.h"
+#import "Tesselator.h"
+#import "Texture.h"
+#import "TextureAtlas.h"
+#import "TriangleShaders.h"
+#import "VectorData.h"
+#import "VectorManager.h"
+#import "VectorObject.h"
+#import "WhirlyGeometry.h"
+#import "WhirlyGlobe.h"
+#import "WhirlyKitLog.h"
+#import "WhirlyKitView.h"
+#import "WhirlyOctEncoding.h"
+#import "WhirlyTypes.h"
+#import "WhirlyVector.h"
+#import "WideVectorDrawable.h"
+#import "WideVectorManager.h"
