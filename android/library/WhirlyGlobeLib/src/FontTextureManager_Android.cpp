@@ -18,7 +18,7 @@
  *
  */
 
-#import "FontTextureManagerAndroid.h"
+#import "FontTextureManager_Android.h"
 #import "LabelInfoAndroid.h"
 #import <android/bitmap.h>
 
@@ -27,17 +27,17 @@ namespace WhirlyKit
 
 static const float BogusFontScale = 1.0;
 
-FontTextureManagerAndroid::FontManagerAndroid::FontManagerAndroid(JNIEnv *env,jobject inTypefaceObj)
+FontTextureManager_Android::FontManager_Android::FontManager_Android(JNIEnv *env,jobject inTypefaceObj)
 {
 	typefaceObj = env->NewGlobalRef(inTypefaceObj);
 }
 
-FontTextureManagerAndroid::FontManagerAndroid::FontManagerAndroid()
+FontTextureManager_Android::FontManager_Android::FontManager_Android()
 : typefaceObj(NULL)
 {
 }
 
-void FontTextureManagerAndroid::FontManagerAndroid::clearRefs(JNIEnv *savedEnv)
+void FontTextureManager_Android::FontManager_Android::clearRefs(JNIEnv *savedEnv)
 {
 	if (typefaceObj)
 	{
@@ -46,11 +46,11 @@ void FontTextureManagerAndroid::FontManagerAndroid::clearRefs(JNIEnv *savedEnv)
 	}
 }
 
-FontTextureManagerAndroid::FontManagerAndroid::~FontManagerAndroid()
+FontTextureManager_Android::FontManager_Android::~FontManagerAndroid()
 {
 }
 
-FontTextureManagerAndroid::FontTextureManagerAndroid(JNIEnv *env,Scene *scene,jobject inCharRenderObj)
+FontTextureManager_Android::FontTextureManager_Android(JNIEnv *env,Scene *scene,jobject inCharRenderObj)
 	: FontTextureManager(scene), charRenderObj(NULL)
 {
 	// Note: Porting.  This will leak
@@ -71,7 +71,7 @@ FontTextureManagerAndroid::FontTextureManagerAndroid(JNIEnv *env,Scene *scene,jo
     env->DeleteLocalRef(charRenderClass);
 }
 
-FontTextureManagerAndroid::~FontTextureManagerAndroid()
+FontTextureManager_Android::~FontTextureManager_Android()
 {
     for (FontManagerSet::iterator it = fontManagers.begin();
          it != fontManagers.end(); ++it)
@@ -79,7 +79,7 @@ FontTextureManagerAndroid::~FontTextureManagerAndroid()
     fontManagers.clear();
 }
 
-DrawableString *FontTextureManagerAndroid::addString(JNIEnv *env,const std::vector<int> &codePoints,jobject labelInfoObj,ChangeSet &changes)
+DrawableString *FontTextureManager_Android::addString(JNIEnv *env,const std::vector<int> &codePoints,jobject labelInfoObj,ChangeSet &changes)
 {
 	LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
 	LabelInfoAndroid *labelInfo = (LabelInfoAndroid *)classInfo->getObject(env,labelInfoObj);
@@ -204,7 +204,7 @@ DrawableString *FontTextureManagerAndroid::addString(JNIEnv *env,const std::vect
     return drawString;
 }
 
-FontTextureManagerAndroid::FontManagerAndroid *FontTextureManagerAndroid::findFontManagerForFont(jobject typefaceObj,const LabelInfo &inLabelInfo)
+FontTextureManager_Android::FontManager_Android *FontTextureManager_Android::findFontManagerForFont(jobject typefaceObj,const LabelInfo &inLabelInfo)
 {
 	const LabelInfoAndroid &labelInfo = (LabelInfoAndroid &)inLabelInfo;
 

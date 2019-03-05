@@ -8,13 +8,22 @@ target_include_directories(
         "${CMAKE_CURRENT_LIST_DIR}/../include/"
 )
 
+set (WGLIBANDROIDINC "${CMAKE_CURRENT_LIST_DIR}/../include/")
+
 target_sources(
         ${WGTARGET}
 
         PUBLIC
 
+        "${WGLIBANDROIDINC}/ComponentManager_Android.h"
+        "${WGLIBANDROIDINC}/Dictionary_Android.h"
+        "${WGLIBANDROIDINC}/FontTextureManager_Android.h"
+        "${WGLIBANDROIDINC}/SingleLabel_Android.h"
+
         "${CMAKE_CURRENT_LIST_DIR}/ComponentManager_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Dictionary_Android.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/FontTextureManager_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/platform.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/SingleLabel_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/WhirlyKitLog.cpp"
 )

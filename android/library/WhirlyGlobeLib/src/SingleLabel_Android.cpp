@@ -1,5 +1,5 @@
 /*
- *  SingleLabelAndroid.h
+ *  SingleLabelAndroid.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
@@ -18,19 +18,25 @@
  *
  */
 
-#import "WhirlyGlobe.h"
+#import "SingleLabel_Android.h"
+#import "FontTextureManager_Android.h"
+#import "LabelInfo_Android.h"
 
 namespace WhirlyKit
 {
 
-/**
- * The platform specific single label for Android.
- * This knows how to render itself on Android devices.
- */
-class SingleLabelAndroid : public SingleLabel
+std::vector<DrawableString *> SingleLabelAndroid::generateDrawableStrings(const LabelInfo *inLabelInfo,FontTextureManager *inFontTexManager,ChangeSet &changes)
 {
-public:
-    std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *inLabelInfo,FontTextureManager *fontTexManager,ChangeSet &changes);
-};
+	FontTextureManagerAndroid *fontTexManager = (FontTextureManagerAndroid *)inFontTexManager;
+	const LabelInfoAndroid *labelInfo = (LabelInfoAndroid *)inLabelInfo;
+
+    std::vector<DrawableString *> drawStrs;
+    for (std::vector<int> &codePoints : codePointsLines)
+    {
+        drawStrs.push_back(fontTexManager->addString(labelInfo->env,codePoints,labelInfo->labelInfoObj,changes));
+    }
+    
+    return drawStrs;
+}
 
 }
