@@ -50,13 +50,6 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-// The scene wants a component manager early in the process
-// This gives it an iOS specific one
-ComponentManager *WhirlyKit::MakeComponentManager()
-{
-    return new ComponentManager_iOS();
-}
-
 // We store per thread changes we may be journaling here
 class ThreadChanges
 {

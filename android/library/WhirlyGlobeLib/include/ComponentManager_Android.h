@@ -1,8 +1,8 @@
 /*
- *  glwrapper.h
+ *  ComponentManager_Android.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 12/18/13.
+ *  Created by Steve Gifford on 3/4/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,29 +18,16 @@
  *
  */
 
-#ifdef __ANDROID__ 
+#import "ComponentManager.h"
 
-#import <jni.h>
-#import <android/log.h>
+namespace WhirlyKit
+{
 
-#if __ANDROID_API__ >= 24
-#include <GLES3/gl32.h>
-#elif __ANDROID_API__ >= 21
-#include <GLES3/gl31.h>
-#else
-#include <GLES3/gl3.h>
-#endif
-#else
+/**  Android version of the Component Manager.
+  **/
+class ComponentManager_Android : public ComponentManager
+{
+public:
+};
 
-// iOS
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
-#import <OpenGLES/ES3/gl.h>
-#import <OpenGLES/ES3/glext.h>
-
-#endif
-
-extern bool hasVertexArraySupport;
-extern bool hasMapBufferSupport;
+}

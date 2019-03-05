@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 28
     buildToolsVersion "25.0.1"
 
     defaultConfig {
         applicationId "com.mousebirdconsulting.maplyandroidtester"
-        minSdkVersion 19
-        targetSdkVersion 25
+        minSdkVersion 28
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
     }

@@ -385,9 +385,12 @@ bool Texture::createInGL(OpenGLMemManager *memManager)
 	// If it's in an optimized form, we can use that more efficiently
 	if (isPVRTC)
 	{
+// Note: Porting
+#if 0
 		// Will always be 4 bits per pixel and RGB
 		glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, width, height, 0, (GLsizei)convertedData->getLen(), convertedData->getRawData());
         CheckGLError("Texture::createInGL() glCompressedTexImage2D()");
+#endif
 	} else if (isPKM)
     {
         int compressedType,size;

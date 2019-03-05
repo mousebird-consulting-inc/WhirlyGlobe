@@ -13,6 +13,8 @@ target_sources(
 
         PUBLIC
 
+        "${CMAKE_CURRENT_LIST_DIR}/ComponentManager_Android.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/Dictionary_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/platform.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/WhirlyKitLog.cpp"
 )

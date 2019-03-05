@@ -24,6 +24,14 @@
 
 namespace WhirlyKit
 {
+
+// The scene wants a component manager early in the process
+// This gives it an iOS specific one
+ComponentManager *MakeComponentManager()
+{
+    return new ComponentManager_iOS();
+}
+    
 ComponentManager_iOS::ComponentManager_iOS()
 {
 }

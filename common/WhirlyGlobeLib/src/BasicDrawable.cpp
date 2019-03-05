@@ -753,10 +753,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
     glBindBuffer(GL_ARRAY_BUFFER, sharedBuffer);
     if (hasMapBufferSupport) {
       void *glMem = NULL;
-      if (setupInfo->glesVersion < 3)
-          glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-      else
-          glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
+      glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
       unsigned char *basePtr = (unsigned char *)glMem + sharedBufferOffset;
       for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
           addPointToBuffer(basePtr,ii,NULL);
@@ -769,10 +766,7 @@ void BasicDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemManager *me
           for (unsigned int ii=0;ii<tris.size();ii++,basePtr+=sizeof(Triangle))
               memcpy(basePtr, &tris[ii], sizeof(Triangle));
       }
-      if (setupInfo->glesVersion < 3)
-          glUnmapBufferOES(GL_ARRAY_BUFFER);
-      else
-          glUnmapBuffer(GL_ARRAY_BUFFER);
+      glUnmapBuffer(GL_ARRAY_BUFFER);
     } else {
         bufferSize = numVerts*vertexSize+tris.size()*sizeof(Triangle);
         

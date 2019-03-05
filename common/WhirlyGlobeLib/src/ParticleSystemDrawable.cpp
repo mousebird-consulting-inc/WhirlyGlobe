@@ -107,15 +107,9 @@ void ParticleSystemDrawable::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMa
             // That's how we signal that they're new
             glBindBuffer(GL_ARRAY_BUFFER, bufferPair.buffers[ii]);
             void *glMem = NULL;
-            if (setupInfo->glesVersion < 3)
-                glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-            else
-                glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, totalSize, GL_MAP_WRITE_BIT);
+            glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, totalSize, GL_MAP_WRITE_BIT);
             memset(glMem, 0, totalSize);
-            if (setupInfo->glesVersion < 3)
-                glUnmapBufferOES(GL_ARRAY_BUFFER);
-            else
-                glUnmapBuffer(GL_ARRAY_BUFFER);
+            glUnmapBuffer(GL_ARRAY_BUFFER);
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         }
@@ -188,13 +182,7 @@ void ParticleSystemDrawable::addAttributeData(WhirlyKitGLSetupInfo *setupInfo,co
         glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
         unsigned char *glMem = NULL;
         int glMemOffset = 0;
-        if (setupInfo->glesVersion < 3)
-        {
-            glMem = (unsigned char *)glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-            glMemOffset = batch.batchID*vertexSize*batchSize;
-        } else {
-            glMem = (unsigned char *)glMapBufferRange(GL_ARRAY_BUFFER, batch.batchID*vertexSize*batchSize, vertexSize*batchSize, GL_MAP_WRITE_BIT);
-        }
+        glMem = (unsigned char *)glMapBufferRange(GL_ARRAY_BUFFER, batch.batchID*vertexSize*batchSize, vertexSize*batchSize, GL_MAP_WRITE_BIT);
         
         // Work through the attribute blocks
         int attrOffset = 0;
@@ -216,10 +204,7 @@ void ParticleSystemDrawable::addAttributeData(WhirlyKitGLSetupInfo *setupInfo,co
             attrOffset += attrSize;
         }
         
-        if (setupInfo->glesVersion < 3)
-            glUnmapBufferOES(GL_ARRAY_BUFFER);
-        else
-            glUnmapBuffer(GL_ARRAY_BUFFER);
+        glUnmapBuffer(GL_ARRAY_BUFFER);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
     

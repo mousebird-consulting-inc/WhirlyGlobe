@@ -194,10 +194,7 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
     void *glMem = NULL;
     if (hasMapBufferSupport)
     {
-      if (setupInfo->glesVersion < 3)
-          glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-      else
-          glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
+        glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
     } else {
         glMem = (void *)malloc(bufferSize);
     }
@@ -223,10 +220,7 @@ void BasicDrawableInstance::setupGL(WhirlyKitGLSetupInfo *setupInfo,OpenGLMemMan
     
     if (hasMapBufferSupport)
     {
-      if (setupInfo->glesVersion < 3)
-          glUnmapBufferOES(GL_ARRAY_BUFFER);
-      else
-          glUnmapBuffer(GL_ARRAY_BUFFER);
+        glUnmapBuffer(GL_ARRAY_BUFFER);
     } else {
         glBufferData(GL_ARRAY_BUFFER, bufferSize, glMem, GL_STATIC_DRAW);
         free(glMem);
@@ -255,7 +249,7 @@ GLuint BasicDrawableInstance::setupVAO(RendererFrameInfo *frameInfo,OpenGLES2Pro
     vertArrayObj = basicDraw->setupVAO(prog);
     vertArrayDefaults = basicDraw->vertArrayDefaults;
     
-    glBindVertexArrayOES(vertArrayObj);
+    glBindVertexArray(vertArrayObj);
 
     glBindBuffer(GL_ARRAY_BUFFER,instBuffer);
     {
@@ -317,7 +311,7 @@ GLuint BasicDrawableInstance::setupVAO(RendererFrameInfo *frameInfo,OpenGLES2Pro
         }
     }
 
-    glBindVertexArrayOES(0);
+    glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER,0);
 
     return vertArrayObj;
@@ -693,7 +687,7 @@ void BasicDrawableInstance::draw(RendererFrameInfo *frameInfo,Scene *scene)
                     break;
             }
             
-            glBindVertexArrayOES(0);
+            glBindVertexArray(0);
         } else {
             // Draw without a VAO
             switch (basicDraw->type)

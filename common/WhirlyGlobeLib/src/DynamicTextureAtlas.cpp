@@ -56,11 +56,14 @@ DynamicTexture::DynamicTexture(const std::string &name,int texSize,int cellSize,
             format = GL_ALPHA;
             type = GL_UNSIGNED_BYTE;
             break;
+// Note: Porting
+#if 0
         case GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
             compressed = true;
             format = GL_RGBA;
             type = inFormat;
             break;
+#endif
         case GL_COMPRESSED_RGB8_ETC2:
             compressed = true;
             format = GL_RGB;
@@ -698,10 +701,13 @@ void DynamicTextureAtlas::log()
         case GL_ALPHA:
             texelSize = 1;
             break;
+// Note: Porting
+#if 0
         case GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG:
             // Doesn't really matter.  Can't do these.
             texelSize = 1;
             break;
+#endif
         case GL_COMPRESSED_RGB8_ETC2:
             // Note: Not really
             texelSize = 1;
