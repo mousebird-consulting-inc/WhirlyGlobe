@@ -51,13 +51,7 @@ public:
     /// If the marker is selectable, this is the unique identifier
     ///  for it.  You should set this ahead of time
     SimpleIdentity selectID;
-    
-//    // Note: Maybe move these into iOS and Android versions
-//    /// The text we want to see
-//    std::string text;
-//    // Sometimes rather than strings, we pass around the code points
-//    std::vector<std::vector<int>> codePointsLines;
-    
+        
     /// A geolocation for the middle, left or right of the label
     ///  depending on the justification
     GeoCoord loc;

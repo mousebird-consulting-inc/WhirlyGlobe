@@ -19,7 +19,8 @@
  */
 
 #import "FontTextureManager_Android.h"
-#import "LabelInfoAndroid.h"
+#import "LabelInfo_Android.h"
+#import "LabelManager_jni.h"
 #import <android/bitmap.h>
 
 namespace WhirlyKit
@@ -46,7 +47,7 @@ void FontTextureManager_Android::FontManager_Android::clearRefs(JNIEnv *savedEnv
 	}
 }
 
-FontTextureManager_Android::FontManager_Android::~FontManagerAndroid()
+FontTextureManager_Android::FontManager_Android::~FontManager_Android()
 {
 }
 
@@ -85,7 +86,7 @@ DrawableString *FontTextureManager_Android::addString(JNIEnv *env,const std::vec
 	LabelInfoAndroid *labelInfo = (LabelInfoAndroid *)classInfo->getObject(env,labelInfoObj);
 
 	// Could be more granular if this slows things down
-    pthread_mutex_lock(&lock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     // If not initialized, set up texture atlas and such
     init();
@@ -94,7 +95,7 @@ DrawableString *FontTextureManager_Android::addString(JNIEnv *env,const std::vec
     DrawStringRep *drawStringRep = new DrawStringRep(drawString->getId());
 
     // Look for the font manager that manages the typeface/attribute combo we need
-    FontManagerAndroid *fm = findFontManagerForFont(labelInfo->typefaceObj,*labelInfo);
+    FontManager_Android *fm = findFontManagerForFont(labelInfo->typefaceObj,*labelInfo);
 
 	JavaIntegerClassInfo *intClassInfo = JavaIntegerClassInfo::getClassInfo(env);
 
@@ -199,8 +200,6 @@ DrawableString *FontTextureManager_Android::addString(JNIEnv *env,const std::vec
     // We need to track the glyphs we're using
     drawStringReps.insert(drawStringRep);
 
-    pthread_mutex_unlock(&lock);
-
     return drawString;
 }
 
@@ -211,7 +210,7 @@ FontTextureManager_Android::FontManager_Android *FontTextureManager_Android::fin
 	for (FontManagerSet::iterator it = fontManagers.begin();
 			it != fontManagers.end(); ++it)
 	{
-		FontManagerAndroid *fm = (FontManagerAndroid *)*it;
+		FontManager_Android *fm = (FontManager_Android *)*it;
 
 		if (labelInfo.typefaceIsSame(fm->typefaceObj) &&
                 fm->pointSize == labelInfo.fontSize &&
@@ -222,7 +221,7 @@ FontTextureManager_Android::FontManager_Android *FontTextureManager_Android::fin
 	}
 
 	// Didn't find it, so create it
-	FontManagerAndroid *fm = new FontManagerAndroid(labelInfo.env,typefaceObj);
+	FontManager_Android *fm = new FontManager_Android(labelInfo.env,typefaceObj);
 	fm->fontName = "";
 	fm->color = labelInfo.textColor;
 	fm->pointSize = labelInfo.fontSize;

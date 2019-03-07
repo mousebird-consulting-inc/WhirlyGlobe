@@ -1,8 +1,8 @@
 /*
- *  glwrapper.h
+ *  SceneRenderer_Android.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 12/18/13.
+ *  Created by Steve Gifford on 3/7/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,30 +18,17 @@
  *
  */
 
-#ifdef __ANDROID__ 
+#import "Maply_jni.h"
+#import <WhirlyGlobe_Android.h>
 
-#import <jni.h>
-#import <android/log.h>
-
-#if __ANDROID_API__ >= 24
-#include <GLES3/gl32.h>
-#elif __ANDROID_API__ >= 21
-#include <GLES3/gl31.h>
-#else
-#include <GLES3/gl3.h>
-#endif
-#include <EGL/egl.h>
-#else
-
-// iOS
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
-#import <OpenGLES/ES3/gl.h>
-#import <OpenGLES/ES3/glext.h>
-
-#endif
-
-extern bool hasVertexArraySupport;
-extern bool hasMapBufferSupport;
+// Wrapper on top of scene renderer
+class MaplySceneRenderer : public WhirlyKit::SceneRendererES2
+{
+public:
+    MaplySceneRenderer();
+    
+    // Called when the window changes size (or on startup)
+    bool resize(int width,int height);
+    
+    EGLContext context;
+};

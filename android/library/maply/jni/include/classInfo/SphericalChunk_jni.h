@@ -1,9 +1,9 @@
 /*
- *  SingleLabelAndroid.h
+ *  SphericalChunk_jni.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Created by Steve Gifford on 3/7/19.
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,19 +18,8 @@
  *
  */
 
-#import "WhirlyGlobe.h"
+#import "Maply_jni.h"
+#import "WhirlyGlobe_Android.h"
 
-namespace WhirlyKit
-{
-
-/**
- * The platform specific single label for Android.
- * This knows how to render itself on Android devices.
- */
-class SingleLabelAndroid : public SingleLabel
-{
-public:
-    std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *inLabelInfo,FontTextureManager *fontTexManager,ChangeSet &changes);
-};
-
-}
+typedef JavaClassInfo<WhirlyKit::SphericalChunkInfo> SphericalChunkInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::SphericalChunk> SphericalChunkClassInfo;

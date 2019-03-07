@@ -23,6 +23,8 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/ComponentManager_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Dictionary_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/FontTextureManager_Android.cpp"
+#        "${CMAKE_CURRENT_LIST_DIR}/ImageWrapper.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/LabelInfo_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/platform.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/SingleLabel_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/WhirlyKitLog.cpp"

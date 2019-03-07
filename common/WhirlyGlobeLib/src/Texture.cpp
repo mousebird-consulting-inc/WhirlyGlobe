@@ -229,6 +229,11 @@ Texture::Texture(const std::string &name,RawDataRef texData,bool isPVRTC)
 Texture::~Texture()
 {
 }
+    
+void Texture::setRawData(RawData *rawData,int width,int height)
+{
+    texData = RawDataRef(rawData);
+}
 
 RawDataRef Texture::processData()
 {

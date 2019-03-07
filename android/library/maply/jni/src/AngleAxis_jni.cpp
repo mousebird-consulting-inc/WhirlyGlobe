@@ -27,6 +27,8 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
+template<> AttrDictClassInfo *AttrDictClassInfo::classInfoObj = NULL;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_AngleAxis_nativeInit
   (JNIEnv *env, jclass cls)
 {

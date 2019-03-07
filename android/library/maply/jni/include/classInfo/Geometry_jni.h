@@ -1,9 +1,9 @@
 /*
- *  Maply_utils_jni.h
+ *  Geometry_jni.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Created by Steve Gifford on 3/7/19.
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,12 +18,27 @@
  *
  */
 
+#import "Maply_jni.h"
 #import "com_mousebird_maply_Point2d.h"
 #import "com_mousebird_maply_Point3d.h"
 #import "com_mousebird_maply_Point4d.h"
 #import "com_mousebird_maply_Matrix4d.h"
 #import "com_mousebird_maply_Quaternion.h"
-#import <WhirlyGlobe.h>
+#import "WhirlyGlobe_Android.h"
+
+namespace WhirlyKit
+{
+typedef Eigen::Vector4d Point4d;
+typedef Eigen::Vector4f Point4f;
+}
+
+typedef JavaClassInfo<WhirlyKit::Point2d> Point2dClassInfo;
+typedef JavaClassInfo<WhirlyKit::Point3d> Point3dClassInfo;
+typedef JavaClassInfo<WhirlyKit::Point4d> Point4dClassInfo;
+typedef JavaClassInfo<Eigen::Matrix3d> Matrix3dClassInfo;
+typedef JavaClassInfo<Eigen::Matrix4d> Matrix4dClassInfo;
+typedef JavaClassInfo<Eigen::Quaterniond> QuaternionClassInfo;
+typedef JavaClassInfo<Eigen::AngleAxisd> AngleAxisClassInfo;
 
 // Construct a Java-side Point2d
 JNIEXPORT jobject JNICALL MakePoint2d(JNIEnv *env,const WhirlyKit::Point2d &pt);
@@ -42,12 +57,3 @@ JNIEXPORT jobject JNICALL MakeMatrix4d(JNIEnv *env,const Eigen::Matrix4d &mat);
 
 // Construct a Java-side Quaternion
 JNIEXPORT jobject JNICALL MakeQuaternion(JNIEnv *env,const Eigen::Quaterniond &quat);
-
-// Construct a Java-side AttrDictionary wrapper
-JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,WhirlyKit::Dictionary *dict);
-
-// Construct a Java-side Vector Object
-JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,WhirlyKit::VectorObject *vec);
-
-// Construct a Java-side SelectObject er... Object
-JNIEXPORT jobject JNICALL MakeSelectedObject(JNIEnv *env,const WhirlyKit::SelectionManager::SelectedObject &selObj);

@@ -1,5 +1,5 @@
 /*
- *  LabelInfoAndroid.h
+ *  SingleLabelAndroid.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
@@ -18,42 +18,22 @@
  *
  */
 
-#ifdef __ANDROID__
-#import <jni.h>
-#endif
-#import "Maply_jni.h"
 #import "WhirlyGlobe.h"
 
 namespace WhirlyKit
 {
 
 /**
- * Android version of the Label Info class.
- * We put Typeface in here for convenience.
+ * The platform specific single label for Android.
+ * This knows how to render itself on Android devices.
  */
-class LabelInfoAndroid : public LabelInfo
+class SingleLabelAndroid : public SingleLabel
 {
 public:
-	LabelInfoAndroid(const Dictionary &dict);
+    std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *inLabelInfo,FontTextureManager *fontTexManager,ChangeSet &changes);
 
-	// Clear any global refs we may be holding
-	void clearRefs(JNIEnv *env);
-
-	// Add the typeface to the label info.  Needed for rendering
-	void setTypeface(JNIEnv *env,jobject typefacObj);
-
-	// Compare typefaces
-	bool typefaceIsSame(const jobject inTypeface) const;
-
-	// Globe reference to typeface object
-	jobject typefaceObj;
-
-	// Font size
-	float fontSize;
-
-	// Used to pass the JNI Env down into the depths
-	JNIEnv *env;
-	jobject labelInfoObj;
+    // Sometimes rather than strings, we pass around the code points
+    std::vector<std::vector<int>> codePointsLines;
 };
 
 }

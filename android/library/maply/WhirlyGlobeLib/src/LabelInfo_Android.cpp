@@ -18,13 +18,13 @@
  *
  */
 
-#import "LabelInfoAndroid.h"
+#import "LabelInfo_Android.h"
 
 namespace WhirlyKit
 {
 
-LabelInfoAndroid::LabelInfoAndroid(const Dictionary &dict)
-: LabelInfo(dict), typefaceObj(NULL), env(NULL), labelInfoObj(NULL)
+LabelInfoAndroid::LabelInfoAndroid(const Dictionary &dict,bool screenObject)
+: LabelInfo(dict,screenObject), typefaceObj(NULL), env(NULL), labelInfoObj(NULL)
 {
 }
 

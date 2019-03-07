@@ -27,7 +27,9 @@ JavaDoubleClassInfo *JavaDoubleClassInfo::classInfoObj = NULL;
 JavaIntegerClassInfo *JavaIntegerClassInfo::classInfoObj = NULL;
 JavaHashMapInfo *JavaHashMapInfo::classInfoObj = NULL;
 JavaListInfo *JavaListInfo::classInfoObj = NULL;
-template<> AttrDictClassInfo *AttrDictClassInfo::classInfoObj = NULL;
+
+// Note: Move these out
+/*
 template<> ChangeSetClassInfo *ChangeSetClassInfo::classInfoObj = NULL;
 template<> TextureClassInfo *TextureClassInfo::classInfoObj = NULL;
 template<> CoordSystemClassInfo *CoordSystemClassInfo::classInfoObj = NULL;
@@ -89,6 +91,7 @@ template<> GeometryRawPointsClassInfo *GeometryRawPointsClassInfo::classInfoObj 
 template<> GeometryRawClassInfo *GeometryRawClassInfo::classInfoObj = NULL;
 template<> GeometryInstanceClassInfo *GeometryInstanceClassInfo::classInfoObj = NULL;
 template<> GeoJSONSourceClassInfo *GeoJSONSourceClassInfo::classInfoObj = NULL;
+*/
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {

@@ -22,11 +22,10 @@
 #define Maply_JNI_h_
 
 #include <stdlib.h>
-#ifdef __ANDROID__
-#include <android/log.h>
-#endif
-#include <WhirlyGlobe.h>
-#import "SingleLabelAndroid.h"
+#import <vector>
+#import <android/log.h>
+#import <jni.h>
+#import <WhirlyGlobe_Android.h>
 
 /* Java Class Info
  * This tracks JNI info about classes we implement.
@@ -389,94 +388,6 @@ public:
     int len;
     jdouble *rawDouble;
 };
-
-namespace WhirlyKit
-{
-typedef Eigen::Vector4d Point4d;
-typedef Eigen::Vector4f Point4f;
-}
-
-// Wrapper on top of scene renderer
-class MaplySceneRenderer : public WhirlyKit::SceneRendererES2
-{
-public:
-    MaplySceneRenderer();
-    
-    // Called when the window changes size (or on startup)
-    bool resize(int width,int height);
-    
-    EGLContext context;
-};
-
-// Wrappers for class info for all the various classes that have presence in Java
-typedef JavaClassInfo<WhirlyKit::Dictionary> AttrDictClassInfo;
-typedef JavaClassInfo<WhirlyKit::ChangeSet> ChangeSetClassInfo;
-typedef JavaClassInfo<WhirlyKit::Texture> TextureClassInfo;
-typedef JavaClassInfo<WhirlyKit::CoordSystem> CoordSystemClassInfo;
-typedef JavaClassInfo<WhirlyKit::Point2d> Point2dClassInfo;
-typedef JavaClassInfo<WhirlyKit::Point3d> Point3dClassInfo;
-typedef JavaClassInfo<WhirlyKit::Point4d> Point4dClassInfo;
-typedef JavaClassInfo<Eigen::Matrix3d> Matrix3dClassInfo;
-typedef JavaClassInfo<Eigen::Matrix4d> Matrix4dClassInfo;
-typedef JavaClassInfo<Eigen::Quaterniond> QuaternionClassInfo;
-typedef JavaClassInfo<Eigen::AngleAxisd> AngleAxisClassInfo;
-typedef JavaClassInfo<WhirlyKit::CoordSystemDisplayAdapter> CoordSystemDisplayAdapterInfo;
-typedef JavaClassInfo<WhirlyKit::FakeGeocentricDisplayAdapter> FakeGeocentricDisplayAdapterInfo;
-typedef JavaClassInfo<WhirlyKit::GeneralCoordSystemDisplayAdapter> GeneralDisplayAdapterInfo;
-typedef JavaClassInfo<MaplySceneRenderer> MaplySceneRendererInfo;
-typedef JavaClassInfo<Maply::MapScene> MapSceneClassInfo;
-typedef JavaClassInfo<WhirlyKit::Scene> SceneClassInfo;
-typedef JavaClassInfo<WhirlyGlobe::GlobeScene> GlobeSceneClassInfo;
-typedef JavaClassInfo<Maply::MapView> MapViewClassInfo;
-typedef JavaClassInfo<WhirlyGlobe::GlobeView> GlobeViewClassInfo;
-typedef JavaClassInfo<WhirlyKit::View> ViewClassInfo;
-typedef JavaClassInfo<WhirlyKit::BaseInfo> BaseInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::VectorInfo> VectorInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::WideVectorInfo> WideVectorInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::VectorObject> VectorObjectClassInfo;
-typedef JavaClassInfo<WhirlyKit::MarkerInfo> MarkerInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::LabelInfo> LabelInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::SphericalChunkInfo> SphericalChunkInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::SphericalChunk> SphericalChunkClassInfo;
-typedef JavaClassInfo<WhirlyKit::ViewState> ViewStateClassInfo;
-typedef JavaClassInfo<Maply::MapViewState> MapViewStateClassInfo;
-typedef JavaClassInfo<WhirlyGlobe::GlobeViewState> GlobeViewStateClassInfo;
-typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
-typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;
-typedef JavaClassInfo<WhirlyKit::SingleVertexAttributeInfo> SingleVertexAttributeInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::ParticleBatch> ParticleBatchClassInfo;
-typedef JavaClassInfo<WhirlyKit::ParticleSystem> ParticleSystemClassInfo;
-typedef JavaClassInfo<WhirlyKit::ParticleSystemManager> ParticleSystemManagerClassInfo;
-typedef JavaClassInfo<WhirlyKit::OpenGLES2Program> OpenGLES2ProgramClassInfo;
-typedef JavaClassInfo<WhirlyKit::QuadTracker> QuadTrackerClassInfo;
-typedef JavaClassInfo<WhirlyKit::QuadTrackerPointReturn> QuadTrackerPointReturnClassInfo;
-typedef JavaClassInfo<WhirlyKit::WhirlyKitShapeInfo> ShapeInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::WhirlyKitShape> ShapeClassInfo;
-typedef JavaClassInfo<WhirlyKit::WhirlyKitSphere> ShapeSphereClassInfo;
-typedef JavaClassInfo<WhirlyKit::WhirlyKitRectangle> ShapeRectangleClassInfo;
-typedef JavaClassInfo<WhirlyKit::ShapeManager> ShapeManagerClassInfo;
-typedef JavaClassInfo<WhirlyKit::GeometryManager> GeometryManagerClassInfo;
-typedef JavaClassInfo<WhirlyKit::GeometryInfo> GeometryInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::GeometryRaw> GeometryRawClassInfo;
-typedef JavaClassInfo<WhirlyKit::GeometryRawPoints> GeometryRawPointsClassInfo;
-typedef JavaClassInfo<WhirlyKit::GeometryInstance> GeometryInstanceClassInfo;
-typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;
-typedef JavaClassInfo<WhirlyKit::WhirlyKitDirectionalLight> DirectionalLightClassInfo;
-typedef JavaClassInfo<WhirlyKit::WhirlyKitMaterial> MaterialClassInfo;
-typedef JavaClassInfo<WhirlyKit::Moon> MoonClassInfo;
-typedef JavaClassInfo<WhirlyKit::Sun> SunClassInfo;
-typedef JavaClassInfo<WhirlyKit::Billboard> BillboardClassInfo;
-typedef JavaClassInfo<WhirlyKit::BillboardInfo> BillboardInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::BillboardManager> BillboardManagerClassInfo;
-typedef JavaClassInfo<WhirlyKit::SimplePoly> SimplePolyClassInfo;
-typedef JavaClassInfo<WhirlyKit::StringWrapper> StringWrapperClassInfo;
-typedef JavaClassInfo<WhirlyKit::ScreenObject> ScreenObjectClassInfo;
-typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser> MapboxVectorTileParserClassInfo;
-typedef JavaClassInfo<WhirlyKit::SelectionManager::SelectedObject> SelectedObjectClassInfo;
-typedef JavaClassInfo<WhirlyKit::GeoJSONSource> GeoJSONSourceClassInfo;
-
-// The shared JNIEnv set in the ::render call
-extern JNIEnv *maplyCurrentEnv;
 
 // Convert a Java int array into a std::vector of ints
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec);
