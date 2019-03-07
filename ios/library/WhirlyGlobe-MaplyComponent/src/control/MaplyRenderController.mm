@@ -21,6 +21,8 @@
 #import "MaplyRenderController_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
 #import "NSData+Zlib.h"
+#import "UIColor+Stuff.h"
+#import "NSDictionary+Stuff.h"
 #import "NSDictionary+StyleRules.h"
 
 using namespace WhirlyKit;

@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "WhirlyGlobeViewController.h"
 #import "MaplyBaseViewController_private.h"
 #import "GlobePinchDelegate.h"

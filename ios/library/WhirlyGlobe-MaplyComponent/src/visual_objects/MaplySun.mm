@@ -18,7 +18,7 @@
  *
  */
 
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "MaplySun.h"
 #import <AA+.h>
 

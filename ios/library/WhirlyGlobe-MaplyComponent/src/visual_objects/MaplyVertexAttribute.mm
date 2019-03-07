@@ -19,6 +19,7 @@
  */
 
 #import "MaplyVertexAttribute_private.h"
+#import "UIColor+Stuff.h"
 
 using namespace WhirlyKit;
 

@@ -19,7 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "MaplyVectorObject.h"
 #import "MaplyComponentObject.h"
 #import "MaplyTexture_private.h"

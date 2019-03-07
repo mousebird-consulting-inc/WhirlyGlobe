@@ -18,9 +18,8 @@
  *
  */
 
-#import <Foundation/Foundation.h>
-#import "WhirlyGlobe.h"
-#import "GlobeView_iOS.h"
+#import <UIKit/UIKit.h>
+#import "WhirlyGlobe_iOS.h"
 
 // Sent out when the pan delegate takes control
 #define kPanDelegateDidStart @"WKPanDelegateStarted"

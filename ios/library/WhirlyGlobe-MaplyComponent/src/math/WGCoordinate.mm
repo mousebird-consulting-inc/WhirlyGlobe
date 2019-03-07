@@ -20,7 +20,7 @@
 
 #import "WGCoordinate.h"
 #import "MaplyCoordinate.h"
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 
 using namespace WhirlyKit;
 

@@ -18,7 +18,7 @@
  *
  */
 
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "MaplyViewController.h"
 #import "MaplyViewController_private.h"
 #import "MaplyInteractionLayer_private.h"

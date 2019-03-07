@@ -295,15 +295,11 @@
 		2B82B6C91E82E24A0095FB14 /* projects.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4AA1E82E2490095FB14 /* projects.h */; };
 		2B82B6CA1E82E24A0095FB14 /* rtodms.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B4AB1E82E2490095FB14 /* rtodms.c */; };
 		2B82B6CB1E82E24A0095FB14 /* vector1.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B4AC1E82E2490095FB14 /* vector1.c */; };
-		2B82B6CC1E82E24A0095FB14 /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4AE1E82E2490095FB14 /* WhirlyGlobe.h */; };
 		2B82B6D91E82E24A0095FB14 /* UIImage+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4BE1E82E2490095FB14 /* UIImage+Stuff.h */; };
 		2B82B6DA1E82E24A0095FB14 /* NSDictionary+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4BF1E82E2490095FB14 /* NSDictionary+Stuff.h */; };
 		2B82B6DB1E82E24A0095FB14 /* UIColor+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C01E82E2490095FB14 /* UIColor+Stuff.h */; };
 		2B82B6DC1E82E24A0095FB14 /* NSString+Stuff.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C11E82E2490095FB14 /* NSString+Stuff.h */; };
 		2B82B6E31E82E24A0095FB14 /* EAGLView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4C91E82E2490095FB14 /* EAGLView.h */; };
-		2B82B6E51E82E24A0095FB14 /* ElevationChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4CC1E82E2490095FB14 /* ElevationChunk.h */; };
-		2B82B6E61E82E24A0095FB14 /* ElevationCesiumFormat.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4CD1E82E2490095FB14 /* ElevationCesiumFormat.h */; };
-		2B82B6E71E82E24A0095FB14 /* ElevationCesiumChunk.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B4CE1E82E2490095FB14 /* ElevationCesiumChunk.h */; };
 		2B82B7151E82E24A0095FB14 /* DataLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B5021E82E2490095FB14 /* DataLayer.h */; };
 		2B82B7181E82E24A0095FB14 /* LayoutLayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B5051E82E2490095FB14 /* LayoutLayer.h */; };
 		2B82B71C1E82E24A0095FB14 /* LayerViewWatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B82B50A1E82E2490095FB14 /* LayerViewWatcher.h */; };
@@ -586,6 +582,8 @@
 		2BC3D6EF220B71D900CE91D0 /* WhirlyGlobeViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE537F51D249A1200B60FAD /* WhirlyGlobeViewController.mm */; };
 		2BC3D6F8220CAAC700CE91D0 /* WhirlyKitLog.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6F7220CAAC700CE91D0 /* WhirlyKitLog.mm */; };
 		2BC90D4C222DAB3900D8B606 /* glwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90D4B222DAB3900D8B606 /* glwrapper.cpp */; };
+		2BC90D5122319FD700D8B606 /* WhirlyGlobe_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D5022319FD700D8B606 /* WhirlyGlobe_iOS.h */; };
+		2BC90D532231A30F00D8B606 /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D522231A30F00D8B606 /* WhirlyGlobe.h */; };
 		2BE1E7392208A97100815D9C /* MaplyPinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DED21233CBE0074D06D /* MaplyPinchDelegate.mm */; };
 		2BE1E73A2208B25F00815D9C /* MaplyPanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DEC21233CBE0074D06D /* MaplyPanDelegate.mm */; };
 		2BE1E73B2208B73C00815D9C /* MaplyDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DE721233CBE0074D06D /* MaplyDoubleTapDelegate.mm */; };
@@ -1360,15 +1358,11 @@
 		2B82B4AA1E82E2490095FB14 /* projects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = projects.h; sourceTree = "<group>"; };
 		2B82B4AB1E82E2490095FB14 /* rtodms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rtodms.c; sourceTree = "<group>"; };
 		2B82B4AC1E82E2490095FB14 /* vector1.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vector1.c; sourceTree = "<group>"; };
-		2B82B4AE1E82E2490095FB14 /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = WhirlyGlobe.h; path = ../../../../common/WhirlyGlobeLib/include/WhirlyGlobe.h; sourceTree = "<group>"; };
 		2B82B4BE1E82E2490095FB14 /* UIImage+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "UIImage+Stuff.h"; sourceTree = "<group>"; };
 		2B82B4BF1E82E2490095FB14 /* NSDictionary+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "NSDictionary+Stuff.h"; sourceTree = "<group>"; };
 		2B82B4C01E82E2490095FB14 /* UIColor+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = "UIColor+Stuff.h"; sourceTree = "<group>"; };
 		2B82B4C11E82E2490095FB14 /* NSString+Stuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Stuff.h"; sourceTree = "<group>"; };
 		2B82B4C91E82E2490095FB14 /* EAGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = EAGLView.h; sourceTree = "<group>"; };
-		2B82B4CC1E82E2490095FB14 /* ElevationChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationChunk.h; sourceTree = "<group>"; };
-		2B82B4CD1E82E2490095FB14 /* ElevationCesiumFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationCesiumFormat.h; sourceTree = "<group>"; };
-		2B82B4CE1E82E2490095FB14 /* ElevationCesiumChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ElevationCesiumChunk.h; sourceTree = "<group>"; };
 		2B82B5021E82E2490095FB14 /* DataLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = DataLayer.h; sourceTree = "<group>"; };
 		2B82B5051E82E2490095FB14 /* LayoutLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayoutLayer.h; sourceTree = "<group>"; };
 		2B82B50A1E82E2490095FB14 /* LayerViewWatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayerViewWatcher.h; sourceTree = "<group>"; };
@@ -1574,6 +1568,8 @@
 		2BC3D6ED220B714100CE91D0 /* sqlhelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = sqlhelpers.mm; sourceTree = "<group>"; };
 		2BC3D6F7220CAAC700CE91D0 /* WhirlyKitLog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WhirlyKitLog.mm; sourceTree = "<group>"; };
 		2BC90D4B222DAB3900D8B606 /* glwrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glwrapper.cpp; path = ../../../../common/WhirlyGlobeLib/src/glwrapper.cpp; sourceTree = "<group>"; };
+		2BC90D5022319FD700D8B606 /* WhirlyGlobe_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe_iOS.h; sourceTree = "<group>"; };
+		2BC90D522231A30F00D8B606 /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyGlobe.h; path = ../../../../common/WhirlyGlobeLib/include/WhirlyGlobe.h; sourceTree = "<group>"; };
 		2BE1E7572208F32900815D9C /* SingleLabel_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleLabel_iOS.h; sourceTree = "<group>"; };
 		2BE1E75A2208F33900815D9C /* SingleLabel_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SingleLabel_iOS.mm; sourceTree = "<group>"; };
 		2BE1E75C2208F43200815D9C /* FontTextureManager_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontTextureManager_iOS.h; sourceTree = "<group>"; };
@@ -2592,21 +2588,10 @@
 			name = rendering;
 			sourceTree = "<group>";
 		};
-		2B82B4CF1E82E2490095FB14 /* elevation */ = {
-			isa = PBXGroup;
-			children = (
-				2B82B4CC1E82E2490095FB14 /* ElevationChunk.h */,
-				2B82B4CD1E82E2490095FB14 /* ElevationCesiumFormat.h */,
-				2B82B4CE1E82E2490095FB14 /* ElevationCesiumChunk.h */,
-			);
-			name = elevation;
-			sourceTree = "<group>";
-		};
 		2B82B4D41E82E2490095FB14 /* data */ = {
 			isa = PBXGroup;
 			children = (
 				2BC3D6E1220B5AC100CE91D0 /* VectorData_iOS.h */,
-				2B82B4CF1E82E2490095FB14 /* elevation */,
 			);
 			name = data;
 			sourceTree = "<group>";
@@ -2641,7 +2626,7 @@
 		2B82B5461E82E2490095FB14 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				2B82B4AE1E82E2490095FB14 /* WhirlyGlobe.h */,
+				2BC90D5022319FD700D8B606 /* WhirlyGlobe_iOS.h */,
 				2B82B5141E82E2490095FB14 /* WhirlyKit */,
 			);
 			name = include;
@@ -2750,6 +2735,7 @@
 		2B846EF421F158CD00EF2A82 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2BC90D522231A30F00D8B606 /* WhirlyGlobe.h */,
 				2B23133121F9371F006AA344 /* util */,
 				2B446AEC21F79A390078A975 /* geometry utils */,
 				2B446B0621F79A8B0078A975 /* coord systems */,
@@ -3854,7 +3840,6 @@
 				2BE5386C1D249A1200B60FAD /* MapnikStyle.h in Headers */,
 				2BE53A431D249C3D00B60FAD /* zero_copy_stream_impl_lite.h in Headers */,
 				2BE538431D249A1200B60FAD /* MaplyParticleSystem_private.h in Headers */,
-				2B82B6CC1E82E24A0095FB14 /* WhirlyGlobe.h in Headers */,
 				2B82B6C51E82E24A0095FB14 /* proj_api.h in Headers */,
 				2B82B6081E82E2490095FB14 /* Visual_C.h in Headers */,
 				2B446AFA21F79A600078A975 /* CoordSystem.h in Headers */,
@@ -3940,6 +3925,7 @@
 				2BE539751D249BEF00B60FAD /* AAParabolic.h in Headers */,
 				2BE53A3F1D249C3D00B60FAD /* zero_copy_stream.h in Headers */,
 				2BE53A681D249C4600B60FAD /* atomicops_internals_macosx.h in Headers */,
+				2BC90D5122319FD700D8B606 /* WhirlyGlobe_iOS.h in Headers */,
 				2B82B5FA1E82E2490095FB14 /* libbase64++.h in Headers */,
 				2BE5382D1D249A1200B60FAD /* MaplyUpdateLayer.h in Headers */,
 				2B8E608920D458A600FB96F0 /* MaplyQuadSampler_private.h in Headers */,
@@ -3957,7 +3943,6 @@
 				2BE538361D249A1200B60FAD /* ImageTexture_private.h in Headers */,
 				2B446ABB21F25C330078A975 /* WhirlyKitLog.h in Headers */,
 				2B446AFF21F79A600078A975 /* SphericalMercator.h in Headers */,
-				2B82B6E61E82E24A0095FB14 /* ElevationCesiumFormat.h in Headers */,
 				2BE1E75D2208F43200815D9C /* FontTextureManager_iOS.h in Headers */,
 				2BE5397D1D249BEF00B60FAD /* AAPlanetPerihelionAphelion.h in Headers */,
 				2BE5383C1D249A1200B60FAD /* MaplyCoordinateSystem_private.h in Headers */,
@@ -4024,13 +4009,13 @@
 				2BE539701D249BEF00B60FAD /* AAMoslemCalendar.h in Headers */,
 				2B82B5F91E82E2490095FB14 /* libjson.h in Headers */,
 				2BE53A961D249C9000B60FAD /* DDXMLElement.h in Headers */,
+				2BC90D532231A30F00D8B606 /* WhirlyGlobe.h in Headers */,
 				2BE538191D249A1200B60FAD /* MaplyPoints.h in Headers */,
 				2BB8A3EE21ED43D10025DA98 /* MaplyDoubleTapDragDelegate.h in Headers */,
 				2BE538661D249A1200B60FAD /* MaplyVectorTileLineStyle.h in Headers */,
 				2BE539741D249BEF00B60FAD /* AANutation.h in Headers */,
 				2BE538121D249A1200B60FAD /* MaplyMatrix.h in Headers */,
 				2B82B6371E82E2490095FB14 /* emess.h in Headers */,
-				2B82B6E71E82E24A0095FB14 /* ElevationCesiumChunk.h in Headers */,
 				2B446B9621FBA8520078A975 /* OpenGLES2Program.h in Headers */,
 				2BE5383E1D249A1200B60FAD /* MaplyGeomBuilder_private.h in Headers */,
 				2B73D6C2207D224100AF5095 /* MaplyQuadImageLoader_private.h in Headers */,
@@ -4211,7 +4196,6 @@
 				2B82B6021E82E2490095FB14 /* JSONChildren.h in Headers */,
 				2B446B5021F7E7B80078A975 /* ScreenSpaceBuilder.h in Headers */,
 				2B82B6E31E82E24A0095FB14 /* EAGLView.h in Headers */,
-				2B82B6E51E82E24A0095FB14 /* ElevationChunk.h in Headers */,
 				2B884A761E3803170027C397 /* laszip.hpp in Headers */,
 				2BE5397E1D249BEF00B60FAD /* AAPluto.h in Headers */,
 				2BBC338B221746950038A229 /* ComponentManager_iOS.h in Headers */,

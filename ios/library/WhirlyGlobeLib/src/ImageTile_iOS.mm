@@ -20,6 +20,7 @@
 
 #import "ImageTile_iOS.h"
 #import "RawData_NSData.h"
+#import "UIImage+Stuff.h"
 
 namespace WhirlyKit
 {

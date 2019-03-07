@@ -23,6 +23,7 @@
 #import "MaplyGeomModel_private.h"
 #import "MaplyRenderController_private.h"
 #import "MaplyTexture_private.h"
+#import "UIColor+Stuff.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

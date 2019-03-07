@@ -20,7 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import <string>
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "MaplyShader_private.h"
 #import "MaplyRenderController_private.h"
 #import "GLUtils.h"

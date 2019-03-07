@@ -49,19 +49,19 @@ LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject)
     layoutPlacement = dict.getInt(MaplyLayoutPlacement,-1);
     width = dict.getDouble(MaplyLabelWidth,0.0);
     height = dict.getDouble(MaplyLabelHeight,screenObject ? 16.0 : 0.001);
-    std::string labelJustifyStr = dict.getString(MaplyLabelJustify);
+    std::string labelJustifyStr = dict.getString(MaplyLabelJustifyName);
     std::string textJustifyStr = dict.getString(MaplyTextJustify);
     shadowColor = dict.getColor(MaplyShadowColor, RGBAColor(0,0,0,255));
     shadowSize = dict.getDouble(MaplyShadowSize, 0.0);
     outlineSize = dict.getDouble(MaplyTextOutlineSize,0.0);
     outlineColor = dict.getColor(MaplyShadowColor, RGBAColor(0,0,0,255));
-    if (!labelJustifyStr.compare(MaplyLabelJustifyMiddle))
+    if (!labelJustifyStr.compare(MaplyLabelJustifyNameMiddle))
         labelJustify = WhirlyKitLabelMiddle;
     else {
-        if (!labelJustifyStr.compare(MaplyLabelJustifyLeft))
+        if (!labelJustifyStr.compare(MaplyLabelJustifyNameLeft))
             labelJustify = WhirlyKitLabelLeft;
         else {
-            if (!labelJustifyStr.compare(MaplyLabelJustifyRight))
+            if (!labelJustifyStr.compare(MaplyLabelJustifyNameRight))
                 labelJustify = WhirlyKitLabelRight;
         }
     }

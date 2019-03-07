@@ -116,13 +116,13 @@
 #define MaplyLabelWidth WKString("width")
 /// Justification for label placement.  This takes an NSString with one of:
 ///  middle, left, right
-#define MaplyLabelJustify WKString("justify")
+#define MaplyLabelJustifyName WKString("justify")
 /// Justify label in the middle
-#define MaplyLabelJustifyMiddle WKString("middle")
+#define MaplyLabelJustifyNameMiddle WKString("middle")
 /// Justify label to the left
-#define MaplyLabelJustifyLeft WKString("left")
+#define MaplyLabelJustifyNameLeft WKString("left")
 /// Justify label to the right
-#define MaplyLabelJustifyRight WKString("right")
+#define MaplyLabelJustifyNameRight WKString("right")
 /// Text justification within multi-line strings
 #define MaplyTextJustify WKString("textjustify")
 /// Justify text to the center
@@ -149,7 +149,7 @@
 #define MaplyTextLineHeight WKString("lineHeight")
 
 /// These are used for screen and regular markers.
-#define MaplyClusterGroup WKString("clusterGroup")
+#define MaplyClusterGroupID WKString("clusterGroup")
 
 /// These are used for screen and regular markers.
 

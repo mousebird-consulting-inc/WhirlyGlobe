@@ -19,7 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "MaplyTexture_private.h"
 
 // Manages a whole group of texture atlases.  Thread safe.

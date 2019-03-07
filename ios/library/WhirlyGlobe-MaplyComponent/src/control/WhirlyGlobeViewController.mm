@@ -18,7 +18,7 @@
  *
  */
 
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "WhirlyGlobeViewController.h"
 #import "WhirlyGlobeViewController_private.h"
 

@@ -20,7 +20,7 @@
 
 #import "MaplyVectorObject.h"
 #import "MaplyVectorObject_private.h"
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "Tesselator.h"
 #import "GridClipper.h"
 #import <CoreLocation/CoreLocation.h>

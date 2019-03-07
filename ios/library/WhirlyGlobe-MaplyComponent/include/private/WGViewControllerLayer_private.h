@@ -19,7 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "MaplyViewControllerLayer_private.h"
 
 /// Used to keep track of resources for a layer the user has asked to be created.

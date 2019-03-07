@@ -19,7 +19,7 @@
  */
 
 #import "MaplyGeomModel.h"
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "MaplyRenderController_private.h"
 
 namespace WhirlyKit

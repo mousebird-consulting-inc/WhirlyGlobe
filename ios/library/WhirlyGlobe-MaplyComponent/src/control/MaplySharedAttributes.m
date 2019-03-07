@@ -114,7 +114,7 @@ NSString* const kMaplyLabelHeight = MaplyLabelHeight;
 NSString* const kMaplyLabelWidth = MaplyLabelWidth;
 /// Justification for label placement.  This takes an NSString with one of:
 ///  middle, left, right
-NSString* const kMaplyJustify = MaplyLabelJustify;
+NSString* const kMaplyJustify = MaplyLabelJustifyName;
 /// If set, we'll draw a shadow behind each label with this as the stroke size
 NSString* const kMaplyShadowSize = MaplyShadowSize;
 /// If shadow size is being used, we can control the shadow color like so
@@ -133,7 +133,7 @@ NSString* const kMaplyTextJustifyLeft = MaplyTextJustifyLeft;
 NSString* const kMaplyTextJustifyCenter = MaplyTextJustifyCenter;
 
 /// These are used for screen and regular markers.
-NSString* const kMaplyClusterGroup = MaplyClusterGroup;
+NSString* const kMaplyClusterGroup = MaplyClusterGroupID;
 
 /// Color is used for the polygon generated for a marker.  It will combine with the image,
 ///  if there is one or it will be visible if there is no texture.  Takes a UIColor

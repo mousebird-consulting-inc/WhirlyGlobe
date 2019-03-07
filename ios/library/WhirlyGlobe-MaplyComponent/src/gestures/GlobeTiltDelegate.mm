@@ -19,6 +19,7 @@
 
 #import "GlobeTiltDelegate.h"
 #import "GlobePinchDelegate.h"
+#import "EAGLView.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

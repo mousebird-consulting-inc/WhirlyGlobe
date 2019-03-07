@@ -37,7 +37,7 @@ MarkerInfo::MarkerInfo(const Dictionary &dict,bool screenObject)
     width = dict.getDouble(MaplyLabelWidth,(screenObject ? 16.0 : 0.001));
     height = dict.getDouble(MaplyLabelHeight,(screenObject ? 16.0 : 0.001));
     layoutImportance = dict.getDouble(MaplyLayoutImportance,MAXFLOAT);
-    clusterGroup = dict.getInt(MaplyClusterGroup,-1);
+    clusterGroup = dict.getInt(MaplyClusterGroupID,-1);
 }
     
 MarkerSceneRep::MarkerSceneRep()

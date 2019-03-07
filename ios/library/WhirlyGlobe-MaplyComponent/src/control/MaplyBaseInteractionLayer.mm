@@ -46,6 +46,8 @@
 #import "Texture_iOS.h"
 #import "ComponentManager_iOS.h"
 #import "SphericalEarthChunkManager.h"
+#import "UIColor+Stuff.h"
+#import "NSDictionary+Stuff.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

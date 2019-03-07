@@ -28,6 +28,7 @@
 #import "MaplyTexture_private.h"
 #import "MaplyRenderTarget_private.h"
 #import "FontTextureManager_iOS.h"
+#import "UIColor+Stuff.h"
 #import <sys/utsname.h>
 
 using namespace Eigen;

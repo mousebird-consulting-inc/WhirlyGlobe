@@ -19,7 +19,7 @@
  */
 
 #import "MaplyUpdateLayer.h"
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 
 @interface MaplyViewerState()
 @property (nonatomic) WhirlyKit::ViewStateRef viewState;

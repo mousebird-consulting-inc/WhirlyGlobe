@@ -18,7 +18,7 @@
  *
  */
 
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "MaplyTexture_private.h"
 
 // Used to map UIImages to Texture IDs

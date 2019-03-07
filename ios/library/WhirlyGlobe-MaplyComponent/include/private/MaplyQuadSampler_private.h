@@ -21,6 +21,7 @@
 #import "WhirlyGlobe.h"
 #import "MaplyQuadSampler.h"
 #import "QuadTileBuilder.h"
+#import "QuadDisplayLayerNew.h"
 
 @interface MaplySamplingParams()
 {

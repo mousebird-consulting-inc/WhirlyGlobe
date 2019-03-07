@@ -19,7 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "MaplyViewControllerLayer.h"
 
 @class MaplyBaseViewController;

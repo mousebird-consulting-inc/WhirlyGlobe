@@ -19,7 +19,7 @@
  */
 
 #import "MaplyShader.h"
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 
 @interface MaplyShader()
 

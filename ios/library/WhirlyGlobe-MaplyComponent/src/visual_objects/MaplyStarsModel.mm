@@ -20,7 +20,7 @@
 
 #import <vector>
 #import "MaplyStarsModel.h"
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import <AA+.h>
 
 using namespace WhirlyKit;

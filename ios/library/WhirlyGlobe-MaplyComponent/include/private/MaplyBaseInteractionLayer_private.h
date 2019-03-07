@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import <set>
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 #import "MaplyComponentObject_private.h"
 #import "ImageTexture_private.h"
 #import "MaplyBaseViewController.h"

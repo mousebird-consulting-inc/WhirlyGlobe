@@ -20,7 +20,7 @@
 
 #import "MaplyTextureBuilder.h"
 #import <vector>
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 
 @implementation MaplyLinearTextureBuilder
 {

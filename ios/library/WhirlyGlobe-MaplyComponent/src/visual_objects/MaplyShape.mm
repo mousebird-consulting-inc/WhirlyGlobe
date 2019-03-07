@@ -22,6 +22,7 @@
 #import "WhirlyGlobe.h"
 #import "MaplySharedAttributes.h"
 #import "MaplyMatrix_private.h"
+#import "UIColor+Stuff.h"
 
 using namespace WhirlyKit;
 

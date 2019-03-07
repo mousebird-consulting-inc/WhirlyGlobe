@@ -22,7 +22,7 @@
 #import "MaplyVectorTileLineStyle.h"
 #import "MaplyTexture.h"
 #import "MaplyTextureBuilder.h"
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobe_iOS.h>
 
 // Line styles
 @implementation MaplyVectorTileStyleLine
