@@ -1,8 +1,8 @@
 /*
- *  GeoCoordSystem_jni.cpp
+ *  PlateCarreeCoordSystem_jni.cpp
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/18/15.
+ *  Created by Steve Gifford on 6/2/14.
  *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,27 +19,26 @@
  */
 
 #import <jni.h>
-#import "Maply_jni.h"
-#import "com_mousebird_maply_GeoCoordSystem.h"
-#import "WhirlyGlobe.h"
+#import "CoordSystem_jni.h"
+#import "com_mousebird_maply_PlateCarreeCoordSystem.h"
 
 using namespace WhirlyKit;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeoCoordSystem_nativeInit
+JNIEXPORT void JNICALL Java_com_mousebird_maply_PlateCarreeCoordSystem_nativeInit
   (JNIEnv *env, jclass cls)
 {
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeoCoordSystem_initialise
+JNIEXPORT void JNICALL Java_com_mousebird_maply_PlateCarreeCoordSystem_initialise
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
-		GeoCoordSystem *coordSystem = new GeoCoordSystem();
+		PlateCarreeCoordSystem *coordSystem = new PlateCarreeCoordSystem();
 		CoordSystemClassInfo::getClassInfo()->setHandle(env,obj,coordSystem);
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeoCoordSystem::initialise()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in PlateCarreeCoordSystem::initialise()");
 	}
 }

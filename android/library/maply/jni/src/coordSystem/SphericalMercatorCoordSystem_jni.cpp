@@ -19,9 +19,8 @@
  */
 
 #import <jni.h>
-#import "Maply_jni.h"
+#import "CoordSystem_jni.h"
 #import "com_mousebird_maply_SphericalMercatorCoordSystem.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 

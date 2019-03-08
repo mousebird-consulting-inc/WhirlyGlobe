@@ -19,11 +19,13 @@
  */
 
 #import <jni.h>
-#import "Maply_jni.h"
+#import "CoordSystem_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_GeneralDisplayAdapter.h"
-#import "WhirlyGlobe_Android.h"
 
 using namespace WhirlyKit;
+
+template<> GeneralDisplayAdapterInfo *GeneralDisplayAdapterInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeneralDisplayAdapter_nativeInit
 (JNIEnv *env, jclass cls)

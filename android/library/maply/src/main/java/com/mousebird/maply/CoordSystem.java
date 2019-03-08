@@ -93,6 +93,22 @@ public class CoordSystem
 	public native Point3d localToGeographic(Point3d pt);
 
 	/**
+	 * Convert from the local coordinate system to Geocentric
+	 *
+	 * @param pt A point in the local coordinate system.
+	 * @return A coordinate in geocentric.
+	 */
+	public native Point3d localToGeocentric(Point3d pt);
+
+	/**
+	 * Convert from geocentric to the local coordinate system.
+	 *
+	 * @param pt A point in geocentric
+	 * @return A coordinate in the local coordinate system.
+	 */
+	public native Point3d geocentricToLocal(Point3d pt);
+
+	/**
 	 * Convert the coordinate between systems.
 	 * @param inSystem The system the coordinate is in.
 	 * @param outSystem The system the coordinate you want it in.

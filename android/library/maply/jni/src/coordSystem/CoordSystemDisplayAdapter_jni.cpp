@@ -19,12 +19,15 @@
  */
 
 #import <jni.h>
-#import "Maply_jni.h"
+#import "CoordSystem_jni.h"
+#import "Geometry_jni.h"
+#import "View_jni.h"
 #import "com_mousebird_maply_CoordSystemDisplayAdapter.h"
-#import "WhirlyGlobe_Android.h"
+
+template<> CoordSystemDisplayAdapterInfo *CoordSystemDisplayAdapterInfo::classInfoObj = NULL;
 
 using namespace WhirlyKit;
-
+using namespace Eigen;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_nativeInit
   (JNIEnv *env, jclass cls)
@@ -249,7 +252,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_ge
             Point3d hit;
             if (globeView)
             {
-                if (!globeView->pointOnSphereFromScreen(screenPt,&fullMat,frameSize,&hit,true))
+                if (!globeView->pointOnSphereFromScreen(screenPt,fullMat,frameSize,hit,true))
                     valid = false;
                 else
                     outCoord = coordSys->localToGeographic(coordAdapter->displayToLocal(hit));

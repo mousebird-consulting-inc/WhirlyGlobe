@@ -19,11 +19,12 @@
  */
 
 #import <jni.h>
-#import "Maply_jni.h"
+#import "CoordSystem_jni.h"
 #import "com_mousebird_maply_FakeGeocentricDisplayAdapter.h"
-#import "WhirlyGlobe_Android.h"
 
 using namespace WhirlyKit;
+
+template<> FakeGeocentricDisplayAdapterInfo *FakeGeocentricDisplayAdapterInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_FakeGeocentricDisplayAdapter_nativeInit
   (JNIEnv *env, jclass cls)

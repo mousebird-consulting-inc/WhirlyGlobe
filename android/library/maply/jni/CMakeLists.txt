@@ -45,4 +45,12 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/math/Point3d_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/math/Point4d_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/math/Quaternion_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/CoordSystem_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/CoordSystemDisplayAdapter_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/FakeGeocentricDisplayAdapter_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/GeneralDisplayAdapter_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/PlateCarreeCoordSystem_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/Proj4CoordSystem_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/SphericalMercatorCoordSystem_jni.cpp"
 )
