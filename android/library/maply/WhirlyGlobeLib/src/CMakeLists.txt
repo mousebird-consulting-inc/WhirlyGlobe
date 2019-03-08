@@ -18,6 +18,7 @@ target_sources(
         "${WGLIBANDROIDINC}/ComponentManager_Android.h"
         "${WGLIBANDROIDINC}/Dictionary_Android.h"
         "${WGLIBANDROIDINC}/FontTextureManager_Android.h"
+        "${WGLIBANDROIDINC}/Shader_Android.h"
         "${WGLIBANDROIDINC}/SingleLabel_Android.h"
 
         "${CMAKE_CURRENT_LIST_DIR}/ComponentManager_Android.cpp"
@@ -26,6 +27,7 @@ target_sources(
 #        "${CMAKE_CURRENT_LIST_DIR}/ImageWrapper.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/LabelInfo_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/platform.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/Shader_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/SingleLabel_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/WhirlyKitLog.cpp"
 )

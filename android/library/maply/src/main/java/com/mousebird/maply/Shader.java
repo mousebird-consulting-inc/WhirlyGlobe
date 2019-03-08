@@ -44,7 +44,7 @@ public class Shader
      * @param name The name of the shader program.  Used for identification and sometimes lookup.
      * @param vertexSrc The string containing the full vertex program.
      * @param fragSrc The string containing the full fragment program.
-     * @param control The controller where we'll register the new shader.
+     * @param inControl The controller where we'll register the new shader.
      * @return Returns a shader program if it succeeded.  It may not work, however, so call valid first.
      */
 	public Shader(String name,String vertexSrc, String fragSrc,MaplyBaseController inControl)
@@ -56,6 +56,44 @@ public class Shader
 
 		if (okay)
 			initialise(name,vertexSrc,fragSrc);
+		else
+			Log.i("Maply","Shader was set up before context was created.  Shader won't work.");
+	}
+
+	/**
+	 * Initialise with an empty program we'll fill in later.
+	 *
+	 * @param inControl The control we'll associate this program with.
+	 */
+	public Shader(MaplyBaseController inControl)
+	{
+		control = inControl;
+		boolean okay = true;
+		if (Looper.myLooper() == Looper.getMainLooper())
+			okay = control.setEGLContext(null);
+
+		if (okay)
+			initialise();
+		else
+			Log.i("Maply","Shader was set up before context was created.  Shader won't work.");
+	}
+
+	/**
+	 * This is called after an a minimal setup.  Presumably you'll be setting other attributes
+	 * (like varying names) which must be passed in when the program is created.
+	 *
+	 * @param name The name of the shader program.  Used for identification and sometimes lookup.
+	 * @param vertexSrc The string containing the full vertex program.
+	 * @param fragSrc The string containing the full fragment program.
+	 */
+	public void delayedSetup(String name,String vertexSrc,String fragSrc)
+	{
+		boolean okay = true;
+		if (Looper.myLooper() == Looper.getMainLooper())
+			okay = control.setEGLContext(null);
+
+		if (okay)
+			delayedSetupNative(name,vertexSrc,fragSrc);
 		else
 			Log.i("Maply","Shader was set up before context was created.  Shader won't work.");
 	}
@@ -192,6 +230,14 @@ public class Shader
 	native boolean setUniformNative(String name,double uniX,double uniY,double uniZ,double uniW);
 
 	/**
+	 * Varyings will be passed from one shader to another using transform feedback.
+	 * It's weird and it's annoying and it has to be done at Shader setup.
+	 *
+	 * @param name Name of the output of the vertex stage to turn into a varying.
+	 */
+	public native void addVarying(String name);
+
+	/**
 	 * Returns the internal Maply ID for the shader.
      */
 	public native long getID();
@@ -202,6 +248,8 @@ public class Shader
 	}
 	private static native void nativeInit();
 	native void initialise(String name,String vertexSrc, String fragSrc);
+	native void initialise();
+	native void delayedSetupNative(String name,String vertexSrc,String fragSrc);
 	native void dispose();
 	private long nativeHandle;
 	private long nativeSceneHandle;

@@ -18,18 +18,19 @@
  */
 
 #import <jni.h>
-#import "Maply_jni.h"
+#import "Scene_jni.h"
 #import "com_mousebird_maply_Shader.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
 using namespace Eigen;
 
+template<> ShaderClassInfo *ShaderClassInfo::classInfoObj = NULL;
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_nativeInit
   (JNIEnv *env, jclass cls)
 {
-	OpenGLES2ProgramClassInfo::getClassInfo(env,cls);
+	ShaderClassInfo::getClassInfo(env,cls);
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_initialise
@@ -46,8 +47,50 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_initialise
 		env->ReleaseStringUTFChars(vertStr, cVertStr);
 		env->ReleaseStringUTFChars(fragStr, cFragStr);
 
-		OpenGLES2Program *prog = new OpenGLES2Program(name,vertProg,fragProg);
-		OpenGLES2ProgramClassInfo::getClassInfo()->setHandle(env,obj,prog);
+        Shader_Android *shader = new Shader_Android();
+        shader->setupProgram(name,vertProg,fragProg);
+		ShaderClassInfo::getClassInfo()->setHandle(env,obj,shader);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::initialise()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_initialise__
+  (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        Shader_Android *shader = new Shader_Android();
+        ShaderClassInfo::getClassInfo()->setHandle(env,obj,shader);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::initialise()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_delayedSetupNative
+  (JNIEnv *env, jobject obj, jstring nameStr, jstring vertStr, jstring fragStr)
+{
+	try
+	{
+		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+		Shader_Android *shader = classInfo->getObject(env,obj);
+		if (!shader)
+            return;
+
+		// Convert the strings
+		const char *cNameStr = env->GetStringUTFChars(nameStr,0);
+		const char *cVertStr = env->GetStringUTFChars(vertStr,0);
+		const char *cFragStr = env->GetStringUTFChars(fragStr,0);
+		std::string name = cNameStr, vertProg = cVertStr, fragProg = cFragStr;
+		env->ReleaseStringUTFChars(nameStr, cNameStr);
+		env->ReleaseStringUTFChars(vertStr, cVertStr);
+		env->ReleaseStringUTFChars(fragStr, cFragStr);
+
+        shader->setupProgram(name,vertProg,fragProg);
 	}
 	catch (...)
 	{
@@ -62,10 +105,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_dispose
 {
 	try
 	{
-		OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
+		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            OpenGLES2Program *inst = classInfo->getObject(env,obj);
+            Shader_Android *inst = classInfo->getObject(env,obj);
             if (!inst)
                 return;
             delete inst;
@@ -84,11 +127,11 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_valid
 {
 	try
 	{
-		OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
-		OpenGLES2Program *inst = classInfo->getObject(env,obj);
+		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+		Shader_Android *inst = classInfo->getObject(env,obj);
 		if (!inst)
             return false;
-        return inst->isValid();
+        return inst->prog->isValid();
 	}
 	catch (...)
 	{
@@ -103,9 +146,9 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getName
 {
     try
     {
-        OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
-        OpenGLES2Program *inst = classInfo->getObject(env,obj);
-        return env->NewStringUTF(inst->getName().c_str());
+        ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+        Shader_Android *inst = classInfo->getObject(env,obj);
+        return env->NewStringUTF(inst->prog->getName().c_str());
     }
     catch (...)
     {
@@ -120,9 +163,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shader_getID
 {
     try
     {
-        OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
-        OpenGLES2Program *inst = classInfo->getObject(env,obj);
-        return inst->getId();
+        ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+        Shader_Android *inst = classInfo->getObject(env,obj);
+        return inst->prog->getId();
     }
     catch (...)
     {
@@ -137,15 +180,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
 {
     try
     {
-        OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
-        OpenGLES2Program *inst = classInfo->getObject(env,obj);
+        ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+        Shader_Android *inst = classInfo->getObject(env,obj);
         ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!inst || !changes)
             return;
         
         JavaString name(env,nameStr);
         // Do this on the rendering thread so we don't get ahead of ourselves
-        changes->push_back(new ShaderAddTextureReq(inst->getId(),name.cStr,texID));
+        changes->push_back(new ShaderAddTextureReq(inst->prog->getId(),StringIndexer::getStringID(name.cStr),texID));
     }
     catch (...)
     {
@@ -159,18 +202,18 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 {
 	try
 	{
-		OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
-		OpenGLES2Program *inst = classInfo->getObject(env,obj);
+		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+		Shader_Android *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return false;
         
-        glUseProgram(inst->getProgram());
+        glUseProgram(inst->prog->getProgram());
 
         const char *cName = env->GetStringUTFChars(nameStr,0);
 		std::string name = cName;
 		env->ReleaseStringUTFChars(nameStr, cName);
 
-		inst->setUniform(name,(float)uni);
+		inst->prog->setUniform(StringIndexer::getStringID(name),(float)uni);
 		return true;
 	}
 	catch (...)
@@ -186,18 +229,18 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 {
 	try
 	{
-		OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
-		OpenGLES2Program *inst = classInfo->getObject(env,obj);
+		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+		Shader_Android *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return false;
         
-        glUseProgram(inst->getProgram());
+        glUseProgram(inst->prog->getProgram());
 
         const char *cName = env->GetStringUTFChars(nameStr,0);
 		std::string name = cName;
 		env->ReleaseStringUTFChars(nameStr, cName);
 
-		inst->setUniform(name,(int)uni);
+		inst->prog->setUniform(StringIndexer::getStringID(name),(int)uni);
 		return true;
 	}
 	catch (...)
@@ -213,18 +256,18 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 {
 	try
 	{
-		OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
-		OpenGLES2Program *inst = classInfo->getObject(env,obj);
+		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+		Shader_Android *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return false;
 
-        glUseProgram(inst->getProgram());
+        glUseProgram(inst->prog->getProgram());
 		
         const char *cName = env->GetStringUTFChars(nameStr,0);
 		std::string name = cName;
 		env->ReleaseStringUTFChars(nameStr, cName);
 
-		inst->setUniform(name,Vector2f((float)x,(float)y));
+		inst->prog->setUniform(StringIndexer::getStringID(name),Vector2f((float)x,(float)y));
 		return true;
 	}
 	catch (...)
@@ -240,18 +283,18 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 {
 	try
 	{
-		OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
-		OpenGLES2Program *inst = classInfo->getObject(env,obj);
+		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+		Shader_Android *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return false;
         
-        glUseProgram(inst->getProgram());
+        glUseProgram(inst->prog->getProgram());
 
         const char *cName = env->GetStringUTFChars(nameStr,0);
 		std::string name = cName;
 		env->ReleaseStringUTFChars(nameStr, cName);
 
-		inst->setUniform(name,Vector3f((float)x,(float)y,(float)z));
+		inst->prog->setUniform(StringIndexer::getStringID(name),Vector3f((float)x,(float)y,(float)z));
 		return true;
 	}
 	catch (...)
@@ -267,18 +310,18 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 {
 	try
 	{
-		OpenGLES2ProgramClassInfo *classInfo = OpenGLES2ProgramClassInfo::getClassInfo();
-		OpenGLES2Program *inst = classInfo->getObject(env,obj);
+		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+		Shader_Android *inst = classInfo->getObject(env,obj);
 		if (!inst)
 			return false;
         
-        glUseProgram(inst->getProgram());
+        glUseProgram(inst->prog->getProgram());
 
         const char *cName = env->GetStringUTFChars(nameStr,0);
 		std::string name = cName;
 		env->ReleaseStringUTFChars(nameStr, cName);
 
-		inst->setUniform(name,Vector4f((float)x,(float)y,(float)z,(float)w));
+		inst->prog->setUniform(StringIndexer::getStringID(name),Vector4f((float)x,(float)y,(float)z,(float)w));
 		return true;
 	}
 	catch (...)
@@ -287,4 +330,31 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 	}
     
     return false;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addVarying
+  (JNIEnv *env, jobject obj, jstring nameStr)
+{
+    try
+    {
+        ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+        Shader_Android *inst = classInfo->getObject(env,obj);
+        if (!inst)
+            return;
+
+        glUseProgram(inst->prog->getProgram());
+
+        const char *cName = env->GetStringUTFChars(nameStr,0);
+        std::string name = cName;
+        env->ReleaseStringUTFChars(nameStr, cName);
+
+        inst->varyings.push_back(name);
+        return;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::addVarying()");
+    }
+
+    return;
 }

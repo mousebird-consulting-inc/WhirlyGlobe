@@ -1,9 +1,9 @@
 /*
- *  WhirlyGlobe_Android.h
+ *  Shader_Android.cpp
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/7/19.
- *  Copyright 2011-2016 mousebird consulting
+ *  Created by Steve Gifford on 3/8/19.
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,13 +18,29 @@
  *
  */
 
-#import "WhirlyGlobe.h"
-
-#import "ComponentManager_Android.h"
-#import "Dictionary_Android.h"
-#import "FontTextureManager_Android.h"
-//#import "ImageWrapper.h"
-#import "LabelInfo_Android.h"
-#import "SceneRenderer_Android.h"
-#import "SingleLabel_Android.h"
 #import "Shader_Android.h"
+
+namespace WhirlyKit
+{
+
+Shader_Android::Shader_Android()
+: prog(NULL)
+{
+}
+
+Shader_Android::~Shader_Android()
+{
+    if (prog)
+        delete prog;
+    prog = NULL;
+}
+
+void Shader_Android::setupProgram(const std::string &name,const std::string &vertProg,const std::string &fragProg)
+{
+    if (varyings.empty())
+    	prog = new OpenGLES2Program(name,vertProg,fragProg);
+    else
+        prog = new OpenGLES2Program(name,vertProg,fragProg,&varyings);
+}
+
+}

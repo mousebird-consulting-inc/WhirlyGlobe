@@ -506,7 +506,7 @@ public class Atmosphere {
         if (!theShader.valid())
             return null;
 
-        viewC.addShaderProgram(theShader, kAtmosphereGroundShader);
+        viewC.addShaderProgram(theShader);
         theShader.setUniform(k_blendColor, new Point4d(1.f,1.f,1.f,1.f));
 
         return theShader;
@@ -530,7 +530,7 @@ public class Atmosphere {
         if (!theShader.valid())
             return null;
 
-        viewC.addShaderProgram(theShader, kAtmosphereShader);
+        viewC.addShaderProgram(theShader);
 
         return theShader;
     }

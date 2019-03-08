@@ -2133,7 +2133,10 @@ public class MaplyBaseController
 	{
 		scene.addRenderTargetNative(renderTarget.renderTargetID,
 				renderTarget.texture.width,renderTarget.texture.height,
-				renderTarget.texture.texID);
+				renderTarget.texture.texID,
+				renderTarget.clearEveryFrame,
+				renderTarget.blend,
+				Color.red(renderTarget.color)/255.f,Color.green(renderTarget.color)/255.f,Color.blue(renderTarget.color)/255.f,Color.alpha(renderTarget.color)/255.f);
 	}
 
 	/** Remove the given render target from the system.
@@ -2145,25 +2148,47 @@ public class MaplyBaseController
 		scene.removeRenderTargetNative(renderTarget.renderTargetID);
 	}
 
+	// All the shaders currently in use
+	private ArrayList<Shader> shaders = new ArrayList<>();
+
     /**
      * Associate a shader with the given scene name.  These names let us override existing shaders, as well as adding our own.
      * @param shader The shader to add.
-     * @param sceneName The scene name to associate it with.
      */
-    public void addShaderProgram(final Shader shader,final String sceneName)
+    public void addShaderProgram(final Shader shader)
     {
 		if (!rendererAttached) {
 			addPostSurfaceRunnable(new Runnable() {
 				@Override
 				public void run() {
-					addShaderProgram(shader,sceneName);
+					addShaderProgram(shader);
 				}
 			});
 			return;
 		}
 
-        scene.addShaderProgram(shader, sceneName);
+		synchronized (shaders) {
+			shaders.add(shader);
+		}
+        scene.addShaderProgram(shader);
     }
+
+	/**
+	 * Find a shader by name
+	 * @param name Name of the shader to return
+	 * @return The shader with the name or null
+	 */
+	public Shader getShader(String name)
+	{
+		synchronized (shaders) {
+			for (Shader shader : shaders) {
+				if (shader.getName() == name)
+					return shader;
+			}
+		}
+
+		return null;
+	}
 
 	/**
 	 * Add an active object that will be called right before the render (on the render thread).
@@ -2640,14 +2665,17 @@ public class MaplyBaseController
 					public void run()
 					{
 						ChangeSet changes = new ChangeSet();
-						long shaderID = 0;
+						Shader shader = null;
 						String shaderName = info.getShaderName();
 						if (shaderName == Billboard.MAPLY_BILLBOARD_ORIENTE_EYE)
-							shaderID = scene.getProgramIDBySceneName("Default Billboard eye");
+							shader = getShader("Default Billboard eye");
 						else if (shaderName == Billboard.MAPLY_BILLBOARD_ORIENTE_GROUND)
-							shaderID = scene.getProgramIDBySceneName("Default Billboard ground");
+							shader = getShader("Default Billboard ground");
 						else
-							shaderID = scene.getProgramIDBySceneName(shaderName);
+							shader = getShader(shaderName);
+						long shaderID = 0;
+						if (shader != null)
+							shaderID = shader.getID();
 
 						for (Billboard bill : bills) {
 							// Convert to display space

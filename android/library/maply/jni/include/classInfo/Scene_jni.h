@@ -28,3 +28,4 @@ typedef JavaClassInfo<Maply::MapScene> MapSceneClassInfo;
 typedef JavaClassInfo<WhirlyKit::Scene> SceneClassInfo;
 typedef JavaClassInfo<WhirlyKit::Texture> TextureClassInfo;
 typedef JavaClassInfo<WhirlyKit::Material> MaterialClassInfo;
+typedef JavaClassInfo<WhirlyKit::Shader_Android> ShaderClassInfo;

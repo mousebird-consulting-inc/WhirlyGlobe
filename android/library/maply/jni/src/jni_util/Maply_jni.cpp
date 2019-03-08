@@ -49,7 +49,6 @@ template<> SingleVertexAttributeInfoClassInfo *SingleVertexAttributeInfoClassInf
 template<> ParticleBatchClassInfo *ParticleBatchClassInfo::classInfoObj = NULL;
 template<> ParticleSystemClassInfo *ParticleSystemClassInfo::classInfoObj = NULL;
 template<> ParticleSystemManagerClassInfo * ParticleSystemManagerClassInfo::classInfoObj = NULL;
-template<> OpenGLES2ProgramClassInfo *OpenGLES2ProgramClassInfo::classInfoObj = NULL;
 template<> ShapeInfoClassInfo *ShapeInfoClassInfo::classInfoObj = NULL;
 template<> ShapeClassInfo *ShapeClassInfo::classInfoObj = NULL;
 template<> ShapeSphereClassInfo *ShapeSphereClassInfo::classInfoObj = NULL;

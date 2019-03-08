@@ -28,19 +28,16 @@ public class Scene
 	/**
 	 * Associate a shader with the given scene name.  These names let us override existing shaders, as well as adding our own.
 	 * @param shader The shader to add.
-	 * @param sceneName The scene name to associate it with.
 	 */
-	public native void addShaderProgram(Shader shader,String sceneName);
+	public native void addShaderProgram(Shader shader);
 
-	public native void addRenderTargetNative(long renderTargetID,int width,int height,long texID);
+	public native void addRenderTargetNative(long renderTargetID,int width,int height,long texID,boolean clearEveryFrame,boolean blend,float red,float green,float blue,float alpha);
 	public native void removeRenderTargetNative(long renderTargetID);
 
 	/**
 	 * Tear down the OpenGL resources.  Context needs to be set first.
 	 */
 	public native void teardownGL();
-
-	public native long getProgramIDBySceneName(String shaderName);
 
 	static
 	{

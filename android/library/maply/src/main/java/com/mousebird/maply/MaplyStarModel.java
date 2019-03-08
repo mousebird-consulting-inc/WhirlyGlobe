@@ -168,9 +168,7 @@ public class MaplyStarModel {
         //Really simple shader
         Shader shader = new Shader("Star Shader", vertexShaderTriPoint, (image != null ? fragmentShaderTexTriPoint : fragmentShaderTriPoint), viewC);
         shader.setUniform("u_radius", 6.0);
-        viewC.addShaderProgram(shader, "Star Shader");
-
-        long shaderID = viewC.getScene().getProgramIDBySceneName("Star Shader");
+        viewC.addShaderProgram(shader);
 
         //Set up a simple particle system (that doesn't move)
         particleSystem = new ParticleSystem("Stars");
@@ -178,9 +176,8 @@ public class MaplyStarModel {
         particleSystem.setLifetime(1e20);
         particleSystem.setTotalParticles(stars.size());
         particleSystem.setBatchSize(stars.size());
-        particleSystem.setShaderID(shaderID);
-
-
+        if (shader != null)
+            particleSystem.setShaderID(shader.getID());
 
         if (image != null){
             particleSystem.addTexture(image);

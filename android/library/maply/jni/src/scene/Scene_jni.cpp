@@ -55,8 +55,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
     {
         SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
         Scene *scene = classInfo->getObject(env,obj);
-        OpenGLES2ProgramClassInfo *shaderClassInfo = OpenGLES2ProgramClassInfo::getClassInfo();
-        OpenGLES2Program *shader = shaderClassInfo->getObject(env,shaderObj);
+        ShaderClassInfo *shaderClassInfo = ShaderClassInfo::getClassInfo();
+        Shader_Android *shader = shaderClassInfo->getObject(env,shaderObj);
         
         if (!scene || !shader)
             return;
@@ -64,39 +64,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
         const char *cName = env->GetStringUTFChars(sceneNameStr,0);
         std::string name = cName;
         
-        scene->addProgram(name,shader);
-        scene->setSceneProgram(name,shader->getId());
-        
+        scene->addProgram(shader->prog);
+
         env->ReleaseStringUTFChars(sceneNameStr, cName);
     }
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::addShaderProgram()");
     }
-}
-
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Scene_getProgramIDBySceneName
-(JNIEnv *env, jobject obj, jstring shaderName)
-{
-	try
-	{
-		SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-		Scene *scene = classInfo->getObject(env,obj);
-
-		if (!scene)
-			return -1;
-
-		const char *cName = env->GetStringUTFChars(shaderName,0);
-		std::string name = cName;
-
-		return scene->getProgramIDByName(name);
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::getProgramIDBySceneName()");
-	}
-    
-    return -1;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_teardownGL
@@ -118,7 +93,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_teardownGL
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addRenderTargetNative
-(JNIEnv *env, jobject obj, jlong renderTargetID, jint width, jint height, jlong texID)
+  (JNIEnv *env, jobject obj, jlong renderTargetID, jint width, jint height, jlong texID, jboolean clearEveryFrame, jboolean blend, jfloat r, jfloat g, jfloat b, jfloat a)
 {
     try
     {
@@ -128,7 +103,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addRenderTargetNative
             return;
         
         ChangeSet changes;
-        changes.push_back(new AddRenderTargetReq(renderTargetID,width,height,texID));
+        RGBAColor color(r,g,b,a);
+        changes.push_back(new AddRenderTargetReq(renderTargetID,width,height,texID,clearEveryFrame,blend,color));
         
         scene->addChangeRequests(changes);
     }

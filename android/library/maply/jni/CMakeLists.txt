@@ -59,5 +59,6 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/scene/GlobeScene_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/scene/MapScene_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/scene/Scene_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/scene/Shader_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/scene/Texture_jni.cpp"
 )
