@@ -19,10 +19,8 @@
  */
 
 #import <jni.h>
-#import "Maply_jni.h"
+#import "CoordSystem_jni.h"
 #import "com_mousebird_maply_CoordSystem.h"
-#import "Maply_utils_jni.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 
