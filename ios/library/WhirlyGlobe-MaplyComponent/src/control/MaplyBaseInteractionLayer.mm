@@ -2629,23 +2629,24 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             wkBill->size = size2d;
 
             // Work through the individual polygons in a billboard
-            for (const SimplePoly &poly : screenObj->polys)
+            for (SimplePolyRef thePoly : screenObj->screenObj.polys)
             {
+                SimplePoly_iOSRef poly = std::dynamic_pointer_cast<SimplePoly_iOS>(thePoly);
                 SingleBillboardPoly billPoly;
-                billPoly.pts = poly.pts;
-                billPoly.texCoords = poly.texCoords;
-                billPoly.color = [poly.color asRGBAColor];
+                billPoly.pts = poly->pts;
+                billPoly.texCoords = poly->texCoords;
+                billPoly.color = poly->color;
                 if (bill.vertexAttributes)
                     [self resolveVertexAttrs:billPoly.vertexAttrs from:bill.vertexAttributes];
-                if (poly.texture)
+                if (poly->texture)
                 {
                     MaplyTexture *tex = nil;
-                    if ([poly.texture isKindOfClass:[UIImage class]])
+                    if ([poly->texture isKindOfClass:[UIImage class]])
                     {
-                        tex = [self addImage:poly.texture imageFormat:MaplyImageIntRGBA mode:threadMode];
-                    } else if ([poly.texture isKindOfClass:[MaplyTexture class]])
+                        tex = [self addImage:poly->texture imageFormat:MaplyImageIntRGBA mode:threadMode];
+                    } else if ([poly->texture isKindOfClass:[MaplyTexture class]])
                     {
-                        tex = (MaplyTexture *)poly.texture;
+                        tex = (MaplyTexture *)poly->texture;
                     }
                     if (tex)
                     {
@@ -2657,10 +2658,11 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             }
             
             // Now for the strings
-            for (const StringWrapper &strWrap : screenObj->strings)
+            for (auto theStrWrap : screenObj->screenObj.strings)
             {
+                StringWrapper_iOSRef strWrap = std::dynamic_pointer_cast<StringWrapper_iOS>(theStrWrap);
                 // Convert the string to polygons
-                DrawableString *drawStr = fontTexManager->addString(strWrap.str,changes);
+                DrawableString *drawStr = fontTexManager->addString(strWrap->str,changes);
                 for (const DrawableString::Rect &rect : drawStr->glyphPolys)
                 {
                     SingleBillboardPoly billPoly;
@@ -2678,7 +2680,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     for (unsigned int ip=0;ip<4;ip++)
                     {
                         const Point2d &oldPt = billPoly.pts[ip];
-                        Point3d newPt = strWrap.mat * Point3d(oldPt.x(),oldPt.y(),1.0);
+                        Point3d newPt = strWrap->mat * Point3d(oldPt.x(),oldPt.y(),1.0);
                         billPoly.pts[ip] = Point2d(newPt.x(),newPt.y());
                     }
                     

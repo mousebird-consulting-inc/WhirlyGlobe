@@ -82,7 +82,7 @@ public class Sticker
      * Set the destination image format for images passed in.
      * The images will be converted to this format.
      */
-    public void setImageFormat(QuadImageTileLayer.ImageFormat imageFormat)
+    public void setImageFormat(RenderController.ImageFormat imageFormat)
     {
         setImageFormatNative(imageFormat.ordinal());
     }

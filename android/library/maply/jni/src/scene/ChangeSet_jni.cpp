@@ -19,11 +19,12 @@
  */
 
 #import <jni.h>
-#import "Maply_jni.h"
+#import "Scene_jni.h"
 #import "com_mousebird_maply_ChangeSet.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+
+template<> ChangeSetClassInfo *ChangeSetClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_nativeInit
   (JNIEnv *env, jclass cls)

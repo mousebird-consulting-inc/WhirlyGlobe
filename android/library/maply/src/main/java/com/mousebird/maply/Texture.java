@@ -40,7 +40,7 @@ class Texture
 	/**
 	 * Initialize a texture with a bitmap.  The contents of the bitmap will fill in the texture.
 	 */
-	public Texture(Bitmap inBitmap,QuadImageTileLayer.ImageFormat imageFormat)
+	public Texture(Bitmap inBitmap,RenderController.ImageFormat imageFormat)
 	{
 		setBitmap(inBitmap,imageFormat.ordinal());
 	}

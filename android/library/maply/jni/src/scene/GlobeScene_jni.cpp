@@ -18,13 +18,13 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "Scene_jni.h"
+#import "CoordSystem_jni.h"
 #import "com_mousebird_maply_GlobeScene.h"
-#import "WhirlyGlobe.h"
-#import "FontTextureManagerAndroid.h"
 
 using namespace WhirlyKit;
+
+template<> GlobeSceneClassInfo *GlobeSceneClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeScene_nativeInit
   (JNIEnv *env, jclass cls)
@@ -33,13 +33,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeScene_nativeInit
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeScene_initialise
-  (JNIEnv *env, jobject obj, jobject coordAdapterObj, jobject charRendererObj, jint cullTreeDepth)
+  (JNIEnv *env, jobject obj, jobject coordAdapterObj, jobject charRendererObj)
 {
 	try
 	{
 		CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env,coordAdapterObj);
-		WhirlyGlobe::GlobeScene *scene = new WhirlyGlobe::GlobeScene(coordAdapter,cullTreeDepth);
-		scene->setFontTextureManager(new FontTextureManagerAndroid(env,scene,charRendererObj));
+		WhirlyGlobe::GlobeScene *scene = new WhirlyGlobe::GlobeScene(coordAdapter);
+		scene->setFontTextureManager(FontTextureManagerRef(new FontTextureManager_Android(env,scene,charRendererObj)));
 		GlobeSceneClassInfo::getClassInfo()->setHandle(env,obj,scene);
 	}
 	catch (...)

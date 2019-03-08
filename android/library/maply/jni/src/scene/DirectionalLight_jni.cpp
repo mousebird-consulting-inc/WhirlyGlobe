@@ -17,14 +17,15 @@
  *  limitations under the License.
  *
  */
+
+#import "Scene_jni.h"
+#import "Geometry_jni.h"
 #include "com_mousebird_maply_DirectionalLight.h"
-#import <jni.h>
-#import "Maply_jni.h"
-#import "Maply_utils_jni.h"
-#import "WhirlyGlobe.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
+
+template<> DirectionalLightClassInfo *DirectionalLightClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_nativeInit
 (JNIEnv *env, jclass cls)
@@ -38,7 +39,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_initialise
     try
     {
         DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
-        WhirlyKitDirectionalLight *inst = new WhirlyKitDirectionalLight();
+        DirectionalLight *inst = new DirectionalLight();
         classInfo->setHandle(env, obj, inst);
     }
     catch (...)
@@ -57,7 +58,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_dispose
         DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
+            DirectionalLight *inst = classInfo->getObject(env, obj);
             if (!inst)
                 return;
 
@@ -77,7 +78,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_setPos
     try
     {
         DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
-        WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
+        DirectionalLight *inst = classInfo->getObject(env, obj);
         Point3d *pos = Point3dClassInfo::getClassInfo()->getObject(env, objPos);
         if (!inst || !pos)
             return;
@@ -96,7 +97,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_DirectionalLight_getPos
     try
     {
         DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
-        WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
+        DirectionalLight *inst = classInfo->getObject(env, obj);
         if (!inst)
             return NULL;
         
@@ -116,7 +117,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_setViewDependen
     try
     {
         DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
-        WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
+        DirectionalLight *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
 
@@ -134,7 +135,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_DirectionalLight_getViewDepe
     try
     {
         DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
-        WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
+        DirectionalLight *inst = classInfo->getObject(env, obj);
         if (!inst)
             return false;
 
@@ -154,7 +155,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_setAmbient
     try
     {
         DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
-        WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
+        DirectionalLight *inst = classInfo->getObject(env, obj);
         Point4d *ambient = Point4dClassInfo::getClassInfo()->getObject(env, ambientObj);
         if (!inst || !ambient)
             return;
@@ -173,7 +174,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_DirectionalLight_getAmbient
     try
     {
         DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
-        WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
+        DirectionalLight *inst = classInfo->getObject(env, obj);
         if (!inst)
             return NULL;
 
@@ -193,7 +194,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_setDiffuse
     try
     {
         DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
-        WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
+        DirectionalLight *inst = classInfo->getObject(env, obj);
         Point4d *diffuse = Point4dClassInfo::getClassInfo()->getObject(env, objDiffuse);
         if (!inst || !diffuse)
             return;
@@ -212,7 +213,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_DirectionalLight_getDifusse
     try
     {
         DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
-        WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
+        DirectionalLight *inst = classInfo->getObject(env, obj);
         if (!inst)
             return NULL;
         
@@ -232,7 +233,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_DirectionalLight_setSpecular
     try
     {
         DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
-        WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
+        DirectionalLight *inst = classInfo->getObject(env, obj);
         Point4d *specular = Point4dClassInfo::getClassInfo()->getObject(env, objSpecular);
         if (!inst || !specular)
             return;
@@ -251,7 +252,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_DirectionalLight_getSpecular
     try
     {
         DirectionalLightClassInfo *classInfo = DirectionalLightClassInfo::getClassInfo();
-        WhirlyKitDirectionalLight *inst = classInfo->getObject(env, obj);
+        DirectionalLight *inst = classInfo->getObject(env, obj);
         if (!inst)
             return NULL;
         

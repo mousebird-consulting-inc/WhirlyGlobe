@@ -1,9 +1,9 @@
 /*
- *  BillboardManager_jni.h
+ *  ScreenObject.cpp
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/7/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Created by jmnavarro
+ *  Copyright 2011-2016 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,10 +18,40 @@
  *
  */
 
-#import "Maply_jni.h"
-#import "WhirlyGlobe_Android.h"
+#import "ScreenObject.h"
 
-typedef JavaClassInfo<WhirlyKit::Billboard> BillboardClassInfo;
-typedef JavaClassInfo<WhirlyKit::BillboardInfo> BillboardInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::BillboardManager> BillboardManagerClassInfo;
-typedef JavaClassInfo<WhirlyKit::StringWrapper> StringWrapperClassInfo;
+using namespace Eigen;
+
+namespace WhirlyKit
+{
+
+SimplePoly::SimplePoly() :
+    texID(EmptyIdentity),
+    color(255,255,255,255)
+{
+}
+
+SimplePoly::~SimplePoly()
+{
+
+}
+
+StringWrapper::StringWrapper() :
+    mat(Matrix3d::Identity()),
+    size(0.0,0.0)
+{
+}
+    
+StringWrapper::~StringWrapper()
+{
+}
+
+ScreenObject::ScreenObject()
+{
+}
+
+ScreenObject::~ScreenObject()
+{
+}
+
+}

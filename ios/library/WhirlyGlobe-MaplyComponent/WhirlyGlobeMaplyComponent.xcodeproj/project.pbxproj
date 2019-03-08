@@ -584,6 +584,10 @@
 		2BC90D4C222DAB3900D8B606 /* glwrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90D4B222DAB3900D8B606 /* glwrapper.cpp */; };
 		2BC90D5122319FD700D8B606 /* WhirlyGlobe_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D5022319FD700D8B606 /* WhirlyGlobe_iOS.h */; };
 		2BC90D532231A30F00D8B606 /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D522231A30F00D8B606 /* WhirlyGlobe.h */; };
+		2BC90D58223306D300D8B606 /* ScreenObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D57223306D300D8B606 /* ScreenObject.h */; };
+		2BC90D5A223306EA00D8B606 /* ScreenObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90D59223306EA00D8B606 /* ScreenObject.cpp */; };
+		2BC90D5D223308C700D8B606 /* ScreenObject_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D5C223308C700D8B606 /* ScreenObject_iOS.h */; };
+		2BC90D60223308DB00D8B606 /* ScreenObject_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90D5F223308DB00D8B606 /* ScreenObject_iOS.mm */; };
 		2BE1E7392208A97100815D9C /* MaplyPinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DED21233CBE0074D06D /* MaplyPinchDelegate.mm */; };
 		2BE1E73A2208B25F00815D9C /* MaplyPanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DEC21233CBE0074D06D /* MaplyPanDelegate.mm */; };
 		2BE1E73B2208B73C00815D9C /* MaplyDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DE721233CBE0074D06D /* MaplyDoubleTapDelegate.mm */; };
@@ -1570,6 +1574,10 @@
 		2BC90D4B222DAB3900D8B606 /* glwrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = glwrapper.cpp; path = ../../../../common/WhirlyGlobeLib/src/glwrapper.cpp; sourceTree = "<group>"; };
 		2BC90D5022319FD700D8B606 /* WhirlyGlobe_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe_iOS.h; sourceTree = "<group>"; };
 		2BC90D522231A30F00D8B606 /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyGlobe.h; path = ../../../../common/WhirlyGlobeLib/include/WhirlyGlobe.h; sourceTree = "<group>"; };
+		2BC90D57223306D300D8B606 /* ScreenObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScreenObject.h; path = ../../../../common/WhirlyGlobeLib/include/ScreenObject.h; sourceTree = "<group>"; };
+		2BC90D59223306EA00D8B606 /* ScreenObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScreenObject.cpp; path = ../../../../common/WhirlyGlobeLib/src/ScreenObject.cpp; sourceTree = "<group>"; };
+		2BC90D5C223308C700D8B606 /* ScreenObject_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenObject_iOS.h; sourceTree = "<group>"; };
+		2BC90D5F223308DB00D8B606 /* ScreenObject_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScreenObject_iOS.mm; sourceTree = "<group>"; };
 		2BE1E7572208F32900815D9C /* SingleLabel_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleLabel_iOS.h; sourceTree = "<group>"; };
 		2BE1E75A2208F33900815D9C /* SingleLabel_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SingleLabel_iOS.mm; sourceTree = "<group>"; };
 		2BE1E75C2208F43200815D9C /* FontTextureManager_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontTextureManager_iOS.h; sourceTree = "<group>"; };
@@ -2088,6 +2096,7 @@
 				2B446AEF21F79A5F0078A975 /* OverlapHelper.h */,
 				2B446B2221F79BDF0078A975 /* QuadTreeNew.h */,
 				2B446B8C21FB99C00078A975 /* ScreenImportance.h */,
+				2BC90D57223306D300D8B606 /* ScreenObject.h */,
 				2B446AF521F79A5F0078A975 /* Tesselator.h */,
 				2B446B7A21FB948B0078A975 /* VectorData.h */,
 				2B810090221E07EE00CFF779 /* VectorObject.h */,
@@ -2105,6 +2114,7 @@
 				2B446B0C21F79AD00078A975 /* OverlapHelper.cpp */,
 				2B446B2421F79BF30078A975 /* QuadTreeNew.cpp */,
 				2B446B8E21FB99D60078A975 /* ScreenImportance.cpp */,
+				2BC90D59223306EA00D8B606 /* ScreenObject.cpp */,
 				2B446B0821F79AD00078A975 /* Tesselator.cpp */,
 				2B446B7C21FB94A00078A975 /* VectorData.cpp */,
 				2B810092221E080700CFF779 /* VectorObject.cpp */,
@@ -2613,6 +2623,7 @@
 			isa = PBXGroup;
 			children = (
 				2B82B4C21E82E2490095FB14 /* Cocoa Utils */,
+				2BC90D5B223308B900D8B606 /* geometry utils */,
 				2B82B4CB1E82E2490095FB14 /* rendering */,
 				2BC3D6BD2202536900CE91D0 /* view */,
 				2B82B4D41E82E2490095FB14 /* data */,
@@ -2693,6 +2704,7 @@
 				2B446B2A21F7A4820078A975 /* Platform.mm */,
 				2BC3D6C02202537D00CE91D0 /* view */,
 				2B82B54D1E82E2490095FB14 /* Cocoa Utils */,
+				2BC90D5E223308CF00D8B606 /* geometry utils */,
 				2B82B5641E82E2490095FB14 /* rendering */,
 				2B82B59D1E82E2490095FB14 /* data */,
 				2BE1E7592208F32E00815D9C /* managers */,
@@ -3219,6 +3231,22 @@
 				2BE537941D249A1200B60FAD /* MapnikStyleSet.h */,
 			);
 			path = vector_styles;
+			sourceTree = "<group>";
+		};
+		2BC90D5B223308B900D8B606 /* geometry utils */ = {
+			isa = PBXGroup;
+			children = (
+				2BC90D5C223308C700D8B606 /* ScreenObject_iOS.h */,
+			);
+			name = "geometry utils";
+			sourceTree = "<group>";
+		};
+		2BC90D5E223308CF00D8B606 /* geometry utils */ = {
+			isa = PBXGroup;
+			children = (
+				2BC90D5F223308DB00D8B606 /* ScreenObject_iOS.mm */,
+			);
+			name = "geometry utils";
 			sourceTree = "<group>";
 		};
 		2BE1E7562208F31700815D9C /* managers */ = {
@@ -4064,6 +4092,7 @@
 				2B446B8321FB97C40078A975 /* ShapeReader.h in Headers */,
 				2B446B4E21F7E7B80078A975 /* Drawable.h in Headers */,
 				2BE538071D249A1200B60FAD /* MaplyCoordinateSystem.h in Headers */,
+				2BC90D58223306D300D8B606 /* ScreenObject.h in Headers */,
 				2BE539711D249BEF00B60FAD /* AANearParabolic.h in Headers */,
 				2BE5382E1D249A1200B60FAD /* MaplyVectorObject.h in Headers */,
 				2BE5386D1D249A1200B60FAD /* MapnikStyleRule.h in Headers */,
@@ -4075,6 +4104,7 @@
 				2BB8A3F621ED43D10025DA98 /* MaplyPinchDelegate.h in Headers */,
 				2B810091221E07EE00CFF779 /* VectorObject.h in Headers */,
 				2BE5383F1D249A1200B60FAD /* MaplyGeomModel_private.h in Headers */,
+				2BC90D5D223308C700D8B606 /* ScreenObject_iOS.h in Headers */,
 				2B884A791E3803170027C397 /* mydefs.hpp in Headers */,
 				2BE539671D249BEF00B60FAD /* AAKepler.h in Headers */,
 				2BE5385B1D249A1200B60FAD /* WhirlyGlobeViewController_private.h in Headers */,
@@ -4417,6 +4447,7 @@
 				2B884A751E3803170027C397 /* laszip.cpp in Sources */,
 				2BE7E7B52214F1CF00E4EFBA /* QuadTileBuilder.cpp in Sources */,
 				2B884A741E3803170027C397 /* laszip_dll.cpp in Sources */,
+				2BC90D60223308DB00D8B606 /* ScreenObject_iOS.mm in Sources */,
 				2B8796BE21FFB37900EF801D /* LayoutManager.cpp in Sources */,
 				2BE1E766220A567100815D9C /* MaplyViewControllerLayer.mm in Sources */,
 				2B82B64C1E82E2490095FB14 /* PJ_bonne.c in Sources */,
@@ -4726,6 +4757,7 @@
 				2BE539AD1D249BEF00B60FAD /* AANodes.cpp in Sources */,
 				2B82B6A11E82E24A0095FB14 /* PJ_poly.c in Sources */,
 				2BE539921D249BEF00B60FAD /* AAEarth.cpp in Sources */,
+				2BC90D5A223306EA00D8B606 /* ScreenObject.cpp in Sources */,
 				2BE539A81D249BEF00B60FAD /* AAMoonPerigeeApogee.cpp in Sources */,
 				2B82B66D1E82E24A0095FB14 /* PJ_goode.c in Sources */,
 				2B446B8F21FB99D60078A975 /* ScreenImportance.cpp in Sources */,

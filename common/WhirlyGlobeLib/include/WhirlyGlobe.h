@@ -78,6 +78,7 @@
 #import "SceneRendererES.h"
 #import "SceneRendererES2.h"
 #import "ScreenImportance.h"
+#import "ScreenObject.h"
 #import "ScreenSpaceBuilder.h"
 #import "ScreenSpaceDrawable.h"
 #import "SelectionManager.h"

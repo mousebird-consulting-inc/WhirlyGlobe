@@ -18,13 +18,13 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "Scene_jni.h"
+#import "CoordSystem_jni.h"
 #import "com_mousebird_maply_MapScene.h"
-#import "WhirlyGlobe.h"
-#import "FontTextureManagerAndroid.h"
 
 using namespace WhirlyKit;
+
+template<> MapSceneClassInfo *MapSceneClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_nativeInit
   (JNIEnv *env, jclass cls)
@@ -39,7 +39,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapScene_initialise
 	{
 		CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env,coordAdapterObj);
 		Maply::MapScene *scene = new Maply::MapScene(coordAdapter);
-		scene->setFontTextureManager(new FontTextureManagerAndroid(env,scene,charRendererObj));
+		scene->setFontTextureManager(FontTextureManagerRef(new FontTextureManager_Android(env,scene,charRendererObj)));
 		MapSceneClassInfo::getClassInfo()->setHandle(env,obj,scene);
 	}
 	catch (...)

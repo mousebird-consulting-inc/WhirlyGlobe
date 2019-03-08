@@ -1916,7 +1916,7 @@ public class MaplyBaseController
         /**
          * Image format to use when creating textures.
          */
-        public QuadImageTileLayer.ImageFormat imageFormat = QuadImageTileLayer.ImageFormat.MaplyImageIntRGBA;
+        public RenderController.ImageFormat imageFormat = RenderController.ImageFormat.MaplyImageIntRGBA;
 		/**
 		 * Filter type for created textures.
 		 */

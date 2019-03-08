@@ -21,15 +21,10 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
+typedef JavaClassInfo<WhirlyKit::ChangeSet> ChangeSetClassInfo;
+typedef JavaClassInfo<WhirlyKit::DirectionalLight> DirectionalLightClassInfo;
+typedef JavaClassInfo<WhirlyGlobe::GlobeScene> GlobeSceneClassInfo;
 typedef JavaClassInfo<Maply::MapScene> MapSceneClassInfo;
 typedef JavaClassInfo<WhirlyKit::Scene> SceneClassInfo;
-typedef JavaClassInfo<WhirlyGlobe::GlobeScene> GlobeSceneClassInfo;
-typedef JavaClassInfo<WhirlyKit::SingleVertexAttributeInfo> SingleVertexAttributeInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::ChangeSet> ChangeSetClassInfo;
 typedef JavaClassInfo<WhirlyKit::Texture> TextureClassInfo;
-typedef JavaClassInfo<WhirlyKit::OpenGLES2Program> OpenGLES2ProgramClassInfo;
-typedef JavaClassInfo<MaplySceneRenderer> MaplySceneRendererInfo;
-typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;
-typedef JavaClassInfo<WhirlyKit::WhirlyKitDirectionalLight> DirectionalLightClassInfo;
-typedef JavaClassInfo<WhirlyKit::WhirlyKitMaterial> MaterialClassInfo;
-typedef JavaClassInfo<WhirlyKit::StringWrapper> StringWrapperClassInfo;
+typedef JavaClassInfo<WhirlyKit::Material> MaterialClassInfo;

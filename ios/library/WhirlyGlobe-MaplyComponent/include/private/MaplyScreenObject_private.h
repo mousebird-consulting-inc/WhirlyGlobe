@@ -21,37 +21,10 @@
 #import "MaplyScreenObject.h"
 #import <vector>
 
-namespace WhirlyKit
-{
-// Extremely simple polygon class
-class SimplePoly
-{
-public:
-    // Texture or UIImage
-    id texture;
-    UIColor *color;
-    Point2dVector pts;
-    std::vector<TexCoord> texCoords;
-};
-
-// Wraps strings with size and translation
-class StringWrapper
-{
-public:
-    StringWrapper() : mat(mat.Identity()), str(nil) { }
-    
-    Eigen::Matrix3d mat;
-    CGSize size;
-    NSAttributedString *str;
-};
-}
-
 @interface MaplyScreenObject()
 {
 @public
+    WhirlyKit::ScreenObject screenObj;
     __weak NSObject<MaplyRenderControllerProtocol> *viewC;
-    // 2D polygons
-    std::vector<WhirlyKit::SimplePoly> polys;
-    std::vector<WhirlyKit::StringWrapper> strings;
 }
 @end

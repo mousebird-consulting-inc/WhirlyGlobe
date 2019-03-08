@@ -20,9 +20,12 @@
 
 #import <jni.h>
 #import "CoordSystem_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_CoordSystem.h"
 
 using namespace WhirlyKit;
+
+template<> CoordSystemClassInfo *CoordSystemClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystem_nativeInit
   (JNIEnv *env, jclass cls)
@@ -115,6 +118,49 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_localToGeographic
     
     return NULL;
 }
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_localToGeocentric
+  (JNIEnv *env, jobject obj, jobject ptObj)
+{
+	try
+	{
+		CoordSystem *coordSys = CoordSystemClassInfo::getClassInfo()->getObject(env,obj);
+		Point3d *pt = Point3dClassInfo::getClassInfo()->getObject(env,ptObj);
+		if (!coordSys || !pt)
+			return NULL;
+
+		Point3d newCoord = coordSys->localToGeocentric(*pt);
+		return MakePoint3d(env,newCoord);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystem::localToGeocentric()");
+	}
+
+    return NULL;
+}
+
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_geocentricToLocal
+  (JNIEnv *env, jobject obj, jobject ptObj)
+{
+	try
+	{
+		CoordSystem *coordSys = CoordSystemClassInfo::getClassInfo()->getObject(env,obj);
+		Point3d *pt = Point3dClassInfo::getClassInfo()->getObject(env,ptObj);
+		if (!coordSys || !pt)
+			return NULL;
+
+		Point3d newCoord = coordSys->geocentricToLocal(*pt);
+		return MakePoint3d(env,newCoord);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystem::geocentricToLocal()");
+	}
+
+    return NULL;
+}
+
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_CoordSystemConvert3d
 (JNIEnv *env, jclass cls, jobject inSystemObj, jobject outSystemObj, jobject coordObj)

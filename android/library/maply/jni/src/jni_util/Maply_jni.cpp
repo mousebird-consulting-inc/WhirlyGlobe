@@ -31,14 +31,9 @@ JavaListInfo *JavaListInfo::classInfoObj = NULL;
 
 // Note: Move these out
 /*
-template<> ChangeSetClassInfo *ChangeSetClassInfo::classInfoObj = NULL;
-template<> TextureClassInfo *TextureClassInfo::classInfoObj = NULL;
 template<> MaplySceneRendererInfo *MaplySceneRendererInfo::classInfoObj = NULL;
-template<> MapSceneClassInfo *MapSceneClassInfo::classInfoObj = NULL;
-template<> GlobeSceneClassInfo *GlobeSceneClassInfo::classInfoObj = NULL;
 template<> MapViewClassInfo *MapViewClassInfo::classInfoObj = NULL;
 template<> GlobeViewClassInfo *GlobeViewClassInfo::classInfoObj = NULL;
-template<> SceneClassInfo *SceneClassInfo::classInfoObj = NULL;
 template<> ViewClassInfo *ViewClassInfo::classInfoObj = NULL;
 template<> BaseInfoClassInfo *BaseInfoClassInfo::classInfoObj = NULL;
 template<> VectorInfoClassInfo *VectorInfoClassInfo::classInfoObj = NULL;
@@ -61,7 +56,6 @@ template<> ShapeSphereClassInfo *ShapeSphereClassInfo::classInfoObj = NULL;
 template<> ShapeRectangleClassInfo *ShapeRectangleClassInfo::classInfoObj = NULL;
 template<> ShapeManagerClassInfo *ShapeManagerClassInfo::classInfoObj = NULL;
 template<> SingleVertexAttributeClassInfo *SingleVertexAttributeClassInfo::classInfoObj = NULL;
-template<> DirectionalLightClassInfo *DirectionalLightClassInfo::classInfoObj = NULL;
 template<> MaterialClassInfo *MaterialClassInfo::classInfoObj = NULL;
 template<> MoonClassInfo *MoonClassInfo::classInfoObj = NULL;
 template<> SunClassInfo *SunClassInfo::classInfoObj = NULL;

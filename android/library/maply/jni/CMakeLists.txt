@@ -53,4 +53,11 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/PlateCarreeCoordSystem_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/Proj4CoordSystem_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/SphericalMercatorCoordSystem_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/scene/ChangeSet_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/scene/DirectionalLight_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/scene/GlobeScene_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/scene/MapScene_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/scene/Scene_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/scene/Texture_jni.cpp"
 )

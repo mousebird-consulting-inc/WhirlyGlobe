@@ -1,8 +1,8 @@
 /*
- *  BillboardManager_jni.h
+ *  Renderer_jni.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/7/19.
+ *  Created by Steve Gifford on 3/8/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::Billboard> BillboardClassInfo;
-typedef JavaClassInfo<WhirlyKit::BillboardInfo> BillboardInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::BillboardManager> BillboardManagerClassInfo;
-typedef JavaClassInfo<WhirlyKit::StringWrapper> StringWrapperClassInfo;
+typedef JavaClassInfo<WhirlyKit::SingleVertexAttributeInfo> SingleVertexAttributeInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::OpenGLES2Program> OpenGLES2ProgramClassInfo;
+typedef JavaClassInfo<MaplySceneRenderer> MaplySceneRendererInfo;
+typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;

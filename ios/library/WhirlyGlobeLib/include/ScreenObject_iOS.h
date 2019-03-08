@@ -1,8 +1,8 @@
 /*
- *  BillboardManager_jni.h
+ *  ScreenObject_iOS.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/7/19.
+ *  Created by Steve Gifford on 3/8/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +18,30 @@
  *
  */
 
-#import "Maply_jni.h"
-#import "WhirlyGlobe_Android.h"
+#import "WhirlyGlobe.h"
+#import <Foundation/Foundation.h>
 
-typedef JavaClassInfo<WhirlyKit::Billboard> BillboardClassInfo;
-typedef JavaClassInfo<WhirlyKit::BillboardInfo> BillboardInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::BillboardManager> BillboardManagerClassInfo;
-typedef JavaClassInfo<WhirlyKit::StringWrapper> StringWrapperClassInfo;
+namespace WhirlyKit
+{
+
+// iOS version allows for UIImages
+class SimplePoly_iOS : public SimplePoly {
+public:
+    SimplePoly_iOS();
+    
+    id texture;
+};
+    
+typedef std::shared_ptr<SimplePoly_iOS> SimplePoly_iOSRef;
+    
+// iOS version of the string is an NSAttributedString
+class StringWrapper_iOS : public StringWrapper {
+public:
+    StringWrapper_iOS();
+    
+    NSAttributedString *str;
+};
+    
+typedef std::shared_ptr<StringWrapper_iOS> StringWrapper_iOSRef;
+    
+}

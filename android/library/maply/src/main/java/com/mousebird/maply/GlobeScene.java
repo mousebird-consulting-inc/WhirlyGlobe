@@ -12,9 +12,9 @@ public class GlobeScene extends Scene
 	{
 	}
 	
-	GlobeScene(CoordSystemDisplayAdapter coordAdapter,int cullTreeDepth)
+	GlobeScene(CoordSystemDisplayAdapter coordAdapter)
 	{
-		initialise(coordAdapter,charRenderer,cullTreeDepth);
+		initialise(coordAdapter,charRenderer);
 	}
 	
 	public void finalize()
@@ -39,6 +39,6 @@ public class GlobeScene extends Scene
 		nativeInit();
 	}
 	private static native void nativeInit();
-	native void initialise(CoordSystemDisplayAdapter coordAdapter,CharRenderer charRenderer,int cullTreeDepth);
+	native void initialise(CoordSystemDisplayAdapter coordAdapter,CharRenderer charRenderer);
 	native void dispose();
 }

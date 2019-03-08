@@ -24,7 +24,7 @@ import android.graphics.Bitmap;
 
 import java.util.TreeSet;
 
-import static com.mousebird.maply.QuadImageTileLayer.ImageFormat.MaplyImage4Layer8Bit;
+import static com.mousebird.maply.RenderController.ImageFormat.MaplyImage4Layer8Bit;
 
 /**
  * This class is used by the MaplyController to reference count textures.
