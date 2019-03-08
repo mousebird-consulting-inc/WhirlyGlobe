@@ -38,8 +38,6 @@ JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,MutableDictionary_Andro
 {
 	AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo(env,"com/mousebird/maply/AttrDictionary");
 
-//	Dictionary *copyDict = new Dictionary(*dict);
-	// Note: Just wrapping what's passed in
 	jobject dictObj = classInfo->makeWrapperObject(env,dict);
 
 	return dictObj;

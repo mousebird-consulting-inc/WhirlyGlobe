@@ -19,10 +19,10 @@
  */
 
 #import <jni.h>
-#import "Maply_jni.h"
-#import "Maply_utils_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_Quaternion.h"
-#import "WhirlyGlobe.h"
+
+template<> QuaternionClassInfo *QuaternionClassInfo::classInfoObj = NULL;
 
 using namespace Eigen;
 using namespace WhirlyKit;

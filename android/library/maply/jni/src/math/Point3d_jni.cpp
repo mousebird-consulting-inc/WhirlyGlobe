@@ -19,9 +19,10 @@
  */
 
 #import <jni.h>
-#import "Maply_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_Point3d.h"
-#import "WhirlyGlobe.h"
+
+template<> Point3dClassInfo *Point3dClassInfo::classInfoObj = NULL;
 
 using namespace Eigen;
 using namespace WhirlyKit;

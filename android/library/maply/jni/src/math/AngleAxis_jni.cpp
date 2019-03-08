@@ -19,15 +19,13 @@
  */
 
 #import <jni.h>
-#import "Maply_jni.h"
-#import "Maply_utils_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_AngleAxis.h"
-#import "WhirlyGlobe.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
-template<> AttrDictClassInfo *AttrDictClassInfo::classInfoObj = NULL;
+template<> AngleAxisClassInfo *AngleAxisClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_AngleAxis_nativeInit
   (JNIEnv *env, jclass cls)

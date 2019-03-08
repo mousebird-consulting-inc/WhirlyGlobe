@@ -19,9 +19,10 @@
  */
 
 #import <jni.h>
-#import "Maply_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_Point2d.h"
-#import "WhirlyGlobe.h"
+
+template<> Point2dClassInfo *Point2dClassInfo::classInfoObj = NULL;
 
 using namespace Eigen;
 using namespace WhirlyKit;

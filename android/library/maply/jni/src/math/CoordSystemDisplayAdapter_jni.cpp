@@ -20,9 +20,8 @@
 
 #import <jni.h>
 #import "Maply_jni.h"
-#import "Maply_utils_jni.h"
 #import "com_mousebird_maply_CoordSystemDisplayAdapter.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobe_Android.h"
 
 using namespace WhirlyKit;
 

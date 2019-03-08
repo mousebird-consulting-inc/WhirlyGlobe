@@ -37,4 +37,12 @@ target_sources(
 
         "${CMAKE_CURRENT_LIST_DIR}/src/util/AttrDictionary_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/util/Identifiable_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/math/AngleAxis_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/math/Matrix3d_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/math/Matrix4d_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/math/Point2d_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/math/Point3d_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/math/Point4d_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/math/Quaternion_jni.cpp"
 )

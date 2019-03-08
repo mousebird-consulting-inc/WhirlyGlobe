@@ -19,10 +19,10 @@
  */
 
 #import <jni.h>
-#import "Maply_jni.h"
-#import "Maply_utils_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_Matrix4d.h"
-#import "WhirlyGlobe.h"
+
+template<> Matrix4dClassInfo *Matrix4dClassInfo::classInfoObj = NULL;
 
 using namespace Eigen;
 using namespace WhirlyKit;
