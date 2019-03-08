@@ -21,14 +21,14 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::Dictionary> AttrDictClassInfo;
+typedef JavaClassInfo<WhirlyKit::MutableDictionary_Android> AttrDictClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorInfo> VectorInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::WideVectorInfo> WideVectorInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorObject> VectorObjectClassInfo;
-typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser> MapboxVectorTileParserClassInfo;
+//typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser> MapboxVectorTileParserClassInfo;
 
 // Construct a Java-side AttrDictionary wrapper
-JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,WhirlyKit::Dictionary *dict);
+JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,WhirlyKit::MutableDictionary_Android *dict);
 
 // Construct a Java-side Vector Object
 JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,WhirlyKit::VectorObject *vec);

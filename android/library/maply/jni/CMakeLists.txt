@@ -7,6 +7,7 @@ target_include_directories(
 
         "${CMAKE_CURRENT_LIST_DIR}/include/"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/"
+        "${CMAKE_CURRENT_LIST_DIR}/include/generated/"
 )
 
 target_sources(
@@ -32,6 +33,8 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/VectorManager_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/View_jni.h"
 
-        "${CMAKE_CURRENT_LIST_DIR}/src/jni_util/Geometry_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/jni_util/Maply_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/util/AttrDictionary_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/util/Identifiable_jni.cpp"
 )

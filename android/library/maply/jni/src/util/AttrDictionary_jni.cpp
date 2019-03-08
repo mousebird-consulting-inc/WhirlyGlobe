@@ -21,7 +21,10 @@
 #import <jni.h>
 #import "Maply_jni.h"
 #import "com_mousebird_maply_AttrDictionary.h"
-#import "WhirlyGlobe.h"
+#import "VectorManager_jni.h"
+#import "WhirlyGlobe_Android.h"
+
+template<> AttrDictClassInfo *AttrDictClassInfo::classInfoObj = NULL;
 
 using namespace WhirlyKit;
 
@@ -31,7 +34,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_nativeInit
 	AttrDictClassInfo::getClassInfo(env,theClass);
 }
 
-JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,Dictionary *dict)
+JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,MutableDictionary_Android *dict)
 {
 	AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo(env,"com/mousebird/maply/AttrDictionary");
 
@@ -47,7 +50,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_initialise
 {
 	try
 	{
-		Dictionary *dict = new Dictionary();
+		MutableDictionary_Android *dict = new MutableDictionary_Android();
 		AttrDictClassInfo::getClassInfo()->setHandle(env,obj,dict);
 	}
 	catch (...)
@@ -66,7 +69,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_dispose
 		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            Dictionary *dict = classInfo->getObject(env,obj);
+            MutableDictionary_Android *dict = classInfo->getObject(env,obj);
             if (!dict)
                 return;
 		// Note: This only works because we're not copying dictionaries
@@ -87,7 +90,7 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_AttrDictionary_getString
 	try
 	{
 		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
-		Dictionary *dict = classInfo->getObject(env,obj);
+		MutableDictionary_Android *dict = classInfo->getObject(env,obj);
 		if (!dict)
 			return NULL;
 
@@ -117,7 +120,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getInt
 	try
 	{
 		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
-		Dictionary *dict = classInfo->getObject(env,obj);
+		MutableDictionary_Android *dict = classInfo->getObject(env,obj);
 		if (!dict)
 			return NULL;
 
@@ -147,7 +150,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getDouble
 	try
 	{
 		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
-		Dictionary *dict = classInfo->getObject(env,obj);
+		MutableDictionary_Android *dict = classInfo->getObject(env,obj);
 		if (!dict)
 			return NULL;
 
@@ -171,13 +174,43 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getDouble
 	return NULL;
 }
 
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getIdentity
+  (JNIEnv *env, jobject obj, jstring attrNameStr)
+{
+	try
+	{
+		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
+		MutableDictionary_Android *dict = classInfo->getObject(env,obj);
+		if (!dict)
+			return NULL;
+
+		const char *cStr = env->GetStringUTFChars(attrNameStr,0);
+		if (!cStr)
+			return NULL;
+		std::string attrName(cStr);
+		env->ReleaseStringUTFChars(attrNameStr, cStr);
+
+		if (dict->hasField(attrName))
+		{
+			long long val = dict->getIdentity(attrName);
+		    return JavaLongClassInfo::getClassInfo(env)->makeLong(env,val);
+		}
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getIdentity()");
+	}
+
+	return NULL;
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setString
 (JNIEnv *env, jobject obj, jstring attrNameObj, jstring strValObj)
 {
     try
     {
         AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
-        Dictionary *dict = classInfo->getObject(env,obj);
+        MutableDictionary_Android *dict = classInfo->getObject(env,obj);
         if (!dict)
             return;
         
@@ -198,7 +231,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setInt
     try
     {
         AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
-        Dictionary *dict = classInfo->getObject(env,obj);
+        MutableDictionary_Android *dict = classInfo->getObject(env,obj);
         if (!dict)
             return;
         
@@ -218,7 +251,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setDouble
     try
     {
         AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
-        Dictionary *dict = classInfo->getObject(env,obj);
+        MutableDictionary_Android *dict = classInfo->getObject(env,obj);
         if (!dict)
             return;
         
@@ -238,7 +271,7 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_AttrDictionary_toString
     try
     {
         AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
-        Dictionary *dict = classInfo->getObject(env,obj);
+        MutableDictionary_Android *dict = classInfo->getObject(env,obj);
         if (!dict)
             return NULL;
 
@@ -260,7 +293,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_get
 	try
 	{
 		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
-		Dictionary *dict = classInfo->getObject(env,obj);
+		MutableDictionary_Android *dict = classInfo->getObject(env,obj);
 		if (!dict)
 			return NULL;
 
@@ -311,8 +344,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_addEntries
 	try
 	{
 		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
-		Dictionary *dict = classInfo->getObject(env,obj);
-		Dictionary *otherDict = classInfo->getObject(env,other);
+		MutableDictionary_Android *dict = classInfo->getObject(env,obj);
+		MutableDictionary_Android *otherDict = classInfo->getObject(env,other);
 		if (!dict || !other)
 			return;
 

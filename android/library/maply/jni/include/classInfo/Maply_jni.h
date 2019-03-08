@@ -182,6 +182,48 @@ protected:
 	jmethodID integerClassInitID,integerGetID;
 };
 
+// Wrapper for creating Java Long objects
+class JavaLongClassInfo
+{
+private:
+	JavaLongClassInfo(JNIEnv *env)
+	{
+		jclass longLocalClass = env->FindClass("java/lang/Long");
+		longClass = (jclass)env->NewGlobalRef(longLocalClass);
+	    longClassInitID = env->GetMethodID(longClass, "<init>", "(L)V");
+	    longGetID = env->GetMethodID(longClass,"longValue","()L");
+        env->DeleteLocalRef(longLocalClass);
+	}
+
+public:
+	// Don't use this constructor
+	JavaLongClassInfo() { }
+
+	// Make an Integer with the given value
+	jobject makeLong(JNIEnv *env,long long lVal)
+	{
+	    return env->NewObject(longClass, longClassInitID, lVal);
+	}
+
+	// Return the value of an Integer object
+	int getLong(JNIEnv *env,jobject longObj)
+	{
+		return env->CallLongMethod(longObj,longGetID);
+	}
+
+	static JavaLongClassInfo *classInfoObj;
+	static JavaLongClassInfo *getClassInfo(JNIEnv *env)
+	{
+		if (!classInfoObj)
+			classInfoObj = new JavaLongClassInfo(env);
+		return classInfoObj;
+	}
+
+protected:
+	jclass longClass;
+	jmethodID longClassInitID,longGetID;
+};
+
 // Wrapper for creating Java Double objects
 class JavaDoubleClassInfo
 {

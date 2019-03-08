@@ -25,6 +25,7 @@
 
 JavaDoubleClassInfo *JavaDoubleClassInfo::classInfoObj = NULL;
 JavaIntegerClassInfo *JavaIntegerClassInfo::classInfoObj = NULL;
+JavaLongClassInfo *JavaLongClassInfo::classInfoObj = NULL;
 JavaHashMapInfo *JavaHashMapInfo::classInfoObj = NULL;
 JavaListInfo *JavaListInfo::classInfoObj = NULL;
 
