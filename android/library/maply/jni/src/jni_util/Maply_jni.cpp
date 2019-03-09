@@ -32,9 +32,6 @@ JavaListInfo *JavaListInfo::classInfoObj = NULL;
 // Note: Move these out
 /*
 template<> MaplySceneRendererInfo *MaplySceneRendererInfo::classInfoObj = NULL;
-template<> MapViewClassInfo *MapViewClassInfo::classInfoObj = NULL;
-template<> GlobeViewClassInfo *GlobeViewClassInfo::classInfoObj = NULL;
-template<> ViewClassInfo *ViewClassInfo::classInfoObj = NULL;
 template<> BaseInfoClassInfo *BaseInfoClassInfo::classInfoObj = NULL;
 template<> VectorInfoClassInfo *VectorInfoClassInfo::classInfoObj = NULL;
 template<> WideVectorInfoClassInfo *WideVectorInfoClassInfo::classInfoObj = NULL;
@@ -42,9 +39,6 @@ template<> VectorObjectClassInfo *VectorObjectClassInfo::classInfoObj = NULL;
 template<> MarkerInfoClassInfo *MarkerInfoClassInfo::classInfoObj = NULL;
 template<> SphericalChunkInfoClassInfo *SphericalChunkInfoClassInfo::classInfoObj = NULL;
 template<> SphericalChunkClassInfo *SphericalChunkClassInfo::classInfoObj = NULL;
-template<> ViewStateClassInfo *ViewStateClassInfo::classInfoObj = NULL;
-template<> MapViewStateClassInfo *MapViewStateClassInfo::classInfoObj = NULL;
-template<> GlobeViewStateClassInfo *GlobeViewStateClassInfo::classInfoObj = NULL;
 template<> SingleVertexAttributeInfoClassInfo *SingleVertexAttributeInfoClassInfo::classInfoObj = NULL;
 template<> ParticleBatchClassInfo *ParticleBatchClassInfo::classInfoObj = NULL;
 template<> ParticleSystemClassInfo *ParticleSystemClassInfo::classInfoObj = NULL;

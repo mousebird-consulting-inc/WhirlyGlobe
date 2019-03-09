@@ -18,14 +18,14 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
-#import "Maply_utils_jni.h"
+#import "View_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_View.h"
-#import "WhirlyGlobe.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
+
+template<> ViewClassInfo *ViewClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_View_nativeInit
   (JNIEnv *env, jclass cls)

@@ -18,14 +18,15 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "View_jni.h"
+#import "CoordSystem_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_GlobeView.h"
-#import "Maply_utils_jni.h"
-#import "WhirlyGlobe.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
+
+template<> GlobeViewClassInfo *GlobeViewClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_nativeInit
   (JNIEnv *env, jclass cls)
@@ -251,7 +252,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointOnSphereFromSc
 
 		Point2f screenPt2f(screenPt->x(),screenPt->y());
 		Point2f framePt2f(framePt->x(),framePt->y());
-		if (view->pointOnSphereFromScreen(screenPt2f,viewModelMat,framePt2f,&hit,clip))
+		if (view->pointOnSphereFromScreen(screenPt2f,*viewModelMat,framePt2f,hit,clip))
 		{
 			return MakePoint3d(env,hit);
 		} else

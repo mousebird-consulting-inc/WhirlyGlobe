@@ -61,4 +61,11 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/scene/Scene_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/scene/Shader_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/scene/Texture_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/view/GlobeView_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/view/GlobeViewState_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/view/MapView_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/view/MapViewState_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/view/View_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/view/ViewState_jni.cpp"
 )
