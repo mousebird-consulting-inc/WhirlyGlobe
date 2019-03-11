@@ -185,10 +185,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShaderID
 
 /*
  * Class:     com_mousebird_maply_BaseInfo
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
  * Method:    getShaderID
  * Signature: ()J
  */
@@ -197,7 +193,6 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BaseInfo_getShaderID
 
 /*
  * Class:     com_mousebird_maply_BaseInfo
->>>>>>> Billboards compiling.
  * Method:    setZBufferRead
  * Signature: (Z)V
  */
@@ -222,7 +217,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setRenderTargetNative
 
 /*
  * Class:     com_mousebird_maply_BaseInfo
->>>>>>> BaseInfo object now compiling.
  * Method:    nativeInit
  * Signature: ()V
  */

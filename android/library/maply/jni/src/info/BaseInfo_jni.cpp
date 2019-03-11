@@ -442,8 +442,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShaderID
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::setShader()");
     }
 }
-<<<<<<< HEAD
-=======
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BaseInfo_getShaderID
   (JNIEnv *env, jobject obj)
@@ -518,4 +516,3 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setRenderTargetNative
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::setRenderTargetNative()");
     }
 }
->>>>>>> BaseInfo object now compiling.
