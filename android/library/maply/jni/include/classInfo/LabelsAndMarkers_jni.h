@@ -1,8 +1,8 @@
 /*
- *  Astronomy_jni.h
+ *  LabelsAndMarkers_jni.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/7/19.
+ *  Created by Steve Gifford on 3/11/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,5 +21,4 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::BaseInfo> BaseInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;
+typedef JavaClassInfo<WhirlyKit::ScreenObject> ScreenObjectClassInfo;

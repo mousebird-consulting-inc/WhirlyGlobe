@@ -18,13 +18,17 @@
  *
  */
 
-#import <jni.h>
 #import "Maply_jni.h"
+#import "Geometry_jni.h"
+#import "BaseInfo_jni.h"
+#import "LabelsAndMarkers_jni.h"
+#import "Billboard_jni.h"
 #import "com_mousebird_maply_Billboard.h"
-#import "WhirlyGlobe.h"
-#import "Maply_utils_jni.h"
+#import "WhirlyGlobe_Android.h"
 
 using namespace WhirlyKit;
+
+template<> BillboardClassInfo *BillboardClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_nativeInit
 (JNIEnv *env, jclass cls)
@@ -294,13 +298,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Billboard_flattenNative
         if (!inst || !screenObj)
             return;
         
-        for (SimplePoly &simplePoly : screenObj->polys)
+        for (SimplePolyRef simplePoly : screenObj->polys)
         {
             SingleBillboardPoly poly;
-            poly.pts = simplePoly.pts;
-            poly.texCoords = simplePoly.texCoords;
-            poly.color = simplePoly.color;
-	    poly.texId = simplePoly.texID;
+            poly.pts = simplePoly->pts;
+            poly.texCoords = simplePoly->texCoords;
+            poly.color = simplePoly->color;
+	        poly.texId = simplePoly->texID;
             inst->polys.push_back(poly);
         }
     } catch (...) {

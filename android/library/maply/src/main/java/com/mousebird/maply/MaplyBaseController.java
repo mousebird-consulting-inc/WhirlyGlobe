@@ -2665,17 +2665,21 @@ public class MaplyBaseController
 					public void run()
 					{
 						ChangeSet changes = new ChangeSet();
-						Shader shader = null;
-						String shaderName = info.getShaderName();
-						if (shaderName == Billboard.MAPLY_BILLBOARD_ORIENTE_EYE)
-							shader = getShader("Default Billboard eye");
-						else if (shaderName == Billboard.MAPLY_BILLBOARD_ORIENTE_GROUND)
-							shader = getShader("Default Billboard ground");
-						else
-							shader = getShader(shaderName);
-						long shaderID = 0;
-						if (shader != null)
+
+						// Have to set the shader ID if it's not already
+						long shaderID = info.getShaderID();
+						if (info.getShaderID() == 0) {
+							String shaderName = null;
+							// TODO: Share these constants with the c++ code
+							if (info.getOrient() == BillboardInfo.Orient.Eye)
+								shaderName = "billboardorienteye";
+							else
+								shaderName = "billboardorientground";
+							Shader shader = getShader(shaderName);
+
 							shaderID = shader.getID();
+							info.setShaderID(shaderID);
+						}
 
 						for (Billboard bill : bills) {
 							// Convert to display space
@@ -2694,7 +2698,7 @@ public class MaplyBaseController
 							bill.flatten();
 						}
 
-						long billId = billboardManager.addBillboards(bills, info,shaderID, changes);
+						long billId = billboardManager.addBillboards(bills, info, changes);
 						compObj.addBillboardID(billId);
 
 						// Flush the text changes

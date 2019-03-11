@@ -87,7 +87,7 @@ public:
     BillboardInfo(const Dictionary &);
     ~BillboardInfo(){};
     
-    typedef enum {Eye,Ground} Orient;
+    typedef enum {Eye=0,Ground} Orient;
     Orient orient;
     RGBAColor color;
 };

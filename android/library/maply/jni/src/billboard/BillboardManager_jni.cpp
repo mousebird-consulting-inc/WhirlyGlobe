@@ -18,12 +18,16 @@
  *
  */
 
-#import <jni.h>
 #import "Maply_jni.h"
+#import "Scene_jni.h"
+#import "Billboard_jni.h"
 #import "com_mousebird_maply_BillboardManager.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobe_Android.h"
 
 using namespace WhirlyKit;
+
+typedef JavaClassInfo<WhirlyKit::BillboardManager> BillboardManagerClassInfo;
+template<> BillboardManagerClassInfo *BillboardManagerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_nativeInit
 (JNIEnv *env, jclass cls)
@@ -66,7 +70,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_dispose
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
-(JNIEnv *env, jobject obj, jobject arrayObj, jobject infoObj, jlong billShader, jobject changeObj)
+(JNIEnv *env, jobject obj, jobject arrayObj, jobject infoObj, jobject changeObj)
 {
     try
     {
@@ -99,7 +103,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
         }
         env->DeleteLocalRef(liter);
         
-        SimpleIdentity billId = inst->addBillboards(bills, info, billShader, *changeSet);
+        SimpleIdentity billId = inst->addBillboards(bills, *info, *changeSet);
 
         return billId;
     }

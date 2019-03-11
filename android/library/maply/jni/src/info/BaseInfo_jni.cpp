@@ -425,7 +425,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setEnableTimes
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShaderNative
+JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShaderID
   (JNIEnv *env, jobject obj, jlong shaderID)
 {
     try
@@ -444,6 +444,26 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShaderNative
 }
 <<<<<<< HEAD
 =======
+
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BaseInfo_getShaderID
+  (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
+        BaseInfo *info = classInfo->getObject(env,obj);
+        if (!info)
+            return EmptyIdentity;
+
+        return info->programID;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::getShaderID()");
+    }
+
+    return EmptyIdentity;
+}
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setZBufferRead
   (JNIEnv *env, jobject obj, jboolean val)

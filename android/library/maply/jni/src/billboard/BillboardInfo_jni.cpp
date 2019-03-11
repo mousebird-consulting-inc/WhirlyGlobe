@@ -20,11 +20,13 @@
 
 #import <jni.h>
 #import "Maply_jni.h"
+#import "Billboard_jni.h"
 #import "com_mousebird_maply_BillboardInfo.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobe_Android.h"
 
 using namespace WhirlyKit;
 
+template<> BillboardInfoClassInfo *BillboardInfoClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardInfo_nativeInit
 (JNIEnv *env, jclass cls)
@@ -85,31 +87,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardInfo_setColor
     }
 }
 
-JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_BillboardInfo_getColor
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        BillboardInfoClassInfo *classInfo = BillboardInfoClassInfo::getClassInfo();
-        BillboardInfo *inst= classInfo->getObject(env, obj);
-        if (!inst)
-            return NULL;
-        float * primaryColors = new float[4];
-        inst->color.asUnitFloats(primaryColors);
-        jfloatArray result;
-        result = env->NewFloatArray(4);
-        env->SetFloatArrayRegion(result, 0, 4, primaryColors);
-        free(primaryColors);
-        return result;
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BillboardInfo::getColor()");
-    }
-    return NULL;
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardInfo_setZBufferRead
-(JNIEnv *env, jobject obj, jboolean zBufferRead)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardInfo_setOrientNative
+(JNIEnv *env, jobject obj, jint orient)
 {
     try
     {
@@ -117,59 +96,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardInfo_setZBufferRead
         BillboardInfo *inst= classInfo->getObject(env, obj);
         if (!inst)
             return;
-        inst->zBufferRead = zBufferRead;
+        inst->orient = (BillboardInfo::Orient)orient;
     }
     catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BillboardInfo::setZBufferRead()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BillboardInfo::setOrientNative()");
     }
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_BillboardInfo_getZBufferRead
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        BillboardInfoClassInfo *classInfo = BillboardInfoClassInfo::getClassInfo();
-        BillboardInfo *inst= classInfo->getObject(env, obj);
-        if (!inst)
-            return false;
-        return inst->zBufferRead;
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BillboardInfo::getZBufferRead()");
-    }
-    return false;
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardInfo_setZBufferWrite
-(JNIEnv *env, jobject obj, jboolean zBufferWrite)
-{
-    try
-    {
-        BillboardInfoClassInfo *classInfo = BillboardInfoClassInfo::getClassInfo();
-        BillboardInfo *inst= classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        inst->zBufferWrite = zBufferWrite;
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BillboardInfo::setZBufferWrite()");
-    }
-}
-
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_BillboardInfo_getZBufferWrite
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        BillboardInfoClassInfo *classInfo = BillboardInfoClassInfo::getClassInfo();
-        BillboardInfo *inst= classInfo->getObject(env, obj);
-        if (!inst)
-            return false;
-        return inst->zBufferWrite;
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BillboardInfo::getZBufferWrite()");
-    }
-    return false;
-}

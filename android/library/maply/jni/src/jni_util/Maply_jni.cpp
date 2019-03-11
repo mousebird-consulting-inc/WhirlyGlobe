@@ -51,9 +51,6 @@ template<> SingleVertexAttributeClassInfo *SingleVertexAttributeClassInfo::class
 template<> MaterialClassInfo *MaterialClassInfo::classInfoObj = NULL;
 template<> MoonClassInfo *MoonClassInfo::classInfoObj = NULL;
 template<> SunClassInfo *SunClassInfo::classInfoObj = NULL;
-template<> BillboardClassInfo *BillboardClassInfo::classInfoObj = NULL;
-template<> BillboardInfoClassInfo *BillboardInfoClassInfo::classInfoObj = NULL;
-template<> BillboardManagerClassInfo *BillboardManagerClassInfo::classInfoObj = NULL;
 template<> ScreenObjectClassInfo *ScreenObjectClassInfo::classInfoObj = NULL;
 template<> SimplePolyClassInfo *SimplePolyClassInfo::classInfoObj = NULL;
 template<> StringWrapperClassInfo *StringWrapperClassInfo::classInfoObj = NULL;

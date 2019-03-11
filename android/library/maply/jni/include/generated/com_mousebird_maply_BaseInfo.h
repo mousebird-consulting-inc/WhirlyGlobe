@@ -177,16 +177,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setEnableTimes
 
 /*
  * Class:     com_mousebird_maply_BaseInfo
- * Method:    setShaderNative
+ * Method:    setShaderID
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShaderNative
+JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShaderID
   (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_mousebird_maply_BaseInfo
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+ * Method:    getShaderID
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BaseInfo_getShaderID
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_BaseInfo
+>>>>>>> Billboards compiling.
  * Method:    setZBufferRead
  * Signature: (Z)V
  */

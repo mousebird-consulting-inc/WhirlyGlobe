@@ -20,70 +20,57 @@
 package com.mousebird.maply;
 
 
+import android.graphics.Color;
+
 /**
  * Parameters used to control billboard display.
  */
 public class BillboardInfo extends BaseInfo {
 
     /**
-     * Creates an empty billboard info
+     * Creates an empty billboard info object
      */
     public BillboardInfo() {
         initialise();
     }
 
     /**
-     * TODO(sjg)
-     * Color components range from 0.0 to 1.0.
-     * @param r red component
-     * @param g green component
-     * @param b blue component
-     * @param a alpha component
+     * Billboard is oriented toward the eye or tied to the ground.
      */
-    public native void setColor(float r, float g, float b, float a);
+    enum Orient {Eye,Ground}
 
     /**
-     * TODO(sjg)
-     * @return the color components (rgba)
+     * Set the color used by the geometry.
+     * @param color Color in Android format, including alpha.
      */
-    public native float[] getColor();
-
-    /**
-     * TODO(sjg)
-     * @param zBufferRead
-     */
-    public native void setZBufferRead(boolean zBufferRead);
-
-    /**
-     * TODO(sjg)
-     * @return
-     */
-    public native boolean getZBufferRead();
-
-    /**
-     * TODO(sjg)
-     * @param zBufferWrite
-     */
-    public native void setZBufferWrite(boolean zBufferWrite);
-
-    /**
-     * TODO(sjg)
-     * @return
-     */
-    public native boolean getZBufferWrite();
-
-    /**
-     * @return the shader name to be used in the billboard.
-     */
-    public String getShaderName() {
-        return shaderName;
+    public void setColor(int color)
+    {
+        setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
     }
 
     /**
-     * @param shaderName the shader name to be used in the billboard.
+     * Set color by component.
      */
-    public void setShaderName(String shaderName) {
-        this.shaderName = shaderName;
+    public native void setColor(float r, float g, float b, float a);
+
+    private Orient orient = Orient.Ground;
+
+    /**
+     * Set the orientation toward the user (eye) or tied to the ground (but also taking user position into account)
+     */
+    public void setOrient(Orient orient)
+    {
+        setOrientNative(orient.ordinal());
+    }
+
+    private native void setOrientNative(int orient);
+
+    /**
+     * Return the billboard orientation.
+     */
+    public Orient getOrient()
+    {
+        return orient;
     }
 
     static

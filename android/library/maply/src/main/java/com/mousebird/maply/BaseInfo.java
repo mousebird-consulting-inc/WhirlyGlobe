@@ -181,10 +181,18 @@ public class BaseInfo
      */
     public void setShader(Shader shader)
     {
-        setShaderNative(shader.getID());
+        setShaderID(shader.getID());
     }
 
-    private native void setShaderNative(long shaderID);
+    /**
+     * Set the shader to be used in rendering, by ID
+     */
+    public native void setShaderID(long shaderID);
+
+    /**
+     * Return the unique ID for the shader or 0 if there is none.
+     */
+    public native long getShaderID();
 
 <<<<<<< HEAD
 
