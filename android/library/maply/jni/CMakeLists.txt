@@ -68,4 +68,6 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/view/MapViewState_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/view/View_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/view/ViewState_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/info/BaseInfo_jni.cpp"
 )
