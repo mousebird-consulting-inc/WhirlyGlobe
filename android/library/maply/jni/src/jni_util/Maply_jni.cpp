@@ -18,10 +18,13 @@
  *
  */
 
-#import <jni.h>
 #import "Maply_jni.h"
 
+using namespace Eigen;
+using namespace WhirlyKit;
+
 // Have to instantiate the static members somewhere
+// But just some of the general ones.  The rest are in their own modules.
 
 JavaDoubleClassInfo *JavaDoubleClassInfo::classInfoObj = NULL;
 JavaIntegerClassInfo *JavaIntegerClassInfo::classInfoObj = NULL;
@@ -56,11 +59,6 @@ template<> SimplePolyClassInfo *SimplePolyClassInfo::classInfoObj = NULL;
 template<> StringWrapperClassInfo *StringWrapperClassInfo::classInfoObj = NULL;
 template<> MapboxVectorTileParserClassInfo *MapboxVectorTileParserClassInfo::classInfoObj = NULL;
 template<> SelectedObjectClassInfo *SelectedObjectClassInfo::classInfoObj = NULL;
-template<> GeometryManagerClassInfo *GeometryManagerClassInfo::classInfoObj = NULL;
-template<> GeometryInfoClassInfo *GeometryInfoClassInfo::classInfoObj = NULL;
-template<> GeometryRawPointsClassInfo *GeometryRawPointsClassInfo::classInfoObj = NULL;
-template<> GeometryRawClassInfo *GeometryRawClassInfo::classInfoObj = NULL;
-template<> GeometryInstanceClassInfo *GeometryInstanceClassInfo::classInfoObj = NULL;
 template<> GeoJSONSourceClassInfo *GeoJSONSourceClassInfo::classInfoObj = NULL;
 */
 
@@ -84,7 +82,7 @@ void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &f
     env->ReleaseFloatArrayElements(floatArray,floats,0);
 }
 
-void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::Vector2f> &ptVec)
+void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,Point2fVector &ptVec)
 {
     float *floats = env->GetFloatArrayElements(floatArray, NULL);
     int len = env->GetArrayLength(floatArray)/2;
@@ -94,7 +92,7 @@ void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::
     env->ReleaseFloatArrayElements(floatArray,floats,0);
 }
 
-void ConvertFloat3fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::Vector3f> &ptVec)
+void ConvertFloat3fArray(JNIEnv *env,jfloatArray &floatArray,Point3fVector &ptVec)
 {
     float *floats = env->GetFloatArrayElements(floatArray, NULL);
     int len = env->GetArrayLength(floatArray)/3;
@@ -104,7 +102,7 @@ void ConvertFloat3fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::
     env->ReleaseFloatArrayElements(floatArray,floats,0);
 }
 
-void ConvertFloat3dArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<Eigen::Vector3d> &ptVec)
+void ConvertFloat3dArray(JNIEnv *env,jdoubleArray &doubleArray,Point3dVector &ptVec)
 {
     double *doubles = env->GetDoubleArrayElements(doubleArray, NULL);
     int len = env->GetArrayLength(doubleArray)/34;
@@ -114,7 +112,7 @@ void ConvertFloat3dArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<Eigen
     env->ReleaseDoubleArrayElements(doubleArray,doubles,0);
 }
 
-void ConvertFloat4fArray(JNIEnv *env,jfloatArray &floatArray,std::vector<Eigen::Vector4f> &ptVec)
+void ConvertFloat4fArray(JNIEnv *env,jfloatArray &floatArray,Vector4fVector &ptVec)
 {
     float *floats = env->GetFloatArrayElements(floatArray, NULL);
     int len = env->GetArrayLength(floatArray)/4;

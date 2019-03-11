@@ -17,13 +17,13 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
-#import "Maply_jni.h"
+#import "GeometryManager_jni.h"
 #import "com_mousebird_maply_GeometryRawPoints.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
+
+template<> GeometryRawPointsClassInfo *GeometryRawPointsClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_nativeInit
 (JNIEnv *env, jclass cls)
@@ -92,7 +92,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addIntValues
         if (!rawGeom)
             return;
         JavaString name(env,nameStr);
-        int attrId = rawGeom->findAttribute(name.cStr);
+        int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.cStr));
         if (attrId < 0)
             return;
         
@@ -118,7 +118,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addFloatValues
         if (!rawGeom)
             return;
         JavaString name(env,nameStr);
-        int attrId = rawGeom->findAttribute(name.cStr);
+        int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.cStr));
         if (attrId < 0)
             return;
         
@@ -144,11 +144,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint2fValu
         if (!rawGeom)
             return;
         JavaString name(env,nameStr);
-        int attrId = rawGeom->findAttribute(name.cStr);
+        int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.cStr));
         if (attrId < 0)
             return;
         
-        std::vector<Eigen::Vector2f> ptVec;
+        Point2fVector ptVec;
         ConvertFloat2fArray(env,floatArray,ptVec);
         
         rawGeom->addPoints(attrId,ptVec);
@@ -170,11 +170,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint3fValu
         if (!rawGeom)
             return;
         JavaString name(env,nameStr);
-        int attrId = rawGeom->findAttribute(name.cStr);
+        int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.cStr));
         if (attrId < 0)
             return;
         
-        std::vector<Eigen::Vector3f> ptVec;
+        Point3fVector ptVec;
         ConvertFloat3fArray(env,floatArray,ptVec);
         
         rawGeom->addPoints(attrId,ptVec);
@@ -196,11 +196,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint3dValu
         if (!rawGeom)
             return;
         JavaString name(env,nameStr);
-        int attrId = rawGeom->findAttribute(name.cStr);
+        int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.cStr));
         if (attrId < 0)
             return;
         
-        std::vector<Eigen::Vector3d> ptVec;
+        Point3dVector ptVec;
         ConvertFloat3dArray(env,doubleArray,ptVec);
         
         rawGeom->addPoints(attrId,ptVec);
@@ -222,11 +222,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint4fValu
         if (!rawGeom)
             return;
         JavaString name(env,nameStr);
-        int attrId = rawGeom->findAttribute(name.cStr);
+        int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.cStr));
         if (attrId < 0)
             return;
         
-        std::vector<Eigen::Vector4f> ptVec;
+        Vector4fVector ptVec;
         ConvertFloat4fArray(env,floatArray,ptVec);
         
         rawGeom->addPoints(attrId,ptVec);
@@ -249,7 +249,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_GeometryRawPoints_addAttributeNa
             return -1;
 
         JavaString name(env,nameStr);
-        return rawGeom->addAttribute(name.cStr,(GeomRawDataType)type);
+        return rawGeom->addAttribute(StringIndexer::getStringID(name.cStr),(GeomRawDataType)type);
     }
     catch (...)
     {

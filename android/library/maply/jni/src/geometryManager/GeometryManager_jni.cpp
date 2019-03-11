@@ -17,13 +17,16 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
-#import "Maply_jni.h"
+#import "GeometryManager_jni.h"
+#import "Geometry_jni.h"
+#import "Scene_jni.h"
 #import "com_mousebird_maply_GeometryManager.h"
-#import "WhirlyGlobe.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 using namespace Maply;
+
+template<> GeometryManagerClassInfo *GeometryManagerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_nativeInit
 (JNIEnv *env, jclass cls)
@@ -165,7 +168,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInst
         }
         
         // Unwrap the instances
-        std::vector<GeometryInstance *> geomInsts;
+        std::vector<GeometryInstance> geomInsts;
         int geomInstCount = env->GetArrayLength(modelInstArr);
         GeometryInstanceClassInfo *geomInfoClassInfo = GeometryInstanceClassInfo::getClassInfo();
         for (unsigned int ii=0;ii<geomInstCount;ii++)
@@ -173,7 +176,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInst
             jobject geomInstObj = env->GetObjectArrayElement(modelInstArr,ii);
             GeometryInstance *geomInst = geomInfoClassInfo->getObject(env,geomInstObj);
             if (geomInst)
-                geomInsts.push_back(geomInst);
+                geomInsts.push_back(*geomInst);
             env->DeleteLocalRef(geomInstObj);
         }
         

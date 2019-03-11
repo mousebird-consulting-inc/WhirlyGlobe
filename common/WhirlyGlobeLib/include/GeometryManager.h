@@ -27,7 +27,7 @@
 namespace WhirlyKit
 {
     
-    typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} GeometryBoundingBox;
+typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} GeometryBoundingBox;
     
 // Used to pass geometry around internally
 class GeometryInfo : public BaseInfo
@@ -35,6 +35,7 @@ class GeometryInfo : public BaseInfo
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
+    GeometryInfo();
     GeometryInfo(const Dictionary &);
 
     bool colorOverride;
@@ -119,9 +120,9 @@ public:
     /// What sort of geometry this is
     WhirlyKitGeometryRawType type;
     /// The points (vertices)
-    std::vector<WhirlyKit::Point3d> pts;
+    Point3dVector pts;
     /// Normals to go with the points
-    std::vector<WhirlyKit::Point3d> norms;
+    Point3dVector norms;
     /// Texture coordinates, one for each point
     std::vector<WhirlyKit::TexCoord> texCoords;
     /// Colors to go with the points
@@ -238,7 +239,7 @@ public:
     GeomPointAttrDataPoint4f() : GeomPointAttrData(GeomRawFloat4Type) { }
     int getNumVals() { return (int)vals.size(); }
     virtual ~GeomPointAttrDataPoint4f() { }
-    std::vector<Eigen::Vector4f> vals;
+    Vector4fVector vals;
 };
     
 /// An optimized version of raw geometry for points only
@@ -273,7 +274,7 @@ public:
     
     // Add four floats to a list of attributes
     void addPoint(int idx,const Eigen::Vector4f &pt);
-    void addPoints(int idx,const std::vector<Eigen::Vector4f> &pts);
+    void addPoints(int idx,const Vector4fVector &pts);
     
     // Add an attribute type to the point geometry
     int addAttribute(StringIdentity nameID,GeomRawDataType dataType);

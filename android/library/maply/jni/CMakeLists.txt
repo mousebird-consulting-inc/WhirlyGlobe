@@ -74,4 +74,11 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/billboard/Billboard_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/billboard/BillboardInfo_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/billboard/BillboardManager_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/geometryManager/GeometryInfo_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/geometryManager/GeometryInstance_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/geometryManager/GeometryManager_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/geometryManager/GeometryRaw_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/geometryManager/GeometryRawPoints_jni.cpp"
+
 )

@@ -17,13 +17,14 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
-#import "Maply_jni.h"
+#import "GeometryManager_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_GeometryInstance.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
+
+template<> GeometryInstanceClassInfo *GeometryInstanceClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryInstance_nativeInit
 (JNIEnv *env, jclass cls)

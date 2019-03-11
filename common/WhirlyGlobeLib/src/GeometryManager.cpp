@@ -29,6 +29,11 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
+    
+GeometryInfo::GeometryInfo()
+: colorOverride(false), color(255,255,255,255), boundingBox(GeometryBBoxNone), pointSize(1.0)
+{    
+}
 
 GeometryInfo::GeometryInfo(const Dictionary &dict)
     : BaseInfo(dict)
@@ -49,7 +54,7 @@ GeometryInfo::GeometryInfo(const Dictionary &dict)
     } else {
         boundingBox = GeometryBBoxNone;
     }
-    pointSize = dict.getDouble(MaplyGeomPointSize);
+    pointSize = dict.getDouble(MaplyGeomPointSize,1.0);
 }
 
 void GeomSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &changes,TimeInterval when)
@@ -356,7 +361,7 @@ void GeometryRawPoints::addPoint(int idx,const Eigen::Vector4f &pt)
         f4Attrs->vals.push_back(pt);
 }
 
-void GeometryRawPoints::addPoints(int idx,const std::vector<Eigen::Vector4f> &pts)
+void GeometryRawPoints::addPoints(int idx,const Vector4fVector &pts)
 {
     if (idx >= attrData.size())
         return;

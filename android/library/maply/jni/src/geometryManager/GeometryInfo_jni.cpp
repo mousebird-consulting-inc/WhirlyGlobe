@@ -18,12 +18,13 @@
  *
  */
 #import <jni.h>
-#import "Maply_jni.h"
+#import "GeometryManager_jni.h"
 #import "com_mousebird_maply_GeometryInfo.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
+
+template<> GeometryInfoClassInfo *GeometryInfoClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryInfo_nativeInit
 (JNIEnv *env, jclass cls)
@@ -95,41 +96,5 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryInfo_setPointSize
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryInstance::setPointSize()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryInfo_setZBufferRead
-(JNIEnv *env, jobject obj, jboolean newVal)
-{
-    try
-    {
-        GeometryInfoClassInfo *classInfo = GeometryInfoClassInfo::getClassInfo();
-        GeometryInfo *info = classInfo->getObject(env,obj);
-        if (!info)
-            return;
-        
-        info->zBufferRead = newVal;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryInstance::setZBufferRead()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryInfo_setZBufferWrite
-(JNIEnv *env, jobject obj, jboolean newVal)
-{
-    try
-    {
-        GeometryInfoClassInfo *classInfo = GeometryInfoClassInfo::getClassInfo();
-        GeometryInfo *info = classInfo->getObject(env,obj);
-        if (!info)
-            return;
-        
-        info->zBufferWrite = newVal;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryInstance::setZBufferWrite()");
     }
 }

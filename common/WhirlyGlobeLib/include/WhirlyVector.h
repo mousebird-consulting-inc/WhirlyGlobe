@@ -37,6 +37,7 @@ typedef std::vector<Point2f,Eigen::aligned_allocator<Point2f> > Point2fVector;
 typedef std::vector<Point2d,Eigen::aligned_allocator<Point2d> > Point2dVector;
 typedef std::vector<Point3f,Eigen::aligned_allocator<Point3f> > Point3fVector;
 typedef std::vector<Point3d,Eigen::aligned_allocator<Point3d> > Point3dVector;
+typedef std::vector<Eigen::Vector4f,Eigen::aligned_allocator<Eigen::Vector4f> > Vector4fVector;
 typedef std::vector<Eigen::Vector4d,Eigen::aligned_allocator<Eigen::Vector4d> > Vector4dVector;
 	
 /// Convenience wrapper for texture coordinate
