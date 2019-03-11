@@ -185,6 +185,33 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShaderNative
 
 /*
  * Class:     com_mousebird_maply_BaseInfo
+<<<<<<< HEAD
+=======
+ * Method:    setZBufferRead
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setZBufferRead
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_BaseInfo
+ * Method:    setZBufferWrite
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setZBufferWrite
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_BaseInfo
+ * Method:    setRenderTargetNative
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setRenderTargetNative
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_mousebird_maply_BaseInfo
+>>>>>>> BaseInfo object now compiling.
  * Method:    nativeInit
  * Signature: ()V
  */

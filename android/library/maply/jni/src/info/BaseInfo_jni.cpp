@@ -442,3 +442,60 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShaderNative
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::setShader()");
     }
 }
+<<<<<<< HEAD
+=======
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setZBufferRead
+  (JNIEnv *env, jobject obj, jboolean val)
+{
+    try
+    {
+        BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
+        BaseInfo *info = classInfo->getObject(env,obj);
+        if (!info)
+            return;
+
+        info->zBufferRead = val;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::setZBufferRead()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setZBufferWrite
+  (JNIEnv *env, jobject obj, jboolean val)
+{
+    try
+    {
+        BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
+        BaseInfo *info = classInfo->getObject(env,obj);
+        if (!info)
+            return;
+
+        info->zBufferWrite = val;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::setZBufferWrite()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setRenderTargetNative
+  (JNIEnv *env, jobject obj, jlong targetID)
+{
+    try
+    {
+        BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
+        BaseInfo *info = classInfo->getObject(env,obj);
+        if (!info)
+            return;
+
+        info->renderTargetID = targetID;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in BaseInfo::setRenderTargetNative()");
+    }
+}
+>>>>>>> BaseInfo object now compiling.

@@ -153,6 +153,7 @@ public class BaseInfo
 
     /**
      * @return Time when geometry is set to fade out (if set)
+<<<<<<< HEAD
      */
     public native double getFadeOutTime();
 
@@ -162,6 +163,17 @@ public class BaseInfo
      * @param startEnable When to start drawing the geometry.  Seconds from the beginning epoch.
      * @param endEnable When to stop drawing the geometry.  Seconds from the beginning epoch.
      */
+=======
+     */
+    public native double getFadeOutTime();
+
+    /**
+     * Geometry can be enabled over a specific time period.  If these are set,
+     * the engine will turn the geometry off outside of this range.
+     * @param startEnable When to start drawing the geometry.  Seconds from the beginning epoch.
+     * @param endEnable When to stop drawing the geometry.  Seconds from the beginning epoch.
+     */
+>>>>>>> BaseInfo object now compiling.
     public native void setEnableTimes(double startEnable,double endEnable);
 
     /**
@@ -174,10 +186,35 @@ public class BaseInfo
 
     private native void setShaderNative(long shaderID);
 
+<<<<<<< HEAD
 
     // ZBuffer Read/Write
 
     // Render Target
+=======
+    /**
+     * If set, the renderer will compare this geometry to the z buffer when rendering.
+     * Off by default.  Most things use priority rendering.
+     */
+    public native void setZBufferRead(boolean newVal);
+
+    /**
+     * If set, the geometry will write to the Z buffer when it renders.
+     * On by default
+     */
+    public native void setZBufferWrite(boolean newVal);
+
+    /**
+     * By default, all geometry renders to the main screen.
+     * If set, you can direct that geometry to a specific offscreen render target instead.
+     */
+    public void setRenderTarget(RenderTarget target)
+    {
+        setRenderTargetNative(target.renderTargetID);
+    }
+
+    private native void setRenderTargetNative(long targetID);
+>>>>>>> BaseInfo object now compiling.
 
     static
     {
