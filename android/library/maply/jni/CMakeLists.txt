@@ -81,9 +81,9 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/geometryManager/GeometryRawPoints_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/MarkerInfo_jni.cpp"
-#        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/InternalMarker_jni.cpp"
-#        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/MarkerManager_jni.cpp"
-#
+        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/InternalMarker_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/MarkerManager_jni.cpp"
+
 #        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/InternalLabel_jni.cpp"
 #        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/LabelInfo_jni.cpp"
 #        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/LabelManager_jni.cpp"

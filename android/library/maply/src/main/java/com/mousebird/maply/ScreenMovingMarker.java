@@ -1,8 +1,8 @@
 /*
- *  LabelsAndMarkers_jni.h
+ *  ScreenMovingMarkers.java
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/11/19.
+ *  Created by Steve Gifford on 3/12/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +18,20 @@
  *
  */
 
-#import "Maply_jni.h"
-#import "WhirlyGlobe_Android.h"
+package com.mousebird.maply;
 
-typedef JavaClassInfo<WhirlyKit::MarkerInfo> MarkerInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
-typedef JavaClassInfo<WhirlyKit::MarkerManager> MarkerManagerClassInfo;
+/**
+ * The moving version of the screen marker animations from
+ * one location to another over time.
+ */
+public class ScreenMovingMarker extends ScreenMarker {
+    /**
+     * The final location in geographic (WGS84) radians.  x is longitude, y is latitude.
+     */
+    public Point2d endLoc = null;
 
-typedef JavaClassInfo<WhirlyKit::LabelInfo> LabelInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;
-
-typedef JavaClassInfo<WhirlyKit::ScreenObject> ScreenObjectClassInfo;
+    /**
+     * How long it takes to animate from the start loc to the endLoc
+     */
+    public double duration = 0.0;
+}

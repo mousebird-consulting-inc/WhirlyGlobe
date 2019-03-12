@@ -18,10 +18,10 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "LabelsAndMarkers_jni.h"
+#import "Geometry_jni.h"
+#import "BaseInfo_jni.h"
 #import "com_mousebird_maply_InternalMarker.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 
@@ -73,26 +73,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_dispose
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setSelectable
-  (JNIEnv *env, jobject obj, jboolean sel)
-{
-	try
-	{
-		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
-		Marker *marker = classInfo->getObject(env,obj);
-		if (!marker)
-			return;
-
-		marker->isSelectable = sel;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setSelectable()");
-	}
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setSelectID
-  (JNIEnv *env, jobject obj, jlong newID)
+  (JNIEnv *env, jobject obj, jlong selectID)
 {
 	try
 	{
@@ -101,7 +83,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setSelectID
 		if (!marker)
 			return;
 
-		marker->selectID = newID;
+		marker->isSelectable = true;
+		marker->selectID = selectID;
 	}
 	catch (...)
 	{
@@ -126,6 +109,45 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLoc
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setLoc()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setEndLoc
+  (JNIEnv *env, jobject obj, jobject ptObj)
+{
+	try
+	{
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
+		Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
+		if (!marker || !pt)
+			return;
+
+		marker->endLoc.x() = pt->x();
+		marker->endLoc.y() = pt->y();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setEndLoc()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setAnimationRange
+  (JNIEnv *env, jobject obj, jdouble startTime, jdouble endTime)
+{
+	try
+	{
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
+		if (!marker)
+			return;
+
+        marker->startTime = startTime;
+        marker->endTime = endTime;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setAnimationRange()");
 	}
 }
 
@@ -165,6 +187,25 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_addTexID
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setRotation
+  (JNIEnv *env, jobject obj, jdouble rot)
+{
+	try
+	{
+		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
+		Marker *marker = classInfo->getObject(env,obj);
+		if (!marker)
+			return;
+
+		marker->lockRotation = true;
+		marker->rotation = rot;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setRotation()");
+	}
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLockRotation
   (JNIEnv *env, jobject obj, jboolean lockRot)
 {
@@ -183,26 +224,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLockRotation
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setHeight
-  (JNIEnv *env, jobject obj, jdouble height)
-{
-	try
-	{
-		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
-		Marker *marker = classInfo->getObject(env,obj);
-		if (!marker)
-			return;
-
-		marker->height = height;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setHeight()");
-	}
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setWidth
-  (JNIEnv *env, jobject obj, jdouble width)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setSize
+  (JNIEnv *env, jobject obj, jdouble width, jdouble height)
 {
 	try
 	{
@@ -212,15 +235,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setWidth
 			return;
 
 		marker->width = width;
+		marker->height = height;
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setWidth()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setSize()");
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setRotation
-  (JNIEnv *env, jobject obj, jdouble rot)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLayoutSize
+  (JNIEnv *env, jobject obj, jdouble width, jdouble height)
 {
 	try
 	{
@@ -229,12 +253,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setRotation
 		if (!marker)
 			return;
 
-		marker->lockRotation = true;
-		marker->rotation = rot;
+		marker->layoutWidth = width;
+		marker->layoutHeight = height;
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setRotation()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setLayoutSize()");
 	}
 }
 
@@ -257,24 +281,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setOffset
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLayoutImportance
-  (JNIEnv *env, jobject obj, jdouble imp)
-{
-	try
-	{
-		MarkerClassInfo *classInfo = MarkerClassInfo::getClassInfo();
-		Marker *marker = classInfo->getObject(env,obj);
-		if (!marker)
-			return;
-
-		marker->layoutImportance = imp;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setLayoutImportance()");
-	}
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setPeriod
 (JNIEnv *env, jobject obj, jdouble period)
 {
@@ -284,7 +290,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setPeriod
         Marker *marker = classInfo->getObject(env,obj);
         if (!marker)
             return;
-        
+
         marker->period = period;
     }
     catch (...)

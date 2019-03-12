@@ -453,6 +453,22 @@ OpenGLES2Program *Scene::getProgram(SimpleIdentity progId)
     
     return prog;
 }
+    
+OpenGLES2Program *Scene::findProgramByName(const std::string &name)
+{
+    std::lock_guard<std::mutex> guardLock(programLock);
+    
+    OpenGLES2Program *prog = NULL;
+    for (auto it = glPrograms.rbegin(); it != glPrograms.rend(); ++it) {
+        if ((*it)->getName() == name)
+        {
+            prog = *it;
+            break;
+        }
+    }
+    
+    return prog;
+}
 
 void Scene::addProgram(OpenGLES2Program *prog)
 {

@@ -392,6 +392,9 @@ public:
     /// Search for a shader program by ID (our ID, not OpenGL's)
     OpenGLES2Program *getProgram(SimpleIdentity programId);
     
+    /// Look for a program by its name (last to first)
+    OpenGLES2Program *findProgramByName(const std::string &name);
+    
     /// Add a shader for reference, but not with a scene name.
     /// Presumably you'll call setSceneProgram() shortly.
     void addProgram(OpenGLES2Program *prog);

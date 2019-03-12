@@ -1403,15 +1403,21 @@ public class MaplyBaseController
 						return;
 					}
 
-					InternalMarker intMarker = new InternalMarker(marker,markerInfo);
-					// Map the bitmap to a texture ID
+					InternalMarker intMarker = new InternalMarker(marker);
 					long texID = EmptyIdentity;
-					if (marker.image != null)
+					if (marker.image != null) {
 						texID = texManager.addTexture(marker.image, scene, changes);
-					if (marker.tex != null)
+						if (texID != EmptyIdentity)
+							intMarker.addTexID(texID);
+					} else if (marker.tex != null) {
 						texID = marker.tex.texID;
-					if (texID != EmptyIdentity)
 						intMarker.addTexID(texID);
+					} else if (marker.images != null)
+					{
+						for (MaplyTexture tex : marker.images) {
+							intMarker.addTexID(tex.texID);
+						}
+					}
 					if (marker.vertexAttributes != null)
 						intMarker.setVertexAttributes(marker.vertexAttributes.toArray());
 					
@@ -1444,6 +1450,78 @@ public class MaplyBaseController
 		return compObj;
 	}
 
+	public ComponentObject addScreenMovingMarkers(final List<ScreenMovingMarker> markers,final MarkerInfo markerInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = addComponentObj();
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+						// Convert to the internal representation of the engine
+						ArrayList<InternalMarker> intMarkers = new ArrayList<InternalMarker>();
+						for (ScreenMarker marker : markers)
+						{
+							if (marker.loc == null)
+							{
+								Log.d("Maply","Missing location for marker.  Skipping.");
+								return;
+							}
+
+							InternalMarker intMarker = new InternalMarker(marker);
+							long texID = EmptyIdentity;
+							if (marker.image != null) {
+								texID = texManager.addTexture(marker.image, scene, changes);
+								if (texID != EmptyIdentity)
+									intMarker.addTexID(texID);
+							} else if (marker.tex != null) {
+								texID = marker.tex.texID;
+								intMarker.addTexID(texID);
+							} else if (marker.images != null)
+							{
+								for (MaplyTexture tex : marker.images) {
+									intMarker.addTexID(tex.texID);
+								}
+							}
+							if (marker.vertexAttributes != null)
+								intMarker.setVertexAttributes(marker.vertexAttributes.toArray());
+
+							intMarkers.add(intMarker);
+
+							// Keep track of this one for selection
+							if (marker.selectable)
+							{
+								addSelectableObject(marker.ident,marker,compObj);
+							}
+						}
+
+						// Add the markers and flush the changes
+						long markerId = markerManager.addScreenMarkers(intMarkers, markerInfo, changes);
+						if (scene != null)
+							changes.process(scene);
+
+						if (markerId != EmptyIdentity)
+						{
+							compObj.addMarkerID(markerId);
+						}
+
+						for (InternalMarker marker : intMarkers)
+							marker.dispose();
+					}
+				};
+
+		addTask(run, mode);
+
+		return compObj;
+	}
 	/**
 	 * Add a single screen marker.  See addMarkers() for details.
 	 */
@@ -1493,7 +1571,7 @@ public class MaplyBaseController
 								return;
 							}
 
-							InternalMarker intMarker = new InternalMarker(marker,markerInfo);
+							InternalMarker intMarker = new InternalMarker(marker);
 							// Map the bitmap to a texture ID
 							long texID = EmptyIdentity;
 							if (marker.image != null) {

@@ -18,17 +18,16 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "LabelsAndMarkers_jni.h"
+#import "Scene_jni.h"
+#import "Render_jni.h"
 #import "com_mousebird_maply_MarkerManager.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
 
 static const char *SceneHandleName = "nativeSceneHandle";
 
-typedef JavaClassInfo<MarkerManager> MarkerManagerClassInfo;
 template<> MarkerManagerClassInfo *MarkerManagerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_nativeInit
@@ -104,15 +103,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 		// Resolve the program ID
 		if (markerInfo->programID == EmptyIdentity)
         {
+            OpenGLES2Program *prog = NULL;
             if (hasMultiTex)
-                markerInfo->programID = markerManager->getScene()->getProgramIDBySceneName(kToolkitDefaultTriangleMultiTex);
+                prog = markerManager->getScene()->findProgramByName(kMaplyShaderDefaultTriMultiTex);
             else
-                markerInfo->programID = markerManager->getScene()->getProgramIDBySceneName(kToolkitDefaultTriangleNoLightingProgram);
+                prog = markerManager->getScene()->findProgramByName(kMaplyShaderDefaultTri);
+            if (prog)
+                markerInfo->programID = prog->getId();
         }
-        
-		// Note: Porting
-		// Note: Shouldn't have to set this
-    	markerInfo->markerId = Identifiable::genId();
 
 		SimpleIdentity markerId = markerManager->addMarkers(markers,*markerInfo,*changeSet);
 
@@ -146,11 +144,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
         jobject iterObj = listClassInfo->getIter(env,markerObjList);
         
         MarkerClassInfo *markerClassInfo = MarkerClassInfo::getClassInfo();
+        bool isMoving = false;
         while (listClassInfo->hasNext(env,markerObjList,iterObj))
         {
             jobject javaMarkerObj = listClassInfo->getNext(env,markerObjList,iterObj);
             Marker *marker = markerClassInfo->getObject(env,javaMarkerObj);
-            
+            if (marker->startTime != marker->endTime)
+                isMoving = true;
+
             markers.push_back(marker);
             env->DeleteLocalRef(javaMarkerObj);
         }
@@ -160,14 +161,15 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
         // Resolve the program ID
         if (markerInfo->programID == EmptyIdentity)
         {
-            // Note: Doesn't handle motion
-            markerInfo->programID = markerManager->getScene()->getProgramIDBySceneName(kToolkitDefaultScreenSpaceProgram);
+            OpenGLES2Program *prog = NULL;
+            if (isMoving)
+                prog = markerManager->getScene()->findProgramByName(kMaplyScreenSpaceDefaultMotionProgram);
+            else
+                prog = markerManager->getScene()->findProgramByName(kMaplyScreenSpaceDefaultProgram);
+            if (prog)
+                markerInfo->programID = prog->getId();
         }
-        
-        // Note: Porting
-        // Note: Shouldn't have to set this
-        markerInfo->markerId = Identifiable::genId();
-        
+
         SimpleIdentity markerId = markerManager->addMarkers(markers,*markerInfo,*changeSet);
         
         return markerId;
