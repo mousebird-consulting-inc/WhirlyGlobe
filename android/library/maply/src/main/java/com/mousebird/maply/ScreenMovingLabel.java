@@ -1,9 +1,9 @@
 /*
- *  SingleLabelAndroid.h
+ *  ScreenLabel.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2014 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,22 +18,20 @@
  *
  */
 
-#import "WhirlyGlobe.h"
-
-namespace WhirlyKit
-{
+package com.mousebird.maply;
 
 /**
- * The platform specific single label for Android.
- * This knows how to render itself on Android devices.
+ * The Moving Screen Label has an end location and duration.
+ * It will move from one point to another over that period.
  */
-class SingleLabelAndroid : public SingleLabel
-{
-public:
-    std::vector<DrawableString *> generateDrawableStrings(const LabelInfo *inLabelInfo,FontTextureManager *fontTexManager,float &lineHeight,ChangeSet &changes);
+public class ScreenMovingLabel extends ScreenLabel {
+    /**
+     * The final location in geographic (WGS84) radians.  x is longitude, y is latitude.
+     */
+    public Point2d endLoc = null;
 
-    // Sometimes rather than strings, we pass around the code points
-    std::vector<std::vector<int>> codePointsLines;
-};
-
+    /**
+     * How long it takes to animate from the start loc to the endLoc
+     */
+    public double duration = 0.0;
 }

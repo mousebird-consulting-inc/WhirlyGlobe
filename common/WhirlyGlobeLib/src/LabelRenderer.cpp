@@ -31,11 +31,24 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
-    
-LabelInfo::LabelInfo()
-: hasTextColor(false), screenObject(false), layoutEngine(false), width(-1.0), height(-1.0),
-shadowSize(-1.0), outlineSize(-1.0), labelJustify(WhirlyKitLabelMiddle), lineHeight(0.0)
+
+LabelInfo::LabelInfo(bool screenObject)
+: hasTextColor(false), textColor(255,255,255,255), backColor(0,0,0,0),
+    screenObject(screenObject), layoutEngine(false), layoutImportance(MAXFLOAT),
+    layoutPlacement(0),
+    width(-1.0), height(-1.0),
+    labelJustify(WhirlyKitLabelMiddle), textJustify(WhirlyKitTextCenter),
+    shadowColor(0,0,0,0), shadowSize(-1.0),
+    outlineColor(0,0,0,0), outlineSize(-1.0),
+    lineHeight(0.0)
 {
+    if (screenObject) {
+        width = 16.0;
+        height = 16.0;
+    } else {
+        width = 0.001;
+        height = 0.001;
+    }
 }
     
 LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject)

@@ -1456,6 +1456,7 @@ public class MaplyBaseController
 			return null;
 
 		final ComponentObject compObj = addComponentObj();
+		final double now = System.currentTimeMillis() / 1000.0;
 
 		// Do the actual work on the layer thread
 		Runnable run =
@@ -1468,7 +1469,7 @@ public class MaplyBaseController
 
 						// Convert to the internal representation of the engine
 						ArrayList<InternalMarker> intMarkers = new ArrayList<InternalMarker>();
-						for (ScreenMarker marker : markers)
+						for (ScreenMovingMarker marker : markers)
 						{
 							if (marker.loc == null)
 							{
@@ -1476,7 +1477,7 @@ public class MaplyBaseController
 								return;
 							}
 
-							InternalMarker intMarker = new InternalMarker(marker);
+							InternalMarker intMarker = new InternalMarker(marker,now);
 							long texID = EmptyIdentity;
 							if (marker.image != null) {
 								texID = texManager.addTexture(marker.image, scene, changes);
@@ -1946,7 +1947,7 @@ public class MaplyBaseController
 				for (ScreenLabel label : labels)
 				{
 					if (label.text != null && label.text.length() > 0) {
-						InternalLabel intLabel = new InternalLabel(label, labelInfo);
+						InternalLabel intLabel = new InternalLabel(label);
 						intLabels.add(intLabel);
 
 						// Keep track of this one for selection
@@ -1977,6 +1978,72 @@ public class MaplyBaseController
 		
 		addTask(run, mode);
 		
+		return compObj;
+	}
+
+	/**
+	 * Add screen labels to the display.  Screen labels are 2D labels that float above the 3D geometry
+	 * and stay fixed in size no matter how the user zoom in or out.  Their visual appearance is controlled
+	 * by the LabelInfo class.
+	 *
+	 * @param labels Labels to add to the display.
+	 * @param labelInfo The visual appearance of the labels.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 * @return This represents the labels for modification or deletion.
+	 */
+	public ComponentObject addScreenMovingLabels(final List<ScreenMovingLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
+	{
+		if (!running)
+			return null;
+
+		final ComponentObject compObj = addComponentObj();
+		final double now = System.currentTimeMillis() / 1000.0;
+
+		// Do the actual work on the layer thread
+		Runnable run =
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						ChangeSet changes = new ChangeSet();
+
+						// Convert to the internal representation for the engine
+						ArrayList<InternalLabel> intLabels = new ArrayList<InternalLabel>();
+						for (ScreenMovingLabel label : labels)
+						{
+							if (label.text != null && label.text.length() > 0) {
+								InternalLabel intLabel = new InternalLabel(label,now);
+								intLabels.add(intLabel);
+
+								// Keep track of this one for selection
+								if (label.selectable) {
+									addSelectableObject(label.ident, label, compObj);
+								}
+							}
+						}
+
+						long labelId = EmptyIdentity;
+						// Note: We can't run multiple of these at once.  The problem is that
+						//  we need to pass the JNIEnv deep inside the toolkit and we're setting
+						//  on JNIEnv at a time for the CharRenderer callback.
+						synchronized (labelManager) {
+							labelId = labelManager.addLabels(intLabels, labelInfo, changes);
+						}
+						if (labelId != EmptyIdentity)
+							compObj.addLabelID(labelId);
+
+						// Flush the text changes
+						if (scene != null)
+							changes.process(scene);
+
+						for (InternalLabel label : intLabels)
+							label.dispose();
+					}
+				};
+
+		addTask(run, mode);
+
 		return compObj;
 	}
 

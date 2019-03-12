@@ -18,10 +18,9 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "LabelsAndMarkers_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_InternalLabel.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 
@@ -110,6 +109,45 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLoc
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setEndLoc
+  (JNIEnv *env, jobject obj, jobject ptObj)
+{
+	try
+	{
+		LabelClassInfo *classInfo = LabelClassInfo::getClassInfo();
+		SingleLabel *label = classInfo->getObject(env,obj);
+		Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
+		if (!label || !pt)
+			return;
+
+		label->endLoc.x() = pt->x();
+		label->endLoc.y() = pt->y();
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::setEndLoc()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setAnimationRange
+  (JNIEnv *env, jobject obj, jdouble startTime, jdouble endTime)
+{
+	try
+	{
+		LabelClassInfo *classInfo = LabelClassInfo::getClassInfo();
+		SingleLabel *label = classInfo->getObject(env,obj);
+		if (!label)
+			return;
+
+        label->startTime = startTime;
+        label->endTime = endTime;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::setAnimationRange()");
+	}
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setRotation
   (JNIEnv *env, jobject obj, jdouble rot)
 {
@@ -125,6 +163,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setRotation
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::setRotation()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLockRotation
+  (JNIEnv *env, jobject obj, jboolean lockRotation)
+{
+	try
+	{
+		LabelClassInfo *classInfo = LabelClassInfo::getClassInfo();
+		SingleLabel *label = classInfo->getObject(env,obj);
+		if (!label)
+			return;
+
+		label->keepUpright = !lockRotation;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::setLockRotation()");
 	}
 }
 
@@ -171,24 +227,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setOffset
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setSelectable
-  (JNIEnv *env, jobject obj, jboolean selectable)
-{
-	try
-	{
-		LabelClassInfo *classInfo = LabelClassInfo::getClassInfo();
-		SingleLabel *label = classInfo->getObject(env,obj);
-		if (!label)
-			return;
-
-		label->isSelectable = selectable;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::setSelectable()");
-	}
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutImportance
 (JNIEnv *env, jobject obj, jfloat layoutImportance)
 {
@@ -198,10 +236,30 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutImportanc
         SingleLabel *label = classInfo->getObject(env,obj);
         if (!label)
             return;
-        label->layoutImportance = layoutImportance;
+        if (!label->infoOverride)
+            label->infoOverride = LabelInfoRef(new LabelInfo(true));
+        label->infoOverride->layoutImportance = layoutImportance;
     }
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::setLayoutImportance()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setUniqueID
+  (JNIEnv *env, jobject obj, jstring uniqueStr)
+{
+    try
+    {
+        LabelClassInfo *classInfo = LabelClassInfo::getClassInfo();
+        SingleLabel *label = classInfo->getObject(env,obj);
+        if (!label)
+            return;
+        JavaString jStr(env,uniqueStr);
+        label->uniqueID = jStr.cStr;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalLabel::setUniqueID()");
     }
 }

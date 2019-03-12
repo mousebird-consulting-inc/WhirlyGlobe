@@ -37,7 +37,7 @@ class LabelManager
 		initialise(scene);
 	}
 	
-	public void vinalize()
+	public void finalize()
 	{
 		dispose();
 	}

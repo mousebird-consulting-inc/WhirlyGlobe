@@ -18,11 +18,8 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "LabelsAndMarkers_jni.h"
 #import "com_mousebird_maply_LabelInfo.h"
-#import "WhirlyGlobe.h"
-#import "LabelInfoAndroid.h"
 
 using namespace WhirlyKit;
 
@@ -39,10 +36,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_initialise
 {
 	try
 	{
-		Dictionary dict;
-		LabelInfoAndroid *info = new LabelInfoAndroid(dict);
-		// Note: Porting
-		info->screenObject = true;
+		LabelInfoAndroid *info = new LabelInfoAndroid(true);
 		LabelInfoClassInfo::getClassInfo()->setHandle(env,obj,info);
 	}
 	catch (...)
@@ -74,6 +68,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_dispose
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::dispose()");
 	}
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getTextColor
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+		if (!info)
+			return 0;
+
+		int textColor = info->textColor.asInt();
+		return textColor;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getTextColor()");
+	}
+
+    return 0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTextColor
@@ -108,6 +123,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setBackgroundColor
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setColor()");
 	}
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getBackgroundColor
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+		if (!info)
+			return 0;
+
+		int backColor = info->backColor.asInt();
+		return backColor;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getBackColor()");
+	}
+
+    return 0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTypefaceNative
@@ -165,8 +201,46 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSizeNative
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLineHeightNative
-(JNIEnv *env, jobject obj, jfloat lineSize)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineColor
+(JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
+{
+    try
+    {
+        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+        LabelInfo *info = classInfo->getObject(env,obj);
+        if (!info)
+            return;
+        info->outlineColor = RGBAColor(r*255,g*255,b*255,a*255);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setOutlineColor()");
+    }
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineColor
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        if (!info)
+            return 0;
+
+        int outlineColor = info->outlineColor.asInt();
+        return outlineColor;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getOutlineColor()");
+    }
+
+    return 0;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineSize
+(JNIEnv *env, jobject obj, jfloat outlineSize)
 {
     try
     {
@@ -174,55 +248,69 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLineHeightNative
         LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
         if (!info)
             return;
-        
-        info->lineHeight = lineSize;
+
+        info->outlineSize = outlineSize;
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setLineHeightNative()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setOutlineSize()");
     }
 }
 
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getTextColor
-  (JNIEnv *env, jobject obj)
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineSize
+(JNIEnv *env, jobject obj)
 {
-	try
-	{
-		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
-		if (!info)
-			return 0;
+    try
+    {
+        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        if (!info)
+            return 0;
 
-		int textColor = info->textColor.asInt();
-		return textColor;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getTextColor()");
-	}
-    
+        float outlineSize = info->outlineSize;
+        return outlineSize;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getOutlineSize()");
+    }
+
     return 0;
 }
 
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getBackColor
-  (JNIEnv *env, jobject obj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setShadowColor
+(JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
 {
-	try
-	{
-		LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-		LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
-		if (!info)
-			return 0;
+    try
+    {
+        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+        LabelInfo *info = classInfo->getObject(env,obj);
+        if (!info)
+            return;
+        info->shadowColor = RGBAColor(r*255,g*255,b*255,a*255);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setShadowColor()");
+    }
+}
 
-		int backColor = info->backColor.asInt();
-		return backColor;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getBackColor()");
-	}
-    
-    return 0;
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setShadowSize
+(JNIEnv *env, jobject obj, jfloat shadowSize)
+{
+    try
+    {
+        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
+        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
+        if (!info)
+            return;
+
+        info->shadowSize = shadowSize;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setShadowSize()");
+    }
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLayoutImportance
@@ -280,25 +368,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTextJustifyNative
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineColor
-(JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
-{
-    try
-    {
-        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-        LabelInfo *info = classInfo->getObject(env,obj);
-        if (!info)
-            return;
-        info->outlineColor = RGBAColor(r*255,g*255,b*255,a*255);
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setOutlineColor()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineSize
-(JNIEnv *env, jobject obj, jfloat outlineSize)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLineHeightNative
+(JNIEnv *env, jobject obj, jfloat lineSize)
 {
     try
     {
@@ -306,56 +377,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineSize
         LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
         if (!info)
             return;
-        
-        info->outlineSize = outlineSize;
+
+        info->lineHeight = lineSize;
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setOutlineSize()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::setLineHeightNative()");
     }
 }
-
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineColor
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
-        if (!info)
-            return 0;
-        
-        int outlineColor = info->outlineColor.asInt();
-        return outlineColor;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getOutlineColor()");
-    }
-    
-    return 0;
-}
-
-JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineSize
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        LabelInfoClassInfo *classInfo = LabelInfoClassInfo::getClassInfo();
-        LabelInfoAndroid *info = (LabelInfoAndroid *)classInfo->getObject(env,obj);
-        if (!info)
-            return 0;
-        
-        float outlineSize = info->outlineSize;
-        return outlineSize;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelInfo::getOutlineSize()");
-    }
-    
-    return 0;
-}
-
-
 

@@ -18,13 +18,10 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "LabelsAndMarkers_jni.h"
+#import "Scene_jni.h"
+#import "Render_jni.h"
 #import "com_mousebird_maply_LabelManager.h"
-#import "WhirlyGlobe.h"
-#import "SingleLabelAndroid.h"
-#import "LabelInfoAndroid.h"
-#import "FontTextureManagerAndroid.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
@@ -89,7 +86,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
         
         // Need to tell the font texture manager what the current environment is
         //  so it can delete things if it needs to
-        FontTextureManagerAndroid *fontTexManager = (FontTextureManagerAndroid *)labelManager->getScene()->getFontTextureManager();
+        FontTextureManager_Android *fontTexManager = (FontTextureManager_Android *)labelManager->getScene()->getFontTextureManager();
         fontTexManager->setEnv(env);
 
 		std::vector<SingleLabel *> labels;
@@ -101,10 +98,13 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 		// We need this in the depths of the engine
 		labelInfo->env = env;
 		labelInfo->labelInfoObj = labelInfoObj;
+		bool isMoving = false;
 		while (listClassInfo->hasNext(env,labelObjList,iterObj))
 		{
 			jobject javaLabelObj = listClassInfo->getNext(env,labelObjList,iterObj);
 			SingleLabelAndroid *label = labelClassInfo->getObject(env,javaLabelObj);
+			if (label->startTime != label->endTime)
+			    isMoving = true;
 			labels.push_back(label);
 			env->DeleteLocalRef(javaLabelObj);
 		}
@@ -112,10 +112,15 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 
 		// Resolve a missing program
 		if (labelInfo->programID == EmptyIdentity)
-	        {
-                  // Note: Doesn't handle motion
-                  labelInfo->programID = labelManager->getScene()->getProgramIDBySceneName(kToolkitDefaultScreenSpaceProgram);
-                }
+        {
+            OpenGLES2Program *prog = NULL;
+            if (isMoving)
+                prog = labelManager->getScene()->findProgramByName(kMaplyScreenSpaceDefaultMotionProgram);
+            else
+                prog = labelManager->getScene()->findProgramByName(kMaplyScreenSpaceDefaultProgram);
+            if (prog)
+                labelInfo->programID = prog->getId();
+        }
 		SimpleIdentity labelId = labelManager->addLabels(labels,*labelInfo,*changeSet);
 
 		labelInfo->env = NULL;
@@ -144,7 +149,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_removeLabels
         
         // Need to tell the font texture manager what the current environment is
         //  so it can delete things if it needs to
-        FontTextureManagerAndroid *fontTexManager = (FontTextureManagerAndroid *)labelManager->getScene()->getFontTextureManager();
+        FontTextureManager_Android *fontTexManager = (FontTextureManager_Android *)labelManager->getScene()->getFontTextureManager();
         fontTexManager->setEnv(env);
 
         SimpleIDSet idSet;
