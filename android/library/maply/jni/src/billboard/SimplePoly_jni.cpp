@@ -17,13 +17,12 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
-#import "Maply_jni.h"
+#import "Billboard_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_SimplePoly.h"
-#import "WhirlyGlobe.h"
-#import "Maply_utils_jni.h"
 #import <android/bitmap.h>
 
+template<> SimplePolyClassInfo *SimplePolyClassInfo::classInfoObj = NULL;
 
 using namespace WhirlyKit;
 
@@ -128,26 +127,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_dispose
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::dispose()");
     }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addImage
-(JNIEnv *env, jobject obj, jobject texObj)
-{
-    try
-    {
-        SimplePolyClassInfo *classInfo = SimplePolyClassInfo::getClassInfo();
-        SimplePoly *inst = classInfo->getObject(env, obj);
-        Texture *tex = TextureClassInfo::getClassInfo()->getObject(env, texObj);
-        if (!inst || !tex)
-            return;
-        
-        inst->texID = tex->getId();
-        
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::addImage()");
-    }
-
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addColor

@@ -23,3 +23,7 @@
 
 typedef JavaClassInfo<WhirlyKit::BillboardInfo> BillboardInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::Billboard> BillboardClassInfo;
+typedef JavaClassInfo<WhirlyKit::BillboardManager> BillboardManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::ScreenObject> ScreenObjectClassInfo;
+typedef JavaClassInfo<WhirlyKit::StringWrapper> StringWrapperClassInfo;
+typedef JavaClassInfo<WhirlyKit::SimplePoly> SimplePolyClassInfo;

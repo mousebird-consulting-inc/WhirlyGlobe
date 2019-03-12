@@ -17,14 +17,14 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
-#import "Maply_jni.h"
-#import "Maply_utils_jni.h"
+#import "Billboard_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_ScreenObject.h"
-#import "WhirlyGlobe.h"
 #import <android/bitmap.h>
 
+template<> ScreenObjectClassInfo *ScreenObjectClassInfo::classInfoObj = NULL;
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_nativeInit
@@ -81,7 +81,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addPoly
         SimplePoly *poly = SimplePolyClassInfo::getClassInfo()->getObject(env, polyObj);
         if (!inst || !poly)
             return;
-        inst->polys.push_back(*poly);
+        // We take over the reference when adding the poly
+        SimplePolyClassInfo::getClassInfo()->clearHandle(env,polyObj);
+        inst->polys.push_back(SimplePolyRef(poly));
     }
     catch (...)
     {
@@ -100,12 +102,12 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getPoly
             return NULL;
         if (index >= inst->polys.size())
             return NULL;
-        SimplePoly poly = inst->polys.at(index);
+        SimplePolyRef poly = inst->polys.at(index);
 
 		//Color
         
         float primaryColors[4];
-        poly.color.asUnitFloats(primaryColors);
+        poly->color.asUnitFloats(primaryColors);
 
         //Pts List object
 
@@ -113,8 +115,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getPoly
         jmethodID listConstructor = env->GetMethodID(listCls, "<init>", "(I)V");
         jmethodID listAdd = env->GetMethodID(listCls, "add", "(Ljava/lang/Object;)Z");
 
-        jobject listPtObj = env->NewObject(listCls, listConstructor, poly.pts.size());
-        for (WhirlyKit::Point2d pt : poly.pts) {
+        jobject listPtObj = env->NewObject(listCls, listConstructor, poly->pts.size());
+        for (WhirlyKit::Point2d pt : poly->pts) {
             jobject ptObject = MakePoint2d(env, pt);
             env->CallBooleanMethod(listPtObj, listAdd, ptObject);
             env->DeleteLocalRef(ptObject);
@@ -122,8 +124,8 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getPoly
 
         //TexCoord List Object
 
-        jobject listTCObj = env->NewObject(listCls, listConstructor, poly.texCoords.size());
-        for (WhirlyKit::TexCoord tc : poly.texCoords) {
+        jobject listTCObj = env->NewObject(listCls, listConstructor, poly->texCoords.size());
+        for (WhirlyKit::TexCoord tc : poly->texCoords) {
             Point2d pt(tc.u(), tc.v());
             jobject tcObject = MakePoint2d(env, pt);
             env->CallBooleanMethod(listTCObj, listAdd, tcObject);
@@ -131,7 +133,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getPoly
         }
         jclass cls = env->FindClass("com/mousebird/maply/SimplePoly");
         jmethodID constructor = env->GetMethodID(cls, "<init>", "(Lcom/mousebird/maply/Texture;[FLjava/util/List;Ljava/util/List;)V");
-        jobject result = env->NewObject(cls, constructor, poly.texID, primaryColors[0], primaryColors[1], primaryColors[2], primaryColors[3], listPtObj, listTCObj );
+        jobject result = env->NewObject(cls, constructor, poly->texID, primaryColors[0], primaryColors[1], primaryColors[2], primaryColors[3], listPtObj, listTCObj );
         
         return result;
     }
@@ -170,7 +172,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addString
         StringWrapper *string = StringWrapperClassInfo::getClassInfo()->getObject(env, stringObj);
         if (!inst || !string)
             return;
-        inst->strings.push_back(*string);
+        // We take ownership of the string wrapper here
+        StringWrapperClassInfo::getClassInfo()->clearHandle(env,stringObj);
+        inst->strings.push_back(StringWrapperRef(string));
     }
     catch (...)
     {
@@ -190,18 +194,18 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getString
         if (index >= inst->strings.size())
             return NULL;
         
-        StringWrapper string = inst->strings.at(index);
+        StringWrapperRef string = inst->strings.at(index);
         
         //Matrix3d Mat
         
-        Eigen::Matrix3d mat = string.mat;
+        Eigen::Matrix3d mat = string->mat;
         jobject matrixObj = MakeMatrix3d(env, mat);
         
         //StringWrapper
         
         jclass cls = env->FindClass("com/mousebird/maply/StringWrapper");
         jmethodID constructor = env->GetMethodID(cls, "<init>", "(IILcom/mousebird/maply/Matrix3d;)V");
-        jobject result = env->NewObject(cls, constructor, string.size.height, string.size.width, matrixObj  );
+        jobject result = env->NewObject(cls, constructor, string->size.x(), string->size.y(), matrixObj  );
         
         return result;
     }
@@ -241,7 +245,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addTextureNative
         poly->texCoords.push_back(TexCoord(0,0));
         
         //Insert Poly
-        inst->polys.push_back(*poly);
+        inst->polys.push_back(SimplePolyRef(poly));
     }
     catch (...)
     {
@@ -299,9 +303,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_getSizeNative
             return;
 
         Mbr mbr;
-        for (SimplePoly &poly : inst->polys)
+        for (SimplePolyRef poly : inst->polys)
         {
-            for (auto &pt : poly.pts)
+            for (auto &pt : poly->pts)
             {
                 mbr.addPoint(pt);
             }
@@ -337,18 +341,18 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_transform
         if (!inst || !mat)
             return;
         
-        for (SimplePoly &poly : inst->polys)
+        for (SimplePolyRef poly : inst->polys)
         {
-            for (Point2d &pt : poly.pts)
+            for (Point2d &pt : poly->pts)
             {
                 Point3d newPt = (*mat) * Point3d(pt.x(),pt.y(),1.0);
                 pt = Point2d(newPt.x(),newPt.y());
             }
         }
         
-        for (StringWrapper &str : inst->strings)
+        for (StringWrapperRef str : inst->strings)
         {
-            str.mat = str.mat * (*mat);
+            str->mat = str->mat * (*mat);
         }
         
         

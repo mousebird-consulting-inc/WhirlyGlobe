@@ -17,14 +17,14 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
-#import "Maply_jni.h"
+#import "Billboard_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_StringWrapper.h"
-#import "WhirlyGlobe.h"
-#import "Maply_utils_jni.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
+template<> StringWrapperClassInfo *StringWrapperClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_StringWrapper_nativeInit
 (JNIEnv *env, jclass cls)
@@ -57,7 +57,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StringWrapper_initialise__IILcom
         if (!mat)
             return;
         StringWrapper *inst = new StringWrapper();
-        inst->size = CGSize(height, width);
+        inst->size = Point2d(height, width);
         inst->mat = *mat;
         classInfo->setHandle(env, obj, inst);
     }
@@ -101,8 +101,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StringWrapper_setSize
         if (!inst)
             return;
         
-        CGSize size(height, width);
-        inst->size = size;
+        inst->size = Point2d(width,height);
     }
     catch (...)
     {
@@ -121,8 +120,8 @@ JNIEXPORT jintArray JNICALL Java_com_mousebird_maply_StringWrapper_getSize
             return NULL;
         
         int * size = new int[2];
-        size[0] = inst->size.height;
-        size[1] = inst->size.width;
+        size[0] = inst->size.x();
+        size[1] = inst->size.y();
         jintArray result;
         result = env->NewIntArray(2);
         env->SetIntArrayRegion(result, 0, 2, size);

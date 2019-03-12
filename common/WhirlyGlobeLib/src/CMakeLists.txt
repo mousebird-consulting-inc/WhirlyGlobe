@@ -71,6 +71,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/SceneRendererES.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/SceneRendererES2.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/ScreenImportance.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/ScreenObject.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/ScreenSpaceBuilder.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/ScreenSpaceDrawable.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/SelectionManager.cpp"

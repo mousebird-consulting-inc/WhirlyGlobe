@@ -53,9 +53,6 @@ template<> SingleVertexAttributeClassInfo *SingleVertexAttributeClassInfo::class
 template<> MaterialClassInfo *MaterialClassInfo::classInfoObj = NULL;
 template<> MoonClassInfo *MoonClassInfo::classInfoObj = NULL;
 template<> SunClassInfo *SunClassInfo::classInfoObj = NULL;
-template<> ScreenObjectClassInfo *ScreenObjectClassInfo::classInfoObj = NULL;
-template<> SimplePolyClassInfo *SimplePolyClassInfo::classInfoObj = NULL;
-template<> StringWrapperClassInfo *StringWrapperClassInfo::classInfoObj = NULL;
 template<> MapboxVectorTileParserClassInfo *MapboxVectorTileParserClassInfo::classInfoObj = NULL;
 template<> SelectedObjectClassInfo *SelectedObjectClassInfo::classInfoObj = NULL;
 template<> GeoJSONSourceClassInfo *GeoJSONSourceClassInfo::classInfoObj = NULL;
