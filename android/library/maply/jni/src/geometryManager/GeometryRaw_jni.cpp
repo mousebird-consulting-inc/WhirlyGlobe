@@ -17,13 +17,14 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
-#import "Maply_jni.h"
+#import "GeometryManager_jni.h"
+#import "Scene_jni.h"
 #import "com_mousebird_maply_GeometryRaw.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
+
+template<> GeometryRawClassInfo *GeometryRawClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_nativeInit
 (JNIEnv *env, jclass cls)
@@ -166,7 +167,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRaw_addTexCoords
         if (!rawGeom)
             return;
 
-        std::vector<Eigen::Vector2f> coords;
+        Point2fVector coords;
         ConvertFloat2fArray(env,floatArray,coords);
         rawGeom->texCoords.reserve(coords.size());
         for (auto coord : coords)

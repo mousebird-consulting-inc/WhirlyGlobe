@@ -63,6 +63,7 @@ typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 class MarkerInfo : public BaseInfo
 {
 public:
+    MarkerInfo(bool screenObject);
     MarkerInfo(const Dictionary &,bool screenObject);
     
     RGBAColor color;

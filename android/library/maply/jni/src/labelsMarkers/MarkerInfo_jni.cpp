@@ -18,12 +18,12 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "LabelsAndMarkers_jni.h"
 #import "com_mousebird_maply_MarkerInfo.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+
+template<> MarkerInfoClassInfo *MarkerInfoClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_nativeInit
   (JNIEnv *env, jclass cls)
@@ -36,10 +36,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerInfo_initialise
 {
 	try
 	{
-		Dictionary dict;
-		MarkerInfo *info = new MarkerInfo(dict);
-		// Note: Porting
-		info->screenObject = true;
+		MarkerInfo *info = new MarkerInfo(true);
 		MarkerInfoClassInfo::getClassInfo()->setHandle(env,obj,info);
 	}
 	catch (...)

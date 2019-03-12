@@ -22,9 +22,8 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Formats_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Geometry_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/GeometryManager_jni.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/LabelManager_jni.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/LabelsAndMarkers_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Maply_jni.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/MarkerManager_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/ParticleManager_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Scene_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Selection_jni.h"
@@ -69,7 +68,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/view/View_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/view/ViewState_jni.cpp"
 
-        "${CMAKE_CURRENT_LIST_DIR}/src/info/BaseInfo_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/base/BaseInfo_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/billboard/Billboard_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/billboard/BillboardInfo_jni.cpp"
@@ -81,4 +80,13 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/geometryManager/GeometryRaw_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/geometryManager/GeometryRawPoints_jni.cpp"
 
+        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/MarkerInfo_jni.cpp"
+#        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/InternalMarker_jni.cpp"
+#        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/MarkerManager_jni.cpp"
+#
+#        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/InternalLabel_jni.cpp"
+#        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/LabelInfo_jni.cpp"
+#        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/LabelManager_jni.cpp"
+#        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/ScreenObject_jni.cpp"
+#        "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/StringWrapper_jni.cpp"
 )

@@ -22,3 +22,8 @@
 #import "WhirlyGlobe_Android.h"
 
 typedef JavaClassInfo<WhirlyKit::ScreenObject> ScreenObjectClassInfo;
+typedef JavaClassInfo<WhirlyKit::LabelInfo> LabelInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;
+typedef JavaClassInfo<WhirlyKit::MarkerInfo> MarkerInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::Marker> MarkerClassInfo;
+typedef JavaClassInfo<WhirlyKit::ScreenObject> ScreenObjectClassInfo;

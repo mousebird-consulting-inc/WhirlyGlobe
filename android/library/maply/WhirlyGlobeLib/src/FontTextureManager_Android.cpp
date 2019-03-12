@@ -20,7 +20,7 @@
 
 #import "FontTextureManager_Android.h"
 #import "LabelInfo_Android.h"
-#import "LabelManager_jni.h"
+#import "LabelsAndMarkers_jni.h"
 #import <android/bitmap.h>
 
 namespace WhirlyKit

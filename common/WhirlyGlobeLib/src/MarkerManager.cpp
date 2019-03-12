@@ -30,6 +30,19 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
     
+MarkerInfo::MarkerInfo(bool screenObject)
+    : color(255,255,255), screenObject(screenObject), width(0.0), height(0.0),
+    layoutImportance(MAXFLOAT),clusterGroup(-1)
+{
+    if (screenObject) {
+        width = 16.0;
+        height = 16.0;
+    } else {
+        width = 0.001;
+        height = 0.001;
+    }
+}
+    
 MarkerInfo::MarkerInfo(const Dictionary &dict,bool screenObject)
 : BaseInfo(dict), screenObject(screenObject)
 {
