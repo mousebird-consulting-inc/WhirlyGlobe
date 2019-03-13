@@ -160,5 +160,7 @@ public:
     
     bool pointOnPlaneFromScreen(const WhirlyKit::Point2f &pt,const Eigen::Matrix4d &transform,const WhirlyKit::Point2f &frameSize, WhirlyKit::Point3d &hit, bool clip);
 };
+    
+typedef std::shared_ptr<MapViewState> MapViewStateRef;
 
 }

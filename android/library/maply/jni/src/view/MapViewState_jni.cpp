@@ -27,12 +27,12 @@
 using namespace WhirlyKit;
 using namespace Maply;
 
-template<> MapViewStateClassInfo *MapViewStateClassInfo::classInfoObj = NULL;
+template<> MapViewStateRefClassInfo *MapViewStateRefClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapViewState_nativeInit
   (JNIEnv *env, jclass cls)
 {
-	MapViewStateClassInfo::getClassInfo(env,cls);
+	MapViewStateRefClassInfo::getClassInfo(env,cls);
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapViewState_initialise
@@ -49,10 +49,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapViewState_initialise
 //		{
 //			viewState = new WhirlyGlobe::GlobeViewState((WhirlyGlobe::GlobeView *)view,renderer);
 //		} else if (dynamic_cast<Maply::MapView *>(mapView))
-		MapViewState *mapViewState = new Maply::MapViewState(mapView,renderer);
+		MapViewStateRef *mapViewState = new MapViewStateRef(new Maply::MapViewState(mapView,renderer));
 
 		if (mapViewState)
-			MapViewStateClassInfo::getClassInfo()->setHandle(env,obj,mapViewState);
+			MapViewStateRefClassInfo::getClassInfo()->setHandle(env,obj,mapViewState);
 	}
 	catch (...)
 	{
@@ -67,10 +67,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapViewState_dispose
 {
 	try
 	{
-		MapViewStateClassInfo *classInfo = MapViewStateClassInfo::getClassInfo();
+		MapViewStateRefClassInfo *classInfo = MapViewStateRefClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            MapViewState *mapViewState = classInfo->getObject(env,obj);
+            MapViewStateRef *mapViewState = classInfo->getObject(env,obj);
             if (!mapViewState)
                 return;
             delete mapViewState;

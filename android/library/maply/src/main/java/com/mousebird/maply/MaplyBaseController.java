@@ -1823,13 +1823,16 @@ public class MaplyBaseController
 	// Returns all the objects near a point
 	protected SelectedObject[] getObjectsAtScreenLoc(Point2d screenLoc)
 	{
+		if (renderWrapper == null)
+			return null;
+
 		Point2d viewSize = getViewSize();
 		Point2d frameSize = renderWrapper.maplyRender.frameSize;
 		Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
 		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
 		// Ask the selection manager
-		SelectedObject selManObjs[] = selectionManager.pickObjects(view, frameLoc);
+		SelectedObject selManObjs[] = selectionManager.pickObjects(view.makeViewState(renderWrapper.maplyRender), frameLoc);
 		if (selManObjs != null)
 		{
 			// Remap the objects
@@ -1882,12 +1885,15 @@ public class MaplyBaseController
 	 */
 	protected Object getObjectAtScreenLoc(Point2d screenLoc)
 	{
+		if (renderWrapper == null)
+			return null;
+
 		Point2d viewSize = getViewSize();
 		Point2d frameSize = renderWrapper.maplyRender.frameSize;
 		Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
 		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
-		long selectID = selectionManager.pickObject(view, frameLoc);
+		long selectID = selectionManager.pickObject(view.makeViewState(renderWrapper.maplyRender), frameLoc);
 		if (selectID != EmptyIdentity)
 		{
 			// Look for the object

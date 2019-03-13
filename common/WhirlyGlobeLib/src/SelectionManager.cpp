@@ -66,6 +66,11 @@ bool BillboardSelectable::operator < (const BillboardSelectable &that) const
     return selectID < that.selectID;
 }
 
+SelectionManager::SelectedObject::SelectedObject()
+: distIn3D(0.0), screenDist(0.0), isCluster(false)
+{
+}
+
 SelectionManager::SelectionManager(Scene *scene,float viewScale)
     : scene(scene), scale(viewScale)
 {

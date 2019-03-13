@@ -95,4 +95,8 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/particles/ParticleBatch_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/particles/ParticleSystem_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/particles/ParticleSystemManager_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/layoutSelection/LayoutManager_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/layoutSelection/SelectedObject_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/layoutSelection/SelectionManager_jni.cpp"
 )

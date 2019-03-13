@@ -24,12 +24,12 @@
 
 using namespace WhirlyKit;
 
-template<> ViewStateClassInfo *ViewStateClassInfo::classInfoObj = NULL;
+template<> ViewStateRefClassInfo *ViewStateRefClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ViewState_nativeInit
   (JNIEnv *env, jclass cls)
 {
-	ViewStateClassInfo::getClassInfo(env,cls);
+	ViewStateRefClassInfo::getClassInfo(env,cls);
 }
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ViewState_isEqual
@@ -37,13 +37,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ViewState_isEqual
 {
 	try
 	{
-		ViewStateClassInfo *classInfo = ViewStateClassInfo::getClassInfo();
-		ViewState *viewState = classInfo->getObject(env,obj);
-		ViewState *otherViewState = classInfo->getObject(env,otherObj);
+		ViewStateRefClassInfo *classInfo = ViewStateRefClassInfo::getClassInfo();
+		ViewStateRef *viewState = classInfo->getObject(env,obj);
+		ViewStateRef *otherViewState = classInfo->getObject(env,otherObj);
 		if (!viewState || !otherViewState)
 			return false;
 
-		return viewState->isSameAs(otherViewState);
+		return (*viewState)->isSameAs((*otherViewState).get());
 	}
 	catch (...)
 	{

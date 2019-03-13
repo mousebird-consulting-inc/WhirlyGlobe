@@ -26,12 +26,12 @@ using namespace WhirlyKit;
 using namespace Maply;
 using namespace WhirlyGlobe;
 
-template<> GlobeViewStateClassInfo *GlobeViewStateClassInfo::classInfoObj = NULL;
+template<> GlobeViewStateRefClassInfo *GlobeViewStateRefClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeViewState_nativeInit
   (JNIEnv *env, jclass cls)
 {
-	GlobeViewStateClassInfo::getClassInfo(env,cls);
+	GlobeViewStateRefClassInfo::getClassInfo(env,cls);
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeViewState_initialise
@@ -44,14 +44,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeViewState_initialise
 		if (!globeView || !renderer)
 			return;
 
-//		if (dynamic_cast<WhirlyGlobe::GlobeView *>(mapView))
-//		{
-//			viewState = new WhirlyGlobe::GlobeViewState((WhirlyGlobe::GlobeView *)view,renderer);
-//		} else if (dynamic_cast<Maply::MapView *>(mapView))
-		GlobeViewState *globeViewState = new WhirlyGlobe::GlobeViewState(globeView,renderer);
+		GlobeViewStateRef *globeViewState = new GlobeViewStateRef(new WhirlyGlobe::GlobeViewState(globeView,renderer));
 
 		if (globeViewState)
-			GlobeViewStateClassInfo::getClassInfo()->setHandle(env,obj,globeViewState);
+			GlobeViewStateRefClassInfo::getClassInfo()->setHandle(env,obj,globeViewState);
 	}
 	catch (...)
 	{
@@ -66,10 +62,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeViewState_dispose
 {
 	try
 	{
-		GlobeViewStateClassInfo *classInfo = GlobeViewStateClassInfo::getClassInfo();
+		GlobeViewStateRefClassInfo *classInfo = GlobeViewStateRefClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            GlobeViewState *globeViewState = classInfo->getObject(env,obj);
+            GlobeViewStateRef *globeViewState = classInfo->getObject(env,obj);
             if (!globeViewState)
                 return;
             delete globeViewState;

@@ -20,6 +20,9 @@
 
 #import <jni.h>
 #import "Maply_jni.h"
+#import "Scene_jni.h"
+#import "View_jni.h"
+#import "Render_jni.h"
 #import "com_mousebird_maply_LayoutManager.h"
 #import "WhirlyGlobe.h"
 
@@ -85,7 +88,7 @@ public:
     {
         if (motionShaderID == EmptyIdentity)
         {
-            OpenGLES2Program *program = layoutManager->getScene()->getProgramBySceneName(kToolkitDefaultScreenSpaceMotionProgram);
+            OpenGLES2Program *program = layoutManager->getScene()->findProgramByName(kMaplyScreenSpaceDefaultMotionProgram);
             if (program)
                 motionShaderID = program->getId();
         }
@@ -169,24 +172,7 @@ public:
         
         retObj.layoutPts = smGeom.coords;
         retObj.selectPts = smGeom.coords;
-        
-        /** NOTE: PORTING
-         // Create the texture
-         // Note: Keep this around
-         MaplyTexture *maplyTex = [self addTexture:group.image desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
-         kMaplyTexAtlas: @(true),
-         kMaplyTexMagFilter: kMaplyMinFilterNearest}
-         mode:MaplyThreadCurrent];
-         currentClusterTex.push_back(maplyTex);
-         if (maplyTex.isSubTex)
-         {
-         SubTexture subTex = scene->getSubTexture(maplyTex.texID);
-         subTex.processTexCoords(smGeom.texCoords);
-         smGeom.texIDs.push_back(subTex.texId);
-         } else
-         smGeom.texIDs.push_back(maplyTex.texID);
-         */
-        
+
         retObj.setDrawPriority(drawPriority);
         retObj.addGeometry(smGeom);
     }
@@ -299,14 +285,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_updateLayout
     {
         LayoutManagerWrapperClassInfo *classInfo = LayoutManagerWrapperClassInfo::getClassInfo();
         LayoutManagerWrapper *wrap = classInfo->getObject(env, obj);
-        ViewState *viewState = ViewStateClassInfo::getClassInfo()->getObject(env,viewStateObj);
+        ViewStateRef *viewState = ViewStateRefClassInfo::getClassInfo()->getObject(env,viewStateObj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!wrap || !viewState || !changeSet)
             return;
         wrap->setEnv(env);
         wrap->updateShader();
 
-        wrap->layoutManager->updateLayout(viewState,*changeSet);
+        wrap->layoutManager->updateLayout(*viewState,*changeSet);
     }
     catch (...)
     {

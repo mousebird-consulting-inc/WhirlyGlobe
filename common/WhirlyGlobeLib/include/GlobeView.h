@@ -210,4 +210,6 @@ public:
     bool pointOnSphereFromScreen(const WhirlyKit::Point2f &pt,const Eigen::Matrix4d &transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d &hit);
 };
 
+typedef std::shared_ptr<GlobeViewState> GlobeViewStateRef;
+
 }

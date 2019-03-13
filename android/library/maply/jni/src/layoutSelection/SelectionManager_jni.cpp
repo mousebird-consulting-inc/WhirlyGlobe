@@ -18,18 +18,17 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
-#import "Maply_utils_jni.h"
+#import "LayoutSelection_jni.h"
+#import "Geometry_jni.h"
+#import "Scene_jni.h"
+#import "View_jni.h"
 #import "com_mousebird_maply_SelectionManager.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
 
 static const char *SceneHandleName = "nativeSceneHandle";
 
-typedef JavaClassInfo<SelectionManager> SelectionManagerClassInfo;
 template<> SelectionManagerClassInfo *SelectionManagerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_nativeInit
@@ -71,20 +70,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_dispose
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
-  (JNIEnv *env, jobject obj, jobject viewObj, jobject pointObj)
+  (JNIEnv *env, jobject obj, jobject viewStateObj, jobject pointObj)
 {
 	try
 	{
 		SelectionManagerClassInfo *classInfo = SelectionManagerClassInfo::getClassInfo();
 		SelectionManager *selectionManager = classInfo->getObject(env,obj);
-		ViewClassInfo *viewClassInfo = ViewClassInfo::getClassInfo();
-		View *mapView = viewClassInfo->getObject(env,viewObj);
+		ViewStateRefClassInfo *viewStateRefClassInfo = ViewStateRefClassInfo::getClassInfo();
+		ViewStateRef *mapViewState = viewStateRefClassInfo->getObject(env,viewStateObj);
 		Point2dClassInfo *point2DclassInfo = Point2dClassInfo::getClassInfo();
 		Point2d *point = point2DclassInfo->getObject(env,pointObj);
-		if (!selectionManager || !mapView || !point)
+		if (!selectionManager || !mapViewState || !point)
 			return EmptyIdentity;
 
-		return (jlong)selectionManager->pickObject(Point2f(point->x(),point->y()),10.0,mapView);
+		return (jlong)selectionManager->pickObject(Point2f(point->x(),point->y()),10.0,*mapViewState);
 	}
 	catch (...)
 	{
@@ -95,21 +94,21 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
 }
 
 JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObjects
-(JNIEnv *env, jobject obj, jobject viewObj, jobject pointObj)
+(JNIEnv *env, jobject obj, jobject viewStateObj, jobject pointObj)
 {
     try
     {
         SelectionManagerClassInfo *classInfo = SelectionManagerClassInfo::getClassInfo();
         SelectionManager *selectionManager = classInfo->getObject(env,obj);
-        ViewClassInfo *viewClassInfo = ViewClassInfo::getClassInfo();
-        View *mapView = viewClassInfo->getObject(env,viewObj);
+		ViewStateRefClassInfo *viewStateRefClassInfo = ViewStateRefClassInfo::getClassInfo();
+		ViewStateRef *mapViewState = viewStateRefClassInfo->getObject(env,viewStateObj);
         Point2dClassInfo *point2DclassInfo = Point2dClassInfo::getClassInfo();
         Point2d *point = point2DclassInfo->getObject(env,pointObj);
-        if (!selectionManager || !mapView || !point)
+        if (!selectionManager || !mapViewState || !point)
             return NULL;
         
         std::vector<SelectionManager::SelectedObject> selObjs;
-        selectionManager->pickObjects(Point2f(point->x(),point->y()),10.0,mapView,selObjs);
+        selectionManager->pickObjects(Point2f(point->x(),point->y()),10.0,*mapViewState,selObjs);
 
         if (selObjs.empty())
             return NULL;

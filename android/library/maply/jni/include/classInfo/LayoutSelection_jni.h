@@ -1,8 +1,8 @@
 /*
- *  View_jni.h
+ *  LayoutSelection_jni.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/7/19.
+ *  Created by Steve Gifford on 3/13/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,9 +21,8 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<Maply::MapView> MapViewClassInfo;
-typedef JavaClassInfo<WhirlyGlobe::GlobeView> GlobeViewClassInfo;
-typedef JavaClassInfo<WhirlyKit::View> ViewClassInfo;
-typedef JavaClassInfo<WhirlyKit::ViewStateRef> ViewStateRefClassInfo;
-typedef JavaClassInfo<Maply::MapViewStateRef> MapViewStateRefClassInfo;
-typedef JavaClassInfo<WhirlyGlobe::GlobeViewStateRef> GlobeViewStateRefClassInfo;
+typedef JavaClassInfo<WhirlyKit::LayoutManager> LayoutManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::SelectionManager::SelectedObject> SelectedObjectClassInfo;
+typedef JavaClassInfo<WhirlyKit::SelectionManager> SelectionManagerClassInfo;
+
+JNIEXPORT jobject JNICALL MakeSelectedObject(JNIEnv *env,const WhirlyKit::SelectionManager::SelectedObject &selObj);
