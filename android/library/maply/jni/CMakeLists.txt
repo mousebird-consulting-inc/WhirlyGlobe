@@ -69,6 +69,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/view/ViewState_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/base/BaseInfo_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/base/VertexAttribute_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/billboard/Billboard_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/billboard/BillboardInfo_jni.cpp"

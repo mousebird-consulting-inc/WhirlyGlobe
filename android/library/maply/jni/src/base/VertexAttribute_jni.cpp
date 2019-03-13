@@ -18,7 +18,7 @@
  *
  */
 
-#import "BaseInfo_jni.h"
+#import "Base_jni.h"
 #import "com_mousebird_maply_VertexAttribute.h"
 
 using namespace Eigen;
@@ -57,7 +57,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VertexAttribute_setName
         if (!inst)
             return;
         JavaString jStr(env,str);
-        inst->name = jStr.cStr;
+        inst->nameID = StringIndexer::getStringID(jStr.cStr);
     }
     catch (...)
     {
