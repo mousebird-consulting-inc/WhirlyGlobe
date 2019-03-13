@@ -18,7 +18,7 @@
  *
  */
 
-#import "BaseInfo_jni.h"
+#import "Base_jni.h"
 #import "Geometry_jni.h"
 #import "com_mousebird_maply_BaseInfo.h"
 

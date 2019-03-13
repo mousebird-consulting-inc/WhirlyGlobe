@@ -20,7 +20,7 @@
 
 #import "Maply_jni.h"
 #import "Geometry_jni.h"
-#import "BaseInfo_jni.h"
+#import "Base_jni.h"
 #import "LabelsAndMarkers_jni.h"
 #import "Billboard_jni.h"
 #import "com_mousebird_maply_Billboard.h"

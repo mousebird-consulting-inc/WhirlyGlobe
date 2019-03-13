@@ -49,7 +49,6 @@ template<> ShapeClassInfo *ShapeClassInfo::classInfoObj = NULL;
 template<> ShapeSphereClassInfo *ShapeSphereClassInfo::classInfoObj = NULL;
 template<> ShapeRectangleClassInfo *ShapeRectangleClassInfo::classInfoObj = NULL;
 template<> ShapeManagerClassInfo *ShapeManagerClassInfo::classInfoObj = NULL;
-template<> SingleVertexAttributeClassInfo *SingleVertexAttributeClassInfo::classInfoObj = NULL;
 template<> MaterialClassInfo *MaterialClassInfo::classInfoObj = NULL;
 template<> MoonClassInfo *MoonClassInfo::classInfoObj = NULL;
 template<> SunClassInfo *SunClassInfo::classInfoObj = NULL;

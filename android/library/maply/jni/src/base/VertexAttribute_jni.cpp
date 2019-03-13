@@ -18,14 +18,13 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
-#import "Maply_utils_jni.h"
+#import "BaseInfo_jni.h"
 #import "com_mousebird_maply_VertexAttribute.h"
-#import "WhirlyGlobe.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
+
+template<> SingleVertexAttributeClassInfo *SingleVertexAttributeClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VertexAttribute_nativeInit
 (JNIEnv *env, jclass cls)
