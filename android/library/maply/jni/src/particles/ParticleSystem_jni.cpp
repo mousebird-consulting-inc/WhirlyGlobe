@@ -17,13 +17,12 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
-#import "Maply_jni.h"
+#import "Particles_jni.h"
 #import "com_mousebird_maply_ParticleSystem.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 
+template<> ParticleSystemClassInfo *ParticleSystemClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_nativeInit
 (JNIEnv *env, jclass cls)
@@ -66,23 +65,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_dispose
     }
 }
 
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ParticleSystem_getIdent
-(JNIEnv *env, jobject obj)
-{
-    try {
-        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
-        ParticleSystem *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return EmptyIdentity;
-        return inst->getId();
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getIdent()");
-    }
-    
-    return EmptyIdentity;
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setName
 (JNIEnv *env, jobject obj, jstring name)
 {
@@ -98,6 +80,216 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setName
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setName()");
     }
 }
+
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ParticleSystem_getID
+(JNIEnv *env, jobject obj)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return EmptyIdentity;
+        return inst->getId();
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getID()");
+    }
+    
+    return EmptyIdentity;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setParticleSystemTypeNative
+(JNIEnv *env, jobject obj, jint type)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+        switch (type) {
+            case 0:
+                inst->type = ParticleSystemPoint;
+                break;
+            case 1:
+                inst->type = ParticleSystemRectangle;
+                break;
+            default:
+                inst->type = ParticleSystemPoint;
+                break;
+        }
+    }
+	catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setParticleSystemType()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setPositionShaderID
+  (JNIEnv *env, jobject obj, jlong shaderID)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+
+        inst->calcShaderID = shaderID;
+    }
+	catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setPositionShaderID()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setRenderShaderID
+  (JNIEnv *env, jobject obj, jlong shaderID)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+
+        inst->renderShaderID = shaderID;
+    }
+	catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setRenderShaderID()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setLifetime
+(JNIEnv *env, jobject obj, jdouble lifeTime)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+
+        inst->lifetime = lifeTime;
+    }
+	catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setLifetime()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBasetime
+(JNIEnv *env, jobject obj, jdouble baseTime)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+
+        inst->baseTime = baseTime;
+    }
+	catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setBasetime()");
+    }
+}
+
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_ParticleSystem_getBasetime
+(JNIEnv *env, jobject obj)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return 0.0;
+
+        return inst->baseTime;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getBasetime()");
+    }
+
+    return 0.0;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setTotalParticles
+(JNIEnv *env, jobject obj, jint totalParticles)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+        return;
+
+        inst->totalParticles = totalParticles;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setTotalParticles()");
+    }
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleSystem_getTotalParticles
+  (JNIEnv *env, jobject obj)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return 0;
+
+        return inst->totalParticles;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getTotalParticles()");
+    }
+
+    return 0;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBatchSize
+(JNIEnv *env, jobject obj, jint batchSize)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+
+        inst->batchSize = batchSize;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setBatchSize()");
+    }
+}
+
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleSystem_getBatchSize
+(JNIEnv *env, jobject obj)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return 0;
+
+        return inst->batchSize;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getBatchSize()");
+    }
+
+    return 0;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setContinuousUpdate
+(JNIEnv *env, jobject obj, jboolean newVal)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+
+        inst->continuousUpdate = newVal;
+    }
+    catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setContinuousRender()");
+    }
+}
+
+
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setDrawPriority
 (JNIEnv * env, jobject obj, jint drawPriority)
@@ -131,98 +323,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setPointSize
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setParticleSystemTypeNative
-(JNIEnv *env, jobject obj, jint type)
-{
-    try {
-        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
-        ParticleSystem *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        switch (type) {
-            case 0:
-                inst->type = ParticleSystemPoint;
-                break;
-            case 1:
-                inst->type = ParticleSystemRectangle;
-                break;
-            default:
-                inst->type = ParticleSystemPoint;
-                break;
-        }
-    }
-	catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setParticleSystemType()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setShaderID
-(JNIEnv *env, jobject obj, jlong shaderID)
-{
-    try {
-        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
-        ParticleSystem *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        
-        inst->shaderID = shaderID;
-    }
-	catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setShaderID()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setLifetime
-(JNIEnv *env, jobject obj, jdouble lifeTime)
-{
-    try {
-        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
-        ParticleSystem *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        
-        inst->lifetime = lifeTime;
-    }
-	catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setLifetime()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBasetime
-(JNIEnv *env, jobject obj, jdouble baseTime)
-{
-    try {
-        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
-        ParticleSystem *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        
-        inst->baseTime = baseTime;
-    }
-	catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setBasetime()");
-    }
-}
-
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_ParticleSystem_getBasetime
-(JNIEnv *env, jobject obj)
-{
-    try {
-        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
-        ParticleSystem *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return 0.0;
-        
-        return inst->baseTime;
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getBasetime()");
-    }
-    
-    return 0.0;
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addParticleSystemAttributeNative
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addAttributeNative
 (JNIEnv *env, jobject obj, jstring name, jint type)
 {
     try {
@@ -230,18 +331,38 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addParticleSystem
         ParticleSystem *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
-        SingleVertexAttributeInfo *attr = new SingleVertexAttributeInfo();
+        SingleVertexAttributeInfo attr;
         JavaString jstr(env, name);
-        attr->name = jstr.cStr;
-        attr->type = (BDAttributeDataType) type;
-        inst->vertAttrs.push_back(*attr);
+        attr.nameID = StringIndexer::getStringID(jstr.cStr);
+        attr.type = (BDAttributeDataType) type;
+        inst->vertAttrs.push_back(attr);
     }
 	catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::addParticleSystemAttribute()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addTexID
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addVaryingNative
+  (JNIEnv *env, jobject obj, jstring inName, jstring inVaryAttrName, jint type)
+{
+    try {
+        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
+        ParticleSystem *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+        SingleVertexAttributeInfo attr;
+        JavaString name(env, inName);
+        JavaString varyName(env, inVaryAttrName);
+        attr.nameID = StringIndexer::getStringID(name.cStr);
+        attr.type = (BDAttributeDataType) type;
+        inst->varyingAttrs.push_back(attr);
+    }
+	catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::addVaryingNative()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addTextureID
 (JNIEnv *env, jobject obj, jlong texID)
 {
     try {
@@ -257,121 +378,18 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_addTexID
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setTotalParticles
-(JNIEnv *env, jobject obj, jint totalParticles)
-{
-    try {
-        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
-        ParticleSystem *inst = classInfo->getObject(env, obj);
-        if (!inst)
-        return;
-        
-        inst->totalParticles = totalParticles;
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setBasetime()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setContinuousRender
-(JNIEnv *env, jobject obj, jboolean newVal)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setRenderTargetNative
+  (JNIEnv *env, jobject obj, jlong targetID)
 {
     try {
         ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
         ParticleSystem *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
-        
-        inst->continuousUpdate = newVal;
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setContinuousRender()");
-    }
-}
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystem_setBatchSize
-(JNIEnv *env, jobject obj, jint batchSize)
-{
-    try {
-        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
-        ParticleSystem *inst = classInfo->getObject(env, obj);
-        if (!inst)
-        return;
-        
-        inst->batchSize = batchSize;
+        inst->renderTargetID = targetID;
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setBatchSize()");
+	catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::setRenderTargetNative()");
     }
-}
-
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_ParticleSystem_getBatchSize
-(JNIEnv *env, jobject obj)
-{
-    try {
-        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
-        ParticleSystem *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return 0;
-        
-        return inst->batchSize;
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getBatchSize()");
-    }
-    
-    return 0;
-}
-
-JNIEXPORT jintArray JNICALL Java_com_mousebird_maply_ParticleSystem_getAttributesTypes
-(JNIEnv *env, jobject obj)
-{
-    try {
-        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
-        ParticleSystem *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return NULL;
-        
-        jintArray result;
-        result = env->NewIntArray(inst->vertAttrs.size());
-        jint values[inst->vertAttrs.size()];
-        for (int i = 0; i < inst->vertAttrs.size(); i++) {
-            values[i] = (int)inst->vertAttrs[i].type;
-        }
-        env->SetIntArrayRegion(result, 0,inst->vertAttrs.size(), values );
-        
-        return result;
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getAttributesTypes()");
-    }
-    
-    return NULL;
-}
-
-JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_ParticleSystem_getAttributesNames
-(JNIEnv *env, jobject obj)
-{
-    try {
-        ParticleSystemClassInfo *classInfo = ParticleSystemClassInfo::getClassInfo();
-        ParticleSystem *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return NULL;
-        
-        jobjectArray ret;
-        int i;
-        
-        ret = (jobjectArray) env->NewObjectArray(inst->vertAttrs.size(), env->FindClass("java/lang/String"), env->NewStringUTF(""));
-        for (i = 0; i < inst->vertAttrs.size(); i++){
-            
-            const char* value=inst->vertAttrs[i].name.c_str();
-            env->SetObjectArrayElement(ret, i, env->NewStringUTF(value));
-        }
-        return ret;
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleSystem::getAttributesNames()");
-    }
-    
-    return NULL;
 }

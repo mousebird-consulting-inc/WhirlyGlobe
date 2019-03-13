@@ -17,15 +17,15 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
-#import "Maply_jni.h"
+#import "Particles_jni.h"
+#import "Scene_jni.h"
 #import "com_mousebird_maply_ParticleSystemManager.h"
-#import "WhirlyGlobe.h"
 
 
 using namespace WhirlyKit;
 using namespace Maply;
 
+template<> ParticleSystemManagerClassInfo * ParticleSystemManagerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleSystemManager_nativeInit
 (JNIEnv *env, jclass cls)
@@ -75,10 +75,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ParticleSystemManager_addPartic
         
         if (!particleSystemManager || !parSys || !changes)
             return EmptyIdentity;
-        
-        if (parSys->shaderID == EmptyIdentity)
-            parSys->shaderID = particleSystemManager->getScene()->getProgramIDBySceneName(kToolkitDefaultParticleSystemProgram);
-        
+
         return particleSystemManager->addParticleSystem(*parSys, *changes);
     }
     catch(...) {
