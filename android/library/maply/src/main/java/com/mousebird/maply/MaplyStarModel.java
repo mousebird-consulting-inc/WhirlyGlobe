@@ -172,19 +172,21 @@ public class MaplyStarModel {
 
         //Set up a simple particle system (that doesn't move)
         particleSystem = new ParticleSystem("Stars");
-        particleSystem.setParticleSystemType(ParticleSystem.STATE.ParticleSystemPoint);
+        particleSystem.setParticleSystemType(ParticleSystem.Type.Point);
         particleSystem.setLifetime(1e20);
         particleSystem.setTotalParticles(stars.size());
         particleSystem.setBatchSize(stars.size());
         if (shader != null)
-            particleSystem.setShaderID(shader.getID());
+            particleSystem.setRenderShader(shader);
 
         if (image != null){
-            particleSystem.addTexture(image);
+            MaplyBaseController.TextureSettings texSet = new MaplyBaseController.TextureSettings();
+            MaplyTexture tex = inViewC.addTexture(image, texSet, MaplyBaseController.ThreadMode.ThreadCurrent);
+            particleSystem.addTexture(tex);
         }
 
-        particleSystem.addParticleSystemAttribute("a_position", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT3);
-        particleSystem.addParticleSystemAttribute("a_size", ParticleSystemAttribute.MaplyShaderAttrType.MAPLY_SHADER_ATTR_TYPE_FLOAT);
+        particleSystem.addAttribute("a_position", Shader.AttributeType.Float3);
+        particleSystem.addAttribute("a_size", Shader.AttributeType.Float);
 
         particleSystemObj = viewC.addParticleSystem(particleSystem, addedMode);
 

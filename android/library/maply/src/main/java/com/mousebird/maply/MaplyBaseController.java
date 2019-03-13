@@ -2551,12 +2551,6 @@ public class MaplyBaseController
 		final ComponentObject compObj = addComponentObj();
 		final ChangeSet changes = new ChangeSet();
 
-		for (Bitmap image : particleSystem.getTextures()) {
-			MaplyTexture texture = this.addTexture(image, new TextureSettings(), mode);
-			if (texture.texID != EmptyIdentity)
-				particleSystem.addTexID(texture.texID);
-		}
-
 		Runnable run = new Runnable() {
 			@Override
 			public void run() {
@@ -2588,7 +2582,7 @@ public class MaplyBaseController
 				@Override
 				public void run() {
 					ChangeSet changes = new ChangeSet();
-					particleSystemManager.addParticleBatch(particleBatch.getPartSys().getIdent(), particleBatch,changes);
+					particleSystemManager.addParticleBatch(particleBatch.partSys.getID(), particleBatch,changes);
 					if (scene != null)
 						changes.process(scene);
 				}

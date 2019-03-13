@@ -24,6 +24,28 @@
 namespace WhirlyKit
 {
 
+ParticleSystem::ParticleSystem()
+: drawPriority(0), pointSize(1.0), type(ParticleSystemPoint),
+calcShaderID(EmptyIdentity), renderShaderID(EmptyIdentity),
+lifetime(0.0), baseTime(0.0), continuousUpdate(true),
+zBufferRead(false), zBufferWrite(false),
+renderTargetID(EmptyIdentity)
+{
+}
+    
+ParticleSystem::~ParticleSystem()
+{
+}
+    
+ParticleBatch::ParticleBatch()
+: batchSize(0)
+{
+}
+    
+ParticleBatch::~ParticleBatch()
+{
+}
+    
 ParticleSystemSceneRep::ParticleSystemSceneRep()
 {
 }

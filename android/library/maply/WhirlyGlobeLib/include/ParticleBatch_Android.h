@@ -1,8 +1,8 @@
 /*
- *  ParticleManager_jni.h
+ *  ParticleBatch_Android.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/7/19.
+ *  Created by Steve Gifford on 3/13/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +18,26 @@
  *
  */
 
-#import "Maply_jni.h"
-#import "WhirlyGlobe_Android.h"
+#import "ParticleSystemManager.h"
 
-typedef JavaClassInfo<WhirlyKit::ParticleBatch> ParticleBatchClassInfo;
-typedef JavaClassInfo<WhirlyKit::ParticleSystem> ParticleSystemClassInfo;
-typedef JavaClassInfo<WhirlyKit::ParticleSystemManager> ParticleSystemManagerClassInfo;
+namespace WhirlyKit
+{
+
+/**
+ The Android version of the particle batch has to
+ keep a copy of the memory.  Because Android.
+ **/
+class ParticleBatch_Android : public ParticleBatch
+{
+public:
+    ParticleBatch_Android();
+    virtual ~ParticleBatch_Android();
+
+    ParticleSystem *partSys;
+    TimeInterval baseTime;
+
+    bool addAttributeDataFloat(const std::string &name,const float *,int len);
+    bool addAttributeDataChar(const std::string &name,const char *,int len);
+};
+
+}

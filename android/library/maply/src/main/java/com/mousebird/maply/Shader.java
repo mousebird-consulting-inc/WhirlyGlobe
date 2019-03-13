@@ -38,6 +38,15 @@ public class Shader
 {
 	MaplyBaseController control = null;
 
+	// Types used to describe the shader attributes
+	enum AttributeType {
+		Int,
+		Float,
+		Float2,
+		Float3,
+		Float4
+	};
+
 	/** Initialize with the file names for the shader program.
 	 * <p>
      * See initWithName:vertex:fragment:viewC: for more details on how this works.
@@ -119,7 +128,7 @@ public class Shader
 	/**
 	 * Add a texture for use in the shader.
 	 * @param name Name to be used in the shader.
-	 * @param bitmap Bitmap to pass into the shader.
+	 * @param texture Texture to pass into the shader.
 	 */
 	public void addTexture(String name,MaplyTexture texture)
 	{

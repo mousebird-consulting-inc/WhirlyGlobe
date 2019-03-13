@@ -16,7 +16,7 @@ target_sources(
         PUBLIC
 
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Astronomy_jni.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/BaseInfo_jni.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Base_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Billboard_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/CoordSystem_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Formats_jni.h"
@@ -24,7 +24,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/GeometryManager_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/LabelsAndMarkers_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Maply_jni.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/ParticleManager_jni.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Particles_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Scene_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Selection_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/ShapeManager_jni.h"
@@ -90,4 +90,8 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/LabelInfo_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/InternalLabel_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/labelsMarkers/LabelManager_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/particles/ParticleBatch_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/particles/ParticleSystem_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/particles/ParticleSystemManager_jni.cpp"
 )

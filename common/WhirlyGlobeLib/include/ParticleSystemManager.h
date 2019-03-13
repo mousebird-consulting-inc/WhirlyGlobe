@@ -37,6 +37,9 @@ typedef enum {ParticleSystemPoint,ParticleSystemRectangle} ParticleSystemType;
 class ParticleSystem : public Identifiable
 {
 public:
+    ParticleSystem();
+    virtual ~ParticleSystem();
+    
     std::string name;
     int drawPriority;
     float pointSize;
@@ -57,6 +60,9 @@ public:
 class ParticleBatch
 {
 public:
+    ParticleBatch();
+    virtual ~ParticleBatch();
+    
     // Should match the particle systems batch size
     int batchSize;
     // One entry per vertex attribute.  Order corresponds to the vertAttrs array in the ParticleSystem.
