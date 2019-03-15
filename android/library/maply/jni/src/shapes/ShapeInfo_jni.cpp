@@ -17,16 +17,15 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
-#import "Maply_jni.h"
-#import "WhirlyGlobe.h"
+
+#import "Shapes_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_ShapeInfo.h"
-#import "ShapeDrawableBuilder.h"
-#import "Maply_utils_jni.h"
 
-
+using namespace Eigen;
 using namespace WhirlyKit;
 
+template<> ShapeInfoClassInfo *ShapeInfoClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_nativeInit
 (JNIEnv *env, jclass cls)
@@ -41,7 +40,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_initialise
     try
     {
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = new WhirlyKitShapeInfo();
+        ShapeInfo *inst = new ShapeInfo();
         classInfo->setHandle(env, obj, inst);
     }
     catch(...)
@@ -60,7 +59,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_dispose
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
+            ShapeInfo *inst = classInfo->getObject(env, obj);
             if (!inst)
                 return;
             delete inst;
@@ -79,44 +78,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setColor
     try
     {
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
+        ShapeInfo *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
         
-        RGBAColor color(r*255.0,g*255.0,b*255.0,a*255.0);
-        inst->setColor(color);
+        inst->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
     }
     catch(...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::setColor()");
     }
-}
-
-JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_ShapeInfo_getColor
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return NULL;
-        
-        RGBAColor color = inst->getColor();
-        float * primaryColors = new float[4];
-        color.asUnitFloats(primaryColors);
-        jfloatArray result;
-        result = env->NewFloatArray(4);
-        env->SetFloatArrayRegion(result, 0, 4, primaryColors);
-        free(primaryColors);
-        return result;
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::getColor()");
-    }
-    
-    return NULL;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setLineWidth
@@ -125,35 +96,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setLineWidth
     try
     {
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
+        ShapeInfo *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
         
-        inst->setLineWidth(lineWidth);
+        inst->lineWidth = lineWidth;
     }
     catch(...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::setLineWidth()");
     }
-}
-
-JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_ShapeInfo_getLineWidth
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return 0.0;
-        return inst->getLineWidth();
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::getLineWidth()");
-    }
-    
-    return 0.0;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setInsideOut
@@ -162,129 +114,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setInsideOut
     try
     {
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
+        ShapeInfo *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
-        inst->setInsideOut(insideOut);
+        inst->insideOut = insideOut;
     }
     catch(...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::setInsideOut()");
     }
-}
-
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ShapeInfo_getInsideOut
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return false;
-        return inst->getInsideOut();
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::getInsideOut()");
-    }
-    
-    return false;
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setZBufferRead
-(JNIEnv *env, jobject obj, jboolean zBufferRead)
-{
-    try
-    {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        inst->setZBufferRead(zBufferRead);
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::setZBufferRead()");
-    }
-}
-
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ShapeInfo_getZBufferRead
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return false;
-        return inst->getZBufferRead();
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::getZBufferRead()");
-    }
-    
-    return false;
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setZBufferWrite
-(JNIEnv *env, jobject obj, jboolean zBufferWrite)
-{
-    try
-    {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        inst->setZBufferWrite(zBufferWrite);
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::setZBufferWrite()");
-    }
-
-}
-
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ShapeInfo_getZBufferWrite
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return false;
-        return inst->getZBufferWrite();
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::getZBufferWrite()");
-    }
-
-    return false;
-}
-
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ShapeInfo_getCenter
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return NULL;
-        if (!inst->getHasCenter())
-            return NULL;
-        Point3d pt = inst->getCenter();
-        return MakePoint3d(env,pt);
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::getCenter()");
-    }
-    
-    return NULL;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setCenter
@@ -293,12 +131,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setCenter
     try
     {
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        WhirlyKitShapeInfo *inst = classInfo->getObject(env, obj);
+        ShapeInfo *inst = classInfo->getObject(env, obj);
         Point3d *center = Point3dClassInfo::getClassInfo()->getObject(env, ptObj);
         if (!inst || !center)
             return;
-        inst->setHasCenter(true);
-        inst->setCenter(*center);
+        inst->hasCenter = true;
+        inst->center = *center;
     }
     catch(...)
     {

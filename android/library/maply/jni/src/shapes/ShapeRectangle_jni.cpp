@@ -17,19 +17,20 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
-#import "Maply_jni.h"
-#import "WhirlyGlobe.h"
+
+#import "Shapes_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_ShapeRectangle.h"
-#import "Maply_utils_jni.h"
 
-
+using namespace Eigen;
 using namespace WhirlyKit;
+
+template<> RectangleClassInfo *RectangleClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_nativeInit
 (JNIEnv *env, jclass cls)
 {
-    ShapeRectangleClassInfo::getClassInfo(env, cls);
+    RectangleClassInfo::getClassInfo(env, cls);
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_initialise
@@ -37,8 +38,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_initialise
 {
     try
     {
-        ShapeRectangleClassInfo *classInfo = ShapeRectangleClassInfo::getClassInfo();
-        WhirlyKitRectangle *inst = new WhirlyKitRectangle();
+        RectangleClassInfo *classInfo = RectangleClassInfo::getClassInfo();
+        Rectangle *inst = new Rectangle();
         classInfo->setHandle(env, obj, inst);
         
     }
@@ -54,10 +55,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_dispose
 {
     try
     {
-        ShapeRectangleClassInfo *classInfo = ShapeRectangleClassInfo::getClassInfo();
+        RectangleClassInfo *classInfo = RectangleClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            WhirlyKitRectangle *inst = classInfo->getObject(env, obj);
+            Rectangle *inst = classInfo->getObject(env, obj);
             if (!inst)
                 return;
             delete inst;
@@ -74,8 +75,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_setPoints
 {
     try
     {
-        ShapeRectangleClassInfo *classInfo = ShapeRectangleClassInfo::getClassInfo();
-        WhirlyKitRectangle *inst = classInfo->getObject(env, obj);
+        RectangleClassInfo *classInfo = RectangleClassInfo::getClassInfo();
+        Rectangle *inst = classInfo->getObject(env, obj);
         Point3dClassInfo *ptClassInfo = Point3dClassInfo::getClassInfo();
         Point3d *ll = ptClassInfo->getObject(env,llObj);
         Point3d *ur = ptClassInfo->getObject(env,urObj);
@@ -90,19 +91,19 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_setPoints
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_setTextureNative
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_addTextureID
 (JNIEnv *env, jobject obj, jlong texID)
 {
     try
     {
-        ShapeRectangleClassInfo *classInfo = ShapeRectangleClassInfo::getClassInfo();
-        WhirlyKitRectangle *inst = classInfo->getObject(env, obj);
+        RectangleClassInfo *classInfo = RectangleClassInfo::getClassInfo();
+        Rectangle *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
         
-        inst->setTexID(texID);
+        inst->texIDs.push_back(texID);
     }
     catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeRectangle::setTextureNative()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeRectangle::addTextureID()");
     }
 }

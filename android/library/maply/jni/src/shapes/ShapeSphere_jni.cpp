@@ -17,20 +17,19 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
-#import "Maply_jni.h"
-#import "WhirlyGlobe.h"
+#import "Shapes_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_ShapeSphere.h"
-#import "Maply_utils_jni.h"
 
-
-
+using namespace Eigen;
 using namespace WhirlyKit;
+
+template<> SphereClassInfo *SphereClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_nativeInit
 (JNIEnv *env, jclass cls)
 {
-    ShapeSphereClassInfo::getClassInfo(env, cls);
+    SphereClassInfo::getClassInfo(env, cls);
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_initialise
@@ -38,8 +37,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_initialise
 {
     try
     {
-        ShapeSphereClassInfo *classInfo = ShapeSphereClassInfo::getClassInfo();
-        WhirlyKitSphere *inst = new WhirlyKitSphere();
+        SphereClassInfo *classInfo = SphereClassInfo::getClassInfo();
+        Sphere *inst = new Sphere();
         classInfo->setHandle(env, obj, inst);
         
     }
@@ -55,10 +54,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_dispose
 {
     try
     {
-        ShapeSphereClassInfo *classInfo = ShapeSphereClassInfo::getClassInfo();
+        SphereClassInfo *classInfo = SphereClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            WhirlyKitSphere *inst = classInfo->getObject(env, obj);
+            Sphere *inst = classInfo->getObject(env, obj);
             if (!inst)
                 return;
             delete inst;
@@ -75,59 +74,19 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_setLoc
 {
     try
     {
-        ShapeSphereClassInfo *classInfo = ShapeSphereClassInfo::getClassInfo();
-        WhirlyKitSphere *inst = classInfo->getObject(env, obj);
+        SphereClassInfo *classInfo = SphereClassInfo::getClassInfo();
+        Sphere *inst = classInfo->getObject(env, obj);
         Point2d *loc = Point2dClassInfo::getClassInfo()->getObject(env, ptObj);
 
         if (!inst || !loc)
             return;
         
         WhirlyKit::GeoCoord newLoc(loc->x(), loc->y());
-        inst->setLoc(newLoc);
+        inst->loc = newLoc;
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::setLoc()");
     }
-}
-
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ShapeSphere_getLoc
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeSphereClassInfo *classInfo = ShapeSphereClassInfo::getClassInfo();
-        WhirlyKitSphere *inst = classInfo->getObject(env, obj);
-        
-        if (!inst)
-            return NULL;
-        WhirlyKit::GeoCoord loc = inst->getLoc();
-        Point2d newLoc(loc.x(), loc.y());
-        return MakePoint2d(env,newLoc);
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::getLoc()");
-    }
-    
-    return NULL;
-}
-
-JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_ShapeSphere_getHeight
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeSphereClassInfo *classInfo = ShapeSphereClassInfo::getClassInfo();
-        WhirlyKitSphere *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return -1;
-        
-        return inst->getHeight();
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::getHeight()");
-    }
-    
-    return -1;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_setHeight
@@ -135,35 +94,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_setHeight
 {
     try
     {
-        ShapeSphereClassInfo *classInfo = ShapeSphereClassInfo::getClassInfo();
-        WhirlyKitSphere *inst = classInfo->getObject(env, obj);
+        SphereClassInfo *classInfo = SphereClassInfo::getClassInfo();
+        Sphere *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
         
-        inst->setHeight(height);
+        inst->height = height;
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::setHeight()");
     }
-}
-
-JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_ShapeSphere_getRadius
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeSphereClassInfo *classInfo = ShapeSphereClassInfo::getClassInfo();
-        WhirlyKitSphere *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return -1;
-        
-        return inst->getRadius();
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::getRadius()");
-    }
-    
-    return -1;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_setRadius
@@ -171,86 +111,32 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_setRadius
 {
     try
     {
-        ShapeSphereClassInfo *classInfo = ShapeSphereClassInfo::getClassInfo();
-        WhirlyKitSphere *inst = classInfo->getObject(env, obj);
+        SphereClassInfo *classInfo = SphereClassInfo::getClassInfo();
+        Sphere *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
-        
-        inst->setRadius(radius);
+
+        inst->radius = radius;
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::setRadius()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_setSampleX
-(JNIEnv *env, jobject obj, jint sampleX)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_setSamples
+(JNIEnv *env, jobject obj, jint sampleX, jint sampleY)
 {
     try
     {
-        ShapeSphereClassInfo *classInfo = ShapeSphereClassInfo::getClassInfo();
-        WhirlyKitSphere *inst = classInfo->getObject(env, obj);
+        SphereClassInfo *classInfo = SphereClassInfo::getClassInfo();
+        Sphere *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
         
-        inst->setSampleX(sampleX);
+        inst->sampleX = sampleX;
+        inst->sampleY = sampleY;
     }
     catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::setSampleX()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::setSamples()");
     }
-}
-
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_ShapeSphere_getSampleX
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeSphereClassInfo *classInfo = ShapeSphereClassInfo::getClassInfo();
-        WhirlyKitSphere *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return -1;
-        
-        return inst->getSampleX();
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::getSampleX()");
-    }
-    
-    return -1;
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeSphere_setSampleY
-(JNIEnv *env, jobject obj, jint sampleY)
-{
-    try
-    {
-        ShapeSphereClassInfo *classInfo = ShapeSphereClassInfo::getClassInfo();
-        WhirlyKitSphere *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        
-        inst->setSampleY(sampleY);
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::setSampleY()");
-    }
-}
-
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_ShapeSphere_getSampleY
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeSphereClassInfo *classInfo = ShapeSphereClassInfo::getClassInfo();
-        WhirlyKitSphere *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return -1;
-        
-        return inst->getSampleY();
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeSphere::getSampleY()");
-    }
-    
-    return -1;
 }

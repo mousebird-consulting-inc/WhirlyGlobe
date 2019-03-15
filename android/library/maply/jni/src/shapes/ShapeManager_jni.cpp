@@ -17,13 +17,16 @@
  *  limitations under the License.
  *
  */
-#import <jni.h>
-#import "Maply_jni.h"
-#import "WhirlyGlobe.h"
+
+#import "Shapes_jni.h"
+#import "Scene_jni.h"
+#import "Render_jni.h"
 #import "com_mousebird_maply_ShapeManager.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 
+template<> ShapeManagerClassInfo *ShapeManagerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_nativeInit
 (JNIEnv *env, jclass cls)
@@ -65,46 +68,40 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_dispose
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
-(JNIEnv *env, jobject obj, jobject arrayObj, jobject shapeInfoObj, jobject changeObj)
+(JNIEnv *env, jobject obj, jobjectArray arrayObj, jobject shapeInfoObj, jobject changeObj)
 {
     try
     {
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
         ShapeManager *inst = classInfo->getObject(env, obj);
-        WhirlyKitShapeInfo *shapeInfo = ShapeInfoClassInfo::getClassInfo()->getObject(env, shapeInfoObj);
+        ShapeInfo *shapeInfo = ShapeInfoClassInfo::getClassInfo()->getObject(env, shapeInfoObj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
         
         if (!inst || !shapeInfo || !changeSet)
             return EmptyIdentity;
-        
-        // Get the iterator
-        // Note: Look these up once
-        jclass listClass = env->GetObjectClass(arrayObj);
-        jclass iterClass = env->FindClass("java/util/Iterator");
-        jmethodID literMethod = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
-        jobject liter = env->CallObjectMethod(arrayObj,literMethod);
-        jmethodID hasNext = env->GetMethodID(iterClass,"hasNext","()Z");
-        jmethodID next = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
-        env->DeleteLocalRef(iterClass);
-        env->DeleteLocalRef(listClass);
-        
-        std::vector<WhirlyKitShape*> shapes;
+
         ShapeClassInfo *shapeClassInfo = ShapeClassInfo::getClassInfo();
-        while (env->CallBooleanMethod(liter, hasNext))
-        {
-            jobject javaVecObj = env->CallObjectMethod(liter, next);
-            WhirlyKitShape *shapeObj = shapeClassInfo->getObject(env,javaVecObj);
-            shapes.push_back(shapeObj);
-            env->DeleteLocalRef(javaVecObj);
+
+        // Work through the shapes
+        std::vector<Shape *> shapes;
+		int count = env->GetArrayLength(arrayObj);
+		if (count == 0)
+			return EmptyIdentity;
+		for (int ii=0;ii<count;ii++)
+		{
+			jobject shapeObj = env->GetObjectArrayElement(arrayObj,ii);
+			Shape *shape = shapeClassInfo->getObject(env,shapeObj);
+			shapes.push_back(shape);
+            env->DeleteLocalRef(shapeObj);
+		}
+
+        if (shapeInfo->programID == EmptyIdentity) {
+            OpenGLES2Program *prog = inst->getScene()->findProgramByName(kMaplyShaderDefaultModelTri);
+            if (prog)
+                shapeInfo->programID = prog->getId();
         }
-        env->DeleteLocalRef(liter);
-        
-        if (shapeInfo->programID == EmptyIdentity)
-        {
-            shapeInfo->programID = inst->getScene()->getProgramIDBySceneName(kToolkitDefaultTriangleProgram);
-        }
-        
-        SimpleIdentity shapeId = inst->addShapes(shapes, shapeInfo, *changeSet);
+
+        SimpleIdentity shapeId = inst->addShapes(shapes, *shapeInfo, *changeSet);
         return shapeId;
     }
     catch (...)

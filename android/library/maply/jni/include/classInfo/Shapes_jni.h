@@ -21,3 +21,13 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
+typedef JavaClassInfo<WhirlyKit::Shape> ShapeClassInfo;
+typedef JavaClassInfo<WhirlyKit::Circle> CircleClassInfo;
+typedef JavaClassInfo<WhirlyKit::Cylinder> CylinderClassInfo;
+typedef JavaClassInfo<WhirlyKit::Extruded> ExtrudedClassInfo;
+typedef JavaClassInfo<WhirlyKit::GreatCircle_Android> GreatCircleClassInfo;
+typedef JavaClassInfo<WhirlyKit::Linear> LinearClassInfo;
+typedef JavaClassInfo<WhirlyKit::ShapeInfo> ShapeInfoClassInfo;
+typedef JavaClassInfo<WhirlyKit::Sphere> SphereClassInfo;
+typedef JavaClassInfo<WhirlyKit::Rectangle> RectangleClassInfo;
+typedef JavaClassInfo<WhirlyKit::ShapeManager> ShapeManagerClassInfo;
