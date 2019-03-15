@@ -1283,7 +1283,7 @@ public:
         LabelInfoRef thisLabelInfo;
         if ([inDesc objectForKey:kMaplyTextColor] || label.layoutImportance != MAXFLOAT ||
             [inDesc objectForKey:kMaplyTextLineSpacing]) {
-            thisLabelInfo = LabelInfoRef(new LabelInfo());
+            thisLabelInfo = LabelInfoRef(new LabelInfo(true));
 
             if (label.color) {
                 thisLabelInfo->hasTextColor = true;

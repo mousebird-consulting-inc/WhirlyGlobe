@@ -32,6 +32,40 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_nativeInit
     ShapeClassInfo::getClassInfo(env, cls);
 }
 
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shape_getSelectID
+(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        ShapeClassInfo *classInfo = ShapeClassInfo::getClassInfo();
+        WhirlyKitShape *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return -1;
+
+        return inst->getSelectID();
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::getSelectID()");
+    }
+
+    return -1;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setSelectID
+(JNIEnv *env, jobject obj, jlong selectID)
+{
+    try
+    {
+        ShapeClassInfo *classInfo = ShapeClassInfo::getClassInfo();
+        WhirlyKitShape *inst = classInfo->getObject(env, obj);
+        if (!inst)
+            return;
+
+        inst->setSelectID(selectID);
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::setSelectID()");
+    }
+}
+
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shape_isSelectable
 (JNIEnv *env, jobject obj)
 {
@@ -66,74 +100,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setSelectable
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setSelectID
-(JNIEnv *env, jobject obj, jlong selectID)
-{
-    try
-    {
-        ShapeClassInfo *classInfo = ShapeClassInfo::getClassInfo();
-        WhirlyKitShape *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        
-        inst->setSelectID(selectID);
-    } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::setSelectID()");
-    }
-}
-
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shape_getSelectID
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeClassInfo *classInfo = ShapeClassInfo::getClassInfo();
-        WhirlyKitShape *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return -1;
-        
-        return inst->getSelectID();
-    } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::getSelectID()");
-    }
-    
-    return -1;
-}
-
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shape_getUseColor
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeClassInfo *classInfo = ShapeClassInfo::getClassInfo();
-        WhirlyKitShape *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return false;
-        
-        return inst->getUseColor();
-    } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::getUseColor()");
-    }
-    
-    return false;
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setUseColor
-(JNIEnv *env, jobject obj, jboolean useColor)
-{
-    try
-    {
-        ShapeClassInfo *classInfo = ShapeClassInfo::getClassInfo();
-        WhirlyKitShape *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        
-        inst->setUseColor(useColor);
-    } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::setUseColor()");
-    }
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setColor
 (JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
 {
@@ -153,32 +119,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setColor
     }
 }
 
-JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_Shape_getColor
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ShapeClassInfo *classInfo = ShapeClassInfo::getClassInfo();
-        WhirlyKitShape *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return NULL;
-        
-        RGBAColor color = inst->getColor();
-        float * primaryColors = new float[4];
-        color.asUnitFloats(primaryColors);
-        jfloatArray result;
-        result = env->NewFloatArray(4);
-        env->SetFloatArrayRegion(result, 0, 4, primaryColors);
-        free(primaryColors);
-        return result;
-        
-        
-    } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shape::getColor()");
-    }
-    
-    return NULL;
-}
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shape_setClipCoords
 (JNIEnv *env, jobject obj, jboolean newVal)

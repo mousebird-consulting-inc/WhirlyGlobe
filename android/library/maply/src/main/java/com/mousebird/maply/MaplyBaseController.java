@@ -2623,7 +2623,7 @@ public class MaplyBaseController
 		Runnable run = new Runnable() {
 			@Override
 			public void run() {
-				long shapeId = shapeManager.addShapes(shapes, shapeInfo, changes);
+				long shapeId = shapeManager.addShapes(shapes.toArray(new Shape[0]), shapeInfo, changes);
 				if (shapeId != EmptyIdentity)
 					compObj.addShapeID(shapeId);
 				if (scene != null)

@@ -480,8 +480,7 @@ public class Atmosphere {
         sphere.setLoc(new Point2d(0, 0));
         sphere.setRadius(this.outerRadius);
         sphere.setHeight(-1.0f);
-        sphere.setSampleX(120);
-        sphere.setSampleY(60);
+        sphere.setSamples(120,60);
 
         List<Shape> shapes = new ArrayList<Shape>();
         shapes.add(sphere);

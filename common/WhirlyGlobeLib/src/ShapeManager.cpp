@@ -27,6 +27,7 @@
 #import "VectorData.h"
 #import "Tesselator.h"
 #import "GeometryManager.h"
+#import "FlatMath.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -414,7 +415,7 @@ void Linear::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder
 }
     
 Extruded::Extruded()
-: loc(0.0,0.0,0.0), thickness(0.0)
+: scale(1.0/EarthRadius), loc(0.0,0.0,0.0), thickness(0.0)
 {
     transform = Eigen::Matrix4d::Identity();
 }
@@ -498,6 +499,8 @@ void Extruded::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuild
     TesselateRing(ring,trisRef);
     
     std::vector<Point3dVector> polytope;
+    double z = loc.z()*scale;
+    double theThickness = thickness*scale;
     for (unsigned int ii=0;ii<trisRef->tris.size();ii++)
     {
         VectorTriangles::Triangle &tri = trisRef->tris[ii];
@@ -505,9 +508,9 @@ void Extruded::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuild
         for (unsigned int jj=0;jj<3;jj++)
         {
             const Point3f &pt = trisRef->pts[tri.pts[jj]];
-            Vector4d bot4d = shiftMat * Vector4d(pt.x(),pt.y(),loc.z()-thickness/2.0,1.0);
+            Vector4d bot4d = shiftMat * Vector4d(pt.x(),pt.y(),z-theThickness/2.0,1.0);
             bot[jj] = Point3d(bot4d.x(),bot4d.y(),bot4d.z())/bot4d.w() + dispPt;
-            Vector4d top4d = shiftMat * Vector4d(pt.x(),pt.y(),loc.z()+thickness/2.0,1.0);
+            Vector4d top4d = shiftMat * Vector4d(pt.x(),pt.y(),z+theThickness/2.0,1.0);
             top[jj] = Point3d(top4d.x(),top4d.y(),top4d.z())/top4d.w() + dispPt;
         }
         triBuilder->addTriangle(top[0],norm,theColor,top[1],norm,theColor,top[2],norm,theColor,shapeMbr);
@@ -524,10 +527,10 @@ void Extruded::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuild
         const Point2d &p1 = pts[(ii+1)%pts.size()];
         
         Vector4dVector pts4d(4);
-        pts4d[0] = shiftMat * Vector4d(p0.x(),p0.y(),loc.z() - thickness/2.0,1.0);
-        pts4d[1] = shiftMat * Vector4d(p1.x(),p1.y(),loc.z() - thickness/2.0,1.0);
-        pts4d[2] = shiftMat * Vector4d(p1.x(),p1.y(),loc.z() + thickness/2.0,1.0);
-        pts4d[3] = shiftMat * Vector4d(p0.x(),p0.y(),loc.z() + thickness/2.0,1.0);
+        pts4d[0] = shiftMat * Vector4d(p0.x()*scale,p0.y()*scale,z - theThickness/2.0,1.0);
+        pts4d[1] = shiftMat * Vector4d(p1.x()*scale,p1.y()*scale,z - theThickness/2.0,1.0);
+        pts4d[2] = shiftMat * Vector4d(p1.x()*scale,p1.y()*scale,z + theThickness/2.0,1.0);
+        pts4d[3] = shiftMat * Vector4d(p0.x()*scale,p0.y()*scale,z + theThickness/2.0,1.0);
         Point3dVector locPts(4);
         for (unsigned int jj=0;jj<4;jj++)
             locPts[jj] = Point3d(pts4d[jj].x(),pts4d[jj].y(),pts4d[jj].z())/pts4d[jj].w() + dispPt;

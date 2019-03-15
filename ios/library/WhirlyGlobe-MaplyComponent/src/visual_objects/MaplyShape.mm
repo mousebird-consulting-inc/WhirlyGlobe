@@ -276,9 +276,10 @@ using namespace WhirlyKit;
 - (Shape *)asWKShape:(NSDictionary *)desc
 {
     Extruded *newEx = new Extruded();
-    Point3d loc(self.center.x,self.center.y,self.height*self.scale);
+    newEx->scale = self.scale;
+    Point3d loc(self.center.x,self.center.y,self.height);
     newEx->loc = loc;
-    newEx->thickness = self.thickness*self.scale;
+    newEx->thickness = self.thickness;
     if (self.transform)
         newEx->transform = self.transform.mat;
     int theNumCoords = self.numCoordPairs;
@@ -287,7 +288,7 @@ using namespace WhirlyKit;
     pts.resize(theNumCoords);
     for (unsigned int ii=0;ii<theNumCoords;ii++)
     {
-        Point2d pt(theCoords[2*ii]*self.scale,theCoords[2*ii+1]*self.scale);
+        Point2d pt(theCoords[2*ii],theCoords[2*ii+1]);
         pts[ii] = pt;
     }
     newEx->pts = pts;

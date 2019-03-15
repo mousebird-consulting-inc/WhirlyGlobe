@@ -1,8 +1,8 @@
 /*
- *  ShapeManager_jni.h
+ *  Selection_jni.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/7/19.
+ *  Created by Steve Gifford on 3/15/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,8 +21,3 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::WhirlyKitShapeInfo> ShapeInfoClassInfo;
-typedef JavaClassInfo<WhirlyKit::WhirlyKitShape> ShapeClassInfo;
-typedef JavaClassInfo<WhirlyKit::WhirlyKitSphere> ShapeSphereClassInfo;
-typedef JavaClassInfo<WhirlyKit::WhirlyKitRectangle> ShapeRectangleClassInfo;
-typedef JavaClassInfo<WhirlyKit::ShapeManager> ShapeManagerClassInfo;

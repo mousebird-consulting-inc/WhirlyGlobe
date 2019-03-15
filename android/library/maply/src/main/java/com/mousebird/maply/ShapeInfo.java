@@ -54,61 +54,15 @@ public class ShapeInfo extends BaseInfo {
     public native void setColor(float r, float g, float b, float a);
 
     /**
-     * Color of the shape
-     */
-    public native float[] getColor();
-
-    /**
      * If the shape is made of lines, this is the line width.
      */
     public native void setLineWidth(float lineWidth);
-
-    /**
-     * If the shape is made of lines, this is the line width.
-     */
-    public native float getLineWidth();
 
     /**
      * Some shapes can be generated inside out (like spheres).
      * This is used in really esoteric cases, like the atmosphere.
      */
     public native void setInsideOut(boolean insideOut);
-
-    /**
-     * Some shapes can be generated inside out (like spheres).
-     * This is used in really esoteric cases, like the atmosphere.
-     */
-    public native boolean getInsideOut();
-
-    /**
-     * If set, we'll read from the z buffer before rendering.
-     * If not set, only drawPriority matters.
-     */
-    public native void setZBufferRead(boolean zBufferRead);
-
-    /**
-     * If set, we'll read from the z buffer before rendering.
-     * If not set, only drawPriority matters.
-     */
-    public native boolean getZBufferRead();
-
-    /**
-     * If set, we'll write to the z buffer as the shape is rendered.
-     * If not set, the shape won't modify the z buffer.
-     */
-    public native void setZBufferWrite(boolean zBufferWrite);
-
-    /**
-     * If set, we'll write to the z buffer as the shape is rendered.
-     * If not set, the shape won't modify the z buffer.
-     */
-    public native boolean getZBufferWrite();
-
-    /**
-     * If set, the center controls the origin for the shapes as they are created.
-     * If not set, a center will be calculated for a group of shapes.
-     */
-    public native Point3d getCenter();
 
     /**
      * If set, the center controls the origin for the shapes as they are created.

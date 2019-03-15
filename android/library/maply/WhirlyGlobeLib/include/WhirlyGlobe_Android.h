@@ -24,6 +24,7 @@
 #import "Dictionary_Android.h"
 #import "FontTextureManager_Android.h"
 //#import "ImageWrapper.h"
+#import "GreatCircle_Android.h"
 #import "LabelInfo_Android.h"
 #import "ParticleBatch_Android.h"
 #import "SceneRenderer_Android.h"

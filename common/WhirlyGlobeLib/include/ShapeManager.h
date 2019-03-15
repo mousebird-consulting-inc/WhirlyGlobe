@@ -178,6 +178,8 @@ public:
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
 
 public:
+    /// Height and outline points are scaled by this (1/EarthRadius by default)
+    double scale;
     /// The location for the origin of the shape
     Point3d loc;
     /// Points around the origin defining the shape
