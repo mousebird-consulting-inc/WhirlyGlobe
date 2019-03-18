@@ -36,8 +36,6 @@ JavaListInfo *JavaListInfo::classInfoObj = NULL;
 /*
 template<> MaplySceneRendererInfo *MaplySceneRendererInfo::classInfoObj = NULL;
 template<> MaterialClassInfo *MaterialClassInfo::classInfoObj = NULL;
-template<> MoonClassInfo *MoonClassInfo::classInfoObj = NULL;
-template<> SunClassInfo *SunClassInfo::classInfoObj = NULL;
 template<> MapboxVectorTileParserClassInfo *MapboxVectorTileParserClassInfo::classInfoObj = NULL;
 template<> GeoJSONSourceClassInfo *GeoJSONSourceClassInfo::classInfoObj = NULL;
 */

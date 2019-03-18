@@ -32,7 +32,7 @@ WideVectorInfo::WideVectorInfo()
 : color(255,255,255,255), width(2.0),
 repeatSize(32.0), edgeSize(1.0),
 coordType(WideVecCoordScreen), joinType(WideVecMiterJoin), capType(WideVecButtCap),
-texID(EmptyIdentity), miterLimit(2.0)
+texID(EmptyIdentity), miterLimit(2.0), subdivEps(0.0)
 {    
 }
     

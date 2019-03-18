@@ -119,5 +119,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/vectors/VectorInfo_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/vectors/VectorManager_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/vectors/WideVectorInfo_jni.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/vectors/WideVectorManager_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/astronomy/Moon_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/astronomy/Sun_jni.cpp"
 )

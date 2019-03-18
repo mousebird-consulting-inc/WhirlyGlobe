@@ -20,63 +20,46 @@
 
 #import "MaplyMoon.h"
 #import <AA+.h>
+#import "WhirlyGlobe_iOS.h"
+
+using namespace WhirlyKit;
 
 @implementation MaplyMoon
 {
-    NSDate *date;
+    WhirlyKit::Moon *moon;
     double moonLon,moonLat;
 }
 
 // Math borrowed from: http://www.lunar-occultations.com/rlo/ephemeris.htm
-- (instancetype)initWithDate:(NSDate *)inDate
+- (instancetype)initWithDate:(NSDate *)date
 {
     self = [super init];
-
-    date = inDate;
 
     // Start with the Julian Date
     NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     calendar.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
     NSDateComponents *components = [calendar components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond) fromDate:date];
-    CAADate aaDate(components.year,components.month,components.day,components.hour,components.minute,components.second,true);
-    double jd = aaDate.Julian();
     
-    // Position of the moon in equatorial
-    double moonEclipticLong = CAAMoon::EclipticLongitude(jd);
-    double moonEclipticLat = CAAMoon::EclipticLatitude(jd);
-    double obliquity = CAANutation::MeanObliquityOfEcliptic(jd);
-    CAA2DCoordinate moonEquatorial = CAACoordinateTransformation::Ecliptic2Equatorial(moonEclipticLong,moonEclipticLat,obliquity);
-
-    double siderealTime = CAASidereal::MeanGreenwichSiderealTime(jd);
-
-    moonLon = CAACoordinateTransformation::DegreesToRadians(15*(moonEquatorial.X-siderealTime));
-    moonLat = CAACoordinateTransformation::DegreesToRadians(moonEquatorial.Y);
-    
-    // Need the sun too for the next bit
-    double sunEclipticLong = CAASun::ApparentEclipticLongitude(jd);
-    double sunEclipticLat = CAASun::ApparentEclipticLatitude(jd);
-    CAA2DCoordinate sunEquatorial = CAACoordinateTransformation::Ecliptic2Equatorial(sunEclipticLong,sunEclipticLat,obliquity);
-
-    // Now for the phase
-    double geo_elongation = CAAMoonIlluminatedFraction::GeocentricElongation(moonEquatorial.X, moonEquatorial.Y, sunEquatorial.X, sunEquatorial.Y);
-
-    double phaseAngle = CAAMoonIlluminatedFraction::PhaseAngle(geo_elongation, 368410.0, 149971520.0);
-    double positionAngle = CAAMoonIlluminatedFraction::PositionAngle(moonEquatorial.X, moonEquatorial.Y, sunEquatorial.X, sunEquatorial.Y);
-    _illuminatedFraction = CAAMoonIlluminatedFraction::IlluminatedFraction(phaseAngle);
-
-    _phase = (positionAngle < 180 ? phaseAngle + 180 : 180 - phaseAngle);
+    moon = new Moon(components.year,components.month,components.day,components.hour,components.minute,components.second);
 
     return self;
 }
 
+- (void)dealloc
+{
+    if (moon)
+        delete moon;
+    moon = NULL;
+}
+
 - (MaplyCoordinate)asCoordinate
 {
-    return MaplyCoordinateMake(moonLon,moonLat);
+    return MaplyCoordinateMake(moon->moonLon,moon->moonLat);
 }
 
 - (MaplyCoordinate3d)asPosition
 {
-    return MaplyCoordinate3dMake(moonLon,moonLat, 5.0);
+    return MaplyCoordinate3dMake(moon->moonLon,moon->moonLat, 5.0);
 }
 
 @end

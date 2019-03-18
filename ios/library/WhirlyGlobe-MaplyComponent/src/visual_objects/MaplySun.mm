@@ -26,53 +26,34 @@ using namespace WhirlyKit;
 
 @implementation MaplySun
 {
-    NSDate *date;
-    double sunLon,sunLat;
+    Sun *sun;
 }
 
-- (instancetype)initWithDate:(NSDate *)inDate
+- (instancetype)initWithDate:(NSDate *)date
 {
     self = [super init];
-    date = inDate;
-    if (!date)
-        date = [NSDate date];
     
-    [self runCalculation];
-    
-    return self;
-}
-
-// Calculation from: http://www.esrl.noaa.gov/gmd/grad/solcalc/solareqns.PDF
-- (void)runCalculation
-{
     // It all starts with the Julian date
     NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     calendar.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
     NSDateComponents *components = [calendar components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond) fromDate:date];
-    CAADate aaDate(components.year,components.month,components.day,components.hour,components.minute,components.second,true);
-    double jdSun = CAADynamicalTime::UTC2TT(aaDate.Julian());
+
+    sun = new Sun(components.year, components.month, components.day, components.hour, components.minute, components.second);
     
-    // Position of the sun in equatorial
-    double sunEclipticLong = CAASun::ApparentEclipticLongitude(jdSun);
-    double sunEclipticLat = CAASun::ApparentEclipticLatitude(jdSun);
-    double obliquity = CAANutation::TrueObliquityOfEcliptic(jdSun);
-    CAA2DCoordinate sunEquatorial = CAACoordinateTransformation::Ecliptic2Equatorial(sunEclipticLong,sunEclipticLat,obliquity);
-    
-    double siderealTime = CAASidereal::MeanGreenwichSiderealTime(jdSun);
-    
-    sunLon = CAACoordinateTransformation::DegreesToRadians(15*(sunEquatorial.X-siderealTime));
-    sunLat = CAACoordinateTransformation::DegreesToRadians(sunEquatorial.Y);
+    return self;
+}
+
+- (void)dealloc
+{
+    if (sun)
+        delete sun;
+    sun = NULL;
 }
 
 - (MaplyCoordinate3d)getDirection
 {
-//    WhirlyKit::Point3d pt(cos(sunLon),sin(sunLat),sin(sunLon));
-
-    double z = sin(sunLat);
-    double rad = sqrt(1.0-z*z);
-    Point3d pt(rad*cos(sunLon),rad*sin(sunLon),z);
-
-    return MaplyCoordinate3dMake(pt.x(), pt.y(), pt.z());
+    Point3d dir = sun->getDirection();
+    return MaplyCoordinate3dMake(dir.x(), dir.y(), dir.z());
 }
 
 - (MaplyLight *)makeLight
@@ -89,7 +70,7 @@ using namespace WhirlyKit;
 
 - (MaplyCoordinate)asPosition
 {
-    return MaplyCoordinateMake(sunLon,sunLat);
+    return MaplyCoordinateMake(sun->sunLon,sun->sunLat);
 }
 
 @end

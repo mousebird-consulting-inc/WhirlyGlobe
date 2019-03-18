@@ -588,6 +588,10 @@
 		2BC90D5A223306EA00D8B606 /* ScreenObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90D59223306EA00D8B606 /* ScreenObject.cpp */; };
 		2BC90D5D223308C700D8B606 /* ScreenObject_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D5C223308C700D8B606 /* ScreenObject_iOS.h */; };
 		2BC90D60223308DB00D8B606 /* ScreenObject_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90D5F223308DB00D8B606 /* ScreenObject_iOS.mm */; };
+		2BC90D6522405DD200D8B606 /* Moon.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D6322405DD100D8B606 /* Moon.h */; };
+		2BC90D6622405DD200D8B606 /* Sun.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D6422405DD200D8B606 /* Sun.h */; };
+		2BC90D6922405DE700D8B606 /* Sun.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90D6722405DE700D8B606 /* Sun.cpp */; };
+		2BC90D6A22405DE700D8B606 /* Moon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90D6822405DE700D8B606 /* Moon.cpp */; };
 		2BE1E7392208A97100815D9C /* MaplyPinchDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DED21233CBE0074D06D /* MaplyPinchDelegate.mm */; };
 		2BE1E73A2208B25F00815D9C /* MaplyPanDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DEC21233CBE0074D06D /* MaplyPanDelegate.mm */; };
 		2BE1E73B2208B73C00815D9C /* MaplyDoubleTapDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B361DE721233CBE0074D06D /* MaplyDoubleTapDelegate.mm */; };
@@ -1578,6 +1582,10 @@
 		2BC90D59223306EA00D8B606 /* ScreenObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScreenObject.cpp; path = ../../../../common/WhirlyGlobeLib/src/ScreenObject.cpp; sourceTree = "<group>"; };
 		2BC90D5C223308C700D8B606 /* ScreenObject_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenObject_iOS.h; sourceTree = "<group>"; };
 		2BC90D5F223308DB00D8B606 /* ScreenObject_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScreenObject_iOS.mm; sourceTree = "<group>"; };
+		2BC90D6322405DD100D8B606 /* Moon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Moon.h; path = ../../../../common/WhirlyGlobeLib/include/Moon.h; sourceTree = "<group>"; };
+		2BC90D6422405DD200D8B606 /* Sun.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sun.h; path = ../../../../common/WhirlyGlobeLib/include/Sun.h; sourceTree = "<group>"; };
+		2BC90D6722405DE700D8B606 /* Sun.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sun.cpp; path = ../../../../common/WhirlyGlobeLib/src/Sun.cpp; sourceTree = "<group>"; };
+		2BC90D6822405DE700D8B606 /* Moon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Moon.cpp; path = ../../../../common/WhirlyGlobeLib/src/Moon.cpp; sourceTree = "<group>"; };
 		2BE1E7572208F32900815D9C /* SingleLabel_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleLabel_iOS.h; sourceTree = "<group>"; };
 		2BE1E75A2208F33900815D9C /* SingleLabel_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SingleLabel_iOS.mm; sourceTree = "<group>"; };
 		2BE1E75C2208F43200815D9C /* FontTextureManager_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FontTextureManager_iOS.h; sourceTree = "<group>"; };
@@ -2622,6 +2630,7 @@
 		2B82B5141E82E2490095FB14 /* WhirlyKit */ = {
 			isa = PBXGroup;
 			children = (
+				2BC90D6122405DAC00D8B606 /* astronomy */,
 				2B82B4C21E82E2490095FB14 /* Cocoa Utils */,
 				2BC90D5B223308B900D8B606 /* geometry utils */,
 				2B82B4CB1E82E2490095FB14 /* rendering */,
@@ -2702,6 +2711,7 @@
 			children = (
 				2BC3D6F7220CAAC700CE91D0 /* WhirlyKitLog.mm */,
 				2B446B2A21F7A4820078A975 /* Platform.mm */,
+				2BC90D6222405DBB00D8B606 /* astronomy */,
 				2BC3D6C02202537D00CE91D0 /* view */,
 				2B82B54D1E82E2490095FB14 /* Cocoa Utils */,
 				2BC90D5E223308CF00D8B606 /* geometry utils */,
@@ -3247,6 +3257,24 @@
 				2BC90D5F223308DB00D8B606 /* ScreenObject_iOS.mm */,
 			);
 			name = "geometry utils";
+			sourceTree = "<group>";
+		};
+		2BC90D6122405DAC00D8B606 /* astronomy */ = {
+			isa = PBXGroup;
+			children = (
+				2BC90D6322405DD100D8B606 /* Moon.h */,
+				2BC90D6422405DD200D8B606 /* Sun.h */,
+			);
+			name = astronomy;
+			sourceTree = "<group>";
+		};
+		2BC90D6222405DBB00D8B606 /* astronomy */ = {
+			isa = PBXGroup;
+			children = (
+				2BC90D6822405DE700D8B606 /* Moon.cpp */,
+				2BC90D6722405DE700D8B606 /* Sun.cpp */,
+			);
+			name = astronomy;
 			sourceTree = "<group>";
 		};
 		2BE1E7562208F31700815D9C /* managers */ = {
@@ -3926,6 +3954,7 @@
 				2B23131A21F8DD61006AA344 /* MaplyFlatView.h in Headers */,
 				2B810099221F234D00CFF779 /* MaplyQuadPagingLoader.h in Headers */,
 				2BB8A3FA21ED43D10025DA98 /* GlobeDoubleTapDelegate.h in Headers */,
+				2BC90D6522405DD200D8B606 /* Moon.h in Headers */,
 				2BE53A761D249C4700B60FAD /* stringprintf.h in Headers */,
 				2BB8A3FB21ED43D10025DA98 /* GlobeTapDelegate.h in Headers */,
 				2B884A6F1E3803170027C397 /* laswriteitemraw.hpp in Headers */,
@@ -3992,6 +4021,7 @@
 				2B82B6001E82E2490095FB14 /* JSONAllocator.h in Headers */,
 				2BE538671D249A1200B60FAD /* MaplyVectorTileMarkerStyle.h in Headers */,
 				2B82B6D91E82E24A0095FB14 /* UIImage+Stuff.h in Headers */,
+				2BC90D6622405DD200D8B606 /* Sun.h in Headers */,
 				2B884A511E3803170027C397 /* bytestreamout_ostream.hpp in Headers */,
 				2B446B2721F7A0D70078A975 /* Platform.h in Headers */,
 				2B82B5E71E82E2490095FB14 /* memalloc.h in Headers */,
@@ -4553,6 +4583,7 @@
 				2BE53A1B1D249C2900B60FAD /* wire_format_lite.cc in Sources */,
 				2B82B63F1E82E2490095FB14 /* nad_intr.c in Sources */,
 				2B82B6A41E82E24A0095FB14 /* PJ_putp3.c in Sources */,
+				2BC90D6A22405DE700D8B606 /* Moon.cpp in Sources */,
 				2BE539A31D249BEF00B60FAD /* AAMercury.cpp in Sources */,
 				2BB8E1F321FF903100154CDC /* GlobeScene.cpp in Sources */,
 				2BB8E20621FFAAA000154CDC /* PerformanceTimer.cpp in Sources */,
@@ -4840,6 +4871,7 @@
 				2BE1E79D2215F4E900815D9C /* ImageTile.cpp in Sources */,
 				2BBC338D221776130038A229 /* QuadSamplingController.cpp in Sources */,
 				2BE1E7442208C96A00815D9C /* GlobePanDelegate.mm in Sources */,
+				2BC90D6922405DE700D8B606 /* Sun.cpp in Sources */,
 				2BE539991D249BEF00B60FAD /* AAEquinoxesAndSolstices.cpp in Sources */,
 				2B82B64B1E82E2490095FB14 /* PJ_boggs.c in Sources */,
 				2B82B68F1E82E24A0095FB14 /* PJ_mod_ster.c in Sources */,

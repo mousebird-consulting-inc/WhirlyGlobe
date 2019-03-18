@@ -18,12 +18,12 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "Astronomy_jni.h"
 #import "com_mousebird_maply_Moon.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
+
+template<> MoonClassInfo *MoonClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Moon_nativeInit
 (JNIEnv *env, jclass cls)
