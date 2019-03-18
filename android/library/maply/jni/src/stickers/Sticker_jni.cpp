@@ -18,12 +18,16 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "Stickers_jni.h"
+#import "Geometry_jni.h"
+#import "CoordSystem_jni.h"
+#import "Render_jni.h"
 #import "com_mousebird_maply_Sticker.h"
-#import "WhirlyGlobe.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
+
+template<> SphericalChunkClassInfo *SphericalChunkClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_nativeInit
 (JNIEnv *env, jclass cls)
@@ -36,7 +40,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_initialise
 {
     try
     {
-        Dictionary dict;
         SphericalChunk *chunk = new SphericalChunk();
         SphericalChunkClassInfo::getClassInfo()->setHandle(env,obj,chunk);
     }
@@ -72,16 +75,17 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_dispose
 
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setLowerLeft
-(JNIEnv *env, jobject obj, jdouble x, jdouble y)
+  (JNIEnv *env, jobject obj, jobject ptObj)
 {
     try
     {
         SphericalChunkClassInfo *classInfo = SphericalChunkClassInfo::getClassInfo();
         SphericalChunk *chunk = classInfo->getObject(env,obj);
-        if (!chunk)
+        Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
+        if (!chunk || !pt)
             return;
-        chunk->mbr.ll().x() = x;
-        chunk->mbr.ll().y() = y;
+        chunk->mbr.ll().x() = pt->x();
+        chunk->mbr.ll().y() = pt->y();
     }
     catch (...)
     {
@@ -90,16 +94,17 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setLowerLeft
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setUpperRight
-(JNIEnv *env, jobject obj, jdouble x, jdouble y)
+  (JNIEnv *env, jobject obj, jobject ptObj)
 {
     try
     {
         SphericalChunkClassInfo *classInfo = SphericalChunkClassInfo::getClassInfo();
         SphericalChunk *chunk = classInfo->getObject(env,obj);
-        if (!chunk)
+        Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
+        if (!chunk || !pt)
             return;
-        chunk->mbr.ur().x() = x;
-        chunk->mbr.ur().y() = y;
+        chunk->mbr.ur().x() = pt->x();
+        chunk->mbr.ur().y() = pt->y();
     }
     catch (...)
     {
@@ -124,27 +129,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setRotation
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setEpsilon
-(JNIEnv *env, jobject obj, jdouble eps, jint minSampleX, jint minSampleY, jint maxSampleX, jint maxSampleY)
-{
-    try
-    {
-        SphericalChunkClassInfo *classInfo = SphericalChunkClassInfo::getClassInfo();
-        SphericalChunk *chunk = classInfo->getObject(env,obj);
-        if (!chunk)
-            return;
-        
-        chunk->eps = eps;
-        chunk->minSampleX = minSampleX;  chunk->minSampleY = minSampleY;
-        chunk->sampleX = maxSampleX;  chunk->sampleY = maxSampleY;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunk::setEpsilon()");
-    }
-}
-
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setCoordSys
 (JNIEnv *env, jobject obj, jobject coordSysObj)
 {
@@ -154,7 +138,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setCoordSys
         SphericalChunk *chunk = classInfo->getObject(env,obj);
         if (!chunk)
             return;
-        
+
         CoordSystem *coordSys = CoordSystemClassInfo::getClassInfo()->getObject(env,coordSysObj);
         if (coordSys)
             chunk->coordSys = coordSys;
@@ -184,6 +168,25 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setSampling
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setEpsilon
+(JNIEnv *env, jobject obj, jdouble eps, jint minSampleX, jint minSampleY, jint maxSampleX, jint maxSampleY)
+{
+    try
+    {
+        SphericalChunkClassInfo *classInfo = SphericalChunkClassInfo::getClassInfo();
+        SphericalChunk *chunk = classInfo->getObject(env,obj);
+        if (!chunk)
+            return;
+        
+        chunk->eps = eps;
+        chunk->minSampleX = minSampleX;  chunk->minSampleY = minSampleY;
+        chunk->sampleX = maxSampleX;  chunk->sampleY = maxSampleY;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunk::setEpsilon()");
+    }
+}
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setImageFormatNative
 (JNIEnv *env, jobject obj, jint imageFormatEnum)
@@ -195,7 +198,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setImageFormatNative
         if (!chunk)
             return;
         
-        chunk->imageFormat = (TileImageType)imageFormatEnum;
+        chunk->imageFormat = ImageFormatToGLenum((MaplyImageType)imageFormatEnum);
     }
     catch (...)
     {
@@ -203,8 +206,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setImageFormatNative
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setImagesNative
-(JNIEnv *env, jobject obj, jlongArray texArrayObj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setTextureIDs
+  (JNIEnv *env, jobject obj, jlongArray texIDs)
 {
     try
     {
@@ -215,12 +218,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setImagesNative
 
         chunk->texIDs.clear();
         
-        JavaLongArray texArray(env,texArrayObj);
+        JavaLongArray texArray(env,texIDs);
         for (int ii=0;ii<texArray.len;ii++)
             chunk->texIDs.push_back(texArray.rawLong[ii]);
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunk::setImages()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunk::setTextureIDs()");
     }
 }

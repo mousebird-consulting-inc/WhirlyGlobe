@@ -18,17 +18,15 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "Stickers_jni.h"
+#import "Scene_jni.h"
 #import "com_mousebird_maply_StickerManager.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
 
 static const char *SceneHandleName = "nativeSceneHandle";
 
-typedef JavaClassInfo<SphericalChunkManager> StickerManagerClassInfo;
 template<> StickerManagerClassInfo *StickerManagerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_nativeInit
@@ -100,6 +98,77 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addSticker
     return EmptyIdentity;
 }
 
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyChunkTextures
+(JNIEnv *env, jobject obj, jlong stickerID, jobject stickerInfoObj, jobject changeSetObj)
+{
+    try
+    {
+        StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
+        SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
+        SphericalChunkInfo *chunkInfo = (SphericalChunkInfo *)SphericalChunkInfoClassInfo::getClassInfo()->getObject(env,stickerInfoObj);
+        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        if (!chunkManager || !chunkInfo || !changeSet)
+            return false;
+
+        chunkManager->modifyChunkTextures(stickerID,chunkInfo->texIDs,*changeSet);
+
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunkManager::modifyChunkTextures()");
+    }
+
+    return false;
+}
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyDrawPriority
+(JNIEnv *env, jobject obj, jlong stickerID, jint drawPriority, jobject changeSetObj)
+{
+    try
+    {
+        StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
+        SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
+        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        if (!chunkManager || !changeSet)
+            return false;
+
+        chunkManager->modifyDrawPriority(stickerID,drawPriority,*changeSet);
+
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunkManager::modifyDrawPriority()");
+    }
+
+    return false;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_enableStickers
+(JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeSetObj)
+{
+    try
+    {
+        StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
+        SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
+        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        if (!chunkManager || !changeSet)
+            return;
+
+        JavaLongArray idArray(env,idArrayObj);
+        SimpleIDSet ids;
+        for (int ii=0;ii<idArray.len;ii++)
+        {
+            chunkManager->enableChunk(idArray.rawLong[ii],enable,*changeSet);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunkManager::enableStickers()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_removeStickers
 (JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject changeSetObj)
 {
@@ -122,75 +191,4 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_removeStickers
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunkManager::removeStickers()");
     }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_enableStickers
-(JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeSetObj)
-{
-    try
-    {
-        StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
-        SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!chunkManager || !changeSet)
-            return;
-        
-        JavaLongArray idArray(env,idArrayObj);
-        SimpleIDSet ids;
-        for (int ii=0;ii<idArray.len;ii++)
-        {
-            chunkManager->enableChunk(idArray.rawLong[ii],enable,*changeSet);
-        }
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunkManager::enableStickers()");
-    }
-}
-
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyChunkTextures
-(JNIEnv *env, jobject obj, jlong stickerID, jobject stickerInfoObj, jobject changeSetObj)
-{
-    try
-    {
-        StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
-        SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
-        SphericalChunkInfo *chunkInfo = (SphericalChunkInfo *)SphericalChunkInfoClassInfo::getClassInfo()->getObject(env,stickerInfoObj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!chunkManager || !chunkInfo || !changeSet)
-            return false;
-        
-        chunkManager->modifyChunkTextures(stickerID,chunkInfo->texIDs,*changeSet);
-        
-        return true;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunkManager::modifyChunkTextures()");
-    }
-    
-    return false;
-}
-
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyDrawPriority
-(JNIEnv *env, jobject obj, jlong stickerID, jint drawPriority, jobject changeSetObj)
-{
-    try
-    {
-        StickerManagerClassInfo *classInfo = StickerManagerClassInfo::getClassInfo();
-        SphericalChunkManager *chunkManager = classInfo->getObject(env,obj);
-        ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!chunkManager || !changeSet)
-            return false;
-        
-        chunkManager->modifyDrawPriority(stickerID,drawPriority,*changeSet);
-        
-        return true;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SphericalChunkManager::modifyDrawPriority()");
-    }
-    
-    return false;
 }

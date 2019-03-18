@@ -28,7 +28,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Scene_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Selection_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Shapes_jni.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/SphericalChunk_jni.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Stickers_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/VectorManager_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/View_jni.h"
 
@@ -110,4 +110,8 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/shapes/ShapeRectangle_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/shapes/ShapeSphere_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/shapes/ShapeManager_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/stickers/Sticker_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/stickers/StickerInfo_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/stickers/StickerManager_jni.cpp"
 )
