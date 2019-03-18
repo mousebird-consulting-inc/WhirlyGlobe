@@ -18,35 +18,22 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "Vectors_jni.h"
+#import "Scene_jni.h"
+#import "Render_jni.h"
 #import "com_mousebird_maply_WideVectorManager.h"
-#import "WhirlyGlobe.h"
-#import "WhirlyKitLog.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
 using namespace Maply;
 
-// Wrapper that tracks the scene as well
-class WideVecManagerWrapper
-{
-public:
-    WideVecManagerWrapper(WideVectorManager *vecManager,Scene *scene)
-    : vecManager(vecManager), scene(scene)
-    {
-        
-    }
-    WideVectorManager *vecManager;
-    Scene *scene;
-};
-
-typedef JavaClassInfo<WideVecManagerWrapper> WideVectorManagerWrapperClassInfo;
-template<> WideVectorManagerWrapperClassInfo *WideVectorManagerWrapperClassInfo::classInfoObj = NULL;
+typedef JavaClassInfo<WideVectorManager> WideVectorManagerClassInfo;
+template<> WideVectorManagerClassInfo *WideVectorManagerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_nativeInit
 (JNIEnv *env, jclass cls)
 {
-    WideVectorManagerWrapperClassInfo::getClassInfo(env,cls);
+    WideVectorManagerClassInfo::getClassInfo(env,cls);
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_initialise
@@ -58,8 +45,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_initialise
         if (!scene)
             return;
         WideVectorManager *vecManager = dynamic_cast<WideVectorManager *>(scene->getManager(kWKWideVectorManager));
-        WideVecManagerWrapper *wrap = new WideVecManagerWrapper(vecManager,scene);
-        WideVectorManagerWrapperClassInfo::getClassInfo()->setHandle(env,obj,wrap);
+        WideVectorManagerClassInfo::getClassInfo()->setHandle(env,obj,vecManager);
     }
     catch (...)
     {
@@ -74,14 +60,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_dispose
 {
     try
     {
-        WideVectorManagerWrapperClassInfo *classInfo = WideVectorManagerWrapperClassInfo::getClassInfo();
+        WideVectorManagerClassInfo *classInfo = WideVectorManagerClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            WideVecManagerWrapper *wrap = classInfo->getObject(env,obj);
-            if (!wrap)
+            WideVectorManager *vecManage = classInfo->getObject(env,obj);
+            if (!vecManage)
                 return;
             classInfo->clearHandle(env,obj);
-            delete wrap;
         }
     }
     catch (...)
@@ -92,50 +77,47 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_dispose
 
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorManager_addVectors
-(JNIEnv *env, jobject obj, jobject vecObjList, jobject vecInfoObj, jobject changeSetObj)
+(JNIEnv *env, jobject obj, jobjectArray vecObjArray, jobject vecInfoObj, jobject changeSetObj)
 {
     try
     {
-        WideVectorManagerWrapperClassInfo *classInfo = WideVectorManagerWrapperClassInfo::getClassInfo();
-        WideVecManagerWrapper *wrap = classInfo->getObject(env,obj);
+        WideVectorManager *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
         WideVectorInfo *vecInfo = WideVectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!wrap || !vecInfo || !changeSet)
+        if (!vecManager || !vecInfo || !changeSet)
             return EmptyIdentity;
         
-        // Get the iterator
-        // Note: Look these up once
-        jclass listClass = env->GetObjectClass(vecObjList);
-        jclass iterClass = env->FindClass("java/util/Iterator");
-        jmethodID literMethod = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
-        jobject liter = env->CallObjectMethod(vecObjList,literMethod);
-        jmethodID hasNext = env->GetMethodID(iterClass,"hasNext","()Z");
-        jmethodID next = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
-        env->DeleteLocalRef(iterClass);
-        env->DeleteLocalRef(listClass);
-        
-        ShapeSet shapes;
+        // Collect up all the shapes to add at once
         VectorObjectClassInfo *vecObjClassInfo = VectorObjectClassInfo::getClassInfo();
-        while (env->CallBooleanMethod(liter, hasNext))
-        {
-            jobject javaVecObj = env->CallObjectMethod(liter, next);
-            VectorObject *vecObj = vecObjClassInfo->getObject(env,javaVecObj);
-            if (vecObj != NULL)
-                shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
-            env->DeleteLocalRef(javaVecObj);
-        }
-        env->DeleteLocalRef(liter);
+		ShapeSet shapes;
+		int count = env->GetArrayLength(vecObjArray);
+		if (count == 0)
+    		return EmptyIdentity;
+		for (int ii=0;ii<count;ii++)
+		{
+		    jobject vecObjObj = env->GetObjectArrayElement(vecObjArray,ii);
+		    VectorObject *vecObj = vecObjClassInfo->getObject(env,vecObjObj);
+		    if (vecObj)
+		        shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
+		    env->DeleteLocalRef(vecObjObj);
+		}
         
         // Resolve a missing program
         if (vecInfo->programID == EmptyIdentity)
         {
-            bool isGlobe = dynamic_cast<WhirlyGlobe::GlobeScene *>(wrap->scene);
-            vecInfo->programID = wrap->vecManager->getScene()->getProgramIDBySceneName(isGlobe ? kToolkitDefaultWideVectorGlobeProgram : kToolkitDefaultWideVectorProgram);
+            bool isGlobe = dynamic_cast<WhirlyGlobe::GlobeScene *>(vecManager->getScene());
+            OpenGLES2Program *prog = NULL;
+            if (isGlobe)
+                prog = vecManager->getScene()->findProgramByName(kMaplyShaderDefaultWideVectorGlobe);
+            else
+                prog = vecManager->getScene()->findProgramByName(kMaplyShaderDefaultWideVector);
+            if (prog)
+                vecInfo->programID = prog->getId();
         }
                 
-        SimpleIdentity vecId = wrap->vecManager->addVectors(&shapes,*vecInfo,*changeSet);
+        SimpleIdentity vecID = vecManager->addVectors(&shapes,*vecInfo,*changeSet);
         
-        return vecId;
+        return vecID;
     }
     catch (...)
     {
@@ -150,16 +132,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_removeVectors
 {
     try
     {
-        WideVectorManagerWrapperClassInfo *classInfo = WideVectorManagerWrapperClassInfo::getClassInfo();
-        WideVecManagerWrapper *wrap = classInfo->getObject(env,obj);
+        WideVectorManager *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!wrap || !changeSet)
+        if (!vecManager || !changeSet)
             return;
         
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
         
-        wrap->vecManager->removeVectors(idSet,*changeSet);
+        vecManager->removeVectors(idSet,*changeSet);
     }
     catch (...)
     {
@@ -172,16 +153,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorManager_enableVectors
 {
     try
     {
-        WideVectorManagerWrapperClassInfo *classInfo = WideVectorManagerWrapperClassInfo::getClassInfo();
-        WideVecManagerWrapper *wrap = classInfo->getObject(env,obj);
+        WideVectorManager *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!wrap || !changeSet)
+        if (!vecManager || !changeSet)
             return;
         
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
         
-        wrap->vecManager->enableVectors(idSet,enable,*changeSet);
+        vecManager->enableVectors(idSet,enable,*changeSet);
     }
     catch (...)
     {
@@ -194,14 +174,13 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorManager_instanceVecto
 {
     try
     {
-        WideVectorManagerWrapperClassInfo *classInfo = WideVectorManagerWrapperClassInfo::getClassInfo();
-        WideVecManagerWrapper *wrap = classInfo->getObject(env,obj);
+        WideVectorManager *vecManager = WideVectorManagerClassInfo::getClassInfo()->getObject(env,obj);
         WideVectorInfo *vecInfo = WideVectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!wrap || !vecInfo || !changeSet)
+        if (!vecManager || !vecInfo || !changeSet)
             return EmptyIdentity;
         
-        return wrap->vecManager->instanceVectors(vecID,*vecInfo,*changeSet);
+        return vecManager->instanceVectors(vecID,*vecInfo,*changeSet);
     }
     catch (...)
     {

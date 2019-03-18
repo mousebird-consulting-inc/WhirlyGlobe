@@ -18,34 +18,21 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "Vectors_jni.h"
+#import "Scene_jni.h"
+#import "Render_jni.h"
 #import "com_mousebird_maply_VectorManager.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
 
-// Wrapper that tracks the scene as well
-class VecManagerWrapper
-{
-public:
-	VecManagerWrapper(VectorManager *vecManager,Scene *scene)
-		: vecManager(vecManager), scene(scene)
-	{
-
-	}
-	VectorManager *vecManager;
-	Scene *scene;
-};
-
-typedef JavaClassInfo<VecManagerWrapper> VectorManagerWrapperClassInfo;
-template<> VectorManagerWrapperClassInfo *VectorManagerWrapperClassInfo::classInfoObj = NULL;
+typedef JavaClassInfo<VectorManager> VectorManagerClassInfo;
+template<> VectorManagerClassInfo *VectorManagerClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_nativeInit
   (JNIEnv *env, jclass cls)
 {
-	VectorManagerWrapperClassInfo::getClassInfo(env,cls);
+	VectorManagerClassInfo::getClassInfo(env,cls);
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_initialise
@@ -57,8 +44,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_initialise
         if (!scene)
             return;
 		VectorManager *vecManager = dynamic_cast<VectorManager *>(scene->getManager(kWKVectorManager));
-		VecManagerWrapper *wrap = new VecManagerWrapper(vecManager,scene);
-		VectorManagerWrapperClassInfo::getClassInfo()->setHandle(env,obj,wrap);
+		VectorManagerClassInfo::getClassInfo()->setHandle(env,obj,vecManager);
 	}
 	catch (...)
 	{
@@ -73,14 +59,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_dispose
 {
 	try
 	{
-		VectorManagerWrapperClassInfo *classInfo = VectorManagerWrapperClassInfo::getClassInfo();
+		VectorManagerClassInfo *classInfo = VectorManagerClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            VecManagerWrapper *wrap = classInfo->getObject(env,obj);
-            if (!wrap)
-                return;
             classInfo->clearHandle(env,obj);
-            delete wrap;
         }
 	}
 	catch (...)
@@ -90,45 +72,45 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_dispose
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
-  (JNIEnv *env, jobject obj, jobject vecObjList, jobject vecInfoObj, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jobjectArray vecObjArray, jobject vecInfoObj, jobject changeSetObj)
 {
 	try
 	{
-		VectorManagerWrapperClassInfo *classInfo = VectorManagerWrapperClassInfo::getClassInfo();
-		VecManagerWrapper *wrap = classInfo->getObject(env,obj);
+        VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
 		VectorInfo *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-		if (!wrap || !vecInfo || !changeSet)
+		if (!vecManager || !vecInfo || !changeSet)
 			return EmptyIdentity;
 
-//        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "VectorInfo: (min,max) = (%f, %f), color = (%d,%d,%d,%d)",vecInfo->minVis,vecInfo->maxVis,(int)vecInfo->color.r,(int)vecInfo->color.g,(int)vecInfo->color.b,(int)vecInfo->color.a);
-
-		// Get the iterator
-		// Note: Look these up once
-		jclass listClass = env->GetObjectClass(vecObjList);
-		jclass iterClass = env->FindClass("java/util/Iterator");
-		jmethodID literMethod = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
-		jobject liter = env->CallObjectMethod(vecObjList,literMethod);
-		jmethodID hasNext = env->GetMethodID(iterClass,"hasNext","()Z");
-		jmethodID next = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
-        env->DeleteLocalRef(iterClass);
-        env->DeleteLocalRef(listClass);
-
+        // Collect up all the shapes to add at once
+        VectorObjectClassInfo *vecObjClassInfo = VectorObjectClassInfo::getClassInfo();
 		ShapeSet shapes;
-		VectorObjectClassInfo *vecObjClassInfo = VectorObjectClassInfo::getClassInfo();
-		while (env->CallBooleanMethod(liter, hasNext))
+		int count = env->GetArrayLength(vecObjArray);
+		if (count == 0)
+    		return EmptyIdentity;
+		for (int ii=0;ii<count;ii++)
 		{
-			jobject javaVecObj = env->CallObjectMethod(liter, next);
-			VectorObject *vecObj = vecObjClassInfo->getObject(env,javaVecObj);
-			if (vecObj != NULL)
-				shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
-			env->DeleteLocalRef(javaVecObj);
+		    jobject vecObjObj = env->GetObjectArrayElement(vecObjArray,ii);
+		    VectorObject *vecObj = vecObjClassInfo->getObject(env,vecObjObj);
+		    if (vecObj)
+		        shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
+		    env->DeleteLocalRef(vecObjObj);
 		}
-		env->DeleteLocalRef(liter);
 
-		SimpleIdentity vecId = wrap->vecManager->addVectors(&shapes,*vecInfo,*changeSet);
+        // Resolve a missing program
+        if (vecInfo->programID == EmptyIdentity)
+        {
+            bool isGlobe = dynamic_cast<WhirlyGlobe::GlobeScene *>(vecManager->getScene());
+            OpenGLES2Program *prog = NULL;
+            prog = vecManager->getScene()->findProgramByName(kMaplyDefaultTriangleShader);
+            if (prog)
+                vecInfo->programID = prog->getId();
+        }
 
-		return vecId;
+
+		SimpleIdentity vecID = vecManager->addVectors(&shapes,*vecInfo,*changeSet);
+
+		return vecID;
 	}
 	catch (...)
 	{
@@ -142,18 +124,17 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_changeVectors
 (JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject vecInfoObj, jobject changeSetObj)
 {
     try {
-        VectorManagerWrapperClassInfo *classInfo = VectorManagerWrapperClassInfo::getClassInfo();
-        VecManagerWrapper *wrap = classInfo->getObject(env,obj);
+        VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
         VectorInfo *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!wrap || !vecInfo || !changeSet)
+        if (!vecManager || !vecInfo || !changeSet)
             return;
         
         JavaLongArray ids(env,idArrayObj);
         SimpleIDSet idSet;
         for (unsigned int ii=0;ii<ids.len;ii++)
         {
-            wrap->vecManager->changeVectors(ids.rawLong[ii],*vecInfo,*changeSet);
+            vecManager->changeVectors(ids.rawLong[ii],*vecInfo,*changeSet);
         }
     }
     catch (...)
@@ -167,16 +148,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_removeVectors
 {
 	try
 	{
-		VectorManagerWrapperClassInfo *classInfo = VectorManagerWrapperClassInfo::getClassInfo();
-		VecManagerWrapper *wrap = classInfo->getObject(env,obj);
+        VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-		if (!wrap || !changeSet)
+		if (!vecManager || !changeSet)
 			return;
 
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
-		wrap->vecManager->removeVectors(idSet,*changeSet);
+		vecManager->removeVectors(idSet,*changeSet);
 	}
 	catch (...)
 	{
@@ -189,16 +169,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_enableVectors
 {
 	try
 	{
-		VectorManagerWrapperClassInfo *classInfo = VectorManagerWrapperClassInfo::getClassInfo();
-		VecManagerWrapper *wrap = classInfo->getObject(env,obj);
+        VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
 		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-		if (!wrap || !changeSet)
+		if (!vecManager || !changeSet)
 			return;
 
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
-		wrap->vecManager->enableVectors(idSet,enable,*changeSet);
+		vecManager->enableVectors(idSet,enable,*changeSet);
 	}
 	catch (...)
 	{
@@ -206,3 +185,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_enableVectors
 	}
 }
 
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_instanceVectors
+  (JNIEnv *env, jobject obj, jlong vecID, jobject vecInfoObj, jobject changeSetObj)
+{
+	try
+	{
+        VectorManager *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
+        VectorInfo *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
+		ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		if (!vecManager || !vecInfo || !changeSet)
+			return EmptyIdentity;
+
+		return vecManager->instanceVectors(vecID,*vecInfo,*changeSet);
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorManager::instanceVectors()");
+	}
+
+	return EmptyIdentity;
+}

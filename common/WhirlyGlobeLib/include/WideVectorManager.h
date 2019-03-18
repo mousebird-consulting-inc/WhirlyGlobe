@@ -47,13 +47,13 @@ typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCap
 class WideVectorInfo : public BaseInfo
 {
 public:
+    WideVectorInfo();
     WideVectorInfo(const Dictionary &dict);
 
     RGBAColor color;
     float width;
     float repeatSize;
     float edgeSize;
-    float subdivEps;
     WideVectorCoordsType coordType;
     WideVectorLineJoinType joinType;
     WideVectorLineCapType capType;

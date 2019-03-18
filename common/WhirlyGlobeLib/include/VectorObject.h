@@ -52,32 +52,18 @@ public:
     bool isSelectable();
     void setIsSelectable(bool newSelect);
     
-    /// Make a complete company (nothing shared) and return it
-    VectorObjectRef deepCopy();
-    
-    /// Reproject the vectors from the source system into the destination
-    /// We don't recognize units, so pass in a scaling factor
-    void reproject(CoordSystem *srcSystem,double scale,CoordSystem *destSystem);
-    
-    /// @brief Add objects form the given GeoJSON string.
-    /// @param json The GeoJSON data as a std::string
-    /// @return True on success, false on failure.
-    bool fromGeoJSON(const std::string &json,std::string &crs);
-    
-    /// @brief Read objects from the given shapefile
-    /// @param fileName The filename of the Shapefile
-    /// @return True on success, false on failure.
-    bool fromShapeFile(const std::string &fileName);
-
-    /// @brief Assemblies are just concattenated JSON
-    static bool FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObject *> &vecData);
-    
     /// @brief Return the attributes for the first shape or NULL
     MutableDictionaryRef getAttributes();
     void setAttributes(MutableDictionaryRef newDict);
     
+    /// Make a complete company (nothing shared) and return it
+    VectorObjectRef deepCopy();
+    
     /// Dump everything to a string for debugging
     std::string log();
+    
+    /// Add a hole if this contains a single areal feature
+    void addHole(const VectorRing &hole);
     
     /// Merge in vectors from the other object
     void mergeVectorsFrom(VectorObject *other);
@@ -112,9 +98,6 @@ public:
     /// Bounding box of all the various features together
     bool boundingBox(Point2d &ll,Point2d &ur);
     
-    /// Add a hole if this contains a single areal feature
-    void addHole(const VectorRing &hole);
-    
     /**
      Subdivide the edges in this feature to a given tolerance.
      */
@@ -130,26 +113,10 @@ public:
      This version samples a great circle to display on a flat map.
      */
     void subdivideToFlatGreatCircle(float epsilon);
-    
-    // Convert any linear features into areals and return a new vector object
-    VectorObjectRef linearsToAreals();
-    
-    // Convert any areal features into linears and return a new vector object
-    VectorObjectRef arealsToLinears();
-    
-    /**
-     Filter out edges created from clipping areal features on the server.
-     
-     In some very specific cases (OSM water) we get polygons that are obviously clipped
-     along internal boundaries.  We can clear this up with some very, very specific logic.
-     
-     Input must be closed areals and output is linears.
-     */
-    VectorObjectRef filterClippedEdges();
-    
+
     /// Tesselate areal features and return a new vector object
     VectorObjectRef tesselate();
-    
+
     /**
      Clip the given (presumably areal) feature(s) to a grid in radians of the given size.
      
@@ -158,7 +125,7 @@ public:
      @return New areal features broken up along the grid.
      */
     VectorObjectRef clipToGrid(const Point2d &gridSize);
-    
+
     /**
      
      Clip the given (probably areal) features to the given bounding box.
@@ -171,7 +138,39 @@ public:
      */
     VectorObjectRef clipToMbr(const Point2d &ll,const Point2d &ur);
 
+    /// Reproject the vectors from the source system into the destination
+    /// We don't recognize units, so pass in a scaling factor
+    void reproject(CoordSystem *srcSystem,double scale,CoordSystem *destSystem);
+
+    /**
+     Filter out edges created from clipping areal features on the server.
+     
+     In some very specific cases (OSM water) we get polygons that are obviously clipped
+     along internal boundaries.  We can clear this up with some very, very specific logic.
+     
+     Input must be closed areals and output is linears.
+     */
+    VectorObjectRef filterClippedEdges();
+
+    // Convert any linear features into areals and return a new vector object
+    VectorObjectRef linearsToAreals();
     
+    // Convert any areal features into linears and return a new vector object
+    VectorObjectRef arealsToLinears();
+    
+    /// @brief Add objects form the given GeoJSON string.
+    /// @param json The GeoJSON data as a std::string
+    /// @return True on success, false on failure.
+    bool fromGeoJSON(const std::string &json,std::string &crs);
+    
+    /// @brief Read objects from the given shapefile
+    /// @param fileName The filename of the Shapefile
+    /// @return True on success, false on failure.
+    bool fromShapeFile(const std::string &fileName);
+    
+    /// @brief Assemblies are just concattenated JSON
+    static bool FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObject *> &vecData);
+
 public:
     void subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDisplayAdapter *adapter,bool edgeMode);
     

@@ -29,13 +29,10 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Selection_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Shapes_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Stickers_jni.h"
-        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/VectorManager_jni.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Vectors_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/View_jni.h"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/jni_util/Maply_jni.cpp"
-
-        "${CMAKE_CURRENT_LIST_DIR}/src/util/AttrDictionary_jni.cpp"
-        "${CMAKE_CURRENT_LIST_DIR}/src/util/Identifiable_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/math/AngleAxis_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/math/Matrix3d_jni.cpp"
@@ -68,6 +65,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/view/View_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/view/ViewState_jni.cpp"
 
+        "${CMAKE_CURRENT_LIST_DIR}/src/base/Identifiable_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/base/BaseInfo_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/base/VertexAttribute_jni.cpp"
 
@@ -114,4 +112,12 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/stickers/Sticker_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/stickers/StickerInfo_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/stickers/StickerManager_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/vectors/AttrDictionary_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/vectors/VectorObject_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/vectors/VectorIterator_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/vectors/VectorInfo_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/vectors/VectorManager_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/vectors/WideVectorInfo_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/vectors/WideVectorManager_jni.cpp"
 )

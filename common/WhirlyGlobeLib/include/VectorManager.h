@@ -63,6 +63,7 @@ class VectorInfo : public BaseInfo
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
+    VectorInfo();
     VectorInfo(const Dictionary &dict);
     
     // Convert contents to a string for debugging

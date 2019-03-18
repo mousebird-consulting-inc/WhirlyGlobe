@@ -18,12 +18,13 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "Vectors_jni.h"
 #import "com_mousebird_maply_WideVectorInfo.h"
-#import "WhirlyGlobe.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
+
+template<> WideVectorInfoClassInfo *WideVectorInfoClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_nativeInit
 (JNIEnv *env, jclass cls)
@@ -36,8 +37,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_initialise
 {
     try
     {
-        Dictionary dict;
-        WideVectorInfo *vecInfo = new WideVectorInfo(dict);
+        WideVectorInfo *vecInfo = new WideVectorInfo();
         WideVectorInfoClassInfo::getClassInfo()->setHandle(env,obj,vecInfo);
     }
     catch (...)
@@ -67,23 +67,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_dispose
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::dispose()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTexId
-(JNIEnv *env, jobject obj, jlong val)
-{
-    try
-    {
-        WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfo *vecInfo = classInfo->getObject(env,obj);
-        if (!vecInfo)
-            return;
-        vecInfo->texID = val;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::setTexId()");
     }
 }
 
@@ -121,6 +104,40 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setLineWidth
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTextureRepeatLength
+(JNIEnv *env, jobject obj, jdouble repeatLen)
+{
+    try
+    {
+        WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
+        WideVectorInfo *vecInfo = classInfo->getObject(env,obj);
+        if (!vecInfo)
+            return;
+        vecInfo->repeatSize = repeatLen;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::setTextureRepeatLength()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setEdgeFalloff
+(JNIEnv *env, jobject obj, jdouble edgeFalloff)
+{
+    try
+    {
+        WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
+        WideVectorInfo *vecInfo = classInfo->getObject(env,obj);
+        if (!vecInfo)
+            return;
+        vecInfo->edgeSize = edgeFalloff;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::setEdgeFalloff()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setJoinTypeNative
 (JNIEnv *env, jobject obj, jint joinType)
 {
@@ -155,8 +172,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setMitreLimit
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTextureRepeatLength
-(JNIEnv *env, jobject obj, jdouble repeatLen)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTexID
+(JNIEnv *env, jobject obj, jlong texID)
 {
     try
     {
@@ -164,28 +181,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTextureRepeatL
         WideVectorInfo *vecInfo = classInfo->getObject(env,obj);
         if (!vecInfo)
             return;
-        vecInfo->repeatSize = repeatLen;
+        vecInfo->texID = texID;
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::setTextureRepeatLength()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setEdgeFalloff
-(JNIEnv *env, jobject obj, jdouble edgeFalloff)
-{
-    try
-    {
-        WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfo *vecInfo = classInfo->getObject(env,obj);
-        if (!vecInfo)
-            return;
-        vecInfo->edgeSize = edgeFalloff;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::setEdgeFalloff()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::setTexId()");
     }
 }
 

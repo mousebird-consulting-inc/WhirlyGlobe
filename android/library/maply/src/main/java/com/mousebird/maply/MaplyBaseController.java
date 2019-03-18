@@ -1165,7 +1165,7 @@ public class MaplyBaseController
 			{
 				// Vectors are simple enough to just add
 				ChangeSet changes = new ChangeSet();
-				long vecId = vecManager.addVectors(vecs, vecInfo, changes);
+				long vecId = vecManager.addVectors(vecs.toArray(new VectorObject[0]), vecInfo, changes);
 				if (scene != null)
 					changes.process(scene);
 
@@ -1176,13 +1176,13 @@ public class MaplyBaseController
 				for (VectorObject vecObj : vecs)
 				{
 					// Keep track of this one for selection
-					if (vecObj.selectable)
+					if (vecObj.getSelectable())
 						compObj.addVector(vecObj);
 				}
 
 				if (vecInfo.disposeAfterUse || disposeAfterRemoval)
 					for (VectorObject vecObj : vecs)
-						if (!vecObj.selectable)
+						if (!vecObj.getSelectable())
 							vecObj.dispose();
 			}
 		};
@@ -1257,7 +1257,7 @@ public class MaplyBaseController
 					{
 						// Vectors are simple enough to just add
 						ChangeSet changes = new ChangeSet();
-						long vecId = wideVecManager.addVectors(vecs, wideVecInfo, changes);
+						long vecId = wideVecManager.addVectors(vecs.toArray(new VectorObject[0]), wideVecInfo, changes);
 						if (scene != null)
 							changes.process(scene);
 
@@ -1268,13 +1268,13 @@ public class MaplyBaseController
 						for (VectorObject vecObj : vecs)
 						{
 							// Keep track of this one for selection
-							if (vecObj.selectable)
+							if (vecObj.getSelectable())
 								compObj.addVector(vecObj);
 						}
 
 						if (wideVecInfo.disposeAfterUse || disposeAfterRemoval)
 							for (VectorObject vecObj : vecs)
-								if (!vecObj.selectable)
+								if (!vecObj.getSelectable())
 									vecObj.dispose();
 					}
 				};

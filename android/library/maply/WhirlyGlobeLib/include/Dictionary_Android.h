@@ -194,5 +194,7 @@ protected:
     typedef std::map<std::string,Value *> FieldMap;
     FieldMap fields;
 };
+
+typedef std::shared_ptr<MutableDictionary_Android> MutableDictionary_AndroidRef;
     
 }

@@ -18,11 +18,8 @@
  *
  */
 
-#import <jni.h>
-#import "Maply_jni.h"
+#import "Vectors_jni.h"
 #import "com_mousebird_maply_VectorIterator.h"
-#import "Maply_utils_jni.h"
-#import "WhirlyGlobe.h"
 
 using namespace WhirlyKit;
 

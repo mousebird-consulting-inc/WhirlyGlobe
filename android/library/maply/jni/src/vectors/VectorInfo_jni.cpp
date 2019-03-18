@@ -18,13 +18,13 @@
  *
  */
 
-#import <jni.h>
-#import <string>
-#import "Maply_jni.h"
+#import "Vectors_jni.h"
 #import "com_mousebird_maply_VectorInfo.h"
-#import "WhirlyGlobe.h"
 
+using namespace Eigen;
 using namespace WhirlyKit;
+
+template<> VectorInfoClassInfo *VectorInfoClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_nativeInit
   (JNIEnv *env, jclass cls)
@@ -37,8 +37,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_initialise
 {
 	try
 	{
-		Dictionary dict;
-		VectorInfo *vecInfo = new VectorInfo(dict);
+		VectorInfo *vecInfo = new VectorInfo();
 		VectorInfoClassInfo::getClassInfo()->setHandle(env,obj,vecInfo);
 	}
 	catch (...)
@@ -88,8 +87,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setFilled
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTexId
-  (JNIEnv *env, jobject obj, jlong val)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setSampleEpsilon
+  (JNIEnv *env, jobject obj, jdouble sample)
 {
 	try
 	{
@@ -97,11 +96,28 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTexId
 		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
-		vecInfo->texId = val;
+		vecInfo->sample = sample;
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setTexId()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setSampleEpsilon()");
+	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureID
+  (JNIEnv *env, jobject obj, jlong texID)
+{
+	try
+	{
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
+		if (!vecInfo)
+			return;
+		vecInfo->texId = texID;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setTextureID()");
 	}
 }
 
@@ -119,12 +135,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTexScale
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setEnable()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setTexScale()");
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_subdivEps
-  (JNIEnv *env, jobject obj, jfloat eps)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setSubdivEps
+  (JNIEnv *env, jobject obj, jdouble subdiv)
 {
 	try
 	{
@@ -132,29 +148,30 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_subdivEps
 		VectorInfo *vecInfo = classInfo->getObject(env,obj);
 		if (!vecInfo)
 			return;
-		vecInfo->subdivEps = eps;
+		vecInfo->subdivEps = subdiv;
+		vecInfo->gridSubdiv = true;
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::subdivEps()");
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setSubdivEps()");
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setGridSubdiv
-  (JNIEnv *env, jobject obj, jboolean bVal)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureProjectionNative
+(JNIEnv *env, jobject obj, jint texProj)
 {
-	try
-	{
-		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-		VectorInfo *vecInfo = classInfo->getObject(env,obj);
-		if (!vecInfo)
-			return;
-		vecInfo->gridSubdiv = bVal;
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setGridSubdiv()");
-	}
+    try
+    {
+        VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+        VectorInfo *vecInfo = classInfo->getObject(env,obj);
+        if (!vecInfo)
+            return;
+        vecInfo->texProj = (TextureProjections)texProj;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setTextureProjectionNative()");
+    }
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setColor
@@ -191,21 +208,21 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setLineWidth
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureNative
-(JNIEnv *env, jobject obj, jlong texID)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setUseCenter
+  (JNIEnv *env, jobject obj)
 {
-    try
-    {
-        VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-        VectorInfo *vecInfo = classInfo->getObject(env,obj);
-        if (!vecInfo)
-            return;
-        vecInfo->texId = texID;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setTextureNative()");
-    }
+	try
+	{
+		VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
+		VectorInfo *vecInfo = classInfo->getObject(env,obj);
+		if (!vecInfo)
+			return;
+		vecInfo->centered = true;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setUseCenter()");
+	}
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setVecCenterNative
@@ -217,48 +234,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setVecCenterNative
         VectorInfo *vecInfo = classInfo->getObject(env,obj);
         if (!vecInfo)
             return;
+        vecInfo->centered = true;
         vecInfo->vecCenterSet = true;
         vecInfo->vecCenter = Point2f(centerX,centerY);
     }
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setVecCenterNative()");
-    }
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTexScale
-(JNIEnv *env, jobject obj, jdouble texScaleU, jdouble texScaleV)
-{
-    try
-    {
-        VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-        VectorInfo *vecInfo = classInfo->getObject(env,obj);
-        if (!vecInfo)
-            return;
-        vecInfo->texScale = Point2f(texScaleU,texScaleV);
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setTexScale()");
-    }
-}
-
-
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorInfo_setTextureProjectionNative
-(JNIEnv *env, jobject obj, jint texProj)
-{
-    try
-    {
-        VectorInfoClassInfo *classInfo = VectorInfoClassInfo::getClassInfo();
-        VectorInfo *vecInfo = classInfo->getObject(env,obj);
-        if (!vecInfo)
-            return;
-        vecInfo->texProj = (TextureProjections)texProj;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::setTextureProjectionNative()");
     }
 }
 
@@ -271,7 +253,7 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorInfo_toString
         VectorInfo *vecInfo = classInfo->getObject(env,obj);
         if (!vecInfo)
             return NULL;
-        
+
         std::string outStr = vecInfo->toString();
         return env->NewStringUTF(outStr.c_str());
     }
@@ -279,6 +261,6 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorInfo_toString
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorInfo::toString()");
     }
-    
+
     return NULL;
 }

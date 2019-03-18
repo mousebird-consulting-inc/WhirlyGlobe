@@ -28,10 +28,17 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
+WideVectorInfo::WideVectorInfo()
+: color(255,255,255,255), width(2.0),
+repeatSize(32.0), edgeSize(1.0),
+coordType(WideVecCoordScreen), joinType(WideVecMiterJoin), capType(WideVecButtCap),
+texID(EmptyIdentity), miterLimit(2.0)
+{    
+}
+    
 WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     : BaseInfo(dict)
 {
-    subdivEps = dict.getDouble(MaplySubdivEpsilon,0.0);
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
     width = dict.getDouble(MaplyVecWidth,2.0);
     std::string coordTypeStr = dict.getString(MaplyWideVecCoordType);

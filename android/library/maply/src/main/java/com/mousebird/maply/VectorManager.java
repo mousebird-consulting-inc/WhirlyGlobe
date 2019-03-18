@@ -44,7 +44,7 @@ class VectorManager
 	}
 	
 	// Add vectors to the scene and return an ID to track them
-	public native long addVectors(List<VectorObject> vecs,VectorInfo vecInfo,ChangeSet changes);
+	public native long addVectors(VectorObject[] vecs,VectorInfo vecInfo,ChangeSet changes);
 	
 	// Remove vectors by ID
 	public native void removeVectors(long ids[],ChangeSet changes);
@@ -54,6 +54,9 @@ class VectorManager
 
 	// Change the display of vectors
 	public native void changeVectors(long ids[],VectorInfo vecInfo,ChangeSet changes);
+
+	// Instance one set of vectors for reuse with slightly changed visuals
+	public native long instanceVectors(long vecID,VectorInfo vecInfo,ChangeSet changes);
 	
 	static
 	{
