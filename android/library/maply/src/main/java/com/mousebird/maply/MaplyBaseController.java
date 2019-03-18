@@ -1177,7 +1177,7 @@ public class MaplyBaseController
 				{
 					// Keep track of this one for selection
 					if (vecObj.getSelectable())
-						compObj.addVector(vecObj);
+						compObj.addVectorID(vecObj.getID());
 				}
 
 				if (vecInfo.disposeAfterUse || disposeAfterRemoval)
