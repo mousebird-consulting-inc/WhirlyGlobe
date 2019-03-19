@@ -45,7 +45,7 @@ public class ComponentObject
 	}
 
 	// Return the unique ID of this component object
-	public native void getID();
+	public native long getID();
 
 	// Track selection IDs associated with this object
 	public native void addSelectID(long id);

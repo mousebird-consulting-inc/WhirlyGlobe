@@ -446,4 +446,7 @@ void ConvertFloat4fArray(JNIEnv *env,jfloatArray &floatArray,WhirlyKit::Vector4f
 // Convert a Java long long array into a set of SimpleIdentity values
 void ConvertLongArrayToSet(JNIEnv *env,jlongArray &longArray,std::set<WhirlyKit::SimpleIdentity> &intSet);
 
+// Return a Java long array
+jlongArray BuildLongArray(JNIEnv *env,std::vector<WhirlyKit::SimpleIdentity> &longVec);
+
 #endif /* Maply_JNI_h_ */

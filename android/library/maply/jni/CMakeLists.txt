@@ -18,6 +18,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Astronomy_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Base_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Billboard_jni.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Components_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/CoordSystem_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Formats_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Geometry_jni.h"
@@ -122,4 +123,7 @@ target_sources(
 
         "${CMAKE_CURRENT_LIST_DIR}/src/astronomy/Moon_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/astronomy/Sun_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/components/ComponentObject_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/components/ComponentManager_jni.cpp"
 )

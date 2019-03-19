@@ -226,6 +226,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_enableGeometry
         GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
         GeometryManager *geomManager = classInfo->getObject(env, obj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        if (!geomManager || !changeSet)
+            return;
         
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,geomIDs,idSet);
@@ -246,7 +248,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_removeGeometry
         GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
         GeometryManager *geomManager = classInfo->getObject(env, obj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        
+        if (!geomManager || !changeSet)
+            return;
+
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,geomIDs,idSet);
         

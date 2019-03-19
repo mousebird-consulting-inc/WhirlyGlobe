@@ -30,9 +30,9 @@ import java.util.Vector;
  */
 public class ComponentManager
 {
-    public ComponentManager()
+    public ComponentManager(Scene scene)
     {
-        initialise();
+        initialise(scene);
     }
 
     public void finalize()
@@ -59,16 +59,16 @@ public class ComponentManager
     /**
      * Remove the list of component objects from display
      */
-    public native void removeComponentObjectsNative(ComponentObject[] compObjs);
+    public native void removeComponentObjectsNative(ComponentObject[] compObjs,ChangeSet changes);
 
-    public void removeComponentObjects(ComponentObject[] compObjs,boolean disposeAfterRemoval)
+    public void removeComponentObjects(ComponentObject[] compObjs,ChangeSet changes,boolean disposeAfterRemoval)
     {
         for (ComponentObject compObj : compObjs)
         {
             removeSelectableObjects(compObj,disposeAfterRemoval);
         }
 
-        removeComponentObjectsNative(compObjs);
+        removeComponentObjectsNative(compObjs,changes);
     }
 
     /**
@@ -154,6 +154,6 @@ public class ComponentManager
         nativeInit();
     }
     private static native void nativeInit();
-    native void initialise();
+    native void initialise(Scene scene);
     native void dispose();
 }

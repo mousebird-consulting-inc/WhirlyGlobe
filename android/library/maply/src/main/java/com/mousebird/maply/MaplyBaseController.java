@@ -319,7 +319,7 @@ public class MaplyBaseController
 		labelManager = new LabelManager(scene);
 		layoutManager = new LayoutManager(scene);
 		selectionManager = new SelectionManager(scene);
-		componentManager = new ComponentManager();
+		componentManager = new ComponentManager(scene);
 		particleSystemManager = new ParticleSystemManager(scene);
 		shapeManager = new ShapeManager(scene);
 		billboardManager = new BillboardManager(scene);
@@ -2455,7 +2455,7 @@ public class MaplyBaseController
 			{
 				ChangeSet changes = new ChangeSet();
 
-				componentManager.removeComponentObjects(compObjs.toArray(new ComponentObject[0]),disposeAfterRemoval);
+				componentManager.removeComponentObjects(compObjs.toArray(new ComponentObject[0]),changes,disposeAfterRemoval);
 
 				if (scene != null)
 					changes.process(scene);

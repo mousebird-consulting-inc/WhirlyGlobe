@@ -184,3 +184,16 @@ JavaDoubleArray::~JavaDoubleArray()
 {
     env->ReleaseDoubleArrayElements(array,rawDouble, 0);
 }
+
+jlongArray BuildLongArray(JNIEnv *env,std::vector<SimpleIdentity> &longVec)
+{
+    if (longVec.empty())
+        return NULL;
+
+    jlongArray newArray = env->NewLongArray(longVec.size());
+    if (!newArray)
+        return NULL;
+
+    env->SetLongArrayRegion(newArray, 0, longVec.size(), (jlong *)&longVec[0]);
+    return newArray;
+}

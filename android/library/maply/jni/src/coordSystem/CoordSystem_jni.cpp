@@ -18,7 +18,6 @@
  *
  */
 
-#import <jni.h>
 #import "CoordSystem_jni.h"
 #import "Geometry_jni.h"
 #import "com_mousebird_maply_CoordSystem.h"
