@@ -17,15 +17,15 @@
  *  limitations under the License.
  *
  */
+
+#import "Scene_jni.h"
+#import "Geometry_jni.h"
 #include "com_mousebird_maply_Material.h"
-#import <jni.h>
-#import "Maply_jni.h"
-#import "Maply_utils_jni.h"
-#import "WhirlyGlobe.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
+template<> MaterialClassInfo *MaterialClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_nativeInit
 (JNIEnv *env, jclass cls)
@@ -39,7 +39,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_initialise
     try
     {
         MaterialClassInfo *classInfo = MaterialClassInfo::getClassInfo();
-        WhirlyKitMaterial *inst= new WhirlyKitMaterial();
+        Material *inst= new Material();
         classInfo->setHandle(env, obj, inst);
     }
     catch (...)
@@ -58,7 +58,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_dispose
         MaterialClassInfo *classInfo = MaterialClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            WhirlyKitMaterial *inst= classInfo->getObject(env, obj);
+            Material *inst= classInfo->getObject(env, obj);
             if (!inst)
                 return;
 
@@ -77,8 +77,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_setAmbient
 {
     try
     {
-        MaterialClassInfo *classInfo = MaterialClassInfo::getClassInfo();
-        WhirlyKitMaterial *inst = classInfo->getObject(env, obj);
+        Material *inst = MaterialClassInfo::getClassInfo()->getObject(env,obj);
         Point4d *ambient = Point4dClassInfo::getClassInfo()->getObject(env, ambientObj);
         if (!inst || !ambient)
             return;
@@ -91,33 +90,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_setAmbient
     }
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Material_getAmbient
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        MaterialClassInfo *classInfo = MaterialClassInfo::getClassInfo();
-        WhirlyKitMaterial *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return NULL;
-        
-        return MakePoint4d(env, inst->getAmbient().cast<double>());
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Material::getAmbient()");
-    }
-    
-    return NULL;
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_setDiffuse
 (JNIEnv *env, jobject obj, jobject diffuseObj)
 {
     try
     {
-        MaterialClassInfo *classInfo = MaterialClassInfo::getClassInfo();
-        WhirlyKitMaterial *inst = classInfo->getObject(env, obj);
+        Material *inst = MaterialClassInfo::getClassInfo()->getObject(env,obj);
         Point4d *diffuse = Point4dClassInfo::getClassInfo()->getObject(env, diffuseObj);
         if (!inst || !diffuse)
             return;
@@ -130,33 +108,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_setDiffuse
     }
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Material_getDifusse
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        MaterialClassInfo *classInfo = MaterialClassInfo::getClassInfo();
-        WhirlyKitMaterial *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return NULL;
-        
-        return MakePoint4d(env, inst->getDiffuse().cast<double>());
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Material::getDiffuse()");
-    }
-    
-    return NULL;
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_setSpecular
 (JNIEnv *env, jobject obj, jobject specularObj)
 {
     try
     {
-        MaterialClassInfo *classInfo = MaterialClassInfo::getClassInfo();
-        WhirlyKitMaterial *inst = classInfo->getObject(env, obj);
+        Material *inst = MaterialClassInfo::getClassInfo()->getObject(env,obj);
         Point4d *specular = Point4dClassInfo::getClassInfo()->getObject(env, specularObj);
         if (!inst || !specular)
             return;
@@ -169,33 +126,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_setSpecular
     }
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Material_getSpecular
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        MaterialClassInfo *classInfo = MaterialClassInfo::getClassInfo();
-        WhirlyKitMaterial *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return NULL;
-        
-        return MakePoint4d(env, inst->getSpecular().cast<double>());
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Material::getSpecular()");
-    }
-    
-    return NULL;
-}
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_setSpecularExponent
 (JNIEnv *env, jobject obj, jfloat specularExponent)
 {
     try
     {
-        MaterialClassInfo *classInfo = MaterialClassInfo::getClassInfo();
-        WhirlyKitMaterial *inst = classInfo->getObject(env, obj);
+        Material *inst = MaterialClassInfo::getClassInfo()->getObject(env,obj);
         if (!inst)
             return;
         
@@ -205,45 +142,4 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Material_setSpecularExponent
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Material::setSpecularExponent()");
     }
-}
-
-JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_Material_getSpecularExponent
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        MaterialClassInfo *classInfo = MaterialClassInfo::getClassInfo();
-        WhirlyKitMaterial *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return 0.0;
-        
-        return inst->getSpecularExponent();
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Material::getSpecularExponent()");
-    }
-    
-    return 0.0;
-}
-
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Material_bindToProgram
-(JNIEnv *env, jobject obj, jobject shaderObj)
-{
-    try
-    {
-        MaterialClassInfo *classInfo = MaterialClassInfo::getClassInfo();
-        WhirlyKitMaterial *inst = classInfo->getObject(env, obj);
-        OpenGLES2Program *program = OpenGLES2ProgramClassInfo::getClassInfo()->getObject(env, shaderObj);
-        if (!inst || !program)
-            return false;
-
-        return inst->bindToProgram(program);
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Material::bindToProgram()");
-    }
-    
-    return false;
 }
