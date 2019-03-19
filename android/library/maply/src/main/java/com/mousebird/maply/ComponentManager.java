@@ -20,6 +20,10 @@
 
 package com.mousebird.maply;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 /**
  * The Component Manager tracks the various low level IDs for
  * visual geometry that's been added, often as a group.
@@ -36,6 +40,12 @@ public class ComponentManager
         dispose();
     }
 
+    // TODO: Register this as it's created
+    public ComponentObject makeComponentObject()
+    {
+        return new ComponentObject();
+    }
+
     /**
      * Hand a component object over to be managed.
      */
@@ -49,13 +59,95 @@ public class ComponentManager
     /**
      * Remove the list of component objects from display
      */
-    public native void removeComponentObjects(ComponentObject[] compObjs);
+    public native void removeComponentObjectsNative(ComponentObject[] compObjs);
+
+    public void removeComponentObjects(ComponentObject[] compObjs,boolean disposeAfterRemoval)
+    {
+        for (ComponentObject compObj : compObjs)
+        {
+            removeSelectableObjects(compObj,disposeAfterRemoval);
+        }
+
+        removeComponentObjectsNative(compObjs);
+    }
 
     /**
      * Enable/disable the component objects given.
      */
     public native void enableComponentObjects(ComponentObject[] compObj,boolean enable,ChangeSet changes);
 
+    /**
+     * Enable/disabel a single component object.
+     */
+    public void enableComponentObject(ComponentObject compObj,boolean enable,ChangeSet changes)
+    {
+        ComponentObject[] compObjs = new ComponentObject[1];
+        compObjs[0] = compObj;
+        enableComponentObjects(compObjs,enable,changes);
+    }
+
+    // Remove selectable objects
+    private void removeSelectableObjects(ComponentObject compObj,boolean disposeAfterRemoval)
+    {
+        long[] selectIDs = compObj.getSelectIDs();
+        if (selectIDs != null)
+        {
+            synchronized(selectionMap)
+            {
+                for (long selectID : selectIDs) {
+                    Object selObj = selectionMap.get(selectID);
+                    if (selObj != null)
+                    {
+                        if (disposeAfterRemoval)
+                        {
+                            // Note: We should fix this for the other object types
+                            if (selObj.getClass() == VectorObject.class)
+                            {
+                                VectorObject vecObj = (VectorObject)selObj;
+                                vecObj.dispose();
+                            }
+                        }
+                        selectionMap.remove(selectID);
+                    }
+                }
+            }
+        }
+    }
+
+    Map<Long, Object> selectionMap = new HashMap<Long, Object>();
+
+    // Add selectable objects to the list
+    public void addSelectableObject(long selectID,Object selObj,ComponentObject compObj)
+    {
+        synchronized(selectionMap)
+        {
+            compObj.addSelectID(selectID);
+            selectionMap.put(selectID,selObj);
+        }
+    }
+
+    public void remapSelectableObjects(SelectedObject[] selManObjs)
+    {
+        // Remap the objects
+        synchronized(selectionMap) {
+            for (SelectedObject selObj : selManObjs) {
+                long selectID = selObj.getSelectID();
+                selObj.selObj = selectionMap.get(selectID);
+            }
+        }
+    }
+
+    public Object findObjectForSelectID(long selectID)
+    {
+        // Look for the object
+        Object selObj = null;
+        synchronized(selectionMap)
+        {
+            selObj = selectionMap.get(selectID);
+        }
+
+        return selObj;
+    }
 
     static
     {

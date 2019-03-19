@@ -50,16 +50,24 @@ public class ComponentObject
 	// Track selection IDs associated with this object
 	public native void addSelectID(long id);
 
+	public native long[] getSelectIDs();
+
 	// Track the given marker ID as associated with us
 	public native void addMarkerID(long id);
 
 	// Track the given sticker ID as associated with us
 	public native void addStickerID(long id);
 
+	public native long[] getStickerIDs();
+
 	// Track the given vector ID as associated with us
 	public native void addVectorID(long id);
 
+	public native long[] getVectorIDs();
+
 	public native void addWideVectorID(long id);
+
+	public native long[] getWideVectorIDs();
 
 	// Track the given label ID as associated with us
 	public native void addLabelID(long id);
