@@ -1,4 +1,6 @@
 package com.mousebird.maply;
 
-public class QuadLoaderBase {
+// TODO: Stub
+public class QuadLoaderBase
+{
 }

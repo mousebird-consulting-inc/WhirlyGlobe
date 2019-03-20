@@ -24,28 +24,45 @@ import android.graphics.Bitmap;
 
 
 /**
- * The Maply Image Tile represents the image(s) passed back to a QuadImagePagingLayer.
- * Normally, you shouldn't be creating these.  However, if you have an object that
- * implements the QuadImageTileLayer.TileSource, you'll need to fill these in and
- * return them on demand.
+ * The Maply Image Tile represents the image(s) passed back from the network.
+ * Odds are something else is creating them, so you don't need to do so
+ * yourself.  They wrap a low level bytes sort of implementation.
  *
  */
 public class ImageTile
 {
-	public Bitmap[] bitmaps = null;
-	public Bitmap bitmap = null;
-	
-	/**
-	 * Construct with a bitmap.
-	 * @param bitmap The bitmap we're handing back
-	 */
-	public MaplyImageTile(Bitmap inBitmap)
+	ImageTile()
 	{
-		bitmap = inBitmap;
+		initialise();
 	}
 
-	public MaplyImageTile(Bitmap[] inBitmaps)
+	ImageTile(Bitmap bitmap)
 	{
-		bitmaps = inBitmaps;
+		initialise();
+		setBitmap(bitmap);
 	}
+
+	private native void setBitmap(Bitmap bitmap);
+
+	/**
+	 * If the image has a border built in, set that here.
+	 */
+	public native void setBorderSize(int borderSize);
+
+	/**
+	 * Turn the data into a raw texture.  This can be down later, but if you're on
+	 * your own thread, you may just want to do it here.
+	 */
+	public native void preprocessTexture();
+
+	public void finalize() { dispose(); }
+
+	static
+	{
+		nativeInit();
+	}
+	private static native void nativeInit();
+	native void initialise();
+	native void dispose();
+	private long nativeHandle;
 }
