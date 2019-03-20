@@ -56,6 +56,9 @@
 @public
     // We're just wrapping the object that does the work
     WhirlyKit::QuadLoaderReturnRef loadReturn;
+
+    // Unparsed data coming back
+    std::vector<NSData *> tileData;
 }
 
 @end

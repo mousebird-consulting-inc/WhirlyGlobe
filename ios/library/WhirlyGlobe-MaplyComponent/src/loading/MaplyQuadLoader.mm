@@ -64,17 +64,15 @@ using namespace WhirlyKit;
     return loadReturn->frame;
 }
 
-- (void)addTileData:(NSData *__nonnull) tileData
+- (void)addTileData:(NSData *__nonnull) inTileData
 {
-    loadReturn->tileData.push_back(RawDataRef(new RawNSDataReader(tileData)));
+    tileData.push_back(inTileData);
 }
 
 - (NSArray<NSData *> *)getTileData
 {
     NSMutableArray *ret = [[NSMutableArray alloc] init];
-    for (auto wrap : loadReturn->tileData) {
-        RawNSDataReader *theData = (RawNSDataReader *)wrap.get();
-        NSData *data = theData->getData();
+    for (auto data : tileData) {
         if (data)
             [ret addObject:data];
     }
@@ -84,11 +82,10 @@ using namespace WhirlyKit;
 
 - (NSData * __nullable)getFirstData
 {
-    if (loadReturn->tileData.empty())
+    if (tileData.empty())
         return nil;
     
-    RawNSDataReader *theData = (RawNSDataReader *)loadReturn->tileData[0].get();
-    return theData->getData();
+    return tileData[0];
 }
 
 - (void)setError:(NSError *)error

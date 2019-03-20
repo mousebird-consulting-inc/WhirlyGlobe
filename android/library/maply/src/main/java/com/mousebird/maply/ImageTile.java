@@ -30,7 +30,7 @@ import android.graphics.Bitmap;
  * return them on demand.
  *
  */
-public class MaplyImageTile 
+public class ImageTile
 {
 	public Bitmap[] bitmaps = null;
 	public Bitmap bitmap = null;

@@ -56,7 +56,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_dispose
 	{
 		SamplingParamsClassInfo *classInfo = SamplingParamsClassInfo::getClassInfo();
         {
+            SamplingParams *params = classInfo->getObject(env,obj);
             std::lock_guard<std::mutex> lock(disposeMutex);
+            if (!params)
+                return;
+            delete params;
             classInfo->clearHandle(env,obj);
         }
 	}

@@ -34,7 +34,6 @@ QuadLoaderReturn::~QuadLoaderReturn()
     
 void QuadLoaderReturn::clear()
 {
-    tileData.clear();
     images.clear();
     compObjs.clear();
     ovlCompObjs.clear();

@@ -41,11 +41,8 @@ public:
     
     // Frame, or -1 if there are no frames
     int frame;
-    
-    // Unparsed data coming back from the
-    std::vector<RawDataRef> tileData;
-    
-    // Any images that my have been added, in whatever state
+        
+    // Any images that may have been added, in whatever state
     std::vector<ImageTileRef> images;
 
     // Regular component objects added for a tile

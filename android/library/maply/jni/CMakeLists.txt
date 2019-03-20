@@ -130,4 +130,8 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/components/ComponentManager_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/SamplingParams_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/LoaderReturn_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/ImageTile_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/ImageLoaderReturn_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/ObjectLoaderReturn_jni.cpp"
 )

@@ -28,13 +28,13 @@
 /**
  This version of the loader return is used by the MaplyImageLoaderInterpreter.
  
- When image tiles load, the interpeter fill in these contents, which can
+ When image tiles load, the interpeter fills in these contents, which can
  include any sort of ComponentObject and, of course, images.
  */
 @interface MaplyImageLoaderReturn : MaplyLoaderReturn
 
 /// Add an image to this loaded return.
-/// You can multiple, but the interpreter should be expecting that
+/// You can add multiple, but the interpreter should be expecting that
 - (void)addImageTile:(MaplyImageTile * __nonnull)image;
 
 /// Add a UIImage to the loader return

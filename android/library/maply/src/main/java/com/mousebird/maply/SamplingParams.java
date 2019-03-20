@@ -188,5 +188,4 @@ public class SamplingParams
     native void initialise();
     native void dispose();
     private long nativeHandle;
-
 }

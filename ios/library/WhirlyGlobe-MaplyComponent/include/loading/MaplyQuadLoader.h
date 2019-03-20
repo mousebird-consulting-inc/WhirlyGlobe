@@ -35,7 +35,7 @@
  */
 @interface MaplyLoaderReturn : NSObject
 
-/// Tile this is the image for
+/// Tile this is the data for
 @property (nonatomic) MaplyTileID tileID;
 
 /// If set, the frame.  -1 by default

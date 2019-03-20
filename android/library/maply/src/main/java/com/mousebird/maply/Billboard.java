@@ -147,5 +147,4 @@ public class Billboard {
     private long selectID = Identifiable.genID();
     private ScreenObject screenObject;
     private ArrayList<VertexAttribute> vertexAttributes = new ArrayList<>();
-
 }

@@ -22,3 +22,7 @@
 #import "WhirlyGlobe_Android.h"
 
 typedef JavaClassInfo<WhirlyKit::SamplingParams> SamplingParamsClassInfo;
+typedef JavaClassInfo<WhirlyKit::QuadLoaderReturn> LoaderReturnClassInfo;
+typedef JavaClassInfo<WhirlyKit::ImageTile_AndroidRef> ImageTileClassInfo;
+
+JNIEXPORT jobject JNICALL MakeImageTile(JNIEnv *env,WhirlyKit::ImageTile_AndroidRef imgTile);
