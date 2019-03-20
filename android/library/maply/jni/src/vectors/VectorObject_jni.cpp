@@ -439,12 +439,12 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorObject_linearMiddle__Lc
         Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
         VectorObject *vecObj = classInfo->getObject(env,obj);
         Point2d *mid = pt2dClassInfo->getObject(env,midObj);
-        CoordSystem *coordSys = CoordSystemClassInfo::getClassInfo()->getObject(env,coordSysObj);
+        CoordSystemRef *coordSys = CoordSystemRefClassInfo::getClassInfo()->getObject(env,coordSysObj);
         if (!vecObj || !mid || !coordSys)
             return 0.0;
 
         double rot;
-        if (vecObj->linearMiddle(*mid,rot,coordSys))
+        if (vecObj->linearMiddle(*mid,rot,coordSys->get()))
         {
             return rot;
         } else
@@ -749,14 +749,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_reprojectNative
         VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
         VectorObject *vecObj = classInfo->getObject(env,obj);
         VectorObject *retVecObj = classInfo->getObject(env,retObj);
-        CoordSystemClassInfo *coordSystemInfo = CoordSystemClassInfo::getClassInfo();
-        CoordSystem *srcSystem = coordSystemInfo->getObject(env,srcSystemObj);
-        CoordSystem *destSystem = coordSystemInfo->getObject(env,destSystemObj);
+        CoordSystemRefClassInfo *coordSystemInfo = CoordSystemRefClassInfo::getClassInfo();
+        CoordSystemRef *srcSystem = coordSystemInfo->getObject(env,srcSystemObj);
+        CoordSystemRef *destSystem = coordSystemInfo->getObject(env,destSystemObj);
         if (!vecObj || !retVecObj || !srcSystem || !destSystem)
             return false;
 
         retVecObj->shapes = vecObj->shapes;
-        retVecObj->reproject(srcSystem,scale,destSystem);
+        retVecObj->reproject(srcSystem->get(),scale,destSystem->get());
 
         return true;
     }

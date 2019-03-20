@@ -26,6 +26,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/LabelsAndMarkers_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Maply_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Particles_jni.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/QuadLoading_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Scene_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Selection_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Shapes_jni.h"
@@ -127,4 +128,6 @@ target_sources(
 
         "${CMAKE_CURRENT_LIST_DIR}/src/components/ComponentObject_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/components/ComponentManager_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/SamplingParams_jni.cpp"
 )

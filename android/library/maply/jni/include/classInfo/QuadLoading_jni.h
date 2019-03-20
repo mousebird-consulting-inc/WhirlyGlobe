@@ -1,8 +1,8 @@
 /*
- *  CoordSystem_jni.h
+ *  QuadLoading_jni.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/7/19.
+ *  Created by Steve Gifford on 3/20/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,9 +21,4 @@
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
 
-typedef JavaClassInfo<WhirlyKit::CoordSystemRef> CoordSystemRefClassInfo;
-typedef JavaClassInfo<WhirlyKit::CoordSystemDisplayAdapter> CoordSystemDisplayAdapterInfo;
-typedef JavaClassInfo<WhirlyKit::FakeGeocentricDisplayAdapter> FakeGeocentricDisplayAdapterInfo;
-typedef JavaClassInfo<WhirlyKit::GeneralCoordSystemDisplayAdapter> GeneralDisplayAdapterInfo;
-
-JNIEXPORT jobject JNICALL MakeCoordSystem(JNIEnv *env,WhirlyKit::CoordSystemRef coordSys);
+typedef JavaClassInfo<WhirlyKit::SamplingParams> SamplingParamsClassInfo;

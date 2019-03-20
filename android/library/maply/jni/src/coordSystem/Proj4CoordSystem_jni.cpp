@@ -36,7 +36,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Proj4CoordSystem_initialise
     {
         JavaString jstr(env,str);
         Proj4CoordSystem *coordSystem = new Proj4CoordSystem((std::string)jstr.cStr);
-        CoordSystemClassInfo::getClassInfo()->setHandle(env,obj,coordSystem);
+        CoordSystemRefClassInfo::getClassInfo()->setHandle(env,obj,new CoordSystemRef(coordSystem));
     }
     catch (...)
     {

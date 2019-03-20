@@ -35,7 +35,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_PlateCarreeCoordSystem_initialis
 	try
 	{
 		PlateCarreeCoordSystem *coordSystem = new PlateCarreeCoordSystem();
-		CoordSystemClassInfo::getClassInfo()->setHandle(env,obj,coordSystem);
+		CoordSystemRefClassInfo::getClassInfo()->setHandle(env,obj,new CoordSystemRef(coordSystem));
 	}
 	catch (...)
 	{

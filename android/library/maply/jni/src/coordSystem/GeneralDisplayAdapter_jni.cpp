@@ -39,12 +39,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeneralDisplayAdapter_initialise
     try
     {
         GeneralDisplayAdapterInfo *classInfo = GeneralDisplayAdapterInfo::getClassInfo();
-        CoordSystem *coordSys = CoordSystemClassInfo::getClassInfo()->getObject(env,coordSysObj);
+        CoordSystemRef *coordSys = CoordSystemRefClassInfo::getClassInfo()->getObject(env,coordSysObj);
         Point3d *ll = Point3dClassInfo::getClassInfo()->getObject(env,llObj);
         Point3d *ur = Point3dClassInfo::getClassInfo()->getObject(env,urObj);
         Point3d *center = Point3dClassInfo::getClassInfo()->getObject(env,centerObj);
         Point3d *scale = Point3dClassInfo::getClassInfo()->getObject(env,scaleObj);
-        GeneralCoordSystemDisplayAdapter *coordAdapter = new GeneralCoordSystemDisplayAdapter(coordSys,*ll,*ur,*center,*scale);
+        GeneralCoordSystemDisplayAdapter *coordAdapter = new GeneralCoordSystemDisplayAdapter(coordSys->get(),*ll,*ur,*center,*scale);
         classInfo->setHandle(env,obj,coordAdapter);
     }
     catch (...)
