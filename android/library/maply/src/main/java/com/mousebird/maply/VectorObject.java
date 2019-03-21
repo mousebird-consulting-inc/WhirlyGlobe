@@ -210,7 +210,7 @@ public class VectorObject implements Iterable<VectorObject>
 
 	 This will break up long edges in a vector until they lie flat on a globe to a given epsilon.  The epislon is in display coordinates (radius = 1.0). This routine breaks this up along geographic boundaries.
 	 */
-	public VectorObject subdivideToGlobe(float epsilon)
+	public VectorObject subdivideToGlobe(double epsilon)
 	{
 		VectorObject retVecObj = new VectorObject();
 		if (!subdivideToGlobeNative(retVecObj,epsilon))

@@ -63,7 +63,7 @@
 /**
  Image loader intrepreter turns NSData objects into MaplyImageTiles.
  
- This is the default interpreter used byt the MaplyQuadImageLoader.
+ This is the default interpreter used by the MaplyQuadImageLoader.
  */
 @interface MaplyImageLoaderInterpreter : NSObject<MaplyLoaderInterpreter>
 @end

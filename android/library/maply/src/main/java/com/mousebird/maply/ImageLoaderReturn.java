@@ -61,6 +61,16 @@ public class ImageLoaderReturn extends LoaderReturn
     }
 
     /**
+     * Add a single component object to the tile
+     */
+    public void addComponentObject(ComponentObject compObj)
+    {
+        ComponentObject[] compArr = new ComponentObject[1];
+        compArr[0] = compObj;
+        addComponentObjects(compArr);
+    }
+
+    /**
      * These component objects are assumed to be overlaid and so only one
      * set will be displayed at a time.
      */
