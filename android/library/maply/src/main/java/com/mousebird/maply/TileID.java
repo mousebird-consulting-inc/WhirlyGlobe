@@ -31,9 +31,9 @@ package com.mousebird.maply;
  * @author sjg
  *
  */
-public class MaplyTileID implements Comparable<MaplyTileID>
+public class TileID implements Comparable<TileID>
 {
-	MaplyTileID() { }
+	TileID() { }
 	
 	/**
 	 * Construct with x,y, and level.
@@ -41,7 +41,7 @@ public class MaplyTileID implements Comparable<MaplyTileID>
 	 * @param inY Vertical tile
 	 * @param inLevel Level in the quad tree.
 	 */
-	public MaplyTileID(int inX,int inY,int inLevel)
+	public TileID(int inX,int inY,int inLevel)
 	{
 		x = inX;
 		y = inY;
@@ -54,7 +54,7 @@ public class MaplyTileID implements Comparable<MaplyTileID>
 	}
 	
 	@Override
-	public int compareTo(MaplyTileID that) 
+	public int compareTo(TileID that)
 	{
 		if (level == that.level)
 		{
@@ -76,10 +76,10 @@ public class MaplyTileID implements Comparable<MaplyTileID>
 		if (this == that)
 			return true;
 		
-		if (!(that instanceof MaplyTileID))
+		if (!(that instanceof TileID))
 			return false;
-		
-		MaplyTileID lhs = (MaplyTileID)that;
+
+		TileID lhs = (TileID)that;
 		return level == lhs.level && x == lhs.x && y == lhs.y;
 	}
 	

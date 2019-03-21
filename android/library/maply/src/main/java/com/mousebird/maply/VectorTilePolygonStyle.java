@@ -42,7 +42,7 @@ public class VectorTilePolygonStyle extends VectorTileStyle {
 
     static double ClipGridSize = 2.0/180.0*Math.PI;
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, MaplyTileID tileID, MaplyBaseController controller) {
+    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, MaplyBaseController controller) {
 
         boolean globeMode = (controller instanceof GlobeController);
         ArrayList<VectorObject> vectors = new ArrayList<VectorObject>();

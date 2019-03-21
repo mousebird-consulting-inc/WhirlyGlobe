@@ -36,7 +36,8 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.mousebird.maply.AttrDictionary;
 import com.mousebird.maply.MaplyBaseController;
-import com.mousebird.maply.MaplyTileID;
+import com.mousebird.maply.TileID;
+import com.mousebird.maply.TileID;
 import com.mousebird.maply.VectorStyle;
 import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDNamedLayer;
@@ -159,7 +160,7 @@ public class SLDStyleSet implements VectorStyleInterface {
     }
 
     @Override
-    public VectorStyle[] stylesForFeature(AttrDictionary attrs, MaplyTileID tileID, String layerName, MaplyBaseController controller)
+    public VectorStyle[] stylesForFeature(AttrDictionary attrs, TileID tileID, String layerName, MaplyBaseController controller)
     {
         List<VectorTileStyle> vectorTileStyles = new ArrayList<VectorTileStyle>();
         boolean matched;
@@ -170,7 +171,7 @@ public class SLDStyleSet implements VectorStyleInterface {
     }
 
     @Override
-    public boolean layerShouldDisplay(String layerName,MaplyTileID tileID)
+    public boolean layerShouldDisplay(String layerName,TileID tileID)
     {
         return true;
     }

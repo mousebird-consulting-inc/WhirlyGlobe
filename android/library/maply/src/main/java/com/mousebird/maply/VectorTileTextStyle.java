@@ -48,7 +48,7 @@ public class VectorTileTextStyle extends VectorTileStyle {
         this.offset = offset;
     }
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, MaplyTileID tileID, MaplyBaseController controller) {
+    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, MaplyBaseController controller) {
 
         ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 

@@ -45,7 +45,7 @@ public class VectorTileMarkerStyle extends VectorTileStyle {
 
     }
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, MaplyTileID tileID, MaplyBaseController controller) {
+    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, MaplyBaseController controller) {
 
         ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
         for (VectorObject vector : objects) {

@@ -66,7 +66,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs, MaplyTileID tileID, MaplyBaseController controller)
+        public ComponentObject[] buildObjects(List<VectorObject> vecObjs, TileID tileID, MaplyBaseController controller)
         {
             ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
             for (VectorObject point : vecObjs)
@@ -110,7 +110,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,MaplyTileID tileID,MaplyBaseController controller)
+        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,TileID tileID,MaplyBaseController controller)
         {
             VectorInfo vecInfo = new VectorInfo();
 //            vecInfo.disposeAfterUse = true;
@@ -143,7 +143,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,MaplyTileID tileID,MaplyBaseController controller)
+        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,TileID tileID,MaplyBaseController controller)
         {
             VectorInfo vecInfo = new VectorInfo();
             vecInfo.disposeAfterUse = true;
@@ -173,7 +173,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
      * We'll return a point, line, or areal vector style
      */
     @Override
-    public VectorStyle[] stylesForFeature(AttrDictionary attrs,MaplyTileID tileID,String layerName,MaplyBaseController controller)
+    public VectorStyle[] stylesForFeature(AttrDictionary attrs,TileID tileID,String layerName,MaplyBaseController controller)
     {
         // Look for an existing style if we've already done this lookup
         VectorStyleSimple style = stylesByLayerName.get(layerName);
@@ -209,7 +209,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
      * We'll display all layers
      */
     @Override
-    public boolean layerShouldDisplay(String layerName,MaplyTileID tileID)
+    public boolean layerShouldDisplay(String layerName,TileID tileID)
     {
         return true;
     }

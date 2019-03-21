@@ -148,7 +148,7 @@ using namespace WhirlyKit;
     pts[2] = Point3d(wholeBBox.ll.x+dx*(tileID.x+1),wholeBBox.ll.y+dy*(tileID.y+1),0.0);
     pts[3] = Point3d(wholeBBox.ll.x+dx*tileID.x,wholeBBox.ll.y+dy*(tileID.y+1),0.0);
 
-    // Project the corners into
+    // Project the corners into our coordinate system
     MbrD tileMbr;
     for (unsigned int ii=0;ii<4;ii++) {
         Point3d validPt = CoordSystemConvert3d([_coordSys getCoordSystem].get(), [bboxCoordSys getCoordSystem].get(), pts[ii]);

@@ -11,7 +11,7 @@ public class QuadLoaderBase
         return control;
     }
 
-    Mbr geoBoundsForTile(MaplyTileID tileID)
+    Mbr geoBoundsForTile(TileID tileID)
     {
         return null;
     }

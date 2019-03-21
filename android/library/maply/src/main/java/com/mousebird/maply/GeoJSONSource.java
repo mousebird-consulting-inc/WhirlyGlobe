@@ -123,7 +123,7 @@ public class GeoJSONSource {
             VectorObject[] vecs = parseData(buffer.toString());
 
             if (vecs != null) {
-                MaplyTileID nullTileID = new MaplyTileID(0,0,0);
+                TileID nullTileID = new TileID(0,0,0);
                 for (VectorObject vecObj : vecs) {
                     VectorStyle[] styles = styleSet.stylesForFeature(vecObj.getAttributes(), nullTileID, "", baseController);
                     if (styles == null || styles.length == 0)
@@ -140,7 +140,7 @@ public class GeoJSONSource {
             }
 
             if (vecs != null) {
-                MaplyTileID nullTileID = new MaplyTileID(0, 0, 0);
+                TileID nullTileID = new TileID(0, 0, 0);
                 for (String uuid : featureStyles.keySet()) {
                     VectorStyle style = styleSet.styleForUUID(uuid, baseController);
                     ArrayList<VectorObject> featuresForStyle = featureStyles.get(uuid);

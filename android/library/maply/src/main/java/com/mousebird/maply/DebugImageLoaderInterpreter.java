@@ -55,7 +55,7 @@ public class DebugImageLoaderInterpreter extends ImageLoaderInterpreter
     {
         ImageLoaderReturn loadReturn = (ImageLoaderReturn)inLoadReturn;
 
-        MaplyTileID tileID = loadReturn.getTileID();
+        TileID tileID = loadReturn.getTileID();
         int frame = loadReturn.getFrame();
 
         // Render the tile ID into a bitmap

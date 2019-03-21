@@ -35,9 +35,9 @@ public class LoaderReturn
     /**
      * Tile this data belongs to.
      */
-    public MaplyTileID getTileID()
+    public TileID getTileID()
     {
-        MaplyTileID tileID = new MaplyTileID();
+        TileID tileID = new TileID();
 
         int[] tileInfo = getTileIDNative();
         tileID.x = tileInfo[0];

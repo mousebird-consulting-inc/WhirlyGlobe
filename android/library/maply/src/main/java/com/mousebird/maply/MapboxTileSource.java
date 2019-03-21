@@ -8,7 +8,7 @@ public interface MapboxTileSource {
     /**
      * Return the block of data associated with the given tile.
      */
-    public byte[] getDataTile(MaplyTileID tileID);
+    public byte[] getDataTile(TileID tileID);
 
     /**
      * Return the coordinate system.

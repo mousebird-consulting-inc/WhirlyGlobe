@@ -48,7 +48,7 @@ public class VectorTileLineStyle extends VectorTileStyle {
     }
 
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, MaplyTileID tileID, MaplyBaseController controller) {
+    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, MaplyBaseController controller) {
         ComponentObject compObj = null;
         if (useWideVectors)
             compObj = controller.addWideVectors(objects, wideVectorInfo, MaplyBaseController.ThreadMode.ThreadCurrent);

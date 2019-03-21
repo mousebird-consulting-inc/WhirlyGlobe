@@ -30,7 +30,7 @@ package com.mousebird.maply;
 public class TileInfoNew
 {
     // Use a subclass, not this
-    private TileInfoNew()
+    protected TileInfoNew()
     {}
 
     /**
@@ -59,7 +59,7 @@ public class TileInfoNew
      *   tells the fetcher how to get the data you wawnt.
      *   RemoteTileFetchers want a RemoteTileInfoNew object.
      */
-    Object fetchInfoForTile(MaplyTileID tileID)
+    Object fetchInfoForTile(TileID tileID)
     {
         return null;
     }
