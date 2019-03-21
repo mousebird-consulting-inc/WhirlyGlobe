@@ -31,7 +31,7 @@ public interface TileFetcher
     /**
      * Name of this tile fetcher.  Used for coordinating tile sources.
      */
-    public String getName();
+    public String getFetcherName();
 
     /**
      * Add a whole group of requests at once.
