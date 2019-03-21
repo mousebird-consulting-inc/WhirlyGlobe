@@ -27,6 +27,7 @@ import java.util.concurrent.Semaphore;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -235,15 +236,22 @@ public class MBTileFetcher extends HandlerThread implements TileFetcher
         if (toLoad.isEmpty())
             return;
 
-        TileInfo tileInfo = toLoad.first();
+        final TileInfo tileInfo = toLoad.first();
 
         // Load the data tile
-        byte[] data = getDataTile(tileInfo.fetchInfo.tileID);
+        final byte[] data = getDataTile(tileInfo.fetchInfo.tileID);
 
-        if (data != null)
-            tileInfo.request.callback.success(tileInfo.request,data);
-        else
-            tileInfo.request.callback.failure(tileInfo.request,"Failed to read MBTiles File");
+        // We assume they'll be parsing things which will take time
+        new AsyncTask<Void, Void, Void>() {
+            protected Void doInBackground(Void... unused) {
+                if (data != null)
+                    tileInfo.request.callback.success(tileInfo.request, data);
+                else
+                    tileInfo.request.callback.failure(tileInfo.request,"Failed to read MBTiles File");
+
+                return null;
+            }
+        }.execute();
 
         finishTile(tileInfo);
 
