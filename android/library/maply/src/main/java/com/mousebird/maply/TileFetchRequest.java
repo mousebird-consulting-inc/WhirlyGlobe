@@ -45,9 +45,9 @@ public class TileFetchRequest
     int group;
 
     /**
-     * An object representing the tile source.  Used for sorting.  Not accessed by the fetcher.
+     * A unique ID used for sorting.  Not accessed by the fetcher.
      */
-    Object tileSource;
+    long tileSource;
 
     /**
      * This is requested from a TileInfo object by a loader and then passed

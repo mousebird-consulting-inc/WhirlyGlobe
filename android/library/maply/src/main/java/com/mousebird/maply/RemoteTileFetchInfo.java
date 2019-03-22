@@ -32,6 +32,9 @@ import java.io.File;
  */
 public class RemoteTileFetchInfo
 {
+    // Used for sorting
+    public long uniqueID = Identifiable.genID();
+
     /**
      * URL to fetch from.  Also headers and things like that.
      */
