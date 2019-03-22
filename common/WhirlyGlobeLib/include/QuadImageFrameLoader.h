@@ -27,7 +27,7 @@ namespace WhirlyKit
     
 class QuadImageFrameLoader;
     
-// We store cancels and adss to do them all at once
+// We store cancels and adds to do them all at once
 // The subclass passes its own version of this around
 class QIFBatchOps
 {

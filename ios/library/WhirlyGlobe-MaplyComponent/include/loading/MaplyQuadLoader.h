@@ -82,8 +82,8 @@
 @end
 
 /** Base class for the quad loaders.
- 
- All the quad loader (image, frame, data) implement these same bounding box methods.  No reason
+
+    The image, frame, and data paging loaders all share much of the same functionality.
  */
 @interface MaplyQuadLoaderBase : NSObject
 
@@ -134,7 +134,7 @@
  
  @param tileID The ID for the tile we're interested in.
  
- @return The lower left and upper right corner of the tile in geographic coordinates.
+ @return The lower left and upper right corner of the tile in local coordinates.
  */
 - (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID;
 
@@ -165,7 +165,7 @@
 /// Set the interpreter for the data coming back.  If you're just getting images, don't set this.
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp;
 
-/** Turn off the image loader and shut things down.
+/** Turn off the loader and shut things down.
  This unregisters us with the sampling layer and shuts down the various objects we created.
  */
 - (void)shutdown;

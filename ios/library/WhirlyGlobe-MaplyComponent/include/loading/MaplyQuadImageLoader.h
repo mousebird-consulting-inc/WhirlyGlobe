@@ -99,7 +99,11 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
   */
 @interface MaplyQuadImageLoaderBase : MaplyQuadLoaderBase
 
-// Set the draw priority values for produced tiles
+/** Set the base priority values for produced tiles.
+ 
+    The system will use a range of values to deal with overlaps.
+    This is the base value.
+  */
 @property (nonatomic) int baseDrawPriority;
 
 // Offset between levels for a calculated draw priority
@@ -117,7 +121,7 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 /**
  Shader to use for rendering the image frames.
  
- If not, set we'll pick the default visual shader.
+ If not set we'll pick the default visual shader.
  */
 - (void)setShader:(MaplyShader * __nullable)shader;
 
@@ -128,15 +132,6 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
  You use this in a multi-pass rendering setup.
  */
 - (void)setRenderTarget:(MaplyRenderTarget *__nonnull)renderTarget;
-
-/**
-  The loader interpreter converts raw data into images and geometry.
- 
-  For the image loaders, we use the default MaplyImageLoaderInterpreter
-  but you can change that to something else as long as it returns at
-  least one image.
-  */
-- (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> *__nonnull)interp;
 
 /**
  Set the image format for internal imagery storage.
