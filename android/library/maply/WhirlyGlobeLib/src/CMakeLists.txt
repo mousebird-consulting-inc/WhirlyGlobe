@@ -32,6 +32,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/LabelInfo_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/ParticleBatch_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/platform.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/QuadImageFrameLoader_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Shader_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/SingleLabel_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/WhirlyKitLog.cpp"

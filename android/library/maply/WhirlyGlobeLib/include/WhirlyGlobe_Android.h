@@ -27,6 +27,7 @@
 #import "ImageTile_Android.h"
 #import "LabelInfo_Android.h"
 #import "ParticleBatch_Android.h"
+#import "QuadImageFrameLoader_Android.h"
 #import "SceneRenderer_Android.h"
 #import "SingleLabel_Android.h"
 #import "Shader_Android.h"

@@ -88,7 +88,7 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      *  If not set we'll pick the default visual shader.
      */
     public void setShader(Shader shader) {
-        setShadererID(shader.getID());
+        setShaderID(shader.getID());
     }
 
     /**

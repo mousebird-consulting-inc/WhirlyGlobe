@@ -42,7 +42,7 @@ public class QuadImageLoader extends QuadImageLoaderBase
         valid = true;
 
         // Let's delay the
-        control.getActivity().getMainLooper()
+        control.getActivity().getMainLooper();
     }
 
     TileInfoNew[] tileInfos = null;
