@@ -31,10 +31,15 @@ class QuadImageFrameLoader_Android;
 class QIFBatchOps_Android : public QIFBatchOps
 {
 public:
-    QIFBatchOps_Android();
+    QIFBatchOps_Android(JNIEnv *env);
     virtual ~QIFBatchOps_Android();
 
-    // Lists of toCancel and toStart
+
+
+protected:
+    // Pointers to the Java side of things
+    JNIEnv *env;
+    jobject batchOpsObj;
 };
 
 // Android verison of the frame asset
@@ -88,7 +93,7 @@ class QuadImageFrameLoader_Android : public QuadImageFrameLoader
 {
 public:
     // Displaying a single frame
-    QuadImageFrameLoader_Android(const SamplingParams &params,int numFrames,Mode mode);
+    QuadImageFrameLoader_Android(const SamplingParams &params,int numFrames,Mode mode,JNIEnv *env);
     ~QuadImageFrameLoader_Android();
 
     // TODO: Android version points to tileFetcher and MaplyTileInfo objects
@@ -106,6 +111,8 @@ public:
 protected:
     // Make an Android specific tile/frame assets
     virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident);
+
+    JNIEnv *env;
 
     int numFrames;
 };

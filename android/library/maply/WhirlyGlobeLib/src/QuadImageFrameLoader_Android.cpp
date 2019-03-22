@@ -23,12 +23,14 @@
 namespace WhirlyKit
 {
 
-QIFBatchOps_Android::QIFBatchOps_Android()
+QIFBatchOps_Android::QIFBatchOps_Android(JNIEnv *env)
 {
+    // TODO: Create a corresponding batchOps object
 }
 
 QIFBatchOps_Android::~QIFBatchOps_Android()
 {
+    // TODO: Delete the batchOps object on the Java side
 }
 
 QIFFrameAsset_Android::QIFFrameAsset_Android()
@@ -46,7 +48,7 @@ void QIFFrameAsset_Android::clear(QuadImageFrameLoader *loader,QIFBatchOps *inBa
 
     QIFFrameAsset::clear(loader,batchOps,changes);
 
-    // TODO: Ask Android side to cancel request
+    // TODO: Ask Android side to cancel request (pass in batchOps)
 }
 
 bool QIFFrameAsset_Android::updateFetching(QuadImageFrameLoader *inLoader,int newPriority,double newImportance)
@@ -69,7 +71,7 @@ void QIFFrameAsset_Android::cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps
     QIFFrameAsset::cancelFetch(loader, batchOps);
 
     if (hasRequest) {
-        // TODO: Android side cancel fetch
+        // TODO: Android side cancel fetch (pass in batchOps)
     }
 }
 
@@ -77,14 +79,14 @@ void QIFFrameAsset_Android::loadSuccess(QuadImageFrameLoader *loader,Texture *te
 {
     QIFFrameAsset::loadSuccess(loader, tex);
 
-    // TODO: Andriod side clear request
+    // TODO: Android side clear request
 }
 
 void QIFFrameAsset_Android::loadFailed(QuadImageFrameLoader *loader)
 {
     QIFFrameAsset::loadFailed(loader);
 
-    // TODO: Andriod side clear request
+    // TODO: Android side clear request
 }
 
 QIFTileAsset_Android::QIFTileAsset_Android(const QuadTreeNew::ImportantNode &ident)
@@ -112,8 +114,8 @@ void QIFTileAsset_Android::startFetching(QuadImageFrameLoader *inLoader,QIFBatch
     // TODO: Android side, set up a fetch for each individual frame with callbacks
 }
 
-QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(const SamplingParams &params,int numFrames,Mode mode)
-        : QuadImageFrameLoader(params,mode), numFrames(numFrames)
+QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(const SamplingParams &params,int numFrames,Mode mode,JNIEnv *env)
+        : QuadImageFrameLoader(params,mode), numFrames(numFrames), env(env)
 {
 }
 
@@ -135,7 +137,7 @@ int QuadImageFrameLoader_Android::getNumFrames()
 
 QIFBatchOps *QuadImageFrameLoader_Android::makeBatchOps()
 {
-    QIFBatchOps_Android *batchOps = new QIFBatchOps_Android();
+    QIFBatchOps_Android *batchOps = new QIFBatchOps_Android(env);
 
     return batchOps;
 }
