@@ -238,6 +238,9 @@ public:
     /// Set/Change the sampling parameters.
     virtual void setSamplingParams(const SamplingParams &params);
 
+    /// Return the quad display controller this is attached to
+    QuadDisplayControllerNew *getController();
+
     /// Color for polygons created during loading
     void setColor(RGBAColor &inColor);
     const RGBAColor &getColor();

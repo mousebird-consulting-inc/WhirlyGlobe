@@ -41,12 +41,12 @@ public class QuadLoaderBase
      *
      *  Default value is true.
      */
-    public native boolean setFlipY(boolean newVal);
+    public native void setFlipY(boolean newVal);
 
     /**
      * Set for a lot of debugging output.
      */
-    public native boolean setDebugMode(boolean debugMode);
+    public native void setDebugMode(boolean debugMode);
 
     private MaplyBaseController control = null;
 
@@ -141,7 +141,12 @@ public class QuadLoaderBase
     {
         tileFetcher = null;
         loadInterp = null;
+
+        // TODO: Shut down sampling layer and call this on layer thread
+        ChangeSet changes = new ChangeSet();
+        cleanupNative(changes);
+        // TODO: Submit the changes before shutdown
     }
 
-    protected native void shutdownNative();
+    protected native void cleanupNative(ChangeSet changes);
 }

@@ -479,6 +479,11 @@ void QuadImageFrameLoader::setSamplingParams(const SamplingParams &inParams)
 {
     params = inParams;
 }
+
+QuadDisplayControllerNew *QuadImageFrameLoader::getController()
+{
+    return control;
+}
     
 void QuadImageFrameLoader::setDebugMode(bool newMode)
 {

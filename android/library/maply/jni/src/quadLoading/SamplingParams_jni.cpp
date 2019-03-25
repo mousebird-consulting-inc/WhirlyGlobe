@@ -2,7 +2,7 @@
  *  SamplingParams_jni.cpp
  *  WhirlyGlobeLib
  *
- *  Created by jmnavarro on 3/20/19.
+ *  Created by sjg on 3/20/19.
  *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");

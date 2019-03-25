@@ -10,17 +10,17 @@ extern "C" {
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
  * Method:    setFlipY
- * Signature: (Z)Z
+ * Signature: (Z)V
  */
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY
   (JNIEnv *, jobject, jboolean);
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
  * Method:    setDebugMode
- * Signature: (Z)Z
+ * Signature: (Z)V
  */
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode
   (JNIEnv *, jobject, jboolean);
 
 /*
@@ -49,11 +49,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_displayCenterForT
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
- * Method:    shutdownNative
- * Signature: ()V
+ * Method:    cleanupNative
+ * Signature: (Lcom/mousebird/maply/ChangeSet;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_shutdownNative
-  (JNIEnv *, jobject);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
+  (JNIEnv *, jobject, jobject);
 
 #ifdef __cplusplus
 }

@@ -20,9 +20,11 @@
 
 #import "Maply_jni.h"
 #import "WhirlyGlobe_Android.h"
+#import "../../../WhirlyGlobeLib/include/QuadImageFrameLoader_Android.h"
 
 typedef JavaClassInfo<WhirlyKit::SamplingParams> SamplingParamsClassInfo;
 typedef JavaClassInfo<WhirlyKit::QuadLoaderReturn> LoaderReturnClassInfo;
 typedef JavaClassInfo<WhirlyKit::ImageTile_AndroidRef> ImageTileClassInfo;
+typedef JavaClassInfo<WhirlyKit::QuadImageFrameLoader_Android> QuadImageFrameLoaderInfo;
 
 JNIEXPORT jobject JNICALL MakeImageTile(JNIEnv *env,WhirlyKit::ImageTile_AndroidRef imgTile);

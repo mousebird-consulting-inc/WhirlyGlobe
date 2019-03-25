@@ -279,8 +279,6 @@ using namespace WhirlyKit;
 
 - (void)shutdown
 {
-    ChangeSet changes;
-    
     valid = false;
     
     if (self->samplingLayer && self->samplingLayer.layerThread)
