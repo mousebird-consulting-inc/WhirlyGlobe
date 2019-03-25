@@ -30,6 +30,10 @@ QIFBatchOps_Android::QIFBatchOps_Android(JNIEnv *env)
 
 QIFBatchOps_Android::~QIFBatchOps_Android()
 {
+}
+
+void QIFBatchOps_Android::releaseJNI(JNIEnv *env)
+{
     // TODO: Delete the batchOps object on the Java side
 }
 
@@ -147,6 +151,7 @@ void QuadImageFrameLoader_Android::processBatchOps(QIFBatchOps *inBatchOps)
     QIFBatchOps_Android *batchOps = (QIFBatchOps_Android *)inBatchOps;
 
     // TODO: Have the Android side process the batch ops
+    //       Then delete the object
 }
 
 }

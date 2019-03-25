@@ -32,9 +32,8 @@ class QIFBatchOps_Android : public QIFBatchOps
 {
 public:
     QIFBatchOps_Android(JNIEnv *env);
+    void releaseJNI(JNIEnv *env);
     virtual ~QIFBatchOps_Android();
-
-
 
 protected:
     // Pointers to the Java side of things

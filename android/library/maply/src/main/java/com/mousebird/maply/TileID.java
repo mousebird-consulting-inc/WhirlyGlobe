@@ -34,7 +34,7 @@ package com.mousebird.maply;
 public class TileID implements Comparable<TileID>
 {
 	TileID() { }
-	
+
 	/**
 	 * Construct with x,y, and level.
 	 * @param inX The horizontal tile
