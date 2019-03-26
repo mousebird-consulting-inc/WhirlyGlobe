@@ -33,8 +33,6 @@ import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLSurface;
 
-import static com.mousebird.maply.MaplyBaseController.TextureSettings.FilterType.FilterLinear;
-
 /**
  * The base controller is a base class for both Maply and WhirlyGlobe controllers.
  * <p>
@@ -44,71 +42,23 @@ import static com.mousebird.maply.MaplyBaseController.TextureSettings.FilterType
  * @author sjg
  *
  */
-public class MaplyBaseController 
+public class BaseController implements RenderControllerInterface
 {
 	// This may be a GLSurfaceView or a GLTextureView
 	View baseView = null;
 	Activity activity = null;
     private OkHttpClient httpClient;
 
-
 	/**
 	 * Listener to receive the screenshot in an asynchronous way.
-	*/
+	 */
 	public interface ScreenshotListener {
 		public void onScreenshotResult(Bitmap screenshot);
 	}
 
-
-	public static final String kToolkitDefaultTriangleNoLightingProgram = "Default Triangle;lighting=no";
-
-	// When adding features we can run on the current thread or delay the work till layter
-	public enum ThreadMode {ThreadCurrent,ThreadAny};
-	
-	// Represents an ID that doesn't have data associated with it
-	public static long EmptyIdentity = 0;
-	
-	// Draw priority defaults
-	public static final int ImageLayerDrawPriorityDefault = 100;
-	public static final int FeatureDrawPriorityBase = 20000;
-	public static final int MarkerDrawPriorityDefault = 40000;
-	public static final int LabelDrawPriorityDefault = 60000;
-	public static final int ParticleDrawPriorityDefault = 1000;
-	
 	/**
-	 * This is how often we'll kick off a render when the frame sync comes in.
-	 * We get a notification when the render for a given frame starts, this is
-	 * usually 60 times a second.  This tells us how many to skip to achieve
-	 * our desired frame rate.  2 means 30hz.  3 means 20hz and so forth.
+	 * Take a screen shot and notify the listener when it's ready.
 	 */
-	public int frameInterval = 2;
-
-	/**
-	 * If set, we'll explicitly call dispose on any objects that were
-	 * being kept around for selection.
-	 */
-	public boolean disposeAfterRemoval = false;
-	
-	// Set when we're not in the process of shutting down
-	boolean running = false;
-
-	// Implements the GL renderer protocol
-	protected RendererWrapper renderWrapper;
-
-	// Coordinate system to display conversion
-	protected CoordSystemDisplayAdapter coordAdapter;
-	
-	// Scene stores the objects
-	public Scene scene = null;
-
-    /**
-     * Return the current scene.  Only for sure within the library.
-     */
-    public Scene getScene()
-    {
-        return scene;
-    }
-
 	public void takeScreenshot(ScreenshotListener listener)
 	{
 		if (baseView instanceof GLTextureView) {
@@ -153,124 +103,19 @@ public class MaplyBaseController
 		}
 		return httpClient;
 	}
-	
-	// MapView defines how we're looking at the data
-	protected com.mousebird.maply.View view = null;
 
-	// Managers are thread safe objects for handling adding and removing types of data
-	VectorManager vecManager;
-	WideVectorManager wideVecManager;
-	MarkerManager markerManager;
-    StickerManager stickerManager;
-	LabelManager labelManager;
-	SelectionManager selectionManager;
-	ComponentManager componentManager;
-	LayoutManager layoutManager;
-	ParticleSystemManager particleSystemManager;
-	LayoutLayer layoutLayer = null;
-	ShapeManager shapeManager = null;
-	BillboardManager billboardManager = null;
-	GeometryManager geomManager = null;
-
-	// Manage bitmaps and their conversion to textures
-	TextureManager texManager = new TextureManager();
-	
-	// Layer thread we use for data manipulation
-	ArrayList<LayerThread> layerThreads = new ArrayList<LayerThread>();
-	ArrayList<LayerThread> workerThreads = new ArrayList<LayerThread>();
-		
 	// Bounding box we're allowed to move within
 	Point2d viewBounds[] = null;
-	
-	/**
-	 * Returns the layer thread we used for processing requests.
-	 */
-	public LayerThread getLayerThread()
-	{
-		if (layerThreads == null)
-			return null;
-		synchronized (layerThreads) {
-			if (layerThreads.size() == 0)
-				return null;
-			return layerThreads.get(0);
-		}
-	}
-
-	private int lastLayerThreadReturned = 0;
 
 	/**
 	 * Activity for the whole app.
      */
 	public Activity getActivity() { return activity; }
 
-	/**
-	 * Returns a layer thread you can do whatever you like on.  You don't have
-	 * to be particularly fast about it, it won't hold up the main layer thread.
-	 * These layer threads are set up with the proper OpenGL contexts so they're
-	 * fast to add new geometry using the ThreadCurrent option.
-	 */
-	public LayerThread getWorkingThread()
-	{
-		// The first one is for use by the toolkit
-		int numAvailable = workerThreads.size();
-
-		if (numAvailable == 0)
-			return null;
-
-		if (numAvailable == 1)
-			return workerThreads.get(0);
-
-		return workerThreads.get((lastLayerThreadReturned++) % numAvailable);
-	}
-
-	/**
-	 * These are settings passed on construction.  We need these
-	 * immediately at startup to create the right internal structures.
-	 */
-	public static class Settings
-	{
-		/**
-		 * If set, we'll use a GLSurfaceView.  Otherwise a GLTexturesView.
-		 * GLSurfaceView is the default.
-		 */
-		public boolean useSurfaceView = true;
-		/**
-		 * These are the number of working threads we'll create by default
-		 * at startup.  These are fully capable of adding geometry to the
-		 * system on their own (via ThreadCurrent).
-		 */
-		public int numWorkingThreads = 8;
-		/**
-		 * If set we'll override the width of the rendering surface.
-		 *
-		 * This is useful for scaling back the surface resolution
-		 * for slower devices.
-		 */
-		public int width = 0;
-		/**
-		 * If set we'll override the height of the rendering surface.
-		 *
-		 * This is useful for scaling back the surface resolution
-		 * for slower devices.
-		 */
-		public int height = 0;
-	}
-
-	// Set if we're using a TextureView rather than a SurfaceView
-	boolean useTextureView = false;
-
-	/**
-	 * Returns true if we set up a TextureView rather than a SurfaceView.
-     */
-	public boolean usesTextureView()
-	{
-		return useTextureView;
-	}
-
 	boolean libraryLoaded = false;
-	int numWorkingThreads = 8;
-	int width = 0;
-	int height = 0;
+
+	// Render controller handles the rendering management, but also has to deal with threading
+	RenderController renderControl = null;
 
 	/**
 	 * Construct the maply controller with an Activity.  We need access to a few
@@ -285,19 +130,14 @@ public class MaplyBaseController
 	 * <p>
 	 * @param mainActivity Your main activity that we'll attach ourselves to.
 	 */
-	public MaplyBaseController(Activity mainActivity,Settings settings)
+	public BaseController(Activity mainActivity,RenderController.Settings settings)
 	{
 		// Note: Can't pull this one in anymore in Android Studio.  Hopefully not still necessary
 //		System.loadLibrary("gnustl_shared");
 		System.loadLibrary("whirlyglobemaply");
 		libraryLoaded = true;
 		activity = mainActivity;
-		if (settings != null) {
-			useTextureView = !settings.useSurfaceView;
-			numWorkingThreads = settings.numWorkingThreads;
-			width = settings.width;
-			height = settings.height;
-		}
+		renderControl = new RenderController(settings);
 	}
 
 	ColorDrawable tempBackground = null;
@@ -875,7 +715,7 @@ public class MaplyBaseController
 		else
 			run.run();
 	}
-			
+
 	int clearColor = Color.BLACK;
 
 	/**
@@ -1710,7 +1550,6 @@ public class MaplyBaseController
 					{
 						ChangeSet changes = new ChangeSet();
 
-						// Stickers are added one at a time for some reason
 						for (Points pts: ptList) {
 							Matrix4d mat = pts.mat != null ? pts.mat : new Matrix4d();
 							long geomID = geomManager.addGeometryPoints(pts.rawPoints,pts.mat,geomInfo,changes);
@@ -1985,35 +1824,6 @@ public class MaplyBaseController
 
 		return compObj;
 	}
-
-    /**
-     * Texture settings for adding textures to the system.
-     */
-    static public class TextureSettings
-    {
-        public TextureSettings()
-        {
-        }
-
-        public enum FilterType {FilterNearest,FilterLinear};
-
-        /**
-         * Image format to use when creating textures.
-         */
-        public RenderController.ImageFormat imageFormat = RenderController.ImageFormat.MaplyImageIntRGBA;
-		/**
-		 * Filter type for created textures.
-		 */
-		public FilterType filterType = FilterLinear;
-		/**
-		 * Horizonal texture wrap.
-		 */
-		public boolean wrapU = false;
-		/**
-		 * Vertical texture wrap
-		 */
-		public boolean wrapV = false;
-    }
 
     /**
      * Add texture to the system with the given settings.

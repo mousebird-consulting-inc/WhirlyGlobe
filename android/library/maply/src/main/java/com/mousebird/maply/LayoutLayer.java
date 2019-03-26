@@ -29,10 +29,10 @@ import android.os.Handler;
  */
 class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 {
-	MaplyBaseController maplyControl = null;
+	BaseController maplyControl = null;
 	LayoutManager layoutManager = null;
 
-	LayoutLayer(MaplyBaseController inMaplyControl,LayoutManager inLayoutManager)
+	LayoutLayer(BaseController inMaplyControl,LayoutManager inLayoutManager)
 	{
 		maplyControl = inMaplyControl;
 		layoutManager = inLayoutManager;
