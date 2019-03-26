@@ -82,7 +82,7 @@ class TextureManager
 			// Need to create it
 			Texture texture = new Texture();
 			if (!texture.setBitmap(theBitmap,MaplyImage4Layer8Bit.ordinal()))
-				return MaplyBaseController.EmptyIdentity;
+				return RenderController.EmptyIdentity;
 			testWrapper.refs = 1;
 			testWrapper.texID = texture.getID();
 

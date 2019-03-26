@@ -20,12 +20,9 @@ import android.widget.Toast;
 import com.squareup.okhttp.Dispatcher;
 import com.squareup.okhttp.OkHttpClient;
 
-import java.nio.FloatBuffer;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -42,23 +39,55 @@ import javax.microedition.khronos.egl.EGLSurface;
  * @author sjg
  *
  */
-public class BaseController implements RenderControllerInterface
+public class BaseController implements RenderController.TaskManager
 {
 	// This may be a GLSurfaceView or a GLTextureView
 	View baseView = null;
-	Activity activity = null;
-    private OkHttpClient httpClient;
+	public Activity activity = null;
+    public OkHttpClient httpClient;
+
 
 	/**
 	 * Listener to receive the screenshot in an asynchronous way.
-	 */
+	*/
 	public interface ScreenshotListener {
 		public void onScreenshotResult(Bitmap screenshot);
 	}
 
 	/**
-	 * Take a screen shot and notify the listener when it's ready.
+	 * This is how often we'll kick off a render when the frame sync comes in.
+	 * We get a notification when the render for a given frame starts, this is
+	 * usually 60 times a second.  This tells us how many to skip to achieve
+	 * our desired frame rate.  2 means 30hz.  3 means 20hz and so forth.
 	 */
+	public int frameInterval = 2;
+
+	/**
+	 * If set, we'll explicitly call dispose on any objects that were
+	 * being kept around for selection.
+	 */
+	private boolean disposeAfterRemoval = false;
+	
+	// Set when we're not in the process of shutting down
+	protected boolean running = false;
+
+	// Implements the GL renderer protocol
+	protected RendererWrapper renderWrapper;
+
+	// Coordinate system to display conversion
+	protected CoordSystemDisplayAdapter coordAdapter;
+	
+	// Scene stores the objects
+	public Scene scene = null;
+
+    /**
+     * Return the current scene.  Only for sure within the library.
+     */
+    public Scene getScene()
+    {
+        return scene;
+    }
+
 	public void takeScreenshot(ScreenshotListener listener)
 	{
 		if (baseView instanceof GLTextureView) {
@@ -103,18 +132,110 @@ public class BaseController implements RenderControllerInterface
 		}
 		return httpClient;
 	}
+	
+	// MapView defines how we're looking at the data
+	protected com.mousebird.maply.View view = null;
 
+	// Layer thread we use for data manipulation
+	ArrayList<LayerThread> layerThreads = new ArrayList<LayerThread>();
+	ArrayList<LayerThread> workerThreads = new ArrayList<LayerThread>();
+		
 	// Bounding box we're allowed to move within
 	Point2d viewBounds[] = null;
+	
+	/**
+	 * Returns the layer thread we used for processing requests.
+	 */
+	public LayerThread getLayerThread()
+	{
+		if (layerThreads == null)
+			return null;
+		synchronized (layerThreads) {
+			if (layerThreads.size() == 0)
+				return null;
+			return layerThreads.get(0);
+		}
+	}
+
+	private int lastLayerThreadReturned = 0;
 
 	/**
 	 * Activity for the whole app.
      */
 	public Activity getActivity() { return activity; }
 
-	boolean libraryLoaded = false;
+	/**
+	 * Returns a layer thread you can do whatever you like on.  You don't have
+	 * to be particularly fast about it, it won't hold up the main layer thread.
+	 * These layer threads are set up with the proper OpenGL contexts so they're
+	 * fast to add new geometry using the ThreadCurrent option.
+	 */
+	public LayerThread getWorkingThread()
+	{
+		// The first one is for use by the toolkit
+		int numAvailable = workerThreads.size();
 
-	// Render controller handles the rendering management, but also has to deal with threading
+		if (numAvailable == 0)
+			return null;
+
+		if (numAvailable == 1)
+			return workerThreads.get(0);
+
+		return workerThreads.get((lastLayerThreadReturned++) % numAvailable);
+	}
+
+	/**
+	 * These are settings passed on construction.  We need these
+	 * immediately at startup to create the right internal structures.
+	 */
+	public static class Settings
+	{
+		/**
+		 * If set, we'll use a GLSurfaceView.  Otherwise a GLTexturesView.
+		 * GLSurfaceView is the default.
+		 */
+		public boolean useSurfaceView = true;
+		/**
+		 * These are the number of working threads we'll create by default
+		 * at startup.  These are fully capable of adding geometry to the
+		 * system on their own (via ThreadCurrent).
+		 */
+		public int numWorkingThreads = 8;
+		/**
+		 * If set we'll override the width of the rendering surface.
+		 *
+		 * This is useful for scaling back the surface resolution
+		 * for slower devices.
+		 */
+		public int width = 0;
+		/**
+		 * If set we'll override the height of the rendering surface.
+		 *
+		 * This is useful for scaling back the surface resolution
+		 * for slower devices.
+		 */
+		public int height = 0;
+	}
+
+	// Set if we're using a TextureView rather than a SurfaceView
+	boolean useTextureView = false;
+
+	/**
+	 * Returns true if we set up a TextureView rather than a SurfaceView.
+     */
+	public boolean usesTextureView()
+	{
+		return useTextureView;
+	}
+
+	boolean libraryLoaded = false;
+	int numWorkingThreads = 8;
+	int width = 0;
+	int height = 0;
+
+	/**
+	 * The render controller handles marshalling objects and the actual run loop.
+	 */
 	RenderController renderControl = null;
 
 	/**
@@ -130,14 +251,21 @@ public class BaseController implements RenderControllerInterface
 	 * <p>
 	 * @param mainActivity Your main activity that we'll attach ourselves to.
 	 */
-	public BaseController(Activity mainActivity,RenderController.Settings settings)
+	public BaseController(Activity mainActivity,Settings settings)
 	{
 		// Note: Can't pull this one in anymore in Android Studio.  Hopefully not still necessary
 //		System.loadLibrary("gnustl_shared");
 		System.loadLibrary("whirlyglobemaply");
 		libraryLoaded = true;
 		activity = mainActivity;
-		renderControl = new RenderController(settings);
+		if (settings != null) {
+			useTextureView = !settings.useSurfaceView;
+			numWorkingThreads = settings.numWorkingThreads;
+			width = settings.width;
+			height = settings.height;
+		}
+
+		renderControl = new RenderController();
 	}
 
 	ColorDrawable tempBackground = null;
@@ -151,26 +279,14 @@ public class BaseController implements RenderControllerInterface
 			libraryLoaded = true;
 		}
 
-		// Fire up the managers.  Can't do anything without these.
-		vecManager = new VectorManager(scene);
-		wideVecManager = new WideVectorManager(scene);
-		markerManager = new MarkerManager(scene);
-        stickerManager = new StickerManager(scene);
-		labelManager = new LabelManager(scene);
-		layoutManager = new LayoutManager(scene);
-		selectionManager = new SelectionManager(scene);
-		componentManager = new ComponentManager(scene);
-		particleSystemManager = new ParticleSystemManager(scene);
-		shapeManager = new ShapeManager(scene);
-		billboardManager = new BillboardManager(scene);
-		geomManager = new GeometryManager(scene);
+		renderControl.Init(scene,this);
 
 		// Now for the object that kicks off the rendering
-		renderWrapper = new RendererWrapper(this);
+		renderWrapper = new RendererWrapper(this, renderControl);
 		renderWrapper.scene = scene;
 		renderWrapper.view = view;
 		
-		// Create the layer thread
+		// Create the default layer thread
         LayerThread layerThread = new LayerThread("Maply Layer Thread",view,scene,true);
 		synchronized (layerThreads) {
 			layerThreads.add(layerThread);
@@ -190,7 +306,7 @@ public class BaseController implements RenderControllerInterface
 				}
 
 				// If the clear color has transparency, we need to set things up differently
-				if (Color.alpha(clearColor) < 255) {
+				if (Color.alpha(renderControl.clearColor) < 255) {
 					glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
 					glSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
 					glSurfaceView.setZOrderOnTop(true);
@@ -201,7 +317,7 @@ public class BaseController implements RenderControllerInterface
 
 				tempBackground = new ColorDrawable();
 				// This eliminates the black flash, but only if the clearColor is set right
-				tempBackground.setColor(clearColor);
+				tempBackground.setColor(renderControl.clearColor);
 				if (Build.VERSION.SDK_INT > 16)
 					glSurfaceView.setBackground(tempBackground);
 				glSurfaceView.setEGLContextClientVersion(2);
@@ -216,7 +332,7 @@ public class BaseController implements RenderControllerInterface
 				}
 
 				// If the clear color has transparency, we need to set things up differently
-				if (Color.alpha(clearColor) < 255) {
+				if (Color.alpha(renderControl.clearColor) < 255) {
 					glTextureView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
 					// Note: Do we need these in a TextureView
 //					glTextureView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
@@ -229,7 +345,7 @@ public class BaseController implements RenderControllerInterface
 				glTextureView.setOpaque(false);
 				tempBackground = new ColorDrawable();
 				// This eliminates the black flash, but only if the clearColor is set right
-				tempBackground.setColor(clearColor);
+				tempBackground.setColor(renderControl.clearColor);
 				if (Build.VERSION.SDK_INT > 16 && Build.VERSION.SDK_INT < 24)
 					glTextureView.setBackground(tempBackground);
 				glTextureView.setEGLContextClientVersion(2);
@@ -263,7 +379,7 @@ public class BaseController implements RenderControllerInterface
 		}
 
 		// Kick off the layer thread for background operations
-		newLayerThread.setRenderer(renderWrapper.maplyRender);
+		newLayerThread.setRenderer(renderControl);
 
 		if (handlesViewUpdates)
 			newLayerThread.viewUpdated(view);
@@ -300,7 +416,7 @@ public class BaseController implements RenderControllerInterface
 			return new Point2d(0,0);
 		return new Point2d(baseView.getWidth(),baseView.getHeight());
 	}
-	
+
 	/**
 	 * Call shutdown when you're done with the MaplyController.  It will shut down the layer
 	 * thread(s) and all the associated logic.
@@ -346,29 +462,15 @@ public class BaseController implements RenderControllerInterface
 
 			if (coordAdapter != null)
 				coordAdapter.shutdown();
-			if (vecManager != null)
-				vecManager.dispose();
-		        if (wideVecManager != null)
-			        wideVecManager.dispose();
-			if (stickerManager != null)
-				stickerManager.dispose();
-			if (selectionManager != null)
-				selectionManager.dispose();
-			if (componentManager != null)
-				componentManager.dispose();
-			if (labelManager != null)
-				labelManager.dispose();
-			if (layoutManager != null)
-				layoutManager.dispose();
-			if (particleSystemManager != null)
-				particleSystemManager.dispose();
+			if (renderControl != null)
+				renderControl.shutdown();
 
 			// Shut down the contexts
 			EGL10 egl = (EGL10) EGLContext.getEGL();
 			if (glContexts != null) {
 				for (ContextInfo context : glContexts) {
-					egl.eglDestroySurface(renderWrapper.maplyRender.display, context.eglSurface);
-					egl.eglDestroyContext(renderWrapper.maplyRender.display, context.eglContext);
+					egl.eglDestroySurface(renderControl.display, context.eglSurface);
+					egl.eglDestroyContext(renderControl.display, context.eglContext);
 				}
 				glContexts = null;
 
@@ -376,8 +478,8 @@ public class BaseController implements RenderControllerInterface
 
 			// And the main one
 			if (renderWrapper != null && renderWrapper.maplyRender != null && glContext != null) {
-				egl.eglDestroySurface(renderWrapper.maplyRender.display, glContext.eglSurface);
-				egl.eglDestroyContext(renderWrapper.maplyRender.display, glContext.eglContext);
+				egl.eglDestroySurface(renderControl.display, glContext.eglSurface);
+				egl.eglDestroyContext(renderControl.display, glContext.eglContext);
 				glContext = null;
 			}
 
@@ -401,21 +503,7 @@ public class BaseController implements RenderControllerInterface
 			coordAdapter = null;
 			scene = null;
 			view = null;
-			vecManager = null;
-			wideVecManager = null;
-			markerManager = null;
-			stickerManager = null;
-			labelManager = null;
-			selectionManager = null;
-			componentManager = null;
-			layoutManager = null;
-			particleSystemManager = null;
-			layoutLayer = null;
-			shapeManager = null;
-			billboardManager = null;
-
-			texManager = null;
-			// Using this as a synch object, so not a great idea
+			// Using this as a sync object, so not a great idea
 //			layerThreads = null;
 			workerThreads = null;
 
@@ -465,7 +553,7 @@ public class BaseController implements RenderControllerInterface
 
 	// Make a temporary context for use within the base controller.
 	// We expect these to be running on various threads
-	ContextInfo setupTempContext(MaplyBaseController.ThreadMode threadMode)
+	ContextInfo setupTempContext(RenderController.ThreadMode threadMode)
 	{
 		// There's already a context, so just stick with that
 		EGL10 egl = (EGL10) EGLContext.getEGL();
@@ -486,7 +574,7 @@ public class BaseController implements RenderControllerInterface
 				{
 					int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
 					retContext = new ContextInfo();
-					retContext.eglContext = egl.eglCreateContext(renderWrapper.maplyRender.display,renderWrapper.maplyRender.config,renderWrapper.maplyRender.context, attrib_list);
+					retContext.eglContext = egl.eglCreateContext(renderControl.display,renderControl.config,renderWrapper.maplyRender.context, attrib_list);
 					int[] surface_attrs =
 							{
 									EGL10.EGL_WIDTH, 32,
@@ -497,7 +585,7 @@ public class BaseController implements RenderControllerInterface
 //			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
 									EGL10.EGL_NONE
 							};
-					retContext.eglSurface = egl.eglCreatePbufferSurface(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, surface_attrs);
+					retContext.eglSurface = egl.eglCreatePbufferSurface(renderControl.display, renderControl.config, surface_attrs);
 
 //					Log.d("Maply","Created context + " + retContext.eglContext.toString());
 				} else {
@@ -523,7 +611,7 @@ public class BaseController implements RenderControllerInterface
 				EGL10 egl = (EGL10) EGLContext.getEGL();
 //				GLES20.glFlush();
 //				GLES20.glFinish();
-				if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT))
+				if (!egl.eglMakeCurrent(renderControl.display, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT))
 				{
 					Log.d("Maply","Failed to clear context");
 				}
@@ -580,6 +668,9 @@ public class BaseController implements RenderControllerInterface
 	// Set if they shut things down before the surface was attached
 	boolean startupAborted = false;
 
+	// Layout layer runs periodically to poke the layout manager
+	LayoutLayer layoutLayer = null;
+
 	// Called by the render wrapper when the surface is created.
 	// Can't start doing anything until that happens
 	void surfaceCreated(RendererWrapper wrap)
@@ -595,10 +686,10 @@ public class BaseController implements RenderControllerInterface
 			}
 
 			// Debugging output
-			renderWrapper.maplyRender.setPerfInterval(perfInterval);
+			renderControl.setPerfInterval(perfInterval);
 
 			// Kick off the layout layer
-			layoutLayer = new LayoutLayer(this, layoutManager);
+			layoutLayer = new LayoutLayer(this, renderControl.layoutManager);
 			LayerThread baseLayerThread = null;
 			synchronized (layerThreads) {
 				baseLayerThread = layerThreads.get(0);
@@ -625,13 +716,13 @@ public class BaseController implements RenderControllerInterface
 				glTextureView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 			}
 			metroThread = new MetroThread("Metronome Thread", this, displayRate);
-			metroThread.setRenderer(renderWrapper.maplyRender);
+			metroThread.setRenderer(renderControl);
 
 			// Make our own context that we can use on the main thread
 			EGL10 egl = (EGL10) EGLContext.getEGL();
 			int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE};
 			glContext = new ContextInfo();
-			glContext.eglContext = egl.eglCreateContext(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, renderWrapper.maplyRender.context, attrib_list);
+			glContext.eglContext = egl.eglCreateContext(renderControl.display, renderControl.config, renderControl.context, attrib_list);
 			int[] surface_attrs =
 					{
 							EGL10.EGL_WIDTH, 32,
@@ -642,14 +733,14 @@ public class BaseController implements RenderControllerInterface
 							//			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
 							EGL10.EGL_NONE
 					};
-			glContext.eglSurface = egl.eglCreatePbufferSurface(renderWrapper.maplyRender.display, renderWrapper.maplyRender.config, surface_attrs);
+			glContext.eglSurface = egl.eglCreatePbufferSurface(renderControl.display, renderControl.config, surface_attrs);
 
 			synchronized (layerThreads) {
 				for (LayerThread layerThread : layerThreads)
 					layerThread.viewUpdated(view);
 			}
 
-			setClearColor(clearColor);
+			setClearColor(renderControl.clearColor);
 
 			// Create the working threads
 			for (int ii = 0; ii < numWorkingThreads; ii++)
@@ -681,21 +772,21 @@ public class BaseController implements RenderControllerInterface
 			cInfo = glContext;
 
 		// This does seem to happen
-		if (renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.display == null)
+		if (renderWrapper == null || renderWrapper.maplyRender == null || renderControl.display == null)
 			return false;
 
 		EGL10 egl = (EGL10) EGLContext.getEGL();
         if (cInfo != null)
         {
-            if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
+            if (!egl.eglMakeCurrent(renderControl.display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
                 Log.d("Maply", "Failed to make current context.");
                 return false;
             }
 
             return true;
         } else {
-			if (renderWrapper != null && renderWrapper.maplyRender != null && renderWrapper.maplyRender.display != null)
-				egl.eglMakeCurrent(renderWrapper.maplyRender.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
+			if (renderWrapper != null && renderWrapper.maplyRender != null && renderControl.display != null)
+				egl.eglMakeCurrent(renderControl.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
 		}
 
         return false;
@@ -716,23 +807,12 @@ public class BaseController implements RenderControllerInterface
 			run.run();
 	}
 
-	int clearColor = Color.BLACK;
-
 	/**
 	 * Set the color for the OpenGL ES background.
      */
 	public void setClearColor(int color)
 	{
-		clearColor = color;
-
-		if (renderWrapper == null)
-			return;
-
-//		if (tempBackground != null)
-//			tempBackground.setColor(clearColor);
-
-		if (renderWrapper.maplyRender != null)
-			renderWrapper.maplyRender.setClearColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+		renderControl.setClearColor(color);
 	}
 
 	/**
@@ -782,10 +862,6 @@ public class BaseController implements RenderControllerInterface
 	 * Batch version of the geoPointFromScreen method.  This version is here for users to
 	 * convert a whole group of coordinates all at once.  Doing it individually is just
 	 * too slow in Java.
-	 * @param inX
-	 * @param inY
-	 * @param outX
-	 * @param outY
 	 */
 	public boolean geoPointFromScreenBatch(double[] inX,double[] inY,double[] outX,double[] outY)
 	{
@@ -852,16 +928,6 @@ public class BaseController implements RenderControllerInterface
 	}
 
 	/**
-	 * Add a single VectorObject.  See addVectors() for details.
-	 */
-	public ComponentObject addVector(final VectorObject vec,final VectorInfo vecInfo,ThreadMode mode)
-	{
-		ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
-		vecObjs.add(vec);
-		return addVectors(vecObjs,vecInfo,mode);
-	}
-
-	/**
 	 * Add a single layer.  This will start processing its data on the layer thread at some
 	 * point in the near future.
 	 */
@@ -916,7 +982,7 @@ public class BaseController implements RenderControllerInterface
 	 * @param run Runnable to execute.
 	 * @param mode Where to execute it.
 	 */
-	private void addTask(final Runnable run,final ThreadMode mode)
+	public void addTask(final Runnable run,final RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return;
@@ -935,7 +1001,7 @@ public class BaseController implements RenderControllerInterface
 		synchronized (layerThreads) {
 			baseLayerThread = layerThreads.get(0);
 		}
-		if (mode == ThreadMode.ThreadCurrent) {
+		if (mode == RenderController.ThreadMode.ThreadCurrent) {
 
 			EGL10 egl = (EGL10) EGLContext.getEGL();
 			EGLContext oldContext = egl.eglGetCurrentContext();
@@ -960,7 +1026,17 @@ public class BaseController implements RenderControllerInterface
 			baseLayerThread.addTask(run,true);
 	}
 
-	/**
+    /**
+     * Add a single VectorObject.  See addVectors() for details.
+     */
+    public ComponentObject addVector(final VectorObject vec,final VectorInfo vecInfo,RenderController.ThreadMode mode)
+    {
+        ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
+        vecObjs.add(vec);
+        return addVectors(vecObjs,vecInfo,mode);
+    }
+
+    /**
 	 * Add vectors to the MaplyController to display.  Vectors are linear or areal
 	 * features with line width, filled style, color and so forth defined by the
 	 * VectorInfo class.
@@ -971,48 +1047,12 @@ public class BaseController implements RenderControllerInterface
 	 * @return The ComponentObject representing the vectors.  This is necessary for modifying
 	 * or deleting the vectors once created.
 	 */
-	public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo,ThreadMode mode)
+	public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
-		
-		// Do the actual work on the layer thread
-		Runnable run =
-		new Runnable()
-		{		
-			@Override
-			public void run()
-			{
-				// Vectors are simple enough to just add
-				ChangeSet changes = new ChangeSet();
-				long vecId = vecManager.addVectors(vecs.toArray(new VectorObject[0]), vecInfo, changes);
-				if (scene != null)
-					changes.process(scene);
-
-				// Track the vector ID for later use
-				if (vecId != EmptyIdentity)
-					compObj.addVectorID(vecId);
-
-				for (VectorObject vecObj : vecs)
-				{
-					// TODO: Porting
-					// Keep track of this one for selection
-//					if (vecObj.getSelectable())
-//						compObj.addSelectID(vecObj.getID());
-				}
-
-				if (vecInfo.disposeAfterUse || disposeAfterRemoval)
-					for (VectorObject vecObj : vecs)
-						if (!vecObj.getSelectable())
-							vecObj.dispose();
-			}
-		};
-		
-		addTask(run, mode);
-				
-		return compObj;
+		return renderControl.addVectors(vecs,vecInfo,mode);
 	}
 
 	/**
@@ -1021,32 +1061,12 @@ public class BaseController implements RenderControllerInterface
 	 * @param vecInfo Visual representation to use for the changes.
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
      */
-	public void changeVectors(final ComponentObject vecObj,final VectorInfo vecInfo,ThreadMode mode)
+	public void changeVector(final ComponentObject vecObj,final VectorInfo vecInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return;
 
-		if (vecObj == null)
-			return;
-
-		// Do the actual work on the layer thread
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						// Vectors are simple enough to just add
-						ChangeSet changes = new ChangeSet();
-						long[] vecIDs = vecObj.getVectorIDs();
-						if (vecIDs != null) {
-							vecManager.changeVectors(vecIDs, vecInfo, changes);
-							if (scene != null)
-								changes.process(scene);
-						}
-					}
-				};
-		addTask(run, mode);
+		changeVector(vecObj,vecInfo,mode);
 	}
 
 	/**
@@ -1064,48 +1084,12 @@ public class BaseController implements RenderControllerInterface
 	 * @return The ComponentObject representing the vectors.  This is necessary for modifying
 	 * or deleting the vectors once created.
 	 */
-	public ComponentObject addWideVectors(final List<VectorObject> vecs,final WideVectorInfo wideVecInfo,ThreadMode mode)
+	public ComponentObject addWideVectors(final List<VectorObject> vecs,final WideVectorInfo wideVecInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
-
-		// Do the actual work on the layer thread
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						// Vectors are simple enough to just add
-						ChangeSet changes = new ChangeSet();
-						long vecId = wideVecManager.addVectors(vecs.toArray(new VectorObject[0]), wideVecInfo, changes);
-						if (scene != null)
-							changes.process(scene);
-
-						// Track the vector ID for later use
-						if (vecId != EmptyIdentity)
-							compObj.addWideVectorID(vecId);
-
-						for (VectorObject vecObj : vecs)
-						{
-							// TODO: Porting
-							// Keep track of this one for selection
-//							if (vecObj.getSelectable())
-//								compObj.addVector(vecObj);
-						}
-
-						if (wideVecInfo.disposeAfterUse || disposeAfterRemoval)
-							for (VectorObject vecObj : vecs)
-								if (!vecObj.getSelectable())
-									vecObj.dispose();
-					}
-				};
-
-		addTask(run, mode);
-
-		return compObj;
+		return renderControl.addWideVectors(vecs,wideVecInfo,mode);
 	}
 
 	/**
@@ -1123,7 +1107,7 @@ public class BaseController implements RenderControllerInterface
 	 * @return The ComponentObject representing the vectors.  This is necessary for modifying
 	 * or deleting the vectors once created.
 	 */
-	public ComponentObject addWideVector(VectorObject vec,WideVectorInfo wideVecInfo,ThreadMode mode)
+	public ComponentObject addWideVector(VectorObject vec,WideVectorInfo wideVecInfo,RenderController.ThreadMode mode)
 	{
 		ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
 		vecObjs.add(vec);
@@ -1143,45 +1127,18 @@ public class BaseController implements RenderControllerInterface
      * @return The ComponentObject representing the instanced wide vectors.  This is necessary for modifying
 	 * or deleting the instance once created.
      */
-	public ComponentObject instanceWideVectors(final ComponentObject inCompObj,final WideVectorInfo wideVecInfo,ThreadMode mode)
+	public ComponentObject instanceWideVectors(final ComponentObject inCompObj,final WideVectorInfo wideVecInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
-
-		// Do the actual work on the layer thread
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						// Vectors are simple enough to just add
-						ChangeSet changes = new ChangeSet();
-
-						for (long vecID : inCompObj.getWideVectorIDs()) {
-							long instID = wideVecManager.instanceVectors(vecID,wideVecInfo,changes);
-
-							if (instID != EmptyIdentity)
-								compObj.addWideVectorID(instID);
-						}
-
-						if (scene != null)
-							changes.process(scene);
-					}
-				};
-
-		addTask(run, mode);
-
-		return compObj;
+		return instanceWideVectors(inCompObj,wideVecInfo,mode);
 	}
-
 
 	/**
 	 * Add a single screen marker.  See addScreenMarkers() for details.
 	 */
-	public ComponentObject addScreenMarker(final ScreenMarker marker,final MarkerInfo markerInfo,ThreadMode mode)
+	public ComponentObject addScreenMarker(final ScreenMarker marker,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
@@ -1201,156 +1158,30 @@ public class BaseController implements RenderControllerInterface
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the screen markers for later modification or deletion.
 	 */
-	public ComponentObject addScreenMarkers(final List<ScreenMarker> markers,final MarkerInfo markerInfo,ThreadMode mode)
+	public ComponentObject addScreenMarkers(final List<ScreenMarker> markers,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
 	{		
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
-
-		// Do the actual work on the layer thread
-		Runnable run =
-		new Runnable()
-		{		
-			@Override
-			public void run()
-			{
-				ChangeSet changes = new ChangeSet();
-		
-				// Convert to the internal representation of the engine
-				ArrayList<InternalMarker> intMarkers = new ArrayList<InternalMarker>();
-				for (ScreenMarker marker : markers)
-				{
-					if (marker.loc == null)
-					{
-						Log.d("Maply","Missing location for marker.  Skipping.");
-						return;
-					}
-
-					InternalMarker intMarker = new InternalMarker(marker);
-					long texID = EmptyIdentity;
-					if (marker.image != null) {
-						texID = texManager.addTexture(marker.image, scene, changes);
-						if (texID != EmptyIdentity)
-							intMarker.addTexID(texID);
-					} else if (marker.tex != null) {
-						texID = marker.tex.texID;
-						intMarker.addTexID(texID);
-					} else if (marker.images != null)
-					{
-						for (MaplyTexture tex : marker.images) {
-							intMarker.addTexID(tex.texID);
-						}
-					}
-					if (marker.vertexAttributes != null)
-						intMarker.setVertexAttributes(marker.vertexAttributes.toArray());
-					
-					intMarkers.add(intMarker);
-					
-					// Keep track of this one for selection
-					if (marker.selectable)
-					{
-						componentManager.addSelectableObject(marker.ident,marker,compObj);
-					}
-				}
-
-				// Add the markers and flush the changes
-				long markerId = markerManager.addScreenMarkers(intMarkers, markerInfo, changes);
-				if (scene != null)
-					changes.process(scene);
-
-				if (markerId != EmptyIdentity)
-				{
-					compObj.addMarkerID(markerId);
-				}
-
-				for (InternalMarker marker : intMarkers)
-					marker.dispose();
-			}
-		};
-		
-		addTask(run, mode);
-
-		return compObj;
+		return renderControl.addScreenMarkers(markers,markerInfo,mode);
 	}
 
-	public ComponentObject addScreenMovingMarkers(final List<ScreenMovingMarker> markers,final MarkerInfo markerInfo,ThreadMode mode)
+    /**
+     * Add moving screen markers to the visual display.  These are the same as the regular
+     * screen markers, but they have a start and end point and a duration.
+     */
+	public ComponentObject addScreenMovingMarkers(final List<ScreenMovingMarker> markers,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
-		final double now = System.currentTimeMillis() / 1000.0;
-
-		// Do the actual work on the layer thread
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-
-						// Convert to the internal representation of the engine
-						ArrayList<InternalMarker> intMarkers = new ArrayList<InternalMarker>();
-						for (ScreenMovingMarker marker : markers)
-						{
-							if (marker.loc == null)
-							{
-								Log.d("Maply","Missing location for marker.  Skipping.");
-								return;
-							}
-
-							InternalMarker intMarker = new InternalMarker(marker,now);
-							long texID = EmptyIdentity;
-							if (marker.image != null) {
-								texID = texManager.addTexture(marker.image, scene, changes);
-								if (texID != EmptyIdentity)
-									intMarker.addTexID(texID);
-							} else if (marker.tex != null) {
-								texID = marker.tex.texID;
-								intMarker.addTexID(texID);
-							} else if (marker.images != null)
-							{
-								for (MaplyTexture tex : marker.images) {
-									intMarker.addTexID(tex.texID);
-								}
-							}
-							if (marker.vertexAttributes != null)
-								intMarker.setVertexAttributes(marker.vertexAttributes.toArray());
-
-							intMarkers.add(intMarker);
-
-							// Keep track of this one for selection
-							if (marker.selectable)
-							{
-								componentManager.addSelectableObject(marker.ident,marker,compObj);
-							}
-						}
-
-						// Add the markers and flush the changes
-						long markerId = markerManager.addScreenMarkers(intMarkers, markerInfo, changes);
-						if (scene != null)
-							changes.process(scene);
-
-						if (markerId != EmptyIdentity)
-						{
-							compObj.addMarkerID(markerId);
-						}
-
-						for (InternalMarker marker : intMarkers)
-							marker.dispose();
-					}
-				};
-
-		addTask(run, mode);
-
-		return compObj;
+        return renderControl.addScreenMovingMarkers(markers,markerInfo,mode);
 	}
+
 	/**
 	 * Add a single screen marker.  See addMarkers() for details.
 	 */
-	public ComponentObject addMarker(final Marker marker,final MarkerInfo markerInfo,ThreadMode mode)
+	public ComponentObject addMarker(final Marker marker,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
@@ -1370,73 +1201,12 @@ public class BaseController implements RenderControllerInterface
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the screen markers for later modification or deletion.
 	 */
-	public ComponentObject addMarkers(final List<Marker> markers,final MarkerInfo markerInfo,ThreadMode mode)
+	public ComponentObject addMarkers(final List<Marker> markers,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
-
-		// Do the actual work on the layer thread
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-
-						// Convert to the internal representation of the engine
-						ArrayList<InternalMarker> intMarkers = new ArrayList<InternalMarker>();
-						for (Marker marker : markers)
-						{
-							if (marker.loc == null)
-							{
-								Log.d("Maply","Missing location for marker.  Skipping.");
-								return;
-							}
-
-							InternalMarker intMarker = new InternalMarker(marker);
-							// Map the bitmap to a texture ID
-							long texID = EmptyIdentity;
-							if (marker.image != null) {
-								texID = texManager.addTexture(marker.image, scene, changes);
-								if (texID != EmptyIdentity)
-									intMarker.addTexID(texID);
-							} else if (marker.images != null)
-							{
-								for (MaplyTexture tex : marker.images) {
-									intMarker.addTexID(tex.texID);
-								}
-							}
-
-							intMarkers.add(intMarker);
-
-							// Keep track of this one for selection
-							if (marker.selectable)
-							{
-								componentManager.addSelectableObject(marker.ident,marker,compObj);
-							}
-						}
-
-						// Add the markers and flush the changes
-						long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
-						if (scene != null)
-							changes.process(scene);
-
-						if (markerId != EmptyIdentity)
-						{
-							compObj.addMarkerID(markerId);
-						}
-
-						for (InternalMarker marker : intMarkers)
-							marker.dispose();
-					}
-				};
-
-		addTask(run, mode);
-
-		return compObj;
+		return renderControl.addMarkers(markers,markerInfo,mode);
 	}
 	/**
 	 * Add stickers on top of the globe or map.  Stickers are 2D objects that drape over a defined
@@ -1447,43 +1217,12 @@ public class BaseController implements RenderControllerInterface
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the stickers for later modification or deletion.
 	 */
-	public ComponentObject addStickers(final List<Sticker> stickers,final StickerInfo stickerInfo,ThreadMode mode)
+	public ComponentObject addStickers(final List<Sticker> stickers,final StickerInfo stickerInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
-
-		// Do the actual work on the layer thread
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-
-                        // Stickers are added one at a time for some reason
-                        for (Sticker sticker : stickers) {
-                            long stickerID = stickerManager.addSticker(sticker, stickerInfo, changes);
-
-                            if (stickerID != EmptyIdentity) {
-                                compObj.addStickerID(stickerID);
-                            }
-                        }
-
-						if (scene != null)
-							changes.process(scene);
-
-						if (stickerInfo.disposeAfterUse || disposeAfterRemoval)
-							for (Sticker sticker : stickers)
-								sticker.dispose();
-					}
-				};
-
-		addTask(run, mode);
-
-		return compObj;
+		return renderControl.addStickers(stickers,stickerInfo,mode);
 	}
 
 	/**
@@ -1494,36 +1233,12 @@ public class BaseController implements RenderControllerInterface
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the stickers for later modification or deletion.
 	 */
-	public ComponentObject changeSticker(final ComponentObject stickerObj,final StickerInfo stickerInfo,ThreadMode mode)
+	public ComponentObject changeSticker(final ComponentObject stickerObj,final StickerInfo stickerInfo,RenderController.ThreadMode mode)
 	{
 		if (!running || stickerObj == null)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
-
-		// Do the actual work on the layer thread
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-
-						long[] stickerIDs = stickerObj.getStickerIDs();
-						if (stickerIDs != null && stickerIDs.length > 0) {
-							for (long stickerID : stickerIDs)
-								stickerManager.changeSticker(stickerID, stickerInfo, changes);
-						}
-
-						if (scene != null)
-							changes.process(scene);
-					}
-				};
-
-		addTask(run, mode);
-
-		return compObj;
+		return changeSticker(stickerObj,stickerInfo,mode);
 	}
 
 	/**
@@ -1534,43 +1249,12 @@ public class BaseController implements RenderControllerInterface
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
      * @return This represents the geometry points for later modifictation or deletion.
      */
-	public ComponentObject addPointList(final List<Points> ptList,final GeometryInfo geomInfo,ThreadMode mode)
+	public ComponentObject addPoints(final List<Points> ptList,final GeometryInfo geomInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
-
-		// Do the actual work on the layer thread
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-
-						for (Points pts: ptList) {
-							Matrix4d mat = pts.mat != null ? pts.mat : new Matrix4d();
-							long geomID = geomManager.addGeometryPoints(pts.rawPoints,pts.mat,geomInfo,changes);
-
-							if (geomID != EmptyIdentity) {
-								compObj.addGeometryID(geomID);
-							}
-						}
-
-						if (scene != null)
-							changes.process(scene);
-
-						if (geomInfo.disposeAfterUse || disposeAfterRemoval)
-							for (Points pts: ptList)
-								pts.rawPoints.dispose();
-					}
-				};
-
-		addTask(run, mode);
-
-		return compObj;
+		return renderControl.addPoints(ptList,geomInfo,mode);
 	}
 
 	/**
@@ -1581,7 +1265,7 @@ public class BaseController implements RenderControllerInterface
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the geometry points for later modifictation or deletion.
 	 */
-	public ComponentObject addPoints(Points pts,final GeometryInfo geomInfo,ThreadMode mode)
+	public ComponentObject addPoints(Points pts,final GeometryInfo geomInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
@@ -1589,7 +1273,7 @@ public class BaseController implements RenderControllerInterface
 		List<Points> ptList = new ArrayList<Points>();
 		ptList.add(pts);
 
-		return addPointList(ptList,geomInfo,mode);
+		return addPoints(ptList,geomInfo,mode);
 	}
 
 	// Filled in by the subclass
@@ -1616,9 +1300,9 @@ public class BaseController implements RenderControllerInterface
 		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
 		// Ask the selection manager
-		SelectedObject selManObjs[] = selectionManager.pickObjects(view.makeViewState(renderWrapper.maplyRender), frameLoc);
+		SelectedObject selManObjs[] = renderControl.selectionManager.pickObjects(view.makeViewState(renderControl), frameLoc);
 		if (selManObjs != null)
-			componentManager.remapSelectableObjects(selManObjs);
+			renderControl.componentManager.remapSelectableObjects(selManObjs);
 
 		Point2d geoPt = geoPointFromScreen(screenLoc);
 		if (geoPt == null)
@@ -1672,10 +1356,10 @@ public class BaseController implements RenderControllerInterface
 		Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
 		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
-		long selectID = selectionManager.pickObject(view.makeViewState(renderWrapper.maplyRender), frameLoc);
-		if (selectID != EmptyIdentity)
+		long selectID = renderControl.selectionManager.pickObject(view.makeViewState(renderWrapper.maplyRender), frameLoc);
+		if (selectID != RenderController.EmptyIdentity)
 		{
-			return componentManager.findObjectForSelectID(selectID);
+			return renderControl.componentManager.findObjectForSelectID(selectID);
 		}
 
 		return null;
@@ -1684,7 +1368,7 @@ public class BaseController implements RenderControllerInterface
 	/**
 	 * Add a single screen label.  See addScreenLabels() for details.
 	 */
-	public ComponentObject addScreenLabel(ScreenLabel label,final LabelInfo labelInfo,ThreadMode mode)
+	public ComponentObject addScreenLabel(ScreenLabel label,final LabelInfo labelInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
@@ -1704,59 +1388,12 @@ public class BaseController implements RenderControllerInterface
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the labels for modification or deletion.
 	 */
-	public ComponentObject addScreenLabels(final List<ScreenLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
+	public ComponentObject addScreenLabels(final List<ScreenLabel> labels,final LabelInfo labelInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
-
-		// Do the actual work on the layer thread
-		Runnable run =
-		new Runnable()
-		{		
-			@Override
-			public void run()
-			{
-				ChangeSet changes = new ChangeSet();
-				
-				// Convert to the internal representation for the engine
-				ArrayList<InternalLabel> intLabels = new ArrayList<InternalLabel>();
-				for (ScreenLabel label : labels)
-				{
-					if (label.text != null && label.text.length() > 0) {
-						InternalLabel intLabel = new InternalLabel(label);
-						intLabels.add(intLabel);
-
-						// Keep track of this one for selection
-						if (label.selectable) {
-							componentManager.addSelectableObject(label.ident, label, compObj);
-						}
-					}
-				}
-
-				long labelId = EmptyIdentity;
-				// Note: We can't run multiple of these at once.  The problem is that
-				//  we need to pass the JNIEnv deep inside the toolkit and we're setting
-				//  on JNIEnv at a time for the CharRenderer callback.
-				synchronized (labelManager) {
-					labelId = labelManager.addLabels(intLabels, labelInfo, changes);
-				}
-				if (labelId != EmptyIdentity)
-					compObj.addLabelID(labelId);
-
-				// Flush the text changes
-				if (scene != null)
-					changes.process(scene);
-
-				for (InternalLabel label : intLabels)
-					label.dispose();
-			}
-		};
-		
-		addTask(run, mode);
-		
-		return compObj;
+		return renderControl.addScreenLabels(labels,labelInfo,mode);
 	}
 
 	/**
@@ -1769,60 +1406,12 @@ public class BaseController implements RenderControllerInterface
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the labels for modification or deletion.
 	 */
-	public ComponentObject addScreenMovingLabels(final List<ScreenMovingLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
+	public ComponentObject addScreenMovingLabels(final List<ScreenMovingLabel> labels,final LabelInfo labelInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
-		final double now = System.currentTimeMillis() / 1000.0;
-
-		// Do the actual work on the layer thread
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-
-						// Convert to the internal representation for the engine
-						ArrayList<InternalLabel> intLabels = new ArrayList<InternalLabel>();
-						for (ScreenMovingLabel label : labels)
-						{
-							if (label.text != null && label.text.length() > 0) {
-								InternalLabel intLabel = new InternalLabel(label,now);
-								intLabels.add(intLabel);
-
-								// Keep track of this one for selection
-								if (label.selectable) {
-									componentManager.addSelectableObject(label.ident, label, compObj);
-								}
-							}
-						}
-
-						long labelId = EmptyIdentity;
-						// Note: We can't run multiple of these at once.  The problem is that
-						//  we need to pass the JNIEnv deep inside the toolkit and we're setting
-						//  on JNIEnv at a time for the CharRenderer callback.
-						synchronized (labelManager) {
-							labelId = labelManager.addLabels(intLabels, labelInfo, changes);
-						}
-						if (labelId != EmptyIdentity)
-							compObj.addLabelID(labelId);
-
-						// Flush the text changes
-						if (scene != null)
-							changes.process(scene);
-
-						for (InternalLabel label : intLabels)
-							label.dispose();
-					}
-				};
-
-		addTask(run, mode);
-
-		return compObj;
+		return renderControl.addScreenMovingLabels(labels,labelInfo,mode);
 	}
 
     /**
@@ -1831,37 +1420,15 @@ public class BaseController implements RenderControllerInterface
      * @param settings Settings to use.
      * @param mode Add on the current thread or elsewhere.
      */
-	public MaplyTexture addTexture(final Bitmap image,final TextureSettings settings,ThreadMode mode)
+	public MaplyTexture addTexture(final Bitmap image,final RenderController.TextureSettings settings,RenderController.ThreadMode mode)
     {
-        final MaplyTexture texture = new MaplyTexture();
-		final Texture rawTex = new Texture();
-		texture.texID = rawTex.getID();
+        if (renderControl == null)
+            return null;
 
-        // Possibly do the work somewhere else
-        Runnable run =
-                new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        ChangeSet changes = new ChangeSet();
-
-			rawTex.setBitmap(image,settings.imageFormat.ordinal());
-			rawTex.setSettings(settings.wrapU,settings.wrapV);
-                        changes.addTexture(rawTex, scene, settings.filterType.ordinal());
-
-                        // Flush the texture changes
-			if (scene != null)
-				changes.process(scene);
-                    }
-                };
-
-        addTask(run, mode);
-
-        return texture;
+        return renderControl.addTexture(image,settings,mode);
     }
     
-    	/**
+    /**
 	 * Create an empty texture of the given size.
 	 * @param width Width of the resulting texture
 	 * @param height Height of the resulting texture
@@ -1869,36 +1436,12 @@ public class BaseController implements RenderControllerInterface
 	 * @param mode Which thread to do the work on
      * @return The new texture (or a reference to it, anyway)
      */
-	public MaplyTexture createTexture(final int width,final int height,final TextureSettings settings,ThreadMode mode)
+	public MaplyTexture createTexture(final int width,final int height,final RenderController.TextureSettings settings,RenderController.ThreadMode mode)
 	{
-		final MaplyTexture texture = new MaplyTexture();
-		final Texture rawTex = new Texture();
-		texture.texID = rawTex.getID();
-		texture.width = width;
-		texture.height = height;
+        if (renderControl == null)
+            return null;
 
-		// Possibly do the work somewhere else
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-
-						rawTex.setSize(width,height);
-						rawTex.setIsEmpty(true);
-						changes.addTexture(rawTex, scene, settings.filterType.ordinal());
-
-						// Flush the texture changes
-						if (scene != null)
-							changes.process(scene);
-					}
-				};
-
-		addTask(run, mode);
-
-		return texture;
+        return renderControl.createTexture(width,height,settings,mode);
 	}
 
 	/**
@@ -1907,30 +1450,12 @@ public class BaseController implements RenderControllerInterface
 	 * @param settings Settings to use.
 	 * @param mode Add on the current thread or elsewhere.
 	 */
-	public MaplyTexture addTexture(final Texture rawTex,final TextureSettings settings,ThreadMode mode)
+	public MaplyTexture addTexture(final Texture rawTex,final RenderController.TextureSettings settings,RenderController.ThreadMode mode)
 	{
-		final MaplyTexture texture = new MaplyTexture();
+        if (renderControl == null)
+            return null;
 
-		// Possibly do the work somewhere else
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-						texture.texID = rawTex.getID();
-						changes.addTexture(rawTex, scene, settings.filterType.ordinal());
-
-						// Flush the texture changes
-						if (scene != null)
-							changes.process(scene);
-					}
-				};
-
-		addTask(run, mode);
-
-		return texture;
+        return renderControl.addTexture(rawTex,settings,mode);
 	}
 
 	/**
@@ -1938,26 +1463,11 @@ public class BaseController implements RenderControllerInterface
 	 * @param tex Texture to remove.
 	 * @param mode Remove immediately (current thread) or elsewhere.
      */
-	public void removeTexture(final MaplyTexture tex,ThreadMode mode)
+	public void removeTexture(final MaplyTexture tex,RenderController.ThreadMode mode)
 	{
-		// Do the actual work on the layer thread
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-
-						changes.removeTexture(tex.texID);
-
-						// Flush the texture changes
-						if (scene != null)
-							changes.process(scene);
-					}
-				};
-
-		addTask(run, mode);
+        ArrayList<MaplyTexture> texs = new ArrayList<MaplyTexture>();
+        texs.add(tex);
+        removeTextures(texs,mode);
 	}
 
 	/**
@@ -1965,27 +1475,9 @@ public class BaseController implements RenderControllerInterface
 	 * @param texs Textures to remove.
 	 * @param mode Remove immediately (current thread) or elsewhere.
      */
-	public void removeTextures(final List<MaplyTexture> texs,ThreadMode mode)
+	public void removeTextures(final List<MaplyTexture> texs,RenderController.ThreadMode mode)
 	{
-		// Do the actual work on the layer thread
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-
-						for (MaplyTexture tex : texs)
-							changes.removeTexture(tex.texID);
-
-						// Flush the texture changes
-						if (scene != null)
-							changes.process(scene);
-					}
-				};
-
-		addTask(run, mode);
+	    renderControl.removeTextures(texs,mode);
 	}
 
 	/**
@@ -1995,27 +1487,9 @@ public class BaseController implements RenderControllerInterface
 	 * @param texIDs Textures to remove
 	 * @param mode Remove immediately (current thread) or elsewhere.
 	 */
-	public void removeTexturesByID(final List<Long> texIDs,ThreadMode mode)
+	public void removeTexturesByID(final List<Long> texIDs,RenderController.ThreadMode mode)
 	{
-		// Do the actual work on the layer thread
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-
-						for (Long texID : texIDs)
-							changes.removeTexture(texID);
-
-						// Flush the texture changes
-						if (scene != null)
-							changes.process(scene);
-					}
-				};
-
-		addTask(run, mode);
+	    renderControl.removeTexturesByID(texIDs,mode);
 	}
 
 	/** Add a render target to the system
@@ -2025,12 +1499,7 @@ public class BaseController implements RenderControllerInterface
 	 */
 	public void addRenderTarget(RenderTarget renderTarget)
 	{
-		scene.addRenderTargetNative(renderTarget.renderTargetID,
-				renderTarget.texture.width,renderTarget.texture.height,
-				renderTarget.texture.texID,
-				renderTarget.clearEveryFrame,
-				renderTarget.blend,
-				Color.red(renderTarget.color)/255.f,Color.green(renderTarget.color)/255.f,Color.blue(renderTarget.color)/255.f,Color.alpha(renderTarget.color)/255.f);
+	    renderControl.addRenderTarget(renderTarget);
 	}
 
 	/** Remove the given render target from the system.
@@ -2039,11 +1508,8 @@ public class BaseController implements RenderControllerInterface
 	 */
 	public void removeRenderTarget(RenderTarget renderTarget)
 	{
-		scene.removeRenderTargetNative(renderTarget.renderTargetID);
+	    renderControl.removeRenderTarget(renderTarget);
 	}
-
-	// All the shaders currently in use
-	private ArrayList<Shader> shaders = new ArrayList<>();
 
     /**
      * Associate a shader with the given scene name.  These names let us override existing shaders, as well as adding our own.
@@ -2061,10 +1527,7 @@ public class BaseController implements RenderControllerInterface
 			return;
 		}
 
-		synchronized (shaders) {
-			shaders.add(shader);
-		}
-        scene.addShaderProgram(shader);
+		renderControl.addShaderProgram(shader);
     }
 
 	/**
@@ -2074,14 +1537,7 @@ public class BaseController implements RenderControllerInterface
 	 */
 	public Shader getShader(String name)
 	{
-		synchronized (shaders) {
-			for (Shader shader : shaders) {
-				if (shader.getName() == name)
-					return shader;
-			}
-		}
-
-		return null;
+	    return renderControl.getShader(name);
 	}
 
 	/**
@@ -2099,7 +1555,7 @@ public class BaseController implements RenderControllerInterface
 			return;
 		}
 
-		renderWrapper.maplyRender.addActiveObject(activeObject);
+        renderControl.addActiveObject(activeObject);
 	}
 
 	/**
@@ -2117,7 +1573,7 @@ public class BaseController implements RenderControllerInterface
 			return;
 		}
 
-		renderWrapper.maplyRender.removeActiveObject(activeObject);
+		renderControl.removeActiveObject(activeObject);
 	}
 
 	/**
@@ -2128,32 +1584,12 @@ public class BaseController implements RenderControllerInterface
 	 * @param compObjs Objects to disable in the display.
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 */
-	public void disableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
+	public void disableObjects(final List<ComponentObject> compObjs,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return;
 
-		if (compObjs == null || compObjs.size() == 0)
-			return;
-
-		final ComponentObject[] localCompObjs = compObjs.toArray(new ComponentObject[compObjs.size()]);
-
-		final MaplyBaseController control = this;
-		Runnable run = new Runnable()
-		{		
-			@Override
-			public void run()
-			{
-				ChangeSet changes = new ChangeSet();
-				for (ComponentObject compObj : localCompObjs)
-					if (compObj != null)
-						componentManager.enableComponentObject(compObj,false,changes);
-				if (scene != null)
-					changes.process(scene);
-			}
-		};
-		
-		addTask(run, mode);
+		disableObjects(compObjs,mode);
 	}
 
 	/**
@@ -2162,7 +1598,7 @@ public class BaseController implements RenderControllerInterface
 	 * @param compObj Object to disable
 	 * @param mode Where to execute the enable.  Choose ThreadAny by default.
 	 */
-	public void disableObject(ComponentObject compObj,ThreadMode mode)
+	public void disableObject(ComponentObject compObj,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return;
@@ -2180,33 +1616,12 @@ public class BaseController implements RenderControllerInterface
 	 * @param compObjs Objects to enable disable.
 	 * @param mode Where to execute the enable.  Choose ThreadAny by default.
 	 */
-	public void enableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
+	public void enableObjects(final List<ComponentObject> compObjs,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return;
 
-		if (compObjs == null || compObjs.size() == 0)
-			return;
-
-		final ComponentObject[] localCompObjs = compObjs.toArray(new ComponentObject[compObjs.size()]);
-		
-		final MaplyBaseController control = this;
-		Runnable run = 
-		new Runnable()
-		{		
-			@Override
-			public void run()
-			{
-				ChangeSet changes = new ChangeSet();
-				for (ComponentObject compObj : localCompObjs)
-					if (compObj != null)
-						componentManager.enableComponentObject(compObj,true,changes);
-				if (scene != null)
-					changes.process(scene);
-			}
-		};
-		
-		addTask(run, mode);
+		renderControl.enableObjects(compObjs,mode);
 	}
 
 	/**
@@ -2215,7 +1630,7 @@ public class BaseController implements RenderControllerInterface
 	 * @param compObj Object to enable.
 	 * @param mode Where to execute the enable.  Choose ThreadAny by default.
      */
-	public void enableObject(ComponentObject compObj,ThreadMode mode)
+	public void enableObject(ComponentObject compObj,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return;
@@ -2229,7 +1644,7 @@ public class BaseController implements RenderControllerInterface
 	/**
 	 * Remove a single objects from the display.  See removeObjects() for details.
 	 */
-	public void removeObject(final ComponentObject compObj,ThreadMode mode)
+	public void removeObject(final ComponentObject compObj,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return;
@@ -2249,30 +1664,15 @@ public class BaseController implements RenderControllerInterface
 	 * @param compObjs Component Objects to remove.
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 */
-	public void removeObjects(final List<ComponentObject> compObjs,ThreadMode mode)
+	public void removeObjects(final List<ComponentObject> compObjs,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return;
 
 		if (compObjs == null || compObjs.size() == 0)
 			return;
-		
-		final MaplyBaseController control = this;
-		Runnable run = new Runnable()
-		{		
-			@Override
-			public void run()
-			{
-				ChangeSet changes = new ChangeSet();
 
-				componentManager.removeComponentObjects(compObjs.toArray(new ComponentObject[0]),changes,disposeAfterRemoval);
-
-				if (scene != null)
-					changes.process(scene);
-			}
-		};
-		
-		addTask(run, mode);
+		renderControl.removeObjects(compObjs,mode);
 	}
 	
     private boolean isProbablyEmulator() {
@@ -2289,18 +1689,18 @@ public class BaseController implements RenderControllerInterface
 	 * @param particleSystem The particle system to start.
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
      */
-	public ComponentObject addParticleSystem(final ParticleSystem particleSystem, ThreadMode mode) {
+	public ComponentObject addParticleSystem(final ParticleSystem particleSystem, RenderController.ThreadMode mode) {
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
+		final ComponentObject compObj = renderControl.componentManager.makeComponentObject();
 		final ChangeSet changes = new ChangeSet();
 
 		Runnable run = new Runnable() {
 			@Override
 			public void run() {
-				long particleSystemID = particleSystemManager.addParticleSystem(particleSystem, changes);
-				if (particleSystemID != EmptyIdentity) {
+				long particleSystemID = renderControl.particleSystemManager.addParticleSystem(particleSystem, changes);
+				if (particleSystemID != RenderController.EmptyIdentity) {
 					compObj.addParticleSystemID(particleSystemID);
 				}
 				if (scene != null)
@@ -2318,7 +1718,7 @@ public class BaseController implements RenderControllerInterface
 	 * @param particleBatch The batch of particles to add to an active particle system.
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
      */
-	public void addParticleBatch(final ParticleBatch particleBatch, ThreadMode mode) {
+	public void addParticleBatch(final ParticleBatch particleBatch, RenderController.ThreadMode mode) {
 		if (!running)
 			return;
 
@@ -2327,7 +1727,7 @@ public class BaseController implements RenderControllerInterface
 				@Override
 				public void run() {
 					ChangeSet changes = new ChangeSet();
-					particleSystemManager.addParticleBatch(particleBatch.partSys.getID(), particleBatch,changes);
+					renderControl.particleSystemManager.addParticleBatch(particleBatch.partSys.getID(), particleBatch,changes);
 					if (scene != null)
 						changes.process(scene);
 				}
@@ -2353,75 +1753,12 @@ public class BaseController implements RenderControllerInterface
 	 * @param shapeInfo Info controlling how the shapes look
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
      */
-	public ComponentObject addShapes(final List<Shape> shapes, final ShapeInfo shapeInfo, ThreadMode mode) {
+	public ComponentObject addShapes(final List<Shape> shapes, final ShapeInfo shapeInfo, RenderController.ThreadMode mode) {
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
-		final ChangeSet changes = new ChangeSet();
-		Runnable run = new Runnable() {
-			@Override
-			public void run() {
-				long shapeId = shapeManager.addShapes(shapes.toArray(new Shape[0]), shapeInfo, changes);
-				if (shapeId != EmptyIdentity)
-					compObj.addShapeID(shapeId);
-				if (scene != null)
-					changes.process(scene);
-
-				for (Shape shape : shapes)
-					if (shape.isSelectable())
-					{
-						componentManager.addSelectableObject(shape.getSelectID(), shape, compObj);
-					}
-
-				if (shapeInfo.disposeAfterUse || disposeAfterRemoval)
-					for (Shape shape : shapes)
-						shape.dispose();
-			}
-		};
-
-		addTask(run, mode);
-		return compObj;
+		return renderControl.addShapes(shapes,shapeInfo,mode);
 	}
-
-	/**
-	 * Adds a group of points all at once.  We're assuming you want to draw a lot of points, so you have to group them together into a MaplyPoints.
-	 * @param inPoints The points to add to the scene
-	 * @param geomInfo Controls how the points look
-	 * @param mode Where to execute the add.  Choose ThreadAny by default.
-     */
-	public ComponentObject addPoints(final List<Points> inPoints,final GeometryInfo geomInfo, final ThreadMode mode)
-	{
-		if (!running)
-			return null;
-
-		final Points[] points = inPoints.toArray(new Points[inPoints.size()]);
-
-		final ComponentObject compObj = componentManager.makeComponentObject();
-		final ChangeSet changes = new ChangeSet();
-		Runnable run = new Runnable() {
-			@Override
-			public void run() {
-				for (Points pts : points) {
-					long geomId = geomManager.addGeometryPoints(pts.rawPoints, pts.mat, geomInfo, changes);
-					if (geomId != EmptyIdentity)
-						compObj.addGeometryID(geomId);
-				}
-
-				if (geomInfo.disposeAfterUse || disposeAfterRemoval)
-					for (Points pts : points)
-						pts.rawPoints.dispose();
-
-				if (scene != null)
-					changes.process(scene);
-			}
-		};
-
-		addTask(run, mode);
-		return compObj;
-	}
-
-	private ArrayList<Light> lights = new ArrayList<>();
 
 	/**
 	 * Add the given light to the list of active lights.
@@ -2441,10 +1778,7 @@ public class BaseController implements RenderControllerInterface
 			return;
 		}
 
-		if (this.lights == null)
-			this.lights = new ArrayList<>();
-		lights.add(light);
-		this.updateLights();
+		renderControl.addLight(light);
 	}
 
 	/**
@@ -2462,30 +1796,7 @@ public class BaseController implements RenderControllerInterface
 			return;
 		}
 
-		if (this.lights == null)
-			return;
-		this.lights.remove(light);
-		this.updateLights();
-	}
-
-	private void updateLights() {
-		List<DirectionalLight> theLights = new ArrayList<>();
-		for (Light light : lights) {
-			DirectionalLight theLight = new DirectionalLight();
-			theLight.setPos(light.getPos());
-			theLight.setAmbient(new Point4d(light.getAmbient()[0], light.getAmbient()[1], light.getAmbient()[2], light.getAmbient()[3]));
-			theLight.setDiffuse(new Point4d(light.getDiffuse()[0], light.getDiffuse()[1], light.getDiffuse()[2], light.getDiffuse()[3]));
-			theLight.setViewDependent(light.isViewDependent());
-			theLights.add(theLight);
-		}
-		if (this.renderWrapper.getMaplyRender() != null) {
-			this.renderWrapper.getMaplyRender().replaceLights(theLights);
-			//this.renderWrapper.getMaplyRender().render(); // needed?
-		}
-
-		// Clean up lights
-		for (DirectionalLight light : theLights)
-			light.dispose();
+		renderControl.removeLight(light);
 	}
 
 	/**
@@ -2504,8 +1815,7 @@ public class BaseController implements RenderControllerInterface
 			return;
 		}
 
-		this.lights = new ArrayList<>();
-		this.updateLights();
+		renderControl.clearLights();
 	}
 
 	/**
@@ -2525,80 +1835,18 @@ public class BaseController implements RenderControllerInterface
 			return;
 		}
 
-		this.clearLights();
-
-		Light light = new Light();
-		light.setPos(new Point3d(0.75, 0.5, -1.0));
-		light.setAmbient(0.6f, 0.6f, 0.6f, 1.0f);
-		light.setDiffuse(0.5f, 0.5f, 0.5f, 1.0f);
-		light.setViewDependent(false);
-		this.addLight(light);
+		renderControl.resetLights();
 	}
 
-	public ComponentObject addBillboards(final List<Billboard> bills, final BillboardInfo info, final ThreadMode threadMode) {
+    /**
+     * Billboards are rectangles pointed toward the viewer.  They can either be upright, tied to a
+     * surface, or oriented completely toward the user.
+     */
+	public ComponentObject addBillboards(final List<Billboard> bills, final BillboardInfo info, final RenderController.ThreadMode threadMode) {
 		if (!running)
 			return null;
 
-		final ComponentObject compObj = componentManager.makeComponentObject();
-
-		// Do the actual work on the layer thread
-		Runnable run =
-				new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						ChangeSet changes = new ChangeSet();
-
-						// Have to set the shader ID if it's not already
-						long shaderID = info.getShaderID();
-						if (info.getShaderID() == 0) {
-							String shaderName = null;
-							// TODO: Share these constants with the c++ code
-							if (info.getOrient() == BillboardInfo.Orient.Eye)
-								shaderName = "billboardorienteye";
-							else
-								shaderName = "billboardorientground";
-							Shader shader = getShader(shaderName);
-
-							shaderID = shader.getID();
-							info.setShaderID(shaderID);
-						}
-
-						for (Billboard bill : bills) {
-							// Convert to display space
-							Point3d center = bill.getCenter();
-							Point3d localPt =coordAdapter.getCoordSystem().geographicToLocal(new Point3d(center.getX(),center.getY(),0.0));
-							Point3d dispTmp =coordAdapter.localToDisplay(localPt);
-							Point3d dispPt = dispTmp.multiplyBy(center.getZ()/6371000.0+1.0);
-							bill.setCenter(dispPt);
-
-							if (bill.getSelectable()) {
-								bill.setSelectID(Identifiable.genID());
-								componentManager.addSelectableObject(bill.getSelectID(), bill, compObj);
-							}
-
-							// Turn any screen objects into billboard polygons
-							bill.flatten();
-						}
-
-						long billId = billboardManager.addBillboards(bills, info, changes);
-						compObj.addBillboardID(billId);
-
-						// Flush the text changes
-						if (scene != null)
-							changes.process(scene);
-
-						if (info.disposeAfterUse || disposeAfterRemoval)
-							for (Billboard bill : bills)
-								if (!bill.getSelectable())
-									bill.dispose();
-					}
-				};
-
-		addTask(run, threadMode);
-
-		return compObj;
+		return renderControl.addBillboards(bills,info,threadMode);
 	}
 
 	/**

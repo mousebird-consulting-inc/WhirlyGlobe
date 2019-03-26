@@ -32,14 +32,14 @@ package com.mousebird.maply;
 public class GlobeAnimateMomentum implements GlobeView.AnimationDelegate
 {
 	GlobeView globeView = null;
-	MaplyRenderer renderer = null;
+	RenderController renderer = null;
 	Point3d axis = null;
 	boolean northUp;
 	Quaternion startQuat = null;
 	double velocity,acceleration;
 	double startTime,maxTime;
 
-	public GlobeAnimateMomentum(GlobeView inGlobeView,MaplyRenderer inRender,double inVelocity,double inAcceleration,Point3d inAxis,boolean inNorthUp)
+	public GlobeAnimateMomentum(GlobeView inGlobeView,RenderController inRender,double inVelocity,double inAcceleration,Point3d inAxis,boolean inNorthUp)
 	{
 		globeView = inGlobeView;
 		renderer = inRender;

@@ -62,7 +62,7 @@ public class OvlDebugImageLoaderInterpreter extends ImageLoaderInterpreter
         labelInfo.setEnable(false);
 
         loadReturn.addComponentObject(
-                loader.getController().addScreenLabel(label,labelInfo, MaplyBaseController.ThreadMode.ThreadCurrent)
+                loader.getController().addScreenLabel(label,labelInfo, RenderController.ThreadMode.ThreadCurrent)
         );
 
         // A bounding box around the whole thing
@@ -78,7 +78,7 @@ public class OvlDebugImageLoaderInterpreter extends ImageLoaderInterpreter
         VectorInfo vecInfo = new VectorInfo();
         vecInfo.setEnable(false);
         loadReturn.addComponentObject(
-                loader.getController().addVector(vecObj,vecInfo, MaplyBaseController.ThreadMode.ThreadCurrent)
+                loader.getController().addVector(vecObj,vecInfo, RenderController.ThreadMode.ThreadCurrent)
         );
     }
 }

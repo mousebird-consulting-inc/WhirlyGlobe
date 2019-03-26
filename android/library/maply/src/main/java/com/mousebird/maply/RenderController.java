@@ -3,11 +3,13 @@ package com.mousebird.maply;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.ColorDrawable;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -25,6 +27,8 @@ import javax.microedition.khronos.egl.EGLDisplay;
  */
 public class RenderController implements RenderControllerInterface
 {
+    public static final String kToolkitDefaultTriangleNoLightingProgram = "Default Triangle;lighting=no";
+
     // Draw priority defaults
     public static final int ImageLayerDrawPriorityDefault = 100;
     public static final int FeatureDrawPriorityBase = 20000;
@@ -32,7 +36,7 @@ public class RenderController implements RenderControllerInterface
     public static final int LabelDrawPriorityDefault = 60000;
     public static final int ParticleDrawPriorityDefault = 1000;
 
-    
+    Point2d frameSize = new Point2d(0.0, 0.0);
 
     // Represents an ID that doesn't have data associated with it
     public static long EmptyIdentity = 0;
@@ -50,43 +54,41 @@ public class RenderController implements RenderControllerInterface
         MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
         MaplyImage4Layer8Bit};
 
-    public Point2d frameSize = new Point2d();
-
-    // Set if we're using a TextureView rather than a SurfaceView
-    boolean useTextureView = false;
-
     /**
      * If set, we'll explicitly call dispose on any objects that were
      * being kept around for selection.
      */
     public boolean disposeAfterRemoval = false;
 
-    // Set when we're not in the process of shutting down
-    boolean running = false;
-
-    // Implements the GL renderer protocol
-    protected RendererWrapper renderWrapper;
+    // Scene stores the objects
+    public Scene scene = null;
 
     /**
-     * Returns true if we set up a TextureView rather than a SurfaceView.
+     * Return the current scene.  Only for sure within the library.
      */
-    public boolean usesTextureView()
+    public Scene getScene()
     {
-        return useTextureView;
+        return scene;
+    }
+    RenderController()
+    {
     }
 
-    RenderController(Settings settings)
-    {
-        if (settings != null) {
-            useTextureView = !settings.useSurfaceView;
-            numWorkingThreads = settings.numWorkingThreads;
-            width = settings.width;
-            height = settings.height;
-        }
+    /**
+     * We don't want to deal with threads and such down here, so
+     * the controller one level up gives us an addTask method
+     * to hand over the runnables.
+     */
+    public interface TaskManager {
+        public void addTask(Runnable run,ThreadMode mode);
     }
 
-    public void Init()
+    TaskManager taskMan = null;
+
+    public void Init(Scene inScene,TaskManager inTaskMan)
     {
+        scene = inScene;
+        taskMan = inTaskMan;
 
         // Fire up the managers.  Can't do anything without these.
         vecManager = new VectorManager(scene);
@@ -101,89 +103,6 @@ public class RenderController implements RenderControllerInterface
         shapeManager = new ShapeManager(scene);
         billboardManager = new BillboardManager(scene);
         geomManager = new GeometryManager(scene);
-
-        // Now for the object that kicks off the rendering
-        renderWrapper = new RendererWrapper(this);
-        renderWrapper.scene = scene;
-        renderWrapper.view = view;
-
-        // Create the layer thread
-        LayerThread layerThread = new LayerThread("Maply Layer Thread",view,scene,true);
-        synchronized (layerThreads) {
-            layerThreads.add(layerThread);
-        }
-
-        ActivityManager activityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
-        ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
-
-        final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000 || isProbablyEmulator();
-        if (supportsEs2)
-        {
-            if (!useTextureView) {
-                GLSurfaceView glSurfaceView = new GLSurfaceView(activity);
-
-                if (width > 0 && height > 0) {
-                    glSurfaceView.getHolder().setFixedSize(width, height);
-                }
-
-                // If the clear color has transparency, we need to set things up differently
-                if (Color.alpha(clearColor) < 255) {
-                    glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-                    glSurfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
-                    glSurfaceView.setZOrderOnTop(true);
-                } else {
-                    if (isProbablyEmulator())
-                        glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-                }
-
-                tempBackground = new ColorDrawable();
-                // This eliminates the black flash, but only if the clearColor is set right
-                tempBackground.setColor(clearColor);
-                if (Build.VERSION.SDK_INT > 16)
-                    glSurfaceView.setBackground(tempBackground);
-                glSurfaceView.setEGLContextClientVersion(2);
-                glSurfaceView.setRenderer(renderWrapper);
-
-                baseView = glSurfaceView;
-            } else {
-                GLTextureView glTextureView = new GLTextureView(activity);
-
-                if (width > 0 && height > 0) {
-                    glTextureView.getSurfaceTexture().setDefaultBufferSize(width,height);
-                }
-
-                // If the clear color has transparency, we need to set things up differently
-                if (Color.alpha(clearColor) < 255) {
-                    glTextureView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-                    // Note: Do we need these in a TextureView
-//					glTextureView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
-//					glTextureView.setZOrderOnTop(true);
-                } else {
-                    if (isProbablyEmulator())
-                        glTextureView.setEGLConfigChooser(8, 8, 8, 8, 16, 0);
-                }
-
-                glTextureView.setOpaque(false);
-                tempBackground = new ColorDrawable();
-                // This eliminates the black flash, but only if the clearColor is set right
-                tempBackground.setColor(clearColor);
-                if (Build.VERSION.SDK_INT > 16 && Build.VERSION.SDK_INT < 24)
-                    glTextureView.setBackground(tempBackground);
-                glTextureView.setEGLContextClientVersion(2);
-                glTextureView.setRenderer(renderWrapper);
-
-                baseView = glTextureView;
-            }
-        } else {
-            Toast.makeText(activity,  "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
-            return;
-        }
-    }
-
-    public boolean surfaceChanged(int width,int height)
-    {
-        frameSize.setValue(width, height);
-        return resize(width,height);
     }
 
     View view = null;
@@ -229,6 +148,12 @@ public class RenderController implements RenderControllerInterface
         return false;
     }
 
+    public boolean surfaceChanged(int width,int height)
+    {
+        frameSize.setValue(width, height);
+        return resize(width,height);
+    }
+
     public void doRender()
     {
         if (view != null)
@@ -254,10 +179,6 @@ public class RenderController implements RenderControllerInterface
         context = egl.eglGetCurrentContext();
     }
 
-
-    // MapView defines how we're looking at the data
-    protected com.mousebird.maply.View view = null;
-
     // Managers are thread safe objects for handling adding and removing types of data
     protected VectorManager vecManager;
     protected WideVectorManager wideVecManager;
@@ -276,85 +197,1268 @@ public class RenderController implements RenderControllerInterface
     // Manage bitmaps and their conversion to textures
     TextureManager texManager = new TextureManager();
 
-    // Layer thread we use for data manipulation
-    ArrayList<LayerThread> layerThreads = new ArrayList<LayerThread>();
-    ArrayList<LayerThread> workerThreads = new ArrayList<LayerThread>();
+    public void shutdown()
+    {
+        if (vecManager != null)
+            vecManager.dispose();
+        if (wideVecManager != null)
+            wideVecManager.dispose();
+        if (stickerManager != null)
+            stickerManager.dispose();
+        if (selectionManager != null)
+            selectionManager.dispose();
+        if (componentManager != null)
+            componentManager.dispose();
+        if (labelManager != null)
+            labelManager.dispose();
+        if (layoutManager != null)
+            layoutManager.dispose();
+        if (particleSystemManager != null)
+            particleSystemManager.dispose();
+
+        vecManager = null;
+        wideVecManager = null;
+        markerManager = null;
+        stickerManager = null;
+        labelManager = null;
+        selectionManager = null;
+        componentManager = null;
+        layoutManager = null;
+        particleSystemManager = null;
+        layoutLayer = null;
+        shapeManager = null;
+        billboardManager = null;
+
+        texManager = null;
+    }
+
+    /** RenderControllerInterface **/
+
+    private ArrayList<Light> lights = new ArrayList<>();
 
     /**
-     * Returns the layer thread we used for processing requests.
+     * Add the given light to the list of active lights.
+     * <br>
+     * This method will add the given light to our active lights.  Most shaders will recognize these lights and do the calculations.  If you have a custom shader in place, it may or may not use these.
+     * Triangle shaders use the lights, but line shaders do not.
+     * @param light Light to add.
      */
-    public LayerThread getLayerThread()
-    {
-        if (layerThreads == null)
-            return null;
-        synchronized (layerThreads) {
-            if (layerThreads.size() == 0)
-                return null;
-            return layerThreads.get(0);
+    public void addLight(final Light light) {
+        if (this.lights == null)
+            this.lights = new ArrayList<>();
+        lights.add(light);
+        this.updateLights();
+    }
+
+    /**
+     * Remove the given light (assuming it's active) from the list of lights.
+     * @param light Light to remove.
+     */
+    public void removeLight(final Light light) {
+        if (this.lights == null)
+            return;
+        this.lights.remove(light);
+        this.updateLights();
+    }
+
+    // Lights have to be rebuilt every time they change
+    private void updateLights() {
+        List<DirectionalLight> theLights = new ArrayList<>();
+        for (Light light : lights) {
+            DirectionalLight theLight = new DirectionalLight();
+            theLight.setPos(light.getPos());
+            theLight.setAmbient(new Point4d(light.getAmbient()[0], light.getAmbient()[1], light.getAmbient()[2], light.getAmbient()[3]));
+            theLight.setDiffuse(new Point4d(light.getDiffuse()[0], light.getDiffuse()[1], light.getDiffuse()[2], light.getDiffuse()[3]));
+            theLight.setViewDependent(light.isViewDependent());
+            theLights.add(theLight);
         }
-    }
+        replaceLights(theLights);
 
-    private int lastLayerThreadReturned = 0;
-
-    /**
-     * Returns a layer thread you can do whatever you like on.  You don't have
-     * to be particularly fast about it, it won't hold up the main layer thread.
-     * These layer threads are set up with the proper OpenGL contexts so they're
-     * fast to add new geometry using the ThreadCurrent option.
-     */
-    public LayerThread getWorkingThread()
-    {
-        // The first one is for use by the toolkit
-        int numAvailable = workerThreads.size();
-
-        if (numAvailable == 0)
-            return null;
-
-        if (numAvailable == 1)
-            return workerThreads.get(0);
-
-        return workerThreads.get((lastLayerThreadReturned++) % numAvailable);
+        // Clean up lights
+        for (DirectionalLight light : theLights)
+            light.dispose();
     }
 
     /**
-     * These are settings passed on construction.  We need these
-     * immediately at startup to create the right internal structures.
+     * Clear all the currently active lights.
+     * <br>
+     * There are a default set of lights, so you'll want to do this before adding your own.
      */
-    public static class Settings
-    {
-        /**
-         * If set, we'll use a GLSurfaceView.  Otherwise a GLTexturesView.
-         * GLSurfaceView is the default.
-         */
-        public boolean useSurfaceView = true;
-        /**
-         * These are the number of working threads we'll create by default
-         * at startup.  These are fully capable of adding geometry to the
-         * system on their own (via ThreadCurrent).
-         */
-        public int numWorkingThreads = 8;
-        /**
-         * If set we'll override the width of the rendering surface.
-         *
-         * This is useful for scaling back the surface resolution
-         * for slower devices.
-         */
-        public int width = 0;
-        /**
-         * If set we'll override the height of the rendering surface.
-         *
-         * This is useful for scaling back the surface resolution
-         * for slower devices.
-         */
-        public int height = 0;
+    public void clearLights() {
+        this.lights = new ArrayList<>();
+        this.updateLights();
     }
 
-    int numWorkingThreads = 8;
-    int width = 0;
-    int height = 0;
+    /**
+     * Reset the lighting back to its default state at startup.
+     * <br>
+     * This clears out all the lights and adds in the default starting light source.
+     */
+    public void resetLights() {
+        this.clearLights();
 
+        Light light = new Light();
+        light.setPos(new Point3d(0.75, 0.5, -1.0));
+        light.setAmbient(0.6f, 0.6f, 0.6f, 1.0f);
+        light.setDiffuse(0.5f, 0.5f, 0.5f, 1.0f);
+        light.setViewDependent(false);
+        this.addLight(light);
+    }
 
+    /**
+     * Add screen markers to the visual display.  Screen markers are 2D markers that sit
+     * on top of the screen display, rather than interacting with the geometry.  Their
+     * visual look is defined by the MarkerInfo class.
+     *
+     * @param markers The markers to add to the display
+     * @param markerInfo How the markers should look.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return This represents the screen markers for later modification or deletion.
+     */
+    public ComponentObject addScreenMarkers(final List<ScreenMarker> markers,final MarkerInfo markerInfo,ThreadMode mode)
+    {
+        final ComponentObject compObj = componentManager.makeComponentObject();
 
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        // Convert to the internal representation of the engine
+                        ArrayList<InternalMarker> intMarkers = new ArrayList<InternalMarker>();
+                        for (ScreenMarker marker : markers)
+                        {
+                            if (marker.loc == null)
+                            {
+                                Log.d("Maply","Missing location for marker.  Skipping.");
+                                return;
+                            }
+
+                            InternalMarker intMarker = new InternalMarker(marker);
+                            long texID = EmptyIdentity;
+                            if (marker.image != null) {
+                                texID = texManager.addTexture(marker.image, scene, changes);
+                                if (texID != EmptyIdentity)
+                                    intMarker.addTexID(texID);
+                            } else if (marker.tex != null) {
+                                texID = marker.tex.texID;
+                                intMarker.addTexID(texID);
+                            } else if (marker.images != null)
+                            {
+                                for (MaplyTexture tex : marker.images) {
+                                    intMarker.addTexID(tex.texID);
+                                }
+                            }
+                            if (marker.vertexAttributes != null)
+                                intMarker.setVertexAttributes(marker.vertexAttributes.toArray());
+
+                            intMarkers.add(intMarker);
+
+                            // Keep track of this one for selection
+                            if (marker.selectable)
+                            {
+                                componentManager.addSelectableObject(marker.ident,marker,compObj);
+                            }
+                        }
+
+                        // Add the markers and flush the changes
+                        long markerId = markerManager.addScreenMarkers(intMarkers, markerInfo, changes);
+                        if (scene != null)
+                            changes.process(scene);
+
+                        if (markerId != EmptyIdentity)
+                        {
+                            compObj.addMarkerID(markerId);
+                        }
+
+                        for (InternalMarker marker : intMarkers)
+                            marker.dispose();
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return compObj;
+    }
+
+    /**
+     * Add moving screen markers to the visual display.  These are the same as the regular
+     * screen markers, but they have a start and end point and a duration.
+     */
+    public ComponentObject addScreenMovingMarkers(final List<ScreenMovingMarker> markers,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
+    {
+        final ComponentObject compObj = componentManager.makeComponentObject();
+        final double now = System.currentTimeMillis() / 1000.0;
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        // Convert to the internal representation of the engine
+                        ArrayList<InternalMarker> intMarkers = new ArrayList<InternalMarker>();
+                        for (ScreenMovingMarker marker : markers)
+                        {
+                            if (marker.loc == null)
+                            {
+                                Log.d("Maply","Missing location for marker.  Skipping.");
+                                return;
+                            }
+
+                            InternalMarker intMarker = new InternalMarker(marker,now);
+                            long texID = EmptyIdentity;
+                            if (marker.image != null) {
+                                texID = texManager.addTexture(marker.image, scene, changes);
+                                if (texID != EmptyIdentity)
+                                    intMarker.addTexID(texID);
+                            } else if (marker.tex != null) {
+                                texID = marker.tex.texID;
+                                intMarker.addTexID(texID);
+                            } else if (marker.images != null)
+                            {
+                                for (MaplyTexture tex : marker.images) {
+                                    intMarker.addTexID(tex.texID);
+                                }
+                            }
+                            if (marker.vertexAttributes != null)
+                                intMarker.setVertexAttributes(marker.vertexAttributes.toArray());
+
+                            intMarkers.add(intMarker);
+
+                            // Keep track of this one for selection
+                            if (marker.selectable)
+                            {
+                                componentManager.addSelectableObject(marker.ident,marker,compObj);
+                            }
+                        }
+
+                        // Add the markers and flush the changes
+                        long markerId = markerManager.addScreenMarkers(intMarkers, markerInfo, changes);
+                        if (scene != null)
+                            changes.process(scene);
+
+                        if (markerId != EmptyIdentity)
+                        {
+                            compObj.addMarkerID(markerId);
+                        }
+
+                        for (InternalMarker marker : intMarkers)
+                            marker.dispose();
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return compObj;
+    }
+
+    /**
+     * Add screen markers to the visual display.  Screen markers are 2D markers that sit
+     * on top of the screen display, rather than interacting with the geometry.  Their
+     * visual look is defined by the MarkerInfo class.
+     *
+     * @param markers The markers to add to the display
+     * @param markerInfo How the markers should look.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return This represents the screen markers for later modification or deletion.
+     */
+    public ComponentObject addMarkers(final List<Marker> markers,final MarkerInfo markerInfo,ThreadMode mode)
+    {
+        final ComponentObject compObj = componentManager.makeComponentObject();
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        // Convert to the internal representation of the engine
+                        ArrayList<InternalMarker> intMarkers = new ArrayList<InternalMarker>();
+                        for (Marker marker : markers)
+                        {
+                            if (marker.loc == null)
+                            {
+                                Log.d("Maply","Missing location for marker.  Skipping.");
+                                return;
+                            }
+
+                            InternalMarker intMarker = new InternalMarker(marker);
+                            // Map the bitmap to a texture ID
+                            long texID = EmptyIdentity;
+                            if (marker.image != null) {
+                                texID = texManager.addTexture(marker.image, scene, changes);
+                                if (texID != EmptyIdentity)
+                                    intMarker.addTexID(texID);
+                            } else if (marker.images != null)
+                            {
+                                for (MaplyTexture tex : marker.images) {
+                                    intMarker.addTexID(tex.texID);
+                                }
+                            }
+
+                            intMarkers.add(intMarker);
+
+                            // Keep track of this one for selection
+                            if (marker.selectable)
+                            {
+                                componentManager.addSelectableObject(marker.ident,marker,compObj);
+                            }
+                        }
+
+                        // Add the markers and flush the changes
+                        long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
+                        if (scene != null)
+                            changes.process(scene);
+
+                        if (markerId != EmptyIdentity)
+                        {
+                            compObj.addMarkerID(markerId);
+                        }
+
+                        for (InternalMarker marker : intMarkers)
+                            marker.dispose();
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return compObj;
+    }
+
+    /**
+     * Add screen labels to the display.  Screen labels are 2D labels that float above the 3D geometry
+     * and stay fixed in size no matter how the user zoom in or out.  Their visual appearance is controlled
+     * by the LabelInfo class.
+     *
+     * @param labels Labels to add to the display.
+     * @param labelInfo The visual appearance of the labels.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return This represents the labels for modification or deletion.
+     */
+    public ComponentObject addScreenLabels(final List<ScreenLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
+    {
+        final ComponentObject compObj = componentManager.makeComponentObject();
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        // Convert to the internal representation for the engine
+                        ArrayList<InternalLabel> intLabels = new ArrayList<InternalLabel>();
+                        for (ScreenLabel label : labels)
+                        {
+                            if (label.text != null && label.text.length() > 0) {
+                                InternalLabel intLabel = new InternalLabel(label);
+                                intLabels.add(intLabel);
+
+                                // Keep track of this one for selection
+                                if (label.selectable) {
+                                    componentManager.addSelectableObject(label.ident, label, compObj);
+                                }
+                            }
+                        }
+
+                        long labelId = EmptyIdentity;
+                        // Note: We can't run multiple of these at once.  The problem is that
+                        //  we need to pass the JNIEnv deep inside the toolkit and we're setting
+                        //  on JNIEnv at a time for the CharRenderer callback.
+                        synchronized (labelManager) {
+                            labelId = labelManager.addLabels(intLabels, labelInfo, changes);
+                        }
+                        if (labelId != EmptyIdentity)
+                            compObj.addLabelID(labelId);
+
+                        // Flush the text changes
+                        if (scene != null)
+                            changes.process(scene);
+
+                        for (InternalLabel label : intLabels)
+                            label.dispose();
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return compObj;
+    }
+
+    /**
+     * Add screen labels to the display.  Screen labels are 2D labels that float above the 3D geometry
+     * and stay fixed in size no matter how the user zoom in or out.  Their visual appearance is controlled
+     * by the LabelInfo class.
+     *
+     * @param labels Labels to add to the display.
+     * @param labelInfo The visual appearance of the labels.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return This represents the labels for modification or deletion.
+     */
+    public ComponentObject addScreenMovingLabels(final List<ScreenMovingLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
+    {
+        final ComponentObject compObj = componentManager.makeComponentObject();
+        final double now = System.currentTimeMillis() / 1000.0;
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        // Convert to the internal representation for the engine
+                        ArrayList<InternalLabel> intLabels = new ArrayList<InternalLabel>();
+                        for (ScreenMovingLabel label : labels)
+                        {
+                            if (label.text != null && label.text.length() > 0) {
+                                InternalLabel intLabel = new InternalLabel(label,now);
+                                intLabels.add(intLabel);
+
+                                // Keep track of this one for selection
+                                if (label.selectable) {
+                                    componentManager.addSelectableObject(label.ident, label, compObj);
+                                }
+                            }
+                        }
+
+                        long labelId = EmptyIdentity;
+                        // Note: We can't run multiple of these at once.  The problem is that
+                        //  we need to pass the JNIEnv deep inside the toolkit and we're setting
+                        //  on JNIEnv at a time for the CharRenderer callback.
+                        synchronized (labelManager) {
+                            labelId = labelManager.addLabels(intLabels, labelInfo, changes);
+                        }
+                        if (labelId != EmptyIdentity)
+                            compObj.addLabelID(labelId);
+
+                        // Flush the text changes
+                        if (scene != null)
+                            changes.process(scene);
+
+                        for (InternalLabel label : intLabels)
+                            label.dispose();
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return compObj;
+    }
+
+    /**
+     * Add vectors to the MaplyController to display.  Vectors are linear or areal
+     * features with line width, filled style, color and so forth defined by the
+     * VectorInfo class.
+     *
+     * @param vecs A list of VectorObject's created by the user or read in from various sources.
+     * @param vecInfo A description of how the vectors should look.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return The ComponentObject representing the vectors.  This is necessary for modifying
+     * or deleting the vectors once created.
+     */
+    public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo,RenderController.ThreadMode mode)
+    {
+        final ComponentObject compObj = componentManager.makeComponentObject();
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        // Vectors are simple enough to just add
+                        ChangeSet changes = new ChangeSet();
+                        long vecId = vecManager.addVectors(vecs.toArray(new VectorObject[0]), vecInfo, changes);
+                        if (scene != null)
+                            changes.process(scene);
+
+                        // Track the vector ID for later use
+                        if (vecId != EmptyIdentity)
+                            compObj.addVectorID(vecId);
+
+                        for (VectorObject vecObj : vecs)
+                        {
+                            // TODO: Porting
+                            // Keep track of this one for selection
+//					if (vecObj.getSelectable())
+//						compObj.addSelectID(vecObj.getID());
+                        }
+
+                        if (vecInfo.disposeAfterUse || disposeAfterRemoval)
+                            for (VectorObject vecObj : vecs)
+                                if (!vecObj.getSelectable())
+                                    vecObj.dispose();
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return compObj;
+    }
+
+    /**
+     * Change the visual representation of the given vectors.
+     * @param vecObj The component object returned by the original addVectors() call.
+     * @param vecInfo Visual representation to use for the changes.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     */
+    public void changeVector(final ComponentObject vecObj,final VectorInfo vecInfo,ThreadMode mode)
+    {
+        if (vecObj == null)
+            return;
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        // Vectors are simple enough to just add
+                        ChangeSet changes = new ChangeSet();
+                        long[] vecIDs = vecObj.getVectorIDs();
+                        if (vecIDs != null) {
+                            vecManager.changeVectors(vecIDs, vecInfo, changes);
+                            if (scene != null)
+                                changes.process(scene);
+                        }
+                    }
+                };
+        taskMan.addTask(run, mode);
+    }
+
+    // TODO: Fill this in
+//    public ComponentObject instanceVectors(final List<VectorObject> vecs, final VectorInfo vecInfo, ThreadMode mode);
+
+    /**
+     * Add wide vectors to the MaplyController to display.  Vectors are linear or areal
+     * features with line width, filled style, color and so forth defined by the
+     * WideVectorInfo class.
+     * <br>
+     * Wide vectors differ from regular lines in that they're implemented with a more
+     * complicated shader.  They can be arbitrarily large, have textures, and have a transparent
+     * falloff at the edges.  This makes them look anti-aliased.
+     *
+     * @param vecs A list of VectorObject's created by the user or read in from various sources.
+     * @param wideVecInfo A description of how the vectors should look.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return The ComponentObject representing the vectors.  This is necessary for modifying
+     * or deleting the vectors once created.
+     */
+    public ComponentObject addWideVectors(final List<VectorObject> vecs,final WideVectorInfo wideVecInfo,ThreadMode mode)
+    {
+        final ComponentObject compObj = componentManager.makeComponentObject();
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        // Vectors are simple enough to just add
+                        ChangeSet changes = new ChangeSet();
+                        long vecId = wideVecManager.addVectors(vecs.toArray(new VectorObject[0]), wideVecInfo, changes);
+                        if (scene != null)
+                            changes.process(scene);
+
+                        // Track the vector ID for later use
+                        if (vecId != EmptyIdentity)
+                            compObj.addWideVectorID(vecId);
+
+                        for (VectorObject vecObj : vecs)
+                        {
+                            // TODO: Porting
+                            // Keep track of this one for selection
+//							if (vecObj.getSelectable())
+//								compObj.addVector(vecObj);
+                        }
+
+                        if (wideVecInfo.disposeAfterUse || disposeAfterRemoval)
+                            for (VectorObject vecObj : vecs)
+                                if (!vecObj.getSelectable())
+                                    vecObj.dispose();
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return compObj;
+    }
+
+    /**
+     * Instance an existing set of wide vectors but change their parameters.
+     * <br>
+     * Wide vectors can take up a lot of memory.  So if you want to display the same set with
+     * different parameters (e.g. width, color) this is the way to do it.
+     *
+     * @param inCompObj The Component Object returned by an addWideVectors call.
+     * @param wideVecInfo How we want the vectors to look.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return The ComponentObject representing the instanced wide vectors.  This is necessary for modifying
+     * or deleting the instance once created.
+     */
+    public ComponentObject instanceWideVectors(final ComponentObject inCompObj,final WideVectorInfo wideVecInfo,ThreadMode mode)
+    {
+        final ComponentObject compObj = componentManager.makeComponentObject();
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        // Vectors are simple enough to just add
+                        ChangeSet changes = new ChangeSet();
+
+                        for (long vecID : inCompObj.getWideVectorIDs()) {
+                            long instID = wideVecManager.instanceVectors(vecID,wideVecInfo,changes);
+
+                            if (instID != EmptyIdentity)
+                                compObj.addWideVectorID(instID);
+                        }
+
+                        if (scene != null)
+                            changes.process(scene);
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return compObj;
+    }
+    // TODO: Fill this in
+//    public ComponentObject addModelInstances();
+
+    // TODO: Fill this in
+//    public ComponentObject addGeometry();
+
+    /**
+     * This method will add the given MaplyShape derived objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
+     * @param shapes An array of Shape derived objects
+     * @param shapeInfo Info controlling how the shapes look
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     */
+    public ComponentObject addShapes(final List<Shape> shapes, final ShapeInfo shapeInfo, ThreadMode mode) {
+        final ComponentObject compObj = componentManager.makeComponentObject();
+        final ChangeSet changes = new ChangeSet();
+        Runnable run = new Runnable() {
+            @Override
+            public void run() {
+                long shapeId = shapeManager.addShapes(shapes.toArray(new Shape[0]), shapeInfo, changes);
+                if (shapeId != EmptyIdentity)
+                    compObj.addShapeID(shapeId);
+                if (scene != null)
+                    changes.process(scene);
+
+                for (Shape shape : shapes)
+                    if (shape.isSelectable())
+                    {
+                        componentManager.addSelectableObject(shape.getSelectID(), shape, compObj);
+                    }
+
+                if (shapeInfo.disposeAfterUse || disposeAfterRemoval)
+                    for (Shape shape : shapes)
+                        shape.dispose();
+            }
+        };
+
+        taskMan.addTask(run, mode);
+        return compObj;
+    }
+
+    /**
+     * Add stickers on top of the globe or map.  Stickers are 2D objects that drape over a defined
+     * area.
+     *
+     * @param stickers The list of stickers to apply.
+     * @param stickerInfo Parameters that cover all the stickers in question.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return This represents the stickers for later modification or deletion.
+     */
+    public ComponentObject addStickers(final List<Sticker> stickers,final StickerInfo stickerInfo,ThreadMode mode)
+    {
+        final ComponentObject compObj = componentManager.makeComponentObject();
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        // Stickers are added one at a time for some reason
+                        for (Sticker sticker : stickers) {
+                            long stickerID = stickerManager.addSticker(sticker, stickerInfo, changes);
+
+                            if (stickerID != EmptyIdentity) {
+                                compObj.addStickerID(stickerID);
+                            }
+                        }
+
+                        if (scene != null)
+                            changes.process(scene);
+
+                        if (stickerInfo.disposeAfterUse || disposeAfterRemoval)
+                            for (Sticker sticker : stickers)
+                                sticker.dispose();
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return compObj;
+    }
+
+    /**
+     * Change the visual representation for the given sticker.
+     *
+     * @param stickerObj The sticker to change.
+     * @param stickerInfo Parameters to change.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return This represents the stickers for later modification or deletion.
+     */
+    public ComponentObject changeSticker(final ComponentObject stickerObj,final StickerInfo stickerInfo,ThreadMode mode)
+    {
+        final ComponentObject compObj = componentManager.makeComponentObject();
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        long[] stickerIDs = stickerObj.getStickerIDs();
+                        if (stickerIDs != null && stickerIDs.length > 0) {
+                            for (long stickerID : stickerIDs)
+                                stickerManager.changeSticker(stickerID, stickerInfo, changes);
+                        }
+
+                        if (scene != null)
+                            changes.process(scene);
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return compObj;
+    }
+
+    /**
+     * Billboards are rectangles pointed toward the viewer.  They can either be upright, tied to a
+     * surface, or oriented completely toward the user.
+     */
+    public ComponentObject addBillboards(final List<Billboard> bills, final BillboardInfo info, final RenderController.ThreadMode threadMode) {
+        final ComponentObject compObj = componentManager.makeComponentObject();
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        // Have to set the shader ID if it's not already
+                        long shaderID = info.getShaderID();
+                        if (info.getShaderID() == 0) {
+                            String shaderName = null;
+                            // TODO: Share these constants with the c++ code
+                            if (info.getOrient() == BillboardInfo.Orient.Eye)
+                                shaderName = "billboardorienteye";
+                            else
+                                shaderName = "billboardorientground";
+                            Shader shader = getShader(shaderName);
+
+                            shaderID = shader.getID();
+                            info.setShaderID(shaderID);
+                        }
+
+                        for (Billboard bill : bills) {
+                            // Convert to display space
+                            Point3d center = bill.getCenter();
+                            Point3d localPt =coordAdapter.getCoordSystem().geographicToLocal(new Point3d(center.getX(),center.getY(),0.0));
+                            Point3d dispTmp =coordAdapter.localToDisplay(localPt);
+                            Point3d dispPt = dispTmp.multiplyBy(center.getZ()/6371000.0+1.0);
+                            bill.setCenter(dispPt);
+
+                            if (bill.getSelectable()) {
+                                bill.setSelectID(Identifiable.genID());
+                                componentManager.addSelectableObject(bill.getSelectID(), bill, compObj);
+                            }
+
+                            // Turn any screen objects into billboard polygons
+                            bill.flatten();
+                        }
+
+                        long billId = billboardManager.addBillboards(bills, info, changes);
+                        compObj.addBillboardID(billId);
+
+                        // Flush the text changes
+                        if (scene != null)
+                            changes.process(scene);
+
+                        if (info.disposeAfterUse || disposeAfterRemoval)
+                            for (Billboard bill : bills)
+                                if (!bill.getSelectable())
+                                    bill.dispose();
+                    }
+                };
+
+        taskMan.addTask(run, threadMode);
+
+        return compObj;
+    }
+
+    // TODO: Fill this in
+//    public ComponentObject addLoftedPolygons();
+
+    /**
+     * Add the geometry points.  These are raw points that get fed to a shader.
+
+     * @param ptList The points to add.
+     * @param geomInfo Parameters to set things up with.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     * @return This represents the geometry points for later modifictation or deletion.
+     */
+    public ComponentObject addPoints(final List<Points> ptList,final GeometryInfo geomInfo,RenderController.ThreadMode mode)
+    {
+        final ComponentObject compObj = componentManager.makeComponentObject();
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        // Stickers are added one at a time for some reason
+                        for (Points pts: ptList) {
+                            Matrix4d mat = pts.mat != null ? pts.mat : new Matrix4d();
+                            long geomID = geomManager.addGeometryPoints(pts.rawPoints,pts.mat,geomInfo,changes);
+
+                            if (geomID != EmptyIdentity) {
+                                compObj.addGeometryID(geomID);
+                            }
+                        }
+
+                        if (scene != null)
+                            changes.process(scene);
+
+                        if (geomInfo.disposeAfterUse || disposeAfterRemoval)
+                            for (Points pts: ptList)
+                                pts.rawPoints.dispose();
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return compObj;
+    }
+
+    /**
+     * Texture settings for adding textures to the system.
+     */
+    static public class TextureSettings
+    {
+        public TextureSettings()
+        {
+        }
+
+        public enum FilterType {FilterNearest,FilterLinear};
+
+        /**
+         * Image format to use when creating textures.
+         */
+        public RenderController.ImageFormat imageFormat = RenderController.ImageFormat.MaplyImageIntRGBA;
+        /**
+         * Filter type for created textures.
+         */
+        public RenderControllerInterface.TextureSettings.FilterType filterType = RenderControllerInterface.TextureSettings.FilterType.FilterLinear;
+        /**
+         * Horizonal texture wrap.
+         */
+        public boolean wrapU = false;
+        /**
+         * Vertical texture wrap
+         */
+        public boolean wrapV = false;
+    };
+
+    /**
+     * Add texture to the system with the given settings.
+     * @param image Image to add.
+     * @param settings Settings to use.
+     * @param mode Add on the current thread or elsewhere.
+     */
+    public MaplyTexture addTexture(final Bitmap image,final RenderController.TextureSettings settings,RenderController.ThreadMode mode)
+    {
+        final MaplyTexture texture = new MaplyTexture();
+        final Texture rawTex = new Texture();
+        texture.texID = rawTex.getID();
+
+        // Possibly do the work somewhere else
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        rawTex.setBitmap(image,settings.imageFormat.ordinal());
+                        rawTex.setSettings(settings.wrapU,settings.wrapV);
+                        changes.addTexture(rawTex, scene, settings.filterType.ordinal());
+
+                        // Flush the texture changes
+                        if (scene != null)
+                            changes.process(scene);
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return texture;
+    }
+
+    /**
+     * Add texture to the system with the given settings.
+     * @param rawTex Texture to add.
+     * @param settings Settings to use.
+     * @param mode Add on the current thread or elsewhere.
+     */
+    public MaplyTexture addTexture(final Texture rawTex,final TextureSettings settings,ThreadMode mode)
+    {
+        final MaplyTexture texture = new MaplyTexture();
+
+        // Possibly do the work somewhere else
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+                        texture.texID = rawTex.getID();
+                        changes.addTexture(rawTex, scene, settings.filterType.ordinal());
+
+                        // Flush the texture changes
+                        if (scene != null)
+                            changes.process(scene);
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return texture;
+    }
+
+    /**
+     * Create an empty texture of the given size.
+     * @param width Width of the resulting texture
+     * @param height Height of the resulting texture
+     * @param settings Other texture related settings
+     * @param mode Which thread to do the work on
+     * @return The new texture (or a reference to it, anyway)
+     */
+    public MaplyTexture createTexture(final int width,final int height,final TextureSettings settings,ThreadMode mode)
+    {
+        final MaplyTexture texture = new MaplyTexture();
+        final Texture rawTex = new Texture();
+        texture.texID = rawTex.getID();
+        texture.width = width;
+        texture.height = height;
+
+        // Possibly do the work somewhere else
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        rawTex.setSize(width,height);
+                        rawTex.setIsEmpty(true);
+                        changes.addTexture(rawTex, scene, settings.filterType.ordinal());
+
+                        // Flush the texture changes
+                        if (scene != null)
+                            changes.process(scene);
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+
+        return texture;
+    }
+
+    /**
+     * Remove a texture from the scene.
+     * @param tex Texture to remove.
+     * @param mode Remove immediately (current thread) or elsewhere.
+     */
+    public void removeTextures(final List<MaplyTexture> texs,ThreadMode mode)
+    {
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        for (MaplyTexture tex : texs)
+                            changes.removeTexture(tex.texID);
+
+                        // Flush the texture changes
+                        if (scene != null)
+                            changes.process(scene);
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+    }
+
+    /**
+     * This version of removeTexture takes texture IDs.  Thus you don't
+     * have to keep the MaplyTexture around.
+     *
+     * @param texIDs Textures to remove
+     * @param mode Remove immediately (current thread) or elsewhere.
+     */
+    public void removeTexturesByID(final List<Long> texIDs,ThreadMode mode)
+    {
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+
+                        for (Long texID : texIDs)
+                            changes.removeTexture(texID);
+
+                        // Flush the texture changes
+                        if (scene != null)
+                            changes.process(scene);
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+    }
+
+    /** Add a render target to the system
+     * <br>
+     * Sets up a render target and will start rendering to it on the next frame.
+     * Keep the render target around so you can remove it later.
+     */
+    public void addRenderTarget(RenderTarget renderTarget)
+    {
+        scene.addRenderTargetNative(renderTarget.renderTargetID,
+                renderTarget.texture.width,renderTarget.texture.height,
+                renderTarget.texture.texID,
+                renderTarget.clearEveryFrame,
+                renderTarget.blend,
+                Color.red(renderTarget.color)/255.f,Color.green(renderTarget.color)/255.f,Color.blue(renderTarget.color)/255.f,Color.alpha(renderTarget.color)/255.f);
+    }
+
+    // TODO: Implement
+//    public void changeRenderTarget(RenderTarget renderTarget, Texture tex);
+
+    /** Remove the given render target from the system.
+     * <br>
+     * Ask the system to stop drawing to the given render target.  It will do this on the next frame.
+     */
+    public void removeRenderTarget(RenderTarget renderTarget)
+    {
+        scene.removeRenderTargetNative(renderTarget.renderTargetID);
+    }
+
+    /**
+     * Disable the given objects. These were the objects returned by the various
+     * add calls.  Once called, the objects will be invisible, but can be made
+     * visible once again with enableObjects()
+     *
+     * @param compObjs Objects to disable in the display.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     */
+    public void disableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
+    {
+        if (compObjs == null || compObjs.size() == 0)
+            return;
+
+        final ComponentObject[] localCompObjs = compObjs.toArray(new ComponentObject[compObjs.size()]);
+
+        Runnable run = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                ChangeSet changes = new ChangeSet();
+                for (ComponentObject compObj : localCompObjs)
+                    if (compObj != null)
+                        componentManager.enableComponentObject(compObj,false,changes);
+                if (scene != null)
+                    changes.process(scene);
+            }
+        };
+
+        taskMan.addTask(run, mode);
+    }
+
+    /**
+     * Enable the display for the given objects.  These objects were returned
+     * by the various add calls.  To disable the display, call disableObjects().
+     *
+     * @param compObjs Objects to enable disable.
+     * @param mode Where to execute the enable.  Choose ThreadAny by default.
+     */
+    public void enableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
+    {
+        if (compObjs == null || compObjs.size() == 0)
+            return;
+
+        final ComponentObject[] localCompObjs = compObjs.toArray(new ComponentObject[compObjs.size()]);
+
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        ChangeSet changes = new ChangeSet();
+                        for (ComponentObject compObj : localCompObjs)
+                            if (compObj != null)
+                                componentManager.enableComponentObject(compObj,true,changes);
+                        if (scene != null)
+                            changes.process(scene);
+                    }
+                };
+
+        taskMan.addTask(run, mode);
+    }
+
+    /**
+     * Remove the given component objects from the display.  This will permanently remove them
+     * from Maply.  The component objects were returned from the various add calls.
+     *
+     * @param compObjs Component Objects to remove.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     */
+    public void removeObjects(final List<ComponentObject> compObjs,ThreadMode mode)
+    {
+        if (compObjs == null || compObjs.size() == 0)
+            return;
+
+        Runnable run = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                ChangeSet changes = new ChangeSet();
+
+                componentManager.removeComponentObjects(compObjs.toArray(new ComponentObject[0]),changes,disposeAfterRemoval);
+
+                if (scene != null)
+                    changes.process(scene);
+            }
+        };
+
+        taskMan.addTask(run, mode);
+    }
+
+    // TODO: StartChanges/EndChanges interface ??
+
+    // All the shaders currently in use
+    private ArrayList<Shader> shaders = new ArrayList<>();
+
+    /**
+     * Associate a shader with the given scene name.  These names let us override existing shaders, as well as adding our own.
+     * @param shader The shader to add.
+     */
+    public void addShaderProgram(final Shader shader)
+    {
+        synchronized (shaders) {
+            shaders.add(shader);
+        }
+        scene.addShaderProgram(shader);
+    }
+
+    /**
+     * Find a shader by name
+     * @param name Name of the shader to return
+     * @return The shader with the name or null
+     */
+    public Shader getShader(String name)
+    {
+        synchronized (shaders) {
+            for (Shader shader : shaders) {
+                if (shader.getName() == name)
+                    return shader;
+            }
+        }
+
+        return null;
+    }
+
+    // TODO: Implement
+//    public void removeShader(Shader shader);
+
+    int clearColor = Color.BLACK;
+
+    /**
+     * Set the color for the OpenGL ES background.
+     */
+    public void setClearColor(int color)
+    {
+        clearColor = color;
+
+//		if (tempBackground != null)
+//			tempBackground.setColor(clearColor);
+
+        setClearColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+    }
+
+    public int[] getFrameBufferSize()
+    {
+        int[] sizes = new int[2];
+        sizes[0] = (int)frameSize.getX();
+        sizes[1] = (int)frameSize.getY();
+
+        return sizes;
+    }
+
+    // TODO: Update these
     public native void setScene(Scene scene);
     public native void setViewNative(View view);
     public native void setClearColor(float r,float g,float b,float a);

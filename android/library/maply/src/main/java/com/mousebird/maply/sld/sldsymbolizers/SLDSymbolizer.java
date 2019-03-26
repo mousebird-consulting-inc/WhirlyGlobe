@@ -20,8 +20,9 @@
 package com.mousebird.maply.sld.sldsymbolizers;
 
 import com.mousebird.maply.LinearTextureBuilder;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.MaplyTexture;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.VectorTileLineStyle;
@@ -57,7 +58,7 @@ public abstract class SLDSymbolizer {
 
     public static VectorTileLineStyle vectorTileLineStyleFromStrokeNode(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
 
-        MaplyBaseController viewC = symbolizerParams.getBaseController();
+        BaseController viewC = symbolizerParams.getBaseController();
         VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
 
         boolean useWideVectors = vectorStyleSettings.isUseWideVectors();
@@ -173,14 +174,14 @@ public abstract class SLDSymbolizer {
                 texBuild.setPattern(new int[]{4});
             }
             Bitmap patternImage = texBuild.makeImage();
-            MaplyBaseController.TextureSettings texSet = new MaplyBaseController.TextureSettings();
+            RenderController.TextureSettings texSet = new RenderController.TextureSettings();
             texSet.wrapU = true;  texSet.wrapV = true;
-            MaplyTexture tex = viewC.addTexture(patternImage,new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
+            MaplyTexture tex = viewC.addTexture(patternImage,new RenderController.TextureSettings(), RenderController.ThreadMode.ThreadCurrent);
             wideVectorInfo.setTexture(tex);
             wideVectorInfo.setTextureRepeatLength(repeatLength);
         }
 
-        baseInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.FeatureDrawPriorityBase);
+        baseInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + RenderController.FeatureDrawPriorityBase);
         VectorTileLineStyle vectorTileLineStyle = new VectorTileLineStyle(baseInfo, vectorStyleSettings, viewC);
         return vectorTileLineStyle;
 

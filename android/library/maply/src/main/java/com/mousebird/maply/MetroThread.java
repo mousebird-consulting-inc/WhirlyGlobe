@@ -27,10 +27,10 @@ import android.view.Choreographer;
 public class MetroThread extends HandlerThread implements Choreographer.FrameCallback
 {
 	Choreographer ch;
-	MaplyBaseController control;
+	BaseController control;
 	int frameInterval;
 	
-	public MetroThread(String name,MaplyBaseController inControl,int inFrameInterval) 
+	public MetroThread(String name,BaseController inControl,int inFrameInterval)
 	{
 		super(name);
 
@@ -68,10 +68,10 @@ public class MetroThread extends HandlerThread implements Choreographer.FrameCal
 		frameInterval = newRate;
 	}
 
-	MaplyRenderer renderer = null;
+	RenderController renderer = null;
 
 	// Set the renderer (and scene) we'll look at render requests
-	public void setRenderer(MaplyRenderer inRenderer)
+	public void setRenderer(RenderController inRenderer)
 	{
 		renderer = inRenderer;
 	}

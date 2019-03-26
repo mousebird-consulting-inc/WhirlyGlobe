@@ -28,5 +28,5 @@ public interface VectorStyle
      * @param controller The MaplyBaseController to use when building the visual representation.
      * @return The ComponentObjects created when building a visual representation.
      */
-    ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, MaplyBaseController controller);
+    ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, BaseController controller);
 }

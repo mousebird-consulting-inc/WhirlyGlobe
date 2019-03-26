@@ -45,12 +45,12 @@ import static android.R.attr.y;
  * @author sjg
  *
  */
-public class GlobeController extends MaplyBaseController implements View.OnTouchListener, Choreographer.FrameCallback
+public class GlobeController extends BaseController implements View.OnTouchListener, Choreographer.FrameCallback
 {
 	/**
 	 * Settings needed on startup so we can create the proper elements.
 	 */
-	public static class Settings extends MaplyBaseController.Settings
+	public static class Settings extends BaseController.Settings
 	{
 		/**
 		 * This is the background color to set.  We need this early so
@@ -71,7 +71,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 	{
 		super(mainActivity,null);
 
-		Init(mainActivity,clearColor);
+		Init(mainActivity,renderControl.clearColor);
 	}
 
 	protected void Init(Activity mainActivity,int clearColor)
@@ -518,7 +518,7 @@ public class GlobeController extends MaplyBaseController implements View.OnTouch
 		if (geoCoord != null) {
 			Quaternion newQuat = globeView.makeRotationToGeoCoord(x, y, globeView.northUp);
 			if (newQuat != null)
-				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, renderWrapper.maplyRender, newQuat, z, howLong));
+				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, renderControl, newQuat, z, howLong));
 		}
 	}
 

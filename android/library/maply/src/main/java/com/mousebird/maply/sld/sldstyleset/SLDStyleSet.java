@@ -35,14 +35,14 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.mousebird.maply.AttrDictionary;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.TileID;
 import com.mousebird.maply.TileID;
 import com.mousebird.maply.VectorStyle;
 import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDNamedLayer;
 import com.mousebird.maply.VectorStyleInterface;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerParams;
 
@@ -68,7 +68,7 @@ public class SLDStyleSet implements VectorStyleInterface {
     private int relativeDrawPriority;
     private HashMap<String, SLDNamedLayer> namedLayers =  new HashMap<String, SLDNamedLayer>();;
     private HashMap<String, VectorStyle> stylesByUUID = new HashMap<String, VectorStyle>();
-    private MaplyBaseController viewC;
+    private BaseController viewC;
     private VectorStyleSettings vectorStyleSettings;
     private SLDSymbolizerParams symbolizerParams;
 
@@ -89,7 +89,7 @@ public class SLDStyleSet implements VectorStyleInterface {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public SLDStyleSet(MaplyBaseController viewC, AssetWrapper assetWrapper, String sldFileName, DisplayMetrics displayMetrics, boolean useLayerNames, int relativeDrawPriority) throws XmlPullParserException, IOException
+    public SLDStyleSet(BaseController viewC, AssetWrapper assetWrapper, String sldFileName, DisplayMetrics displayMetrics, boolean useLayerNames, int relativeDrawPriority) throws XmlPullParserException, IOException
     {
         this.viewC = viewC;
         this.useLayerNames = useLayerNames;
@@ -160,7 +160,7 @@ public class SLDStyleSet implements VectorStyleInterface {
     }
 
     @Override
-    public VectorStyle[] stylesForFeature(AttrDictionary attrs, TileID tileID, String layerName, MaplyBaseController controller)
+    public VectorStyle[] stylesForFeature(AttrDictionary attrs, TileID tileID, String layerName, BaseController controller)
     {
         List<VectorTileStyle> vectorTileStyles = new ArrayList<VectorTileStyle>();
         boolean matched;
@@ -177,7 +177,7 @@ public class SLDStyleSet implements VectorStyleInterface {
     }
 
     @Override
-    public VectorStyle styleForUUID(String uuid,MaplyBaseController controller)
+    public VectorStyle styleForUUID(String uuid,BaseController controller)
     {
         VectorStyle style = stylesByUUID.get(uuid);
         return style;

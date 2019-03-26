@@ -49,7 +49,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	boolean valid = true;
 	public View view = null;
 	public Scene scene = null;
-	public MaplyRenderer renderer = null;
+	public RenderController renderer = null;
 	ReentrantLock startLock = new ReentrantLock();
 	ArrayList<Layer> layers = new ArrayList<Layer>();
 	// A unique context for this thread
@@ -137,7 +137,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
 	
 	// Setting the renderer kicks off activity
-	void setRenderer(MaplyRenderer inRenderer)
+	void setRenderer(RenderController inRenderer)
 	{
 		renderer = inRenderer;
 		

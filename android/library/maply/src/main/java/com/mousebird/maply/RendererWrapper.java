@@ -39,20 +39,21 @@ import javax.microedition.khronos.opengles.GL10;
 class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 {
 	boolean valid = true;
-	public MaplyRenderer maplyRender = null;
+	public RenderController maplyRender = null;
 	public Scene scene = null;
 	public View view = null;
-	public MaplyBaseController maplyControl = null;
+	public BaseController maplyControl = null;
 	public Thread renderThread = null;
 
 	private boolean doScreenshot = false;
-	public MaplyBaseController.ScreenshotListener screenshotListener;
+	public BaseController.ScreenshotListener screenshotListener;
 
 
 
-	public RendererWrapper(MaplyBaseController inMapControl)
+	public RendererWrapper(BaseController inMapControl,RenderController inRenderControl)
 	{
 		maplyControl = inMapControl;
+		maplyRender = inRenderControl;
 	}
 
 	@Override
@@ -60,7 +61,7 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 	{
 	}
 
-	public MaplyRenderer getMaplyRender() {
+	public RenderController getMaplyRender() {
 		return maplyRender;
 	}
 
@@ -78,7 +79,6 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 
 		// If the app shuts down the rendering right as the thread starts up, this can happen
 		if (valid) {
-			maplyRender = new MaplyRenderer();
 			maplyRender.setScene(scene);
 			maplyRender.setView(view);
 			maplyRender.setConfig(config);
@@ -194,7 +194,7 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 		return Bitmap.createBitmap(bt, w, h, Bitmap.Config.ARGB_8888);
 	}
 
-	public void takeScreenshot(MaplyBaseController.ScreenshotListener listener, GLSurfaceView surfaceView) {
+	public void takeScreenshot(BaseController.ScreenshotListener listener, GLSurfaceView surfaceView) {
 		this.screenshotListener = listener;
 		this.doScreenshot = true;
 

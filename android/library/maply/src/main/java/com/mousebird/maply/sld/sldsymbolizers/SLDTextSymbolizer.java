@@ -25,7 +25,8 @@ import android.graphics.Typeface;
 import android.util.Log;
 
 import com.mousebird.maply.LabelInfo;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.VectorTileTextStyle;
@@ -56,7 +57,7 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
 
     public SLDTextSymbolizer(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
 
-        MaplyBaseController viewC = symbolizerParams.getBaseController();
+        BaseController viewC = symbolizerParams.getBaseController();
         VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
 
         LabelInfo labelInfo = new LabelInfo();
@@ -113,7 +114,7 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
         if (offset.getX() == 0.0 && offset.getY() == 0.0)
             offset = null;
 
-        labelInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + MaplyBaseController.LabelDrawPriorityDefault);
+        labelInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + RenderController.LabelDrawPriorityDefault);
         vectorTileTextStyle = new VectorTileTextStyle(labelInfo, placement, offset, textField, vectorStyleSettings, viewC);
         symbolizerParams.incrementRelativeDrawPriority();
     }

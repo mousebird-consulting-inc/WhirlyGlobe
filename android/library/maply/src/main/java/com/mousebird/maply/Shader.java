@@ -36,7 +36,7 @@ import java.util.ArrayList;
  */
 public class Shader 
 {
-	MaplyBaseController control = null;
+	BaseController control = null;
 
 	// Types used to describe the shader attributes
 	enum AttributeType {
@@ -56,7 +56,7 @@ public class Shader
      * @param inControl The controller where we'll register the new shader.
      * @return Returns a shader program if it succeeded.  It may not work, however, so call valid first.
      */
-	public Shader(String name,String vertexSrc, String fragSrc,MaplyBaseController inControl)
+	public Shader(String name,String vertexSrc, String fragSrc,BaseController inControl)
 	{
         control = inControl;
 		boolean okay = true;
@@ -74,7 +74,7 @@ public class Shader
 	 *
 	 * @param inControl The control we'll associate this program with.
 	 */
-	public Shader(MaplyBaseController inControl)
+	public Shader(BaseController inControl)
 	{
 		control = inControl;
 		boolean okay = true;
@@ -150,7 +150,7 @@ public class Shader
 	 */
 	public boolean setUniform(String name,double uni)
 	{
-		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
+		BaseController.ContextInfo context = control.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
 		control.requestRender();
 
@@ -168,7 +168,7 @@ public class Shader
 	 */
 	public boolean setUniform(String name,int uni)
 	{
-		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
+		BaseController.ContextInfo context = control.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
 		control.requestRender();
 
@@ -188,7 +188,7 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point2d pt)
 	{
-		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
+		BaseController.ContextInfo context = control.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
 		control.requestRender();
 
@@ -206,7 +206,7 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point3d pt)
 	{
-		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
+		BaseController.ContextInfo context = control.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
 		control.requestRender();
 
@@ -224,7 +224,7 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point4d pt)
 	{
-		MaplyBaseController.ContextInfo context = control.setupTempContext(MaplyBaseController.ThreadMode.ThreadCurrent);
+		BaseController.ContextInfo context = control.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
 		control.requestRender();
 

@@ -31,7 +31,7 @@ public class MaplyTexture
         controller = null;
         texID = 0;
     }
-    MaplyBaseController controller;
+    BaseController controller;
     long texID;
     int width,height;
 }

@@ -61,7 +61,7 @@ public class GlobeView extends View
 	}
 	
 	// Return a view state for this Map View
-	@Override public ViewState makeViewState(MaplyRenderer renderer)
+	@Override public ViewState makeViewState(RenderController renderer)
 	{
 		return new GlobeViewState(this,renderer);
 	}

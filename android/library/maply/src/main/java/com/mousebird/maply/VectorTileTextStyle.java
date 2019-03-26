@@ -39,7 +39,7 @@ public class VectorTileTextStyle extends VectorTileStyle {
 
     private Placement placement = Placement.Point;
 
-    public VectorTileTextStyle(LabelInfo labelInfo, Placement placement, Point2d offset, String textField, VectorStyleSettings settings, MaplyBaseController viewC) {
+    public VectorTileTextStyle(LabelInfo labelInfo, Placement placement, Point2d offset, String textField, VectorStyleSettings settings, BaseController viewC) {
         super(viewC);
 
         this.labelInfo = labelInfo;
@@ -48,7 +48,7 @@ public class VectorTileTextStyle extends VectorTileStyle {
         this.offset = offset;
     }
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, MaplyBaseController controller) {
+    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, BaseController controller) {
 
         ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 
@@ -87,7 +87,7 @@ public class VectorTileTextStyle extends VectorTileStyle {
 
 
 
-        ComponentObject compObj = controller.addScreenLabels(labels, labelInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
+        ComponentObject compObj = controller.addScreenLabels(labels, labelInfo, RenderController.ThreadMode.ThreadCurrent);
         if (compObj != null) {
             return new ComponentObject[]{compObj};
         }

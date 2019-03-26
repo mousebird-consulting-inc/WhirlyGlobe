@@ -30,8 +30,9 @@ public interface RenderControllerInterface
     public ComponentObject addScreenMovingLabels(final List<ScreenMovingLabel> labels,final LabelInfo labelInfo,ThreadMode mode);
 
     public ComponentObject addVectors(final List<VectorObject> vecs, final VectorInfo vecInfo, ThreadMode mode);
-    public void changeVector(final ComponentObject vecObj, final VectorInfo vecInfo, BaseController.ThreadMode mode);
-    public ComponentObject instanceVectors(final List<VectorObject> vecs, final VectorInfo vecInfo, ThreadMode mode);
+    public void changeVector(final ComponentObject vecObj, final VectorInfo vecInfo, ThreadMode mode);
+    // TODO: Implement
+//    public ComponentObject instanceVectors(final List<VectorObject> vecs, final VectorInfo vecInfo, ThreadMode mode);
 
     public ComponentObject addWideVectors(final List<VectorObject> vecs,final WideVectorInfo wideVecInfo,ThreadMode mode);
     public ComponentObject instanceWideVectors(final ComponentObject inCompObj,final WideVectorInfo wideVecInfo,ThreadMode mode);
@@ -92,7 +93,10 @@ public interface RenderControllerInterface
     public void removeTexturesByID(final List<Long> texIDs,ThreadMode mode);
 
     public void addRenderTarget(RenderTarget renderTarget);
-    public void changeRenderTarget(RenderTarget renderTarget, Texture tex);
+
+    // TODO: Implement
+//    public void changeRenderTarget(RenderTarget renderTarget, Texture tex);
+
     public void removeRenderTarget(RenderTarget renderTarget);
 
     public void disableObjects(final List<ComponentObject> compObjs,ThreadMode mode);
@@ -103,7 +107,9 @@ public interface RenderControllerInterface
 
     public void addShaderProgram(final Shader shader);
     public Shader getShader(String name);
-    public void removeShader(Shader shader);
+
+    // TODO: Implement
+//    public void removeShader(Shader shader);
 
     public void setClearColor(int color);
 

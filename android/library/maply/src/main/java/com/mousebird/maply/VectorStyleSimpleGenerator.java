@@ -45,7 +45,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     }
 
     // Note: This should be ThreadCurrent
-    MaplyBaseController.ThreadMode threadMode = MaplyBaseController.ThreadMode.ThreadCurrent;
+    RenderController.ThreadMode threadMode = RenderController.ThreadMode.ThreadCurrent;
 
     /**
      * For points we just turn them into labels for demonstration.
@@ -66,7 +66,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs, TileID tileID, MaplyBaseController controller)
+        public ComponentObject[] buildObjects(List<VectorObject> vecObjs, TileID tileID, BaseController controller)
         {
             ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
             for (VectorObject point : vecObjs)
@@ -110,7 +110,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,TileID tileID,MaplyBaseController controller)
+        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,TileID tileID,BaseController controller)
         {
             VectorInfo vecInfo = new VectorInfo();
 //            vecInfo.disposeAfterUse = true;
@@ -143,7 +143,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,TileID tileID,MaplyBaseController controller)
+        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,TileID tileID,BaseController controller)
         {
             VectorInfo vecInfo = new VectorInfo();
             vecInfo.disposeAfterUse = true;
@@ -159,12 +159,12 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
     }
 
-    MaplyBaseController controller = null;
+    BaseController controller = null;
     HashMap<String,VectorStyleSimple> stylesByUUID = new HashMap<String,VectorStyleSimple>();
     HashMap<String,VectorStyleSimple> stylesByLayerName = new HashMap<String,VectorStyleSimple>();
 
 
-    public VectorStyleSimpleGenerator(MaplyBaseController inControl)
+    public VectorStyleSimpleGenerator(BaseController inControl)
     {
         controller = inControl;
     }
@@ -173,7 +173,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
      * We'll return a point, line, or areal vector style
      */
     @Override
-    public VectorStyle[] stylesForFeature(AttrDictionary attrs,TileID tileID,String layerName,MaplyBaseController controller)
+    public VectorStyle[] stylesForFeature(AttrDictionary attrs,TileID tileID,String layerName,BaseController controller)
     {
         // Look for an existing style if we've already done this lookup
         VectorStyleSimple style = stylesByLayerName.get(layerName);
@@ -215,7 +215,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     }
 
     @Override
-    public VectorStyle styleForUUID(String uuid,MaplyBaseController controller)
+    public VectorStyle styleForUUID(String uuid,BaseController controller)
     {
         VectorStyle style = stylesByUUID.get(uuid);
         return style;

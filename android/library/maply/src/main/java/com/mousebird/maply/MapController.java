@@ -43,14 +43,14 @@ import java.util.List;
  * @author sjg
  *
  */
-public class MapController extends MaplyBaseController implements View.OnTouchListener, Choreographer.FrameCallback
+public class MapController extends BaseController implements View.OnTouchListener, Choreographer.FrameCallback
 {
 
 	/**
 	 * Settings are parameters we need at the very start of the
 	 * setup process.
 	 */
-	public static class Settings extends MaplyBaseController.Settings
+	public static class Settings extends BaseController.Settings
 	{
 		/**
 		 * Coordinate system to use for the map.
@@ -420,7 +420,7 @@ public class MapController extends MaplyBaseController implements View.OnTouchLi
 
 		mapView.cancelAnimation();
 		Point3d geoCoord = mapView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
-		mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, renderWrapper.maplyRender, new Point3d(geoCoord.getX(),geoCoord.getY(),z), (float) howLong, viewBounds));		
+		mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, renderControl, new Point3d(geoCoord.getX(),geoCoord.getY(),z), (float) howLong, viewBounds));
 	}
 
 	/**

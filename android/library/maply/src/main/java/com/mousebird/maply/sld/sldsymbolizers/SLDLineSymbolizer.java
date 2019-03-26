@@ -26,7 +26,7 @@ import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
 import com.mousebird.maply.VectorTileLineStyle;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;

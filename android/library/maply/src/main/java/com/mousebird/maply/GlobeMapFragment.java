@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 public class GlobeMapFragment extends android.support.v4.app.Fragment implements MapController.GestureDelegate, GlobeController.GestureDelegate {
     protected MapController mapControl;
     protected GlobeController globeControl;
-    protected MaplyBaseController baseControl;
+    protected BaseController baseControl;
 
     public enum MapDisplayType {Globe, Map}
 

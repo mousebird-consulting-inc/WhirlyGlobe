@@ -29,7 +29,7 @@ import android.graphics.Color;
  */
 public class QuadImageLoaderBase extends QuadLoaderBase
 {
-    protected QuadImageLoaderBase(MaplyBaseController control)
+    protected QuadImageLoaderBase(BaseController control)
     {
         super(control);
     }

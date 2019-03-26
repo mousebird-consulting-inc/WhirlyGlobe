@@ -1,6 +1,6 @@
 package com.mousebird.maply;
 
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.sld.sldstyleset.SLDStyleSet;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class GeoJSONSource {
     private boolean enabled;
     private SLDStyleSet styleSet;
     private InputStream jsonStream;
-    private MaplyBaseController baseController;
+    private BaseController baseController;
     ArrayList<ComponentObject> componentObjects = new ArrayList<ComponentObject>();
 
     public boolean isLoaded() {
@@ -46,9 +46,9 @@ public class GeoJSONSource {
             return;
         this.enabled = enabled;
         if (enabled)
-            baseController.enableObjects(componentObjects, MaplyBaseController.ThreadMode.ThreadAny);
+            baseController.enableObjects(componentObjects, RenderController.ThreadMode.ThreadAny);
         else
-            baseController.disableObjects(componentObjects, MaplyBaseController.ThreadMode.ThreadAny);
+            baseController.disableObjects(componentObjects, RenderController.ThreadMode.ThreadAny);
     }
 
     /**
@@ -71,7 +71,7 @@ public class GeoJSONSource {
      * Sets the globe or map controller to which vector features will be added.
      * @param baseController The MaplyBaseController instance.
      */
-    public void setBaseController(MaplyBaseController baseController) {
+    public void setBaseController(BaseController baseController) {
         this.baseController = baseController;
     }
 
@@ -151,7 +151,7 @@ public class GeoJSONSource {
                        componentObjects.addAll(Arrays.asList(newCompObjs));
                 }
             }
-            baseController.enableObjects(componentObjects, MaplyBaseController.ThreadMode.ThreadAny);
+            baseController.enableObjects(componentObjects, RenderController.ThreadMode.ThreadAny);
 
             this.componentObjects = componentObjects;
             loaded = true;

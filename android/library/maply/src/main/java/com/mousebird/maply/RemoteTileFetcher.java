@@ -156,7 +156,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         }
     }
 
-    RemoteTileFetcher(MaplyBaseController baseController, String name)
+    RemoteTileFetcher(BaseController baseController, String name)
     {
         super(name);
 

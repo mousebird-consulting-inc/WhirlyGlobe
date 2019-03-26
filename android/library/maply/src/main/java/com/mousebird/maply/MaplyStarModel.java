@@ -85,7 +85,7 @@ public class MaplyStarModel {
     ParticleSystem particleSystem;
     ComponentObject particleSystemObj;
     GlobeController viewC;
-    MaplyBaseController.ThreadMode addedMode;
+    RenderController.ThreadMode addedMode;
     Bitmap image;
 
 
@@ -156,7 +156,7 @@ public class MaplyStarModel {
         }
     }
 
-    public void addToViewc (GlobeController inViewC, MaplyBaseController.ThreadMode mode) {
+    public void addToViewc (GlobeController inViewC, RenderController.ThreadMode mode) {
         this.viewC = inViewC;
         this.addedMode = mode;
 
@@ -180,8 +180,8 @@ public class MaplyStarModel {
             particleSystem.setRenderShader(shader);
 
         if (image != null){
-            MaplyBaseController.TextureSettings texSet = new MaplyBaseController.TextureSettings();
-            MaplyTexture tex = inViewC.addTexture(image, texSet, MaplyBaseController.ThreadMode.ThreadCurrent);
+            RenderController.TextureSettings texSet = new RenderController.TextureSettings();
+            MaplyTexture tex = inViewC.addTexture(image, texSet, RenderController.ThreadMode.ThreadCurrent);
             particleSystem.addTexture(tex);
         }
 

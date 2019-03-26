@@ -67,7 +67,7 @@ public class View
 	}
 
 	// Filled in by the subclass
-	public ViewState makeViewState(MaplyRenderer renderer)
+	public ViewState makeViewState(RenderController renderer)
 	{
 		return null;
 	}

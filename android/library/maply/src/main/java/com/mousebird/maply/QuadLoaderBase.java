@@ -27,7 +27,7 @@ package com.mousebird.maply;
  */
 public class QuadLoaderBase
 {
-    protected QuadLoaderBase(MaplyBaseController inControl)
+    protected QuadLoaderBase(BaseController inControl)
     {
         control = inControl;
     }
@@ -48,13 +48,13 @@ public class QuadLoaderBase
      */
     public native void setDebugMode(boolean debugMode);
 
-    private MaplyBaseController control = null;
+    private BaseController control = null;
 
     /**
      * Controller associated with this quad loader.
      * This is where you send geometry and such.
      */
-    MaplyBaseController getController()
+    BaseController getController()
     {
         return control;
     }
