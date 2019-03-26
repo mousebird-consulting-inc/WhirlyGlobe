@@ -34,6 +34,22 @@ public class QuadImageLoaderBase extends QuadLoaderBase
         super(control);
     }
 
+    // Called after a tick after creation on the main thread
+    // We want them to be able to modify settings before it starts
+    public void delayedInit(SamplingParams params)
+    {
+        if (tileFetcher == null) {
+            // TODO: Get a shared tile fetcher from teh base controller
+        }
+        // TODO: Get a sampling layer from teh base controller
+        loadInterp.setLoader(this);
+
+        // TODO: Do we need to set the shader ID?
+
+        // TODO: Run this on the layer thread
+        initialise(params,1,Mode.SingleFrame.ordinal());
+    }
+
     /**
      * Set the base priority values for produced tiles.
      * <br>
@@ -137,4 +153,9 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      *  By default this is 1.  It's safe to set it to 0 for 2D maps and some overlays.
      */
     public native void setBorderTexel(int borderTexel);
+
+    /**
+     * Tile Info objects for individual frames.
+     */
+    TileInfoNew[] tileInfos = null;
 }

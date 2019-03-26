@@ -149,4 +149,20 @@ public class QuadLoaderBase
     }
 
     protected native void cleanupNative(ChangeSet changes);
+
+    // Used to initialize the loader for certain types of data.
+    enum Mode {SingleFrame,MultiFrame,Object};
+
+    public void finalize()
+    {
+        dispose();
+    }
+    static
+    {
+        nativeInit();
+    }
+    private static native void nativeInit();
+    native void initialise(SamplingParams params,int numFrames,int mode);
+    native void dispose();
+    private long nativeHandle;
 }

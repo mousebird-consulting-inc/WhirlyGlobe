@@ -55,6 +55,30 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_displayCenterForT
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
   (JNIEnv *, jobject, jobject);
 
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    nativeInit
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_nativeInit
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    initialise
+ * Signature: (Lcom/mousebird/maply/SamplingParams;II)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
+  (JNIEnv *, jobject, jobject, jint, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    dispose
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

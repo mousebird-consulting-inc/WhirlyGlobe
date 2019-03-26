@@ -20,6 +20,7 @@
 
 package com.mousebird.maply;
 
+import android.os.Handler;
 import android.renderscript.Sampler;
 
 public class QuadImageLoader extends QuadImageLoaderBase
@@ -33,7 +34,7 @@ public class QuadImageLoader extends QuadImageLoaderBase
      *  @param tileInfo A single tile info object describing where the data is and how to get it.
      *  @param control the controller to add objects to.
      */
-    QuadImageLoader(SamplingParams params,TileInfoNew tileInfo,MaplyBaseController control)
+    QuadImageLoader(final SamplingParams params,TileInfoNew tileInfo,MaplyBaseController control)
     {
         super(control);
 
@@ -41,9 +42,15 @@ public class QuadImageLoader extends QuadImageLoaderBase
         tileInfos[0] = tileInfo;
         valid = true;
 
-        // Let's delay the
-        control.getActivity().getMainLooper();
-    }
+        Handler handler = new Handler(control.getActivity().getMainLooper());
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (!valid)
+                    return;
 
-    TileInfoNew[] tileInfos = null;
+                delayedInit(params);
+            }
+        });
+    }
 }

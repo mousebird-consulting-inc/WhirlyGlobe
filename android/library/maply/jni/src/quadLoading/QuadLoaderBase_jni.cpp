@@ -28,6 +28,47 @@ using namespace WhirlyKit;
 
 template<> QuadImageFrameLoaderInfo *QuadImageFrameLoaderInfo::classInfoObj = NULL;
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_nativeInit
+        (JNIEnv *env, jclass cls)
+{
+    QuadImageFrameLoaderInfo::getClassInfo(env, cls);
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
+        (JNIEnv *env, jobject obj, jobject sampleObj, jint numFrames, jint mode)
+{
+    try {
+        QuadImageFrameLoaderInfo *info = QuadImageFrameLoaderInfo::getClassInfo();
+        SamplingParams *params = SamplingParamsClassInfo::getClassInfo()->getObject(env,sampleObj);
+        QuadImageFrameLoader_Android *loader = new QuadImageFrameLoader_Android(*params,numFrames,(QuadImageFrameLoader::Mode)mode,env);
+        info->setHandle(env, obj, loader);
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::initialise()");
+    }
+}
+
+static std::mutex disposeMutex;
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose
+        (JNIEnv *env, jobject obj)
+{
+    try {
+        QuadImageFrameLoaderInfo *info = QuadImageFrameLoaderInfo::getClassInfo();
+        {
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            QuadImageFrameLoader_Android *loader = info->getObject(env,obj);
+            if (!loader)
+                return;
+            delete loader;
+
+            info->clearHandle(env, obj);
+        }
+
+    } catch (...) {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::dispose()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY
         (JNIEnv *env, jobject obj, jboolean flipY)
 {
