@@ -255,6 +255,10 @@ public class Shader
 	{
 		nativeInit();
 	}
+	public void finalize()
+	{
+		dispose();
+	}
 	private static native void nativeInit();
 	native void initialise(String name,String vertexSrc, String fragSrc);
 	native void initialise();

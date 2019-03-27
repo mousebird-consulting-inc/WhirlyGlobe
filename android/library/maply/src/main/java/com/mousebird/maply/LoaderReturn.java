@@ -89,6 +89,11 @@ public class LoaderReturn
      */
     String errorString = null;
 
+    public void finalize()
+    {
+        dispose();
+    }
+
     static
     {
         nativeInit();

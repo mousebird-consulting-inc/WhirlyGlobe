@@ -99,7 +99,11 @@ class InternalLabel
 	public native void setOffset(Point2d offset);
 	public native void setLayoutImportance(float layoutImportance);
 	public native void setUniqueID(String uniqueStr);
-	
+
+	public void finalize()
+	{
+		dispose();
+	}
 	static
 	{
 		nativeInit();

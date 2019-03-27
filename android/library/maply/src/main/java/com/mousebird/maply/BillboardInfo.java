@@ -73,6 +73,10 @@ public class BillboardInfo extends BaseInfo {
         return orient;
     }
 
+    public void finalize()
+    {
+        dispose();
+    }
     static
     {
         nativeInit();

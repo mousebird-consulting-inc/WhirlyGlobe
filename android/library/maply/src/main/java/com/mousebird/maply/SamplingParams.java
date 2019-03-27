@@ -180,6 +180,10 @@ public class SamplingParams
 
     private native void setClipBounds(double llx,double lly,double urx,double ury);
 
+    public void finalize()
+    {
+        dispose();
+    }
     static
     {
         nativeInit();
