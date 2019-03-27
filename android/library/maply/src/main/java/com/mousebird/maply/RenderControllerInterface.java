@@ -88,7 +88,8 @@ public interface RenderControllerInterface
 
     public MaplyTexture addTexture(final Bitmap image,final TextureSettings settings,ThreadMode mode);
     public MaplyTexture addTexture(final Texture rawTex,final TextureSettings settings,ThreadMode mode);
-    public MaplyTexture createTexture(final int width,final int height,final TextureSettings settings,ThreadMode mode);
+    // TODO: Implement
+//    public MaplyTexture createTexture(final int width,final int height,final TextureSettings settings,ThreadMode mode);
     public void removeTextures(final List<MaplyTexture> texs,ThreadMode mode);
     public void removeTexturesByID(final List<Long> texIDs,ThreadMode mode);
 

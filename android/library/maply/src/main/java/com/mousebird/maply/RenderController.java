@@ -62,6 +62,7 @@ public class RenderController implements RenderControllerInterface
 
     // Scene stores the objects
     public Scene scene = null;
+    public CoordSystemDisplayAdapter coordAdapter = null;
 
     /**
      * Return the current scene.  Only for sure within the library.
@@ -85,9 +86,10 @@ public class RenderController implements RenderControllerInterface
 
     TaskManager taskMan = null;
 
-    public void Init(Scene inScene,TaskManager inTaskMan)
+    public void Init(Scene inScene,CoordSystemDisplayAdapter inCoordAdapter,TaskManager inTaskMan)
     {
         scene = inScene;
+        coordAdapter = inCoordAdapter;
         taskMan = inTaskMan;
 
         // Fire up the managers.  Can't do anything without these.
@@ -1081,35 +1083,6 @@ public class RenderController implements RenderControllerInterface
 
         return compObj;
     }
-
-    /**
-     * Texture settings for adding textures to the system.
-     */
-    static public class TextureSettings
-    {
-        public TextureSettings()
-        {
-        }
-
-        public enum FilterType {FilterNearest,FilterLinear};
-
-        /**
-         * Image format to use when creating textures.
-         */
-        public RenderController.ImageFormat imageFormat = RenderController.ImageFormat.MaplyImageIntRGBA;
-        /**
-         * Filter type for created textures.
-         */
-        public RenderControllerInterface.TextureSettings.FilterType filterType = RenderControllerInterface.TextureSettings.FilterType.FilterLinear;
-        /**
-         * Horizonal texture wrap.
-         */
-        public boolean wrapU = false;
-        /**
-         * Vertical texture wrap
-         */
-        public boolean wrapV = false;
-    };
 
     /**
      * Add texture to the system with the given settings.

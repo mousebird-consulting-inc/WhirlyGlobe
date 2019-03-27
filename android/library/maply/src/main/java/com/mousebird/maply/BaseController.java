@@ -279,7 +279,7 @@ public class BaseController implements RenderController.TaskManager
 			libraryLoaded = true;
 		}
 
-		renderControl.Init(scene,this);
+		renderControl.Init(scene, coordAdapter,this);
 
 		// Now for the object that kicks off the rendering
 		renderWrapper = new RendererWrapper(this, renderControl);
