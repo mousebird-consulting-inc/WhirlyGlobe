@@ -28,7 +28,43 @@
 
 namespace WhirlyKit
 {
-
+// Used to track scene data associated with a chunk
+class ChunkSceneRep : public Identifiable
+{
+public:
+    ChunkSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
+    ChunkSceneRep() { }
+    SimpleIDSet drawIDs;
+    SimpleIDSet texIDs;
+    
+    // Remove elements from the scene
+    void clear(Scene *scene,ChangeSet &changeRequests)
+    {
+        for (SimpleIDSet::iterator it = drawIDs.begin();
+             it != drawIDs.end(); ++it)
+            changeRequests.push_back(new RemDrawableReq(*it));
+        for (SimpleIDSet::iterator it = texIDs.begin();
+             it != texIDs.end(); ++it)
+            changeRequests.push_back(new RemTextureReq(*it));
+    }
+    
+    // Enable drawables
+    void enable(ChangeSet &changes)
+    {
+        for (SimpleIDSet::iterator it = drawIDs.begin();
+             it != drawIDs.end(); ++it)
+            changes.push_back(new OnOffChangeRequest(*it, true));
+    }
+    
+    // Disable drawables
+    void disable(ChangeSet &changes)
+    {
+        for (SimpleIDSet::iterator it = drawIDs.begin();
+             it != drawIDs.end(); ++it)
+            changes.push_back(new OnOffChangeRequest(*it, false));
+    }
+};
+    
 // Info object for spherical chunks
 class SphericalChunkInfo : public BaseInfo
 {
@@ -97,7 +133,6 @@ protected:
     void calcSampleX(int &thisSampleX,int &thisSampleY,Point3f *dispPts);
 };
 
-class ChunkSceneRep;
 typedef std::shared_ptr<ChunkSceneRep> ChunkSceneRepRef;
 typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
  

@@ -306,43 +306,6 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
         *skirtDraw = skirtDrawable;
     }
 }
-
-// Used to track scene data associated with a chunk
-class ChunkSceneRep : public Identifiable
-{
-public:
-    ChunkSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
-    ChunkSceneRep() { }
-    SimpleIDSet drawIDs;
-    SimpleIDSet texIDs;
-    
-    // Remove elements from the scene
-    void clear(Scene *scene,ChangeSet &changeRequests)
-    {
-        for (SimpleIDSet::iterator it = drawIDs.begin();
-             it != drawIDs.end(); ++it)
-            changeRequests.push_back(new RemDrawableReq(*it));
-        for (SimpleIDSet::iterator it = texIDs.begin();
-             it != texIDs.end(); ++it)
-            changeRequests.push_back(new RemTextureReq(*it));
-    }
-    
-    // Enable drawables
-    void enable(ChangeSet &changes)
-    {
-        for (SimpleIDSet::iterator it = drawIDs.begin();
-             it != drawIDs.end(); ++it)
-            changes.push_back(new OnOffChangeRequest(*it, true));
-    }
-    
-    // Disable drawables
-    void disable(ChangeSet &changes)
-    {
-        for (SimpleIDSet::iterator it = drawIDs.begin();
-             it != drawIDs.end(); ++it)
-            changes.push_back(new OnOffChangeRequest(*it, false));
-    }
-};
     
 SphericalChunkManager::SphericalChunkManager()
     : borderTexel(0)
