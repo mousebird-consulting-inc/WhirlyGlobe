@@ -93,13 +93,24 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
 
         // Unwrap the instances
         std::vector<GeometryInstance *> geomInsts;
-        GeometryInstanceClassInfo *geomInfoClassInfo = GeometryInstanceClassInfo::getClassInfo();
+        GeometryInstanceClassInfo *geomInstClassInfo = GeometryInstanceClassInfo::getClassInfo();
         JavaObjectArrayHelper geomInstArrHelp(env,modelInstArr);
         while (jobject geomInstObj = geomInstArrHelp.getNextObject()) {
-            GeometryInstance *geomInst = geomInfoClassInfo->getObject(env,geomInstObj);
+            GeometryInstance *geomInst = geomInstClassInfo->getObject(env,geomInstObj);
             if (geomInst)
                 geomInsts.push_back(geomInst);
         }
+
+        // Resolve a missing program
+        if (geomInfo->programID == EmptyIdentity)
+        {
+            bool isGlobe = dynamic_cast<WhirlyGlobe::GlobeScene *>(geomManager->getScene());
+            OpenGLES2Program *prog = NULL;
+            prog = geomManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
+            if (prog)
+                geomInfo->programID = prog->getId();
+        }
+
 
         return geomManager->addGeometry(geoms,geomInsts,*geomInfo,*changeSet);
     }

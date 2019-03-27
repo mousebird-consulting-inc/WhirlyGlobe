@@ -88,7 +88,7 @@ public:
     {
         if (motionShaderID == EmptyIdentity)
         {
-            OpenGLES2Program *program = layoutManager->getScene()->findProgramByName(MaplySpaceDefaultMotionProgramScreen);
+            OpenGLES2Program *program = layoutManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultMotionShader);
             if (program)
                 motionShaderID = program->getId();
         }

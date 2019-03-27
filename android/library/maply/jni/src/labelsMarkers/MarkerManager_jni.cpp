@@ -163,9 +163,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
         {
             OpenGLES2Program *prog = NULL;
             if (isMoving)
-                prog = markerManager->getScene()->findProgramByName(MaplySpaceDefaultMotionProgramScreen);
+                prog = markerManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultMotionShader);
             else
-                prog = markerManager->getScene()->findProgramByName(MaplySpaceDefaultProgramScreen);
+                prog = markerManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultShader);
             if (prog)
                 markerInfo->programID = prog->getId();
         }

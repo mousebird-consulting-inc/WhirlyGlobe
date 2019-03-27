@@ -75,10 +75,10 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
     try
     {
         BillboardManagerClassInfo *classInfo = BillboardManagerClassInfo::getClassInfo();
-        BillboardManager *inst = classInfo->getObject(env, obj);
-        BillboardInfo *info = BillboardInfoClassInfo::getClassInfo()->getObject(env, infoObj);
+        BillboardManager *billManager = classInfo->getObject(env, obj);
+        BillboardInfo *billInfo = BillboardInfoClassInfo::getClassInfo()->getObject(env, infoObj);
         ChangeSet *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
-        if (!inst || !info || !changeSet)
+        if (!billManager || !billInfo || !changeSet)
             return EmptyIdentity;
         
         // Collect all the billboards
@@ -90,7 +90,20 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
             bills.push_back(bill);
         }
 
-        SimpleIdentity billId = inst->addBillboards(bills, *info, *changeSet);
+        // Resolve a missing program
+        if (billInfo->programID == EmptyIdentity)
+        {
+            OpenGLES2Program *prog = NULL;
+            if (billInfo->orient == BillboardInfo::Orient::Eye)
+                prog = billManager->getScene()->findProgramByName(MaplyBillboardEyeShader);
+            else
+                prog = billManager->getScene()->findProgramByName(MaplyBillboardGroundShader);
+            if (prog)
+                billInfo->programID = prog->getId();
+        }
+
+
+        SimpleIdentity billId = billManager->addBillboards(bills, *billInfo, *changeSet);
 
         return billId;
     }

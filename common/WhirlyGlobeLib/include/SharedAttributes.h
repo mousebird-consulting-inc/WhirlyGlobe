@@ -102,8 +102,8 @@
 #define MaplyDefaultWideVectorShader WKString("Default Wide Vector")
 #define MaplyDefaultWideVectorGlobeShader WKString("Default Wide Vector Globe")
 
-#define MaplySpaceDefaultMotionProgramScreen WKString("Default Screenspace Motion")
-#define MaplySpaceDefaultProgramScreen WKString("Default Screenspace")
+#define MaplyScreenSpaceDefaultMotionShader WKString("Default Screenspace Motion")
+#define MaplyScreenSpaceDefaultShader WKString("Default Screenspace")
 
 #define MaplyParticleSystemPointDefaultShader WKString("Default Part Sys (Point)")
 

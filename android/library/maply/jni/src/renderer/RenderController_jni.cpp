@@ -58,6 +58,8 @@ GLenum ImageFormatToGLenum(MaplyImageType format) {
 //				MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
 //				MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
 	}
+
+	return ret;
 }
 }
 
@@ -199,8 +201,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setupShadersNat
 		rendWrap.addShader(MaplyDefaultWideVectorShader,BuildWideVectorProgram());
 		rendWrap.addShader(MaplyDefaultWideVectorGlobeShader,BuildWideVectorGlobeProgram());
 		// Screen space
-		rendWrap.addShader(MaplySpaceDefaultMotionProgramScreen,BuildScreenSpaceProgram());
-		rendWrap.addShader(MaplySpaceDefaultProgramScreen,BuildScreenSpaceMotionProgram());
+		rendWrap.addShader(MaplyScreenSpaceDefaultMotionShader,BuildScreenSpaceProgram());
+		rendWrap.addShader(MaplyScreenSpaceDefaultShader,BuildScreenSpaceMotionProgram());
 		// Particles
 		rendWrap.addShader(MaplyParticleSystemPointDefaultShader,BuildParticleSystemProgram());
 	}

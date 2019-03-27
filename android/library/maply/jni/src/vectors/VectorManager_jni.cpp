@@ -102,7 +102,6 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
                 vecInfo->programID = prog->getId();
         }
 
-
 		SimpleIdentity vecID = vecManager->addVectors(&shapes,*vecInfo,*changeSet);
 
 		return vecID;

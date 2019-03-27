@@ -50,6 +50,8 @@ jobject JavaObjectArrayHelper::getNextObject()
         env->DeleteLocalRef(curObj);
     curObj = env->GetObjectArrayElement(objArray,which);
     which++;
+
+    return curObj;
 }
 
 // Have to instantiate the static members somewhere
