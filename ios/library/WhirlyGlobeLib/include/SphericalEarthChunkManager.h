@@ -96,8 +96,29 @@
 
 namespace WhirlyKit
 {
+
+// Used to track scene data associated with a chunk
+class ChunkSceneRep : public Identifiable
+{
+public:
+    ChunkSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
+    ChunkSceneRep() : usesAtlas(false) { subTex.texId = EmptyIdentity; }
+    SimpleIDSet drawIDs;
+    SimpleIDSet texIDs;
+    bool usesAtlas;
+    // Set if we're using a dynamic texture atlas
+    SubTexture subTex;
     
-class ChunkSceneRep;
+    // Remove elements from the scene
+    void clear(Scene *scene,DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changeRequests);
+    
+    // Enable drawables
+    void enable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changes);
+    
+    // Disable drawables
+    void disable(DynamicTextureAtlas *texAtlas,DynamicDrawableAtlas *drawAtlas,ChangeSet &changes);
+};
+
 typedef std::shared_ptr<ChunkSceneRep> ChunkSceneRepRef;
 typedef std::set<ChunkSceneRepRef,IdentifiableRefSorter> ChunkRepSet;
  
