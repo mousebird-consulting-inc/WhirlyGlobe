@@ -24,8 +24,8 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseImplementations) {
 
 @interface MaplyTestCase : NSObject <WhirlyGlobeViewControllerDelegate,MaplyViewControllerDelegate>
 
-- (void)startGlobe:(UINavigationController *)nav;
-- (void)startMap:(UINavigationController *)nav;
+- (void)startGlobe:(UINavigationController * __nonnull)nav;
+- (void)startMap:(UINavigationController * __nonnull)nav;
 
 // these prototypes are necessary for Swift
 - (void)setUpWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC;

@@ -2383,7 +2383,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         if (inDesc[kMaplySubdivEpsilon] != nil)
             chunk->eps = [inDesc[kMaplySubdivEpsilon] floatValue];
         if (sticker.coordSys)
-            chunk->coordSys = [sticker.coordSys getCoordSystem].get();
+            chunk->coordSys = [sticker.coordSys getCoordSystem];
         chunk->rotation = sticker.rotation;
         if (chunkManager)
         {

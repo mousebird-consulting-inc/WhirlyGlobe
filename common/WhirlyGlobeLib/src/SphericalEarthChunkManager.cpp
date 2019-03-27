@@ -118,13 +118,13 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
 {
     CoordSystem *localSys = coordAdapter->getCoordSystem();
 
-    CoordSystem *srcSystem = NULL;
-    GeoCoordSystem geoSystem;
+    CoordSystemRef srcSystem;
+    CoordSystemRef geoSystem(new GeoCoordSystem());
     if (coordSys)
     {
         srcSystem = coordSys;
     } else {
-        srcSystem = &geoSystem;
+        srcSystem = geoSystem;
     }
     
     BasicDrawable *drawable = new BasicDrawable("Spherical Earth Chunk");
@@ -171,7 +171,7 @@ void SphericalChunk::buildDrawable(BasicDrawable **draw,BasicDrawable **skirtDra
             {
                 Point3d srcLoc(srcLL.x() + ix * localIncr.x(), srcLL.y() + iy * localIncr.y(), 0.0);
                 localMbr.addPoint(Point2f(srcLoc.x(),srcLoc.y()));
-                Point3d dispLoc = coordAdapter->localToDisplay(CoordSystemConvert3d(srcSystem, localSys, srcLoc));
+                Point3d dispLoc = coordAdapter->localToDisplay(CoordSystemConvert3d(srcSystem.get(), localSys, srcLoc));
                 Point3f dispLoc3f = Point3f(dispLoc.x(),dispLoc.y(),dispLoc.z());
                 
                 locs[iy*(thisSampleX+1)+ix] = dispLoc3f;

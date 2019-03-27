@@ -123,7 +123,7 @@ public:
     float rotation;
     
     /// The chunks extents are in this coordinate system.  Geographic if not set.
-    CoordSystem *coordSys;
+    CoordSystemRef coordSys;
     
 protected:
     void buildSkirt(BasicDrawable *draw,Point3fVector &pts,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo);

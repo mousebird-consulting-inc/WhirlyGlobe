@@ -141,7 +141,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setCoordSys
 
         CoordSystemRef *coordSys = CoordSystemRefClassInfo::getClassInfo()->getObject(env,coordSysObj);
         if (coordSys)
-            chunk->coordSys = coordSys->get();
+            chunk->coordSys = *coordSys;
     }
     catch (...)
     {
