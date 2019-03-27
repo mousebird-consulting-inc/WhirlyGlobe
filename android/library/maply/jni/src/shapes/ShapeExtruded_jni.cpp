@@ -116,16 +116,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeExtruded_setOutline
         if (!inst)
             return;
 
-		int count = env->GetArrayLength(coordsObj);
-		if (count == 0)
-			return;
-		for (int ii=0;ii<count;ii++)
-		{
-			jobject ptObj = env->GetObjectArrayElement(coordsObj,ii);
-			Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
-			inst->pts.push_back(*pt);
-            env->DeleteLocalRef(ptObj);
-		}
+        JavaObjectArrayHelper coordsHelp(env,coordsObj);
+        while (jobject ptObj = coordsHelp.getNextObject()) {
+            Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
+            inst->pts.push_back(*pt);
+        }
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeExtruded::setOutline()");

@@ -118,15 +118,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_removeComponent
 
         // Unwrap the raw geometry objects
         SimpleIDSet compObjIDs;
-        int count = env->GetArrayLength(compObjArray);
+        JavaObjectArrayHelper compArrayHelp(env,compObjArray);
         ComponentObjectRefClassInfo *compObjClassInfo = ComponentObjectRefClassInfo::getClassInfo();
-        for (unsigned int ii=0;ii<count;ii++)
-        {
-            jobject compObjObj = env->GetObjectArrayElement(compObjArray,ii);
+        while (jobject compObjObj = compArrayHelp.getNextObject()) {
             ComponentObjectRef *compObj = compObjClassInfo->getObject(env,compObjObj);
             if (compObj)
                 compObjIDs.insert((*compObj)->getId());
-            env->DeleteLocalRef(compObjObj);
         }
 
         compManager->removeComponentObjects(compObjIDs,*changeSet);
@@ -149,15 +146,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_enableComponent
 
         // Unwrap the raw geometry objects
         SimpleIDSet compObjIDs;
-        int count = env->GetArrayLength(compObjArray);
+        JavaObjectArrayHelper compArrayHelp(env,compObjArray);
         ComponentObjectRefClassInfo *compObjClassInfo = ComponentObjectRefClassInfo::getClassInfo();
-        for (unsigned int ii=0;ii<count;ii++)
-        {
-            jobject compObjObj = env->GetObjectArrayElement(compObjArray,ii);
+        while (jobject compObjObj = compArrayHelp.getNextObject()) {
             ComponentObjectRef *compObj = compObjClassInfo->getObject(env,compObjObj);
             if (compObj)
                 compObjIDs.insert((*compObj)->getId());
-            env->DeleteLocalRef(compObjObj);
         }
 
         compManager->enableComponentObjects(compObjIDs,enable,*changeSet);

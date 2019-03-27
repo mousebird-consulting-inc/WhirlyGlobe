@@ -83,30 +83,24 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
         
         // Unwrap the raw geometry objects
         std::vector<GeometryRaw *> geoms;
-        int geomCount = env->GetArrayLength(rawGeomArr);
         GeometryRawClassInfo *rawGeomClassInfo = GeometryRawClassInfo::getClassInfo();
-        for (unsigned int ii=0;ii<geomCount;ii++)
-        {
-            jobject geomRawObj = env->GetObjectArrayElement(rawGeomArr,ii);
+        JavaObjectArrayHelper rawGeomArrHelp(env,rawGeomArr);
+        while (jobject geomRawObj = rawGeomArrHelp.getNextObject()) {
             GeometryRaw *geomRaw = rawGeomClassInfo->getObject(env,geomRawObj);
             if (geomRaw)
                 geoms.push_back(geomRaw);
-            env->DeleteLocalRef(geomRawObj);
         }
-        
+
         // Unwrap the instances
         std::vector<GeometryInstance *> geomInsts;
-        int geomInstCount = env->GetArrayLength(modelInstArr);
         GeometryInstanceClassInfo *geomInfoClassInfo = GeometryInstanceClassInfo::getClassInfo();
-        for (unsigned int ii=0;ii<geomInstCount;ii++)
-        {
-            jobject geomInstObj = env->GetObjectArrayElement(modelInstArr,ii);
+        JavaObjectArrayHelper geomInstArrHelp(env,modelInstArr);
+        while (jobject geomInstObj = geomInstArrHelp.getNextObject()) {
             GeometryInstance *geomInst = geomInfoClassInfo->getObject(env,geomInstObj);
             if (geomInst)
                 geomInsts.push_back(geomInst);
-            env->DeleteLocalRef(geomInstObj);
         }
-        
+
         return geomManager->addGeometry(geoms,geomInsts,*geomInfo,*changeSet);
     }
     catch (...)
@@ -132,17 +126,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addBaseGeometry
         
         // Unwrap the raw geometry objects
         std::vector<GeometryRaw *> geoms;
-        int geomCount = env->GetArrayLength(rawGeomArr);
         GeometryRawClassInfo *rawGeomClassInfo = GeometryRawClassInfo::getClassInfo();
-        for (unsigned int ii=0;ii<geomCount;ii++)
-        {
-            jobject geomRawObj = env->GetObjectArrayElement(rawGeomArr,ii);
+        JavaObjectArrayHelper rawGeomArrHelp(env,rawGeomArr);
+        while (jobject geomRawObj = rawGeomArrHelp.getNextObject()) {
             GeometryRaw *geomRaw = rawGeomClassInfo->getObject(env,geomRawObj);
             if (geomRaw)
                 geoms.push_back(geomRaw);
-            env->DeleteLocalRef(geomRawObj);
         }
-        
+
         return geomManager->addBaseGeometry(geoms,*changeSet);
     }
     catch (...)
@@ -169,17 +160,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInst
         
         // Unwrap the instances
         std::vector<GeometryInstance> geomInsts;
-        int geomInstCount = env->GetArrayLength(modelInstArr);
         GeometryInstanceClassInfo *geomInfoClassInfo = GeometryInstanceClassInfo::getClassInfo();
-        for (unsigned int ii=0;ii<geomInstCount;ii++)
-        {
-            jobject geomInstObj = env->GetObjectArrayElement(modelInstArr,ii);
+        JavaObjectArrayHelper geomInstArrHelp(env,modelInstArr);
+        while (jobject geomInstObj = geomInstArrHelp.getNextObject()) {
             GeometryInstance *geomInst = geomInfoClassInfo->getObject(env,geomInstObj);
             if (geomInst)
                 geomInsts.push_back(*geomInst);
-            env->DeleteLocalRef(geomInstObj);
         }
-        
+
         return geomManager->addGeometryInstances(baseGeomID,geomInsts,*geomInfo,*changeSet);
     }
     catch (...)

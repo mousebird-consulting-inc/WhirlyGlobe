@@ -1052,7 +1052,7 @@ public class RenderController implements RenderControllerInterface
                             bill.flatten();
                         }
 
-                        long billId = billboardManager.addBillboards(bills, info, changes);
+                        long billId = billboardManager.addBillboards(bills.toArray(new Billboard[0]), info, changes);
                         compObj.addBillboardID(billId);
 
                         // Flush the text changes

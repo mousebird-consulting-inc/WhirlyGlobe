@@ -70,7 +70,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_dispose
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
-(JNIEnv *env, jobject obj, jobject arrayObj, jobject infoObj, jobject changeObj)
+(JNIEnv *env, jobject obj, jobjectArray objArray, jobject infoObj, jobject changeObj)
 {
     try
     {
@@ -81,28 +81,15 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
         if (!inst || !info || !changeSet)
             return EmptyIdentity;
         
-        // Get the iterator
-        // Note: Look these up once
-        jclass listClass = env->GetObjectClass(arrayObj);
-        jclass iterClass = env->FindClass("java/util/Iterator");
-        jmethodID literMethod = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
-        jobject liter = env->CallObjectMethod(arrayObj,literMethod);
-        jmethodID hasNext = env->GetMethodID(iterClass,"hasNext","()Z");
-        jmethodID next = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
-        env->DeleteLocalRef(iterClass);
-        env->DeleteLocalRef(listClass);
-        
+        // Collect all the billboards
         std::vector<Billboard*> bills;
         BillboardClassInfo *billClassInfo = BillboardClassInfo::getClassInfo();
-        while (env->CallBooleanMethod(liter, hasNext))
-        {
-            jobject javaVecObj = env->CallObjectMethod(liter, next);
-            Billboard *bill = billClassInfo->getObject(env,javaVecObj);
+        JavaObjectArrayHelper billArrayHelp(env,objArray);
+        while (jobject billObj = billArrayHelp.getNextObject()) {
+            Billboard *bill = billClassInfo->getObject(env,billObj);
             bills.push_back(bill);
-            env->DeleteLocalRef(javaVecObj);
         }
-        env->DeleteLocalRef(liter);
-        
+
         SimpleIdentity billId = inst->addBillboards(bills, *info, *changeSet);
 
         return billId;

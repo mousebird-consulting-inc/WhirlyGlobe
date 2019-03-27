@@ -36,15 +36,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ObjectLoaderReturn_addComponentO
 
         // Work through the component object array
 		ComponentObjectRefClassInfo *compObjClassInfo = ComponentObjectRefClassInfo::getClassInfo();
-		int count = env->GetArrayLength(compObjs);
-		if (count == 0)
-			return;
-		for (int ii=0;ii<count;ii++)
-		{
-			jobject compObjObj = env->GetObjectArrayElement(compObjs,ii);
-            ComponentObjectRef *compObj = compObjClassInfo->getObject(env,compObjObj);
-            loadReturn->compObjs.push_back(*compObj);
-            env->DeleteLocalRef(compObjObj);
+		JavaObjectArrayHelper compObjHelp(env,compObjs);
+		while (jobject compObjObj = compObjHelp.getNextObject()) {
+			ComponentObjectRef *compObj = compObjClassInfo->getObject(env,compObjObj);
+			loadReturn->compObjs.push_back(*compObj);
 		}
 	}
 	catch (...)

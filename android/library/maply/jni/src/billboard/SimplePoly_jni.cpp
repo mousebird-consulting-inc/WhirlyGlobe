@@ -46,8 +46,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__JFFFFLjava_util_List_2Ljava_util_List_2
-(JNIEnv *env, jobject obj, jlong texID, jfloat r, jfloat g, jfloat b, jfloat a, jobject vecObjListPt, jobject vecObjListTC)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__JFFFF_3Lcom_mousebird_maply_Point2d_2_3Lcom_mousebird_maply_Point2d_2
+        (JNIEnv *env, jobject obj, jlong texID, jfloat r, jfloat g, jfloat b, jfloat a, jobjectArray ptsArray, jobjectArray texArray)
 {
     try
     {
@@ -63,41 +63,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__JFFFFLjav
 
         //Pts array
 
-        jclass listClass = env->GetObjectClass(vecObjListPt);
-        jclass iterClass = env->FindClass("java/util/Iterator");
-        jmethodID literMethod = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
-        jobject liter = env->CallObjectMethod(vecObjListPt,literMethod);
-        jmethodID hasNext = env->GetMethodID(iterClass,"hasNext","()Z");
-        jmethodID next = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
-        env->DeleteLocalRef(listClass);
-
         Point2dClassInfo *ptClassInfo = Point2dClassInfo::getClassInfo();
-        while (env->CallBooleanMethod(liter, hasNext))
-        {
-            jobject javaVecObj = env->CallObjectMethod(liter, next);
-            Point2d *pt = ptClassInfo->getObject(env,javaVecObj);
+        JavaObjectArrayHelper ptArrayHelper(env,ptsArray);
+        while (jobject ptObj = ptArrayHelper.getNextObject()) {
+            Point2d *pt = ptClassInfo->getObject(env,ptObj);
             inst->pts.push_back(*pt);
-            env->DeleteLocalRef(javaVecObj);
         }
-        env->DeleteLocalRef(liter);
 
         //TexCoord array
 
-        listClass = env->GetObjectClass(vecObjListTC);
-        literMethod = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
-        liter = env->CallObjectMethod(vecObjListTC,literMethod);
-        next = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
-        env->DeleteLocalRef(iterClass);
-        env->DeleteLocalRef(listClass);
-
-        while (env->CallBooleanMethod(liter, hasNext))
-        {
-            jobject javaVecObj = env->CallObjectMethod(liter, next);
-            Point2d *pt = ptClassInfo->getObject(env,javaVecObj);
+        JavaObjectArrayHelper texArrayHelper(env,texArray);
+        while (jobject texObj = texArrayHelper.getNextObject()) {
+            Point2d *pt = ptClassInfo->getObject(env,texObj);
             inst->texCoords.push_back(TexCoord(pt->x(), pt->y()));
-            env->DeleteLocalRef(javaVecObj);
         }
-        env->DeleteLocalRef(liter);
 
         classInfo->setHandle(env, obj, inst);
     }
@@ -129,8 +108,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_dispose
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addColor
-(JNIEnv *env, jobject obj, jfloatArray colorArray)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addTextureNative
+        (JNIEnv *env, jobject obj, jlong texID)
 {
     try
     {
@@ -138,45 +117,29 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addColor
         SimplePoly *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
-        
-        jfloat *colors = env->GetFloatArrayElements(colorArray, 0);
-        jsize len = env->GetArrayLength(colorArray);
-        RGBAColor color;
-        if (len <4){
-            color = RGBAColor(0,0,0,0);
-        }
-        else{
-            color = RGBAColor(colors[0]*255.0,colors[1]*255.0,colors[2]*255.0,colors[3]*255.0);
-        }
-        inst->color = color;
+        inst->texID = texID;
     }
     catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::addColor()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::addTextureNative()");
     }
-
 }
 
-JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_SimplePoly_getColor
-(JNIEnv *env, jobject obj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addColor
+        (JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
 {
     try
     {
         SimplePolyClassInfo *classInfo = SimplePolyClassInfo::getClassInfo();
         SimplePoly *inst = classInfo->getObject(env, obj);
         if (!inst)
-            return NULL;
-        
-        float primaryColors[4];
-        inst->color.asUnitFloats(primaryColors);
-        jfloatArray result;
-        result = env->NewFloatArray(4);
-        env->SetFloatArrayRegion(result, 0, 4, primaryColors);
-        return result;
+            return;
+
+        inst->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
     }
     catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::getColor()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::addColor()");
     }
-    return NULL;
+
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addPt
@@ -198,7 +161,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addPt
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addPts
-(JNIEnv *env, jobject obj, jobject vecObjList)
+(JNIEnv *env, jobject obj, jobjectArray ptsArray)
 {
     try
     {
@@ -206,25 +169,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addPts
         SimplePoly *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
-        
-        jclass listClass = env->GetObjectClass(vecObjList);
-        jclass iterClass = env->FindClass("java/util/Iterator");
-        jmethodID literMethod = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
-        jobject liter = env->CallObjectMethod(vecObjList,literMethod);
-        jmethodID hasNext = env->GetMethodID(iterClass,"hasNext","()Z");
-        jmethodID next = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
-        env->DeleteLocalRef(iterClass);
-        env->DeleteLocalRef(listClass);
-        
+
         Point2dClassInfo *ptClassInfo = Point2dClassInfo::getClassInfo();
-        while (env->CallBooleanMethod(liter, hasNext))
-        {
-            jobject javaVecObj = env->CallObjectMethod(liter, next);
-            Point2d *pt = ptClassInfo->getObject(env,javaVecObj);
+        JavaObjectArrayHelper ptArrayHelper(env,ptsArray);
+        while (jobject ptObj = ptArrayHelper.getNextObject()) {
+            Point2d *pt = ptClassInfo->getObject(env,ptObj);
             inst->pts.push_back(*pt);
-            env->DeleteLocalRef(javaVecObj);
         }
-        env->DeleteLocalRef(liter);
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::addPts()");
@@ -269,7 +220,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addTexCoord
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addTexCoords
-(JNIEnv *env, jobject obj, jobject vecObjList)
+(JNIEnv *env, jobject obj, jobjectArray texArray)
 {
     try
     {
@@ -277,26 +228,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addTexCoords
         SimplePoly *inst = classInfo->getObject(env, obj);
         if (!inst)
             return;
-        
-        jclass listClass = env->GetObjectClass(vecObjList);
-        jclass iterClass = env->FindClass("java/util/Iterator");
-        jmethodID literMethod = env->GetMethodID(listClass,"iterator","()Ljava/util/Iterator;");
-        jobject liter = env->CallObjectMethod(vecObjList,literMethod);
-        jmethodID hasNext = env->GetMethodID(iterClass,"hasNext","()Z");
-        jmethodID next = env->GetMethodID(iterClass,"next","()Ljava/lang/Object;");
-        env->DeleteLocalRef(iterClass);
-        env->DeleteLocalRef(listClass);
-        
-        
+
         Point2dClassInfo *ptClassInfo = Point2dClassInfo::getClassInfo();
-        while (env->CallBooleanMethod(liter, hasNext))
-        {
-            jobject javaVecObj = env->CallObjectMethod(liter, next);
-            Point2d *pt = ptClassInfo->getObject(env,javaVecObj);
+        JavaObjectArrayHelper ptArrayHelper(env,texArray);
+        while (jobject ptObj = ptArrayHelper.getNextObject()) {
+            Point2d *pt = ptClassInfo->getObject(env,ptObj);
             inst->texCoords.push_back(TexCoord(pt->x(), pt->y()));
-            env->DeleteLocalRef(javaVecObj);
         }
-        env->DeleteLocalRef(liter);
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::addTexCoords()");
@@ -319,96 +257,5 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_setTexCoord
     }
     catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::setTexCoord()");
-    }
-}
-
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_SimplePoly_getPtsSize
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        SimplePolyClassInfo *classInfo = SimplePolyClassInfo::getClassInfo();
-        SimplePoly *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return -1;
-        return inst->pts.size();
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::getPtsSize()");
-    }
-    return -1;
-}
-
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_SimplePoly_getTexCoordsSize
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        SimplePolyClassInfo *classInfo = SimplePolyClassInfo::getClassInfo();
-        SimplePoly *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return -1;
-        return inst->texCoords.size();
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::getTexCoordsSize()");
-    }
-    return -1;
-}
-
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_SimplePoly_getPt
-(JNIEnv *env, jobject obj, jint index)
-{
-    try
-    {
-        SimplePolyClassInfo *classInfo = SimplePolyClassInfo::getClassInfo();
-        SimplePoly *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return NULL;
-        if (index >= inst->pts.size() )
-            return NULL;
-        Point2d pt = inst->pts.at(index);
-        return MakePoint2d(env, pt);
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::getPt()");
-    }
-    return NULL;
-}
-
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_SimplePoly_getTexCoord
-(JNIEnv *env, jobject obj, jint index)
-{
-    try
-    {
-        SimplePolyClassInfo *classInfo = SimplePolyClassInfo::getClassInfo();
-        SimplePoly *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return NULL;
-        if (index >= inst->texCoords.size() )
-            return NULL;
-        TexCoord tc = inst->texCoords.at(index);
-        Point2d pt(tc.u(), tc.v());
-        return MakePoint2d(env, pt);
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::getTexCoord()");
-    }
-    return NULL;
-}
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addTextureNative
-(JNIEnv *env, jobject obj, jlong texID)
-{
-    try
-    {
-        SimplePolyClassInfo *classInfo = SimplePolyClassInfo::getClassInfo();
-        SimplePoly *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        inst->texID = texID;
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SimplePoly::addTextureNative()");
     }
 }

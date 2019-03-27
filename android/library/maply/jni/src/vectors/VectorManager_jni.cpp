@@ -85,16 +85,11 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
         // Collect up all the shapes to add at once
         VectorObjectClassInfo *vecObjClassInfo = VectorObjectClassInfo::getClassInfo();
 		ShapeSet shapes;
-		int count = env->GetArrayLength(vecObjArray);
-		if (count == 0)
-    		return EmptyIdentity;
-		for (int ii=0;ii<count;ii++)
-		{
-		    jobject vecObjObj = env->GetObjectArrayElement(vecObjArray,ii);
-		    VectorObject *vecObj = vecObjClassInfo->getObject(env,vecObjObj);
-		    if (vecObj)
-		        shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
-		    env->DeleteLocalRef(vecObjObj);
+		JavaObjectArrayHelper vecHelp(env,vecObjArray);
+		while (jobject vecObjObj = vecHelp.getNextObject()) {
+			VectorObject *vecObj = vecObjClassInfo->getObject(env,vecObjObj);
+			if (vecObj)
+				shapes.insert(vecObj->shapes.begin(),vecObj->shapes.end());
 		}
 
         // Resolve a missing program

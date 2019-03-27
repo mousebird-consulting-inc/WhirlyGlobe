@@ -431,6 +431,31 @@ public:
     jdouble *rawDouble;
 };
 
+/**
+ * Used to iterate over the elements of an object array.
+ * This cleans up the previous object when you get the next
+ * and cleans up the last one on destruction.
+ */
+class JavaObjectArrayHelper
+{
+public:
+	JavaObjectArrayHelper(JNIEnv *env,jobjectArray objArray);
+	~JavaObjectArrayHelper();
+
+	// Total number of objects
+	int numObjects();
+
+	// Return the next object, if there is one.  NULL otherwise.
+	jobject getNextObject();
+
+protected:
+	JNIEnv *env;
+	jobjectArray objArray;
+	int count;
+	int which;
+	jobject curObj;
+};
+
 // Convert a Java int array into a std::vector of ints
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec);
 // Convert a Java float array into a std::vector of floats

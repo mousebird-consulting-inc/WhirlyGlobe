@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_mousebird_maply_SimplePoly
  * Method:    initialise
- * Signature: (JFFFFLjava/util/List;Ljava/util/List;)V
+ * Signature: (JFFFF[Lcom/mousebird/maply/Point2d;[Lcom/mousebird/maply/Point2d;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__JFFFFLjava_util_List_2Ljava_util_List_2
-  (JNIEnv *, jobject, jlong, jfloat, jfloat, jfloat, jfloat, jobject, jobject);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__JFFFF_3Lcom_mousebird_maply_Point2d_2_3Lcom_mousebird_maply_Point2d_2
+  (JNIEnv *, jobject, jlong, jfloat, jfloat, jfloat, jfloat, jobjectArray, jobjectArray);
 
 /*
  * Class:     com_mousebird_maply_SimplePoly
@@ -26,18 +26,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addTextureNative
 /*
  * Class:     com_mousebird_maply_SimplePoly
  * Method:    addColor
- * Signature: ([F)V
+ * Signature: (FFFF)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addColor
-  (JNIEnv *, jobject, jfloatArray);
-
-/*
- * Class:     com_mousebird_maply_SimplePoly
- * Method:    getColor
- * Signature: ()[F
- */
-JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_SimplePoly_getColor
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jfloat, jfloat, jfloat, jfloat);
 
 /*
  * Class:     com_mousebird_maply_SimplePoly
@@ -50,10 +42,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addPt
 /*
  * Class:     com_mousebird_maply_SimplePoly
  * Method:    addPts
- * Signature: (Ljava/util/List;)V
+ * Signature: ([Lcom/mousebird/maply/Point2d;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addPts
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jobjectArray);
 
 /*
  * Class:     com_mousebird_maply_SimplePoly
@@ -74,10 +66,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addTexCoord
 /*
  * Class:     com_mousebird_maply_SimplePoly
  * Method:    addTexCoords
- * Signature: (Ljava/util/List;)V
+ * Signature: ([Lcom/mousebird/maply/Point2d;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addTexCoords
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jobjectArray);
 
 /*
  * Class:     com_mousebird_maply_SimplePoly
@@ -86,38 +78,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_addTexCoords
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_setTexCoord
   (JNIEnv *, jobject, jint, jobject);
-
-/*
- * Class:     com_mousebird_maply_SimplePoly
- * Method:    getPtsSize
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_SimplePoly_getPtsSize
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_SimplePoly
- * Method:    getTexCoordsSize
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_SimplePoly_getTexCoordsSize
-  (JNIEnv *, jobject);
-
-/*
- * Class:     com_mousebird_maply_SimplePoly
- * Method:    getPt
- * Signature: (I)Lcom/mousebird/maply/Point2d;
- */
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_SimplePoly_getPt
-  (JNIEnv *, jobject, jint);
-
-/*
- * Class:     com_mousebird_maply_SimplePoly
- * Method:    getTexCoord
- * Signature: (I)Lcom/mousebird/maply/Point2d;
- */
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_SimplePoly_getTexCoord
-  (JNIEnv *, jobject, jint);
 
 /*
  * Class:     com_mousebird_maply_SimplePoly

@@ -362,14 +362,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_replaceLights
 
 		// Work through the array of lights
 		std::vector<DirectionalLight> lights;
-		int lightCount = env->GetArrayLength(lightArray);
-		DirectionalLightClassInfo *lightClassInfo = DirectionalLightClassInfo::getClassInfo();
-		for (unsigned int ii=0;ii<lightCount;ii++)
-		{
-			jobject lightObj = env->GetObjectArrayElement(lightArray,ii);
-			DirectionalLight *light = lightClassInfo->getObject(env,lightObj);
-			if (light)
-				lights.push_back(*light);
+		JavaObjectArrayHelper arrayHelp(env,lightArray);
+        DirectionalLightClassInfo *lightClassInfo = DirectionalLightClassInfo::getClassInfo();
+		while (jobject lightObj = arrayHelp.getNextObject()) {
+            DirectionalLight *light = lightClassInfo->getObject(env,lightObj);
+            if (light)
+                lights.push_back(*light);
 		}
 
 		renderer->replaceLights(lights);

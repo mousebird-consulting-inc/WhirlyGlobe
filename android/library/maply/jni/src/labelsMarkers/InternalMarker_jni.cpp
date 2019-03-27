@@ -310,13 +310,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setVertexAttribut
 
         marker->vertexAttrs.clear();
         SingleVertexAttributeClassInfo *vertClassInfo = SingleVertexAttributeClassInfo::getClassInfo();
-        int attrCount = env->GetArrayLength(vertAttrArray);
-        for (unsigned int ii=0;ii<attrCount;ii++)
-        {
-            jobject vertAttrObj = env->GetObjectArrayElement(vertAttrArray,ii);
-            SingleVertexAttribute *vertAttr = vertClassInfo->getObject(env,vertAttrObj);
-            marker->vertexAttrs.insert(*vertAttr);
-            env->DeleteLocalRef(vertAttrObj);
+        JavaObjectArrayHelper vertAttrHelp(env,vertAttrArray);
+        while (jobject vertAttrObj = vertAttrHelp.getNextObject()) {
+			SingleVertexAttribute *vertAttr = vertClassInfo->getObject(env,vertAttrObj);
+			marker->vertexAttrs.insert(*vertAttr);
         }
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in InternalMarker::setVertexAttributes()");

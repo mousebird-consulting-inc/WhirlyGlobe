@@ -207,16 +207,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addLinear
 			return;
 
 		VectorLinearRef lin = VectorLinear::createLinear();
-
-		int count = env->GetArrayLength(ptsObj);
-		if (count == 0)
-			return;
-		for (int ii=0;ii<count;ii++)
-		{
-			jobject ptObj = env->GetObjectArrayElement(ptsObj,ii);
-			Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
-			lin->pts.push_back(GeoCoord(pt->x(),pt->y()));
-            env->DeleteLocalRef(ptObj);
+		JavaObjectArrayHelper ptsHelp(env,ptsObj);
+		while (jobject ptObj = ptsHelp.getNextObject()) {
+            Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
+            lin->pts.push_back(GeoCoord(pt->x(),pt->y()));
 		}
 		lin->initGeoMbr();
 		vecObj->shapes.insert(lin);
@@ -240,15 +234,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mo
 		VectorArealRef ar = VectorAreal::createAreal();
 		ar->loops.resize(1);
 
-		int count = env->GetArrayLength(ptsObj);
-		if (count == 0)
-			return;
-		for (int ii=0;ii<count;ii++)
-		{
-			jobject ptObj = env->GetObjectArrayElement(ptsObj,ii);
-			Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
-			ar->loops[0].push_back(GeoCoord(pt->x(),pt->y()));
-            env->DeleteLocalRef(ptObj);
+		JavaObjectArrayHelper ptsHelp(env,ptsObj);
+		while (jobject ptObj = ptsHelp.getNextObject()) {
+            Point2d *pt = Point2dClassInfo::getClassInfo()->getObject(env,ptObj);
+            ar->loops[0].push_back(GeoCoord(pt->x(),pt->y()));
 		}
 		ar->initGeoMbr();
 		vecObj->shapes.insert(ar);
@@ -277,15 +266,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mo
         {
             jobjectArray ptsObj = loop == 0 ? outerLoopObj : (jobjectArray)env->GetObjectArrayElement(holesArray,loop-1);
 
-            int count = env->GetArrayLength(ptsObj);
-            if (count == 0)
-                continue;
-            for (int ii=0;ii<count;ii++)
-            {
-                jobject ptObj = env->GetObjectArrayElement(ptsObj,ii);
+            JavaObjectArrayHelper ptsHelp(env,ptsObj);
+            while (jobject ptObj = ptsHelp.getNextObject()) {
                 Point2d *pt = point2dClassInfo->getObject(env,ptObj);
                 ar->loops[loop].push_back(GeoCoord(pt->x(),pt->y()));
-                env->DeleteLocalRef(ptObj);
             }
 
             if (loop > 0)

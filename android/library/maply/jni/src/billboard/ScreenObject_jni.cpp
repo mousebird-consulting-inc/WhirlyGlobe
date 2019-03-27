@@ -91,79 +91,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addPoly
     }
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getPoly
-(JNIEnv *env, jobject obj, jint index)
-{
-    try
-    {
-        ScreenObjectClassInfo *classInfo = ScreenObjectClassInfo::getClassInfo();
-        ScreenObject *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return NULL;
-        if (index >= inst->polys.size())
-            return NULL;
-        SimplePolyRef poly = inst->polys.at(index);
-
-		//Color
-        
-        float primaryColors[4];
-        poly->color.asUnitFloats(primaryColors);
-
-        //Pts List object
-
-        jclass listCls = env->FindClass("java/util/ArrayList");
-        jmethodID listConstructor = env->GetMethodID(listCls, "<init>", "(I)V");
-        jmethodID listAdd = env->GetMethodID(listCls, "add", "(Ljava/lang/Object;)Z");
-
-        jobject listPtObj = env->NewObject(listCls, listConstructor, poly->pts.size());
-        for (WhirlyKit::Point2d pt : poly->pts) {
-            jobject ptObject = MakePoint2d(env, pt);
-            env->CallBooleanMethod(listPtObj, listAdd, ptObject);
-            env->DeleteLocalRef(ptObject);
-        }
-
-        //TexCoord List Object
-
-        jobject listTCObj = env->NewObject(listCls, listConstructor, poly->texCoords.size());
-        for (WhirlyKit::TexCoord tc : poly->texCoords) {
-            Point2d pt(tc.u(), tc.v());
-            jobject tcObject = MakePoint2d(env, pt);
-            env->CallBooleanMethod(listTCObj, listAdd, tcObject);
-            env->DeleteLocalRef(tcObject);
-        }
-        jclass cls = env->FindClass("com/mousebird/maply/SimplePoly");
-        jmethodID constructor = env->GetMethodID(cls, "<init>", "(Lcom/mousebird/maply/Texture;[FLjava/util/List;Ljava/util/List;)V");
-        jobject result = env->NewObject(cls, constructor, poly->texID, primaryColors[0], primaryColors[1], primaryColors[2], primaryColors[3], listPtObj, listTCObj );
-        
-        return result;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ScreenObject::getPoly()");
-    }
-    return NULL;
-}
-
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_ScreenObject_getPolysSize
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ScreenObjectClassInfo *classInfo = ScreenObjectClassInfo::getClassInfo();
-        ScreenObject *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return -1;
-        return inst->polys.size();
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ScreenObject::getPolysSize()");
-    }
-    return -1;
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addString
-(JNIEnv *env, jobject obj, jobject stringObj)
+        (JNIEnv *env, jobject obj, jobject stringObj)
 {
     try
     {
@@ -182,42 +111,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addString
     }
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_ScreenObject_getString
-(JNIEnv *env, jobject obj, jint index)
-{
-    try
-    {
-        ScreenObjectClassInfo *classInfo = ScreenObjectClassInfo::getClassInfo();
-        ScreenObject *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return NULL;
-        if (index >= inst->strings.size())
-            return NULL;
-        
-        StringWrapperRef string = inst->strings.at(index);
-        
-        //Matrix3d Mat
-        
-        Eigen::Matrix3d mat = string->mat;
-        jobject matrixObj = MakeMatrix3d(env, mat);
-        
-        //StringWrapper
-        
-        jclass cls = env->FindClass("com/mousebird/maply/StringWrapper");
-        jmethodID constructor = env->GetMethodID(cls, "<init>", "(IILcom/mousebird/maply/Matrix3d;)V");
-        jobject result = env->NewObject(cls, constructor, string->size.x(), string->size.y(), matrixObj  );
-        
-        return result;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ScreenObject::getString()");
-    }
-    return NULL;
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addTextureNative
-(JNIEnv *env, jobject obj, jlong texID, jfloat r, jfloat g, jfloat b, jfloat a, jfloat width, jfloat height)
+        (JNIEnv *env, jobject obj, jlong texID, jfloat r, jfloat g, jfloat b, jfloat a, jfloat width, jfloat height)
 {
     try
     {
@@ -231,19 +126,19 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addTextureNative
         poly->texID = texID;
         poly->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
         poly->texID = texID;
-        
+
         poly->pts.push_back(Point2d(0,0));
         poly->texCoords.push_back(TexCoord(0,1));
-        
+
         poly->pts.push_back(Point2d(width, 0));
         poly->texCoords.push_back(TexCoord(1,1));
-        
+
         poly->pts.push_back(Point2d(width, height));
         poly->texCoords.push_back(TexCoord(1,0));
-        
+
         poly->pts.push_back(Point2d(0, height));
         poly->texCoords.push_back(TexCoord(0,0));
-        
+
         //Insert Poly
         inst->polys.push_back(SimplePolyRef(poly));
     }
@@ -253,26 +148,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addTextureNative
     }
 }
 
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_ScreenObject_getStringsSize
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        ScreenObjectClassInfo *classInfo = ScreenObjectClassInfo::getClassInfo();
-        ScreenObject *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return -1;
-        return inst->strings.size();
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ScreenObject::getStringsSize()");
-    }
-    return -1;
-}
-
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addScreenObject
-(JNIEnv *env, jobject obj, jobject screenObj)
+        (JNIEnv *env, jobject obj, jobject screenObj)
 {
     try
     {
@@ -290,7 +167,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addScreenObject
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_getSizeNative
-(JNIEnv *env, jobject obj, jobject llObj, jobject urObj)
+        (JNIEnv *env, jobject obj, jobject llObj, jobject urObj)
 {
     try
     {
@@ -310,11 +187,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_getSizeNative
                 mbr.addPoint(pt);
             }
         }
-        
+
         *ll = Point2d(mbr.ll().x(),mbr.ll().y());
         *ur = Point2d(mbr.ur().x(),mbr.ur().y());
 
-        // Note: Porting  Do the strings too
+        // TODO: Porting  Do the strings too
 //        for (int ii = 0; ii < getStringsSize(); ii++) {
 //            StringWrapper str = getString(ii);
 //            Point3d p0 = str.getMat().multiply(new Point3d(0,0,1));
@@ -356,7 +233,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_transform
         }
         
         
-        // Note: Porting  Do the strings too
+        // TODO: Porting  Do the strings too
         //        for (int ii = 0; ii < getStringsSize(); ii++) {
         //            StringWrapper str = getString(ii);
         //            Point3d p0 = str.getMat().multiply(new Point3d(0,0,1));

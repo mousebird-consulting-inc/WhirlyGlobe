@@ -23,6 +23,35 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
+JavaObjectArrayHelper::JavaObjectArrayHelper(JNIEnv *env,jobjectArray objArray)
+: env(env), objArray(objArray), which(0), curObj(NULL)
+{
+    count = env->GetArrayLength(objArray);
+}
+
+JavaObjectArrayHelper::~JavaObjectArrayHelper()
+{
+    if (curObj)
+    {
+        env->DeleteLocalRef(curObj);
+    }
+}
+
+int JavaObjectArrayHelper::numObjects()
+{
+    return count;
+}
+
+jobject JavaObjectArrayHelper::getNextObject()
+{
+    if (which >= count)
+        return NULL;
+    if (curObj)
+        env->DeleteLocalRef(curObj);
+    curObj = env->GetObjectArrayElement(objArray,which);
+    which++;
+}
+
 // Have to instantiate the static members somewhere
 // But just some of the general ones.  The rest are in their own modules.
 

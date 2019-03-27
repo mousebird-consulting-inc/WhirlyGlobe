@@ -84,27 +84,21 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
 
         // Work through the shapes
         std::vector<Shape *> shapes;
-		int count = env->GetArrayLength(arrayObj);
-		if (count == 0)
-			return EmptyIdentity;
-		for (int ii=0;ii<count;ii++)
-		{
-			jobject shapeObj = env->GetObjectArrayElement(arrayObj,ii);
-			Shape *shape = shapeClassInfo->getObject(env,shapeObj);
+        JavaObjectArrayHelper arrayHelp(env,arrayObj);
+        while (jobject shapeObj = arrayHelp.getNextObject()) {
+            Shape *shape = shapeClassInfo->getObject(env,shapeObj);
 
             // Great circle is just a concept, not an actual object
-			GreatCircle_Android *greatCircle = dynamic_cast<GreatCircle_Android *>(shape);
-			if (greatCircle)
-			{
-			    Linear *lin = greatCircle->asLinear(inst->getScene()->getCoordAdapter());
-			    if (lin)
-			        shapes.push_back(lin);
-			} else {
-    			shapes.push_back(shape);
-    		}
-
-            env->DeleteLocalRef(shapeObj);
-		}
+            GreatCircle_Android *greatCircle = dynamic_cast<GreatCircle_Android *>(shape);
+            if (greatCircle)
+            {
+                Linear *lin = greatCircle->asLinear(inst->getScene()->getCoordAdapter());
+                if (lin)
+                    shapes.push_back(lin);
+            } else {
+                shapes.push_back(shape);
+            }
+        }
 
         if (shapeInfo->programID == EmptyIdentity) {
             OpenGLES2Program *prog = inst->getScene()->findProgramByName(MaplyDefaultModelTriShader);

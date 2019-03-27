@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_mousebird_maply_BillboardManager
  * Method:    addBillboards
- * Signature: (Ljava/util/List;Lcom/mousebird/maply/BillboardInfo;Lcom/mousebird/maply/ChangeSet;)J
+ * Signature: ([Lcom/mousebird/maply/Billboard;Lcom/mousebird/maply/BillboardInfo;Lcom/mousebird/maply/ChangeSet;)J
  */
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
-  (JNIEnv *, jobject, jobject, jobject, jobject);
+  (JNIEnv *, jobject, jobjectArray, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_BillboardManager
