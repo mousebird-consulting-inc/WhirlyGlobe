@@ -29,10 +29,11 @@ import com.mousebird.maply.BillboardInfo;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.Light;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.MaplyTexture;
 import com.mousebird.maply.Moon;
 import com.mousebird.maply.Point3d;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.ScreenObject;
 import com.mousebird.maply.Sun;
 import com.mousebirdconsulting.autotester.R;
@@ -50,9 +51,9 @@ public class BillboardAdapter {
 
     private GlobeController viewC;
     private Activity activity;
-    private MaplyBaseController.ThreadMode threadMode;
+    private RenderController.ThreadMode threadMode;
 
-    public BillboardAdapter(GlobeController inViewC, Activity activity, MaplyBaseController.ThreadMode threadMode){
+    public BillboardAdapter(GlobeController inViewC, Activity activity, RenderController.ThreadMode threadMode){
         this.viewC = inViewC;
         this.activity = activity;
         this.threadMode = threadMode;
@@ -77,7 +78,7 @@ public class BillboardAdapter {
         ScreenObject screenObject = new ScreenObject();
         Bitmap bm = BitmapFactory.decodeResource(activity.getResources(), R.drawable.sun);
 
-        MaplyTexture tex = viewC.addTexture(bm, new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadAny);
+        MaplyTexture tex = viewC.addTexture(bm, new RenderController.TextureSettings(), RenderController.ThreadMode.ThreadAny);
 
         screenObject.addTexture(tex, new float[]{1.0f, 1.0f, 1.0f, 1.0f}, 0.9f, 0.9f);
         billSun.setScreenObject(screenObject);
@@ -85,7 +86,7 @@ public class BillboardAdapter {
 
         BillboardInfo info = new BillboardInfo();
 
-        info.setShaderName(Billboard.MAPLY_BILLBOARD_ORIENTE_EYE);
+//        info.setShaderName(Billboard.MAPLY_BILLBOARD_ORIENTE_EYE);
         info.setDrawPriority(2);
 
         List<Billboard> billboardsSun = new ArrayList<>();
@@ -102,7 +103,7 @@ public class BillboardAdapter {
         billMoon.setSelectable(false);
         ScreenObject screenObjectMoon = new ScreenObject();
         Bitmap bmMoon = BitmapFactory.decodeResource(activity.getResources(), R.drawable.moon);
-        MaplyTexture moonTex = viewC.addTexture(bmMoon, new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadAny);
+        MaplyTexture moonTex = viewC.addTexture(bmMoon, new RenderController.TextureSettings(), RenderController.ThreadMode.ThreadAny);
 
         screenObjectMoon.addTexture(moonTex, new float[]{1.0f, 1.0f, 1.0f, 1.0f}, 0.75f, 0.75f);
         billMoon.setScreenObject(screenObjectMoon);
@@ -111,7 +112,7 @@ public class BillboardAdapter {
         info.setDrawPriority(3);
         ComponentObject moonObj = viewC.addBillboards(moons, info, threadMode);
 
-        Atmosphere atm = new Atmosphere(viewC, MaplyBaseController.ThreadMode.ThreadCurrent);
+        Atmosphere atm = new Atmosphere(viewC, RenderController.ThreadMode.ThreadCurrent);
         float[] wavelength = new float[]{0.650f,0.570f,0.475f};
         atm.setWaveLength(wavelength);
         atm.setSunPosition(sun.getDirection());

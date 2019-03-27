@@ -7,12 +7,10 @@ import android.os.Looper;
 import com.mousebird.maply.CoordSystem;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Mbr;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.Proj4CoordSystem;
-import com.mousebird.maply.QuadImageTileLayer;
-import com.mousebird.maply.TestImageSource;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 import java.io.File;
@@ -82,6 +80,8 @@ public class CustomBNGTileSource extends MaplyTestCase
         return coordSys;
     }
 
+    // TODO: Put this back
+    /*
     public QuadImageTileLayer makeTestLayer(MaplyBaseController viewC)
     {
         CoordSystem bngCoordSystem = MakeBNGCoordSystem(getActivity(),false);
@@ -130,5 +130,5 @@ public class CustomBNGTileSource extends MaplyTestCase
 
         return true;
     }
-
+*/
 }

@@ -7,13 +7,11 @@ import android.util.Log;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MBTiles;
-import com.mousebird.maply.MBTilesImageSource;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Mbr;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.Point3d;
-import com.mousebird.maply.QuadImageTileLayer;
 import com.mousebird.maply.SelectedObject;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
@@ -105,6 +103,9 @@ public class MBTilesImageTestCase extends MaplyTestCase {
         this.implementation = TestExecutionImplementation.Both;
     }
 
+    // TODO: Put this back
+    /*
+
     private QuadImageTileLayer setupImageLayer(MaplyBaseController baseController, ConfigOptions.TestType testType) throws Exception
     {
 
@@ -168,7 +169,7 @@ public class MBTilesImageTestCase extends MaplyTestCase {
     }
 
 
-
+*/
 
     
 }

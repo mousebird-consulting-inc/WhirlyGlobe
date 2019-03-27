@@ -10,7 +10,7 @@ import android.view.View;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Mbr;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.Point3d;
@@ -43,7 +43,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	protected int icon = R.drawable.ic_action_selectall;
 	protected ConfigOptions.TestType options;
 	protected Activity activity;
-	protected MaplyBaseController controller;
+	protected BaseController controller;
 	protected GlobeController globeController;
 	protected MapController mapController;
 	protected Integer delay = 3;

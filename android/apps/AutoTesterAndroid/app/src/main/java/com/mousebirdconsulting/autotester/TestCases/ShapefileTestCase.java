@@ -7,7 +7,8 @@ import android.util.Log;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
@@ -57,7 +58,7 @@ public class ShapefileTestCase extends MaplyTestCase
         return of;
     }
 
-    public void addShapeFile(MaplyBaseController baseVC) {
+    public void addShapeFile(BaseController baseVC) {
         try {
             File dbfFile = copyFile("sf_shapefile/tl_2013_06075_roads.dbf", "sf_roads.dbf");
             File shpFile = copyFile("sf_shapefile/tl_2013_06075_roads.shp", "sf_roads.shp");
@@ -66,7 +67,7 @@ public class ShapefileTestCase extends MaplyTestCase
                 VectorObject vecObj = new VectorObject();
                 vecObj.fromShapeFile(shpFile.getAbsolutePath());
                 int numPoints = vecObj.countPoints();
-                baseVC.addVector(vecObj,new VectorInfo(), MaplyBaseController.ThreadMode.ThreadAny);
+                baseVC.addVector(vecObj,new VectorInfo(), RenderController.ThreadMode.ThreadAny);
             }
         }
         catch (Exception e) {

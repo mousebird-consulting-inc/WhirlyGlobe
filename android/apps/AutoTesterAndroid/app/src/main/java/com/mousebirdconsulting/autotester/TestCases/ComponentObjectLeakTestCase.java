@@ -26,9 +26,10 @@ import android.graphics.BitmapFactory;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.ScreenMarker;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
@@ -74,7 +75,7 @@ public class ComponentObjectLeakTestCase extends MaplyTestCase {
         return true;
     }
 
-    private void addAndRemove(MaplyBaseController viewC, int count,Bitmap image) {
+    private void addAndRemove(BaseController viewC, int count,Bitmap image) {
         MarkerInfo markerInfo = new MarkerInfo();
 //        markerInfo.setMinVis(0.f);
 //        markerInfo.setMaxVis(1.f);
@@ -87,12 +88,12 @@ public class ComponentObjectLeakTestCase extends MaplyTestCase {
             marker.image = image;
             marker.loc = new Point2d(Math.random(), Math.random());
             marker.size = new Point2d(64,64);
-            ComponentObject componentObject = viewC.addScreenMarker(marker,markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
+            ComponentObject componentObject = viewC.addScreenMarker(marker,markerInfo, RenderController.ThreadMode.ThreadAny);
             markers.add(componentObject);
         }
 
         for (int i = 0; i< count; i++) {
-            viewC.removeObject(markers.get(i), MaplyBaseController.ThreadMode.ThreadAny);
+            viewC.removeObject(markers.get(i), RenderController.ThreadMode.ThreadAny);
         }
 
         markers.clear();

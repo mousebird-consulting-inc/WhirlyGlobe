@@ -4,11 +4,8 @@ import android.app.Activity;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Point2d;
-import com.mousebird.maply.QuadImageTileLayer;
-import com.mousebird.maply.RemoteTileInfo;
-import com.mousebird.maply.RemoteTileSource;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
@@ -27,6 +24,10 @@ public class CartoDBMapTestCase extends MaplyTestCase {
 		setDelay(20);
 		this.implementation = TestExecutionImplementation.Both;
 	}
+
+	// TODO: Put this back
+
+	/*
 
 	private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) throws Exception {
 		String cacheDirName = "cartodb_light3";
@@ -70,4 +71,6 @@ public class CartoDBMapTestCase extends MaplyTestCase {
 		mapVC.setPositionGeo(loc.getX(), loc.getY(), 2.0);
 		return true;
 	}
+
+	*/
 }

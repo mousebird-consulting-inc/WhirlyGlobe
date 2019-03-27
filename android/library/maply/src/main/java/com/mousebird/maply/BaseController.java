@@ -1430,10 +1430,12 @@ public class BaseController implements RenderController.TaskManager
      * @param settings Settings to use.
      * @param mode Add on the current thread or elsewhere.
      */
-	public MaplyTexture addTexture(final Bitmap image,final RenderController.TextureSettings settings,RenderController.ThreadMode mode)
+	public MaplyTexture addTexture(final Bitmap image,RenderController.TextureSettings settings,RenderController.ThreadMode mode)
     {
         if (renderControl == null)
             return null;
+        if (settings == null)
+        	settings = new RenderControllerInterface.TextureSettings();
 
         return renderControl.addTexture(image,settings,mode);
     }
@@ -1446,12 +1448,14 @@ public class BaseController implements RenderController.TaskManager
 	 * @param mode Which thread to do the work on
      * @return The new texture (or a reference to it, anyway)
      */
-	public MaplyTexture createTexture(final int width,final int height,final RenderController.TextureSettings settings,RenderController.ThreadMode mode)
+	public MaplyTexture createTexture(final int width,final int height,RenderController.TextureSettings settings,RenderController.ThreadMode mode)
 	{
         if (renderControl == null)
             return null;
+		if (settings == null)
+			settings = new RenderControllerInterface.TextureSettings();
 
-        return renderControl.createTexture(width,height,settings,mode);
+		return renderControl.createTexture(width,height,settings,mode);
 	}
 
 	/**

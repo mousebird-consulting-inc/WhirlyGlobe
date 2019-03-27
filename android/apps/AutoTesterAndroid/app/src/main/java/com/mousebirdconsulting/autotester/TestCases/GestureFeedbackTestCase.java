@@ -6,9 +6,10 @@ import android.util.Log;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.Point3d;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.SelectedObject;
 import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
@@ -136,7 +137,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
     ComponentObject compObj = null;
 
     // Draw an inset bounding box
-    void updateBbox(MaplyBaseController globeVC,Point3d[] corners)
+    void updateBbox(BaseController globeVC,Point3d[] corners)
     {
         if (vecInfo == null) {
             vecInfo = new VectorInfo();
@@ -163,7 +164,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
             pts[ii] = new Point2d(newCorners[ii%corners.length].getX(),newCorners[ii%corners.length].getY());
         vecObj.addLinear(pts);
 
-        globeVC.removeObject(compObj, MaplyBaseController.ThreadMode.ThreadCurrent);
-        compObj = globeVC.addVector(vecObj, vecInfo, MaplyBaseController.ThreadMode.ThreadCurrent);
+        globeVC.removeObject(compObj, RenderController.ThreadMode.ThreadCurrent);
+        compObj = globeVC.addVector(vecObj, vecInfo, RenderController.ThreadMode.ThreadCurrent);
     }
 }

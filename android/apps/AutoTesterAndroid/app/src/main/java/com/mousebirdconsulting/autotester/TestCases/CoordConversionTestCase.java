@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Point2d;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
@@ -34,8 +34,7 @@ public class CoordConversionTestCase extends MaplyTestCase
     }
 
     @Override
-    public boolean setUpWithMap(MapController mapVC)
-    {
+    public boolean setUpWithMap(MapController mapVC) throws Exception {
         StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
         baseView.setUpWithMap(mapVC);
 
@@ -45,7 +44,7 @@ public class CoordConversionTestCase extends MaplyTestCase
         return true;
     }
 
-    protected void processTap(MaplyBaseController control, Point2d loc, Point2d screenLoc)
+    protected void processTap(BaseController control, Point2d loc, Point2d screenLoc)
     {
         Log.d("Maply","User tapped at (" + loc.getX()*180/Math.PI + "," + loc.getY()*180/Math.PI + ") on screen (" + screenLoc.getX() + "," + screenLoc.getY() + ")");
 

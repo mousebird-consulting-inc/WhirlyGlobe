@@ -9,9 +9,10 @@ import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LabelInfo;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.ScreenLabel;
 import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.VectorObject;
@@ -65,7 +66,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 	// If set, we'll put markers around the points for debugging
 	static boolean addMarkers = true;
 
-	private void insertLabels(ArrayList<VectorObject> objects, MaplyBaseController baseVC) {
+	private void insertLabels(ArrayList<VectorObject> objects, BaseController baseVC) {
 
 		LabelInfo labelInfo = new LabelInfo();
 		labelInfo.setFontSize(32.f);
@@ -137,11 +138,11 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 //			labels.add(makeLabel(4.361 + o, 43.838 + o, "Nîmes " + ++i, Float.MAX_VALUE));
 //		}
 
-		ComponentObject comp = baseVC.addScreenLabels(labels, labelInfo, MaplyBaseController.ThreadMode.ThreadAny);
+		ComponentObject comp = baseVC.addScreenLabels(labels, labelInfo, RenderController.ThreadMode.ThreadAny);
 		if (comp != null)
 			componentObjects.add(comp);
 		if (addMarkers) {
-			comp = baseVC.addScreenMarkers(markers, markerInfo, MaplyBaseController.ThreadMode.ThreadAny);
+			comp = baseVC.addScreenMarkers(markers, markerInfo, RenderController.ThreadMode.ThreadAny);
 			if (comp != null)
 				componentObjects.add(comp);
 		}

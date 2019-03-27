@@ -21,8 +21,9 @@ package com.mousebirdconsulting.autotester.TestCases;
 
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.LayerThread;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.Shape;
 import com.mousebird.maply.ShapeInfo;
 import com.mousebird.maply.ShapeSphere;
@@ -44,12 +45,12 @@ public class ShapesSphereThreadAdapter {
         }
     }
 
-    private MaplyBaseController viewC;
+    private BaseController viewC;
     private ComponentObject componentObject;
     private LayerThread shapeThread;
     private List<LocationInfo> locations;
 
-    public ShapesSphereThreadAdapter(MaplyBaseController viewC, LayerThread thread) {
+    public ShapesSphereThreadAdapter(BaseController viewC, LayerThread thread) {
         this.viewC = viewC;
         this.shapeThread = thread;
         locations = new ArrayList<>();
@@ -87,7 +88,7 @@ public class ShapesSphereThreadAdapter {
         addShapes(this.viewC);
     }
 
-    private void addShapes(MaplyBaseController viewC) {
+    private void addShapes(BaseController viewC) {
         List<Shape> shapes = new ArrayList<>();
         int numShapes = locations.size();
 
@@ -104,6 +105,6 @@ public class ShapesSphereThreadAdapter {
         shapeInfo.setColor(1,0,0,0.8f);
         shapeInfo.setDrawPriority(1000000);
 //        shapeInfo.setFade(1.0f);
-        componentObject =viewC.addShapes(shapes, shapeInfo, MaplyBaseController.ThreadMode.ThreadAny);
+        componentObject =viewC.addShapes(shapes, shapeInfo, RenderController.ThreadMode.ThreadAny);
     }
 }

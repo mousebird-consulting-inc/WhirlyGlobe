@@ -5,10 +5,6 @@ import android.os.Handler;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
-import com.mousebird.maply.QuadImageTileLayer;
-import com.mousebird.maply.RemoteTileInfo;
-import com.mousebird.maply.RemoteTileSource;
 import com.mousebird.maply.SphericalMercatorCoordSystem;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
@@ -29,6 +25,8 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		//this.remoteResources.add("https://manuals.info.apple.com/en_US/macbook_retina_12_inch_early2016_essentials.pdf");
 	}
 
+	// TODO: Put this back
+/*
 	private QuadImageTileLayer setupImageLayer(ConfigOptions.TestType testType, MaplyBaseController baseController) {
 		String cacheDirName = "stamen_watercolor3";
 		File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
@@ -80,4 +78,6 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 //		mapVC.setZoomLimits(0.0,1.0);
 		return true;
 	}
+
+	*/
 }

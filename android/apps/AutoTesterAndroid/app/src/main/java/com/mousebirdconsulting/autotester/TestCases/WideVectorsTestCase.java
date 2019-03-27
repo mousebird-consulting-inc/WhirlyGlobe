@@ -8,8 +8,9 @@ import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.LinearTextureBuilder;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.MaplyTexture;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
 import com.mousebird.maply.WideVectorInfo;
@@ -30,7 +31,7 @@ public class WideVectorsTestCase extends MaplyTestCase {
         this.implementation = TestExecutionImplementation.Both;
     }
 
-    void addGeoJSON(MaplyBaseController baseController, String name) {
+    void addGeoJSON(BaseController baseController, String name) {
         // Build a dashed pattern
         LinearTextureBuilder texBuild = new LinearTextureBuilder();
         int[] pattern = new int[2];
@@ -38,9 +39,9 @@ public class WideVectorsTestCase extends MaplyTestCase {
         pattern[1] = 4;
         texBuild.setPattern(pattern);
         Bitmap patternImage = texBuild.makeImage();
-        MaplyBaseController.TextureSettings texSet = new MaplyBaseController.TextureSettings();
+        RenderController.TextureSettings texSet = new RenderController.TextureSettings();
         texSet.wrapU = true;  texSet.wrapV = true;
-        MaplyTexture tex = baseController.addTexture(patternImage,new MaplyBaseController.TextureSettings(), MaplyBaseController.ThreadMode.ThreadCurrent);
+        MaplyTexture tex = baseController.addTexture(patternImage, texSet, RenderController.ThreadMode.ThreadCurrent);
 
         WideVectorInfo wideVecInfo = new WideVectorInfo();
         wideVecInfo.setColor(Color.BLUE);
@@ -63,13 +64,13 @@ public class WideVectorsTestCase extends MaplyTestCase {
 
 //            ComponentObject compObj = baseController.addVector(vecObj, vecInfo, MaplyBaseController.ThreadMode.ThreadAny);
 //            compObjs.add(compObj);
-            ComponentObject compObj = baseController.addWideVector(vecObj, wideVecInfo, MaplyBaseController.ThreadMode.ThreadAny);
+            ComponentObject compObj = baseController.addWideVector(vecObj, wideVecInfo, RenderController.ThreadMode.ThreadAny);
             compObjs.add(compObj);
         } catch (Exception e) {
         }
     }
 
-    void wideVecTest(MaplyBaseController baseController) {
+    void wideVecTest(BaseController baseController) {
 //        addGeoJSON(baseController, "sawtooth.geojson");
         addGeoJSON(baseController, "mowing-lawn.geojson");
         addGeoJSON(baseController, "spiral.geojson");

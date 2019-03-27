@@ -9,9 +9,10 @@ import android.graphics.Color;
 import com.mousebird.maply.ComponentObject;
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.MaplyBaseController;
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.MaplyTexture;
 import com.mousebird.maply.Point2d;
+import com.mousebird.maply.RenderController;
 import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
@@ -38,7 +39,7 @@ public class TextureVectorTestCase extends MaplyTestCase
 
     static double ClipGridSize = 2.0/180.0*Math.PI;
 
-    private void overlayCountries(MaplyBaseController baseVC,boolean globeMode) throws Exception {
+    private void overlayCountries(BaseController baseVC,boolean globeMode) throws Exception {
         AssetManager assetMgr = getActivity().getAssets();
         String[] paths = assetMgr.list("country_json_50m");
         for (String path : paths) {
@@ -47,7 +48,7 @@ public class TextureVectorTestCase extends MaplyTestCase
                 VectorObject vecObject = new VectorObject();
                 String json = IOUtils.toString(stream, Charset.defaultCharset());
                 if (vecObject.fromGeoJSON(json)) {
-                    vecObject.selectable = true;
+                    vecObject.setSelectable(true);
 
                     // Work through each invidiual loop (hopefully)
                     for (VectorObject thisVecObj : vecObject)
@@ -91,9 +92,9 @@ public class TextureVectorTestCase extends MaplyTestCase
 
         // Set up a dots texture
         Bitmap bm = BitmapFactory.decodeResource(activity.getResources(), R.drawable.dots);
-        MaplyBaseController.TextureSettings texSettings = new MaplyBaseController.TextureSettings();
+        RenderController.TextureSettings texSettings = new RenderController.TextureSettings();
         texSettings.wrapU = true;  texSettings.wrapV = true;
-        MaplyTexture tex = baseVC.addTexture(bm, texSettings, MaplyBaseController.ThreadMode.ThreadCurrent);
+        MaplyTexture tex = baseVC.addTexture(bm, texSettings, RenderController.ThreadMode.ThreadCurrent);
 
         // Add the vectors with textures
         VectorInfo vectorInfo = new VectorInfo();
@@ -102,7 +103,7 @@ public class TextureVectorTestCase extends MaplyTestCase
         vectorInfo.setTextureProjection(VectorInfo.TextureProjection.TangentPlane);
         vectorInfo.setTexScale(6.0,6.0);
         vectorInfo.setColor(Color.WHITE);
-        ComponentObject compObj = baseVC.addVectors(vectors, vectorInfo, MaplyBaseController.ThreadMode.ThreadAny);
+        ComponentObject compObj = baseVC.addVectors(vectors, vectorInfo, RenderController.ThreadMode.ThreadAny);
     }
 
     @Override
