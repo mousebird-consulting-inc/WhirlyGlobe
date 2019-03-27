@@ -1056,6 +1056,16 @@ public class BaseController implements RenderController.TaskManager
 	}
 
 	/**
+	 * Instance an existing set of vectors and modify various parameters for reuse.
+	 * This is useful if you want to overlay the same vectors twice with different widths,
+	 * for example.
+	 */
+	public ComponentObject instanceVectors(final ComponentObject inCompObj,final VectorInfo vecInfo,RenderController.ThreadMode mode)
+	{
+		return renderControl.instanceVectors(inCompObj,vecInfo,mode);
+	}
+
+	/**
 	 * Change the visual representation of the given vectors.
 	 * @param vecObj The component object returned by the original addVectors() call.
 	 * @param vecInfo Visual representation to use for the changes.
@@ -1132,7 +1142,7 @@ public class BaseController implements RenderController.TaskManager
 		if (!running)
 			return null;
 
-		return instanceWideVectors(inCompObj,wideVecInfo,mode);
+		return renderControl.instanceWideVectors(inCompObj,wideVecInfo,mode);
 	}
 
 	/**
@@ -1238,7 +1248,7 @@ public class BaseController implements RenderController.TaskManager
 		if (!running || stickerObj == null)
 			return null;
 
-		return changeSticker(stickerObj,stickerInfo,mode);
+		return renderControl.changeSticker(stickerObj,stickerInfo,mode);
 	}
 
 	/**
@@ -1502,6 +1512,20 @@ public class BaseController implements RenderController.TaskManager
 	    renderControl.addRenderTarget(renderTarget);
 	}
 
+	/**
+	 * Point the render target at a different texture.
+	 */
+	public void changeRenderTarget(RenderTarget renderTarget, MaplyTexture tex)
+	{
+		if (renderTarget == null || tex == null)
+			return;
+		if (tex.texID == RenderController.EmptyIdentity) {
+			return;
+		}
+
+		renderControl.changeRenderTarget(renderTarget,tex);
+	}
+
 	/** Remove the given render target from the system.
 	 * <br>
 	 * Ask the system to stop drawing to the given render target.  It will do this on the next frame.
@@ -1589,7 +1613,7 @@ public class BaseController implements RenderController.TaskManager
 		if (!running)
 			return;
 
-		disableObjects(compObjs,mode);
+		renderControl.disableObjects(compObjs,mode);
 	}
 
 	/**

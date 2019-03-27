@@ -22,7 +22,7 @@
 #import "Maply_jni.h"
 #import "Scene_jni.h"
 #import "View_jni.h"
-#import "Render_jni.h"
+#import "Renderer_jni.h"
 #import "com_mousebird_maply_LayoutManager.h"
 #import "WhirlyGlobe.h"
 
@@ -88,7 +88,7 @@ public:
     {
         if (motionShaderID == EmptyIdentity)
         {
-            OpenGLES2Program *program = layoutManager->getScene()->findProgramByName(kMaplyScreenSpaceDefaultMotionProgram);
+            OpenGLES2Program *program = layoutManager->getScene()->findProgramByName(MaplySpaceDefaultMotionProgramScreen);
             if (program)
                 motionShaderID = program->getId();
         }

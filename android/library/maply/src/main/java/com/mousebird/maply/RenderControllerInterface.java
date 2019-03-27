@@ -31,8 +31,7 @@ public interface RenderControllerInterface
 
     public ComponentObject addVectors(final List<VectorObject> vecs, final VectorInfo vecInfo, ThreadMode mode);
     public void changeVector(final ComponentObject vecObj, final VectorInfo vecInfo, ThreadMode mode);
-    // TODO: Implement
-//    public ComponentObject instanceVectors(final List<VectorObject> vecs, final VectorInfo vecInfo, ThreadMode mode);
+    public ComponentObject instanceVectors(ComponentObject vecObj, final VectorInfo vecInfo, ThreadMode mode);
 
     public ComponentObject addWideVectors(final List<VectorObject> vecs,final WideVectorInfo wideVecInfo,ThreadMode mode);
     public ComponentObject instanceWideVectors(final ComponentObject inCompObj,final WideVectorInfo wideVecInfo,ThreadMode mode);
@@ -55,7 +54,6 @@ public interface RenderControllerInterface
 //    public ComponentObject addLoftedPolygons();
 
     public ComponentObject addPoints(final List<Points> inPoints,final GeometryInfo geomInfo, final ThreadMode mode);
-    // TODO: What is addPointList?
 
     /**
      * Texture settings for adding textures to the system.
@@ -88,16 +86,12 @@ public interface RenderControllerInterface
 
     public MaplyTexture addTexture(final Bitmap image,final TextureSettings settings,ThreadMode mode);
     public MaplyTexture addTexture(final Texture rawTex,final TextureSettings settings,ThreadMode mode);
-    // TODO: Implement
-//    public MaplyTexture createTexture(final int width,final int height,final TextureSettings settings,ThreadMode mode);
+    public MaplyTexture createTexture(final int width,final int height,final TextureSettings settings,ThreadMode mode);
     public void removeTextures(final List<MaplyTexture> texs,ThreadMode mode);
     public void removeTexturesByID(final List<Long> texIDs,ThreadMode mode);
 
     public void addRenderTarget(RenderTarget renderTarget);
-
-    // TODO: Implement
-//    public void changeRenderTarget(RenderTarget renderTarget, Texture tex);
-
+    public void changeRenderTarget(RenderTarget renderTarget, MaplyTexture tex);
     public void removeRenderTarget(RenderTarget renderTarget);
 
     public void disableObjects(final List<ComponentObject> compObjs,ThreadMode mode);
@@ -108,9 +102,7 @@ public interface RenderControllerInterface
 
     public void addShaderProgram(final Shader shader);
     public Shader getShader(String name);
-
-    // TODO: Implement
-//    public void removeShader(Shader shader);
+    public void removeShader(Shader shader);
 
     public void setClearColor(int color);
 

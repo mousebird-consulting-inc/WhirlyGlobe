@@ -43,4 +43,9 @@ void Shader_Android::setupProgram(const std::string &name,const std::string &ver
         prog = new OpenGLES2Program(name,vertProg,fragProg,&varyings);
 }
 
+void Shader_Android::setupPreBuildProgram(OpenGLES2Program *inProg)
+{
+    prog = inProg;
+}
+
 }

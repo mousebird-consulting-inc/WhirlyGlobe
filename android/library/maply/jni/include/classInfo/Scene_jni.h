@@ -29,3 +29,6 @@ typedef JavaClassInfo<WhirlyKit::Scene> SceneClassInfo;
 typedef JavaClassInfo<WhirlyKit::Texture> TextureClassInfo;
 typedef JavaClassInfo<WhirlyKit::Material> MaterialClassInfo;
 typedef JavaClassInfo<WhirlyKit::Shader_Android> ShaderClassInfo;
+
+// Construct a Java-side Shader object around an existing Shader_Android.
+jobject MakeShader(JNIEnv *env,WhirlyKit::Shader_Android *shader);

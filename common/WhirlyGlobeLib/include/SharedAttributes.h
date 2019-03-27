@@ -80,14 +80,33 @@
 #define MaplyDefaultLineShader WKString("Default Line;backface=yes")
 /// This point/line shader turns off the backface logic for lines
 #define MaplyNoBackfaceLineShader WKString("Default Line;backface=no")
-/// The default billboard shader
-#define MaplyBillboardShader WKString("Default Billboard")
 /// Billboard orientation
 #define MaplyBillboardOrient WKString("billboardorient")
 /// Billboards are oriented toward the eye, but rotate on the ground
 #define MaplyBillboardOrientGround WKString("billboardorientground")
 /// Billboards are oriented only towards the eye
 #define MaplyBillboardOrientEye WKString("billboardorienteye")
+
+/// These are the various shader programs we set up by default
+#define MaplyDefaultModelTriShader WKString("Default Triangle;model=yes;lighting=yes")
+#define MaplyDefaultTriScreenTexShader WKString("Default Triangle;screentex=yes;lighting=yes")
+
+#define MaplyDefaultTriMultiTexShader WKString("Default Triangle;multitex=yes;lighting=yes")
+#define MaplyDefaultTriMultiTexRampShader WKString("Default Triangle;multitex=yes;lighting=yes;ramp=yes")
+
+#define MaplyDefaultTriNightDayShader WKString("Default Triangle;nightday=yes;multitex=yes;lighting=yes")
+
+#define MaplyBillboardGroundShader WKString("Default Billboard ground")
+#define MaplyBillboardEyeShader WKString("Default Billboard eye")
+
+#define MaplyDefaultWideVectorShader WKString("Default Wide Vector")
+#define MaplyDefaultWideVectorGlobeShader WKString("Default Wide Vector Globe")
+
+#define MaplySpaceDefaultMotionProgramScreen WKString("Default Screenspace Motion")
+#define MaplySpaceDefaultProgramScreen WKString("Default Screenspace")
+
+#define MaplyParticleSystemPointDefaultShader WKString("Default Part Sys (Point)")
+
 
 /// Where we start image layer draw priorities
 #define MaplyImageLayerDrawPriorityDefault 100

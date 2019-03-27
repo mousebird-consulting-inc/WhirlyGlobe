@@ -20,7 +20,7 @@
 
 #import "Vectors_jni.h"
 #import "Scene_jni.h"
-#import "Render_jni.h"
+#import "Renderer_jni.h"
 #import "com_mousebird_maply_VectorManager.h"
 
 using namespace WhirlyKit;
@@ -102,7 +102,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
         {
             bool isGlobe = dynamic_cast<WhirlyGlobe::GlobeScene *>(vecManager->getScene());
             OpenGLES2Program *prog = NULL;
-            prog = vecManager->getScene()->findProgramByName(kMaplyDefaultTriangleShader);
+            prog = vecManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             if (prog)
                 vecInfo->programID = prog->getId();
         }

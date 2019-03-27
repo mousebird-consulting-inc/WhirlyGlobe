@@ -20,7 +20,7 @@
 
 #import "LabelsAndMarkers_jni.h"
 #import "Scene_jni.h"
-#import "Render_jni.h"
+#import "Renderer_jni.h"
 #import "com_mousebird_maply_LabelManager.h"
 
 using namespace WhirlyKit;
@@ -115,9 +115,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
         {
             OpenGLES2Program *prog = NULL;
             if (isMoving)
-                prog = labelManager->getScene()->findProgramByName(kMaplyScreenSpaceDefaultMotionProgram);
+                prog = labelManager->getScene()->findProgramByName(MaplySpaceDefaultMotionProgramScreen);
             else
-                prog = labelManager->getScene()->findProgramByName(kMaplyScreenSpaceDefaultProgram);
+                prog = labelManager->getScene()->findProgramByName(MaplySpaceDefaultProgramScreen);
             if (prog)
                 labelInfo->programID = prog->getId();
         }

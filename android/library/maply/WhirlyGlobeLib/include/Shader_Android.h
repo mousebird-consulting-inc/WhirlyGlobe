@@ -35,6 +35,9 @@ public:
     // Do the actual program setup
     void setupProgram(const std::string &name,const std::string &vertProg,const std::string &fragProg);
 
+    // Set one up that we've built on the C++ side
+    void setupPreBuildProgram(OpenGLES2Program *prog);
+
     // Program after set up
     OpenGLES2Program *prog;
     // Varyings if they exist.  Need to be passed in during creation.

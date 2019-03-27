@@ -21,6 +21,7 @@ target_sources(
         "${WGLIBANDROIDINC}/GreatCircle_Android.h"
         "${WGLIBANDROIDINC}/ImageTile_Android.h"
         "${WGLIBANDROIDINC}/Shader_Android.h"
+        "${WGLIBANDROIDINC}/SceneRenderer_Android.h"
         "${WGLIBANDROIDINC}/SingleLabel_Android.h"
         "${WGLIBANDROIDINC}/ParticleBatch_Android.h"
 
@@ -33,6 +34,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/ParticleBatch_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/platform.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/QuadImageFrameLoader_Android.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/SceneRenderer_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/Shader_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/SingleLabel_Android.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/WhirlyKitLog.cpp"

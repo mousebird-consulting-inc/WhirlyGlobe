@@ -89,7 +89,6 @@ bool RenderTarget::init(SceneRendererES *renderer,Scene *scene,SimpleIdentity ta
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorbuffer);
         CheckGLError("RenderTarget: glFramebufferRenderbuffer");
         
-        // There may be an extra set pin the 
         renderer->defaultTargetInit(this);
 
         if (depthbuffer == 0)

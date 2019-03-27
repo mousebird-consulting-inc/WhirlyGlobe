@@ -74,6 +74,25 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeShaderProgram
+        (JNIEnv *env, jobject obj, jlong shaderID)
+{
+    try
+    {
+        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
+        Scene *scene = classInfo->getObject(env,obj);
+
+        if (!scene)
+            return;
+
+        scene->removeProgram(shaderID);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::removeShaderProgram()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_teardownGL
 (JNIEnv *env, jobject obj)
 {
@@ -114,11 +133,26 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addRenderTargetNative
     }
 }
 
-/*
- * Class:     com_mousebird_maply_Scene
- * Method:    removeRenderTargetNative
- * Signature: (J)V
- */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_changeRenderTarget
+        (JNIEnv *env, jobject obj, jlong renderTargetID, jlong texID)
+{
+    try
+    {
+        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
+        Scene *scene = classInfo->getObject(env,obj);
+        if (!scene)
+            return;
+
+        ChangeSet changes;
+        changes.push_back(new ChangeRenderTargetReq(renderTargetID,texID));
+        scene->addChangeRequests(changes);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::changeRenderTarget()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeRenderTargetNative
 (JNIEnv *env, jobject obj, jlong targetID)
 {

@@ -19,16 +19,19 @@
  */
 
 #import "Maply_jni.h"
-#import <WhirlyGlobe_Android.h>
+#import <WhirlyGlobe.h>
 
-// Wrapper on top of scene renderer
-class MaplySceneRenderer : public WhirlyKit::SceneRendererES2
-{
+namespace WhirlyKit {
+
+// Android version keeps track of the context
+class SceneRendererES2_Android : public SceneRendererES2 {
 public:
-    MaplySceneRenderer();
-    
+    SceneRendererES2_Android();
+
     // Called when the window changes size (or on startup)
-    bool resize(int width,int height);
-    
+    bool resize(int width, int height);
+
     EGLContext context;
 };
+
+}

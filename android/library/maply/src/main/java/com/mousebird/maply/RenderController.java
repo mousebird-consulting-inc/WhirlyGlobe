@@ -274,7 +274,7 @@ public class RenderController implements RenderControllerInterface
             theLight.setViewDependent(light.isViewDependent());
             theLights.add(theLight);
         }
-        replaceLights(theLights);
+        replaceLights(theLights.toArray(new DirectionalLight[0]));
 
         // Clean up lights
         for (DirectionalLight light : theLights)
@@ -746,8 +746,43 @@ public class RenderController implements RenderControllerInterface
         taskMan.addTask(run, mode);
     }
 
-    // TODO: Fill this in
-//    public ComponentObject instanceVectors(final List<VectorObject> vecs, final VectorInfo vecInfo, ThreadMode mode);
+    /**
+     * Instance an existing set of vectors and modify various parameters for reuse.
+     * This is useful if you want to overlay the same vectors twice with different widths,
+     * for example.
+     */
+    public ComponentObject instanceVectors(final ComponentObject vecObj, final VectorInfo vecInfo, ThreadMode mode)
+    {
+        if (vecObj == null)
+            return null;
+
+        final ComponentObject compObj = componentManager.makeComponentObject();
+
+        // Do the actual work on the layer thread
+        Runnable run =
+                new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        // Vectors are simple enough to just add
+                        ChangeSet changes = new ChangeSet();
+                        long[] vecIDs = vecObj.getVectorIDs();
+                        if (vecIDs != null) {
+                            for (long vecID : vecIDs) {
+                                long newID = vecManager.instanceVectors(vecID, vecInfo, changes);
+                                if (newID != EmptyIdentity)
+                                    compObj.addVectorID(newID);
+                            }
+                            if (scene != null)
+                                changes.process(scene);
+                        }
+                    }
+                };
+        taskMan.addTask(run, mode);
+
+        return compObj;
+    }
 
     /**
      * Add wide vectors to the MaplyController to display.  Vectors are linear or areal
@@ -1265,8 +1300,13 @@ public class RenderController implements RenderControllerInterface
                 Color.red(renderTarget.color)/255.f,Color.green(renderTarget.color)/255.f,Color.blue(renderTarget.color)/255.f,Color.alpha(renderTarget.color)/255.f);
     }
 
-    // TODO: Implement
-//    public void changeRenderTarget(RenderTarget renderTarget, Texture tex);
+    /**
+     * Point the render target at a different texture.
+     */
+    public void changeRenderTarget(RenderTarget renderTarget, MaplyTexture tex)
+    {
+       scene.changeRenderTarget(renderTarget.renderTargetID,tex.texID);
+    }
 
     /** Remove the given render target from the system.
      * <br>
@@ -1388,6 +1428,18 @@ public class RenderController implements RenderControllerInterface
     }
 
     /**
+     * In the render controller setup, we stand up the full set of default
+     * shaders used by the system.  To reflect things on this side, we'll
+     * add them to this array as well.
+     */
+    protected void addPreBuiltShader(Shader shader)
+    {
+        synchronized (shaders) {
+            shaders.add(shader);
+        }
+    }
+
+    /**
      * Find a shader by name
      * @param name Name of the shader to return
      * @return The shader with the name or null
@@ -1404,8 +1456,18 @@ public class RenderController implements RenderControllerInterface
         return null;
     }
 
-    // TODO: Implement
-//    public void removeShader(Shader shader);
+    /**
+     * Remove the given shader from active use.
+     */
+    public void removeShader(Shader shader)
+    {
+        synchronized (shaders) {
+            if (shaders.contains(shader)) {
+                scene.removeShaderProgram(shader.getID());
+                shaders.remove(shader);
+            }
+        }
+    }
 
     int clearColor = Color.BLACK;
 
@@ -1431,8 +1493,8 @@ public class RenderController implements RenderControllerInterface
         return sizes;
     }
 
-    // TODO: Update these
     public native void setScene(Scene scene);
+    public native void setupShadersNative();
     public native void setViewNative(View view);
     public native void setClearColor(float r,float g,float b,float a);
     protected native boolean teardown();
@@ -1441,7 +1503,7 @@ public class RenderController implements RenderControllerInterface
     protected native boolean hasChanges();
     public native void setPerfInterval(int perfInterval);
     public native void addLight(DirectionalLight light);
-    public native void replaceLights(List<DirectionalLight> lights);
+    public native void replaceLights(DirectionalLight[] lights);
 
 
     public void finalize()

@@ -17,11 +17,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
 
 /*
  * Class:     com_mousebird_maply_Scene
+ * Method:    removeShaderProgram
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeShaderProgram
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_mousebird_maply_Scene
  * Method:    addRenderTargetNative
  * Signature: (JIIJZZFFFF)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addRenderTargetNative
   (JNIEnv *, jobject, jlong, jint, jint, jlong, jboolean, jboolean, jfloat, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_Scene
+ * Method:    changeRenderTarget
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_changeRenderTarget
+  (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_mousebird_maply_Scene

@@ -20,7 +20,7 @@
 
 #import "LabelsAndMarkers_jni.h"
 #import "Scene_jni.h"
-#import "Render_jni.h"
+#import "Renderer_jni.h"
 #import "com_mousebird_maply_MarkerManager.h"
 
 using namespace WhirlyKit;
@@ -105,9 +105,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
         {
             OpenGLES2Program *prog = NULL;
             if (hasMultiTex)
-                prog = markerManager->getScene()->findProgramByName(kMaplyShaderDefaultTriMultiTex);
+                prog = markerManager->getScene()->findProgramByName(MaplyDefaultTriMultiTexShader);
             else
-                prog = markerManager->getScene()->findProgramByName(kMaplyShaderDefaultTri);
+                prog = markerManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             if (prog)
                 markerInfo->programID = prog->getId();
         }
@@ -163,9 +163,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
         {
             OpenGLES2Program *prog = NULL;
             if (isMoving)
-                prog = markerManager->getScene()->findProgramByName(kMaplyScreenSpaceDefaultMotionProgram);
+                prog = markerManager->getScene()->findProgramByName(MaplySpaceDefaultMotionProgramScreen);
             else
-                prog = markerManager->getScene()->findProgramByName(kMaplyScreenSpaceDefaultProgram);
+                prog = markerManager->getScene()->findProgramByName(MaplySpaceDefaultProgramScreen);
             if (prog)
                 markerInfo->programID = prog->getId();
         }
