@@ -74,10 +74,6 @@ public class ParticleSystem {
     public native long getID();
 
     /**
-     * Set the shader by ID.  There are times this is useful, but in
-     * general you should call setShader with the shader.
-     * The type of the particle system.
-     * <br>
      * At present particle systems are just point geometry.
      * @param type The type of the particle system.
      */

@@ -82,7 +82,13 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addSticker
             __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in SphericalChunkManager::addSticker()");
             return EmptyIdentity;
         }
-        
+
+        if (chunkInfo->programID == EmptyIdentity) {
+            OpenGLES2Program *prog = chunkManager->getScene()->findProgramByName(MaplyDefaultTriangleShader);
+            if (prog)
+                chunkInfo->programID = prog->getId();
+        }
+
         SimpleIdentity chunkId = chunkManager->addChunk(chunk,*chunkInfo,*changeSet);
 
         // We hand over the chunk's memory to the manager at that point
