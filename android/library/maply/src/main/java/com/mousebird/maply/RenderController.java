@@ -1484,6 +1484,24 @@ public class RenderController implements RenderControllerInterface
         setClearColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
     }
 
+    public double heightForMapScale(double scale)
+    {
+        return view.heightForMapScale(scale,frameSize.getX(),frameSize.getY());
+    }
+
+    public double currentMapZoom(Point2d geoCoord)
+    {
+        return view.currentMapZoom(frameSize.getX(),frameSize.getY(),geoCoord.getY());
+    }
+
+    public double currentMapScale()
+    {
+        return view.currentMapScale(frameSize.getX(),frameSize.getY());
+    }
+
+    /**
+     * Returns the framebuffer size as ints.
+     */
     public int[] getFrameBufferSize()
     {
         int[] sizes = new int[2];
@@ -1491,6 +1509,27 @@ public class RenderController implements RenderControllerInterface
         sizes[1] = (int)frameSize.getY();
 
         return sizes;
+    }
+
+    // A no-op for the standalone renderer
+    public void requestRender()
+    {
+    }
+
+    // TODO: Figure out what to do with this
+    public boolean setEGLContext(ContextInfo cInfo) {
+        return false;
+    }
+
+    // TODO: Figure out if we need this in standalone mode
+    public ContextInfo setupTempContext(ThreadMode threadMode)
+    {
+        return null;
+    }
+
+    // TODO: Figure out if we need this in standalone mode
+    public void clearTempContext(ContextInfo cInfo)
+    {
     }
 
     public native void setScene(Scene scene);

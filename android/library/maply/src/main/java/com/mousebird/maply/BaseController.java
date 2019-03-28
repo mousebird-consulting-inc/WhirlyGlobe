@@ -39,7 +39,7 @@ import javax.microedition.khronos.egl.EGLSurface;
  * @author sjg
  *
  */
-public class BaseController implements RenderController.TaskManager
+public class BaseController implements RenderController.TaskManager, RenderControllerInterface
 {
 	// This may be a GLSurfaceView or a GLTextureView
 	View baseView = null;
@@ -520,12 +520,6 @@ public class BaseController implements RenderController.TaskManager
     // Note: Why isn't this in EGL10?
     private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
 
-	// Context and associated surface
-	public class ContextInfo
-	{
-		EGLContext eglContext = null;
-		EGLSurface eglSurface = null;
-	};
 	ArrayList<ContextInfo> glContexts = new ArrayList<ContextInfo>();
 	ContextInfo glContext = null;
 
@@ -553,7 +547,7 @@ public class BaseController implements RenderController.TaskManager
 
 	// Make a temporary context for use within the base controller.
 	// We expect these to be running on various threads
-	ContextInfo setupTempContext(RenderController.ThreadMode threadMode)
+	public ContextInfo setupTempContext(RenderController.ThreadMode threadMode)
 	{
 		// There's already a context, so just stick with that
 		EGL10 egl = (EGL10) EGLContext.getEGL();
@@ -574,7 +568,7 @@ public class BaseController implements RenderController.TaskManager
 				{
 					int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
 					retContext = new ContextInfo();
-					retContext.eglContext = egl.eglCreateContext(renderControl.display,renderControl.config,renderWrapper.maplyRender.context, attrib_list);
+					retContext.eglContext = egl.eglCreateContext(renderControl.display,renderControl.config,renderControl.context, attrib_list);
 					int[] surface_attrs =
 							{
 									EGL10.EGL_WIDTH, 32,
@@ -600,7 +594,7 @@ public class BaseController implements RenderController.TaskManager
 		return retContext;
 	}
 
-	void clearTempContext(ContextInfo cInfo)
+	public void clearTempContext(ContextInfo cInfo)
 	{
 		if (cInfo == null)
 			return;
@@ -682,7 +676,7 @@ public class BaseController implements RenderController.TaskManager
 			synchronized (layerThreads) {
 				// Kick off the layer thread for background operations
 				for (LayerThread layerThread : layerThreads)
-					layerThread.setRenderer(renderWrapper.maplyRender);
+					layerThread.setRenderer(renderControl);
 			}
 
 			// Debugging output
@@ -766,7 +760,7 @@ public class BaseController implements RenderController.TaskManager
     /**
      * Set the EGL Context we created for the main thread, if we can.
      */
-    boolean setEGLContext(ContextInfo cInfo)
+    public boolean setEGLContext(ContextInfo cInfo)
     {
 		if (cInfo == null)
 			cInfo = glContext;
@@ -823,7 +817,7 @@ public class BaseController implements RenderController.TaskManager
 	 */
 	public void setViewExtents(Point2d ll,Point2d ur)
 	{
-		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return;
 
 		CoordSystemDisplayAdapter coordAdapter = view.getCoordAdapter();
@@ -850,9 +844,9 @@ public class BaseController implements RenderController.TaskManager
 	 */
 	public boolean screenPointFromGeoBatch(double[] inX,double[] inY,double[] inZ,double[] outX,double[] outY)
 	{
-		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return false;
-		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		Point2d frameSize = renderControl.frameSize;
 
 		return coordAdapter.screenPointFromGeoBatch(view,(int)frameSize.getX(),(int)frameSize.getY(),
 				inX,inY,inZ,outX,outY);
@@ -865,9 +859,9 @@ public class BaseController implements RenderController.TaskManager
 	 */
 	public boolean geoPointFromScreenBatch(double[] inX,double[] inY,double[] outX,double[] outY)
 	{
-		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return false;
-		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		Point2d frameSize = renderControl.frameSize;
 
 		return coordAdapter.geoPointFromScreenBatch(view,(int)frameSize.getX(),(int)frameSize.getY(),
 				inX,inY,outX,outY);
@@ -883,7 +877,7 @@ public class BaseController implements RenderController.TaskManager
 	{
 		perfInterval = inPerfInterval;
 		if (renderWrapper != null && renderWrapper.maplyRender != null)
-			renderWrapper.maplyRender.setPerfInterval(perfInterval);
+			renderControl.setPerfInterval(perfInterval);
 	}
 
 	/** Calculate the height that corresponds to a given Mapnik-style map scale.
@@ -894,10 +888,10 @@ public class BaseController implements RenderController.TaskManager
 	 */
 	public double heightForMapScale(double scale)
 	{
-		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return 0.0;
 
-		return view.heightForMapScale(scale,renderWrapper.maplyRender.frameSize.getX(),renderWrapper.maplyRender.frameSize.getY());
+		return renderControl.heightForMapScale(scale);
 	}
 
 	/** Return the current map zoom from the viewpoint.
@@ -908,10 +902,10 @@ public class BaseController implements RenderController.TaskManager
 	 */
 	public double currentMapZoom(Point2d geoCoord)
 	{
-		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return 0.0;
 
-		return view.currentMapZoom(renderWrapper.maplyRender.frameSize.getX(),renderWrapper.maplyRender.frameSize.getY(),geoCoord.getY());
+		return renderControl.currentMapZoom(geoCoord);
 	}
 
 	/** Return the current scale denominator (Mapnik).
@@ -921,10 +915,10 @@ public class BaseController implements RenderController.TaskManager
 	 */
 	public double currentMapScale()
 	{
-		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return 0.0;
 
-		return view.currentMapScale(renderWrapper.maplyRender.frameSize.getX(),renderWrapper.maplyRender.frameSize.getY());
+		return renderControl.currentMapScale();
 	}
 
 	/**
@@ -1017,7 +1011,7 @@ public class BaseController implements RenderController.TaskManager
 			if (oldContext != null)
 			{
 				if (renderWrapper != null)
-					if (!egl.eglMakeCurrent(renderWrapper.maplyRender.display,oldDrawSurface,oldReadSurface,oldContext))
+					if (!egl.eglMakeCurrent(renderControl.display,oldDrawSurface,oldReadSurface,oldContext))
 					{
 						Log.d("Maply","Failed to set context back to previous context.");
 					}
@@ -1305,7 +1299,7 @@ public class BaseController implements RenderController.TaskManager
 			return null;
 
 		Point2d viewSize = getViewSize();
-		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		Point2d frameSize = renderControl.frameSize;
 		Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
 		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
@@ -1362,11 +1356,11 @@ public class BaseController implements RenderController.TaskManager
 			return null;
 
 		Point2d viewSize = getViewSize();
-		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		Point2d frameSize = renderControl.frameSize;
 		Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
 		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
-		long selectID = renderControl.selectionManager.pickObject(view.makeViewState(renderWrapper.maplyRender), frameLoc);
+		long selectID = renderControl.selectionManager.pickObject(view.makeViewState(renderControl), frameLoc);
 		if (selectID != RenderController.EmptyIdentity)
 		{
 			return renderControl.componentManager.findObjectForSelectID(selectID);
@@ -1566,6 +1560,14 @@ public class BaseController implements RenderController.TaskManager
 	public Shader getShader(String name)
 	{
 	    return renderControl.getShader(name);
+	}
+
+	/**
+	 * Take the given shader out of active use.
+	 */
+	public void removeShader(Shader shader)
+	{
+		renderControl.removeShader(shader);
 	}
 
 	/**
@@ -1892,4 +1894,11 @@ public class BaseController implements RenderController.TaskManager
 		return widths[1];
 	}
 
+	/**
+	 * Return the current framebuffer size as ints.
+	 */
+	public int[] getFrameBufferSize()
+	{
+		return renderControl.getFrameBufferSize();
+	}
 }

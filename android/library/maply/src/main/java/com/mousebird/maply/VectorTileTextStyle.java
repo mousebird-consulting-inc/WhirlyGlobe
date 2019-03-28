@@ -39,7 +39,7 @@ public class VectorTileTextStyle extends VectorTileStyle {
 
     private Placement placement = Placement.Point;
 
-    public VectorTileTextStyle(LabelInfo labelInfo, Placement placement, Point2d offset, String textField, VectorStyleSettings settings, BaseController viewC) {
+    public VectorTileTextStyle(LabelInfo labelInfo, Placement placement, Point2d offset, String textField, VectorStyleSettings settings, RenderControllerInterface viewC) {
         super(viewC);
 
         this.labelInfo = labelInfo;
@@ -48,7 +48,7 @@ public class VectorTileTextStyle extends VectorTileStyle {
         this.offset = offset;
     }
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, BaseController controller) {
+    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, RenderControllerInterface controller) {
 
         ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
 

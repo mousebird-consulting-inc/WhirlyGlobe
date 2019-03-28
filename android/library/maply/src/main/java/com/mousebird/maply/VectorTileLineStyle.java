@@ -34,7 +34,7 @@ public class VectorTileLineStyle extends VectorTileStyle {
     private WideVectorInfo wideVectorInfo;
     private VectorInfo vectorInfo;
 
-    public VectorTileLineStyle(BaseInfo baseInfo, VectorStyleSettings settings, BaseController viewC) {
+    public VectorTileLineStyle(BaseInfo baseInfo, VectorStyleSettings settings, RenderControllerInterface viewC) {
         super(viewC);
         if (baseInfo instanceof VectorInfo) {
             useWideVectors = false;
@@ -48,7 +48,7 @@ public class VectorTileLineStyle extends VectorTileStyle {
     }
 
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, BaseController controller) {
+    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, RenderControllerInterface controller) {
         ComponentObject compObj = null;
         if (useWideVectors)
             compObj = controller.addWideVectors(objects, wideVectorInfo, RenderController.ThreadMode.ThreadCurrent);

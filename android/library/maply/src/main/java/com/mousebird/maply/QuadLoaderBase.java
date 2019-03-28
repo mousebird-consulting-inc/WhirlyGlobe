@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Base class for the quad loaders.
  * <br>
@@ -29,7 +31,7 @@ public class QuadLoaderBase
 {
     protected QuadLoaderBase(BaseController inControl)
     {
-        control = inControl;
+        control = new WeakReference<BaseController>(inControl);
     }
 
     /**
@@ -48,7 +50,7 @@ public class QuadLoaderBase
      */
     public native void setDebugMode(boolean debugMode);
 
-    private BaseController control = null;
+    private WeakReference<BaseController> control;
 
     /**
      * Controller associated with this quad loader.
@@ -56,7 +58,7 @@ public class QuadLoaderBase
      */
     BaseController getController()
     {
-        return control;
+        return control.get();
     }
 
     /**

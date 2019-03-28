@@ -1,13 +1,10 @@
 package com.mousebird.maply;
 
-import com.mousebird.maply.BaseController;
 import com.mousebird.maply.sld.sldstyleset.SLDStyleSet;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.FileInputStream;
 import java.io.ByteArrayOutputStream;
-import java.net.URL;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -30,7 +27,7 @@ public class GeoJSONSource {
     private boolean enabled;
     private SLDStyleSet styleSet;
     private InputStream jsonStream;
-    private BaseController baseController;
+    private WeakReference<RenderControllerInterface> baseController;
     ArrayList<ComponentObject> componentObjects = new ArrayList<ComponentObject>();
 
     public boolean isLoaded() {
@@ -46,9 +43,9 @@ public class GeoJSONSource {
             return;
         this.enabled = enabled;
         if (enabled)
-            baseController.enableObjects(componentObjects, RenderController.ThreadMode.ThreadAny);
+            baseController.get().enableObjects(componentObjects, RenderController.ThreadMode.ThreadAny);
         else
-            baseController.disableObjects(componentObjects, RenderController.ThreadMode.ThreadAny);
+            baseController.get().disableObjects(componentObjects, RenderController.ThreadMode.ThreadAny);
     }
 
     /**
@@ -71,8 +68,8 @@ public class GeoJSONSource {
      * Sets the globe or map controller to which vector features will be added.
      * @param baseController The MaplyBaseController instance.
      */
-    public void setBaseController(BaseController baseController) {
-        this.baseController = baseController;
+    public void setBaseController(RenderControllerInterface baseController) {
+        this.baseController = new WeakReference<RenderControllerInterface>(baseController);
     }
 
     public GeoJSONSource() {
@@ -125,7 +122,7 @@ public class GeoJSONSource {
             if (vecs != null) {
                 TileID nullTileID = new TileID(0,0,0);
                 for (VectorObject vecObj : vecs) {
-                    VectorStyle[] styles = styleSet.stylesForFeature(vecObj.getAttributes(), nullTileID, "", baseController);
+                    VectorStyle[] styles = styleSet.stylesForFeature(vecObj.getAttributes(), nullTileID, "", baseController.get());
                     if (styles == null || styles.length == 0)
                         continue;;
                     for (VectorStyle style : styles) {
@@ -142,16 +139,16 @@ public class GeoJSONSource {
             if (vecs != null) {
                 TileID nullTileID = new TileID(0, 0, 0);
                 for (String uuid : featureStyles.keySet()) {
-                    VectorStyle style = styleSet.styleForUUID(uuid, baseController);
+                    VectorStyle style = styleSet.styleForUUID(uuid, baseController.get());
                     ArrayList<VectorObject> featuresForStyle = featureStyles.get(uuid);
 
                     //List<VectorObject> objects, MaplyTileID tileID, MaplyBaseController controller)
-                    ComponentObject[] newCompObjs = style.buildObjects(featuresForStyle, nullTileID, baseController);
+                    ComponentObject[] newCompObjs = style.buildObjects(featuresForStyle, nullTileID, baseController.get());
                     if (newCompObjs != null && newCompObjs.length > 0)
                        componentObjects.addAll(Arrays.asList(newCompObjs));
                 }
             }
-            baseController.enableObjects(componentObjects, RenderController.ThreadMode.ThreadAny);
+            baseController.get().enableObjects(componentObjects, RenderController.ThreadMode.ThreadAny);
 
             this.componentObjects = componentObjects;
             loaded = true;

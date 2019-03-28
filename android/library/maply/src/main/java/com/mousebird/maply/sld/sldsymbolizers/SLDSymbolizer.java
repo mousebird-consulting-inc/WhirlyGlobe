@@ -20,9 +20,9 @@
 package com.mousebird.maply.sld.sldsymbolizers;
 
 import com.mousebird.maply.LinearTextureBuilder;
-import com.mousebird.maply.BaseController;
 import com.mousebird.maply.MaplyTexture;
 import com.mousebird.maply.RenderController;
+import com.mousebird.maply.RenderControllerInterface;
 import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.VectorTileLineStyle;
@@ -58,7 +58,7 @@ public abstract class SLDSymbolizer {
 
     public static VectorTileLineStyle vectorTileLineStyleFromStrokeNode(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
 
-        BaseController viewC = symbolizerParams.getBaseController();
+        RenderControllerInterface viewC = symbolizerParams.getBaseController();
         VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
 
         boolean useWideVectors = vectorStyleSettings.isUseWideVectors();

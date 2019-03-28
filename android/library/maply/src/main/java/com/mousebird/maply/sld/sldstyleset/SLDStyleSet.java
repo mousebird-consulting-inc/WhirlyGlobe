@@ -22,6 +22,7 @@ package com.mousebird.maply.sld.sldstyleset;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,14 +36,11 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.mousebird.maply.AttrDictionary;
-import com.mousebird.maply.BaseController;
-import com.mousebird.maply.TileID;
+import com.mousebird.maply.RenderControllerInterface;
 import com.mousebird.maply.TileID;
 import com.mousebird.maply.VectorStyle;
 import com.mousebird.maply.VectorTileStyle;
-import com.mousebird.maply.sld.sldstyleset.SLDNamedLayer;
 import com.mousebird.maply.VectorStyleInterface;
-import com.mousebird.maply.BaseController;
 import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.sld.sldsymbolizers.SLDSymbolizerParams;
 
@@ -68,7 +66,7 @@ public class SLDStyleSet implements VectorStyleInterface {
     private int relativeDrawPriority;
     private HashMap<String, SLDNamedLayer> namedLayers =  new HashMap<String, SLDNamedLayer>();;
     private HashMap<String, VectorStyle> stylesByUUID = new HashMap<String, VectorStyle>();
-    private BaseController viewC;
+    private WeakReference<RenderControllerInterface> viewC;
     private VectorStyleSettings vectorStyleSettings;
     private SLDSymbolizerParams symbolizerParams;
 
@@ -89,9 +87,9 @@ public class SLDStyleSet implements VectorStyleInterface {
      * @throws XmlPullParserException
      * @throws IOException
      */
-    public SLDStyleSet(BaseController viewC, AssetWrapper assetWrapper, String sldFileName, DisplayMetrics displayMetrics, boolean useLayerNames, int relativeDrawPriority) throws XmlPullParserException, IOException
+    public SLDStyleSet(RenderControllerInterface viewC, AssetWrapper assetWrapper, String sldFileName, DisplayMetrics displayMetrics, boolean useLayerNames, int relativeDrawPriority) throws XmlPullParserException, IOException
     {
-        this.viewC = viewC;
+        this.viewC = new WeakReference<RenderControllerInterface>(viewC);
         this.useLayerNames = useLayerNames;
         this.relativeDrawPriority = relativeDrawPriority;
 
@@ -160,7 +158,7 @@ public class SLDStyleSet implements VectorStyleInterface {
     }
 
     @Override
-    public VectorStyle[] stylesForFeature(AttrDictionary attrs, TileID tileID, String layerName, BaseController controller)
+    public VectorStyle[] stylesForFeature(AttrDictionary attrs, TileID tileID, String layerName, RenderControllerInterface controller)
     {
         List<VectorTileStyle> vectorTileStyles = new ArrayList<VectorTileStyle>();
         boolean matched;
@@ -177,7 +175,7 @@ public class SLDStyleSet implements VectorStyleInterface {
     }
 
     @Override
-    public VectorStyle styleForUUID(String uuid,BaseController controller)
+    public VectorStyle styleForUUID(String uuid, RenderControllerInterface controller)
     {
         VectorStyle style = stylesByUUID.get(uuid);
         return style;

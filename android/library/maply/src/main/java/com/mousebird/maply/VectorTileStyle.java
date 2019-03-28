@@ -34,7 +34,7 @@ public abstract class VectorTileStyle implements VectorStyle {
 
     protected boolean geomAdditive;
     protected String uuid;
-    protected WeakReference<BaseController> viewC;
+    protected WeakReference<RenderControllerInterface> viewC;
     protected boolean selectable;
 
     static long uuidCount = 0;
@@ -54,8 +54,8 @@ public abstract class VectorTileStyle implements VectorStyle {
         return uuidCount;
     }
 
-    public VectorTileStyle(BaseController viewC) {
-        this.viewC = new WeakReference<BaseController>(viewC);
+    public VectorTileStyle(RenderControllerInterface viewC) {
+        this.viewC = new WeakReference<RenderControllerInterface>(viewC);
 
         uuid = "" + makeUUID();
 

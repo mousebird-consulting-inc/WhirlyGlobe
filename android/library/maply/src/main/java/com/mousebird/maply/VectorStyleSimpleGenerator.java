@@ -3,6 +3,7 @@ package com.mousebird.maply;
 import android.graphics.Color;
 import android.graphics.Typeface;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +67,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs, TileID tileID, BaseController controller)
+        public ComponentObject[] buildObjects(List<VectorObject> vecObjs, TileID tileID, RenderControllerInterface controller)
         {
             ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
             for (VectorObject point : vecObjs)
@@ -110,7 +111,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,TileID tileID,BaseController controller)
+        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,TileID tileID,RenderControllerInterface controller)
         {
             VectorInfo vecInfo = new VectorInfo();
 //            vecInfo.disposeAfterUse = true;
@@ -143,7 +144,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,TileID tileID,BaseController controller)
+        public ComponentObject[] buildObjects(List<VectorObject> vecObjs,TileID tileID,RenderControllerInterface controller)
         {
             VectorInfo vecInfo = new VectorInfo();
             vecInfo.disposeAfterUse = true;
@@ -159,21 +160,21 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
     }
 
-    BaseController controller = null;
+    WeakReference<RenderControllerInterface> controller;
     HashMap<String,VectorStyleSimple> stylesByUUID = new HashMap<String,VectorStyleSimple>();
     HashMap<String,VectorStyleSimple> stylesByLayerName = new HashMap<String,VectorStyleSimple>();
 
 
-    public VectorStyleSimpleGenerator(BaseController inControl)
+    public VectorStyleSimpleGenerator(RenderControllerInterface inControl)
     {
-        controller = inControl;
+        controller = new WeakReference<RenderControllerInterface>(inControl);
     }
 
     /**
      * We'll return a point, line, or areal vector style
      */
     @Override
-    public VectorStyle[] stylesForFeature(AttrDictionary attrs,TileID tileID,String layerName,BaseController controller)
+    public VectorStyle[] stylesForFeature(AttrDictionary attrs,TileID tileID,String layerName,RenderControllerInterface controller)
     {
         // Look for an existing style if we've already done this lookup
         VectorStyleSimple style = stylesByLayerName.get(layerName);
@@ -215,7 +216,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     }
 
     @Override
-    public VectorStyle styleForUUID(String uuid,BaseController controller)
+    public VectorStyle styleForUUID(String uuid,RenderControllerInterface controller)
     {
         VectorStyle style = stylesByUUID.get(uuid);
         return style;

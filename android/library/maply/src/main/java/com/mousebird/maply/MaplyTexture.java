@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Encapsulates a texture in WhirlyGlobe-Maply toolkit.  You can create these with the
  * base controller by adding them.  These are basically just handles.
@@ -28,10 +30,9 @@ public class MaplyTexture
 {
     public MaplyTexture()
     {
-        controller = null;
         texID = 0;
     }
-    BaseController controller;
+    WeakReference<RenderControllerInterface> controller;
     long texID;
     int width,height;
 }

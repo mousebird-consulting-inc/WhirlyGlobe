@@ -24,13 +24,12 @@ import android.graphics.Color;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import com.mousebird.maply.BaseController;
 import com.mousebird.maply.RenderController;
+import com.mousebird.maply.RenderControllerInterface;
 import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.VectorTileLineStyle;
 import com.mousebird.maply.VectorTilePolygonStyle;
 import com.mousebird.maply.VectorTileStyle;
-import com.mousebird.maply.WideVectorInfo;
 import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.MaplyTexture;
 import com.mousebird.maply.sld.sldstyleset.SLDParseHelper;
@@ -87,7 +86,7 @@ public class SLDPolygonSymbolizer extends SLDSymbolizer {
 
     public static VectorTilePolygonStyle vectorTilePolygonStyleFromFillNode(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
 
-        BaseController viewC = symbolizerParams.getBaseController();
+        RenderControllerInterface viewC = symbolizerParams.getBaseController();
         VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
 
         VectorInfo vectorInfo = new VectorInfo();

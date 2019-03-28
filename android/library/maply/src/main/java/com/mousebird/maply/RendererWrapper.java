@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 
+import java.lang.ref.WeakReference;
 import java.nio.IntBuffer;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -39,10 +40,10 @@ import javax.microedition.khronos.opengles.GL10;
 class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 {
 	boolean valid = true;
-	public RenderController maplyRender = null;
+	public WeakReference<RenderController> maplyRender;
 	public Scene scene = null;
 	public View view = null;
-	public BaseController maplyControl = null;
+	public WeakReference<BaseController> maplyControl;
 	public Thread renderThread = null;
 
 	private boolean doScreenshot = false;
@@ -52,8 +53,8 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 
 	public RendererWrapper(BaseController inMapControl,RenderController inRenderControl)
 	{
-		maplyControl = inMapControl;
-		maplyRender = inRenderControl;
+		maplyControl = new WeakReference<BaseController>(inMapControl);
+		maplyRender = new WeakReference<RenderController>(inRenderControl);
 	}
 
 	@Override
@@ -62,7 +63,7 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 	}
 
 	public RenderController getMaplyRender() {
-		return maplyRender;
+		return maplyRender.get();
 	}
 
 	@Override
@@ -79,11 +80,11 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 
 		// If the app shuts down the rendering right as the thread starts up, this can happen
 		if (valid) {
-			maplyRender.setScene(scene);
-			maplyRender.setView(view);
-			maplyRender.setConfig(config);
+			maplyRender.get().setScene(scene);
+			maplyRender.get().setView(view);
+			maplyRender.get().setConfig(config);
 			renderThread = Thread.currentThread();
-			maplyControl.surfaceCreated(this);
+			maplyControl.get().surfaceCreated(this);
 		}
 
 		renderLock.release();
@@ -92,7 +93,7 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 	public void shutdown()
 	{
 		if (maplyRender != null) {
-			maplyRender.dispose();
+			maplyRender.get().dispose();
 			maplyRender = null;
 		}
 		scene = null;
@@ -113,8 +114,8 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 		}
 
 		if (valid) {
-			maplyRender.surfaceChanged(width, height);
-			maplyRender.doRender();
+			maplyRender.get().surfaceChanged(width, height);
+			maplyRender.get().doRender();
 		}
 
 		renderLock.release();
@@ -135,13 +136,13 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 		{
 			firstFrame = false;
 			if (maplyControl != null) {
-				maplyControl.getContentView().post(
+				maplyControl.get().getContentView().post(
 						new Runnable() {
 							@Override
 							public void run() {
 								if (maplyControl != null && Build.VERSION.SDK_INT > 16)
-									if (!maplyControl.usesTextureView() || Build.VERSION.SDK_INT < 24)
-										maplyControl.getContentView().setBackground(null);
+									if (!maplyControl.get().usesTextureView() || Build.VERSION.SDK_INT < 24)
+										maplyControl.get().getContentView().setBackground(null);
 							}
 						}
 				);
@@ -157,10 +158,10 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 		}
 
 		if (valid)
-			maplyRender.doRender();
+			maplyRender.get().doRender();
 
 		if (doScreenshot) {
-			Bitmap screenshot = getPixels(0,0, (int)maplyControl.getViewSize().getX(), (int)maplyControl.getViewSize().getY(), gl);
+			Bitmap screenshot = getPixels(0,0, (int)maplyControl.get().getViewSize().getX(), (int)maplyControl.get().getViewSize().getY(), gl);
 
 			screenshotListener.onScreenshotResult(screenshot);
 

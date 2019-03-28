@@ -35,14 +35,14 @@ public class VectorTilePolygonStyle extends VectorTileStyle {
     private VectorInfo vectorInfo;
 
 
-    public VectorTilePolygonStyle(VectorInfo vectorInfo, VectorStyleSettings settings, BaseController viewC) {
+    public VectorTilePolygonStyle(VectorInfo vectorInfo, VectorStyleSettings settings, RenderControllerInterface viewC) {
         super(viewC);
         this.vectorInfo = vectorInfo;
     }
 
     static double ClipGridSize = 2.0/180.0*Math.PI;
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, BaseController controller) {
+    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, RenderControllerInterface controller) {
 
         boolean globeMode = (controller instanceof GlobeController);
         ArrayList<VectorObject> vectors = new ArrayList<VectorObject>();

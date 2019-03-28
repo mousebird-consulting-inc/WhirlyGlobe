@@ -198,7 +198,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 	 */
 	public Point2d screenPointFromGeo(Point2d geoCoord)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return null;
 
 		return screenPointFromGeo(mapView,geoCoord);
@@ -212,14 +212,14 @@ public class MapController extends BaseController implements View.OnTouchListene
 	 */
 	public Point2d geoPointFromScreen(Point2d screenPt)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return null;
 
 		CoordSystemDisplayAdapter coordAdapter = mapView.getCoordAdapter();
 		CoordSystem coordSys = coordAdapter.getCoordSystem();
 		
 		Matrix4d modelMat = mapView.calcModelViewMatrix();
-		Point3d dispPt = mapView.pointOnPlaneFromScreen(screenPt, modelMat, renderWrapper.maplyRender.frameSize, false);
+		Point3d dispPt = mapView.pointOnPlaneFromScreen(screenPt, modelMat, renderControl.frameSize, false);
 		if (dispPt == null)
 			return null;
 		Point3d localPt = coordAdapter.displayToLocal(dispPt);
@@ -237,12 +237,12 @@ public class MapController extends BaseController implements View.OnTouchListene
 	 */
 	public Mbr getCurrentViewGeo()
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return null;
 
 		Mbr geoMbr = new Mbr();
 		
-		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		Point2d frameSize = renderControl.frameSize;
 		geoMbr.addPoint(geoPointFromScreen(new Point2d(0,0)));
 		geoMbr.addPoint(geoPointFromScreen(new Point2d(frameSize.getX(),0)));
 		geoMbr.addPoint(geoPointFromScreen(new Point2d(frameSize.getX(),frameSize.getY())));
@@ -260,12 +260,12 @@ public class MapController extends BaseController implements View.OnTouchListene
 		Point3d dispPt = coordAdapter.localToDisplay(localPt);
 		
 		Matrix4d modelMat = theMapView.calcModelViewMatrix();
-		return theMapView.pointOnScreenFromPlane(dispPt, modelMat, renderWrapper.maplyRender.frameSize);
+		return theMapView.pointOnScreenFromPlane(dispPt, modelMat, renderControl.frameSize);
 	}
 	
 	boolean checkCoverage(Mbr mbr,MapView theMapView,double height)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return false;
 
 		Point2d centerLoc = mbr.middle();
@@ -273,7 +273,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 		theMapView.setLoc(new Point3d(localCoord.getX(),localCoord.getY(),height));
 		
 		List<Point2d> pts = mbr.asPoints();
-		Point2d frameSize = renderWrapper.maplyRender.frameSize;
+		Point2d frameSize = renderControl.frameSize;
 		for (Point2d pt : pts)
 		{
 			Point2d screenPt = screenPointFromGeo(theMapView,pt);
@@ -306,7 +306,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 	 */
 	public double findHeightToViewBounds(Mbr mbr,Point2d pos)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return 0.0;
 
 		// We'll experiment on a copy of the map view
@@ -362,7 +362,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 	 */
 	public void setPositionGeo(final double x,final double y,final double z)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return;
 
 		if (!rendererAttached) {
@@ -386,7 +386,7 @@ public class MapController extends BaseController implements View.OnTouchListene
      */
 	public Point3d getPositionGeo()
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return null;
 
 		Point3d loc = mapView.getLoc();
@@ -405,7 +405,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 	 */
 	public void animatePositionGeo(final double x,final double y,final double z,final double howLong)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return;
 
 		if (!rendererAttached) {
@@ -428,7 +428,7 @@ public class MapController extends BaseController implements View.OnTouchListene
      */
 	public void setHeading(final double heading)
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return;
 
 		if (!rendererAttached) {
@@ -450,7 +450,7 @@ public class MapController extends BaseController implements View.OnTouchListene
      */
 	public double getHeading()
 	{
-		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderWrapper.maplyRender.frameSize == null)
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return 0.0;
 
 		return mapView.getRot();
@@ -600,7 +600,7 @@ public class MapController extends BaseController implements View.OnTouchListene
     public void processLongPress(Point2d screenLoc) {
 
 		Matrix4d mapTransform = mapView.calcModelViewMatrix();
-		Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, renderWrapper.maplyRender.frameSize, false);
+		Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, renderControl.frameSize, false);
 
 		if (gestureDelegate != null)
 		{
@@ -715,7 +715,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 			return null;
 
         Point2d screenCorners[] = new Point2d[4];
-        Point2d frameSize = renderWrapper.maplyRender.frameSize;
+        Point2d frameSize = renderControl.frameSize;
         screenCorners[0] = new Point2d(0.0, 0.0);
         screenCorners[1] = new Point2d(frameSize.getX(), 0.0);
         screenCorners[2] = new Point2d(frameSize.getX(), frameSize.getY());
@@ -726,7 +726,7 @@ public class MapController extends BaseController implements View.OnTouchListene
         Point3d retCorners[] = new Point3d[4];
         CoordSystemDisplayAdapter coordAdapter = mapView.getCoordAdapter();
         if (coordAdapter == null || renderWrapper == null || renderWrapper.maplyRender == null ||
-            renderWrapper.maplyRender.frameSize == null)
+				renderControl.frameSize == null)
             return retCorners;
         CoordSystem coordSys = coordAdapter.getCoordSystem();
         if (coordSys == null)

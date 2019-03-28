@@ -36,7 +36,7 @@ public class VectorTileMarkerStyle extends VectorTileStyle {
     private MarkerInfo markerInfo;
     private Bitmap bitmap;
 
-    public VectorTileMarkerStyle(MarkerInfo markerInfo, Bitmap bitmap, VectorStyleSettings settings, BaseController viewC) {
+    public VectorTileMarkerStyle(MarkerInfo markerInfo, Bitmap bitmap, VectorStyleSettings settings, RenderControllerInterface viewC) {
         super(viewC);
 
         this.markerInfo = markerInfo;
@@ -45,7 +45,7 @@ public class VectorTileMarkerStyle extends VectorTileStyle {
 
     }
 
-    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, BaseController controller) {
+    public ComponentObject[] buildObjects(List<VectorObject> objects, TileID tileID, RenderControllerInterface controller) {
 
         ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
         for (VectorObject vector : objects) {

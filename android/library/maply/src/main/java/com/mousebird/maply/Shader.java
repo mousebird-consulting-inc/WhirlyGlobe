@@ -23,6 +23,7 @@ package com.mousebird.maply;
 import android.os.Looper;
 import android.util.Log;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
@@ -36,7 +37,7 @@ import java.util.ArrayList;
  */
 public class Shader 
 {
-	BaseController control = null;
+	WeakReference<RenderControllerInterface> control;
 
 	// Types used to describe the shader attributes
 	enum AttributeType {
@@ -56,12 +57,12 @@ public class Shader
      * @param inControl The controller where we'll register the new shader.
      * @return Returns a shader program if it succeeded.  It may not work, however, so call valid first.
      */
-	public Shader(String name,String vertexSrc, String fragSrc,BaseController inControl)
+	public Shader(String name,String vertexSrc, String fragSrc,RenderControllerInterface inControl)
 	{
-        control = inControl;
+        control = new WeakReference<RenderControllerInterface>(inControl);
 		boolean okay = true;
 		if (Looper.myLooper() == Looper.getMainLooper())
-			okay = control.setEGLContext(null);
+			okay = control.get().setEGLContext(null);
 
 		if (okay)
 			initialise(name,vertexSrc,fragSrc);
@@ -74,12 +75,12 @@ public class Shader
 	 *
 	 * @param inControl The control we'll associate this program with.
 	 */
-	public Shader(BaseController inControl)
+	public Shader(RenderControllerInterface inControl)
 	{
-		control = inControl;
+		control = new WeakReference<RenderControllerInterface>(inControl);
 		boolean okay = true;
 		if (Looper.myLooper() == Looper.getMainLooper())
-			okay = control.setEGLContext(null);
+			okay = control.get().setEGLContext(null);
 
 		if (okay)
 			initialise();
@@ -99,7 +100,7 @@ public class Shader
 	{
 		boolean okay = true;
 		if (Looper.myLooper() == Looper.getMainLooper())
-			okay = control.setEGLContext(null);
+			okay = control.get().setEGLContext(null);
 
 		if (okay)
 			delayedSetupNative(name,vertexSrc,fragSrc);
@@ -139,7 +140,7 @@ public class Shader
 
 //        Log.d("Maply","addTexture texID " + texture.texID);
 
-		changes.process(control.getScene());
+		changes.process(control.get().getScene());
 	}
 
 	native void addTextureNative(ChangeSet changes,String name,long texID);
@@ -150,12 +151,12 @@ public class Shader
 	 */
 	public boolean setUniform(String name,double uni)
 	{
-		BaseController.ContextInfo context = control.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
-		control.requestRender();
+		control.get().requestRender();
 
 		boolean ret = setUniformNative(name,uni);
-		control.clearTempContext(context);
+		control.get().clearTempContext(context);
 
 		return ret;
 	}
@@ -168,12 +169,12 @@ public class Shader
 	 */
 	public boolean setUniform(String name,int uni)
 	{
-		BaseController.ContextInfo context = control.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
-		control.requestRender();
+		control.get().requestRender();
 
 		boolean ret = setUniformNative(name,uni);
-		control.clearTempContext(context);
+		control.get().clearTempContext(context);
 
 		return ret;
 	}
@@ -188,12 +189,12 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point2d pt)
 	{
-		BaseController.ContextInfo context = control.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
-		control.requestRender();
+		control.get().requestRender();
 
 		boolean ret = setUniformNative(name,pt.getX(),pt.getY());
-		control.clearTempContext(context);
+		control.get().clearTempContext(context);
 
 		return ret;
 	}
@@ -206,12 +207,12 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point3d pt)
 	{
-		BaseController.ContextInfo context = control.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
-		control.requestRender();
+		control.get().requestRender();
 
 		boolean ret = setUniformNative(name, pt.getX(), pt.getY(), pt.getZ());
-		control.clearTempContext(context);
+		control.get().clearTempContext(context);
 
 		return ret;
 	}
@@ -224,12 +225,12 @@ public class Shader
 	 */
 	public boolean setUniform(String name,Point4d pt)
 	{
-		BaseController.ContextInfo context = control.setupTempContext(RenderController.ThreadMode.ThreadCurrent);
+		RenderControllerInterface.ContextInfo context = control.get().setupTempContext(RenderController.ThreadMode.ThreadCurrent);
 
-		control.requestRender();
+		control.get().requestRender();
 
 		boolean ret = setUniformNative(name, pt.getX(), pt.getY(), pt.getZ(), pt.getW());
-		control.clearTempContext(context);
+		control.get().clearTempContext(context);
 
 		return ret;
 	}

@@ -5,6 +5,9 @@ import android.graphics.Bitmap;
 import java.util.List;
 import java.util.Vector;
 
+import javax.microedition.khronos.egl.EGLContext;
+import javax.microedition.khronos.egl.EGLSurface;
+
 /**
  * The Render Controller Interface defines the methods
  * a renderer has to implement.  These are all done more or less
@@ -13,6 +16,8 @@ import java.util.Vector;
  */
 public interface RenderControllerInterface
 {
+    Scene getScene();
+
     // When adding features we can run on the current thread or delay the work till later
     public enum ThreadMode {ThreadCurrent,ThreadAny};
 
@@ -106,5 +111,28 @@ public interface RenderControllerInterface
 
     public void setClearColor(int color);
 
+    public double heightForMapScale(double scale);
+
+    public double currentMapZoom(Point2d geoCoord);
+
+    public double currentMapScale();
+
     public int[] getFrameBufferSize();
+
+    boolean setEGLContext(ContextInfo cInfo);
+
+    ContextInfo setupTempContext(ThreadMode threadMode);
+
+    void clearTempContext(ContextInfo cInfo);
+
+    public void requestRender();
+
+    // Context and associated surface
+    public class ContextInfo
+    {
+        EGLContext eglContext = null;
+        EGLSurface eglSurface = null;
+    };
+
+
 }

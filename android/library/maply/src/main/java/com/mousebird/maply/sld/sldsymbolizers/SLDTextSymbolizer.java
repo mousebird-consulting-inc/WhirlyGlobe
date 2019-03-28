@@ -22,11 +22,10 @@ package com.mousebird.maply.sld.sldsymbolizers;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.util.Log;
 
 import com.mousebird.maply.LabelInfo;
-import com.mousebird.maply.BaseController;
 import com.mousebird.maply.RenderController;
+import com.mousebird.maply.RenderControllerInterface;
 import com.mousebird.maply.VectorStyleSettings;
 import com.mousebird.maply.VectorTileStyle;
 import com.mousebird.maply.VectorTileTextStyle;
@@ -57,7 +56,7 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
 
     public SLDTextSymbolizer(XmlPullParser xpp, SLDSymbolizerParams symbolizerParams) throws XmlPullParserException, IOException {
 
-        BaseController viewC = symbolizerParams.getBaseController();
+        RenderControllerInterface viewC = symbolizerParams.getBaseController();
         VectorStyleSettings vectorStyleSettings = symbolizerParams.getVectorStyleSettings();
 
         LabelInfo labelInfo = new LabelInfo();
