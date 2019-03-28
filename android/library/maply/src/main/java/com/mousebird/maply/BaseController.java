@@ -450,6 +450,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			if (renderWrapper != null)
 			     renderWrapper.stopRendering();
 
+			// Shut down the tile fetchers
+			for (RemoteTileFetcher tileFetcher : tileFetchers)
+				tileFetcher.shutdown();
+			tileFetchers.clear();
+
 			//		Choreographer.getInstance().removeFrameCallback(this);
 			ArrayList<LayerThread> layerThreadsToRemove = null;
 			if (layerThreads != null) {
@@ -1035,6 +1040,25 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			removeLayerThread(samplingLayer.layerThread);
 			samplingLayers.remove(samplingLayer);
 		}
+	}
+
+	ArrayList<RemoteTileFetcher> tileFetchers = new ArrayList<RemoteTileFetcher>();
+
+	/**
+	 * Either returns a RemoteTileFetcher with the given name or
+	 * it creates one and then returns the same.
+	 */
+	RemoteTileFetcher addTileFetcher(String name)
+	{
+		for (RemoteTileFetcher tileFetcher : tileFetchers) {
+			if (tileFetcher.getFetcherName() == name)
+				return tileFetcher;
+		}
+
+		RemoteTileFetcher tileFetcher = new RemoteTileFetcher(this,name);
+		tileFetchers.add(tileFetcher);
+
+		return tileFetcher;
 	}
 	
 	/**

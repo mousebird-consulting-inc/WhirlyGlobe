@@ -27,7 +27,7 @@ import java.lang.ref.WeakReference;
  * <br>
  * The image, frame, and data paging loaders all share much of the same functionality.
  */
-public class QuadLoaderBase
+public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 {
     protected QuadLoaderBase(BaseController inControl)
     {
@@ -151,6 +151,22 @@ public class QuadLoaderBase
     }
 
     protected native void cleanupNative(ChangeSet changes);
+
+    /* --- QuadSamplingLayer interface --- */
+
+    public void samplingLayerConnect(QuadSamplingLayer layer)
+    {
+        samplingLayerConnectNative(layer);
+    }
+
+    private native void samplingLayerConnectNative(QuadSamplingLayer layer);
+
+    public void samplingLayerDisconnect(QuadSamplingLayer layer)
+    {
+        samplingLayerDisconnectNative(layer);
+    }
+
+    private native void samplingLayerDisconnectNative(QuadSamplingLayer layer);
 
     // Used to initialize the loader for certain types of data.
     enum Mode {SingleFrame,MultiFrame,Object};

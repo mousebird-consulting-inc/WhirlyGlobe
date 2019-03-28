@@ -1332,7 +1332,4 @@
 /// Return a tile fetcher we may share between loaders
 - (MaplyRemoteTileFetcher * __nonnull)addTileFetcher:(NSString * __nonnull)name;
 
-/// Return an existing tile fetcher if there is one
-- (MaplyRemoteTileFetcher * __nullable)getTileFetcher:(NSString * __nonnull)name;
-
 @end

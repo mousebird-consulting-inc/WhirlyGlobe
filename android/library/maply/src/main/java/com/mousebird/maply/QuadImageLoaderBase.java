@@ -22,6 +22,8 @@ package com.mousebird.maply;
 
 import android.graphics.Color;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Base object for Maply Quad Image loader.
  * <br>
@@ -29,6 +31,8 @@ import android.graphics.Color;
  */
 public class QuadImageLoaderBase extends QuadLoaderBase
 {
+    WeakReference<QuadSamplingLayer> samplingLayer;
+
     protected QuadImageLoaderBase(BaseController control)
     {
         super(control);
@@ -36,18 +40,23 @@ public class QuadImageLoaderBase extends QuadLoaderBase
 
     // Called after a tick after creation on the main thread
     // We want them to be able to modify settings before it starts
-    public void delayedInit(SamplingParams params)
+    public void delayedInit(final SamplingParams params)
     {
         if (tileFetcher == null) {
-            // TODO: Get a shared tile fetcher from teh base controller
+            tileFetcher = getController().addTileFetcher("Image Fetcher");
         }
-        // TODO: Get a sampling layer from teh base controller
+
+        samplingLayer = new WeakReference<QuadSamplingLayer>(getController().findSamplingLayer(params,this));
         loadInterp.setLoader(this);
 
         // TODO: Do we need to set the shader ID?
 
-        // TODO: Run this on the layer thread
-        initialise(params,1,Mode.SingleFrame.ordinal());
+        samplingLayer.get().layerThread.addTask(new Runnable() {
+            @Override
+            public void run() {
+                initialise(params,1,Mode.SingleFrame.ordinal());
+            }
+        });
     }
 
     /**

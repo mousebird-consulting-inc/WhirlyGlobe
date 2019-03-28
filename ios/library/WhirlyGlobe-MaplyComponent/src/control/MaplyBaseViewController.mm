@@ -1464,15 +1464,6 @@ static const float PerfOutputDelay = 15.0;
     return tileFetcher;
 }
 
-- (MaplyRemoteTileFetcher *)getTileFetcher:(NSString *)name
-{
-    for (auto tileFetcher : tileFetchers)
-        if ([tileFetcher.name isEqualToString:name])
-            return tileFetcher;
-    
-    return nil;
-}
-
 -(NSArray*)objectsAtCoord:(MaplyCoordinate)coord
 {
     if (!renderControl)
