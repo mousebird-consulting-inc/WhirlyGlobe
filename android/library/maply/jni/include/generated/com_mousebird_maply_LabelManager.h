@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_mousebird_maply_LabelManager
  * Method:    addLabels
- * Signature: (Ljava/util/List;Lcom/mousebird/maply/LabelInfo;Lcom/mousebird/maply/ChangeSet;)J
+ * Signature: ([Lcom/mousebird/maply/InternalLabel;Lcom/mousebird/maply/LabelInfo;Lcom/mousebird/maply/ChangeSet;)J
  */
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
-  (JNIEnv *, jobject, jobject, jobject, jobject);
+  (JNIEnv *, jobject, jobjectArray, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_LabelManager

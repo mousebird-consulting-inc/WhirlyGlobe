@@ -43,7 +43,7 @@ class LabelManager
 	}
 	
 	// Add labels to the scene and return an ID to track them
-	public native long addLabels(List<InternalLabel> labels,LabelInfo labelInfo,ChangeSet changes);
+	public native long addLabels(InternalLabel[] labels,LabelInfo labelInfo,ChangeSet changes);
 	
 	// Remove labels by ID
 	public native void removeLabels(long ids[],ChangeSet changes);

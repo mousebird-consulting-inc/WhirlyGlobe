@@ -67,7 +67,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MarkerManager_dispose
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
-  (JNIEnv *env, jobject obj, jobject markerObjList, jobject markerInfoObj, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jobjectArray markerArray, jobject markerInfoObj, jobject changeSetObj)
 {
 	try
 	{
@@ -82,22 +82,16 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 		}
 
 		std::vector<Marker *> markers;
-		JavaListInfo *listClassInfo = JavaListInfo::getClassInfo(env);
-		jobject iterObj = listClassInfo->getIter(env,markerObjList);
-
-        bool hasMultiTex = false;
+		JavaObjectArrayHelper markerHelp(env,markerArray);
+		bool hasMultiTex = false;
 		MarkerClassInfo *markerClassInfo = MarkerClassInfo::getClassInfo();
-		while (listClassInfo->hasNext(env,markerObjList,iterObj))
-		{
-			jobject javaMarkerObj = listClassInfo->getNext(env,markerObjList,iterObj);
-			Marker *marker = markerClassInfo->getObject(env,javaMarkerObj);
-            if (marker->texIDs.size() > 1)
-                hasMultiTex = true;
+		while (jobject markerObj = markerHelp.getNextObject()) {
+			Marker *marker = markerClassInfo->getObject(env,markerObj);
+			if (marker->texIDs.size() > 1)
+				hasMultiTex = true;
 
 			markers.push_back(marker);
-			env->DeleteLocalRef(javaMarkerObj);
 		}
-		env->DeleteLocalRef(iterObj);
 
         markerInfo->screenObject = false;
 		// Resolve the program ID
@@ -125,7 +119,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
-(JNIEnv *env, jobject obj, jobject markerObjList, jobject markerInfoObj, jobject changeSetObj)
+(JNIEnv *env, jobject obj, jobjectArray markerArray, jobject markerInfoObj, jobject changeSetObj)
 {
     try
     {
@@ -140,23 +134,17 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
         }
         
         std::vector<Marker *> markers;
-        JavaListInfo *listClassInfo = JavaListInfo::getClassInfo(env);
-        jobject iterObj = listClassInfo->getIter(env,markerObjList);
-        
-        MarkerClassInfo *markerClassInfo = MarkerClassInfo::getClassInfo();
-        bool isMoving = false;
-        while (listClassInfo->hasNext(env,markerObjList,iterObj))
-        {
-            jobject javaMarkerObj = listClassInfo->getNext(env,markerObjList,iterObj);
-            Marker *marker = markerClassInfo->getObject(env,javaMarkerObj);
-            if (marker->startTime != marker->endTime)
-                isMoving = true;
+        JavaObjectArrayHelper markerHelper(env,markerArray);
+		bool isMoving = false;
+		MarkerClassInfo *markerClassInfo = MarkerClassInfo::getClassInfo();
+        while (jobject markerObj = markerHelper.getNextObject()) {
+			Marker *marker = markerClassInfo->getObject(env,markerObj);
+			if (marker->startTime != marker->endTime)
+				isMoving = true;
 
-            markers.push_back(marker);
-            env->DeleteLocalRef(javaMarkerObj);
+			markers.push_back(marker);
         }
-        env->DeleteLocalRef(iterObj);
-        
+
         markerInfo->screenObject = true;
         // Resolve the program ID
         if (markerInfo->programID == EmptyIdentity)

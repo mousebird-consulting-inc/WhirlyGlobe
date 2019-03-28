@@ -368,7 +368,7 @@ public class RenderController implements RenderControllerInterface
                         }
 
                         // Add the markers and flush the changes
-                        long markerId = markerManager.addScreenMarkers(intMarkers, markerInfo, changes);
+                        long markerId = markerManager.addScreenMarkers(intMarkers.toArray(new InternalMarker[0]), markerInfo, changes);
                         if (scene != null)
                             changes.process(scene);
 
@@ -443,7 +443,7 @@ public class RenderController implements RenderControllerInterface
                         }
 
                         // Add the markers and flush the changes
-                        long markerId = markerManager.addScreenMarkers(intMarkers, markerInfo, changes);
+                        long markerId = markerManager.addScreenMarkers(intMarkers.toArray(new InternalMarker[0]), markerInfo, changes);
                         if (scene != null)
                             changes.process(scene);
 
@@ -519,7 +519,7 @@ public class RenderController implements RenderControllerInterface
                         }
 
                         // Add the markers and flush the changes
-                        long markerId = markerManager.addMarkers(intMarkers, markerInfo, changes);
+                        long markerId = markerManager.addMarkers(intMarkers.toArray(new InternalMarker[0]), markerInfo, changes);
                         if (scene != null)
                             changes.process(scene);
 
@@ -581,7 +581,7 @@ public class RenderController implements RenderControllerInterface
                         //  we need to pass the JNIEnv deep inside the toolkit and we're setting
                         //  on JNIEnv at a time for the CharRenderer callback.
                         synchronized (labelManager) {
-                            labelId = labelManager.addLabels(intLabels, labelInfo, changes);
+                            labelId = labelManager.addLabels(intLabels.toArray(new InternalLabel[0]), labelInfo, changes);
                         }
                         if (labelId != EmptyIdentity)
                             compObj.addLabelID(labelId);
@@ -644,7 +644,7 @@ public class RenderController implements RenderControllerInterface
                         //  we need to pass the JNIEnv deep inside the toolkit and we're setting
                         //  on JNIEnv at a time for the CharRenderer callback.
                         synchronized (labelManager) {
-                            labelId = labelManager.addLabels(intLabels, labelInfo, changes);
+                            labelId = labelManager.addLabels(intLabels.toArray(new InternalLabel[0]), labelInfo, changes);
                         }
                         if (labelId != EmptyIdentity)
                             compObj.addLabelID(labelId);

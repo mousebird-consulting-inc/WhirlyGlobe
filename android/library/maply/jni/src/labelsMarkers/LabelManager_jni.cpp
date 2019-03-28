@@ -70,7 +70,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_dispose
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
-  (JNIEnv *env, jobject obj, jobject labelObjList, jobject labelInfoObj, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jobjectArray labelArray, jobject labelInfoObj, jobject changeSetObj)
 {
 	try
 	{
@@ -89,26 +89,21 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
         FontTextureManager_Android *fontTexManager = (FontTextureManager_Android *)labelManager->getScene()->getFontTextureManager();
         fontTexManager->setEnv(env);
 
-		std::vector<SingleLabel *> labels;
-		JavaListInfo *listClassInfo = JavaListInfo::getClassInfo(env);
-		jobject iterObj = listClassInfo->getIter(env,labelObjList);
-
-		LabelClassInfo *labelClassInfo = LabelClassInfo::getClassInfo();
-		ShapeSet shapes;
 		// We need this in the depths of the engine
 		labelInfo->env = env;
 		labelInfo->labelInfoObj = labelInfoObj;
+
+		// Collect the labels
+		std::vector<SingleLabel *> labels;
+		JavaObjectArrayHelper labelHelp(env,labelArray);
+		LabelClassInfo *labelClassInfo = LabelClassInfo::getClassInfo();
 		bool isMoving = false;
-		while (listClassInfo->hasNext(env,labelObjList,iterObj))
-		{
-			jobject javaLabelObj = listClassInfo->getNext(env,labelObjList,iterObj);
-			SingleLabelAndroid *label = labelClassInfo->getObject(env,javaLabelObj);
+		while (jobject labelObj = labelHelp.getNextObject()) {
+			SingleLabelAndroid *label = labelClassInfo->getObject(env,labelObj);
 			if (label->startTime != label->endTime)
-			    isMoving = true;
+				isMoving = true;
 			labels.push_back(label);
-			env->DeleteLocalRef(javaLabelObj);
 		}
-		env->DeleteLocalRef(iterObj);
 
 		// Resolve a missing program
 		if (labelInfo->programID == EmptyIdentity)
