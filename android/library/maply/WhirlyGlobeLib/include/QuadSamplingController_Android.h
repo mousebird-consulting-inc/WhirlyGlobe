@@ -1,9 +1,9 @@
 /*
- *  WhirlyGlobe_Android.h
+ *  QuadSamplingController_Android.h
  *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 3/7/19.
- *  Copyright 2011-2016 mousebird consulting
+ *  Created by Steve Gifford on 3/28/19.
+ *  Copyright 2011-2019 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,17 +18,18 @@
  *
  */
 
-#import "WhirlyGlobe.h"
+#import <jni.h>
+#import "QuadSamplingController.h"
 
-#import "ComponentManager_Android.h"
-#import "Dictionary_Android.h"
-#import "FontTextureManager_Android.h"
-#import "GreatCircle_Android.h"
-#import "ImageTile_Android.h"
-#import "LabelInfo_Android.h"
-#import "ParticleBatch_Android.h"
-#import "QuadImageFrameLoader_Android.h"
-#import "QuadSamplingController_Android.h"
-#import "SceneRenderer_Android.h"
-#import "SingleLabel_Android.h"
-#import "Shader_Android.h"
+namespace WhirlyKit
+{
+
+// Android version of the Quad Sampling Controller
+class QuadSamplingController_Android : public QuadSamplingController
+{
+public:
+    QuadSamplingController_Android();
+    ~QuadSamplingController_Android();
+};
+
+}

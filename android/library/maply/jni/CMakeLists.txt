@@ -136,6 +136,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/ImageLoaderReturn_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/ObjectLoaderReturn_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/QuadLoaderBase_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/QuadSamplingLayer_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/renderer/RenderController_jni.cpp"
 )

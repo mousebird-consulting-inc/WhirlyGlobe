@@ -201,6 +201,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setClipBounds
 
 /*
  * Class:     com_mousebird_maply_SamplingParams
+ * Method:    equalsNative
+ * Signature: (Ljava/lang/Object;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SamplingParams_equalsNative
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_SamplingParams
  * Method:    nativeInit
  * Signature: ()V
  */

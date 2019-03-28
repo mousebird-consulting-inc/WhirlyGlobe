@@ -387,6 +387,23 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		return newLayerThread;
 	}
 
+	/**
+	 * Remove a layer thread you had created earlier.
+	 * This is serious stuff.  Only do this if you know why you're doing it.
+	 */
+	public void removeLayerThread(LayerThread layerThread)
+	{
+		// TODO: Check we're on the main thread here
+
+		synchronized (layerThreads) {
+			if (!layerThreads.contains(layerThread))
+				return;
+		}
+
+		layerThread.shutdown();
+		layerThreads.remove(layerThread);
+	}
+
 	/** @brief Convert from a coordinate in the given system to display space.
 	 @details This converts from a coordinate (3d) in the given coordinate system to the view controller's display space.  For the globe, display space is based on a radius of 1.0.
 	 */
@@ -966,6 +983,57 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				LayerThread baseLayerThread = layerThreads.get(0);
 				baseLayerThread.removeLayer(layer);
 			}
+		}
+	}
+
+	ArrayList<QuadSamplingLayer> samplingLayers = new ArrayList<QuadSamplingLayer>();
+
+	/**
+	 * Look for a sampling layer that matches the parameters given.
+	 * Sampling layers can be shared for efficiency.  Don't be calling this yourself.
+	 * The loaders do it for you.
+	 */
+	QuadSamplingLayer findSamplingLayer(SamplingParams params,QuadSamplingLayer.ClientInterface user)
+	{
+		QuadSamplingLayer theLayer = null;
+
+		for (QuadSamplingLayer layer : samplingLayers) {
+			if (layer.params.equals(params)) {
+				theLayer = layer;
+				break;
+			}
+		}
+
+		if (theLayer == null) {
+			// Set up the sampling layer
+			theLayer = new QuadSamplingLayer(this,params);
+			samplingLayers.add(theLayer);
+
+			// On its own layer thread
+			LayerThread layerThread = makeLayerThread(true);
+			layerThread.addLayer(theLayer);
+		}
+
+		theLayer.addClient(user);
+		return theLayer;
+	}
+
+	/**
+	 * Release the given sampling layer
+	 * @param samplingLayer
+	 * @param user
+	 */
+	void releaseSamplingLayer(QuadSamplingLayer samplingLayer,QuadSamplingLayer.ClientInterface user)
+	{
+		if (!samplingLayers.contains(samplingLayer))
+			return;
+
+		samplingLayer.removeClient(user);
+
+		// Get rid of the sampling layer too
+		if (samplingLayer.getNumClients() == 0) {
+			removeLayerThread(samplingLayer.layerThread);
+			samplingLayers.remove(samplingLayer);
 		}
 	}
 	

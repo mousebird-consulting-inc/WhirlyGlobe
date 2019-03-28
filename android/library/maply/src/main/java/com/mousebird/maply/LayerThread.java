@@ -296,6 +296,8 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		if (changes == null || newChanges == null)
 			return;
 
+		final LayerThread layerThread = this;
+
 		synchronized(changes)
 		{
 			changes.merge(newChanges);
@@ -307,6 +309,11 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 					@Override
 					public void run()
 					{
+						// Do a pre-scene flush callback on the layers
+						for (Layer layer : layers)
+							layer.preSceneFlush(layerThread);
+
+						// Now merge in the changes
 						synchronized (changes) {
 							changeHandler = null;
 							if (scene != null)

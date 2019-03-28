@@ -482,3 +482,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setClipBounds
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SamplingParams::setClipBounds()");
 	}
 }
+
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SamplingParams_equalsNative
+		(JNIEnv *env, jobject obj, jobject otherObj)
+{
+	try
+	{
+		SamplingParamsClassInfo *classInfo = SamplingParamsClassInfo::getClassInfo();
+		SamplingParams *paramsA = classInfo->getObject(env,obj);
+		SamplingParams *paramsB = classInfo->getObject(env,obj);
+		if (!paramsA || !paramsB)
+			return false;
+		return *paramsA == *paramsB;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SamplingParams::equalsNative()");
+	}
+
+	return false;
+}

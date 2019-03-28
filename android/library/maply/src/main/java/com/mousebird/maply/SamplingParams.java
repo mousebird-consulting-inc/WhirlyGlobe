@@ -180,6 +180,17 @@ public class SamplingParams
 
     private native void setClipBounds(double llx,double lly,double urx,double ury);
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (!(obj instanceof SamplingParams))
+            return false;
+        return equalsNative(obj);
+    }
+
+    private native boolean equalsNative(Object obj);
+
     public void finalize()
     {
         dispose();
