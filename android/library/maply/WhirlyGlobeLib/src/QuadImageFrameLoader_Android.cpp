@@ -19,25 +19,21 @@
  */
 
 #import "QuadImageFrameLoader_Android.h"
+#import "QuadLoading_jni.h"
 
 namespace WhirlyKit
 {
 
 QIFBatchOps_Android::QIFBatchOps_Android(JNIEnv *env)
 {
-    // TODO: Create a corresponding batchOps object
+    MakeQIFBatchOps(env,this);
 }
 
 QIFBatchOps_Android::~QIFBatchOps_Android()
 {
 }
 
-void QIFBatchOps_Android::releaseJNI(JNIEnv *env)
-{
-    // TODO: Delete the batchOps object on the Java side
-}
-
-QIFFrameAsset_Android::QIFFrameAsset_Android()
+QIFFrameAsset_Android::QIFFrameAsset_Android(JNIEnv *env)
 {
 }
 
@@ -102,10 +98,11 @@ QIFTileAsset_Android::~QIFTileAsset_Android()
 {
 }
 
-QIFFrameAssetRef QIFTileAsset_Android::makeFrameAsset()
+QIFFrameAssetRef QIFTileAsset_Android::makeFrameAsset(QuadImageFrameLoader *inLoader)
 {
-    // TODO: Set up Android side object and register it with the TileAsset object so it doesn't get garbage collected
-    return QIFFrameAssetRef(new QIFFrameAsset_Android());
+    QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
+
+    return QIFFrameAssetRef(new QIFFrameAsset_Android(loader->getEnv()));
 }
 
 void QIFTileAsset_Android::startFetching(QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps)
@@ -130,7 +127,7 @@ QuadImageFrameLoader_Android::~QuadImageFrameLoader_Android()
 QIFTileAssetRef QuadImageFrameLoader_Android::makeTileAsset(const QuadTreeNew::ImportantNode &ident)
 {
     auto tileAsset = QIFTileAssetRef(new QIFTileAsset_Android(ident));
-    tileAsset->setupFrames(numFrames);
+    tileAsset->setupFrames(this,numFrames);
     return tileAsset;
 }
 
@@ -150,8 +147,8 @@ void QuadImageFrameLoader_Android::processBatchOps(QIFBatchOps *inBatchOps)
 {
     QIFBatchOps_Android *batchOps = (QIFBatchOps_Android *)inBatchOps;
 
-    // TODO: Have the Android side process the batch ops
-    //       Then delete the object
+
+    // TODO: Have the Android side process the batch ops.  This is in the ImageFrameLoader
 }
 
 }

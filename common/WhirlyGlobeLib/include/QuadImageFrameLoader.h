@@ -86,7 +86,7 @@ class QIFTileAsset
 {
 public:
     QIFTileAsset(const QuadTreeNew::ImportantNode &ident);
-    void setupFrames(int numFrames);
+    void setupFrames(QuadImageFrameLoader *loader,int numFrames);
     virtual ~QIFTileAsset();
     
     typedef enum {Waiting,Active} State;
@@ -139,7 +139,7 @@ public:
     
 protected:
     // Specialized frame asset
-    virtual QIFFrameAssetRef makeFrameAsset() = 0;
+    virtual QIFFrameAssetRef makeFrameAsset(QuadImageFrameLoader *) = 0;
 
     State state;
     QuadTreeNew::ImportantNode ident;

@@ -95,11 +95,11 @@ QIFTileAsset::QIFTileAsset(const QuadTreeNew::ImportantNode &ident) : state(Wait
 {
 }
     
-void QIFTileAsset::setupFrames(int numFrames)
+void QIFTileAsset::setupFrames(QuadImageFrameLoader *loader,int numFrames)
 {
     frames.reserve(numFrames);
     for (unsigned int ii = 0; ii < numFrames; ii++) {
-        frames.push_back(makeFrameAsset());
+        frames.push_back(makeFrameAsset(loader));
     }
 }
     

@@ -89,7 +89,7 @@ public:
 
 protected:
     // Specialized frame asset
-    virtual QIFFrameAssetRef makeFrameAsset();
+    virtual QIFFrameAssetRef makeFrameAsset(QuadImageFrameLoader *loader);
 };
     
 // iOS version of the QuadFrameLoader

@@ -113,7 +113,7 @@ QIFTileAsset_ios::~QIFTileAsset_ios()
 {
 }
     
-QIFFrameAssetRef QIFTileAsset_ios::makeFrameAsset()
+QIFFrameAssetRef QIFTileAsset_ios::makeFrameAsset(QuadImageFrameLoader *loader)
 {
     return QIFFrameAssetRef(new QIFFrameAsset_ios());
 }
@@ -171,7 +171,7 @@ QuadImageFrameLoader_ios::~QuadImageFrameLoader_ios()
 QIFTileAssetRef QuadImageFrameLoader_ios::makeTileAsset(const QuadTreeNew::ImportantNode &ident)
 {
     auto tileAsset = QIFTileAssetRef(new QIFTileAsset_ios(ident));
-    tileAsset->setupFrames([frameInfos count]);
+    tileAsset->setupFrames(this,[frameInfos count]);
     return tileAsset;
 }
     

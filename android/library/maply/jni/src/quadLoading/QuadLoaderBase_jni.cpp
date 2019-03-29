@@ -26,19 +26,19 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-template<> QuadImageFrameLoaderInfo *QuadImageFrameLoaderInfo::classInfoObj = NULL;
+template<> QuadImageFrameLoaderClassInfo *QuadImageFrameLoaderClassInfo::classInfoObj = NULL;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_nativeInit
         (JNIEnv *env, jclass cls)
 {
-    QuadImageFrameLoaderInfo::getClassInfo(env, cls);
+    QuadImageFrameLoaderClassInfo::getClassInfo(env, cls);
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
         (JNIEnv *env, jobject obj, jobject sampleObj, jint numFrames, jint mode)
 {
     try {
-        QuadImageFrameLoaderInfo *info = QuadImageFrameLoaderInfo::getClassInfo();
+        QuadImageFrameLoaderClassInfo *info = QuadImageFrameLoaderClassInfo::getClassInfo();
         SamplingParams *params = SamplingParamsClassInfo::getClassInfo()->getObject(env,sampleObj);
         QuadImageFrameLoader_AndroidRef *loader = new QuadImageFrameLoader_AndroidRef(new QuadImageFrameLoader_Android(*params,numFrames,(QuadImageFrameLoader::Mode)mode,env));
         info->setHandle(env, obj, loader);
@@ -53,7 +53,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose
         (JNIEnv *env, jobject obj)
 {
     try {
-        QuadImageFrameLoaderInfo *info = QuadImageFrameLoaderInfo::getClassInfo();
+        QuadImageFrameLoaderClassInfo *info = QuadImageFrameLoaderClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
             QuadImageFrameLoader_AndroidRef *loader = info->getObject(env,obj);
@@ -73,7 +73,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY
         (JNIEnv *env, jobject obj, jboolean flipY)
 {
     try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderInfo::getClassInfo()->getObject(env,obj);
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         if (!loader)
             return;
         (*loader)->setFlipY(flipY);
@@ -88,7 +88,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode
         (JNIEnv *env, jobject obj, jboolean debugMode)
 {
     try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderInfo::getClassInfo()->getObject(env,obj);
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         if (!loader)
             return;
         (*loader)->setDebugMode(debugMode);
@@ -103,7 +103,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_geoBoundsForTileN
         (JNIEnv *env, jobject obj, jint tileX, jint tileY, jint tileLevel, jobject llObj, jobject urObj)
 {
     try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderInfo::getClassInfo()->getObject(env,obj);
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         Point2dClassInfo *point2dClassInfo = Point2dClassInfo::getClassInfo();
         Point2d *ll = point2dClassInfo->getObject(env,llObj);
         Point2d *ur = point2dClassInfo->getObject(env,urObj);
@@ -142,7 +142,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_boundsForTileNati
         (JNIEnv *env, jobject obj, jint tileX, jint tileY, jint tileLevel, jobject llObj, jobject urObj)
 {
     try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderInfo::getClassInfo()->getObject(env,obj);
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         Point2dClassInfo *point2dClassInfo = Point2dClassInfo::getClassInfo();
         Point2d *ll = point2dClassInfo->getObject(env,llObj);
         Point2d *ur = point2dClassInfo->getObject(env,urObj);
@@ -167,7 +167,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_displayCenterForT
         (JNIEnv *env, jobject obj, jint tileX, jint tileY, jint tileLevel, jobject ptObj)
 {
     try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderInfo::getClassInfo()->getObject(env,obj);
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         Point3d *outPt = Point3dClassInfo::getClassInfo()->getObject(env,ptObj);
         if (!loader || !outPt)
             return;
@@ -192,7 +192,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
         (JNIEnv *env, jobject obj, jobject changeObj)
 {
     try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderInfo::getClassInfo()->getObject(env,obj);
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!loader || !changes)
             return;
@@ -209,7 +209,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerConn
         (JNIEnv *env, jobject obj, jobject layerObj)
 {
     try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderInfo::getClassInfo()->getObject(env,obj);
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         QuadSamplingController_Android *control = QuadSamplingControllerInfo::getClassInfo()->getObject(env,layerObj);
         if (!loader || !control)
             return;
@@ -226,7 +226,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerDisc
         (JNIEnv *env, jobject obj, jobject layerObj)
 {
     try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderInfo::getClassInfo()->getObject(env,obj);
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         QuadSamplingController_Android *control = QuadSamplingControllerInfo::getClassInfo()->getObject(env,layerObj);
         if (!loader || !control)
             return;

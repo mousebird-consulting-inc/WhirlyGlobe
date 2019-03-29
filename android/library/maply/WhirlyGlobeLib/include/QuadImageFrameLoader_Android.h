@@ -32,12 +32,10 @@ class QIFBatchOps_Android : public QIFBatchOps
 {
 public:
     QIFBatchOps_Android(JNIEnv *env);
-    void releaseJNI(JNIEnv *env);
     virtual ~QIFBatchOps_Android();
 
-protected:
-    // Pointers to the Java side of things
-    JNIEnv *env;
+public:
+    // Pointer to the Java side of things
     jobject batchOpsObj;
 };
 
@@ -45,7 +43,7 @@ protected:
 class QIFFrameAsset_Android : public QIFFrameAsset
 {
 public:
-    QIFFrameAsset_Android();
+    QIFFrameAsset_Android(JNIEnv *env);
     virtual ~QIFFrameAsset_Android();
 
     // TODO: Android side setupFetch() method
@@ -83,7 +81,7 @@ public:
 
 protected:
     // Specialized frame asset
-    virtual QIFFrameAssetRef makeFrameAsset();
+    virtual QIFFrameAssetRef makeFrameAsset(QuadImageFrameLoader *);
 };
 
 // Android version of the QuadFrameLoader
@@ -106,6 +104,9 @@ public:
 
     // Process whatever ops we batched up during the load phase
     virtual void processBatchOps(QIFBatchOps *);
+
+    // Used when we need to create Java objects
+    JNIEnv *getEnv() { return env; }
 
 protected:
     // Make an Android specific tile/frame assets
