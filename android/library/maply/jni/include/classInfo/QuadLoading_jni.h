@@ -28,6 +28,8 @@ typedef JavaClassInfo<WhirlyKit::ImageTile_AndroidRef> ImageTileClassInfo;
 typedef JavaClassInfo<WhirlyKit::QuadImageFrameLoader_AndroidRef> QuadImageFrameLoaderClassInfo;
 typedef JavaClassInfo<WhirlyKit::QuadSamplingController_Android> QuadSamplingControllerInfo;
 typedef JavaClassInfo<WhirlyKit::QIFBatchOps_Android> QIFBatchOpsClassInfo;
+typedef JavaClassInfo<WhirlyKit::QIFFrameAsset_Android> QIFFrameAssetClassInfo;
 
 JNIEXPORT jobject JNICALL MakeImageTile(JNIEnv *env,WhirlyKit::ImageTile_AndroidRef imgTile);
 JNIEXPORT jobject JNICALL MakeQIFBatchOps(JNIEnv *env,WhirlyKit::QIFBatchOps_Android *batchOps);
+JNIEXPORT jobject JNICALL MakeQIFFrameAsset(JNIEnv *env,WhirlyKit::QIFFrameAsset_Android *frame);

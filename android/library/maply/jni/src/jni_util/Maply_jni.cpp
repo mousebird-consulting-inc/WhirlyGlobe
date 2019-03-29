@@ -240,3 +240,17 @@ jintArray BuildIntArray(JNIEnv *env,std::vector<int> &intVec)
     env->SetIntArrayRegion(newArray, 0, intVec.size(), (jint *)&intVec[0]);
     return newArray;
 }
+
+jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,std::vector<jobject> &objVec)
+{
+    if (objVec.empty())
+        return NULL;
+
+    jobjectArray newArray = env->NewObjectArray(objVec.size(),cls,NULL);
+    if (!newArray)
+        return NULL;
+
+    for (unsigned int ii=0;ii<objVec.size();ii++)
+        env->SetObjectArrayElement(newArray,ii,objVec[ii]);
+    return newArray;
+}

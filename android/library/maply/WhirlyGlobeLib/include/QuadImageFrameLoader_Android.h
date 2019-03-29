@@ -61,11 +61,13 @@ public:
     // Clear out state
     virtual void loadFailed(QuadImageFrameLoader *loader);
 
-protected:
+public:
     // Cancel the fetch (with the tile fetcher) on the Java side
     void cancelFetchJava(QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps);
     // Dispose of the Java side frame asset object and cancel any fetches
-    void clearFrameAssetJava(QuadImageFrameLoader_Android *loader);
+    void clearFrameAssetJava(QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps);
+
+    jobject frameAssetObj;
 };
 
 // Android version of the tile asset keeps the platform specific stuff around
@@ -117,11 +119,13 @@ public:
     // Used when we need to create Java objects
     JNIEnv *getEnv() { return env; }
 
-protected:
+public:
     // Make an Android specific tile/frame assets
     virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident);
 
     int numFrames;
+
+    jobject frameLoaderObj;
 
     // QuadLoaderBase methods
     jmethodID processBatchOpsMethod;

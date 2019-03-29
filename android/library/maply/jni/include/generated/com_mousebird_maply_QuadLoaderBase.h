@@ -57,6 +57,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    fetchSuccess
+ * Signature: (IIII[B)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_fetchSuccess
+  (JNIEnv *, jobject, jint, jint, jint, jint, jbyteArray);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    fetchFailure
+ * Signature: (IIII)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_fetchFailure
+  (JNIEnv *, jobject, jint, jint, jint, jint);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
  * Method:    samplingLayerConnectNative
  * Signature: (Lcom/mousebird/maply/QuadSamplingLayer;)V
  */

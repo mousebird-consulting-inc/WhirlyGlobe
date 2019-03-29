@@ -475,5 +475,7 @@ void ConvertLongArrayToSet(JNIEnv *env,jlongArray &longArray,std::set<WhirlyKit:
 jlongArray BuildLongArray(JNIEnv *env,std::vector<WhirlyKit::SimpleIdentity> &longVec);
 // Return a Java int array
 jintArray BuildIntArray(JNIEnv *env,std::vector<int> &longVec);
+// Return a new Java object array
+jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,std::vector<jobject> &objVec);
 
 #endif /* Maply_JNI_h_ */
