@@ -34,7 +34,7 @@ public class QuadImageLoader extends QuadImageLoaderBase
      *  @param tileInfo A single tile info object describing where the data is and how to get it.
      *  @param control the controller to add objects to.
      */
-    QuadImageLoader(final SamplingParams params,TileInfoNew tileInfo,BaseController control)
+    public QuadImageLoader(final SamplingParams params,TileInfoNew tileInfo,BaseController control)
     {
         super(control);
 

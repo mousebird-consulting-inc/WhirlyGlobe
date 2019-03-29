@@ -57,14 +57,14 @@ public class RemoteTileInfoNew extends TileInfoNew
      * files to the given directory forever.  If you're interacting
      * with a giant image pyramid, that could be problematic.
      */
-    File cacheDir = null;
+    public File cacheDir = null;
 
     /**
      *  Optional headers to add to the Request.
      *  <br>
      *  These are name/data pairs which will be stuck in the NSURLRequest header.
      */
-    Headers headers = null;
+    public Headers headers = null;
 
     /**
      *  Optional coordinate system describing the tile set.
@@ -72,17 +72,17 @@ public class RemoteTileInfoNew extends TileInfoNew
      *  This coordinate system is required if the tile info will need
      *  to evaluate valid tiles as defined by the addValidBounds:coordSystem: call.
      */
-    CoordSystem coordSys = null;
+    public CoordSystem coordSys = null;
 
     /**
      * If set, we'll test the tiles against this bounding box before trying to fetch them.
      */
-    Mbr validBounds = null;
+    public Mbr validBounds = null;
 
     /**
      * If set, the bounding box is in this coordinate system.
      */
-    CoordSystem validCoordSys = null;
+    public CoordSystem validCoordSys = null;
 
     /**
      * Empty constructor.  Fill in the baseURL, minZoom and maxZoom at least.
@@ -104,7 +104,7 @@ public class RemoteTileInfoNew extends TileInfoNew
      *
      *  @param inMaxZoom The maximum zoom level to fetch.
      */
-    RemoteTileInfoNew(String inBaseURL,int inMinZoom,int inMaxZoom)
+    public RemoteTileInfoNew(String inBaseURL,int inMinZoom,int inMaxZoom)
     {
         baseURLs.add(inBaseURL);
         minZoom = inMinZoom;

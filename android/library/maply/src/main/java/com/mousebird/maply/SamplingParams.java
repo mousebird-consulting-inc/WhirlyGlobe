@@ -27,7 +27,7 @@ package com.mousebird.maply;
  **/
 public class SamplingParams
 {
-    SamplingParams()
+    public SamplingParams()
     { initialise(); }
 
     /**
