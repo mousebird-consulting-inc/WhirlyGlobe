@@ -279,13 +279,13 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			libraryLoaded = true;
 		}
 
-		renderControl.Init(scene, coordAdapter,this);
-
 		// Now for the object that kicks off the rendering
 		renderWrapper = new RendererWrapper(this, renderControl);
 		renderWrapper.scene = scene;
 		renderWrapper.view = view;
-		
+
+		renderControl.Init(scene, coordAdapter,this);
+
 		// Create the default layer thread
         LayerThread layerThread = new LayerThread("Maply Layer Thread",view,scene,true);
 		synchronized (layerThreads) {
@@ -757,6 +757,9 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			}
 
 			setClearColor(renderControl.clearColor);
+
+			// Register the shaders
+			renderControl.setupShadersNative();
 
 			// Create the working threads
 			for (int ii = 0; ii < numWorkingThreads; ii++)

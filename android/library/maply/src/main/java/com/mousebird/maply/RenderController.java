@@ -73,6 +73,7 @@ public class RenderController implements RenderControllerInterface
     }
     RenderController()
     {
+        initialise();
     }
 
     /**
@@ -105,6 +106,12 @@ public class RenderController implements RenderControllerInterface
         shapeManager = new ShapeManager(scene);
         billboardManager = new BillboardManager(scene);
         geomManager = new GeometryManager(scene);
+    }
+
+    // Called when we have an openGL surface to use
+    public void surfaceAttached()
+    {
+        setupShadersNative();
     }
 
     View view = null;

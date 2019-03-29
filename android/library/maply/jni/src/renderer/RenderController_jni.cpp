@@ -134,8 +134,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setScene
 class SceneRendererWrapper
 {
 public:
-	SceneRendererWrapper(JNIEnv *env,jobject obj)
-	: env(env), renderControlObj(obj)
+	SceneRendererWrapper(JNIEnv *env,Scene *scene,jobject obj)
+	: env(env), scene(scene), renderControlObj(obj)
 	{
 		addShaderID = env->GetMethodID(SceneRendererInfo::getClassInfo()->getClass(),"addPreBuiltShader","(Lcom/mousebird/maply/Shader;)V");
 	}
@@ -145,12 +145,13 @@ public:
 	{
 		Shader_Android *localShader = new Shader_Android();
 		localShader->setupPreBuildProgram(prog);
-
+		scene->addProgram(prog);
 		jobject shaderObj = MakeShader(env,localShader);
 		env->CallVoidMethod(renderControlObj,addShaderID,shaderObj);
 	}
 
 	JNIEnv *env;
+	Scene *scene;
 	jobject renderControlObj;
 	jmethodID addShaderID;
 };
@@ -164,7 +165,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setupShadersNat
 		if (!renderer)
 			return;
 
-		SceneRendererWrapper rendWrap(env,obj);
+		SceneRendererWrapper rendWrap(env,renderer->getScene(),obj);
 
 		// Default line shaders
 		OpenGLES2Program *defaultLineShader = BuildDefautLineShaderCulling(MaplyDefaultLineShader);
