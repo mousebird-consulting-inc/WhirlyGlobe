@@ -1016,6 +1016,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 			// On its own layer thread
 			LayerThread layerThread = makeLayerThread(true);
+			theLayer.layerThread = layerThread;
 			layerThread.addLayer(theLayer);
 		}
 
@@ -1162,7 +1163,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!running)
 			return;
 
-		changeVector(vecObj,vecInfo,mode);
+		renderControl.changeVector(vecObj,vecInfo,mode);
 	}
 
 	/**

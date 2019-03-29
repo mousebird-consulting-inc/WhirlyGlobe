@@ -63,7 +63,7 @@ GLenum ImageFormatToGLenum(MaplyImageType format) {
 }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MaplyRenderer_nativeInit
+JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_nativeInit
   (JNIEnv *env, jclass cls)
 {
 	SceneRendererInfo::getClassInfo(env,cls);

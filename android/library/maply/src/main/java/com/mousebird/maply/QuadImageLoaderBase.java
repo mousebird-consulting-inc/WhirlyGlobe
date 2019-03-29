@@ -46,6 +46,10 @@ public class QuadImageLoaderBase extends QuadLoaderBase
             tileFetcher = getController().addTileFetcher("Image Fetcher");
         }
 
+        if (loadInterp == null) {
+            loadInterp = new ImageLoaderInterpreter();
+        }
+
         samplingLayer = new WeakReference<QuadSamplingLayer>(getController().findSamplingLayer(params,this));
         loadInterp.setLoader(this);
 

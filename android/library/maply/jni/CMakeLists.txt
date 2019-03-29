@@ -48,6 +48,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/CoordSystemDisplayAdapter_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/FakeGeocentricDisplayAdapter_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/GeneralDisplayAdapter_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/GeoCoordSystem_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/PlateCarreeCoordSystem_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/Proj4CoordSystem_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/SphericalMercatorCoordSystem_jni.cpp"
@@ -138,6 +139,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/QIFBatchOps_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/QIFFrameAsset_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/QuadLoaderBase_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/QuadImageLoaderBase_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/QuadSamplingLayer_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/renderer/RenderController_jni.cpp"

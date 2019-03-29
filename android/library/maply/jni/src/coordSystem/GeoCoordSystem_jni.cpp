@@ -35,7 +35,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeoCoordSystem_initialise
 	try
 	{
 		GeoCoordSystem *coordSystem = new GeoCoordSystem();
-		CoordSystemClassInfo::getClassInfo()->setHandle(env,obj,coordSystem);
+		CoordSystemRefClassInfo::getClassInfo()->setHandle(env,obj,new CoordSystemRef(coordSystem));
 	}
 	catch (...)
 	{

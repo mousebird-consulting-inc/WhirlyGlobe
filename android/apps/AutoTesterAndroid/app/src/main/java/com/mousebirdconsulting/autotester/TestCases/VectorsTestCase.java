@@ -86,6 +86,9 @@ public class VectorsTestCase extends MaplyTestCase {
 		CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
 		mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
 		overlayCountries(globeVC);
+
+		globeVC.setClearColor(Color.RED);
+
 		return true;
 	}
 

@@ -128,7 +128,7 @@ void QIFTileAsset_Android::startFetching(QuadImageFrameLoader *inLoader,QIFBatch
     }
 
     // Give the Java side a list of frames to start fetching
-    jobjectArray frameArray = BuildObjectArray(loader->getEnv(),QIFFrameAssetClassInfo::getClassInfo()->getClass(),objVec);
+    jobjectArray frameArray = BuildObjectArray(loader->getEnv(),QIFFrameAssetClassInfo::getClassInfo(loader->getEnv(),"com/mousebird/maply/QIFFrameAsset")->getClass(),objVec);
     loader->getEnv()->CallVoidMethod(loader->frameLoaderObj,loader->startTileFetchMethod,
             batchOps->batchOpsObj,frameArray,
             ident.x,ident.y,ident.level,0,ident.importance);
@@ -145,7 +145,7 @@ QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(const SamplingParams 
     processBatchOpsMethod = env->GetMethodID(thisClass,"processBatchOps","(Lcom/mousebird/maply/QIFBatchOps;)V");
     startTileFetchMethod = env->GetMethodID(thisClass,"startTileFetch","(Lcom/mousebird/maply/QIFBatchOps;[Lcom/mousebird/maply/QIFFrameAsset;IIIID)V");
 
-    jclass frameClass = QIFFrameAssetClassInfo::getClassInfo()->getClass();
+    jclass frameClass = QIFFrameAssetClassInfo::getClassInfo(env,"com/mousebird/maply/QIFFrameAsset")->getClass();
     cancelFrameFetchMethod = env->GetMethodID(frameClass,"cancelFetch","(Lcom/mousebird/maply/QIFBatchOps;)V");
     updateFrameMethod = env->GetMethodID(frameClass,"updateFetch","(Lcom/mousebird/maply/QuadImageLoaderBase;ID)V");
     clearFrameMethod = env->GetMethodID(frameClass,"clearFrameAsset","(Lcom/mousebird/maply/QuadImageLoaderBase;Lcom/mousebird/maply/QIFBatchOps;)V");

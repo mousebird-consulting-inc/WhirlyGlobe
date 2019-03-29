@@ -156,4 +156,5 @@ public class ComponentManager
     private static native void nativeInit();
     native void initialise(Scene scene);
     native void dispose();
+    private long nativeHandle;
 }

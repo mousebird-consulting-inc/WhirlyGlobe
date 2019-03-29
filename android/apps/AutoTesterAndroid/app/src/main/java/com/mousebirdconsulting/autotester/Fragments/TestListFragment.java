@@ -44,6 +44,7 @@ import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ShapefileTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ShapesTestCase;
 import com.mousebirdconsulting.autotester.TestCases.SLDTestCase;
+import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StartupShutdownTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.TextureVectorTestCase;
@@ -105,6 +106,7 @@ public class TestListFragment extends Fragment {
 
 		TestListAdapter() {
 			testCases = new ArrayList<>();
+			testCases.add(new StamenRemoteTestCase(getActivity()));
 			testCases.add(new CartoDBMapTestCase(getActivity()));
 			testCases.add(new AnimatedBaseMapTestCase(getActivity()));
 			testCases.add(new ImageSingleLevelTestCase(getActivity()));

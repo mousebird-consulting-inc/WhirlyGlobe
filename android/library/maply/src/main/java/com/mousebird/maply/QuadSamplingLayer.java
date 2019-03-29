@@ -75,7 +75,7 @@ class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherInterfac
 
     public void startLayer(LayerThread inLayerThread)
     {
-        layerThread = inLayerThread;
+        super.startLayer(inLayerThread);
 
         layerThread.addWatcher(this);
 
