@@ -162,9 +162,4 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      *  By default this is 1.  It's safe to set it to 0 for 2D maps and some overlays.
      */
     public native void setBorderTexel(int borderTexel);
-
-    /**
-     * Tile Info objects for individual frames.
-     */
-    TileInfoNew[] tileInfos = null;
 }

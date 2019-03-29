@@ -46,8 +46,6 @@ public:
     QIFFrameAsset_Android(JNIEnv *env);
     virtual ~QIFFrameAsset_Android();
 
-    // TODO: Android side setupFetch() method
-
     // Clear out the texture and reset
     virtual void clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes);
 
@@ -64,9 +62,10 @@ public:
     virtual void loadFailed(QuadImageFrameLoader *loader);
 
 protected:
-    // TODO: Set this from the Android side
-    bool hasRequest;
-    // TODO: Android side needs request
+    // Cancel the fetch (with the tile fetcher) on the Java side
+    void cancelFetchJava(QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps);
+    // Dispose of the Java side frame asset object and cancel any fetches
+    void clearFrameAssetJava(QuadImageFrameLoader_Android *loader);
 };
 
 // Android version of the tile asset keeps the platform specific stuff around
@@ -84,16 +83,26 @@ protected:
     virtual QIFFrameAssetRef makeFrameAsset(QuadImageFrameLoader *);
 };
 
+// Class that's dependent on a valid JNEnv
+// These have to be refreshed before we use them
+class JNIEnvDependent
+{
+public:
+    JNIEnvDependent() : env(NULL) { }
+
+    void setEnv(JNIEnv *inEnv) { env = inEnv; }
+
+    JNIEnv *env;
+};
+
 // Android version of the QuadFrameLoader
 // Mostly just builds the right objects and tweaks things here and there
-class QuadImageFrameLoader_Android : public QuadImageFrameLoader
+class QuadImageFrameLoader_Android : public QuadImageFrameLoader, public JNIEnvDependent
 {
 public:
     // Displaying a single frame
     QuadImageFrameLoader_Android(const SamplingParams &params,int numFrames,Mode mode,JNIEnv *env);
     ~QuadImageFrameLoader_Android();
-
-    // TODO: Android version points to tileFetcher and MaplyTileInfo objects
 
     /// Number of frames we're representing
     virtual int getNumFrames();
@@ -112,9 +121,16 @@ protected:
     // Make an Android specific tile/frame assets
     virtual QIFTileAssetRef makeTileAsset(const QuadTreeNew::ImportantNode &ident);
 
-    JNIEnv *env;
-
     int numFrames;
+
+    // QuadLoaderBase methods
+    jmethodID processBatchOpsMethod;
+    jmethodID startTileFetchMethod;
+
+    // QIFFrameAsset methods
+    jmethodID cancelFrameFetchMethod;
+    jmethodID updateFrameMethod;
+    jmethodID clearFrameMethod;
 };
 
 typedef std::shared_ptr<QuadImageFrameLoader_Android> QuadImageFrameLoader_AndroidRef;

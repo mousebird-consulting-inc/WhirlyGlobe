@@ -21,6 +21,7 @@
 package com.mousebird.maply;
 
 import java.lang.ref.WeakReference;
+import java.util.HashSet;
 
 /**
  * Base class for the quad loaders.
@@ -135,6 +136,11 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     }
 
     /**
+     * Tile Info objects for individual frames.
+     */
+    TileInfoNew[] tileInfos = null;
+
+    /**
      * Turn off the loader and shut things down.
      * <br>
      * This unregisters us with the sampling layer and shuts down the various objects we created.
@@ -151,6 +157,10 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     }
 
     protected native void cleanupNative(ChangeSet changes);
+
+    protected native void fetchSuccess(int tileX,int tileY,int tileLevel,int frame,byte[] data);
+
+    protected native void fetchFailure(int tileX,int tileY,int tileLevel,int frame);
 
     /* --- QuadSamplingLayer interface --- */
 
@@ -170,6 +180,69 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
     // Used to initialize the loader for certain types of data.
     enum Mode {SingleFrame,MultiFrame,Object};
+
+    /* --- Callback from C++ side --- */
+
+    // Process the cancels and starts we get from the C++ side
+    public void processBatchOps(QIFBatchOps batchOps)
+    {
+        batchOps.process(tileFetcher);
+    }
+
+    // Frame assets are used C++ side, but we have to hold a reference to them
+    //  or they disappear at inopportune times.  We don't look inside them here.
+    HashSet<QIFFrameAsset> frameAssets = new HashSet<QIFFrameAsset>();
+
+    // Stop tracking a frame asset
+    public void clearFrameAsset(QIFFrameAsset frameAsset)
+    {
+        frameAssets.remove(frameAsset);
+    }
+
+    // Start off fetches for all the frames within a given tile
+    // Return an array of corresponding frame assets
+    public void startTileFetch(QIFBatchOps batchOps,QIFFrameAsset[] inFrameAssets, final int tileX, final int tileY, final int tileLevel, int priority, double importance)
+    {
+        if (tileInfos.length == 0 || tileInfos.length != inFrameAssets.length)
+            return;
+
+        TileID tileID = new TileID();
+        tileID.x = tileX;  tileID.y = tileY;  tileID.level = tileLevel;
+
+        QIFFrameAsset[] frames = new QIFFrameAsset[tileInfos.length];
+        int frame = 0;
+        for (TileInfoNew tileInfo : tileInfos) {
+            final int dispFrame = tileInfos.length > 1 ? frame : -1;
+
+            // Put together a fetch request for, you now, fetching
+            TileFetchRequest fetchRequest = new TileFetchRequest();
+            fetchRequest.fetchInfo = tileInfo.fetchInfoForTile(tileID);
+            fetchRequest.tileSource = tileInfo.uniqueID;
+            fetchRequest.priority = priority;
+            fetchRequest.importance = (float)importance;
+            fetchRequest.callback = new TileFetchRequest.Callback() {
+                @Override
+                public void success(TileFetchRequest fetchRequest, byte[] data) {
+                    fetchSuccess(tileX,tileY,tileLevel,dispFrame,data);
+                }
+
+                @Override
+                public void failure(TileFetchRequest fetchRequest, String errorStr) {
+                    fetchFailure(tileX,tileY,tileLevel,dispFrame);
+                }
+            };
+
+            // Update the frame asset and track it
+            QIFFrameAsset frameAsset = inFrameAssets[frame];
+            frameAsset.request = fetchRequest;
+            frameAssets.add(frameAsset);
+
+            // This will start the fetch request in a bit
+            batchOps.addToStart(fetchRequest);
+
+            frame++;
+        }
+    }
 
     public void finalize()
     {

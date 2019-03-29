@@ -1,5 +1,5 @@
 /*
- *  QIFBatchOps.h
+ *  QIFBatchOps.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/19.

@@ -41,22 +41,30 @@ QIFFrameAsset_Android::~QIFFrameAsset_Android()
 {
 }
 
-
-void QIFFrameAsset_Android::clear(QuadImageFrameLoader *loader,QIFBatchOps *inBatchOps,ChangeSet &changes)
+void QIFFrameAsset_Android::cancelFetchJava(QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps)
 {
+    // TODO: Implement
+}
+
+void QIFFrameAsset_Android::clearFrameAssetJava(QuadImageFrameLoader_Android *loader)
+{
+    // TODO: Implement
+}
+
+void QIFFrameAsset_Android::clear(QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps,ChangeSet &changes)
+{
+    QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
     QIFBatchOps_Android *batchOps = (QIFBatchOps_Android *)inBatchOps;
 
     QIFFrameAsset::clear(loader,batchOps,changes);
 
-    // TODO: Ask Android side to cancel request (pass in batchOps)
+    clearFrameAssetJava(loader);
 }
 
 bool QIFFrameAsset_Android::updateFetching(QuadImageFrameLoader *inLoader,int newPriority,double newImportance)
 {
     QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
 
-    if (!hasRequest)
-        return false;
     QIFFrameAsset::updateFetching(loader, newPriority, newImportance);
 
     // TODO: Android side updateTileFetch
@@ -64,29 +72,26 @@ bool QIFFrameAsset_Android::updateFetching(QuadImageFrameLoader *inLoader,int ne
     return true;
 }
 
-void QIFFrameAsset_Android::cancelFetch(QuadImageFrameLoader *loader,QIFBatchOps *inBatchOps)
+void QIFFrameAsset_Android::cancelFetch(QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps)
 {
+    QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
     QIFBatchOps_Android *batchOps = (QIFBatchOps_Android *)inBatchOps;
 
     QIFFrameAsset::cancelFetch(loader, batchOps);
-
-    if (hasRequest) {
-        // TODO: Android side cancel fetch (pass in batchOps)
-    }
 }
 
 void QIFFrameAsset_Android::loadSuccess(QuadImageFrameLoader *loader,Texture *tex)
 {
     QIFFrameAsset::loadSuccess(loader, tex);
 
-    // TODO: Android side clear request
+    cancelFetch(loader, NULL);
 }
 
 void QIFFrameAsset_Android::loadFailed(QuadImageFrameLoader *loader)
 {
     QIFFrameAsset::loadFailed(loader);
 
-    // TODO: Android side clear request
+    cancelFetch(loader, NULL);
 }
 
 QIFTileAsset_Android::QIFTileAsset_Android(const QuadTreeNew::ImportantNode &ident)
@@ -102,6 +107,7 @@ QIFFrameAssetRef QIFTileAsset_Android::makeFrameAsset(QuadImageFrameLoader *inLo
 {
     QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
 
+    // TODO: Create this with a JAva side object too
     return QIFFrameAssetRef(new QIFFrameAsset_Android(loader->getEnv()));
 }
 
@@ -112,16 +118,23 @@ void QIFTileAsset_Android::startFetching(QuadImageFrameLoader *inLoader,QIFBatch
 
     state = Active;
 
-    // TODO: Android side, set up a fetch for each individual frame with callbacks
+    // TODO: Call startTileFetch on the QuadLoaderBase
 }
 
-QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(const SamplingParams &params,int numFrames,Mode mode,JNIEnv *env)
-        : QuadImageFrameLoader(params,mode), numFrames(numFrames), env(env)
+QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(const SamplingParams &params,int numFrames,Mode mode,JNIEnv *inEnv)
+        : QuadImageFrameLoader(params,mode), numFrames(numFrames)
 {
+    env = inEnv;
+
+
+//    addShaderID = env->GetMethodID(SceneRendererInfo::getClassInfo()->getClass(),"addPreBuiltShader","(Lcom/mousebird/maply/Shader;)V");
+//
+//    processBatchOpsMethod = env->getMethodID()
 }
 
 QuadImageFrameLoader_Android::~QuadImageFrameLoader_Android()
 {
+
 }
 
 QIFTileAssetRef QuadImageFrameLoader_Android::makeTileAsset(const QuadTreeNew::ImportantNode &ident)
@@ -148,7 +161,7 @@ void QuadImageFrameLoader_Android::processBatchOps(QIFBatchOps *inBatchOps)
     QIFBatchOps_Android *batchOps = (QIFBatchOps_Android *)inBatchOps;
 
 
-    // TODO: Have the Android side process the batch ops.  This is in the ImageFrameLoader
+    // TODO: Call processBatchOps on the QuadLoaderBase
 }
 
 }

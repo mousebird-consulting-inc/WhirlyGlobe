@@ -34,6 +34,11 @@ public class TileInfoNew
     {}
 
     /**
+     * A unique ID used for sorting tile info objects when loading.
+     */
+    public long uniqueID = Identifiable.genID();
+
+    /**
      *  The minimum zoom level available.
      *
      *  This is the lowest level we'll try to fetch.
