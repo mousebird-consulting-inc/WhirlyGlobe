@@ -24,7 +24,7 @@ public class CustomBNGTileSource extends MaplyTestCase
 {
     public CustomBNGTileSource(Activity activity) {
         super(activity);
-        this.setTestName("Custom BNG Tile Source");
+        this.setTestName("British National Grid");
         this.setDelay(2000);
         this.implementation = TestExecutionImplementation.Both;
     }

@@ -28,7 +28,7 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 
 	public ScreenMarkersTestCase(Activity activity) {
 		super(activity);
-		setTestName("Screen Markers Test");
+		setTestName("Screen Markers");
 		setDelay(1000);
 		this.implementation = TestExecutionImplementation.Both;
 	}

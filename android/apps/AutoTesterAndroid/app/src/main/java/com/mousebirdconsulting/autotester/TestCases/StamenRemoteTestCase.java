@@ -22,7 +22,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 	public StamenRemoteTestCase(Activity activity) {
 		super(activity);
 
-		setTestName("Stamen Remote Test");
+		setTestName("Stamen Watercolor Remote");
 		setDelay(4);
 		this.implementation = TestExecutionImplementation.Both;
 	}

@@ -26,7 +26,7 @@ import java.io.OutputStream;
 /**
  * Created by sjg on 4/11/16.
  */
-public class MBTilesImageTestCase extends MaplyTestCase {
+public class GeographyClass extends MaplyTestCase {
 
     private static double RAD_TO_DEG = 180.0 / Math.PI;
 
@@ -94,9 +94,9 @@ public class MBTilesImageTestCase extends MaplyTestCase {
     };
 
 
-    public MBTilesImageTestCase(Activity activity) {
+    public GeographyClass(Activity activity) {
         super(activity);
-        setTestName("MBTiles Image Test");
+        setTestName("Geography Class");
         setDelay(1000);
 
         this.activity = activity;

@@ -20,34 +20,17 @@ import com.mousebirdconsulting.autotester.R;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedBaseMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.AnimatedScreenMarkersTestCase;
-import com.mousebirdconsulting.autotester.TestCases.AutoRotateTestCase;
-import com.mousebirdconsulting.autotester.TestCases.BillboardTestCase;
-import com.mousebirdconsulting.autotester.TestCases.BoundsTestCase;
-import com.mousebirdconsulting.autotester.TestCases.CartoDBMapTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ClusteredMarkersTestCase;
-import com.mousebirdconsulting.autotester.TestCases.ComponentObjectLeakTestCase;
-import com.mousebirdconsulting.autotester.TestCases.CoordConversionTestCase;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGCoordAdapter;
 import com.mousebirdconsulting.autotester.TestCases.CustomBNGTileSource;
-import com.mousebirdconsulting.autotester.TestCases.GeomPointsTestCase;
-import com.mousebirdconsulting.autotester.TestCases.GestureFeedbackTestCase;
 //import com.mousebirdconsulting.autotester.TestCases.GreatCircleTestCase;
-import com.mousebirdconsulting.autotester.TestCases.ImageSingleLevelTestCase;
-import com.mousebirdconsulting.autotester.TestCases.LayerShutdownTestCase;
-import com.mousebirdconsulting.autotester.TestCases.LightingTestCase;
-import com.mousebirdconsulting.autotester.TestCases.MBTilesImageTestCase;
-import com.mousebirdconsulting.autotester.TestCases.MaplyStarModelTestCase;
-import com.mousebirdconsulting.autotester.TestCases.MarkersAndLinesTestCase;
+import com.mousebirdconsulting.autotester.TestCases.GeographyClass;
 import com.mousebirdconsulting.autotester.TestCases.MarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenLabelsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ScreenMarkersTestCase;
 import com.mousebirdconsulting.autotester.TestCases.ShapefileTestCase;
-import com.mousebirdconsulting.autotester.TestCases.ShapesTestCase;
-import com.mousebirdconsulting.autotester.TestCases.SLDTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StamenRemoteTestCase;
-import com.mousebirdconsulting.autotester.TestCases.StartupShutdownTestCase;
 import com.mousebirdconsulting.autotester.TestCases.StickersTestCase;
-import com.mousebirdconsulting.autotester.TestCases.TextureVectorTestCase;
 import com.mousebirdconsulting.autotester.TestCases.VectorsTestCase;
 import com.mousebirdconsulting.autotester.TestCases.WideVectorsTestCase;
 
@@ -107,38 +90,57 @@ public class TestListFragment extends Fragment {
 		TestListAdapter() {
 			testCases = new ArrayList<>();
 			testCases.add(new StamenRemoteTestCase(getActivity()));
-			testCases.add(new CartoDBMapTestCase(getActivity()));
+			testCases.add(new GeographyClass(getActivity()));
+			// NASA GIBS
 			testCases.add(new AnimatedBaseMapTestCase(getActivity()));
-			testCases.add(new ImageSingleLevelTestCase(getActivity()));
-			testCases.add(new VectorsTestCase(getActivity()));
-			testCases.add(new ShapefileTestCase(getActivity()));
-//			testCases.add(new GreatCircleTestCase(getActivity()));
-			testCases.add(new TextureVectorTestCase(getActivity()));
+			testCases.add(new CustomBNGCoordAdapter(getActivity()));
+			testCases.add(new CustomBNGTileSource(getActivity()));
+			// WMS Test
 			testCases.add(new ScreenLabelsTestCase(getActivity()));
 			testCases.add(new ScreenMarkersTestCase(getActivity()));
 			testCases.add(new MarkersTestCase(getActivity()));
 			testCases.add(new AnimatedScreenMarkersTestCase(getActivity()));
+			// TODO: Do we have this on iOS?
 			testCases.add(new AnimatedMarkersTestCase(getActivity()));
 			testCases.add(new ClusteredMarkersTestCase(getActivity()));
-			testCases.add(new StickersTestCase(getActivity()));
-			testCases.add(new GestureFeedbackTestCase(getActivity()));
-			testCases.add(new CustomBNGTileSource(getActivity()));
-			testCases.add(new CustomBNGCoordAdapter(getActivity()));
-			testCases.add(new MaplyStarModelTestCase(getActivity()));
-			testCases.add(new ComponentObjectLeakTestCase(getActivity()));
-			testCases.add(new ShapesTestCase(getActivity()));
-			testCases.add(new LightingTestCase(getActivity()));
-			testCases.add(new MBTilesImageTestCase(getActivity()));
-			testCases.add(new BillboardTestCase(getActivity()));
-			testCases.add(new CoordConversionTestCase(getActivity()));
-			testCases.add(new StartupShutdownTestCase(getActivity()));
-			testCases.add(new MarkersAndLinesTestCase(getActivity()));
-			testCases.add(new BoundsTestCase(getActivity()));
-			testCases.add(new LayerShutdownTestCase(getActivity()));
-			testCases.add(new GeomPointsTestCase(getActivity()));
-			testCases.add(new AutoRotateTestCase(getActivity()));
+			// Label Animation
+			testCases.add(new VectorsTestCase(getActivity()));
+//			testCases.add(new GreatCircleTestCase(getActivity()));
+			// Vectors with Holes
+			testCases.add(new ShapefileTestCase(getActivity()));
 			testCases.add(new WideVectorsTestCase(getActivity()));
-			testCases.add(new SLDTestCase(getActivity()));
+			// Wide Vector Backface
+			// Textured Vectors
+//			testCases.add(new SLDTestCase(getActivity()));
+			// Lofted Polys
+			testCases.add(new StickersTestCase(getActivity()));
+			// Paging Layer
+			// Vector MBTiles
+			// OpenMapTiles Hybrid Test Case
+			// CartoDB
+//			testCases.add(new ShapesTestCase(getActivity()));
+			// Extruded Model (Arrows)
+			// Models
+			// Runway Builder
+//			testCases.add(new MaplyStarModelTestCase(getActivity()));
+			// Find Height
+			// Animating Position
+			// Animation Delegate Test Case
+			// Location Tracking Simulated Test Case
+			// Location Tracking Real Test Case
+
+//			testCases.add(new TextureVectorTestCase(getActivity()));
+//			testCases.add(new GestureFeedbackTestCase(getActivity()));
+//			testCases.add(new ComponentObjectLeakTestCase(getActivity()));
+//			testCases.add(new LightingTestCase(getActivity()));
+//			testCases.add(new BillboardTestCase(getActivity()));
+//			testCases.add(new CoordConversionTestCase(getActivity()));
+//			testCases.add(new StartupShutdownTestCase(getActivity()));
+//			testCases.add(new MarkersAndLinesTestCase(getActivity()));
+//			testCases.add(new BoundsTestCase(getActivity()));
+//			testCases.add(new LayerShutdownTestCase(getActivity()));
+//			testCases.add(new GeomPointsTestCase(getActivity()));
+//			testCases.add(new AutoRotateTestCase(getActivity()));
 //			testCases.add(new ArealTestCase(getActivity()));
 		}
 

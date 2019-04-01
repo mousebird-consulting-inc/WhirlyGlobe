@@ -25,7 +25,7 @@ public class MarkersTestCase extends MaplyTestCase
 
     public MarkersTestCase(Activity activity) {
         super(activity);
-        setTestName("Markers Test");
+        setTestName("Markers");
         setDelay(1000);
         this.implementation = MaplyTestCase.TestExecutionImplementation.Both;
     }

@@ -17,7 +17,7 @@ public class CustomBNGCoordAdapter extends MaplyTestCase
 {
     public CustomBNGCoordAdapter(Activity activity) {
         super(activity);
-        this.setTestName("Custom BNG Coord Adapter");
+        this.setTestName("British National Grid (custom map)");
         this.setDelay(2000);
         this.implementation = TestExecutionImplementation.Both;
     }
