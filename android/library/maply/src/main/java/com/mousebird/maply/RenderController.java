@@ -208,6 +208,11 @@ public class RenderController implements RenderControllerInterface
 
     public void shutdown()
     {
+        // Kill the shaders here because they don't do well being finalized
+        for (Shader shader : shaders)
+            shader.dispose();
+        shaders.clear();
+
         if (vecManager != null)
             vecManager.dispose();
         if (wideVecManager != null)
