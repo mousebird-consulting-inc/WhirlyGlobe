@@ -106,11 +106,12 @@ public class TestListFragment extends Fragment {
 			// Label Animation
 			testCases.add(new VectorsTestCase(getActivity()));
 //			testCases.add(new GreatCircleTestCase(getActivity()));
+			// Vector Style Test
 			// Vectors with Holes
 			testCases.add(new ShapefileTestCase(getActivity()));
 			testCases.add(new WideVectorsTestCase(getActivity()));
 			// Wide Vector Backface
-			// Textured Vectors
+//			testCases.add(new TextureVectorTestCase(getActivity()));
 //			testCases.add(new SLDTestCase(getActivity()));
 			// Lofted Polys
 			testCases.add(new StickersTestCase(getActivity()));
@@ -129,7 +130,6 @@ public class TestListFragment extends Fragment {
 			// Location Tracking Simulated Test Case
 			// Location Tracking Real Test Case
 
-//			testCases.add(new TextureVectorTestCase(getActivity()));
 //			testCases.add(new GestureFeedbackTestCase(getActivity()));
 //			testCases.add(new ComponentObjectLeakTestCase(getActivity()));
 //			testCases.add(new LightingTestCase(getActivity()));
