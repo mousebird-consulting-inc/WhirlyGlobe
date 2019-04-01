@@ -38,7 +38,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFFrameAsset_initialise
     try {
         QIFFrameAssetClassInfo *info = QIFFrameAssetClassInfo::getClassInfo();
         QIFFrameAsset_Android *frame = new QIFFrameAsset_Android(env);
-        frame->frameAssetObj = obj;
+        frame->frameAssetObj = env->NewGlobalRef(obj);
         info->setHandle(env, obj, frame);
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QIFFrameAsset::initialise()");
@@ -57,6 +57,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFFrameAsset_dispose
             QIFFrameAsset_Android *frame = info->getObject(env,obj);
             if (!frame)
                 return;
+            if (frame->frameAssetObj) {
+                env->DeleteGlobalRef(frame->frameAssetObj);
+                frame->frameAssetObj = NULL;
+            }
             delete frame;
 
             info->clearHandle(env, obj);
@@ -71,7 +75,7 @@ jobject MakeQIFFrameAsset(JNIEnv *env,QIFFrameAsset_Android *frame)
 {
     QIFFrameAssetClassInfo *classInfo = QIFFrameAssetClassInfo::getClassInfo(env,"com/mousebird/maply/QIFFrameAsset");
     jobject obj = classInfo->makeWrapperObject(env,frame);
-    frame->frameAssetObj = obj;
+    frame->frameAssetObj = env->NewGlobalRef(obj);
 
     return obj;
 }

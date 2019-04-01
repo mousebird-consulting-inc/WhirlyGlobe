@@ -55,9 +55,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFBatchOps_dispose
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
             QIFBatchOps_Android *batchOps = info->getObject(env,obj);
-            if (!batchOps)
-                return;
-            delete batchOps;
+            // We don't actually delete the batch ops here.  They're deleted the in the same method they're created
+//            if (!batchOps)
+//                return;
+//            delete batchOps;
 
             info->clearHandle(env, obj);
         }

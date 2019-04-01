@@ -133,7 +133,7 @@ public class TestListFragment extends Fragment {
 //			testCases.add(new GestureFeedbackTestCase(getActivity()));
 //			testCases.add(new ComponentObjectLeakTestCase(getActivity()));
 //			testCases.add(new LightingTestCase(getActivity()));
-//			testCases.add(new BillboardTestCase(getActivity()));
+//			testCases.add( new BillboardTestCase(getActivity()));
 //			testCases.add(new CoordConversionTestCase(getActivity()));
 //			testCases.add(new StartupShutdownTestCase(getActivity()));
 //			testCases.add(new MarkersAndLinesTestCase(getActivity()));

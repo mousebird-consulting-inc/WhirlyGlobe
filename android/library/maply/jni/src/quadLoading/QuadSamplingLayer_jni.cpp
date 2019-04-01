@@ -124,6 +124,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_startNative
             return;
         control->setEnv(env);
         control->start(*params,scene,render);
+        control->getDisplayControl()->start();
     }
     catch (...)
     {

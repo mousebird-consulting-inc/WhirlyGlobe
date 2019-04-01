@@ -33,7 +33,12 @@ public class SamplingParams
     /**
      * Set the coordinate system for the model itself
      */
-    public native void setCoordSystem(CoordSystem coordSystem);
+    public void setCoordSystem(CoordSystem coordSystem)
+    {
+        setCoordSystemNative(coordSystem,coordSystem.ll,coordSystem.ur);
+    }
+
+    protected native void setCoordSystemNative(CoordSystem coordSystem,Point3d ll,Point3d ur);
 
     /**
      * Return the coordinate system used for the sampling.

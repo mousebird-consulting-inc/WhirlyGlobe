@@ -1001,7 +1001,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * Sampling layers can be shared for efficiency.  Don't be calling this yourself.
 	 * The loaders do it for you.
 	 */
-	QuadSamplingLayer findSamplingLayer(SamplingParams params,QuadSamplingLayer.ClientInterface user)
+	QuadSamplingLayer findSamplingLayer(SamplingParams params,final QuadSamplingLayer.ClientInterface user)
 	{
 		QuadSamplingLayer theLayer = null;
 
@@ -1023,7 +1023,15 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			layerThread.addLayer(theLayer);
 		}
 
-		theLayer.addClient(user);
+		// Do the addClient on the layer thread
+		final QuadSamplingLayer delayLayer = theLayer;
+		theLayer.layerThread.addTask(new Runnable() {
+			@Override
+			public void run() {
+				delayLayer.addClient(user);
+			}
+		});
+
 		return theLayer;
 	}
 
@@ -1032,18 +1040,36 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param samplingLayer
 	 * @param user
 	 */
-	void releaseSamplingLayer(QuadSamplingLayer samplingLayer,QuadSamplingLayer.ClientInterface user)
+	void releaseSamplingLayer(final QuadSamplingLayer samplingLayer,final QuadSamplingLayer.ClientInterface user)
 	{
 		if (!samplingLayers.contains(samplingLayer))
 			return;
 
-		samplingLayer.removeClient(user);
+		// Do the remove client on the layer thread
+		samplingLayer.layerThread.addTask(new Runnable() {
+			@Override
+			public void run() {
+				samplingLayer.removeClient(user);
 
-		// Get rid of the sampling layer too
-		if (samplingLayer.getNumClients() == 0) {
-			removeLayerThread(samplingLayer.layerThread);
-			samplingLayers.remove(samplingLayer);
-		}
+				// Get rid of the sampling layer too
+				if (samplingLayer.getNumClients() == 0) {
+					// But that has to be done on the main thread
+					if (samplingLayer.control.get() != null) {
+						Handler handler = new Handler(samplingLayer.control.get().activity.getMainLooper());
+						handler.post(new Runnable() {
+							@Override
+							public void run() {
+								// Someone maybe started using it
+								if (samplingLayer.getNumClients() == 0) {
+									removeLayerThread(samplingLayer.layerThread);
+									samplingLayers.remove(samplingLayer);
+								}
+							}
+						});
+					}
+				}
+			}
+		});
 	}
 
 	ArrayList<RemoteTileFetcher> tileFetchers = new ArrayList<RemoteTileFetcher>();

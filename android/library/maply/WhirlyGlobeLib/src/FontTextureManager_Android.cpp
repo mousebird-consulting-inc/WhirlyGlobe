@@ -54,7 +54,7 @@ FontTextureManager_Android::FontManager_Android::~FontManager_Android()
 FontTextureManager_Android::FontTextureManager_Android(JNIEnv *env,Scene *scene,jobject inCharRenderObj)
 	: FontTextureManager(scene), charRenderObj(NULL)
 {
-	// Note: Porting.  This will leak
+	// TODO: Porting.  This will leak
 	charRenderObj = env->NewGlobalRef(inCharRenderObj);
 	jclass charRenderClass =  env->GetObjectClass(charRenderObj);
 	renderMethodID = env->GetMethodID(charRenderClass, "renderChar", "(ILcom/mousebird/maply/LabelInfo;F)Lcom/mousebird/maply/CharRenderer$Glyph;");

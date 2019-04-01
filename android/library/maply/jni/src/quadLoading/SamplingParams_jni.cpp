@@ -20,6 +20,7 @@
 
 #import "QuadLoading_jni.h"
 #import "CoordSystem_jni.h"
+#import "Geometry_jni.h"
 #import "com_mousebird_maply_SamplingParams.h"
 
 using namespace Eigen;
@@ -70,16 +71,21 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_dispose
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setCoordSystem
-  (JNIEnv *env, jobject obj, jobject coordSysObj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setCoordSystemNative
+		(JNIEnv *env, jobject obj, jobject coordSysObj, jobject llObj, jobject urObj)
 {
 	try
 	{
 		SamplingParams *params = SamplingParamsClassInfo::getClassInfo()->getObject(env,obj);
         CoordSystemRef *coordSys = CoordSystemRefClassInfo::getClassInfo()->getObject(env,coordSysObj);
-		if (!params || !coordSys)
+        Point3dClassInfo *pt3dClassInfo = Point3dClassInfo::getClassInfo();
+        Point3d *ll = pt3dClassInfo->getObject(env,llObj);
+        Point3d *ur = pt3dClassInfo->getObject(env,urObj);
+		if (!params || !coordSys || !ll || !ur)
 		    return;
 		params->coordSys = *coordSys;
+		params->coordBounds.addPoint(Point2d(ll->x(),ll->y()));
+		params->coordBounds.addPoint(Point2d(ur->x(),ur->y()));
 	}
 	catch (...)
 	{

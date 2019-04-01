@@ -30,9 +30,12 @@ import java.util.HashSet;
  */
 public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 {
-    protected QuadLoaderBase(BaseController inControl)
+    protected WeakReference<QuadSamplingLayer> samplingLayer;
+
+    protected QuadLoaderBase(BaseController inControl,SamplingParams params,int numFrames,Mode mode)
     {
         control = new WeakReference<BaseController>(inControl);
+        initialise(params,numFrames,mode.ordinal());
     }
 
     /**
@@ -150,10 +153,18 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         tileFetcher = null;
         loadInterp = null;
 
-        // TODO: Shut down sampling layer and call this on layer thread
+        samplingLayer.get().removeClient(this);
+
         ChangeSet changes = new ChangeSet();
         cleanupNative(changes);
-        // TODO: Submit the changes before shutdown
+
+        if (control.get() != null && control.get().renderControl != null)
+            control.get().renderControl.scene.addChanges(changes);
+
+        control.get().releaseSamplingLayer(samplingLayer.get(),this);
+
+        samplingLayer.clear();
+        control.clear();
     }
 
     protected native void cleanupNative(ChangeSet changes);
@@ -164,19 +175,19 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
     /* --- QuadSamplingLayer interface --- */
 
-    public void samplingLayerConnect(QuadSamplingLayer layer)
+    public void samplingLayerConnect(QuadSamplingLayer layer,ChangeSet changes)
     {
-        samplingLayerConnectNative(layer);
+        samplingLayerConnectNative(layer,changes);
     }
 
-    private native void samplingLayerConnectNative(QuadSamplingLayer layer);
+    private native void samplingLayerConnectNative(QuadSamplingLayer layer,ChangeSet changes);
 
-    public void samplingLayerDisconnect(QuadSamplingLayer layer)
+    public void samplingLayerDisconnect(QuadSamplingLayer layer,ChangeSet changes)
     {
-        samplingLayerDisconnectNative(layer);
+        samplingLayerDisconnectNative(layer,changes);
     }
 
-    private native void samplingLayerDisconnectNative(QuadSamplingLayer layer);
+    private native void samplingLayerDisconnectNative(QuadSamplingLayer layer,ChangeSet changes);
 
     // Used to initialize the loader for certain types of data.
     enum Mode {SingleFrame,MultiFrame,Object};

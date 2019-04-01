@@ -9,11 +9,11 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_SamplingParams
- * Method:    setCoordSystem
- * Signature: (Lcom/mousebird/maply/CoordSystem;)V
+ * Method:    setCoordSystemNative
+ * Signature: (Lcom/mousebird/maply/CoordSystem;Lcom/mousebird/maply/Point3d;Lcom/mousebird/maply/Point3d;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setCoordSystem
-  (JNIEnv *, jobject, jobject);
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setCoordSystemNative
+  (JNIEnv *, jobject, jobject, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_SamplingParams

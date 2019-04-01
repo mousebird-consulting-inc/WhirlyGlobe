@@ -31,11 +31,9 @@ import java.lang.ref.WeakReference;
  */
 public class QuadImageLoaderBase extends QuadLoaderBase
 {
-    WeakReference<QuadSamplingLayer> samplingLayer;
-
-    protected QuadImageLoaderBase(BaseController control)
+    protected QuadImageLoaderBase(BaseController control,SamplingParams params,int numFrames)
     {
-        super(control);
+        super(control,params,numFrames,(numFrames <= 1 ? Mode.SingleFrame : Mode.MultiFrame));
     }
 
     // Called after a tick after creation on the main thread
@@ -54,13 +52,6 @@ public class QuadImageLoaderBase extends QuadLoaderBase
         loadInterp.setLoader(this);
 
         // TODO: Do we need to set the shader ID?
-
-        samplingLayer.get().layerThread.addTask(new Runnable() {
-            @Override
-            public void run() {
-                initialise(params,1,Mode.SingleFrame.ordinal());
-            }
-        });
     }
 
     /**

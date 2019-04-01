@@ -39,6 +39,8 @@ QIFFrameAsset_Android::QIFFrameAsset_Android(JNIEnv *env)
 
 QIFFrameAsset_Android::~QIFFrameAsset_Android()
 {
+    if (frameAssetObj)
+        wkLog("Failed to clean up QIFFrameAsset on Java side");
 }
 
 void QIFFrameAsset_Android::cancelFetchJava(QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps)
@@ -137,7 +139,7 @@ void QIFTileAsset_Android::startFetching(QuadImageFrameLoader *inLoader,QIFBatch
 }
 
 QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(const SamplingParams &params,int numFrames,Mode mode,JNIEnv *inEnv)
-        : QuadImageFrameLoader(params,mode), numFrames(numFrames)
+        : QuadImageFrameLoader(params,mode), numFrames(numFrames), frameLoaderObj(NULL)
 {
     env = inEnv;
 

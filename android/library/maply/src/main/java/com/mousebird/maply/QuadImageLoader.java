@@ -36,7 +36,7 @@ public class QuadImageLoader extends QuadImageLoaderBase
      */
     public QuadImageLoader(final SamplingParams params,TileInfoNew tileInfo,BaseController control)
     {
-        super(control);
+        super(control, params, 1);
 
         tileInfos = new TileInfoNew[1];
         tileInfos[0] = tileInfo;

@@ -163,10 +163,10 @@ bool QuadDisplayControllerNew::viewUpdate(ViewStateRef inViewState,ChangeSet &ch
             targetLevel = std::max(targetLevel,node.level);
     }
     
-//    wkLogLevel(Debug,"Selected level %d for %d nodes",targetLevel,(int)newNodes.size());
-//    for (auto node: newNodes) {
-//        wkLogLevel(Debug," %d: (%d,%d), import = %f",node.level,node.x,node.y,node.importance);
-//    }
+    wkLogLevel(Debug,"Selected level %d for %d nodes",targetLevel,(int)newNodes.size());
+    for (auto node: newNodes) {
+        wkLogLevel(Debug," %d: (%d,%d), import = %f",node.level,node.x,node.y,node.importance);
+    }
     
     QuadTreeNew::ImportantNodeSet toAdd,toUpdate;
     QuadTreeNew::NodeSet toRemove;

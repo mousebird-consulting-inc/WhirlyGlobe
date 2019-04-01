@@ -74,18 +74,18 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_fetchFailure
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
  * Method:    samplingLayerConnectNative
- * Signature: (Lcom/mousebird/maply/QuadSamplingLayer;)V
+ * Signature: (Lcom/mousebird/maply/QuadSamplingLayer;Lcom/mousebird/maply/ChangeSet;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerConnectNative
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
  * Method:    samplingLayerDisconnectNative
- * Signature: (Lcom/mousebird/maply/QuadSamplingLayer;)V
+ * Signature: (Lcom/mousebird/maply/QuadSamplingLayer;Lcom/mousebird/maply/ChangeSet;)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerDisconnectNative
-  (JNIEnv *, jobject, jobject);
+  (JNIEnv *, jobject, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase

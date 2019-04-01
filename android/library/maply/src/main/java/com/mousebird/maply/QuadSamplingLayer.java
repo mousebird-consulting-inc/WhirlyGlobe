@@ -42,8 +42,8 @@ class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherInterfac
 
     // Used to hook
     interface ClientInterface {
-        void samplingLayerConnect(QuadSamplingLayer layer);
-        void samplingLayerDisconnect(QuadSamplingLayer layer);
+        void samplingLayerConnect(QuadSamplingLayer layer,ChangeSet changes);
+        void samplingLayerDisconnect(QuadSamplingLayer layer,ChangeSet changes);
     }
 
     /**
@@ -52,10 +52,10 @@ class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherInterfac
      */
     public void addClient(ClientInterface user)
     {
-        user.samplingLayerConnect(this);
+        ChangeSet changes = new ChangeSet();
+        user.samplingLayerConnect(this, changes);
         clients.add(user);
-
-        // TODO: Push a client notification if the client is added after we're running
+        layerThread.addChanges(changes);
     }
 
     ArrayList<ClientInterface> clients = new ArrayList<ClientInterface>();
@@ -67,8 +67,10 @@ class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherInterfac
     {
         if (!clients.contains(user))
             return;
-        user.samplingLayerDisconnect(this);
+        ChangeSet changes = new ChangeSet();
+        user.samplingLayerDisconnect(this, changes);
         clients.remove(user);
+        layerThread.addChanges(changes);
     }
 
     /** --- Layer methods --- */
