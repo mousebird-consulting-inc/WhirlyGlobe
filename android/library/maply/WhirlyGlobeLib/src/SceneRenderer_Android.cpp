@@ -34,7 +34,7 @@ bool SceneRendererES2_Android::resize(int width, int height)
     context = eglGetCurrentContext();
 
     if (renderTargets.empty()) {
-        RenderTargetRef defaultTarget(new RenderTarget());
+        RenderTargetRef defaultTarget(new RenderTarget(EmptyIdentity));
         defaultTarget->initFromState(width, height);
         renderTargets.push_back(defaultTarget);
     } else {

@@ -66,9 +66,9 @@ public class VectorsTestCase extends MaplyTestCase {
 
 		// Add as red
 		ComponentObject compObj = baseVC.addVectors(vectors, vectorInfo, RenderController.ThreadMode.ThreadAny);
-		// Then change to green
+		// Then change to white
 		VectorInfo newVectorInfo = new VectorInfo();
-		newVectorInfo.setColor(Color.GREEN);
+		newVectorInfo.setColor(Color.WHITE);
 		newVectorInfo.setLineWidth(4.f);
 		baseVC.changeVector(compObj,newVectorInfo,RenderController.ThreadMode.ThreadAny);
 	}
@@ -86,8 +86,6 @@ public class VectorsTestCase extends MaplyTestCase {
 		CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
 		mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
 		overlayCountries(globeVC);
-
-		globeVC.setClearColor(Color.RED);
 
 		return true;
 	}
