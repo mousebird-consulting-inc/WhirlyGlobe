@@ -251,7 +251,7 @@ public class MBTileFetcher extends HandlerThread implements TileFetcher
 
                 return null;
             }
-        }.execute();
+        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
 
         finishTile(tileInfo);
 

@@ -20,6 +20,10 @@
 
 package com.mousebird.maply;
 
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.support.v4.content.Loader;
+
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 
@@ -144,6 +148,14 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     TileInfoNew[] tileInfos = null;
 
     /**
+     * The subclasses fill this in with the loaderReturn that they need.
+     */
+    protected LoaderReturn makeLoaderReturn()
+    {
+        return null;
+    }
+
+    /**
      * Turn off the loader and shut things down.
      * <br>
      * This unregisters us with the sampling layer and shuts down the various objects we created.
@@ -169,9 +181,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
     protected native void cleanupNative(ChangeSet changes);
 
-    protected native void fetchSuccess(int tileX,int tileY,int tileLevel,int frame,byte[] data);
-
-    protected native void fetchFailure(int tileX,int tileY,int tileLevel,int frame);
+    protected native void mergeLoaderReturn(LoaderReturn loadReturn,ChangeSet changes);
 
     /* --- QuadSamplingLayer interface --- */
 
@@ -222,7 +232,9 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
         QIFFrameAsset[] frames = new QIFFrameAsset[tileInfos.length];
         int frame = 0;
+        final QuadLoaderBase loaderBase = this;
         for (TileInfoNew tileInfo : tileInfos) {
+            final int fFrame = frame;
             final int dispFrame = tileInfos.length > 1 ? frame : -1;
 
             // Put together a fetch request for, you now, fetching
@@ -234,12 +246,41 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             fetchRequest.callback = new TileFetchRequest.Callback() {
                 @Override
                 public void success(TileFetchRequest fetchRequest, byte[] data) {
-                    fetchSuccess(tileX,tileY,tileLevel,dispFrame,data);
+                    // Build a loader return object, fill in the data and then parse it
+                    final LoaderReturn loadReturn = makeLoaderReturn();
+                    loadReturn.setTileID(tileX, tileY, tileLevel);
+                    loadReturn.setFrame(fFrame);
+                    loadReturn.addTileData(data);
+
+                    // We're on an AsyncTask in the background here, so do the loading
+                    loadInterp.dataForTile(loadReturn,loaderBase);
+
+                    // Merge the data back in on the sampling layer's thread
+                    final QuadSamplingLayer layer = samplingLayer.get();
+                    if (layer != null)
+                        layer.layerThread.addTask(new Runnable() {
+                            @Override
+                            public void run() {
+                                ChangeSet changes = new ChangeSet();
+                                mergeLoaderReturn(loadReturn,changes);
+                                layer.layerThread.addChanges(changes);
+                            }
+                        });
                 }
 
                 @Override
                 public void failure(TileFetchRequest fetchRequest, String errorStr) {
-                    fetchFailure(tileX,tileY,tileLevel,dispFrame);
+                    final QuadSamplingLayer layer = samplingLayer.get();
+                    if (layer != null) {
+                        layer.layerThread.addTask(new Runnable() {
+                            @Override
+                            public void run() {
+                                ChangeSet changes = new ChangeSet();
+                                mergeLoaderReturn(null, changes);
+                                layer.layerThread.addChanges(changes);
+                            }
+                        });
+                    }
                 }
             };
 

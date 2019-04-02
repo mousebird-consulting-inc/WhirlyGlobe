@@ -208,6 +208,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoaderReturn
+        (JNIEnv *env, jobject obj, jobject loadRetObj, jobject changeObj)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,loadRetObj);
+        ChangeSet *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+        if (!loader || !changes)
+            return;
+        (*loader)->mergeLoadedTile(loadReturn,*changes);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::mergeLoaderReturn()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerConnectNative
         (JNIEnv *env, jobject obj, jobject layerObj, jobject changeObj)
 {

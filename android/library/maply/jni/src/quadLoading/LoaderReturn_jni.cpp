@@ -19,7 +19,7 @@
  */
 
 #import "QuadLoading_jni.h"
-#import "com_mousebird_maply_SamplingParams.h"
+#import "com_mousebird_maply_LoaderReturn.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -67,6 +67,40 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_dispose
 	{
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::dispose()");
 	}
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setTileID
+        (JNIEnv *env, jobject obj, jint tileX, jint tileY, jint tileLevel)
+{
+    try
+    {
+        QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loadReturn)
+            return;
+        loadReturn->ident.x = tileX;
+        loadReturn->ident.y = tileY;
+        loadReturn->ident.level = tileLevel;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::setTileID()");
+    }
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setFrame
+        (JNIEnv *env, jobject obj, jint frame)
+{
+    try
+    {
+        QuadLoaderReturn *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loadReturn)
+            return;
+        loadReturn->frame = frame;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LoaderReturn::setFrame()");
+    }
 }
 
 JNIEXPORT jintArray JNICALL Java_com_mousebird_maply_LoaderReturn_getTileIDNative

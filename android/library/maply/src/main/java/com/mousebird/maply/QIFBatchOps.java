@@ -57,11 +57,14 @@ class QIFBatchOps
      */
     void process(TileFetcher fetcher)
     {
-        fetcher.cancelTileFetches(toCancel.toArray(new TileFetchRequest[0]));
-        fetcher.startTileFetches(toStart.toArray(new TileFetchRequest[0]));
-
-        toCancel.clear();
-        toStart.clear();
+        if (!toCancel.isEmpty()) {
+            fetcher.cancelTileFetches(toCancel.toArray(new TileFetchRequest[0]));
+            toCancel = null;
+        }
+        if (!toStart.isEmpty()) {
+            fetcher.startTileFetches(toStart.toArray(new TileFetchRequest[0]));
+            toStart = null;
+        }
 
         // These are single use, so clear out the C++ side
         dispose();

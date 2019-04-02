@@ -30,7 +30,19 @@ import java.util.ArrayList;
  */
 public class LoaderReturn
 {
-    LoaderReturn() { initialise(); }
+    LoaderReturn() {
+        initialise();
+    }
+
+    /**
+     * Set the tile ID at creation.
+     */
+    public native void setTileID(int tileX,int tileY,int tileLevel);
+
+    /**
+     * Set the frame at creation (-1 not acceptable)
+     */
+    public native void setFrame(int frame);
 
     /**
      * Tile this data belongs to.

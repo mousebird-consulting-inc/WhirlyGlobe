@@ -39,6 +39,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.TreeSet;
 
 public class RemoteTileFetcher extends HandlerThread implements TileFetcher
@@ -67,8 +68,6 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
      */
     public class TileInfo implements Comparable<TileInfo>
     {
-        TileID tileID = null;
-
         TileInfoState state;
 
         // Set if we already know the tile is cached
@@ -96,7 +95,6 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         Call task = null;
 
         void clear() {
-            tileID = null;
             state = TileInfoState.None;
             isLocal = false;
             request = null;
@@ -110,9 +108,6 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     if (importance == that.importance) {
                         if (group == that.group) {
                             if (tileSource == that.tileSource) {
-                                if (fetchInfo.uniqueID == that.fetchInfo.uniqueID) {
-                                    return tileID.compareTo(that.tileID);
-                                }
                                 return (fetchInfo.uniqueID < that.fetchInfo.uniqueID) ? -1 : 1;
                             }
                             return tileSource < that.tileSource ? -1 : 1;
@@ -137,8 +132,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
             TileInfo lhs = (TileInfo)that;
             return isLocal == lhs.isLocal && priority == lhs.priority &&
                     importance == lhs.importance && group == lhs.group &&
-                    tileSource == lhs.tileSource && fetchInfo.uniqueID == lhs.fetchInfo.uniqueID &&
-                    tileID.equals(lhs.tileID);
+                    tileSource == lhs.tileSource && fetchInfo.uniqueID == lhs.fetchInfo.uniqueID;
         }
 
         @Override public int hashCode()
@@ -150,7 +144,6 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
             result = 31 * result + group;
             result = 31 * result + (int)tileSource;
             result = 31 * result + (int)fetchInfo.uniqueID;
-            result = 31 * result + tileID.hashCode();
 
             return result;
         }
@@ -161,6 +154,10 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         super(name);
 
         client = baseController.getHttpClient();
+        valid = true;
+
+        // Kick off the thread
+        start();
     }
 
     // Tiles sorted by priority, importance etc...
@@ -201,7 +198,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     tile.request = request;
                     tile.fetchInfo = (RemoteTileFetchInfo)request.fetchInfo;
 
-                    // If it's already cached, let's marke that
+                    // If it's already cached, let's mark that
                     tile.isLocal = tile.fetchInfo.cacheFile != null && tile.fetchInfo.cacheFile.exists();
 
                     tilesByFetchRequest.put(request,tile);
@@ -275,6 +272,12 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
             public void onFailure(Request request, IOException e) {
                 if (!valid)
                     return;
+                // Ignore cancels, because we do those a lot
+                if (e != null) {
+                    String mess = e.getLocalizedMessage();
+                    if (mess != null && mess.contains("Canceled"))
+                        return;
+                }
 
                 finishedLoading(tile,null,e);
             }
@@ -290,7 +293,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     }
 
     // Got response back, may be good, may be bad.
-    // On main thread, probably
+    // On a random thread, perhaps
     protected void finishedLoading(final TileInfo inTile, final Response response, final Exception inE)
     {
         // Have to run on our own thread
@@ -355,6 +358,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         }
     }
 
+    // Keep a pin in all the outstanding tasks we're waiting for.  Otherwise they get lost.
+    HashSet<AsyncTask<Void,Void,Void>> runningTasks = new HashSet<AsyncTask<Void, Void, Void>>();
+
     // Deal with a tile that was or was not loaded.
     // On our own thread
     protected void handleFinishLoading(TileInfo inTile,final byte[] data,final Exception error)
@@ -368,7 +374,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
             return;
 
         // Let the caller know on a random thread because parsing may take a while
-        new AsyncTask<Void, Void, Void>() {
+        AsyncTask<Void,Void,Void> task = new AsyncTask<Void, Void, Void>() {
             protected Void doInBackground(Void... unused) {
                 if (error == null) {
                     writeToCache(tile,data);
@@ -383,12 +389,15 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     public void run() {
                         finishTile(tile);
                         scheduleLoading();
+                        runningTasks.remove(this);
                     }
                 });
 
                 return null;
             }
-        }.execute();
+        };
+        runningTasks.add(task);
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
     }
 
     // Write to the local cache.  Called on a random thread.

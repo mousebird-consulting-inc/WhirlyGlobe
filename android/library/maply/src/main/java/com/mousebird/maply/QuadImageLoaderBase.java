@@ -157,4 +157,9 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      *  By default this is 1.  It's safe to set it to 0 for 2D maps and some overlays.
      */
     public native void setBorderTexel(int borderTexel);
+
+    protected LoaderReturn makeLoaderReturn()
+    {
+        return new ImageLoaderReturn();
+    }
 }

@@ -20,7 +20,7 @@
 
 #import "QuadLoading_jni.h"
 #import "Components_jni.h"
-#import "com_mousebird_maply_SamplingParams.h"
+#import "com_mousebird_maply_ImageLoaderReturn.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

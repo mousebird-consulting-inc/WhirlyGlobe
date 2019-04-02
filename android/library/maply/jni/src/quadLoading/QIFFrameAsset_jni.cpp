@@ -61,7 +61,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFFrameAsset_dispose
                 env->DeleteGlobalRef(frame->frameAssetObj);
                 frame->frameAssetObj = NULL;
             }
-            delete frame;
+            // These frames are actually reference counted by the TileAsset so we don't delete them here
+//            delete frame;
 
             info->clearHandle(env, obj);
         }

@@ -9,6 +9,22 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_LoaderReturn
+ * Method:    setTileID
+ * Signature: (III)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setTileID
+  (JNIEnv *, jobject, jint, jint, jint);
+
+/*
+ * Class:     com_mousebird_maply_LoaderReturn
+ * Method:    setFrame
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setFrame
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_LoaderReturn
  * Method:    getTileIDNative
  * Signature: ()[I
  */
