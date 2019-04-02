@@ -40,7 +40,7 @@ class StamenWatercolorRemote: MaplyTestCase {
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
         }
-        imageLoader.imageFormat = .imageUShort565;
+        imageLoader.imageFormat = .imageUShort565
         //        imageLoader.debugMode = true
         
         return imageLoader

@@ -28,11 +28,11 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 	}
 
 	private QuadImageLoader setupImageLoader(ConfigOptions.TestType testType, BaseController baseController) {
-		String cacheDirName = "stamen_watercolor4";
+		String cacheDirName = "stamen_watercolor6";
 		File cacheDir = new File(getActivity().getCacheDir(), cacheDirName);
 		cacheDir.mkdir();
 
-		RemoteTileInfoNew tileInfo = new RemoteTileInfoNew("http://tile.stamen.com/watercolor/{z}/{x}/{y}.png",0, 1);
+		RemoteTileInfoNew tileInfo = new RemoteTileInfoNew("http://tile.stamen.com/watercolor/{z}/{x}/{y}.png",0, 18);
 		tileInfo.cacheDir = cacheDir;
 
 		SamplingParams params = new SamplingParams();
@@ -45,7 +45,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 
 		QuadImageLoader loader = new QuadImageLoader(params,tileInfo,baseController);
 		loader.setImageFormat(RenderController.ImageFormat.MaplyImageUShort565);
-		loader.setDebugMode(true);
+//		loader.setDebugMode(true);
 
 		//		final Handler handler = new Handler();
 //		handler.postDelayed(new Runnable() {

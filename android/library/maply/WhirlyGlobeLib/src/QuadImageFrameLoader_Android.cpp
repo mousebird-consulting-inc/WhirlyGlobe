@@ -53,6 +53,11 @@ void QIFFrameAsset_Android::clearFrameAssetJava(QuadImageFrameLoader_Android *lo
     loader->getEnv()->CallVoidMethod(frameAssetObj,loader->clearFrameMethod,loader->frameLoaderObj,batchOps->batchOpsObj);
 }
 
+void QIFFrameAsset_Android::clearRequestJava(QuadImageFrameLoader_Android *loader)
+{
+    loader->getEnv()->CallVoidMethod(frameAssetObj,loader->clearRequestMethod);
+}
+
 void QIFFrameAsset_Android::clear(QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps,ChangeSet &changes)
 {
     QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
@@ -86,14 +91,14 @@ void QIFFrameAsset_Android::loadSuccess(QuadImageFrameLoader *loader,Texture *te
 {
     QIFFrameAsset::loadSuccess(loader, tex);
 
-    cancelFetch(loader, NULL);
+    clearRequestJava((QuadImageFrameLoader_Android *)loader);
 }
 
 void QIFFrameAsset_Android::loadFailed(QuadImageFrameLoader *loader)
 {
     QIFFrameAsset::loadFailed(loader);
 
-    cancelFetch(loader, NULL);
+    clearRequestJava((QuadImageFrameLoader_Android *)loader);
 }
 
 QIFTileAsset_Android::QIFTileAsset_Android(const QuadTreeNew::ImportantNode &ident)
@@ -126,6 +131,7 @@ void QIFTileAsset_Android::startFetching(QuadImageFrameLoader *inLoader,QIFBatch
     for (unsigned int ii=0;ii<frames.size();ii++)
     {
         QIFFrameAsset_Android *frame = (QIFFrameAsset_Android *)(frames[ii].get());
+        frame->setupFetch(loader);
         objVec[ii] = frame->frameAssetObj;
     }
 
@@ -151,6 +157,7 @@ QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(const SamplingParams 
     cancelFrameFetchMethod = env->GetMethodID(frameClass,"cancelFetch","(Lcom/mousebird/maply/QIFBatchOps;)V");
     updateFrameMethod = env->GetMethodID(frameClass,"updateFetch","(Lcom/mousebird/maply/QuadImageLoaderBase;ID)V");
     clearFrameMethod = env->GetMethodID(frameClass,"clearFrameAsset","(Lcom/mousebird/maply/QuadImageLoaderBase;Lcom/mousebird/maply/QIFBatchOps;)V");
+    clearRequestMethod = env->GetMethodID(frameClass, "clearRequest","()V");
 }
 
 QuadImageFrameLoader_Android::~QuadImageFrameLoader_Android()

@@ -54,6 +54,11 @@ SimpleIdentity QIFFrameAsset::getTexID()
 {
     return texID;
 }
+    
+void QIFFrameAsset::setupFetch(QuadImageFrameLoader *loader)
+{
+    state = Loading;
+}
 
 void QIFFrameAsset::clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) {
     state = Empty;
@@ -548,6 +553,11 @@ void QuadImageFrameLoader::setCurFrame(double inCurFrame)
 void QuadImageFrameLoader::setFlipY(bool newFlip)
 {
     flipY = newFlip;
+}
+    
+bool QuadImageFrameLoader::getFlipY()
+{
+    return flipY;
 }
     
 QIFTileAssetRef QuadImageFrameLoader::addNewTile(const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes)

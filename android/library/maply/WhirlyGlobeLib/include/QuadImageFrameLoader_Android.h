@@ -66,6 +66,8 @@ public:
     void cancelFetchJava(QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps);
     // Dispose of the Java side frame asset object and cancel any fetches
     void clearFrameAssetJava(QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps);
+    // Clear the reference to a fetch request
+    void clearRequestJava(QuadImageFrameLoader_Android *loader);
 
     jobject frameAssetObj;
 };
@@ -135,6 +137,7 @@ public:
     jmethodID cancelFrameFetchMethod;
     jmethodID updateFrameMethod;
     jmethodID clearFrameMethod;
+    jmethodID clearRequestMethod;
 };
 
 typedef std::shared_ptr<QuadImageFrameLoader_Android> QuadImageFrameLoader_AndroidRef;

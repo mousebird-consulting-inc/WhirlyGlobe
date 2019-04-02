@@ -54,6 +54,17 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     public native void setFlipY(boolean newVal);
 
     /**
+     *  Control how tiles are indexed, either from the lower left or the upper left.
+     *
+     *  If set, we'll use the OSM approach (also Google Maps) to y indexing.  That's that default and it's normally what you're run into.
+     *
+     *  Strictly speaking, TMS addressing (the standard) is flipped the other way.  So if your tile source looks odd, try setting this to false.
+     *
+     *  Default value is true.
+     */
+    public native boolean getFlipY();
+
+    /**
      * Set for a lot of debugging output.
      */
     public native void setDebugMode(boolean debugMode);
@@ -239,7 +250,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
             // Put together a fetch request for, you now, fetching
             TileFetchRequest fetchRequest = new TileFetchRequest();
-            fetchRequest.fetchInfo = tileInfo.fetchInfoForTile(tileID);
+            fetchRequest.fetchInfo = tileInfo.fetchInfoForTile(tileID,getFlipY());
             fetchRequest.tileSource = tileInfo.uniqueID;
             fetchRequest.priority = priority;
             fetchRequest.importance = (float)importance;

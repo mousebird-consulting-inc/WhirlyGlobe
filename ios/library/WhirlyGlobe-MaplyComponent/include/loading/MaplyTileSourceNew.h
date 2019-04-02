@@ -77,7 +77,7 @@ NSString *__nonnull MaplyTileIDString(MaplyTileID tileID);
   tells the fetcher how to get the data you wawnt.
   RemoteTileFetchers want a RemoteTileInfoNew object.
  */
-- (id __nullable)fetchInfoForTile:(MaplyTileID)tileID;
+- (id __nullable)fetchInfoForTile:(MaplyTileID)tileID flipY:(bool)flipY;
 
 @end
 

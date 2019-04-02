@@ -45,8 +45,9 @@ QIFFrameAsset_ios::~QIFFrameAsset_ios()
     request = nil;
 }
     
-MaplyTileFetchRequest *QIFFrameAsset_ios::setupFetch(QuadImageFrameLoader *loader,id fetchInfo,id frameInfo,int priority,double importance) {
-    state = Loading;
+MaplyTileFetchRequest *QIFFrameAsset_ios::setupFetch(QuadImageFrameLoader *loader,id fetchInfo,id frameInfo,int priority,double importance)
+{
+    QIFFrameAsset::setupFetch(loader);
     
     request = [[MaplyTileFetchRequest alloc] init];
     request.fetchInfo = fetchInfo;
@@ -131,7 +132,7 @@ void QIFTileAsset_ios::startFetching(QuadImageFrameLoader *inLoader,QIFBatchOps 
         int frame = 0;
         for (NSObject<MaplyTileInfoNew> *frameInfo in loader->frameInfos) {
             QIFFrameAsset_ios *frameAsset = (QIFFrameAsset_ios *)frames[frame].get();
-            MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,[frameInfo fetchInfoForTile:tileID],frameInfo,0,ident.importance);
+            MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,[frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()],frameInfo,0,ident.importance);
             
             request.success = ^(MaplyTileFetchRequest *request, NSData *data) {
                 [loader->layer fetchRequestSuccess:request tileID:tileID frame:frame data:data];

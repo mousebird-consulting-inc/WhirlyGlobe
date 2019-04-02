@@ -161,12 +161,12 @@ using namespace WhirlyKit;
         return false;
 }
 
-- (NSURLRequest *)urlRequestForTile:(MaplyTileID)tileID
+- (NSURLRequest *)urlRequestForTile:(MaplyTileID)tileID flipY:(bool)flipY
 {
     if (![self tileIsValid:tileID])
         return nil;
     
-    int y = ((int)(1<<tileID.level)-tileID.y)-1;
+    int y = flipY ? ((int)(1<<tileID.level)-tileID.y)-1 : tileID.y;
     NSMutableURLRequest *urlReq = nil;
 
     // Fill out the replacement string
@@ -184,7 +184,7 @@ using namespace WhirlyKit;
     return urlReq;
 }
 
-- (NSString *)fileNameForTile:(MaplyTileID)tileID
+- (NSString *)fileNameForTile:(MaplyTileID)tileID flipY:(bool)flipY
 {
     if (!_cacheDir)
         return nil;
@@ -194,11 +194,11 @@ using namespace WhirlyKit;
     return localName;
 }
 
-- (id _Nullable)fetchInfoForTile:(MaplyTileID)tileID
+- (id _Nullable)fetchInfoForTile:(MaplyTileID)tileID flipY:(bool)flipY
 {
     MaplyRemoteTileFetchInfo *fetchInfo = [[MaplyRemoteTileFetchInfo alloc] init];
-    fetchInfo.urlReq = [self urlRequestForTile:tileID];
-    fetchInfo.cacheFile = [self fileNameForTile:tileID];
+    fetchInfo.urlReq = [self urlRequestForTile:tileID flipY:flipY];
+    fetchInfo.cacheFile = [self fileNameForTile:tileID flipY:flipY];
     
     if (!fetchInfo.urlReq)
         return nil;
@@ -284,6 +284,9 @@ using namespace WhirlyKit;
     session = [NSURLSession sharedSession];
     allStats = [[MaplyRemoteTileFetcherStats alloc] init];
     recentStats = [[MaplyRemoteTileFetcherStats alloc] init];
+    
+    // Note: Debugging
+    _debugMode = true;
     
     return self;
 }

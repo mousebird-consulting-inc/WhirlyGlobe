@@ -54,6 +54,9 @@ public:
     // Texture ID (if loaded)
     SimpleIdentity getTexID();
     
+    // Just sets the state to loading
+    virtual void setupFetch(QuadImageFrameLoader *loader);
+    
     // Clear out the texture and reset
     virtual void clear(QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes);
 
@@ -265,6 +268,9 @@ public:
     
     // Need to know how we're loading the tiles to calculate the render state
     void setFlipY(bool newFlip);
+    
+    // Need to know how we're loading the tiles to calculate the render state
+    bool getFlipY();
     
     /// Number of frames we're representing
     virtual int getNumFrames() = 0;

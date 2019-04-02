@@ -39,6 +39,11 @@ class QIFFrameAsset
         request = null;
     }
 
+    // Called by the C++ side after a request successfully loads
+    public void clearRequest() {
+        request = null;
+    }
+
     // Update the priority and importance for a tile fetch
     // Probably because the user moved around and a tile takes a different amount of screen space
     // Called by the c++ side

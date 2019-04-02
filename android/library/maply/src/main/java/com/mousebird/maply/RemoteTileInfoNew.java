@@ -169,8 +169,11 @@ public class RemoteTileInfoNew extends TileInfoNew
      * If you'd like to override this you can construct your own URL.
      * If you need to mess with Request parameters look for buildRequest().
      */
-    public URL buildURL(int x,int y,int level)
+    public URL buildURL(int x,int y,int level,boolean flipY)
     {
+        if (flipY)
+            y = ((1<<level)-y)-1;
+
         String url = null;
         url = baseURLs.get( x % baseURLs.size()).replace("{x}","" + x).replace("{y}","" + y).replace("{z}","" + level);
 
@@ -202,7 +205,7 @@ public class RemoteTileInfoNew extends TileInfoNew
     /**
      * Build a cache name for the cache file
      */
-    public String buildCacheName(int x,int y,int level)
+    public String buildCacheName(int x,int y,int level,boolean flipY)
     {
         String name = "";
         name += level + "_" + x + "_" + y;
@@ -214,12 +217,12 @@ public class RemoteTileInfoNew extends TileInfoNew
      * Build the URL and other info for a single tile fetch.
      * Returns is a RemoteTileFetcheInfo object.
      */
-    @Override Object fetchInfoForTile(TileID tileID)
+    @Override Object fetchInfoForTile(TileID tileID,boolean flipY)
     {
         RemoteTileFetchInfo fetchInfo = new RemoteTileFetchInfo();
-        fetchInfo.urlReq = buildRequest(buildURL(tileID.x,tileID.y,tileID.level),NET_TAG);
+        fetchInfo.urlReq = buildRequest(buildURL(tileID.x,tileID.y,tileID.level,flipY),NET_TAG);
         if (cacheDir != null) {
-            fetchInfo.cacheFile = new File(cacheDir,buildCacheName(tileID.x,tileID.y,tileID.level));
+            fetchInfo.cacheFile = new File(cacheDir,buildCacheName(tileID.x,tileID.y,tileID.level,flipY));
         }
 
         return fetchInfo;
