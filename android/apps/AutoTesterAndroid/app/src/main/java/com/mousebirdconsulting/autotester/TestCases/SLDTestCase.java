@@ -105,7 +105,7 @@ public class SLDTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
+        CartoLightTestCase mapBoxSatelliteTestCase = new CartoLightTestCase(getActivity());
         mapBoxSatelliteTestCase.setUpWithMap(mapVC);
         Point2d loc = Point2d.FromDegrees(-5.93, 54.597);
         mapVC.setPositionGeo(loc.getX(), loc.getY(), 0.001);
@@ -116,7 +116,7 @@ public class SLDTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
+        CartoLightTestCase mapBoxSatelliteTestCase = new CartoLightTestCase(getActivity());
         mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
         Point2d loc = Point2d.FromDegrees(-5.93, 54.597);
         globeVC.animatePositionGeo(loc.getX(), loc.getY(), 0.001, 1.0);

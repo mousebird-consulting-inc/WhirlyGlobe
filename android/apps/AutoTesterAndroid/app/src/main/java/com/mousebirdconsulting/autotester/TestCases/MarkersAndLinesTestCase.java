@@ -189,7 +189,7 @@ public class MarkersAndLinesTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
+        CartoLightTestCase mapBoxSatelliteTestCase = new CartoLightTestCase(getActivity());
         mapBoxSatelliteTestCase.setUpWithMap(mapVC);
         this.addMarkersAndLines(mapVC);
         return true;
@@ -198,7 +198,7 @@ public class MarkersAndLinesTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        CartoDBMapTestCase mapBoxSatelliteTestCase = new CartoDBMapTestCase(getActivity());
+        CartoLightTestCase mapBoxSatelliteTestCase = new CartoLightTestCase(getActivity());
         mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
         this.addMarkersAndLines(globeVC);
         return true;

@@ -82,7 +82,7 @@ public class WideVectorsTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        CartoDBMapTestCase baseTestCase = new CartoDBMapTestCase(getActivity());
+        CartoLightTestCase baseTestCase = new CartoLightTestCase(getActivity());
         baseTestCase.setUpWithMap(mapVC);
 
         wideVecTest(mapVC);
@@ -92,7 +92,7 @@ public class WideVectorsTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        CartoDBMapTestCase baseTestCase = new CartoDBMapTestCase(getActivity());
+        CartoLightTestCase baseTestCase = new CartoLightTestCase(getActivity());
         baseTestCase.setUpWithGlobe(globeVC);
 
         wideVecTest(globeVC);

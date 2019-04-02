@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
 
 android {
     signingConfigs {
@@ -40,4 +42,8 @@ dependencies {
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
     implementation 'org.apache.directory.studio:org.apache.commons.io:2.4'
     implementation 'com.squareup.okio:okio:1.12.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }

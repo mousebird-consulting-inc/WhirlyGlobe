@@ -104,7 +104,7 @@ public class GeomPointsTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        CartoDBMapTestCase baseTestCase = new CartoDBMapTestCase(this.getActivity());
+        CartoLightTestCase baseTestCase = new CartoLightTestCase(this.getActivity());
         baseTestCase.setUpWithGlobe(globeVC);
         globeVC.setAllowTilt(true);
         globeVC.setKeepNorthUp(false);
