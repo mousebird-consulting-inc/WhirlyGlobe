@@ -595,6 +595,9 @@ void QuadImageFrameLoader::removeTile(const QuadTreeNew::Node &ident, QIFBatchOp
 void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSet &changes)
 {
     bool failed = false;
+    
+    if (debugMode)
+        wkLogLevel(Debug, "MaplyQuadImageLoader: Merging data from tile %d: (%d,%d)",loadReturn->ident.level,loadReturn->ident.x,loadReturn->ident.y);
 
     QuadTreeNew::Node ident(loadReturn->ident);
     auto it = tiles.find(ident);

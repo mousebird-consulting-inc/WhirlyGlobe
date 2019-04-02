@@ -51,8 +51,10 @@ public class QuadImageLoaderBase extends QuadLoaderBase
         samplingLayer = new WeakReference<QuadSamplingLayer>(getController().findSamplingLayer(params,this));
         loadInterp.setLoader(this);
 
-        // TODO: Do we need to set the shader ID?
+        delayedInitNative(getController().getScene());
     }
+
+    protected native void delayedInitNative(Scene scene);
 
     /**
      * Set the base priority values for produced tiles.

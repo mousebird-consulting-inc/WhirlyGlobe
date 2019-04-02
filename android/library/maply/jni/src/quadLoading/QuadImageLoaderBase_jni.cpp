@@ -27,6 +27,28 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_delayedInitNative
+        (JNIEnv *env, jobject obj, jobject sceneObj)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+        if (!loader || !scene)
+            return;
+
+        // Resolve the shader if it's not set
+        if (loader->get()->getShaderID() == EmptyIdentity) {
+            OpenGLES2Program *prog = scene->findProgramByName(MaplyDefaultTriMultiTexShader);
+            if (prog)
+                loader->get()->setShaderID(prog->getId());
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageLoaderBase::delayedInitNative()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setBaseDrawPriority
 (JNIEnv *env, jobject obj, jint baseDrawPriority)
 {
@@ -40,7 +62,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setBaseDrawP
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageLoaderBase::setBaseDrawPriority()");
     }
-
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setDrawPriorityPerLevel

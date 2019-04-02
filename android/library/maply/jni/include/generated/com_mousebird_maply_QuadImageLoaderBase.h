@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_mousebird_maply_QuadImageLoaderBase
+ * Method:    delayedInitNative
+ * Signature: (Lcom/mousebird/maply/Scene;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_delayedInitNative
+  (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadImageLoaderBase
  * Method:    setBaseDrawPriority
  * Signature: (I)V
  */
