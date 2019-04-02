@@ -36,6 +36,11 @@ ImageTile_Android::~ImageTile_Android()
     tex = NULL;
 }
 
+void ImageTile_Android::clearTexture()
+{
+    tex = NULL;
+}
+
 void ImageTile_Android::setBitmap(JNIEnv *env,jobject bitmapObj)
 {
     AndroidBitmapInfo info;

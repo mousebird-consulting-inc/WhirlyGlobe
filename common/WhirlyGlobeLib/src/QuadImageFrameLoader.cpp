@@ -614,6 +614,7 @@ void QuadImageFrameLoader::mergeLoadedTile(QuadLoaderReturn *loadReturn,ChangeSe
         LoadedTileNewRef loadedTile = builder->getLoadedTile(ident);
         if (image) {
             tex = image->buildTexture();
+            image->clearTexture();
             tex->setFormat(texType);
         }
     }

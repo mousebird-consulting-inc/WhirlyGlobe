@@ -49,6 +49,9 @@ public:
     // Build and cache the texture for later
     Texture *prebuildTexture();
 
+    /// Stop keeping track of texture if you were
+    virtual void clearTexture();
+
 public:
     MaplyImgType type;
     Texture *tex;

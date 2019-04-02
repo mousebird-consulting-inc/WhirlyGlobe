@@ -34,6 +34,11 @@ ImageTile_iOS::~ImageTile_iOS()
 {
     imageStuff = nil;
 }
+    
+void ImageTile_iOS::clearTexture()
+{
+    tex = NULL;
+}
 
 Texture *ImageTile_iOS::buildTexture()
 {

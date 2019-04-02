@@ -41,6 +41,9 @@ public:
     /// Generate the texture and then store it
     Texture *prebuildTexture();
     
+    /// Stop keeping track of texture if you were
+    virtual void clearTexture();
+    
 public:
     MaplyImgType type;
     

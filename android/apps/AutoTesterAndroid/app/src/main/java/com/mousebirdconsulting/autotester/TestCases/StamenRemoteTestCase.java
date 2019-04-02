@@ -45,6 +45,7 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 
 		QuadImageLoader loader = new QuadImageLoader(params,tileInfo,baseController);
 		loader.setImageFormat(RenderController.ImageFormat.MaplyImageUShort565);
+		loader.setDebugMode(true);
 
 		//		final Handler handler = new Handler();
 //		handler.postDelayed(new Runnable() {

@@ -39,6 +39,9 @@ public:
     /// Construct and return a texture, if possible.
     virtual Texture *buildTexture() = 0;
     
+    /// Stop keeping track of texture if you were
+    virtual void clearTexture() = 0;
+    
 public:
     int borderSize;
     int width,height,components;
